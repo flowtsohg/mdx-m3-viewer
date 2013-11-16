@@ -57,9 +57,9 @@ function GL(element) {
   var multipleRenderTargets = gl.getExtension("WEBGL_draw_buffers");
   
   gl.viewport(0, 0, element.width, element.height);
-	gl.depthFunc(gl.LEQUAL);
-	gl.enable(gl.DEPTH_TEST);
-	gl.enable(gl.CULL_FACE);
+  gl.depthFunc(gl.LEQUAL);
+  gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.CULL_FACE);
   
   function viewSize(width, height) {
     gl.viewport(0, 0, width, height);
@@ -68,7 +68,7 @@ function GL(element) {
   function setPerspective(fovy, aspect, near, far) {
     math.mat4.makePerspective(projectionMatrix, fovy, aspect, near, far);
   }
-	/*
+  /*
   function setOrtho(left, right, bottom, top, near, far) {
     math.mat4.makeOrtho(projectionMatrix, left, right, bottom, top, near, far);
   }
@@ -146,11 +146,10 @@ function GL(element) {
   }
   
   function ShaderUnit(source, type) {
-    this.source = source;
-    this.type = type;
-    
     var id = gl.createShader(type);
     
+    this.source = source;
+    this.type = type;
     this.id = id;
     
     gl.shaderSource(id, source);
@@ -165,17 +164,16 @@ function GL(element) {
   }
   
   function Shader(vertexUnit, fragmentUnit) {
-    this.vertexUnit = vertexUnit;
-    this.fragmentUnit = fragmentUnit;
-    
     var id = gl.createProgram();
     
+    this.vertexUnit = vertexUnit;
+    this.fragmentUnit = fragmentUnit;
     this.id = id;
       
     gl.attachShader(id, vertexUnit.id);
     gl.attachShader(id, fragmentUnit.id);
     gl.linkProgram(id);
-	
+  
     if (gl.getProgramParameter(id, gl.LINK_STATUS)) {
       this.uniforms = this.getParameters("Uniform", "UNIFORMS");
       this.attribs = this.getParameters("Attrib", "ATTRIBUTES");
@@ -252,10 +250,10 @@ function GL(element) {
     unbind: function () {
       var attribs = this.attribs;
       var keys = Object.keys(attribs);
-				
-			for (var i = 0, l = keys.length; i < l; i++) {
-				gl.disableVertexAttribArray(attribs[keys[i]][0]);
-			}
+        
+      for (var i = 0, l = keys.length; i < l; i++) {
+        gl.disableVertexAttribArray(attribs[keys[i]][0]);
+      }
       
       gl.useProgram(null);
     }
@@ -297,52 +295,46 @@ function GL(element) {
     }
   }
   
-  function getParameter(name) {
+  function vertexAttribPointer(name, size, type, normalized, stride, pointer) {
     if (boundShader) {
-      var parameter = boundShader.getParameter(name);
-      
-      if (parameter) {
-        return parameter[0];
-      }
+      gl.vertexAttribPointer(boundShader.getParameter(name)[0], size, type, normalized, stride, pointer);
     }
-    
-    return;
   }
   
-  function bindWorldMatrix(uniform) {
+  function bindMVP(uniform) {
     if (boundShader) {
       math.mat4.multMat(projectionMatrix, viewMatrix, worldMatrix);
       
       boundShader.setParameter(uniform, worldMatrix);
     }
   }
-  
-  function getWorldMatrix() {
+  /*
+  function getMVP() {
     math.mat4.multMat(projectionMatrix, viewMatrix, worldMatrix);
     
     return worldMatrix;
   }
   
-  function bindProjectionMatrix(uniform) {
+  function bindProjection(uniform) {
     if (boundShader) {
       boundShader.setParameter(uniform, projectionMatrix);
     }
   }
   
-  function getProjectionMatrix() {
+  function getProjection() {
     return projectionMatrix;
   }
-  
-  function bindViewMatrix(uniform) {
+  */
+  function bindView(uniform) {
     if (boundShader) {
       boundShader.setParameter(uniform, viewMatrix);
     }
   }
-  
-  function getViewMatrix() {
+  /*
+  function getView() {
     return viewMatrix;
   }
-  
+  */
   function generateTexture(image, clampS, clampT) {
     var id = gl.createTexture();
     
@@ -417,14 +409,11 @@ function GL(element) {
   };
   
   function onddsload(name, clampS, clampT, onload, e) {
-    console.log("Processing " + name);
-    
     var arraybuffer = e.target.response;
     var header = new Int32Array(arraybuffer, 0, 31);
     var magic = header[0];
     
     if (magic === 0x20534444) {
-      console.log("It is a valid DDS file");
       var headerSize = header[1];
       var flags = header[2];
       var height = header[3];
@@ -439,15 +428,12 @@ function GL(element) {
       if (fourCC === 0x31545844) {
         blockSize = 8;
         format = compressedTextures.COMPRESSED_RGBA_S3TC_DXT1_EXT;
-        console.log("DXT1");
       } else if (fourCC === 0x33545844) {
         blockSize = 16;
         format = compressedTextures.COMPRESSED_RGBA_S3TC_DXT3_EXT;
-        console.log("DXT3");
       } else if (fourCC === 0x35545844) {
         blockSize = 16;
         format = compressedTextures.COMPRESSED_RGBA_S3TC_DXT5_EXT;
-        console.log("DXT5");
       }
       
       if (format) {
@@ -481,7 +467,6 @@ function GL(element) {
         
         gl.bindTexture(gl.TEXTURE_2D, null);
         
-        console.log("Loaded");
         this.ready = true;
         
         textureNameStore[name] = 1;
@@ -555,7 +540,7 @@ function GL(element) {
     var texture = textureStore[name];
     
     if (!texture || !texture.ready) {
-      texture = textureStore["Empty.png"];
+      texture = textureStore["\0"];
     }
     
     unit = unit || 0;
@@ -591,8 +576,8 @@ function GL(element) {
       if (boundShader) {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
         
-        gl.vertexAttribPointer(getParameter("a_position"), 3, gl.FLOAT, false, 20, 0);
-        gl.vertexAttribPointer(getParameter("a_uv"), 2, gl.FLOAT, false, 20, 12);
+        vertexAttribPointer("a_position", 3, gl.FLOAT, false, 20, 0);
+        vertexAttribPointer("a_uv", 2, gl.FLOAT, false, 20, 12);
         
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       }
@@ -669,8 +654,8 @@ function GL(element) {
       if (boundShader) {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         
-        gl.vertexAttribPointer(getParameter("a_position"), 3, gl.FLOAT, false, 20, 0);
-        gl.vertexAttribPointer(getParameter("a_uv"), 2, gl.FLOAT, false, 20, 12);
+        vertexAttribPointer("a_position", 3, gl.FLOAT, false, 20, 0);
+        vertexAttribPointer("a_uv", 2, gl.FLOAT, false, 20, 12);
         
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         
@@ -681,11 +666,11 @@ function GL(element) {
     renderLines: function () {
       gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         
-        gl.vertexAttribPointer(getParameter("a_position"), 3, gl.FLOAT, false, 20, 0);
-        
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        
-        gl.drawElements(gl.LINES, this.indexArray.length, gl.UNSIGNED_SHORT, 0);
+      vertexAttribPointer("a_position", 3, gl.FLOAT, false, 20, 0);
+      
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+      
+      gl.drawElements(gl.LINES, this.indexArray.length, gl.UNSIGNED_SHORT, 0);
     }
   };
   
@@ -727,7 +712,7 @@ function GL(element) {
       if (boundShader) {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
         
-        gl.vertexAttribPointer(getParameter("a_position"), 3, gl.FLOAT, false, 12, 0);
+        vertexAttribPointer("a_position", 3, gl.FLOAT, false, 12, 0);
         
         gl.drawArrays(gl.LINES, 0, 24);
       }
@@ -747,7 +732,7 @@ function GL(element) {
   }
   
   // Create a black texture for textures that fail to load.
-  newTexture("Empty.png", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAAMSURBVBhXY0ACDAwAAA4AAXqxuTAAAAAASUVORK5CYII=");
+  newTexture("\0", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAAMSURBVBhXY0ACDAwAAA4AAXqxuTAAAAAASUVORK5CYII=");
   
   return {
     viewSize: viewSize,
@@ -765,13 +750,13 @@ function GL(element) {
     newShader: newShader,
     bindShader: bindShader,
     setParameter: setParameter,
-    getParameter: getParameter,
-    bindWorldMatrix: bindWorldMatrix,
-    getWorldMatrix: getWorldMatrix,
-    bindProjectionMatrix: bindProjectionMatrix,
-    getProjectionMatrix: getProjectionMatrix,
-    bindViewMatrix: bindViewMatrix,
-    getViewMatrix: getViewMatrix,
+    vertexAttribPointer: vertexAttribPointer,
+    bindMVP: bindMVP,
+    //getMVP: getMVP,
+    //bindProjection: bindProjection,
+    //getProjection: getProjection,
+    bindView: bindView,
+    //getView: getView,
     newTexture: newTexture,
     bindTexture: bindTexture,
     textureReady: textureReady,

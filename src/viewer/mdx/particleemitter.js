@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
 function ParticleEmitter(emitter, model) {
-	var i, l;
+  var i, l;
   var keys = Object.keys(emitter);
   
   for (i = keys.length; i--;) {

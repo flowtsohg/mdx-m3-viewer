@@ -9,7 +9,7 @@ ParticleEmitter.prototype = {
     
   },
   
-	render: function () {
+  render: function () {
     
   }
 };

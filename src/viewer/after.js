@@ -235,7 +235,7 @@
         gl.scale(0.0125, 0.0125, 0.0125)
       }
         
-      gl.bindWorldMatrix("u_mvp");
+      gl.bindMVP("u_mvp");
       
       gl.popMatrix();
       
@@ -282,7 +282,7 @@
       gl.pushMatrix();
       gl.loadIdentity();
       
-      gl.bindWorldMatrix("u_mvp");
+      gl.bindMVP("u_mvp");
       
       gl.bindTexture("sky");
       sky.render();
@@ -300,7 +300,7 @@
       
       gl.bindShader("world");
       
-      gl.bindWorldMatrix("u_mvp");
+      gl.bindMVP("u_mvp");
       
       gl.setParameter("u_diffuseMap", 0);
       gl.bindTexture("Light");

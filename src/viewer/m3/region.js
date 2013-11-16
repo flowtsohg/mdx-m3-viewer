@@ -103,32 +103,32 @@ function Region(region, vertices, triangles, boneLookup, uvSetCount) {
 }
 
 Region.prototype = {
-	render: function () {
+  render: function () {
     var buffers = this.buffers;
     var uvSetCount = this.uvSetCount;
     
     ctx.bindBuffer(ctx.ARRAY_BUFFER, buffers.position);
-    ctx.vertexAttribPointer(gl.getParameter("a_position"), 3, ctx.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, 0, 0);
     
     ctx.bindBuffer(ctx.ARRAY_BUFFER, buffers.normal);
-    ctx.vertexAttribPointer(gl.getParameter("a_normal"), 4, ctx.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer("a_normal", 4, ctx.FLOAT, false, 0, 0);
     
     ctx.bindBuffer(ctx.ARRAY_BUFFER, buffers.uv);
     
     for (var i = 0; i < uvSetCount; i++) {
-      ctx.vertexAttribPointer(gl.getParameter("a_uv" + i), 2, ctx.FLOAT, false, uvSetCount * 8, i * 8);
+      gl.vertexAttribPointer("a_uv" + i, 2, ctx.FLOAT, false, uvSetCount * 8, i * 8);
     }
     
     ctx.bindBuffer(ctx.ARRAY_BUFFER, buffers.tangent);
-    ctx.vertexAttribPointer(gl.getParameter("a_tangent"), 4, ctx.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer("a_tangent", 4, ctx.FLOAT, false, 0, 0);
     
     ctx.bindBuffer(ctx.ARRAY_BUFFER, buffers.bone);
-    ctx.vertexAttribPointer(gl.getParameter("a_bones"), 4, ctx.UNSIGNED_SHORT, false, 0, 0);
+    gl.vertexAttribPointer("a_bones", 4, ctx.UNSIGNED_SHORT, false, 0, 0);
     
     ctx.bindBuffer(ctx.ARRAY_BUFFER, buffers.weight);
-    ctx.vertexAttribPointer(gl.getParameter("a_weights"), 4, ctx.UNSIGNED_BYTE, true, 0, 0);
+    gl.vertexAttribPointer("a_weights", 4, ctx.UNSIGNED_BYTE, true, 0, 0);
     
     ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, buffers.face);
     ctx.drawElements(ctx.TRIANGLES, this.triangleIndicesCount, ctx.UNSIGNED_SHORT, 0);
-	}
+  }
 };

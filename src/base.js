@@ -108,61 +108,61 @@ function addEvent(element, event, callback) {
 }
 /*
 function removeEvent(element, event, callback) {
-	if (element.removeEventListener) {
-		if (event === "mousewheel") {
-			element.removeEventListener("DOMMouseScroll", callback, false);
-		}
-		
-		element.removeEventListener(event, callback, false);
-	} else if (element.detachEvent) {
-		element.detachEvent("on" + event, callback );
-	} else {
-		element["on" + event] = null;
-	}
+  if (element.removeEventListener) {
+    if (event === "mousewheel") {
+      element.removeEventListener("DOMMouseScroll", callback, false);
+    }
+    
+    element.removeEventListener(event, callback, false);
+  } else if (element.detachEvent) {
+    element.detachEvent("on" + event, callback );
+  } else {
+    element["on" + event] = null;
+  }
 }
 */
 function preventEvent(event) {
-	if (event.stopPropagation) {
-		event.stopPropagation();
-	}
-	
-	if (event.preventDefault) {
-		event.preventDefault();
-	}
-	
-	event.cancelBubble = true;
-	event.cancel = true;
-	event.returnValue = false;
-	
-	return false;
+  if (event.stopPropagation) {
+    event.stopPropagation();
+  }
+  
+  if (event.preventDefault) {
+    event.preventDefault();
+  }
+  
+  event.cancelBubble = true;
+  event.cancel = true;
+  event.returnValue = false;
+  
+  return false;
 }
 
 String.hashCode = function(s) {
-	var hash = 0;
-	
-	for (var i = 0, l = s.length; i < l; i++) {
-		hash = hash * 31 + s.charCodeAt(i);
+  var hash = 0;
+  
+  for (var i = 0, l = s.length; i < l; i++) {
+    hash = hash * 31 + s.charCodeAt(i);
     hash = hash & hash;
-	}
-	
-	return hash;
+  }
+  
+  return hash;
 };
 
 Object.copy = function (object) {
-	var keys = Object.keys(object);
-	var newObj = (object instanceof Array) ? [] : {};
-	
-	for (var i = 0, l = keys.length; i < l; i++) {
-		var key = keys[i];
-		
-		if (typeof key === "object") {
-			newObj[key] = Object.copy(object[key]);
-		} else {
-			newObj[key] = object[key];
-		}
-	}
+  var keys = Object.keys(object);
+  var newObj = (object instanceof Array) ? [] : {};
+  
+  for (var i = 0, l = keys.length; i < l; i++) {
+    var key = keys[i];
+    
+    if (typeof key === "object") {
+      newObj[key] = Object.copy(object[key]);
+    } else {
+      newObj[key] = object[key];
+    }
+  }
 
-	return newObj;
+  return newObj;
 };
 
 Array.equals = function (a, b) {

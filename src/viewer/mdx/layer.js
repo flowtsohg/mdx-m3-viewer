@@ -1,13 +1,13 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
 var filterModeToRenderOrder = {
-	0: 0,
-	1: 1,
-	2: 2,
-	3: 3,
-	4: 3,
-	5: 3,
-	6: 3
+  0: 0,
+  1: 1,
+  2: 2,
+  3: 3,
+  4: 3,
+  5: 3,
+  6: 3
 };
 
 function Layer(layer, geosetId, model) {

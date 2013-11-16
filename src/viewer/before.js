@@ -1,5 +1,5 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-  
+
 window["Viewer"] = function (args) {
   var canvas = args.canvas;
   var gl = GL(canvas);
@@ -18,7 +18,7 @@ window["Viewer"] = function (args) {
   var uvOffset = [0, 0];
   var uvSpeed = [math.random(-0.004, 0.004), math.random(-0.004, 0.004)];
   //var light;
-  var shouldRenderWorld = 2;
+  var shouldRenderWorld = 1;
   var shouldRenderLights = true;
   var shouldRenderShapes = false;
   var shaderToUse = "standard";

@@ -40,20 +40,20 @@ CODE_FILES = [
   "math/interpolator",
   "math/after",
   "binaryreader/binaryreader",
-	"base",
+  "base",
   "gl",
   "url",
   "viewer/before",
   "viewer/shaders",
   "viewer/mdx/before",
-	"viewer/mdx/parser",
+  "viewer/mdx/parser",
   "viewer/mdx/tracks",
   "viewer/mdx/skeleton",
   "viewer/mdx/collisionshape",
-	"viewer/mdx/model",
-	"viewer/mdx/texture",
-	"viewer/mdx/geoset",
-	"viewer/mdx/layer",
+  "viewer/mdx/model",
+  "viewer/mdx/texture",
+  "viewer/mdx/geoset",
+  "viewer/mdx/layer",
   "viewer/mdx/particle",
   "viewer/mdx/particleemitter",
   "viewer/mdx/particle2",
@@ -82,14 +82,16 @@ File.open("src/viewer/shaders.js", "w") { |output|
   
   output.write("var SHADERS = {\n\t")
   
+  path = "src/viewer/"
+  
   if MIN_SHADERS
-    shaders = SHARED_SHADERS.collect { |k| "\"#{k}\":\"#{glsl_min_file("src/viewer/sharedshaders/#{k}.c")}\"" }
-    shaders.concat(MDX_SHADERS.collect { |k| "\"w#{k}\":\"#{glsl_min_file("src/viewer/mdx/shaders/#{k}.c")}\"" })
-    shaders.concat(M3_SHADERS.collect { |k| "\"s#{k}\":\"#{glsl_min_file("src/viewer/m3/shaders/#{k}.c")}\"" })
+    shaders = SHARED_SHADERS.collect { |k| "\"#{k}\":\"#{glsl_min_file(path + "sharedshaders/#{k}.c")}\"" }
+    shaders.concat(MDX_SHADERS.collect { |k| "\"w#{k}\":\"#{glsl_min_file(path + "mdx/shaders/#{k}.c")}\"" })
+    shaders.concat(M3_SHADERS.collect { |k| "\"s#{k}\":\"#{glsl_min_file(path + "m3/shaders/#{k}.c")}\"" })
   else
-    shaders = SHARED_SHADERS.collect { |k| "\"#{k}\":\"#{IO.read("src/viewer/sharedshaders/#{k}.c").gsub("\n", "\\\\n")}\"" }
-    shaders.concat(MDX_SHADERS.collect { |k| "\"w#{k}\":\"#{IO.read("src/viewer/mdx/shaders/#{k}.c").gsub("\n", "\\\\n")}\"" })
-    shaders.concat(M3_SHADERS.collect { |k| "\"s#{k}\":\"#{IO.read("src/viewer/m3/shaders/#{k}.c").gsub("\n", "\\\\n")}\"" })
+    shaders = SHARED_SHADERS.collect { |k| "\"#{k}\":\"#{IO.read(path + "sharedshaders/#{k}.c").gsub("\n", "\\\\n")}\"" }
+    shaders.concat(MDX_SHADERS.collect { |k| "\"w#{k}\":\"#{IO.read(path + "mdx/shaders/#{k}.c").gsub("\n", "\\\\n")}\"" })
+    shaders.concat(M3_SHADERS.collect { |k| "\"s#{k}\":\"#{IO.read(path + "m3/shaders/#{k}.c").gsub("\n", "\\\\n")}\"" })
   end
   
   output.write(shaders.join(",\n\t"))
@@ -101,8 +103,8 @@ File.open("model_viewer_monolith.js", "w") { |output|
   output.write("\"use strict\";")
   
   CODE_FILES.each { |file|
-		output.write(IO.read("src/" + file + ".js") + "\n")
-	}
+    output.write(IO.read("src/" + file + ".js") + "\n")
+  }
   
   output.write("}());")
 }

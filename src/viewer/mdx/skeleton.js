@@ -43,7 +43,7 @@ function Skeleton(parser, model) {
   }
   
   this.root = {objectId: 4294967295};
-	this.root.children = this.setup(parser.nodes, this.root);
+  this.root.children = this.setup(parser.nodes, this.root);
 }
 
 Skeleton.prototype = {
@@ -115,7 +115,7 @@ Skeleton.prototype = {
     var translation = getTrack(node.tracks.translation, [0, 0, 0], this.model);
     var rotation = getTrack(node.tracks.rotation, [0, 0, 0, 1], this.model);
     var scaling = getTrack(node.tracks.scaling, [1, 1, 1], this.model);
-		var localMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+    var localMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
     
     if (translation[0] !== 0 || translation[1] !== 0 || translation[2] !== 0) {
       math.mat4.translate(localMatrix, translation[0], translation[1], translation[2]);
@@ -137,11 +137,11 @@ Skeleton.prototype = {
       math.mat4.translate(localMatrix, -pivot[0], -pivot[1], -pivot[2]);
     }
     
-		if (node.parent.objectId !== 4294967295) {
-			math.mat4.multMat(node.parent.worldMatrix, localMatrix, node.worldMatrix);
-		} else {
+    if (node.parent.objectId !== 4294967295) {
+      math.mat4.multMat(node.parent.worldMatrix, localMatrix, node.worldMatrix);
+    } else {
       node.worldMatrix = localMatrix;
-		}
+    }
     
     if (node.billboarded) {
       var p = pivot;
@@ -170,7 +170,7 @@ Skeleton.prototype = {
       */
       math.mat4.multMat(node.worldMatrix, cameraMatrix, node.worldMatrix);
     }
-	},
+  },
   
   bind: function () {
     if (RENDER_MODE === 2) {

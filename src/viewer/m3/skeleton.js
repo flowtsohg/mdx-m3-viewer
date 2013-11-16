@@ -154,12 +154,12 @@ Skeleton.prototype = {
       math.mat4.rotateQ(localMatrix, rotation);
     }
     
-		if (bone.parent !== -1) {
-			math.mat4.multMat(this.bones[bone.parent].worldMatrix, localMatrix, bone.worldMatrix);
-		} else {
+    if (bone.parent !== -1) {
+      math.mat4.multMat(this.bones[bone.parent].worldMatrix, localMatrix, bone.worldMatrix);
+    } else {
       bone.worldMatrix = localMatrix;
-		}
-	},
+    }
+  },
   
   bind: function () {
     gl.setParameter("u_bones", 15);

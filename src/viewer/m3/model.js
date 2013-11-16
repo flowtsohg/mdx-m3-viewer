@@ -19,7 +19,7 @@ Model.prototype = {
     return materials[index];
   },
   
-	setup: function (parser) {
+  setup: function (parser) {
     var i, l;
     var div = parser.divisions[0];
     var uvSetCount = parser.uvSetCount;
@@ -114,7 +114,7 @@ Model.prototype = {
     this.sequenceId = -1;
     
     this.extent = parser.tightHitTest.size[0] || 2;
-	},
+  },
   
   update: function () {
     var sequenceId = this.sequenceId;
@@ -138,13 +138,13 @@ Model.prototype = {
     return this.skeleton.getValue(animRef, this.sequenceId, this.frame);
   },
   
-	render: function () {
+  render: function () {
     var tc = teamColors[this.teamId];
     
     gl.bindShader(shaderToUse);
     
-    gl.bindWorldMatrix("u_mvp");
-    gl.bindViewMatrix("u_mv");
+    gl.bindMVP("u_mvp");
+    gl.bindView("u_mv");
     gl.setParameter("u_teamColor", [tc[0] / 255, tc[1] / 255, tc[2] / 255]);
     gl.setParameter("u_eyePos", cameraPosition);
     gl.setParameter("u_lightPos", lightPosition);
@@ -189,20 +189,20 @@ Model.prototype = {
         
         gl.multMat(this.skeleton.bones[fuzzyHitTestObject.bone].worldMatrix);
         gl.multMat(fuzzyHitTestObject.matrix);
-        gl.bindWorldMatrix("u_mvp");
+        gl.bindMVP("u_mvp");
         
         gl.popMatrix();
         
         fuzzyHitTestObject.render();
       }
     }
-	},
+  },
   
-	setTeamColor: function (id) {
+  setTeamColor: function (id) {
     this.teamId = math.clamp(id, 0, 16);
-	},
-	
-	setAnimation: function (sequenceId) {
+  },
+  
+  setAnimation: function (sequenceId) {
     sequenceId = math.clamp(sequenceId, -1, this.sequences.length - 1);
     
     this.frame = 0;
@@ -211,7 +211,7 @@ Model.prototype = {
     if (sequenceId === -1) {
       this.skeleton.update(-1); // This removes the need to keep updating the skeleton when it wont move anyway
     }
-	},
+  },
   
   setAnimationLooping: function (looping) {
     this.loopingMode = math.clamp(looping, 0, 2);

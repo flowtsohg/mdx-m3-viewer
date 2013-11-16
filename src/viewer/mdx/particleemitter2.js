@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
 function ParticleEmitter2(emitter, model) {
-	var i, l;
+  var i, l;
   var keys = Object.keys(emitter);
   
   for (i = keys.length; i--;) {
@@ -325,9 +325,9 @@ ParticleEmitter2.prototype = {
     ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
     ctx.bufferSubData(ctx.ARRAY_BUFFER, 0, this.data);
     
-    ctx.vertexAttribPointer(gl.getParameter("a_position"), 3, ctx.FLOAT, false, 36, 0);
-    ctx.vertexAttribPointer(gl.getParameter("a_uv"), 2, ctx.FLOAT, false, 36, 12);
-    ctx.vertexAttribPointer(gl.getParameter("a_color"), 4, ctx.FLOAT, false, 36, 20);
+    gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, 36, 0);
+    gl.vertexAttribPointer("a_uv", 2, ctx.FLOAT, false, 36, 12);
+    gl.vertexAttribPointer("a_color", 4, ctx.FLOAT, false, 36, 20);
     
     ctx.drawArrays(ctx.TRIANGLES, 0, this.particles.length * 6);
   },

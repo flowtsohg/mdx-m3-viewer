@@ -7,7 +7,7 @@ function Model(parser, customTextures, spawned, onprogress) {
   this.frame = 0;
   this.time = 0;
   
-	this.setup(parser);
+  this.setup(parser);
   
   if (onprogress) {
     onprogress({lengthComputable: true, total: 100, loaded: 100});
@@ -25,7 +25,7 @@ function Model(parser, customTextures, spawned, onprogress) {
 }
 
 Model.prototype = {
-	setup: function (parser) {
+  setup: function (parser) {
     var emitters, i, l, j, k;
     
     if (parser.materialChunk) {
@@ -54,17 +54,17 @@ Model.prototype = {
       this.layers = groups[0].concat(groups[1]).concat(groups[2]).concat(groups[3]);
     }
     
-		if (parser.sequenceChunk) {
+    if (parser.sequenceChunk) {
       this.sequences = parser.sequenceChunk.sequences;
-		}
-		
-		if (parser.cameraChunk) {
+    }
+    
+    if (parser.cameraChunk) {
       this.cameras = parser.cameraChunk.cameras;
-		}
-		
-		if (parser.geosetAnimationChunk) {
-			this.geosetAnimations = parser.geosetAnimationChunk.animations;
-		}
+    }
+    
+    if (parser.geosetAnimationChunk) {
+      this.geosetAnimations = parser.geosetAnimationChunk.animations;
+    }
     
     if (parser.globalSequenceChunk) {
       this.globalSequences = parser.globalSequenceChunk.sequences;
@@ -117,7 +117,7 @@ Model.prototype = {
     this.skeleton = new Skeleton(parser, this);
     
     this.extent = parser.modelChunk.extent.maximum[0] || 100;
-	},
+  },
   
   loadTextures: function (parser, customTextures, onprogress) {
     var loaded = 0;
@@ -182,12 +182,12 @@ Model.prototype = {
     this.updateEmitters(this.ribbonEmitters, allowCreate);
   },
   
-	render: function () {
+  render: function () {
     var i, l, v;
     
     if (this.layers && standardShader) {
       gl.bindShader("main");
-      gl.bindWorldMatrix("u_mvp");
+      gl.bindMVP("u_mvp");
       gl.setParameter("u_texture", 0);
       
       for (i = 0, l = this.layers.length; i < l; i++) {
@@ -258,7 +258,7 @@ Model.prototype = {
       ctx.disable(ctx.CULL_FACE);
       
       gl.bindShader("ribbons");
-      gl.bindWorldMatrix("u_mvp");
+      gl.bindMVP("u_mvp");
       gl.setParameter("u_texture", 0);
       
       for (i = 0, l = this.ribbonEmitters.length; i < l; i++) {
@@ -272,7 +272,7 @@ Model.prototype = {
       ctx.disable(ctx.CULL_FACE);
       
       gl.bindShader("particles");
-      gl.bindWorldMatrix("u_mvp");
+      gl.bindMVP("u_mvp");
       gl.setParameter("u_texture", 0);
       
       for (i = 0, l = this.particleEmitters2.length; i < l; i++) {
@@ -287,7 +287,7 @@ Model.prototype = {
     if (shouldRenderShapes && this.collisionShapes && whiteShader) {
       ctx.depthMask(1);
       gl.bindShader("white");
-      gl.bindWorldMatrix("u_mvp");
+      gl.bindMVP("u_mvp");
       
       for (i = 0, l = this.collisionShapes.length; i < l; i++) {
         this.collisionShapes[i].render();
@@ -296,8 +296,8 @@ Model.prototype = {
     
     ctx.disable(ctx.BLEND);
     ctx.enable(ctx.CULL_FACE);
-	},
-	
+  },
+  
   shouldRenderGeoset: function (layer) {
     var i, l;
     
@@ -314,20 +314,20 @@ Model.prototype = {
     return true;
   },
   
-	setTeamColor: function (id) {
+  setTeamColor: function (id) {
     id = ((id < 10) ? "0" + id : "" + id);
     
-		for (var i = 0, l = this.textures.length; i < l; i++) {
+    for (var i = 0, l = this.textures.length; i < l; i++) {
       var texture = this.textures[i];
-			var replaceableId = texture.replaceableId;
-			
-			if (replaceableId === 1 || replaceableId === 2) {
+      var replaceableId = texture.replaceableId;
+      
+      if (replaceableId === 1 || replaceableId === 2) {
         texture.fileName = texture.fileName.replace(/\d\d/, id);
-			}
-		}
-	},
-	
-	setAnimation: function (sequenceId) {
+      }
+    }
+  },
+  
+  setAnimation: function (sequenceId) {
     if (this.sequence && this.sequence === this.sequences[sequenceId]) {
       this.frame = this.sequence.interval[0];
     } else {
@@ -342,7 +342,7 @@ Model.prototype = {
         this.frame = this.sequence.interval[0];
       }
     }
-	},
+  },
   
   setAnimationLooping: function (looping) {
     this.loopingMode = math.clamp(looping, 0, 2);
