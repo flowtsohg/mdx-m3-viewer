@@ -97,8 +97,8 @@ RibbonEmitter.prototype = {
       ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
       ctx.bufferSubData(ctx.ARRAY_BUFFER, 0, this.data);
       
-      ctx.vertexAttribPointer(gl.getParameter("a_position"), 3, ctx.FLOAT, false, 20, 0);
-      ctx.vertexAttribPointer(gl.getParameter("a_uv"), 2, ctx.FLOAT, false, 20, 12);
+      gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, 20, 0);
+      gl.vertexAttribPointer("a_uv", 2, ctx.FLOAT, false, 20, 12);
       
       for (i = 0, l = this.layers.length; i < l; i++) {
         var layer = this.layers[i];

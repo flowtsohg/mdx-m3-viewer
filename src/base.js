@@ -108,32 +108,16 @@ function addEvent(element, event, callback) {
 }
 /*
 function removeEvent(element, event, callback) {
-  if (element.removeEventListener) {
-    if (event === "mousewheel") {
-      element.removeEventListener("DOMMouseScroll", callback, false);
-    }
-    
-    element.removeEventListener(event, callback, false);
-  } else if (element.detachEvent) {
-    element.detachEvent("on" + event, callback );
-  } else {
-    element["on" + event] = null;
+  if (event === "mousewheel") {
+    element.removeEventListener("DOMMouseScroll", callback, false);
   }
+  
+  element.removeEventListener(event, callback, false);
 }
 */
 function preventEvent(event) {
-  if (event.stopPropagation) {
-    event.stopPropagation();
-  }
-  
-  if (event.preventDefault) {
-    event.preventDefault();
-  }
-  
-  event.cancelBubble = true;
-  event.cancel = true;
-  event.returnValue = false;
-  
+  event.stopPropagation();
+  event.preventDefault();
   return false;
 }
 

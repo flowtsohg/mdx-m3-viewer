@@ -186,8 +186,8 @@
   gl.newTexture("sky", url.mpqFile("Environment/Sky/LordaeronSummerSky/LordaeronSummerSky.blp"));
   //gl.newTexture("Light", "../images/Light.png");
     
-  grass_water = gl.newRectangle(0, 0, -1, 300, 300, 6);
-  bedrock = gl.newRectangle(0, 0, -33, 300, 300, 6);
+  grass_water = gl.newRectangle(0, 0, -3, 300, 300, 6);
+  bedrock = gl.newRectangle(0, 0, -35, 300, 300, 6);
   sky = gl.newSphere(0, 0, 0, 5, 10, 2E4);
   //light = gl.newSphere(0, 0, 0, 10, 10, 0.05);
   
@@ -198,8 +198,6 @@
   }
   
   function transformCamera() {
-    var cameraSrc = [];
-    
     if (modelCameraId === -1) {
       var inverseCamera = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
       var z = math.toRad(camera.r[1]);
@@ -209,18 +207,15 @@
       math.mat4.rotate(inverseCamera, x, 1, 0, 0);
       math.mat4.rotate(inverseCamera, z, 0, 0, 1);
 
-      math.mat4.multVec3(inverseCamera, [0, 0, 1], cameraSrc);
+      math.mat4.multVec3(inverseCamera, [0, 0, 1], cameraPosition);
       
       gl.loadIdentity();
       gl.multMat(inverseCamera);
     } else {
-      cameraSrc = modelCamera.position;
-      cameraDest = modelCamera.targetPosition;
+      cameraPosition = modelCamera.position;
       
-      gl.lookAt(cameraSrc, cameraDest, up);
+      gl.lookAt(cameraPosition, modelCamera.targetPosition, upDir);
     }
-    
-    cameraPosition = cameraSrc;
   }
   
   function renderGround(isWater) {

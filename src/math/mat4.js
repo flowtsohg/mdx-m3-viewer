@@ -145,7 +145,7 @@ var Mat4 = {
     
     return m0;
   },
-
+  */
   makeIdentity: function (m0) {
     m0[0] = 1;
     m0[1] = 0;
@@ -166,7 +166,7 @@ var Mat4 = {
     
     return m0;
   },
-  
+  /*
   addMat: function (m0, m1, out) {
     out[0] = m0[0] + m1[0];
     out[1] = m0[1] + m1[1];

@@ -21,7 +21,7 @@ function GL(element) {
   
   var projectionMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
   var viewMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-  var worldMatrix = [];
+  var mvpMatrix = [];
   var matrixStack = [];
   var textureStore = {};
   var textureNameStore = {};
@@ -303,16 +303,16 @@ function GL(element) {
   
   function bindMVP(uniform) {
     if (boundShader) {
-      math.mat4.multMat(projectionMatrix, viewMatrix, worldMatrix);
+      math.mat4.multMat(projectionMatrix, viewMatrix, mvpMatrix);
       
-      boundShader.setParameter(uniform, worldMatrix);
+      boundShader.setParameter(uniform, mvpMatrix);
     }
   }
   /*
   function getMVP() {
-    math.mat4.multMat(projectionMatrix, viewMatrix, worldMatrix);
+    math.mat4.multMat(projectionMatrix, viewMatrix, mvpMatrix);
     
-    return worldMatrix;
+    return mvpMatrix;
   }
   
   function bindProjection(uniform) {

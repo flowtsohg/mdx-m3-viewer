@@ -22,6 +22,8 @@ function Skeleton(parser, model) {
     for (i = 0, l = bones.length; i < l; i++) {
       this.bones.push(bones[i].node);
     }
+  } else {
+    this.bones.push({worldMatrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]});
   }
     
   if (RENDER_MODE > 0) {
@@ -42,8 +44,10 @@ function Skeleton(parser, model) {
     ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MIN_FILTER, ctx.NEAREST);
   }
   
-  this.root = {objectId: 4294967295};
+  this.root = {objectId: 4294967295, worldMatrix: []};
   this.root.children = this.setup(parser.nodes, this.root);
+  
+  this.transform = [0, 0, Math.PI / 2];
 }
 
 Skeleton.prototype = {
@@ -65,6 +69,15 @@ Skeleton.prototype = {
   },
   
   update: function () {
+    //this.transform[2] += 0.04;
+    //this.transform[0] = 80 * Math.cos(this.transform[2] - Math.PI / 2);
+    //this.transform[1] = 80 * Math.sin(this.transform[2] - Math.PI / 2);
+    
+    math.mat4.makeIdentity(this.root.worldMatrix);
+    //math.mat4.translate(this.root.worldMatrix, this.transform[0], this.transform[1], 0);
+    //math.mat4.rotate(this.root.worldMatrix, this.transform[2], 0, 0, 1);
+    
+    
     this.updateNodes(this.root);
     
     if (RENDER_MODE > 0) {
@@ -137,11 +150,11 @@ Skeleton.prototype = {
       math.mat4.translate(localMatrix, -pivot[0], -pivot[1], -pivot[2]);
     }
     
-    if (node.parent.objectId !== 4294967295) {
+    //if (node.parent.objectId !== 4294967295) {
       math.mat4.multMat(node.parent.worldMatrix, localMatrix, node.worldMatrix);
-    } else {
-      node.worldMatrix = localMatrix;
-    }
+    //} else {
+    //  node.worldMatrix = localMatrix;
+    //}
     
     if (node.billboarded) {
       var p = pivot;

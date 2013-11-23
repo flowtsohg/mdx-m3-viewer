@@ -29,7 +29,7 @@ CollisionShape.prototype = {
       
       gl.multMat(this.node.worldMatrix);
       
-      gl.bindWorldMatrix("u_mvp");
+      gl.bindMVP("u_mvp");
       
       this.shape.renderLines();
       
