@@ -85,9 +85,13 @@ File.open("src/viewer/shaders.js", "w") { |output|
   path = "src/viewer/"
   
   if MIN_SHADERS
-    shaders = SHARED_SHADERS.collect { |k| "\"#{k}\":\"#{glsl_min_file(path + "sharedshaders/#{k}.c")}\"" }
-    shaders.concat(MDX_SHADERS.collect { |k| "\"w#{k}\":\"#{glsl_min_file(path + "mdx/shaders/#{k}.c")}\"" })
-    shaders.concat(M3_SHADERS.collect { |k| "\"s#{k}\":\"#{glsl_min_file(path + "m3/shaders/#{k}.c")}\"" })
+    shader_names = SHARED_SHADERS + MDX_SHADERS.map { |p| "w" + p } + M3_SHADERS.map { |p| "s" + p }
+    minified = minify(SHARED_SHADERS.map { |p| path + "sharedshaders/" + p + ".c" } + MDX_SHADERS.map { |p| path + "mdx/shaders/" + p + ".c" } + M3_SHADERS.map { |p| path + "m3/shaders/" + p + ".c" })
+    shaders = []
+    
+    minified.each_index { |i|
+      shaders[i] = "\"#{shader_names[i]}\":\"#{minified[i]}\""
+    }
   else
     shaders = SHARED_SHADERS.collect { |k| "\"#{k}\":\"#{IO.read(path + "sharedshaders/#{k}.c").gsub("\n", "\\\\n")}\"" }
     shaders.concat(MDX_SHADERS.collect { |k| "\"w#{k}\":\"#{IO.read(path + "mdx/shaders/#{k}.c").gsub("\n", "\\\\n")}\"" })
