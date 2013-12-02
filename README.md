@@ -13,14 +13,15 @@ A live version can be seen on [Hiveworkshop](http://www.hiveworkshop.com) for wh
 Usage: new Viewer(args)
 
 args is an Object with the following properties:
-  canvas - A <canvas> element
-  onprogress - A function callback. Progress messages will be sent to it. Optional.
-  onload - A function callback. Called if everything went ok, and the model was loaded successfully. Optional.
-  onerror - A function callback. Called if there was an error somewhere.
-  MODEL_ID - The model ID. Used by the Hiveworkshop.
-  MODEL_PATH - A path to a MDX or M3 file to use.
-  MPQ_PATH - A path to a MDX or M3 file in the Warcraft 3 / Starcraft 2 MPQs. Used by the Hiveworkshop.
-  DEBUG_MODE - Boolean. If exists and true, the viewer will log (via console.log) the Parser and Model structures.
+
+    canvas - A <canvas> element
+    onprogress - A function callback. Progress messages will be sent to it. Optional.
+    onload - A function callback. Called if everything went ok, and the model was loaded successfully. Optional.
+    onerror - A function callback. Called if there was an error somewhere.
+    MODEL_ID - The model ID. Used by the Hiveworkshop.
+    MODEL_PATH - A path to a MDX or M3 file to use.
+    MPQ_PATH - A path to a MDX or M3 file in the Warcraft 3 / Starcraft 2 MPQs. Used by the Hiveworkshop.
+    DEBUG_MODE - Boolean. If exists and true, the viewer will log (via console.log) the Parser and Model structures.
   
 One of MODEL_ID / MODEL_PATH / MPQ_PATH has to be defined.
 If more than one is defined, the order of preference is MODEL_PATH > MPQ_PATH > MODEL_ID.
