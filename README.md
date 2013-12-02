@@ -8,6 +8,8 @@ To minify the GLSL shaders, use [glsl-minifier](https://github.com/flowtsohg/gls
 To minify the resulting JavaScript, use the [Google Closure compiler](https://developers.google.com/closure/compiler/).
 Both options can be disabled or enabled in compiler.rb.
 
+Note: you must run compiler.rb to get a working file, since there are broken files that must be concatenated to form valid JavaScript files (look at before.js and after.js files to understand what I mean).
+
 A live version can be seen on [Hiveworkshop](http://www.hiveworkshop.com) for which this viewer was made.
 
 Usage: `new Viewer(args)`
