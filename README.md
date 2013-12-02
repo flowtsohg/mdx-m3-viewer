@@ -46,4 +46,4 @@ The API of the viewer is as follows:
     resize(x, y) - Resize the context viewport.
     move(x, y) - Move the model around.
     zoom(x) - Zoom by x. 1 does nothing, 2 makes everything twice the size, and so on.
-    rotate(y, x) - Rotate by y and x on their respective axes.
+    rotate(x, y) - Rotate by x and y on their respective axes.
