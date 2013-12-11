@@ -3,7 +3,6 @@
 require "./glsl_min"
 
 USE_CLOSURE = true
-MIN_SHADERS = true
 
 MDX_SHADERS = [
   "vssoftskinning",
@@ -45,6 +44,7 @@ CODE_FILES = [
   "url",
   "viewer/before",
   "viewer/shaders",
+  "viewer/shadermap",
   "viewer/mdx/before",
   "viewer/mdx/parser",
   "viewer/mdx/tracks",
@@ -77,30 +77,30 @@ CODE_FILES = [
   "viewer/after"
 ]
 
-File.open("src/viewer/shaders.js", "w") { |output|
-  output.write("// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)\n\n")
+def handle_shaders(shared, mdx, m3, srcpath, outputs)
+  names = shared + mdx.map { |p| "w" + p } + m3.map { |p| "s" + p }
+  paths = shared.map { |p| srcpath + "sharedshaders/" + p + ".c" } + mdx.map { |p| srcpath + "mdx/shaders/" + p + ".c" } + m3.map { |p| srcpath + "m3/shaders/" + p + ".c" }
+  minified = minify_files(paths , true)
+  shaders = []
   
-  output.write("var SHADERS = {\n\t")
+  names.each_index { |i|
+    shaders.push("\"#{names[i]}\":\"#{minified[0][i]}\"")
+  }
   
-  path = "src/viewer/"
-  
-  if MIN_SHADERS
-    shader_names = SHARED_SHADERS + MDX_SHADERS.map { |p| "w" + p } + M3_SHADERS.map { |p| "s" + p }
-    minified = minify(SHARED_SHADERS.map { |p| path + "sharedshaders/" + p + ".c" } + MDX_SHADERS.map { |p| path + "mdx/shaders/" + p + ".c" } + M3_SHADERS.map { |p| path + "m3/shaders/" + p + ".c" })
-    shaders = []
-    
-    minified.each_index { |i|
-      shaders[i] = "\"#{shader_names[i]}\":\"#{minified[i]}\""
-    }
-  else
-    shaders = SHARED_SHADERS.collect { |k| "\"#{k}\":\"#{IO.read(path + "sharedshaders/#{k}.c").gsub("\n", "\\\\n")}\"" }
-    shaders.concat(MDX_SHADERS.collect { |k| "\"w#{k}\":\"#{IO.read(path + "mdx/shaders/#{k}.c").gsub("\n", "\\\\n")}\"" })
-    shaders.concat(M3_SHADERS.collect { |k| "\"s#{k}\":\"#{IO.read(path + "m3/shaders/#{k}.c").gsub("\n", "\\\\n")}\"" })
-  end
-  
-  output.write(shaders.join(",\n\t"))
-  output.write("\n};")
-}
+  File.open(srcpath + "shaders.js", "w") { |output|
+    output.write("// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)\n\nvar SHADERS = {\n\t#{shaders.join(",\n\t")}\n};")
+  }
+
+  File.open(srcpath + "shadermap.js", "w") { |output|
+    output.write("// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)\n\nvar PARAMETERMAP = {\n\t")
+    output.write(minified[1].to_a().collect { |v| "\"#{v[0]}\":\"#{v[1]}\"" }.join(",\n\t"))
+    output.write("\n};\n\nvar MEMBERMAP = {\n\t")
+    output.write(minified[2].to_a().collect { |v| "\"#{v[0]}\":\"#{v[1]}\"" }.join(",\n\t"))
+    output.write("\n};")
+  }
+end
+
+handle_shaders(SHARED_SHADERS, MDX_SHADERS, M3_SHADERS, "src/viewer/", ["shaders.js", "shadermap.js", "membermap.js"])
 
 File.open("model_viewer_monolith.js", "w") { |output|
   output.write("(function(){")

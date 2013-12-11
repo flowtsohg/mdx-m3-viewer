@@ -19,7 +19,7 @@ window["Viewer"] = function (args) {
   var uvSpeed = [math.random(-0.004, 0.004), math.random(-0.004, 0.004)];
   var upDir = [0, 0, 1];
   //var light;
-  var shouldRenderWorld = 1;
+  var shouldRenderWorld = 2;
   var shouldRenderLights = true;
   var shouldRenderShapes = false;
   var shaderToUse = "standard";

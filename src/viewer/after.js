@@ -1,5 +1,7 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
+  gl.setShaderMaps(PARAMETERMAP, MEMBERMAP);
+  
   function loadFormat(magic, reader, args, customTextures) {
     if (magic == "MDLX") {
       var parser = new Mdx.Parser(reader, onprogress);
@@ -433,8 +435,8 @@
   
   function rotate(x, y) {
     if (modelCameraId === -1) {
-      camera.r[1] += x;
-      camera.r[0] += y;
+      camera.r[0] += x;
+      camera.r[1] += y;
     }
   }
   

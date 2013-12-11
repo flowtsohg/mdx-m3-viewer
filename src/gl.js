@@ -32,6 +32,8 @@ function GL(element) {
   var boundShaderName = "";
   var boundTextures = [];
   var glTypeToUniformType = {};
+  var parameterMap;
+  var memberMap;
     
   glTypeToUniformType[gl.FLOAT] = "1f";
   glTypeToUniformType[gl.FLOAT_VEC2] = "2fv";
@@ -199,6 +201,16 @@ function GL(element) {
     },
     
     setParameter: function (name, value) {
+      if (parameterMap) {
+        var tokens = name.split(".");
+        
+        name = parameterMap[tokens[0]]
+        
+        if (tokens[1]) {
+          name += "." + memberMap[tokens[1]];
+        }
+      }
+      
       var uniform = this.uniforms[name];
       var location;
       
@@ -231,6 +243,16 @@ function GL(element) {
     },
     
     getParameter: function (name) {
+      if (parameterMap) {
+        var tokens = name.split(".");
+        
+        name = parameterMap[tokens[0]]
+        
+        if (tokens[1]) {
+          name += "." + memberMap[tokens[1]];
+        }
+      }
+      
       return this.uniforms[name] || this.attribs[name];
     },
     
@@ -295,8 +317,14 @@ function GL(element) {
     }
   }
   
+  function setShaderMaps(parameters, members) {
+    parameterMap = parameters;
+    memberMap = members;
+  }
+  
   function vertexAttribPointer(name, size, type, normalized, stride, pointer) {
     if (boundShader) {
+      //console.log(name);
       gl.vertexAttribPointer(boundShader.getParameter(name)[0], size, type, normalized, stride, pointer);
     }
   }
@@ -750,6 +778,7 @@ function GL(element) {
     newShader: newShader,
     bindShader: bindShader,
     setParameter: setParameter,
+    setShaderMaps: setShaderMaps,
     vertexAttribPointer: vertexAttribPointer,
     bindMVP: bindMVP,
     //getMVP: getMVP,

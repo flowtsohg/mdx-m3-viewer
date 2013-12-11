@@ -77,7 +77,7 @@ struct LayerSettings {
 #define LAYEROP_TEAMCOLOR_EMISSIVE_ADD 4.0
 #define LAYEROP_TEAMCOLOR_DIFFUSE_ADD 5.0
 #define LAYEROP_ADD_NO_ALPHA 6.0
-
+/*
 float calculateFresnelTerm(vec3 normal, vec3 eyeToVertex, float exponent, mat4 fresnelTransform, float fresnelTransformMode, bool fresnelClamp) {
   vec3 fresnelDir = eyeToVertex;
   float result;
@@ -100,7 +100,7 @@ float calculateFresnelTerm(vec3 normal, vec3 eyeToVertex, float exponent, mat4 f
   
   return pow(result, exponent);
 }
-
+*/
 vec3 combineLayerColor(vec4 color, vec3 result, LayerSettings layerSettings) {
   if (layerSettings.op == LAYEROP_MOD) {
     result *= color.rgb;
@@ -150,21 +150,22 @@ vec2 getUV(LayerSettings layerSettings) {
 }
 
 vec4 sampleLayer(sampler2D layer, LayerSettings layerSettings) {
+  /*
   if (layerSettings.useConstantColor && false) {
     return layerSettings.constantColor;
   }
-  
+  */
   return texture2D(layer, getUV(layerSettings));
 }
 
 vec4 computeLayerColor(sampler2D layer, LayerSettings layerSettings) {
   vec4 texel = sampleLayer(layer, layerSettings);
   vec4 result = chooseChannel(layerSettings.channels, texel);
-  
+  /*
   if (layerSettings.useAlphaFactor && false) {
     result.a *= layerSettings.multAddAlpha.z;
   }
-  
+  */
   if (layerSettings.teamColorMode == TEAMCOLOR_DIFFUSE) {
     result = vec4(mix(u_teamColor, result.rgb, texel.a), 1);
   } else if (layerSettings.teamColorMode == TEAMCOLOR_EMISSIVE) {
@@ -174,7 +175,7 @@ vec4 computeLayerColor(sampler2D layer, LayerSettings layerSettings) {
   if (layerSettings.invert) {
     result = vec4(1) - result;
   }
-  
+  /*
   if (layerSettings.multColor && false) {
     result *= layerSettings.multAddAlpha.x;
   }
@@ -182,11 +183,11 @@ vec4 computeLayerColor(sampler2D layer, LayerSettings layerSettings) {
   if (layerSettings.addColor && false) {
     result += layerSettings.multAddAlpha.y;
   }
-  
+  */
   if (layerSettings.clampResult) {
     result = clamp(result, 0.0, 1.0);
   }
-  
+  /*
   if (layerSettings.fresnelMode != FRESNELMODE_NONE) {
     float fresnelTerm = calculateFresnelTerm(v_normal, v_eyeVec, layerSettings.fresnelExponentBiasScale.x, layerSettings.fresnelTransform, layerSettings.fresnelTransformMode, layerSettings.fresnelClamp);
     
@@ -198,7 +199,7 @@ vec4 computeLayerColor(sampler2D layer, LayerSettings layerSettings) {
     
     result *= fresnelTerm;
   }
-  
+  */
   return result;
 }
 

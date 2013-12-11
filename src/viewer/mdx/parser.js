@@ -131,9 +131,10 @@ var Parser = (function () {
   
   function parseTracks(reader, type) {
     var tracks = {};
-    
-    while (tagToTrack[type][peek(reader, 4)]) {
-      var trackType = tagToTrack[type][read(reader, 4)];
+    var tagTrack = tagToTrack[type];
+      
+    while (tagTrack[peek(reader, 4)]) {
+      var trackType = tagTrack[read(reader, 4)];
       
       tracks[trackType[1]] = new TrackChunk(reader, trackType[0]);
     }

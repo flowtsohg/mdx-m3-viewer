@@ -12,12 +12,12 @@ attribute vec2 a_uv1;
 #endif
 #ifdef EXPLICITUV2
 attribute vec2 a_uv1;
-attribute vec2 a_uv2
+attribute vec2 a_uv2;
 #endif
 #ifdef EXPLICITUV3
 attribute vec2 a_uv1;
-attribute vec2 a_uv2
-attribute vec2 a_uv3
+attribute vec2 a_uv2;
+attribute vec2 a_uv3;
 #endif
 
 attribute vec4 a_tangent;
