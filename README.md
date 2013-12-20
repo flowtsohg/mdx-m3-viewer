@@ -20,10 +20,10 @@ A live version can be seen on [Hiveworkshop](http://www.hiveworkshop.com) for wh
 
 args is an Object with the following properties:
 
-* `canvas` - A <canvas> element
+* `canvas` - A <canvas> element. Required.
 * `onprogress` - A function callback. Progress messages will be sent to it. Optional.
 * `onload` - A function callback. Called if everything went ok, and the model was loaded successfully. Optional.
-* `onerror` - A function callback. Called if there was an error somewhere.
+* `onerror` - A function callback. Called if there was an error somewhere. Optional.
 * `MODEL_ID` - The model ID. Used by the Hiveworkshop.
 * `MODEL_PATH` - A path to a MDX or M3 file to use.
 * `MPQ_PATH` - A path to a MDX or M3 file in the Warcraft 3 / Starcraft 2 MPQs. Used by the Hiveworkshop.
@@ -51,3 +51,5 @@ The API of the viewer is as follows:
 * `move(x, y)` - Move the model around.
 * `zoom(x)` - Zoom by x. 1 does nothing, 2 makes everything twice the size, and so on.
 * `rotate(x, y)` - Rotate by x and y on their respective axes.
+
+Note that the API functions don't do anything until the model is loaded. For setup, use the onload callback.
