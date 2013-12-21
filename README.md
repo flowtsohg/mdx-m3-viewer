@@ -20,17 +20,17 @@ A live version can be seen on [Hiveworkshop](http://www.hiveworkshop.com) for wh
 
 args is an Object with the following properties:
 
-* `canvas` - A <canvas> element. Required.
+* `canvas` - A \<canvas> element. Required.
 * `onprogress` - A function callback. Progress messages will be sent to it. Optional.
 * `onload` - A function callback. Called if everything went ok, and the model was loaded successfully. Optional.
 * `onerror` - A function callback. Called if there was an error somewhere. Optional.
-* `MODEL_ID` - The model ID. Used by the Hiveworkshop.
-* `MODEL_PATH` - A path to a MDX or M3 file to use.
-* `MPQ_PATH` - A path to a MDX or M3 file in the Warcraft 3 / Starcraft 2 MPQs. Used by the Hiveworkshop.
-* `DEBUG_MODE` - If exists and true, the viewer will log the Parser and Model structures. Optional.
+* `modelId` - The model ID. Used by the Hiveworkshop.
+* `modelPath` - A path to a MDX or M3 file to use.
+* `mpqPath` - A path to a MDX or M3 file in the Warcraft 3 / Starcraft 2 MPQs. Used by the Hiveworkshop.
+* `debugMode` - If true, the viewer will log the Parser and Model structures. Optional.
   
-One of MODEL_ID / MODEL_PATH / MPQ_PATH has to be defined.
-If more than one is defined, the order of preference is MODEL_PATH > MPQ_PATH > MODEL_ID.
+One of modelId / modelPath / mpqPath has to be defined.
+If more than one is defined, the order of preference is modelPath > mpqPath > modelId.
 
 The API of the viewer is as follows:
 
