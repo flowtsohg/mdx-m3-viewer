@@ -33,10 +33,10 @@ window["Viewer"] = function (args) {
     
   var FRAME_TIME = 1 / 60;
   var ANIMATION_SCALE = 1;
-  var MODEL_ID = args.MODEL_ID;
-  var MODEL_PATH = args.MODEL_PATH;
-  var MPQ_PATH = args.MPQ_PATH;
-  var DEBUG_MODE = args.DEBUG_MODE;
+  var MODEL_ID = args.modelId;
+  var MODEL_PATH = args.modelPath;
+  var MPQ_PATH = args.mpqPath;
+  var DEBUG_MODE = args.debugMode;
   var HAS_FLOAT_TEXTURE = ctx.getExtension("OES_texture_float");
   var HAS_VERTEX_TEXTURE = ctx.getParameter(ctx.MAX_VERTEX_TEXTURE_IMAGE_UNITS) > 0;
   var VERTEX_UNIFORM_VECTORS = ctx.getParameter(ctx.MAX_VERTEX_UNIFORM_VECTORS);
