@@ -53,3 +53,6 @@ The API of the viewer is as follows:
 * `rotate(x, y)` - Rotate by x and y on their respective axes.
 
 Note that the API functions don't do anything until the model is loaded. For setup, use the onload callback.
+
+To show in-game textures (or models with mpqPath) properly, you must provide a link that can access the files of the Warcraft 3 and Starcraft 2 MPQ.
+Simply change the url of the mpqFile function in [url.js](https://github.com/flowtsohg/mdx-m3-viewer/blob/master/src/url.js).
