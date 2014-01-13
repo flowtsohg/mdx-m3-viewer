@@ -18,7 +18,9 @@ M3_SHADERS = [
   "vsstandard",
   "pscommon",
   "psstandard",
-  "psspecialized"
+  "psspecialized",
+  "vsparticles",
+  "psparticles"
 ]
 
 SHARED_SHADERS = [
@@ -73,6 +75,8 @@ CODE_FILES = [
   "viewer/m3/layer",
   "viewer/m3/standardmaterial",
   "viewer/m3/model",
+  #"viewer/m3/particle",
+  #"viewer/m3/particleemitter",
   "viewer/m3/after",
   "viewer/after"
 ]

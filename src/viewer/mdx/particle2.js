@@ -8,10 +8,10 @@ function Particle2() {
 Particle2.prototype = {
   reset: function (emitter, head) {
     var p = emitter.node.pivot;
-    var width = getTrack(emitter.tracks.width, emitter.width, this.model) * 0.5;
-    var length = getTrack(emitter.tracks.length, emitter.length, this.model) * 0.5;
-    var speed = getTrack(emitter.tracks.speed, emitter.speed, this.model);
-    var latitude = math.toRad(getTrack(emitter.tracks.latitude, emitter.latitude, this.model));
+    var width = getTrack(emitter.tracks.width, emitter.width, emitter.model) * 0.5;
+    var length = getTrack(emitter.tracks.length, emitter.length, emitter.model) * 0.5;
+    var speed = getTrack(emitter.tracks.speed, emitter.speed, emitter.model);
+    var latitude = math.toRad(getTrack(emitter.tracks.latitude, emitter.latitude, emitter.model));
     
     this.alive = true;
     this.health = emitter.lifespan;
@@ -63,7 +63,7 @@ Particle2.prototype = {
   
   update: function (emitter) {
     if (this.alive) {
-      var gravity = getTrack(emitter.tracks.gravity, emitter.gravity, this.model);
+      var gravity = getTrack(emitter.tracks.gravity, emitter.gravity, emitter.model);
       
       this.health -= FRAME_TIME * ANIMATION_SCALE;
       

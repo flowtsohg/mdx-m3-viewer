@@ -11,8 +11,8 @@ function BoundingShape(boundingshape) {
     shape = gl.newCube(-size[0], -size[1], -size[2], size[0], size[1], size[2]);
   } else if (boundingshape.shape === 1) {
     shape = gl.newSphere(0, 0, 0, 9, 9, size[0]);
-  //} else {
-    //shape = gl.newCylinder(v1[0], v1[1], v1[2], v2[0], v2[1], v2[2], 8, 2, boundsRadius);
+  } else {
+    shape = gl.newCylinder(0, 0, 0, size[0], size[1], 9);
   }
   
   this.shape = shape;

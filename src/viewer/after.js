@@ -102,7 +102,8 @@
         gl.newShader("unshaded", vsstandard, psspecialized, [uvSets, UNSHADED_PASS]);
         gl.newShader("unshaded_normalmap", vsstandard, psspecialized, [uvSets, UNSHADED_PASS, HIGHRES_NORMALS]);
         gl.newShader("decal", vsstandard, psspecialized, [uvSets, "DECAL_PASS"]);
-        
+        gl.newShader("particles", SHADERS["svsparticles"], floatPrecision + SHADERS["spsparticles"]);
+		
         if (DEBUG_MODE) {
           console.log(model);
         }

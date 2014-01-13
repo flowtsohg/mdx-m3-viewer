@@ -20,7 +20,7 @@ function Layer(layer, type, op, model) {
     if (imagePath !== "") {
     // The path is overrided with the lower case because some models have the same texture multiple times but with different letter cases, which causes multiple fetches = wasted bandwidth, memory and time.
       this.imagePath = imagePath.toLowerCase();
-      
+	  
       var texturePaths = model.texturePaths;
       
       if (!texturePaths[imagePath]) {

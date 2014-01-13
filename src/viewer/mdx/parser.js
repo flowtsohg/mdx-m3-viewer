@@ -589,6 +589,7 @@ var Parser = (function () {
         if (chunk) {
           this[chunk[1]] = new chunk[0](reader, size, this.nodes);
         } else {
+          console.log("Didn't parse chunk " + tag);
           skip(reader, size);
         }
 

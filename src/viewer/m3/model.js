@@ -11,12 +11,10 @@ function Model(parser, onprogress) {
 }
 
 Model.prototype = {
-  addMaterial: function (type, index, material) {
-    var materials = this.materials[type];
-    
-    materials[index] = materials[index] || new StandardMaterial(material, this);
-    
-    return materials[index];
+  mapMaterial: function (index) {
+	var materialMap = this.materialMaps[index];
+	
+	return this.materials[materialMap.materialType][materialMap.materialIndex];
   },
   
   setup: function (parser) {
@@ -33,13 +31,22 @@ Model.prototype = {
     }
     
     this.batches = [];
-    this.materials = [[]]; // 2D array for the possibility of adding more material types in the future
+    this.materials = [[], []]; // 2D array for the possibility of adding more material types in the future
     this.texturePaths = {}; // Used in StandardMaterial to avoid loading textures multiple times
-      
+    this.materialMaps = parser.materialMaps;
+	
     var materialMaps = parser.materialMaps;
     var materials = parser.materials;
     var batches = [];
-      
+    
+	// Create concrete material objects for standard materials
+	for (i = 0, l = materials[0].length; i < l; i++) {
+		var material = materials[0][i];
+		
+		this.materials[1][i] = new StandardMaterial(material, this);
+	}
+	
+	// Create concrete batch objects
     for (i = 0, l = div.batches.length; i < l; i++) {
       var batch = div.batches[i];
       var regionId = batch.regionIndex;
@@ -47,12 +54,13 @@ Model.prototype = {
       
       if (materialMap.materialType === 1) {
         var region = this.regions[regionId];
-        var material = this.addMaterial(0, materialMap.materialIndex, materials[0][materialMap.materialIndex]);
+        var material = this.materials[1][materialMap.materialIndex];
         
         batches.push({region: region, material: material});
       }
     }
-    
+	
+	/*
     var batchGroups = [[], [], [], [], [], []];
     
     for (i = 0, l = batches.length; i < l; i++) {
@@ -77,6 +85,7 @@ Model.prototype = {
     for (i = 0; i < 6; i++) {
       batchGroups[i].sort(sortByPriority);
     }
+	*/
     /*
     // In the EggPortrait model the batches seem to be sorted by blend mode. Is this true for every model?
     this.batches.sort(function (a, b) {
@@ -93,8 +102,9 @@ Model.prototype = {
     });
     */
     
-    this.batches = batchGroups[0].concat(batchGroups[1]).concat(batchGroups[2]).concat(batchGroups[3]).concat(batchGroups[4]).concat(batchGroups[5]);
-    
+    //this.batches = batchGroups[0].concat(batchGroups[1]).concat(batchGroups[2]).concat(batchGroups[3]).concat(batchGroups[4]).concat(batchGroups[5]);
+    this.batches = batches;
+	
     this.skeleton = new Skeleton(parser);
     
     if (parser.fuzzyHitTestObjects.length > 0) {
@@ -104,7 +114,15 @@ Model.prototype = {
         this.fuzzyHitTestObjects[i] = new BoundingShape(parser.fuzzyHitTestObjects[i]);
       }
     }
-    
+    /*
+    if (parser.particleEmitters.length > 0) {
+      this.particleEmitters = [];
+      
+      for (i = 0, l = parser.particleEmitters.length; i < l; i++) {
+        this.particleEmitters[i] = new ParticleEmitter(parser.particleEmitters[i], this);
+      }
+    }
+    */
     this.frame = 0;
     this.loopingMode = 0;
     
@@ -117,8 +135,10 @@ Model.prototype = {
   },
   
   update: function () {
+	var i, l;
     var sequenceId = this.sequenceId;
-    
+    var allowCreate = false;
+	
     if (sequenceId !== -1) {
       var sequence = this.sequences[sequenceId];
       
@@ -131,7 +151,16 @@ Model.prototype = {
       }
       
       this.skeleton.update(sequenceId, this.frame);
+	  
+      allowCreate = true;
     }
+    /*
+    if (this.particleEmitters) {
+      for (i = 0, l = this.particleEmitters.length; i < l; i++) {
+        this.particleEmitters[i].update(allowCreate, sequenceId, this.frame);
+      }
+	  }
+    */
   },
   
   getValue: function (animRef) {
@@ -139,6 +168,7 @@ Model.prototype = {
   },
   
   render: function () {
+    var i, l;
     var tc = teamColors[this.teamId];
     
     gl.bindShader(shaderToUse);
@@ -151,7 +181,7 @@ Model.prototype = {
     
     this.skeleton.bind();
     
-    for (var i = 0, l = this.batches.length; i < l; i++) {
+    for (i = 0, l = this.batches.length; i < l; i++) {
       var batch = this.batches[i];
       var region = batch.region;
       var material = batch.material;
@@ -177,7 +207,21 @@ Model.prototype = {
       
       material.unbind(); // This is required to not use by mistake layers from this material that were bound and are not overwritten by the next material
     }
-    
+    /*
+    if (this.particleEmitters) {
+      ctx.disable(ctx.CULL_FACE);
+      
+      for (i = 0, l = this.particleEmitters.length; i < l; i++) {
+        gl.bindShader("particles");
+        
+        gl.bindMVP("u_mvp");
+        
+        this.particleEmitters[i].render();
+      }
+      
+      ctx.enable(ctx.CULL_FACE);
+    }
+	*/
     if (shouldRenderShapes && this.fuzzyHitTestObjects && whiteShader) {
       ctx.depthMask(1);
       gl.bindShader("white");
