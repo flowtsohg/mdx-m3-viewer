@@ -12,7 +12,7 @@ Note: you must run compiler.rb to get a working file, since there are broken fil
 
 A live version can be seen on [Hiveworkshop](http://www.hiveworkshop.com) for which this viewer was made, here are two examples:
 * [Warcraft 3's Azura Dragon](http://www.hiveworkshop.com/model_viewer/?mpq=Units/Creeps/AzureDragon/AzureDragon.mdx)
-* [Starcraft 2's Baneling](http://www.hiveworkshop.com/model_viewer/?mpq=Assets/buildings/zerg/baneling/baneling.m3)
+* [Starcraft 2's Baneling](http://www.hiveworkshop.com/model_viewer/?mpq=Assets/units/zerg/baneling/baneling.m3)
 
 ------------------------
 
