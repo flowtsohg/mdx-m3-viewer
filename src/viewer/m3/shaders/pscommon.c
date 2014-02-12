@@ -11,21 +11,21 @@ struct LayerSettings {
   float op;
   float channels;
   float teamColorMode;
-  vec3 multAddAlpha;
-  bool useAlphaFactor;
+  //vec3 multAddAlpha;
+  //bool useAlphaFactor;
   bool invert;
-  bool multColor;
-  bool addColor;
+  //bool multColor;
+  //bool addColor;
   bool clampResult;
-  bool useConstantColor;
-  vec4 constantColor;
-  float uvSource;
+  //bool useConstantColor;
+  //vec4 constantColor;
+  //float uvSource;
   float uvCoordinate;
-  float fresnelMode;
-  float fresnelTransformMode;
-  mat4 fresnelTransform;
-  bool fresnelClamp;
-  vec3 fresnelExponentBiasScale;
+  //float fresnelMode;
+  //float fresnelTransformMode;
+  //mat4 fresnelTransform;
+  //bool fresnelClamp;
+  //vec3 fresnelExponentBiasScale;
 };
 
 #define SPECULAR_RGB 0.0

@@ -8,5 +8,6 @@ varying vec2 v_uv;
 
 void main() {
   v_uv = a_uv + u_uv_offset;
+    
   gl_Position = u_mvp * vec4(a_position, 1);
 }

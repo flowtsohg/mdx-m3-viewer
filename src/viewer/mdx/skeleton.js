@@ -2,13 +2,13 @@
 
 function Skeleton(parser, model) {
   var i, l;
-  var pivots = parser.pivotPointChunk.points;
+  var pivots = parser["pivotPointChunk"].points;
   
   this.model = model;
-  this.nodes = parser.nodes;
+  this.nodes = parser["nodes"];
   
-  for (i = 0, l = parser.nodes.length; i < l; i++) {
-    var node = parser.nodes[i];
+  for (i = 0, l = this.nodes.length; i < l; i++) {
+    var node = this.nodes[i];
     
     node.pivot = pivots[node.objectId] || [0, 0, 0];
     node.worldMatrix = [];
@@ -16,8 +16,8 @@ function Skeleton(parser, model) {
   
   this.bones = [];
   
-  if (parser.boneChunk) {
-    var bones = parser.boneChunk.bones;
+  if (parser["boneChunk"]) {
+    var bones = parser["boneChunk"].bones;
     
     for (i = 0, l = bones.length; i < l; i++) {
       this.bones.push(bones[i].node);
@@ -45,7 +45,7 @@ function Skeleton(parser, model) {
   }
   
   this.root = {objectId: 4294967295, worldMatrix: []};
-  this.root.children = this.setup(parser.nodes, this.root);
+  this.root.children = this.setup(this.nodes, this.root);
   
   this.transform = [0, 0, Math.PI / 2];
 }
@@ -125,9 +125,9 @@ Skeleton.prototype = {
   
   updateNode: function (node) {
     var pivot = node.pivot;
-    var translation = getTrack(node.tracks.translation, [0, 0, 0], this.model);
-    var rotation = getTrack(node.tracks.rotation, [0, 0, 0, 1], this.model);
-    var scaling = getTrack(node.tracks.scaling, [1, 1, 1], this.model);
+    var translation = getTrack(node.tracks["translation"], [0, 0, 0], this.model);
+    var rotation = getTrack(node.tracks["rotation"], [0, 0, 0, 1], this.model);
+    var scaling = getTrack(node.tracks["scaling"], [1, 1, 1], this.model);
     var localMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
     
     if (translation[0] !== 0 || translation[1] !== 0 || translation[2] !== 0) {

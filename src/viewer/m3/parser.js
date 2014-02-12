@@ -1216,8 +1216,8 @@ var Parser = (function () {
       this.unknown22 = new Reference(reader);
     }
     
-    this.particleEmitters = parseReference(reader, indexEntries, ParticleEmitter);
-    this.particleEmitterCopies = parseReference(reader, indexEntries, ParticleEmitterCopy);
+    this.particleEmitters = new Reference(reader);//parseReference(reader, indexEntries, ParticleEmitter);
+    this.particleEmitterCopies = new Reference(reader);//parseReference(reader, indexEntries, ParticleEmitterCopy);
     this.ribbonEmitters = new Reference(reader);//parseReference(reader, indexEntries, RibbonEmitter);
     this.projections = new Reference(reader);//parseReference(reader, indexEntries, Projection);
     this.forces = new Reference(reader);//parseReference(reader, indexEntries, Force);

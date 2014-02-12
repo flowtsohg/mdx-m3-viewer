@@ -6,76 +6,76 @@ var Parser = (function () {
   }
   
   var tagToTrack = {
-    LAYS: {
-      KMTF: [readUint32, "textureId"],
-      KMTA: [readFloat32, "alpha"]
+    "LAYS": {
+      "KMTF": [readUint32, "textureId"],
+      "KMTA": [readFloat32, "alpha"]
     },
     
-    TXAN: {
-      KTAT: [readVector3, "translation"],
-      KTAR: [readVector4, "rotation"],
-      KTAS: [readVector3, "scaling"]
+    "TXAN": {
+      "KTAT": [readVector3, "translation"],
+      "KTAR": [readVector4, "rotation"],
+      "KTAS": [readVector3, "scaling"]
     },
     
-    GEOA: {
-      KGAO: [readFloat32, "alpha"],
-      KGAC: [readVector3, "color"]
+    "GEOA": {
+      "KGAO": [readFloat32, "alpha"],
+      "KGAC": [readVector3, "color"]
     },
     
-    LITE: {
-      KLAS: [readFloat32, "attenuationStart"],
-      KLAE: [readFloat32, "attenuationEnd"],
-      KLAC: [readVector3, "color"],
-      KLAI: [readFloat32, "intensity"],
-      KLBI: [readFloat32, "ambientIntensity"],
-      KLBC: [readVector3, "ambientColor"],
-      KLAV: [readFloat32, "visibility"]
+    "LITE": {
+      "KLAS": [readFloat32, "attenuationStart"],
+      "KLAE": [readFloat32, "attenuationEnd"],
+      "KLAC": [readVector3, "color"],
+      "KLAI": [readFloat32, "intensity"],
+      "KLBI": [readFloat32, "ambientIntensity"],
+      "KLBC": [readVector3, "ambientColor"],
+      "KLAV": [readFloat32, "visibility"]
     },
     
-    ATCH: {
-      KATV: [readFloat32, "visibility"]
+    "ATCH": {
+      "KATV": [readFloat32, "visibility"]
     },
     
-    PREM: {
-      KPEE: [readFloat32, "emissionRate"],
-      KPEG: [readFloat32, "gravity"],
-      KPLN: [readFloat32, "longitude"],
-      KPLT: [readFloat32, "latitude"],
-      KPEL: [readFloat32, "lifespan"],
-      KPES: [readFloat32, "speed"],
-      KPEV: [readFloat32, "visibility"]
+    "PREM": {
+      "KPEE": [readFloat32, "emissionRate"],
+      "KPEG": [readFloat32, "gravity"],
+      "KPLN": [readFloat32, "longitude"],
+      "KPLT": [readFloat32, "latitude"],
+      "KPEL": [readFloat32, "lifespan"],
+      "KPES": [readFloat32, "speed"],
+      "KPEV": [readFloat32, "visibility"]
     },
     
-    PRE2: {
-      KP2S: [readFloat32, "speed"],
-      KP2R: [readFloat32, "variation"],
-      KP2L: [readFloat32, "latitude"],
-      KP2G: [readFloat32, "gravity"],
-      KP2E: [readFloat32, "emissionRate"],
-      KP2N: [readFloat32, "length"],
-      KP2W: [readFloat32, "width"],
-      KP2V: [readFloat32, "visibility"]
+    "PRE2": {
+      "KP2S": [readFloat32, "speed"],
+      "KP2R": [readFloat32, "variation"],
+      "KP2L": [readFloat32, "latitude"],
+      "KP2G": [readFloat32, "gravity"],
+      "KP2E": [readFloat32, "emissionRate"],
+      "KP2N": [readFloat32, "length"],
+      "KP2W": [readFloat32, "width"],
+      "KP2V": [readFloat32, "visibility"]
     },
     
-    RIBB: {
-      KRHA: [readFloat32, "heightAbove"],
-      KRHB: [readFloat32, "heightBelow"],
-      KRAL: [readFloat32, "alpha"],
-      KRCO: [readVector3, "color"],
-      KRTX: [readUint32, "textureSlot"],
-      KRVS: [readFloat32, "visibility"]
+    "RIBB": {
+      "KRHA": [readFloat32, "heightAbove"],
+      "KRHB": [readFloat32, "heightBelow"],
+      "KRAL": [readFloat32, "alpha"],
+      "KRCO": [readVector3, "color"],
+      "KRTX": [readUint32, "textureSlot"],
+      "KRVS": [readFloat32, "visibility"]
     },
     
-    CAMS: {
-      KCTR: [readVector3, "positionTranslation"],
-      KTTR: [readVector3, "targetTranslation"],
-      KCRL: [readUint32, "rotation"]
+    "CAMS": {
+      "KCTR": [readVector3, "positionTranslation"],
+      "KTTR": [readVector3, "targetTranslation"],
+      "KCRL": [readUint32, "rotation"]
     },
     
-    NODE: {
-      KGTR: [readVector3, "translation"],
-      KGRT: [readVector4, "rotation"],
-      KGSC: [readVector3, "scaling"]
+    "NODE": {
+      "KGTR": [readVector3, "translation"],
+      "KGRT": [readVector4, "rotation"],
+      "KGSC": [readVector3, "scaling"]
     }
   };
   
@@ -85,12 +85,12 @@ var Parser = (function () {
     
     while (totalInclusiveSize !== size) {
       var element = new Func(reader, nodes);
-      
+	  
       totalInclusiveSize += element.inclusiveSize;
       
       elements.push(element);
     }
-    
+	
     return elements;
   }
   
@@ -132,10 +132,10 @@ var Parser = (function () {
   function parseTracks(reader, type) {
     var tracks = {};
     var tagTrack = tagToTrack[type];
-      
+	
     while (tagTrack[peek(reader, 4)]) {
       var trackType = tagTrack[read(reader, 4)];
-      
+	  
       tracks[trackType[1]] = new TrackChunk(reader, trackType[0]);
     }
 
@@ -217,9 +217,9 @@ var Parser = (function () {
   */
   function ModelChunk(reader) {
     this.name = read(reader, 80);
-    this.animationFileName = read(reader, 260);
+    this["animationFileName"] = read(reader, 260);
     this.extent = readExtent(reader);
-    this.blendTime = readUint32(reader);
+    this["blendTime"] = readUint32(reader);
   }
 
   function Sequence(reader) {
@@ -286,9 +286,9 @@ var Parser = (function () {
   
   function Material(reader) {
     this.inclusiveSize = readUint32(reader);
-    this.priorityPlane = readUint32(reader);
-    this.flags = readUint32(reader);
-
+    this["priorityPlane"] = readUint32(reader);
+    this["flags"] = readUint32(reader);
+	
     if (this.inclusiveSize > 12) {
       read(reader, 4) // LAYS
       this.layers = parseCountChunk(reader, readUint32(reader), Layer);
@@ -579,15 +579,15 @@ var Parser = (function () {
 
   return (function (reader, onprogress) {
     if (read(reader, 4) === "MDLX") {
-      this.nodes = [];
+      this["nodes"] = [];
       
       while (remaining(reader) > 0) {
         var tag = read(reader, 4);
         var size = readUint32(reader);
         var chunk = tagToChunk[tag];
-
+		
         if (chunk) {
-          this[chunk[1]] = new chunk[0](reader, size, this.nodes);
+          this[chunk[1]] = new chunk[0](reader, size, this["nodes"]);
         } else {
           console.log("Didn't parse chunk " + tag);
           skip(reader, size);
@@ -598,7 +598,7 @@ var Parser = (function () {
         }
       }
 
-      this.ready = true;
+      this["ready"] = true;
     }
   });
 }());

@@ -78,7 +78,9 @@ CODE_FILES = [
   #"viewer/m3/particle",
   #"viewer/m3/particleemitter",
   "viewer/m3/after",
-  "viewer/after"
+  "viewer/after",
+  "main",
+  "events"
 ]
 
 def handle_shaders(shared, mdx, m3, srcpath, outputs)
@@ -104,46 +106,49 @@ def handle_shaders(shared, mdx, m3, srcpath, outputs)
   }
 end
 
-handle_shaders(SHARED_SHADERS, MDX_SHADERS, M3_SHADERS, "src/viewer/", ["shaders.js", "shadermap.js", "membermap.js"])
-
-File.open("model_viewer_monolith.js", "w") { |output|
-  output.write("(function(){")
-  output.write("\"use strict\";")
-  
-  CODE_FILES.each { |file|
-    output.write(IO.read("src/" + file + ".js") + "\n")
-  }
-  
-  output.write("}());")
-}
-
-if USE_CLOSURE
-  system("java -jar compiler.jar --js model_viewer_monolith.js --js_output_file model_viewer_monolith_min.js");
-else
-  File.open("model_viewer_monolith_min.js", "w") { |output|
-    File.open("model_viewer_monolith.js", "r") { |input|
-      output.write(input.read())
-    }
-  }
-end
-
-File.open("model_viewer_monolith_min.js", "r") { |input|
-  File.open("viewer.js", "w") { |output|
-    output.write("// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)\n")
-    
-    if USE_CLOSURE
+def handle_source(paths, use_closure, output)
+    File.open("model_viewer_monolith.js", "w") { |output|
       output.write("(function(){")
       output.write("\"use strict\";")
-    end
-    
-    output.write(input.read().gsub("// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)", ""))
-    
-    if USE_CLOSURE
+      
+      paths.each { |file|
+        output.write(IO.read("src/" + file + ".js") + "\n")
+      }
+      
       output.write("}());")
-    end
-    
-  }
-}
+    }
+	
+    if use_closure
+      system("java -jar compiler.jar --compilation_level ADVANCED_OPTIMIZATIONS --js model_viewer_monolith.js --js_output_file model_viewer_monolith_min.js");
+    else
+      File.open("model_viewer_monolith_min.js", "w") { |output|
+        File.open("model_viewer_monolith.js", "r") { |input|
+          output.write(input.read())
+        }
+      }
+	end
+  
+    File.open("model_viewer_monolith_min.js", "r") { |input|
+      File.open(output, "w") { |output|
+        output.write("// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)\n")
+        
+        if use_closure
+          output.write("(function(){")
+          output.write("\"use strict\";")
+        end
+        
+        output.write(input.read().gsub("// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)", ""))
+        
+        if USE_CLOSURE
+          output.write("}());")
+        end
+        
+      }
+    }
 
-File.delete("model_viewer_monolith.js")
-File.delete("model_viewer_monolith_min.js")
+    File.delete("model_viewer_monolith.js")
+    File.delete("model_viewer_monolith_min.js")
+end
+
+handle_shaders(SHARED_SHADERS, MDX_SHADERS, M3_SHADERS, "src/viewer/", ["shaders.js", "shadermap.js", "membermap.js"])
+handle_source(CODE_FILES, USE_CLOSURE, "viewer.js")

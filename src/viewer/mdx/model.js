@@ -6,14 +6,14 @@ function Model(parser, customTextures, spawned, onprogress) {
   this.spawned = spawned;
   this.frame = 0;
   this.time = 0;
-  
+
   this.setup(parser);
   
   if (onprogress) {
     onprogress({lengthComputable: true, total: 100, loaded: 100});
   }
   
-  if (parser.textureChunk) {
+  if (parser["textureChunk"]) {
     if (onprogress) {
       onprogress({status: "Loading textures"});
     }
@@ -28,12 +28,12 @@ Model.prototype = {
   setup: function (parser) {
     var emitters, i, l, j, k;
     
-    if (parser.materialChunk) {
-      this.materials = parser.materialChunk.materials;
+    if (parser["materialChunk"]) {
+      this.materials = parser["materialChunk"].materials;
     }
     
-    if (parser.geosetChunk) {
-      var geosets = parser.geosetChunk.geosets;
+    if (parser["geosetChunk"]) {
+      var geosets = parser["geosetChunk"].geosets;
       var groups = [[], [], [], []];
       
       this.geosets = [];
@@ -54,38 +54,38 @@ Model.prototype = {
       this.layers = groups[0].concat(groups[1]).concat(groups[2]).concat(groups[3]);
     }
     
-    if (parser.sequenceChunk) {
-      this.sequences = parser.sequenceChunk.sequences;
+    if (parser["sequenceChunk"]) {
+      this.sequences = parser["sequenceChunk"].sequences;
     }
     
-    if (parser.cameraChunk) {
-      this.cameras = parser.cameraChunk.cameras;
+    if (parser["cameraChunk"]) {
+      this.cameras = parser["cameraChunk"].cameras;
+    }
+	
+    if (parser["geosetAnimationChunk"]) {
+      this.geosetAnimations = parser["geosetAnimationChunk"].animations;
     }
     
-    if (parser.geosetAnimationChunk) {
-      this.geosetAnimations = parser.geosetAnimationChunk.animations;
+    if (parser["globalSequenceChunk"]) {
+      this.globalSequences = parser["globalSequenceChunk"].sequences;
     }
-    
-    if (parser.globalSequenceChunk) {
-      this.globalSequences = parser.globalSequenceChunk.sequences;
+	
+    if (parser["textureAnimationChunk"]) {
+      this.textureAnimations = parser["textureAnimationChunk"].animations;
     }
-    
-    if (parser.textureAnimationChunk) {
-      this.textureAnimations = parser.textureAnimationChunk.animations;
-    }
-    
-    if (parser.particleEmitterChunk) {
-      emitters = parser.particleEmitterChunk.emitters;
-      
+	
+    if (parser["particleEmitterChunk"]) {
+      emitters = parser["particleEmitterChunk"].emitters;
+	
       this.particleEmitters = [];
       
       for (i = 0, l = emitters.length; i < l; i++) {
         this.particleEmitters[i] = new ParticleEmitter(emitters[i], this);
       }
     }
-    
-    if (parser.particleEmitter2Chunk) {
-      emitters = parser.particleEmitter2Chunk.emitters;
+	
+    if (parser["particleEmitter2Chunk"]) {
+      emitters = parser["particleEmitter2Chunk"].emitters;
       
       this.particleEmitters2 = [];
       
@@ -93,9 +93,9 @@ Model.prototype = {
         this.particleEmitters2[i] = new ParticleEmitter2(emitters[i], this);
       }
     }
-    
-    if (parser.ribbonEmitterChunk) {
-      emitters = parser.ribbonEmitterChunk.emitters;
+	
+    if (parser["ribbonEmitterChunk"]) {
+      emitters = parser["ribbonEmitterChunk"].emitters;
       
       this.ribbonEmitters = [];
       
@@ -103,9 +103,9 @@ Model.prototype = {
         this.ribbonEmitters[i] = new RibbonEmitter(emitters[i], this.materials, this);
       }
     }
-    
-    if (parser.collisionShapeChunk) {
-      var shapes = parser.collisionShapeChunk.shapes;
+	
+    if (parser["collisionShapeChunk"]) {
+      var shapes = parser["collisionShapeChunk"].shapes;
       
       this.collisionShapes = [];
       
@@ -113,16 +113,16 @@ Model.prototype = {
         this.collisionShapes[i] = new CollisionShape(shapes[i]);
       }
     }
-    
+	
     this.skeleton = new Skeleton(parser, this);
-    
-    this.extent = parser.modelChunk.extent.maximum[0] || 100;
+	
+    this.extent = parser["modelChunk"].extent.maximum[0] || 100;
   },
   
   loadTextures: function (parser, customTextures, onprogress) {
     var loaded = 0;
     var failed = 0;
-    var textures = parser.textureChunk.textures;
+    var textures = parser["textureChunk"].textures;
     
     function onload() {
       loaded++;
@@ -184,7 +184,7 @@ Model.prototype = {
   
   render: function () {
     var i, l, v;
-    
+	  
     if (this.layers && standardShader) {
       gl.bindShader("main");
       gl.bindMVP("u_mvp");

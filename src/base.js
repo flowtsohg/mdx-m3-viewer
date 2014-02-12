@@ -106,7 +106,7 @@ function addEvent(element, event, callback) {
   
   element.addEventListener(event, callback, false);
 }
-
+/*
 function removeEvent(element, event, callback) {
   if (event === "mousewheel") {
     element.removeEventListener("DOMMouseScroll", callback, false);
@@ -114,7 +114,7 @@ function removeEvent(element, event, callback) {
   
   element.removeEventListener(event, callback, false);
 }
-
+*/
 function preventEvent(event) {
   event.stopPropagation();
   event.preventDefault();

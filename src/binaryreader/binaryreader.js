@@ -50,7 +50,7 @@ function read(reader, size) {
   for (var i = 0; i < size; i++) {
     data[i] = String.fromCharCode(String(reader.dataview.getUint8(reader.index + i)));
   }
-
+  
   reader.index += size;
 
   return data.join("").replace(/\0/g, "");

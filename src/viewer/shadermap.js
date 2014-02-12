@@ -61,23 +61,11 @@ var PARAMETERMAP = {
 };
 
 var MEMBERMAP = {
-	"addColor":"i",
 	"channels":"c",
-	"clampResult":"j",
-	"constantColor":"l",
+	"clampResult":"f",
 	"enabled":"a",
-	"fresnelClamp":"r",
-	"fresnelExponentBiasScale":"s",
-	"fresnelMode":"o",
-	"fresnelTransform":"q",
-	"fresnelTransformMode":"p",
-	"invert":"g",
-	"multAddAlpha":"e",
-	"multColor":"h",
+	"invert":"e",
 	"op":"b",
 	"teamColorMode":"d",
-	"useAlphaFactor":"f",
-	"useConstantColor":"k",
-	"uvCoordinate":"n",
-	"uvSource":"m"
+	"uvCoordinate":"g"
 };

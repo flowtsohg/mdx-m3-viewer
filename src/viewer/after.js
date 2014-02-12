@@ -5,9 +5,9 @@
   function loadFormat(magic, reader, args, customTextures) {
     if (magic == "MDLX") {
       var parser = new Mdx.Parser(reader, onprogress);
-      
-      if (parser.ready) {
-        document.title = fileName(parser.modelChunk.name);
+	  
+      if (parser["ready"]) {
+        document.title = fileName(parser["modelChunk"].name);
         
         onprogress({status: "Setting the model for rendering"});
         
@@ -17,13 +17,13 @@
         
         var psmain = floatPrecision + SHADERS["wpsmain"];
         
-        if (parser.geosetChunk) {
+        if (parser["geosetChunk"] || parser["particleEmitterChunk"]) {
           if (HAS_FLOAT_TEXTURE && HAS_VERTEX_TEXTURE) {
             standardShader = gl.newShader("main", SHADERS["vsbonetexture"] + SHADERS["wvshardskinningtexture"], psmain);
             RENDER_MODE = 2;
           }
           
-          if (!standardShader && parser.boneChunk.bones.length < (VERTEX_UNIFORM_VECTORS / 4) - 1) {
+          if (!standardShader && parser["boneChunk"].bones.length < (VERTEX_UNIFORM_VECTORS / 4) - 1) {
             standardShader = gl.newShader("main", SHADERS["wvshardskinningarray"], psmain);
             RENDER_MODE = 1;
           }
@@ -32,7 +32,7 @@
             standardShader = gl.newShader("main", SHADERS["wvssoftskinning"], psmain);
             RENDER_MODE = 0;
           }
-          
+	  
           if (standardShader) {
             if (RENDER_MODE === 0) {
               console.log("Running in SOFTware mode.");
@@ -44,16 +44,16 @@
           }
         }
         
-        if (parser.particleEmitter2Chunk) {
+        if (parser["particleEmitter2Chunk"]) {
           particleShader = gl.newShader("particles", SHADERS["wvsparticles"], floatPrecision + SHADERS["wpsparticles"]);
         }
         
-        if (parser.ribbonEmitterChunk) {
+        if (parser["ribbonEmitterChunk"]) {
           ribbonShader = gl.newShader("ribbons", SHADERS["wvssoftskinning"], psmain);
         }
-        
+		
         model = new Mdx.Model(parser, customTextures, false, onprogress);
-        
+		
         if (DEBUG_MODE) {
           console.log(model);
         }

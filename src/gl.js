@@ -35,36 +35,38 @@ function GL(element) {
   var parameterMap;
   var memberMap;
     
-  glTypeToUniformType[gl.FLOAT] = "1f";
-  glTypeToUniformType[gl.FLOAT_VEC2] = "2fv";
-  glTypeToUniformType[gl.FLOAT_VEC3] = "3fv";
-  glTypeToUniformType[gl.FLOAT_VEC4] = "4fv";
-  glTypeToUniformType[gl.INT] = "1i";
-  glTypeToUniformType[gl.INT_VEC2] = "2iv";
-  glTypeToUniformType[gl.INT_VEC3] = "3iv";
-  glTypeToUniformType[gl.INT_VEC4] = "4iv";
-  glTypeToUniformType[gl.BOOL] = "1f";
-  glTypeToUniformType[gl.BOOL_VEC2] = "2fv";
-  glTypeToUniformType[gl.BOOL_VEC3] = "3fv";
-  glTypeToUniformType[gl.BOOL_VEC4] = "4fv";
-  glTypeToUniformType[gl.FLOAT_MAT2] = "Matrix2fv";
-  glTypeToUniformType[gl.FLOAT_MAT3] = "Matrix3fv";
-  glTypeToUniformType[gl.FLOAT_MAT4] = "Matrix4fv";
-  glTypeToUniformType[gl.SAMPLER_2D] = "1i";
-  glTypeToUniformType[gl.SAMPLER_CUBE] = "1i";
+  glTypeToUniformType[gl["FLOAT"]] = "1f";
+  glTypeToUniformType[gl["FLOAT_VEC2"]] = "2fv";
+  glTypeToUniformType[gl["FLOAT_VEC3"]] = "3fv";
+  glTypeToUniformType[gl["FLOAT_VEC4"]] = "4fv";
+  glTypeToUniformType[gl["INT"]] = "1i";
+  glTypeToUniformType[gl["INT_VEC2"]] = "2iv";
+  glTypeToUniformType[gl["INT_VEC3"]] = "3iv";
+  glTypeToUniformType[gl["INT_VEC4"]] = "4iv";
+  glTypeToUniformType[gl["BOOL"]] = "1f";
+  glTypeToUniformType[gl["BOOL_VEC2"]] = "2fv";
+  glTypeToUniformType[gl["BOOL_VEC3"]] = "3fv";
+  glTypeToUniformType[gl["BOOL_VEC4"]] = "4fv";
+  glTypeToUniformType[gl["FLOAT_MAT2"]] = "Matrix2fv";
+  glTypeToUniformType[gl["FLOAT_MAT3"]] = "Matrix3fv";
+  glTypeToUniformType[gl["FLOAT_MAT4"]] = "Matrix4fv";
+  glTypeToUniformType[gl["SAMPLER_2D"]] = "1i";
+  glTypeToUniformType[gl["SAMPLER_CUBE"]] = "1i";
   
-  var hasFloatTexture = gl.getExtension("OES_texture_float");
-  var compressedTextures = gl.getExtension("WEBGL_compressed_texture_s3tc");
-  var depthTextures = gl.getExtension("WEBGL_depth_texture");
-  var multipleRenderTargets = gl.getExtension("WEBGL_draw_buffers");
+  var hasFloatTexture = gl["getExtension"]("OES_texture_float");
+  var compressedTextures = gl["getExtension"]("WEBGL_compressed_texture_s3tc");
+  var depthTextures = gl["getExtension"]("WEBGL_depth_texture");
+  var multipleRenderTargets = gl["getExtension"]("WEBGL_draw_buffers");
   
-  gl.viewport(0, 0, element.width, element.height);
-  gl.depthFunc(gl.LEQUAL);
-  gl.enable(gl.DEPTH_TEST);
-  gl.enable(gl.CULL_FACE);
+  console.log(multipleRenderTargets);
+  
+  gl["viewport"](0, 0, element.width, element.height);
+  gl["depthFunc"](gl["LEQUAL"]);
+  gl["enable"](gl["DEPTH_TEST"]);
+  gl["enable"](gl["CULL_FACE"]);
   
   function viewSize(width, height) {
-    gl.viewport(0, 0, width, height);
+    gl["viewport"](0, 0, width, height);
   }
   
   function setPerspective(fovy, aspect, near, far) {
@@ -76,7 +78,7 @@ function GL(element) {
   }
   
   function setBackground(red, green, blue) {
-    gl.clearColor(red, green, blue, 1);
+    gl["clearColor"](red, green, blue, 1);
   }
   */
   function loadIdentity() {
@@ -131,8 +133,8 @@ function GL(element) {
       
       defines = defines.join("\n") + "\n";
       
-      var vertexUnit = newShaderUnit(defines + vertexSource, gl.VERTEX_SHADER);
-      var fragmentUnit = newShaderUnit(defines + fragmentSource, gl.FRAGMENT_SHADER);
+      var vertexUnit = newShaderUnit(defines + vertexSource, gl["VERTEX_SHADER"]);
+      var fragmentUnit = newShaderUnit(defines + fragmentSource, gl["FRAGMENT_SHADER"]);
       
       if (vertexUnit.ready && fragmentUnit.ready) {
         shaderStore[name] = new Shader(vertexUnit, fragmentUnit);
@@ -148,40 +150,40 @@ function GL(element) {
   }
   
   function ShaderUnit(source, type) {
-    var id = gl.createShader(type);
+    var id = gl["createShader"](type);
     
     this.source = source;
     this.type = type;
     this.id = id;
     
-    gl.shaderSource(id, source);
-    gl.compileShader(id);
+    gl["shaderSource"](id, source);
+    gl["compileShader"](id);
     
-    if (gl.getShaderParameter(id, gl.COMPILE_STATUS)) {
+    if (gl["getShaderParameter"](id, gl["COMPILE_STATUS"])) {
       this.ready = true;
     } else {
-      console.warn(gl.getShaderInfoLog(id));
+      console.warn(gl["getShaderInfoLog"](id));
       console.log(source);
     }
   }
   
   function Shader(vertexUnit, fragmentUnit) {
-    var id = gl.createProgram();
+    var id = gl["createProgram"]();
     
     this.vertexUnit = vertexUnit;
     this.fragmentUnit = fragmentUnit;
     this.id = id;
       
-    gl.attachShader(id, vertexUnit.id);
-    gl.attachShader(id, fragmentUnit.id);
-    gl.linkProgram(id);
+    gl["attachShader"](id, vertexUnit.id);
+    gl["attachShader"](id, fragmentUnit.id);
+    gl["linkProgram"](id);
   
-    if (gl.getProgramParameter(id, gl.LINK_STATUS)) {
+    if (gl["getProgramParameter"](id, gl["LINK_STATUS"])) {
       this.uniforms = this.getParameters("Uniform", "UNIFORMS");
       this.attribs = this.getParameters("Attrib", "ATTRIBUTES");
       this.ready = true;
     } else {
-      console.warn(gl.getProgramInfoLog(id));
+      console.warn(gl["getProgramInfoLog"](id));
     }
   }
   
@@ -190,7 +192,7 @@ function GL(element) {
       var id = this.id;
       var o = {};
         
-      for (var i = 0, l = gl.getProgramParameter(id, gl["ACTIVE_" + enumtype]); i < l; i++) {
+      for (var i = 0, l = gl["getProgramParameter"](id, gl["ACTIVE_" + enumtype]); i < l; i++) {
         var v = gl["getActive" + type](id, i);
         var location = gl["get" + type + "Location"](id, v.name);
         
@@ -225,7 +227,7 @@ function GL(element) {
           gl["uniform" + typeFunc](location, value);
         }
       } else {
-        location = gl.getUniformLocation(this.id, name);
+        location = gl["getUniformLocation"](this.id, name);
         
         // If the location exists, it means this name refers to a uniform array
         if (location) {
@@ -258,13 +260,13 @@ function GL(element) {
     
     bind: function () {
       if (this.ready) {
-        gl.useProgram(this.id);
+        gl["useProgram"](this.id);
         
         var attribs = this.attribs;
         var keys = Object.keys(attribs);
           
         for (var i = 0, l = keys.length; i < l; i++) {
-          gl.enableVertexAttribArray(attribs[keys[i]][0]);
+          gl["enableVertexAttribArray"](attribs[keys[i]][0]);
         }
       }
     },
@@ -274,10 +276,10 @@ function GL(element) {
       var keys = Object.keys(attribs);
         
       for (var i = 0, l = keys.length; i < l; i++) {
-        gl.disableVertexAttribArray(attribs[keys[i]][0]);
+        gl["disableVertexAttribArray"](attribs[keys[i]][0]);
       }
       
-      gl.useProgram(null);
+      gl["useProgram"](null);
     }
   };
   
@@ -325,7 +327,7 @@ function GL(element) {
   function vertexAttribPointer(name, size, type, normalized, stride, pointer) {
     if (boundShader) {
       //console.log(name);
-      gl.vertexAttribPointer(boundShader.getParameter(name)[0], size, type, normalized, stride, pointer);
+      gl["vertexAttribPointer"](boundShader.getParameter(name)[0], size, type, normalized, stride, pointer);
     }
   }
   
@@ -364,16 +366,16 @@ function GL(element) {
   }
   */
   function generateTexture(image, clampS, clampT) {
-    var id = gl.createTexture();
+    var id = gl["createTexture"]();
     
-    gl.bindTexture(gl.TEXTURE_2D, id);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, clampS ? gl.CLAMP_TO_EDGE : gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, clampT ? gl.CLAMP_TO_EDGE : gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-    gl.generateMipmap(gl.TEXTURE_2D);
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl["bindTexture"](gl["TEXTURE_2D"], id);
+    gl["texImage2D"](gl["TEXTURE_2D"], 0, gl["RGBA"], gl["RGBA"], gl["UNSIGNED_BYTE"], image);
+    gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_WRAP_S"], clampS ? gl["CLAMP_TO_EDGE"] : gl["REPEAT"]);
+    gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_WRAP_T"], clampT ? gl["CLAMP_TO_EDGE"] : gl["REPEAT"]);
+    gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_MAG_FILTER"], gl["LINEAR"]);
+    gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_MIN_FILTER"], gl["LINEAR_MIPMAP_LINEAR"]);
+    gl["generateMipmap"](gl["TEXTURE_2D"]);
+    gl["bindTexture"](gl["TEXTURE_2D"], null);
     
     return id;
   }
@@ -426,13 +428,13 @@ function GL(element) {
   Texture.prototype = {
     bind: function (unit) {
       if (this.ready) {
-        gl.activeTexture(gl["TEXTURE" + (unit || 0)]);
-        gl.bindTexture(gl.TEXTURE_2D, this.id);
+        gl["activeTexture"](gl["TEXTURE" + (unit || 0)]);
+        gl["bindTexture"](gl["TEXTURE_2D"], this.id);
       }
     },
     
     unbind: function () {
-      gl.bindTexture(gl.TEXTURE_2D, 0);
+      gl["bindTexture"](gl["TEXTURE_2D"], 0);
     }
   };
   
@@ -452,32 +454,32 @@ function GL(element) {
       var dataOffset = headerSize + 4;
       var blockSize;
       var format;
-      
+	  
       if (fourCC === 0x31545844) {
         blockSize = 8;
-        format = compressedTextures.COMPRESSED_RGBA_S3TC_DXT1_EXT;
+        format = compressedTextures["COMPRESSED_RGBA_S3TC_DXT1_EXT"];
       } else if (fourCC === 0x33545844) {
         blockSize = 16;
-        format = compressedTextures.COMPRESSED_RGBA_S3TC_DXT3_EXT;
+        format = compressedTextures["COMPRESSED_RGBA_S3TC_DXT3_EXT"];
       } else if (fourCC === 0x35545844) {
         blockSize = 16;
-        format = compressedTextures.COMPRESSED_RGBA_S3TC_DXT5_EXT;
+        format = compressedTextures["COMPRESSED_RGBA_S3TC_DXT5_EXT"];
       }
-      
+	  
       if (format) {
         var mipmapsCount = Math.max(1, ((flags & 0x20000) ? mipmaps : 0));
         
-        this.id = gl.createTexture();
+        this.id = gl["createTexture"]();
         
-        gl.bindTexture(gl.TEXTURE_2D, this.id);
+        gl["bindTexture"](gl["TEXTURE_2D"], this.id);
         
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, clampS ? gl.CLAMP_TO_EDGE : gl.REPEAT);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, clampT ? gl.CLAMP_TO_EDGE : gl.REPEAT);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, (mipmapsCount > 1) ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR); // For some reason causes a WebGL texture incomplete error
+        gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_WRAP_S"], clampS ? gl["CLAMP_TO_EDGE"] : gl["REPEAT"]);
+        gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_WRAP_T"], clampT ? gl["CLAMP_TO_EDGE"] : gl["REPEAT"]);
+        gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_MAG_FILTER"], gl["LINEAR"]);
+        //gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_MIN_FILTER"], (mipmapsCount > 1) ? gl["LINEAR_MIPMAP_LINEAR"] : gl["LINEAR"]); // For some reason causes a WebGL texture incomplete error
                                                                                                                                                                // when using mipmapped linear filtering.
                                                                                                                                                                // Probably need to enable some extension, maybe related to float texture filtering?
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_MIN_FILTER"], gl["LINEAR"]);
         
         for (var i = 0, l = mipmapsCount; i < l; i++) {
           // Anathema_diffuse.dds has 8 mipmap levels while the image size is 128x64 which means it can only have 6 mipmap levels.
@@ -485,7 +487,7 @@ function GL(element) {
             var dataSize = Math.max(4, width) / 4 * Math.max(4, height ) / 4 * blockSize;
             var byteArray = new Uint8Array(arraybuffer, dataOffset, dataSize);
             
-            gl.compressedTexImage2D(gl.TEXTURE_2D, i, format, width, height, 0, byteArray);
+            gl["compressedTexImage2D"](gl["TEXTURE_2D"], i, format, width, height, 0, byteArray);
             
             dataOffset += dataSize;
             width *= 0.5;
@@ -493,7 +495,7 @@ function GL(element) {
           }
         }
         
-        gl.bindTexture(gl.TEXTURE_2D, null);
+        gl["bindTexture"](gl["TEXTURE_2D"], null);
         
         this.ready = true;
         
@@ -587,7 +589,7 @@ function GL(element) {
   function Rectangle(x, y, z, hw, hh, stscale) {
     stscale = stscale || 1;
     
-    this.buffer = gl.createBuffer();
+    this.buffer = gl["createBuffer"]();
     this.data = new Float32Array([
       x - hw, y - hh, z, 0, 1 * stscale,
       x + hw, y - hh, z, 1 * stscale, 1 * stscale,
@@ -595,19 +597,19 @@ function GL(element) {
       x + hw, y + hh, z, 1 * stscale, 0
     ]);
     
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this.data, gl.STATIC_DRAW);
+    gl["bindBuffer"](gl["ARRAY_BUFFER"], this.buffer);
+    gl["bufferData"](gl["ARRAY_BUFFER"], this.data, gl["STATIC_DRAW"]);
   }
   
   Rectangle.prototype = {
     render: function () {
       if (boundShader) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+        gl["bindBuffer"](gl["ARRAY_BUFFER"], this.buffer);
         
-        vertexAttribPointer("a_position", 3, gl.FLOAT, false, 20, 0);
-        vertexAttribPointer("a_uv", 2, gl.FLOAT, false, 20, 12);
+        vertexAttribPointer("a_position", 3, gl["FLOAT"], false, 20, 0);
+        vertexAttribPointer("a_uv", 2, gl["FLOAT"], false, 20, 12);
         
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        gl["drawArrays"](gl["TRIANGLE_STRIP"], 0, 4);
       }
     }
   };
@@ -667,43 +669,43 @@ function GL(element) {
     this.vertexArray = new Float32Array(vertexData);
     this.indexArray = new Uint16Array(indexData);
     
-    this.vertexBuffer = gl.createBuffer();
-    this.indexBuffer = gl.createBuffer();
+    this.vertexBuffer = gl["createBuffer"]();
+    this.indexBuffer = gl["createBuffer"]();
     
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this.vertexArray, gl.STATIC_DRAW);
+    gl["bindBuffer"](gl["ARRAY_BUFFER"], this.vertexBuffer);
+    gl["bufferData"](gl["ARRAY_BUFFER"], this.vertexArray, gl["STATIC_DRAW"]);
     
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indexArray, gl.STATIC_DRAW);
+    gl["bindBuffer"](gl["ELEMENT_ARRAY_BUFFER"], this.indexBuffer);
+    gl["bufferData"](gl["ELEMENT_ARRAY_BUFFER"], this.indexArray, gl["STATIC_DRAW"]);
   }
   
   Sphere.prototype = {
     render: function () {
       if (boundShader) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl["bindBuffer"](gl["ARRAY_BUFFER"], this.vertexBuffer);
         
-        vertexAttribPointer("a_position", 3, gl.FLOAT, false, 20, 0);
-        vertexAttribPointer("a_uv", 2, gl.FLOAT, false, 20, 12);
+        vertexAttribPointer("a_position", 3, gl["FLOAT"], false, 20, 0);
+        vertexAttribPointer("a_uv", 2, gl["FLOAT"], false, 20, 12);
         
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl["bindBuffer"](gl["ELEMENT_ARRAY_BUFFER"], this.indexBuffer);
         
-        gl.drawElements(gl.TRIANGLES, this.indexArray.length, gl.UNSIGNED_SHORT, 0);
+        gl["drawElements"](gl["TRIANGLES"], this.indexArray.length, gl["UNSIGNED_SHORT"], 0);
       }
     },
     
     renderLines: function () {
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+      gl["bindBuffer"](gl["ARRAY_BUFFER"], this.vertexBuffer);
         
-      vertexAttribPointer("a_position", 3, gl.FLOAT, false, 20, 0);
+      vertexAttribPointer("a_position", 3, gl["FLOAT"], false, 20, 0);
       
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+      gl["bindBuffer"](gl["ELEMENT_ARRAY_BUFFER"], this.indexBuffer);
       
-      gl.drawElements(gl.LINES, this.indexArray.length, gl.UNSIGNED_SHORT, 0);
+      gl["drawElements"](gl["LINES"], this.indexArray.length, gl["UNSIGNED_SHORT"], 0);
     }
   };
   
   function Cube(x1, y1, z1, x2, y2, z2) {
-    this.buffer = gl.createBuffer();
+    this.buffer = gl["createBuffer"]();
     this.data = new Float32Array([
       x1, y2, z1,
       x1, y2, z2,
@@ -731,18 +733,18 @@ function GL(element) {
       x2, y1, z1
     ]);
     
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this.data, gl.STATIC_DRAW);
+    gl["bindBuffer"](gl["ARRAY_BUFFER"], this.buffer);
+    gl["bufferData"](gl["ARRAY_BUFFER"], this.data, gl["STATIC_DRAW"]);
   }
   
   Cube.prototype = {
     renderLines: function () {
       if (boundShader) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+        gl["bindBuffer"](gl["ARRAY_BUFFER"], this.buffer);
         
-        vertexAttribPointer("a_position", 3, gl.FLOAT, false, 12, 0);
+        vertexAttribPointer("a_position", 3, gl["FLOAT"], false, 12, 0);
         
-        gl.drawArrays(gl.LINES, 0, 24);
+        gl["drawArrays"](gl["LINES"], 0, 24);
       }
     }
   };
@@ -752,7 +754,7 @@ function GL(element) {
     var step = Math.PI * 2 / bands;
     var offset = 0;
 
-    var buffer = gl.createBuffer();
+    var buffer = gl["createBuffer"]();
     var data = new Float32Array(72 * bands);
 
     // Top face
@@ -852,8 +854,8 @@ function GL(element) {
       data[index + 71] = h;
     }
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+    gl["bindBuffer"](gl["ARRAY_BUFFER"], buffer);
+    gl["bufferData"](gl["ARRAY_BUFFER"], data, gl["STATIC_DRAW"]);
 
     this.buffer = buffer;
     this.data = data;
@@ -863,11 +865,11 @@ function GL(element) {
   Cylinder.prototype = {
     renderLines: function () {
       if (boundShader) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+        gl["bindBuffer"](gl["ARRAY_BUFFER"], this.buffer);
 
-        vertexAttribPointer("a_position", 3, gl.FLOAT, false, 12, 0);
+        vertexAttribPointer("a_position", 3, gl["FLOAT"], false, 12, 0);
 
-        gl.drawArrays(gl.LINES, 0, this.bands * 24);
+        gl["drawArrays"](gl["LINES"], 0, this.bands * 24);
       }
     }
   };

@@ -16,7 +16,7 @@ function ParticleEmitter(emitter, model) {
   function onload(e) {
     var parser = new Parser(new BinaryReader(e.target.response));
     
-    if (parser.ready) {
+    if (parser["ready"]) {
       this.spawnModel = new Model(parser, {}, true);
       this.spawnModel.setAnimation(0);
       
