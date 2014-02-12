@@ -10,7 +10,9 @@ Both options can be disabled or enabled in compiler.rb.
 
 Note: you must run compiler.rb to get a working file, since there are broken files that must be concatenated to form valid JavaScript files (look at before.js and after.js files to understand what I mean).
 
-A live version can be seen on [Hiveworkshop](http://www.hiveworkshop.com) for which this viewer was made.
+A live version can be seen on [Hiveworkshop](http://www.hiveworkshop.com) for which this viewer was made, here are two examples:
+* [Warcraft 3's Azura Dragon](http://www.hiveworkshop.com/model_viewer/?mpq=Units/Creeps/AzureDragon/AzureDragon.mdx)
+* [Starcraft 2's Baneling](http://www.hiveworkshop.com/model_viewer/?mpq=Assets/units/zerg/baneling/baneling.m3)
 
 ------------------------
 
