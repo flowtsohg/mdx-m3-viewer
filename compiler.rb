@@ -78,9 +78,7 @@ CODE_FILES = [
   #"viewer/m3/particle",
   #"viewer/m3/particleemitter",
   "viewer/m3/after",
-  "viewer/after",
-  "main",
-  "events"
+  "viewer/after"
 ]
 
 def handle_shaders(shared, mdx, m3, srcpath, outputs)
