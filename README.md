@@ -41,8 +41,8 @@ The API of the viewer is as follows:
 
 * `loadModel(source)` - Load a model. Source can be an absolute path to a MDX/M3 file, a path to a MDX/M3 file in any of the Warcraft 3 and Starcraft 2 MPQs, or a model ID used by the Hiveworkshop. Returns the ID of the loaded model. Note: if a model was already loaded from the given source, its ID will be returned.
 * `loadInstance(source)` - Create a new instance from an existing model or instance, or a path that will be used to load also the model if needed. If source is a string, it can be an absolute path to a MDX/M3 file, a path to a MDX/M3 file in any of the Warcraft 3 and Starcraft 2 MPQs, or a model ID used by the Hiveworkshop. If source is a number, it can be an ID of a model or an instance. Returns null if given an invalid ID, otherwise returns the ID of the created instance. Note: if the source is a string, and a model was already loaded from that string, only a new instance will be created.
-* `getModelFromInstance(objectId)` - Return the model ID that an instance points to.
-* `getModelFromPath(path)` - Return the model ID that was loaded with the given path.
+* `getModelFromInstance(objectId)` - Return the model ID that an instance points to. Returns null if the given ID is invalid or is not an instance.
+* `getModelFromPath(path)` - Return the model ID that was loaded with the given path. Returns null if no model was loaded from the given path.
 * `setPosition(objectId, v)` - Set the position of an instance.
 * `move(objectId, v)` - Move an instance.
 * `setRotation(objectId, v)` - Set the rotation of an instance.
