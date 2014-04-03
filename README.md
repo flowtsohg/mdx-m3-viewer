@@ -25,7 +25,7 @@ A live version can be seen on [Hiveworkshop](http://www.hiveworkshop.com) for wh
 * `onmessage` - A function callback. Gets messages from the viewer. Optional.
 * `debugMode` - If true, the viewer will log the Parser and Model structures. Optional.
 
-`urls` is an object that is used to retreive urls for certain types of model and texture paths. It should have the following methods, unless specified that they are specific to the Hiveworkshop:
+`urls` is an object that is used to retrieve urls for certain types of model and texture paths. It should have the following methods, unless specified that they are specific to the Hiveworkshop:
 
 * `header(id)` - Returns the path for a metadata header about a model given its ID. Specific for the Hiveworkshop.
 * `mpqFile(path)` - Returns a path for a file in any of the Warcraft 3 or Starcraft 2 MPQs.
@@ -65,8 +65,5 @@ The API of the viewer is as follows:
 
 Note that the Model getter functions  (getSequences, getAttachments) don't do anything until the model is loaded. Use the onmessage callback to track the loading progress of models (and textures).
 All of the instance methods work in a synchronious manner from the client's perspective, meaning you can use all of them without waiting for anything to load.
-
-To show in-game textures or models properly, you must provide a link that can access the files of the Warcraft 3 and Starcraft 2 MPQ.
-Check out [url.js](https://github.com/flowtsohg/mdx-m3-viewer/blob/master/src/url.js).
 
 When the viewer asks for any image format that is not DDS, the expected response is a PNG image. For DDS, return them as-is.
