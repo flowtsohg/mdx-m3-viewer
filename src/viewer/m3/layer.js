@@ -23,7 +23,7 @@ function Layer(layer, type, op, model) {
       var texturePaths = model.texturePaths;
       
       if (!texturePaths[imagePath]) {
-        var texture = gl.newTexture(imagePath, url.mpqFile(imagePath), true, true);
+        var texture = gl.newTexture(imagePath, urls.mpqFile(imagePath), true, true);
         
         texturePaths[imagePath] = texture;
       
@@ -98,6 +98,6 @@ Layer.prototype = {
   },
   
   overrideTexture: function (newpath, onload, onerror, onprogress) {
-     this.glTexture = gl.newTexture(newpath, url.mpqFile(newpath), false, false, onload, onerror);
+     this.glTexture = gl.newTexture(newpath, urls.mpqFile(newpath), false, false, onload, onerror);
   }
 };

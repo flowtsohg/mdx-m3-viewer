@@ -6,6 +6,7 @@ function ModelInstance(model) {
   var i, l, objects;
   
   this.model = model;
+  this.teamId = 0;
   this.sequence = -1;
   this.frame = 0;
   this.counter = 0;
@@ -87,14 +88,16 @@ ModelInstance.prototype = {
   },
   
   setTeamColor: function (id) {
+    var textures = this.model.textures;
+    
     id = ((id < 10) ? "0" + id : "" + id);
     
-    for (var i = 0, l = this.textures.length; i < l; i++) {
-      var texture = this.textures[i];
+    for (var i = 0, l = textures.length; i < l; i++) {
+      var texture = textures[i];
       var replaceableId = texture.replaceableId;
       
       if (replaceableId === 1 || replaceableId === 2) {
-        texture.fileName = texture.fileName.replace(/\d\d/, id);
+        texture.overrideTexture(texture.path.replace(/\d\d/, id));
       }
     }
   },

@@ -2,7 +2,7 @@
 
 require "./glsl_min"
 
-USE_CLOSURE = true
+USE_CLOSURE = false
 GLSL_MIN_REWRITE_ALL = true
 
 MDX_SHADERS = [
@@ -43,7 +43,6 @@ CODE_FILES = [
   "binaryreader/binaryreader",
   "base",
   "gl",
-  "url",
   "viewer/before",
   "viewer/shaders",
   "viewer/shadermap",

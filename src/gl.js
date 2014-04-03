@@ -313,8 +313,6 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     }
   }
   
-  var bla = false;
-  
   function setParameter(name, value) {
     if (boundShader) {
       var oldValue = shaderUniformStore[boundShaderName][name];

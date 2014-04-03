@@ -12,11 +12,11 @@ function Model(source) {
   if (source.startsWith("http://")) {
     path = source;
   } else if (source.match(/\.(?:mdx|m3|blp|dds)$/)) {
-    path = url.mpqFile(source);
+    path = urls.mpqFile(source);
   } else {
-    path = url.customModel(source);
+    path = urls.customModel(source);
     // Load the custom texturs header to override the needed textures
-    getFile(url.header(source), false, this.setupCustomTextures, onerrorwrapper, onprogresswrapper, this);
+    getFile(urls.header(source), false, this.setupCustomTextures, onerrorwrapper, onprogresswrapper, this);
   }
   
   getFile(path, true, this.setup, onerrorwrapper, onprogresswrapper, this);

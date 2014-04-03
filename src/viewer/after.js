@@ -42,8 +42,8 @@
     var teamColor = "ReplaceableTextures/TeamColor/TeamColor" + number + ".blp";
     var teamGlow = "ReplaceableTextures/TeamGlow/TeamGlow" + number + ".blp";
     
-    gl.newTexture(teamColor, url.mpqFile(teamColor));
-    gl.newTexture(teamGlow, url.mpqFile(teamGlow));
+    gl.newTexture(teamColor, urls.mpqFile(teamColor));
+    gl.newTexture(teamGlow, urls.mpqFile(teamGlow));
   }
   
   gl.newShader("world", SHADERS["vsworld"], floatPrecision + SHADERS["psworld"]);
@@ -52,7 +52,7 @@
   gl.newTexture("grass", "http://www.hiveworkshop.com/model_viewer/images/grass.png");
   gl.newTexture("water", "http://www.hiveworkshop.com/model_viewer/images/water.png");
   gl.newTexture("bedrock", "http://www.hiveworkshop.com/model_viewer/images/bedrock.png");
-  gl.newTexture("sky", url.mpqFile("Environment/Sky/LordaeronSummerSky/LordaeronSummerSky.blp"));
+  gl.newTexture("sky", urls.mpqFile("Environment/Sky/LordaeronSummerSky/LordaeronSummerSky.blp"));
   //gl.newTexture("Light", "../images/Light.png");
     
   grass_water = gl.newRectangle(0, 0, -3, 250, 250, 6);
@@ -270,7 +270,7 @@
     }
   }
   
-  // Return the model ID that an instance points to.
+  // Return the model ID that was loaded with the given path.
   function getModelFromPath(path) {
     var object = modelCache[path];
     

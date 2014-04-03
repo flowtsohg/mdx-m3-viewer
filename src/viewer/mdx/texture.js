@@ -20,7 +20,7 @@ function Texture(path, replaceableId) {
   
   this.path = path.replace(/\\/g, "/").toLowerCase();
   this.replaceableId = replaceableId;
-  this.glTexture = gl.newTexture(this.path, url.mpqFile(this.path));
+  this.glTexture = gl.newTexture(this.path, urls.mpqFile(this.path));
 }
 
 Texture.prototype = {
@@ -37,9 +37,9 @@ Texture.prototype = {
     if (source.startsWith("http://")) {
       path = source;
     } else if (source.match(/\.(?:mdx|m3|blp|dds)$/)) {
-      path = url.mpqFile(source);
+      path = urls.mpqFile(source);
     } else {
-      path = url.customTexture(source);
+      path = urls.customTexture(source);
     }
     
     this.glTexture = gl.newTexture(path, path);

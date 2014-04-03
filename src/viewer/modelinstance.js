@@ -197,5 +197,13 @@ ModelInstance.prototype = {
     } else {
       this.queue.push(["setAnimationLoop", [mode]])
     }
+  },
+  
+  setTeamColor: function (id) {
+    if (this.ready) {
+      this.instance.setTeamColor(id);
+    } else {
+      this.queue.push(["setTeamColor", [id]])
+    }
   }
 };
