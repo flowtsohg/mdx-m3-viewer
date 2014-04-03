@@ -18,11 +18,21 @@ A live version can be seen on [Hiveworkshop](http://www.hiveworkshop.com) for wh
 
 #### Usage
 
-`new ModelViewer(canvas, onmessage, debugMode)`
+`new ModelViewer(canvas, urls, onmessage, debugMode)`
 
 * `canvas` - A \<canvas> element. Required.
+* `urls` - An object containing methods that return proper urls to download files form. More on this below. Required.
 * `onmessage` - A function callback. Gets messages from the viewer. Optional.
 * `debugMode` - If true, the viewer will log the Parser and Model structures. Optional.
+
+`urls` is an object that is used to retreive urls for certain types of model and texture paths. It should have the following methods, unless specified that they are specific to the Hiveworkshop:
+
+* `header(id)` - Returns the path for a metadata header about a model given its ID. Specific for the Hiveworkshop.
+* `mpqFile(path)` - Returns a path for a file in any of the Warcraft 3 or Starcraft 2 MPQs.
+* `customTexture(id)` - Returns a path for a texture given its ID. Specific for the Hiveworkshop.
+* `customModel(id)` - Returns a path for a model given its ID. Specific for the Hiveworkshop.
+* `customFile(path)` - Returns an absolute path given a relative path to a model or texture.
+Note that the above urls API is going to change in the future to be less cumbersome.
 
 If the client has the requierments to run the viewer, the API will be returned, otherwise, null will be returned, and an error message will be dispatched to onmessage.
 
