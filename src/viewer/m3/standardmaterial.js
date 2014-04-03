@@ -1,21 +1,25 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
 function StandardMaterial(material, model) {
-  var keys = Object.keys(material);
-  
-  for (var i = 0, l = keys.length; i < l; i++) {
-    var key = keys[i];
-    
-    this[key] = material[key];
-  }
+  this.name = material.name;
+  this.specialFlags = material.specialFlags;
+  this.flags = material.flags;
+  this.blendMode = material.blendMode;
+  this.priority = material.priority;
+  this.specularity = material.specularity;
+  this.specMult = material.specMult;
+  this.emisMult = material.emisMult;
+  this.layerBlendType = material.layerBlendType;
+  this.emisBlendType = material.emisBlendType;
+  this.emisMode = material.emisMode;
   
   this.layers = [
     new Layer(material.diffuseLayer, "diffuse", 2, model),
     new Layer(material.decalLayer, "decal", 2, model),
     new Layer(material.specularLayer, "specular", 2, model),
     new Layer(material.glossLayer, "gloss", 2, model),
-    new Layer(material.emissiveLayer, "emissive", this.emisBlendType, model),
-    new Layer(material.emissive2Layer, "emissive2", this.emisMode, model),
+    new Layer(material.emissiveLayer, "emissive", material.emisBlendType, model),
+    new Layer(material.emissive2Layer, "emissive2", material.emisMode, model),
     new Layer(material.evioLayer, "evio", 2, model),
     new Layer(material.evioMaskLayer, "evioMask", 2, model),
     new Layer(material.alphaMaskLayer, "alphaMask", 2, model),
@@ -46,8 +50,8 @@ StandardMaterial.prototype = {
     }
   },
   
-  bind: function () {
-   this.bindCommon();
+  bind: function (sequence, frame) {
+    this.bindCommon();
     
     gl.setParameter("u_specularity", this.specularity);
     gl.setParameter("u_specMult", this.specMult);
@@ -55,53 +59,61 @@ StandardMaterial.prototype = {
     
     gl.setParameter("u_lightAmbient", [0.02, 0.02, 0.02, 0]);
     
-    for (var i = 0; i < 14; i++) {
-      this.layers[i].bind(i + 1);
-    }
+    this.layers[0].bind(1, sequence, frame);
+    this.layers[1].bind(2, sequence, frame);
+    this.layers[2].bind(3, sequence, frame);
+    this.layers[4].bind(5, sequence, frame);
+    this.layers[5].bind(6, sequence, frame);
+    this.layers[10].bind(11, sequence, frame);
+    this.layers[12].bind(13, sequence, frame);
   },
   
   unbind: function () {
     ctx.disable(ctx.BLEND);
     ctx.enable(ctx.CULL_FACE);
     
-    for (var i = 0; i < 14; i++) {
-      this.layers[i].unbind();
-    }
+    this.layers[0].unbind();
+    this.layers[1].unbind();
+    this.layers[2].unbind();
+    this.layers[4].unbind();
+    this.layers[5].unbind();
+    this.layers[10].unbind();
+    this.layers[12].unbind();
   },
   
-  bindDiffuse: function () {
+  bindDiffuse: function (sequence, frame) {
     this.bindCommon();
     
-    this.layers[0].bind(1);
+    this.layers[0].bind(1, sequence, frame);
   },
   
-  bindSpecular: function () {
+  bindSpecular: function (sequence, frame) {
     this.bindCommon();
     
     gl.setParameter("u_specularity", this.specularity);
     gl.setParameter("u_specMult", this.specMult);
     
-    this.layers[2].bind(3);
+    this.layers[2].bind(3, sequence, frame);
   },
   
-  bindNormalMap: function () {
+  bindNormalMap: function (sequence, frame) {
     this.bindCommon();
     
-    this.layers[10].bind(11);
+    this.layers[10].bind(11, sequence, frame);
   },
   
-  bindEmissive: function () {
+  bindEmissive: function (sequence, frame) {
     this.bindCommon();
     
     gl.setParameter("u_emisMult", this.emisMult);
     
-    this.layers[4].bind(5);
-    this.layers[5].bind(6);
+    this.layers[4].bind(5, sequence, frame);
+    this.layers[5].bind(6, sequence, frame);
   },
   
-  bindDecal: function () {
+  bindDecal: function (sequence, frame) {
     this.bindCommon();
     
-    this.layers[1].bind(2);
+    this.layers[1].bind(2, sequence, frame);
   }
 };

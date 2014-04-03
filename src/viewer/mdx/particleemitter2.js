@@ -1,6 +1,6 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
-function ParticleEmitter2(emitter, model) {
+function ParticleEmitter2(emitter, model, instance) {
   var i, l;
   var keys = Object.keys(emitter);
   
@@ -50,7 +50,7 @@ function ParticleEmitter2(emitter, model) {
   ctx.bufferData(ctx.ARRAY_BUFFER, this.data, ctx.DYNAMIC_DRAW);
   
   for (i = particles; i--;) {
-    this.particles[i] = new Particle2(model);
+    this.particles[i] = new Particle2();
     this.reusables.push(i);
   }
   
@@ -79,10 +79,13 @@ function ParticleEmitter2(emitter, model) {
   for (i = 0; i < 3; i++) {
     this.colors[i] = [this.segmentColor[i][0], this.segmentColor[i][1], this.segmentColor[i][2], this.segmentAlpha[i] / 255];
   }
+  
+  this.node = instance.skeleton.nodes[this.node];
+  this.sd = parseSDTracks(emitter.tracks, model);
 }
 
 ParticleEmitter2.prototype = {
-  update: function (allowCreate) {
+  update: function (allowCreate, sequence, frame, counter) {
     var i, l;
     
     for (i = 0, l = this.particles.length; i < l; i++) {
@@ -94,27 +97,28 @@ ParticleEmitter2.prototype = {
           
           this.reusables.push(i);
         } else {
-          particle.update(this);
+          particle.update(this, sequence, frame, counter);
         }
       }
     }
     
     // The snow emitter should always run
-    if (allowCreate && this.shouldRender()) {
-      this.lastCreation += 1 * ANIMATION_SCALE;
+    if (allowCreate && this.shouldRender(sequence, frame, counter)) {
+      this.lastCreation += 1;
       
-      var amount = (getTrack(this.tracks.emissionRate, this.emissionRate, this.model) * FRAME_TIME) / (1 / this.lastCreation);
+      
+      var amount = (getSDValue(sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * FRAME_TIME) / (1 / this.lastCreation);
       
       if (amount >= 1) {
         this.lastCreation = 0;
         
         for (i = 0; i < amount; i++) {
           if (this.head && this.reusables.length > 0) {
-            this.particles[this.reusables.pop()].reset(this, true);
+            this.particles[this.reusables.pop()].reset(this, true, sequence, frame, counter);
           }
           
           if (this.tail && this.reusables.length > 0) {
-            this.particles[this.reusables.pop()].reset(this, false);
+            this.particles[this.reusables.pop()].reset(this, false, sequence, frame, counter);
           }
         }
       }
@@ -320,7 +324,7 @@ ParticleEmitter2.prototype = {
         ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
     }
     
-    gl.bindTexture(model.textures[this.textureId].fileName, 0);
+    gl.bindTexture(this.model.textures[this.textureId].path, 0);
     
     ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
     ctx.bufferSubData(ctx.ARRAY_BUFFER, 0, this.data);
@@ -424,7 +428,7 @@ ParticleEmitter2.prototype = {
     }
   },
   */
-  shouldRender: function () {
-    return (getTrack(this.tracks.visibility, 1, this.model) > 0.1);
+  shouldRender: function (sequence, frame, counter) {
+    return getSDValue(sequence, frame, counter, this.sd.visibility) > 0.1;
   }
 };

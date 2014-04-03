@@ -2,186 +2,52 @@
 
   gl.setShaderMaps(PARAMETERMAP, MEMBERMAP);
   
-  function loadFormat(magic, reader, args, customTextures) {
-    if (magic == "MDLX") {
-      var parser = new Mdx.Parser(reader, onprogress);
-	  
-      if (parser["ready"]) {
-        document.title = fileName(parser["modelChunk"].name);
-        
-        onprogress({status: "Setting the model for rendering"});
-        
-        if (DEBUG_MODE) {
-          console.log(parser);
-        }
-        
-        var psmain = floatPrecision + SHADERS["wpsmain"];
-        
-        if (parser["geosetChunk"] || parser["particleEmitterChunk"]) {
-          if (HAS_FLOAT_TEXTURE && HAS_VERTEX_TEXTURE) {
-            standardShader = gl.newShader("main", SHADERS["vsbonetexture"] + SHADERS["wvshardskinningtexture"], psmain);
-            RENDER_MODE = 2;
-          }
-          
-          if (!standardShader && parser["boneChunk"].bones.length < (VERTEX_UNIFORM_VECTORS / 4) - 1) {
-            standardShader = gl.newShader("main", SHADERS["wvshardskinningarray"], psmain);
-            RENDER_MODE = 1;
-          }
-          
-          if (!standardShader) {
-            standardShader = gl.newShader("main", SHADERS["wvssoftskinning"], psmain);
-            RENDER_MODE = 0;
-          }
-	  
-          if (standardShader) {
-            if (RENDER_MODE === 0) {
-              console.log("Running in SOFTware mode.");
-            } else if (RENDER_MODE === 1) {
-              console.log("Running in HARDware mode (array).");
-            } else if (RENDER_MODE === 2) {
-              console.log("Running in HARDware mode (texture).");
-            }
-          }
-        }
-        
-        if (parser["particleEmitter2Chunk"]) {
-          particleShader = gl.newShader("particles", SHADERS["wvsparticles"], floatPrecision + SHADERS["wpsparticles"]);
-        }
-        
-        if (parser["ribbonEmitterChunk"]) {
-          ribbonShader = gl.newShader("ribbons", SHADERS["wvssoftskinning"], psmain);
-        }
-		
-        model = new Mdx.Model(parser, customTextures, false, onprogress);
-		
-        if (DEBUG_MODE) {
-          console.log(model);
-        }
-      }
-      
-      for (var i = 0; i < 13; i++) {
-        var number = ((i < 10) ? "0" + i : i);
-        var teamColor = "ReplaceableTextures/TeamColor/TeamColor" + number + ".blp";
-        var teamGlow = "ReplaceableTextures/TeamGlow/TeamGlow" + number + ".blp";
-        
-        gl.newTexture(teamColor, url.mpqFile(teamColor));
-        gl.newTexture(teamGlow, url.mpqFile(teamGlow));
-      }
-    } else {
-      var parser = new M3.Parser(reader, onprogress);
-      
-      if (parser) {
-        document.title = fileName(parser.name);
+  //addEvent(document.getElementById("shaders-select"), "change", function (e) {
+  //  shaderToUse = e.target.value;
+  //});
+  
+  function resetViewport() {
+    var width = canvas.clientWidth;
+    var height = canvas.clientHeight;
+    
+    // For some reason the CSS3 calc doesn't actually change the size of the internal canvas.
+    // This doesn't let WebGL to properly set up the viewport, so the size must be set manually.
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    
+    gl.viewSize(width, height);
+    gl.setPerspective(45, width / height, 0.1, 5E4);
+  }
+  
+  resetViewport();
+  
+  // Takes care of the viewport when the window is resized
+  addEvent(window, "resize", resetViewport);
 
-        onprogress({status: "Setting the model for rendering"});
-        
-        if (DEBUG_MODE) {
-          console.log(parser);
-        }
-        
-        model = new M3.Model(parser, onprogress);
-        
-        var uvSets = "EXPLICITUV" + (model.uvSetCount - 1);
-        var vscommon = SHADERS["vsbonetexture"] + SHADERS["svscommon"] + "\n";
-        var vsstandard = vscommon + SHADERS["svsstandard"];
-        var pscommon = SHADERS["spscommon"] + "\n";
-        var psstandard = floatPrecision + pscommon + SHADERS["spsstandard"];
-        var psspecialized = floatPrecision + pscommon + SHADERS["spsspecialized"];
-        var NORMALS_PASS = "NORMALS_PASS";
-        var HIGHRES_NORMALS = "HIGHRES_NORMALS";
-        var SPECULAR_PASS = "SPECULAR_PASS";
-        var UNSHADED_PASS = "UNSHADED_PASS";
-        
-        gl.newShader("standard", vsstandard, psstandard, [uvSets]);
-        gl.newShader("diffuse", vsstandard, psspecialized, [uvSets, "DIFFUSE_PASS"]);
-        gl.newShader("normals", vsstandard, psspecialized, [uvSets, NORMALS_PASS]);
-        gl.newShader("normalmap", vsstandard, psspecialized, [uvSets, NORMALS_PASS, HIGHRES_NORMALS]);
-        gl.newShader("specular", vsstandard, psspecialized, [uvSets, SPECULAR_PASS]);
-        gl.newShader("specular_normalmap", vsstandard, psspecialized, [uvSets, SPECULAR_PASS, HIGHRES_NORMALS]);
-        gl.newShader("emissive", vsstandard, psspecialized, [uvSets, "EMISSIVE_PASS"]);
-        gl.newShader("unshaded", vsstandard, psspecialized, [uvSets, UNSHADED_PASS]);
-        gl.newShader("unshaded_normalmap", vsstandard, psspecialized, [uvSets, UNSHADED_PASS, HIGHRES_NORMALS]);
-        gl.newShader("decal", vsstandard, psspecialized, [uvSets, "DECAL_PASS"]);
-        gl.newShader("particles", SHADERS["svsparticles"], floatPrecision + SHADERS["spsparticles"]);
-		
-        if (DEBUG_MODE) {
-          console.log(model);
-        }
-      }
-      
-      addEvent(document.getElementById("shaders-select"), "change", function (e) {
-        shaderToUse = e.target.value;
-      });
-    }
-  }
-  
-  function onprogress(e) {
-    if (args.onprogress) {
-      args.onprogress(e);
-    }
-  }
-  
-  function onerror(e) {
-    if (args.onerror) {
-      args.onerror(e);
-    }
-  }
-  
-  function onload(e) {
-    var reader = new BinaryReader(e.target.response);
-    var magic = peek(reader, 4);
-    
-    if (magic == "MDLX") {
-      format = 1;
-      camera.range = [30, 2000];
-      loadFormat(magic, reader, args, customTextures);
-    } else if (magic == "43DM") {
-      format = 2;
-      camera.range = [0.2, 20];
-      loadFormat(magic, reader, args, customTextures);
-    } else {
-      console.log("Invalid file");
-      console.log("Magic is: " + magic);
+  // Used by Mdx.ParticleEmitter since they don't need to be automatically updated and rendered
+  function loadModelInstanceNoRender(source) {
+    if (!modelCache[source]) {
+      modelCache[source] = new Model(source);
     }
     
-    resetCamera();
-    
-    if (args.onload) {
-      args.onload(format);
-    }
+    return new ModelInstance(modelCache[source]);
   }
   
-  function onloadHeader(e) {
-    var data = JSON.parse(e.target.response);
+  camera.range = [30, 2000];
+  resetCamera();
+  
+  // Preload all the WC3 team colors and glows (probably from the cache) so that changing team colors for the first time is instant
+  for (var i = 0; i < 13; i++) {
+    var number = ((i < 10) ? "0" + i : i);
+    var teamColor = "ReplaceableTextures/TeamColor/TeamColor" + number + ".blp";
+    var teamGlow = "ReplaceableTextures/TeamGlow/TeamGlow" + number + ".blp";
     
-    customTextures = data.textures;
-    
-    onprogress({status: "Downloading the model file"});
-    
-    getFile(url.customFile(data.url), true, onload, onerror, onprogress);
+    gl.newTexture(teamColor, url.mpqFile(teamColor));
+    gl.newTexture(teamGlow, url.mpqFile(teamGlow));
   }
   
-  if (MODEL_PATH && MODEL_PATH !== "") {
-    onprogress({status: "Downloading the model file"});
-      
-    getFile(MODEL_PATH, true, onload, onerror, onprogress);
-  } else if (MPQ_PATH && MPQ_PATH !== "") {
-    onprogress({status: "Downloading the model file"});
-      
-    getFile(url.mpqFile(MPQ_PATH), true, onload, onerror, onprogress);
-  } else if (MODEL_ID && MODEL_ID !== "") {
-    onprogress({status: "Downloading the model data file"});
-    
-    getFile(url.header(MODEL_ID), false, onloadHeader, onerror, onprogress);
-  } else {
-    console.log("No input file");
-  }
-  
-  gl.viewSize(canvas.width, canvas.height);
-  gl.setPerspective(45, canvas.width / canvas.height, 0.1, 5E4);
-  
-  worldShader = gl.newShader("world", SHADERS["vsworld"], floatPrecision + SHADERS["psworld"]);
-  whiteShader = gl.newShader("white", SHADERS["vswhite"], floatPrecision + SHADERS["pswhite"]);
+  gl.newShader("world", SHADERS["vsworld"], floatPrecision + SHADERS["psworld"]);
+  gl.newShader("white", SHADERS["vswhite"], floatPrecision + SHADERS["pswhite"]);
   
   gl.newTexture("grass", "http://www.hiveworkshop.com/model_viewer/images/grass.png");
   gl.newTexture("water", "http://www.hiveworkshop.com/model_viewer/images/water.png");
@@ -189,14 +55,16 @@
   gl.newTexture("sky", url.mpqFile("Environment/Sky/LordaeronSummerSky/LordaeronSummerSky.blp"));
   //gl.newTexture("Light", "../images/Light.png");
     
-  grass_water = gl.newRectangle(0, 0, -3, 300, 300, 6);
-  bedrock = gl.newRectangle(0, 0, -35, 300, 300, 6);
+  grass_water = gl.newRectangle(0, 0, -3, 250, 250, 6);
+  bedrock = gl.newRectangle(0, 0, -35, 250, 250, 6);
   sky = gl.newSphere(0, 0, 0, 5, 10, 2E4);
   //light = gl.newSphere(0, 0, 0, 10, 10, 0.05);
   
   function update() {
-    if (model) {
-      model.update();
+    for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
+      if (modelInstanceCache[i].isInstance) {
+        modelInstanceCache[i].update();
+      }
     }
   }
   
@@ -222,20 +90,12 @@
   }
   
   function renderGround(isWater) {
-    if (shouldRenderWorld > 1 && worldShader) {
+    if (shouldRenderWorld > 1 && gl.shaderReady("world")) {
       gl.bindShader("world");
       
       ctx.disable(ctx.CULL_FACE);
       
-      gl.pushMatrix();
-      
-      if (format == 2) {
-        gl.scale(0.0125, 0.0125, 0.0125)
-      }
-        
       gl.bindMVP("u_mvp");
-      
-      gl.popMatrix();
       
       if (isWater) {
         uvOffset[0] += uvSpeed[0];
@@ -247,8 +107,6 @@
         gl.setParameter("u_uv_offset", [0, 0]);
         gl.setParameter("u_a", 1);
       }
-      
-      
       
       if (shouldRenderWorld > 2) {
         if (isWater) {
@@ -271,7 +129,7 @@
   }
   
   function renderSky() {
-    if (shouldRenderWorld > 0 && worldShader) {
+    if (shouldRenderWorld > 0 && gl.shaderReady("world")) {
       gl.bindShader("world");
       
       gl.setParameter("u_uv_offset", [0, 0]);
@@ -315,8 +173,10 @@
     renderGround();
     //renderLights();
     
-    if (model) {
-      model.render();
+    for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
+      if (modelInstanceCache[i].isInstance) {
+        modelInstanceCache[i].render();
+      }
     }
     
     if (shouldRenderWorld > 2) {
@@ -324,122 +184,7 @@
     }
   }
   
-  function getCameras() {
-    if (model && model.cameras) {
-      return model.cameras;
-    }
-    
-    return [];
-  }
-  
-  function getCamera() {
-    return modelCameraId;
-  }
-  
-  function setCamera(index) {
-    if (model) {
-      modelCameraId = index;
-      
-      if (model.cameras && index > -1 && index < model.cameras.length) {
-        modelCamera = model.cameras[index];
-      }
-    }
-  }
-  
-  function resetCamera() {
-    camera.m[0] = 0;
-    camera.m[1] = 0;
-    
-    if (format === 1) {
-      camera.m[2] = model.extent * 3;
-      camera.r = [315, 225];
-    } else {
-      camera.m[2] = model.extent * 6;
-      camera.r = [315, 315];
-    }
-  }
-  
-  function getAnimations() {
-    if (model && model.sequences) {
-      return model.sequences;
-    }
-    
-    return [];
-  }
-  
-  function playAnimation(index) {
-    if (model) {
-      model.setAnimation(index);
-    }
-  }
-  
-  function stopAnimation() {
-    if (model) {
-      model.setAnimation(0);
-    }
-  }
-  
-  function setAnimationSpeed(speed) {
-    ANIMATION_SCALE = speed;
-  }
-  
-  function setLoopingMode(mode) {
-    if (model) {
-      model.setAnimationLooping(mode);
-    }
-  }
-  
-  function setTeamColor(index) {
-    if (model) {
-      model.setTeamColor(index);
-      
-      return teamColors[index];
-    }
-    
-    return [0, 0, 0]
-  }
-  
-  function setWorld(mode) {
-    shouldRenderWorld = mode;
-  }
-  
-  function showLights(b) {
-    shouldRenderLights = b;
-  }
-  
-  function showShapes(b) {
-    shouldRenderShapes = b;
-  }
-  
-  function resize(width, height) {
-    gl.viewSize(width, height);
-    gl.setPerspective(45, width / height, 0.1, 5E4);
-  }
-  
-  function move(x, y) {
-    if (modelCameraId === -1) {
-      if (format === 2) {
-        x *= 0.01;
-        y *= 0.01;
-      }
-      
-      camera.m[0] += x;
-      camera.m[1] -= y;
-    }
-  }
-  
-  function zoom(x) {
-    if (modelCameraId === -1) {
-      camera.m[2] = math.clamp(camera.m[2] * x, camera.range[0], camera.range[1]);
-    }
-  }
-  
-  function rotate(x, y) {
-    if (modelCameraId === -1) {
-      camera.r[0] += x;
-      camera.r[1] += y;
-    }
-  }
+  // The main loop of the viewer
   
   var shouldRun = true;
   
@@ -460,23 +205,310 @@
   
   addVisibilityListener(onVisibilityChange);
   
+  // ------------------
+  // API starts here
+  // ------------------
+  
+  // Load a model.
+  // Source can be an absolute path to a MDX/M3 file, a path to a MDX/M3 file in any of the Warcraft 3 and Starcraft 2 MPQs, or a model ID used by the Hiveworkshop.
+  // Returns the ID of the loaded model.
+  // Note: if a model was already loaded from the given source, its ID will be returned.
+  function loadModel(source) {
+    if (!modelCache[source]) {
+      var model = new Model(source);
+      var id = modelInstanceCache.length;
+      
+      model.id = id;
+      modelCache[source] = [model, id];
+      
+      modelInstanceCache.push(model);
+    }
+    
+    return modelCache[source][1];
+  }
+  
+  // Create a new instance from an existing model or instance, or a path that will be used to load also the model if needed.
+  // If source is a string, it can be an absolute path to a MDX/M3 file, a path to a MDX/M3 file in any of the Warcraft 3 and Starcraft 2 MPQs, or a model ID used by the Hiveworkshop.
+  // If source is a number, it can be an ID of a model or an instance.
+  // Returns null if given an invalid ID, otherwise returns the ID of the created instance.
+  // Note: if the source is a string, and a model was already loaded from that string, only a new instance will be created.
+  function loadInstance(source) {
+    if (typeof source === "string") {
+      var modelId = loadModel(source);
+      var instance = new ModelInstance(modelInstanceCache[modelId]);
+      var id = modelInstanceCache.length;
+      
+      instance.id = id;
+      modelInstanceCache.push(instance);
+      
+      return id;
+    } else if (typeof source === "number") {
+      var object = modelInstanceCache[modelId];
+      
+      // Check if the source ID is valid
+      if (object) {
+        var model = object.isModel ? object : object.model;
+        var instance = new ModelInstance(model);
+        var id = modelInstanceCache.length;
+        
+        instance.id = id;
+        modelInstanceCache.push(instance);
+        
+        return id;
+      }
+    }
+    
+    return null;
+  }
+  
+  // Return the model ID that an instance points to.
+  function getModelFromInstance(objectId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      return object.model.id;
+    }
+  }
+  
+  // Return the model ID that an instance points to.
+  function getModelFromPath(path) {
+    var object = modelCache[path];
+    
+    if (object) {
+      return object[1];
+    }
+  }
+  
+  // Set the position of an instance.
+  function setPosition(objectId, v) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      object.setPosition(v);
+    }
+  }
+  
+  // Move an instance.
+  function move(objectId, v) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      object.move(v);
+    }
+  }
+  
+  // Set the rotation of an instance.
+  function setRotation(objectId, v) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      object.setRotation(v);
+    }
+  }
+  
+  // Rotate an instance.
+  function rotate(objectId, v) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      object.rotate(v);
+    }
+  }
+  
+  // Set the scale of an instance.
+  function setScale(objectId, n) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      object.setScale(n);
+    }
+  }
+  
+  // Scale an instance.
+  function scale(objectId, n) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      object.scale(n);
+    }
+  }
+  
+  // Set the parent of an instance to another instance, with an optional attachment point owned by that parent.
+  function setParent(objectId, parentId, attachmentId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      var parent = modelInstanceCache[parentId];
+      
+      if (parent && parent.isInstance) {
+        object.setParent(parent, attachmentId);
+      }
+    }
+  }
+  
+  // Set the team color used by an instance.
+  function setTeamColor(objectId, teamId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      object.setTeamColor(teamId);
+    }
+  }
+  
+  // Override a texture of an instance or a model with another texture.
+  // If objectId is an instance, overrides the texture locally just for that instance.
+  // If objectId is a model, it overrides the texture for the model, which affects all instances that don't explicitly override this texture.
+  function overrideTexture(objectId, oldPath, newPath) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object) {
+      object.overrideTexture(oldPath, newPath);
+    }
+  }
+  
+  // Set the animation of an instance.
+  function playAnimation(objectId, sequenceId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      object.setAnimation(sequenceId);
+    }
+  }
+  
+  // Stop the animation of an instance.
+  // Equivalent to playAnimation with animation ID -1.
+  function stopAnimation(objectId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      object.setAnimation(-1);
+    }
+  }
+  
+  // Sets the animation loop mode of an instance.
+  // Possible values are 0 for default, 1 for never, and 2 for always.
+  function setAnimationLoop(objectId, mode) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      object.setAnimationLoop(mode);
+    }
+  }
+  
+  // Get a list of the sequences owned by a model.
+  // Returns null if the object ID is invalid or not a model, or if the model didn't finish loading.
+  function getSequences(objectId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isModel) {
+      return object.getSequences();
+    }
+  }
+  
+  // Get a list of the attachment points owned by a model.
+  // Returns null if the object ID is invalid or not a model, or if the model didn't finish loading.
+  function getAttachments(objectId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isModel) {
+      return object.getAttachments();
+    }
+  }
+  
+  // Get a list of the cameras owned by a model.
+  // Returns null if the object ID is invalid or not a model, or if the model didn't finish loading.
+  /*
+  function getCameras(objectId) {
+     var object = modelInstanceCache[objectId];
+    
+    if (object && object.isModel) {
+      return object.getCameras();
+    }
+  }
+  */
+  
+  // -----------------
+  // Global settings
+  // -----------------
+
+  // Apply a camera of an instance.
+  // When an instance camera is applied, the main camera is disabled.
+  // If the given object ID is -1, the instance camera is disabled and the main camera becomes active.
+  /*
+  function applyCamera(objectId, cameraId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance && object.model.ready) {
+      var camera = object.model.getCamera(cameraId);
+      
+      if (camera) {
+        console.warn("Oops, still need to implement applyCamera");
+      }
+    }
+  }
+  */
+  
+  // Set the drawn scene.
+  // Possible values are 0 for nothing, 1 for sky, 2 for sky and ground, and 3 for sky and water.
+  function setScene(mode) {
+    shouldRenderWorld = mode;
+  }
+  
+  // Shows or hides the bounding shapes on all the instances.
+  function showBoundingShapes(b) {
+    shouldRenderShapes = b;
+  }
+  
+  // Pan the camera on the x and y axes.
+  function panCamera(x, y) {
+    camera.m[0] += x;
+    camera.m[1] -= y;
+  }
+  
+  // Rotate the camera on the x and y axes.
+  function rotateCamera(x, y) {
+    camera.r[0] += x;
+    camera.r[1] += y;
+  }
+  
+  // Zoom the camera by a factor.
+  function zoomCamera(n) {
+    camera.m[2] = math.clamp(camera.m[2] * n, camera.range[0], camera.range[1]);
+  }
+  
+  // Reset the camera back to the initial state.
+  function resetCamera() {
+    camera.m[0] = 0;
+    camera.m[1] = 0;
+    camera.m[2] = 300;
+    camera.r = [315, 225];
+  }
+  
   return {
-    getCameras: getCameras,
-    getCamera: getCamera,
-    setCamera: setCamera,
-    resetCamera: resetCamera,
-    getAnimations: getAnimations,
+    loadModel: loadModel,
+    loadInstance: loadInstance,
+    getModelFromInstance: getModelFromInstance,
+    getModelFromPath: getModelFromPath,
+    setPosition: setPosition,
+    move: move,
+    setRotation: setRotation,
+    rotate: rotate,
+    setScale: setScale,
+    scale: scale,
+    setParent: setParent,
+    setTeamColor: setTeamColor,
+    overrideTexture: overrideTexture,
     playAnimation: playAnimation,
     stopAnimation: stopAnimation,
-    setAnimationSpeed: setAnimationSpeed,
-    setLoopingMode: setLoopingMode,
-    setTeamColor: setTeamColor,
-    setWorld: setWorld,
-    showLights: showLights,
-    showShapes: showShapes,
-    resize: resize,
-    move: move,
-    zoom: zoom,
-    rotate: rotate
+    getSequences: getSequences,
+    getAttachments: getAttachments,
+    //getCameras: getCameras,
+    //applyCamera: applyCamera,
+    setScene: setScene,
+    showBoundingShapes: showBoundingShapes,
+    panCamera: panCamera,
+    rotateCamera: rotateCamera,
+    zoomCamera: zoomCamera,
+    resetCamera: resetCamera
   };
 };

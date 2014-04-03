@@ -11,11 +11,12 @@ STG.prototype = {
   getValue: function (animationReference, frame) {
     var i, l;
     var stcIndices = this.stcIndices;
+    var stc;
+    var sts;
     
     for (i = 0, l = stcIndices.length; i < l; i++) {
-      var index = stcIndices[i];
-      var stc = this.stc[index];
-      var sts = this.sts[stc.stsIndex];
+      stc = this.stc[stcIndices[i]];
+      sts = this.sts[stc.stsIndex];
       
        // First check if this STC actually has data for this animation reference
         if (sts.hasData(animationReference)) {

@@ -1,6 +1,6 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
-function RibbonEmitter(emitter, materials, model) {
+function RibbonEmitter(emitter, model, instance) {
   var i, l;
   var keys = Object.keys(emitter);
   
@@ -10,8 +10,10 @@ function RibbonEmitter(emitter, materials, model) {
   
   var ribbons = Math.ceil(this.emissionRate * this.lifespan);
   
-  this.maxRibbons = ribbons;
   this.model = model;
+  this.textures = model.textures;
+  
+  this.maxRibbons = ribbons;
   this.lastCreation = 0;
   this.ribbons = [];
   this.data = new Float32Array(ribbons  * 10);
@@ -24,7 +26,7 @@ function RibbonEmitter(emitter, materials, model) {
   this.cellHeight = 1 / this.rows;
   
   var groups = [[], [], [], []];
-  var layers = materials[this.materialId].layers;
+  var layers = model.materials[this.materialId].layers;
         
   for (i = 0, l = layers.length; i < l; i++) {
     var layer = new Layer(layers[i], 0);
@@ -33,10 +35,13 @@ function RibbonEmitter(emitter, materials, model) {
   }
       
   this.layers = groups[0].concat(groups[1]).concat(groups[2]).concat(groups[3]);
+  
+  this.node = instance.skeleton.nodes[this.node];
+  this.sd = parseSDTracks(emitter.tracks, model);
 }
 
 RibbonEmitter.prototype = {
-  update: function (allowCreate) {
+  update: function (allowCreate, sequence, frame, counter) {
     for (var i = 0, l = this.ribbons.length; i < l; i++) {
       this.ribbons[i].update(this);
     }
@@ -45,8 +50,8 @@ RibbonEmitter.prototype = {
       this.ribbons.shift();
     }
     
-    if (allowCreate && this.shouldRender()) {
-      this.lastCreation += 1 * ANIMATION_SCALE;
+    if (allowCreate && this.shouldRender(sequence, frame, counter)) {
+      this.lastCreation += 1;
       
       var amount = Math.floor((this.emissionRate * FRAME_TIME) / (1 / this.lastCreation));
       
@@ -54,18 +59,18 @@ RibbonEmitter.prototype = {
         this.lastCreation = 0;
         
         for (; amount--;) {
-          this.ribbons.push(new Ribbon(this, this.model));
+          this.ribbons.push(new Ribbon(this, sequence, frame, counter));
         }
       }
     }
   },
   
-  render: function () {
+  render: function (sequence, frame, counter) {
     var i, l;
     var ribbons = Math.min(this.ribbons.length, this.maxRibbons);
     
     if (ribbons > 2) {
-      var textureSlot = getTrack(this.tracks.textureSlot, 0, this.model);
+      var textureSlot = getSDValue(sequence, frame, counter, this.sd.textureSlot, 0);
       //var uvOffsetX = (textureSlot % this.columns) / this.columns;
       var uvOffsetY = (Math.floor(textureSlot / this.rows) - 1) / this.rows;
       var uvFactor = 1 / ribbons * this.cellWidth;
@@ -103,16 +108,19 @@ RibbonEmitter.prototype = {
       for (i = 0, l = this.layers.length; i < l; i++) {
         var layer = this.layers[i];
         
-        if (layer.shouldRender()) {
+        if (layer.shouldRender(sequence, frame, counter)) {
           var modifier = [1, 1, 1, 1];
           var uvoffset = [0 ,0];
           
           layer.setMaterial();
           
-          gl.bindTexture(model.textures[Math.floor(getTrack(layer.tracks.textureId, layer.textureId, this.model))].fileName, 0);
+          var textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
+          var texture = this.textures[textureId];
           
-          var color = getTrack(this.tracks.color, this.color, this.model);
-          var alpha = getTrack(this.tracks.alpha, this.alpha, this.model);
+          gl.bindTexture(texture.path, 0);
+          
+          var color = getSDValue(sequence, frame, counter, this.sd.color, this.color);
+          var alpha = getSDValue(sequence, frame, counter, this.sd.alpha, this.alpha);
           
           modifier[0] = color[0];
           modifier[1] = color[1];
@@ -121,10 +129,10 @@ RibbonEmitter.prototype = {
           
           gl.setParameter("u_modifier", modifier);
           
-          if (layer.textureAnimationId !== 4294967295 && this.model.textureAnimations) {
+          if (layer.textureAnimationId !== -1 && this.model.textureAnimations) {
             var textureAnimation = this.model.textureAnimations[layer.textureAnimationId];
             // What is Z used for?
-            var v = getTrack(textureAnimation.tracks.translation, [0, 0, 0], this.model);
+            var v = v = getSDValue(sequence, frame, counter, textureAnimation.sd.translation);
             
             uvoffset[0] = v[0];
             uvoffset[1] = v[1];
@@ -140,7 +148,7 @@ RibbonEmitter.prototype = {
     }
   },
   
-  shouldRender: function () {
-    return (getTrack(this.tracks.visibility, 1, this.model) > 0.1);
+  shouldRender: function (sequence, frame, counter) {
+    return getSDValue(sequence, frame, counter, this.sd.visibility) > 0.1;
   }
 };

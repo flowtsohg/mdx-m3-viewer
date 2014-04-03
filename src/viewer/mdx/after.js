@@ -2,6 +2,7 @@
   
   return {
     Parser: Parser,
-    Model: Model
+    Model: Model,
+    ModelInstance: ModelInstance
   };
 }());

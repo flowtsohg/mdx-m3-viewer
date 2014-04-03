@@ -12,9 +12,9 @@ function Model(parser, onprogress) {
 
 Model.prototype = {
   mapMaterial: function (index) {
-	var materialMap = this.materialMaps[index];
-	
-	return this.materials[materialMap.materialType][materialMap.materialIndex];
+    var materialMap = this.materialMaps[index];
+    
+    return this.materials[materialMap.materialType][materialMap.materialIndex];
   },
   
   setup: function (parser) {
@@ -25,6 +25,7 @@ Model.prototype = {
     
     this.uvSetCount = uvSetCount;
     this.regions = [];
+    
     
     for (i = 0, l = regions.length; i < l; i++) {
       this.regions.push(new Region(regions[i], parser.vertices, div.triangles, parser.boneLookup, uvSetCount));
@@ -39,12 +40,12 @@ Model.prototype = {
     var materials = parser.materials;
     var batches = [];
     
-	// Create concrete material objects for standard materials
-	for (i = 0, l = materials[0].length; i < l; i++) {
-		var material = materials[0][i];
-		
-		this.materials[1][i] = new StandardMaterial(material, this);
-	}
+    // Create concrete material objects for standard materials
+    for (i = 0, l = materials[0].length; i < l; i++) {
+      var material = materials[0][i];
+      
+      this.materials[1][i] = new StandardMaterial(material, this);
+    }
 	
 	// Create concrete batch objects
     for (i = 0, l = div.batches.length; i < l; i++) {
@@ -104,8 +105,31 @@ Model.prototype = {
     
     //this.batches = batchGroups[0].concat(batchGroups[1]).concat(batchGroups[2]).concat(batchGroups[3]).concat(batchGroups[4]).concat(batchGroups[5]);
     this.batches = batches;
-	
-    this.skeleton = new Skeleton(parser);
+    
+    var sts = parser.sts;
+    var stc = parser.stc;
+    var stg = parser.stg;
+    
+    this.initialReference = parser.initialReference;
+    this.bones = parser.bones;
+    this.sequences = parser.sequences;
+    this.sts = [];
+    this.stc = [];
+    this.stg = [];
+    
+    for (i = 0, l = sts.length; i < l; i++) {
+      this.sts[i] = new STS(sts[i]);
+    }
+    
+    for (i = 0, l = stc.length; i < l; i++) {
+      this.stc[i] = new STC(stc[i]);
+    }
+    
+    for (i = 0, l = stg.length; i < l; i++) {
+      this.stg[i] = new STG(stg[i], this.sts, this.stc);
+    }
+    
+    this.addGlobalAnims();
     
     if (parser.fuzzyHitTestObjects.length > 0) {
       this.fuzzyHitTestObjects = [];
@@ -123,84 +147,90 @@ Model.prototype = {
       }
     }
     */
-    this.frame = 0;
-    this.loopingMode = 0;
-    
-    this.teamId = 0;
-    
-    this.sequences = parser.sequences;
-    this.sequenceId = -1;
-    
-    this.extent = parser.tightHitTest.size[0] || 2;
+   
+    this.attachments = parser.attachmentPoints;
+    this.cameras = parser.cameras;
   },
   
-  update: function () {
-	var i, l;
-    var sequenceId = this.sequenceId;
-    var allowCreate = false;
-	
-    if (sequenceId !== -1) {
-      var sequence = this.sequences[sequenceId];
+  addGlobalAnims: function () {
+    var i, l;
+    var glbirth, glstand, gldeath;
+    var stgs = this.stg;
+    
+    for (i = 0, l = stgs.length; i < l; i++) {
+      var stg = stgs[i];
+      var name = stg.name.toLowerCase(); // Because obviously there will be a wrong case in some model...
       
-      this.frame += FRAME_TIME * ANIMATION_SCALE * 1000; // M3 models work in milliseconds 
+      if (name === "glbirth") {
+        glbirth = stg;
+      } else if (name === "glstand") {
+        glstand = stg;
+      } else if (name === "gldeath") {
+        gldeath = stg;
+      }
+    }
+    
+    for (i = 0, l = stgs.length; i < l; i++) {
+      var stg = stgs[i];
+      var name = stg.name.toLowerCase(); // Because obviously there will be a wrong case in some model...
       
-      if (this.frame > sequence.animationEnd) {
-        if ((this.loopingMode === 0 && !(sequence.flags & 0x1)) || this.loopingMode === 2) {
-          this.frame = 0;
+      if (name !== "glbirth" && name !== "glstand" && name !== "gldeath") {
+        if (name.indexOf("birth") !== -1 && glbirth) {
+          stg.stcIndices = stg.stcIndices.concat(glbirth.stcIndices);
+        } else  if (name.indexOf("death") !== -1 && gldeath) {
+          stg.stcIndices = stg.stcIndices.concat(gldeath.stcIndices);
+        } else if (glstand) {
+          stg.stcIndices = stg.stcIndices.concat(glstand.stcIndices);
         }
       }
-      
-      this.skeleton.update(sequenceId, this.frame);
-	  
-      allowCreate = true;
     }
-    /*
-    if (this.particleEmitters) {
-      for (i = 0, l = this.particleEmitters.length; i < l; i++) {
-        this.particleEmitters[i].update(allowCreate, sequenceId, this.frame);
-      }
-	  }
-    */
   },
   
-  getValue: function (animRef) {
-    return this.skeleton.getValue(animRef, this.sequenceId, this.frame);
+  getValue: function (animRef, sequence, frame) {
+    if (sequence !== -1) {
+      return this.stg[sequence].getValue(animRef, frame)
+    } else {
+      return animRef.initValue;
+    }
   },
   
-  render: function () {
+  render: function (instance, instanceImpl) {
     var i, l;
-    var tc = teamColors[this.teamId];
+    var sequence = instanceImpl.sequence;
+    var frame = instanceImpl.frame;
+    var tc = teamColors[instanceImpl.teamId];
     
-    gl.bindShader(shaderToUse);
+    gl.bindShader(shaderToUse + this.uvSetCount);
+    
+    instanceImpl.skeleton.bind();
     
     gl.bindMVP("u_mvp");
     gl.bindView("u_mv");
+    
     gl.setParameter("u_teamColor", [tc[0] / 255, tc[1] / 255, tc[2] / 255]);
     gl.setParameter("u_eyePos", cameraPosition);
     gl.setParameter("u_lightPos", lightPosition);
-    
-    this.skeleton.bind();
     
     for (i = 0, l = this.batches.length; i < l; i++) {
       var batch = this.batches[i];
       var region = batch.region;
       var material = batch.material;
       
-      if (shaderToUse === "standard") {
-        material.bind();
-      } else if (shaderToUse === "diffuse") {
-        material.bindDiffuse();
-      } else if (shaderToUse === "normalmap" || shaderToUse === "unshaded_normalmap") {
-        material.bindNormalMap();
-      } else if (shaderToUse === "specular") {
-        material.bindSpecular();
-      } else if (shaderToUse === "specular_normalmap") {
-        material.bindSpecular();
-        material.bindNormalMap();
-      } else if (shaderToUse === "emissive") {
-        material.bindEmissive();
-      } else if (shaderToUse === "decal") {
-        material.bindDecal();
+      if (shaderToUse === "sstandard") {
+        material.bind(sequence, frame);
+      } else if (shaderToUse === "sdiffuse") {
+        material.bindDiffuse(sequence, frame);
+      } else if (shaderToUse === "snormalmap" || shaderToUse === "sunshaded_normalmap") {
+        material.bindNormalMap(sequence, frame);
+      } else if (shaderToUse === "sspecular") {
+        material.bindSpecular(sequence, frame);
+      } else if (shaderToUse === "sspecular_normalmap") {
+        material.bindSpecular(sequence, frame);
+        material.bindNormalMap(sequence, frame);
+      } else if (shaderToUse === "semissive") {
+        material.bindEmissive(sequence, frame);
+      } else if (shaderToUse === "sdecal") {
+        material.bindDecal(sequence, frame);
       }
       
       region.render();
@@ -222,7 +252,7 @@ Model.prototype = {
       ctx.enable(ctx.CULL_FACE);
     }
 	*/
-    if (shouldRenderShapes && this.fuzzyHitTestObjects && whiteShader) {
+    if (shouldRenderShapes && this.fuzzyHitTestObjects && gl.shaderReady("white")) {
       ctx.depthMask(1);
       gl.bindShader("white");
       
@@ -231,7 +261,7 @@ Model.prototype = {
         
         gl.pushMatrix();
         
-        gl.multMat(this.skeleton.bones[fuzzyHitTestObject.bone].worldMatrix);
+        gl.multMat(instanceImpl.skeleton.bones[fuzzyHitTestObject.bone].worldMatrix);
         gl.multMat(fuzzyHitTestObject.matrix);
         gl.bindMVP("u_mvp");
         
@@ -242,22 +272,67 @@ Model.prototype = {
     }
   },
   
-  setTeamColor: function (id) {
-    this.teamId = math.clamp(id, 0, 16);
-  },
-  
-  setAnimation: function (sequenceId) {
-    sequenceId = math.clamp(sequenceId, -1, this.sequences.length - 1);
-    
-    this.frame = 0;
-    this.sequenceId = sequenceId;
-    
-    if (sequenceId === -1) {
-      this.skeleton.update(-1); // This removes the need to keep updating the skeleton when it wont move anyway
+  getAttachment: function (id) {
+    if (this.attachments) {
+      return this.attachments[id];
     }
   },
   
-  setAnimationLooping: function (looping) {
-    this.loopingMode = math.clamp(looping, 0, 2);
+  getCamera: function (id) {
+    if (this.cameras) {
+      return this.cameras[id];
+    }
+  },
+  
+  overrideTexture: function (path, newpath, onload, onerror, onprogress) {
+    var standardMaterials = this.materials[1];
+    
+    for (var i = 0, l = standardMaterials.length; i < l; i++) {
+      var layers = standardMaterials[i].layers;
+      
+      for (var j = 0, k = layers.length; j < k; j++) {
+        var layer = layers[j];
+        
+        if (layer.imagePath === path) {
+          layer.overrideTexture(newpath, onload, onerror, onprogress);
+        }
+      }
+    }
+  },
+  
+  getSequences: function () {
+    var data = [];
+    
+    if (this.sequences) {
+      for (var i = 0, l = this.sequences.length; i < l; i++) {
+        data[i] = this.sequences[i].name;
+      }
+    }
+    
+    return data;
+  },
+  
+  getAttachments: function () {
+    var data = [];
+    
+    if (this.attachments) {
+      for (var i = 0, l = this.attachments.length; i < l; i++) {
+        data[i] = this.attachments[i].name;
+      }
+    }
+    
+    return data;
+  },
+  
+  getCameras: function () {
+    var data = [];
+    
+    if (this.cameras) {
+      for (var i = 0, l = this.cameras.length; i < l; i++) {
+        data[i] = this.cameras[i].name;
+      }
+    }
+    
+    return data;
   }
 };

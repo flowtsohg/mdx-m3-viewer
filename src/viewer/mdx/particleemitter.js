@@ -1,6 +1,6 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
-function ParticleEmitter(emitter, model) {
+function ParticleEmitter(emitter, model, instance) {
   var i, l;
   var keys = Object.keys(emitter);
   
@@ -8,25 +8,11 @@ function ParticleEmitter(emitter, model) {
     this[keys[i]] = emitter[keys[i]];
   }
   
-  this.model = model;
   this.lastCreation = 0;
   
   this.spawnModelFileName = this.spawnModelFileName.replace(/\\/g, "/").replace("MDL", "MDX");
-  
-  function onload(e) {
-    var parser = new Parser(new BinaryReader(e.target.response));
-    
-    if (parser["ready"]) {
-      this.spawnModel = new Model(parser, {}, true);
-      this.spawnModel.setAnimation(0);
-      
-      if (DEBUG_MODE) {
-        console.log(this.spawnModel);
-      }
-    }
-  }
-  
-  getFile(url.mpqFile(this.spawnModelFileName), true, onload.bind(this));
+  this.spawnModel = loadModelInstanceNoRender(url.mpqFile(this.spawnModelFileName));
+  this.spawnModel.setAnimation(0);
   
   var particles;
   
@@ -52,13 +38,16 @@ function ParticleEmitter(emitter, model) {
   this.reusables = [];
   
   for (i = particles; i--;) {
-    this.particles[i] = new Particle(model);
+    this.particles[i] = new Particle();
     this.reusables.push(i);
   }
+  
+  this.node = instance.skeleton.nodes[this.node];
+  this.sd = parseSDTracks(emitter.tracks, model);
 }
 
 ParticleEmitter.prototype = {
-  update: function (allowCreate) {
+  update: function (allowCreate, sequence, frame, counter) {
     var i, l;
     
     if (this.spawnModel) {
@@ -74,22 +63,22 @@ ParticleEmitter.prototype = {
           
           this.reusables.push(i);
         } else {
-          particle.update(this);
+          particle.update(this, sequence, frame, counter);
         }
       }
     }
     
-    if (allowCreate && this.shouldRender()) {
-      this.lastCreation += 1 * ANIMATION_SCALE;
+    if (allowCreate && this.shouldRender(sequence, frame, counter)) {
+      this.lastCreation += 1;
       
-      var amount = (getTrack(this.tracks.emissionRate, this.emissionRate, this.model) * FRAME_TIME) / (1 / this.lastCreation);
+      var amount = (getSDValue(sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * FRAME_TIME) / (1 / this.lastCreation);
       
       if (amount >= 1) {
         this.lastCreation = 0;
         
         for (i = 0; i < amount; i++) {
           if (this.reusables.length > 0) {
-            this.particles[this.reusables.pop()].reset(this);
+            this.particles[this.reusables.pop()].reset(this, sequence, frame, counter);
           }
         }
       }
@@ -118,7 +107,7 @@ ParticleEmitter.prototype = {
     }
   },
   
-  shouldRender: function () {
-    return (getTrack(this.tracks.visibility, 0, this.model) > 0.1);
+  shouldRender: function (sequence, frame, counter) {
+    return getSDValue(sequence, frame, counter, this.sd.visibility) > 0.1;
   }
 };

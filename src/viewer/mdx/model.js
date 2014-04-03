@@ -1,24 +1,13 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
-function Model(parser, customTextures, spawned, onprogress) {
+function Model(parser, spawned) {
   this.sequences = [];
-  this.loopingMode = 0;
-  this.spawned = spawned;
-  this.frame = 0;
-  this.time = 0;
-
+  this.textures = [];
+  
   this.setup(parser);
   
-  if (onprogress) {
-    onprogress({lengthComputable: true, total: 100, loaded: 100});
-  }
-  
   if (parser["textureChunk"]) {
-    if (onprogress) {
-      onprogress({status: "Loading textures"});
-    }
-    
-    this.loadTextures(parser, customTextures, onprogress);
+    this.loadTextures(parser);
   }
   
   this.ready = true;
@@ -26,14 +15,35 @@ function Model(parser, customTextures, spawned, onprogress) {
 
 Model.prototype = {
   setup: function (parser) {
-    var emitters, i, l, j, k;
+    var objects, i, l, j, k;
+    
+    if (parser["sequenceChunk"]) {
+      this.sequences = parser["sequenceChunk"].objects;
+    }
+    
+    if (parser["globalSequenceChunk"]) {
+      this.globalSequences = parser["globalSequenceChunk"].objects;
+    }
+    
+    var nodes = parser["nodes"];
+    var pivots = parser["pivotPointChunk"].objects;
+    
+    this.nodes = [];
+    
+    for (i = 0, l = nodes.length; i < l; i++) {
+      this.nodes[i] = new Node(nodes[i], this, pivots);
+    }
+    
+    if (parser["boneChunk"]) {
+      this.bones = parser["boneChunk"].objects;
+    }
     
     if (parser["materialChunk"]) {
-      this.materials = parser["materialChunk"].materials;
+      this.materials = parser["materialChunk"].objects;
     }
     
     if (parser["geosetChunk"]) {
-      var geosets = parser["geosetChunk"].geosets;
+      var geosets = parser["geosetChunk"].objects;
       var groups = [[], [], [], []];
       
       this.geosets = [];
@@ -54,146 +64,99 @@ Model.prototype = {
       this.layers = groups[0].concat(groups[1]).concat(groups[2]).concat(groups[3]);
     }
     
-    if (parser["sequenceChunk"]) {
-      this.sequences = parser["sequenceChunk"].sequences;
-    }
-    
+    // TODO: Think what to do with cameras.
     if (parser["cameraChunk"]) {
-      this.cameras = parser["cameraChunk"].cameras;
+      this.cameras = parser["cameraChunk"].objects;
     }
 	
     if (parser["geosetAnimationChunk"]) {
-      this.geosetAnimations = parser["geosetAnimationChunk"].animations;
+      objects = parser["geosetAnimationChunk"].objects;
+	
+      this.geosetAnimations = [];
+      
+      for (i = 0, l = objects.length; i < l; i++) {
+        this.geosetAnimations[i] = new GeosetAnimation(objects[i], this);
+      }
     }
     
-    if (parser["globalSequenceChunk"]) {
-      this.globalSequences = parser["globalSequenceChunk"].sequences;
-    }
-	
     if (parser["textureAnimationChunk"]) {
-      this.textureAnimations = parser["textureAnimationChunk"].animations;
+      objects = parser["textureAnimationChunk"].objects;
+	
+      this.textureAnimations = [];
+      
+      for (i = 0, l = objects.length; i < l; i++) {
+        this.textureAnimations[i] = new TextureAnimation(objects[i], this);
+      }
     }
 	
     if (parser["particleEmitterChunk"]) {
-      emitters = parser["particleEmitterChunk"].emitters;
-	
-      this.particleEmitters = [];
-      
-      for (i = 0, l = emitters.length; i < l; i++) {
-        this.particleEmitters[i] = new ParticleEmitter(emitters[i], this);
-      }
+      this.particleEmitters = parser["particleEmitterChunk"].objects;
     }
 	
     if (parser["particleEmitter2Chunk"]) {
-      emitters = parser["particleEmitter2Chunk"].emitters;
-      
-      this.particleEmitters2 = [];
-      
-      for (i = 0, l = emitters.length; i < l; i++) {
-        this.particleEmitters2[i] = new ParticleEmitter2(emitters[i], this);
-      }
+      this.particleEmitters2 = parser["particleEmitter2Chunk"].objects;
     }
 	
     if (parser["ribbonEmitterChunk"]) {
-      emitters = parser["ribbonEmitterChunk"].emitters;
-      
-      this.ribbonEmitters = [];
-      
-      for (i = 0, l = emitters.length; i < l; i++) {
-        this.ribbonEmitters[i] = new RibbonEmitter(emitters[i], this.materials, this);
-      }
+      this.ribbonEmitters = parser["ribbonEmitterChunk"].objects;
     }
 	
     if (parser["collisionShapeChunk"]) {
-      var shapes = parser["collisionShapeChunk"].shapes;
+      objects = parser["collisionShapeChunk"].objects;
       
       this.collisionShapes = [];
       
-      for (i = 0, l = shapes.length; i < l; i++) {
-        this.collisionShapes[i] = new CollisionShape(shapes[i]);
+      for (i = 0, l = objects.length; i < l; i++) {
+        this.collisionShapes[i] = new CollisionShape(objects[i]);
       }
     }
 	
-    this.skeleton = new Skeleton(parser, this);
-	
-    this.extent = parser["modelChunk"].extent.maximum[0] || 100;
+     if (parser["attachmentChunk"]) {
+      objects = parser["attachmentChunk"].objects;
+      
+      this.attachments = [];
+      
+      for (i = 0, l = objects.length; i < l; i++) {
+        this.attachments[i] = new Attachment(objects[i], this);
+      }
+    }
   },
   
-  loadTextures: function (parser, customTextures, onprogress) {
+  loadTextures: function (parser) {
     var loaded = 0;
     var failed = 0;
-    var textures = parser["textureChunk"].textures;
+    var textures = parser["textureChunk"].objects;
     
     function onload() {
       loaded++;
-      
-      if (onprogress) {
-        onprogress({lengthComputable: true, total: textures.length, loaded: loaded + failed});
-      }
     }
     
     function onerror() {
       failed++;
-      
-      if (onprogress) {
-        onprogress({lengthComputable: true, total: textures.length, loaded: loaded + failed});
-      }
     }
-    
-    this.textures = [];
     
     for (var i = 0, l = textures.length; i < l; i++) {
-      this.textures.push(new Texture(textures[i].fileName, textures[i].replaceableId, customTextures, onload, onerror));
+      this.textures.push(new Texture(textures[i].fileName, textures[i].replaceableId));
     }
   },
   
-  updateEmitters: function (emitters, allowCreate) {
-    if (emitters) {
-      for (var i = 0, l = emitters.length; i < l; i++) {
-        emitters[i].update(allowCreate);
-      }
-    }
-  },
-  
-  update: function () {
-    var allowCreate = false;
-    
-    if (this.sequence) {
-      this.time += 16 * ANIMATION_SCALE;
-      this.frame += 16 * ANIMATION_SCALE;
-      allowCreate = true;
-      
-      if (this.frame >= this.sequence.interval[1]) {
-        if (this.loopingMode === 2 || (this.loopingMode === 0 && this.sequence.flags === 0)) {
-          this.frame = this.sequence.interval[0];
-          allowCreate = false;
-        } else {
-          this.time -= 16 * ANIMATION_SCALE;
-          this.frame = this.sequence.interval[1];
-          allowCreate = false;
-        }
-      }
-    }
-    
-    this.skeleton.update();
-    
-    this.updateEmitters(this.particleEmitters, allowCreate);
-    this.updateEmitters(this.particleEmitters2, allowCreate);
-    this.updateEmitters(this.ribbonEmitters, allowCreate);
-  },
-  
-  render: function () {
+  render: function (instance, textureMap) {
     var i, l, v;
-	  
-    if (this.layers && standardShader) {
-      gl.bindShader("main");
+	  var sequence = instance.sequence;
+    var frame = instance.frame;
+    var counter = instance.counter;
+    
+    if (this.layers && gl.shaderReady("wmain")) {
+      gl.bindShader("wmain");
       gl.bindMVP("u_mvp");
       gl.setParameter("u_texture", 0);
+      
+      instance.skeleton.bind();
       
       for (i = 0, l = this.layers.length; i < l; i++) {
         var layer = this.layers[i];
         
-        if (layer.shouldRender() && this.shouldRenderGeoset(layer)) {
+        if (layer.shouldRender(sequence, frame, counter) && this.shouldRenderGeoset(sequence, frame, counter, layer)) {
           var geoset = this.geosets[layer.geosetId];
           
           var modifier = [1, 1, 1, 1];
@@ -201,14 +164,21 @@ Model.prototype = {
           
           layer.setMaterial();
           
-          gl.bindTexture(this.textures[Math.floor(getTrack(layer.tracks.textureId, layer.textureId, this))].fileName, 0);
+          var textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
+          var texture = this.textures[textureId];
+          
+          if (textureMap && textureMap[texture.path]) {
+            texture = textureMap[texture.path];
+          }
+          
+          texture.bind(0);
           
           if (this.geosetAnimations) {
             for (var j = this.geosetAnimations.length; j--;) {
               var geosetAnimation = this.geosetAnimations[j];
               
               if (geosetAnimation.geosetId === layer.geosetId) {
-                v = getTrack(geosetAnimation.tracks.color, geosetAnimation.color, this);
+                v = getSDValue(sequence, frame, counter, geosetAnimation.sd.color, geosetAnimation.color);
                 
                 if (v[0] !== 1 || v[1] !== 1 || v[2] !== 1) {
                   modifier[0] = v[0];
@@ -219,14 +189,14 @@ Model.prototype = {
             }
           }
           
-          modifier[3] = getTrack(layer.tracks.alpha, layer.alpha, this);
+          modifier[3] = getSDValue(sequence, frame, counter, layer.sd.alpha, layer.alpha);
           
           gl.setParameter("u_modifier", modifier);
           
-          if (layer.textureAnimationId !== 4294967295 && this.textureAnimations) {
+          if (layer.textureAnimationId !== -1 && this.textureAnimations) {
             var textureAnimation = this.textureAnimations[layer.textureAnimationId];
             // What is Z used for?
-            v = getTrack(textureAnimation.tracks.translation, [0, 0, 0], this);
+            v = getSDValue(sequence, frame, counter, textureAnimation.sd.translation);
             
             uvoffset[0] = v[0];
             uvoffset[1] = v[1];
@@ -234,49 +204,46 @@ Model.prototype = {
           
           gl.setParameter("u_uv_offset", uvoffset);
           
-          if (RENDER_MODE > 0) {
-            this.skeleton.bind();
-            geoset.renderHW(layer.coordId);
-          } else {
-            geoset.render(this.skeleton.nodes, layer.coordId);
-          }
+          geoset.render(layer.coordId);
         }
       }
+      
+      gl.bindTexture("", 0);
+      gl.bindTexture("", 1);
+      gl.bindTexture("", 2);
     }
     
     ctx.depthMask(1);
     
-    // Don't allow emitted models to emit more models.
-    // I don't know if this is legal in WC3, but either way it could cause infinite emitters
-    if (!this.spawned && this.particleEmitters && standardShader) {
-      for (i = 0, l = this.particleEmitters.length; i < l; i++) {
-        this.particleEmitters[i].render();
+    if (instance.particleEmitters && gl.shaderReady("wmain")) {
+      for (i = 0, l = instance.particleEmitters.length; i < l; i++) {
+        instance.particleEmitters[i].render(sequence, frame, counter);
       }
     }
     
-    if (this.ribbonEmitters && ribbonShader) {
+    if (instance.ribbonEmitters && gl.shaderReady("wribbons")) {
       ctx.disable(ctx.CULL_FACE);
       
-      gl.bindShader("ribbons");
+      gl.bindShader("wribbons");
       gl.bindMVP("u_mvp");
       gl.setParameter("u_texture", 0);
       
-      for (i = 0, l = this.ribbonEmitters.length; i < l; i++) {
-        this.ribbonEmitters[i].render(this);
+      for (i = 0, l = instance.ribbonEmitters.length; i < l; i++) {
+        instance.ribbonEmitters[i].render(sequence, frame, counter);
       }
     }
     
-    if (this.particleEmitters2 && particleShader) {
+    if (instance.particleEmitters2 && gl.shaderReady("wparticles")) {
       ctx.depthMask(0);
       ctx.enable(ctx.BLEND);
       ctx.disable(ctx.CULL_FACE);
       
-      gl.bindShader("particles");
+      gl.bindShader("wparticles");
       gl.bindMVP("u_mvp");
       gl.setParameter("u_texture", 0);
       
-      for (i = 0, l = this.particleEmitters2.length; i < l; i++) {
-        this.particleEmitters2[i].render(this);
+      for (i = 0, l = instance.particleEmitters2.length; i < l; i++) {
+        instance.particleEmitters2[i].render();
       }
       
       ctx.depthMask(1);
@@ -284,13 +251,12 @@ Model.prototype = {
       ctx.enable(ctx.CULL_FACE);
     }
     
-    if (shouldRenderShapes && this.collisionShapes && whiteShader) {
+    if (shouldRenderShapes && this.collisionShapes && gl.shaderReady("white")) {
       ctx.depthMask(1);
       gl.bindShader("white");
-      gl.bindMVP("u_mvp");
       
       for (i = 0, l = this.collisionShapes.length; i < l; i++) {
-        this.collisionShapes[i].render();
+        this.collisionShapes[i].render(instance.skeleton);
       }
     }
     
@@ -298,15 +264,15 @@ Model.prototype = {
     ctx.enable(ctx.CULL_FACE);
   },
   
-  shouldRenderGeoset: function (layer) {
+  shouldRenderGeoset: function (sequence, frame, counter, layer) {
     var i, l;
     
     if (this.geosetAnimations) {
       for (i = 0, l = this.geosetAnimations.length; i < l; i++) {
         var geosetAnimation = this.geosetAnimations[i];
         
-        if (geosetAnimation.geosetId === layer.geosetId && geosetAnimation.tracks.alpha) {
-          return (getTrack(geosetAnimation.tracks.alpha, 1, this) > 0.1);
+        if (geosetAnimation.geosetId === layer.geosetId && geosetAnimation.sd.alpha) {
+          return getSDValue(sequence, frame, counter, geosetAnimation.sd.alpha) > 0.1;
         }
       }
     }
@@ -314,37 +280,66 @@ Model.prototype = {
     return true;
   },
   
-  setTeamColor: function (id) {
-    id = ((id < 10) ? "0" + id : "" + id);
+  getAttachment: function (id) {
+    if (this.attachments) {
+      return this.attachments[id];
+    }
+  },
+  
+  getCamera: function (id) {
+    if (this.cameras) {
+      return this.cameras[id];
+    }
+  },
+  
+  overrideTexture: function (path, newpath) {
+    path = path.toLowerCase();
+    // TODO: Fix this when Ralle fixes the texture getter to work in a case-insensitive way.
+    //newpath = newpath.toLowerCase();
     
     for (var i = 0, l = this.textures.length; i < l; i++) {
       var texture = this.textures[i];
-      var replaceableId = texture.replaceableId;
       
-      if (replaceableId === 1 || replaceableId === 2) {
-        texture.fileName = texture.fileName.replace(/\d\d/, id);
+      if (texture.path === path) {
+        texture.overrideTexture(newpath);
+        return;
       }
     }
   },
   
-  setAnimation: function (sequenceId) {
-    if (this.sequence && this.sequence === this.sequences[sequenceId]) {
-      this.frame = this.sequence.interval[0];
-    } else {
-      sequenceId = math.clamp(sequenceId, -1, this.sequences.length - 1);
-      
-      if (sequenceId === -1) {
-        this.sequence = null;
-        this.time = 0;
-        this.frame = 0;
-      } else {
-        this.sequence = this.sequences[sequenceId];
-        this.frame = this.sequence.interval[0];
+  getSequences: function () {
+    var data = [];
+    
+    if (this.sequences) {
+      for (var i = 0, l = this.sequences.length; i < l; i++) {
+        data[i] = this.sequences[i].name;
       }
     }
+    
+    return data;
   },
   
-  setAnimationLooping: function (looping) {
-    this.loopingMode = math.clamp(looping, 0, 2);
+  getAttachments: function () {
+    var data = [];
+    
+    if (this.attachments) {
+      for (var i = 0, l = this.attachments.length; i < l; i++) {
+        data[i] = this.attachments[i].name;
+      }
+    }
+    
+    return data;
+  },
+  
+  getCameras: function () {
+    var data = [];
+    
+    if (this.cameras) {
+      for (var i = 0, l = this.cameras.length; i < l; i++) {
+        data[i] = this.cameras[i].name;
+      }
+    }
+    
+    return data;
   }
 };

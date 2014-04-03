@@ -13,20 +13,35 @@ var replaceableIdToName = {
   37: "OutlandMushroomTree/MushroomTree"
 };
 
-function Texture(fileName, replaceableId, customTextures, onload, onerror) {
+function Texture(path, replaceableId) {
   if (replaceableId !== 0) {
-    fileName = "ReplaceableTextures/" + replaceableIdToName[replaceableId] + ".blp";
+    path = "ReplaceableTextures/" + replaceableIdToName[replaceableId] + ".blp";
   }
   
-  this.fileName = fileName.replace(/\\/g, "/");
+  this.path = path.replace(/\\/g, "/").toLowerCase();
   this.replaceableId = replaceableId;
-  
-  var custom = customTextures[fileName];
-  
-  if (custom && custom.included) {
-    this.custom = true;
-    this.glTexture = gl.newTexture(this.fileName, url.customFile(custom.url), false, false, onload, onerror);
-  } else {
-    this.glTexture = gl.newTexture(this.fileName, url.mpqFile(this.fileName), false, false, onload, onerror);
-  }
+  this.glTexture = gl.newTexture(this.path, url.mpqFile(this.path));
 }
+
+Texture.prototype = {
+  bind: function (unit) {
+    this.glTexture.bind(unit);
+  },
+  
+  overrideTexture: function (source) {
+    var path;
+    
+    this.path = source;
+    
+    // Parse the source as an absolute path, an MPQ path, or an ID
+    if (source.startsWith("http://")) {
+      path = source;
+    } else if (source.match(/\.(?:mdx|m3|blp|dds)$/)) {
+      path = url.mpqFile(source);
+    } else {
+      path = url.customTexture(source);
+    }
+    
+    this.glTexture = gl.newTexture(path, path);
+  }
+};

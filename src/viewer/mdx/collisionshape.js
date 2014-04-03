@@ -23,11 +23,11 @@ function CollisionShape(collisionshape) {
 }
 
 CollisionShape.prototype = {
-  render: function () {
+  render: function (skeleton) {
     if (this.shape) {
       gl.pushMatrix();
       
-      gl.multMat(this.node.worldMatrix);
+      gl.multMat(skeleton.nodes[this.node].worldMatrix);
       
       gl.bindMVP("u_mvp");
       

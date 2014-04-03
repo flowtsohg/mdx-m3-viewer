@@ -45,7 +45,7 @@ void main() {
   }
 
   float lambertFactor = max(dot(normal, v_lightDir), 0.0);
-    
+  
   if (lambertFactor > 0.0) {
     if (u_diffuseLayerSettings.enabled) {
       vec4 diffuseColor = computeLayerColor(u_diffuseMap, u_diffuseLayerSettings);
@@ -67,7 +67,7 @@ void main() {
       lightMapDiffuse = lightMapColor.rgb;
     }
     
-    /*final.rgb = color * lightMapDiffuse + specularColor.rgb;*/
+    //final.rgb = color * lightMapDiffuse + specularColor.rgb;
     final.rgb = (color + specularColor.rgb) * lambertFactor;
     
     bool addEmissive = false;

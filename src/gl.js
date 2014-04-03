@@ -1,6 +1,6 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
-function GL(element) {
+function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   var gl;
   var identifiers = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
   
@@ -15,8 +15,26 @@ function GL(element) {
   }
   
   if (!gl) {
-    console.error("Could not create a WebGL context");
+    unboundonerror(this, {reason: "WebGLContext"});
     return;
+  }
+  
+  var hasVertexTexture = gl["getParameter"](gl["MAX_VERTEX_TEXTURE_IMAGE_UNITS"]) > 0;
+  var hasFloatTexture = gl["getExtension"]("OES_texture_float");
+  var compressedTextures = gl["getExtension"]("WEBGL_compressed_texture_s3tc");
+  
+  if (!hasVertexTexture) {
+    unboundonerror(this, {reason: "VertexTexture"});
+    return;
+  }
+  
+  if (!hasFloatTexture) {
+    unboundonerror(this, {reason: "FloatTexture"});
+    return;
+  }
+  
+  if (!compressedTextures) {
+    unboundonerror(this, {reason: "CompressedTextures"});
   }
   
   var projectionMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
@@ -53,14 +71,7 @@ function GL(element) {
   glTypeToUniformType[gl["SAMPLER_2D"]] = "1i";
   glTypeToUniformType[gl["SAMPLER_CUBE"]] = "1i";
   
-  var hasFloatTexture = gl["getExtension"]("OES_texture_float");
-  var compressedTextures = gl["getExtension"]("WEBGL_compressed_texture_s3tc");
-  var depthTextures = gl["getExtension"]("WEBGL_depth_texture");
-  var multipleRenderTargets = gl["getExtension"]("WEBGL_draw_buffers");
-  
-  console.log(multipleRenderTargets);
-  
-  gl["viewport"](0, 0, element.width, element.height);
+  gl["viewport"](0, 0, element.clientWidth, element.clientHeight);
   gl["depthFunc"](gl["LEQUAL"]);
   gl["enable"](gl["DEPTH_TEST"]);
   gl["enable"](gl["CULL_FACE"]);
@@ -137,7 +148,7 @@ function GL(element) {
       var fragmentUnit = newShaderUnit(defines + fragmentSource, gl["FRAGMENT_SHADER"]);
       
       if (vertexUnit.ready && fragmentUnit.ready) {
-        shaderStore[name] = new Shader(vertexUnit, fragmentUnit);
+        shaderStore[name] = new Shader(name, vertexUnit, fragmentUnit);
         shaderUniformStore[name] = {};
       }
     }
@@ -147,6 +158,10 @@ function GL(element) {
     }
     
     return shaderStore[name];
+  }
+  
+  function shaderReady(name) {
+    return shaderStore[name] && shaderStore[name].ready;
   }
   
   function ShaderUnit(source, type) {
@@ -167,9 +182,10 @@ function GL(element) {
     }
   }
   
-  function Shader(vertexUnit, fragmentUnit) {
+  function Shader(name, vertexUnit, fragmentUnit) {
     var id = gl["createProgram"]();
     
+    this.name = name;
     this.vertexUnit = vertexUnit;
     this.fragmentUnit = fragmentUnit;
     this.id = id;
@@ -297,17 +313,24 @@ function GL(element) {
     }
   }
   
+  var bla = false;
+  
   function setParameter(name, value) {
     if (boundShader) {
       var oldValue = shaderUniformStore[boundShaderName][name];
-      var isArray = value instanceof Array;
       var shouldSet = false;
       
-      if (isArray) {
-        if (!Array.equals(oldValue, value)) {
+      if (oldValue) {
+        var isArray = value instanceof Array;
+        
+        if (isArray) {
+          if (!Array.equals(oldValue, value)) {
+            shouldSet = true;
+          }
+        } else if (oldValue !== value) {
           shouldSet = true;
         }
-      } else if (oldValue !== value) {
+      } else {
         shouldSet = true;
       }
       
@@ -380,52 +403,40 @@ function GL(element) {
     return id;
   }
   
-  function Texture(name, source, clampS, clampT, onload, onerror) {
+  function Texture(name, source, clampS, clampT) {
+    this.isTexture = true;
     this.name = name;
+    this.source = source;
+    
+    onloadstart(this);
     
     // File name or Base64 string
     if (typeof source === "string") {
       this.image = new Image();
       
-      var self = this;
-      
-      this.image.onload = function () {
-        self.id = generateTexture(this, clampS, clampT);
-        self.ready = true;
-        
-        textureNameStore[name] = 1;
-        
-        if (typeof onload === "function") {
-          onload(name);
-        }
-      };
-      
-      this.image.onerror = function () {
-        console.log("Failed to load " + name);
-        
-        if (typeof onerror === "function") {
-          onerror(name);
-        }
-      };
+      this.image.onload = this.setup.bind(this, this.image, clampS, clampT);
+      this.image.onerror = onerror.bind(this);
       
       this.image.src = source;
     // Image object
     } else {
       this.image = source;
-      
-      this.id = generateTexture(source, clampS, clampT);
-      
-      this.ready = true;
-      
-      textureNameStore[name] = 1;
-      
-      if (typeof onload === "function") {
-        onload(name);
-      }
+      this.setup(source, clampS, clampT);
     }
   }
   
   Texture.prototype = {
+    setup: function (image, clampS, clampT) {
+      this.id = generateTexture(image, clampS, clampT);
+      this.ready = true;
+        
+      textureNameStore[name] = 1;
+      
+      if (onload) {
+        onload(this);
+      }
+    },
+    
     bind: function (unit) {
       if (this.ready) {
         gl["activeTexture"](gl["TEXTURE" + (unit || 0)]);
@@ -438,7 +449,7 @@ function GL(element) {
     }
   };
   
-  function onddsload(name, clampS, clampT, onload, e) {
+  function onddsload(clampS, clampT, e) {
     var arraybuffer = e.target.response;
     var header = new Int32Array(arraybuffer, 0, 31);
     var magic = header[0];
@@ -499,47 +510,42 @@ function GL(element) {
         
         this.ready = true;
         
-        textureNameStore[name] = 1;
+        textureNameStore[this.name] = 1;
         
-        if (typeof onload === "function") {
-          onload(name);
+        if (onload) {
+          onload(this);
         }
       } else {
         console.warn(name + " is using a compression type that is not supported (supported types: DXT1, DXT3, DXT5)");
         
-        if (typeof onerror === "function") {
-          onerror(name);
-        }
+        //if (typeof onerror === "function") {
+          //onerror(this);
+        //}
       }
     } else {
       console.warn(name + " is not a valid DDS file");
       
-      if (typeof onerror === "function") {
-        onerror(name);
-      }
-    }
-  }
-  
-  function onddserror(name, onerror, e) {
-    console.warn("Failed to load " + name);
-    
-    if (typeof onerror === "function") {
-      onerror(name, e);
+      //if (typeof onerror === "function") {
+       // onerror(this);
+      //}
     }
   }
     
-  function DDSTexture(name, source, clampS, clampT, onload, onerror) {
+  function DDSTexture(name, source, clampS, clampT) {
+    this.isTexture = true;
     this.name = name;
     
-    console.log("Loading " + name);
+    if (onloadstart) {
+      onloadstart(this);
+    }
     
     if (compressedTextures) {
-      getFile(source, true, onddsload.bind(this, name, clampS, clampT, onload), onddserror.bind(this, name, onerror));
+      getFile(source, true, onddsload.bind(this, clampS, clampT), onerror.bind(this), onprogress.bind(this));
     } else {
       console.warn("Didn't load " + name + " because your WebGL context does not support compressed texture formats");
       
-      if (typeof onerror === "function") {
-        onerror(name);
+      if (onerror) {
+        onerror(this);
       }
     }
   }
@@ -548,21 +554,21 @@ function GL(element) {
   
   var extRegexp = /(?:\.([^.]+))?$/;
   
-  function newTexture(name, source, clampS, clampT, onload, onerror) {
+  function newTexture(name, source, clampS, clampT) {
     if (textureStore[name]) {
-      if (typeof onload === "function") {
-        onload(name);
+      if (onload) {
+        onload(textureStore[name]);
       }
     } else {
-      var ext = extRegexp.exec(name)[1] || extRegexp.exec(source)[1];
+      var ext = extRegexp.exec(source)[1] || extRegexp.exec(name)[1];
       
       if (ext && ext.toLowerCase() === "dds") {
-         textureStore[name] = new DDSTexture(name, source, clampS, clampT, onload, onerror);
+         textureStore[name] = new DDSTexture(name, source, clampS, clampT);
       } else {
-        textureStore[name] = new Texture(name, source, clampS, clampT, onload, onerror);
+        textureStore[name] = new Texture(name, source, clampS, clampT);
       }
     }
-      
+    
     return textureStore[name];
   }
   
@@ -907,6 +913,7 @@ function GL(element) {
     pushMatrix: pushMatrix,
     popMatrix: popMatrix,
     newShader: newShader,
+    shaderReady: shaderReady,
     bindShader: bindShader,
     setParameter: setParameter,
     setShaderMaps: setShaderMaps,
@@ -923,7 +930,7 @@ function GL(element) {
     newRectangle: newRectangle,
     newSphere: newSphere,
     newCube: newCube,
-	newCylinder: newCylinder,
+    newCylinder: newCylinder,
     gl: gl,
     hasFloatTexture: hasFloatTexture
   };

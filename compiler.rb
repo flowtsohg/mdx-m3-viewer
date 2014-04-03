@@ -3,11 +3,11 @@
 require "./glsl_min"
 
 USE_CLOSURE = true
+GLSL_MIN_REWRITE_ALL = true
 
 MDX_SHADERS = [
+  "vsskinning",
   "vssoftskinning",
-  "vshardskinningarray",
-  "vshardskinningtexture",
   "vsparticles",
   "psmain",
   "psparticles"
@@ -49,13 +49,18 @@ CODE_FILES = [
   "viewer/shadermap",
   "viewer/mdx/before",
   "viewer/mdx/parser",
-  "viewer/mdx/tracks",
+  "viewer/mdx/sd",
   "viewer/mdx/skeleton",
   "viewer/mdx/collisionshape",
   "viewer/mdx/model",
+  "viewer/mdx/modelinstance",
   "viewer/mdx/texture",
   "viewer/mdx/geoset",
   "viewer/mdx/layer",
+  "viewer/mdx/geosetanimation",
+  "viewer/mdx/textureanimation",
+  "viewer/mdx/node",
+  "viewer/mdx/attachment",
   "viewer/mdx/particle",
   "viewer/mdx/particleemitter",
   "viewer/mdx/particle2",
@@ -75,16 +80,19 @@ CODE_FILES = [
   "viewer/m3/layer",
   "viewer/m3/standardmaterial",
   "viewer/m3/model",
+  "viewer/m3/modelinstance",
   #"viewer/m3/particle",
   #"viewer/m3/particleemitter",
   "viewer/m3/after",
+  "viewer/model",
+  "viewer/modelinstance",
   "viewer/after"
 ]
 
 def handle_shaders(shared, mdx, m3, srcpath, outputs)
   names = shared + mdx.map { |p| "w" + p } + m3.map { |p| "s" + p }
   paths = shared.map { |p| srcpath + "sharedshaders/" + p + ".c" } + mdx.map { |p| srcpath + "mdx/shaders/" + p + ".c" } + m3.map { |p| srcpath + "m3/shaders/" + p + ".c" }
-  minified = minify_files(paths , true)
+  minified = minify_files(paths , GLSL_MIN_REWRITE_ALL)
   shaders = []
   
   names.each_index { |i|
@@ -117,7 +125,7 @@ def handle_source(paths, use_closure, output)
     }
 	
     if use_closure
-      system("java -jar compiler.jar --compilation_level ADVANCED_OPTIMIZATIONS --js model_viewer_monolith.js --js_output_file model_viewer_monolith_min.js");
+      system("java -jar compiler.jar --js model_viewer_monolith.js --js_output_file model_viewer_monolith_min.js");
     else
       File.open("model_viewer_monolith_min.js", "w") { |output|
         File.open("model_viewer_monolith.js", "r") { |input|

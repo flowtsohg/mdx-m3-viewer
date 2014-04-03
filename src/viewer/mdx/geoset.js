@@ -59,25 +59,14 @@ function Geoset(geoset) {
   
   var bufferSize = this.offsets[4];
   
-  if (RENDER_MODE === 0) {
-    bufferSize = this.offsets[2];
-    
-    this.positions = positions;
-    this.animatedPositions = new Float32Array(geoset.vertexPositions.length);
-    this.boneNumbers = boneNumbers;
-    this.boneIndices = boneIndices;
-  }
-  
   ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffers.vertices);
   ctx.bufferData(ctx.ARRAY_BUFFER,  bufferSize, ctx.STATIC_DRAW);
   ctx.bufferSubData(ctx.ARRAY_BUFFER, this.offsets[0], positions);
   //ctx.bufferSubData(ctx.ARRAY_BUFFER, this.offsets[1], normals);
   ctx.bufferSubData(ctx.ARRAY_BUFFER, this.offsets[1], uvs);
   
-  if (RENDER_MODE > 0) {
-    ctx.bufferSubData(ctx.ARRAY_BUFFER, this.offsets[2], boneIndices);
-    ctx.bufferSubData(ctx.ARRAY_BUFFER, this.offsets[3], boneNumbers);
-  }
+  ctx.bufferSubData(ctx.ARRAY_BUFFER, this.offsets[2], boneIndices);
+  ctx.bufferSubData(ctx.ARRAY_BUFFER, this.offsets[3], boneNumbers);
   
   ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.buffers.faces);
   ctx.bufferData(ctx.ELEMENT_ARRAY_BUFFER, faces, ctx.STATIC_DRAW);
@@ -86,50 +75,7 @@ function Geoset(geoset) {
 }
 
 Geoset.prototype = {
-  render: function (nodes, coordId) {
-    var v = [];
-    var p = [];
-    var positions = this.positions;
-    var animatedPositions = this.animatedPositions;
-    
-    // Inlining all the vector and matrix operations here seems to make this faster, and speed is badly needed here
-    for (var i = 0, l = positions.length / 3; i < l; i++) {
-      v[0] = v[1] = v[2] = 0;
-      p[0] = positions[i * 3 + 0];
-      p[1] = positions[i * 3 + 1];
-      p[2] = positions[i * 3 + 2];
-      
-      var boneNumber = this.boneNumbers[i];
-      
-      for (var j = 0, k = boneNumber; j < k; j++) {
-        // -1 because we added 1 for hardware skinning
-        var m0 = nodes[this.boneIndices[i * 4 + j] - 1].worldMatrix;
-        var x = p[0], y = p[1], z = p[2];
-        
-        v[0] += x * m0[0] + y * m0[4] + z * m0[8] + m0[12];
-        v[1] += x * m0[1] + y * m0[5] + z * m0[9] + m0[13];
-        v[2] += x * m0[2] + y * m0[6] + z * m0[10] + m0[14];
-      }
-      
-      var scale = 1 / boneNumber;
-      
-      animatedPositions[i * 3 + 0] = v[0] * scale;
-      animatedPositions[i * 3 + 1] = v[1] * scale;
-      animatedPositions[i * 3 + 2] = v[2] * scale;
-    }
-    
-    ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffers.vertices);
-    ctx.bufferSubData(ctx.ARRAY_BUFFER,  this.offsets[0], animatedPositions);
-    
-    gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, 12, this.offsets[0]);
-    //gl.vertexAttribPointer("a_normal", 3, ctx.FLOAT, false, 12, this.offsets[1]);
-    gl.vertexAttribPointer("a_uv", 2, ctx.FLOAT, false, 8, this.offsets[1] + coordId * this.uvSetSize);
-    
-    ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.buffers.faces);
-    ctx.drawElements(ctx.TRIANGLES, this.faces, ctx.UNSIGNED_SHORT, 0);
-  },
-  
-  renderHW: function (coordId) {
+  render: function (coordId) {
     ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffers.vertices);
     
     gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, 12, this.offsets[0]);

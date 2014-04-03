@@ -6,12 +6,12 @@ function Particle2() {
 }
 
 Particle2.prototype = {
-  reset: function (emitter, head) {
+  reset: function (emitter, head, sequence, frame, counter) {
     var p = emitter.node.pivot;
-    var width = getTrack(emitter.tracks.width, emitter.width, emitter.model) * 0.5;
-    var length = getTrack(emitter.tracks.length, emitter.length, emitter.model) * 0.5;
-    var speed = getTrack(emitter.tracks.speed, emitter.speed, emitter.model);
-    var latitude = math.toRad(getTrack(emitter.tracks.latitude, emitter.latitude, emitter.model));
+    var width = getSDValue(sequence, frame, counter, emitter.sd.width, emitter.width) * 0.5;
+    var length = getSDValue(sequence, frame, counter, emitter.sd.length, emitter.length) * 0.5;
+    var speed = getSDValue(sequence, frame, counter, emitter.sd.speed, emitter.speed) ;
+    var latitude = math.toRad(getSDValue(sequence, frame, counter, emitter.sd.latitude, emitter.latitude));
     
     this.alive = true;
     this.health = emitter.lifespan;
@@ -61,17 +61,17 @@ Particle2.prototype = {
     this.column = 0;
   },
   
-  update: function (emitter) {
+  update: function (emitter, sequence, frame, counter) {
     if (this.alive) {
-      var gravity = getTrack(emitter.tracks.gravity, emitter.gravity, emitter.model);
+      var gravity = getSDValue(sequence, frame, counter, emitter.sd.gravity, emitter.gravity);
       
-      this.health -= FRAME_TIME * ANIMATION_SCALE;
+      this.health -= FRAME_TIME;
       
-      this.velocity[2] -= gravity * FRAME_TIME * ANIMATION_SCALE;
+      this.velocity[2] -= gravity * FRAME_TIME;
 
-      this.position[0] += this.velocity[0] * FRAME_TIME * ANIMATION_SCALE;
-      this.position[1] += this.velocity[1] * FRAME_TIME * ANIMATION_SCALE;
-      this.position[2] += this.velocity[2] * FRAME_TIME * ANIMATION_SCALE;
+      this.position[0] += this.velocity[0] * FRAME_TIME;
+      this.position[1] += this.velocity[1] * FRAME_TIME;
+      this.position[2] += this.velocity[2] * FRAME_TIME;
 
       var lifeFactor = (emitter.lifespan === 0) ? 0 : 1 - (this.health / emitter.lifespan); 
       var scale;

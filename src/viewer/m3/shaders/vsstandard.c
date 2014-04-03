@@ -102,5 +102,5 @@ void main() {
   v_uv[3] = a_uv3;
   #endif
   
-  gl_Position = u_mvp * vec4(position, 1);
+  gl_Position = u_mvp * vec4(position * 100.0, 1);
 }

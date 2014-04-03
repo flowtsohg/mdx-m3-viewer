@@ -1,7 +1,7 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
 var Parser = (function () {
-  function readVector4As4readUint8(reader) {
+  function readVector4As4Uint8(reader) {
     var values = readUint8Array(reader, 4);
     
     return [((values[0] / 255) * 2) - 1, ((values[1] / 255) * 2) - 1, ((values[2] / 255) * 2) - 1, ((values[3] / 255) * 2) - 1];
@@ -25,6 +25,17 @@ var Parser = (function () {
   
   function readUint16Pair(reader) {
     return readUint16Array(reader, 2);
+  }
+  
+  // This function is used to scale weights to a ratio in the range [0, 1] instead of bytes in the range [0, 255]
+  function readUint8ArrayAsRatio(reader, count) {
+    var data = readUint8Array(reader, count);
+    
+    for (var i = 0, l = data.length; i < l; i++) {
+      data[i] /= 255;
+    }
+    
+    return data;
   }
   
   function readBoundingSphere(reader) {
@@ -1012,14 +1023,14 @@ var Parser = (function () {
     this.hotSpot = new AnimationReference(reader, readFloat32);
     this.falloff = new AnimationReference(reader, readFloat32);
   }
-  /*
+  
   function AttachmentPoint(reader, indexEntries, version) {
     this.version = version;
     this.unknown = readInt32(reader);
     this.name = parseReferenceString(reader, indexEntries);
     this.bone = readUint32(reader);
   }
-  */
+  
   function MSEC(reader) {
     this.unknown0 = readUint32(reader);
     this.boundings = new AnimationReference(reader, readBoundingSphere);
@@ -1060,11 +1071,11 @@ var Parser = (function () {
   
   function Vertex(reader, uvSetCount) {
     this.position = readVector3(reader);
-    this.boneWeights = readUint8Array(reader, 4);
+    this.boneWeights = readUint8ArrayAsRatio(reader, 4);
     this.boneLookupIndices = readUint8Array(reader, 4);
-    this.normal = readVector4As4readUint8(reader);
+    this.normal = readVector4As4Uint8(reader);
     this.uvs = readVector2As2Int16Matrix(reader, uvSetCount);
-    this.tangent = readVector4As4readUint8(reader);
+    this.tangent = readVector4As4Uint8(reader);
   }
   
   function Bone(reader, indexEntries, version) {
@@ -1191,7 +1202,7 @@ var Parser = (function () {
     this.boneLookup = parseReferenceByVal(reader, indexEntries, readUint16);
     this.boundings = readBoundingSphere(reader);
     this.unknown4To19 = readFloat32Array(reader, 16);
-    this.attachmentPoints = new Reference(reader);//parseReference(reader, indexEntries, AttachmentPoint);
+    this.attachmentPoints = parseReference(reader, indexEntries, AttachmentPoint);
     this.attachmentPointAddons = new Reference(reader);//parseReferenceByVal(reader, indexEntries, readUint16);
     this.ligts = parseReference(reader, indexEntries, Light);
     this.shbx = new Reference(reader);//parseReference(reader, indexEntries, SHBX);

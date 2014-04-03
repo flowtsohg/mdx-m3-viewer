@@ -1,16 +1,15 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
-function Particle(model) {
-  this.model = model;
+function Particle() {
   this.position = [];
 }
 
 Particle.prototype = {
-  reset: function (emitter) {
-    var speed = getTrack(emitter.tracks.speed, emitter.initialVelocity, this.model);
-    var latitude = getTrack(emitter.tracks.latitude, emitter.latitude, this.model);
-    var longitude = getTrack(emitter.tracks.longitude, emitter.longitude, this.model);
-    var lifespan = getTrack(emitter.tracks.lifespan, emitter.lifespan, this.model);
+  reset: function (emitter, sequence, frame, counter) {
+    var speed = getSDValue(sequence, frame, counter, emitter.sd.speed, emitter.initialVelocity);
+    var latitude = getSDValue(sequence, frame, counter, emitter.sd.latitude, emitter.latitude);
+    var longitude = getSDValue(sequence, frame, counter, emitter.sd.longitude, emitter.longitude);
+    var lifespan = getSDValue(sequence, frame, counter, emitter.sd.lifespan, emitter.lifespan);
     
     this.alive = true;
     this.health = lifespan;
@@ -44,17 +43,17 @@ Particle.prototype = {
     this.orientation = math.random(0, Math.PI * 2);
   },
   
-  update: function (emitter) {
+  update: function (emitter, sequence, frame, counter) {
     if (this.alive) {
-      var gravity = getTrack(emitter.tracks.gravity, emitter.gravity, this.model);
+      var gravity = getSDValue(sequence, frame, counter, emitter.sd.gravity, emitter.gravity);
       
-      this.health -= FRAME_TIME * ANIMATION_SCALE;
+      this.health -= FRAME_TIME;
       
-      this.velocity[2] -= gravity * FRAME_TIME * ANIMATION_SCALE;
+      this.velocity[2] -= gravity * FRAME_TIME;
 
-      this.position[0] += this.velocity[0] * FRAME_TIME * ANIMATION_SCALE;
-      this.position[1] += this.velocity[1] * FRAME_TIME * ANIMATION_SCALE;
-      this.position[2] += this.velocity[2] * FRAME_TIME * ANIMATION_SCALE;
+      this.position[0] += this.velocity[0] * FRAME_TIME;
+      this.position[1] += this.velocity[1] * FRAME_TIME;
+      this.position[2] += this.velocity[2] * FRAME_TIME;
     }
   }
 };

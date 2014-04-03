@@ -1,15 +1,71 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
-window["Viewer"] = function (args) {
-  var canvas = args.canvas;
-  var gl = GL(canvas);
+window["ModelViewer"] = function (canvas, onmessage, isDebug) {
+  function sendMessage(e) {
+    if (typeof onmessage === "function") {
+      onmessage(e);
+    }
+  }
+  
+  function onloadstart(object) {
+    if (object.isModel) {
+      sendMessage({type: "loadstart", objectType: "model", name: object.source, progress: 0});
+    } else if (object.isTexture) {
+      sendMessage({type: "loadstart", objectType: "texture", name: object.name, progress: 0});
+    } else {
+      console.log("What?");
+    }
+  }
+  
+  function onload(object) {
+     if (object.isModel) {
+       sendMessage({type: "load", objectType: "model", name: object.source, progress: 1});
+    } else if (object.isTexture) {
+      sendMessage({type: "load", objectType: "texture", name: object.name, progress: 1});
+    } else {
+      console.log("What?");
+    }
+  }
+  
+  function onerror(object, e) {
+    var reason = e.reason;
+    
+    if (reason === "WebGLContext" || reason === "VertexTexture" || reason === "FloatTexture" || reason === "CompressedTextures") {
+      sendMessage({type: "error", objectType: "webglcontext", reason: reason});
+    }
+    
+    console.log(object);
+    console.log(e);
+  }
+  
+  function onprogress(object, e) {
+    if (object.isModel) {
+      sendMessage({type: "progress", objectType: "model", name: object.source, progress: (e.loaded / e.total)});
+    } else if (object.isTexture) {
+      sendMessage({type: "progress", objectType: "texture", name: object.name, progress: (e.loaded / e.total)});
+    } else {
+      console.log("What?");
+    }
+  }
+  
+  function onerrorwrapper(e) {
+    onerror(this, e);
+  }
+  
+  function onprogresswrapper(e) {
+    onprogress(this, e);
+  }
+  
+  var gl = GL(canvas, onload, onerrorwrapper, onprogresswrapper, onloadstart, onerror);
+  
+  if (!gl) {
+    return;
+  }
+  
   var ctx = gl.gl;
   var camera = {m: [0, 0, 0], range: [0, 0], r: [0, 0]};
   var cameraPosition = [0, 0, 0];
-  var lightPosition = [0, 0, 2.5];
-  var RENDER_MODE = 0;
-  var customTextures = {};
-  var model;
+  var lightPosition = [0, 0, 500];
   var modelCameraId = -1;
   var modelCamera;
   var grass_water;
@@ -22,24 +78,17 @@ window["Viewer"] = function (args) {
   var shouldRenderWorld = 2;
   var shouldRenderLights = true;
   var shouldRenderShapes = false;
-  var shaderToUse = "standard";
-  var format = 0;
+  var shaderToUse = "sstandard";
   var floatPrecision = "precision mediump float;\n";
-  var standardShader;
-  var particleShader;
-  var ribbonShader;
-  var worldShader;
-  var whiteShader;
+  
+  // To reference models by their source.
+  var modelCache = {};
     
+  // To reference models or instances by their ID.
+  var modelInstanceCache = [];
+  
   var FRAME_TIME = 1 / 60;
-  var ANIMATION_SCALE = 1;
-  var MODEL_ID = args.modelId;
-  var MODEL_PATH = args.modelPath;
-  var MPQ_PATH = args.mpqPath;
-  var DEBUG_MODE = args.debugMode;
-  var HAS_FLOAT_TEXTURE = ctx.getExtension("OES_texture_float");
-  var HAS_VERTEX_TEXTURE = ctx.getParameter(ctx.MAX_VERTEX_TEXTURE_IMAGE_UNITS) > 0;
-  var VERTEX_UNIFORM_VECTORS = ctx.getParameter(ctx.MAX_VERTEX_UNIFORM_VECTORS);
+  var DEBUG_MODE = isDebug;
   
   var teamColors = [
     [255, 3, 3],

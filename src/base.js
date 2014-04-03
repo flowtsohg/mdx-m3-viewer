@@ -1,9 +1,5 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
-function fileName(path) {
-    return path.replace(/^.*[\\\/]/, "").replace(/\..*/, "");
-}
-
 if (!window.requestAnimationFrame ) {
   window.requestAnimationFrame = (function() {
     return window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback, element) { window.setTimeout(callback, 1000 / 60); };
@@ -75,18 +71,30 @@ function getDom() {
   return dom;
 }
 
-function getFile(path, binary, onload, onerror, onprogress) {
+function getFile(path, binary, onload, onerror, onprogress, parent) {
   var xhr = new XMLHttpRequest();
   
   if (onload) {
+    if (parent) {
+      onload = onload.bind(parent);
+    }
+    
     xhr.addEventListener("load", onload, false);
   }
   
   if (onerror) {
+    if (parent) {
+      onerror = onerror.bind(parent);
+    }
+    
     xhr.addEventListener("error", onerror, false);
   }
   
   if (onprogress) {
+    if (parent) {
+      onprogress = onprogress.bind(parent);
+    }
+    
     xhr.addEventListener("progress", onprogress, false);
   }
   
@@ -131,6 +139,12 @@ String.hashCode = function(s) {
   
   return hash;
 };
+
+if (typeof String.prototype.startsWith != "function") {
+  String.prototype.startsWith = function (what) {
+    return this.lastIndexOf(what, 0) === 0;
+  };
+}
 
 Object.copy = function (object) {
   var keys = Object.keys(object);

@@ -5,12 +5,20 @@ var url = {
     return "http://www.hiveworkshop.com/forums/apps.php?p=textures&id=" + id;
   },
   
-  mpqFile: function (fileName) {
-    return "http://www.hiveworkshop.com/forums/apps.php?p=mpq_file&file=" + fileName;
+  mpqFile: function (path) {
+    return "http://www.hiveworkshop.com/forums/apps.php?p=mpq_file&file=" + path;
   },
   
-  customFile: function (fileName) {
-    return "http://www.hiveworkshop.com/forums/" + fileName;
+  customTexture: function (id) {
+    return "http://www.hiveworkshop.com/forums/apps.php?section=skins&p=model_file&id=" + id + "&file=skin.png";
+  },
+  
+  customModel: function (id) {
+    return "http://www.hiveworkshop.com/model_files/" + id + "/model.mdx";
+  },
+  
+  customFile: function (path) {
+    return "http://www.hiveworkshop.com/forums/" + path;
   }
 };
   

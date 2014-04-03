@@ -18,43 +18,45 @@ A live version can be seen on [Hiveworkshop](http://www.hiveworkshop.com) for wh
 
 #### Usage
 
-`new Viewer(args)`
-
-args is an Object with the following properties:
+`new ModelViewer(canvas, onmessage, debugMode)`
 
 * `canvas` - A \<canvas> element. Required.
-* `onprogress` - A function callback. Progress messages will be sent to it. Optional.
-* `onload` - A function callback. Called if everything went ok, and the model was loaded successfully. Optional.
-* `onerror` - A function callback. Called if there was an error somewhere. Optional.
-* `modelId` - The model ID. Used by the Hiveworkshop.
-* `modelPath` - A path to a MDX or M3 file to use.
-* `mpqPath` - A path to a MDX or M3 file in the Warcraft 3 / Starcraft 2 MPQs. Used by the Hiveworkshop.
+* `onmessage` - A function callback. Gets messages from the viewer. Optional.
 * `debugMode` - If true, the viewer will log the Parser and Model structures. Optional.
-  
-One of modelId / modelPath / mpqPath has to be defined.
-If more than one is defined, the order of preference is modelPath > mpqPath > modelId.
+
+If the client has the requierments to run the viewer, the API will be returned, otherwise, null will be returned, and an error message will be dispatched to onmessage.
 
 The API of the viewer is as follows:
 
-* `getCameras()` - Returns the cameras the object owns, or an empty array if there are no cameras.
-* `getCamera()` - Returns the index of the currently selected camera, or -1 if there is no selected camera.
-* `setCamera(index)` - Sets the selected camera to index. -1 to have no camera selected.
-* `resetCamera()` - Resets the selected camera to -1 and the rotation, zoom and movement.
-* `getAnimations()` - Returns a list of the model animations, or an empty array if there are no animations.
-* `playAnimation(index)` - Selects the index'th animation to play.
-* `stopAnimation()` - Same as playAnimation(0).
-* `setAnimationSpeed(speed)` - Selects the animation speed. 1 for default, 2 for double, 0.5 for half, and so on.
-* `setLoopingMode(mode)` - Sets the animation looping mode. 0 for default, 1 for never, 2 for always.
-* `setTeamColor(index)` - Sets the team color of the index'th player using Warcraft 3 team colors.
-* `setWorld(mode)` - Sets the world mode. 0 for none, 1 for sky, 2 for ground, 3 for water.
-* `showLights(mode)` - Sets the light mode. Not implemented yet.
-* `showShapes(mode)` - Sets the collision shapes mode. True to show them, false to not.
-* `resize(x, y)` - Resize the context viewport.
-* `move(x, y)` - Move the model around.
-* `zoom(x)` - Zoom by x. 1 does nothing, 2 makes everything twice the size, and so on.
-* `rotate(x, y)` - Rotate by x and y on their respective axes.
+* `loadModel(source)` - Load a model. Source can be an absolute path to a MDX/M3 file, a path to a MDX/M3 file in any of the Warcraft 3 and Starcraft 2 MPQs, or a model ID used by the Hiveworkshop. Returns the ID of the loaded model. Note: if a model was already loaded from the given source, its ID will be returned.
+* `loadInstance(source)` - Create a new instance from an existing model or instance, or a path that will be used to load also the model if needed. If source is a string, it can be an absolute path to a MDX/M3 file, a path to a MDX/M3 file in any of the Warcraft 3 and Starcraft 2 MPQs, or a model ID used by the Hiveworkshop. If source is a number, it can be an ID of a model or an instance. Returns null if given an invalid ID, otherwise returns the ID of the created instance. Note: if the source is a string, and a model was already loaded from that string, only a new instance will be created.
+* `getModelFromInstance(objectId)` - Return the model ID that an instance points to.
+* `getModelFromPath(path)` - Return the model ID that was loaded with the given path.
+* `setPosition(objectId, v)` - Set the position of an instance.
+* `move(objectId, v)` - Move an instance.
+* `setRotation(objectId, v)` - Set the rotation of an instance.
+* `rotate(objectId, v)` - Rotate an instance.
+* `setScale(objectId, n)` - Set the scale of an instance.
+* `scale(objectId, n)` - Scale an instance.
+* `setParent(objectId, parentId, attachmentId)` - Set the parent of an instance to another instance, with an optional attachment point owned by that parent.
+* `setTeamColor(objectId, teamId)` - Set the team color used by an instance.
+* `overrideTexture(objectId, oldPath, newPath)` - Override a texture of an instance or a model with another texture. If objectId is an instance, overrides the texture locally just for that instance. If objectId is a model, it overrides the texture for the model, which affects all instances that don't explicitly override this texture.
+* `playAnimation(objectId, sequenceId)` - Set the animation of an instance.
+* `stopAnimation(objectId)` - Stop the animation of an instance. Equivalent to playAnimation with animation ID -1.
+* `setAnimationLoop(objectId, mode)` - Sets the animation loop mode of an instance. Possible values are 0 for default, 1 for never, and 2 for always.
+* `getSequences(objectId)` - Get a list of the sequences owned by a model. Returns null if the object ID is invalid or not a model, or if the model didn't finish loading.
+* `getAttachments(objectId)` - Get a list of the attachments owned by a model. Returns null if the object ID is invalid or not a model, or if the model didn't finish loading.
+* `setScene(mode)` - Set the drawn scene. Possible values are 0 for nothing, 1 for sky, 2 for sky and ground, and 3 for sky and water.
+* `showBoundingShapes(b)` - Shows or hides the bounding shapes on all the instances.
+* `panCamera(x, y)` - Pan the camera on the x and y axes.
+* `rotateCamera(x, y)` - Rotate the camera on the x and y axes.
+* `zoomCamera(x)` - Zoom the camera by a factor.
+* `resetCamera()` - Reset the camera back to the initial state.
 
-Note that the API functions don't do anything until the model is loaded. For setup, use the onload callback.
+Note that the Model getter functions  (getSequences, getAttachments) don't do anything until the model is loaded. Use the onmessage callback to track the loading progress of models (and textures).
+All of the instance methods work in a synchronious manner from the client's perspective, meaning you can use all of them without waiting for anything to load.
 
-To show in-game textures (or models with mpqPath) properly, you must provide a link that can access the files of the Warcraft 3 and Starcraft 2 MPQ.
-Simply change the url of the mpqFile function in [url.js](https://github.com/flowtsohg/mdx-m3-viewer/blob/master/src/url.js).
+To show in-game textures or models properly, you must provide a link that can access the files of the Warcraft 3 and Starcraft 2 MPQ.
+Check out [url.js](https://github.com/flowtsohg/mdx-m3-viewer/blob/master/src/url.js).
+
+When the viewer asks for any image format that is not DDS, the expected response is a PNG image. For DDS, return them as-is.

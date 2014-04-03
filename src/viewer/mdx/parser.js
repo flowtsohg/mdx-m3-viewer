@@ -7,75 +7,75 @@ var Parser = (function () {
   
   var tagToTrack = {
     "LAYS": {
-      "KMTF": [readUint32, "textureId"],
-      "KMTA": [readFloat32, "alpha"]
+      "KMTF": [readUint32, "textureId", 0],
+      "KMTA": [readFloat32, "alpha", 1]
     },
     
     "TXAN": {
-      "KTAT": [readVector3, "translation"],
-      "KTAR": [readVector4, "rotation"],
-      "KTAS": [readVector3, "scaling"]
+      "KTAT": [readVector3, "translation", [0, 0, 0]],
+      "KTAR": [readVector4, "rotation", [0, 0, 0, 1]],
+      "KTAS": [readVector3, "scaling", [1, 1, 1]]
     },
     
     "GEOA": {
-      "KGAO": [readFloat32, "alpha"],
-      "KGAC": [readVector3, "color"]
+      "KGAO": [readFloat32, "alpha", 1],
+      "KGAC": [readVector3, "color", [0, 0, 0]]
     },
     
     "LITE": {
-      "KLAS": [readFloat32, "attenuationStart"],
-      "KLAE": [readFloat32, "attenuationEnd"],
-      "KLAC": [readVector3, "color"],
-      "KLAI": [readFloat32, "intensity"],
-      "KLBI": [readFloat32, "ambientIntensity"],
-      "KLBC": [readVector3, "ambientColor"],
-      "KLAV": [readFloat32, "visibility"]
+      "KLAS": [readFloat32, "attenuationStart", 0],
+      "KLAE": [readFloat32, "attenuationEnd", 0],
+      "KLAC": [readVector3, "color", [0, 0, 0]],
+      "KLAI": [readFloat32, "intensity", 0],
+      "KLBI": [readFloat32, "ambientIntensity", 0],
+      "KLBC": [readVector3, "ambientColor", [0, 0, 0]],
+      "KLAV": [readFloat32, "visibility", 1]
     },
     
     "ATCH": {
-      "KATV": [readFloat32, "visibility"]
+      "KATV": [readFloat32, "visibility", 1]
     },
     
     "PREM": {
-      "KPEE": [readFloat32, "emissionRate"],
-      "KPEG": [readFloat32, "gravity"],
-      "KPLN": [readFloat32, "longitude"],
-      "KPLT": [readFloat32, "latitude"],
-      "KPEL": [readFloat32, "lifespan"],
-      "KPES": [readFloat32, "speed"],
-      "KPEV": [readFloat32, "visibility"]
+      "KPEE": [readFloat32, "emissionRate", 0],
+      "KPEG": [readFloat32, "gravity", 0],
+      "KPLN": [readFloat32, "longitude", 0],
+      "KPLT": [readFloat32, "latitude", 0],
+      "KPEL": [readFloat32, "lifespan", 0],
+      "KPES": [readFloat32, "speed", 0],
+      "KPEV": [readFloat32, "visibility", 1]
     },
     
     "PRE2": {
-      "KP2S": [readFloat32, "speed"],
-      "KP2R": [readFloat32, "variation"],
-      "KP2L": [readFloat32, "latitude"],
-      "KP2G": [readFloat32, "gravity"],
-      "KP2E": [readFloat32, "emissionRate"],
-      "KP2N": [readFloat32, "length"],
-      "KP2W": [readFloat32, "width"],
-      "KP2V": [readFloat32, "visibility"]
+      "KP2S": [readFloat32, "speed", 0],
+      "KP2R": [readFloat32, "variation", 0],
+      "KP2L": [readFloat32, "latitude", 0],
+      "KP2G": [readFloat32, "gravity", 0],
+      "KP2E": [readFloat32, "emissionRate", 0],
+      "KP2N": [readFloat32, "length", 0],
+      "KP2W": [readFloat32, "width", 0],
+      "KP2V": [readFloat32, "visibility", 1]
     },
     
     "RIBB": {
-      "KRHA": [readFloat32, "heightAbove"],
-      "KRHB": [readFloat32, "heightBelow"],
-      "KRAL": [readFloat32, "alpha"],
-      "KRCO": [readVector3, "color"],
-      "KRTX": [readUint32, "textureSlot"],
-      "KRVS": [readFloat32, "visibility"]
+      "KRHA": [readFloat32, "heightAbove", 0],
+      "KRHB": [readFloat32, "heightBelow", 0],
+      "KRAL": [readFloat32, "alpha", 1],
+      "KRCO": [readVector3, "color", [0, 0, 0]],
+      "KRTX": [readUint32, "textureSlot", 0],
+      "KRVS": [readFloat32, "visibility", 1]
     },
     
     "CAMS": {
-      "KCTR": [readVector3, "positionTranslation"],
-      "KTTR": [readVector3, "targetTranslation"],
-      "KCRL": [readUint32, "rotation"]
+      "KCTR": [readVector3, "positionTranslation", [0, 0, 0]],
+      "KTTR": [readVector3, "targetTranslation", [0, 0, 0]],
+      "KCRL": [readUint32, "rotation", 0]
     },
     
     "NODE": {
-      "KGTR": [readVector3, "translation"],
-      "KGRT": [readVector4, "rotation"],
-      "KGSC": [readVector3, "scaling"]
+      "KGTR": [readVector3, "translation", [0, 0, 0]],
+      "KGRT": [readVector4, "rotation", [0, 0, 0, 1]],
+      "KGSC": [readVector3, "scaling", [1, 1, 1]]
     }
   };
   
@@ -136,7 +136,7 @@ var Parser = (function () {
     while (tagTrack[peek(reader, 4)]) {
       var trackType = tagTrack[read(reader, 4)];
 	  
-      tracks[trackType[1]] = new TrackChunk(reader, trackType[0]);
+      tracks[trackType[1]] = new TrackChunk(reader, trackType);
     }
 
     return tracks;
@@ -147,11 +147,11 @@ var Parser = (function () {
     
     nodes.push(node);
     
-    return node;
+    return nodes.length - 1;
   }
 
   function Track(reader, interpolationType, type) {
-    this.time = readInt32(reader);
+    this.frame = readInt32(reader);
     this.vector = type(reader);
 
     if (interpolationType > 1) {
@@ -160,23 +160,27 @@ var Parser = (function () {
     }
   }
 
-  function TrackChunk(reader, type) {
+  function TrackChunk(reader, trackType) {
     var count = readUint32(reader);
     
     this.interpolationType = readUint32(reader);
-    this.globalSequenceId = readUint32(reader);
+    this.globalSequenceId = readInt32(reader);
     this.tracks = [];
 
     for (; count--;) {
-      this.tracks.push(new Track(reader, this.interpolationType, type));
+      this.tracks.push(new Track(reader, this.interpolationType, trackType[0]));
     }
+    
+    // Extra information
+    this.type = trackType[1];
+    this.defval = trackType[2];
   }
 
   function Node(reader) {
     this.inclusiveSize = readUint32(reader);
     this.name = read(reader, 80);
     this.objectId = readUint32(reader);
-    this.parentId = readUint32(reader);
+    this.parentId = readInt32(reader);
     
     var flags = readUint32(reader);
     
@@ -209,7 +213,6 @@ var Parser = (function () {
     this.flags = flags;
     this.tracks = parseTracks(reader, "NODE");
   }
-  
   /*
   function VersionChunk(reader) {
     this.version = readUint32(reader);
@@ -233,11 +236,11 @@ var Parser = (function () {
   }
 
   function SequenceChunk(reader, size) {
-    this.sequences = parseCountChunk(reader, size / 132, Sequence);
+    this.objects = parseCountChunk(reader, size / 132, Sequence);
   }
 
   function GlobalSequenceChunk(reader, size) {
-    this.sequences = parseCountChunkByVal(reader, size / 4, readUint32);
+    this.objects = parseCountChunkByVal(reader, size / 4, readUint32);
   }
 
   function Texture(reader) {
@@ -247,7 +250,7 @@ var Parser = (function () {
   }
 
   function TextureChunk(reader, size) {
-    this.textures = parseCountChunk(reader, size / 268, Texture);
+    this.objects = parseCountChunk(reader, size / 268, Texture);
   }
   /*
   function SoundTrack(reader) {
@@ -278,7 +281,7 @@ var Parser = (function () {
     
     this.shadingFlags = flags;
     this.textureId = readUint32(reader);
-    this.textureAnimationId = readUint32(reader);
+    this.textureAnimationId = readInt32(reader);
     this.coordId = readUint32(reader);
     this.alpha = readFloat32(reader);
     this.tracks = parseTracks(reader, "LAYS");
@@ -296,7 +299,7 @@ var Parser = (function () {
   }
 
   function MaterialChunk(reader, size) {
-    this.materials = parseChunk(reader, size, Material);
+    this.objects = parseChunk(reader, size, Material);
   }
 
   function TextureAnimation(reader) {
@@ -305,7 +308,7 @@ var Parser = (function () {
   }
 
   function TextureAnimationChunk(reader, size) {
-    this.animations = parseChunk(reader, size, TextureAnimation);
+    this.objects = parseChunk(reader, size, TextureAnimation);
   }
 
   function Geoset(reader) {
@@ -352,7 +355,7 @@ var Parser = (function () {
   }
 
   function GeosetChunk(reader, size) {
-    this.geosets = parseChunk(reader, size, Geoset);
+    this.objects = parseChunk(reader, size, Geoset);
   }
 
   function GeosetAnimation(reader) {
@@ -365,23 +368,23 @@ var Parser = (function () {
   }
 
   function GeosetAnimationChunk(reader, size) {
-    this.animations = parseChunk(reader, size, GeosetAnimation);
+    this.objects = parseChunk(reader, size, GeosetAnimation);
   }
 
   function Bone(reader, nodes) {
     this.node = readNode(reader, nodes);
     this.geosetId = readUint32(reader);
     this.geosetAnimationId = readUint32(reader);
-    this.inclusiveSize = this.node.inclusiveSize + 8;
+    this.inclusiveSize = nodes[this.node].inclusiveSize + 8;
   }
 
   function BoneChunk(reader, size, nodes) {
-    this.bones = parseChunk(reader, size, Bone, nodes);
+    this.objects = parseChunk(reader, size, Bone, nodes);
   }
 
   function Light(reader, nodes) {
     this.inclusiveSize = readUint32(reader);
-   this.node = readNode(reader, nodes);
+    this.node = readNode(reader, nodes);
     this.type = readUint32(reader);
     this.attenuationStart = readUint32(reader);
     this.attenuationEnd = readUint32(reader);
@@ -393,13 +396,18 @@ var Parser = (function () {
   }
 
   function LightChunk(reader, size, nodes) {
-    this.lights = parseChunk(reader, size, Light, nodes);
+    this.objects = parseChunk(reader, size, Light, nodes);
   }
 
-  function HelperChunk(reader, size, nodes) {
-    this.helpers = parseChunkByVal(reader, size, readNode, nodes);
+  function Helper(reader, nodes) {
+    this.node = readNode(reader, nodes);
+    this.inclusiveSize = nodes[this.node].inclusiveSize;
   }
-  /*
+  
+  function HelperChunk(reader, size, nodes) {
+    this.objects = parseChunk(reader, size, Helper, nodes);
+  }
+  
   function Attachment(reader, nodes) {
     this.inclusiveSize = readUint32(reader);
     this.node = readNode(reader, nodes);
@@ -409,11 +417,11 @@ var Parser = (function () {
   }
 
   function AttachmentChunk(reader, size, nodes) {
-    this.attachments = parseChunk(reader, size, Attachment, nodes);
+    this.objects = parseChunk(reader, size, Attachment, nodes);
   }
-  */
+  
   function PivotPointChunk(reader, size) {
-    this.points = readFloat32Matrix(reader, size / 12, 3);
+    this.objects = readFloat32Matrix(reader, size / 12, 3);
   }
   
   function ParticleEmitter(reader, nodes) {
@@ -430,7 +438,7 @@ var Parser = (function () {
   }
 
   function ParticleEmitterChunk(reader, size, nodes) {
-    this.emitters = parseChunk(reader, size, ParticleEmitter, nodes);
+    this.objects = parseChunk(reader, size, ParticleEmitter, nodes);
   }
   
   function ParticleEmitter2(reader, nodes) {
@@ -465,7 +473,7 @@ var Parser = (function () {
   }
 
   function ParticleEmitter2Chunk(reader, size, nodes) {
-    this.emitters = parseChunk(reader, size, ParticleEmitter2, nodes);
+    this.objects = parseChunk(reader, size, ParticleEmitter2, nodes);
   }
   
   function RibbonEmitter(reader, nodes) {
@@ -486,7 +494,7 @@ var Parser = (function () {
   }
 
   function RibbonEmitterChunk(reader, size, nodes) {
-    this.emitters = parseChunk(reader, size, RibbonEmitter, nodes);
+    this.objects = parseChunk(reader, size, RibbonEmitter, nodes);
   }
   /*
   function EventObjectTracks(reader) {
@@ -524,7 +532,7 @@ var Parser = (function () {
   }
 
   function CameraChunk(reader, size) {
-    this.cameras = parseChunk(reader, size, Camera);
+    this.objects = parseChunk(reader, size, Camera);
   }
   
   function CollisionShape(reader, nodes) {
@@ -533,7 +541,7 @@ var Parser = (function () {
     var type = readUint32(reader);
     
     this.type = type;
-    this.inclusiveSize = this.node.inclusiveSize + 4;
+    this.inclusiveSize = nodes[this.node].inclusiveSize + 4;
 
     if (type === 0 || type === 1 || type === 3) {
       this.vertices = readFloat32Matrix(reader, 2, 3);
@@ -550,7 +558,7 @@ var Parser = (function () {
   }
 
   function CollisionShapeChunk(reader, size, nodes) {
-    this.shapes = parseChunk(reader, size, CollisionShape, nodes);
+    this.objects = parseChunk(reader, size, CollisionShape, nodes);
   }
   
   var tagToChunk = {
@@ -567,7 +575,7 @@ var Parser = (function () {
     "BONE": [BoneChunk, "boneChunk"],
     "LITE": [LightChunk, "lightChunk"],
     "HELP": [HelperChunk, "helperChunk"],
-    //"ATCH": [AttachmentChunk, "attachmentChunk"],
+    "ATCH": [AttachmentChunk, "attachmentChunk"],
     "PIVT": [PivotPointChunk, "pivotPointChunk"],
     "PREM": [ParticleEmitterChunk, "particleEmitterChunk"],
     "PRE2": [ParticleEmitter2Chunk, "particleEmitter2Chunk"],
@@ -579,7 +587,8 @@ var Parser = (function () {
 
   return (function (reader, onprogress) {
     if (read(reader, 4) === "MDLX") {
-      this["nodes"] = [];
+      // Initialize the node list with a root node
+      this["nodes"] = [{objectId: -1, name: "InjectedRoot"}];
       
       while (remaining(reader) > 0) {
         var tag = read(reader, 4);
@@ -589,7 +598,7 @@ var Parser = (function () {
         if (chunk) {
           this[chunk[1]] = new chunk[0](reader, size, this["nodes"]);
         } else {
-          console.log("Didn't parse chunk " + tag);
+          //console.log("Didn't parse chunk " + tag);
           skip(reader, size);
         }
 

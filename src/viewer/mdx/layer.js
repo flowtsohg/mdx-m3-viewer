@@ -11,17 +11,15 @@ var filterModeToRenderOrder = {
 };
 
 function Layer(layer, geosetId, model) {
-  var keys = Object.keys(layer);
-  
-  for (var i = keys.length; i--;) {
-    var key = keys[i];
-    
-    this[key] = layer[key];
-  }
-  
-  this.model = model;
-  this.geosetId = geosetId;
+  this.filterMode = layer.filterMode;
+  this.twoSided = layer.twoSided;
+  this.textureId = layer.textureId;
+  this.textureAnimationId = layer.textureAnimationId;
+  this.coordId = layer.coordId;
+  this.alpha = layer.alpha;
   this.renderOrder = filterModeToRenderOrder[layer.filterMode] || 0;
+  this.geosetId = geosetId;
+  this.sd = parseSDTracks(layer.tracks, model);
 }
 
 Layer.prototype = {
@@ -81,7 +79,7 @@ Layer.prototype = {
     }
   },
   
-  shouldRender: function () {
-    return (getTrack(this.tracks.alpha, 1, this.model) > 0.1);
+  shouldRender: function (sequence, frame, counter) {
+    return getSDValue(sequence, frame, counter, this.sd.alpha, 1) > 0.1;
   }
 };
