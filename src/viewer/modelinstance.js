@@ -2,10 +2,13 @@
 function ModelInstance(model) {
   this.isInstance = true;
   this.model = model;
+  
   this.localMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
   this.position = [0, 0, 0];
   this.rotation = [0, 0, 0, 1];
   this.scaling = 1;
+  
+  this.teamId = 0;
   
   // This is a local texture map that can override the one owned by the model.
   // This way, every instance can have different textures.
@@ -63,7 +66,7 @@ ModelInstance.prototype = {
     this.attachment = attachment;
   },
   
-  overrideTexture: function (path, newpath, onload, onerror, onprogress) {
+  overrideTexture: function (path, newpath) {
     var source;
     
     path = path.toLowerCase();
@@ -73,12 +76,12 @@ ModelInstance.prototype = {
     if (newpath.startsWith("http://")) {
       source = newpath;
     } else if (newpath.match(/\.(?:mdx|m3|blp|dds)$/)) {
-      source = url.mpqFile(newpath);
+      source = urls.mpqFile(newpath);
     } else {
-      source = url.customTexture(newpath);
+      source = urls.customTexture(newpath);
     }
     
-    this.textureMap[path] = gl.newTexture(newpath, source, false, false, onload, onerror, onprogress);
+    this.textureMap[path] = gl.newTexture(newpath, source);
   },
   
  recalcuate: function () {
@@ -201,9 +204,16 @@ ModelInstance.prototype = {
   
   setTeamColor: function (id) {
     if (this.ready) {
-      this.instance.setTeamColor(id);
+      this.teamId = id;
+    
+      if (this.format === "MDLX") {
+        var idString = ((id < 10) ? "0" + id : id);
+        
+        this.overrideTexture("replaceabletextures/teamcolor/teamcolor00.blp", "replaceabletextures/teamcolor/teamcolor" + idString + ".blp");
+        this.overrideTexture("replaceabletextures/teamglow/teamglow00.blp", "replaceabletextures/teamglow/teamglow" + idString + ".blp");
+      }
     } else {
-      this.queue.push(["setTeamColor", [id]])
+      this.queue.push(["setTeamColor", [id]]);
     }
   }
 };

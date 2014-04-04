@@ -4,7 +4,6 @@ function ModelInstance(model) {
   this.model = model;
   this.frame = 0;
   this.loopingMode = 0;
-  this.teamId = 0;
   this.sequence = -1;
   this.skeleton = new Skeleton(model);
 }
@@ -41,10 +40,6 @@ ModelInstance.prototype = {
   
   render: function (instance) {
     this.model.render(instance, this);
-  },
-  
-  setTeamColor: function (id) {
-    this.teamId = id;
   },
   
   setAnimation: function (sequence) {

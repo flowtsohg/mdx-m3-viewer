@@ -198,7 +198,7 @@ Model.prototype = {
     var i, l;
     var sequence = instanceImpl.sequence;
     var frame = instanceImpl.frame;
-    var tc = teamColors[instanceImpl.teamId];
+    var tc = teamColors[instance.teamId];
     
     gl.bindShader(shaderToUse + this.uvSetCount);
     

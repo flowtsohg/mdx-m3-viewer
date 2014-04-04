@@ -262,6 +262,7 @@
   }
   
   // Return the model ID that an instance points to.
+  // Returns null if the given ID is invalid or is not an instance.
   function getModelFromInstance(objectId) {
     var object = modelInstanceCache[objectId];
     
@@ -271,6 +272,7 @@
   }
   
   // Return the model ID that was loaded with the given path.
+  // Returns null if no model was loaded from the given path.
   function getModelFromPath(path) {
     var object = modelCache[path];
     
