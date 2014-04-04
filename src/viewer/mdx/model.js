@@ -181,9 +181,9 @@ Model.prototype = {
                 v = getSDValue(sequence, frame, counter, geosetAnimation.sd.color, geosetAnimation.color);
                 
                 if (v[0] !== 1 || v[1] !== 1 || v[2] !== 1) {
-                  modifier[0] = v[0];
+                  modifier[0] = v[2];
                   modifier[1] = v[1];
-                  modifier[2] = v[2];
+                  modifier[2] = v[0];
                 }
               }
             }

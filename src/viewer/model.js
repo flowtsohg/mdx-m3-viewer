@@ -35,7 +35,7 @@ Model.prototype = {
       var texture = textures[key];
       
       if (texture.included === 1) {
-        this.overrideTexture(key, url.customFile(texture.url));
+        this.overrideTexture(key, urls.customFile(texture.url));
       }
     }
   },
