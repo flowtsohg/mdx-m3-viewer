@@ -4,7 +4,7 @@ function Node(object, model, pivots) {
   this.name = object.name;
   this.objectId = object.objectId;
   this.parentId = object.parentId;
-  this.pivot = pivots[object.objectId] || [0, 0, 0];
+  this.pivot = pivots[object.objectId - 1] || [0, 0, 0];
   
   if (object.tracks) {
     this.sd = parseSDTracks(object.tracks, model);

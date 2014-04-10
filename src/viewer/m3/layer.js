@@ -59,7 +59,7 @@ Layer.prototype = {
     
     if (imagePath !== "" && gl.textureReady(imagePath)) {
       gl.setParameter(this.uniform + "Map", unit);
-      this.glTexture.bind(unit);
+      gl.bindTexture(this.glTexture, unit);
       
       gl.setParameter(settings + "enabled", 1);
       gl.setParameter(settings + "op", this.op);

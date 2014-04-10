@@ -65,7 +65,7 @@ RibbonEmitter.prototype = {
     }
   },
   
-  render: function (sequence, frame, counter) {
+  render: function (sequence, frame, counter, teamId) {
     var i, l;
     var ribbons = Math.min(this.ribbons.length, this.maxRibbons);
     
@@ -117,14 +117,14 @@ RibbonEmitter.prototype = {
           var textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
           var texture = this.textures[textureId];
           
-          gl.bindTexture(texture.path, 0);
+          texture.bind(0, teamId);
           
           var color = getSDValue(sequence, frame, counter, this.sd.color, this.color);
           var alpha = getSDValue(sequence, frame, counter, this.sd.alpha, this.alpha);
           
-          modifier[0] = color[0];
+          modifier[0] = color[2];
           modifier[1] = color[1];
-          modifier[2] = color[2];
+          modifier[2] = color[0];
           modifier[3] = alpha;
           
           gl.setParameter("u_modifier", modifier);

@@ -328,7 +328,7 @@ var Mat4 = {
 
     return (a0 * b5 - a1 * b4 + a2 * b3 + a3 * b2 - a4 * b1 + a5 * b0);
   },
-  
+  */
   invert: function (m0, out) {
     var m00 = m0[0], m10 = m0[1], m20 = m0[2], m30 = m0[3];
     var m01 = m0[4], m11 = m0[5], m21 = m0[6], m31 = m0[7];
@@ -375,7 +375,7 @@ var Mat4 = {
     
     return true;
   },
-  
+  /*
   equals: function (m0, m1) {
     return m0.length === m1.length &&
         m0[0] === m1[0] &&
@@ -648,7 +648,7 @@ var Mat4 = {
     
     return out;
   },
-  /*
+  
   multVec4: function (m0, v0, out) {
     var x = v0[0], y = v0[1], z = v0[2], w = v0[3];
     
@@ -659,7 +659,7 @@ var Mat4 = {
     
     return out;
   },
-  */
+  
   decompose: function (m0, translationout, quaternionout, scaleout) {
     var m00 = m0[0], m10 = m0[1], m20 = m0[2];
     var m01 = m0[4], m11 = m0[5], m21 = m0[6];

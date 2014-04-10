@@ -10,8 +10,9 @@ function ParticleEmitter(emitter, model, instance) {
   
   this.lastCreation = 0;
   
-  this.spawnModelFileName = this.spawnModelFileName.replace(/\\/g, "/").replace("MDL", "MDX");
-  this.spawnModel = loadModelInstanceNoRender(url.mpqFile(this.spawnModelFileName));
+  var path = emitter.path.replace(/\\/g, "/").replace("MDL", "MDX");
+  
+  this.spawnModel = loadModelInstanceNoRender(urls.mpqFile(path));
   this.spawnModel.setAnimation(0);
   
   var particles;

@@ -179,8 +179,8 @@ var Parser = (function () {
   function Node(reader) {
     this.inclusiveSize = readUint32(reader);
     this.name = read(reader, 80);
-    this.objectId = readUint32(reader);
-    this.parentId = readInt32(reader);
+    this.objectId = readUint32(reader) + 1;
+    this.parentId = readInt32(reader) + 1;
     
     var flags = readUint32(reader);
     
@@ -213,14 +213,14 @@ var Parser = (function () {
     this.flags = flags;
     this.tracks = parseTracks(reader, "NODE");
   }
-  /*
+  
   function VersionChunk(reader) {
     this.version = readUint32(reader);
   }
-  */
+  
   function ModelChunk(reader) {
     this.name = read(reader, 80);
-    this["animationFileName"] = read(reader, 260);
+    this["animationPath"] = read(reader, 260);
     this.extent = readExtent(reader);
     this["blendTime"] = readUint32(reader);
   }
@@ -245,7 +245,7 @@ var Parser = (function () {
 
   function Texture(reader) {
     this.replaceableId = readUint32(reader);
-    this.fileName = read(reader, 260);
+    this.path = read(reader, 260);
     this.flags = readUint32(reader);
   }
 
@@ -254,7 +254,7 @@ var Parser = (function () {
   }
   /*
   function SoundTrack(reader) {
-    this.fileName = read(reader, 260);
+    this.path = read(reader, 260);
     this.volume = readFloat32(reader);
     this.pitch = readFloat32(reader);
     this.flags = readUint32(reader);
@@ -431,7 +431,7 @@ var Parser = (function () {
     this.gravity = readFloat32(reader);
     this.longitude = readFloat32(reader);
     this.latitude = readFloat32(reader);
-    this.spawnModelFileName = read(reader, 260);
+    this.spawnModelPath = read(reader, 260);
     this.lifespan = readFloat32(reader);
     this.initialVelocity = readFloat32(reader);
     this.tracks = parseTracks(reader, "PREM");
@@ -496,7 +496,7 @@ var Parser = (function () {
   function RibbonEmitterChunk(reader, size, nodes) {
     this.objects = parseChunk(reader, size, RibbonEmitter, nodes);
   }
-  /*
+  
   function EventObjectTracks(reader) {
     read(reader, 4); // KEVT
     
@@ -508,7 +508,7 @@ var Parser = (function () {
   
   function EventObject(reader, nodes) {
     this.node = readNode(reader, nodes);
-    this.inclusiveSize = this.node.inclusiveSize;
+    this.inclusiveSize = nodes[this.node].inclusiveSize;
     
     if (peek(reader, 4) === "KEVT") {
       this.tracks = new EventObjectTracks(reader);
@@ -519,7 +519,7 @@ var Parser = (function () {
   function EventObjectChunk(reader, size, nodes) {
     this.objects = parseChunk(reader, size, EventObject, nodes);
   }
-  */
+  
   function Camera(reader) {
     this.inclusiveSize = readUint32(reader);
     this.name = read(reader, 80);
@@ -562,7 +562,7 @@ var Parser = (function () {
   }
   
   var tagToChunk = {
-    //"VERS": [VersionChunk, "versionChunk"],
+    "VERS": [VersionChunk, "versionChunk"],
     "MODL": [ModelChunk, "modelChunk"],
     "SEQS": [SequenceChunk, "sequenceChunk"],
     "GLBS": [GlobalSequenceChunk, "globalSequenceChunk"],
@@ -580,7 +580,7 @@ var Parser = (function () {
     "PREM": [ParticleEmitterChunk, "particleEmitterChunk"],
     "PRE2": [ParticleEmitter2Chunk, "particleEmitter2Chunk"],
     "RIBB": [RibbonEmitterChunk, "ribbonEmitterChunk"],
-    //"EVTS": [EventObjectChunk, "eventObjectChunk"],
+    "EVTS": [EventObjectChunk, "eventObjectChunk"],
     "CAMS": [CameraChunk, "cameraChunk"],
     "CLID": [CollisionShapeChunk, "collisionShapeChunk"]
   };
@@ -588,7 +588,7 @@ var Parser = (function () {
   return (function (reader, onprogress) {
     if (read(reader, 4) === "MDLX") {
       // Initialize the node list with a root node
-      this["nodes"] = [{objectId: -1, name: "InjectedRoot"}];
+      this["nodes"] = [{objectId: 0, parentId: -1, name: "InjectedRoot"}];
       
       while (remaining(reader) > 0) {
         var tag = read(reader, 4);

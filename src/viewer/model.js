@@ -54,13 +54,15 @@ Model.prototype = {
       console.warn("Tried to load a model from " + this.source + ", which is not a valid model file");
     }
     
-    for (var i = 0, l = this.queue.length; i < l; i++) {
-      var action = this.queue[i];
+    if (this.ready) {
+      for (var i = 0, l = this.queue.length; i < l; i++) {
+        var action = this.queue[i];
+        
+        this[action[0]].apply(this, action[1]);
+      }
       
-      this[action[0]].apply(this, action[1]);
+      onload(this, e);
     }
-    
-    onload(this, e);
   },
   
   setupMdx: function (reader) {
@@ -199,6 +201,11 @@ Model.prototype = {
     }
   },
   
+  // Return the source of this model
+  getSource: function () {
+    return this.source;
+  },
+  
   getAttachment: function (id) {
     if (this.ready) {
       return this.model.getAttachment(id);
@@ -225,6 +232,12 @@ Model.prototype = {
     }
   },
   
+  getTextureMap: function () {
+    if (this.ready) {
+      return this.model.getTextureMap();
+    }
+  },
+  
   getSequences: function () {
     if (this.ready) {
       return this.model.getSequences();
@@ -240,6 +253,18 @@ Model.prototype = {
   getCameras: function () {
     if (this.ready) {
       return this.model.getCameras();
+    }
+  },
+  
+  getInfo: function () {
+    if (this.ready) {
+      return {
+        source: this.getSource(),
+        sequences: this.getSequences(),
+        attachments: this.getAttachments(),
+        cameras: this.getCameras(),
+        textureMap: this.getTextureMap()
+      };
     }
   }
 };

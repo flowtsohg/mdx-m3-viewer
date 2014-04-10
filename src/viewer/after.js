@@ -36,15 +36,8 @@
   camera.range = [30, 2000];
   resetCamera();
   
-  // Preload all the WC3 team colors and glows (probably from the cache) so that changing team colors for the first time is instant
-  for (var i = 0; i < 13; i++) {
-    var number = ((i < 10) ? "0" + i : i);
-    var teamColor = "ReplaceableTextures/TeamColor/TeamColor" + number + ".blp";
-    var teamGlow = "ReplaceableTextures/TeamGlow/TeamGlow" + number + ".blp";
-    
-    gl.newTexture(teamColor, urls.mpqFile(teamColor));
-    gl.newTexture(teamGlow, urls.mpqFile(teamGlow));
-  }
+  // Used by the MDX shader to dynamically create the team glow
+  gl.newTexture("TeamGlow", "data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//gA7Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcgSlBFRyB2NjIpLCBxdWFsaXR5ID0gODAK/9sAQwAGBAUGBQQGBgUGBwcGCAoQCgoJCQoUDg8MEBcUGBgXFBYWGh0lHxobIxwWFiAsICMmJykqKRkfLTAtKDAlKCko/9sAQwEHBwcKCAoTCgoTKBoWGigoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo/8AAEQgAIAAgAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A+VKesbN0FES7nArufC3h4XwGRnNAHDtEy9Qajr0bxN4ZFlESBXn9ymyUigBkLbXBr0PwfryWQG4ivOamjnZOhNAHpnizxHHeQkKRXmd0++UmiS4d+pNRE5NAH//Z");
   
   gl.newShader("world", SHADERS["vsworld"], floatPrecision + SHADERS["psworld"]);
   gl.newShader("white", SHADERS["vswhite"], floatPrecision + SHADERS["pswhite"]);
@@ -175,7 +168,7 @@
     
     for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
       if (modelInstanceCache[i].isInstance) {
-        modelInstanceCache[i].render();
+        modelInstanceCache[i].render(shouldRenderTeamColors);
       }
     }
     
@@ -205,9 +198,9 @@
   
   addVisibilityListener(onVisibilityChange);
   
-  // ------------------
-  // API starts here
-  // ------------------
+  // ---------------------
+  // Model loading API
+  // ---------------------
   
   // Load a model.
   // Source can be an absolute path to a MDX/M3 file, a path to a MDX/M3 file in any of the Warcraft 3 and Starcraft 2 MPQs, or a model ID used by the Hiveworkshop.
@@ -261,32 +254,16 @@
     return null;
   }
   
-  // Return the model ID that an instance points to.
-  // Returns null if the given ID is invalid or is not an instance.
-  function getModelFromInstance(objectId) {
+  // ------------------
+  // Transform API
+  // ------------------
+  
+  // Set the location of an instance.
+  function setLocation(objectId, v) {
     var object = modelInstanceCache[objectId];
     
     if (object && object.isInstance) {
-      return object.model.id;
-    }
-  }
-  
-  // Return the model ID that was loaded with the given path.
-  // Returns null if no model was loaded from the given path.
-  function getModelFromPath(path) {
-    var object = modelCache[path];
-    
-    if (object) {
-      return object[1];
-    }
-  }
-  
-  // Set the position of an instance.
-  function setPosition(objectId, v) {
-    var object = modelInstanceCache[objectId];
-    
-    if (object && object.isInstance) {
-      object.setPosition(v);
+      object.setLocation(v);
     }
   }
   
@@ -299,21 +276,39 @@
     }
   }
   
-  // Set the rotation of an instance.
-  function setRotation(objectId, v) {
+  // Get the location of an instance.
+  function getLocation(objectId) {
     var object = modelInstanceCache[objectId];
     
     if (object && object.isInstance) {
-      object.setRotation(v);
+      return object.getLocation();
+    }
+  }
+  
+  // Set the rotation of an instance.
+  function setRotation(objectId, q) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      object.setRotation(q);
     }
   }
   
   // Rotate an instance.
-  function rotate(objectId, v) {
+  function rotate(objectId, q) {
     var object = modelInstanceCache[objectId];
     
     if (object && object.isInstance) {
-      object.rotate(v);
+      object.rotate(q);
+    }
+  }
+  
+  // Get the rotation of an instance.
+  function getRotation(objectId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      return object.getRotation();
     }
   }
   
@@ -335,6 +330,15 @@
     }
   }
   
+  // Get the scale of an instance.
+  function getScale(objectId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      return object.getScale();
+    }
+  }
+  
   // Set the parent of an instance to another instance, with an optional attachment point owned by that parent.
   function setParent(objectId, parentId, attachmentId) {
     var object = modelInstanceCache[objectId];
@@ -348,12 +352,35 @@
     }
   }
   
+  // Get the parent of an instance as an array.
+  // The first index is the parent ID, the second, if exists, is the attachment ID.
+  function getParent(objectId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      return object.getParent();
+    }
+  }
+  
+  // -----------------------------
+  // Team colors and textures
+  // -----------------------------
+  
   // Set the team color used by an instance.
   function setTeamColor(objectId, teamId) {
     var object = modelInstanceCache[objectId];
     
     if (object && object.isInstance) {
       object.setTeamColor(teamId);
+    }
+  }
+  
+  // Get the team color of an instance.
+  function getTeamColor(objectId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      return object.getTeamColor();
     }
   }
   
@@ -368,32 +395,112 @@
     }
   }
   
+  // Get the texture map of an instance or model.
+  function getTextureMap(objectId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object) {
+      return object.getTextureMap();
+    }
+  }
+  
+  // ------------
+  // Sequences
+  // ------------
+  
   // Set the animation of an instance.
-  function playAnimation(objectId, sequenceId) {
+  function setSequence(objectId, sequenceId) {
     var object = modelInstanceCache[objectId];
     
     if (object && object.isInstance) {
-      object.setAnimation(sequenceId);
+      object.setSequence(sequenceId);
     }
   }
   
   // Stop the animation of an instance.
   // Equivalent to playAnimation with animation ID -1.
-  function stopAnimation(objectId) {
+  function stopSequence(objectId) {
     var object = modelInstanceCache[objectId];
     
     if (object && object.isInstance) {
-      object.setAnimation(-1);
+      object.setSequence(-1);
+    }
+  }
+  
+  // Get the current sequence of an instance.
+  function getSequence(objectId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      return object.getSequence();
     }
   }
   
   // Sets the animation loop mode of an instance.
   // Possible values are 0 for default, 1 for never, and 2 for always.
-  function setAnimationLoop(objectId, mode) {
+  function setSequenceLoopMode(objectId, mode) {
     var object = modelInstanceCache[objectId];
     
     if (object && object.isInstance) {
-      object.setAnimationLoop(mode);
+      object.setSequenceLoopMode(mode);
+    }
+  }
+  
+  // Gets the animation loop mode of an instance.
+  function getSequenceLoopMode(objectId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      return object.getSequenceLoopMode();
+    }
+  }
+  
+  // ----------
+  // Getters
+  // ----------
+  
+  // Get all the information of an object.
+  function getObjectInfo(objectId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object) {
+      return object.getInfo();
+    }
+  }
+  
+  // Return the model ID that an instance or path points to.
+  // Returns null if given a path that no model was loaded with.
+  // Returns null if given an invalid object ID.
+  // Returns source if it is a model object ID.
+  function getModel(source) {
+    var object;
+    
+    if (typeof source === "string") {
+      object = modelCache[source];
+    
+      if (object) {
+        return object[1];
+      }
+    } else {
+      object = modelInstanceCache[source];
+      
+      if (object) {
+        if (object.isInstance) {
+          return object.model.id;
+        }
+        
+        return source;
+      }
+    }
+  }
+  
+  // Get the source an object was created with.
+  // If the object is an instance, returns the source that made the model this instance points to.
+  function getSource(objectId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object) {
+      return object.getSource();
     }
   }
   
@@ -419,7 +526,6 @@
   
   // Get a list of the cameras owned by a model.
   // Returns null if the object ID is invalid or not a model, or if the model didn't finish loading.
-  /*
   function getCameras(objectId) {
      var object = modelInstanceCache[objectId];
     
@@ -427,11 +533,10 @@
       return object.getCameras();
     }
   }
-  */
   
-  // -----------------
-  // Global settings
-  // -----------------
+  // -------------------
+  // General settings
+  // -------------------
 
   // Apply a camera of an instance.
   // When an instance camera is applied, the main camera is disabled.
@@ -450,9 +555,9 @@
   }
   */
   
-  // Set the drawn scene.
+  // Set the drawn world.
   // Possible values are 0 for nothing, 1 for sky, 2 for sky and ground, and 3 for sky and water.
-  function setScene(mode) {
+  function setWorld(mode) {
     shouldRenderWorld = mode;
   }
   
@@ -460,6 +565,20 @@
   function showBoundingShapes(b) {
     shouldRenderShapes = b;
   }
+  
+  // Shows or hides team colors for all instances.
+  function showTeamColors(b) {
+    shouldRenderTeamColors = b;
+  }
+  
+  // Set the shader to be used for Starcraft 2 models.
+  function setShader(id) {
+    shaderToUse = id;
+  }
+  
+  // -------------------
+  // Camera settings
+  // -------------------
   
   // Pan the camera on the x and y axes.
   function panCamera(x, y) {
@@ -475,7 +594,7 @@
   
   // Zoom the camera by a factor.
   function zoomCamera(n) {
-    camera.m[2] = math.clamp(camera.m[2] * n, camera.range[0], camera.range[1]);
+    camera.m[2] = parseInt(math.clamp(camera.m[2] * n, camera.range[0], camera.range[1]), 10);
   }
   
   // Reset the camera back to the initial state.
@@ -486,31 +605,145 @@
     camera.r = [315, 225];
   }
   
+  // ------
+  // Misc
+  // ------
+  
+  function castRay(x, y) {
+    var z;
+    
+    // Viewport -> NDC
+    x = (2 * x) / canvas.width - 1;
+    y = 1 - (2 * y) / canvas.height;
+    
+    // NDC -> Homogeneous clip
+    var clip = [x, y, -1, 1];
+    
+    // Homogeneous clip -> Eye
+    var projectionMatrix = gl.getProjection();
+    var inverseProjection = [];
+    
+    math.mat4.invert(projectionMatrix, inverseProjection);
+    
+    var eye = [];
+    
+    math.mat4.multVec4(inverseProjection, clip, eye);
+    
+    eye = [eye[0], eye[1], -1, 0];
+    
+    // Eye -> World
+    var viewMatrix = gl.getMVP();
+    var inverseView = [];
+    
+    math.mat4.invert(viewMatrix, inverseView);
+    
+    var worldRay = [];
+    
+    math.mat4.multVec4(inverseView, eye, worldRay);
+    
+    worldRay = [worldRay[0], worldRay[1], worldRay[2]];
+    
+    math.vec3.normalize(worldRay, worldRay);
+    
+    //console.log(worldRay);
+  }
+  
+  function setScene(scene) {
+    scene = JSON.parse(scene);
+    
+    camera.m[0] = scene[0][0];
+    camera.m[1] = scene[0][1];
+    camera.m[2] = scene[0][2];
+    camera.r[0] = scene[0][3];
+    camera.r[1] = scene[0][4];
+    shouldRenderWorld = scene[1];
+    shouldRenderShapes = scene[2];
+    
+    var instances = scene[4];
+    
+    for (var i = 0, l = instances.length; i < l; i++) {
+      var instance = instances[i];
+      var instanceImpl = loadInstance(instance[0]);
+      
+      setPosition(instanceImpl, instance[1]);
+      setRotation(instanceImpl, instance[2]);
+      setScaling(instanceImpl, instance[3]);
+      playAnimatrion(instanceImpl, instance[4]);
+      setTeamColor(instanceImpl, instance[5]);
+    }
+  }
+  
+  function saveScene() {
+    var cameraString = [camera.m[0], camera.m[1], camera.m[2], camera.r[0], camera.r[1]];
+    var modelsString = [];
+    var instancesString = [];
+    var finalString = {};
+      
+    for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
+      var object = modelInstanceCache[i];
+      
+      if (object.isModel) {
+        modelsString.push([object.source]);
+      } else {
+        instancesString.push([object.model.source, object.position, object.rotation, object.scaling, object.instance.sequence, object.teamId]);
+      }
+    }
+    
+    finalString[0] = cameraString;
+    finalString[1] = shouldRenderWorld;
+    finalString[2] = shouldRenderShapes;
+    finalString[3] = modelsString;
+    finalString[4] = instancesString;
+    
+    return JSON.stringify(finalString);
+  }
+  
   return {
+    // Model loading API
     loadModel: loadModel,
     loadInstance: loadInstance,
-    getModelFromInstance: getModelFromInstance,
-    getModelFromPath: getModelFromPath,
-    setPosition: setPosition,
+    // Transform API
+    setLocation: setLocation,
     move: move,
+    getLocation: getLocation,
     setRotation: setRotation,
     rotate: rotate,
+    getRotation: getRotation,
     setScale: setScale,
     scale: scale,
+    getScale: getScale,
     setParent: setParent,
+    getParent: getParent,
+    // Team colors and textures
     setTeamColor: setTeamColor,
+    getTeamColor: getTeamColor,
     overrideTexture: overrideTexture,
-    playAnimation: playAnimation,
-    stopAnimation: stopAnimation,
+    getTextureMap: getTextureMap,
+    // Sequences
+    setSequence: setSequence,
+    stopSequence: stopSequence,
+    setSequenceLoopMode: setSequenceLoopMode,
+    // Information getters
+    getObjectInfo: getObjectInfo,
+    getModel: getModel,
+    getSource: getSource,
     getSequences: getSequences,
     getAttachments: getAttachments,
-    //getCameras: getCameras,
+    getCameras: getCameras,
+    // General settings
     //applyCamera: applyCamera,
-    setScene: setScene,
+    setWorld: setWorld,
     showBoundingShapes: showBoundingShapes,
+    showTeamColors: showTeamColors,
+    setShader: setShader,
+    // Camera settings
     panCamera: panCamera,
     rotateCamera: rotateCamera,
     zoomCamera: zoomCamera,
-    resetCamera: resetCamera
+    resetCamera: resetCamera,
+    // Misc
+    castRay: castRay,
+    setScene: setScene,
+    saveScene: saveScene
   };
 };

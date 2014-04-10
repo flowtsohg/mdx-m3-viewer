@@ -38,8 +38,8 @@ ModelInstance.prototype = {
     */
   },
   
-  render: function (instance) {
-    this.model.render(instance, this);
+  render: function (instance, teamId) {
+    this.model.render(instance, this, teamId);
   },
   
   setAnimation: function (sequence) {

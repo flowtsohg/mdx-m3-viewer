@@ -12,6 +12,7 @@
     sign: sign,
     copysign: copysign,
     powerOfTwo: powerOfTwo,
+    vec2: Vec2,
     vec3: Vec3,
     vec4: Vec4,
     quaternion: Quaternion,

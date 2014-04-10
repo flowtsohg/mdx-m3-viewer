@@ -359,23 +359,23 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
       boundShader.setParameter(uniform, mvpMatrix);
     }
   }
-  /*
+  
   function getMVP() {
     math.mat4.multMat(projectionMatrix, viewMatrix, mvpMatrix);
     
     return mvpMatrix;
   }
-  
+  /*
   function bindProjection(uniform) {
     if (boundShader) {
       boundShader.setParameter(uniform, projectionMatrix);
     }
   }
-  
+  */
   function getProjection() {
     return projectionMatrix;
   }
-  */
+  
   function bindView(uniform) {
     if (boundShader) {
       boundShader.setParameter(uniform, viewMatrix);
@@ -402,6 +402,7 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   }
   
   function Texture(name, source, clampS, clampT) {
+    
     this.isTexture = true;
     this.name = name;
     this.source = source;
@@ -553,11 +554,7 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   var extRegexp = /(?:\.([^.]+))?$/;
   
   function newTexture(name, source, clampS, clampT) {
-    if (textureStore[name]) {
-      if (onload) {
-        onload(textureStore[name]);
-      }
-    } else {
+    if (!textureStore[name]) {
       var ext = extRegexp.exec(source)[1] || extRegexp.exec(name)[1];
       
       if (ext && ext.toLowerCase() === "dds") {
@@ -570,19 +567,33 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     return textureStore[name];
   }
   
-  function bindTexture(name, unit) {
-    var texture = textureStore[name];
+  var blarg = false;
+  
+  function bindTexture(object, unit) {
+    var finalTexture;
     
-    if (!texture || !texture.ready) {
-      texture = textureStore["\0"];
+    if (object) {
+      if (typeof object === "string") {
+        var texture = textureStore[object];
+        
+        if (texture && texture.ready) {
+          finalTexture = texture;
+        }
+      } else if (object.ready) {
+        finalTexture = object;
+      }
+    }
+    
+    if (!finalTexture) {
+      finalTexture = textureStore["\0"];
     }
     
     unit = unit || 0;
-    
-    if (!boundTextures[unit] || boundTextures[unit].name !== name) {
-      boundTextures[unit] = texture;
       
-      texture.bind(unit);
+    if (!boundTextures[unit] || boundTextures[unit].name !== finalTexture.name) {
+      boundTextures[unit] = finalTexture;
+      
+      finalTexture.bind(unit);
     }
   }
   
@@ -917,9 +928,9 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     setShaderMaps: setShaderMaps,
     vertexAttribPointer: vertexAttribPointer,
     bindMVP: bindMVP,
-    //getMVP: getMVP,
+    getMVP: getMVP,
     //bindProjection: bindProjection,
-    //getProjection: getProjection,
+    getProjection: getProjection,
     bindView: bindView,
     //getView: getView,
     newTexture: newTexture,

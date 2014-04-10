@@ -5,15 +5,14 @@ function Skeleton(model) {
   var pivots = model.pivots;
   var nodes = model.nodes;
   var bones = model.bones;
+  var hierarchy = model.hierarchy;
   
+  this.hierarchy = hierarchy;
   this.nodes = [];
   
   for (i = 0, l = nodes.length; i < l; i++) {
     this.nodes[i] = new ShallowNode(nodes[i]);
   }
-  
-  this.root = this.nodes[0];
-  this.root.children = this.setup(this.root);
   
   // If there are no original bones, reference the root node injected by the parser, since the shader requires at least one bone
   this.bones = bones || [{node: 0}];
@@ -32,68 +31,19 @@ function Skeleton(model) {
 }
 
 Skeleton.prototype = {
-  setup: function (parent) {
-    var cildren = [];
-      
-    for (var i = this.nodes.length; i--;) {
-      var node = this.nodes[i];
-      
-      if (node.parentId === parent.objectId) {
-        node.children = this.setup(node);
-        node.parent = parent;
-        
-        cildren.push(node);
-      }
-    }
-    
-    return cildren;
-  },
-  
   update: function (sequence, frame, counter, instance) {
-    math.mat4.makeIdentity(this.root.worldMatrix);
+    var nodes = this.nodes;
+    var hierarchy = this.hierarchy;
     
-    math.mat4.multMat(this.root.worldMatrix, instance.getTransform(), this.root.worldMatrix);
+    // The root is always at index 0, since it's injected by the parser
+    math.mat4.makeIdentity(nodes[0].worldMatrix);
+    math.mat4.multMat(nodes[0].worldMatrix, instance.getTransform(), nodes[0].worldMatrix);
     
-    this.updateNodes(this.root, sequence, frame, counter);
-    this.updateBoneTexture();
-  },
-  
-  updateNodes: function (parent, sequence, frame, counter) {
-    for (var i = 0, l = parent.children.length; i < l; i++) {
-      var node = parent.children[i];
+    for (var i = 1, l = hierarchy.length; i < l; i++) {
+      this.updateNode(nodes[hierarchy[i]], sequence, frame, counter);
+    }
       
-      this.updateNode(node, sequence, frame, counter);
-      this.updateNodes(node, sequence, frame, counter);
-    }
-  },
-  
-  updateBoneTexture: function () {
-     for (var i = 0, l = this.bones.length; i < l; i++) {
-      var k = i * 16 + 16;
-      var worldMatrix = this.nodes[this.bones[i].node].worldMatrix;
-       
-      // Setting each index manually is (or was at the time) faster than the Buffer:set method by a large margin
-      this.hwbones[k + 0] = worldMatrix[0];
-      this.hwbones[k + 1] = worldMatrix[1];
-      this.hwbones[k + 2] = worldMatrix[2];
-      this.hwbones[k + 3] = worldMatrix[3];
-      this.hwbones[k + 4] = worldMatrix[4];
-      this.hwbones[k + 5] = worldMatrix[5];
-      this.hwbones[k + 6] = worldMatrix[6];
-      this.hwbones[k + 7] = worldMatrix[7];
-      this.hwbones[k + 8] = worldMatrix[8];
-      this.hwbones[k + 9] = worldMatrix[9];
-      this.hwbones[k + 10] = worldMatrix[10];
-      this.hwbones[k + 11] = worldMatrix[11];
-      this.hwbones[k + 12] = worldMatrix[12];
-      this.hwbones[k + 13] = worldMatrix[13];
-      this.hwbones[k + 14] = worldMatrix[14];
-      this.hwbones[k + 15] = worldMatrix[15];
-    }
-    
-    ctx.activeTexture(ctx.TEXTURE1);
-    ctx.bindTexture(ctx.TEXTURE_2D, this.boneTexture);
-    ctx.texSubImage2D(ctx.TEXTURE_2D, 0, 0, 0, 4 + this.bones.length * 4, 1, ctx.RGBA, ctx.FLOAT, this.hwbones);
+    this.updateBoneTexture();
   },
   
   updateNode: function (node, sequence, frame, counter) {
@@ -124,7 +74,7 @@ Skeleton.prototype = {
       math.mat4.translate(localMatrix, -pivot[0], -pivot[1], -pivot[2]);
     }
     
-    math.mat4.multMat(node.parent.worldMatrix, localMatrix, node.worldMatrix);
+    math.mat4.multMat(this.nodes[node.parentId].worldMatrix, localMatrix, node.worldMatrix);
     
     if (node.billboarded) {
       var p = pivot;
@@ -137,6 +87,38 @@ Skeleton.prototype = {
       
       math.mat4.multMat(node.worldMatrix, cameraMatrix, node.worldMatrix);
     }
+  },
+  
+  updateBoneTexture: function () {
+    var bones = this.bones;
+    var hwbones = this.hwbones;
+    
+     for (var i = 0, l = bones.length; i < l; i++) {
+      var k = i * 16 + 16;
+      var worldMatrix = this.nodes[bones[i].node].worldMatrix;
+       
+      // Setting each index manually is (or was at the time) faster than the Buffer:set method by a large margin
+      hwbones[k + 0] = worldMatrix[0];
+      hwbones[k + 1] = worldMatrix[1];
+      hwbones[k + 2] = worldMatrix[2];
+      hwbones[k + 3] = worldMatrix[3];
+      hwbones[k + 4] = worldMatrix[4];
+      hwbones[k + 5] = worldMatrix[5];
+      hwbones[k + 6] = worldMatrix[6];
+      hwbones[k + 7] = worldMatrix[7];
+      hwbones[k + 8] = worldMatrix[8];
+      hwbones[k + 9] = worldMatrix[9];
+      hwbones[k + 10] = worldMatrix[10];
+      hwbones[k + 11] = worldMatrix[11];
+      hwbones[k + 12] = worldMatrix[12];
+      hwbones[k + 13] = worldMatrix[13];
+      hwbones[k + 14] = worldMatrix[14];
+      hwbones[k + 15] = worldMatrix[15];
+    }
+    
+    ctx.activeTexture(ctx.TEXTURE1);
+    ctx.bindTexture(ctx.TEXTURE_2D, this.boneTexture);
+    ctx.texSubImage2D(ctx.TEXTURE_2D, 0, 0, 0, 4 + bones.length * 4, 1, ctx.RGBA, ctx.FLOAT, hwbones);
   },
   
   bind: function () {

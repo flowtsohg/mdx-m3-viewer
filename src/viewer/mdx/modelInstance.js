@@ -1,7 +1,5 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
-var blargg = false;
-
 function ModelInstance(model) {
   var i, l, objects;
   
@@ -82,8 +80,8 @@ ModelInstance.prototype = {
     this.updateEmitters(this.ribbonEmitters, allowCreate);
   },
   
-  render: function (instance) {
-    this.model.render(this, instance.textureMap);
+  render: function (instance, teamId) {
+    this.model.render(this, instance.textureMap, teamId);
   },
   
   setAnimation: function (id) {

@@ -4,11 +4,13 @@ function ModelInstance(model) {
   this.model = model;
   
   this.localMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-  this.position = [0, 0, 0];
+  this.location = [0, 0, 0];
   this.rotation = [0, 0, 0, 1];
   this.scaling = 1;
   
   this.teamId = 0;
+  this.sequence = -1;
+  this.sequenceLoopMode = 0;
   
   // This is a local texture map that can override the one owned by the model.
   // This way, every instance can have different textures.
@@ -32,10 +34,6 @@ ModelInstance.prototype = {
       this.instance = new Mdx.ModelInstance(model);
     } else {
       this.instance = new M3.ModelInstance(model);
-      
-      // Transform to match the direction and size of MDX models
-      this.rotate([0, 0, 90]);
-      this.scale(100);
     }
     
     this.ready = true;
@@ -45,6 +43,8 @@ ModelInstance.prototype = {
       
       this[action[0]].apply(this, action[1]);
     }
+    
+    this.recalculate();
   },
   
   update: function () {
@@ -53,10 +53,16 @@ ModelInstance.prototype = {
     }
   },
   
-  render: function () {
+  render: function (allowTeamColors) {
     if (this.ready) {
-      this.instance.render(this);
+      // To disable team colors, override the instance team ID with one that will point to a pure black color
+      this.instance.render(this, allowTeamColors ? this.teamId : 13);
     }
+  },
+  
+  // Return the source of the model that this instance points to.
+  getSource: function () {
+    return this.model.source;
   },
   
   // Parent in this context is any object with a getTransform method that returns a matrix.
@@ -64,6 +70,20 @@ ModelInstance.prototype = {
   setParent: function (parent, attachment) {
     this.parent = parent;
     this.attachment = attachment;
+  },
+  
+  getParent: function () {
+    var data = [];
+    
+    if (this.parent) {
+      data[0] = this.parent;
+    }
+    
+    if (this.attachment) {
+      data[1] = this.attachment;
+    }
+    
+    return data;
   },
   
   overrideTexture: function (path, newpath) {
@@ -84,66 +104,86 @@ ModelInstance.prototype = {
     this.textureMap[path] = gl.newTexture(newpath, source);
   },
   
- recalcuate: function () {
+  getTextureMap: function () {
+    var data = [];
+    var keys = Object.keys(this.textureMap);
+    
+    for (var i = 0, l = keys.length; i < l; i++) {
+      var key = keys[i];
+      
+      data[i] = [key, this.textureMap[key].name];
+    }
+    
+    return data;
+  },
+  
+ recalculate: function () {
+   var scale = this.scaling;
+   
    math.mat4.makeIdentity(this.localMatrix);
    
-    if (this.position[0] !== 0 || this.position[1] !== 0 || this.position[2] !== 0) {
-      math.mat4.translate(this.localMatrix, this.position[0], this.position[1], this.position[2]);
+    if (this.location[0] !== 0 || this.location[1] !== 0 || this.location[2] !== 0) {
+      math.mat4.translate(this.localMatrix, this.location[0], this.location[1], this.location[2]);
     }
     
     if (this.rotation[0] !== 0 || this.rotation[1] !== 0 || this.rotation[2] !== 0 || this.rotation[3] !== 1) {
       math.mat4.rotateQ(this.localMatrix, this.rotation);
     }
     
-    if (this.scaling !== 1) {
-      math.mat4.scale(this.localMatrix, this.scaling, this.scaling, this.scaling);
+    // The base scale of Starcraft 2 models is approximately 1/100 of Warcraft 3 models.
+    if (this.format === "43DM") {
+      scale *= 100;
+    }
+      
+    if (scale !== 1) {
+      math.mat4.scale(this.localMatrix, scale, scale, scale);
     }
   },
   
   move: function (v) {
-    math.vec3.add(this.position, v, this.position);
-    this.recalcuate();
+    math.vec3.add(this.location, v, this.location);
+    this.recalculate();
   },
   
-  setPosition: function (v) {
-    math.vec3.setFromArray(this.position, v);
-    this.recalcuate();
+  setLocation: function (v) {
+    math.vec3.setFromArray(this.location, v);
+    this.recalculate();
   },
   
-  rotateQ: function (q) {
+  getLocation: function () {
+    var v = this.location;
+    
+    return [v[0], v[1], v[2]];
+  },
+  
+  rotate: function (q) {
     math.quaternion.concat(this.rotation, q, this.rotation);
-    this.recalcuate();
+    this.recalculate();
   },
   
-  setRotationQ: function (q) {
+  setRotation: function (q) {
     math.quaternion.setFromArray(this.rotation, q);
-    this.recalcuate();
+    this.recalculate();
   },
   
-  rotate: function (v) {
-    math.quaternion.concat(this.rotation, math.quaternion.fromAngles(v[0], v[1], v[2], []), this.rotation);
-    this.recalcuate();
-  },
-  
-  setRotation: function (v) {
-    math.quaternion.setFromArray(this.rotation, math.quaternion.fromAngles(v[0], v[1], v[2], []));
-    this.recalcuate();
+  getRotation: function () {
+    var v = this.rotation;
+    
+    return [v[0], v[1], v[2], v[3]];
   },
   
   scale: function (n) {
     this.scaling *= n;
-    this.recalcuate();
+    this.recalculate();
   },
   
   setScale: function (n) {
     this.scaling = n;
-    
-    // The base scale for M3 models is 100
-    if (this.format !== "MDLX") {
-      this.scaling *= 100;
-    }
-    
-    this.recalcuate();
+    this.recalculate();
+  },
+  
+  getScale: function () {
+    return this.scaling;
   },
   
   // Get the transform of this instance.
@@ -186,34 +226,51 @@ ModelInstance.prototype = {
     }
   },
   
-  setAnimation: function (id) {
+  setSequence: function (id) {
+    this.sequence = id;
+    
     if (this.ready) {
-      this.instance.setAnimation(id);
+      this.instance.setSequence(id);
     } else {
-      this.queue.push(["setAnimation", [id]])
+      this.queue.push(["setSequence", [id]])
     }
   },
   
-  setAnimationLoop: function (mode) {
+  getSequence: function () {
+    return this.sequence;
+  },
+  
+  setSequenceLoopMode: function (mode) {
+    this.sequenceLoopMode = mode;
+    
     if (this.ready) {
-      this.instance.setAnimationLooping(mode);
+      this.instance.sequenceLoopMode(mode);
     } else {
-      this.queue.push(["setAnimationLoop", [mode]])
+      this.queue.push(["sequenceLoopMode", [mode]])
     }
+  },
+  
+  getSequenceLoopMode: function () {
+    return this.sequenceLoopMode;
   },
   
   setTeamColor: function (id) {
-    if (this.ready) {
-      this.teamId = id;
-    
-      if (this.format === "MDLX") {
-        var idString = ((id < 10) ? "0" + id : id);
-        
-        this.overrideTexture("replaceabletextures/teamcolor/teamcolor00.blp", "replaceabletextures/teamcolor/teamcolor" + idString + ".blp");
-        this.overrideTexture("replaceabletextures/teamglow/teamglow00.blp", "replaceabletextures/teamglow/teamglow" + idString + ".blp");
-      }
-    } else {
-      this.queue.push(["setTeamColor", [id]]);
-    }
+    this.teamId = id;
+  },
+  
+  getTeamColor: function () {
+    return this.teamId;
+  },
+  
+  getInfo: function () {
+    return {
+      location: this.getLocation(),
+      rotatrion: this.getRotation(),
+      scaling: this.getScale(),
+      teamId: this.getTeamColor(),
+      sequence: this.getSequence(),
+      sequenceLoopMode: this.getSequenceLoopMode(),
+      modelInfo: this.model.getInfo()
+    };
   }
 };

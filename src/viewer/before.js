@@ -11,7 +11,12 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
     if (object.isModel) {
       sendMessage({type: "loadstart", objectType: "model", name: object.source, progress: 0});
     } else if (object.isTexture) {
-      sendMessage({type: "loadstart", objectType: "texture", name: object.name, progress: 0});
+      var name = object.name;
+      
+      // Avoid reporting internal textures
+      if (name !== "\0" && name !== "TeamGlow" && name !== "grass" && name !== "water" && name !== "bedrock" && name !== "sky") {
+        sendMessage({type: "loadstart", objectType: "texture", name: object.name, progress: 0});
+      }
     } else {
       console.log("What?");
     }
@@ -21,7 +26,12 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
      if (object.isModel) {
        sendMessage({type: "load", objectType: "model", name: object.source, progress: 1});
     } else if (object.isTexture) {
-      sendMessage({type: "load", objectType: "texture", name: object.name, progress: 1});
+      var name = object.name;
+      
+      // Avoid reporting internal textures
+      if (name !== "\0" && name !== "TeamGlow" && name !== "grass" && name !== "water" && name !== "bedrock" && name !== "sky") {
+        sendMessage({type: "load", objectType: "texture", name: object.name, progress: 1});
+      }
     } else {
       console.log("What?");
     }
@@ -34,15 +44,20 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
       sendMessage({type: "error", objectType: "webglcontext", reason: reason});
     }
     
-    console.log(object);
-    console.log(e);
+    //console.log(object);
+    //console.log(e);
   }
   
   function onprogress(object, e) {
     if (object.isModel) {
       sendMessage({type: "progress", objectType: "model", name: object.source, progress: (e.loaded / e.total)});
     } else if (object.isTexture) {
-      sendMessage({type: "progress", objectType: "texture", name: object.name, progress: (e.loaded / e.total)});
+      var name = object.name;
+      
+      // Avoid reporting internal textures
+      if (name !== "\0" && name !== "TeamGlow" && name !== "grass" && name !== "water" && name !== "bedrock" && name !== "sky") {
+        sendMessage({type: "progress", objectType: "texture", name: object.name, progress: (e.loaded / e.total)});
+      }
     } else {
       console.log("What?");
     }
@@ -78,7 +93,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
   var shouldRenderWorld = 2;
   var shouldRenderLights = true;
   var shouldRenderShapes = false;
-  var shaderToUse = "sstandard";
+  var shouldRenderTeamColors = true;
+  var shaderToUse = 0;
   var floatPrecision = "precision mediump float;\n";
   
   // To reference models by their source.
@@ -103,5 +119,19 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
     [126, 191, 241],
     [16, 98, 70],
     [78, 42, 4],
-    [40, 40, 40]
+    [40, 40, 40],
+    [0, 0, 0]
+  ];
+  
+  var shaders = [
+    "sstandard",
+    "sdiffuse",
+    "snormals",
+    "snormalmap",
+    "sspecular",
+    "sspecular_normalmap",
+    "semissive",
+    "sunshaded",
+    "sunshaded_normalmap",
+    "sdecal"
   ];

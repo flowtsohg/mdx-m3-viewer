@@ -13,19 +13,42 @@ var replaceableIdToName = {
   37: "OutlandMushroomTree/MushroomTree"
 };
 
-function Texture(path, replaceableId) {
+function Texture(texture) {
+  var path = texture.path;
+  var replaceableId = texture.replaceableId;
+  
   if (replaceableId !== 0) {
     path = "ReplaceableTextures/" + replaceableIdToName[replaceableId] + ".blp";
   }
   
-  this.path = path.replace(/\\/g, "/").toLowerCase();
+  path = path.replace(/\\/g, "/").toLowerCase();
+  
+  this.path = path;
   this.replaceableId = replaceableId;
-  this.glTexture = gl.newTexture(this.path, urls.mpqFile(this.path));
+  this.glTexture = gl.newTexture(path, urls.mpqFile(path));
 }
 
 Texture.prototype = {
-  bind: function (unit) {
-    this.glTexture.bind(unit);
+  bind: function (unit, teamId) {
+    var replaceableId = this.replaceableId;
+    
+    teamId = teamId || 0;
+    
+    if (replaceableId === 1 || replaceableId === 2) {
+      var tc = teamColors[teamId];
+      
+      gl.setParameter("u_teamColor",  [tc[0] / 255, tc[1] / 255, tc[2] / 255]);
+      
+      if (replaceableId === 1) {
+        gl.setParameter("u_teamMode", 1);
+      } else {
+        gl.setParameter("u_teamMode", 2);
+        gl.bindTexture("TeamGlow", unit);
+      }
+    } else {
+      gl.setParameter("u_teamMode", 0);
+      gl.bindTexture(this.glTexture, unit);
+    }
   },
   
   overrideTexture: function (source) {

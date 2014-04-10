@@ -1,5 +1,20 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
+String.repeat = function (pattern, count) {
+    var result = "";
+  
+    while (count > 0) {
+        if (count & 1) {
+          result += pattern;
+        }
+        
+        count >>= 1;
+        pattern += pattern;
+    }
+    
+    return result;
+};
+
 if (!window.requestAnimationFrame ) {
   window.requestAnimationFrame = (function() {
     return window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback, element) { window.setTimeout(callback, 1000 / 60); };
