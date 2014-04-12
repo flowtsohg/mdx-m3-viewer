@@ -22,6 +22,7 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   var hasVertexTexture = gl["getParameter"](gl["MAX_VERTEX_TEXTURE_IMAGE_UNITS"]) > 0;
   var hasFloatTexture = gl["getExtension"]("OES_texture_float");
   var compressedTextures = gl["getExtension"]("WEBGL_compressed_texture_s3tc");
+  var hasCompressedTextures = !!compressedTextures;
   
   if (!hasVertexTexture) {
     unboundonerror(this, {reason: "VertexTexture"});
@@ -434,17 +435,6 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
       if (onload) {
         onload(this);
       }
-    },
-    
-    bind: function (unit) {
-      if (this.ready) {
-        gl["activeTexture"](gl["TEXTURE" + (unit || 0)]);
-        gl["bindTexture"](gl["TEXTURE_2D"], this.id);
-      }
-    },
-    
-    unbind: function () {
-      gl["bindTexture"](gl["TEXTURE_2D"], 0);
     }
   };
   
@@ -584,17 +574,20 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
       }
     }
     
-    if (!finalTexture) {
-      finalTexture = textureStore["\0"];
-    }
-    
     unit = unit || 0;
+    
+    // This happens if the texture doesn't exist, or if it exists but didn't finish loading yet, or if asked to unbind (the given object is null).
+    if (!finalTexture) {
+      boundTextures[unit] = null;
       
-    if (!boundTextures[unit] || boundTextures[unit].name !== finalTexture.name) {
+      gl["activeTexture"](gl["TEXTURE" + unit]);
+      gl["bindTexture"](gl["TEXTURE_2D"], null);
+    } else if (!boundTextures[unit] || boundTextures[unit].name !== finalTexture.name) {
       boundTextures[unit] = finalTexture;
       
-      finalTexture.bind(unit);
-    }
+      gl["activeTexture"](gl["TEXTURE" + unit]);
+      gl["bindTexture"](gl["TEXTURE_2D"], finalTexture.id);
+    } 
   }
   
   function textureReady(name) {
@@ -905,9 +898,6 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     return new Cylinder(x, y, z, r, h, bands);
   }
   
-  // Create a black texture for textures that fail to load.
-  newTexture("\0", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAAMSURBVBhXY0ACDAwAAA4AAXqxuTAAAAAASUVORK5CYII=");
-  
   return {
     viewSize: viewSize,
     setPerspective: setPerspective,
@@ -941,6 +931,8 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     newCube: newCube,
     newCylinder: newCylinder,
     gl: gl,
-    hasFloatTexture: hasFloatTexture
+    hasVertexTexture: hasVertexTexture,
+    hasFloatTexture: hasFloatTexture,
+    hasCompressedTextures: hasCompressedTextures
   };
 }

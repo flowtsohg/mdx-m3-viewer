@@ -86,7 +86,7 @@ ParticleEmitter.prototype = {
     }
   },
   
-  render: function () {
+  render: function (allowTeamColors) {
     var spawnModel = this.spawnModel;
     
     if (spawnModel) {
@@ -100,7 +100,7 @@ ParticleEmitter.prototype = {
           gl.translate(p[0], p[1], p[2]);
           gl.rotate(particle.orientation, 0, 0, 1);
           
-          spawnModel.render();
+          spawnModel.render(allowTeamColors);
           
           gl.popMatrix();
         }

@@ -65,7 +65,7 @@ RibbonEmitter.prototype = {
     }
   },
   
-  render: function (sequence, frame, counter, teamId) {
+  render: function (sequence, frame, counter, textureMap, allowTeamColors) {
     var i, l;
     var ribbons = Math.min(this.ribbons.length, this.maxRibbons);
     
@@ -115,9 +115,17 @@ RibbonEmitter.prototype = {
           layer.setMaterial();
           
           var textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
-          var texture = this.textures[textureId];
+          var texture = this.textures[textureId].glTexture;
           
-          texture.bind(0, teamId);
+          if (!allowTeamColors) {
+            var textureName = texture.name;
+            
+            if (textureName === "replaceabletextures/teamcolor/teamcolor00.blp" || textureName === "replaceabletextures/teamglow/teamglow00.blp") {
+              texture = null;
+            }
+          }
+    
+          bindTexture(texture, 0, textureMap);
           
           var color = getSDValue(sequence, frame, counter, this.sd.color, this.color);
           var alpha = getSDValue(sequence, frame, counter, this.sd.alpha, this.alpha);

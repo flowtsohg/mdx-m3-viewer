@@ -80,11 +80,11 @@ ModelInstance.prototype = {
     this.updateEmitters(this.ribbonEmitters, allowCreate);
   },
   
-  render: function (instance, teamId) {
-    this.model.render(this, instance.textureMap, teamId);
+  render: function (instance, allowTeamColors) {
+    this.model.render(this, instance.textureMap, allowTeamColors);
   },
   
-  setAnimation: function (id) {
+  setSequence: function (id) {
     this.sequence = id;
     
     if (id === -1) {
@@ -96,7 +96,7 @@ ModelInstance.prototype = {
     }
   },
   
-  setAnimationLooping: function (looping) {
+  setSequenceLoopMode: function (looping) {
     this.loopingMode = math.clamp(looping, 0, 2);
   },
   

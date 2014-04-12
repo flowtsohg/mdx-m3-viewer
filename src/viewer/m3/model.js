@@ -1,6 +1,6 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
-function Model(parser, onprogress) {
+function Model(parser, textureMap) {
   var i, l;
   var div = parser.divisions[0];
   var uvSetCount = parser.uvSetCount;
@@ -27,7 +27,7 @@ function Model(parser, onprogress) {
   for (i = 0, l = materials[0].length; i < l; i++) {
     var material = materials[0][i];
     
-    this.materials[1][i] = new StandardMaterial(material, this);
+    this.materials[1][i] = new StandardMaterial(material, this, textureMap);
   }
 
 // Create concrete batch objects
@@ -186,12 +186,22 @@ Model.prototype = {
     }
   },
   
-  render: function (instance, instanceImpl, teamId) {
+  render: function (instance, instanceImpl, allowTeamColors) {
     var i, l;
     var sequence = instanceImpl.sequence;
     var frame = instanceImpl.frame;
-    var tc = teamColors[teamId];
+    var tc;
+    var teamId = instance.teamColor;
     var shader = shaders[shaderToUse];
+    // Instance-based texture overriding
+    var textureMap = instance.textureMap;
+    
+    // Use a black team color if team colors are disabled
+    if (!allowTeamColors) {
+      teamId = 13;
+    }
+    
+    tc = teamColors[teamId];
     
     gl.bindShader(shader + this.uvSetCount);
     
@@ -210,20 +220,20 @@ Model.prototype = {
       var material = batch.material;
       
       if (shader === "sstandard") {
-        material.bind(sequence, frame);
+        material.bind(sequence, frame, textureMap);
       } else if (shader === "sdiffuse") {
-        material.bindDiffuse(sequence, frame);
+        material.bindDiffuse(sequence, frame, textureMap);
       } else if (shader === "snormalmap" || shader === "sunshaded_normalmap") {
-        material.bindNormalMap(sequence, frame);
+        material.bindNormalMap(sequence, frame, textureMap);
       } else if (shader === "sspecular") {
-        material.bindSpecular(sequence, frame);
+        material.bindSpecular(sequence, frame, textureMap);
       } else if (shader === "sspecular_normalmap") {
-        material.bindSpecular(sequence, frame);
-        material.bindNormalMap(sequence, frame);
+        material.bindSpecular(sequence, frame, textureMap);
+        material.bindNormalMap(sequence, frame, textureMap);
       } else if (shader === "semissive") {
-        material.bindEmissive(sequence, frame);
+        material.bindEmissive(sequence, frame, textureMap);
       } else if (shader === "sdecal") {
-        material.bindDecal(sequence, frame);
+        material.bindDecal(sequence, frame, textureMap);
       }
       
       region.render();
@@ -331,12 +341,12 @@ Model.prototype = {
   
   getTextureMap: function () {
     var keys = Object.keys(this.texturePaths);
-    var data = [];
+    var data = {};
     
     for (var i = 0, l = keys.length; i < l; i++) {
       var key = keys[i];
       
-      data[i] = [key, this.texturePaths[key].name];
+      data[key] = this.texturePaths[key].name;
     }
     
     return data;

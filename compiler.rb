@@ -2,7 +2,7 @@
 
 require "./glsl_min"
 
-USE_CLOSURE = false
+USE_CLOSURE = true
 GLSL_MIN_REWRITE_ALL = true
 
 MDX_SHADERS = [
@@ -34,6 +34,7 @@ SHARED_SHADERS = [
 CODE_FILES = [
   "math/before",
   "math/math",
+  "math/vec2",
   "math/vec3",
   "math/vec4",
   "math/quaternion",

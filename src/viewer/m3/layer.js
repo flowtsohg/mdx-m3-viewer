@@ -1,6 +1,6 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
-function Layer(layer, type, op, model) {
+function Layer(layer, type, op, model, textureMap) {
   this.imagePath = "";
   this.uniform = "u_" + type;
   
@@ -14,21 +14,24 @@ function Layer(layer, type, op, model) {
     this.model = model;
     this.type = type;
     
+    // The path is overrided with the lower case because some models have the same texture multiple times but with different letter cases, which causes multiple fetches = wasted bandwidth, memory and time.
     var imagePath = layer.imagePath.toLowerCase();
     
     if (imagePath !== "") {
-    // The path is overrided with the lower case because some models have the same texture multiple times but with different letter cases, which causes multiple fetches = wasted bandwidth, memory and time.
-      this.imagePath = imagePath.toLowerCase();
-	  
+      if (textureMap[imagePath]) {
+        imagePath = textureMap[imagePath];
+      }
+      
+      this.imagePath = imagePath;
+      
       var texturePaths = model.texturePaths;
       
       if (!texturePaths[imagePath]) {
-        var texture = gl.newTexture(imagePath, urls.mpqFile(imagePath), true, true);
-        
-        texturePaths[imagePath] = texture;
-      
         var clampS = (this.flags & 0x4);
         var clampT = (this.flags & 0x8);
+        var texture = gl.newTexture(imagePath, urls.mpqFile(imagePath), clampS, clampT);
+        
+        texturePaths[imagePath] = texture;
         
         this.glTexture = texture;
       } else {
@@ -53,13 +56,14 @@ function Layer(layer, type, op, model) {
 }
 
 Layer.prototype = {
-  bind: function (unit, sequence, frame) {
+  bind: function (unit, sequence, frame, textureMap) {
     var imagePath = this.imagePath;
     var settings = this.uniform + "LayerSettings.";
     
     if (imagePath !== "" && gl.textureReady(imagePath)) {
       gl.setParameter(this.uniform + "Map", unit);
-      gl.bindTexture(this.glTexture, unit);
+      
+      bindTexture(this.glTexture, unit, textureMap);
       
       gl.setParameter(settings + "enabled", 1);
       gl.setParameter(settings + "op", this.op);

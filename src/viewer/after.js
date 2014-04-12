@@ -1,11 +1,7 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
   gl.setShaderMaps(PARAMETERMAP, MEMBERMAP);
-  
-  //addEvent(document.getElementById("shaders-select"), "change", function (e) {
-  //  shaderToUse = e.target.value;
-  //});
-  
+
   function resetViewport() {
     var width = canvas.clientWidth;
     var height = canvas.clientHeight;
@@ -36,9 +32,15 @@
   camera.range = [30, 2000];
   resetCamera();
   
-  // Used by the MDX shader to dynamically create the team glow
-  gl.newTexture("TeamGlow", "data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD//gA7Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcgSlBFRyB2NjIpLCBxdWFsaXR5ID0gODAK/9sAQwAGBAUGBQQGBgUGBwcGCAoQCgoJCQoUDg8MEBcUGBgXFBYWGh0lHxobIxwWFiAsICMmJykqKRkfLTAtKDAlKCko/9sAQwEHBwcKCAoTCgoTKBoWGigoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgo/8AAEQgAIAAgAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A+VKesbN0FES7nArufC3h4XwGRnNAHDtEy9Qajr0bxN4ZFlESBXn9ymyUigBkLbXBr0PwfryWQG4ivOamjnZOhNAHpnizxHHeQkKRXmd0++UmiS4d+pNRE5NAH//Z");
-  
+  for (var i = 0; i < 13; i++) {
+    var number = ((i < 10) ? "0" + i : i);
+    var teamColor = "replaceabletextures/teamcolor/teamcolor" + number + ".blp";
+    var teamGlow = "replaceabletextures/teamglow/teamglow" + number + ".blp";
+    
+    gl.newTexture(teamColor, urls.mpqFile(teamColor));
+    gl.newTexture(teamGlow, urls.mpqFile(teamGlow));
+  }
+      
   gl.newShader("world", SHADERS["vsworld"], floatPrecision + SHADERS["psworld"]);
   gl.newShader("white", SHADERS["vswhite"], floatPrecision + SHADERS["pswhite"]);
   
@@ -228,10 +230,9 @@
   function loadInstance(source) {
     if (typeof source === "string") {
       var modelId = loadModel(source);
-      var instance = new ModelInstance(modelInstanceCache[modelId]);
       var id = modelInstanceCache.length;
+      var instance = new ModelInstance(modelInstanceCache[modelId], id);
       
-      instance.id = id;
       modelInstanceCache.push(instance);
       
       return id;
@@ -344,10 +345,14 @@
     var object = modelInstanceCache[objectId];
     
     if (object && object.isInstance) {
-      var parent = modelInstanceCache[parentId];
-      
-      if (parent && parent.isInstance) {
-        object.setParent(parent, attachmentId);
+      if (parentId === -1) {
+        object.setParent();
+      } else {
+        var parent = modelInstanceCache[parentId];
+        
+        if (parent && parent.isInstance) {
+          object.setParent(parent, attachmentId);
+        }
       }
     }
   }
@@ -460,7 +465,7 @@
   // ----------
   
   // Get all the information of an object.
-  function getObjectInfo(objectId) {
+  function getInfo(objectId) {
     var object = modelInstanceCache[objectId];
     
     if (object) {
@@ -509,7 +514,7 @@
   function getSequences(objectId) {
     var object = modelInstanceCache[objectId];
     
-    if (object && object.isModel) {
+    if (object) {
       return object.getSequences();
     }
   }
@@ -519,7 +524,7 @@
   function getAttachments(objectId) {
     var object = modelInstanceCache[objectId];
     
-    if (object && object.isModel) {
+    if (object) {
       return object.getAttachments();
     }
   }
@@ -529,7 +534,7 @@
   function getCameras(objectId) {
      var object = modelInstanceCache[objectId];
     
-    if (object && object.isModel) {
+    if (object) {
       return object.getCameras();
     }
   }
@@ -557,7 +562,7 @@
   
   // Set the drawn world.
   // Possible values are 0 for nothing, 1 for sky, 2 for sky and ground, and 3 for sky and water.
-  function setWorld(mode) {
+  function setWorldMode(mode) {
     shouldRenderWorld = mode;
   }
   
@@ -648,54 +653,63 @@
     //console.log(worldRay);
   }
   
-  function setScene(scene) {
+  function loadScene(scene) {
+    // An array of the instance IDs that were loaded by these scene.
+    var loadedInstances = [];
+    
     scene = JSON.parse(scene);
     
-    camera.m[0] = scene[0][0];
-    camera.m[1] = scene[0][1];
-    camera.m[2] = scene[0][2];
-    camera.r[0] = scene[0][3];
-    camera.r[1] = scene[0][4];
-    shouldRenderWorld = scene[1];
-    shouldRenderShapes = scene[2];
+    camera.m = scene[0];
+    camera.r = scene[1];
+    shouldRenderWorld = scene[2];
+    shouldRenderShapes = !!scene[3];
+    shouldRenderTeamColors = !!scene[4];
+    shaderToUse = scene[5];
     
-    var instances = scene[4];
+    var objects = scene[6];
     
-    for (var i = 0, l = instances.length; i < l; i++) {
-      var instance = instances[i];
-      var instanceImpl = loadInstance(instance[0]);
+    for (var i = 0, l = objects.length; i < l; i++) {
+      var object = objects[i];
+      var isModel = object[0] === 0;
+      var id;
       
-      setPosition(instanceImpl, instance[1]);
-      setRotation(instanceImpl, instance[2]);
-      setScaling(instanceImpl, instance[3]);
-      playAnimatrion(instanceImpl, instance[4]);
-      setTeamColor(instanceImpl, instance[5]);
-    }
-  }
-  
-  function saveScene() {
-    var cameraString = [camera.m[0], camera.m[1], camera.m[2], camera.r[0], camera.r[1]];
-    var modelsString = [];
-    var instancesString = [];
-    var finalString = {};
-      
-    for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
-      var object = modelInstanceCache[i];
-      
-      if (object.isModel) {
-        modelsString.push([object.source]);
+      if (isModel) {
+        id = loadModel(object[1]);
+        
+        modelInstanceCache[i].fromJSON(object);
       } else {
-        instancesString.push([object.model.source, object.position, object.rotation, object.scaling, object.instance.sequence, object.teamId]);
+        id = loadInstance(objects[object[1]][1]);
+        
+        modelInstanceCache[i].fromJSON(object);
+        
+        loadedInstances.push(id);
       }
     }
     
-    finalString[0] = cameraString;
-    finalString[1] = shouldRenderWorld;
-    finalString[2] = shouldRenderShapes;
-    finalString[3] = modelsString;
-    finalString[4] = instancesString;
+    // A second loop is needed to set the parents, since all the instances must be already loaded
+    for (var i = 0, l = objects.length; i < l; i++) {
+      var object = objects[i];
+      var isInstance = object[0] === 1;
+      
+      if (isInstance) {
+        setParent(i, object[7], object[8]);
+      }
+    }
     
-    return JSON.stringify(finalString);
+    return loadedInstances;
+  }
+  
+  function saveScene() {
+    var data = [camera.m, camera.r, shouldRenderWorld, shouldRenderShapes & 1, shouldRenderTeamColors & 1, shaderToUse]
+    var objects = [];
+    
+    for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
+      objects.push(modelInstanceCache[i].toJSON());
+    }
+    
+    data.push(objects);
+    
+    return JSON.stringify(data);
   }
   
   return {
@@ -724,7 +738,7 @@
     stopSequence: stopSequence,
     setSequenceLoopMode: setSequenceLoopMode,
     // Information getters
-    getObjectInfo: getObjectInfo,
+    getInfo: getInfo,
     getModel: getModel,
     getSource: getSource,
     getSequences: getSequences,
@@ -732,7 +746,7 @@
     getCameras: getCameras,
     // General settings
     //applyCamera: applyCamera,
-    setWorld: setWorld,
+    setWorldMode: setWorldMode,
     showBoundingShapes: showBoundingShapes,
     showTeamColors: showTeamColors,
     setShader: setShader,
@@ -743,7 +757,7 @@
     resetCamera: resetCamera,
     // Misc
     castRay: castRay,
-    setScene: setScene,
+    loadScene: loadScene,
     saveScene: saveScene
   };
 };

@@ -91,5 +91,9 @@ var Vec4 = {
 
   equals: function (v0, v1) {
     return v0.length === v1.length && v0[0] === v1[0] && v0[1] === v1[1] && v0[2] === v1[2] && v0[3] === v1[3];
+  },
+  
+  floatPrecision: function (v0, precision) {
+    return [floatPrecision(v0[0], precision), floatPrecision(v0[1], precision), floatPrecision(v0[2], precision), floatPrecision(v0[3], precision)];
   }
 };

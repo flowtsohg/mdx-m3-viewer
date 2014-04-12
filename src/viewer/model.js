@@ -5,39 +5,53 @@ function Model(source) {
   this.ready = false;
   this.source = source;
   
+  // This texture map is used to override textures when a model is loaded from an ID
+  this.textureMap = {};
+    
   // Holds a list of instances that were created before the internal model finished loading
   this.queue = [];
   
   // Parse the source as an absolute path, an MPQ path, or an ID
   if (source.startsWith("http://")) {
     path = source;
+    getFile(path, true, this.setup, onerrorwrapper, onprogresswrapper, this);
   } else if (source.match(/\.(?:mdx|m3|blp|dds)$/)) {
     path = urls.mpqFile(source);
+    getFile(path, true, this.setup, onerrorwrapper, onprogresswrapper, this);
   } else {
     path = urls.customModel(source);
     // Load the custom texturs header to override the needed textures
-    getFile(urls.header(source), false, this.setupCustomTextures, onerrorwrapper, onprogresswrapper, this);
+    getFile(urls.thread(source), false, this.setupId, onerrorwrapper, onprogresswrapper, this);
   }
-  
-  getFile(path, true, this.setup, onerrorwrapper, onprogresswrapper, this);
   
   onloadstart(this);
 }
 
 Model.prototype = {
-  setupCustomTextures: function (e) {
+  setupId: function (e) {
+    var i, l;
     var object = JSON.parse(e.target.responseText);
-    var textures = object.textures;
-    var keys = Object.keys(textures);
+    var model;
+    var keys = Object.keys(object.textures);
     
-    for (var i = 0, l = keys.length; i < l; i++) {
-      var key = keys[i];
-      var texture = textures[key];
-      
-      if (texture.included === 1) {
-        this.overrideTexture(key, urls.customFile(texture.url));
+    for (i = 0, l = object.models.length; i < l; i++) {
+      if (!object.models[i].url.endsWith("portrait.mdx")) {
+        model = object.models[i];
       }
     }
+    
+    for (i = 0, l = keys.length; i < l; i++) {
+      var key = keys[i];
+      var texture = object.textures[key];
+      
+      if (key.endsWith("dds") && gl.hasCompressedTextures) {
+        this.textureMap[key] = texture.url;
+      } else {
+        this.textureMap[key] = texture.url_png;
+      }
+    }
+    
+    getFile(model.url, true, this.setup, onerrorwrapper, onprogresswrapper, this);
   },
   
   setup: function (e) {
@@ -91,7 +105,7 @@ Model.prototype = {
       }
   
       // Load the model
-      this.model = new Mdx.Model(parser, false, onprogress);
+      this.model = new Mdx.Model(parser, this.textureMap);
   
       if (DEBUG_MODE) {
         console.log(this.model);
@@ -114,7 +128,7 @@ Model.prototype = {
         }
         
         // Load the model
-        this.model = new M3.Model(parser);
+        this.model = new M3.Model(parser, this.textureMap);
         
         // Shader setup
         var uvSetCount = this.model.uvSetCount;
@@ -266,5 +280,16 @@ Model.prototype = {
         textureMap: this.getTextureMap()
       };
     }
+  },
+  
+  toJSON: function () {
+    return [
+      0, // 0 for Model, 1 for ModelInstance
+      this.source
+    ];
+  },
+  
+  fromJSON: function (object) {
+    
   }
 };

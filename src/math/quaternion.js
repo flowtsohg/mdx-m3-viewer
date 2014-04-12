@@ -15,6 +15,7 @@ var Quaternion = {
   normalize: Vec4.normalize,
   dot: Vec4.dot,
   nlerp: Vec4.lerp,
+  floatPrecision: Vec4.floatPrecision,
   
   fromAxisAngle: function (axis, angle, out) {
     var normalizedAxis = [];
@@ -83,6 +84,8 @@ var Quaternion = {
     out[1] = w0 * y1 - x0 * z1 + y0 * w1 + z0 * x1;
     out[2] = w0 * z1 + x0 * y1 - y0 * x1 + z0 * w1;
     out[3] = w0 * w1 - x0 * x1 - y0 * y1 - z0 * z1;
+    
+    return out;
   },
 
   fromRotationMatrix4: function (m0, out) {

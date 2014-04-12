@@ -9,6 +9,8 @@ function ParticleEmitter2(emitter, model, instance) {
   }
   
   this.model = model;
+  this.textures = model.textures;
+  
   this.lastCreation = 0;
   
   var particles;
@@ -125,7 +127,7 @@ ParticleEmitter2.prototype = {
     }
   },
   
-  render: function (model, teamId) {
+  render: function (model, textureMap, allowTeamColors) {
     var data = this.data;
     
     var pv1 = [-1, -1, 0];
@@ -324,7 +326,17 @@ ParticleEmitter2.prototype = {
         ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
     }
     
-    this.model.textures[this.textureId].bind(0, teamId);
+    var texture = this.textures[this.textureId].glTexture;
+    
+    if (!allowTeamColors) {
+      var textureName = texture.name;
+      
+      if (textureName === "replaceabletextures/teamcolor/teamcolor00.blp" || textureName === "replaceabletextures/teamglow/teamglow00.blp") {
+        texture = null;
+      }
+    }
+    
+    bindTexture(texture, 0, textureMap);
     
     ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
     ctx.bufferSubData(ctx.ARRAY_BUFFER, 0, this.data);

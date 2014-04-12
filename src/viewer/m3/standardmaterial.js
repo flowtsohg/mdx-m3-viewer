@@ -1,6 +1,6 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
-function StandardMaterial(material, model) {
+function StandardMaterial(material, model, textureMap) {
   this.name = material.name;
   this.specialFlags = material.specialFlags;
   this.flags = material.flags;
@@ -14,20 +14,20 @@ function StandardMaterial(material, model) {
   this.emisMode = material.emisMode;
   
   this.layers = [
-    new Layer(material.diffuseLayer, "diffuse", 2, model),
-    new Layer(material.decalLayer, "decal", 2, model),
-    new Layer(material.specularLayer, "specular", 2, model),
-    new Layer(material.glossLayer, "gloss", 2, model),
-    new Layer(material.emissiveLayer, "emissive", material.emisBlendType, model),
-    new Layer(material.emissive2Layer, "emissive2", material.emisMode, model),
-    new Layer(material.evioLayer, "evio", 2, model),
-    new Layer(material.evioMaskLayer, "evioMask", 2, model),
-    new Layer(material.alphaMaskLayer, "alphaMask", 2, model),
-    new Layer(material.alphaMask2Layer, "alphaMask2", 2, model),
-    new Layer(material.normalLayer, "normal", 2, model),
-    new Layer(material.heightLayer, "heightMap", 2, model),
-    new Layer(material.lightMapLayer, "lightMap", 2, model),
-    new Layer(material.ambientOcclusionLayer, "ao", 2, model)
+    new Layer(material.diffuseLayer, "diffuse", 2, model, textureMap),
+    new Layer(material.decalLayer, "decal", 2, model, textureMap),
+    new Layer(material.specularLayer, "specular", 2, model, textureMap),
+    new Layer(material.glossLayer, "gloss", 2, model, textureMap),
+    new Layer(material.emissiveLayer, "emissive", material.emisBlendType, model, textureMap),
+    new Layer(material.emissive2Layer, "emissive2", material.emisMode, model, textureMap),
+    new Layer(material.evioLayer, "evio", 2, model, textureMap),
+    new Layer(material.evioMaskLayer, "evioMask", 2, model, textureMap),
+    new Layer(material.alphaMaskLayer, "alphaMask", 2, model, textureMap),
+    new Layer(material.alphaMask2Layer, "alphaMask2", 2, model, textureMap),
+    new Layer(material.normalLayer, "normal", 2, model, textureMap),
+    new Layer(material.heightLayer, "heightMap", 2, model, textureMap),
+    new Layer(material.lightMapLayer, "lightMap", 2, model, textureMap),
+    new Layer(material.ambientOcclusionLayer, "ao", 2, model, textureMap)
   ];
 }
 
@@ -50,7 +50,7 @@ StandardMaterial.prototype = {
     }
   },
   
-  bind: function (sequence, frame) {
+  bind: function (sequence, frame, textureMap) {
     this.bindCommon();
     
     gl.setParameter("u_specularity", this.specularity);
@@ -59,13 +59,13 @@ StandardMaterial.prototype = {
     
     gl.setParameter("u_lightAmbient", [0.02, 0.02, 0.02, 0]);
     
-    this.layers[0].bind(1, sequence, frame);
-    this.layers[1].bind(2, sequence, frame);
-    this.layers[2].bind(3, sequence, frame);
-    this.layers[4].bind(5, sequence, frame);
-    this.layers[5].bind(6, sequence, frame);
-    this.layers[10].bind(11, sequence, frame);
-    this.layers[12].bind(13, sequence, frame);
+    this.layers[0].bind(1, sequence, frame, textureMap);
+    this.layers[1].bind(2, sequence, frame, textureMap);
+    this.layers[2].bind(3, sequence, frame, textureMap);
+    this.layers[4].bind(5, sequence, frame, textureMap);
+    this.layers[5].bind(6, sequence, frame, textureMap);
+    this.layers[10].bind(11, sequence, frame, textureMap);
+    this.layers[12].bind(13, sequence, frame, textureMap);
   },
   
   unbind: function () {
@@ -81,39 +81,39 @@ StandardMaterial.prototype = {
     this.layers[12].unbind();
   },
   
-  bindDiffuse: function (sequence, frame) {
+  bindDiffuse: function (sequence, frame, textureMap) {
     this.bindCommon();
     
-    this.layers[0].bind(1, sequence, frame);
+    this.layers[0].bind(1, sequence, frame, textureMap);
   },
   
-  bindSpecular: function (sequence, frame) {
+  bindSpecular: function (sequence, frame, textureMap) {
     this.bindCommon();
     
     gl.setParameter("u_specularity", this.specularity);
     gl.setParameter("u_specMult", this.specMult);
     
-    this.layers[2].bind(3, sequence, frame);
+    this.layers[2].bind(3, sequence, frame, textureMap);
   },
   
-  bindNormalMap: function (sequence, frame) {
+  bindNormalMap: function (sequence, frame, textureMap) {
     this.bindCommon();
     
-    this.layers[10].bind(11, sequence, frame);
+    this.layers[10].bind(11, sequence, frame, textureMap);
   },
   
-  bindEmissive: function (sequence, frame) {
+  bindEmissive: function (sequence, frame, textureMap) {
     this.bindCommon();
     
     gl.setParameter("u_emisMult", this.emisMult);
     
-    this.layers[4].bind(5, sequence, frame);
-    this.layers[5].bind(6, sequence, frame);
+    this.layers[4].bind(5, sequence, frame, textureMap);
+    this.layers[5].bind(6, sequence, frame, textureMap);
   },
   
-  bindDecal: function (sequence, frame) {
+  bindDecal: function (sequence, fram, textureMape) {
     this.bindCommon();
     
-    this.layers[1].bind(2, sequence, frame);
+    this.layers[1].bind(2, sequence, frame, textureMap);
   }
 };

@@ -9,13 +9,17 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
   
   function onloadstart(object) {
     if (object.isModel) {
-      sendMessage({type: "loadstart", objectType: "model", name: object.source, progress: 0});
+      sendMessage({type: "loadstart", objectType: "model", source: object.source, progress: 0});
     } else if (object.isTexture) {
-      var name = object.name;
+      var path = object.name;
       
       // Avoid reporting internal textures
-      if (name !== "\0" && name !== "TeamGlow" && name !== "grass" && name !== "water" && name !== "bedrock" && name !== "sky") {
-        sendMessage({type: "loadstart", objectType: "texture", name: object.name, progress: 0});
+      if (path !== "\0"  && path !== "grass" && path !== "water" && path !== "bedrock" && path !== "sky") {
+        var match = path.match(/(\d\d).blp/);
+        
+        if (!match || match[1] === "00") {
+          sendMessage({type: "loadstart", objectType: "texture", source: path, progress: 0});
+        }
       }
     } else {
       console.log("What?");
@@ -24,13 +28,17 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
   
   function onload(object) {
      if (object.isModel) {
-       sendMessage({type: "load", objectType: "model", name: object.source, progress: 1});
+       sendMessage({type: "load", objectType: "model", source: object.source, progress: 1});
     } else if (object.isTexture) {
-      var name = object.name;
+      var path = object.name;
       
       // Avoid reporting internal textures
-      if (name !== "\0" && name !== "TeamGlow" && name !== "grass" && name !== "water" && name !== "bedrock" && name !== "sky") {
-        sendMessage({type: "load", objectType: "texture", name: object.name, progress: 1});
+      if (path !== "\0"  && path !== "grass" && path !== "water" && path !== "bedrock" && path !== "sky") {
+        var match = path.match(/(\d\d).blp/);
+        
+        if (!match || match[1] === "00") {
+          sendMessage({type: "load", objectType: "texture", source: path, progress: 1});
+        }
       }
     } else {
       console.log("What?");
@@ -49,14 +57,24 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
   }
   
   function onprogress(object, e) {
+    var progress = e.loaded / e.total;
+    
+    if (progress === Infinity) {
+      progress = 0;
+    }
+    
     if (object.isModel) {
-      sendMessage({type: "progress", objectType: "model", name: object.source, progress: (e.loaded / e.total)});
+      sendMessage({type: "progress", objectType: "model", source: object.source, progress: progress});
     } else if (object.isTexture) {
-      var name = object.name;
+      var path = object.name;
       
       // Avoid reporting internal textures
-      if (name !== "\0" && name !== "TeamGlow" && name !== "grass" && name !== "water" && name !== "bedrock" && name !== "sky") {
-        sendMessage({type: "progress", objectType: "texture", name: object.name, progress: (e.loaded / e.total)});
+      if (path !== "\0"  && path !== "grass" && path !== "water" && path !== "bedrock" && path !== "sky") {
+        var match = path.match(/(\d\d).blp/);
+        
+        if (!match || match[1] === "00") {
+          sendMessage({type: "progress", objectType: "texture", source: path, progress: progress});
+        }
       }
     } else {
       console.log("What?");
@@ -135,3 +153,13 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
     "sunshaded_normalmap",
     "sdecal"
   ];
+  
+  function bindTexture(glTexture, unit, textureMap) {
+    var texture = glTexture;
+    
+    if (texture && textureMap[texture.name]) {
+      texture = textureMap[texture.name];
+    }
+    
+    gl.bindTexture(texture, unit);
+  }

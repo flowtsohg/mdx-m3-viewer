@@ -1,6 +1,6 @@
 // Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
 
-function Model(parser, spawned) {
+function Model(parser, textureMap) {
   var objects, i, l, j, k;
   
   this.sequences = [];
@@ -10,7 +10,7 @@ function Model(parser, spawned) {
     objects = parser["textureChunk"].objects;
     
     for (i = 0, l = objects.length; i < l; i++) {
-      this.textures.push(new Texture(objects[i]));
+      this.textures.push(new Texture(objects[i], textureMap));
     }
   }
   
@@ -140,7 +140,7 @@ Model.prototype = {
     }
   },
   
-  render: function (instance, textureMap, teamId) {
+  render: function (instance, textureMap, allowTeamColors) {
     var i, l, v;
 	  var sequence = instance.sequence;
     var frame = instance.frame;
@@ -165,13 +165,17 @@ Model.prototype = {
           layer.setMaterial();
           
           var textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
-          var texture = this.textures[textureId];
+          var texture = this.textures[textureId].glTexture;
           
-          if (textureMap && textureMap[texture.path]) {
-            texture = textureMap[texture.path];
+          if (!allowTeamColors) {
+            var textureName = texture.name;
+            
+            if (textureName === "replaceabletextures/teamcolor/teamcolor00.blp" || textureName === "replaceabletextures/teamglow/teamglow00.blp") {
+              texture = null;
+            }
           }
           
-          texture.bind(0, teamId);
+          bindTexture(texture, 0, textureMap);
           
           if (this.geosetAnimations) {
             for (var j = this.geosetAnimations.length; j--;) {
@@ -207,17 +211,13 @@ Model.prototype = {
           geoset.render(layer.coordId);
         }
       }
-      
-      gl.bindTexture("", 0);
-      gl.bindTexture("", 1);
-      gl.bindTexture("", 2);
     }
     
     ctx.depthMask(1);
     
     if (instance.particleEmitters && gl.shaderReady("wmain")) {
       for (i = 0, l = instance.particleEmitters.length; i < l; i++) {
-        instance.particleEmitters[i].render(sequence, frame, counter, teamId);
+        instance.particleEmitters[i].render(allowTeamColors);
       }
     }
     
@@ -229,7 +229,7 @@ Model.prototype = {
       gl.setParameter("u_texture", 0);
       
       for (i = 0, l = instance.ribbonEmitters.length; i < l; i++) {
-        instance.ribbonEmitters[i].render(sequence, frame, counter, teamId);
+        instance.ribbonEmitters[i].render(sequence, frame, counter, textureMap, allowTeamColors);
       }
     }
     
@@ -243,7 +243,7 @@ Model.prototype = {
       gl.setParameter("u_texture", 0);
       
       for (i = 0, l = instance.particleEmitters2.length; i < l; i++) {
-        instance.particleEmitters2[i].render(teamId);
+        instance.particleEmitters2[i].render(textureMap, allowTeamColors);
       }
       
       ctx.depthMask(1);
@@ -262,6 +262,9 @@ Model.prototype = {
     
     ctx.disable(ctx.BLEND);
     ctx.enable(ctx.CULL_FACE);
+    
+    // Since the bone texture isn't registered through GL but used directly, it must be null'd so that other textures would replace it.
+    gl.bindTexture(null, 1);
   },
   
   shouldRenderGeoset: function (sequence, frame, counter, layer) {
@@ -344,11 +347,13 @@ Model.prototype = {
   },
   
   getTextureMap: function () {
-    var data = [];
+    var data = {};
     
     if (this.textures) {
       for (var i = 0, l = this.textures.length; i < l; i++) {
-        data[i] = [this.textures[i].path, this.textures[i].glTexture.name];
+        var texture = this.textures[i];
+        
+        data[texture.source] = texture.glTexture.name;
       }
     }
     

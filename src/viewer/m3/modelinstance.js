@@ -38,16 +38,16 @@ ModelInstance.prototype = {
     */
   },
   
-  render: function (instance, teamId) {
-    this.model.render(instance, this, teamId);
+  render: function (instance, allowTeamColors) {
+    this.model.render(instance, this, allowTeamColors);
   },
   
-  setAnimation: function (sequence) {
+  setSequence: function (sequence) {
     this.sequence = sequence;
     this.frame = 0;
   },
   
-  setAnimationLooping: function (looping) {
+  setSequenceLoopMode: function (looping) {
     this.loopingMode = math.clamp(looping, 0, 2);
   },
   

@@ -13,7 +13,7 @@ var replaceableIdToName = {
   37: "OutlandMushroomTree/MushroomTree"
 };
 
-function Texture(texture) {
+function Texture(texture, textureMap) {
   var path = texture.path;
   var replaceableId = texture.replaceableId;
   
@@ -23,34 +23,20 @@ function Texture(texture) {
   
   path = path.replace(/\\/g, "/").toLowerCase();
   
+  // The original source
+  this.source = path;
+  
+  if (textureMap[path]) {
+    path = textureMap[path];
+  }
+  
+  // This can be the original source, or a source overrided by the texture map
   this.path = path;
-  this.replaceableId = replaceableId;
-  this.glTexture = gl.newTexture(path, urls.mpqFile(path));
+  
+  this.glTexture = gl.newTexture(this.source, urls.mpqFile(path));
 }
 
 Texture.prototype = {
-  bind: function (unit, teamId) {
-    var replaceableId = this.replaceableId;
-    
-    teamId = teamId || 0;
-    
-    if (replaceableId === 1 || replaceableId === 2) {
-      var tc = teamColors[teamId];
-      
-      gl.setParameter("u_teamColor",  [tc[0] / 255, tc[1] / 255, tc[2] / 255]);
-      
-      if (replaceableId === 1) {
-        gl.setParameter("u_teamMode", 1);
-      } else {
-        gl.setParameter("u_teamMode", 2);
-        gl.bindTexture("TeamGlow", unit);
-      }
-    } else {
-      gl.setParameter("u_teamMode", 0);
-      gl.bindTexture(this.glTexture, unit);
-    }
-  },
-  
   overrideTexture: function (source) {
     var path;
     
@@ -65,6 +51,6 @@ Texture.prototype = {
       path = urls.customTexture(source);
     }
     
-    this.glTexture = gl.newTexture(path, path);
+    this.glTexture = gl.newTexture(this.source, path);
   }
 };

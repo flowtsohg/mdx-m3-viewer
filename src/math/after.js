@@ -2,6 +2,7 @@
   
   return {
     EPSILON: EPSILON,
+    floatPrecision: floatPrecision,
     random: random,
     clamp: clamp,
     lerp: lerp,
