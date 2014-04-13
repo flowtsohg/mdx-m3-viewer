@@ -275,18 +275,24 @@ ModelInstance.prototype = {
     if (this.ready) {
       return this.model.getSequences();
     }
+    
+    return [];
   },
   
   getAttachments: function () {
     if (this.ready) {
       return this.model.getAttachments();
     }
+    
+    return [];
   },
   
   getCameras: function () {
     if (this.ready) {
       return this.model.getCameras();
     }
+    
+    return [];
   },
   
   getInfo: function () {

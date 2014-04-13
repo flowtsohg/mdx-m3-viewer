@@ -271,15 +271,13 @@ Model.prototype = {
   },
   
   getInfo: function () {
-    if (this.ready) {
-      return {
-        source: this.getSource(),
-        sequences: this.getSequences(),
-        attachments: this.getAttachments(),
-        cameras: this.getCameras(),
-        textureMap: this.getTextureMap()
-      };
-    }
+    return {
+      source: this.getSource(),
+      sequences: this.getSequences(),
+      attachments: this.getAttachments(),
+      cameras: this.getCameras(),
+      textureMap: this.getTextureMap()
+    };
   },
   
   toJSON: function () {

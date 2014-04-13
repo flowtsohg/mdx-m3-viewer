@@ -429,8 +429,8 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     setup: function (image, clampS, clampT) {
       this.id = generateTexture(image, clampS, clampT);
       this.ready = true;
-        
-      textureNameStore[name] = 1;
+      
+      textureNameStore[this.name] = 1;
       
       if (onload) {
         onload(this);
@@ -543,11 +543,11 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   
   var extRegexp = /(?:\.([^.]+))?$/;
   
-  function newTexture(name, source, clampS, clampT) {
+  function newTexture(name, source, clampS, clampT, forcePNG) {
     if (!textureStore[name]) {
       var ext = extRegexp.exec(source)[1] || extRegexp.exec(name)[1];
       
-      if (ext && ext.toLowerCase() === "dds") {
+      if (ext && ext.toLowerCase() === "dds" && !forcePNG) {
          textureStore[name] = new DDSTexture(name, source, clampS, clampT);
       } else {
         textureStore[name] = new Texture(name, source, clampS, clampT);

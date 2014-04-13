@@ -18,24 +18,35 @@ function Layer(layer, type, op, model, textureMap) {
     var imagePath = layer.imagePath.toLowerCase();
     
     if (imagePath !== "") {
-      if (textureMap[imagePath]) {
-        imagePath = textureMap[imagePath];
-      }
-      
       this.imagePath = imagePath;
+      
+      var tokens = imagePath.split("/");
+      var textureName = tokens[tokens.length - 1];
+      var overrided = false;
+      
+      if (textureMap[textureName]) {
+        imagePath = textureMap[textureName];
+        overrided = true;
+      }
       
       var texturePaths = model.texturePaths;
       
-      if (!texturePaths[imagePath]) {
+      if (!texturePaths[this.imagePath]) {
         var clampS = (this.flags & 0x4);
         var clampT = (this.flags & 0x8);
-        var texture = gl.newTexture(imagePath, urls.mpqFile(imagePath), clampS, clampT);
+        var texture;
         
-        texturePaths[imagePath] = texture;
+        if (overrided) {
+          texture = gl.newTexture(this.imagePath, imagePath, clampS, clampT, !gl.hasCompressedTextures);
+        } else {
+          texture = gl.newTexture(this.imagePath, urls.mpqFile(imagePath), clampS, clampT);
+        }
+        
+        texturePaths[this.imagePath] = texture;
         
         this.glTexture = texture;
       } else {
-        this.glTexture = texturePaths[imagePath];
+        this.glTexture = texturePaths[this.imagePath];
       }
     }
     
@@ -102,6 +113,6 @@ Layer.prototype = {
   },
   
   overrideTexture: function (newpath, onload, onerror, onprogress) {
-     this.glTexture = gl.newTexture(newpath, urls.mpqFile(newpath), false, false, onload, onerror);
+     this.glTexture = gl.newTexture(newpath, newpath, false, false, onload, onerror);
   }
 };
