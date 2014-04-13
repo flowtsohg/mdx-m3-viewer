@@ -1,6 +1,9 @@
 mdx-m3-viewer
 =============
 
+Warning: this README is not updated. I will update it some time soon.
+=============
+
 A WebGL viewer for MDX and M3 files used by the games Warcraft 3 and Starcraft 2 respectively.
 
 Running compiler.rb creates a standalone minified JavaScript file that can be included to any HTML page.
