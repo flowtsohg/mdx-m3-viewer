@@ -13,7 +13,9 @@ Note: you must run compiler.rb to get a working file, since there are broken fil
 A live version can be seen on [Hiveworkshop](http://www.hiveworkshop.com) for which this viewer was made, here are two examples:
 * [Warcraft 3's Azura Dragon](http://www.hiveworkshop.com/model_viewer/?mpq=Units/Creeps/AzureDragon/AzureDragon.mdx)
 * [Starcraft 2's Baneling](http://www.hiveworkshop.com/model_viewer/?mpq=Assets/units/zerg/baneling/baneling.m3)
+
 Note: these examples are still using a very old version of this viewer, I will update the version on the Hiveworkshop soon, hopefully.
+
 ------------------------
 
 #### Usage
@@ -74,10 +76,14 @@ The API of the viewer is as follows:
 * `saveScene()` - Save the scene as a JSON string
 * `loadScene(scene)` - Load a scene from a JSON string.
 
-Models and textures can send multiple events in their live span - one when they begin to load, possibly multiple ones as their loading progresses, one if they loaded successfuly, and one if an error occured in their loading.
-Instances send a single event if they get loaded successfuly.
+------------------------
+
+Models and textures can send multiple messages in their live span - one when they begin to load, possibly multiple messages as their loading progresses, one if they loaded successfuly, and one if an error occured.
+Instances send a single event when they get loaded.
 Use the `onmessage` callback to keep track of everything.
-The messages are JavaScript objects of the form `{type: type, objectType: objectType [, source: source, id: id, error: error, progress: progress])`.
+The messages are JavaScript objects of the form:
+
+`{type: type, objectType: objectType [, source: source, id: id, error: error, progress: progress])`.
 
 The type can be one of:
 * `loadstart` - a model or a texture started loading.
@@ -85,6 +91,6 @@ The type can be one of:
 * `load` - a model, texture, or instance loaded successfully. In this case the `id` value will be set.
 * `error` - an error occured when loading a texture or a model, or an error occured with the WebGL context.
 
-The `objectType` can be `model`, `texture`, `instance`, or for WebGL errors, `webglcontext`.
+The `objectType` value can be `model`, `texture`, `instance`, or for WebGL errors, `webglcontext`.
 `source` is the originating source url that was used to create a model or a texture.
-Finally, `error` is a string describing the error that happened, if the message type was an error.
+Finally, `error` is a short string describing the error that happened, if the message type was an error.
