@@ -118,12 +118,20 @@ Skeleton.prototype = {
       hwbones[k + 15] = worldMatrix[15];
     }
     
+    // Force GL to override its internal cache.
+    // Without this, texture unit 1 wont get updated for other models.
+    gl.bindTexture(null, 1);
+    
     ctx.activeTexture(ctx.TEXTURE1);
     ctx.bindTexture(ctx.TEXTURE_2D, this.boneTexture);
     ctx.texSubImage2D(ctx.TEXTURE_2D, 0, 0, 0, 4 + bones.length * 4, 1, ctx.RGBA, ctx.FLOAT, hwbones);
   },
   
   bind: function () {
+    // Force GL to override its internal cache.
+    // Without this, texture unit 1 wont get updated for other models.
+    gl.bindTexture(null, 1);
+    
     ctx.activeTexture(ctx.TEXTURE1);
     ctx.bindTexture(ctx.TEXTURE_2D, this.boneTexture);
     

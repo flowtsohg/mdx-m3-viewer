@@ -584,7 +584,7 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
       
       gl["activeTexture"](gl["TEXTURE" + unit]);
       gl["bindTexture"](gl["TEXTURE_2D"], null);
-    } else if (true) {//!boundTextures[unit] || boundTextures[unit].name !== finalTexture.name) {
+    } else if (!boundTextures[unit] || boundTextures[unit].name !== finalTexture.name) {
       boundTextures[unit] = finalTexture;
       
       gl["activeTexture"](gl["TEXTURE" + unit]);
