@@ -40,8 +40,6 @@ function Texture(texture, textureMap) {
 
 Texture.prototype = {
   overrideTexture: function (path) {
-    var path;
-    
     this.path = path;
     this.glTexture = gl.newTexture(this.source, path);
   }
