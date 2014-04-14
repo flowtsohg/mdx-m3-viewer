@@ -200,26 +200,80 @@
   
   addVisibilityListener(onVisibilityChange);
   
+  function loadResourceImpl(source, textureMap) {
+    var id;
+    
+    if (!modelCache[source]) {
+      id = modelInstanceCache.length;
+      
+      var model = new Model(source, id, textureMap);
+      
+      modelCache[source] = model;
+      
+      modelInstanceCache.push(model);
+    }
+    
+    id = modelInstanceCache.length;
+    
+    var instance = new ModelInstance(modelCache[source], id);
+    
+    modelInstanceCache.push(instance);
+  }
+  
+  function loadResourceThread(e) {
+    var i, l;
+    var object = JSON.parse(e.target.responseText);
+    console.log(object);
+    var keys = Object.keys(object.textures);
+    var textureMap = {};
+    
+    for (i = 0, l = keys.length; i < l; i++) {
+      var key = keys[i];
+      var texture = object.textures[key];
+      
+      if (key.endsWith("dds") && gl.hasCompressedTextures) {
+        textureMap[key] = texture.url;
+      } else {
+        textureMap[key] = texture.url_png;
+      }
+      
+      gl.newTexture("assets/textures/" + key, textureMap[key]);
+    }
+  
+    for (i = 0, l = object.models.length; i < l; i++) {
+      loadResourceImpl(object.models[i].url, textureMap);
+    }
+  }
+  
   // ---------------------
   // Model loading API
   // ---------------------
+  
+  function loadResource(source) {
+    if (source.startsWith("http://")) {
+      loadResourceImpl(source);
+    } else if (source.match(/\.(?:mdx|m3|blp|dds)$/)) {
+      loadResourceImpl(urls.mpqFile(source));
+    } else {
+      getFile(urls.thread(source), false, loadResourceThread);//onerrorwrapper, onprogresswrapper);
+    }
+  }
   
   // Load a model.
   // Source can be an absolute path to a MDX/M3 file, a path to a MDX/M3 file in any of the Warcraft 3 and Starcraft 2 MPQs, or a model ID used by the Hiveworkshop.
   // Returns the ID of the loaded model.
   // Note: if a model was already loaded from the given source, its ID will be returned.
-  function loadModel(source) {
+  function loadModel(source, textureMap) {
     if (!modelCache[source]) {
-      var model = new Model(source);
       var id = modelInstanceCache.length;
+      var model = new Model(source, id, textureMap);
       
-      model.id = id;
-      modelCache[source] = [model, id];
+      modelCache[source] = model;
       
       modelInstanceCache.push(model);
     }
     
-    return modelCache[source][1];
+    return modelCache[source].id;
   }
   
   // Create a new instance from an existing model or instance, or a path that will be used to load also the model if needed.
@@ -227,11 +281,11 @@
   // If source is a number, it can be an ID of a model or an instance.
   // Returns null if given an invalid ID, otherwise returns the ID of the created instance.
   // Note: if the source is a string, and a model was already loaded from that string, only a new instance will be created.
-  function loadInstance(source) {
+  function loadInstance(source, textureMap) {
     if (typeof source === "string") {
       var modelId = loadModel(source);
       var id = modelInstanceCache.length;
-      var instance = new ModelInstance(modelInstanceCache[modelId], id);
+      var instance = new ModelInstance(modelInstanceCache[modelId], id, textureMap);
       
       modelInstanceCache.push(instance);
       
@@ -242,10 +296,9 @@
       // Check if the source ID is valid
       if (object) {
         var model = object.isModel ? object : object.model;
-        var instance = new ModelInstance(model);
         var id = modelInstanceCache.length;
+        var instance = new ModelInstance(model, id);
         
-        instance.id = id;
         modelInstanceCache.push(instance);
         
         return id;
@@ -253,6 +306,19 @@
     }
     
     return null;
+  }
+  
+  // ------------------
+  // Instance misc
+  // ------------------
+  
+  // Shows or hides an instance.
+  function setVisibility(objectId, b) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      object.setVisibility(b);
+    }
   }
   
   // ------------------
@@ -674,11 +740,11 @@
       var id;
       
       if (isModel) {
-        id = loadModel(object[1]);
+        id = loadModel(object[1], object[2]);
         
         modelInstanceCache[i].fromJSON(object);
       } else {
-        id = loadInstance(objects[object[1]][1]);
+        id = loadInstance(objects[object[1]][1], object[11]);
         
         modelInstanceCache[i].fromJSON(object);
         
@@ -692,13 +758,13 @@
       var isInstance = object[0] === 1;
       
       if (isInstance) {
-        setParent(i, object[7], object[8]);
+        setParent(i, object[8], object[9]);
       }
     }
     
     return loadedInstances;
   }
-  
+
   function saveScene() {
     var data = [camera.m, camera.r, shouldRenderWorld, shouldRenderShapes & 1, shouldRenderTeamColors & 1, shaderToUse]
     var objects = [];
@@ -714,8 +780,11 @@
   
   return {
     // Model loading API
+    loadResource: loadResource,
     loadModel: loadModel,
     loadInstance: loadInstance,
+    // Instance misc
+    setVisibility: setVisibility,
     // Transform API
     setLocation: setLocation,
     move: move,

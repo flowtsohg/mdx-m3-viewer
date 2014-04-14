@@ -1,12 +1,14 @@
-function Model(source) {
+function Model(source, id, textureMap) {
   var path;
   
   this.isModel = true;
+  this.id = id;
+  
   this.ready = false;
   this.source = source;
   
   // This texture map is used to override textures when a model is loaded from an ID
-  this.textureMap = {};
+  this.textureMap = textureMap || {};
     
   // Holds a list of instances that were created before the internal model finished loading
   this.queue = [];
@@ -75,7 +77,7 @@ Model.prototype = {
         this[action[0]].apply(this, action[1]);
       }
       
-      onload(this, e);
+      onload(this);
     }
   },
   
@@ -215,6 +217,13 @@ Model.prototype = {
     }
   },
   
+  // Return the name of the model itself
+  getName: function () {
+    if (this.ready) {
+      return this.model.name;
+    }
+  },
+  
   // Return the source of this model
   getSource: function () {
     return this.source;
@@ -240,6 +249,7 @@ Model.prototype = {
   
   overrideTexture: function (path, newpath) {
     if (this.ready) {
+      this.textureMap[path] = newpath;
       this.model.overrideTexture(path, newpath);
     } else {
       this.queue.push(["overrideTexture", [path, newpath]]);
@@ -272,6 +282,7 @@ Model.prototype = {
   
   getInfo: function () {
     return {
+      name: this.getName(),
       source: this.getSource(),
       sequences: this.getSequences(),
       attachments: this.getAttachments(),
@@ -283,7 +294,8 @@ Model.prototype = {
   toJSON: function () {
     return [
       0, // 0 for Model, 1 for ModelInstance
-      this.source
+      this.source,
+      this.textureMap
     ];
   },
   

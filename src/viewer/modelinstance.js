@@ -1,8 +1,11 @@
 
-function ModelInstance(model, id) {
+function ModelInstance(model, id, textureMap) {
   this.isInstance = true;
   this.model = model;
   this.id = id;
+  
+  this.source = model.source;
+  this.visible = 1;
   
   this.localMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
   this.location = [0, 0, 0];
@@ -20,6 +23,16 @@ function ModelInstance(model, id) {
   // This is a local texture map that can override the one owned by the model.
   // This way, every instance can have different textures.
   this.textureMap = {};
+    
+  if (textureMap) {
+    var keys = Object.keys(textureMap);
+    
+    for (var i = 0, l = keys.length; i < l; i++) {
+      var key = keys[i];
+      
+      this.overrideTexture(key, textureMap[key]);
+    }
+  }
   
   // A queue of actions that were issued before the internal instance loaded, but require it to be loaded in order to run.
   // This queue will run automatically when the instance finishes loading.
@@ -54,6 +67,8 @@ ModelInstance.prototype = {
     }
     
     this.recalculate();
+    
+    onload(this);
   },
   
   update: function () {
@@ -63,7 +78,7 @@ ModelInstance.prototype = {
   },
   
   render: function (allowTeamColors) {
-    if (this.ready) {
+    if (this.ready && this.visible) {
       this.instance.render(this, allowTeamColors);
     }
   },
@@ -93,19 +108,25 @@ ModelInstance.prototype = {
   overrideTexture: function (path, newpath) {
     var source;
     
-    path = path.toLowerCase();
-    newpath = newpath.toLowerCase();
-    
-    // Parse the source as an absolute path, an MPQ path, or an ID
-    if (newpath.startsWith("http://")) {
-      source = newpath;
-    } else if (newpath.match(/\.(?:mdx|m3|blp|dds)$/)) {
-      source = urls.mpqFile(newpath);
+    if (newpath) {
+      path = path.toLowerCase();
+      newpath = newpath.toLowerCase();
+      
+      // Parse the source as an absolute path, an MPQ path, or an ID
+      if (newpath.startsWith("http://")) {
+        source = newpath;
+      } else if (newpath.match(/\.(?:mdx|m3|blp|dds)$/)) {
+        source = urls.mpqFile(newpath);
+      } else {
+        source = urls.customTexture(newpath);
+      }
+      
+      this.textureMap[path] = gl.newTexture(newpath, source);
     } else {
-      source = urls.customTexture(newpath);
+      // This can't be set to null, because then it wont be picked as an override when the models check the instance texture map.
+      // Instead it is set to -1, and the texture binder sets the texture to null if it's equal to -1 (see before.js).
+      this.textureMap[path] = -1;
     }
-    
-    this.textureMap[path] = gl.newTexture(newpath, source);
   },
   
   getTextureMap: function () {
@@ -295,9 +316,14 @@ ModelInstance.prototype = {
     return [];
   },
   
+  setVisibility: function (b) {
+    this.visible = b;
+  },
+  
   getInfo: function () {
     return {
       modelInfo: this.model.getInfo(),
+      visible: this.visible,
       sequence: this.getSequence(),
       sequenceLoopMode: this.getSequenceLoopMode(),
       location: this.getLocation(),
@@ -324,6 +350,7 @@ ModelInstance.prototype = {
     return [
       1, // 0 for Model, 1 for ModelInstance
       this.model.id,
+      this.visible,
       this.sequence,
       this.sequenceLoopMode,
       this.location,
@@ -331,18 +358,20 @@ ModelInstance.prototype = {
       scale,
       this.parentId,
       this.attachment,
-      this.teamColor
+      this.teamColor,
+      this.textureMap
     ];
   },
   
   fromJSON: function (object) {
-    this.setSequence(object[2]);
-    this.setSequenceLoopMode(object[3]);
-    this.setLocation(object[4]);
-    this.setRotation(object[5]);
-    this.setScale(object[6]);
+    this.visible = object[2];
+    this.setSequence(object[3]);
+    this.setSequenceLoopMode(object[4]);
+    this.setLocation(object[5]);
+    this.setRotation(object[6]);
+    this.setScale(object[7]);
     // This can't be used from inside ModelInstance, because it requires external knowledge (the instance cache).
-    //this.setParent(object[7], object[8]);
-    this.setTeamColor(object[9]);
+    //this.setParent(object[8], object[9]);
+    this.setTeamColor(object[10]);
   }
 };

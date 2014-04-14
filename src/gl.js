@@ -435,6 +435,10 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
       if (onload) {
         onload(this);
       }
+    },
+    
+    toJSON: function () {
+      return this.source;
     }
   };
   
@@ -557,8 +561,6 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     return textureStore[name];
   }
   
-  var blarg = false;
-  
   function bindTexture(object, unit) {
     var finalTexture;
     
@@ -582,7 +584,7 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
       
       gl["activeTexture"](gl["TEXTURE" + unit]);
       gl["bindTexture"](gl["TEXTURE_2D"], null);
-    } else if (!boundTextures[unit] || boundTextures[unit].name !== finalTexture.name) {
+    } else if (true) {//!boundTextures[unit] || boundTextures[unit].name !== finalTexture.name) {
       boundTextures[unit] = finalTexture;
       
       gl["activeTexture"](gl["TEXTURE" + unit]);

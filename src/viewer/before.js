@@ -22,13 +22,13 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
         }
       }
     } else {
-      console.log("What?");
+      console.log("onloadstart", "What?");
     }
   }
   
   function onload(object) {
      if (object.isModel) {
-       sendMessage({type: "load", objectType: "model", source: object.source, progress: 1});
+       sendMessage({type: "load", objectType: "model", source: object.source, id: object.id, progress: 1});
     } else if (object.isTexture) {
       var path = object.name;
       
@@ -40,8 +40,10 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
           sendMessage({type: "load", objectType: "texture", source: path, progress: 1});
         }
       }
+    } else if (object.isInstance) {
+      sendMessage({type: "load", objectType: "instance", source: object.source, id: object.id, progress: 1});
     } else {
-      console.log("What?");
+      console.log("onload", "What?");
     }
   }
   
@@ -77,7 +79,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
         }
       }
     } else {
-      console.log("What?");
+      console.log("onprogress", "What?");
+      console.log(object);
     }
   }
   
@@ -156,6 +159,11 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
   
   function bindTexture(glTexture, unit, textureMap) {
     var texture = glTexture;
+    
+    // Set in ModelInstance.overrideTexture if given a null texture (used for None)
+    if (texture === -1) {
+      texture = null;
+    }
     
     if (texture && textureMap[texture.name]) {
       texture = textureMap[texture.name];

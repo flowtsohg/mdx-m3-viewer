@@ -111,7 +111,7 @@ StandardMaterial.prototype = {
     this.layers[5].bind(6, sequence, frame, textureMap);
   },
   
-  bindDecal: function (sequence, fram, textureMape) {
+  bindDecal: function (sequence, frame, textureMape) {
     this.bindCommon();
     
     this.layers[1].bind(2, sequence, frame, textureMap);

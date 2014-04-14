@@ -29,6 +29,7 @@ function Skeleton(model) {
   ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MAG_FILTER, ctx.NEAREST);
   ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MIN_FILTER, ctx.NEAREST);
   ctx.bindTexture(ctx.TEXTURE_2D, null);
+  gl.bindTexture(null, 1);
 }
 
 Skeleton.prototype = {

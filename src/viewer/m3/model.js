@@ -5,7 +5,9 @@ function Model(parser, textureMap) {
   var div = parser.divisions[0];
   var uvSetCount = parser.uvSetCount;
   var regions = div.regions;
+  var tokens = parser.name.split(/[\/\\]/);
   
+  this.name = tokens[tokens.length - 1];
   this.uvSetCount = uvSetCount;
   this.regions = [];
   

@@ -3,6 +3,7 @@
 function Model(parser, textureMap) {
   var objects, i, l, j, k;
   
+  this.name = parser.modelChunk.name;
   this.sequences = [];
   this.textures = [];
   
