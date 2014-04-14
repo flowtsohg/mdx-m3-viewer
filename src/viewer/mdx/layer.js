@@ -24,52 +24,42 @@ function Layer(layer, geosetId, model) {
 
 Layer.prototype = {
   setMaterial: function () {
-    switch (this.filterMode) {
-      case 1:
-        gl.setParameter("u_type", [1, 0, 0]);
-        
-        ctx.depthMask(1);
-        ctx.disable(ctx.BLEND);
+    var filterMode = this.filterMode;
+    
+    if (filterMode === 1) {
+      gl.setParameter("u_type", [1, 0, 0]);
       
-        break;
-      case 2:
-        gl.setParameter("u_type", [0, 0, 0]);
-        
-        ctx.depthMask(0);
-        ctx.enable(ctx.BLEND);
-        ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
-        
-        break;
-      case 3:
-        gl.setParameter("u_type", [0, 1, 0]);
-        
-        ctx.enable(ctx.BLEND);
-        ctx.depthMask(0);
-        ctx.blendFunc(ctx.SRC_COLOR, ctx.ONE);
-        
-        break;
-      case 4:
-        gl.setParameter("u_type", [0, 0, 0]);
-        
-        ctx.depthMask(0);
-        ctx.enable(ctx.BLEND);
-        ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
-        
-        break;
-      case 5:
-      case 6:
-        gl.setParameter("u_type", [0, 0, 1]);
-        
-        ctx.depthMask(0);
-        ctx.enable(ctx.BLEND);
-        ctx.blendFunc(ctx.SRC_ZERO, ctx.SRC_COLOR);
-        
-        break;
-      default:
-        gl.setParameter("u_type", [0, 0, 0]);
-        
-        ctx.depthMask(1);
-        ctx.disable(ctx.BLEND);
+      ctx.depthMask(1);
+      ctx.disable(ctx.BLEND);
+    } else if (filterMode === 2) {
+      gl.setParameter("u_type", [0, 0, 0]);
+      
+      ctx.depthMask(0);
+      ctx.enable(ctx.BLEND);
+      ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
+    } else if (filterMode === 3) {
+      gl.setParameter("u_type", [0, 1, 0]);
+      
+      ctx.enable(ctx.BLEND);
+      ctx.depthMask(0);
+      ctx.blendFunc(ctx.SRC_COLOR, ctx.ONE);
+    } else if (filterMode === 4) {
+      gl.setParameter("u_type", [0, 0, 0]);
+      
+      ctx.depthMask(0);
+      ctx.enable(ctx.BLEND);
+      ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
+    } else if (filterMode === 5 || filterMode === 6) {
+      gl.setParameter("u_type", [0, 0, 1]);
+      
+      ctx.depthMask(0);
+      ctx.enable(ctx.BLEND);
+      ctx.blendFunc(ctx.SRC_ZERO, ctx.SRC_COLOR);
+    } else {
+      gl.setParameter("u_type", [0, 0, 0]);
+      
+      ctx.depthMask(1);
+      ctx.disable(ctx.BLEND);
     }
     
     if (this.twoSided) {

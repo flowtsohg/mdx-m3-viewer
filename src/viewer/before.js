@@ -47,15 +47,23 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
     }
   }
   
-  function onerror(object, e) {
-    var reason = e.reason;
+  function onerror(object, error) {
+    var type, source;
     
-    if (reason === "WebGLContext" || reason === "VertexTexture" || reason === "FloatTexture" || reason === "CompressedTextures") {
-      sendMessage({type: "error", objectType: "webglcontext", reason: reason});
+    if (object.isTexture) {
+      type = "texture";
+      source = object.name;
+    } else if (object.isModel) {
+      type = "model";
+      source = object.source;
+    } else if (object.isGL) {
+      type = "webglcontext";
+      source = "";
+    } else {
+      console.log("onerror", "What?");
     }
     
-    //console.log(object);
-    //console.log(e);
+    sendMessage({type: "error", objectType: type, source: source, error: error});
   }
   
   function onprogress(object, e) {

@@ -112,16 +112,7 @@ ModelInstance.prototype = {
       path = path.toLowerCase();
       newpath = newpath.toLowerCase();
       
-      // Parse the source as an absolute path, an MPQ path, or an ID
-      if (newpath.startsWith("http://")) {
-        source = newpath;
-      } else if (newpath.match(/\.(?:mdx|m3|blp|dds)$/)) {
-        source = urls.mpqFile(newpath);
-      } else {
-        source = urls.customTexture(newpath);
-      }
-      
-      this.textureMap[path] = gl.newTexture(newpath, source);
+      this.textureMap[path] = gl.newTexture(newpath, newpath);
     } else {
       // This can't be set to null, because then it wont be picked as an override when the models check the instance texture map.
       // Instead it is set to -1, and the texture binder sets the texture to null if it's equal to -1 (see before.js).
@@ -316,8 +307,8 @@ ModelInstance.prototype = {
     return [];
   },
   
-  setVisibility: function (b) {
-    this.visible = b;
+  setVisibility: function (isVisible) {
+    this.visible = isVisible;
   },
   
   getInfo: function () {

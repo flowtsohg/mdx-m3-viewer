@@ -28,29 +28,21 @@ function Texture(texture, textureMap) {
   
   if (textureMap[path]) {
     path = textureMap[path];
+  } else {
+    path = urls.mpqFile(path);
   }
   
   // This can be the original source, or a source overrided by the texture map
   this.path = path;
   
-  this.glTexture = gl.newTexture(this.source, urls.mpqFile(path));
+  this.glTexture = gl.newTexture(this.source, path);
 }
 
 Texture.prototype = {
-  overrideTexture: function (source) {
+  overrideTexture: function (path) {
     var path;
     
-    this.path = source;
-    
-    // Parse the source as an absolute path, an MPQ path, or an ID
-    if (source.startsWith("http://")) {
-      path = source;
-    } else if (source.match(/\.(?:mdx|m3|blp|dds)$/)) {
-      path = urls.mpqFile(source);
-    } else {
-      path = urls.customTexture(source);
-    }
-    
+    this.path = path;
     this.glTexture = gl.newTexture(this.source, path);
   }
 };

@@ -293,7 +293,7 @@ var Parser = (function () {
     this["flags"] = readUint32(reader);
 	
     if (this.inclusiveSize > 12) {
-      read(reader, 4) // LAYS
+      read(reader, 4); // LAYS
       this.layers = parseCountChunk(reader, readUint32(reader), Layer);
     }
   }

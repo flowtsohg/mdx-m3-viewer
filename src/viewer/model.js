@@ -1,6 +1,4 @@
 function Model(source, id, textureMap) {
-  var path;
-  
   this.isModel = true;
   this.id = id;
   
@@ -13,49 +11,12 @@ function Model(source, id, textureMap) {
   // Holds a list of instances that were created before the internal model finished loading
   this.queue = [];
   
-  // Parse the source as an absolute path, an MPQ path, or an ID
-  if (source.startsWith("http://")) {
-    path = source;
-    getFile(path, true, this.setup, onerrorwrapper, onprogresswrapper, this);
-  } else if (source.match(/\.(?:mdx|m3|blp|dds)$/)) {
-    path = urls.mpqFile(source);
-    getFile(path, true, this.setup, onerrorwrapper, onprogresswrapper, this);
-  } else {
-    path = urls.customModel(source);
-    // Load the custom texturs header to override the needed textures
-    getFile(urls.thread(source), false, this.setupId, onerrorwrapper, onprogresswrapper, this);
-  }
+  getFile(source, true, this.setup, onerrorwrapper, onprogresswrapper, this);
   
   onloadstart(this);
 }
 
 Model.prototype = {
-  setupId: function (e) {
-    var i, l;
-    var object = JSON.parse(e.target.responseText);
-    var model;
-    var keys = Object.keys(object.textures);
-    
-    for (i = 0, l = object.models.length; i < l; i++) {
-      if (!object.models[i].url.endsWith("portrait.mdx")) {
-        model = object.models[i];
-      }
-    }
-    
-    for (i = 0, l = keys.length; i < l; i++) {
-      var key = keys[i];
-      var texture = object.textures[key];
-      
-      if (key.endsWith("dds") && gl.hasCompressedTextures) {
-        this.textureMap[key] = texture.url;
-      } else {
-        this.textureMap[key] = texture.url_png;
-      }
-    }
-    
-    getFile(model.url, true, this.setup, onerrorwrapper, onprogresswrapper, this);
-  },
-  
   setup: function (e) {
     var reader = new BinaryReader(e.target.response);
     var tag = peek(reader, 4);

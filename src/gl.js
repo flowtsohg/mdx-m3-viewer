@@ -15,7 +15,7 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   }
   
   if (!gl) {
-    unboundonerror(this, {reason: "WebGLContext"});
+    unboundonerror({isGL: true}, "WebGLContext");
     return;
   }
   
@@ -25,17 +25,17 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   var hasCompressedTextures = !!compressedTextures;
   
   if (!hasVertexTexture) {
-    unboundonerror(this, {reason: "VertexTexture"});
+    unboundonerror({isGL: true}, "VertexTexture");
     return;
   }
   
   if (!hasFloatTexture) {
-    unboundonerror(this, {reason: "FloatTexture"});
+    unboundonerror({isGL: true}, "FloatTexture");
     return;
   }
   
   if (!compressedTextures) {
-    unboundonerror(this, {reason: "CompressedTextures"});
+    unboundonerror({isGL: true}, "CompressedTextures");
   }
   
   var projectionMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
@@ -223,7 +223,7 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
       if (parameterMap) {
         var tokens = name.split(".");
         
-        name = parameterMap[tokens[0]]
+        name = parameterMap[tokens[0]];
         
         if (tokens[1]) {
           name += "." + memberMap[tokens[1]];
@@ -443,90 +443,92 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   };
   
   function onddsload(clampS, clampT, e) {
+    var status = e.target.status;
+    
+    if (status === 404) {
+      unboundonerror(this, "404");
+      return;
+    }
+    
     var arraybuffer = e.target.response;
     var header = new Int32Array(arraybuffer, 0, 31);
     var magic = header[0];
     
-    if (magic === 0x20534444) {
-      var headerSize = header[1];
-      var flags = header[2];
-      var height = header[3];
-      var width = header[4];
-      var mipmaps = header[7];
-      var fourCC = header[21];
-      
-      var dataOffset = headerSize + 4;
-      var blockSize;
-      var format;
-	  
-      if (fourCC === 0x31545844) {
-        blockSize = 8;
-        format = compressedTextures["COMPRESSED_RGBA_S3TC_DXT1_EXT"];
-      } else if (fourCC === 0x33545844) {
-        blockSize = 16;
-        format = compressedTextures["COMPRESSED_RGBA_S3TC_DXT3_EXT"];
-      } else if (fourCC === 0x35545844) {
-        blockSize = 16;
-        format = compressedTextures["COMPRESSED_RGBA_S3TC_DXT5_EXT"];
+    if (magic !== 0x20534444) {
+      unboundonerror(this, "FileType");
+      return;
+    }
+    
+    var headerSize = header[1];
+    var flags = header[2];
+    var height = header[3];
+    var width = header[4];
+    var mipmaps = header[7];
+    var fourCC = header[21];
+    
+    var dataOffset = headerSize + 4;
+    var blockSize;
+    var format;
+  
+    if (fourCC === 0x31545844) {
+      blockSize = 8;
+      format = compressedTextures["COMPRESSED_RGBA_S3TC_DXT1_EXT"];
+    } else if (fourCC === 0x33545844) {
+      blockSize = 16;
+      format = compressedTextures["COMPRESSED_RGBA_S3TC_DXT3_EXT"];
+    } else if (fourCC === 0x35545844) {
+      blockSize = 16;
+      format = compressedTextures["COMPRESSED_RGBA_S3TC_DXT5_EXT"];
+    }
+  
+    if (!format) {
+      unboundonerror(this, "CompressionType");
+      return;
+    }
+    
+    var mipmapsCount = Math.max(1, ((flags & 0x20000) ? mipmaps : 0));
+    
+    this.id = gl["createTexture"]();
+    
+    gl["bindTexture"](gl["TEXTURE_2D"], this.id);
+    
+    gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_WRAP_S"], clampS ? gl["CLAMP_TO_EDGE"] : gl["REPEAT"]);
+    gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_WRAP_T"], clampT ? gl["CLAMP_TO_EDGE"] : gl["REPEAT"]);
+    gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_MAG_FILTER"], gl["LINEAR"]);
+    //gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_MIN_FILTER"], (mipmapsCount > 1) ? gl["LINEAR_MIPMAP_LINEAR"] : gl["LINEAR"]); // For some reason causes a WebGL texture incomplete error
+                                                                                                                                                           // when using mipmapped linear filtering.
+                                                                                                                                                           // Probably need to enable some extension, maybe related to float texture filtering?
+    gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_MIN_FILTER"], gl["LINEAR"]);
+    
+    for (var i = 0, l = mipmapsCount; i < l; i++) {
+      // Anathema_diffuse.dds has 8 mipmap levels while the image size is 128x64 which means it can only have 6 mipmap levels.
+      if (width >= 2 && height >= 2) {
+        var dataSize = Math.max(4, width) / 4 * Math.max(4, height ) / 4 * blockSize;
+        var byteArray = new Uint8Array(arraybuffer, dataOffset, dataSize);
+        
+        gl["compressedTexImage2D"](gl["TEXTURE_2D"], i, format, width, height, 0, byteArray);
+        
+        dataOffset += dataSize;
+        width *= 0.5;
+        height *= 0.5;
       }
-	  
-      if (format) {
-        var mipmapsCount = Math.max(1, ((flags & 0x20000) ? mipmaps : 0));
-        
-        this.id = gl["createTexture"]();
-        
-        gl["bindTexture"](gl["TEXTURE_2D"], this.id);
-        
-        gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_WRAP_S"], clampS ? gl["CLAMP_TO_EDGE"] : gl["REPEAT"]);
-        gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_WRAP_T"], clampT ? gl["CLAMP_TO_EDGE"] : gl["REPEAT"]);
-        gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_MAG_FILTER"], gl["LINEAR"]);
-        //gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_MIN_FILTER"], (mipmapsCount > 1) ? gl["LINEAR_MIPMAP_LINEAR"] : gl["LINEAR"]); // For some reason causes a WebGL texture incomplete error
-                                                                                                                                                               // when using mipmapped linear filtering.
-                                                                                                                                                               // Probably need to enable some extension, maybe related to float texture filtering?
-        gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_MIN_FILTER"], gl["LINEAR"]);
-        
-        for (var i = 0, l = mipmapsCount; i < l; i++) {
-          // Anathema_diffuse.dds has 8 mipmap levels while the image size is 128x64 which means it can only have 6 mipmap levels.
-          if (width >= 2 && height >= 2) {
-            var dataSize = Math.max(4, width) / 4 * Math.max(4, height ) / 4 * blockSize;
-            var byteArray = new Uint8Array(arraybuffer, dataOffset, dataSize);
-            
-            gl["compressedTexImage2D"](gl["TEXTURE_2D"], i, format, width, height, 0, byteArray);
-            
-            dataOffset += dataSize;
-            width *= 0.5;
-            height *= 0.5;
-          }
-        }
-        
-        gl["bindTexture"](gl["TEXTURE_2D"], null);
-        
-        this.ready = true;
-        
-        textureNameStore[this.name] = 1;
-        
-        if (onload) {
-          onload(this);
-        }
-      } else {
-        console.warn(name + " is using a compression type that is not supported (supported types: DXT1, DXT3, DXT5)");
-        
-        //if (typeof onerror === "function") {
-          //onerror(this);
-        //}
-      }
-    } else {
-      console.warn(name + " is not a valid DDS file");
-      
-      //if (typeof onerror === "function") {
-       // onerror(this);
-      //}
+    }
+    
+    gl["bindTexture"](gl["TEXTURE_2D"], null);
+    
+    this.ready = true;
+    
+    textureNameStore[this.name] = 1;
+    
+    if (onload) {
+      onload(this);
     }
   }
     
   function DDSTexture(name, source, clampS, clampT) {
     this.isTexture = true;
     this.name = name;
+    this.source = source;
     
     if (onloadstart) {
       onloadstart(this);
@@ -547,11 +549,11 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   
   var extRegexp = /(?:\.([^.]+))?$/;
   
-  function newTexture(name, source, clampS, clampT, forcePNG) {
+  function newTexture(name, source, clampS, clampT) {
     if (!textureStore[name]) {
       var ext = extRegexp.exec(source)[1] || extRegexp.exec(name)[1];
       
-      if (ext && ext.toLowerCase() === "dds" && !forcePNG) {
+      if (ext && ext.toLowerCase() === "dds" && hasCompressedTextures) {
          textureStore[name] = new DDSTexture(name, source, clampS, clampT);
       } else {
         textureStore[name] = new Texture(name, source, clampS, clampT);

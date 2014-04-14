@@ -87,7 +87,7 @@ var Parser = (function () {
     seek(reader, offset);
     
     return entry;
-  };
+  }
 
   function parseReference(reader, indexEntries, Func) {
     var reference = new Reference(reader);
@@ -109,7 +109,7 @@ var Parser = (function () {
     seek(reader, offset);
     
     return entries;
-  };
+  }
   
   function parseReferenceByVal(reader, indexEntries, Func) {
     var reference = new Reference(reader);
@@ -126,7 +126,7 @@ var Parser = (function () {
     seek(reader, offset);
     
     return entries;
-  };
+  }
   
   function parseSeqeunceData(reader, indexEntries, Func) {
     var reference = new Reference(reader);
@@ -185,7 +185,7 @@ var Parser = (function () {
     this.nullValue = Func(reader);
     this.unknown0 = readInt32(reader);
   }
-  /*
+  
   function TMD(reader, indexEntries, version) {
     this.version = version;
   }
@@ -205,13 +205,13 @@ var Parser = (function () {
     this.unknown1 = parseReferenceByVal(reader, indexEntries, readUint16);
     this.size = readVector3(reader);
   }
-  */
+  
   function BoundingShape(reader) {
     this.shape = readUint32(reader); // 0: cube
                                                       // 1: sphere
                                                       // 2: cylinder
     this.bone = readInt16(reader);
-    this.unknown0 = readUint16(reader)
+    this.unknown0 = readUint16(reader);
     this.matrix = readMatrix(reader);
     this.unknown1 = readUint32(reader);
     this.unknown2 = readUint32(reader);
@@ -221,7 +221,7 @@ var Parser = (function () {
     this.unknown6 = readUint32(reader);
     this.size = readVector3(reader);
   }
-  /*
+  
   function TRGD(reader, indexEntries, version) {
     this.version = version;
     this.unknown0 = parseReferenceByVal(reader, indexEntries, readUint32);
@@ -556,8 +556,7 @@ var Parser = (function () {
     this.unknown40 = new AnimationReference(reader, readFloat32); 
     this.unknown41 = new AnimationReference(reader, readFloat32); 
   }
-  */
-  /*
+  
   function ParticleEmitterCopy(reader, indexEntries, version) {
     this.version = version;
     this.emissionRate = new AnimationReference(reader, readFloat32);
@@ -775,7 +774,7 @@ var Parser = (function () {
     this.usedModel = parseReferenceString(reader, indexEntries);
     this.copyIndices = parseReferenceByVal(reader, indexEntries, readUint32);
   }
-  */
+  
   function Layer(reader, indexEntries, version) {
     this.version = version;
     this.unknown0 = readUint32(reader);

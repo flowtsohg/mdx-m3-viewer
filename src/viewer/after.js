@@ -220,7 +220,7 @@
     modelInstanceCache.push(instance);
   }
   
-  function loadResourceThread(e) {
+  function loadResourceFromId(e) {
     var i, l;
     var object = JSON.parse(e.target.responseText);
     console.log(object);
@@ -242,20 +242,6 @@
   
     for (i = 0, l = object.models.length; i < l; i++) {
       loadResourceImpl(object.models[i].url, textureMap);
-    }
-  }
-  
-  // ---------------------
-  // Model loading API
-  // ---------------------
-  
-  function loadResource(source) {
-    if (source.startsWith("http://")) {
-      loadResourceImpl(source);
-    } else if (source.match(/\.(?:mdx|m3|blp|dds)$/)) {
-      loadResourceImpl(urls.mpqFile(source));
-    } else {
-      getFile(urls.thread(source), false, loadResourceThread);//onerrorwrapper, onprogresswrapper);
     }
   }
   
@@ -308,16 +294,35 @@
     return null;
   }
   
+  // ---------------------
+  // Model loading API
+  // ---------------------
+  
+  // Load a resource from a given source.
+  // The source caan be an absolute path to a MDX/M3 file, a path to a MDX/M3 file in any of the Warcraft 3 and Starcraft 2 MPQs, or a resource thread ID used by the Hiveworkshop
+  // If loading from a resource thread, every model and texture in the resource thread will be loaded.
+  function loadResource(source) {
+    if (source.startsWith("http://")) {
+      loadResourceImpl(source);
+    } else if (source.match(/\.(?:mdx|m3|blp|dds)$/)) {
+      loadResourceImpl(urls.mpqFile(source));
+    } else {
+      getFile(urls.header(source), false, loadResourceFromId);//onerrorwrapper, onprogresswrapper);
+    }
+  }
+  
+  
+  
   // ------------------
   // Instance misc
   // ------------------
   
   // Shows or hides an instance.
-  function setVisibility(objectId, b) {
+  function setVisibility(objectId, isVisible) {
     var object = modelInstanceCache[objectId];
     
     if (object && object.isInstance) {
-      object.setVisibility(b);
+      object.setVisibility(isVisible);
     }
   }
   
@@ -424,7 +429,7 @@
   }
   
   // Get the parent of an instance as an array.
-  // The first index is the parent ID, the second, if exists, is the attachment ID.
+  // The first index is the parent ID, the second is the attachment ID.
   function getParent(objectId) {
     var object = modelInstanceCache[objectId];
     
@@ -479,7 +484,7 @@
   // Sequences
   // ------------
   
-  // Set the animation of an instance.
+  // Set the sequence of an instance.
   function setSequence(objectId, sequenceId) {
     var object = modelInstanceCache[objectId];
     
@@ -488,8 +493,8 @@
     }
   }
   
-  // Stop the animation of an instance.
-  // Equivalent to playAnimation with animation ID -1.
+  // Stop the sequence of an instance.
+  // Equivalent to setSequence with sequence ID -1.
   function stopSequence(objectId) {
     var object = modelInstanceCache[objectId];
     
@@ -507,7 +512,7 @@
     }
   }
   
-  // Sets the animation loop mode of an instance.
+  // Sets the sequence loop mode of an instance.
   // Possible values are 0 for default, 1 for never, and 2 for always.
   function setSequenceLoopMode(objectId, mode) {
     var object = modelInstanceCache[objectId];
@@ -517,7 +522,7 @@
     }
   }
   
-  // Gets the animation loop mode of an instance.
+  // Get the sequence loop mode of an instance.
   function getSequenceLoopMode(objectId) {
     var object = modelInstanceCache[objectId];
     
@@ -575,8 +580,9 @@
     }
   }
   
-  // Get a list of the sequences owned by a model.
-  // Returns null if the object ID is invalid or not a model, or if the model didn't finish loading.
+  // Get a list of the sequences owned by an object.
+  // Proxies to the owning model if the given object is an instance.
+  // Returns null if the object ID is invalid, or if the model didn't finish loading.
   function getSequences(objectId) {
     var object = modelInstanceCache[objectId];
     
@@ -585,8 +591,9 @@
     }
   }
   
-  // Get a list of the attachment points owned by a model.
-  // Returns null if the object ID is invalid or not a model, or if the model didn't finish loading.
+  // Get a list of the attachment points owned by an object.
+  // Proxies to the owning model if the given object is an instance.
+  // Returns null if the object ID is invalid, or if the model didn't finish loading.
   function getAttachments(objectId) {
     var object = modelInstanceCache[objectId];
     
@@ -595,8 +602,9 @@
     }
   }
   
-  // Get a list of the cameras owned by a model.
-  // Returns null if the object ID is invalid or not a model, or if the model didn't finish loading.
+  // Get a list of the cameras owned by an object.
+  // Proxies to the owning model if the given object is an instance.
+  // Returns null if the object ID is invalid, or if the model didn't finish loading.
   function getCameras(objectId) {
      var object = modelInstanceCache[objectId];
     
@@ -632,7 +640,7 @@
     shouldRenderWorld = mode;
   }
   
-  // Shows or hides the bounding shapes on all the instances.
+  // Shows or hides the bounding shapes for all instances.
   function showBoundingShapes(b) {
     shouldRenderShapes = b;
   }
@@ -643,6 +651,7 @@
   }
   
   // Set the shader to be used for Starcraft 2 models.
+  // Set the shader to be used for Starcraft 2 models. Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `normal map`, 4 for `specular map`, 5 for `specular map + normal map`, 6 for `emissive`, 7 for `unshaded`, 8 for `unshaded + normal map`, and finally 9 for `decal`
   function setShader(id) {
     shaderToUse = id;
   }
@@ -719,6 +728,21 @@
     //console.log(worldRay);
   }
   
+  // Save the scene as a JSON string.
+  function saveScene() {
+    var data = [camera.m, camera.r, shouldRenderWorld, shouldRenderShapes & 1, shouldRenderTeamColors & 1, shaderToUse]
+    var objects = [];
+    
+    for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
+      objects.push(modelInstanceCache[i].toJSON());
+    }
+    
+    data.push(objects);
+    
+    return JSON.stringify(data);
+  }
+  
+  // Load a scene from a JSON string.
   function loadScene(scene) {
     // An array of the instance IDs that were loaded by these scene.
     var loadedInstances = [];
@@ -764,25 +788,10 @@
     
     return loadedInstances;
   }
-
-  function saveScene() {
-    var data = [camera.m, camera.r, shouldRenderWorld, shouldRenderShapes & 1, shouldRenderTeamColors & 1, shaderToUse]
-    var objects = [];
-    
-    for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
-      objects.push(modelInstanceCache[i].toJSON());
-    }
-    
-    data.push(objects);
-    
-    return JSON.stringify(data);
-  }
   
   return {
     // Model loading API
     loadResource: loadResource,
-    loadModel: loadModel,
-    loadInstance: loadInstance,
     // Instance misc
     setVisibility: setVisibility,
     // Transform API
@@ -826,7 +835,8 @@
     resetCamera: resetCamera,
     // Misc
     castRay: castRay,
-    loadScene: loadScene,
-    saveScene: saveScene
+    saveScene: saveScene,
+    loadScene: loadScene
+   
   };
 };

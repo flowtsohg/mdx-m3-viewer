@@ -41,13 +41,13 @@ function tell(reader) {
 }
 
 function read(reader, size) {
-  var data = [];
+  var i, data = [];
   
   if (remaining(reader) < size) {
     size = remaining(reader);
   }
   
-  for (var i = 0; i < size; i++) {
+  for (i = 0; i < size; i++) {
     data[i] = String.fromCharCode(String(reader.dataview.getUint8(reader.index + i)));
   }
   
@@ -57,13 +57,13 @@ function read(reader, size) {
 }
 
 function peek(reader, size) {
-  var data = [];
+  var i, data = [];
   
   if (remaining(reader) < size) {
     size = remaining(reader);
   }
   
-  for (var i = 0; i < size; i++) {
+  for (i = 0; i < size; i++) {
     data[i] = String.fromCharCode(String(reader.dataview.getUint8(reader.index + i)));
   }
 
@@ -79,9 +79,9 @@ function readTypedNumber(reader, type) {
 }
 
 function readTypedArray(reader, count, type) {
-  var data = [];
+  var i, data = [];
   
-  for (var i = 0; i < count; i++) {
+  for (i = 0; i < count; i++) {
     data[i] = readTypedNumber(reader, type);
   }
   
@@ -89,9 +89,9 @@ function readTypedArray(reader, count, type) {
 }
 
 function readTypedMatrix(reader, count, size, type) {
-  var data = [];
+  var i, data = [];
   
-  for (var i = 0; i < count; i++) {
+  for (i = 0; i < count; i++) {
     data[i] = readTypedArray(reader, size, type);
   }
   

@@ -38,7 +38,7 @@ function Layer(layer, type, op, model, textureMap) {
         
         if (overrided) {
           // Need a special argument to force PNG, since GL.newTexture only checks for the path extension, which is DDS either way.
-          texture = gl.newTexture(this.imagePath, imagePath, clampS, clampT, !gl.hasCompressedTextures);
+          texture = gl.newTexture(this.imagePath, imagePath, clampS, clampT);
         } else {
           texture = gl.newTexture(this.imagePath, urls.mpqFile(imagePath), clampS, clampT);
         }

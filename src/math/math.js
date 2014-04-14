@@ -5,7 +5,7 @@ var TORAD = Math.PI / 180;
 var TODEG = 180 / Math.PI;
 
 function floatPrecision(number, decimals) {
-  if (arguments.length == 1) {
+  if (arguments.length === 1) {
     return Math.round(number);
   }
   

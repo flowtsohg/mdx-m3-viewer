@@ -124,7 +124,7 @@ var Mat4 = {
   setElement: function (m0, row, column, value) {
     m0[row + column * 4] = value;
   },
-  /*
+  
   makeZero: function (m0) {
     m0[0] = 0;
     m0[1] = 0;
@@ -145,7 +145,7 @@ var Mat4 = {
     
     return m0;
   },
-  */
+  
   makeIdentity: function (m0) {
     m0[0] = 1;
     m0[1] = 0;
@@ -166,7 +166,7 @@ var Mat4 = {
     
     return m0;
   },
-  /*
+  
   addMat: function (m0, m1, out) {
     out[0] = m0[0] + m1[0];
     out[1] = m0[1] + m1[1];
@@ -229,7 +229,7 @@ var Mat4 = {
     
     return out;
   },
-  */
+  
   multMat: function (m0, m1, out) {
     var a00 = m0[0], a10 = m0[1], a20 = m0[2], a30 = m0[3];
     var a01 = m0[4], a11 = m0[5], a21 = m0[6], a31 = m0[7];
@@ -263,7 +263,7 @@ var Mat4 = {
     
     return out;
   },
-  /*
+  
   transpose: function (m0, out) {
     if (out === m0) {
       var a10 = m0[1], a20 = m0[2], a30 = m0[3];
@@ -328,7 +328,7 @@ var Mat4 = {
 
     return (a0 * b5 - a1 * b4 + a2 * b3 + a3 * b2 - a4 * b1 + a5 * b0);
   },
-  */
+  
   invert: function (m0, out) {
     var m00 = m0[0], m10 = m0[1], m20 = m0[2], m30 = m0[3];
     var m01 = m0[4], m11 = m0[5], m21 = m0[6], m31 = m0[7];
@@ -375,27 +375,11 @@ var Mat4 = {
     
     return true;
   },
-  /*
+  
   equals: function (m0, m1) {
-    return m0.length === m1.length &&
-        m0[0] === m1[0] &&
-        m0[1] === m1[1] &&
-        m0[2] === m1[2] &&
-        m0[3] === m1[3] &&
-        m0[4] === m1[4] &&
-        m0[5] === m1[5] &&
-        m0[6] === m1[6] &&
-        m0[7] === m1[7] &&
-        m0[8] === m1[8] &&
-        m0[9] === m1[9] &&
-        m0[10] === m1[10] &&
-        m0[11] === m1[11] &&
-        m0[12] === m1[12] &&
-        m0[13] === m1[13] &&
-        m0[14] === m1[14] &&
-        m0[15] === m1[15];
+    return m0.length === m1.length && m0[0] === m1[0] && m0[1] === m1[1] && m0[2] === m1[2] && m0[3] === m1[3] && m0[4] === m1[4] && m0[5] === m1[5] && m0[6] === m1[6] && m0[7] === m1[7] && m0[8] === m1[8] && m0[9] === m1[9] && m0[10] === m1[10] && m0[11] === m1[11] && m0[12] === m1[12] && m0[13] === m1[13] && m0[14] === m1[14] && m0[15] === m1[15];
   },
-  */
+  
   makeTranslate: function (m0, x, y, z) {
     this.makeIdentity(m0);
     this.setColumnValues(m0, 3, x, y, z, 1);
@@ -415,23 +399,7 @@ var Mat4 = {
     var d = 1 - c;
     var s = Math.sin(angle);
 
-    this.setFromValues(m0,
-        ax * ax * d + c,
-        ax * ay * d + az * s,
-        ax * az * d - ay * s,
-        0,
-
-        ax * ay * d - az * s,
-        ay * ay * d + c,
-        ay * az * d + ax * s,
-        0,
-
-        ax * az * d + ay * s,
-        ay * az * d - ax * s,
-        az * az * d + c,
-        0,
-
-        0, 0, 0, 1);
+    this.setFromValues(m0, ax * ax * d + c, ax * ay * d + az * s, ax * az * d - ay * s, 0, ax * ay * d - az * s, ay * ay * d + c, ay * az * d + ax * s, 0, ax * az * d + ay * s, ay * az * d - ax * s, az * az * d + c, 0, 0, 0, 0, 1);
     
     return m0;
   },
@@ -440,12 +408,7 @@ var Mat4 = {
     var c = Math.cos(angle);
     var s = Math.sin(angle);
     
-    this.setFromValues(m0,
-      1, 0, 0, 0,
-      0, c, s, 0,
-      0, -s, c, 0,
-      0, 0, 0, 1
-    );
+    this.setFromValues(m0, 1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1);
     
     return m0;
   },
@@ -454,12 +417,7 @@ var Mat4 = {
     var c = Math.cos(angle);
     var s = Math.sin(angle);
     
-    this.setFromValues(m0,
-      c, 0, -s, 0,
-      0, 1, 0, 0,
-      s, 0, c, 0,
-      0, 0, 0, 1
-    );
+    this.setFromValues(m0, c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1);
     
     return m0;
   },
@@ -468,16 +426,11 @@ var Mat4 = {
     var c = Math.cos(angle);
     var s = Math.sin(angle);
     
-    this.setFromValues(m0,
-      c, s, 0, 0,
-      -s, c, 0, 0,
-      0, 0, 1, 0,
-      0, 0, 0, 1
-    );
+    this.setFromValues(m0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     
     return m0;
   },
-  /*
+  
   makeFrustum: function (m0, left, right, bottom, top, near, far) {
     var x = (2 * near) / (right - left);
     var y = (2 * near) / (top - bottom);
@@ -486,16 +439,11 @@ var Mat4 = {
     var c = -(far + near) / (far - near);
     var d = -(2 * far * near) / (far - near);
 
-    this.setFromValues(m0,
-        x, 0, 0, 0,
-        0, y, 0, 0,
-        a, b, c, -1,
-        0, 0, d, 0
-    );
+    this.setFromValues(m0, x, 0, 0, 0, 0, y, 0, 0, a, b, c, -1, 0, 0, d, 0);
     
     return m0;
   },
-  */
+  
   makePerspective: function (m0, fovy, aspect, near, far) {
     var angle = fovy / 2;
     var dz = far - near;
@@ -507,16 +455,11 @@ var Mat4 = {
 
     var cot = Math.cos(angle) / sinAngle;
     
-    this.setFromValues(m0,
-        cot / aspect, 0, 0, 0,
-        0, cot, 0, 0,
-        0, 0, -(far + near) / dz, -1,
-        0, 0, -(2 * near * far) / dz, 0
-    );
+    this.setFromValues(m0, cot / aspect, 0, 0, 0, 0, cot, 0, 0, 0, 0, -(far + near) / dz, -1, 0, 0, -(2 * near * far) / dz, 0);
     
     return m0;
   },
-  /*
+  
   makeOrtho: function (m0, left, right, bottom, top, near, far) {
     var x = 2 / (right - left);
     var y = 2 / (top - bottom);
@@ -525,16 +468,11 @@ var Mat4 = {
     var b = -(top + bottom) / (top - bottom);
     var c = -(far + near) / (far - near);
 
-    this.setFromValues(m0,
-        x, 0, 0, 0,
-        0, y, 0, 0,
-        0, 0, z, 0,
-        a, b, c, 1
-    );
+    this.setFromValues(m0, x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, a, b, c, 1);
     
     return m0;
   },
-  */
+  
   makeLookAt: function (m0, eye, center, up) {
     var fwdVec = [];
     var sideVec = [];
@@ -564,23 +502,13 @@ var Mat4 = {
   },
 
   translate: function (m0, x, y, z) {
-    this.setColumnValues(
-        m0, 3,
-        m0[0] * x + m0[4] * y + m0[8] * z + m0[12],
-        m0[1] * x + m0[5] * y + m0[9] * z + m0[13],
-        m0[2] * x + m0[6] * y + m0[10] * z + m0[14],
-        m0[3] * x + m0[7] * y + m0[11] * z + m0[15]);
+    this.setColumnValues( m0, 3, m0[0] * x + m0[4] * y + m0[8] * z + m0[12], m0[1] * x + m0[5] * y + m0[9] * z + m0[13], m0[2] * x + m0[6] * y + m0[10] * z + m0[14], m0[3] * x + m0[7] * y + m0[11] * z + m0[15]);
     
     return m0;
   },
 
   scale: function (m0, x, y, z) {
-    this.setFromValues(
-        m0,
-        m0[0] * x, m0[1] * x, m0[2] * x, m0[3] * x,
-        m0[4] * y, m0[5] * y, m0[6] * y, m0[7] * y,
-        m0[8] * z, m0[9] * z, m0[10] * z, m0[11] * z,
-        m0[12], m0[13], m0[14], m0[15]);
+    this.setFromValues(m0, m0[0] * x, m0[1] * x, m0[2] * x, m0[3] * x, m0[4] * y, m0[5] * y, m0[6] * y, m0[7] * y, m0[8] * z, m0[9] * z, m0[10] * z, m0[11] * z, m0[12], m0[13], m0[14], m0[15]);
     
     return m0;
   },
@@ -607,24 +535,7 @@ var Mat4 = {
     var r12 = y * z * diffCosAngle - x * sinAngle;
     var r22 = z * z * diffCosAngle + cosAngle;
 
-    this.setFromValues(
-        m0,
-        m00 * r00 + m01 * r10 + m02 * r20,
-        m10 * r00 + m11 * r10 + m12 * r20,
-        m20 * r00 + m21 * r10 + m22 * r20,
-        m30 * r00 + m31 * r10 + m32 * r20,
-
-        m00 * r01 + m01 * r11 + m02 * r21,
-        m10 * r01 + m11 * r11 + m12 * r21,
-        m20 * r01 + m21 * r11 + m22 * r21,
-        m30 * r01 + m31 * r11 + m32 * r21,
-
-        m00 * r02 + m01 * r12 + m02 * r22,
-        m10 * r02 + m11 * r12 + m12 * r22,
-        m20 * r02 + m21 * r12 + m22 * r22,
-        m30 * r02 + m31 * r12 + m32 * r22,
-
-        m03, m13, m23, m33);
+    this.setFromValues(m0, m00 * r00 + m01 * r10 + m02 * r20, m10 * r00 + m11 * r10 + m12 * r20, m20 * r00 + m21 * r10 + m22 * r20, m30 * r00 + m31 * r10 + m32 * r20, m00 * r01 + m01 * r11 + m02 * r21, m10 * r01 + m11 * r11 + m12 * r21, m20 * r01 + m21 * r11 + m22 * r21, m30 * r01 + m31 * r11 + m32 * r21, m00 * r02 + m01 * r12 + m02 * r22, m10 * r02 + m11 * r12 + m12 * r22, m20 * r02 + m21 * r12 + m22 * r22, m30 * r02 + m31 * r12 + m32 * r22, m03, m13, m23, m33);
 
     return m0;
   },
@@ -693,25 +604,7 @@ var Mat4 = {
     
     var invscale = [1 / scaleout[0], 1 / scaleout[1], 1 / scaleout[2]];
     
-    this.setFromValues(
-      m,
-    
-      m00 * invscale[0],
-      m10 * invscale[0],
-      m20 * invscale[0],
-      0,
-    
-      m01 * invscale[1],
-      m11 * invscale[1],
-      m21 * invscale[1],
-      0,
-    
-      m02 * invscale[2],
-      m12 * invscale[2],
-      m22 * invscale[2],
-      0,
-    
-      0, 0, 0, 1);
+    this.setFromValues(m, m00 * invscale[0], m10 * invscale[0], m20 * invscale[0], 0, m01 * invscale[1], m11 * invscale[1], m21 * invscale[1], 0, m02 * invscale[2], m12 * invscale[2], m22 * invscale[2], 0, 0, 0, 0, 1);
 
     Quaternion.fromRotationMatrix4(m, quaternionout);
     

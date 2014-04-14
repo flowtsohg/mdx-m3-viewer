@@ -6,6 +6,7 @@ function Model(parser, textureMap) {
   var uvSetCount = parser.uvSetCount;
   var regions = div.regions;
   var tokens = parser.name.split(/[\/\\]/);
+  var material;
   
   this.name = tokens[tokens.length - 1];
   this.uvSetCount = uvSetCount;
@@ -27,7 +28,7 @@ function Model(parser, textureMap) {
   
   // Create concrete material objects for standard materials
   for (i = 0, l = materials[0].length; i < l; i++) {
-    var material = materials[0][i];
+    material = materials[0][i];
     
     this.materials[1][i] = new StandardMaterial(material, this, textureMap);
   }
@@ -39,10 +40,7 @@ function Model(parser, textureMap) {
     var materialMap = materialMaps[batch.materialReferenceIndex];
     
     if (materialMap.materialType === 1) {
-      var region = this.regions[regionId];
-      var material = this.materials[1][materialMap.materialIndex];
-      
-      batches.push({region: region, material: material});
+      batches.push({region: this.regions[regionId], material: this.materials[1][materialMap.materialIndex]});
     }
   }
 
@@ -150,10 +148,11 @@ Model.prototype = {
     var i, l;
     var glbirth, glstand, gldeath;
     var stgs = this.stg;
+    var stg, name;
     
     for (i = 0, l = stgs.length; i < l; i++) {
-      var stg = stgs[i];
-      var name = stg.name.toLowerCase(); // Because obviously there will be a wrong case in some model...
+      stg = stgs[i];
+      name = stg.name.toLowerCase(); // Because obviously there will be a wrong case in some model...
       
       if (name === "glbirth") {
         glbirth = stg;
@@ -165,8 +164,8 @@ Model.prototype = {
     }
     
     for (i = 0, l = stgs.length; i < l; i++) {
-      var stg = stgs[i];
-      var name = stg.name.toLowerCase(); // Because obviously there will be a wrong case in some model...
+      stg = stgs[i];
+      name = stg.name.toLowerCase(); // Because obviously there will be a wrong case in some model...
       
       if (name !== "glbirth" && name !== "glstand" && name !== "gldeath") {
         if (name.indexOf("birth") !== -1 && glbirth) {

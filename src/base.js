@@ -23,21 +23,21 @@ String.repeat = function (pattern, count) {
 
 if (!window.requestAnimationFrame ) {
   window.requestAnimationFrame = (function() {
-    return window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback, element) { window.setTimeout(callback, 1000 / 60); };
-  })();
+    return window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) { window.setTimeout(callback, 1000 / 60); };
+  }());
 }
 
 function getHiddenProperty() {
-  var prefixes = ["webkit", "moz", "ms", "o"];
+  var i, property, prefixes = ["webkit", "moz", "ms", "o"];
 
-  if ("hidden" in document) {
+  if (document["hidden"]) {
     return "hidden";
   }
 
-  for (var i = 0; i < prefixes.length; i++) {
-    var property = prefixes[i] + "Hidden";
+  for (i = 0; i < 4; i++) {
+    property = prefixes[i] + "Hidden";
 
-    if (property in document) {
+    if (document[property]) {
       return property;
     }
   }
@@ -67,9 +67,10 @@ function getUrlVariables() {
   var urlMap = {};
   var searchstr = window.location.search.substring(1);
   var variables = searchstr.split("&");
-  
-  for (var i = 0, l = variables.length; i < l; i++){
-      var keyval = variables[i].split("=");
+  var i, l, keyval;
+    
+  for (i = 0, l = variables.length; i < l; i++){
+      keyval = variables[i].split("=");
       
       urlMap[keyval[0]] = keyval[1] || 1;
   }
@@ -80,9 +81,10 @@ function getUrlVariables() {
 function getDom() {
   var dom = {};
   var elements = document.getElementsByTagName("*");
+  var i, element;
     
-  for (var i = elements.length; i--;) {
-    var element = elements[i];
+  for (i = elements.length; i--;) {
+    element = elements[i];
     
     if (element.id) {
       dom[element.id] = element;
@@ -135,7 +137,7 @@ function addEvent(element, event, callback) {
   
   element.addEventListener(event, callback, false);
 }
-/*
+
 function removeEvent(element, event, callback) {
   if (event === "mousewheel") {
     element.removeEventListener("DOMMouseScroll", callback, false);
@@ -143,7 +145,7 @@ function removeEvent(element, event, callback) {
   
   element.removeEventListener(event, callback, false);
 }
-*/
+
 function preventEvent(event) {
   event.stopPropagation();
   event.preventDefault();
@@ -170,9 +172,10 @@ if (typeof String.prototype.startsWith != "function") {
 Object.copy = function (object) {
   var keys = Object.keys(object);
   var newObj = (object instanceof Array) ? [] : {};
-  
-  for (var i = 0, l = keys.length; i < l; i++) {
-    var key = keys[i];
+  var i, l, key;
+    
+  for (i = 0, l = keys.length; i < l; i++) {
+    key = keys[i];
     
     if (typeof key === "object") {
       newObj[key] = Object.copy(object[key]);
@@ -185,6 +188,8 @@ Object.copy = function (object) {
 };
 
 Array.equals = function (a, b) {
+  var i, l;
+  
     if (!a || !b) {
       return false;
     }
@@ -193,7 +198,7 @@ Array.equals = function (a, b) {
       return false;
     }
 
-    for (var i = 0, l = a.length; i < l; i++) {
+    for (i = 0, l = a.length; i < l; i++) {
         if (a[i] instanceof Array && b[i] instanceof Array) {
             if (!Array.equals(a[i], b[i])) {
               return false;
@@ -204,4 +209,4 @@ Array.equals = function (a, b) {
     }
     
     return true;
-}
+};
