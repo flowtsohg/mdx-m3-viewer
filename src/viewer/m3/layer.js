@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 function Layer(layer, type, op, model, textureMap) {
   this.imagePath = "";
   this.uniform = "u_" + type;

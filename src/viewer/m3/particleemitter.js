@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 function ParticleEmitter(particleEmitter, model) {
 	var i, l;
 	var keys = Object.keys(particleEmitter);

@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 function Skeleton(model) {
   var i, l;
   var pivots = model.pivots;

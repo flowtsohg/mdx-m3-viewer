@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 function BoundingShape(boundingshape) {
   this.bone = boundingshape.bone;
   this.matrix = boundingshape.matrix;

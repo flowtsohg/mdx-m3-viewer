@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 function CollisionShape(collisionshape) {
   this.node = collisionshape.node;
   

@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 function Model(parser, textureMap) {
   var i, l;
   var div = parser.divisions[0];

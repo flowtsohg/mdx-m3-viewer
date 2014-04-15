@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 function StandardMaterial(material, model, textureMap) {
   this.name = material.name;
   this.specialFlags = material.specialFlags;

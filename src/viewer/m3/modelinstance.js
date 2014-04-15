@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 function ModelInstance(model) {
   this.model = model;
   this.frame = 0;

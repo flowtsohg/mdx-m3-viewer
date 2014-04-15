@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   var gl;
   var identifiers = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];

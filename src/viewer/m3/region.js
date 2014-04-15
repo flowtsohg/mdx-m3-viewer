@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 function Region(region, vertices, triangles, boneLookup, uvSetCount) {
   var i, j;
   var verticesCount = region.verticesCount;

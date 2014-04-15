@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 function SD(tracks, model) {
   this.type = tracks.type;
   this.defval = tracks.defval;

@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 function Geoset(geoset) {
   var i, l, j, k;
   var positions = new Float32Array(geoset.vertexPositions);

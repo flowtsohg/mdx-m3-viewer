@@ -1,4 +1,3 @@
-
 function ModelInstance(model, id, textureMap) {
   this.isInstance = true;
   this.model = model;

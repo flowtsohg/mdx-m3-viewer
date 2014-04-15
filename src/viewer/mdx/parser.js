@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 var Parser = (function () {
   function readExtent(reader) {
     return {boundsRadius: readFloat32(reader), minimum: readVector3(reader), maximum: readVector3(reader)};

@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 var Parser = (function () {
   function readVector4As4Uint8(reader) {
     var values = readUint8Array(reader, 4);

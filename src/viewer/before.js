@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
   function sendMessage(e) {
     if (typeof onmessage === "function") {

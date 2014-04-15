@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 var replaceableIdToName = {
   1: "TeamColor/TeamColor00",
   2: "TeamGlow/TeamGlow00",

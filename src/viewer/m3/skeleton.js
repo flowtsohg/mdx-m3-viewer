@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 function ShallowBone (bone) {
   this.boneImpl = bone;
   this.parent = bone.parent;

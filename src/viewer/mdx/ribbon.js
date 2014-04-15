@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 function Ribbon(emitter, sequence, frame, counter) {
   this.alive = true;
   this.health = emitter.lifespan;

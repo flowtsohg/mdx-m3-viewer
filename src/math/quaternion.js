@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 var Quaternion = {
   create: Vec4.create,
   createFromArray: Vec4.createFromArray,

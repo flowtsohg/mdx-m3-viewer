@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 var Interpolator = (function () {
   function scalar(a, outTan, inTan, b, t, type) {
     if (type === 0) {

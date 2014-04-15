@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 function STC(stc) {
   var i, l;
   var animIds = stc.animIds;

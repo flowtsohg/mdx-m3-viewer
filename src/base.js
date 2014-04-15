@@ -1,25 +1,14 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
+function getFileName(source) {
+  var tokens = source.split("/");
+  
+  return tokens[tokens.length - 1];
+}
 
 if (typeof String.prototype.endsWith !== "function") {
   String.prototype.endsWith = function(suffix) {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
   };
 }
-
-String.repeat = function (pattern, count) {
-    var result = "";
-  
-    while (count > 0) {
-        if (count & 1) {
-          result += pattern;
-        }
-        
-        count >>= 1;
-        pattern += pattern;
-    }
-    
-    return result;
-};
 
 if (!window.requestAnimationFrame ) {
   window.requestAnimationFrame = (function() {

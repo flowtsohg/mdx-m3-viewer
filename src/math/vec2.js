@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 var Vec2 = {
   setFromValues: function (v0, x, y) {
     v0[0] = x;

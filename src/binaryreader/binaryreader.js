@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 function BinaryReader(buffer) {
   this.buffer = buffer;
   this.index = 0;

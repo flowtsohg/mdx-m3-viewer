@@ -23,7 +23,7 @@ Note: these examples are still using a very old version of this viewer, I will u
 `new ModelViewer(canvas, urls, onmessage, debugMode)`
 
 * `canvas` - A \<canvas> element. Required.
-* `urls` - An object containing methods that return proper urls to download files form. More on this below. Required.
+* `urls` - An object containing methods that return proper urls to download files from. More on this below. Required.
 * `onmessage` - A function callback. Gets messages from the viewer. Optional.
 * `debugMode` - If true, the viewer will log the Parser and Model structures. Optional.
 
@@ -36,7 +36,7 @@ If the client has the requierments to run the viewer, the API will be returned, 
 
 The API of the viewer is as follows:
 
-* `loadResource(source)` - Load a resource from a given source. The source caan be an absolute path to a MDX/M3 file, a path to a MDX/M3 file in any of the Warcraft 3 and Starcraft 2 MPQs, or a resource thread ID used by the Hiveworkshop. If loading from a resource thread, every model and texture in the resource thread will be loaded.
+* `loadResource(source)` - Load a resource from a given source. The source can be an absolute path to a MDX/M3/BLP/DDS/PNG file, a path to a MDX/M3/BLP/DDS/TGA file in any of the Warcraft 3 and Starcraft 2 MPQs, or a resource thread ID used by the Hiveworkshop. If loading from a resource thread, every model and texture in the resource thread will be loaded.
 * `setVisibility(objectId, isVisible)` - Shows or hides an instance.
 * `setLocation(objectId, v)` - Set the location of an instance.
 * `move(objectId, v)` - Move an instance.

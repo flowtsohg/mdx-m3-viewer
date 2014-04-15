@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 function Model(parser, textureMap) {
   var objects, i, l, j, k;
   

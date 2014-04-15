@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 function STG(stg, sts, stc) {
   this.name = stg.name;
   this.stcIndices = stg.stcIndices;

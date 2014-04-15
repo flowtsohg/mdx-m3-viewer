@@ -1,5 +1,3 @@
-// Copyright (c) 2013 Chananya Freiman (aka GhostWolf)
-
 var EPSILON = 1e-6;
 var TORAD = Math.PI / 180;
 var TODEG = 180 / Math.PI;
