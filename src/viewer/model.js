@@ -18,27 +18,33 @@ function Model(source, id, textureMap) {
 
 Model.prototype = {
   setup: function (e) {
-    var reader = new BinaryReader(e.target.response);
-    var tag = peek(reader, 4);
+    var status = e.target.status;
     
-    this.format = tag;
-    
-    if (tag == "MDLX") {
-      this.setupMdx(reader);
-    } else if (tag == "43DM") {
-      this.setupM3(reader);
-    } else {
-      console.warn("Tried to load a model from " + this.source + ", which is not a valid model file");
-    }
-    
-    if (this.ready) {
-      for (var i = 0, l = this.queue.length; i < l; i++) {
-        var action = this.queue[i];
-        
-        this[action[0]].apply(this, action[1]);
+    if (status === 200) {
+      var reader = new BinaryReader(e.target.response);
+      var tag = peek(reader, 4);
+      
+      this.format = tag;
+      
+      if (tag == "MDLX") {
+        this.setupMdx(reader);
+      } else if (tag == "43DM") {
+        this.setupM3(reader);
+      } else {
+        onerror(this, + "BadFormat");
       }
       
-      onload(this);
+      if (this.ready) {
+        for (var i = 0, l = this.queue.length; i < l; i++) {
+          var action = this.queue[i];
+          
+          this[action[0]].apply(this, action[1]);
+        }
+        
+        onload(this);
+      }
+    } else {
+      onerror(this, "" + status);
     }
   },
   

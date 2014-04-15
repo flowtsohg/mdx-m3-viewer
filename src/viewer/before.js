@@ -57,8 +57,15 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
     } else if (object.isGL) {
       type = "webglcontext";
       source = "";
+    } else if (object.isShader) {
+      type = "shader";
+      source = object.name;
     } else {
       console.log("onerror", "What?");
+    }
+    
+    if (typeof error !== "string") {
+      error = "NameResolve";
     }
     
     sendMessage({type: "error", objectType: type, source: source, error: error});

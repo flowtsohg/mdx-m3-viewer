@@ -123,11 +123,11 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     viewMatrix = matrixStack.pop();
   }
   
-  function newShaderUnit(source, type) {
+  function newShaderUnit(source, type, name) {
     var hash = String.hashCode(source);
     
     if (!shaderUnitStore[hash]) {
-      shaderUnitStore[hash] = new ShaderUnit(source, type);
+      shaderUnitStore[hash] = new ShaderUnit(source, type, name);
     }
     
     return shaderUnitStore[hash];
@@ -143,12 +143,14 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
       
       defines = defines.join("\n") + "\n";
       
-      var vertexUnit = newShaderUnit(defines + vertexSource, gl["VERTEX_SHADER"]);
-      var fragmentUnit = newShaderUnit(defines + fragmentSource, gl["FRAGMENT_SHADER"]);
+      var vertexUnit = newShaderUnit(defines + vertexSource, gl["VERTEX_SHADER"], name);
+      var fragmentUnit = newShaderUnit(defines + fragmentSource, gl["FRAGMENT_SHADER"], name);
       
       if (vertexUnit.ready && fragmentUnit.ready) {
         shaderStore[name] = new Shader(name, vertexUnit, fragmentUnit);
         shaderUniformStore[name] = {};
+      } else {
+        unboundonerror({isShader: true, name: name}, "Compile");
       }
     }
     
@@ -163,7 +165,7 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     return shaderStore[name] && shaderStore[name].ready;
   }
   
-  function ShaderUnit(source, type) {
+  function ShaderUnit(source, type, name) {
     var id = gl["createShader"](type);
     
     this.source = source;
@@ -176,8 +178,8 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     if (gl["getShaderParameter"](id, gl["COMPILE_STATUS"])) {
       this.ready = true;
     } else {
-      console.warn(gl["getShaderInfoLog"](id));
-      console.log(source);
+      console.warn(name, gl["getShaderInfoLog"](id));
+      //console.log(source);
     }
   }
   
@@ -188,17 +190,17 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     this.vertexUnit = vertexUnit;
     this.fragmentUnit = fragmentUnit;
     this.id = id;
-      
+    
     gl["attachShader"](id, vertexUnit.id);
     gl["attachShader"](id, fragmentUnit.id);
     gl["linkProgram"](id);
-  
+    
     if (gl["getProgramParameter"](id, gl["LINK_STATUS"])) {
       this.uniforms = this.getParameters("Uniform", "UNIFORMS");
       this.attribs = this.getParameters("Attrib", "ATTRIBUTES");
       this.ready = true;
     } else {
-      console.warn(gl["getProgramInfoLog"](id));
+      unboundonerror({isShader: true, name: name}, "Link");
     }
   }
   
@@ -545,13 +547,13 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   
   DDSTexture.prototype = Texture.prototype;
   
-  var extRegexp = /(?:\.([^.]+))?$/;
-  
   function newTexture(name, source, clampS, clampT) {
     if (!textureStore[name]) {
-      var ext = extRegexp.exec(source)[1] || extRegexp.exec(name)[1];
+      var nameExt = getFileExtension(name).toLowerCase();
+      var sourceExt = getFileExtension(source).toLowerCase();
+      var isDDS = nameExt === "dds" || sourceExt === "dds";
       
-      if (ext && ext.toLowerCase() === "dds" && hasCompressedTextures) {
+      if (isDDS && hasCompressedTextures) {
          textureStore[name] = new DDSTexture(name, source, clampS, clampT);
       } else {
         textureStore[name] = new Texture(name, source, clampS, clampT);

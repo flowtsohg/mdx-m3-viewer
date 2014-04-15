@@ -199,47 +199,57 @@
   addVisibilityListener(onVisibilityChange);
   
   function loadResourceImpl(source, textureMap) {
-    var id;
+    var ext = getFileExtension(source);
     
-    if (!modelCache[source]) {
+    if (ext === "mdx" || ext === "m3") {
+      var id;
+      
+      if (!modelCache[source]) {
+        id = modelInstanceCache.length;
+        
+        var model = new Model(source, id, textureMap);
+        
+        modelCache[source] = model;
+        
+        modelInstanceCache.push(model);
+      }
+      
       id = modelInstanceCache.length;
       
-      var model = new Model(source, id, textureMap);
+      var instance = new ModelInstance(modelCache[source], id);
       
-      modelCache[source] = model;
-      
-      modelInstanceCache.push(model);
+      modelInstanceCache.push(instance);
+    } else {
+      gl.newTexture(source, source);
     }
-    
-    id = modelInstanceCache.length;
-    
-    var instance = new ModelInstance(modelCache[source], id);
-    
-    modelInstanceCache.push(instance);
   }
   
   function loadResourceFromId(e) {
-    var i, l;
-    var object = JSON.parse(e.target.responseText);
-    console.log(object);
-    var keys = Object.keys(object.textures);
-    var textureMap = {};
+    var status = e.target.status;
     
-    for (i = 0, l = keys.length; i < l; i++) {
-      var key = keys[i];
-      var texture = object.textures[key];
+    if (status === 200) {
+      var i, l;
+      var object = JSON.parse(e.target.responseText);
+      console.log(object);
+      var keys = Object.keys(object.textures);
+      var textureMap = {};
       
-      if (key.endsWith("dds") && gl.hasCompressedTextures) {
-        textureMap[key] = texture.url;
-      } else {
-        textureMap[key] = texture.url_png;
+      for (i = 0, l = keys.length; i < l; i++) {
+        var key = keys[i];
+        var texture = object.textures[key];
+        
+        if (key.endsWith("dds") && gl.hasCompressedTextures) {
+          textureMap[key] = texture.url;
+        } else {
+          textureMap[key] = texture.url_png;
+        }
+        
+        gl.newTexture("assets/textures/" + key, textureMap[key]);
       }
-      
-      gl.newTexture("assets/textures/" + key, textureMap[key]);
-    }
-  
-    for (i = 0, l = object.models.length; i < l; i++) {
-      loadResourceImpl(object.models[i].url, textureMap);
+    
+      for (i = 0, l = object.models.length; i < l; i++) {
+        loadResourceImpl(object.models[i].url, textureMap);
+      }
     }
   }
   
@@ -302,7 +312,7 @@
   function loadResource(source) {
     if (source.startsWith("http://")) {
       loadResourceImpl(source);
-    } else if (source.match(/\.(?:mdx|m3|blp|dds)$/)) {
+    } else if (source.match(/\.(?:mdx|m3|blp|dds|tga|png)$/)) {
       loadResourceImpl(urls.mpqFile(source));
     } else {
       getFile(urls.header(source), false, loadResourceFromId);//onerrorwrapper, onprogresswrapper);
@@ -732,7 +742,9 @@
     var objects = [];
     
     for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
-      objects.push(modelInstanceCache[i].toJSON());
+      if (modelInstanceCache[i].ready) {
+        objects.push(modelInstanceCache[i].toJSON());
+      }
     }
     
     data.push(objects);

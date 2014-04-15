@@ -4,6 +4,13 @@ function getFileName(source) {
   return tokens[tokens.length - 1];
 }
 
+function getFileExtension(source) {
+  var tokens = source.split(".");
+  
+  return tokens[tokens.length - 1];
+}
+
+
 if (typeof String.prototype.endsWith !== "function") {
   String.prototype.endsWith = function(suffix) {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
