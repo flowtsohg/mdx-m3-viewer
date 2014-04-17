@@ -7,7 +7,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
   
   function onloadstart(object) {
     if (object.isModel) {
-      sendMessage({type: "loadstart", objectType: "model", source: object.source, progress: 0});
+      sendMessage({type: "loadstart", objectType: "model", source: object.source});
     } else if (object.isTexture) {
       var path = object.name;
       
@@ -16,7 +16,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
         var match = path.match(/(\d\d).blp/);
         
         if (!match || match[1] === "00") {
-          sendMessage({type: "loadstart", objectType: "texture", source: path, progress: 0});
+          sendMessage({type: "loadstart", objectType: "texture", source: path});
         }
       }
     } else {
@@ -26,7 +26,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
   
   function onload(object) {
      if (object.isModel) {
-       sendMessage({type: "load", objectType: "model", source: object.source, id: object.id, progress: 1});
+       sendMessage({type: "load", objectType: "model", source: object.source, id: object.id});
     } else if (object.isTexture) {
       var path = object.name;
       
@@ -35,11 +35,11 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
         var match = path.match(/(\d\d).blp/);
         
         if (!match || match[1] === "00") {
-          sendMessage({type: "load", objectType: "texture", source: path, progress: 1});
+          sendMessage({type: "load", objectType: "texture", source: path});
         }
       }
     } else if (object.isInstance) {
-      sendMessage({type: "load", objectType: "instance", source: object.source, id: object.id, progress: 1});
+      sendMessage({type: "load", objectType: "instance", source: object.source, id: object.id});
     } else {
       console.log("onload", "What?");
     }

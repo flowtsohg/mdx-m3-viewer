@@ -37,7 +37,8 @@ If the client has the requierments to run the viewer, the API will be returned, 
 The API of the viewer is as follows:
 
 * `loadResource(source)` - Load a resource from a given source. The source can be an absolute path to a MDX/M3/BLP/DDS/PNG file, a path to a MDX/M3/BLP/DDS/TGA file in any of the Warcraft 3 and Starcraft 2 MPQs, or a resource thread ID used by the Hiveworkshop. If loading from a resource thread, every model and texture in the resource thread will be loaded.
-* `setVisibility(objectId, isVisible)` - Shows or hides an instance.
+* `setVisibility(objectId, b)` - Shows or hides an instance.
+* `getVisibility(objectId)` - Get the visibility status if an instance.
 * `setLocation(objectId, v)` - Set the location of an instance.
 * `move(objectId, v)` - Move an instance.
 * `getLocation(objectId)` - Get the location of an instance.
@@ -65,9 +66,13 @@ The API of the viewer is as follows:
 * `getAttachments(objectId)` - Get a list of the attachment points owned by an object. Proxies to the owning model if the given object is an instance. Returns null if the object ID is invalid, or if the model didn't finish loading.
 * `getCameras(objectId)` - Get a list of the cameras owned by an object. Proxies to the owning model if the given object is an instance. Returns null if the object ID is invalid, or if the model didn't finish loading.
 * `setWorldMode(mode)` - Set the drawn world. Possible values are 0 for nothing, 1 for sky, 2 for sky and ground, and 3 for sky and water.
-* `showBoundingShapes(b)` - Shows or hides the bounding shapes for all instances.
-* `showTeamColors(b)` - Shows or hides team colors for all instances.
+* `getWorldMode(mode)` - Get the world mode.
+* `setBoundingShapesMode(b)` - Shows or hides the bounding shapes for all instances.
+* `getBoundingShapesMode()` - Get the bounding shapes mode.
+* `setTeamColors(b)` - Shows or hides team colors for all instances.
+* `getTeamColors()` - Get the team colors mode.
 * `setShader(id)` - Set the shader to be used for Starcraft 2 models. Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `normal map`, 4 for `specular map`, 5 for `specular map + normal map`, 6 for `emissive`, 7 for `unshaded`, 8 for `unshaded + normal map`, and finally 9 for `decal`.
+* `getShader()` - Get the shader used for Starcraft 2 models.
 * `panCamera(x, y)` - Pan the camera on the x and y axes.
 * `rotateCamera(x, y)` - Rotate the camera on the x and y axes.
 * `zoomCamera(x)` - Zoom the camera by a factor.

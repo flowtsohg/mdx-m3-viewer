@@ -38,9 +38,6 @@ function Region(region, vertices, triangles, boneLookup, uvSetCount) {
     data[k + 13] = boneLookup[firstBoneLookupIndex + boneLookupIndices[2]];
     data[k + 14] = boneLookup[firstBoneLookupIndex + boneLookupIndices[3]];
     
-    if (data[k + 11] === 0 || data[k + 12] === 0 || data[k + 13] === 0) {
-    console.log(i, [data[k + 11], data[k + 12], data[k + 13], data[k + 14]]);
-    }
     data[k + 15] = boneWeights[0];
     data[k + 16] = boneWeights[1];
     data[k + 17] = boneWeights[2];

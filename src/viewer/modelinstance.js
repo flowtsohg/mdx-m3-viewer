@@ -37,6 +37,12 @@ function ModelInstance(model, id, textureMap) {
   // This queue will run automatically when the instance finishes loading.
   this.queue = [];
   
+  // If the model is already ready, the onload message from setup() must be delayed, since this instance wouldn't be added to the cache yet.
+  // 
+  if (model.ready) {
+    this.delayOnload = true;
+  }
+  
   // Request the setup function to be called by the model when it can.
   // If the model is loaded, setup runs instantly, otherwise it runs when the model finishes loading.
   model.setupInstance(this);
@@ -67,7 +73,9 @@ ModelInstance.prototype = {
     
     this.recalculate();
     
-    onload(this);
+    if (!this.delayOnload) {
+      onload(this);
+    }
   },
   
   update: function () {
@@ -306,8 +314,12 @@ ModelInstance.prototype = {
     return [];
   },
   
-  setVisibility: function (isVisible) {
-    this.visible = isVisible;
+  setVisibility: function (b) {
+    this.visible = b;
+  },
+  
+  getVisibility: function () {
+    return this.visible;
   },
   
   getInfo: function () {

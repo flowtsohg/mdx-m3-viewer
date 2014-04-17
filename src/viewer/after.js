@@ -219,6 +219,10 @@
       var instance = new ModelInstance(modelCache[source], id);
       
       modelInstanceCache.push(instance);
+      
+      if (instance.delayOnload) {
+        onload(instance);
+      }
     } else {
       gl.newTexture(source, source);
     }
@@ -326,11 +330,20 @@
   // ------------------
   
   // Shows or hides an instance.
-  function setVisibility(objectId, isVisible) {
+  function setVisibility(objectId, b) {
     var object = modelInstanceCache[objectId];
     
     if (object && object.isInstance) {
-      object.setVisibility(isVisible);
+      object.setVisibility(b);
+    }
+  }
+  
+  // Get the visibility status if an instance.
+  function getVisibility(objectId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      object.getVisibility();
     }
   }
   
@@ -648,20 +661,40 @@
     shouldRenderWorld = mode;
   }
   
+  // Get the world mode.
+  function getWorldMode() {
+    return shouldRenderWorld;
+  }
+  
   // Shows or hides the bounding shapes for all instances.
-  function showBoundingShapes(b) {
+  function setBoundingShapesMode(b) {
     shouldRenderShapes = b;
   }
   
+  // Get the bounding shapes status.
+  function getBoundingShapesMode(b) {
+    return shouldRenderShapes;
+  }
+  
   // Shows or hides team colors for all instances.
-  function showTeamColors(b) {
+  function setTeamColorsMode(b) {
     shouldRenderTeamColors = b;
+  }
+  
+  // Get the team colors status
+  function getTeamColorsMode() {
+    return shouldRenderTeamColors
   }
   
   // Set the shader to be used for Starcraft 2 models.
   // Set the shader to be used for Starcraft 2 models. Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `normal map`, 4 for `specular map`, 5 for `specular map + normal map`, 6 for `emissive`, 7 for `unshaded`, 8 for `unshaded + normal map`, and finally 9 for `decal`
   function setShader(id) {
     shaderToUse = id;
+  }
+  
+  // Get the shader used for Starcraft 2 models.
+  function getShader() {
+    return shaderToUse;
   }
   
   // -------------------
@@ -740,10 +773,13 @@
   function saveScene() {
     var data = [camera.m, camera.r, shouldRenderWorld, shouldRenderShapes & 1, shouldRenderTeamColors & 1, shaderToUse]
     var objects = [];
+    var object;
     
     for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
-      if (modelInstanceCache[i].ready) {
-        objects.push(modelInstanceCache[i].toJSON());
+      object = modelInstanceCache[i];
+      
+      if (object.ready && object.visible) {
+        objects.push(object.toJSON());
       }
     }
     
@@ -804,6 +840,7 @@
     loadResource: loadResource,
     // Instance misc
     setVisibility: setVisibility,
+    getVisibility: getVisibility,
     // Transform API
     setLocation: setLocation,
     move: move,
@@ -835,9 +872,13 @@
     // General settings
     //applyCamera: applyCamera,
     setWorldMode: setWorldMode,
-    showBoundingShapes: showBoundingShapes,
-    showTeamColors: showTeamColors,
+    getWorldMode: getWorldMode,
+    setBoundingShapesMode: setBoundingShapesMode,
+    getBoundingShapesMode: getBoundingShapesMode,
+    setTeamColorsMode: setTeamColorsMode,
+    getTeamColorsMode: getTeamColorsMode,
     setShader: setShader,
+    getShader: getShader,
     // Camera settings
     panCamera: panCamera,
     rotateCamera: rotateCamera,
