@@ -96,6 +96,6 @@ The type can be one of:
 * `load` - a model, texture, or instance loaded successfully. In this case the `id` value will be set.
 * `error` - an error occured when loading a texture or a model, or an error occured with the WebGL context.
 
-The `objectType` value can be `model`, `texture`, `instance`, or for WebGL errors, `webglcontext` and `shader`.
-`source` is the originating source url that was used to create a model or a texture, or the name of a shader.
+The `objectType` value can be `model`, `texture`, `instance`, or for WebGL errors, `webglcontext`.
+`source` is the originating source url that was used to create a model or a texture.
 Finally, `error` is a short string describing the error that happened, if the message type was an error.
