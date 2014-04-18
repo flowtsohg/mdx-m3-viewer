@@ -88,12 +88,13 @@ Instances send a single event when they get loaded.
 Use the `onmessage` callback to keep track of everything.
 The messages are JavaScript objects of the form:
 
-`{type: type, objectType: objectType [, source: source, id: id, error: error, progress: progress])`.
+`{type: type, objectType: objectType, source: source [, id: id, error: error, progress: progress])`.
 
 The type can be one of:
 * `loadstart` - a model or a texture started loading.
 * `progress` - to keep track of the loading progress of a model or texture. In this case the `progress` value will be a value in the range `[0, 1]`.
-* `load` - a model, texture, or instance loaded successfully. In this case the `source` value will bet set, and if the object is a model or instance also the `id` value will be set.
+* `load` - a model, texture, or instance loaded successfully. If the object is a model or instance, the `id` value will be set.
 * `error` - an error occured when loading a texture or a model, or an error occured with the WebGL context. In this case, the `error` value will contain a short string that will tell what the error is.
 
 The `objectType` value can be `model`, `texture`, `instance`, or for WebGL errors, `webglcontext` and `shader`.
+The `source` value is the source string that generated the object (an url or name).
