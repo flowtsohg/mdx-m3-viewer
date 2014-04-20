@@ -113,17 +113,8 @@ RibbonEmitter.prototype = {
           layer.setMaterial();
           
           var textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
-          var texture = this.textures[textureId].glTexture;
           
-          if (!allowTeamColors) {
-            var textureName = texture.name;
-            
-            if (textureName === "replaceabletextures/teamcolor/teamcolor00.blp" || textureName === "replaceabletextures/teamglow/teamglow00.blp") {
-              texture = null;
-            }
-          }
-    
-          bindTexture(texture, 0, textureMap);
+          bindTexture(this.textures[textureId], 0, this.model.textureMap, textureMap);
           
           var color = getSDValue(sequence, frame, counter, this.sd.color, this.color);
           var alpha = getSDValue(sequence, frame, counter, this.sd.alpha, this.alpha);

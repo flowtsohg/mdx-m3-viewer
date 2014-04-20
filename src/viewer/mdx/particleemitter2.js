@@ -324,17 +324,7 @@ ParticleEmitter2.prototype = {
         ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
     }
     
-    var texture = this.textures[this.textureId].glTexture;
-    
-    if (!allowTeamColors) {
-      var textureName = texture.name;
-      
-      if (textureName === "replaceabletextures/teamcolor/teamcolor00.blp" || textureName === "replaceabletextures/teamglow/teamglow00.blp") {
-        texture = null;
-      }
-    }
-    
-    bindTexture(texture, 0, textureMap);
+    bindTexture(this.textures[this.textureId], 0, this.model.textureMap, textureMap);
     
     ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
     ctx.bufferSubData(ctx.ARRAY_BUFFER, 0, this.data);

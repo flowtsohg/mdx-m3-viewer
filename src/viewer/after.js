@@ -4,8 +4,6 @@
     var width = canvas.clientWidth;
     var height = canvas.clientHeight;
     
-    // For some reason the CSS3 calc doesn't actually change the size of the internal canvas.
-    // This doesn't let WebGL to properly set up the viewport, so the size must be set manually.
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
     
@@ -15,7 +13,6 @@
   
   resetViewport();
   
-  // Takes care of the viewport when the window is resized
   addEvent(window, "resize", resetViewport);
 
   // Used by Mdx.ParticleEmitter since they don't need to be automatically updated and rendered
@@ -32,20 +29,18 @@
   
   for (var i = 0; i < 13; i++) {
     var number = ((i < 10) ? "0" + i : i);
-    var teamColor = "replaceabletextures/teamcolor/teamcolor" + number + ".blp";
-    var teamGlow = "replaceabletextures/teamglow/teamglow" + number + ".blp";
     
-    gl.newTexture(teamColor, urls.mpqFile(teamColor));
-    gl.newTexture(teamGlow, urls.mpqFile(teamGlow));
+    gl.newTexture(urls.mpqFile("ReplaceableTextures/TeamColor/TeamColor" + number + ".blp"));
+    gl.newTexture(urls.mpqFile("ReplaceableTextures/TeamGlow/TeamGlow" + number + ".blp"));
   }
       
   gl.newShader("world", SHADERS["vsworld"], floatPrecision + SHADERS["psworld"]);
   gl.newShader("white", SHADERS["vswhite"], floatPrecision + SHADERS["pswhite"]);
   
-  gl.newTexture("grass", "http://www.hiveworkshop.com/model_viewer/images/grass.png");
-  gl.newTexture("water", "http://www.hiveworkshop.com/model_viewer/images/water.png");
-  gl.newTexture("bedrock", "http://www.hiveworkshop.com/model_viewer/images/bedrock.png");
-  gl.newTexture("sky", urls.mpqFile("Environment/Sky/LordaeronSummerSky/LordaeronSummerSky.blp"));
+  gl.newTexture("images/grass.png");
+  gl.newTexture("images/water.png");
+  gl.newTexture("images/bedrock.png");
+  gl.newTexture("images/sky.png");
   //gl.newTexture("Light", "../images/Light.png");
     
   grass_water = gl.newRectangle(0, 0, -3, 250, 250, 6);
@@ -106,16 +101,16 @@
           ctx.enable(ctx.BLEND);
           ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
           
-          gl.bindTexture("water", 0);
+          gl.bindTexture("images/water.png", 0);
           grass_water.render();
           
           ctx.disable(ctx.BLEND);
         } else {
-          gl.bindTexture("bedrock", 0);
+          gl.bindTexture("images/bedrock.png", 0);
           bedrock.render();
         }
       } else {
-        gl.bindTexture("grass", 0);
+        gl.bindTexture("images/grass.png", 0);
         grass_water.render();
       }
     }
@@ -133,7 +128,7 @@
       
       gl.bindMVP("u_mvp");
       
-      gl.bindTexture("sky");
+      gl.bindTexture("images/sky.png", 0);
       sky.render();
       
       gl.popMatrix();
@@ -248,7 +243,7 @@
           textureMap[key] = texture.url_png;
         }
         
-        gl.newTexture("assets/textures/" + key, textureMap[key]);
+        gl.newTexture(textureMap[key]);
       }
     
       for (i = 0, l = object.models.length; i < l; i++) {
@@ -289,7 +284,7 @@
       
       return id;
     } else if (typeof source === "number") {
-      var object = modelInstanceCache[modelId];
+      var object = modelInstanceCache[source];
       
       // Check if the source ID is valid
       if (object) {
@@ -671,7 +666,7 @@
     shouldRenderShapes = b;
   }
   
-  // Get the bounding shapes status.
+  // Get the bounding shapes mode.
   function getBoundingShapesMode(b) {
     return shouldRenderShapes;
   }
@@ -681,7 +676,7 @@
     shouldRenderTeamColors = b;
   }
   
-  // Get the team colors status
+  // Get the team colors mode.
   function getTeamColorsMode() {
     return shouldRenderTeamColors
   }
@@ -771,28 +766,63 @@
   
   // Save the scene as a JSON string.
   function saveScene() {
+    var i, l;
     var data = [camera.m, camera.r, shouldRenderWorld, shouldRenderShapes & 1, shouldRenderTeamColors & 1, shaderToUse]
-    var objects = [];
+    // This keeps track of all the models that are actually used (= a visible instance points to them).
+    var usedModels = {};
+    var models = [];
+    var instances = [];
     var object;
+    var keys = Object.keys(modelCache);
     
-    for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
-      object = modelInstanceCache[i];
+    // Initialize the model usage map
+    for (i = 0, l = keys.length; i < l; i++) {
+      object = modelCache[keys[i]];
       
-      if (object.ready && object.visible) {
-        objects.push(object.toJSON());
+      if (object.ready) {
+        usedModels[object.id] = 0;
       }
     }
     
-    data.push(objects);
+    // Create the model usage map
+    for (i = 0, l = modelInstanceCache.length; i < l; i++) {
+      object = modelInstanceCache[i];
+      
+      if (object.ready && object.isInstance && object.visible) {
+        usedModels[object.model.id]++;
+      }
+    }
+    
+    // Finally actually save all the visible objects
+    for (i = 0, l = modelInstanceCache.length; i < l; i++) {
+      object = modelInstanceCache[i];
+      
+      if (object.ready) {
+        if (object.isModel) {
+          if (usedModels[object.id] > 0) {
+            models.push(object);
+          }
+        } else if (object.isInstance && object.visible) {
+          instances.push(object);
+        }
+        
+      }
+    }
+    
+    data.push(models, instances);
+    
+    console.log(JSON.parse(JSON.stringify(data)));
     
     return JSON.stringify(data);
   }
   
   // Load a scene from a JSON string.
   function loadScene(scene) {
-    // An array of the instance IDs that were loaded by these scene.
-    var loadedInstances = [];
-    
+    var i, l;
+    // Map from object IDs in the scene to actual indices in the object array.
+    var idsMap = {};
+    var id;
+      
     scene = JSON.parse(scene);
     
     camera.m = scene[0];
@@ -802,37 +832,40 @@
     shouldRenderTeamColors = !!scene[4];
     shaderToUse = scene[5];
     
-    var objects = scene[6];
-    
-    for (var i = 0, l = objects.length; i < l; i++) {
-      var object = objects[i];
-      var isModel = object[0] === 0;
-      var id;
+    var models = scene[6];
+    var instances = scene[7];
+    var object;
+    var isModel;
+    var owningModel;
       
-      if (isModel) {
-        id = loadModel(object[1], object[2]);
-        
-        modelInstanceCache[i].fromJSON(object);
-      } else {
-        id = loadInstance(objects[object[1]][1], object[11]);
-        
-        modelInstanceCache[i].fromJSON(object);
-        
-        loadedInstances.push(id);
-      }
+    for (i = 0, l = models.length; i < l; i++) {
+      object = models[i];
+      
+      id = loadModel(object[1], object[2]);
+      
+      modelInstanceCache[id].fromJSON(object);
+      
+      idsMap[object[0]] = id;
+    }
+    
+    for (i = 0, l = instances.length; i < l; i++) {
+      object = instances[i];
+      
+      owningModel = idsMap[object[1]];
+      
+      id = loadInstance(owningModel, object[10]);
+      
+      modelInstanceCache[id].fromJSON(object);
+      
+      idsMap[object[0]] = id;
     }
     
     // A second loop is needed to set the parents, since all the instances must be already loaded
-    for (var i = 0, l = objects.length; i < l; i++) {
-      var object = objects[i];
-      var isInstance = object[0] === 1;
+    for (i = 0, l = instances.length; i < l; i++) {
+      object = instances[i];
       
-      if (isInstance) {
-        setParent(i, object[8], object[9]);
-      }
+      setParent(idsMap[object[0]], idsMap[object[7]] || -1, object[8]);
     }
-    
-    return loadedInstances;
   }
   
   return {

@@ -112,29 +112,26 @@ ModelInstance.prototype = {
     return [this.parentId, this.attachment];
   },
   
-  overrideTexture: function (path, newpath) {
-    var source;
+  overrideTexture: function (source, path) {
+    var textureMap = this.textureMap;
     
-    if (newpath) {
-      path = path.toLowerCase();
-      newpath = newpath.toLowerCase();
-      
-      this.textureMap[path] = gl.newTexture(newpath, newpath);
-    } else {
-      // This can't be set to null, because then it wont be picked as an override when the models check the instance texture map.
-      // Instead it is set to -1, and the texture binder sets the texture to null if it's equal to -1 (see before.js).
-      this.textureMap[path] = -1;
+    if (path === "") {
+      path = "\0";
     }
+    
+    textureMap[source] = path;
   },
   
   getTextureMap: function () {
     var data = {};
-    var keys = Object.keys(this.textureMap);
-    
-    for (var i = 0, l = keys.length; i < l; i++) {
-      var key = keys[i];
+    var textureMap = this.textureMap;
+    var keys = Object.keys(textureMap);
+    var key;
       
-      data[key] = this.textureMap[key].name;
+    for (var i = 0, l = keys.length; i < l; i++) {
+      key = keys[i];
+      
+      data[key] = textureMap[key];
     }
     
     return data;
@@ -281,8 +278,8 @@ ModelInstance.prototype = {
     if (this.format === "MDLX") {
       var idString = ((id < 10) ? "0" + id : id);
       
-      this.overrideTexture("replaceabletextures/teamcolor/teamcolor00.blp", "replaceabletextures/teamcolor/teamcolor" + idString + ".blp");
-      this.overrideTexture("replaceabletextures/teamglow/teamglow00.blp", "replaceabletextures/teamglow/teamglow" + idString + ".blp");
+      this.overrideTexture("replaceabletextures/teamcolor/teamcolor00.blp", urls.mpqFile("ReplaceableTextures/TeamColor/TeamColor" + idString + ".blp"));
+      this.overrideTexture("replaceabletextures/teamglow/teamglow00.blp", urls.mpqFile("ReplaceableTextures/TeamGlow/TeamGlow" + idString + ".blp"));
     }
   },
   
@@ -341,6 +338,21 @@ ModelInstance.prototype = {
     var rotation = this.rotation;
     var scale = this.scaling;
     
+    // This code avoids saving instance overrides that match the model's texture map.
+    // For example, when the client overrides a texture and then sets it back to the original value.
+    var textureMap = {};
+    var modelTextureMap = this.model.getTextureMap();
+    var key, keys = Object.keys(this.textureMap);
+    
+    for (var i = 0, l = keys.length; i < l; i++) {
+      key = keys[i];
+      
+      if (this.textureMap[key] !== modelTextureMap[key]) {
+        textureMap[key] = this.textureMap[key];
+      }
+    }
+    
+    // Rotate Starcraft 2 models back to zero to avoid rotating them twice when loading the scene
     if (this.format !== "MDLX") {
       rotation = math.quaternion.concat(rotation, [0, 0, 0.7071067811865476, -0.7071067811865476], []);
       scale /= 100;
@@ -350,9 +362,8 @@ ModelInstance.prototype = {
     rotation = math.quaternion.floatPrecision(rotation, 3);
     
     return [
-      1, // 0 for Model, 1 for ModelInstance
+      this.id,
       this.model.id,
-      this.visible,
       this.sequence,
       this.sequenceLoopMode,
       this.location,
@@ -361,19 +372,25 @@ ModelInstance.prototype = {
       this.parentId,
       this.attachment,
       this.teamColor,
-      this.textureMap
+      textureMap
     ];
   },
   
   fromJSON: function (object) {
-    this.visible = object[2];
-    this.setSequence(object[3]);
-    this.setSequenceLoopMode(object[4]);
-    this.setLocation(object[5]);
-    this.setRotation(object[6]);
-    this.setScale(object[7]);
-    // This can't be used from inside ModelInstance, because it requires external knowledge (the instance cache).
-    //this.setParent(object[8], object[9]);
-    this.setTeamColor(object[10]);
+    this.setSequence(object[2]);
+    this.setSequenceLoopMode(object[3]);
+    this.setLocation(object[4]);
+    this.setRotation(object[5]);
+    this.setScale(object[6]);
+    this.setTeamColor(object[9]);
+    
+    var textureMap = object[10];
+    var key, keys = Object.keys(textureMap);
+    
+    for (var i = 0, l = keys.length; i < l; i++) {
+      key = keys[i];
+      
+      this.overrideTexture(key, textureMap[key]);
+    }
   }
 };

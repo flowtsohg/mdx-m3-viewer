@@ -10,19 +10,19 @@ function Model(parser, textureMap) {
   this.uvSetCount = uvSetCount;
   this.regions = [];
   
-  
   for (i = 0, l = regions.length; i < l; i++) {
     this.regions.push(new Region(regions[i], parser.vertices, div.triangles, parser.boneLookup, uvSetCount));
   }
   
   this.batches = [];
   this.materials = [[], []]; // 2D array for the possibility of adding more material types in the future
-  this.texturePaths = {}; // Used in StandardMaterial to avoid loading textures multiple times
   this.materialMaps = parser.materialMaps;
 
   var materialMaps = parser.materialMaps;
   var materials = parser.materials;
   var batches = [];
+  
+  this.textureMap = {};
   
   // Create concrete material objects for standard materials
   for (i = 0, l = materials[0].length; i < l; i++) {
@@ -30,7 +30,7 @@ function Model(parser, textureMap) {
     
     this.materials[1][i] = new StandardMaterial(material, this, textureMap);
   }
-
+  
 // Create concrete batch objects
   for (i = 0, l = div.batches.length; i < l; i++) {
     var batch = div.batches[i];
@@ -143,6 +143,7 @@ Model.prototype = {
   },
   
   addGlobalAnims: function () {
+    /*
     var i, l;
     var glbirth, glstand, gldeath;
     var stgs = this.stg;
@@ -175,6 +176,7 @@ Model.prototype = {
         }
       }
     }
+    */
   },
   
   getValue: function (animRef, sequence, frame) {
@@ -286,20 +288,8 @@ Model.prototype = {
     }
   },
   
-  overrideTexture: function (path, newpath, onload, onerror, onprogress) {
-    var standardMaterials = this.materials[1];
-    
-    for (var i = 0, l = standardMaterials.length; i < l; i++) {
-      var layers = standardMaterials[i].layers;
-      
-      for (var j = 0, k = layers.length; j < k; j++) {
-        var layer = layers[j];
-        
-        if (layer.imagePath === path) {
-          layer.overrideTexture(newpath, onload, onerror, onprogress);
-        }
-      }
-    }
+  overrideTexture: function (path, newpath) {
+    this.textureMap[source] = path;
   },
   
   getSequences: function () {
@@ -339,13 +329,15 @@ Model.prototype = {
   },
   
   getTextureMap: function () {
-    var keys = Object.keys(this.texturePaths);
     var data = {};
-    
-    for (var i = 0, l = keys.length; i < l; i++) {
-      var key = keys[i];
+    var textureMap = this.textureMap;
+    var keys = Object.keys(textureMap);
+    var key;
       
-      data[key] = this.texturePaths[key].name;
+    for (var i = 0, l = keys.length; i < l; i++) {
+      key = keys[i];
+      
+      data[key] = textureMap[key];
     }
     
     return data;

@@ -127,6 +127,7 @@ function getFile(path, binary, onload, onerror, onprogress, parent) {
 }
 
 function addEvent(element, event, callback) {
+  // No mousewheel in Firefox
   if (event === "mousewheel") {
     element.addEventListener("DOMMouseScroll", callback, false);
   }
@@ -142,10 +143,8 @@ function removeEvent(element, event, callback) {
   element.removeEventListener(event, callback, false);
 }
 
-function preventEvent(event) {
-  event.stopPropagation();
-  event.preventDefault();
-  return false;
+function preventDefault(e) {
+  e.preventDefault();
 }
 
 String.hashCode = function(s) {

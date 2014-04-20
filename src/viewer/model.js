@@ -259,10 +259,22 @@ Model.prototype = {
   },
   
   toJSON: function () {
+    var modelTextureMap = this.getTextureMap();
+    var textureMap = {};
+    var key, keys = Object.keys(modelTextureMap);
+      
+    for (var i = 0, l = keys.length; i < l; i++) {
+      key = keys[i];
+      
+      if (urls.mpqFile(key) !== modelTextureMap[key]) {
+        textureMap[key] = modelTextureMap[key];
+      }
+    }
+    
     return [
-      0, // 0 for Model, 1 for ModelInstance
+      this.id,
       this.source,
-      this.textureMap
+      textureMap
     ];
   },
   

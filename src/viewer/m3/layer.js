@@ -1,5 +1,4 @@
 function Layer(layer, type, op, model, textureMap) {
-  this.imagePath = "";
   this.uniform = "u_" + type;
   
   // Since Gloss doesn't exist in all versions
@@ -11,45 +10,32 @@ function Layer(layer, type, op, model, textureMap) {
     
     this.model = model;
     this.type = type;
+    this.op = op;
     
     // The path is overrided with the lower case because some models have the same texture multiple times but with different letter cases, which causes multiple fetches = wasted bandwidth, memory and time.
-    var imagePath = layer.imagePath.toLowerCase();
+    var source = layer.imagePath.toLowerCase();
     
-    if (imagePath !== "") {
-      this.imagePath = imagePath;
+    if (source !== "") {
+      this.source = source;
       
-      var tokens = imagePath.split("/");
-      var textureName = tokens[tokens.length - 1];
-      var overrided = false;
+      var textureName = getFileName(source);
+      var path;
       
+      // Need to handle both the absolute path and relative.
+      // Relative paths (name.dds) originate from the header.
+      // Absolute paths (assets/textures/name.dds) originate from loading a scene.
       if (textureMap[textureName]) {
-        imagePath = textureMap[textureName];
-        overrided = true;
-      }
-      
-      var texturePaths = model.texturePaths;
-      
-      if (!texturePaths[this.imagePath]) {
-        var clampS = (this.flags & 0x4);
-        var clampT = (this.flags & 0x8);
-        var texture;
-        
-        if (overrided) {
-          // Need a special argument to force PNG, since GL.newTexture only checks for the path extension, which is DDS either way.
-          texture = gl.newTexture(this.imagePath, imagePath, clampS, clampT);
-        } else {
-          texture = gl.newTexture(this.imagePath, urls.mpqFile(imagePath), clampS, clampT);
-        }
-        
-        texturePaths[this.imagePath] = texture;
-        
-        this.glTexture = texture;
+        path = textureMap[textureName];
+      } else if (textureMap[source]) {
+        path = textureMap[source];
       } else {
-        this.glTexture = texturePaths[this.imagePath];
+        path = urls.mpqFile(source);
       }
+      
+      model.textureMap[source] = path;
+      
+      gl.newTexture(path, layer.flags & 0x4, layer.flags & 0x8);
     }
-    
-    this.op = op;
     
     var uvCoordinate = 0;
   
@@ -67,13 +53,13 @@ function Layer(layer, type, op, model, textureMap) {
 
 Layer.prototype = {
   bind: function (unit, sequence, frame, textureMap) {
-    var imagePath = this.imagePath;
+    var source = this.source;
     var settings = this.uniform + "LayerSettings.";
     
-    if (imagePath !== "" && gl.textureReady(imagePath)) {
+    if (source) {
       gl.setParameter(this.uniform + "Map", unit);
       
-      bindTexture(this.glTexture, unit, textureMap);
+      bindTexture(source, unit, this.model.textureMap, textureMap);
       
       gl.setParameter(settings + "enabled", 1);
       gl.setParameter(settings + "op", this.op);
@@ -111,7 +97,8 @@ Layer.prototype = {
     }
   },
   
-  overrideTexture: function (newpath, onload, onerror, onprogress) {
-     this.glTexture = gl.newTexture(newpath, newpath, false, false, onload, onerror);
+  overrideTexture: function (path) {
+    this.path = path;
+    this.overrided = true;
   }
 };

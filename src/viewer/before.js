@@ -1,4 +1,19 @@
-window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
+window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
+  // This function is used to filter out reports for internal textures (e.g. ground, sky, team colors beside 00, etc.).
+  function noReport(path) {
+    if (path === "images/grass.png" || path === "images/water.png" || path === "images/bedrock.png" || path === "images/sky.png") {
+      return true;
+    }
+    
+    var match = path.match(/(\d\d).blp/);
+    
+    if (match && match[1] !== "00") {
+      return true;
+    }
+    
+    return false;
+  }
+  
   function sendMessage(e) {
     if (typeof onmessage === "function") {
       onmessage(e);
@@ -9,15 +24,10 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
     if (object.isModel) {
       sendMessage({type: "loadstart", objectType: "model", source: object.source});
     } else if (object.isTexture) {
-      var path = object.name;
+      var path = object.source;
       
-      // Avoid reporting internal textures
-      if (path !== "\0"  && path !== "grass" && path !== "water" && path !== "bedrock" && path !== "sky") {
-        var match = path.match(/(\d\d).blp/);
-        
-        if (!match || match[1] === "00") {
-          sendMessage({type: "loadstart", objectType: "texture", source: path});
-        }
+      if (!noReport(path)) {
+       sendMessage({type: "loadstart", objectType: "texture", source: path});
       }
     } else {
       console.log("onloadstart", "What?");
@@ -28,15 +38,10 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
      if (object.isModel) {
        sendMessage({type: "load", objectType: "model", source: object.source, id: object.id});
     } else if (object.isTexture) {
-      var path = object.name;
+      var path = object.source;
       
-      // Avoid reporting internal textures
-      if (path !== "\0"  && path !== "grass" && path !== "water" && path !== "bedrock" && path !== "sky") {
-        var match = path.match(/(\d\d).blp/);
-        
-        if (!match || match[1] === "00") {
-          sendMessage({type: "load", objectType: "texture", source: path});
-        }
+      if (!noReport(path)) {
+        sendMessage({type: "load", objectType: "texture", source: path});
       }
     } else if (object.isInstance) {
       sendMessage({type: "load", objectType: "instance", source: object.source, id: object.id});
@@ -50,7 +55,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
     
     if (object.isTexture) {
       type = "texture";
-      source = object.name;
+      source = object.source;
     } else if (object.isModel) {
       type = "model";
       source = object.source;
@@ -81,15 +86,10 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
     if (object.isModel) {
       sendMessage({type: "progress", objectType: "model", source: object.source, progress: progress});
     } else if (object.isTexture) {
-      var path = object.name;
+      var path = object.source;
       
-      // Avoid reporting internal textures
-      if (path !== "\0"  && path !== "grass" && path !== "water" && path !== "bedrock" && path !== "sky") {
-        var match = path.match(/(\d\d).blp/);
-        
-        if (!match || match[1] === "00") {
-          sendMessage({type: "progress", objectType: "texture", source: path, progress: progress});
-        }
+      if (!noReport(path)) {
+        sendMessage({type: "progress", objectType: "texture", source: path, progress: progress});
       }
     } else {
       console.log("onprogress", "What?");
@@ -138,7 +138,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
   var modelInstanceCache = [];
   
   var FRAME_TIME = 1 / 60;
-  var DEBUG_MODE = isDebug;
+  var DEBUG_MODE = debugMode;
   
   var teamColors = [
     [255, 3, 3],
@@ -170,16 +170,19 @@ window["ModelViewer"] = function (canvas, urls, onmessage, isDebug) {
     "sdecal"
   ];
   
-  function bindTexture(glTexture, unit, textureMap) {
-    var texture = glTexture;
+  function bindTexture(source, unit, modelTextureMap, instanceTextureMap) {
+    var texture;
     
-    // Set in ModelInstance.overrideTexture if given a null texture (used for None)
-    if (texture === -1) {
-      texture = null;
+    if (modelTextureMap[source]) {
+      texture = modelTextureMap[source];
     }
     
-    if (texture && textureMap[texture.name]) {
-      texture = textureMap[texture.name];
+    if (instanceTextureMap[source]) {
+      texture = instanceTextureMap[source];   
+    }
+    
+    if (!shouldRenderTeamColors && source.endsWith("00.blp")) {
+      texture = null;
     }
     
     gl.bindTexture(texture, unit);

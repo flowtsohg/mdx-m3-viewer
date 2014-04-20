@@ -402,27 +402,18 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     return id;
   }
   
-  function Texture(name, source, clampS, clampT) {
-    
+  function Texture(source, clampS, clampT) {
     this.isTexture = true;
-    this.name = name;
     this.source = source;
     
     onloadstart(this);
     
-    // File name or Base64 string
-    if (typeof source === "string") {
-      this.image = new Image();
-      
-      this.image.onload = this.setup.bind(this, this.image, clampS, clampT);
-      this.image.onerror = onerror.bind(this);
-      
-      this.image.src = source;
-    // Image object
-    } else {
-      this.image = source;
-      this.setup(source, clampS, clampT);
-    }
+    this.image = new Image();
+    
+    this.image.onload = this.setup.bind(this, this.image, clampS, clampT);
+    this.image.onerror = onerror.bind(this);
+    
+    this.image.src = source;
   }
   
   Texture.prototype = {
@@ -430,7 +421,7 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
       this.id = generateTexture(image, clampS, clampT);
       this.ready = true;
       
-      textureNameStore[this.name] = 1;
+      textureNameStore[this.source] = 1;
       
       if (onload) {
         onload(this);
@@ -518,16 +509,15 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     
     this.ready = true;
     
-    textureNameStore[this.name] = 1;
+    textureNameStore[this.source] = 1;
     
     if (onload) {
       onload(this);
     }
   }
     
-  function DDSTexture(name, source, clampS, clampT) {
+  function DDSTexture(source, clampS, clampT) {
     this.isTexture = true;
-    this.name = name;
     this.source = source;
     
     if (onloadstart) {
@@ -537,7 +527,7 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     if (compressedTextures) {
       getFile(source, true, onddsload.bind(this, clampS, clampT), onerror.bind(this), onprogress.bind(this));
     } else {
-      console.warn("Didn't load " + name + " because your WebGL context does not support compressed texture formats");
+      console.warn("Didn't load " + source + " because your WebGL context does not support compressed texture formats");
       
       if (onerror) {
         onerror(this);
@@ -547,20 +537,18 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   
   DDSTexture.prototype = Texture.prototype;
   
-  function newTexture(name, source, clampS, clampT) {
-    if (!textureStore[name]) {
-      var nameExt = getFileExtension(name).toLowerCase();
-      var sourceExt = getFileExtension(source).toLowerCase();
-      var isDDS = nameExt === "dds" || sourceExt === "dds";
+  function newTexture(source, clampS, clampT) {
+    if (!textureStore[source]) {
+      var isDDS = getFileExtension(source).toLowerCase() === "dds";
       
       if (isDDS && hasCompressedTextures) {
-         textureStore[name] = new DDSTexture(name, source, clampS, clampT);
+         textureStore[source] = new DDSTexture(source, clampS, clampT);
       } else {
-        textureStore[name] = new Texture(name, source, clampS, clampT);
+        textureStore[source] = new Texture(source, clampS, clampT);
       }
     }
     
-    return textureStore[name];
+    return textureStore[source];
   }
   
   function bindTexture(object, unit) {
@@ -586,7 +574,7 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
       
       gl["activeTexture"](gl["TEXTURE" + unit]);
       gl["bindTexture"](gl["TEXTURE_2D"], null);
-    } else if (!boundTextures[unit] || boundTextures[unit].name !== finalTexture.name) {
+    } else if (!boundTextures[unit] || boundTextures[unit].source !== finalTexture.source) {
       boundTextures[unit] = finalTexture;
       
       gl["activeTexture"](gl["TEXTURE" + unit]);
@@ -594,8 +582,8 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     } 
   }
   
-  function textureReady(name) {
-    return textureNameStore[name] === 1;
+  function textureReady(source) {
+    return textureNameStore[source] === 1;
   }
   
   function Rectangle(x, y, z, hw, hh, stscale) {

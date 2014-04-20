@@ -1,5 +1,3 @@
-# Copyright (c) 2014 Chananya Freiman (aka GhostWolf)
-
 require "./glsl_min"
 
 USE_CLOSURE = false

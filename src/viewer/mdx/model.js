@@ -4,12 +4,13 @@ function Model(parser, textureMap) {
   this.name = parser.modelChunk.name;
   this.sequences = [];
   this.textures = [];
+  this.textureMap = {};
   
   if (parser["textureChunk"]) {
     objects = parser["textureChunk"].objects;
     
     for (i = 0, l = objects.length; i < l; i++) {
-      this.textures.push(new Texture(objects[i], textureMap));
+      this.loadTexture(objects[i], textureMap);
     }
   }
   
@@ -125,6 +126,30 @@ function Model(parser, textureMap) {
 }
 
 Model.prototype = {
+  loadTexture: function (texture, textureMap) {
+    var source = texture.path;
+    var path;
+    var replaceableId = texture.replaceableId;
+    
+    if (replaceableId !== 0) {
+      source = "ReplaceableTextures/" + replaceableIdToName[replaceableId] + ".blp";
+    }
+    
+    source = source.replace(/\\/g, "/").toLowerCase();
+    
+    this.textures.push(source);
+    
+    if (textureMap[source]) {
+      path = textureMap[source];
+    } else {
+      path = urls.mpqFile(source);
+    }
+    
+    this.textureMap[source] = path;
+    
+    gl.newTexture(path);
+  },
+  
   setupHierarchy: function (parent) {
     var cildren = [];
       
@@ -164,17 +189,8 @@ Model.prototype = {
           layer.setMaterial();
           
           var textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
-          var texture = this.textures[textureId].glTexture;
           
-          if (!allowTeamColors) {
-            var textureName = texture.name;
-            
-            if (textureName === "replaceabletextures/teamcolor/teamcolor00.blp" || textureName === "replaceabletextures/teamglow/teamglow00.blp") {
-              texture = null;
-            }
-          }
-          
-          bindTexture(texture, 0, textureMap);
+          bindTexture(this.textures[textureId], 0, this.textureMap, textureMap);
           
           if (this.geosetAnimations) {
             for (var j = this.geosetAnimations.length; j--;) {
@@ -294,19 +310,8 @@ Model.prototype = {
     }
   },
   
-  overrideTexture: function (path, newpath) {
-    path = path.toLowerCase();
-    // TODO: Fix this when Ralle fixes the texture getter to work in a case-insensitive way.
-    //newpath = newpath.toLowerCase();
-    
-    for (var i = 0, l = this.textures.length; i < l; i++) {
-      var texture = this.textures[i];
-      
-      if (texture.path === path) {
-        texture.overrideTexture(newpath);
-        return;
-      }
-    }
+  overrideTexture: function (source, path) {
+    this.textureMap[source] = path;
   },
   
   getSequences: function () {
@@ -347,13 +352,14 @@ Model.prototype = {
   
   getTextureMap: function () {
     var data = {};
-    
-    if (this.textures) {
-      for (var i = 0, l = this.textures.length; i < l; i++) {
-        var texture = this.textures[i];
-        
-        data[texture.source] = texture.glTexture.name;
-      }
+    var textureMap = this.textureMap;
+    var keys = Object.keys(textureMap);
+    var key;
+      
+    for (var i = 0, l = keys.length; i < l; i++) {
+      key = keys[i];
+      
+      data[key] = textureMap[key];
     }
     
     return data;
