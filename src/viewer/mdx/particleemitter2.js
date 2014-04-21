@@ -9,13 +9,13 @@ function ParticleEmitter2(emitter, model, instance) {
   this.model = model;
   this.textures = model.textures;
   
-  this.lastCreation = 0;
+  this.lastCreation = 1;
   
   var particles;
   
   // This is the maximum number of particles that are going to exist at the same time
   if (this.tracks.emissionRate) {
-    var tracks = this.tracks.emissionRate;
+    var tracks = this.tracks.emissionRate.tracks;
     var biggest = 0;
     
     for (i = 0, l = tracks.length; i < l; i++) {
@@ -102,15 +102,15 @@ ParticleEmitter2.prototype = {
       }
     }
     
-    // The snow emitter should always run
     if (allowCreate && this.shouldRender(sequence, frame, counter)) {
-      this.lastCreation += 1;
+      var amount = getSDValue(sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * FRAME_TIME * this.lastCreation;
       
-      
-      var amount = (getSDValue(sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * FRAME_TIME) / (1 / this.lastCreation);
+      if (amount > 0) {
+        this.lastCreation += 1;
+      }
       
       if (amount >= 1) {
-        this.lastCreation = 0;
+        this.lastCreation = 1;
         
         for (i = 0; i < amount; i++) {
           if (this.head && this.reusables.length > 0) {
@@ -125,7 +125,7 @@ ParticleEmitter2.prototype = {
     }
   },
   
-  render: function (model, textureMap, allowTeamColors) {
+  render: function (textureMap) {
     var data = this.data;
     
     var pv1 = [-1, -1, 0];
@@ -429,6 +429,6 @@ ParticleEmitter2.prototype = {
   },
   */
   shouldRender: function (sequence, frame, counter) {
-    return getSDValue(sequence, frame, counter, this.sd.visibility) > 0.1;
+    return getSDValue(sequence, frame, counter, this.sd.visibility, 0) > 0.1;
   }
 };

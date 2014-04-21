@@ -8,7 +8,7 @@ function ModelInstance(model) {
   this.loopingMode = 0;
   this.skeleton = new Skeleton(model);
   
-  if (model.particleEmitters) {
+  if (model.particleEmitters && model.particleEmitters.length > 0) {
     objects = model.particleEmitters;
 
     this.particleEmitters = [];
@@ -18,7 +18,7 @@ function ModelInstance(model) {
     }
   }
   
-  if (model.particleEmitters2) {
+  if (model.particleEmitters2 && model.particleEmitters2.length > 0) {
     objects = model.particleEmitters2;
 
     this.particleEmitters2 = [];
@@ -28,7 +28,7 @@ function ModelInstance(model) {
     }
   }
 
-  if (model.ribbonEmitters) {
+  if (model.ribbonEmitters && model.ribbonEmitters.length > 0) {
     objects = model.ribbonEmitters;
 
     this.ribbonEmitters = [];
@@ -62,7 +62,7 @@ ModelInstance.prototype = {
       if (this.frame >= sequence.interval[1]) {
         if (this.loopingMode === 2 || (this.loopingMode === 0 && sequence.flags === 0)) {
           this.frame = sequence.interval[0];
-          allowCreate = false;
+          allowCreate = true;
         } else {
           this.frame = sequence.interval[1];
           this.couter -= 16;
@@ -78,8 +78,8 @@ ModelInstance.prototype = {
     this.updateEmitters(this.ribbonEmitters, allowCreate);
   },
   
-  render: function (instance, allowTeamColors) {
-    this.model.render(this, instance.textureMap, allowTeamColors);
+  render: function (instance) {
+    this.model.render(this, instance.textureMap);
   },
   
   setSequence: function (id) {

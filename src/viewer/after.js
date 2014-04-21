@@ -229,7 +229,6 @@
     if (status === 200) {
       var i, l;
       var object = JSON.parse(e.target.responseText);
-      console.log(object);
       var keys = Object.keys(object.textures);
       var textureMap = {};
       

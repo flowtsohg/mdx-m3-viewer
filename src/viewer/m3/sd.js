@@ -7,7 +7,7 @@ SD.prototype = {
     var sd = this.sd[index];
     
     if (runsConcurrent === 1) {
-      frame = frame & sd.biggestKey;
+      frame = frame % sd.biggestKey;
     }
     
     var keys = sd.keys;

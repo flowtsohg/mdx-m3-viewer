@@ -164,7 +164,7 @@ Model.prototype = {
     }
   },
   
-  render: function (instance, textureMap, allowTeamColors) {
+  render: function (instance, textureMap) {
     var i, l, v;
 	  var sequence = instance.sequence;
     var frame = instance.frame;
@@ -232,7 +232,7 @@ Model.prototype = {
     
     if (instance.particleEmitters && gl.shaderReady("wmain")) {
       for (i = 0, l = instance.particleEmitters.length; i < l; i++) {
-        instance.particleEmitters[i].render(allowTeamColors);
+        instance.particleEmitters[i].render();
       }
     }
     
@@ -244,7 +244,7 @@ Model.prototype = {
       gl.setParameter("u_texture", 0);
       
       for (i = 0, l = instance.ribbonEmitters.length; i < l; i++) {
-        instance.ribbonEmitters[i].render(sequence, frame, counter, textureMap, allowTeamColors);
+        instance.ribbonEmitters[i].render(sequence, frame, counter, textureMap);
       }
     }
     
@@ -258,7 +258,7 @@ Model.prototype = {
       gl.setParameter("u_texture", 0);
       
       for (i = 0, l = instance.particleEmitters2.length; i < l; i++) {
-        instance.particleEmitters2[i].render(textureMap, allowTeamColors);
+        instance.particleEmitters2[i].render(textureMap);
       }
       
       ctx.depthMask(1);

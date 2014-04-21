@@ -63,7 +63,7 @@ RibbonEmitter.prototype = {
     }
   },
   
-  render: function (sequence, frame, counter, textureMap, allowTeamColors) {
+  render: function (sequence, frame, counter, textureMap) {
     var i, l;
     var ribbons = Math.min(this.ribbons.length, this.maxRibbons);
     

@@ -89,6 +89,10 @@ void main() {
   
   v_uv[0] = a_uv0;
   
+  v_uv[1] = vec2(0);
+  v_uv[2] = vec2(0);
+  v_uv[3] = vec2(0);
+  
   #ifdef EXPLICITUV1
   v_uv[1] = a_uv1;
   #endif

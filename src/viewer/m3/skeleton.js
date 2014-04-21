@@ -44,10 +44,12 @@ function Skeleton(model) {
 Skeleton.prototype = {
   // NOTE: This function assumes that the bones are sorted in such way that a child would always be after its parent. Is this true?
   update: function (sequence, frame, instance) {
-    math.mat4.makeIdentity(this.root);
+    var root = this.root;
+    
+    math.mat4.makeIdentity(root);
     
     if (instance) {
-      math.mat4.multMat(this.root, instance.getTransform(), this.root);
+      math.mat4.multMat(root, instance.getTransform(), root);
     }
     
     for (var i = 0, l = this.bones.length; i < l; i++) {
@@ -98,9 +100,9 @@ Skeleton.prototype = {
   getValue: function (animRef, sequence, frame) {
     if (sequence !== -1) {
       return this.stg[sequence].getValue(animRef, frame)
-    } else {
-      return animRef.initValue;
     }
+    
+    return animRef.initValue;
   },
   
   updateBone: function (bone, sequence, frame) {
