@@ -6,19 +6,19 @@ varying vec3 v_normal;
 varying vec2 v_uv;
 
 void main() {
-  vec4 color = texture2D(u_texture, v_uv);
+  vec4 texel = texture2D(u_texture, v_uv);
   
-  if (u_type[0] && color.a < 0.7) {
+  if (u_type[0] && texel.a < 0.7) {
     discard;
   }
   
-  if (u_type[1] && color.r < 0.2 && color.g < 0.2 && color.b < 0.2) {
+  if (u_type[1] && texel.r < 0.2 && texel.g < 0.2 && texel.b < 0.2) {
     discard;
   }
   
-  if (u_type[2] && color.r > .9 && color.g > 0.9 && color.b > 0.9) {
+  if (u_type[2] && texel.r > .9 && texel.g > 0.9 && texel.b > 0.9) {
     discard;
   }
   
-  gl_FragColor = color * u_modifier;
+  gl_FragColor = texel * u_modifier;
 }

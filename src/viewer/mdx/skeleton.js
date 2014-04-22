@@ -76,14 +76,13 @@ Skeleton.prototype = {
     
     math.mat4.multMat(this.nodes[node.parentId].worldMatrix, localMatrix, node.worldMatrix);
     
-    if (node.billboarded) {
-      var p = pivot;
+    if (nodeImpl.billboarded) {
       var cameraMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
       
-      math.mat4.translate(cameraMatrix, p[0], p[1], p[2]);
+      math.mat4.translate(cameraMatrix, pivot[0], pivot[1], pivot[2]);
       math.mat4.rotate(cameraMatrix, -math.toRad(camera.r[1] + 270), 0, 0, 1);
       math.mat4.rotate(cameraMatrix, math.toRad(camera.r[0] - 90), 0, 1, 0);
-      math.mat4.translate(cameraMatrix, -p[0], -p[1], -p[2]);
+      math.mat4.translate(cameraMatrix, -pivot[0], -pivot[1], -pivot[2]);
       
       math.mat4.multMat(node.worldMatrix, cameraMatrix, node.worldMatrix);
     }

@@ -98,6 +98,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   }
   
   function onerrorwrapper(e) {
+    console.log(e);
     onerror(this, e);
   }
   

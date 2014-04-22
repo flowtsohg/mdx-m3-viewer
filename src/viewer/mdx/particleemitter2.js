@@ -309,19 +309,16 @@ ParticleEmitter2.prototype = {
       }
     }
     
-    switch (this.filterMode) {
-      case 1:
-        ctx.blendFunc(ctx.SRC_COLOR, ctx.ONE);
-        break;
-      case 2:
-      case 3:
-        ctx.blendFunc(ctx.SRC_ZERO, ctx.SRC_COLOR);
-        break;
-      case 4:
-        ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
-        break;
-      default:
-        ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
+    var filterMode = this.filterMode;
+    
+    if (filterMode === 1) {
+      ctx.blendFunc(ctx.ONE, ctx.ONE);
+    } else if (filterMode === 2 || filterMode === 3) {
+      ctx.blendFunc(ctx.SRC_ZERO, ctx.SRC_COLOR);
+    } else if (filterMode === 4) {
+      ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
+    } else {
+      ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
     }
     
     bindTexture(this.textures[this.textureId], 0, this.model.textureMap, textureMap);

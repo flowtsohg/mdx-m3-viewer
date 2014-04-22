@@ -93,28 +93,26 @@ Particle2.prototype = {
 
       var frameInterval, frameIntervalStart;
       
-      if (emitter.headOrTail !== 0) {
-        if (currentFrame < emitter.headFrames) {
-          frameInterval = emitter.headInterval[1] - emitter.headInterval[0] + 1;
-          frameIntervalStart = 0;
+      if (currentFrame < emitter.headFrames) {
+        frameInterval = emitter.headInterval[1] - emitter.headInterval[0] + 1;
+        frameIntervalStart = 0;
 
-          this.index = emitter.headInterval[0] + ((currentFrame - frameIntervalStart) % frameInterval);
-        } else if (currentFrame < emitter.headFrames + emitter.headDecayFrames) {
-          frameInterval = emitter.headDecayInterval[1] - emitter.headDecayInterval[0] + 1;
-          frameIntervalStart = emitter.headFrames;
+        this.index = emitter.headInterval[0] + ((currentFrame - frameIntervalStart) % frameInterval);
+      } else if (currentFrame < emitter.headFrames + emitter.headDecayFrames) {
+        frameInterval = emitter.headDecayInterval[1] - emitter.headDecayInterval[0] + 1;
+        frameIntervalStart = emitter.headFrames;
 
-          this.index = emitter.headDecayInterval[0] + ((currentFrame - frameIntervalStart) % frameInterval);
-        } else if (currentFrame < emitter.headFrames + emitter.headDecayFrames + emitter.tailFrames) {
-          frameInterval = emitter.tailInterval[1] - emitter.tailInterval[0] + 1;
-          frameIntervalStart = emitter.headFrames + emitter.headDecayFrames;
+        this.index = emitter.headDecayInterval[0] + ((currentFrame - frameIntervalStart) % frameInterval);
+      } else if (currentFrame < emitter.headFrames + emitter.headDecayFrames + emitter.tailFrames) {
+        frameInterval = emitter.tailInterval[1] - emitter.tailInterval[0] + 1;
+        frameIntervalStart = emitter.headFrames + emitter.headDecayFrames;
 
-          this.index = emitter.tailInterval[0] + ((currentFrame - frameIntervalStart) % frameInterval);
-        } else if (currentFrame < emitter.headFrames + emitter.headDecayFrames + emitter.tailFrames + emitter.tailDecayFrames) {
-          frameInterval = emitter.tailDecayInterval[1] - emitter.tailDecayInterval[0] + 1;
-          frameIntervalStart = emitter.headFrames + emitter.headDecayFrames + emitter.tailFrames;
+        this.index = emitter.tailInterval[0] + ((currentFrame - frameIntervalStart) % frameInterval);
+      } else if (currentFrame < emitter.headFrames + emitter.headDecayFrames + emitter.tailFrames + emitter.tailDecayFrames) {
+        frameInterval = emitter.tailDecayInterval[1] - emitter.tailDecayInterval[0] + 1;
+        frameIntervalStart = emitter.headFrames + emitter.headDecayFrames + emitter.tailFrames;
 
-          this.index = emitter.tailDecayInterval[0] + ((currentFrame - frameIntervalStart) % frameInterval);
-        }
+        this.index = emitter.tailDecayInterval[0] + ((currentFrame - frameIntervalStart) % frameInterval);
       }
 
       this.row = Math.round((emitter.columns === 1) ? 0 : (this.index / emitter.columns));
