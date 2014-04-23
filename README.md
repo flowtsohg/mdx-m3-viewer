@@ -11,10 +11,8 @@ Both options can be disabled or enabled in compiler.rb.
 Note: you must run compiler.rb to get a working file, since there are broken files that must be concatenated to form valid JavaScript files (look at before.js and after.js files to understand what I mean).
 
 A live version can be seen on [Hiveworkshop](http://www.hiveworkshop.com) for which this viewer was made, here are two examples:
-* [Warcraft 3's Azura Dragon](http://www.hiveworkshop.com/model_viewer/?mpq=Units/Creeps/AzureDragon/AzureDragon.mdx)
-* [Starcraft 2's Baneling](http://www.hiveworkshop.com/model_viewer/?mpq=Assets/units/zerg/baneling/baneling.m3)
-
-Note: these examples are still using a very old version of this viewer, I will update the version on the Hiveworkshop soon, hopefully.
+* [Warcraft 3's Azura Dragon](http://www.hiveworkshop.com/model_viewer/?q=Units/Creeps/AzureDragon/AzureDragon.mdx)
+* [Starcraft 2's Baneling](http://www.hiveworkshop.com/model_viewer/?q=Assets/units/zerg/baneling/baneling.m3)
 
 ------------------------
 
@@ -78,6 +76,7 @@ The API of the viewer is as follows:
 * `zoomCamera(x)` - Zoom the camera by a factor.
 * `resetCamera()` - Reset the camera back to the initial state.
 * `resetCamera()` - Reset the camera back to the initial state.
+* `selectInstance(x, y)` - Selects an instance given a screen space coordinate on the canvas. Returns the ID of the selected instance, or -1 if no instance was selected.
 * `saveScene()` - Save the scene as a string
 * `loadScene(scene)` - Load a scene from a previously saved string.
 
