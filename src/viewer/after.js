@@ -52,7 +52,12 @@
       modelCache[source] = new Model(source);
     }
     
-    return new ModelInstance(modelCache[source]);
+    var instance = new ModelInstance(modelCache[source]);
+    
+    // Avoid reporting this instance since it's internal
+    instance.delayOnload = true;
+    
+    return instance;
   }
   
   camera.range = [30, 2000];

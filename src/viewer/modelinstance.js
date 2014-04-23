@@ -41,7 +41,6 @@ function ModelInstance(model, id, color, textureMap) {
   this.queue = [];
   
   // If the model is already ready, the onload message from setup() must be delayed, since this instance wouldn't be added to the cache yet.
-  // 
   if (model.ready) {
     this.delayOnload = true;
   }
