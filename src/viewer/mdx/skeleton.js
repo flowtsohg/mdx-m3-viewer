@@ -51,7 +51,7 @@ Skeleton.prototype = {
     var pivot = node.pivot;
     var translation = getSDValue(sequence, frame, counter, nodeImpl.sd.translation, [0, 0, 0]);
     var rotation = getSDValue(sequence, frame, counter, nodeImpl.sd.rotation, [0, 0, 0, 1]);
-    var scale = getSDValue(sequence, frame, counter, nodeImpl.sd.scale, [1, 1, 1]);
+    var scale = getSDValue(sequence, frame, counter, nodeImpl.sd.scaling, [1, 1, 1]);
     var localMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
     
     if (translation[0] !== 0 || translation[1] !== 0 || translation[2] !== 0) {
