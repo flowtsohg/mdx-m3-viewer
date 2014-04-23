@@ -94,5 +94,20 @@ Region.prototype = {
     
     ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, buffers.face);
     ctx.drawElements(ctx.TRIANGLES, this.triangleIndicesCount, ctx.UNSIGNED_SHORT, 0);
+  },
+  
+  renderColor: function () {
+    var buffers = this.buffers;
+    var uvSetCount = this.uvSetCount;
+    var vertexSize = this.vertexSize;
+    
+    ctx.bindBuffer(ctx.ARRAY_BUFFER, buffers.data);
+    
+    gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, vertexSize, 0);
+    gl.vertexAttribPointer("a_bones", 4, ctx.FLOAT, false, vertexSize, 44);
+    gl.vertexAttribPointer("a_weights", 4, ctx.FLOAT, false, vertexSize, 60);
+    
+    ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, buffers.face);
+    ctx.drawElements(ctx.TRIANGLES, this.triangleIndicesCount, ctx.UNSIGNED_SHORT, 0);
   }
 };

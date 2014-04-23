@@ -40,6 +40,10 @@ ModelInstance.prototype = {
     this.model.render(instance, this, allowTeamColors);
   },
   
+  renderColor: function (instance) {
+    this.model.renderColor(this, instance.color);
+  },
+  
   setSequence: function (sequence) {
     this.sequence = sequence;
     this.frame = 0;

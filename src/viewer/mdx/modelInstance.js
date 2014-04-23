@@ -82,6 +82,10 @@ ModelInstance.prototype = {
     this.model.render(this, instance.textureMap);
   },
   
+  renderColor: function (instance) {
+    this.model.renderColor(this, instance.color);
+  },
+  
   setSequence: function (id) {
     this.sequence = id;
     

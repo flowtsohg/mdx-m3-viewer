@@ -138,6 +138,9 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   // To reference models or instances by their ID.
   var modelInstanceCache = [];
   
+  // To reference an instance from a picked color
+  var colorInstanceCache = {};
+    
   var FRAME_TIME = 1 / 60;
   var DEBUG_MODE = debugMode;
   

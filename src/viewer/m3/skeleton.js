@@ -2,6 +2,7 @@ function ShallowBone (bone) {
   this.boneImpl = bone;
   this.parent = bone.parent;
   this.worldMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+  this.scale = [1, 1, 1];
 }
 
 ShallowBone.prototype = {
@@ -59,6 +60,44 @@ Skeleton.prototype = {
     this.updateBoneTexture(sequence);
   },
   
+  getValue: function (animRef, sequence, frame) {
+    if (sequence !== -1) {
+      return this.stg[sequence].getValue(animRef, frame)
+    }
+    
+    return animRef.initValue;
+  },
+  
+  updateBone: function (bone, sequence, frame) {
+    var localMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+    var location = this.getValue(bone.boneImpl.location, sequence, frame);
+    var scale = this.getValue(bone.boneImpl.scale, sequence, frame);
+    var rotation = this.getValue(bone.boneImpl.rotation, sequence, frame);
+    
+    if (location[0] !== 0 || location[1] !== 0 || location[2] !== 0) {
+      math.mat4.translate(localMatrix, location[0], location[1], location[2]);
+    }
+    
+    if (rotation[0] !== 0 || rotation[1] !== 0 || rotation[2] !== 0 || rotation[3] !== 1) {
+      math.mat4.rotateQ(localMatrix, rotation);
+    }
+    
+    if (scale[0] !== 1 || scale[1] !== 1 || scale[2] !== 1) {
+      math.mat4.scale(localMatrix, scale[0], scale[1], scale[2]);
+      
+      math.vec3.setFromArray(bone.scale, scale);
+    }
+    
+    if (bone.parent !== -1) {
+      var parent = this.bones[bone.parent];
+      
+      math.vec3.scaleVec(bone.scale, parent.scale, bone.scale);
+      math.mat4.multMat(parent.worldMatrix, localMatrix, bone.worldMatrix);
+    } else {
+      math.mat4.multMat(this.root, localMatrix, bone.worldMatrix);
+    }
+  },
+  
   updateBoneTexture: function (sequence) {
     var bones = this.bones;
     var hwbones = this.hwbones;
@@ -95,39 +134,6 @@ Skeleton.prototype = {
     ctx.activeTexture(ctx.TEXTURE15);
     ctx.bindTexture(ctx.TEXTURE_2D, this.boneTexture);
     ctx.texSubImage2D(ctx.TEXTURE_2D, 0, 0, 0, bones.length * 4, 1, ctx.RGBA, ctx.FLOAT, hwbones);
-  },
-  
-  getValue: function (animRef, sequence, frame) {
-    if (sequence !== -1) {
-      return this.stg[sequence].getValue(animRef, frame)
-    }
-    
-    return animRef.initValue;
-  },
-  
-  updateBone: function (bone, sequence, frame) {
-    var localMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-    var location = this.getValue(bone.boneImpl.location, sequence, frame);
-    var scale = this.getValue(bone.boneImpl.scale, sequence, frame);
-    var rotation = this.getValue(bone.boneImpl.rotation, sequence, frame);
-    
-    if (location[0] !== 0 || location[1] !== 0 || location[2] !== 0) {
-      math.mat4.translate(localMatrix, location[0], location[1], location[2]);
-    }
-    
-    if (rotation[0] !== 0 || rotation[1] !== 0 || rotation[2] !== 0 || rotation[3] !== 1) {
-      math.mat4.rotateQ(localMatrix, rotation);
-    }
-    
-    if (scale[0] !== 1 || scale[1] !== 1 || scale[2] !== 1) {
-      math.mat4.scale(localMatrix, scale[0], scale[1], scale[2]);
-    }
-    
-    if (bone.parent !== -1) {
-      math.mat4.multMat(this.bones[bone.parent].worldMatrix, localMatrix, bone.worldMatrix);
-    } else {
-      math.mat4.multMat(this.root, localMatrix, bone.worldMatrix);
-    }
   },
   
   bind: function () {

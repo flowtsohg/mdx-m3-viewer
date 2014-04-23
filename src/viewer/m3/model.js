@@ -276,6 +276,25 @@ Model.prototype = {
     }
   },
   
+  renderColor: function (instance, color) {
+    var i, l;
+    var batch, region;
+    
+    gl.bindShader("scolor");
+    
+    instance.skeleton.bind();
+    
+    gl.bindMVP("u_mvp");
+    gl.setParameter("u_color", color);
+    
+    for (i = 0, l = this.batches.length; i < l; i++) {
+      batch = this.batches[i];
+      region = batch.region;
+      
+      region.renderColor();
+    }
+  },
+  
   getAttachment: function (id) {
     if (this.attachments) {
       return this.attachments[id];

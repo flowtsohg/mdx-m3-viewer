@@ -1,24 +1,28 @@
 require "./glsl_min"
 
-USE_CLOSURE = false
-GLSL_MIN_REWRITE_ALL = true
+USE_CLOSURE = true
+GLSL_MIN_REWRITE_ALL = false
 
 MDX_SHADERS = [
   "vsskinning",
   "vssoftskinning",
   "vsparticles",
+  "vsskinningcolor",
   "psmain",
-  "psparticles"
+  "psparticles",
+  "pscolor"
 ]
 
 M3_SHADERS = [
   "vscommon",
   "vsstandard",
+  "vscolor",
   "pscommon",
   "psstandard",
   "psspecialized",
   "vsparticles",
-  "psparticles"
+  "psparticles",
+  "pscolor"
 ]
 
 SHARED_SHADERS = [

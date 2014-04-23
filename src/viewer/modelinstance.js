@@ -1,4 +1,4 @@
-function ModelInstance(model, id, textureMap) {
+function ModelInstance(model, id, color, textureMap) {
   this.isInstance = true;
   this.model = model;
   this.id = id;
@@ -32,6 +32,9 @@ function ModelInstance(model, id, textureMap) {
       this.overrideTexture(key, textureMap[key]);
     }
   }
+  
+  // Used for color picking
+  this.color = color;
   
   // A queue of actions that were issued before the internal instance loaded, but require it to be loaded in order to run.
   // This queue will run automatically when the instance finishes loading.
@@ -87,6 +90,12 @@ ModelInstance.prototype = {
   render: function (allowTeamColors) {
     if (this.ready && this.visible) {
       this.instance.render(this, allowTeamColors);
+    }
+  },
+  
+  renderColor: function () {
+    if (this.ready && this.visible) {
+      this.instance.renderColor(this);
     }
   },
   
@@ -211,13 +220,18 @@ ModelInstance.prototype = {
     var parent = this.parent;
     
     if (parent) {
-      var invscaling = 1 / parent.scaling;
+      var scaling = parent.scaling;
+      var invscaling = [1 / scaling, 1 / scaling, 1 / scaling];
       
       if (this.attachment !== -1) {
         var attachment = parent.getAttachment(this.attachment);
         
         // This check avoids errors when the model still didn't finish loading, and thus can't return any real attachment object
         if (attachment) {
+          //math.vec3.scaleVec(invscaling, attachment.scale, invscaling);
+          //invscaling[0] /= attachment.scale[0];
+          //invscaling[1] /= attachment.scale[1];
+          //invscaling[2] /= attachment.scale[2];
           math.mat4.multMat(worldMatrix, attachment.getTransform(), worldMatrix);
         }
       } else {
@@ -225,7 +239,7 @@ ModelInstance.prototype = {
       }
       
       // Scale by the inverse of the parent to avoid carrying over scales through the hierarchy
-      math.mat4.scale(worldMatrix, invscaling, invscaling, invscaling);
+      math.mat4.scale(worldMatrix, invscaling[0], invscaling[1], invscaling[2]);
       
       // To avoid the 90 degree rotations applied to M3 models
       if (parent.format !== "MDLX") {
@@ -273,14 +287,14 @@ ModelInstance.prototype = {
   },
   
   setTeamColor: function (id) {
+    // M3
     this.teamColor = id;
     
-    if (this.format === "MDLX") {
-      var idString = ((id < 10) ? "0" + id : id);
-      
-      this.overrideTexture("replaceabletextures/teamcolor/teamcolor00.blp", urls.mpqFile("ReplaceableTextures/TeamColor/TeamColor" + idString + ".blp"));
-      this.overrideTexture("replaceabletextures/teamglow/teamglow00.blp", urls.mpqFile("ReplaceableTextures/TeamGlow/TeamGlow" + idString + ".blp"));
-    }
+    // MDX
+    var idString = ((id < 10) ? "0" + id : id);
+    
+    this.overrideTexture("replaceabletextures/teamcolor/teamcolor00.blp", urls.mpqFile("ReplaceableTextures/TeamColor/TeamColor" + idString + ".blp"));
+    this.overrideTexture("replaceabletextures/teamglow/teamglow00.blp", urls.mpqFile("ReplaceableTextures/TeamGlow/TeamGlow" + idString + ".blp"));
   },
   
   getTeamColor: function () {
@@ -347,7 +361,8 @@ ModelInstance.prototype = {
     for (var i = 0, l = keys.length; i < l; i++) {
       key = keys[i];
       
-      if (this.textureMap[key] !== modelTextureMap[key]) {
+      // The second condition is to avoid saving team color/glow overrides, since they are saved via the team ID
+      if (this.textureMap[key] !== modelTextureMap[key] && key.endsWith("00.png")) {
         textureMap[key] = this.textureMap[key];
       }
     }

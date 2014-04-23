@@ -1,5 +1,36 @@
   gl.setShaderMaps(PARAMETERMAP, MEMBERMAP);
 
+  function setupColor(width, height) {
+    // Color texture
+    var color = ctx["createTexture"]();
+    ctx["bindTexture"](ctx["TEXTURE_2D"], color);
+    ctx["texImage2D"](ctx["TEXTURE_2D"], 0, ctx["RGBA"], width, height, 0, ctx["RGBA"], ctx["UNSIGNED_BYTE"], null);
+    ctx["texParameteri"](ctx["TEXTURE_2D"], ctx["TEXTURE_WRAP_S"], ctx["REPEAT"]);
+    ctx["texParameteri"](ctx["TEXTURE_2D"], ctx["TEXTURE_WRAP_T"], ctx["REPEAT"]);
+    ctx["texParameteri"](ctx["TEXTURE_2D"], ctx["TEXTURE_MAG_FILTER"], ctx["NEAREST"]);
+    ctx["texParameteri"](ctx["TEXTURE_2D"], ctx["TEXTURE_MIN_FILTER"], ctx["NEAREST"]);
+    ctx["bindTexture"](ctx["TEXTURE_2D"], null);
+    
+    // Depth render buffer
+    var depth = ctx["createRenderbuffer"]();
+    ctx["bindRenderbuffer"](ctx["RENDERBUFFER"], depth);
+    ctx["renderbufferStorage"](ctx["RENDERBUFFER"], ctx["DEPTH_COMPONENT16"], width, height);
+    
+    // FBO
+    var fbo = ctx["createFramebuffer"]();
+    ctx["bindFramebuffer"](ctx["FRAMEBUFFER"], fbo);
+    ctx["framebufferTexture2D"](ctx["FRAMEBUFFER"], ctx["COLOR_ATTACHMENT0"], ctx["TEXTURE_2D"], color, 0);
+    ctx["framebufferRenderbuffer"](ctx["FRAMEBUFFER"], ctx["DEPTH_ATTACHMENT"], ctx["RENDERBUFFER"], depth);
+  
+    ctx["bindTexture"](ctx["TEXTURE_2D"], null);
+    ctx["bindRenderbuffer"](ctx["RENDERBUFFER"], null);
+    ctx["bindFramebuffer"](ctx["FRAMEBUFFER"], null);
+    
+    return fbo;
+  }
+  
+  //var colorFBO = setupColor(512, 512);
+  
   function resetViewport() {
     var width = canvas.clientWidth;
     var height = canvas.clientHeight;
@@ -14,7 +45,7 @@
   resetViewport();
   
   addEvent(window, "resize", resetViewport);
-
+  
   // Used by Mdx.ParticleEmitter since they don't need to be automatically updated and rendered
   function loadModelInstanceNoRender(source) {
     if (!modelCache[source]) {
@@ -58,18 +89,20 @@
   
   function transformCamera() {
     if (modelCameraId === -1) {
-      var inverseCamera = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+      var cameraMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
       var z = math.toRad(camera.r[1]);
       var x = math.toRad(camera.r[0]);
 
-      math.mat4.translate(inverseCamera, camera.m[0], camera.m[1], -camera.m[2]);
-      math.mat4.rotate(inverseCamera, x, 1, 0, 0);
-      math.mat4.rotate(inverseCamera, z, 0, 0, 1);
+      math.mat4.translate(cameraMatrix, camera.m[0], camera.m[1], -camera.m[2]);
+      math.mat4.rotate(cameraMatrix, x, 1, 0, 0);
+      math.mat4.rotate(cameraMatrix, z, 0, 0, 1);
 
+      var inverseCamera = [];
+      math.mat4.invert(cameraMatrix, inverseCamera);
       math.mat4.multVec3(inverseCamera, [0, 0, 1], cameraPosition);
       
       gl.loadIdentity();
-      gl.multMat(inverseCamera);
+      gl.multMat(cameraMatrix);
     } else {
       cameraPosition = modelCamera.position;
       
@@ -156,6 +189,8 @@
   }
   */
   function render() {
+    ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
+    
     transformCamera();
     renderSky();
     renderGround();
@@ -170,6 +205,22 @@
     if (shouldRenderWorld > 2) {
       renderGround(true);
     }
+  }
+  
+  function renderColor() {
+    ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
+    
+    transformCamera();
+    
+    ctx.disable(ctx.CULL_FACE);
+    
+    for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
+      if (modelInstanceCache[i].isInstance) {
+        modelInstanceCache[i].renderColor();
+      }
+    }
+    
+    ctx.enable(ctx.CULL_FACE);
   }
   
   // The main loop of the viewer
@@ -193,11 +244,36 @@
   
   addVisibilityListener(onVisibilityChange);
   
+  // Generate a unique color
+  var generateColor = (function () {
+    var index = 1;
+    
+    return function () {
+      var a = index % 10;
+      var b = Math.floor(index / 10) % 10;
+      var c = Math.floor(index / 100) % 10;
+      
+      index += 1;
+      
+      return [a / 10, b / 10, c / 10];
+    };
+  }());
+  
+  function colorString(color) {
+    var r = Math.floor(color[0] * 255);
+    var g = Math.floor(color[1] * 255);
+    var b = Math.floor(color[2] * 255);
+    
+    return "" + r + g+ b;
+  }
+  
+  // Load a model or texture from an absolute url, with an optional texture map
   function loadResourceImpl(source, textureMap) {
     var ext = getFileExtension(source);
     
     if (ext === "mdx" || ext === "m3") {
       var id;
+      var color;
       
       if (!modelCache[source]) {
         id = modelInstanceCache.length;
@@ -210,10 +286,17 @@
       }
       
       id = modelInstanceCache.length;
+      color = generateColor();
       
-      var instance = new ModelInstance(modelCache[source], id);
+      var instance = new ModelInstance(modelCache[source], id, color);
+      
+      // Hide portraits by default
+      if (source.endsWith("portrait.mdx")) {
+        instance.setVisibility(false);
+      }
       
       modelInstanceCache.push(instance);
+      colorInstanceCache[colorString(color)] = instance;
       
       if (instance.delayOnload) {
         onload(instance);
@@ -277,7 +360,12 @@
     if (typeof source === "string") {
       var modelId = loadModel(source);
       var id = modelInstanceCache.length;
-      var instance = new ModelInstance(modelInstanceCache[modelId], id, textureMap);
+      var color = generateColor();
+      
+      var instance = new ModelInstance(modelInstanceCache[modelId], id, color, textureMap);
+      
+      modelInstanceCache.push(instance);
+      colorInstanceCache[colorString(color)] = instance;
       
       modelInstanceCache.push(instance);
       
@@ -289,9 +377,11 @@
       if (object) {
         var model = object.isModel ? object : object.model;
         var id = modelInstanceCache.length;
-        var instance = new ModelInstance(model, id);
+        var color = generateColor();
+        var instance = new ModelInstance(model, id, color);
         
         modelInstanceCache.push(instance);
+        colorInstanceCache[colorString(color)] = instance;
         
         return id;
       }
@@ -377,6 +467,8 @@
     var object = modelInstanceCache[objectId];
     
     if (object && object.isInstance) {
+      math.quaternion.normalize(q, q);
+      
       object.setRotation(q);
     }
   }
@@ -386,6 +478,8 @@
     var object = modelInstanceCache[objectId];
     
     if (object && object.isInstance) {
+      math.quaternion.normalize(q, q);
+      
       object.rotate(q);
     }
   }
@@ -724,43 +818,55 @@
   // Misc
   // ------
   
-  function castRay(x, y) {
-    var z;
+  function selectInstance(x, y) {
+    //var date = new Date();
+    var pixel = new Uint8Array(4);
     
-    // Viewport -> NDC
-    x = (2 * x) / canvas.width - 1;
-    y = 1 - (2 * y) / canvas.height;
+    //var dx = canvas.width / 512;
+    //var dy = canvas.height / 512;
     
-    // NDC -> Homogeneous clip
-    var clip = [x, y, -1, 1];
+    //x = Math.round(x / dx);
+    y = canvas.height - y;
+    //y = Math.round(y / dy);
     
-    // Homogeneous clip -> Eye
-    var projectionMatrix = gl.getProjection();
-    var inverseProjection = [];
+    //console.log(x, y);
+    //ctx["bindFramebuffer"](ctx["FRAMEBUFFER"], colorFBO);
     
-    math.mat4.invert(projectionMatrix, inverseProjection);
+    //gl.viewSize(512, 512);
+    //gl.setPerspective(45, 1, 0.1, 5E4);
     
-    var eye = [];
+    renderColor();
     
-    math.mat4.multVec4(inverseProjection, clip, eye);
+    // The Y axis of the WebGL viewport is inverted compared to screen space
+    //y = canvas.height - y;
     
-    eye = [eye[0], eye[1], -1, 0];
+    ctx.readPixels(x, y, 1, 1, ctx.RGBA, ctx.UNSIGNED_BYTE, pixel);
     
-    // Eye -> World
-    var viewMatrix = gl.getMVP();
-    var inverseView = [];
     
-    math.mat4.invert(viewMatrix, inverseView);
+    //ctx["bindFramebuffer"](ctx["FRAMEBUFFER"], null);
     
-    var worldRay = [];
+    //gl.viewSize(canvas.width, canvas.height);
+    //gl.setPerspective(45, canvas.width / canvas.height, 0.1, 5E4);
     
-    math.mat4.multVec4(inverseView, eye, worldRay);
+    //console.log(pixel);
     
-    worldRay = [worldRay[0], worldRay[1], worldRay[2]];
+    // WebGL sometimes rounds down and sometimes up, so this code takes care of that.
+    // E.g.: 0.1*255 = 25.5, WebGL returns 25
+    // E.g.: 0.5*255 = 127.5, WebGL returns 128
+    var r = Math.floor(Math.round(pixel[0] / 25.5) * 25.5);
+    var g = Math.floor(Math.round(pixel[1] / 25.5) * 25.5);
+    var b = Math.floor(Math.round(pixel[2] / 25.5) * 25.5);
     
-    math.vec3.normalize(worldRay, worldRay);
+    var color = "" + r + g + b;
+    var instance = colorInstanceCache[color];
     
-    //console.log(worldRay);
+    //console.log("selectInstance", new Date() - date);
+    
+    if (instance) {
+      return instance.id;
+    }
+    
+    return -1;
   }
   
   // Save the scene as a JSON string.
@@ -810,8 +916,6 @@
     
     data.push(models, instances);
     
-    console.log(JSON.parse(JSON.stringify(data)));
-    
     return JSON.stringify(data);
   }
   
@@ -821,7 +925,7 @@
     // Map from object IDs in the scene to actual indices in the object array.
     var idsMap = {};
     var id;
-      
+    
     scene = JSON.parse(scene);
     
     camera.m = scene[0];
@@ -917,9 +1021,8 @@
     zoomCamera: zoomCamera,
     resetCamera: resetCamera,
     // Misc
-    castRay: castRay,
+    selectInstance: selectInstance,
     saveScene: saveScene,
     loadScene: loadScene
-   
   };
 };

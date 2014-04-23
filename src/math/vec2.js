@@ -36,6 +36,13 @@ var Vec2 = {
     
     return out;
   },
+  
+  scaleVec: function (v0, v1, out) {
+    out[0] = v0[0] * v1[0];
+    out[1] = v0[1] * v1[1];
+    
+    return out;
+  },
 
   magnitudeSquared: function (v0) {
     var x = v0[0], y = v0[1];

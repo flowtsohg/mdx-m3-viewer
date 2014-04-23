@@ -366,13 +366,13 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     
     return mvpMatrix;
   }
-  /*
+  
   function bindProjection(uniform) {
     if (boundShader) {
       boundShader.setParameter(uniform, projectionMatrix);
     }
   }
-  */
+  
   function getProjection() {
     return projectionMatrix;
   }
@@ -382,11 +382,11 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
       boundShader.setParameter(uniform, viewMatrix);
     }
   }
-  /*
+  
   function getView() {
     return viewMatrix;
   }
-  */
+  
   function generateTexture(image, clampS, clampT) {
     var id = gl["createTexture"]();
     
@@ -408,12 +408,12 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     
     onloadstart(this);
     
-    this.image = new Image();
+    var image = new Image();
     
-    this.image.onload = this.setup.bind(this, this.image, clampS, clampT);
-    this.image.onerror = onerror.bind(this);
+    image.onload = this.setup.bind(this, image, clampS, clampT);
+    image.onerror = onerror.bind(this);
     
-    this.image.src = source;
+    image.src = source;
   }
   
   Texture.prototype = {
@@ -911,10 +911,10 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     vertexAttribPointer: vertexAttribPointer,
     bindMVP: bindMVP,
     getMVP: getMVP,
-    //bindProjection: bindProjection,
+    bindProjection: bindProjection,
     getProjection: getProjection,
     bindView: bindView,
-    //getView: getView,
+    getView: getView,
     newTexture: newTexture,
     bindTexture: bindTexture,
     textureReady: textureReady,

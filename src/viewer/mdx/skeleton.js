@@ -51,7 +51,7 @@ Skeleton.prototype = {
     var pivot = node.pivot;
     var translation = getSDValue(sequence, frame, counter, nodeImpl.sd.translation, [0, 0, 0]);
     var rotation = getSDValue(sequence, frame, counter, nodeImpl.sd.rotation, [0, 0, 0, 1]);
-    var scaling = getSDValue(sequence, frame, counter, nodeImpl.sd.scaling, [1, 1, 1]);
+    var scale = getSDValue(sequence, frame, counter, nodeImpl.sd.scale, [1, 1, 1]);
     var localMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
     
     if (translation[0] !== 0 || translation[1] !== 0 || translation[2] !== 0) {
@@ -68,13 +68,18 @@ Skeleton.prototype = {
       math.mat4.translate(localMatrix, -pivot[0], -pivot[1], -pivot[2]);
     }
     
-    if (scaling[0] !== 1 || scaling[1] !== 1 || scaling[2] !== 1) {
+    if (scale[0] !== 1 || scale[1] !== 1 || scale[2] !== 1) {
       math.mat4.translate(localMatrix, pivot[0], pivot[1], pivot[2]);
-      math.mat4.scale(localMatrix, scaling[0], scaling[1], scaling[2]);
+      math.mat4.scale(localMatrix, scale[0], scale[1], scale[2]);
       math.mat4.translate(localMatrix, -pivot[0], -pivot[1], -pivot[2]);
+      
+      math.vec3.setFromArray(node.scale, scale);
     }
     
-    math.mat4.multMat(this.nodes[node.parentId].worldMatrix, localMatrix, node.worldMatrix);
+    var parent = this.nodes[node.parentId];
+    
+    math.vec3.scaleVec(node.scale, parent.scale, node.scale);
+    math.mat4.multMat(parent.worldMatrix, localMatrix, node.worldMatrix);
     
     if (nodeImpl.billboarded) {
       var cameraMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];

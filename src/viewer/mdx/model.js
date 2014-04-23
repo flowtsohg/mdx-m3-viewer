@@ -282,6 +282,36 @@ Model.prototype = {
     gl.bindTexture(null, 1);
   },
   
+  renderColor: function (instance, color) {
+    var i, l;
+    var sequence = instance.sequence;
+    var frame = instance.frame;
+    var counter = instance.counter;
+    var layer, geoset, texture;
+    
+    if (this.layers && gl.shaderReady("wcolor")) {
+      gl.bindShader("wcolor");
+      gl.bindMVP("u_mvp");
+      gl.setParameter("u_color", color);
+      
+      instance.skeleton.bind();
+      
+      for (i = 0, l = this.layers.length; i < l; i++) {
+        layer = this.layers[i];
+        
+        if (layer.shouldRender(sequence, frame, counter) && this.shouldRenderGeoset(sequence, frame, counter, layer)) {
+          geoset = this.geosets[layer.geosetId];
+          texture = this.textureMap[this.textures[layer.textureId]];
+          
+          // Avoid rendering team glows
+          if (!texture.endsWith("teamglow00.blp")) {
+            geoset.renderColor(color);
+          }
+        }
+      }
+    }
+  },
+  
   shouldRenderGeoset: function (sequence, frame, counter, layer) {
     var i, l;
     

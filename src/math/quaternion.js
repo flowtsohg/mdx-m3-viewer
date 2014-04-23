@@ -8,6 +8,7 @@ var Quaternion = {
   add: Vec4.add,
   negate: Vec4.negate,
   scale: Vec4.scale,
+  scaleVec: Vec4.scaleVec,
   magnitudeSquared: Vec4.magnitudeSquared,
   magnitude: Vec4.magnitude,
   normalize: Vec4.normalize,

@@ -72,6 +72,11 @@ Model.prototype = {
       if (parser["ribbonEmitterChunk"] && !gl.shaderReady("wribbons")) {
         gl.newShader("wribbons", SHADERS["wvssoftskinning"], psmain);
       }
+      
+      // Load the color shader if it is needed
+      if (!gl.shaderReady("wcolor")) {
+        gl.newShader("wcolor", SHADERS["vsbonetexture"] + SHADERS["wvsskinningcolor"], floatPrecision + SHADERS["wpscolor"]);
+      }
   
       // Load the model
       this.model = new Mdx.Model(parser, this.textureMap);
@@ -158,6 +163,10 @@ Model.prototype = {
           gl.newShader("sparticles" + uvSetCount, SHADERS["svsparticles"], floatPrecision + SHADERS["spsparticles"]);
         } 
         
+        if (!gl.shaderReady("scolor")) {
+          gl.newShader("scolor", SHADERS["vsbonetexture"] + SHADERS["svscolor"], floatPrecision + SHADERS["spscolor"]);
+        }
+        
         if (DEBUG_MODE) {
           console.log(this.model);
         }
@@ -238,6 +247,12 @@ Model.prototype = {
   getAttachments: function () {
     if (this.ready) {
       return this.model.getAttachments();
+    }
+  },
+  
+  getCollisionShapes: function () {
+    if (this.ready) {
+      return this.model.getCollisionShapes();
     }
   },
   
