@@ -21,13 +21,13 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   }
   
   function onloadstart(object) {
+    var source = object.source;
+    
     if (object.isModel) {
-      sendMessage({type: "loadstart", objectType: "model", source: object.source});
+      sendMessage({type: "loadstart", objectType: "model", source: source});
     } else if (object.isTexture) {
-      var path = object.source;
-      
-      if (!noReport(path)) {
-       sendMessage({type: "loadstart", objectType: "texture", source: path});
+      if (!noReport(source)) {
+       sendMessage({type: "loadstart", objectType: "texture", source: source});
       }
     } else {
       console.log("onloadstart", "What?");
@@ -70,7 +70,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     }
     
     if (typeof error !== "string") {
-      error = "NameResolve";
+      error = "Network";
     }
     
     sendMessage({type: "error", objectType: type, source: source, error: error});
@@ -98,7 +98,6 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   }
   
   function onerrorwrapper(e) {
-    console.log(e);
     onerror(this, e);
   }
   

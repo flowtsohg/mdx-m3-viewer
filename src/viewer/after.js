@@ -63,8 +63,10 @@
   camera.range = [30, 2000];
   resetCamera();
   
+  var number;
+  
   for (var i = 0; i < 13; i++) {
-    var number = ((i < 10) ? "0" + i : i);
+    number = ((i < 10) ? "0" + i : i);
     
     gl.newTexture(urls.mpqFile("ReplaceableTextures/TeamColor/TeamColor" + number + ".blp"));
     gl.newTexture(urls.mpqFile("ReplaceableTextures/TeamGlow/TeamGlow" + number + ".blp"));
@@ -324,7 +326,7 @@
         var key = keys[i];
         var texture = object.textures[key];
         
-        if (key.endsWith("dds") && gl.hasCompressedTextures) {
+        if (key.endsWith("dds")) {
           textureMap[key] = texture.url;
         } else {
           textureMap[key] = texture.url_png;
