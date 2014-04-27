@@ -63,6 +63,8 @@ The API of the viewer is as follows:
 * `getSequences(objectId)` - Get a list of the sequences owned by an object. Proxies to the owning model if the given object is an instance. Returns null if the object ID is invalid, or if the model didn't finish loading.
 * `getAttachments(objectId)` - Get a list of the attachment points owned by an object. Proxies to the owning model if the given object is an instance. Returns null if the object ID is invalid, or if the model didn't finish loading.
 * `getCameras(objectId)` - Get a list of the cameras owned by an object. Proxies to the owning model if the given object is an instance. Returns null if the object ID is invalid, or if the model didn't finish loading.
+* `setAnimationSpeed(n)` - Set the animation speed.
+* `getAnimationSpeed()` - Get the animation speed.
 * `setWorldMode(mode)` - Set the drawn world. Possible values are 0 for nothing, 1 for sky, 2 for sky and ground, and 3 for sky and water.
 * `getWorldMode(mode)` - Get the world mode.
 * `setBoundingShapesMode(b)` - Shows or hides the bounding shapes for all instances.
