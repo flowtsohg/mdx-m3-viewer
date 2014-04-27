@@ -40,7 +40,7 @@ function onloadBLPTexture(e) {
     
     jpegData.set(jpegHeader);
     jpegData.set(arrayData.subarray(mipmapOffset, mipmapOffset + mipmapSize), jpegHeaderSize);
-    var date = new Date();
+    
     var jpegImage = new JpegImage();
     
     jpegImage.loadFromBuffer(jpegData);

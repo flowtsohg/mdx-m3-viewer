@@ -26,7 +26,7 @@ function SD(tracks, model) {
 SD.prototype = {
   getInterval: function (frame, start, end) {
     var keys = this.keys;
-    var interval =  binarySearchInterval(keys, frame);
+    var interval = binarySearchInterval(keys, frame);
     var a = interval[0];
     var b = interval[1];
     

@@ -37,6 +37,6 @@ SD.prototype = {
   },
   
   getInterval: function (keys, frame) {
-    return  binarySearchInterval(keys, frame);
+    return binarySearchInterval(keys, frame);
   }
 };
