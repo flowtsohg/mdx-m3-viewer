@@ -4,14 +4,15 @@ function Particle2() {
 }
 
 Particle2.prototype = {
-  reset: function (emitter, head, sequence, frame, counter) {
+  reset: function (emitter, head, id, sequence, frame, counter) {
     var p = emitter.node.pivot;
     var width = getSDValue(sequence, frame, counter, emitter.sd.width, emitter.width) * 0.5;
     var length = getSDValue(sequence, frame, counter, emitter.sd.length, emitter.length) * 0.5;
     var speed = getSDValue(sequence, frame, counter, emitter.sd.speed, emitter.speed) ;
     var latitude = math.toRad(getSDValue(sequence, frame, counter, emitter.sd.latitude, emitter.latitude));
     
-    this.alive = true;
+    this.id = id;
+    
     this.health = emitter.lifespan;
     this.head = head;
     
@@ -60,64 +61,61 @@ Particle2.prototype = {
   },
   
   update: function (emitter, sequence, frame, counter) {
-    if (this.alive) {
-      var gravity = getSDValue(sequence, frame, counter, emitter.sd.gravity, emitter.gravity);
-      
-      this.health -= FRAME_TIME;
-      
-      this.velocity[2] -= gravity * FRAME_TIME;
+    var gravity = getSDValue(sequence, frame, counter, emitter.sd.gravity, emitter.gravity);
+    
+    this.health -= FRAME_TIME;
+    this.velocity[2] -= gravity * FRAME_TIME;
 
-      this.position[0] += this.velocity[0] * FRAME_TIME;
-      this.position[1] += this.velocity[1] * FRAME_TIME;
-      this.position[2] += this.velocity[2] * FRAME_TIME;
+    this.position[0] += this.velocity[0] * FRAME_TIME;
+    this.position[1] += this.velocity[1] * FRAME_TIME;
+    this.position[2] += this.velocity[2] * FRAME_TIME;
 
-      var lifeFactor = (emitter.lifespan === 0) ? 0 : 1 - (this.health / emitter.lifespan); 
-      var scale;
-      var tempFactor;
-      
-      if (lifeFactor < emitter.time) {
-        tempFactor = lifeFactor / emitter.time;
-        scale = (emitter.segmentScaling[0] + tempFactor * (emitter.segmentScaling[1] - emitter.segmentScaling[0]));
+    var lifeFactor = (emitter.lifespan === 0) ? 0 : 1 - (this.health / emitter.lifespan); 
+    var scale;
+    var tempFactor;
+    
+    if (lifeFactor < emitter.time) {
+      tempFactor = lifeFactor / emitter.time;
+      scale = (emitter.segmentScaling[0] + tempFactor * (emitter.segmentScaling[1] - emitter.segmentScaling[0]));
 
-        math.vec4.lerp(emitter.colors[0], emitter.colors[1], tempFactor, this.color);
-      } else {
-        tempFactor = (lifeFactor - emitter.time) / (1 - emitter.time);
-        scale = (emitter.segmentScaling[1] + tempFactor * (emitter.segmentScaling[2] - emitter.segmentScaling[1]));
+      math.vec4.lerp(emitter.colors[0], emitter.colors[1], tempFactor, this.color);
+    } else {
+      tempFactor = (lifeFactor - emitter.time) / (1 - emitter.time);
+      scale = (emitter.segmentScaling[1] + tempFactor * (emitter.segmentScaling[2] - emitter.segmentScaling[1]));
 
-        math.vec4.lerp(emitter.colors[1], emitter.colors[2], tempFactor, this.color);
-      }
-      
-      var currentFrame = lifeFactor * emitter.numberOfFrames;
-
-      this.index = 0;
-
-      var frameInterval, frameIntervalStart;
-      
-      if (currentFrame < emitter.headFrames) {
-        frameInterval = emitter.headInterval[1] - emitter.headInterval[0] + 1;
-        frameIntervalStart = 0;
-
-        this.index = emitter.headInterval[0] + ((currentFrame - frameIntervalStart) % frameInterval);
-      } else if (currentFrame < emitter.headFrames + emitter.headDecayFrames) {
-        frameInterval = emitter.headDecayInterval[1] - emitter.headDecayInterval[0] + 1;
-        frameIntervalStart = emitter.headFrames;
-
-        this.index = emitter.headDecayInterval[0] + ((currentFrame - frameIntervalStart) % frameInterval);
-      } else if (currentFrame < emitter.headFrames + emitter.headDecayFrames + emitter.tailFrames) {
-        frameInterval = emitter.tailInterval[1] - emitter.tailInterval[0] + 1;
-        frameIntervalStart = emitter.headFrames + emitter.headDecayFrames;
-
-        this.index = emitter.tailInterval[0] + ((currentFrame - frameIntervalStart) % frameInterval);
-      } else if (currentFrame < emitter.headFrames + emitter.headDecayFrames + emitter.tailFrames + emitter.tailDecayFrames) {
-        frameInterval = emitter.tailDecayInterval[1] - emitter.tailDecayInterval[0] + 1;
-        frameIntervalStart = emitter.headFrames + emitter.headDecayFrames + emitter.tailFrames;
-
-        this.index = emitter.tailDecayInterval[0] + ((currentFrame - frameIntervalStart) % frameInterval);
-      }
-
-      this.row = Math.round((emitter.columns === 1) ? 0 : (this.index / emitter.columns));
-      this.column = Math.round((emitter.columns === 1) ? 0 : (this.index % emitter.columns));
-      this.scale = scale;
+      math.vec4.lerp(emitter.colors[1], emitter.colors[2], tempFactor, this.color);
     }
+    
+    var currentFrame = lifeFactor * emitter.numberOfFrames;
+
+    this.index = 0;
+
+    var frameInterval, frameIntervalStart;
+    
+    if (currentFrame < emitter.headFrames) {
+      frameInterval = emitter.headInterval[1] - emitter.headInterval[0] + 1;
+      frameIntervalStart = 0;
+
+      this.index = emitter.headInterval[0] + ((currentFrame - frameIntervalStart) % frameInterval);
+    } else if (currentFrame < emitter.headFrames + emitter.headDecayFrames) {
+      frameInterval = emitter.headDecayInterval[1] - emitter.headDecayInterval[0] + 1;
+      frameIntervalStart = emitter.headFrames;
+
+      this.index = emitter.headDecayInterval[0] + ((currentFrame - frameIntervalStart) % frameInterval);
+    } else if (currentFrame < emitter.headFrames + emitter.headDecayFrames + emitter.tailFrames) {
+      frameInterval = emitter.tailInterval[1] - emitter.tailInterval[0] + 1;
+      frameIntervalStart = emitter.headFrames + emitter.headDecayFrames;
+
+      this.index = emitter.tailInterval[0] + ((currentFrame - frameIntervalStart) % frameInterval);
+    } else if (currentFrame < emitter.headFrames + emitter.headDecayFrames + emitter.tailFrames + emitter.tailDecayFrames) {
+      frameInterval = emitter.tailDecayInterval[1] - emitter.tailDecayInterval[0] + 1;
+      frameIntervalStart = emitter.headFrames + emitter.headDecayFrames + emitter.tailFrames;
+
+      this.index = emitter.tailDecayInterval[0] + ((currentFrame - frameIntervalStart) % frameInterval);
+    }
+
+    this.row = Math.round((emitter.columns === 1) ? 0 : (this.index / emitter.columns));
+    this.column = Math.round((emitter.columns === 1) ? 0 : (this.index % emitter.columns));
+    this.scale = scale;
   }
 };

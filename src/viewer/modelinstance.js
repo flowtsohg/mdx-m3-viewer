@@ -92,18 +92,22 @@ ModelInstance.prototype = {
     }
   },
   
+  renderEmitters: function (allowTeamColors) {
+    if (this.ready && this.visible) {
+      this.instance.renderEmitters(this, allowTeamColors);
+    }
+  },
+  
   renderColor: function () {
     if (this.ready && this.visible) {
       this.instance.renderColor(this);
     }
   },
   
-  // Return the source of the model that this instance points to.
   getSource: function () {
     return this.model.source;
   },
   
-  // Attachment is an optional attachment id that will be used from that parent, if it has a getAttachment method.
   setParent: function (parent, attachment) {
     this.parent = parent;
     

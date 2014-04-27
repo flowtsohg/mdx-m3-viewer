@@ -846,7 +846,7 @@ var JpegImage = (function jpegImage() {
           }
         }
       }
-      
+       
 /*
       // ... then transform colors, if necessary
       switch (numComponents) {

@@ -1,30 +1,41 @@
 function SD(tracks, model) {
+  var i, l, arr, keys;
+  
   this.type = tracks.type;
   this.defval = tracks.defval;
   this.interpolationType = tracks.interpolationType;
   this.globalSequenceId = tracks.globalSequenceId;
-  this.tracks = tracks.tracks;
   this.sequences = model.sequences;
   this.globalSequences = model.globalSequences;
+  
+  arr = tracks.tracks;
+  l = arr.length;
+  
+  keys = [];
+  keys.length = l;
+  
+  
+  for (i = 0; i < l; i++) {
+    keys[i] = arr[i].frame;
+  }
+  
+  this.tracks = arr;
+  this.keys = keys;
 }
 
 SD.prototype = {
   getInterval: function (frame, start, end) {
-    var tracks = this.tracks;
-    var a = tracks.length;
-    var b = 0;
+    var keys = this.keys;
+    var interval =  binarySearchInterval(keys, frame);
+    var a = interval[0];
+    var b = interval[1];
     
-    while (b !== tracks.length && frame > tracks[b].frame) {
-      a = b;
-      b++;
+    if ((a !== keys.length) && (keys[a] < start)) {
+      a = keys.length;
     }
     
-    if ((a !== tracks.length) && (tracks[a].frame < start)) {
-      a = tracks.length;
-    }
-    
-    if ((b !== tracks.length) && (tracks[b].frame > end)) {
-      b = tracks.length;
+    if ((b !== keys.length) && (keys[b] > end)) {
+      b = keys.length;
     }
     
     return [a, b];

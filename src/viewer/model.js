@@ -11,7 +11,7 @@ function Model(source, id, textureMap) {
   // Holds a list of instances that were created before the internal model finished loading
   this.queue = [];
   
-  getFile(source, true, this.setup, onerrorwrapper, onprogresswrapper, this);
+  getFile(source, true, this.setup.bind(this), onerrorwrapper.bind(this), onprogresswrapper.bind(this));
   
   onloadstart(this);
 }
@@ -60,7 +60,7 @@ Model.prototype = {
       
       // Load the main shader if it is needed
       if ((parser["geosetChunk"] || parser["particleEmitterChunk"]) && !gl.shaderReady("wmain")) {
-        gl.newShader("wmain", SHADERS["vsbonetexture"] + SHADERS["wvsskinning"], psmain)
+        gl.newShader("wmain", SHADERS["vsbonetexture"] + SHADERS["wvsmain"], psmain)
       }
       
       // Load the particle emitters type 2 shader if it is needed
@@ -70,14 +70,14 @@ Model.prototype = {
       
       // Load the ribbon emitters shader if it is needed
       if (parser["ribbonEmitterChunk"] && !gl.shaderReady("wribbons")) {
-        gl.newShader("wribbons", SHADERS["wvssoftskinning"], psmain);
+        gl.newShader("wribbons", SHADERS["wvsribbons"], psmain);
       }
       
       // Load the color shader if it is needed
       if (!gl.shaderReady("wcolor")) {
-        gl.newShader("wcolor", SHADERS["vsbonetexture"] + SHADERS["wvsskinningcolor"], floatPrecision + SHADERS["wpscolor"]);
+        gl.newShader("wcolor", SHADERS["vsbonetexture"] + SHADERS["wvscolor"], floatPrecision + SHADERS["pscolor"]);
       }
-  
+      
       // Load the model
       this.model = new Mdx.Model(parser, this.textureMap);
   
@@ -164,7 +164,7 @@ Model.prototype = {
         } 
         
         if (!gl.shaderReady("scolor")) {
-          gl.newShader("scolor", SHADERS["vsbonetexture"] + SHADERS["svscolor"], floatPrecision + SHADERS["spscolor"]);
+          gl.newShader("scolor", SHADERS["vsbonetexture"] + SHADERS["svscolor"], floatPrecision + SHADERS["pscolor"]);
         }
         
         if (DEBUG_MODE) {
@@ -184,12 +184,6 @@ Model.prototype = {
       instance.setup(this.model, this.format);
     } else {
       this.queue.push(["setupInstance", [instance]]);
-    }
-  },
-  
-  render: function (parent) {
-    if (this.ready) {
-      this.model.render(parent);
     }
   },
   

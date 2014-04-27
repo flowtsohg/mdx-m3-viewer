@@ -50,12 +50,13 @@ ModelInstance.prototype = {
   
   update: function (instance) {
     var allowCreate = false;
+    var frames = 960 * FRAME_TIME;
     
     if (this.sequence !== -1) {
       var sequence = this.model.sequences[this.sequence];
       
-      this.frame += 16;
-      this.counter += 16;
+      this.frame += frames;
+      this.counter += frames;
       
       allowCreate = true;
       
@@ -65,7 +66,7 @@ ModelInstance.prototype = {
           allowCreate = true;
         } else {
           this.frame = sequence.interval[1];
-          this.couter -= 16;
+          this.couter -= frames;
           allowCreate = false;
         }
       }
@@ -80,6 +81,10 @@ ModelInstance.prototype = {
   
   render: function (instance) {
     this.model.render(this, instance.textureMap);
+  },
+  
+  renderEmitters: function (instance) {
+    this.model.renderEmitters(this, instance.textureMap);
   },
   
   renderColor: function (instance) {

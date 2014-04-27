@@ -40,6 +40,10 @@ ModelInstance.prototype = {
     this.model.render(instance, this, allowTeamColors);
   },
   
+  renderEmitters: function (instance, allowTeamColors) {
+    this.model.renderEmitters(instance, this, allowTeamColors);
+  },
+  
   renderColor: function (instance) {
     this.model.renderColor(this, instance.color);
   },

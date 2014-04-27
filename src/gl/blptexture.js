@@ -6,6 +6,7 @@ var BLP_PALLETE = 0x1;
 function onloadBLPTexture(e) {
   var date = new Date();
   var status = e.target.status;
+  var i;
   
   if (status !== 200) {
     this.onerror("" + status);
@@ -39,17 +40,26 @@ function onloadBLPTexture(e) {
     
     jpegData.set(jpegHeader);
     jpegData.set(arrayData.subarray(mipmapOffset, mipmapOffset + mipmapSize), jpegHeaderSize);
-    
+    var date = new Date();
     var jpegImage = new JpegImage();
     
     jpegImage.loadFromBuffer(jpegData);
     
     rgba8888Data = jpegImage.getData(jpegImage.width, jpegImage.height);
+    
+    // BGR -> RGB
+    for (i = 0; i < rgba8888Data.length; i += 4) {
+      var b = rgba8888Data[i    ];
+
+      rgba8888Data[i    ] = rgba8888Data[i + 2];
+      rgba8888Data[i + 2] = b;
+    }
   } else {
     var pallete = new Uint8Array(arrayBuffer, 156, 1024);
     var size = width * height;
     var mipmapAlphaOffset = mipmapOffset + size;
-    var i, dstI;
+    var dstI;
+    var hasAlpha = pictureType === 3 || pictureType === 4;
     
     rgba8888Data = new Uint8Array(size * 4);
     
@@ -57,11 +67,12 @@ function onloadBLPTexture(e) {
       i = arrayData[mipmapOffset + index] * 4;
       dstI = index * 4;
       
+      // BGR -> RGB
       rgba8888Data[dstI] = pallete[i + 2];
       rgba8888Data[dstI + 1] = pallete[i + 1];
       rgba8888Data[dstI + 2] = pallete[i];
       
-      if (pictureType === 3 || pictureType === 4) {
+      if (hasAlpha) {
         rgba8888Data[dstI + 3] = arrayData[mipmapAlphaOffset + index]
       } else {
         rgba8888Data[dstI + 3] = 255 - pallete[i + 3];
@@ -71,10 +82,7 @@ function onloadBLPTexture(e) {
   
   this.id = gl["createTexture"]();
   gl["bindTexture"](gl["TEXTURE_2D"], this.id);
-  gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_WRAP_S"], gl["REPEAT"]);
-  gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_WRAP_T"], gl["REPEAT"]);
-  gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_MAG_FILTER"], gl["LINEAR"]);
-  gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_MIN_FILTER"], gl["LINEAR_MIPMAP_LINEAR"]);
+  textureOptions("REPEAT", "REPEAT", "LINEAR", "LINEAR_MIPMAP_LINEAR");
   gl["texImage2D"](gl["TEXTURE_2D"], 0, gl["RGBA"], width, height, 0, gl["RGBA"], gl["UNSIGNED_BYTE"], rgba8888Data);
   gl["generateMipmap"](gl["TEXTURE_2D"]);
   
@@ -82,12 +90,12 @@ function onloadBLPTexture(e) {
   this.onload(this);
 }
 
-function BLPTexture(source) {
+function BLPTexture(source, onload, onerror, onprogress) {
   this.isTexture = true;
   this.source = source;
   
   this.onload = onload;
   this.onerror = onerror.bind(this);
   
-  getFile(source, true, onloadBLPTexture, this.onerror, onprogress.bind(this));
+  getFile(source, true, onloadBLPTexture.bind(this), this.onerror, onprogress.bind(this));
 }

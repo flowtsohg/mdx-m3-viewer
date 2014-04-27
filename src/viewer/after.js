@@ -1,5 +1,7 @@
-  gl.setShaderMaps(PARAMETERMAP, MEMBERMAP);
-
+  if (PARAMETERMAP && MEMBERMAP) {
+    gl.setShaderMaps(PARAMETERMAP, MEMBERMAP);
+  }
+  
   function setupColor(width, height) {
     // Color texture
     var color = ctx["createTexture"]();
@@ -81,8 +83,8 @@
   gl.newTexture("images/sky.png");
   //gl.newTexture("Light", "../images/Light.png");
     
-  grass_water = gl.newRectangle(0, 0, -3, 250, 250, 6);
-  bedrock = gl.newRectangle(0, 0, -35, 250, 250, 6);
+  grass_water = gl.newRect(0, 0, -3, 250, 250, 6);
+  bedrock = gl.newRect(0, 0, -35, 250, 250, 6);
   sky = gl.newSphere(0, 0, 0, 5, 10, 2E4);
   //light = gl.newSphere(0, 0, 0, 10, 10, 0.05);
   
@@ -174,7 +176,6 @@
       gl.popMatrix();
     }
   }
-
   /*
   function renderLights() {
     if (shouldRenderLights && worldShader) {
@@ -203,9 +204,17 @@
     renderGround();
     //renderLights();
     
+    // Render geometry
     for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
       if (modelInstanceCache[i].isInstance) {
         modelInstanceCache[i].render(shouldRenderTeamColors);
+      }
+    }
+    
+    // Render particles
+    for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
+      if (modelInstanceCache[i].isInstance) {
+        modelInstanceCache[i].renderEmitters(shouldRenderTeamColors);
       }
     }
     
@@ -274,8 +283,8 @@
     return "" + r + g+ b;
   }
   
-  // Load a model or texture from an absolute url, with an optional texture map
-  function loadResourceImpl(source, textureMap) {
+  // Load a model or texture from an absolute url, with an optional texture map, and an optional hidden parameter
+  function loadResourceImpl(source, textureMap, hidden) {
     var ext = getFileExtension(source);
     
     if (ext === "mdx" || ext === "m3") {
@@ -298,7 +307,7 @@
       var instance = new ModelInstance(modelCache[source], id, color);
       
       // Hide portraits by default
-      if (source.endsWith("portrait.mdx")) {
+      if (hidden) {
         instance.setVisibility(false);
       }
       
@@ -322,21 +331,23 @@
       var keys = Object.keys(object.textures);
       var textureMap = {};
       
+      if (DEBUG_MODE) {
+        console.log(object);
+      }
+      
       for (i = 0, l = keys.length; i < l; i++) {
         var key = keys[i];
         var texture = object.textures[key];
         
-        if (key.endsWith("dds")) {
-          textureMap[key] = texture.url;
-        } else {
-          textureMap[key] = texture.url_png;
-        }
+        textureMap[key] = texture.url;
         
         gl.newTexture(textureMap[key]);
       }
-    
+      
+      var models = object.models;
+      
       for (i = 0, l = object.models.length; i < l; i++) {
-        loadResourceImpl(object.models[i].url, textureMap);
+        loadResourceImpl(models[i].url, textureMap, models[i].hidden);
       }
     }
   }
@@ -750,6 +761,16 @@
   }
   */
   
+  // Set the animation speed
+  function setAnimationSpeed(n) {
+    FRAME_TIME = n / 60;
+  }
+  
+  // Get the animation speed
+  function getAnimationSpeed() {
+    return FRAME_TIME * 60;
+  }
+  
   // Set the drawn world.
   // Possible values are 0 for nothing, 1 for sky, 2 for sky and ground, and 3 for sky and water.
   function setWorldMode(mode) {
@@ -879,7 +900,7 @@
   // Save the scene as a JSON string.
   function saveScene() {
     var i, l;
-    var data = [camera.m, camera.r, shouldRenderWorld, shouldRenderShapes & 1, shouldRenderTeamColors & 1, shaderToUse]
+    var data = [camera.m, camera.r, 60 * FRAME_TIME, shouldRenderWorld, shouldRenderShapes & 1, shouldRenderTeamColors & 1, shaderToUse]
     // This keeps track of all the models that are actually used (= a visible instance points to them).
     var usedModels = {};
     var models = [];
@@ -937,13 +958,14 @@
     
     camera.m = scene[0];
     camera.r = scene[1];
-    shouldRenderWorld = scene[2];
-    shouldRenderShapes = !!scene[3];
-    shouldRenderTeamColors = !!scene[4];
-    shaderToUse = scene[5];
+    FRAME_TIME = scene[2] / 60;
+    shouldRenderWorld = scene[3];
+    shouldRenderShapes = !!scene[4];
+    shouldRenderTeamColors = !!scene[5];
+    shaderToUse = scene[6];
     
-    var models = scene[6];
-    var instances = scene[7];
+    var models = scene[7];
+    var instances = scene[8];
     var object;
     var isModel;
     var owningModel;
@@ -1014,6 +1036,8 @@
     getCameras: getCameras,
     // General settings
     //applyCamera: applyCamera,
+    setAnimationSpeed: setAnimationSpeed,
+    getAnimationSpeed: getAnimationSpeed,
     setWorldMode: setWorldMode,
     getWorldMode: getWorldMode,
     setBoundingShapesMode: setBoundingShapesMode,

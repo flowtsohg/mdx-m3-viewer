@@ -296,10 +296,7 @@ function onloadDDSTexture(e) {
   
   this.id = gl["createTexture"]();
   gl["bindTexture"](gl["TEXTURE_2D"], this.id);
-  gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_WRAP_S"], gl["REPEAT"]);
-  gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_WRAP_T"], gl["REPEAT"]);
-  gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_MAG_FILTER"], gl["LINEAR"]);
-  gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_MIN_FILTER"], mipmapCount > 1 ? gl["LINEAR_MIPMAP_LINEAR"] : gl["LINEAR"]);
+  textureOptions("REPEAT", "REPEAT", "LINEAR", mipmapCount > 1 ? "LINEAR_MIPMAP_LINEAR" : "LINEAR");
   
   if (internalFormat) {
     for (var i = 0; i < mipmapCount; i++) {

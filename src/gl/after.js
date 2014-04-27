@@ -1,8 +1,8 @@
   return {
     viewSize: viewSize,
     setPerspective: setPerspective,
-    //setOrtho: setOrtho,
-    //setBackground: setBackground,
+    setOrtho: setOrtho,
+    setBackground: setBackground,
     loadIdentity: loadIdentity,
     translate: translate,
     rotate: rotate,
@@ -25,14 +25,10 @@
     getView: getView,
     newTexture: newTexture,
     bindTexture: bindTexture,
-    textureReady: textureReady,
-    newRectangle: newRectangle,
+    newRect: newRect,
     newSphere: newSphere,
     newCube: newCube,
     newCylinder: newCylinder,
-    gl: gl,
-    hasVertexTexture: hasVertexTexture,
-    hasFloatTexture: hasFloatTexture,
-    hasCompressedTextures: hasCompressedTextures
+    gl: gl
   };
 }

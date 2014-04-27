@@ -20,7 +20,6 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   var hasVertexTexture = gl["getParameter"](gl["MAX_VERTEX_TEXTURE_IMAGE_UNITS"]) > 0;
   var hasFloatTexture = gl["getExtension"]("OES_texture_float");
   var compressedTextures = gl["getExtension"]("WEBGL_compressed_texture_s3tc");
-  var hasCompressedTextures = !!compressedTextures;
   
   if (!hasVertexTexture) {
     unboundonerror({isGL: true}, "VertexTexture");
@@ -41,7 +40,6 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   var mvpMatrix = [];
   var matrixStack = [];
   var textureStore = {};
-  var textureNameStore = {};
   var shaderUnitStore = {};
   var shaderStore = {};
   var shaderUniformStore = {};
@@ -74,3 +72,10 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   gl["depthFunc"](gl["LEQUAL"]);
   gl["enable"](gl["DEPTH_TEST"]);
   gl["enable"](gl["CULL_FACE"]);
+  
+  function textureOptions(wrapS, wrapT, magFilter, minFilter) {
+    gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_WRAP_S"], gl[wrapS]);
+    gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_WRAP_T"], gl[wrapT]);
+    gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_MAG_FILTER"], gl[magFilter]);
+    gl["texParameteri"](gl["TEXTURE_2D"], gl["TEXTURE_MIN_FILTER"], gl[minFilter]);
+  }

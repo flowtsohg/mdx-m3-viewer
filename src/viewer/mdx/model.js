@@ -228,13 +228,32 @@ Model.prototype = {
       }
     }
     
-    ctx.depthMask(1);
-    
     if (instance.particleEmitters && gl.shaderReady("wmain")) {
       for (i = 0, l = instance.particleEmitters.length; i < l; i++) {
         instance.particleEmitters[i].render();
       }
     }
+    
+    if (shouldRenderShapes && this.collisionShapes && gl.shaderReady("white")) {
+      ctx.depthMask(1);
+      gl.bindShader("white");
+      
+      for (i = 0, l = this.collisionShapes.length; i < l; i++) {
+        this.collisionShapes[i].render(instance.skeleton);
+      }
+    }
+    
+    ctx.disable(ctx.BLEND);
+    ctx.enable(ctx.CULL_FACE);
+  },
+  
+  renderEmitters: function (instance, textureMap) {
+    var i, l;
+	  var sequence = instance.sequence;
+    var frame = instance.frame;
+    var counter = instance.counter;
+    
+    ctx.depthMask(1);
     
     if (instance.ribbonEmitters && gl.shaderReady("wribbons")) {
       ctx.disable(ctx.CULL_FACE);
@@ -266,20 +285,8 @@ Model.prototype = {
       ctx.enable(ctx.CULL_FACE);
     }
     
-    if (shouldRenderShapes && this.collisionShapes && gl.shaderReady("white")) {
-      ctx.depthMask(1);
-      gl.bindShader("white");
-      
-      for (i = 0, l = this.collisionShapes.length; i < l; i++) {
-        this.collisionShapes[i].render(instance.skeleton);
-      }
-    }
-    
     ctx.disable(ctx.BLEND);
     ctx.enable(ctx.CULL_FACE);
-    
-    // Since the bone texture isn't registered through GL but used directly, it must be null'd so that other textures would replace it.
-    gl.bindTexture(null, 1);
   },
   
   renderColor: function (instance, color) {

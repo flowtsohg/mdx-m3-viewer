@@ -1,3 +1,40 @@
+function numberCompareFn(a, b) {
+  return a > b ? 1 : a < b ? -1 : 0;
+};
+
+function binarySearchInterval(arr, target) {
+  var left = 0;
+  var right = arr.length; 
+  var found;
+  var middle;
+  var compareResult;
+  
+  if (target < arr[0]) {
+    return [right, 0];
+  } else if (target > arr[right - 1]) {
+    return [right - 1, right];
+  }
+  
+  while (left < right) {
+    middle = (left + right) >> 1;
+    compareResult = numberCompareFn(target, arr[middle]);
+    
+    if (compareResult === 0) {
+      return [middle, middle + 1];
+    } else if (compareResult === 1 && arr[middle + 1] > target) {
+      return [middle, middle + 1];
+    } else if (compareResult === -1 && arr[middle - 1] < target) {
+      return [middle - 1, middle];
+    }
+    
+    if (compareResult > 0) {
+      left = middle + 1;
+    } else {
+      right = middle;
+    }
+  }
+};
+
 function getFileName(source) {
   var tokens = source.split("/");
   
@@ -90,30 +127,18 @@ function getDom() {
   return dom;
 }
 
-function getFile(path, binary, onload, onerror, onprogress, parent) {
+function getFile(path, binary, onload, onerror, onprogress) {
   var xhr = new XMLHttpRequest();
   
   if (onload) {
-    if (parent) {
-      onload = onload.bind(parent);
-    }
-    
     xhr.addEventListener("load", onload, false);
   }
   
   if (onerror) {
-    if (parent) {
-      onerror = onerror.bind(parent);
-    }
-    
     xhr.addEventListener("error", onerror, false);
   }
   
   if (onprogress) {
-    if (parent) {
-      onprogress = onprogress.bind(parent);
-    }
-    
     xhr.addEventListener("progress", onprogress, false);
   }
   

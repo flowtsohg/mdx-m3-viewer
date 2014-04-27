@@ -21,13 +21,11 @@ function Skeleton(model) {
   this.texelFraction = 1 / this.boneTextureSize;
   this.boneFraction = this.texelFraction * 4;
   
-  ctx.activeTexture(ctx.TEXTURE1);
+  ctx.activeTexture(ctx.TEXTURE15);
   ctx.bindTexture(ctx.TEXTURE_2D, this.boneTexture);
   ctx.texImage2D(ctx.TEXTURE_2D, 0, ctx.RGBA, this.boneTextureSize, 1, 0, ctx.RGBA, ctx.FLOAT, null);
   ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MAG_FILTER, ctx.NEAREST);
   ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MIN_FILTER, ctx.NEAREST);
-  ctx.bindTexture(ctx.TEXTURE_2D, null);
-  gl.bindTexture(null, 1);
 }
 
 Skeleton.prototype = {
@@ -120,24 +118,16 @@ Skeleton.prototype = {
       hwbones[k + 15] = worldMatrix[15];
     }
     
-    // Force GL to override its internal cache.
-    // Without this, texture unit 1 wont get updated for other models.
-    gl.bindTexture(null, 1);
-    
-    ctx.activeTexture(ctx.TEXTURE1);
+    ctx.activeTexture(ctx.TEXTURE15);
     ctx.bindTexture(ctx.TEXTURE_2D, this.boneTexture);
     ctx.texSubImage2D(ctx.TEXTURE_2D, 0, 0, 0, 4 + bones.length * 4, 1, ctx.RGBA, ctx.FLOAT, hwbones);
   },
   
   bind: function () {
-    // Force GL to override its internal cache.
-    // Without this, texture unit 1 wont get updated for other models.
-    gl.bindTexture(null, 1);
-    
-    ctx.activeTexture(ctx.TEXTURE1);
+    ctx.activeTexture(ctx.TEXTURE15);
     ctx.bindTexture(ctx.TEXTURE_2D, this.boneTexture);
     
-    gl.setParameter("u_bones", 1);
+    gl.setParameter("u_bones", 15);
     gl.setParameter("u_bone_size", this.boneFraction);
     gl.setParameter("u_pixel_size", this.texelFraction);
   }

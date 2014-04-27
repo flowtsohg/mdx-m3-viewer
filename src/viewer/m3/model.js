@@ -276,6 +276,10 @@ Model.prototype = {
     }
   },
   
+  renderEmitters: function (instance, instanceImpl, allowTeamColors) {
+    
+  },
+  
   renderColor: function (instance, color) {
     var i, l;
     var batch, region;
