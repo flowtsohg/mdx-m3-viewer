@@ -1,4 +1,5 @@
 uniform mat4 u_mvp;
+uniform float u_firstBoneLookupIndex;
 
 attribute vec3 a_position;
 attribute vec4 a_bones;
@@ -24,7 +25,7 @@ void transform(vec3 inposition, vec4 bones, vec4 weights, out vec3 outposition) 
 void main() {
   vec3 position;
   
-  transform(a_position, a_bones, a_weights, position);
+  transform(a_position, a_bones + u_firstBoneLookupIndex, a_weights, position);
   
   gl_Position = u_mvp * vec4(position * 100.0, 1);
 }
