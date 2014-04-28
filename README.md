@@ -29,7 +29,7 @@ new ModelViewer(canvas, urls, onmessage, debugMode)
 
 `urls` is an object that is used to retrieve urls for certain types of model and texture paths. It should have the following methods:
 
-* `header(id)` - Returns the path for a metadata header about a custom resource. More on this at the loading custom models section below.
+* `header(id)` - Returns the path for a metadata header about a custom resource. More on this [below](#custom-models).
 * `mpqFile(path)` - Returns a path for a file in any of the Warcraft 3 or Starcraft 2 MPQs.
 
 If the client has the requierments to run the viewer, the API will be returned, otherwise, null will be returned, and an error message will be dispatched to onmessage.
@@ -104,7 +104,7 @@ The `source` value is the source string that generated the object (an url or nam
 
 ------------------------
 
-#### Loading custom models
+#### <a name="custom-models"></a> Loading custom models
 
 The urls.header stub is used to give information about custom models. Given some form of identifier, it should return an url that will point to a JSON object of the following form:
 
