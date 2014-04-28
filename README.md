@@ -34,9 +34,18 @@ new ModelViewer(canvas, urls, onmessage, debugMode)
 
 If the client has the requierments to run the viewer, the API will be returned, otherwise, null will be returned, and an error message will be dispatched to onmessage.
 
+------------------------
+
+Terminology:
+
+* A model is a heavy weight object that contains all the model vertices, polygon indices, animation data, skeletal structure, etc.
+* An instance is a light weight object that contains a shallow skeleton, particle emitters, animation timers, etc.
+
+------------------------
+
 The API of the viewer is as follows:
 
-* `loadResource(source)` - Load a resource from a given source. The source can be an absolute path to a MDX/M3/BLP/DDS/PNG file, a path to a MDX/M3/BLP/DDS/TGA file in any of the Warcraft 3 and Starcraft 2 MPQs, or a resource thread ID used by the Hiveworkshop. If loading from a resource thread, every model and texture in the resource thread will be loaded.
+* `loadResource(source)` - Load a resource from a given source. The source can be an absolute path to a MDX/M3/BLP/DDS/PNG file, a path to a MDX/M3/BLP/DDS/TGA file in any of the Warcraft 3 and Starcraft 2 MPQs, or a header. If loading from a header, every model and texture in the header will be loaded.
 * `setVisibility(objectId, b)` - Shows or hides an instance.
 * `getVisibility(objectId)` - Get the visibility status of an instance.
 * `setLocation(objectId, v)` - Set the location of an instance.
@@ -83,6 +92,9 @@ The API of the viewer is as follows:
 * `selectInstance(x, y)` - Selects an instance given a screen space coordinate on the canvas. Returns the ID of the selected instance, or -1 if no instance was selected.
 * `saveScene()` - Save the scene as a string
 * `loadScene(scene)` - Load a scene from a previously saved string.
+
+
+When loading a resource, it can be either an absolute url (http://...), a relative path (ends with a known file extension), or otherwise an arbitrary identifier used for custom models and textures.
 
 ------------------------
 
