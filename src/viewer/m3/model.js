@@ -1,18 +1,8 @@
 function Model(parser, textureMap) {
   var i, l;
-  var div = parser.divisions[0];
-  var uvSetCount = parser.uvSetCount;
-  var regions = div.regions;
-  var tokens = parser.name.split(/[\/\\]/);
   var material;
-  
-  this.name = tokens[tokens.length - 1];
-  this.uvSetCount = uvSetCount;
-  this.regions = [];
-  
-  for (i = 0, l = regions.length; i < l; i++) {
-    this.regions.push(new Region(regions[i], parser.vertices, div.triangles, parser.boneLookup, uvSetCount));
-  }
+  var div = parser.divisions[0];
+  this.setupGeometry(parser, div);
   
   this.batches = [];
   this.materials = [[], []]; // 2D array for the possibility of adding more material types in the future
@@ -31,7 +21,7 @@ function Model(parser, textureMap) {
     this.materials[1][i] = new StandardMaterial(material, this, textureMap);
   }
   
-// Create concrete batch objects
+  // Create concrete batch objects
   for (i = 0, l = div.batches.length; i < l; i++) {
     var batch = div.batches[i];
     var regionId = batch.regionIndex;
@@ -93,6 +83,7 @@ function Model(parser, textureMap) {
   
   this.initialReference = parser.initialReference;
   this.bones = parser.bones;
+  this.boneLookup = parser.boneLookup;
   this.sequences = parser.sequences;
   this.sts = [];
   this.stc = [];
@@ -136,6 +127,93 @@ function Model(parser, textureMap) {
 }
 
 Model.prototype = {
+  setupGeometry: function (parser, div) {
+    var i, l;
+    var uvSetCount = parser.uvSetCount;
+    var regions = div.regions;
+    var totalElements = 0;
+    var offsets = [];
+    
+    for (i = 0, l = regions.length; i < l; i++) {
+      offsets.push(totalElements);
+      totalElements += regions[i].triangleIndicesCount;
+    }
+    
+    console.log(totalElements, offsets);
+    var elementArray = new Uint16Array(totalElements);
+    
+    this.regions = [];
+    
+    for (i = 0, l = regions.length; i < l; i++) {
+      this.regions.push(new Region(regions[i], div.triangles, elementArray, offsets[i]));
+    }
+    
+    this.elementBuffer = ctx.createBuffer();
+    ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
+    ctx.bufferData(ctx.ELEMENT_ARRAY_BUFFER, elementArray, ctx.STATIC_DRAW);
+    
+    this.setupVertices(parser.vertices, uvSetCount);
+  },
+  
+  setupVertices: function (vertices, uvSetCount) {
+    var i, j;
+    var verticesCount = vertices.length;
+    var elementsPerVertex = 19 + 2 * uvSetCount;
+    var dst = new Float32Array(elementsPerVertex * verticesCount);
+    var dstI;
+    var vertex, position, boneWeights, boneLookupIndices, normal, uvs, tangent, uv;
+    
+    for (i = 0; i < verticesCount; i++) {
+      dstI = i * elementsPerVertex;
+      vertex = vertices[i];
+      position = vertex.position;
+      boneWeights = vertex.boneWeights;
+      boneLookupIndices = vertex.boneLookupIndices;
+      normal = vertex.normal;
+      uvs = vertex.uvs;
+      tangent = vertex.tangent;
+      
+      dst[dstI + 0] = position[0];
+      dst[dstI + 1] = position[1];
+      dst[dstI + 2] = position[2];
+      
+      dst[dstI + 3] = boneWeights[0];
+      dst[dstI + 4] = boneWeights[1];
+      dst[dstI + 5] = boneWeights[2];
+      dst[dstI + 6] = boneWeights[3];
+      
+      dst[dstI + 7] = boneLookupIndices[0];
+      dst[dstI + 8] = boneLookupIndices[1];
+      dst[dstI + 9] = boneLookupIndices[2];
+      dst[dstI + 10] = boneLookupIndices[3];
+      
+      dst[dstI + 11] = normal[0];
+      dst[dstI + 12] = normal[1];
+      dst[dstI + 13] = normal[2];
+      dst[dstI + 14] = normal[3];
+      
+      for (j = 0; j < uvSetCount; j++) {
+        uv = uvs[j];
+        
+        dst[dstI + 15 + 2 * j] = uv[0];
+        dst[dstI + 16 + 2 * j] = uv[1];
+      }
+      
+      dst[dstI + 15 + 2 * uvSetCount] = tangent[0];
+      dst[dstI + 16 + 2 * uvSetCount] = tangent[1];
+      dst[dstI + 17 + 2 * uvSetCount] = tangent[2];
+      dst[dstI + 18 + 2 * uvSetCount] = tangent[3];  
+    }
+    
+    var vertexBuffer = ctx.createBuffer();
+    ctx.bindBuffer(ctx.ARRAY_BUFFER, vertexBuffer);
+    ctx.bufferData(ctx.ARRAY_BUFFER, dst, ctx.STATIC_DRAW);
+    
+    this.vertexBuffer = vertexBuffer;
+    this.vertexSize = elementsPerVertex * 4;
+    this.uvSetCount = uvSetCount;
+  },
+  
   mapMaterial: function (index) {
     var materialMap = this.materialMaps[index];
     
@@ -187,6 +265,38 @@ Model.prototype = {
     }
   },
   
+  bind: function () {
+    var vertexSize = this.vertexSize;
+    var uvSetCount = this.uvSetCount;
+    
+    ctx.bindBuffer(ctx.ARRAY_BUFFER, this.vertexBuffer);
+    
+    gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, vertexSize, 0);
+    gl.vertexAttribPointer("a_weights", 4, ctx.FLOAT, false, vertexSize, 12);
+    gl.vertexAttribPointer("a_bones", 4, ctx.FLOAT, false, vertexSize, 28);
+    gl.vertexAttribPointer("a_normal", 4, ctx.FLOAT, false, vertexSize, 44);
+    
+    for (var i = 0; i < uvSetCount; i++) {
+      gl.vertexAttribPointer("a_uv" + i, 2, ctx.FLOAT, false, vertexSize, 60 + i * 8);
+    }
+    
+    gl.vertexAttribPointer("a_tangent", 4, ctx.FLOAT, false, vertexSize, 60 + uvSetCount * 8);
+    
+    ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
+  },
+  
+  bindColor: function () {
+    var vertexSize = this.vertexSize;
+    
+    ctx.bindBuffer(ctx.ARRAY_BUFFER, this.vertexBuffer);
+    
+    gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, vertexSize, 0);
+    gl.vertexAttribPointer("a_weights", 4, ctx.FLOAT, false, vertexSize, 12);
+    gl.vertexAttribPointer("a_bones", 4, ctx.FLOAT, false, vertexSize, 28);
+    
+    ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
+  },
+  
   render: function (instance, instanceImpl, allowTeamColors) {
     var i, l;
     var sequence = instanceImpl.sequence;
@@ -214,6 +324,9 @@ Model.prototype = {
     gl.setParameter("u_teamColor", [tc[0] / 255, tc[1] / 255, tc[2] / 255]);
     gl.setParameter("u_eyePos", cameraPosition);
     gl.setParameter("u_lightPos", lightPosition);
+    
+    // Bind the vertices
+    this.bind();
     
     for (i = 0, l = this.batches.length; i < l; i++) {
       var batch = this.batches[i];
@@ -291,11 +404,14 @@ Model.prototype = {
     gl.bindMVP("u_mvp");
     gl.setParameter("u_color", color);
     
+    // Bind the vertices
+    this.bindColor();
+    
     for (i = 0, l = this.batches.length; i < l; i++) {
       batch = this.batches[i];
       region = batch.region;
       
-      region.renderColor();
+      region.render();
     }
   },
   

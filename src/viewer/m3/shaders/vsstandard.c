@@ -2,6 +2,7 @@ uniform mat4 u_mvp;
 uniform mat4 u_mv;
 uniform vec3 u_eyePos;
 uniform vec3 u_lightPos;
+uniform float u_firstBoneLookupIndex;
 
 attribute vec3 a_position;
 attribute vec4 a_normal;
@@ -66,7 +67,7 @@ void transform(vec3 inposition, vec3 innormal, vec3 intangent, vec4 bones, vec4 
 void main() {
   vec3 position, normal, tangent;
   
-  transform(a_position, vec3(a_normal), vec3(a_tangent), a_bones, a_weights, position, normal, tangent);
+  transform(a_position, vec3(a_normal), vec3(a_tangent), a_bones + u_firstBoneLookupIndex, a_weights, position, normal, tangent);
   
   mat3 mv = mat3(u_mv);
   
@@ -106,5 +107,5 @@ void main() {
   v_uv[3] = a_uv3;
   #endif
   
-  gl_Position = u_mvp * vec4(position * 100.0, 1);
+  gl_Position = u_mvp * vec4(position, 1);
 }

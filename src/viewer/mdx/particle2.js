@@ -5,7 +5,7 @@ function Particle2() {
 
 Particle2.prototype = {
   reset: function (emitter, head, id, sequence, frame, counter) {
-    var p = emitter.node.pivot;
+    var pivot = emitter.node.pivot;
     var width = getSDValue(sequence, frame, counter, emitter.sd.width, emitter.width) * 0.5;
     var length = getSDValue(sequence, frame, counter, emitter.sd.length, emitter.length) * 0.5;
     var speed = getSDValue(sequence, frame, counter, emitter.sd.speed, emitter.speed) ;
@@ -17,45 +17,45 @@ Particle2.prototype = {
     this.health = emitter.lifespan;
     this.head = head;
     
-    math.mat4.multVec3(emitter.node.worldMatrix, [p[0] + math.random(-width, width), p[1] + math.random(-length, length), p[2]], this.position);
+    var position = [];
+    
+    math.mat4.multVec3(emitter.node.worldMatrix, [pivot[0] + math.random(-width, width), pivot[1] + math.random(-length, length), pivot[2]], position);
     
     this.speed = speed + math.random(-emitter.variation, emitter.variation);
     
     var rotationY = [];
     var rotationZ = [];
     var rotation = [];
-    var v = [];
+    var velocity = [];
     
     math.mat4.makeRotateY(rotationY, math.random(-latitude, latitude));
     math.mat4.makeRotateZ(rotationZ, math.random(-Math.PI, Math.PI));
     math.mat4.multMat(rotationZ, rotationY, rotation);
-    math.mat4.multVec3(rotation, [0, 0, 1], v);
-    math.vec3.normalize(v, v);
+    math.mat4.multVec3(rotation, [0, 0, 1], velocity);
+    math.vec3.normalize(velocity, velocity);
     
-    p = this.position;
-    
-    var velocityStart = [p[0], p[1], p[2]];
-    var velocityEnd = [p[0] + v[0], p[1] + v[1], p[2] + v[2]];
+    var velocityStart = [position[0], position[1], position[2]];
+    var velocityEnd = [position[0] + velocity[0], position[1] + velocity[1], position[2] + velocity[2]];
 
     math.mat4.multVec3(emitter.node.worldMatrix, velocityStart, velocityStart);
     math.mat4.multVec3(emitter.node.worldMatrix, velocityEnd, velocityEnd);
     
-    math.vec3.subtract(velocityEnd, velocityStart, v);
-    math.vec3.normalize(v, v);
+    math.vec3.subtract(velocityEnd, velocityStart, velocity);
+    math.vec3.normalize(velocity, velocity);
     
-    math.vec3.scale(v, this.speed, v);
+    math.vec3.scale(velocity, this.speed, velocity);
     
-    this.velocity = v;
-    
-    if (!this.head) {
+    if (!head) {
       var tailLength = emitter.tailLength * 0.5;
       
-      this.position[0] -= tailLength * v;
-      this.position[1] -= tailLength * v;
-      this.position[2] -= tailLength * v;
+      position[0] -= tailLength * velocity[0];
+      position[1] -= tailLength * velocity[1];
+      position[2] -= tailLength * velocity[2];
       this.tailLength = tailLength;
     }
     
+    this.position = position;
+    this.velocity = velocity;
     this.color[0] = color[0];
     this.color[1] = color[1];
     this.color[2] = color[2];

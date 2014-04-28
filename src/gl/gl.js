@@ -67,7 +67,7 @@ function newShader(name, vertexSource, fragmentSource, defines) {
     defines = defines.join("\n") + "\n";
     
     var vertexUnit = newShaderUnit(defines + vertexSource, gl["VERTEX_SHADER"], name);
-    var fragmentUnit = newShaderUnit(defines + fragmentSource, gl["FRAGMENT_SHADER"], name);
+    var fragmentUnit = newShaderUnit(floatPrecision + defines + fragmentSource, gl["FRAGMENT_SHADER"], name);
     
     if (vertexUnit.ready && fragmentUnit.ready) {
       shaderStore[name] = new Shader(name, vertexUnit, fragmentUnit);
@@ -125,11 +125,6 @@ function setParameter(name, value) {
       boundShader.setParameter(name, value);
     }
   }
-}
-
-function setShaderMaps(parameters, members) {
-  parameterMap = parameters;
-  memberMap = members;
 }
 
 function vertexAttribPointer(name, size, type, normalized, stride, pointer) {

@@ -1,17 +1,8 @@
-  if (PARAMETERMAP && MEMBERMAP) {
-    gl.setShaderMaps(PARAMETERMAP, MEMBERMAP);
-  }
-  
   function setupColor(width, height) {
     // Color texture
     var color = ctx["createTexture"]();
     ctx["bindTexture"](ctx["TEXTURE_2D"], color);
-    ctx["texImage2D"](ctx["TEXTURE_2D"], 0, ctx["RGBA"], width, height, 0, ctx["RGBA"], ctx["UNSIGNED_BYTE"], null);
-    ctx["texParameteri"](ctx["TEXTURE_2D"], ctx["TEXTURE_WRAP_S"], ctx["REPEAT"]);
-    ctx["texParameteri"](ctx["TEXTURE_2D"], ctx["TEXTURE_WRAP_T"], ctx["REPEAT"]);
-    ctx["texParameteri"](ctx["TEXTURE_2D"], ctx["TEXTURE_MAG_FILTER"], ctx["NEAREST"]);
-    ctx["texParameteri"](ctx["TEXTURE_2D"], ctx["TEXTURE_MIN_FILTER"], ctx["NEAREST"]);
-    ctx["bindTexture"](ctx["TEXTURE_2D"], null);
+    gl.textureOptions("REPEAT", "REPEAT", "NEAREST", "NEAREST");
     
     // Depth render buffer
     var depth = ctx["createRenderbuffer"]();
@@ -74,8 +65,8 @@
     gl.newTexture(urls.mpqFile("ReplaceableTextures/TeamGlow/TeamGlow" + number + ".blp"));
   }
       
-  gl.newShader("world", SHADERS["vsworld"], floatPrecision + SHADERS["psworld"]);
-  gl.newShader("white", SHADERS["vswhite"], floatPrecision + SHADERS["pswhite"]);
+  gl.newShader("world", SHADERS["vsworld"], SHADERS["psworld"]);
+  gl.newShader("white", SHADERS["vswhite"], SHADERS["pswhite"]);
   
   gl.newTexture("images/grass.png");
   gl.newTexture("images/water.png");
@@ -285,7 +276,7 @@
   
   // Load a model or texture from an absolute url, with an optional texture map, and an optional hidden parameter
   function loadResourceImpl(source, textureMap, hidden) {
-    var ext = getFileExtension(source);
+    var ext = getFileExtension(source).toLowerCase();
     
     if (ext === "mdx" || ext === "m3") {
       var id;

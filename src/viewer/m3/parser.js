@@ -55,10 +55,17 @@ var Parser = (function () {
     return data;
   }
 
-  function parseVertices(reader, indexEntries, uvSetCount) {
+  function parseTriangles(reader, indexEntries) {
     var reference = new Reference(reader);
     var indexEntry = indexEntries[reference.index];
+    
+    return new Uint16Array(reader.buffer, indexEntry.offset, reference.entries);
+  }
+  
+  function parseVertices(reader, indexEntries, uvSetCount) {
+    var reference = new Reference(reader);
     var offset = tell(reader);
+    var indexEntry = indexEntries[reference.index];
     var entries = [];
     
     seek(reader, indexEntry.offset);
@@ -1059,7 +1066,7 @@ var Parser = (function () {
   
   function Division(reader, indexEntries, version) {
     this.version = version;
-    this.triangles = parseReferenceByVal(reader, indexEntries, readUint16);
+    this.triangles = parseTriangles(reader, indexEntries);
     this.regions = parseReference(reader, indexEntries, Region);
     this.batches = parseReference(reader, indexEntries, Batch);
     this.MSEC = parseReference(reader, indexEntries, MSEC);

@@ -16,3 +16,14 @@ vec3 decodeFloat3(float f) {
   
   return v;
 }
+
+vec4 decodeFloat4(float f) {
+  vec4 v;
+  
+  v[3] = floor(f / 16777216.0);
+  v[2] = floor((f - v[3] * 16777216.0) / 65536.0);
+  v[1] = floor((f - v[3] * 16777216.0 - v[2] * 65536.0) / 256.0);
+  v[0] = floor(f - v[3] * 16777216.0 - v[2] * 65536.0 - v[1] * 256.0);
+  
+  return v;
+}

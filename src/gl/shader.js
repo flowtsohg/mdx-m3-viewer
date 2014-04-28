@@ -11,7 +11,9 @@ function ShaderUnit(source, type, name) {
   if (gl["getShaderParameter"](id, gl["COMPILE_STATUS"])) {
     this.ready = true;
   } else {
+    console.warn("Failed to compile a shader:");
     console.warn(name, gl["getShaderInfoLog"](this.id));
+    console.warn(source);
     unboundonerror({isShader: true, source: name}, "Compile");
   }
 }
@@ -55,16 +57,6 @@ Shader.prototype = {
   },
   
   setParameter: function (name, value) {
-    if (parameterMap) {
-      var tokens = name.split(".");
-      
-      name = parameterMap[tokens[0]];
-      
-      if (tokens[1]) {
-        name += "." + memberMap[tokens[1]];
-      }
-    }
-    
     var uniform = this.uniforms[name];
     var location;
     
@@ -100,16 +92,6 @@ Shader.prototype = {
   },
   
   getParameter: function (name) {
-    if (parameterMap) {
-      var tokens = name.split(".");
-      
-      name = parameterMap[tokens[0]]
-      
-      if (tokens[1]) {
-        name += "." + memberMap[tokens[1]];
-      }
-    }
-    
     return this.uniforms[name] || this.attribs[name];
   },
   

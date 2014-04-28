@@ -49,6 +49,7 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   var glTypeToUniformType = {};
   var parameterMap;
   var memberMap;
+  var floatPrecision = "precision mediump float;\n";
     
   glTypeToUniformType[gl["FLOAT"]] = "1f";
   glTypeToUniformType[gl["FLOAT_VEC2"]] = "2fv";

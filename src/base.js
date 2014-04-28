@@ -1,26 +1,41 @@
 function encodeFloat2(x, y) {
-  return x + y * 256.0;
+  return x + y * 256;
 }
 
 function decodeFloat2(f) {
   var v = [];
   
-  v[1] = Math.floor(f / 256.0);
-  v[0] = Math.floor(f - v[1] * 256.0);
+  v[1] = Math.floor(f / 256);
+  v[0] = Math.floor(f - v[1] * 256);
   
   return v;
 }
 
 function encodeFloat3(x, y, z) {
-  return x + y * 256.0 + z * 65536;
+  return x + y * 256 + z * 65536;
 }
 
 function decodeFloat3(f) {
   var v = [];
   
-  v[2] = Math.floor(f / 65536.0);
-  v[1] = Math.floor((f - v[2] * 65536.0) / 256.0);
-  v[0] = Math.floor(f - v[2] * 65536.0 - v[1] * 256.0);
+  v[2] = Math.floor(f / 65536);
+  v[1] = Math.floor((f - v[2] * 65536) / 256);
+  v[0] = Math.floor(f - v[2] * 65536 - v[1] * 256);
+  
+  return v;
+}
+
+function encodeFloat4(x, y, z, w) {
+  return x + y * 256 + z * 65536 + w * 16777216;
+}
+
+function decodeFloat4(f) {
+  var v = [];
+  
+  v[3] = Math.floor(f / 16777216);
+  v[2] = Math.floor((f - v[3] * 16777216) / 65536);
+  v[1] = Math.floor((f - v[3] * 16777216 - v[2] * 65536) / 256);
+  v[0] = Math.floor(f - v[3] * 16777216 - v[2] * 65536 - v[1] * 256);
   
   return v;
 }

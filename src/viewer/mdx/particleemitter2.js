@@ -263,8 +263,6 @@ ParticleEmitter2.prototype = {
         v4z = pz2 + csx[2] * scale;
       }
       
-      //console.log(packFloat(left, bottom, 255), packFloat(right, bottom, 255), packFloat(left, top, 255), packFloat(right, top, 255));
-      
       lta = encodeFloat3(left, top, a);
       lba = encodeFloat3(left, bottom, a);
       rta = encodeFloat3(right, top, a);

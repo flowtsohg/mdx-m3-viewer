@@ -56,7 +56,7 @@ Model.prototype = {
         console.log(parser);
       }
       
-      var psmain = floatPrecision + SHADERS["wpsmain"];
+      var psmain = SHADERS["wpsmain"];
       
       // Load the main shader if it is needed
       if ((parser["geosetChunk"] || parser["particleEmitterChunk"]) && !gl.shaderReady("wmain")) {
@@ -65,7 +65,7 @@ Model.prototype = {
       
       // Load the particle emitters type 2 shader if it is needed
       if (parser["particleEmitter2Chunk"] && !gl.shaderReady("wparticles")) {
-        gl.newShader("wparticles", SHADERS["decodefloat"] + SHADERS["wvsparticles"], floatPrecision + SHADERS["wpsparticles"]);
+        gl.newShader("wparticles", SHADERS["decodefloat"] + SHADERS["wvsparticles"], SHADERS["wpsparticles"]);
       }
       
       // Load the ribbon emitters shader if it is needed
@@ -75,7 +75,7 @@ Model.prototype = {
       
       // Load the color shader if it is needed
       if (!gl.shaderReady("wcolor")) {
-        gl.newShader("wcolor", SHADERS["vsbonetexture"] + SHADERS["wvscolor"], floatPrecision + SHADERS["pscolor"]);
+        gl.newShader("wcolor", SHADERS["vsbonetexture"] + SHADERS["wvscolor"], SHADERS["pscolor"]);
       }
       
       // Load the model
@@ -110,8 +110,8 @@ Model.prototype = {
         var vscommon = SHADERS["vsbonetexture"] + SHADERS["svscommon"] + "\n";
         var vsstandard = vscommon + SHADERS["svsstandard"];
         var pscommon = SHADERS["spscommon"] + "\n";
-        var psstandard = floatPrecision + pscommon + SHADERS["spsstandard"];
-        var psspecialized = floatPrecision + pscommon + SHADERS["spsspecialized"];
+        var psstandard = pscommon + SHADERS["spsstandard"];
+        var psspecialized = pscommon + SHADERS["spsspecialized"];
         var NORMALS_PASS = "NORMALS_PASS";
         var HIGHRES_NORMALS = "HIGHRES_NORMALS";
         var SPECULAR_PASS = "SPECULAR_PASS";
@@ -160,11 +160,11 @@ Model.prototype = {
         }
         
         if (!gl.shaderReady("sparticles" + uvSetCount)) {
-          gl.newShader("sparticles" + uvSetCount, SHADERS["svsparticles"], floatPrecision + SHADERS["spsparticles"]);
+          gl.newShader("sparticles" + uvSetCount, SHADERS["svsparticles"], SHADERS["spsparticles"]);
         } 
         
         if (!gl.shaderReady("scolor")) {
-          gl.newShader("scolor", SHADERS["vsbonetexture"] + SHADERS["svscolor"], floatPrecision + SHADERS["pscolor"]);
+          gl.newShader("scolor", SHADERS["vsbonetexture"] + SHADERS["svscolor"], SHADERS["pscolor"]);
         }
         
         if (DEBUG_MODE) {
