@@ -26,6 +26,7 @@ M3_SHADERS = [
 
 SHARED_SHADERS = [
   "vsbonetexture",
+  "decodefloat",
   "vsworld",
   "vswhite",
   "psworld",

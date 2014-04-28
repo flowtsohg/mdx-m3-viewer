@@ -65,7 +65,7 @@ Model.prototype = {
       
       // Load the particle emitters type 2 shader if it is needed
       if (parser["particleEmitter2Chunk"] && !gl.shaderReady("wparticles")) {
-        gl.newShader("wparticles", SHADERS["wvsparticles"], floatPrecision + SHADERS["wpsparticles"]);
+        gl.newShader("wparticles", SHADERS["decodefloat"] + SHADERS["wvsparticles"], floatPrecision + SHADERS["wpsparticles"]);
       }
       
       // Load the ribbon emitters shader if it is needed
