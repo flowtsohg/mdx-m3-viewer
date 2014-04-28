@@ -14,6 +14,7 @@ ShallowBone.prototype = {
 function Skeleton(model) {
   var i, l;
   var bones = model.bones;
+  var boneLookup = model.boneLookup;
   
   this.initialReference = model.initialReference;
   this.sts = model.sts;
@@ -21,9 +22,10 @@ function Skeleton(model) {
   this.stg = model.stg;
   this.bones = [];
   
-  this.hwbones = new Float32Array(16 * bones.length);
+  this.boneLookup = boneLookup;
+  this.hwbones = new Float32Array(16 * boneLookup.length);
   this.boneTexture = ctx.createTexture();
-  this.boneTextureSize = Math.max(2, math.powerOfTwo(bones.length + 1)) * 4;
+  this.boneTextureSize = Math.max(2, math.powerOfTwo(boneLookup.length + 1)) * 4;
   this.texelFraction = 1 / this.boneTextureSize;
   this.boneFraction = this.texelFraction * 4;
   
@@ -36,8 +38,6 @@ function Skeleton(model) {
   for (i = 0, l = bones.length; i < l; i++) {
     this.bones[i] = new ShallowBone(bones[i]);
   }
-  
-  this.boneLookup = model.boneLookup;
   
   this.root = [];
   
@@ -138,7 +138,7 @@ Skeleton.prototype = {
   
     ctx.activeTexture(ctx.TEXTURE15);
     ctx.bindTexture(ctx.TEXTURE_2D, this.boneTexture);
-    ctx.texSubImage2D(ctx.TEXTURE_2D, 0, 0, 0, boneLookup.length * 4 + 4, 1, ctx.RGBA, ctx.FLOAT, hwbones);
+    ctx.texSubImage2D(ctx.TEXTURE_2D, 0, 0, 0, boneLookup.length * 4, 1, ctx.RGBA, ctx.FLOAT, hwbones);
   },
   
   bind: function () {
