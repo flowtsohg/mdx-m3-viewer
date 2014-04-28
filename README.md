@@ -18,7 +18,9 @@ A live version can be seen on [Hiveworkshop](http://www.hiveworkshop.com) for wh
 
 #### Usage
 
-`new ModelViewer(canvas, urls, onmessage, debugMode)`
+```javascript
+new ModelViewer(canvas, urls, onmessage, debugMode)
+```
 
 * `canvas` - A \<canvas> element. Required.
 * `urls` - An object containing methods that return proper urls to download files from. More on this below. Required.
@@ -27,7 +29,7 @@ A live version can be seen on [Hiveworkshop](http://www.hiveworkshop.com) for wh
 
 `urls` is an object that is used to retrieve urls for certain types of model and texture paths. It should have the following methods:
 
-* `header(id)` - Returns the path for a metadata header about a resource thread given its ID. More on this at the loading custom models section below.
+* `header(id)` - Returns the path for a metadata header about a custom resource. More on this at the loading custom models section below.
 * `mpqFile(path)` - Returns a path for a file in any of the Warcraft 3 or Starcraft 2 MPQs.
 
 If the client has the requierments to run the viewer, the API will be returned, otherwise, null will be returned, and an error message will be dispatched to onmessage.
@@ -105,7 +107,16 @@ The `source` value is the source string that generated the object (an url or nam
 #### Loading custom models
 
 The urls.header stub is used to give information about custom models. Given some form of identifier, it should return an url that will point to a JSON object of the following form:
-`{models: [{"url": "url/to/some/model.mdx", hidden: true/false}], textures: {"path/texture.blp": "real/url/to/texture.blp"}}`
+
+```javascript
+{
+  "models": [{"url": "url/to/some/model.mdx", "hidden": true/false}, ...],
+  "textures": {"path/texture.blp": "real/url/to/texture.blp", ...}
+}
+```
+
 The `models` object holds objects containing paths to model files, with an optional hidden value. If it is true, the instance created for the model will be hidden by default.
+
 The `textures` object holds a map from texture paths use by the models, to custom textures that the custom models might be using. For example, the Warcraft 3 Azura Dragon uses the path "textures/azuredragon.blp" for its main diffuse texture. If the `textures` object would contain `"textures/azuradragon.blp": "some/other/texture.blp"`, then the path will be overriden for every model in the `models` object before they are loaded.
-Do note that the texture original paths (the keys in the `textures` object) must all be of the above form - lower cased, and with forward slashes (Warcraft 3 uses back slashes).
+
+The original texture paths (the keys in the `textures` object) must all be lower cased, and with forward slashes (Warcraft 3 uses back slashes).
