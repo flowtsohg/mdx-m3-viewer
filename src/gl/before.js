@@ -20,6 +20,8 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   var hasVertexTexture = gl["getParameter"](gl["MAX_VERTEX_TEXTURE_IMAGE_UNITS"]) > 0;
   var hasFloatTexture = gl["getExtension"]("OES_texture_float");
   var compressedTextures = gl["getExtension"]("WEBGL_compressed_texture_s3tc");
+  var instancedArrays = gl["getExtension"]("ANGLE_instanced_arrays");
+  var hasInstancedDraw = !!instancedArrays;
   
   if (!hasVertexTexture) {
     unboundonerror({isGL: true}, "VertexTexture");

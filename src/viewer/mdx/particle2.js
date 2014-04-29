@@ -83,13 +83,15 @@ Particle2.prototype = {
     
     if (lifeFactor < emitter.time) {
       tempFactor = lifeFactor / emitter.time;
-      scale = (emitter.segmentScaling[0] + tempFactor * (emitter.segmentScaling[1] - emitter.segmentScaling[0]));
-
+      
+      scale = math.lerp(emitter.segmentScaling[0], emitter.segmentScaling[1], tempFactor);
+      
       math.vec4.lerp(emitter.colors[0], emitter.colors[1], tempFactor, this.color);
     } else {
       tempFactor = (lifeFactor - emitter.time) / (1 - emitter.time);
-      scale = (emitter.segmentScaling[1] + tempFactor * (emitter.segmentScaling[2] - emitter.segmentScaling[1]));
-
+      
+      scale = math.lerp(emitter.segmentScaling[1], emitter.segmentScaling[2], tempFactor);
+      
       math.vec4.lerp(emitter.colors[1], emitter.colors[2], tempFactor, this.color);
     }
     

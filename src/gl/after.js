@@ -15,7 +15,10 @@
     shaderReady: shaderReady,
     bindShader: bindShader,
     setParameter: setParameter,
+    drawArraysInstanced: drawArraysInstanced,
+    drawElementsInstanced: drawElementsInstanced,
     vertexAttribPointer: vertexAttribPointer,
+    vertexAttribDivisor: vertexAttribDivisor,
     bindMVP: bindMVP,
     getMVP: getMVP,
     bindProjection: bindProjection,
@@ -29,6 +32,7 @@
     newSphere: newSphere,
     newCube: newCube,
     newCylinder: newCylinder,
-    gl: gl
+    gl: gl,
+    hasInstancedDraw: hasInstancedDraw
   };
 }

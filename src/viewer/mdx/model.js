@@ -272,7 +272,12 @@ Model.prototype = {
       ctx.enable(ctx.BLEND);
       ctx.disable(ctx.CULL_FACE);
       
-      gl.bindShader("wparticles");
+      if (gl.hasInstancedDraw) {
+        gl.bindShader("wparticlesinstanced");
+      } else {
+        gl.bindShader("wparticles");
+      }
+      
       gl.bindMVP("u_mvp");
       gl.setParameter("u_texture", 0);
       

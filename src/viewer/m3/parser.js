@@ -1,4 +1,6 @@
 var Parser = (function () {
+  var MD34_HEADER = 0x4d443334;
+  
   function readVector4As4Uint8(reader) {
     var values = readUint8Array(reader, 4);
     
@@ -25,15 +27,10 @@ var Parser = (function () {
     return readUint16Array(reader, 2);
   }
   
-  // This function is used to scale weights to a ratio in the range [0, 1] instead of bytes in the range [0, 255]
-  function readUint8ArrayAsRatio(reader, count) {
-    var data = readUint8Array(reader, count);
+  function readUint8ArrayAsRatio(reader) {
+    var data = readUint8Array(reader, 4);
     
-    for (var i = 0, l = data.length; i < l; i++) {
-      data[i] /= 255;
-    }
-    
-    return data;
+    return [data[0] / 255, data[1] / 255, data[2] / 255, data[3] / 255];
   }
   
   function readBoundingSphere(reader) {
@@ -57,9 +54,17 @@ var Parser = (function () {
 
   function parseTriangles(reader, indexEntries) {
     var reference = new Reference(reader);
+    var offset = tell(reader);
     var indexEntry = indexEntries[reference.index];
+    var entries;
     
-    return new Uint16Array(reader.buffer, indexEntry.offset, reference.entries);
+    seek(reader, indexEntry.offset);
+    
+    entries = readUint16Array(reader, reference.entries);
+    
+    seek(reader, offset);
+    
+    return entries;
   }
   
   function parseVertices(reader, indexEntries, uvSetCount) {
@@ -67,11 +72,14 @@ var Parser = (function () {
     var offset = tell(reader);
     var indexEntry = indexEntries[reference.index];
     var entries = [];
+    var entriesCount = reference.entries / (28 + (uvSetCount * 4));
     
     seek(reader, indexEntry.offset);
     
-    for (var i = reference.entries / (28 + (uvSetCount * 4)); i--;) {
-      entries.push(new Vertex(reader, uvSetCount));
+    entries.length = entriesCount;
+    
+    for (var i = 0, l = entriesCount; i < l; i++) {
+      entries[i] = Vertex(reader, uvSetCount);
     }
     
     seek(reader, offset);
@@ -99,16 +107,14 @@ var Parser = (function () {
     var indexEntry = indexEntries[reference.index];
     var offset = tell(reader);
     var entries = [];
-    
-    if (!indexEntry) {
-      console.log("Error in parseReference");
-      console.log("Func is: " + Func);
-    }
+    var entriesCount = reference.entries;
     
     seek(reader, indexEntry.offset);
     
-    for (; reference.entries--;) {
-      entries.push(new Func(reader, indexEntries, indexEntry.version));
+    entries.length = entriesCount;
+    
+    for (var i = 0, l = entriesCount; i < entriesCount; i++) {
+      entries[i] = new Func(reader, indexEntries, indexEntry.version);
     }
     
     seek(reader, offset);
@@ -121,12 +127,30 @@ var Parser = (function () {
     var indexEntry = indexEntries[reference.index];
     var offset = tell(reader);
     var entries = [];
+    var entriesCount = reference.entries;
     
     seek(reader, indexEntry.offset);
     
-    for (; reference.entries--;) {
-      entries.push(Func(reader, indexEntries, indexEntry.version));
+    entries.length = entriesCount;
+    
+    for (var i = 0, l = entriesCount; i < entriesCount; i++) {
+      entries[i] = Func(reader, indexEntries, indexEntry.version);
     }
+    
+    seek(reader, offset);
+    
+    return entries;
+  }
+  
+  function readInt32ArrayReference(reader, indexEntries) {
+    var reference = new Reference(reader);
+    var indexEntry = indexEntries[reference.index];
+    var offset = tell(reader);
+    var entries;
+    
+    seek(reader, indexEntry.offset);
+    
+    entries = readInt32Array(reader, reference.entries);
     
     seek(reader, offset);
     
@@ -141,8 +165,10 @@ var Parser = (function () {
     
     seek(reader, indexEntry.offset);
     
-    for (; reference.entries--;) {
-      entries.push(new SD(reader, indexEntries, Func));
+    entries.length = reference.entries;
+    
+    for (var i = 0, l = entries.length; i < l; i++) {
+      entries[i] = SD(reader, indexEntries, Func);
     }
     
     seek(reader, offset);
@@ -176,10 +202,12 @@ var Parser = (function () {
   }
   
   function SD(reader, indexEntries, Func) {
-    this.keys = parseReferenceByVal(reader, indexEntries, readInt32);
-    this.flags = readUint32(reader);
-    this.biggestKey = readUint32(reader);
-    this.values = parseReferenceByVal(reader, indexEntries, Func);
+    var keys = readInt32ArrayReference(reader, indexEntries);
+    var flags = readUint32(reader);
+    var biggestKey = readUint32(reader);
+    var values = parseReferenceByVal(reader, indexEntries, Func);
+  
+    return {keys: keys, flags: flags, biggestKey: biggestKey, values: values};
   }
 
   function AnimationReference(reader, Func) {
@@ -1074,12 +1102,14 @@ var Parser = (function () {
   }
   
   function Vertex(reader, uvSetCount) {
-    this.position = readVector3(reader);
-    this.boneWeights = readUint8ArrayAsRatio(reader, 4);
-    this.boneLookupIndices = readUint8Array(reader, 4);
-    this.normal = readVector4As4Uint8(reader);
-    this.uvs = readVector2As2Int16Matrix(reader, uvSetCount);
-    this.tangent = readVector4As4Uint8(reader);
+    var position = readVector3(reader);
+    var boneWeights = readUint8ArrayAsRatio(reader);
+    var boneLookupIndices = readUint8Array(reader, 4);
+    var normal = readVector4As4Uint8(reader);
+    var uvs = readVector2As2Int16Matrix(reader, uvSetCount);
+    var tangent = readVector4As4Uint8(reader);
+    
+    return {position: position, boneWeights: boneWeights, boneLookupIndices: boneLookupIndices, normal: normal, uvs: uvs, tangent: tangent};
   }
   
   function Bone(reader, indexEntries, version) {
@@ -1191,12 +1221,12 @@ var Parser = (function () {
     var vertexFlags = readUint32(reader);
     var uvSetCount = 1;
     
-    if (vertexFlags & 0x100000) {
-      uvSetCount = 4;
+    if (vertexFlags & 0x40000) {
+      uvSetCount = 2;
     } else if (vertexFlags & 0x80000) {
       uvSetCount = 3;
-    } else if (vertexFlags & 0x40000) {
-      uvSetCount = 2;
+    } else if (vertexFlags & 0x100000) {
+      uvSetCount = 4;
     }
     
     this.vertexFlags = vertexFlags;
@@ -1270,7 +1300,7 @@ var Parser = (function () {
   }
   
   function IndexEntry(reader) {
-    this.tag = read(reader, 4);
+    this.tag = readUint32(reader);
     this.offset = readUint32(reader);
     this.entries = readUint32(reader);
     this.version = readUint32(reader);
@@ -1283,13 +1313,14 @@ var Parser = (function () {
   }
 
   return (function (reader, onprogress) {
-    if (read(reader, 4) === "43DM") {
+    if (readUint32(reader) === MD34_HEADER) {
       var header = new MD34(reader)
       
       seek(reader, header.indexOffset);
   
       var indexEntries = [];
-    
+      indexEntries.length = header.entries;
+      
       for (var i = 0; i < header.entries; i++) {
         indexEntries[i] = new IndexEntry(reader);
       }

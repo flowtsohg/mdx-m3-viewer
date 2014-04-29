@@ -127,11 +127,32 @@ function setParameter(name, value) {
   }
 }
 
+function drawArraysInstanced(mode, first, count, primcount) {
+  if (boundShader) {
+    instancedArrays["drawArraysInstancedANGLE"](mode, first, count, primcount);
+  }
+}
+
+function drawElementsInstanced(mode, count, type, indices, primcount) {
+  if (boundShader) {
+    instancedArrays["drawElementsInstancedANGLE"](mode, count, type, indices, primcount);
+  }
+}
+
+var blarg = true;
+
 function vertexAttribPointer(name, size, type, normalized, stride, pointer) {
   if (boundShader) {
     gl["vertexAttribPointer"](boundShader.getParameter(name)[0], size, type, normalized, stride, pointer);
   }
 }
+
+function vertexAttribDivisor(name, divisor) {
+  if (boundShader) {
+    instancedArrays["vertexAttribDivisorANGLE"](boundShader.getParameter(name)[0], divisor);
+  }
+}
+
 
 function bindMVP(uniform) {
   if (boundShader) {

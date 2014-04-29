@@ -3,6 +3,7 @@
     var color = ctx["createTexture"]();
     ctx["bindTexture"](ctx["TEXTURE_2D"], color);
     gl.textureOptions("REPEAT", "REPEAT", "NEAREST", "NEAREST");
+    ctx["texImage2D"](ctx["TEXTURE_2D"], 0, ctx["RGBA"], width, height, 0, ctx["RGBA"], ctx["UNSIGNED_BYTE"], null);
     
     // Depth render buffer
     var depth = ctx["createRenderbuffer"]();

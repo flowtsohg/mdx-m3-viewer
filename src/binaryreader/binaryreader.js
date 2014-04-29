@@ -2,19 +2,9 @@ function BinaryReader(buffer) {
   this.buffer = buffer;
   this.index = 0;
   this.dataview = new DataView(this.buffer);
+  this.uint8Array = new Uint8Array(this.buffer);
   this.size = buffer.byteLength;
 }
-
-var readerTypeToSize = {
-  "Int8": 1,
-  "Int16": 2,
-  "Int32": 4,
-  "Uint8": 1,
-  "Uint16": 2,
-  "Uint32": 4,
-  "Float32": 4,
-  "Float64": 8
-};
 
 function remaining(reader) {
   return reader.size - reader.index;
@@ -22,12 +12,6 @@ function remaining(reader) {
 
 function skip(reader, bytes) {
   reader.index += bytes;
-      
-  if (reader.index < 0) {
-    reader.index = 0;
-  } else if (reader.index > reader.size) {
-    reader.index = reader.size;
-  }
 }
 
 function seek(reader, index) {
@@ -38,158 +22,292 @@ function tell(reader) {
   return reader.index;
 }
 
+function bytesToString(bytes) {
+  return String.fromCharCode.apply(null, bytes).replace(/\0/g, "");
+}
+
 function read(reader, size) {
-  var i, data = [];
-  
-  if (remaining(reader) < size) {
-    size = remaining(reader);
-  }
-  
-  for (i = 0; i < size; i++) {
-    data[i] = String.fromCharCode(String(reader.dataview.getUint8(reader.index + i)));
-  }
+  var data = bytesToString(reader.uint8Array.subarray(reader.index, reader.index + size));
   
   reader.index += size;
-
-  return data.join("").replace(/\0/g, "");
+  
+  return data;
 }
 
 function peek(reader, size) {
-  var i, data = [];
-  
-  if (remaining(reader) < size) {
-    size = remaining(reader);
-  }
-  
-  for (i = 0; i < size; i++) {
-    data[i] = String.fromCharCode(String(reader.dataview.getUint8(reader.index + i)));
-  }
-
-  return data.join("").replace(/\0/g, "");
-}
-
-function readTypedNumber(reader, type) {
-  var data = reader.dataview["get" + type](reader.index, true);
-  
-  reader.index += readerTypeToSize[type];
-  
-  return data;
-}
-
-function readTypedArray(reader, count, type) {
-  var i, data = [];
-  
-  for (i = 0; i < count; i++) {
-    data[i] = readTypedNumber(reader, type);
-  }
-  
-  return data;
-}
-
-function readTypedMatrix(reader, count, size, type) {
-  var i, data = [];
-  
-  for (i = 0; i < count; i++) {
-    data[i] = readTypedArray(reader, size, type);
-  }
-  
-  return data;
+  return  bytesToString(reader.uint8Array.subarray(reader.index, reader.index + size));
 }
     
 function readInt8(reader) {
-  return readTypedNumber(reader, "Int8");
+  var data = reader.dataview.getInt8(reader.index, true);
+  
+  reader.index += 1;
+  
+  return data;
 }
 
 function readInt16(reader) {
-  return readTypedNumber(reader, "Int16");
+  var data = reader.dataview.getInt16(reader.index, true);
+  
+  reader.index += 2;
+  
+  return data;
 }
 
 function readInt32(reader) {
-  return readTypedNumber(reader, "Int32");
+  var data = reader.dataview.getInt32(reader.index, true);
+  
+  reader.index += 4;
+  
+  return data;
 }
 
 function readUint8(reader) {
-  return readTypedNumber(reader, "Uint8");
+  var data = reader.dataview.getUint8(reader.index, true);
+  
+  reader.index += 1;
+  
+  return data;
 }
 
 function readUint16(reader) {
-  return readTypedNumber(reader, "Uint16");
+  var data = reader.dataview.getUint16(reader.index, true);
+  
+  reader.index += 2;
+  
+  return data;
 }
 
 function readUint32(reader) {
-  return readTypedNumber(reader, "Uint32");
+  var data = reader.dataview.getUint32(reader.index, true);
+  
+  reader.index += 4;
+  
+  return data;
 }
 
 function readFloat32(reader) {
-  return readTypedNumber(reader, "Float32");
+  var data = reader.dataview.getFloat32(reader.index, true);
+  
+  reader.index += 4;
+  
+  return data;
 }
 
 function readFloat64(reader) {
-  return readTypedNumber(reader, "Float64");
+  var data = reader.dataview.getFloat64(reader.index, true);
+  
+  reader.index += 8;
+  
+  return data;
 }
 
 function readInt8Array(reader, count) {
-  return readTypedArray(reader, count, "Int8");
+  var i, data = [];
+  
+  data.length = count;
+  
+  for (i = 0; i < count; i++) {
+    data[i] = reader.dataview.getInt8(reader.index + i, true);
+  }
+  
+  reader.index += count;
+  
+  return data;
 }
 
 function readInt16Array(reader, count) {
-  return readTypedArray(reader, count, "Int16");
+  var i, data = [];
+  
+  data.length = count;
+  
+  for (i = 0; i < count; i++) {
+    data[i] = reader.dataview.getInt16(reader.index + 2 * i, true);
+  }
+  
+  reader.index += 2 * count;
+  
+  return data;
 }
 
 function readInt32Array(reader, count) {
-  return readTypedArray(reader, count, "Int32");
+  var i, data = [];
+  
+  data.length = count;
+  
+  for (i = 0; i < count; i++) {
+    data[i] = reader.dataview.getInt32(reader.index + 4 * i, true);
+  }
+  
+  reader.index += 4 * count;
+  
+  return data;
 }
 
 function readUint8Array(reader, count) {
-  return readTypedArray(reader, count, "Uint8");
+  var i, data = [];
+  
+  data.length = count;
+  
+  for (i = 0; i < count; i++) {
+    data[i] = reader.dataview.getUint8(reader.index + i, true);
+  }
+  
+  reader.index += count;
+  
+  return data;
 }
 
 function readUint16Array(reader, count) {
-  return readTypedArray(reader, count, "Uint16");
+  var i, data = [];
+  
+  data.length = count;
+  
+  for (i = 0; i < count; i++) {
+    data[i] = reader.dataview.getUint16(reader.index + 2 * i, true);
+  }
+  
+  reader.index += 2 * count;
+  
+  return data;
 }
 
 function readUint32Array(reader, count) {
-  return readTypedArray(reader, count, "Uint32");
+  var i, data = [];
+  
+  data.length = count;
+  
+  for (i = 0; i < count; i++) {
+    data[i] = reader.dataview.getUint32(reader.index + 4 * i, true);
+  }
+  
+  reader.index += 4 * count;
+  
+  return data;
 }
 
 function readFloat32Array(reader, count) {
-  return readTypedArray(reader, count, "Float32");
+  var i, data = [];
+  
+  data.length = count;
+  
+  for (i = 0; i < count; i++) {
+    data[i] = reader.dataview.getFloat32(reader.index + 4 * i, true);
+  }
+  
+  reader.index += 4 * count;
+  
+  return data;
 }
 
 function readFloat64Array(reader, count) {
-  return readTypedArray(reader, count, "Float64");
+  var i, data = [];
+  
+  data.length = count;
+  
+  for (i = 0; i < count; i++) {
+    data[i] = reader.dataview.getFloat64(reader.index + 8 * i, true);
+  }
+  
+  reader.index += 8 * count;
+  
+  return data;
 }
 
 function readInt8Matrix(reader, count, size) {
-  return readTypedMatrix(reader, count, size, "Int8");
+  var i, data = [];
+  
+  data.length = count;
+  
+  for (i = 0; i < count; i++) {
+    data[i] = readInt8Array(reader, size);
+  }
+  
+  return data;
 }
 
 function readInt16Matrix(reader, count, size) {
-  return readTypedMatrix(reader, count, size, "Int16");
+  var i, data = [];
+  
+  data.length = count;
+  
+  for (i = 0; i < count; i++) {
+    data[i] = readInt16Array(reader, size);
+  }
+  
+  return data;
 }
 
 function readInt32Matrix(reader, count, size) {
-  return readTypedMatrix(reader, count, size, "Int32");
+  var i, data = [];
+  
+  data.length = count;
+  
+  for (i = 0; i < count; i++) {
+    data[i] = readInt32Array(reader, size);
+  }
+  
+  return data;
 }
 
 function readUint8Matrix(reader, count, size) {
-  return readTypedMatrix(reader, count, size, "Uint8");
+  var i, data = [];
+  
+  data.length = count;
+  
+  for (i = 0; i < count; i++) {
+    data[i] = readUint8Array(reader, size);
+  }
+  
+  return data;
 }
 
 function readUint16Matrix(reader, count, size) {
-  return readTypedMatrix(reader, count, size, "Uint16");
+  var i, data = [];
+  
+  data.length = count;
+  
+  for (i = 0; i < count; i++) {
+    data[i] = readUint16Array(reader, size);
+  }
+  
+  return data;
 }
 
 function readUint32Matrix(reader, count, size) {
-  return readTypedMatrix(reader, count, size, "Uint32");
+  var i, data = [];
+  
+  data.length = count;
+  
+  for (i = 0; i < count; i++) {
+    data[i] = readUint32Array(reader, size);
+  }
+  
+  return data;
 }
 
 function readFloat32Matrix(reader, count, size) {
-  return readTypedMatrix(reader, count, size, "Float32");
+  var i, data = [];
+  
+  data.length = count;
+  
+  for (i = 0; i < count; i++) {
+    data[i] = readFloat32Array(reader, size);
+  }
+  
+  return data;
 }
 
 function readFloat64Matrix(reader, count, size) {
-  return readTypedMatrix(reader, count, size, "Float64");
+  var i, data = [];
+  
+  data.length = count;
+  
+  for (i = 0; i < count; i++) {
+    data[i] = readFloat64Array(reader, size);
+  }
+  
+  return data;
 }
 
 function readVector2(reader) {

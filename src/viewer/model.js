@@ -68,6 +68,11 @@ Model.prototype = {
         gl.newShader("wparticles", SHADERS["decodefloat"] + SHADERS["wvsparticles"], SHADERS["wpsparticles"]);
       }
       
+      // Load the instanced particle emitters type 2 shader if it is needed
+      if (parser["particleEmitter2Chunk"] && !gl.shaderReady("wparticlesinstanced")) {
+        gl.newShader("wparticlesinstanced", SHADERS["decodefloat"] + SHADERS["wvsparticlesinstanced"], SHADERS["wpsparticlesinstanced"]);
+      }
+      
       // Load the ribbon emitters shader if it is needed
       if (parser["ribbonEmitterChunk"] && !gl.shaderReady("wribbons")) {
         gl.newShader("wribbons", SHADERS["wvsribbons"], psmain);

@@ -7,9 +7,11 @@ MDX_SHADERS = [
   "vsmain",
   "vsribbons",
   "vsparticles",
+  "vsparticlesinstanced",
   "vscolor",
   "psmain",
-  "psparticles"
+  "psparticles",
+  "psparticlesinstanced"
 ]
 
 M3_SHADERS = [
