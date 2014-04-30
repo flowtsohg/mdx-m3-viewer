@@ -123,12 +123,15 @@ Skeleton.prototype = {
     ctx.texSubImage2D(ctx.TEXTURE_2D, 0, 0, 0, 4 + bones.length * 4, 1, ctx.RGBA, ctx.FLOAT, hwbones);
   },
   
-  bind: function () {
+  bind: function (shader) {
     ctx.activeTexture(ctx.TEXTURE15);
     ctx.bindTexture(ctx.TEXTURE_2D, this.boneTexture);
     
-    gl.setParameter("u_bones", 15);
-    gl.setParameter("u_bone_size", this.boneFraction);
-    gl.setParameter("u_pixel_size", this.texelFraction);
+    ctx.uniform1i(shader.variables.u_bones, 15);
+    ctx.uniform1f(shader.variables.u_bone_size, this.boneFraction);
+    ctx.uniform1f(shader.variables.u_pixel_size, this.texelFraction);
+    //gl.setParameter("u_bones", 15);
+    //gl.setParameter("u_bone_size", this.boneFraction);
+    //gl.setParameter("u_pixel_size", this.texelFraction);
   }
 };

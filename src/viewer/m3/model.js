@@ -135,11 +135,10 @@ Model.prototype = {
     var offsets = [];
     
     for (i = 0, l = regions.length; i < l; i++) {
-      offsets.push(totalElements);
+      offsets[i] = totalElements;
       totalElements += regions[i].triangleIndicesCount;
     }
     
-    console.log(totalElements, offsets);
     var elementArray = new Uint16Array(totalElements);
     
     this.regions = [];
@@ -265,34 +264,43 @@ Model.prototype = {
     }
   },
   
-  bind: function () {
+  bind: function (shader) {
     var vertexSize = this.vertexSize;
     var uvSetCount = this.uvSetCount;
     
     ctx.bindBuffer(ctx.ARRAY_BUFFER, this.vertexBuffer);
     
-    gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, vertexSize, 0);
-    gl.vertexAttribPointer("a_weights", 4, ctx.FLOAT, false, vertexSize, 12);
-    gl.vertexAttribPointer("a_bones", 4, ctx.FLOAT, false, vertexSize, 28);
-    gl.vertexAttribPointer("a_normal", 4, ctx.FLOAT, false, vertexSize, 44);
+    ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, vertexSize, 0);
+    ctx.vertexAttribPointer(shader.variables.a_weights, 4, ctx.FLOAT, false, vertexSize, 12);
+    ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.FLOAT, false, vertexSize, 28);
+    ctx.vertexAttribPointer(shader.variables.a_normal, 4, ctx.FLOAT, false, vertexSize, 44);
+    //gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, vertexSize, 0);
+    //gl.vertexAttribPointer("a_weights", 4, ctx.FLOAT, false, vertexSize, 12);
+    //gl.vertexAttribPointer("a_bones", 4, ctx.FLOAT, false, vertexSize, 28);
+    //gl.vertexAttribPointer("a_normal", 4, ctx.FLOAT, false, vertexSize, 44);
     
     for (var i = 0; i < uvSetCount; i++) {
-      gl.vertexAttribPointer("a_uv" + i, 2, ctx.FLOAT, false, vertexSize, 60 + i * 8);
+      ctx.vertexAttribPointer(shader.variables["a_uv" + i], 2, ctx.FLOAT, false, vertexSize, 60 + i * 8);
+      //gl.vertexAttribPointer("a_uv" + i, 2, ctx.FLOAT, false, vertexSize, 60 + i * 8);
     }
     
-    gl.vertexAttribPointer("a_tangent", 4, ctx.FLOAT, false, vertexSize, 60 + uvSetCount * 8);
+    ctx.vertexAttribPointer(shader.variables.a_tangent, 4, ctx.FLOAT, false, vertexSize, 60 + uvSetCount * 8);
+    //gl.vertexAttribPointer("a_tangent", 4, ctx.FLOAT, false, vertexSize, 60 + uvSetCount * 8);
     
     ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
   },
   
-  bindColor: function () {
+  bindColor: function (shader) {
     var vertexSize = this.vertexSize;
     
     ctx.bindBuffer(ctx.ARRAY_BUFFER, this.vertexBuffer);
     
-    gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, vertexSize, 0);
-    gl.vertexAttribPointer("a_weights", 4, ctx.FLOAT, false, vertexSize, 12);
-    gl.vertexAttribPointer("a_bones", 4, ctx.FLOAT, false, vertexSize, 28);
+    ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, vertexSize, 0);
+    ctx.vertexAttribPointer(shader.variables.a_weights, 4, ctx.FLOAT, false, vertexSize, 12);
+    ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.FLOAT, false, vertexSize, 28);
+    //gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, vertexSize, 0);
+    //gl.vertexAttribPointer("a_weights", 4, ctx.FLOAT, false, vertexSize, 12);
+    //gl.vertexAttribPointer("a_bones", 4, ctx.FLOAT, false, vertexSize, 28);
     
     ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
   },
@@ -303,7 +311,7 @@ Model.prototype = {
     var frame = instanceImpl.frame;
     var tc;
     var teamId = instance.teamColor;
-    var shader = shaders[shaderToUse];
+    var shaderName = shaders[shaderToUse];
     // Instance-based texture overriding
     var textureMap = instance.textureMap;
     
@@ -314,45 +322,50 @@ Model.prototype = {
     
     tc = teamColors[teamId];
     
-    gl.bindShader(shader + this.uvSetCount);
+    var shader = gl.bindShader(shaderName + this.uvSetCount);
     
-    instanceImpl.skeleton.bind();
+    instanceImpl.skeleton.bind(shader);
     
-    gl.bindMVP("u_mvp");
-    gl.bindView("u_mv");
+    ctx.uniformMatrix4fv(shader.variables.u_mvp, false, modelViewProjectionMatrix);
+    ctx.uniformMatrix4fv(shader.variables.u_mv, false, modelViewMatrix);
+    //gl.bindMVP("u_mvp");
+    //gl.bindView("u_mv");
     
-    gl.setParameter("u_teamColor", [tc[0] / 255, tc[1] / 255, tc[2] / 255]);
-    gl.setParameter("u_eyePos", cameraPosition);
-    gl.setParameter("u_lightPos", lightPosition);
+    ctx.uniform3fv(shader.variables.u_teamColor, [tc[0] / 255, tc[1] / 255, tc[2] / 255]);
+    ctx.uniform3fv(shader.variables.u_eyePos, cameraPosition);
+    ctx.uniform3fv(shader.variables.u_lightPos, lightPosition);
+    //gl.setParameter("u_teamColor", [tc[0] / 255, tc[1] / 255, tc[2] / 255]);
+    //gl.setParameter("u_eyePos", cameraPosition);
+    //gl.setParameter("u_lightPos", lightPosition);
     
     // Bind the vertices
-    this.bind();
+    this.bind(shader);
     
     for (i = 0, l = this.batches.length; i < l; i++) {
       var batch = this.batches[i];
       var region = batch.region;
       var material = batch.material;
       
-      if (shader === "sstandard") {
-        material.bind(sequence, frame, textureMap);
-      } else if (shader === "sdiffuse") {
-        material.bindDiffuse(sequence, frame, textureMap);
-      } else if (shader === "snormalmap" || shader === "sunshaded_normalmap") {
-        material.bindNormalMap(sequence, frame, textureMap);
-      } else if (shader === "sspecular") {
-        material.bindSpecular(sequence, frame, textureMap);
-      } else if (shader === "sspecular_normalmap") {
-        material.bindSpecular(sequence, frame, textureMap);
-        material.bindNormalMap(sequence, frame, textureMap);
-      } else if (shader === "semissive") {
-        material.bindEmissive(sequence, frame, textureMap);
-      } else if (shader === "sdecal") {
-        material.bindDecal(sequence, frame, textureMap);
+      if (shaderName === "sstandard") {
+        material.bind(sequence, frame, textureMap, shader);
+      } else if (shaderName === "sdiffuse") {
+        material.bindDiffuse(sequence, frame, textureMap, shader);
+      } else if (shaderName === "snormalmap" || shader === "sunshaded_normalmap") {
+        material.bindNormalMap(sequence, frame, textureMap, shader);
+      } else if (shaderName === "sspecular") {
+        material.bindSpecular(sequence, frame, textureMap, shader);
+      } else if (shaderName === "sspecular_normalmap") {
+        material.bindSpecular(sequence, frame, textureMap, shader);
+        material.bindNormalMap(sequence, frame, textureMap, shader);
+      } else if (shaderName === "semissive") {
+        material.bindEmissive(sequence, frame, textureMap, shader);
+      } else if (shaderName === "sdecal") {
+        material.bindDecal(sequence, frame, textureMap, shader);
       }
       
-      region.render();
+      region.render(shader);
       
-      material.unbind(); // This is required to not use by mistake layers from this material that were bound and are not overwritten by the next material
+      material.unbind(shader); // This is required to not use by mistake layers from this material that were bound and are not overwritten by the next material
     }
     /*
     if (this.particleEmitters) {
@@ -371,20 +384,25 @@ Model.prototype = {
 	*/
     if (shouldRenderShapes && this.fuzzyHitTestObjects && gl.shaderReady("white")) {
       ctx.depthMask(1);
-      gl.bindShader("white");
+      
+      shader = gl.bindShader("white");
+      
+      var fuzzyHitTestObject;
       
       for (i = 0, l = this.fuzzyHitTestObjects.length; i < l; i++) {
-        var fuzzyHitTestObject = this.fuzzyHitTestObjects[i];
+        fuzzyHitTestObject = this.fuzzyHitTestObjects[i];
         
         gl.pushMatrix();
         
         gl.multMat(instanceImpl.skeleton.bones[fuzzyHitTestObject.bone].worldMatrix);
         gl.multMat(fuzzyHitTestObject.matrix);
+        
+        //ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getMVP());
         gl.bindMVP("u_mvp");
         
         gl.popMatrix();
         
-        fuzzyHitTestObject.render();
+        fuzzyHitTestObject.render(shader);
       }
     }
   },
@@ -397,21 +415,23 @@ Model.prototype = {
     var i, l;
     var batch, region;
     
-    gl.bindShader("scolor");
+    var shader = gl.bindShader("scolor");
     
-    instance.skeleton.bind();
+    instance.skeleton.bind(shader);
     
-    gl.bindMVP("u_mvp");
-    gl.setParameter("u_color", color);
+    ctx.uniformMatrix4fv(shader.variables.u_mvp, false, modelViewProjectionMatrix);
+    ctx.uniform3fv(shader.variables.u_color, color);
+    //gl.bindMVP("u_mvp");
+    //gl.setParameter("u_color", color);
     
     // Bind the vertices
-    this.bindColor();
+    this.bindColor(shader);
     
     for (i = 0, l = this.batches.length; i < l; i++) {
       batch = this.batches[i];
       region = batch.region;
       
-      region.render();
+      region.render(shader);
     }
   },
   

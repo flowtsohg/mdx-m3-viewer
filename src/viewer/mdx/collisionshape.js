@@ -21,15 +21,16 @@ function CollisionShape(collisionshape) {
 }
 
 CollisionShape.prototype = {
-  render: function (skeleton) {
+  render: function (skeleton, shader) {
     if (this.shape) {
       gl.pushMatrix();
       
       gl.multMat(skeleton.nodes[this.node].worldMatrix);
       
-      gl.bindMVP("u_mvp");
+      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getMVP());
+      //gl.bindMVP("u_mvp");
       
-      this.shape.renderLines();
+      this.shape.renderLines(shader);
       
       gl.popMatrix();
     }

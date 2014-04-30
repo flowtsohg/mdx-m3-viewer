@@ -25,58 +25,6 @@ function decodeFloat3(f) {
   return v;
 }
 
-function encodeFloat4(x, y, z, w) {
-  return x + y * 256 + z * 65536 + w * 16777216;
-}
-
-function decodeFloat4(f) {
-  var v = [];
-  
-  v[3] = Math.floor(f / 16777216);
-  v[2] = Math.floor((f - v[3] * 16777216) / 65536);
-  v[1] = Math.floor((f - v[3] * 16777216 - v[2] * 65536) / 256);
-  v[0] = Math.floor(f - v[3] * 16777216 - v[2] * 65536 - v[1] * 256);
-  
-  return v;
-}
-
-function numberCompareFn(a, b) {
-  return a > b ? 1 : a < b ? -1 : 0;
-};
-
-function binarySearchInterval(arr, target) {
-  var left = 0;
-  var right = arr.length; 
-  var found;
-  var middle;
-  var compareResult;
-  
-  if (target < arr[0]) {
-    return [right, 0];
-  } else if (target > arr[right - 1]) {
-    return [right - 1, right];
-  }
-  
-  while (left < right) {
-    middle = (left + right) >> 1;
-    compareResult = numberCompareFn(target, arr[middle]);
-    
-    if (compareResult === 0) {
-      return [middle, middle + 1];
-    } else if (compareResult === 1 && arr[middle + 1] > target) {
-      return [middle, middle + 1];
-    } else if (compareResult === -1 && arr[middle - 1] < target) {
-      return [middle - 1, middle];
-    }
-    
-    if (compareResult > 0) {
-      left = middle + 1;
-    } else {
-      right = middle;
-    }
-  }
-};
-
 function getFileName(source) {
   var tokens = source.split("/");
   
@@ -261,13 +209,9 @@ Array.equals = function (a, b) {
     }
 
     for (i = 0, l = a.length; i < l; i++) {
-        if (a[i] instanceof Array && b[i] instanceof Array) {
-            if (!Array.equals(a[i], b[i])) {
-              return false;
-            }
-        } else if (a[i] !== b[i]) {
-          return false;
-        }
+      if (a[i] !== b[i]) {
+        return false;
+      }
     }
     
     return true;

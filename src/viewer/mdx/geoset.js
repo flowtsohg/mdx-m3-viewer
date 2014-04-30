@@ -73,14 +73,19 @@ function Geoset(geoset) {
 }
 
 Geoset.prototype = {
-  render: function (coordId) {
+  render: function (coordId, shader) {
     ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffers.vertices);
     
-    gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, 12, this.offsets[0]);
-    //gl.vertexAttribPointer("a_normal", 3, ctx.FLOAT, false, 12, this.offsets[1]);
-    gl.vertexAttribPointer("a_uv", 2, ctx.FLOAT, false, 8, this.offsets[1] + coordId * this.uvSetSize);
-    gl.vertexAttribPointer("a_bones", 4, ctx.FLOAT, false, 16, this.offsets[2]);
-    gl.vertexAttribPointer("a_bone_number", 1, ctx.FLOAT, false, 4, this.offsets[3]);
+    ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 12, this.offsets[0]);
+    ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 8, this.offsets[1] + coordId * this.uvSetSize);
+    ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.FLOAT, false, 16, this.offsets[2]);
+    ctx.vertexAttribPointer(shader.variables.a_bone_number, 1, ctx.FLOAT, false, 4, this.offsets[3]);
+    
+    //gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, 12, this.offsets[0]);
+    ////gl.vertexAttribPointer("a_normal", 3, ctx.FLOAT, false, 12, this.offsets[1]);
+    //gl.vertexAttribPointer("a_uv", 2, ctx.FLOAT, false, 8, this.offsets[1] + coordId * this.uvSetSize);
+    //gl.vertexAttribPointer("a_bones", 4, ctx.FLOAT, false, 16, this.offsets[2]);
+    //gl.vertexAttribPointer("a_bone_number", 1, ctx.FLOAT, false, 4, this.offsets[3]);
     
     ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.buffers.faces);
     ctx.drawElements(ctx.TRIANGLES, this.faces, ctx.UNSIGNED_SHORT, 0);

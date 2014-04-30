@@ -8,6 +8,16 @@ var filterModeToRenderOrder = {
   6: 3
 };
 
+var layerFilterTypes = [
+  [0, 0, 0],
+  [1, 0, 0],
+  [0, 0, 0],
+  [0, 1, 0],
+  [0, 0, 0],
+  [0, 0, 1],
+  [0, 0, 1]
+];
+
 function Layer(layer, geosetId, model) {
   this.filterMode = layer.filterMode;
   this.twoSided = layer.twoSided;
@@ -21,41 +31,32 @@ function Layer(layer, geosetId, model) {
 }
 
 Layer.prototype = {
-  setMaterial: function () {
+  setMaterial: function (shader) {
     var filterMode = this.filterMode;
     
+    //gl.setParameter("u_type", layerFilterTypes[filterMode]);
+    ctx.uniform3fv(shader.variables.u_type, layerFilterTypes[filterMode]);
+    
     if (filterMode === 1) {
-      gl.setParameter("u_type", [1, 0, 0]);
-      
       ctx.depthMask(1);
       ctx.disable(ctx.BLEND);
     } else if (filterMode === 2) {
-      gl.setParameter("u_type", [0, 0, 0]);
-      
       ctx.depthMask(0);
       ctx.enable(ctx.BLEND);
       ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
     } else if (filterMode === 3) {
-      gl.setParameter("u_type", [0, 1, 0]);
-      
       ctx.enable(ctx.BLEND);
       ctx.depthMask(0);
       ctx.blendFunc(ctx.SRC_COLOR, ctx.ONE);
     } else if (filterMode === 4) {
-      gl.setParameter("u_type", [0, 0, 0]);
-      
       ctx.depthMask(0);
       ctx.enable(ctx.BLEND);
       ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
     } else if (filterMode === 5 || filterMode === 6) {
-      gl.setParameter("u_type", [0, 0, 1]);
-      
       ctx.depthMask(0);
       ctx.enable(ctx.BLEND);
       ctx.blendFunc(ctx.SRC_ZERO, ctx.SRC_COLOR);
     } else {
-      gl.setParameter("u_type", [0, 0, 0]);
-      
       ctx.depthMask(1);
       ctx.disable(ctx.BLEND);
     }

@@ -37,6 +37,14 @@ SD.prototype = {
   },
   
   getInterval: function (keys, frame) {
-    return binarySearchInterval(keys, frame);
+    var a = keys.length;
+    var b = 0;
+    
+    while (b !== keys.length && frame > keys[b]) {
+      a = b;
+      b++;
+    }
+    
+    return [a, b];
   }
 };

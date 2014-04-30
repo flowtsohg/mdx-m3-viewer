@@ -73,6 +73,34 @@ function ParticleEmitter2(emitter, model, instance) {
     this.tailDecayFrames = 0;
   }
   
+  this.framesPerInterval = [
+    this.headFrames,
+    this.headFrames + this.headDecayFrames,
+    this.headFrames + this.headDecayFrames + this.tailFrames,
+    this.headFrames + this.headDecayFrames + this.tailFrames + this.tailDecayFrames
+  ];
+  
+  this.intervals = [
+    this.headInterval[1] - this.headInterval[0] + 1,
+    this.headDecayInterval[1] - this.headDecayInterval[0] + 1,
+    this.tailInterval[1] - this.tailInterval[0] + 1,
+    this.tailDecayInterval[1] - this.tailDecayInterval[0] + 1
+  ];
+  
+  this.intervalStarts = [
+    0,
+    this.headFrames,
+    this.headFrames + this.headDecayFrame,
+    this.headFrames + this.headDecayFrame + this.tailFrames
+  ];
+  
+  this.intervalLocalStarts = [
+    this.headInterval[0],
+    this.headDecayInterval[0],
+    this.tailInterval[0],
+    this.tailDecayInterval[0]
+  ];
+  
   this.numberOfFrames = this.headFrames + this.headDecayFrames + this.tailFrames + this.tailDecayFrames;
   this.cellWidth = 1 / this.columns;
   this.cellHeight = 1 / this.rows;
@@ -88,15 +116,8 @@ function ParticleEmitter2(emitter, model, instance) {
   this.node = instance.skeleton.nodes[this.node];
   this.sd = parseSDTracks(emitter.tracks, model);
   
-  this.orientation = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-  
+  /*
   if (gl.hasInstancedDraw && !this.tail) {
-    // What do I need per instance?
-    // Position (12 bytes)
-    // Color (4 bytes)
-    // Texture area (1 byte)
-    // Width
-    
     var instanceArray = new Float32Array(6 * particles);
     var instance = ctx.createBuffer();
     ctx.bindBuffer(ctx.ARRAY_BUFFER, instance);
@@ -112,6 +133,7 @@ function ParticleEmitter2(emitter, model, instance) {
     this.rectangleBuffer = rectangle;
     this.instanced = true;
   }
+  */
 }
 
 ParticleEmitter2.prototype = {
@@ -145,6 +167,8 @@ ParticleEmitter2.prototype = {
       }
       
       if (amount >= 1) {
+        amount = Math.floor(amount);
+        
         var index;
         
         this.lastCreation = 1;
@@ -175,19 +199,14 @@ ParticleEmitter2.prototype = {
   updateHW: function () {
     var keys = this.usedParticlesKeys;
     var data = this.data;
-    var orientation = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-    
-    if (!this.node.xYQuad) {
-      math.mat4.rotate(orientation, -math.toRad(camera.r[1]), 0, 0, 1);
-      math.mat4.rotate(orientation, -math.toRad(camera.r[0]), 1, 0, 0);
-      
-      this.orientation = orientation;
-    }
-    
+    var particles = this.particles;
+    var columns = this.columns;
+    var particle, index, position, color;
+    /*
     if (this.instanced) {
       var particles = this.particles;
-      var particle, index, position, color;
       var instanceArray = this.instanceArray;
+      var particle, index, position, color;
       
       for (var i = 0, l = keys.length; i < l; i++) {
         particle = particles[keys[i]];
@@ -210,6 +229,7 @@ ParticleEmitter2.prototype = {
       ctx.bindBuffer(ctx.ARRAY_BUFFER, this.instanceBuffer);
       ctx.bufferSubData(ctx.ARRAY_BUFFER, 0, instanceArray.subarray(0, keys.length * 6 + 1));
     } else {
+    */
       var pv1 = [-1, -1, 0];
       var pv2 = [-1, 1, 0];
       var pv3 = [1, 1, 0];
@@ -221,32 +241,32 @@ ParticleEmitter2.prototype = {
       
       if (!this.node.xYQuad) {
         if (this.head) {
-          math.mat4.multVec3(orientation, pv1, pv1);
-          math.mat4.multVec3(orientation, pv2, pv2);
-          math.mat4.multVec3(orientation, pv3, pv3);
-          math.mat4.multVec3(orientation, pv4, pv4);
+          math.mat4.multVec3(inversCameraRotation, pv1, pv1);
+          math.mat4.multVec3(inversCameraRotation, pv2, pv2);
+          math.mat4.multVec3(inversCameraRotation, pv3, pv3);
+          math.mat4.multVec3(inversCameraRotation, pv4, pv4);
         }
         
         if (this.tail) {
-          math.mat4.multVec3(orientation, csx, csx);
-          math.mat4.multVec3(orientation, csy, csy);
-          math.mat4.multVec3(orientation, csz, csz);
+          math.mat4.multVec3(inversCameraRotation, csx, csx);
+          math.mat4.multVec3(inversCameraRotation, csy, csy);
+          math.mat4.multVec3(inversCameraRotation, csz, csz);
         }
       }
     
-      var particle, index, position, scale, textureIndex, left, top, right, bottom, color, r, g, b, a, px, py, pz;
+      var scale, textureIndex, left, top, right, bottom, r, g, b, a, px, py, pz;
       var v1x, v1y, v1z, v2x, v2y, v2z, v3x, v3y, v3z, v4x, v4y, v4z;
       var lta, lba, rta, rba, rgb;
       
       for (var i = 0, l = keys.length; i < l; i++) {
-        particle = this.particles[keys[i]];
+        particle = particles[keys[i]];
         index = i * 30;
         
         position = particle.position;
         scale = particle.scale;
         textureIndex = particle.index;
-        left = textureIndex % this.columns;
-        top = Math.floor(textureIndex / this.columns);
+        left = textureIndex % columns;
+        top = Math.floor(textureIndex / columns);
         right = left + 1;
         bottom = top + 1;
         color = particle.color;
@@ -272,7 +292,7 @@ ParticleEmitter2.prototype = {
           v4y = py + pv4[1] * scale;
           v4z = pz + pv4[2] * scale;
         } else {
-          var tailLength = particle.tailLength;
+          var tailLength = this.tailLength;
           var v = particle.velocity;
           var offsetx = tailLength * v[0];
           var offsety = tailLength * v[1];
@@ -359,10 +379,10 @@ ParticleEmitter2.prototype = {
         data[index + 28] = rta;
         data[index + 29] = rgb;
       }
-    }
+    //}
   },
   
-  render: function (textureMap) {
+  render: function (textureMap, shader) {
     var particles = this.usedParticlesKeys.length;
     
     if (particles > 0) {
@@ -380,10 +400,12 @@ ParticleEmitter2.prototype = {
       
       bindTexture(this.textures[this.textureId], 0, this.model.textureMap, textureMap);
       
-      gl.setParameter("u_dimensions", [this.columns, this.rows]);
+      ctx.uniform2fv(shader.variables.u_dimensions, [this.columns, this.rows]);
+      //gl.setParameter("u_dimensions", [this.columns, this.rows]);
       
+      /*
       if (this.instanced) {
-        gl.setParameter("u_orientation", this.orientation);
+        gl.setParameter("u_orientation", inversCameraRotation);
       
         ctx.bindBuffer(ctx.ARRAY_BUFFER, this.rectangleBuffer);
         gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, 20, 0);
@@ -397,15 +419,19 @@ ParticleEmitter2.prototype = {
         
         gl.drawArraysInstanced(ctx.TRIANGLE_STRIP, 0, 4, particles);
       } else {
+      */
         ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
         ctx.bufferSubData(ctx.ARRAY_BUFFER, 0, this.data.subarray(0, particles * 30 + 1));
         
-        gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, 20, 0);
-        gl.vertexAttribPointer("a_uva", 1, ctx.FLOAT, false, 20, 12);
-        gl.vertexAttribPointer("a_rgb", 1, ctx.FLOAT, false, 20, 16);
+        ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 20, 0);
+        ctx.vertexAttribPointer(shader.variables.a_uva_rgb, 2, ctx.FLOAT, false, 20, 12);
+        
+        //gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, 20, 0);
+        //gl.vertexAttribPointer("a_uva", 1, ctx.FLOAT, false, 20, 12);
+        //gl.vertexAttribPointer("a_rgb", 1, ctx.FLOAT, false, 20, 16);
         
         ctx.drawArrays(ctx.TRIANGLES, 0, particles * 6);
-      }
+      //}
     }
   },
   

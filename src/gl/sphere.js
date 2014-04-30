@@ -64,23 +64,24 @@ function Sphere(x, y, z, latitudeBands, longitudeBands, radius) {
 }
 
 Sphere.prototype = {
-  render: function () {
-    if (boundShader) {
-      gl["bindBuffer"](gl["ARRAY_BUFFER"], this.vertexBuffer);
-      
-      vertexAttribPointer("a_position", 3, gl["FLOAT"], false, 20, 0);
-      vertexAttribPointer("a_uv", 2, gl["FLOAT"], false, 20, 12);
-      
-      gl["bindBuffer"](gl["ELEMENT_ARRAY_BUFFER"], this.indexBuffer);
-      
-      gl["drawElements"](gl["TRIANGLES"], this.indexArray.length, gl["UNSIGNED_SHORT"], 0);
-    }
+  render: function (shader) {
+    gl["bindBuffer"](gl["ARRAY_BUFFER"], this.vertexBuffer);
+    
+    gl.vertexAttribPointer(shader.variables.a_position, 3, gl.FLOAT, false, 20, 0);
+    gl.vertexAttribPointer(shader.variables.a_uv, 2, gl.FLOAT, false, 20, 12);
+    //vertexAttribPointer("a_position", 3, gl["FLOAT"], false, 20, 0);
+    //vertexAttribPointer("a_uv", 2, gl["FLOAT"], false, 20, 12);
+    
+    gl["bindBuffer"](gl["ELEMENT_ARRAY_BUFFER"], this.indexBuffer);
+    
+    gl["drawElements"](gl["TRIANGLES"], this.indexArray.length, gl["UNSIGNED_SHORT"], 0);
   },
   
-  renderLines: function () {
+  renderLines: function (shader) {
     gl["bindBuffer"](gl["ARRAY_BUFFER"], this.vertexBuffer);
-      
-    vertexAttribPointer("a_position", 3, gl["FLOAT"], false, 20, 0);
+    
+    gl.vertexAttribPointer(shader.variables.a_position, 3, gl.FLOAT, false, 20, 0);
+    //vertexAttribPointer("a_position", 3, gl["FLOAT"], false, 20, 0);
     
     gl["bindBuffer"](gl["ELEMENT_ARRAY_BUFFER"], this.indexBuffer);
     

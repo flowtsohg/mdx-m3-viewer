@@ -14,8 +14,9 @@ function Region(region, triangles, elementArray, offset) {
 }
 
 Region.prototype = {
-  render: function () {
-    gl.setParameter("u_firstBoneLookupIndex", this.firstBoneLookupIndex);
+  render: function (shader) {
+    ctx.uniform1f(shader.variables.u_firstBoneLookupIndex, this.firstBoneLookupIndex);
+    //gl.setParameter("u_firstBoneLookupIndex", this.firstBoneLookupIndex);
     
     ctx.drawElements(ctx.TRIANGLES, this.elementsCount, ctx.UNSIGNED_SHORT, this.offset * 2);
   }

@@ -32,11 +32,12 @@ function Cube(x1, y1, z1, x2, y2, z2) {
 }
 
 Cube.prototype = {
-  renderLines: function () {
+  renderLines: function (shader) {
     if (boundShader) {
       gl["bindBuffer"](gl["ARRAY_BUFFER"], this.buffer);
       
-      vertexAttribPointer("a_position", 3, gl["FLOAT"], false, 12, 0);
+      gl.vertexAttribPointer(shader.variables.a_position, 3, gl.FLOAT, false, 12, 0);
+      //vertexAttribPointer("a_position", 3, gl["FLOAT"], false, 12, 0);
       
       gl["drawArrays"](gl["LINES"], 0, 24);
     }

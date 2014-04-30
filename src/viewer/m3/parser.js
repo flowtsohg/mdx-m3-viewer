@@ -9,11 +9,12 @@ var Parser = (function () {
   
   function readVector2As2Int16Matrix(reader, count) {
     var arr = [];
+    var values;
     
-    for (; count--;) {
-      var values = readInt16Array(reader, 2);
+    for (var i = 0; i < count; i++) {
+      values = readInt16Array(reader, 2);
     
-      arr.push([values[0] / 2048, values[1] / 2048]);
+      arr[i] = [values[0] / 2048, values[1] / 2048];
     }
     
     return arr;

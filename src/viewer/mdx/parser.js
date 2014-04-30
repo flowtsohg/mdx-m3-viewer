@@ -86,7 +86,7 @@ var Parser = (function () {
 	  
       totalInclusiveSize += element.inclusiveSize;
       
-      elements.push(element);
+      elements[elements.length] = element;
     }
 	
     return elements;
@@ -101,7 +101,7 @@ var Parser = (function () {
       
       totalInclusiveSize += element.inclusiveSize;
       
-      elements.push(element);
+      elements[elements.length] = element;
     }
     
     return elements;
@@ -110,8 +110,8 @@ var Parser = (function () {
   function parseCountChunk(reader, count, Func) {
     var elements = [];
     
-    for (; count--;) {
-      elements.push(new Func(reader));
+    for (var i = 0; i < count; i++) {
+      elements[i] = new Func(reader);
     }
     
     return elements;
@@ -120,8 +120,8 @@ var Parser = (function () {
   function parseCountChunkByVal(reader, count, Func) {
     var elements = [];
     
-    for (; count--;) {
-      elements.push(Func(reader));
+    for (var i = 0; i < count; i++) {
+      elements[i] = Func(reader);
     }
     
     return elements;
@@ -142,10 +142,11 @@ var Parser = (function () {
   
   function readNode(reader, nodes) {
     var node = new Node(reader);
+    var length = nodes.length;
     
-    nodes.push(node);
+    nodes[length] = node;
     
-    return nodes.length - 1;
+    return length;
   }
 
   function Track(reader, interpolationType, type) {
@@ -165,8 +166,8 @@ var Parser = (function () {
     this.globalSequenceId = readInt32(reader);
     this.tracks = [];
 
-    for (; count--;) {
-      this.tracks.push(new Track(reader, this.interpolationType, trackType[0]));
+    for (var i = 0; i < count; i++) {
+      this.tracks[i] = new Track(reader, this.interpolationType, trackType[0]);
     }
     
     // Extra information

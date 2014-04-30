@@ -48,70 +48,80 @@ StandardMaterial.prototype = {
     }
   },
   
-  bind: function (sequence, frame, textureMap) {
+  bind: function (sequence, frame, textureMap, shader) {
     this.bindCommon();
     
-    gl.setParameter("u_specularity", this.specularity);
-    gl.setParameter("u_specMult", this.specMult);
-    gl.setParameter("u_emisMult", this.emisMult);
+    ctx.uniform1f(shader.variables.u_specularity, this.specularity);
+    ctx.uniform1f(shader.variables.u_specMult, this.specMult);
+    ctx.uniform1f(shader.variables.u_emisMult, this.emisMult);
+    ctx.uniform4fv(shader.variables.u_lightAmbient, [0.02, 0.02, 0.02, 0]);
+    //gl.setParameter("u_specularity", this.specularity);
+    //gl.setParameter("u_specMult", this.specMult);
+    //gl.setParameter("u_emisMult", this.emisMult);
+    //gl.setParameter("u_lightAmbient", );
     
-    gl.setParameter("u_lightAmbient", [0.02, 0.02, 0.02, 0]);
+    var layers = this.layers;
     
-    this.layers[0].bind(1, sequence, frame, textureMap);
-    this.layers[1].bind(2, sequence, frame, textureMap);
-    this.layers[2].bind(3, sequence, frame, textureMap);
-    this.layers[4].bind(5, sequence, frame, textureMap);
-    this.layers[5].bind(6, sequence, frame, textureMap);
-    this.layers[10].bind(11, sequence, frame, textureMap);
-    this.layers[12].bind(13, sequence, frame, textureMap);
+    layers[0].bind(1, sequence, frame, textureMap, shader);
+    layers[1].bind(2, sequence, frame, textureMap, shader);
+    layers[2].bind(3, sequence, frame, textureMap, shader);
+    layers[4].bind(5, sequence, frame, textureMap, shader);
+    layers[5].bind(6, sequence, frame, textureMap, shader);
+    layers[10].bind(11, sequence, frame, textureMap, shader);
+    layers[12].bind(13, sequence, frame, textureMap, shader);
   },
   
-  unbind: function () {
+  unbind: function (shader) {
     ctx.disable(ctx.BLEND);
     ctx.enable(ctx.CULL_FACE);
     
-    this.layers[0].unbind();
-    this.layers[1].unbind();
-    this.layers[2].unbind();
-    this.layers[4].unbind();
-    this.layers[5].unbind();
-    this.layers[10].unbind();
-    this.layers[12].unbind();
+    var layers = this.layers;
+    
+    layers[0].unbind(shader);
+    layers[1].unbind(shader);
+    layers[2].unbind(shader);
+    layers[4].unbind(shader);
+    layers[5].unbind(shader);
+    layers[10].unbind(shader);
+    layers[12].unbind(shader);
   },
   
-  bindDiffuse: function (sequence, frame, textureMap) {
+  bindDiffuse: function (sequence, frame, textureMap, shader) {
     this.bindCommon();
     
-    this.layers[0].bind(1, sequence, frame, textureMap);
+    this.layers[0].bind(1, sequence, frame, textureMap, shader);
   },
   
-  bindSpecular: function (sequence, frame, textureMap) {
+  bindSpecular: function (sequence, frame, textureMap, shader) {
     this.bindCommon();
     
-    gl.setParameter("u_specularity", this.specularity);
-    gl.setParameter("u_specMult", this.specMult);
+    ctx.uniform1f(shader.variables.u_specularity, this.specularity);
+    ctx.uniform1f(shader.variables.u_specMult, this.specMult);
+    //gl.setParameter("u_specularity", this.specularity);
+    //gl.setParameter("u_specMult", this.specMult);
     
-    this.layers[2].bind(3, sequence, frame, textureMap);
+    this.layers[2].bind(3, sequence, frame, textureMap, shader);
   },
   
-  bindNormalMap: function (sequence, frame, textureMap) {
+  bindNormalMap: function (sequence, frame, textureMap, shader) {
     this.bindCommon();
     
-    this.layers[10].bind(11, sequence, frame, textureMap);
+    this.layers[10].bind(11, sequence, frame, textureMap, shader);
   },
   
-  bindEmissive: function (sequence, frame, textureMap) {
+  bindEmissive: function (sequence, frame, textureMap, shader) {
     this.bindCommon();
     
-    gl.setParameter("u_emisMult", this.emisMult);
+    ctx.uniform1f(shader.variables.u_emisMult, this.emisMult);
+    //gl.setParameter("u_emisMult", this.emisMult);
     
-    this.layers[4].bind(5, sequence, frame, textureMap);
-    this.layers[5].bind(6, sequence, frame, textureMap);
+    this.layers[4].bind(5, sequence, frame, textureMap, shader);
+    this.layers[5].bind(6, sequence, frame, textureMap, shader);
   },
   
-  bindDecal: function (sequence, frame, textureMape) {
+  bindDecal: function (sequence, frame, textureMape, shader) {
     this.bindCommon();
     
-    this.layers[1].bind(2, sequence, frame, textureMap);
+    this.layers[1].bind(2, sequence, frame, textureMap, shader);
   }
 };

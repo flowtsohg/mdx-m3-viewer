@@ -34,6 +34,8 @@
     
     gl.viewSize(width, height);
     gl.setPerspective(45, width / height, 0.1, 5E4);
+    
+    math.mat4.setFromArray(projectionMatrix, gl.getProjection());
   }
   
   resetViewport();
@@ -102,6 +104,10 @@
       math.mat4.invert(cameraMatrix, inverseCamera);
       math.mat4.multVec3(inverseCamera, [0, 0, 1], cameraPosition);
       
+      math.mat4.makeIdentity(inversCameraRotation);
+      math.mat4.rotate(inversCameraRotation, -z, 0, 0, 1);
+      math.mat4.rotate(inversCameraRotation, -x, 1, 0, 0);
+      
       gl.loadIdentity();
       gl.multMat(cameraMatrix);
     } else {
@@ -109,25 +115,33 @@
       
       gl.lookAt(cameraPosition, modelCamera.targetPosition, upDir);
     }
+    
+    math.mat4.setFromArray(modelViewMatrix, gl.getView());
+    math.mat4.setFromArray(modelViewProjectionMatrix, gl.getMVP());
   }
   
   function renderGround(isWater) {
     if (shouldRenderWorld > 1 && gl.shaderReady("world")) {
-      gl.bindShader("world");
+      var shader = gl.bindShader("world");
       
       ctx.disable(ctx.CULL_FACE);
       
-      gl.bindMVP("u_mvp");
+      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, modelViewProjectionMatrix);
+      //gl.bindMVP("u_mvp");
       
       if (isWater) {
         uvOffset[0] += uvSpeed[0];
         uvOffset[1] += uvSpeed[1];
         
-        gl.setParameter("u_uv_offset", uvOffset);
-        gl.setParameter("u_a", 0.6);
+        ctx.uniform2fv(shader.variables.u_uv_offset, uvOffset);
+        ctx.uniform1f(shader.variables.u_a, 0.6);
+        //gl.setParameter("u_uv_offset", uvOffset);
+        //gl.setParameter("u_a", 0.6);
       } else {
-        gl.setParameter("u_uv_offset", [0, 0]);
-        gl.setParameter("u_a", 1);
+        ctx.uniform2fv(shader.variables.u_uv_offset, [0, 0]);
+        ctx.uniform1f(shader.variables.u_a, 1);
+        //gl.setParameter("u_uv_offset", [0, 0]);
+        //gl.setParameter("u_a", 1);
       }
       
       if (shouldRenderWorld > 2) {
@@ -136,36 +150,39 @@
           ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
           
           gl.bindTexture("images/water.png", 0);
-          grass_water.render();
+          grass_water.render(shader);
           
           ctx.disable(ctx.BLEND);
         } else {
           gl.bindTexture("images/bedrock.png", 0);
-          bedrock.render();
+          bedrock.render(shader);
         }
       } else {
         gl.bindTexture("images/grass.png", 0);
-        grass_water.render();
+        grass_water.render(shader);
       }
     }
   }
   
   function renderSky() {
     if (shouldRenderWorld > 0 && gl.shaderReady("world")) {
-      gl.bindShader("world");
+      var shader = gl.bindShader("world");
       
-      gl.setParameter("u_uv_offset", [0, 0]);
-      gl.setParameter("u_a", 1);
+      ctx.uniform2fv(shader.variables.u_uv_offset, [0, 0]);
+      ctx.uniform1f(shader.variables.u_a, 1);
+      //gl.setParameter("u_uv_offset", [0, 0]);
+      //gl.setParameter("u_a", 1);
       
-      gl.pushMatrix();
-      gl.loadIdentity();
+      //gl.pushMatrix();
+      //gl.loadIdentity();
       
-      gl.bindMVP("u_mvp");
+      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, projectionMatrix);
+      //gl.bindMVP("u_mvp");
       
       gl.bindTexture("images/sky.png", 0);
-      sky.render();
+      sky.render(shader);
       
-      gl.popMatrix();
+      //gl.popMatrix();
     }
   }
   /*
@@ -310,7 +327,7 @@
         onload(instance);
       }
     } else {
-      gl.newTexture(source, source);
+      gl.newTexture(source);
     }
   }
   
@@ -795,7 +812,7 @@
   }
   
   // Set the shader to be used for Starcraft 2 models.
-  // Set the shader to be used for Starcraft 2 models. Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `normal map`, 4 for `specular map`, 5 for `specular map + normal map`, 6 for `emissive`, 7 for `unshaded`, 8 for `unshaded + normal map`, and finally 9 for `decal`
+  // Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `normal map`, 4 for `specular map`, 5 for `specular map + normal map`, 6 for `emissive`, 7 for `unshaded`, 8 for `unshaded + normal map`, and finally 9 for `decal`
   function setShader(id) {
     shaderToUse = id;
   }
@@ -959,7 +976,6 @@
     var models = scene[7];
     var instances = scene[8];
     var object;
-    var isModel;
     var owningModel;
       
     for (i = 0, l = models.length; i < l; i++) {

@@ -63,7 +63,7 @@ RibbonEmitter.prototype = {
     }
   },
   
-  render: function (sequence, frame, counter, textureMap) {
+  render: function (sequence, frame, counter, textureMap, shader) {
     var i, l;
     var ribbons = Math.min(this.ribbons.length, this.maxRibbons);
     
@@ -100,8 +100,10 @@ RibbonEmitter.prototype = {
       ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
       ctx.bufferSubData(ctx.ARRAY_BUFFER, 0, this.data);
       
-      gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, 20, 0);
-      gl.vertexAttribPointer("a_uv", 2, ctx.FLOAT, false, 20, 12);
+      ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 20, 0);
+      ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 20, 12);
+      //gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, 20, 0);
+      //gl.vertexAttribPointer("a_uv", 2, ctx.FLOAT, false, 20, 12);
       
       for (i = 0, l = this.layers.length; i < l; i++) {
         var layer = this.layers[i];
@@ -124,7 +126,8 @@ RibbonEmitter.prototype = {
           modifier[2] = color[0];
           modifier[3] = alpha;
           
-          gl.setParameter("u_modifier", modifier);
+          ctx.uniform4fv(shader.variables.u_modifier, modifier);
+          //gl.setParameter("u_modifier", modifier);
           
           if (layer.textureAnimationId !== -1 && this.model.textureAnimations) {
             var textureAnimation = this.model.textureAnimations[layer.textureAnimationId];
@@ -135,9 +138,11 @@ RibbonEmitter.prototype = {
             uvoffset[1] = v[1];
           }
           
-          gl.setParameter("u_uv_offset", uvoffset);
+          ctx.uniform2fv(shader.variables.u_uv_offset, uvoffset);
+          ctx.uniform3fv(shader.variables.u_type, [0, 0, 0]);
           
-          gl.setParameter("u_type", [0, 0, 0]);
+          //gl.setParameter("u_uv_offset", uvoffset);
+          //gl.setParameter("u_type", [0, 0, 0]);
           
           ctx.drawArrays(ctx.TRIANGLE_STRIP, 0, ribbons * 2);
         }

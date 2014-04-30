@@ -98,6 +98,8 @@ function bindShader(name) {
     boundShader = shader;
     boundShader.bind();
   }
+  
+  return boundShader;
 }
 
 function setParameter(name, value) {
@@ -109,9 +111,10 @@ function setParameter(name, value) {
       var isArray = value instanceof Array;
       
       if (isArray) {
-        if (!Array.equals(oldValue, value)) {
+        // This is inheretly bad, because if the same (albeit modified) array is given, then value===oldValue, and the uniform will never be updated, because of by-ref storage.
+        //if (!Array.equals(oldValue, value)) {
           shouldSet = true;
-        }
+        //}
       } else if (oldValue !== value) {
         shouldSet = true;
       }
@@ -142,9 +145,7 @@ function drawElementsInstanced(mode, count, type, indices, primcount) {
 var blarg = true;
 
 function vertexAttribPointer(name, size, type, normalized, stride, pointer) {
-  if (boundShader) {
-    gl["vertexAttribPointer"](boundShader.getParameter(name)[0], size, type, normalized, stride, pointer);
-  }
+  gl["vertexAttribPointer"](boundShader.attribs[name][0], size, type, normalized, stride, pointer);
 }
 
 function vertexAttribDivisor(name, divisor) {

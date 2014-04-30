@@ -14,14 +14,14 @@ function Rect(x, y, z, hw, hh, stscale) {
 }
 
 Rect.prototype = {
-  render: function () {
-    if (boundShader) {
-      gl["bindBuffer"](gl["ARRAY_BUFFER"], this.buffer);
-      
-      vertexAttribPointer("a_position", 3, gl["FLOAT"], false, 20, 0);
-      vertexAttribPointer("a_uv", 2, gl["FLOAT"], false, 20, 12);
-      
-      gl["drawArrays"](gl["TRIANGLE_STRIP"], 0, 4);
-    }
+  render: function (shader) {
+    gl["bindBuffer"](gl["ARRAY_BUFFER"], this.buffer);
+    
+    gl.vertexAttribPointer(shader.variables.a_position, 3, gl.FLOAT, false, 20, 0);
+    gl.vertexAttribPointer(shader.variables.a_uv, 2, gl.FLOAT, false, 20, 12);
+    //vertexAttribPointer("a_position", 3, gl["FLOAT"], false, 20, 0);
+    //vertexAttribPointer("a_uv", 2, gl["FLOAT"], false, 20, 12);
+    
+    gl["drawArrays"](gl["TRIANGLE_STRIP"], 0, 4);
   }
 };

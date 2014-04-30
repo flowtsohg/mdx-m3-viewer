@@ -2,15 +2,14 @@ uniform mat4 u_mvp;
 uniform vec2 u_dimensions;
 
 attribute vec3 a_position;
-attribute float a_uva;
-attribute float a_rgb;
+attribute vec2 a_uva_rgb;
 
 varying vec2 v_uv;
 varying vec4 v_color;
 
 void main() {
-  vec3 uva = decodeFloat3(a_uva);
-  vec3 rgb = decodeFloat3(a_rgb);
+  vec3 uva = decodeFloat3(a_uva_rgb[0]);
+  vec3 rgb = decodeFloat3(a_uva_rgb[1]);
   
   v_uv = uva.yx / u_dimensions;
   v_color = vec4(rgb, uva.z) / 256.0;

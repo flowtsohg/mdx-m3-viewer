@@ -17,9 +17,9 @@ function BoundingShape(boundingshape) {
 }
 
 BoundingShape.prototype = {
-  render: function () {
+  render: function (shader) {
     if (this.shape) {
-      this.shape.renderLines();
+      this.shape.renderLines(shader);
     }
   }
 };

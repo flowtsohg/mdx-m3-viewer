@@ -26,16 +26,21 @@ function SD(tracks, model) {
 SD.prototype = {
   getInterval: function (frame, start, end) {
     var keys = this.keys;
-    var interval = binarySearchInterval(keys, frame);
-    var a = interval[0];
-    var b = interval[1];
+    var length = keys.length;
+    var a = length;
+    var b = 0;
     
-    if ((a !== keys.length) && (keys[a] < start)) {
-      a = keys.length;
+    while (b !== length && frame > keys[b]) {
+      a = b;
+      b++;
     }
     
-    if ((b !== keys.length) && (keys[b] > end)) {
-      b = keys.length;
+    if ((a !== length) && (keys[a] < start)) {
+      a = length;
+    }
+    
+    if ((b !== length) && (keys[b] > end)) {
+      b = length;
     }
     
     return [a, b];

@@ -169,13 +169,16 @@ Model.prototype = {
 	  var sequence = instance.sequence;
     var frame = instance.frame;
     var counter = instance.counter;
+    var shader;
     
     if (this.layers && gl.shaderReady("wmain")) {
-      gl.bindShader("wmain");
-      gl.bindMVP("u_mvp");
-      gl.setParameter("u_texture", 0);
+      shader = gl.bindShader("wmain");
+      //gl.bindMVP("u_mvp");
+      //gl.setParameter("u_texture", 0);
+      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getMVP());
+      ctx.uniform1i(shader.variables.u_texture, 0);
       
-      instance.skeleton.bind();
+      instance.skeleton.bind(shader);
       
       for (i = 0, l = this.layers.length; i < l; i++) {
         var layer = this.layers[i];
@@ -186,7 +189,7 @@ Model.prototype = {
           var modifier = [1, 1, 1, 1];
           var uvoffset = [0 ,0];
           
-          layer.setMaterial();
+          layer.setMaterial(shader);
           
           var textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
           
@@ -210,7 +213,8 @@ Model.prototype = {
           
           modifier[3] = getSDValue(sequence, frame, counter, layer.sd.alpha, layer.alpha);
           
-          gl.setParameter("u_modifier", modifier);
+          ctx.uniform4fv(shader.variables.u_modifier, modifier);
+          //gl.setParameter("u_modifier", modifier);
           
           if (layer.textureAnimationId !== -1 && this.textureAnimations) {
             var textureAnimation = this.textureAnimations[layer.textureAnimationId];
@@ -221,9 +225,10 @@ Model.prototype = {
             uvoffset[1] = v[1];
           }
           
-          gl.setParameter("u_uv_offset", uvoffset);
+          //gl.setParameter("u_uv_offset", uvoffset);
+          ctx.uniform2fv(shader.variables.u_uv_offset, uvoffset);
           
-          geoset.render(layer.coordId);
+          geoset.render(layer.coordId, shader);
         }
       }
     }
@@ -236,10 +241,11 @@ Model.prototype = {
     
     if (shouldRenderShapes && this.collisionShapes && gl.shaderReady("white")) {
       ctx.depthMask(1);
-      gl.bindShader("white");
+      
+      shader = gl.bindShader("white");
       
       for (i = 0, l = this.collisionShapes.length; i < l; i++) {
-        this.collisionShapes[i].render(instance.skeleton);
+        this.collisionShapes[i].render(instance.skeleton, shader);
       }
     }
     
@@ -252,18 +258,22 @@ Model.prototype = {
 	  var sequence = instance.sequence;
     var frame = instance.frame;
     var counter = instance.counter;
+    var shader;
     
     ctx.depthMask(1);
     
     if (instance.ribbonEmitters && gl.shaderReady("wribbons")) {
       ctx.disable(ctx.CULL_FACE);
       
-      gl.bindShader("wribbons");
-      gl.bindMVP("u_mvp");
-      gl.setParameter("u_texture", 0);
+      shader = gl.bindShader("wribbons");
+      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getMVP());
+      ctx.uniform1i(shader.variables.u_texture, 0);
+      //gl.bindMVP("u_mvp");
+      //gl.setParameter("u_texture", 0);
+      
       
       for (i = 0, l = instance.ribbonEmitters.length; i < l; i++) {
-        instance.ribbonEmitters[i].render(sequence, frame, counter, textureMap);
+        instance.ribbonEmitters[i].render(sequence, frame, counter, textureMap, shader);
       }
     }
     
@@ -272,17 +282,20 @@ Model.prototype = {
       ctx.enable(ctx.BLEND);
       ctx.disable(ctx.CULL_FACE);
       
-      if (gl.hasInstancedDraw) {
-        gl.bindShader("wparticlesinstanced");
-      } else {
-        gl.bindShader("wparticles");
-      }
+      //if (gl.hasInstancedDraw) {
+      //  gl.bindShader("wparticlesinstanced");
+      //} else {
+      shader = gl.bindShader("wparticles");
+      //}
       
-      gl.bindMVP("u_mvp");
-      gl.setParameter("u_texture", 0);
+      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getMVP());
+      ctx.uniform1i(shader.variables.u_texture, 0);
+      
+      //gl.bindMVP("u_mvp");
+      //gl.setParameter("u_texture", 0);
       
       for (i = 0, l = instance.particleEmitters2.length; i < l; i++) {
-        instance.particleEmitters2[i].render(textureMap);
+        instance.particleEmitters2[i].render(textureMap, shader);
       }
       
       ctx.depthMask(1);
@@ -300,13 +313,16 @@ Model.prototype = {
     var frame = instance.frame;
     var counter = instance.counter;
     var layer, geoset, texture;
+    var shader;
     
     if (this.layers && gl.shaderReady("wcolor")) {
-      gl.bindShader("wcolor");
-      gl.bindMVP("u_mvp");
-      gl.setParameter("u_color", color);
+      shader = gl.bindShader("wcolor");
+      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getMVP());
+      ctx.uniform3fv(shader.variables.u_color, color);
+      //gl.bindMVP("u_mvp");
+      //gl.setParameter("u_color", color);
       
-      instance.skeleton.bind();
+      instance.skeleton.bind(shader);
       
       for (i = 0, l = this.layers.length; i < l; i++) {
         layer = this.layers[i];
@@ -317,7 +333,7 @@ Model.prototype = {
           
           // Avoid rendering team glows
           if (!texture.endsWith("teamglow00.blp")) {
-            geoset.renderColor(color);
+            geoset.renderColor(color, shader);
           }
         }
       }

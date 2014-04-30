@@ -34,6 +34,7 @@ function Shader(name, vertexUnit, fragmentUnit) {
   if (gl["getProgramParameter"](id, gl["LINK_STATUS"])) {
     this.uniforms = this.getParameters("Uniform", "UNIFORMS");
     this.attribs = this.getParameters("Attrib", "ATTRIBUTES");
+    this.variables = this.getAllParameters();
     this.ready = true;
   } else {
     console.warn(name, gl["getProgramInfoLog"](this.id));
@@ -56,19 +57,41 @@ Shader.prototype = {
     return o;
   },
   
+  getAllParameters: function () {
+    var id = this.id;
+    var o = {};
+    var i, l, v, location;
+      
+    for (i = 0, l = gl.getProgramParameter(id, gl.ACTIVE_UNIFORMS); i < l; i++) {
+      v = gl.getActiveUniform(id, i);
+      location = gl.getUniformLocation(id, v.name);
+      
+      o[v.name] = location;
+    }
+    
+    for (i = 0, l = gl.getProgramParameter(id, gl.ACTIVE_ATTRIBUTES); i < l; i++) {
+      v = gl.getActiveAttrib(id, i);
+      location = gl.getAttribLocation(id, v.name);
+      
+      o[v.name] = location;
+    }
+    
+    return o;
+  },
+  
   setParameter: function (name, value) {
     var uniform = this.uniforms[name];
-    var location;
+    var location, type, typeFunc;
     
     if (uniform) {
       location = uniform[0];
+      type = uniform[1];
+      typeFunc = glTypeToUniformType[type];
       
-      var typeFunc = glTypeToUniformType[uniform[1]];
-      
-      if (typeFunc[0] === 'M') {
-        gl["uniform" + typeFunc](location, false, value);
+      if (type === FLOAT_MAT4 || type === FLOAT_MAT3 || type === FLOAT_MAT2) {
+        typeFunc(location, false, value);
       } else {
-        gl["uniform" + typeFunc](location, value);
+        typeFunc(location, value);
       }
     // Avoid repeatedly calling getUniformLocation for something that doesn't exist
     } else if (!this.nonexistingParameters[name]) {
@@ -92,7 +115,7 @@ Shader.prototype = {
   },
   
   getParameter: function (name) {
-    return this.uniforms[name] || this.attribs[name];
+    return this.attribs[name] || this.uniforms[name];
   },
   
   bind: function () {
