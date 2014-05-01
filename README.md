@@ -41,6 +41,8 @@ Terminology:
 * A model is a heavy weight object that contains all the model vertices, polygon indices, animation data, skeletal structure, etc.
 * An instance is a light weight object that contains a shallow skeleton, particle emitters, animation timers, etc.
 
+Most of the API doesn't deal with models directly, but rather with instances, since you can have many instances per model.
+
 ------------------------
 
 The API of the viewer is as follows:
@@ -129,6 +131,6 @@ The urls.header stub is used to give information about custom models. Given some
 
 The `models` object holds objects containing paths to model files, with an optional hidden value. If it is true, the instance created for the model will be hidden by default.
 
-The `textures` object holds a map from texture paths use by the models, to custom textures that the custom models might be using. For example, the Warcraft 3 Azura Dragon uses the path "textures/azuredragon.blp" for its main diffuse texture. If the `textures` object would contain `"textures/azuradragon.blp": "some/other/texture.blp"`, then the path will be overriden for every model in the `models` object before they are loaded.
+The `textures` object holds a map from texture paths used by the models, to custom textures that the custom models might be using. For example, the Warcraft 3 Azura Dragon uses the path "textures/azuredragon.blp" for its main diffuse texture. If the `textures` object would contain `"textures/azuradragon.blp": "some/other/texture.blp"`, then the path will be overriden for every model in the `models` object before they are loaded.
 
 The original texture paths (the keys in the `textures` object) must all be lower cased, and with forward slashes (Warcraft 3 uses back slashes).

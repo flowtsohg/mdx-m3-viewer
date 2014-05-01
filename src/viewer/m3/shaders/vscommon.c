@@ -7,3 +7,7 @@ vec3 TBN(vec3 vector, vec3 tangent, vec3 binormal, vec3 normal) {
   
   return transformed;
 }
+
+vec4 decodeVector(vec4 v) {
+  return ((v / 255.0) * 2.0) - 1.0;
+}

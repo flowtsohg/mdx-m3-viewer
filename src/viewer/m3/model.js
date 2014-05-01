@@ -155,61 +155,12 @@ Model.prototype = {
   },
   
   setupVertices: function (vertices, uvSetCount) {
-    var i, j;
-    var verticesCount = vertices.length;
-    var elementsPerVertex = 19 + 2 * uvSetCount;
-    var dst = new Float32Array(elementsPerVertex * verticesCount);
-    var dstI;
-    var vertex, position, boneWeights, boneLookupIndices, normal, uvs, tangent, uv;
-    
-    for (i = 0; i < verticesCount; i++) {
-      dstI = i * elementsPerVertex;
-      vertex = vertices[i];
-      position = vertex.position;
-      boneWeights = vertex.boneWeights;
-      boneLookupIndices = vertex.boneLookupIndices;
-      normal = vertex.normal;
-      uvs = vertex.uvs;
-      tangent = vertex.tangent;
-      
-      dst[dstI + 0] = position[0];
-      dst[dstI + 1] = position[1];
-      dst[dstI + 2] = position[2];
-      
-      dst[dstI + 3] = boneWeights[0];
-      dst[dstI + 4] = boneWeights[1];
-      dst[dstI + 5] = boneWeights[2];
-      dst[dstI + 6] = boneWeights[3];
-      
-      dst[dstI + 7] = boneLookupIndices[0];
-      dst[dstI + 8] = boneLookupIndices[1];
-      dst[dstI + 9] = boneLookupIndices[2];
-      dst[dstI + 10] = boneLookupIndices[3];
-      
-      dst[dstI + 11] = normal[0];
-      dst[dstI + 12] = normal[1];
-      dst[dstI + 13] = normal[2];
-      dst[dstI + 14] = normal[3];
-      
-      for (j = 0; j < uvSetCount; j++) {
-        uv = uvs[j];
-        
-        dst[dstI + 15 + 2 * j] = uv[0];
-        dst[dstI + 16 + 2 * j] = uv[1];
-      }
-      
-      dst[dstI + 15 + 2 * uvSetCount] = tangent[0];
-      dst[dstI + 16 + 2 * uvSetCount] = tangent[1];
-      dst[dstI + 17 + 2 * uvSetCount] = tangent[2];
-      dst[dstI + 18 + 2 * uvSetCount] = tangent[3];  
-    }
-    
     var vertexBuffer = ctx.createBuffer();
     ctx.bindBuffer(ctx.ARRAY_BUFFER, vertexBuffer);
-    ctx.bufferData(ctx.ARRAY_BUFFER, dst, ctx.STATIC_DRAW);
+    ctx.bufferData(ctx.ARRAY_BUFFER, vertices, ctx.STATIC_DRAW);
     
     this.vertexBuffer = vertexBuffer;
-    this.vertexSize = elementsPerVertex * 4;
+    this.vertexSize = (7 + uvSetCount) * 4;
     this.uvSetCount = uvSetCount;
   },
   
@@ -271,20 +222,16 @@ Model.prototype = {
     ctx.bindBuffer(ctx.ARRAY_BUFFER, this.vertexBuffer);
     
     ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, vertexSize, 0);
-    ctx.vertexAttribPointer(shader.variables.a_weights, 4, ctx.FLOAT, false, vertexSize, 12);
-    ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.FLOAT, false, vertexSize, 28);
-    ctx.vertexAttribPointer(shader.variables.a_normal, 4, ctx.FLOAT, false, vertexSize, 44);
-    //gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, vertexSize, 0);
-    //gl.vertexAttribPointer("a_weights", 4, ctx.FLOAT, false, vertexSize, 12);
-    //gl.vertexAttribPointer("a_bones", 4, ctx.FLOAT, false, vertexSize, 28);
-    //gl.vertexAttribPointer("a_normal", 4, ctx.FLOAT, false, vertexSize, 44);
+    ctx.vertexAttribPointer(shader.variables.a_weights, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 12);
+    ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 16);
+    ctx.vertexAttribPointer(shader.variables.a_normal, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 20);
     
     for (var i = 0; i < uvSetCount; i++) {
-      ctx.vertexAttribPointer(shader.variables["a_uv" + i], 2, ctx.FLOAT, false, vertexSize, 60 + i * 8);
+      ctx.vertexAttribPointer(shader.variables["a_uv" + i], 2, ctx.UNSIGNED_SHORT, false, vertexSize, 24 + i * 4);
       //gl.vertexAttribPointer("a_uv" + i, 2, ctx.FLOAT, false, vertexSize, 60 + i * 8);
     }
     
-    ctx.vertexAttribPointer(shader.variables.a_tangent, 4, ctx.FLOAT, false, vertexSize, 60 + uvSetCount * 8);
+    ctx.vertexAttribPointer(shader.variables.a_tangent, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 24 + uvSetCount * 4);
     //gl.vertexAttribPointer("a_tangent", 4, ctx.FLOAT, false, vertexSize, 60 + uvSetCount * 8);
     
     ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
@@ -296,11 +243,8 @@ Model.prototype = {
     ctx.bindBuffer(ctx.ARRAY_BUFFER, this.vertexBuffer);
     
     ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, vertexSize, 0);
-    ctx.vertexAttribPointer(shader.variables.a_weights, 4, ctx.FLOAT, false, vertexSize, 12);
-    ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.FLOAT, false, vertexSize, 28);
-    //gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, vertexSize, 0);
-    //gl.vertexAttribPointer("a_weights", 4, ctx.FLOAT, false, vertexSize, 12);
-    //gl.vertexAttribPointer("a_bones", 4, ctx.FLOAT, false, vertexSize, 28);
+    ctx.vertexAttribPointer(shader.variables.a_weights, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 12);
+    ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 16);
     
     ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
   },

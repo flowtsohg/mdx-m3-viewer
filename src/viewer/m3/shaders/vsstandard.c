@@ -65,9 +65,12 @@ void transform(vec3 inposition, vec3 innormal, vec3 intangent, vec4 bones, vec4 
 }
 
 void main() {
+  vec4 decodedNormal = decodeVector(a_normal);
+  vec4 decodedTangent = decodeVector(a_tangent);
+  
   vec3 position, normal, tangent;
   
-  transform(a_position, vec3(a_normal), vec3(a_tangent), a_bones + u_firstBoneLookupIndex, a_weights, position, normal, tangent);
+  transform(a_position, vec3(decodedNormal), vec3(decodedTangent), a_bones + u_firstBoneLookupIndex, a_weights / 255.0, position, normal, tangent);
   
   mat3 mv = mat3(u_mv);
   
@@ -75,7 +78,7 @@ void main() {
   
   vec3 n = normalize(mv * normal);
   vec3 t = normalize(mv * tangent);
-  vec3 b = normalize(cross(n, t) * a_normal.w);
+  vec3 b = normalize(cross(n, t) * decodedNormal.w);
   
   vec3 lightDir = normalize(u_lightPos - position_mv);
   v_lightDir = normalize(TBN(lightDir, t, b, n));
@@ -88,23 +91,23 @@ void main() {
   
   v_normal = n;
   
-  v_uv[0] = a_uv0;
+  v_uv[0] = a_uv0 / 2048.0;
   
   v_uv[1] = vec2(0);
   v_uv[2] = vec2(0);
   v_uv[3] = vec2(0);
   
   #ifdef EXPLICITUV1
-  v_uv[1] = a_uv1;
+  v_uv[1] = a_uv1 / 2048.0;
   #endif
   #ifdef EXPLICITUV2
-  v_uv[1] = a_uv1;
-  v_uv[2] = a_uv2;
+  v_uv[1] = a_uv1 / 2048.0;
+  v_uv[2] = a_uv2 / 2048.0;
   #endif
   #ifdef EXPLICITUV3
-  v_uv[1] = a_uv1;
-  v_uv[2] = a_uv2;
-  v_uv[3] = a_uv3;
+  v_uv[1] = a_uv1 / 2048.0;
+  v_uv[2] = a_uv2 / 2048.0;
+  v_uv[3] = a_uv3 / 2048.0;
   #endif
   
   gl_Position = u_mvp * vec4(position, 1);

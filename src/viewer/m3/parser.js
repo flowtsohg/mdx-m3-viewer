@@ -72,19 +72,14 @@ var Parser = (function () {
     var reference = new Reference(reader);
     var offset = tell(reader);
     var indexEntry = indexEntries[reference.index];
-    var entries = [];
-    var entriesCount = reference.entries / (28 + (uvSetCount * 4));
-    
+    var entries;
+
     seek(reader, indexEntry.offset);
     
-    entries.length = entriesCount;
-    
-    for (var i = 0, l = entriesCount; i < l; i++) {
-      entries[i] = Vertex(reader, uvSetCount);
-    }
+    entries = readUint32Array(reader, reference.entries / 4);
     
     seek(reader, offset);
-    
+
     return entries;
   }
 
@@ -1318,9 +1313,8 @@ var Parser = (function () {
       var header = new MD34(reader)
       
       seek(reader, header.indexOffset);
-  
+      
       var indexEntries = [];
-      indexEntries.length = header.entries;
       
       for (var i = 0; i < header.entries; i++) {
         indexEntries[i] = new IndexEntry(reader);
