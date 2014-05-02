@@ -6,11 +6,11 @@ function BoundingShape(boundingshape) {
   var shape;
   
   if (boundingshape.shape === 0) {
-    shape = gl.newCube(-size[0], -size[1], -size[2], size[0], size[1], size[2]);
+    shape = gl.createCube(-size[0], -size[1], -size[2], size[0], size[1], size[2]);
   } else if (boundingshape.shape === 1) {
-    shape = gl.newSphere(0, 0, 0, 9, 9, size[0]);
+    shape = gl.createSphere(0, 0, 0, 9, 9, size[0]);
   } else {
-    shape = gl.newCylinder(0, 0, 0, size[0], size[1], 9);
+    shape = gl.createCylinder(0, 0, 0, size[0], size[1], 9);
   }
   
   this.shape = shape;

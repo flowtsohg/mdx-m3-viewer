@@ -7,7 +7,7 @@ function ModelInstance(model) {
 }
 
 ModelInstance.prototype = {
-  update: function (instance) {
+  update: function (instance, refreshCamera) {
     var i, l;
     var sequenceId = this.sequence;
     var allowCreate = false;

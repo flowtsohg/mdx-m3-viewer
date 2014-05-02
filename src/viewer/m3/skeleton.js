@@ -1,7 +1,7 @@
 function ShallowBone (bone) {
   this.boneImpl = bone;
   this.parent = bone.parent;
-  this.worldMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+  this.worldMatrix = math.mat4.createIdentity();
   this.scale = [1, 1, 1];
 }
 
@@ -27,7 +27,7 @@ function Skeleton(model) {
   this.boneTexture = ctx.createTexture();
   this.boneTextureSize = Math.max(2, math.powerOfTwo(boneLookup.length + 1)) * 4;
   this.texelFraction = 1 / this.boneTextureSize;
-  this.boneFraction = this.texelFraction * 4;
+  this.matrixFraction = this.texelFraction * 4;
   
   ctx.activeTexture(ctx.TEXTURE15);
   ctx.bindTexture(ctx.TEXTURE_2D, this.boneTexture);
@@ -39,9 +39,9 @@ function Skeleton(model) {
     this.bones[i] = new ShallowBone(bones[i]);
   }
   
-  this.root = [];
-  
-  this.update(-1); // Go into bind pose when the viewer starts
+  this.root = math.mat4.create();
+  this.localMatrix = math.mat4.create();
+  this.rotationMatrix = math.mat4.create();
 }
 
 Skeleton.prototype = {
@@ -71,17 +71,22 @@ Skeleton.prototype = {
   },
   
   updateBone: function (bone, sequence, frame) {
-    var localMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+    var localMatrix = this.localMatrix;
+    var rotationMatrix = this.rotationMatrix;
     var location = this.getValue(bone.boneImpl.location, sequence, frame);
     var scale = this.getValue(bone.boneImpl.scale, sequence, frame);
     var rotation = this.getValue(bone.boneImpl.rotation, sequence, frame);
+    
+    math.mat4.makeIdentity(localMatrix);
     
     if (location[0] !== 0 || location[1] !== 0 || location[2] !== 0) {
       math.mat4.translate(localMatrix, location[0], location[1], location[2]);
     }
     
     if (rotation[0] !== 0 || rotation[1] !== 0 || rotation[2] !== 0 || rotation[3] !== 1) {
-      math.mat4.rotateQ(localMatrix, rotation);
+      math.quaternion.toRotationMatrix4(rotation, rotationMatrix);
+      
+      math.mat4.multMat(localMatrix, rotationMatrix, localMatrix);
     }
     
     if (scale[0] !== 1 || scale[1] !== 1 || scale[2] !== 1) {
@@ -105,35 +110,22 @@ Skeleton.prototype = {
     var hwbones = this.hwbones;
     var initialReferences = this.initialReference;
     var boneLookup = this.boneLookup;
-    var index, finalMatrix, bone;
+    var bone;
+    var finalMatrix;
     
-     for (var i = 0, l = boneLookup.length; i < l; i++) {
-      index = i * 16;
-      finalMatrix = [];
-      bone = boneLookup[i];
-       
+    if (sequence === -1) {
+      finalMatrix = this.root;
+    } else {
+      finalMatrix = this.localMatrix;
+    }
+    
+    for (var i = 0, l = boneLookup.length; i < l; i++) {
       if (sequence !== -1) {
+        bone = boneLookup[i];
         math.mat4.multMat(bones[bone].worldMatrix, initialReferences[bone], finalMatrix);
-      } else {
-        finalMatrix = this.root;
-      }
+      } 
       
-      hwbones[index + 0] = finalMatrix[0];
-      hwbones[index + 1] = finalMatrix[1];
-      hwbones[index + 2] = finalMatrix[2];
-      hwbones[index + 3] = finalMatrix[3];
-      hwbones[index + 4] = finalMatrix[4];
-      hwbones[index + 5] = finalMatrix[5];
-      hwbones[index + 6] = finalMatrix[6];
-      hwbones[index + 7] = finalMatrix[7];
-      hwbones[index + 8] = finalMatrix[8];
-      hwbones[index + 9] = finalMatrix[9];
-      hwbones[index + 10] = finalMatrix[10];
-      hwbones[index + 11] = finalMatrix[11];
-      hwbones[index + 12] = finalMatrix[12];
-      hwbones[index + 13] = finalMatrix[13];
-      hwbones[index + 14] = finalMatrix[14];
-      hwbones[index + 15] = finalMatrix[15];
+      hwbones.set(finalMatrix, i * 16);
     }
   
     ctx.activeTexture(ctx.TEXTURE15);
@@ -145,11 +137,8 @@ Skeleton.prototype = {
     ctx.activeTexture(ctx.TEXTURE15);
     ctx.bindTexture(ctx.TEXTURE_2D, this.boneTexture);
     
-    ctx.uniform1i(shader.variables.u_bones, 15);
-    ctx.uniform1f(shader.variables.u_bone_size, this.boneFraction);
-    ctx.uniform1f(shader.variables.u_pixel_size, this.texelFraction);
-    //gl.setParameter("u_bones", 15);
-    //gl.setParameter("u_bone_size", this.boneFraction);
-    //gl.setParameter("u_pixel_size", this.texelFraction);
+    ctx.uniform1i(shader.variables.u_boneMap, 15);
+    ctx.uniform1f(shader.variables.u_matrix_size, this.matrixFraction);
+    ctx.uniform1f(shader.variables.u_texel_size, this.texelFraction);
   }
 };

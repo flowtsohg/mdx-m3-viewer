@@ -49,9 +49,9 @@ function onloadBLPTexture(e) {
     
     // BGR -> RGB
     for (i = 0; i < rgba8888Data.length; i += 4) {
-      var b = rgba8888Data[i    ];
+      var b = rgba8888Data[i];
 
-      rgba8888Data[i    ] = rgba8888Data[i + 2];
+      rgba8888Data[i] = rgba8888Data[i + 2];
       rgba8888Data[i + 2] = b;
     }
   } else {
@@ -80,11 +80,11 @@ function onloadBLPTexture(e) {
     }
   }
   
-  this.id = gl["createTexture"]();
-  gl["bindTexture"](gl["TEXTURE_2D"], this.id);
+  this.id = ctx["createTexture"]();
+  ctx["bindTexture"](ctx["TEXTURE_2D"], this.id);
   textureOptions("REPEAT", "REPEAT", "LINEAR", "LINEAR_MIPMAP_LINEAR");
-  gl["texImage2D"](gl["TEXTURE_2D"], 0, gl["RGBA"], width, height, 0, gl["RGBA"], gl["UNSIGNED_BYTE"], rgba8888Data);
-  gl["generateMipmap"](gl["TEXTURE_2D"]);
+  ctx["texImage2D"](ctx["TEXTURE_2D"], 0, ctx["RGBA"], width, height, 0, ctx["RGBA"], ctx["UNSIGNED_BYTE"], rgba8888Data);
+  ctx["generateMipmap"](ctx["TEXTURE_2D"]);
   
   this.ready = true;
   this.onload(this);

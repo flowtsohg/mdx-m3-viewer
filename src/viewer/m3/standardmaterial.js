@@ -55,10 +55,6 @@ StandardMaterial.prototype = {
     ctx.uniform1f(shader.variables.u_specMult, this.specMult);
     ctx.uniform1f(shader.variables.u_emisMult, this.emisMult);
     ctx.uniform4fv(shader.variables.u_lightAmbient, [0.02, 0.02, 0.02, 0]);
-    //gl.setParameter("u_specularity", this.specularity);
-    //gl.setParameter("u_specMult", this.specMult);
-    //gl.setParameter("u_emisMult", this.emisMult);
-    //gl.setParameter("u_lightAmbient", );
     
     var layers = this.layers;
     
@@ -97,8 +93,6 @@ StandardMaterial.prototype = {
     
     ctx.uniform1f(shader.variables.u_specularity, this.specularity);
     ctx.uniform1f(shader.variables.u_specMult, this.specMult);
-    //gl.setParameter("u_specularity", this.specularity);
-    //gl.setParameter("u_specMult", this.specMult);
     
     this.layers[2].bind(3, sequence, frame, textureMap, shader);
   },
@@ -113,7 +107,6 @@ StandardMaterial.prototype = {
     this.bindCommon();
     
     ctx.uniform1f(shader.variables.u_emisMult, this.emisMult);
-    //gl.setParameter("u_emisMult", this.emisMult);
     
     this.layers[4].bind(5, sequence, frame, textureMap, shader);
     this.layers[5].bind(6, sequence, frame, textureMap, shader);
