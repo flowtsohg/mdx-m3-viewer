@@ -1,9 +1,9 @@
 function onloadTexture(image, e) {
-  this.id = ctx["createTexture"]();
-  ctx["bindTexture"](ctx["TEXTURE_2D"], this.id);
+  this.id = gl["createTexture"]();
+  gl["bindTexture"](gl["TEXTURE_2D"], this.id);
   textureOptions("REPEAT", "REPEAT", "LINEAR", "LINEAR_MIPMAP_LINEAR");
-  ctx["texImage2D"](ctx["TEXTURE_2D"], 0, ctx["RGBA"], ctx["RGBA"], ctx["UNSIGNED_BYTE"], image);
-  ctx["generateMipmap"](ctx["TEXTURE_2D"]);
+  gl["texImage2D"](gl["TEXTURE_2D"], 0, gl["RGBA"], gl["RGBA"], gl["UNSIGNED_BYTE"], image);
+  gl["generateMipmap"](gl["TEXTURE_2D"]);
   
   this.ready = true;
   this.onload(this);

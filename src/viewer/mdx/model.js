@@ -122,10 +122,6 @@ function Model(parser, textureMap) {
     }
   }
   
-  // Avoid heap allocations in render()
-  this.modifier = [1, 1, 1, 1];
-  this.uvoffset = [0 ,0];
-  
   this.ready = true;
 }
 
@@ -151,7 +147,7 @@ Model.prototype = {
     
     this.textureMap[source] = path;
     
-    gl.loadTexture(path);
+    gl.newTexture(path);
   },
   
   setupHierarchy: function (parent) {
@@ -174,44 +170,30 @@ Model.prototype = {
     var frame = instance.frame;
     var counter = instance.counter;
     var shader;
-    var layers = this.layers;
     
-    if (layers && gl.shaderReady("wmain")) {
-      var modifier = this.modifier;
-      var uvoffset = this.uvoffset;
-      var layer;
-      var geoset;
-      var textureId;
-      var geosets = this.geosets;
-      var textures = this.textures;
-      
+    if (this.layers && gl.shaderReady("wmain")) {
       shader = gl.bindShader("wmain");
       //gl.bindMVP("u_mvp");
       //gl.setParameter("u_texture", 0);
-      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
+      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getMVP());
       ctx.uniform1i(shader.variables.u_texture, 0);
       
       instance.skeleton.bind(shader);
       
-      for (i = 0, l = layers.length; i < l; i++) {
-        layer = layers[i];
+      for (i = 0, l = this.layers.length; i < l; i++) {
+        var layer = this.layers[i];
         
         if (layer.shouldRender(sequence, frame, counter) && this.shouldRenderGeoset(sequence, frame, counter, layer)) {
-          geoset = geosets[layer.geosetId];
+          var geoset = this.geosets[layer.geosetId];
           
-          modifier[0] = 1;
-          modifier[1] = 1;
-          modifier[2] = 1;
-          modifier[3] = 1;
-          
-          uvoffset[0] = 0;
-          uvoffset[1] = 0;
+          var modifier = [1, 1, 1, 1];
+          var uvoffset = [0 ,0];
           
           layer.setMaterial(shader);
           
-          textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
+          var textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
           
-          bindTexture(textures[textureId], 0, this.textureMap, textureMap);
+          bindTexture(this.textures[textureId], 0, this.textureMap, textureMap);
           
           if (this.geosetAnimations) {
             for (var j = this.geosetAnimations.length; j--;) {
@@ -232,6 +214,7 @@ Model.prototype = {
           modifier[3] = getSDValue(sequence, frame, counter, layer.sd.alpha, layer.alpha);
           
           ctx.uniform4fv(shader.variables.u_modifier, modifier);
+          //gl.setParameter("u_modifier", modifier);
           
           if (layer.textureAnimationId !== -1 && this.textureAnimations) {
             var textureAnimation = this.textureAnimations[layer.textureAnimationId];
@@ -242,6 +225,7 @@ Model.prototype = {
             uvoffset[1] = v[1];
           }
           
+          //gl.setParameter("u_uv_offset", uvoffset);
           ctx.uniform2fv(shader.variables.u_uv_offset, uvoffset);
           
           geoset.render(layer.coordId, shader);
@@ -282,8 +266,11 @@ Model.prototype = {
       ctx.disable(ctx.CULL_FACE);
       
       shader = gl.bindShader("wribbons");
-      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
+      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getMVP());
       ctx.uniform1i(shader.variables.u_texture, 0);
+      //gl.bindMVP("u_mvp");
+      //gl.setParameter("u_texture", 0);
+      
       
       for (i = 0, l = instance.ribbonEmitters.length; i < l; i++) {
         instance.ribbonEmitters[i].render(sequence, frame, counter, textureMap, shader);
@@ -295,10 +282,17 @@ Model.prototype = {
       ctx.enable(ctx.BLEND);
       ctx.disable(ctx.CULL_FACE);
       
+      //if (gl.hasInstancedDraw) {
+      //  gl.bindShader("wparticlesinstanced");
+      //} else {
       shader = gl.bindShader("wparticles");
+      //}
       
-      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
+      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getMVP());
       ctx.uniform1i(shader.variables.u_texture, 0);
+      
+      //gl.bindMVP("u_mvp");
+      //gl.setParameter("u_texture", 0);
       
       for (i = 0, l = instance.particleEmitters2.length; i < l; i++) {
         instance.particleEmitters2[i].render(textureMap, shader);
@@ -323,9 +317,10 @@ Model.prototype = {
     
     if (this.layers && gl.shaderReady("wcolor")) {
       shader = gl.bindShader("wcolor");
-      
-      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
+      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getMVP());
       ctx.uniform3fv(shader.variables.u_color, color);
+      //gl.bindMVP("u_mvp");
+      //gl.setParameter("u_color", color);
       
       instance.skeleton.bind(shader);
       
@@ -338,7 +333,7 @@ Model.prototype = {
           
           // Avoid rendering team glows
           if (!texture.endsWith("teamglow00.blp")) {
-            geoset.renderColor(shader);
+            geoset.renderColor(color, shader);
           }
         }
       }

@@ -1,7 +1,7 @@
 function Rect(x, y, z, hw, hh, stscale) {
   stscale = stscale || 1;
   
-  this.buffer = ctx["createBuffer"]();
+  this.buffer = gl["createBuffer"]();
   this.data = new Float32Array([
     x - hw, y - hh, z, 0, 1 * stscale,
     x + hw, y - hh, z, 1 * stscale, 1 * stscale,
@@ -9,17 +9,19 @@ function Rect(x, y, z, hw, hh, stscale) {
     x + hw, y + hh, z, 1 * stscale, 0
   ]);
   
-  ctx["bindBuffer"](ctx["ARRAY_BUFFER"], this.buffer);
-  ctx["bufferData"](ctx["ARRAY_BUFFER"], this.data, ctx["STATIC_DRAW"]);
+  gl["bindBuffer"](gl["ARRAY_BUFFER"], this.buffer);
+  gl["bufferData"](gl["ARRAY_BUFFER"], this.data, gl["STATIC_DRAW"]);
 }
 
 Rect.prototype = {
   render: function (shader) {
-    ctx["bindBuffer"](ctx["ARRAY_BUFFER"], this.buffer);
+    gl["bindBuffer"](gl["ARRAY_BUFFER"], this.buffer);
     
-    ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 20, 0);
-    ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 20, 12);
+    gl.vertexAttribPointer(shader.variables.a_position, 3, gl.FLOAT, false, 20, 0);
+    gl.vertexAttribPointer(shader.variables.a_uv, 2, gl.FLOAT, false, 20, 12);
+    //vertexAttribPointer("a_position", 3, gl["FLOAT"], false, 20, 0);
+    //vertexAttribPointer("a_uv", 2, gl["FLOAT"], false, 20, 12);
     
-    ctx["drawArrays"](ctx["TRIANGLE_STRIP"], 0, 4);
+    gl["drawArrays"](gl["TRIANGLE_STRIP"], 0, 4);
   }
 };

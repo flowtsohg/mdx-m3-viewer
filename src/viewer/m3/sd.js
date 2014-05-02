@@ -1,8 +1,5 @@
 function SD(sd) {
   this.sd = sd;
-  
-  // Avoid heap allocations in getInterval()
-  this.interval = [0, 0];
 }
 
 SD.prototype = {
@@ -13,12 +10,9 @@ SD.prototype = {
       frame = frame % sd.biggestKey;
     }
     
-    var interval = this.interval;
     var keys = sd.keys;
     var values = sd.values;
-    
-    this.getInterval(keys, frame, interval);
-    
+    var interval = this.getInterval(keys, frame);
     var a = interval[0];
     var b = interval[1];
     var length = keys.length;
@@ -42,7 +36,7 @@ SD.prototype = {
     return func(values[a], 0, 0, values[b], t, animationReference.interpolationType);
   },
   
-  getInterval: function (keys, frame, interval) {
+  getInterval: function (keys, frame) {
     var a = keys.length;
     var b = 0;
     
@@ -51,7 +45,6 @@ SD.prototype = {
       b++;
     }
     
-    interval[0] = a;
-    interval[1] = b;
+    return [a, b];
   }
 };

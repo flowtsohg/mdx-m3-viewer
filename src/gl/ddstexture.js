@@ -1,4 +1,4 @@
-// Note: This file is largely based on https://github.com/toji/webctx-texture-utils/blob/master/texture-util/dds.js
+// Note: This file is largely based on https://github.com/toji/webgl-texture-utils/blob/master/texture-util/dds.js
 
 var DDS_MAGIC = 0x20534444;
   
@@ -104,7 +104,6 @@ function dxt3ToRgba8888(src, width, height) {
   var r0, g0, b0, r1, g1, b1;
   var blockWidth = width / 4;
   var blockHeight = height / 4;
-  var widthBytes = width * 4;
   
   for (var blockY = 0; blockY < blockHeight; blockY++) {
     for (var blockX = 0; blockX < blockWidth; blockX++) {
@@ -127,21 +126,21 @@ function dxt3ToRgba8888(src, width, height) {
       setRgba8888Dxt3(dst, dstI + 4, c[(m >> 2) & 0x3], (a >> 4) & 0xf);
       setRgba8888Dxt3(dst, dstI + 8, c[(m >> 4) & 0x3], (a >> 8) & 0xf);
       setRgba8888Dxt3(dst, dstI + 12, c[(m >> 6) & 0x3], (a >> 12) & 0xf);
+      dstI += width * 4;
       a = src[i + 1];
-      dstI += widthBytes;
       setRgba8888Dxt3(dst, dstI, c[(m >> 8) & 0x3], a & 0xf);
       setRgba8888Dxt3(dst, dstI + 4, c[(m >> 10) & 0x3], (a >> 4) & 0xf);
       setRgba8888Dxt3(dst, dstI + 8, c[(m >> 12) & 0x3], (a >> 8) & 0xf);
       setRgba8888Dxt3(dst, dstI + 12, c[m >> 14], (a >> 12) & 0xf);
       m = src[i + 7];
       a = src[i + 2];
-      dstI += widthBytes;
+      dstI += width * 4;
       setRgba8888Dxt3(dst, dstI, c[m & 0x3], a & 0xf);
       setRgba8888Dxt3(dst, dstI + 4, c[(m >> 2) & 0x3], (a >> 4) & 0xf);
       setRgba8888Dxt3(dst, dstI + 8, c[(m >> 4) & 0x3], (a >> 8) & 0xf);
       setRgba8888Dxt3(dst, dstI + 12, c[(m >> 6) & 0x3], (a >> 12) & 0xf);
+      dstI += width * 4;
       a = src[i + 3];
-      dstI += widthBytes;
       setRgba8888Dxt3(dst, dstI, c[(m >> 8) & 0x3], a & 0xf);
       setRgba8888Dxt3(dst, dstI + 4, c[(m >> 10) & 0x3], (a >> 4) & 0xf);
       setRgba8888Dxt3(dst, dstI + 8, c[(m >> 12) & 0x3], (a >> 8) & 0xf);
@@ -164,7 +163,6 @@ function dxt5ToRgba8888(src, width, height) {
   var r0, g0, b0, r1, g1, b1;
   var blockWidth = width / 4;
   var blockHeight = height / 4;
-  var widthBytes = width * 4;
   
   for (var blockY = 0; blockY < blockHeight; blockY++) {
     for (var blockX = 0; blockX < blockWidth; blockX++) {
@@ -223,18 +221,18 @@ function dxt5ToRgba8888(src, width, height) {
       setRgba8888Dxt5(dst, dstI + 4, c[(m >> 2) & 0x3], a[(alphaBits >> 3) & 0x7]);
       setRgba8888Dxt5(dst, dstI + 8, c[(m >> 4) & 0x3], a[(alphaBits >> 6) & 0x7]);
       setRgba8888Dxt5(dst, dstI + 12, c[(m >> 6) & 0x3], a[(alphaBits >> 9) & 0x7]);
-      dstI += widthBytes;
+      dstI += width * 4;
       setRgba8888Dxt5(dst, dstI, c[(m >> 8) & 0x3], a[(alphaBits >> 12) & 0x7]);
       setRgba8888Dxt5(dst, dstI + 4, c[(m >> 10) & 0x3], a[(alphaBits >> 15) & 0x7]);
       setRgba8888Dxt5(dst, dstI + 8, c[(m >> 12) & 0x3], a[(alphaBits >> 18) & 0x7]);
       setRgba8888Dxt5(dst, dstI + 12, c[m >> 14], a[(alphaBits >> 21) & 0x7]);
       m = src[i + 7];
-      dstI += widthBytes;
+      dstI += width * 4;
       setRgba8888Dxt5(dst, dstI, c[m & 0x3], a[(alphaBits >> 24) & 0x7]);
       setRgba8888Dxt5(dst, dstI + 4, c[(m >> 2) & 0x3], a[(alphaBits >> 27) & 0x7]);
       setRgba8888Dxt5(dst, dstI + 8, c[(m >> 4) & 0x3], a[(alphaBits >> 30) & 0x7]);
       setRgba8888Dxt5(dst, dstI + 12, c[(m >> 6) & 0x3],a[(alphaBits >> 33) & 0x7]);
-      dstI += widthBytes;
+      dstI += width * 4;
       setRgba8888Dxt5(dst, dstI, c[(m >> 8) & 0x3], a[(alphaBits >> 36) & 0x7]);
       setRgba8888Dxt5(dst, dstI + 4, c[(m >> 10) & 0x3], a[(alphaBits >> 39) & 0x7]);
       setRgba8888Dxt5(dst, dstI + 8, c[(m >> 12) & 0x3], a[(alphaBits >> 42) & 0x7]);
@@ -296,15 +294,15 @@ function onloadDDSTexture(e) {
   var dataLength, byteArray;
   var rgb565Data, rgba8888Data;
   
-  this.id = ctx["createTexture"]();
-  ctx["bindTexture"](ctx["TEXTURE_2D"], this.id);
+  this.id = gl["createTexture"]();
+  gl["bindTexture"](gl["TEXTURE_2D"], this.id);
   textureOptions("REPEAT", "REPEAT", "LINEAR", mipmapCount > 1 ? "LINEAR_MIPMAP_LINEAR" : "LINEAR");
   
   if (internalFormat) {
     for (var i = 0; i < mipmapCount; i++) {
       dataLength = Math.max(4, width) / 4 * Math.max( 4, height ) / 4 * blockBytes;
       byteArray = new Uint8Array(arrayBuffer, dataOffset, dataLength);
-      ctx["compressedTexImage2D"](ctx["TEXTURE_2D"], i, internalFormat, width, height, 0, byteArray);
+      gl["compressedTexImage2D"](gl["TEXTURE_2D"], i, internalFormat, width, height, 0, byteArray);
       dataOffset += dataLength;
       width *= 0.5;
       height *= 0.5;
@@ -316,18 +314,18 @@ function onloadDDSTexture(e) {
     if (fourCC === FOURCC_DXT1) {
       rgb565Data = dxt1ToRgb565(byteArray, width, height);
       
-      ctx["texImage2D"](ctx["TEXTURE_2D"], 0, ctx["RGB"], width, height, 0, ctx["RGB"], ctx["UNSIGNED_SHORT_5_6_5"], rgb565Data);
-      ctx["generateMipmap"](ctx["TEXTURE_2D"]);
+      gl["texImage2D"](gl["TEXTURE_2D"], 0, gl["RGB"], width, height, 0, gl["RGB"], gl["UNSIGNED_SHORT_5_6_5"], rgb565Data);
+      gl["generateMipmap"](gl["TEXTURE_2D"]);
     } else if (fourCC === FOURCC_DXT3) {
       rgba8888Data = dxt3ToRgba8888(byteArray, width, height);
       
-      ctx["texImage2D"](ctx["TEXTURE_2D"], 0, ctx["RGBA"], width, height, 0, ctx["RGBA"], ctx["UNSIGNED_BYTE"], rgba8888Data);
-      ctx["generateMipmap"](ctx["TEXTURE_2D"]);
+      gl["texImage2D"](gl["TEXTURE_2D"], 0, gl["RGBA"], width, height, 0, gl["RGBA"], gl["UNSIGNED_BYTE"], rgba8888Data);
+      gl["generateMipmap"](gl["TEXTURE_2D"]);
     } else {
       rgba8888Data = dxt5ToRgba8888(byteArray, width, height);
       
-      ctx["texImage2D"](ctx["TEXTURE_2D"], 0, ctx["RGBA"], width, height, 0, ctx["RGBA"], ctx["UNSIGNED_BYTE"], rgba8888Data);
-      ctx["generateMipmap"](ctx["TEXTURE_2D"]);
+      gl["texImage2D"](gl["TEXTURE_2D"], 0, gl["RGBA"], width, height, 0, gl["RGBA"], gl["UNSIGNED_BYTE"], rgba8888Data);
+      gl["generateMipmap"](gl["TEXTURE_2D"]);
     }
   }
   

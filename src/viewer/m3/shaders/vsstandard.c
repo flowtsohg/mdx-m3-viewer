@@ -67,6 +67,7 @@ void transform(vec3 inposition, vec3 innormal, vec3 intangent, vec4 bones, vec4 
 void main() {
   vec4 decodedNormal = decodeVector(a_normal);
   vec4 decodedTangent = decodeVector(a_tangent);
+  
   vec3 position, normal, tangent;
   
   transform(a_position, vec3(decodedNormal), vec3(decodedTangent), a_bones + u_firstBoneLookupIndex, a_weights / 255.0, position, normal, tangent);

@@ -19,13 +19,13 @@ function ShallowNode(node) {
   this.pivot = node.pivot;
   this.objectId = node.objectId;
   this.parentId = node.parentId;
-  this.worldMatrix = math.mat4.createIdentity();
+  this.worldMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
   this.scale = [1, 1, 1];
 }
 
 ShallowNode.prototype = {
   getTransform: function () {
-    var m = math.mat4.createIdentity();
+    var m = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
     
     math.mat4.multMat(m, this.worldMatrix, m);
     math.mat4.translate(m, this.pivot[0], this.pivot[1], this.pivot[2]);

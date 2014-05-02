@@ -21,13 +21,10 @@ function SD(tracks, model) {
   
   this.tracks = arr;
   this.keys = keys;
-  
-  // Avoid heap allocations in getInterval()
-  this.interval = [0, 0];
 }
 
 SD.prototype = {
-  getInterval: function (frame, start, end, interval) {
+  getInterval: function (frame, start, end) {
     var keys = this.keys;
     var length = keys.length;
     var a = length;
@@ -46,15 +43,11 @@ SD.prototype = {
       b = length;
     }
     
-    interval[0] = a;
-    interval[1] = b;
+    return [a, b];
   },
 
   getValueAtTime: function (frame, start, end) {
-    var interval = this.interval;
-    
-    this.getInterval(frame, start, end, interval);
-    
+    var interval = this.getInterval(frame, start, end);
     var tracks = this.tracks;
     var length = tracks.length;
     var a = interval[0];
@@ -113,10 +106,9 @@ function getSDValue(sequence, frame, counter, sd, defval) {
 function parseSDTracks(tracks, model) {
   var keys = Object.keys(tracks);
   var sds = {};
-  var type;
-    
+  
   for (var i = 0, l = keys.length; i < l; i++) {
-    type = keys[i];
+    var type = keys[i];
     
     sds[type] = new SD(tracks[type], model);
   }

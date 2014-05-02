@@ -39,11 +39,11 @@ function Sphere(x, y, z, latitudeBands, longitudeBands, radius) {
       var first = (latNumber * (longitudeBands + 1)) + longNumber;
       var second = first + longitudeBands + 1;
       
-      // First trianctxe
+      // First triangle
       indexData.push(first);
       indexData.push(second);
       indexData.push(first + 1);
-      // Second trianctxe
+      // Second triangle
       indexData.push(second);
       indexData.push(second + 1);
       indexData.push(first + 1);
@@ -53,35 +53,38 @@ function Sphere(x, y, z, latitudeBands, longitudeBands, radius) {
   this.vertexArray = new Float32Array(vertexData);
   this.indexArray = new Uint16Array(indexData);
   
-  this.vertexBuffer = ctx["createBuffer"]();
-  this.indexBuffer = ctx["createBuffer"]();
+  this.vertexBuffer = gl["createBuffer"]();
+  this.indexBuffer = gl["createBuffer"]();
   
-  ctx["bindBuffer"](ctx["ARRAY_BUFFER"], this.vertexBuffer);
-  ctx["bufferData"](ctx["ARRAY_BUFFER"], this.vertexArray, ctx["STATIC_DRAW"]);
+  gl["bindBuffer"](gl["ARRAY_BUFFER"], this.vertexBuffer);
+  gl["bufferData"](gl["ARRAY_BUFFER"], this.vertexArray, gl["STATIC_DRAW"]);
   
-  ctx["bindBuffer"](ctx["ELEMENT_ARRAY_BUFFER"], this.indexBuffer);
-  ctx["bufferData"](ctx["ELEMENT_ARRAY_BUFFER"], this.indexArray, ctx["STATIC_DRAW"]);
+  gl["bindBuffer"](gl["ELEMENT_ARRAY_BUFFER"], this.indexBuffer);
+  gl["bufferData"](gl["ELEMENT_ARRAY_BUFFER"], this.indexArray, gl["STATIC_DRAW"]);
 }
 
 Sphere.prototype = {
   render: function (shader) {
-    ctx["bindBuffer"](ctx["ARRAY_BUFFER"], this.vertexBuffer);
+    gl["bindBuffer"](gl["ARRAY_BUFFER"], this.vertexBuffer);
     
-    ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 20, 0);
-    ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 20, 12);
+    gl.vertexAttribPointer(shader.variables.a_position, 3, gl.FLOAT, false, 20, 0);
+    gl.vertexAttribPointer(shader.variables.a_uv, 2, gl.FLOAT, false, 20, 12);
+    //vertexAttribPointer("a_position", 3, gl["FLOAT"], false, 20, 0);
+    //vertexAttribPointer("a_uv", 2, gl["FLOAT"], false, 20, 12);
     
-    ctx["bindBuffer"](ctx["ELEMENT_ARRAY_BUFFER"], this.indexBuffer);
+    gl["bindBuffer"](gl["ELEMENT_ARRAY_BUFFER"], this.indexBuffer);
     
-    ctx["drawElements"](ctx["TRIANGLES"], this.indexArray.length, ctx["UNSIGNED_SHORT"], 0);
+    gl["drawElements"](gl["TRIANGLES"], this.indexArray.length, gl["UNSIGNED_SHORT"], 0);
   },
   
   renderLines: function (shader) {
-    ctx["bindBuffer"](ctx["ARRAY_BUFFER"], this.vertexBuffer);
+    gl["bindBuffer"](gl["ARRAY_BUFFER"], this.vertexBuffer);
     
-    ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 20, 0);
+    gl.vertexAttribPointer(shader.variables.a_position, 3, gl.FLOAT, false, 20, 0);
+    //vertexAttribPointer("a_position", 3, gl["FLOAT"], false, 20, 0);
     
-    ctx["bindBuffer"](ctx["ELEMENT_ARRAY_BUFFER"], this.indexBuffer);
+    gl["bindBuffer"](gl["ELEMENT_ARRAY_BUFFER"], this.indexBuffer);
     
-    ctx["drawElements"](ctx["LINES"], this.indexArray.length, ctx["UNSIGNED_SHORT"], 0);
+    gl["drawElements"](gl["LINES"], this.indexArray.length, gl["UNSIGNED_SHORT"], 0);
   }
 };

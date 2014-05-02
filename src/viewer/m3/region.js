@@ -9,14 +9,15 @@ function Region(region, triangles, elementArray, offset) {
   }
   
   this.firstBoneLookupIndex = region.firstBoneLookupIndex;
-  this.offset = offset * 2;
-  this.elements = triangleIndicesCount;
+  this.offset = offset;
+  this.elementsCount = triangleIndicesCount;
 }
 
 Region.prototype = {
   render: function (shader) {
     ctx.uniform1f(shader.variables.u_firstBoneLookupIndex, this.firstBoneLookupIndex);
+    //gl.setParameter("u_firstBoneLookupIndex", this.firstBoneLookupIndex);
     
-    ctx.drawElements(ctx.TRIANGLES, this.elements, ctx.UNSIGNED_SHORT, this.offset);
+    ctx.drawElements(ctx.TRIANGLES, this.elementsCount, ctx.UNSIGNED_SHORT, this.offset * 2);
   }
 };

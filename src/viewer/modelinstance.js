@@ -6,7 +6,7 @@ function ModelInstance(model, id, color, textureMap) {
   this.source = model.source;
   this.visible = 1;
   
-  this.localMatrix = math.mat4.createIdentity();
+  this.localMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
   this.location = [0, 0, 0];
   this.rotation = [0, 0, 0, 1];
   this.scaling = 1;
@@ -80,9 +80,9 @@ ModelInstance.prototype = {
     }
   },
   
-  update: function (refreshCamera) {
+  update: function () {
     if (this.ready) {
-      this.instance.update(this, refreshCamera);
+      this.instance.update(this);
     }
   },
   
@@ -219,7 +219,7 @@ ModelInstance.prototype = {
   // Get the transform of this instance.
   // If there is a parent, then it is parent * local matrix, otherwise just the local matrix.
   getTransform: function (objects) {
-    var worldMatrix = math.mat4.createIdentity();
+    var worldMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
     var parent = this.parent;
     
     if (parent) {

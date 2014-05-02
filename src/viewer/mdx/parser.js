@@ -92,6 +92,21 @@ var Parser = (function () {
     return elements;
   }
   
+  function parseChunkByVal(reader, size, Func, nodes) {
+    var totalInclusiveSize = 0;
+    var elements = [];
+    
+    while (totalInclusiveSize !== size) {
+      var element = Func(reader, nodes);
+      
+      totalInclusiveSize += element.inclusiveSize;
+      
+      elements[elements.length] = element;
+    }
+    
+    return elements;
+  }
+  
   function parseCountChunk(reader, count, Func) {
     var elements = [];
     
@@ -224,7 +239,7 @@ var Parser = (function () {
   }
 
   function GlobalSequenceChunk(reader, size) {
-    this.objects = readUint32Array(reader, size / 4);
+    this.objects = parseCountChunkByVal(reader, size / 4, readUint32);
   }
 
   function Texture(reader) {
@@ -569,7 +584,7 @@ var Parser = (function () {
     "CLID": [CollisionShapeChunk, "collisionShapeChunk"]
   };
 
-  return (function (reader) {
+  return (function (reader, onprogress) {
     if (read(reader, 4) === "MDLX") {
       // Initialize the node list with a root node
       this["nodes"] = [{objectId: 0, parentId: -1, name: "InjectedRoot"}];
@@ -584,6 +599,10 @@ var Parser = (function () {
         } else {
           //console.log("Didn't parse chunk " + tag);
           skip(reader, size);
+        }
+
+        if (typeof onprogress === "function") {
+          onprogress({lengthComputable: true, total: reader.size, loaded: tell(reader)});
         }
       }
 

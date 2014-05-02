@@ -40,15 +40,15 @@ function ModelInstance(model) {
 }
 
 ModelInstance.prototype = {
-  updateEmitters: function (emitters, allowCreate, refreshCamera) {
+  updateEmitters: function (emitters, allowCreate) {
     if (emitters) {
       for (var i = 0, l = emitters.length; i < l; i++) {
-        emitters[i].update(allowCreate, this.sequence, this.frame, this.counter, refreshCamera);
+        emitters[i].update(allowCreate, this.sequence, this.frame, this.counter);
       }
     }
   },
   
-  update: function (instance, refreshCamera) {
+  update: function (instance) {
     var allowCreate = false;
     var frames = 960 * FRAME_TIME;
     
@@ -74,17 +74,17 @@ ModelInstance.prototype = {
     
     this.skeleton.update(this.sequence, this.frame, this.counter, instance);
     
-    this.updateEmitters(this.particleEmitters, allowCreate, refreshCamera);
-    this.updateEmitters(this.particleEmitters2, allowCreate, refreshCamera);
-    this.updateEmitters(this.ribbonEmitters, allowCreate, refreshCamera);
+    this.updateEmitters(this.particleEmitters, allowCreate);
+    this.updateEmitters(this.particleEmitters2, allowCreate);
+    this.updateEmitters(this.ribbonEmitters, allowCreate);
   },
   
   render: function (instance) {
     this.model.render(this, instance.textureMap);
   },
   
-  renderEmitters: function (instance, refreshCamera) {
-    this.model.renderEmitters(this, instance.textureMap, refreshCamera);
+  renderEmitters: function (instance) {
+    this.model.renderEmitters(this, instance.textureMap);
   },
   
   renderColor: function (instance) {
