@@ -40,7 +40,9 @@ function RibbonEmitter(emitter, model, instance) {
 
 RibbonEmitter.prototype = {
   update: function (allowCreate, sequence, frame, counter) {
-    for (var i = 0, l = this.ribbons.length; i < l; i++) {
+    var i, l;
+    
+    for (i = 0, l = this.ribbons.length; i < l; i++) {
       this.ribbons[i].update(this);
     }
     
@@ -51,12 +53,12 @@ RibbonEmitter.prototype = {
     if (allowCreate && this.shouldRender(sequence, frame, counter)) {
       this.lastCreation += 1;
       
-      var amount = Math.floor((this.emissionRate * FRAME_TIME) / (1 / this.lastCreation));
+      var amount = this.emissionRate * FRAME_TIME * this.lastCreation;
       
-      if (amount > 0) {
+      if (amount > 1) {
         this.lastCreation = 0;
         
-        for (; amount--;) {
+        for (i = 0; i < amount; i++) {
           this.ribbons.push(new Ribbon(this, sequence, frame, counter));
         }
       }
@@ -68,7 +70,7 @@ RibbonEmitter.prototype = {
     var ribbons = Math.min(this.ribbons.length, this.maxRibbons);
     
     if (ribbons > 2) {
-      var textureSlot = getSDValue(sequence, frame, counter, this.sd.textureSlot, 0);
+      var textureSlot = getSDValue(null, sequence, frame, counter, this.sd.textureSlot, 0);
       //var uvOffsetX = (textureSlot % this.columns) / this.columns;
       var uvOffsetY = (Math.floor(textureSlot / this.rows) - 1) / this.rows;
       var uvFactor = 1 / ribbons * this.cellWidth;
@@ -108,35 +110,32 @@ RibbonEmitter.prototype = {
         
         if (layer.shouldRender(sequence, frame, counter)) {
           var modifier = [1, 1, 1, 1];
-          var uvoffset = [0 ,0];
+          var uvoffset = [0, 0, 0];
           
-          layer.setMaterial();
+          layer.setMaterial(shader);
           
-          var textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
+          var textureId = getSDValue(null, sequence, frame, counter, layer.sd.textureId, layer.textureId);
           
           bindTexture(this.textures[textureId], 0, this.model.textureMap, textureMap);
           
-          var color = getSDValue(sequence, frame, counter, this.sd.color, this.color);
-          var alpha = getSDValue(sequence, frame, counter, this.sd.alpha, this.alpha);
+          getSDValue(modifier, sequence, frame, counter, this.sd.color, this.color);
           
-          modifier[0] = color[2];
-          modifier[1] = color[1];
-          modifier[2] = color[0];
-          modifier[3] = alpha;
+          var v = modifier[0];
+          
+          modifier[0] = modifier[2];
+          modifier[2] = v;
+          modifier[3] = getSDValue(null, sequence, frame, counter, this.sd.alpha, this.alpha);
           
           ctx.uniform4fv(shader.variables.u_modifier, modifier);
           
           if (layer.textureAnimationId !== -1 && this.model.textureAnimations) {
             var textureAnimation = this.model.textureAnimations[layer.textureAnimationId];
             // What is Z used for?
-            var v = v = getSDValue(sequence, frame, counter, textureAnimation.sd.translation);
-            
-            uvoffset[0] = v[0];
-            uvoffset[1] = v[1];
+            getSDValue(uvoffset, sequence, frame, counter, textureAnimation.sd.translation);
           }
           
-          ctx.uniform2fv(shader.variables.u_uv_offset, uvoffset);
-          ctx.uniform3fv(shader.variables.u_type, [0, 0, 0]);
+          ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
+          ctx.uniform3fv(shader.variables.u_type, layerFilterTypes[0]);
           
           ctx.drawArrays(ctx.TRIANGLE_STRIP, 0, ribbons * 2);
         }
@@ -145,6 +144,6 @@ RibbonEmitter.prototype = {
   },
   
   shouldRender: function (sequence, frame, counter) {
-    return getSDValue(sequence, frame, counter, this.sd.visibility) > 0.1;
+    return getSDValue(null, sequence, frame, counter, this.sd.visibility) > 0.1;
   }
 };

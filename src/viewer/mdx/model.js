@@ -123,8 +123,8 @@ function Model(parser, textureMap) {
   }
   
   // Avoid heap allocations in render()
-  this.modifier = [1, 1, 1, 1];
-  this.uvoffset = [0 ,0];
+  this.modifier = vec4.create();
+  this.uvoffset = vec3.create();
   
   this.ready = true;
 }
@@ -161,7 +161,7 @@ Model.prototype = {
       var node = this.nodes[i];
       
       if (node.parentId === parent) {
-        this.hierarchy.push(node.objectId);
+        this.hierarchy.push(i);
         
         this.setupHierarchy(node.objectId);
       }
@@ -184,10 +184,10 @@ Model.prototype = {
       var textureId;
       var geosets = this.geosets;
       var textures = this.textures;
+      var temp;
       
       shader = gl.bindShader("wmain");
-      //gl.bindMVP("u_mvp");
-      //gl.setParameter("u_texture", 0);
+      
       ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
       ctx.uniform1i(shader.variables.u_texture, 0);
       
@@ -209,7 +209,7 @@ Model.prototype = {
           
           layer.setMaterial(shader);
           
-          textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
+          textureId = getSDValue(null, sequence, frame, counter, layer.sd.textureId, layer.textureId);
           
           bindTexture(textures[textureId], 0, this.textureMap, textureMap);
           
@@ -218,31 +218,27 @@ Model.prototype = {
               var geosetAnimation = this.geosetAnimations[j];
               
               if (geosetAnimation.geosetId === layer.geosetId) {
-                v = getSDValue(sequence, frame, counter, geosetAnimation.sd.color, geosetAnimation.color);
+                getSDValue(modifier, sequence, frame, counter, geosetAnimation.sd.color, geosetAnimation.color);
                 
-                if (v[0] !== 1 || v[1] !== 1 || v[2] !== 1) {
-                  modifier[0] = v[2];
-                  modifier[1] = v[1];
-                  modifier[2] = v[0];
-                }
+                temp = modifier[0];
+                
+                modifier[0] = modifier[2];
+                modifier[2] = temp;
               }
             }
           }
           
-          modifier[3] = getSDValue(sequence, frame, counter, layer.sd.alpha, layer.alpha);
+          modifier[3] = getSDValue(null, sequence, frame, counter, layer.sd.alpha, layer.alpha);
           
           ctx.uniform4fv(shader.variables.u_modifier, modifier);
           
           if (layer.textureAnimationId !== -1 && this.textureAnimations) {
             var textureAnimation = this.textureAnimations[layer.textureAnimationId];
             // What is Z used for?
-            v = getSDValue(sequence, frame, counter, textureAnimation.sd.translation);
-            
-            uvoffset[0] = v[0];
-            uvoffset[1] = v[1];
+            getSDValue(uvoffset, sequence, frame, counter, textureAnimation.sd.translation);
           }
           
-          ctx.uniform2fv(shader.variables.u_uv_offset, uvoffset);
+          ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
           
           geoset.render(layer.coordId, shader);
         }
@@ -353,7 +349,7 @@ Model.prototype = {
         var geosetAnimation = this.geosetAnimations[i];
         
         if (geosetAnimation.geosetId === layer.geosetId && geosetAnimation.sd.alpha) {
-          return getSDValue(sequence, frame, counter, geosetAnimation.sd.alpha) > 0.1;
+          return getSDValue(null, sequence, frame, counter, geosetAnimation.sd.alpha) > 0.1;
         }
       }
     }

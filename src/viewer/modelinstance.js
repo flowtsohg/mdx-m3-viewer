@@ -6,10 +6,12 @@ function ModelInstance(model, id, color, textureMap) {
   this.source = model.source;
   this.visible = 1;
   
-  this.localMatrix = math.mat4.createIdentity();
-  this.location = [0, 0, 0];
-  this.rotation = [0, 0, 0, 1];
-  this.scaling = 1;
+  this.worldMatrix = mat4.create();
+  this.localMatrix = mat4.create();
+  this.location = vec3.create();
+  this.rotation = quat.create();
+  this.scaling = vec3.fromValues(1, 1, 1);
+  this.inverseScaling = vec3.fromValues(1, 1, 1);
   
   this.parent = null;
   this.parentId = -1;
@@ -155,28 +157,29 @@ ModelInstance.prototype = {
    var scale = this.scaling;
    var localMatrix = this.localMatrix;
    
-   math.mat4.makeIdentity(localMatrix);
+   //mat4.identity(localMatrix);
    
-    if (location[0] !== 0 || location[1] !== 0 || location[2] !== 0) {
-      math.mat4.translate(localMatrix, location[0], location[1], location[2]);
-    }
+    //if (location[0] !== 0 || location[1] !== 0 || location[2] !== 0) {
+    //  mat4.translate(localMatrix, localMatrix, location);
+    //}
     
-    if (rotation[0] !== 0 || rotation[1] !== 0 || rotation[2] !== 0 || rotation[3] !== 1) {
-      math.mat4.rotateQ(localMatrix, rotation);
-    }
-      
-    if (scale !== 1) {
-      math.mat4.scale(localMatrix, scale, scale, scale);
-    }
+    //if (rotation[0] !== 0 || rotation[1] !== 0 || rotation[2] !== 0 || rotation[3] !== 1) {
+    //  math.mat4.rotateQ(localMatrix, rotation);
+    //}
+   mat4.fromRotationTranslationScale(localMatrix, rotation, location, scale);
+   
+    //if (scale !== 1) {
+    //  mat4.scale(localMatrix, localMatrix, [scale, scale, scale]);
+    //}
   },
   
   move: function (v) {
-    math.vec3.add(this.location, v, this.location);
+    vec3.add(this.location, this.location, v);
     this.recalculate();
   },
   
   setLocation: function (v) {
-    math.vec3.setFromArray(this.location, v);
+    vec3.copy(this.location, v);
     this.recalculate();
   },
   
@@ -187,70 +190,66 @@ ModelInstance.prototype = {
   },
   
   rotate: function (q) {
-    math.quaternion.concat(this.rotation, q, this.rotation);
+    quat.multiply(this.rotation, this.rotation, q);
     this.recalculate();
   },
   
   setRotation: function (q) {
-    math.quaternion.setFromArray(this.rotation, q);
+    quat.copy(this.rotation, q);
     this.recalculate();
   },
   
   getRotation: function () {
     var v = this.rotation;
-    
     return [v[0], v[1], v[2], v[3]];
   },
   
   scale: function (n) {
-    this.scaling *= n;
+    vec3.scale(this.scaling, this.scaling, n);
+    vec3.inverse(this.inverseScaling, this.scaling);
     this.recalculate();
   },
   
   setScale: function (n) {
-    this.scaling = n;
+    vec3.set(this.scaling, n, n, n);
+    vec3.inverse(this.inverseScaling, this.scaling);
     this.recalculate();
   },
   
   getScale: function () {
-    return this.scaling;
+    return this.scaling[0];
   },
   
   // Get the transform of this instance.
   // If there is a parent, then it is parent * local matrix, otherwise just the local matrix.
   getTransform: function (objects) {
-    var worldMatrix = math.mat4.createIdentity();
+    var worldMatrix = this.worldMatrix;
     var parent = this.parent;
     
+    mat4.identity(worldMatrix);
+    
     if (parent) {
-      var scaling = parent.scaling;
-      var invscaling = [1 / scaling, 1 / scaling, 1 / scaling];
-      
       if (this.attachment !== -1) {
         var attachment = parent.getAttachment(this.attachment);
         
         // This check avoids errors when the model still didn't finish loading, and thus can't return any real attachment object
         if (attachment) {
-          //math.vec3.scaleVec(invscaling, attachment.scale, invscaling);
-          //invscaling[0] /= attachment.scale[0];
-          //invscaling[1] /= attachment.scale[1];
-          //invscaling[2] /= attachment.scale[2];
-          math.mat4.multMat(worldMatrix, attachment.getTransform(), worldMatrix);
+          mat4.multiply(worldMatrix, worldMatrix, attachment.getTransform());
         }
       } else {
-        math.mat4.multMat(worldMatrix, parent.getTransform(), worldMatrix);
+        mat4.multiply(worldMatrix, worldMatrix, parent.getTransform());
       }
       
       // Scale by the inverse of the parent to avoid carrying over scales through the hierarchy
-      math.mat4.scale(worldMatrix, invscaling[0], invscaling[1], invscaling[2]);
+      mat4.scale(worldMatrix, worldMatrix, parent.inverseScaling);
       
       // To avoid the 90 degree rotations applied to M3 models
       if (parent.format !== "MDLX") {
-        math.mat4.rotate(worldMatrix, -Math.PI / 2, 0, 0, 1);
+        mat4.rotate(worldMatrix, worldMatrix, -Math.PI / 2, zAxis);
       }
     }
     
-    math.mat4.multMat(worldMatrix, this.localMatrix, worldMatrix);
+    mat4.multiply(worldMatrix, worldMatrix, this.localMatrix);
     
     return worldMatrix;
   },
@@ -352,6 +351,7 @@ ModelInstance.prototype = {
   },
   
   toJSON: function () {
+    var location = this.location;
     var rotation = this.rotation;
     var scale = this.scaling;
     
@@ -372,21 +372,22 @@ ModelInstance.prototype = {
     
     // Rotate Starcraft 2 models back to zero to avoid rotating them twice when loading the scene
     if (this.format !== "MDLX") {
-      rotation = math.quaternion.concat(rotation, [0, 0, 0.7071067811865476, -0.7071067811865476], []);
+      rotation = quat.multiply([], rotation, [0, 0, 0.7071067811865476, -0.7071067811865476]);
       scale /= 100;
     }
     
     // To avoid silly numbers like 1.0000000000000002
-    rotation = math.quaternion.floatPrecision(rotation, 3);
+    rotation = math.floatPrecisionArray(rotation, 3);
     
     return [
       this.id,
       this.model.id,
       this.sequence,
       this.sequenceLoopMode,
-      this.location,
-      rotation,
-      scale,
+      // For some reason, when typed arrays are JSON stringified they change to object notation rather than array notation
+      [location[0], location[1], location[2]],
+      [rotation[0], rotation[1], rotation[2], rotation[3]],
+      scale[0],
       this.parentId,
       this.attachment,
       this.teamColor,

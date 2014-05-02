@@ -13,16 +13,15 @@ function Particle2() {
 Particle2.prototype = {
   reset: function (emitter, head, id, sequence, frame, counter) {
     var pivot = emitter.node.pivot;
-    var width = getSDValue(sequence, frame, counter, emitter.sd.width, emitter.width) * 0.5;
-    var length = getSDValue(sequence, frame, counter, emitter.sd.length, emitter.length) * 0.5;
-    var speed = getSDValue(sequence, frame, counter, emitter.sd.speed, emitter.speed) + math.random(-emitter.variation, emitter.variation);
-    var latitude = math.toRad(getSDValue(sequence, frame, counter, emitter.sd.latitude, emitter.latitude));
-    var gravity = getSDValue(sequence, frame, counter, emitter.sd.gravity, emitter.gravity);
+    var worldMatrix = emitter.node.worldMatrix;
+    var width = getSDValue(null, sequence, frame, counter, emitter.sd.width, emitter.width) * 0.5;
+    var length = getSDValue(null, sequence, frame, counter, emitter.sd.length, emitter.length) * 0.5;
+    var speed = getSDValue(null, sequence, frame, counter, emitter.sd.speed, emitter.speed) + math.random(-emitter.variation, emitter.variation);
+    var latitude = math.toRad(getSDValue(null, sequence, frame, counter, emitter.sd.latitude, emitter.latitude));
+    var gravity = getSDValue(null, sequence, frame, counter, emitter.sd.gravity, emitter.gravity);
     var color = emitter.colors[0];
     var localPosition = emitter.particleLocalPosition;
     var position = emitter.particlePosition;
-    var rotationY = emitter.particleRotationY;
-    var rotationZ = emitter.particleRotationZ;
     var rotation = emitter.particleRotation;
     var velocity = emitter.particleVelocity;
     var velocityStart = emitter.particleVelocityStart;
@@ -32,25 +31,23 @@ Particle2.prototype = {
     localPosition[1] = pivot[1] + math.random(-length, length);
     localPosition[2] = pivot[2];
     
-    math.mat4.multVec3(emitter.node.worldMatrix, localPosition, position);
+    vec3.transformMat4(position, localPosition, worldMatrix);
     
-    math.mat4.makeRotateY(rotationY, math.random(-latitude, latitude));
-    math.mat4.makeRotateZ(rotationZ, math.random(-Math.PI, Math.PI));
-    math.mat4.multMat(rotationZ, rotationY, rotation);
-    math.mat4.multVec3(rotation, [0, 0, 1], velocity);
-    math.vec3.normalize(velocity, velocity);
+    mat4.identity(rotation);
+    mat4.rotateZ(rotation, rotation, math.random(-Math.PI, Math.PI));
+    mat4.rotateY(rotation, rotation, math.random(-latitude, latitude));
     
-    velocityEnd[0] = position[0] + velocity[0];
-    velocityEnd[1] = position[1] + velocity[1];
-    velocityEnd[2] = position[2] + velocity[2];
-
-    math.mat4.multVec3(emitter.node.worldMatrix, position, velocityStart);
-    math.mat4.multVec3(emitter.node.worldMatrix, velocityEnd, velocityEnd);
+    vec3.transformMat4(velocity, zAxis, rotation);
+    vec3.normalize(velocity, velocity);
     
-    math.vec3.subtract(velocityEnd, velocityStart, velocity);
-    math.vec3.normalize(velocity, velocity);
+    vec3.add(velocityEnd, position, velocity);
     
-    math.vec3.scale(velocity, speed, velocity);
+    vec3.transformMat4(velocityStart, position, worldMatrix);
+    vec3.transformMat4(velocityEnd, velocityEnd, worldMatrix);
+    
+    vec3.subtract(velocity, velocityEnd, velocityStart);
+    vec3.normalize(velocity, velocity);
+    vec3.scale(velocity, velocity, speed);
     
     if (!head) {
       var tailLength = emitter.tailLength * 0.5;
@@ -64,18 +61,9 @@ Particle2.prototype = {
     this.health = emitter.lifespan;
     this.head = head;
     
-    this.position[0] = position[0];
-    this.position[1] = position[1];
-    this.position[2] = position[2];
-    
-    this.velocity[0] = velocity[0];
-    this.velocity[1] = velocity[1];
-    this.velocity[2] = velocity[2];
-    
-    this.color[0] = color[0];
-    this.color[1] = color[1];
-    this.color[2] = color[2];
-    this.color[3] = color[3];
+    vec3.copy(this.position, position);
+    vec3.copy(this.velocity, velocity);
+    vec4.copy(this.color, color);
     
     this.gravity = gravity;
     this.scale = 1;
@@ -85,9 +73,8 @@ Particle2.prototype = {
   update: function (emitter, sequence, frame, counter) {
     this.health -= FRAME_TIME;
     this.velocity[2] -= this.gravity * FRAME_TIME;
-    this.position[0] += this.velocity[0] * FRAME_TIME;
-    this.position[1] += this.velocity[1] * FRAME_TIME;
-    this.position[2] += this.velocity[2] * FRAME_TIME;
+    
+    vec3.scaleAndAdd(this.position, this.position, this.velocity, FRAME_TIME);
 
     var lifeFactor = (emitter.lifespan === 0) ? 0 : 1 - (this.health / emitter.lifespan);
     var scale;
@@ -98,13 +85,13 @@ Particle2.prototype = {
       
       scale = math.lerp(emitter.segmentScaling[0], emitter.segmentScaling[1], tempFactor);
       
-      math.vec4.lerp(emitter.colors[0], emitter.colors[1], tempFactor, this.color);
+      vec4.lerp(this.color, emitter.colors[0], emitter.colors[1], tempFactor);
     } else {
       tempFactor = (lifeFactor - emitter.time) / (1 - emitter.time);
       
       scale = math.lerp(emitter.segmentScaling[1], emitter.segmentScaling[2], tempFactor);
       
-      math.vec4.lerp(emitter.colors[1], emitter.colors[2], tempFactor, this.color);
+      vec4.lerp(this.color, emitter.colors[1], emitter.colors[2], tempFactor);
     }
     
     var currentFrame = lifeFactor * emitter.numberOfFrames;

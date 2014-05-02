@@ -262,8 +262,6 @@ Model.prototype = {
       teamId = 13;
     }
     
-    tc = teamColors[teamId];
-    
     var shader = gl.bindShader(shaderName + this.uvSetCount);
     
     instanceImpl.skeleton.bind(shader);
@@ -271,7 +269,7 @@ Model.prototype = {
     ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
     ctx.uniformMatrix4fv(shader.variables.u_mv, false, gl.getViewMatrix());
     
-    ctx.uniform3fv(shader.variables.u_teamColor, [tc[0] / 255, tc[1] / 255, tc[2] / 255]);
+    ctx.uniform3fv(shader.variables.u_teamColor, teamColors[teamId]);
     ctx.uniform3fv(shader.variables.u_eyePos, cameraPosition);
     ctx.uniform3fv(shader.variables.u_lightPos, lightPosition);
     

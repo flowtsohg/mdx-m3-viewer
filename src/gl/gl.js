@@ -1,40 +1,40 @@
 function setPerspective(fovy, aspect, near, far) {
-  math.mat4.makePerspective(projectionMatrix, fovy, aspect, near, far);
+  mat4.perspective(projectionMatrix, fovy, aspect, near, far);
   refreshViewProjectionMatrix = true;
 }
 
 function setOrtho(left, right, bottom, top, near, far) {
-  math.mat4.makeOrtho(projectionMatrix, left, right, bottom, top, near, far);
+  mat4.ortho(projectionMatrix, left, right, bottom, top, near, far);
   refreshViewProjectionMatrix = true;
 }
 
 function loadIdentity() {
-  math.mat4.makeIdentity(viewMatrix);
+  mat4.identity(viewMatrix);
   refreshViewProjectionMatrix = true;
 }
 
-function translate(x, y, z) {
-  math.mat4.translate(viewMatrix, x, y, z);
+function translate(v) {
+  mat4.translate(viewMatrix, viewMatrix, v);
   refreshViewProjectionMatrix = true;
 }
 
-function rotate(anctxe, x, y, z) {
-  math.mat4.rotate(viewMatrix, anctxe, x, y, z);
+function rotate(radians, axis) {
+  mat4.rotate(viewMatrix, viewMatrix, radians, axis);
   refreshViewProjectionMatrix = true;
 }
 
-function scale(x, y, z) {
-  math.mat4.scale(viewMatrix, x, y, z);
+function scale(v) {
+  mat4.scale(viewMatrix, viewMatrix, v);
   refreshViewProjectionMatrix = true;
 }
 
 function lookAt(eye, center, up) {
-  math.mat4.makeLookAt(viewMatrix, eye, center, up);
+  mat4.lookAt(viewMatrix, eye, center, up);
   refreshViewProjectionMatrix = true;
 }
 
 function multMat(mat) {
-  math.mat4.multMat(viewMatrix, mat, viewMatrix);
+  mat4.multiply(viewMatrix, viewMatrix, mat);
   refreshViewProjectionMatrix = true;
 }
 
@@ -50,7 +50,7 @@ function popMatrix() {
 
 function getViewProjectionMatrix() {
   if (refreshViewProjectionMatrix) {
-    math.mat4.multMat(projectionMatrix, viewMatrix, viewProjectionMatrix);
+    mat4.multiply(viewProjectionMatrix, projectionMatrix, viewMatrix);
     refreshViewProjectionMatrix = false;
   }
   

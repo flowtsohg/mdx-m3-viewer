@@ -35,11 +35,11 @@ function STC(stc) {
 }
 
 STC.prototype = {
-  getValue: function (animationReference, frame) {
+  getValue: function (out, animationReference, frame) {
     var animRef = this.animRefs[this.animIds[animationReference.animId]];
     
     if (animRef) {
-      return this.sd[animRef[1]].getValue(animRef[0], animationReference, frame, this.runsConcurrent);
+      return this.sd[animRef[1]].getValue(out, animRef[0], animationReference, frame, this.runsConcurrent);
     }
     
     return animationReference.initValue;

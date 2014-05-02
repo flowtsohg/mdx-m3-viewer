@@ -6,7 +6,7 @@ function STG(stg, sts, stc) {
 }
 
 STG.prototype = {
-  getValue: function (animationReference, frame) {
+  getValue: function (out, animationReference, frame) {
     var i, l;
     var stcIndices = this.stcIndices;
     var stc;
@@ -19,7 +19,7 @@ STG.prototype = {
        // First check if this STC actually has data for this animation reference
         if (sts.hasData(animationReference)) {
           // Since this STC has data for this animation reference, return it
-          return stc.getValue(animationReference, frame);
+          return stc.getValue(out, animationReference, frame);
         }
     }
     

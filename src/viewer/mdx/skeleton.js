@@ -33,18 +33,23 @@ function Skeleton(model) {
   ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MAG_FILTER, ctx.NEAREST);
   ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MIN_FILTER, ctx.NEAREST);
   
-  this.localMatrix = math.mat4.create();
-  this.rotationMatrix = math.mat4.create();
+  this.localMatrix = mat4.create();
+  this.rotationMatrix = mat4.create();
+  
+  this.locationVec = vec3.create();
+  this.scaleVec = vec3.create();
+  this.rotationQuat = quat.create();
 }
 
 Skeleton.prototype = {
   update: function (sequence, frame, counter, instance) {
     var nodes = this.nodes;
     var hierarchy = this.hierarchy;
+    var root = nodes[0].worldMatrix;
     
     // The root is always at index 0, since it's injected by the parser
-    math.mat4.makeIdentity(nodes[0].worldMatrix);
-    math.mat4.multMat(nodes[0].worldMatrix, instance.getTransform(), nodes[0].worldMatrix);
+    mat4.identity(root);
+    mat4.multiply(root, root, instance.getTransform());
     
     for (var i = 1, l = hierarchy.length; i < l; i++) {
       this.updateNode(nodes[hierarchy[i]], sequence, frame, counter);
@@ -56,49 +61,48 @@ Skeleton.prototype = {
   updateNode: function (node, sequence, frame, counter) {
     var nodeImpl = node.nodeImpl;
     var pivot = node.pivot;
+    var negativePivot = node.negativePivot;
     var localMatrix = this.localMatrix;
     var rotationMatrix = this.rotationMatrix;
-    var translation = getSDValue(sequence, frame, counter, nodeImpl.sd.translation, defaultTransformations.translation);
-    var rotation = getSDValue(sequence, frame, counter, nodeImpl.sd.rotation, defaultTransformations.rotation);
-    var scale = getSDValue(sequence, frame, counter, nodeImpl.sd.scaling, defaultTransformations.scaling);
+    var translation = getSDValue(this.locationVec, sequence, frame, counter, nodeImpl.sd.translation, defaultTransformations.translation);
+    var rotation = getSDValue(this.rotationQuat, sequence, frame, counter, nodeImpl.sd.rotation, defaultTransformations.rotation);
+    var scale = getSDValue(this.scaleVec, sequence, frame, counter, nodeImpl.sd.scaling, defaultTransformations.scaling);
     
-    math.mat4.makeIdentity(localMatrix);
+    mat4.identity(localMatrix);
     
     if (translation[0] !== 0 || translation[1] !== 0 || translation[2] !== 0) {
-      math.mat4.translate(localMatrix, translation[0], translation[1], translation[2]);
+      mat4.translate(localMatrix, localMatrix, translation);
     }
     
     if (rotation[0] !== 0 || rotation[1] !== 0 || rotation[2] !== 0 || rotation[3] !== 1) {
-      math.quaternion.toRotationMatrix4(rotation, rotationMatrix);
+      mat4.fromQuat(rotationMatrix, rotation);
       
-      math.mat4.translate(localMatrix, pivot[0], pivot[1], pivot[2]);
-      math.mat4.multMat(localMatrix, rotationMatrix, localMatrix);
-      math.mat4.translate(localMatrix, -pivot[0], -pivot[1], -pivot[2]);
+      mat4.translate(localMatrix, localMatrix, pivot);
+      mat4.multiply(localMatrix, localMatrix, rotationMatrix);
+      mat4.translate(localMatrix, localMatrix, negativePivot);
     }
     
     if (scale[0] !== 1 || scale[1] !== 1 || scale[2] !== 1) {
-      math.mat4.translate(localMatrix, pivot[0], pivot[1], pivot[2]);
-      math.mat4.scale(localMatrix, scale[0], scale[1], scale[2]);
-      math.mat4.translate(localMatrix, -pivot[0], -pivot[1], -pivot[2]);
-      
-      math.vec3.setFromArray(node.scale, scale);
+      mat4.translate(localMatrix, localMatrix, pivot);
+      mat4.scale(localMatrix, localMatrix, scale);
+      mat4.translate(localMatrix, localMatrix, negativePivot);
     }
     
     var parent = this.nodes[node.parentId];
     
-    math.vec3.scaleVec(node.scale, parent.scale, node.scale);
-    
-    math.mat4.multMat(parent.worldMatrix, localMatrix, node.worldMatrix);
+    mat4.multiply(node.worldMatrix, parent.worldMatrix, localMatrix);
     
     if (nodeImpl.billboarded) {
-      math.mat4.makeIdentity(localMatrix);
+      mat4.identity(localMatrix);
       
-      math.mat4.translate(localMatrix, pivot[0], pivot[1], pivot[2]);
-      math.mat4.rotate(localMatrix, -math.toRad(camera.r[1] + 270), 0, 0, 1);
-      math.mat4.rotate(localMatrix, math.toRad(camera.r[0] - 90), 0, 1, 0);
-      math.mat4.translate(localMatrix, -pivot[0], -pivot[1], -pivot[2]);
+      mat4.translate(localMatrix, localMatrix, pivot);
+      // -270 degrees
+      mat4.rotate(localMatrix, localMatrix, -camera.r[1] - 4.71238, zAxis);
+      // -90 degrees
+      mat4.rotate(localMatrix, localMatrix, camera.r[0] - 1.57079, yAxis);
+      mat4.translate(localMatrix, localMatrix, negativePivot);
       
-      math.mat4.multMat(node.worldMatrix, localMatrix, node.worldMatrix);
+      mat4.multiply(node.worldMatrix, node.worldMatrix, localMatrix);
     }
   },
   

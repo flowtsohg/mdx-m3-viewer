@@ -1,1 +1,0 @@
-var math = (function () {

@@ -1,17 +1,15 @@
 require "./glsl_min"
 
 USE_CLOSURE = true
-USE_GLSL_MIN = true;
+USE_GLSL_MIN = true
 
 MDX_SHADERS = [
   "vsmain",
   "vsribbons",
   "vsparticles",
-  #"vsparticlesinstanced",
   "vscolor",
   "psmain",
   "psparticles"
-  #"psparticlesinstanced"
 ]
 
 M3_SHADERS = [
@@ -36,15 +34,10 @@ SHARED_SHADERS = [
 ]
 
 CODE_FILES = [
-  "math/before",
+  "math/gl-matrix",
+  "math/gl-matrix-addon",
   "math/math",
-  "math/vec2",
-  "math/vec3",
-  "math/vec4",
-  "math/quaternion",
-  "math/mat4",
   "math/interpolator",
-  "math/after",
   "binaryreader/binaryreader",
   "base",
   "gl/before",

@@ -6,7 +6,7 @@ function SD(sd) {
 }
 
 SD.prototype = {
-  getValue: function (index, animationReference, frame, runsConcurrent) {
+  getValue: function (out, index, animationReference, frame, runsConcurrent) {
     var sd = this.sd[index];
     
     if (runsConcurrent === 1) {
@@ -36,10 +36,9 @@ SD.prototype = {
     }
     
     var t = math.clamp((frame - keys[a]) / (keys[b] - keys[a]), 0, 1);
-    var func = typeof values[a] === "number" ? math.interpolator.scalar : (values[a].length === 3 ? math.interpolator.vector : math.interpolator.quaternion);
     
     // M3 doesn't seem to have hermite/bezier interpolations, so just feed 0 to the in/out tangents since they are not used anyway
-    return func(values[a], 0, 0, values[b], t, animationReference.interpolationType);
+    return interpolator(out, values[a], 0, 0, values[b], t, animationReference.interpolationType);
   },
   
   getInterval: function (keys, frame, interval) {

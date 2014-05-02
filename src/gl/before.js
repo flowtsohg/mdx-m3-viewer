@@ -36,9 +36,9 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   }
   
   var refreshViewProjectionMatrix = false;
-  var projectionMatrix = math.mat4.createIdentity();
-  var viewMatrix = math.mat4.createIdentity();
-  var viewProjectionMatrix = math.mat4.createIdentity();
+  var projectionMatrix = mat4.create();
+  var viewMatrix = mat4.create();
+  var viewProjectionMatrix = mat4.create();
   var matrixStack = [];
   var textureStore = {};
   var shaderUnitStore = {};

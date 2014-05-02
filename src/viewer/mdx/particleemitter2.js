@@ -126,19 +126,13 @@ function ParticleEmitter2(emitter, model, instance) {
   this.defpv3 = [1, 1, 0];
   this.defpv4 = [1, -1, 0];
   
-  this.defcsx = [1, 0, 0];
-  this.defcsy = [0, 1, 0];
-  this.defcsz = [0, 0, 1];
-  
   // Avoid heap alocations in Particle2.reset
-  this.particleLocalPosition = [];
-  this.particlePosition = [];
-  this.particleRotationY = [];
-  this.particleRotationZ = [];
-  this.particleRotation = [];
-  this.particleVelocity = [];
-  this.particleVelocityStart = [];
-  this.particleVelocityEnd = [];
+  this.particleLocalPosition = vec3.create();
+  this.particlePosition = vec3.create();
+  this.particleRotation = mat4.create();
+  this.particleVelocity = vec3.create();
+  this.particleVelocityStart = vec3.create();
+  this.particleVelocityEnd = vec3.create();
   
   this.xYQuad = this.node.nodeImpl.xYQuad;
   
@@ -177,7 +171,7 @@ ParticleEmitter2.prototype = {
     activeParticles.reverse()
     
     if (allowCreate && this.shouldRender(sequence, frame, counter)) {
-      var amount = getSDValue(sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * FRAME_TIME * this.lastCreation;
+      var amount = getSDValue(null, sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * FRAME_TIME * this.lastCreation;
       
       if (amount > 0) {
         this.lastCreation += 1;
@@ -215,16 +209,16 @@ ParticleEmitter2.prototype = {
   // While this adds computations, they only happen when the camera changes, so it isn't a big deal.
   refreshRect: function () {
     if (this.head) {
-      math.mat4.multVec3(inversCameraRotation, this.defpv1, this.pv1);
-      math.mat4.multVec3(inversCameraRotation, this.defpv2, this.pv2);
-      math.mat4.multVec3(inversCameraRotation, this.defpv3, this.pv3);
-      math.mat4.multVec3(inversCameraRotation, this.defpv4, this.pv4);
+      vec3.transformMat4(this.pv1, this.defpv1, inversCameraRotation);
+      vec3.transformMat4(this.pv2, this.defpv2, inversCameraRotation);
+      vec3.transformMat4(this.pv3, this.defpv3, inversCameraRotation);
+      vec3.transformMat4(this.pv4, this.defpv4, inversCameraRotation);
     }
     
     if (this.tail) {
-      math.mat4.multVec3(inversCameraRotation, this.defcsx, this.csx);
-      math.mat4.multVec3(inversCameraRotation, this.defcsy, this.csy);
-      math.mat4.multVec3(inversCameraRotation, this.defcsz, this.csz);
+      vec3.transformMat4(this.csx, xAxis, inversCameraRotation);
+      vec3.transformMat4(this.csy, yAxis, inversCameraRotation);
+      vec3.transformMat4(this.csz, zAxis, inversCameraRotation);
     }
   },
   
@@ -406,6 +400,6 @@ ParticleEmitter2.prototype = {
   },
   
   shouldRender: function (sequence, frame, counter) {
-    return getSDValue(sequence, frame, counter, this.sd.visibility, 0) > 0.1;
+    return getSDValue(null, sequence, frame, counter, this.sd.visibility, 0) > 0.1;
   }
 };

@@ -50,7 +50,7 @@ SD.prototype = {
     interval[1] = b;
   },
 
-  getValueAtTime: function (frame, start, end) {
+  getValueAtTime: function (out, frame, start, end) {
     var interval = this.interval;
     
     this.getInterval(frame, start, end, interval);
@@ -80,31 +80,30 @@ SD.prototype = {
     }
     
     var t = math.clamp((frame - a.frame) / (b.frame - a.frame), 0, 1);
-    var func = typeof a.vector === "number" ? math.interpolator.scalar : (a.vector.length === 3 ? math.interpolator.vector : math.interpolator.quaternion);
     
-    return func(a.vector, a.outTan, b.inTan, b.vector, t, this.interpolationType);
+    return interpolator(out, a.vector, a.outTan, b.inTan, b.vector, t, this.interpolationType);
   },
   
   // The frame argument is the current animation frame
   // The counter argument is a counter that always goes up to infinity, and is used for global sequences
-  getValue: function (sequence, frame, counter) {
+  getValue: function (out, sequence, frame, counter) {
      if (this.globalSequenceId !== -1 && this.globalSequences) {
       var duration = this.globalSequences[this.globalSequenceId];
       
-      return this.getValueAtTime(counter % duration , 0, duration);
+      return this.getValueAtTime(out, counter % duration , 0, duration);
     } else if (sequence !== -1) {
       var interval = this.sequences[sequence].interval;
       
-      return this.getValueAtTime(frame, interval[0], interval[1]);
+      return this.getValueAtTime(out, frame, interval[0], interval[1]);
     } else {
       return this.defval;
     }
   }
 };
 
-function getSDValue(sequence, frame, counter, sd, defval) {
+function getSDValue(out, sequence, frame, counter, sd, defval) {
   if (sd) {
-    return sd.getValue(sequence, frame, counter);
+    return sd.getValue(out, sequence, frame, counter);
   } else {
     return defval;
   }

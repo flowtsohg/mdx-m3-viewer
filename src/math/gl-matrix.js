@@ -651,17 +651,16 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 /**
- * @class 3 Dimensional Vector
- * @name vec3
- */
-
+* @class 3 Dimensional Vector
+* @name vec3
+*/
 var vec3 = {};
 
 /**
- * Creates a new, empty vec3
- *
- * @returns {vec3} a new 3D vector
- */
+* Creates a new, empty vec3
+*
+* @returns {vec3} a new 3D vector
+*/
 vec3.create = function() {
     var out = new GLMAT_ARRAY_TYPE(3);
     out[0] = 0;
@@ -671,11 +670,11 @@ vec3.create = function() {
 };
 
 /**
- * Creates a new vec3 initialized with values from an existing vector
- *
- * @param {vec3} a vector to clone
- * @returns {vec3} a new 3D vector
- */
+* Creates a new vec3 initialized with values from an existing vector
+*
+* @param {vec3} a vector to clone
+* @returns {vec3} a new 3D vector
+*/
 vec3.clone = function(a) {
     var out = new GLMAT_ARRAY_TYPE(3);
     out[0] = a[0];
@@ -685,13 +684,13 @@ vec3.clone = function(a) {
 };
 
 /**
- * Creates a new vec3 initialized with the given values
- *
- * @param {Number} x X component
- * @param {Number} y Y component
- * @param {Number} z Z component
- * @returns {vec3} a new 3D vector
- */
+* Creates a new vec3 initialized with the given values
+*
+* @param {Number} x X component
+* @param {Number} y Y component
+* @param {Number} z Z component
+* @returns {vec3} a new 3D vector
+*/
 vec3.fromValues = function(x, y, z) {
     var out = new GLMAT_ARRAY_TYPE(3);
     out[0] = x;
@@ -701,12 +700,12 @@ vec3.fromValues = function(x, y, z) {
 };
 
 /**
- * Copy the values from one vec3 to another
- *
- * @param {vec3} out the receiving vector
- * @param {vec3} a the source vector
- * @returns {vec3} out
- */
+* Copy the values from one vec3 to another
+*
+* @param {vec3} out the receiving vector
+* @param {vec3} a the source vector
+* @returns {vec3} out
+*/
 vec3.copy = function(out, a) {
     out[0] = a[0];
     out[1] = a[1];
@@ -715,14 +714,14 @@ vec3.copy = function(out, a) {
 };
 
 /**
- * Set the components of a vec3 to the given values
- *
- * @param {vec3} out the receiving vector
- * @param {Number} x X component
- * @param {Number} y Y component
- * @param {Number} z Z component
- * @returns {vec3} out
- */
+* Set the components of a vec3 to the given values
+*
+* @param {vec3} out the receiving vector
+* @param {Number} x X component
+* @param {Number} y Y component
+* @param {Number} z Z component
+* @returns {vec3} out
+*/
 vec3.set = function(out, x, y, z) {
     out[0] = x;
     out[1] = y;
@@ -731,13 +730,13 @@ vec3.set = function(out, x, y, z) {
 };
 
 /**
- * Adds two vec3's
- *
- * @param {vec3} out the receiving vector
- * @param {vec3} a the first operand
- * @param {vec3} b the second operand
- * @returns {vec3} out
- */
+* Adds two vec3's
+*
+* @param {vec3} out the receiving vector
+* @param {vec3} a the first operand
+* @param {vec3} b the second operand
+* @returns {vec3} out
+*/
 vec3.add = function(out, a, b) {
     out[0] = a[0] + b[0];
     out[1] = a[1] + b[1];
@@ -746,13 +745,13 @@ vec3.add = function(out, a, b) {
 };
 
 /**
- * Subtracts vector b from vector a
- *
- * @param {vec3} out the receiving vector
- * @param {vec3} a the first operand
- * @param {vec3} b the second operand
- * @returns {vec3} out
- */
+* Subtracts vector b from vector a
+*
+* @param {vec3} out the receiving vector
+* @param {vec3} a the first operand
+* @param {vec3} b the second operand
+* @returns {vec3} out
+*/
 vec3.subtract = function(out, a, b) {
     out[0] = a[0] - b[0];
     out[1] = a[1] - b[1];
@@ -761,19 +760,19 @@ vec3.subtract = function(out, a, b) {
 };
 
 /**
- * Alias for {@link vec3.subtract}
- * @function
- */
+* Alias for {@link vec3.subtract}
+* @function
+*/
 vec3.sub = vec3.subtract;
 
 /**
- * Multiplies two vec3's
- *
- * @param {vec3} out the receiving vector
- * @param {vec3} a the first operand
- * @param {vec3} b the second operand
- * @returns {vec3} out
- */
+* Multiplies two vec3's
+*
+* @param {vec3} out the receiving vector
+* @param {vec3} a the first operand
+* @param {vec3} b the second operand
+* @returns {vec3} out
+*/
 vec3.multiply = function(out, a, b) {
     out[0] = a[0] * b[0];
     out[1] = a[1] * b[1];
@@ -782,19 +781,19 @@ vec3.multiply = function(out, a, b) {
 };
 
 /**
- * Alias for {@link vec3.multiply}
- * @function
- */
+* Alias for {@link vec3.multiply}
+* @function
+*/
 vec3.mul = vec3.multiply;
 
 /**
- * Divides two vec3's
- *
- * @param {vec3} out the receiving vector
- * @param {vec3} a the first operand
- * @param {vec3} b the second operand
- * @returns {vec3} out
- */
+* Divides two vec3's
+*
+* @param {vec3} out the receiving vector
+* @param {vec3} a the first operand
+* @param {vec3} b the second operand
+* @returns {vec3} out
+*/
 vec3.divide = function(out, a, b) {
     out[0] = a[0] / b[0];
     out[1] = a[1] / b[1];
@@ -803,19 +802,19 @@ vec3.divide = function(out, a, b) {
 };
 
 /**
- * Alias for {@link vec3.divide}
- * @function
- */
+* Alias for {@link vec3.divide}
+* @function
+*/
 vec3.div = vec3.divide;
 
 /**
- * Returns the minimum of two vec3's
- *
- * @param {vec3} out the receiving vector
- * @param {vec3} a the first operand
- * @param {vec3} b the second operand
- * @returns {vec3} out
- */
+* Returns the minimum of two vec3's
+*
+* @param {vec3} out the receiving vector
+* @param {vec3} a the first operand
+* @param {vec3} b the second operand
+* @returns {vec3} out
+*/
 vec3.min = function(out, a, b) {
     out[0] = Math.min(a[0], b[0]);
     out[1] = Math.min(a[1], b[1]);
@@ -824,13 +823,13 @@ vec3.min = function(out, a, b) {
 };
 
 /**
- * Returns the maximum of two vec3's
- *
- * @param {vec3} out the receiving vector
- * @param {vec3} a the first operand
- * @param {vec3} b the second operand
- * @returns {vec3} out
- */
+* Returns the maximum of two vec3's
+*
+* @param {vec3} out the receiving vector
+* @param {vec3} a the first operand
+* @param {vec3} b the second operand
+* @returns {vec3} out
+*/
 vec3.max = function(out, a, b) {
     out[0] = Math.max(a[0], b[0]);
     out[1] = Math.max(a[1], b[1]);
@@ -839,13 +838,13 @@ vec3.max = function(out, a, b) {
 };
 
 /**
- * Scales a vec3 by a scalar number
- *
- * @param {vec3} out the receiving vector
- * @param {vec3} a the vector to scale
- * @param {Number} b amount to scale the vector by
- * @returns {vec3} out
- */
+* Scales a vec3 by a scalar number
+*
+* @param {vec3} out the receiving vector
+* @param {vec3} a the vector to scale
+* @param {Number} b amount to scale the vector by
+* @returns {vec3} out
+*/
 vec3.scale = function(out, a, b) {
     out[0] = a[0] * b;
     out[1] = a[1] * b;
@@ -854,14 +853,14 @@ vec3.scale = function(out, a, b) {
 };
 
 /**
- * Adds two vec3's after scaling the second operand by a scalar value
- *
- * @param {vec3} out the receiving vector
- * @param {vec3} a the first operand
- * @param {vec3} b the second operand
- * @param {Number} scale the amount to scale b by before adding
- * @returns {vec3} out
- */
+* Adds two vec3's after scaling the second operand by a scalar value
+*
+* @param {vec3} out the receiving vector
+* @param {vec3} a the first operand
+* @param {vec3} b the second operand
+* @param {Number} scale the amount to scale b by before adding
+* @returns {vec3} out
+*/
 vec3.scaleAndAdd = function(out, a, b, scale) {
     out[0] = a[0] + (b[0] * scale);
     out[1] = a[1] + (b[1] * scale);
@@ -870,12 +869,12 @@ vec3.scaleAndAdd = function(out, a, b, scale) {
 };
 
 /**
- * Calculates the euclidian distance between two vec3's
- *
- * @param {vec3} a the first operand
- * @param {vec3} b the second operand
- * @returns {Number} distance between a and b
- */
+* Calculates the euclidian distance between two vec3's
+*
+* @param {vec3} a the first operand
+* @param {vec3} b the second operand
+* @returns {Number} distance between a and b
+*/
 vec3.distance = function(a, b) {
     var x = b[0] - a[0],
         y = b[1] - a[1],
@@ -884,18 +883,18 @@ vec3.distance = function(a, b) {
 };
 
 /**
- * Alias for {@link vec3.distance}
- * @function
- */
+* Alias for {@link vec3.distance}
+* @function
+*/
 vec3.dist = vec3.distance;
 
 /**
- * Calculates the squared euclidian distance between two vec3's
- *
- * @param {vec3} a the first operand
- * @param {vec3} b the second operand
- * @returns {Number} squared distance between a and b
- */
+* Calculates the squared euclidian distance between two vec3's
+*
+* @param {vec3} a the first operand
+* @param {vec3} b the second operand
+* @returns {Number} squared distance between a and b
+*/
 vec3.squaredDistance = function(a, b) {
     var x = b[0] - a[0],
         y = b[1] - a[1],
@@ -904,17 +903,17 @@ vec3.squaredDistance = function(a, b) {
 };
 
 /**
- * Alias for {@link vec3.squaredDistance}
- * @function
- */
+* Alias for {@link vec3.squaredDistance}
+* @function
+*/
 vec3.sqrDist = vec3.squaredDistance;
 
 /**
- * Calculates the length of a vec3
- *
- * @param {vec3} a vector to calculate length of
- * @returns {Number} length of a
- */
+* Calculates the length of a vec3
+*
+* @param {vec3} a vector to calculate length of
+* @returns {Number} length of a
+*/
 vec3.length = function (a) {
     var x = a[0],
         y = a[1],
@@ -923,17 +922,17 @@ vec3.length = function (a) {
 };
 
 /**
- * Alias for {@link vec3.length}
- * @function
- */
+* Alias for {@link vec3.length}
+* @function
+*/
 vec3.len = vec3.length;
 
 /**
- * Calculates the squared length of a vec3
- *
- * @param {vec3} a vector to calculate squared length of
- * @returns {Number} squared length of a
- */
+* Calculates the squared length of a vec3
+*
+* @param {vec3} a vector to calculate squared length of
+* @returns {Number} squared length of a
+*/
 vec3.squaredLength = function (a) {
     var x = a[0],
         y = a[1],
@@ -942,18 +941,18 @@ vec3.squaredLength = function (a) {
 };
 
 /**
- * Alias for {@link vec3.squaredLength}
- * @function
- */
+* Alias for {@link vec3.squaredLength}
+* @function
+*/
 vec3.sqrLen = vec3.squaredLength;
 
 /**
- * Negates the components of a vec3
- *
- * @param {vec3} out the receiving vector
- * @param {vec3} a vector to negate
- * @returns {vec3} out
- */
+* Negates the components of a vec3
+*
+* @param {vec3} out the receiving vector
+* @param {vec3} a vector to negate
+* @returns {vec3} out
+*/
 vec3.negate = function(out, a) {
     out[0] = -a[0];
     out[1] = -a[1];
@@ -962,12 +961,26 @@ vec3.negate = function(out, a) {
 };
 
 /**
- * Normalize a vec3
- *
- * @param {vec3} out the receiving vector
- * @param {vec3} a vector to normalize
- * @returns {vec3} out
- */
+* Returns the inverse of the components of a vec3
+*
+* @param {vec3} out the receiving vector
+* @param {vec3} a vector to invert
+* @returns {vec3} out
+*/
+vec3.inverse = function(out, a) {
+  out[0] = 1.0 / a[0];
+  out[1] = 1.0 / a[1];
+  out[2] = 1.0 / a[2];
+  return out;
+};
+
+/**
+* Normalize a vec3
+*
+* @param {vec3} out the receiving vector
+* @param {vec3} a vector to normalize
+* @returns {vec3} out
+*/
 vec3.normalize = function(out, a) {
     var x = a[0],
         y = a[1],
@@ -984,24 +997,24 @@ vec3.normalize = function(out, a) {
 };
 
 /**
- * Calculates the dot product of two vec3's
- *
- * @param {vec3} a the first operand
- * @param {vec3} b the second operand
- * @returns {Number} dot product of a and b
- */
+* Calculates the dot product of two vec3's
+*
+* @param {vec3} a the first operand
+* @param {vec3} b the second operand
+* @returns {Number} dot product of a and b
+*/
 vec3.dot = function (a, b) {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 };
 
 /**
- * Computes the cross product of two vec3's
- *
- * @param {vec3} out the receiving vector
- * @param {vec3} a the first operand
- * @param {vec3} b the second operand
- * @returns {vec3} out
- */
+* Computes the cross product of two vec3's
+*
+* @param {vec3} out the receiving vector
+* @param {vec3} a the first operand
+* @param {vec3} b the second operand
+* @returns {vec3} out
+*/
 vec3.cross = function(out, a, b) {
     var ax = a[0], ay = a[1], az = a[2],
         bx = b[0], by = b[1], bz = b[2];
@@ -1013,14 +1026,14 @@ vec3.cross = function(out, a, b) {
 };
 
 /**
- * Performs a linear interpolation between two vec3's
- *
- * @param {vec3} out the receiving vector
- * @param {vec3} a the first operand
- * @param {vec3} b the second operand
- * @param {Number} t interpolation amount between the two inputs
- * @returns {vec3} out
- */
+* Performs a linear interpolation between two vec3's
+*
+* @param {vec3} out the receiving vector
+* @param {vec3} a the first operand
+* @param {vec3} b the second operand
+* @param {Number} t interpolation amount between the two inputs
+* @returns {vec3} out
+*/
 vec3.lerp = function (out, a, b, t) {
     var ax = a[0],
         ay = a[1],
@@ -1032,12 +1045,12 @@ vec3.lerp = function (out, a, b, t) {
 };
 
 /**
- * Generates a random vector with the given scale
- *
- * @param {vec3} out the receiving vector
- * @param {Number} [scale] Length of the resulting vector. If ommitted, a unit vector will be returned
- * @returns {vec3} out
- */
+* Generates a random vector with the given scale
+*
+* @param {vec3} out the receiving vector
+* @param {Number} [scale] Length of the resulting vector. If ommitted, a unit vector will be returned
+* @returns {vec3} out
+*/
 vec3.random = function (out, scale) {
     scale = scale || 1.0;
 
@@ -1052,14 +1065,14 @@ vec3.random = function (out, scale) {
 };
 
 /**
- * Transforms the vec3 with a mat4.
- * 4th vector component is implicitly '1'
- *
- * @param {vec3} out the receiving vector
- * @param {vec3} a the vector to transform
- * @param {mat4} m matrix to transform with
- * @returns {vec3} out
- */
+* Transforms the vec3 with a mat4.
+* 4th vector component is implicitly '1'
+*
+* @param {vec3} out the receiving vector
+* @param {vec3} a the vector to transform
+* @param {mat4} m matrix to transform with
+* @returns {vec3} out
+*/
 vec3.transformMat4 = function(out, a, m) {
     var x = a[0], y = a[1], z = a[2];
     out[0] = m[0] * x + m[4] * y + m[8] * z + m[12];
@@ -1069,13 +1082,13 @@ vec3.transformMat4 = function(out, a, m) {
 };
 
 /**
- * Transforms the vec3 with a mat3.
- *
- * @param {vec3} out the receiving vector
- * @param {vec3} a the vector to transform
- * @param {mat4} m the 3x3 matrix to transform with
- * @returns {vec3} out
- */
+* Transforms the vec3 with a mat3.
+*
+* @param {vec3} out the receiving vector
+* @param {vec3} a the vector to transform
+* @param {mat4} m the 3x3 matrix to transform with
+* @returns {vec3} out
+*/
 vec3.transformMat3 = function(out, a, m) {
     var x = a[0], y = a[1], z = a[2];
     out[0] = x * m[0] + y * m[3] + z * m[6];
@@ -1085,13 +1098,13 @@ vec3.transformMat3 = function(out, a, m) {
 };
 
 /**
- * Transforms the vec3 with a quat
- *
- * @param {vec3} out the receiving vector
- * @param {vec3} a the vector to transform
- * @param {quat} q quaternion to transform with
- * @returns {vec3} out
- */
+* Transforms the vec3 with a quat
+*
+* @param {vec3} out the receiving vector
+* @param {vec3} a the vector to transform
+* @param {quat} q quaternion to transform with
+* @returns {vec3} out
+*/
 vec3.transformQuat = function(out, a, q) {
     // benchmarks: http://jsperf.com/quaternion-transform-vec3-implementations
 
@@ -1121,22 +1134,22 @@ vec3.transformQuat = function(out, a, q) {
 */
 vec3.rotateX = function(out, a, b, c){
    var p = [], r=[];
-	  //Translate point to the origin
-	  p[0] = a[0] - b[0];
-	  p[1] = a[1] - b[1];
-  	p[2] = a[2] - b[2];
+//Translate point to the origin
+p[0] = a[0] - b[0];
+p[1] = a[1] - b[1];
+   p[2] = a[2] - b[2];
 
-	  //perform rotation
-	  r[0] = p[0];
-	  r[1] = p[1]*Math.cos(c) - p[2]*Math.sin(c);
-	  r[2] = p[1]*Math.sin(c) + p[2]*Math.cos(c);
+//perform rotation
+r[0] = p[0];
+r[1] = p[1]*Math.cos(c) - p[2]*Math.sin(c);
+r[2] = p[1]*Math.sin(c) + p[2]*Math.cos(c);
 
-	  //translate to correct position
-	  out[0] = r[0] + b[0];
-	  out[1] = r[1] + b[1];
-	  out[2] = r[2] + b[2];
+//translate to correct position
+out[0] = r[0] + b[0];
+out[1] = r[1] + b[1];
+out[2] = r[2] + b[2];
 
-  	return out;
+   return out;
 };
 
 /*
@@ -1148,23 +1161,23 @@ vec3.rotateX = function(out, a, b, c){
 * @returns {vec3} out
 */
 vec3.rotateY = function(out, a, b, c){
-  	var p = [], r=[];
-  	//Translate point to the origin
-  	p[0] = a[0] - b[0];
-  	p[1] = a[1] - b[1];
-  	p[2] = a[2] - b[2];
+   var p = [], r=[];
+   //Translate point to the origin
+   p[0] = a[0] - b[0];
+   p[1] = a[1] - b[1];
+   p[2] = a[2] - b[2];
   
-  	//perform rotation
-  	r[0] = p[2]*Math.sin(c) + p[0]*Math.cos(c);
-  	r[1] = p[1];
-  	r[2] = p[2]*Math.cos(c) - p[0]*Math.sin(c);
+   //perform rotation
+   r[0] = p[2]*Math.sin(c) + p[0]*Math.cos(c);
+   r[1] = p[1];
+   r[2] = p[2]*Math.cos(c) - p[0]*Math.sin(c);
   
-  	//translate to correct position
-  	out[0] = r[0] + b[0];
-  	out[1] = r[1] + b[1];
-  	out[2] = r[2] + b[2];
+   //translate to correct position
+   out[0] = r[0] + b[0];
+   out[1] = r[1] + b[1];
+   out[2] = r[2] + b[2];
   
-  	return out;
+   return out;
 };
 
 /*
@@ -1176,37 +1189,37 @@ vec3.rotateY = function(out, a, b, c){
 * @returns {vec3} out
 */
 vec3.rotateZ = function(out, a, b, c){
-  	var p = [], r=[];
-  	//Translate point to the origin
-  	p[0] = a[0] - b[0];
-  	p[1] = a[1] - b[1];
-  	p[2] = a[2] - b[2];
+   var p = [], r=[];
+   //Translate point to the origin
+   p[0] = a[0] - b[0];
+   p[1] = a[1] - b[1];
+   p[2] = a[2] - b[2];
   
-  	//perform rotation
-  	r[0] = p[0]*Math.cos(c) - p[1]*Math.sin(c);
-  	r[1] = p[0]*Math.sin(c) + p[1]*Math.cos(c);
-  	r[2] = p[2];
+   //perform rotation
+   r[0] = p[0]*Math.cos(c) - p[1]*Math.sin(c);
+   r[1] = p[0]*Math.sin(c) + p[1]*Math.cos(c);
+   r[2] = p[2];
   
-  	//translate to correct position
-  	out[0] = r[0] + b[0];
-  	out[1] = r[1] + b[1];
-  	out[2] = r[2] + b[2];
+   //translate to correct position
+   out[0] = r[0] + b[0];
+   out[1] = r[1] + b[1];
+   out[2] = r[2] + b[2];
   
-  	return out;
+   return out;
 };
 
 /**
- * Perform some operation over an array of vec3s.
- *
- * @param {Array} a the array of vectors to iterate over
- * @param {Number} stride Number of elements between the start of each vec3. If 0 assumes tightly packed
- * @param {Number} offset Number of elements to skip at the beginning of the array
- * @param {Number} count Number of vec3s to iterate over. If 0 iterates over entire array
- * @param {Function} fn Function to call for each vector in the array
- * @param {Object} [arg] additional argument to pass to fn
- * @returns {Array} a
- * @function
- */
+* Perform some operation over an array of vec3s.
+*
+* @param {Array} a the array of vectors to iterate over
+* @param {Number} stride Number of elements between the start of each vec3. If 0 assumes tightly packed
+* @param {Number} offset Number of elements to skip at the beginning of the array
+* @param {Number} count Number of vec3s to iterate over. If 0 iterates over entire array
+* @param {Function} fn Function to call for each vector in the array
+* @param {Object} [arg] additional argument to pass to fn
+* @returns {Array} a
+* @function
+*/
 vec3.forEach = (function() {
     var vec = vec3.create();
 
@@ -1237,11 +1250,11 @@ vec3.forEach = (function() {
 })();
 
 /**
- * Returns a string representation of a vector
- *
- * @param {vec3} vec vector to represent as a string
- * @returns {String} string representation of the vector
- */
+* Returns a string representation of a vector
+*
+* @param {vec3} vec vector to represent as a string
+* @returns {String} string representation of the vector
+*/
 vec3.str = function (a) {
     return 'vec3(' + a[0] + ', ' + a[1] + ', ' + a[2] + ')';
 };

@@ -54,7 +54,6 @@
     return instance;
   }
   
-  camera.range = [30, 2000];
   resetCamera();
   
   var number;
@@ -90,21 +89,21 @@
   
   function transformCamera() {
     if (modelCameraId === -1) {
-      var cameraMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-      var z = math.toRad(camera.r[1]);
-      var x = math.toRad(camera.r[0]);
+      var z = camera.r[1];
+      var x = camera.r[0];
 
-      math.mat4.translate(cameraMatrix, camera.m[0], camera.m[1], -camera.m[2]);
-      math.mat4.rotate(cameraMatrix, x, 1, 0, 0);
-      math.mat4.rotate(cameraMatrix, z, 0, 0, 1);
-
-      var inverseCamera = [];
-      math.mat4.invert(cameraMatrix, inverseCamera);
-      math.mat4.multVec3(inverseCamera, [0, 0, 1], cameraPosition);
+      mat4.identity(cameraMatrix);
       
-      math.mat4.makeIdentity(inversCameraRotation);
-      math.mat4.rotate(inversCameraRotation, -z, 0, 0, 1);
-      math.mat4.rotate(inversCameraRotation, -x, 1, 0, 0);
+      mat4.translate(cameraMatrix, cameraMatrix, camera.m);
+      mat4.rotate(cameraMatrix, cameraMatrix, x, xAxis);
+      mat4.rotate(cameraMatrix, cameraMatrix, z, zAxis);
+      
+      mat4.invert(inverseCamera, cameraMatrix);
+      vec3.transformMat4(cameraPosition, zAxis, inverseCamera);
+      
+      mat4.identity(inversCameraRotation);
+      mat4.rotate(inversCameraRotation, inversCameraRotation, -z, zAxis);
+      mat4.rotate(inversCameraRotation, inversCameraRotation, -x, xAxis);
       
       gl.loadIdentity();
       gl.multMat(cameraMatrix);
@@ -480,9 +479,7 @@
     var object = modelInstanceCache[objectId];
     
     if (object && object.isInstance) {
-      math.quaternion.normalize(q, q);
-      
-      object.setRotation(q);
+      object.setRotation(quat.normalize(q, q));
     }
   }
   
@@ -821,14 +818,14 @@
   
   // Rotate the camera on the x and y axes.
   function rotateCamera(x, y) {
-    camera.r[0] += x;
-    camera.r[1] += y;
+    camera.r[0] += math.toRad(x);
+    camera.r[1] += math.toRad(y);
     refreshCamera = true;
   }
   
   // Zoom the camera by a factor.
   function zoomCamera(n) {
-    camera.m[2] = parseInt(math.clamp(camera.m[2] * n, camera.range[0], camera.range[1]), 10);
+    camera.m[2] = Math.floor(camera.m[2] * n);
     refreshCamera = true;
   }
   
@@ -836,8 +833,8 @@
   function resetCamera() {
     camera.m[0] = 0;
     camera.m[1] = 0;
-    camera.m[2] = 300;
-    camera.r = [315, 225];
+    camera.m[2] = -300;
+    camera.r = [math.toRad(315), math.toRad(225)];
     refreshCamera = true;
   }
   
@@ -899,7 +896,10 @@
   // Save the scene as a JSON string.
   function saveScene() {
     var i, l;
-    var data = [camera.m, camera.r, 60 * FRAME_TIME, shouldRenderWorld, shouldRenderShapes & 1, shouldRenderTeamColors & 1, shaderToUse]
+    var m = math.floatPrecisionArray([camera.m[0], camera.m[1], -camera.m[2]], 3);
+    var r = math.floatPrecisionArray([math.toDeg(camera.r[0]), math.toDeg(camera.r[1])], 3);
+    
+    var data = [m, r, 60 * FRAME_TIME, shouldRenderWorld, shouldRenderShapes & 1, shouldRenderTeamColors & 1, shaderToUse]
     // This keeps track of all the models that are actually used (= a visible instance points to them).
     var usedModels = {};
     var models = [];
@@ -942,7 +942,7 @@
     }
     
     data.push(models, instances);
-    
+    console.log(data);
     return JSON.stringify(data);
   }
   
@@ -959,6 +959,11 @@
       
     camera.m = scene[0];
     camera.r = scene[1];
+    
+    camera.m[2] = -camera.m[2];
+    camera.r[0] = math.toRad(camera.r[0]);
+    camera.r[1] = math.toRad(camera.r[1]);
+      
     FRAME_TIME = scene[2] / 60;
     shouldRenderWorld = scene[3];
     shouldRenderShapes = !!scene[4];

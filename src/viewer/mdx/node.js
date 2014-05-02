@@ -3,7 +3,6 @@ function Node(object, model, pivots) {
   this.objectId = object.objectId;
   this.parentId = object.parentId;
   this.pivot = pivots[object.objectId - 1] || [0, 0, 0];
-  
   this.billboarded = object.billboarded;
   this.xYQuad = object.xYQuad;
   
@@ -17,18 +16,18 @@ function Node(object, model, pivots) {
 function ShallowNode(node) {
   this.nodeImpl = node;
   this.pivot = node.pivot;
+  this.negativePivot = vec3.negate([], node.pivot);
   this.objectId = node.objectId;
   this.parentId = node.parentId;
-  this.worldMatrix = math.mat4.createIdentity();
-  this.scale = [1, 1, 1];
+  this.worldMatrix = mat4.create();
 }
 
 ShallowNode.prototype = {
   getTransform: function () {
-    var m = math.mat4.createIdentity();
+    var m = mat4.createIdentity();
     
-    math.mat4.multMat(m, this.worldMatrix, m);
-    math.mat4.translate(m, this.pivot[0], this.pivot[1], this.pivot[2]);
+    mat4.multiply(m, m, this.worldMatrix);
+    mat4.translate(m, m, this.pivot);
     
     return m;
   }

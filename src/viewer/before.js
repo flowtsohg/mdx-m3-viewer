@@ -113,9 +113,14 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   
   var ctx = gl.ctx;
   var refreshCamera = true;
-  var camera = {m: [0, 0, 0], range: [0, 0], r: [0, 0]};
+  var camera = {m: [0, 0, 0], r: [0, 0]};
   var cameraPosition = [0, 0, 0];
-  var inversCameraRotation = [];
+  var cameraMatrix = mat4.create();
+  var inverseCamera = mat4.create();
+  var inversCameraRotation = mat4.create();
+  var xAxis = [1, 0, 0];
+  var yAxis = [0, 1, 0];
+  var zAxis = [0, 0, 1];
   var lightPosition = [0, 0, 10000];
   var modelCameraId = -1;
   var modelCamera;
