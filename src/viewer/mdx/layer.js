@@ -34,7 +34,6 @@ Layer.prototype = {
   setMaterial: function (shader) {
     var filterMode = this.filterMode;
     
-    //gl.setParameter("u_type", layerFilterTypes[filterMode]);
     ctx.uniform3fv(shader.variables.u_type, layerFilterTypes[filterMode]);
     
     if (filterMode === 1) {

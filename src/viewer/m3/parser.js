@@ -1,37 +1,12 @@
 var Parser = (function () {
   var MD34_HEADER = 0x4d443334;
   
-  function readVector4As4Uint8(reader) {
-    var values = readUint8Array(reader, 4);
-    
-    return [((values[0] / 255) * 2) - 1, ((values[1] / 255) * 2) - 1, ((values[2] / 255) * 2) - 1, ((values[3] / 255) * 2) - 1];
-  }
-  
-  function readVector2As2Int16Matrix(reader, count) {
-    var arr = [];
-    var values;
-    
-    for (var i = 0; i < count; i++) {
-      values = readInt16Array(reader, 2);
-    
-      arr[i] = [values[0] / 2048, values[1] / 2048];
-    }
-    
-    return arr;
-  }
-  
   function readColor(reader) {
     return readUint8Array(reader, 4);
   }
   
   function readUint16Pair(reader) {
     return readUint16Array(reader, 2);
-  }
-  
-  function readUint8ArrayAsRatio(reader) {
-    var data = readUint8Array(reader, 4);
-    
-    return [data[0] / 255, data[1] / 255, data[2] / 255, data[3] / 255];
   }
   
   function readBoundingSphere(reader) {
@@ -52,21 +27,6 @@ var Parser = (function () {
     
     return data;
   }
-
-  function parseTriangles(reader, indexEntries) {
-    var reference = new Reference(reader);
-    var offset = tell(reader);
-    var indexEntry = indexEntries[reference.index];
-    var entries;
-    
-    seek(reader, indexEntry.offset);
-    
-    entries = readUint16Array(reader, reference.entries);
-    
-    seek(reader, offset);
-    
-    return entries;
-  }
   
   function parseVertices(reader, indexEntries, uvSetCount) {
     var reference = new Reference(reader);
@@ -82,7 +42,7 @@ var Parser = (function () {
 
     return entries;
   }
-
+  
   function parseSingleReference(reader, indexEntries, Func) {
     var reference = new Reference(reader);
     var indexEntry = indexEntries[reference.index];
@@ -107,8 +67,6 @@ var Parser = (function () {
     
     seek(reader, indexEntry.offset);
     
-    entries.length = entriesCount;
-    
     for (var i = 0, l = entriesCount; i < entriesCount; i++) {
       entries[i] = new Func(reader, indexEntries, indexEntry.version);
     }
@@ -127,8 +85,6 @@ var Parser = (function () {
     
     seek(reader, indexEntry.offset);
     
-    entries.length = entriesCount;
-    
     for (var i = 0, l = entriesCount; i < entriesCount; i++) {
       entries[i] = Func(reader, indexEntries, indexEntry.version);
     }
@@ -138,15 +94,16 @@ var Parser = (function () {
     return entries;
   }
   
-  function readInt32ArrayReference(reader, indexEntries) {
+  // Parse by value using a typed array
+  function parseReferenceByValTyped(reader, indexEntries, Func) {
     var reference = new Reference(reader);
-    var indexEntry = indexEntries[reference.index];
     var offset = tell(reader);
+    var indexEntry = indexEntries[reference.index];
     var entries;
     
     seek(reader, indexEntry.offset);
     
-    entries = readInt32Array(reader, reference.entries);
+    entries = Func(reader, reference.entries);
     
     seek(reader, offset);
     
@@ -161,9 +118,7 @@ var Parser = (function () {
     
     seek(reader, indexEntry.offset);
     
-    entries.length = reference.entries;
-    
-    for (var i = 0, l = entries.length; i < l; i++) {
+    for (var i = 0, l = reference.entries; i < l; i++) {
       entries[i] = SD(reader, indexEntries, Func);
     }
     
@@ -198,7 +153,7 @@ var Parser = (function () {
   }
   
   function SD(reader, indexEntries, Func) {
-    var keys = readInt32ArrayReference(reader, indexEntries);
+    var keys = parseReferenceByValTyped(reader, indexEntries, readInt32Array);
     var flags = readUint32(reader);
     var biggestKey = readUint32(reader);
     var values = parseReferenceByVal(reader, indexEntries, Func);
@@ -231,7 +186,7 @@ var Parser = (function () {
     this.bone2 = readUint32(reader);
     this.matrix = readMatrix(reader);
     this.unknown0 = parseReferenceByVal(reader, indexEntries, readVector3);
-    this.unknown1 = parseReferenceByVal(reader, indexEntries, readUint16);
+    this.unknown1 = parseReferenceByValTyped(reader, indexEntries, readUint16Array);
     this.size = readVector3(reader);
   }
   
@@ -253,7 +208,7 @@ var Parser = (function () {
   
   function TRGD(reader, indexEntries, version) {
     this.version = version;
-    this.unknown0 = parseReferenceByVal(reader, indexEntries, readUint32);
+    this.unknown0 = parseReferenceByValTyped(reader, indexEntries, readUint32Array);
     this.name = parseReferenceString(reader, indexEntries);
   }
   
@@ -296,8 +251,8 @@ var Parser = (function () {
     
     if (version < 2) {
       this.vertices = parseReferenceByVal(reader, indexEntries, readVector3);
-      this.unknown3 = parseReferenceByVal(reader, indexEntries, readUint8);
-      this.triangles = parseReferenceByVal(reader, indexEntries, readUint16);
+      this.unknown3 = parseReferenceByValTyped(reader, indexEntries, readUint8Array);
+      this.triangles = parseReferenceByValTyped(reader, indexEntries, readUint16Array);
       this.planeEquations = parseReferenceByVal(reader, indexEntries, readVector4);
     }
     
@@ -313,7 +268,7 @@ var Parser = (function () {
       this.unknown5 = parseReferenceByVal(reader, indexEntries, readVector3);
       this.unknown6 = parseReferenceByVal(reader, indexEntries, readVector4);
       this.unknown7 = parseReference(reader, indexEntries, DMSE);
-      this.unknown8 = parseReferenceByVal(reader, indexEntries, readUint8);
+      this.unknown8 = parseReferenceByValTyped(reader, indexEntries, readUint8Array);
       this.unknown9 = new Reference(reader);
       this.unknown10 = readUint32(reader);
       this.unknown11 = readUint32(reader);
@@ -1090,22 +1045,11 @@ var Parser = (function () {
   
   function Division(reader, indexEntries, version) {
     this.version = version;
-    this.triangles = parseTriangles(reader, indexEntries);
+    this.triangles = parseReferenceByValTyped(reader, indexEntries, readUint16Array);
     this.regions = parseReference(reader, indexEntries, Region);
     this.batches = parseReference(reader, indexEntries, Batch);
     this.MSEC = parseReference(reader, indexEntries, MSEC);
     this.unknown0 = readUint32(reader);
-  }
-  
-  function Vertex(reader, uvSetCount) {
-    var position = readVector3(reader);
-    var boneWeights = readUint8ArrayAsRatio(reader);
-    var boneLookupIndices = readUint8Array(reader, 4);
-    var normal = readVector4As4Uint8(reader);
-    var uvs = readVector2As2Int16Matrix(reader, uvSetCount);
-    var tangent = readVector4As4Uint8(reader);
-    
-    return {position: position, boneWeights: boneWeights, boneLookupIndices: boneLookupIndices, normal: normal, uvs: uvs, tangent: tangent};
   }
   
   function Bone(reader, indexEntries, version) {
@@ -1132,7 +1076,7 @@ var Parser = (function () {
   
   function STS(reader, indexEntries, version) {
     this.version = version;
-    this.animIds = parseReferenceByVal(reader, indexEntries, readUint32);
+    this.animIds = parseReferenceByValTyped(reader, indexEntries, readUint32Array);
     this.unknown0 = readInt32(reader);
     this.unknown1 = readInt32(reader);
     this.unknown2 = readInt32(reader);
@@ -1143,7 +1087,7 @@ var Parser = (function () {
   function STG(reader, indexEntries, version) {
     this.version = version;
     this.name = parseReferenceString(reader, indexEntries);
-    this.stcIndices = parseReferenceByVal(reader, indexEntries, readUint32);
+    this.stcIndices = parseReferenceByValTyped(reader, indexEntries, readUint32Array);
   }
   
   function STC(reader, indexEntries, version) {
@@ -1153,7 +1097,7 @@ var Parser = (function () {
     this.priority = readUint16(reader);
     this.stsIndex = readUint16(reader);
     this.stsIndexCopy = readUint16(reader);
-    this.animIds = parseReferenceByVal(reader, indexEntries, readUint32);
+    this.animIds = parseReferenceByValTyped(reader, indexEntries, readUint32Array);
     this.animRefs = parseReferenceByVal(reader, indexEntries, readUint16Pair);
     this.unknown0 = readUint32(reader);
     this.sd = [
@@ -1229,7 +1173,7 @@ var Parser = (function () {
     this.uvSetCount = uvSetCount;
     this.vertices = parseVertices(reader, indexEntries, uvSetCount);
     this.divisions = parseReference(reader, indexEntries, Division);
-    this.boneLookup = parseReferenceByVal(reader, indexEntries, readUint16);
+    this.boneLookup = parseReferenceByValTyped(reader, indexEntries, readUint16Array);
     this.boundings = readBoundingSphere(reader);
     this.unknown4To19 = readFloat32Array(reader, 16);
     this.attachmentPoints = parseReference(reader, indexEntries, AttachmentPoint);

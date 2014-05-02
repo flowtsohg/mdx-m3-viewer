@@ -102,8 +102,6 @@ RibbonEmitter.prototype = {
       
       ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 20, 0);
       ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 20, 12);
-      //gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, 20, 0);
-      //gl.vertexAttribPointer("a_uv", 2, ctx.FLOAT, false, 20, 12);
       
       for (i = 0, l = this.layers.length; i < l; i++) {
         var layer = this.layers[i];
@@ -127,7 +125,6 @@ RibbonEmitter.prototype = {
           modifier[3] = alpha;
           
           ctx.uniform4fv(shader.variables.u_modifier, modifier);
-          //gl.setParameter("u_modifier", modifier);
           
           if (layer.textureAnimationId !== -1 && this.model.textureAnimations) {
             var textureAnimation = this.model.textureAnimations[layer.textureAnimationId];
@@ -140,9 +137,6 @@ RibbonEmitter.prototype = {
           
           ctx.uniform2fv(shader.variables.u_uv_offset, uvoffset);
           ctx.uniform3fv(shader.variables.u_type, [0, 0, 0]);
-          
-          //gl.setParameter("u_uv_offset", uvoffset);
-          //gl.setParameter("u_type", [0, 0, 0]);
           
           ctx.drawArrays(ctx.TRIANGLE_STRIP, 0, ribbons * 2);
         }

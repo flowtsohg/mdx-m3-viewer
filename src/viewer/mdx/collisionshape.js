@@ -8,11 +8,11 @@ function CollisionShape(collisionshape) {
   var shape;
   
   if (collisionshape.type === 0) {
-    shape = gl.newCube(v1[0], v1[1], v1[2], v2[0], v2[1], v2[2]);
+    shape = gl.createCube(v1[0], v1[1], v1[2], v2[0], v2[1], v2[2]);
   //} else if (collisionshape.type === 1) {
     //shape = gl.newPlane(v1[0], v1[1], v1[2], v2[0], v2[1], v2[2]);
   } else if (collisionshape.type === 2) {
-    shape = gl.newSphere(v1[0], v1[1], v1[2], 9, 9, boundsRadius);
+    shape = gl.createSphere(v1[0], v1[1], v1[2], 9, 9, boundsRadius);
   //} else {
     //shape = gl.newCylinder(v1[0], v1[1], v1[2], v2[0], v2[1], v2[2], 8, 2, boundsRadius);
   }
@@ -27,8 +27,7 @@ CollisionShape.prototype = {
       
       gl.multMat(skeleton.nodes[this.node].worldMatrix);
       
-      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getMVP());
-      //gl.bindMVP("u_mvp");
+      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
       
       this.shape.renderLines(shader);
       

@@ -32,10 +32,8 @@
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
     
-    gl.viewSize(width, height);
+    ctx.viewport(0, 0, width, height);
     gl.setPerspective(45, width / height, 0.1, 5E4);
-    
-    math.mat4.setFromArray(projectionMatrix, gl.getProjection());
   }
   
   resetViewport();
@@ -64,28 +62,28 @@
   for (var i = 0; i < 13; i++) {
     number = ((i < 10) ? "0" + i : i);
     
-    gl.newTexture(urls.mpqFile("ReplaceableTextures/TeamColor/TeamColor" + number + ".blp"));
-    gl.newTexture(urls.mpqFile("ReplaceableTextures/TeamGlow/TeamGlow" + number + ".blp"));
+    gl.loadTexture(urls.mpqFile("ReplaceableTextures/TeamColor/TeamColor" + number + ".blp"));
+    gl.loadTexture(urls.mpqFile("ReplaceableTextures/TeamGlow/TeamGlow" + number + ".blp"));
   }
       
-  gl.newShader("world", SHADERS["vsworld"], SHADERS["psworld"]);
-  gl.newShader("white", SHADERS["vswhite"], SHADERS["pswhite"]);
+  gl.createShader("world", SHADERS["vsworld"], SHADERS["psworld"]);
+  gl.createShader("white", SHADERS["vswhite"], SHADERS["pswhite"]);
   
-  gl.newTexture("images/grass.png");
-  gl.newTexture("images/water.png");
-  gl.newTexture("images/bedrock.png");
-  gl.newTexture("images/sky.png");
+  gl.loadTexture("images/grass.png");
+  gl.loadTexture("images/water.png");
+  gl.loadTexture("images/bedrock.png");
+  gl.loadTexture("images/sky.png");
   //gl.newTexture("Light", "../images/Light.png");
     
-  grass_water = gl.newRect(0, 0, -3, 250, 250, 6);
-  bedrock = gl.newRect(0, 0, -35, 250, 250, 6);
-  sky = gl.newSphere(0, 0, 0, 5, 10, 2E4);
+  grass_water = gl.createRect(0, 0, -3, 250, 250, 6);
+  bedrock = gl.createRect(0, 0, -35, 250, 250, 6);
+  sky = gl.createSphere(0, 0, 0, 5, 10, 2E4);
   //light = gl.newSphere(0, 0, 0, 10, 10, 0.05);
   
   function update() {
     for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
       if (modelInstanceCache[i].isInstance) {
-        modelInstanceCache[i].update();
+        modelInstanceCache[i].update(refreshCamera);
       }
     }
   }
@@ -115,9 +113,6 @@
       
       gl.lookAt(cameraPosition, modelCamera.targetPosition, upDir);
     }
-    
-    math.mat4.setFromArray(modelViewMatrix, gl.getView());
-    math.mat4.setFromArray(modelViewProjectionMatrix, gl.getMVP());
   }
   
   function renderGround(isWater) {
@@ -126,8 +121,7 @@
       
       ctx.disable(ctx.CULL_FACE);
       
-      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, modelViewProjectionMatrix);
-      //gl.bindMVP("u_mvp");
+      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
       
       if (isWater) {
         uvOffset[0] += uvSpeed[0];
@@ -135,13 +129,9 @@
         
         ctx.uniform2fv(shader.variables.u_uv_offset, uvOffset);
         ctx.uniform1f(shader.variables.u_a, 0.6);
-        //gl.setParameter("u_uv_offset", uvOffset);
-        //gl.setParameter("u_a", 0.6);
       } else {
         ctx.uniform2fv(shader.variables.u_uv_offset, [0, 0]);
         ctx.uniform1f(shader.variables.u_a, 1);
-        //gl.setParameter("u_uv_offset", [0, 0]);
-        //gl.setParameter("u_a", 1);
       }
       
       if (shouldRenderWorld > 2) {
@@ -170,19 +160,10 @@
       
       ctx.uniform2fv(shader.variables.u_uv_offset, [0, 0]);
       ctx.uniform1f(shader.variables.u_a, 1);
-      //gl.setParameter("u_uv_offset", [0, 0]);
-      //gl.setParameter("u_a", 1);
-      
-      //gl.pushMatrix();
-      //gl.loadIdentity();
-      
-      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, projectionMatrix);
-      //gl.bindMVP("u_mvp");
+      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getProjectionMatrix());
       
       gl.bindTexture("images/sky.png", 0);
       sky.render(shader);
-      
-      //gl.popMatrix();
     }
   }
   /*
@@ -208,7 +189,10 @@
   function render() {
     ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
     
-    transformCamera();
+    if (refreshCamera) {
+      transformCamera();
+    }
+    
     renderSky();
     renderGround();
     //renderLights();
@@ -258,6 +242,8 @@
     if (shouldRun) {
       update();
       render();
+      
+      refreshCamera = false;
     }
   }
 
@@ -327,7 +313,7 @@
         onload(instance);
       }
     } else {
-      gl.newTexture(source);
+      gl.loadTexture(source);
     }
   }
   
@@ -350,7 +336,7 @@
         
         textureMap[key] = texture.url;
         
-        gl.newTexture(textureMap[key]);
+        gl.loadTexture(textureMap[key]);
       }
       
       var models = object.models;
@@ -830,17 +816,20 @@
   function panCamera(x, y) {
     camera.m[0] += x;
     camera.m[1] -= y;
+    refreshCamera = true;
   }
   
   // Rotate the camera on the x and y axes.
   function rotateCamera(x, y) {
     camera.r[0] += x;
     camera.r[1] += y;
+    refreshCamera = true;
   }
   
   // Zoom the camera by a factor.
   function zoomCamera(n) {
     camera.m[2] = parseInt(math.clamp(camera.m[2] * n, camera.range[0], camera.range[1]), 10);
+    refreshCamera = true;
   }
   
   // Reset the camera back to the initial state.
@@ -849,6 +838,7 @@
     camera.m[1] = 0;
     camera.m[2] = 300;
     camera.r = [315, 225];
+    refreshCamera = true;
   }
   
   // ------
@@ -965,6 +955,8 @@
     
     scene = JSON.parse(scene);
     
+    refreshCamera = true;
+      
     camera.m = scene[0];
     camera.r = scene[1];
     FRAME_TIME = scene[2] / 60;

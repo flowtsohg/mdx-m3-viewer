@@ -155,11 +155,11 @@ Model.prototype = {
   },
   
   setupVertices: function (vertices, uvSetCount) {
-    var vertexBuffer = ctx.createBuffer();
-    ctx.bindBuffer(ctx.ARRAY_BUFFER, vertexBuffer);
+    var arrayBuffer = ctx.createBuffer();
+    ctx.bindBuffer(ctx.ARRAY_BUFFER, arrayBuffer);
     ctx.bufferData(ctx.ARRAY_BUFFER, vertices, ctx.STATIC_DRAW);
     
-    this.vertexBuffer = vertexBuffer;
+    this.arrayBuffer = arrayBuffer;
     this.vertexSize = (7 + uvSetCount) * 4;
     this.uvSetCount = uvSetCount;
   },
@@ -219,7 +219,7 @@ Model.prototype = {
     var vertexSize = this.vertexSize;
     var uvSetCount = this.uvSetCount;
     
-    ctx.bindBuffer(ctx.ARRAY_BUFFER, this.vertexBuffer);
+    ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
     
     ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, vertexSize, 0);
     ctx.vertexAttribPointer(shader.variables.a_weights, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 12);
@@ -228,11 +228,9 @@ Model.prototype = {
     
     for (var i = 0; i < uvSetCount; i++) {
       ctx.vertexAttribPointer(shader.variables["a_uv" + i], 2, ctx.UNSIGNED_SHORT, false, vertexSize, 24 + i * 4);
-      //gl.vertexAttribPointer("a_uv" + i, 2, ctx.FLOAT, false, vertexSize, 60 + i * 8);
     }
     
     ctx.vertexAttribPointer(shader.variables.a_tangent, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 24 + uvSetCount * 4);
-    //gl.vertexAttribPointer("a_tangent", 4, ctx.FLOAT, false, vertexSize, 60 + uvSetCount * 8);
     
     ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
   },
@@ -240,7 +238,7 @@ Model.prototype = {
   bindColor: function (shader) {
     var vertexSize = this.vertexSize;
     
-    ctx.bindBuffer(ctx.ARRAY_BUFFER, this.vertexBuffer);
+    ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
     
     ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, vertexSize, 0);
     ctx.vertexAttribPointer(shader.variables.a_weights, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 12);
@@ -270,17 +268,12 @@ Model.prototype = {
     
     instanceImpl.skeleton.bind(shader);
     
-    ctx.uniformMatrix4fv(shader.variables.u_mvp, false, modelViewProjectionMatrix);
-    ctx.uniformMatrix4fv(shader.variables.u_mv, false, modelViewMatrix);
-    //gl.bindMVP("u_mvp");
-    //gl.bindView("u_mv");
+    ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
+    ctx.uniformMatrix4fv(shader.variables.u_mv, false, gl.getViewMatrix());
     
     ctx.uniform3fv(shader.variables.u_teamColor, [tc[0] / 255, tc[1] / 255, tc[2] / 255]);
     ctx.uniform3fv(shader.variables.u_eyePos, cameraPosition);
     ctx.uniform3fv(shader.variables.u_lightPos, lightPosition);
-    //gl.setParameter("u_teamColor", [tc[0] / 255, tc[1] / 255, tc[2] / 255]);
-    //gl.setParameter("u_eyePos", cameraPosition);
-    //gl.setParameter("u_lightPos", lightPosition);
     
     // Bind the vertices
     this.bind(shader);
@@ -294,7 +287,7 @@ Model.prototype = {
         material.bind(sequence, frame, textureMap, shader);
       } else if (shaderName === "sdiffuse") {
         material.bindDiffuse(sequence, frame, textureMap, shader);
-      } else if (shaderName === "snormalmap" || shader === "sunshaded_normalmap") {
+      } else if (shaderName === "snormalmap" || shaderName === "sunshaded_normalmap") {
         material.bindNormalMap(sequence, frame, textureMap, shader);
       } else if (shaderName === "sspecular") {
         material.bindSpecular(sequence, frame, textureMap, shader);
@@ -341,8 +334,7 @@ Model.prototype = {
         gl.multMat(instanceImpl.skeleton.bones[fuzzyHitTestObject.bone].worldMatrix);
         gl.multMat(fuzzyHitTestObject.matrix);
         
-        //ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getMVP());
-        gl.bindMVP("u_mvp");
+        ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
         
         gl.popMatrix();
         
@@ -363,10 +355,8 @@ Model.prototype = {
     
     instance.skeleton.bind(shader);
     
-    ctx.uniformMatrix4fv(shader.variables.u_mvp, false, modelViewProjectionMatrix);
+    ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
     ctx.uniform3fv(shader.variables.u_color, color);
-    //gl.bindMVP("u_mvp");
-    //gl.setParameter("u_color", color);
     
     // Bind the vertices
     this.bindColor(shader);

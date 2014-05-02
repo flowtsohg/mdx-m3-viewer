@@ -1,3 +1,9 @@
+var defaultTransformations = {
+  translation: [0, 0, 0],
+  rotation: [0, 0, 0, 1],
+  scaling: [1, 1, 1]
+};
+
 function Skeleton(model) {
   var i, l;
   var pivots = model.pivots;
@@ -19,13 +25,16 @@ function Skeleton(model) {
   this.boneTexture = ctx.createTexture();
   this.boneTextureSize = Math.max(2, math.powerOfTwo(this.bones.length + 1)) * 4;
   this.texelFraction = 1 / this.boneTextureSize;
-  this.boneFraction = this.texelFraction * 4;
+  this.matrixFraction = this.texelFraction * 4;
   
   ctx.activeTexture(ctx.TEXTURE15);
   ctx.bindTexture(ctx.TEXTURE_2D, this.boneTexture);
   ctx.texImage2D(ctx.TEXTURE_2D, 0, ctx.RGBA, this.boneTextureSize, 1, 0, ctx.RGBA, ctx.FLOAT, null);
   ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MAG_FILTER, ctx.NEAREST);
   ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MIN_FILTER, ctx.NEAREST);
+  
+  this.localMatrix = math.mat4.create();
+  this.rotationMatrix = math.mat4.create();
 }
 
 Skeleton.prototype = {
@@ -47,18 +56,19 @@ Skeleton.prototype = {
   updateNode: function (node, sequence, frame, counter) {
     var nodeImpl = node.nodeImpl;
     var pivot = node.pivot;
-    var translation = getSDValue(sequence, frame, counter, nodeImpl.sd.translation, [0, 0, 0]);
-    var rotation = getSDValue(sequence, frame, counter, nodeImpl.sd.rotation, [0, 0, 0, 1]);
-    var scale = getSDValue(sequence, frame, counter, nodeImpl.sd.scaling, [1, 1, 1]);
-    var localMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+    var localMatrix = this.localMatrix;
+    var rotationMatrix = this.rotationMatrix;
+    var translation = getSDValue(sequence, frame, counter, nodeImpl.sd.translation, defaultTransformations.translation);
+    var rotation = getSDValue(sequence, frame, counter, nodeImpl.sd.rotation, defaultTransformations.rotation);
+    var scale = getSDValue(sequence, frame, counter, nodeImpl.sd.scaling, defaultTransformations.scaling);
+    
+    math.mat4.makeIdentity(localMatrix);
     
     if (translation[0] !== 0 || translation[1] !== 0 || translation[2] !== 0) {
       math.mat4.translate(localMatrix, translation[0], translation[1], translation[2]);
     }
     
     if (rotation[0] !== 0 || rotation[1] !== 0 || rotation[2] !== 0 || rotation[3] !== 1) {
-      var rotationMatrix = [];
-      
       math.quaternion.toRotationMatrix4(rotation, rotationMatrix);
       
       math.mat4.translate(localMatrix, pivot[0], pivot[1], pivot[2]);
@@ -77,45 +87,28 @@ Skeleton.prototype = {
     var parent = this.nodes[node.parentId];
     
     math.vec3.scaleVec(node.scale, parent.scale, node.scale);
+    
     math.mat4.multMat(parent.worldMatrix, localMatrix, node.worldMatrix);
     
     if (nodeImpl.billboarded) {
-      var cameraMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+      math.mat4.makeIdentity(localMatrix);
       
-      math.mat4.translate(cameraMatrix, pivot[0], pivot[1], pivot[2]);
-      math.mat4.rotate(cameraMatrix, -math.toRad(camera.r[1] + 270), 0, 0, 1);
-      math.mat4.rotate(cameraMatrix, math.toRad(camera.r[0] - 90), 0, 1, 0);
-      math.mat4.translate(cameraMatrix, -pivot[0], -pivot[1], -pivot[2]);
+      math.mat4.translate(localMatrix, pivot[0], pivot[1], pivot[2]);
+      math.mat4.rotate(localMatrix, -math.toRad(camera.r[1] + 270), 0, 0, 1);
+      math.mat4.rotate(localMatrix, math.toRad(camera.r[0] - 90), 0, 1, 0);
+      math.mat4.translate(localMatrix, -pivot[0], -pivot[1], -pivot[2]);
       
-      math.mat4.multMat(node.worldMatrix, cameraMatrix, node.worldMatrix);
+      math.mat4.multMat(node.worldMatrix, localMatrix, node.worldMatrix);
     }
   },
   
   updateBoneTexture: function () {
     var bones = this.bones;
     var hwbones = this.hwbones;
+    var nodes = this.nodes;
     
-     for (var i = 0, l = bones.length; i < l; i++) {
-      var k = i * 16 + 16;
-      var worldMatrix = this.nodes[bones[i].node].worldMatrix;
-       
-      // Setting each index manually is (or was at the time) faster than the Buffer:set method by a large margin
-      hwbones[k + 0] = worldMatrix[0];
-      hwbones[k + 1] = worldMatrix[1];
-      hwbones[k + 2] = worldMatrix[2];
-      hwbones[k + 3] = worldMatrix[3];
-      hwbones[k + 4] = worldMatrix[4];
-      hwbones[k + 5] = worldMatrix[5];
-      hwbones[k + 6] = worldMatrix[6];
-      hwbones[k + 7] = worldMatrix[7];
-      hwbones[k + 8] = worldMatrix[8];
-      hwbones[k + 9] = worldMatrix[9];
-      hwbones[k + 10] = worldMatrix[10];
-      hwbones[k + 11] = worldMatrix[11];
-      hwbones[k + 12] = worldMatrix[12];
-      hwbones[k + 13] = worldMatrix[13];
-      hwbones[k + 14] = worldMatrix[14];
-      hwbones[k + 15] = worldMatrix[15];
+    for (var i = 0, l = bones.length; i < l; i++) {
+      hwbones.set(nodes[bones[i].node].worldMatrix, i * 16 + 16);
     }
     
     ctx.activeTexture(ctx.TEXTURE15);
@@ -127,11 +120,8 @@ Skeleton.prototype = {
     ctx.activeTexture(ctx.TEXTURE15);
     ctx.bindTexture(ctx.TEXTURE_2D, this.boneTexture);
     
-    ctx.uniform1i(shader.variables.u_bones, 15);
-    ctx.uniform1f(shader.variables.u_bone_size, this.boneFraction);
-    ctx.uniform1f(shader.variables.u_pixel_size, this.texelFraction);
-    //gl.setParameter("u_bones", 15);
-    //gl.setParameter("u_bone_size", this.boneFraction);
-    //gl.setParameter("u_pixel_size", this.texelFraction);
+    ctx.uniform1i(shader.variables.u_boneMap, 15);
+    ctx.uniform1f(shader.variables.u_matrix_size, this.matrixFraction);
+    ctx.uniform1f(shader.variables.u_texel_size, this.texelFraction);
   }
 };

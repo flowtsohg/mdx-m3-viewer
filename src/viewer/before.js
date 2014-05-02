@@ -111,11 +111,12 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     return;
   }
   
-  var ctx = gl.gl;
+  var ctx = gl.ctx;
+  var refreshCamera = true;
   var camera = {m: [0, 0, 0], range: [0, 0], r: [0, 0]};
   var cameraPosition = [0, 0, 0];
   var inversCameraRotation = [];
-  var lightPosition = [0, 0, 500];
+  var lightPosition = [0, 0, 10000];
   var modelCameraId = -1;
   var modelCamera;
   var grass_water;
@@ -172,10 +173,6 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     "sunshaded_normalmap",
     "sdecal"
   ];
-  
-  var modelViewMatrix = [];
-  var modelViewProjectionMatrix = [];
-  var projectionMatrix = [];
   
   function bindTexture(source, unit, modelTextureMap, instanceTextureMap) {
     var texture;

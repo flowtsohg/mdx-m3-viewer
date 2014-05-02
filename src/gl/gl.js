@@ -1,52 +1,71 @@
-function viewSize(width, height) {
-  gl["viewport"](0, 0, width, height);
-}
-
 function setPerspective(fovy, aspect, near, far) {
   math.mat4.makePerspective(projectionMatrix, fovy, aspect, near, far);
+  refreshViewProjectionMatrix = true;
 }
 
 function setOrtho(left, right, bottom, top, near, far) {
   math.mat4.makeOrtho(projectionMatrix, left, right, bottom, top, near, far);
-}
-
-function setBackground(red, green, blue) {
-  gl["clearColor"](red, green, blue, 1);
+  refreshViewProjectionMatrix = true;
 }
 
 function loadIdentity() {
-  viewMatrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+  math.mat4.makeIdentity(viewMatrix);
+  refreshViewProjectionMatrix = true;
 }
 
 function translate(x, y, z) {
   math.mat4.translate(viewMatrix, x, y, z);
+  refreshViewProjectionMatrix = true;
 }
 
-function rotate(angle, x, y, z) {
-  math.mat4.rotate(viewMatrix, angle, x, y, z);
+function rotate(anctxe, x, y, z) {
+  math.mat4.rotate(viewMatrix, anctxe, x, y, z);
+  refreshViewProjectionMatrix = true;
 }
 
 function scale(x, y, z) {
   math.mat4.scale(viewMatrix, x, y, z);
+  refreshViewProjectionMatrix = true;
 }
 
 function lookAt(eye, center, up) {
   math.mat4.makeLookAt(viewMatrix, eye, center, up);
+  refreshViewProjectionMatrix = true;
 }
 
 function multMat(mat) {
   math.mat4.multMat(viewMatrix, mat, viewMatrix);
+  refreshViewProjectionMatrix = true;
 }
 
 function pushMatrix() {
   matrixStack.push(Object.copy(viewMatrix));
+  refreshViewProjectionMatrix = true;
 }
 
 function popMatrix() {
   viewMatrix = matrixStack.pop();
+  refreshViewProjectionMatrix = true;
 }
 
-function newShaderUnit(source, type, name) {
+function getViewProjectionMatrix() {
+  if (refreshViewProjectionMatrix) {
+    math.mat4.multMat(projectionMatrix, viewMatrix, viewProjectionMatrix);
+    refreshViewProjectionMatrix = false;
+  }
+  
+  return viewProjectionMatrix;
+}
+
+function getProjectionMatrix() {
+  return projectionMatrix;
+}
+
+function getViewMatrix() {
+  return viewMatrix;
+}
+
+function createShaderUnit(source, type, name) {
   var hash = String.hashCode(source);
   
   if (!shaderUnitStore[hash]) {
@@ -56,7 +75,7 @@ function newShaderUnit(source, type, name) {
   return shaderUnitStore[hash];
 }
 
-function newShader(name, vertexSource, fragmentSource, defines) {
+function createShader(name, vertexSource, fragmentSource, defines) {
   if (!shaderStore[name]) {
     defines = defines || [];
     
@@ -66,130 +85,63 @@ function newShader(name, vertexSource, fragmentSource, defines) {
     
     defines = defines.join("\n") + "\n";
     
-    var vertexUnit = newShaderUnit(defines + vertexSource, gl["VERTEX_SHADER"], name);
-    var fragmentUnit = newShaderUnit(floatPrecision + defines + fragmentSource, gl["FRAGMENT_SHADER"], name);
+    var vertexUnit = createShaderUnit(defines + vertexSource, ctx["VERTEX_SHADER"], name);
+    var fragmentUnit = createShaderUnit(floatPrecision + defines + fragmentSource, ctx["FRAGMENT_SHADER"], name);
     
     if (vertexUnit.ready && fragmentUnit.ready) {
       shaderStore[name] = new Shader(name, vertexUnit, fragmentUnit);
-      shaderUniformStore[name] = {};
     }
   }
   
-  if (!shaderStore[name] || !shaderStore[name].ready) {
-    return false;
+  if (shaderStore[name] && shaderStore[name].ready) {
+    return shaderStore[name];
   }
-  
-  return shaderStore[name];
 }
 
 function shaderReady(name) {
   return shaderStore[name] && shaderStore[name].ready;
 }
 
+function enableVertexAttribs(start, end) {
+  for (var i = start; i < end; i++) {
+    ctx["enableVertexAttribArray"](i);
+  }
+}
+
+function disableVertexAttribs(start, end) {
+  for (var i = start; i < end; i++) {
+    ctx["disableVertexAttribArray"](i);
+  }
+}
+
 function bindShader(name) {
   var shader = shaderStore[name];
   
   if (shader && (!boundShader || boundShader.id !== shader.id)) {
+    var oldAttribs = 0;
+    
     if (boundShader) {
-      boundShader.unbind();
+      oldAttribs = boundShader.attribs;
+    }
+    
+    var newAttribs = shader.attribs;
+    
+    ctx["useProgram"](shader.id);
+    
+    if (newAttribs > oldAttribs) {
+      enableVertexAttribs(oldAttribs, newAttribs);
+    } else if (newAttribs < oldAttribs) {
+      disableVertexAttribs(newAttribs, oldAttribs);
     }
     
     boundShaderName = name;
     boundShader = shader;
-    boundShader.bind();
   }
   
   return boundShader;
 }
 
-function setParameter(name, value) {
-  if (boundShader) {
-    var oldValue = shaderUniformStore[boundShaderName][name];
-    var shouldSet = false;
-    
-    if (oldValue) {
-      var isArray = value instanceof Array;
-      
-      if (isArray) {
-        // This is inheretly bad, because if the same (albeit modified) array is given, then value===oldValue, and the uniform will never be updated, because of by-ref storage.
-        //if (!Array.equals(oldValue, value)) {
-          shouldSet = true;
-        //}
-      } else if (oldValue !== value) {
-        shouldSet = true;
-      }
-    } else {
-      shouldSet = true;
-    }
-    
-    if (shouldSet) {
-      shaderUniformStore[boundShaderName][name] = value;
-      
-      boundShader.setParameter(name, value);
-    }
-  }
-}
-
-function drawArraysInstanced(mode, first, count, primcount) {
-  if (boundShader) {
-    instancedArrays["drawArraysInstancedANGLE"](mode, first, count, primcount);
-  }
-}
-
-function drawElementsInstanced(mode, count, type, indices, primcount) {
-  if (boundShader) {
-    instancedArrays["drawElementsInstancedANGLE"](mode, count, type, indices, primcount);
-  }
-}
-
-var blarg = true;
-
-function vertexAttribPointer(name, size, type, normalized, stride, pointer) {
-  gl["vertexAttribPointer"](boundShader.attribs[name][0], size, type, normalized, stride, pointer);
-}
-
-function vertexAttribDivisor(name, divisor) {
-  if (boundShader) {
-    instancedArrays["vertexAttribDivisorANGLE"](boundShader.getParameter(name)[0], divisor);
-  }
-}
-
-
-function bindMVP(uniform) {
-  if (boundShader) {
-    math.mat4.multMat(projectionMatrix, viewMatrix, mvpMatrix);
-    
-    boundShader.setParameter(uniform, mvpMatrix);
-  }
-}
-
-function getMVP() {
-  math.mat4.multMat(projectionMatrix, viewMatrix, mvpMatrix);
-  
-  return mvpMatrix;
-}
-
-function bindProjection(uniform) {
-  if (boundShader) {
-    boundShader.setParameter(uniform, projectionMatrix);
-  }
-}
-
-function getProjection() {
-  return projectionMatrix;
-}
-
-function bindView(uniform) {
-  if (boundShader) {
-    boundShader.setParameter(uniform, viewMatrix);
-  }
-}
-
-function getView() {
-  return viewMatrix;
-}
-
-function newTexture(source) {
+function loadTexture(source) {
   if (!textureStore[source]) {
     var ext = getFileExtension(source).toLowerCase();
     
@@ -228,28 +180,28 @@ function bindTexture(object, unit) {
   if (!finalTexture) {
     boundTextures[unit] = null;
     
-    gl["activeTexture"](gl["TEXTURE" + unit]);
-    gl["bindTexture"](gl["TEXTURE_2D"], null);
-  } else if (!boundTextures[unit] || boundTextures[unit].source !== finalTexture.source) {
+    ctx["activeTexture"](ctx["TEXTURE0"] + unit);
+    ctx["bindTexture"](ctx["TEXTURE_2D"], null);
+  } else if (!boundTextures[unit] || boundTextures[unit].id !== finalTexture.id) {
     boundTextures[unit] = finalTexture;
     
-    gl["activeTexture"](gl["TEXTURE" + unit]);
-    gl["bindTexture"](gl["TEXTURE_2D"], finalTexture.id);
+    ctx["activeTexture"](ctx["TEXTURE0"] + unit);
+    ctx["bindTexture"](ctx["TEXTURE_2D"], finalTexture.id);
   } 
 }
 
-function newRect(x, y, z, hw, hh, stscale) {
+function createRect(x, y, z, hw, hh, stscale) {
   return new Rect(x, y, z, hw, hh, stscale);
 }
 
-function newCube(x1, y1, z1, x2, y2, z2) {
+function createCube(x1, y1, z1, x2, y2, z2) {
   return new Cube(x1, y1, z1, x2, y2, z2);
 }
 
-function newSphere(x, y, z, latitudeBands, longitudeBands, radius) {
+function createSphere(x, y, z, latitudeBands, longitudeBands, radius) {
   return new Sphere(x, y, z, latitudeBands, longitudeBands, radius);
 }
 
-function newCylinder(x, y, z, r, h, bands) {
+function createCylinder(x, y, z, r, h, bands) {
   return new Cylinder(x, y, z, r, h, bands);
 }

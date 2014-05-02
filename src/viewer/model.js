@@ -60,12 +60,12 @@ Model.prototype = {
       
       // Load the main shader if it is needed
       if ((parser["geosetChunk"] || parser["particleEmitterChunk"]) && !gl.shaderReady("wmain")) {
-        gl.newShader("wmain", SHADERS["vsbonetexture"] + SHADERS["wvsmain"], psmain)
+        gl.createShader("wmain", SHADERS["vsbonetexture"] + SHADERS["wvsmain"], psmain)
       }
       
       // Load the particle emitters type 2 shader if it is needed
       if (parser["particleEmitter2Chunk"] && !gl.shaderReady("wparticles")) {
-        gl.newShader("wparticles", SHADERS["decodefloat"] + SHADERS["wvsparticles"], SHADERS["wpsparticles"]);
+        gl.createShader("wparticles", SHADERS["decodefloat"] + SHADERS["wvsparticles"], SHADERS["wpsparticles"]);
       }
       
       // Load the instanced particle emitters type 2 shader if it is needed
@@ -75,12 +75,12 @@ Model.prototype = {
       
       // Load the ribbon emitters shader if it is needed
       if (parser["ribbonEmitterChunk"] && !gl.shaderReady("wribbons")) {
-        gl.newShader("wribbons", SHADERS["wvsribbons"], psmain);
+        gl.createShader("wribbons", SHADERS["wvsribbons"], psmain);
       }
       
       // Load the color shader if it is needed
       if (!gl.shaderReady("wcolor")) {
-        gl.newShader("wcolor", SHADERS["vsbonetexture"] + SHADERS["wvscolor"], SHADERS["pscolor"]);
+        gl.createShader("wcolor", SHADERS["vsbonetexture"] + SHADERS["wvscolor"], SHADERS["pscolor"]);
       }
       
       // Load the model
@@ -125,51 +125,51 @@ Model.prototype = {
         // Load all the M3 shaders.
         // All of them are based on the uv sets of this specific model.
         if (!gl.shaderReady("sstandard" + uvSetCount)) {
-          gl.newShader("sstandard" + uvSetCount, vsstandard, psstandard, [uvSets]);
+          gl.createShader("sstandard" + uvSetCount, vsstandard, psstandard, [uvSets]);
         }
         
         if (!gl.shaderReady("sdiffuse" + uvSetCount)) {
-          gl.newShader("sdiffuse" + uvSetCount, vsstandard, psspecialized, [uvSets, "DIFFUSE_PASS"]);
+          gl.createShader("sdiffuse" + uvSetCount, vsstandard, psspecialized, [uvSets, "DIFFUSE_PASS"]);
         }
         
         if (!gl.shaderReady("snormals" + uvSetCount)) {
-          gl.newShader("snormals" + uvSetCount, vsstandard, psspecialized, [uvSets, NORMALS_PASS]);
+          gl.createShader("snormals" + uvSetCount, vsstandard, psspecialized, [uvSets, NORMALS_PASS]);
         }
         
         if (!gl.shaderReady("snormalmap" + uvSetCount)) {
-          gl.newShader("snormalmap" + uvSetCount, vsstandard, psspecialized, [uvSets, NORMALS_PASS, HIGHRES_NORMALS]);
+          gl.createShader("snormalmap" + uvSetCount, vsstandard, psspecialized, [uvSets, NORMALS_PASS, HIGHRES_NORMALS]);
         }
         
         if (!gl.shaderReady("sspecular" + uvSetCount)) {
-          gl.newShader("sspecular" + uvSetCount, vsstandard, psspecialized, [uvSets, SPECULAR_PASS]);
+          gl.createShader("sspecular" + uvSetCount, vsstandard, psspecialized, [uvSets, SPECULAR_PASS]);
         }
         
         if (!gl.shaderReady("sspecular_normalmap" + uvSetCount)) {
-          gl.newShader("sspecular_normalmap" + uvSetCount, vsstandard, psspecialized, [uvSets, SPECULAR_PASS, HIGHRES_NORMALS]);
+          gl.createShader("sspecular_normalmap" + uvSetCount, vsstandard, psspecialized, [uvSets, SPECULAR_PASS, HIGHRES_NORMALS]);
         }
         
         if (!gl.shaderReady("semissive" + uvSetCount)) {
-          gl.newShader("semissive" + uvSetCount, vsstandard, psspecialized, [uvSets, "EMISSIVE_PASS"]);
+          gl.createShader("semissive" + uvSetCount, vsstandard, psspecialized, [uvSets, "EMISSIVE_PASS"]);
         }
         
         if (!gl.shaderReady("sunshaded" + uvSetCount)) {
-          gl.newShader("sunshaded" + uvSetCount, vsstandard, psspecialized, [uvSets, UNSHADED_PASS]);
+          gl.createShader("sunshaded" + uvSetCount, vsstandard, psspecialized, [uvSets, UNSHADED_PASS]);
         }
         
         if (!gl.shaderReady("sunshaded_normalmap" + uvSetCount)) {
-          gl.newShader("sunshaded_normalmap" + uvSetCount, vsstandard, psspecialized, [uvSets, UNSHADED_PASS, HIGHRES_NORMALS]);
+          gl.createShader("sunshaded_normalmap" + uvSetCount, vsstandard, psspecialized, [uvSets, UNSHADED_PASS, HIGHRES_NORMALS]);
         }
         
         if (!gl.shaderReady("sdecal" + uvSetCount)) {
-          gl.newShader("sdecal" + uvSetCount, vsstandard, psspecialized, [uvSets, "DECAL_PASS"]);
+          gl.createShader("sdecal" + uvSetCount, vsstandard, psspecialized, [uvSets, "DECAL_PASS"]);
         }
         
         if (!gl.shaderReady("sparticles" + uvSetCount)) {
-          gl.newShader("sparticles" + uvSetCount, SHADERS["svsparticles"], SHADERS["spsparticles"]);
+          gl.createShader("sparticles" + uvSetCount, SHADERS["svsparticles"], SHADERS["spsparticles"]);
         } 
         
         if (!gl.shaderReady("scolor")) {
-          gl.newShader("scolor", SHADERS["vsbonetexture"] + SHADERS["svscolor"], SHADERS["pscolor"]);
+          gl.createShader("scolor", SHADERS["vsbonetexture"] + SHADERS["svscolor"], SHADERS["pscolor"]);
         }
         
         if (DEBUG_MODE) {

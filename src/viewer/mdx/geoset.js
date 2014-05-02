@@ -1,6 +1,6 @@
 function Geoset(geoset) {
   var i, l, j, k;
-  var positions = new Float32Array(geoset.vertexPositions);
+  var positions = geoset.vertexPositions;
   //var normals = new Float32Array(geoset.vertexNormals);
   
   var textureCoordinateSets = geoset.textureCoordinateSets;
@@ -13,15 +13,15 @@ function Geoset(geoset) {
     uvs.set(textureCoordinateSets[i], i * uvSetSize);
   }
   
-  var boneIndices = new Float32Array(geoset.vertexPositions.length * 4);
-  var boneNumbers = new Float32Array(geoset.vertexPositions.length);
+  var boneIndices = new Uint8Array(geoset.vertexPositions.length * 4);
+  var boneNumbers = new Uint8Array(geoset.vertexPositions.length);
   var faces = new Uint16Array(geoset.faces);
   var matrixGroups = [];
   
   this.uvSetSize = uvSetSize * 4;
   
   for (i = 0, l = geoset.matrixGroups.length, k = 0; i < l; i++) {
-    matrixGroups.push(geoset.matrixIndexes.slice(k, k + geoset.matrixGroups[i]));
+    matrixGroups.push(geoset.matrixIndexes.subarray(k, k + geoset.matrixGroups[i]));
     k += geoset.matrixGroups[i];
   }
   
@@ -50,55 +50,52 @@ function Geoset(geoset) {
   this.offsets[3] = this.offsets[2] + boneIndices.byteLength;
   this.offsets[4] = this.offsets[3] + boneNumbers.byteLength;
   
-  this.buffers = {
-    vertices: ctx.createBuffer(),
-    faces: ctx.createBuffer()
-  };
-  
   var bufferSize = this.offsets[4];
+  var arrayBuffer = ctx.createBuffer();
   
-  ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffers.vertices);
+  ctx.bindBuffer(ctx.ARRAY_BUFFER, arrayBuffer);
   ctx.bufferData(ctx.ARRAY_BUFFER,  bufferSize, ctx.STATIC_DRAW);
   ctx.bufferSubData(ctx.ARRAY_BUFFER, this.offsets[0], positions);
   //ctx.bufferSubData(ctx.ARRAY_BUFFER, this.offsets[1], normals);
   ctx.bufferSubData(ctx.ARRAY_BUFFER, this.offsets[1], uvs);
-  
   ctx.bufferSubData(ctx.ARRAY_BUFFER, this.offsets[2], boneIndices);
   ctx.bufferSubData(ctx.ARRAY_BUFFER, this.offsets[3], boneNumbers);
   
-  ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.buffers.faces);
+  var elementBuffer = ctx.createBuffer();
+  
+  ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, elementBuffer);
   ctx.bufferData(ctx.ELEMENT_ARRAY_BUFFER, faces, ctx.STATIC_DRAW);
   
-  this.faces = faces.length;
+  this.arrayBuffer = arrayBuffer;
+  this.elementBuffer = elementBuffer;
+  this.elements = faces.length;
 }
 
 Geoset.prototype = {
   render: function (coordId, shader) {
-    ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffers.vertices);
+    var offsets = this.offsets;
     
-    ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 12, this.offsets[0]);
-    ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 8, this.offsets[1] + coordId * this.uvSetSize);
-    ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.FLOAT, false, 16, this.offsets[2]);
-    ctx.vertexAttribPointer(shader.variables.a_bone_number, 1, ctx.FLOAT, false, 4, this.offsets[3]);
+    ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
     
-    //gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, 12, this.offsets[0]);
-    ////gl.vertexAttribPointer("a_normal", 3, ctx.FLOAT, false, 12, this.offsets[1]);
-    //gl.vertexAttribPointer("a_uv", 2, ctx.FLOAT, false, 8, this.offsets[1] + coordId * this.uvSetSize);
-    //gl.vertexAttribPointer("a_bones", 4, ctx.FLOAT, false, 16, this.offsets[2]);
-    //gl.vertexAttribPointer("a_bone_number", 1, ctx.FLOAT, false, 4, this.offsets[3]);
+    ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 12, offsets[0]);
+    ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 8, offsets[1] + coordId * this.uvSetSize);
+    ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, 4, offsets[2]);
+    ctx.vertexAttribPointer(shader.variables.a_bone_number, 1, ctx.UNSIGNED_BYTE, false, 1, offsets[3]);
     
-    ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.buffers.faces);
-    ctx.drawElements(ctx.TRIANGLES, this.faces, ctx.UNSIGNED_SHORT, 0);
+    ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
+    ctx.drawElements(ctx.TRIANGLES, this.elements, ctx.UNSIGNED_SHORT, 0);
   },
   
-  renderColor: function () {
-    ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffers.vertices);
+  renderColor: function (shader) {
+    var offsets = this.offsets;
     
-    gl.vertexAttribPointer("a_position", 3, ctx.FLOAT, false, 12, this.offsets[0]);
-    gl.vertexAttribPointer("a_bones", 4, ctx.FLOAT, false, 16, this.offsets[2]);
-    gl.vertexAttribPointer("a_bone_number", 1, ctx.FLOAT, false, 4, this.offsets[3]);
+    ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
     
-    ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.buffers.faces);
-    ctx.drawElements(ctx.TRIANGLES, this.faces, ctx.UNSIGNED_SHORT, 0);
+    ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 12, offsets[0]);
+    ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, 4, offsets[2]);
+    ctx.vertexAttribPointer(shader.variables.a_bone_number, 1, ctx.UNSIGNED_BYTE, false, 1, offsets[3]);
+    
+    ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
+    ctx.drawElements(ctx.TRIANGLES, this.elements, ctx.UNSIGNED_SHORT, 0);
   }
 };
