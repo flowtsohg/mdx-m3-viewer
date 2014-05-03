@@ -27,5 +27,5 @@ void main() {
   
   transform(a_position, a_bones + u_firstBoneLookupIndex, a_weights / 255.0, position);
   
-  gl_Position = u_mvp * vec4(position * 100.0, 1);
+  gl_Position = u_mvp * vec4(position, 1);
 }

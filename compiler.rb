@@ -1,9 +1,13 @@
-require "./glsl_min"
+use_closure = true
+use_glsl_min = true
 
-USE_CLOSURE = true
-USE_GLSL_MIN = true
+begin
+  require_relative "glsl_min"
+rescue LoadError
+  use_glsl_min = false
+end
 
-MDX_SHADERS = [
+mdx_shaders = [
   "vsmain",
   "vsribbons",
   "vsparticles",
@@ -12,7 +16,7 @@ MDX_SHADERS = [
   "psparticles"
 ]
 
-M3_SHADERS = [
+m3_shaders = [
   "vscommon",
   "vsstandard",
   "vscolor",
@@ -23,7 +27,7 @@ M3_SHADERS = [
   "psparticles"
 ]
 
-SHARED_SHADERS = [
+shared_shaders = [
   "vsbonetexture",
   "decodefloat",
   "vsworld",
@@ -33,7 +37,7 @@ SHARED_SHADERS = [
   "pscolor"
 ]
 
-CODE_FILES = [
+code_files = [
   "math/gl-matrix",
   "math/gl-matrix-addon",
   "math/math",
@@ -122,7 +126,7 @@ def handle_shaders(use_glsl_min, shared, mdx, m3, srcpath, output)
   end
 end
 
-def handle_source(paths, use_closure, output)
+def handle_source(use_closure, paths, output)
     File.open("model_viewer_monolith.js", "w") { |output|
       output.write("(function () {\n")
       output.write("\"use strict\";\n")
@@ -157,7 +161,7 @@ def handle_source(paths, use_closure, output)
         
         output.write(input.read())
         
-        if USE_CLOSURE
+        if use_closure
           output.write("}());")
         end
         
@@ -168,5 +172,5 @@ def handle_source(paths, use_closure, output)
     File.delete("model_viewer_monolith_min.js")
 end
 
-handle_shaders(USE_GLSL_MIN, SHARED_SHADERS, MDX_SHADERS, M3_SHADERS, "src/viewer/", "shaders.js")
-handle_source(CODE_FILES, USE_CLOSURE, "viewer.js")
+handle_shaders(use_glsl_min, shared_shaders, mdx_shaders, m3_shaders, "src/viewer/", "shaders.js")
+handle_source(use_closure, code_files, "viewer.js")

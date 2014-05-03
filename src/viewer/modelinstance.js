@@ -152,25 +152,7 @@ ModelInstance.prototype = {
   },
   
  recalculate: function () {
-   var location = this.location;
-   var rotation = this.rotation;
-   var scale = this.scaling;
-   var localMatrix = this.localMatrix;
-   
-   //mat4.identity(localMatrix);
-   
-    //if (location[0] !== 0 || location[1] !== 0 || location[2] !== 0) {
-    //  mat4.translate(localMatrix, localMatrix, location);
-    //}
-    
-    //if (rotation[0] !== 0 || rotation[1] !== 0 || rotation[2] !== 0 || rotation[3] !== 1) {
-    //  math.mat4.rotateQ(localMatrix, rotation);
-    //}
-   mat4.fromRotationTranslationScale(localMatrix, rotation, location, scale);
-   
-    //if (scale !== 1) {
-    //  mat4.scale(localMatrix, localMatrix, [scale, scale, scale]);
-    //}
+   mat4.fromRotationTranslationScale(this.localMatrix, this.rotation, this.location, this.scaling);
   },
   
   move: function (v) {
