@@ -70,7 +70,7 @@ RibbonEmitter.prototype = {
     var ribbons = Math.min(this.ribbons.length, this.maxRibbons);
     
     if (ribbons > 2) {
-      var textureSlot = getSDValue(null, sequence, frame, counter, this.sd.textureSlot, 0);
+      var textureSlot = getSDValue(sequence, frame, counter, this.sd.textureSlot, 0);
       //var uvOffsetX = (textureSlot % this.columns) / this.columns;
       var uvOffsetY = (Math.floor(textureSlot / this.rows) - 1) / this.rows;
       var uvFactor = 1 / ribbons * this.cellWidth;
@@ -114,24 +114,24 @@ RibbonEmitter.prototype = {
           
           layer.setMaterial(shader);
           
-          var textureId = getSDValue(null, sequence, frame, counter, layer.sd.textureId, layer.textureId);
+          var textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
           
           bindTexture(this.textures[textureId], 0, this.model.textureMap, textureMap);
           
-          getSDValue(modifier, sequence, frame, counter, this.sd.color, this.color);
+          getSDValue(sequence, frame, counter, this.sd.color, this.color, modifier);
           
           var v = modifier[0];
           
           modifier[0] = modifier[2];
           modifier[2] = v;
-          modifier[3] = getSDValue(null, sequence, frame, counter, this.sd.alpha, this.alpha);
+          modifier[3] = getSDValue(sequence, frame, counter, this.sd.alpha, this.alpha);
           
           ctx.uniform4fv(shader.variables.u_modifier, modifier);
           
           if (layer.textureAnimationId !== -1 && this.model.textureAnimations) {
             var textureAnimation = this.model.textureAnimations[layer.textureAnimationId];
             // What is Z used for?
-            getSDValue(uvoffset, sequence, frame, counter, textureAnimation.sd.translation);
+            getSDValue(sequence, frame, counter, textureAnimation.sd.translation, uvoffset);
           }
           
           ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
@@ -144,6 +144,6 @@ RibbonEmitter.prototype = {
   },
   
   shouldRender: function (sequence, frame, counter) {
-    return getSDValue(null, sequence, frame, counter, this.sd.visibility) > 0.1;
+    return getSDValue(sequence, frame, counter, this.sd.visibility) > 0.1;
   }
 };

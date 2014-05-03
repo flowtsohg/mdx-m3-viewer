@@ -1124,7 +1124,7 @@ vec3.transformQuat = function(out, a, q) {
     return out;
 };
 
-/*
+/**
 * Rotate a 3D vector around the x-axis
 * @param {vec3} out The receiving vec3
 * @param {vec3} a The vec3 point to rotate
@@ -1152,7 +1152,7 @@ out[2] = r[2] + b[2];
    return out;
 };
 
-/*
+/**
 * Rotate a 3D vector around the y-axis
 * @param {vec3} out The receiving vec3
 * @param {vec3} a The vec3 point to rotate
@@ -1180,7 +1180,7 @@ vec3.rotateY = function(out, a, b, c){
    return out;
 };
 
-/*
+/**
 * Rotate a 3D vector around the z-axis
 * @param {vec3} out The receiving vec3
 * @param {vec3} a The vec3 point to rotate

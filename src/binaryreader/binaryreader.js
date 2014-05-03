@@ -1,8 +1,8 @@
 function BinaryReader(buffer) {
   this.buffer = buffer;
   this.index = 0;
-  this.dataview = new DataView(this.buffer);
-  this.uint8Array = new Uint8Array(this.buffer);
+  this.dataview = new DataView(buffer);
+  this.uint8Array = new Uint8Array(buffer);
   this.size = buffer.byteLength;
 }
 
@@ -23,7 +23,18 @@ function tell(reader) {
 }
 
 function bytesToString(bytes) {
-  return String.fromCharCode.apply(null, bytes).replace(/\0/g, "");
+  var i, l, b, buffer = "";
+  
+  for (var i = 0, l = bytes.length; i < l; i++) {
+    b = bytes[i];
+    
+    // Avoid \0
+    if (b > 0) {
+      buffer += String.fromCharCode(b);
+    }
+  }
+  
+  return buffer;
 }
 
 function read(reader, size) {

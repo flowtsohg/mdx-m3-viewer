@@ -1,28 +1,29 @@
   function setupColor(width, height) {
     // Color texture
-    var color = ctx["createTexture"]();
-    ctx["bindTexture"](ctx["TEXTURE_2D"], color);
-    gl.textureOptions("REPEAT", "REPEAT", "NEAREST", "NEAREST");
-    ctx["texImage2D"](ctx["TEXTURE_2D"], 0, ctx["RGBA"], width, height, 0, ctx["RGBA"], ctx["UNSIGNED_BYTE"], null);
+    var color = ctx.createTexture();
+    ctx.bindTexture(ctx.TEXTURE_2D, color);
+    gl.textureOptions(ctx.REPEAT, ctx.REPEAT, ctx.NEAREST, ctx.NEAREST);
+    ctx.texImage2D(ctx.TEXTURE_2D, 0, ctx.RGBA, width, height, 0, ctx.RGBA, ctx.UNSIGNED_BYTE, null);
     
     // Depth render buffer
-    var depth = ctx["createRenderbuffer"]();
-    ctx["bindRenderbuffer"](ctx["RENDERBUFFER"], depth);
-    ctx["renderbufferStorage"](ctx["RENDERBUFFER"], ctx["DEPTH_COMPONENT16"], width, height);
+    var depth = ctx.createRenderbuffer();
+    ctx.bindRenderbuffer(ctx.RENDERBUFFER, depth);
+    ctx.renderbufferStorage(ctx.RENDERBUFFER, ctx.DEPTH_COMPONENT16, width, height);
     
     // FBO
-    var fbo = ctx["createFramebuffer"]();
-    ctx["bindFramebuffer"](ctx["FRAMEBUFFER"], fbo);
-    ctx["framebufferTexture2D"](ctx["FRAMEBUFFER"], ctx["COLOR_ATTACHMENT0"], ctx["TEXTURE_2D"], color, 0);
-    ctx["framebufferRenderbuffer"](ctx["FRAMEBUFFER"], ctx["DEPTH_ATTACHMENT"], ctx["RENDERBUFFER"], depth);
+    var fbo = ctx.createFramebuffer();
+    ctx.bindFramebuffer(ctx.FRAMEBUFFER, fbo);
+    ctx.framebufferTexture2D(ctx.FRAMEBUFFER, ctx.COLOR_ATTACHMENT0, ctx.TEXTURE_2D, color, 0);
+    ctx.framebufferRenderbuffer(ctx.FRAMEBUFFER, ctx.DEPTH_ATTACHMENT, ctx.RENDERBUFFER, depth);
   
-    ctx["bindTexture"](ctx["TEXTURE_2D"], null);
-    ctx["bindRenderbuffer"](ctx["RENDERBUFFER"], null);
-    ctx["bindFramebuffer"](ctx["FRAMEBUFFER"], null);
+    ctx.bindTexture(ctx.TEXTURE_2D, null);
+    ctx.bindRenderbuffer(ctx.RENDERBUFFER, null);
+    ctx.bindFramebuffer(ctx.FRAMEBUFFER, null);
     
     return fbo;
   }
   
+  // Used for color picking
   //var colorFBO = setupColor(512, 512);
   
   function resetViewport() {
@@ -65,15 +66,15 @@
     gl.loadTexture(urls.mpqFile("ReplaceableTextures/TeamGlow/TeamGlow" + number + ".blp"));
   }
       
-  gl.createShader("world", SHADERS["vsworld"], SHADERS["psworld"]);
-  gl.createShader("white", SHADERS["vswhite"], SHADERS["pswhite"]);
+  gl.createShader("world", SHADERS.vsworld, SHADERS.psworld);
+  gl.createShader("white", SHADERS.vswhite, SHADERS.pswhite);
   
   gl.loadTexture("images/grass.png");
   gl.loadTexture("images/water.png");
   gl.loadTexture("images/bedrock.png");
   gl.loadTexture("images/sky.png");
   //gl.newTexture("Light", "../images/Light.png");
-    
+  
   grass_water = gl.createRect(0, 0, -3, 250, 250, 6);
   bedrock = gl.createRect(0, 0, -35, 250, 250, 6);
   sky = gl.createSphere(0, 0, 0, 5, 10, 2E4);
@@ -115,7 +116,7 @@
   }
   
   function renderGround(isWater) {
-    if (shouldRenderWorld > 1 && gl.shaderReady("world")) {
+    if (shouldRenderWorld > 1 && gl.shaderStatus("world")) {
       var shader = gl.bindShader("world");
       
       ctx.disable(ctx.CULL_FACE);
@@ -154,7 +155,7 @@
   }
   
   function renderSky() {
-    if (shouldRenderWorld > 0 && gl.shaderReady("world")) {
+    if (shouldRenderWorld > 0 && gl.shaderStatus("world")) {
       var shader = gl.bindShader("world");
       
       ctx.uniform2fv(shader.variables.u_uv_offset, [0, 0]);
@@ -846,31 +847,31 @@
     //var date = new Date();
     var pixel = new Uint8Array(4);
     
-    //var dx = canvas.width / 512;
-    //var dy = canvas.height / 512;
-    
-    //x = Math.round(x / dx);
-    y = canvas.height - y;
-    //y = Math.round(y / dy);
+    //var dx = canvas.clientWidth / 512;
+    //var dy = canvas.clientHeight / 512;
     
     //console.log(x, y);
-    //ctx["bindFramebuffer"](ctx["FRAMEBUFFER"], colorFBO);
+    //x = Math.round(x / dx);
+    //y = canvas.height - y;
+    //y = Math.round(y / dy);
+    //console.log(x, y);
     
-    //gl.viewSize(512, 512);
+    //ctx.bindFramebuffer(ctx.FRAMEBUFFER, colorFBO);
+    
+    //ctx.viewport(0, 0, 512, 512);
     //gl.setPerspective(45, 1, 0.1, 5E4);
     
     renderColor();
     
     // The Y axis of the WebGL viewport is inverted compared to screen space
-    //y = canvas.height - y;
+    y = canvas.clientHeight - y;
     
     ctx.readPixels(x, y, 1, 1, ctx.RGBA, ctx.UNSIGNED_BYTE, pixel);
     
+    //ctx.bindFramebuffer(ctx.FRAMEBUFFER, null);
     
-    //ctx["bindFramebuffer"](ctx["FRAMEBUFFER"], null);
-    
-    //gl.viewSize(canvas.width, canvas.height);
-    //gl.setPerspective(45, canvas.width / canvas.height, 0.1, 5E4);
+    //ctx.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
+    //gl.setPerspective(45, canvas.clientWidth / canvas.clientHeight, 0.1, 5E4);
     
     //console.log(pixel);
     

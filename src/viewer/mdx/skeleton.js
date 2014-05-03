@@ -33,9 +33,8 @@ function Skeleton(model) {
   ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MAG_FILTER, ctx.NEAREST);
   ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MIN_FILTER, ctx.NEAREST);
   
+  // To avoid heap allocations
   this.localMatrix = mat4.create();
-  this.rotationMatrix = mat4.create();
-  
   this.locationVec = vec3.create();
   this.scaleVec = vec3.create();
   this.rotationQuat = quat.create();
@@ -63,36 +62,19 @@ Skeleton.prototype = {
     var pivot = node.pivot;
     var negativePivot = node.negativePivot;
     var localMatrix = this.localMatrix;
-    var rotationMatrix = this.rotationMatrix;
-    var translation = getSDValue(this.locationVec, sequence, frame, counter, nodeImpl.sd.translation, defaultTransformations.translation);
-    var rotation = getSDValue(this.rotationQuat, sequence, frame, counter, nodeImpl.sd.rotation, defaultTransformations.rotation);
-    var scale = getSDValue(this.scaleVec, sequence, frame, counter, nodeImpl.sd.scaling, defaultTransformations.scaling);
+    var translation = getSDValue(sequence, frame, counter, nodeImpl.sd.translation, defaultTransformations.translation, this.locationVec);
+    var rotation = getSDValue(sequence, frame, counter, nodeImpl.sd.rotation, defaultTransformations.rotation, this.rotationQuat);
+    var scale = getSDValue(sequence, frame, counter, nodeImpl.sd.scaling, defaultTransformations.scaling, this.scaleVec);
     
-    mat4.identity(localMatrix);
-    
-    if (translation[0] !== 0 || translation[1] !== 0 || translation[2] !== 0) {
-      mat4.translate(localMatrix, localMatrix, translation);
-    }
-    
-    if (rotation[0] !== 0 || rotation[1] !== 0 || rotation[2] !== 0 || rotation[3] !== 1) {
-      mat4.fromQuat(rotationMatrix, rotation);
-      
-      mat4.translate(localMatrix, localMatrix, pivot);
-      mat4.multiply(localMatrix, localMatrix, rotationMatrix);
-      mat4.translate(localMatrix, localMatrix, negativePivot);
-    }
-    
-    if (scale[0] !== 1 || scale[1] !== 1 || scale[2] !== 1) {
-      mat4.translate(localMatrix, localMatrix, pivot);
-      mat4.scale(localMatrix, localMatrix, scale);
-      mat4.translate(localMatrix, localMatrix, negativePivot);
-    }
+    mat4.fromRotationTranslationScaleOrigin(localMatrix, rotation, translation, scale, pivot);
     
     var parent = this.nodes[node.parentId];
     
     mat4.multiply(node.worldMatrix, parent.worldMatrix, localMatrix);
     
     if (nodeImpl.billboarded) {
+      // TODO optimize these matrix operations
+      
       mat4.identity(localMatrix);
       
       mat4.translate(localMatrix, localMatrix, pivot);

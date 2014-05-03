@@ -101,7 +101,7 @@ SD.prototype = {
   }
 };
 
-function getSDValue(out, sequence, frame, counter, sd, defval) {
+function getSDValue(sequence, frame, counter, sd, defval, out) {
   if (sd) {
     return sd.getValue(out, sequence, frame, counter);
   } else {

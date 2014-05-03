@@ -1,6 +1,6 @@
 function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   var ctx;
-  var identifiers = ["webctx", "experimental-webctx", "webkit-3d", "moz-webctx"];
+  var identifiers = ["webgl", "experimental-webgl"];
   
   for (var i = 0, l = identifiers.length; i < l; ++i) {
     try {
@@ -17,9 +17,9 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
     return;
   }
   
-  var hasVertexTexture = ctx["getParameter"](ctx["MAX_VERTEX_TEXTURE_IMAGE_UNITS"]) > 0;
-  var hasFloatTexture = ctx["getExtension"]("OES_texture_float");
-  var compressedTextures = ctx["getExtension"]("WEBGL_compressed_texture_s3tc");
+  var hasVertexTexture = ctx.getParameter(ctx.MAX_VERTEX_TEXTURE_IMAGE_UNITS) > 0;
+  var hasFloatTexture = ctx.getExtension("OES_texture_float");
+  var compressedTextures = ctx.getExtension("WEBGL_compressed_texture_s3tc");
   
   if (!hasVertexTexture) {
     unboundonerror({isGL: true}, "VertexTexture");
@@ -48,14 +48,14 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   var boundTextures = [];
   var floatPrecision = "precision mediump float;\n";
     
-  ctx["viewport"](0, 0, element.clientWidth, element.clientHeight);
-  ctx["depthFunc"](ctx["LEQUAL"]);
-  ctx["enable"](ctx["DEPTH_TEST"]);
-  ctx["enable"](ctx["CULL_FACE"]);
+  ctx.viewport(0, 0, element.clientWidth, element.clientHeight);
+  ctx.depthFunc(ctx.LEQUAL);
+  ctx.enable(ctx.DEPTH_TEST);
+  ctx.enable(ctx.CULL_FACE);
   
   function textureOptions(wrapS, wrapT, magFilter, minFilter) {
-    ctx["texParameteri"](ctx["TEXTURE_2D"], ctx["TEXTURE_WRAP_S"], ctx[wrapS]);
-    ctx["texParameteri"](ctx["TEXTURE_2D"], ctx["TEXTURE_WRAP_T"], ctx[wrapT]);
-    ctx["texParameteri"](ctx["TEXTURE_2D"], ctx["TEXTURE_MAG_FILTER"], ctx[magFilter]);
-    ctx["texParameteri"](ctx["TEXTURE_2D"], ctx["TEXTURE_MIN_FILTER"], ctx[minFilter]);
+    ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_WRAP_S, wrapS);
+    ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_WRAP_T, wrapT);
+    ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MAG_FILTER, magFilter);
+    ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MIN_FILTER, minFilter);
   }

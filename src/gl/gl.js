@@ -85,8 +85,8 @@ function createShader(name, vertexSource, fragmentSource, defines) {
     
     defines = defines.join("\n") + "\n";
     
-    var vertexUnit = createShaderUnit(defines + vertexSource, ctx["VERTEX_SHADER"], name);
-    var fragmentUnit = createShaderUnit(floatPrecision + defines + fragmentSource, ctx["FRAGMENT_SHADER"], name);
+    var vertexUnit = createShaderUnit(defines + vertexSource, ctx.VERTEX_SHADER, name);
+    var fragmentUnit = createShaderUnit(floatPrecision + defines + fragmentSource, ctx.FRAGMENT_SHADER, name);
     
     if (vertexUnit.ready && fragmentUnit.ready) {
       shaderStore[name] = new Shader(name, vertexUnit, fragmentUnit);
@@ -98,19 +98,21 @@ function createShader(name, vertexSource, fragmentSource, defines) {
   }
 }
 
-function shaderReady(name) {
-  return shaderStore[name] && shaderStore[name].ready;
+function shaderStatus(name) {
+  var shader = shaderStore[name];
+  
+  return shader && shader.ready;
 }
 
 function enableVertexAttribs(start, end) {
   for (var i = start; i < end; i++) {
-    ctx["enableVertexAttribArray"](i);
+    ctx.enableVertexAttribArray(i);
   }
 }
 
 function disableVertexAttribs(start, end) {
   for (var i = start; i < end; i++) {
-    ctx["disableVertexAttribArray"](i);
+    ctx.disableVertexAttribArray(i);
   }
 }
 
@@ -126,7 +128,7 @@ function bindShader(name) {
     
     var newAttribs = shader.attribs;
     
-    ctx["useProgram"](shader.id);
+    ctx.useProgram(shader.id);
     
     if (newAttribs > oldAttribs) {
       enableVertexAttribs(oldAttribs, newAttribs);
@@ -180,13 +182,13 @@ function bindTexture(object, unit) {
   if (!finalTexture) {
     boundTextures[unit] = null;
     
-    ctx["activeTexture"](ctx["TEXTURE0"] + unit);
-    ctx["bindTexture"](ctx["TEXTURE_2D"], null);
+    ctx.activeTexture(ctx.TEXTURE0 + unit);
+    ctx.bindTexture(ctx.TEXTURE_2D, null);
   } else if (!boundTextures[unit] || boundTextures[unit].id !== finalTexture.id) {
     boundTextures[unit] = finalTexture;
     
-    ctx["activeTexture"](ctx["TEXTURE0"] + unit);
-    ctx["bindTexture"](ctx["TEXTURE_2D"], finalTexture.id);
+    ctx.activeTexture(ctx.TEXTURE0 + unit);
+    ctx.bindTexture(ctx.TEXTURE_2D, finalTexture.id);
   } 
 }
 

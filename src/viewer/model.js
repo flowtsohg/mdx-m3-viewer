@@ -59,28 +59,23 @@ Model.prototype = {
       var psmain = SHADERS["wpsmain"];
       
       // Load the main shader if it is needed
-      if ((parser["geosetChunk"] || parser["particleEmitterChunk"]) && !gl.shaderReady("wmain")) {
-        gl.createShader("wmain", SHADERS["vsbonetexture"] + SHADERS["wvsmain"], psmain)
+      if ((parser.geosetChunk || parser.particleEmitterChunk) && !gl.shaderStatus("wmain")) {
+        gl.createShader("wmain", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain)
       }
       
       // Load the particle emitters type 2 shader if it is needed
-      if (parser["particleEmitter2Chunk"] && !gl.shaderReady("wparticles")) {
-        gl.createShader("wparticles", SHADERS["decodefloat"] + SHADERS["wvsparticles"], SHADERS["wpsparticles"]);
+      if (parser.particleEmitter2Chunk && !gl.shaderStatus("wparticles")) {
+        gl.createShader("wparticles", SHADERS.decodefloat + SHADERS.wvsparticles, SHADERS.wpsparticles);
       }
       
-      // Load the instanced particle emitters type 2 shader if it is needed
-      //if (parser["particleEmitter2Chunk"] && !gl.shaderReady("wparticlesinstanced")) {
-      //  gl.newShader("wparticlesinstanced", SHADERS["decodefloat"] + SHADERS["wvsparticlesinstanced"], SHADERS["wpsparticlesinstanced"]);
-      //}
-      
       // Load the ribbon emitters shader if it is needed
-      if (parser["ribbonEmitterChunk"] && !gl.shaderReady("wribbons")) {
-        gl.createShader("wribbons", SHADERS["wvsribbons"], psmain);
+      if (parser.ribbonEmitterChunk && !gl.shaderStatus("wribbons")) {
+        gl.createShader("wribbons", SHADERS.wvsribbons, psmain);
       }
       
       // Load the color shader if it is needed
-      if (!gl.shaderReady("wcolor")) {
-        gl.createShader("wcolor", SHADERS["vsbonetexture"] + SHADERS["wvscolor"], SHADERS["pscolor"]);
+      if (!gl.shaderStatus("wcolor")) {
+        gl.createShader("wcolor", SHADERS.vsbonetexture + SHADERS.wvscolor, SHADERS.pscolor);
       }
       
       // Load the model
@@ -112,11 +107,11 @@ Model.prototype = {
         // Shader setup
         var uvSetCount = this.model.uvSetCount;
         var uvSets = "EXPLICITUV" + (uvSetCount - 1);
-        var vscommon = SHADERS["vsbonetexture"] + SHADERS["svscommon"] + "\n";
-        var vsstandard = vscommon + SHADERS["svsstandard"];
-        var pscommon = SHADERS["spscommon"] + "\n";
-        var psstandard = pscommon + SHADERS["spsstandard"];
-        var psspecialized = pscommon + SHADERS["spsspecialized"];
+        var vscommon = SHADERS.vsbonetexture + SHADERS.svscommon + "\n";
+        var vsstandard = vscommon + SHADERS.svsstandard;
+        var pscommon = SHADERS.spscommon + "\n";
+        var psstandard = pscommon + SHADERS.spsstandard;
+        var psspecialized = pscommon + SHADERS.spsspecialized;
         var NORMALS_PASS = "NORMALS_PASS";
         var HIGHRES_NORMALS = "HIGHRES_NORMALS";
         var SPECULAR_PASS = "SPECULAR_PASS";
@@ -124,52 +119,52 @@ Model.prototype = {
         
         // Load all the M3 shaders.
         // All of them are based on the uv sets of this specific model.
-        if (!gl.shaderReady("sstandard" + uvSetCount)) {
+        if (!gl.shaderStatus("sstandard" + uvSetCount)) {
           gl.createShader("sstandard" + uvSetCount, vsstandard, psstandard, [uvSets]);
         }
         
-        if (!gl.shaderReady("sdiffuse" + uvSetCount)) {
+        if (!gl.shaderStatus("sdiffuse" + uvSetCount)) {
           gl.createShader("sdiffuse" + uvSetCount, vsstandard, psspecialized, [uvSets, "DIFFUSE_PASS"]);
         }
         
-        if (!gl.shaderReady("snormals" + uvSetCount)) {
+        if (!gl.shaderStatus("snormals" + uvSetCount)) {
           gl.createShader("snormals" + uvSetCount, vsstandard, psspecialized, [uvSets, NORMALS_PASS]);
         }
         
-        if (!gl.shaderReady("snormalmap" + uvSetCount)) {
+        if (!gl.shaderStatus("snormalmap" + uvSetCount)) {
           gl.createShader("snormalmap" + uvSetCount, vsstandard, psspecialized, [uvSets, NORMALS_PASS, HIGHRES_NORMALS]);
         }
         
-        if (!gl.shaderReady("sspecular" + uvSetCount)) {
+        if (!gl.shaderStatus("sspecular" + uvSetCount)) {
           gl.createShader("sspecular" + uvSetCount, vsstandard, psspecialized, [uvSets, SPECULAR_PASS]);
         }
         
-        if (!gl.shaderReady("sspecular_normalmap" + uvSetCount)) {
+        if (!gl.shaderStatus("sspecular_normalmap" + uvSetCount)) {
           gl.createShader("sspecular_normalmap" + uvSetCount, vsstandard, psspecialized, [uvSets, SPECULAR_PASS, HIGHRES_NORMALS]);
         }
         
-        if (!gl.shaderReady("semissive" + uvSetCount)) {
+        if (!gl.shaderStatus("semissive" + uvSetCount)) {
           gl.createShader("semissive" + uvSetCount, vsstandard, psspecialized, [uvSets, "EMISSIVE_PASS"]);
         }
         
-        if (!gl.shaderReady("sunshaded" + uvSetCount)) {
+        if (!gl.shaderStatus("sunshaded" + uvSetCount)) {
           gl.createShader("sunshaded" + uvSetCount, vsstandard, psspecialized, [uvSets, UNSHADED_PASS]);
         }
         
-        if (!gl.shaderReady("sunshaded_normalmap" + uvSetCount)) {
+        if (!gl.shaderStatus("sunshaded_normalmap" + uvSetCount)) {
           gl.createShader("sunshaded_normalmap" + uvSetCount, vsstandard, psspecialized, [uvSets, UNSHADED_PASS, HIGHRES_NORMALS]);
         }
         
-        if (!gl.shaderReady("sdecal" + uvSetCount)) {
+        if (!gl.shaderStatus("sdecal" + uvSetCount)) {
           gl.createShader("sdecal" + uvSetCount, vsstandard, psspecialized, [uvSets, "DECAL_PASS"]);
         }
         
-        if (!gl.shaderReady("sparticles" + uvSetCount)) {
-          gl.createShader("sparticles" + uvSetCount, SHADERS["svsparticles"], SHADERS["spsparticles"]);
+        if (!gl.shaderStatus("sparticles" + uvSetCount)) {
+          gl.createShader("sparticles" + uvSetCount, SHADERS.svsparticles, SHADERS.spsparticles);
         } 
         
-        if (!gl.shaderReady("scolor")) {
-          gl.createShader("scolor", SHADERS["vsbonetexture"] + SHADERS["svscolor"], SHADERS["pscolor"]);
+        if (!gl.shaderStatus("scolor")) {
+          gl.createShader("scolor", SHADERS.vsbonetexture + SHADERS.svscolor, SHADERS.pscolor);
         }
         
         if (DEBUG_MODE) {

@@ -53,35 +53,35 @@ function Sphere(x, y, z, latitudeBands, longitudeBands, radius) {
   this.vertexArray = new Float32Array(vertexData);
   this.indexArray = new Uint16Array(indexData);
   
-  this.vertexBuffer = ctx["createBuffer"]();
-  this.indexBuffer = ctx["createBuffer"]();
+  this.vertexBuffer = ctx.createBuffer();
+  this.indexBuffer = ctx.createBuffer();
   
-  ctx["bindBuffer"](ctx["ARRAY_BUFFER"], this.vertexBuffer);
-  ctx["bufferData"](ctx["ARRAY_BUFFER"], this.vertexArray, ctx["STATIC_DRAW"]);
+  ctx.bindBuffer(ctx.ARRAY_BUFFER, this.vertexBuffer);
+  ctx.bufferData(ctx.ARRAY_BUFFER, this.vertexArray, ctx.STATIC_DRAW);
   
-  ctx["bindBuffer"](ctx["ELEMENT_ARRAY_BUFFER"], this.indexBuffer);
-  ctx["bufferData"](ctx["ELEMENT_ARRAY_BUFFER"], this.indexArray, ctx["STATIC_DRAW"]);
+  ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+  ctx.bufferData(ctx.ELEMENT_ARRAY_BUFFER, this.indexArray, ctx.STATIC_DRAW);
 }
 
 Sphere.prototype = {
   render: function (shader) {
-    ctx["bindBuffer"](ctx["ARRAY_BUFFER"], this.vertexBuffer);
+    ctx.bindBuffer(ctx.ARRAY_BUFFER, this.vertexBuffer);
     
     ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 20, 0);
     ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 20, 12);
     
-    ctx["bindBuffer"](ctx["ELEMENT_ARRAY_BUFFER"], this.indexBuffer);
+    ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
     
-    ctx["drawElements"](ctx["TRIANGLES"], this.indexArray.length, ctx["UNSIGNED_SHORT"], 0);
+    ctx.drawElements(ctx.TRIANGLES, this.indexArray.length, ctx.UNSIGNED_SHORT, 0);
   },
   
   renderLines: function (shader) {
-    ctx["bindBuffer"](ctx["ARRAY_BUFFER"], this.vertexBuffer);
+    ctx.bindBuffer(ctx.ARRAY_BUFFER, this.vertexBuffer);
     
     ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 20, 0);
     
-    ctx["bindBuffer"](ctx["ELEMENT_ARRAY_BUFFER"], this.indexBuffer);
+    ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
     
-    ctx["drawElements"](ctx["LINES"], this.indexArray.length, ctx["UNSIGNED_SHORT"], 0);
+    ctx.drawElements(ctx.LINES, this.indexArray.length, ctx.UNSIGNED_SHORT, 0);
   }
 };

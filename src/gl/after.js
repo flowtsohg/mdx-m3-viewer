@@ -10,7 +10,7 @@
     pushMatrix: pushMatrix,
     popMatrix: popMatrix,
     createShader: createShader,
-    shaderReady: shaderReady,
+    shaderStatus: shaderStatus,
     bindShader: bindShader,
     getViewProjectionMatrix: getViewProjectionMatrix,
     getProjectionMatrix: getProjectionMatrix,

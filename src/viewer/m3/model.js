@@ -254,53 +254,56 @@ Model.prototype = {
     var tc;
     var teamId = instance.teamColor;
     var shaderName = shaders[shaderToUse];
+    var realShaderName = shaderName + this.uvSetCount;
     // Instance-based texture overriding
     var textureMap = instance.textureMap;
     
-    // Use a black team color if team colors are disabled
-    if (!allowTeamColors) {
-      teamId = 13;
-    }
-    
-    var shader = gl.bindShader(shaderName + this.uvSetCount);
-    
-    instanceImpl.skeleton.bind(shader);
-    
-    ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
-    ctx.uniformMatrix4fv(shader.variables.u_mv, false, gl.getViewMatrix());
-    
-    ctx.uniform3fv(shader.variables.u_teamColor, teamColors[teamId]);
-    ctx.uniform3fv(shader.variables.u_eyePos, cameraPosition);
-    ctx.uniform3fv(shader.variables.u_lightPos, lightPosition);
-    
-    // Bind the vertices
-    this.bind(shader);
-    
-    for (i = 0, l = this.batches.length; i < l; i++) {
-      var batch = this.batches[i];
-      var region = batch.region;
-      var material = batch.material;
-      
-      if (shaderName === "sstandard") {
-        material.bind(sequence, frame, textureMap, shader);
-      } else if (shaderName === "sdiffuse") {
-        material.bindDiffuse(sequence, frame, textureMap, shader);
-      } else if (shaderName === "snormalmap" || shaderName === "sunshaded_normalmap") {
-        material.bindNormalMap(sequence, frame, textureMap, shader);
-      } else if (shaderName === "sspecular") {
-        material.bindSpecular(sequence, frame, textureMap, shader);
-      } else if (shaderName === "sspecular_normalmap") {
-        material.bindSpecular(sequence, frame, textureMap, shader);
-        material.bindNormalMap(sequence, frame, textureMap, shader);
-      } else if (shaderName === "semissive") {
-        material.bindEmissive(sequence, frame, textureMap, shader);
-      } else if (shaderName === "sdecal") {
-        material.bindDecal(sequence, frame, textureMap, shader);
+    if (gl.shaderStatus(realShaderName)) {
+      // Use a black team color if team colors are disabled
+      if (!allowTeamColors) {
+        teamId = 13;
       }
       
-      region.render(shader);
+      var shader = gl.bindShader(realShaderName);
       
-      material.unbind(shader); // This is required to not use by mistake layers from this material that were bound and are not overwritten by the next material
+      instanceImpl.skeleton.bind(shader);
+      
+      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
+      ctx.uniformMatrix4fv(shader.variables.u_mv, false, gl.getViewMatrix());
+      
+      ctx.uniform3fv(shader.variables.u_teamColor, teamColors[teamId]);
+      ctx.uniform3fv(shader.variables.u_eyePos, cameraPosition);
+      ctx.uniform3fv(shader.variables.u_lightPos, lightPosition);
+      
+      // Bind the vertices
+      this.bind(shader);
+      
+      for (i = 0, l = this.batches.length; i < l; i++) {
+        var batch = this.batches[i];
+        var region = batch.region;
+        var material = batch.material;
+        
+        if (shaderName === "sstandard") {
+          material.bind(sequence, frame, textureMap, shader);
+        } else if (shaderName === "sdiffuse") {
+          material.bindDiffuse(sequence, frame, textureMap, shader);
+        } else if (shaderName === "snormalmap" || shaderName === "sunshaded_normalmap") {
+          material.bindNormalMap(sequence, frame, textureMap, shader);
+        } else if (shaderName === "sspecular") {
+          material.bindSpecular(sequence, frame, textureMap, shader);
+        } else if (shaderName === "sspecular_normalmap") {
+          material.bindSpecular(sequence, frame, textureMap, shader);
+          material.bindNormalMap(sequence, frame, textureMap, shader);
+        } else if (shaderName === "semissive") {
+          material.bindEmissive(sequence, frame, textureMap, shader);
+        } else if (shaderName === "sdecal") {
+          material.bindDecal(sequence, frame, textureMap, shader);
+        }
+        
+        region.render(shader);
+        
+        material.unbind(shader); // This is required to not use by mistake layers from this material that were bound and are not overwritten by the next material
+      }
     }
     /*
     if (this.particleEmitters) {
@@ -317,7 +320,7 @@ Model.prototype = {
       ctx.enable(ctx.CULL_FACE);
     }
 	*/
-    if (shouldRenderShapes && this.fuzzyHitTestObjects && gl.shaderReady("white")) {
+    if (shouldRenderShapes && this.fuzzyHitTestObjects && gl.shaderStatus("white")) {
       ctx.depthMask(1);
       
       shader = gl.bindShader("white");
@@ -349,21 +352,23 @@ Model.prototype = {
     var i, l;
     var batch, region;
     
-    var shader = gl.bindShader("scolor");
-    
-    instance.skeleton.bind(shader);
-    
-    ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
-    ctx.uniform3fv(shader.variables.u_color, color);
-    
-    // Bind the vertices
-    this.bindColor(shader);
-    
-    for (i = 0, l = this.batches.length; i < l; i++) {
-      batch = this.batches[i];
-      region = batch.region;
+    if (gl.shaderStatus("scolor")) {
+      var shader = gl.bindShader("scolor");
       
-      region.render(shader);
+      instance.skeleton.bind(shader);
+      
+      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
+      ctx.uniform3fv(shader.variables.u_color, color);
+      
+      // Bind the vertices
+      this.bindColor(shader);
+      
+      for (i = 0, l = this.batches.length; i < l; i++) {
+        batch = this.batches[i];
+        region = batch.region;
+        
+        region.render(shader);
+      }
     }
   },
   

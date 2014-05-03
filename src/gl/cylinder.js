@@ -3,7 +3,7 @@ function Cylinder(x, y, z, r, h, bands) {
   var step = Math.PI * 2 / bands;
   var offset = 0;
 
-  var buffer = ctx["createBuffer"]();
+  var buffer = ctx.createBuffer();
   var data = new Float32Array(72 * bands);
   
   for (i = 0, l = bands; i < l; i++) {
@@ -102,8 +102,8 @@ function Cylinder(x, y, z, r, h, bands) {
     data[index + 71] = h;
   }
 
-  ctx["bindBuffer"](ctx["ARRAY_BUFFER"], buffer);
-  ctx["bufferData"](ctx["ARRAY_BUFFER"], data, ctx["STATIC_DRAW"]);
+  ctx.bindBuffer(ctx.ARRAY_BUFFER, buffer);
+  ctx.bufferData(ctx.ARRAY_BUFFER, data, ctx.STATIC_DRAW);
 
   this.buffer = buffer;
   this.data = data;
@@ -113,11 +113,11 @@ function Cylinder(x, y, z, r, h, bands) {
 Cylinder.prototype = {
   renderLines: function (shader) {
     if (boundShader) {
-      ctx["bindBuffer"](ctx["ARRAY_BUFFER"], this.buffer);
+      ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
 
       ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 12, 0);
 
-      ctx["drawArrays"](ctx["LINES"], 0, this.bands * 24);
+      ctx.drawArrays(ctx.LINES, 0, this.bands * 24);
     }
   }
 };

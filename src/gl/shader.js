@@ -1,25 +1,25 @@
 function ShaderUnit(source, type, name) {
-  var id = ctx["createShader"](type);
+  var id = ctx.createShader(type);
   
   this.source = source;
   this.type = type;
   this.id = id;
   
-  ctx["shaderSource"](id, source);
-  ctx["compileShader"](id);
+  ctx.shaderSource(id, source);
+  ctx.compileShader(id);
   
-  if (ctx["getShaderParameter"](id, ctx["COMPILE_STATUS"])) {
+  if (ctx.getShaderParameter(id, ctx.COMPILE_STATUS)) {
     this.ready = true;
   } else {
     console.warn("Failed to compile a shader:");
-    console.warn(name, ctx["getShaderInfoLog"](this.id));
+    console.warn(name, ctx.getShaderInfoLog(this.id));
     console.warn(source);
     unboundonerror({isShader: true, source: name}, "Compile");
   }
 }
 
 function Shader(name, vertexUnit, fragmentUnit) {
-  var id = ctx["createProgram"]();
+  var id = ctx.createProgram();
   
   this.name = name;
   this.vertexUnit = vertexUnit;
@@ -27,15 +27,15 @@ function Shader(name, vertexUnit, fragmentUnit) {
   this.id = id;
   this.nonexistingParameters = {};
     
-  ctx["attachShader"](id, vertexUnit.id);
-  ctx["attachShader"](id, fragmentUnit.id);
-  ctx["linkProgram"](id);
+  ctx.attachShader(id, vertexUnit.id);
+  ctx.attachShader(id, fragmentUnit.id);
+  ctx.linkProgram(id);
   
-  if (ctx["getProgramParameter"](id, ctx["LINK_STATUS"])) {
+  if (ctx.getProgramParameter(id, ctx.LINK_STATUS)) {
     this.getVariables();
     this.ready = true;
   } else {
-    console.warn(name, ctx["getProgramInfoLog"](this.id));
+    console.warn(name, ctx.getProgramInfoLog(this.id));
     unboundonerror({isShader: true, name: name}, "Link");
   }
 }

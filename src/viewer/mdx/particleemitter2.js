@@ -171,7 +171,7 @@ ParticleEmitter2.prototype = {
     activeParticles.reverse()
     
     if (allowCreate && this.shouldRender(sequence, frame, counter)) {
-      var amount = getSDValue(null, sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * FRAME_TIME * this.lastCreation;
+      var amount = getSDValue(sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * FRAME_TIME * this.lastCreation;
       
       if (amount > 0) {
         this.lastCreation += 1;
@@ -400,6 +400,6 @@ ParticleEmitter2.prototype = {
   },
   
   shouldRender: function (sequence, frame, counter) {
-    return getSDValue(null, sequence, frame, counter, this.sd.visibility, 0) > 0.1;
+    return getSDValue(sequence, frame, counter, this.sd.visibility, 0) > 0.1;
   }
 };

@@ -272,13 +272,13 @@ function onloadDDSTexture(e) {
   
   if (fourCC === FOURCC_DXT1) {
     blockBytes = 8;
-    internalFormat = compressedTextures ? compressedTextures["COMPRESSED_RGBA_S3TC_DXT1_EXT"] : null;
+    internalFormat = compressedTextures ? compressedTextures.COMPRESSED_RGBA_S3TC_DXT1_EXT : null;
   } else if (fourCC === FOURCC_DXT3) {
     blockBytes = 16;
-    internalFormat = compressedTextures ? compressedTextures["COMPRESSED_RGBA_S3TC_DXT3_EXT"] : null;
+    internalFormat = compressedTextures ? compressedTextures.COMPRESSED_RGBA_S3TC_DXT3_EXT : null;
   } else if (fourCC === FOURCC_DXT5) {
     blockBytes = 16;
-    internalFormat = compressedTextures ? compressedTextures["COMPRESSED_RGBA_S3TC_DXT5_EXT"] : null;
+    internalFormat = compressedTextures ? compressedTextures.COMPRESSED_RGBA_S3TC_DXT5_EXT : null;
   } else {
     this.onerror(int32ToFourCC(fourCC));
     return;
@@ -296,15 +296,15 @@ function onloadDDSTexture(e) {
   var dataLength, byteArray;
   var rgb565Data, rgba8888Data;
   
-  this.id = ctx["createTexture"]();
-  ctx["bindTexture"](ctx["TEXTURE_2D"], this.id);
-  textureOptions("REPEAT", "REPEAT", "LINEAR", mipmapCount > 1 ? "LINEAR_MIPMAP_LINEAR" : "LINEAR");
+  this.id = ctx.createTexture();
+  ctx.bindTexture(ctx.TEXTURE_2D, this.id);
+  textureOptions(ctx.REPEAT, ctx.REPEAT, ctx.LINEAR, mipmapCount > 1 ? ctx.LINEAR_MIPMAP_LINEAR : ctx.LINEAR);
   
   if (internalFormat) {
     for (var i = 0; i < mipmapCount; i++) {
       dataLength = Math.max(4, width) / 4 * Math.max( 4, height ) / 4 * blockBytes;
       byteArray = new Uint8Array(arrayBuffer, dataOffset, dataLength);
-      ctx["compressedTexImage2D"](ctx["TEXTURE_2D"], i, internalFormat, width, height, 0, byteArray);
+      ctx.compressedTexImage2D(ctx.TEXTURE_2D, i, internalFormat, width, height, 0, byteArray);
       dataOffset += dataLength;
       width *= 0.5;
       height *= 0.5;
@@ -316,18 +316,18 @@ function onloadDDSTexture(e) {
     if (fourCC === FOURCC_DXT1) {
       rgb565Data = dxt1ToRgb565(byteArray, width, height);
       
-      ctx["texImage2D"](ctx["TEXTURE_2D"], 0, ctx["RGB"], width, height, 0, ctx["RGB"], ctx["UNSIGNED_SHORT_5_6_5"], rgb565Data);
-      ctx["generateMipmap"](ctx["TEXTURE_2D"]);
+      ctx.texImage2D(ctx.TEXTURE_2D, 0, ctx.RGB, width, height, 0, ctx.RGB, ctx.UNSIGNED_SHORT_5_6_5, rgb565Data);
+      ctx.generateMipmap(ctx.TEXTURE_2D);
     } else if (fourCC === FOURCC_DXT3) {
       rgba8888Data = dxt3ToRgba8888(byteArray, width, height);
       
-      ctx["texImage2D"](ctx["TEXTURE_2D"], 0, ctx["RGBA"], width, height, 0, ctx["RGBA"], ctx["UNSIGNED_BYTE"], rgba8888Data);
-      ctx["generateMipmap"](ctx["TEXTURE_2D"]);
+      ctx.texImage2D(ctx.TEXTURE_2D, 0, ctx.RGBA, width, height, 0, ctx.RGBA, ctx.UNSIGNED_BYTE, rgba8888Data);
+      ctx.generateMipmap(ctx.TEXTURE_2D);
     } else {
       rgba8888Data = dxt5ToRgba8888(byteArray, width, height);
       
-      ctx["texImage2D"](ctx["TEXTURE_2D"], 0, ctx["RGBA"], width, height, 0, ctx["RGBA"], ctx["UNSIGNED_BYTE"], rgba8888Data);
-      ctx["generateMipmap"](ctx["TEXTURE_2D"]);
+      ctx.texImage2D(ctx.TEXTURE_2D, 0, ctx.RGBA, width, height, 0, ctx.RGBA, ctx.UNSIGNED_BYTE, rgba8888Data);
+      ctx.generateMipmap(ctx.TEXTURE_2D);
     }
   }
   

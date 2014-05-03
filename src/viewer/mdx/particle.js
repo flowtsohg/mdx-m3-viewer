@@ -2,14 +2,16 @@ function Particle() {
   this.position = vec3.create();
   this.velocity = vec3.create();
   this.orientation = 0;
+  this.gravity = 0;
 }
 
 Particle.prototype = {
   reset: function (emitter, sequence, frame, counter) {
-    var speed = getSDValue(null, sequence, frame, counter, emitter.sd.speed, emitter.initialVelocity);
-    var latitude = getSDValue(null, sequence, frame, counter, emitter.sd.latitude, emitter.latitude);
-    var longitude = getSDValue(null, sequence, frame, counter, emitter.sd.longitude, emitter.longitude);
-    var lifespan = getSDValue(null, sequence, frame, counter, emitter.sd.lifespan, emitter.lifespan);
+    var speed = getSDValue(sequence, frame, counter, emitter.sd.speed, emitter.initialVelocity);
+    var latitude = getSDValue(sequence, frame, counter, emitter.sd.latitude, emitter.latitude);
+    var longitude = getSDValue(sequence, frame, counter, emitter.sd.longitude, emitter.longitude);
+    var lifespan = getSDValue(sequence, frame, counter, emitter.sd.lifespan, emitter.lifespan);
+    var gravity = getSDValue(sequence, frame, counter, emitter.sd.gravity, emitter.gravity);
     var position = this.position;
     var worldMatrix = emitter.node.worldMatrix;
     
@@ -42,15 +44,14 @@ Particle.prototype = {
     vec3.copy(this.velocity, velocity);
     
     this.orientation = math.random(0, Math.PI * 2);
+    this.gravity = gravity;
   },
   
   update: function (emitter, sequence, frame, counter) {
     if (this.alive) {
-      var gravity = getSDValue(null, sequence, frame, counter, emitter.sd.gravity, emitter.gravity);
-      
       this.health -= FRAME_TIME;
       
-      this.velocity[2] -= gravity * FRAME_TIME;
+      this.velocity[2] -= this.gravity * FRAME_TIME;
 
       vec3.scaleAndAdd(this.position, this.position, this.velocity, FRAME_TIME);
     }

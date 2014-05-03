@@ -6,24 +6,24 @@ function Model(parser, textureMap) {
   this.textures = [];
   this.textureMap = {};
   
-  if (parser["textureChunk"]) {
-    objects = parser["textureChunk"].objects;
+  if (parser.textureChunk) {
+    objects = parser.textureChunk.objects;
     
     for (i = 0, l = objects.length; i < l; i++) {
       this.loadTexture(objects[i], textureMap);
     }
   }
   
-  if (parser["sequenceChunk"]) {
-    this.sequences = parser["sequenceChunk"].objects;
+  if (parser.sequenceChunk) {
+    this.sequences = parser.sequenceChunk.objects;
   }
   
-  if (parser["globalSequenceChunk"]) {
-    this.globalSequences = parser["globalSequenceChunk"].objects;
+  if (parser.globalSequenceChunk) {
+    this.globalSequences = parser.globalSequenceChunk.objects;
   }
   
-  var nodes = parser["nodes"];
-  var pivots = parser["pivotPointChunk"].objects;
+  var nodes = parser.nodes;
+  var pivots = parser.pivotPointChunk.objects;
   
   this.nodes = [];
   
@@ -35,16 +35,16 @@ function Model(parser, textureMap) {
   this.hierarchy = [0];
   this.setupHierarchy(0);
   
-  if (parser["boneChunk"]) {
-    this.bones = parser["boneChunk"].objects;
+  if (parser.boneChunk) {
+    this.bones = parser.boneChunk.objects;
   }
   
-  if (parser["materialChunk"]) {
-    this.materials = parser["materialChunk"].objects;
+  if (parser.materialChunk) {
+    this.materials = parser.materialChunk.objects;
   }
   
-  if (parser["geosetChunk"]) {
-    var geosets = parser["geosetChunk"].objects;
+  if (parser.geosetChunk) {
+    var geosets = parser.geosetChunk.objects;
     var groups = [[], [], [], []];
     
     this.geosets = [];
@@ -65,13 +65,12 @@ function Model(parser, textureMap) {
     this.layers = groups[0].concat(groups[1]).concat(groups[2]).concat(groups[3]);
   }
   
-  // TODO: Think what to do with cameras.
-  if (parser["cameraChunk"]) {
-    this.cameras = parser["cameraChunk"].objects;
+  if (parser.cameraChunk) {
+    this.cameras = parser.cameraChunk.objects;
   }
 
-  if (parser["geosetAnimationChunk"]) {
-    objects = parser["geosetAnimationChunk"].objects;
+  if (parser.geosetAnimationChunk) {
+    objects = parser.geosetAnimationChunk.objects;
 
     this.geosetAnimations = [];
     
@@ -80,8 +79,8 @@ function Model(parser, textureMap) {
     }
   }
   
-  if (parser["textureAnimationChunk"]) {
-    objects = parser["textureAnimationChunk"].objects;
+  if (parser.textureAnimationChunk) {
+    objects = parser.textureAnimationChunk.objects;
 
     this.textureAnimations = [];
     
@@ -90,20 +89,20 @@ function Model(parser, textureMap) {
     }
   }
 
-  if (parser["particleEmitterChunk"]) {
-    this.particleEmitters = parser["particleEmitterChunk"].objects;
+  if (parser.particleEmitterChunk) {
+    this.particleEmitters = parser.particleEmitterChunk.objects;
   }
 
-  if (parser["particleEmitter2Chunk"]) {
-    this.particleEmitters2 = parser["particleEmitter2Chunk"].objects;
+  if (parser.particleEmitter2Chunk) {
+    this.particleEmitters2 = parser.particleEmitter2Chunk.objects;
   }
 
-  if (parser["ribbonEmitterChunk"]) {
-    this.ribbonEmitters = parser["ribbonEmitterChunk"].objects;
+  if (parser.ribbonEmitterChunk) {
+    this.ribbonEmitters = parser.ribbonEmitterChunk.objects;
   }
 
-  if (parser["collisionShapeChunk"]) {
-    objects = parser["collisionShapeChunk"].objects;
+  if (parser.collisionShapeChunk) {
+    objects = parser.collisionShapeChunk.objects;
     
     this.collisionShapes = [];
     
@@ -112,8 +111,8 @@ function Model(parser, textureMap) {
     }
   }
 
-  if (parser["attachmentChunk"]) {
-    objects = parser["attachmentChunk"].objects;
+  if (parser.attachmentChunk) {
+    objects = parser.attachmentChunk.objects;
     
     this.attachments = [];
     
@@ -176,7 +175,7 @@ Model.prototype = {
     var shader;
     var layers = this.layers;
     
-    if (layers && gl.shaderReady("wmain")) {
+    if (layers && gl.shaderStatus("wmain")) {
       var modifier = this.modifier;
       var uvoffset = this.uvoffset;
       var layer;
@@ -209,7 +208,7 @@ Model.prototype = {
           
           layer.setMaterial(shader);
           
-          textureId = getSDValue(null, sequence, frame, counter, layer.sd.textureId, layer.textureId);
+          textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
           
           bindTexture(textures[textureId], 0, this.textureMap, textureMap);
           
@@ -218,7 +217,7 @@ Model.prototype = {
               var geosetAnimation = this.geosetAnimations[j];
               
               if (geosetAnimation.geosetId === layer.geosetId) {
-                getSDValue(modifier, sequence, frame, counter, geosetAnimation.sd.color, geosetAnimation.color);
+                getSDValue(sequence, frame, counter, geosetAnimation.sd.color, geosetAnimation.color, modifier);
                 
                 temp = modifier[0];
                 
@@ -228,14 +227,14 @@ Model.prototype = {
             }
           }
           
-          modifier[3] = getSDValue(null, sequence, frame, counter, layer.sd.alpha, layer.alpha);
+          modifier[3] = getSDValue(sequence, frame, counter, layer.sd.alpha, layer.alpha);
           
           ctx.uniform4fv(shader.variables.u_modifier, modifier);
           
           if (layer.textureAnimationId !== -1 && this.textureAnimations) {
             var textureAnimation = this.textureAnimations[layer.textureAnimationId];
             // What is Z used for?
-            getSDValue(uvoffset, sequence, frame, counter, textureAnimation.sd.translation);
+            getSDValue(sequence, frame, counter, textureAnimation.sd.translation, uvoffset);
           }
           
           ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
@@ -245,13 +244,13 @@ Model.prototype = {
       }
     }
     
-    if (instance.particleEmitters && gl.shaderReady("wmain")) {
+    if (instance.particleEmitters && gl.shaderStatus("wmain")) {
       for (i = 0, l = instance.particleEmitters.length; i < l; i++) {
         instance.particleEmitters[i].render();
       }
     }
     
-    if (shouldRenderShapes && this.collisionShapes && gl.shaderReady("white")) {
+    if (shouldRenderShapes && this.collisionShapes && gl.shaderStatus("white")) {
       ctx.depthMask(1);
       
       shader = gl.bindShader("white");
@@ -272,9 +271,8 @@ Model.prototype = {
     var counter = instance.counter;
     var shader;
     
-    ctx.depthMask(1);
-    
-    if (instance.ribbonEmitters && gl.shaderReady("wribbons")) {
+    if (instance.ribbonEmitters && gl.shaderStatus("wribbons")) {
+      ctx.depthMask(1);
       ctx.disable(ctx.CULL_FACE);
       
       shader = gl.bindShader("wribbons");
@@ -286,7 +284,7 @@ Model.prototype = {
       }
     }
     
-    if (instance.particleEmitters2 && gl.shaderReady("wparticles")) {
+    if (instance.particleEmitters2 && gl.shaderStatus("wparticles")) {
       ctx.depthMask(0);
       ctx.enable(ctx.BLEND);
       ctx.disable(ctx.CULL_FACE);
@@ -301,8 +299,6 @@ Model.prototype = {
       }
       
       ctx.depthMask(1);
-      ctx.disable(ctx.BLEND);
-      ctx.enable(ctx.CULL_FACE);
     }
     
     ctx.disable(ctx.BLEND);
@@ -316,8 +312,9 @@ Model.prototype = {
     var counter = instance.counter;
     var layer, geoset, texture;
     var shader;
+    var layers = this.layers;
     
-    if (this.layers && gl.shaderReady("wcolor")) {
+    if (layers && gl.shaderStatus("wcolor")) {
       shader = gl.bindShader("wcolor");
       
       ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
@@ -325,8 +322,8 @@ Model.prototype = {
       
       instance.skeleton.bind(shader);
       
-      for (i = 0, l = this.layers.length; i < l; i++) {
-        layer = this.layers[i];
+      for (i = 0, l = layers.length; i < l; i++) {
+        layer = layers[i];
         
         if (layer.shouldRender(sequence, frame, counter) && this.shouldRenderGeoset(sequence, frame, counter, layer)) {
           geoset = this.geosets[layer.geosetId];
@@ -349,7 +346,7 @@ Model.prototype = {
         var geosetAnimation = this.geosetAnimations[i];
         
         if (geosetAnimation.geosetId === layer.geosetId && geosetAnimation.sd.alpha) {
-          return getSDValue(null, sequence, frame, counter, geosetAnimation.sd.alpha) > 0.1;
+          return getSDValue(sequence, frame, counter, geosetAnimation.sd.alpha) > 0.1;
         }
       }
     }
