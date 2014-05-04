@@ -112,20 +112,6 @@ function ParticleEmitter2(emitter, model, instance) {
   this.node = instance.skeleton.nodes[this.node];
   this.sd = parseSDTracks(emitter.tracks, model);
   
-  this.pv1 = [-1, -1, 0];
-  this.pv2 = [-1, 1, 0];
-  this.pv3 = [1, 1, 0];
-  this.pv4 = [1, -1, 0];
-  
-  this.csx = [1, 0, 0];
-  this.csy = [0, 1, 0];
-  this.csz = [0, 0, 1];
-  
-  this.defpv1 = [-1, -1, 0];
-  this.defpv2 = [-1, 1, 0];
-  this.defpv3 = [1, 1, 0];
-  this.defpv4 = [1, -1, 0];
-  
   // Avoid heap alocations in Particle2.reset
   this.particleLocalPosition = vec3.create();
   this.particlePosition = vec3.create();
@@ -137,14 +123,10 @@ function ParticleEmitter2(emitter, model, instance) {
   this.xYQuad = this.node.nodeImpl.xYQuad;
   
   this.dimensions = [this.columns, this.rows];
-  
-  if (!this.xYQuad) {
-    this.refreshRect();
-  }
 }
 
 ParticleEmitter2.prototype = {
-  update: function (allowCreate, sequence, frame, counter, refreshCamera) {
+  update: function (allowCreate, sequence, frame, counter, baseParticle, billboardedParticle) {
     var particles = this.particles;
     var reusables = this.reusables;
     var activeParticles = this.activeParticles;
@@ -202,45 +184,32 @@ ParticleEmitter2.prototype = {
       }
     }  
     
-    this.updateHW(refreshCamera);
+    this.updateHW(baseParticle, billboardedParticle);
   },
   
-  // This should actually be per-model (or even per-viewer), but I believe it's more fitting in the particle emitters themselves.
-  // While this adds computations, they only happen when the camera changes, so it isn't a big deal.
-  refreshRect: function () {
-    if (this.head) {
-      vec3.transformMat4(this.pv1, this.defpv1, inversCameraRotation);
-      vec3.transformMat4(this.pv2, this.defpv2, inversCameraRotation);
-      vec3.transformMat4(this.pv3, this.defpv3, inversCameraRotation);
-      vec3.transformMat4(this.pv4, this.defpv4, inversCameraRotation);
-    }
-    
-    if (this.tail) {
-      vec3.transformMat4(this.csx, xAxis, inversCameraRotation);
-      vec3.transformMat4(this.csy, yAxis, inversCameraRotation);
-      vec3.transformMat4(this.csz, zAxis, inversCameraRotation);
-    }
-  },
-  
-  updateHW: function () {
+  updateHW: function (baseParticle, billboardedParticle) {
     var activeParticles = this.activeParticles;
     var data = this.data;
     var particles = this.particles;
     var columns = this.columns;
     var particle, index, position, color;
+    var pv1, pv2, pv3, pv4, csx, csy, csz;
+    var rect;
     
-    // If the camera changed and this isn't a xy quad, refresh the internal rectangle orientation
-    if (refreshCamera && !this.xYQuad) {
-      this.refreshRect();
+    // Choose between a default rectangle or billboarded one
+    if (this.xYQuad) {
+      rect = baseParticle;
+    } else {
+      rect = billboardedParticle;
     }
     
-    var pv1 = this.pv1;
-    var pv2 = this.pv2;
-    var pv3 = this.pv3;
-    var pv4 = this.pv4;
-    var csx = this.csx;
-    var csy = this.csy;
-    var csz = this.csz;
+    pv1 = rect[0];
+    pv2 = rect[1];
+    pv3 = rect[2];
+    pv4 = rect[3];
+    csx = rect[4];
+    csy = rect[5];
+    csz = rect[6];
     
     var scale, textureIndex, left, top, right, bottom, r, g, b, a, px, py, pz;
     var v1x, v1y, v1z, v2x, v2y, v2z, v3x, v3y, v3z, v4x, v4y, v4z;

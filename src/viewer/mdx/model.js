@@ -124,6 +124,7 @@ function Model(parser, textureMap) {
   // Avoid heap allocations in render()
   this.modifier = vec4.create();
   this.uvoffset = vec3.create();
+  this.defaultUvoffset = vec3.create();
   
   this.ready = true;
 }
@@ -184,6 +185,7 @@ Model.prototype = {
       var geosets = this.geosets;
       var textures = this.textures;
       var temp;
+      var defaultUvoffset = this.defaultUvoffset;
       
       shader = gl.bindShader("wmain");
       
@@ -234,7 +236,7 @@ Model.prototype = {
           if (layer.textureAnimationId !== -1 && this.textureAnimations) {
             var textureAnimation = this.textureAnimations[layer.textureAnimationId];
             // What is Z used for?
-            getSDValue(sequence, frame, counter, textureAnimation.sd.translation, uvoffset);
+            uvoffset = getSDValue(sequence, frame, counter, textureAnimation.sd.translation, defaultUvoffset, uvoffset);
           }
           
           ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);

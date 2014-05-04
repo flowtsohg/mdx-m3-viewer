@@ -16,8 +16,8 @@ function ParticleEmitter(emitter, model, instance) {
   var particles;
   
   // This is the maximum number of particles that are going to exist at the same time
-  if (this.tracks.emissionRate) {
-    var tracks = this.tracks.emissionRate;
+  if (emitter.tracks.emissionRate) {
+    var tracks = emitter.tracks.emissionRate;
     var biggest = 0;
     
     for (i = 0, l = tracks.length; i < l; i++) {
@@ -28,9 +28,9 @@ function ParticleEmitter(emitter, model, instance) {
       }
     }
     // For a reason I can't understand, biggest*lifespan isn't enough for emission rate tracks, multiplying by 2 seems to be the lowest reasonable value that works
-    particles = Math.round(biggest * Math.ceil(this.lifespan) * 2);
+    particles = Math.round(biggest * Math.ceil(emitter.lifespan) * 2);
   } else {
-    particles = Math.round(this.emissionRate * Math.ceil(this.lifespan));
+    particles = Math.round(emitter.emissionRate * Math.ceil(emitter.lifespan));
   }
   
   this.particles = [];
@@ -41,12 +41,12 @@ function ParticleEmitter(emitter, model, instance) {
     this.reusables.push(i);
   }
   
-  this.node = instance.skeleton.nodes[this.node];
+  this.node = instance.skeleton.nodes[emitter.node];
   this.sd = parseSDTracks(emitter.tracks, model);
 }
 
 ParticleEmitter.prototype = {
-  update: function (allowCreate, sequence, frame, counter) {
+  update: function (allowCreate, sequence, frame, counter, baseParticle, billboardedParticle) {
     var i, l;
     
     if (this.spawnModel) {

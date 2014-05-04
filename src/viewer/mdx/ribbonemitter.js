@@ -31,15 +31,21 @@ function RibbonEmitter(emitter, model, instance) {
     
     groups[layer.renderOrder].push(layer);
   }
-      
+  
   this.layers = groups[0].concat(groups[1]).concat(groups[2]).concat(groups[3]);
   
   this.node = instance.skeleton.nodes[this.node];
   this.sd = parseSDTracks(emitter.tracks, model);
+  
+  // Avoid heap allocations
+  this.colorVec = vec3.create();
+  this.modifierVec = vec4.create();
+  this.uvoffsetVec = vec3.create();
+  this.defaultUvoffsetVec = vec3.fromValues(0, 0, 0);
 }
 
 RibbonEmitter.prototype = {
-  update: function (allowCreate, sequence, frame, counter) {
+  update: function (allowCreate, sequence, frame, counter, baseParticle, billboardedParticle) {
     var i, l;
     
     for (i = 0, l = this.ribbons.length; i < l; i++) {
@@ -55,7 +61,7 @@ RibbonEmitter.prototype = {
       
       var amount = this.emissionRate * FRAME_TIME * this.lastCreation;
       
-      if (amount > 1) {
+      if (amount >= 1) {
         this.lastCreation = 0;
         
         for (i = 0; i < amount; i++) {
@@ -72,19 +78,20 @@ RibbonEmitter.prototype = {
     if (ribbons > 2) {
       var textureSlot = getSDValue(sequence, frame, counter, this.sd.textureSlot, 0);
       //var uvOffsetX = (textureSlot % this.columns) / this.columns;
-      var uvOffsetY = (Math.floor(textureSlot / this.rows) - 1) / this.rows;
+      var uvOffsetY = Math.floor(textureSlot / this.rows) / this.rows;
       var uvFactor = 1 / ribbons * this.cellWidth;
       var top = uvOffsetY;
       var bottom = uvOffsetY + this.cellHeight;
       var data = this.data;
+      var index, ribbon, left, right, v1, v2;
       
       for (i = 0, l = ribbons; i < l; i++) {
-        var index = i * 10;
-        var ribbon = this.ribbons[i];
-        var left = (ribbons - i) * uvFactor;
-        var right = left - uvFactor;
-        var v1 = ribbon.p2;
-        var v2 = ribbon.p1;
+        index = i * 10;
+        ribbon = this.ribbons[i];
+        left = (ribbons - i) * uvFactor;
+        right = left - uvFactor;
+        v1 = ribbon.p2;
+        v2 = ribbon.p1;
       
         data[index + 0] = v1[0];
         data[index + 1] = v1[1];
@@ -105,25 +112,25 @@ RibbonEmitter.prototype = {
       ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 20, 0);
       ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 20, 12);
       
-      for (i = 0, l = this.layers.length; i < l; i++) {
-        var layer = this.layers[i];
+      var textureId, color, uvoffset, modifier = this.modifierVec;
+      var layer, layers = this.layers;
+      
+      for (i = 0, l = layers.length; i < l; i++) {
+        layer = layers[i];
         
         if (layer.shouldRender(sequence, frame, counter)) {
-          var modifier = [1, 1, 1, 1];
-          var uvoffset = [0, 0, 0];
-          
           layer.setMaterial(shader);
           
-          var textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
+          textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
           
           bindTexture(this.textures[textureId], 0, this.model.textureMap, textureMap);
           
-          getSDValue(sequence, frame, counter, this.sd.color, this.color, modifier);
+          color = getSDValue(sequence, frame, counter, this.sd.color, this.color, this.colorVec);
+          uvoffset = this.defaultUvoffsetVec;
           
-          var v = modifier[0];
-          
-          modifier[0] = modifier[2];
-          modifier[2] = v;
+          modifier[0] = color[0];
+          modifier[1] = color[1];
+          modifier[2] = color[2];
           modifier[3] = getSDValue(sequence, frame, counter, this.sd.alpha, this.alpha);
           
           ctx.uniform4fv(shader.variables.u_modifier, modifier);
@@ -131,7 +138,7 @@ RibbonEmitter.prototype = {
           if (layer.textureAnimationId !== -1 && this.model.textureAnimations) {
             var textureAnimation = this.model.textureAnimations[layer.textureAnimationId];
             // What is Z used for?
-            getSDValue(sequence, frame, counter, textureAnimation.sd.translation, uvoffset);
+            uvoffset = getSDValue(sequence, frame, counter, textureAnimation.sd.translation, this.defaultUvoffsetVec, this.uvoffsetVec);
           }
           
           ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);

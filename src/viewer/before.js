@@ -170,6 +170,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     "sstandard",
     "sdiffuse",
     "snormals",
+    "suvs",
     "snormalmap",
     "sspecular",
     "sspecular_normalmap",
@@ -178,6 +179,11 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     "sunshaded_normalmap",
     "sdecal"
   ];
+  
+  // The default state of a particle
+  var baseParticle = [vec3.fromValues(-1, -1, 0), vec3.fromValues(-1, 1, 0), vec3.fromValues(1, 1, 0), vec3.fromValues(1, -1, 0), vec3.fromValues(1, 0, 0), vec3.fromValues(0, 1, 0), vec3.fromValues(0, 0, 1)];
+  // A particle facing the camera
+  var billboardedParticle = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
   
   function bindTexture(source, unit, modelTextureMap, instanceTextureMap) {
     var texture;

@@ -143,14 +143,14 @@ function bindShader(name) {
   return boundShader;
 }
 
-function loadTexture(source) {
+function loadTexture(source, clampS, clampT) {
   if (!textureStore[source]) {
     var ext = getFileExtension(source).toLowerCase();
     
     onloadstart({isTexture: 1, source: source});
     
     if (ext === "dds") {
-      textureStore[source] = new DDSTexture(source, onload, onerror, onprogress);
+      textureStore[source] = new DDSTexture(source, onload, onerror, onprogress, clampS, clampT);
     } else if (ext === "blp") {
       textureStore[source] = new BLPTexture(source, onload, onerror, onprogress);
     } else {

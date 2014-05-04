@@ -82,9 +82,9 @@ ModelInstance.prototype = {
     }
   },
   
-  update: function (refreshCamera) {
+  update: function (baseParticle, billboardedParticle) {
     if (this.ready) {
-      this.instance.update(this, refreshCamera);
+      this.instance.update(this, baseParticle, billboardedParticle);
     }
   },
   

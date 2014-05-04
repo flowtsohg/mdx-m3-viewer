@@ -4,6 +4,10 @@ function Region(region, triangles, elementArray, offset) {
   var triangleIndicesCount = region.triangleIndicesCount;
   var firstTriangleIndex = region.firstTriangleIndex;
   
+  // Note for implementors: the one original vertex indices array could be used with access to the base-vertex draw elements function.
+  // See https://www.opengl.org/sdk/docs/man3/xhtml/glDrawElementsBaseVertex.xml
+  // firstTriangleIndex is the indices offset.
+  // firstVertexIndex is the base vertex.
   for (i = 0; i < triangleIndicesCount; i++) {
     elementArray[offset + i] = triangles[firstTriangleIndex + i] + firstVertexIndex;
   }

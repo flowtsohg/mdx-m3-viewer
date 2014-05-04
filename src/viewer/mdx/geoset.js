@@ -2,30 +2,27 @@ function Geoset(geoset) {
   var i, l, j, k;
   var positions = geoset.vertexPositions;
   //var normals = new Float32Array(geoset.vertexNormals);
-  
   var textureCoordinateSets = geoset.textureCoordinateSets;
-  var sets = textureCoordinateSets.length;
-  var uvSetSize = textureCoordinateSets[0].length * 2;
-  
-  var uvs = new Float32Array(sets * uvSetSize);
-  
-  for (i = 0, l = geoset.textureCoordinateSets.length; i < l; i++) {
-    uvs.set(textureCoordinateSets[i], i * uvSetSize);
-  }
-  
-  var boneIndices = new Uint8Array(geoset.vertexPositions.length * 4);
-  var boneNumbers = new Uint8Array(geoset.vertexPositions.length);
-  var faces = new Uint16Array(geoset.faces);
+  var uvsetSize = textureCoordinateSets[0].length * 2;
+  var vertices = positions.length / 3;
+  var uvs = new Float32Array(textureCoordinateSets.length * uvsetSize);
+  var boneIndices = new Uint8Array(vertices * 4);
+  var boneNumbers = new Uint8Array(vertices);
+  var faces = geoset.faces;
   var matrixGroups = [];
   
-  this.uvSetSize = uvSetSize * 4;
+  // Make one typed array for the texture coordinates, in case there are multiple ones
+  for (i = 0, l = textureCoordinateSets.length; i < l; i++) {
+    uvs.set(textureCoordinateSets[i], i * uvsetSize);
+  }
   
+  // Parse the bone indices
   for (i = 0, l = geoset.matrixGroups.length, k = 0; i < l; i++) {
     matrixGroups.push(geoset.matrixIndexes.subarray(k, k + geoset.matrixGroups[i]));
     k += geoset.matrixGroups[i];
   }
   
-  for (i = 0, l = positions.length / 3, k = 0; i < l; i++) {
+  for (i = 0, l = vertices, k = 0; i < l; i++) {
     var matrixGroup = matrixGroups[geoset.vertexGroups[i]];
     var count = 0;
       
@@ -44,28 +41,26 @@ function Geoset(geoset) {
     boneNumbers[i] = count;
   }
   
-  this.offsets = [0, positions.byteLength];
-  //this.offsets[2] = this.offsets[1] + normals.byteLength;
-  this.offsets[2] = this.offsets[1] + uvs.byteLength;
-  this.offsets[3] = this.offsets[2] + boneIndices.byteLength;
-  this.offsets[4] = this.offsets[3] + boneNumbers.byteLength;
+  var uvsOffset = positions.byteLength;
+  var boneIndicesOffset = uvsOffset + uvs.byteLength;
+  var boneNumbersOffset = boneIndicesOffset + boneIndices.byteLength;
+  var bufferSize = boneNumbersOffset + boneNumbers.byteLength;
   
-  var bufferSize = this.offsets[4];
   var arrayBuffer = ctx.createBuffer();
-  
   ctx.bindBuffer(ctx.ARRAY_BUFFER, arrayBuffer);
   ctx.bufferData(ctx.ARRAY_BUFFER,  bufferSize, ctx.STATIC_DRAW);
-  ctx.bufferSubData(ctx.ARRAY_BUFFER, this.offsets[0], positions);
+  ctx.bufferSubData(ctx.ARRAY_BUFFER, 0, positions);
   //ctx.bufferSubData(ctx.ARRAY_BUFFER, this.offsets[1], normals);
-  ctx.bufferSubData(ctx.ARRAY_BUFFER, this.offsets[1], uvs);
-  ctx.bufferSubData(ctx.ARRAY_BUFFER, this.offsets[2], boneIndices);
-  ctx.bufferSubData(ctx.ARRAY_BUFFER, this.offsets[3], boneNumbers);
+  ctx.bufferSubData(ctx.ARRAY_BUFFER, uvsOffset, uvs);
+  ctx.bufferSubData(ctx.ARRAY_BUFFER, boneIndicesOffset, boneIndices);
+  ctx.bufferSubData(ctx.ARRAY_BUFFER, boneNumbersOffset, boneNumbers);
   
   var elementBuffer = ctx.createBuffer();
-  
   ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, elementBuffer);
   ctx.bufferData(ctx.ELEMENT_ARRAY_BUFFER, faces, ctx.STATIC_DRAW);
   
+  this.offsets = [0, uvsOffset, boneIndicesOffset, boneNumbersOffset];
+  this.uvsetSize = uvsetSize * 4;
   this.arrayBuffer = arrayBuffer;
   this.elementBuffer = elementBuffer;
   this.elements = faces.length;
@@ -78,7 +73,7 @@ Geoset.prototype = {
     ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
     
     ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 12, offsets[0]);
-    ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 8, offsets[1] + coordId * this.uvSetSize);
+    ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 8, offsets[1] + coordId * this.uvsetSize);
     ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, 4, offsets[2]);
     ctx.vertexAttribPointer(shader.variables.a_bone_number, 1, ctx.UNSIGNED_BYTE, false, 1, offsets[3]);
     

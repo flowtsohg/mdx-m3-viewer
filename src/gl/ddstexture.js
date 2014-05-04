@@ -298,7 +298,7 @@ function onloadDDSTexture(e) {
   
   this.id = ctx.createTexture();
   ctx.bindTexture(ctx.TEXTURE_2D, this.id);
-  textureOptions(ctx.REPEAT, ctx.REPEAT, ctx.LINEAR, mipmapCount > 1 ? ctx.LINEAR_MIPMAP_LINEAR : ctx.LINEAR);
+  textureOptions(this.clampS ? ctx.CLAMP_TO_EDGE : ctx.REPEAT, this.clampT ? ctx.CLAMP_TO_EDGE : ctx.REPEAT, ctx.LINEAR, mipmapCount > 1 ? ctx.LINEAR_MIPMAP_LINEAR : ctx.LINEAR);
   
   if (internalFormat) {
     for (var i = 0; i < mipmapCount; i++) {
@@ -335,9 +335,12 @@ function onloadDDSTexture(e) {
   this.onload(this);
 }
 
-function DDSTexture(source, onload, onerror, onprogress) {
+function DDSTexture(source, onload, onerror, onprogress, clampS, clampT) {
   this.isTexture = true;
   this.source = source;
+  
+  this.clampS = clampS;
+  this.clampT = clampT;
   
   this.onload = onload;
   this.onerror = onerror.bind(this);

@@ -25,7 +25,6 @@ function Shader(name, vertexUnit, fragmentUnit) {
   this.vertexUnit = vertexUnit;
   this.fragmentUnit = fragmentUnit;
   this.id = id;
-  this.nonexistingParameters = {};
     
   ctx.attachShader(id, vertexUnit.id);
   ctx.attachShader(id, fragmentUnit.id);

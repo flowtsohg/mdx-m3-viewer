@@ -83,8 +83,18 @@
   function update() {
     for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
       if (modelInstanceCache[i].isInstance) {
-        modelInstanceCache[i].update(refreshCamera);
+        modelInstanceCache[i].update(baseParticle, billboardedParticle);
       }
+    }
+  }
+  
+  function updateParticle(z, x) {
+    mat4.identity(inversCameraRotation);
+    mat4.rotate(inversCameraRotation, inversCameraRotation, -z, zAxis);
+    mat4.rotate(inversCameraRotation, inversCameraRotation, -x, xAxis);
+    
+    for (var i = 0; i < 7; i++) {
+      vec3.transformMat4(billboardedParticle[i], baseParticle[i], inversCameraRotation);
     }
   }
   
@@ -102,9 +112,7 @@
       mat4.invert(inverseCamera, cameraMatrix);
       vec3.transformMat4(cameraPosition, zAxis, inverseCamera);
       
-      mat4.identity(inversCameraRotation);
-      mat4.rotate(inversCameraRotation, inversCameraRotation, -z, zAxis);
-      mat4.rotate(inversCameraRotation, inversCameraRotation, -x, xAxis);
+      updateParticle(z, x);
       
       gl.loadIdentity();
       gl.multMat(cameraMatrix);

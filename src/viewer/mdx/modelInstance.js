@@ -40,15 +40,15 @@ function ModelInstance(model) {
 }
 
 ModelInstance.prototype = {
-  updateEmitters: function (emitters, allowCreate, refreshCamera) {
+  updateEmitters: function (emitters, allowCreate, baseParticle, billboardedParticle) {
     if (emitters) {
       for (var i = 0, l = emitters.length; i < l; i++) {
-        emitters[i].update(allowCreate, this.sequence, this.frame, this.counter, refreshCamera);
+        emitters[i].update(allowCreate, this.sequence, this.frame, this.counter,baseParticle, billboardedParticle);
       }
     }
   },
   
-  update: function (instance, refreshCamera) {
+  update: function (instance, baseParticle, billboardedParticle) {
     var allowCreate = false;
     var frames = 960 * FRAME_TIME;
     
@@ -74,9 +74,9 @@ ModelInstance.prototype = {
     
     this.skeleton.update(this.sequence, this.frame, this.counter, instance);
     
-    this.updateEmitters(this.particleEmitters, allowCreate, refreshCamera);
-    this.updateEmitters(this.particleEmitters2, allowCreate, refreshCamera);
-    this.updateEmitters(this.ribbonEmitters, allowCreate, refreshCamera);
+    this.updateEmitters(this.particleEmitters, allowCreate, baseParticle, billboardedParticle);
+    this.updateEmitters(this.particleEmitters2, allowCreate, baseParticle, billboardedParticle);
+    this.updateEmitters(this.ribbonEmitters, allowCreate, baseParticle, billboardedParticle);
   },
   
   render: function (instance) {

@@ -7,7 +7,7 @@ function ModelInstance(model) {
 }
 
 ModelInstance.prototype = {
-  update: function (instance, refreshCamera) {
+  update: function (instance, baseParticle, billboardedParticle) {
     var i, l;
     var sequenceId = this.sequence;
     var allowCreate = false;

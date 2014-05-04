@@ -4,8 +4,9 @@ function Layer(layer, type, op, model, textureMap) {
   // Since Gloss doesn't exist in all versions
   if (layer) {
     var uvSource = layer.uvSource;
+    var flags = layer.flags;
     
-    this.flags = layer.flags;
+    this.flags = flags;
     this.colorChannels = layer.colorChannels;
     
     this.model = model;
@@ -39,8 +40,8 @@ function Layer(layer, type, op, model, textureMap) {
       uvCoordinate: settings + "uvCoordinate"
     };
     
-    this.invert = layer.flags & 0x10;
-    this.clampResult = layer.flags & 0x20;
+    this.invert = flags & 0x10;
+    this.clampResult = flags & 0x20;
     
     // I am not sure if the emissive team color mode is even used, since so far combineColors takes care of it.
     this.teamColorMode = (type === "diffuse") & 1;
@@ -61,7 +62,7 @@ function Layer(layer, type, op, model, textureMap) {
       
       model.textureMap[source] = path;
       
-      gl.loadTexture(path);
+      gl.loadTexture(path, !(flags & 0x4), !(flags & 0x8));
       
       this.active = true;
     }

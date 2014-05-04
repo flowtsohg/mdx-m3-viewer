@@ -2,6 +2,10 @@
 uniform LayerSettings u_diffuseLayerSettings;
 uniform sampler2D u_diffuseMap;
 #endif
+#ifdef UV_PASS
+uniform LayerSettings u_diffuseLayerSettings;
+uniform sampler2D u_diffuseMap;
+#endif
 #ifdef SPECULAR_PASS
 uniform LayerSettings u_specularLayerSettings;
 uniform sampler2D u_specularMap;
@@ -40,6 +44,10 @@ void main() {
   
   #ifdef NORMALS_PASS
     color = vec4(normal, 1);
+  #endif
+  
+  #ifdef UV_PASS
+    color = vec4(getUV(u_diffuseLayerSettings), 0, 1);
   #endif
   
   #ifdef SPECULAR_PASS

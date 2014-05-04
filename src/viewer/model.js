@@ -120,7 +120,7 @@ Model.prototype = {
         // Load all the M3 shaders.
         // All of them are based on the uv sets of this specific model.
         if (!gl.shaderStatus("sstandard" + uvSetCount)) {
-          gl.createShader("sstandard" + uvSetCount, vsstandard, psstandard, [uvSets]);
+          console.log(gl.createShader("sstandard" + uvSetCount, vsstandard, psstandard, [uvSets]));
         }
         
         if (!gl.shaderStatus("sdiffuse" + uvSetCount)) {
@@ -129,6 +129,10 @@ Model.prototype = {
         
         if (!gl.shaderStatus("snormals" + uvSetCount)) {
           gl.createShader("snormals" + uvSetCount, vsstandard, psspecialized, [uvSets, NORMALS_PASS]);
+        }
+        
+        if (!gl.shaderStatus("suvs" + uvSetCount)) {
+          gl.createShader("suvs" + uvSetCount, vsstandard, psspecialized, [uvSets, "UV_PASS"]);
         }
         
         if (!gl.shaderStatus("snormalmap" + uvSetCount)) {

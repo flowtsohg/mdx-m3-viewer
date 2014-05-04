@@ -2,6 +2,7 @@ function Model(parser, textureMap) {
   var i, l;
   var material;
   var div = parser.divisions[0];
+  
   this.setupGeometry(parser, div);
   
   this.batches = [];
@@ -227,7 +228,7 @@ Model.prototype = {
     ctx.vertexAttribPointer(shader.variables.a_normal, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 20);
     
     for (var i = 0; i < uvSetCount; i++) {
-      ctx.vertexAttribPointer(shader.variables["a_uv" + i], 2, ctx.UNSIGNED_SHORT, false, vertexSize, 24 + i * 4);
+      ctx.vertexAttribPointer(shader.variables["a_uv" + i], 2, ctx.SHORT, false, vertexSize, 24 + i * 4);
     }
     
     ctx.vertexAttribPointer(shader.variables.a_tangent, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 24 + uvSetCount * 4);
@@ -283,7 +284,7 @@ Model.prototype = {
         var region = batch.region;
         var material = batch.material;
         
-        if (shaderName === "sstandard") {
+        if (shaderName === "sstandard" || shaderName === "suvs") {
           material.bind(sequence, frame, textureMap, shader);
         } else if (shaderName === "sdiffuse") {
           material.bindDiffuse(sequence, frame, textureMap, shader);
