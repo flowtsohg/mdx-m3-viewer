@@ -424,7 +424,11 @@
     } else if (source.match(/\.(?:mdx|m3|blp|dds|tga|png)$/)) {
       loadResourceImpl(urls.mpqFile(source));
     } else {
-      getFile(urls.header(source), false, loadResourceFromId);//onerrorwrapper, onprogresswrapper);
+      var object = {isHeader: 1, source: source};
+      
+      onloadstart(object);
+      
+      getFile(urls.header(source), false, loadResourceFromId, onerrorwrapper.bind(object), onprogresswrapper.bind(object));
     }
   }
   

@@ -29,22 +29,26 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
       if (!noReport(source)) {
        sendMessage({type: "loadstart", objectType: "texture", source: source});
       }
+    } else if (object.isHeader) {
+      sendMessage({type: "loadstart", objectType: "header", source: source});
     } else {
       console.log("onloadstart", "What?");
     }
   }
   
   function onload(object) {
-     if (object.isModel) {
-       sendMessage({type: "load", objectType: "model", source: object.source, id: object.id});
+    var source = object.source;
+    
+    if (object.isModel) {
+       sendMessage({type: "load", objectType: "model", source: source, id: object.id});
     } else if (object.isTexture) {
-      var path = object.source;
-      
-      if (!noReport(path)) {
-        sendMessage({type: "load", objectType: "texture", source: path});
+      if (!noReport(source)) {
+        sendMessage({type: "load", objectType: "texture", source: source});
       }
+    } else if (object.isHeader) {
+      sendMessage({type: "load", objectType: "header", source: source});
     } else if (object.isInstance) {
-      sendMessage({type: "load", objectType: "instance", source: object.source, id: object.id});
+      sendMessage({type: "load", objectType: "instance", source: source, id: object.id});
     } else {
       console.log("onload", "What?");
     }
@@ -59,6 +63,9 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     } else if (object.isModel) {
       type = "model";
       source = object.source;
+    } else if (object.isHeader) {
+      type = "header";
+      source = object.source;
     } else if (object.isGL) {
       type = "webglcontext";
       source = "";
@@ -70,7 +77,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     }
     
     if (typeof error !== "string") {
-      error = "Network";
+      error = "" + error.target.status;
     }
     
     sendMessage({type: "error", objectType: type, source: source, error: error});
@@ -78,22 +85,28 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   
   function onprogress(object, e) {
     var progress = e.loaded / e.total;
+    var source = object.source;
+    var status = e.target.status;
     
-    if (progress === Infinity) {
-      progress = 0;
-    }
-    
-    if (object.isModel) {
-      sendMessage({type: "progress", objectType: "model", source: object.source, progress: progress});
-    } else if (object.isTexture) {
-      var path = object.source;
+    if (status === 200) {
+      if (progress === Infinity) {
+        progress = 0;
+      }
       
-      if (!noReport(path)) {
-        sendMessage({type: "progress", objectType: "texture", source: path, progress: progress});
+      if (object.isModel) {
+        sendMessage({type: "progress", objectType: "model", source: source, progress: progress});
+      } else if (object.isTexture) {
+        if (!noReport(source)) {
+          sendMessage({type: "progress", objectType: "texture", source: source, progress: progress});
+        }
+      } else if (object.isHeader) {
+        sendMessage({type: "progress", objectType: "header", source: source, progress: progress});
+      } else {
+        console.log("onprogress", "What?");
+        console.log(object);
       }
     } else {
-      console.log("onprogress", "What?");
-      console.log(object);
+      onerror(object, e);
     }
   }
   
