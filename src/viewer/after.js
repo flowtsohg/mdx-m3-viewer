@@ -329,6 +329,8 @@
     var status = e.target.status;
     
     if (status === 200) {
+      onload(this);
+      
       var i, l;
       var object = JSON.parse(e.target.responseText);
       var keys = Object.keys(object.textures);
@@ -428,7 +430,7 @@
       
       onloadstart(object);
       
-      getFile(urls.header(source), false, loadResourceFromId, onerrorwrapper.bind(object), onprogresswrapper.bind(object));
+      getFile(urls.header(source), false, loadResourceFromId.bind(object), onerrorwrapper.bind(object), onprogresswrapper.bind(object));
     }
   }
   

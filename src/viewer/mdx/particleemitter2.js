@@ -345,7 +345,7 @@ ParticleEmitter2.prototype = {
       var filterMode = this.filterMode;
       
       if (filterMode === 1) {
-        ctx.blendFunc(ctx.ONE, ctx.ONE);
+        ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
       } else if (filterMode === 2 || filterMode === 3) {
         ctx.blendFunc(ctx.SRC_ZERO, ctx.SRC_COLOR);
       } else if (filterMode === 4) {
