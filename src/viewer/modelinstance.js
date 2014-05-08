@@ -80,6 +80,10 @@ ModelInstance.prototype = {
     if (!this.delayOnload) {
       onload(this);
     }
+    
+    if (DEBUG_MODE) {
+      console.log(this.instance);
+    }
   },
   
   update: function (baseParticle, billboardedParticle) {

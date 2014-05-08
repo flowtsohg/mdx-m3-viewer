@@ -50,9 +50,9 @@ function ParticleEmitter2(emitter, model, instance) {
   ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
   ctx.bufferData(ctx.ARRAY_BUFFER, this.data, ctx.DYNAMIC_DRAW);
   
-  for (i = particles; i--;) {
+  for (i = 0, l = particles; i < l; i++) {
     this.particles[i] = new Particle2();
-    this.reusables.push(i);
+    this.reusables.push(particles - i - 1);
   }
   
   var headInterval = emitter.headInterval;
@@ -130,28 +130,44 @@ ParticleEmitter2.prototype = {
     var particles = this.particles;
     var reusables = this.reusables;
     var activeParticles = this.activeParticles;
+    var activeParticlesCount = activeParticles.length;
     var i, l;
     var particle;
     
-    // Ready for pop mode
-    activeParticles.reverse();
-    
-    for (i = 0, l = activeParticles.length; i < l; i++) {
-      particle = particles[activeParticles[i]];
+    if (activeParticles.length > 0) {
+      // First stage: remove dead particles.
+      // The used particles array is a queue, dead particles will always come first.
+      // As of the time of writing, the easiest and fastest way to implement a queue in Javascript is a normal array.
+      // To add items, you push, to remove items, the array is reversed and you pop.
+      // So the first stage reverses the array, and then keeps checking the last element for its health.
+      // As long as we hit a dead particle, pop, and check the new last element.
       
-      if (particle.health <= 0) {
-        reusables.push(particle.id);
-        
-        // This is true because the first particle will always die first
+      // Ready for pop mode
+      activeParticles.reverse();
+      
+      particle = particles[activeParticles[activeParticles.length - 1]];
+      
+      while (particle && particle.health <= 0) {
         activeParticles.pop();
-      } else {
+        this.reusables.push(particle.id);
+        
+        // Need to recalculate the length each time
+        particle = particles[activeParticles[activeParticles.length - 1]];
+      }
+      
+      // Ready for push mode
+      activeParticles.reverse()
+    
+      // Second stage: update the living particles.
+      // All the dead particles were removed, so a simple loop is all that's required.
+      for (i = 0, l = activeParticles.length; i < l; i++) {
+        particle = particles[activeParticles[i]];
+        
         particle.update(this, sequence, frame, counter);
       }
     }
     
-    // Ready for push mode
-    activeParticles.reverse()
-    
+    // Third stage: create new particles if needed.
     if (allowCreate && this.shouldRender(sequence, frame, counter)) {
       var amount = getSDValue(sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * FRAME_TIME * this.lastCreation;
       
