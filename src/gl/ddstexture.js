@@ -296,8 +296,8 @@ function onloadDDSTexture(e) {
   var dataLength, byteArray;
   var rgb565Data, rgba8888Data;
   
-  this.id = ctx.createTexture();
-  ctx.bindTexture(ctx.TEXTURE_2D, this.id);
+  var id = ctx.createTexture();
+  ctx.bindTexture(ctx.TEXTURE_2D, id);
   textureOptions(this.clampS ? ctx.CLAMP_TO_EDGE : ctx.REPEAT, this.clampT ? ctx.CLAMP_TO_EDGE : ctx.REPEAT, ctx.LINEAR, mipmapCount > 1 ? ctx.LINEAR_MIPMAP_LINEAR : ctx.LINEAR);
   
   if (internalFormat) {
@@ -331,6 +331,7 @@ function onloadDDSTexture(e) {
     }
   }
   
+  this.id = id;
   this.ready = true;
   this.onload(this);
 }

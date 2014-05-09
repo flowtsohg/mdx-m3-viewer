@@ -149,10 +149,12 @@ function loadTexture(source, clampS, clampT) {
     
     onloadstart({isTexture: 1, source: source});
     
-    if (ext === "dds") {
-      textureStore[source] = new DDSTexture(source, onload, onerror, onprogress, clampS, clampT);
-    } else if (ext === "blp") {
+    if (ext === "blp") {
       textureStore[source] = new BLPTexture(source, onload, onerror, onprogress);
+    } else if (ext === "dds") {
+      textureStore[source] = new DDSTexture(source, onload, onerror, onprogress, clampS, clampT);
+    } else if (ext === "tga") {
+      textureStore[source] = new TGATexture(source, onload, onerror, onprogress, clampS, clampT);
     } else {
       textureStore[source] = new Texture(source, onload, onerror, onprogress);
     }

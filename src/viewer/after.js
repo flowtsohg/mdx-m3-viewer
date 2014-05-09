@@ -421,6 +421,7 @@
   // The source caan be an absolute path to a MDX/M3 file, a path to a MDX/M3 file in any of the Warcraft 3 and Starcraft 2 MPQs, or a resource thread ID used by the Hiveworkshop
   // If loading from a resource thread, every model and texture in the resource thread will be loaded.
   function loadResource(source) {
+    console.log("Loading resource", source);
     if (source.startsWith("http://")) {
       loadResourceImpl(source);
     } else if (source.match(/\.(?:mdx|m3|blp|dds|tga|png)$/)) {
@@ -454,7 +455,7 @@
     var object = modelInstanceCache[objectId];
     
     if (object && object.isInstance) {
-      object.getVisibility();
+      return object.getVisibility();
     }
   }
   

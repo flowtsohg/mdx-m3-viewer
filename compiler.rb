@@ -51,6 +51,7 @@ code_files = [
   "gl/texture",
   "gl/blptexture",
   "gl/ddstexture",
+  "gl/tgatexture",
   "gl/rect",
   "gl/cube",
   "gl/sphere",
