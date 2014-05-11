@@ -82,7 +82,7 @@ The API of the viewer is as follows:
 * `getBoundingShapesMode()` - Get the bounding shapes mode.
 * `setTeamColorsMode(b)` - Shows or hides team colors for all instances.
 * `getTeamColorsMode()` - Get the team colors mode.
-* `setShader(id)` - Set the shader to be used for Starcraft 2 models. Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `normal map`, 4 for `specular map`, 5 for `specular map + normal map`, 6 for `emissive`, 7 for `unshaded`, 8 for `unshaded + normal map`, and finally 9 for `decal`.
+* `setShader(id)` - Set the shader to be used for Starcraft 2 models. Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `texture coordinates`, 4 for `normal map`, 5 for `specular map`, 6 for `specular map + normal map`, 7 for `emissive`, 8 for `unshaded`, 9 for `unshaded + normal map`, and finally 10 for `decal`.
 * `getShader()` - Get the shader used for Starcraft 2 models.
 * `panCamera(x, y)` - Pan the camera on the x and y axes.
 * `rotateCamera(x, y)` - Rotate the camera on the x and y axes.

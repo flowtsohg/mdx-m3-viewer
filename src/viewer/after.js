@@ -958,7 +958,7 @@
     }
     
     data.push(models, instances);
-    console.log(data);
+    
     return JSON.stringify(data);
   }
   
