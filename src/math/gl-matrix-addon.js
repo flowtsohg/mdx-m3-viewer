@@ -174,6 +174,42 @@ mat4.fromRotationTranslationScaleOrigin = function (out, q, v, s, o) {
 };
 
 /**
+ * Gets the orientation part of a matrix.
+ * In other words, the 3x3 upper-left quadrent's inverse.
+ *
+ * @param {mat4} out mat4 receiving operation result
+ * @param {mat4} m Source matrix
+ * @returns {mat4} out
+ */
+mat4.toRotationMat4 = (function () {
+  var quadrent = mat3.create();
+  
+  return function (out, m) {
+    mat3.fromMat4(quadrent, m);
+    mat3.invert(quadrent, quadrent);
+    
+    out[0] = quadrent[0];
+    out[1] = quadrent[1];
+    out[2] = quadrent[2];
+    out[3] = 1;
+    out[4] = quadrent[3];
+    out[5] = quadrent[4];
+    out[6] = quadrent[5];
+    out[7] = 1;
+    out[8] = quadrent[6];
+    out[9] = quadrent[7];
+    out[10] = quadrent[8];
+    out[11] = 1;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+    out[15] = 1;
+    
+    return out;
+  };
+}());
+
+/**
  * Performs a spherical linear interpolation with two control points
  *
  * @param {quat} out the receiving quaternion

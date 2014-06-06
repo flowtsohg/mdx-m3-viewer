@@ -4,7 +4,7 @@ function CollisionShape(collisionshape) {
   var v = collisionshape.vertices;
   var v1 = v[0];
   var v2 = v[1];
-  var boundsRadius = collisionshape.boundsRadius;
+  var radius = collisionshape.radius;
   var shape;
   
   if (collisionshape.type === 0) {
@@ -12,7 +12,7 @@ function CollisionShape(collisionshape) {
   //} else if (collisionshape.type === 1) {
     //shape = gl.newPlane(v1[0], v1[1], v1[2], v2[0], v2[1], v2[2]);
   } else if (collisionshape.type === 2) {
-    shape = gl.createSphere(v1[0], v1[1], v1[2], 9, 9, boundsRadius);
+    shape = gl.createSphere(v1[0], v1[1], v1[2], 9, 9, radius);
   //} else {
     //shape = gl.newCylinder(v1[0], v1[1], v1[2], v2[0], v2[1], v2[2], 8, 2, boundsRadius);
   }

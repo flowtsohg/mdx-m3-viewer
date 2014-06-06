@@ -246,6 +246,12 @@ ModelInstance.prototype = {
     }
   },
   
+  getCamera: function (id) {
+    if (this.ready) {
+      return this.model.getCamera(id);
+    }
+  },
+  
   setSequence: function (id) {
     this.sequence = id;
     

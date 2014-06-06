@@ -536,7 +536,7 @@ var Parser = (function () {
     }
   
     if (type === 2 || type === 3) {
-      this.boundsRadius = readFloat32(reader);
+      this.radius = readFloat32(reader);
       this.inclusiveSize += 4;
     }
   }

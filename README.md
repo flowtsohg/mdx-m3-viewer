@@ -84,6 +84,8 @@ The API of the viewer is as follows:
 * `getTeamColorsMode()` - Get the team colors mode.
 * `setShader(id)` - Set the shader to be used for Starcraft 2 models. Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `texture coordinates`, 4 for `normal map`, 5 for `specular map`, 6 for `specular map + normal map`, 7 for `emissive`, 8 for `unshaded`, 9 for `unshaded + normal map`, and finally 10 for `decal`.
 * `getShader()` - Get the shader used for Starcraft 2 models.
+* `setCamera(objectId, cameraId)` - Set the camera. If either objectId or cameraId is equal to -1, then the free-form camera is used.
+* `getCamera()` - Get the camera.
 * `panCamera(x, y)` - Pan the camera on the x and y axes.
 * `rotateCamera(x, y)` - Rotate the camera on the x and y axes.
 * `zoomCamera(x)` - Zoom the camera by a factor.

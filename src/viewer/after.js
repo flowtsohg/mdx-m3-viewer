@@ -75,8 +75,8 @@
   gl.loadTexture("images/sky.png");
   //gl.newTexture("Light", "../images/Light.png");
   
-  grass_water = gl.createRect(0, 0, -3, 250, 250, 6);
-  bedrock = gl.createRect(0, 0, -35, 250, 250, 6);
+  grass_water = gl.createRect(0, 0, -3, 512, 512, 6);
+  bedrock = gl.createRect(0, 0, -35, 512, 512, 6);
   sky = gl.createSphere(0, 0, 0, 5, 10, 2E4);
   //light = gl.newSphere(0, 0, 0, 10, 10, 0.05);
   
@@ -88,39 +88,44 @@
     }
   }
   
-  function updateParticle(z, x) {
-    mat4.identity(inversCameraRotation);
-    mat4.rotate(inversCameraRotation, inversCameraRotation, -z, zAxis);
-    mat4.rotate(inversCameraRotation, inversCameraRotation, -x, xAxis);
-    
+  function updateParticle() {
     for (var i = 0; i < 7; i++) {
-      vec3.transformMat4(billboardedParticle[i], baseParticle[i], inversCameraRotation);
+      vec3.transformMat4(billboardedParticle[i], baseParticle[i], inverseCameraRotation);
     }
   }
   
   function transformCamera() {
-    if (modelCameraId === -1) {
+    mat4.identity(cameraMatrix);
+    mat4.identity(inverseCameraRotation);
+    
+    if (instanceCamera[1] === -1) {
       var z = camera.r[1];
       var x = camera.r[0];
 
-      mat4.identity(cameraMatrix);
-      
       mat4.translate(cameraMatrix, cameraMatrix, camera.m);
       mat4.rotate(cameraMatrix, cameraMatrix, x, xAxis);
       mat4.rotate(cameraMatrix, cameraMatrix, z, zAxis);
       
-      mat4.invert(inverseCamera, cameraMatrix);
-      vec3.transformMat4(cameraPosition, zAxis, inverseCamera);
-      
-      updateParticle(z, x);
-      
-      gl.loadIdentity();
-      gl.multMat(cameraMatrix);
+      mat4.rotate(inverseCameraRotation, inverseCameraRotation, -z, zAxis);
+      mat4.rotate(inverseCameraRotation, inverseCameraRotation, -x, xAxis);
     } else {
-      cameraPosition = modelCamera.position;
+      var instance = modelInstanceCache[instanceCamera[0]];
       
-      gl.lookAt(cameraPosition, modelCamera.targetPosition, upDir);
+      if (instance) {
+        var cam = instance.getCamera(instanceCamera[1]);
+        
+        if (cam) {
+          mat4.lookAt(cameraMatrix, cam.position, cam.targetPosition, upDir);
+          
+          mat4.toRotationMat4(inverseCameraRotation, cameraMatrix);
+        }
+      }
     }
+    
+    updateParticle();
+    
+    gl.loadIdentity();
+    gl.multMat(cameraMatrix);
   }
   
   function renderGround(isWater) {
@@ -197,9 +202,9 @@
   function render() {
     ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
     
-    if (refreshCamera) {
+    //if (refreshCamera) {
       transformCamera();
-    }
+    //}
     
     renderSky();
     renderGround();
@@ -421,7 +426,6 @@
   // The source caan be an absolute path to a MDX/M3 file, a path to a MDX/M3 file in any of the Warcraft 3 and Starcraft 2 MPQs, or a resource thread ID used by the Hiveworkshop
   // If loading from a resource thread, every model and texture in the resource thread will be loaded.
   function loadResource(source) {
-    console.log("Loading resource", source);
     if (source.startsWith("http://")) {
       loadResourceImpl(source);
     } else if (source.match(/\.(?:mdx|m3|blp|dds|tga|png)$/)) {
@@ -825,8 +829,21 @@
   // Camera settings
   // -------------------
   
+  // Set the camera.
+  // If either objectId or cameraId is equal to -1, then the free-form camera is used.
+  function setCamera(objectId, cameraId) {
+    instanceCamera[0] = objectId;
+    instanceCamera[1] = cameraId;
+  }
+  
+  // Get the camera.
+  function getCamera() {
+    return [instanceCamera[0], instanceCamera[1]];
+  }
+  
   // Pan the camera on the x and y axes.
   function panCamera(x, y) {
+    instanceCamera[1] = -1;
     camera.m[0] += x;
     camera.m[1] -= y;
     refreshCamera = true;
@@ -834,6 +851,7 @@
   
   // Rotate the camera on the x and y axes.
   function rotateCamera(x, y) {
+    instanceCamera[1] = -1;
     camera.r[0] += math.toRad(x);
     camera.r[1] += math.toRad(y);
     refreshCamera = true;
@@ -841,12 +859,14 @@
   
   // Zoom the camera by a factor.
   function zoomCamera(n) {
+    instanceCamera[1] = -1;
     camera.m[2] = Math.floor(camera.m[2] * n);
     refreshCamera = true;
   }
   
   // Reset the camera back to the initial state.
   function resetCamera() {
+    instanceCamera[1] = -1;
     camera.m[0] = 0;
     camera.m[1] = 0;
     camera.m[2] = -300;
@@ -958,7 +978,7 @@
     }
     
     data.push(models, instances);
-    
+
     return JSON.stringify(data);
   }
   
@@ -1068,6 +1088,8 @@
     setShader: setShader,
     getShader: getShader,
     // Camera settings
+    setCamera: setCamera,
+    getCamera: getCamera,
     panCamera: panCamera,
     rotateCamera: rotateCamera,
     zoomCamera: zoomCamera,

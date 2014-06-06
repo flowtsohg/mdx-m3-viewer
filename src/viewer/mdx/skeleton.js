@@ -78,10 +78,18 @@ Skeleton.prototype = {
       mat4.identity(localMatrix);
       
       mat4.translate(localMatrix, localMatrix, pivot);
-      // -270 degrees
-      mat4.rotate(localMatrix, localMatrix, -camera.r[1] - 4.71238, zAxis);
-      // -90 degrees
-      mat4.rotate(localMatrix, localMatrix, camera.r[0] - 1.57079, yAxis);
+      
+      if (instanceCamera[1] === -1) {
+        // -270 degrees
+        mat4.rotate(localMatrix, localMatrix, -camera.r[1] - 4.71238, zAxis);
+        // -90 degrees
+        mat4.rotate(localMatrix, localMatrix, camera.r[0] - 1.57079, yAxis);
+      } else {
+        // Nothing I do here works...........
+        //mat4.rotate(localMatrix, localMatrix, -1.57079, yAxis);
+        //mat4.multiply(localMatrix, inverseCameraRotation, localMatrix);
+      }
+      
       mat4.translate(localMatrix, localMatrix, negativePivot);
       
       mat4.multiply(node.worldMatrix, node.worldMatrix, localMatrix);

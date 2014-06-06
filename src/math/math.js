@@ -32,17 +32,17 @@ var math = (function () {
     return a + t * (b - a);
   };
 
-  math.hermite = function (a, outTan, inTan, b, t) {
+  math.hermite = function (a, b, c, d, t) {
     var factorTimes2 = t * t;
     var factor1 = factorTimes2 * (2 * t - 3) + 1;
     var factor2 = factorTimes2 * (t - 2) + t;
     var factor3 = factorTimes2 * (t - 1);
     var factor4 = factorTimes2 * (3 - 2 * t);
     
-    return (a * factor1) + (outTan * factor2) + (inTan * factor3) + (b * factor4);
+    return (a * factor1) + (b * factor2) + (c * factor3) + (d * factor4);
   };
 
-  math.bezier = function (a, outTan, inTan, b, t) {
+  math.bezier = function (a, b, c, d, t) {
     var invt = 1 - t;
     var factorTimes2 = t * t;
     var inverseFactorTimesTwo = invt * invt;
@@ -51,7 +51,7 @@ var math = (function () {
     var factor3 = 3 * factorTimes2 * invt;
     var factor4 = factorTimes2 * t;
     
-    return (a * factor1) + (outTan * factor2) + (inTan * factor3) + (b * factor4);
+    return (a * factor1) + (b * factor2) + (c * factor3) + (d * factor4);
   };
 
   math.toRad = function (degrees) {
