@@ -78,6 +78,8 @@ The API of the viewer is as follows:
 * `getAnimationSpeed()` - Get the animation speed.
 * `setWorldMode(mode)` - Set the drawn world. Possible values are 0 for nothing, 1 for sky, 2 for sky and ground, and 3 for sky and water.
 * `getWorldMode(mode)` - Get the world mode.
+* `setGroundSize(size)` - Set the ground size.
+* `getGroundSize()` - Get the ground size.
 * `setBoundingShapesMode(b)` - Shows or hides the bounding shapes for all instances.
 * `getBoundingShapesMode()` - Get the bounding shapes mode.
 * `setTeamColorsMode(b)` - Shows or hides team colors for all instances.
