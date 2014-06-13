@@ -147,6 +147,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   var shouldRenderShapes = false;
   var shouldRenderTeamColors = true;
   var shaderToUse = 0;
+  var groundSize = 256;
   
   // To reference models by their source.
   var modelCache = {};

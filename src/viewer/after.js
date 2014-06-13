@@ -75,8 +75,8 @@
   gl.loadTexture("images/sky.png");
   //gl.newTexture("Light", "../images/Light.png");
   
-  grass_water = gl.createRect(0, 0, -3, 512, 512, 6);
-  bedrock = gl.createRect(0, 0, -35, 512, 512, 6);
+  grass_water = gl.createRect(0, 0, -3, groundSize, groundSize, 6);
+  bedrock = gl.createRect(0, 0, -35, groundSize, groundSize, 6);
   sky = gl.createSphere(0, 0, 0, 5, 10, 2E4);
   //light = gl.newSphere(0, 0, 0, 10, 10, 0.05);
   
@@ -794,6 +794,19 @@
     return shouldRenderWorld;
   }
   
+  function setGroundSize(size) {
+    groundSize = size;
+    
+    size = size * 0.5;
+    
+    grass_water.resize(size, size);
+    bedrock.resize(size, size);
+  }
+  
+  function getGroundSize() {
+    return groundSize;
+  }
+  
   // Shows or hides the bounding shapes for all instances.
   function setBoundingShapesMode(b) {
     shouldRenderShapes = b;
@@ -1076,11 +1089,12 @@
     getAttachments: getAttachments,
     getCameras: getCameras,
     // General settings
-    //applyCamera: applyCamera,
     setAnimationSpeed: setAnimationSpeed,
     getAnimationSpeed: getAnimationSpeed,
     setWorldMode: setWorldMode,
     getWorldMode: getWorldMode,
+    setGroundSize: setGroundSize,
+    getGroundSize: getGroundSize,
     setBoundingShapesMode: setBoundingShapesMode,
     getBoundingShapesMode: getBoundingShapesMode,
     setTeamColorsMode: setTeamColorsMode,

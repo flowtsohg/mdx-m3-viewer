@@ -207,6 +207,7 @@ Model.prototype = {
           
           uvoffset[0] = 0;
           uvoffset[1] = 0;
+          uvoffset[2] = 0;
           
           layer.setMaterial(shader);
           
@@ -348,7 +349,11 @@ Model.prototype = {
         var geosetAnimation = this.geosetAnimations[i];
         
         if (geosetAnimation.geosetId === layer.geosetId && geosetAnimation.sd.alpha) {
-          return getSDValue(sequence, frame, counter, geosetAnimation.sd.alpha) > 0.1;
+          // This handles issues when there are multiple geoset animations for one geoset.
+          // This is a bug, but the game supports it for the same reason it supports so many other bugs...
+          if (getSDValue(sequence, frame, counter, geosetAnimation.sd.alpha) < 0.1) {
+            return false;
+          }
         }
       }
     }
