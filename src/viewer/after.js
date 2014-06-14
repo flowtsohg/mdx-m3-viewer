@@ -108,6 +108,9 @@
       
       mat4.rotate(inverseCameraRotation, inverseCameraRotation, -z, zAxis);
       mat4.rotate(inverseCameraRotation, inverseCameraRotation, -x, xAxis);
+      
+      mat4.invert(inverseCamera, cameraMatrix);
+      vec3.transformMat4(cameraPosition, zAxis, inverseCamera);
     } else {
       var instance = modelInstanceCache[instanceCamera[0]];
       
@@ -115,9 +118,14 @@
         var cam = instance.getCamera(instanceCamera[1]);
         
         if (cam) {
-          mat4.lookAt(cameraMatrix, cam.position, cam.targetPosition, upDir);
+          var targetPosition = cam.targetPosition;
           
+          mat4.lookAt(cameraMatrix, cam.position, targetPosition, upDir);
           mat4.toRotationMat4(inverseCameraRotation, cameraMatrix);
+          
+          cameraPosition[0] = targetPosition[0];
+          cameraPosition[1] = targetPosition[1];
+          cameraPosition[2] = targetPosition[2];
         }
       }
     }

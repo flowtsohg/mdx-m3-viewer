@@ -342,15 +342,15 @@ Model.prototype = {
   },
   
   shouldRenderGeoset: function (sequence, frame, counter, layer) {
-    var i, l;
+    var i, l, geosetAnimation, geosetAnimations = this.geosetAnimations;
     
-    if (this.geosetAnimations) {
-      for (i = 0, l = this.geosetAnimations.length; i < l; i++) {
-        var geosetAnimation = this.geosetAnimations[i];
+    if (geosetAnimations) {
+      for (i = 0, l = geosetAnimations.length; i < l; i++) {
+        geosetAnimation = geosetAnimations[i];
         
         if (geosetAnimation.geosetId === layer.geosetId && geosetAnimation.sd.alpha) {
           // This handles issues when there are multiple geoset animations for one geoset.
-          // This is a bug, but the game supports it for the same reason it supports so many other bugs...
+          // This is a bug, but the game supports it.
           if (getSDValue(sequence, frame, counter, geosetAnimation.sd.alpha) < 0.1) {
             return false;
           }

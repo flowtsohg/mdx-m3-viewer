@@ -134,6 +134,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   var yAxis = [0, 1, 0];
   var zAxis = [0, 0, 1];
   var lightPosition = [0, 0, 10000];
+  var cameraPosition = vec3.create();
   var instanceCamera = [-1, -1];
   var grass_water;
   var bedrock;
