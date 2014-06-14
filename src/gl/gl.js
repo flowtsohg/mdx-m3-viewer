@@ -39,7 +39,7 @@ function multMat(mat) {
 }
 
 function pushMatrix() {
-  matrixStack.push(Object.copy(viewMatrix));
+  matrixStack.push(mat4.clone(viewMatrix));
   refreshViewProjectionMatrix = true;
 }
 
