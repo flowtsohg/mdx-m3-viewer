@@ -9,8 +9,8 @@ To minify the resulting JavaScript, use the [Google Closure compiler](https://de
 Both options can be disabled or enabled in compiler.rb.
 
 A live version can be seen on [Hiveworkshop](http://www.hiveworkshop.com) for which this viewer was made, here are two examples:
-* [Warcraft 3's Azura Dragon](viewer.hiveworkshop.com?q=Units/Creeps/AzureDragon/AzureDragon.mdx)
-* [Starcraft 2's Baneling](viewer.hiveworkshop.com?q=Assets/units/zerg/baneling/baneling.m3)
+* [Warcraft 3's Azura Dragon](http://viewer.hiveworkshop.com?q=Units/Creeps/AzureDragon/AzureDragon.mdx)
+* [Starcraft 2's Baneling](http://viewer.hiveworkshop.com?q=Assets/units/zerg/baneling/baneling.m3)
 
 ------------------------
 
