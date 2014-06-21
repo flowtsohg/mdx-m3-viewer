@@ -345,7 +345,7 @@ ModelInstance.prototype = {
   toJSON: function () {
     var location = this.location;
     var rotation = this.rotation;
-    var scale = this.scaling;
+    var scale = this.scaling[0];
     
     // This code avoids saving instance overrides that match the model's texture map.
     // For example, when the client overrides a texture and then sets it back to the original value.
@@ -379,7 +379,7 @@ ModelInstance.prototype = {
       // For some reason, when typed arrays are JSON stringified they change to object notation rather than array notation
       [location[0], location[1], location[2]],
       [rotation[0], rotation[1], rotation[2], rotation[3]],
-      scale[0],
+      scale,
       this.parentId,
       this.attachment,
       this.teamColor,
