@@ -69,10 +69,10 @@
   gl.createShader("world", SHADERS.vsworld, SHADERS.psworld);
   gl.createShader("white", SHADERS.vswhite, SHADERS.pswhite);
   
-  gl.loadTexture("images/grass.png");
-  gl.loadTexture("images/water.png");
-  gl.loadTexture("images/bedrock.png");
-  gl.loadTexture("images/sky.png");
+  gl.loadTexture(urls.localFile("grass.png"));
+  gl.loadTexture(urls.localFile("water.png"));
+  gl.loadTexture(urls.localFile("bedrock.png"));
+  gl.loadTexture(urls.localFile("sky.png"));
   //gl.newTexture("Light", "../images/Light.png");
   
   grass_water = gl.createRect(0, 0, -3, groundSize, groundSize, 6);

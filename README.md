@@ -29,6 +29,7 @@ new ModelViewer(canvas, urls, onmessage, debugMode)
 
 * `header(id)` - Returns the path for a metadata header about a custom resource. More on this [below](#custom-models).
 * `mpqFile(path)` - Returns a path for a file in any of the Warcraft 3 or Starcraft 2 MPQs.
+* `localFile(path)` - Returns a path for a local file. This should point to a directory with the following images: `grass.png`, `water.png`, `bedrock.png`, and `sky.png`.
 
 If the client has the requierments to run the viewer, the API will be returned, otherwise, null will be returned, and an error message will be dispatched to onmessage.
 

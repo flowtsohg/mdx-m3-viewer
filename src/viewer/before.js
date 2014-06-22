@@ -1,7 +1,7 @@
 window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   // This function is used to filter out reports for internal textures (e.g. ground, sky, team colors beside 00, etc.).
   function noReport(path) {
-    if (path === "images/grass.png" || path === "images/water.png" || path === "images/bedrock.png" || path === "images/sky.png") {
+    if (path === urls.localFile("grass.png") || path === urls.localFile("water.png") || path === urls.localFile("bedrock.png") || path === urls.localFile("sky.png")) {
       return true;
     }
     
