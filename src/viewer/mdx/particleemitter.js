@@ -107,6 +107,6 @@ ParticleEmitter.prototype = {
   },
   
   shouldRender: function (sequence, frame, counter) {
-    return getSDValue(sequence, frame, counter, this.sd.visibility) > 0.1;
+    return getSDValue(sequence, frame, counter, this.sd.visibility) > VISIBILITY_CUTOFF;
   }
 };

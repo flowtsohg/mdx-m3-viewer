@@ -162,6 +162,10 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   var FRAME_TIME = 1 / 60;
   var DEBUG_MODE = debugMode;
   
+  // If an object has a visibility value below the cutoff, it shouldn't render.
+  // This value is taken from Blizzard's Art Tools.
+  var VISIBILITY_CUTOFF = 0.75;
+    
   var teamColors = [
     [255, 3, 3],
     [0, 66, 255],

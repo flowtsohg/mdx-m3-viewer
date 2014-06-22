@@ -351,7 +351,7 @@ Model.prototype = {
         if (geosetAnimation.geosetId === layer.geosetId && geosetAnimation.sd.alpha) {
           // This handles issues when there are multiple geoset animations for one geoset.
           // This is a bug, but the game supports it.
-          if (getSDValue(sequence, frame, counter, geosetAnimation.sd.alpha) < 0.1) {
+          if (getSDValue(sequence, frame, counter, geosetAnimation.sd.alpha) < VISIBILITY_CUTOFF) {
             return false;
           }
         }

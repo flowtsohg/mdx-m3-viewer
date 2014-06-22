@@ -68,6 +68,6 @@ Layer.prototype = {
   },
   
   shouldRender: function (sequence, frame, counter) {
-    return getSDValue(sequence, frame, counter, this.sd.alpha, 1) > 0.1;
+    return getSDValue(sequence, frame, counter, this.sd.alpha, 1) > VISIBILITY_CUTOFF;
   }
 };

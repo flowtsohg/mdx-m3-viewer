@@ -2,18 +2,20 @@ output_path = "viewer.js"
 use_closure = true
 use_glsl_min = true
 
-# Check for the existence of glsl_min
-# https://github.com/flowtsohg/glsl-minifier
-begin
-  require_relative "glsl_min"
-rescue LoadError
-  use_glsl_min = false
-end
-
 # Check for the existence of the Closure compiler
 # https://developers.google.com/closure/compiler/
-if not File.file?("compiler.jar")
+if use_closure and not File.file?("compiler.jar")
   use_closure = false
+end
+
+# Check for the existence of glsl_min
+# https://github.com/flowtsohg/glsl-minifier
+if use_glsl_min
+  begin
+    require_relative "glsl_min"
+  rescue LoadError
+    use_glsl_min = false
+  end
 end
 
 mdx_shaders = [
@@ -107,7 +109,11 @@ code_files = [
   "viewer/m3/after",
   "viewer/model",
   "viewer/modelinstance",
-  "viewer/after"
+  "viewer/after",
+  "menu",
+  "instancemenu",
+  "main",
+  "events"
 ]
 
 def handle_shaders(use_glsl_min, shared, mdx, m3, srcpath)
