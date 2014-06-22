@@ -2,10 +2,18 @@ output_path = "viewer.js"
 use_closure = true
 use_glsl_min = true
 
+# Check for the existence of glsl_min
+# https://github.com/flowtsohg/glsl-minifier
 begin
   require_relative "glsl_min"
 rescue LoadError
   use_glsl_min = false
+end
+
+# Check for the existence of the Closure compiler
+# https://developers.google.com/closure/compiler/
+if not File.file?("compiler.jar")
+  use_closure = false
 end
 
 mdx_shaders = [
