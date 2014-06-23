@@ -109,11 +109,7 @@ code_files = [
   "viewer/m3/after",
   "viewer/model",
   "viewer/modelinstance",
-  "viewer/after",
-  "menu",
-  "instancemenu",
-  "main",
-  "events"
+  "viewer/after"
 ]
 
 def handle_shaders(use_glsl_min, shared, mdx, m3, srcpath)
