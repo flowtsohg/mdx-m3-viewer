@@ -69,10 +69,10 @@
   gl.createShader("world", SHADERS.vsworld, SHADERS.psworld);
   gl.createShader("white", SHADERS.vswhite, SHADERS.pswhite);
   
-  gl.loadTexture(urls.localFile("grass.png"));
-  gl.loadTexture(urls.localFile("water.png"));
-  gl.loadTexture(urls.localFile("bedrock.png"));
-  gl.loadTexture(urls.localFile("sky.png"));
+  gl.loadTexture(grassPath);
+  gl.loadTexture(waterPath);
+  gl.loadTexture(bedrockPath);
+  gl.loadTexture(skyPath);
   //gl.newTexture("Light", "../images/Light.png");
   
   grass_water = gl.createRect(0, 0, -3, groundSize, groundSize, 6);
@@ -160,16 +160,16 @@
           ctx.enable(ctx.BLEND);
           ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
           
-          gl.bindTexture("images/water.png", 0);
+          gl.bindTexture(waterPath, 0);
           grass_water.render(shader);
           
           ctx.disable(ctx.BLEND);
         } else {
-          gl.bindTexture("images/bedrock.png", 0);
+          gl.bindTexture(bedrockPath, 0);
           bedrock.render(shader);
         }
       } else {
-        gl.bindTexture("images/grass.png", 0);
+        gl.bindTexture(grassPath, 0);
         grass_water.render(shader);
       }
     }
@@ -183,7 +183,7 @@
       ctx.uniform1f(shader.variables.u_a, 1);
       ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getProjectionMatrix());
       
-      gl.bindTexture("images/sky.png", 0);
+      gl.bindTexture(skyPath, 0);
       sky.render(shader);
     }
   }

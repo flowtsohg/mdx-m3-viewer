@@ -1,7 +1,12 @@
 window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
+  var grassPath = urls.localFile("grass.png");
+  var waterPath = urls.localFile("water.png");
+  var bedrockPath = urls.localFile("bedrock.png");
+  var skyPath = urls.localFile("sky.png");
+  
   // This function is used to filter out reports for internal textures (e.g. ground, sky, team colors beside 00, etc.).
   function noReport(path) {
-    if (path === urls.localFile("grass.png") || path === urls.localFile("water.png") || path === urls.localFile("bedrock.png") || path === urls.localFile("sky.png")) {
+    if (path ===grassPath || path === waterPath || path === bedrockPath || path === skyPath) {
       return true;
     }
     
@@ -165,7 +170,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   // If an object has a visibility value below the cutoff, it shouldn't render.
   // This value is taken from Blizzard's Art Tools.
   var VISIBILITY_CUTOFF = 0.75;
-    
+  
   var teamColors = [
     [255, 3, 3],
     [0, 66, 255],
