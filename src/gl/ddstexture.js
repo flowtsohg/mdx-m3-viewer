@@ -315,20 +315,16 @@ function onloadDDSTexture(e) {
     
     if (fourCC === FOURCC_DXT1) {
       rgb565Data = dxt1ToRgb565(byteArray, width, height);
-      
       ctx.texImage2D(ctx.TEXTURE_2D, 0, ctx.RGB, width, height, 0, ctx.RGB, ctx.UNSIGNED_SHORT_5_6_5, rgb565Data);
-      ctx.generateMipmap(ctx.TEXTURE_2D);
     } else if (fourCC === FOURCC_DXT3) {
       rgba8888Data = dxt3ToRgba8888(byteArray, width, height);
-      
       ctx.texImage2D(ctx.TEXTURE_2D, 0, ctx.RGBA, width, height, 0, ctx.RGBA, ctx.UNSIGNED_BYTE, rgba8888Data);
-      ctx.generateMipmap(ctx.TEXTURE_2D);
     } else {
       rgba8888Data = dxt5ToRgba8888(byteArray, width, height);
-      
       ctx.texImage2D(ctx.TEXTURE_2D, 0, ctx.RGBA, width, height, 0, ctx.RGBA, ctx.UNSIGNED_BYTE, rgba8888Data);
-      ctx.generateMipmap(ctx.TEXTURE_2D);
     }
+    
+    ctx.generateMipmap(ctx.TEXTURE_2D);
   }
   
   this.id = id;

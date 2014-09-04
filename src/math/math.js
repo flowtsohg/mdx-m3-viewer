@@ -67,12 +67,13 @@ var math = (function () {
   };
 
   math.copysign = function (x, y) {
-    var signx = sign(x);
     var signy = sign(y);
     
     if (signy === 0) {
       return 0;
     }
+    
+    var signx = sign(x);
     
     if (signx !== signy) {
       return -x;

@@ -53,9 +53,10 @@ function Layer(layer, type, op, model, textureMap) {
       this.source = source;
       
       var path;
+      var fileName = getFileName(source);
       
-      if (textureMap[source]) {
-        path = textureMap[source];
+      if (textureMap[fileName]) {
+        path = textureMap[fileName];
       } else {
         path = urls.mpqFile(source);
       }

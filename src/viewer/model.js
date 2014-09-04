@@ -120,7 +120,7 @@ Model.prototype = {
         // Load all the M3 shaders.
         // All of them are based on the uv sets of this specific model.
         if (!gl.shaderStatus("sstandard" + uvSetCount)) {
-          console.log(gl.createShader("sstandard" + uvSetCount, vsstandard, psstandard, [uvSets]));
+          gl.createShader("sstandard" + uvSetCount, vsstandard, psstandard, [uvSets]);
         }
         
         if (!gl.shaderStatus("sdiffuse" + uvSetCount)) {

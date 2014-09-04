@@ -167,7 +167,7 @@ var Parser = (function () {
     this.animId = readUint32(reader);
     this.initValue = Func(reader);
     this.nullValue = Func(reader);
-    this.unknown0 = readInt32(reader);
+    this.unknown0 = readFloat32(reader);
   }
   
   function TMD(reader, indexEntries, version) {

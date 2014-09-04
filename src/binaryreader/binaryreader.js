@@ -46,7 +46,7 @@ function read(reader, size) {
 }
 
 function peek(reader, size) {
-  return  bytesToString(reader.uint8Array.subarray(reader.index, reader.index + size));
+  return bytesToString(reader.uint8Array.subarray(reader.index, reader.index + size));
 }
     
 function readInt8(reader) {
