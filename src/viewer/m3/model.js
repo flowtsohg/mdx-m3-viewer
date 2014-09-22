@@ -29,7 +29,7 @@ function Model(parser, textureMap) {
     var materialMap = materialMaps[batch.materialReferenceIndex];
     
     if (materialMap.materialType === 1) {
-      batches.push({region: this.regions[regionId], material: this.materials[1][materialMap.materialIndex]});
+      batches.push({regionId: regionId, region: this.regions[regionId], material: this.materials[1][materialMap.materialIndex]});
     }
   }
 
@@ -141,16 +141,21 @@ Model.prototype = {
     }
     
     var elementArray = new Uint16Array(totalElements);
+    var edgeArray = new Uint16Array(totalElements * 2);
     
     this.regions = [];
     
     for (i = 0, l = regions.length; i < l; i++) {
-      this.regions.push(new Region(regions[i], div.triangles, elementArray, offsets[i]));
+      this.regions.push(new Region(regions[i], div.triangles, elementArray, edgeArray, offsets[i]));
     }
     
     this.elementBuffer = ctx.createBuffer();
     ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
     ctx.bufferData(ctx.ELEMENT_ARRAY_BUFFER, elementArray, ctx.STATIC_DRAW);
+    
+    this.edgeBuffer = ctx.createBuffer();
+    ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
+    ctx.bufferData(ctx.ELEMENT_ARRAY_BUFFER, edgeArray, ctx.STATIC_DRAW);
     
     this.setupVertices(parser.vertices, uvSetCount);
   },
@@ -216,9 +221,10 @@ Model.prototype = {
     }
   },
   
-  bind: function (shader) {
+  bind: function (shader, wireframe) {
     var vertexSize = this.vertexSize;
     var uvSetCount = this.uvSetCount;
+    var buffer = wireframe ? this.edgeBuffer : this.elementBuffer;
     
     ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
     
@@ -233,7 +239,7 @@ Model.prototype = {
     
     ctx.vertexAttribPointer(shader.variables.a_tangent, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 24 + uvSetCount * 4);
     
-    ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
+    ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, buffer);
   },
   
   bindColor: function (shader) {
@@ -248,7 +254,7 @@ Model.prototype = {
     ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
   },
   
-  render: function (instance, instanceImpl, allowTeamColors) {
+  render: function (instance, instanceImpl, allowTeamColors, wireframe) {
     var i, l;
     var sequence = instanceImpl.sequence;
     var frame = instanceImpl.frame;
@@ -277,33 +283,36 @@ Model.prototype = {
       ctx.uniform3fv(shader.variables.u_lightPos, lightPosition);
       
       // Bind the vertices
-      this.bind(shader);
+      this.bind(shader, wireframe);
       
       for (i = 0, l = this.batches.length; i < l; i++) {
         var batch = this.batches[i];
-        var region = batch.region;
-        var material = batch.material;
-        
-        if (shaderName === "sstandard" || shaderName === "suvs") {
-          material.bind(sequence, frame, textureMap, shader);
-        } else if (shaderName === "sdiffuse") {
-          material.bindDiffuse(sequence, frame, textureMap, shader);
-        } else if (shaderName === "snormalmap" || shaderName === "sunshaded_normalmap") {
-          material.bindNormalMap(sequence, frame, textureMap, shader);
-        } else if (shaderName === "sspecular") {
-          material.bindSpecular(sequence, frame, textureMap, shader);
-        } else if (shaderName === "sspecular_normalmap") {
-          material.bindSpecular(sequence, frame, textureMap, shader);
-          material.bindNormalMap(sequence, frame, textureMap, shader);
-        } else if (shaderName === "semissive") {
-          material.bindEmissive(sequence, frame, textureMap, shader);
-        } else if (shaderName === "sdecal") {
-          material.bindDecal(sequence, frame, textureMap, shader);
+       
+        if (instanceImpl.meshVisibilities[batch.regionId]) {
+          var region = batch.region;
+          var material = batch.material;
+          
+          if (shaderName === "sstandard" || shaderName === "suvs") {
+            material.bind(sequence, frame, textureMap, shader);
+          } else if (shaderName === "sdiffuse") {
+            material.bindDiffuse(sequence, frame, textureMap, shader);
+          } else if (shaderName === "snormalmap" || shaderName === "sunshaded_normalmap") {
+            material.bindNormalMap(sequence, frame, textureMap, shader);
+          } else if (shaderName === "sspecular") {
+            material.bindSpecular(sequence, frame, textureMap, shader);
+          } else if (shaderName === "sspecular_normalmap") {
+            material.bindSpecular(sequence, frame, textureMap, shader);
+            material.bindNormalMap(sequence, frame, textureMap, shader);
+          } else if (shaderName === "semissive") {
+            material.bindEmissive(sequence, frame, textureMap, shader);
+          } else if (shaderName === "sdecal") {
+            material.bindDecal(sequence, frame, textureMap, shader);
+          }
+          
+          region.render(shader, wireframe);
+          
+          material.unbind(shader); // This is required to not use by mistake layers from this material that were bound and are not overwritten by the next material
         }
-        
-        region.render(shader);
-        
-        material.unbind(shader); // This is required to not use by mistake layers from this material that were bound and are not overwritten by the next material
       }
     }
     /*
@@ -366,9 +375,12 @@ Model.prototype = {
       
       for (i = 0, l = this.batches.length; i < l; i++) {
         batch = this.batches[i];
-        region = batch.region;
         
-        region.render(shader);
+        if (instance.meshVisibilities[batch.regionId]) {
+          region = batch.region;
+          
+          region.render(shader);
+        }
       }
     }
   },
@@ -438,5 +450,9 @@ Model.prototype = {
     }
     
     return data;
+  },
+  
+  getMeshCount: function () {
+    return this.regions.length;
   }
 };

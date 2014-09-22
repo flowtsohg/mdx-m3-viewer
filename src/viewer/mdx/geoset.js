@@ -9,7 +9,17 @@ function Geoset(geoset) {
   var boneIndices = new Uint8Array(vertices * 4);
   var boneNumbers = new Uint8Array(vertices);
   var faces = geoset.faces;
+  var edges = new Uint16Array(faces.length * 2);
   var matrixGroups = [];
+  
+  for (i = 0, l = faces.length, k = 0; i < l; i += 3, k += 6) {
+    edges[k + 0] = faces[i + 0];
+    edges[k + 1] = faces[i + 1];
+    edges[k + 2] = faces[i + 1];
+    edges[k + 3] = faces[i + 2];
+    edges[k + 4] = faces[i + 2];
+    edges[k + 5] = faces[i + 0];
+  }
   
   // Make one typed array for the texture coordinates, in case there are multiple ones
   for (i = 0, l = textureCoordinateSets.length; i < l; i++) {
@@ -59,15 +69,20 @@ function Geoset(geoset) {
   ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, elementBuffer);
   ctx.bufferData(ctx.ELEMENT_ARRAY_BUFFER, faces, ctx.STATIC_DRAW);
   
+  var edgeBuffer = ctx.createBuffer();
+  ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, edgeBuffer);
+  ctx.bufferData(ctx.ELEMENT_ARRAY_BUFFER, edges, ctx.STATIC_DRAW);
+  
   this.offsets = [0, uvsOffset, boneIndicesOffset, boneNumbersOffset];
   this.uvsetSize = uvsetSize * 4;
   this.arrayBuffer = arrayBuffer;
   this.elementBuffer = elementBuffer;
+  this.edgeBuffer = edgeBuffer;
   this.elements = faces.length;
 }
 
 Geoset.prototype = {
-  render: function (coordId, shader) {
+  render: function (coordId, shader, wireframe) {
     var offsets = this.offsets;
     
     ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
@@ -77,8 +92,13 @@ Geoset.prototype = {
     ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, 4, offsets[2]);
     ctx.vertexAttribPointer(shader.variables.a_bone_number, 1, ctx.UNSIGNED_BYTE, false, 1, offsets[3]);
     
-    ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
-    ctx.drawElements(ctx.TRIANGLES, this.elements, ctx.UNSIGNED_SHORT, 0);
+    if (wireframe) {
+      ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
+      ctx.drawElements(ctx.LINES, this.elements * 2, ctx.UNSIGNED_SHORT, 0);
+    } else {
+      ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
+      ctx.drawElements(ctx.TRIANGLES, this.elements, ctx.UNSIGNED_SHORT, 0);
+    }
   },
   
   renderColor: function (shader) {

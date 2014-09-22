@@ -92,9 +92,9 @@ ModelInstance.prototype = {
     }
   },
   
-  render: function (allowTeamColors) {
+  render: function (allowTeamColors, wireframe) {
     if (this.ready && this.visible) {
-      this.instance.render(this, allowTeamColors);
+      this.instance.render(this, allowTeamColors, wireframe);
     }
   },
   
@@ -155,8 +155,8 @@ ModelInstance.prototype = {
     return data;
   },
   
- recalculate: function () {
-   mat4.fromRotationTranslationScale(this.localMatrix, this.rotation, this.location, this.scaling);
+  recalculate: function () {
+    mat4.fromRotationTranslationScale(this.localMatrix, this.rotation, this.location, this.scaling);
   },
   
   move: function (v) {
@@ -170,9 +170,7 @@ ModelInstance.prototype = {
   },
   
   getLocation: function () {
-    var v = this.location;
-    
-    return [v[0], v[1], v[2]];
+    return Array.copy(this.location);
   },
   
   rotate: function (q) {
@@ -186,8 +184,7 @@ ModelInstance.prototype = {
   },
   
   getRotation: function () {
-    var v = this.rotation;
-    return [v[0], v[1], v[2], v[3]];
+    return Array.copy(this.rotation);
   },
   
   scale: function (n) {
@@ -319,6 +316,32 @@ ModelInstance.prototype = {
     return [];
   },
   
+  getMeshCount: function () {
+    if (this.ready) {
+      return this.model.getMeshCount();
+    }
+  },
+  
+  getMeshVisibilities: function () {
+    if (this.ready) {
+      return this.instance.getMeshVisibilities();
+    }
+    
+    return [];
+  },
+  
+  setMeshVisibility: function (meshId, visible) {
+    if (this.ready) {
+      this.instance.setMeshVisibility(meshId, visible);
+    }
+  },
+  
+  getMeshVisibility: function (meshId) {
+    if (this.ready) {
+      return this.instance.getMeshVisibility(meshId);
+    }
+  },
+  
   setVisibility: function (b) {
     this.visible = b;
   },
@@ -338,7 +361,8 @@ ModelInstance.prototype = {
       scale: this.getScale(),
       parent: this.getParent(),
       teamColor: this.getTeamColor(),
-      textureMap: this.getTextureMap()
+      textureMap: this.getTextureMap(),
+      meshVisibilities: this.getMeshVisibilities()
     };
   },
   

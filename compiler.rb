@@ -125,7 +125,7 @@ def handle_shaders(use_glsl_min, shared, mdx, m3, srcpath)
     }
   else
     names.each_index { |i|
-      shaders.push("\"#{names[i]}\":\"#{IO.read(paths[i]).gsub("\n", "\\n")}\"")
+      shaders.push("\"#{names[i]}\":\"#{IO.read(paths[i]).gsub("\r\n", "\\n")}\"")
     }
   end
   

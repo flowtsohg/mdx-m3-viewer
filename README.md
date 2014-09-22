@@ -49,6 +49,8 @@ The API of the viewer is as follows:
 * `loadResource(source)` - Load a resource from a given source. The source can be an absolute path to a MDX/M3/BLP/DDS/PNG file, a path to a MDX/M3/BLP/DDS/TGA file in any of the Warcraft 3 and Starcraft 2 MPQs, or a header. If loading from a header, every model and texture in the header will be loaded.
 * `setVisibility(objectId, b)` - Shows or hides an instance.
 * `getVisibility(objectId)` - Get the visibility status of an instance.
+* `setMeshVisibility(objectId, meshId, b)` - Set the visibility of a mesh in an instance.
+* `getMeshVisibility(objectId, meshId)` - Get the visibility of a mesh in an instance.
 * `setLocation(objectId, v)` - Set the location of an instance.
 * `move(objectId, v)` - Move an instance.
 * `getLocation(objectId)` - Get the location of an instance.
@@ -75,6 +77,7 @@ The API of the viewer is as follows:
 * `getSequences(objectId)` - Get a list of the sequences owned by an object. Proxies to the owning model if the given object is an instance. Returns null if the object ID is invalid, or if the model didn't finish loading.
 * `getAttachments(objectId)` - Get a list of the attachment points owned by an object. Proxies to the owning model if the given object is an instance. Returns null if the object ID is invalid, or if the model didn't finish loading.
 * `getCameras(objectId)` - Get a list of the cameras owned by an object. Proxies to the owning model if the given object is an instance. Returns null if the object ID is invalid, or if the model didn't finish loading.
+* `getMeshCount(objectId)` - Get the number of meshes an object has. Proxies to the owning model if the given object is an instance.
 * `setAnimationSpeed(n)` - Set the animation speed.
 * `getAnimationSpeed()` - Get the animation speed.
 * `setWorldMode(mode)` - Set the drawn world. Possible values are 0 for nothing, 1 for sky, 2 for sky and ground, and 3 for sky and water.
@@ -85,6 +88,8 @@ The API of the viewer is as follows:
 * `getBoundingShapesMode()` - Get the bounding shapes mode.
 * `setTeamColorsMode(b)` - Shows or hides team colors for all instances.
 * `getTeamColorsMode()` - Get the team colors mode.
+* `setPolygonMode(b)` - Set the polygon render mode. True for filled, false for wireframe.
+* `getPolygonMode()` - Get the polygon render mode.
 * `setShader(id)` - Set the shader to be used for Starcraft 2 models. Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `texture coordinates`, 4 for `normal map`, 5 for `specular map`, 6 for `specular map + normal map`, 7 for `emissive`, 8 for `unshaded`, 9 for `unshaded + normal map`, and finally 10 for `decal`.
 * `getShader()` - Get the shader used for Starcraft 2 models.
 * `setCamera(objectId, cameraId)` - Set the camera. If either objectId or cameraId is equal to -1, then the free-form camera is used.

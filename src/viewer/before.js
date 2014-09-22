@@ -152,6 +152,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   var shouldRenderLights = true;
   var shouldRenderShapes = false;
   var shouldRenderTeamColors = true;
+  var shouldRenderWireframe = false;
   var shaderToUse = 0;
   var groundSize = 256;
   

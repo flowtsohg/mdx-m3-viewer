@@ -212,3 +212,14 @@ Array.equals = function (a, b) {
   
   return true;
 };
+
+Array.copy = function (a) {
+  var newArray = [];
+  var i, l;
+  
+  for (i = 0, l = a.length; i < l; i++) {
+    newArray[i] = a[i];
+  }
+  
+  return newArray;
+};

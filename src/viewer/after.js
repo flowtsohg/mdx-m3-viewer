@@ -221,14 +221,14 @@
     // Render geometry
     for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
       if (modelInstanceCache[i].isInstance) {
-        modelInstanceCache[i].render(shouldRenderTeamColors);
+        modelInstanceCache[i].render(shouldRenderTeamColors, shouldRenderWireframe);
       }
     }
     
     // Render particles
     for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
       if (modelInstanceCache[i].isInstance) {
-        modelInstanceCache[i].renderEmitters(shouldRenderTeamColors);
+        modelInstanceCache[i].renderEmitters(shouldRenderTeamColors, shouldRenderWireframe);
       }
     }
     
@@ -450,7 +450,7 @@
   
   
   // ------------------
-  // Instance misc
+  // Instance visibility
   // ------------------
   
   // Shows or hides an instance.
@@ -468,6 +468,24 @@
     
     if (object && object.isInstance) {
       return object.getVisibility();
+    }
+  }
+  
+  // Shows or hides a mesh of a specific instance.
+  function setMeshVisibility(objectId, meshId, b) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      return object.setMeshVisibility(meshId, b);
+    }
+  }
+  
+  // Get the visibility of a mesh in an instance.
+  function getMeshVisibility(objectId, meshId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      return object.getMeshVisibility(meshId);
     }
   }
   
@@ -753,10 +771,19 @@
   // Proxies to the owning model if the given object is an instance.
   // Returns null if the object ID is invalid, or if the model didn't finish loading.
   function getCameras(objectId) {
-     var object = modelInstanceCache[objectId];
+    var object = modelInstanceCache[objectId];
     
     if (object) {
       return object.getCameras();
+    }
+  }
+  
+  // Get the number of meshes an object has. Proxies to the owning model if the given object is an instance.
+  function getMeshCount(objectId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object) {
+      return object.getMeshCount();
     }
   }
   
@@ -833,6 +860,17 @@
   // Get the team colors mode.
   function getTeamColorsMode() {
     return shouldRenderTeamColors
+  }
+  
+  // Set the render mode to either polygons or wireframe.
+  // Pass true for polygons, or false for wireframe.
+  function setPolygonMode(b) {
+    shouldRenderWireframe = !b;
+  }
+  
+  // Get the render mode
+  function getPolygonMode() {
+    return shouldRenderWireframe;
   }
   
   // Set the shader to be used for Starcraft 2 models.
@@ -1065,9 +1103,11 @@
   return {
     // Model loading API
     loadResource: loadResource,
-    // Instance misc
+    // Instance visibility
     setVisibility: setVisibility,
     getVisibility: getVisibility,
+    setMeshVisibility: setMeshVisibility,
+    getMeshVisibility: getMeshVisibility,
     // Transform API
     setLocation: setLocation,
     move: move,
@@ -1107,6 +1147,8 @@
     getBoundingShapesMode: getBoundingShapesMode,
     setTeamColorsMode: setTeamColorsMode,
     getTeamColorsMode: getTeamColorsMode,
+    setPolygonMode: setPolygonMode,
+    getPolygonMode: getPolygonMode,
     setShader: setShader,
     getShader: getShader,
     // Camera settings

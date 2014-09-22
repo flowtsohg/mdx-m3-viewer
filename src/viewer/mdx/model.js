@@ -168,7 +168,7 @@ Model.prototype = {
     }
   },
   
-  render: function (instance, textureMap) {
+  render: function (instance, textureMap, wireframe) {
     var i, l, v;
 	  var sequence = instance.sequence;
     var frame = instance.frame;
@@ -197,7 +197,7 @@ Model.prototype = {
       for (i = 0, l = layers.length; i < l; i++) {
         layer = layers[i];
         
-        if (layer.shouldRender(sequence, frame, counter) && this.shouldRenderGeoset(sequence, frame, counter, layer)) {
+        if (instance.meshVisibilities[layer.geosetId] && layer.shouldRender(sequence, frame, counter) && this.shouldRenderGeoset(sequence, frame, counter, layer)) {
           geoset = geosets[layer.geosetId];
           
           modifier[0] = 1;
@@ -242,7 +242,7 @@ Model.prototype = {
           
           ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
           
-          geoset.render(layer.coordId, shader);
+          geoset.render(layer.coordId, shader, wireframe);
         }
       }
     }
@@ -328,7 +328,7 @@ Model.prototype = {
       for (i = 0, l = layers.length; i < l; i++) {
         layer = layers[i];
         
-        if (layer.shouldRender(sequence, frame, counter) && this.shouldRenderGeoset(sequence, frame, counter, layer)) {
+        if (instance.meshVisibilities[layer.geosetId] && layer.shouldRender(sequence, frame, counter) && this.shouldRenderGeoset(sequence, frame, counter, layer)) {
           geoset = this.geosets[layer.geosetId];
           texture = this.textureMap[this.textures[layer.textureId]];
           
@@ -426,5 +426,13 @@ Model.prototype = {
     }
     
     return data;
+  },
+  
+  getMeshCount: function () {
+    if (this.geosets) {
+      return this.geosets.length;
+    }
+    
+    return 0;
   }
 };

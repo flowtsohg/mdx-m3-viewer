@@ -37,6 +37,12 @@ function ModelInstance(model) {
       this.ribbonEmitters[i] = new RibbonEmitter(objects[i], model, this);
     }
   }
+  
+  this.meshVisibilities = [];
+  
+  for (i = 0, l = model.getMeshCount(); i < l; i++) {
+    this.meshVisibilities[i] = true;
+  }
 }
 
 ModelInstance.prototype = {
@@ -79,8 +85,8 @@ ModelInstance.prototype = {
     this.updateEmitters(this.ribbonEmitters, allowCreate, baseParticle, billboardedParticle);
   },
   
-  render: function (instance) {
-    this.model.render(this, instance.textureMap);
+  render: function (instance, allowTeamColors, wireframe) {
+    this.model.render(this, instance.textureMap, wireframe);
   },
   
   renderEmitters: function (instance, refreshCamera) {
@@ -113,5 +119,17 @@ ModelInstance.prototype = {
     if (attachment) {
       return this.skeleton.nodes[attachment.node];
     }
+  },
+  
+  getMeshVisibilities: function () {
+    return Array.copy(this.meshVisibilities);
+  },
+  
+  setMeshVisibility: function (meshId, b) {
+    this.meshVisibilities[meshId] = b;
+  },
+  
+  getMeshVisibility: function (meshId) {
+    return this.meshVisibilities[meshId];
   }
 };

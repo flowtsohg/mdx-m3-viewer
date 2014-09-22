@@ -260,6 +260,12 @@ Model.prototype = {
     }
   },
   
+  getMeshCount: function () {
+    if (this.ready) {
+      return this.model.getMeshCount();
+    }
+  },
+  
   getInfo: function () {
     return {
       name: this.getName(),

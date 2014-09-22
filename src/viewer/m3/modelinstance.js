@@ -4,6 +4,12 @@ function ModelInstance(model) {
   this.loopingMode = 0;
   this.sequence = -1;
   this.skeleton = new Skeleton(model);
+  
+  this.meshVisibilities = [];
+  
+  for (i = 0, l = model.getMeshCount(); i < l; i++) {
+    this.meshVisibilities[i] = true;
+  }
 }
 
 ModelInstance.prototype = {
@@ -36,8 +42,8 @@ ModelInstance.prototype = {
     */
   },
   
-  render: function (instance, allowTeamColors) {
-    this.model.render(instance, this, allowTeamColors);
+  render: function (instance, allowTeamColors, wireframe) {
+    this.model.render(instance, this, allowTeamColors, wireframe);
   },
   
   renderEmitters: function (instance, allowTeamColors) {
@@ -63,5 +69,17 @@ ModelInstance.prototype = {
     if (attachment) {
       return this.skeleton.bones[attachment.bone];
     }
+  },
+  
+  getMeshVisibilities: function () {
+    return Array.copy(this.meshVisibilities);
+  },
+  
+  setMeshVisibility: function (meshId, b) {
+    this.meshVisibilities[meshId] = b;
+  },
+  
+  getMeshVisibility: function (meshId) {
+    return this.meshVisibilities[meshId];
   }
 };
