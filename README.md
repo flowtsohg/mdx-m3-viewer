@@ -84,6 +84,10 @@ The API of the viewer is as follows:
 * `getWorldMode(mode)` - Get the world mode.
 * `setGroundSize(size)` - Set the ground size.
 * `getGroundSize()` - Get the ground size.
+* `setMeshesMode(b)` - Shows or hides all of the meshes.
+* `getMeshesMode()` - Get the meshes render mode.
+* `setEmittersMode(b)` - Shows or hides all of the emitters.
+* `getEmittersMode()` - Get the emitters render mode.
 * `setBoundingShapesMode(b)` - Shows or hides the bounding shapes for all instances.
 * `getBoundingShapesMode()` - Get the bounding shapes mode.
 * `setTeamColorsMode(b)` - Shows or hides team colors for all instances.

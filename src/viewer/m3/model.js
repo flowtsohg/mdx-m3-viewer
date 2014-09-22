@@ -5,6 +5,11 @@ function Model(parser, textureMap) {
   
   this.setupGeometry(parser, div);
   
+  //
+  // TODO: Refactor this.regions into this.meshes
+  //
+  this.meshes = this.geosets;
+  
   this.batches = [];
   this.materials = [[], []]; // 2D array for the possibility of adding more material types in the future
   this.materialMaps = parser.materialMaps;
@@ -157,13 +162,9 @@ Model.prototype = {
     ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
     ctx.bufferData(ctx.ELEMENT_ARRAY_BUFFER, edgeArray, ctx.STATIC_DRAW);
     
-    this.setupVertices(parser.vertices, uvSetCount);
-  },
-  
-  setupVertices: function (vertices, uvSetCount) {
     var arrayBuffer = ctx.createBuffer();
     ctx.bindBuffer(ctx.ARRAY_BUFFER, arrayBuffer);
-    ctx.bufferData(ctx.ARRAY_BUFFER, vertices, ctx.STATIC_DRAW);
+    ctx.bufferData(ctx.ARRAY_BUFFER, parser.vertices, ctx.STATIC_DRAW);
     
     this.arrayBuffer = arrayBuffer;
     this.vertexSize = (7 + uvSetCount) * 4;
@@ -383,76 +384,5 @@ Model.prototype = {
         }
       }
     }
-  },
-  
-  getAttachment: function (id) {
-    if (this.attachments) {
-      return this.attachments[id];
-    }
-  },
-  
-  getCamera: function (id) {
-    if (this.cameras) {
-      return this.cameras[id];
-    }
-  },
-  
-  overrideTexture: function (path, newpath) {
-    this.textureMap[source] = path;
-  },
-  
-  getSequences: function () {
-    var data = [];
-    
-    if (this.sequences) {
-      for (var i = 0, l = this.sequences.length; i < l; i++) {
-        data[i] = this.sequences[i].name;
-      }
-    }
-    
-    return data;
-  },
-  
-  getAttachments: function () {
-    var data = [];
-    
-    if (this.attachments) {
-      for (var i = 0, l = this.attachments.length; i < l; i++) {
-        data[i] = this.attachments[i].name;
-      }
-    }
-    
-    return data;
-  },
-  
-  getCameras: function () {
-    var data = [];
-    
-    if (this.cameras) {
-      for (var i = 0, l = this.cameras.length; i < l; i++) {
-        data[i] = this.cameras[i].name;
-      }
-    }
-    
-    return data;
-  },
-  
-  getTextureMap: function () {
-    var data = {};
-    var textureMap = this.textureMap;
-    var keys = Object.keys(textureMap);
-    var key;
-      
-    for (var i = 0, l = keys.length; i < l; i++) {
-      key = keys[i];
-      
-      data[key] = textureMap[key];
-    }
-    
-    return data;
-  },
-  
-  getMeshCount: function () {
-    return this.regions.length;
   }
 };

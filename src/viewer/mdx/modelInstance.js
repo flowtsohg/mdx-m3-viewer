@@ -40,7 +40,7 @@ function ModelInstance(model) {
   
   this.meshVisibilities = [];
   
-  for (i = 0, l = model.getMeshCount(); i < l; i++) {
+  for (i = 0, l = model.meshes.length; i < l; i++) {
     this.meshVisibilities[i] = true;
   }
 }

@@ -219,16 +219,20 @@
     //renderLights();
     
     // Render geometry
-    for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
-      if (modelInstanceCache[i].isInstance) {
-        modelInstanceCache[i].render(shouldRenderTeamColors, shouldRenderWireframe);
+    if (shouldRenderMeshes) {
+      for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
+        if (modelInstanceCache[i].isInstance) {
+          modelInstanceCache[i].render(shouldRenderTeamColors, shouldRenderWireframe);
+        }
       }
     }
     
     // Render particles
-    for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
-      if (modelInstanceCache[i].isInstance) {
-        modelInstanceCache[i].renderEmitters(shouldRenderTeamColors, shouldRenderWireframe);
+    if (shouldRenderEmitters) {
+      for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
+        if (modelInstanceCache[i].isInstance) {
+          modelInstanceCache[i].renderEmitters(shouldRenderTeamColors, shouldRenderWireframe);
+        }
       }
     }
     
@@ -829,6 +833,7 @@
     return shouldRenderWorld;
   }
   
+  // Set the size of the ground
   function setGroundSize(size) {
     groundSize = size;
     
@@ -838,8 +843,29 @@
     bedrock.resize(size, size);
   }
   
+  // Get the size of the ground
   function getGroundSize() {
     return groundSize;
+  }
+  
+  // Shows or hides all of the meshes
+  function setMeshesMode(b) {
+    shouldRenderMeshes = b;
+  }
+  
+  // Get the mesh render mode
+  function getMeshesMode() {
+    return shouldRenderMeshes;
+  }
+  
+  // Shows or hides all of the emitters
+  function setEmittersMode(b) {
+    shouldRenderEmitters = b;
+  }
+  
+  // Get the emitter render mode
+  function getEmittersMode() {
+    return shouldRenderEmitters;
   }
   
   // Shows or hides the bounding shapes for all instances.

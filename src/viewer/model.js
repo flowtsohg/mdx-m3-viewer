@@ -205,13 +205,17 @@ Model.prototype = {
   
   getAttachment: function (id) {
     if (this.ready) {
-      return this.model.getAttachment(id);
+      if (this.model.attachments) {
+        return this.model.attachments[id];
+      }
     }
   },
   
   getCamera: function (id) {
     if (this.ready) {
-      return this.model.getCamera(id);
+      if (this.model.cameras) {
+        return this.model.cameras[id];
+      }
     }
   },
   
@@ -224,7 +228,6 @@ Model.prototype = {
   overrideTexture: function (path, newpath) {
     if (this.ready) {
       this.textureMap[path] = newpath;
-      this.model.overrideTexture(path, newpath);
     } else {
       this.queue.push(["overrideTexture", [path, newpath]]);
     }
@@ -232,37 +235,55 @@ Model.prototype = {
   
   getTextureMap: function () {
     if (this.ready) {
-      return this.model.getTextureMap();
+      return Object.copy(this.model.textureMap);
     }
   },
   
   getSequences: function () {
     if (this.ready) {
-      return this.model.getSequences();
+      var data = [];
+      
+      if (this.model.sequences) {
+        for (var i = 0, l = this.model.sequences.length; i < l; i++) {
+          data[i] = this.model.sequences[i].name;
+        }
+      }
+      
+      return data;
     }
   },
   
   getAttachments: function () {
     if (this.ready) {
-      return this.model.getAttachments();
-    }
-  },
-  
-  getCollisionShapes: function () {
-    if (this.ready) {
-      return this.model.getCollisionShapes();
+      var data = [];
+    
+      if (this.model.attachments) {
+        for (var i = 0, l = this.model.attachments.length; i < l; i++) {
+          data[i] = this.model.attachments[i].name;
+        }
+      }
+      
+      return data;
     }
   },
   
   getCameras: function () {
     if (this.ready) {
-      return this.model.getCameras();
-    }
+      var data = [];
+    
+      if (this.model.cameras) {
+        for (var i = 0, l = this.model.cameras.length; i < l; i++) {
+          data[i] = this.model.cameras[i].name;
+        }
+      }
+      
+      return data;
+      }
   },
   
   getMeshCount: function () {
     if (this.ready) {
-      return this.model.getMeshCount();
+      return this.model.meshes.length;
     }
   },
   

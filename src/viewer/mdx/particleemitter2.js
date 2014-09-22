@@ -112,8 +112,6 @@ function ParticleEmitter2(emitter, model, instance) {
   this.node = instance.skeleton.nodes[this.node];
   this.sd = parseSDTracks(emitter.tracks, model);
   
-  console.log(this.node.nodeImpl.name);
-  console.log(this.node.nodeImpl);
   // Avoid heap alocations in Particle2.reset
   this.particleLocalPosition = vec3.create();
   this.particlePosition = vec3.create();

@@ -5,7 +5,13 @@ function Model(parser, textureMap) {
   this.sequences = [];
   this.textures = [];
   this.textureMap = {};
+  this.geosets = [];
   
+  //
+  // TODO: Refactor this.geosets into this.meshes
+  //
+  this.meshes = this.geosets;
+    
   if (parser.textureChunk) {
     objects = parser.textureChunk.objects;
     
@@ -46,8 +52,6 @@ function Model(parser, textureMap) {
   if (parser.geosetChunk) {
     var geosets = parser.geosetChunk.objects;
     var groups = [[], [], [], []];
-    
-    this.geosets = [];
     
     for (i = 0, l = geosets.length; i < l; i++) {
       var g = geosets[i];
@@ -359,80 +363,5 @@ Model.prototype = {
     }
     
     return true;
-  },
-  
-  getAttachment: function (id) {
-    if (this.attachments) {
-      return this.attachments[id];
-    }
-  },
-  
-  getCamera: function (id) {
-    if (this.cameras) {
-      return this.cameras[id];
-    }
-  },
-  
-  overrideTexture: function (source, path) {
-    this.textureMap[source] = path;
-  },
-  
-  getSequences: function () {
-    var data = [];
-    
-    if (this.sequences) {
-      for (var i = 0, l = this.sequences.length; i < l; i++) {
-        data[i] = this.sequences[i].name;
-      }
-    }
-    
-    return data;
-  },
-  
-  getAttachments: function () {
-    var data = [];
-    
-    if (this.attachments) {
-      for (var i = 0, l = this.attachments.length; i < l; i++) {
-        data[i] = this.attachments[i].name;
-      }
-    }
-    
-    return data;
-  },
-  
-  getCameras: function () {
-    var data = [];
-    
-    if (this.cameras) {
-      for (var i = 0, l = this.cameras.length; i < l; i++) {
-        data[i] = this.cameras[i].name;
-      }
-    }
-    
-    return data;
-  },
-  
-  getTextureMap: function () {
-    var data = {};
-    var textureMap = this.textureMap;
-    var keys = Object.keys(textureMap);
-    var key;
-      
-    for (var i = 0, l = keys.length; i < l; i++) {
-      key = keys[i];
-      
-      data[key] = textureMap[key];
-    }
-    
-    return data;
-  },
-  
-  getMeshCount: function () {
-    if (this.geosets) {
-      return this.geosets.length;
-    }
-    
-    return 0;
   }
 };
