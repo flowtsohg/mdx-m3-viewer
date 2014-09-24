@@ -46,15 +46,15 @@ function ModelInstance(model) {
 }
 
 ModelInstance.prototype = {
-  updateEmitters: function (emitters, allowCreate, baseParticle, billboardedParticle) {
+  updateEmitters: function (emitters, allowCreate, context) {
     if (emitters) {
       for (var i = 0, l = emitters.length; i < l; i++) {
-        emitters[i].update(allowCreate, this.sequence, this.frame, this.counter,baseParticle, billboardedParticle);
+        emitters[i].update(allowCreate, this.sequence, this.frame, this.counter, context.particleRect, context.particleBillboardedRect);
       }
     }
   },
   
-  update: function (instance, baseParticle, billboardedParticle) {
+  update: function (instance, context) {
     var allowCreate = false;
     var frames = 960 * FRAME_TIME;
     
@@ -80,17 +80,17 @@ ModelInstance.prototype = {
     
     this.skeleton.update(this.sequence, this.frame, this.counter, instance);
     
-    this.updateEmitters(this.particleEmitters, allowCreate, baseParticle, billboardedParticle);
-    this.updateEmitters(this.particleEmitters2, allowCreate, baseParticle, billboardedParticle);
-    this.updateEmitters(this.ribbonEmitters, allowCreate, baseParticle, billboardedParticle);
+    this.updateEmitters(this.particleEmitters, allowCreate, context);
+    this.updateEmitters(this.particleEmitters2, allowCreate, context);
+    this.updateEmitters(this.ribbonEmitters, allowCreate, context);
   },
   
-  render: function (instance, allowTeamColors, wireframe) {
-    this.model.render(this, instance.textureMap, wireframe);
+  render: function (instance, context) {
+    this.model.render(this, instance.textureMap, context);
   },
   
-  renderEmitters: function (instance, refreshCamera) {
-    this.model.renderEmitters(this, instance.textureMap, refreshCamera);
+  renderEmitters: function (instance, context) {
+    this.model.renderEmitters(this, instance.textureMap, context);
   },
   
   renderColor: function (instance) {
@@ -114,10 +114,12 @@ ModelInstance.prototype = {
   },
   
   getAttachment: function (id) {
-    var attachment = this.model.getAttachment(id);
+    var attachment = this.model.attachments[id];
     
     if (attachment) {
       return this.skeleton.nodes[attachment.node];
+    } else {
+      return this.skeleton.nodes[0];
     }
   },
   

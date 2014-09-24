@@ -354,7 +354,7 @@ ParticleEmitter2.prototype = {
     }
   },
   
-  render: function (textureMap, shader) {
+  render: function (textureMap, shader, context) {
     var particles = this.activeParticles.length;
     
     if (particles > 0) {
@@ -370,7 +370,7 @@ ParticleEmitter2.prototype = {
         ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
       }
       
-      bindTexture(this.texture, 0, this.model.textureMap, textureMap);
+      bindTexture(this.texture, 0, this.model.textureMap, textureMap, context);
       
       ctx.uniform2fv(shader.variables.u_dimensions, this.dimensions);
       

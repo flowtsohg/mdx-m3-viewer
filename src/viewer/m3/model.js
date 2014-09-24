@@ -5,11 +5,6 @@ function Model(parser, textureMap) {
   
   this.setupGeometry(parser, div);
   
-  //
-  // TODO: Refactor this.regions into this.meshes
-  //
-  this.meshes = this.geosets;
-  
   this.batches = [];
   this.materials = [[], []]; // 2D array for the possibility of adding more material types in the future
   this.materialMaps = parser.materialMaps;
@@ -34,7 +29,7 @@ function Model(parser, textureMap) {
     var materialMap = materialMaps[batch.materialReferenceIndex];
     
     if (materialMap.materialType === 1) {
-      batches.push({regionId: regionId, region: this.regions[regionId], material: this.materials[1][materialMap.materialIndex]});
+      batches.push({regionId: regionId, region: this.meshes[regionId], material: this.materials[1][materialMap.materialIndex]});
     }
   }
 
@@ -130,9 +125,80 @@ function Model(parser, textureMap) {
   this.cameras = parser.cameras;
     
   this.ready = true;
+  
+   this.setupShaders(parser);
 }
 
 Model.prototype = {
+  setupShaders: function (parser) {
+    // Shader setup
+    var uvSetCount = this.uvSetCount;
+    var uvSets = "EXPLICITUV" + (uvSetCount - 1);
+    var vscommon = SHADERS.vsbonetexture + SHADERS.svscommon + "\n";
+    var vsstandard = vscommon + SHADERS.svsstandard;
+    var pscommon = SHADERS.spscommon + "\n";
+    var psstandard = pscommon + SHADERS.spsstandard;
+    var psspecialized = pscommon + SHADERS.spsspecialized;
+    var NORMALS_PASS = "NORMALS_PASS";
+    var HIGHRES_NORMALS = "HIGHRES_NORMALS";
+    var SPECULAR_PASS = "SPECULAR_PASS";
+    var UNSHADED_PASS = "UNSHADED_PASS";
+    
+    // Load all the M3 shaders.
+    // All of them are based on the uv sets of this specific model.
+    if (!gl.shaderStatus("sstandard" + uvSetCount)) {
+      gl.createShader("sstandard" + uvSetCount, vsstandard, psstandard, [uvSets]);
+    }
+    
+    if (!gl.shaderStatus("sdiffuse" + uvSetCount)) {
+      gl.createShader("sdiffuse" + uvSetCount, vsstandard, psspecialized, [uvSets, "DIFFUSE_PASS"]);
+    }
+    
+    if (!gl.shaderStatus("snormals" + uvSetCount)) {
+      gl.createShader("snormals" + uvSetCount, vsstandard, psspecialized, [uvSets, NORMALS_PASS]);
+    }
+    
+    if (!gl.shaderStatus("suvs" + uvSetCount)) {
+      gl.createShader("suvs" + uvSetCount, vsstandard, psspecialized, [uvSets, "UV_PASS"]);
+    }
+    
+    if (!gl.shaderStatus("snormalmap" + uvSetCount)) {
+      gl.createShader("snormalmap" + uvSetCount, vsstandard, psspecialized, [uvSets, NORMALS_PASS, HIGHRES_NORMALS]);
+    }
+    
+    if (!gl.shaderStatus("sspecular" + uvSetCount)) {
+      gl.createShader("sspecular" + uvSetCount, vsstandard, psspecialized, [uvSets, SPECULAR_PASS]);
+    }
+    
+    if (!gl.shaderStatus("sspecular_normalmap" + uvSetCount)) {
+      gl.createShader("sspecular_normalmap" + uvSetCount, vsstandard, psspecialized, [uvSets, SPECULAR_PASS, HIGHRES_NORMALS]);
+    }
+    
+    if (!gl.shaderStatus("semissive" + uvSetCount)) {
+      gl.createShader("semissive" + uvSetCount, vsstandard, psspecialized, [uvSets, "EMISSIVE_PASS"]);
+    }
+    
+    if (!gl.shaderStatus("sunshaded" + uvSetCount)) {
+      gl.createShader("sunshaded" + uvSetCount, vsstandard, psspecialized, [uvSets, UNSHADED_PASS]);
+    }
+    
+    if (!gl.shaderStatus("sunshaded_normalmap" + uvSetCount)) {
+      gl.createShader("sunshaded_normalmap" + uvSetCount, vsstandard, psspecialized, [uvSets, UNSHADED_PASS, HIGHRES_NORMALS]);
+    }
+    
+    if (!gl.shaderStatus("sdecal" + uvSetCount)) {
+      gl.createShader("sdecal" + uvSetCount, vsstandard, psspecialized, [uvSets, "DECAL_PASS"]);
+    }
+    
+    if (!gl.shaderStatus("sparticles" + uvSetCount)) {
+      gl.createShader("sparticles" + uvSetCount, SHADERS.svsparticles, SHADERS.spsparticles);
+    } 
+    
+    if (!gl.shaderStatus("scolor")) {
+      gl.createShader("scolor", SHADERS.vsbonetexture + SHADERS.svscolor, SHADERS.pscolor);
+    }
+  },
+  
   setupGeometry: function (parser, div) {
     var i, l;
     var uvSetCount = parser.uvSetCount;
@@ -148,10 +214,10 @@ Model.prototype = {
     var elementArray = new Uint16Array(totalElements);
     var edgeArray = new Uint16Array(totalElements * 2);
     
-    this.regions = [];
+    this.meshes = [];
     
     for (i = 0, l = regions.length; i < l; i++) {
-      this.regions.push(new Region(regions[i], div.triangles, elementArray, edgeArray, offsets[i]));
+      this.meshes.push(new Region(regions[i], div.triangles, elementArray, edgeArray, offsets[i]));
     }
     
     this.elementBuffer = ctx.createBuffer();
@@ -222,10 +288,10 @@ Model.prototype = {
     }
   },
   
-  bind: function (shader, wireframe) {
+  bind: function (shader, context) {
     var vertexSize = this.vertexSize;
     var uvSetCount = this.uvSetCount;
-    var buffer = wireframe ? this.edgeBuffer : this.elementBuffer;
+    var buffer = context.polygonMode ? this.elementBuffer : this.edgeBuffer;
     
     ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
     
@@ -255,20 +321,20 @@ Model.prototype = {
     ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
   },
   
-  render: function (instance, instanceImpl, allowTeamColors, wireframe) {
+  render: function (instance, instanceImpl, context) {
     var i, l;
     var sequence = instanceImpl.sequence;
     var frame = instanceImpl.frame;
     var tc;
     var teamId = instance.teamColor;
-    var shaderName = shaders[shaderToUse];
+    var shaderName = shaders[context.shader];
     var realShaderName = shaderName + this.uvSetCount;
     // Instance-based texture overriding
     var textureMap = instance.textureMap;
     
     if (gl.shaderStatus(realShaderName)) {
       // Use a black team color if team colors are disabled
-      if (!allowTeamColors) {
+      if (!context.teamColorsMode) {
         teamId = 13;
       }
       
@@ -284,7 +350,7 @@ Model.prototype = {
       ctx.uniform3fv(shader.variables.u_lightPos, lightPosition);
       
       // Bind the vertices
-      this.bind(shader, wireframe);
+      this.bind(shader, context);
       
       for (i = 0, l = this.batches.length; i < l; i++) {
         var batch = this.batches[i];
@@ -294,23 +360,23 @@ Model.prototype = {
           var material = batch.material;
           
           if (shaderName === "sstandard" || shaderName === "suvs") {
-            material.bind(sequence, frame, textureMap, shader);
+            material.bind(sequence, frame, textureMap, shader, context);
           } else if (shaderName === "sdiffuse") {
-            material.bindDiffuse(sequence, frame, textureMap, shader);
+            material.bindDiffuse(sequence, frame, textureMap, shader, context);
           } else if (shaderName === "snormalmap" || shaderName === "sunshaded_normalmap") {
-            material.bindNormalMap(sequence, frame, textureMap, shader);
+            material.bindNormalMap(sequence, frame, textureMap, shader, context);
           } else if (shaderName === "sspecular") {
-            material.bindSpecular(sequence, frame, textureMap, shader);
+            material.bindSpecular(sequence, frame, textureMap, shader, context);
           } else if (shaderName === "sspecular_normalmap") {
-            material.bindSpecular(sequence, frame, textureMap, shader);
-            material.bindNormalMap(sequence, frame, textureMap, shader);
+            material.bindSpecular(sequence, frame, textureMap, shader, context);
+            material.bindNormalMap(sequence, frame, textureMap, shader, context);
           } else if (shaderName === "semissive") {
-            material.bindEmissive(sequence, frame, textureMap, shader);
+            material.bindEmissive(sequence, frame, textureMap, shader, context);
           } else if (shaderName === "sdecal") {
-            material.bindDecal(sequence, frame, textureMap, shader);
+            material.bindDecal(sequence, frame, textureMap, shader, context);
           }
           
-          region.render(shader, wireframe);
+          region.render(shader, context.polygonMode);
           
           material.unbind(shader); // This is required to not use by mistake layers from this material that were bound and are not overwritten by the next material
         }
@@ -331,7 +397,7 @@ Model.prototype = {
       ctx.enable(ctx.CULL_FACE);
     }
 	*/
-    if (shouldRenderShapes && this.fuzzyHitTestObjects && gl.shaderStatus("white")) {
+    if (context.boundingShapesMode && this.fuzzyHitTestObjects && gl.shaderStatus("white")) {
       ctx.depthMask(1);
       
       shader = gl.bindShader("white");
@@ -355,7 +421,7 @@ Model.prototype = {
     }
   },
   
-  renderEmitters: function (instance, instanceImpl, allowTeamColors) {
+  renderEmitters: function (instance, instanceImpl, context) {
     
   },
   

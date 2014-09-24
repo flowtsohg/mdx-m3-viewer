@@ -48,7 +48,7 @@ Skeleton.prototype = {
     
     // The root is always at index 0, since it's injected by the parser
     mat4.identity(root);
-    mat4.multiply(root, root, instance.getTransform());
+    mat4.multiply(root, root, instance.getTransformation());
     
     for (var i = 1, l = hierarchy.length; i < l; i++) {
       this.updateNode(nodes[hierarchy[i]], sequence, frame, counter);

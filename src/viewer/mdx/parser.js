@@ -568,26 +568,32 @@ var Parser = (function () {
     "CAMS": [CameraChunk, "cameraChunk"],
     "CLID": [CollisionShapeChunk, "collisionShapeChunk"]
   };
-
+  
+  function Parser(reader) {
+    var tag,
+          size,
+          chunk;
+    
+    // Initialize the node list with a root node
+    this["nodes"] = [{objectId: 0, parentId: -1, name: "InjectedRoot"}];
+    
+    while (remaining(reader) > 0) {
+      tag = read(reader, 4);
+      size = readUint32(reader);
+      chunk = tagToChunk[tag];
+  
+      if (chunk) {
+        this[chunk[1]] = new chunk[0](reader, size, this["nodes"]);
+      } else {
+        //console.log("Didn't parse chunk " + tag);
+        skip(reader, size);
+      }
+    }
+  }
+  
   return (function (reader) {
     if (read(reader, 4) === "MDLX") {
-      // Initialize the node list with a root node
-      this["nodes"] = [{objectId: 0, parentId: -1, name: "InjectedRoot"}];
-      
-      while (remaining(reader) > 0) {
-        var tag = read(reader, 4);
-        var size = readUint32(reader);
-        var chunk = tagToChunk[tag];
-		
-        if (chunk) {
-          this[chunk[1]] = new chunk[0](reader, size, this["nodes"]);
-        } else {
-          //console.log("Didn't parse chunk " + tag);
-          skip(reader, size);
-        }
-      }
-
-      this["ready"] = true;
+      return new Parser(reader);
     }
   });
 }());

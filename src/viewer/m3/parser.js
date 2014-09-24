@@ -1270,7 +1270,5 @@ var Parser = (function () {
       
       return new ModelHeader(reader, indexEntries, modelHeader.version);
     }
-    
-    return null;
   });
 }());

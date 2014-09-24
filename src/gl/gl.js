@@ -194,6 +194,14 @@ function bindTexture(object, unit) {
   } 
 }
 
+function bindWhiteTexture(unit) {
+  var texture = textureStore["\\1"];
+  boundTextures[unit] = texture;
+  
+  ctx.activeTexture(ctx.TEXTURE0 + unit);
+  ctx.bindTexture(ctx.TEXTURE_2D, texture.id);
+}
+
 function createRect(x, y, z, hw, hh, stscale) {
   return new Rect(x, y, z, hw, hh, stscale);
 }

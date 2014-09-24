@@ -1,4 +1,4 @@
-  function setupColor(width, height) {
+function setupColor(width, height) {
     // Color texture
     var color = ctx.createTexture();
     ctx.bindTexture(ctx.TEXTURE_2D, color);
@@ -44,10 +44,10 @@
   // Used by Mdx.ParticleEmitter since they don't need to be automatically updated and rendered
   function loadModelInstanceNoRender(source) {
     if (!modelCache[source]) {
-      modelCache[source] = new Model(source);
+      modelCache[source] = new AsyncModel(source);
     }
     
-    var instance = new ModelInstance(modelCache[source]);
+    var instance = new AsyncModelInstance(modelCache[source]);
     
     // Avoid reporting this instance since it's internal
     instance.delayOnload = true;
@@ -78,19 +78,10 @@
   grass_water = gl.createRect(0, 0, -3, groundSize, groundSize, 6);
   bedrock = gl.createRect(0, 0, -35, groundSize, groundSize, 6);
   sky = gl.createSphere(0, 0, 0, 5, 10, 2E4);
-  //light = gl.newSphere(0, 0, 0, 10, 10, 0.05);
   
-  function update() {
-    for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
-      if (modelInstanceCache[i].isInstance) {
-        modelInstanceCache[i].update(baseParticle, billboardedParticle);
-      }
-    }
-  }
-  
-  function updateParticle() {
+  function updateParticleRect() {
     for (var i = 0; i < 7; i++) {
-      vec3.transformMat4(billboardedParticle[i], baseParticle[i], inverseCameraRotation);
+      vec3.transformMat4(context.particleBillboardedRect[i], context.particleRect[i], inverseCameraRotation);
     }
   }
   
@@ -130,10 +121,18 @@
       }
     }
     
-    updateParticle();
-    
     gl.loadIdentity();
     gl.multMat(cameraMatrix);
+  }
+  
+  function update() {
+    for (var i = 0, l = instanceCache.length; i < l; i++) {
+      instanceCache[i].update(context);
+    }
+    
+    transformCamera();
+    
+    updateParticleRect();
   }
   
   function renderGround(isWater) {
@@ -187,52 +186,24 @@
       sky.render(shader);
     }
   }
-  /*
-  function renderLights() {
-    if (shouldRenderLights && worldShader) {
-      gl.pushMatrix();
-      
-      gl.translate(lightPosition[0], lightPosition[1], lightPosition[2]);
-      
-      gl.bindShader("world");
-      
-      gl.bindMVP("u_mvp");
-      
-      gl.setParameter("u_diffuseMap", 0);
-      gl.bindTexture("Light");
-      
-      light.render();
-      
-      gl.popMatrix();
-    }
-  }
-  */
+  
   function render() {
     ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
     
-    //if (refreshCamera) {
-      transformCamera();
-    //}
-    
     renderSky();
     renderGround();
-    //renderLights();
     
     // Render geometry
-    if (shouldRenderMeshes) {
-      for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
-        if (modelInstanceCache[i].isInstance) {
-          modelInstanceCache[i].render(shouldRenderTeamColors, shouldRenderWireframe);
-        }
+    if (context.meshesMode) {
+      for (var i = 0, l = instanceCache.length; i < l; i++) {
+        instanceCache[i].render(context);
       }
     }
     
     // Render particles
-    if (shouldRenderEmitters) {
-      for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
-        if (modelInstanceCache[i].isInstance) {
-          modelInstanceCache[i].renderEmitters(shouldRenderTeamColors, shouldRenderWireframe);
-        }
+    if (context.emittersMode) {
+      for (var i = 0, l = instanceCache.length; i < l; i++) {
+        instanceCache[i].renderEmitters(context);
       }
     }
     
@@ -244,41 +215,24 @@
   function renderColor() {
     ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
     
-    transformCamera();
-    
     ctx.disable(ctx.CULL_FACE);
     
-    for (var i = 0, l = modelInstanceCache.length; i < l; i++) {
-      if (modelInstanceCache[i].isInstance) {
-        modelInstanceCache[i].renderColor();
-      }
+    for (var i = 0, l = instanceCache.length; i < l; i++) {
+      instanceCache[i].renderColor();
     }
     
     ctx.enable(ctx.CULL_FACE);
   }
   
   // The main loop of the viewer
-  
-  var shouldRun = true;
-  
-  function run() {
-    requestAnimationFrame(run);
+  function step() {
+    update();
+    render();
     
-    if (shouldRun) {
-      update();
-      render();
-      
-      refreshCamera = false;
-    }
+    requestAnimationFrame(step);
   }
 
-  run();
-  
-  function onVisibilityChange() {
-    shouldRun = !isHidden();
-  }
-  
-  addVisibilityListener(onVisibilityChange);
+  step();
   
   // Generate a unique color
   var generateColor = (function () {
@@ -300,7 +254,7 @@
     var g = Math.floor(color[1] * 255);
     var b = Math.floor(color[2] * 255);
     
-    return "" + r + g+ b;
+    return "" + r + g + b;
   }
   
   // Load a model or texture from an absolute url, with an optional texture map, and an optional hidden parameter
@@ -314,7 +268,7 @@
       if (!modelCache[source]) {
         id = modelInstanceCache.length;
         
-        var model = new Model(source, id, textureMap);
+        var model = new AsyncModel(source, id, textureMap);
         
         modelCache[source] = model;
         
@@ -324,7 +278,7 @@
       id = modelInstanceCache.length;
       color = generateColor();
       
-      var instance = new ModelInstance(modelCache[source], id, color);
+      var instance = new AsyncModelInstance(modelCache[source], id, color);
       
       // Hide portraits by default
       if (hidden) {
@@ -332,6 +286,7 @@
       }
       
       modelInstanceCache.push(instance);
+      instanceCache.push(instance);
       colorInstanceCache[colorString(color)] = instance;
       
       if (instance.delayOnload) {
@@ -374,23 +329,6 @@
     }
   }
   
-  // Load a model.
-  // Source can be an absolute path to a MDX/M3 file, a path to a MDX/M3 file in any of the Warcraft 3 and Starcraft 2 MPQs, or a model ID used by the Hiveworkshop.
-  // Returns the ID of the loaded model.
-  // Note: if a model was already loaded from the given source, its ID will be returned.
-  function loadModel(source, textureMap) {
-    if (!modelCache[source]) {
-      var id = modelInstanceCache.length;
-      var model = new Model(source, id, textureMap);
-      
-      modelCache[source] = model;
-      
-      modelInstanceCache.push(model);
-    }
-    
-    return modelCache[source].id;
-  }
-  
   // Create a new instance from an existing model or instance, or a path that will be used to load also the model if needed.
   // If source is a string, it can be an absolute path to a MDX/M3 file, a path to a MDX/M3 file in any of the Warcraft 3 and Starcraft 2 MPQs, or a model ID used by the Hiveworkshop.
   // If source is a number, it can be an ID of a model or an instance.
@@ -398,11 +336,11 @@
   // Note: if the source is a string, and a model was already loaded from that string, only a new instance will be created.
   function loadInstance(source, textureMap) {
     if (typeof source === "string") {
-      var modelId = loadModel(source);
+      var modelId = loadAsyncModel(source);
       var id = modelInstanceCache.length;
       var color = generateColor();
       
-      var instance = new ModelInstance(modelInstanceCache[modelId], id, color, textureMap);
+      var instance = new AsyncModelInstance(modelInstanceCache[modelId], id, color, textureMap);
       
       modelInstanceCache.push(instance);
       colorInstanceCache[colorString(color)] = instance;
@@ -418,7 +356,7 @@
         var model = object.isModel ? object : object.model;
         var id = modelInstanceCache.length;
         var color = generateColor();
-        var instance = new ModelInstance(model, id, color);
+        var instance = new AsyncModelInstance(model, id, color);
         
         modelInstanceCache.push(instance);
         colorInstanceCache[colorString(color)] = instance;
@@ -850,64 +788,75 @@
   
   // Shows or hides all of the meshes
   function setMeshesMode(b) {
-    shouldRenderMeshes = b;
+    context.meshesMode = b;
   }
   
   // Get the mesh render mode
   function getMeshesMode() {
-    return shouldRenderMeshes;
+    return context.meshesMode;
   }
   
   // Shows or hides all of the emitters
   function setEmittersMode(b) {
-    shouldRenderEmitters = b;
+    context.emittersMode = b;
   }
   
   // Get the emitter render mode
   function getEmittersMode() {
-    return shouldRenderEmitters;
+    return context.emittersMode;
   }
   
   // Shows or hides the bounding shapes for all instances.
   function setBoundingShapesMode(b) {
-    shouldRenderShapes = b;
+    context.boundingShapesMode = b;
   }
   
   // Get the bounding shapes mode.
-  function getBoundingShapesMode(b) {
-    return shouldRenderShapes;
+  function getBoundingShapesMode() {
+    return context.boundingShapesMode;
   }
   
   // Shows or hides team colors for all instances.
   function setTeamColorsMode(b) {
-    shouldRenderTeamColors = b;
+    context.teamColorsMode = b;
   }
   
   // Get the team colors mode.
   function getTeamColorsMode() {
-    return shouldRenderTeamColors
+    return context.teamColorsMode;
   }
   
   // Set the render mode to either polygons or wireframe.
   // Pass true for polygons, or false for wireframe.
   function setPolygonMode(b) {
-    shouldRenderWireframe = !b;
+    context.polygonMode = b;
   }
   
   // Get the render mode
   function getPolygonMode() {
-    return shouldRenderWireframe;
+    return context.polygonMode;
+  }
+  
+  // Shows or hides all of the textures.
+  // If hidden, a white texture will be used for every texture bind.
+  function setTexturesMode(b) {
+    context.texturesMode = b;
+  }
+  
+  // Get the textures mode.
+  function getTexturesMode() {
+    return context.texturesMode;
   }
   
   // Set the shader to be used for Starcraft 2 models.
   // Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `normal map`, 4 for `specular map`, 5 for `specular map + normal map`, 6 for `emissive`, 7 for `unshaded`, 8 for `unshaded + normal map`, and finally 9 for `decal`
   function setShader(id) {
-    shaderToUse = id;
+    context.shader = id;
   }
   
   // Get the shader used for Starcraft 2 models.
   function getShader() {
-    return shaderToUse;
+    return context.shader;
   }
   
   // -------------------
@@ -931,7 +880,6 @@
     instanceCamera[1] = -1;
     camera.m[0] += x;
     camera.m[1] -= y;
-    refreshCamera = true;
   }
   
   // Rotate the camera on the x and y axes.
@@ -939,14 +887,12 @@
     instanceCamera[1] = -1;
     camera.r[0] += math.toRad(x);
     camera.r[1] += math.toRad(y);
-    refreshCamera = true;
   }
   
   // Zoom the camera by a factor.
   function zoomCamera(n) {
     instanceCamera[1] = -1;
     camera.m[2] = Math.floor(camera.m[2] * n);
-    refreshCamera = true;
   }
   
   // Reset the camera back to the initial state.
@@ -956,7 +902,6 @@
     camera.m[1] = 0;
     camera.m[2] = -300;
     camera.r = [math.toRad(315), math.toRad(225)];
-    refreshCamera = true;
   }
   
   // ------
@@ -1075,8 +1020,6 @@
     var id;
     
     scene = JSON.parse(scene);
-    
-    refreshCamera = true;
       
     camera.m = scene[0];
     camera.r = scene[1];
@@ -1099,7 +1042,7 @@
     for (i = 0, l = models.length; i < l; i++) {
       object = models[i];
       
-      id = loadModel(object[1], object[2]);
+      id = loadAsyncModel(object[1], object[2]);
       
       modelInstanceCache[id].fromJSON(object);
       
@@ -1169,12 +1112,18 @@
     getWorldMode: getWorldMode,
     setGroundSize: setGroundSize,
     getGroundSize: getGroundSize,
+    setMeshesMode: setMeshesMode,
+    getMeshesMode: getMeshesMode,
+    setEmittersMode: setEmittersMode,
+    getEmittersMode: getEmittersMode,
     setBoundingShapesMode: setBoundingShapesMode,
     getBoundingShapesMode: getBoundingShapesMode,
     setTeamColorsMode: setTeamColorsMode,
     getTeamColorsMode: getTeamColorsMode,
     setPolygonMode: setPolygonMode,
     getPolygonMode: getPolygonMode,
+    setTexturesMode: setTexturesMode,
+    getTexturesMode: getTexturesMode,
     setShader: setShader,
     getShader: getShader,
     // Camera settings

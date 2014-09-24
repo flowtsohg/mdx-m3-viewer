@@ -1,7 +1,7 @@
 function Geoset(geoset) {
   var i, l, j, k;
   var positions = geoset.vertexPositions;
-  //var normals = new Float32Array(geoset.vertexNormals);
+  var normals = geoset.vertexNormals;
   var textureCoordinateSets = geoset.textureCoordinateSets;
   var uvsetSize = textureCoordinateSets[0].length * 2;
   var vertices = positions.length / 3;
@@ -51,7 +51,8 @@ function Geoset(geoset) {
     boneNumbers[i] = count;
   }
   
-  var uvsOffset = positions.byteLength;
+  var normalsOffset = positions.byteLength;
+  var uvsOffset = normalsOffset + normals.byteLength;
   var boneIndicesOffset = uvsOffset + uvs.byteLength;
   var boneNumbersOffset = boneIndicesOffset + boneIndices.byteLength;
   var bufferSize = boneNumbersOffset + boneNumbers.byteLength;
@@ -60,7 +61,7 @@ function Geoset(geoset) {
   ctx.bindBuffer(ctx.ARRAY_BUFFER, arrayBuffer);
   ctx.bufferData(ctx.ARRAY_BUFFER,  bufferSize, ctx.STATIC_DRAW);
   ctx.bufferSubData(ctx.ARRAY_BUFFER, 0, positions);
-  //ctx.bufferSubData(ctx.ARRAY_BUFFER, this.offsets[1], normals);
+  ctx.bufferSubData(ctx.ARRAY_BUFFER, normalsOffset, normals);
   ctx.bufferSubData(ctx.ARRAY_BUFFER, uvsOffset, uvs);
   ctx.bufferSubData(ctx.ARRAY_BUFFER, boneIndicesOffset, boneIndices);
   ctx.bufferSubData(ctx.ARRAY_BUFFER, boneNumbersOffset, boneNumbers);
@@ -73,7 +74,7 @@ function Geoset(geoset) {
   ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, edgeBuffer);
   ctx.bufferData(ctx.ELEMENT_ARRAY_BUFFER, edges, ctx.STATIC_DRAW);
   
-  this.offsets = [0, uvsOffset, boneIndicesOffset, boneNumbersOffset];
+  this.offsets = [0, normalsOffset, uvsOffset, boneIndicesOffset, boneNumbersOffset];
   this.uvsetSize = uvsetSize * 4;
   this.arrayBuffer = arrayBuffer;
   this.elementBuffer = elementBuffer;
@@ -82,22 +83,23 @@ function Geoset(geoset) {
 }
 
 Geoset.prototype = {
-  render: function (coordId, shader, wireframe) {
+  render: function (coordId, shader, polygonMode) {
     var offsets = this.offsets;
     
     ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
     
     ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 12, offsets[0]);
-    ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 8, offsets[1] + coordId * this.uvsetSize);
-    ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, 4, offsets[2]);
-    ctx.vertexAttribPointer(shader.variables.a_bone_number, 1, ctx.UNSIGNED_BYTE, false, 1, offsets[3]);
+    ctx.vertexAttribPointer(shader.variables.a_normal, 3, ctx.FLOAT, false, 12, offsets[1]);
+    ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 8, offsets[2] + coordId * this.uvsetSize);
+    ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, 4, offsets[3]);
+    ctx.vertexAttribPointer(shader.variables.a_bone_number, 1, ctx.UNSIGNED_BYTE, false, 1, offsets[4]);
     
-    if (wireframe) {
-      ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
-      ctx.drawElements(ctx.LINES, this.elements * 2, ctx.UNSIGNED_SHORT, 0);
-    } else {
+    if (polygonMode) {
       ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
       ctx.drawElements(ctx.TRIANGLES, this.elements, ctx.UNSIGNED_SHORT, 0);
+    } else {
+      ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
+      ctx.drawElements(ctx.LINES, this.elements * 2, ctx.UNSIGNED_SHORT, 0);
     }
   },
   

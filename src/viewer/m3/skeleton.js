@@ -5,7 +5,7 @@ function ShallowBone (bone) {
 }
 
 ShallowBone.prototype = {
-  getTransform: function () {
+  getTransformation: function () {
     return this.worldMatrix;
   }
 };
@@ -55,7 +55,7 @@ Skeleton.prototype = {
     mat4.identity(root);
     
     if (instance) {
-      mat4.multiply(root, root, instance.getTransform());
+      mat4.multiply(root, root, instance.getTransformation());
     }
     
     for (var i = 0, l = this.bones.length; i < l; i++) {

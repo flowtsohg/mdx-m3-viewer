@@ -1,6 +1,7 @@
 output_path = "viewer.js"
 use_closure = true
 use_glsl_min = true
+annonymify_code = true
 
 # Check for the existence of the Closure compiler
 # https://developers.google.com/closure/compiler/
@@ -70,6 +71,8 @@ code_files = [
   "gl/after",
   "viewer/before",
   "viewer/shaders",
+  "viewer/async",
+  "viewer/spatial",
   "viewer/mdx/before",
   "viewer/mdx/parser",
   "viewer/mdx/sd",
@@ -107,8 +110,8 @@ code_files = [
   #"viewer/m3/particle",
   #"viewer/m3/particleemitter",
   "viewer/m3/after",
-  "viewer/model",
-  "viewer/modelinstance",
+  "viewer/asyncmodel",
+  "viewer/asyncmodelinstance",
   "viewer/after"
 ]
 
@@ -134,18 +137,22 @@ def handle_shaders(use_glsl_min, shared, mdx, m3, srcpath)
   }
 end
 
-def handle_source(use_closure, paths, output)
+def handle_source(use_closure, annonymify_code, paths, output)
     File.open("model_viewer_monolith.js", "w") { |output|
-      output.write("(function () {\n")
-      output.write("\"use strict\";\n")
-      
+      if annonymify_code
+        output.write("(function () {\n")
+        output.write("\"use strict\";\n")
+      end
+    
       paths.each { |file|
         output.write("\n")
         output.write(IO.read("src/" + file + ".js"))
         output.write("\n")
       }
       
-      output.write("}());")
+      if annonymify_code
+        output.write("}());")
+      end
     }
 	
     if use_closure
@@ -163,14 +170,14 @@ def handle_source(use_closure, paths, output)
     File.open(output, "w") { |output|
       output.write("/* The MIT License (MIT)\n\nCopyright (c) 2013-2014 Chananya Freiman\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */\n")
       
-      if use_closure
+      if use_closure and annonymify_code
         output.write("(function(){")
         output.write("\"use strict\";")
       end
       
       output.write(input.read())
       
-      if use_closure
+      if use_closure and annonymify_code
         output.write("}());")
       end
       
@@ -183,4 +190,4 @@ def handle_source(use_closure, paths, output)
 end
 
 handle_shaders(use_glsl_min, shared_shaders, mdx_shaders, m3_shaders, "src/viewer/")
-handle_source(use_closure, code_files, output_path)
+handle_source(use_closure, annonymify_code, code_files, output_path)

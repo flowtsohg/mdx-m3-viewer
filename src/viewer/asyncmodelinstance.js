@@ -1,67 +1,72 @@
-function ModelInstance(model, id, color, textureMap) {
-  this.isInstance = true;
-  this.model = model;
-  this.id = id;
+function AsyncModelInstance(asyncModel, id, color, textureMap) {
+  this.ready = false;
+  this.fileType = asyncModel.fileType;
+  this.handler = AsyncModelInstance.handlers[asyncModel.fileType];
   
-  this.source = model.source;
-  this.visible = 1;
-  
-  this.worldMatrix = mat4.create();
-  this.localMatrix = mat4.create();
-  this.location = vec3.create();
-  this.rotation = quat.create();
-  this.scaling = vec3.fromValues(1, 1, 1);
-  this.inverseScaling = vec3.fromValues(1, 1, 1);
-  
-  this.parent = null;
-  this.parentId = -1;
-  this.attachment = -1;
-  
-  this.teamColor = 0;
-  this.sequence = -1;
-  this.sequenceLoopMode = 0;
-  
-  // This is a local texture map that can override the one owned by the model.
-  // This way, every instance can have different textures.
-  this.textureMap = {};
+  if (this.handler) {
+    this.isInstance = true;
+    this.asyncModel = asyncModel;
+    this.id = id;
     
-  if (textureMap) {
-    var keys = Object.keys(textureMap);
+    this.source = asyncModel.source;
+    this.visible = 1;
     
-    for (var i = 0, l = keys.length; i < l; i++) {
-      var key = keys[i];
+    this.attachment = -1;
+    
+    this.teamColor = 0;
+    this.sequence = -1;
+    this.sequenceLoopMode = 0;
+    
+    // This is a local texture map that can override the one owned by the model.
+    // This way, every instance can have different textures.
+    this.textureMap = {};
       
-      this.overrideTexture(key, textureMap[key]);
+    if (textureMap) {
+      var keys = Object.keys(textureMap);
+      
+      for (var i = 0, l = keys.length; i < l; i++) {
+        var key = keys[i];
+        
+        this.overrideTexture(key, textureMap[key]);
+      }
     }
+    
+    // Used for color picking
+    this.color = color;
+    
+    // Use the Async mixin
+    this.useAsync();
+    
+    // Use the Spatial mixin
+    this.useSpatial();
+    
+    // If the model is already ready, the onload message from setup() must be delayed, since this instance wouldn't be added to the cache yet.
+    if (asyncModel.ready) {
+      this.delayOnload = true;
+    }
+    
+    // Request the setup function to be called by the model when it can.
+    // If the model is loaded, setup runs instantly, otherwise it runs when the model finishes loading.
+    asyncModel.setupInstance(this);
+  } else {
+    console.log("AsyncModelInstance: No handler for file type " + asyncModel.fileType);
   }
-  
-  // Used for color picking
-  this.color = color;
-  
-  // A queue of actions that were issued before the internal instance loaded, but require it to be loaded in order to run.
-  // This queue will run automatically when the instance finishes loading.
-  this.queue = [];
-  
-  // If the model is already ready, the onload message from setup() must be delayed, since this instance wouldn't be added to the cache yet.
-  if (model.ready) {
-    this.delayOnload = true;
-  }
-  
-  // Request the setup function to be called by the model when it can.
-  // If the model is loaded, setup runs instantly, otherwise it runs when the model finishes loading.
-  model.setupInstance(this);
 }
 
-ModelInstance.prototype = {
+AsyncModelInstance.handlers = {
+  "mdx": Mdx.ModelInstance,
+  "m3": M3.ModelInstance
+};
+
+AsyncModelInstance.prototype = {
   // Setup the internal instance using the internal model implementation
-  setup: function (model, format) {
-    this.format = format;
+  setup: function (model, fileType) {
+    this.fileType = fileType;
+    this.handler = AsyncModelInstance.handlers[fileType];
     
-    if (format === "MDLX") {
-      this.instance = new Mdx.ModelInstance(model);
-    } else {
-      this.instance = new M3.ModelInstance(model);
-      
+    this.instance = new this.handler(model);
+    
+    if (this.fileType === "m3") {
       // Transform to match the direction and size of MDX models
       this.rotate([0, 0, 0.7071067811865476, 0.7071067811865476]);
       this.scale(100);
@@ -69,13 +74,9 @@ ModelInstance.prototype = {
     
     this.ready = true;
     
-    for (var i = 0, l = this.queue.length; i < l; i++) {
-      var action = this.queue[i];
-      
-      this[action[0]].apply(this, action[1]);
-    }
+    this.runAsyncActions();
     
-    this.recalculate();
+    this.recalculateTransformation();
     
     if (!this.delayOnload) {
       onload(this);
@@ -86,21 +87,21 @@ ModelInstance.prototype = {
     }
   },
   
-  update: function (baseParticle, billboardedParticle) {
+  update: function (context) {
     if (this.ready) {
-      this.instance.update(this, baseParticle, billboardedParticle);
+      this.instance.update(this, context);
     }
   },
   
-  render: function (allowTeamColors, wireframe) {
+  render: function (context) {
     if (this.ready && this.visible) {
-      this.instance.render(this, allowTeamColors, wireframe);
+      this.instance.render(this, context);
     }
   },
   
-  renderEmitters: function (allowTeamColors) {
+  renderEmitters: function (context) {
     if (this.ready && this.visible) {
-      this.instance.renderEmitters(this, allowTeamColors);
+      this.instance.renderEmitters(this, context);
     }
   },
   
@@ -111,23 +112,20 @@ ModelInstance.prototype = {
   },
   
   getSource: function () {
-    return this.model.source;
+    return this.asyncModel.source;
   },
   
-  setParent: function (parent, attachment) {
-    this.parent = parent;
-    
-    if (!parent) {
-      this.parentId = -1;
-      this.attachment = -1;
+  // Sets the parent value of a requesting Spatial.
+  setRequestedAttachment: function (requester, attachment) {
+    requester.setParentNode(this.instance.getAttachment(attachment));
+  },
+  
+  requestAttachment: function (requester, attachment) {
+    if (this.ready) {
+      return this.setRequestedAttachment(requester, attachment);
     } else {
-      this.parentId = parent.id;
-      this.attachment = attachment;
+      this.addAsyncAction("setRequestedAttachment", arguments);
     }
-  },
-  
-  getParent: function () {
-    return [this.parentId, this.attachment];
   },
   
   overrideTexture: function (source, path) {
@@ -155,88 +153,6 @@ ModelInstance.prototype = {
     return data;
   },
   
-  recalculate: function () {
-    mat4.fromRotationTranslationScale(this.localMatrix, this.rotation, this.location, this.scaling);
-  },
-  
-  move: function (v) {
-    vec3.add(this.location, this.location, v);
-    this.recalculate();
-  },
-  
-  setLocation: function (v) {
-    vec3.copy(this.location, v);
-    this.recalculate();
-  },
-  
-  getLocation: function () {
-    return Array.copy(this.location);
-  },
-  
-  rotate: function (q) {
-    quat.multiply(this.rotation, this.rotation, q);
-    this.recalculate();
-  },
-  
-  setRotation: function (q) {
-    quat.copy(this.rotation, q);
-    this.recalculate();
-  },
-  
-  getRotation: function () {
-    return Array.copy(this.rotation);
-  },
-  
-  scale: function (n) {
-    vec3.scale(this.scaling, this.scaling, n);
-    vec3.inverse(this.inverseScaling, this.scaling);
-    this.recalculate();
-  },
-  
-  setScale: function (n) {
-    vec3.set(this.scaling, n, n, n);
-    vec3.inverse(this.inverseScaling, this.scaling);
-    this.recalculate();
-  },
-  
-  getScale: function () {
-    return this.scaling[0];
-  },
-  
-  // Get the transform of this instance.
-  // If there is a parent, then it is parent * local matrix, otherwise just the local matrix.
-  getTransform: function (objects) {
-    var worldMatrix = this.worldMatrix;
-    var parent = this.parent;
-    
-    mat4.identity(worldMatrix);
-    
-    if (parent) {
-      if (this.attachment !== -1) {
-        var attachment = parent.getAttachment(this.attachment);
-        
-        // This check avoids errors when the model still didn't finish loading, and thus can't return any real attachment object
-        if (attachment) {
-          mat4.multiply(worldMatrix, worldMatrix, attachment.getTransform());
-        }
-      } else {
-        mat4.multiply(worldMatrix, worldMatrix, parent.getTransform());
-      }
-      
-      // Scale by the inverse of the parent to avoid carrying over scales through the hierarchy
-      mat4.scale(worldMatrix, worldMatrix, parent.inverseScaling);
-      
-      // To avoid the 90 degree rotations applied to M3 models
-      if (parent.format !== "MDLX") {
-        mat4.rotate(worldMatrix, worldMatrix, -Math.PI / 2, zAxis);
-      }
-    }
-    
-    mat4.multiply(worldMatrix, worldMatrix, this.localMatrix);
-    
-    return worldMatrix;
-  },
-  
   getAttachment: function (id) {
     if (this.ready) {
       return this.instance.getAttachment(id);
@@ -245,7 +161,7 @@ ModelInstance.prototype = {
   
   getCamera: function (id) {
     if (this.ready) {
-      return this.model.getCamera(id);
+      return this.asyncModel.getCamera(id);
     }
   },
   
@@ -255,7 +171,7 @@ ModelInstance.prototype = {
     if (this.ready) {
       this.instance.setSequence(id);
     } else {
-      this.queue.push(["setSequence", [id]])
+      this.addAsyncAction("setSequence", arguments);
     }
   },
   
@@ -269,7 +185,7 @@ ModelInstance.prototype = {
     if (this.ready) {
       this.instance.setSequenceLoopMode(mode);
     } else {
-      this.queue.push(["setSequenceLoopMode", [mode]])
+      this.addAsyncAction("setSequenceLoopMode", arguments);
     }
   },
   
@@ -294,7 +210,7 @@ ModelInstance.prototype = {
   
   getSequences: function () {
     if (this.ready) {
-      return this.model.getSequences();
+      return this.asyncModel.getSequences();
     }
     
     return [];
@@ -302,7 +218,7 @@ ModelInstance.prototype = {
   
   getAttachments: function () {
     if (this.ready) {
-      return this.model.getAttachments();
+      return this.asyncModel.getAttachments();
     }
     
     return [];
@@ -310,7 +226,7 @@ ModelInstance.prototype = {
   
   getCameras: function () {
     if (this.ready) {
-      return this.model.getCameras();
+      return this.asyncModel.getCameras();
     }
     
     return [];
@@ -318,7 +234,7 @@ ModelInstance.prototype = {
   
   getMeshCount: function () {
     if (this.ready) {
-      return this.model.getMeshCount();
+      return this.asyncModel.getMeshCount();
     }
   },
   
@@ -352,7 +268,7 @@ ModelInstance.prototype = {
   
   getInfo: function () {
     return {
-      modelInfo: this.model.getInfo(),
+      modelInfo: this.asyncModel.getInfo(),
       visible: this.visible,
       sequence: this.getSequence(),
       sequenceLoopMode: this.getSequenceLoopMode(),
@@ -374,7 +290,7 @@ ModelInstance.prototype = {
     // This code avoids saving instance overrides that match the model's texture map.
     // For example, when the client overrides a texture and then sets it back to the original value.
     var textureMap = {};
-    var modelTextureMap = this.model.getTextureMap();
+    var modelTextureMap = this.asyncModel.getTextureMap();
     var key, keys = Object.keys(this.textureMap);
     
     for (var i = 0, l = keys.length; i < l; i++) {
@@ -397,7 +313,7 @@ ModelInstance.prototype = {
     
     return [
       this.id,
-      this.model.id,
+      this.asyncModel.id,
       this.sequence,
       this.sequenceLoopMode,
       // For some reason, when typed arrays are JSON stringified they change to object notation rather than array notation
@@ -429,3 +345,7 @@ ModelInstance.prototype = {
     }
   }
 };
+
+// Mixins
+Async.call(AsyncModelInstance.prototype);
+Spatial.call(AsyncModelInstance.prototype);

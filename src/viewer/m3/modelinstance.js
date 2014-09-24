@@ -13,7 +13,7 @@ function ModelInstance(model) {
 }
 
 ModelInstance.prototype = {
-  update: function (instance, baseParticle, billboardedParticle) {
+  update: function (instance, context) {
     var i, l;
     var sequenceId = this.sequence;
     var allowCreate = false;
@@ -42,12 +42,12 @@ ModelInstance.prototype = {
     */
   },
   
-  render: function (instance, allowTeamColors, wireframe) {
-    this.model.render(instance, this, allowTeamColors, wireframe);
+  render: function (instance, context) {
+    this.model.render(instance, this, context);
   },
   
-  renderEmitters: function (instance, allowTeamColors) {
-    this.model.renderEmitters(instance, this, allowTeamColors);
+  renderEmitters: function (instance, context) {
+    this.model.renderEmitters(instance, this, context);
   },
   
   renderColor: function (instance) {

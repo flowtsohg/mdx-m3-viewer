@@ -71,7 +71,7 @@ RibbonEmitter.prototype = {
     }
   },
   
-  render: function (sequence, frame, counter, textureMap, shader) {
+  render: function (sequence, frame, counter, textureMap, shader, context) {
     var i, l;
     var ribbons = Math.min(this.ribbons.length, this.maxRibbons);
     
@@ -123,7 +123,7 @@ RibbonEmitter.prototype = {
           
           textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
           
-          bindTexture(this.textures[textureId], 0, this.model.textureMap, textureMap);
+          bindTexture(this.textures[textureId], 0, this.model.textureMap, textureMap, context);
           
           color = getSDValue(sequence, frame, counter, this.sd.color, this.color, this.colorVec);
           uvoffset = this.defaultUvoffsetVec;

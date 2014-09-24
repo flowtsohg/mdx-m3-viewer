@@ -1,3 +1,17 @@
+function getNamesFromObjects(objects) {
+  var names = [],
+        i,
+        l;
+  
+  if (objects) {
+    for (i = 0, l = objects.length; i < l; i++) {
+      names[i] = objects.name;
+    }
+  }
+  
+  return names;
+}
+
 function encodeFloat2(x, y) {
   return x + y * 256;
 }

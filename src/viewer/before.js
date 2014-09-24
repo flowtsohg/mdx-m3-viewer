@@ -130,7 +130,6 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   }
   
   var ctx = gl.ctx;
-  var refreshCamera = true;
   var camera = {m: [0, 0, 0], r: [0, 0]};
   var cameraMatrix = mat4.create();
   var inverseCamera = mat4.create();
@@ -147,19 +146,15 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   var uvOffset = [0, 0];
   var uvSpeed = [math.random(-0.004, 0.004), math.random(-0.004, 0.004)];
   var upDir = [0, 0, 1];
-  //var light;
+  
   var shouldRenderWorld = 2;
-  var shouldRenderLights = true;
-  var shouldRenderMeshes = true;
-  var shouldRenderShapes = false;
-  var shouldRenderTeamColors = true;
-  var shouldRenderWireframe = false;
-  var shouldRenderEmitters = true;
-  var shaderToUse = 0;
   var groundSize = 256;
   
   // To reference models by their source.
   var modelCache = {};
+    
+  // To loop over the instances
+  var instanceCache = [];
     
   // To reference models or instances by their ID.
   var modelInstanceCache = [];
@@ -205,25 +200,37 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     "sdecal"
   ];
   
-  // The default state of a particle
-  var baseParticle = [vec3.fromValues(-1, -1, 0), vec3.fromValues(-1, 1, 0), vec3.fromValues(1, 1, 0), vec3.fromValues(1, -1, 0), vec3.fromValues(1, 0, 0), vec3.fromValues(0, 1, 0), vec3.fromValues(0, 0, 1)];
-  // A particle facing the camera
-  var billboardedParticle = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
+  var context = {
+    worldMode: 2,
+    meshesMode: true,
+    emittersMode: true,
+    polygonMode: true,
+    teamColorsMode: true,
+    boundingShapesMode: false,
+    texturesMode: true,
+    shader: 0,
+    particleRect: [vec3.fromValues(-1, -1, 0), vec3.fromValues(-1, 1, 0), vec3.fromValues(1, 1, 0), vec3.fromValues(1, -1, 0), vec3.fromValues(1, 0, 0), vec3.fromValues(0, 1, 0), vec3.fromValues(0, 0, 1)],
+    particleBillboardedRect: [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()]
+  };
   
-  function bindTexture(source, unit, modelTextureMap, instanceTextureMap) {
+  function bindTexture(source, unit, modelTextureMap, instanceTextureMap, context, forceTexture) {
     var texture;
     
-    if (modelTextureMap[source]) {
-      texture = modelTextureMap[source];
+    if (forceTexture || context.texturesMode) {
+      if (modelTextureMap[source]) {
+        texture = modelTextureMap[source];
+      }
+      
+      if (instanceTextureMap[source]) {
+        texture = instanceTextureMap[source];   
+      }
+      
+      if (!context.teamColorsMode && source.endsWith("00.blp")) {
+        texture = null;
+      }
+      
+      gl.bindTexture(texture, unit);
+    } else {
+      gl.bindWhiteTexture(unit);
     }
-    
-    if (instanceTextureMap[source]) {
-      texture = instanceTextureMap[source];   
-    }
-    
-    if (!shouldRenderTeamColors && source.endsWith("00.blp")) {
-      texture = null;
-    }
-    
-    gl.bindTexture(texture, unit);
   }

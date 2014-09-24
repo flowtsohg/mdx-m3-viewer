@@ -5,12 +5,13 @@ function Model(parser, textureMap) {
   this.sequences = [];
   this.textures = [];
   this.textureMap = {};
-  this.geosets = [];
-  
-  //
-  // TODO: Refactor this.geosets into this.meshes
-  //
-  this.meshes = this.geosets;
+  this.meshes = [];
+  this.cameras = [];
+  this.particleEmitters = [];
+  this.particleEmitters2 = [];
+  this.ribbonEmitters = [];
+  this.collisionShapes = [];
+  this.attachments = [];
     
   if (parser.textureChunk) {
     objects = parser.textureChunk.objects;
@@ -57,7 +58,7 @@ function Model(parser, textureMap) {
       var g = geosets[i];
       var layers = this.materials[g.materialId].layers;
       
-      this.geosets.push(new Geoset(g));
+      this.meshes.push(new Geoset(g));
       
       for (j = 0, k = layers.length; j < k; j++) {
         var layer = new Layer(layers[j], i, this);
@@ -104,11 +105,9 @@ function Model(parser, textureMap) {
   if (parser.ribbonEmitterChunk) {
     this.ribbonEmitters = parser.ribbonEmitterChunk.objects;
   }
-
+  
   if (parser.collisionShapeChunk) {
     objects = parser.collisionShapeChunk.objects;
-    
-    this.collisionShapes = [];
     
     for (i = 0, l = objects.length; i < l; i++) {
       this.collisionShapes[i] = new CollisionShape(objects[i]);
@@ -117,8 +116,6 @@ function Model(parser, textureMap) {
 
   if (parser.attachmentChunk) {
     objects = parser.attachmentChunk.objects;
-    
-    this.attachments = [];
     
     for (i = 0, l = objects.length; i < l; i++) {
       this.attachments[i] = new Attachment(objects[i], this);
@@ -131,9 +128,35 @@ function Model(parser, textureMap) {
   this.defaultUvoffset = vec3.create();
   
   this.ready = true;
+  
+  this.setupShaders(parser);
 }
 
 Model.prototype = {
+  setupShaders: function (parser) {
+    var psmain = SHADERS["wpsmain"];
+      
+    // Load the main shader if it is needed
+    if ((parser.geosetChunk || parser.particleEmitterChunk) && !gl.shaderStatus("wmain")) {
+      gl.createShader("wmain", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain)
+    }
+    
+    // Load the particle emitters type 2 shader if it is needed
+    if (parser.particleEmitter2Chunk && !gl.shaderStatus("wparticles")) {
+      gl.createShader("wparticles", SHADERS.decodefloat + SHADERS.wvsparticles, SHADERS.wpsparticles);
+    }
+    
+    // Load the ribbon emitters shader if it is needed
+    if (parser.ribbonEmitterChunk && !gl.shaderStatus("wribbons")) {
+      gl.createShader("wribbons", SHADERS.wvsribbons, psmain);
+    }
+    
+    // Load the color shader if it is needed
+    if (!gl.shaderStatus("wcolor")) {
+      gl.createShader("wcolor", SHADERS.vsbonetexture + SHADERS.wvscolor, SHADERS.pscolor);
+    }
+  },
+  
   loadTexture: function (texture, textureMap) {
     var source = texture.path;
     var path;
@@ -172,7 +195,7 @@ Model.prototype = {
     }
   },
   
-  render: function (instance, textureMap, wireframe) {
+  render: function (instance, textureMap, context) {
     var i, l, v;
 	  var sequence = instance.sequence;
     var frame = instance.frame;
@@ -186,7 +209,7 @@ Model.prototype = {
       var layer;
       var geoset;
       var textureId;
-      var geosets = this.geosets;
+      var geosets = this.meshes;
       var textures = this.textures;
       var temp;
       var defaultUvoffset = this.defaultUvoffset;
@@ -217,7 +240,7 @@ Model.prototype = {
           
           textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
           
-          bindTexture(textures[textureId], 0, this.textureMap, textureMap);
+          bindTexture(textures[textureId], 0, this.textureMap, textureMap, context);
           
           if (this.geosetAnimations) {
             for (var j = this.geosetAnimations.length; j--;) {
@@ -246,18 +269,18 @@ Model.prototype = {
           
           ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
           
-          geoset.render(layer.coordId, shader, wireframe);
+          geoset.render(layer.coordId, shader, context.polygonMode);
         }
       }
     }
     
-    if (instance.particleEmitters && gl.shaderStatus("wmain")) {
+    if (context.emittersMode && instance.particleEmitters && gl.shaderStatus("wmain")) {
       for (i = 0, l = instance.particleEmitters.length; i < l; i++) {
-        instance.particleEmitters[i].render();
+        instance.particleEmitters[i].render(context);
       }
     }
     
-    if (shouldRenderShapes && this.collisionShapes && gl.shaderStatus("white")) {
+    if (context.boundingShapesMode && this.collisionShapes && gl.shaderStatus("white")) {
       ctx.depthMask(1);
       
       shader = gl.bindShader("white");
@@ -271,7 +294,7 @@ Model.prototype = {
     ctx.enable(ctx.CULL_FACE);
   },
   
-  renderEmitters: function (instance, textureMap) {
+  renderEmitters: function (instance, textureMap, context) {
     var i, l;
 	  var sequence = instance.sequence;
     var frame = instance.frame;
@@ -287,7 +310,7 @@ Model.prototype = {
       ctx.uniform1i(shader.variables.u_texture, 0);
       
       for (i = 0, l = instance.ribbonEmitters.length; i < l; i++) {
-        instance.ribbonEmitters[i].render(sequence, frame, counter, textureMap, shader);
+        instance.ribbonEmitters[i].render(sequence, frame, counter, textureMap, shader, context);
       }
     }
     
@@ -302,7 +325,7 @@ Model.prototype = {
       ctx.uniform1i(shader.variables.u_texture, 0);
       
       for (i = 0, l = instance.particleEmitters2.length; i < l; i++) {
-        instance.particleEmitters2[i].render(textureMap, shader);
+        instance.particleEmitters2[i].render(textureMap, shader, context);
       }
       
       ctx.depthMask(1);
@@ -333,7 +356,7 @@ Model.prototype = {
         layer = layers[i];
         
         if (instance.meshVisibilities[layer.geosetId] && layer.shouldRender(sequence, frame, counter) && this.shouldRenderGeoset(sequence, frame, counter, layer)) {
-          geoset = this.geosets[layer.geosetId];
+          geoset = this.meshes[layer.geosetId];
           texture = this.textureMap[this.textures[layer.textureId]];
           
           // Avoid rendering team glows

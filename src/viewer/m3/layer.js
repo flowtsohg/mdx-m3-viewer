@@ -71,13 +71,13 @@ function Layer(layer, type, op, model, textureMap) {
 }
 
 Layer.prototype = {
-  bind: function (unit, sequence, frame, textureMap, shader) {
+  bind: function (unit, sequence, frame, textureMap, shader, context, forceTexture) {
     var variables = shader.variables;
     var uniforms = this.uniforms;
     
     if (this.active) {
       ctx.uniform1i(variables[uniforms.map], unit);
-      bindTexture(this.source, unit, this.model.textureMap, textureMap);
+      bindTexture(this.source, unit, this.model.textureMap, textureMap, context, forceTexture);
       
       ctx.uniform1f(variables[uniforms.enabled], 1);
       ctx.uniform1f(variables[uniforms.op], this.op);

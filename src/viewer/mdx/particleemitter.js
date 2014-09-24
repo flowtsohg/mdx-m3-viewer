@@ -84,7 +84,7 @@ ParticleEmitter.prototype = {
     }
   },
   
-  render: function () {
+  render: function (context) {
     var spawnModel = this.spawnModel;
     
     if (spawnModel) {
@@ -98,7 +98,7 @@ ParticleEmitter.prototype = {
           gl.translate(p);
           gl.rotate(particle.orientation, zAxis);
           
-          spawnModel.render();
+          spawnModel.render(context);
           
           gl.popMatrix();
         }
