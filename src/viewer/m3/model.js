@@ -1,135 +1,149 @@
-function Model(parser, textureMap) {
-  var i, l;
-  var material;
-  var div = parser.divisions[0];
+function Model(binaryReader, textureMap) {
+  var parser = Parser(binaryReader);
   
-  this.setupGeometry(parser, div);
-  
-  this.batches = [];
-  this.materials = [[], []]; // 2D array for the possibility of adding more material types in the future
-  this.materialMaps = parser.materialMaps;
-
-  var materialMaps = parser.materialMaps;
-  var materials = parser.materials;
-  var batches = [];
-  
-  this.textureMap = {};
-  
-  // Create concrete material objects for standard materials
-  for (i = 0, l = materials[0].length; i < l; i++) {
-    material = materials[0][i];
-    
-    this.materials[1][i] = new StandardMaterial(material, this, textureMap);
+  if (DEBUG_MODE) {
+    console.log(parser);
+  }
+        
+  if (parser) {
+    this.setupImpl(parser, textureMap);
   }
   
-  // Create concrete batch objects
-  for (i = 0, l = div.batches.length; i < l; i++) {
-    var batch = div.batches[i];
-    var regionId = batch.regionIndex;
-    var materialMap = materialMaps[batch.materialReferenceIndex];
-    
-    if (materialMap.materialType === 1) {
-      batches.push({regionId: regionId, region: this.meshes[regionId], material: this.materials[1][materialMap.materialIndex]});
-    }
+  if (DEBUG_MODE) {
+    console.log(this);
   }
-
-/*
-  var batchGroups = [[], [], [], [], [], []];
-  
-  for (i = 0, l = batches.length; i < l; i++) {
-    var blendMode = batches[i].material.blendMode;
-    
-    batchGroups[blendMode].push(batches[i]);
-  }
-  
-  function sortByPriority(a, b) {
-    var a = a.material.priority;
-    var b = b.material.priority;
-    
-    if (a < b) {
-      return 1;
-    } else if (a == b) {
-      return 0;
-    } else {
-      return -1;
-    }
-  }
-  
-  for (i = 0; i < 6; i++) {
-    batchGroups[i].sort(sortByPriority);
-  }
-*/
-  /*
-  // In the EggPortrait model the batches seem to be sorted by blend mode. Is this true for every model?
-  this.batches.sort(function (a, b) {
-    var ba = a.material.blendMode;
-    var bb = b.material.blendMode;
-    
-    if (ba < bb) {
-      return -1;
-    } else if (ba == bb) {
-      return 0;
-    } else {
-      return 1;
-    }
-  });
-  */
-  
-  //this.batches = batchGroups[0].concat(batchGroups[1]).concat(batchGroups[2]).concat(batchGroups[3]).concat(batchGroups[4]).concat(batchGroups[5]);
-  this.batches = batches;
-  
-  var sts = parser.sts;
-  var stc = parser.stc;
-  var stg = parser.stg;
-  
-  this.initialReference = parser.initialReference;
-  this.bones = parser.bones;
-  this.boneLookup = parser.boneLookup;
-  this.sequences = parser.sequences;
-  this.sts = [];
-  this.stc = [];
-  this.stg = [];
-  
-  for (i = 0, l = sts.length; i < l; i++) {
-    this.sts[i] = new STS(sts[i]);
-  }
-  
-  for (i = 0, l = stc.length; i < l; i++) {
-    this.stc[i] = new STC(stc[i]);
-  }
-  
-  for (i = 0, l = stg.length; i < l; i++) {
-    this.stg[i] = new STG(stg[i], this.sts, this.stc);
-  }
-  
-  this.addGlobalAnims();
-  
-  if (parser.fuzzyHitTestObjects.length > 0) {
-    this.fuzzyHitTestObjects = [];
-    
-    for (i = 0, l = parser.fuzzyHitTestObjects.length; i < l; i++) {
-      this.fuzzyHitTestObjects[i] = new BoundingShape(parser.fuzzyHitTestObjects[i]);
-    }
-  }
-  /*
-  if (parser.particleEmitters.length > 0) {
-    this.particleEmitters = [];
-    
-    for (i = 0, l = parser.particleEmitters.length; i < l; i++) {
-      this.particleEmitters[i] = new ParticleEmitter(parser.particleEmitters[i], this);
-    }
-  }
-  */
- 
-  this.attachments = parser.attachmentPoints;
-  this.cameras = parser.cameras;
-    
-  this.ready = true;
-  
-   this.setupShaders(parser);
 }
 
 Model.prototype = {
+  setup: function (parser, textureMap) {
+    var i, l;
+    var material;
+    var div = parser.divisions[0];
+    
+    this.name = getFileName(parser.name);
+    
+    this.setupGeometry(parser, div);
+    
+    this.batches = [];
+    this.materials = [[], []]; // 2D array for the possibility of adding more material types in the future
+    this.materialMaps = parser.materialMaps;
+
+    var materialMaps = parser.materialMaps;
+    var materials = parser.materials;
+    var batches = [];
+    
+    // Create concrete material objects for standard materials
+    for (i = 0, l = materials[0].length; i < l; i++) {
+      material = materials[0][i];
+      
+      this.materials[1][i] = new StandardMaterial(material, this, textureMap);
+    }
+    
+    // Create concrete batch objects
+    for (i = 0, l = div.batches.length; i < l; i++) {
+      var batch = div.batches[i];
+      var regionId = batch.regionIndex;
+      var materialMap = materialMaps[batch.materialReferenceIndex];
+      
+      if (materialMap.materialType === 1) {
+        batches.push({regionId: regionId, region: this.meshes[regionId], material: this.materials[1][materialMap.materialIndex]});
+      }
+    }
+
+  /*
+    var batchGroups = [[], [], [], [], [], []];
+    
+    for (i = 0, l = batches.length; i < l; i++) {
+      var blendMode = batches[i].material.blendMode;
+      
+      batchGroups[blendMode].push(batches[i]);
+    }
+    
+    function sortByPriority(a, b) {
+      var a = a.material.priority;
+      var b = b.material.priority;
+      
+      if (a < b) {
+        return 1;
+      } else if (a == b) {
+        return 0;
+      } else {
+        return -1;
+      }
+    }
+    
+    for (i = 0; i < 6; i++) {
+      batchGroups[i].sort(sortByPriority);
+    }
+  */
+    /*
+    // In the EggPortrait model the batches seem to be sorted by blend mode. Is this true for every model?
+    this.batches.sort(function (a, b) {
+      var ba = a.material.blendMode;
+      var bb = b.material.blendMode;
+      
+      if (ba < bb) {
+        return -1;
+      } else if (ba == bb) {
+        return 0;
+      } else {
+        return 1;
+      }
+    });
+    */
+    
+    //this.batches = batchGroups[0].concat(batchGroups[1]).concat(batchGroups[2]).concat(batchGroups[3]).concat(batchGroups[4]).concat(batchGroups[5]);
+    this.batches = batches;
+    
+    var sts = parser.sts;
+    var stc = parser.stc;
+    var stg = parser.stg;
+    
+    this.initialReference = parser.initialReference;
+    this.bones = parser.bones;
+    this.boneLookup = parser.boneLookup;
+    this.sequences = parser.sequences;
+    this.sts = [];
+    this.stc = [];
+    this.stg = [];
+    
+    for (i = 0, l = sts.length; i < l; i++) {
+      this.sts[i] = new STS(sts[i]);
+    }
+    
+    for (i = 0, l = stc.length; i < l; i++) {
+      this.stc[i] = new STC(stc[i]);
+    }
+    
+    for (i = 0, l = stg.length; i < l; i++) {
+      this.stg[i] = new STG(stg[i], this.sts, this.stc);
+    }
+    
+    this.addGlobalAnims();
+    
+    if (parser.fuzzyHitTestObjects.length > 0) {
+      for (i = 0, l = parser.fuzzyHitTestObjects.length; i < l; i++) {
+        this.boundingShapes[i] = new BoundingShape(parser.fuzzyHitTestObjects[i], parser.bones);
+      }
+    }
+    /*
+    if (parser.particleEmitters.length > 0) {
+      this.particleEmitters = [];
+      
+      for (i = 0, l = parser.particleEmitters.length; i < l; i++) {
+        this.particleEmitters[i] = new ParticleEmitter(parser.particleEmitters[i], this);
+      }
+    }
+    */
+   
+    this.attachments = parser.attachmentPoints;
+    this.cameras = parser.cameras;
+      
+    this.ready = true;
+    
+     this.setupShaders(parser);
+  },
+  
   setupShaders: function (parser) {
     // Shader setup
     var uvSetCount = this.uvSetCount;
@@ -321,10 +335,10 @@ Model.prototype = {
     ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
   },
   
-  render: function (instance, instanceImpl, context) {
+  render: function (instance, context) {
     var i, l;
-    var sequence = instanceImpl.sequence;
-    var frame = instanceImpl.frame;
+    var sequence = instance.sequence;
+    var frame = instance.frame;
     var tc;
     var teamId = instance.teamColor;
     var shaderName = shaders[context.shader];
@@ -340,7 +354,7 @@ Model.prototype = {
       
       var shader = gl.bindShader(realShaderName);
       
-      instanceImpl.skeleton.bind(shader);
+      instance.skeleton.bind(shader);
       
       ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
       ctx.uniformMatrix4fv(shader.variables.u_mv, false, gl.getViewMatrix());
@@ -355,7 +369,7 @@ Model.prototype = {
       for (i = 0, l = this.batches.length; i < l; i++) {
         var batch = this.batches[i];
        
-        if (instanceImpl.meshVisibilities[batch.regionId]) {
+        if (instance.meshVisibilities[batch.regionId]) {
           var region = batch.region;
           var material = batch.material;
           
@@ -397,19 +411,28 @@ Model.prototype = {
       ctx.enable(ctx.CULL_FACE);
     }
 	*/
-    if (context.boundingShapesMode && this.fuzzyHitTestObjects && gl.shaderStatus("white")) {
+   
+  },
+  
+  renderEmitters: function (instance, context) {
+    
+  },
+  
+  renderBoundingShapes: function (instance, context) {
+    var shader,
+          fuzzyHitTestObject;
+    
+     if (this.boundingShapes && gl.shaderStatus("white")) {
       ctx.depthMask(1);
       
       shader = gl.bindShader("white");
       
-      var fuzzyHitTestObject;
-      
-      for (i = 0, l = this.fuzzyHitTestObjects.length; i < l; i++) {
-        fuzzyHitTestObject = this.fuzzyHitTestObjects[i];
+      for (i = 0, l = this.boundingShapes.length; i < l; i++) {
+        fuzzyHitTestObject = this.boundingShapes[i];
         
         gl.pushMatrix();
         
-        gl.multMat(instanceImpl.skeleton.bones[fuzzyHitTestObject.bone].worldMatrix);
+        gl.multMat(instance.skeleton.bones[fuzzyHitTestObject.bone].worldMatrix);
         gl.multMat(fuzzyHitTestObject.matrix);
         
         ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
@@ -419,10 +442,6 @@ Model.prototype = {
         fuzzyHitTestObject.render(shader);
       }
     }
-  },
-  
-  renderEmitters: function (instance, instanceImpl, context) {
-    
   },
   
   renderColor: function (instance, color) {
@@ -452,3 +471,6 @@ Model.prototype = {
     }
   }
 };
+
+// Mixins
+ModelImpl.call(Model.prototype);

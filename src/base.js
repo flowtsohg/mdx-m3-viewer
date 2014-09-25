@@ -5,7 +5,7 @@ function getNamesFromObjects(objects) {
   
   if (objects) {
     for (i = 0, l = objects.length; i < l; i++) {
-      names[i] = objects.name;
+      names[i] = objects[i].name;
     }
   }
   
@@ -40,7 +40,7 @@ function decodeFloat3(f) {
 }
 
 function getFileName(source) {
-  var tokens = source.split("/");
+  var tokens = source.split(/[\\\/]/g);
   
   return tokens[tokens.length - 1];
 }
@@ -62,42 +62,6 @@ if (!window.requestAnimationFrame ) {
   window.requestAnimationFrame = (function() {
     return window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) { window.setTimeout(callback, 1000 / 60); };
   }());
-}
-
-function getHiddenProperty() {
-  var i, property, prefixes = ["webkit", "moz", "ms", "o"];
-
-  if (document["hidden"]) {
-    return "hidden";
-  }
-
-  for (i = 0; i < 4; i++) {
-    property = prefixes[i] + "Hidden";
-
-    if (document[property]) {
-      return property;
-    }
-  }
-
-  return null;
-}
-
-function isHidden() {
-  var property = getHiddenProperty();
-  
-  if (property) {
-    return document[property];
-  }
-  
-  return false;
-}
-
-function addVisibilityListener(listener) {
-  var property = getHiddenProperty();
-  
-  if (property) {
-    document.addEventListener(property.substr(0, property.length - 6) + "visibilitychange", listener, false);
-  }
 }
 
 function getUrlVariables() {

@@ -2,6 +2,8 @@ function ShallowBone (bone) {
   this.boneImpl = bone;
   this.parent = bone.parent;
   this.worldMatrix = mat4.create();
+  this.scale = vec3.create();
+  this.inverseScale = vec3.create();
 }
 
 ShallowBone.prototype = {
@@ -38,13 +40,21 @@ function Skeleton(model) {
     this.bones[i] = new ShallowBone(bones[i]);
   }
   
-  this.root = mat4.create();
+  // TODO: instead of hacking, inject a root exactly like I do in the Mdx parser.
+  this.root = {
+    worldMatrix: mat4.create(),
+    scale: vec3.create(),
+    inverseScale: vec3.create(),
+    getTransformation: function () { return this.worldMatrix }
+  };
+  
   this.localMatrix = mat4.create();
   this.rotationMatrix = mat4.create();
   
   this.locationVec = vec3.create();
   this.scaleVec = vec3.create();
   this.rotationQuat = quat.create();
+  this.tempVec3 = vec3.create();
 }
 
 Skeleton.prototype = {
@@ -52,10 +62,12 @@ Skeleton.prototype = {
   update: function (sequence, frame, instance) {
     var root = this.root;
     
-    mat4.identity(root);
+    mat4.identity(root.worldMatrix);
     
     if (instance) {
-      mat4.multiply(root, root, instance.getTransformation());
+      mat4.copy(root.worldMatrix, instance.getTransformation());
+      mat4.decomposeScale(root.scale, root.worldMatrix);
+      vec3.inverse(root.inverseScale, root.scale);
     }
     
     for (var i = 0, l = this.bones.length; i < l; i++) {
@@ -87,8 +99,11 @@ Skeleton.prototype = {
       
       mat4.multiply(bone.worldMatrix, parent.worldMatrix, localMatrix);
     } else {
-      mat4.multiply(bone.worldMatrix, this.root, localMatrix);
+      mat4.multiply(bone.worldMatrix, this.root.worldMatrix, localMatrix);
     }
+    
+    mat4.decomposeScale(bone.scale, bone.worldMatrix);
+    vec3.inverse(bone.inverseScale, bone.scale);
   },
   
   updateBoneTexture: function (sequence) {
@@ -100,7 +115,7 @@ Skeleton.prototype = {
     var finalMatrix;
     
     if (sequence === -1) {
-      finalMatrix = this.root;
+      finalMatrix = this.root.worldMatrix;
     } else {
       finalMatrix = this.localMatrix;
     }

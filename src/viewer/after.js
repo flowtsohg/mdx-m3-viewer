@@ -77,7 +77,7 @@ function setupColor(width, height) {
   
   grass_water = gl.createRect(0, 0, -3, groundSize, groundSize, 6);
   bedrock = gl.createRect(0, 0, -35, groundSize, groundSize, 6);
-  sky = gl.createSphere(0, 0, 0, 5, 10, 2E4);
+  sky = gl.createSphere(0, 0, 0, 5, 40, 2E3);
   
   function updateParticleRect() {
     for (var i = 0; i < 7; i++) {
@@ -188,6 +188,9 @@ function setupColor(width, height) {
   }
   
   function render() {
+    var i,
+          l = instanceCache.length;
+    
     ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
     
     renderSky();
@@ -195,15 +198,22 @@ function setupColor(width, height) {
     
     // Render geometry
     if (context.meshesMode) {
-      for (var i = 0, l = instanceCache.length; i < l; i++) {
+      for (i = 0; i < l; i++) {
         instanceCache[i].render(context);
       }
     }
     
     // Render particles
     if (context.emittersMode) {
-      for (var i = 0, l = instanceCache.length; i < l; i++) {
+      for (i = 0; i < l; i++) {
         instanceCache[i].renderEmitters(context);
+      }
+    }
+    
+    // Render bounding shapes
+    if (context.boundingShapesMode) {
+      for (i = 0; i < l; i++) {
+        instanceCache[i].renderBoundingShapes(context);
       }
     }
     
@@ -720,6 +730,17 @@ function setupColor(width, height) {
     }
   }
   
+  // Get a list of the bounding shapes owned by an object.
+  // Proxies to the owning model if the given object is an instance.
+  // Returns null if the object ID is invalid, or if the model didn't finish loading.
+  function getBoundingShapes(objectId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object) {
+      return object.getBoundingShapes();
+    }
+  }
+  
   // Get the number of meshes an object has. Proxies to the owning model if the given object is an instance.
   function getMeshCount(objectId) {
     var object = modelInstanceCache[objectId];
@@ -753,11 +774,12 @@ function setupColor(width, height) {
   // Set the animation speed
   function setAnimationSpeed(n) {
     FRAME_TIME = n / 60;
+    FRAME_TIME_MS = FRAME_TIME * 1000;
   }
   
   // Get the animation speed
   function getAnimationSpeed() {
-    return FRAME_TIME * 60;
+    return FRAME_TIME_MS;
   }
   
   // Set the drawn world.
@@ -1105,6 +1127,7 @@ function setupColor(width, height) {
     getSequences: getSequences,
     getAttachments: getAttachments,
     getCameras: getCameras,
+    getBoundingShapes: getBoundingShapes,
     // General settings
     setAnimationSpeed: setAnimationSpeed,
     getAnimationSpeed: getAnimationSpeed,

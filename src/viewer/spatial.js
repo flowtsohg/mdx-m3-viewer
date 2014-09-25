@@ -12,13 +12,13 @@
 // Used to add spatial capabilities to an object.
 var Spatial = (function () {
   // Create the required variables in the object.
-  function useSpatial() {
+  function setup() {
     this.worldMatrix = mat4.create();
     this.localMatrix = mat4.create();
     this.location = vec3.create();
     this.rotation = quat.create();
     this.scaling = vec3.fromValues(1, 1, 1);
-    this.inverseScaling = vec3.fromValues(1, 1, 1);
+    this.inverseScale = vec3.fromValues(1, 1, 1);
     this.parentId = -1;
     this.attachment = -1;
     this.parentRef = null;
@@ -29,7 +29,7 @@ var Spatial = (function () {
     mat4.fromRotationTranslationScale(this.localMatrix, this.rotation, this.location, this.scaling);
   }
   
-  function move (v) {
+  function move(v) {
     vec3.add(this.location, this.location, v);
     
     this.recalculateTransformation();
@@ -63,20 +63,25 @@ var Spatial = (function () {
   
   function scale(n) {
     vec3.scale(this.scaling, this.scaling, n);
-    vec3.inverse(this.inverseScaling, this.scaling);
+    vec3.inverse(this.inverseScale, this.scaling);
     
     this.recalculateTransformation();
   }
   
   function setScale(n) {
     vec3.set(this.scaling, n, n, n);
-    vec3.inverse(this.inverseScaling, this.scaling);
+    vec3.inverse(this.inverseScale, this.scaling);
     
     this.recalculateTransformation();
   }
   
   function getScale() {
     return this.scaling[0];
+  }
+  
+  function getScaleVector() {
+    // Note: no Array.copy because this function is for internal use, and I don't want garbage collection.
+    return this.scaling;
   }
   
   // Requests an attachment point from the parent.
@@ -92,6 +97,7 @@ var Spatial = (function () {
     } else {
       this.parentId = -1;
       this.attachmentId = -1;
+      this.parentNode = null;
     }
   }
   
@@ -112,10 +118,10 @@ var Spatial = (function () {
     mat4.identity(worldMatrix);
     
     if (parentNode) {
-      mat4.multiply(worldMatrix, worldMatrix, parentNode.getTransformation());
+      mat4.copy(worldMatrix, parentNode.getTransformation());
       
       // Scale by the inverse of the parent to avoid carrying over scales through the hierarchy
-      mat4.scale(worldMatrix, worldMatrix, parentRef.inverseScaling);
+      mat4.scale(worldMatrix, worldMatrix, parentNode.inverseScale);
       
       // To avoid the 90 degree rotations applied to M3 models
       if (parentRef.fileType !== "mdx") {
@@ -129,7 +135,7 @@ var Spatial = (function () {
   }
   
   return function () {
-    this.useSpatial = useSpatial;
+    this.setupSpatial = setup;
     this.recalculateTransformation = recalculateTransformation;
     this.move = move;
     this.setLocation = setLocation;
@@ -140,6 +146,7 @@ var Spatial = (function () {
     this.scale = scale;
     this.setScale = setScale;
     this.getScale = getScale;
+    this.getScaleVector = getScaleVector;
     this.setParent = setParent;
     this.setParentNode = setParentNode;
     this.getParent = getParent;

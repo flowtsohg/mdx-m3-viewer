@@ -11,34 +11,14 @@ function AsyncModelInstance(asyncModel, id, color, textureMap) {
     this.source = asyncModel.source;
     this.visible = 1;
     
-    this.attachment = -1;
-    
-    this.teamColor = 0;
-    this.sequence = -1;
-    this.sequenceLoopMode = 0;
-    
-    // This is a local texture map that can override the one owned by the model.
-    // This way, every instance can have different textures.
-    this.textureMap = {};
-      
-    if (textureMap) {
-      var keys = Object.keys(textureMap);
-      
-      for (var i = 0, l = keys.length; i < l; i++) {
-        var key = keys[i];
-        
-        this.overrideTexture(key, textureMap[key]);
-      }
-    }
-    
     // Used for color picking
     this.color = color;
     
     // Use the Async mixin
-    this.useAsync();
+    this.setupAsync();
     
     // Use the Spatial mixin
-    this.useSpatial();
+    this.setupSpatial();
     
     // If the model is already ready, the onload message from setup() must be delayed, since this instance wouldn't be added to the cache yet.
     if (asyncModel.ready) {
@@ -47,7 +27,7 @@ function AsyncModelInstance(asyncModel, id, color, textureMap) {
     
     // Request the setup function to be called by the model when it can.
     // If the model is loaded, setup runs instantly, otherwise it runs when the model finishes loading.
-    asyncModel.setupInstance(this);
+    asyncModel.setupInstance(this, textureMap || {});
   } else {
     console.log("AsyncModelInstance: No handler for file type " + asyncModel.fileType);
   }
@@ -60,11 +40,11 @@ AsyncModelInstance.handlers = {
 
 AsyncModelInstance.prototype = {
   // Setup the internal instance using the internal model implementation
-  setup: function (model, fileType) {
+  setup: function (model, fileType, textureMap) {
     this.fileType = fileType;
     this.handler = AsyncModelInstance.handlers[fileType];
     
-    this.instance = new this.handler(model);
+    this.instance = new this.handler(model, textureMap);
     
     if (this.fileType === "m3") {
       // Transform to match the direction and size of MDX models
@@ -105,9 +85,21 @@ AsyncModelInstance.prototype = {
     }
   },
   
+  renderBoundingShapes: function (context) {
+    if (this.ready && this.visible) {
+      this.instance.renderBoundingShapes(context);
+    }
+  },
+  
   renderColor: function () {
     if (this.ready && this.visible) {
       this.instance.renderColor(this);
+    }
+  },
+  
+  getName: function () {
+    if (this.ready) {
+      return this.instance.getName() + "[" + this.id + "]";
     }
   },
   
@@ -129,28 +121,15 @@ AsyncModelInstance.prototype = {
   },
   
   overrideTexture: function (source, path) {
-    var textureMap = this.textureMap;
-    
-    if (path === "") {
-      path = "\0";
+    if (this.ready) {
+      this.instance.overrideTexture(source, path);
     }
-    
-    textureMap[source] = path;
   },
   
   getTextureMap: function () {
-    var data = {};
-    var textureMap = this.textureMap;
-    var keys = Object.keys(textureMap);
-    var key;
-      
-    for (var i = 0, l = keys.length; i < l; i++) {
-      key = keys[i];
-      
-      data[key] = textureMap[key];
+    if (this.ready) {
+      return this.instance.getTextureMap();
     }
-    
-    return data;
   },
   
   getAttachment: function (id) {
@@ -194,14 +173,9 @@ AsyncModelInstance.prototype = {
   },
   
   setTeamColor: function (id) {
-    // M3
-    this.teamColor = id;
-    
-    // MDX
-    var idString = ((id < 10) ? "0" + id : id);
-    
-    this.overrideTexture("replaceabletextures/teamcolor/teamcolor00.blp", urls.mpqFile("ReplaceableTextures/TeamColor/TeamColor" + idString + ".blp"));
-    this.overrideTexture("replaceabletextures/teamglow/teamglow00.blp", urls.mpqFile("ReplaceableTextures/TeamGlow/TeamGlow" + idString + ".blp"));
+    if (this.ready) {
+      this.instance.setTeamColor(id);
+    }
   },
   
   getTeamColor: function () {
@@ -278,7 +252,8 @@ AsyncModelInstance.prototype = {
       parent: this.getParent(),
       teamColor: this.getTeamColor(),
       textureMap: this.getTextureMap(),
-      meshVisibilities: this.getMeshVisibilities()
+      meshVisibilities: this.getMeshVisibilities(),
+      name: this.getName()
     };
   },
   

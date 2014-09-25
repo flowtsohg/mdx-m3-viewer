@@ -6,13 +6,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   
   // This function is used to filter out reports for internal textures (e.g. ground, sky, team colors beside 00, etc.).
   function noReport(path) {
-    if (path ===grassPath || path === waterPath || path === bedrockPath || path === skyPath) {
-      return true;
-    }
-    
-    var match = path.match(/(\d\d).blp/);
-    
-    if (match && match[1] !== "00") {
+    if (path ===grassPath || path === waterPath || path === bedrockPath || path === skyPath || path.match(/(\d\d).blp/)) {
       return true;
     }
     
@@ -162,7 +156,9 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   // To reference an instance from a picked color
   var colorInstanceCache = {};
     
-  var FRAME_TIME = 1 / 60;
+  var FRAME_TIME_MS = 1000 / 60;
+  var FRAME_TIME = FRAME_TIME_MS / 1000;
+    
   var DEBUG_MODE = debugMode;
   
   // If an object has a visibility value below the cutoff, it shouldn't render.
@@ -212,6 +208,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     particleRect: [vec3.fromValues(-1, -1, 0), vec3.fromValues(-1, 1, 0), vec3.fromValues(1, 1, 0), vec3.fromValues(1, -1, 0), vec3.fromValues(1, 0, 0), vec3.fromValues(0, 1, 0), vec3.fromValues(0, 0, 1)],
     particleBillboardedRect: [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()]
   };
+  
   
   function bindTexture(source, unit, modelTextureMap, instanceTextureMap, context, forceTexture) {
     var texture;

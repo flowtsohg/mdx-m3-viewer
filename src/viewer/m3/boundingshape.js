@@ -1,6 +1,7 @@
-function BoundingShape(boundingshape) {
+function BoundingShape(boundingshape, bones) {
   this.bone = boundingshape.bone;
   this.matrix = boundingshape.matrix;
+  this.name = bones[boundingshape.bone].name;
   
   var size = boundingshape.size;
   var shape;

@@ -73,6 +73,8 @@ code_files = [
   "viewer/shaders",
   "viewer/async",
   "viewer/spatial",
+  "viewer/modelimpl",
+  "viewer/modelinstanceimpl",
   "viewer/mdx/before",
   "viewer/mdx/parser",
   "viewer/mdx/sd",

@@ -44,11 +44,12 @@ Skeleton.prototype = {
   update: function (sequence, frame, counter, instance) {
     var nodes = this.nodes;
     var hierarchy = this.hierarchy;
-    var root = nodes[0].worldMatrix;
-    
     // The root is always at index 0, since it's injected by the parser
-    mat4.identity(root);
-    mat4.multiply(root, root, instance.getTransformation());
+    var root = nodes[0];
+    
+    mat4.copy(root.worldMatrix, instance.getTransformation());
+    mat4.decomposeScale(root.scale, root.worldMatrix);
+    vec3.inverse(root.inverseScale, root.scale);
     
     for (var i = 1, l = hierarchy.length; i < l; i++) {
       this.updateNode(nodes[hierarchy[i]], sequence, frame, counter);
@@ -94,6 +95,9 @@ Skeleton.prototype = {
       
       mat4.multiply(node.worldMatrix, node.worldMatrix, localMatrix);
     }
+    
+    mat4.decomposeScale(node.scale, node.worldMatrix);
+    vec3.inverse(node.inverseScale, node.scale);
   },
   
   updateBoneTexture: function () {

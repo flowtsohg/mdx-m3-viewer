@@ -8,52 +8,36 @@ function AsyncModel(source, id, textureMap) {
     this.id = id;
     this.source = source;
     
-    // This texture map is used to override textures when a model is loaded from an ID
-    this.textureMap = textureMap || {};
-    
     // Use the Async mixin
-    this.useAsync();
+    this.setupAsync();
       
-    getFile(source, true, this.setup.bind(this), onerrorwrapper.bind(this), onprogresswrapper.bind(this));
+    getFile(source, true, this.setup.bind(this, textureMap || {}), onerrorwrapper.bind(this), onprogresswrapper.bind(this));
     
     onloadstart(this);
   } else {
     console.log("AsyncModel: No handler for file type " + this.fileType);
   }
-  
-  console.log(this);
 }
 
 AsyncModel.handlers = {
-  "mdx": [Mdx.Parser, Mdx.Model],
-  "m3": [M3.Parser, M3.Model]
+  "mdx": Mdx.Model,
+  "m3": M3.Model
 };
 
 
 AsyncModel.prototype = {
-  setup: function (e) {
+  setup: function (textureMap, e) {
     var status = e.target.status;
     
     if (status === 200) {
-      var handler = this.handler,
-            reader = new BinaryReader(e.target.response),
-            parser = new handler[0](reader);
+      var binaryReader = new BinaryReader(e.target.response),
+            handler = this.handler,
+            model = new handler(binaryReader, textureMap);
       
-      if (parser) {
-        if (DEBUG_MODE) {
-          console.log(parser);
-        }
-        
-        this.model = new handler[1](parser, this.textureMap);
-        
-         if (DEBUG_MODE) {
-          console.log(this.model);
-        }
-        
+      if (model.ready) {
+        this.model = model;
         this.ready = true;
-      }
       
-      if (this.ready) {
         this.runAsyncActions();
         
         onload(this);
@@ -63,9 +47,9 @@ AsyncModel.prototype = {
     }
   },
  
-  setupInstance: function (instance) {
+  setupInstance: function (instance, textureMap) {
     if (this.ready) {
-      instance.setup(this.model, this.fileType);
+      instance.setup(this.model, this.fileType, textureMap);
     } else {
       this.addAsyncAction("setupInstance", arguments);
     }
@@ -85,29 +69,19 @@ AsyncModel.prototype = {
   
   getAttachment: function (id) {
     if (this.ready) {
-      if (this.model.attachments) {
-        return this.model.attachments[id];
-      }
+      return this.model.getAttachment(id);
     }
   },
   
   getCamera: function (id) {
     if (this.ready) {
-      if (this.model.cameras) {
-        return this.model.cameras[id];
-      }
+      return this.model.getCamera(id);
     }
   },
   
-  getTransform: function () {
+  overrideTexture: function (path, override) {
     if (this.ready) {
-      this.model.getTransform();
-    }
-  },
-  
-  overrideTexture: function (path, newpath) {
-    if (this.ready) {
-      this.textureMap[path] = newpath;
+      this.model.overrideTexture(path, override);
     } else {
       this.addAsyncAction("overrideTexture", arguments);
     }
@@ -115,43 +89,49 @@ AsyncModel.prototype = {
   
   getTextureMap: function () {
     if (this.ready) {
-      return Object.copy(this.model.textureMap);
+      return this.model.getTextureMap();
     }
   },
   
   getSequences: function () {
     if (this.ready) {
-      return getNamesFromObjects(this.model.sequences);
-    }
-  },
-  
-  getAttachments: function () {
-    if (this.ready) {
-      return getNamesFromObjects(this.model.attachments);
+      return this.model.getSequences();
     }
   },
   
   getCameras: function () {
     if (this.ready) {
-      return getNamesFromObjects(this.model.cameras);
+      return this.model.getCameras();
+    }
+  },
+  
+  getBoundingShapes: function () {
+    if (this.ready) {
+      return this.model.getBoundingShapes();
+    }
+  },
+  
+  getAttachments: function () {
+    if (this.ready) {
+      return this.model.getAttachments();
     }
   },
   
   getMeshCount: function () {
     if (this.ready) {
-      return this.model.meshes.length;
+      return this.model.getMeshCount();
     }
   },
   
   getInfo: function () {
-    return {
-      name: this.getName(),
-      source: this.getSource(),
-      sequences: this.getSequences(),
-      attachments: this.getAttachments(),
-      cameras: this.getCameras(),
-      textureMap: this.getTextureMap()
-    };
+    if (this.ready) {
+      var info = this.model.getInfo();
+      
+      // Inject the source
+      info.source = this.source;
+      
+      return info;
+    }
   },
   
   toJSON: function () {

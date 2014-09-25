@@ -1,5 +1,6 @@
-function CollisionShape(collisionshape) {
+function CollisionShape(collisionshape, nodes) {
   this.node = collisionshape.node;
+  this.name = nodes[collisionshape.node].name;
   
   var v = collisionshape.vertices;
   var v1 = v[0];

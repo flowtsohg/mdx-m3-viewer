@@ -20,12 +20,15 @@ function ShallowNode(node) {
   this.objectId = node.objectId;
   this.parentId = node.parentId;
   this.worldMatrix = mat4.create();
+  this.scale = vec3.create();
+  this.inverseScale = vec3.create();
+  
   // To avoid heap allocations
   this.externalWorldMatrix = mat4.create();
 }
 
 ShallowNode.prototype = {
-  getTransform: function () {
+  getTransformation: function () {
     var m = this.externalWorldMatrix;
     
     mat4.copy(m, this.worldMatrix);

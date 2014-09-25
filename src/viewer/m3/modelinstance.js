@@ -1,18 +1,13 @@
-function ModelInstance(model) {
-  this.model = model;
-  this.frame = 0;
-  this.loopingMode = 0;
-  this.sequence = -1;
-  this.skeleton = new Skeleton(model);
-  
-  this.meshVisibilities = [];
-  
-  for (i = 0, l = model.meshes.length; i < l; i++) {
-    this.meshVisibilities[i] = true;
-  }
+function ModelInstance(model, textureMap) {
+  this.setupImpl(model, textureMap);
 }
 
 ModelInstance.prototype = {
+  setup: function (model, textureMap) {
+    this.skeleton = new Skeleton(model);
+    this.teamColor = 0;
+  },
+  
   update: function (instance, context) {
     var i, l;
     var sequenceId = this.sequence;
@@ -21,10 +16,10 @@ ModelInstance.prototype = {
     if (sequenceId !== -1) {
       var sequence = this.model.sequences[sequenceId];
       
-      this.frame += FRAME_TIME * 1000; // M3 models work in milliseconds 
+      this.frame += FRAME_TIME_MS;
       
       if (this.frame > sequence.animationEnd) {
-        if ((this.loopingMode === 0 && !(sequence.flags & 0x1)) || this.loopingMode === 2) {
+        if ((this.sequenceLoopMode === 0 && !(sequence.flags & 0x1)) || this.sequenceLoopMode === 2) {
           this.frame = 0;
         }
       }
@@ -33,6 +28,7 @@ ModelInstance.prototype = {
     }
     
     this.skeleton.update(sequenceId, this.frame, instance);
+    
     /*
     if (this.particleEmitters) {
       for (i = 0, l = this.particleEmitters.length; i < l; i++) {
@@ -42,25 +38,13 @@ ModelInstance.prototype = {
     */
   },
   
-  render: function (instance, context) {
-    this.model.render(instance, this, context);
-  },
-  
-  renderEmitters: function (instance, context) {
-    this.model.renderEmitters(instance, this, context);
-  },
-  
-  renderColor: function (instance) {
-    this.model.renderColor(this, instance.color);
-  },
-  
   setSequence: function (sequence) {
     this.sequence = sequence;
     this.frame = 0;
   },
   
-  setSequenceLoopMode: function (looping) {
-    this.loopingMode = math.clamp(looping, 0, 2);
+  setTeamColor: function (id) {
+    this.teamColor = id;
   },
   
   getAttachment: function (id) {
@@ -68,18 +52,11 @@ ModelInstance.prototype = {
     
     if (attachment) {
       return this.skeleton.bones[attachment.bone];
+    } else {
+      return this.skeleton.root;
     }
-  },
-  
-  getMeshVisibilities: function () {
-    return Array.copy(this.meshVisibilities);
-  },
-  
-  setMeshVisibility: function (meshId, b) {
-    this.meshVisibilities[meshId] = b;
-  },
-  
-  getMeshVisibility: function (meshId) {
-    return this.meshVisibilities[meshId];
   }
 };
+
+// Mixins
+ModelInstanceImpl.call(ModelInstance.prototype);

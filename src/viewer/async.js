@@ -2,7 +2,7 @@
 // Used to add an asynchronous action queue to an object.
 var Async = (function () {
   // Create the required variables in the object.
-  function useAsync() {
+  function setup() {
     this.asyncActions = [];
   }
   
@@ -28,7 +28,7 @@ var Async = (function () {
   }
   
   return function () {
-    this.useAsync = useAsync;
+    this.setupAsync = setup;
     this.addAsyncAction = addAsyncAction;
     this.runAsyncActions = runAsyncActions;
     

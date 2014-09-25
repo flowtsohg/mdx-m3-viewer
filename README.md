@@ -77,6 +77,7 @@ The API of the viewer is as follows:
 * `getSequences(objectId)` - Get a list of the sequences owned by an object. Proxies to the owning model if the given object is an instance. Returns null if the object ID is invalid, or if the model didn't finish loading.
 * `getAttachments(objectId)` - Get a list of the attachment points owned by an object. Proxies to the owning model if the given object is an instance. Returns null if the object ID is invalid, or if the model didn't finish loading.
 * `getCameras(objectId)` - Get a list of the cameras owned by an object. Proxies to the owning model if the given object is an instance. Returns null if the object ID is invalid, or if the model didn't finish loading.
+* `getBoundingShapes(objectId)` - Get the list of bounding shapes owned by an object. Proxies to the owning model if the given object is an instance. Returns null if the object ID is invalid, or if the model didn't finish loading.
 * `getMeshCount(objectId)` - Get the number of meshes an object has. Proxies to the owning model if the given object is an instance.
 * `setAnimationSpeed(n)` - Set the animation speed.
 * `getAnimationSpeed()` - Get the animation speed.

@@ -1,51 +1,45 @@
-function ModelInstance(model) {
-  var i, l, objects;
-  
-  this.model = model;
-  this.sequence = -1;
-  this.frame = 0;
-  this.counter = 0;
-  this.loopingMode = 0;
-  this.skeleton = new Skeleton(model);
-  
-  if (model.particleEmitters && model.particleEmitters.length > 0) {
-    objects = model.particleEmitters;
-
-    this.particleEmitters = [];
-    
-    for (i = 0, l = objects.length; i < l; i++) {
-      this.particleEmitters[i] = new ParticleEmitter(objects[i], model, this);
-    }
-  }
-  
-  if (model.particleEmitters2 && model.particleEmitters2.length > 0) {
-    objects = model.particleEmitters2;
-
-    this.particleEmitters2 = [];
-    
-    for (i = 0, l = objects.length; i < l; i++) {
-      this.particleEmitters2[i] = new ParticleEmitter2(objects[i], model, this);
-    }
-  }
-
-  if (model.ribbonEmitters && model.ribbonEmitters.length > 0) {
-    objects = model.ribbonEmitters;
-
-    this.ribbonEmitters = [];
-    
-    for (i = 0, l = objects.length; i < l; i++) {
-      this.ribbonEmitters[i] = new RibbonEmitter(objects[i], model, this);
-    }
-  }
-  
-  this.meshVisibilities = [];
-  
-  for (i = 0, l = model.meshes.length; i < l; i++) {
-    this.meshVisibilities[i] = true;
-  }
+function ModelInstance(model, textureMap) {
+  this.setupImpl(model, textureMap);
 }
 
 ModelInstance.prototype = {
+  setup: function (model, textureMap) {
+    var i, l, objects;
+  
+    this.counter = 0;
+    this.skeleton = new Skeleton(model);
+    
+    if (model.particleEmitters && model.particleEmitters.length > 0) {
+      objects = model.particleEmitters;
+
+      this.particleEmitters = [];
+      
+      for (i = 0, l = objects.length; i < l; i++) {
+        this.particleEmitters[i] = new ParticleEmitter(objects[i], model, this);
+      }
+    }
+    
+    if (model.particleEmitters2 && model.particleEmitters2.length > 0) {
+      objects = model.particleEmitters2;
+
+      this.particleEmitters2 = [];
+      
+      for (i = 0, l = objects.length; i < l; i++) {
+        this.particleEmitters2[i] = new ParticleEmitter2(objects[i], model, this);
+      }
+    }
+
+    if (model.ribbonEmitters && model.ribbonEmitters.length > 0) {
+      objects = model.ribbonEmitters;
+
+      this.ribbonEmitters = [];
+      
+      for (i = 0, l = objects.length; i < l; i++) {
+        this.ribbonEmitters[i] = new RibbonEmitter(objects[i], model, this);
+      }
+    }
+  },
+  
   updateEmitters: function (emitters, allowCreate, context) {
     if (emitters) {
       for (var i = 0, l = emitters.length; i < l; i++) {
@@ -56,18 +50,17 @@ ModelInstance.prototype = {
   
   update: function (instance, context) {
     var allowCreate = false;
-    var frames = 960 * FRAME_TIME;
     
     if (this.sequence !== -1) {
       var sequence = this.model.sequences[this.sequence];
       
-      this.frame += frames;
-      this.counter += frames;
+      this.frame += FRAME_TIME_MS;
+      this.counter += FRAME_TIME_MS;
       
       allowCreate = true;
       
       if (this.frame >= sequence.interval[1]) {
-        if (this.loopingMode === 2 || (this.loopingMode === 0 && sequence.flags === 0)) {
+        if (this.sequenceLoopMode === 2 || (this.sequenceLoopMode === 0 && sequence.flags === 0)) {
           this.frame = sequence.interval[0];
           allowCreate = true;
         } else {
@@ -85,16 +78,11 @@ ModelInstance.prototype = {
     this.updateEmitters(this.ribbonEmitters, allowCreate, context);
   },
   
-  render: function (instance, context) {
-    this.model.render(this, instance.textureMap, context);
-  },
-  
-  renderEmitters: function (instance, context) {
-    this.model.renderEmitters(this, instance.textureMap, context);
-  },
-  
-  renderColor: function (instance) {
-    this.model.renderColor(this, instance.color);
+  setTeamColor: function (id) {
+    var idString = ((id < 10) ? "0" + id : id);
+    
+    this.overrideTexture("replaceabletextures/teamcolor/teamcolor00.blp", urls.mpqFile("ReplaceableTextures/TeamColor/TeamColor" + idString + ".blp"));
+    this.overrideTexture("replaceabletextures/teamglow/teamglow00.blp", urls.mpqFile("ReplaceableTextures/TeamGlow/TeamGlow" + idString + ".blp"));
   },
   
   setSequence: function (id) {
@@ -109,10 +97,6 @@ ModelInstance.prototype = {
     }
   },
   
-  setSequenceLoopMode: function (looping) {
-    this.loopingMode = math.clamp(looping, 0, 2);
-  },
-  
   getAttachment: function (id) {
     var attachment = this.model.attachments[id];
     
@@ -121,17 +105,8 @@ ModelInstance.prototype = {
     } else {
       return this.skeleton.nodes[0];
     }
-  },
-  
-  getMeshVisibilities: function () {
-    return Array.copy(this.meshVisibilities);
-  },
-  
-  setMeshVisibility: function (meshId, b) {
-    this.meshVisibilities[meshId] = b;
-  },
-  
-  getMeshVisibility: function (meshId) {
-    return this.meshVisibilities[meshId];
   }
 };
+
+// Mixins
+ModelInstanceImpl.call(ModelInstance.prototype);

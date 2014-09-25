@@ -64,7 +64,7 @@ StandardMaterial.prototype = {
     layers[4].bind(5, sequence, frame, textureMap, shader, context);
     layers[5].bind(6, sequence, frame, textureMap, shader, context);
     layers[10].bind(11, sequence, frame, textureMap, shader, context, true);
-    layers[12].bind(13, sequence, frame, textureMap, shader, context. true);
+    layers[12].bind(13, sequence, frame, textureMap, shader, context, true);
   },
   
   unbind: function (shader) {
