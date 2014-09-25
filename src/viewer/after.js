@@ -1091,6 +1091,18 @@ function setupColor(width, height) {
     }
   }
   
+  function registerModelHandler(fileType, handler) {
+    AsyncModel.handlers[fileType] = handler;
+  }
+  
+  function registerModelInstanceHandler(fileType, handler) {
+    AsyncModelInstance.handlers[fileType] = handler;
+  }
+  
+  function registerTextureHandler(fileType, handler) {
+    GL.textureHandlers[fileType] = handler;
+  }
+  
   return {
     // Model loading API
     loadResource: loadResource,
@@ -1159,6 +1171,13 @@ function setupColor(width, height) {
     // Misc
     selectInstance: selectInstance,
     saveScene: saveScene,
-    loadScene: loadScene
+    loadScene: loadScene,
+    // Extending
+    registerModelHandler: registerModelHandler,
+    registerModelInstanceHandler: registerModelInstanceHandler,
+    registerTextureHandler: registerTextureHandler,
+    ModelImpl: ModelImpl,
+    ModelInstanceImpl: ModelInstanceImpl,
+    TextureImpl: gl.TextureImpl
   };
 };

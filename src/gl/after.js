@@ -1,5 +1,8 @@
   textureStore["\\1"] = new Texture("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAPSURBVBhXY/gPBmDq/38AU7oL9YH+5D0AAAAASUVORK5CYII=", function(){}, function(){}, function(){});
-  
+  textureHandlers["blp"] = BLPTexture;
+  textureHandlers["dds"] = DDSTexture;
+  textureHandlers["tga"] = TGATexture;
+    
   return {
     setPerspective: setPerspective,
     setOrtho: setOrtho,
@@ -25,6 +28,8 @@
     createSphere: createSphere,
     createCube: createCube,
     createCylinder: createCylinder,
-    ctx: ctx
+    ctx: ctx,
+    textureHandlers: textureHandlers,
+    TextureImpl: TextureImpl
   };
 }

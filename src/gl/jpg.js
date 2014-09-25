@@ -24,6 +24,8 @@
 //   in PostScript Level 2, Technical Note #5116
 //   (partners.adobe.com/public/developer/en/ps/sdk/5116.DCT_Filter.pdf)
 
+// NOTE: This file was edited to match the crude usage of the JPG format by Blizzard for their BLP1 format.
+
 var JpegImage = (function jpegImage() {
   "use strict";
   var dctZigZag = new Int32Array([

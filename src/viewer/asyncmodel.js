@@ -125,12 +125,17 @@ AsyncModel.prototype = {
   
   getInfo: function () {
     if (this.ready) {
-      var info = this.model.getInfo();
+      var model = this.model;
       
-      // Inject the source
-      info.source = this.source;
-      
-      return info;
+      return {
+        name: model.getName(),
+        source: this.source,
+        attachments: model.getAttachments(),
+        cameras: model.getCameras(),
+        textureMap: model.getTextureMap(),
+        boundingShapes: model.getBoundingShapes(),
+        meshCount: model.getMeshCount()
+      };
     }
   },
   

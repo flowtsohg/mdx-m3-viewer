@@ -244,17 +244,12 @@ function dxt5ToRgba8888(src, width, height) {
   
   return dst;
 }
-  
-function onloadDDSTexture(e) {
-  var date = new Date();
-  var status = e.target.status;
-  
-  if (status !== 200) {
-    this.onerror("" + status);
-    return;
-  }
-  
-  var arrayBuffer = e.target.response;
+
+function DDSTexture(source, onload, onerror, onprogress, clampS, clampT) {
+  this.setupImpl(source, onload, onerror, onprogress, clampS, clampT);
+}
+
+DDSTexture.prototype.onloadTexture = function (arrayBuffer) {
   var header = new Int32Array(arrayBuffer, 0, 31);
   
   if (header[0] !== DDS_MAGIC) {
@@ -332,15 +327,4 @@ function onloadDDSTexture(e) {
   this.onload(this);
 }
 
-function DDSTexture(source, onload, onerror, onprogress, clampS, clampT) {
-  this.isTexture = true;
-  this.source = source;
-  
-  this.clampS = clampS;
-  this.clampT = clampT;
-  
-  this.onload = onload;
-  this.onerror = onerror.bind(this);
-  
-  getFile(source, true, onloadDDSTexture.bind(this), this.onerror, onprogress.bind(this));
-}
+TextureImpl.call(DDSTexture.prototype);

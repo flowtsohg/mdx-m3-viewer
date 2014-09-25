@@ -1,13 +1,3 @@
-// TODO
-//
-// To make getTransformation truely generic, the node types need to include more information.
-// Specifically, nodes should have their current scale, scaled by the parent.
-// If we look at every position-able object as a node, every node needs to know its local and world transformation values.
-// This is because we need the inverse scaling factor for all three axes.
-//
-// Is it possible to get the nodes to use this mixin and thus make everything work properly?
-//
-
 // Spatial mixin.
 // Used to add spatial capabilities to an object.
 var Spatial = (function () {

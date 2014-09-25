@@ -86,18 +86,6 @@ var ModelImpl = (function () {
     return this.meshes.length;
   }
   
-  function getInfo() {
-    return {
-      name: this.getName(),
-      sequences: this.getSequences(),
-      attachments: this.getAttachments(),
-      cameras: this.getCameras(),
-      textureMap: this.getTextureMap(),
-      boundingShapes: this.getBoundingShapes(),
-      meshCount: this.getMeshCount()
-    };
-  }
-  
   return function () {
     if (!this.setupImpl) { this.setupImpl = setupImpl; }
     if (!this.setup) { this.setup = setup; }
@@ -116,7 +104,6 @@ var ModelImpl = (function () {
     if (!this.getBoundingShapes) { this.getBoundingShapes = getBoundingShapes; }
     if (!this.getAttachments) { this.getAttachments = getAttachments; }
     if (!this.getMeshCount) { this.getMeshCount = getMeshCount; }
-    if (!this.getInfo) { this.getInfo = getInfo; }
     
     return this;
   };

@@ -145,16 +145,13 @@ function bindShader(name) {
 
 function loadTexture(source, clampS, clampT) {
   if (!textureStore[source]) {
-    var ext = getFileExtension(source).toLowerCase();
+    var fileType = getFileExtension(source).toLowerCase(),
+          handler = textureHandlers[fileType];
     
     onloadstart({isTexture: 1, source: source});
     
-    if (ext === "blp") {
-      textureStore[source] = new BLPTexture(source, onload, onerror, onprogress);
-    } else if (ext === "dds") {
-      textureStore[source] = new DDSTexture(source, onload, onerror, onprogress, clampS, clampT);
-    } else if (ext === "tga") {
-      textureStore[source] = new TGATexture(source, onload, onerror, onprogress, clampS, clampT);
+    if (handler) {
+      textureStore[source] = new handler(source, onload, onerror, onprogress, clampS, clampT);
     } else {
       textureStore[source] = new Texture(source, onload, onerror, onprogress);
     }

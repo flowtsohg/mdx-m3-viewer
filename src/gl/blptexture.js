@@ -3,17 +3,13 @@ var BLP1_MAGIC = 0x31504c42;
 var BLP_JPG = 0x0;
 var BLP_PALLETE = 0x1;
 
-function onloadBLPTexture(e) {
-  var date = new Date();
-  var status = e.target.status;
+function BLPTexture(source, onload, onerror, onprogress) {
+  this.setupImpl(source, onload, onerror, onprogress);
+}
+
+BLPTexture.prototype.onloadTexture = function (arrayBuffer) {
   var i;
   
-  if (status !== 200) {
-    this.onerror("" + status);
-    return;
-  }
-  
-  var arrayBuffer = e.target.response;
   // If compression=0, the header size is 40
   // If compression=1, the header size is 39
   // Might as well make one typed array for both
@@ -89,14 +85,6 @@ function onloadBLPTexture(e) {
   this.id = id;
   this.ready = true;
   this.onload(this);
-}
+};
 
-function BLPTexture(source, onload, onerror, onprogress) {
-  this.isTexture = true;
-  this.source = source;
-  
-  this.onload = onload;
-  this.onerror = onerror.bind(this);
-  
-  getFile(source, true, onloadBLPTexture.bind(this), this.onerror, onprogress.bind(this));
-}
+TextureImpl.call(BLPTexture.prototype);

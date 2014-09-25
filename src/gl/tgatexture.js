@@ -1,13 +1,8 @@
-function onloadTGATexture(e) {
-  var date = new Date();
-  var status = e.target.status;
-  
-  if (status !== 200) {
-    this.onerror("" + status);
-    return;
-  }
-  
-  var arrayBuffer = e.target.response;
+function TGATexture(source, onload, onerror, onprogress, clampS, clampT) {
+  this.setupImpl(source, onload, onerror, onprogress, clampS, clampT);
+}
+
+TGATexture.prototype.onloadTexture = function (e) {
   var dataView = new DataView(arrayBuffer);
   var imageType = dataView.getUint8(2);
   
@@ -52,15 +47,4 @@ function onloadTGATexture(e) {
   this.onload(this);
 }
 
-function TGATexture(source, onload, onerror, onprogress, clampS, clampT) {
-  this.isTexture = true;
-  this.source = source;
-  
-  this.clampS = clampS;
-  this.clampT = clampT;
-  
-  this.onload = onload;
-  this.onerror = onerror.bind(this);
-  
-  getFile(source, true, onloadTGATexture.bind(this), this.onerror, onprogress.bind(this));
-}
+TextureImpl.call(TGATexture.prototype);

@@ -47,7 +47,8 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   var boundShaderName = "";
   var boundTextures = [];
   var floatPrecision = "precision mediump float;\n";
-      
+  var textureHandlers = {};
+    
   ctx.viewport(0, 0, element.clientWidth, element.clientHeight);
   ctx.depthFunc(ctx.LEQUAL);
   ctx.enable(ctx.DEPTH_TEST);

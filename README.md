@@ -108,7 +108,12 @@ The API of the viewer is as follows:
 * `selectInstance(x, y)` - Selects an instance given a screen space coordinate on the canvas. Returns the ID of the selected instance, or -1 if no instance was selected.
 * `saveScene()` - Save the scene as a string
 * `loadScene(scene)` - Load a scene from a previously saved string.
-
+* `registerModelHandler(fileType, handler)` - Used for extending. See the extending section.
+* `registerModelInstanceHandler(fileType, handler)` - Used for extending. See the extending section.
+* `registerTextureHandler(fileType, handler)` - Used for extending. See the extending section.
+* `ModelImpl` - Used for extending. See the extending section.
+* `ModelInstanceImpl` - Used for extending. See the extending section.
+* `TextureImpl` - Used for extending. See the extending section.
 
 When loading a resource, it can be either an absolute url (http://...), a relative path (ends with a known file extension), or otherwise an arbitrary identifier used for custom models and textures.
 
@@ -148,3 +153,108 @@ The `models` object holds objects containing paths to model files, with an optio
 The `textures` object holds a map from texture paths used by the models, to custom textures that the custom models might be using. For example, the Warcraft 3 Azura Dragon uses the path "textures/azuredragon.blp" for its main diffuse texture. If the `textures` object would contain `"textures/azuradragon.blp": "some/other/texture.blp"`, then the path will be overriden for every model in the `models` object before they are loaded.
 
 The original texture paths (the keys in the `textures` object) must all be lower cased, and with forward slashes (Warcraft 3 uses back slashes).
+
+------------------------
+
+#### Extending
+
+It is possible to extend the viewer with new model and texture formats, also without editing the library itself.
+The registerModelHandler, registerModelInstanceHandler, and registerTextureHandler, register a new handler for the given file extension.
+
+The handlers must conform to specific APIs.
+
+Model:
+
+* `Constructor(binaryReader, textureMap)`
+* `render(instance, context)`
+* `renderEmitters(instance, context)`
+* `renderBoundingShapes(instance, context)`
+* `renderColor(instance, color)`
+* `getName()`
+* `getAttachment(id)`
+* `getCamera(id)`
+* `overrideTexture(path, override)`
+* `getTextureMap()`
+* `getSequences()`
+* `getCameras()`
+* `getBoundingShapes()`
+* `getAttachments()`
+* `getMeshCount()`
+
+ModelInstance:
+
+* `Constructor(model, textureMap)`
+* `update(instance, context)`
+* `render(instance, context)`
+* `renderEmitters(instance, context)`
+* `renderBoundingShapes(instance, context)`
+* `renderColor(instance, color)`
+* `getName()`
+* `getAttachment(id)`
+* `overrideTexture(path, override)`
+* `getTextureMap()`
+* `setTeamColor(id)`
+* `setSequence(id)`
+* `setSequenceLoopMode(id)`
+* `getMeshVisibilities()`
+* `setMeshVisibility(meshId, b)`
+* `getMeshVisibility(meshId)`
+
+Texture:
+
+* `Constructor(source, onload, onerror, onprogress, clampS, clampT)`
+* `ready` - Must be set to true if everything went ok.
+* `id` - A valid WebGL texture ID generated with WebGLContext.createTexture.
+
+In addition to the register functions, the main API also gives access to objects that make it easier to setup  the above object-specific APIs.
+These objects are ModelImpl, ModelInstanceImpl, and TextureImpl.
+Each one is a mixin object.
+To import it into your object, use Mixin.call(MyObject.prototype).
+Each of these mixins provide a setupImpl function that takes the same parameters as the object constructor, and creates all the neccessary default object variables.
+
+For example, if you want to introduce a new texture type, and you want to use the TextureImpl mixin:
+```javascript
+function MyTexture(source, onload, onerror, onprogress, clampS, clampT) {
+  // Calls the setup function of the mixin
+  this.setupImpl(source, onload, onerror, onprogress, clampS, clampT);
+}
+
+MyTexture.prototype.onloadTexture = function (arrayBuffer) {
+
+  // Parse the buffer in some way and construct a WebGL texture
+  
+  this.id = ...;
+  this.ready = true;
+};
+
+// Use the mixin
+myViewer.TextureImpl.call(MyTexture.prototype);
+```
+
+As you can see, the TextureImpl mixin calls the onloadTexture function automatically, assuming the texture file finished loading.
+The ModelInstanceImpl mixin calls `setup(model, textureMap)` automatically.
+The ModelImpl is a little more complicated - it expects you to call `setupImpl(parser, textureMap)`, where parser is an object containing all the relevant information about the model file. Assuming you got the parser, it will call `setup(parser, textureMap)` for general setup, followed by `setupShaders(parser)` that is meant to initialize WebGL shaders.
+
+For example:
+```javascript
+function MyModel(binaryReader, textureMap) {
+  // Parse the format in some way
+  var parser = MyParser(binaryReader);
+  
+  this.setupImpl(myParser, textureMap);
+}
+
+MyModel.prototype = {
+  setup: function (parser, textureMap) {
+    // Construct the actual model from the parser
+    
+    this.ready = true; // Also needed for models
+  },
+  
+  setupShaders: function (parser) {
+    // Initialize WebGL shaders
+  }
+};
+
+myViewer.ModelImpl.call(MyModel.prototype);
+```
