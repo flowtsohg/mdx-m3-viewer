@@ -48,7 +48,7 @@ AsyncModelInstance.prototype = {
     
     if (this.fileType === "m3") {
       // Transform to match the direction and size of MDX models
-      this.rotate([0, 0, 0.7071067811865476, 0.7071067811865476]);
+      this.rotate([0, 0, -Math.PI / 2]);
       this.scale(100);
     }
     
@@ -248,6 +248,7 @@ AsyncModelInstance.prototype = {
       sequenceLoopMode: this.getSequenceLoopMode(),
       location: this.getLocation(),
       rotation: this.getRotation(),
+      rotationQuat: this.getRotationQuat(),
       scale: this.getScale(),
       parent: this.getParent(),
       teamColor: this.getTeamColor(),

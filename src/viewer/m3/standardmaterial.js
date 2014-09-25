@@ -48,7 +48,7 @@ StandardMaterial.prototype = {
     }
   },
   
-  bind: function (sequence, frame, textureMap, shader, context) {
+  bind: function (sequence, frame, textureMap, shader) {
     this.bindCommon();
     
     ctx.uniform1f(shader.variables.u_specularity, this.specularity);
@@ -58,13 +58,13 @@ StandardMaterial.prototype = {
     
     var layers = this.layers;
     
-    layers[0].bind(1, sequence, frame, textureMap, shader, context);
-    layers[1].bind(2, sequence, frame, textureMap, shader, context);
-    layers[2].bind(3, sequence, frame, textureMap, shader, context, true);
-    layers[4].bind(5, sequence, frame, textureMap, shader, context);
-    layers[5].bind(6, sequence, frame, textureMap, shader, context);
-    layers[10].bind(11, sequence, frame, textureMap, shader, context, true);
-    layers[12].bind(13, sequence, frame, textureMap, shader, context, true);
+    layers[0].bind(1, sequence, frame, textureMap, shader);
+    layers[1].bind(2, sequence, frame, textureMap, shader);
+    layers[2].bind(3, sequence, frame, textureMap, shader);
+    layers[4].bind(5, sequence, frame, textureMap, shader);
+    layers[5].bind(6, sequence, frame, textureMap, shader);
+    layers[10].bind(11, sequence, frame, textureMap, shader);
+    layers[12].bind(13, sequence, frame, textureMap, shader);
   },
   
   unbind: function (shader) {
@@ -82,39 +82,39 @@ StandardMaterial.prototype = {
     layers[12].unbind(shader);
   },
   
-  bindDiffuse: function (sequence, frame, textureMap, shader, context) {
+  bindDiffuse: function (sequence, frame, textureMap, shader) {
     this.bindCommon();
     
-    this.layers[0].bind(1, sequence, frame, textureMap, shader, context);
+    this.layers[0].bind(1, sequence, frame, textureMap, shader);
   },
   
-  bindSpecular: function (sequence, frame, textureMap, shader, context) {
+  bindSpecular: function (sequence, frame, textureMap, shader) {
     this.bindCommon();
     
     ctx.uniform1f(shader.variables.u_specularity, this.specularity);
     ctx.uniform1f(shader.variables.u_specMult, this.specMult);
     
-    this.layers[2].bind(3, sequence, frame, textureMap, shader, context, true);
+    this.layers[2].bind(3, sequence, frame, textureMap, shader);
   },
   
-  bindNormalMap: function (sequence, frame, textureMap, shader, context) {
+  bindNormalMap: function (sequence, frame, textureMap, shader) {
     this.bindCommon();
     
-    this.layers[10].bind(11, sequence, frame, textureMap, shader, context, true);
+    this.layers[10].bind(11, sequence, frame, textureMap, shader);
   },
   
-  bindEmissive: function (sequence, frame, textureMap, shader, context) {
+  bindEmissive: function (sequence, frame, textureMap, shader) {
     this.bindCommon();
     
     ctx.uniform1f(shader.variables.u_emisMult, this.emisMult);
     
-    this.layers[4].bind(5, sequence, frame, textureMap, shader, context);
-    this.layers[5].bind(6, sequence, frame, textureMap, shader, context);
+    this.layers[4].bind(5, sequence, frame, textureMap, shader);
+    this.layers[5].bind(6, sequence, frame, textureMap, shader);
   },
   
-  bindDecal: function (sequence, frame, textureMap, shader, context) {
+  bindDecal: function (sequence, frame, textureMap, shader) {
     this.bindCommon();
     
-    this.layers[1].bind(2, sequence, frame, textureMap, shader, context, true);
+    this.layers[1].bind(2, sequence, frame, textureMap, shader);
   }
 };

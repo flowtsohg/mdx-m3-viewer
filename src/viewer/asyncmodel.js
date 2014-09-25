@@ -131,6 +131,7 @@ AsyncModel.prototype = {
         name: model.getName(),
         source: this.source,
         attachments: model.getAttachments(),
+        sequences: model.getSequences(),
         cameras: model.getCameras(),
         textureMap: model.getTextureMap(),
         boundingShapes: model.getBoundingShapes(),

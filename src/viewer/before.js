@@ -183,17 +183,18 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   ];
   
   var shaders = [
-    "sstandard",
-    "sdiffuse",
-    "snormals",
-    "suvs",
-    "snormalmap",
-    "sspecular",
-    "sspecular_normalmap",
-    "semissive",
-    "sunshaded",
-    "sunshaded_normalmap",
-    "sdecal"
+    "standard",
+    "diffuse",
+    "normals",
+    "uvs",
+    "normalmap",
+    "specular",
+    "specular_normalmap",
+    "emissive",
+    "unshaded",
+    "unshaded_normalmap",
+    "decal",
+    "white"
   ];
   
   var context = {
@@ -210,24 +211,20 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   };
   
   
-  function bindTexture(source, unit, modelTextureMap, instanceTextureMap, context, forceTexture) {
+  function bindTexture(source, unit, modelTextureMap, instanceTextureMap) {
     var texture;
     
-    if (forceTexture || context.texturesMode) {
-      if (modelTextureMap[source]) {
-        texture = modelTextureMap[source];
-      }
-      
-      if (instanceTextureMap[source]) {
-        texture = instanceTextureMap[source];   
-      }
-      
-      if (!context.teamColorsMode && source.endsWith("00.blp")) {
-        texture = null;
-      }
-      
-      gl.bindTexture(texture, unit);
-    } else {
-      gl.bindWhiteTexture(unit);
+    if (modelTextureMap[source]) {
+      texture = modelTextureMap[source];
     }
+    
+    if (instanceTextureMap[source]) {
+      texture = instanceTextureMap[source];   
+    }
+    
+    if (!context.teamColorsMode && source.endsWith("00.blp")) {
+      texture = null;
+    }
+    
+    gl.bindTexture(texture, unit);
   }

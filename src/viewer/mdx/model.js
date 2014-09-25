@@ -152,9 +152,11 @@ Model.prototype = {
   setupShaders: function (parser) {
     var psmain = SHADERS["wpsmain"];
       
-    // Load the main shader if it is needed
-    if ((parser.geosetChunk || parser.particleEmitterChunk) && !gl.shaderStatus("wmain")) {
-      gl.createShader("wmain", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain)
+    if ((parser.geosetChunk || parser.particleEmitterChunk) && !gl.shaderStatus("wstandard")) {
+      gl.createShader("wstandard", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain, ["STANDARD_PASS"]);
+      gl.createShader("wuvs", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain, ["UVS_PASS"]);
+      gl.createShader("wnormals", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain, ["NORMALS_PASS"]);
+      gl.createShader("wwhite", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain, ["WHITE_PASS"]);
     }
     
     // Load the particle emitters type 2 shader if it is needed
@@ -216,10 +218,17 @@ Model.prototype = {
 	  var sequence = instance.sequence;
     var frame = instance.frame;
     var counter = instance.counter;
+    var shaderName = shaders[context.shader];
+    
+    if (shaderName !== "uvs" && shaderName !== "normals" && shaderName !== "white") {
+      shaderName = "standard";
+    }
+    
+    var realShaderName = "w" + shaderName
     var shader;
     var layers = this.layers;
     
-    if (layers && gl.shaderStatus("wmain")) {
+    if (layers && gl.shaderStatus(realShaderName)) {
       var modifier = this.modifier;
       var uvoffset = this.uvoffset;
       var layer;
@@ -230,7 +239,7 @@ Model.prototype = {
       var temp;
       var defaultUvoffset = this.defaultUvoffset;
       
-      shader = gl.bindShader("wmain");
+      shader = gl.bindShader(realShaderName);
       
       ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
       ctx.uniform1i(shader.variables.u_texture, 0);
@@ -290,7 +299,7 @@ Model.prototype = {
       }
     }
     
-    if (context.emittersMode && instance.particleEmitters && gl.shaderStatus("wmain")) {
+    if (context.emittersMode && instance.particleEmitters && gl.shaderStatus(realShaderName)) {
       for (i = 0, l = instance.particleEmitters.length; i < l; i++) {
         instance.particleEmitters[i].render(context);
       }

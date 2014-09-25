@@ -14,12 +14,12 @@ Particle2.prototype = {
   reset: function (emitter, head, id, sequence, frame, counter) {
     var pivot = emitter.node.pivot;
     var worldMatrix = emitter.node.worldMatrix;
-    var scale = emitter.node.scale[0];
-    var width = getSDValue(sequence, frame, counter, emitter.sd.width, emitter.width) * 0.5 * scale;
-    var length = getSDValue(sequence, frame, counter, emitter.sd.length, emitter.length) * 0.5 * scale;
-    var speed = (getSDValue(sequence, frame, counter, emitter.sd.speed, emitter.speed) + math.random(-emitter.variation, emitter.variation)) * scale;
+    var scale = emitter.node.scale;
+    var width = getSDValue(sequence, frame, counter, emitter.sd.width, emitter.width) * 0.5 * scale[0];
+    var length = getSDValue(sequence, frame, counter, emitter.sd.length, emitter.length) * 0.5 * scale[1];
+    var speed = (getSDValue(sequence, frame, counter, emitter.sd.speed, emitter.speed) + math.random(-emitter.variation, emitter.variation));
     var latitude = math.toRad(getSDValue(sequence, frame, counter, emitter.sd.latitude, emitter.latitude));
-    var gravity = getSDValue(sequence, frame, counter, emitter.sd.gravity, emitter.gravity) * scale;
+    var gravity = getSDValue(sequence, frame, counter, emitter.sd.gravity, emitter.gravity) * scale[2];
     var color = emitter.colors[0];
     var localPosition = emitter.particleLocalPosition;
     var position = emitter.particlePosition;
@@ -63,7 +63,7 @@ Particle2.prototype = {
     this.head = head;
     
     vec3.copy(this.position, position);
-    vec3.copy(this.velocity, velocity);
+    vec3.multiply(this.velocity, velocity, scale);
     vec4.copy(this.color, color);
     
     this.gravity = gravity;

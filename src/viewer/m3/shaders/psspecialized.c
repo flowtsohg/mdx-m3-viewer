@@ -29,7 +29,7 @@ uniform sampler2D u_decalMap;
 #endif
 
 void main() {
-  vec4 color = vec4(0);
+  vec4 color = vec4(0.0);
   vec3 normal;
   
   #ifdef HIGHRES_NORMALS
@@ -99,6 +99,10 @@ void main() {
       color.rgb = combineLayerColor(decalColor, color.rgb, u_decalLayerSettings);
       color.a = 1.0;
     }
+  #endif
+  
+  #ifdef WHITE_PASS
+  color = vec4(1.0);
   #endif
   
   gl_FragColor = color;

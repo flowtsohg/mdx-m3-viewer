@@ -244,3 +244,33 @@ mat4.decomposeScale = function (out, m) {
   
   return out;
 };
+
+quat.fromYawPitchRoll = function (out, v) {
+  var x = v[0], y = v[1], z = v[2],
+        c1 = Math.cos(-z * 0.5),
+        c2 = Math.cos(-y * 0.5),
+        c3 = Math.cos(x * 0.5),
+        c1c2 = c1 * c2,
+        s1 = Math.sin(-z * 0.5),
+        s2 = Math.sin(-y * 0.5),
+        s3 = Math.sin(x * 0.5),
+        s1s2 = s1 * s2;
+  
+  out[0] = c1 * s2 * c3 - s1 * c2 * s3;
+  out[1] = c1c2 * s3 + s1s2 * c3;
+  out[2] = s1 * c2 * c3 + c1 * s2 * s3;
+  out[3] = c1c2 * c3 - s1s2 * s3;
+  
+  return out;
+};
+
+quat.toYawPitchRoll = function (out, q) {
+  var x = q[0], y = q[1], z = q[2], w = q[3],
+        sqx = x*x, sqy = y*y, sqz = z*z, sqw = w*w;
+  
+  out[0] = Math.atan2(2 * y * w - 2 * z * x, 1 - 2 * sqy - 2 * sqx);
+  out[1] = -Math.asin(2 * z * y + 2 * x * w);
+  out[2] = -Math.atan2(2 * z * w - 2 * y * x, 1 - 2 * sqz - 2 * sqx);
+  
+  return out;
+};

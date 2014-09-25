@@ -204,6 +204,10 @@ Model.prototype = {
       gl.createShader("sdecal" + uvSetCount, vsstandard, psspecialized, [uvSets, "DECAL_PASS"]);
     }
     
+    if (!gl.shaderStatus("swhite" + uvSetCount)) {
+      gl.createShader("swhite" + uvSetCount, vsstandard, psspecialized, [uvSets, "WHITE_PASS"]);
+    }
+    
     if (!gl.shaderStatus("sparticles" + uvSetCount)) {
       gl.createShader("sparticles" + uvSetCount, SHADERS.svsparticles, SHADERS.spsparticles);
     } 
@@ -342,7 +346,7 @@ Model.prototype = {
     var tc;
     var teamId = instance.teamColor;
     var shaderName = shaders[context.shader];
-    var realShaderName = shaderName + this.uvSetCount;
+    var realShaderName = "s" + shaderName + this.uvSetCount;
     // Instance-based texture overriding
     var textureMap = instance.textureMap;
     
@@ -373,21 +377,21 @@ Model.prototype = {
           var region = batch.region;
           var material = batch.material;
           
-          if (shaderName === "sstandard" || shaderName === "suvs") {
-            material.bind(sequence, frame, textureMap, shader, context);
-          } else if (shaderName === "sdiffuse") {
-            material.bindDiffuse(sequence, frame, textureMap, shader, context);
-          } else if (shaderName === "snormalmap" || shaderName === "sunshaded_normalmap") {
-            material.bindNormalMap(sequence, frame, textureMap, shader, context);
-          } else if (shaderName === "sspecular") {
-            material.bindSpecular(sequence, frame, textureMap, shader, context);
-          } else if (shaderName === "sspecular_normalmap") {
-            material.bindSpecular(sequence, frame, textureMap, shader, context);
-            material.bindNormalMap(sequence, frame, textureMap, shader, context);
-          } else if (shaderName === "semissive") {
-            material.bindEmissive(sequence, frame, textureMap, shader, context);
-          } else if (shaderName === "sdecal") {
-            material.bindDecal(sequence, frame, textureMap, shader, context);
+          if (shaderName === "standard" || shaderName === "uvs") {
+            material.bind(sequence, frame, textureMap, shader);
+          } else if (shaderName === "diffuse") {
+            material.bindDiffuse(sequence, frame, textureMap, shader);
+          } else if (shaderName === "normalmap" || shaderName === "unshaded_normalmap") {
+            material.bindNormalMap(sequence, frame, textureMap, shader);
+          } else if (shaderName === "specular") {
+            material.bindSpecular(sequence, frame, textureMap, shader);
+          } else if (shaderName === "specular_normalmap") {
+            material.bindSpecular(sequence, frame, textureMap, shader);
+            material.bindNormalMap(sequence, frame, textureMap, shader);
+          } else if (shaderName === "emissive") {
+            material.bindEmissive(sequence, frame, textureMap, shader);
+          } else if (shaderName === "decal") {
+            material.bindDecal(sequence, frame, textureMap, shader);
           }
           
           region.render(shader, context.polygonMode);

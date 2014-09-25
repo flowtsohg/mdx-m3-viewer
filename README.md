@@ -54,9 +54,12 @@ The API of the viewer is as follows:
 * `setLocation(objectId, v)` - Set the location of an instance.
 * `move(objectId, v)` - Move an instance.
 * `getLocation(objectId)` - Get the location of an instance.
-* `setRotation(objectId, q)` - Set the rotation of an instance.
-* `rotate(objectId, q)` - Rotate an instance.
-* `getRotation(objectId)` - Get the rotation of an instance.
+* `setRotationQuat(objectId, q)` - Set the rotation of an instance to a quaternion.
+* `rotateQuat(objectId, q)` - Rotate an instance with a quaternion.
+* `getRotationQuat(objectId)` - Get the rotation of an instance as a quaternion.
+* `setRotation(objectId, v)` - Set the rotation of an instance with a yaw-pitch-roll vector.
+* `rotate(objectId, v)` - Rotate an instance with a yaw-pitch-roll vector.
+* `getRotation(objectId)` - Get the rotation of an instance as a yaw-pitch-roll vector.
 * `setScale(objectId, n)` - Set the scale of an instance.
 * `scale(objectId, n)` - Scale an instance.
 * `getScale(objectId)` - Get the scale of an instance.
@@ -95,8 +98,6 @@ The API of the viewer is as follows:
 * `getTeamColorsMode()` - Get the team colors mode.
 * `setPolygonMode(b)` - Set the polygon render mode. True for filled, false for wireframe.
 * `getPolygonMode()` - Get the polygon render mode.
-* `setTexturesMode(b)` - Shows or hides all of the textures. If hidden, a white texture will replace the original textures. Note: this only affects the diffuse and emissive textures of SC2 models.
-* `getTexturesMode()` - Get the textures mode.
 * `setShader(id)` - Set the shader to be used for Starcraft 2 models. Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `texture coordinates`, 4 for `normal map`, 5 for `specular map`, 6 for `specular map + normal map`, 7 for `emissive`, 8 for `unshaded`, 9 for `unshaded + normal map`, and finally 10 for `decal`.
 * `getShader()` - Get the shader used for Starcraft 2 models.
 * `setCamera(objectId, cameraId)` - Set the camera. If either objectId or cameraId is equal to -1, then the free-form camera is used.
@@ -241,7 +242,7 @@ function MyModel(binaryReader, textureMap) {
   // Parse the format in some way
   var parser = MyParser(binaryReader);
   
-  this.setupImpl(myParser, textureMap);
+  this.setupImpl(parser, textureMap);
 }
 
 MyModel.prototype = {

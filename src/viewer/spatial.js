@@ -34,20 +34,43 @@ var Spatial = (function () {
     return Array.copy(this.location);
   }
   
-  function rotate(q) {
+  function rotateQuat(q) {
     quat.multiply(this.rotation, this.rotation, q);
     
     this.recalculateTransformation();
   }
   
-  function setRotation(q) {
+  function setRotationQuat(q) {
     quat.copy(this.rotation, q);
     
     this.recalculateTransformation();
   }
   
-  function getRotation() {
+  function getRotationQuat() {
     return Array.copy(this.rotation);
+  }
+  
+  function rotate(v) {
+    var q = quat.create();
+    
+    quat.fromYawPitchRoll(q, v);
+    quat.multiply(this.rotation, this.rotation, q);
+    
+    this.recalculateTransformation();
+  }
+  
+  function setRotation(v) {
+    quat.fromYawPitchRoll(this.rotation, v);
+    
+    this.recalculateTransformation();
+  }
+  
+  function getRotation() {
+    var v = vec3.create();
+    
+    quat.toYawPitchRoll(v, this.rotation);
+    
+    return v;
   }
   
   function scale(n) {
@@ -116,9 +139,9 @@ var Spatial = (function () {
       // Scale by the inverse of the parent to avoid carrying over scales through the hierarchy
       mat4.scale(worldMatrix, worldMatrix, parentNode.inverseScale);
       
-      // To avoid the 90 degree rotations applied to M3 models
-      if (parentRef.fileType !== "mdx") {
-        mat4.rotate(worldMatrix, worldMatrix, -Math.PI / 2, zAxis);
+      // To avoid the 90 degree difference between MDX and M3 models.
+      if (parentRef.fileType === "m3") {
+        mat4.rotateZ(worldMatrix, worldMatrix, -Math.PI / 2);
       }
     }
     
@@ -133,6 +156,9 @@ var Spatial = (function () {
     this.move = move;
     this.setLocation = setLocation;
     this.getLocation = getLocation;
+    this.rotateQuat = rotateQuat;
+    this.setRotationQuat = setRotationQuat;
+    this.getRotationQuat = getRotationQuat;
     this.rotate = rotate;
     this.setRotation = setRotation;
     this.getRotation = getRotation;

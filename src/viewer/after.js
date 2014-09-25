@@ -473,22 +473,20 @@ function setupColor(width, height) {
   }
   
   // Set the rotation of an instance.
-  function setRotation(objectId, q) {
+  function setRotation(objectId, v) {
     var object = modelInstanceCache[objectId];
     
     if (object && object.isInstance) {
-      object.setRotation(quat.normalize(q, q));
+      object.setRotation(v);
     }
   }
   
   // Rotate an instance.
-  function rotate(objectId, q) {
+  function rotate(objectId, v) {
     var object = modelInstanceCache[objectId];
     
     if (object && object.isInstance) {
-      math.quaternion.normalize(q, q);
-      
-      object.rotate(q);
+      object.rotate(v);
     }
   }
   
@@ -498,6 +496,33 @@ function setupColor(width, height) {
     
     if (object && object.isInstance) {
       return object.getRotation();
+    }
+  }
+  
+  // Set the RotationQuat of an instance.
+  function setRotationQuat(objectId, q) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      object.setRotationQuat(quat.normalize(q, q));
+    }
+  }
+  
+  // Rotate an instance.
+  function rotateQuat(objectId, q) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      object.rotate(quat.normalize(q, q));
+    }
+  }
+  
+  // Get the RotationQuat of an instance.
+  function getRotationQuat(objectId) {
+    var object = modelInstanceCache[objectId];
+    
+    if (object && object.isInstance) {
+      return object.getRotationQuat();
     }
   }
   
@@ -859,17 +884,6 @@ function setupColor(width, height) {
     return context.polygonMode;
   }
   
-  // Shows or hides all of the textures.
-  // If hidden, a white texture will be used for every texture bind.
-  function setTexturesMode(b) {
-    context.texturesMode = b;
-  }
-  
-  // Get the textures mode.
-  function getTexturesMode() {
-    return context.texturesMode;
-  }
-  
   // Set the shader to be used for Starcraft 2 models.
   // Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `normal map`, 4 for `specular map`, 5 for `specular map + normal map`, 6 for `emissive`, 7 for `unshaded`, 8 for `unshaded + normal map`, and finally 9 for `decal`
   function setShader(id) {
@@ -1118,6 +1132,9 @@ function setupColor(width, height) {
     setRotation: setRotation,
     rotate: rotate,
     getRotation: getRotation,
+    setRotationQuat: setRotationQuat,
+    rotateQuat: rotateQuat,
+    getRotationQuat: getRotationQuat,
     setScale: setScale,
     scale: scale,
     getScale: getScale,
@@ -1157,8 +1174,6 @@ function setupColor(width, height) {
     getTeamColorsMode: getTeamColorsMode,
     setPolygonMode: setPolygonMode,
     getPolygonMode: getPolygonMode,
-    setTexturesMode: setTexturesMode,
-    getTexturesMode: getTexturesMode,
     setShader: setShader,
     getShader: getShader,
     // Camera settings
