@@ -230,6 +230,7 @@ ParticleEmitter2.prototype = {
     var scale, textureIndex, left, top, right, bottom, r, g, b, a, px, py, pz;
     var v1x, v1y, v1z, v2x, v2y, v2z, v3x, v3y, v3z, v4x, v4y, v4z;
     var lta, lba, rta, rba, rgb;
+    var nodeScale = this.node.scale;
     
     for (var i = 0, l = activeParticles.length; i < l; i++) {
       particle = particles[activeParticles[i]];
@@ -252,18 +253,18 @@ ParticleEmitter2.prototype = {
       pz = position[2];
       
       if (particle.head) {
-        v1x = px + pv1[0] * scale;
-        v1y = py + pv1[1] * scale;
-        v1z = pz + pv1[2] * scale;
-        v2x = px + pv2[0] * scale;
-        v2y = py + pv2[1] * scale;
-        v2z = pz + pv2[2] * scale;
-        v3x = px + pv3[0] * scale;
-        v3y = py + pv3[1] * scale;
-        v3z = pz + pv3[2] * scale;
-        v4x = px + pv4[0] * scale;
-        v4y = py + pv4[1] * scale;
-        v4z = pz + pv4[2] * scale;
+        v1x = px + pv1[0] * scale * nodeScale[0];
+        v1y = py + pv1[1] * scale * nodeScale[1];
+        v1z = pz + pv1[2] * scale * nodeScale[2];
+        v2x = px + pv2[0] * scale * nodeScale[0];
+        v2y = py + pv2[1] * scale * nodeScale[1];
+        v2z = pz + pv2[2] * scale * nodeScale[2];
+        v3x = px + pv3[0] * scale * nodeScale[0];
+        v3y = py + pv3[1] * scale * nodeScale[1];
+        v3z = pz + pv3[2] * scale * nodeScale[2];
+        v4x = px + pv4[0] * scale * nodeScale[0];
+        v4y = py + pv4[1] * scale * nodeScale[1];
+        v4z = pz + pv4[2] * scale * nodeScale[2];
       } else {
         var tailLength = this.tailLength;
         var v = particle.velocity;
@@ -293,21 +294,21 @@ ParticleEmitter2.prototype = {
         v4y = py2 + csx[1] * scale + csz[1] * scale;
         v4z = pz2 + csx[2] * scale + csz[2] * scale;
         */
-        v1x = px2 - csx[0] * scale;
-        v1y = py2 - csx[1] * scale;
-        v1z = pz2 - csx[2] * scale;
+        v1x = px2 - csx[0] * scale * nodeScale[0];
+        v1y = py2 - csx[1] * scale * nodeScale[1];
+        v1z = pz2 - csx[2] * scale * nodeScale[2];
 
-        v2x = px - csx[0] * scale;
-        v2y = py - csx[1] * scale;
-        v2z = pz - csx[2] * scale;
+        v2x = px - csx[0] * scale * nodeScale[0];
+        v2y = py - csx[1] * scale * nodeScale[1];
+        v2z = pz - csx[2] * scale * nodeScale[2];
         
-        v3x = px + csx[0] * scale;
-        v3y = py + csx[1] * scale;
-        v3z = pz + csx[2] * scale;
+        v3x = px + csx[0] * scale * nodeScale[0];
+        v3y = py + csx[1] * scale * nodeScale[1];
+        v3z = pz + csx[2] * scale * nodeScale[2];
         
-        v4x = px2 + csx[0] * scale;
-        v4y = py2 + csx[1] * scale;
-        v4z = pz2 + csx[2] * scale;
+        v4x = px2 + csx[0] * scale * nodeScale[0];
+        v4y = py2 + csx[1] * scale * nodeScale[1];
+        v4z = pz2 + csx[2] * scale * nodeScale[2];
       }
       
       lta = encodeFloat3(left, top, a);

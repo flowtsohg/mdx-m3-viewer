@@ -296,6 +296,7 @@ Model.prototype = {
       }
     }
     
+    ctx.depthMask(1);
     ctx.disable(ctx.BLEND);
     ctx.enable(ctx.CULL_FACE);
   },
@@ -337,6 +338,7 @@ Model.prototype = {
       ctx.depthMask(1);
     }
     
+    ctx.depthMask(1);
     ctx.disable(ctx.BLEND);
     ctx.enable(ctx.CULL_FACE);
   },
@@ -345,8 +347,6 @@ Model.prototype = {
     var shader;
     
     if (this.boundingShapes && gl.shaderStatus("white")) {
-      ctx.depthMask(1);
-      
       shader = gl.bindShader("white");
       
       for (i = 0, l = this.boundingShapes.length; i < l; i++) {

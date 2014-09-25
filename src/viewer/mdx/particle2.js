@@ -14,11 +14,12 @@ Particle2.prototype = {
   reset: function (emitter, head, id, sequence, frame, counter) {
     var pivot = emitter.node.pivot;
     var worldMatrix = emitter.node.worldMatrix;
-    var width = getSDValue(sequence, frame, counter, emitter.sd.width, emitter.width) * 0.5;
-    var length = getSDValue(sequence, frame, counter, emitter.sd.length, emitter.length) * 0.5;
-    var speed = getSDValue(sequence, frame, counter, emitter.sd.speed, emitter.speed) + math.random(-emitter.variation, emitter.variation);
+    var scale = emitter.node.scale[0];
+    var width = getSDValue(sequence, frame, counter, emitter.sd.width, emitter.width) * 0.5 * scale;
+    var length = getSDValue(sequence, frame, counter, emitter.sd.length, emitter.length) * 0.5 * scale;
+    var speed = (getSDValue(sequence, frame, counter, emitter.sd.speed, emitter.speed) + math.random(-emitter.variation, emitter.variation)) * scale;
     var latitude = math.toRad(getSDValue(sequence, frame, counter, emitter.sd.latitude, emitter.latitude));
-    var gravity = getSDValue(sequence, frame, counter, emitter.sd.gravity, emitter.gravity);
+    var gravity = getSDValue(sequence, frame, counter, emitter.sd.gravity, emitter.gravity) * scale;
     var color = emitter.colors[0];
     var localPosition = emitter.particleLocalPosition;
     var position = emitter.particlePosition;

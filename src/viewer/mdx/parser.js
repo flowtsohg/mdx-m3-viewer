@@ -163,6 +163,7 @@ var Parser = (function () {
   function Node(reader) {
     this.inclusiveSize = readUint32(reader);
     this.name = read(reader, 80);
+    // Note: 1 is added here to allow the parser to inject a root node.
     this.objectId = readUint32(reader) + 1;
     this.parentId = readInt32(reader) + 1;
     

@@ -1066,7 +1066,8 @@ var Parser = (function () {
                                               // 0x400 inverseKinematics
                                               // 0x800 skinned
                                               // 0x2000 real -- what does this mean?
-    this.parent = readInt16(reader);
+    // Note: 1 is added here to allow the parser to inject a root node.
+    this.parent = readInt16(reader) + 1;
     this.unknown1 = readUint16(reader);
     this.location = new AnimationReference(reader, readVector3);
     this.rotation = new AnimationReference(reader, readVector4);
@@ -1268,7 +1269,11 @@ var Parser = (function () {
       
       seek(reader, modelHeader.offset);
       
-      return new ModelHeader(reader, indexEntries, modelHeader.version);
+      var parser = new ModelHeader(reader, indexEntries, modelHeader.version);
+      
+      parser.bones.unshift({name: "InjectedRoot", parent: -1});
+      
+      return parser;
     }
   });
 }());

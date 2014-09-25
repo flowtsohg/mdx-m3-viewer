@@ -40,37 +40,24 @@ function Skeleton(model) {
     this.bones[i] = new ShallowBone(bones[i]);
   }
   
-  // TODO: instead of hacking, inject a root exactly like I do in the Mdx parser.
-  this.root = {
-    worldMatrix: mat4.create(),
-    scale: vec3.create(),
-    inverseScale: vec3.create(),
-    getTransformation: function () { return this.worldMatrix }
-  };
-  
   this.localMatrix = mat4.create();
   this.rotationMatrix = mat4.create();
   
   this.locationVec = vec3.create();
   this.scaleVec = vec3.create();
   this.rotationQuat = quat.create();
-  this.tempVec3 = vec3.create();
 }
 
 Skeleton.prototype = {
   // NOTE: This function assumes that the bones are sorted in such way that a child would always be after its parent. Is this true?
   update: function (sequence, frame, instance) {
-    var root = this.root;
+    var root = this.bones[0];
     
-    mat4.identity(root.worldMatrix);
+    mat4.copy(root.worldMatrix, instance.getTransformation());
+    mat4.decomposeScale(root.scale, root.worldMatrix);
+    vec3.inverse(root.inverseScale, root.scale);
     
-    if (instance) {
-      mat4.copy(root.worldMatrix, instance.getTransformation());
-      mat4.decomposeScale(root.scale, root.worldMatrix);
-      vec3.inverse(root.inverseScale, root.scale);
-    }
-    
-    for (var i = 0, l = this.bones.length; i < l; i++) {
+    for (var i = 1, l = this.bones.length; i < l; i++) {
       this.updateBone(this.bones[i], sequence, frame);
     }
     
@@ -93,14 +80,7 @@ Skeleton.prototype = {
     var scale = this.getValue(this.scaleVec, bone.boneImpl.scale, sequence, frame);
     
     mat4.fromRotationTranslationScale(localMatrix, rotation, location, scale);
-    
-    if (bone.parent !== -1) {
-      var parent = this.bones[bone.parent];
-      
-      mat4.multiply(bone.worldMatrix, parent.worldMatrix, localMatrix);
-    } else {
-      mat4.multiply(bone.worldMatrix, this.root.worldMatrix, localMatrix);
-    }
+    mat4.multiply(bone.worldMatrix, this.bones[bone.parent].worldMatrix, localMatrix);
     
     mat4.decomposeScale(bone.scale, bone.worldMatrix);
     vec3.inverse(bone.inverseScale, bone.scale);
@@ -115,7 +95,7 @@ Skeleton.prototype = {
     var finalMatrix;
     
     if (sequence === -1) {
-      finalMatrix = this.root.worldMatrix;
+      finalMatrix = this.bones[0].worldMatrix;
     } else {
       finalMatrix = this.localMatrix;
     }
@@ -123,7 +103,8 @@ Skeleton.prototype = {
     for (var i = 0, l = boneLookup.length; i < l; i++) {
       if (sequence !== -1) {
         bone = boneLookup[i];
-        mat4.multiply(finalMatrix, bones[bone].worldMatrix, initialReferences[bone]);
+        // 1 added to account for the injected root
+        mat4.multiply(finalMatrix, bones[bone + 1].worldMatrix, initialReferences[bone]);
       } 
       
       hwbones.set(finalMatrix, i * 16);

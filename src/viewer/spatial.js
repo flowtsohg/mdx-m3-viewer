@@ -18,7 +18,6 @@ var Spatial = (function () {
     this.location = vec3.create();
     this.rotation = quat.create();
     this.scaling = vec3.fromValues(1, 1, 1);
-    this.inverseScale = vec3.fromValues(1, 1, 1);
     this.parentId = -1;
     this.attachment = -1;
     this.parentRef = null;
@@ -63,20 +62,24 @@ var Spatial = (function () {
   
   function scale(n) {
     vec3.scale(this.scaling, this.scaling, n);
-    vec3.inverse(this.inverseScale, this.scaling);
     
     this.recalculateTransformation();
   }
   
   function setScale(n) {
     vec3.set(this.scaling, n, n, n);
-    vec3.inverse(this.inverseScale, this.scaling);
     
     this.recalculateTransformation();
   }
   
   function getScale() {
     return this.scaling[0];
+  }
+  
+  function setScaleVector(v) {
+    vec3.copy(this.scaling, v);
+    
+    this.recalculateTransformation();
   }
   
   function getScaleVector() {
@@ -146,6 +149,7 @@ var Spatial = (function () {
     this.scale = scale;
     this.setScale = setScale;
     this.getScale = getScale;
+    this.setScaleVector = setScaleVector;
     this.getScaleVector = getScaleVector;
     this.setParent = setParent;
     this.setParentNode = setParentNode;

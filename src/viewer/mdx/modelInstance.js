@@ -65,7 +65,7 @@ ModelInstance.prototype = {
           allowCreate = true;
         } else {
           this.frame = sequence.interval[1];
-          this.couter -= frames;
+          this.counter -= FRAME_TIME_MS;
           allowCreate = false;
         }
       }

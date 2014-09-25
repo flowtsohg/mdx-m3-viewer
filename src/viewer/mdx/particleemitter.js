@@ -98,6 +98,7 @@ ParticleEmitter.prototype = {
           gl.translate(p);
           gl.rotate(particle.orientation, zAxis);
           
+          spawnModel.setScaleVector(this.node.scale);
           spawnModel.render(context);
           
           gl.popMatrix();

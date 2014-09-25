@@ -7,11 +7,12 @@ function Particle() {
 
 Particle.prototype = {
   reset: function (emitter, sequence, frame, counter) {
-    var speed = getSDValue(sequence, frame, counter, emitter.sd.speed, emitter.initialVelocity);
+    var scale = emitter.node.scale[0];
+    var speed = getSDValue(sequence, frame, counter, emitter.sd.speed, emitter.initialVelocity) * scale;
     var latitude = getSDValue(sequence, frame, counter, emitter.sd.latitude, emitter.latitude);
     var longitude = getSDValue(sequence, frame, counter, emitter.sd.longitude, emitter.longitude);
     var lifespan = getSDValue(sequence, frame, counter, emitter.sd.lifespan, emitter.lifespan);
-    var gravity = getSDValue(sequence, frame, counter, emitter.sd.gravity, emitter.gravity);
+    var gravity = getSDValue(sequence, frame, counter, emitter.sd.gravity, emitter.gravity) * scale;
     var position = this.position;
     var worldMatrix = emitter.node.worldMatrix;
     
