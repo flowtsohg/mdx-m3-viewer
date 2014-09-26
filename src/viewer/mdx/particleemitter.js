@@ -10,7 +10,7 @@ function ParticleEmitter(emitter, model, instance) {
   
   var path = emitter.spawnModelPath.replace(/\\/g, "/").replace("MDL", "mdx");
   
-  this.spawnModel = loadModelInstanceNoRender(urls.mpqFile(path));
+  this.spawnModel = loadInternalModelInstance(urls.mpqFile(path));
   this.spawnModel.setSequence(0);
   
   var particles;
@@ -70,7 +70,7 @@ ParticleEmitter.prototype = {
     if (allowCreate && this.shouldRender(sequence, frame, counter)) {
       this.lastCreation += 1;
       
-      var amount = getSDValue(sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * FRAME_TIME * this.lastCreation;
+      var amount = getSDValue(sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * (context.frameTime / 1000) * this.lastCreation;
       
       if (amount >= 1) {
         this.lastCreation = 0;

@@ -18,8 +18,17 @@ function BoundingShape(boundingshape, bones) {
 }
 
 BoundingShape.prototype = {
-  render: function (shader) {
+  render: function (shader, bones) {
     if (this.shape) {
+      gl.pushMatrix();
+        
+      gl.multMat(bones[this.bone].worldMatrix);
+      gl.multMat(this.matrix);
+      
+      ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
+      
+      gl.popMatrix();
+      
       this.shape.renderLines(shader);
     }
   }

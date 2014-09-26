@@ -42,12 +42,12 @@ function setupColor(width, height) {
   addEvent(window, "resize", resetViewport);
   
   // Used by Mdx.ParticleEmitter since they don't need to be automatically updated and rendered
-  function loadModelInstanceNoRender(source) {
-    if (!modelCache[source]) {
-      modelCache[source] = new AsyncModel(source);
+  function loadInternalModelInstance(source) {
+    if (!modelMap[source]) {
+      modelMap[source] = new AsyncModel(source);
     }
     
-    var instance = new AsyncModelInstance(modelCache[source]);
+    var instance = new AsyncModelInstance(modelMap[source]);
     
     // Avoid reporting this instance since it's internal
     instance.delayOnload = true;
@@ -73,10 +73,9 @@ function setupColor(width, height) {
   gl.loadTexture(waterPath);
   gl.loadTexture(bedrockPath);
   gl.loadTexture(skyPath);
-  //gl.newTexture("Light", "../images/Light.png");
   
-  grass_water = gl.createRect(0, 0, -3, groundSize, groundSize, 6);
-  bedrock = gl.createRect(0, 0, -35, groundSize, groundSize, 6);
+  grass_water = gl.createRect(0, 0, -3, context.groundSize, context.groundSize, 6);
+  bedrock = gl.createRect(0, 0, -35, context.groundSize, context.groundSize, 6);
   sky = gl.createSphere(0, 0, 0, 5, 40, 2E3);
   
   function updateParticleRect() {
@@ -89,11 +88,11 @@ function setupColor(width, height) {
     mat4.identity(cameraMatrix);
     mat4.identity(inverseCameraRotation);
     
-    if (instanceCamera[1] === -1) {
-      var z = camera.r[1];
-      var x = camera.r[0];
+    if (context.instanceCamera[1] === -1) {
+      var z = context.camera[1][1];
+      var x = context.camera[1][0];
 
-      mat4.translate(cameraMatrix, cameraMatrix, camera.m);
+      mat4.translate(cameraMatrix, cameraMatrix, context.camera[0]);
       mat4.rotate(cameraMatrix, cameraMatrix, x, xAxis);
       mat4.rotate(cameraMatrix, cameraMatrix, z, zAxis);
       
@@ -103,10 +102,10 @@ function setupColor(width, height) {
       mat4.invert(inverseCamera, cameraMatrix);
       vec3.transformMat4(cameraPosition, zAxis, inverseCamera);
     } else {
-      var instance = modelInstanceCache[instanceCamera[0]];
+      var instance = modelInstanceMap[context.instanceCamera[0]];
       
       if (instance) {
-        var cam = instance.getCamera(instanceCamera[1]);
+        var cam = instance.getCamera(context.instanceCamera[1]);
         
         if (cam) {
           var targetPosition = cam.targetPosition;
@@ -126,8 +125,8 @@ function setupColor(width, height) {
   }
   
   function update() {
-    for (var i = 0, l = instanceCache.length; i < l; i++) {
-      instanceCache[i].update(context);
+    for (var i = 0, l = instanceArray.length; i < l; i++) {
+      instanceArray[i].update(context);
     }
     
     transformCamera();
@@ -136,7 +135,7 @@ function setupColor(width, height) {
   }
   
   function renderGround(isWater) {
-    if (shouldRenderWorld > 1 && gl.shaderStatus("world")) {
+    if (context.worldMode > 1 && gl.shaderStatus("world")) {
       var shader = gl.bindShader("world");
       
       ctx.disable(ctx.CULL_FACE);
@@ -154,7 +153,7 @@ function setupColor(width, height) {
         ctx.uniform1f(shader.variables.u_a, 1);
       }
       
-      if (shouldRenderWorld > 2) {
+      if (context.worldMode > 2) {
         if (isWater) {
           ctx.enable(ctx.BLEND);
           ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
@@ -175,7 +174,7 @@ function setupColor(width, height) {
   }
   
   function renderSky() {
-    if (shouldRenderWorld > 0 && gl.shaderStatus("world")) {
+    if (context.worldMode > 0 && gl.shaderStatus("world")) {
       var shader = gl.bindShader("world");
       
       ctx.uniform2fv(shader.variables.u_uv_offset, [0, 0]);
@@ -189,7 +188,7 @@ function setupColor(width, height) {
   
   function render() {
     var i,
-          l = instanceCache.length;
+          l = instanceArray.length;
     
     ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
     
@@ -199,25 +198,25 @@ function setupColor(width, height) {
     // Render geometry
     if (context.meshesMode) {
       for (i = 0; i < l; i++) {
-        instanceCache[i].render(context);
+        instanceArray[i].render(context);
       }
     }
     
     // Render particles
     if (context.emittersMode) {
       for (i = 0; i < l; i++) {
-        instanceCache[i].renderEmitters(context);
+        instanceArray[i].renderEmitters(context);
       }
     }
     
     // Render bounding shapes
     if (context.boundingShapesMode) {
       for (i = 0; i < l; i++) {
-        instanceCache[i].renderBoundingShapes(context);
+        instanceArray[i].renderBoundingShapes(context);
       }
     }
     
-    if (shouldRenderWorld > 2) {
+    if (context.worldMode > 2) {
       renderGround(true);
     }
   }
@@ -227,8 +226,8 @@ function setupColor(width, height) {
     
     ctx.disable(ctx.CULL_FACE);
     
-    for (var i = 0, l = instanceCache.length; i < l; i++) {
-      instanceCache[i].renderColor();
+    for (var i = 0, l = instanceArray.length; i < l; i++) {
+      instanceArray[i].renderColor();
     }
     
     ctx.enable(ctx.CULL_FACE);
@@ -267,41 +266,51 @@ function setupColor(width, height) {
     return "" + r + g + b;
   }
   
+  function loadModel(source, textureMap) {
+    var object;
+    
+    idFactory += 1;
+    object = new AsyncModel(source, idFactory, textureMap);
+    
+    modelMap[source] = object;
+    modelArray.push(object);
+    modelInstanceMap[idFactory] = object;
+    
+    return object;
+  }
+  
+  function loadInstance(source, hidden) {
+    var object,
+          color = generateColor();
+    
+    idFactory += 1;
+    object = new AsyncModelInstance(modelMap[source], idFactory, color);
+    
+    if (hidden) {
+      object.setVisibility(false);
+    }
+    
+    modelInstanceMap[idFactory] = object;
+    instanceArray.push(object);
+    instanceMap[colorString(color)] = object;
+    
+    if (object.delayOnload) {
+      onload(object);
+    }
+    
+    return object;
+  }
+  
   // Load a model or texture from an absolute url, with an optional texture map, and an optional hidden parameter
   function loadResourceImpl(source, textureMap, hidden) {
-    var ext = getFileExtension(source).toLowerCase();
+    var fileType = getFileExtension(source).toLowerCase();
     
-    if (ext === "mdx" || ext === "m3") {
-      var id;
-      var color;
-      
-      if (!modelCache[source]) {
-        id = modelInstanceCache.length;
-        
-        var model = new AsyncModel(source, id, textureMap);
-        
-        modelCache[source] = model;
-        
-        modelInstanceCache.push(model);
+    if (supportedModelFileTypes[fileType]) {
+      if (!modelMap[source]) {
+        loadModel(source, textureMap);
       }
       
-      id = modelInstanceCache.length;
-      color = generateColor();
-      
-      var instance = new AsyncModelInstance(modelCache[source], id, color);
-      
-      // Hide portraits by default
-      if (hidden) {
-        instance.setVisibility(false);
-      }
-      
-      modelInstanceCache.push(instance);
-      instanceCache.push(instance);
-      colorInstanceCache[colorString(color)] = instance;
-      
-      if (instance.delayOnload) {
-        onload(instance);
-      }
+      loadInstance(source, hidden);
     } else {
       gl.loadTexture(source);
     }
@@ -339,43 +348,54 @@ function setupColor(width, height) {
     }
   }
   
-  // Create a new instance from an existing model or instance, or a path that will be used to load also the model if needed.
-  // If source is a string, it can be an absolute path to a MDX/M3 file, a path to a MDX/M3 file in any of the Warcraft 3 and Starcraft 2 MPQs, or a model ID used by the Hiveworkshop.
-  // If source is a number, it can be an ID of a model or an instance.
-  // Returns null if given an invalid ID, otherwise returns the ID of the created instance.
-  // Note: if the source is a string, and a model was already loaded from that string, only a new instance will be created.
-  function loadInstance(source, textureMap) {
-    if (typeof source === "string") {
-      var modelId = loadAsyncModel(source);
-      var id = modelInstanceCache.length;
-      var color = generateColor();
-      
-      var instance = new AsyncModelInstance(modelInstanceCache[modelId], id, color, textureMap);
-      
-      modelInstanceCache.push(instance);
-      colorInstanceCache[colorString(color)] = instance;
-      
-      modelInstanceCache.push(instance);
-      
-      return id;
-    } else if (typeof source === "number") {
-      var object = modelInstanceCache[source];
-      
-      // Check if the source ID is valid
-      if (object) {
-        var model = object.isModel ? object : object.model;
-        var id = modelInstanceCache.length;
-        var color = generateColor();
-        var instance = new AsyncModelInstance(model, id, color);
-        
-        modelInstanceCache.push(instance);
-        colorInstanceCache[colorString(color)] = instance;
-        
-        return id;
+  function unloadInstance(instance, unloadingModel) {
+    var i,
+          l,
+          instances = instance.asyncModel.instances;
+    
+    // Remove from the instance array
+    for (i = 0, l = instanceArray.length; i < l; i++) {
+      if (instanceArray[i] === instance) {
+        instanceArray.splice(i, 1);
       }
     }
     
-    return null;
+    // Remove from the instance map
+    delete instanceMap[colorString(instance.color)];
+    
+    // Remove from the model-instance map
+    delete modelInstanceMap[instance.id];
+    
+    // Don't remove from the model if the model itself is unloaded
+    if (!unloadingModel) {
+      // Remove from the instances list of the owning model
+      for (i = 0, l = instances.length; i < l; i++) {
+        if (instances[i] === instance) {
+          instances.splice(i, 1);
+        }
+      }
+    }
+  }
+  
+  function unloadModel(model) {
+    var i,
+          l,
+          instances = model.instances;
+    
+    // Remove all instances owned by this model
+    for (i = 0, l = instances.length; i < l; i++) {
+      unloadInstance(instances[i], true);
+    }
+    
+    // Remove from the model array
+    for (i = 0, l = modelArray.length; i < l; i++) {
+      if (modelArray[i] === model) {
+        modelArray.splice(i, 1);
+      }
+    }
+    
+    // Remove from the model-instance map
+    delete modelInstanceMap[model.id];
   }
   
   // ---------------------
@@ -386,9 +406,11 @@ function setupColor(width, height) {
   // The source caan be an absolute path to a MDX/M3 file, a path to a MDX/M3 file in any of the Warcraft 3 and Starcraft 2 MPQs, or a resource thread ID used by the Hiveworkshop
   // If loading from a resource thread, every model and texture in the resource thread will be loaded.
   function loadResource(source) {
-    if (source.startsWith("http://")) {
+    var isSupported = supportedFileTypes[getFileExtension(source).toLowerCase()];
+    
+    if (source.startsWith("http://") && isSupported) {
       loadResourceImpl(source);
-    } else if (source.match(/\.(?:mdx|m3|blp|dds|tga|png)$/)) {
+    } else if (isSupported) {
       loadResourceImpl(urls.mpqFile(source));
     } else {
       var object = {isHeader: 1, source: source};
@@ -399,7 +421,36 @@ function setupColor(width, height) {
     }
   }
   
-  
+  // Unload a resource from a given source.
+  // If the source is a string, it can be the path of a loaded model, or a loaded texture.
+  // If the source is a number, it must be a valid model or model instance ID.
+  // If a model is removed, all of its instances are removed too.
+  // Note: unloading a model or an instance that aren't loaded wont do anything.
+  function unloadResource(source) {
+    var object;
+    
+    if (typeof source === "number") {
+      object = modelInstanceMap[source];
+      
+      if (object && object.ready) {
+        if (object.isModel) {
+          unloadModel(object);
+        } else {
+          unloadInstance(object);
+        }
+      }
+    } else {
+      object = modelMap[source];
+      
+      if (object) {
+        if (object.ready) {
+          unloadModel(object);
+        }
+      } else {
+        gl.unloadTexture(source);
+      }
+    }
+  }
   
   // ------------------
   // Instance visibility
@@ -407,7 +458,7 @@ function setupColor(width, height) {
   
   // Shows or hides an instance.
   function setVisibility(objectId, b) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       object.setVisibility(b);
@@ -416,7 +467,7 @@ function setupColor(width, height) {
   
   // Get the visibility status if an instance.
   function getVisibility(objectId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       return object.getVisibility();
@@ -425,7 +476,7 @@ function setupColor(width, height) {
   
   // Shows or hides a mesh of a specific instance.
   function setMeshVisibility(objectId, meshId, b) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       return object.setMeshVisibility(meshId, b);
@@ -434,7 +485,7 @@ function setupColor(width, height) {
   
   // Get the visibility of a mesh in an instance.
   function getMeshVisibility(objectId, meshId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       return object.getMeshVisibility(meshId);
@@ -447,7 +498,7 @@ function setupColor(width, height) {
   
   // Set the location of an instance.
   function setLocation(objectId, v) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       object.setLocation(v);
@@ -456,7 +507,7 @@ function setupColor(width, height) {
   
   // Move an instance.
   function move(objectId, v) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       object.move(v);
@@ -465,7 +516,7 @@ function setupColor(width, height) {
   
   // Get the location of an instance.
   function getLocation(objectId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       return object.getLocation();
@@ -474,7 +525,7 @@ function setupColor(width, height) {
   
   // Set the rotation of an instance.
   function setRotation(objectId, v) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       object.setRotation(v);
@@ -483,7 +534,7 @@ function setupColor(width, height) {
   
   // Rotate an instance.
   function rotate(objectId, v) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       object.rotate(v);
@@ -492,7 +543,7 @@ function setupColor(width, height) {
   
   // Get the rotation of an instance.
   function getRotation(objectId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       return object.getRotation();
@@ -501,7 +552,7 @@ function setupColor(width, height) {
   
   // Set the RotationQuat of an instance.
   function setRotationQuat(objectId, q) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       object.setRotationQuat(quat.normalize(q, q));
@@ -510,7 +561,7 @@ function setupColor(width, height) {
   
   // Rotate an instance.
   function rotateQuat(objectId, q) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       object.rotate(quat.normalize(q, q));
@@ -519,7 +570,7 @@ function setupColor(width, height) {
   
   // Get the RotationQuat of an instance.
   function getRotationQuat(objectId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       return object.getRotationQuat();
@@ -528,7 +579,7 @@ function setupColor(width, height) {
   
   // Set the scale of an instance.
   function setScale(objectId, n) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       object.setScale(n);
@@ -537,7 +588,7 @@ function setupColor(width, height) {
   
   // Scale an instance.
   function scale(objectId, n) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       object.scale(n);
@@ -546,7 +597,7 @@ function setupColor(width, height) {
   
   // Get the scale of an instance.
   function getScale(objectId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       return object.getScale();
@@ -555,13 +606,13 @@ function setupColor(width, height) {
   
   // Set the parent of an instance to another instance, with an optional attachment point owned by that parent.
   function setParent(objectId, parentId, attachmentId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       if (parentId === -1) {
         object.setParent();
       } else {
-        var parent = modelInstanceCache[parentId];
+        var parent = modelInstanceMap[parentId];
         
         if (parent && parent.isInstance) {
           object.setParent(parent, attachmentId);
@@ -573,7 +624,7 @@ function setupColor(width, height) {
   // Get the parent of an instance as an array.
   // The first index is the parent ID, the second is the attachment ID.
   function getParent(objectId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       return object.getParent();
@@ -586,7 +637,7 @@ function setupColor(width, height) {
   
   // Set the team color used by an instance.
   function setTeamColor(objectId, teamId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       object.setTeamColor(teamId);
@@ -595,7 +646,7 @@ function setupColor(width, height) {
   
   // Get the team color of an instance.
   function getTeamColor(objectId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       return object.getTeamColor();
@@ -606,7 +657,7 @@ function setupColor(width, height) {
   // If objectId is an instance, overrides the texture locally just for that instance.
   // If objectId is a model, it overrides the texture for the model, which affects all instances that don't explicitly override this texture.
   function overrideTexture(objectId, oldPath, newPath) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object) {
       object.overrideTexture(oldPath, newPath);
@@ -615,7 +666,7 @@ function setupColor(width, height) {
   
   // Get the texture map of an instance or model.
   function getTextureMap(objectId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object) {
       return object.getTextureMap();
@@ -628,7 +679,7 @@ function setupColor(width, height) {
   
   // Set the sequence of an instance.
   function setSequence(objectId, sequenceId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       object.setSequence(sequenceId);
@@ -638,7 +689,7 @@ function setupColor(width, height) {
   // Stop the sequence of an instance.
   // Equivalent to setSequence with sequence ID -1.
   function stopSequence(objectId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       object.setSequence(-1);
@@ -647,7 +698,7 @@ function setupColor(width, height) {
   
   // Get the current sequence of an instance.
   function getSequence(objectId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       return object.getSequence();
@@ -657,7 +708,7 @@ function setupColor(width, height) {
   // Sets the sequence loop mode of an instance.
   // Possible values are 0 for default, 1 for never, and 2 for always.
   function setSequenceLoopMode(objectId, mode) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       object.setSequenceLoopMode(mode);
@@ -666,7 +717,7 @@ function setupColor(width, height) {
   
   // Get the sequence loop mode of an instance.
   function getSequenceLoopMode(objectId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
       return object.getSequenceLoopMode();
@@ -679,7 +730,7 @@ function setupColor(width, height) {
   
   // Get all the information of an object.
   function getInfo(objectId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object) {
       return object.getInfo();
@@ -694,17 +745,17 @@ function setupColor(width, height) {
     var object;
     
     if (typeof source === "string") {
-      object = modelCache[source];
+      object = modelMap[source];
     
       if (object) {
-        return object[1];
+        return object.id;
       }
     } else {
-      object = modelInstanceCache[source];
+      object = modelInstanceMap[source];
       
       if (object) {
         if (object.isInstance) {
-          return object.model.id;
+          return object.asyncModel.id;
         }
         
         return source;
@@ -715,7 +766,7 @@ function setupColor(width, height) {
   // Get the source an object was created with.
   // If the object is an instance, returns the source that made the model this instance points to.
   function getSource(objectId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object) {
       return object.getSource();
@@ -726,7 +777,7 @@ function setupColor(width, height) {
   // Proxies to the owning model if the given object is an instance.
   // Returns null if the object ID is invalid, or if the model didn't finish loading.
   function getSequences(objectId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object) {
       return object.getSequences();
@@ -737,7 +788,7 @@ function setupColor(width, height) {
   // Proxies to the owning model if the given object is an instance.
   // Returns null if the object ID is invalid, or if the model didn't finish loading.
   function getAttachments(objectId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object) {
       return object.getAttachments();
@@ -748,7 +799,7 @@ function setupColor(width, height) {
   // Proxies to the owning model if the given object is an instance.
   // Returns null if the object ID is invalid, or if the model didn't finish loading.
   function getCameras(objectId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object) {
       return object.getCameras();
@@ -759,7 +810,7 @@ function setupColor(width, height) {
   // Proxies to the owning model if the given object is an instance.
   // Returns null if the object ID is invalid, or if the model didn't finish loading.
   function getBoundingShapes(objectId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object) {
       return object.getBoundingShapes();
@@ -768,61 +819,52 @@ function setupColor(width, height) {
   
   // Get the number of meshes an object has. Proxies to the owning model if the given object is an instance.
   function getMeshCount(objectId) {
-    var object = modelInstanceCache[objectId];
+    var object = modelInstanceMap[objectId];
     
     if (object) {
       return object.getMeshCount();
     }
   }
   
+  // Get all the instances owned by a model.
+  function getInstances(objectId) {
+    var object = modelInstanceMap[objectId];
+    
+    if (object && object.isModel) {
+      return object.getInstances();
+    }
+  }
+  
   // -------------------
   // General settings
   // -------------------
-
-  // Apply a camera of an instance.
-  // When an instance camera is applied, the main camera is disabled.
-  // If the given object ID is -1, the instance camera is disabled and the main camera becomes active.
-  /*
-  function applyCamera(objectId, cameraId) {
-    var object = modelInstanceCache[objectId];
-    
-    if (object && object.isInstance && object.model.ready) {
-      var camera = object.model.getCamera(cameraId);
-      
-      if (camera) {
-        console.warn("Oops, still need to implement applyCamera");
-      }
-    }
-  }
-  */
   
   // Set the animation speed
-  function setAnimationSpeed(n) {
-    FRAME_TIME = n / 60;
-    FRAME_TIME_MS = FRAME_TIME * 1000;
+  function setAnimationSpeed(ratio) {
+    context.frameTime = ratio / 60 * 1000;
   }
   
   // Get the animation speed
   function getAnimationSpeed() {
-    return FRAME_TIME_MS;
+    return context.frameTime / 1000 * 60;
   }
   
   // Set the drawn world.
   // Possible values are 0 for nothing, 1 for sky, 2 for sky and ground, and 3 for sky and water.
   function setWorldMode(mode) {
-    shouldRenderWorld = mode;
+    context.worldMode = mode;
   }
   
   // Get the world mode.
   function getWorldMode() {
-    return shouldRenderWorld;
+    return context.worldMode;
   }
   
   // Set the size of the ground
   function setGroundSize(size) {
-    groundSize = size;
+    size /= 2;
     
-    size = size * 0.5;
+    context.groundSize = size;
     
     grass_water.resize(size, size);
     bedrock.resize(size, size);
@@ -830,7 +872,7 @@ function setupColor(width, height) {
   
   // Get the size of the ground
   function getGroundSize() {
-    return groundSize;
+    return context.groundSize * 2;
   }
   
   // Shows or hides all of the meshes
@@ -884,8 +926,9 @@ function setupColor(width, height) {
     return context.polygonMode;
   }
   
-  // Set the shader to be used for Starcraft 2 models.
-  // Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `normal map`, 4 for `specular map`, 5 for `specular map + normal map`, 6 for `emissive`, 7 for `unshaded`, 8 for `unshaded + normal map`, and finally 9 for `decal`
+  // Set the shader to be used.
+  // Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `uvs`, 4 for `normal map`, 5 for `specular map`, 6 for `specular map + normal map`, 7 for `emissive`, 8 for `unshaded`, 9 for `unshaded + normal map`, 10 for `decal`, and finally 11 for `white`.
+  // Note: only the normals, uvs and white shaders affect Warcraft 3 models, the rest only affect Starcraft 2 models.
   function setShader(id) {
     context.shader = id;
   }
@@ -902,42 +945,42 @@ function setupColor(width, height) {
   // Set the camera.
   // If either objectId or cameraId is equal to -1, then the free-form camera is used.
   function setCamera(objectId, cameraId) {
-    instanceCamera[0] = objectId;
-    instanceCamera[1] = cameraId;
+    context.instanceCamera[0] = objectId;
+    context.instanceCamera[1] = cameraId;
   }
   
   // Get the camera.
   function getCamera() {
-    return [instanceCamera[0], instanceCamera[1]];
+    return [context.instanceCamera[0], context.instanceCamera[1]];
   }
   
   // Pan the camera on the x and y axes.
   function panCamera(x, y) {
-    instanceCamera[1] = -1;
-    camera.m[0] += x;
-    camera.m[1] -= y;
+    context.instanceCamera[1] = -1;
+    context.camera[0][0] += x;
+    context.camera[0][1] -= y;
   }
   
   // Rotate the camera on the x and y axes.
   function rotateCamera(x, y) {
-    instanceCamera[1] = -1;
-    camera.r[0] += math.toRad(x);
-    camera.r[1] += math.toRad(y);
+    context.instanceCamera[1] = -1;
+    context.camera[1][0] += math.toRad(x);
+    context.camera[1][1] += math.toRad(y);
   }
   
   // Zoom the camera by a factor.
   function zoomCamera(n) {
-    instanceCamera[1] = -1;
-    camera.m[2] = Math.floor(camera.m[2] * n);
+    context.instanceCamera[1] = -1;
+    context.camera[0][2] = Math.floor(context.camera[0][2] * n);
   }
   
   // Reset the camera back to the initial state.
   function resetCamera() {
-    instanceCamera[1] = -1;
-    camera.m[0] = 0;
-    camera.m[1] = 0;
-    camera.m[2] = -300;
-    camera.r = [math.toRad(315), math.toRad(225)];
+    context.instanceCamera[1] = -1;
+    context.camera[0][0] = 0;
+    context.camera[0][1] = 0;
+    context.camera[0][2] = -300;
+    context.camera[1] = [math.toRad(315), math.toRad(225)];
   }
   
   // ------
@@ -984,7 +1027,7 @@ function setupColor(width, height) {
     var b = Math.floor(Math.round(pixel[2] / 25.5) * 25.5);
     
     var color = "" + r + g + b;
-    var instance = colorInstanceCache[color];
+    var instance = instanceMap[color];
     
     //console.log("selectInstance", new Date() - date);
     
@@ -997,129 +1040,108 @@ function setupColor(width, height) {
   
   // Save the scene as a JSON string.
   function saveScene() {
-    var i, l;
-    var m = math.floatPrecisionArray([camera.m[0], camera.m[1], -camera.m[2]], 3);
-    var r = math.floatPrecisionArray([math.toDeg(camera.r[0]), math.toDeg(camera.r[1])], 3);
+    var i, 
+          l,
+          models = [],
+          instances = [],
+          object;
     
-    var data = [m, r, 60 * FRAME_TIME, shouldRenderWorld, shouldRenderShapes & 1, shouldRenderTeamColors & 1, shaderToUse]
-    // This keeps track of all the models that are actually used (= a visible instance points to them).
-    var usedModels = {};
-    var models = [];
-    var instances = [];
-    var object;
-    var keys = Object.keys(modelCache);
-    
-    // Initialize the model usage map
-    for (i = 0, l = keys.length; i < l; i++) {
-      object = modelCache[keys[i]];
+    for (i = 0, l = modelArray.length; i < l; i++) {
+      object = modelArray[i];
       
       if (object.ready) {
-        usedModels[object.id] = 0;
+        models.push(object);
       }
     }
     
-    // Create the model usage map
-    for (i = 0, l = modelInstanceCache.length; i < l; i++) {
-      object = modelInstanceCache[i];
-      
-      if (object.ready && object.isInstance && object.visible) {
-        usedModels[object.model.id]++;
-      }
-    }
-    
-    // Finally actually save all the visible objects
-    for (i = 0, l = modelInstanceCache.length; i < l; i++) {
-      object = modelInstanceCache[i];
+    for (i = 0, l = instanceArray.length; i < l; i++) {
+      object = instanceArray[i];
       
       if (object.ready) {
-        if (object.isModel) {
-          if (usedModels[object.id] > 0) {
-            models.push(object);
-          }
-        } else if (object.isInstance && object.visible) {
-          instances.push(object);
-        }
-        
+        instances.push(object);
       }
     }
     
-    data.push(models, instances);
-
-    return JSON.stringify(data);
+    return JSON.stringify([saveContext(), models, instances]);
   }
   
   // Load a scene from a JSON string.
   function loadScene(scene) {
-    var i, l;
-    // Map from object IDs in the scene to actual indices in the object array.
-    var idsMap = {};
-    var id;
+    var i,
+          l,
+          idMap = [], // Map from object IDs in the scene to actual indices in the object array.
+          id,
+          models,
+          instances,
+          object,
+          owningModel,
+          model;
     
     scene = JSON.parse(scene);
-      
-    camera.m = scene[0];
-    camera.r = scene[1];
     
-    camera.m[2] = -camera.m[2];
-    camera.r[0] = math.toRad(camera.r[0]);
-    camera.r[1] = math.toRad(camera.r[1]);
-      
-    FRAME_TIME = scene[2] / 60;
-    shouldRenderWorld = scene[3];
-    shouldRenderShapes = !!scene[4];
-    shouldRenderTeamColors = !!scene[5];
-    shaderToUse = scene[6];
+    console.log(scene);
+    loadContext(scene[0]);
     
-    var models = scene[7];
-    var instances = scene[8];
-    var object;
-    var owningModel;
-      
+    models = scene[1];
+    instances = scene[2];
+    
+    // Load all the models
     for (i = 0, l = models.length; i < l; i++) {
+      // object[0] = id
+      // object[1] = source
+      // object[2] = texture map
       object = models[i];
       
-      id = loadAsyncModel(object[1], object[2]);
+      loadModel(object[1], object[2]);
       
-      modelInstanceCache[id].fromJSON(object);
-      
-      idsMap[object[0]] = id;
+      idMap[object[0]] = idFactory;
     }
     
+    // Load all the instances
     for (i = 0, l = instances.length; i < l; i++) {
+      // object[0] = id
+      // object[1] = model id
+      // ...
       object = instances[i];
       
-      owningModel = idsMap[object[1]];
+      owningModel = modelInstanceMap[idMap[object[1]]];
       
-      id = loadInstance(owningModel, object[10]);
+      instance = loadInstance(owningModel.getSource());
+      instance.fromJSON(object);
       
-      modelInstanceCache[id].fromJSON(object);
-      
-      idsMap[object[0]] = id;
+      idMap[object[0]] = idFactory;
     }
     
-    // A second loop is needed to set the parents, since all the instances must be already loaded
+    // The parenting must be applied after all instances are loaded
     for (i = 0, l = instances.length; i < l; i++) {
+      // object[0] = id
+      // object[8] = parent
       object = instances[i];
+      parent = object[8];
       
-      setParent(idsMap[object[0]], idsMap[object[7]] || -1, object[8]);
+      setParent(idMap[object[0]], idMap[parent[0]], parent[1]);
     }
   }
   
-  function registerModelHandler(fileType, handler) {
-    AsyncModel.handlers[fileType] = handler;
+  function registerModelHandler(fileType, modelHandler, modelInstanceHandler) {
+    AsyncModel.handlers[fileType] = modelHandler;
+    AsyncModelInstance.handlers[fileType] = modelInstanceHandler;
+    
+    supportedModelFileTypes[fileType] = 1;
+    supportedFileTypes[fileType] = 1;
   }
   
-  function registerModelInstanceHandler(fileType, handler) {
-    AsyncModelInstance.handlers[fileType] = handler;
-  }
-  
-  function registerTextureHandler(fileType, handler) {
-    GL.textureHandlers[fileType] = handler;
+  function registerTextureHandler(fileType, textureHandler) {
+    gl.registerTextureHandler(fileType, textureHandler);
+    
+    supportedTextureFileTypes[fileType] = 1;
+    supportedFileTypes[fileType] = 1;
   }
   
   return {
-    // Model loading API
+    // Resource API
     loadResource: loadResource,
+    unloadResource: unloadResource,
     // Instance visibility
     setVisibility: setVisibility,
     getVisibility: getVisibility,
@@ -1148,6 +1170,7 @@ function setupColor(width, height) {
     // Sequences
     setSequence: setSequence,
     stopSequence: stopSequence,
+    getSequence: getSequence,
     setSequenceLoopMode: setSequenceLoopMode,
     // Information getters
     getInfo: getInfo,
@@ -1157,6 +1180,8 @@ function setupColor(width, height) {
     getAttachments: getAttachments,
     getCameras: getCameras,
     getBoundingShapes: getBoundingShapes,
+    getMeshCount: getMeshCount,
+    getInstances: getInstances,
     // General settings
     setAnimationSpeed: setAnimationSpeed,
     getAnimationSpeed: getAnimationSpeed,
@@ -1189,10 +1214,6 @@ function setupColor(width, height) {
     loadScene: loadScene,
     // Extending
     registerModelHandler: registerModelHandler,
-    registerModelInstanceHandler: registerModelInstanceHandler,
-    registerTextureHandler: registerTextureHandler,
-    ModelImpl: ModelImpl,
-    ModelInstanceImpl: ModelInstanceImpl,
-    TextureImpl: gl.TextureImpl
+    registerTextureHandler: registerTextureHandler
   };
 };

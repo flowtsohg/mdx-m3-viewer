@@ -1,3 +1,7 @@
+function mixin(source, target) {
+  source.call(target.prototype);
+}
+
 function getNamesFromObjects(objects) {
   var names = [],
         i,

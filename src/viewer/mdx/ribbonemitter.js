@@ -59,7 +59,7 @@ RibbonEmitter.prototype = {
     if (allowCreate && this.shouldRender(sequence, frame, counter)) {
       this.lastCreation += 1;
       
-      var amount = this.emissionRate * FRAME_TIME * this.lastCreation;
+      var amount = this.emissionRate * (context.frameTime / 1000) * this.lastCreation;
       
       if (amount >= 1) {
         this.lastCreation = 0;

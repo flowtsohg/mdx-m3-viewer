@@ -55,13 +55,41 @@ var math = (function () {
   };
 
   math.toRad = function (degrees) {
-    return degrees * TORAD;
+    var i,
+          l,
+          arr;
+    
+    if (typeof degrees === "number") {
+      return degrees * TORAD;
+    } else {
+      arr = [];
+      
+      for (i = 0, l = degrees.length; i < l; i++) {
+          arr[i] = degrees[i] * TORAD;
+      }
+      
+      return arr;
+    }
   };
 
   math.toDeg = function (radians) {
-    return radians * TODEG;
+    var i,
+          l,
+          arr;
+    
+    if (typeof radians === "number") {
+      return radians * TODEG;
+    } else {
+      arr = [];
+      
+      for (i = 0, l = radians.length; i < l; i++) {
+          arr[i] = radians[i] * TODEG;
+      }
+      
+      return arr;
+    }
   };
-
+  
   math.sign = function (x) {
     return x === 0 ? 0 : (x < 0 ? -1 : 1);
   };

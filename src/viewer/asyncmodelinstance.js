@@ -1,36 +1,30 @@
 function AsyncModelInstance(asyncModel, id, color, textureMap) {
   this.ready = false;
   this.fileType = asyncModel.fileType;
-  this.handler = AsyncModelInstance.handlers[asyncModel.fileType];
+  this.isInstance = true;
+  this.asyncModel = asyncModel;
+  this.id = id;
   
-  if (this.handler) {
-    this.isInstance = true;
-    this.asyncModel = asyncModel;
-    this.id = id;
-    
-    this.source = asyncModel.source;
-    this.visible = 1;
-    
-    // Used for color picking
-    this.color = color;
-    
-    // Use the Async mixin
-    this.setupAsync();
-    
-    // Use the Spatial mixin
-    this.setupSpatial();
-    
-    // If the model is already ready, the onload message from setup() must be delayed, since this instance wouldn't be added to the cache yet.
-    if (asyncModel.ready) {
-      this.delayOnload = true;
-    }
-    
-    // Request the setup function to be called by the model when it can.
-    // If the model is loaded, setup runs instantly, otherwise it runs when the model finishes loading.
-    asyncModel.setupInstance(this, textureMap || {});
-  } else {
-    console.log("AsyncModelInstance: No handler for file type " + asyncModel.fileType);
+  this.source = asyncModel.source;
+  this.visible = 1;
+  
+  // Used for color picking
+  this.color = color;
+  
+  // Use the Async mixin
+  this.setupAsync();
+  
+  // Use the Spatial mixin
+  this.setupSpatial();
+  
+  // If the model is already ready, the onload message from setup() must be delayed, since this instance wouldn't be added to the cache yet.
+  if (asyncModel.ready) {
+    this.delayOnload = true;
   }
+  
+  // Request the setup function to be called by the model when it can.
+  // If the model is loaded, setup runs instantly, otherwise it runs when the model finishes loading.
+  asyncModel.setupInstance(this, textureMap || {});
 }
 
 AsyncModelInstance.handlers = {
@@ -40,11 +34,8 @@ AsyncModelInstance.handlers = {
 
 AsyncModelInstance.prototype = {
   // Setup the internal instance using the internal model implementation
-  setup: function (model, fileType, textureMap) {
-    this.fileType = fileType;
-    this.handler = AsyncModelInstance.handlers[fileType];
-    
-    this.instance = new this.handler(model, textureMap);
+  setup: function (model, textureMap) {
+    this.instance = new AsyncModelInstance.handlers[this.fileType](model, textureMap);
     
     if (this.fileType === "m3") {
       // Transform to match the direction and size of MDX models
@@ -93,7 +84,7 @@ AsyncModelInstance.prototype = {
   
   renderColor: function () {
     if (this.ready && this.visible) {
-      this.instance.renderColor(this);
+      this.instance.renderColor(this, context);
     }
   },
   
@@ -116,13 +107,15 @@ AsyncModelInstance.prototype = {
     if (this.ready) {
       return this.setRequestedAttachment(requester, attachment);
     } else {
-      this.addAsyncAction("setRequestedAttachment", arguments);
+      this.addAsyncAction("setRequestedAttachment", [requester, attachment]);
     }
   },
   
-  overrideTexture: function (source, path) {
+  overrideTexture: function (path, override) {
     if (this.ready) {
-      this.instance.overrideTexture(source, path);
+      this.instance.overrideTexture(path, override);
+    } else {
+      this.addAsyncAction("overrideTexture", [path, override]);
     }
   },
   
@@ -145,41 +138,45 @@ AsyncModelInstance.prototype = {
   },
   
   setSequence: function (id) {
-    this.sequence = id;
-    
     if (this.ready) {
       this.instance.setSequence(id);
     } else {
-      this.addAsyncAction("setSequence", arguments);
+      this.addAsyncAction("setSequence", [id]);
     }
   },
   
   getSequence: function () {
-    return this.sequence;
+    if (this.ready) {
+      return this.instance.getSequence();
+    }
   },
   
   setSequenceLoopMode: function (mode) {
-    this.sequenceLoopMode = mode;
-    
     if (this.ready) {
       this.instance.setSequenceLoopMode(mode);
     } else {
-      this.addAsyncAction("setSequenceLoopMode", arguments);
+      this.addAsyncAction("setSequenceLoopMode", [mode]);
     }
   },
   
   getSequenceLoopMode: function () {
-    return this.sequenceLoopMode;
+    if (this.ready) {
+      return this.instance.getSequenceLoopMode();
+    }
   },
   
   setTeamColor: function (id) {
     if (this.ready) {
       this.instance.setTeamColor(id);
+    } else {
+      this.addAsyncAction("setTeamColor", [id]);
     }
   },
   
   getTeamColor: function () {
-    return this.teamColor;
+    if (this.ready) {
+      return this.instance.getTeamColor();
+    }
   },
   
   getSequences: function () {
@@ -220,15 +217,17 @@ AsyncModelInstance.prototype = {
     return [];
   },
   
-  setMeshVisibility: function (meshId, visible) {
+  setMeshVisibility: function (id, mode) {
     if (this.ready) {
-      this.instance.setMeshVisibility(meshId, visible);
+      this.instance.setMeshVisibility(id, mode);
+    } else {
+      this.addAsyncAction("setMeshVisibility", [id, mode]);
     }
   },
   
-  getMeshVisibility: function (meshId) {
+  getMeshVisibility: function (id) {
     if (this.ready) {
-      return this.instance.getMeshVisibility(meshId);
+      return this.instance.getMeshVisibility(id);
     }
   },
   
@@ -243,7 +242,7 @@ AsyncModelInstance.prototype = {
   getInfo: function () {
     return {
       modelInfo: this.asyncModel.getInfo(),
-      visible: this.visible,
+      visible: this.getVisibility(),
       sequence: this.getSequence(),
       sequenceLoopMode: this.getSequenceLoopMode(),
       location: this.getLocation(),
@@ -259,69 +258,95 @@ AsyncModelInstance.prototype = {
   },
   
   toJSON: function () {
-    var location = this.location;
-    var rotation = this.rotation;
-    var scale = this.scaling[0];
-    
+    // For some reason, when typed arrays are JSON stringified they change to object notation rather than array notation.
+    // This is why I don't bother to access the location and rotation directly.
+    var location = this.getLocation(),
+          rotation = math.toDeg(this.getRotation()),
+          scale = this.getScale(),
+          textureMap = {},
+          localTextureMap = this.getTextureMap(),
+          modelTextureMap = this.asyncModel.getTextureMap(),
+          keys = Object.keys(localTextureMap),
+          key,
+          i,
+          l,
+          visibilities = this.getMeshVisibilities();
+          
     // This code avoids saving instance overrides that match the model's texture map.
     // For example, when the client overrides a texture and then sets it back to the original value.
-    var textureMap = {};
-    var modelTextureMap = this.asyncModel.getTextureMap();
-    var key, keys = Object.keys(this.textureMap);
-    
-    for (var i = 0, l = keys.length; i < l; i++) {
+    for (i = 0, l = keys.length; i < l; i++) {
       key = keys[i];
       
-      // The second condition is to avoid saving team color/glow overrides, since they are saved via the team ID
-      if (this.textureMap[key] !== modelTextureMap[key] && key.endsWith("00.png")) {
-        textureMap[key] = this.textureMap[key];
+      if (localTextureMap[key] !== modelTextureMap[key]) {
+        textureMap[key] = localTextureMap[key];
       }
     }
     
-    // Rotate Starcraft 2 models back to zero to avoid rotating them twice when loading the scene
-    if (this.format !== "MDLX") {
-      rotation = quat.multiply([], rotation, [0, 0, 0.7071067811865476, -0.7071067811865476]);
+    // Handle the Starcraft 2 specific differences.
+    if (this.fileType === "m3") {
+      rotation[2] += 90;
       scale /= 100;
     }
     
+    console.log(rotation);
+    
     // To avoid silly numbers like 1.0000000000000002
-    rotation = math.floatPrecisionArray(rotation, 3);
+    location = math.floatPrecisionArray(location, 2);
+    rotation = math.floatPrecisionArray(rotation, 0);
+    scale = math.floatPrecision(scale, 2);
+    
+    console.log(rotation);
+    
+    // Turn booleans to numbers to shorten the string.
+    for (i = 0, l = visibilities.length; i < l; i++) {
+      visibilities[i] = visibilities[i] & 1;
+    }
     
     return [
       this.id,
       this.asyncModel.id,
-      this.sequence,
-      this.sequenceLoopMode,
-      // For some reason, when typed arrays are JSON stringified they change to object notation rather than array notation
-      [location[0], location[1], location[2]],
-      [rotation[0], rotation[1], rotation[2], rotation[3]],
+      this.getVisibility() & 1,
+      this.getSequence(),
+      this.getSequenceLoopMode(),
+      location,
+      rotation,
       scale,
-      this.parentId,
-      this.attachment,
-      this.teamColor,
-      textureMap
+      this.getParent(),
+      this.getTeamColor(),
+      textureMap,
+      visibilities
     ];
   },
   
   fromJSON: function (object) {
-    this.setSequence(object[2]);
-    this.setSequenceLoopMode(object[3]);
-    this.setLocation(object[4]);
-    this.setRotation(object[5]);
-    this.setScale(object[6]);
+    var textureMap = object[10],
+          visibilities = object[11],
+          keys = Object.keys(textureMap),
+          key,
+          i,
+          l;
+    
+    console.log(object[6]);
+          
+    this.setVisibility(!!object[2]);
+    this.setSequence(object[3]);
+    this.setSequenceLoopMode(object[4]);
+    this.setLocation(object[5]);
+    this.rotate(math.toRad(object[6]));
+    this.setScale(object[7]);
     this.setTeamColor(object[9]);
     
-    var textureMap = object[10];
-    var key, keys = Object.keys(textureMap);
-    
-    for (var i = 0, l = keys.length; i < l; i++) {
+    for (i = 0, l = keys.length; i < l; i++) {
       key = keys[i];
       
       this.overrideTexture(key, textureMap[key]);
     }
+    
+    for (i = 0, l = visibilities.length; i < l; i++) {
+      this.setMeshVisibility(i, visibilities[i]);
+    }
   }
 };
 
-// Mixins
-Async.call(AsyncModelInstance.prototype);
-Spatial.call(AsyncModelInstance.prototype);
+mixin(Async, AsyncModelInstance);
+mixin(Spatial, AsyncModelInstance);

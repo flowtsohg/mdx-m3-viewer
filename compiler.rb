@@ -56,6 +56,9 @@ code_files = [
   "math/interpolator",
   "binaryreader/binaryreader",
   "base",
+  "basemodel",
+  "basemodelinstance",
+  "basetexture",
   "gl/before",
   "gl/shader",
   "gl/jpg",
@@ -73,8 +76,6 @@ code_files = [
   "viewer/shaders",
   "viewer/async",
   "viewer/spatial",
-  "viewer/modelimpl",
-  "viewer/modelinstanceimpl",
   "viewer/mdx/before",
   "viewer/mdx/parser",
   "viewer/mdx/sd",
@@ -130,7 +131,7 @@ def handle_shaders(use_glsl_min, shared, mdx, m3, srcpath)
     }
   else
     names.each_index { |i|
-      shaders.push("\"#{names[i]}\":\"#{IO.read(paths[i]).gsub("\r\n", "\\n")}\"")
+      shaders.push("\"#{names[i]}\":\"#{IO.read(paths[i]).gsub(/\r?\n/, "\\n")}\"")
     }
   end
   

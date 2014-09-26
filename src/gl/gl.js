@@ -148,16 +148,20 @@ function loadTexture(source, clampS, clampT) {
     var fileType = getFileExtension(source).toLowerCase(),
           handler = textureHandlers[fileType];
     
-    onloadstart({isTexture: 1, source: source});
-    
     if (handler) {
+      onloadstart({isTexture: 1, source: source});
+      
       textureStore[source] = new handler(source, onload, onerror, onprogress, clampS, clampT);
     } else {
-      textureStore[source] = new Texture(source, onload, onerror, onprogress);
+      console.log("Error: no texture handler for file type " + fileType);
     }
   }
   
   return textureStore[source];
+}
+
+function unloadTexture(source) {
+  delete textureStore[source];
 }
 
 function bindTexture(object, unit) {
@@ -213,4 +217,8 @@ function createSphere(x, y, z, latitudeBands, longitudeBands, radius) {
 
 function createCylinder(x, y, z, r, h, bands) {
   return new Cylinder(x, y, z, r, h, bands);
+}
+
+function registerTextureHandler(fileType, textureHandler) {
+  this.textureHandlers[fileType] = textureHandler;
 }

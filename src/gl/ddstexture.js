@@ -246,8 +246,10 @@ function dxt5ToRgba8888(src, width, height) {
 }
 
 function DDSTexture(source, onload, onerror, onprogress, clampS, clampT) {
-  this.setupImpl(source, onload, onerror, onprogress, clampS, clampT);
+  BaseTexture.call(this, source, onload, onerror, onprogress, clampS, clampT);
 }
+
+DDSTexture.prototype = Object.create(BaseTexture.prototype);
 
 DDSTexture.prototype.onloadTexture = function (arrayBuffer) {
   var header = new Int32Array(arrayBuffer, 0, 31);
@@ -326,5 +328,3 @@ DDSTexture.prototype.onloadTexture = function (arrayBuffer) {
   this.ready = true;
   this.onload(this);
 }
-
-TextureImpl.call(DDSTexture.prototype);

@@ -1,6 +1,8 @@
 function TGATexture(source, onload, onerror, onprogress, clampS, clampT) {
-  this.setupImpl(source, onload, onerror, onprogress, clampS, clampT);
+  BaseTexture.call(this, source, onload, onerror, onprogress, clampS, clampT);
 }
+
+TGATexture.prototype = Object.create(BaseTexture.prototype);
 
 TGATexture.prototype.onloadTexture = function (e) {
   var dataView = new DataView(arrayBuffer);
@@ -46,5 +48,3 @@ TGATexture.prototype.onloadTexture = function (e) {
   this.ready = true;
   this.onload(this);
 }
-
-TextureImpl.call(TGATexture.prototype);

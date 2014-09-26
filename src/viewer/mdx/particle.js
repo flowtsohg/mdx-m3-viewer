@@ -50,11 +50,11 @@ Particle.prototype = {
   
   update: function (emitter, sequence, frame, counter) {
     if (this.alive) {
-      this.health -= FRAME_TIME;
+      this.health -= (context.frameTime / 1000);
       
-      this.velocity[2] -= this.gravity * FRAME_TIME;
+      this.velocity[2] -= this.gravity * (context.frameTime / 1000);
 
-      vec3.scaleAndAdd(this.position, this.position, this.velocity, FRAME_TIME);
+      vec3.scaleAndAdd(this.position, this.position, this.velocity, (context.frameTime / 1000));
     }
   }
 };

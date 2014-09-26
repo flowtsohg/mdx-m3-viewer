@@ -1,22 +1,19 @@
 function AsyncModel(source, id, textureMap) {
   this.ready = false;
   this.fileType = getFileExtension(source).toLowerCase();
-  this.handler = AsyncModel.handlers[this.fileType];
+  this.isModel = true;
+  this.id = id;
+  this.source = source;
   
-  if (this.handler) {
-    this.isModel = true;
-    this.id = id;
-    this.source = source;
+  // All the instances owned by this model
+  this.instances = [];
+  
+  // Use the Async mixin
+  this.setupAsync();
     
-    // Use the Async mixin
-    this.setupAsync();
-      
-    getFile(source, true, this.setup.bind(this, textureMap || {}), onerrorwrapper.bind(this), onprogresswrapper.bind(this));
-    
-    onloadstart(this);
-  } else {
-    console.log("AsyncModel: No handler for file type " + this.fileType);
-  }
+  getFile(source, true, this.setup.bind(this, textureMap || {}), onerrorwrapper.bind(this), onprogresswrapper.bind(this));
+  
+  onloadstart(this);
 }
 
 AsyncModel.handlers = {
@@ -31,8 +28,7 @@ AsyncModel.prototype = {
     
     if (status === 200) {
       var binaryReader = new BinaryReader(e.target.response),
-            handler = this.handler,
-            model = new handler(binaryReader, textureMap);
+            model = new AsyncModel.handlers[this.fileType](binaryReader, textureMap, context);
       
       if (model.ready) {
         this.model = model;
@@ -49,7 +45,9 @@ AsyncModel.prototype = {
  
   setupInstance: function (instance, textureMap) {
     if (this.ready) {
-      instance.setup(this.model, this.fileType, textureMap);
+      this.instances.push(instance);
+      
+      instance.setup(this.model, textureMap);
     } else {
       this.addAsyncAction("setupInstance", arguments);
     }
@@ -123,6 +121,26 @@ AsyncModel.prototype = {
     }
   },
   
+  getInstances: function () {
+    if (this.ready) {
+      var i,
+            l,
+            instances = this.instances,
+            instance,
+            ids = [];
+      
+      for (i = 0, l = instances.length; i < l; i++) {
+        instance = instances[i];
+        
+        if (instance.ready) {
+          ids.push(instance.id);
+        }
+      }
+      
+      return ids;
+    }
+  },
+  
   getInfo: function () {
     if (this.ready) {
       var model = this.model;
@@ -135,21 +153,27 @@ AsyncModel.prototype = {
         cameras: model.getCameras(),
         textureMap: model.getTextureMap(),
         boundingShapes: model.getBoundingShapes(),
-        meshCount: model.getMeshCount()
+        meshCount: model.getMeshCount(),
+        instances: this.getInstances()
       };
     }
   },
   
   toJSON: function () {
-    var modelTextureMap = this.getTextureMap();
-    var textureMap = {};
-    var key, keys = Object.keys(modelTextureMap);
-      
-    for (var i = 0, l = keys.length; i < l; i++) {
+    var textureMap = {},
+          localTextureMap = this.getTextureMap(),
+          keys = Object.keys(localTextureMap),
+          key,
+          i,
+          l;
+    
+    // This code avoids saving redundant texture paths.
+    // Only textures that have been overriden are saved.
+    for (i = 0, l = keys.length; i < l; i++) {
       key = keys[i];
       
-      if (urls.mpqFile(key) !== modelTextureMap[key]) {
-        textureMap[key] = modelTextureMap[key];
+      if (urls.mpqFile(key) !== localTextureMap[key]) {
+        textureMap[key] = localTextureMap[key];
       }
     }
     
@@ -165,5 +189,4 @@ AsyncModel.prototype = {
   }
 };
 
-// Mixins
-Async.call(AsyncModel.prototype);
+mixin(Async, AsyncModel);

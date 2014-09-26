@@ -1,3 +1,6 @@
+  textureHandlers["png"] = Texture;
+  textureHandlers["gif"] = Texture;
+  textureHandlers["jpg"] = Texture;
   textureHandlers["blp"] = BLPTexture;
   textureHandlers["dds"] = DDSTexture;
   textureHandlers["tga"] = TGATexture;
@@ -20,6 +23,7 @@
     getProjectionMatrix: getProjectionMatrix,
     getViewMatrix: getViewMatrix,
     loadTexture: loadTexture,
+    unloadTexture: unloadTexture,
     textureOptions: textureOptions,
     bindTexture: bindTexture,
     bindWhiteTexture: bindWhiteTexture,
@@ -28,7 +32,7 @@
     createCube: createCube,
     createCylinder: createCylinder,
     ctx: ctx,
-    textureHandlers: textureHandlers,
-    TextureImpl: TextureImpl
+    registerTextureHandler: registerTextureHandler,
+    BaseTexture: BaseTexture
   };
 }

@@ -4,8 +4,10 @@ var BLP_JPG = 0x0;
 var BLP_PALLETE = 0x1;
 
 function BLPTexture(source, onload, onerror, onprogress) {
-  this.setupImpl(source, onload, onerror, onprogress);
+  BaseTexture.call(this, source, onload, onerror, onprogress);
 }
+
+BLPTexture.prototype = Object.create(BaseTexture.prototype);
 
 BLPTexture.prototype.onloadTexture = function (arrayBuffer) {
   var i;
@@ -86,5 +88,3 @@ BLPTexture.prototype.onloadTexture = function (arrayBuffer) {
   this.ready = true;
   this.onload(this);
 };
-
-TextureImpl.call(BLPTexture.prototype);

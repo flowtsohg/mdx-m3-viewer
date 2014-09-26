@@ -18,9 +18,9 @@ function Ribbon(emitter, sequence, frame, counter) {
 
 Ribbon.prototype = {
   update: function (emitter) {
-    this.health -= FRAME_TIME;
+    this.health -= context.frameTime / 1000;
     
-    var zvelocity = emitter.gravity * FRAME_TIME * FRAME_TIME;
+    var zvelocity = emitter.gravity * (context.frameTime / 1000) * (context.frameTime / 1000);
     
     this.p1[2] -= zvelocity;
     this.p2[2] -= zvelocity;
