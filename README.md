@@ -111,7 +111,7 @@ The API of the viewer is as follows:
 * `selectInstance(x, y)` - Selects an instance given a screen space coordinate on the canvas. Returns the ID of the selected instance, or -1 if no instance was selected.
 * `saveScene()` - Save the scene as a string
 * `loadScene(scene)` - Load a scene from a previously saved string.
-* `registerModelHandler(fileType, modelHandler, modelInstanceHandler)` - Used for extending. See the extending section.
+* `registerModelHandler(fileType, modelHandler, modelInstanceHandler, binary)` - Used for extending. See the extending section.
 * `registerTextureHandler(fileType, textureHandler)` - Used for extending. See the extending section.
 
 ------------------------
@@ -162,7 +162,7 @@ The handlers must conform to specific APIs.
 
 Model:
 
-* `Constructor(binaryReader, textureMap, context)`
+* `Constructor(data, textureMap, context)`
 * `render(instance, context)`
 * `renderEmitters(instance, context)`
 * `renderBoundingShapes(instance, context)`
@@ -237,7 +237,8 @@ A shim to add a new model type is as follows:
 // Model
 // ------
 
-function MyModel(binaryReader, textureMap, context) {
+// data can either be a string, or ArrayBuffer, depending on how you registered this handler.
+function MyModel(data, textureMap, context) {
   // Sets default values for the default function implementations of BaseModel
   BaseModel.call(textureMap);
   
@@ -263,7 +264,8 @@ MyModelInstance.prototype = Object.create(BaseModel.BaseModelInstance);
 // Register
 // --------
 
-myViewer.registerModelHandler("myFileType", myModel, myModelHandler);
+var isBinaryFormat = true/false;
+myViewer.registerModelHandler("myFileType", myModel, myModelHandler, isBinaryFormat);
 ```
 
 For a real world example, check the examples folder, where there is a very simple and primitive OBJ handler.

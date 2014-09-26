@@ -1,19 +1,15 @@
 // context is an object that contains all the global settings of the viewer.
-function OBJModel(binaryReader, textureMap, context) {
+function OBJModel(data, textureMap, context) {
     BaseModel.call(this, textureMap);
   
     // context.gl is of type GL and adds helper functionality around WebGL.
-    this.setup(binaryReader, context.gl);
+    this.setup(data, context.gl);
     this.setupShaders(context.gl);
 }
 
 OBJModel.prototype = Object.create(BaseModel.prototype);
 
-OBJModel.prototype.setup = function (binaryReader, gl) {
-  // Fast hack to convert the binary reader's internal buffer to text, since OBJ is a text format.
-  // I might add a way to declare that a format is not binary before-hand.
-  var data = read(binaryReader, remaining(binaryReader));
-  
+OBJModel.prototype.setup = function (data, gl) {
   var lines = data.split("\n");
   var line;
   var match;

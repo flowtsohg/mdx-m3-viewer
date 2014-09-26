@@ -1123,8 +1123,8 @@ function setupColor(width, height) {
     }
   }
   
-  function registerModelHandler(fileType, modelHandler, modelInstanceHandler) {
-    AsyncModel.handlers[fileType] = modelHandler;
+  function registerModelHandler(fileType, modelHandler, modelInstanceHandler, binary) {
+    AsyncModel.handlers[fileType] = [modelHandler, binary];
     AsyncModelInstance.handlers[fileType] = modelInstanceHandler;
     
     supportedModelFileTypes[fileType] = 1;

@@ -10,15 +10,15 @@ function AsyncModel(source, id, textureMap) {
   
   // Use the Async mixin
   this.setupAsync();
-    
-  getFile(source, true, this.setup.bind(this, textureMap || {}), onerrorwrapper.bind(this), onprogresswrapper.bind(this));
+  
+  getFile(source, !!AsyncModel.handlers[this.fileType][1], this.setup.bind(this, textureMap || {}), onerrorwrapper.bind(this), onprogresswrapper.bind(this));
   
   onloadstart(this);
 }
 
 AsyncModel.handlers = {
-  "mdx": Mdx.Model,
-  "m3": M3.Model
+  "mdx": [Mdx.Model, 1],
+  "m3": [M3.Model, 1]
 };
 
 
@@ -27,8 +27,7 @@ AsyncModel.prototype = {
     var status = e.target.status;
     
     if (status === 200) {
-      var binaryReader = new BinaryReader(e.target.response),
-            model = new AsyncModel.handlers[this.fileType](binaryReader, textureMap, context);
+      model = new AsyncModel.handlers[this.fileType](e.target.response, textureMap, context);
       
       if (model.ready) {
         this.model = model;
