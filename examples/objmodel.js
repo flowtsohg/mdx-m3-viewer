@@ -1,8 +1,6 @@
-// context is an object that contains all the global state of the viewer.
 function OBJModel(binaryReader, textureMap, context) {
     BaseModel.call(this, textureMap);
   
-    // context.gl is of type GL and adds helper functionality around WebGL.
     this.setup(binaryReader, context.gl);
     this.setupShaders(context.gl);
 }
@@ -44,6 +42,7 @@ OBJModel.prototype.setup = function (binaryReader, gl) {
     }
   }
   
+  // gl is of type GL and adds helper functionality around WebGL.
   // gl.ctx is the actual WebGLRenderingContext object.
   var ctx = gl.ctx;
   
@@ -78,6 +77,7 @@ OBJModel.prototype.setupShaders = function (gl) {
 
 OBJModel.prototype.render = function (instance, context) {
   // Note: instance refers to the OBJModelInstance that gets rendered.
+  //          context is an object that contains all the global settings of the viewer.
   
   var gl = context.gl;
   var ctx = gl.ctx;
