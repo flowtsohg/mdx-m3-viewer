@@ -4,11 +4,18 @@ function ShallowBone (bone) {
   this.worldMatrix = mat4.create();
   this.scale = vec3.create();
   this.inverseScale = vec3.create();
+  this.externalWorldMatrix = mat4.create();
 }
 
 ShallowBone.prototype = {
   getTransformation: function () {
-    return this.worldMatrix;
+    var m = this.externalWorldMatrix;
+    
+    mat4.copy(m, this.worldMatrix);
+    // Remove the local rotation as far as external objects know
+    mat4.rotateZ(m, m, -Math.PI / 2);
+    
+    return m;
   }
 };
 
@@ -46,6 +53,8 @@ function Skeleton(model) {
   this.locationVec = vec3.create();
   this.scaleVec = vec3.create();
   this.rotationQuat = quat.create();
+  
+  this.rootScaler = vec3.fromValues(100, 100, 100);
 }
 
 Skeleton.prototype = {
@@ -54,6 +63,11 @@ Skeleton.prototype = {
     var root = this.bones[0];
     
     mat4.copy(root.worldMatrix, instance.getTransformation());
+    
+    // Transform the skeleton to approximately match the size of Warcraft 3 models, and to have the same rotation
+    mat4.scale(root.worldMatrix, root.worldMatrix, this.rootScaler);
+    mat4.rotateZ(root.worldMatrix, root.worldMatrix, Math.PI / 2);
+    
     mat4.decomposeScale(root.scale, root.worldMatrix);
     vec3.inverse(root.inverseScale, root.scale);
     

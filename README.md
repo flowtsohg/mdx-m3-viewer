@@ -146,6 +146,7 @@ The type can be one of:
 * `progress` - to keep track of the loading progress of a model or texture. In this case the `progress` value will be a value in the range `[0, 1]`.
 * `load` - a model, texture, or instance loaded successfully. If the object is a model or instance, the `id` value will be set.
 * `error` - an error occured when loading a texture or a model, or an error occured with the WebGL context. In this case, the `error` value will contain a short string that will tell what the error is.
+* `unload` - a model, instance, or texture was unloaded.
 
 The `objectType` value can be `model`, `texture`, `header` (for custom models, see below), `instance`, or for WebGL errors, `webgl` and `shader`.
 The `source` value is the source string that generated the object (an url or name).

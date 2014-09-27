@@ -270,14 +270,14 @@ function setupColor(width, height) {
     if (!modelMap[source]) {
       var object;
       
-      onloadstart({isModel: 1, source: source});
-      
       idFactory += 1;
       object = new AsyncModel(source, idFactory, textureMap);
       
       modelMap[source] = object;
       modelArray.push(object);
       modelInstanceMap[idFactory] = object;
+      
+      onloadstart(object);
     }
     
     return modelMap[source];
@@ -376,6 +376,8 @@ function setupColor(width, height) {
         }
       }
     }
+    
+    onunload(instance);
   }
   
   function unloadModel(model) {
@@ -397,6 +399,8 @@ function setupColor(width, height) {
     
     // Remove from the model-instance map
     delete modelInstanceMap[model.id];
+    
+    onunload(model);
   }
   
   // ---------------------
@@ -929,7 +933,7 @@ function setupColor(width, height) {
   
   // Set the shader to be used.
   // Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `uvs`, 4 for `normal map`, 5 for `specular map`, 6 for `specular map + normal map`, 7 for `emissive`, 8 for `unshaded`, 9 for `unshaded + normal map`, 10 for `decal`, and finally 11 for `white`.
-  // Note: only the normals, uvs and white shaders affect Warcraft 3 models, the rest only affect Starcraft 2 models.
+  // Note: only the normals, uvs, and white shaders affect Warcraft 3 models, the rest only affect Starcraft 2 models.
   function setShader(id) {
     context.shader = id;
   }
@@ -1076,11 +1080,10 @@ function setupColor(width, height) {
           instances,
           object,
           owningModel,
-          model;
+          instance;
     
     scene = JSON.parse(scene);
     
-    console.log(scene);
     loadContext(scene[0]);
     
     models = scene[1];

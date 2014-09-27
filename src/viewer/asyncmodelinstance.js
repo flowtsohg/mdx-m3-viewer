@@ -37,12 +37,6 @@ AsyncModelInstance.prototype = {
   setup: function (model, textureMap) {
     this.instance = new AsyncModelInstance.handlers[this.fileType](model, textureMap);
     
-    if (this.fileType === "m3") {
-      // Transform to match the direction and size of MDX models
-      this.rotate([0, 0, -Math.PI / 2]);
-      this.scale(100);
-    }
-    
     this.ready = true;
     
     this.runAsyncActions();
@@ -282,20 +276,10 @@ AsyncModelInstance.prototype = {
       }
     }
     
-    // Handle the Starcraft 2 specific differences.
-    if (this.fileType === "m3") {
-      rotation[2] += 90;
-      scale /= 100;
-    }
-    
-    console.log(rotation);
-    
     // To avoid silly numbers like 1.0000000000000002
     location = math.floatPrecisionArray(location, 2);
     rotation = math.floatPrecisionArray(rotation, 0);
     scale = math.floatPrecision(scale, 2);
-    
-    console.log(rotation);
     
     // Turn booleans to numbers to shorten the string.
     for (i = 0, l = visibilities.length; i < l; i++) {
@@ -325,8 +309,6 @@ AsyncModelInstance.prototype = {
           key,
           i,
           l;
-    
-    console.log(object[6]);
           
     this.setVisibility(!!object[2]);
     this.setSequence(object[3]);

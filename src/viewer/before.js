@@ -36,21 +36,19 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   }
   
   function onloadstart(object) {
-    var source = object.source,
-          objectType = objectTypeName(object);
+    var source = object.source;
     
     if (!noReport(source)) {
-      sendMessage({type: "loadstart", objectType: objectType, source: source});
+      sendMessage({type: "loadstart", objectType: objectTypeName(object), source: source});
     }
   }
   
   function onload(object) {
     var source = object.source,
-          objectType = objectTypeName(object),
           message;
     
     if (!noReport(source) ){
-      message = {type: "load", objectType: objectType, source: source};
+      message = {type: "load", objectType: objectTypeName(object), source: source};
       
       if (object.isModel || object.isInstance) {
         message.id = object.id;
@@ -66,7 +64,6 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   
   function onprogress(object, e) {
     var source = object.source,
-          objectType = objectTypeName(object),
           status = e.target.status,
           progress = e.loaded / e.total;
     
@@ -76,14 +73,24 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
           progress = 0;
         }
       
-        sendMessage({type: "progress", objectType: objectType, source: source, progress: progress});
+        sendMessage({type: "progress", objectType: objectTypeName(object), source: source, progress: progress});
       }
     } else {
       onerror(object, "" + status);
     }
   }
   
-  var gl = GL(canvas, onload, onerror, onprogress, onloadstart);
+  function onunload(object) {
+    var message = {type: "unload", objectType: objectTypeName(object), source: object.source};
+    
+    if (object.isModel || object.isInstance) {
+      message.id = object.id;
+    }
+      
+    sendMessage(message);
+  }
+  
+  var gl = GL(canvas, onload, onerror, onprogress, onloadstart, onunload);
   
   if (!gl) {
     return;

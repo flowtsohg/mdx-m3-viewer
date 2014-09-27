@@ -174,7 +174,7 @@ function loadTexture(source, options) {
       if (fileType === "png" || fileType === "gif" || fileType === "jpg") {
         textureStore[source] = new handler(source, onload, onerror, ctx);
       } else {
-        getFile(source, true, onloadTexture.bind(undefined, source, handler, options), onerror, onprogress.bind(undefined, {isTexture: true, source: source}));
+        getFile(source, true, onloadTexture.bind(undefined, source, handler, options || {}), onerror, onprogress.bind(undefined, {isTexture: true, source: source}));
       }
     } else {
       console.log("Error: no texture handler for file type " + fileType);
@@ -185,7 +185,11 @@ function loadTexture(source, options) {
 }
 
 function unloadTexture(source) {
-  delete textureStore[source];
+  if (textureStore[source]) {
+    delete textureStore[source];
+    
+    onunload({isTexture: true, source: source});
+  }
 }
 
 function bindTexture(object, unit) {

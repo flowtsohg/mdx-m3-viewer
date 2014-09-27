@@ -7,10 +7,10 @@ var Spatial = (function () {
     this.localMatrix = mat4.create();
     this.location = vec3.create();
     this.rotation = quat.create();
+    this.eulerRotation = vec3.create();
     this.scaling = vec3.fromValues(1, 1, 1);
     this.parentId = -1;
-    this.attachment = -1;
-    this.parentRef = null;
+    this.attachmentId = -1;
     this.parentNode = null;
   }
   
@@ -51,26 +51,36 @@ var Spatial = (function () {
   }
   
   function rotate(v) {
-    var q = quat.create();
+    var eulerRotation = this.eulerRotation;
     
-    quat.fromYawPitchRoll(q, v);
-    quat.multiply(this.rotation, this.rotation, q);
+    vec3.add(eulerRotation, eulerRotation, v);
     
-    this.recalculateTransformation();
+    this.setRotation(eulerRotation);
   }
   
   function setRotation(v) {
-    quat.fromYawPitchRoll(this.rotation, v);
+    var q = quat.create(),
+          rotation = this.rotation,
+          eulerRotation = this.eulerRotation;
+    
+    vec3.copy(eulerRotation, v);
+    
+    quat.identity(rotation);
+    
+    quat.setAxisAngle(q, xAxis, eulerRotation[0]);
+    quat.multiply(rotation, q, rotation);
+    
+    quat.setAxisAngle(q, yAxis, eulerRotation[1]);
+    quat.multiply(rotation, q, rotation);
+    
+    quat.setAxisAngle(q, zAxis, eulerRotation[2]);
+    quat.multiply(rotation, q, rotation);
     
     this.recalculateTransformation();
   }
   
   function getRotation() {
-    var v = vec3.create();
-    
-    quat.toYawPitchRoll(v, this.rotation);
-    
-    return v;
+    return vec3.clone(this.eulerRotation);
   }
   
   function scale(n) {
@@ -103,8 +113,6 @@ var Spatial = (function () {
   // Requests an attachment point from the parent.
   // The parent will call setParentNode with the correct attachment node instantly if it is loaded, and when it is loaded otherwise.
   function setParent(parent, attachment) {
-    this.parentRef = parent;
-    
     if (parent) {
       this.parentId = parent.id;
       this.attachmentId = attachment;
@@ -128,8 +136,7 @@ var Spatial = (function () {
   
   function getTransformation(objects) {
     var worldMatrix = this.worldMatrix,
-          parentNode = this.parentNode,
-          parentRef = this.parentRef;
+          parentNode = this.parentNode;
     
     mat4.identity(worldMatrix);
     
@@ -138,11 +145,6 @@ var Spatial = (function () {
       
       // Scale by the inverse of the parent to avoid carrying over scales through the hierarchy
       mat4.scale(worldMatrix, worldMatrix, parentNode.inverseScale);
-      
-      // To avoid the 90 degree difference between MDX and M3 models.
-      if (parentRef.fileType === "m3") {
-        mat4.rotateZ(worldMatrix, worldMatrix, -Math.PI / 2);
-      }
     }
     
     mat4.multiply(worldMatrix, worldMatrix, this.localMatrix);

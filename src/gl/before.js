@@ -1,4 +1,4 @@
-function GL(element, onload, onerror, onprogress, onloadstart) {
+function GL(element, onload, onerror, onprogress, onloadstart, onunload) {
   var ctx;
   var identifiers = ["webgl", "experimental-webgl"];
   
