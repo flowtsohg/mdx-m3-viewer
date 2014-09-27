@@ -25,5 +25,8 @@ if (viewer) {
   // If it is set to true, the model handler will get an ArrayBuffer object instead of a string.
   viewer.registerModelHandler("obj", OBJModel, OBJModelInstance, false);
   
+  // Register the BMP handler
+  viewer.registerTextureHandler("bmp", BMPTexture);
+  
   // Do stuff...
 }

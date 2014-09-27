@@ -148,7 +148,7 @@ function onloadTexture(source, handler, options, e) {
         status = target.status;
     
   if (status === 200) {
-    textureStore[source] = new handler(target.response, options, onerror.bind(undefined, {isTexture: 1, source: source}));
+    textureStore[source] = new handler(target.response, options, onerror.bind(undefined, {isTexture: 1, source: source}), ctx);
     
     if (textureStore[source].ready) {
       onload({isTexture: 1, source: source});
@@ -248,5 +248,5 @@ function createCylinder(x, y, z, r, h, bands) {
 }
 
 function registerTextureHandler(fileType, textureHandler) {
-  this.textureHandlers[fileType] = textureHandler;
+  textureHandlers[fileType] = textureHandler;
 }

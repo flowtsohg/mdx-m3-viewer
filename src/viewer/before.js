@@ -64,10 +64,9 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   
   function onprogress(object, e) {
     var source = object.source,
-          status = e.target.status,
           progress = e.loaded / e.total;
     
-    if (status === 200) {
+    if (e.target.status === 200) {
       if (!noReport(source)) {
         if (progress === Infinity) {
           progress = 0;
@@ -75,8 +74,6 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
       
         sendMessage({type: "progress", objectType: objectTypeName(object), source: source, progress: progress});
       }
-    } else {
-      onerror(object, "" + status);
     }
   }
   
