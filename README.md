@@ -1,7 +1,7 @@
 mdx-m3-viewer
 =============
 
-A WebGL viewer for MDX and M3 files used by the games Warcraft 3 and Starcraft 2 respectively.
+A WebGL model viewer. Meant to view MDX and M3 models used by the games Warcraft 3 and Starcraft 2 respectively, but it can be [extended](#extending).
 
 Running compiler.rb creates a standalone minified JavaScript file that can be included to any HTML page.
 To minify the GLSL shaders, use [glsl-minifier](https://github.com/flowtsohg/glsl-minifier).
@@ -40,7 +40,8 @@ Terminology:
 * A model is a heavy weight object that contains all the model vertices, polygon indices, animation data, skeletal structure, etc.
 * An instance is a light weight object that contains a shallow skeleton, particle emitters, animation timers, etc.
 
-Most of the API doesn't deal with models directly, but rather with instances, since you can have many instances per model.
+You can have many instances per model.
+Most of the API doesn't deal with models directly, but rather with instances.
 
 ------------------------
 
@@ -100,7 +101,7 @@ The API of the viewer is as follows:
 * `getTeamColorsMode()` - Get the team colors mode.
 * `setPolygonMode(b)` - Set the polygon render mode. True for filled, false for wireframe.
 * `getPolygonMode()` - Get the polygon render mode.
-* `setShader(id)` - Set the shader to be used for Starcraft 2 models. Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `texture coordinates`, 4 for `normal map`, 5 for `specular map`, 6 for `specular map + normal map`, 7 for `emissive`, 8 for `unshaded`, 9 for `unshaded + normal map`, and finally 10 for `decal`.
+* `setShader(id)` - Set the shader to be used. Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `uvs`, 4 for `normal map`, 5 for `specular map`, 6 for `specular map + normal map`, 7 for `emissive`, 8 for `unshaded`, 9 for `unshaded + normal map`, 10 for `decal`, and finally 11 for `white`. Note: only the normals, uvs, and white shaders affect Warcraft 3 models, the rest only affect Starcraft 2 models.
 * `getShader()` - Get the shader used for Starcraft 2 models.
 * `setCamera(objectId, cameraId)` - Set the camera. If either objectId or cameraId is equal to -1, then the free-form camera is used.
 * `getCamera()` - Get the camera.
@@ -129,7 +130,7 @@ The type can be one of:
 * `load` - a model, texture, or instance loaded successfully. If the object is a model or instance, the `id` value will be set.
 * `error` - an error occured when loading a texture or a model, or an error occured with the WebGL context. In this case, the `error` value will contain a short string that will tell what the error is.
 
-The `objectType` value can be `model`, `texture`, `header` (for custom models, see below), `instance`, or for WebGL errors, `webglcontext` and `shader`.
+The `objectType` value can be `model`, `texture`, `header` (for custom models, see below), `instance`, or for WebGL errors, `webgl` and `shader`.
 The `source` value is the source string that generated the object (an url or name).
 
 ------------------------
@@ -153,7 +154,7 @@ The original texture paths (the keys in the `textures` object) must all be lower
 
 ------------------------
 
-#### Extending
+#### <a name="extending"></a> Extending
 
 It is possible to extend the viewer with new model and texture formats, also without editing the library itself.
 The registerModelHandler, and registerTextureHandler, register a new handler for the given file extension.
@@ -200,14 +201,14 @@ ModelInstance:
 
 Texture:
 
-* `Constructor(source, data, options, onerror)`
+* `Constructor(source, data, options, onerror)` - `options` is an object that you can supply when loading a texture.
 * `ready` - Must be set to true if everything went ok.
 * `id` - A valid WebGL texture ID generated with WebGLRenderingContext.createTexture().
 
-In addition to the register functions, the viewer also registers global objects that make it easier to setup  the above object-specific APIs.
+In addition to the register functions, the viewer also creates global objects that make it easier to setup  the above object-specific APIs.
 These objects are BaseModel, BaseModelInstance.
 
-Since textures have no methods, there is no base object for it.
+Since textures have no methods, there is no base object for them.
 
 An example of setting up a new texture handler:
 ```javascript
@@ -234,7 +235,7 @@ function MyModel(data, textureMap, context) {
   // Sets default values for the default function implementations of BaseModel
   BaseModel.call(textureMap);
   
-  this.ready = true; // This model wont be used if ready isn't set to true.
+  this.ready = true; // Signal that this modsel was parsed successfully. If it isn't set, the model wont be used.
 }
 
 // Extend BaseModel
