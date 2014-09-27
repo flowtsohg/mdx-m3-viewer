@@ -59,10 +59,10 @@ function Skeleton(model) {
 
 Skeleton.prototype = {
   // NOTE: This function assumes that the bones are sorted in such way that a child would always be after its parent. Is this true?
-  update: function (sequence, frame, instance) {
+  update: function (sequence, frame, worldMatrix) {
     var root = this.bones[0];
     
-    mat4.copy(root.worldMatrix, instance.getTransformation());
+    mat4.copy(root.worldMatrix, worldMatrix);
     
     // Transform the skeleton to approximately match the size of Warcraft 3 models, and to have the same rotation
     mat4.scale(root.worldMatrix, root.worldMatrix, this.rootScaler);

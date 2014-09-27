@@ -52,7 +52,7 @@ prototype.updateEmitters = function (emitters, allowCreate, context) {
   }
 };
 
-prototype.update = function (instance, context) {
+prototype.update = function (worldMatrix, context) {
   var allowCreate = false;
   
   if (this.sequence !== -1) {
@@ -75,7 +75,7 @@ prototype.update = function (instance, context) {
     }
   }
   
-  this.skeleton.update(this.sequence, this.frame, this.counter, instance);
+  this.skeleton.update(this.sequence, this.frame, this.counter, worldMatrix);
   
   this.updateEmitters(this.particleEmitters, allowCreate, context);
   this.updateEmitters(this.particleEmitters2, allowCreate, context);

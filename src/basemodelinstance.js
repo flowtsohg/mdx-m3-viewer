@@ -18,24 +18,24 @@ window["BaseModelInstance"] = function (model, textureMap) {
 }
 
 BaseModelInstance.prototype = {
-  update: function(instance, context) {
+  update: function(worldMatrix, context) {
     
   },
 
-  render: function(instance, context) {
+  render: function(context) {
     this.model.render(this, context);
   },
 
-  renderEmitters: function(instance, context) {
+  renderEmitters: function(context) {
     this.model.renderEmitters(this, context);
   },
 
-  renderBoundingShapes: function(instance, context) {
+  renderBoundingShapes: function(context) {
     this.model.renderBoundingShapes(this, context);
   },
 
-  renderColor: function(instance, context) {
-    this.model.renderColor(this, instance.color, context);
+  renderColor: function(color, context) {
+    this.model.renderColor(this, color, context);
   },
 
   getName: function() {

@@ -11,7 +11,7 @@ prototype.setup = function (model) {
   this.skeleton = new Skeleton(model);
 };
 
-prototype.update = function (instance, context) {
+prototype.update = function (worldMatrix, context) {
   var i, l;
   var sequenceId = this.sequence;
   var allowCreate = false;
@@ -30,7 +30,7 @@ prototype.update = function (instance, context) {
     allowCreate = true;
   }
   
-  this.skeleton.update(sequenceId, this.frame, instance);
+  this.skeleton.update(sequenceId, this.frame, worldMatrix);
   
   /*
   if (this.particleEmitters) {

@@ -41,13 +41,13 @@ function Skeleton(model) {
 }
 
 Skeleton.prototype = {
-  update: function (sequence, frame, counter, instance) {
+  update: function (sequence, frame, counter, worldMatrix) {
     var nodes = this.nodes;
     var hierarchy = this.hierarchy;
     // The root is always at index 0, since it's injected by the parser
     var root = nodes[0];
     
-    mat4.copy(root.worldMatrix, instance.getTransformation());
+    mat4.copy(root.worldMatrix, worldMatrix);
     mat4.decomposeScale(root.scale, root.worldMatrix);
     vec3.inverse(root.inverseScale, root.scale);
     

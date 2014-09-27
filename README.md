@@ -189,7 +189,7 @@ The handlers must conform to specific APIs.
 | `renderBoundingShapes(instance, context)` | Called for bounding shape rendering |
 | `renderColor(instance, color, context)` | Called for constant-color rendering. Used for mouse picking |
 | `getName()` | Get the model's name |
-| `getAttachment(id)` | An attachment node on the model. The attachment must have a getTransformation() method that returns a 4x4 matrix |
+| `getAttachment(id)` | An attachment node on the model. The attachment must have a getTransformation() method that returns a matrix |
 | `getCamera(id)` | Get camera object |
 | `overrideTexture(path, override)` | Override a texture defined by the model with another texture |
 | `getTextureMap()` | Get the model's texture map |
@@ -205,13 +205,13 @@ The handlers must conform to specific APIs.
 | Function | Description |
 | -------- | ----------- |
 | `Constructor(model, textureMap)` | Your constructor |
-| `update(instance, context)` | Called to update the instance |
-| `render(instance, context)` | Called to render the instance's geometry |
-| `renderEmitters(instance, context)` | Called to render the instance's particle emitters |
-| `renderBoundingShapes(instance, context)` | Called to render the instance's bounding shapes |
-| `renderColor(instance, color, context)` | Called to render the instance with a constant color |
+| `update(worldMatrix, context)` | Called to update the instance. worldMatrix is a matrix transformation that needs to be applied to this instance's root node, if you want it to be transformable by the API |
+| `render(context)` | Called to render the instance's geometry |
+| `renderEmitters(context)` | Called to render the instance's particle emitters |
+| `renderBoundingShapes(context)` | Called to render the instance's bounding shapes |
+| `renderColor(color, context)` | Called to render the instance with a constant color |
 | `getName()` | Get the name of the instance. Usually proxies to the owning model. |
-| `getAttachment(id)` | Get an attachment. Usually proxies to the owning model. |
+| `getAttachment(id)` | Get an attachment node on the instance. The attachment must have a getTransformation() method that returns a matrix |
 | `overrideTexture(path, override)` | Override a texture in the instance with another texture |
 | `getTextureMap()` | Get the instance's texture map |
 | `setTeamColor(id)` | Set the instance's team color |

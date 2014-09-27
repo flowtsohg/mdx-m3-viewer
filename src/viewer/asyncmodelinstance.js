@@ -54,19 +54,19 @@ AsyncModelInstance.prototype = {
   
   update: function (context) {
     if (this.ready) {
-      this.instance.update(this, context);
+      this.instance.update(this.getTransformation(), context);
     }
   },
   
   render: function (context) {
     if (this.ready && this.visible) {
-      this.instance.render(this, context);
+      this.instance.render(context);
     }
   },
   
   renderEmitters: function (context) {
     if (this.ready && this.visible) {
-      this.instance.renderEmitters(this, context);
+      this.instance.renderEmitters(context);
     }
   },
   
@@ -78,7 +78,7 @@ AsyncModelInstance.prototype = {
   
   renderColor: function () {
     if (this.ready && this.visible) {
-      this.instance.renderColor(this, context);
+      this.instance.renderColor(this.color, context);
     }
   },
   
