@@ -393,8 +393,9 @@ prototype.renderColor = function (instance, color) {
         geoset = this.meshes[layer.geosetId];
         texture = this.textureMap[this.textures[layer.textureId]];
         
-        // Avoid rendering team glows
-        if (!texture.endsWith("teamglow00.blp")) {
+        // Avoid rendering planes.
+        // Thsy are usually team glows, or other large mostly-transparent things.
+        if (geoset.elements > 6) {
           geoset.renderColor(shader);
         }
       }

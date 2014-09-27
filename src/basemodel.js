@@ -12,8 +12,8 @@ window["BaseModel"] = function (textureMap) {
 }
 
 BaseModel.prototype = {
-   render: function(instance, context) {
-    
+  render: function(instance, context) {
+  
   },
 
   renderEmitters: function(instance, context) {
@@ -45,14 +45,7 @@ BaseModel.prototype = {
   },
 
   getTextureMap: function() {
-    var textureMap = Object.copy(this.textureMap);
-    
-    // Avoid reporting the team color textures, since they are internal.
-    // Is there any nicer way to do this?
-    delete textureMap["replaceabletextures/teamcolor/teamcolor00.blp"];
-    delete textureMap["replaceabletextures/teamglow/teamglow00.blp"];
-    
-    return textureMap;
+    return Object.copy(this.textureMap);
   },
 
   getSequences: function() {
