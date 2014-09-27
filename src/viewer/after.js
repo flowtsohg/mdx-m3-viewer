@@ -418,7 +418,7 @@ function setupColor(width, height) {
       
       onloadstart(object);
       
-      getFile(urls.header(source), false, loadResourceFromId.bind(object), onerrorwrapper.bind(object), onprogresswrapper.bind(object));
+      getFile(urls.header(source), false, loadResourceFromId.bind(object), onerror.bind(undefined, object), onprogress.bind(undefined, object));
     }
   }
   
