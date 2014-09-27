@@ -225,7 +225,7 @@ The handlers must conform to specific APIs.
 
 | Function | Description |
 | -------- | ----------- |
-| `Constructor(source, data, options, onerror)` | Your constructor. `options` is an object that you can supply when loading a texture |
+| `Constructor(data, options, onerror, glContext)` | Your constructor. `options` is an object that you can supply when loading a texture. glContext is a WebGLRenderingContext object  |
 | `ready` | Must be set to true if everything went ok |
 | `id` | A valid WebGL texture ID generated with WebGLRenderingContext.createTexture() |
 
@@ -292,4 +292,4 @@ var isBinaryFormat = true/false;
 myViewer.registerModelHandler("myFileType", MyModel, MyModelInstance, isBinaryFormat);
 ```
 
-For a real world example, check the examples folder, where there is a very simple and primitive OBJ handler.
+The examples folder has an example with partially working OBJ model and BMP texture handlers.
