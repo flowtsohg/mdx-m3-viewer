@@ -63,7 +63,7 @@ function Layer(layer, type, op, model, textureMap) {
       
       model.textureMap[source] = path;
       
-      gl.loadTexture(path, !(flags & 0x4), !(flags & 0x8));
+      gl.loadTexture(path, {clampS: !(flags & 0x4), clampT: !(flags & 0x8)});
       
       this.active = true;
     }

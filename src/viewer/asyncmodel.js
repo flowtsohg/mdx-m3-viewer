@@ -11,9 +11,7 @@ function AsyncModel(source, id, textureMap) {
   // Use the Async mixin
   this.setupAsync();
   
-  getFile(source, !!AsyncModel.handlers[this.fileType][1], this.setup.bind(this, textureMap || {}), onerrorwrapper.bind(this), onprogresswrapper.bind(this));
-  
-  onloadstart(this);
+  getFile(source, !!AsyncModel.handlers[this.fileType][1], this.setup.bind(this, textureMap || {}), onerror.bind(undefined, this), onprogress.bind(undefined, this));
 }
 
 AsyncModel.handlers = {
@@ -27,7 +25,7 @@ AsyncModel.prototype = {
     var status = e.target.status;
     
     if (status === 200) {
-      model = new AsyncModel.handlers[this.fileType](e.target.response, textureMap, context);
+      var model = new AsyncModel.handlers[this.fileType][0](e.target.response, textureMap, context, onerror.bind(undefined, {isModel: 1, source: this.source, id: this.id}));
       
       if (model.ready) {
         this.model = model;

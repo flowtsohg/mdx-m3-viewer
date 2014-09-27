@@ -1,5 +1,6 @@
 // context is an object that contains all the global settings of the viewer.
-function OBJModel(data, textureMap, context) {
+// onerror is used to report errors if there are any, simply call it with a string.
+function OBJModel(data, textureMap, context, onerror) {
     BaseModel.call(this, textureMap);
   
     // context.gl is of type GL and adds helper functionality around WebGL.

@@ -21,8 +21,8 @@ var viewer = ModelViewer(canvas, urls, onmessage);
 
 if (viewer) {
   // Register the OBJ handler
-  // Note: The last optional parameter defines if this format is a text format or binary format.
-  //          If it is set to true, the model handler will get an ArrayBuffer object instead of a string.
+  // The last optional parameter defines if this format is a text format or binary format.
+  // If it is set to true, the model handler will get an ArrayBuffer object instead of a string.
   viewer.registerModelHandler("obj", OBJModel, OBJModelInstance, false);
   
   // Do stuff...

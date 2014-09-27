@@ -32,7 +32,6 @@
     createCube: createCube,
     createCylinder: createCylinder,
     ctx: ctx,
-    registerTextureHandler: registerTextureHandler,
-    BaseTexture: BaseTexture
+    registerTextureHandler: registerTextureHandler
   };
 }

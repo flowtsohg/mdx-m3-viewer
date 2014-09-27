@@ -143,15 +143,39 @@ function bindShader(name) {
   return boundShader;
 }
 
-function loadTexture(source, clampS, clampT) {
-  if (!textureStore[source]) {
+function onloadTexture(source, handler, options, e) {
+  var target = e.target,
+        status = target.status;
+    
+  if (status === 200) {
+    textureStore[source] = new handler(target.response, options, onerror.bind(undefined, {isTexture: 1, source: source}));
+    
+    if (textureStore[source].ready) {
+      onload({isTexture: 1, source: source});
+    }
+  } else {
+    onerror({isTexture: 1, source: source}, "" + status);
+  }
+}
+
+function loadTexture(source, options) {
+  // Only load a texture if it wasn't already loaded, and isn't in the middle of loading.
+  if (!textureStore[source] && !textureLoading[source]) {
     var fileType = getFileExtension(source).toLowerCase(),
           handler = textureHandlers[fileType];
     
     if (handler) {
+      textureLoading[source] = 1;
+      
       onloadstart({isTexture: 1, source: source});
       
-      textureStore[source] = new handler(source, onload, onerror, onprogress, clampS, clampT);
+      // The normal texture uses a normal Image object to load the data.
+      // This is because using a Blob seems to randomly not work, and it also doesn't cache requests.
+      if (fileType === "png" || fileType === "gif" || fileType === "jpg") {
+        textureStore[source] = new handler(source, onload, onerror, ctx);
+      } else {
+        getFile(source, true, onloadTexture.bind(undefined, source, handler, options), onerror, onprogress.bind(undefined, {isTexture: true, source: source}));
+      }
     } else {
       console.log("Error: no texture handler for file type " + fileType);
     }

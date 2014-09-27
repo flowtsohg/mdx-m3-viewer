@@ -58,7 +58,6 @@ code_files = [
   "base",
   "basemodel",
   "basemodelinstance",
-  "basetexture",
   "gl/before",
   "gl/shader",
   "gl/jpg",

@@ -245,22 +245,16 @@ function dxt5ToRgba8888(src, width, height) {
   return dst;
 }
 
-function DDSTexture(source, onload, onerror, onprogress, clampS, clampT) {
-  BaseTexture.call(this, source, onload, onerror, onprogress, clampS, clampT);
-}
-
-DDSTexture.prototype = Object.create(BaseTexture.prototype);
-
-DDSTexture.prototype.onloadTexture = function (arrayBuffer) {
+function DDSTexture(arrayBuffer, options, onerror) {
   var header = new Int32Array(arrayBuffer, 0, 31);
   
   if (header[0] !== DDS_MAGIC) {
-    this.onerror("Format");
+    onerror("Format");
     return;
   }
   
   if (!header[20] & DDPF_FOURCC) {
-    this.onerror("FourCC");
+    onerror("FourCC");
     return;
   }
   
@@ -277,7 +271,7 @@ DDSTexture.prototype.onloadTexture = function (arrayBuffer) {
     blockBytes = 16;
     internalFormat = compressedTextures ? compressedTextures.COMPRESSED_RGBA_S3TC_DXT5_EXT : null;
   } else {
-    this.onerror(int32ToFourCC(fourCC));
+    onerror(int32ToFourCC(fourCC));
     return;
   }
   
@@ -295,7 +289,7 @@ DDSTexture.prototype.onloadTexture = function (arrayBuffer) {
   
   var id = ctx.createTexture();
   ctx.bindTexture(ctx.TEXTURE_2D, id);
-  textureOptions(this.clampS ? ctx.CLAMP_TO_EDGE : ctx.REPEAT, this.clampT ? ctx.CLAMP_TO_EDGE : ctx.REPEAT, ctx.LINEAR, mipmapCount > 1 ? ctx.LINEAR_MIPMAP_LINEAR : ctx.LINEAR);
+  textureOptions(options.clampS ? ctx.CLAMP_TO_EDGE : ctx.REPEAT, options.clampT ? ctx.CLAMP_TO_EDGE : ctx.REPEAT, ctx.LINEAR, mipmapCount > 1 ? ctx.LINEAR_MIPMAP_LINEAR : ctx.LINEAR);
   
   if (internalFormat) {
     for (var i = 0; i < mipmapCount; i++) {
@@ -326,5 +320,4 @@ DDSTexture.prototype.onloadTexture = function (arrayBuffer) {
   
   this.id = id;
   this.ready = true;
-  this.onload(this);
 }

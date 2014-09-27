@@ -1,4 +1,4 @@
-function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
+function GL(element, onload, onerror, onprogress, onloadstart) {
   var ctx;
   var identifiers = ["webgl", "experimental-webgl"];
   
@@ -13,7 +13,7 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   }
   
   if (!ctx) {
-    unboundonerror({isGL: true}, "WebGLContext");
+    onerror({isWebGL: true}, "WebGLContext");
     return;
   }
   
@@ -22,17 +22,17 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   var compressedTextures = ctx.getExtension("WEBGL_compressed_texture_s3tc");
   
   if (!hasVertexTexture) {
-    unboundonerror({isGL: true}, "VertexTexture");
+    onerror({isWebGL: true}, "VertexTexture");
     return;
   }
   
   if (!hasFloatTexture) {
-    unboundonerror({isGL: true}, "FloatTexture");
+    onerror({isWebGL: true}, "FloatTexture");
     return;
   }
   
   if (!compressedTextures) {
-    unboundonerror({isGL: true}, "CompressedTextures");
+    onerror({isWebGL: true}, "CompressedTextures");
   }
   
   var refreshViewProjectionMatrix = false;
@@ -41,6 +41,7 @@ function GL(element, onload, onerror, onprogress, onloadstart, unboundonerror) {
   var viewProjectionMatrix = mat4.create();
   var matrixStack = [];
   var textureStore = {};
+  var textureLoading = {};
   var shaderUnitStore = {};
   var shaderStore = {};
   var boundShader;

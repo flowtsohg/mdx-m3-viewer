@@ -200,37 +200,29 @@ ModelInstance:
 
 Texture:
 
-* `Constructor(source, onload, onerror, onprogress, clampS, clampT)`
+* `Constructor(source, data, options, onerror)`
 * `ready` - Must be set to true if everything went ok.
-* `id` - A valid WebGL texture ID generated with WebGLContext.createTexture.
+* `id` - A valid WebGL texture ID generated with WebGLRenderingContext.createTexture().
 
 In addition to the register functions, the viewer also registers global objects that make it easier to setup  the above object-specific APIs.
-These objects are BaseModel, BaseModelInstance, and BaseTexture.
+These objects are BaseModel, BaseModelInstance.
 
-For example, if you want to introduce a new texture type, and you want to use the BaseTexture object:
+Since textures have no methods, there is no base object for it.
+
+An example of setting up a new texture handler:
 ```javascript
-function MyTexture(source, onload, onerror, onprogress, clampS, clampT, context) {
-  // Call the BaseTexture constructor that handles the loading
-  BaseTexture.call(this, source, onload, onerror, onprogress, clampS, clampT);
-}
-
-// Extend BaseTexture
-MyTexture.prototype = Object.create(BaseTexture.prototype);
-
-// Will be called when/if the texture file loads successfully
-MyTexture.prototype.onloadTexture = function (arrayBuffer, context) {
-
-  // Parse the buffer in some way and construct a WebGL texture
+function MyTexture(arrayBuffer, options, onerror, glContext) {
+  this.id = glContext.createTexture();
   
-  this.id = ...; // A WebGL texture ID
-  this.ready = true; // This texture will not appear if ready isn't set to true
-};
+  // Parse the buffer and construct the texture...
+  
+  this.ready = true; // Signal that this texture was parsed successfully. If it isn't set, the texture wont be used.
+}
 ```
 
-As you can see, the BaseTexture object calls the onloadTexture function automatically, assuming the texture file finished loading.
-BaseModel and BaseModelInstance do not handle file loading, so they don't call any function automatically.
 
-A shim to add a new model type is as follows:
+
+An example of setting up a new model handler, using BaseModel and BaseModelInstance:
 ```javascript
 
 // ------

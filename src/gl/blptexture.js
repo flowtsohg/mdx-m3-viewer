@@ -3,13 +3,7 @@ var BLP1_MAGIC = 0x31504c42;
 var BLP_JPG = 0x0;
 var BLP_PALLETE = 0x1;
 
-function BLPTexture(source, onload, onerror, onprogress) {
-  BaseTexture.call(this, source, onload, onerror, onprogress);
-}
-
-BLPTexture.prototype = Object.create(BaseTexture.prototype);
-
-BLPTexture.prototype.onloadTexture = function (arrayBuffer) {
+function BLPTexture(arrayBuffer, options, onerror) {
   var i;
   
   // If compression=0, the header size is 40
@@ -18,7 +12,7 @@ BLPTexture.prototype.onloadTexture = function (arrayBuffer) {
   var header = new Int32Array(arrayBuffer, 0, 40);
   
   if (header[0] !== BLP1_MAGIC) {
-    this.onerror("Format");
+    onerror("Format");
     return;
   }
   
@@ -86,5 +80,4 @@ BLPTexture.prototype.onloadTexture = function (arrayBuffer) {
   
   this.id = id;
   this.ready = true;
-  this.onload(this);
-};
+}

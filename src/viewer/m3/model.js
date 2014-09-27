@@ -1,4 +1,4 @@
-function Model(arrayBuffer, textureMap) {
+function Model(arrayBuffer, textureMap, context, onerror) {
   BaseModel.call(this, textureMap);
   
   var parser = Parser(new BinaryReader(arrayBuffer));

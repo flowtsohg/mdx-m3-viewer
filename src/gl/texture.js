@@ -1,25 +1,25 @@
-function onloadTexture(image, e) {
-  var id = ctx.createTexture();
-  ctx.bindTexture(ctx.TEXTURE_2D, id);
-  textureOptions(ctx.REPEAT, ctx.REPEAT, ctx.LINEAR, ctx.LINEAR_MIPMAP_LINEAR);
-  ctx.texImage2D(ctx.TEXTURE_2D, 0, ctx.RGBA, ctx.RGBA, ctx.UNSIGNED_BYTE, image);
-  ctx.generateMipmap(ctx.TEXTURE_2D);
+function Texture(source, onload, onerror) {
+  var image = new Image(),
+        self = this;
+        
+  image.onload = function (e) {
+    var id = ctx.createTexture();
+    
+    ctx.bindTexture(ctx.TEXTURE_2D, id);
+    textureOptions(ctx.REPEAT, ctx.REPEAT, ctx.LINEAR, ctx.LINEAR_MIPMAP_LINEAR);
+    ctx.texImage2D(ctx.TEXTURE_2D, 0, ctx.RGBA, ctx.RGBA, ctx.UNSIGNED_BYTE, image);
+    ctx.generateMipmap(ctx.TEXTURE_2D);
+    
+    self.id = id;
+    self.ready = true;
+    
+    // Because Texture is async, unlike all the other texture types, it must explicitly call onload
+    onload({isTexture: 1, source: source});
+  };
   
-  this.id = id;
-  this.ready = true;
-  this.onload(this);
-}
-
-function Texture(source, onload, onerror, onprogress) {
-  this.isTexture = true;
-  this.source = source;
-  
-  var image = new Image();
-  
-  this.onload = onload;
-  
-  image.onload = onloadTexture.bind(this, image);
-  image.onerror = onerror.bind(this);
+  image.onerror = function (e) {
+    onerror({isTexture: 1, source: source}, "404");
+  };
   
   image.src = source;
 }

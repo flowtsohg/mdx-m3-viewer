@@ -6,7 +6,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   
   // This function is used to filter out reports for internal textures (e.g. ground, sky, team colors beside 00, etc.).
   function noReport(path) {
-    if (path ===grassPath || path === waterPath || path === bedrockPath || path === skyPath || path.match(/(\d\d).blp/)) {
+    if (path === grassPath || path === waterPath || path === bedrockPath || path === skyPath || path.match(/(\d\d).blp/)) {
       return true;
     }
     
@@ -19,105 +19,71 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     }
   }
   
-  function onloadstart(object) {
-    var source = object.source;
-    
+  function objectTypeName(object) {
     if (object.isModel) {
-      sendMessage({type: "loadstart", objectType: "model", source: source});
-    } else if (object.isTexture) {
-      if (!noReport(source)) {
-       sendMessage({type: "loadstart", objectType: "texture", source: source});
-      }
+      return "model";
+    } else if (object.isInstance) {
+      return "instance";
     } else if (object.isHeader) {
-      sendMessage({type: "loadstart", objectType: "header", source: source});
-    } else {
-      console.log("onloadstart", "What?");
+      return "header";
+    } else if (object.isTexture) {
+      return "texture";
+    } else if (object.isWebGL) {
+      return "webgl";
+    } else if (object.isShader) {
+      return "shader";
+    }
+  }
+  
+  function onloadstart(object) {
+    var source = object.source,
+          objectType = objectTypeName(object);
+    
+    if (!noReport(source)) {
+      sendMessage({type: "loadstart", objectType: objectType, source: source});
     }
   }
   
   function onload(object) {
-    var source = object.source;
+    var source = object.source,
+          objectType = objectTypeName(object),
+          message;
     
-    if (object.isModel) {
-       sendMessage({type: "load", objectType: "model", source: source, id: object.id});
-    } else if (object.isTexture) {
-      if (!noReport(source)) {
-        sendMessage({type: "load", objectType: "texture", source: source});
+    if (!noReport(source) ){
+      message = {type: "load", objectType: objectType, source: source};
+      
+      if (object.isModel || object.isInstance) {
+        message.id = object.id;
       }
-    } else if (object.isHeader) {
-      sendMessage({type: "load", objectType: "header", source: source});
-    } else if (object.isInstance) {
-      sendMessage({type: "load", objectType: "instance", source: source, id: object.id});
-    } else {
-      console.log("onload", "What?");
+      
+      sendMessage(message);
     }
   }
   
   function onerror(object, error) {
-    var type, source;
-    
-    if (object.isTexture) {
-      type = "texture";
-      source = object.source;
-    } else if (object.isModel) {
-      type = "model";
-      source = object.source;
-    } else if (object.isHeader) {
-      type = "header";
-      source = object.source;
-    } else if (object.isGL) {
-      type = "webglcontext";
-      source = "";
-    } else if (object.isShader) {
-      type = "shader";
-      source = object.name;
-    } else {
-      console.log("onerror", "What?");
-    }
-    
-    if (typeof error !== "string") {
-      error = "" + error.target.status;
-    }
-    
-    sendMessage({type: "error", objectType: type, source: source, error: error});
+    sendMessage({type: "error", objectType: objectTypeName(object), source: object.source, error: error});
   }
   
   function onprogress(object, e) {
-    var progress = e.loaded / e.total;
-    var source = object.source;
-    var status = e.target.status;
+    var source = object.source,
+          objectType = objectTypeName(object),
+          status = e.target.status,
+          progress = e.loaded / e.total;
     
     if (status === 200) {
-      if (progress === Infinity) {
-        progress = 0;
-      }
-      
-      if (object.isModel) {
-        sendMessage({type: "progress", objectType: "model", source: source, progress: progress});
-      } else if (object.isTexture) {
-        if (!noReport(source)) {
-          sendMessage({type: "progress", objectType: "texture", source: source, progress: progress});
+      if (!noReport(source)) {
+        if (progress === Infinity) {
+          progress = 0;
         }
-      } else if (object.isHeader) {
-        sendMessage({type: "progress", objectType: "header", source: source, progress: progress});
-      } else {
-        console.log("onprogress", "What?");
-        console.log(object);
+      
+        sendMessage({type: "progress", objectType: objectType, source: source, progress: progress});
       }
     } else {
-      onerror(object, e);
+      onerror(object, "" + status);
     }
   }
   
-  function onerrorwrapper(e) {
-    onerror(this, e);
-  }
-  
-  function onprogresswrapper(e) {
-    onprogress(this, e);
-  }
-  
-  var gl = GL(canvas, onload, onerrorwrapper, onprogresswrapper, onloadstart, onerror);
+  var gl = GL(canvas, onload, onerror, onprogress, onloadstart);
   
   if (!gl) {
     return;

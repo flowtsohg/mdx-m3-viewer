@@ -267,16 +267,20 @@ function setupColor(width, height) {
   }
   
   function loadModel(source, textureMap) {
-    var object;
+    if (!modelMap[source]) {
+      var object;
+      
+      onloadstart({isModel: 1, source: source});
+      
+      idFactory += 1;
+      object = new AsyncModel(source, idFactory, textureMap);
+      
+      modelMap[source] = object;
+      modelArray.push(object);
+      modelInstanceMap[idFactory] = object;
+    }
     
-    idFactory += 1;
-    object = new AsyncModel(source, idFactory, textureMap);
-    
-    modelMap[source] = object;
-    modelArray.push(object);
-    modelInstanceMap[idFactory] = object;
-    
-    return object;
+    return modelMap[source];
   }
   
   function loadInstance(source, hidden) {
@@ -306,10 +310,7 @@ function setupColor(width, height) {
     var fileType = getFileExtension(source).toLowerCase();
     
     if (supportedModelFileTypes[fileType]) {
-      if (!modelMap[source]) {
-        loadModel(source, textureMap);
-      }
-      
+      loadModel(source, textureMap);
       loadInstance(source, hidden);
     } else {
       gl.loadTexture(source);
