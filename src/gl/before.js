@@ -1,3 +1,14 @@
+/**
+ * @class A wrapper around WebGL.
+ * @name GL
+ * @param {HTMLCanvasElement} element A canvas element.
+ * @param {function} onload A callback function.
+ * @param {function} onerror A callback function.
+ * @param {function} onprogress A callback function.
+ * @param {function} onloadstart A callback function.
+ * @param {function} onunload A callback function.
+ * @property {WebGLRenderingContext} ctx
+ */
 function GL(element, onload, onerror, onprogress, onloadstart, onunload) {
   var ctx;
   var identifiers = ["webgl", "experimental-webgl"];

@@ -1,21 +1,43 @@
-// Async mixin.
-// Used to add an asynchronous action queue to an object.
-var Async = (function () {
-  // Create the required variables in the object.
-  function setup() {
-    this.asyncActions = [];
-  }
+/**
+ * Used to add an asynchronous action queue to an object.
+ *
+ * @mixin
+ * @name Async
+ * @property {array} actions
+ */
+var Async = {
+  /**
+    * Creates the needed properties in the mixed object.
+    *
+    * @memberof Async
+    * @instance
+    */
+  setupAsync: function () {
+    this.actions = [];
+  },
   
-  // Add an action to the queue.
-  function addAsyncAction(functor, args) {
-    this.asyncActions.push([functor, args]);
-  }
+  /**
+    * Adds a new action to the action queue.
+    *
+    * @memberof Async
+    * @instance
+    * @param {string} functor A function name.
+    * @param {array} args The arguments that will be sent to the functor.
+    */
+  addAction: function (functor, args) {
+    this.actions.push([functor, args]);
+  },
   
-  // Run all the actions.
-  function runAsyncActions() {
+  /**
+    * Calls all the functors in the action queue, giving them their arguments.
+    *
+    * @memberof Async
+    * @instance
+    */
+  runActions: function () {
     var i,
           l,
-          actions = this.asyncActions,
+          actions = this.actions,
           action;
     
     for (i = 0, l = actions.length; i < l; i++) {
@@ -26,12 +48,4 @@ var Async = (function () {
     
     actions = [];
   }
-  
-  return function () {
-    this.setupAsync = setup;
-    this.addAsyncAction = addAsyncAction;
-    this.runAsyncActions = runAsyncActions;
-    
-    return this;
-  };
-}());
+};

@@ -1,3 +1,16 @@
+/**
+ * @memberof GL
+ * @class A WebGL cube.
+ * @name Cube
+ * @param {number} x1 Minimum X coordinate.
+ * @param {number} y1 Minimum Y coordinate.
+ * @param {number} z1 Minimum Z coordinate.
+ * @param {number} x2 Maximum X coordinate.
+ * @param {number} y2 Maximum Y coordinate.
+ * @param {number} z2 Maximum Z coordinate.
+ * @property {WebGLBuffer} buffer
+ * @property {Float32Array} data
+ */
 function Cube(x1, y1, z1, x2, y2, z2) {
   this.buffer = ctx.createBuffer();
   this.data = new Float32Array([
@@ -32,6 +45,13 @@ function Cube(x1, y1, z1, x2, y2, z2) {
 }
 
 Cube.prototype = {
+  /**
+   * Renders a cubes's lines with the given shader.
+   *
+   * @memberof GL.Cube
+   * @instance
+   * @param {GL.Shader} shader
+   */
   renderLines: function (shader) {
     if (boundShader) {
       ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);

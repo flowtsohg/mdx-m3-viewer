@@ -1,8 +1,17 @@
 var BLP1_MAGIC = 0x31504c42;
-  
 var BLP_JPG = 0x0;
 var BLP_PALLETE = 0x1;
 
+/**
+ * @memberof GL
+ * @class A BLP1 texture decoder.
+ * @name BLPTexture
+ * @param {ArrayBuffer} arrayBuffer The raw texture data.
+ * @param {object} options An object containing options.
+ * @param {function} onerror A function that allows to report errors.
+ * @property {WebGLTexture} id
+ * @property {boolean} ready
+ */
 function BLPTexture(arrayBuffer, options, onerror) {
   var i;
   

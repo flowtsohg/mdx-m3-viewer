@@ -1,3 +1,13 @@
+/**
+ * @memberof GL
+ * @class A TGA texture decoder. Supports only simple 32bit TGA images.
+ * @name TGATexture
+ * @param {ArrayBuffer} arrayBuffer The raw texture data.
+ * @param {Object} options An object containing options.
+ * @param {function} onerror A function that allows to report errors.
+ * @property {WebGLTexture} id
+ * @property {boolean} ready
+ */
 function TGATexture(arrayBuffer, options, onerror) {
   var dataView = new DataView(arrayBuffer);
   var imageType = dataView.getUint8(2);

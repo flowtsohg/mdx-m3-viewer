@@ -1,3 +1,15 @@
+/**
+ * Creates a new AsyncModelInstance.
+ *
+ * @class The parent of {@link BaseModelInstance}. Takes care of all the asynchronous aspects of loading model instances. 
+ * @name AsyncModelInstance
+ * @mixes Async
+ * @mixes Spatial
+ * @param {AsyncModel} model The model this instance points to.
+ * @param {number} id The id of this instance.
+ * @param {vec3} color The color this instance uses for {@link AsyncModelInstance.renderColor}.
+ * @param {object} textureMap An object with texture path -> absolute urls mapping.
+ */
 function AsyncModelInstance(asyncModel, id, color, textureMap) {
   this.ready = false;
   this.fileType = asyncModel.fileType;
@@ -11,16 +23,13 @@ function AsyncModelInstance(asyncModel, id, color, textureMap) {
   // Used for color picking
   this.color = color;
   
-  // Use the Async mixin
-  this.setupAsync();
-  
-  // Use the Spatial mixin
-  this.setupSpatial();
-  
   // If the model is already ready, the onload message from setup() must be delayed, since this instance wouldn't be added to the cache yet.
   if (asyncModel.ready) {
     this.delayOnload = true;
   }
+  
+  this.setupAsync();
+  this.setupSpatial();
   
   // Request the setup function to be called by the model when it can.
   // If the model is loaded, setup runs instantly, otherwise it runs when the model finishes loading.
@@ -33,13 +42,20 @@ AsyncModelInstance.handlers = {
 };
 
 AsyncModelInstance.prototype = {
-  // Setup the internal instance using the internal model implementation
+  /**
+    * Setup a model instance.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @param {BaseModel} model The model implementation this instance points to.
+    * @param {object} textureMap An object with texture path -> absolute urls mapping.
+    */
   setup: function (model, textureMap) {
     this.instance = new AsyncModelInstance.handlers[this.fileType](model, textureMap);
     
     this.ready = true;
     
-    this.runAsyncActions();
+    this.runActions();
     
     this.recalculateTransformation();
     
@@ -52,42 +68,91 @@ AsyncModelInstance.prototype = {
     }
   },
   
+  /**
+    * Updates a model instance.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @param {object} context An object containing the global state of the viewer.
+    */
   update: function (context) {
     if (this.ready) {
       this.instance.update(this.getTransformation(), context);
     }
   },
   
+  /**
+    * Render a model instance.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @param {object} context An object containing the global state of the viewer.
+    */
   render: function (context) {
     if (this.ready && this.visible) {
       this.instance.render(context);
     }
   },
   
+  /**
+    * Render the particle emitters of a model instance.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @param {object} context An object containing the global state of the viewer.
+    */
   renderEmitters: function (context) {
     if (this.ready && this.visible) {
       this.instance.renderEmitters(context);
     }
   },
   
+  /**
+    * Render the bounding shapes of a model instance.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @param {object} context An object containing the global state of the viewer.
+    */
   renderBoundingShapes: function (context) {
     if (this.ready && this.visible) {
       this.instance.renderBoundingShapes(context);
     }
   },
   
-  renderColor: function () {
+  /**
+    * Render a model instance with a specific color.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @param {object} context An object containing the global state of the viewer.
+    */
+  renderColor: function (context) {
     if (this.ready && this.visible) {
       this.instance.renderColor(this.color, context);
     }
   },
   
+  /**
+    * Gets the name of a model instance.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @returns {string} The instance's name.
+    */
   getName: function () {
     if (this.ready) {
       return this.instance.getName() + "[" + this.id + "]";
     }
   },
   
+  /**
+    * Gets the source of the model a model instance points to.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @returns {string} The model's source.
+    */
   getSource: function () {
     return this.asyncModel.source;
   },
@@ -101,18 +166,33 @@ AsyncModelInstance.prototype = {
     if (this.ready) {
       return this.setRequestedAttachment(requester, attachment);
     } else {
-      this.addAsyncAction("setRequestedAttachment", [requester, attachment]);
+      this.addAction("setRequestedAttachment", [requester, attachment]);
     }
   },
   
+  /**
+    * Overrides a texture used by a model instance.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @param {string} path The texture path that gets overriden.
+    * @paran {string} override The new absolute path that will be used.
+    */
   overrideTexture: function (path, override) {
     if (this.ready) {
       this.instance.overrideTexture(path, override);
     } else {
-      this.addAsyncAction("overrideTexture", [path, override]);
+      this.addAction("overrideTexture", [path, override]);
     }
   },
   
+  /**
+    * Gets a model instance's texture map.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @returns {object} The texture map.
+    */
   getTextureMap: function () {
     if (this.ready) {
       var textureMap = this.instance.getTextureMap();
@@ -126,120 +206,256 @@ AsyncModelInstance.prototype = {
     }
   },
   
-  getAttachment: function (id) {
-    if (this.ready) {
-      return this.instance.getAttachment(id);
-    }
-  },
-  
-  getCamera: function (id) {
-    if (this.ready) {
-      return this.asyncModel.getCamera(id);
-    }
-  },
-  
-  setSequence: function (id) {
-    if (this.ready) {
-      this.instance.setSequence(id);
-    } else {
-      this.addAsyncAction("setSequence", [id]);
-    }
-  },
-  
-  getSequence: function () {
-    if (this.ready) {
-      return this.instance.getSequence();
-    }
-  },
-  
-  setSequenceLoopMode: function (mode) {
-    if (this.ready) {
-      this.instance.setSequenceLoopMode(mode);
-    } else {
-      this.addAsyncAction("setSequenceLoopMode", [mode]);
-    }
-  },
-  
-  getSequenceLoopMode: function () {
-    if (this.ready) {
-      return this.instance.getSequenceLoopMode();
-    }
-  },
-  
+  /**
+    * Set the team color of a model instance.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @param {number} id The team color.
+    */
   setTeamColor: function (id) {
     if (this.ready) {
       this.instance.setTeamColor(id);
     } else {
-      this.addAsyncAction("setTeamColor", [id]);
+      this.addAction("setTeamColor", [id]);
     }
   },
   
+  /**
+    * Gets the team color of a model instance.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @returns {number} The team.
+    */
   getTeamColor: function () {
     if (this.ready) {
       return this.instance.getTeamColor();
     }
   },
   
-  getSequences: function () {
+  /**
+    * Set the sequence of a model instance.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @param {number} id The sequence.
+    */
+  setSequence: function (id) {
     if (this.ready) {
-      return this.asyncModel.getSequences();
-    }
-    
-    return [];
-  },
-  
-  getAttachments: function () {
-    if (this.ready) {
-      return this.asyncModel.getAttachments();
-    }
-    
-    return [];
-  },
-  
-  getCameras: function () {
-    if (this.ready) {
-      return this.asyncModel.getCameras();
-    }
-    
-    return [];
-  },
-  
-  getMeshCount: function () {
-    if (this.ready) {
-      return this.asyncModel.getMeshCount();
+      this.instance.setSequence(id);
+    } else {
+      this.addAction("setSequence", [id]);
     }
   },
   
-  getMeshVisibilities: function () {
+  /**
+    * Gets the sequence of a model instance.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @returns {number} The sequence.
+    */
+  getSequence: function () {
     if (this.ready) {
-      return this.instance.getMeshVisibilities();
+      return this.instance.getSequence();
     }
-    
-    return [];
   },
   
+  /**
+    * Set the sequence loop mode of a model instance.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @param {number} mode The sequence loop mode.
+    */
+  setSequenceLoopMode: function (mode) {
+    if (this.ready) {
+      this.instance.setSequenceLoopMode(mode);
+    } else {
+      this.addAction("setSequenceLoopMode", [mode]);
+    }
+  },
+  
+  /**
+    * Gets the sequence loop mode of a model instance.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @returns {number} The sequence loop mode.
+    */
+  getSequenceLoopMode: function () {
+    if (this.ready) {
+      return this.instance.getSequenceLoopMode();
+    }
+  },
+  
+  /**
+    * Gets a model instance's attachment.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @param {number} id The id of the attachment.
+    * @returns {Node} The attachment.
+    */
+  getAttachment: function (id) {
+    if (this.ready) {
+      return this.instance.getAttachment(id);
+    }
+  },
+  
+  /**
+    * Gets a model instance's camera.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @param {number} id The id of the camera.
+    * @returns {Camera} The camera.
+    */
+  getCamera: function (id) {
+    if (this.ready) {
+      return this.instance.getCamera(id);
+    }
+  },
+  
+  /**
+    * Set a model instance's mesh's visibility.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @param {number} id The mesh.
+    * @param {boolean} mode The visibility mode
+    */
   setMeshVisibility: function (id, mode) {
     if (this.ready) {
       this.instance.setMeshVisibility(id, mode);
     } else {
-      this.addAsyncAction("setMeshVisibility", [id, mode]);
+      this.addAction("setMeshVisibility", [id, mode]);
     }
   },
   
+  /**
+    * Gets a model instance's mesh's visibility
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @param {number} id The mesh.
+    * @returns {boolean} The mesh's visiblity.
+    */
   getMeshVisibility: function (id) {
     if (this.ready) {
       return this.instance.getMeshVisibility(id);
     }
   },
   
-  setVisibility: function (b) {
-    this.visible = b;
+  /**
+    * Gets a model instance's mesh's visibility
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @param {number} id The mesh.
+    * @returns {boolean} The mesh's visiblity.
+    */
+  getMeshVisibilities: function () {
+    if (this.ready) {
+      return this.instance.getMeshVisibilities();
+    }
   },
   
+  /**
+    * Gets the sequences of a model a model instance points to.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @returns {array} The list of sequence names.
+    */
+  getSequences: function () {
+    if (this.ready) {
+      return this.asyncModel.getSequences();
+    }
+  },
+  
+  /**
+    * Gets the attachments of a model a model instance points to.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @returns {array} The list of attachment names.
+    */
+  getAttachments: function () {
+    if (this.ready) {
+      return this.asyncModel.getAttachments();
+    }
+  },
+  
+  /**
+    * Gets the bounding shapes of a model a model instance points to.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @returns {array} The list of bounding shape names.
+    */
+  getBoundingShapes: function() {
+    if (this.ready) {
+      return this.asyncModel.getBoundingShapes();
+    }
+  },
+  
+  /**
+    * Gets the cameras of a model a model instance points to.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @returns {array} The list of camera names.
+    */
+  getCameras: function () {
+    if (this.ready) {
+      return this.asyncModel.getCameras();
+    }
+  },
+  
+  /**
+    * Gets the number of meshes of a model a model instance points to.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @returns {number} The number of meshes.
+    */
+  getMeshCount: function () {
+    if (this.ready) {
+      return this.asyncModel.getMeshCount();
+    }
+  },
+  
+  /**
+    * Sets a model instance's visibility.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @param {boolean} mode The visibility.
+    */
+  setVisibility: function (mode) {
+    this.visible = mode;
+  },
+  
+  /**
+    * Gets a model instance's visibility.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @returns {boolean} The visibility.
+    */
   getVisibility: function () {
     return this.visible;
   },
   
+  /**
+    * Gets a model instance's information. This includes most of the getters, and also the information from {@link AsyncModel.getInfo}.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @returns {object} The model instance information.
+    */
   getInfo: function () {
     return {
       modelInfo: this.asyncModel.getInfo(),
@@ -258,6 +474,13 @@ AsyncModelInstance.prototype = {
     };
   },
   
+  /**
+    * Gets a model instance's representation as an object that will be converted to JSON.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @returns {object} The JSON representation.
+    */
   toJSON: function () {
     // For some reason, when typed arrays are JSON stringified they change to object notation rather than array notation.
     // This is why I don't bother to access the location and rotation directly.
@@ -309,6 +532,13 @@ AsyncModelInstance.prototype = {
     ];
   },
   
+  /**
+    * Applies the settings of a JSON representation to a model instance.
+    *
+    * @memberof AsyncModelInstance
+    * @instance
+    * @object {object} The JSON representation.
+    */
   fromJSON: function (object) {
     var textureMap = object[10],
           visibilities = object[11],
@@ -337,5 +567,5 @@ AsyncModelInstance.prototype = {
   }
 };
 
-mixin(Async, AsyncModelInstance);
-mixin(Spatial, AsyncModelInstance);
+mixin(Async, AsyncModelInstance.prototype);
+mixin(Spatial, AsyncModelInstance.prototype);

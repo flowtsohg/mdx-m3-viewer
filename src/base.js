@@ -1,5 +1,24 @@
-function mixin(source, target) {
-  source.call(target.prototype);
+/**
+ * Mixes one object onto another.
+ * If the destination already defines a property, it wont be copied from the source.
+ *
+ * @param {object} mixer The source.
+ * @param {object} mixed The destination.
+ */
+function mixin(mixer, mixed) {
+  var properties = Object.getOwnPropertyNames(mixer),
+        property,
+        i,
+        l;
+  
+  for (i = 0, l = properties.length; i < l; i++) {
+    property = properties[i];
+    
+    // Allow the target to override properties
+    if (!mixed[property]) {
+      mixed[property] = mixer[property];
+    }
+  }
 }
 
 function getNamesFromObjects(objects) {
@@ -16,10 +35,23 @@ function getNamesFromObjects(objects) {
   return names;
 }
 
+/**
+ * Encodes two 0-255 numbers into one.
+ *
+ * @param {number} x The first number.
+ * @param {number} y The second number.
+ * @returns {number} The encoded number.
+ */
 function encodeFloat2(x, y) {
   return x + y * 256;
 }
 
+/**
+ * Decodes a previously encoded number into the two original numbers.
+ *
+ * @param {number} f The input.
+ * @returns {array} The two decoded numbers.
+ */
 function decodeFloat2(f) {
   var v = [];
   
@@ -29,10 +61,24 @@ function decodeFloat2(f) {
   return v;
 }
 
+/**
+ * Encodes three 0-255 numbers into one.
+ *
+ * @param {number} x The first number.
+ * @param {number} y The second number.
+ * @param {number} z The third number.
+ * @returns {number} The encoded number.
+ */
 function encodeFloat3(x, y, z) {
   return x + y * 256 + z * 65536;
 }
 
+/**
+ * Decodes a previously encoded number into the three original numbers.
+ *
+ * @param {number} f The input.
+ * @returns {array} The three decoded numbers.
+ */
 function decodeFloat3(f) {
   var v = [];
   
@@ -43,18 +89,29 @@ function decodeFloat3(f) {
   return v;
 }
 
+/**
+ * Gets the file name from a file path.
+ *
+ * @param {string} source The file path.
+ * @returns {string} The file name.
+ */
 function getFileName(source) {
   var tokens = source.split(/[\\\/]/g);
   
   return tokens[tokens.length - 1];
 }
 
+/**
+ * Gets the file extention from a file path.
+ *
+ * @param {string} source The file path.
+ * @returns {string} The file extension.
+ */
 function getFileExtension(source) {
   var tokens = source.split(".");
   
   return tokens[tokens.length - 1];
 }
-
 
 if (typeof String.prototype.endsWith !== "function") {
   String.prototype.endsWith = function(suffix) {
@@ -68,6 +125,11 @@ if (!window.requestAnimationFrame ) {
   }());
 }
 
+/**
+ * Parses all of the url parameters and returns a map.
+ *
+ * @returns {string} The parameters map.
+ */
 function getUrlVariables() {
   var urlMap = {};
   var searchstr = window.location.search.substring(1);
@@ -82,7 +144,12 @@ function getUrlVariables() {
   
   return urlMap;
 }
-      
+
+/**
+ * Goes over the DOM, and returns a map of all the elements with IDs, such that map[elementId]=element.
+ *
+ * @returns {object} The DOM map.
+ */
 function getDom() {
   var dom = {};
   var elements = document.getElementsByTagName("*");
@@ -99,6 +166,15 @@ function getDom() {
   return dom;
 }
 
+/**
+ * Sends an XHR2 request.
+ *
+ * @param {string} path The url to request.
+ * @param {boolean} binary If true, the request type will be arraybuffer.
+ * @param {function} onload onload callback.
+ * @param {function} onerror onerror callback.
+ * @param {function} onprogress onprogress callback.
+ */
 function getFile(path, binary, onload, onerror, onprogress) {
   var xhr = new XMLHttpRequest();
   
@@ -144,6 +220,12 @@ function preventDefault(e) {
   e.preventDefault();
 }
 
+/**
+ * A very simple string hashing algorithm.
+ *
+ * @param {string} s String to hash.
+ * @returns {number} The string hash.
+ */
 String.hashCode = function(s) {
   var hash = 0;
   
@@ -161,6 +243,12 @@ if (typeof String.prototype.startsWith != "function") {
   };
 }
 
+/**
+ * A deep Object copy.
+ *
+ * @param {object} object The object to copy.
+ * @returns {object} The copied object.
+ */
 Object.copy = function (object) {
   var keys = Object.keys(object);
   var newObj = (object instanceof Array) ? [] : {};
@@ -179,6 +267,13 @@ Object.copy = function (object) {
   return newObj;
 };
 
+/**
+ * A shallow Array equality check.
+ *
+ * @param {array} a First array.
+ * @param {array} b Second array.
+ * @returns {boolean} The result.
+ */
 Array.equals = function (a, b) {
   var i, l;
   
@@ -195,6 +290,12 @@ Array.equals = function (a, b) {
   return true;
 };
 
+/**
+ * A shallow Array copy.
+ *
+ * @param {array} a The array to copy.
+ * @returns {array} The copied array.
+ */
 Array.copy = function (a) {
   var newArray = [];
   var i, l;

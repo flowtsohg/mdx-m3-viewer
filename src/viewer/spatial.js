@@ -1,8 +1,26 @@
-// Spatial mixin.
-// Used to add spatial capabilities to an object.
-var Spatial = (function () {
-  // Create the required variables in the object.
-  function setup() {
+/**
+ * Used to add spatial capabilities to an object.
+ *
+ * @mixin
+ * @name Spatial
+ * @property {mat4} worldMatrix
+ * @property {mat4} localMatrix
+ * @property {vec3} location
+ * @property {quat} rotation
+ * @property {vec3} eulerRotation
+ * @property {vec3} scaling
+ * @property {number} parentId
+ * @property {number} attachmentId
+ * @property {Node} parentNode
+ */
+var Spatial = {
+  /**
+    * Creates the needed properties in the mixed object.
+    *
+    * @memberof Spatial
+    * @instance
+    */
+  setupSpatial: function () {
     this.worldMatrix = mat4.create();
     this.localMatrix = mat4.create();
     this.location = vec3.create();
@@ -12,53 +30,115 @@ var Spatial = (function () {
     this.parentId = -1;
     this.attachmentId = -1;
     this.parentNode = null;
-  }
+  },
   
-  function recalculateTransformation() {
+  /**
+    * Recalculates the spatial's transformation.
+    *
+    * @memberof Spatial
+    * @instance
+    */
+  recalculateTransformation: function () {
     mat4.fromRotationTranslationScale(this.localMatrix, this.rotation, this.location, this.scaling);
-  }
-  
-  function move(v) {
+  },
+
+  /**
+    * Moves a spatial.
+    *
+    * @memberof Spatial
+    * @instance
+    * @param {vec3} v A displacement vector.
+    */
+  move: function (v) {
     vec3.add(this.location, this.location, v);
     
     this.recalculateTransformation();
-  }
-  
-  function setLocation(v) {
+  },
+
+  /**
+    * Sets the location of a spatial.
+    *
+    * @memberof Spatial
+    * @instance
+    * @param {vec3} v A position vector.
+    */
+  setLocation: function (v) {
     vec3.copy(this.location, v);
     
     this.recalculateTransformation();
-  }
-  
-  function getLocation() {
+  },
+
+  /**
+    * Gets a spatial's location.
+    *
+    * @memberof Spatial
+    * @instance
+    * @returns {vec3} The spatial's location.
+    */
+  getLocation: function () {
     return Array.copy(this.location);
-  }
-  
-  function rotateQuat(q) {
+  },
+
+  /**
+    * Rotates a spatial.
+    *
+    * @memberof Spatial
+    * @instance
+    * @param {quat} q A quaternion.
+    */
+  rotateQuat: function (q) {
     quat.multiply(this.rotation, this.rotation, q);
     
     this.recalculateTransformation();
-  }
-  
-  function setRotationQuat(q) {
+  },
+
+  /**
+    * Sets the rotation of a spatial.
+    *
+    * @memberof Spatial
+    * @instance
+    * @param {quat} q A quaternion.
+    */
+  setRotationQuat: function (q) {
     quat.copy(this.rotation, q);
     
     this.recalculateTransformation();
-  }
-  
-  function getRotationQuat() {
+  },
+
+  /**
+    * Gets a spatial's rotation as a quaternion.
+    *
+    * @memberof Spatial
+    * @instance
+    * @returns {quat} The spatial's quaternion rotation.
+    */
+  getRotationQuat: function () {
     return Array.copy(this.rotation);
-  }
-  
-  function rotate(v) {
+  },
+
+  /**
+    * Rotates a spatial.
+    *
+    * @memberof Spatial
+    * @instance
+    * @param {vec3} v A vector of euler angles.
+    */
+  rotate: function (v) {
     var eulerRotation = this.eulerRotation;
     
     vec3.add(eulerRotation, eulerRotation, v);
     
     this.setRotation(eulerRotation);
-  }
-  
-  function setRotation(v) {
+  },
+
+  /**
+    * Sets the rotation of a spatial.
+    *
+    * @memberof Spatial
+    * @instance
+    * @param {quat} v A vector of euler angles.
+    */
+  setRotation: function (v) {
     var q = quat.create(),
           rotation = this.rotation,
           eulerRotation = this.eulerRotation;
@@ -77,42 +157,76 @@ var Spatial = (function () {
     quat.multiply(rotation, q, rotation);
     
     this.recalculateTransformation();
-  }
-  
-  function getRotation() {
+  },
+
+  /**
+    * Gets a spatial's rotation as a vector of euler angles.
+    *
+    * @memberof Spatial
+    * @instance
+    * @returns {vec3} The spatial's euler angles.
+    */
+  getRotation: function () {
     return vec3.clone(this.eulerRotation);
-  }
-  
-  function scale(n) {
+  },
+
+  /**
+    * Scales a spatial.
+    *
+    * @memberof Spatial
+    * @instance
+    * @param {number} n The scale factor.
+    */
+  scale: function (n) {
     vec3.scale(this.scaling, this.scaling, n);
     
     this.recalculateTransformation();
-  }
-  
-  function setScale(n) {
+  },
+
+  /**
+    * Sets the scale of a spatial.
+    *
+    * @memberof Spatial
+    * @instance
+    * @param {number} n The scale factor.
+    */
+  setScale: function (n) {
     vec3.set(this.scaling, n, n, n);
     
     this.recalculateTransformation();
-  }
-  
-  function getScale() {
+  },
+
+  /**
+    * Gets a spatial's scale.
+    *
+    * @memberof Spatial
+    * @instance
+    * @returns {number} The scale factor.
+    */
+  getScale: function () {
     return this.scaling[0];
-  }
-  
-  function setScaleVector(v) {
+  },
+
+  setScaleVector: function (v) {
     vec3.copy(this.scaling, v);
     
     this.recalculateTransformation();
-  }
-  
-  function getScaleVector() {
-    // Note: no Array.copy because this function is for internal use, and I don't want garbage collection.
+  },
+
+  getScaleVector: function () {
+    // Note: no Array.copy because this is: function  for internal use, and I don't want garbage collection.
     return this.scaling;
-  }
+  },
   
-  // Requests an attachment point from the parent.
-  // The parent will call setParentNode with the correct attachment node instantly if it is loaded, and when it is loaded otherwise.
-  function setParent(parent, attachment) {
+  /**
+    * Sets a spatial's parent.
+    *
+    * @memberof Spatial
+    * @instance
+    * @param {Node} parent The parent.
+    * @param {number} [attahmcnet] An attachment.
+    */
+  setParent: function (parent, attachment) {
     if (parent) {
       this.parentId = parent.id;
       this.attachmentId = attachment;
@@ -123,18 +237,32 @@ var Spatial = (function () {
       this.attachmentId = -1;
       this.parentNode = null;
     }
-  }
-  
+  },
+
   // Called from the parent with the parent node.
-  function setParentNode(node) {
+  setParentNode: function (node) {
     this.parentNode = node;
-  }
-  
-  function getParent() {
+  },
+
+  /**
+    * Gets a spatial's parent.
+    *
+    * @memberof Spatial
+    * @instance
+    * @returns {array} The parent and attachment.
+    */
+  getParent: function () {
     return [this.parentId, this.attachmentId];
-  }
-  
-  function getTransformation(objects) {
+  },
+
+  /**
+    * Gets a spatial's world transformation matrix.
+    *
+    * @memberof Spatial
+    * @instance
+    * @returns {mat4} The transformation matrix.
+    */
+  getTransformation: function (objects) {
     var worldMatrix = this.worldMatrix,
           parentNode = this.parentNode;
     
@@ -151,29 +279,4 @@ var Spatial = (function () {
     
     return worldMatrix;
   }
-  
-  return function () {
-    this.setupSpatial = setup;
-    this.recalculateTransformation = recalculateTransformation;
-    this.move = move;
-    this.setLocation = setLocation;
-    this.getLocation = getLocation;
-    this.rotateQuat = rotateQuat;
-    this.setRotationQuat = setRotationQuat;
-    this.getRotationQuat = getRotationQuat;
-    this.rotate = rotate;
-    this.setRotation = setRotation;
-    this.getRotation = getRotation;
-    this.scale = scale;
-    this.setScale = setScale;
-    this.getScale = getScale;
-    this.setScaleVector = setScaleVector;
-    this.getScaleVector = getScaleVector;
-    this.setParent = setParent;
-    this.setParentNode = setParentNode;
-    this.getParent = getParent;
-    this.getTransformation = getTransformation;
-    
-    return this;
-  };
-}());
+};

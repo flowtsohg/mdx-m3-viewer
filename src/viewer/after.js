@@ -227,7 +227,7 @@ function setupColor(width, height) {
     ctx.disable(ctx.CULL_FACE);
     
     for (var i = 0, l = instanceArray.length; i < l; i++) {
-      instanceArray[i].renderColor();
+      instanceArray[i].renderColor(context);
     }
     
     ctx.enable(ctx.CULL_FACE);
@@ -407,9 +407,13 @@ function setupColor(width, height) {
   // Model loading API
   // ---------------------
   
-  // Load a resource from a given source.
-  // The source caan be an absolute path to a MDX/M3 file, a path to a MDX/M3 file in any of the Warcraft 3 and Starcraft 2 MPQs, or a resource thread ID used by the Hiveworkshop
-  // If loading from a resource thread, every model and texture in the resource thread will be loaded.
+  /**
+    * Loads a resource.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {string} source The source to load from. Can be an absolute url, a path to a file in the MPQ files of Warcraft 3 and Starcraft 2, or a form of identifier to be used for headers.
+    */
   function loadResource(source) {
     var isSupported = supportedFileTypes[getFileExtension(source).toLowerCase()];
     
@@ -426,11 +430,13 @@ function setupColor(width, height) {
     }
   }
   
-  // Unload a resource from a given source.
-  // If the source is a string, it can be the path of a loaded model, or a loaded texture.
-  // If the source is a number, it must be a valid model or model instance ID.
-  // If a model is removed, all of its instances are removed too.
-  // Note: unloading a model or an instance that aren't loaded wont do anything.
+  /**
+    * Unloads a resource.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {(string|number)} source The source to unload from. Can be the source of a previously loaded resource, or a valid model or instance ID.
+    */
   function unloadResource(source) {
     var object;
     
@@ -461,16 +467,30 @@ function setupColor(width, height) {
   // Instance visibility
   // ------------------
   
-  // Shows or hides an instance.
-  function setVisibility(objectId, b) {
+  /**
+    * Sets the visiblity of a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @param {boolean} mode The visibility mode.
+    */
+  function setVisibility(objectId, mode) {
     var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
-      object.setVisibility(b);
+      object.setVisibility(mode);
     }
   }
   
-  // Get the visibility status if an instance.
+  /**
+    * Gets the visiblity of a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @returns {boolean} The visibility mode.
+    */
   function getVisibility(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -479,16 +499,32 @@ function setupColor(width, height) {
     }
   }
   
-  // Shows or hides a mesh of a specific instance.
-  function setMeshVisibility(objectId, meshId, b) {
+  /**
+    * Sets the visiblity of a model instance's mesh.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @param {number} meshId The ID of the mesh.
+    * @param {boolean} mode The visibility mode.
+    */
+  function setMeshVisibility(objectId, meshId, mode) {
     var object = modelInstanceMap[objectId];
     
     if (object && object.isInstance) {
-      return object.setMeshVisibility(meshId, b);
+      return object.setMeshVisibility(meshId, mode);
     }
   }
   
-  // Get the visibility of a mesh in an instance.
+  /**
+    * Gets the visiblity of a model instance's mesh.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @param {number} meshId The ID of the mesh.
+    * @return {boolean} The visibility mode.
+    */
   function getMeshVisibility(objectId, meshId) {
     var object = modelInstanceMap[objectId];
     
@@ -501,7 +537,14 @@ function setupColor(width, height) {
   // Transform API
   // ------------------
   
-  // Set the location of an instance.
+  /**
+    * Sets the location of a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @param {vec3} v The location.
+    */
   function setLocation(objectId, v) {
     var object = modelInstanceMap[objectId];
     
@@ -510,7 +553,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Move an instance.
+  /**
+    * Moves a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @param {vec3} v The displacement.
+    */
   function move(objectId, v) {
     var object = modelInstanceMap[objectId];
     
@@ -519,7 +569,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Get the location of an instance.
+  /**
+    * Gets the location of a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @returns {vec3} The location.
+    */
   function getLocation(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -528,7 +585,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Set the rotation of an instance.
+  /**
+    * Sets the rotation of a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @param {vec3} v A vector of euler angles.
+    */
   function setRotation(objectId, v) {
     var object = modelInstanceMap[objectId];
     
@@ -537,7 +601,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Rotate an instance.
+  /**
+    * Rotates a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @param {vec3} v A vector of euler angles.
+    */
   function rotate(objectId, v) {
     var object = modelInstanceMap[objectId];
     
@@ -546,7 +617,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Get the rotation of an instance.
+  /**
+    * Gets the rotation of a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @returns {vec3} A vector of euler angles.
+    */
   function getRotation(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -555,7 +633,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Set the RotationQuat of an instance.
+  /**
+    * Sets the rotation of a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @param {quat} v A quaternion.
+    */
   function setRotationQuat(objectId, q) {
     var object = modelInstanceMap[objectId];
     
@@ -564,7 +649,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Rotate an instance.
+  /**
+    * Rotates a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @param {quat} v A quaternion.
+    */
   function rotateQuat(objectId, q) {
     var object = modelInstanceMap[objectId];
     
@@ -573,7 +665,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Get the RotationQuat of an instance.
+  /**
+    * Gets the rotation of a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @returns {quat} A quaternion.
+    */
   function getRotationQuat(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -582,7 +681,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Set the scale of an instance.
+  /**
+    * Sets the scale of a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @param {number} n The scale factor.
+    */
   function setScale(objectId, n) {
     var object = modelInstanceMap[objectId];
     
@@ -591,7 +697,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Scale an instance.
+  /**
+    * Scales a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @param {number} n The scale factor.
+    */
   function scale(objectId, n) {
     var object = modelInstanceMap[objectId];
     
@@ -600,7 +713,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Get the scale of an instance.
+  /**
+    * Gets the scale of a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @returns {number} The scale factor.
+    */
   function getScale(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -609,7 +729,15 @@ function setupColor(width, height) {
     }
   }
   
-  // Set the parent of an instance to another instance, with an optional attachment point owned by that parent.
+  /**
+    * Sets the parent of a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @param {number} parentId The ID of the parent model instance.
+    * @param {number} [attachmentId] The ID of an attachment owned by the parent.
+    */
   function setParent(objectId, parentId, attachmentId) {
     var object = modelInstanceMap[objectId];
     
@@ -626,8 +754,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Get the parent of an instance as an array.
-  // The first index is the parent ID, the second is the attachment ID.
+  /**
+    * Gets the parent of a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @returns {array} The parent and attachment IDs as an array.
+    */
   function getParent(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -640,7 +774,14 @@ function setupColor(width, height) {
   // Team colors and textures
   // -----------------------------
   
-  // Set the team color used by an instance.
+  /**
+    * Sets the team color of a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @param {number} teamID The team color.
+    */
   function setTeamColor(objectId, teamId) {
     var object = modelInstanceMap[objectId];
     
@@ -649,7 +790,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Get the team color of an instance.
+  /**
+    * Gets the team color of a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @returns {number} The team color.
+    */
   function getTeamColor(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -658,18 +806,32 @@ function setupColor(width, height) {
     }
   }
   
-  // Override a texture of an instance or a model with another texture.
-  // If objectId is an instance, overrides the texture locally just for that instance.
-  // If objectId is a model, it overrides the texture for the model, which affects all instances that don't explicitly override this texture.
-  function overrideTexture(objectId, oldPath, newPath) {
+  /**
+    * Overrides a texture of a model or model instance.
+    * If overriding the texture of a model, it will affect all of its instances who don't explicitly override this texture too.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model or a model instance.
+    * @param {string} path The texture path that gets overriden.
+    * @paran {string} override The new absolute path that will be used.
+    */
+  function overrideTexture(objectId, path, override) {
     var object = modelInstanceMap[objectId];
     
     if (object) {
-      object.overrideTexture(oldPath, newPath);
+      object.overrideTexture(path, override);
     }
   }
   
-  // Get the texture map of an instance or model.
+  /**
+    * Gets the texture map of a model or a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model or a model instance.
+    * @returns {object} The texture map.
+    */
   function getTextureMap(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -682,7 +844,14 @@ function setupColor(width, height) {
   // Sequences
   // ------------
   
-  // Set the sequence of an instance.
+  /**
+    * Sets the sequence of a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @param {number} sequenceId The sequence.
+    */
   function setSequence(objectId, sequenceId) {
     var object = modelInstanceMap[objectId];
     
@@ -691,8 +860,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Stop the sequence of an instance.
-  // Equivalent to setSequence with sequence ID -1.
+  /**
+    * Stops the sequence of a model instance.
+    * Equivalent to setSequence(objectId, -1).
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    */
   function stopSequence(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -701,7 +876,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Get the current sequence of an instance.
+  /**
+    * Gets the sequence of a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @returns {number} The sequence.
+    */
   function getSequence(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -710,8 +892,15 @@ function setupColor(width, height) {
     }
   }
   
-  // Sets the sequence loop mode of an instance.
-  // Possible values are 0 for default, 1 for never, and 2 for always.
+  /**
+    * Sets the sequence loop mode of a model instance.
+    * Possible values are 0 for default, 1 for never loop, and 2 for always loop.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @param {number} mode The loop mode.
+    */
   function setSequenceLoopMode(objectId, mode) {
     var object = modelInstanceMap[objectId];
     
@@ -720,7 +909,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Get the sequence loop mode of an instance.
+  /**
+    * Gets the sequence loop mode of a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @returns {number} sequenceId The loop mode.
+    */
   function getSequenceLoopMode(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -733,7 +929,14 @@ function setupColor(width, height) {
   // Getters
   // ----------
   
-  // Get all the information of an object.
+  /**
+    * Gets all the information of a model or a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model or a model instance.
+    * @returns {object} The information.
+    */
   function getInfo(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -742,10 +945,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Return the model ID that an instance or path points to.
-  // Returns null if given a path that no model was loaded with.
-  // Returns null if given an invalid object ID.
-  // Returns source if it is a model object ID.
+  /**
+    * Gets a model ID from a valid source or model instance ID.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {string} source The source.
+    * @returns {number} The model ID.
+    */
   function getModel(source) {
     var object;
     
@@ -768,8 +975,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Get the source an object was created with.
-  // If the object is an instance, returns the source that made the model this instance points to.
+  /**
+    * Gets the source of a model or a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model or a model instance.
+    * @returns {number} The source.
+    */
   function getSource(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -778,9 +991,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Get a list of the sequences owned by an object.
-  // Proxies to the owning model if the given object is an instance.
-  // Returns null if the object ID is invalid, or if the model didn't finish loading.
+  /**
+    * Gets the sequence list of a model or a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model or a model instance.
+    * @returns {number} The list.
+    */
   function getSequences(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -789,9 +1007,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Get a list of the attachment points owned by an object.
-  // Proxies to the owning model if the given object is an instance.
-  // Returns null if the object ID is invalid, or if the model didn't finish loading.
+  /**
+    * Gets the attachment list of a model or a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model or a model instance.
+    * @returns {number} The list.
+    */
   function getAttachments(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -800,9 +1023,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Get a list of the cameras owned by an object.
-  // Proxies to the owning model if the given object is an instance.
-  // Returns null if the object ID is invalid, or if the model didn't finish loading.
+  /**
+    * Gets the camera list of a model or a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model or a model instance.
+    * @returns {number} The list.
+    */
   function getCameras(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -811,9 +1039,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Get a list of the bounding shapes owned by an object.
-  // Proxies to the owning model if the given object is an instance.
-  // Returns null if the object ID is invalid, or if the model didn't finish loading.
+  /**
+    * Gets the bounding shape list of a model or a model instance.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model or a model instance.
+    * @returns {number} The list.
+    */
   function getBoundingShapes(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -822,7 +1055,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Get the number of meshes an object has. Proxies to the owning model if the given object is an instance.
+  /**
+    * Gets the number of meshes a model or a model instance owns.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model or a model instance.
+    * @returns {number} The number of meshes.
+    */
   function getMeshCount(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -831,7 +1071,14 @@ function setupColor(width, height) {
     }
   }
   
-  // Get all the instances owned by a model.
+  /**
+    * Gets a list of all model instances that a model owns.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model.
+    * @returns {number} The list.
+    */
   function getInstances(objectId) {
     var object = modelInstanceMap[objectId];
     
@@ -844,28 +1091,59 @@ function setupColor(width, height) {
   // General settings
   // -------------------
   
-  // Set the animation speed
+  /**
+    * Sets the animation speed.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} ratio The speed.
+    */
   function setAnimationSpeed(ratio) {
     context.frameTime = ratio / 60 * 1000;
   }
   
-  // Get the animation speed
+  /**
+    * Gets the animation speed.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @returns {number} The speed.
+    */
   function getAnimationSpeed() {
     return context.frameTime / 1000 * 60;
   }
   
-  // Set the drawn world.
-  // Possible values are 0 for nothing, 1 for sky, 2 for sky and ground, and 3 for sky and water.
+  /**
+    * Sets the world mode.
+    * Possible values are 0 for nothing, 1 for sky, 2 for sky and ground, and 3 for sky and water.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} mode The world mode.
+    */
   function setWorldMode(mode) {
     context.worldMode = mode;
   }
   
-  // Get the world mode.
+  /**
+    * Gets the world mode.
+    * Possible values are 0 for nothing, 1 for sky, 2 for sky and ground, and 3 for sky and water.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} The world mode.
+    */
   function getWorldMode() {
     return context.worldMode;
   }
   
-  // Set the size of the ground
+  /**
+    * Sets the ground size.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} size The ground size.
+    */
   function setGroundSize(size) {
     size /= 2;
     
@@ -875,70 +1153,147 @@ function setupColor(width, height) {
     bedrock.resize(size, size);
   }
   
-  // Get the size of the ground
+  /**
+    * Gets the ground size.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @returns {number} The ground size.
+    */
   function getGroundSize() {
     return context.groundSize * 2;
   }
   
-  // Shows or hides all of the meshes
-  function setMeshesMode(b) {
-    context.meshesMode = b;
+  /**
+    * Sets the mesh mode. If false, no meshes will be shown.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {boolean} mode The mode.
+    */
+  function setMeshesMode(mode) {
+    context.meshesMode = mode;
   }
   
-  // Get the mesh render mode
+  /**
+    * Gets the mesh mode.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @returns {boolean} The mode.
+    */
   function getMeshesMode() {
     return context.meshesMode;
   }
   
-  // Shows or hides all of the emitters
+  /**
+    * Sets the particle emitters mode. If false, no particle emitters will be shown.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {boolean} mode The mode.
+    */
   function setEmittersMode(b) {
     context.emittersMode = b;
   }
   
-  // Get the emitter render mode
+  /**
+    * Gets the particle emitters mode.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @returns {boolean} The mode.
+    */
   function getEmittersMode() {
     return context.emittersMode;
   }
   
-  // Shows or hides the bounding shapes for all instances.
+  /**
+    * Sets the bounding shapes mode. If false, no bounding shapes will be shown.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {boolean} mode The mode.
+    */
   function setBoundingShapesMode(b) {
     context.boundingShapesMode = b;
   }
   
-  // Get the bounding shapes mode.
+  /**
+    * Gets the bounding shapes mode.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @returns {boolean} The mode.
+    */
   function getBoundingShapesMode() {
     return context.boundingShapesMode;
   }
   
-  // Shows or hides team colors for all instances.
+  /**
+    * Sets the team colors mode. If false, no team colors will be shown.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {boolean} mode The mode.
+    */
   function setTeamColorsMode(b) {
     context.teamColorsMode = b;
   }
   
-  // Get the team colors mode.
+  /**
+    * Gets the team colors mode.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @returns {boolean} The mode.
+    */
   function getTeamColorsMode() {
     return context.teamColorsMode;
   }
   
-  // Set the render mode to either polygons or wireframe.
-  // Pass true for polygons, or false for wireframe.
+  /**
+    * Sets the polygon mode. If false, models will render as wireframe.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {boolean} mode The mode.
+    */
   function setPolygonMode(b) {
     context.polygonMode = b;
   }
   
-  // Get the render mode
+  /**
+    * Gets the polygon mode.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @returns {boolean} The mode.
+    */
   function getPolygonMode() {
     return context.polygonMode;
   }
   
-  // Set the shader to be used.
-  // Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `uvs`, 4 for `normal map`, 5 for `specular map`, 6 for `specular map + normal map`, 7 for `emissive`, 8 for `unshaded`, 9 for `unshaded + normal map`, 10 for `decal`, and finally 11 for `white`.
-  // Note: only the normals, uvs, and white shaders affect Warcraft 3 models, the rest only affect Starcraft 2 models.
+  /**
+    * Sets the shader.
+    * Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `uvs`, 4 for `normal map`, 5 for `specular map`, 6 for `specular map + normal map`, 7 for `emissive`, 8 for `unshaded`, 9 for `unshaded + normal map`, 10 for `decal`, and finally 11 for `white`.
+    * Note: only the normals, uvs, and white shaders affect Warcraft 3 models, the rest only affect Starcraft 2 models.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} id The shader.
+    */
   function setShader(id) {
     context.shader = id;
   }
   
-  // Get the shader used for Starcraft 2 models.
+  /**
+    * Gets the shader.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @returns {number} The shader.
+    */
   function getShader() {
     return context.shader;
   }
@@ -947,39 +1302,77 @@ function setupColor(width, height) {
   // Camera settings
   // -------------------
   
-  // Set the camera.
-  // If either objectId or cameraId is equal to -1, then the free-form camera is used.
+  /**
+    * Sets the camera.
+    * If either of the arguments is -1, the normal free form camera is used.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} objectId The ID of a model instance.
+    * @param {number} cameraId The camera.
+    */
   function setCamera(objectId, cameraId) {
     context.instanceCamera[0] = objectId;
     context.instanceCamera[1] = cameraId;
   }
   
-  // Get the camera.
+  /**
+    * Gets the camera.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @returns {array} The model instance ID and camera. If the free form camera is used, both will be -1.
+    */
   function getCamera() {
     return [context.instanceCamera[0], context.instanceCamera[1]];
   }
   
-  // Pan the camera on the x and y axes.
+  /**
+    * Pans the camera on the x and y axes.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} x Amount to pan on the X axis.
+    * @param {number} y Amount to pan on the Y axis.
+    */
   function panCamera(x, y) {
     context.instanceCamera[1] = -1;
     context.camera[0][0] += x;
     context.camera[0][1] -= y;
   }
   
-  // Rotate the camera on the x and y axes.
+  /**
+    * Rotates the camera on the x and y axes.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} x Amount to rotate on the X axis.
+    * @param {number} y Amount to rotate on the Y axis.
+    */
   function rotateCamera(x, y) {
     context.instanceCamera[1] = -1;
     context.camera[1][0] += math.toRad(x);
     context.camera[1][1] += math.toRad(y);
   }
   
-  // Zoom the camera by a factor.
+  /**
+    * Zooms the camera by a factor.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} n Zoom factor.
+    */
   function zoomCamera(n) {
     context.instanceCamera[1] = -1;
     context.camera[0][2] = Math.floor(context.camera[0][2] * n);
   }
   
-  // Reset the camera back to the initial state.
+  /**
+    * Resets the camera to the initial state.
+    *
+    * @memberof ModelViewer
+    * @instance
+    */
   function resetCamera() {
     context.instanceCamera[1] = -1;
     context.camera[0][0] = 0;
@@ -992,6 +1385,15 @@ function setupColor(width, height) {
   // Misc
   // ------
   
+  /**
+    * Selects a model instance given a screen-space position.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {number} x X coordinate.
+    * @param {number} y Y coordinate.
+    * @returns {number} The ID of the selected model instance, or -1 if no model instance was selected.
+    */
   function selectInstance(x, y) {
     //var date = new Date();
     var pixel = new Uint8Array(4);
@@ -1043,7 +1445,13 @@ function setupColor(width, height) {
     return -1;
   }
   
-  // Save the scene as a JSON string.
+  /**
+    * Saves the scene as a JSON string.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @returns {string} The JSON string.
+    */
   function saveScene() {
     var i, 
           l,
@@ -1070,7 +1478,13 @@ function setupColor(width, height) {
     return JSON.stringify([saveContext(), models, instances]);
   }
   
-  // Load a scene from a JSON string.
+  /**
+    * Loads a scene from JSON string.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {string} scene The JSON string.
+    */
   function loadScene(scene) {
     var i,
           l,
@@ -1127,6 +1541,16 @@ function setupColor(width, height) {
     }
   }
   
+  /**
+    * Registers external handlers for an unspported model type.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {string} fileType The file format the handlers handle.
+    * @param {BaseModel} modelHandler A BaseModel-like object.
+    * @param {BaseModelInstance} modelInstanceHandler A BaseModelInstance-like object.
+    * @param {boolean} binary Determines what type of input the model handler will get - a string, or an ArrayBuffer.
+    */
   function registerModelHandler(fileType, modelHandler, modelInstanceHandler, binary) {
     AsyncModel.handlers[fileType] = [modelHandler, binary];
     AsyncModelInstance.handlers[fileType] = modelInstanceHandler;
@@ -1135,6 +1559,14 @@ function setupColor(width, height) {
     supportedFileTypes[fileType] = 1;
   }
   
+  /**
+    * Registers an external handler for an unsupported texture type.
+    *
+    * @memberof ModelViewer
+    * @instance
+    * @param {string} fileType The file format the handler handles.
+    * @param {function} textureHandler
+    */
   function registerTextureHandler(fileType, textureHandler) {
     gl.registerTextureHandler(fileType, textureHandler);
     

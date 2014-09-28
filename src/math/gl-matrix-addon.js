@@ -1,14 +1,3 @@
-/**
- * Performs a hermite interpolation with two control points
- *
- * @param {vec3} out the receiving vector
- * @param {vec3} a the first operand
- * @param {vec3} b the second operand
- * @param {vec3} c the third operand
- * @param {vec3} d the fourth operand
- * @param {Number} t interpolation amount between the two inputs
- * @returns {vec3} out
- */
 vec3.hermite = function (out, a, b, c, d, t) {
   var factorTimes2 = t * t,
       factor1 = factorTimes2 * (2 * t - 3) + 1,
@@ -23,17 +12,6 @@ vec3.hermite = function (out, a, b, c, d, t) {
   return out;
 };
 
-/**
- * Performs a bezier interpolation with two control points
- *
- * @param {vec3} out the receiving vector
- * @param {vec3} a the first operand
- * @param {vec3} b the second operand
- * @param {vec3} c the third operand
- * @param {vec3} d the fourth operand
- * @param {Number} t interpolation amount between the two inputs
- * @returns {vec3} out
- */
 vec3.bezier = function (out, a, b, c, d, t) {
   var inverseFactor = 1 - t,
       inverseFactorTimesTwo = inverseFactor * inverseFactor,
@@ -50,25 +28,7 @@ vec3.bezier = function (out, a, b, c, d, t) {
   return out;
 };
 
-/**
- * Creates a matrix from a quaternion rotation, vector translation and vector scale
- * This is equivalent to (but much faster than):
- *
- *     mat4.identity(dest);
- *     mat4.translate(dest, vec);
- *     var quatMat = mat4.create();
- *     quat4.toMat4(quat, quatMat);
- *     mat4.multiply(dest, quatMat);
- *     mat4.scale(dest, scale)
- *
- * @param {mat4} out mat4 receiving operation result
- * @param {quat4} q Rotation quaternion
- * @param {vec3} v Translation vector
- * @param {vec3} s Scaling vector
- * @returns {mat4} out
- */
 mat4.fromRotationTranslationScale = function (out, q, v, s) {
-    // Quaternion math
     var x = q[0], y = q[1], z = q[2], w = q[3],
         x2 = x + x,
         y2 = y + y,
@@ -108,28 +68,7 @@ mat4.fromRotationTranslationScale = function (out, q, v, s) {
     return out;
 };
 
-/**
- * Creates a matrix from a quaternion rotation, vector translation and vector scale, rotating and scaling around the given origin
- * This is equivalent to (but much faster than):
- *
- *     mat4.identity(dest);
- *     mat4.translate(dest, vec);
- *     mat4.translate(dest, origin);
- *     var quatMat = mat4.create();
- *     quat4.toMat4(quat, quatMat);
- *     mat4.multiply(dest, quatMat);
- *     mat4.scale(dest, scale)
- *     mat4.translate(dest, negativeOrigin);
- *
- * @param {mat4} out mat4 receiving operation result
- * @param {quat4} q Rotation quaternion
- * @param {vec3} v Translation vector
- * @param {vec3} s Scaling vector
- * @param {vec3} o The origin vector around which to scale and rotate
- * @returns {mat4} out
- */
 mat4.fromRotationTranslationScaleOrigin = function (out, q, v, s, o) {
-  // Quaternion math
   var x = q[0], y = q[1], z = q[2], w = q[3],
       x2 = x + x,
       y2 = y + y,
@@ -173,14 +112,6 @@ mat4.fromRotationTranslationScaleOrigin = function (out, q, v, s, o) {
   return out;
 };
 
-/**
- * Gets the orientation part of a matrix.
- * In other words, the 3x3 upper-left quadrent's inverse.
- *
- * @param {mat4} out mat4 receiving operation result
- * @param {mat4} m Source matrix
- * @returns {mat4} out
- */
 mat4.toRotationMat4 = (function () {
   var quadrent = mat3.create();
   
@@ -209,17 +140,6 @@ mat4.toRotationMat4 = (function () {
   };
 }());
 
-/**
- * Performs a spherical linear interpolation with two control points
- *
- * @param {quat} out the receiving quaternion
- * @param {quat} a the first operand
- * @param {quat} b the second operand
- * @param {quat} c the third operand
- * @param {quat} d the fourth operand
- * @param {Number} t interpolation amount
- * @returns {quat} out
- */
 quat.sqlerp = (function () {
   var temp1 = quat.create();
   var temp2 = quat.create();
@@ -241,36 +161,6 @@ mat4.decomposeScale = function (out, m) {
   out[0] = Math.sqrt(m0*m0 + m1*m1 + m2*m2);
   out[1] = Math.sqrt(m4*m4 + m5*m5 + m6*m6);
   out[2] = Math.sqrt(m8*m8 + m9*m9 + m10*m10);
-  
-  return out;
-};
-
-quat.fromYawPitchRoll = function (out, v) {
-  var x = v[0], y = v[1], z = v[2],
-        c1 = Math.cos(-z * 0.5),
-        c2 = Math.cos(-y * 0.5),
-        c3 = Math.cos(x * 0.5),
-        c1c2 = c1 * c2,
-        s1 = Math.sin(-z * 0.5),
-        s2 = Math.sin(-y * 0.5),
-        s3 = Math.sin(x * 0.5),
-        s1s2 = s1 * s2;
-  
-  out[0] = c1 * s2 * c3 - s1 * c2 * s3;
-  out[1] = c1c2 * s3 + s1s2 * c3;
-  out[2] = s1 * c2 * c3 + c1 * s2 * s3;
-  out[3] = c1c2 * c3 - s1s2 * s3;
-  
-  return out;
-};
-
-quat.toYawPitchRoll = function (out, q) {
-  var x = q[0], y = q[1], z = q[2], w = q[3],
-        sqx = x*x, sqy = y*y, sqz = z*z, sqw = w*w;
-  
-  out[0] = Math.atan2(2 * y * w - 2 * z * x, 1 - 2 * sqy - 2 * sqx);
-  out[1] = -Math.asin(2 * z * y + 2 * x * w);
-  out[2] = -Math.atan2(2 * z * w - 2 * y * x, 1 - 2 * sqz - 2 * sqx);
   
   return out;
 };

@@ -1,3 +1,17 @@
+/**
+ * @memberof GL
+ * @class A WebGL cylinder.
+ * @name Cylinder
+ * @param {number} x X coordinate.
+ * @param {number} y Y coordinate.
+ * @param {number} z Z coordinate.
+ * @param {number} r The cylinder radius.
+ * @param {number} h The cylinder height.
+ * @param {number} bands Number of bands.
+ * @property {WebGLBuffer} buffer
+ * @property {Float32Array} data
+ * @property {number} bands
+ */
 function Cylinder(x, y, z, r, h, bands) {
   var i, l;
   var step = Math.PI * 2 / bands;
@@ -111,6 +125,13 @@ function Cylinder(x, y, z, r, h, bands) {
 }
 
 Cylinder.prototype = {
+  /**
+   * Renders a cylinder's lines with the given shader.
+   *
+   * @memberof GL.Cylinder
+   * @instance
+   * @param {GL.Shader} shader
+   */
   renderLines: function (shader) {
     if (boundShader) {
       ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);

@@ -26,7 +26,6 @@
     unloadTexture: unloadTexture,
     textureOptions: textureOptions,
     bindTexture: bindTexture,
-    bindWhiteTexture: bindWhiteTexture,
     createRect: createRect,
     createSphere: createSphere,
     createCube: createCube,

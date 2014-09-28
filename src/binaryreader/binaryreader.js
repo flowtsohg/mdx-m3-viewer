@@ -1,3 +1,14 @@
+/**
+ * A simple binary reader.
+ *
+ * @class BinaryReader
+ * @param {ArrayByffer} buffer The internal buffer this reader uses.
+ * @property {ArrayBuffer} buffer
+ * @property {number} index
+ * @property {DataView} dataview
+ * @property {Uint8Array} uint8Array
+ * @property {number} size
+ */
 function BinaryReader(buffer) {
   this.buffer = buffer;
   this.index = 0;
@@ -6,22 +17,42 @@ function BinaryReader(buffer) {
   this.size = buffer.byteLength;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @returns {number} The remaining bytes.
+ */
 function remaining(reader) {
   return reader.size - reader.index;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} bytes Bytes to skip.
+ */
 function skip(reader, bytes) {
   reader.index += bytes;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} index Where to seek to.
+ */
 function seek(reader, index) {
   reader.index = index;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @return {number} The reader's position.
+ */
 function tell(reader) {
   return reader.index;
 }
 
+/**
+ * @param {Uint8Array} bytes Bytes to convert.
+ * @return {string} A string representation of the input bytes.
+ */
 function bytesToString(bytes) {
   var i, l, b, buffer = "";
   
@@ -37,6 +68,11 @@ function bytesToString(bytes) {
   return buffer;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} size Number of bytes to read.
+ * @return {string} The read string.
+ */
 function read(reader, size) {
   var data = bytesToString(reader.uint8Array.subarray(reader.index, reader.index + size));
   
@@ -45,10 +81,21 @@ function read(reader, size) {
   return data;
 }
 
+/**
+ * Reads a string, but does not advance the reader's position.
+ *
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} size Number of bytes to read.
+ * @return {string} The read string.
+ */
 function peek(reader, size) {
   return bytesToString(reader.uint8Array.subarray(reader.index, reader.index + size));
 }
-    
+
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @return {number} The read number.
+ */
 function readInt8(reader) {
   var data = reader.dataview.getInt8(reader.index, true);
   
@@ -57,6 +104,10 @@ function readInt8(reader) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @return {number} The read number.
+ */
 function readInt16(reader) {
   var data = reader.dataview.getInt16(reader.index, true);
   
@@ -65,6 +116,10 @@ function readInt16(reader) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @return {number} The read number.
+ */
 function readInt32(reader) {
   var data = reader.dataview.getInt32(reader.index, true);
   
@@ -73,6 +128,10 @@ function readInt32(reader) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @return {number} The read number.
+ */
 function readUint8(reader) {
   var data = reader.dataview.getUint8(reader.index, true);
   
@@ -81,6 +140,10 @@ function readUint8(reader) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @return {number} The read number.
+ */
 function readUint16(reader) {
   var data = reader.dataview.getUint16(reader.index, true);
   
@@ -89,6 +152,10 @@ function readUint16(reader) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @return {number} The read number.
+ */
 function readUint32(reader) {
   var data = reader.dataview.getUint32(reader.index, true);
   
@@ -97,6 +164,10 @@ function readUint32(reader) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @return {number} The read number.
+ */
 function readFloat32(reader) {
   var data = reader.dataview.getFloat32(reader.index, true);
   
@@ -105,6 +176,10 @@ function readFloat32(reader) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @return {number} The read number.
+ */
 function readFloat64(reader) {
   var data = reader.dataview.getFloat64(reader.index, true);
   
@@ -113,6 +188,11 @@ function readFloat64(reader) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} count Array size.
+ * @return {Int8Array} The read array.
+ */
 function readInt8Array(reader, count) {
   var i, data = new Int8Array(count);
   
@@ -125,6 +205,11 @@ function readInt8Array(reader, count) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} count Array size.
+ * @return {Int16Array} The read array.
+ */
 function readInt16Array(reader, count) {
   var i, data = new Int16Array(count);
   
@@ -137,6 +222,11 @@ function readInt16Array(reader, count) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} count Array size.
+ * @return {Int32Array} The read array.
+ */
 function readInt32Array(reader, count) {
   var i, data = new Int32Array(count);
   
@@ -149,6 +239,11 @@ function readInt32Array(reader, count) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} count Array size.
+ * @return {Uint8Array} The read array.
+ */
 function readUint8Array(reader, count) {
   var i, data = new Uint8Array(count);
   
@@ -161,6 +256,11 @@ function readUint8Array(reader, count) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} count Array size.
+ * @return {Uint16Array} The read array.
+ */
 function readUint16Array(reader, count) {
   var i, data = new Uint16Array(count);
   
@@ -173,6 +273,11 @@ function readUint16Array(reader, count) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} count Array size.
+ * @return {Uint32Array} The read array.
+ */
 function readUint32Array(reader, count) {
   var i, data = new Uint32Array(count);
   
@@ -185,6 +290,11 @@ function readUint32Array(reader, count) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} count Array size.
+ * @return {Float32Array} The read array.
+ */
 function readFloat32Array(reader, count) {
   var i, data = new Float32Array(count);
   
@@ -197,6 +307,11 @@ function readFloat32Array(reader, count) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} count Array size.
+ * @return {Float64Array} The read array.
+ */
 function readFloat64Array(reader, count) {
   var i, data = new Float64Array(count);
   
@@ -209,6 +324,12 @@ function readFloat64Array(reader, count) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} count Rows.
+ * @param {number} size Columns.
+ * @return {array} The read array of Int8Array.
+ */
 function readInt8Matrix(reader, count, size) {
   var i, data = [];
   
@@ -219,6 +340,12 @@ function readInt8Matrix(reader, count, size) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} count Rows.
+ * @param {number} size Columns.
+ * @return {array} The read array of Int16Array.
+ */
 function readInt16Matrix(reader, count, size) {
   var i, data = [];
   
@@ -229,6 +356,12 @@ function readInt16Matrix(reader, count, size) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} count Rows.
+ * @param {number} size Columns.
+ * @return {array} The read array of Int32Array.
+ */
 function readInt32Matrix(reader, count, size) {
   var i, data = [];
   
@@ -239,6 +372,12 @@ function readInt32Matrix(reader, count, size) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} count Rows.
+ * @param {number} size Columns.
+ * @return {array} The read array of Uint8Array.
+ */
 function readUint8Matrix(reader, count, size) {
   var i, data = [];
   
@@ -249,6 +388,12 @@ function readUint8Matrix(reader, count, size) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} count Rows.
+ * @param {number} size Columns.
+ * @return {array} The read array of Uint16Array.
+ */
 function readUint16Matrix(reader, count, size) {
   var i, data = [];
   
@@ -259,6 +404,12 @@ function readUint16Matrix(reader, count, size) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} count Rows.
+ * @param {number} size Columns.
+ * @return {array} The read array of Uint32Array.
+ */
 function readUint32Matrix(reader, count, size) {
   var i, data = [];
   
@@ -269,6 +420,12 @@ function readUint32Matrix(reader, count, size) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} count Rows.
+ * @param {number} size Columns.
+ * @return {array} The read array of Float32Array.
+ */
 function readFloat32Matrix(reader, count, size) {
   var i, data = [];
   
@@ -279,6 +436,12 @@ function readFloat32Matrix(reader, count, size) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} count Rows.
+ * @param {number} size Columns.
+ * @return {array} The read array of Float64Array.
+ */
 function readFloat64Matrix(reader, count, size) {
   var i, data = [];
   
@@ -289,18 +452,34 @@ function readFloat64Matrix(reader, count, size) {
   return data;
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @return {Float32Array} The read array.
+ */
 function readVector2(reader) {
   return readFloat32Array(reader, 2);
 }
   
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @return {Float32Array} The read array.
+ */
 function readVector3(reader) {
   return readFloat32Array(reader, 3);
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @return {Float32Array} The read array.
+ */
 function readVector4(reader) {
   return readFloat32Array(reader, 4);
 }
 
+/**
+ * @param {BinaryReader} reader Binary reader.
+ * @return {Float32Array} The read array.
+ */
 function readMatrix(reader) {
   return readFloat32Array(reader, 16);
 }

@@ -1,3 +1,18 @@
+/**
+ * @memberof GL
+ * @class A WebGL sphere.
+ * @name Sphere
+ * @param {number} x X coordinate.
+ * @param {number} y Y coordinate.
+ * @param {number} z Z coordinate.
+ * @param {number} latitudeBands Latitude bands.
+ * @param {number} longitudeBands Longitude bands.
+ * @param {number} radius The sphere radius.
+ * @property {WebGLBuffer} vertexBuffer
+ * @property {WebGLBuffer} indexBuffer
+ * @property {Float32Array} vertexArray
+ * @property {Float32Array} indexArray
+ */
 function Sphere(x, y, z, latitudeBands, longitudeBands, radius) {
   var vertexData = [];
   var indexData = [];
@@ -64,6 +79,13 @@ function Sphere(x, y, z, latitudeBands, longitudeBands, radius) {
 }
 
 Sphere.prototype = {
+  /**
+   * Renders a sphere with the given shader.
+   *
+   * @memberof GL.Sphere
+   * @instance
+   * @param {GL.Shader} shader
+   */
   render: function (shader) {
     ctx.bindBuffer(ctx.ARRAY_BUFFER, this.vertexBuffer);
     
@@ -75,6 +97,13 @@ Sphere.prototype = {
     ctx.drawElements(ctx.TRIANGLES, this.indexArray.length, ctx.UNSIGNED_SHORT, 0);
   },
   
+  /**
+   * Renders a sphere's lines with the given shader.
+   *
+   * @memberof GL.Sphere
+   * @instance
+   * @param {Shader} shader
+   */
   renderLines: function (shader) {
     ctx.bindBuffer(ctx.ARRAY_BUFFER, this.vertexBuffer);
     

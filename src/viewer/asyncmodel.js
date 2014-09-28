@@ -1,3 +1,13 @@
+/**
+ * Creates a new AsyncModel.
+ *
+ * @class The parent of {@link BaseModel}. Takes care of all the asynchronous aspects of loading models.
+ * @name AsyncModel
+ * @mixes Async
+ * @param {string} source The source url that this model will be loaded from.
+ * @param {number} id The id of this model.
+ * @param {object} textureMap An object with texture path -> absolute urls mapping.
+ */
 function AsyncModel(source, id, textureMap) {
   this.ready = false;
   this.fileType = getFileExtension(source).toLowerCase();
@@ -8,7 +18,6 @@ function AsyncModel(source, id, textureMap) {
   // All the instances owned by this model
   this.instances = [];
   
-  // Use the Async mixin
   this.setupAsync();
   
   getFile(source, !!AsyncModel.handlers[this.fileType][1], this.setup.bind(this, textureMap || {}), onerror.bind(undefined, this), onprogress.bind(undefined, this));
@@ -19,11 +28,18 @@ AsyncModel.handlers = {
   "m3": [M3.Model, 1]
 };
 
-
 AsyncModel.prototype = {
+  /**
+    * Setup a model once it finishes loading.
+    *
+    * @memberof AsyncModel
+    * @instance
+    * @param {object} textureMap An object with texture path -> absolute urls mapping.
+    * @param {XMLHttpRequestProgressEvent} e The XHR event.
+    */
   setup: function (textureMap, e) {
     var status = e.target.status;
-    
+    console.log(e);
     if (status === 200) {
       var model = new AsyncModel.handlers[this.fileType][0](e.target.response, textureMap, context, onerror.bind(undefined, {isModel: 1, source: this.source, id: this.id}));
       
@@ -31,7 +47,7 @@ AsyncModel.prototype = {
         this.model = model;
         this.ready = true;
       
-        this.runAsyncActions();
+        this.runActions();
         
         onload(this);
       }
@@ -40,48 +56,99 @@ AsyncModel.prototype = {
     }
   },
  
+  /**
+    * Request a model to setup a model instance.
+    *
+    * @memberof AsyncModel
+    * @instance
+    * @param {AsyncModelInstance} instance The requester.
+    * @param {object} textureMap The requester's texture map.
+    */
   setupInstance: function (instance, textureMap) {
     if (this.ready) {
       this.instances.push(instance);
       
       instance.setup(this.model, textureMap);
     } else {
-      this.addAsyncAction("setupInstance", arguments);
+      this.addAction("setupInstance", arguments);
     }
   },
   
-  // Return the name of the model itself
+  /**
+    * Gets the name of a model.
+    *
+    * @memberof AsyncModel
+    * @instance
+    * @returns {string} The model's name.
+    */
   getName: function () {
     if (this.ready) {
-      return this.model.name;
+      return this.model.getName();
     }
   },
   
-  // Return the source of this model
+  /**
+    * Gets the source that a model was loaded from.
+    *
+    * @memberof AsyncModel
+    * @instance
+    * @returns {string} The model's source.
+    */
   getSource: function () {
     return this.source;
   },
   
+  /**
+    * Gets a model's attachment.
+    *
+    * @memberof AsyncModel
+    * @instance
+    * @param {number} id The id of the attachment.
+    * @returns {Node} The attachment.
+    */
   getAttachment: function (id) {
     if (this.ready) {
       return this.model.getAttachment(id);
     }
   },
   
+  /**
+    * Gets a model's camera.
+    *
+    * @memberof AsyncModel
+    * @instance
+    * @param {number} id The id of the camera.
+    * @returns {Camera} The camera.
+    */
   getCamera: function (id) {
     if (this.ready) {
       return this.model.getCamera(id);
     }
   },
   
+  /**
+    * Overrides a texture used by a model.
+    *
+    * @memberof AsyncModel
+    * @instance
+    * @param {string} path The texture path that gets overriden.
+    * @paran {string} override The new absolute path that will be used.
+    */
   overrideTexture: function (path, override) {
     if (this.ready) {
       this.model.overrideTexture(path, override);
     } else {
-      this.addAsyncAction("overrideTexture", arguments);
+      this.addAction("overrideTexture", arguments);
     }
   },
   
+  /**
+    * Gets a model's texture map.
+    *
+    * @memberof AsyncModel
+    * @instance
+    * @returns {object} The texture map.
+    */
   getTextureMap: function () {
     if (this.ready) {
       var textureMap = this.model.getTextureMap();
@@ -95,36 +162,78 @@ AsyncModel.prototype = {
     }
   },
   
+  /**
+    * Gets a model's sequences list.
+    *
+    * @memberof AsyncModel
+    * @instance
+    * @returns {array} The list of sequence names.
+    */
   getSequences: function () {
     if (this.ready) {
       return this.model.getSequences();
     }
   },
   
-  getCameras: function () {
-    if (this.ready) {
-      return this.model.getCameras();
-    }
-  },
-  
-  getBoundingShapes: function () {
-    if (this.ready) {
-      return this.model.getBoundingShapes();
-    }
-  },
-  
+  /**
+    * Gets a model's attachments list.
+    *
+    * @memberof AsyncModel
+    * @instance
+    * @returns {array} The list of attachment names.
+    */
   getAttachments: function () {
     if (this.ready) {
       return this.model.getAttachments();
     }
   },
   
+  /**
+    * Gets a model's bounding shapes list.
+    *
+    * @memberof AsyncModel
+    * @instance
+    * @returns {array} The list of bounding shape names.
+    */
+  getBoundingShapes: function () {
+    if (this.ready) {
+      return this.model.getBoundingShapes();
+    }
+  },
+  
+  /**
+    * Gets a model's cameras list.
+    *
+    * @memberof AsyncModel
+    * @instance
+    * @returns {array} The list of camera names.
+    */
+  getCameras: function () {
+    if (this.ready) {
+      return this.model.getCameras();
+    }
+  },
+  
+  /**
+    * Gets a model's number of meshes.
+    *
+    * @memberof AsyncModel
+    * @instance
+    * @returns {number} The number of meshes.
+    */
   getMeshCount: function () {
     if (this.ready) {
       return this.model.getMeshCount();
     }
   },
   
+  /**
+    * Gets a list of instances that a model owns.
+    *
+    * @memberof AsyncModel
+    * @instance
+    * @returns {array} The instance list.
+    */
   getInstances: function () {
     if (this.ready) {
       var i,
@@ -145,6 +254,13 @@ AsyncModel.prototype = {
     }
   },
   
+  /**
+    * Gets a model's information. This includes most of the getters.
+    *
+    * @memberof AsyncModel
+    * @instance
+    * @returns {object} The model information.
+    */
   getInfo: function () {
     if (this.ready) {
       var model = this.model;
@@ -163,6 +279,13 @@ AsyncModel.prototype = {
     }
   },
   
+  /**
+    * Gets a model's representation as an object that will be converted to JSON.
+    *
+    * @memberof AsyncModel
+    * @instance
+    * @returns {object} The JSON representation.
+    */
   toJSON: function () {
     var textureMap = {},
           localTextureMap = this.getTextureMap(),
@@ -193,4 +316,4 @@ AsyncModel.prototype = {
   }
 };
 
-mixin(Async, AsyncModel);
+mixin(Async, AsyncModel.prototype);

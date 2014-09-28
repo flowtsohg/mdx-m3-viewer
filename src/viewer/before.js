@@ -1,3 +1,11 @@
+/**
+ * @class The main model viewer object.
+ * @name ModelViewer
+ * @param {HTMLCanvasElement} canvas A canvas element.
+ * @param {object} urls An object with the necessary methods to get urls from the viewer.
+ * @param {function} onmessage A callback function, which the viewer will call with messages.
+ * @param {boolean} debugMode If true, the viewer will log the loaded models and their parser to the console.
+ */
 window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   var grassPath = urls.localFile("grass.png");
   var waterPath = urls.localFile("water.png");

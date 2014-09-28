@@ -7,9 +7,7 @@ var DDSD_MIPMAPCOUNT = 0x20000;
 var DDPF_FOURCC = 0x4;
 
 var FOURCC_DXT1 = 0x31545844;
-//var FOURCC_DXT2 = 0x32545844;
 var FOURCC_DXT3 = 0x33545844;
-//var FOURCC_DXT4 = 0x34545844;
 var FOURCC_DXT5 = 0x35545844;
 
 function int32ToFourCC(value) {
@@ -245,6 +243,16 @@ function dxt5ToRgba8888(src, width, height) {
   return dst;
 }
 
+/**
+ * @memberof GL
+ * @class A DDS texture decoder.
+ * @name DDSTexture
+ * @param {ArrayBuffer} arrayBuffer The raw texture data.
+ * @param {object} options An object containing options.
+ * @param {function} onerror A function that allows to report errors.
+ * @property {WebGLTexture} id
+ * @property {boolean} ready
+ */
 function DDSTexture(arrayBuffer, options, onerror) {
   var header = new Int32Array(arrayBuffer, 0, 31);
   

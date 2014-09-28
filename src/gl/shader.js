@@ -1,3 +1,15 @@
+/**
+ * @memberof GL
+ * @class A wrapper around WebGL shader units.
+ * @name ShaderUnit
+ * @param {string} source The GLSL source.
+ * @param {number} type The WebGL shader unit identifier - VERTEX_SHADER or FRAGMENT_SHADER.
+ * @param {string} name The owning shader's name.
+ * @property {string} source
+ * @property {number} type
+ * @property {WebGLShader} id
+ * @property {boolean} ready
+ */
 function ShaderUnit(source, type, name) {
   var id = ctx.createShader(type);
   
@@ -18,6 +30,21 @@ function ShaderUnit(source, type, name) {
   }
 }
 
+/**
+ * @memberof GL
+ * @class A wrapper around WebGL shader programs.
+ * @name Shader
+ * @param {string} name The shader's name.
+ * @param {GL.ShaderUnit} vertexUnit The vertex shader unit.
+ * @param {GL.ShaderUnit} fragmentUnit The fragment shader unit.
+ * @property {string} name
+ * @property {GL.ShaderUnit} vertexUnit
+ * @property {GL.ShaderUnit} fragmentUnit
+ * @property {WebGLProgram} id
+ * @property {object} variables
+ * @property {number} attribs
+ * @property {boolean} ready
+ */
 function Shader(name, vertexUnit, fragmentUnit) {
   var id = ctx.createProgram();
   

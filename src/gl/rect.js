@@ -1,3 +1,21 @@
+/**
+ * @memberof GL
+ * @class A WebGL rectangle.
+ * @name Rect
+ * @param {number} x X coordinate.
+ * @param {number} y Y coordinate.
+ * @param {number} z Z coordinate.
+ * @param {number} hw Half of the width.
+ * @param {number} hh Half of the height.
+ * @param {number} stscale A scale that is applied to the texture coordinates.
+ * @property {number} originalSize
+ * @property {number} originalStscale
+ * @property {number} x
+ * @property {number} y
+ * @property {number} z
+ * @property {WebGLBuffer} buffer
+ * @property {Float32Array} data
+ */
 function Rect(x, y, z, hw, hh, stscale) {
   stscale = stscale || 1;
   
@@ -14,6 +32,13 @@ function Rect(x, y, z, hw, hh, stscale) {
 }
 
 Rect.prototype = {
+  /**
+   * Renders a rectangle with the given shader.
+   *
+   * @memberof GL.Rect
+   * @instance
+   * @param {GL.Shader} shader
+   */
   render: function (shader) {
     ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
     
@@ -23,6 +48,14 @@ Rect.prototype = {
     ctx.drawArrays(ctx.TRIANGLE_STRIP, 0, 4);
   },
   
+  /**
+   * Resizes a rectangle..
+   *
+   * @memberof GL.Rect
+   * @instance
+   * @param {number} hw The new half width.
+   * @param {number} hh The new half height.
+   */
   resize: function (hw, hh) {
     var diff = hw / this.originalSize;
     var stscale = this.originalStscale * diff;
