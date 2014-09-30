@@ -14,30 +14,6 @@ A live version can be seen on [Hiveworkshop](http://www.hiveworkshop.com) for wh
 
 ------------------------
 
-#### Usage
-
-```javascript
-viewer = ModelViewer(canvas, urls, onmessage, debugMode)
-```
-| Parameter | Description |
-| ------------- | ------------- |
-| canvas | A \<canvas> element |
-| urls | An object containing methods that return proper urls to download files from. More on this below |
-| onmessage | A function callback. Gets messages from the viewer. **Optional** |
-| debugMode | If true, the viewer will log the Parser and Model structures. **Optional** |
-
-`urls` is an object that is used to retrieve urls for certain types of model and texture paths. It should have the following methods:
-
-| Function | Description |
-| ------------- | ------------- |
-| `header(id)` | Returns the path for a metadata header about a custom resource. More on this [below](#custom-models) |
-| `mpqFile(path)` | Returns a path for a file in any of the Warcraft 3 or Starcraft 2 MPQs |
-| `localFile(path)` | Returns a path for a local file. This should point to a directory with the following images: `grass.png`, `water.png`, `bedrock.png`, and `sky.png` |
-
-If the client has the requierments to run the viewer, the API will be returned, otherwise, null will be returned, and an error message will be dispatched to `onmessage` if it exists.
-
-------------------------
-
 Terminology:
 
 | Term | Description |
@@ -45,96 +21,30 @@ Terminology:
 | Model | Heavy weight object that contains all the vertices, polygon indices, animation data, skeletal structure, and so on |
 | Model Instance | Light weight object that contains a shallow skeleton, particle emitters, animation timers, and so on |
 
-You can have many instances per model.
-Most of the API doesn't deal with models directly, but rather with instances.
-
 ------------------------
 
-#### API
+#### Usage
+
+The API can be seen [here](http://htmlpreview.github.io/?https://raw.githubusercontent.com/flowtsohg/mdx-m3-viewer/master/docs/ModelViewer.html).
+Note that the constructor isn't called with the `new` operator.
+
+```javascript
+viewer = ModelViewer(canvas, urls, onmessage, debugMode)
+```
+
+The `urls` argument must have the following functions in it:
 
 | Function | Description |
 | ------------- | ------------- |
-| **Resources** | |
-| `loadResource(source)` | Load a resource from a given source. The source can be an absolute path to a supported file type, a path to a MDX/M3/BLP/DDS/TGA file in any of the Warcraft 3 and Starcraft 2 MPQs, or a header. If loading from a header, every model and texture in the header will be loaded. |
-| `unloadResource(source)` | Unloads a resource. The source can be a string, or a number. If it is a string, it can be the source of a model or a texture. If it is a number, it must be a valid model or instance ID. If a model is removed, all the instances owned by it will be removed too. |
-| **Visibility** | |
-| `setVisibility(objectId, b)` | Shows or hides an instance. |
-| `getVisibility(objectId)` | Get the visibility status of an instance. |
-| `setMeshVisibility(objectId, meshId, b)` | Set the visibility of a mesh in an instance. |
-| `getMeshVisibility(objectId, meshId)` | Get the visibility of a mesh in an instance. |
-| **Transformations** | |
-| `setLocation(objectId, v)` | Set the location of an instance. |
-| `move(objectId, v)` | Move an instance. |
-| `getLocation(objectId)` | Get the location of an instance. |
-| `setRotationQuat(objectId, q)` | Set the rotation of an instance to a quaternion. |
-| `rotateQuat(objectId, q)` | Rotate an instance with a quaternion. |
-| `getRotationQuat(objectId)` | Get the rotation of an instance as a quaternion. |
-| `setRotation(objectId, v)` | Set the rotation of an instance with a yaw-pitch-roll vector. |
-| `rotate(objectId, v)` | Rotate an instance with a yaw-pitch-roll vector. |
-| `getRotation(objectId)` | Get the rotation of an instance as a yaw-pitch-roll vector. |
-| `setScale(objectId, n)` | Set the scale of an instance. |
-| `scale(objectId, n)` | Scale an instance. |
-| `getScale(objectId)` | Get the scale of an instance. |
-| `setParent(objectId, parentId, attachmentId)` | Set the parent of an instance to another instance, with an optional attachment point owned by that parent. |
-| `getParent(objectId)` | Get the parent of an instance as an array. The first index is the parent ID, the second is the attachment ID. |
-| **Textures and team colors** | |
-| `setTeamColor(objectId, teamId)` | Set the team color used by an instance. |
-| `getTeamColor(objectId)` | Get the team color of an instance. |
-| `overrideTexture(objectId, oldPath, newPath)` | Override a texture of an instance or a model with another texture. If objectId is an instance, overrides the texture locally just for that instance. If objectId is a model, it overrides the texture for the model, which affects all instances that don't explicitly override this texture. |
-| `getTextureMap(objectId)` | Get the texture map of an instance or model. |
-| **Sequences** | |
-| `setSequence(objectId, sequenceId)` | Set the sequence of an instance. |
-| `stopSequence(objectId)` | Stop the sequence of an instance. Equivalent to setSequence with sequence ID -1. |
-| `getSequence(objectId)` | Get the current sequence of an instance. |
-| `setSequenceLoopMode(objectId, mode)` | Sets the sequence loop mode of an instance. Possible values are 0 for default, 1 for never, and 2 for always. |
-| `getSequenceLoopMode(objectId)` | Get the sequence loop mode of an instance. |
-| **Information getters** | |
-| `getInfo(objectId)` | Get an object containing all the information of an instance or model. This is equivalent to calling all the different getters together. |
-| `getModel(source)` | Return the model ID that an instance or path points to. Returns null if given a path that no model was loaded with. Returns null if given an invalid object ID. Returns source if it is a model object ID. |
-| `getSource(objectId)` | Get the source an object was created with. If the object is an instance, returns the source that made the model this instance points to. |
-| `getSequences(objectId)` | Get a list of the sequences owned by an object. Proxies to the owning model if the given object is an instance. Returns null if the object ID is invalid, or if the model didn't finish loading. |
-| `getAttachments(objectId)` | Get a list of the attachment points owned by an object. Proxies to the owning model if the given object is an instance. Returns null if the object ID is invalid, or if the model didn't finish loading. |
-| `getCameras(objectId)` | Get a list of the cameras owned by an object. Proxies to the owning model if the given object is an instance. Returns null if the object ID is invalid, or if the model didn't finish loading. |
-| `getBoundingShapes(objectId)` | Get the list of bounding shapes owned by an object. Proxies to the owning model if the given object is an instance. Returns null if the object ID is invalid, or if the model didn't finish loading. |
-| `getMeshCount(objectId)` | Get the number of meshes an object has. Proxies to the owning model if the given object is an instance. |
-| `getInstances(objectId)` | Get the IDs of all the instances owned by a model. |
-| **Global settings** | |
-| `setAnimationSpeed(n)` | Set the animation speed. |
-| `getAnimationSpeed()` | Get the animation speed. |
-| `setWorldMode(mode)` | Set the drawn world. Possible values are 0 for nothing, 1 for sky, 2 for sky and ground, and 3 for sky and water. |
-| `getWorldMode(mode)` | Get the world mode. |
-| `setGroundSize(size)` | Set the ground size. |
-| `getGroundSize()` | Get the ground size. |
-| `setMeshesMode(b)` | Shows or hides all of the meshes. |
-| `getMeshesMode()` | Get the meshes render mode. |
-| `setEmittersMode(b)` | Shows or hides all of the emitters. |
-| `getEmittersMode()` | Get the emitters render mode. |
-| `setBoundingShapesMode(b)` | Shows or hides the bounding shapes for all instances. |
-| `getBoundingShapesMode()` | Get the bounding shapes mode. |
-| `setTeamColorsMode(b)` | Shows or hides team colors for all instances. |
-| `getTeamColorsMode()` | Get the team colors mode. |
-| `setPolygonMode(b)` | Set the polygon render mode. True for filled, false for wireframe. |
-| `getPolygonMode()` | Get the polygon render mode. |
-| `setShader(id)` | Set the shader to be used. Possible values are 0 for `standard`, 1 for `diffuse`, 2 for `normals`, 3 for `uvs`, 4 for `normal map`, 5 for `specular map`, 6 for `specular map + normal map`, 7 for `emissive`, 8 for `unshaded`, 9 for `unshaded + normal map`, 10 for `decal`, and finally 11 for `white`. Note: only the normals, uvs, and white shaders affect Warcraft 3 models, the rest only affect Starcraft 2 models. |
-| `getShader()` | Get the shader used for Starcraft 2 models. |
-| `setCamera(objectId, cameraId)` | Set the camera. If either objectId or cameraId is equal to -1, then the free-form camera is used. |
-| `getCamera()` | Get the camera. |
-| `panCamera(x, y)` | Pan the camera on the x and y axes. |
-| `rotateCamera(x, y)` | Rotate the camera on the x and y axes. |
-| `zoomCamera(x)` | Zoom the camera by a factor. |
-| `resetCamera()` | Reset the camera back to the initial state. |
-| `selectInstance(x, y)` | Selects an instance given a screen space coordinate on the canvas. Returns the ID of the selected instance, or -1 if no instance was selected. |
-| Scene | |
-| `saveScene()` | Save the scene as a string |
-| `loadScene(scene)` | Load a scene from a previously saved string. |
-| **Extending** | |
-| `registerModelHandler(fileType, modelHandler, modelInstanceHandler, binary)` | Used for extending. See the extending section. |
-| `registerTextureHandler(fileType, textureHandler)` | Used for extending. See the extending section. |
+| `header(id)` | Returns the path for a metadata header about a custom resource. More on this in the [custom models section](#custom-models) |
+| `mpqFile(path)` | Returns a path for a file in any of the Warcraft 3 or Starcraft 2 MPQs |
+| `localFile(path)` | Returns a path for a local file. This should point to a directory with the following images: `grass.png`, `water.png`, `bedrock.png`, and `sky.png` |
 
+If the client has the requierments to run the viewer, the API will be returned, otherwise, null will be returned, and an error message will be dispatched to `onmessage` if it exists.
 
 ------------------------
 
-Models and textures can send multiple messages in their life span - one when they begin to load, possibly multiple messages as their loading progresses, one if they loaded successfuly, and one if an error occured.
+Models and textures can send multiple messages in their life span, upon beginning to load, loading progress, finishing to load, and errors.
 Instances send a single event when they get loaded.
 Use the `onmessage` callback to keep track of everything.
 The messages are JavaScript objects of the form:
@@ -180,59 +90,16 @@ The registerModelHandler, and registerTextureHandler, register a new handler for
 The handlers must conform to specific APIs.
 
 ##### Model:
-
-| Function | Description |
-| -------- | ----------- |
-| `Constructor(data, textureMap, context)` | Your constructor |
-| `render(instance, context)` | Called for geometry rendering |
-| `renderEmitters(instance, context)` | Called for particle emitter rendering |
-| `renderBoundingShapes(instance, context)` | Called for bounding shape rendering |
-| `renderColor(instance, color, context)` | Called for constant-color rendering. Used for mouse picking |
-| `getName()` | Get the model's name |
-| `getAttachment(id)` | An attachment node on the model. The attachment must have a getTransformation() method that returns a matrix |
-| `getCamera(id)` | Get camera object |
-| `overrideTexture(path, override)` | Override a texture defined by the model with another texture |
-| `getTextureMap()` | Get the model's texture map |
-| `getSequences()` | Get the model's list of sequences |
-| `getCameras()` | Get the model's list of cameras |
-| `getBoundingShapes()` | Get the model's list of bounding shapes |
-| `getAttachments()` | Get the model's list of attachments |
-| `getMeshCount()` | Get the number of meshes in the model |
-| `ready` | Must be set to true if everything went ok. |
+The same API as [BaseModel](http://htmlpreview.github.io/?https://raw.githubusercontent.com/flowtsohg/mdx-m3-viewer/master/docs/BaseModel.html).
 
 ##### ModelInstance:
-
-| Function | Description |
-| -------- | ----------- |
-| `Constructor(model, textureMap)` | Your constructor |
-| `update(worldMatrix, context)` | Called to update the instance. worldMatrix is a matrix transformation that needs to be applied to this instance's root node, if you want it to be transformable by the API |
-| `render(context)` | Called to render the instance's geometry |
-| `renderEmitters(context)` | Called to render the instance's particle emitters |
-| `renderBoundingShapes(context)` | Called to render the instance's bounding shapes |
-| `renderColor(color, context)` | Called to render the instance with a constant color |
-| `getName()` | Get the name of the instance. Usually proxies to the owning model. |
-| `getAttachment(id)` | Get an attachment node on the instance. The attachment must have a getTransformation() method that returns a matrix |
-| `overrideTexture(path, override)` | Override a texture in the instance with another texture |
-| `getTextureMap()` | Get the instance's texture map |
-| `setTeamColor(id)` | Set the instance's team color |
-| `setSequence(id)` | Set the instance's sequence |
-| `setSequenceLoopMode(id)` | Set the instance's sequence loop mode |
-| `getMeshVisibilities()` | Get the instance's mesh visibilities |
-| `setMeshVisibility(meshId, b)` | Set the visibility of a mesh for this instance |
-| `getMeshVisibility(meshId)` | Get the visibility of a mesh in this instance |
+The same API as [BaseModelInstance](http://htmlpreview.github.io/?https://raw.githubusercontent.com/flowtsohg/mdx-m3-viewer/master/docs/BaseModelInstance.html).
 
 ##### Texture:
+The same API as [Texture](http://htmlpreview.github.io/?https://raw.githubusercontent.com/flowtsohg/mdx-m3-viewer/master/docs/Texture
+.html).
 
-| Function | Description |
-| -------- | ----------- |
-| `Constructor(data, options, onerror, glContext)` | Your constructor. `options` is an object that you can supply when loading a texture. glContext is a WebGLRenderingContext object  |
-| `ready` | Must be set to true if everything went ok |
-| `id` | A valid WebGL texture ID generated with WebGLRenderingContext.createTexture() |
-
-In addition to the register functions, the viewer also creates global objects that make it easier to setup  the above object-specific APIs.
-These objects are `BaseModel`, `BaseModelInstance`.
-
-Since textures have no methods, there is no base object for them.
+BaseModel and BaseModelInstance are exported as global objects. They can be extended to ease the creation of making handlers.
 
 An example of setting up a new texture handler:
 ```js
