@@ -1,10 +1,7 @@
-  textureHandlers["png"] = Texture;
-  textureHandlers["gif"] = Texture;
-  textureHandlers["jpg"] = Texture;
-  textureHandlers["blp"] = BLPTexture;
-  textureHandlers["dds"] = DDSTexture;
-  textureHandlers["tga"] = TGATexture;
-    
+  textureHandlers["png"] = NativeTexture;
+  textureHandlers["gif"] = NativeTexture;
+  textureHandlers["jpg"] = NativeTexture;
+  
   return {
     setPerspective: setPerspective,
     setOrtho: setOrtho,

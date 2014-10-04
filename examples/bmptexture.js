@@ -1,6 +1,6 @@
 // A simple 24-bit BMP handler
 // ctx is a WebGLRenderingContext object.
-function BMPTexture(arrayBuffer, options, onerror, ctx) {
+function BMPTexture(arrayBuffer, options, ctx, onerror, onload) {
   // Simple binary reader implementation, see src/binaryreader.
   var binaryReader = new BinaryReader(arrayBuffer);
   
@@ -46,6 +46,6 @@ function BMPTexture(arrayBuffer, options, onerror, ctx) {
   ctx.pixelStorei(ctx.UNPACK_FLIP_Y_WEBGL, 0);
   ctx.generateMipmap(ctx.TEXTURE_2D);
   
-  this.id = id; // Must be set
-  this.ready = true; // Must be set
+  this.id = id; // If the id isn't set, this texture wont be used
+  this.ready = true; // If the ready status isn't set, the texture wont be automatically reported as loaded. The onload callback is used for manual reporting.
 }

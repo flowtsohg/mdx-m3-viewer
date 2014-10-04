@@ -6,11 +6,11 @@ var interpolator = (function () {
     if (type === 0) {
       return a;
     } else if (type === 1) {
-      return math.lerp(a, d, t);
+      return Math.lerp(a, d, t);
     } else if (type === 2) {
-      return math.hermite(a, b, c, d, t);
+      return Math.hermite(a, b, c, d, t);
     } else if (type === 3) {
-      return math.bezier(a, b, c, d, t);
+      return Math.bezier(a, b, c, d, t);
     }
     
     return 0;

@@ -105,17 +105,13 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   var cameraMatrix = mat4.create();
   var inverseCamera = mat4.create();
   var inverseCameraRotation = mat4.create();
-  var xAxis = [1, 0, 0];
-  var yAxis = [0, 1, 0];
-  var zAxis = [0, 0, 1];
   var lightPosition = [0, 0, 10000];
   var cameraPosition = vec3.create();
   var grass_water;
   var bedrock;
   var sky;
   var uvOffset = [0, 0];
-  var uvSpeed = [math.random(-0.004, 0.004), math.random(-0.004, 0.004)];
-  var upDir = [0, 0, 1];
+  var uvSpeed = [Math.randomRange(-0.004, 0.004), Math.randomRange(-0.004, 0.004)];
   
   var idFactory = -1;
   var modelArray = []; // All models
@@ -124,33 +120,9 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   var modelMap = {}; // Reference by source
   var instanceMap = {}; // Reference by color
   
-  var context = {
-    frameTime: 1000 / 60,
-    camera: [[0, 0, 0], [0, 0]],
-    instanceCamera: [-1, -1],
-    worldMode: 2,
-    groundSize: 256,
-    meshesMode: true,
-    emittersMode: true,
-    polygonMode: true,
-    teamColorsMode: true,
-    boundingShapesMode: false,
-    texturesMode: true,
-    shader: 0,
-    particleRect: [vec3.fromValues(-1, -1, 0), vec3.fromValues(-1, 1, 0), vec3.fromValues(1, 1, 0), vec3.fromValues(1, -1, 0), vec3.fromValues(1, 0, 0), vec3.fromValues(0, 1, 0), vec3.fromValues(0, 0, 1)],
-    particleBillboardedRect: [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()],
-    gl: gl
-  };
-  
-  var DEBUG_MODE = debugMode;
-  
-  var supportedFileTypes = {"mdx":1, "m3":1, "blp":1, "dds":1, "tga":1, "png":1, "gif":1, "jpg":1};
-  var supportedModelFileTypes = {"mdx":1, "m3":1};
-  var supportedTextureFileTypes = {"blp":1, "dds":1, "tga":1, "png":1, "gif":1, "jpg":1};
-  
-  // If an object has a visibility value below the cutoff, it shouldn't render.
-  // This value is taken from Blizzard's Art Tools.
-  var VISIBILITY_CUTOFF = 0.75;
+  var supportedFileTypes = {"png":1, "gif":1, "jpg":1};
+  var supportedModelFileTypes = {};
+  var supportedTextureFileTypes = {"png":1, "gif":1, "jpg":1};
   
   var teamColors = [
     [255, 3, 3],
@@ -184,28 +156,51 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     "white"
   ];
   
-  function bindTexture(source, unit, modelTextureMap, instanceTextureMap) {
-    var texture;
-    
-    if (modelTextureMap[source]) {
-      texture = modelTextureMap[source];
+  // Used by Mdx.ParticleEmitter since they don't need to be automatically updated and rendered
+  function loadInternalResource(source) {
+    if (!modelMap[source]) {
+      modelMap[source] = new AsyncModel(source);
+      onloadstart(modelMap[source]);
     }
     
-    if (instanceTextureMap[source]) {
-      texture = instanceTextureMap[source];   
-    }
+    var instance = new AsyncModelInstance(modelMap[source]);
     
-    if (!context.teamColorsMode && source.endsWith("00.blp")) {
-      texture = null;
-    }
+    onloadstart(instance);
     
-    gl.bindTexture(texture, unit);
+    // Avoid reporting this instance since it's internal
+    instance.delayOnload = true;
+    
+    return instance;
   }
+  
+  var context = {
+    frameTime: 1000 / 60,
+    camera: [[0, 0, 0], [0, 0]],
+    instanceCamera: [-1, -1],
+    worldMode: 2,
+    groundSize: 256,
+    meshesMode: true,
+    emittersMode: true,
+    polygonMode: true,
+    teamColorsMode: true,
+    boundingShapesMode: false,
+    texturesMode: true,
+    shader: 0,
+    particleRect: [vec3.fromValues(-1, -1, 0), vec3.fromValues(-1, 1, 0), vec3.fromValues(1, 1, 0), vec3.fromValues(1, -1, 0), vec3.fromValues(1, 0, 0), vec3.fromValues(0, 1, 0), vec3.fromValues(0, 0, 1)],
+    particleBillboardedRect: [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()],
+    gl: gl,
+    debugMode: debugMode,
+    teamColors: teamColors,
+    shaders: shaders,
+    cameraPosition: cameraPosition,
+    lightPosition: lightPosition,
+    loadInternalResource: loadInternalResource
+  };
   
   function saveContext() {
     var camera = context.camera,
-          translation = math.floatPrecisionArray(camera[0], 0),
-          rotation = math.floatPrecisionArray(math.toDeg(camera[1]), 0);
+          translation = Array.setFloatPrecision(camera[0], 0),
+          rotation = Array.setFloatPrecision(Array.toDeg(camera[1]), 0);
     
     return [
       context.frameTime / 1000 * 60,
@@ -225,7 +220,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   function loadContext(object) {
     var camera = object[1],
           translation = camera[0],
-          rotation = math.toRad(camera[1]);
+          rotation = Array.toRad(camera[1]);
     
     context.frameTime = object[0] / 60 * 1000;
     context.camera = [translation, rotation],

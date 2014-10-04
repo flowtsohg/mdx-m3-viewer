@@ -36,10 +36,7 @@ function AsyncModelInstance(asyncModel, id, color, textureMap) {
   asyncModel.setupInstance(this, textureMap || {});
 }
 
-AsyncModelInstance.handlers = {
-  "mdx": Mdx.ModelInstance,
-  "m3": M3.ModelInstance
-};
+AsyncModelInstance.handlers = {};
 
 AsyncModelInstance.prototype = {
   /**
@@ -51,7 +48,7 @@ AsyncModelInstance.prototype = {
     * @param {object} textureMap An object with texture path -> absolute urls mapping.
     */
   setup: function (model, textureMap) {
-    this.instance = new AsyncModelInstance.handlers[this.fileType](model, textureMap);
+    this.instance = new AsyncModelInstance.handlers[this.fileType](model, textureMap, context);
     
     this.ready = true;
     
@@ -63,7 +60,7 @@ AsyncModelInstance.prototype = {
       onload(this);
     }
     
-    if (DEBUG_MODE) {
+    if (context.debugMode) {
       console.log(this.instance);
     }
   },
@@ -485,7 +482,7 @@ AsyncModelInstance.prototype = {
     // For some reason, when typed arrays are JSON stringified they change to object notation rather than array notation.
     // This is why I don't bother to access the location and rotation directly.
     var location = this.getLocation(),
-          rotation = math.toDeg(this.getRotation()),
+          rotation = Array.toDeg(this.getRotation()),
           scale = this.getScale(),
           textureMap = {},
           localTextureMap = this.getTextureMap(),
@@ -507,9 +504,9 @@ AsyncModelInstance.prototype = {
     }
     
     // To avoid silly numbers like 1.0000000000000002
-    location = math.floatPrecisionArray(location, 2);
-    rotation = math.floatPrecisionArray(rotation, 0);
-    scale = math.floatPrecision(scale, 2);
+    location = Array.setFloatPrecision(location, 2);
+    rotation = Array.setFloatPrecision(rotation, 0);
+    scale = Math.setFloatPrecision(scale, 2);
     
     // Turn booleans to numbers to shorten the string.
     for (i = 0, l = visibilities.length; i < l; i++) {
@@ -551,7 +548,7 @@ AsyncModelInstance.prototype = {
     this.setSequence(object[3]);
     this.setSequenceLoopMode(object[4]);
     this.setLocation(object[5]);
-    this.rotate(math.toRad(object[6]));
+    this.rotate(Array.toRad(object[6]));
     this.setScale(object[7]);
     this.setTeamColor(object[9]);
     

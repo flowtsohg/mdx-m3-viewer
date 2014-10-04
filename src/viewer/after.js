@@ -41,30 +41,7 @@ function setupColor(width, height) {
   
   addEvent(window, "resize", resetViewport);
   
-  // Used by Mdx.ParticleEmitter since they don't need to be automatically updated and rendered
-  function loadInternalModelInstance(source) {
-    if (!modelMap[source]) {
-      modelMap[source] = new AsyncModel(source);
-    }
-    
-    var instance = new AsyncModelInstance(modelMap[source]);
-    
-    // Avoid reporting this instance since it's internal
-    instance.delayOnload = true;
-    
-    return instance;
-  }
-  
   resetCamera();
-  
-  var number;
-  
-  for (var i = 0; i < 13; i++) {
-    number = ((i < 10) ? "0" + i : i);
-    
-    gl.loadTexture(urls.mpqFile("ReplaceableTextures/TeamColor/TeamColor" + number + ".blp"));
-    gl.loadTexture(urls.mpqFile("ReplaceableTextures/TeamGlow/TeamGlow" + number + ".blp"));
-  }
       
   gl.createShader("world", SHADERS.vsworld, SHADERS.psworld);
   gl.createShader("white", SHADERS.vswhite, SHADERS.pswhite);
@@ -93,14 +70,14 @@ function setupColor(width, height) {
       var x = context.camera[1][0];
 
       mat4.translate(cameraMatrix, cameraMatrix, context.camera[0]);
-      mat4.rotate(cameraMatrix, cameraMatrix, x, xAxis);
-      mat4.rotate(cameraMatrix, cameraMatrix, z, zAxis);
+      mat4.rotate(cameraMatrix, cameraMatrix, x, vec3.UNIT_X);
+      mat4.rotate(cameraMatrix, cameraMatrix, z, vec3.UNIT_Z);
       
-      mat4.rotate(inverseCameraRotation, inverseCameraRotation, -z, zAxis);
-      mat4.rotate(inverseCameraRotation, inverseCameraRotation, -x, xAxis);
+      mat4.rotate(inverseCameraRotation, inverseCameraRotation, -z, vec3.UNIT_Z);
+      mat4.rotate(inverseCameraRotation, inverseCameraRotation, -x, vec3.UNIT_X);
       
       mat4.invert(inverseCamera, cameraMatrix);
-      vec3.transformMat4(cameraPosition, zAxis, inverseCamera);
+      vec3.transformMat4(cameraPosition, vec3.UNIT_Z, inverseCamera);
     } else {
       var instance = modelInstanceMap[context.instanceCamera[0]];
       
@@ -328,7 +305,7 @@ function setupColor(width, height) {
       var keys = Object.keys(object.textures);
       var textureMap = {};
       
-      if (DEBUG_MODE) {
+      if (context.debugMode) {
         console.log(object);
       }
       
@@ -1351,8 +1328,8 @@ function setupColor(width, height) {
     */
   function rotateCamera(x, y) {
     context.instanceCamera[1] = -1;
-    context.camera[1][0] += math.toRad(x);
-    context.camera[1][1] += math.toRad(y);
+    context.camera[1][0] += Math.toRad(x);
+    context.camera[1][1] += Math.toRad(y);
   }
   
   /**
@@ -1378,7 +1355,7 @@ function setupColor(width, height) {
     context.camera[0][0] = 0;
     context.camera[0][1] = 0;
     context.camera[0][2] = -300;
-    context.camera[1] = [math.toRad(315), math.toRad(225)];
+    context.camera[1] = [Math.toRad(315), Math.toRad(225)];
   }
   
   // ------

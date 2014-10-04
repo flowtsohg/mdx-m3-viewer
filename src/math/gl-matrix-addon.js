@@ -1,3 +1,7 @@
+vec3.UNIT_X = vec3.fromValues(1, 0, 0);
+vec3.UNIT_Y = vec3.fromValues(0, 1, 0);
+vec3.UNIT_Z = vec3.fromValues(0, 0, 1);
+
 vec3.hermite = function (out, a, b, c, d, t) {
   var factorTimes2 = t * t,
       factor1 = factorTimes2 * (2 * t - 3) + 1,

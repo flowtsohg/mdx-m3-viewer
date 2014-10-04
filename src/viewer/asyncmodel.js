@@ -23,10 +23,7 @@ function AsyncModel(source, id, textureMap) {
   getFile(source, !!AsyncModel.handlers[this.fileType][1], this.setup.bind(this, textureMap || {}), onerror.bind(undefined, this), onprogress.bind(undefined, this));
 }
 
-AsyncModel.handlers = {
-  "mdx": [Mdx.Model, 1],
-  "m3": [M3.Model, 1]
-};
+AsyncModel.handlers = {};
 
 AsyncModel.prototype = {
   /**
@@ -39,9 +36,13 @@ AsyncModel.prototype = {
     */
   setup: function (textureMap, e) {
     var status = e.target.status;
-    console.log(e);
+    
     if (status === 200) {
       var model = new AsyncModel.handlers[this.fileType][0](e.target.response, textureMap, context, onerror.bind(undefined, {isModel: 1, source: this.source, id: this.id}));
+      
+      if (context.debugMode) {
+          console.log(model);
+      }
       
       if (model.ready) {
         this.model = model;

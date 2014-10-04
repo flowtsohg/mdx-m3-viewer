@@ -300,7 +300,7 @@ function onloadTexture(source, handler, options, e) {
         status = target.status;
     
   if (status === 200) {
-    textureStore[source] = new handler(target.response, options, onerror.bind(undefined, {isTexture: 1, source: source}), ctx);
+    textureStore[source] = new handler(target.response, options, ctx, onerror.bind(undefined, {isTexture: 1, source: source}), onload.bind(undefined, {isTexture: 1, source: source}), compressedTextures);
     
     if (textureStore[source].ready) {
       onload({isTexture: 1, source: source});
@@ -331,13 +331,7 @@ function loadTexture(source, options) {
       
       onloadstart({isTexture: 1, source: source});
       
-      // The normal texture uses a normal Image object to load the data.
-      // This is because using a Blob seems to randomly not work, and it also doesn't cache requests.
-      if (fileType === "png" || fileType === "gif" || fileType === "jpg") {
-        textureStore[source] = new handler(source, onload, onerror, ctx);
-      } else {
-        getFile(source, true, onloadTexture.bind(undefined, source, handler, options || {}), onerror, onprogress.bind(undefined, {isTexture: true, source: source}));
-      }
+      getFile(source, true, onloadTexture.bind(undefined, source, handler, options || {}), onerror.bind(undefined, {isTexture: true, source: source}), onprogress.bind(undefined, {isTexture: true, source: source}));
     } else {
       console.log("Error: no texture handler for file type " + fileType);
     }
