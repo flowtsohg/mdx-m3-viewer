@@ -103,7 +103,7 @@ BaseModel and BaseModelInstance are exported as global objects. They can be exte
 
 An example of setting up a new texture handler:
 ```js
-function MyTexture(arrayBuffer, options, onerror, glContext) {
+function MyTexture(arrayBuffer, options, ctx, onerror, onload) {
   this.id = glContext.createTexture();
   
   // Parse the buffer and construct the texture...
@@ -143,7 +143,7 @@ MyModel.prototype = Object.create(BaseModel.prototype);
 // Model Instance
 // ---------------
 
-function MyModelInstance(model, textureMap) {
+function MyModelInstance(model, textureMap, context) {
   // Sets default values for the default function implementations of BaseModelInstance
   BaseModelInstance.call(model, textureMap);
 }
