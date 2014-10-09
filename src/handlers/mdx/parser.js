@@ -164,8 +164,8 @@ var Parser = (function () {
     this.inclusiveSize = readUint32(reader);
     this.name = read(reader, 80);
     // Note: 1 is added here to allow the parser to inject a root node.
-    this.objectId = readUint32(reader) + 1;
-    this.parentId = readInt32(reader) + 1;
+    this.objectId = readUint32(reader);
+    this.parentId = readInt32(reader);
     
     var flags = readUint32(reader);
     
@@ -575,8 +575,7 @@ var Parser = (function () {
           size,
           chunk;
     
-    // Initialize the node list with a root node
-    this["nodes"] = [{objectId: 0, parentId: -1, name: "InjectedRoot"}];
+    this.nodes = [];
     
     while (remaining(reader) > 0) {
       tag = read(reader, 4);
@@ -584,7 +583,7 @@ var Parser = (function () {
       chunk = tagToChunk[tag];
   
       if (chunk) {
-        this[chunk[1]] = new chunk[0](reader, size, this["nodes"]);
+        this[chunk[1]] = new chunk[0](reader, size, this.nodes);
       } else {
         //console.log("Didn't parse chunk " + tag);
         skip(reader, size);

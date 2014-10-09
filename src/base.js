@@ -21,6 +21,19 @@ function mixin(mixer, mixed) {
   }
 }
 
+/**
+ * Extends an object.
+ *
+ * @param {object} source The parent.
+ * @param {object} destination The child.
+ * @returns {object} The child's new extended prototype.
+ */
+function extend(source, destination) {
+  destination.prototype = Object.create(source.prototype);
+  
+  return destination.prototype;
+}
+
 function getNamesFromObjects(objects) {
   var names = [],
         i,

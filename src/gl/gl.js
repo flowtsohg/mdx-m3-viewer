@@ -318,7 +318,6 @@ function onloadTexture(source, handler, options, e) {
  * @instance
  * @param {string} source The texture's url.
  * @param {object} options Options.
- * @returns {GL.Texture?} The bound shader.
  */
 function loadTexture(source, options) {
   // Only load a texture if it wasn't already loaded, and isn't in the middle of loading.
@@ -336,8 +335,6 @@ function loadTexture(source, options) {
       console.log("Error: no texture handler for file type " + fileType);
     }
   }
-  
-  return textureStore[source];
 }
 
 /**
@@ -360,38 +357,32 @@ function unloadTexture(source) {
  *
  * @memberof GL
  * @instance
- * @param {(string|GL.Texture)} object A texture source.
+ * @param {(string|null)} object A texture source.
  * @param {number} [unit] The texture unit.
  */
 function bindTexture(object, unit) {
-  var finalTexture;
-  
-  if (object) {
-    if (typeof object === "string") {
-      var texture = textureStore[object];
-      
-      if (texture && texture.ready) {
-        finalTexture = texture;
-      }
-    } else if (object.ready) {
-      finalTexture = object;
-    }
-  }
+  var texture;
   
   unit = unit || 0;
   
-  // This happens if the texture doesn't exist, or if it exists but didn't finish loading yet, or if asked to unbind (the given object is null).
-  if (!finalTexture) {
-    boundTextures[unit] = null;
-    
+  if (object) {
+    texture = textureStore[object];
+  }
+  
+  if (texture && texture.ready) {
+    // Only bind if actually necessary
+    if (!boundTextures[unit] || boundTextures[unit].id !== texture.id) {
+      boundTextures[unit] = texture;
+      
+      ctx.activeTexture(ctx.TEXTURE0 + unit);
+      ctx.bindTexture(ctx.TEXTURE_2D, texture.id);
+    }
+  } else {
+     boundTextures[unit] = null;
+
     ctx.activeTexture(ctx.TEXTURE0 + unit);
     ctx.bindTexture(ctx.TEXTURE_2D, null);
-  } else if (!boundTextures[unit] || boundTextures[unit].id !== finalTexture.id) {
-    boundTextures[unit] = finalTexture;
-    
-    ctx.activeTexture(ctx.TEXTURE0 + unit);
-    ctx.bindTexture(ctx.TEXTURE_2D, finalTexture.id);
-  } 
+  }
 }
 
 /**

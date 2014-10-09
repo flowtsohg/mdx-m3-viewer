@@ -13,8 +13,7 @@ function Model(arrayBuffer, textureMap, context, onerror) {
   }
 }
 
-var prototype = Object.create(BaseModel.prototype);
-Model.prototype = prototype;
+var prototype = extend(BaseModel, Model);
 
 prototype.setup = function (parser, gl) {
   var i, l;

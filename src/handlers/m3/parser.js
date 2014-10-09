@@ -180,10 +180,10 @@ var Parser = (function () {
   
   function AttachmentVolume(reader, indexEntries, version) {
     this.version = version;
-    this.bone0 = readUint32(reader) + 1;
-    this.bone1 = readUint32(reader) + 1;
+    this.bone0 = readUint32(reader);
+    this.bone1 = readUint32(reader);
     this.type = readUint32(reader);
-    this.bone2 = readUint32(reader) + 1;
+    this.bone2 = readUint32(reader);
     this.matrix = readMatrix(reader);
     this.unknown0 = parseReferenceByVal(reader, indexEntries, readVector3);
     this.unknown1 = parseReferenceByValTyped(reader, indexEntries, readUint16Array);
@@ -194,7 +194,7 @@ var Parser = (function () {
     this.shape = readUint32(reader); // 0: cube
                                                       // 1: sphere
                                                       // 2: cylinder
-    this.bone = readInt16(reader) + 1;
+    this.bone = readInt16(reader);
     this.unknown0 = readUint16(reader);
     this.matrix = readMatrix(reader);
     this.unknown1 = readUint32(reader);
@@ -292,8 +292,8 @@ var Parser = (function () {
     
     if (version < 3) {
       this.unknown0To14 = readFloat32Array(reader, 15);
-      this.bone = readUint16(reader) + 1;
-      this.boneUnused = readUint16(reader) + 1;
+      this.bone = readUint16(reader);
+      this.boneUnused = readUint16(reader);
       this.unknown15 = read(reader, 15);
     }
     
@@ -301,7 +301,7 @@ var Parser = (function () {
       this.unknown16 = readUint16(reader);
       this.unknown17 = readUint16(reader);
       this.unknown18 = readUint32(reader);
-      this.bone = readUint32(reader) + 1;
+      this.bone = readUint32(reader);
       this.unknown19 = readFloat32(reader);
       this.unknown20 = readFloat32(reader);
       this.unknown21 = readFloat32(reader);
@@ -350,7 +350,7 @@ var Parser = (function () {
   function Warp(reader, indexEntries, version) {
     this.version = version;
     this.unknown0 = readUint32(reader);
-    this.bone = readUint32(reader) + 1;
+    this.bone = readUint32(reader);
     this.unknown1 = readUint32(reader);
     this.radius = new AnimationReference(reader, readFloat32);
     this.unknown2 = new AnimationReference(reader, readFloat32);
@@ -365,7 +365,7 @@ var Parser = (function () {
     this.type = readUint32(reader);
     this.unknown0 = readUint32(reader);
     this.unknown1 = readUint32(reader);
-    this.bone = readUint32(reader) + 1;
+    this.bone = readUint32(reader);
     this.unknown2 = readUint32(reader);
     this.forceChannels = readUint32(reader);
     this.forceStrength = new AnimationReference(reader, readFloat32); 
@@ -377,7 +377,7 @@ var Parser = (function () {
   function Projection(reader, indexEntries, version) {
     this.version = version;
     this.unknown0 = readUint32(reader);
-    this.bone = readUint32(reader) + 1;
+    this.bone = readUint32(reader);
     this.materialReferenceIndex = readUint32(reader); // Maybe?
     this.unknown1 = new AnimationReference(reader, readVector3); // Unknown reference type
     this.unknown2 = new AnimationReference(reader, readUint32); // Unknown reference type
@@ -417,7 +417,7 @@ var Parser = (function () {
   
   function RibbonEmitter(reader, indexEntries, version) {
     this.version = version;
-    this.bone = readUint8(reader) + 1;
+    this.bone = readUint8(reader);
     this.short1 = readUint8(reader);
     this.short2 = readUint8(reader);
     this.short3 = readUint8(reader);
@@ -545,12 +545,12 @@ var Parser = (function () {
     this.version = version;
     this.emissionRate = new AnimationReference(reader, readFloat32);
     this.partEmit = new AnimationReference(reader, readInt16);
-    this.bone = readUint32(reader) + 1;
+    this.bone = readUint32(reader);
   }
   
   function ParticleEmitter(reader, indexEntries, version) {
     this.version = version;
-    this.bone = readUint32(reader) + 1;
+    this.bone = readUint32(reader);
     this.materialReferenceIndex = readUint32(reader);
     
     if (version > 16) {
@@ -968,7 +968,7 @@ var Parser = (function () {
 
   function Camera(reader, indexEntries, version) {
     this.version = version;
-    this.bone = readUint32(reader) + 1;
+    this.bone = readUint32(reader);
     this.name = parseReferenceString(reader, indexEntries);
     this.fieldOfView = new AnimationReference(reader, readFloat32);
     this.unknown0 = readUint32(reader);
@@ -989,7 +989,7 @@ var Parser = (function () {
     this.version = version;
     this.type = readUint8(reader);
     this.unknown0 = readUint8(reader);
-    this.bone = readInt16(reader) + 1;
+    this.bone = readInt16(reader);
     this.flags = readUint32(reader); // 0x1 shadowCast
                                               // 0x2 specular
                                               // 0x4 unknown
@@ -1011,7 +1011,7 @@ var Parser = (function () {
     this.version = version;
     this.unknown = readInt32(reader);
     this.name = parseReferenceString(reader, indexEntries);
-    this.bone = readUint32(reader) + 1;
+    this.bone = readUint32(reader);
   }
   
   function MSEC(reader) {
@@ -1066,8 +1066,7 @@ var Parser = (function () {
                                               // 0x400 inverseKinematics
                                               // 0x800 skinned
                                               // 0x2000 real -- what does this mean?
-    // Note: 1 is added here to allow the parser to inject a root node.
-    this.parent = readInt16(reader) + 1;
+    this.parent = readInt16(reader);
     this.unknown1 = readUint16(reader);
     this.location = new AnimationReference(reader, readVector3);
     this.rotation = new AnimationReference(reader, readVector4);
@@ -1269,11 +1268,7 @@ var Parser = (function () {
       
       seek(reader, modelHeader.offset);
       
-      var parser = new ModelHeader(reader, indexEntries, modelHeader.version);
-      
-      parser.bones.unshift({name: "InjectedRoot", parent: -1});
-      
-      return parser;
+      return new ModelHeader(reader, indexEntries, modelHeader.version);
     }
   });
 }());

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Texture</title>
+    <title>JSDoc: Source: basenode.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,337 +17,49 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: Texture</h1>
+    <h1 class="page-title">Source: basenode.js</h1>
 
     
 
 
-
-<section>
-
-<header>
-    <h2>
-    Texture
-    </h2>
     
-        <div class="class-description">This isn't an actual class, but rather something you must implement if you want to implement custom textures.</div>
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-
-    
-        
-<dt>
-    <h4 class="name" id="Texture"><span class="type-signature"></span>new Texture<span class="signature">(arrayBuffer, options, ctx, onerror, onload)</span><span class="type-signature"></span></h4>
-
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        A texture.
-    </div>
-    
-
-    
-
-    
-
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>arrayBuffer</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">ArrayBuffer</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The raw texture data.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">An object containing options.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>ctx</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">WebGLRenderingContext</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">A WebGL context.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>onerror</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">A function that allows to report errors.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>onload</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">A function that allows to manually report a success at parsing.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-    
-
-    
-<dl class="details">
-    
-
-        <h5 class="subsection-title">Properties:</h5>
-
-        <dl>
-
-<table class="props">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>id</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">WebGLTexture</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>ready</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table></dl>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="doctypes.js.html">doctypes.js</a>, <a href="doctypes.js.html#line30">line 30</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Creates a new BaseNode.
+ *
+ * @class A node.
+ * @name BaseNode
+ * @property {mat4} worldMatrix
+ * @property {vec3} scale
+ * @property {vec3} inverseScale
+ * @property {mat4} externalWorldMatrix
+ */
+window["BaseNode"] = function () {
+  this.worldMatrix = mat4.create();
+  this.scale = vec3.create();
+  this.inverseScale = vec3.create();
+  this.externalWorldMatrix = mat4.create();
+}
+
+BaseNode.prototype = {
+  update: function (worldMatrix) {
+    mat4.copy(this.worldMatrix, worldMatrix);
+    mat4.decomposeScale(this.scale, this.worldMatrix);
+    vec3.inverse(this.inverseScale, this.scale);
+  },
+  
+  updateScale: function () {
+    mat4.decomposeScale(this.scale, this.worldMatrix);
+    vec3.inverse(this.inverseScale, this.scale);
+  },
+  
+  getTransformation: function () {
+    return mat4.copy(this.externalWorldMatrix, this.worldMatrix);
+  }
+};</code></pre>
+        </article>
+    </section>
 
 
 
@@ -361,7 +73,7 @@
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha9</a> on Thu Oct 09 2014 23:21:21 GMT+0300 (Jerusalem Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha9</a> on Thu Oct 09 2014 23:21:20 GMT+0300 (Jerusalem Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

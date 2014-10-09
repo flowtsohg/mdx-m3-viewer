@@ -4,8 +4,7 @@ function ModelInstance(model, textureMap, context) {
   this.setup(model, context);
 }
 
-var prototype = Object.create(BaseModelInstance.prototype);
-ModelInstance.prototype = prototype;
+var prototype = extend(BaseModelInstance, ModelInstance);
 
 prototype.setup = function (model, context) {
   this.skeleton = new Skeleton(model, context.gl.ctx);

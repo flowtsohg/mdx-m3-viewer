@@ -13,8 +13,7 @@ function Model(arrayBuffer, textureMap, context, onerror) {
   }
 }
 
-var prototype = Object.create(BaseModel.prototype);
-Model.prototype = prototype;
+var prototype = extend(BaseModel, Model);
 
 prototype.setup = function (parser, context) {
   var gl = context.gl;
@@ -57,8 +56,14 @@ prototype.setup = function (parser, context) {
   }
   
   // This list is used to access all the nodes in a loop while keeping the hierarchy in mind.
-  this.hierarchy = [0];
-  this.setupHierarchy(0);
+  this.hierarchy = [];
+  this.setupHierarchy(-1);
+  
+  this.sortedNodes = [];
+  
+  for (i = 0, l = nodes.length; i < l; i++) {
+    this.sortedNodes[i] = this.nodes[this.hierarchy[i]];
+  }
   
   if (parser.boneChunk) {
     this.bones = parser.boneChunk.objects;
@@ -184,8 +189,8 @@ prototype.setupTeamColors = function (gl) {
   for (i = 0; i < 13; i++) {
     number = ((i < 10) ? "0" + i : i);
     
-    gl.loadTexture(urls.mpqFile("ReplaceableTextures/TeamColor/TeamColor" + number + ".blp"));
-    gl.loadTexture(urls.mpqFile("ReplaceableTextures/TeamGlow/TeamGlow" + number + ".blp"));
+    gl.loadTexture(urls.mpqFile("replaceabletextures/teamcolor/teamcolor" + number + ".blp"));
+    gl.loadTexture(urls.mpqFile("replaceabletextures/teamglow/teamglow" + number + ".blp"));
   }
 };
 
@@ -195,7 +200,7 @@ prototype.loadTexture = function (texture, textureMap, gl) {
   var replaceableId = texture.replaceableId;
   
   if (replaceableId !== 0) {
-    source = "ReplaceableTextures/" + replaceableIdToName[replaceableId] + ".blp";
+    source = "replaceabletextures/" + replaceableIdToName[replaceableId] + ".blp";
   }
   
   source = source.replace(/\\/g, "/").toLowerCase();
@@ -371,13 +376,14 @@ prototype.renderEmitters = function (instance, context) {
 };
 
 prototype.renderBoundingShapes = function (instance, context) {
+  var gl = context.gl;
   var shader;
   
   if (this.boundingShapes && gl.shaderStatus("white")) {
     shader = gl.bindShader("white");
     
     for (i = 0, l = this.boundingShapes.length; i < l; i++) {
-      this.boundingShapes[i].render(instance.skeleton, shader);
+      this.boundingShapes[i].render(instance.skeleton, shader, gl);
     }
   }
 };
@@ -439,11 +445,13 @@ prototype.shouldRenderGeoset = function (sequence, frame, counter, layer) {
 prototype.bindTexture = function (source, unit, textureMap, context) {
   var texture;
   
-  if (this.textureMap[source]) {
+  // Must be checked against undefined, because empty strings evaluate to false
+  if (this.textureMap[source] !== undefined) {
     texture = this.textureMap[source];
   }
   
-  if (textureMap[source]) {
+  // Must be checked against undefined, because empty strings evaluate to false
+  if (textureMap[source] !== undefined) {
     texture = textureMap[source];   
   }
   

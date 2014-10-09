@@ -192,14 +192,7 @@ AsyncModelInstance.prototype = {
     */
   getTextureMap: function () {
     if (this.ready) {
-      var textureMap = this.instance.getTextureMap();
-      
-      // Avoid reporting the team color textures, since they are internal.
-      // Is there any nicer way to do this?
-      delete textureMap["replaceabletextures/teamcolor/teamcolor00.blp"];
-      delete textureMap["replaceabletextures/teamglow/teamglow00.blp"];
-      
-      return textureMap;
+      return this.instance.getTextureMap();
     }
   },
   

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Texture</title>
+    <title>JSDoc: Class: BaseNode</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: Texture</h1>
+    <h1 class="page-title">Class: BaseNode</h1>
 
     
 
@@ -27,10 +27,10 @@
 
 <header>
     <h2>
-    Texture
+    BaseNode
     </h2>
     
-        <div class="class-description">This isn't an actual class, but rather something you must implement if you want to implement custom textures.</div>
+        <div class="class-description">A node.</div>
     
 </header>
 
@@ -41,7 +41,7 @@
     
         
 <dt>
-    <h4 class="name" id="Texture"><span class="type-signature"></span>new Texture<span class="signature">(arrayBuffer, options, ctx, onerror, onload)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="BaseNode"><span class="type-signature"></span>new BaseNode<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 </dt>
@@ -49,7 +49,7 @@
 
     
     <div class="description">
-        A texture.
+        Creates a new BaseNode.
     </div>
     
 
@@ -57,146 +57,6 @@
 
     
 
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>arrayBuffer</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">ArrayBuffer</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The raw texture data.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">An object containing options.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>ctx</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">WebGLRenderingContext</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">A WebGL context.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>onerror</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">A function that allows to report errors.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>onload</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">A function that allows to manually report a success at parsing.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
     
 
     
@@ -229,13 +89,13 @@
 
         <tr>
             
-                <td class="name"><code>id</code></td>
+                <td class="name"><code>worldMatrix</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">WebGLTexture</span>
+<span class="param-type">mat4</span>
 
 
             
@@ -252,13 +112,59 @@
 
         <tr>
             
-                <td class="name"><code>ready</code></td>
+                <td class="name"><code>scale</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">boolean</span>
+<span class="param-type">vec3</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>inverseScale</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">vec3</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>externalWorldMatrix</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">mat4</span>
 
 
             
@@ -296,7 +202,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="doctypes.js.html">doctypes.js</a>, <a href="doctypes.js.html#line30">line 30</a>
+        <a href="basenode.js.html">basenode.js</a>, <a href="basenode.js.html#line1">line 1</a>
     </li></ul></dd>
     
 
@@ -361,7 +267,7 @@
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha9</a> on Thu Oct 09 2014 23:21:21 GMT+0300 (Jerusalem Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha9</a> on Thu Oct 09 2014 23:21:20 GMT+0300 (Jerusalem Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

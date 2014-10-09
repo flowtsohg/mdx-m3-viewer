@@ -22,7 +22,9 @@ function CollisionShape(collisionshape, nodes, gl) {
 }
 
 CollisionShape.prototype = {
-  render: function (skeleton, shader) {
+  render: function (skeleton, shader, gl) {
+    var ctx = gl.ctx;
+    
     if (this.shape) {
       gl.pushMatrix();
       

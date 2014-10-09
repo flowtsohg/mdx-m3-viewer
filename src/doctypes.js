@@ -9,25 +9,6 @@ function DocCamera() {
 }
 
 /**
- * @class This isn't an actual class, but rather something you must implement if you want to transform custom model instances.
- * @name Node
- */
-function DocNode() {
-  
-}
-
-/**
- * Gets the node's transformation.
- *
- * @memberof Node
- * @instance
- * @returns {mat4} The node's transformation
- */
-function getTransformation() {
-  
-}
-
-/**
  * A texture.
  * 
  * @class This isn't an actual class, but rather something you must implement if you want to implement custom textures.
