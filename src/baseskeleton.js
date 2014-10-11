@@ -2,7 +2,7 @@
  * Creates a new BaseSkeleton.
  *
  * @class A skeleton.
- * @name BaseModel
+ * @name BaseSkeleton
  * @param {number} numberOfBones
  * @param {WebGLRenderingContext} ctx
  * @property {BaseNode} rootNode

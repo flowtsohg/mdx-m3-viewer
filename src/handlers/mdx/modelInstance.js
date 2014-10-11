@@ -86,8 +86,8 @@ prototype.update = function (worldMatrix, context) {
 prototype.setTeamColor = function (id) {
   var idString = ((id < 10) ? "0" + id : id);
   
-  this.overrideTexture("replaceabletextures/teamcolor/teamcolor00.blp", urls.mpqFile("ReplaceableTextures/TeamColor/TeamColor" + idString + ".blp"));
-  this.overrideTexture("replaceabletextures/teamglow/teamglow00.blp", urls.mpqFile("ReplaceableTextures/TeamGlow/TeamGlow" + idString + ".blp"));
+  this.overrideTexture("replaceabletextures/teamcolor/teamcolor00.blp", urls.mpqFile("replaceabletextures/teamcolor/teamcolor" + idString + ".blp"));
+  this.overrideTexture("replaceabletextures/teamglow/teamglow00.blp", urls.mpqFile("replaceabletextures/teamglow/teamglow" + idString + ".blp"));
   this.teamColor = id;
 };
 
