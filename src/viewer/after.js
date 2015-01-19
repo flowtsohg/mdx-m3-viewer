@@ -440,6 +440,22 @@ function setupColor(width, height) {
     }
   }
   
+  /**
+    * Unloads all of the models, and in turn all of the instances.
+    *
+    * @memberof ModelViewer
+    * @instance
+    */
+  function unloadEverything() {
+      var models = modelArray,
+            i,
+            l;
+      
+      for (i = 0, l = models.length; i < l; i++) {
+          unloadModel(models[i]);
+      }
+  }
+  
   // ------------------
   // Instance visibility
   // ------------------
@@ -1555,6 +1571,7 @@ function setupColor(width, height) {
     // Resource API
     loadResource: loadResource,
     unloadResource: unloadResource,
+    unloadEverything: unloadEverything,
     // Instance visibility
     setVisibility: setVisibility,
     getVisibility: getVisibility,
