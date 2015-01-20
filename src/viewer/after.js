@@ -447,12 +447,12 @@ function setupColor(width, height) {
     * @instance
     */
   function unloadEverything() {
-      var models = modelArray,
+      var models = Object.keys(modelMap),
             i,
             l;
       
       for (i = 0, l = models.length; i < l; i++) {
-          unloadModel(models[i]);
+          unloadModel(modelMap[models[i]]);
       }
   }
   
