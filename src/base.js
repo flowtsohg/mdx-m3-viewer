@@ -292,7 +292,7 @@ if (typeof String.prototype.startsWith != "function") {
  * @returns {object} The copied object.
  */
 Object.copy = function (object) {
-    var keys = Object.keys(object);
+    var keys = Object.keys(object),
           key,
           newObj = (object instanceof Array) ? [] : {},
           i, 
