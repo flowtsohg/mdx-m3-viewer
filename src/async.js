@@ -5,17 +5,11 @@
  * @name Async
  * @property {array} actions
  */
-var Async = {
-  /**
-    * Creates the needed properties in the mixed object.
-    *
-    * @memberof Async
-    * @instance
-    */
-  setupAsync: function () {
-    this.actions = [];
-  },
-  
+ function Async() {
+     this.actions = [];
+ }
+ 
+Async.prototype = {
   /**
     * Adds a new action to the action queue.
     *
@@ -24,9 +18,9 @@ var Async = {
     * @param {string} functor A function name.
     * @param {array} args The arguments that will be sent to the functor.
     */
-  addAction: function (functor, args) {
-    this.actions.push([functor, args]);
-  },
+    addAction: function (functor, args) {
+        this.actions.push([functor, args]);
+    },
   
   /**
     * Calls all the functors in the action queue, giving them their arguments.
@@ -34,18 +28,18 @@ var Async = {
     * @memberof Async
     * @instance
     */
-  runActions: function () {
-    var i,
-          l,
-          actions = this.actions,
-          action;
-    
-    for (i = 0, l = actions.length; i < l; i++) {
-      action = actions[i];
-      
-      this[action[0]].apply(this, action[1]);
+    runActions: function () {
+        var actions = this.actions,
+              action,
+              i,
+              l;
+
+        for (i = 0, l = actions.length; i < l; i++) {
+            action = actions[i];
+
+            this[action[0]].apply(this, action[1]);
+        }
+
+        actions = [];
     }
-    
-    actions = [];
-  }
 };

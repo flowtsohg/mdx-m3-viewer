@@ -254,7 +254,7 @@ function dxt5ToRgba8888(src, width, height) {
  * @property {WebGLTexture} id
  * @property {boolean} ready
  */
-function DDSTexture(arrayBuffer, options, ctx, onerror, onload, compressedTextures) {
+window["DDSTexture"] = function DDSTexture(arrayBuffer, options, ctx, onerror, onload, compressedTextures) {
   var header = new Int32Array(arrayBuffer, 0, 31);
   
   if (header[0] !== DDS_MAGIC) {
@@ -332,4 +332,4 @@ function DDSTexture(arrayBuffer, options, ctx, onerror, onload, compressedTextur
   
   this.id = id;
   this.ready = true;
-}
+};

@@ -5,17 +5,17 @@ function ShallowBone (bone) {
   this.parent = bone.parent;
 }
 
-var prototype = extend(BaseNode, ShallowBone);
-
-prototype.getTransformation = function () {
-  var m = this.externalWorldMatrix;
-  
-  mat4.copy(m, this.worldMatrix);
-  // Remove the local rotation as far as external objects know
-  mat4.rotateZ(m, m, -Math.PI / 2);
-  
-  return m;
-};
+ShallowBone.prototype = extend(BaseNode.prototype, {
+    getTransformation: function () {
+      var m = this.externalWorldMatrix;
+      
+      mat4.copy(m, this.worldMatrix);
+      // Remove the local rotation as far as external objects know
+      mat4.rotateZ(m, m, -Math.PI / 2);
+      
+      return m;
+    }
+});
 
 function Skeleton(model, ctx) {
   var i, l;
@@ -45,9 +45,9 @@ function Skeleton(model, ctx) {
   this.rootScaler = vec3.fromValues(100, 100, 100);
 }
 
-var prototype = extend(BaseSkeleton, Skeleton);
+Skeleton.prototype = extend(BaseSkeleton.prototype, {
 
-prototype.update = function (sequence, frame, worldMatrix, ctx) {
+update: function (sequence, frame, worldMatrix, ctx) {
   var root = this.rootNode;
   
   mat4.copy(root.worldMatrix, worldMatrix);
@@ -64,17 +64,17 @@ prototype.update = function (sequence, frame, worldMatrix, ctx) {
   }
   
   this.updateHW(sequence, ctx);
-};
+},
 
-prototype.getValue = function (out, animRef, sequence, frame) {
+getValue: function (out, animRef, sequence, frame) {
   if (sequence !== -1) {
     return this.stg[sequence].getValue(out, animRef, frame)
   }
   
   return animRef.initValue;
-};
+},
 
-prototype.updateBone = function (bone, sequence, frame) {
+updateBone: function (bone, sequence, frame) {
   var localMatrix = this.localMatrix;
   var rotationMatrix = this.rotationMatrix;
   var location = this.getValue(this.locationVec, bone.boneImpl.location, sequence, frame);
@@ -86,9 +86,9 @@ prototype.updateBone = function (bone, sequence, frame) {
   mat4.multiply(bone.worldMatrix, parent.worldMatrix, localMatrix);
   
   bone.updateScale();
-};
+},
 
-prototype.updateHW = function (sequence, ctx) {
+updateHW: function (sequence, ctx) {
   var bones = this.nodes;
   var hwbones = this.hwbones;
   var initialReferences = this.initialReference;
@@ -112,4 +112,5 @@ prototype.updateHW = function (sequence, ctx) {
   }
 
   this.updateBoneTexture(ctx);
-};
+}
+});

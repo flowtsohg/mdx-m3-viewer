@@ -13,9 +13,9 @@ function Model(arrayBuffer, textureMap, context, onerror) {
   }
 }
 
-var prototype = extend(BaseModel, Model);
+Model.prototype = extend(BaseModel.prototype, {
 
-prototype.setup = function (parser, gl) {
+setup: function (parser, gl) {
   var i, l;
   var material;
   var div = parser.divisions[0];
@@ -140,9 +140,9 @@ prototype.setup = function (parser, gl) {
   this.cameras = parser.cameras;
     
   this.ready = true;
-};
+},
 
-prototype.setupShaders = function (parser, gl) {
+setupShaders: function (parser, gl) {
   // Shader setup
   var uvSetCount = this.uvSetCount;
   var uvSets = "EXPLICITUV" + (uvSetCount - 1);
@@ -213,9 +213,9 @@ prototype.setupShaders = function (parser, gl) {
   if (!gl.shaderStatus("scolor")) {
     gl.createShader("scolor", SHADERS.vsbonetexture + SHADERS.svscolor, SHADERS.pscolor);
   }
-};
+},
 
-prototype.setupGeometry = function (parser, div, ctx) {
+setupGeometry: function (parser, div, ctx) {
   var i, l;
   var uvSetCount = parser.uvSetCount;
   var regions = div.regions;
@@ -251,15 +251,15 @@ prototype.setupGeometry = function (parser, div, ctx) {
   this.arrayBuffer = arrayBuffer;
   this.vertexSize = (7 + uvSetCount) * 4;
   this.uvSetCount = uvSetCount;
-};
+},
 
-prototype.mapMaterial = function (index) {
+mapMaterial: function (index) {
   var materialMap = this.materialMaps[index];
   
   return this.materials[materialMap.materialType][materialMap.materialIndex];
-};
+},
 
-prototype.addGlobalAnims = function () {
+addGlobalAnims: function () {
   /*
   var i, l;
   var glbirth, glstand, gldeath;
@@ -294,17 +294,17 @@ prototype.addGlobalAnims = function () {
     }
   }
   */
-};
+},
 
-prototype.getValue = function (animRef, sequence, frame) {
+getValue: function (animRef, sequence, frame) {
   if (sequence !== -1) {
     return this.stg[sequence].getValue(animRef, frame)
   } else {
     return animRef.initValue;
   }
-};
+},
 
-prototype.bind = function (shader, context) {
+bind: function (shader, context) {
   var ctx = context.gl.ctx;
   var vertexSize = this.vertexSize;
   var uvSetCount = this.uvSetCount;
@@ -324,9 +324,9 @@ prototype.bind = function (shader, context) {
   ctx.vertexAttribPointer(shader.variables.a_tangent, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 24 + uvSetCount * 4);
   
   ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, buffer);
-};
+},
 
-prototype.bindColor = function (shader, ctx) {
+bindColor: function (shader, ctx) {
   var vertexSize = this.vertexSize;
   
   ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
@@ -336,9 +336,9 @@ prototype.bindColor = function (shader, ctx) {
   ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 16);
   
   ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
-};
+},
 
-prototype.render = function (instance, context) {
+render: function (instance, context) {
   var gl = context.gl;
   var ctx = gl.ctx;
   var i, l;
@@ -401,9 +401,9 @@ prototype.render = function (instance, context) {
       }
     }
   }
-};
+},
 
-prototype.renderEmitters = function (instance, context) {
+renderEmitters: function (instance, context) {
     /*
   if (this.particleEmitters) {
     ctx.disable(ctx.CULL_FACE);
@@ -419,9 +419,9 @@ prototype.renderEmitters = function (instance, context) {
     ctx.enable(ctx.CULL_FACE);
   }
 */
-};
+},
 
-prototype.renderBoundingShapes = function (instance, context) {
+renderBoundingShapes: function (instance, context) {
   var gl = context.gl,
         ctx = gl.ctx,
         shader,
@@ -436,9 +436,9 @@ prototype.renderBoundingShapes = function (instance, context) {
       this.boundingShapes[i].render(shader, instance.skeleton.bones, gl);
     }
   }
-};
+},
 
-prototype.renderColor = function (instance, color, context) {
+renderColor: function (instance, color, context) {
   var gl = context.gl;
   var ctx = gl.ctx;
   var i, l;
@@ -465,9 +465,9 @@ prototype.renderColor = function (instance, color, context) {
       }
     }
   }
-};
+},
 
-prototype.bindTexture = function (source, unit, textureMap, context) {
+bindTexture: function (source, unit, textureMap, context) {
   var texture;
   
   if (this.textureMap[source]) {
@@ -479,4 +479,5 @@ prototype.bindTexture = function (source, unit, textureMap, context) {
   }
   
   context.gl.bindTexture(texture, unit);
-};
+}
+});

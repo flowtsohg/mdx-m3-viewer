@@ -13,9 +13,8 @@ function Model(arrayBuffer, textureMap, context, onerror) {
   }
 }
 
-var prototype = extend(BaseModel, Model);
-
-prototype.setup = function (parser, context) {
+Model.prototype = extend(BaseModel.prototype, {
+setup: function (parser, context) {
   var gl = context.gl;
   var objects, i, l, j, k;
   
@@ -149,14 +148,15 @@ prototype.setup = function (parser, context) {
   this.modifier = vec4.create();
   this.uvoffset = vec3.create();
   this.defaultUvoffset = vec3.create();
+  this.tempVec3 = vec3.create();
   
   this.ready = true;
   
   this.setupShaders(parser, gl);
   this.setupTeamColors(gl);
-};
+},
 
-prototype.setupShaders = function (parser, gl) {
+setupShaders: function (parser, gl) {
   var psmain = SHADERS["wpsmain"];
     
   if ((parser.geosetChunk || parser.particleEmitterChunk) && !gl.shaderStatus("wstandard")) {
@@ -180,9 +180,9 @@ prototype.setupShaders = function (parser, gl) {
   if (!gl.shaderStatus("wcolor")) {
     gl.createShader("wcolor", SHADERS.vsbonetexture + SHADERS.wvscolor, SHADERS.pscolor);
   }
-};
+},
 
-prototype.setupTeamColors = function (gl) {
+setupTeamColors: function (gl) {
   var i,
         number;
   
@@ -192,9 +192,9 @@ prototype.setupTeamColors = function (gl) {
     gl.loadTexture(urls.mpqFile("replaceabletextures/teamcolor/teamcolor" + number + ".blp"));
     gl.loadTexture(urls.mpqFile("replaceabletextures/teamglow/teamglow" + number + ".blp"));
   }
-};
+},
 
-prototype.loadTexture = function (texture, textureMap, gl) {
+loadTexture: function (texture, textureMap, gl) {
   var source = texture.path;
   var path;
   var replaceableId = texture.replaceableId;
@@ -216,9 +216,9 @@ prototype.loadTexture = function (texture, textureMap, gl) {
   this.textureMap[source] = path;
   
   gl.loadTexture(path);
-};
+},
 
-prototype.setupHierarchy = function (parent) {
+setupHierarchy: function (parent) {
   var cildren = [];
     
   for (var i = 0, l = this.nodes.length; i < l; i++) {
@@ -230,9 +230,9 @@ prototype.setupHierarchy = function (parent) {
       this.setupHierarchy(node.objectId);
     }
   }
-};
+},
 
-prototype.render = function (instance, context) {
+render: function (instance, context) {
   var gl = context.gl;
   var ctx = gl.ctx;
   var i, l, v;
@@ -257,8 +257,8 @@ prototype.render = function (instance, context) {
     var textureId;
     var geosets = this.meshes;
     var textures = this.textures;
-    var temp;
     var defaultUvoffset = this.defaultUvoffset;
+    var tempVec3 = this.tempVec3;
     
     shader = gl.bindShader(realShaderName);
     
@@ -293,12 +293,11 @@ prototype.render = function (instance, context) {
             var geosetAnimation = this.geosetAnimations[j];
             
             if (geosetAnimation.geosetId === layer.geosetId) {
-              getSDValue(sequence, frame, counter, geosetAnimation.sd.color, geosetAnimation.color, modifier);
+              tempVec3 = getSDValue(sequence, frame, counter, geosetAnimation.sd.color, geosetAnimation.color, tempVec3);
               
-              temp = modifier[0];
-              
-              modifier[0] = modifier[2];
-              modifier[2] = temp;
+              modifier[0] = tempVec3[0];
+              modifier[1] = tempVec3[1];
+              modifier[2] = tempVec3[2];
             }
           }
         }
@@ -329,9 +328,9 @@ prototype.render = function (instance, context) {
   ctx.depthMask(1);
   ctx.disable(ctx.BLEND);
   ctx.enable(ctx.CULL_FACE);
-};
+},
 
-prototype.renderEmitters = function (instance, context) {
+renderEmitters: function (instance, context) {
   var gl = context.gl;
   var ctx = gl.ctx;
   var i, l;
@@ -373,9 +372,9 @@ prototype.renderEmitters = function (instance, context) {
   ctx.depthMask(1);
   ctx.disable(ctx.BLEND);
   ctx.enable(ctx.CULL_FACE);
-};
+},
 
-prototype.renderBoundingShapes = function (instance, context) {
+renderBoundingShapes: function (instance, context) {
   var gl = context.gl;
   var shader;
   
@@ -386,9 +385,9 @@ prototype.renderBoundingShapes = function (instance, context) {
       this.boundingShapes[i].render(instance.skeleton, shader, gl);
     }
   }
-};
+},
 
-prototype.renderColor = function (instance, color) {
+renderColor: function (instance, color) {
   var i, l;
   var sequence = instance.sequence;
   var frame = instance.frame;
@@ -420,9 +419,9 @@ prototype.renderColor = function (instance, color) {
       }
     }
   }
-};
+},
 
-prototype.shouldRenderGeoset = function (sequence, frame, counter, layer) {
+shouldRenderGeoset: function (sequence, frame, counter, layer) {
   var i, l, geosetAnimation, geosetAnimations = this.geosetAnimations;
   
   if (geosetAnimations) {
@@ -440,9 +439,9 @@ prototype.shouldRenderGeoset = function (sequence, frame, counter, layer) {
   }
   
   return true;
-};
+},
 
-prototype.bindTexture = function (source, unit, textureMap, context) {
+bindTexture: function (source, unit, textureMap, context) {
   var texture;
   
   // Must be checked against undefined, because empty strings evaluate to false
@@ -460,4 +459,5 @@ prototype.bindTexture = function (source, unit, textureMap, context) {
   }
   
   context.gl.bindTexture(texture, unit);
-};
+}
+});

@@ -16,7 +16,7 @@
 window["BaseModelInstance"] = function (model, textureMap) {
     var i,
           l;
-    
+
     this.model = model;
     this.textureMap = textureMap;
     this.sequence = -1;
@@ -24,9 +24,9 @@ window["BaseModelInstance"] = function (model, textureMap) {
     this.sequenceLoopMode = 0;
     this.teamColor = 0;
     this.meshVisibilities = [];
-    
+
     for (i = 0, l = model.getMeshCount(); i < l; i++) {
-      this.meshVisibilities[i] = true;
+        this.meshVisibilities[i] = true;
     }
 }
 
@@ -37,36 +37,36 @@ BaseModelInstance.prototype = {
     * @param {mat4} worldMatrix The world matrix of the parent {@link AsyncModelInstance}.
     * @param {object} context An object containing the global state of the viewer.
     */
-  update: function(worldMatrix, context) {
-    
-  },
+    update: function(worldMatrix, context) {
+
+    },
 
   /**
     * Render the model a model instance points to.
     *
     * @param {object} context An object containing the global state of the viewer.
     */
-  render: function(context) {
-    this.model.render(this, context);
-  },
+    render: function(context) {
+        this.model.render(this, context);
+    },
 
   /**
     * Render the particle emitters of the model a model instance points to.
     *
     * @param {object} context An object containing the global state of the viewer.
     */
-  renderEmitters: function(context) {
-    this.model.renderEmitters(this, context);
-  },
+    renderEmitters: function(context) {
+        this.model.renderEmitters(this, context);
+    },
 
   /**
     * Render the bounding shapes of the model a model instance points to.
     *
     * @param {object} context An object containing the global state of the viewer.
     */
-  renderBoundingShapes: function(context) {
-    this.model.renderBoundingShapes(this, context);
-  },
+    renderBoundingShapes: function(context) {
+        this.model.renderBoundingShapes(this, context);
+    },
 
   /**
     * Render the model a model instance points to, with a specific color.
@@ -74,18 +74,18 @@ BaseModelInstance.prototype = {
     * @param {vec3} color A RGB color.
     * @param {object} context An object containing the global state of the viewer.
     */
-  renderColor: function(color, context) {
-    this.model.renderColor(this, color, context);
-  },
+    renderColor: function(color, context) {
+        this.model.renderColor(this, color, context);
+    },
 
   /**
     * Gets the name of the model a model instance points to.
     *
     * @returns {string} The model's name.
     */
-  getName: function() {
-    return this.model.getName();
-  },
+    getName: function() {
+        return this.model.getName();
+    },
 
   /**
     * Overrides a texture used by a model instance.
@@ -93,72 +93,72 @@ BaseModelInstance.prototype = {
     * @param {string} path The texture path that gets overriden.
     * @paran {string} override The new absolute path that will be used.
     */
-  overrideTexture: function(path, override) {
-    this.textureMap[path] = override;
-  },
+    overrideTexture: function(path, override) {
+        this.textureMap[path] = override;
+    },
 
   /**
     * Gets a model instance's texture map.
     *
     * @returns {object} The texture map.
     */
-  getTextureMap: function() {
-    return Object.copy(this.textureMap);
-  },
+    getTextureMap: function() {
+        return Object.copy(this.textureMap);
+    },
 
   /**
     * Set the team color of a model instance.
     *
     * @param {number} id The team color.
     */
-  setTeamColor: function(id) {
-    
-  },
+    setTeamColor: function(id) {
+
+    },
 
   /**
     * Gets the team color of a model instance.
     *
     * @returns {number} The team.
     */
-  getTeamColor: function() {
-    return this.teamColor;
-  },
+    getTeamColor: function() {
+        return this.teamColor;
+    },
 
   /**
     * Set the sequence of a model instance.
     *
     * @param {number} id The sequence.
     */
-  setSequence: function(id) {
-    
-  },
+    setSequence: function(id) {
+
+    },
 
   /**
     * Gets the sequence of a model instance.
     *
     * @returns {number} The sequence.
     */
-  getSequence: function() {
-    return this.sequence;
-  },
+    getSequence: function() {
+        return this.sequence;
+    },
 
   /**
     * Set the sequence loop mode of a model instance.
     *
     * @param {number} mode The sequence loop mode.
     */
-  setSequenceLoopMode: function(mode) {
-    this.sequenceLoopMode = mode;
-  },
+    setSequenceLoopMode: function(mode) {
+        this.sequenceLoopMode = mode;
+    },
 
   /**
     * Gets the sequence loop mode of a model instance.
     *
     * @returns {number} The sequence loop mode.
     */
-  getSequenceLoopMode: function() {
-    return this.sequenceLoopMode;
-  },
+    getSequenceLoopMode: function() {
+        return this.sequenceLoopMode;
+    },
 
   /**
     * Gets a model instance's attachment.
@@ -166,9 +166,9 @@ BaseModelInstance.prototype = {
     * @param {number} id The id of the attachment.
     * @returns {Node} The attachment.
     */
-  getAttachment: function(id) {
-    
-  },
+    getAttachment: function(id) {
+
+    },
   
   /**
     * Gets a model instance's camera.
@@ -176,9 +176,9 @@ BaseModelInstance.prototype = {
     * @param {number} id The id of the camera.
     * @returns {Camera} The camera.
     */
-  getCamera: function (id) {
-    
-  },
+    getCamera: function (id) {
+
+    },
   
   /**
     * Set a model instance's mesh's visibility.
@@ -186,9 +186,9 @@ BaseModelInstance.prototype = {
     * @param {number} id The mesh.
     * @param {boolean} mode The visibility mode
     */
-  setMeshVisibility: function(id, mode) {
-    this.meshVisibilities[id] = mode;
-  },
+    setMeshVisibility: function(id, mode) {
+        this.meshVisibilities[id] = mode;
+    },
 
   /**
     * Gets a model instance's mesh's visibility
@@ -196,16 +196,16 @@ BaseModelInstance.prototype = {
     * @param {number} id The mesh.
     * @returns {boolean} The mesh's visiblity.
     */
-  getMeshVisibility: function(id) {
-    return this.meshVisibilities[id];
-  },
+    getMeshVisibility: function(id) {
+        return this.meshVisibilities[id];
+    },
   
   /**
     * Gets all the mesh visibilities of a model instance.
     *
     * @returns {array} The mesh visibilities.
     */
-  getMeshVisibilities: function() {
-    return Array.copy(this.meshVisibilities);
-  }
+    getMeshVisibilities: function() {
+        return Array.copy(this.meshVisibilities);
+    }
 };

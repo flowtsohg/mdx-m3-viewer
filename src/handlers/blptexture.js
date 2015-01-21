@@ -13,7 +13,7 @@ var BLP_PALLETE = 0x1;
  * @property {WebGLTexture} id
  * @property {boolean} ready
  */
-function BLPTexture(arrayBuffer, options, ctx, onerror, onload) {
+window["BLPTexture"] = function BLPTexture(arrayBuffer, options, ctx, onerror, onload) {
   var i;
   
   // If compression=0, the header size is 40
@@ -93,4 +93,4 @@ function BLPTexture(arrayBuffer, options, ctx, onerror, onload) {
   
   this.id = id;
   this.ready = true;
-}
+};

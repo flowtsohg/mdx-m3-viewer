@@ -23,14 +23,14 @@ function ShallowNode(node) {
   this.parentId = node.parentId;
 }
 
-var prototype = extend(BaseNode, ShallowNode);
+ShallowNode.prototype = extend(BaseNode.prototype, {
 
-// @override
-prototype.getTransformation = function () {
+getTransformation: function () {
   var m = this.externalWorldMatrix;
   
   mat4.copy(m, this.worldMatrix);
   mat4.translate(m, m, this.pivot);
   
   return m;
-};
+}
+});

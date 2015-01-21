@@ -4,13 +4,13 @@ function ModelInstance(model, textureMap, context) {
   this.setup(model, context);
 }
 
-var prototype = extend(BaseModelInstance, ModelInstance);
+ModelInstance.prototype = extend(BaseModelInstance.prototype, {
 
-prototype.setup = function (model, context) {
+setup: function (model, context) {
   this.skeleton = new Skeleton(model, context.gl.ctx);
-};
+},
 
-prototype.update = function (worldMatrix, context) {
+update: function (worldMatrix, context) {
   var i, l;
   var sequenceId = this.sequence;
   var allowCreate = false;
@@ -38,18 +38,18 @@ prototype.update = function (worldMatrix, context) {
     }
   }
   */
-};
+},
 
-prototype.setSequence = function (sequence) {
+setSequence: function (sequence) {
   this.sequence = sequence;
   this.frame = 0;
-};
+},
 
-prototype.setTeamColor = function (id) {
+setTeamColor: function (id) {
   this.teamColor = id;
-};
+},
 
-prototype.getAttachment = function (id) {
+getAttachment: function (id) {
   var attachment = this.model.getAttachment(id);
   
   if (attachment) {
@@ -57,4 +57,5 @@ prototype.getAttachment = function (id) {
   } else {
     return this.skeleton.root;
   }
-};
+}
+});

@@ -29,9 +29,9 @@ function Skeleton(model, ctx) {
   this.rotationQuat = quat.create();
 }
 
-var prototype = extend(BaseSkeleton, Skeleton);
+Skeleton.prototype = extend(BaseSkeleton.prototype, {
 
-prototype.update = function (sequence, frame, counter, worldMatrix, context) {
+update: function (sequence, frame, counter, worldMatrix, context) {
   var nodes = this.nodes;
   var hierarchy = this.hierarchy;
   var root = this.rootNode;
@@ -43,9 +43,9 @@ prototype.update = function (sequence, frame, counter, worldMatrix, context) {
   }
     
   this.updateHW(context.gl.ctx);
-};
+},
 
-prototype.updateNode = function (node, sequence, frame, counter, context) {
+updateNode: function (node, sequence, frame, counter, context) {
   var nodeImpl = node.nodeImpl;
   var pivot = node.pivot;
   var negativePivot = node.negativePivot;
@@ -84,9 +84,9 @@ prototype.updateNode = function (node, sequence, frame, counter, context) {
   }
   
   node.updateScale();
-};
+},
 
-prototype.updateHW = function (ctx) {
+updateHW: function (ctx) {
   var bones = this.bones,
        hwbones = this.hwbones,
        nodes = this.nodes;
@@ -96,4 +96,5 @@ prototype.updateHW = function (ctx) {
   }
   
   this.updateBoneTexture(ctx);
-};
+}
+});

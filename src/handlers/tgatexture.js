@@ -9,7 +9,8 @@
  * @property {WebGLTexture} id
  * @property {boolean} ready
  */
-function TGATexture(arrayBuffer, options, ctx, onerror, onload) {
+
+window["TGATexture"] = function TGATexture(arrayBuffer, options, ctx, onerror, onload) {
   var dataView = new DataView(arrayBuffer);
   var imageType = dataView.getUint8(2);
   
@@ -54,4 +55,4 @@ function TGATexture(arrayBuffer, options, ctx, onerror, onload) {
   
   this.id = id;
   this.ready = true;
-}
+};

@@ -4,9 +4,9 @@ function ModelInstance(model, textureMap, context) {
   this.setup(model, context);
 }
 
-var prototype = extend(BaseModelInstance, ModelInstance);
+ModelInstance.prototype = extend(BaseModelInstance.prototype, {
 
-prototype.setup = function (model, context) {
+setup: function (model, context) {
   var gl = context.gl;
   var ctx = gl.ctx;
   var i, l, objects;
@@ -43,17 +43,17 @@ prototype.setup = function (model, context) {
       this.ribbonEmitters[i] = new RibbonEmitter(objects[i], model, this, ctx);
     }
   }
-};
+},
 
-prototype.updateEmitters = function (emitters, allowCreate, context) {
+updateEmitters: function (emitters, allowCreate, context) {
   if (emitters) {
     for (var i = 0, l = emitters.length; i < l; i++) {
       emitters[i].update(allowCreate, this.sequence, this.frame, this.counter, context);
     }
   }
-};
+},
 
-prototype.update = function (worldMatrix, context) {
+update: function (worldMatrix, context) {
   var allowCreate = false;
   
   if (this.sequence !== -1) {
@@ -81,17 +81,17 @@ prototype.update = function (worldMatrix, context) {
   this.updateEmitters(this.particleEmitters, allowCreate, context);
   this.updateEmitters(this.particleEmitters2, allowCreate, context);
   this.updateEmitters(this.ribbonEmitters, allowCreate, context);
-};
+},
 
-prototype.setTeamColor = function (id) {
+setTeamColor: function (id) {
   var idString = ((id < 10) ? "0" + id : id);
   
   this.overrideTexture("replaceabletextures/teamcolor/teamcolor00.blp", urls.mpqFile("replaceabletextures/teamcolor/teamcolor" + idString + ".blp"));
   this.overrideTexture("replaceabletextures/teamglow/teamglow00.blp", urls.mpqFile("replaceabletextures/teamglow/teamglow" + idString + ".blp"));
   this.teamColor = id;
-};
+},
 
-prototype.setSequence = function (id) {
+setSequence: function (id) {
   this.sequence = id;
   
   if (id === -1) {
@@ -101,9 +101,9 @@ prototype.setSequence = function (id) {
     
     this.frame = sequence.interval[0];
   }
-};
+},
 
-prototype.getAttachment = function (id) {
+getAttachment: function (id) {
   var attachment = this.model.attachments[id];
   
   if (attachment) {
@@ -112,4 +112,5 @@ prototype.getAttachment = function (id) {
   } else {
     return this.skeleton.nodes[0];
   }
-};
+}
+});

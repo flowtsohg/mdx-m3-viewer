@@ -1,1 +1,1 @@
-var M3 = (function () {
+window["M3"] = (function () {
