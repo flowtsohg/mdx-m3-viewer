@@ -46,12 +46,22 @@ setup: function (parser, context) {
   }
   
   var nodes = parser.nodes;
-  var pivots = parser.pivotPointChunk.objects;
+  var pivots;
+  
+  if (parser.pivotPointChunk) {
+      pivots = parser.pivotPointChunk.objects;
+  } else {
+      pivots = [[0, 0, 0]];
+  }
   
   this.nodes = [];
   
   for (i = 0, l = nodes.length; i < l; i++) {
     this.nodes[i] = new Node(nodes[i], this, pivots);
+  }
+  
+  if (this.nodes.length === 0) {
+      this.nodes[0] = new Node({objectId: 0, parentId: 0xFFFFFFFF}, this, pivots);
   }
   
   // This list is used to access all the nodes in a loop while keeping the hierarchy in mind.

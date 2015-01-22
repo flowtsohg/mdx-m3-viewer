@@ -92,14 +92,16 @@ setTeamColor: function (id) {
 },
 
 setSequence: function (id) {
-  this.sequence = id;
-  
-  if (id === -1) {
-    this.frame = 0;
-  } else {
-    var sequence = this.model.sequences[id];
-    
-    this.frame = sequence.interval[0];
+    if (this.model.sequences.length) {
+      this.sequence = id;
+      
+      if (id === -1) {
+        this.frame = 0;
+      } else {
+        var sequence = this.model.sequences[id];
+        
+        this.frame = sequence.interval[0];
+      }
   }
 },
 
