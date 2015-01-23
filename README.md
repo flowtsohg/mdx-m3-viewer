@@ -44,22 +44,21 @@ If the client has the requierments to run the viewer, the API will be returned, 
 
 ------------------------
 
-Models and textures can send multiple messages in their life span, upon beginning to load, loading progress, finishing to load, and errors.
-Instances send a single event when they get loaded.
+Objects can send events in their life span, very similar to those of native JavaScript objects.
 Use the `onmessage` callback to keep track of everything.
 The messages are JavaScript objects of the form:
 
-`{type: type, objectType: objectType, source: source [, id: id, error: error, progress: progress])`.
+`{type: type, target: target [, loaded: loaded, total: total, lengthComputable: lengthComputable, error: error])`.
 
 The type can be one of:
-* `loadstart` - a model or a texture started loading.
-* `progress` - to keep track of the loading progress of a model or texture. In this case the `progress` value will be a value in the range `[0, 1]`.
-* `load` - a model, texture, or instance loaded successfully. If the object is a model or instance, the `id` value will be set.
-* `error` - an error occured when loading a texture or a model, or an error occured with the WebGL context. In this case, the `error` value will contain a short string that will tell what the error is.
-* `unload` - a model, instance, or texture was unloaded.
+* `loadstart` - an object started loading.
+* `progress` - progress updates for loads. The relevant progress properties will be set.
+* `load` - an object finished loading.
+* `error` - an error occured when loading an object, or an error occured with the WebGL context. In this case, the `error` value will contain a short string that will tell what the error is.
+* `loadend` - sent when an object finishes loading, either because of an error, or because it loaded successfully.
+* `unload` - an object was unloaded.
 
-The `objectType` value can be `model`, `texture`, `header` (for custom models, see below), `instance`, or for WebGL errors, `webgl` and `shader`.
-The `source` value is the source string that generated the object (an url or name).
+The target property is set to the object that the event is related to.
 
 ------------------------
 
@@ -103,19 +102,21 @@ BaseModel and BaseModelInstance are exported as global objects. They can be exte
 
 An example of setting up a new texture handler:
 ```js
-function MyTexture(arrayBuffer, options, ctx, onerror, onload) {
+function MyTexture(arrayBuffer, options, ctx, onerror, onload, compressedTextures) {
   this.id = glContext.createTexture();
   
   // Parse the buffer and construct the texture...
   
   this.ready = true; // Signal that this texture was parsed successfully. If it isn't set, the texture wont be used.
+  
+  onload();
 }
 
 // --------
 // Register
 // --------
 
-myViewer.registerTextureHandler("myFileType", MyTexture);
+myViewer.registerTextureHandler(".myFileType", MyTexture);
 
 ```
 
@@ -156,7 +157,7 @@ MyModelInstance.prototype = Object.create(BaseModel.BaseModelInstance);
 // --------
 
 var isBinaryFormat = true/false;
-myViewer.registerModelHandler("myFileType", MyModel, MyModelInstance, isBinaryFormat);
+myViewer.registerModelHandler(".myFileType", MyModel, MyModelInstance, isBinaryFormat);
 ```
 
 The examples folder has an example with partially working OBJ model and BMP texture handlers.
