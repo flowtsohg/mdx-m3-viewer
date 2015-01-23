@@ -20,9 +20,8 @@ function Spatial() {
     this.rotation = quat.create();
     this.eulerRotation = vec3.create();
     this.scaling = vec3.fromValues(1, 1, 1);
-    this.parentId = -1;
-    this.attachmentId = -1;
-    this.parentNode = null;
+    this.inverseScale = vec3.create();
+    this.parent = null;
 }
 
 Spatial.prototype = {
@@ -34,6 +33,7 @@ Spatial.prototype = {
     */
     recalculateTransformation: function () {
         mat4.fromRotationTranslationScale(this.localMatrix, this.rotation, this.location, this.scaling);
+        vec3.inverse(this.inverseScale, this.scaling);
     },
 
   /**
@@ -220,22 +220,25 @@ Spatial.prototype = {
     * @param {Node} parent The parent.
     * @param {number} [attahmcnet] An attachment.
     */
-    setParent: function (parent, attachment) {
-        if (parent) {
-            this.parentId = parent.id;
-            this.attachmentId = attachment;
-
-            parent.requestAttachment(this, attachment);
-        } else {
-            this.parentId = -1;
-            this.attachmentId = -1;
-            this.parentNode = null;
-        }
+    setParent: function (parent) {
+        this.parent = parent;
     },
+    //~ setParent: function (parent, attachment) {
+        //~ if (parent) {
+            //~ this.parentId = parent.id;
+            //~ this.attachmentId = attachment;
+
+            //~ parent.requestAttachment(this, attachment);
+        //~ } else {
+            //~ this.parentId = -1;
+            //~ this.attachmentId = -1;
+            //~ this.parentNode = null;
+        //~ }
+    //~ },
 
   // Called from the parent with the parent node.
-    setParentNode: function (node) {
-        this.parentNode = node;
+    setParentNode: function (parent) {
+        this.parent = parent;
     },
 
   /**
@@ -246,7 +249,7 @@ Spatial.prototype = {
     * @returns {array} The parent and attachment.
     */
     getParent: function () {
-        return [this.parentId, this.attachmentId];
+        return this.parent;
     },
 
   /**
@@ -258,15 +261,15 @@ Spatial.prototype = {
     */
     getTransformation: function (objects) {
         var worldMatrix = this.worldMatrix,
-            parentNode = this.parentNode;
+            parent = this.parent;
 
         mat4.identity(worldMatrix);
 
         if (parentNode) {
-            mat4.copy(worldMatrix, parentNode.getTransformation());
+            mat4.copy(worldMatrix, parent.getTransformation());
 
             // Scale by the inverse of the parent to avoid carrying over scales through the hierarchy
-            mat4.scale(worldMatrix, worldMatrix, parentNode.inverseScale);
+            mat4.scale(worldMatrix, worldMatrix, parent.inverseScale);
         }
 
         mat4.multiply(worldMatrix, worldMatrix, this.localMatrix);

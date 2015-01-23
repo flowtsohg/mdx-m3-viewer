@@ -627,12 +627,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @param {boolean} mode The visibility mode.
     */
-    function setVisibility(objectId, mode) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            object.setVisibility(mode);
-        }
+    function setVisibility(object, mode) {
+        object.setVisibility(mode);
     }
   
   /**
@@ -643,12 +639,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @returns {boolean} The visibility mode.
     */
-    function getVisibility(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            return object.getVisibility();
-        }
+    function getVisibility(object) {
+        return object.getVisibility();
     }
   
   /**
@@ -660,12 +652,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} meshId The ID of the mesh.
     * @param {boolean} mode The visibility mode.
     */
-    function setMeshVisibility(objectId, meshId, mode) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            return object.setMeshVisibility(meshId, mode);
-        }
+    function setMeshVisibility(object, meshId, mode) {
+        return object.setMeshVisibility(meshId, mode);
     }
   
   /**
@@ -677,12 +665,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} meshId The ID of the mesh.
     * @return {boolean} The visibility mode.
     */
-    function getMeshVisibility(objectId, meshId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            return object.getMeshVisibility(meshId);
-        }
+    function getMeshVisibility(object, meshId) {
+        return object.getMeshVisibility(meshId);
     }
   
   // ------------------
@@ -697,12 +681,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @param {vec3} v The location.
     */
-    function setLocation(objectId, v) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            object.setLocation(v);
-        }
+    function setLocation(object, v) {
+        object.setLocation(v);
     }
   
   /**
@@ -713,12 +693,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @param {vec3} v The displacement.
     */
-    function move(objectId, v) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            object.move(v);
-        }
+    function move(object, v) {
+        object.move(v);
     }
   
   /**
@@ -729,12 +705,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @returns {vec3} The location.
     */
-    function getLocation(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            return object.getLocation();
-        }
+    function getLocation(object) {
+        return object.getLocation();
     }
   
   /**
@@ -745,12 +717,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @param {vec3} v A vector of euler angles.
     */
-    function setRotation(objectId, v) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            object.setRotation(v);
-        }
+    function setRotation(object, v) {
+        object.setRotation(v);
     }
   
   /**
@@ -761,12 +729,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @param {vec3} v A vector of euler angles.
     */
-    function rotate(objectId, v) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            object.rotate(v);
-        }
+    function rotate(object, v) {
+        object.rotate(v);
     }
   
   /**
@@ -777,12 +741,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @returns {vec3} A vector of euler angles.
     */
-    function getRotation(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            return object.getRotation();
-        }
+    function getRotation(object) {
+        return object.getRotation();
     }
   
   /**
@@ -793,12 +753,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @param {quat} v A quaternion.
     */
-    function setRotationQuat(objectId, q) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            object.setRotationQuat(quat.normalize(q, q));
-        }
+    function setRotationQuat(object, q) {
+        object.setRotationQuat(quat.normalize(q, q));
     }
   
   /**
@@ -809,12 +765,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @param {quat} v A quaternion.
     */
-    function rotateQuat(objectId, q) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            object.rotate(quat.normalize(q, q));
-        }
+    function rotateQuat(object, q) {
+        object.rotate(quat.normalize(q, q));
     }
   
   /**
@@ -825,12 +777,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @returns {quat} A quaternion.
     */
-    function getRotationQuat(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            return object.getRotationQuat();
-        }
+    function getRotationQuat(object) {
+        return object.getRotationQuat();
     }
   
   /**
@@ -841,12 +789,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @param {number} n The scale factor.
     */
-    function setScale(objectId, n) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            object.setScale(n);
-        }
+    function setScale(object, n) {
+        object.setScale(n);
     }
   
   /**
@@ -857,12 +801,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @param {number} n The scale factor.
     */
-    function scale(objectId, n) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            object.scale(n);
-        }
+    function scale(object, n) {
+        object.scale(n);
     }
   
   /**
@@ -873,12 +813,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @returns {number} The scale factor.
     */
-    function getScale(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            return object.getScale();
-        }
+    function getScale(object) {
+        return object.getScale();
     }
   
   /**
@@ -890,20 +826,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} parentId The ID of the parent model instance.
     * @param {number} [attachmentId] The ID of an attachment owned by the parent.
     */
-    function setParent(objectId, parentId, attachmentId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            if (parentId === -1) {
-                object.setParent();
-            } else {
-                var parent = modelInstanceMap[parentId];
-
-                if (parent && parent.isInstance) {
-                    object.setParent(parent, attachmentId);
-                }
-            }
-        }
+    function setParent(object, parent) {
+        object.setParent(parent);
     }
   
   /**
@@ -914,12 +838,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @returns {array} The parent and attachment IDs as an array.
     */
-    function getParent(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            return object.getParent();
-        }
+    function getParent(object) {
+        return object.getParent();
     }
   
   // -----------------------------
@@ -934,12 +854,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @param {number} teamID The team color.
     */
-    function setTeamColor(objectId, teamId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            object.setTeamColor(teamId);
-        }
+    function setTeamColor(object, teamId) {
+        object.setTeamColor(teamId);
     }
   
   /**
@@ -950,12 +866,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @returns {number} The team color.
     */
-    function getTeamColor(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            return object.getTeamColor();
-        }
+    function getTeamColor(object) {
+        return object.getTeamColor();
     }
   
   /**
@@ -968,12 +880,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {string} path The texture path that gets overriden.
     * @paran {string} override The new absolute path that will be used.
     */
-    function overrideTexture(objectId, path, override) {
-        var object = modelInstanceMap[objectId];
-
-        if (object) {
-            object.overrideTexture(path, override);
-        }
+    function overrideTexture(object, path, override) {
+        object.overrideTexture(path, override);
     }
   
   /**
@@ -984,12 +892,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model or a model instance.
     * @returns {object} The texture map.
     */
-    function getTextureMap(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object) {
-            return object.getTextureMap();
-        }
+    function getTextureMap(object) {
+        return object.getTextureMap();
     }
   
   // ------------
@@ -1004,12 +908,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @param {number} sequenceId The sequence.
     */
-    function setSequence(objectId, sequenceId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            object.setSequence(sequenceId);
-        }
+    function setSequence(object, sequence) {
+        object.setSequence(sequenceId);
     }
   
   /**
@@ -1020,12 +920,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @instance
     * @param {number} objectId The ID of a model instance.
     */
-    function stopSequence(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            object.setSequence(-1);
-        }
+    function stopSequence(object) {
+        object.setSequence(-1);
     }
   
   /**
@@ -1036,12 +932,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @returns {number} The sequence.
     */
-    function getSequence(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            return object.getSequence();
-        }
+    function getSequence(object) {
+        return object.getSequence();
     }
   
   /**
@@ -1053,12 +945,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @param {number} mode The loop mode.
     */
-    function setSequenceLoopMode(objectId, mode) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            object.setSequenceLoopMode(mode);
-        }
+    function setSequenceLoopMode(object, mode) {
+        object.setSequenceLoopMode(mode);
     }
   
   /**
@@ -1069,12 +957,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @returns {number} sequenceId The loop mode.
     */
-    function getSequenceLoopMode(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isInstance) {
-            return object.getSequenceLoopMode();
-        }
+    function getSequenceLoopMode(object) {
+        return object.getSequenceLoopMode();
     }
   
   // ----------
@@ -1089,12 +973,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model or a model instance.
     * @returns {object} The information.
     */
-    function getInfo(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object) {
-            return object.getInfo();
-        }
+    function getInfo(object) {
+        return object.getInfo();
     }
   
   /**
@@ -1135,12 +1015,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model or a model instance.
     * @returns {number} The source.
     */
-    function getSource(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object) {
-            return object.getSource();
-        }
+    function getSource(object) {
+        return object.getSource();
     }
   
   /**
@@ -1151,12 +1027,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model or a model instance.
     * @returns {number} The list.
     */
-    function getSequences(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object) {
-            return object.getSequences();
-        }
+    function getSequences(object) {
+        return object.getSequences();
     }
   
   /**
@@ -1167,12 +1039,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model or a model instance.
     * @returns {number} The list.
     */
-    function getAttachments(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object) {
-            return object.getAttachments();
-        }
+    function getAttachments(object) {
+        return object.getAttachments();
     }
   
   /**
@@ -1183,12 +1051,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model or a model instance.
     * @returns {number} The list.
     */
-    function getCameras(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object) {
-            return object.getCameras();
-        }
+    function getCameras(object) {
+        return object.getCameras();
     }
   
   /**
@@ -1199,12 +1063,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model or a model instance.
     * @returns {number} The list.
     */
-    function getBoundingShapes(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object) {
-            return object.getBoundingShapes();
-        }
+    function getBoundingShapes(object) {
+        return object.getBoundingShapes();
     }
   
   /**
@@ -1215,12 +1075,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model or a model instance.
     * @returns {number} The number of meshes.
     */
-    function getMeshCount(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object) {
-            return object.getMeshCount();
-        }
+    function getMeshCount(object) {
+        return object.getMeshCount();
     }
   
   /**
@@ -1231,12 +1087,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {number} objectId The ID of a model.
     * @returns {number} The list.
     */
-    function getInstances(objectId) {
-        var object = modelInstanceMap[objectId];
-
-        if (object && object.isModel) {
-            return object.getInstances();
-        }
+    function getInstances(object) {
+        return object.getInstances();
     }
   
   // -------------------
@@ -1562,10 +1414,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
         //console.log("selectInstance", new Date() - date);
 
         if (instance) {
-            return instance.id;
+            return instance;
         }
-
-        return -1;
     }
   
   /**
@@ -1784,8 +1634,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
         resetCamera: resetCamera,
         // Misc
         selectInstance: selectInstance,
-        saveScene: saveScene,
-        loadScene: loadScene,
+        //saveScene: saveScene,
+        //loadScene: loadScene,
         // Extending
         registerModelHandler: registerModelHandler,
         registerTextureHandler: registerTextureHandler
