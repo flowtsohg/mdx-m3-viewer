@@ -43,6 +43,7 @@ compile_docs = false
 
     ["gl", [
         "gl/before",
+        "gl/texture",
         "gl/nativetexture",
         "gl/shader",
         "gl/rect",
