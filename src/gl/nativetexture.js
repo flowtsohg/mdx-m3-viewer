@@ -12,7 +12,7 @@
  * @property {WebGLTexture} id
  * @property {boolean} ready
  */
-function NativeTexture(arrayBuffer, options, ctx, onerror, onload) {
+function NativeTexture(arrayBuffer, options, ctx, onerror, onload, compressedTextures) {
     var blob = new Blob([arrayBuffer]),
         url = URL.createObjectURL(blob),
         image = new Image(),

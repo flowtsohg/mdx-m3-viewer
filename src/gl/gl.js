@@ -295,21 +295,6 @@ function bindShader(name) {
     return boundShader;
 }
 
-function onloadTexture(source, handler, options, e) {
-    var target = e.target,
-        status = target.status;
-
-    if (status === 200) {
-        textureStore[source] = new handler(target.response, options, ctx, onerror.bind(undefined, {isTexture: 1, source: source}), onload.bind(undefined, {isTexture: 1, source: source}), compressedTextures);
-
-        if (textureStore[source].ready) {
-            onload({isTexture: 1, source: source});
-        }
-    } else {
-        onerror({isTexture: 1, source: source}, "" + status);
-    }
-}
-
 /**
  * Loads a texture, with optional options that will be sent to the texture's constructor,
  * If the texture was already loaded previously, it returns it.
@@ -320,20 +305,9 @@ function onloadTexture(source, handler, options, e) {
  * @param {object} options Options.
  */
 function loadTexture(source, options) {
-    // Only load a texture if it wasn't already loaded, and isn't in the middle of loading.
-        if (!textureStore[source] && !textureLoading[source]) {
-            var fileType = fileTypeFromPath(source),
-            handler = textureHandlers[fileType];
-
-        if (handler) {
-            textureLoading[source] = 1;
-
-            onloadstart({isTexture: 1, source: source});
-
-            getRequest(source, true, onloadTexture.bind(undefined, source, handler, options || {}), onerror.bind(undefined, {isTexture: true, source: source}), onprogress.bind(undefined, {isTexture: true, source: source}));
-        } else {
-            console.log("Error: no texture handler for file type " + fileType);
-        }
+    if (!textureStore[source] && !textureLoading[source]) {
+        textureLoading[source] = 1;
+        textureStore[source] = new Texture(source, options, textureHandlers, ctx, compressedTextures, onloadstart, onerror, onprogress, onload);
     }
 }
 
@@ -346,9 +320,9 @@ function loadTexture(source, options) {
  */
 function unloadTexture(source) {
     if (textureStore[source]) {
-        delete textureStore[source];
-
-        onunload({isTexture: true, source: source});
+        onunload(textureStore[source]);
+        
+        delete textureStore[source]; 
     }
 }
 
@@ -369,13 +343,13 @@ function bindTexture(object, unit) {
         texture = textureStore[object];
     }
 
-    if (texture && texture.ready) {
+    if (texture && texture.impl && texture.impl.ready) {
         // Only bind if actually necessary
         if (!boundTextures[unit] || boundTextures[unit].id !== texture.id) {
-            boundTextures[unit] = texture;
+            boundTextures[unit] = texture.impl;
 
             ctx.activeTexture(ctx.TEXTURE0 + unit);
-            ctx.bindTexture(ctx.TEXTURE_2D, texture.id);
+            ctx.bindTexture(ctx.TEXTURE_2D, texture.impl.id);
         }
     } else {
         boundTextures[unit] = null;

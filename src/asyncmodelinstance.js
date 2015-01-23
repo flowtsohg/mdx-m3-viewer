@@ -10,7 +10,7 @@
  * @param {vec3} color The color this instance uses for {@link AsyncModelInstance.renderColor}.
  * @param {object} textureMap An object with texture path -> absolute urls mapping.
  */
-function AsyncModelInstance(asyncModel, id, color, textureMap, context, onLoad) {
+function AsyncModelInstance(asyncModel, id, color, textureMap, context, onload) {
     this.ready = false;
     this.fileType = asyncModel.fileType;
     this.isInstance = true;
@@ -30,7 +30,7 @@ function AsyncModelInstance(asyncModel, id, color, textureMap, context, onLoad) 
 
     this.context = context;
 
-    this.onLoad = onLoad || function () {};
+    this.onload = onload || function () {};
 
     Async.call(this);
     Spatial.call(this);
@@ -61,7 +61,7 @@ AsyncModelInstance.prototype = {
         this.recalculateTransformation();
 
         if (!this.delayOnload) {
-            this.onLoad(this);
+            this.onload(this);
         }
 
         if (this.context.debugMode) {

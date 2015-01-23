@@ -13,7 +13,7 @@ var BLP_PALLETE = 0x1;
  * @property {WebGLTexture} id
  * @property {boolean} ready
  */
-window["BLPTexture"] = function BLPTexture(arrayBuffer, options, ctx, onerror, onload) {
+window["BLPTexture"] = function BLPTexture(arrayBuffer, options, ctx, onerror, onload, compressedTextures) {
     var i;
 
     // If compression=0, the header size is 40
@@ -22,7 +22,7 @@ window["BLPTexture"] = function BLPTexture(arrayBuffer, options, ctx, onerror, o
     var header = new Int32Array(arrayBuffer, 0, 40);
 
     if (header[0] !== BLP1_MAGIC) {
-        onerror("Format");
+        onerror("BLP: Format");
         return;
     }
 
@@ -93,4 +93,6 @@ window["BLPTexture"] = function BLPTexture(arrayBuffer, options, ctx, onerror, o
 
     this.id = id;
     this.ready = true;
+    
+    onload();
 };

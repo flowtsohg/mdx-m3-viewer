@@ -8,7 +8,7 @@
  * @param {number} id The id of this model.
  * @param {object} textureMap An object with texture path -> absolute urls mapping.
  */
-function AsyncModel(source, id, textureMap, context, onError, onProgress, onLoad) {
+function AsyncModel(source, id, textureMap, context, onloadstart, onerror, onprogress, onload) {
     var fileType = fileTypeFromPath(source);
     
     this.ready = false;
@@ -24,11 +24,13 @@ function AsyncModel(source, id, textureMap, context, onError, onProgress, onLoad
 
     this.context = context;
 
-    this.onError = onError || function () {};
-    this.onProgress = onProgress || function () {};
-    this.onLoad = onLoad || function () {};
+    this.onerror = onerror || function () {};
+    this.onprogress = onprogress || function () {};
+    this.onload = onload || function () {};
     
-    getRequest(source, AsyncModel.handlers[fileType][1], this.setup.bind(this, textureMap || {}), onError.bind(undefined, this), onProgress.bind(undefined, this));
+    onloadstart(this);
+        
+    getRequest(source, AsyncModel.handlers[fileType][1], this.setup.bind(this, textureMap || {}), onerror.bind(undefined, this), onprogress.bind(undefined, this));
 }
 
 AsyncModel.handlers = {};
@@ -47,7 +49,7 @@ AsyncModel.prototype = {
             model;
 
         if (status === 200) {
-            model = new AsyncModel.handlers[this.fileType][0](e.target.response, textureMap, this.context, this.onError.bind(undefined, {isModel: 1, source: this.source, id: this.id}));
+            model = new AsyncModel.handlers[this.fileType][0](e.target.response, textureMap, this.context, this.onerror.bind(undefined, this));
 
             if (this.context.debugMode) {
                 console.log(model);
@@ -59,10 +61,10 @@ AsyncModel.prototype = {
 
                 this.runFunctors();
 
-                this.onLoad(this);
+                this.onload(this);
             }
         } else {
-            this.onError(this, "" + status);
+            this.onerror(this, "" + status);
         }
     },
  

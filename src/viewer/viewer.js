@@ -7,59 +7,24 @@
  * @param {boolean} debugMode If true, the viewer will log the loaded models and their parser to the console.
  */
 window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
-    var grassPath = urls.localFile("grass.png"),
-        waterPath = urls.localFile("water.png"),
-        bedrockPath = urls.localFile("bedrock.png"),
-        skyPath = urls.localFile("sky.png");
-  
-    // This function is used to filter out reports for internal textures (e.g. ground, sky, team colors beside 00, etc.).
-    function noReport(path) {
-        return (path === grassPath || path === waterPath || path === bedrockPath || path === skyPath);
-    }
-
     function sendMessage(e) {
         if (typeof onmessage === "function") {
             onmessage(e);
         }
     }
   
-    function objectTypeName(object) {
-        if (object.isModel) {
-            return "model";
-        } else if (object.isInstance) {
-            return "instance";
-        } else if (object.isHeader) {
-            return "header";
-        } else if (object.isTexture) {
-            return "texture";
-        } else if (object.isWebGL) {
-            return "webgl";
-        } else if (object.isShader) {
-            return "shader";
-        }
-    }
-  
     function onloadstart(object) {
-        var source = object.source;
-
-        if (!noReport(source)) {
-            sendMessage({type: "loadstart", objectType: objectTypeName(object), source: source});
-        }
+        sendMessage({type: "loadstart", target: object});
     }
-  
+    
+    function onloadend(object) {
+        sendMessage({type: "loadend", target: object});
+    }
+    
     function onload(object) {
-        var source = object.source,
-            message;
-
-        if (!noReport(source) ) {
-            message = {type: "load", objectType: objectTypeName(object), source: source};
-
-            if (object.isModel || object.isInstance) {
-                message.id = object.id;
-            }
-
-            sendMessage(message);
-        }
+        sendMessage({type: "load", target: object});
+        
+        onloadend(object);
     }
 
     function onerror(object, error) {
@@ -67,33 +32,19 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
             error = "" + error.target.status;
         }
 
-        sendMessage({type: "error", objectType: objectTypeName(object), source: object.source, error: error});
-    }
-  
-    function onprogress(object, e) {
+        sendMessage({type: "error", error: error, target: object});
         
-        var source = object.source,
-            progress = e.loaded / e.total;
-
+        onloadend(object);
+    }
+    
+    function onprogress(object, e) {
         if (e.target.status === 200) {
-            if (!noReport(source)) {
-                if (progress === Infinity) {
-                    progress = 0;
-                }
-
-                sendMessage({type: "progress", objectType: objectTypeName(object), source: source, progress: progress});
-            }
+            sendMessage({type: "progress", target: object, loaded: e.loaded, total: e.total, lengthComputable: e.lengthComputable});
         }
     }
   
     function onunload(object) {
-        var message = {type: "unload", objectType: objectTypeName(object), source: object.source};
-
-        if (object.isModel || object.isInstance) {
-            message.id = object.id;
-        }
-
-        sendMessage(message);
+        sendMessage({type: "unload", target: object});
     }
   
     var gl = GL(canvas, onload, onerror, onprogress, onloadstart, onunload);
@@ -101,6 +52,11 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     if (!gl) {
         return;
     }
+    
+    var grassPath = urls.localFile("grass.png"),
+        waterPath = urls.localFile("water.png"),
+        bedrockPath = urls.localFile("bedrock.png"),
+        skyPath = urls.localFile("sky.png");
 
     var ctx = gl.ctx;
     var cameraMatrix = mat4.create();
@@ -441,13 +397,11 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
             var object;
 
             idFactory += 1;
-            object = new AsyncModel(source, idFactory, textureMap, context, onerror, onprogress, onload);
+            object = new AsyncModel(source, idFactory, textureMap, context, onloadstart, onerror, onprogress, onload);
 
             modelMap[source] = object;
             modelArray.push(object);
             modelInstanceMap[idFactory] = object;
-
-            onloadstart(object);
         }
 
         return modelMap[source];
@@ -478,7 +432,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     // Used by Mdx.ParticleEmitter since they don't need to be automatically updated and rendered
     function loadInternalResource(source) {
         if (!modelMap[source]) {
-            modelMap[source] = new AsyncModel(source, -1, {}, context, onerror, onprogress, onload);
+            modelMap[source] = new AsyncModel(source, -1, {}, context, onloadstart, onerror, onprogress, onload);
             onloadstart(modelMap[source]);
         }
 
@@ -504,7 +458,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
         }
     }
 
-    function loadResourceFromId(e) {
+    function loadResourceFromHeader(e) {
         var status = e.target.status;
 
         if (status === 200) {
@@ -534,6 +488,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
             for (i = 0, l = object.models.length; i < l; i++) {
                 loadResourceImpl(models[i].url, textureMap, models[i].hidden);
             }
+        } else {
+            onerror(this, e);
         }
     }
   
@@ -624,7 +580,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
 
             onloadstart(object);
 
-            getRequest(urls.header(source), false, loadResourceFromId.bind(object), onerror.bind(undefined, object), onprogress.bind(undefined, object));
+            getRequest(urls.header(source), false, loadResourceFromHeader.bind(object), onerror.bind(undefined, object), onprogress.bind(undefined, object));
         }
     }
   
@@ -641,7 +597,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
         if (typeof source === "number") {
             object = modelInstanceMap[source];
 
-            if (object && object.ready) {
+            if (object) {
                 if (object.isModel) {
                     unloadModel(object);
                 } else {
@@ -652,9 +608,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
             object = modelMap[source];
 
             if (object) {
-                if (object.ready) {
-                    unloadModel(object);
-                }
+                unloadModel(object);
             } else {
                 gl.unloadTexture(source);
             }
@@ -1761,9 +1715,9 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
 
     return {
         // Resource API
-        loadResource: loadResource,
-        unloadResource: unloadResource,
-        unloadEverything: unloadEverything,
+        load: loadResource,
+        unload: unloadResource,
+        clear: unloadEverything,
         // Instance visibility
         setVisibility: setVisibility,
         getVisibility: getVisibility,

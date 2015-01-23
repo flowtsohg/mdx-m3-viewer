@@ -264,12 +264,12 @@ window["DDSTexture"] = function DDSTexture(arrayBuffer, options, ctx, onerror, o
     var header = new Int32Array(arrayBuffer, 0, 31);
 
     if (header[0] !== DDS_MAGIC) {
-        onerror("Format");
+        onerror("DDS: Format");
         return;
     }
 
     if (!header[20] & DDPF_FOURCC) {
-        onerror("FourCC");
+        onerror("DDS: FourCC");
         return;
     }
 
@@ -286,7 +286,7 @@ window["DDSTexture"] = function DDSTexture(arrayBuffer, options, ctx, onerror, o
         blockBytes = 16;
         internalFormat = compressedTextures ? compressedTextures.COMPRESSED_RGBA_S3TC_DXT5_EXT : null;
     } else {
-        onerror(int32ToFourCC(fourCC));
+        onerror("DDS: " + int32ToFourCC(fourCC));
         return;
     }
 
@@ -340,4 +340,6 @@ window["DDSTexture"] = function DDSTexture(arrayBuffer, options, ctx, onerror, o
 
     this.id = id;
     this.ready = true;
+    
+    onload();
 };

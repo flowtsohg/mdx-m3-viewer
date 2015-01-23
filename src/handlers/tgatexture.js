@@ -10,12 +10,12 @@
  * @property {boolean} ready
  */
 
-window["TGATexture"] = function TGATexture(arrayBuffer, options, ctx, onerror, onload) {
+window["TGATexture"] = function TGATexture(arrayBuffer, options, ctx, onerror, onload, compressedTextures) {
     var dataView = new DataView(arrayBuffer);
     var imageType = dataView.getUint8(2);
 
     if (imageType !== 2) {
-        onerror("ImageType");
+        onerror("TGA: ImageType");
         return;
     }
 
@@ -25,7 +25,7 @@ window["TGATexture"] = function TGATexture(arrayBuffer, options, ctx, onerror, o
     var imageDescriptor = dataView.getUint8(17);
 
     if (pixelDepth !== 32) {
-        onerror("PixelDepth");
+        onerror("TGA: PixelDepth");
         return;
     }
 
@@ -56,4 +56,6 @@ window["TGATexture"] = function TGATexture(arrayBuffer, options, ctx, onerror, o
 
     this.id = id;
     this.ready = true;
+    
+    onload();
 };
