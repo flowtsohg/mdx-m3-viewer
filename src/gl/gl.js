@@ -9,8 +9,8 @@
  * @param {number} far
  */
 function setPerspective(fovy, aspect, near, far) {
-  mat4.perspective(projectionMatrix, fovy, aspect, near, far);
-  refreshViewProjectionMatrix = true;
+    mat4.perspective(projectionMatrix, fovy, aspect, near, far);
+    refreshViewProjectionMatrix = true;
 }
 
 /**
@@ -26,8 +26,8 @@ function setPerspective(fovy, aspect, near, far) {
  * @param {number} far
  */
 function setOrtho(left, right, bottom, top, near, far) {
-  mat4.ortho(projectionMatrix, left, right, bottom, top, near, far);
-  refreshViewProjectionMatrix = true;
+    mat4.ortho(projectionMatrix, left, right, bottom, top, near, far);
+    refreshViewProjectionMatrix = true;
 }
 
 /**
@@ -37,8 +37,8 @@ function setOrtho(left, right, bottom, top, near, far) {
  * @instance
  */
 function loadIdentity() {
-  mat4.identity(viewMatrix);
-  refreshViewProjectionMatrix = true;
+    mat4.identity(viewMatrix);
+    refreshViewProjectionMatrix = true;
 }
 
 /**
@@ -49,8 +49,8 @@ function loadIdentity() {
  * @param {vec3} v Translation.
  */
 function translate(v) {
-  mat4.translate(viewMatrix, viewMatrix, v);
-  refreshViewProjectionMatrix = true;
+    mat4.translate(viewMatrix, viewMatrix, v);
+    refreshViewProjectionMatrix = true;
 }
 
 /**
@@ -62,8 +62,8 @@ function translate(v) {
  * @param {vec3} axis The rotation axis..
  */
 function rotate(radians, axis) {
-  mat4.rotate(viewMatrix, viewMatrix, radians, axis);
-  refreshViewProjectionMatrix = true;
+    mat4.rotate(viewMatrix, viewMatrix, radians, axis);
+    refreshViewProjectionMatrix = true;
 }
 
 /**
@@ -74,8 +74,8 @@ function rotate(radians, axis) {
  * @param {vec3} v Scaling.
  */
 function scale(v) {
-  mat4.scale(viewMatrix, viewMatrix, v);
-  refreshViewProjectionMatrix = true;
+    mat4.scale(viewMatrix, viewMatrix, v);
+    refreshViewProjectionMatrix = true;
 }
 
 /**
@@ -88,8 +88,8 @@ function scale(v) {
  * @param {vec3} up
  */
 function lookAt(eye, center, up) {
-  mat4.lookAt(viewMatrix, eye, center, up);
-  refreshViewProjectionMatrix = true;
+    mat4.lookAt(viewMatrix, eye, center, up);
+    refreshViewProjectionMatrix = true;
 }
 
 /**
@@ -100,8 +100,8 @@ function lookAt(eye, center, up) {
  * @param {mat4} mat.
  */
 function multMat(mat) {
-  mat4.multiply(viewMatrix, viewMatrix, mat);
-  refreshViewProjectionMatrix = true;
+    mat4.multiply(viewMatrix, viewMatrix, mat);
+    refreshViewProjectionMatrix = true;
 }
 
 /**
@@ -111,8 +111,8 @@ function multMat(mat) {
  * @instance
  */
 function pushMatrix() {
-  matrixStack.push(mat4.clone(viewMatrix));
-  refreshViewProjectionMatrix = true;
+    matrixStack.push(mat4.clone(viewMatrix));
+    refreshViewProjectionMatrix = true;
 }
 
 /**
@@ -122,8 +122,8 @@ function pushMatrix() {
  * @instance
  */
 function popMatrix() {
-  viewMatrix = matrixStack.pop();
-  refreshViewProjectionMatrix = true;
+    viewMatrix = matrixStack.pop();
+    refreshViewProjectionMatrix = true;
 }
 
 /**
@@ -134,12 +134,12 @@ function popMatrix() {
  * @returns {mat4} MVP.
  */
 function getViewProjectionMatrix() {
-  if (refreshViewProjectionMatrix) {
-    mat4.multiply(viewProjectionMatrix, projectionMatrix, viewMatrix);
-    refreshViewProjectionMatrix = false;
-  }
-  
-  return viewProjectionMatrix;
+    if (refreshViewProjectionMatrix) {
+        mat4.multiply(viewProjectionMatrix, projectionMatrix, viewMatrix);
+        refreshViewProjectionMatrix = false;
+    }
+
+    return viewProjectionMatrix;
 }
 
 /**
@@ -150,7 +150,7 @@ function getViewProjectionMatrix() {
  * @returns {mat4} P.
  */
 function getProjectionMatrix() {
-  return projectionMatrix;
+    return projectionMatrix;
 }
 
 /**
@@ -161,7 +161,7 @@ function getProjectionMatrix() {
  * @returns {mat4} MV.
  */
 function getViewMatrix() {
-  return viewMatrix;
+    return viewMatrix;
 }
 
 /**
@@ -175,13 +175,13 @@ function getViewMatrix() {
  * @returns {GL.ShaderUnit} The created shader unit.
  */
 function createShaderUnit(source, type, name) {
-  var hash = String.hashCode(source);
-  
-  if (!shaderUnitStore[hash]) {
-    shaderUnitStore[hash] = new ShaderUnit(source, type, name);
-  }
-  
-  return shaderUnitStore[hash];
+    var hash = String.hashCode(source);
+
+    if (!shaderUnitStore[hash]) {
+        shaderUnitStore[hash] = new ShaderUnit(source, type, name);
+    }
+
+    return shaderUnitStore[hash];
 }
 
 /**
@@ -196,26 +196,26 @@ function createShaderUnit(source, type, name) {
  * @returns {GL.Shader?} The created shader, or a previously cached version, or null if it failed to compile and link.
  */
 function createShader(name, vertexSource, fragmentSource, defines) {
-  if (!shaderStore[name]) {
-    defines = defines || [];
-    
-    for (var i = 0; i < defines.length; i++) {
-      defines[i] = "#define " + defines[i];
+    if (!shaderStore[name]) {
+        defines = defines || [];
+
+        for (var i = 0; i < defines.length; i++) {
+            defines[i] = "#define " + defines[i];
+        }
+
+        defines = defines.join("\n") + "\n";
+
+        var vertexUnit = createShaderUnit(defines + vertexSource, ctx.VERTEX_SHADER, name);
+        var fragmentUnit = createShaderUnit(floatPrecision + defines + fragmentSource, ctx.FRAGMENT_SHADER, name);
+
+        if (vertexUnit.ready && fragmentUnit.ready) {
+            shaderStore[name] = new Shader(name, vertexUnit, fragmentUnit);
+        }
     }
-    
-    defines = defines.join("\n") + "\n";
-    
-    var vertexUnit = createShaderUnit(defines + vertexSource, ctx.VERTEX_SHADER, name);
-    var fragmentUnit = createShaderUnit(floatPrecision + defines + fragmentSource, ctx.FRAGMENT_SHADER, name);
-    
-    if (vertexUnit.ready && fragmentUnit.ready) {
-      shaderStore[name] = new Shader(name, vertexUnit, fragmentUnit);
+
+    if (shaderStore[name] && shaderStore[name].ready) {
+        return shaderStore[name];
     }
-  }
-  
-  if (shaderStore[name] && shaderStore[name].ready) {
-    return shaderStore[name];
-  }
 }
 
 /**
@@ -227,9 +227,9 @@ function createShader(name, vertexSource, fragmentSource, defines) {
  * @returns {boolean} The shader's status.
  */
 function shaderStatus(name) {
-  var shader = shaderStore[name];
-  
-  return shader && shader.ready;
+    var shader = shaderStore[name];
+
+    return shader && shader.ready;
 }
 
 /**
@@ -241,9 +241,9 @@ function shaderStatus(name) {
  * @param {number} end The last attribute.
  */
 function enableVertexAttribs(start, end) {
-  for (var i = start; i < end; i++) {
-    ctx.enableVertexAttribArray(i);
-  }
+    for (var i = start; i < end; i++) {
+        ctx.enableVertexAttribArray(i);
+    }
 }
 
 /**
@@ -255,9 +255,9 @@ function enableVertexAttribs(start, end) {
  * @param {number} end The last attribute.
  */
 function disableVertexAttribs(start, end) {
-  for (var i = start; i < end; i++) {
-    ctx.disableVertexAttribArray(i);
-  }
+    for (var i = start; i < end; i++) {
+        ctx.disableVertexAttribArray(i);
+    }
 }
 
 /**
@@ -269,45 +269,45 @@ function disableVertexAttribs(start, end) {
  * @returns {GL.Shader} The bound shader.
  */
 function bindShader(name) {
-  var shader = shaderStore[name];
-  
-  if (shader && (!boundShader || boundShader.id !== shader.id)) {
-    var oldAttribs = 0;
-    
-    if (boundShader) {
-      oldAttribs = boundShader.attribs;
+    var shader = shaderStore[name];
+
+    if (shader && (!boundShader || boundShader.id !== shader.id)) {
+        var oldAttribs = 0;
+
+        if (boundShader) {
+            oldAttribs = boundShader.attribs;
+        }
+
+        var newAttribs = shader.attribs;
+
+        ctx.useProgram(shader.id);
+
+        if (newAttribs > oldAttribs) {
+            enableVertexAttribs(oldAttribs, newAttribs);
+        } else if (newAttribs < oldAttribs) {
+            disableVertexAttribs(newAttribs, oldAttribs);
+        }
+
+        boundShaderName = name;
+        boundShader = shader;
     }
-    
-    var newAttribs = shader.attribs;
-    
-    ctx.useProgram(shader.id);
-    
-    if (newAttribs > oldAttribs) {
-      enableVertexAttribs(oldAttribs, newAttribs);
-    } else if (newAttribs < oldAttribs) {
-      disableVertexAttribs(newAttribs, oldAttribs);
-    }
-    
-    boundShaderName = name;
-    boundShader = shader;
-  }
-  
-  return boundShader;
+
+    return boundShader;
 }
 
 function onloadTexture(source, handler, options, e) {
-  var target = e.target,
+    var target = e.target,
         status = target.status;
-    
-  if (status === 200) {
-    textureStore[source] = new handler(target.response, options, ctx, onerror.bind(undefined, {isTexture: 1, source: source}), onload.bind(undefined, {isTexture: 1, source: source}), compressedTextures);
-    
-    if (textureStore[source].ready) {
-      onload({isTexture: 1, source: source});
+
+    if (status === 200) {
+        textureStore[source] = new handler(target.response, options, ctx, onerror.bind(undefined, {isTexture: 1, source: source}), onload.bind(undefined, {isTexture: 1, source: source}), compressedTextures);
+
+        if (textureStore[source].ready) {
+            onload({isTexture: 1, source: source});
+        }
+    } else {
+        onerror({isTexture: 1, source: source}, "" + status);
     }
-  } else {
-    onerror({isTexture: 1, source: source}, "" + status);
-  }
 }
 
 /**
@@ -320,21 +320,21 @@ function onloadTexture(source, handler, options, e) {
  * @param {object} options Options.
  */
 function loadTexture(source, options) {
-  // Only load a texture if it wasn't already loaded, and isn't in the middle of loading.
-  if (!textureStore[source] && !textureLoading[source]) {
-    var fileType = getFileExtension(source).toLowerCase(),
-          handler = textureHandlers[fileType];
-    
-    if (handler) {
-      textureLoading[source] = 1;
-      
-      onloadstart({isTexture: 1, source: source});
-      
-      getFile(source, true, onloadTexture.bind(undefined, source, handler, options || {}), onerror.bind(undefined, {isTexture: true, source: source}), onprogress.bind(undefined, {isTexture: true, source: source}));
-    } else {
-      console.log("Error: no texture handler for file type " + fileType);
+    // Only load a texture if it wasn't already loaded, and isn't in the middle of loading.
+        if (!textureStore[source] && !textureLoading[source]) {
+            var fileType = fileTypeFromPath(source),
+            handler = textureHandlers[fileType];
+
+        if (handler) {
+            textureLoading[source] = 1;
+
+            onloadstart({isTexture: 1, source: source});
+
+            getRequest(source, true, onloadTexture.bind(undefined, source, handler, options || {}), onerror.bind(undefined, {isTexture: true, source: source}), onprogress.bind(undefined, {isTexture: true, source: source}));
+        } else {
+            console.log("Error: no texture handler for file type " + fileType);
+        }
     }
-  }
 }
 
 /**
@@ -345,11 +345,11 @@ function loadTexture(source, options) {
  * @param {string} source The texture's url.
  */
 function unloadTexture(source) {
-  if (textureStore[source]) {
-    delete textureStore[source];
-    
-    onunload({isTexture: true, source: source});
-  }
+    if (textureStore[source]) {
+        delete textureStore[source];
+
+        onunload({isTexture: true, source: source});
+    }
 }
 
 /**
@@ -361,28 +361,28 @@ function unloadTexture(source) {
  * @param {number} [unit] The texture unit.
  */
 function bindTexture(object, unit) {
-  var texture;
-  
-  unit = unit || 0;
-  
-  if (object) {
-    texture = textureStore[object];
-  }
-  
-  if (texture && texture.ready) {
-    // Only bind if actually necessary
-    if (!boundTextures[unit] || boundTextures[unit].id !== texture.id) {
-      boundTextures[unit] = texture;
-      
-      ctx.activeTexture(ctx.TEXTURE0 + unit);
-      ctx.bindTexture(ctx.TEXTURE_2D, texture.id);
-    }
-  } else {
-     boundTextures[unit] = null;
+    var texture;
 
-    ctx.activeTexture(ctx.TEXTURE0 + unit);
-    ctx.bindTexture(ctx.TEXTURE_2D, null);
-  }
+    unit = unit || 0;
+
+    if (object) {
+        texture = textureStore[object];
+    }
+
+    if (texture && texture.ready) {
+        // Only bind if actually necessary
+        if (!boundTextures[unit] || boundTextures[unit].id !== texture.id) {
+            boundTextures[unit] = texture;
+
+            ctx.activeTexture(ctx.TEXTURE0 + unit);
+            ctx.bindTexture(ctx.TEXTURE_2D, texture.id);
+        }
+    } else {
+        boundTextures[unit] = null;
+
+        ctx.activeTexture(ctx.TEXTURE0 + unit);
+        ctx.bindTexture(ctx.TEXTURE_2D, null);
+    }
 }
 
 /**
@@ -399,7 +399,7 @@ function bindTexture(object, unit) {
  * @returns {GL.Rect} The rectangle.
  */
 function createRect(x, y, z, hw, hh, stscale) {
-  return new Rect(x, y, z, hw, hh, stscale);
+    return new Rect(x, y, z, hw, hh, stscale);
 }
 
 /**
@@ -416,7 +416,7 @@ function createRect(x, y, z, hw, hh, stscale) {
  * @returns {GL.Cube} The cube.
  */
 function createCube(x1, y1, z1, x2, y2, z2) {
-  return new Cube(x1, y1, z1, x2, y2, z2);
+    return new Cube(x1, y1, z1, x2, y2, z2);
 }
 
 /**
@@ -433,7 +433,7 @@ function createCube(x1, y1, z1, x2, y2, z2) {
  * @returns {GL.Sphere} The sphere.
  */
 function createSphere(x, y, z, latitudeBands, longitudeBands, radius) {
-  return new Sphere(x, y, z, latitudeBands, longitudeBands, radius);
+    return new Sphere(x, y, z, latitudeBands, longitudeBands, radius);
 }
 
 /**
@@ -450,7 +450,7 @@ function createSphere(x, y, z, latitudeBands, longitudeBands, radius) {
  * @returns {GL.Cylinder} The cylinder.
  */
 function createCylinder(x, y, z, r, h, bands) {
-  return new Cylinder(x, y, z, r, h, bands);
+    return new Cylinder(x, y, z, r, h, bands);
 }
 
 /**
@@ -462,5 +462,5 @@ function createCylinder(x, y, z, r, h, bands) {
  * @param {function} textureHandler
  */
 function registerTextureHandler(fileType, textureHandler) {
-  textureHandlers[fileType] = textureHandler;
+    textureHandlers[fileType] = textureHandler;
 }

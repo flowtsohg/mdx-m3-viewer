@@ -1,6 +1,6 @@
 var interpolator = (function () {
     var zeroV = vec3.create(),
-          zeroQ = quat.create();
+        zeroQ = quat.create();
 
     function scalar(a, b, c, d, t, type) {
         if (type === 0) {

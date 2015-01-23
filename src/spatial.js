@@ -134,8 +134,8 @@ Spatial.prototype = {
     */
     setRotation: function (v) {
         var q = quat.create(),
-              rotation = this.rotation,
-              eulerRotation = this.eulerRotation;
+             rotation = this.rotation,
+            eulerRotation = this.eulerRotation;
 
         vec3.copy(eulerRotation, v);
 
@@ -258,7 +258,7 @@ Spatial.prototype = {
     */
     getTransformation: function (objects) {
         var worldMatrix = this.worldMatrix,
-              parentNode = this.parentNode;
+            parentNode = this.parentNode;
 
         mat4.identity(worldMatrix);
 

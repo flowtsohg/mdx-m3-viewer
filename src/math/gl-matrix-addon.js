@@ -4,10 +4,10 @@ vec3.UNIT_Z = vec3.fromValues(0, 0, 1);
 
 vec3.hermite = function (out, a, b, c, d, t) {
     var factorTimes2 = t * t,
-          factor1 = factorTimes2 * (2 * t - 3) + 1,
-          factor2 = factorTimes2 * (t - 2) + t,
-          factor3 = factorTimes2 * (t - 1),
-          factor4 = factorTimes2 * (3 - 2 * t);
+        factor1 = factorTimes2 * (2 * t - 3) + 1,
+        factor2 = factorTimes2 * (t - 2) + t,
+        factor3 = factorTimes2 * (t - 1),
+        factor4 = factorTimes2 * (3 - 2 * t);
     
     out[0] = a[0] * factor1 + b[0] * factor2 + c[0] * factor3 + d[0] * factor4;
     out[1] = a[1] * factor1 + b[1] * factor2 + c[1] * factor3 + d[1] * factor4;
@@ -18,12 +18,12 @@ vec3.hermite = function (out, a, b, c, d, t) {
 
 vec3.bezier = function (out, a, b, c, d, t) {
     var inverseFactor = 1 - t,
-          inverseFactorTimesTwo = inverseFactor * inverseFactor,
-          factorTimes2 = t * t,
-          factor1 = inverseFactorTimesTwo * inverseFactor,
-          factor2 = 3 * t * inverseFactorTimesTwo,
-          factor3 = 3 * factorTimes2 * inverseFactor,
-          factor4 = factorTimes2 * t;
+        inverseFactorTimesTwo = inverseFactor * inverseFactor,
+        factorTimes2 = t * t,
+        factor1 = inverseFactorTimesTwo * inverseFactor,
+        factor2 = 3 * t * inverseFactorTimesTwo,
+        factor3 = 3 * factorTimes2 * inverseFactor,
+        factor4 = factorTimes2 * t;
     
     out[0] = a[0] * factor1 + b[0] * factor2 + c[0] * factor3 + d[0] * factor4;
     out[1] = a[1] * factor1 + b[1] * factor2 + c[1] * factor3 + d[1] * factor4;
@@ -34,21 +34,21 @@ vec3.bezier = function (out, a, b, c, d, t) {
 
 mat4.fromRotationTranslationScale = function (out, q, v, s) {
     var x = q[0], y = q[1], z = q[2], w = q[3],
-          x2 = x + x,
-          y2 = y + y,
-          z2 = z + z,
-          xx = x * x2,
-          xy = x * y2,
-          xz = x * z2,
-          yy = y * y2,
-          yz = y * z2,
-          zz = z * z2,
-          wx = w * x2,
-          wy = w * y2,
-          wz = w * z2,
-          sx = s[0],
-          sy = s[1],
-          sz = s[2];
+        x2 = x + x,
+        y2 = y + y,
+        z2 = z + z,
+        xx = x * x2,
+        xy = x * y2,
+        xz = x * z2,
+        yy = y * y2,
+        yz = y * z2,
+        zz = z * z2,
+        wx = w * x2,
+        wy = w * y2,
+        wz = w * z2,
+        sx = s[0],
+        sy = s[1],
+        sz = s[2];
     
     out[0] = (1 - (yy + zz)) * sx;
     out[1] = (xy + wz) * sx;
@@ -72,24 +72,24 @@ mat4.fromRotationTranslationScale = function (out, q, v, s) {
 
 mat4.fromRotationTranslationScaleOrigin = function (out, q, v, s, o) {
     var x = q[0], y = q[1], z = q[2], w = q[3],
-          x2 = x + x,
-          y2 = y + y,
-          z2 = z + z,
-          xx = x * x2,
-          xy = x * y2,
-          xz = x * z2,
-          yy = y * y2,
-          yz = y * z2,
-          zz = z * z2,
-          wx = w * x2,
-          wy = w * y2,
-          wz = w * z2,
-          sx = s[0],
-          sy = s[1],
-          sz = s[2],
-          ox = o[0],
-          oy = o[1],
-          oz = o[2];
+        x2 = x + x,
+        y2 = y + y,
+        z2 = z + z,
+        xx = x * x2,
+        xy = x * y2,
+        xz = x * z2,
+        yy = y * y2,
+        yz = y * z2,
+        zz = z * z2,
+        wx = w * x2,
+        wy = w * y2,
+        wz = w * z2,
+        sx = s[0],
+        sy = s[1],
+        sz = s[2],
+        ox = o[0],
+        oy = o[1],
+        oz = o[2];
     
     out[0] = (1 - (yy + zz)) * sx;
     out[1] = (xy + wz) * sx;
@@ -141,7 +141,7 @@ mat4.toRotationMat4 = (function () {
 
 quat.sqlerp = (function () {
     var temp1 = quat.create(),
-          temp2 = quat.create();
+        temp2 = quat.create();
     
     return function (out, a, b, c, d, t) {
         quat.slerp(temp1, a, d, t);
@@ -154,8 +154,8 @@ quat.sqlerp = (function () {
 
 mat4.decomposeScale = function (out, m) {
     var m0 = m[0], m1 = m[1], m2 = m[2],
-          m4 = m[4], m5 = m[5], m6 = m[6],
-          m8 = m[8], m9 = m[9], m10 = m[10];
+        m4 = m[4], m5 = m[5], m6 = m[6],
+        m8 = m[8], m9 = m[9], m10 = m[10];
     
     out[0] = Math.sqrt(m0*m0 + m1*m1 + m2*m2);
     out[1] = Math.sqrt(m4*m4 + m5*m5 + m6*m6);

@@ -56,7 +56,7 @@ AsyncModelInstance.prototype = {
 
         this.ready = true;
 
-        this.runActions();
+        this.runFunctors();
 
         this.recalculateTransformation();
 
@@ -167,7 +167,7 @@ AsyncModelInstance.prototype = {
         if (this.ready) {
             return this.setRequestedAttachment(requester, attachment);
         } else {
-            this.addAction("setRequestedAttachment", [requester, attachment]);
+            this.addFunctor("setRequestedAttachment", [requester, attachment]);
         }
     },
   
@@ -183,7 +183,7 @@ AsyncModelInstance.prototype = {
         if (this.ready) {
             this.instance.overrideTexture(path, override);
         } else {
-            this.addAction("overrideTexture", [path, override]);
+            this.addFunctor("overrideTexture", [path, override]);
         }
     },
   
@@ -211,7 +211,7 @@ AsyncModelInstance.prototype = {
         if (this.ready) {
             this.instance.setTeamColor(id);
         } else {
-            this.addAction("setTeamColor", [id]);
+            this.addFunctor("setTeamColor", [id]);
         }
     },
   
@@ -239,7 +239,7 @@ AsyncModelInstance.prototype = {
         if (this.ready) {
             this.instance.setSequence(id);
         } else {
-            this.addAction("setSequence", [id]);
+            this.addFunctor("setSequence", [id]);
         }
     },
   
@@ -267,7 +267,7 @@ AsyncModelInstance.prototype = {
         if (this.ready) {
             this.instance.setSequenceLoopMode(mode);
         } else {
-            this.addAction("setSequenceLoopMode", [mode]);
+            this.addFunctor("setSequenceLoopMode", [mode]);
         }
     },
   
@@ -324,7 +324,7 @@ AsyncModelInstance.prototype = {
         if (this.ready) {
             this.instance.setMeshVisibility(id, mode);
         } else {
-            this.addAction("setMeshVisibility", [id, mode]);
+            this.addFunctor("setMeshVisibility", [id, mode]);
         }
     },
   
@@ -479,16 +479,16 @@ AsyncModelInstance.prototype = {
         // For some reason, when typed arrays are JSON stringified they change to object notation rather than array notation.
         // This is why I don't bother to access the location and rotation directly.
         var location = this.getLocation(),
-              rotation = Array.toDeg(this.getRotation()),
-              scale = this.getScale(),
-              textureMap = {},
-              localTextureMap = this.getTextureMap(),
-              modelTextureMap = this.asyncModel.getTextureMap(),
-              keys = Object.keys(localTextureMap),
-              visibilities = this.getMeshVisibilities(),
-              key,
-              i,
-              l;
+            rotation = Array.toDeg(this.getRotation()),
+            scale = this.getScale(),
+            textureMap = {},
+            localTextureMap = this.getTextureMap(),
+            modelTextureMap = this.asyncModel.getTextureMap(),
+            keys = Object.keys(localTextureMap),
+            visibilities = this.getMeshVisibilities(),
+            key,
+            i,
+            l;
         
 
         // This code avoids saving instance overrides that match the model's texture map.
@@ -536,11 +536,11 @@ AsyncModelInstance.prototype = {
     */
     fromJSON: function (object) {
         var textureMap = object[10],
-              visibilities = object[11],
-              keys = Object.keys(textureMap),
-              key,
-              i,
-              l;
+            visibilities = object[11],
+            keys = Object.keys(textureMap),
+            key,
+            i,
+            l;
 
         this.setVisibility(!!object[2]);
         this.setSequence(object[3]);

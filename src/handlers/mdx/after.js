@@ -1,6 +1,5 @@
-  return {
-    Parser: Parser,
-    Model: Model,
-    ModelInstance: ModelInstance
-  };
+    return {
+        Model: Model,
+        ModelInstance: ModelInstance
+    };
 }());

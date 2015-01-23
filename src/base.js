@@ -3,8 +3,8 @@ var generateColor = (function () {
 
     return function () {
         var a = i % 10,
-              b = Math.floor(i / 10) % 10,
-              c = Math.floor(i / 100) % 10;
+            b = Math.floor(i / 10) % 10,
+            c = Math.floor(i / 100) % 10;
 
         i += 1;
 
@@ -12,10 +12,21 @@ var generateColor = (function () {
     };
 }());
 
+// WebGL sometimes rounds down and sometimes up, so this code takes care of that.
+// E.g.: 0.1*255 = 25.5, WebGL returns 25
+// E.g.: 0.5*255 = 127.5, WebGL returns 128
+function webGLPixelToColor(pixel) {
+    return [
+        Math.floor(Math.round(pixel[0] / 25.5) * 25.5),
+        Math.floor(Math.round(pixel[1] / 25.5) * 25.5),
+        Math.floor(Math.round(pixel[2] / 25.5) * 25.5)
+    ];
+}
+
 function colorString(color) {
     var r = Math.floor(color[0] * 255),
-          g = Math.floor(color[1] * 255),
-          b = Math.floor(color[2] * 255);
+        g = Math.floor(color[1] * 255),
+        b = Math.floor(color[2] * 255);
 
     return "" + r + g + b;
 }
@@ -29,9 +40,9 @@ function colorString(color) {
  */
 function mixin(mixer, mixed) {
     var properties = Object.getOwnPropertyNames(mixer),
-          property,
-          i,
-          l;
+        property,
+        i,
+        l;
 
     for (i = 0, l = properties.length; i < l; i++) {
         property = properties[i];
@@ -45,10 +56,10 @@ function mixin(mixer, mixed) {
 
 function extend(base, properties) {
     var prototype = Object.create(base),
-          keys = Object.keys(properties),
-          key,
-          i,
-          l;
+        keys = Object.keys(properties),
+        key,
+        i,
+        l;
     
     for (i = 0, l = keys.length; i < l; i++) {
         key = keys[i];
@@ -60,8 +71,8 @@ function extend(base, properties) {
 
 function getNamesFromObjects(objects) {
     var names = [],
-          i,
-          l;
+        i,
+        l;
 
     if (objects) {
         for (i = 0, l = objects.length; i < l; i++) {
@@ -132,10 +143,10 @@ function decodeFloat3(f) {
  * @param {string} source The file path.
  * @returns {string} The file name.
  */
-function getFileName(source) {
-    var tokens = source.split(/[\\\/]/g);
-
-    return tokens[tokens.length - 1];
+function fileNameFromPath(path) {
+    var input = path.replace(/^.*[\\\/]/, "")
+    
+    return input.substr(0, input.lastIndexOf(".")) || input;
 }
 
 /**
@@ -144,10 +155,11 @@ function getFileName(source) {
  * @param {string} source The file path.
  * @returns {string} The file extension.
  */
-function getFileExtension(source) {
-    var tokens = source.split(".");
-
-    return tokens[tokens.length - 1];
+function fileTypeFromPath(path) {
+    var input = path.replace(/^.*[\\\/]/, ""),
+        output = input.substring(input.lastIndexOf(".")) || "";
+    
+    return output.toLowerCase();
 }
 
 if (typeof String.prototype.endsWith !== "function") {
@@ -169,11 +181,11 @@ if (!window.requestAnimationFrame ) {
  */
 function getUrlVariables() {
     var urlMap = {},
-          searchstr = window.location.search.substring(1),
-          variables = searchstr.split("&"),
-          keyval,
-          i, 
-          l;
+        searchstr = window.location.search.substring(1),
+        variables = searchstr.split("&"),
+        keyval,
+        i, 
+        l;
 
     for (i = 0, l = variables.length; i < l; i++) {
         keyval = variables[i].split("=");
@@ -191,9 +203,9 @@ function getUrlVariables() {
  */
 function getDom() {
     var dom = {},
-          elements = document.getElementsByTagName("*"),
-          element,
-          i;
+        elements = document.getElementsByTagName("*"),
+        element,
+        i;
 
     for (i = elements.length; i--;) {
         element = elements[i];
@@ -215,7 +227,7 @@ function getDom() {
  * @param {function} onerror onerror callback.
  * @param {function} onprogress onprogress callback.
  */
-function getFile(path, binary, onload, onerror, onprogress) {
+function getRequest(path, binary, onload, onerror, onprogress) {
     var xhr = new XMLHttpRequest();
 
     if (onload) {
@@ -268,8 +280,8 @@ function preventDefault(e) {
  */
 String.hashCode = function(s) {
     var hash = 0,
-          i,
-          l;
+        i,
+        l;
 
     for (i = 0, l = s.length; i < l; i++) {
         hash = hash * 31 + s.charCodeAt(i);
@@ -293,10 +305,10 @@ if (typeof String.prototype.startsWith != "function") {
  */
 Object.copy = function (object) {
     var keys = Object.keys(object),
-          key,
-          newObj = (object instanceof Array) ? [] : {},
-          i, 
-          l;
+        key,
+        newObj = (object instanceof Array) ? [] : {},
+        i, 
+        l;
 
     for (i = 0, l = keys.length; i < l; i++) {
         key = keys[i];
@@ -319,8 +331,8 @@ Object.copy = function (object) {
  */
 Array.copy = function (a) {
     var newArray = [],
-          i,
-          l;
+        i,
+        l;
 
     for (i = 0, l = a.length; i < l; i++) {
         newArray[i] = a[i];

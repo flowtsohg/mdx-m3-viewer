@@ -1,6 +1,6 @@
-  textureHandlers["png"] = NativeTexture;
-  textureHandlers["gif"] = NativeTexture;
-  textureHandlers["jpg"] = NativeTexture;
+  textureHandlers[".png"] = NativeTexture;
+  textureHandlers[".gif"] = NativeTexture;
+  textureHandlers[".jpg"] = NativeTexture;
   
   return {
     setPerspective: setPerspective,

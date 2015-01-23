@@ -15,7 +15,7 @@
  */
 window["BaseModelInstance"] = function (model, textureMap) {
     var i,
-          l;
+        l;
 
     this.model = model;
     this.textureMap = textureMap;

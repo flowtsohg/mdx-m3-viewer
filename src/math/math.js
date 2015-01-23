@@ -29,8 +29,8 @@ Math.toDeg = function (radians) {
  */
 Array.toRad = function (degrees) {
     var arr = [],
-          i,
-          l;
+        i,
+        l;
     
     for (i = 0, l = degrees.length; i < l; i++) {
         arr[i] = degrees[i] * Math.TO_RAD;
@@ -47,8 +47,8 @@ Array.toRad = function (degrees) {
  */
 Array.toDeg = function (radians) {
     var arr = [],
-          i,
-          l;
+        i,
+        l;
     
     for (i = 0, l = radians.length; i < l; i++) {
         arr[i] = radians[i] * Math.TO_DEG;
@@ -90,9 +90,9 @@ Math.setFloatPrecision = function (number, decimals) {
  */
 Array.setFloatPrecision = function (array, decimals) {
     var multiplier = Math.pow(10, decimals),
-          arr = [],
-          i,
-          l;
+        arr = [],
+        i,
+        l;
 
     for (i = 0, l = array.length; i < l; i++) {
         arr[i] = Math.round(array[i] * multiplier) / multiplier;
@@ -137,10 +137,10 @@ Math.lerp = function (a, b, t) {
  */
 Math.hermite = function (a, b, c, d, t) {
     var factorTimes2 = t * t,
-          factor1 = factorTimes2 * (2 * t - 3) + 1,
-          factor2 = factorTimes2 * (t - 2) + t,
-          factor3 = factorTimes2 * (t - 1),
-          factor4 = factorTimes2 * (3 - 2 * t);
+        factor1 = factorTimes2 * (2 * t - 3) + 1,
+        factor2 = factorTimes2 * (t - 2) + t,
+        factor3 = factorTimes2 * (t - 1),
+        factor4 = factorTimes2 * (3 - 2 * t);
 
     return (a * factor1) + (b * factor2) + (c * factor3) + (d * factor4);
 };
@@ -157,12 +157,12 @@ Math.hermite = function (a, b, c, d, t) {
  */
 Math.bezier = function (a, b, c, d, t) {
     var invt = 1 - t,
-          factorTimes2 = t * t,
-          inverseFactorTimesTwo = invt * invt,
-          factor1 = inverseFactorTimesTwo * invt,
-          factor2 = 3 * t * inverseFactorTimesTwo,
-          factor3 = 3 * factorTimes2 * invt,
-          factor4 = factorTimes2 * t;
+        factorTimes2 = t * t,
+        inverseFactorTimesTwo = invt * invt,
+        factor1 = inverseFactorTimesTwo * invt,
+        factor2 = 3 * t * inverseFactorTimesTwo,
+        factor3 = 3 * factorTimes2 * invt,
+        factor4 = factorTimes2 * t;
 
     return (a * factor1) + (b * factor2) + (c * factor3) + (d * factor4);
 };
@@ -186,7 +186,7 @@ Math.sign = function (x) {
  */
 Math.copysign = function (x, y) {
     var signy = sign(y),
-          signx;
+        signx;
 
     if (signy === 0) {
         return 0;

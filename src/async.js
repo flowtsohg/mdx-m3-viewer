@@ -6,7 +6,7 @@
  * @property {array} actions
  */
  function Async() {
-     this.actions = [];
+     this.functors = [];
  }
  
 Async.prototype = {
@@ -18,8 +18,8 @@ Async.prototype = {
     * @param {string} functor A function name.
     * @param {array} args The arguments that will be sent to the functor.
     */
-    addAction: function (functor, args) {
-        this.actions.push([functor, args]);
+    addFunctor: function (functor, args) {
+        this.functors.push([functor, args]);
     },
   
   /**
@@ -28,16 +28,16 @@ Async.prototype = {
     * @memberof Async
     * @instance
     */
-    runActions: function () {
-        var actions = this.actions,
-              action,
-              i,
-              l;
+    runFunctors: function () {
+        var functors = this.functors,
+            functor,
+            i,
+            l;
 
-        for (i = 0, l = actions.length; i < l; i++) {
-            action = actions[i];
+        for (i = 0, l = functors.length; i < l; i++) {
+            functor = functors[i];
 
-            this[action[0]].apply(this, action[1]);
+            this[functor[0]].apply(this, functor[1]);
         }
 
         actions = [];

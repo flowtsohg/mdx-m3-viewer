@@ -9,8 +9,17 @@
  * @param {object} textureMap An object with texture path -> absolute urls mapping.
  */
 function AsyncModel(source, id, textureMap, context, onError, onProgress, onLoad) {
+    var fileType = fileTypeFromPath(source);
+    
+    // Some MDX files reference other MDX files with the MDL extension for whatever reason (yet more Blizzard laziness).
+    // E.g. Ent.mdx references leaves.mdl
+    if (fileType === "mdl") {
+        fileType = "mdx";
+        source = source.replace(".mdl", ".mdx");
+    }
+    
     this.ready = false;
-    this.fileType = getFileExtension(source).toLowerCase();
+    this.fileType = fileType;
     this.isModel = true;
     this.id = id;
     this.source = source;
@@ -25,8 +34,8 @@ function AsyncModel(source, id, textureMap, context, onError, onProgress, onLoad
     this.onError = onError || function () {};
     this.onProgress = onProgress || function () {};
     this.onLoad = onLoad || function () {};
-
-    getFile(source, AsyncModel.handlers[this.fileType][1], this.setup.bind(this, textureMap || {}), onError.bind(undefined, this), onProgress.bind(undefined, this));
+    
+    getRequest(source, AsyncModel.handlers[this.fileType][1], this.setup.bind(this, textureMap || {}), onError.bind(undefined, this), onProgress.bind(undefined, this));
 }
 
 AsyncModel.handlers = {};
@@ -42,7 +51,7 @@ AsyncModel.prototype = {
     */
     setup: function (textureMap, e) {
         var status = e.target.status,
-              model;
+            model;
 
         if (status === 200) {
             model = new AsyncModel.handlers[this.fileType][0](e.target.response, textureMap, this.context, this.onError.bind(undefined, {isModel: 1, source: this.source, id: this.id}));
@@ -55,7 +64,7 @@ AsyncModel.prototype = {
                 this.model = model;
                 this.ready = true;
 
-                this.runActions();
+                this.runFunctors();
 
                 this.onLoad(this);
             }
@@ -78,7 +87,7 @@ AsyncModel.prototype = {
 
             instance.setup(this.model, textureMap);
         } else {
-            this.addAction("setupInstance", arguments);
+            this.addFunctor("setupInstance", arguments);
         }
     },
   
@@ -146,7 +155,7 @@ AsyncModel.prototype = {
         if (this.ready) {
             this.model.overrideTexture(path, override);
         } else {
-            this.addAction("overrideTexture", arguments);
+            this.addFunctor("overrideTexture", arguments);
         }
     },
   
@@ -238,10 +247,10 @@ AsyncModel.prototype = {
     getInstances: function () {
         if (this.ready) {
             var instances = this.instances,
-                  instance,
-                  ids = [],
-                  i,
-                  l;
+                instance,
+                ids = [],
+                i,
+                l;
 
             for (i = 0, l = instances.length; i < l; i++) {
                 instance = instances[i];
@@ -289,11 +298,11 @@ AsyncModel.prototype = {
     */
     toJSON: function () {
         var textureMap = {},
-              localTextureMap = this.getTextureMap(),
-              keys = Object.keys(localTextureMap),
-              key,
-              i,
-              l;
+            localTextureMap = this.getTextureMap(),
+            keys = Object.keys(localTextureMap),
+            key,
+            i,
+            l;
 
         // This code avoids saving redundant texture paths.
         // Only textures that have been overriden are saved.

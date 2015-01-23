@@ -7,10 +7,10 @@
  * @param {boolean} debugMode If true, the viewer will log the loaded models and their parser to the console.
  */
 window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
-    var grassPath = urls.localFile("grass.png");
-    var waterPath = urls.localFile("water.png");
-    var bedrockPath = urls.localFile("bedrock.png");
-    var skyPath = urls.localFile("sky.png");
+    var grassPath = urls.localFile("grass.png"),
+        waterPath = urls.localFile("water.png"),
+        bedrockPath = urls.localFile("bedrock.png"),
+        skyPath = urls.localFile("sky.png");
   
     // This function is used to filter out reports for internal textures (e.g. ground, sky, team colors beside 00, etc.).
     function noReport(path) {
@@ -49,7 +49,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   
     function onload(object) {
         var source = object.source,
-              message;
+            message;
 
         if (!noReport(source) ) {
             message = {type: "load", objectType: objectTypeName(object), source: source};
@@ -71,8 +71,9 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     }
   
     function onprogress(object, e) {
+        
         var source = object.source,
-              progress = e.loaded / e.total;
+            progress = e.loaded / e.total;
 
         if (e.target.status === 200) {
             if (!noReport(source)) {
@@ -182,8 +183,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   
     function saveContext() {
         var camera = context.camera,
-              translation = Array.setFloatPrecision(camera[0], 0),
-              rotation = Array.setFloatPrecision(Array.toDeg(camera[1]), 0);
+            translation = Array.setFloatPrecision(camera[0], 0),
+            rotation = Array.setFloatPrecision(Array.toDeg(camera[1]), 0);
 
         return [
             context.frameTime / 1000 * 60,
@@ -202,8 +203,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   
     function loadContext(object) {
         var camera = object[1],
-              translation = camera[0],
-              rotation = Array.toRad(camera[1]);
+            translation = camera[0],
+            rotation = Array.toRad(camera[1]);
 
         context.frameTime = object[0] / 60 * 1000;
         context.camera = [translation, rotation],
@@ -248,7 +249,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
 
     function resetViewport() {
         var width = canvas.clientWidth,
-              height = canvas.clientHeight;
+            height = canvas.clientHeight;
 
         canvas.width = canvas.clientWidth;
         canvas.height = canvas.clientHeight;
@@ -289,7 +290,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
 
         if (context.instanceCamera[1] === -1) {
             var z = context.camera[1][1],
-                  x = context.camera[1][0];
+                x = context.camera[1][0];
 
             mat4.translate(cameraMatrix, cameraMatrix, context.camera[0]);
             mat4.rotate(cameraMatrix, cameraMatrix, x, vec3.UNIT_X);
@@ -325,7 +326,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
 
     function update() {
         var i,
-              l;
+            l;
         
         for (i = 0, l = instanceArray.length; i < l; i++) {
             instanceArray[i].update(context);
@@ -390,7 +391,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   
     function render() {
         var i,
-              l = instanceArray.length;
+            l = instanceArray.length;
 
         ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
 
@@ -425,7 +426,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   
     function renderColor() {
         var i,
-              l;
+            l;
         
         ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
 
@@ -457,7 +458,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   
     function loadInstance(source, hidden) {
         var object,
-              color = generateColor();
+            color = generateColor();
 
         idFactory += 1;
         object = new AsyncModelInstance(modelMap[source], idFactory, color, {}, context, onload);
@@ -496,7 +497,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   
     // Load a model or texture from an absolute url, with an optional texture map, and an optional hidden parameter
     function loadResourceImpl(source, textureMap, hidden) {
-        var fileType = getFileExtension(source).toLowerCase();
+        var fileType = fileTypeFromPath(source);
 
         if (supportedModelFileTypes[fileType]) {
             loadModel(source, textureMap);
@@ -541,8 +542,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   
     function unloadInstance(instance, unloadingModel) {
         var i,
-              l,
-              instances = instance.asyncModel.instances;
+            l,
+            instances = instance.asyncModel.instances;
 
         // Remove from the instance array
         for (i = 0, l = instanceArray.length; i < l; i++) {
@@ -572,8 +573,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   
     function unloadModel(model) {
         var instances = model.instances,
-              i,
-              l;
+            i,
+            l;
 
         // Remove all instances owned by this model
         for (i = 0, l = instances.length; i < l; i++) {
@@ -595,8 +596,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     
     function unloadEverything() {
         var models = modelArray,
-              i,
-              l;
+            i,
+            l;
 
         for (i = 0, l = models.length; i < l; i++) {
             unloadModel(models[i]);
@@ -615,7 +616,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {string} source The source to load from. Can be an absolute url, a path to a file in the MPQ files of Warcraft 3 and Starcraft 2, or a form of identifier to be used for headers.
     */
     function loadResource(source) {
-        var isSupported = supportedFileTypes[getFileExtension(source).toLowerCase()];
+        var isSupported = supportedFileTypes[fileTypeFromPath(source)];
 
         if (source.startsWith("http://") && isSupported) {
             loadResourceImpl(source);
@@ -626,7 +627,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
 
             onloadstart(object);
 
-            getFile(urls.header(source), false, loadResourceFromId.bind(object), onerror.bind(undefined, object), onprogress.bind(undefined, object));
+            getRequest(urls.header(source), false, loadResourceFromId.bind(object), onerror.bind(undefined, object), onprogress.bind(undefined, object));
         }
     }
   
@@ -810,7 +811,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @param {vec3} v A vector of euler angles.
     */
     function rotate(objectId, v) {
-    var object = modelInstanceMap[objectId];
+        var object = modelInstanceMap[objectId];
 
         if (object && object.isInstance) {
             object.rotate(v);
@@ -1625,15 +1626,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
         //gl.setPerspective(45, canvas.clientWidth / canvas.clientHeight, 0.1, 5E4);
 
         //console.log(pixel);
-
-        // WebGL sometimes rounds down and sometimes up, so this code takes care of that.
-        // E.g.: 0.1*255 = 25.5, WebGL returns 25
-        // E.g.: 0.5*255 = 127.5, WebGL returns 128
-        var r = Math.floor(Math.round(pixel[0] / 25.5) * 25.5);
-        var g = Math.floor(Math.round(pixel[1] / 25.5) * 25.5);
-        var b = Math.floor(Math.round(pixel[2] / 25.5) * 25.5);
-
-        var color = "" + r + g + b;
+        
+        var color = webGLPixelToColor(pixel).join("");
         var instance = instanceMap[color];
 
         //console.log("selectInstance", new Date() - date);
@@ -1654,10 +1648,10 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     */
     function saveScene() {
         var models = [],
-              instances = [],
-              object,
-              i,
-              l;
+            instances = [],
+            object,
+            i,
+            l;
 
         for (i = 0, l = modelArray.length; i < l; i++) {
             object = modelArray[i];
@@ -1687,14 +1681,14 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     */
     function loadScene(scene) {
         var idMap = [], // Map from object IDs in the scene to actual indices in the object array.
-              id,
-              models,
-              instances,
-              object,
-              owningModel,
-              instance,
-              i,
-              l;
+            id,
+            models,
+            instances,
+            object,
+            owningModel,
+            instance,
+            i,
+            l;
 
         scene = JSON.parse(scene);
 
@@ -1777,7 +1771,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
   
   
   
-  // The main loop of the viewer
+    // The main loop of the viewer
     function step() {
         update();
         render();
