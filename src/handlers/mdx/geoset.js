@@ -93,14 +93,22 @@ Geoset.prototype = {
         ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 8, offsets[2] + coordId * this.uvsetSize);
         ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, 4, offsets[3]);
         ctx.vertexAttribPointer(shader.variables.a_bone_number, 1, ctx.UNSIGNED_BYTE, false, 1, offsets[4]);
+        
+        ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
+        ctx.drawElements(ctx.TRIANGLES, this.elements, ctx.UNSIGNED_SHORT, 0);
+    },
+    
+    renderWireframe: function (shader, ctx) {
+        var offsets = this.offsets;
 
-        if (polygonMode) {
-            ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
-            ctx.drawElements(ctx.TRIANGLES, this.elements, ctx.UNSIGNED_SHORT, 0);
-        } else {
-            ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
-            ctx.drawElements(ctx.LINES, this.elements * 2, ctx.UNSIGNED_SHORT, 0);
-        }
+        ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
+
+        ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 12, offsets[0]);
+        ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, 4, offsets[3]);
+        ctx.vertexAttribPointer(shader.variables.a_bone_number, 1, ctx.UNSIGNED_BYTE, false, 1, offsets[4]);
+
+        ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
+        ctx.drawElements(ctx.LINES, this.elements * 2, ctx.UNSIGNED_SHORT, 0);
     },
 
     renderColor: function (shader) {

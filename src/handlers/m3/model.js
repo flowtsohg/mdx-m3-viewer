@@ -202,7 +202,7 @@ Model.prototype = extend(BaseModel.prototype, {
         }
 
         if (!gl.shaderStatus("swhite" + uvSetCount)) {
-            gl.createShader("swhite" + uvSetCount, vsstandard, psspecialized, [uvSets, "WHITE_PASS"]);
+            gl.createShader("swhite" + uvSetCount, vscommon + SHADERS.svswhite, SHADERS.pswhite);
         }
 
         if (!gl.shaderStatus("sparticles" + uvSetCount)) {
@@ -303,11 +303,9 @@ Model.prototype = extend(BaseModel.prototype, {
         }
     },
 
-    bind: function (shader, context) {
-        var ctx = context.gl.ctx;
+    bind: function (shader, ctx) {
         var vertexSize = this.vertexSize;
         var uvSetCount = this.uvSetCount;
-        var buffer = context.polygonMode ? this.elementBuffer : this.edgeBuffer;
 
         ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
 
@@ -322,7 +320,19 @@ Model.prototype = extend(BaseModel.prototype, {
 
         ctx.vertexAttribPointer(shader.variables.a_tangent, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 24 + uvSetCount * 4);
 
-        ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, buffer);
+        ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
+    },
+    
+    bindWireframe: function (shader, ctx) {
+        var vertexSize = this.vertexSize;
+
+        ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
+
+        ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, vertexSize, 0);
+        ctx.vertexAttribPointer(shader.variables.a_weights, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 12);
+        ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 16);
+        
+        ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
     },
 
     bindColor: function (shader, ctx) {
@@ -346,17 +356,23 @@ Model.prototype = extend(BaseModel.prototype, {
         var tc;
         var teamId = instance.teamColor;
         var shaderName = context.shaders[context.shader];
-        var realShaderName = "s" + shaderName + this.uvSetCount;
+        var uvSetCount = this.uvSetCount;
+        var realShaderName = "s" + shaderName + uvSetCount;
         // Instance-based texture overriding
         var textureMap = instance.textureMap;
-
-        if (gl.shaderStatus(realShaderName)) {
+        var shader;
+        
+        var polygonMode = context.polygonMode;
+        var renderGeosets = (polygonMode === 1 || polygonMode === 3);
+        var renderWireframe = (polygonMode === 2 || polygonMode === 3);
+        
+        if (renderGeosets && gl.shaderStatus(realShaderName)) {
             // Use a black team color if team colors are disabled
             if (!context.teamColorsMode) {
                 teamId = 13;
             }
 
-            var shader = gl.bindShader(realShaderName);
+            shader = gl.bindShader(realShaderName);
 
             instance.skeleton.bind(shader, ctx);
 
@@ -368,7 +384,7 @@ Model.prototype = extend(BaseModel.prototype, {
             ctx.uniform3fv(shader.variables.u_lightPos, context.lightPosition);
 
             // Bind the vertices
-            this.bind(shader, context);
+            this.bind(shader, ctx);
 
             for (i = 0, l = this.batches.length; i < l; i++) {
                 var batch = this.batches[i];
@@ -397,6 +413,28 @@ Model.prototype = extend(BaseModel.prototype, {
                     region.render(shader, ctx, context.polygonMode);
 
                     material.unbind(shader, ctx); // This is required to not use by mistake layers from this material that were bound and are not overwritten by the next material
+                }
+            }
+        }
+        
+        if (renderWireframe && gl.shaderStatus("swhite" + uvSetCount)) {
+            shader = gl.bindShader("swhite" + uvSetCount);
+
+            instance.skeleton.bind(shader, ctx);
+
+            ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
+
+            // Bind the vertices
+            this.bindWireframe(shader, ctx);
+
+            for (i = 0, l = this.batches.length; i < l; i++) {
+                var batch = this.batches[i];
+
+                if (instance.meshVisibilities[batch.regionId]) {
+                    var region = batch.region;
+                    var material = batch.material;
+
+                    region.renderWireframe(shader, ctx);
                 }
             }
         }

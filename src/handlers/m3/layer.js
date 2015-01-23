@@ -53,7 +53,7 @@ function Layer(layer, type, op, model, textureMap, gl) {
             this.source = source;
 
             var path;
-            var fileName = getFileName(source);
+            var fileName = fileNameFromPath(source);
 
             if (textureMap[fileName]) {
                 path = textureMap[fileName];

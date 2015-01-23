@@ -163,9 +163,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
         instanceCamera: [-1, -1],
         worldMode: 2,
         groundSize: 256,
-        meshesMode: true,
         emittersMode: true,
-        polygonMode: true,
+        polygonMode: 1,
         teamColorsMode: true,
         boundingShapesMode: false,
         texturesMode: true,
@@ -192,8 +191,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
             context.instanceCamera,
             context.worldMode,
             context.groundSize,
-            context.meshesMode & 1,
-            context.polygonMode & 1,
+            context.polygonMode,
             context.teamColorsMode & 1,
             context.boundingShapesMode & 1,
             context.texturesMode & 1,
@@ -211,8 +209,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
         context.instanceCamera = object[2];
         context.worldMode = object[3];
         setGroundSize(object[4] * 2);
-        context.meshesMode = !!object[5];
-        context.polygonMode = !!object[6];
+        context.polygonMode = object[6];
         context.teamColorsMode = !!object[7];
         context.boundingShapesMode = !!object[8];
         context.texturesMode = !!object[9];
@@ -399,7 +396,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
         renderGround();
 
         // Render geometry
-        if (context.meshesMode) {
+        if (context.polygonMode > 0) {
             for (i = 0; i < l; i++) {
                 instanceArray[i].render(context);
             }
@@ -1366,28 +1363,6 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     }
   
   /**
-    * Sets the mesh mode. If false, no meshes will be shown.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {boolean} mode The mode.
-    */
-    function setMeshesMode(mode) {
-        context.meshesMode = mode;
-    }
-  
-  /**
-    * Gets the mesh mode.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @returns {boolean} The mode.
-    */
-    function getMeshesMode() {
-        return context.meshesMode;
-    }
-  
-  /**
     * Sets the particle emitters mode. If false, no particle emitters will be shown.
     *
     * @memberof ModelViewer
@@ -1454,14 +1429,14 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     }
   
   /**
-    * Sets the polygon mode. If false, models will render as wireframe.
+    * Sets the polygon mode. 0 for none, 1 for normal, 2 for wireframe, 3 for both.
     *
     * @memberof ModelViewer
     * @instance
     * @param {boolean} mode The mode.
     */
-    function setPolygonMode(b) {
-        context.polygonMode = b;
+    function setPolygonMode(mode) {
+        context.polygonMode = mode;
     }
   
   /**
@@ -1836,8 +1811,6 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
         getWorldMode: getWorldMode,
         setGroundSize: setGroundSize,
         getGroundSize: getGroundSize,
-        setMeshesMode: setMeshesMode,
-        getMeshesMode: getMeshesMode,
         setEmittersMode: setEmittersMode,
         getEmittersMode: getEmittersMode,
         setBoundingShapesMode: setBoundingShapesMode,

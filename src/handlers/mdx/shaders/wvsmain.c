@@ -16,9 +16,9 @@ void transform(vec3 inposition, vec3 innormal, float bone_number, vec4 bones, ou
     vec4 temp;
 
     mat4 bone0 = boneAtIndex(bones[0]);
-    mat4 bone1= boneAtIndex(bones[1]);
-    mat4 bone2= boneAtIndex(bones[2]);
-    mat4 bone3= boneAtIndex(bones[3]);
+    mat4 bone1 = boneAtIndex(bones[1]);
+    mat4 bone2 = boneAtIndex(bones[2]);
+    mat4 bone3 = boneAtIndex(bones[3]);
 
     temp = vec4(0);
     temp += bone0 * position;

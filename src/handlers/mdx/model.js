@@ -172,7 +172,7 @@ Model.prototype = extend(BaseModel.prototype, {
             gl.createShader("wstandard", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain, ["STANDARD_PASS"]);
             gl.createShader("wuvs", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain, ["UVS_PASS"]);
             gl.createShader("wnormals", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain, ["NORMALS_PASS"]);
-            gl.createShader("wwhite", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain, ["WHITE_PASS"]);
+            gl.createShader("wwhite", SHADERS.vsbonetexture + SHADERS.wvswhite, SHADERS.pswhite);
         }
 
         // Load the particle emitters type 2 shader if it is needed
@@ -257,77 +257,105 @@ Model.prototype = extend(BaseModel.prototype, {
         var realShaderName = "w" + shaderName
         var shader;
         var layers = this.layers;
-
-        if (layers && gl.shaderStatus(realShaderName)) {
-            var modifier = this.modifier;
-            var uvoffset = this.uvoffset;
-            var layer;
-            var geoset;
-            var textureId;
+        var polygonMode = context.polygonMode;
+        var renderGeosets = (polygonMode === 1 || polygonMode === 3);
+        var renderWireframe = (polygonMode === 2 || polygonMode === 3);
+        
+        if (layers) {
             var geosets = this.meshes;
-            var textures = this.textures;
-            var defaultUvoffset = this.defaultUvoffset;
-            var tempVec3 = this.tempVec3;
+            var geoset;
+            var layer;
+            
+            if (renderGeosets && gl.shaderStatus(realShaderName)) {
+                var modifier = this.modifier;
+                var uvoffset = this.uvoffset;
+                var textureId;
+                var textures = this.textures;
+                var defaultUvoffset = this.defaultUvoffset;
+                var tempVec3 = this.tempVec3;
 
-            shader = gl.bindShader(realShaderName);
+                shader = gl.bindShader(realShaderName);
 
-            ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
-            ctx.uniform1i(shader.variables.u_texture, 0);
+                ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
+                ctx.uniform1i(shader.variables.u_texture, 0);
 
-            instance.skeleton.bind(shader, ctx);
+                instance.skeleton.bind(shader, ctx);
 
-            for (i = 0, l = layers.length; i < l; i++) {
-                layer = layers[i];
+                for (i = 0, l = layers.length; i < l; i++) {
+                    layer = layers[i];
 
-                if (instance.meshVisibilities[layer.geosetId] && layer.shouldRender(sequence, frame, counter) && this.shouldRenderGeoset(sequence, frame, counter, layer)) {
-                    geoset = geosets[layer.geosetId];
+                    if (instance.meshVisibilities[layer.geosetId] && layer.shouldRender(sequence, frame, counter) && this.shouldRenderGeoset(sequence, frame, counter, layer)) {
+                        geoset = geosets[layer.geosetId];
 
-                    modifier[0] = 1;
-                    modifier[1] = 1;
-                    modifier[2] = 1;
-                    modifier[3] = 1;
+                        modifier[0] = 1;
+                        modifier[1] = 1;
+                        modifier[2] = 1;
+                        modifier[3] = 1;
 
-                    uvoffset[0] = 0;
-                    uvoffset[1] = 0;
-                    uvoffset[2] = 0;
+                        uvoffset[0] = 0;
+                        uvoffset[1] = 0;
+                        uvoffset[2] = 0;
 
-                    layer.setMaterial(shader, ctx);
+                        layer.setMaterial(shader, ctx);
 
-                    textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
+                        textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
 
-                    this.bindTexture(textures[textureId], 0, instance.textureMap, context);
+                        this.bindTexture(textures[textureId], 0, instance.textureMap, context);
 
-                    if (this.geosetAnimations) {
-                        for (var j = this.geosetAnimations.length; j--;) {
-                            var geosetAnimation = this.geosetAnimations[j];
+                        if (this.geosetAnimations) {
+                            for (var j = this.geosetAnimations.length; j--;) {
+                                var geosetAnimation = this.geosetAnimations[j];
 
-                            if (geosetAnimation.geosetId === layer.geosetId) {
-                                tempVec3 = getSDValue(sequence, frame, counter, geosetAnimation.sd.color, geosetAnimation.color, tempVec3);
+                                if (geosetAnimation.geosetId === layer.geosetId) {
+                                    tempVec3 = getSDValue(sequence, frame, counter, geosetAnimation.sd.color, geosetAnimation.color, tempVec3);
 
-                                modifier[0] = tempVec3[0];
-                                modifier[1] = tempVec3[1];
-                                modifier[2] = tempVec3[2];
+                                    modifier[0] = tempVec3[0];
+                                    modifier[1] = tempVec3[1];
+                                    modifier[2] = tempVec3[2];
+                                }
                             }
                         }
+
+                        modifier[3] = getSDValue(sequence, frame, counter, layer.sd.alpha, layer.alpha);
+
+                        ctx.uniform4fv(shader.variables.u_modifier, modifier);
+
+                        if (layer.textureAnimationId !== -1 && this.textureAnimations) {
+                            var textureAnimation = this.textureAnimations[layer.textureAnimationId];
+                            // What is Z used for?
+                            uvoffset = getSDValue(sequence, frame, counter, textureAnimation.sd.translation, defaultUvoffset, uvoffset);
+                        }
+
+                        ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
+
+                        geoset.render(layer.coordId, shader, context.polygonMode, ctx);
                     }
+                }
+            }
+            
+             if (renderWireframe && gl.shaderStatus("wwhite")) {
+                shader = gl.bindShader("wwhite");
 
-                    modifier[3] = getSDValue(sequence, frame, counter, layer.sd.alpha, layer.alpha);
+                ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
+                ctx.uniform1i(shader.variables.u_texture, 0);
 
-                    ctx.uniform4fv(shader.variables.u_modifier, modifier);
+                instance.skeleton.bind(shader, ctx);
+                
+                ctx.depthMask(1);
+                ctx.disable(ctx.BLEND);
+                ctx.enable(ctx.CULL_FACE);
+                
+                for (i = 0, l = layers.length; i < l; i++) {
+                    layer = layers[i];
 
-                    if (layer.textureAnimationId !== -1 && this.textureAnimations) {
-                        var textureAnimation = this.textureAnimations[layer.textureAnimationId];
-                        // What is Z used for?
-                        uvoffset = getSDValue(sequence, frame, counter, textureAnimation.sd.translation, defaultUvoffset, uvoffset);
+                    if (instance.meshVisibilities[layer.geosetId] && layer.shouldRender(sequence, frame, counter) && this.shouldRenderGeoset(sequence, frame, counter, layer)) {
+                        geoset = geosets[layer.geosetId];
+
+                        geoset.renderWireframe(shader, ctx);
                     }
-
-                    ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
-
-                    geoset.render(layer.coordId, shader, context.polygonMode, ctx);
                 }
             }
         }
-
         if (context.emittersMode && instance.particleEmitters && gl.shaderStatus(realShaderName)) {
             for (i = 0, l = instance.particleEmitters.length; i < l; i++) {
                 instance.particleEmitters[i].render(context);

@@ -27,14 +27,16 @@ function Region(region, triangles, elementArray, edgeArray, offset) {
 }
 
 Region.prototype = {
-    render: function (shader, ctx, polygonMode) {
+    render: function (shader, ctx) {
         ctx.uniform1f(shader.variables.u_firstBoneLookupIndex, this.firstBoneLookupIndex);
-
-        if (polygonMode) {
-            ctx.drawElements(ctx.TRIANGLES, this.elements, ctx.UNSIGNED_SHORT, this.offset);
-        } else {
-            ctx.drawElements(ctx.LINES, this.elements * 2, ctx.UNSIGNED_SHORT, this.offset * 2);
-        }
+        
+        ctx.drawElements(ctx.TRIANGLES, this.elements, ctx.UNSIGNED_SHORT, this.offset);
+    },
+    
+    renderWireframe: function (shader, ctx) {
+        ctx.uniform1f(shader.variables.u_firstBoneLookupIndex, this.firstBoneLookupIndex);
+        
+        ctx.drawElements(ctx.LINES, this.elements * 2, ctx.UNSIGNED_SHORT, this.offset * 2);
     },
 
     renderColor: function (shader, ctx) {

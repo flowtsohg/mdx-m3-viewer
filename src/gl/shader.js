@@ -24,7 +24,7 @@ function ShaderUnit(source, type, name) {
         this.ready = true;
     } else {
         //console.warn("Failed to compile a shader:");
-        //console.warn(name, ctx.getShaderInfoLog(this.id));
+        console.warn(name, ctx.getShaderInfoLog(this.id));
         //console.warn(source);
         onerror({isShader: true, source: name}, "Compile");
     }
@@ -61,7 +61,7 @@ function Shader(name, vertexUnit, fragmentUnit) {
         this.getVariables();
         this.ready = true;
     } else {
-        //console.warn(name, ctx.getProgramInfoLog(this.id));
+        console.warn(name, ctx.getProgramInfoLog(this.id));
         onerror({isShader: true, source: name}, "Link");
     }
 }

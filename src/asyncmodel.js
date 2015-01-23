@@ -11,13 +11,6 @@
 function AsyncModel(source, id, textureMap, context, onError, onProgress, onLoad) {
     var fileType = fileTypeFromPath(source);
     
-    // Some MDX files reference other MDX files with the MDL extension for whatever reason (yet more Blizzard laziness).
-    // E.g. Ent.mdx references leaves.mdl
-    if (fileType === "mdl") {
-        fileType = "mdx";
-        source = source.replace(".mdl", ".mdx");
-    }
-    
     this.ready = false;
     this.fileType = fileType;
     this.isModel = true;
@@ -35,7 +28,7 @@ function AsyncModel(source, id, textureMap, context, onError, onProgress, onLoad
     this.onProgress = onProgress || function () {};
     this.onLoad = onLoad || function () {};
     
-    getRequest(source, AsyncModel.handlers[this.fileType][1], this.setup.bind(this, textureMap || {}), onError.bind(undefined, this), onProgress.bind(undefined, this));
+    getRequest(source, AsyncModel.handlers[fileType][1], this.setup.bind(this, textureMap || {}), onError.bind(undefined, this), onProgress.bind(undefined, this));
 }
 
 AsyncModel.handlers = {};
