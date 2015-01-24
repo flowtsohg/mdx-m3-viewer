@@ -11,9 +11,9 @@
  * @param {object} textureMap An object with texture path -> absolute urls mapping.
  */
 function AsyncModelInstance(asyncModel, id, color, textureMap, context, onload) {
+    this.type = "instance";
     this.ready = false;
     this.fileType = asyncModel.fileType;
-    this.isInstance = true;
     this.asyncModel = asyncModel;
     this.id = id;
 

@@ -249,6 +249,8 @@ function getRequest(path, binary, onload, onerror, onprogress) {
     }
 
     xhr.send();
+    
+    return xhr;
 }
 
 function addEvent(element, event, callback) {

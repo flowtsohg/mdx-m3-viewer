@@ -11,7 +11,8 @@
  * @property {WebGLBuffer} buffer
  * @property {Float32Array} data
  */
-function Cube(x1, y1, z1, x2, y2, z2) {
+function Cube(ctx, x1, y1, z1, x2, y2, z2) {
+    this.ctx = ctx;
     this.buffer = ctx.createBuffer();
     this.data = new Float32Array([
         x1, y2, z1,
@@ -53,12 +54,12 @@ Cube.prototype = {
    * @param {GL.Shader} shader
    */
     renderLines: function (shader) {
-        if (boundShader) {
-            ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
+        var ctx = this.ctx;
+        
+        ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
 
-            ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 12, 0);
+        ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 12, 0);
 
-            ctx.drawArrays(ctx.LINES, 0, 24);
-        }
+        ctx.drawArrays(ctx.LINES, 0, 24);
     }
 };

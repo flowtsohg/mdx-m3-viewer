@@ -12,7 +12,7 @@
  * @property {Float32Array} data
  * @property {number} bands
  */
-function Cylinder(x, y, z, r, h, bands) {
+function Cylinder(ctx, x, y, z, r, h, bands) {
     var i, l;
     var step = Math.PI * 2 / bands;
     var offset = 0;
@@ -119,6 +119,8 @@ function Cylinder(x, y, z, r, h, bands) {
     ctx.bindBuffer(ctx.ARRAY_BUFFER, buffer);
     ctx.bufferData(ctx.ARRAY_BUFFER, data, ctx.STATIC_DRAW);
 
+    this.ctx = ctx;
+    
     this.buffer = buffer;
     this.data = data;
     this.bands = bands;
@@ -133,12 +135,12 @@ Cylinder.prototype = {
    * @param {GL.Shader} shader
    */
     renderLines: function (shader) {
-        if (boundShader) {
-            ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
+        var ctx = this.ctx;
+        
+        ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
 
-            ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 12, 0);
+        ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 12, 0);
 
-            ctx.drawArrays(ctx.LINES, 0, this.bands * 24);
-        }
+        ctx.drawArrays(ctx.LINES, 0, this.bands * 24);
     }
 };

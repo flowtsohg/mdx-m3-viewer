@@ -373,7 +373,7 @@ function bindTexture(object, unit) {
  * @returns {GL.Rect} The rectangle.
  */
 function createRect(x, y, z, hw, hh, stscale) {
-    return new Rect(x, y, z, hw, hh, stscale);
+    return new Rect(ctx, x, y, z, hw, hh, stscale);
 }
 
 /**
@@ -390,7 +390,7 @@ function createRect(x, y, z, hw, hh, stscale) {
  * @returns {GL.Cube} The cube.
  */
 function createCube(x1, y1, z1, x2, y2, z2) {
-    return new Cube(x1, y1, z1, x2, y2, z2);
+    return new Cube(ctx, x1, y1, z1, x2, y2, z2);
 }
 
 /**
@@ -407,7 +407,7 @@ function createCube(x1, y1, z1, x2, y2, z2) {
  * @returns {GL.Sphere} The sphere.
  */
 function createSphere(x, y, z, latitudeBands, longitudeBands, radius) {
-    return new Sphere(x, y, z, latitudeBands, longitudeBands, radius);
+    return new Sphere(ctx, x, y, z, latitudeBands, longitudeBands, radius);
 }
 
 /**
@@ -424,7 +424,7 @@ function createSphere(x, y, z, latitudeBands, longitudeBands, radius) {
  * @returns {GL.Cylinder} The cylinder.
  */
 function createCylinder(x, y, z, r, h, bands) {
-    return new Cylinder(x, y, z, r, h, bands);
+    return new Cylinder(ctx, x, y, z, r, h, bands);
 }
 
 /**

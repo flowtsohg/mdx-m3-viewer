@@ -13,8 +13,9 @@
 function ShaderUnit(source, type, name) {
     var id = ctx.createShader(type);
 
+    this.type = "shaderunit";
     this.source = source;
-    this.type = type;
+    this.shaderType = type;
     this.id = id;
 
     ctx.shaderSource(id, source);
@@ -26,7 +27,7 @@ function ShaderUnit(source, type, name) {
         //console.warn("Failed to compile a shader:");
         console.warn(name, ctx.getShaderInfoLog(this.id));
         //console.warn(source);
-        onerror({isShader: true, source: name}, "Compile");
+        onerror(this, "Compile");
     }
 }
 
@@ -48,6 +49,7 @@ function ShaderUnit(source, type, name) {
 function Shader(name, vertexUnit, fragmentUnit) {
     var id = ctx.createProgram();
 
+    this.type = "shader";
     this.name = name;
     this.vertexUnit = vertexUnit;
     this.fragmentUnit = fragmentUnit;
@@ -62,7 +64,7 @@ function Shader(name, vertexUnit, fragmentUnit) {
         this.ready = true;
     } else {
         console.warn(name, ctx.getProgramInfoLog(this.id));
-        onerror({isShader: true, source: name}, "Link");
+        onerror(this, "Link");
     }
 }
 

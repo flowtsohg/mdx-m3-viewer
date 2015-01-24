@@ -36,18 +36,21 @@ function GL(element, onload, onerror, onprogress, onloadstart, onunload) {
     var hasFloatTexture = ctx.getExtension("OES_texture_float");
     var compressedTextures = ctx.getExtension("WEBGL_compressed_texture_s3tc");
   
+    var self = {type: "webglcontext"};
+    
     if (!hasVertexTexture) {
-        onerror({isWebGL: true}, "VertexTexture");
+        onerror(self, "VertexTexture");
         return;
     }
 
     if (!hasFloatTexture) {
-        onerror({isWebGL: true}, "FloatTexture");
+        onerror(self, "FloatTexture");
         return;
     }
-
+    
     if (!compressedTextures) {
-        onerror({isWebGL: true}, "CompressedTextures");
+        console.warn("WebGLContext: No compressed textures support");
+        onerror(self, "CompressedTextures");
     }
   
     var refreshViewProjectionMatrix = false;

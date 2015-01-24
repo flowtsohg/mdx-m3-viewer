@@ -11,9 +11,9 @@
 function AsyncModel(source, id, textureMap, context, onloadstart, onerror, onprogress, onload) {
     var fileType = fileTypeFromPath(source);
     
+    this.type = "model";
     this.ready = false;
     this.fileType = fileType;
-    this.isModel = true;
     this.id = id;
     this.source = source;
 
@@ -30,12 +30,21 @@ function AsyncModel(source, id, textureMap, context, onloadstart, onerror, onpro
     
     onloadstart(this);
         
-    getRequest(source, AsyncModel.handlers[fileType][1], this.setup.bind(this, textureMap || {}), onerror.bind(undefined, this), onprogress.bind(undefined, this));
+    this.request = getRequest(source, AsyncModel.handlers[fileType][1], this.setup.bind(this, textureMap || {}), onerror.bind(undefined, this), onprogress.bind(undefined, this));
 }
 
 AsyncModel.handlers = {};
 
 AsyncModel.prototype = {
+    abort: function () {
+        if (this.request.readyState !== XMLHttpRequest.DONE) {
+            this.request.abort();
+            return true;
+        }
+        
+        return false;
+    },
+    
   /**
     * Setup a model once it finishes loading.
     *
@@ -47,7 +56,7 @@ AsyncModel.prototype = {
     setup: function (textureMap, e) {
         var status = e.target.status,
             model;
-
+        
         if (status === 200) {
             model = new AsyncModel.handlers[this.fileType][0](e.target.response, textureMap, this.context, this.onerror.bind(undefined, this));
 

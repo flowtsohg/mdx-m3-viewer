@@ -16,9 +16,10 @@
  * @property {WebGLBuffer} buffer
  * @property {Float32Array} data
  */
-function Rect(x, y, z, hw, hh, stscale) {
+function Rect(ctx, x, y, z, hw, hh, stscale) {
     stscale = stscale || 1;
 
+    this.ctx = ctx;
     this.originalSize = hw;
     this.originalStscale = stscale;
     this.x = x;
@@ -40,6 +41,8 @@ Rect.prototype = {
    * @param {GL.Shader} shader
    */
     render: function (shader) {
+        var ctx = this.ctx;
+        
         ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
 
         ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 20, 0);
@@ -57,6 +60,7 @@ Rect.prototype = {
    * @param {number} hh The new half height.
    */
     resize: function (hw, hh) {
+        var ctx = this.ctx;
         var diff = hw / this.originalSize;
         var stscale = this.originalStscale * diff;
         var data = this.data;

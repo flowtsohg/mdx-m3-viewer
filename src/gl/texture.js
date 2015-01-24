@@ -2,6 +2,7 @@ function Texture(source, options, textureHandlers, ctx, compressedTextures, onlo
     var fileType = fileTypeFromPath(source),
         handler = textureHandlers[fileType];
     
+    this.type = "texture";
     this.source = source;
     this.options = options || {};
     this.handler = handler;

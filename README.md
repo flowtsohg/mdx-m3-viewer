@@ -57,6 +57,7 @@ The type can be one of:
 * `error` - an error occured when loading an object, or an error occured with the WebGL context. In this case, the `error` value will contain a short string that will tell what the error is.
 * `loadend` - sent when an object finishes loading, either because of an error, or because it loaded successfully.
 * `unload` - an object was unloaded.
+* `abort` - an object was aborted before finishing to load. This happens if an object is unloaded before its internal HTTP request finished, in which case it is aborted.
 
 The target property is set to the object that the event is related to.
 

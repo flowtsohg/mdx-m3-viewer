@@ -13,7 +13,7 @@
  * @property {Float32Array} vertexArray
  * @property {Float32Array} indexArray
  */
-function Sphere(x, y, z, latitudeBands, longitudeBands, radius) {
+function Sphere(ctx, x, y, z, latitudeBands, longitudeBands, radius) {
     var vertexData = [];
     var indexData = [];
     var latNumber;
@@ -65,6 +65,8 @@ function Sphere(x, y, z, latitudeBands, longitudeBands, radius) {
         }
     }
 
+    this.ctx = ctx;
+    
     this.vertexArray = new Float32Array(vertexData);
     this.indexArray = new Uint16Array(indexData);
 
@@ -87,6 +89,8 @@ Sphere.prototype = {
    * @param {GL.Shader} shader
    */
     render: function (shader) {
+        var ctx = this.ctx;
+        
         ctx.bindBuffer(ctx.ARRAY_BUFFER, this.vertexBuffer);
 
         ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 20, 0);
@@ -105,6 +109,8 @@ Sphere.prototype = {
    * @param {Shader} shader
    */
     renderLines: function (shader) {
+        var ctx = this.ctx;
+        
         ctx.bindBuffer(ctx.ARRAY_BUFFER, this.vertexBuffer);
 
         ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 20, 0);

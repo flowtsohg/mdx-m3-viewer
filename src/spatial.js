@@ -265,7 +265,7 @@ Spatial.prototype = {
 
         mat4.identity(worldMatrix);
 
-        if (parentNode) {
+        if (parent) {
             mat4.copy(worldMatrix, parent.getTransformation());
 
             // Scale by the inverse of the parent to avoid carrying over scales through the hierarchy

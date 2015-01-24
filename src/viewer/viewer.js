@@ -12,6 +12,10 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
             onmessage(e);
         }
     }
+    
+    function onabort(object) {
+        sendMessage({type: "abort", target: object});
+    }
   
     function onloadstart(object) {
         sendMessage({type: "loadstart", target: object});
@@ -529,6 +533,11 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
             i,
             l;
 
+        // If the model was still in the middle of loading, abort the XHR request.
+        if (model.abort()) {
+            onabort(model);
+        }
+        
         // Remove all instances owned by this model
         for (i = 0, l = instances.length; i < l; i++) {
             unloadInstance(instances[i], true);
@@ -543,18 +552,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
 
         // Remove from the model-instance map
         delete modelInstanceMap[model.id];
-
+        
         onunload(model);
-    }
-    
-    function unloadEverything() {
-        var models = modelArray,
-            i,
-            l;
-
-        for (i = 0, l = models.length; i < l; i++) {
-            unloadModel(models[i]);
-        }
     }
   
   // ---------------------
@@ -568,7 +567,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @instance
     * @param {string} source The source to load from. Can be an absolute url, a path to a file in the MPQ files of Warcraft 3 and Starcraft 2, or a form of identifier to be used for headers.
     */
-    function loadResource(source) {
+    function load(source) {
         var isSupported = supportedFileTypes[fileTypeFromPath(source)];
 
         if (source.startsWith("http://") && isSupported) {
@@ -591,7 +590,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     * @instance
     * @param {(string|number)} source The source to unload from. Can be the source of a previously loaded resource, or a valid model or instance ID.
     */
-    function unloadResource(source) {
+    function unload(source) {
         var object;
 
         if (typeof source === "number") {
@@ -615,6 +614,28 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
         }
     }
   
+    /**
+       * Clears all of the model and instance caches.
+      *
+      * @memberof ModelViewer
+      * @instance
+      */
+    function clear() {
+        var keys = Object.keys(modelMap),
+            i,
+            l;
+        
+        for (i = 0, l = keys.length; i < l; i++) {
+            unloadModel(modelMap[keys[i]]);
+        }
+        
+        modelArray = [];
+        instanceArray = [];
+        modelInstanceMap = {};
+        modelMap = {};
+        instanceMap = {};
+    }
+    
   // ------------------
   // Instance visibility
   // ------------------
@@ -1565,9 +1586,9 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
 
     return {
         // Resource API
-        load: loadResource,
-        unload: unloadResource,
-        clear: unloadEverything,
+        load: load,
+        unload: unload,
+        clear: clear,
         // Instance visibility
         setVisibility: setVisibility,
         getVisibility: getVisibility,
