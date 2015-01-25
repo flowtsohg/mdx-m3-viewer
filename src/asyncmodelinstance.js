@@ -10,7 +10,7 @@
  * @param {vec3} color The color this instance uses for {@link AsyncModelInstance.renderColor}.
  * @param {object} textureMap An object with texture path -> absolute urls mapping.
  */
-function AsyncModelInstance(asyncModel, id, color, textureMap, context, onload) {
+function AsyncModelInstance(asyncModel, id, color, textureMap, context, onload, onloadstart) {
     this.type = "instance";
     this.ready = false;
     this.fileType = asyncModel.fileType;
@@ -35,6 +35,8 @@ function AsyncModelInstance(asyncModel, id, color, textureMap, context, onload) 
     Async.call(this);
     Spatial.call(this);
 
+    onloadstart(this);
+        
     // Request the setup function to be called by the model when it can.
     // If the model is loaded, setup runs instantly, otherwise it runs when the model finishes loading.
     asyncModel.setupInstance(this, textureMap || {});

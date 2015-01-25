@@ -7,6 +7,9 @@
  * @param {boolean} debugMode If true, the viewer will log the loaded models and their parser to the console.
  */
 window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
+    var objectsLoaded = 0,
+        objectsLoading = 0;
+        
     function sendMessage(e) {
         if (typeof onmessage === "function") {
             onmessage(e);
@@ -14,18 +17,29 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     }
     
     function onabort(object) {
+        objectsLoading -= 1;
+        
         sendMessage({type: "abort", target: object});
     }
   
     function onloadstart(object) {
+        objectsLoading += 1;
+        
         sendMessage({type: "loadstart", target: object});
     }
     
     function onloadend(object) {
+        objectsLoaded += 1;
+        
         sendMessage({type: "loadend", target: object});
     }
     
     function onload(object) {
+        // If this model isn't in the cache yet, add it
+        if (object.type === "model" && !modelCache[object.source]) {
+            modelCache[object.source] = object;
+        }
+        
         sendMessage({type: "load", target: object});
         
         onloadend(object);
@@ -80,6 +94,9 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     var modelInstanceMap = {}; // Referebce by ID. This is a map to support deletions.
     var modelMap = {}; // Reference by source
     var instanceMap = {}; // Reference by color
+    // Much like modelMap, but isn't cleared when something is unloaded.
+    // It is used to make loading faster if a model was unloaded, or clear was called, and then the model is requested to load again.
+    var modelCache = {}; 
 
     var supportedFileTypes = {"png":1, "gif":1, "jpg":1};
     var supportedModelFileTypes = {};
@@ -397,7 +414,16 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     }
   
     function loadModel(source, textureMap) {
-        if (!modelMap[source]) {
+        
+        // If the model is cached, but not in the model map, add it to the model map
+        if (modelCache[source]) {
+            if (!modelMap[source]) {
+                modelMap[source] = modelCache[source];
+                
+                onload(modelMap[source]);
+            }
+        // If the model isn't in the cache, it's also likely not in the model map, so do a real load
+        } else {
             var object;
 
             idFactory += 1;
@@ -416,7 +442,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
             color = generateColor();
 
         idFactory += 1;
-        object = new AsyncModelInstance(modelMap[source], idFactory, color, {}, context, onload);
+        object = new AsyncModelInstance(modelMap[source], idFactory, color, {}, context, onload, onloadstart);
 
         if (hidden) {
             object.setVisibility(false);
@@ -615,7 +641,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     }
   
     /**
-       * Clears all of the model and instance caches.
+       * Clears all of the model and instance maps.
       *
       * @memberof ModelViewer
       * @instance
@@ -634,6 +660,19 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
         modelInstanceMap = {};
         modelMap = {};
         instanceMap = {};
+    }
+    
+    function clearCache() {
+        modelCache = {};
+    }
+    
+    function getLoadingPercentage() {
+        return objectsLoaded / objectsLoading;
+    }
+    
+    function clearLoadingPercentage() {
+        objectsLoaded = 0;
+        objectsLoading = 0;
     }
     
   // ------------------
@@ -1589,6 +1628,9 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
         load: load,
         unload: unload,
         clear: clear,
+        clearCache: clearCache,
+        getLoadingPercentage: getLoadingPercentage,
+        clearLoadingPercentage: clearLoadingPercentage,
         // Instance visibility
         setVisibility: setVisibility,
         getVisibility: getVisibility,

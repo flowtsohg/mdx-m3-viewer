@@ -27,16 +27,16 @@ function GL(element, onload, onerror, onprogress, onloadstart, onunload) {
         }
     }
   
+    var self = {type: "webglcontext"};
+    
     if (!ctx) {
-        onerror({isWebGL: true}, "WebGLContext");
+        onerror(self, "WebGLContext");
         return;
     }
   
     var hasVertexTexture = ctx.getParameter(ctx.MAX_VERTEX_TEXTURE_IMAGE_UNITS) > 0;
     var hasFloatTexture = ctx.getExtension("OES_texture_float");
     var compressedTextures = ctx.getExtension("WEBGL_compressed_texture_s3tc");
-  
-    var self = {type: "webglcontext"};
     
     if (!hasVertexTexture) {
         onerror(self, "VertexTexture");
