@@ -162,6 +162,10 @@ AsyncModelInstance.prototype = {
     getSource: function () {
         return this.asyncModel.source;
     },
+    
+    getOriginalSource: function () {
+        return this.asyncModel.originalSource;
+    },
   
   // Sets the parent value of a requesting Spatial.
     setRequestedAttachment: function (requester, attachment) {

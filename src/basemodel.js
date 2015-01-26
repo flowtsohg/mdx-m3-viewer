@@ -112,7 +112,7 @@ BaseModel.prototype = {
     * @returns {object} The texture map.
     */
     getTextureMap: function() {
-        return Object.copy(this.textureMap);
+        return this.textureMap;
     },
 
   /**
@@ -121,7 +121,7 @@ BaseModel.prototype = {
     * @returns {array} The list of sequence names.
     */
     getSequences: function() {
-        return getNamesFromObjects(this.sequences);
+        return this.sequences;
     },
 
   /**
@@ -130,7 +130,7 @@ BaseModel.prototype = {
     * @returns {array} The list of attachment names.
     */
     getAttachments: function() {
-        return getNamesFromObjects(this.attachments);
+        return this.attachments;
     },
   
   /**
@@ -139,7 +139,7 @@ BaseModel.prototype = {
     * @returns {array} The list of bounding shape names.
     */
     getBoundingShapes: function() {
-        return getNamesFromObjects(this.boundingShapes);
+        return this.boundingShapes;
     },
   
   /**
@@ -148,7 +148,7 @@ BaseModel.prototype = {
     * @returns {array} The list of camera names.
     */
     getCameras: function() {
-        return getNamesFromObjects(this.cameras);
+        return this.cameras;
     },
 
   /**

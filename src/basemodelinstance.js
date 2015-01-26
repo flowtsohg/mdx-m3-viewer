@@ -132,6 +132,14 @@ BaseModelInstance.prototype = {
     setSequence: function(id) {
 
     },
+    
+    /**
+        * Stop the current sequence.
+        * Equivalent to setSequence(-1).
+        */
+    stopSequence: function () {
+        this.setSequence(-1);
+    },
 
   /**
     * Gets the sequence of a model instance.
@@ -206,6 +214,6 @@ BaseModelInstance.prototype = {
     * @returns {array} The mesh visibilities.
     */
     getMeshVisibilities: function() {
-        return Array.copy(this.meshVisibilities);
+        return this.meshVisibilities;
     }
 };

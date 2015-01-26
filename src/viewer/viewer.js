@@ -10,9 +10,10 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     var objectsNotReady = 0;
     
     var listeners = {}
+    var viewerObject = {};
     
     function onabort(object) {
-        objectsNotReady -= 1;
+        //objectsNotReady -= 1;
         
         dispatchEvent({type: "abort", target: object});
     }
@@ -61,10 +62,6 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     }
   
     var gl = GL(canvas, onload, onerror, onprogress, onloadstart, onunload);
-  
-    if (!gl) {
-        return;
-    }
     
     var grassPath = urls.localFile("grass.png"),
         waterPath = urls.localFile("water.png"),
@@ -410,21 +407,22 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         ctx.enable(ctx.CULL_FACE);
     }
   
-    function loadModel(source, textureMap) {
+    function loadModel(source, originalSource, textureMap) {
         
         // If the model is cached, but not in the model map, add it to the model map
         if (modelCache[source]) {
             if (!modelMap[source]) {
                 modelMap[source] = modelCache[source];
                 
-                onload(modelMap[source]);
+                //onloadstart(modelMap[source]);
+                //onload(modelMap[source]);
             }
         // If the model isn't in the cache, it's also likely not in the model map, so do a real load
         } else {
             var object;
 
             idFactory += 1;
-            object = new AsyncModel(source, idFactory, textureMap, context, onloadstart, onerror, onprogress, onload);
+            object = new AsyncModel(source, originalSource, idFactory, textureMap, context, onloadstart, onerror, onprogress, onload);
 
             modelMap[source] = object;
             modelArray.push(object);
@@ -459,7 +457,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     // Used by Mdx.ParticleEmitter since they don't need to be automatically updated and rendered
     function loadInternalResource(source) {
         if (!modelMap[source]) {
-            modelMap[source] = new AsyncModel(source, -1, {}, context, onloadstart, onerror, onprogress, onload);
+            modelMap[source] = new AsyncModel(source, source, -1, {}, context, onloadstart, onerror, onprogress, onload);
         }
 
         var instance = new AsyncModelInstance(modelMap[source], -1, generateColor(), {}, context, onload, onloadstart, true);
@@ -471,11 +469,11 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     }
   
     // Load a model or texture from an absolute url, with an optional texture map, and an optional hidden parameter
-    function loadResourceImpl(source, textureMap, hidden) {
+    function loadResourceImpl(source, originalSource, textureMap, hidden) {
         var fileType = fileTypeFromPath(source);
 
         if (supportedModelFileTypes[fileType]) {
-            loadModel(source, textureMap);
+            loadModel(source, originalSource, textureMap);
             loadInstance(source, hidden);
         } else {
             gl.loadTexture(source);
@@ -510,7 +508,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
             var models = object.models;
 
             for (i = 0, l = object.models.length; i < l; i++) {
-                loadResourceImpl(models[i].url, textureMap, models[i].hidden);
+                loadResourceImpl(models[i].url, models[i].url, textureMap, models[i].hidden);
             }
         } else {
             onerror(this, e);
@@ -593,7 +591,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         if (source.startsWith("http://") && isSupported) {
             loadResourceImpl(source);
         } else if (isSupported) {
-            loadResourceImpl(urls.mpqFile(source));
+            loadResourceImpl(urls.mpqFile(source), source);
         } else {
             var object = {isHeader: 1, source: source};
 
@@ -694,482 +692,6 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
             
             return loaded / total;
         }
-    }
-    
-  // ------------------
-  // Instance visibility
-  // ------------------
-  
-  /**
-    * Sets the visiblity of a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @param {boolean} mode The visibility mode.
-    */
-    function setVisibility(object, mode) {
-        object.setVisibility(mode);
-    }
-  
-  /**
-    * Gets the visiblity of a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @returns {boolean} The visibility mode.
-    */
-    function getVisibility(object) {
-        return object.getVisibility();
-    }
-  
-  /**
-    * Sets the visiblity of a model instance's mesh.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @param {number} meshId The ID of the mesh.
-    * @param {boolean} mode The visibility mode.
-    */
-    function setMeshVisibility(object, meshId, mode) {
-        return object.setMeshVisibility(meshId, mode);
-    }
-  
-  /**
-    * Gets the visiblity of a model instance's mesh.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @param {number} meshId The ID of the mesh.
-    * @return {boolean} The visibility mode.
-    */
-    function getMeshVisibility(object, meshId) {
-        return object.getMeshVisibility(meshId);
-    }
-  
-  // ------------------
-  // Transform API
-  // ------------------
-  
-  /**
-    * Sets the location of a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @param {vec3} v The location.
-    */
-    function setLocation(object, v) {
-        object.setLocation(v);
-    }
-  
-  /**
-    * Moves a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @param {vec3} v The displacement.
-    */
-    function move(object, v) {
-        object.move(v);
-    }
-  
-  /**
-    * Gets the location of a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @returns {vec3} The location.
-    */
-    function getLocation(object) {
-        return object.getLocation();
-    }
-  
-  /**
-    * Sets the rotation of a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @param {vec3} v A vector of euler angles.
-    */
-    function setRotation(object, v) {
-        object.setRotation(v);
-    }
-  
-  /**
-    * Rotates a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @param {vec3} v A vector of euler angles.
-    */
-    function rotate(object, v) {
-        object.rotate(v);
-    }
-  
-  /**
-    * Gets the rotation of a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @returns {vec3} A vector of euler angles.
-    */
-    function getRotation(object) {
-        return object.getRotation();
-    }
-  
-  /**
-    * Sets the rotation of a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @param {quat} v A quaternion.
-    */
-    function setRotationQuat(object, q) {
-        object.setRotationQuat(quat.normalize(q, q));
-    }
-  
-  /**
-    * Rotates a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @param {quat} v A quaternion.
-    */
-    function rotateQuat(object, q) {
-        object.rotate(quat.normalize(q, q));
-    }
-  
-  /**
-    * Gets the rotation of a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @returns {quat} A quaternion.
-    */
-    function getRotationQuat(object) {
-        return object.getRotationQuat();
-    }
-  
-  /**
-    * Sets the scale of a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @param {number} n The scale factor.
-    */
-    function setScale(object, n) {
-        object.setScale(n);
-    }
-  
-  /**
-    * Scales a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @param {number} n The scale factor.
-    */
-    function scale(object, n) {
-        object.scale(n);
-    }
-  
-  /**
-    * Gets the scale of a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @returns {number} The scale factor.
-    */
-    function getScale(object) {
-        return object.getScale();
-    }
-  
-  /**
-    * Sets the parent of a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @param {number} parentId The ID of the parent model instance.
-    * @param {number} [attachmentId] The ID of an attachment owned by the parent.
-    */
-    function setParent(object, parent) {
-        object.setParent(parent);
-    }
-  
-  /**
-    * Gets the parent of a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @returns {array} The parent and attachment IDs as an array.
-    */
-    function getParent(object) {
-        return object.getParent();
-    }
-  
-  // -----------------------------
-  // Team colors and textures
-  // -----------------------------
-  
-  /**
-    * Sets the team color of a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @param {number} teamID The team color.
-    */
-    function setTeamColor(object, teamId) {
-        object.setTeamColor(teamId);
-    }
-  
-  /**
-    * Gets the team color of a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @returns {number} The team color.
-    */
-    function getTeamColor(object) {
-        return object.getTeamColor();
-    }
-  
-  /**
-    * Overrides a texture of a model or model instance.
-    * If overriding the texture of a model, it will affect all of its instances who don't explicitly override this texture too.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model or a model instance.
-    * @param {string} path The texture path that gets overriden.
-    * @paran {string} override The new absolute path that will be used.
-    */
-    function overrideTexture(object, path, override) {
-        object.overrideTexture(path, override);
-    }
-  
-  /**
-    * Gets the texture map of a model or a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model or a model instance.
-    * @returns {object} The texture map.
-    */
-    function getTextureMap(object) {
-        return object.getTextureMap();
-    }
-  
-  // ------------
-  // Sequences
-  // ------------
-  
-  /**
-    * Sets the sequence of a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @param {number} sequenceId The sequence.
-    */
-    function setSequence(object, sequence) {
-        object.setSequence(sequenceId);
-    }
-  
-  /**
-    * Stops the sequence of a model instance.
-    * Equivalent to setSequence(objectId, -1).
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    */
-    function stopSequence(object) {
-        object.setSequence(-1);
-    }
-  
-  /**
-    * Gets the sequence of a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @returns {number} The sequence.
-    */
-    function getSequence(object) {
-        return object.getSequence();
-    }
-  
-  /**
-    * Sets the sequence loop mode of a model instance.
-    * Possible values are 0 for default, 1 for never loop, and 2 for always loop.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @param {number} mode The loop mode.
-    */
-    function setSequenceLoopMode(object, mode) {
-        object.setSequenceLoopMode(mode);
-    }
-  
-  /**
-    * Gets the sequence loop mode of a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @returns {number} sequenceId The loop mode.
-    */
-    function getSequenceLoopMode(object) {
-        return object.getSequenceLoopMode();
-    }
-  
-  // ----------
-  // Getters
-  // ----------
-  
-  /**
-    * Gets all the information of a model or a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model or a model instance.
-    * @returns {object} The information.
-    */
-    function getInfo(object) {
-        return object.getInfo();
-    }
-  
-  /**
-    * Gets a model ID from a valid source or model instance ID.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {string} source The source.
-    * @returns {number} The model ID.
-    */
-    function getModel(source) {
-        var object;
-
-        if (typeof source === "string") {
-            object = modelMap[source];
-
-            if (object) {
-                return object.id;
-            }
-        } else {
-            object = modelInstanceMap[source];
-
-            if (object) {
-                if (object.isInstance) {
-                    return object.asyncModel.id;
-                }
-
-                return source;
-            }
-        }
-    }
-  
-  /**
-    * Gets the source of a model or a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model or a model instance.
-    * @returns {number} The source.
-    */
-    function getSource(object) {
-        return object.getSource();
-    }
-  
-  /**
-    * Gets the sequence list of a model or a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model or a model instance.
-    * @returns {number} The list.
-    */
-    function getSequences(object) {
-        return object.getSequences();
-    }
-  
-  /**
-    * Gets the attachment list of a model or a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model or a model instance.
-    * @returns {number} The list.
-    */
-    function getAttachments(object) {
-        return object.getAttachments();
-    }
-  
-  /**
-    * Gets the camera list of a model or a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model or a model instance.
-    * @returns {number} The list.
-    */
-    function getCameras(object) {
-        return object.getCameras();
-    }
-  
-  /**
-    * Gets the bounding shape list of a model or a model instance.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model or a model instance.
-    * @returns {number} The list.
-    */
-    function getBoundingShapes(object) {
-        return object.getBoundingShapes();
-    }
-  
-  /**
-    * Gets the number of meshes a model or a model instance owns.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model or a model instance.
-    * @returns {number} The number of meshes.
-    */
-    function getMeshCount(object) {
-        return object.getMeshCount();
-    }
-  
-  /**
-    * Gets a list of all model instances that a model owns.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model.
-    * @returns {number} The list.
-    */
-    function getInstances(object) {
-        return object.getInstances();
     }
   
   // -------------------
@@ -1390,6 +912,10 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         return [context.instanceCamera[0], context.instanceCamera[1]];
     }
   
+    function getCameraPosition() {
+        return cameraPosition;
+    }
+    
   /**
     * Pans the camera on the x and y axes.
     *
@@ -1657,7 +1183,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         }
         
         if (!event.target) {
-            event.target = this; // this is the global object!
+            event.target = viewerObject;
         }
         
         if (!event.type) {
@@ -1670,7 +1196,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
                 l;
             
             for (i = 0, l = _listeners.length; i < l; i++){
-                _listeners[i].call(this, event); // this is the global object!
+                _listeners[i].call(viewerObject, event);
             }
         }
     }
@@ -1690,9 +1216,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     step();
     
 
-    
-
-    return {
+    var API = {
         // Resource API
         load: load,
         unload: unload,
@@ -1700,46 +1224,6 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         clearCache: clearCache,
         loadingEnded: loadingEnded,
         dependenciesLoaded: dependenciesLoaded,
-        // Instance visibility
-        setVisibility: setVisibility,
-        getVisibility: getVisibility,
-        setMeshVisibility: setMeshVisibility,
-        getMeshVisibility: getMeshVisibility,
-        // Transform API
-        setLocation: setLocation,
-        move: move,
-        getLocation: getLocation,
-        setRotation: setRotation,
-        rotate: rotate,
-        getRotation: getRotation,
-        setRotationQuat: setRotationQuat,
-        rotateQuat: rotateQuat,
-        getRotationQuat: getRotationQuat,
-        setScale: setScale,
-        scale: scale,
-        getScale: getScale,
-        setParent: setParent,
-        getParent: getParent,
-        // Team colors and textures
-        setTeamColor: setTeamColor,
-        getTeamColor: getTeamColor,
-        overrideTexture: overrideTexture,
-        getTextureMap: getTextureMap,
-        // Sequences
-        setSequence: setSequence,
-        stopSequence: stopSequence,
-        getSequence: getSequence,
-        setSequenceLoopMode: setSequenceLoopMode,
-        // Information getters
-        getInfo: getInfo,
-        getModel: getModel,
-        getSource: getSource,
-        getSequences: getSequences,
-        getAttachments: getAttachments,
-        getCameras: getCameras,
-        getBoundingShapes: getBoundingShapes,
-        getMeshCount: getMeshCount,
-        getInstances: getInstances,
         // General settings
         setAnimationSpeed: setAnimationSpeed,
         getAnimationSpeed: getAnimationSpeed,
@@ -1760,6 +1244,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         // Camera settings
         setCamera: setCamera,
         getCamera: getCamera,
+        getCameraPosition: getCameraPosition,
         panCamera: panCamera,
         rotateCamera: rotateCamera,
         zoomCamera: zoomCamera,
@@ -1776,4 +1261,8 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         removeEventListener: removeEventListener,
         getWebGLContext: getWebGLContext
     };
+    
+    mixin(API, viewerObject);
+        
+    return viewerObject;
 };
