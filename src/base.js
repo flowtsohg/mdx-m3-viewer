@@ -1,3 +1,19 @@
+// Overrides keys of dst with keys of src
+function overrideMap(src, dst) {
+    var keys = Object.keys(src),
+        key,
+        i,
+        l;
+    
+    for (i = 0, l = keys.length; i < l; i++) {
+        key = keys[i];
+        
+        dst[key] = src[key];
+    }
+    
+    return dst;
+}
+
 var generateColor = (function () {
     var i = 1;
 

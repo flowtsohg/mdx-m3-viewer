@@ -6,32 +6,27 @@
  * @param {function} onmessage A callback function, which the viewer will call with messages.
  * @param {boolean} debugMode If true, the viewer will log the loaded models and their parser to the console.
  */
-window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
-    var objectsLoaded = 0,
-        objectsLoading = 0;
-        
-    function sendMessage(e) {
-        if (typeof onmessage === "function") {
-            onmessage(e);
-        }
-    }
+window["ModelViewer"] = function (canvas, urls, debugMode) {
+    var objectsNotReady = 0;
+    
+    var listeners = {}
     
     function onabort(object) {
-        objectsLoading -= 1;
+        objectsNotReady -= 1;
         
-        sendMessage({type: "abort", target: object});
+        dispatchEvent({type: "abort", target: object});
     }
   
     function onloadstart(object) {
-        objectsLoading += 1;
+        objectsNotReady += 1;
         
-        sendMessage({type: "loadstart", target: object});
+        dispatchEvent({type: "loadstart", target: object});
     }
     
     function onloadend(object) {
-        objectsLoaded += 1;
+        objectsNotReady -= 1;
         
-        sendMessage({type: "loadend", target: object});
+        dispatchEvent({type: "loadend", target: object});
     }
     
     function onload(object) {
@@ -40,7 +35,7 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
             modelCache[object.source] = object;
         }
         
-        sendMessage({type: "load", target: object});
+        dispatchEvent({type: "load", target: object});
         
         onloadend(object);
     }
@@ -50,19 +45,19 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
             error = "" + error.target.status;
         }
 
-        sendMessage({type: "error", error: error, target: object});
+        dispatchEvent({type: "error", error: error, target: object});
         
         onloadend(object);
     }
     
     function onprogress(object, e) {
         if (e.target.status === 200) {
-            sendMessage({type: "progress", target: object, loaded: e.loaded, total: e.total, lengthComputable: e.lengthComputable});
+            dispatchEvent({type: "progress", target: object, loaded: e.loaded, total: e.total, lengthComputable: e.lengthComputable});
         }
     }
   
     function onunload(object) {
-        sendMessage({type: "unload", target: object});
+        dispatchEvent({type: "unload", target: object});
     }
   
     var gl = GL(canvas, onload, onerror, onprogress, onloadstart, onunload);
@@ -396,6 +391,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
         if (context.worldMode > 2) {
             renderGround(true);
         }
+        
+        dispatchEvent("render");
     }
   
     function renderColor() {
@@ -463,12 +460,9 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
     function loadInternalResource(source) {
         if (!modelMap[source]) {
             modelMap[source] = new AsyncModel(source, -1, {}, context, onloadstart, onerror, onprogress, onload);
-            onloadstart(modelMap[source]);
         }
 
-        var instance = new AsyncModelInstance(modelMap[source], -1, generateColor(), {}, context, onload);
-
-        onloadstart(instance);
+        var instance = new AsyncModelInstance(modelMap[source], -1, generateColor(), {}, context, onload, onloadstart, true);
 
         // Avoid reporting this instance since it's internal
         instance.delayOnload = true;
@@ -666,13 +660,40 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
         modelCache = {};
     }
     
-    function getLoadingPercentage() {
-        return objectsLoaded / objectsLoading;
+    function loadingEnded() {
+        return objectsNotReady === 0;
     }
     
-    function clearLoadingPercentage() {
-        objectsLoaded = 0;
-        objectsLoading = 0;
+    // TODO: Add a way to check for internal instances/models and their textures too.
+    function dependenciesLoaded(object) {
+        if (object) {
+            var textureMap = {},
+                keys,
+                loaded = 0,
+                total,
+                i,
+                l;
+            
+            if (object.type === "instance") {
+                overrideMap(object.asyncModel.getTextureMap(), textureMap);
+                overrideMap(object.getTextureMap(), textureMap);
+            }
+            
+            if (object.type === "model") {
+                overrideMap(object.getTextureMap(), textureMap);
+            }
+            
+            keys = Object.keys(textureMap);
+            total = keys.length;
+            
+            for (i = 0, l = total; i < l; i++) {
+                if (gl.textureLoaded(textureMap[keys[i]])) {
+                    loaded += 1;
+                }
+            }
+            
+            return loaded / total;
+        }
     }
     
   // ------------------
@@ -1606,10 +1627,58 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
         supportedTextureFileTypes[fileType] = 1;
         supportedFileTypes[fileType] = 1;
     }
+    
+    function addEventListener(type, listener) {
+        if (listeners[type] === undefined){
+            listeners[type] = [];
+        }
+
+        listeners[type].push(listener);
+    }
+    
+    function removeEventListener(type, listener) {
+        if (listeners[type] !== undefined){
+            var _listeners = listeners[type],
+                i,
+                l;
+            
+            for (i = 0, l = _listeners.length; i < l; i++){
+                if (_listeners[i] === listener){
+                    _listeners.splice(i, 1);
+                    return;
+                }
+            }
+        }
+    }
+    
+    function dispatchEvent(event) {
+        if (typeof event === "string") {
+            event = {type: event};
+        }
+        
+        if (!event.target) {
+            event.target = this; // this is the global object!
+        }
+        
+        if (!event.type) {
+            return;
+        }
+        
+        if (listeners[event.type] !== undefined) {
+            var _listeners = listeners[event.type],
+                i,
+                l;
+            
+            for (i = 0, l = _listeners.length; i < l; i++){
+                _listeners[i].call(this, event); // this is the global object!
+            }
+        }
+    }
   
-  
-  
-  
+    function getWebGLContext() {
+        return ctx;
+    }
+    
     // The main loop of the viewer
     function step() {
         update();
@@ -1629,8 +1698,8 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
         unload: unload,
         clear: clear,
         clearCache: clearCache,
-        getLoadingPercentage: getLoadingPercentage,
-        clearLoadingPercentage: clearLoadingPercentage,
+        loadingEnded: loadingEnded,
+        dependenciesLoaded: dependenciesLoaded,
         // Instance visibility
         setVisibility: setVisibility,
         getVisibility: getVisibility,
@@ -1701,6 +1770,10 @@ window["ModelViewer"] = function (canvas, urls, onmessage, debugMode) {
         //loadScene: loadScene,
         // Extending
         registerModelHandler: registerModelHandler,
-        registerTextureHandler: registerTextureHandler
+        registerTextureHandler: registerTextureHandler,
+        // Experiemental
+        addEventListener: addEventListener,
+        removeEventListener: removeEventListener,
+        getWebGLContext: getWebGLContext
     };
 };

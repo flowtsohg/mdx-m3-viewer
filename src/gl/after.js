@@ -21,6 +21,7 @@
     getViewMatrix: getViewMatrix,
     loadTexture: loadTexture,
     unloadTexture: unloadTexture,
+    textureLoaded: textureLoaded,
     textureOptions: textureOptions,
     bindTexture: bindTexture,
     createRect: createRect,

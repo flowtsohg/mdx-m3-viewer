@@ -9,7 +9,8 @@ function Texture(source, options, textureHandlers, ctx, compressedTextures, onlo
     this.onerror = onerror;
     this.onprogress = onprogress;
     this.onload = onload;
-    
+    this.ready = false;
+        
     onloadstart(this);
     
     if (handler) {
@@ -24,6 +25,8 @@ Texture.prototype = {
         var target = e.target,
             status = target.status;
 
+        this.ready = true;
+        
         if (status === 200) {
             this.impl = new this.handler(target.response, this.options, ctx, this.onerror.bind(undefined, this),  this.onload.bind(undefined, this), compressedTextures);
 

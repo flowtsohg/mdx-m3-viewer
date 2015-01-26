@@ -17,7 +17,7 @@ function GL(element, onload, onerror, onprogress, onloadstart, onunload) {
   
     for (var i = 0, l = identifiers.length; i < l; ++i) {
         try {
-            ctx = element.getContext(identifiers[i], {antialias: true, alpha: false, preserveDrawingBuffer: true});
+            ctx = element.getContext(identifiers[i], {antialias: true, alpha: false/*, preserveDrawingBuffer: true*/});
         } catch(e) {
             
         }
@@ -27,11 +27,9 @@ function GL(element, onload, onerror, onprogress, onloadstart, onunload) {
         }
     }
   
-    var self = {type: "webglcontext"};
-    
     if (!ctx) {
-        onerror(self, "WebGLContext");
-        return;
+        console.error("[WebGLContext]: Failed to create a WebGLContext");
+        throw "[WebGLContext]: Failed to create a WebGLContext";
     }
   
     var hasVertexTexture = ctx.getParameter(ctx.MAX_VERTEX_TEXTURE_IMAGE_UNITS) > 0;
@@ -39,18 +37,18 @@ function GL(element, onload, onerror, onprogress, onloadstart, onunload) {
     var compressedTextures = ctx.getExtension("WEBGL_compressed_texture_s3tc");
     
     if (!hasVertexTexture) {
-        onerror(self, "VertexTexture");
-        return;
+        console.error("[WebGLContext]: No vertex shader texture support");
+        throw "[WebGLContext]: No vertex shader texture support";
     }
 
     if (!hasFloatTexture) {
-        onerror(self, "FloatTexture");
-        return;
+        console.error("[WebGLContext]: No float texture support");
+        throw "[WebGLContext]: No float texture support";
     }
     
     if (!compressedTextures) {
-        console.warn("WebGLContext: No compressed textures support");
-        onerror(self, "CompressedTextures");
+        console.warn("[WebGLContext]: No compressed textures support");
+        //onerror(self, "CompressedTextures");
     }
   
     var refreshViewProjectionMatrix = false;

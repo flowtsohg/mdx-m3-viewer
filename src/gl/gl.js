@@ -326,6 +326,12 @@ function unloadTexture(source) {
     }
 }
 
+function textureLoaded(source) {
+    var texture = textureStore[source];
+    
+    return (texture && texture.ready);
+}
+
 /**
  * Binds a texture to the specified texture unit.
  *
