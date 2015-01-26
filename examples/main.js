@@ -1,4 +1,4 @@
-function onmessage(e) {
+function onloadend(e) {
   console.log(e);
 }
 
@@ -8,7 +8,7 @@ var urls = {
     },
 
     mpqFile: function (path) {
-        return "http://www.mysite.com/?mpqfile=" + path;
+        return path;
     },
 
     localFile: function (path) {
@@ -17,16 +17,19 @@ var urls = {
 };
 
 var canvas = document.getElementById("canvas");
-var viewer = ModelViewer(canvas, urls, onmessage);
+var viewer;
 
-if (viewer) {
-  // Register the OBJ handler
-  // The last optional parameter defines if this format is a text format or binary format.
-  // If it is set to true, the model handler will get an ArrayBuffer object instead of a string.
-  viewer.registerModelHandler(".obj", OBJModel, OBJModelInstance, false);
-  
-  // Register the BMP handler
-  viewer.registerTextureHandler(".bmp", BMPTexture);
-  
-  // Do stuff...
+try {
+    viewer = ModelViewer(canvas, urls);
+    
+    viewer.registerModelHandler(".obj", OBJModel, OBJModelInstance);
+    viewer.registerTextureHandler(".bmp", BMPTexture);
+    
+    viewer.addEventHandler("loadend", onloadend);
+    
+    viewer.load("cube.obj");
+    viewer.load("test.bmp");
+} catch (e) {
+    // Fatal error, the viewer can't run on this computer/browser.
+    console.log(e);
 }
