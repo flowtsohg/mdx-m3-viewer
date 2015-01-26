@@ -19,7 +19,9 @@ Terminology:
 | Term | Description |
 | ------------- | ------------- |
 | Model | Heavy weight object that contains all the vertices, polygon indices, animation data, skeletal structure, and so on |
-| Model Instance | Light weight object that contains a shallow skeleton, particle emitters, animation timers, and so on |
+| ModelInstance | Light weight object that contains a shallow skeleton, particle emitters, animation timers, and so on |
+| AsyncModel | An object that wraps a model implementation, and takes care of the asynchronous job that is loading files |
+| AsyncModelInstance | An object that wraps a model instance implementation, and takes care of the asynchronous job that is loading files |
 
 ------------------------
 
