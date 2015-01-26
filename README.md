@@ -29,7 +29,7 @@ The API can be seen [here](http://htmlpreview.github.io/?https://raw.githubuserc
 Note that the constructor isn't called with the `new` operator.
 
 ```javascript
-viewer = ModelViewer(canvas, urls, onmessage, debugMode)
+viewer = ModelViewer(canvas, urls, debugMode)
 ```
 
 The `urls` argument must have the following functions in it:
@@ -40,26 +40,29 @@ The `urls` argument must have the following functions in it:
 | `mpqFile(path)` | Returns a path for a file in any of the Warcraft 3 or Starcraft 2 MPQs |
 | `localFile(path)` | Returns a path for a local file. This should point to a directory with the following images: `grass.png`, `water.png`, `bedrock.png`, and `sky.png` |
 
-If the client has the requierments to run the viewer, the API will be returned, otherwise, null will be returned, and an error message will be dispatched to `onmessage` if it exists.
+If the client has the requierments to run the viewer, the API will be returned, otherwise, an exception will be thrown, describing the error.
 
 ------------------------
 
 Objects can send events in their life span, very similar to those of native JavaScript objects.
-Use the `onmessage` callback to keep track of everything.
-The messages are JavaScript objects of the form:
+Use the EventTarget API to register events:
 
-`{type: type, target: target [, loaded: loaded, total: total, lengthComputable: lengthComputable, error: error])`.
+```
+viewer.addEventListener(type, listener)
+viewer.removeEventListener(type, listener)
+```
 
 The type can be one of:
+* `render` - called every frame after rendering is done.
 * `loadstart` - an object started loading.
-* `progress` - progress updates for loads. The relevant progress properties will be set.
+* `progress` - progress updates for loads. The relevant progress properties will be set (loaded, total, lengthComputable).
 * `load` - an object finished loading.
-* `error` - an error occured when loading an object, or an error occured with the WebGL context. In this case, the `error` value will contain a short string that will tell what the error is.
+* `error` - an error occured when loading an object. In this case, the `error` value will contain a short string that will tell what the error is.
 * `loadend` - sent when an object finishes loading, either because of an error, or because it loaded successfully.
 * `unload` - an object was unloaded.
 * `abort` - an object was aborted before finishing to load. This happens if an object is unloaded before its internal HTTP request finished, in which case it is aborted.
 
-The target property is set to the object that the event is related to.
+The target property is set to the object that the event is related to. In the case of the render event, this is the viewer itself.
 
 ------------------------
 
