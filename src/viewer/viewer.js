@@ -79,13 +79,12 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     var sky;
     var uvOffset = [0, 0];
     var uvSpeed = [Math.randomRange(-0.004, 0.004), Math.randomRange(-0.004, 0.004)];
-
-    var idFactory = -1;
+    var upDir = vec3.fromValues(0, 0, 1);
+    
     var modelArray = []; // All models
     var instanceArray = []; // All instances
     var modelInstanceMap = {}; // Referebce by ID. This is a map to support deletions.
     var modelMap = {}; // Reference by source
-    var instanceMap = {}; // Reference by color
     // Much like modelMap, but isn't cleared when something is unloaded.
     // It is used to make loading faster if a model was unloaded, or clear was called, and then the model is requested to load again.
     var modelCache = {}; 
@@ -226,9 +225,9 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
   
     resetViewport();
 
-    addEvent(window, "resize", resetViewport);
+    window.addEventListener("resize", resetViewport);
 
-    resetCamera();
+    
       
     gl.createShader("world", SHADERS.vsworld, SHADERS.psworld);
     gl.createShader("white", SHADERS.vswhite, SHADERS.pswhite);
@@ -249,43 +248,56 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
             vec3.transformMat4(context.particleBillboardedRect[i], context.particleRect[i], inverseCameraRotation);
         }
     }
+    
+    var cameraOrigin = vec3.create();
+    window["cameraOrigin"] = cameraOrigin;
+    
+    resetCamera();
 
+    
+    // Target position: [4.574210166931152, 232.5989990234375, 141.67599487304688]
+    
+        /*
+        0: 27.242000579833984
+        1: 356.74700927734375
+        2: 315.1210021972656 
+        
+        0: -173.10299682617188
+        1: 4.7074198722839355
+        2: 9.155360221862793
+        */
+    
     function transformCamera() {
         mat4.identity(cameraMatrix);
         mat4.identity(inverseCameraRotation);
 
-        if (context.instanceCamera[1] === -1) {
+        if (!context.cameraObject) {
             var z = context.camera[1][1],
                 x = context.camera[1][0];
 
             mat4.translate(cameraMatrix, cameraMatrix, context.camera[0]);
             mat4.rotate(cameraMatrix, cameraMatrix, x, vec3.UNIT_X);
             mat4.rotate(cameraMatrix, cameraMatrix, z, vec3.UNIT_Z);
-
+            mat4.translate(cameraMatrix, cameraMatrix, cameraOrigin);
+            
             mat4.rotate(inverseCameraRotation, inverseCameraRotation, -z, vec3.UNIT_Z);
             mat4.rotate(inverseCameraRotation, inverseCameraRotation, -x, vec3.UNIT_X);
 
             mat4.invert(inverseCamera, cameraMatrix);
             vec3.transformMat4(cameraPosition, vec3.UNIT_Z, inverseCamera);
         } else {
-            var instance = modelInstanceMap[context.instanceCamera[0]];
+            var cam = context.cameraObject;
 
-            if (instance) {
-                var cam = instance.getCamera(context.instanceCamera[1]);
+            var targetPosition = cam.targetPosition;
 
-                if (cam) {
-                    var targetPosition = cam.targetPosition;
+            mat4.lookAt(cameraMatrix, cam.position, targetPosition, upDir);
+            mat4.toRotationMat4(inverseCameraRotation, cameraMatrix);
 
-                    mat4.lookAt(cameraMatrix, cam.position, targetPosition, upDir);
-                    mat4.toRotationMat4(inverseCameraRotation, cameraMatrix);
-
-                    cameraPosition[0] = targetPosition[0];
-                    cameraPosition[1] = targetPosition[1];
-                    cameraPosition[2] = targetPosition[2];
-                }
-            }
+            cameraPosition[0] = targetPosition[0];
+            cameraPosition[1] = targetPosition[1];
+            cameraPosition[2] = targetPosition[2];
         }
-
+        
         gl.loadIdentity();
         gl.multMat(cameraMatrix);
     }
@@ -421,31 +433,27 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         } else {
             var object;
 
-            idFactory += 1;
-            object = new AsyncModel(source, originalSource, idFactory, textureMap, context, onloadstart, onerror, onprogress, onload);
+            object = new AsyncModel(source, originalSource, textureMap, context, onloadstart, onerror, onprogress, onload);
 
             modelMap[source] = object;
             modelArray.push(object);
-            modelInstanceMap[idFactory] = object;
+            modelInstanceMap[object.id] = object;
         }
 
         return modelMap[source];
     }
   
     function loadInstance(source, hidden) {
-        var object,
-            color = generateColor();
+        var object;
 
-        idFactory += 1;
-        object = new AsyncModelInstance(modelMap[source], idFactory, color, {}, context, onload, onloadstart);
+        object = new AsyncModelInstance(modelMap[source], {}, context, onload, onloadstart);
 
         if (hidden) {
             object.setVisibility(false);
         }
 
-        modelInstanceMap[idFactory] = object;
+        modelInstanceMap[object.id] = object;
         instanceArray.push(object);
-        instanceMap[colorString(color)] = object;
 
         if (object.delayOnload) {
             onload(object);
@@ -457,15 +465,10 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     // Used by Mdx.ParticleEmitter since they don't need to be automatically updated and rendered
     function loadInternalResource(source) {
         if (!modelMap[source]) {
-            modelMap[source] = new AsyncModel(source, source, -1, {}, context, onloadstart, onerror, onprogress, onload);
+            modelMap[source] = new AsyncModel(source, source, {}, context, onloadstart, onerror, onprogress, onload);
         }
 
-        var instance = new AsyncModelInstance(modelMap[source], -1, generateColor(), {}, context, onload, onloadstart, true);
-
-        // Avoid reporting this instance since it's internal
-        instance.delayOnload = true;
-
-        return instance;
+        return new AsyncModelInstance(modelMap[source], {}, context, onload, onloadstart, true);
     }
   
     // Load a model or texture from an absolute url, with an optional texture map, and an optional hidden parameter
@@ -518,7 +521,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     function unloadInstance(instance, unloadingModel) {
         var i,
             l,
-            instances = instance.asyncModel.instances;
+            instances = instance.model.instances;
 
         // Remove from the instance array
         for (i = 0, l = instanceArray.length; i < l; i++) {
@@ -673,13 +676,10 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
                 l;
             
             if (object.type === "instance") {
-                overrideMap(object.asyncModel.getTextureMap(), textureMap);
-                overrideMap(object.getTextureMap(), textureMap);
+                mixin(object.model.getTextureMap(), textureMap);
             }
             
-            if (object.type === "model") {
-                overrideMap(object.getTextureMap(), textureMap);
-            }
+            mixin(object.getTextureMap(), textureMap);
             
             keys = Object.keys(textureMap);
             total = keys.length;
@@ -896,9 +896,25 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     * @param {number} objectId The ID of a model instance.
     * @param {number} cameraId The camera.
     */
-    function setCamera(objectId, cameraId) {
-        context.instanceCamera[0] = objectId;
-        context.instanceCamera[1] = cameraId;
+    function setCamera(camera) {
+        context.cameraObject = camera;
+        
+        if (camera) {
+            var sphericalCoordinate = computeSphericalCoordinates(camera.position, camera.targetPosition);
+            
+            cameraOrigin[0] = -camera.targetPosition[0];
+            cameraOrigin[1] = -camera.targetPosition[1];
+            cameraOrigin[2] = -camera.targetPosition[2];
+            
+            context.camera[0][0] = 0;
+            context.camera[0][1] = 0;
+            context.camera[0][2] = -sphericalCoordinate[0];
+            
+            context.camera[1][0] = sphericalCoordinate[1] - Math.PI / 2;
+            context.camera[1][1] = sphericalCoordinate[2] + Math.PI;
+        } else {
+            resetCamera();
+        }
     }
   
   /**
@@ -909,11 +925,20 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     * @returns {array} The model instance ID and camera. If the free form camera is used, both will be -1.
     */
     function getCamera() {
-        return [context.instanceCamera[0], context.instanceCamera[1]];
+        return context.cameraObject;
     }
   
     function getCameraPosition() {
         return cameraPosition;
+    }
+    
+    function setCameraTarget(object) {
+        if (object) {
+            vec3.copy(cameraOrigin, object.getCenter());
+            vec3.negate(cameraOrigin, cameraOrigin);
+        } else {
+            vec3.set(cameraOrigin, 0, 0, 0);
+        }
     }
     
   /**
@@ -925,7 +950,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     * @param {number} y Amount to pan on the Y axis.
     */
     function panCamera(x, y) {
-        context.instanceCamera[1] = -1;
+        context.cameraObject = null;
         context.camera[0][0] += x;
         context.camera[0][1] -= y;
     }
@@ -939,7 +964,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     * @param {number} y Amount to rotate on the Y axis.
     */
     function rotateCamera(x, y) {
-        context.instanceCamera[1] = -1;
+        context.cameraObject = null;
         context.camera[1][0] += Math.toRad(x);
         context.camera[1][1] += Math.toRad(y);
     }
@@ -952,7 +977,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     * @param {number} n Zoom factor.
     */
     function zoomCamera(n) {
-        context.instanceCamera[1] = -1;
+        context.cameraObject = null;
         context.camera[0][2] = Math.floor(context.camera[0][2] * n);
     }
   
@@ -963,11 +988,16 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     * @instance
     */
     function resetCamera() {
-        context.instanceCamera[1] = -1;
+        context.cameraObject = null;
         context.camera[0][0] = 0;
         context.camera[0][1] = 0;
         context.camera[0][2] = -300;
-        context.camera[1] = [Math.toRad(315), Math.toRad(225)];
+        context.camera[1][0] = Math.toRad(315);
+        context.camera[1][1] = Math.toRad(225);
+        
+        cameraOrigin[0] = 0;
+        cameraOrigin[1] = 0;
+        cameraOrigin[2] = 0;
     }
   
   // ------
@@ -984,7 +1014,6 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     * @returns {number} The ID of the selected model instance, or -1 if no model instance was selected.
     */
     function selectInstance(x, y) {
-        //var date = new Date();
         var pixel = new Uint8Array(4);
 
         //var dx = canvas.clientWidth / 512;
@@ -1005,7 +1034,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
 
         // The Y axis of the WebGL viewport is inverted compared to screen space
         y = canvas.clientHeight - y;
-
+        
         ctx.readPixels(x, y, 1, 1, ctx.RGBA, ctx.UNSIGNED_BYTE, pixel);
 
         //ctx.bindFramebuffer(ctx.FRAMEBUFFER, null);
@@ -1015,13 +1044,11 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
 
         //console.log(pixel);
         
-        var color = webGLPixelToColor(pixel).join("");
-        var instance = instanceMap[color];
+        var id = encodeFloat3(pixel[0], pixel[1], pixel[2]);
+        var object = modelInstanceMap[id];
 
-        //console.log("selectInstance", new Date() - date);
-
-        if (instance) {
-            return instance;
+        if (object && object.type === "instance") {
+            return object;
         }
     }
   
@@ -1205,17 +1232,6 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         return ctx;
     }
     
-    // The main loop of the viewer
-    function step() {
-        update();
-        render();
-
-        requestAnimationFrame(step);
-    }
-
-    step();
-    
-
     var API = {
         // Resource API
         load: load,
@@ -1245,6 +1261,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         setCamera: setCamera,
         getCamera: getCamera,
         getCameraPosition: getCameraPosition,
+        setCameraTarget: setCameraTarget,
         panCamera: panCamera,
         rotateCamera: rotateCamera,
         zoomCamera: zoomCamera,
@@ -1259,10 +1276,18 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         // Experiemental
         addEventListener: addEventListener,
         removeEventListener: removeEventListener,
+        dispatchEvent: dispatchEvent,
         getWebGLContext: getWebGLContext
     };
     
-    mixin(API, viewerObject);
+    // The main loop of the viewer
+    function step() {
+        update();
+        render();
+
+        requestAnimationFrame(step);
+    }
+    step();
         
-    return viewerObject;
+    return mixin(API, viewerObject);
 };

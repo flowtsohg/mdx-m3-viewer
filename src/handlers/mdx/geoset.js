@@ -111,7 +111,7 @@ Geoset.prototype = {
         ctx.drawElements(ctx.LINES, this.elements * 2, ctx.UNSIGNED_SHORT, 0);
     },
 
-    renderColor: function (shader) {
+    renderColor: function (shader, ctx) {
         var offsets = this.offsets;
 
         ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);

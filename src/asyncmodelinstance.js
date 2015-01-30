@@ -10,18 +10,15 @@
  * @param {vec3} color The color this instance uses for {@link AsyncModelInstance.renderColor}.
  * @param {object} textureMap An object with texture path -> absolute urls mapping.
  */
-function AsyncModelInstance(asyncModel, id, color, textureMap, context, onload, onloadstart, isInternal) {
+function AsyncModelInstance(asyncModel, textureMap, context, onload, onloadstart, isInternal) {
     this.type = "instance";
     this.ready = false;
     this.fileType = asyncModel.fileType;
-    this.asyncModel = asyncModel;
-    this.id = id;
-
+    this.model = asyncModel;
+    this.id = generateID();
+    this.color = decodeFloat3(this.id);
     this.source = asyncModel.source;
     this.visible = 1;
-
-    // Used for color picking
-    this.color = color;
 
     // If the model is already ready, the onload message from setup() must be delayed, since this instance wouldn't be added to the cache yet.
     if (asyncModel.ready || isInternal) {
@@ -160,12 +157,23 @@ AsyncModelInstance.prototype = {
     * @returns {string} The model's source.
     */
     getSource: function () {
-        return this.asyncModel.source;
+        return this.model.source;
     },
     
     getOriginalSource: function () {
-        return this.asyncModel.originalSource;
+        return this.model.originalSource;
     },
+    
+    getCenter: function () {
+        if (this.ready) {
+            var center = [];
+            
+            vec3.add(center, this.location, this.model.getCenter());
+            
+            return center;
+        }
+    },
+    
   
   // Sets the parent value of a requesting Spatial.
     setRequestedAttachment: function (requester, attachment) {
@@ -317,7 +325,7 @@ AsyncModelInstance.prototype = {
     */
     getCamera: function (id) {
         if (this.ready) {
-            return this.instance.getCamera(id);
+            return this.model.getCamera(id);
         }
     },
   
@@ -374,7 +382,7 @@ AsyncModelInstance.prototype = {
     */
     getSequences: function () {
         if (this.ready) {
-            return this.asyncModel.getSequences();
+            return this.model.getSequences();
         }
     },
   
@@ -387,7 +395,7 @@ AsyncModelInstance.prototype = {
     */
     getAttachments: function () {
         if (this.ready) {
-            return this.asyncModel.getAttachments();
+            return this.model.getAttachments();
         }
     },
   
@@ -400,7 +408,7 @@ AsyncModelInstance.prototype = {
     */
     getBoundingShapes: function() {
         if (this.ready) {
-            return this.asyncModel.getBoundingShapes();
+            return this.model.getBoundingShapes();
         }
     },
   
@@ -413,7 +421,7 @@ AsyncModelInstance.prototype = {
     */
     getCameras: function () {
         if (this.ready) {
-            return this.asyncModel.getCameras();
+            return this.model.getCameras();
         }
     },
   
@@ -426,7 +434,7 @@ AsyncModelInstance.prototype = {
     */
     getMeshCount: function () {
         if (this.ready) {
-            return this.asyncModel.getMeshCount();
+            return this.model.getMeshCount();
         }
     },
   
@@ -461,7 +469,7 @@ AsyncModelInstance.prototype = {
     */
     getInfo: function () {
         return {
-            modelInfo: this.asyncModel.getInfo(),
+            modelInfo: this.model.getInfo(),
             visible: this.getVisibility(),
             sequence: this.getSequence(),
             sequenceLoopMode: this.getSequenceLoopMode(),
@@ -492,7 +500,7 @@ AsyncModelInstance.prototype = {
             scale = this.getScale(),
             textureMap = {},
             localTextureMap = this.getTextureMap(),
-            modelTextureMap = this.asyncModel.getTextureMap(),
+            modelTextureMap = this.model.getTextureMap(),
             keys = Object.keys(localTextureMap),
             visibilities = this.getMeshVisibilities(),
             key,
@@ -522,7 +530,7 @@ AsyncModelInstance.prototype = {
 
         return [
             this.id,
-            this.asyncModel.id,
+            this.model.id,
             this.getVisibility() & 1,
             this.getSequence(),
             this.getSequenceLoopMode(),

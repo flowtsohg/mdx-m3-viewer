@@ -1,55 +1,28 @@
-// Overrides keys of dst with keys of src
-function overrideMap(src, dst) {
-    var keys = Object.keys(src),
-        key,
-        i,
-        l;
+// Compute the spherical coordinates of a vector (end - start).
+// The returned values are [radius, azimuthal angle, polar angle].
+// See mathworld.wolfram.com/SphericalCoordinates.html
+function computeSphericalCoordinates(start, end) {
+    var v = vec3.sub([], start, end),
+        r = vec3.len(v),
+        theta = Math.atan2(v[1], v[0]),
+        phi = Math.acos(v[2] / r);
     
-    for (i = 0, l = keys.length; i < l; i++) {
-        key = keys[i];
-        
-        dst[key] = src[key];
-    }
-    
-    return dst;
+    return [r, theta, phi];
 }
 
-var generateColor = (function () {
-    var i = 1;
+// A simple incrementing ID generator
+var generateID = (function () {
+    var i = -1;
 
     return function () {
-        var a = i % 10,
-            b = Math.floor(i / 10) % 10,
-            c = Math.floor(i / 100) % 10;
-
         i += 1;
 
-        return [a / 10, b / 10, c / 10];
+        return i;
     };
 }());
 
-// WebGL sometimes rounds down and sometimes up, so this code takes care of that.
-// E.g.: 0.1*255 = 25.5, WebGL returns 25
-// E.g.: 0.5*255 = 127.5, WebGL returns 128
-function webGLPixelToColor(pixel) {
-    return [
-        Math.floor(Math.round(pixel[0] / 25.5) * 25.5),
-        Math.floor(Math.round(pixel[1] / 25.5) * 25.5),
-        Math.floor(Math.round(pixel[2] / 25.5) * 25.5)
-    ];
-}
-
-function colorString(color) {
-    var r = Math.floor(color[0] * 255),
-        g = Math.floor(color[1] * 255),
-        b = Math.floor(color[2] * 255);
-
-    return "" + r + g + b;
-}
-
 /**
  * Mixes one object onto another.
- * If the destination already defines a property, it wont be copied from the source.
  *
  * @param {object} mixer The source.
  * @param {object} mixed The destination.
@@ -63,11 +36,10 @@ function mixin(mixer, mixed) {
     for (i = 0, l = properties.length; i < l; i++) {
         property = properties[i];
 
-        // Allow the target to override properties
-        if (!mixed[property]) {
-            mixed[property] = mixer[property];
-        }
+        mixed[property] = mixer[property];
     }
+    
+    return mixed;
 }
 
 function extend(base, properties) {
@@ -83,20 +55,6 @@ function extend(base, properties) {
     }
     
     return prototype;
-}
-
-function getNamesFromObjects(objects) {
-    var names = [],
-        i,
-        l;
-
-    if (objects) {
-        for (i = 0, l = objects.length; i < l; i++) {
-            names[i] = objects[i].name;
-        }
-    }
-
-    return names;
 }
 
 /**
@@ -178,60 +136,10 @@ function fileTypeFromPath(path) {
     return output.toLowerCase();
 }
 
-if (typeof String.prototype.endsWith !== "function") {
-    String.prototype.endsWith = function(suffix) {
-        return this.indexOf(suffix, this.length - suffix.length) !== -1;
-    };
-}
-
 if (!window.requestAnimationFrame ) {
     window.requestAnimationFrame = (function() {
         return window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) { window.setTimeout(callback, 1000 / 60); };
     }());
-}
-
-/**
- * Parses all of the url parameters and returns a map.
- *
- * @returns {string} The parameters map.
- */
-function getUrlVariables() {
-    var urlMap = {},
-        searchstr = window.location.search.substring(1),
-        variables = searchstr.split("&"),
-        keyval,
-        i, 
-        l;
-
-    for (i = 0, l = variables.length; i < l; i++) {
-        keyval = variables[i].split("=");
-
-        urlMap[keyval[0]] = keyval[1] || 1;
-    }
-
-    return urlMap;
-}
-
-/**
- * Goes over the DOM, and returns a map of all the elements with IDs, such that map[elementId]=element.
- *
- * @returns {object} The DOM map.
- */
-function getDom() {
-    var dom = {},
-        elements = document.getElementsByTagName("*"),
-        element,
-        i;
-
-    for (i = elements.length; i--;) {
-        element = elements[i];
-
-        if (element.id) {
-            dom[element.id] = element;
-        }
-    }
-
-    return dom;
 }
 
 /**
@@ -269,27 +177,6 @@ function getRequest(path, binary, onload, onerror, onprogress) {
     return xhr;
 }
 
-function addEvent(element, event, callback) {
-    // No mousewheel in Firefox
-    if (event === "mousewheel") {
-        element.addEventListener("DOMMouseScroll", callback, false);
-    }
-
-    element.addEventListener(event, callback, false);
-}
-
-function removeEvent(element, event, callback) {
-    if (event === "mousewheel") {
-        element.removeEventListener("DOMMouseScroll", callback, false);
-    }
-
-    element.removeEventListener(event, callback, false);
-}
-
-function preventDefault(e) {
-    e.preventDefault();
-}
-
 /**
  * A very simple string hashing algorithm.
  *
@@ -308,12 +195,6 @@ String.hashCode = function(s) {
 
     return hash;
 };
-
-if (typeof String.prototype.startsWith != "function") {
-    String.prototype.startsWith = function (what) {
-        return this.lastIndexOf(what, 0) === 0;
-    };
-}
 
 /**
  * A deep Object copy.

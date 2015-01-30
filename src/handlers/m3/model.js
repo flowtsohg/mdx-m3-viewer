@@ -19,6 +19,7 @@ Model.prototype = extend(BaseModel.prototype, {
         var material;
         var div = parser.divisions[0];
 
+        this.parser = parser;
         this.name = fileNameFromPath(parser.name);
 
         this.setupGeometry(parser, div, gl.ctx);

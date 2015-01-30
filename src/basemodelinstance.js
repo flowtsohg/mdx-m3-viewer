@@ -179,16 +179,6 @@ BaseModelInstance.prototype = {
     },
   
   /**
-    * Gets a model instance's camera.
-    *
-    * @param {number} id The id of the camera.
-    * @returns {Camera} The camera.
-    */
-    getCamera: function (id) {
-
-    },
-  
-  /**
     * Set a model instance's mesh's visibility.
     *
     * @param {number} id The mesh.

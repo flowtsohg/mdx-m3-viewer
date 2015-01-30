@@ -17,6 +17,7 @@ Model.prototype = extend(BaseModel.prototype, {
         var gl = context.gl;
         var objects, i, l, j, k;
 
+        this.parser = parser;
         this.name = parser.modelChunk.name;
         this.sequences = [];
         this.textures = [];
@@ -153,6 +154,12 @@ Model.prototype = extend(BaseModel.prototype, {
             }
         }
 
+        var extent = parser.modelChunk.extent,
+            min = extent.minimum,
+            max = extent.maximum;
+        
+        vec3.set(this.centerPoint, (max[0] - min[0]) / 2 + min[0], (max[1] - min[1]) / 2 + min[1], (max[2] - min[2]) / 2 + min[2]);
+        
         // Avoid heap allocations in render()
         this.modifier = vec4.create();
         this.uvoffset = vec3.create();
@@ -424,7 +431,9 @@ Model.prototype = extend(BaseModel.prototype, {
         }
     },
 
-    renderColor: function (instance, color) {
+    renderColor: function (instance, color, context) {
+        var gl = context.gl;
+        var ctx = gl.ctx;
         var i, l;
         var sequence = instance.sequence;
         var frame = instance.frame;
@@ -439,19 +448,18 @@ Model.prototype = extend(BaseModel.prototype, {
             ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
             ctx.uniform3fv(shader.variables.u_color, color);
 
-            instance.skeleton.bind(shader);
+            instance.skeleton.bind(shader, ctx);
 
             for (i = 0, l = layers.length; i < l; i++) {
                 layer = layers[i];
 
                 if (instance.meshVisibilities[layer.geosetId] && layer.shouldRender(sequence, frame, counter) && this.shouldRenderGeoset(sequence, frame, counter, layer)) {
                     geoset = this.meshes[layer.geosetId];
-                    texture = this.textureMap[this.textures[layer.textureId]];
-
+                    
                     // Avoid rendering planes.
                     // Thsy are usually team glows, or other large mostly-transparent things.
                     if (geoset.elements > 6) {
-                        geoset.renderColor(shader);
+                        geoset.renderColor(shader, ctx);
                     }
                 }
             }

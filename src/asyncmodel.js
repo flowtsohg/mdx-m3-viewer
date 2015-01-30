@@ -8,13 +8,13 @@
  * @param {number} id The id of this model.
  * @param {object} textureMap An object with texture path -> absolute urls mapping.
  */
-function AsyncModel(source, originalSource, id, textureMap, context, onloadstart, onerror, onprogress, onload) {
+function AsyncModel(source, originalSource, textureMap, context, onloadstart, onerror, onprogress, onload) {
     var fileType = fileTypeFromPath(source);
     
     this.type = "model";
     this.ready = false;
     this.fileType = fileType;
-    this.id = id;
+    this.id = generateID();
     this.source = source;
     this.originalSource = originalSource;
 
@@ -122,6 +122,12 @@ AsyncModel.prototype = {
     
     getOriginalSource: function () {
        return this.originalSource; 
+    },
+    
+    getCenter: function () {
+        if (this.ready) {
+            return this.model.getCenter();
+        }
     },
   
   /**

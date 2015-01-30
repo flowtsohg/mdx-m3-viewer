@@ -22,6 +22,7 @@ window["BaseModel"] = function (textureMap) {
     this.boundingShapes = [];
     this.attachments = [];
     this.textureMap = textureMap;
+    this.centerPoint = [0, 0, 0];
 }
 
 BaseModel.prototype = {
@@ -76,6 +77,10 @@ BaseModel.prototype = {
         return this.name;
     },
 
+    getCenter: function () {
+        return this.centerPoint;
+    },
+    
   /**
     * Gets a model's attachment.
     *
@@ -85,7 +90,7 @@ BaseModel.prototype = {
     getAttachment: function(id) {
         return this.attachments[id];
     },
-
+    
   /**
     * Gets a model's camera.
     *
@@ -95,7 +100,7 @@ BaseModel.prototype = {
     getCamera: function(id) {
         return this.cameras[id];
     },
-
+    
   /**
     * Overrides a texture used by a model.
     *
