@@ -17,7 +17,7 @@ function Spatial() {
     this.worldMatrix = mat4.create();
     this.localMatrix = mat4.create();
     this.location = vec3.create();
-    this.inverseLocation = vec3.create();
+    this.worldLocation = vec3.create();
     this.rotation = quat.create();
     this.eulerRotation = vec3.create();
     this.scaling = vec3.fromValues(1, 1, 1);
@@ -278,14 +278,13 @@ Spatial.prototype = {
         return worldMatrix;
     },
     
-    getInverseWorldLocation: function () {
+    getWorldLocation: function () {
         var worldMatrix = this.getTransformation(),
-            inverseLocation = this.inverseLocation;
+            worldLocation = this.worldLocation;
         
-        vec3.set(inverseLocation, 0, 0, 0);
-        vec3.transformMat4(inverseLocation, inverseLocation, worldMatrix);
-        vec3.negate(inverseLocation, inverseLocation);
+        vec3.set(worldLocation, 0, 0, 0);
+        vec3.transformMat4(worldLocation, worldLocation, worldMatrix);
         
-        return inverseLocation;
+        return worldLocation;
     }
 };

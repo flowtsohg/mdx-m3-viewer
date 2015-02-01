@@ -4,7 +4,6 @@ function Camera() {
     this.near = 0.1;
     this.far = Number.MAX_SAFE_INTEGER;
     this.projection = mat4.create();
-    this.instance = null;
     this.location = vec3.create();
     this.target = vec3.create();
     this.originalTarget = vec3.create();
@@ -52,12 +51,7 @@ Camera.prototype = {
             mat4.translate(view, view, this.panVector);
             mat4.rotate(view, view, theta, vec3.UNIT_X);
             mat4.rotate(view, view, phi, vec3.UNIT_Z);
-            
-            if (this.instance) {
-                mat4.translate(view, view, this.instance.getInverseWorldLocation());
-            } else {
-                mat4.translate(view, view, this.target);
-            }
+            mat4.translate(view, view, this.target);
             
             mat4.identity(inverseRotation);
             mat4.rotate(inverseRotation, inverseRotation, -phi, vec3.UNIT_Z);
@@ -119,6 +113,7 @@ Camera.prototype = {
         this.dirty = true;
     },
     
+    // This is equivalent to a look-at matrix, with the up vector implicitly being [0, 0, 1].
     set: function (location, target) {
         var sphericalCoordinate = computeSphericalCoordinates(location, target);
         
@@ -168,13 +163,6 @@ Camera.prototype = {
         this.panVector[2] *= factor;
         
         this.dirty = true;
-    },
-    
-    // Attach the camera to an instance.
-    // The camera's target will be the instance's location, and it will follow the instance.
-    // To free the camera, call attach with null.
-    attach: function (instance) {
-        this.instance = instance;
     },
     
     setFov: function (fov) {
