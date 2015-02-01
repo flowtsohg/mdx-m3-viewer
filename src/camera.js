@@ -1,14 +1,14 @@
 function Camera() {
-    this.fov = Math.toRad(45);
+    this.fov = 0.7853981633974483;
     this.aspect = 1;
     this.near = 0.1;
-    this.far = 1000000;
+    this.far = Number.MAX_SAFE_INTEGER;
     this.projection = mat4.create();
     this.instance = null;
     this.location = vec3.create();
     this.target = vec3.create();
     this.originalTarget = vec3.create();
-    this.panOffset = vec3.create();
+    this.panVector = vec3.create();
     this.view = mat4.create();
     this.inverseView = mat4.create();
     this.inverseRotation = mat4.create();
@@ -24,7 +24,7 @@ function Camera() {
 
 Camera.prototype = {
     reset: function () {
-        vec3.set(this.panOffset, 0, 0, -300);
+        vec3.set(this.panVector, 0, 0, -300);
         vec3.set(this.target, 0, 0, 0);
         vec3.set(this.originalTarget, 0, 0, 0);
         
@@ -49,7 +49,7 @@ Camera.prototype = {
             mat4.perspective(this.projection, this.fov, this.aspect, this.near, this.far);
             
             mat4.identity(view);
-            mat4.translate(view, view, this.panOffset);
+            mat4.translate(view, view, this.panVector);
             mat4.rotate(view, view, theta, vec3.UNIT_X);
             mat4.rotate(view, view, phi, vec3.UNIT_Z);
             
@@ -124,7 +124,7 @@ Camera.prototype = {
         
         vec3.copy(this.originalTarget, target);
         vec3.negate(this.target, target);
-        vec3.set(this.panOffset, 0, 0, -sphericalCoordinate[0]);
+        vec3.set(this.panVector, 0, 0, -sphericalCoordinate[0]);
         
         this.theta = -sphericalCoordinate[2]
         this.phi = -sphericalCoordinate[1] - Math.PI / 2;
@@ -134,24 +134,24 @@ Camera.prototype = {
     
     // Pan the camera in camera space
     pan: function (offset) {
-        var panOffset = this.panOffset;
+        var panVector = this.panVector;
         
         if (offset.length === 2) {
-            vec2.add(panOffset, panOffset, offset);
+            vec2.add(panVector, panVector, offset);
         } else {
-            vec3.add(panOffset, panOffset, offset);
+            vec3.add(panVector, panVector, offset);
         }
         
         this.dirty = true;
     },
     
     setPan: function (pan) {
-       var panOffset = this.panOffset;
+       var panVector = this.panVector;
         
         if (offset.length === 2) {
-            vec2.copy(panOffset, offset);
+            vec2.copy(panVector, offset);
         } else {
-            vec3.copy(panOffset, offset);
+            vec3.copy(panVector, offset);
         }
         
         this.dirty = true;
@@ -165,7 +165,7 @@ Camera.prototype = {
     },
     
     zoom: function (factor) {
-        this.panOffset[2] *= factor;
+        this.panVector[2] *= factor;
         
         this.dirty = true;
     },

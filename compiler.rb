@@ -86,6 +86,7 @@ compile_docs = false
         "handlers/mdx/sd",
         "handlers/mdx/skeleton",
         "handlers/mdx/collisionshape",
+        "handlers/mdx/camera",
         "handlers/mdx/model",
         "handlers/mdx/modelinstance",
         "handlers/mdx/texture",

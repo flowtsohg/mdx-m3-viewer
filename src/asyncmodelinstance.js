@@ -163,17 +163,6 @@ AsyncModelInstance.prototype = {
     getOriginalSource: function () {
         return this.model.originalSource;
     },
-    
-    getCenter: function () {
-        if (this.ready) {
-            var center = [];
-            
-            vec3.add(center, this.location, this.model.getCenter());
-            
-            return center;
-        }
-    },
-    
   
   // Sets the parent value of a requesting Spatial.
     setRequestedAttachment: function (requester, attachment) {

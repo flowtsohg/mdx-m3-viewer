@@ -232,7 +232,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
 
     grass_water = gl.createRect(0, 0, -3, context.groundSize, context.groundSize, 6);
     bedrock = gl.createRect(0, 0, -35, context.groundSize, context.groundSize, 6);
-    sky = gl.createSphere(0, 0, 0, 5, 40, 2E3);
+    sky = gl.createSphere(0, 0, 0, 5, 40, 2E6);
     
     function updateCamera() {
         var camera = context.camera;

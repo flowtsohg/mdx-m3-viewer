@@ -22,7 +22,6 @@ window["BaseModel"] = function (textureMap) {
     this.boundingShapes = [];
     this.attachments = [];
     this.textureMap = textureMap;
-    this.centerPoint = [0, 0, 0];
 }
 
 BaseModel.prototype = {
@@ -75,10 +74,6 @@ BaseModel.prototype = {
     */
     getName: function() {
         return this.name;
-    },
-
-    getCenter: function () {
-        return this.centerPoint;
     },
     
   /**

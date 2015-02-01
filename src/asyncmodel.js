@@ -123,12 +123,6 @@ AsyncModel.prototype = {
     getOriginalSource: function () {
        return this.originalSource; 
     },
-    
-    getCenter: function () {
-        if (this.ready) {
-            return this.model.getCenter();
-        }
-    },
   
   /**
     * Gets a model's attachment.
