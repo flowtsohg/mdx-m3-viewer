@@ -154,11 +154,12 @@ Model.prototype = extend(BaseModel.prototype, {
             }
         }
 
-        var extent = parser.modelChunk.extent,
-            min = extent.minimum,
-            max = extent.maximum;
+        // The extent given by models tends to not be correct
+        //~ var extent = parser.modelChunk.extent,
+            //~ min = extent.minimum,
+            //~ max = extent.maximum;
         
-        vec3.set(this.centerPoint, (max[0] - min[0]) / 2 + min[0], (max[1] - min[1]) / 2 + min[1], (max[2] - min[2]) / 2 + min[2]);
+        //~ vec3.set(this.centerPoint, (max[0] - min[0]) / 2 + min[0], (max[1] - min[1]) / 2 + min[1], (max[2] - min[2]) / 2 + min[2]);
         
         // Avoid heap allocations in render()
         this.modifier = vec4.create();

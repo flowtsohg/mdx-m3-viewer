@@ -164,6 +164,16 @@ function getViewMatrix() {
     return viewMatrix;
 }
 
+function setProjectionMatrix(matrix) {
+    mat4.copy(projectionMatrix, matrix);
+    refreshViewProjectionMatrix = true;
+}
+
+function setViewMatrix(matrix) {
+    mat4.copy(viewMatrix, matrix);
+    refreshViewProjectionMatrix = true;
+}
+
 /**
  * Creates a new {@link GL.ShaderUnit}, or grabs it from the cache if it was previously created, and returns it.
  *

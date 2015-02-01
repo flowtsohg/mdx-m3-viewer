@@ -19,6 +19,8 @@
     getViewProjectionMatrix: getViewProjectionMatrix,
     getProjectionMatrix: getProjectionMatrix,
     getViewMatrix: getViewMatrix,
+    setProjectionMatrix: setProjectionMatrix,
+    setViewMatrix: setViewMatrix,
     loadTexture: loadTexture,
     unloadTexture: unloadTexture,
     textureLoaded: textureLoaded,

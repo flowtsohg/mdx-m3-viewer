@@ -106,7 +106,7 @@ function ParticleEmitter2(emitter, model, instance, ctx) {
     var alpha = this.segmentAlpha;
 
     for (i = 0; i < 3; i++) {
-        this.colors[i] = [Math.floor(colors[i][0] * 256), Math.floor(colors[i][1] * 256), Math.floor(colors[i][2] * 256), alpha[i]];
+        this.colors[i] = [Math.floor(colors[i][0] * 255), Math.floor(colors[i][1] * 255), Math.floor(colors[i][2] * 255), alpha[i]];
     }
 
     this.node = instance.skeleton.nodes[this.node];
@@ -200,7 +200,7 @@ ParticleEmitter2.prototype = {
             }
         }  
 
-        this.updateHW(context.particleRect, context.particleBillboardedRect);
+        this.updateHW(context.camera.rect, context.camera.billboardedRect);
     },
 
     updateHW: function (baseParticle, billboardedParticle) {

@@ -69,17 +69,12 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         skyPath = urls.localFile("sky.png");
 
     var ctx = gl.ctx;
-    var cameraMatrix = mat4.create();
-    var inverseCamera = mat4.create();
-    var inverseCameraRotation = mat4.create();
     var lightPosition = [0, 0, 10000];
-    var cameraPosition = vec3.create();
     var grass_water;
     var bedrock;
     var sky;
     var uvOffset = [0, 0];
     var uvSpeed = [Math.randomRange(-0.004, 0.004), Math.randomRange(-0.004, 0.004)];
-    var upDir = vec3.fromValues(0, 0, 1);
     
     var modelArray = []; // All models
     var instanceArray = []; // All instances
@@ -127,7 +122,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
   
     var context = {
         frameTime: 1000 / 60,
-        camera: [[0, 0, 0], [0, 0]],
+        camera: new Camera(),
         instanceCamera: [-1, -1],
         worldMode: 2,
         groundSize: 256,
@@ -137,13 +132,10 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         boundingShapesMode: false,
         texturesMode: true,
         shader: 0,
-        particleRect: [vec3.fromValues(-1, -1, 0), vec3.fromValues(-1, 1, 0), vec3.fromValues(1, 1, 0), vec3.fromValues(1, -1, 0), vec3.fromValues(1, 0, 0), vec3.fromValues(0, 1, 0), vec3.fromValues(0, 0, 1)],
-        particleBillboardedRect: [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()],
         gl: gl,
         debugMode: debugMode,
         teamColors: teamColors,
         shaders: shaders,
-        cameraPosition: cameraPosition,
         lightPosition: lightPosition,
         loadInternalResource: loadInternalResource
     };
@@ -220,7 +212,8 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         canvas.height = canvas.clientHeight;
 
         ctx.viewport(0, 0, width, height);
-        gl.setPerspective(45, width / height, 0.1, 5E4);
+        
+        context.camera.setAspect(width / height);
     }
   
     resetViewport();
@@ -240,66 +233,14 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     grass_water = gl.createRect(0, 0, -3, context.groundSize, context.groundSize, 6);
     bedrock = gl.createRect(0, 0, -35, context.groundSize, context.groundSize, 6);
     sky = gl.createSphere(0, 0, 0, 5, 40, 2E3);
-  
-    function updateParticleRect() {
-        var i;
+    
+    function updateCamera() {
+        var camera = context.camera;
         
-        for (i = 0; i < 7; i++) {
-            vec3.transformMat4(context.particleBillboardedRect[i], context.particleRect[i], inverseCameraRotation);
+        if (camera.update()) {
+            gl.setProjectionMatrix(camera.projection);
+            gl.setViewMatrix(camera.view);
         }
-    }
-    
-    var cameraOrigin = vec3.create();
-    window["cameraOrigin"] = cameraOrigin;
-    
-    resetCamera();
-
-    
-    // Target position: [4.574210166931152, 232.5989990234375, 141.67599487304688]
-    
-        /*
-        0: 27.242000579833984
-        1: 356.74700927734375
-        2: 315.1210021972656 
-        
-        0: -173.10299682617188
-        1: 4.7074198722839355
-        2: 9.155360221862793
-        */
-    
-    function transformCamera() {
-        mat4.identity(cameraMatrix);
-        mat4.identity(inverseCameraRotation);
-
-        if (!context.cameraObject) {
-            var z = context.camera[1][1],
-                x = context.camera[1][0];
-
-            mat4.translate(cameraMatrix, cameraMatrix, context.camera[0]);
-            mat4.rotate(cameraMatrix, cameraMatrix, x, vec3.UNIT_X);
-            mat4.rotate(cameraMatrix, cameraMatrix, z, vec3.UNIT_Z);
-            mat4.translate(cameraMatrix, cameraMatrix, cameraOrigin);
-            
-            mat4.rotate(inverseCameraRotation, inverseCameraRotation, -z, vec3.UNIT_Z);
-            mat4.rotate(inverseCameraRotation, inverseCameraRotation, -x, vec3.UNIT_X);
-
-            mat4.invert(inverseCamera, cameraMatrix);
-            vec3.transformMat4(cameraPosition, vec3.UNIT_Z, inverseCamera);
-        } else {
-            var cam = context.cameraObject;
-
-            var targetPosition = cam.targetPosition;
-
-            mat4.lookAt(cameraMatrix, cam.position, targetPosition, upDir);
-            mat4.toRotationMat4(inverseCameraRotation, cameraMatrix);
-
-            cameraPosition[0] = targetPosition[0];
-            cameraPosition[1] = targetPosition[1];
-            cameraPosition[2] = targetPosition[2];
-        }
-        
-        gl.loadIdentity();
-        gl.multMat(cameraMatrix);
     }
 
     function update() {
@@ -309,10 +250,8 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         for (i = 0, l = instanceArray.length; i < l; i++) {
             instanceArray[i].update(context);
         }
-
-        transformCamera();
-
-        updateParticleRect();
+        
+        updateCamera();
     }
 
     function renderGround(isWater) {
@@ -530,9 +469,6 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
             }
         }
 
-        // Remove from the instance map
-        delete instanceMap[colorString(instance.color)];
-
         // Remove from the model-instance map
         delete modelInstanceMap[instance.id];
 
@@ -586,21 +522,27 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     *
     * @memberof ModelViewer
     * @instance
-    * @param {string} source The source to load from. Can be an absolute url, a path to a file in the MPQ files of Warcraft 3 and Starcraft 2, or a form of identifier to be used for headers.
+    * @param {string} source The source to load from. Can be an absolute url, a path to a file in the MPQ files of Warcraft 3 and Starcraft 2, a form of identifier to be used for headers, an AsyncModel object, or an AsyncModelInstance object.
     */
     function load(source) {
-        var isSupported = supportedFileTypes[fileTypeFromPath(source)];
+        if (source && (source.type  === "model" || source.type === "instance")) {
+            source = source.getOriginalSource();
+        }
+        
+        if (typeof source === "string") {
+            var isSupported = supportedFileTypes[fileTypeFromPath(source)];
 
-        if (source.startsWith("http://") && isSupported) {
-            loadResourceImpl(source);
-        } else if (isSupported) {
-            loadResourceImpl(urls.mpqFile(source), source);
-        } else {
-            var object = {isHeader: 1, source: source};
+            if (source.startsWith("http://") && isSupported) {
+                loadResourceImpl(source);
+            } else if (isSupported) {
+                loadResourceImpl(urls.mpqFile(source), source);
+            } else {
+                var object = {isHeader: 1, source: source};
 
-            onloadstart(object);
+                onloadstart(object);
 
-            getRequest(urls.header(source), false, loadResourceFromHeader.bind(object), onerror.bind(undefined, object), onprogress.bind(undefined, object));
+                getRequest(urls.header(source), false, loadResourceFromHeader.bind(object), onerror.bind(undefined, object), onprogress.bind(undefined, object));
+            }
         }
     }
   
@@ -694,6 +636,9 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         }
     }
   
+    function getInstances() {
+        return instanceArray;
+    }
   // -------------------
   // General settings
   // -------------------
@@ -881,123 +826,6 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     */
     function getShader() {
         return context.shader;
-    }
-  
-  // -------------------
-  // Camera settings
-  // -------------------
-  
-  /**
-    * Sets the camera.
-    * If either of the arguments is -1, the normal free form camera is used.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} objectId The ID of a model instance.
-    * @param {number} cameraId The camera.
-    */
-    function setCamera(camera) {
-        context.cameraObject = camera;
-        
-        if (camera) {
-            var sphericalCoordinate = computeSphericalCoordinates(camera.position, camera.targetPosition);
-            
-            cameraOrigin[0] = -camera.targetPosition[0];
-            cameraOrigin[1] = -camera.targetPosition[1];
-            cameraOrigin[2] = -camera.targetPosition[2];
-            
-            context.camera[0][0] = 0;
-            context.camera[0][1] = 0;
-            context.camera[0][2] = -sphericalCoordinate[0];
-            
-            context.camera[1][0] = sphericalCoordinate[1] - Math.PI / 2;
-            context.camera[1][1] = sphericalCoordinate[2] + Math.PI;
-        } else {
-            resetCamera();
-        }
-    }
-  
-  /**
-    * Gets the camera.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @returns {array} The model instance ID and camera. If the free form camera is used, both will be -1.
-    */
-    function getCamera() {
-        return context.cameraObject;
-    }
-  
-    function getCameraPosition() {
-        return cameraPosition;
-    }
-    
-    function setCameraTarget(object) {
-        if (object) {
-            vec3.copy(cameraOrigin, object.getCenter());
-            vec3.negate(cameraOrigin, cameraOrigin);
-        } else {
-            vec3.set(cameraOrigin, 0, 0, 0);
-        }
-    }
-    
-  /**
-    * Pans the camera on the x and y axes.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} x Amount to pan on the X axis.
-    * @param {number} y Amount to pan on the Y axis.
-    */
-    function panCamera(x, y) {
-        context.cameraObject = null;
-        context.camera[0][0] += x;
-        context.camera[0][1] -= y;
-    }
-  
-  /**
-    * Rotates the camera on the x and y axes.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} x Amount to rotate on the X axis.
-    * @param {number} y Amount to rotate on the Y axis.
-    */
-    function rotateCamera(x, y) {
-        context.cameraObject = null;
-        context.camera[1][0] += Math.toRad(x);
-        context.camera[1][1] += Math.toRad(y);
-    }
-  
-  /**
-    * Zooms the camera by a factor.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} n Zoom factor.
-    */
-    function zoomCamera(n) {
-        context.cameraObject = null;
-        context.camera[0][2] = Math.floor(context.camera[0][2] * n);
-    }
-  
-  /**
-    * Resets the camera to the initial state.
-    *
-    * @memberof ModelViewer
-    * @instance
-    */
-    function resetCamera() {
-        context.cameraObject = null;
-        context.camera[0][0] = 0;
-        context.camera[0][1] = 0;
-        context.camera[0][2] = -300;
-        context.camera[1][0] = Math.toRad(315);
-        context.camera[1][1] = Math.toRad(225);
-        
-        cameraOrigin[0] = 0;
-        cameraOrigin[1] = 0;
-        cameraOrigin[2] = 0;
     }
   
   // ------
@@ -1232,6 +1060,10 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         return ctx;
     }
     
+    function getCamera() {
+        return context.camera;
+    }
+    
     var API = {
         // Resource API
         load: load,
@@ -1240,6 +1072,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         clearCache: clearCache,
         loadingEnded: loadingEnded,
         dependenciesLoaded: dependenciesLoaded,
+        getInstances: getInstances,
         // General settings
         setAnimationSpeed: setAnimationSpeed,
         getAnimationSpeed: getAnimationSpeed,
@@ -1257,15 +1090,6 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         getPolygonMode: getPolygonMode,
         setShader: setShader,
         getShader: getShader,
-        // Camera settings
-        setCamera: setCamera,
-        getCamera: getCamera,
-        getCameraPosition: getCameraPosition,
-        setCameraTarget: setCameraTarget,
-        panCamera: panCamera,
-        rotateCamera: rotateCamera,
-        zoomCamera: zoomCamera,
-        resetCamera: resetCamera,
         // Misc
         selectInstance: selectInstance,
         //saveScene: saveScene,
@@ -1277,7 +1101,8 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         addEventListener: addEventListener,
         removeEventListener: removeEventListener,
         dispatchEvent: dispatchEvent,
-        getWebGLContext: getWebGLContext
+        getWebGLContext: getWebGLContext,
+        getCamera: getCamera
     };
     
     // The main loop of the viewer

@@ -1,6 +1,6 @@
-use_glsl_min = true
-use_closure = true
-annonymify_code = true
+use_glsl_min = false
+use_closure = false
+annonymify_code = false
 compile_docs = false
 
 @shader_files = [
@@ -17,6 +17,7 @@ compile_docs = false
     "handlers/mdx/shaders/wvsribbons",
     "handlers/mdx/shaders/wvsparticles",
     "handlers/mdx/shaders/wvscolor",
+    "handlers/mdx/shaders/wvswhite",
     "handlers/mdx/shaders/wpsmain",
     "handlers/mdx/shaders/wpsparticles",
     # Starcraft 2 shaders
@@ -25,6 +26,7 @@ compile_docs = false
     "handlers/m3/shaders/svscolor",
     "handlers/m3/shaders/spscommon",
     "handlers/m3/shaders/spsstandard",
+    "handlers/m3/shaders/svswhite",
     "handlers/m3/shaders/spsspecialized",
     "handlers/m3/shaders/svsparticles",
     "handlers/m3/shaders/spsparticles"
@@ -41,19 +43,22 @@ compile_docs = false
     "binaryreader/binaryreader",
     "base",
 
+    "gl/rect",
+    "gl/cube",
+    "gl/sphere",
+    "gl/cylinder",
+        
     ["gl", [
         "gl/before",
         "gl/texture",
         "gl/nativetexture",
         "gl/shader",
-        "gl/rect",
-        "gl/cube",
-        "gl/sphere",
-        "gl/cylinder",
         "gl/gl",
         "gl/after"
     ]],
-
+    
+    "camera",
+    
     "async",
     "spatial",
 
