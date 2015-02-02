@@ -9,12 +9,7 @@
 window["ModelViewer"] = function (canvas, urls, debugMode) {
     var objectsNotReady = 0;
     
-    var listeners = {}
-    var viewerObject = {};
-    
     function onabort(object) {
-        //objectsNotReady -= 1;
-        
         dispatchEvent({type: "abort", target: object});
     }
   
@@ -61,6 +56,10 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         dispatchEvent({type: "unload", target: object});
     }
   
+    
+    var listeners = {}
+    var viewerObject = {};
+    
     var gl = GL(canvas, onload, onerror, onprogress, onloadstart, onunload);
     
     var grassPath = urls.localFile("grass.png"),
@@ -69,12 +68,9 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         skyPath = urls.localFile("sky.png");
 
     var ctx = gl.ctx;
-    var lightPosition = [0, 0, 10000];
     var grass_water;
     var bedrock;
     var sky;
-    var uvOffset = [0, 0];
-    var uvSpeed = [Math.randomRange(-0.004, 0.004), Math.randomRange(-0.004, 0.004)];
     
     var modelArray = []; // All models
     var instanceArray = []; // All instances
@@ -122,7 +118,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
   
     var context = {
         frameTime: 1000 / 60,
-        camera: new Camera([canvas.clientWidth, canvas.clientHeight]),
+        camera: new Camera([0, 0, canvas.clientWidth, canvas.clientHeight]),
         instanceCamera: [-1, -1],
         worldMode: 2,
         groundSize: 256,
@@ -136,10 +132,12 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         debugMode: debugMode,
         teamColors: teamColors,
         shaders: shaders,
-        lightPosition: lightPosition,
-        loadInternalResource: loadInternalResource
+        lightPosition: [0, 0, 10000],
+        loadInternalResource: loadInternalResource,
+        uvOffset: [0, 0],
+        uvSpeed: [Math.randomRange(-0.004, 0.004), Math.randomRange(-0.004, 0.004)]
     };
-  
+    
     function saveContext() {
         var camera = context.camera,
             translation = Array.setFloatPrecision(camera[0], 0),
@@ -213,7 +211,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
 
         ctx.viewport(0, 0, width, height);
         
-        context.camera.setSize([width, height]);
+        context.camera.setViewport([0, 0, width, height]);
     }
     
     window.addEventListener("resize", resetViewport);
@@ -261,10 +259,10 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
             ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
 
             if (isWater) {
-                uvOffset[0] += uvSpeed[0];
-                uvOffset[1] += uvSpeed[1];
+                context.uvOffset[0] += context.uvSpeed[0];
+                context.uvOffset[1] += context.uvSpeed[1];
 
-                ctx.uniform2fv(shader.variables.u_uv_offset, uvOffset);
+                ctx.uniform2fv(shader.variables.u_uv_offset, context.uvOffset);
                 ctx.uniform1f(shader.variables.u_a, 0.6);
             } else {
                 ctx.uniform2fv(shader.variables.u_uv_offset, [0, 0]);
@@ -633,7 +631,11 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
             return loaded / total;
         }
     }
-  
+    
+    function getModels() {
+        return modelsArray;
+    }
+    
     function getInstances() {
         return instanceArray;
     }
@@ -1069,6 +1071,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         clearCache: clearCache,
         loadingEnded: loadingEnded,
         dependenciesLoaded: dependenciesLoaded,
+        getModels: getModels,
         getInstances: getInstances,
         // General settings
         setAnimationSpeed: setAnimationSpeed,
@@ -1087,6 +1090,8 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         getPolygonMode: getPolygonMode,
         setShader: setShader,
         getShader: getShader,
+        getWebGLContext: getWebGLContext,
+        getCamera: getCamera,
         // Misc
         selectInstance: selectInstance,
         //saveScene: saveScene,
@@ -1094,12 +1099,10 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         // Extending
         registerModelHandler: registerModelHandler,
         registerTextureHandler: registerTextureHandler,
-        // Experiemental
+        // Events
         addEventListener: addEventListener,
         removeEventListener: removeEventListener,
-        dispatchEvent: dispatchEvent,
-        getWebGLContext: getWebGLContext,
-        getCamera: getCamera
+        dispatchEvent: dispatchEvent
     };
     
     // The main loop of the viewer

@@ -1,8 +1,7 @@
-function Camera(size) {
-    this.viewport = [0, 0, size[0], size[1]];
-    this.size = size;
+function Camera(viewport) {
+    this.viewport = vec4.clone(viewport);
     this.fov = 0.7853981633974483;
-    this.aspect = size[0] / size[1];
+    this.aspect = viewport[2] / viewport[3];
     this.near = 0.1;
     this.far = 100000;
     this.projection = mat4.create();
@@ -139,14 +138,14 @@ Camera.prototype = {
         this.dirty = true;
     },
     
-    // Pan the camera in camera space
-    pan: function (offset) {
+    // Move the camera in camera space
+    pan: function (pan) {
         var panVector = this.panVector;
         
-        if (offset.length === 2) {
-            vec2.add(panVector, panVector, offset);
+        if (pan.length === 2) {
+            vec2.add(panVector, panVector, pan);
         } else {
-            vec3.add(panVector, panVector, offset);
+            vec3.add(panVector, panVector, pan);
         }
         
         this.dirty = true;
@@ -155,10 +154,10 @@ Camera.prototype = {
     setPan: function (pan) {
        var panVector = this.panVector;
         
-        if (offset.length === 2) {
-            vec2.copy(panVector, offset);
+        if (pan.length === 2) {
+            vec2.copy(panVector, pan);
         } else {
-            vec3.copy(panVector, offset);
+            vec3.copy(panVector, pan);
         }
         
         this.dirty = true;
@@ -171,8 +170,21 @@ Camera.prototype = {
         this.dirty = true;
     },
     
+    setRotation: function (theta, phi) {
+        this.theta = theta;
+        this.phi = phi;
+        
+        this.dirty = true;
+    },
+    
     zoom: function (factor) {
         this.panVector[2] *= factor;
+        
+        this.dirty = true;
+    },
+    
+    setZoom: function (zoom) {
+        this.panVector[2] = zoom;
         
         this.dirty = true;
     },
@@ -201,11 +213,10 @@ Camera.prototype = {
         this.dirty = true;
     },
     
-    setSize: function (size) {
-        this.viewport[2] = size[0];
-        this.viewport[3] = size[1];
-        this.size = size;
-        this.aspect = size[0] / size[1];
+    setViewport: function (viewport) {
+        vec4.copy(this.viewport, viewport);
+        
+        this.aspect = viewport[2] / viewport[3];
         
         this.dirty = true;
     },

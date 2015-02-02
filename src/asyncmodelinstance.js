@@ -10,18 +10,18 @@
  * @param {vec3} color The color this instance uses for {@link AsyncModelInstance.renderColor}.
  * @param {object} textureMap An object with texture path -> absolute urls mapping.
  */
-function AsyncModelInstance(asyncModel, textureMap, context, onload, onloadstart, isInternal) {
+function AsyncModelInstance(model, textureMap, context, onload, onloadstart, isInternal) {
     this.type = "instance";
     this.ready = false;
-    this.fileType = asyncModel.fileType;
-    this.model = asyncModel;
+    this.fileType = model.fileType;
+    this.model = model;
     this.id = generateID();
     this.color = decodeFloat3(this.id);
-    this.source = asyncModel.source;
+    this.source = model.source;
     this.visible = 1;
 
     // If the model is already ready, the onload message from setup() must be delayed, since this instance wouldn't be added to the cache yet.
-    if (asyncModel.ready || isInternal) {
+    if (model.ready || isInternal) {
         this.delayOnload = true;
     }
 
@@ -39,7 +39,7 @@ function AsyncModelInstance(asyncModel, textureMap, context, onload, onloadstart
         
     // Request the setup function to be called by the model when it can.
     // If the model is loaded, setup runs instantly, otherwise it runs when the model finishes loading.
-    asyncModel.setupInstance(this, textureMap || {});
+    model.setupInstance(this, textureMap || {});
 }
 
 AsyncModelInstance.handlers = {};
