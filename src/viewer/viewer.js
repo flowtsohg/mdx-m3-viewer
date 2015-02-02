@@ -122,7 +122,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
   
     var context = {
         frameTime: 1000 / 60,
-        camera: new Camera(),
+        camera: new Camera([canvas.clientWidth, canvas.clientHeight]),
         instanceCamera: [-1, -1],
         worldMode: 2,
         groundSize: 256,
@@ -213,13 +213,11 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
 
         ctx.viewport(0, 0, width, height);
         
-        context.camera.setAspect(width / height);
+        context.camera.setSize([width, height]);
     }
-  
-    resetViewport();
-
+    
     window.addEventListener("resize", resetViewport);
-
+    resetViewport();
     
       
     gl.createShader("world", SHADERS.vsworld, SHADERS.psworld);
@@ -305,7 +303,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
             sky.render(shader);
         }
     }
-  
+    
     function render() {
         var i,
             l = instanceArray.length;
@@ -841,8 +839,10 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     * @param {number} y Y coordinate.
     * @returns {number} The ID of the selected model instance, or -1 if no model instance was selected.
     */
-    function selectInstance(x, y) {
-        var pixel = new Uint8Array(4);
+    function selectInstance(coordinate) {
+        var pixel = new Uint8Array(4),
+            x = coordinate[0],
+            y = canvas.clientHeight - coordinate[1];
 
         //var dx = canvas.clientWidth / 512;
         //var dy = canvas.clientHeight / 512;
@@ -859,9 +859,6 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         //gl.setPerspective(45, 1, 0.1, 5E4);
 
         renderColor();
-
-        // The Y axis of the WebGL viewport is inverted compared to screen space
-        y = canvas.clientHeight - y;
         
         ctx.readPixels(x, y, 1, 1, ctx.RGBA, ctx.UNSIGNED_BYTE, pixel);
 

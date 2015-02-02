@@ -1,14 +1,18 @@
-function Camera() {
+function Camera(size) {
+    this.viewport = [0, 0, size[0], size[1]];
+    this.size = size;
     this.fov = 0.7853981633974483;
-    this.aspect = 1;
+    this.aspect = size[0] / size[1];
     this.near = 0.1;
-    this.far = Number.MAX_SAFE_INTEGER;
+    this.far = 100000;
     this.projection = mat4.create();
     this.location = vec3.create();
     this.target = vec3.create();
     this.originalTarget = vec3.create();
     this.panVector = vec3.create();
     this.view = mat4.create();
+    this.viewProjection = mat4.create();
+    this.inverseViewProjection = mat4.create();
     this.inverseView = mat4.create();
     this.inverseRotation = mat4.create();
     this.theta = 0;
@@ -17,6 +21,9 @@ function Camera() {
     this.rect = [vec3.fromValues(-1, -1, 0), vec3.fromValues(-1, 1, 0), vec3.fromValues(1, 1, 0), vec3.fromValues(1, -1, 0), vec3.fromValues(1, 0, 0), vec3.fromValues(0, 1, 0), vec3.fromValues(0, 0, 1)];
     this.billboardedRect = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
     this.dirty = true;
+    
+    this.heap1 = vec3.create();
+    this.heap2 = vec3.create();
     
     this.reset();
 }
@@ -34,8 +41,10 @@ Camera.prototype = {
     },
     
     update: function () {
-        if (this.dirty || this.instance) {
+        if (this.dirty) {
             var view = this.view,
+                projection = this.projection,
+                viewProjection = this.viewProjection,
                 location = this.location,
                 inverseView = this.inverseView,
                 inverseRotation = this.inverseRotation,
@@ -45,13 +54,16 @@ Camera.prototype = {
                 billboardedRect = this.billboardedRect,
                 i;
             
-            mat4.perspective(this.projection, this.fov, this.aspect, this.near, this.far);
+            mat4.perspective(projection, this.fov, this.aspect, this.near, this.far);
             
             mat4.identity(view);
             mat4.translate(view, view, this.panVector);
             mat4.rotate(view, view, theta, vec3.UNIT_X);
             mat4.rotate(view, view, phi, vec3.UNIT_Z);
             mat4.translate(view, view, this.target);
+            
+            mat4.multiply(viewProjection, projection, view);
+            mat4.invert(this.inverseViewProjection, viewProjection);
             
             mat4.identity(inverseRotation);
             mat4.rotate(inverseRotation, inverseRotation, -phi, vec3.UNIT_Z);
@@ -187,5 +199,42 @@ Camera.prototype = {
         this.far = far;
         
         this.dirty = true;
+    },
+    
+    setSize: function (size) {
+        this.viewport[2] = size[0];
+        this.viewport[3] = size[1];
+        this.size = size;
+        this.aspect = size[0] / size[1];
+        
+        this.dirty = true;
+    },
+    
+    // Given a 2D camera space offset, returns a 3D world offset.
+    cameraToWorld: function (out, offset) {
+        vec3.set(out, offset[0], offset[1], 0);
+        vec3.transformMat4(out, out, this.inverseRotation);
+        
+        return out;
+    },
+    
+    // Given a 2D screen space coordinate, returns its 3D projection on the X-Y plane.
+    screenToWorld: function (out, coordinate) {
+        var a = this.heap1,
+            b = this.heap2,
+            x = coordinate[0],
+            y = coordinate[1],
+            inverseViewProjection = this.inverseViewProjection,
+            viewport = this.viewport,
+            zIntersection;
+        
+        vec3.unproject(a, x, y, 0, inverseViewProjection, viewport);
+        vec3.unproject(b, x, y, 1, inverseViewProjection, viewport);
+        
+        zIntersection = -a[2] / (b[2] - a[2]);
+        
+        vec3.set(out, a[0] + (b[0] - a[0]) * zIntersection, a[1] + (b[1] - a[1]) * zIntersection, 0);
+        
+        return out;
     }
 };

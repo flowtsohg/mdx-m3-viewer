@@ -163,3 +163,19 @@ mat4.decomposeScale = function (out, m) {
     
     return out;
 };
+
+vec3.unproject = (function () {
+    var heap = vec4.create();
+    
+    return function (out, x, y, z, inverseMatrix, viewport) {
+        x = 2 * (x - viewport[0]) / viewport[2] - 1;
+        y = 1 - 2 * (y - viewport[1]) / viewport[3];
+        z = 2 * z - 1;
+        
+        vec4.set(heap, x, y, z, 1);
+        vec4.transformMat4(heap, heap, inverseMatrix);
+        vec3.set(out, heap[0] / heap[3], heap[1] / heap[3], heap[2] / heap[3]);
+        
+        return out;
+    };
+}());
