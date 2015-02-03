@@ -80,7 +80,7 @@ var Parser = (function () {
     function parseChunk(reader, size, Func, nodes) {
         var totalInclusiveSize = 0,
             elements = [],
-            eleemnt;
+            element;
         
         while (totalInclusiveSize !== size) {
             element = new Func(reader, nodes);

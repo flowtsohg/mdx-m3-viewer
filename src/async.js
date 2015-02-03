@@ -40,6 +40,6 @@ Async.prototype = {
             this[functor[0]].apply(this, functor[1]);
         }
 
-        actions = [];
+        functors = [];
     }
 };
