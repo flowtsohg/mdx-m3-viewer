@@ -89,8 +89,6 @@ Camera.prototype = {
         vec3.add(location, location, offset);
         
         this.set(location, this.target);
-        
-        this.dirty = true;
     },
     
     moveTarget: function (offset) {
@@ -99,8 +97,6 @@ Camera.prototype = {
         vec3.add(target, target, offset);
         
         this.set(this.location, target);
-        
-        this.dirty = true;
     },
     
     // Move both the location and target
@@ -114,14 +110,10 @@ Camera.prototype = {
     
     setLocation: function (location) {
         this.set(location, this.target);
-        
-        this.dirty = true;
     },
     
     setTarget: function (target) {
         this.set(this.location, target);
-        
-        this.dirty = true;
     },
     
     // This is equivalent to a look-at matrix, with the up vector implicitly being [0, 0, 1].

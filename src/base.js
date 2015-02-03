@@ -222,20 +222,36 @@ Object.copy = function (object) {
     return newObj;
 };
 
+Object.clear = function (object) {
+    for (property in object) {
+        if (object.hasOwnProperty(property)) {
+            delete object[property];
+        }
+    }
+};
+
 /**
  * A shallow Array copy.
  *
  * @param {array} a The array to copy.
  * @returns {array} The copied array.
  */
-Array.copy = function (a) {
+Array.copy = function (array) {
     var newArray = [],
         i,
         l;
 
-    for (i = 0, l = a.length; i < l; i++) {
-        newArray[i] = a[i];
+    for (i = 0, l = array.length; i < l; i++) {
+        newArray[i] = array[i];
     }
 
     return newArray;
+};
+
+Array.clear = function (array) {
+    while (array.length) {
+      array.pop();
+    }
+    
+    return array;
 };

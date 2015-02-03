@@ -542,15 +542,14 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
             unloadModel(modelMap[keys[i]]);
         }
         
-        modelArray = [];
-        instanceArray = [];
-        modelInstanceMap = {};
-        modelMap = {};
-        instanceMap = {};
+        Array.clear(modelArray);
+        Array.clear(instanceArray);
+        Object.clear(modelInstanceMap);
+        Object.clear(modelMap);
     }
     
     function clearCache() {
-        modelCache = {};
+        Object.clear(modelCache);
     }
     
     function loadingEnded() {
@@ -593,6 +592,11 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     function getInstances() {
         return instanceArray;
     }
+    
+    function getCache() {
+        return modelCache;
+    }
+    
   // -------------------
   // General settings
   // -------------------
@@ -1015,10 +1019,10 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         dependenciesLoaded: dependenciesLoaded,
         getModels: getModels,
         getInstances: getInstances,
+        getCache: getCache,
         // General settings
         setAnimationSpeed: setAnimationSpeed,
         getAnimationSpeed: getAnimationSpeed,
-        
         setSkyMode: setSkyMode,
         getSkyMode: getSkyMode,
         setGroundMode: setGroundMode,
