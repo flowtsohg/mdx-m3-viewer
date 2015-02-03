@@ -60,6 +60,9 @@ Rect.prototype = {
    * @param {number} hh The new half height.
    */
     resize: function (hw, hh) {
+        hw /= 2;
+        hh /= 2;
+        
         var ctx = this.ctx;
         var diff = hw / this.originalSize;
         var stscale = this.originalStscale * diff;

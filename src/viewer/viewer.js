@@ -2,8 +2,7 @@
  * @class The main model viewer object.
  * @name ModelViewer
  * @param {HTMLCanvasElement} canvas A canvas element.
- * @param {object} urls An object with the necessary methods to get urls from the viewer.
- * @param {function} onmessage A callback function, which the viewer will call with messages.
+ * @param {object} urls An object with the necessary methods to get urls from the server.
  * @param {boolean} debugMode If true, the viewer will log the loaded models and their parser to the console.
  */
 window["ModelViewer"] = function (canvas, urls, debugMode) {
@@ -56,22 +55,16 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         dispatchEvent({type: "unload", target: object});
     }
   
-    
     var listeners = {}
     var viewerObject = {};
     
     var gl = GL(canvas, onload, onerror, onprogress, onloadstart, onunload);
-    
-    var grassPath = urls.localFile("grass.png"),
-        waterPath = urls.localFile("water.png"),
-        bedrockPath = urls.localFile("bedrock.png"),
-        skyPath = urls.localFile("sky.png");
-
     var ctx = gl.ctx;
-    var grass_water;
-    var bedrock;
-    var sky;
-    
+        
+    var groundPath = urls.localFile("ground.png");
+    var waterPath = urls.localFile("water.png");
+    var skyPath = urls.localFile("sky.png");
+
     var modelArray = []; // All models
     var instanceArray = []; // All instances
     var modelInstanceMap = {}; // Referebce by ID. This is a map to support deletions.
@@ -80,47 +73,16 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     // It is used to make loading faster if a model was unloaded, or clear was called, and then the model is requested to load again.
     var modelCache = {}; 
 
-    var supportedFileTypes = {"png":1, "gif":1, "jpg":1};
     var supportedModelFileTypes = {};
     var supportedTextureFileTypes = {"png":1, "gif":1, "jpg":1};
-  
-    var teamColors = [
-        [255, 3, 3],
-        [0, 66, 255],
-        [28, 230, 185],
-        [84, 0, 129],
-        [255, 252, 1],
-        [254, 138, 14],
-        [32, 192, 0],
-        [229, 91, 176],
-        [149, 150, 151],
-        [126, 191, 241],
-        [16, 98, 70],
-        [78, 42, 4],
-        [40, 40, 40],
-        [0, 0, 0]
-    ];
-
-    var shaders = [
-        "standard",
-        "diffuse",
-        "normals",
-        "uvs",
-        "normalmap",
-        "specular",
-        "specular_normalmap",
-        "emissive",
-        "unshaded",
-        "unshaded_normalmap",
-        "decal",
-        "white"
-    ];
+    var supportedFileTypes = {"png":1, "gif":1, "jpg":1};
   
     var context = {
         frameTime: 1000 / 60,
         camera: new Camera([0, 0, canvas.clientWidth, canvas.clientHeight]),
         instanceCamera: [-1, -1],
-        worldMode: 2,
+        skyMode: 1,
+        groundMode: 1,
         groundSize: 256,
         emittersMode: true,
         polygonMode: 1,
@@ -130,12 +92,14 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         shader: 0,
         gl: gl,
         debugMode: debugMode,
-        teamColors: teamColors,
-        shaders: shaders,
+        teamColors: [[255, 3, 3], [0, 66, 255], [28, 230, 185], [84, 0, 129], [255, 252, 1], [254, 138, 14], [32, 192, 0], [229, 91, 176], [149, 150, 151], [126, 191, 241], [16, 98, 70], [78, 42, 4], [40, 40, 40], [0, 0, 0]],
+        shaders: [ "standard", "diffuse", "normals", "uvs", "normalmap", "specular", "specular_normalmap", "emissive", "unshaded", "unshaded_normalmap", "decal", "white"],
         lightPosition: [0, 0, 10000],
         loadInternalResource: loadInternalResource,
         uvOffset: [0, 0],
-        uvSpeed: [Math.randomRange(-0.004, 0.004), Math.randomRange(-0.004, 0.004)]
+        uvSpeed: [Math.randomRange(-0.004, 0.004), Math.randomRange(-0.004, 0.004)],
+        ground: gl.createRect(0, 0, -3, 256, 256, 6),
+        sky: gl.createSphere(0, 0, 0, 5, 40, 50000)
     };
     
     function saveContext() {
@@ -174,6 +138,29 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         context.shader = object[10];
     }
   
+    function resetViewport() {
+        var width = canvas.clientWidth,
+            height = canvas.clientHeight;
+
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+
+        ctx.viewport(0, 0, width, height);
+        
+        context.camera.setViewport([0, 0, width, height]);
+    }
+    
+    window.addEventListener("resize", resetViewport);
+    resetViewport();
+    
+      
+    gl.createShader("world", SHADERS.vsworld, SHADERS.psworld);
+    gl.createShader("white", SHADERS.vswhite, SHADERS.pswhite);
+
+    gl.loadTexture(groundPath);
+    gl.loadTexture(waterPath);
+    gl.loadTexture(skyPath);
+    
     function setupColor(width, height) {
         // Color texture
         var color = ctx.createTexture();
@@ -201,34 +188,6 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
   
   // Used for color picking
   //var colorFBO = setupColor(512, 512);
-
-    function resetViewport() {
-        var width = canvas.clientWidth,
-            height = canvas.clientHeight;
-
-        canvas.width = canvas.clientWidth;
-        canvas.height = canvas.clientHeight;
-
-        ctx.viewport(0, 0, width, height);
-        
-        context.camera.setViewport([0, 0, width, height]);
-    }
-    
-    window.addEventListener("resize", resetViewport);
-    resetViewport();
-    
-      
-    gl.createShader("world", SHADERS.vsworld, SHADERS.psworld);
-    gl.createShader("white", SHADERS.vswhite, SHADERS.pswhite);
-
-    gl.loadTexture(grassPath);
-    gl.loadTexture(waterPath);
-    gl.loadTexture(bedrockPath);
-    gl.loadTexture(skyPath);
-
-    grass_water = gl.createRect(0, 0, -3, context.groundSize, context.groundSize, 6);
-    bedrock = gl.createRect(0, 0, -35, context.groundSize, context.groundSize, 6);
-    sky = gl.createSphere(0, 0, 0, 5, 40, 2E6);
     
     function updateCamera() {
         var camera = context.camera;
@@ -250,47 +209,40 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         updateCamera();
     }
 
-    function renderGround(isWater) {
-        if (context.worldMode > 1 && gl.shaderStatus("world")) {
+    function renderGround(mode) {
+        if (gl.shaderStatus("world")) {
             var shader = gl.bindShader("world");
 
             ctx.disable(ctx.CULL_FACE);
 
             ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
 
-            if (isWater) {
+            if (mode === 1) {
+                ctx.uniform2fv(shader.variables.u_uv_offset, [0, 0]);
+                ctx.uniform1f(shader.variables.u_a, 1);
+                
+                gl.bindTexture(groundPath, 0);
+                context.ground.render(shader);
+            } else {
                 context.uvOffset[0] += context.uvSpeed[0];
                 context.uvOffset[1] += context.uvSpeed[1];
 
                 ctx.uniform2fv(shader.variables.u_uv_offset, context.uvOffset);
                 ctx.uniform1f(shader.variables.u_a, 0.6);
-            } else {
-                ctx.uniform2fv(shader.variables.u_uv_offset, [0, 0]);
-                ctx.uniform1f(shader.variables.u_a, 1);
-            }
+                
+                ctx.enable(ctx.BLEND);
+                ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
 
-            if (context.worldMode > 2) {
-                if (isWater) {
-                    ctx.enable(ctx.BLEND);
-                    ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
+                gl.bindTexture(waterPath, 0);
+                context.ground.render(shader);
 
-                    gl.bindTexture(waterPath, 0);
-                    grass_water.render(shader);
-
-                    ctx.disable(ctx.BLEND);
-                } else {
-                    gl.bindTexture(bedrockPath, 0);
-                    bedrock.render(shader);
-                }
-            } else {
-                gl.bindTexture(grassPath, 0);
-                grass_water.render(shader);
+                ctx.disable(ctx.BLEND);
             }
         }
     }
   
     function renderSky() {
-        if (context.worldMode > 0 && gl.shaderStatus("world")) {
+        if (gl.shaderStatus("world")) {
             var shader = gl.bindShader("world");
 
             ctx.uniform2fv(shader.variables.u_uv_offset, [0, 0]);
@@ -298,7 +250,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
             ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getProjectionMatrix());
 
             gl.bindTexture(skyPath, 0);
-            sky.render(shader);
+            context.sky.render(shader);
         }
     }
     
@@ -307,9 +259,14 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
             l = instanceArray.length;
 
         ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
-
-        renderSky();
-        renderGround();
+        
+        if (context.skyMode) {
+            renderSky();
+        }
+        
+        if (context.groundMode === 1) {
+            renderGround(context.groundMode);
+        }
 
         // Render geometry
         if (context.polygonMode > 0) {
@@ -332,8 +289,8 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
             }
         }
 
-        if (context.worldMode > 2) {
-            renderGround(true);
+        if (context.groundMode > 1) {
+            renderGround(context.groundMode);
         }
         
         dispatchEvent("render");
@@ -360,9 +317,6 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         if (modelCache[source]) {
             if (!modelMap[source]) {
                 modelMap[source] = modelCache[source];
-                
-                //onloadstart(modelMap[source]);
-                //onload(modelMap[source]);
             }
         // If the model isn't in the cache, it's also likely not in the model map, so do a real load
         } else {
@@ -665,30 +619,22 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         return context.frameTime / 1000 * 60;
     }
   
-  /**
-    * Sets the world mode.
-    * Possible values are 0 for nothing, 1 for sky, 2 for sky and ground, and 3 for sky and water.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} mode The world mode.
-    */
-    function setWorldMode(mode) {
-        context.worldMode = mode;
+    function setSkyMode(mode) {
+        context.skyMode = mode;
     }
-  
-  /**
-    * Gets the world mode.
-    * Possible values are 0 for nothing, 1 for sky, 2 for sky and ground, and 3 for sky and water.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {number} The world mode.
-    */
-    function getWorldMode() {
-        return context.worldMode;
+    
+    function getSkyMode() {
+        return context.skyMode;
     }
-  
+    
+    function setGroundMode(mode) {
+        context.groundMode = mode;
+    }
+    
+    function getGroundMode() {
+        return context.groundMode;
+    }
+    
   /**
     * Sets the ground size.
     *
@@ -697,12 +643,8 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     * @param {number} size The ground size.
     */
     function setGroundSize(size) {
-        size /= 2;
-
         context.groundSize = size;
-
-        grass_water.resize(size, size);
-        bedrock.resize(size, size);
+        context.ground.resize(size, size);
     }
   
   /**
@@ -713,7 +655,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     * @returns {number} The ground size.
     */
     function getGroundSize() {
-        return context.groundSize * 2;
+        return context.groundSize;
     }
   
   /**
@@ -1076,8 +1018,11 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         // General settings
         setAnimationSpeed: setAnimationSpeed,
         getAnimationSpeed: getAnimationSpeed,
-        setWorldMode: setWorldMode,
-        getWorldMode: getWorldMode,
+        
+        setSkyMode: setSkyMode,
+        getSkyMode: getSkyMode,
+        setGroundMode: setGroundMode,
+        getGroundMode: getGroundMode,
         setGroundSize: setGroundSize,
         getGroundSize: getGroundSize,
         setEmittersMode: setEmittersMode,

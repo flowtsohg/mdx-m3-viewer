@@ -155,15 +155,15 @@ function getRequest(path, binary, onload, onerror, onprogress) {
     var xhr = new XMLHttpRequest();
 
     if (onload) {
-        xhr.addEventListener("load", onload, false);
+        xhr.addEventListener("load", onload);
     }
 
     if (onerror) {
-        xhr.addEventListener("error", onerror, false);
+        xhr.addEventListener("error", onerror);
     }
 
     if (onprogress) {
-        xhr.addEventListener("progress", onprogress, false);
+        xhr.addEventListener("progress", onprogress);
     }
 
     xhr.open("GET", path, true);
