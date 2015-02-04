@@ -19,7 +19,7 @@ var layerFilterTypes = [
 ];
 
 function Layer(layer, geosetId, model) {
-    this.filterMode = layer.filterMode;
+    this.filterMode = (layer.filterMode > 6) ? 0 : layer.filterMode;
     this.twoSided = layer.twoSided;
     this.textureId = layer.textureId;
     this.textureAnimationId = layer.textureAnimationId;

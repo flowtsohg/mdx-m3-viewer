@@ -33,6 +33,7 @@ window["TGATexture"] = function TGATexture(arrayBuffer, options, ctx, onerror, o
     var index;
     var temp;
     var i;
+    var l;
     
     // BGRA -> RGBA
     for (i = 0, l = width * height; i < l; i++) {

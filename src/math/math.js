@@ -185,14 +185,14 @@ Math.sign = function (x) {
  * @returns {number} Returns the destination with the source's sign.
  */
 Math.copysign = function (x, y) {
-    var signy = sign(y),
+    var signy = Math.sign(y),
         signx;
 
     if (signy === 0) {
         return 0;
     }
 
-    signx = sign(x);
+    signx = Math.sign(x);
 
     if (signx !== signy) {
         return -x;

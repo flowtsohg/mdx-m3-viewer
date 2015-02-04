@@ -223,7 +223,7 @@ Object.copy = function (object) {
 };
 
 Object.clear = function (object) {
-    for (property in object) {
+    for (var property in object) {
         if (object.hasOwnProperty(property)) {
             delete object[property];
         }

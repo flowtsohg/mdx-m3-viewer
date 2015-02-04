@@ -9,6 +9,11 @@ function Node(object, model, pivots) {
     if (object.tracks) {
         this.sd = parseSDTracks(object.tracks, model);
     }
+    
+    // This is valid for some reason...
+    if (object.objectId === object.parentId) {
+        this.parentId = -1;
+    }
 }
 
 // Used by each copy of a skeleton to hold the node hierarchy

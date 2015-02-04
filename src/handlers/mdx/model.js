@@ -63,7 +63,7 @@ Model.prototype = extend(BaseModel.prototype, {
         if (this.nodes.length === 0) {
             this.nodes[0] = new Node({objectId: 0, parentId: 0xFFFFFFFF}, this, pivots);
         }
-
+        
         // This list is used to access all the nodes in a loop while keeping the hierarchy in mind.
         this.hierarchy = [];
         this.setupHierarchy(-1);
@@ -235,10 +235,12 @@ Model.prototype = extend(BaseModel.prototype, {
     },
 
     setupHierarchy: function (parent) {
-        var cildren = [];
-
-        for (var i = 0, l = this.nodes.length; i < l; i++) {
-            var node = this.nodes[i];
+        var nodes = this.nodes,
+            node,
+            i;
+        
+        for (i = 0, l = nodes.length; i < l; i++) {
+            node = nodes[i];
 
             if (node.parentId === parent) {
                 this.hierarchy.push(i);
@@ -312,13 +314,15 @@ Model.prototype = extend(BaseModel.prototype, {
                         if (this.geosetAnimations) {
                             for (var j = this.geosetAnimations.length; j--;) {
                                 var geosetAnimation = this.geosetAnimations[j];
+                                
+                                if (geosetAnimation) {
+                                    if (geosetAnimation.geosetId === layer.geosetId) {
+                                        tempVec3 = getSDValue(sequence, frame, counter, geosetAnimation.sd.color, geosetAnimation.color, tempVec3);
 
-                                if (geosetAnimation.geosetId === layer.geosetId) {
-                                    tempVec3 = getSDValue(sequence, frame, counter, geosetAnimation.sd.color, geosetAnimation.color, tempVec3);
-
-                                    modifier[0] = tempVec3[0];
-                                    modifier[1] = tempVec3[1];
-                                    modifier[2] = tempVec3[2];
+                                        modifier[0] = tempVec3[0];
+                                        modifier[1] = tempVec3[1];
+                                        modifier[2] = tempVec3[2];
+                                    }
                                 }
                             }
                         }
@@ -329,8 +333,12 @@ Model.prototype = extend(BaseModel.prototype, {
 
                         if (layer.textureAnimationId !== -1 && this.textureAnimations) {
                             var textureAnimation = this.textureAnimations[layer.textureAnimationId];
-                            // What is Z used for?
-                            uvoffset = getSDValue(sequence, frame, counter, textureAnimation.sd.translation, defaultUvoffset, uvoffset);
+                            
+                            if (textureAnimation) {
+                                // What is Z used for?
+                                uvoffset = getSDValue(sequence, frame, counter, textureAnimation.sd.translation, defaultUvoffset, uvoffset);
+                            }
+
                         }
 
                         ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);

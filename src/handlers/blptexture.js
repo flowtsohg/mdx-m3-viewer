@@ -15,7 +15,12 @@ var BLP_PALLETE = 0x1;
  */
 window["BLPTexture"] = function BLPTexture(arrayBuffer, options, ctx, onerror, onload, compressedTextures) {
     var i;
-
+    
+    if (arrayBuffer.byteLength < 40) {
+        onerror("BLP: Bad File");
+        return;
+    }
+    
     // If compression=0, the header size is 40
     // If compression=1, the header size is 39
     // Might as well make one typed array for both

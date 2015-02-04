@@ -1,6 +1,6 @@
 function SD(tracks, model) {
     var i, l, arr, keys;
-
+    
     this.type = tracks.type;
     this.defval = tracks.defval;
     this.interpolationType = tracks.interpolationType;
@@ -113,7 +113,7 @@ function parseSDTracks(tracks, model) {
     var keys = Object.keys(tracks);
     var sds = {};
     var type;
-
+    
     for (var i = 0, l = keys.length; i < l; i++) {
         type = keys[i];
 

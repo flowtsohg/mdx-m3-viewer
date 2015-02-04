@@ -22,12 +22,11 @@ function Texture(source, options, textureHandlers, ctx, compressedTextures, onlo
 Texture.prototype = {
     onloadTexture: function (ctx, compressedTextures, e) {
         var target = e.target,
+            response = target.response,
             status = target.status;
         
         if (status === 200) {
             this.impl = new this.handler(target.response, this.options, ctx, this.onerror.bind(undefined, this),  this.onload.bind(undefined, this), compressedTextures);
-
-            //this.onload(this);
         } else {
             this.onerror(this, "" + status);
         }

@@ -27,7 +27,7 @@ function RibbonEmitter(emitter, model, instance, ctx) {
     var layers = model.materials[this.materialId].layers;
 
     for (i = 0, l = layers.length; i < l; i++) {
-        var layer = new Layer(layers[i], 0);
+        var layer = new Layer(layers[i], 0, model);
 
         groups[layer.renderOrder].push(layer);
     }

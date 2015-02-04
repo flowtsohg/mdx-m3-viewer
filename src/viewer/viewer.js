@@ -586,7 +586,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     }
     
     function getModels() {
-        return modelsArray;
+        return modelArray;
     }
     
     function getInstances() {
