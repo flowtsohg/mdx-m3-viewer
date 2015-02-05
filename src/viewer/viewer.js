@@ -482,7 +482,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         if (typeof source === "string") {
             var isSupported = supportedFileTypes[fileTypeFromPath(source)];
 
-            if (source.startsWith("http://") && isSupported) {
+            if (source.indexOf("http://") === 0 && isSupported) {
                 loadResourceImpl(source);
             } else if (isSupported) {
                 loadResourceImpl(urls.mpqFile(source), source);
@@ -574,6 +574,13 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
             
             keys = Object.keys(textureMap);
             total = keys.length;
+            
+            // If this object has no dependencies, just return 1.
+            // See DNC models. They have no geosets, textures, nodes, particle emitters, ...
+            // Not sure what their use is.
+            if (total === 0) {
+                return 1;
+            }
             
             for (i = 0, l = total; i < l; i++) {
                 if (gl.textureLoaded(textureMap[keys[i]])) {
