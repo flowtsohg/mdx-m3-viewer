@@ -237,7 +237,8 @@ Model.prototype = extend(BaseModel.prototype, {
     setupHierarchy: function (parent) {
         var nodes = this.nodes,
             node,
-            i;
+            i,
+            l;
         
         for (i = 0, l = nodes.length; i < l; i++) {
             node = nodes[i];
