@@ -42,6 +42,25 @@ ModelInstance.prototype = extend(BaseModelInstance.prototype, {
                 this.ribbonEmitters[i] = new RibbonEmitter(objects[i], model, this, ctx);
             }
         }
+        
+        this.attachmentInstances = [];
+        this.attachments = [];
+        this.attachmentVisible = [];
+        
+        for (i = 0, l = model.attachments.length; i < l; i++) {
+            var path = model.attachments[i].path.replace(/\\/g, "/").toLowerCase().replace(".mdl", ".mdx");
+            
+            if (path !== "") {
+                var instance = context.loadInternalResource(context.urls.mpqFile(path));
+                instance.setSequence(0);
+                instance.setSequenceLoopMode(2);
+                instance.setParent(this.getAttachment(model.attachments[i].attachmentId));
+                
+                this.attachmentInstances.push(instance);
+                this.attachments.push(model.attachments[i]);
+                this.attachmentVisible.push(true);
+            }
+        }
     },
 
     updateEmitters: function (emitters, allowCreate, context) {
@@ -80,8 +99,65 @@ ModelInstance.prototype = extend(BaseModelInstance.prototype, {
         this.updateEmitters(this.particleEmitters, allowCreate, context);
         this.updateEmitters(this.particleEmitters2, allowCreate, context);
         this.updateEmitters(this.ribbonEmitters, allowCreate, context);
+        
+        var attachmentInstances = this.attachmentInstances;
+        var attachments = this.attachments;
+        var attachmentVisible = this.attachmentVisible;
+        var attachment;
+        var sd;
+        var visibility;
+        var value;
+        
+        for (var i = 0, l = attachments.length; i < l; i++) {
+            attachment = attachments[i];
+            sd = attachment.sd;
+            
+            attachmentVisible[i] = true;
+            
+            if (sd) {
+                visibility = sd.visibility;
+                
+                if (visibility) {
+                    value = visibility.getValue(null, this.sequence, this.frame, this.counter);
+                    
+                    if (value < 0.1) {
+                        attachmentVisible[i] = false;
+                    }
+                }
+            }
+            
+            if (attachmentVisible[i]) {
+                this.attachmentInstances[i].update(context);
+            }
+        }
     },
-
+    
+    render: function(context) {
+        this.model.render(this, context);
+        
+        var attachmentInstances = this.attachmentInstances;
+        var attachmentVisible = this.attachmentVisible;
+        
+        for (var i = 0, l = attachmentInstances.length; i < l; i++) {
+            if (attachmentVisible[i]) {
+                attachmentInstances[i].render(context);
+            }
+        }
+    },
+    
+    renderEmitters: function(context) {
+        this.model.renderEmitters(this, context);
+        
+        var attachmentInstances = this.attachmentInstances;
+        var attachmentVisible = this.attachmentVisible;
+        
+        for (var i = 0, l = attachmentInstances.length; i < l; i++) {
+            if (attachmentVisible[i]) {
+                attachmentInstances[i].renderEmitters(context);
+            }
+        }
+    },
+    
     setTeamColor: function (id) {
         var idString = ((id < 10) ? "0" + id : id);
 

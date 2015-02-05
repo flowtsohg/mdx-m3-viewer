@@ -151,7 +151,7 @@ Model.prototype = extend(BaseModel.prototype, {
                 this.boundingShapes[i] = new CollisionShape(objects[i], this.nodes, gl);
             }
         }
-
+        
         if (parser.attachmentChunk) {
             objects = parser.attachmentChunk.objects;
 

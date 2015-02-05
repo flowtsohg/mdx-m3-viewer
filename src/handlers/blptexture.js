@@ -55,12 +55,12 @@ window["BLPTexture"] = function BLPTexture(arrayBuffer, options, ctx, onerror, o
         rgba8888Data = jpegImage.getData(jpegImage.width, jpegImage.height);
 
         // BGR -> RGB
-        for (i = 0; i < rgba8888Data.length; i += 4) {
-            var b = rgba8888Data[i];
+        //~ for (i = 0; i < rgba8888Data.length; i += 4) {
+            //~ var b = rgba8888Data[i];
 
-            rgba8888Data[i] = rgba8888Data[i + 2];
-            rgba8888Data[i + 2] = b;
-        }
+            //~ rgba8888Data[i] = rgba8888Data[i + 2];
+            //~ rgba8888Data[i + 2] = b;
+        //~ }
     } else {
         var pallete = new Uint8Array(arrayBuffer, 156, 1024);
         var size = width * height;
@@ -75,10 +75,13 @@ window["BLPTexture"] = function BLPTexture(arrayBuffer, options, ctx, onerror, o
             dstI = index * 4;
 
             // BGR -> RGB
-            rgba8888Data[dstI] = pallete[i + 2];
+            //~ rgba8888Data[dstI] = pallete[i + 2];
+            //~ rgba8888Data[dstI + 1] = pallete[i + 1];
+            //~ rgba8888Data[dstI + 2] = pallete[i];
+            rgba8888Data[dstI] = pallete[i];
             rgba8888Data[dstI + 1] = pallete[i + 1];
-            rgba8888Data[dstI + 2] = pallete[i];
-
+            rgba8888Data[dstI + 2] = pallete[i + 2];
+            
             if (hasAlpha) {
                 rgba8888Data[dstI + 3] = arrayData[mipmapAlphaOffset + index]
             } else {

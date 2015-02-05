@@ -99,7 +99,8 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         uvOffset: [0, 0],
         uvSpeed: [Math.randomRange(-0.004, 0.004), Math.randomRange(-0.004, 0.004)],
         ground: gl.createRect(0, 0, -3, 256, 256, 6),
-        sky: gl.createSphere(0, 0, 0, 5, 40, 50000)
+        sky: gl.createSphere(0, 0, 0, 5, 40, 50000),
+        urls: urls
     };
     
     function saveContext() {
@@ -376,13 +377,14 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         var status = e.target.status;
 
         if (status === 200) {
-            onload(this);
-
             var i, l;
             var object = JSON.parse(e.target.responseText);
             var keys = Object.keys(object.textures);
             var textureMap = {};
             var key, texture;
+            
+            this.data = object;
+            onload(this);
                 
             if (context.debugMode) {
                 console.log(object);
@@ -487,8 +489,8 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
             } else if (isSupported) {
                 loadResourceImpl(urls.mpqFile(source), source);
             } else {
-                var object = {isHeader: 1, source: source};
-
+                var object = {type: "header", source: source};
+                
                 onloadstart(object);
 
                 getRequest(urls.header(source), false, loadResourceFromHeader.bind(object), onerror.bind(undefined, object), onprogress.bind(undefined, object));

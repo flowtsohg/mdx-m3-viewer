@@ -36,13 +36,13 @@ window["TGATexture"] = function TGATexture(arrayBuffer, options, ctx, onerror, o
     var l;
     
     // BGRA -> RGBA
-    for (i = 0, l = width * height; i < l; i++) {
-        index = i * 4;
-        temp = rgba8888Data[index];
+    //~ for (i = 0, l = width * height; i < l; i++) {
+        //~ index = i * 4;
+        //~ temp = rgba8888Data[index];
 
-        rgba8888Data[index] = rgba8888Data[index + 2];
-        rgba8888Data[index + 2] = temp;
-    }
+        //~ rgba8888Data[index] = rgba8888Data[index + 2];
+        //~ rgba8888Data[index + 2] = temp;
+    //~ }
 
     var id = ctx.createTexture();
     ctx.bindTexture(ctx.TEXTURE_2D, id);
