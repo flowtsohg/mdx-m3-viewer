@@ -74,8 +74,8 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     var modelCache = {}; 
 
     var supportedModelFileTypes = {};
-    var supportedTextureFileTypes = {"png":1, "gif":1, "jpg":1};
-    var supportedFileTypes = {"png":1, "gif":1, "jpg":1};
+    var supportedTextureFileTypes = {".png":1, ".gif":1, ".jpg":1};
+    var supportedFileTypes = {".png":1, ".gif":1, ".jpg":1};
   
     var context = {
         frameTime: 1000 / 60,
@@ -469,6 +469,16 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
   // Model loading API
   // ---------------------
   
+    function loadLocalFile(source) {
+        if (typeof source === "string") {
+            var isSupported = supportedFileTypes[fileTypeFromPath(source)];
+            
+            if (isSupported) {
+                loadResourceImpl(urls.localFile(source), source);
+            }
+        }
+    }
+    
   /**
     * Loads a resource.
     *
@@ -1020,6 +1030,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     
     var API = {
         // Resource API
+        loadLocalFile: loadLocalFile,
         load: load,
         unload: unload,
         clear: clear,
