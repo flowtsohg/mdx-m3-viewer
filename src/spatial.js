@@ -19,7 +19,8 @@ function Spatial() {
     this.location = vec3.create();
     this.worldLocation = vec3.create();
     this.rotation = quat.create();
-    this.eulerRotation = vec3.create();
+    this.theta = 0;
+    this.phi = 0;
     this.scaling = vec3.fromValues(1, 1, 1);
     this.inverseScale = vec3.create();
     this.parent = null;
@@ -73,44 +74,7 @@ Spatial.prototype = {
     getLocation: function () {
         return Array.copy(this.location);
     },
-
-  /**
-    * Rotates a spatial.
-    *
-    * @memberof Spatial
-    * @instance
-    * @param {quat} q A quaternion.
-    */
-    rotateQuat: function (q) {
-        quat.multiply(this.rotation, this.rotation, q);
-
-        this.recalculateTransformation();
-    },
-
-  /**
-    * Sets the rotation of a spatial.
-    *
-    * @memberof Spatial
-    * @instance
-    * @param {quat} q A quaternion.
-    */
-    setRotationQuat: function (q) {
-        quat.copy(this.rotation, q);
-
-        this.recalculateTransformation();
-    },
-
-  /**
-    * Gets a spatial's rotation as a quaternion.
-    *
-    * @memberof Spatial
-    * @instance
-    * @returns {quat} The spatial's quaternion rotation.
-    */
-    getRotationQuat: function () {
-        return Array.copy(this.rotation);
-    },
-
+    
   /**
     * Rotates a spatial.
     *
@@ -118,12 +82,11 @@ Spatial.prototype = {
     * @instance
     * @param {vec3} v A vector of euler angles.
     */
-    rotate: function (v) {
-        var eulerRotation = this.eulerRotation;
+    rotate: function (theta, phi) {
+        this.theta += theta;
+        this.phi += phi;
 
-        vec3.add(eulerRotation, eulerRotation, v);
-
-        this.setRotation(eulerRotation);
+        this.setRotation(this.theta, this.phi);
     },
 
   /**
@@ -133,23 +96,12 @@ Spatial.prototype = {
     * @instance
     * @param {quat} v A vector of euler angles.
     */
-    setRotation: function (v) {
-        var q = quat.create(),
-             rotation = this.rotation,
-            eulerRotation = this.eulerRotation;
-
-        vec3.copy(eulerRotation, v);
+    setRotation: function (theta, phi) {
+        var rotation = this.rotation;
 
         quat.identity(rotation);
-
-        quat.setAxisAngle(q, vec3.UNIT_X, eulerRotation[0]);
-        quat.multiply(rotation, q, rotation);
-
-        quat.setAxisAngle(q, vec3.UNIT_Y, eulerRotation[1]);
-        quat.multiply(rotation, q, rotation);
-
-        quat.setAxisAngle(q, vec3.UNIT_Z, eulerRotation[2]);
-        quat.multiply(rotation, q, rotation);
+        quat.rotateZ(rotation, rotation, theta);
+        quat.rotateX(rotation, rotation, phi);
 
         this.recalculateTransformation();
     },
@@ -162,7 +114,7 @@ Spatial.prototype = {
     * @returns {vec3} The spatial's euler angles.
     */
     getRotation: function () {
-        return vec3.clone(this.eulerRotation);
+        return [this.theta, this.phi];
     },
 
   /**

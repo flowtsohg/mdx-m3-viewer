@@ -1060,7 +1060,8 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         // Events
         addEventListener: addEventListener,
         removeEventListener: removeEventListener,
-        dispatchEvent: dispatchEvent
+        dispatchEvent: dispatchEvent,
+        resetViewport: resetViewport
     };
     
     // The main loop of the viewer
