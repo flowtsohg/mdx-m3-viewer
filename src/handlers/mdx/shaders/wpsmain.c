@@ -1,5 +1,5 @@
 uniform sampler2D u_texture;
-uniform bvec3 u_type;
+uniform bool u_alphaTest;
 uniform vec4 u_modifier;
 
 varying vec3 v_normal;
@@ -10,15 +10,7 @@ void main() {
     vec4 texel = texture2D(u_texture, v_uv).bgra;
 
     // 1bit Alpha
-    if (u_type[0] && texel.a < 0.75) {
-        discard;
-    }
-
-    if (u_type[1] && texel.r < 0.2 && texel.g < 0.2 && texel.b < 0.2) {
-        discard;
-    }
-
-    if (u_type[2] && texel.r > .9 && texel.g > 0.9 && texel.b > 0.9) {
+    if (u_alphaTest && texel.a < 0.75) {
         discard;
     }
 

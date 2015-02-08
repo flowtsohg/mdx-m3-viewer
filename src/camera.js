@@ -1,7 +1,7 @@
-function Camera(viewport) {
-    this.viewport = vec4.clone(viewport);
+function Camera() {
+    this.viewport = vec4.create();
     this.fov = 0.7853981633974483;
-    this.aspect = viewport[2] / viewport[3];
+    this.aspect = 1;
     this.near = 0.1;
     this.far = 100000;
     this.projection = mat4.create();
@@ -57,8 +57,8 @@ Camera.prototype = {
             
             mat4.identity(view);
             mat4.translate(view, view, this.panVector);
-            mat4.rotate(view, view, theta, vec3.UNIT_X);
-            mat4.rotate(view, view, phi, vec3.UNIT_Z);
+            mat4.rotateX(view, view, theta);
+            mat4.rotateZ(view, view, phi);
             mat4.translate(view, view, this.target);
             
             mat4.multiply(viewProjection, projection, view);
