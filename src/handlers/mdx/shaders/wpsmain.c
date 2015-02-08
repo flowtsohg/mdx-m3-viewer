@@ -9,7 +9,8 @@ void main() {
     #ifdef STANDARD_PASS
     vec4 texel = texture2D(u_texture, v_uv).bgra;
 
-    if (u_type[0] && texel.a < 0.7) {
+    // 1bit Alpha
+    if (u_type[0] && texel.a < 0.75) {
         discard;
     }
 

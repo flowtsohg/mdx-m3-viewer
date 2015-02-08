@@ -329,7 +329,7 @@ Model.prototype = extend(BaseModel.prototype, {
                         }
 
                         modifier[3] = getSDValue(sequence, frame, counter, layer.sd.alpha, layer.alpha);
-
+                        
                         ctx.uniform4fv(shader.variables.u_modifier, modifier);
 
                         if (layer.textureAnimationId !== -1 && this.textureAnimations) {

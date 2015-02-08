@@ -259,6 +259,9 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         var i,
             l = instanceArray.length;
 
+        // https://www.opengl.org/wiki/FAQ#Masking
+        ctx.depthMask(1);
+        
         ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
         
         if (context.skyMode) {

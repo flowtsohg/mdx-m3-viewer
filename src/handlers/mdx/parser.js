@@ -255,16 +255,14 @@ var Parser = (function () {
 
         var flags = readUint32(reader);
 
-        if (flags & 0x1) { this.unshaded = true; }
-        if (flags & 0x2) { this.sphereEnvironmentMap = true; }
-        //if (flags & 0x4) { this.unknown0 = true; }
-        //if (flags & 0x8) { this.unknown1 = true; }
-        if (flags & 0x10) { this.twoSided = true; }
-        if (flags & 0x20) { this.unfogged = true; }
-        if (flags & 0x30) { this.noDepthTest = true; }
-        if (flags & 0x40) { this.noDepthSet = true; }
-
         this.shadingFlags = flags;
+        this.unshaded = flags & 1;
+        this.sphereEnvironmentMap = flags & 2;
+        this.twoSided = flags & 16;
+        this.unfogged = flags & 32;
+        this.noDepthTest = flags & 64;
+        this.noDepthSet = flags & 128;
+        
         this.textureId = readUint32(reader);
         this.textureAnimationId = readInt32(reader);
         this.coordId = readUint32(reader);
@@ -276,11 +274,9 @@ var Parser = (function () {
         this.inclusiveSize = readUint32(reader);
         this.priorityPlane = readUint32(reader);
         this.flags = readUint32(reader);
-
-        if (this.inclusiveSize > 12) {
-            skip(reader, 4); // LAYS
-            this.layers = parseCountChunk(reader, readUint32(reader), Layer);
-        }
+        
+        skip(reader, 4); // LAYS
+        this.layers = parseCountChunk(reader, readUint32(reader), Layer);
     }
 
     function MaterialChunk(reader, size) {

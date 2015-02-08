@@ -1,11 +1,11 @@
 var filterModeToRenderOrder = {
-    0: 0,
-    1: 1,
-    2: 2,
-    3: 3,
-    4: 3,
-    5: 3,
-    6: 3
+    0: 0, // Opaque
+    1: 1, // 1bit Alpha
+    2: 2, // 8bit Alpha
+    3: 3, // Additive
+    4: 3, // Add Alpha (according to Magos)
+    5: 3, // Modulate
+    6: 3  // Modulate 2X
 };
 
 var layerFilterTypes = [
@@ -21,6 +21,8 @@ var layerFilterTypes = [
 function Layer(layer, geosetId, model) {
     this.filterMode = (layer.filterMode > 6) ? 0 : layer.filterMode;
     this.twoSided = layer.twoSided;
+    this.noDepthTest = layer.noDepthTest;
+    this.noDepthSet = layer.noDepthSet;
     this.textureId = layer.textureId;
     this.textureAnimationId = layer.textureAnimationId;
     this.coordId = layer.coordId;
@@ -46,15 +48,19 @@ Layer.prototype = {
         } else if (filterMode === 3) {
             ctx.enable(ctx.BLEND);
             ctx.depthMask(0);
-            ctx.blendFunc(ctx.SRC_COLOR, ctx.ONE);
+            ctx.blendFunc(ctx.ONE, ctx.ONE);
         } else if (filterMode === 4) {
             ctx.depthMask(0);
             ctx.enable(ctx.BLEND);
             ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
-        } else if (filterMode === 5 || filterMode === 6) {
+        } else if (filterMode === 5) {
             ctx.depthMask(0);
             ctx.enable(ctx.BLEND);
-            ctx.blendFunc(ctx.SRC_ZERO, ctx.SRC_COLOR);
+            ctx.blendFunc(ctx.ZERO, ctx.SRC_COLOR);
+        } else if (filterMode === 6) {
+            ctx.depthMask(0);
+            ctx.enable(ctx.BLEND);
+            ctx.blendFunc(ctx.DST_COLOR, ctx.SRC_COLOR);
         } else {
             ctx.depthMask(1);
             ctx.disable(ctx.BLEND);
@@ -64,6 +70,16 @@ Layer.prototype = {
             ctx.disable(ctx.CULL_FACE);
         } else {
             ctx.enable(ctx.CULL_FACE);
+        }
+        
+        if (this.noDepthTest) {
+            ctx.disable(ctx.DEPTH_TEST);
+        } else {
+            ctx.enable(ctx.DEPTH_TEST);
+        }
+        
+        if (this.noDepthSet) {
+            ctx.depthMask(0);
         }
     },
 
