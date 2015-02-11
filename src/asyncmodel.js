@@ -30,7 +30,7 @@ function AsyncModel(source, originalSource, textureMap, context, onloadstart, on
     this.onload = onload || function () {};
     
     onloadstart(this);
-        
+    
     this.request = getRequest(source, AsyncModel.handlers[fileType][1], this.setup.bind(this, textureMap || {}), onerror.bind(undefined, this), onprogress.bind(undefined, this));
 }
 

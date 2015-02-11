@@ -4,6 +4,7 @@ function Node(object, model, pivots) {
     this.parentId = object.parentId;
     this.pivot = pivots[object.objectId] || [0, 0, 0];
     this.billboarded = object.billboarded;
+    this.modelSpace = object.modelSpace;
     this.xYQuad = object.xYQuad;
 
     if (object.tracks) {

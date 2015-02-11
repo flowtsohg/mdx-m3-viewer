@@ -1,4 +1,4 @@
-function Geoset(geoset, ctx) {
+function Geoset(geoset, index, ctx) {
     var i, l, j, k;
     var positions = geoset.vertexPositions;
     var normals = geoset.vertexNormals;
@@ -12,6 +12,9 @@ function Geoset(geoset, ctx) {
     var edges = new Uint16Array(faces.length * 2);
     var matrixGroups = [];
 
+    this.index = index;
+    this.materialId = geoset.materialId;
+    
     for (i = 0, l = faces.length, k = 0; i < l; i += 3, k += 6) {
         edges[k + 0] = faces[i + 0];
         edges[k + 1] = faces[i + 1];

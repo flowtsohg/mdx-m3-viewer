@@ -1,3 +1,8 @@
+function ShallowLayer(layer, geoset) {
+    this.layer = layer;
+    this.geoset = geoset;
+}
+
 var filterModeToRenderOrder = {
     0: 0, // Opaque
     1: 1, // 1bit Alpha
@@ -8,8 +13,10 @@ var filterModeToRenderOrder = {
     6: 3  // Modulate 2X
 };
 
-function Layer(layer, geosetId, model) {
-    this.filterMode = (layer.filterMode > 6) ? 0 : layer.filterMode;
+function Layer(layer, model) {
+    var filterMode = Math.min(layer.filterMode, 6);
+    
+    this.filterMode = filterMode;
     this.twoSided = layer.twoSided;
     this.noDepthTest = layer.noDepthTest;
     this.noDepthSet = layer.noDepthSet;
@@ -17,8 +24,7 @@ function Layer(layer, geosetId, model) {
     this.textureAnimationId = layer.textureAnimationId;
     this.coordId = layer.coordId;
     this.alpha = layer.alpha;
-    this.renderOrder = filterModeToRenderOrder[layer.filterMode];
-    this.geosetId = geosetId;
+    this.renderOrder = filterModeToRenderOrder[filterMode];
     this.sd = parseSDTracks(layer.tracks, model);
 }
 
@@ -72,9 +78,5 @@ Layer.prototype = {
         if (this.noDepthSet) {
             ctx.depthMask(0);
         }
-    },
-
-    shouldRender: function (sequence, frame, counter) {
-        return getSDValue(sequence, frame, counter, this.sd.alpha, 1) > 0.75;
     }
 };

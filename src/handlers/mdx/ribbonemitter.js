@@ -24,12 +24,12 @@ function RibbonEmitter(emitter, model, instance, ctx) {
     this.cellHeight = 1 / this.rows;
 
     var groups = [[], [], [], []];
-    var layers = model.materials[this.materialId].layers;
+    var layers = model.fakeMaterials[this.materialId];
 
     for (i = 0, l = layers.length; i < l; i++) {
-        var layer = new Layer(layers[i], 0, model);
+        var layer = new ShallowLayer(layers[i]);
 
-        groups[layer.renderOrder].push(layer);
+        groups[layers[i].renderOrder].push(layer);
     }
 
     this.layers = groups[0].concat(groups[1]).concat(groups[2]).concat(groups[3]);
@@ -115,38 +115,35 @@ RibbonEmitter.prototype = {
 
             var textureId, color, uvoffset, modifier = this.modifierVec;
             var layer, layers = this.layers;
-
+            
             for (i = 0, l = layers.length; i < l; i++) {
-                layer = layers[i];
+                layer = layers[i].layer;
 
-                if (layer.shouldRender(sequence, frame, counter)) {
-                    layer.setMaterial(shader, ctx);
+                layer.setMaterial(shader, ctx);
 
-                    textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
+                textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
 
-                    this.model.bindTexture(this.textures[textureId], 0, textureMap, context);
+                this.model.bindTexture(this.textures[textureId], 0, textureMap, context);
 
-                    color = getSDValue(sequence, frame, counter, this.sd.color, this.color, this.colorVec);
-                    uvoffset = this.defaultUvoffsetVec;
+                color = getSDValue(sequence, frame, counter, this.sd.color, this.color, this.colorVec);
+                uvoffset = this.defaultUvoffsetVec;
 
-                    modifier[0] = color[0];
-                    modifier[1] = color[1];
-                    modifier[2] = color[2];
-                    modifier[3] = getSDValue(sequence, frame, counter, this.sd.alpha, this.alpha);
+                modifier[0] = color[0];
+                modifier[1] = color[1];
+                modifier[2] = color[2];
+                modifier[3] = getSDValue(sequence, frame, counter, this.sd.alpha, this.alpha);
 
-                    ctx.uniform4fv(shader.variables.u_modifier, modifier);
+                ctx.uniform4fv(shader.variables.u_modifier, modifier);
 
-                    if (layer.textureAnimationId !== -1 && this.model.textureAnimations) {
-                        var textureAnimation = this.model.textureAnimations[layer.textureAnimationId];
-                        // What is Z used for?
-                        uvoffset = getSDValue(sequence, frame, counter, textureAnimation.sd.translation, this.defaultUvoffsetVec, this.uvoffsetVec);
-                    }
-
-                    ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
-                    ctx.uniform3fv(shader.variables.u_type, layerFilterTypes[0]);
-
-                    ctx.drawArrays(ctx.TRIANGLE_STRIP, 0, ribbons * 2);
+                if (layer.textureAnimationId !== -1 && this.model.textureAnimations) {
+                    var textureAnimation = this.model.textureAnimations[layer.textureAnimationId];
+                    // What is Z used for?
+                    uvoffset = getSDValue(sequence, frame, counter, textureAnimation.sd.translation, this.defaultUvoffsetVec, this.uvoffsetVec);
                 }
+
+                ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
+
+                ctx.drawArrays(ctx.TRIANGLE_STRIP, 0, ribbons * 2);
             }
         }
     },

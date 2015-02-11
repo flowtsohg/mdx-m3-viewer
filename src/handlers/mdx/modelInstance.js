@@ -50,7 +50,8 @@ ModelInstance.prototype = extend(BaseModelInstance.prototype, {
         for (i = 0, l = model.attachments.length; i < l; i++) {
             var path = model.attachments[i].path.replace(/\\/g, "/").toLowerCase().replace(".mdl", ".mdx");
             
-            if (path !== "") {
+            // Second condition is against custom resources using arbitrary paths...
+            if (path !== "" && path.indexOf(".mdx") != -1) {
                 var instance = context.loadInternalResource(context.urls.mpqFile(path));
                 instance.setSequence(0);
                 instance.setSequenceLoopMode(2);
@@ -59,6 +60,17 @@ ModelInstance.prototype = extend(BaseModelInstance.prototype, {
                 this.attachmentInstances.push(instance);
                 this.attachments.push(model.attachments[i]);
                 this.attachmentVisible.push(true);
+            }
+        }
+        
+        
+        if (model.eventObjects) {
+            objects = model.eventObjects;
+            
+            this.eventObjectEmitters = [];
+            
+            for (i = 0, l = objects.length; i < l; i++) {
+                this.eventObjectEmitters[i] = new EventObjectEmitter(objects[i], model, this, context);
             }
         }
     },
@@ -99,6 +111,7 @@ ModelInstance.prototype = extend(BaseModelInstance.prototype, {
         this.updateEmitters(this.particleEmitters, allowCreate, context);
         this.updateEmitters(this.particleEmitters2, allowCreate, context);
         this.updateEmitters(this.ribbonEmitters, allowCreate, context);
+        this.updateEmitters(this.eventObjectEmitters, allowCreate, context);
         
         var attachmentInstances = this.attachmentInstances;
         var attachments = this.attachments;
@@ -143,6 +156,14 @@ ModelInstance.prototype = extend(BaseModelInstance.prototype, {
                 attachmentInstances[i].render(context);
             }
         }
+        
+        if (this.eventObjectEmitters) {
+            var emitters = this.eventObjectEmitters;
+            
+            for (i = 0, l = emitters.length; i < l; i++) {
+                emitters[i].render(context);
+            }
+        }
     },
     
     renderEmitters: function(context) {
@@ -154,6 +175,14 @@ ModelInstance.prototype = extend(BaseModelInstance.prototype, {
         for (var i = 0, l = attachmentInstances.length; i < l; i++) {
             if (attachmentVisible[i]) {
                 attachmentInstances[i].renderEmitters(context);
+            }
+        }
+        
+        if (this.eventObjectEmitters) {
+            var emitters = this.eventObjectEmitters;
+            
+            for (i = 0, l = emitters.length; i < l; i++) {
+                emitters[i].renderEmitters(context);
             }
         }
     },

@@ -3,6 +3,7 @@ function Particle2() {
     this.health = 0;
     this.head = true;
     this.position = [];
+    this.worldLocation = [];
     this.velocity = [];
     this.color = [];
     this.gravity = 0;
@@ -27,11 +28,11 @@ Particle2.prototype = {
         var velocity = emitter.particleVelocity;
         var velocityStart = emitter.particleVelocityStart;
         var velocityEnd = emitter.particleVelocityEnd;
-
+        
         localPosition[0] = pivot[0] + Math.randomRange(-width, width);
         localPosition[1] = pivot[1] + Math.randomRange(-length, length);
         localPosition[2] = pivot[2];
-
+        
         vec3.transformMat4(position, localPosition, worldMatrix);
 
         mat4.identity(rotation);
@@ -40,16 +41,20 @@ Particle2.prototype = {
 
         vec3.transformMat4(velocity, vec3.UNIT_Z, rotation);
         vec3.normalize(velocity, velocity);
+        
+        if (!emitter.node.nodeImpl.modelSpace) {
+            vec3.add(velocityEnd, position, velocity);
 
-        vec3.add(velocityEnd, position, velocity);
+            vec3.transformMat4(velocityStart, position, worldMatrix);
+            vec3.transformMat4(velocityEnd, velocityEnd, worldMatrix);
 
-        vec3.transformMat4(velocityStart, position, worldMatrix);
-        vec3.transformMat4(velocityEnd, velocityEnd, worldMatrix);
-
-        vec3.subtract(velocity, velocityEnd, velocityStart);
-        vec3.normalize(velocity, velocity);
-        vec3.scale(velocity, velocity, speed);
-
+            vec3.subtract(velocity, velocityEnd, velocityStart);
+            vec3.normalize(velocity, velocity);
+            vec3.scale(velocity, velocity, speed);
+        } else {
+            vec3.scale(velocity, velocity, speed);
+        }
+        
         if (!head) {
             var tailLength = emitter.tailLength * 0.5;
 
@@ -74,39 +79,42 @@ Particle2.prototype = {
     update: function (emitter, sequence, frame, counter, context) {
         this.health -= (context.frameTime / 1000);
         this.velocity[2] -= this.gravity * (context.frameTime / 1000);
-
+        
         vec3.scaleAndAdd(this.position, this.position, this.velocity, (context.frameTime / 1000));
-
-        var lifeFactor = (emitter.lifespan === 0) ? 0 : 1 - (this.health / emitter.lifespan);
-        var scale;
-        var tempFactor;
-
-        if (lifeFactor < emitter.time) {
-            tempFactor = lifeFactor / emitter.time;
-
-            scale = Math.lerp(emitter.segmentScaling[0], emitter.segmentScaling[1], tempFactor);
-
-            vec4.lerp(this.color, emitter.colors[0], emitter.colors[1], tempFactor);
+        
+        if (emitter.node.nodeImpl.modelSpace) {
+            vec3.transformMat4(this.worldLocation, this.position, emitter.node.worldMatrix);
         } else {
-            tempFactor = (lifeFactor - emitter.time) / (1 - emitter.time);
-
-            scale = Math.lerp(emitter.segmentScaling[1], emitter.segmentScaling[2], tempFactor);
-
-            vec4.lerp(this.color, emitter.colors[1], emitter.colors[2], tempFactor);
+            vec3.copy(this.worldLocation, this.position);
         }
-
-        var currentFrame = lifeFactor * emitter.numberOfFrames;
-        var index = 0;
-
-        // For some reason if I use array access here, Chrome doesn't like this function and doesn't optimize it
-        if (currentFrame < emitter.interval0Frames) {
-            index = emitter.interval0LocalStart + ((currentFrame - emitter.interval0Start) % emitter.interval0);
-        } else if (currentFrame < emitter.interval1Frames) {
-            index = emitter.interval1LocalStart + ((currentFrame - emitter.interval1Start) % emitter.interval1);
-        } else if (currentFrame < emitter.interval2Frames) {
-            this.index = emitter.interval2LocalStart + ((currentFrame - emitter.interval2Start) % emitter.interval2);
-        } else if (currentFrame < emitter.interval3Frames) {
-            index = emitter.interval3LocalStart + ((currentFrame - emitter.interval3Start) % emitter.interval3);
+        
+        var lifeFactor = (emitter.lifespan - this.health) / emitter.lifespan;
+        var tempFactor;
+        var scale;
+        var index;
+        
+        if (lifeFactor < emitter.timeMiddle) {
+            tempFactor = lifeFactor / emitter.timeMiddle;
+        
+            scale = Math.lerp(emitter.segmentScaling[0], emitter.segmentScaling[1], tempFactor);
+            vec4.lerp(this.color, emitter.colors[0], emitter.colors[1], tempFactor);
+            
+            if (this.head) {
+                index = Math.lerp(emitter.headInterval[0], emitter.headInterval[1], tempFactor);
+            } else {
+                index = Math.lerp(emitter.tailInterval[0], emitter.tailInterval[1], tempFactor);
+            }
+        } else {
+            tempFactor = (lifeFactor - emitter.timeMiddle) / (1 - emitter.timeMiddle);
+            
+            scale = Math.lerp(emitter.segmentScaling[1], emitter.segmentScaling[2], tempFactor);
+            vec4.lerp(this.color, emitter.colors[1], emitter.colors[2], tempFactor);
+            
+            if (this.head) {
+                index = Math.lerp(emitter.headDecayInterval[0], emitter.headDecayInterval[1], tempFactor);
+            } else {
+                index = Math.lerp(emitter.tailDecayInterval[0], emitter.tailDecayInterval[1], tempFactor);
+            }
         }
 
         this.index = Math.floor(index);

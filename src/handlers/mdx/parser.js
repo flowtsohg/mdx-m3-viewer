@@ -155,8 +155,7 @@ var Parser = (function () {
         for (var i = 0; i < count; i++) {
             this.tracks[i] = new Track(reader, this.interpolationType, trackType[0]);
         }
-
-        // Extra information
+        
         this.type = trackType[1];
         this.defval = trackType[2];
     }
@@ -169,33 +168,28 @@ var Parser = (function () {
 
         var flags = readUint32(reader);
 
-        if (flags === 0x0) {
-            this.helper = true;
-        } else {
-            if (flags & 0x1) { this.dontInheritTranslation = true; }
-            if (flags & 0x2) { this.dontInheritRotation = true; }
-            if (flags & 0x4) { this.dontInheritScaling = true; }
-            if (flags & 0x8) { this.billboarded = true; }
-            if (flags & 0x10) { this.billboardedLockX = true; }
-            if (flags & 0x20) { this.billboardedLockY = true; }
-            if (flags & 0x40) { this.billboardedLockZ = true; }
-            if (flags & 0x80) { this.cameraAnchored = true; }
-            if (flags & 0x100) { this.bone = true; }
-            if (flags & 0x200) { this.light = true; }
-            if (flags & 0x400) { this.eventObject = true; }
-            if (flags & 0x800) { this.attachment = true; }
-            if (flags & 0x1000) { this.particleEmitter = true; }
-            if (flags & 0x2000) { this.collisionShape = true; }
-            if (flags & 0x4000) { this.ribbonEmitter = true; }
-            if (flags & 0x8000) { this.emitterUsesMdlOrUnshaded = true; }
-            if (flags & 0x10000) { this.emitterUsesTgaOrSortPrimitivesFarZ = true; }
-            if (flags & 0x20000) { this.lineEmitter = true; }
-            if (flags & 0x40000) { this.unfogged = true; }
-            if (flags & 0x80000) { this.modelSpace = true; }
-            if (flags & 0x100000) { this.xYQuad = true; }
-        }
-
         this.flags = flags;
+        this.dontInheritTranslation = flags & 1;
+        this.dontInheritRotation = flags & 2;
+        this.dontInheritScaling = flags & 4;
+        this.billboarded = flags & 8;
+        this.billboardedX = flags & 16;
+        this.billboardedY = flags & 32;
+        this.billboardedZ = flags & 64;
+        this.cameraAnchored = flags & 128;
+        this.bone = flags & 256;
+        this.light = flags & 512;
+        this.eventObject = flags & 1024;
+        this.attachment = flags & 2048;
+        this.particleEmitter = flags & 4096;
+        this.collisionShape = flags & 8192;
+        this.ribbonEmitter = flags & 16384;
+        this.emitterUsesMdlOrUnshaded = flags & 32768;
+        this.emitterUsesTgaOrSortPrimitivesFarZ = flags & 65536;
+        this.lineEmitter = flags & 131072;
+        this.unfogged = flags & 262144;
+        this.modelSpace = flags & 524288;
+        this.xYQuad = flags & 1048576;
         this.tracks = parseTracks(reader, "NODE");
     }
 
@@ -438,7 +432,7 @@ var Parser = (function () {
         this.columns = readUint32(reader);
         this.headOrTail = readUint32(reader);
         this.tailLength = readFloat32(reader);
-        this.time = readFloat32(reader);
+        this.timeMiddle = readFloat32(reader);
         this.segmentColor = readFloat32Matrix(reader, 3, 3);
         this.segmentAlpha = readUint8Array(reader, 3);
         this.segmentScaling = readFloat32Array(reader, 3);
@@ -479,22 +473,24 @@ var Parser = (function () {
     }
 
     function EventObjectTracks(reader) {
-        read(reader, 4); // KEVT
+        
 
         var count = readUint32(reader);
 
-        this.globalSequenceId = readUint32(reader);
+        this.globalSequenceId = readInt32(reader);
         this.tracks = readUint32Array(reader, count);
     }
 
     function EventObject(reader, nodes) {
         this.node = readNode(reader, nodes);
-        this.inclusiveSize = nodes[this.node].inclusiveSize;
+        
+        skip(reader, 4); // KEVT
+        
+        var count = readUint32(reader);
 
-        if (peek(reader, 4) === "KEVT") {
-            this.tracks = new EventObjectTracks(reader);
-            this.inclusiveSize += 12 + this.tracks.tracks.length * 4;
-        }
+        this.globalSequenceId = readInt32(reader);
+        this.tracks = readUint32Array(reader, count);
+        this.inclusiveSize = nodes[this.node].inclusiveSize + 12 + this.tracks.length * 4;
     }
 
     function EventObjectChunk(reader, size, nodes) {
@@ -511,19 +507,19 @@ var Parser = (function () {
         this.targetPosition = readVector3(reader);
         this.tracks = parseTracks(reader, "CAMS");
     }
-
+    
     function CameraChunk(reader, size) {
         this.objects = parseChunk(reader, size, Camera);
     }
-
+    
     function CollisionShape(reader, nodes) {
         this.node = readNode(reader, nodes);
-
+        
         var type = readUint32(reader);
-
+        
         this.type = type;
         this.inclusiveSize = nodes[this.node].inclusiveSize + 4;
-
+        
         if (type === 0 || type === 1 || type === 3) {
             this.vertices = readFloat32Matrix(reader, 2, 3);
             this.inclusiveSize += 24;
@@ -537,11 +533,11 @@ var Parser = (function () {
             this.inclusiveSize += 4;
         }
     }
-
+    
     function CollisionShapeChunk(reader, size, nodes) {
         this.objects = parseChunk(reader, size, CollisionShape, nodes);
     }
-
+    
     var tagToChunk = {
         "VERS": [VersionChunk, "versionChunk"],
         "MODL": [ModelChunk, "modelChunk"],

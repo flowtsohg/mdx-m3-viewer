@@ -5,9 +5,9 @@ function SD(tracks, model) {
     this.defval = tracks.defval;
     this.interpolationType = tracks.interpolationType;
     this.globalSequenceId = tracks.globalSequenceId;
-    this.sequences = model.sequences;
     this.globalSequences = model.globalSequences;
-
+    this.sequences = model.sequences;
+    
     arr = tracks.tracks;
     l = arr.length;
 
@@ -116,7 +116,7 @@ function parseSDTracks(tracks, model) {
     
     for (var i = 0, l = keys.length; i < l; i++) {
         type = keys[i];
-
+        
         sds[type] = new SD(tracks[type], model);
     }
 

@@ -9,8 +9,6 @@ function ParticleEmitter2(emitter, model, instance, ctx) {
     this.model = model;
     this.texture = model.textures[this.textureId];
 
-    this.lastCreation = 1;
-
     var particles;
 
     // This is the maximum number of particles that are going to exist at the same time
@@ -39,7 +37,7 @@ function ParticleEmitter2(emitter, model, instance, ctx) {
     if (this.head && this.tail) {
         particles *= 2;
     }
-
+    
     this.particles = [];
     this.reusables = [];
     this.activeParticles = [];
@@ -54,49 +52,6 @@ function ParticleEmitter2(emitter, model, instance, ctx) {
         this.particles[i] = new Particle2();
         this.reusables.push(particles - i - 1);
     }
-
-    var headInterval = emitter.headInterval;
-    var headDecayInterval = emitter.headDecayInterval;
-    var tailInterval = emitter.tailInterval;
-    var tailDecayInterval = emitter.tailDecayInterval;
-
-    var headFrames = 0;
-    var headDecayFrames = 0;
-    var tailFrames = 0;
-    var tailDecayFrames = 0;
-
-    // The repeat variables are probably not supposed to be used like this...
-    if (this.head) {
-        headFrames = (headInterval[1] - headInterval[0] + 1) * headInterval[2];
-        headDecayFrames = (headDecayInterval[1] - headDecayInterval[0] + 1) * headDecayInterval[2];
-    }
-
-    if (this.tail) {
-        tailFrames = (tailInterval[1] - tailInterval[0] + 1) * tailInterval[2];
-        tailDecayFrames = (tailDecayInterval[1] - tailDecayInterval[0] + 1) * tailDecayInterval[2];
-    }
-
-    this.interval0Frames = headFrames;
-    this.interval1Frames = headFrames + headDecayFrames;
-    this.interval2Frames = headFrames + headDecayFrames + tailFrames;
-    this.interval3Frames = headFrames + headDecayFrames + tailFrames + tailDecayFrames;
-
-    this.interval0 = headInterval[1] - headInterval[0] + 1;
-    this.interval1 = headDecayInterval[1] - headDecayInterval[0] + 1;
-    this.interval2 = tailInterval[1] - tailInterval[0] + 1;
-    this.interval3 = tailDecayInterval[1] - tailDecayInterval[0] + 1;
-
-    this.interval0Start = 0;
-    this.interval1Start = headFrames;
-    this.interval2Start = headFrames + headDecayFrames;
-    this.interval3Start = headFrames + headDecayFrames + tailFrames;
-
-    this.interval0LocalStart = headInterval[0];
-    this.interval1LocalStart = headDecayInterval[0];
-    this.interval2LocalStart = tailInterval[0];
-    this.interval3LocalStart = tailDecayInterval[0];
-
-    this.numberOfFrames = this.interval3Frames;
 
     this.cellWidth = 1 / this.columns;
     this.cellHeight = 1 / this.rows;
@@ -123,6 +78,10 @@ function ParticleEmitter2(emitter, model, instance, ctx) {
     this.xYQuad = this.node.nodeImpl.xYQuad;
 
     this.dimensions = [this.columns, this.rows];
+    
+    this.currentEmission = 0;
+    
+    console.log(this.node.nodeImpl.name, this.node.nodeImpl.modelSpace);
 }
 
 ParticleEmitter2.prototype = {
@@ -169,18 +128,12 @@ ParticleEmitter2.prototype = {
 
         // Third stage: create new particles if needed.
         if (allowCreate && this.shouldRender(sequence, frame, counter)) {
-            var amount = getSDValue(sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * (context.frameTime / 1000) * this.lastCreation;
+            this.currentEmission += getSDValue(sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * (context.frameTime / 1000);
 
-            if (amount > 0) {
-                this.lastCreation += 1;
-            }
-
-            if (amount >= 1) {
-                amount = Math.floor(amount);
+            if (this.currentEmission >= 1) {
+                amount = Math.floor(this.currentEmission);
 
                 var index;
-
-                this.lastCreation = 1;
 
                 for (i = 0; i < amount; i++) {
                     if (this.head && reusables.length > 0) {
@@ -196,6 +149,8 @@ ParticleEmitter2.prototype = {
                         particles[index].reset(this, false, index, sequence, frame, counter);
                         activeParticles.push(index);
                     }
+                    
+                    this.currentEmission -= 1;
                 }
             }
         }  
@@ -235,8 +190,7 @@ ParticleEmitter2.prototype = {
         for (var i = 0, l = activeParticles.length; i < l; i++) {
             particle = particles[activeParticles[i]];
             index = i * 30;
-
-            position = particle.position;
+            position = particle.worldLocation;
             scale = particle.scale;
             textureIndex = particle.index;
             left = textureIndex % columns;
@@ -362,16 +316,41 @@ ParticleEmitter2.prototype = {
         if (particles > 0) {
             var filterMode = this.filterMode;
 
-            if (filterMode === 1) {
-                ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
-            } else if (filterMode === 2 || filterMode === 3) {
-                ctx.blendFunc(ctx.SRC_ZERO, ctx.SRC_COLOR);
-            } else if (filterMode === 4) {
-                ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
-            } else {
-                ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
+            switch (filterMode) {
+                // Blend
+                case 0:
+                    ctx.enable(ctx.BLEND);
+                    ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
+                    break;
+                // Additive
+                case 1:
+                    ctx.enable(ctx.BLEND);
+                    ctx.blendFunc(ctx.ONE, ctx.ONE);
+                    break;
+                // Modulate
+                case 2:
+                    ctx.enable(ctx.BLEND);
+                    ctx.blendFunc(ctx.ZERO, ctx.SRC_COLOR);
+                    break;
+                // Modulate 2X
+                case 3:
+                    ctx.enable(ctx.BLEND);
+                    ctx.blendFunc(ctx.DEST_COLOR, ctx.SRC_COLOR);
+                    break;
+                // Add Alpha
+                case 4:
+                    break;
+                    ctx.enable(ctx.BLEND);
+                    ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
+                // None
+                default:
+                    ctx.disable(ctx.BLEND);
             }
-
+            
+            ctx.disable(ctx.CULL_FACE);
+            ctx.enable(ctx.DEPTH_TEST);
+            ctx.depthMask(0);
+            
             this.model.bindTexture(this.texture, 0, textureMap, context);
 
             ctx.uniform2fv(shader.variables.u_dimensions, this.dimensions);

@@ -77,29 +77,58 @@ Model.prototype = extend(BaseModel.prototype, {
         if (parser.boneChunk) {
             this.bones = parser.boneChunk.objects;
         }
-
+        
+        var materials;
+        var fakeMaterials;
+        var layers;
+        var layer;
+        var geosets;
+        var geoset;
+        var groups;
+        var mesh;
+        
         if (parser.materialChunk) {
-            this.materials = parser.materialChunk.objects;
+            materials = parser.materialChunk.objects;
+            fakeMaterials = [];
+            
+            this.layers = [];
+            
+            for (i = 0, l = materials.length; i < l; i++) {
+                layers = materials[i].layers;
+                
+                fakeMaterials[i] = [];
+                
+                for (j = 0, k = layers.length; j < k; j++) {
+                    layer = new Layer(layers[j], this);
+                    
+                    fakeMaterials[i][j] = layer;
+                    this.layers.push(layer);
+                }
+            }
+            
+            this.fakeMaterials = fakeMaterials;
         }
 
         if (parser.geosetChunk) {
-            var geosets = parser.geosetChunk.objects;
-            var groups = [[], [], [], []];
-
+            geosets = parser.geosetChunk.objects;
+            groups = [[], [], [], []];
+            
             for (i = 0, l = geosets.length; i < l; i++) {
-                var g = geosets[i];
-                var layers = this.materials[g.materialId].layers;
-
-                this.meshes.push(new Geoset(g, gl.ctx));
-
+                geoset = geosets[i];
+                layers = fakeMaterials[geoset.materialId];
+                
+                mesh = new Geoset(geoset, i, gl.ctx);
+                
+                this.meshes.push(mesh);
+                
                 for (j = 0, k = layers.length; j < k; j++) {
-                    var layer = new Layer(layers[j], i, this);
-
-                    groups[layer.renderOrder].push(layer);
+                    layer = layers[j];
+                    
+                    groups[layer.renderOrder].push(new ShallowLayer(layer, mesh));
                 }
             }
-
-            this.layers = groups[0].concat(groups[1]).concat(groups[2]).concat(groups[3]);
+            
+            this.shallowLayers = groups[0].concat(groups[1]).concat(groups[2]).concat(groups[3]);
         }
 
         if (parser.cameraChunk) {
@@ -158,6 +187,10 @@ Model.prototype = extend(BaseModel.prototype, {
             for (i = 0, l = objects.length; i < l; i++) {
                 this.attachments[i] = new Attachment(objects[i], this);
             }
+        }
+        
+        if (parser.eventObjectChunk) {
+            this.eventObjects = parser.eventObjectChunk.objects;
         }
         
         // Avoid heap allocations in render()
@@ -266,14 +299,14 @@ Model.prototype = extend(BaseModel.prototype, {
 
         var realShaderName = "w" + shaderName
         var shader;
-        var layers = this.layers;
+        var layers = this.shallowLayers;
         var polygonMode = context.polygonMode;
         var renderGeosets = (polygonMode === 1 || polygonMode === 3);
         var renderWireframe = (polygonMode === 2 || polygonMode === 3);
         
         if (layers) {
-            var geosets = this.meshes;
             var geoset;
+            var shallowLayer;
             var layer;
             
             if (renderGeosets && gl.shaderStatus(realShaderName)) {
@@ -292,11 +325,11 @@ Model.prototype = extend(BaseModel.prototype, {
                 instance.skeleton.bind(shader, ctx);
 
                 for (i = 0, l = layers.length; i < l; i++) {
-                    layer = layers[i];
+                    shallowLayer = layers[i];
+                    geoset = shallowLayer.geoset;
+                    layer = shallowLayer.layer;
 
-                    if (instance.meshVisibilities[layer.geosetId] && layer.shouldRender(sequence, frame, counter) && this.shouldRenderGeoset(sequence, frame, counter, layer)) {
-                        geoset = geosets[layer.geosetId];
-
+                    if (instance.meshVisibilities[geoset.index] && this.shouldRenderGeoset(sequence, frame, counter, geoset)) {
                         modifier[0] = 1;
                         modifier[1] = 1;
                         modifier[2] = 1;
@@ -327,7 +360,7 @@ Model.prototype = extend(BaseModel.prototype, {
                                 }
                             }
                         }
-
+                        
                         modifier[3] = getSDValue(sequence, frame, counter, layer.sd.alpha, layer.alpha);
                         
                         ctx.uniform4fv(shader.variables.u_modifier, modifier);
@@ -372,6 +405,7 @@ Model.prototype = extend(BaseModel.prototype, {
                 }
             }
         }
+        
         if (context.emittersMode && instance.particleEmitters && gl.shaderStatus(realShaderName)) {
             for (i = 0, l = instance.particleEmitters.length; i < l; i++) {
                 instance.particleEmitters[i].render(context);
@@ -475,16 +509,15 @@ Model.prototype = extend(BaseModel.prototype, {
         }
     },
 
-    shouldRenderGeoset: function (sequence, frame, counter, layer) {
+    shouldRenderGeoset: function (sequence, frame, counter, geoset) {
         var i, l, geosetAnimation, geosetAnimations = this.geosetAnimations;
 
         if (geosetAnimations) {
             for (i = 0, l = geosetAnimations.length; i < l; i++) {
                 geosetAnimation = geosetAnimations[i];
 
-                if (geosetAnimation.geosetId === layer.geosetId && geosetAnimation.sd.alpha) {
+                if (geosetAnimation.geosetId === geoset.index && geosetAnimation.sd.alpha) {
                     // This handles issues when there are multiple geoset animations for one geoset.
-                    // This is a bug, but the game supports it.
                     if (getSDValue(sequence, frame, counter, geosetAnimation.sd.alpha) < 0.75) {
                         return false;
                     }
