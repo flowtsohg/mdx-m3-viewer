@@ -1,6 +1,6 @@
-use_glsl_min = false
-use_closure = false
-annonymify_code = false
+use_glsl_min = true
+use_closure = true
+annonymify_code = true
 compile_docs = false
 
 @shader_files = [
@@ -67,9 +67,6 @@ compile_docs = false
     "basemodel",
     "basemodelinstance",
 
-    # Not an actual file, the shaders will be injected here
-    "shaders",
-
     "asyncmodel",
     "asyncmodelinstance",
     
@@ -80,6 +77,9 @@ compile_docs = false
     "handlers/ddstexture",
     "handlers/tgatexture",
 
+    # Not an actual file, the shaders will be injected here
+    "shaders",
+    
     ["mdx", [
         "handlers/mdx/before",
         "handlers/mdx/parser",
@@ -96,6 +96,7 @@ compile_docs = false
         "handlers/mdx/textureanimation",
         "handlers/mdx/node",
         "handlers/mdx/attachment",
+        "handlers/mdx/eventobjectemitter",
         "handlers/mdx/particle",
         "handlers/mdx/particleemitter",
         "handlers/mdx/particle2",
