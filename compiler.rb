@@ -1,6 +1,6 @@
-use_glsl_min = true
-use_closure = true
-annonymify_code = true
+use_glsl_min = false
+use_closure = false
+annonymify_code = false
 compile_docs = false
 
 @shader_files = [
@@ -34,7 +34,12 @@ compile_docs = false
 
 @code_files = [
     ["math", [
-        "math/gl-matrix",
+        "math/common",
+        "math/vec3",
+        "math/vec4",
+        "math/mat3",
+        "math/mat4",
+        "math/quat",
         "math/gl-matrix-addon",
         "math/math",
         "math/interpolator"

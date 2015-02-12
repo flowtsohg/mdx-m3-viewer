@@ -134,23 +134,13 @@ Camera.prototype = {
     pan: function (pan) {
         var panVector = this.panVector;
         
-        if (pan.length === 2) {
-            vec2.add(panVector, panVector, pan);
-        } else {
-            vec3.add(panVector, panVector, pan);
-        }
+        vec3.add(panVector, panVector, pan);
         
         this.dirty = true;
     },
     
     setPan: function (pan) {
-       var panVector = this.panVector;
-        
-        if (pan.length === 2) {
-            vec2.copy(panVector, pan);
-        } else {
-            vec3.copy(panVector, pan);
-        }
+        vec3.copy(this.panVector, pan);
         
         this.dirty = true;
     },
