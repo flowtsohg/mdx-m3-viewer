@@ -63,9 +63,7 @@ Particle2.prototype = {
         if (!head) {
             var tailLength = emitter.tailLength * 0.5;
 
-            position[0] -= tailLength * velocity[0];
-            position[1] -= tailLength * velocity[1];
-            position[2] -= tailLength * velocity[2];
+            vec3.scaleAndAdd(position, velocity, -tailLength);
         }
 
         this.id = id;

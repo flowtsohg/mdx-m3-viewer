@@ -98,7 +98,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         loadInternalResource: loadInternalResource,
         uvOffset: [0, 0],
         uvSpeed: [Math.randomRange(-0.004, 0.004), Math.randomRange(-0.004, 0.004)],
-        ground: gl.createRect(0, 0, -3, 256, 256, 6),
+        ground: gl.createRect(0, 0, -1, 256, 256, 6),
         sky: gl.createSphere(0, 0, 0, 5, 40, 50000),
         urls: urls
     };
@@ -153,7 +153,6 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     
     window.addEventListener("resize", resetViewport);
     resetViewport();
-    
       
     gl.createShader("world", SHADERS.vsworld, SHADERS.psworld);
     gl.createShader("white", SHADERS.vswhite, SHADERS.pswhite);
@@ -162,7 +161,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     gl.loadTexture(waterPath);
     gl.loadTexture(skyPath);
     
-    function setupColor(width, height) {
+    function setupColorFramebuffer(width, height) {
         // Color texture
         var color = ctx.createTexture();
         ctx.bindTexture(ctx.TEXTURE_2D, color);
@@ -187,8 +186,9 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         return fbo;
     }
   
-  // Used for color picking
-  //var colorFBO = setupColor(512, 512);
+    var colorFramebufferSize = 256;
+    var colorFramebuffer = setupColorFramebuffer(colorFramebufferSize, colorFramebufferSize);
+    var colorPixel = new Uint8Array(4);
     
     function updateCamera() {
         var camera = context.camera;
@@ -810,36 +810,21 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     * @returns {number} The ID of the selected model instance, or -1 if no model instance was selected.
     */
     function selectInstance(coordinate) {
-        var pixel = new Uint8Array(4),
-            x = coordinate[0],
-            y = canvas.clientHeight - coordinate[1];
-
-        //var dx = canvas.clientWidth / 512;
-        //var dy = canvas.clientHeight / 512;
-
-        //console.log(x, y);
-        //x = Math.round(x / dx);
-        //y = canvas.height - y;
-        //y = Math.round(y / dy);
-        //console.log(x, y);
-
-        //ctx.bindFramebuffer(ctx.FRAMEBUFFER, colorFBO);
-
-        //ctx.viewport(0, 0, 512, 512);
-        //gl.setPerspective(45, 1, 0.1, 5E4);
-
+        var x = Math.floor(coordinate[0] / (canvas.clientWidth / colorFramebufferSize)),
+            y = Math.floor((canvas.clientHeight - coordinate[1]) / (canvas.clientHeight / colorFramebufferSize));
+        
+        ctx.viewport(0, 0, colorFramebufferSize, colorFramebufferSize);
+        
+        ctx.bindFramebuffer(ctx.FRAMEBUFFER, colorFramebuffer);
+        
         renderColor();
+        ctx.readPixels(x, y, 1, 1, ctx.RGBA, ctx.UNSIGNED_BYTE, colorPixel);
+
+        ctx.bindFramebuffer(ctx.FRAMEBUFFER, null);
         
-        ctx.readPixels(x, y, 1, 1, ctx.RGBA, ctx.UNSIGNED_BYTE, pixel);
-
-        //ctx.bindFramebuffer(ctx.FRAMEBUFFER, null);
-
-        //ctx.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
-        //gl.setPerspective(45, canvas.clientWidth / canvas.clientHeight, 0.1, 5E4);
-
-        //console.log(pixel);
+        ctx.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
         
-        var id = encodeFloat3(pixel[0], pixel[1], pixel[2]);
+        var id = encodeFloat3(colorPixel[0], colorPixel[1], colorPixel[2]);
         var object = modelInstanceMap[id];
 
         if (object && object.type === "instance") {

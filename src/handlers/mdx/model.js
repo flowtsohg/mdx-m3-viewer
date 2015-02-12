@@ -483,8 +483,10 @@ Model.prototype = extend(BaseModel.prototype, {
         var counter = instance.counter;
         var layer, geoset, texture;
         var shader;
-        var layers = this.layers;
-
+        var shallowLayer;
+        var layers = this.shallowLayers;
+        var textures = this.textures;
+        
         if (layers && gl.shaderStatus("wcolor")) {
             shader = gl.bindShader("wcolor");
 
@@ -492,16 +494,17 @@ Model.prototype = extend(BaseModel.prototype, {
             ctx.uniform3fv(shader.variables.u_color, color);
 
             instance.skeleton.bind(shader, ctx);
-
+            
             for (i = 0, l = layers.length; i < l; i++) {
-                layer = layers[i];
+                shallowLayer = layers[i];
+                geoset = shallowLayer.geoset;
+                layer = shallowLayer.layer;
 
-                if (instance.meshVisibilities[layer.geosetId] && layer.shouldRender(sequence, frame, counter) && this.shouldRenderGeoset(sequence, frame, counter, layer)) {
-                    geoset = this.meshes[layer.geosetId];
+                if (instance.meshVisibilities[geoset.index] && this.shouldRenderGeoset(sequence, frame, counter, geoset)) {
+                    texture = textures[layer.textureId];
                     
-                    // Avoid rendering planes.
-                    // Thsy are usually team glows, or other large mostly-transparent things.
-                    if (geoset.elements > 6) {
+                    // Layers with team glows tend to be big planes that aren't parts of the actual geometry, so avoid selecting them
+                    if (texture !== "replaceabletextures/teamglow/teamglow00.blp") {
                         geoset.renderColor(shader, ctx);
                     }
                 }

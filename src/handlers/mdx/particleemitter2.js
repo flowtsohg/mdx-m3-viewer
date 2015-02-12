@@ -312,40 +312,33 @@ ParticleEmitter2.prototype = {
         var particles = this.activeParticles.length;
 
         if (particles > 0) {
+            ctx.disable(ctx.CULL_FACE);
+            ctx.enable(ctx.DEPTH_TEST);
+            ctx.depthMask(0);
+            ctx.enable(ctx.BLEND);
+            
             switch (this.filterMode) {
                 // Blend
                 case 0:
-                    ctx.enable(ctx.BLEND);
                     ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
                     break;
                 // Additive
                 case 1:
-                    ctx.enable(ctx.BLEND);
                     ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
                     break;
                 // Modulate
                 case 2:
-                    ctx.enable(ctx.BLEND);
                     ctx.blendFunc(ctx.ZERO, ctx.SRC_COLOR);
                     break;
                 // Modulate 2X
                 case 3:
-                    ctx.enable(ctx.BLEND);
                     ctx.blendFunc(ctx.DEST_COLOR, ctx.SRC_COLOR);
                     break;
                 // Add Alpha
                 case 4:
-                    break;
-                    ctx.enable(ctx.BLEND);
                     ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
-                // None
-                default:
-                    ctx.disable(ctx.BLEND);
+                    break;
             }
-            
-            ctx.disable(ctx.CULL_FACE);
-            ctx.enable(ctx.DEPTH_TEST);
-            ctx.depthMask(0);
             
             this.model.bindTexture(this.texture, 0, textureMap, context);
 

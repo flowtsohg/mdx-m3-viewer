@@ -34,35 +34,43 @@ Layer.prototype = {
 
         ctx.uniform1f(shader.variables.u_alphaTest, 0);
 
-        if (filterMode === 1) {
-            ctx.depthMask(1);
-            ctx.disable(ctx.BLEND);
-            ctx.uniform1f(shader.variables.u_alphaTest, 1);
-        } else if (filterMode === 2) {
-            ctx.depthMask(0);
-            ctx.enable(ctx.BLEND);
-            ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
-        } else if (filterMode === 3) {
-            ctx.enable(ctx.BLEND);
-            ctx.depthMask(0);
-            ctx.blendFunc(ctx.ONE, ctx.ONE);
-        } else if (filterMode === 4) {
-            ctx.depthMask(0);
-            ctx.enable(ctx.BLEND);
-            ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
-        } else if (filterMode === 5) {
-            ctx.depthMask(0);
-            ctx.enable(ctx.BLEND);
-            ctx.blendFunc(ctx.ZERO, ctx.SRC_COLOR);
-        } else if (filterMode === 6) {
-            ctx.depthMask(0);
-            ctx.enable(ctx.BLEND);
-            ctx.blendFunc(ctx.DST_COLOR, ctx.SRC_COLOR);
-        } else {
-            ctx.depthMask(1);
-            ctx.disable(ctx.BLEND);
+        switch (this.filterMode) {
+            case 0:
+                ctx.depthMask(1);
+                ctx.disable(ctx.BLEND);
+                break;
+            case 1:
+                ctx.depthMask(1);
+                ctx.disable(ctx.BLEND);
+                ctx.uniform1f(shader.variables.u_alphaTest, 1);
+                break;
+            case 2:
+                ctx.depthMask(0);
+                ctx.enable(ctx.BLEND);
+                ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
+                break;
+            case 3:
+                ctx.depthMask(0);
+                ctx.enable(ctx.BLEND);
+                ctx.blendFunc(ctx.ONE, ctx.ONE);
+                break;
+            case 4:
+                ctx.depthMask(0);
+                ctx.enable(ctx.BLEND);
+                ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
+                break;
+            case 5:
+                ctx.depthMask(0);
+                ctx.enable(ctx.BLEND);
+                ctx.blendFunc(ctx.ZERO, ctx.SRC_COLOR);
+                break;
+            case 6:
+                ctx.depthMask(0);
+                ctx.enable(ctx.BLEND);
+                ctx.blendFunc(ctx.DST_COLOR, ctx.SRC_COLOR);
+                break;
         }
-
+        
         if (this.twoSided) {
             ctx.disable(ctx.CULL_FACE);
         } else {
