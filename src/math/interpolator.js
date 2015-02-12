@@ -27,7 +27,7 @@ var interpolator = (function () {
             return vec3.bezier(out, a, b, c, d, t);
         }
 
-        return zeroV;
+        return vec3.copy(out, zeroV);
     }
 
     function quaternion(out, a, b, c, d, t, type) {
@@ -39,7 +39,7 @@ var interpolator = (function () {
             return quat.sqlerp(out, a, b, c, d, t);
         }
 
-        return zeroQ;
+        return quat.copy(out, zeroQ);
     }
 
     return function (out, a, b, c, d, t, type) {

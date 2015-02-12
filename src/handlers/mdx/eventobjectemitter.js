@@ -1,42 +1,11 @@
 function EventObjectEmitter(eventObject, model, instance, context) {
-    /*
-     var name;
-            var type;
-            var path;
-            var instance;
-            var node;
-            
-            this.eventObjects = [];
-            
-            objects = model.eventObjects;
-            
-            for (i = 0, l = objects.length; i < l; i++) {
-                node = this.skeleton.nodes[objects[i].node];
-                name = node.nodeImpl.name;
-                type = name.substring(0, 3);
-                path = name.substring(4);
-                
-                // For now only spawn
-                if (type === "SPN") {
-                    console.log(eventObjectPaths[path], objects[i].tracks);
-                    var instance = context.loadInternalResource(context.urls.mpqFile(eventObjectPaths[path]));
-                    
-                    instance.setSequence(0);
-                    instance.setSequenceLoopMode(2);
-                    instance.setParent(node);
-                    
-                    this.eventObjects.push([objects[i], instance, 0]);
-                }
-            }
-    */
     var node = instance.skeleton.nodes[eventObject.node];
     var name = node.nodeImpl.name;
     var type = name.substring(0, 3);
     var path = name.substring(4);
     
-    this.ready = (type === "SPN");
-    
-    if (this.ready) {
+    if (type === "SPN") {
+        this.ready = 1;
         this.node = node;
         this.path = eventObjectPaths[type][path];
         this.globalSequenceId = eventObject.globalSequenceId;
@@ -58,7 +27,6 @@ EventObjectEmitter.prototype = {
                 var instance = context.loadInternalResource(context.urls.mpqFile(this.path));
                 
                 instance.setSequence(0);
-                //instance.setLocation(this.node.pivot);
                 instance.setParent(this.node);
                 
                 instances.push(instance);

@@ -79,9 +79,8 @@ function ParticleEmitter2(emitter, model, instance, ctx) {
 
     this.dimensions = [this.columns, this.rows];
     
+    this.modelSpace = this.node.nodeImpl.modelSpace;
     this.currentEmission = 0;
-    
-    console.log(this.node.nodeImpl.name, this.node.nodeImpl.modelSpace);
 }
 
 ParticleEmitter2.prototype = {
@@ -131,8 +130,7 @@ ParticleEmitter2.prototype = {
             this.currentEmission += getSDValue(sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * (context.frameTime / 1000);
 
             if (this.currentEmission >= 1) {
-                amount = Math.floor(this.currentEmission);
-
+                var amount = Math.floor(this.currentEmission);
                 var index;
 
                 for (i = 0; i < amount; i++) {
@@ -314,9 +312,7 @@ ParticleEmitter2.prototype = {
         var particles = this.activeParticles.length;
 
         if (particles > 0) {
-            var filterMode = this.filterMode;
-
-            switch (filterMode) {
+            switch (this.filterMode) {
                 // Blend
                 case 0:
                     ctx.enable(ctx.BLEND);
@@ -325,7 +321,7 @@ ParticleEmitter2.prototype = {
                 // Additive
                 case 1:
                     ctx.enable(ctx.BLEND);
-                    ctx.blendFunc(ctx.ONE, ctx.ONE);
+                    ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
                     break;
                 // Modulate
                 case 2:

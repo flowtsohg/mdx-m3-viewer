@@ -6,12 +6,11 @@ function Node(object, model, pivots) {
     this.billboarded = object.billboarded;
     this.modelSpace = object.modelSpace;
     this.xYQuad = object.xYQuad;
-
+    
     if (object.tracks) {
         this.sd = parseSDTracks(object.tracks, model);
     }
     
-    // This is valid for some reason...
     if (object.objectId === object.parentId) {
         this.parentId = -1;
     }

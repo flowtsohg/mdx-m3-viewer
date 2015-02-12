@@ -45,6 +45,7 @@ Skeleton.prototype = extend(BaseSkeleton.prototype, {
     },
 
     updateNode: function (node, sequence, frame, counter, context) {
+        var parent = this.getNode(node.parentId);
         var nodeImpl = node.nodeImpl;
         var pivot = node.pivot;
         var negativePivot = node.negativePivot;
@@ -52,29 +53,21 @@ Skeleton.prototype = extend(BaseSkeleton.prototype, {
         var translation = getSDValue(sequence, frame, counter, nodeImpl.sd.translation, defaultTransformations.translation, this.locationVec);
         var rotation = getSDValue(sequence, frame, counter, nodeImpl.sd.rotation, defaultTransformations.rotation, this.rotationQuat);
         var scale = getSDValue(sequence, frame, counter, nodeImpl.sd.scaling, defaultTransformations.scaling, this.scaleVec);
-
-        mat4.fromRotationTranslationScaleOrigin(localMatrix, rotation, translation, scale, pivot);
-
-        var parent = this.getNode(node.parentId);
-
-        mat4.multiply(node.worldMatrix, parent.worldMatrix, localMatrix);
-
+        // NOTE: This should not be needed, check how getSDValue works......
+        var finalRotation = [];
+        
+        quat.multiply(node.worldRotation, parent.worldRotation, rotation);
+        
         if (nodeImpl.billboarded) {
-            // TODO optimize these matrix operations
-
-            mat4.identity(localMatrix);
-
-            mat4.translate(localMatrix, localMatrix, pivot);
-
-            // -270 degrees
-            mat4.rotate(localMatrix, localMatrix, -context.camera.phi - 4.71238, vec3.UNIT_Z);
-            // -90 degrees
-            mat4.rotate(localMatrix, localMatrix, context.camera.theta - 1.57079, vec3.UNIT_Y);
-
-            mat4.translate(localMatrix, localMatrix, negativePivot);
-
-            mat4.multiply(node.worldMatrix, node.worldMatrix, localMatrix);
+            quat.mul(finalRotation, rotation, quat.conjugate([], node.worldRotation));
+            quat.rotateZ(finalRotation, finalRotation, -context.camera.phi - Math.PI / 2);
+            quat.rotateY(finalRotation, finalRotation, -context.camera.theta - Math.PI / 2);
+        } else {
+            quat.copy(finalRotation, rotation);
         }
+        
+        mat4.fromRotationTranslationScaleOrigin(localMatrix, finalRotation, translation, scale, pivot);
+        mat4.multiply(node.worldMatrix, parent.worldMatrix, localMatrix);
 
         node.updateScale();
     },

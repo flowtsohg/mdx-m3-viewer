@@ -28,13 +28,18 @@ Particle2.prototype = {
         var velocity = emitter.particleVelocity;
         var velocityStart = emitter.particleVelocityStart;
         var velocityEnd = emitter.particleVelocityEnd;
+        var modelSpace = emitter.modelSpace;
         
         localPosition[0] = pivot[0] + Math.randomRange(-width, width);
         localPosition[1] = pivot[1] + Math.randomRange(-length, length);
         localPosition[2] = pivot[2];
         
-        vec3.transformMat4(position, localPosition, worldMatrix);
-
+        if (modelSpace) {
+            vec3.copy(position, localPosition);
+        } else {
+            vec3.transformMat4(position, localPosition, worldMatrix);
+        }
+        
         mat4.identity(rotation);
         mat4.rotateZ(rotation, rotation, Math.randomRange(-Math.PI, Math.PI));
         mat4.rotateY(rotation, rotation, Math.randomRange(-latitude, latitude));
@@ -42,7 +47,9 @@ Particle2.prototype = {
         vec3.transformMat4(velocity, vec3.UNIT_Z, rotation);
         vec3.normalize(velocity, velocity);
         
-        if (!emitter.node.nodeImpl.modelSpace) {
+        if (emitter.node.nodeImpl.modelSpace) {
+            vec3.scale(velocity, velocity, speed);
+        } else {
             vec3.add(velocityEnd, position, velocity);
 
             vec3.transformMat4(velocityStart, position, worldMatrix);
@@ -50,8 +57,6 @@ Particle2.prototype = {
 
             vec3.subtract(velocity, velocityEnd, velocityStart);
             vec3.normalize(velocity, velocity);
-            vec3.scale(velocity, velocity, speed);
-        } else {
             vec3.scale(velocity, velocity, speed);
         }
         
@@ -77,12 +82,14 @@ Particle2.prototype = {
     },
 
     update: function (emitter, sequence, frame, counter, context) {
-        this.health -= (context.frameTime / 1000);
-        this.velocity[2] -= this.gravity * (context.frameTime / 1000);
+        var dt = context.frameTime / 1000;
         
-        vec3.scaleAndAdd(this.position, this.position, this.velocity, (context.frameTime / 1000));
+        this.health -= dt;
+        this.velocity[2] -= this.gravity * dt;
         
-        if (emitter.node.nodeImpl.modelSpace) {
+        vec3.scaleAndAdd(this.position, this.position, this.velocity, dt);
+        
+        if (emitter.modelSpace) {
             vec3.transformMat4(this.worldLocation, this.position, emitter.node.worldMatrix);
         } else {
             vec3.copy(this.worldLocation, this.position);

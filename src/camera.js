@@ -65,8 +65,8 @@ Camera.prototype = {
             mat4.invert(this.inverseViewProjection, viewProjection);
             
             mat4.identity(inverseRotation);
-            mat4.rotate(inverseRotation, inverseRotation, -phi, vec3.UNIT_Z);
-            mat4.rotate(inverseRotation, inverseRotation, -theta, vec3.UNIT_X);
+            mat4.rotateZ(inverseRotation, inverseRotation, -phi);
+            mat4.rotateX(inverseRotation, inverseRotation, -theta);
 
             mat4.invert(inverseView, view);
             vec3.transformMat4(location, vec3.UNIT_Z, inverseView);

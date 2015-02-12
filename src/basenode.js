@@ -10,6 +10,7 @@
  */
 window["BaseNode"] = function () {
     this.worldMatrix = mat4.create();
+    this.worldRotation = quat.create();
     this.scale = vec3.create();
     this.inverseScale = vec3.create();
     this.externalWorldMatrix = mat4.create();
