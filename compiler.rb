@@ -101,6 +101,8 @@ compile_docs = false
         "handlers/mdx/textureanimation",
         "handlers/mdx/node",
         "handlers/mdx/attachment",
+        "handlers/mdx/eventobjectspn",
+        "handlers/mdx/eventobjectspl",
         "handlers/mdx/eventobjectemitter",
         "handlers/mdx/particle",
         "handlers/mdx/particleemitter",

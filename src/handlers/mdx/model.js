@@ -532,7 +532,7 @@ Model.prototype = extend(BaseModel.prototype, {
     },
 
     bindTexture: function (source, unit, textureMap, context) {
-        var texture;
+        var texture = source;
 
         // Must be checked against undefined, because empty strings evaluate to false
         if (this.textureMap[source] !== undefined) {

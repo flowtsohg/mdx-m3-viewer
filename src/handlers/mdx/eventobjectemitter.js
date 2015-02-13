@@ -4,6 +4,10 @@ function EventObjectEmitter(eventObject, model, instance, context) {
     var type = name.substring(0, 3);
     var path = name.substring(4);
     
+    this.model = model;
+    this.instance = instance;
+    this.type = type;
+    
     if (type === "SPN") {
         this.ready = 1;
         this.node = node;
@@ -13,36 +17,66 @@ function EventObjectEmitter(eventObject, model, instance, context) {
         this.sequences = model.sequences;
         this.tracks = eventObject.tracks;
         this.lastTrack = 0;
-        this.instances = [];
+    } else if (type === "SPL") {
+        this.ready = 1;
+        this.node = node;
+        this.slkLine = eventObjectPaths[type][path];
+        this.globalSequenceId = eventObject.globalSequenceId;
+        this.globalSequences = model.globalSequences;
+        this.sequences = model.sequences;
+        this.tracks = eventObject.tracks;
+        this.lastTrack = 0;
+        
+        var slkLine = this.slkLine;
+        
+        this.texture = context.urls.mpqFile(slkLine[1] + "/" + slkLine[2] + ".blp").toLowerCase();
+        this.rows = slkLine[3];
+        this.columns = slkLine[4];
+        this.blendMode = slkLine[5];
+        this.scale = slkLine[6];
+        this.firstIntervalTime = slkLine[7];
+        this.secondIntervalTime = slkLine[8];
+        this.firstInterval = [slkLine[9], slkLine[10], slkLine[11]];
+        this.secondInterval = [slkLine[12], slkLine[13], slkLine[14]];
+        this.colors = [[slkLine[15], slkLine[16], slkLine[17], slkLine[18]], [slkLine[19], slkLine[20], slkLine[21], slkLine[22]], [slkLine[23], slkLine[24], slkLine[25], slkLine[26]]];
+        
+        this.dimensions = [this.columns, this.rows];
+        
+        context.gl.loadTexture(this.texture);
     }
+    
+    this.eventObjects = [];
 }
 
 EventObjectEmitter.prototype = {
     update: function (allowCreate, sequence, frame, counter, context) {
         if (this.ready) {
-            var instances = this.instances;
+            var eventObjects = this.eventObjects;
+            var eventObject;
             var track = this.getValue(sequence, frame, counter);
             
             if (track !== this.lastTrack && track === 1) {
-                var instance = context.loadInternalResource(context.urls.mpqFile(this.path));
+                switch (this.type) {
+                    case "SPN":
+                        eventObject = new EventObjectSpn(this, context);
+                        break;
+                    case "SPL":
+                        eventObject = new EventObjectSpl(this, context);
+                        break;
+                }
                 
-                instance.setSequence(0);
-                instance.setParent(this.node);
-                
-                instances.push(instance);
+                eventObjects.push(eventObject);
             }
             
             this.lastTrack = track;
             
-            for (var i = 0, l = instances.length; i < l; i++) {
-                instances[i].update(context);
+            for (var i = 0, l = eventObjects.length; i < l; i++) {
+                eventObjects[i].update(this, context);
             }
             
-            if (instances.length) {
-                var instance = instances[0];
-                
-                if (instance.ready && instance.instance.frame >= instance.getSequences()[0].interval[1]) {
-                    instances.shift();
+            if (eventObjects.length) {
+                if (eventObjects[0].ended()) {
+                    eventObjects.shift();
                 }
             }
         }
@@ -50,20 +84,20 @@ EventObjectEmitter.prototype = {
 
     render: function (context) {
         if (this.ready) {
-            var instances = this.instances;
+            var eventObjects = this.eventObjects;
             
-            for (var i = 0, l = instances.length; i < l; i++) {
-                instances[i].render(context);
+            for (var i = 0, l = eventObjects.length; i < l; i++) {
+                eventObjects[i].render(this, context);
             }
         }
     },
     
     renderEmitters: function (context) {
         if (this.ready) {
-            var instances = this.instances;
+            var eventObjects = this.eventObjects;
             
-            for (var i = 0, l = instances.length; i < l; i++) {
-                instances[i].renderEmitters(context);
+            for (var i = 0, l = eventObjects.length; i < l; i++) {
+                eventObjects[i].renderEmitters(this, context);
             }
         }
     },
@@ -188,5 +222,20 @@ var eventObjectPaths = {
         PBSX: "Objects/Spawnmodels/Other/PandarenBrewmasterExplosionUltimate/PandarenBrewmasterExplosionUltimate.mdx",
         GDCR: "UI/Feedback/GoldCredit/GoldCredit.mdx",
         NBWS: "Objects/Spawnmodels/Naga/NagaBlood/NagaBloodWindserpent.mdx"
+    },
+    
+    SPL: {
+        EBL1: ["NightElfBloodLarge1", "ReplaceableTextures/Splats", "Splat01Mature", 16, 16, 0, 50, 2, 120, 16, 31, 1, 31, 31, 1, 60, 3, 35, 255, 60, 3, 35, 200, 60, 3, 35, 0, "WEL0", "NULL"],
+        EBL2: ["NightElfBloodLarge2", "ReplaceableTextures/Splats", "Splat01Mature", 16, 16, 0, 50, 2, 120, 32, 47, 1, 47, 47, 1, 60, 3, 35, 255, 60, 3, 35, 200, 60, 3, 35, 0, "WEL1", "NULL"],
+        EBS1: ["NightElfBloodSmall1", "ReplaceableTextures/Splats", "Splat01Mature", 16, 16, 0, 25, 2, 120, 16, 31, 1, 31, 31, 1, 60, 3, 35, 255, 60, 3, 35, 200, 60, 3, 35, 0, "WES0", "NULL"],
+        HBS0: ["HumanBloodSmall0", "ReplaceableTextures/Splats", "Splat01Mature", 16, 16, 0, 25, 2, 120, 48, 63, 1, 63, 63, 1, 200, 10, 10, 255, 190, 10, 10, 200, 120, 10, 10, 0, "WHS0", "NULL"],
+        HBS1: ["HumanBloodSmall1", "ReplaceableTextures/Splats", "Splat01Mature", 16, 16, 0, 25, 2, 120, 0, 15, 1, 15, 15, 1, 200, 10, 10, 255, 190, 10, 10, 200, 120, 10, 10, 0, "WHS0", "NULL"],
+        HBS2: ["HumanBloodSmall2", "ReplaceableTextures/Splats", "Splat01Mature", 16, 16, 0, 25, 2, 120, 16, 31, 1, 31, 31, 1, 200, 10, 10, 255, 190, 10, 10, 200, 120, 10, 10, 0, "WHS1", "NULL"],
+        HBS3: ["HumanBloodSmall3", "ReplaceableTextures/Splats", "Splat01Mature", 16, 16, 0, 25, 2, 120, 32, 47, 1, 47, 47, 1, 200, 10, 10, 255, 190, 10, 10, 200, 120, 10, 10, 0, "WHS1", "NULL"],
+        HBL1: ["HumanBloodLarge1", "ReplaceableTextures/Splats", "Splat01Mature", 16, 16, 0, 50, 2, 120, 16, 31, 1, 31, 31, 1, 200, 10, 10, 255, 190, 10, 10, 200, 120, 10, 10, 0, "WHL0", "NULL"],
+        HBL2: ["HumanBloodLarge2", "ReplaceableTextures/Splats", "Splat01Mature", 16, 16, 0, 50, 2, 120, 32, 47, 1, 47, 47, 1, 200, 10, 10, 255, 190, 10, 10, 200, 120, 10, 10, 0, "WHL1", "NULL"],
+        HBL3: ["HumanBloodLarge3", "ReplaceableTextures/Splats", "Splat01Mature", 16, 16, 0, 50, 2, 120, 48, 63, 1, 63, 63, 1, 200, 10, 10, 255, 190, 10, 10, 200, 120, 10, 10, 0, "WHL1", "NULL"]
+
+
     }
 };

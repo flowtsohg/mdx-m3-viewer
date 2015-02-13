@@ -23,9 +23,10 @@ function ShallowNode(node) {
 
     this.nodeImpl = node;
     this.pivot = node.pivot;
-    this.negativePivot = vec3.negate([], node.pivot);
     this.objectId = node.objectId;
     this.parentId = node.parentId;
+    
+    this.worldLocation = vec3.create();
 }
 
 ShallowNode.prototype = extend(BaseNode.prototype, {
@@ -36,5 +37,15 @@ ShallowNode.prototype = extend(BaseNode.prototype, {
         mat4.translate(m, m, this.pivot);
 
         return m;
+    },
+    
+    getWorldLocation: function () {
+        var worldMatrix = this.getTransformation(),
+            worldLocation = this.worldLocation;
+        
+        vec3.set(worldLocation, 0, 0, 0);
+        vec3.transformMat4(worldLocation, worldLocation, worldMatrix);
+        
+        return worldLocation;
     }
 });
