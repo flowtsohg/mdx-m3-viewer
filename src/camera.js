@@ -108,6 +108,12 @@ Camera.prototype = {
         this.dirty = true;
     },
     
+    moveTo: function (target) {
+        vec3.negate(this.target, target);
+        
+        this.dirty = true;
+    },
+    
     setLocation: function (location) {
         this.set(location, this.target);
     },

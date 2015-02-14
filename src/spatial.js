@@ -110,7 +110,13 @@ Spatial.prototype = {
     rotate: function (theta, phi) {
         this.setRotation(this.theta + theta, this.phi + phi);
     },
-
+    
+    face: function (location) {
+        var sphericalCoordinate = computeSphericalCoordinates(this.worldLocation, location);
+        
+        this.setRotation(sphericalCoordinate[1] - Math.PI, this.phi);
+    },
+    
   /**
     * Sets the rotation of a spatial.
     *
