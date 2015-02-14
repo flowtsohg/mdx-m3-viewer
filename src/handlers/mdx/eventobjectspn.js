@@ -2,7 +2,7 @@ function EventObjectSpn(emitter, context) {
     var instance = context.loadInternalResource(context.urls.mpqFile(emitter.path));
                 
     instance.setSequence(0);
-    instance.setLocation(emitter.node.worldLocation);
+    instance.setLocation(vec3.add([], emitter.node.worldLocation, emitter.node.pivot));
     instance.setScale(emitter.node.scale[0]); // Assuming uniform scale
     instance.setRotationQuat(emitter.node.worldRotation);
     

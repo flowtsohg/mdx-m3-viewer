@@ -72,7 +72,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     // Much like modelMap, but isn't cleared when something is unloaded.
     // It is used to make loading faster if a model was unloaded, or clear was called, and then the model is requested to load again.
     var modelCache = {}; 
-
+    
     var supportedModelFileTypes = {};
     var supportedTextureFileTypes = {".png":1, ".gif":1, ".jpg":1};
     var supportedFileTypes = {".png":1, ".gif":1, ".jpg":1};
