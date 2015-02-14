@@ -9,7 +9,8 @@ function EventObjectSpl(emitter, context) {
     
     this.time = 0;
     this.endTime = emitter.firstIntervalTime + emitter.secondIntervalTime;
-    this.position = vec3.create();
+    this.location = vec3.clone(emitter.node.worldLocation);
+    this.scale = vec3.clone(emitter.node.scale);
     this.color = vec4.create();
     this.index = 0;
 }
@@ -46,8 +47,8 @@ EventObjectSpl.prototype = {
     
     updateHW: function (emitter, context) {
         var columns = emitter.columns;
-        var position = emitter.node.getWorldLocation();
-        var nodeScale = emitter.node.scale;
+        var position = this.location;
+        var nodeScale = this.scale;
         var scale = emitter.scale;
         var index = this.index
         var left = index % columns;

@@ -83,7 +83,7 @@ ModelInstance.prototype = extend(BaseModelInstance.prototype, {
         }
     },
 
-    update: function (worldMatrix, context) {
+    update: function (instance, context) {
         var allowCreate = false;
 
         if (this.sequence !== -1) {
@@ -106,7 +106,7 @@ ModelInstance.prototype = extend(BaseModelInstance.prototype, {
             }
         }
 
-        this.skeleton.update(this.sequence, this.frame, this.counter, worldMatrix, context);
+        this.skeleton.update(this.sequence, this.frame, this.counter, instance, context);
 
         this.updateEmitters(this.particleEmitters, allowCreate, context);
         this.updateEmitters(this.particleEmitters2, allowCreate, context);

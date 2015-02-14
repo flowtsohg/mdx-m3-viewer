@@ -14,15 +14,16 @@
  * @property {Node} parentNode
  */
 function Spatial() {
-    this.worldMatrix = mat4.create();
     this.localMatrix = mat4.create();
-    this.location = vec3.create();
+    this.localLocation = vec3.create();
+    this.localRotation = quat.create();
+    this.worldMatrix = mat4.create();
     this.worldLocation = vec3.create();
-    this.rotation = quat.create();
+    this.worldRotation = quat.create();
+    this.scaling = vec3.fromValues(1, 1, 1);
+    this.inverseScale = vec3.fromValues(1, 1, 1);
     this.theta = 0;
     this.phi = 0;
-    this.scaling = vec3.fromValues(1, 1, 1);
-    this.inverseScale = vec3.create();
     this.parent = null;
 }
 
@@ -34,8 +35,32 @@ Spatial.prototype = {
     * @instance
     */
     recalculateTransformation: function () {
-        mat4.fromRotationTranslationScale(this.localMatrix, this.rotation, this.location, this.scaling);
-        vec3.inverse(this.inverseScale, this.scaling);
+        var worldMatrix = this.worldMatrix,
+            localMatrix = this.localMatrix,
+            localRotation = this.localRotation,
+            worldLocation = this.worldLocation,
+            worldRotation = this.worldRotation,
+            scaling = this.scaling,
+            parent = this.parent;
+        
+        mat4.fromRotationTranslationScale(localMatrix, localRotation, this.localLocation, scaling);
+        vec3.inverse(this.inverseScale, scaling);
+        
+        quat.copy(worldRotation, localRotation);
+        
+        mat4.identity(worldMatrix);
+
+        if (parent) {
+            mat4.copy(worldMatrix, parent.getTransformation());
+            mat4.scale(worldMatrix, worldMatrix, parent.inverseScale);
+            
+            quat.mul(worldRotation, worldRotation, parent.worldRotation);
+        }
+
+        mat4.multiply(worldMatrix, worldMatrix, localMatrix);
+        
+        vec3.set(worldLocation, 0, 0, 0);
+        vec3.transformMat4(worldLocation, worldLocation, worldMatrix);
     },
 
   /**
@@ -46,7 +71,7 @@ Spatial.prototype = {
     * @param {vec3} v A displacement vector.
     */
     move: function (v) {
-        vec3.add(this.location, this.location, v);
+        vec3.add(this.localLocation, this.localLocation, v);
         
         this.recalculateTransformation();
     },
@@ -59,7 +84,7 @@ Spatial.prototype = {
     * @param {vec3} v A position vector.
     */
     setLocation: function (v) {
-        vec3.copy(this.location, v);
+        vec3.copy(this.localLocation, v);
 
         this.recalculateTransformation();
     },
@@ -72,7 +97,7 @@ Spatial.prototype = {
     * @returns {vec3} The spatial's location.
     */
     getLocation: function () {
-        return Array.copy(this.location);
+        return this.localLocation;
     },
     
   /**
@@ -83,10 +108,7 @@ Spatial.prototype = {
     * @param {vec3} v A vector of euler angles.
     */
     rotate: function (theta, phi) {
-        this.theta += theta;
-        this.phi += phi;
-
-        this.setRotation(this.theta, this.phi);
+        this.setRotation(this.theta + theta, this.phi + phi);
     },
 
   /**
@@ -97,8 +119,11 @@ Spatial.prototype = {
     * @param {quat} v A vector of euler angles.
     */
     setRotation: function (theta, phi) {
-        var rotation = this.rotation;
+        var rotation = this.localRotation;
 
+        this.theta = theta;
+        this.phi = phi;
+        
         quat.identity(rotation);
         quat.rotateZ(rotation, rotation, theta);
         quat.rotateX(rotation, rotation, phi);
@@ -115,6 +140,13 @@ Spatial.prototype = {
     */
     getRotation: function () {
         return [this.theta, this.phi];
+    },
+    
+    // Note: shouldn't be used by the client, unless you don't want to use spherical coordinates
+    setRotationQuat: function (q) {
+        quat.copy(this.localRotation, q);
+        
+        this.recalculateTransformation();
     },
 
   /**
@@ -161,7 +193,6 @@ Spatial.prototype = {
     },
 
     getScaleVector: function () {
-        // Note: no Array.copy because this is a function for internal use, and I don't want garbage collection.
         return this.scaling;
     },
   
@@ -175,6 +206,8 @@ Spatial.prototype = {
     */
     setParent: function (parent) {
         this.parent = parent;
+        
+        this.recalculateTransformation();
     },
     //~ setParent: function (parent, attachment) {
         //~ if (parent) {
@@ -213,30 +246,6 @@ Spatial.prototype = {
     * @returns {mat4} The transformation matrix.
     */
     getTransformation: function () {
-        var worldMatrix = this.worldMatrix,
-            parent = this.parent;
-
-        mat4.identity(worldMatrix);
-
-        if (parent) {
-            mat4.copy(worldMatrix, parent.getTransformation());
-
-            // Scale by the inverse of the parent to avoid carrying over scales through the hierarchy
-            mat4.scale(worldMatrix, worldMatrix, parent.inverseScale);
-        }
-
-        mat4.multiply(worldMatrix, worldMatrix, this.localMatrix);
-
-        return worldMatrix;
-    },
-    
-    getWorldLocation: function () {
-        var worldMatrix = this.getTransformation(),
-            worldLocation = this.worldLocation;
-        
-        vec3.set(worldLocation, 0, 0, 0);
-        vec3.transformMat4(worldLocation, worldLocation, worldMatrix);
-        
-        return worldLocation;
+        return this.worldMatrix;
     }
 };

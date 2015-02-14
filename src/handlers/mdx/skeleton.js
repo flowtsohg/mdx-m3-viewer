@@ -23,19 +23,19 @@ function Skeleton(model, ctx) {
     }
 
     // To avoid heap allocations
-    this.localMatrix = mat4.create();
     this.locationVec = vec3.create();
     this.scaleVec = vec3.create();
     this.rotationQuat = quat.create();
+    this.rotationQuat2 = quat.create();
 }
 
 Skeleton.prototype = extend(BaseSkeleton.prototype, {
-    update: function (sequence, frame, counter, worldMatrix, context) {
+    update: function (sequence, frame, counter, instance, context) {
         var nodes = this.nodes;
         var hierarchy = this.hierarchy;
         var root = this.rootNode;
 
-        root.update(worldMatrix);
+        root.setFromParent(instance);
 
         for (var i = 0, l = hierarchy.length; i < l; i++) {
             this.updateNode(nodes[hierarchy[i]], sequence, frame, counter, context);
@@ -47,29 +47,22 @@ Skeleton.prototype = extend(BaseSkeleton.prototype, {
     updateNode: function (node, sequence, frame, counter, context) {
         var parent = this.getNode(node.parentId);
         var nodeImpl = node.nodeImpl;
-        var pivot = node.pivot;
-        var negativePivot = node.negativePivot;
-        var localMatrix = this.localMatrix;
         var translation = getSDValue(sequence, frame, counter, nodeImpl.sd.translation, defaultTransformations.translation, this.locationVec);
         var rotation = getSDValue(sequence, frame, counter, nodeImpl.sd.rotation, defaultTransformations.rotation, this.rotationQuat);
         var scale = getSDValue(sequence, frame, counter, nodeImpl.sd.scaling, defaultTransformations.scaling, this.scaleVec);
         // NOTE: This should not be needed, check how getSDValue works......
-        var finalRotation = [];
-        
-        quat.multiply(node.worldRotation, parent.worldRotation, rotation);
+        var finalRotation = this.rotationQuat2;
         
         if (nodeImpl.billboarded) {
-            quat.mul(finalRotation, rotation, quat.conjugate([], node.worldRotation));
+            quat.set(finalRotation, 0, 0, 0, 1);
+            quat.mul(finalRotation, finalRotation, quat.conjugate([], parent.worldRotation));
             quat.rotateZ(finalRotation, finalRotation, -context.camera.phi - Math.PI / 2);
             quat.rotateY(finalRotation, finalRotation, -context.camera.theta - Math.PI / 2);
         } else {
             quat.copy(finalRotation, rotation);
         }
         
-        mat4.fromRotationTranslationScaleOrigin(localMatrix, finalRotation, translation, scale, pivot);
-        mat4.multiply(node.worldMatrix, parent.worldMatrix, localMatrix);
-
-        node.updateScale();
+        node.update(parent, finalRotation, translation, scale);
     },
 
     updateHW: function (ctx) {

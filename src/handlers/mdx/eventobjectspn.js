@@ -2,7 +2,9 @@ function EventObjectSpn(emitter, context) {
     var instance = context.loadInternalResource(context.urls.mpqFile(emitter.path));
                 
     instance.setSequence(0);
-    instance.setLocation(emitter.node.getWorldLocation());
+    instance.setLocation(emitter.node.worldLocation);
+    instance.setScale(emitter.node.scale[0]); // Assuming uniform scale
+    instance.setRotationQuat(emitter.node.worldRotation);
     
     this.instance = instance;
 }

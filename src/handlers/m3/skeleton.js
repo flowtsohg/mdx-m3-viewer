@@ -3,6 +3,8 @@ function ShallowBone (bone) {
 
     this.boneImpl = bone;
     this.parent = bone.parent;
+    
+    this.externalWorldMatrix = mat4.create();
 }
 
 ShallowBone.prototype = extend(BaseNode.prototype, {
@@ -46,10 +48,10 @@ function Skeleton(model, ctx) {
 }
 
 Skeleton.prototype = extend(BaseSkeleton.prototype, {
-    update: function (sequence, frame, worldMatrix, ctx) {
+    update: function (sequence, frame, instance, ctx) {
         var root = this.rootNode;
 
-        mat4.copy(root.worldMatrix, worldMatrix);
+        mat4.copy(root.worldMatrix, instance.worldMatrix);
 
         // Transform the skeleton to approximately match the size of Warcraft 3 models, and to have the same rotation
         mat4.scale(root.worldMatrix, root.worldMatrix, this.rootScaler);
@@ -74,17 +76,12 @@ Skeleton.prototype = extend(BaseSkeleton.prototype, {
     },
 
     updateBone: function (bone, sequence, frame) {
-        var localMatrix = this.localMatrix;
-        var rotationMatrix = this.rotationMatrix;
+        var parent = this.getNode(bone.parent);
         var location = this.getValue(this.locationVec, bone.boneImpl.location, sequence, frame);
         var rotation = this.getValue(this.rotationQuat, bone.boneImpl.rotation, sequence, frame);
         var scale = this.getValue(this.scaleVec, bone.boneImpl.scale, sequence, frame);
-        var parent = this.getNode(bone.parent);
-
-        mat4.fromRotationTranslationScale(localMatrix, rotation, location, scale);
-        mat4.multiply(bone.worldMatrix, parent.worldMatrix, localMatrix);
-
-        bone.updateScale();
+        
+        bone.update(parent, rotation, location, scale);
     },
 
     updateHW: function (sequence, ctx) {

@@ -80,7 +80,11 @@ AsyncModelInstance.prototype = {
     */
     update: function (context) {
         if (this.ready) {
-            this.instance.update(this.getTransformation(), context);
+            if (this.parent) {
+                    this.recalculateTransformation();
+            }
+            
+            this.instance.update(this, context);
         }
     },
   
