@@ -20,24 +20,26 @@ function EventObjectEmitter(eventObject, model, instance, context) {
         
         this.path = eventObjectPaths[type][path];
     } else if (type === "SPL") {
-        this.ready = 1;
-        
         var slkLine = eventObjectPaths[type][path];
         
-        this.texture = context.urls.mpqFile("replaceabletextures/splats/splat01mature.blp");
-        this.rows = slkLine[0];
-        this.columns = slkLine[1];
-        this.blendMode = slkLine[2];
-        this.scale = slkLine[3];
-        this.firstIntervalTime = slkLine[4];
-        this.secondIntervalTime = slkLine[5];
-        this.firstInterval = [slkLine[6], slkLine[7], slkLine[8]];
-        this.secondInterval = [slkLine[9], slkLine[10], slkLine[11]];
-        this.colors = [[slkLine[12], slkLine[13], slkLine[14], slkLine[15]], [slkLine[16], slkLine[17], slkLine[18], slkLine[19]], [slkLine[20], slkLine[21], slkLine[22], slkLine[23]]];
-        
-        this.dimensions = [this.columns, this.rows];
-        
-        context.gl.loadTexture(this.texture);
+        if (slkLine) {
+            this.ready = 1;
+            
+            this.texture = context.urls.mpqFile("replaceabletextures/splats/splat01mature.blp");
+            this.rows = slkLine[0];
+            this.columns = slkLine[1];
+            this.blendMode = slkLine[2];
+            this.scale = slkLine[3];
+            this.firstIntervalTime = slkLine[4];
+            this.secondIntervalTime = slkLine[5];
+            this.firstInterval = [slkLine[6], slkLine[7], slkLine[8]];
+            this.secondInterval = [slkLine[9], slkLine[10], slkLine[11]];
+            this.colors = [[slkLine[12], slkLine[13], slkLine[14], slkLine[15]], [slkLine[16], slkLine[17], slkLine[18], slkLine[19]], [slkLine[20], slkLine[21], slkLine[22], slkLine[23]]];
+            
+            this.dimensions = [this.columns, this.rows];
+            
+            context.gl.loadTexture(this.texture);
+        }
     }
     
     this.track = vec3.create();
