@@ -158,5 +158,17 @@ BaseModel.prototype = {
     */
     getMeshCount: function() {
         return this.meshes.length;
+    },
+    
+    // Override in the model implementations
+    getPolygonCount: function () {
+        var meshes = this.meshes,
+            polygons = 0;
+        
+        for (var i = 0, l = meshes.length; i < l; i++) {
+            polygons += meshes[i].getPolygonCount();
+        }
+        
+        return polygons;
     }
 };

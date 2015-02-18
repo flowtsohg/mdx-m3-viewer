@@ -246,6 +246,12 @@ AsyncModel.prototype = {
         }
     },
   
+    getPolygonCount: function () {
+        if (this.ready) {
+            return this.model.getPolygonCount();
+        }
+    },
+    
   /**
     * Gets a list of instances that a model owns.
     *

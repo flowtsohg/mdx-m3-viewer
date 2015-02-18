@@ -125,5 +125,9 @@ Geoset.prototype = {
 
         ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
         ctx.drawElements(ctx.TRIANGLES, this.elements, ctx.UNSIGNED_SHORT, 0);
+    },
+    
+    getPolygonCount: function () {
+        return this.elements / 3;
     }
 };

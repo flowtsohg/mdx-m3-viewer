@@ -822,7 +822,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
 
         ctx.bindFramebuffer(ctx.FRAMEBUFFER, null);
         
-        ctx.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
+        ctx.viewport(0, 0, canvas.width, canvas.height);
         
         var id = encodeFloat3(colorPixel[0], colorPixel[1], colorPixel[2]);
         var object = modelInstanceMap[id];

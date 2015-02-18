@@ -19,7 +19,8 @@ function AsyncModelInstance(model, textureMap, context, onload, onloadstart, isI
     this.color = decodeFloat3(this.id);
     this.source = model.source;
     this.visible = 1;
-
+    this.selectable = 1;
+    
     // If the model is already ready, the onload message from setup() must be delayed, since this instance wouldn't be added to the cache yet.
     if (model.ready || isInternal) {
         this.delayOnload = true;
@@ -135,7 +136,7 @@ AsyncModelInstance.prototype = {
     * @param {object} context An object containing the global state of the viewer.
     */
     renderColor: function (context) {
-        if (this.ready && this.visible) {
+        if (this.ready && this.visible && this.selectable) {
             this.instance.renderColor(this.color, context);
         }
     },
@@ -453,6 +454,12 @@ AsyncModelInstance.prototype = {
         return this.visible;
     },
   
+    getPolygonCount: function () {
+        if (this.ready) {
+            return this.model.getPolygonCount();
+        }
+    },
+    
   /**
     * Gets a model instance's information. This includes most of the getters, and also the information from {@link AsyncModel.getInfo}.
     *

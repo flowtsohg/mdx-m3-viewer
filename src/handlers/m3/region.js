@@ -43,5 +43,9 @@ Region.prototype = {
         ctx.uniform1f(shader.variables.u_firstBoneLookupIndex, this.firstBoneLookupIndex);
 
         ctx.drawElements(ctx.TRIANGLES, this.elements, ctx.UNSIGNED_SHORT, this.offset);
+    },
+    
+    getPolygonCount: function () {
+        return this.elements / 3;
     }
 };

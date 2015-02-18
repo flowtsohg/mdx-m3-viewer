@@ -209,9 +209,9 @@ Camera.prototype = {
         this.dirty = true;
     },
     
-    // Given a 2D camera space offset, returns a 3D world offset.
+    // Given a 3D camera space offset, returns a 3D world offset.
     cameraToWorld: function (out, offset) {
-        vec3.set(out, offset[0], offset[1], 0);
+        vec3.set(out, offset[0], offset[1], offset[2]);
         vec3.transformMat4(out, out, this.inverseRotation);
         
         return out;
