@@ -146,6 +146,14 @@ ModelInstance.prototype = extend(BaseModelInstance.prototype, {
     },
     
     render: function(context) {
+        if (this.eventObjectEmitters) {
+            var emitters = this.eventObjectEmitters;
+            
+            for (i = 0, l = emitters.length; i < l; i++) {
+                emitters[i].render(context);
+            }
+        }
+        
         this.model.render(this, context);
         
         var attachmentInstances = this.attachmentInstances;
@@ -156,17 +164,17 @@ ModelInstance.prototype = extend(BaseModelInstance.prototype, {
                 attachmentInstances[i].render(context);
             }
         }
-        
+    },
+    
+    renderEmitters: function(context) {
         if (this.eventObjectEmitters) {
             var emitters = this.eventObjectEmitters;
             
             for (i = 0, l = emitters.length; i < l; i++) {
-                emitters[i].render(context);
+                emitters[i].renderEmitters(context);
             }
         }
-    },
-    
-    renderEmitters: function(context) {
+        
         this.model.renderEmitters(this, context);
         
         var attachmentInstances = this.attachmentInstances;
@@ -175,14 +183,6 @@ ModelInstance.prototype = extend(BaseModelInstance.prototype, {
         for (var i = 0, l = attachmentInstances.length; i < l; i++) {
             if (attachmentVisible[i]) {
                 attachmentInstances[i].renderEmitters(context);
-            }
-        }
-        
-        if (this.eventObjectEmitters) {
-            var emitters = this.eventObjectEmitters;
-            
-            for (i = 0, l = emitters.length; i < l; i++) {
-                emitters[i].renderEmitters(context);
             }
         }
     },

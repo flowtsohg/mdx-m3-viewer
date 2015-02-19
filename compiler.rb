@@ -103,6 +103,7 @@ compile_docs = false
         "handlers/mdx/attachment",
         "handlers/mdx/eventobjectspn",
         "handlers/mdx/eventobjectspl",
+        "handlers/mdx/eventobjectubr",
         "handlers/mdx/eventobjectemitter",
         "handlers/mdx/particle",
         "handlers/mdx/particleemitter",

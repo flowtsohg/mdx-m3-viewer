@@ -4,6 +4,10 @@ function EventObjectEmitter(eventObject, model, instance, context) {
     var type = name.substring(0, 3);
     var path = name.substring(4);
     
+    if (type === "FPT") {
+        type = "SPL";
+    }
+    
     this.model = model;
     this.instance = instance;
     this.type = type;
@@ -40,6 +44,24 @@ function EventObjectEmitter(eventObject, model, instance, context) {
             
             context.gl.loadTexture(this.texture);
         }
+    } else if (type === "UBR") {
+        var slkLine = eventObjectPaths[type][path];
+        
+        if (slkLine) {
+            this.ready = 1;
+            
+            this.texture = context.urls.mpqFile("replaceabletextures/splats/" + slkLine[0] + ".blp");
+            this.blendMode = slkLine[1];
+            this.scale = slkLine[2];
+            this.firstIntervalTime = slkLine[3];
+            this.secondIntervalTime = slkLine[4];
+            this.thirdIntervalTime = slkLine[5];
+            this.colors = [[slkLine[6], slkLine[7], slkLine[8], slkLine[9]], [slkLine[10], slkLine[11], slkLine[12], slkLine[13]], [slkLine[14], slkLine[15], slkLine[16], slkLine[17]]];
+            
+            this.dimensions = [1, 1];
+            
+            context.gl.loadTexture(this.texture);
+        }
     }
     
     this.track = vec3.create();
@@ -59,6 +81,9 @@ EventObjectEmitter.prototype = {
                         break;
                     case "SPL":
                         eventObject = new EventObjectSpl(this, context);
+                        break;
+                    case "UBR":
+                        eventObject = new EventObjectUbr(this, context);
                         break;
                 }
                 
@@ -233,7 +258,7 @@ var eventObjectPaths = {
     },
     
     SPL: {
-        INIT: [16, 16, 0, 25, 2, 120, 0, 3, 1, 3, 3, 1, 255, 255, 255, 255, 255, 255, 255, 255, 100, 100, 100, 0],
+        //INIT: [16, 16, 0, 25, 2, 120, 0, 3, 1, 3, 3, 1, 255, 255, 255, 255, 255, 255, 255, 255, 100, 100, 100, 0],
         DBL0: [16, 16, 1, 50, 2, 120, 0, 15, 1, 15, 15, 1, 60, 120, 20, 255, 60, 120, 20, 200, 60, 120, 20, 0],
         DBL1: [16, 16, 1, 50, 2, 120, 16, 31, 1, 31, 31, 1, 60, 120, 20, 255, 60, 120, 20, 200, 60, 120, 20, 0],
         DBL2: [16, 16, 1, 50, 2, 120, 32, 47, 1, 47, 47, 1, 60, 120, 20, 255, 60, 120, 20, 200, 60, 120, 20, 0],
@@ -374,5 +399,59 @@ var eventObjectPaths = {
         WDS1: [16, 16, 1, 60, 2, 30, 176, 185, 1, 186, 191, 60, 60, 120, 20, 255, 60, 120, 20, 200, 60, 120, 20, 0],
         WSX0: [16, 16, 0, 1, 1, 1, 106, 106, 1, 106, 106, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         WSX1: [16, 16, 0, 1, 1, 1, 107, 107, 1, 107, 107, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    
+    UBR: {
+        //INIT: ["TEST", 0, 1, 1, 50, 10, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        TEST: ["TestUberSplat", 0, 100, 1, 5, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        LSDS: ["DirtUberSplat", 0, 110, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        LSDM: ["DirtUberSplat", 0, 200, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        LSDL: ["DirtUberSplat", 0, 240, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        HCRT: ["CraterUberSplat", 0, 75, 0.2, 7, 6, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        UDSU: ["DarkSummonSpecial", 0, 200, 1, 0, 5, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        DNCS: ["ScorchedUberSplat", 0, 200, 0.2, 300, 600, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        HMTP: ["TeleportTarget", 0, 200, 0.2, 0, 5, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        SCTP: ["TeleportTarget", 0, 200, 0.2, 0, 5, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        AMRC: ["TeleportTarget", 0, 200, 0.2, 0, 5, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        DRKC: ["AuraRune9b", 0, 100, 0.2, 0, 5, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        DOSB: ["ScorchedUberSplat", 0, 130, 0.2, 5, 20, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        DOMB: ["ScorchedUberSplat", 0, 200, 0.2, 5, 20, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        DOLB: ["ScorchedUberSplat", 0, 300, 0.2, 5, 20, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        DHSB: ["ScorchedUberSplat", 0, 130, 0.2, 5, 20, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        DHMB: ["ScorchedUberSplat", 0, 200, 0.2, 5, 20, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        DHLB: ["ScorchedUberSplat", 0, 300, 0.2, 5, 20, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        DUSB: ["ScorchedUberSplat", 0, 130, 0.2, 5, 20, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        DUMB: ["ScorchedUberSplat", 0, 200, 0.2, 5, 20, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        DULB: ["ScorchedUberSplat", 0, 300, 0.2, 5, 20, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        DNSB: ["ScorchedUberSplat", 0, 130, 0.2, 5, 20, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        DNMB: ["ScorchedUberSplat", 0, 200, 0.2, 5, 20, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        DNSA: ["ScorchedUberSplat", 0, 130, 0.2, 5, 20, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        DNMA: ["ScorchedUberSplat", 0, 200, 0.2, 5, 20, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        HSMA: ["HumanUberSplat", 0, 110, 1, 0, 10, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        HMED: ["HumanUberSplat", 0, 190, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        HLAR: ["HumanUberSplat", 0, 230, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        OSMA: ["OrcUberSplat", 0, 110, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        OMED: ["OrcUberSplat", 0, 200, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        OLAR: ["OrcUberSplat", 0, 240, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        USMA: ["UndeadUberSplat", 0, 170, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        UMED: ["UndeadUberSplat", 0, 200, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        ULAR: ["UndeadUberSplat", 0, 240, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        ESMA: ["AncientUberSplat", 0, 120, 5, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        EMDA: ["AncientUberSplat", 0, 200, 5, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        ESMB: ["NightElfUberSplat", 0, 110, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        EMDB: ["NightElfUberSplat", 0, 180, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        HTOW: ["HumanTownHallUberSplat", 0, 230, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        HCAS: ["HumanCastleUberSplat", 0, 230, 0.2, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        NGOL: ["GoldmineUberSplat", 0, 180, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        THND: ["ThunderClapUbersplat", 1, 280, 0.2, 2, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        NDGS: ["DemonGateUberSplat", 1, 375, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        CLTS: ["ThornyShieldUberSplat", 0, 200, 0.5, 30, 10, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        HFS1: ["FlameStrike1", 1, 300, 0.25, 0.1, 0.9, 255, 128, 128, 0, 255, 255, 192, 256, 256, 0, 0, 0],
+        HFS2: ["FlameStrike2", 1, 300, 0.25, 0.1, 0.9, 0, 255, 128, 0, 128, 255, 192, 255, 256, 0, 0, 0],
+        USBR: ["BurrowSplat", 0, 100, 0.5, 30, 10, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        NLAR: ["NagaTownHallUberSplat", 0, 230, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        NMED: ["NagaTownHallUberSplat", 0, 180, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        DPSW: ["DarkPortalUberSplatSW", 0, 400, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0],
+        DPSE: ["DarkPortalUberSplatSE", 0, 400, 1, 0, 2, 255, 255, 255, 0, 255, 255, 255, 255, 255, 255, 255, 0]
     }
 };
