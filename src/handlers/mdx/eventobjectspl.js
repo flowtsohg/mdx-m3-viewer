@@ -132,31 +132,30 @@ EventObjectSpl.prototype = {
         ctx.enable(ctx.DEPTH_TEST);
         ctx.depthMask(0);
         ctx.enable(ctx.BLEND);
-        ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
-        //~ switch (this.blendMode) {
-            //~ // Blend
-            //~ case 0:
-                //~ ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
-                //~ break;
-            //~ // Additive
-            //~ case 1:
-                //~ ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
-                //~ break;
-            //~ // Modulate
-            //~ case 2:
-                //~ ctx.blendFunc(ctx.ZERO, ctx.SRC_COLOR);
-                //~ break;
-            //~ // Modulate 2X
-            //~ case 3:
-                //~ ctx.blendFunc(ctx.DEST_COLOR, ctx.SRC_COLOR);
-                //~ break;
-            //~ // Add Alpha
-            //~ case 4:
-                //~ ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
-                //~ break;
-        //~ }
         
-        //emitter.model.bindTexture(emitter.texture, 0, {}, context);
+        switch (this.blendMode) {
+            // Blend
+            case 0:
+                ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
+                break;
+            // Additive
+            case 1:
+                ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
+                break;
+            // Modulate
+            case 2:
+                ctx.blendFunc(ctx.ZERO, ctx.SRC_COLOR);
+                break;
+            // Modulate 2X
+            case 3:
+                ctx.blendFunc(ctx.DEST_COLOR, ctx.SRC_COLOR);
+                break;
+            // Alpha Key
+            case 4:
+                // ??
+                break;
+        }
+        
         context.gl.bindTexture(emitter.texture, 0);
         
         ctx.uniform2fv(shader.variables.u_dimensions, emitter.dimensions);

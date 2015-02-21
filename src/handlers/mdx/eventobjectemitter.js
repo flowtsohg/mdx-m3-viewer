@@ -59,6 +59,7 @@ function EventObjectEmitter(eventObject, model, instance, context) {
             this.colors = [[slkLine[6], slkLine[7], slkLine[8], slkLine[9]], [slkLine[10], slkLine[11], slkLine[12], slkLine[13]], [slkLine[14], slkLine[15], slkLine[16], slkLine[17]]];
             
             this.dimensions = [1, 1];
+            this.columns = 1;
             
             context.gl.loadTexture(this.texture);
         }
