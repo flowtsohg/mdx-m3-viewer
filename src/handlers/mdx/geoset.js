@@ -11,9 +11,42 @@ function Geoset(geoset, index, ctx) {
     var faces = geoset.faces;
     var edges = new Uint16Array(faces.length * 2);
     var matrixGroups = [];
-
+    var minX = 1E9, minY = 1E9, minZ = 1E9;
+    var maxX = -1E9, maxY = -1E9, maxZ = -1E9;
+    var x, y, z;
+    
     this.index = index;
     this.materialId = geoset.materialId;
+    
+    for (i = 0, l = positions.length; i < l; i += 3) {
+        x = positions[i];
+        y = positions[i + 1];
+        z = positions[i + 2];
+        
+        if (x > maxX) {
+            maxX = x;
+        }
+        
+        if (x < minX) {
+            minX = x;
+        }
+        
+        if (y > maxY) {
+            maxY = y;
+        }
+        
+        if (y < minY) {
+            minY = y;
+        }
+        
+        if (z > maxZ) {
+            maxZ = z;
+        }
+        
+        if (z < minZ) {
+            minZ = z;
+        }
+    }
     
     for (i = 0, l = faces.length, k = 0; i < l; i += 3, k += 6) {
         edges[k + 0] = faces[i + 0];
@@ -83,6 +116,8 @@ function Geoset(geoset, index, ctx) {
     this.elementBuffer = elementBuffer;
     this.edgeBuffer = edgeBuffer;
     this.elements = faces.length;
+    this.min = [minX, minY, minZ];
+    this.max = [maxX, maxY, maxZ];
 }
 
 Geoset.prototype = {

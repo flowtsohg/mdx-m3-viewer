@@ -129,6 +129,8 @@ Model.prototype = extend(BaseModel.prototype, {
             }
             
             this.shallowLayers = groups[0].concat(groups[1]).concat(groups[2]).concat(groups[3]);
+            
+            this.calculateExtent();
         }
 
         if (parser.cameraChunk) {
@@ -284,6 +286,60 @@ Model.prototype = extend(BaseModel.prototype, {
         }
     },
 
+    calculateExtent: function () {
+        var meshes = this.meshes;
+        var mesh;
+        var min, max;
+        var x, y, z;
+        var minX = 1E9, minY = 1E9, minZ = 1E9;
+        var maxX = -1E9, maxY = -1E9, maxZ = -1E9;
+        var dX, dY, dZ;
+        var i, l;
+        
+        for (i = 0, l = meshes.length; i < l; i++) {
+            mesh = meshes[i];
+            min = mesh.min;
+            max = mesh.max;
+            x = min[0];
+            y = min[1];
+            z = min[2];
+            
+            if (x < minX) {
+                minX = x;
+            }
+            
+            if (y < minY) {
+                minY = y;
+            }
+            
+            if (z < minZ) {
+                minZ = z;
+            }
+            
+            x = max[0];
+            y = max[1];
+            z = max[2];
+            
+            if (x > maxX) {
+                maxX = x;
+            }
+            
+            if (y > maxY) {
+                maxY = y;
+            }
+            
+            if (z > maxZ) {
+                maxZ = z;
+            }
+        }
+        
+        dX = maxX - minX;
+        dY = maxY - minY;
+        dZ = maxZ - minZ;
+        
+        this.extent = {boundsRadius: Math.sqrt(dX*dX + dY*dY + dZ*dZ) / 2, minimum: [minX, minY, minZ], maximum: [maxX, maxY, maxZ]};
+    },
+    
     render: function (instance, context) {
         var gl = context.gl;
         var ctx = gl.ctx;
