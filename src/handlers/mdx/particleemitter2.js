@@ -124,7 +124,7 @@ ParticleEmitter2.prototype = {
                 particle.update(this, sequence, frame, counter, context);
             }
         }
-
+        
         // Third stage: create new particles if needed.
         if (allowCreate && this.shouldRender(sequence, frame, counter)) {
             this.currentEmission += getSDValue(sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * (context.frameTime / 1000);
@@ -355,6 +355,6 @@ ParticleEmitter2.prototype = {
     },
 
     shouldRender: function (sequence, frame, counter) {
-        return getSDValue(sequence, frame, counter, this.sd.visibility) > 0.75;
+        return getSDValue(sequence, frame, counter, this.sd.visibility, 1) > 0.75;
     }
 };

@@ -400,15 +400,15 @@ Model.prototype = extend(BaseModel.prototype, {
                         textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
 
                         this.bindTexture(textures[textureId], 0, instance.textureMap, context);
-
+                        
                         if (this.geosetAnimations) {
                             for (var j = this.geosetAnimations.length; j--;) {
                                 var geosetAnimation = this.geosetAnimations[j];
                                 
                                 if (geosetAnimation) {
-                                    if (geosetAnimation.geosetId === layer.geosetId) {
+                                    if (geosetAnimation.geosetId === geoset.index) {
                                         tempVec3 = getSDValue(sequence, frame, counter, geosetAnimation.sd.color, geosetAnimation.color, tempVec3);
-
+                                        
                                         modifier[0] = tempVec3[0];
                                         modifier[1] = tempVec3[1];
                                         modifier[2] = tempVec3[2];
