@@ -11,7 +11,9 @@ compile_docs = false
     "handlers/sharedshaders/vswhite",
     "handlers/sharedshaders/psworld",
     "handlers/sharedshaders/pswhite",
-    "handlers/sharedshaders/pscolor",  
+    "handlers/sharedshaders/pscolor",
+    "handlers/sharedshaders/vstexture",
+    "handlers/sharedshaders/pstexture",
     # Warcraft 3 shaders
     "handlers/mdx/shaders/wvsmain",
     "handlers/mdx/shaders/wvsribbons",

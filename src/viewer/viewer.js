@@ -156,7 +156,8 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
       
     gl.createShader("world", SHADERS.vsworld, SHADERS.psworld);
     gl.createShader("white", SHADERS.vswhite, SHADERS.pswhite);
-
+    gl.createShader("texture", SHADERS.vstexture, SHADERS.pstexture);
+    
     gl.loadTexture(groundPath);
     gl.loadTexture(waterPath);
     gl.loadTexture(skyPath);
@@ -314,7 +315,22 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
 
         ctx.enable(ctx.CULL_FACE);
     }
-  
+    
+    var textureRect = gl.createRect(0, 0, 0, 1, 1, 1);
+    function renderTexture(path, location, scale) {
+        var shader = gl.bindShader("texture");
+        
+        gl.pushMatrix();
+        gl.translate(location);
+        gl.scale(scale);
+        ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
+        gl.popMatrix();
+        
+        gl.bindTexture(skyPath, 0);
+        
+        textureRect.render(shader);
+    }
+    
     function loadModel(source, originalSource, textureMap) {
         
         // If the model is cached, but not in the model map, add it to the model map
@@ -1060,7 +1076,9 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         addEventListener: addEventListener,
         removeEventListener: removeEventListener,
         dispatchEvent: dispatchEvent,
-        resetViewport: resetViewport
+        resetViewport: resetViewport,
+        // Experiemental
+        renderTexture: renderTexture
     };
     
     // The main loop of the viewer

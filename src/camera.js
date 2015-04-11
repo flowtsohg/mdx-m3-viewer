@@ -235,5 +235,18 @@ Camera.prototype = {
         vec3.set(out, a[0] + (b[0] - a[0]) * zIntersection, a[1] + (b[1] - a[1]) * zIntersection, 0);
         
         return out;
+    },
+    
+    worldToScreen: function (out, coordinate) {
+        var a = this.heap1,
+            viewProjection = this.viewProjection,
+            viewport = this.viewport;
+        
+        vec3.transformMat4(a, coordinate, viewProjection);
+        
+        out[0] = a[0] * viewport[2];
+        out[1] = a[1] * viewport[3];
+        
+        return out;
     }
 };
