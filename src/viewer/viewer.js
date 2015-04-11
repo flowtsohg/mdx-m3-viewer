@@ -194,10 +194,9 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     function updateCamera() {
         var camera = context.camera;
         
-        if (camera.update()) {
-            gl.setProjectionMatrix(camera.projection);
-            gl.setViewMatrix(camera.view);
-        }
+        camera.update();
+        gl.setProjectionMatrix(camera.projection);
+        gl.setViewMatrix(camera.view);
     }
 
     function update() {
@@ -316,19 +315,38 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         ctx.enable(ctx.CULL_FACE);
     }
     
-    var textureRect = gl.createRect(0, 0, 0, 1, 1, 1);
-    function renderTexture(path, location, scale) {
+    var textureRect = gl.createRect(0, 0, 0, 1, 1, 2);
+    function renderTexture(path, location, scale, isScreen) {
         var shader = gl.bindShader("texture");
         
+        if (isScreen) {
+            gl.setOrtho(0, canvas.width, 0, canvas.height, -10000, 10000);
+        } else {
+            gl.setProjectionMatrix(camera.projection);
+            gl.setViewMatrix(camera.view);
+        }
+        
         gl.pushMatrix();
+        
+         if (isScreen) {
+            gl.loadIdentity();
+         }
+         
         gl.translate(location);
         gl.scale(scale);
         ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
         gl.popMatrix();
         
-        gl.bindTexture(skyPath, 0);
+        gl.bindTexture(path, 0);
+        
+        ctx.depthMask(0);
+        ctx.enable(ctx.BLEND);
+        ctx.blendFunc(ctx.ONE, ctx.ONE);
         
         textureRect.render(shader);
+        
+        ctx.depthMask(1);
+        ctx.disable(ctx.BLEND);
     }
     
     function loadModel(source, originalSource, textureMap) {
@@ -534,26 +552,39 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     * @instance
     * @param {(string|number)} source The source to unload from. Can be the source of a previously loaded resource, or a valid model or instance ID.
     */
-    function unload(source) {
-        var object;
+    function remove(source) {
+        var object,
+            type;
+        
+        if (source) {
+            type = source.type;
+            
+            if (type) {
+                if (type === "model") {
+                    unloadModel(source);
+                } else {
+                    unloadInstance(source);
+                }
+            } else if (typeof source === "number") {
+                object = modelInstanceMap[source];
+                
+                if (object) {
+                    type = object.type;
+                    
+                    if (type === "model") {
+                        unloadModel(object);
+                    } else {
+                        unloadInstance(object);
+                    }
+                }
+            } else {
+                object = modelMap[source];
 
-        if (typeof source === "number") {
-            object = modelInstanceMap[source];
-
-            if (object) {
-                if (object.isModel) {
+                if (object) {
                     unloadModel(object);
                 } else {
-                    unloadInstance(object);
-                }
-            }
-        } else {
-            object = modelMap[source];
-
-            if (object) {
-                unloadModel(object);
-            } else {
-                gl.unloadTexture(source);
+                    gl.unloadTexture(source);
+                } 
             }
         }
     }
@@ -1036,7 +1067,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         // Resource API
         loadLocalFile: loadLocalFile,
         load: load,
-        unload: unload,
+        remove: remove,
         clear: clear,
         clearCache: clearCache,
         loadingEnded: loadingEnded,

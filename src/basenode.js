@@ -43,10 +43,11 @@ BaseNode.prototype = {
         var localMatrix = this.localMatrix,
             worldMatrix = this.worldMatrix,
             worldLocation = this.worldLocation,
-            selfScale = this.scale;
+            selfScale = this.scale,
+            pivot = this.pivot;
         
         // Local and world matrices
-        mat4.fromRotationTranslationScaleOrigin(localMatrix, rotation, translation, scale, this.pivot);
+        mat4.fromRotationTranslationScaleOrigin(localMatrix, rotation, translation, scale, pivot);
         mat4.mul(worldMatrix, parent.worldMatrix, localMatrix);
         
         // Scale and inverse scale
@@ -58,7 +59,7 @@ BaseNode.prototype = {
         quat.copy(this.localRotation, rotation);
         
         // World location
-        vec3.set(worldLocation, 0, 0, 0);
+        vec3.copy(worldLocation, pivot);
         vec3.transformMat4(worldLocation, worldLocation, worldMatrix);
         
         // World rotation

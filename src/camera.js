@@ -244,8 +244,8 @@ Camera.prototype = {
         
         vec3.transformMat4(a, coordinate, viewProjection);
         
-        out[0] = a[0] * viewport[2];
-        out[1] = a[1] * viewport[3];
+        out[0] = Math.round(((a[0] + 1) / 2) * viewport[2]);
+        out[1] = Math.round(((a[1] + 1) / 2) * viewport[3]);
         
         return out;
     }

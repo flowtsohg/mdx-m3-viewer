@@ -196,7 +196,9 @@ ModelInstance.prototype = extend(BaseModelInstance.prototype, {
     },
 
     setSequence: function (id) {
-        if (this.model.sequences.length) {
+        var sequences = this.model.sequences.length;
+        
+        if (id < sequences) {
             this.sequence = id;
 
             if (id === -1) {
