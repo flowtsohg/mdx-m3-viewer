@@ -128,7 +128,7 @@ ParticleEmitter2.prototype = {
         // Third stage: create new particles if needed.
         if (allowCreate && this.shouldRender(sequence, frame, counter)) {
             this.currentEmission += getSDValue(sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * (context.frameTime / 1000);
-
+            
             if (this.currentEmission >= 1) {
                 var amount = Math.floor(this.currentEmission);
                 var index;
