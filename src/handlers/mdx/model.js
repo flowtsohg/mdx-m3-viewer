@@ -33,7 +33,7 @@ Model.prototype = extend(BaseModel.prototype, {
             objects = parser.textureChunk.objects;
 
             for (i = 0, l = objects.length; i < l; i++) {
-                this.loadTexture(objects[i], this.textureMap, gl);
+                this.loadTexture(objects[i], this.textureMap, gl, context.urls);
             }
         }
 
@@ -245,7 +245,7 @@ Model.prototype = extend(BaseModel.prototype, {
         }
     },
 
-    loadTexture: function (texture, textureMap, gl) {
+    loadTexture: function (texture, textureMap, gl, urls) {
         var source = texture.path;
         var path;
         var replaceableId = texture.replaceableId;
