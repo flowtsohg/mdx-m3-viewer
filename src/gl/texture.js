@@ -1,4 +1,4 @@
-function Texture(source, options, textureHandlers, ctx, compressedTextures, onloadstart, onrrror, onprogress, onload) {
+function Texture(source, options, textureHandlers, ctx, compressedTextures, onloadstart, onerror, onprogress, onload) {
     var fileType = fileTypeFromPath(source),
         handler = textureHandlers[fileType];
     
