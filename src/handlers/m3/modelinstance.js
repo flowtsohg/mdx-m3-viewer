@@ -52,7 +52,7 @@ ModelInstance.prototype = extend(BaseModelInstance.prototype, {
         var attachment = this.model.getAttachment(id);
 
         if (attachment) {
-            return this.skeleton.bones[attachment.bone];
+            return this.skeleton.nodes[attachment.bone];
         } else {
             return this.skeleton.root;
         }

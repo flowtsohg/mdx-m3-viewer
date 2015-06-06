@@ -381,7 +381,7 @@ Model.prototype = extend(BaseModel.prototype, {
             ctx.uniformMatrix4fv(shader.variables.u_mv, false, gl.getViewMatrix());
 
             ctx.uniform3fv(shader.variables.u_teamColor, context.teamColors[teamId]);
-            ctx.uniform3fv(shader.variables.u_eyePos, context.cameraPosition);
+            ctx.uniform3fv(shader.variables.u_eyePos, context.camera.location);
             ctx.uniform3fv(shader.variables.u_lightPos, context.lightPosition);
 
             // Bind the vertices
