@@ -28,7 +28,6 @@ Terminology:
 #### Usage
 
 The API can be seen [here](http://htmlpreview.github.io/?https://raw.githubusercontent.com/flowtsohg/mdx-m3-viewer/master/docs/ModelViewer.html).
-Note that the constructor isn't called with the `new` operator.
 
 ```javascript
 viewer = ModelViewer(canvas, urls, debugMode)
@@ -75,7 +74,7 @@ The urls.header stub is used to give information about custom models. Given some
 ```javascript
 {
   "models": [{"url": "url/to/some/model.mdx", "hidden": true/false}, ...],
-  "textures": {"path/texture.blp": "real/url/to/texture.blp", ...}
+  "textures": {"path/texture.blp": {"url": "real/url/to/texture.blp"}, ...}
 }
 ```
 
@@ -109,7 +108,7 @@ BaseModel and BaseModelInstance are exported as global objects. They can be exte
 An example of setting up a new texture handler:
 ```js
 function MyTexture(arrayBuffer, options, ctx, onerror, onload, compressedTextures) {
-  this.id = glContext.createTexture();
+  this.id = ctx.createTexture();
   
   // Parse the buffer and construct the texture...
   
