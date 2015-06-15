@@ -1,4 +1,4 @@
-function ParticleEmitter(particleEmitter, model) {
+M3.ParticleEmitter = function (particleEmitter, model) {
     var i, l;
     var keys = Object.keys(particleEmitter);
 
@@ -21,12 +21,12 @@ function ParticleEmitter(particleEmitter, model) {
     ctx.bufferData(ctx.ARRAY_BUFFER, this.data, ctx.DYNAMIC_DRAW);
 
     for (i = 0, l = this.maxParticles; i < l; i++) {
-        this.particles[i] = new Particle();
+        this.particles[i] = new M3.Particle();
         this.reusables.push(i);
     }
-}
+};
 
-ParticleEmitter.prototype = {
+M3.ParticleEmitter.prototype = {
     update: function (allowCreate, sequenceId, frame) {
         var i, l;
 

@@ -1,4 +1,4 @@
-function Node(object, model, pivots) {
+Mdx.Node = function (object, model, pivots) {
     this.name = object.name;
     this.objectId = object.objectId;
     this.parentId = object.parentId;
@@ -8,17 +8,17 @@ function Node(object, model, pivots) {
     this.xYQuad = object.xYQuad;
     
     if (object.tracks) {
-        this.sd = parseSDTracks(object.tracks, model);
+        this.sd = Mdx.parseSDTracks(object.tracks, model);
     }
     
     if (object.objectId === object.parentId) {
         this.parentId = -1;
     }
-}
+};
 
 // Used by each copy of a skeleton to hold the node hierarchy
 // Keeps a reference to the actual node containing the animation data, that the model owns
-function ShallowNode(node) {
+Mdx.ShallowNode = function (node) {
     BaseNode.call(this);
 
     this.nodeImpl = node;
@@ -30,7 +30,7 @@ function ShallowNode(node) {
     this.externalWorldMatrix = mat4.create();
 }
 
-ShallowNode.prototype = extend(BaseNode.prototype, {
+Mdx.ShallowNode.prototype = extend(BaseNode.prototype, {
     getTransformation: function () {
         var m = this.externalWorldMatrix;
 

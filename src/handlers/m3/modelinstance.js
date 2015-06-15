@@ -1,12 +1,12 @@
-function ModelInstance(model, textureMap, context) {
+M3.ModelInstance = function (model, textureMap, context) {
     BaseModelInstance.call(this, model, textureMap);
 
     this.setup(model, context);
-}
+};
 
-ModelInstance.prototype = extend(BaseModelInstance.prototype, {
+M3.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
     setup: function (model, context) {
-        this.skeleton = new Skeleton(model, context.gl.ctx);
+        this.skeleton = new M3.Skeleton(model, context.gl.ctx);
     },
 
     update: function (worldMatrix, context) {

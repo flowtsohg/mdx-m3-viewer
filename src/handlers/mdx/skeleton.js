@@ -4,7 +4,7 @@ var defaultTransformations = {
     scaling: [1, 1, 1]
 };
 
-function Skeleton(model, ctx) {
+Mdx.Skeleton = function (model, ctx) {
     var i, l;
     var pivots = model.pivots;
     var nodes = model.nodes;
@@ -19,7 +19,7 @@ function Skeleton(model, ctx) {
     BaseSkeleton.call(this, this.bones.length + 1, ctx);
 
     for (i = 0, l = nodes.length; i < l; i++) {
-        this.nodes[i] = new ShallowNode(nodes[i]);
+        this.nodes[i] = new Mdx.ShallowNode(nodes[i]);
     }
 
     // To avoid heap allocations
@@ -27,9 +27,9 @@ function Skeleton(model, ctx) {
     this.scaleVec = vec3.create();
     this.rotationQuat = quat.create();
     this.rotationQuat2 = quat.create();
-}
+};
 
-Skeleton.prototype = extend(BaseSkeleton.prototype, {
+Mdx.Skeleton.prototype = extend(BaseSkeleton.prototype, {
     update: function (sequence, frame, counter, instance, context) {
         var nodes = this.nodes;
         var hierarchy = this.hierarchy;
@@ -47,10 +47,10 @@ Skeleton.prototype = extend(BaseSkeleton.prototype, {
     updateNode: function (node, sequence, frame, counter, context) {
         var parent = this.getNode(node.parentId);
         var nodeImpl = node.nodeImpl;
-        var translation = getSDValue(sequence, frame, counter, nodeImpl.sd.translation, defaultTransformations.translation, this.locationVec);
-        var rotation = getSDValue(sequence, frame, counter, nodeImpl.sd.rotation, defaultTransformations.rotation, this.rotationQuat);
-        var scale = getSDValue(sequence, frame, counter, nodeImpl.sd.scaling, defaultTransformations.scaling, this.scaleVec);
-        // NOTE: This should not be needed, check how getSDValue works......
+        var translation = Mdx.getSDValue(sequence, frame, counter, nodeImpl.sd.translation, defaultTransformations.translation, this.locationVec);
+        var rotation = Mdx.getSDValue(sequence, frame, counter, nodeImpl.sd.rotation, defaultTransformations.rotation, this.rotationQuat);
+        var scale = Mdx.getSDValue(sequence, frame, counter, nodeImpl.sd.scaling, defaultTransformations.scaling, this.scaleVec);
+        // NOTE: This should not be needed, check how Mdx.getSDValue works......
         var finalRotation = this.rotationQuat2;
         
         if (nodeImpl.billboarded) {

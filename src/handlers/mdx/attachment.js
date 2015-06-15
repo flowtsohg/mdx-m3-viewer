@@ -1,7 +1,7 @@
-function Attachment(attachment, model) {
+Mdx.Attachment = function (attachment, model) {
     this.node = attachment.node;
     this.path = attachment.path;
     this.attachmentId = attachment.attachmentId;
     this.name = model.nodes[this.node].name;
-    this.sd = parseSDTracks(attachment.tracks, model);
+    this.sd = Mdx.parseSDTracks(attachment.tracks, model);
 }

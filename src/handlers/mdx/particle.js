@@ -1,18 +1,18 @@
-function Particle() {
+Mdx.Particle = function  () {
     this.position = vec3.create();
     this.velocity = vec3.create();
     this.orientation = 0;
     this.gravity = 0;
-}
+};
 
-Particle.prototype = {
+Mdx.Particle.prototype = {
     reset: function (emitter, sequence, frame, counter) {
         var scale = emitter.node.scale;
-        var speed = getSDValue(sequence, frame, counter, emitter.sd.speed, emitter.initialVelocity);
-        var latitude = getSDValue(sequence, frame, counter, emitter.sd.latitude, emitter.latitude);
-        var longitude = getSDValue(sequence, frame, counter, emitter.sd.longitude, emitter.longitude);
-        var lifespan = getSDValue(sequence, frame, counter, emitter.sd.lifespan, emitter.lifespan);
-        var gravity = getSDValue(sequence, frame, counter, emitter.sd.gravity, emitter.gravity) * scale[2];
+        var speed = Mdx.getSDValue(sequence, frame, counter, emitter.sd.speed, emitter.initialVelocity);
+        var latitude = Mdx.getSDValue(sequence, frame, counter, emitter.sd.latitude, emitter.latitude);
+        var longitude = Mdx.getSDValue(sequence, frame, counter, emitter.sd.longitude, emitter.longitude);
+        var lifespan = Mdx.getSDValue(sequence, frame, counter, emitter.sd.lifespan, emitter.lifespan);
+        var gravity = Mdx.getSDValue(sequence, frame, counter, emitter.sd.gravity, emitter.gravity) * scale[2];
         var position = this.position;
         var worldMatrix = emitter.node.worldMatrix;
 

@@ -1,4 +1,4 @@
-function EventObjectUbr(emitter, context) {
+Mdx.EventObjectUbr = function (emitter, context) {
     var ctx = context.gl.ctx;
     
     this.buffer = ctx.createBuffer();
@@ -13,9 +13,9 @@ function EventObjectUbr(emitter, context) {
     this.scale = vec3.clone(emitter.node.scale);
     this.color = vec4.create();
     this.index = 0;
-}
+};
 
-EventObjectUbr.prototype = {
+Mdx.EventObjectUbr.prototype = {
     update: function (emitter, context) {
         var dt = context.frameTime / 100;
         
@@ -44,8 +44,8 @@ EventObjectUbr.prototype = {
         this.updateHW(emitter, context);
     },
     
-    updateHW: EventObjectSpl.prototype.updateHW,    
-    render: EventObjectSpl.prototype.render,
-    renderEmitters: EventObjectSpl.prototype.renderEmitters,
-    ended: EventObjectSpl.prototype.ended
+    updateHW: Mdx.EventObjectSpl.prototype.updateHW,    
+    render: Mdx.EventObjectSpl.prototype.render,
+    renderEmitters: Mdx.EventObjectSpl.prototype.renderEmitters,
+    ended: Mdx.EventObjectSpl.prototype.ended
 };

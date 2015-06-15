@@ -1,4 +1,4 @@
-function SD(tracks, model) {
+Mdx.SD = function (tracks, model) {
     var i, l, arr, keys;
     
     this.type = tracks.type;
@@ -26,9 +26,9 @@ function SD(tracks, model) {
     this.interval = [0, 0];
     
     this.fillSequences();
-}
+};
 
-SD.prototype = {
+Mdx.SD.prototype = {
     insertFrame: function (frame, frame0) {
         var defval = this.defval,
             tracks = this.tracks,
@@ -219,15 +219,15 @@ SD.prototype = {
     }
 };
 
-function getSDValue(sequence, frame, counter, sd, defval, out) {
+Mdx.getSDValue = function (sequence, frame, counter, sd, defval, out) {
     if (sd) {
         return sd.getValue(out, sequence, frame, counter);
     } else {
         return defval;
     }
-}
+};
 
-function parseSDTracks(tracks, model) {
+Mdx.parseSDTracks = function (tracks, model) {
     var keys = Object.keys(tracks);
     var sds = {};
     var type;
@@ -235,8 +235,8 @@ function parseSDTracks(tracks, model) {
     for (var i = 0, l = keys.length; i < l; i++) {
         type = keys[i];
         
-        sds[type] = new SD(tracks[type], model);
+        sds[type] = new Mdx.SD(tracks[type], model);
     }
 
     return sds;
-}
+};

@@ -1,4 +1,4 @@
-function Layer(layer, type, op, model, textureMap, gl) {
+M3.Layer = function (layer, type, op, model, textureMap, gl) {
     this.active = false;
 
     // Since Gloss doesn't exist in all versions
@@ -68,9 +68,9 @@ function Layer(layer, type, op, model, textureMap, gl) {
             this.active = true;
         }
     }
-}
+};
 
-Layer.prototype = {
+M3.Layer.prototype = {
     bind: function (unit, sequence, frame, textureMap, shader, context) {
         var ctx = context.gl.ctx;
         var variables = shader.variables;

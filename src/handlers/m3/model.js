@@ -1,4 +1,4 @@
-function Model(arrayBuffer, textureMap, context, onerror) {
+M3.Model = function (arrayBuffer, textureMap, context, onerror) {
     BaseModel.call(this, textureMap);
 
     var parser = Parser(new BinaryReader(arrayBuffer));
@@ -11,9 +11,9 @@ function Model(arrayBuffer, textureMap, context, onerror) {
         this.setup(parser, context.gl);
         this.setupShaders(parser, context.gl);
     }
-}
+};
 
-Model.prototype = extend(BaseModel.prototype, {
+M3.Model.prototype = extend(BaseModel.prototype, {
     setup: function (parser, gl) {
         var i, l;
         var material;
@@ -36,7 +36,7 @@ Model.prototype = extend(BaseModel.prototype, {
         for (i = 0, l = materials[0].length; i < l; i++) {
             material = materials[0][i];
 
-            this.materials[1][i] = new StandardMaterial(material, this, this.textureMap, gl);
+            this.materials[1][i] = new M3.StandardMaterial(material, this, this.textureMap, gl);
         }
 
         // Create concrete batch objects
@@ -108,22 +108,22 @@ Model.prototype = extend(BaseModel.prototype, {
         this.stg = [];
 
         for (i = 0, l = sts.length; i < l; i++) {
-            this.sts[i] = new STS(sts[i]);
+            this.sts[i] = new M3.STS(sts[i]);
         }
 
         for (i = 0, l = stc.length; i < l; i++) {
-            this.stc[i] = new STC(stc[i]);
+            this.stc[i] = new M3.STC(stc[i]);
         }
 
         for (i = 0, l = stg.length; i < l; i++) {
-            this.stg[i] = new STG(stg[i], this.sts, this.stc);
+            this.stg[i] = new M3.STG(stg[i], this.sts, this.stc);
         }
 
         this.addGlobalAnims();
 
         if (parser.fuzzyHitTestObjects.length > 0) {
             for (i = 0, l = parser.fuzzyHitTestObjects.length; i < l; i++) {
-                this.boundingShapes[i] = new BoundingShape(parser.fuzzyHitTestObjects[i], parser.bones, gl);
+                this.boundingShapes[i] = new M3.BoundingShape(parser.fuzzyHitTestObjects[i], parser.bones, gl);
             }
         }
         /*
@@ -131,7 +131,7 @@ Model.prototype = extend(BaseModel.prototype, {
         this.particleEmitters = [];
 
         for (i = 0, l = parser.particleEmitters.length; i < l; i++) {
-        this.particleEmitters[i] = new ParticleEmitter(parser.particleEmitters[i], this);
+        this.particleEmitters[i] = new M3.ParticleEmitter(parser.particleEmitters[i], this);
         }
         }
         */
@@ -233,7 +233,7 @@ Model.prototype = extend(BaseModel.prototype, {
         this.meshes = [];
 
         for (i = 0, l = regions.length; i < l; i++) {
-            this.meshes.push(new Region(regions[i], div.triangles, elementArray, edgeArray, offsets[i]));
+            this.meshes.push(new M3.Region(regions[i], div.triangles, elementArray, edgeArray, offsets[i]));
         }
 
         this.elementBuffer = ctx.createBuffer();

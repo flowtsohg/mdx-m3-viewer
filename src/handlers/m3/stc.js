@@ -1,4 +1,4 @@
-function STC(stc) {
+M3.STC = function (stc) {
     var i, l;
     var animIds = stc.animIds;
 
@@ -18,23 +18,23 @@ function STC(stc) {
     var sd = stc.sd;
 
     this.sd = [
-        new SD(sd[0]),
-        new SD(sd[1]),
-        new SD(sd[2]),
-        new SD(sd[3]),
-        new SD(sd[4]),
-        new SD(sd[5]),
-        0, // Unknown SD
-        new SD(sd[7]),
-        new SD(sd[8]),
-        0, // Unknown SD
-        0, // Unknown SD,
-        new SD(sd[11]),
-        new SD(sd[12])
+        new M3.SD(sd[0]),
+        new M3.SD(sd[1]),
+        new M3.SD(sd[2]),
+        new M3.SD(sd[3]),
+        new M3.SD(sd[4]),
+        new M3.SD(sd[5]),
+        0, // Unknown M3.SD
+        new M3.SD(sd[7]),
+        new M3.SD(sd[8]),
+        0, // Unknown M3.SD
+        0, // Unknown M3.SD,
+        new M3.SD(sd[11]),
+        new M3.SD(sd[12])
     ];
-}
+};
 
-STC.prototype = {
+M3.STC.prototype = {
     getValue: function (out, animationReference, frame) {
         var animRef = this.animRefs[this.animIds[animationReference.animId]];
 

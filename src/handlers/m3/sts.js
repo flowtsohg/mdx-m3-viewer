@@ -1,4 +1,4 @@
-function STS(sts) {
+M3.STS = function (sts) {
     var i, l;
     var animIds = sts.animIds;
 
@@ -8,9 +8,9 @@ function STS(sts) {
     for (i = 0, l = animIds.length; i < l; i++) {
         this.animIds[animIds[i]] = i;
     }
-}
+};
 
-STS.prototype = {
+M3.STS.prototype = {
     hasData: function (animationReference) {
         return !!this.animIds[animationReference.animId];
     }

@@ -1,8 +1,8 @@
-function Particle() {
+M3.Particle = function () {
 
-}
+};
 
-Particle.prototype = {
+M3.Particle.prototype = {
     reset: function (emitter, model) {
         this.alive = true;
         this.health = model.getValue(emitter.lifespan1);

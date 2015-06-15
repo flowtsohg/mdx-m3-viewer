@@ -1,7 +1,7 @@
-function ShallowLayer(layer, geoset) {
+Mdx.ShallowLayer = function (layer, geoset) {
     this.layer = layer;
     this.geoset = geoset;
-}
+};
 
 var filterModeToRenderOrder = {
     0: 0, // Opaque
@@ -13,7 +13,7 @@ var filterModeToRenderOrder = {
     6: 3  // Modulate 2X
 };
 
-function Layer(layer, model) {
+Mdx.Layer = function (layer, model) {
     var filterMode = Math.min(layer.filterMode, 6);
     
     this.filterMode = filterMode;
@@ -25,10 +25,10 @@ function Layer(layer, model) {
     this.coordId = layer.coordId;
     this.alpha = layer.alpha;
     this.renderOrder = filterModeToRenderOrder[filterMode];
-    this.sd = parseSDTracks(layer.tracks, model);
-}
+    this.sd = Mdx.parseSDTracks(layer.tracks, model);
+};
 
-Layer.prototype = {
+Mdx.Layer.prototype = {
     setMaterial: function (shader, ctx) {
         var filterMode = this.filterMode;
 

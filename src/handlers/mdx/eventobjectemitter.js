@@ -1,4 +1,4 @@
-function EventObjectEmitter(eventObject, model, instance, context) {
+Mdx.EventObjectEmitter = function (eventObject, model, instance, context) {
     var node = instance.skeleton.nodes[eventObject.node];
     var name = node.nodeImpl.name;
     var type = name.substring(0, 3);
@@ -66,9 +66,9 @@ function EventObjectEmitter(eventObject, model, instance, context) {
     }
     
     this.track = vec3.create();
-}
+};
 
-EventObjectEmitter.prototype = {
+Mdx.EventObjectEmitter.prototype = {
     update: function (allowCreate, sequence, frame, counter, context) {
         if (this.ready) {
             var eventObjects = this.eventObjects;
@@ -78,13 +78,13 @@ EventObjectEmitter.prototype = {
             if (track[0] === 1 && (track[0] !== this.lastTrack[0] || track[1] !== this.lastTrack[1])) {
                 switch (this.type) {
                     case "SPN":
-                        eventObject = new EventObjectSpn(this, context);
+                        eventObject = new Mdx.EventObjectSpn(this, context);
                         break;
                     case "SPL":
-                        eventObject = new EventObjectSpl(this, context);
+                        eventObject = new Mdx.EventObjectSpl(this, context);
                         break;
                     case "UBR":
-                        eventObject = new EventObjectUbr(this, context);
+                        eventObject = new Mdx.EventObjectUbr(this, context);
                         break;
                 }
                 

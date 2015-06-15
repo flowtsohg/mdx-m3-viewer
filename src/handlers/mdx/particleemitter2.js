@@ -1,4 +1,4 @@
-function ParticleEmitter2(emitter, model, instance, ctx) {
+Mdx.ParticleEmitter2 = function (emitter, model, instance, ctx) {
     var i, l;
     var keys = Object.keys(emitter);
 
@@ -49,7 +49,7 @@ function ParticleEmitter2(emitter, model, instance, ctx) {
     ctx.bufferData(ctx.ARRAY_BUFFER, this.data, ctx.DYNAMIC_DRAW);
 
     for (i = 0, l = particles; i < l; i++) {
-        this.particles[i] = new Particle2();
+        this.particles[i] = new Mdx.Particle2();
         this.reusables.push(particles - i - 1);
     }
 
@@ -65,7 +65,7 @@ function ParticleEmitter2(emitter, model, instance, ctx) {
     }
 
     this.node = instance.skeleton.nodes[this.node];
-    this.sd = parseSDTracks(emitter.tracks, model);
+    this.sd = Mdx.parseSDTracks(emitter.tracks, model);
 
     // Avoid heap alocations in Particle2.reset
     this.particleLocalPosition = vec3.create();
@@ -81,9 +81,9 @@ function ParticleEmitter2(emitter, model, instance, ctx) {
     
     this.modelSpace = this.node.nodeImpl.modelSpace;
     this.currentEmission = 0;
-}
+};
 
-ParticleEmitter2.prototype = {
+Mdx.ParticleEmitter2.prototype = {
     update: function (allowCreate, sequence, frame, counter, context) {
         var particles = this.particles;
         var reusables = this.reusables;
@@ -127,7 +127,7 @@ ParticleEmitter2.prototype = {
         
         // Third stage: create new particles if needed.
         if (allowCreate && this.shouldRender(sequence, frame, counter)) {
-            this.currentEmission += getSDValue(sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * (context.frameTime / 1000);
+            this.currentEmission += Mdx.getSDValue(sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * (context.frameTime / 1000);
             
             if (this.currentEmission >= 1) {
                 var amount = Math.floor(this.currentEmission);
@@ -355,6 +355,6 @@ ParticleEmitter2.prototype = {
     },
 
     shouldRender: function (sequence, frame, counter) {
-        return getSDValue(sequence, frame, counter, this.sd.visibility, 1) > 0.75;
+        return Mdx.getSDValue(sequence, frame, counter, this.sd.visibility, 1) > 0.75;
     }
 };

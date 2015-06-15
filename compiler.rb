@@ -54,16 +54,11 @@ compile_docs = false
     "gl/cube",
     "gl/sphere",
     "gl/cylinder",
-        
-    ["gl", [
-        "gl/before",
-        "gl/texture",
-        "gl/nativetexture",
-        "gl/shader",
-        "gl/gl",
-        "gl/after"
-    ]],
-    
+    "gl/texture",
+	"gl/nativetexture",
+	"gl/shader",
+	"gl/gl",
+	
     "camera",
     
     "async",
@@ -88,7 +83,7 @@ compile_docs = false
     "shaders",
     
     ["mdx", [
-        "handlers/mdx/before",
+		"handlers/mdx/common",
         "handlers/mdx/parser",
         "handlers/mdx/sd",
         "handlers/mdx/skeleton",
@@ -112,12 +107,11 @@ compile_docs = false
         "handlers/mdx/particle2",
         "handlers/mdx/particleemitter2",
         "handlers/mdx/ribbon",
-        "handlers/mdx/ribbonemitter",
-        "handlers/mdx/after"
+        "handlers/mdx/ribbonemitter"
     ]],
 
     ["m3", [
-        "handlers/m3/before",
+        "handlers/m3/common",
         "handlers/m3/parser",
         "handlers/m3/sd",
         "handlers/m3/sts",
@@ -130,9 +124,8 @@ compile_docs = false
         "handlers/m3/standardmaterial",
         "handlers/m3/model",
         "handlers/m3/modelinstance",
-        #"handlers/m3/particle",
-        #"handlers/m3/particleemitter",
-        "handlers/m3/after"
+        # "handlers/m3/particle",
+        # "handlers/m3/particleemitter",
     ]]
 ]
 

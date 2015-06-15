@@ -1,3 +1,3 @@
-function TextureAnimation(textureAnimation, model) {
-    this.sd = parseSDTracks(textureAnimation.tracks, model);
-}
+Mdx.TextureAnimation = function (textureAnimation, model) {
+    this.sd = Mdx.parseSDTracks(textureAnimation.tracks, model);
+};

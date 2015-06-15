@@ -1,10 +1,10 @@
-function Ribbon(emitter, sequence, frame, counter) {
+Mdx.Ribbon = function (emitter, sequence, frame, counter) {
     this.alive = true;
     this.health = emitter.lifespan;
 
     var position = emitter.node.pivot;
-    var heightBelow = getSDValue(sequence, frame, counter, emitter.sd.heightBelow, emitter.heightBelow);
-    var heightAbove = getSDValue(sequence, frame, counter, emitter.sd.heightAbove, emitter.heightAbove);
+    var heightBelow = Mdx.getSDValue(sequence, frame, counter, emitter.sd.heightBelow, emitter.heightBelow);
+    var heightAbove = Mdx.getSDValue(sequence, frame, counter, emitter.sd.heightAbove, emitter.heightAbove);
 
     var p1 = [position[0], position[1] - heightBelow, position[2]];
     var p2 = [position[0], position[1] + heightAbove, position[2]];
@@ -14,9 +14,9 @@ function Ribbon(emitter, sequence, frame, counter) {
 
     this.p1 = p1;
     this.p2 = p2;
-}
+};
 
-Ribbon.prototype = {
+Mdx.Ribbon.prototype = {
     update: function (emitter, context) {
         this.health -= context.frameTime / 1000;
 

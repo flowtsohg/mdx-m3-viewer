@@ -1,4 +1,4 @@
-function Region(region, triangles, elementArray, edgeArray, offset) {
+M3.Region = function (region, triangles, elementArray, edgeArray, offset) {
     var i, j, k;
     var firstVertexIndex = region.firstVertexIndex;
     var triangleIndicesCount = region.triangleIndicesCount;
@@ -26,7 +26,7 @@ function Region(region, triangles, elementArray, edgeArray, offset) {
     this.elements = triangleIndicesCount;
 }
 
-Region.prototype = {
+M3.Region.prototype = {
     render: function (shader, ctx) {
         ctx.uniform1f(shader.variables.u_firstBoneLookupIndex, this.firstBoneLookupIndex);
         

@@ -1,17 +1,17 @@
-function ModelInstance(model, textureMap, context) {
+Mdx.ModelInstance = function (model, textureMap, context) {
     BaseModelInstance.call(this, model, textureMap);
 
     this.setup(model, context);
 }
 
-ModelInstance.prototype = extend(BaseModelInstance.prototype, {
+Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
     setup: function (model, context) {
         var gl = context.gl;
         var ctx = gl.ctx;
         var i, l, objects;
 
         this.counter = 0;
-        this.skeleton = new Skeleton(model, ctx);
+        this.skeleton = new Mdx.Skeleton(model, ctx);
 
         if (model.particleEmitters && model.particleEmitters.length > 0) {
             objects = model.particleEmitters;
@@ -19,7 +19,7 @@ ModelInstance.prototype = extend(BaseModelInstance.prototype, {
             this.particleEmitters = [];
 
             for (i = 0, l = objects.length; i < l; i++) {
-                this.particleEmitters[i] = new ParticleEmitter(objects[i], model, this, context);
+                this.particleEmitters[i] = new Mdx.ParticleEmitter(objects[i], model, this, context);
             }
         }
 
@@ -29,7 +29,7 @@ ModelInstance.prototype = extend(BaseModelInstance.prototype, {
             this.particleEmitters2 = [];
 
             for (i = 0, l = objects.length; i < l; i++) {
-                this.particleEmitters2[i] = new ParticleEmitter2(objects[i], model, this, ctx);
+                this.particleEmitters2[i] = new Mdx.ParticleEmitter2(objects[i], model, this, ctx);
             }
         }
 
@@ -39,7 +39,7 @@ ModelInstance.prototype = extend(BaseModelInstance.prototype, {
             this.ribbonEmitters = [];
 
             for (i = 0, l = objects.length; i < l; i++) {
-                this.ribbonEmitters[i] = new RibbonEmitter(objects[i], model, this, ctx);
+                this.ribbonEmitters[i] = new Mdx.RibbonEmitter(objects[i], model, this, ctx);
             }
         }
         
@@ -70,7 +70,7 @@ ModelInstance.prototype = extend(BaseModelInstance.prototype, {
             this.eventObjectEmitters = [];
             
             for (i = 0, l = objects.length; i < l; i++) {
-                this.eventObjectEmitters[i] = new EventObjectEmitter(objects[i], model, this, context);
+                this.eventObjectEmitters[i] = new Mdx.EventObjectEmitter(objects[i], model, this, context);
             }
         }
     },

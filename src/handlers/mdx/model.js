@@ -1,7 +1,7 @@
-function Model(arrayBuffer, textureMap, context, onerror) {
+Mdx.Model = function (arrayBuffer, textureMap, context, onerror) {
     BaseModel.call(this, textureMap);
 
-    var parser = Parser(new BinaryReader(arrayBuffer));
+    var parser = Mdx.Parser(new BinaryReader(arrayBuffer));
 
     if (context.debugMode) {
         console.log(parser);
@@ -10,9 +10,9 @@ function Model(arrayBuffer, textureMap, context, onerror) {
     if (parser) {
         this.setup(parser, context);
     }
-}
+};
 
-Model.prototype = extend(BaseModel.prototype, {
+Mdx.Model.prototype = extend(BaseModel.prototype, {
     setup: function (parser, context) {
         var gl = context.gl;
         var objects, i, l, j, k;
@@ -57,11 +57,11 @@ Model.prototype = extend(BaseModel.prototype, {
         this.nodes = [];
 
         for (i = 0, l = nodes.length; i < l; i++) {
-            this.nodes[i] = new Node(nodes[i], this, pivots);
+            this.nodes[i] = new Mdx.Node(nodes[i], this, pivots);
         }
 
         if (this.nodes.length === 0) {
-            this.nodes[0] = new Node({objectId: 0, parentId: 0xFFFFFFFF}, this, pivots);
+            this.nodes[0] = new Mdx.Node({objectId: 0, parentId: 0xFFFFFFFF}, this, pivots);
         }
         
         // This list is used to access all the nodes in a loop while keeping the hierarchy in mind.
@@ -99,7 +99,7 @@ Model.prototype = extend(BaseModel.prototype, {
                 fakeMaterials[i] = [];
                 
                 for (j = 0, k = layers.length; j < k; j++) {
-                    layer = new Layer(layers[j], this);
+                    layer = new Mdx.Layer(layers[j], this);
                     
                     fakeMaterials[i][j] = layer;
                     this.layers.push(layer);
@@ -117,14 +117,14 @@ Model.prototype = extend(BaseModel.prototype, {
                 geoset = geosets[i];
                 layers = fakeMaterials[geoset.materialId];
                 
-                mesh = new Geoset(geoset, i, gl.ctx);
+                mesh = new Mdx.Geoset(geoset, i, gl.ctx);
                 
                 this.meshes.push(mesh);
                 
                 for (j = 0, k = layers.length; j < k; j++) {
                     layer = layers[j];
                     
-                    groups[layer.renderOrder].push(new ShallowLayer(layer, mesh));
+                    groups[layer.renderOrder].push(new Mdx.ShallowLayer(layer, mesh));
                 }
             }
             
@@ -139,7 +139,7 @@ Model.prototype = extend(BaseModel.prototype, {
             this.cameras = [];
             
             for (i = 0, l = objects.length; i < l; i++) {
-                this.cameras[i] = new Camera(objects[i], this);
+                this.cameras[i] = new Mdx.Camera(objects[i], this);
             }
         }
 
@@ -149,7 +149,7 @@ Model.prototype = extend(BaseModel.prototype, {
             this.geosetAnimations = [];
 
             for (i = 0, l = objects.length; i < l; i++) {
-                this.geosetAnimations[i] = new GeosetAnimation(objects[i], this);
+                this.geosetAnimations[i] = new Mdx.GeosetAnimation(objects[i], this);
             }
         }
 
@@ -159,7 +159,7 @@ Model.prototype = extend(BaseModel.prototype, {
             this.textureAnimations = [];
 
             for (i = 0, l = objects.length; i < l; i++) {
-                this.textureAnimations[i] = new TextureAnimation(objects[i], this);
+                this.textureAnimations[i] = new Mdx.TextureAnimation(objects[i], this);
             }
         }
 
@@ -179,7 +179,7 @@ Model.prototype = extend(BaseModel.prototype, {
             objects = parser.collisionShapeChunk.objects;
 
             for (i = 0, l = objects.length; i < l; i++) {
-                this.boundingShapes[i] = new CollisionShape(objects[i], this.nodes, gl);
+                this.boundingShapes[i] = new Mdx.CollisionShape(objects[i], this.nodes, gl);
             }
         }
         
@@ -187,7 +187,7 @@ Model.prototype = extend(BaseModel.prototype, {
             objects = parser.attachmentChunk.objects;
 
             for (i = 0, l = objects.length; i < l; i++) {
-                this.attachments[i] = new Attachment(objects[i], this);
+                this.attachments[i] = new Mdx.Attachment(objects[i], this);
             }
         }
         
@@ -397,7 +397,7 @@ Model.prototype = extend(BaseModel.prototype, {
 
                         layer.setMaterial(shader, ctx);
 
-                        textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
+                        textureId = Mdx.getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
 
                         this.bindTexture(textures[textureId], 0, instance.textureMap, context);
                         
@@ -407,7 +407,7 @@ Model.prototype = extend(BaseModel.prototype, {
                                 
                                 if (geosetAnimation) {
                                     if (geosetAnimation.geosetId === geoset.index) {
-                                        tempVec3 = getSDValue(sequence, frame, counter, geosetAnimation.sd.color, geosetAnimation.color, tempVec3);
+                                        tempVec3 = Mdx.getSDValue(sequence, frame, counter, geosetAnimation.sd.color, geosetAnimation.color, tempVec3);
                                         
                                         modifier[0] = tempVec3[0];
                                         modifier[1] = tempVec3[1];
@@ -417,7 +417,7 @@ Model.prototype = extend(BaseModel.prototype, {
                             }
                         }
                         
-                        modifier[3] = getSDValue(sequence, frame, counter, layer.sd.alpha, layer.alpha);
+                        modifier[3] = Mdx.getSDValue(sequence, frame, counter, layer.sd.alpha, layer.alpha);
                         
                         ctx.uniform4fv(shader.variables.u_modifier, modifier);
 
@@ -426,7 +426,7 @@ Model.prototype = extend(BaseModel.prototype, {
                             
                             if (textureAnimation) {
                                 // What is Z used for?
-                                uvoffset = getSDValue(sequence, frame, counter, textureAnimation.sd.translation, defaultUvoffset, uvoffset);
+                                uvoffset = Mdx.getSDValue(sequence, frame, counter, textureAnimation.sd.translation, defaultUvoffset, uvoffset);
                             }
 
                         }
@@ -577,7 +577,7 @@ Model.prototype = extend(BaseModel.prototype, {
 
                 if (geosetAnimation.geosetId === geoset.index && geosetAnimation.sd.alpha) {
                     // This handles issues when there are multiple geoset animations for one geoset.
-                    if (getSDValue(sequence, frame, counter, geosetAnimation.sd.alpha) < 0.75) {
+                    if (Mdx.getSDValue(sequence, frame, counter, geosetAnimation.sd.alpha) < 0.75) {
                         return false;
                     }
                 }

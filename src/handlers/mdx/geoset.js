@@ -1,4 +1,4 @@
-function Geoset(geoset, index, ctx) {
+Mdx.Geoset = function (geoset, index, ctx) {
     var i, l, j, k;
     var positions = geoset.vertexPositions;
     var normals = geoset.vertexNormals;
@@ -118,9 +118,9 @@ function Geoset(geoset, index, ctx) {
     this.elements = faces.length;
     this.min = [minX, minY, minZ];
     this.max = [maxX, maxY, maxZ];
-}
+};
 
-Geoset.prototype = {
+Mdx.Geoset.prototype = {
     render: function (coordId, shader, polygonMode, ctx) {
         var offsets = this.offsets;
 

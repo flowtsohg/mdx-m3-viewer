@@ -1,11 +1,11 @@
-function SD(sd) {
+M3.SD = function (sd) {
     this.sd = sd;
 
     // Avoid heap allocations in getInterval()
     this.interval = [0, 0];
-}
+};
 
-SD.prototype = {
+M3.SD.prototype = {
     getValue: function (out, index, animationReference, frame, runsConcurrent) {
         var sd = this.sd[index];
 

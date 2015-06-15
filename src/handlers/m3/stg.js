@@ -1,11 +1,11 @@
-function STG(stg, sts, stc) {
+M3.STG = function (stg, sts, stc) {
     this.name = stg.name;
     this.stcIndices = stg.stcIndices;
     this.sts = sts;
     this.stc = stc;
-}
+};
 
-STG.prototype = {
+M3.STG.prototype = {
     getValue: function (out, animationReference, frame) {
         var i, l;
         var stcIndices = this.stcIndices;

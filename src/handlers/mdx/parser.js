@@ -1,4 +1,4 @@
-var Parser = (function () {
+Mdx.Parser = (function () {
     function readExtent(reader) {
         return {boundsRadius: readFloat32(reader), minimum: readVector3(reader), maximum: readVector3(reader)};
     }

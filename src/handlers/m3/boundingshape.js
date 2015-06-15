@@ -1,4 +1,4 @@
-function BoundingShape(boundingshape, bones, gl) {
+M3.BoundingShape = function (boundingshape, bones, gl) {
     this.bone = boundingshape.bone;
     this.matrix = boundingshape.matrix;
     this.name = bones[boundingshape.bone].name;
@@ -15,9 +15,9 @@ function BoundingShape(boundingshape, bones, gl) {
     }
 
     this.shape = shape;
-}
+};
 
-BoundingShape.prototype = {
+M3.BoundingShape.prototype = {
     render: function (shader, bones, gl) {
         var ctx = gl.ctx;
 

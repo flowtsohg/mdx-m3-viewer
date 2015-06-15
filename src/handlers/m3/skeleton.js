@@ -1,13 +1,13 @@
-function ShallowBone (bone) {
+M3.ShallowBone = function (bone) {
     BaseNode.call(this);
 
     this.boneImpl = bone;
     this.parent = bone.parent;
     
     this.externalWorldMatrix = mat4.create();
-}
+};
 
-ShallowBone.prototype = extend(BaseNode.prototype, {
+M3.ShallowBone.prototype = extend(BaseNode.prototype, {
     getTransformation: function () {
         var m = this.externalWorldMatrix;
 
@@ -19,7 +19,7 @@ ShallowBone.prototype = extend(BaseNode.prototype, {
     }
 });
 
-function Skeleton(model, ctx) {
+M3.Skeleton = function (model, ctx) {
     var i, l;
     var bones = model.bones;
     var boneLookup = model.boneLookup;
@@ -34,7 +34,7 @@ function Skeleton(model, ctx) {
     BaseSkeleton.call(this, boneLookup.length, ctx);
 
     for (i = 0, l = bones.length; i < l; i++) {
-        this.nodes[i] = new ShallowBone(bones[i]);
+        this.nodes[i] = new M3.ShallowBone(bones[i]);
     }
 
     this.localMatrix = mat4.create();
@@ -45,9 +45,9 @@ function Skeleton(model, ctx) {
     this.rotationQuat = quat.create();
 
     this.rootScaler = vec3.fromValues(100, 100, 100);
-}
+};
 
-Skeleton.prototype = extend(BaseSkeleton.prototype, {
+M3.Skeleton.prototype = extend(BaseSkeleton.prototype, {
     update: function (sequence, frame, instance, ctx) {
         var root = this.rootNode;
 

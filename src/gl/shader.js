@@ -10,7 +10,7 @@
  * @property {WebGLShader} id
  * @property {boolean} ready
  */
-function ShaderUnit(source, type, name) {
+function ShaderUnit(ctx, source, type, name) {
     var id = ctx.createShader(type);
 
     this.type = "shaderunit";
@@ -46,7 +46,7 @@ function ShaderUnit(source, type, name) {
  * @property {number} attribs
  * @property {boolean} ready
  */
-function Shader(name, vertexUnit, fragmentUnit) {
+function Shader(ctx, name, vertexUnit, fragmentUnit) {
     var id = ctx.createProgram();
 
     this.type = "shader";
@@ -60,7 +60,7 @@ function Shader(name, vertexUnit, fragmentUnit) {
     ctx.linkProgram(id);
 
     if (ctx.getProgramParameter(id, ctx.LINK_STATUS)) {
-        this.getVariables();
+        this.getVariables(ctx);
         this.ready = true;
     } else {
         console.warn(name, ctx.getProgramInfoLog(this.id));
@@ -69,7 +69,7 @@ function Shader(name, vertexUnit, fragmentUnit) {
 }
 
 Shader.prototype = {
-    getVariables: function () {
+    getVariables: function (ctx) {
         var id = this.id;
         var variables = {};
         var i, l, v, location;

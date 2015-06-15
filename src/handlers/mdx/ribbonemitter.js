@@ -1,4 +1,4 @@
-function RibbonEmitter(emitter, model, instance, ctx) {
+Mdx.RibbonEmitter = function (emitter, model, instance, ctx) {
     var i, l;
     var keys = Object.keys(emitter);
 
@@ -27,7 +27,7 @@ function RibbonEmitter(emitter, model, instance, ctx) {
     var layers = model.fakeMaterials[this.materialId];
 
     for (i = 0, l = layers.length; i < l; i++) {
-        var layer = new ShallowLayer(layers[i]);
+        var layer = new Mdx.ShallowLayer(layers[i]);
 
         groups[layers[i].renderOrder].push(layer);
     }
@@ -35,16 +35,16 @@ function RibbonEmitter(emitter, model, instance, ctx) {
     this.layers = groups[0].concat(groups[1]).concat(groups[2]).concat(groups[3]);
 
     this.node = instance.skeleton.nodes[this.node];
-    this.sd = parseSDTracks(emitter.tracks, model);
+    this.sd = Mdx.parseSDTracks(emitter.tracks, model);
 
     // Avoid heap allocations
     this.colorVec = vec3.create();
     this.modifierVec = vec4.create();
     this.uvoffsetVec = vec3.create();
     this.defaultUvoffsetVec = vec3.fromValues(0, 0, 0);
-}
+};
 
-RibbonEmitter.prototype = {
+Mdx.RibbonEmitter.prototype = {
     update: function (allowCreate, sequence, frame, counter, context) {
         var i, l;
 
@@ -65,7 +65,7 @@ RibbonEmitter.prototype = {
                 this.lastCreation = 0;
 
                 for (i = 0; i < amount; i++) {
-                    this.ribbons.push(new Ribbon(this, sequence, frame, counter));
+                    this.ribbons.push(new Mdx.Ribbon(this, sequence, frame, counter));
                 }
             }
         }
@@ -77,7 +77,7 @@ RibbonEmitter.prototype = {
         var ribbons = Math.min(this.ribbons.length, this.maxRibbons);
 
         if (ribbons > 2) {
-            var textureSlot = getSDValue(sequence, frame, counter, this.sd.textureSlot, 0);
+            var textureSlot = Mdx.getSDValue(sequence, frame, counter, this.sd.textureSlot, 0);
             //var uvOffsetX = (textureSlot % this.columns) / this.columns;
             var uvOffsetY = Math.floor(textureSlot / this.rows) / this.rows;
             var uvFactor = 1 / ribbons * this.cellWidth;
@@ -121,24 +121,24 @@ RibbonEmitter.prototype = {
 
                 layer.setMaterial(shader, ctx);
 
-                textureId = getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
+                textureId = Mdx.getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
 
                 this.model.bindTexture(this.textures[textureId], 0, textureMap, context);
 
-                color = getSDValue(sequence, frame, counter, this.sd.color, this.color, this.colorVec);
+                color = Mdx.getSDValue(sequence, frame, counter, this.sd.color, this.color, this.colorVec);
                 uvoffset = this.defaultUvoffsetVec;
 
                 modifier[0] = color[0];
                 modifier[1] = color[1];
                 modifier[2] = color[2];
-                modifier[3] = getSDValue(sequence, frame, counter, this.sd.alpha, this.alpha);
+                modifier[3] = Mdx.getSDValue(sequence, frame, counter, this.sd.alpha, this.alpha);
 
                 ctx.uniform4fv(shader.variables.u_modifier, modifier);
 
                 if (layer.textureAnimationId !== -1 && this.model.textureAnimations) {
                     var textureAnimation = this.model.textureAnimations[layer.textureAnimationId];
                     // What is Z used for?
-                    uvoffset = getSDValue(sequence, frame, counter, textureAnimation.sd.translation, this.defaultUvoffsetVec, this.uvoffsetVec);
+                    uvoffset = Mdx.getSDValue(sequence, frame, counter, textureAnimation.sd.translation, this.defaultUvoffsetVec, this.uvoffsetVec);
                 }
 
                 ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
@@ -149,6 +149,6 @@ RibbonEmitter.prototype = {
     },
 
     shouldRender: function (sequence, frame, counter) {
-        return getSDValue(sequence, frame, counter, this.sd.visibility) > 0.75;
+        return Mdx.getSDValue(sequence, frame, counter, this.sd.visibility) > 0.75;
     }
 };

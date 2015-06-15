@@ -1,4 +1,4 @@
-function EventObjectSpl(emitter, context) {
+Mdx.EventObjectSpl = function (emitter, context) {
     var ctx = context.gl.ctx;
     
     this.buffer = ctx.createBuffer();
@@ -13,9 +13,9 @@ function EventObjectSpl(emitter, context) {
     this.scale = vec3.clone(emitter.node.scale);
     this.color = vec4.create();
     this.index = 0;
-}
+};
 
-EventObjectSpl.prototype = {
+Mdx.EventObjectSpl.prototype = {
     update: function (emitter, context) {
         var dt = context.frameTime / 100;
         

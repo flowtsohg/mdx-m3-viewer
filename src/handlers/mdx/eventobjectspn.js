@@ -1,4 +1,4 @@
-function EventObjectSpn(emitter, context) {
+Mdx.EventObjectSpn = function  (emitter, context) {
     var instance = context.loadInternalResource(context.urls.mpqFile(emitter.path));
                 
     instance.setSequence(0);
@@ -7,9 +7,9 @@ function EventObjectSpn(emitter, context) {
     instance.setRotationQuat(emitter.node.worldRotation);
     
     this.instance = instance;
-}
+};
 
-EventObjectSpn.prototype = {
+Mdx.EventObjectSpn.prototype = {
     update: function (emitter, context) {
         this.instance.update(context);
     },

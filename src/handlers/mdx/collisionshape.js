@@ -1,4 +1,4 @@
-function CollisionShape(collisionshape, nodes, gl) {
+Mdx.CollisionShape = function (collisionshape, nodes, gl) {
     this.node = collisionshape.node;
     this.name = nodes[collisionshape.node].name;
 
@@ -19,9 +19,9 @@ function CollisionShape(collisionshape, nodes, gl) {
     }
 
     this.shape = shape;
-}
+};
 
-CollisionShape.prototype = {
+Mdx.CollisionShape.prototype = {
     render: function (skeleton, shader, gl) {
         var ctx = gl.ctx;
 

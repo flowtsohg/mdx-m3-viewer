@@ -1,4 +1,4 @@
-function Particle2() {
+Mdx.Particle2 = function () {
     this.id = 0;
     this.health = 0;
     this.head = true;
@@ -9,18 +9,18 @@ function Particle2() {
     this.gravity = 0;
     this.scale = 1;
     this.index = 0;
-}
+};
 
-Particle2.prototype = {
+Mdx.Particle2.prototype = {
     reset: function (emitter, head, id, sequence, frame, counter) {
         var pivot = emitter.node.pivot;
         var worldMatrix = emitter.node.worldMatrix;
         var scale = emitter.node.scale;
-        var width = getSDValue(sequence, frame, counter, emitter.sd.width, emitter.width) * 0.5 * scale[0];
-        var length = getSDValue(sequence, frame, counter, emitter.sd.length, emitter.length) * 0.5 * scale[1];
-        var speed = (getSDValue(sequence, frame, counter, emitter.sd.speed, emitter.speed) + Math.randomRange(-emitter.variation, emitter.variation));
-        var latitude = Math.toRad(getSDValue(sequence, frame, counter, emitter.sd.latitude, emitter.latitude));
-        var gravity = getSDValue(sequence, frame, counter, emitter.sd.gravity, emitter.gravity) * scale[2];
+        var width = Mdx.getSDValue(sequence, frame, counter, emitter.sd.width, emitter.width) * 0.5 * scale[0];
+        var length = Mdx.getSDValue(sequence, frame, counter, emitter.sd.length, emitter.length) * 0.5 * scale[1];
+        var speed = (Mdx.getSDValue(sequence, frame, counter, emitter.sd.speed, emitter.speed) + Math.randomRange(-emitter.variation, emitter.variation));
+        var latitude = Math.toRad(Mdx.getSDValue(sequence, frame, counter, emitter.sd.latitude, emitter.latitude));
+        var gravity = Mdx.getSDValue(sequence, frame, counter, emitter.sd.gravity, emitter.gravity) * scale[2];
         var color = emitter.colors[0];
         var localPosition = emitter.particleLocalPosition;
         var position = emitter.particlePosition;

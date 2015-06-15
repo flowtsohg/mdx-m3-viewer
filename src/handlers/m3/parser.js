@@ -1,4 +1,4 @@
-var Parser = (function () {
+M3.Parser = (function () {
     var MD34_HEADER = 0x4d443334;
 
     function readColor(reader) {
