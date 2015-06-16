@@ -12,20 +12,20 @@ M3.StandardMaterial = function (material, model, textureMap, gl) {
     this.emisMode = material.emisMode;
 
     this.layers = [
-        new M3.Layer(material.diffuseM3.Layer, "diffuse", 2, model, textureMap, gl),
-        new M3.Layer(material.decalM3.Layer, "decal", 2, model, textureMap, gl),
-        new M3.Layer(material.specularM3.Layer, "specular", 2, model, textureMap, gl),
-        new M3.Layer(material.glossM3.Layer, "gloss", 2, model, textureMap, gl),
-        new M3.Layer(material.emissiveM3.Layer, "emissive", material.emisBlendType, model, textureMap, gl),
-        new M3.Layer(material.emissive2M3.Layer, "emissive2", material.emisMode, model, textureMap, gl),
-        new M3.Layer(material.evioM3.Layer, "evio", 2, model, textureMap, gl),
-        new M3.Layer(material.evioMaskM3.Layer, "evioMask", 2, model, textureMap, gl),
-        new M3.Layer(material.alphaMaskM3.Layer, "alphaMask", 2, model, textureMap, gl),
-        new M3.Layer(material.alphaMask2M3.Layer, "alphaMask2", 2, model, textureMap, gl),
-        new M3.Layer(material.normalM3.Layer, "normal", 2, model, textureMap, gl),
-        new M3.Layer(material.heightM3.Layer, "heightMap", 2, model, textureMap, gl),
-        new M3.Layer(material.lightMapM3.Layer, "lightMap", 2, model, textureMap, gl),
-        new M3.Layer(material.ambientOcclusionM3.Layer, "ao", 2, model, textureMap, gl)
+        new M3.Layer(material.diffuseLayer, "diffuse", 2, model, textureMap, gl),
+        new M3.Layer(material.decalLayer, "decal", 2, model, textureMap, gl),
+        new M3.Layer(material.specularLayer, "specular", 2, model, textureMap, gl),
+        new M3.Layer(material.glossLayer, "gloss", 2, model, textureMap, gl),
+        new M3.Layer(material.emissiveLayer, "emissive", material.emisBlendType, model, textureMap, gl),
+        new M3.Layer(material.emissive2Layer, "emissive2", material.emisMode, model, textureMap, gl),
+        new M3.Layer(material.evioLayer, "evio", 2, model, textureMap, gl),
+        new M3.Layer(material.evioMaskLayer, "evioMask", 2, model, textureMap, gl),
+        new M3.Layer(material.alphaMaskLayer, "alphaMask", 2, model, textureMap, gl),
+        new M3.Layer(material.alphaMask2Layer, "alphaMask2", 2, model, textureMap, gl),
+        new M3.Layer(material.normalLayer, "normal", 2, model, textureMap, gl),
+        new M3.Layer(material.heightLayer, "heightMap", 2, model, textureMap, gl),
+        new M3.Layer(material.lightMapLayer, "lightMap", 2, model, textureMap, gl),
+        new M3.Layer(material.ambientOcclusionLayer, "ao", 2, model, textureMap, gl)
     ];
 };
 
