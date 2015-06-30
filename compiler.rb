@@ -47,7 +47,7 @@ compile_docs = false
         "math/interpolator"
     ]],
 
-    "binaryreader/binaryreader",
+    "binaryreader",
     "base",
 
     "gl/rect",
@@ -72,7 +72,7 @@ compile_docs = false
     "asyncmodel",
     "asyncmodelinstance",
     
-    "viewer/viewer",
+    "viewer",
 
     "handlers/jpg",
     "handlers/blptexture",
