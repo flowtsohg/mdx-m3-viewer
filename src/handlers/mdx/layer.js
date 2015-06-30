@@ -29,9 +29,7 @@ Mdx.Layer = function (layer, model) {
 };
 
 Mdx.Layer.prototype = {
-    setMaterial: function (shader, ctx) {
-        var filterMode = this.filterMode;
-
+    bind: function (shader, ctx) {
         ctx.uniform1f(shader.variables.u_alphaTest, 0);
 
         switch (this.filterMode) {
@@ -85,6 +83,31 @@ Mdx.Layer.prototype = {
         
         if (this.noDepthSet) {
             ctx.depthMask(0);
+        }
+    },
+
+    unbind: function (shader, ctx) {
+        ctx.uniform1f(shader.variables.u_alphaTest, 0);
+
+        ctx.depthMask(1);
+        ctx.disable(ctx.BLEND);
+        ctx.enable(ctx.CULL_FACE);
+        ctx.enable(ctx.DEPTH_TEST);
+    },
+
+    getAlpha: function (sequence, frame, counter) {
+        if (this.sd.alpha) {
+            return this.sd.alpha.getValue(sequence, frame, counter);
+        } else {
+            return this.alpha;
+        }
+    },
+
+    getTextureId: function (sequence, frame, counter) {
+        if (this.sd.textureId) {
+            return this.sd.textureId.getValue(sequence, frame, counter);
+        } else {
+            return this.textureId;
         }
     }
 };

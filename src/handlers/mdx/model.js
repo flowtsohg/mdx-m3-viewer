@@ -199,7 +199,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         this.modifier = vec4.create();
         this.uvoffset = vec3.create();
         this.defaultUvoffset = vec3.create();
-        this.tempVec3 = vec3.create();
+        this.tempVec3 = vec4.create();
 
         this.ready = true;
 
@@ -385,7 +385,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
                     geoset = shallowLayer.geoset;
                     layer = shallowLayer.layer;
 
-                    if (instance.meshVisibilities[geoset.index] && this.shouldRenderGeoset(sequence, frame, counter, geoset)) {
+                    if (instance.meshVisibilities[geoset.index] && this.shouldRender(sequence, frame, counter, geoset, layer)) {
                         modifier[0] = 1;
                         modifier[1] = 1;
                         modifier[2] = 1;
@@ -395,9 +395,9 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
                         uvoffset[1] = 0;
                         uvoffset[2] = 0;
 
-                        layer.setMaterial(shader, ctx);
+                        layer.bind(shader, ctx);
 
-                        textureId = Mdx.getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
+                        textureId = layer.getTextureId(sequence, frame, counter);
 
                         this.bindTexture(textures[textureId], 0, instance.textureMap, context);
 
@@ -407,7 +407,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
 
                                 if (geosetAnimation) {
                                     if (geosetAnimation.geosetId === geoset.index) {
-                                        tempVec3 = Mdx.getSDValue(sequence, frame, counter, geosetAnimation.sd.color, geosetAnimation.color, tempVec3);
+                                        tempVec3 = geosetAnimation.getColor(sequence, frame, counter);
 
                                         modifier[0] = tempVec3[2];
                                         modifier[1] = tempVec3[1];
@@ -417,7 +417,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
                             }
                         }
 
-                        modifier[3] = Mdx.getSDValue(sequence, frame, counter, layer.sd.alpha, layer.alpha);
+                        modifier[3] = layer.getAlpha(sequence, frame, counter);
 
                         ctx.uniform4fv(shader.variables.u_modifier, modifier);
 
@@ -426,7 +426,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
 
                             if (textureAnimation) {
                                 // What is Z used for?
-                                uvoffset = Mdx.getSDValue(sequence, frame, counter, textureAnimation.sd.translation, defaultUvoffset, uvoffset);
+                                uvoffset = textureAnimation.getTranslation(sequence, frame, counter);
                             }
 
                         }
@@ -434,6 +434,8 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
                         ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
 
                         geoset.render(layer.coordId, shader, context.polygonMode, ctx);
+
+                        layer.unbind(shader, ctx);
                     }
                 }
             }
@@ -471,6 +473,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         ctx.depthMask(1);
         ctx.disable(ctx.BLEND);
         ctx.enable(ctx.CULL_FACE);
+        ctx.enable(ctx.DEPTH_TEST);
     },
 
     renderEmitters: function (instance, context) {
@@ -568,16 +571,19 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         }
     },
 
-    shouldRenderGeoset: function (sequence, frame, counter, geoset) {
+    shouldRender: function (sequence, frame, counter, geoset, layer) {
         var i, l, geosetAnimation, geosetAnimations = this.geosetAnimations;
+
+        if (layer.getAlpha(sequence, frame, counter) < 0.75) {
+            return false;
+        }
 
         if (geosetAnimations) {
             for (i = 0, l = geosetAnimations.length; i < l; i++) {
                 geosetAnimation = geosetAnimations[i];
 
-                if (geosetAnimation.geosetId === geoset.index && geosetAnimation.sd.alpha) {
-                    // This handles issues when there are multiple geoset animations for one geoset.
-                    if (Mdx.getSDValue(sequence, frame, counter, geosetAnimation.sd.alpha) < 0.75) {
+                if (geosetAnimation.geosetId === geoset.index) {
+                    if (geosetAnimation.getAlpha(sequence, frame, counter) < 0.75) {
                         return false;
                     }
                 }

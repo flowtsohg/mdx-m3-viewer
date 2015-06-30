@@ -77,7 +77,7 @@ Mdx.RibbonEmitter.prototype = {
         var ribbons = Math.min(this.ribbons.length, this.maxRibbons);
 
         if (ribbons > 2) {
-            var textureSlot = Mdx.getSDValue(sequence, frame, counter, this.sd.textureSlot, 0);
+            var textureSlot = this.getTextureSlot(sequence, frame, counter);
             //var uvOffsetX = (textureSlot % this.columns) / this.columns;
             var uvOffsetY = Math.floor(textureSlot / this.rows) / this.rows;
             var uvFactor = 1 / ribbons * this.cellWidth;
@@ -121,24 +121,24 @@ Mdx.RibbonEmitter.prototype = {
 
                 layer.setMaterial(shader, ctx);
 
-                textureId = Mdx.getSDValue(sequence, frame, counter, layer.sd.textureId, layer.textureId);
+                textureId = layer.getTextureId(sequence, frame, counter);
 
                 this.model.bindTexture(this.textures[textureId], 0, textureMap, context);
 
-                color = Mdx.getSDValue(sequence, frame, counter, this.sd.color, this.color, this.colorVec);
+                color = this.getColor(sequence, frame, counter);
                 uvoffset = this.defaultUvoffsetVec;
 
                 modifier[0] = color[0];
                 modifier[1] = color[1];
                 modifier[2] = color[2];
-                modifier[3] = Mdx.getSDValue(sequence, frame, counter, this.sd.alpha, this.alpha);
+                modifier[3] = this.getAlpha(sequence, frame, counter);
 
                 ctx.uniform4fv(shader.variables.u_modifier, modifier);
 
                 if (layer.textureAnimationId !== -1 && this.model.textureAnimations) {
                     var textureAnimation = this.model.textureAnimations[layer.textureAnimationId];
                     // What is Z used for?
-                    uvoffset = Mdx.getSDValue(sequence, frame, counter, textureAnimation.sd.translation, this.defaultUvoffsetVec, this.uvoffsetVec);
+                    uvoffset = textureAnimation.getTranslation(sequence, frame, counter);
                 }
 
                 ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
@@ -149,6 +149,54 @@ Mdx.RibbonEmitter.prototype = {
     },
 
     shouldRender: function (sequence, frame, counter) {
-        return Mdx.getSDValue(sequence, frame, counter, this.sd.visibility) > 0.75;
+        return this.getVisibility(sequence, frame, counter) > 0.75;
+    },
+
+    getHeightBelow: function (sequence, frame, counter) {
+        if (this.sd.heightBelow) {
+            return this.sd.heightBelow.getValue(sequence, frame, counter);
+        } else {
+            return this.heightBelow;
+        }
+    },
+
+    getHeightAbove: function (sequence, frame, counter) {
+        if (this.sd.heightAbove) {
+            return this.sd.heightAbove.getValue(sequence, frame, counter);
+        } else {
+            return this.heightAbove;
+        }
+    },
+
+    getTextureSlot: function (sequence, frame, counter) {
+        if (this.sd.lifespan) {
+            return this.sd.textureSlot.getValue(sequence, frame, counter);
+        } else {
+            return 0;
+        }
+    },
+
+    getColor: function (sequence, frame, counter) {
+        if (this.sd.color) {
+            return this.sd.color.getValue(sequence, frame, counter);
+        } else {
+            return this.color;
+        }
+    },
+
+    getAlpha: function (sequence, frame, counter) {
+        if (this.sd.alpha) {
+            return this.sd.alpha.getValue(sequence, frame, counter);
+        } else {
+            return this.alpha;
+        }
+    },
+
+    getVisibility: function (sequence, frame, counter) {
+        if (this.sd.visibility) {
+            return this.sd.visibility.getValue(sequence, frame, counter);
+        } else {
+            return 1;
+        }
     }
 };

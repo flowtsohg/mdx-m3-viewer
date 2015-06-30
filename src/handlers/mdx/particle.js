@@ -8,11 +8,11 @@ Mdx.Particle = function  () {
 Mdx.Particle.prototype = {
     reset: function (emitter, sequence, frame, counter) {
         var scale = emitter.node.scale;
-        var speed = Mdx.getSDValue(sequence, frame, counter, emitter.sd.speed, emitter.initialVelocity);
-        var latitude = Mdx.getSDValue(sequence, frame, counter, emitter.sd.latitude, emitter.latitude);
-        var longitude = Mdx.getSDValue(sequence, frame, counter, emitter.sd.longitude, emitter.longitude);
-        var lifespan = Mdx.getSDValue(sequence, frame, counter, emitter.sd.lifespan, emitter.lifespan);
-        var gravity = Mdx.getSDValue(sequence, frame, counter, emitter.sd.gravity, emitter.gravity) * scale[2];
+        var speed = emitter.getSpeed(sequence, frame, counter);
+        var latitude = emitter.getLatitude(sequence, frame, counter);
+        var longitude = emitter.getLongitude(sequence, frame, counter);
+        var lifespan = emitter.getLifespan(sequence, frame, counter);
+        var gravity = emitter.getGravity(sequence, frame, counter) * scale[2];
         var position = this.position;
         var worldMatrix = emitter.node.worldMatrix;
 

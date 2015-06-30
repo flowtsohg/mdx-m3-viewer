@@ -25,6 +25,8 @@ Mdx.SD = function (tracks, model) {
     // Avoid heap allocations in getInterval()
     this.interval = [0, 0];
     
+    this.tempVector = new Float32Array(this.defval.length || 1);
+
     this.fillSequences();
 };
 
@@ -155,7 +157,7 @@ Mdx.SD.prototype = {
         }
     },
 
-    getValueAtTime: function (out, frame, start, end) {
+    getValueAtTime: function (frame, start, end) {
         var interval = this.interval;
 
         this.getInterval(frame, start, end, interval);
@@ -199,36 +201,46 @@ Mdx.SD.prototype = {
             t = 0;
         }
         
-        return interpolator(out, a.vector, a.outTan, b.inTan, b.vector, t, this.interpolationType);
+        return interpolator(this.tempVector, a.vector, a.outTan, b.inTan, b.vector, t, this.interpolationType);
+    },
+
+    getDefval: function () {
+        var tempVector = this.tempVector,
+            defval = this.defval,
+            length = defval.length;
+
+        if (length !== undefined) {
+            if (length === 3) {
+                vec3.copy(tempVector, defval);
+            } else if (length === 4) {
+                vec4.copy(tempVector, defval);
+            }
+
+            return tempVector;
+        } else {
+            return defval;
+        }
     },
 
     // The frame argument is the current animation frame
     // The counter argument is a counter that always goes up to infinity, and is used for global sequences
-    getValue: function (out, sequence, frame, counter) {
+    getValue: function (sequence, frame, counter) {
         if (this.globalSequenceId !== -1 && this.globalSequences) {
             var duration = this.globalSequences[this.globalSequenceId];
 
-            return this.getValueAtTime(out, counter % duration , 0, duration);
+            return this.getValueAtTime(counter % duration , 0, duration);
         } else if (sequence !== -1) {
             var interval = this.sequences[sequence].interval;
             //console.log("[getValue]", frame, interval[0], interval[1]);
-            return this.getValueAtTime(out, frame, interval[0], interval[1]);
+            return this.getValueAtTime(frame, interval[0], interval[1]);
         } else {
-            return this.defval;
+            return this.getDefval();
         }
     }
 };
 
-Mdx.getSDValue = function (sequence, frame, counter, sd, defval, out) {
-    if (sd) {
-        return sd.getValue(out, sequence, frame, counter);
-    } else {
-        return defval;
-    }
-};
-
 Mdx.parseSDTracks = function (tracks, model) {
-    var keys = Object.keys(tracks);
+    var keys = Object.keys(tracks || {});
     var sds = {};
     var type;
     
@@ -239,4 +251,20 @@ Mdx.parseSDTracks = function (tracks, model) {
     }
 
     return sds;
+};
+
+Mdx.getSDValue = function (sequence, frame, counter, sd, defval) {
+    if (sd) {
+        return sd.getValue(sequence, frame, counter);
+    } else {
+        //if (defval.length) {
+        //    for (var i = 0, l = defval.length; i < l; i++) {
+        //        out[i] = defval[i];
+        //    }
+
+        //    return out;
+        //}
+
+        return defval;
+    }
 };

@@ -70,7 +70,7 @@ Mdx.ParticleEmitter.prototype = {
         if (allowCreate && this.shouldRender(sequence, frame, counter)) {
             this.lastCreation += 1;
 
-            var amount = Mdx.getSDValue(sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * (context.frameTime / 1000) * this.lastCreation;
+            var amount = this.getEmissionRate(sequence, frame, counter) * (context.frameTime / 1000) * this.lastCreation;
 
             if (amount >= 1) {
                 this.lastCreation = 0;
@@ -109,6 +109,62 @@ Mdx.ParticleEmitter.prototype = {
     },
 
     shouldRender: function (sequence, frame, counter) {
-        return Mdx.getSDValue(sequence, frame, counter, this.sd.visibility) > 0.75;
+        return this.getVisibility(sequence, frame, counter) > 0.75;
+    },
+
+    getSpeed: function (sequence, frame, counter) {
+        if (this.sd.speed) {
+            return this.sd.speed.getValue(sequence, frame, counter);
+        } else {
+            return this.initialVelocity;
+        }
+    },
+
+    getLatitude: function (sequence, frame, counter) {
+        if (this.sd.latitude) {
+            return this.sd.latitude.getValue(sequence, frame, counter);
+        } else {
+            return this.latitude;
+        }
+    },
+
+    getLongitude: function (sequence, frame, counter) {
+        if (this.sd.longitude) {
+            return this.sd.longitude.getValue(sequence, frame, counter);
+        } else {
+            return this.longitude;
+        }
+    },
+
+    getLifespan: function (sequence, frame, counter) {
+        if (this.sd.lifespan) {
+            return this.sd.lifespan.getValue(sequence, frame, counter);
+        } else {
+            return this.lifespan;
+        }
+    },
+
+    getGravity: function (sequence, frame, counter) {
+        if (this.sd.gravity) {
+            return this.sd.gravity.getValue(sequence, frame, counter);
+        } else {
+            return this.gravity;
+        }
+    },
+
+    getEmissionRate: function (sequence, frame, counter) {
+        if (this.sd.emissionRate) {
+            return this.sd.emissionRate.getValue(sequence, frame, counter);
+        } else {
+            return this.emissionRate;
+        }
+    },
+
+    getVisibility: function (sequence, frame, counter) {
+        if (this.sd.visibility) {
+            return this.sd.visibility.getValue(sequence, frame, counter);
+        } else {
+            return 1;
+        }
     }
 };

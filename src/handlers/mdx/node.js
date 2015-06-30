@@ -1,3 +1,9 @@
+var defaultTransformations = {
+    translation: [0, 0, 0],
+    rotation: [0, 0, 0, 1],
+    scaling: [1, 1, 1]
+};
+
 Mdx.Node = function (object, model, pivots) {
     this.name = object.name;
     this.objectId = object.objectId;
@@ -6,14 +12,37 @@ Mdx.Node = function (object, model, pivots) {
     this.billboarded = object.billboarded;
     this.modelSpace = object.modelSpace;
     this.xYQuad = object.xYQuad;
-    
-    if (object.tracks) {
-        this.sd = Mdx.parseSDTracks(object.tracks, model);
-    }
-    
+    this.sd = Mdx.parseSDTracks(object.tracks, model);
+
     if (object.objectId === object.parentId) {
         this.parentId = -1;
     }
+};
+
+Mdx.Node.prototype = {
+    getTranslation: function (sequence, frame, counter) {
+        if (this.sd.translation) {
+            return this.sd.translation.getValue(sequence, frame, counter);
+        } else {
+            return defaultTransformations.translation;
+        }
+    },
+
+    getRotation: function (sequence, frame, counter) {
+        if (this.sd.rotation) {
+            return this.sd.rotation.getValue(sequence, frame, counter);
+        } else {
+            return defaultTransformations.rotation;
+        }
+    },
+
+    getScale: function (sequence, frame, counter) {
+        if (this.sd.scaling) {
+            return this.sd.scaling.getValue(sequence, frame, counter);
+        } else {
+            return defaultTransformations.scaling;
+        }
+    }  
 };
 
 // Used by each copy of a skeleton to hold the node hierarchy

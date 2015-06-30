@@ -1,9 +1,3 @@
-var defaultTransformations = {
-    translation: [0, 0, 0],
-    rotation: [0, 0, 0, 1],
-    scaling: [1, 1, 1]
-};
-
 Mdx.Skeleton = function (model, ctx) {
     var i, l;
     var pivots = model.pivots;
@@ -47,10 +41,9 @@ Mdx.Skeleton.prototype = extend(BaseSkeleton.prototype, {
     updateNode: function (node, sequence, frame, counter, context) {
         var parent = this.getNode(node.parentId);
         var nodeImpl = node.nodeImpl;
-        var translation = Mdx.getSDValue(sequence, frame, counter, nodeImpl.sd.translation, defaultTransformations.translation, this.locationVec);
-        var rotation = Mdx.getSDValue(sequence, frame, counter, nodeImpl.sd.rotation, defaultTransformations.rotation, this.rotationQuat);
-        var scale = Mdx.getSDValue(sequence, frame, counter, nodeImpl.sd.scaling, defaultTransformations.scaling, this.scaleVec);
-        // NOTE: This should not be needed, check how Mdx.getSDValue works......
+        var translation = nodeImpl.getTranslation(sequence, frame, counter);
+        var rotation = nodeImpl.getRotation(sequence, frame, counter);
+        var scale = nodeImpl.getScale(sequence, frame, counter);
         var finalRotation = this.rotationQuat2;
         
         if (nodeImpl.billboarded) {

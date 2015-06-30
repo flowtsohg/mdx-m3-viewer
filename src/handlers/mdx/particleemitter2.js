@@ -37,7 +37,7 @@ Mdx.ParticleEmitter2 = function (emitter, model, instance, ctx) {
     if (this.head && this.tail) {
         particles *= 2;
     }
-    
+
     this.particles = [];
     this.reusables = [];
     this.activeParticles = [];
@@ -78,7 +78,7 @@ Mdx.ParticleEmitter2 = function (emitter, model, instance, ctx) {
     this.xYQuad = this.node.nodeImpl.xYQuad;
 
     this.dimensions = [this.columns, this.rows];
-    
+
     this.modelSpace = this.node.nodeImpl.modelSpace;
     this.currentEmission = 0;
 };
@@ -124,11 +124,11 @@ Mdx.ParticleEmitter2.prototype = {
                 particle.update(this, sequence, frame, counter, context);
             }
         }
-        
+
         // Third stage: create new particles if needed.
         if (allowCreate && this.shouldRender(sequence, frame, counter)) {
-            this.currentEmission += Mdx.getSDValue(sequence, frame, counter, this.sd.emissionRate, this.emissionRate) * (context.frameTime / 1000);
-            
+            this.currentEmission += this.getEmissionRate(sequence, frame, counter) * (context.frameTime / 1000);
+
             if (this.currentEmission >= 1) {
                 var amount = Math.floor(this.currentEmission);
                 var index;
@@ -147,11 +147,11 @@ Mdx.ParticleEmitter2.prototype = {
                         particles[index].reset(this, false, index, sequence, frame, counter);
                         activeParticles.push(index);
                     }
-                    
+
                     this.currentEmission -= 1;
                 }
             }
-        }  
+        }
 
         this.updateHW(context.camera.rect, context.camera.billboardedRect);
     },
@@ -316,30 +316,30 @@ Mdx.ParticleEmitter2.prototype = {
             ctx.enable(ctx.DEPTH_TEST);
             ctx.depthMask(0);
             ctx.enable(ctx.BLEND);
-            
+
             switch (this.filterMode) {
                 // Blend
                 case 0:
                     ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
                     break;
-                // Additive
+                    // Additive
                 case 1:
                     ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
                     break;
-                // Modulate
+                    // Modulate
                 case 2:
                     ctx.blendFunc(ctx.ZERO, ctx.SRC_COLOR);
                     break;
-                // Modulate 2X
+                    // Modulate 2X
                 case 3:
                     ctx.blendFunc(ctx.DEST_COLOR, ctx.SRC_COLOR);
                     break;
-                // Add Alpha
+                    // Add Alpha
                 case 4:
                     ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
                     break;
             }
-            
+
             this.model.bindTexture(this.texture, 0, textureMap, context);
 
             ctx.uniform2fv(shader.variables.u_dimensions, this.dimensions);
@@ -355,6 +355,63 @@ Mdx.ParticleEmitter2.prototype = {
     },
 
     shouldRender: function (sequence, frame, counter) {
-        return Mdx.getSDValue(sequence, frame, counter, this.sd.visibility, 1) > 0.75;
+        return this.getVisibility(sequence, frame, counter) > 0.75;
+    },
+
+    getWidth: function (sequence, frame, counter) {
+        if (this.sd.width) {
+            return this.sd.width.getValue(sequence, frame, counter);
+        } else {
+            return this.width;
+        }
+    },
+
+    getLength: function (sequence, frame, counter) {
+        if (this.sd.length) {
+            return this.sd.length.getValue(sequence, frame, counter);
+        } else {
+            return this.length;
+        }
+    },
+
+    getSpeed: function (sequence, frame, counter) {
+        if (this.sd.speed) {
+            return this.sd.speed.getValue(sequence, frame, counter);
+        } else {
+            return this.speed;
+        }
+    },
+
+    getLatitude: function (sequence, frame, counter) {
+        if (this.sd.latitude) {
+            return this.sd.latitude.getValue(sequence, frame, counter);
+        } else {
+            return this.latitude;
+        }
+    },
+
+
+    getGravity: function (sequence, frame, counter) {
+        if (this.sd.gravity) {
+            return this.sd.gravity.getValue(sequence, frame, counter);
+        } else {
+            return this.gravity;
+        }
+    },
+
+    getEmissionRate: function (sequence, frame, counter) {
+        if (this.sd.emissionRate) {
+            return this.sd.emissionRate.getValue(sequence, frame, counter);
+        } else {
+            return this.emissionRate;
+        }
+    },
+
+    getVisibility: function (sequence, frame, counter) {
+        if (this.sd.visibility) {
+            return this.sd.visibility.getValue(sequence, frame, counter);
+        } else {
+            return 1;
+        }
     }
 };

@@ -52,7 +52,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     }
   
     function onunload(object) {
-        dispatchEvent({type: "unload", target: object});
+        dispatchEvent({type: "remove", target: object});
     }
   
     var listeners = {}
@@ -1098,6 +1098,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         getCamera: getCamera,
         // Misc
         selectInstance: selectInstance,
+        resetViewport: resetViewport,
         //saveScene: saveScene,
         //loadScene: loadScene,
         // Extending
@@ -1107,19 +1108,17 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         addEventListener: addEventListener,
         removeEventListener: removeEventListener,
         dispatchEvent: dispatchEvent,
-        resetViewport: resetViewport,
         // Experiemental
         renderTexture: renderTexture
     };
     
     // The main loop of the viewer
-    function step() {
+    (function step() {
         update();
         render();
 
         requestAnimationFrame(step);
-    }
-    step();
+    }());
         
     return mixin(API, viewerObject);
 };
