@@ -119,7 +119,7 @@ Mdx.RibbonEmitter.prototype = {
             for (i = 0, l = layers.length; i < l; i++) {
                 layer = layers[i].layer;
 
-                layer.setMaterial(shader, ctx);
+                layer.bind(shader, ctx);
 
                 textureId = layer.getTextureId(sequence, frame, counter);
 
@@ -144,6 +144,8 @@ Mdx.RibbonEmitter.prototype = {
                 ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
 
                 ctx.drawArrays(ctx.TRIANGLE_STRIP, 0, ribbons * 2);
+                
+                layer.unbind(shader, ctx);
             }
         }
     },
