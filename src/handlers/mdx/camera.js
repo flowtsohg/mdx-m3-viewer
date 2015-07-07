@@ -5,5 +5,19 @@ Mdx.Camera = function (camera, model) {
     this.farClippingPlane = camera.farClippingPlane;
     this.nearClippingPlane = camera.nearClippingPlane;
     this.targetPosition = camera.targetPosition;
-    this.sd = Mdx.parseSDTracks(camera.tracks, model);
+    this.sd = new Mdx.SDContainer(camera.tracks, model);
+};
+
+Mdx.Camera.prototype = {
+    getPositionTranslation: function (sequence, frame, counter) {
+        return this.sd.getKCTR(sequence, frame, counter, this.position);
+    },
+
+    getTargetTranslation: function (sequence, frame, counter) {
+        return this.sd.getKTTR(sequence, frame, counter, this.targetPosition);
+    },
+
+    getRotation: function (sequence, frame, counter) {
+        return this.sd.getKCRL(sequence, frame, counter, 0);
+    },
 };

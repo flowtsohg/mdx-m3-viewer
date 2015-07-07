@@ -1,7 +1,6 @@
 Mdx.SD = function (tracks, model) {
     var i, l, arr, keys;
     
-    this.type = tracks.type;
     this.defval = tracks.defval;
     this.interpolationType = tracks.interpolationType;
     this.globalSequenceId = tracks.globalSequenceId;
@@ -25,7 +24,7 @@ Mdx.SD = function (tracks, model) {
     // Avoid heap allocations in getInterval()
     this.interval = [0, 0];
     
-    this.tempVector = new Float32Array(this.defval.length || 1);
+    this.tempVector = new Float32Array(this.defval.length);
 
     this.fillSequences();
 };
@@ -47,13 +46,13 @@ Mdx.SD.prototype = {
             
             if (key > frame) {
                 keys.splice(i, 0, frame);
-                tracks.splice(i, 0, {frame: frame, vector: frame0, inTan: frame0, outTan: frame0});
+                tracks.splice(i, 0, {frame: frame, value: frame0, inTan: frame0, outTan: frame0});
                 return;
             }
         }
         
         keys.splice(l, 0, frame);
-        tracks.splice(l, 0, {frame: frame, vector: frame0, inTan: frame0, outTan: frame0});
+        tracks.splice(l, 0, { frame: frame, value: frame0, inTan: frame0, outTan: frame0 });
     },
     
     calculateFirstSeqFrame: function (firstFrames, interval) {
@@ -61,13 +60,13 @@ Mdx.SD.prototype = {
         var tracks = this.tracks;
         
         if (tracks[0].frame === 0) {
-            firstFrames.push(tracks[0].vector);
+            firstFrames.push(tracks[0].value);
             return;
         }
         
         for (var i = 0, l = keys.length; i < l; i++) {
             if (keys[i] >= interval[0] && keys[i] <= interval[1]) {
-                firstFrames.push(tracks[i].vector);
+                firstFrames.push(tracks[i].value);
                 return;
             }
         }
@@ -201,7 +200,7 @@ Mdx.SD.prototype = {
             t = 0;
         }
         
-        return interpolator(this.tempVector, a.vector, a.outTan, b.inTan, b.vector, t, this.interpolationType);
+        return interpolator(this.tempVector, a.value, a.outTan, b.inTan, b.value, t, this.interpolationType);
     },
 
     getDefval: function () {
@@ -209,17 +208,15 @@ Mdx.SD.prototype = {
             defval = this.defval,
             length = defval.length;
 
-        if (length !== undefined) {
-            if (length === 3) {
-                vec3.copy(tempVector, defval);
-            } else if (length === 4) {
-                vec4.copy(tempVector, defval);
-            }
-
-            return tempVector;
-        } else {
-            return defval;
+        if (length === 1) {
+            return defval[0];
+        } else if (length === 3) {
+            vec3.copy(tempVector, defval);
+        } else if (length === 4) {
+            vec4.copy(tempVector, defval);
         }
+
+        return tempVector;
     },
 
     // The frame argument is the current animation frame
@@ -231,7 +228,6 @@ Mdx.SD.prototype = {
             return this.getValueAtTime(counter % duration , 0, duration);
         } else if (sequence !== -1) {
             var interval = this.sequences[sequence].interval;
-            //console.log("[getValue]", frame, interval[0], interval[1]);
             return this.getValueAtTime(frame, interval[0], interval[1]);
         } else {
             return this.getDefval();
@@ -239,32 +235,195 @@ Mdx.SD.prototype = {
     }
 };
 
-Mdx.parseSDTracks = function (tracks, model) {
+Mdx.SDContainer = function (container, model) {
+    var tracks = container.sd;
     var keys = Object.keys(tracks || {});
-    var sds = {};
+    var sd = {};
     var type;
-    
+
     for (var i = 0, l = keys.length; i < l; i++) {
         type = keys[i];
-        
-        sds[type] = new Mdx.SD(tracks[type], model);
+
+        sd[type] = new Mdx.SD(tracks[type], model);
     }
 
-    return sds;
+    this.sd = sd;
 };
 
-Mdx.getSDValue = function (sequence, frame, counter, sd, defval) {
-    if (sd) {
-        return sd.getValue(sequence, frame, counter);
-    } else {
-        //if (defval.length) {
-        //    for (var i = 0, l = defval.length; i < l; i++) {
-        //        out[i] = defval[i];
-        //    }
-
-        //    return out;
-        //}
+Mdx.SDContainer.prototype = {
+    getValue: function (sd, sequence, frame, counter, defval) {
+        if (sd) {
+            return sd.getValue(sequence, frame, counter);
+        }
 
         return defval;
+    },
+
+    getKMTF: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KMTF, sequence, frame, counter, defval);
+    },
+
+    getKMTA: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KMTA, sequence, frame, counter, defval);
+    },
+
+    getKTAT: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KTAT, sequence, frame, counter, defval);
+    },
+
+    getKTAR: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KTAR, sequence, frame, counter, defval);
+    },
+
+    getKTAS: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KTAS, sequence, frame, counter, defval);
+    },
+
+    getKGAO: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KGAO, sequence, frame, counter, defval);
+    },
+
+    getKGAC: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KGAC, sequence, frame, counter, defval);
+    },
+
+    getKLAS: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KLAS, sequence, frame, counter, defval);
+    },
+
+    getKLAE: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KLAE, sequence, frame, counter, defval);
+    },
+
+    getKLAC: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KLAC, sequence, frame, counter, defval);
+    },
+
+    getKLAI: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KLAI, sequence, frame, counter, defval);
+    },
+
+    getKLBI: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KLBI, sequence, frame, counter, defval);
+    },
+
+    getKLBC: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KLBC, sequence, frame, counter, defval);
+    },
+
+    getKLAV: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KLAV, sequence, frame, counter, defval);
+    },
+
+    getKATV: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KATV, sequence, frame, counter, defval);
+    },
+
+    getKPEE: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KPEE, sequence, frame, counter, defval);
+    },
+
+    getKPEG: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KPEG, sequence, frame, counter, defval);
+    },
+
+    getKPLN: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KPLN, sequence, frame, counter, defval);
+    },
+
+    getKPLT: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KPLT, sequence, frame, counter, defval);
+    },
+
+    getKPEL: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KPEL, sequence, frame, counter, defval);
+    },
+
+    getKPES: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KPES, sequence, frame, counter, defval);
+    },
+
+    getKPEV: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KPEV, sequence, frame, counter, defval);
+    },
+
+    getKP2S: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KP2S, sequence, frame, counter, defval);
+    },
+
+    getKP2R: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KP2R, sequence, frame, counter, defval);
+    },
+
+    getKP2L: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KP2L, sequence, frame, counter, defval);
+    },
+
+    getKP2G: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KP2G, sequence, frame, counter, defval);
+    },
+
+    getKP2E: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KP2E, sequence, frame, counter, defval);
+    },
+
+    getKP2N: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KP2N, sequence, frame, counter, defval);
+    },
+
+    getKP2W: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KP2W, sequence, frame, counter, defval);
+    },
+
+    getKP2V: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KP2V, sequence, frame, counter, defval);
+    },
+
+    getKRHA: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KRHA, sequence, frame, counter, defval);
+    },
+
+    getKRHB: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KRHB, sequence, frame, counter, defval);
+    },
+
+    getKRAL: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KRAL, sequence, frame, counter, defval);
+    },
+
+    getKRCO: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KRCO, sequence, frame, counter, defval);
+    },
+
+    getKRTX: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KRTX, sequence, frame, counter, defval);
+    },
+
+    getKRVS: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KRVS, sequence, frame, counter, defval);
+    },
+
+    getKCTR: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KCTR, sequence, frame, counter, defval);
+    },
+
+    getKTTR: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KTTR, sequence, frame, counter, defval);
+    },
+
+    getKCRL: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KCRL, sequence, frame, counter, defval);
+    },
+
+    getKGTR: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KGTR, sequence, frame, counter, defval);
+    },
+
+    getKGRT: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KGRT, sequence, frame, counter, defval);
+    },
+
+    getKGSC: function (sequence, frame, counter, defval) {
+        return this.getValue(this.sd.KGSC, sequence, frame, counter, defval);
     }
 };

@@ -50,26 +50,27 @@ function tell(reader) {
 }
 
 /**
- * @param {Uint8Array} bytes Bytes to convert.
- * @return {string} A string representation of the input bytes.
+ * Reads a string, but does not advance the reader's position.
+ *
+ * @param {BinaryReader} reader Binary reader.
+ * @param {number} size Number of bytes to read.
+ * @return {string} The read string.
  */
-function bytesToString(bytes) {
-    var b,
-        buffer = "",
-        b,
-        i,
-        l;
+function peek(reader, size) {
+    var bytes = reader.uint8Array.subarray(reader.index, reader.index + size),
+        byte,
+        data = "";
 
-    for (i = 0, l = bytes.length; i < l; i++) {
-        b = bytes[i];
+    for (var i = 0, l = size; i < l; i++) {
+        byte = bytes[i];
 
         // Avoid \0
-        if (b > 0) {
-            buffer += String.fromCharCode(b);
+        if (byte > 0) {
+            data += String.fromCharCode(byte);
         }
     }
 
-    return buffer;
+    return data;
 }
 
 /**
@@ -78,22 +79,11 @@ function bytesToString(bytes) {
  * @return {string} The read string.
  */
 function read(reader, size) {
-    var data = bytesToString(reader.uint8Array.subarray(reader.index, reader.index + size));
+    var data = peek(reader, size);
 
     reader.index += size;
 
     return data;
-}
-
-/**
- * Reads a string, but does not advance the reader's position.
- *
- * @param {BinaryReader} reader Binary reader.
- * @param {number} size Number of bytes to read.
- * @return {string} The read string.
- */
-function peek(reader, size) {
-    return bytesToString(reader.uint8Array.subarray(reader.index, reader.index + size));
 }
 
 /**
@@ -198,10 +188,9 @@ function readFloat64(reader) {
  * @return {Int8Array} The read array.
  */
 function readInt8Array(reader, count) {
-    var data = new Int8Array(count),
-        i;
+    var data = new Int8Array(count);
 
-    for (i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
         data[i] = reader.dataview.getInt8(reader.index + i, true);
     }
 
@@ -216,10 +205,9 @@ function readInt8Array(reader, count) {
  * @return {Int16Array} The read array.
  */
 function readInt16Array(reader, count) {
-    var data = new Int16Array(count),
-        i;
+    var data = new Int16Array(count);
 
-    for (i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
         data[i] = reader.dataview.getInt16(reader.index + 2 * i, true);
     }
 
@@ -234,10 +222,9 @@ function readInt16Array(reader, count) {
  * @return {Int32Array} The read array.
  */
 function readInt32Array(reader, count) {
-    var data = new Int32Array(count),
-        i;
+    var data = new Int32Array(count);
 
-    for (i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
         data[i] = reader.dataview.getInt32(reader.index + 4 * i, true);
     }
 
@@ -252,10 +239,9 @@ function readInt32Array(reader, count) {
  * @return {Uint8Array} The read array.
  */
 function readUint8Array(reader, count) {
-    var data = new Uint8Array(count),
-        i;
+    var data = new Uint8Array(count);
 
-    for (i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
         data[i] = reader.dataview.getUint8(reader.index + i, true);
     }
 
@@ -270,10 +256,9 @@ function readUint8Array(reader, count) {
  * @return {Uint16Array} The read array.
  */
 function readUint16Array(reader, count) {
-    var data = new Uint16Array(count),
-        i;
+    var data = new Uint16Array(count);
 
-    for (i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
         data[i] = reader.dataview.getUint16(reader.index + 2 * i, true);
     }
 
@@ -288,10 +273,9 @@ function readUint16Array(reader, count) {
  * @return {Uint32Array} The read array.
  */
 function readUint32Array(reader, count) {
-    var data = new Uint32Array(count),
-        i;
+    var data = new Uint32Array(count);
 
-    for (i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
         data[i] = reader.dataview.getUint32(reader.index + 4 * i, true);
     }
 
@@ -306,10 +290,9 @@ function readUint32Array(reader, count) {
  * @return {Float32Array} The read array.
  */
 function readFloat32Array(reader, count) {
-    var data = new Float32Array(count),
-        i;
+    var data = new Float32Array(count);
 
-    for (i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
         data[i] = reader.dataview.getFloat32(reader.index + 4 * i, true);
     }
 
@@ -324,10 +307,9 @@ function readFloat32Array(reader, count) {
  * @return {Float64Array} The read array.
  */
 function readFloat64Array(reader, count) {
-    var data = new Float64Array(count),
-        i;
+    var data = new Float64Array(count);
 
-    for (i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
         data[i] = reader.dataview.getFloat64(reader.index + 8 * i, true);
     }
 
@@ -343,10 +325,9 @@ function readFloat64Array(reader, count) {
  * @return {array} The read array of Int8Array.
  */
 function readInt8Matrix(reader, count, size) {
-    var data = [],
-        i;
+    var data = [];
 
-    for (i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
         data[i] = readInt8Array(reader, size);
     }
 
@@ -360,10 +341,9 @@ function readInt8Matrix(reader, count, size) {
  * @return {array} The read array of Int16Array.
  */
 function readInt16Matrix(reader, count, size) {
-    var data = [],
-        i;
+    var data = [];
 
-    for (i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
         data[i] = readInt16Array(reader, size);
     }
 
@@ -377,10 +357,9 @@ function readInt16Matrix(reader, count, size) {
  * @return {array} The read array of Int32Array.
  */
 function readInt32Matrix(reader, count, size) {
-    var data = [],
-        i;
+    var data = [];
 
-    for (i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
         data[i] = readInt32Array(reader, size);
     }
 
@@ -394,10 +373,9 @@ function readInt32Matrix(reader, count, size) {
  * @return {array} The read array of Uint8Array.
  */
 function readUint8Matrix(reader, count, size) {
-    var data = [],
-        i;
+    var data = [];
 
-    for (i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
         data[i] = readUint8Array(reader, size);
     }
 
@@ -411,10 +389,9 @@ function readUint8Matrix(reader, count, size) {
  * @return {array} The read array of Uint16Array.
  */
 function readUint16Matrix(reader, count, size) {
-    var data = [],
-        i;
+    var data = [];
 
-    for (i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
         data[i] = readUint16Array(reader, size);
     }
 
@@ -428,10 +405,9 @@ function readUint16Matrix(reader, count, size) {
  * @return {array} The read array of Uint32Array.
  */
 function readUint32Matrix(reader, count, size) {
-    var data = [],
-        i;
+    var data = [];
 
-    for (i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
         data[i] = readUint32Array(reader, size);
     }
 
@@ -445,10 +421,9 @@ function readUint32Matrix(reader, count, size) {
  * @return {array} The read array of Float32Array.
  */
 function readFloat32Matrix(reader, count, size) {
-    var data = [],
-        i;
+    var data = [];
 
-    for (i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
         data[i] = readFloat32Array(reader, size);
     }
 
@@ -462,10 +437,9 @@ function readFloat32Matrix(reader, count, size) {
  * @return {array} The read array of Float64Array.
  */
 function readFloat64Matrix(reader, count, size) {
-    var data = [],
-        i;
+    var data = [];
 
-    for (i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
         data[i] = readFloat64Array(reader, size);
     }
 

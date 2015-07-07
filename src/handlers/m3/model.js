@@ -1,7 +1,7 @@
 M3.Model = function (arrayBuffer, textureMap, context, onerror) {
     BaseModel.call(this, textureMap);
 
-    var parser = Parser(new BinaryReader(arrayBuffer));
+    var parser = M3.Parser(new BinaryReader(arrayBuffer));
 
     if (context.debugMode) {
         console.log(parser);

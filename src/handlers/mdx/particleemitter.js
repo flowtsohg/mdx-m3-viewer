@@ -8,7 +8,7 @@ Mdx.ParticleEmitter = function (emitter, model, instance, context) {
 
     this.lastCreation = 0;
 
-    var path = emitter.spawnModelPath.replace(/\\/g, "/").toLowerCase().replace(".mdl", ".mdx");
+    var path = emitter.path.replace(/\\/g, "/").toLowerCase().replace(".mdl", ".mdx");
 
     this.spawnModel = context.loadInternalResource(urls.mpqFile(path));
     this.spawnModel.setSequence(0);
@@ -42,7 +42,7 @@ Mdx.ParticleEmitter = function (emitter, model, instance, context) {
     }
 
     this.node = instance.skeleton.nodes[emitter.node];
-    this.sd = Mdx.parseSDTracks(emitter.tracks, model);
+    this.sd = new Mdx.SDContainer(emitter.tracks, model);
 };
 
 Mdx.ParticleEmitter.prototype = {
@@ -113,58 +113,30 @@ Mdx.ParticleEmitter.prototype = {
     },
 
     getSpeed: function (sequence, frame, counter) {
-        if (this.sd.speed) {
-            return this.sd.speed.getValue(sequence, frame, counter);
-        } else {
-            return this.initialVelocity;
-        }
+        return this.sd.getKPES(sequence, frame, counter, this.initialVelocity);
     },
 
     getLatitude: function (sequence, frame, counter) {
-        if (this.sd.latitude) {
-            return this.sd.latitude.getValue(sequence, frame, counter);
-        } else {
-            return this.latitude;
-        }
+        return this.sd.getKPLT(sequence, frame, counter, this.latitude);
     },
 
     getLongitude: function (sequence, frame, counter) {
-        if (this.sd.longitude) {
-            return this.sd.longitude.getValue(sequence, frame, counter);
-        } else {
-            return this.longitude;
-        }
+        return this.sd.getKPLN(sequence, frame, counter, this.longitude);
     },
 
     getLifespan: function (sequence, frame, counter) {
-        if (this.sd.lifespan) {
-            return this.sd.lifespan.getValue(sequence, frame, counter);
-        } else {
-            return this.lifespan;
-        }
+        return this.sd.getKPEL(sequence, frame, counter, this.lifespan);
     },
 
     getGravity: function (sequence, frame, counter) {
-        if (this.sd.gravity) {
-            return this.sd.gravity.getValue(sequence, frame, counter);
-        } else {
-            return this.gravity;
-        }
+        return this.sd.getKPEG(sequence, frame, counter, this.gravity);
     },
 
     getEmissionRate: function (sequence, frame, counter) {
-        if (this.sd.emissionRate) {
-            return this.sd.emissionRate.getValue(sequence, frame, counter);
-        } else {
-            return this.emissionRate;
-        }
+        return this.sd.getKPEE(sequence, frame, counter, this.emissionRate);
     },
 
     getVisibility: function (sequence, frame, counter) {
-        if (this.sd.visibility) {
-            return this.sd.visibility.getValue(sequence, frame, counter);
-        } else {
-            return 1;
-        }
+        return this.sd.getKPEV(sequence, frame, counter, 1);
     }
 };

@@ -1,7 +1,7 @@
 Mdx.Geoset = function (geoset, index, ctx) {
     var i, l, j, k;
-    var positions = geoset.vertexPositions;
-    var normals = geoset.vertexNormals;
+    var positions = geoset.vertices;
+    var normals = geoset.normals;
     var textureCoordinateSets = geoset.textureCoordinateSets;
     var uvsetSize = textureCoordinateSets[0].length * 2;
     var vertices = positions.length / 3;
@@ -121,42 +121,37 @@ Mdx.Geoset = function (geoset, index, ctx) {
 };
 
 Mdx.Geoset.prototype = {
-    render: function (coordId, shader, polygonMode, ctx) {
+    bindCommon: function (shader, ctx) {
         var offsets = this.offsets;
 
         ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
 
         ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 12, offsets[0]);
-        ctx.vertexAttribPointer(shader.variables.a_normal, 3, ctx.FLOAT, false, 12, offsets[1]);
-        ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 8, offsets[2] + coordId * this.uvsetSize);
         ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, 4, offsets[3]);
         ctx.vertexAttribPointer(shader.variables.a_bone_number, 1, ctx.UNSIGNED_BYTE, false, 1, offsets[4]);
+    },
+
+    render: function (coordId, shader, polygonMode, ctx) {
+        var offsets = this.offsets;
+
+        this.bindCommon(shader, ctx);
+
+        ctx.vertexAttribPointer(shader.variables.a_normal, 3, ctx.FLOAT, false, 12, offsets[1]);
+        ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 8, offsets[2] + coordId * this.uvsetSize);
         
         ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
         ctx.drawElements(ctx.TRIANGLES, this.elements, ctx.UNSIGNED_SHORT, 0);
     },
     
     renderWireframe: function (shader, ctx) {
-        var offsets = this.offsets;
-
-        ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
-
-        ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 12, offsets[0]);
-        ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, 4, offsets[3]);
-        ctx.vertexAttribPointer(shader.variables.a_bone_number, 1, ctx.UNSIGNED_BYTE, false, 1, offsets[4]);
+        this.bindCommon(shader, ctx);
 
         ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
         ctx.drawElements(ctx.LINES, this.elements * 2, ctx.UNSIGNED_SHORT, 0);
     },
 
     renderColor: function (shader, ctx) {
-        var offsets = this.offsets;
-
-        ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
-
-        ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 12, offsets[0]);
-        ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, 4, offsets[3]);
-        ctx.vertexAttribPointer(shader.variables.a_bone_number, 1, ctx.UNSIGNED_BYTE, false, 1, offsets[4]);
+        this.bindCommon(shader, ctx);
 
         ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
         ctx.drawElements(ctx.TRIANGLES, this.elements, ctx.UNSIGNED_SHORT, 0);

@@ -3,5 +3,11 @@ Mdx.Attachment = function (attachment, model) {
     this.path = attachment.path;
     this.attachmentId = attachment.attachmentId;
     this.name = model.nodes[this.node].name;
-    this.sd = Mdx.parseSDTracks(attachment.tracks, model);
+    this.sd = new Mdx.SDContainer(attachment.tracks, model);
 }
+
+Mdx.Attachment.prototype = {
+    getVisibility: function (sequence, frame, counter) {
+        return this.sd.getKATV(sequence, frame, counter, 1);
+    }
+};

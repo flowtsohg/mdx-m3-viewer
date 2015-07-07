@@ -65,7 +65,7 @@ Mdx.ParticleEmitter2 = function (emitter, model, instance, ctx) {
     }
 
     this.node = instance.skeleton.nodes[this.node];
-    this.sd = Mdx.parseSDTracks(emitter.tracks, model);
+    this.sd = new Mdx.SDContainer(emitter.tracks, model);
 
     // Avoid heap alocations in Particle2.reset
     this.particleLocalPosition = vec3.create();
@@ -359,59 +359,35 @@ Mdx.ParticleEmitter2.prototype = {
     },
 
     getWidth: function (sequence, frame, counter) {
-        if (this.sd.width) {
-            return this.sd.width.getValue(sequence, frame, counter);
-        } else {
-            return this.width;
-        }
+        return this.sd.getKP2W(sequence, frame, counter, this.width);
     },
 
     getLength: function (sequence, frame, counter) {
-        if (this.sd.length) {
-            return this.sd.length.getValue(sequence, frame, counter);
-        } else {
-            return this.length;
-        }
+        return this.sd.getKP2N(sequence, frame, counter, this.length);
     },
 
     getSpeed: function (sequence, frame, counter) {
-        if (this.sd.speed) {
-            return this.sd.speed.getValue(sequence, frame, counter);
-        } else {
-            return this.speed;
-        }
+        return this.sd.getKP2S(sequence, frame, counter, this.speed);
     },
 
     getLatitude: function (sequence, frame, counter) {
-        if (this.sd.latitude) {
-            return this.sd.latitude.getValue(sequence, frame, counter);
-        } else {
-            return this.latitude;
-        }
+        return this.sd.getKP2L(sequence, frame, counter, this.latitude);
     },
 
 
     getGravity: function (sequence, frame, counter) {
-        if (this.sd.gravity) {
-            return this.sd.gravity.getValue(sequence, frame, counter);
-        } else {
-            return this.gravity;
-        }
+        return this.sd.getKP2G(sequence, frame, counter, this.gravity);
     },
 
     getEmissionRate: function (sequence, frame, counter) {
-        if (this.sd.emissionRate) {
-            return this.sd.emissionRate.getValue(sequence, frame, counter);
-        } else {
-            return this.emissionRate;
-        }
+        return this.sd.getKP2E(sequence, frame, counter, this.emissionRate);
     },
 
     getVisibility: function (sequence, frame, counter) {
-        if (this.sd.visibility) {
-            return this.sd.visibility.getValue(sequence, frame, counter);
-        } else {
-            return 1;
-        }
+        return this.sd.getKP2V(sequence, frame, counter, 1);
     }
+
+    //getVariation: function (sequence, frame, counter) {
+    //    return this.sd.getKP2R(sequence, frame, counter, ?);
+    //}
 };

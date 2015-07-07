@@ -1,6 +1,6 @@
-Mdx.CollisionShape = function (collisionshape, nodes, gl) {
+Mdx.CollisionShape = function (collisionshape, model, gl) {
     this.node = collisionshape.node;
-    this.name = nodes[collisionshape.node].name;
+    this.name = model.nodes[collisionshape.node].name;
 
     var v = collisionshape.vertices;
     var v1 = v[0];

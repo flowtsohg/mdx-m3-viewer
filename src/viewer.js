@@ -370,10 +370,15 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         return modelMap[source];
     }
   
-    function loadInstance(source, hidden) {
+    function loadInstance(source, hidden, instance) {
         var object;
 
-        object = new AsyncModelInstance(modelMap[source], {}, context, onload, onloadstart);
+        // If the model was loaded from a header using loadSingle, it doesn't have a model attached yet
+        if (instance) {
+            instance.setModel(modelMap[source], {});
+        }
+
+        object = instance || new AsyncModelInstance(modelMap[source], {}, context, onload, onloadstart);
 
         if (hidden) {
             object.setVisibility(false);
@@ -399,12 +404,12 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     }
   
     // Load a model or texture from an absolute url, with an optional texture map, and an optional hidden parameter
-    function loadResourceImpl(source, originalSource, textureMap, hidden) {
+    function loadResourceImpl(source, originalSource, textureMap, hidden, instance) {
         var fileType = fileTypeFromPath(source);
 
         if (supportedModelFileTypes[fileType]) {
             loadModel(source, originalSource, textureMap);
-            loadInstance(source, hidden);
+            return loadInstance(source, hidden, instance);
         } else {
             gl.loadTexture(source);
         }
@@ -441,6 +446,40 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
             for (i = 0, l = object.models.length; i < l; i++) {
                 loadResourceImpl(models[i].url, models[i].url, textureMap, models[i].hidden);
             }
+        } else {
+            onerror(this, e);
+        }
+    }
+
+    function loadResourceFromHeaderSingle(instance, e) {
+        var status = e.target.status;
+
+        if (status === 200) {
+            var i, l;
+            var object = JSON.parse(e.target.responseText);
+            var keys = Object.keys(object.textures);
+            var textureMap = {};
+            var key, texture;
+
+            this.data = object;
+            onload(this);
+
+            if (context.debugMode) {
+                console.log(object);
+            }
+
+            for (i = 0, l = keys.length; i < l; i++) {
+                key = keys[i];
+                texture = object.textures[key];
+
+                textureMap[key] = texture.url;
+
+                gl.loadTexture(textureMap[key]);
+            }
+
+            var models = object.models;
+
+            loadResourceImpl(models[0].url, models[0].url, textureMap, false, instance);
         } else {
             onerror(this, e);
         }
@@ -541,6 +580,33 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
                 onloadstart(object);
 
                 getRequest(urls.header(source), false, loadResourceFromHeader.bind(object), onerror.bind(undefined, object), onprogress.bind(undefined, object));
+            }
+        }
+    }
+
+    // This loads in the same way that load() does, however it will always only load one model[instance], and can thus return the instance without relying on callbacks.
+    function loadSingle(source) {
+        if (source && (source.type  === "model" || source.type === "instance")) {
+            source = source.getOriginalSource();
+        }
+        
+        if (typeof source === "string") {
+            var isSupported = supportedFileTypes[fileTypeFromPath(source)];
+
+            if (source.indexOf("http://") === 0 && isSupported) {
+                return loadResourceImpl(source);
+            } else if (isSupported) {
+                return loadResourceImpl(urls.mpqFile(source), source);
+            } else {
+                var object = {type: "header", source: source};
+                
+                onloadstart(object);
+
+                var instance = new AsyncModelInstance(null, {}, context, onload, onloadstart);
+
+                getRequest(urls.header(source), false, loadResourceFromHeaderSingle.bind(object, instance), onerror.bind(undefined, object), onprogress.bind(undefined, object));
+
+                return instance;
             }
         }
     }
@@ -1067,6 +1133,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         // Resource API
         loadLocalFile: loadLocalFile,
         load: load,
+        loadSingle: loadSingle,
         remove: remove,
         clear: clear,
         clearCache: clearCache,

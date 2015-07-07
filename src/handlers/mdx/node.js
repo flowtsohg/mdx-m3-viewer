@@ -12,7 +12,7 @@ Mdx.Node = function (object, model, pivots) {
     this.billboarded = object.billboarded;
     this.modelSpace = object.modelSpace;
     this.xYQuad = object.xYQuad;
-    this.sd = Mdx.parseSDTracks(object.tracks, model);
+    this.sd = new Mdx.SDContainer(object.tracks, model);
 
     if (object.objectId === object.parentId) {
         this.parentId = -1;
@@ -21,27 +21,15 @@ Mdx.Node = function (object, model, pivots) {
 
 Mdx.Node.prototype = {
     getTranslation: function (sequence, frame, counter) {
-        if (this.sd.translation) {
-            return this.sd.translation.getValue(sequence, frame, counter);
-        } else {
-            return defaultTransformations.translation;
-        }
+        return this.sd.getKGTR(sequence, frame, counter, defaultTransformations.translation);
     },
 
     getRotation: function (sequence, frame, counter) {
-        if (this.sd.rotation) {
-            return this.sd.rotation.getValue(sequence, frame, counter);
-        } else {
-            return defaultTransformations.rotation;
-        }
+        return this.sd.getKGRT(sequence, frame, counter, defaultTransformations.rotation);
     },
 
     getScale: function (sequence, frame, counter) {
-        if (this.sd.scaling) {
-            return this.sd.scaling.getValue(sequence, frame, counter);
-        } else {
-            return defaultTransformations.scaling;
-        }
+        return this.sd.getKGSC(sequence, frame, counter, defaultTransformations.scaling);
     }  
 };
 

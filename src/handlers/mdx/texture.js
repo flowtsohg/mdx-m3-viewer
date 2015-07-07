@@ -1,4 +1,4 @@
-var replaceableIdToName = {
+Mdx.replaceableIdToName = {
     1: "TeamColor/TeamColor00",
     2: "TeamGlow/TeamGlow00",
     11: "Cliff/Cliff0",

@@ -1,35 +1,27 @@
 Mdx.Skeleton = function (model, ctx) {
-    var i, l;
-    var pivots = model.pivots;
     var nodes = model.nodes;
-    var bones = model.bones;
-    var hierarchy = model.hierarchy;
 
-    this.hierarchy = hierarchy;
+    this.hierarchy = model.hierarchy;
 
-    // If there are no original bones, reference the root node injected by the parser, since the shader requires at least one bone
-    this.bones = bones || [{node: 0}];
+    // If there are no original bones, reference the root node injected, since the shader requires at least one bone
+    this.bones = model.bones || [{node: 0}];
 
     BaseSkeleton.call(this, this.bones.length + 1, ctx);
 
-    for (i = 0, l = nodes.length; i < l; i++) {
+    for (var i = 0, l = nodes.length; i < l; i++) {
         this.nodes[i] = new Mdx.ShallowNode(nodes[i]);
     }
 
     // To avoid heap allocations
-    this.locationVec = vec3.create();
-    this.scaleVec = vec3.create();
     this.rotationQuat = quat.create();
-    this.rotationQuat2 = quat.create();
 };
 
 Mdx.Skeleton.prototype = extend(BaseSkeleton.prototype, {
     update: function (sequence, frame, counter, instance, context) {
         var nodes = this.nodes;
         var hierarchy = this.hierarchy;
-        var root = this.rootNode;
 
-        root.setFromParent(instance);
+        this.rootNode.setFromParent(instance);
 
         for (var i = 0, l = hierarchy.length; i < l; i++) {
             this.updateNode(nodes[hierarchy[i]], sequence, frame, counter, context);
@@ -44,7 +36,7 @@ Mdx.Skeleton.prototype = extend(BaseSkeleton.prototype, {
         var translation = nodeImpl.getTranslation(sequence, frame, counter);
         var rotation = nodeImpl.getRotation(sequence, frame, counter);
         var scale = nodeImpl.getScale(sequence, frame, counter);
-        var finalRotation = this.rotationQuat2;
+        var finalRotation = this.rotationQuat;
         
         if (nodeImpl.billboarded) {
             quat.set(finalRotation, 0, 0, 0, 1);

@@ -10,6 +10,9 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
         var ctx = gl.ctx;
         var i, l, objects;
 
+        // Need to reference context.urls in setTeamColor
+        this.context = context;
+
         this.counter = 0;
         this.skeleton = new Mdx.Skeleton(model, ctx);
 
@@ -123,21 +126,8 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
         
         for (var i = 0, l = attachments.length; i < l; i++) {
             attachment = attachments[i];
-            sd = attachment.sd;
-            
-            attachmentVisible[i] = true;
-            
-            if (sd) {
-                visibility = sd.visibility;
-                
-                if (visibility) {
-                    value = visibility.getValue(null, this.sequence, this.frame, this.counter);
-                    
-                    if (value < 0.1) {
-                        attachmentVisible[i] = false;
-                    }
-                }
-            }
+
+            attachmentVisible[i] = attachment.getVisibility(this.sequence, this.frame, this.counter) > 0.1;
             
             if (attachmentVisible[i]) {
                 this.attachmentInstances[i].update(context);
@@ -190,8 +180,8 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
     setTeamColor: function (id) {
         var idString = ((id < 10) ? "0" + id : id);
 
-        this.overrideTexture("replaceabletextures/teamcolor/teamcolor00.blp", urls.mpqFile("replaceabletextures/teamcolor/teamcolor" + idString + ".blp"));
-        this.overrideTexture("replaceabletextures/teamglow/teamglow00.blp", urls.mpqFile("replaceabletextures/teamglow/teamglow" + idString + ".blp"));
+        this.overrideTexture("replaceabletextures/teamcolor/teamcolor00.blp", this.context.urls.mpqFile("replaceabletextures/teamcolor/teamcolor" + idString + ".blp"));
+        this.overrideTexture("replaceabletextures/teamglow/teamglow00.blp", this.context.urls.mpqFile("replaceabletextures/teamglow/teamglow" + idString + ".blp"));
         this.teamColor = id;
     },
 

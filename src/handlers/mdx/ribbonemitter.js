@@ -35,7 +35,7 @@ Mdx.RibbonEmitter = function (emitter, model, instance, ctx) {
     this.layers = groups[0].concat(groups[1]).concat(groups[2]).concat(groups[3]);
 
     this.node = instance.skeleton.nodes[this.node];
-    this.sd = Mdx.parseSDTracks(emitter.tracks, model);
+    this.sd = new Mdx.SDContainer(emitter.tracks, model);
 
     // Avoid heap allocations
     this.colorVec = vec3.create();
@@ -144,7 +144,7 @@ Mdx.RibbonEmitter.prototype = {
                 ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
 
                 ctx.drawArrays(ctx.TRIANGLE_STRIP, 0, ribbons * 2);
-                
+
                 layer.unbind(shader, ctx);
             }
         }
@@ -155,50 +155,26 @@ Mdx.RibbonEmitter.prototype = {
     },
 
     getHeightBelow: function (sequence, frame, counter) {
-        if (this.sd.heightBelow) {
-            return this.sd.heightBelow.getValue(sequence, frame, counter);
-        } else {
-            return this.heightBelow;
-        }
+        return this.sd.getKRHB(sequence, frame, counter, this.heightBelow);
     },
 
     getHeightAbove: function (sequence, frame, counter) {
-        if (this.sd.heightAbove) {
-            return this.sd.heightAbove.getValue(sequence, frame, counter);
-        } else {
-            return this.heightAbove;
-        }
+        return this.sd.getKRHA(sequence, frame, counter, this.heightAbove);
     },
 
     getTextureSlot: function (sequence, frame, counter) {
-        if (this.sd.lifespan) {
-            return this.sd.textureSlot.getValue(sequence, frame, counter);
-        } else {
-            return 0;
-        }
+        return this.sd.getKRTX(sequence, frame, counter, 0);
     },
 
     getColor: function (sequence, frame, counter) {
-        if (this.sd.color) {
-            return this.sd.color.getValue(sequence, frame, counter);
-        } else {
-            return this.color;
-        }
+        return this.sd.getKRCO(sequence, frame, counter, this.color);
     },
 
     getAlpha: function (sequence, frame, counter) {
-        if (this.sd.alpha) {
-            return this.sd.alpha.getValue(sequence, frame, counter);
-        } else {
-            return this.alpha;
-        }
+        return this.sd.getKRAL(sequence, frame, counter, this.alpha);
     },
 
     getVisibility: function (sequence, frame, counter) {
-        if (this.sd.visibility) {
-            return this.sd.visibility.getValue(sequence, frame, counter);
-        } else {
-            return 1;
-        }
+        return this.sd.getKRVS(sequence, frame, counter, 1);
     }
 };

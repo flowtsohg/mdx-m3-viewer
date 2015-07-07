@@ -25,7 +25,7 @@ Mdx.Layer = function (layer, model) {
     this.coordId = layer.coordId;
     this.alpha = layer.alpha;
     this.renderOrder = filterModeToRenderOrder[filterMode];
-    this.sd = Mdx.parseSDTracks(layer.tracks, model);
+    this.sd = new Mdx.SDContainer(layer.tracks, model);
 };
 
 Mdx.Layer.prototype = {
@@ -96,18 +96,10 @@ Mdx.Layer.prototype = {
     },
 
     getAlpha: function (sequence, frame, counter) {
-        if (this.sd.alpha) {
-            return this.sd.alpha.getValue(sequence, frame, counter);
-        } else {
-            return this.alpha;
-        }
+        return this.sd.getKMTA(sequence, frame, counter, this.alpha);
     },
 
     getTextureId: function (sequence, frame, counter) {
-        if (this.sd.textureId) {
-            return this.sd.textureId.getValue(sequence, frame, counter);
-        } else {
-            return this.textureId;
-        }
+        return this.sd.getKMTF(sequence, frame, counter, this.textureId);
     }
 };

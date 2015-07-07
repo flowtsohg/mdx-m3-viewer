@@ -13,16 +13,13 @@
 function AsyncModelInstance(model, textureMap, context, onload, onloadstart, isInternal) {
     this.type = "instance";
     this.ready = false;
-    this.fileType = model.fileType;
-    this.model = model;
     this.id = generateID();
     this.color = decodeFloat3(this.id);
-    this.source = model.source;
     this.visible = 1;
     this.selectable = 1;
     
     // If the model is already ready, the onload message from setup() must be delayed, since this instance wouldn't be added to the cache yet.
-    if (model.ready || isInternal) {
+    if ((model && model.ready) || isInternal) {
         this.delayOnload = true;
     }
 
@@ -40,12 +37,23 @@ function AsyncModelInstance(model, textureMap, context, onload, onloadstart, isI
         
     // Request the setup function to be called by the model when it can.
     // If the model is loaded, setup runs instantly, otherwise it runs when the model finishes loading.
-    model.setupInstance(this, textureMap || {});
+    if (model) {
+        this.setModel(model, textureMap || {});
+ 
+    }
 }
 
 AsyncModelInstance.handlers = {};
 
 AsyncModelInstance.prototype = {
+    setModel: function (model, textureMap) {
+        this.model = model;
+        this.fileType = model.fileType;
+        this.source = model.source;
+
+        model.setupInstance(this, textureMap);
+    },
+
   /**
     * Setup a model instance.
     *

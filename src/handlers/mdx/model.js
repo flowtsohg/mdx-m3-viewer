@@ -16,9 +16,10 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
     setup: function (parser, context) {
         var gl = context.gl;
         var objects, i, l, j, k;
+        var chunks = parser.chunks;
 
         this.parser = parser;
-        this.name = parser.modelChunk.name;
+        this.name = chunks.MODL.name;
         this.sequences = [];
         this.textures = [];
         this.meshes = [];
@@ -29,27 +30,27 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         this.boundingShapes = [];
         this.attachments = [];
 
-        if (parser.textureChunk) {
-            objects = parser.textureChunk.objects;
+        if (chunks.TEXS) {
+            objects = chunks.TEXS.elements;
 
             for (i = 0, l = objects.length; i < l; i++) {
                 this.loadTexture(objects[i], this.textureMap, gl, context.urls);
             }
         }
 
-        if (parser.sequenceChunk) {
-            this.sequences = parser.sequenceChunk.objects;
+        if (chunks.SEQS) {
+            this.sequences = chunks.SEQS.elements;
         }
 
-        if (parser.globalSequenceChunk) {
-            this.globalSequences = parser.globalSequenceChunk.objects;
+        if (chunks.GLBS) {
+            this.globalSequences = chunks.GLBS.elements;
         }
 
         var nodes = parser.nodes;
         var pivots;
 
-        if (parser.pivotPointChunk) {
-            pivots = parser.pivotPointChunk.objects;
+        if (chunks.PIVT) {
+            pivots = chunks.PIVT.elements;
         } else {
             pivots = [[0, 0, 0]];
         }
@@ -74,8 +75,8 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
             this.sortedNodes[i] = this.nodes[this.hierarchy[i]];
         }
 
-        if (parser.boneChunk) {
-            this.bones = parser.boneChunk.objects;
+        if (chunks.BONE) {
+            this.bones = chunks.BONE.elements;
         }
 
         var materials;
@@ -87,8 +88,8 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         var groups;
         var mesh;
 
-        if (parser.materialChunk) {
-            materials = parser.materialChunk.objects;
+        if (chunks.MTLS) {
+            materials = chunks.MTLS.elements;
             fakeMaterials = [];
 
             this.layers = [];
@@ -109,8 +110,8 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
             this.fakeMaterials = fakeMaterials;
         }
 
-        if (parser.geosetChunk) {
-            geosets = parser.geosetChunk.objects;
+        if (chunks.GEOS) {
+            geosets = chunks.GEOS.elements;
             groups = [[], [], [], []];
 
             for (i = 0, l = geosets.length; i < l; i++) {
@@ -133,66 +134,27 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
             this.calculateExtent();
         }
 
-        if (parser.cameraChunk) {
-            objects = parser.cameraChunk.objects;
+        this.cameras = this.transformElements(chunks.CAMS, Mdx.Camera);
+        this.geosetAnimations = this.transformElements(chunks.GEOA, Mdx.GeosetAnimation);
+        this.textureAnimations = this.transformElements(chunks.TXAN, Mdx.TextureAnimation);
 
-            this.cameras = [];
-
-            for (i = 0, l = objects.length; i < l; i++) {
-                this.cameras[i] = new Mdx.Camera(objects[i], this);
-            }
+        if (chunks.PREM) {
+            this.particleEmitters = chunks.PREM.elements;
         }
 
-        if (parser.geosetAnimationChunk) {
-            objects = parser.geosetAnimationChunk.objects;
-
-            this.geosetAnimations = [];
-
-            for (i = 0, l = objects.length; i < l; i++) {
-                this.geosetAnimations[i] = new Mdx.GeosetAnimation(objects[i], this);
-            }
+        if (chunks.PRE2) {
+            this.particleEmitters2 = chunks.PRE2.elements;
         }
 
-        if (parser.textureAnimationChunk) {
-            objects = parser.textureAnimationChunk.objects;
-
-            this.textureAnimations = [];
-
-            for (i = 0, l = objects.length; i < l; i++) {
-                this.textureAnimations[i] = new Mdx.TextureAnimation(objects[i], this);
-            }
+        if (chunks.RIBB) {
+            this.ribbonEmitters = chunks.RIBB.elements;
         }
 
-        if (parser.particleEmitterChunk) {
-            this.particleEmitters = parser.particleEmitterChunk.objects;
-        }
+        this.boundingShapes = this.transformElements(chunks.CLID, Mdx.CollisionShape, gl);
+        this.attachments = this.transformElements(chunks.ATCH, Mdx.Attachment);
 
-        if (parser.particleEmitter2Chunk) {
-            this.particleEmitters2 = parser.particleEmitter2Chunk.objects;
-        }
-
-        if (parser.ribbonEmitterChunk) {
-            this.ribbonEmitters = parser.ribbonEmitterChunk.objects;
-        }
-
-        if (parser.collisionShapeChunk) {
-            objects = parser.collisionShapeChunk.objects;
-
-            for (i = 0, l = objects.length; i < l; i++) {
-                this.boundingShapes[i] = new Mdx.CollisionShape(objects[i], this.nodes, gl);
-            }
-        }
-
-        if (parser.attachmentChunk) {
-            objects = parser.attachmentChunk.objects;
-
-            for (i = 0, l = objects.length; i < l; i++) {
-                this.attachments[i] = new Mdx.Attachment(objects[i], this);
-            }
-        }
-
-        if (parser.eventObjectChunk) {
-            this.eventObjects = parser.eventObjectChunk.objects;
+        if (chunks.EVTS) {
+            this.eventObjects = chunks.EVTS.elements;
         }
 
         // Avoid heap allocations in render()
@@ -203,14 +165,29 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
 
         this.ready = true;
 
-        this.setupShaders(parser, gl);
+        this.setupShaders(chunks, gl);
         this.setupTeamColors(gl);
     },
 
-    setupShaders: function (parser, gl) {
+    transformElements: function (chunk, Func, gl) {
+        var output = [];
+
+        if (chunk) {
+            var elements = chunk.elements;
+            
+
+            for (i = 0, l = elements.length; i < l; i++) {
+                output[i] = new Func(elements[i], this, gl);
+            }
+        }
+
+        return output;
+    },
+
+    setupShaders: function (chunks, gl) {
         var psmain = SHADERS["wpsmain"];
 
-        if ((parser.geosetChunk || parser.particleEmitterChunk) && !gl.shaderStatus("wstandard")) {
+        if ((chunks.GEOS || chunks.PREM) && !gl.shaderStatus("wstandard")) {
             gl.createShader("wstandard", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain, ["STANDARD_PASS"]);
             gl.createShader("wuvs", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain, ["UVS_PASS"]);
             gl.createShader("wnormals", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain, ["NORMALS_PASS"]);
@@ -218,12 +195,12 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         }
 
         // Load the particle emitters type 2 shader if it is needed
-        if (parser.particleEmitter2Chunk && !gl.shaderStatus("wparticles")) {
+        if (chunks.PRE2 && !gl.shaderStatus("wparticles")) {
             gl.createShader("wparticles", SHADERS.decodefloat + SHADERS.wvsparticles, SHADERS.wpsparticles);
         }
 
         // Load the ribbon emitters shader if it is needed
-        if (parser.ribbonEmitterChunk && !gl.shaderStatus("wribbons")) {
+        if (chunks.RIBB && !gl.shaderStatus("wribbons")) {
             gl.createShader("wribbons", SHADERS.wvsribbons, psmain, ["STANDARD_PASS"]);
         }
 
@@ -251,7 +228,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         var replaceableId = texture.replaceableId;
 
         if (replaceableId !== 0) {
-            source = "replaceabletextures/" + replaceableIdToName[replaceableId] + ".blp";
+            source = "replaceabletextures/" + Mdx.replaceableIdToName[replaceableId] + ".blp";
         }
 
         source = source.replace(/\\/g, "/").toLowerCase();
@@ -337,7 +314,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         dY = maxY - minY;
         dZ = maxZ - minZ;
 
-        this.extent = { boundsRadius: Math.sqrt(dX * dX + dY * dY + dZ * dZ) / 2, minimum: [minX, minY, minZ], maximum: [maxX, maxY, maxZ] };
+        this.extent = {radius: Math.sqrt(dX * dX + dY * dY + dZ * dZ) / 2, min: [minX, minY, minZ], max: [maxX, maxY, maxZ] };
     },
 
     render: function (instance, context) {
