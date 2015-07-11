@@ -21,10 +21,10 @@ Mdx.Particle.prototype = {
 
         vec3.transformMat4(position, emitter.node.pivot, emitter.node.worldMatrix);
 
-        var velocity = [];
-        var rotation = mat4.create();
-        var velocityStart = [];
-        var velocityEnd = [];
+        var velocity = emitter.heapVelocity;
+        var rotation = emitter.heapMat;
+        var velocityStart = emitter.heapVel1;
+        var velocityEnd = emitter.heapVel2;
 
         mat4.identity(rotation);
         mat4.rotateZ(rotation, rotation, Math.randomRange(-Math.PI, Math.PI));

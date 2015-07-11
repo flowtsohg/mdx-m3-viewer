@@ -43,6 +43,12 @@ Mdx.ParticleEmitter = function (emitter, model, instance, context) {
 
     this.node = instance.skeleton.nodes[emitter.node.index];
     this.sd = new Mdx.SDContainer(emitter.tracks, model);
+
+    // To avoid heap alocations
+    this.heapVelocity = vec3.create();
+    this.heapRotation = mat4.create();
+    this.heapVel1 = vec3.create();
+    this.heapVel3 = vec3.create();
 };
 
 Mdx.ParticleEmitter.prototype = {
@@ -113,7 +119,7 @@ Mdx.ParticleEmitter.prototype = {
     },
 
     getSpeed: function (sequence, frame, counter) {
-        return this.sd.getKPES(sequence, frame, counter, this.initialVelocity);
+        return this.sd.getKPES(sequence, frame, counter, this.speed);
     },
 
     getLatitude: function (sequence, frame, counter) {

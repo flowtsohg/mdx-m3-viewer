@@ -1,14 +1,13 @@
-/**
- * Creates a new BaseNode.
- *
- * @class A node.
- * @name BaseNode
- * @property {mat4} worldMatrix
- * @property {vec3} scale
- * @property {vec3} inverseScale
- * @property {mat4} externalWorldMatrix
- */
 window["BaseNode"] = function () {
+    /// <field name="pivot" type="vec3"></param>
+    /// <field name="localMatrix" type="mat4"></param>
+    /// <field name="localLocation" type="vec3"></param>
+    /// <field name="localRotation" type="quat"></param>
+    /// <field name="worldMatrix" type="mat4"></param>
+    /// <field name="worldLocation" type="vec3"></param>
+    /// <field name="worldRotation" type="quat"></param>
+    /// <field name="scale" type="vec3"></param>
+    /// <field name="inverseScale" type="vec3"></param>
     this.pivot = vec3.create();
     this.localMatrix = mat4.create();
     this.localLocation = vec3.create();
@@ -21,24 +20,18 @@ window["BaseNode"] = function () {
 }
 
 BaseNode.prototype = {
-  /**
-   * Updates the node's world matrix and its scale values.
-   *
-   * @param {mat4} worldMatrix The new world matrix.
-   */
+    // Copies the needed parameters from the parent
     setFromParent: function (parent) {
-        var selfScale = this.scale;
+        var scale = this.scale;
         
         mat4.copy(this.worldMatrix, parent.worldMatrix);
-        mat4.decomposeScale(selfScale, parent.worldMatrix);
-        vec3.inverse(this.inverseScale, selfScale);
+        mat4.decomposeScale(scale, parent.worldMatrix);
+        vec3.inverse(this.inverseScale, scale);
         vec3.copy(this.worldLocation, parent.worldLocation);
         quat.copy(this.worldRotation, parent.worldRotation);
     },
-  
-  /**
-   * Updates the node's scale values.
-   */
+
+    // Updates this node with the parent world space values, and the local space arguments
     update: function (parent, rotation, translation, scale) {
         var localMatrix = this.localMatrix,
             worldMatrix = this.worldMatrix,

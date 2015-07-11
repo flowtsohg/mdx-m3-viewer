@@ -81,16 +81,17 @@ Mdx.Particle2.prototype = {
 
     update: function (emitter, sequence, frame, counter, context) {
         var dt = context.frameTime / 1000;
-        
+        var position = this.position;
+
         this.health -= dt;
         this.velocity[2] -= this.gravity * dt;
         
-        vec3.scaleAndAdd(this.position, this.position, this.velocity, dt);
+        vec3.scaleAndAdd(position, position, this.velocity, dt);
         
         if (emitter.modelSpace) {
-            vec3.transformMat4(this.worldLocation, this.position, emitter.node.worldMatrix);
+            vec3.transformMat4(this.worldLocation, position, emitter.node.worldMatrix);
         } else {
-            vec3.copy(this.worldLocation, this.position);
+            vec3.copy(this.worldLocation, position);
         }
         
         var lifeFactor = (emitter.lifespan - this.health) / emitter.lifespan;

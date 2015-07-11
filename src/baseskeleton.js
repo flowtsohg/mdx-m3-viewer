@@ -1,18 +1,11 @@
-/**
- * Creates a new BaseSkeleton.
- *
- * @class A skeleton.
- * @name BaseSkeleton
- * @param {number} numberOfBones
- * @param {WebGLRenderingContext} ctx
- * @property {BaseNode} rootNode
- * @property {Float32Array} hwbones
- * @property {WebGLTexture} boneTexture
- * @property {number} boneTextureSize
- * @property {number} texelFraction
- * @property {number} matrixFraction
- */
 window["BaseSkeleton"] = function (numberOfBones, ctx) {
+    /// <field name="rootNode" type="BaseNode"></param>
+    /// <field name="nodes" type="array"></param>
+    /// <field name="hwbones" type="Float32Array"></param>
+    /// <field name="boneTexture" type="WebGLTexture"></param>
+    /// <field name="boneTextureSize" type="number"></param>
+    /// <field name="texelFraction" type="number"></param>
+    /// <field name="matrixFraction" type="number"></param>
     this.rootNode = new BaseNode();
     this.nodes = [];
     this.hwbones = new Float32Array(16 * numberOfBones);
@@ -29,12 +22,6 @@ window["BaseSkeleton"] = function (numberOfBones, ctx) {
 }
 
 BaseSkeleton.prototype = {
-  /**
-    * Gets either the root node of this skeleton, or one of the nodes in its node list.
-    *
-    * @param {number} node The node to return. If -1, will return the root node.
-    * @returns {BaseNode} The node.
-    */
     getNode: function (node) {
         if (node === -1) {
             return this.rootNode;
@@ -42,24 +29,13 @@ BaseSkeleton.prototype = {
         
         return this.nodes[node];
     },
-  
-  /**
-    * Updates the bone texture with the current state.
-    *
-    * @param {WebGLRenderingContext} ctx The WebGL context.
-    */
+
     updateBoneTexture: function (ctx) {
         ctx.activeTexture(ctx.TEXTURE15);
         ctx.bindTexture(ctx.TEXTURE_2D, this.boneTexture);
         ctx.texSubImage2D(ctx.TEXTURE_2D, 0, 0, 0, this.hwbones.length / 4, 1, ctx.RGBA, ctx.FLOAT, this.hwbones);
     },
-  
-  /**
-    * Binds the skeleton bone texture and parameters.
-    *
-    * @param {GL.Shader} shader The active shader.
-    * @param {WebGLRenderingContext} ctx The WebGL context.
-    */
+
     bind: function (shader, ctx) {
         ctx.activeTexture(ctx.TEXTURE15);
         ctx.bindTexture(ctx.TEXTURE_2D, this.boneTexture);

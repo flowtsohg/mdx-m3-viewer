@@ -205,6 +205,7 @@ Mdx.Parser = (function () {
         this.flags = readUint32(reader);
     }
     /*
+    // Note: this chunk was reverse engineered from the game executable itself, but was never seen in any resource
     function SoundTrack(reader) {
         this.path = read(reader, 260);
         this.volume = readFloat32(reader);
@@ -308,8 +309,7 @@ Mdx.Parser = (function () {
         this.size = readUint32(reader);
         this.node = readNode(reader, nodes);
         this.type = readUint32(reader);
-        this.attenuationStart = readUint32(reader);
-        this.attenuationEnd = readUint32(reader);
+        this.attenuation = readUint32Array(reader, 2);
         this.color = readVector3(reader);
         this.intensity = readFloat32(reader);
         this.ambientColor = readVector3(reader);
@@ -343,7 +343,7 @@ Mdx.Parser = (function () {
         this.latitude = readFloat32(reader);
         this.path = read(reader, 260);
         this.lifespan = readFloat32(reader);
-        this.initialVelocity = readFloat32(reader);
+        this.speed = readFloat32(reader);
         this.tracks = new SDContainer(reader, this.size - this.node.size - 288);
     }
 
@@ -404,14 +404,14 @@ Mdx.Parser = (function () {
 
         this.globalSequenceId = readInt32(reader);
         this.tracks = readUint32Array(reader, count);
-        this.size = this.node.size + 12 + this.tracks.length * 4;
+        this.size = this.node.size + 12 + count * 4;
     }
 
     function Camera(reader) {
         this.size = readUint32(reader);
         this.name = read(reader, 80);
         this.position = readVector3(reader);
-        this.fieldOfView = readFloat32(reader);
+        this.fov = readFloat32(reader);
         this.farClippingPlane = readFloat32(reader);
         this.nearClippingPlane = readFloat32(reader);
         this.targetPosition = readVector3(reader);
@@ -426,10 +426,10 @@ Mdx.Parser = (function () {
             size = this.node.size + 4;
         
         if (type === 0 || type === 1 || type === 3) {
-            this.vertices = readFloat32Matrix(reader, 2, 3);
+            this.vertices = readFloat32Array(reader, 6);
             size += 24;
         } else if (type === 2) {
-            this.vertices = [readVector3(reader)];
+            this.vertices = readVector3(reader);
             size += 12;
         }
 

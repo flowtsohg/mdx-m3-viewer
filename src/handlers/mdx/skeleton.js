@@ -26,6 +26,7 @@ Mdx.Skeleton = function (model, ctx) {
 
     // To avoid heap allocations
     this.rotationQuat = quat.create();
+    this.rotationQuat2 = quat.create();
 };
 
 Mdx.Skeleton.prototype = extend(BaseSkeleton.prototype, {
@@ -68,7 +69,7 @@ Mdx.Skeleton.prototype = extend(BaseSkeleton.prototype, {
         
         if (nodeImpl.billboarded) {
             quat.set(finalRotation, 0, 0, 0, 1);
-            quat.mul(finalRotation, finalRotation, quat.conjugate([], parent.worldRotation));
+            quat.mul(finalRotation, finalRotation, quat.conjugate(this.rotationQuat2, parent.worldRotation));
             quat.rotateZ(finalRotation, finalRotation, -context.camera.phi - Math.PI / 2);
             quat.rotateY(finalRotation, finalRotation, -context.camera.theta - Math.PI / 2);
         } else {

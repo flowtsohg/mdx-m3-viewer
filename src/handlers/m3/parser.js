@@ -169,7 +169,7 @@ M3.Parser = (function () {
         this.nullValue = Func(reader);
         this.unknown0 = readFloat32(reader);
     }
-
+    /*
     function TMD(reader, indexEntries, version) {
         this.version = version;
     }
@@ -189,7 +189,7 @@ M3.Parser = (function () {
         this.unknown1 = parseReferenceByValTyped(reader, indexEntries, readUint16Array);
         this.size = readVector3(reader);
     }
-
+    */
     function BoundingShape(reader) {
         this.shape = readUint32(reader); // 0: cube
                                           // 1: sphere
@@ -205,7 +205,7 @@ M3.Parser = (function () {
         this.unknown6 = readUint32(reader);
         this.size = readVector3(reader);
     }
-
+    /*
     function TRGD(reader, indexEntries, version) {
         this.version = version;
         this.unknown0 = parseReferenceByValTyped(reader, indexEntries, readUint32Array);
@@ -758,7 +758,7 @@ M3.Parser = (function () {
         this.usedModel = parseReferenceString(reader, indexEntries);
         this.copyIndices = parseReferenceByVal(reader, indexEntries, readUint32);
     }
-
+    */
     function Layer(reader, indexEntries, version) {
         this.version = version;
         this.unknown0 = readUint32(reader);
@@ -829,7 +829,7 @@ M3.Parser = (function () {
         this.triPlannarOffset = readVector3(reader);
         this.triPlannarScale = readVector3(reader);
     }
-
+    /*
     function CreepMaterial(reader, indexEntries) {
         this.name = parseReferenceString(reader, indexEntries);
         this.creepLayer = parseSingleReference(reader, indexEntries, Layer);
@@ -881,7 +881,7 @@ M3.Parser = (function () {
         this.flags = readUint32(reader);
         this.priority = readInt32(reader);
     }
-
+    */
     function StandardMaterial(reader, indexEntries, version) {
         this.name = parseReferenceString(reader, indexEntries);
         this.specialFlags = readUint32(reader); // 0x1 useDepthBlend
@@ -1185,12 +1185,12 @@ M3.Parser = (function () {
         this.materialMaps = parseReference(reader, indexEntries, MaterialMap);
         this.materials = [
             parseReference(reader, indexEntries, StandardMaterial),
-            parseReference(reader, indexEntries, DisplacementMaterial),
-            parseReference(reader, indexEntries, CompositeMaterial),
-            parseReference(reader, indexEntries, TerrainMaterial),
-            parseReference(reader, indexEntries, VolumeMaterial),
-            parseReference(reader, indexEntries, VolumeNoiseMaterial),
-            parseReference(reader, indexEntries, CreepMaterial)
+             new Reference(reader),//parseReference(reader, indexEntries, DisplacementMaterial),
+             new Reference(reader),//parseReference(reader, indexEntries, CompositeMaterial),
+             new Reference(reader),//parseReference(reader, indexEntries, TerrainMaterial),
+             new Reference(reader),//parseReference(reader, indexEntries, VolumeMaterial),
+             new Reference(reader),//parseReference(reader, indexEntries, VolumeNoiseMaterial),
+             new Reference(reader)//parseReference(reader, indexEntries, CreepMaterial)
         ];
 
         if (version > 24) {
