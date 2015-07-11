@@ -46,7 +46,7 @@ Mdx.ParticleEmitter = function (emitter, model, instance, context) {
 
     // To avoid heap alocations
     this.heapVelocity = vec3.create();
-    this.heapRotation = mat4.create();
+    this.heapMat = mat4.create();
     this.heapVel1 = vec3.create();
     this.heapVel3 = vec3.create();
 };
