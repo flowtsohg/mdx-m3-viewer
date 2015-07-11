@@ -41,7 +41,7 @@ Mdx.ParticleEmitter = function (emitter, model, instance, context) {
         this.reusables.push(i);
     }
 
-    this.node = instance.skeleton.nodes[emitter.node];
+    this.node = instance.skeleton.nodes[emitter.node.index];
     this.sd = new Mdx.SDContainer(emitter.tracks, model);
 };
 

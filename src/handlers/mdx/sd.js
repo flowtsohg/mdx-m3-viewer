@@ -46,13 +46,13 @@ Mdx.SD.prototype = {
             
             if (key > frame) {
                 keys.splice(i, 0, frame);
-                tracks.splice(i, 0, {frame: frame, value: frame0, inTan: frame0, outTan: frame0});
+                tracks.splice(i, 0, {frame: frame, data: frame0, inTan: frame0, outTan: frame0});
                 return;
             }
         }
         
         keys.splice(l, 0, frame);
-        tracks.splice(l, 0, { frame: frame, value: frame0, inTan: frame0, outTan: frame0 });
+        tracks.splice(l, 0, { frame: frame, data: frame0, inTan: frame0, outTan: frame0 });
     },
     
     calculateFirstSeqFrame: function (firstFrames, interval) {
@@ -60,13 +60,13 @@ Mdx.SD.prototype = {
         var tracks = this.tracks;
         
         if (tracks[0].frame === 0) {
-            firstFrames.push(tracks[0].value);
+            firstFrames.push(tracks[0].data);
             return;
         }
         
         for (var i = 0, l = keys.length; i < l; i++) {
             if (keys[i] >= interval[0] && keys[i] <= interval[1]) {
-                firstFrames.push(tracks[i].value);
+                firstFrames.push(tracks[i].data);
                 return;
             }
         }
@@ -200,7 +200,7 @@ Mdx.SD.prototype = {
             t = 0;
         }
         
-        return interpolator(this.tempVector, a.value, a.outTan, b.inTan, b.value, t, this.interpolationType);
+        return interpolator(this.tempVector, a.data, a.outTan, b.inTan, b.data, t, this.interpolationType);
     },
 
     getDefval: function () {
@@ -223,7 +223,7 @@ Mdx.SD.prototype = {
     // The counter argument is a counter that always goes up to infinity, and is used for global sequences
     getValue: function (sequence, frame, counter) {
         if (this.globalSequenceId !== -1 && this.globalSequences) {
-            var duration = this.globalSequences[this.globalSequenceId];
+            var duration = this.globalSequences[this.globalSequenceId].data;
 
             return this.getValueAtTime(counter % duration , 0, duration);
         } else if (sequence !== -1) {

@@ -5,10 +5,12 @@ var defaultTransformations = {
 };
 
 Mdx.Node = function (object, model, pivots) {
+    var pivot = pivots[object.objectId];
+
     this.name = object.name;
     this.objectId = object.objectId;
     this.parentId = object.parentId;
-    this.pivot = pivots[object.objectId] || [0, 0, 0];
+    this.pivot = pivot ? pivot.data : [0, 0, 0];
     this.billboarded = object.billboarded;
     this.modelSpace = object.modelSpace;
     this.xYQuad = object.xYQuad;

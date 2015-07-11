@@ -1,4 +1,5 @@
 Mdx.Parser = (function () {
+    // Mapping from track tags to their type and default value
     var tagToTrack = {
         // LAYS
         KMTF: [readUint32, [0]],
@@ -54,15 +55,16 @@ Mdx.Parser = (function () {
         KGSC: [readVector3, [1, 1, 1]]
     };
 
+    // Read elements with unknown sizes
     function readUnknownElements(reader, size, Func, nodes) {
-        var totalInclusiveSize = 0,
+        var totalSize = 0,
             elements = [],
             element;
         
-        while (totalInclusiveSize !== size) {
+        while (totalSize !== size) {
             element = new Func(reader, nodes);
 
-            totalInclusiveSize += element.size;
+            totalSize += element.size;
 
             elements.push(element);
         }
@@ -70,6 +72,7 @@ Mdx.Parser = (function () {
         return elements;
     }
 
+    // Read elements with known sizes
     function readKnownElements(reader, count, Func) {
         var elements = [];
 
@@ -80,12 +83,13 @@ Mdx.Parser = (function () {
         return elements;
     }
 
+    // Read a node, and also push it to the nodes array
     function readNode(reader, nodes) {
-        var node = new Node(reader);
+        var node = new Node(reader, nodes.length);
 
         nodes.push(node);
 
-        return nodes.length - 1;
+        return node;
     }
 
     function Extent(reader) {
@@ -96,7 +100,7 @@ Mdx.Parser = (function () {
 
     function SDTrack(reader, interpolationType, Func) {
         this.frame = readInt32(reader);
-        this.value = Func(reader);
+        this.data = Func(reader);
 
         if (interpolationType > 1) {
             this.inTan = Func(reader);
@@ -136,7 +140,8 @@ Mdx.Parser = (function () {
         }
     }
 
-    function Node(reader) {
+    function Node(reader, index) {
+        this.index = index;
         this.size = readUint32(reader);
         this.name = read(reader, 80);
         this.objectId = readUint32(reader);
@@ -190,12 +195,8 @@ Mdx.Parser = (function () {
         this.extent = new Extent(reader);
     }
 
-    function SequenceChunk(reader, size, nodes) {
-        this.elements = readKnownElements(reader, size / 132, Sequence);
-    }
-
-    function GlobalSequenceChunk(reader, size, nodes) {
-        this.elements = readUint32Array(reader, size / 4);
+    function GlobalSequence(reader) {
+        this.data = readUint32(reader);
     }
 
     function Texture(reader) {
@@ -203,20 +204,12 @@ Mdx.Parser = (function () {
         this.path = read(reader, 260);
         this.flags = readUint32(reader);
     }
-
-    function TextureChunk(reader, size, nodes) {
-        this.elements = readKnownElements(reader, size / 268, Texture);
-    }
     /*
     function SoundTrack(reader) {
         this.path = read(reader, 260);
         this.volume = readFloat32(reader);
         this.pitch = readFloat32(reader);
         this.flags = readUint32(reader);
-    }
-
-    function SoundTrackChunk(reader, size) {
-        this.tracks = readKnownElements(reader, size / 272, SoundTrack);
     }
     */
     function Layer(reader) {
@@ -247,17 +240,9 @@ Mdx.Parser = (function () {
         this.layers = readKnownElements(reader, readUint32(reader), Layer);
     }
 
-    function MaterialChunk(reader, size, nodes) {
-        this.elements = readUnknownElements(reader, size, Material);
-    }
-
     function TextureAnimation(reader) {
         this.size = readUint32(reader);
         this.tracks = new SDContainer(reader, this.size - 4);
-    }
-
-    function TextureAnimationChunk(reader, size, nodes) {
-        this.elements = readUnknownElements(reader, size, TextureAnimation);
     }
 
     function Geoset(reader) {
@@ -303,10 +288,6 @@ Mdx.Parser = (function () {
         }
     }
 
-    function GeosetChunk(reader, size, nodes) {
-        this.elements = readUnknownElements(reader, size, Geoset);
-    }
-
     function GeosetAnimation(reader) {
         this.size = readUint32(reader);
         this.alpha = readFloat32(reader);
@@ -316,19 +297,11 @@ Mdx.Parser = (function () {
         this.tracks = new SDContainer(reader, this.size - 28);
     }
 
-    function GeosetAnimationChunk(reader, size, nodes) {
-        this.elements = readUnknownElements(reader, size, GeosetAnimation, nodes);
-    }
-
     function Bone(reader, nodes) {
         this.node = readNode(reader, nodes);
         this.geosetId = readUint32(reader);
         this.geosetAnimationId = readUint32(reader);
-        this.size = nodes[this.node].size + 8;
-    }
-
-    function BoneChunk(reader, size, nodes) {
-        this.elements = readUnknownElements(reader, size, Bone, nodes);
+        this.size = this.node.size + 8;
     }
 
     function Light(reader, nodes) {
@@ -341,20 +314,12 @@ Mdx.Parser = (function () {
         this.intensity = readFloat32(reader);
         this.ambientColor = readVector3(reader);
         this.ambientIntensity = readFloat32(reader);
-        this.tracks = new SDContainer(reader, this.size - nodes[this.node].size - 40);
-    }
-
-    function LightChunk(reader, size, nodes) {
-        this.elements = readUnknownElements(reader, size, Light, nodes);
+        this.tracks = new SDContainer(reader, this.size - this.node.size - 40);
     }
 
     function Helper(reader, nodes) {
         this.node = readNode(reader, nodes);
-        this.size = nodes[this.node].size;
-    }
-
-    function HelperChunk(reader, size, nodes) {
-        this.elements = readUnknownElements(reader, size, Helper, nodes);
+        this.size = this.node.size;
     }
 
     function Attachment(reader, nodes) {
@@ -362,15 +327,11 @@ Mdx.Parser = (function () {
         this.node = readNode(reader, nodes);
         this.path = read(reader, 260);
         this.attachmentId = readUint32(reader);
-        this.tracks = new SDContainer(reader, this.size - nodes[this.node].size - 268);
+        this.tracks = new SDContainer(reader, this.size - this.node.size - 268);
     }
 
-    function AttachmentChunk(reader, size, nodes) {
-        this.elements = readUnknownElements(reader, size, Attachment, nodes);
-    }
-
-    function PivotPointChunk(reader, size, nodes) {
-        this.elements = readFloat32Matrix(reader, size / 12, 3);
+    function PivotPoint(reader) {
+        this.data = readFloat32Array(reader, 3);
     }
 
     function ParticleEmitter(reader, nodes) {
@@ -383,11 +344,7 @@ Mdx.Parser = (function () {
         this.path = read(reader, 260);
         this.lifespan = readFloat32(reader);
         this.initialVelocity = readFloat32(reader);
-        this.tracks = new SDContainer(reader, this.size - nodes[this.node].size - 288);
-    }
-
-    function ParticleEmitterChunk(reader, size, nodes) {
-        this.elements = readUnknownElements(reader, size, ParticleEmitter, nodes);
+        this.tracks = new SDContainer(reader, this.size - this.node.size - 288);
     }
 
     function ParticleEmitter2(reader, nodes) {
@@ -418,11 +375,7 @@ Mdx.Parser = (function () {
         this.squirt = readUint32(reader);
         this.priorityPlane = readUint32(reader);
         this.replaceableId = readUint32(reader);
-        this.tracks = new SDContainer(reader, this.size - nodes[this.node].size - 175);
-    }
-
-    function ParticleEmitter2Chunk(reader, size, nodes) {
-        this.elements = readUnknownElements(reader, size, ParticleEmitter2, nodes);
+        this.tracks = new SDContainer(reader, this.size - this.node.size - 175);
     }
 
     function RibbonEmitter(reader, nodes) {
@@ -439,11 +392,7 @@ Mdx.Parser = (function () {
         this.columns = readUint32(reader);
         this.materialId = readUint32(reader);
         this.gravity = readFloat32(reader);
-        this.tracks = new SDContainer(reader, this.size - nodes[this.node].size - 56);
-    }
-
-    function RibbonEmitterChunk(reader, size, nodes) {
-        this.elements = readUnknownElements(reader, size, RibbonEmitter, nodes);
+        this.tracks = new SDContainer(reader, this.size - this.node.size - 56);
     }
 
     function EventObject(reader, nodes) {
@@ -455,11 +404,7 @@ Mdx.Parser = (function () {
 
         this.globalSequenceId = readInt32(reader);
         this.tracks = readUint32Array(reader, count);
-        this.size = nodes[this.node].size + 12 + this.tracks.length * 4;
-    }
-
-    function EventObjectChunk(reader, size, nodes) {
-        this.elements = readUnknownElements(reader, size, EventObject, nodes);
+        this.size = this.node.size + 12 + this.tracks.length * 4;
     }
 
     function Camera(reader) {
@@ -473,16 +418,12 @@ Mdx.Parser = (function () {
         this.tracks = new SDContainer(reader, this.size - 120);
     }
     
-    function CameraChunk(reader, size) {
-        this.elements = readUnknownElements(reader, size, Camera);
-    }
-    
     function CollisionShape(reader, nodes) {
         this.node = readNode(reader, nodes);
         this.type = readUint32(reader);
 
         var type = this.type,
-            size = nodes[this.node].size + 4;
+            size = this.node.size + 4;
         
         if (type === 0 || type === 1 || type === 3) {
             this.vertices = readFloat32Matrix(reader, 2, 3);
@@ -499,33 +440,68 @@ Mdx.Parser = (function () {
 
         this.size = size;
     }
-    
-    function CollisionShapeChunk(reader, size, nodes) {
-        this.elements = readUnknownElements(reader, size, CollisionShape, nodes);
+
+    // Chunks that have elements with known sizes
+    var tagToKnownChunk = {
+        SEQS: [Sequence, 132],
+        GLBS: [GlobalSequence, 4],
+        TEXS: [Texture, 268],
+        PIVT: [PivotPoint, 12]
+    };
+
+    // Chunks that have elements with unknown sizes
+    var tagToUnknownChunk = {
+        MTLS: Material,
+        TXAN: TextureAnimation,
+        GEOS: Geoset,
+        GEOA: GeosetAnimation,
+        BONE: Bone,
+        LITE: Light,
+        HELP: Helper,
+        ATCH: Attachment,
+        PREM: ParticleEmitter,
+        PRE2: ParticleEmitter2,
+        RIBB: RibbonEmitter,
+        EVTS: EventObject,
+        CAMS: Camera,
+        CLID: CollisionShape
+    };
+
+    function GenericKnownChunk(reader, tag, size, nodes) {
+        var tagInfo = tagToKnownChunk[tag];
+
+        this.elements = readKnownElements(reader, size / tagInfo[1], tagInfo[0]);
+
+    }
+
+    function GenericUnknownChunk(reader, tag, size, nodes) {
+        var tagInfo = tagToUnknownChunk[tag];
+
+        this.elements = readUnknownElements(reader, size, tagInfo, nodes);
     }
     
     var tagToFunc = {
-        "VERS": VersionChunk,
-        "MODL": ModelChunk,
-        "SEQS": SequenceChunk,
-        "GLBS": GlobalSequenceChunk,
-        "TEXS": TextureChunk,
-        //"SNDS": SoundTrackChunk,
-        "MTLS": MaterialChunk,
-        "TXAN": TextureAnimationChunk,
-        "GEOS": GeosetChunk,
-        "GEOA": GeosetAnimationChunk,
-        "BONE": BoneChunk,
-        "LITE": LightChunk,
-        "HELP": HelperChunk,
-        "ATCH": AttachmentChunk,
-        "PIVT": PivotPointChunk,
-        "PREM": ParticleEmitterChunk,
-        "PRE2": ParticleEmitter2Chunk,
-        "RIBB": RibbonEmitterChunk,
-        "EVTS": EventObjectChunk,
-        "CAMS": CameraChunk,
-        "CLID": CollisionShapeChunk
+        VERS: VersionChunk,
+        MODL: ModelChunk,
+        SEQS: GenericKnownChunk,
+        GLBS: GenericKnownChunk,
+        TEXS: GenericKnownChunk,
+        //SNDS: GenericKnownChunk,
+        MTLS: GenericUnknownChunk,
+        TXAN: GenericUnknownChunk,
+        GEOS: GenericUnknownChunk,
+        GEOA: GenericUnknownChunk,
+        BONE: GenericUnknownChunk,
+        LITE: GenericUnknownChunk,
+        HELP: GenericUnknownChunk,
+        ATCH: GenericUnknownChunk,
+        PIVT: GenericKnownChunk,
+        PREM: GenericUnknownChunk,
+        PRE2: GenericUnknownChunk,
+        RIBB: GenericUnknownChunk,
+        EVTS: GenericUnknownChunk,
+        CAMS: GenericUnknownChunk,
+        CLID: GenericUnknownChunk
     };
 
     function Parser(reader) {
@@ -541,7 +517,7 @@ Mdx.Parser = (function () {
             Func = tagToFunc[tag];
 
             if (Func) {
-                chunks[tag] = new Func(reader, size, nodes);
+                chunks[tag] = new Func(reader, tag, size, nodes);
             } else {
                 //console.log("Didn't parse chunk " + tag);
                 skip(reader, size);

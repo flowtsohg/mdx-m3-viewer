@@ -1,5 +1,5 @@
 Mdx.EventObjectEmitter = function (eventObject, model, instance, context) {
-    var node = instance.skeleton.nodes[eventObject.node];
+    var node = instance.skeleton.nodes[eventObject.node.index];
     var name = node.nodeImpl.name;
     var type = name.substring(0, 3);
     var path = name.substring(4);

@@ -56,7 +56,7 @@ Mdx.Skeleton.prototype = extend(BaseSkeleton.prototype, {
             nodes = this.nodes;
 
         for (var i = 0, l = bones.length; i < l; i++) {
-            hwbones.set(nodes[bones[i].node].worldMatrix, i * 16 + 16);
+            hwbones.set(nodes[bones[i].node.index].worldMatrix, i * 16 + 16);
         }
 
         this.updateBoneTexture(ctx);

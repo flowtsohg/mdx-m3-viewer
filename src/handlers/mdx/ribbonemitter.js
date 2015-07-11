@@ -34,7 +34,7 @@ Mdx.RibbonEmitter = function (emitter, model, instance, ctx) {
 
     this.layers = groups[0].concat(groups[1]).concat(groups[2]).concat(groups[3]);
 
-    this.node = instance.skeleton.nodes[this.node];
+    this.node = instance.skeleton.nodes[this.node.index];
     this.sd = new Mdx.SDContainer(emitter.tracks, model);
 
     // Avoid heap allocations

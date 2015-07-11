@@ -64,7 +64,7 @@ Mdx.ParticleEmitter2 = function (emitter, model, instance, ctx) {
         this.colors[i] = [Math.floor(colors[i][0] * 255), Math.floor(colors[i][1] * 255), Math.floor(colors[i][2] * 255), alpha[i]];
     }
 
-    this.node = instance.skeleton.nodes[this.node];
+    this.node = instance.skeleton.nodes[this.node.index];
     this.sd = new Mdx.SDContainer(emitter.tracks, model);
 
     // Avoid heap alocations in Particle2.reset
