@@ -58,15 +58,15 @@ function tell(reader) {
  */
 function peek(reader, size) {
     var bytes = reader.uint8Array.subarray(reader.index, reader.index + size),
-        byte,
+        b,
         data = "";
 
     for (var i = 0, l = size; i < l; i++) {
-        byte = bytes[i];
+        b = bytes[i];
 
         // Avoid \0
-        if (byte > 0) {
-            data += String.fromCharCode(byte);
+        if (b > 0) {
+            data += String.fromCharCode(b);
         }
     }
 

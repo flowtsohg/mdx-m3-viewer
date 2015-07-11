@@ -201,7 +201,7 @@ def compile_source(use_glsl_min, use_closure, annonymify_code)
     # Create the full viewer
     File.open("build/output/viewer.js", "w") { |output|
         # Without putting everything in local scope, Closure doesn't fully minify the source
-        if use_closure
+        if annonymify_code
             output.write("(function(){\"use strict\";")
         end
 
@@ -209,7 +209,7 @@ def compile_source(use_glsl_min, use_closure, annonymify_code)
             output.write(IO.read("build/#{file}.js"))
         }
 
-        if use_closure
+        if annonymify_code
             output.write("}());")
         end
     }

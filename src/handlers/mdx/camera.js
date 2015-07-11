@@ -19,5 +19,5 @@ Mdx.Camera.prototype = {
 
     getRotation: function (sequence, frame, counter) {
         return this.sd.getKCRL(sequence, frame, counter, 0);
-    },
+    }
 };

@@ -168,7 +168,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
             var elements = chunk.elements;
             
 
-            for (i = 0, l = elements.length; i < l; i++) {
+            for (var i = 0, l = elements.length; i < l; i++) {
                 output[i] = new Func(elements[i], this, gl);
             }
         }

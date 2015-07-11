@@ -1,1 +1,1 @@
-var Mdx = {};
+window["Mdx"] = {};
