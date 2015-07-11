@@ -174,11 +174,11 @@ Mdx.Parser = (function () {
         this.xYQuad = flags & 1048576;
     }
 
-    function VersionChunk(reader, size, nodes) {
+    function VersionChunk(reader, tag, size, nodes) {
         this.version = readUint32(reader);
     }
 
-    function ModelChunk(reader, size, nodes) {
+    function ModelChunk(reader, tag, size, nodes) {
         this.name = read(reader, 80);
         this.animationPath = read(reader, 260);
         this.extent = new Extent(reader);

@@ -65,18 +65,11 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
             this.nodes[0] = new Mdx.Node({ objectId: 0, parentId: 0xFFFFFFFF }, this, pivots);
         }
 
-        // This list is used to access all the nodes in a loop while keeping the hierarchy in mind.
-        this.hierarchy = [];
-        this.setupHierarchy(-1);
-
-        this.sortedNodes = [];
-
-        for (i = 0, l = nodes.length; i < l; i++) {
-            this.sortedNodes[i] = this.nodes[this.hierarchy[i]];
-        }
-
         if (chunks.BONE) {
             this.bones = chunks.BONE.elements;
+        } else {
+            // If there are no bones, reference the injected root node, since the shader requires at least one bone
+            this.bones = [{ node: { objectId: 0 } }];
         }
 
         var materials;
@@ -89,25 +82,25 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         var mesh;
 
         if (chunks.MTLS) {
-            materials = chunks.MTLS.elements;
-            fakeMaterials = [];
+            objects = chunks.MTLS.elements;
+            materials = [];
 
             this.layers = [];
 
-            for (i = 0, l = materials.length; i < l; i++) {
-                layers = materials[i].layers;
+            for (i = 0, l = objects.length; i < l; i++) {
+                layers = objects[i].layers;
 
-                fakeMaterials[i] = [];
+                materials[i] = [];
 
                 for (j = 0, k = layers.length; j < k; j++) {
                     layer = new Mdx.Layer(layers[j], this);
 
-                    fakeMaterials[i][j] = layer;
+                    materials[i][j] = layer;
                     this.layers.push(layer);
                 }
             }
 
-            this.fakeMaterials = fakeMaterials;
+            this.materials = materials;
         }
 
         if (chunks.GEOS) {
@@ -116,7 +109,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
 
             for (i = 0, l = geosets.length; i < l; i++) {
                 geoset = geosets[i];
-                layers = fakeMaterials[geoset.materialId];
+                layers = materials[geoset.materialId];
 
                 mesh = new Mdx.Geoset(geoset, i, gl.ctx);
 
@@ -129,7 +122,8 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
                 }
             }
 
-            this.shallowLayers = groups[0].concat(groups[1]).concat(groups[2]).concat(groups[3]);
+            // This is an array of geoset + shallow layer batches
+            this.batches = groups[0].concat(groups[1]).concat(groups[2]).concat(groups[3]);
 
             this.calculateExtent();
         }
@@ -160,13 +154,11 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         // Avoid heap allocations in render()
         this.modifier = vec4.create();
         this.uvoffset = vec3.create();
-        this.defaultUvoffset = vec3.create();
-        this.tempVec3 = vec4.create();
 
         this.ready = true;
 
         this.setupShaders(chunks, gl);
-        this.setupTeamColors(gl);
+        this.setupTeamColors(gl, context.urls);
     },
 
     transformElements: function (chunk, Func, gl) {
@@ -210,7 +202,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         }
     },
 
-    setupTeamColors: function (gl) {
+    setupTeamColors: function (gl, urls) {
         var i,
             number;
 
@@ -244,23 +236,6 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         this.textureMap[source] = path;
 
         gl.loadTexture(path);
-    },
-
-    setupHierarchy: function (parent) {
-        var nodes = this.nodes,
-            node,
-            i,
-            l;
-
-        for (i = 0, l = nodes.length; i < l; i++) {
-            node = nodes[i];
-
-            if (node.parentId === parent) {
-                this.hierarchy.push(i);
-
-                this.setupHierarchy(node.objectId);
-            }
-        }
     },
 
     calculateExtent: function () {
@@ -332,14 +307,14 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
 
         var realShaderName = "w" + shaderName
         var shader;
-        var layers = this.shallowLayers;
+        var batches = this.batches;
         var polygonMode = context.polygonMode;
         var renderGeosets = (polygonMode === 1 || polygonMode === 3);
         var renderWireframe = (polygonMode === 2 || polygonMode === 3);
 
-        if (layers) {
+        if (batches) {
             var geoset;
-            var shallowLayer;
+            var batch;
             var layer;
 
             if (renderGeosets && gl.shaderStatus(realShaderName)) {
@@ -347,8 +322,6 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
                 var uvoffset = this.uvoffset;
                 var textureId;
                 var textures = this.textures;
-                var defaultUvoffset = this.defaultUvoffset;
-                var tempVec3 = this.tempVec3;
 
                 shader = gl.bindShader(realShaderName);
 
@@ -357,10 +330,10 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
 
                 instance.skeleton.bind(shader, ctx);
 
-                for (i = 0, l = layers.length; i < l; i++) {
-                    shallowLayer = layers[i];
-                    geoset = shallowLayer.geoset;
-                    layer = shallowLayer.layer;
+                for (i = 0, l = batches.length; i < l; i++) {
+                    batch = batches[i];
+                    geoset = batch.geoset;
+                    layer = batch.layer;
 
                     if (instance.meshVisibilities[geoset.index] && this.shouldRender(sequence, frame, counter, geoset, layer)) {
                         modifier[0] = 1;
@@ -382,14 +355,12 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
                             for (var j = this.geosetAnimations.length; j--;) {
                                 var geosetAnimation = this.geosetAnimations[j];
 
-                                if (geosetAnimation) {
-                                    if (geosetAnimation.geosetId === geoset.index) {
-                                        tempVec3 = geosetAnimation.getColor(sequence, frame, counter);
+                                if (geosetAnimation.geosetId === geoset.index) {
+                                    var tempVec3 = geosetAnimation.getColor(sequence, frame, counter);
 
-                                        modifier[0] = tempVec3[2];
-                                        modifier[1] = tempVec3[1];
-                                        modifier[2] = tempVec3[0];
-                                    }
+                                    modifier[0] = tempVec3[2];
+                                    modifier[1] = tempVec3[1];
+                                    modifier[2] = tempVec3[0];
                                 }
                             }
                         }
@@ -519,11 +490,11 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         var counter = instance.counter;
         var layer, geoset, texture;
         var shader;
-        var shallowLayer;
-        var layers = this.shallowLayers;
+        var batch;
+        var batches = this.batches;
         var textures = this.textures;
 
-        if (layers && gl.shaderStatus("wcolor")) {
+        if (batches && gl.shaderStatus("wcolor")) {
             shader = gl.bindShader("wcolor");
 
             ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
@@ -531,10 +502,10 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
 
             instance.skeleton.bind(shader, ctx);
 
-            for (i = 0, l = layers.length; i < l; i++) {
-                shallowLayer = layers[i];
-                geoset = shallowLayer.geoset;
-                layer = shallowLayer.layer;
+            for (i = 0, l = batches.length; i < l; i++) {
+                batch = batches[i];
+                geoset = batch.geoset;
+                layer = batch.layer;
 
                 if (instance.meshVisibilities[geoset.index] && this.shouldRenderGeoset(sequence, frame, counter, geoset)) {
                     texture = textures[layer.textureId];

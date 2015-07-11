@@ -1,15 +1,27 @@
 Mdx.Skeleton = function (model, ctx) {
-    var nodes = model.nodes;
+    var nodes = model.nodes,
+        bones = model.bones;
 
-    this.hierarchy = model.hierarchy;
+    // This list is used to access all the nodes in a loop while keeping the hierarchy in mind.
+    this.hierarchy = this.setupHierarchy([], nodes, -1);
 
-    // If there are no original bones, reference the root node injected, since the shader requires at least one bone
-    this.bones = model.bones || [{node: 0}];
+    BaseSkeleton.call(this, bones.length + 1, ctx);
 
-    BaseSkeleton.call(this, this.bones.length + 1, ctx);
-
+    // Shallow nodes referencing the actual nodes in the model
     for (var i = 0, l = nodes.length; i < l; i++) {
         this.nodes[i] = new Mdx.ShallowNode(nodes[i]);
+    }
+
+    // The sorted version of the nodes, for straight iteration in update()
+    this.sortedNodes = [];
+    for (i = 0, l = nodes.length; i < l; i++) {
+        this.sortedNodes[i] = this.nodes[this.hierarchy[i]];
+    }
+
+    // The sorted version of the bone references in the model, for straight iteration in updateHW()
+    this.sortedBones = [];
+    for (i = 0, l = bones.length; i < l; i++) {
+        this.sortedBones[i] = this.nodes[bones[i].node.index];
     }
 
     // To avoid heap allocations
@@ -17,14 +29,30 @@ Mdx.Skeleton = function (model, ctx) {
 };
 
 Mdx.Skeleton.prototype = extend(BaseSkeleton.prototype, {
+    setupHierarchy: function (hierarchy, nodes, parent) {
+        var node;
+
+        for (var i = 0, l = nodes.length; i < l; i++) {
+            node = nodes[i];
+
+            if (node.parentId === parent) {
+                hierarchy.push(i);
+
+                this.setupHierarchy(hierarchy, nodes, node.objectId);
+            }
+        }
+
+        return hierarchy;
+    },
+
     update: function (sequence, frame, counter, instance, context) {
-        var nodes = this.nodes;
+        var nodes = this.sortedNodes;
         var hierarchy = this.hierarchy;
 
         this.rootNode.setFromParent(instance);
 
         for (var i = 0, l = hierarchy.length; i < l; i++) {
-            this.updateNode(nodes[hierarchy[i]], sequence, frame, counter, context);
+            this.updateNode(nodes[i], sequence, frame, counter, context);
         }
 
         this.updateHW(context.gl.ctx);
@@ -51,12 +79,11 @@ Mdx.Skeleton.prototype = extend(BaseSkeleton.prototype, {
     },
 
     updateHW: function (ctx) {
-        var bones = this.bones,
-            hwbones = this.hwbones,
-            nodes = this.nodes;
+        var sortedBones = this.sortedBones,
+            hwbones = this.hwbones;
 
-        for (var i = 0, l = bones.length; i < l; i++) {
-            hwbones.set(nodes[bones[i].node.index].worldMatrix, i * 16 + 16);
+        for (var i = 0, l = sortedBones.length; i < l; i++) {
+            hwbones.set(sortedBones[i].worldMatrix, i * 16 + 16);
         }
 
         this.updateBoneTexture(ctx);
