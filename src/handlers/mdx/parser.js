@@ -314,7 +314,7 @@ Mdx.Parser = (function () {
         this.intensity = readFloat32(reader);
         this.ambientColor = readVector3(reader);
         this.ambientIntensity = readFloat32(reader);
-        this.tracks = new SDContainer(reader, this.size - this.node.size - 40);
+        this.tracks = new SDContainer(reader, this.size - this.node.size - 48);
     }
 
     function Helper(reader, nodes) {

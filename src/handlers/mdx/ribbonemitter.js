@@ -24,7 +24,7 @@ Mdx.RibbonEmitter = function (emitter, model, instance, ctx) {
     this.cellHeight = 1 / this.rows;
 
     var groups = [[], [], [], []];
-    var layers = model.fakeMaterials[this.materialId];
+    var layers = model.materials[this.materialId];
 
     for (i = 0, l = layers.length; i < l; i++) {
         var layer = new Mdx.ShallowLayer(layers[i]);
