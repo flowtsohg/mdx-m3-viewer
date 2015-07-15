@@ -62,7 +62,7 @@ Mdx.Parser = (function () {
             element;
         
         while (totalSize !== size) {
-            element = new Func(reader, nodes);
+            element = new Func(reader, nodes, elements.length);
 
             totalSize += element.size;
 
@@ -77,7 +77,7 @@ Mdx.Parser = (function () {
         var elements = [];
 
         for (var i = 0; i < count; i++) {
-            elements[i] = new Func(reader);
+            elements[i] = new Func(reader, i);
         }
 
         return elements;
@@ -185,7 +185,8 @@ Mdx.Parser = (function () {
         this.blendTime = readUint32(reader);
     }
 
-    function Sequence(reader) {
+    function Sequence(reader, index) {
+        this.index = index;
         this.name = read(reader, 80);
         this.interval = readUint32Array(reader, 2);
         this.moveSpeed = readFloat32(reader);
@@ -195,25 +196,29 @@ Mdx.Parser = (function () {
         this.extent = new Extent(reader);
     }
 
-    function GlobalSequence(reader) {
+    function GlobalSequence(reader, index) {
+        this.index = index;
         this.data = readUint32(reader);
     }
 
-    function Texture(reader) {
+    function Texture(reader, index) {
+        this.index = index;
         this.replaceableId = readUint32(reader);
         this.path = read(reader, 260);
         this.flags = readUint32(reader);
     }
     /*
     // Note: this chunk was reverse engineered from the game executable itself, but was never seen in any resource
-    function SoundTrack(reader) {
+    function SoundTrack(reader, index) {
+        this.index = index;
         this.path = read(reader, 260);
         this.volume = readFloat32(reader);
         this.pitch = readFloat32(reader);
         this.flags = readUint32(reader);
     }
     */
-    function Layer(reader) {
+    function Layer(reader, index) {
+        this.index = index;
         this.size = readUint32(reader);
         this.filterMode = readUint32(reader);
         this.flags = readUint32(reader);
@@ -233,7 +238,8 @@ Mdx.Parser = (function () {
         this.noDepthSet = flags & 128;
     }
 
-    function Material(reader) {
+    function Material(reader, nodes, index) {
+        this.index = index;
         this.size = readUint32(reader);
         this.priorityPlane = readUint32(reader);
         this.flags = readUint32(reader);
@@ -241,12 +247,14 @@ Mdx.Parser = (function () {
         this.layers = readKnownElements(reader, readUint32(reader), Layer);
     }
 
-    function TextureAnimation(reader) {
+    function TextureAnimation(reader, nodes, index) {
+        this.index = index;
         this.size = readUint32(reader);
         this.tracks = new SDContainer(reader, this.size - 4);
     }
 
-    function Geoset(reader) {
+    function Geoset(reader, nodes, index) {
+        this.index = index;
         this.size = readUint32(reader);
 
         skip(reader, 4); // VRTX
@@ -289,7 +297,8 @@ Mdx.Parser = (function () {
         }
     }
 
-    function GeosetAnimation(reader) {
+    function GeosetAnimation(reader, nodes, index) {
+        this.index = index;
         this.size = readUint32(reader);
         this.alpha = readFloat32(reader);
         this.flags = readUint32(reader);
@@ -298,14 +307,15 @@ Mdx.Parser = (function () {
         this.tracks = new SDContainer(reader, this.size - 28);
     }
 
-    function Bone(reader, nodes) {
+    function Bone(reader, nodes, index) {
         this.node = readNode(reader, nodes);
         this.geosetId = readUint32(reader);
         this.geosetAnimationId = readUint32(reader);
         this.size = this.node.size + 8;
     }
 
-    function Light(reader, nodes) {
+    function Light(reader, nodes, index) {
+        this.index = index;
         this.size = readUint32(reader);
         this.node = readNode(reader, nodes);
         this.type = readUint32(reader);
@@ -317,12 +327,14 @@ Mdx.Parser = (function () {
         this.tracks = new SDContainer(reader, this.size - this.node.size - 48);
     }
 
-    function Helper(reader, nodes) {
+    function Helper(reader, nodes, index) {
+        this.index = index;
         this.node = readNode(reader, nodes);
         this.size = this.node.size;
     }
 
-    function Attachment(reader, nodes) {
+    function Attachment(reader, nodes, index) {
+        this.index = index;
         this.size = readUint32(reader);
         this.node = readNode(reader, nodes);
         this.path = read(reader, 260);
@@ -330,11 +342,13 @@ Mdx.Parser = (function () {
         this.tracks = new SDContainer(reader, this.size - this.node.size - 268);
     }
 
-    function PivotPoint(reader) {
+    function PivotPoint(reader, index) {
+        this.index = index;
         this.data = readFloat32Array(reader, 3);
     }
 
-    function ParticleEmitter(reader, nodes) {
+    function ParticleEmitter(reader, nodes, index) {
+        this.index = index;
         this.size = readUint32(reader);
         this.node = readNode(reader, nodes);
         this.emissionRate = readFloat32(reader);
@@ -347,7 +361,8 @@ Mdx.Parser = (function () {
         this.tracks = new SDContainer(reader, this.size - this.node.size - 288);
     }
 
-    function ParticleEmitter2(reader, nodes) {
+    function ParticleEmitter2(reader, nodes, index) {
+        this.index = index;
         this.size = readUint32(reader);
         this.node = readNode(reader, nodes);
         this.speed = readFloat32(reader);
@@ -378,7 +393,8 @@ Mdx.Parser = (function () {
         this.tracks = new SDContainer(reader, this.size - this.node.size - 175);
     }
 
-    function RibbonEmitter(reader, nodes) {
+    function RibbonEmitter(reader, nodes, index) {
+        this.index = index;
         this.size = readUint32(reader);
         this.node = readNode(reader, nodes);
         this.heightAbove = readFloat32(reader);
@@ -395,7 +411,8 @@ Mdx.Parser = (function () {
         this.tracks = new SDContainer(reader, this.size - this.node.size - 56);
     }
 
-    function EventObject(reader, nodes) {
+    function EventObject(reader, nodes, index) {
+        this.index = index;
         this.node = readNode(reader, nodes);
         
         skip(reader, 4); // KEVT
@@ -407,7 +424,8 @@ Mdx.Parser = (function () {
         this.size = this.node.size + 12 + count * 4;
     }
 
-    function Camera(reader) {
+    function Camera(reader, nodes, index) {
+        this.index = index;
         this.size = readUint32(reader);
         this.name = read(reader, 80);
         this.position = readVector3(reader);
@@ -418,7 +436,8 @@ Mdx.Parser = (function () {
         this.tracks = new SDContainer(reader, this.size - 120);
     }
     
-    function CollisionShape(reader, nodes) {
+    function CollisionShape(reader, nodes, index) {
+        this.index = index;
         this.node = readNode(reader, nodes);
         this.type = readUint32(reader);
 
