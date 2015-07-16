@@ -1,5 +1,5 @@
-M3.ModelInstance = function (model, textureMap, context) {
-    BaseModelInstance.call(this, model, textureMap);
+M3.ModelInstance = function (model, customPaths, context) {
+    BaseModelInstance.call(this, model, {});
 
     this.setup(model, context);
 };

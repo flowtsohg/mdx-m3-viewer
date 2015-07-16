@@ -10,14 +10,19 @@
  * @param {vec3} color The color this instance uses for {@link AsyncModelInstance.renderColor}.
  * @param {object} textureMap An object with texture path -> absolute urls mapping.
  */
-function AsyncModelInstance(model, textureMap, context, onload, onloadstart, isInternal) {
+function AsyncModelInstance(model, isInternal) {
+    var context = model.context;
+    var callbacks = context.callbacks;
+
     this.type = "instance";
     this.ready = false;
     this.id = generateID();
     this.color = decodeFloat3(this.id);
+    this.tint = vec4.fromValues(1, 1, 1, 1);
     this.visible = 1;
     this.selectable = 1;
-    
+    this.customPaths = model.customPaths;
+
     // If the model is already ready, the onload message from setup() must be delayed, since this instance wouldn't be added to the cache yet.
     if ((model && model.ready) || isInternal) {
         this.delayOnload = true;
@@ -25,35 +30,27 @@ function AsyncModelInstance(model, textureMap, context, onload, onloadstart, isI
 
     this.context = context;
 
-    this.onload = onload || function () {};
+    this.onload = callbacks.onload;
 
     Async.call(this);
     Spatial.call(this);
 
     // Don't report internal instances
     if (!isInternal) {
-        onloadstart(this);
+        callbacks.onloadstart(this);
     }
         
-    // Request the setup function to be called by the model when it can.
-    // If the model is loaded, setup runs instantly, otherwise it runs when the model finishes loading.
-    if (model) {
-        this.setModel(model, textureMap || {});
- 
-    }
+    this.model = model;
+    this.fileType = model.fileType;
+    this.source = model.source;
+    this.isFromMemory = model.isFromMemory;
+
+    model.setupInstance(this);
 }
 
 AsyncModelInstance.handlers = {};
 
 AsyncModelInstance.prototype = {
-    setModel: function (model, textureMap) {
-        this.model = model;
-        this.fileType = model.fileType;
-        this.source = model.source;
-
-        model.setupInstance(this, textureMap);
-    },
-
   /**
     * Setup a model instance.
     *
@@ -62,8 +59,8 @@ AsyncModelInstance.prototype = {
     * @param {BaseModel} model The model implementation this instance points to.
     * @param {object} textureMap An object with texture path -> absolute urls mapping.
     */
-    setup: function (model, textureMap) {
-        this.instance = new AsyncModelInstance.handlers[this.fileType](model, textureMap, this.context);
+    setup: function (model) {
+        this.instance = new AsyncModelInstance.handlers[this.fileType](model, this.customPaths, this.context);
 
         this.ready = true;
 
@@ -73,10 +70,6 @@ AsyncModelInstance.prototype = {
 
         if (!this.delayOnload) {
             this.onload(this);
-        }
-
-        if (this.context.debugMode) {
-            console.log(this.instance);
         }
     },
   
@@ -106,7 +99,7 @@ AsyncModelInstance.prototype = {
     */
     render: function (context) {
         if (this.ready && this.visible) {
-            this.instance.render(context);
+            this.instance.render(context, this.tint);
         }
     },
   
@@ -172,23 +165,19 @@ AsyncModelInstance.prototype = {
     getSource: function () {
         return this.model.source;
     },
-    
-    getOriginalSource: function () {
-        return this.model.originalSource;
-    },
   
   // Sets the parent value of a requesting Spatial.
-    setRequestedAttachment: function (requester, attachment) {
-        requester.setParentNode(this.instance.getAttachment(attachment));
-    },
+    //setRequestedAttachment: function (requester, attachment) {
+    //    requester.setParentNode(this.instance.getAttachment(attachment));
+    //},
   
-    requestAttachment: function (requester, attachment) {
-        if (this.ready) {
-            return this.setRequestedAttachment(requester, attachment);
-        } else {
-            this.addFunctor("setRequestedAttachment", [requester, attachment]);
-        }
-    },
+    //requestAttachment: function (requester, attachment) {
+    //    if (this.ready) {
+    //        return this.setRequestedAttachment(requester, attachment);
+    //    } else {
+    //        this.addFunctor("setRequestedAttachment", [requester, attachment]);
+    //    }
+    //},
   
   /**
     * Overrides a texture used by a model instance.
@@ -465,124 +454,6 @@ AsyncModelInstance.prototype = {
     getPolygonCount: function () {
         if (this.ready) {
             return this.model.getPolygonCount();
-        }
-    },
-    
-  /**
-    * Gets a model instance's information. This includes most of the getters, and also the information from {@link AsyncModel.getInfo}.
-    *
-    * @memberof AsyncModelInstance
-    * @instance
-    * @returns {object} The model instance information.
-    */
-    getInfo: function () {
-        return {
-            modelInfo: this.model.getInfo(),
-            visible: this.getVisibility(),
-            sequence: this.getSequence(),
-            sequenceLoopMode: this.getSequenceLoopMode(),
-            location: this.getLocation(),
-            rotation: this.getRotation(),
-            rotationQuat: this.getRotationQuat(),
-            scale: this.getScale(),
-            parent: this.getParent(),
-            teamColor: this.getTeamColor(),
-            textureMap: this.getTextureMap(),
-            meshVisibilities: this.getMeshVisibilities(),
-            name: this.getName()
-        };
-    },
-  
-  /**
-    * Gets a model instance's representation as an object that will be converted to JSON.
-    *
-    * @memberof AsyncModelInstance
-    * @instance
-    * @returns {object} The JSON representation.
-    */
-    toJSON: function () {
-        // For some reason, when typed arrays are JSON stringified they change to object notation rather than array notation.
-        // This is why I don't bother to access the location and rotation directly.
-        var location = this.getLocation(),
-            rotation = Array.toDeg(this.getRotation()),
-            scale = this.getScale(),
-            textureMap = {},
-            localTextureMap = this.getTextureMap(),
-            modelTextureMap = this.model.getTextureMap(),
-            keys = Object.keys(localTextureMap),
-            visibilities = this.getMeshVisibilities(),
-            key,
-            i,
-            l;
-        
-
-        // This code avoids saving instance overrides that match the model's texture map.
-        // For example, when the client overrides a texture and then sets it back to the original value.
-        for (i = 0, l = keys.length; i < l; i++) {
-            key = keys[i];
-
-            if (localTextureMap[key] !== modelTextureMap[key]) {
-                textureMap[key] = localTextureMap[key];
-            }
-        }
-
-        // To avoid silly numbers like 1.0000000000000002
-        location = Array.setFloatPrecision(location, 2);
-        rotation = Array.setFloatPrecision(rotation, 0);
-        scale = Math.setFloatPrecision(scale, 2);
-
-        // Turn booleans to numbers to shorten the string.
-        for (i = 0, l = visibilities.length; i < l; i++) {
-            visibilities[i] = visibilities[i] & 1;
-        }
-
-        return [
-            this.id,
-            this.model.id,
-            this.getVisibility() & 1,
-            this.getSequence(),
-            this.getSequenceLoopMode(),
-            location,
-            rotation,
-            scale,
-            this.getParent(),
-            this.getTeamColor(),
-            textureMap,
-            visibilities
-        ];
-    },
-  
-  /**
-    * Applies the settings of a JSON representation to a model instance.
-    *
-    * @memberof AsyncModelInstance
-    * @instance
-    * @object {object} The JSON representation.
-    */
-    fromJSON: function (object) {
-        var textureMap = object[10],
-            visibilities = object[11],
-            keys = Object.keys(textureMap),
-            key,
-            i,
-            l;
-
-        this.setVisibility(!!object[2]);
-        this.setSequence(object[3]);
-        this.setSequenceLoopMode(object[4]);
-        this.setLocation(object[5]);
-        this.rotate(Array.toRad(object[6]));
-        this.setScale(object[7]);
-        this.setTeamColor(object[9]);
-
-        for (i = 0, l = keys.length; i < l; i++) {
-            key = keys[i];
-
-            this.overrideTexture(key, textureMap[key]);
-        }
-
-        for (i = 0, l = visibilities.length; i < l; i++) {
-            this.setMeshVisibility(i, visibilities[i]);
         }
     }
 };

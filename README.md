@@ -19,9 +19,8 @@ Terminology:
 | Term | Description |
 | ------------- | ------------- |
 | Model | Heavy weight object that contains all the vertices, polygon indices, animation data, skeletal structure, and so on |
-| ModelInstance | Light weight object that contains a shallow skeleton, particle emitters, animation timers, and so on |
-| AsyncModel | An object that wraps a model implementation, and takes care of the asynchronous job that is loading files |
-| AsyncModelInstance | An object that wraps a model instance implementation, and takes care of the asynchronous job that is loading files |
+| Model Instance | Light weight object that contains a shallow skeleton, particle emitters, animation timers, and so on |
+| Async <Something> | An object that wraps an actual object implementation, and takes care of the asynchronous job that is loading files |
 
 ------------------------
 
@@ -30,16 +29,10 @@ Terminology:
 The API can be seen [here](http://htmlpreview.github.io/?https://raw.githubusercontent.com/flowtsohg/mdx-m3-viewer/master/docs/ModelViewer.html).
 
 ```javascript
-viewer = ModelViewer(canvas, urls, debugMode)
+viewer = ModelViewer(canvas, worldPaths)
 ```
 
-The `urls` argument must have the following functions in it:
-
-| Function | Description |
-| ------------- | ------------- |
-| `header(id)` | Returns the path for a metadata header about a custom resource. More on this in the [custom models section](#custom-models) |
-| `mpqFile(path)` | Returns a path for a file in any of the Warcraft 3 or Starcraft 2 MPQs |
-| `localFile(path)` | Returns a path for a local file. This should point to a directory with the following images: `grass.png`, `water.png`, `bedrock.png`, and `sky.png` |
+The `worldPaths` argument is a function that takes a single string as an argument. This argument is the local path of a world texture (one of "grass.png", "water.png", and "sky.png"). The function must return the proper path where these images can be found.
 
 If the client has the requierments to run the viewer, the API will be returned, otherwise, an exception will be thrown, describing the error.
 
@@ -64,25 +57,6 @@ The type can be one of:
 * `abort` - an object was aborted before finishing to load. This happens if an object is unloaded before its internal HTTP request finished, in which case it is aborted.
 
 The target property is set to the object that the event is related to. In the case of the render event, this is the viewer itself.
-
-------------------------
-
-#### <a name="custom-models"></a> Loading custom models
-
-The urls.header stub is used to give information about custom models. Given some form of identifier, it should return an url that will point to a JSON object of the following form:
-
-```javascript
-{
-  "models": [{"url": "url/to/some/model.mdx", "hidden": true/false}, ...],
-  "textures": {"path/texture.blp": {"url": "real/url/to/texture.blp"}, ...}
-}
-```
-
-The `models` object holds objects containing paths to model files, with an optional hidden value. If it is true, the instance created for the model will be hidden by default.
-
-The `textures` object holds a map from texture paths used by the models, to custom textures that the custom models might be using. For example, the Warcraft 3 Azura Dragon uses the path "textures/azuredragon.blp" for its main diffuse texture. If the `textures` object would contain `"textures/azuradragon.blp": "some/other/texture.blp"`, then the path will be overriden for every model in the `models` object before they are loaded.
-
-The original texture paths (the keys in the `textures` object) must all be lower cased, and with forward slashes (Warcraft 3 uses back slashes).
 
 ------------------------
 

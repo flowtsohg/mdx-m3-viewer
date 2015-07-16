@@ -1,4 +1,4 @@
-M3.Layer = function (layer, type, op, model, textureMap, gl) {
+M3.Layer = function (layer, type, op, model, customPaths, gl) {
     this.active = false;
 
     // Since Gloss doesn't exist in all versions
@@ -50,20 +50,15 @@ M3.Layer = function (layer, type, op, model, textureMap, gl) {
         var source = layer.imagePath.toLowerCase();
 
         if (source !== "") {
+            var realPath = customPaths(source);
+
             this.source = source;
 
-            var path;
-            var fileName = fileNameFromPath(source);
+            model.textureMap[source] = realPath;
 
-            if (textureMap[fileName]) {
-                path = textureMap[fileName];
-            } else {
-                path = urls.mpqFile(source);
-            }
+            var fileType = fileTypeFromPath(source);
 
-            model.textureMap[source] = path;
-
-            gl.loadTexture(path, {clampS: !(flags & 0x4), clampT: !(flags & 0x8)});
+            gl.loadTexture(realPath, fileType, false, { clampS: !(flags & 0x4), clampT: !(flags & 0x8) });
 
             this.active = true;
         }

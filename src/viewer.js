@@ -5,7 +5,7 @@
  * @param {object} urls An object with the necessary methods to get urls from the server.
  * @param {boolean} debugMode If true, the viewer will log the loaded models and their parser to the console.
  */
-window["ModelViewer"] = function (canvas, urls, debugMode) {
+window["ModelViewer"] = function (canvas, worldPaths) {
     var objectsNotReady = 0;
     
     function onabort(object) {
@@ -51,26 +51,36 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         }
     }
   
-    function onunload(object) {
+    function onremove(object) {
         dispatchEvent({type: "remove", target: object});
     }
+
+    var callbacks = {
+        onabort: onabort,
+        onloadstart: onloadstart,
+        onloadend: onloadend,
+        onload: onload,
+        onerror: onerror,
+        onprogress: onprogress,
+        onremove: onremove
+    };
   
     var listeners = {}
     var viewerObject = {};
     
-    var gl = GL(canvas, onload, onerror, onprogress, onloadstart, onunload);
+    var gl = GL(canvas, callbacks);
     var ctx = gl.ctx;
-        
-    var groundPath = urls.localFile("ground.png");
-    var waterPath = urls.localFile("water.png");
-    var skyPath = urls.localFile("sky.png");
+    
+    var groundPath = worldPaths("ground.png");
+    var waterPath = worldPaths("water.png");
+    var skyPath = worldPaths("sky.png");
 
     var modelArray = []; // All models
     var instanceArray = []; // All instances
     var modelInstanceMap = {}; // Referebce by ID. This is a map to support deletions.
     var modelMap = {}; // Reference by source
-    // Much like modelMap, but isn't cleared when something is unloaded.
-    // It is used to make loading faster if a model was unloaded, or clear was called, and then the model is requested to load again.
+    // Much like modelMap, but isn't cleared when something is removeed.
+    // It is used to make loading faster if a model was removeed, or clear was called, and then the model is requested to load again.
     var modelCache = {};
     
     var supportedModelFileTypes = {};
@@ -78,6 +88,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     var supportedFileTypes = {".png":1, ".gif":1, ".jpg":1};
   
     var context = {
+        callbacks: callbacks,
         frameTime: 1000 / 60,
         camera: new Camera([0, 0, canvas.clientWidth, canvas.clientHeight]),
         instanceCamera: [-1, -1],
@@ -91,7 +102,6 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         texturesMode: true,
         shader: 0,
         gl: gl,
-        debugMode: debugMode,
         teamColors: [[255, 3, 3], [0, 66, 255], [28, 230, 185], [84, 0, 129], [255, 252, 1], [254, 138, 14], [32, 192, 0], [229, 91, 176], [149, 150, 151], [126, 191, 241], [16, 98, 70], [78, 42, 4], [40, 40, 40], [0, 0, 0]],
         shaders: [ "standard", "diffuse", "normals", "uvs", "normalmap", "specular", "specular_normalmap", "emissive", "unshaded", "unshaded_normalmap", "decal", "white"],
         lightPosition: [0, 0, 10000],
@@ -99,45 +109,44 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         uvOffset: [0, 0],
         uvSpeed: [Math.randomRange(-0.004, 0.004), Math.randomRange(-0.004, 0.004)],
         ground: gl.createRect(0, 0, -1, 256, 256, 6),
-        sky: gl.createSphere(0, 0, 0, 5, 40, 50000),
-        urls: urls
+        sky: gl.createSphere(0, 0, 0, 5, 40, 50000)
     };
     
-    function saveContext() {
-        var camera = context.camera,
-            translation = Array.setFloatPrecision(camera[0], 0),
-            rotation = Array.setFloatPrecision(Array.toDeg(camera[1]), 0);
+    //function saveContext() {
+    //    var camera = context.camera,
+    //        translation = Array.setFloatPrecision(camera[0], 0),
+    //        rotation = Array.setFloatPrecision(Array.toDeg(camera[1]), 0);
 
-        return [
-            context.frameTime / 1000 * 60,
-            [translation, rotation],
-            context.instanceCamera,
-            context.worldMode,
-            context.groundSize,
-            context.polygonMode,
-            context.teamColorsMode & 1,
-            context.boundingShapesMode & 1,
-            context.texturesMode & 1,
-            context.shader
-        ];
-    }
+    //    return [
+    //        context.frameTime / 1000 * 60,
+    //        [translation, rotation],
+    //        context.instanceCamera,
+    //        context.worldMode,
+    //        context.groundSize,
+    //        context.polygonMode,
+    //        context.teamColorsMode & 1,
+    //        context.boundingShapesMode & 1,
+    //        context.texturesMode & 1,
+    //        context.shader
+    //    ];
+    //}
   
-    function loadContext(object) {
-        var camera = object[1],
-            translation = camera[0],
-            rotation = Array.toRad(camera[1]);
+    //function loadContext(object) {
+    //    var camera = object[1],
+    //        translation = camera[0],
+    //        rotation = Array.toRad(camera[1]);
 
-        context.frameTime = object[0] / 60 * 1000;
-        context.camera = [translation, rotation],
-        context.instanceCamera = object[2];
-        context.worldMode = object[3];
-        setGroundSize(object[4] * 2);
-        context.polygonMode = object[6];
-        context.teamColorsMode = !!object[7];
-        context.boundingShapesMode = !!object[8];
-        context.texturesMode = !!object[9];
-        context.shader = object[10];
-    }
+    //    context.frameTime = object[0] / 60 * 1000;
+    //    context.camera = [translation, rotation],
+    //    context.instanceCamera = object[2];
+    //    context.worldMode = object[3];
+    //    setGroundSize(object[4] * 2);
+    //    context.polygonMode = object[6];
+    //    context.teamColorsMode = !!object[7];
+    //    context.boundingShapesMode = !!object[8];
+    //    context.texturesMode = !!object[9];
+    //    context.shader = object[10];
+    //}
   
     function resetViewport() {
         var width = canvas.clientWidth,
@@ -158,9 +167,9 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     gl.createShader("white", SHADERS.vswhite, SHADERS.pswhite);
     gl.createShader("texture", SHADERS.vstexture, SHADERS.pstexture);
     
-    gl.loadTexture(groundPath);
-    gl.loadTexture(waterPath);
-    gl.loadTexture(skyPath);
+    gl.loadTexture(groundPath, ".png");
+    gl.loadTexture(waterPath, ".png");
+    gl.loadTexture(skyPath, ".png");
     
     function setupColorFramebuffer(width, height) {
         // Color texture
@@ -301,14 +310,11 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     }
   
     function renderColor() {
-        var i,
-            l;
-        
         ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
 
         ctx.disable(ctx.CULL_FACE);
 
-        for (i = 0, l = instanceArray.length; i < l; i++) {
+        for (var i = 0, l = instanceArray.length; i < l; i++) {
             instanceArray[i].renderColor(context);
         }
 
@@ -349,8 +355,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         ctx.disable(ctx.BLEND);
     }
     
-    function loadModel(source, originalSource, textureMap) {
-        
+    function loadModel(source, fileType, customPaths, isFromMemory) {
         // If the model is cached, but not in the model map, add it to the model map
         if (modelCache[source]) {
             if (!modelMap[source]) {
@@ -358,134 +363,50 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
             }
         // If the model isn't in the cache, it's also likely not in the model map, so do a real load
         } else {
-            var object;
+            var model = new AsyncModel(source, fileType, customPaths, isFromMemory, context);
 
-            object = new AsyncModel(source, originalSource, textureMap, context, onloadstart, onerror, onprogress, onload);
-
-            modelMap[source] = object;
-            modelArray.push(object);
-            modelInstanceMap[object.id] = object;
+            modelMap[source] = model;
+            modelArray.push(model);
+            modelInstanceMap[model.id] = model;
         }
 
         return modelMap[source];
     }
   
-    function loadInstance(source, hidden, instance) {
-        var object;
+    function loadInstance(source) {
+        var instance = new AsyncModelInstance(modelMap[source]);
 
-        // If the model was loaded from a header using loadSingle, it doesn't have a model attached yet
-        if (instance) {
-            instance.setModel(modelMap[source], {});
+        modelInstanceMap[instance.id] = instance;
+        instanceArray.push(instance);
+
+        if (instance.delayOnload) {
+            onload(instance);
         }
 
-        object = instance || new AsyncModelInstance(modelMap[source], {}, context, onload, onloadstart);
-
-        if (hidden) {
-            object.setVisibility(false);
-        }
-
-        modelInstanceMap[object.id] = object;
-        instanceArray.push(object);
-
-        if (object.delayOnload) {
-            onload(object);
-        }
-
-        return object;
+        return instance;
     }
   
     // Used by Mdx.ParticleEmitter since they don't need to be automatically updated and rendered
     function loadInternalResource(source) {
         if (!modelMap[source]) {
-            modelMap[source] = new AsyncModel(source, source, {}, context, onloadstart, onerror, onprogress, onload);
+            modelMap[source] = new AsyncModel(source, source, {}, context);
         }
 
-        return new AsyncModelInstance(modelMap[source], {}, context, onload, onloadstart, true);
+        return new AsyncModelInstance(modelMap[source], {}, context, true);
     }
   
     // Load a model or texture from an absolute url, with an optional texture map, and an optional hidden parameter
-    function loadResourceImpl(source, originalSource, textureMap, hidden, instance) {
-        var fileType = fileTypeFromPath(source);
-
+    function loadResource(source, customPaths, fileType, isFromMemory) {
         if (supportedModelFileTypes[fileType]) {
-            loadModel(source, originalSource, textureMap);
-            return loadInstance(source, hidden, instance);
+            loadModel(source, fileType, customPaths, isFromMemory);
+
+            return loadInstance(source);
         } else {
-            gl.loadTexture(source);
-        }
-    }
-
-    function loadResourceFromHeader(e) {
-        var status = e.target.status;
-
-        if (status === 200) {
-            var i, l;
-            var object = JSON.parse(e.target.responseText);
-            var keys = Object.keys(object.textures);
-            var textureMap = {};
-            var key, texture;
-            
-            this.data = object;
-            onload(this);
-                
-            if (context.debugMode) {
-                console.log(object);
-            }
-
-            for (i = 0, l = keys.length; i < l; i++) {
-                key = keys[i];
-                texture = object.textures[key];
-
-                textureMap[key] = texture.url;
-
-                gl.loadTexture(textureMap[key]);
-            }
-
-            var models = object.models;
-
-            for (i = 0, l = object.models.length; i < l; i++) {
-                loadResourceImpl(models[i].url, models[i].url, textureMap, models[i].hidden);
-            }
-        } else {
-            onerror(this, e);
-        }
-    }
-
-    function loadResourceFromHeaderSingle(instance, e) {
-        var status = e.target.status;
-
-        if (status === 200) {
-            var i, l;
-            var object = JSON.parse(e.target.responseText);
-            var keys = Object.keys(object.textures);
-            var textureMap = {};
-            var key, texture;
-
-            this.data = object;
-            onload(this);
-
-            if (context.debugMode) {
-                console.log(object);
-            }
-
-            for (i = 0, l = keys.length; i < l; i++) {
-                key = keys[i];
-                texture = object.textures[key];
-
-                textureMap[key] = texture.url;
-
-                gl.loadTexture(textureMap[key]);
-            }
-
-            var models = object.models;
-
-            loadResourceImpl(models[0].url, models[0].url, textureMap, false, instance);
-        } else {
-            onerror(this, e);
+            return gl.loadTexture(source, fileType, isFromMemory, {});
         }
     }
   
-    function unloadInstance(instance, unloadingModel) {
+    function removeInstance(instance, removeingModel) {
         var i,
             l,
             instances = instance.model.instances;
@@ -500,8 +421,8 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         // Remove from the model-instance map
         delete modelInstanceMap[instance.id];
 
-        // Don't remove from the model if the model itself is unloaded
-        if (!unloadingModel) {
+        // Don't remove from the model if the model itself is removeed
+        if (!removeingModel) {
             // Remove from the instances list of the owning model
             for (i = 0, l = instances.length; i < l; i++) {
                 if (instances[i] === instance) {
@@ -510,10 +431,10 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
             }
         }
 
-        onunload(instance);
+        onremove(instance);
     }
   
-    function unloadModel(model) {
+    function removeModel(model) {
         var instances = model.instances,
             i,
             l;
@@ -525,7 +446,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         
         // Remove all instances owned by this model
         for (i = 0, l = instances.length; i < l; i++) {
-            unloadInstance(instances[i], true);
+            removeInstance(instances[i], true);
         }
 
         // Remove from the model array
@@ -538,23 +459,17 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
         // Remove from the model-instance map
         delete modelInstanceMap[model.id];
         
-        onunload(model);
+        onremove(model);
     }
   
+    function identityPaths(path) {
+        return path;
+    }
+
   // ---------------------
   // Model loading API
   // ---------------------
   
-    function loadLocalFile(source) {
-        if (typeof source === "string") {
-            var isSupported = supportedFileTypes[fileTypeFromPath(source)];
-            
-            if (isSupported) {
-                loadResourceImpl(urls.localFile(source), source);
-            }
-        }
-    }
-    
   /**
     * Loads a resource.
     *
@@ -562,61 +477,41 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     * @instance
     * @param {string} source The source to load from. Can be an absolute url, a path to a file in the MPQ files of Warcraft 3 and Starcraft 2, a form of identifier to be used for headers, an AsyncModel object, or an AsyncModelInstance object.
     */
-    function load(source) {
-        if (source && (source.type  === "model" || source.type === "instance")) {
-            source = source.getOriginalSource();
+    function load(source, customPaths, overrideFileType, isFromMemory) {
+        var fileType;
+
+        if (typeof customPaths !== "function") {
+            customPaths = identityPaths;
         }
-        
-        if (typeof source === "string") {
-            var isSupported = supportedFileTypes[fileTypeFromPath(source)];
 
-            if (source.indexOf("http://") === 0 && isSupported) {
-                loadResourceImpl(source);
-            } else if (isSupported) {
-                loadResourceImpl(urls.mpqFile(source), source);
-            } else {
-                var object = {type: "header", source: source};
-                
-                onloadstart(object);
-
-                getRequest(urls.header(source), false, loadResourceFromHeader.bind(object), onerror.bind(undefined, object), onprogress.bind(undefined, object));
-            }
+        if (typeof source === "string" && !isFromMemory) {
+            source = customPaths(source);
         }
-    }
 
-    // This loads in the same way that load() does, however it will always only load one model[instance], and can thus return the instance without relying on callbacks.
-    function loadSingle(source) {
-        if (source && (source.type  === "model" || source.type === "instance")) {
-            source = source.getOriginalSource();
+        if (source.type === "model" || source.type === "instance") {
+            customPaths = source.customPaths;
+            fileType = source.fileType;
+            isFromMemory = source.isFromMemory;
+            source = source.source;
         }
-        
-        if (typeof source === "string") {
-            var isSupported = supportedFileTypes[fileTypeFromPath(source)];
 
-            if (source.indexOf("http://") === 0 && isSupported) {
-                return loadResourceImpl(source);
-            } else if (isSupported) {
-                return loadResourceImpl(urls.mpqFile(source), source);
-            } else {
-                var object = {type: "header", source: source};
-                
-                onloadstart(object);
+        if (typeof overrideFileType === "string") {
+            fileType = overrideFileType;
+        } else if (typeof source === "string") {
+            fileType = fileTypeFromPath(source);
+        }
 
-                var instance = new AsyncModelInstance(null, {}, context, onload, onloadstart);
-
-                getRequest(urls.header(source), false, loadResourceFromHeaderSingle.bind(object, instance), onerror.bind(undefined, object), onprogress.bind(undefined, object));
-
-                return instance;
-            }
+        if (supportedFileTypes[fileType]) {
+            return loadResource(source, customPaths, fileType, isFromMemory);
         }
     }
-  
+
   /**
-    * Unloads a resource.
+    * removes a resource.
     *
     * @memberof ModelViewer
     * @instance
-    * @param {(string|number)} source The source to unload from. Can be the source of a previously loaded resource, or a valid model or instance ID.
+    * @param {(string|number)} source The source to remove from. Can be the source of a previously loaded resource, or a valid model or instance ID.
     */
     function remove(source) {
         var object,
@@ -627,9 +522,9 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
             
             if (type) {
                 if (type === "model") {
-                    unloadModel(source);
+                    removeModel(source);
                 } else {
-                    unloadInstance(source);
+                    removeInstance(source);
                 }
             } else if (typeof source === "number") {
                 object = modelInstanceMap[source];
@@ -638,18 +533,18 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
                     type = object.type;
                     
                     if (type === "model") {
-                        unloadModel(object);
+                        removeModel(object);
                     } else {
-                        unloadInstance(object);
+                        removeInstance(object);
                     }
                 }
             } else {
                 object = modelMap[source];
 
                 if (object) {
-                    unloadModel(object);
+                    removeModel(object);
                 } else {
-                    gl.unloadTexture(source);
+                    gl.removeTexture(source);
                 } 
             }
         }
@@ -667,7 +562,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
             l;
         
         for (i = 0, l = keys.length; i < l; i++) {
-            unloadModel(modelMap[keys[i]]);
+            removeModel(modelMap[keys[i]]);
         }
         
         Array.clear(modelArray);
@@ -1131,9 +1026,7 @@ window["ModelViewer"] = function (canvas, urls, debugMode) {
     
     var API = {
         // Resource API
-        loadLocalFile: loadLocalFile,
         load: load,
-        loadSingle: loadSingle,
         remove: remove,
         clear: clear,
         clearCache: clearCache,

@@ -8,15 +8,14 @@
  * @param {number} id The id of this model.
  * @param {object} textureMap An object with texture path -> absolute urls mapping.
  */
-function AsyncModel(source, originalSource, textureMap, context, onloadstart, onerror, onprogress, onload) {
-    var fileType = fileTypeFromPath(source);
+function AsyncModel(source, fileType, customPaths, isFromMemory, context) {
+    var callbacks = context.callbacks;
     
     this.type = "model";
     this.ready = false;
     this.fileType = fileType;
     this.id = generateID();
-    this.source = source;
-    this.originalSource = originalSource;
+    this.customPaths = customPaths;
 
     // All the instances owned by this model
     this.instances = [];
@@ -25,20 +24,27 @@ function AsyncModel(source, originalSource, textureMap, context, onloadstart, on
 
     this.context = context;
 
-    this.onerror = onerror || function () {};
-    this.onprogress = onprogress || function () {};
-    this.onload = onload || function () {};
-    
-    onloadstart(this);
-    
-    this.request = getRequest(source, AsyncModel.handlers[fileType][1], this.setup.bind(this, textureMap || {}), onerror.bind(undefined, this), onprogress.bind(undefined, this));
+    this.onerror = callbacks.onerror;
+    this.onprogress = callbacks.onprogress;
+    this.onload = callbacks.onload;
+
+    callbacks.onloadstart(this);
+
+    this.isFromMemory = isFromMemory;
+    this.source = source;
+
+    if (isFromMemory) {
+        this.setupFromMemory(source);
+    } else {
+        this.request = getRequest(source, AsyncModel.handlers[fileType][1], this.setup.bind(this), callbacks.onerror.bind(undefined, this), callbacks.onprogress.bind(undefined, this));
+    } 
 }
 
 AsyncModel.handlers = {};
 
 AsyncModel.prototype = {
     abort: function () {
-        if (this.request.readyState !== XMLHttpRequest.DONE) {
+        if (this.request && this.request.readyState !== XMLHttpRequest.DONE) {
             this.request.abort();
             return true;
         }
@@ -54,27 +60,26 @@ AsyncModel.prototype = {
     * @param {object} textureMap An object with texture path -> absolute urls mapping.
     * @param {XMLHttpRequestProgressEvent} e The XHR event.
     */
-    setup: function (textureMap, e) {
-        var status = e.target.status,
-            model;
+    setup: function (e) {
+        var status = e.target.status;
         
         if (status === 200) {
-            model = new AsyncModel.handlers[this.fileType][0](e.target.response, textureMap, this.context, this.onerror.bind(undefined, this));
-
-            if (this.context.debugMode) {
-                console.log(model);
-            }
-
-            if (model.ready) {
-                this.model = model;
-                this.ready = true;
-
-                this.runFunctors();
-
-                this.onload(this);
-            }
+            this.setupFromMemory(e.target.response);
         } else {
             this.onerror(this, "" + status);
+        }
+    },
+
+    setupFromMemory: function (memory) {
+        var model = new AsyncModel.handlers[this.fileType][0](memory, this.customPaths, this.context, this.onerror.bind(undefined, this));
+
+        if (model.ready) {
+            this.model = model;
+            this.ready = true;
+
+            this.runFunctors();
+
+            this.onload(this);
         }
     },
  
@@ -86,11 +91,11 @@ AsyncModel.prototype = {
     * @param {AsyncModelInstance} instance The requester.
     * @param {object} textureMap The requester's texture map.
     */
-    setupInstance: function (instance, textureMap) {
+    setupInstance: function (instance) {
         if (this.ready) {
             this.instances.push(instance);
 
-            instance.setup(this.model, textureMap);
+            instance.setup(this.model);
         } else {
             this.addFunctor("setupInstance", arguments);
         }
@@ -118,10 +123,6 @@ AsyncModel.prototype = {
     */
     getSource: function () {
         return this.source;
-    },
-    
-    getOriginalSource: function () {
-       return this.originalSource; 
     },
   
   /**
@@ -250,94 +251,6 @@ AsyncModel.prototype = {
         if (this.ready) {
             return this.model.getPolygonCount();
         }
-    },
-    
-  /**
-    * Gets a list of instances that a model owns.
-    *
-    * @memberof AsyncModel
-    * @instance
-    * @returns {array} The instance list.
-    */
-    getInstances: function () {
-        if (this.ready) {
-            var instances = this.instances,
-                instance,
-                ids = [],
-                i,
-                l;
-
-            for (i = 0, l = instances.length; i < l; i++) {
-                instance = instances[i];
-
-                if (instance.ready) {
-                    ids.push(instance.id);
-                }
-            }
-
-            return ids;
-        }
-    },
-  
-  /**
-    * Gets a model's information. This includes most of the getters.
-    *
-    * @memberof AsyncModel
-    * @instance
-    * @returns {object} The model information.
-    */
-    getInfo: function () {
-        if (this.ready) {
-            var model = this.model;
-
-            return {
-                name: model.getName(),
-                source: this.source,
-                attachments: model.getAttachments(),
-                sequences: model.getSequences(),
-                cameras: model.getCameras(),
-                textureMap: model.getTextureMap(),
-                boundingShapes: model.getBoundingShapes(),
-                meshCount: model.getMeshCount(),
-                instances: this.getInstances()
-            };
-        }
-    },
-  
-  /**
-    * Gets a model's representation as an object that will be converted to JSON.
-    *
-    * @memberof AsyncModel
-    * @instance
-    * @returns {object} The JSON representation.
-    */
-    toJSON: function () {
-        var textureMap = {},
-            localTextureMap = this.getTextureMap(),
-            keys = Object.keys(localTextureMap),
-            key,
-            i,
-            l;
-
-        // This code avoids saving redundant texture paths.
-        // Only textures that have been overriden are saved.
-        for (i = 0, l = keys.length; i < l; i++) {
-            key = keys[i];
-
-            if (urls.mpqFile(key) !== localTextureMap[key]) {
-                textureMap[key] = localTextureMap[key];
-            }
-        }
-
-        return [
-            this.id,
-            this.source,
-            textureMap
-        ];
-    },
-  
-    fromJSON: function (object) {
-
     }
 };
 

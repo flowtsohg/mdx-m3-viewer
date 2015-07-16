@@ -1,4 +1,4 @@
-use_glsl_min = false
+use_glsl_min = true
 use_closure = false
 annonymify_code = false
 compile_docs = false
@@ -54,7 +54,7 @@ compile_docs = false
     "gl/cube",
     "gl/sphere",
     "gl/cylinder",
-    "gl/texture",
+    "gl/asynctexture",
 	"gl/nativetexture",
 	"gl/shader",
 	"gl/gl",

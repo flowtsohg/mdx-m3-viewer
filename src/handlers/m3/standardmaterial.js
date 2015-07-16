@@ -1,4 +1,4 @@
-M3.StandardMaterial = function (material, model, textureMap, gl) {
+M3.StandardMaterial = function (material, model, customPaths, gl) {
     this.name = material.name;
     this.specialFlags = material.specialFlags;
     this.flags = material.flags;
@@ -12,20 +12,20 @@ M3.StandardMaterial = function (material, model, textureMap, gl) {
     this.emisMode = material.emisMode;
 
     this.layers = [
-        new M3.Layer(material.diffuseLayer, "diffuse", 2, model, textureMap, gl),
-        new M3.Layer(material.decalLayer, "decal", 2, model, textureMap, gl),
-        new M3.Layer(material.specularLayer, "specular", 2, model, textureMap, gl),
-        new M3.Layer(material.glossLayer, "gloss", 2, model, textureMap, gl),
-        new M3.Layer(material.emissiveLayer, "emissive", material.emisBlendType, model, textureMap, gl),
-        new M3.Layer(material.emissive2Layer, "emissive2", material.emisMode, model, textureMap, gl),
-        new M3.Layer(material.evioLayer, "evio", 2, model, textureMap, gl),
-        new M3.Layer(material.evioMaskLayer, "evioMask", 2, model, textureMap, gl),
-        new M3.Layer(material.alphaMaskLayer, "alphaMask", 2, model, textureMap, gl),
-        new M3.Layer(material.alphaMask2Layer, "alphaMask2", 2, model, textureMap, gl),
-        new M3.Layer(material.normalLayer, "normal", 2, model, textureMap, gl),
-        new M3.Layer(material.heightLayer, "heightMap", 2, model, textureMap, gl),
-        new M3.Layer(material.lightMapLayer, "lightMap", 2, model, textureMap, gl),
-        new M3.Layer(material.ambientOcclusionLayer, "ao", 2, model, textureMap, gl)
+        new M3.Layer(material.diffuseLayer, "diffuse", 2, model, customPaths, gl),
+        new M3.Layer(material.decalLayer, "decal", 2, model, customPaths, gl),
+        new M3.Layer(material.specularLayer, "specular", 2, model, customPaths, gl),
+        new M3.Layer(material.glossLayer, "gloss", 2, model, customPaths, gl),
+        new M3.Layer(material.emissiveLayer, "emissive", material.emisBlendType, model, customPaths, gl),
+        new M3.Layer(material.emissive2Layer, "emissive2", material.emisMode, model, customPaths, gl),
+        new M3.Layer(material.evioLayer, "evio", 2, model, customPaths, gl),
+        new M3.Layer(material.evioMaskLayer, "evioMask", 2, model, customPaths, gl),
+        new M3.Layer(material.alphaMaskLayer, "alphaMask", 2, model, customPaths, gl),
+        new M3.Layer(material.alphaMask2Layer, "alphaMask2", 2, model, customPaths, gl),
+        new M3.Layer(material.normalLayer, "normal", 2, model, customPaths, gl),
+        new M3.Layer(material.heightLayer, "heightMap", 2, model, customPaths, gl),
+        new M3.Layer(material.lightMapLayer, "lightMap", 2, model, customPaths, gl),
+        new M3.Layer(material.ambientOcclusionLayer, "ao", 2, model, customPaths, gl)
     ];
 };
 

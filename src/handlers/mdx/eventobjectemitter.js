@@ -1,4 +1,4 @@
-Mdx.EventObjectEmitter = function (eventObject, model, instance, context) {
+Mdx.EventObjectEmitter = function (eventObject, model, instance, context, customPaths) {
     var node = instance.skeleton.nodes[eventObject.node.index];
     var name = node.nodeImpl.name;
     var type = name.substring(0, 3);
@@ -29,7 +29,7 @@ Mdx.EventObjectEmitter = function (eventObject, model, instance, context) {
         if (slkLine) {
             this.ready = 1;
             
-            this.texture = context.urls.mpqFile("replaceabletextures/splats/splat01mature.blp");
+            this.texture = customPaths("replaceabletextures/splats/splat01mature.blp");
             this.rows = slkLine[0];
             this.columns = slkLine[1];
             this.blendMode = slkLine[2];
@@ -42,7 +42,7 @@ Mdx.EventObjectEmitter = function (eventObject, model, instance, context) {
             
             this.dimensions = [this.columns, this.rows];
             
-            context.gl.loadTexture(this.texture);
+            context.gl.loadTexture(this.texture, ".blp");
         }
     } else if (type === "UBR") {
         var slkLine = eventObjectPaths[type][path];
@@ -50,7 +50,7 @@ Mdx.EventObjectEmitter = function (eventObject, model, instance, context) {
         if (slkLine) {
             this.ready = 1;
             
-            this.texture = context.urls.mpqFile("replaceabletextures/splats/" + slkLine[0] + ".blp");
+            this.texture = customPaths("replaceabletextures/splats/" + slkLine[0] + ".blp");
             this.blendMode = slkLine[1];
             this.scale = slkLine[2];
             this.firstIntervalTime = slkLine[3];
@@ -61,7 +61,7 @@ Mdx.EventObjectEmitter = function (eventObject, model, instance, context) {
             this.dimensions = [1, 1];
             this.columns = 1;
             
-            context.gl.loadTexture(this.texture);
+            context.gl.loadTexture(this.texture, ".blp");
         }
     }
     

@@ -1,19 +1,15 @@
-Mdx.Model = function (arrayBuffer, textureMap, context, onerror) {
-    BaseModel.call(this, textureMap);
+Mdx.Model = function (arrayBuffer, customPaths, context, onerror) {
+    BaseModel.call(this, {});
 
     var parser = Mdx.Parser(new BinaryReader(arrayBuffer));
 
-    if (context.debugMode) {
-        console.log(parser);
-    }
-
     if (parser) {
-        this.setup(parser, context);
+        this.setup(parser, customPaths, context);
     }
 };
 
 Mdx.Model.prototype = extend(BaseModel.prototype, {
-    setup: function (parser, context) {
+    setup: function (parser, customPaths, context) {
         var gl = context.gl;
         var objects, i, l, j, k;
         var chunks = parser.chunks;
@@ -34,7 +30,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
             objects = chunks.TEXS.elements;
 
             for (i = 0, l = objects.length; i < l; i++) {
-                this.loadTexture(objects[i], this.textureMap, gl, context.urls);
+                this.loadTexture(objects[i], gl, customPaths);
             }
         }
 
@@ -158,7 +154,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         this.ready = true;
 
         this.setupShaders(chunks, gl);
-        this.setupTeamColors(gl, context.urls);
+        this.setupTeamColors(gl, customPaths);
     },
 
     transformElements: function (chunk, Func, gl) {
@@ -202,40 +198,34 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         }
     },
 
-    setupTeamColors: function (gl, urls) {
+    setupTeamColors: function (gl, customPaths) {
         var i,
             number;
 
         for (i = 0; i < 13; i++) {
             number = ((i < 10) ? "0" + i : i);
 
-            gl.loadTexture(urls.mpqFile("replaceabletextures/teamcolor/teamcolor" + number + ".blp"));
-            gl.loadTexture(urls.mpqFile("replaceabletextures/teamglow/teamglow" + number + ".blp"));
+            gl.loadTexture(customPaths("replaceabletextures/teamcolor/teamcolor" + number + ".blp"), ".blp");
+            gl.loadTexture(customPaths("replaceabletextures/teamglow/teamglow" + number + ".blp"), ".blp");
         }
     },
 
-    loadTexture: function (texture, textureMap, gl, urls) {
-        var source = texture.path;
-        var path;
+    loadTexture: function (texture, gl, customPaths) {
+        var path = texture.path;
         var replaceableId = texture.replaceableId;
 
         if (replaceableId !== 0) {
-            source = "replaceabletextures/" + Mdx.replaceableIdToName[replaceableId] + ".blp";
+            path = "replaceabletextures/" + Mdx.replaceableIdToName[replaceableId] + ".blp";
         }
 
-        source = source.replace(/\\/g, "/").toLowerCase();
+        var realPath = customPaths(path);
 
-        this.textures.push(source);
+        this.textures.push(path);
+        this.textureMap[path] = realPath;
 
-        if (textureMap[source]) {
-            path = textureMap[source];
-        } else {
-            path = urls.mpqFile(source);
-        }
+        var fileType = fileTypeFromPath(path);
 
-        this.textureMap[source] = path;
-
-        gl.loadTexture(path);
+        gl.loadTexture(realPath, fileType);
     },
 
     calculateExtent: function () {
@@ -292,7 +282,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         this.extent = {radius: Math.sqrt(dX * dX + dY * dY + dZ * dZ) / 2, min: [minX, minY, minZ], max: [maxX, maxY, maxZ] };
     },
 
-    render: function (instance, context) {
+    render: function (instance, context, tint) {
         var gl = context.gl;
         var ctx = gl.ctx;
         var i, l, v;
@@ -324,6 +314,10 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
                 var textures = this.textures;
 
                 shader = gl.bindShader(realShaderName);
+
+                if (shaderName === "standard") {
+                    ctx.uniform4fv(shader.variables.u_tint, tint);
+                }
 
                 ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
                 ctx.uniform1i(shader.variables.u_texture, 0);
@@ -557,6 +551,8 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         if (!context.teamColorsMode && source.endsWith("00.blp")) {
             texture = null;
         }
+
+       // console.log(source, texture);
 
         context.gl.bindTexture(texture, unit);
     }

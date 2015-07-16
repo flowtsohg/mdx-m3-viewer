@@ -1,6 +1,7 @@
 uniform sampler2D u_texture;
 uniform bool u_alphaTest;
 uniform vec4 u_modifier;
+uniform vec4 u_tint;
 
 varying vec3 v_normal;
 varying vec2 v_uv;
@@ -14,7 +15,7 @@ void main() {
         discard;
     }
 
-    gl_FragColor = texel * u_modifier;
+	gl_FragColor = texel * u_modifier * u_tint;
     #endif
 
     #ifdef UVS_PASS

@@ -12,13 +12,8 @@
  * @property {WebGLTexture} id
  * @property {boolean} ready
  */
-function NativeTexture(arrayBuffer, options, ctx, onerror, onload, compressedTextures) {
-    var blob = new Blob([arrayBuffer]),
-        url = URL.createObjectURL(blob),
-        image = new Image(),
-        self = this;
-
-    image.onload = function (e) {
+function NativeTexture(source, options, ctx, onerror, onload, compressedTextures, isFromMemory) {
+    if (isFromMemory) {
         var id = ctx.createTexture();
 
         ctx.bindTexture(ctx.TEXTURE_2D, id);
@@ -26,14 +21,36 @@ function NativeTexture(arrayBuffer, options, ctx, onerror, onload, compressedTex
         ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_WRAP_T, ctx.REPEAT);
         ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MAG_FILTER, ctx.LINEAR);
         ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MIN_FILTER, ctx.LINEAR_MIPMAP_LINEAR);
-        ctx.texImage2D(ctx.TEXTURE_2D, 0, ctx.RGBA, ctx.RGBA, ctx.UNSIGNED_BYTE, image);
+        ctx.texImage2D(ctx.TEXTURE_2D, 0, ctx.RGBA, ctx.RGBA, ctx.UNSIGNED_BYTE, source);
         ctx.generateMipmap(ctx.TEXTURE_2D);
 
-        self.id = id;
-        self.ready = true;
+        this.id = id;
+        this.ready = true;
 
         onload();
-    };
+    } else {
+        var blob = new Blob([source]),
+            url = URL.createObjectURL(blob),
+            image = new Image(),
+            self = this;
 
-    image.src = url;
+        image.onload = function (e) {
+            var id = ctx.createTexture();
+
+            ctx.bindTexture(ctx.TEXTURE_2D, id);
+            ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_WRAP_S, ctx.REPEAT);
+            ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_WRAP_T, ctx.REPEAT);
+            ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MAG_FILTER, ctx.LINEAR);
+            ctx.texParameteri(ctx.TEXTURE_2D, ctx.TEXTURE_MIN_FILTER, ctx.LINEAR_MIPMAP_LINEAR);
+            ctx.texImage2D(ctx.TEXTURE_2D, 0, ctx.RGBA, ctx.RGBA, ctx.UNSIGNED_BYTE, image);
+            ctx.generateMipmap(ctx.TEXTURE_2D);
+
+            self.id = id;
+            self.ready = true;
+
+            onload();
+        };
+
+        image.src = url;
+    }
 }

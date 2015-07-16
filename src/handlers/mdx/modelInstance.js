@@ -1,11 +1,11 @@
-Mdx.ModelInstance = function (model, textureMap, context) {
-    BaseModelInstance.call(this, model, textureMap);
+Mdx.ModelInstance = function (model, customPaths, context) {
+    BaseModelInstance.call(this, model, {});
 
-    this.setup(model, context);
+    this.setup(model, customPaths, context);
 }
 
 Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
-    setup: function (model, context) {
+    setup: function (model, customPaths, context) {
         var gl = context.gl;
         var ctx = gl.ctx;
         var i, l, objects;
@@ -22,7 +22,7 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
             this.particleEmitters = [];
 
             for (i = 0, l = objects.length; i < l; i++) {
-                this.particleEmitters[i] = new Mdx.ParticleEmitter(objects[i], model, this, context);
+                this.particleEmitters[i] = new Mdx.ParticleEmitter(objects[i], model, this, context, customPaths);
             }
         }
 
@@ -55,7 +55,7 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
             
             // Second condition is against custom resources using arbitrary paths...
             if (path !== "" && path.indexOf(".mdx") != -1) {
-                var instance = context.loadInternalResource(context.urls.mpqFile(path));
+                var instance = context.loadInternalResource(customPaths(path));
                 instance.setSequence(0);
                 instance.setSequenceLoopMode(2);
                 instance.setParent(this.getAttachment(model.attachments[i].attachmentId));
@@ -73,7 +73,7 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
             this.eventObjectEmitters = [];
             
             for (i = 0, l = objects.length; i < l; i++) {
-                this.eventObjectEmitters[i] = new Mdx.EventObjectEmitter(objects[i], model, this, context);
+                this.eventObjectEmitters[i] = new Mdx.EventObjectEmitter(objects[i], model, this, context, customPaths);
             }
         }
     },
@@ -135,7 +135,7 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
         }
     },
     
-    render: function(context) {
+    render: function(context, tint) {
         if (this.eventObjectEmitters) {
             var emitters = this.eventObjectEmitters;
             
@@ -144,7 +144,7 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
             }
         }
         
-        this.model.render(this, context);
+        this.model.render(this, context, tint);
         
         var attachmentInstances = this.attachmentInstances;
         var attachmentVisible = this.attachmentVisible;

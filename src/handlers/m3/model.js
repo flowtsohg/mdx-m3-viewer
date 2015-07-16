@@ -1,20 +1,16 @@
-M3.Model = function (arrayBuffer, textureMap, context, onerror) {
-    BaseModel.call(this, textureMap);
+M3.Model = function (arrayBuffer, customPaths, context, onerror) {
+    BaseModel.call(this, {});
 
     var parser = M3.Parser(new BinaryReader(arrayBuffer));
 
-    if (context.debugMode) {
-        console.log(parser);
-    }
-
     if (parser) {
-        this.setup(parser, context.gl);
+        this.setup(parser, customPaths, context.gl);
         this.setupShaders(parser, context.gl);
     }
 };
 
 M3.Model.prototype = extend(BaseModel.prototype, {
-    setup: function (parser, gl) {
+    setup: function (parser, customPaths, gl) {
         var i, l;
         var material;
         var div = parser.divisions[0];
@@ -36,7 +32,7 @@ M3.Model.prototype = extend(BaseModel.prototype, {
         for (i = 0, l = materials[0].length; i < l; i++) {
             material = materials[0][i];
 
-            this.materials[1][i] = new M3.StandardMaterial(material, this, this.textureMap, gl);
+            this.materials[1][i] = new M3.StandardMaterial(material, this, customPaths, gl);
         }
 
         // Create concrete batch objects

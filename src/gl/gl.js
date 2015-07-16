@@ -3,13 +3,13 @@
  * @name GL
  * @param {HTMLCanvasElement} element A canvas element.
  * @param {function} onload A callback function.
- * @param {function} onerror A callback function.
- * @param {function} onprogress A callback function.
- * @param {function} onloadstart A callback function.
- * @param {function} onunload A callback function.
+ * @param {function} callbacks.onerror A callback function.
+ * @param {function} callbacks.onprogress A callback function.
+ * @param {function} callbacks.onloadstart A callback function.
+ * @param {function} callbacks.onremove A callback function.
  * @property {WebGLRenderingContext} ctx
  */
-function GL(element, onload, onerror, onprogress, onloadstart, onunload) {
+function GL(element, callbacks) {
     var ctx,
         identifiers = ["webgl", "experimental-webgl"],
         i,
@@ -56,7 +56,7 @@ function GL(element, onload, onerror, onprogress, onloadstart, onunload) {
     var viewProjectionMatrix = mat4.create();
     var matrixStack = [];
     var textureStore = {};
-    var textureLoading = {};
+    var textureStoreById = {};
     var shaderUnitStore = {};
     var shaderStore = {};
     var boundShader;
@@ -393,11 +393,13 @@ function GL(element, onload, onerror, onprogress, onloadstart, onunload) {
 	 * @param {string} source The texture's url.
 	 * @param {object} options Options.
 	 */
-	function loadTexture(source, options) {
-		if (!textureStore[source] && !textureLoading[source]) {
-			textureLoading[source] = 1;
-			textureStore[source] = new Texture(source, options, textureHandlers, ctx, compressedTextures, onloadstart, onerror, onprogress, onload);
-		}
+	function loadTexture(source, fileType, isFromMemory, options) {
+	    if (!textureStore[source]) {
+	        textureStore[source] = new AsyncTexture(source, fileType, options, textureHandlers, ctx, compressedTextures, callbacks, isFromMemory);
+	        textureStoreById[textureStore[source].id] = textureStore[source];
+	    }
+
+	    return textureStore[source];
 	}
 
 	/**
@@ -407,9 +409,9 @@ function GL(element, onload, onerror, onprogress, onloadstart, onunload) {
 	 * @instance
 	 * @param {string} source The texture's url.
 	 */
-	function unloadTexture(source) {
+	function removeTexture(source) {
 		if (textureStore[source]) {
-			onunload(textureStore[source]);
+			callbacks.onremove(textureStore[source]);
 			
 			delete textureStore[source]; 
 		}
@@ -429,13 +431,16 @@ function GL(element, onload, onerror, onprogress, onloadstart, onunload) {
 	 * @param {(string|null)} object A texture source.
 	 * @param {number} [unit] The texture unit.
 	 */
-	function bindTexture(object, unit) {
+	function bindTexture(source, unit) {
+	    //console.log(source);
 		var texture;
 
 		unit = unit || 0;
 
-		if (object) {
-			texture = textureStore[object];
+		if (typeof source === "string") {
+		    texture = textureStore[source];
+		} else if (typeof source === "number") {
+		    texture = textureStoreById[source];
 		}
 
 		if (texture && texture.impl && texture.impl.ready) {
@@ -558,7 +563,7 @@ function GL(element, onload, onerror, onprogress, onloadstart, onunload) {
 		setProjectionMatrix: setProjectionMatrix,
 		setViewMatrix: setViewMatrix,
 		loadTexture: loadTexture,
-		unloadTexture: unloadTexture,
+		removeTexture: removeTexture,
 		textureLoaded: textureLoaded,
 		textureOptions: textureOptions,
 		bindTexture: bindTexture,
