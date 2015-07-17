@@ -80,7 +80,7 @@ Mdx.Particle2.prototype = {
     },
 
     update: function (emitter, sequence, frame, counter, context) {
-        var dt = context.frameTime / 1000;
+        var dt = context.frameTimeS;
         var position = this.position;
 
         this.health -= dt;

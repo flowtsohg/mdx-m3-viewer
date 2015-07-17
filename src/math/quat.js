@@ -389,7 +389,7 @@ quat.slerp = function (out, a, b, t) {
 };
 
 /**
- * Performs a spherical linear interpolation with two control points
+ * Performs a spherical quadrangle interpolation
  *
  * @param {quat} out the receiving quaternion
  * @param {quat} a the first operand
@@ -399,7 +399,7 @@ quat.slerp = function (out, a, b, t) {
  * @param {Number} t interpolation amount
  * @returns {quat} out
  */
-quat.sqlerp = (function () {
+quat.squad = (function () {
   var temp1 = quat.create();
   var temp2 = quat.create();
   

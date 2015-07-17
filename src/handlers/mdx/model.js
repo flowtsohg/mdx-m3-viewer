@@ -65,7 +65,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
             this.bones = chunks.BONE.elements;
         } else {
             // If there are no bones, reference the injected root node, since the shader requires at least one bone
-            this.bones = [{ node: { objectId: 0 } }];
+            this.bones = [{ node: { objectId: 0, index: 0 } }];
         }
 
         var materials;

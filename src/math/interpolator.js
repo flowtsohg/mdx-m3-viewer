@@ -34,9 +34,9 @@ var interpolator = (function () {
         if (type === 0) {
             return a;
         } else if (type === 1) {
-            return quat.slerp(out, a, d, t);
+            return quat.nlerp(out, a, d, t);
         } else if (type === 2 || type === 3) {
-            return quat.sqlerp(out, a, b, c, d, t);
+            return quat.nquad(out, a, b, c, d, t);
         }
 
         return quat.copy(out, zeroQ);

@@ -92,8 +92,8 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
         if (this.sequence !== -1) {
             var sequence = this.model.sequences[this.sequence];
 
-            this.frame += context.frameTime;
-            this.counter += context.frameTime;
+            this.frame += context.frameTimeMS;
+            this.counter += context.frameTimeMS;
 
             allowCreate = true;
 
@@ -103,7 +103,7 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
                     allowCreate = true;
                 } else {
                     this.frame = sequence.interval[1];
-                    this.counter -= context.frameTime;
+                    this.counter -= context.frameTimeMS;
                     allowCreate = false;
                 }
             }
@@ -120,9 +120,6 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
         var attachments = this.attachments;
         var attachmentVisible = this.attachmentVisible;
         var attachment;
-        var sd;
-        var visibility;
-        var value;
         
         for (var i = 0, l = attachments.length; i < l; i++) {
             attachment = attachments[i];

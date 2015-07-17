@@ -6,6 +6,7 @@ Mdx.ParticleEmitter2 = function (emitter, model, instance, ctx) {
         this[keys[i]] = emitter[keys[i]];
     }
 
+    this.emitter = emitter;
     this.model = model;
     this.texture = model.textures[this.textureId];
 
@@ -38,15 +39,17 @@ Mdx.ParticleEmitter2 = function (emitter, model, instance, ctx) {
         particles *= 2;
     }
 
+    if (!emitter.buffer) {
+        emitter.buffer = ctx.createBuffer();
+        emitter.data = new Float32Array(30 * particles);
+
+        ctx.bindBuffer(ctx.ARRAY_BUFFER, emitter.buffer);
+        ctx.bufferData(ctx.ARRAY_BUFFER, emitter.data, ctx.DYNAMIC_DRAW);
+    }
+
     this.particles = [];
     this.reusables = [];
     this.activeParticles = [];
-
-    this.buffer = ctx.createBuffer();
-    this.data = new Float32Array(30 * particles);
-
-    ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
-    ctx.bufferData(ctx.ARRAY_BUFFER, this.data, ctx.DYNAMIC_DRAW);
 
     for (i = 0, l = particles; i < l; i++) {
         this.particles[i] = new Mdx.Particle2();
@@ -127,7 +130,7 @@ Mdx.ParticleEmitter2.prototype = {
 
         // Third stage: create new particles if needed.
         if (allowCreate && this.shouldRender(sequence, frame, counter)) {
-            this.currentEmission += this.getEmissionRate(sequence, frame, counter) * (context.frameTime / 1000);
+            this.currentEmission += this.getEmissionRate(sequence, frame, counter) * context.frameTimeS;
 
             if (this.currentEmission >= 1) {
                 var amount = Math.floor(this.currentEmission);
@@ -152,13 +155,11 @@ Mdx.ParticleEmitter2.prototype = {
                 }
             }
         }
-
-        this.updateHW(context.camera.rect, context.camera.billboardedRect);
     },
 
     updateHW: function (baseParticle, billboardedParticle) {
         var activeParticles = this.activeParticles;
-        var data = this.data;
+        var data = this.emitter.data;
         var particles = this.particles;
         var columns = this.columns;
         var particle, index, position, color;
@@ -344,8 +345,10 @@ Mdx.ParticleEmitter2.prototype = {
 
             ctx.uniform2fv(shader.variables.u_dimensions, this.dimensions);
 
-            ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
-            ctx.bufferSubData(ctx.ARRAY_BUFFER, 0, this.data.subarray(0, particles * 30 + 1));
+            this.updateHW(context.camera.rect, context.camera.billboardedRect);
+
+            ctx.bindBuffer(ctx.ARRAY_BUFFER, this.emitter.buffer);
+            ctx.bufferSubData(ctx.ARRAY_BUFFER, 0, this.emitter.data.subarray(0, particles * 30 + 1));
 
             ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 20, 0);
             ctx.vertexAttribPointer(shader.variables.a_uva_rgb, 2, ctx.FLOAT, false, 20, 12);

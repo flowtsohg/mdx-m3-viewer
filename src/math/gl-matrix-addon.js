@@ -139,19 +139,6 @@ mat4.toRotationMat4 = (function () {
     };
 }());
 
-quat.sqlerp = (function () {
-    var temp1 = quat.create(),
-        temp2 = quat.create();
-    
-    return function (out, a, b, c, d, t) {
-        quat.slerp(temp1, a, d, t);
-        quat.slerp(temp2, b, c, t);
-        quat.slerp(out, temp1, temp2, 2 * t * (1 - t));
-        
-        return out;
-    };
-}());
-
 mat4.decomposeScale = function (out, m) {
     var m0 = m[0], m1 = m[1], m2 = m[2],
         m4 = m[4], m5 = m[5], m6 = m[6],
@@ -176,6 +163,40 @@ vec3.unproject = (function () {
         vec4.transformMat4(heap, heap, inverseMatrix);
         vec3.set(out, heap[0] / heap[3], heap[1] / heap[3], heap[2] / heap[3]);
         
+        return out;
+    };
+}());
+
+quat.nlerp = function (out, a, b, t) {
+    var dot = quat.dot(a, b),
+        inverseFactor = 1 - t;
+
+    if (dot < 0) {
+        out[0] = inverseFactor * a[0] - t * b[0];
+        out[1] = inverseFactor * a[1] - t * b[1];
+        out[2] = inverseFactor * a[2] - t * b[2];
+        out[3] = inverseFactor * a[3] - t * b[3];
+    } else {
+        out[0] = inverseFactor * a[0] + t * b[0];
+        out[1] = inverseFactor * a[1] + t * b[1];
+        out[2] = inverseFactor * a[2] + t * b[2];
+        out[3] = inverseFactor * a[3] + t * b[3];
+    }
+
+    quat.normalize(out, out);
+
+    return out;
+};
+
+quat.nquad = (function () {
+    var temp1 = quat.create();
+    var temp2 = quat.create();
+  
+    return function (out, a, b, c, d, t) {
+        quat.nlerp(temp1, a, d, t);
+        quat.nlerp(temp2, b, c, t);
+        quat.nlerp(out, temp1, temp2, 2 * t * (1 - t));
+
         return out;
     };
 }());

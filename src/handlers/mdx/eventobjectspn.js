@@ -1,8 +1,10 @@
-Mdx.EventObjectSpn = function  (emitter, context) {
-    var instance = context.loadInternalResource(context.urls.mpqFile(emitter.path));
-                
+Mdx.EventObjectSpn = function (emitter, context, customPaths) {
+    var instance = context.loadInternalResource(customPaths(emitter.path), customPaths);
+    
+    console.log(emitter.node.worldLocation);
+
     instance.setSequence(0);
-    instance.setLocation(vec3.add([], emitter.node.worldLocation, emitter.node.pivot));
+    instance.setLocation(emitter.node.worldLocation);
     instance.setScale(emitter.node.scale[0]); // Assuming uniform scale
     instance.setRotationQuat(emitter.node.worldRotation);
     

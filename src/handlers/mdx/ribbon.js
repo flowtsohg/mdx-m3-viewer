@@ -18,9 +18,9 @@ Mdx.Ribbon = function (emitter, sequence, frame, counter) {
 
 Mdx.Ribbon.prototype = {
     update: function (emitter, context) {
-        this.health -= context.frameTime / 1000;
+        this.health -= context.frameTimeS;
 
-        var zvelocity = emitter.gravity * (context.frameTime / 1000) * (context.frameTime / 1000);
+        var zvelocity = emitter.gravity * context.frameTimeS * context.frameTimeS;
 
         this.p1[2] -= zvelocity;
         this.p2[2] -= zvelocity;

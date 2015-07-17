@@ -1,12 +1,16 @@
 Mdx.EventObjectUbr = function (emitter, context) {
     var ctx = context.gl.ctx;
     
-    this.buffer = ctx.createBuffer();
-    this.data = new Float32Array(30);
+    this.emitter = emitter;
 
-    ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
-    ctx.bufferData(ctx.ARRAY_BUFFER, this.data, ctx.DYNAMIC_DRAW);
-    
+    if (!emitter.buffer) {
+        emitter.buffer = ctx.createBuffer();
+        emitter.data = new Float32Array(30);
+
+        ctx.bindBuffer(ctx.ARRAY_BUFFER, emitter.buffer);
+        ctx.bufferData(ctx.ARRAY_BUFFER, emitter.data, ctx.DYNAMIC_DRAW);
+    }
+
     this.time = 0;
     this.endTime = emitter.firstIntervalTime + emitter.secondIntervalTime + emitter.thirdIntervalTime;
     this.location = vec3.clone(emitter.node.worldLocation);
@@ -40,8 +44,6 @@ Mdx.EventObjectUbr.prototype = {
             
             vec4.lerp(color, emitter.colors[1], emitter.colors[2], tempFactor);
         }
-        
-        this.updateHW(emitter, context);
     },
     
     updateHW: Mdx.EventObjectSpl.prototype.updateHW,    

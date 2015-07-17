@@ -19,6 +19,8 @@ Mdx.EventObjectEmitter = function (eventObject, model, instance, context, custom
     this.lastTrack = vec3.create();
     this.eventObjects = [];
     
+    this.customPaths = customPaths;
+
     if (type === "SPN") {
         this.ready = 1;
         
@@ -78,7 +80,7 @@ Mdx.EventObjectEmitter.prototype = {
             if (track[0] === 1 && (track[0] !== this.lastTrack[0] || track[1] !== this.lastTrack[1])) {
                 switch (this.type) {
                     case "SPN":
-                        eventObject = new Mdx.EventObjectSpn(this, context);
+                        eventObject = new Mdx.EventObjectSpn(this, context, this.customPaths);
                         break;
                     case "SPL":
                         eventObject = new Mdx.EventObjectSpl(this, context);

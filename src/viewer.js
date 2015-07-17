@@ -7,7 +7,7 @@
  */
 window["ModelViewer"] = function (canvas, worldPaths) {
     var objectsNotReady = 0;
-    
+
     function onabort(object) {
         dispatchEvent({type: "abort", target: object});
     }
@@ -90,6 +90,9 @@ window["ModelViewer"] = function (canvas, worldPaths) {
     var context = {
         callbacks: callbacks,
         frameTime: 1000 / 60,
+        frameTimeMS: 1000 / 30,
+        frameTimeS: 1 / 30,
+        skipFrames: 2,
         camera: new Camera([0, 0, canvas.clientWidth, canvas.clientHeight]),
         instanceCamera: [-1, -1],
         skyMode: 1,
@@ -373,8 +376,8 @@ window["ModelViewer"] = function (canvas, worldPaths) {
         return modelMap[source];
     }
   
-    function loadInstance(source) {
-        var instance = new AsyncModelInstance(modelMap[source]);
+    function loadInstance(source, isInternal) {
+        var instance = new AsyncModelInstance(modelMap[source], isInternal);
 
         modelInstanceMap[instance.id] = instance;
         instanceArray.push(instance);
@@ -386,24 +389,20 @@ window["ModelViewer"] = function (canvas, worldPaths) {
         return instance;
     }
   
-    // Used by Mdx.ParticleEmitter since they don't need to be automatically updated and rendered
-    function loadInternalResource(source) {
-        if (!modelMap[source]) {
-            modelMap[source] = new AsyncModel(source, source, {}, context);
-        }
-
-        return new AsyncModelInstance(modelMap[source], {}, context, true);
-    }
-  
     // Load a model or texture from an absolute url, with an optional texture map, and an optional hidden parameter
-    function loadResource(source, customPaths, fileType, isFromMemory) {
+    function loadResource(source, customPaths, fileType, isFromMemory, isInternal) {
         if (supportedModelFileTypes[fileType]) {
             loadModel(source, fileType, customPaths, isFromMemory);
 
-            return loadInstance(source);
+            return loadInstance(source, isInternal);
         } else {
             return gl.loadTexture(source, fileType, isFromMemory, {});
         }
+    }
+
+    // Used by Mdx.ParticleEmitter since they don't need to be automatically updated and rendered
+    function loadInternalResource(source, customPaths) {
+        return loadResource(source, customPaths, ".mdx", false, true);
     }
   
     function removeInstance(instance, removeingModel) {
@@ -640,6 +639,8 @@ window["ModelViewer"] = function (canvas, worldPaths) {
     */
     function setAnimationSpeed(ratio) {
         context.frameTime = ratio / 60 * 1000;
+        context.frameTimeMS = context.frameTime * context.skipFrames;
+        context.frameTimeS = context.frameTimeMS / 1000;
     }
   
   /**
@@ -651,6 +652,18 @@ window["ModelViewer"] = function (canvas, worldPaths) {
     */
     function getAnimationSpeed() {
         return context.frameTime / 1000 * 60;
+    }
+
+    function setSkipFrames(skipFrames) {
+        skipFrames = Math.min(skipFrames, 1)
+
+        context.skipFrames = skipFrames;
+        context.frameTimeMS = context.frameTime * skipFrames;
+        context.frameTimeS = context.frameTimeMS / 1000;
+    }
+
+    function getSkipFrames() {
+        return context.skipFrames;
     }
   
     function setSkyMode(mode) {
@@ -1038,6 +1051,8 @@ window["ModelViewer"] = function (canvas, worldPaths) {
         // General settings
         setAnimationSpeed: setAnimationSpeed,
         getAnimationSpeed: getAnimationSpeed,
+        setSkipFrames: setSkipFrames,
+        getSkipFrames: getSkipFrames,
         setSkyMode: setSkyMode,
         getSkyMode: getSkyMode,
         setGroundMode: setGroundMode,
@@ -1071,10 +1086,19 @@ window["ModelViewer"] = function (canvas, worldPaths) {
         // Experiemental
         renderTexture: renderTexture
     };
-    
+
+    var skipFrames = 1;
+
     // The main loop of the viewer
     (function step() {
-        update();
+        skipFrames -= 1;
+
+        if (skipFrames === 0) {
+            skipFrames = context.skipFrames;
+
+            update();
+        }
+        
         render();
 
         requestAnimationFrame(step);

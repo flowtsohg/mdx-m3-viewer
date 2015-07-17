@@ -8,17 +8,21 @@ Mdx.RibbonEmitter = function (emitter, model, instance, ctx) {
 
     var ribbons = Math.ceil(this.emissionRate * this.lifespan);
 
+    this.emitter = emitter;
     this.model = model;
     this.textures = model.textures;
 
     this.maxRibbons = ribbons;
     this.lastCreation = 0;
     this.ribbons = [];
-    this.data = new Float32Array(ribbons  * 10);
-    this.buffer = ctx.createBuffer();
 
-    ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
-    ctx.bufferData(ctx.ARRAY_BUFFER, this.data, ctx.DYNAMIC_DRAW);
+    if (!emitter.buffer) {
+        emitter.data = new Float32Array(ribbons * 10);
+        emitter.buffer = ctx.createBuffer();
+
+        ctx.bindBuffer(ctx.ARRAY_BUFFER, emitter.buffer);
+        ctx.bufferData(ctx.ARRAY_BUFFER, emitter.data, ctx.DYNAMIC_DRAW);
+    }
 
     this.cellWidth = 1 / this.columns;
     this.cellHeight = 1 / this.rows;
@@ -59,7 +63,7 @@ Mdx.RibbonEmitter.prototype = {
         if (allowCreate && this.shouldRender(sequence, frame, counter)) {
             this.lastCreation += 1;
 
-            var amount = this.emissionRate * (context.frameTime / 1000) * this.lastCreation;
+            var amount = this.emissionRate * context.frameTimeS * this.lastCreation;
 
             if (amount >= 1) {
                 this.lastCreation = 0;
@@ -83,7 +87,7 @@ Mdx.RibbonEmitter.prototype = {
             var uvFactor = 1 / ribbons * this.cellWidth;
             var top = uvOffsetY;
             var bottom = uvOffsetY + this.cellHeight;
-            var data = this.data;
+            var data = this.emitter.data;
             var index, ribbon, left, right, v1, v2;
 
             for (i = 0, l = ribbons; i < l; i++) {
@@ -107,8 +111,8 @@ Mdx.RibbonEmitter.prototype = {
                 data[index + 9] = bottom;
             }
 
-            ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
-            ctx.bufferSubData(ctx.ARRAY_BUFFER, 0, this.data);
+            ctx.bindBuffer(ctx.ARRAY_BUFFER, this.emitter.buffer);
+            ctx.bufferSubData(ctx.ARRAY_BUFFER, 0, this.emitter.data);
 
             ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 20, 0);
             ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 20, 12);

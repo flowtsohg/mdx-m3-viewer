@@ -50,11 +50,11 @@ Mdx.Particle.prototype = {
 
     update: function (emitter, sequence, frame, counter, context) {
         if (this.alive) {
-            this.health -= (context.frameTime / 1000);
+            this.health -= context.frameTimeS;
 
-            this.velocity[2] -= this.gravity * (context.frameTime / 1000);
+            this.velocity[2] -= this.gravity * context.frameTimeS;
 
-            vec3.scaleAndAdd(this.position, this.position, this.velocity, (context.frameTime / 1000));
+            vec3.scaleAndAdd(this.position, this.position, this.velocity, context.frameTimeS);
         }
     }
 };

@@ -1,11 +1,15 @@
 Mdx.EventObjectSpl = function (emitter, context) {
     var ctx = context.gl.ctx;
     
-    this.buffer = ctx.createBuffer();
-    this.data = new Float32Array(30);
+    this.emitter = emitter;
 
-    ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
-    ctx.bufferData(ctx.ARRAY_BUFFER, this.data, ctx.DYNAMIC_DRAW);
+    if (!emitter.buffer) {
+        emitter.buffer = ctx.createBuffer();
+        emitter.data = new Float32Array(30);
+
+        ctx.bindBuffer(ctx.ARRAY_BUFFER, emitter.buffer);
+        ctx.bufferData(ctx.ARRAY_BUFFER, emitter.data, ctx.DYNAMIC_DRAW);
+    }
     
     this.time = 0;
     this.endTime = emitter.firstIntervalTime + emitter.secondIntervalTime;
@@ -41,8 +45,6 @@ Mdx.EventObjectSpl.prototype = {
         }
         
         this.index = Math.floor(index);
-        
-        this.updateHW(emitter, context);
     },
     
     updateHW: function (emitter, context) {
@@ -80,7 +82,7 @@ Mdx.EventObjectSpl.prototype = {
         var rta = encodeFloat3(right, top, a);
         var rba = encodeFloat3(right, bottom, a);
         var rgb = encodeFloat3(r, g, b);
-        var data = this.data;
+        var data = this.emitter.data;
         
         data[0] = v1x;
         data[1] = v1y;
@@ -160,8 +162,10 @@ Mdx.EventObjectSpl.prototype = {
         
         ctx.uniform2fv(shader.variables.u_dimensions, emitter.dimensions);
 
-        ctx.bindBuffer(ctx.ARRAY_BUFFER, this.buffer);
-        ctx.bufferSubData(ctx.ARRAY_BUFFER, 0, this.data);
+        this.updateHW(emitter, context);
+
+        ctx.bindBuffer(ctx.ARRAY_BUFFER, this.emitter.buffer);
+        ctx.bufferSubData(ctx.ARRAY_BUFFER, 0, this.emitter.data);
 
         ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 20, 0);
         ctx.vertexAttribPointer(shader.variables.a_uva_rgb, 2, ctx.FLOAT, false, 20, 12);
