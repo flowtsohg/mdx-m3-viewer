@@ -60,7 +60,8 @@ AsyncModelInstance.prototype = {
     * @param {object} textureMap An object with texture path -> absolute urls mapping.
     */
     setup: function (model) {
-        this.instance = new AsyncModelInstance.handlers[this.fileType](model, this.customPaths, this.context);
+        this.instance = new AsyncModelInstance.handlers[this.fileType](this, model, this.customPaths, this.context);
+        this.instance.initWorker(this, model, this.customPaths, this.context);
 
         this.ready = true;
 
@@ -455,6 +456,10 @@ AsyncModelInstance.prototype = {
         if (this.ready) {
             return this.model.getPolygonCount();
         }
+    },
+
+    gotMessage: function (type, data) {
+        this.instance.gotMessage(type, data);
     }
 };
 

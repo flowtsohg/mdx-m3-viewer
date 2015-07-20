@@ -1,92 +1,88 @@
-Mdx.Skeleton = function (model, ctx) {
+Mdx.Skeleton = function (model) {
     var nodes = model.nodes,
-        bones = model.bones;
+        bones = model.bones,
+        pivots = model.pivots,
+        hierarchy = model.hierarchy,
+        node;
 
-    // This list is used to access all the nodes in a loop while keeping the hierarchy in mind.
-    this.hierarchy = this.setupHierarchy([], nodes, -1);
+    // Root node
+    this.rootNode = new BaseNode();
 
-    BaseSkeleton.call(this, bones.length + 1, ctx);
-
-    // Shallow nodes referencing the actual nodes in the model
+    // Shared nodes
+    var nodeBuffer = new Float32Array(nodes.length * 55);
+    var sharedNodes = [];
     for (var i = 0, l = nodes.length; i < l; i++) {
-        this.nodes[i] = new Mdx.ShallowNode(nodes[i]);
+        node = new SharedNode(i, nodeBuffer);
+
+        vec3.copy(node.pivot, pivots[i].data);
+        node.parentId = nodes[i].parentId;
+
+        sharedNodes[i] = node;
     }
 
-    // The sorted version of the nodes, for straight iteration in update()
-    this.sortedNodes = [];
+    // Nodes
+    var sortedNodes = [];
     for (i = 0, l = nodes.length; i < l; i++) {
-        this.sortedNodes[i] = this.nodes[this.hierarchy[i]];
+        sortedNodes[i] = sharedNodes[hierarchy[i]];
     }
+    this.nodes = sortedNodes;
 
-    // The sorted version of the bone references in the model, for straight iteration in updateHW()
-    this.sortedBones = [];
+    // Bones
+    var sortedBones = [];
     for (i = 0, l = bones.length; i < l; i++) {
-        this.sortedBones[i] = this.nodes[bones[i].node.index];
+        sortedBones[i] = sharedNodes[bones[i].node.index];
     }
-
-    // To avoid heap allocations
-    this.rotationQuat = quat.create();
-    this.rotationQuat2 = quat.create();
+    this.bones = sortedBones;
+    this.boneBuffer = new Float32Array((bones.length + 1) * 16);
 };
 
-Mdx.Skeleton.prototype = extend(BaseSkeleton.prototype, {
-    setupHierarchy: function (hierarchy, nodes, parent) {
-        var node;
-
-        for (var i = 0, l = nodes.length; i < l; i++) {
-            node = nodes[i];
-
-            if (node.parentId === parent) {
-                hierarchy.push(i);
-
-                this.setupHierarchy(hierarchy, nodes, node.objectId);
-            }
+Mdx.Skeleton.prototype = {
+    getNode: function (whichNode) {
+        if (whichNode === -1) {
+            return this.rootNode;
         }
-
-        return hierarchy;
+        return this.rootNode;
+        return this.nodes[whichNode];
     },
 
     update: function (sequence, frame, counter, instance, context) {
-        var nodes = this.sortedNodes;
-        var hierarchy = this.hierarchy;
+        var nodes = this.nodes;
 
-        this.rootNode.setFromParent(instance);
+        //this.rootNode.setFromParent(instance);
 
-        for (var i = 0, l = hierarchy.length; i < l; i++) {
+        for (var i = 0, l = nodes.length; i < l; i++) {
             this.updateNode(nodes[i], sequence, frame, counter, context);
         }
 
-        this.updateHW(context.gl.ctx);
+        this.updateBoneBuffer();
     },
 
     updateNode: function (node, sequence, frame, counter, context) {
         var parent = this.getNode(node.parentId);
-        var nodeImpl = node.nodeImpl;
-        var translation = nodeImpl.getTranslation(sequence, frame, counter);
-        var rotation = nodeImpl.getRotation(sequence, frame, counter);
-        var scale = nodeImpl.getScale(sequence, frame, counter);
-        var finalRotation = this.rotationQuat;
+        //var nodeImpl = node.nodeImpl;
+        //var translation = nodeImpl.getTranslation(sequence, frame, counter);
+        //var rotation = nodeImpl.getRotation(sequence, frame, counter);
+        //var scale = nodeImpl.getScale(sequence, frame, counter);
+        //var finalRotation = this.rotationQuat;
         
-        if (nodeImpl.billboarded) {
-            quat.set(finalRotation, 0, 0, 0, 1);
-            quat.mul(finalRotation, finalRotation, quat.conjugate(this.rotationQuat2, parent.worldRotation));
-            quat.rotateZ(finalRotation, finalRotation, -context.camera.phi - Math.PI / 2);
-            quat.rotateY(finalRotation, finalRotation, -context.camera.theta - Math.PI / 2);
-        } else {
-            quat.copy(finalRotation, rotation);
-        }
+        //if (nodeImpl.billboarded) {
+        //    quat.set(finalRotation, 0, 0, 0, 1);
+        //    quat.mul(finalRotation, finalRotation, quat.conjugate(this.rotationQuat2, parent.worldRotation));
+        //    quat.rotateZ(finalRotation, finalRotation, -context.camera.phi - Math.PI / 2);
+        //    quat.rotateY(finalRotation, finalRotation, -context.camera.theta - Math.PI / 2);
+        //} else {
+        //    quat.copy(finalRotation, rotation);
+        //}
         
-        node.update(parent, finalRotation, translation, scale);
+        node.update(parent, [0, 0, 0, 1], [0, 0, 0], [1, 1, 1]);
     },
 
-    updateHW: function (ctx) {
-        var sortedBones = this.sortedBones,
-            hwbones = this.hwbones;
+    updateBoneBuffer: function () {
+        var bones = this.bones,
+            boneBfufer = this.boneBuffer;
 
-        for (var i = 0, l = sortedBones.length; i < l; i++) {
-            hwbones.set(sortedBones[i].worldMatrix, i * 16 + 16);
+        for (var i = 0, l = bones.length; i < l; i++) {
+            boneBfufer.set(bones[i].worldMatrix, i * 16 + 16);
         }
-
-        this.updateBoneTexture(ctx);
     }
-});
+};

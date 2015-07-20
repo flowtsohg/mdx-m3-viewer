@@ -71,7 +71,9 @@ AsyncModel.prototype = {
     },
 
     setupFromMemory: function (memory) {
-        var model = new AsyncModel.handlers[this.fileType][0](memory, this.customPaths, this.context, this.onerror.bind(undefined, this));
+        var model = new AsyncModel.handlers[this.fileType][0](this, memory, this.customPaths, this.context, this.onerror.bind(undefined, this));
+        this.model = model;
+        model.initWorker(this, memory, this.customPaths, this.context);
 
         if (model.ready) {
             this.model = model;
@@ -251,6 +253,10 @@ AsyncModel.prototype = {
         if (this.ready) {
             return this.model.getPolygonCount();
         }
+    },
+
+    gotMessage: function (type, data) {
+        this.model.gotMessage(type, data);
     }
 };
 

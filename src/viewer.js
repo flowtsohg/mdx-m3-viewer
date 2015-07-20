@@ -85,8 +85,8 @@ window["ModelViewer"] = function (canvas, worldPaths) {
     
     var supportedModelFileTypes = {};
     var supportedTextureFileTypes = {".png":1, ".gif":1, ".jpg":1};
-    var supportedFileTypes = {".png":1, ".gif":1, ".jpg":1};
-  
+    var supportedFileTypes = { ".png": 1, ".gif": 1, ".jpg": 1 };
+
     var context = {
         callbacks: callbacks,
         frameTime: 1000 / 60,
@@ -114,6 +114,45 @@ window["ModelViewer"] = function (canvas, worldPaths) {
         ground: gl.createRect(0, 0, -1, 256, 256, 6),
         sky: gl.createSphere(0, 0, 0, 5, 40, 50000)
     };
+
+    // A web worker used to offload animation calculations off of the main thread
+    if (window.Worker) {
+        var workers = [];
+        var allocateNWorkers = 1;
+
+        if (navigator.hardwareConcurrency) {
+            allocateNWorkers = navigator.hardwareConcurrency / 2;
+        }
+        
+        function workerOnMessage(e) {
+            var message = e.data;
+
+            modelInstanceMap[message.id].gotMessage(message.type, message.data);
+        }
+
+        for (var i = 0; i < allocateNWorkers; i++) {
+            workers[i] = new Worker("src/handlers/mdx/worker.js");
+            workers[i].onmessage = workerOnMessage;
+        }
+        
+        console.log("Running with " + allocateNWorkers + " workers");
+
+        var getWorker = (function () {
+            var index = -1;
+
+            return function () {
+                index += 1;
+
+                if (index === workers.length) {
+                    index = 0;
+                }
+
+                return workers[index];
+            };
+        }());
+
+        context.getWorker = getWorker;
+    }
     
     //function saveContext() {
     //    var camera = context.camera,
@@ -371,6 +410,9 @@ window["ModelViewer"] = function (canvas, worldPaths) {
             modelMap[source] = model;
             modelArray.push(model);
             modelInstanceMap[model.id] = model;
+
+            // TODO: this is here because currently MT doesn't send events
+            modelCache[source] = model;
         }
 
         return modelMap[source];

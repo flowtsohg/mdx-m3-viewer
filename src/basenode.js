@@ -1,4 +1,4 @@
-window["BaseNode"] = function () {
+function BaseNode() {
     /// <field name="pivot" type="vec3"></param>
     /// <field name="localMatrix" type="mat4"></param>
     /// <field name="localLocation" type="vec3"></param>
@@ -59,3 +59,20 @@ BaseNode.prototype = {
         quat.mul(this.worldRotation, parent.worldRotation, rotation);
     }
 };
+
+function SharedNode(whichNode, buffer) {
+    var buffer = buffer.buffer;
+    var baseOffset = whichNode * 55 * 4;
+
+    this.pivot = new Float32Array(buffer, baseOffset, 3);
+    this.localMatrix = new Float32Array(buffer, baseOffset + 12, 16);
+    this.localLocation = new Float32Array(buffer, baseOffset + 76, 3);
+    this.localRotation = new Float32Array(buffer, baseOffset + 88, 4);
+    this.worldMatrix = new Float32Array(buffer, baseOffset + 104, 16);
+    this.worldLocation = new Float32Array(buffer, baseOffset + 168, 3);
+    this.worldRotation = new Float32Array(buffer, baseOffset + 180, 4);
+    this.scale = new Float32Array(buffer, baseOffset + 196, 3);
+    this.inverseScale = new Float32Array(buffer, baseOffset + 208, 3);
+}
+
+SharedNode.prototype = BaseNode.prototype;
