@@ -1,1 +1,4 @@
 var Mdx = {};
+
+var WORKER_UPDATE_INSTANCE = 4;
+var WORKER_UPDATE_SKELETON = 5;

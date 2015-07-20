@@ -15,8 +15,8 @@ function BaseNode() {
     this.worldMatrix = mat4.create();
     this.worldLocation = vec3.create();
     this.worldRotation = quat.create();
-    this.scale = vec3.create();
-    this.inverseScale = vec3.create();
+    this.scale = vec3.fromValues(1, 1, 1);
+    this.inverseScale = vec3.fromValues(1, 1, 1);
 }
 
 BaseNode.prototype = {

@@ -4,6 +4,7 @@ importScripts("../../math/vec4.js");
 importScripts("../../math/mat3.js");
 importScripts("../../math/mat4.js");
 importScripts("../../math/quat.js");
+importScripts("../../math/interpolator.js");
 importScripts("../../math/gl-matrix-addon.js");
 importScripts("../../basenode.js");
 importScripts("../../binaryreader.js");
@@ -14,9 +15,13 @@ importScripts("geoset.js");
 importScripts("model.js");
 importScripts("modelinstance.js");
 importScripts("skeleton.js");
+importScripts("sd.js");
+importScripts("node.js");
 
 var models = {};
 var instances = {};
+
+var globalMessage = {id: 0, type: "test", data: 0};
 
 onmessage = function (e) {
     var message = e.data;
@@ -36,9 +41,9 @@ onmessage = function (e) {
         instances[id] = instance;
 
         instance.post();
-    } else if (type === "update-instance") {
+    } else if (type === WORKER_UPDATE_INSTANCE) {
         var instance = instances[id];
 
-        instance.update();
+        instance.update(data);
     }
 };

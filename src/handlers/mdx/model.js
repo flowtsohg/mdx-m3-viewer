@@ -13,14 +13,19 @@ Mdx.Model = function (arrayBuffer, id) {
     }
     this.geosets = geosets;
 
+    // Sequences
+    this.sequences = chunks.SEQS.elements;
+
     // Nodes
-    this.nodes = nodes;
+    this.nodes = this.transformType(nodes, Mdx.Node);
     this.bones = chunks.BONE.elements;
     this.pivots = chunks.PIVT.elements;
 
     // Hierarchy
     this.hierarchy = [];
     this.initHierarchy(-1);
+
+    //postMessage({ id: id, type: "debug-pivots", data: [this.hierarchy, this.nodes] });
 
     this.id = id;
 };
@@ -40,6 +45,16 @@ Mdx.Model.prototype = {
                 this.initHierarchy(node.objectId);
             }
         }
+    },
+
+    transformType: function (elements, Func) {
+        var output = [];
+
+        for (var i = 0, l = elements.length; i < l; i++) {
+            output[i] = new Func(elements[i], this);
+        }
+
+        return output;
     },
 
     post: function () {

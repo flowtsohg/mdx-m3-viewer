@@ -11,8 +11,8 @@ Mdx.WebGLModel.prototype = extend(BaseModel.prototype, {
     setupShaders: function (gl) {
         var psmain = SHADERS["wpsmain"];
 
-        if (!gl.shaderStatus("wstandard")) {
-            gl.createShader("wstandard", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain, ["STANDARD_PASS"]);
+        if (!gl.shaderStatus("wwhite")) {
+            //gl.createShader("wstandard", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain, ["STANDARD_PASS"]);
             //gl.createShader("wuvs", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain, ["UVS_PASS"]);
             //gl.createShader("wnormals", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain, ["NORMALS_PASS"]);
             gl.createShader("wwhite", SHADERS.vsbonetexture + SHADERS.wvswhite, SHADERS.pswhite);
@@ -58,10 +58,9 @@ Mdx.WebGLModel.prototype = extend(BaseModel.prototype, {
         if (instance.skeleton) {
             var gl = context.gl;
             var ctx = gl.ctx;
-            var i, l, v;
+            var i, l;
 
             var shader = gl.bindShader("wwhite");
-            var polygonMode = context.polygonMode;
 
             var geosets = this.geosets;
 
@@ -76,7 +75,7 @@ Mdx.WebGLModel.prototype = extend(BaseModel.prototype, {
                 //ctx.uniform4fv(shader.variables.u_modifier, [0, 0, 0, 0]);
                 //ctx.uniform3fv(shader.variables.u_uv_offset, [0, 0, 0]);
 
-                geosets[i].render(0, shader, context.polygonMode);
+                geosets[i].render(shader, 0);
             }
         }
     },

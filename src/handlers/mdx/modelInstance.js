@@ -1,22 +1,46 @@
 Mdx.ModelInstance = function (model, id) {
     this.model = model;
     this.skeleton = new Mdx.Skeleton(model);
-
-    this.skeleton.update();
-
     this.id = id;
+    
+    this.sequence = 1;
+    this.frame = model.sequences[this.sequence].interval[0];
+    this.counter = 0;
 };
 
 Mdx.ModelInstance.prototype = {
-    update: function () {
-        this.skeleton.update();
+    update: function (boneBuffer) {
+        var allowCreate = false;
 
-        postMessage({ id: this.id, type: "update-skeleton", data: this.skeleton.boneBuffer });
+        if (this.sequence !== -1) {
+            var sequence = this.model.sequences[this.sequence];
+
+            this.frame += 1000 / 30;
+            this.counter += 1000/ 30;
+
+            allowCreate = true;
+
+            if (this.frame >= sequence.interval[1]) {
+                this.frame = sequence.interval[0];
+                allowCreate = true;
+            }
+        }
+
+        this.skeleton.update(boneBuffer, this.sequence, this.frame, this.counter);
+
+        globalMessage.id = this.id;
+        globalMessage.type = WORKER_UPDATE_SKELETON;
+        globalMessage.data = this.skeleton.boneBuffer;
+        postMessage(globalMessage);
     },
 
     post: function () {
-        //postMessage({ id: this.id, type: "debug", data: this.skeleton });
-        postMessage({ id: this.id, type: "new-skeleton", data: this.model.bones.length });
-        //postMessage({ id: this.id, type: "update-skeleton", data: this.skeleton.boneBuffer });
+        globalMessage.id = this.id;
+        globalMessage.type = "new-skeleton";
+        globalMessage.data = this.model.bones.length;
+        postMessage(globalMessage);
+
+        //var message = { id: this.id, type: "debug", data: this.skeleton.rootNode.worldMatrix };
+        //postMessage(message);
     }
 };

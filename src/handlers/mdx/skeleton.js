@@ -1,3 +1,9 @@
+var defaultTransformations = [
+    [0, 0, 0, 1],
+    [0, 0, 0],
+    [1, 1, 1]
+];
+
 Mdx.Skeleton = function (model) {
     var nodes = model.nodes,
         bones = model.bones,
@@ -15,17 +21,18 @@ Mdx.Skeleton = function (model) {
         node = new SharedNode(i, nodeBuffer);
 
         vec3.copy(node.pivot, pivots[i].data);
-        node.parentId = nodes[i].parentId;
+        node.nodeImpl = nodes[i];
 
         sharedNodes[i] = node;
     }
+    this.sharedNodes = sharedNodes;
 
     // Nodes
     var sortedNodes = [];
     for (i = 0, l = nodes.length; i < l; i++) {
         sortedNodes[i] = sharedNodes[hierarchy[i]];
     }
-    this.nodes = sortedNodes;
+    this.sortedNodes = sortedNodes;
 
     // Bones
     var sortedBones = [];
@@ -41,28 +48,28 @@ Mdx.Skeleton.prototype = {
         if (whichNode === -1) {
             return this.rootNode;
         }
-        return this.rootNode;
-        return this.nodes[whichNode];
+
+        return this.sharedNodes[whichNode];
     },
 
-    update: function (sequence, frame, counter, instance, context) {
-        var nodes = this.nodes;
+    update: function (boneBuffer, sequence, frame, counter) {
+        var sortedNodes = this.sortedNodes;
 
         //this.rootNode.setFromParent(instance);
 
-        for (var i = 0, l = nodes.length; i < l; i++) {
-            this.updateNode(nodes[i], sequence, frame, counter, context);
+        for (var i = 0, l = sortedNodes.length; i < l; i++) {
+            this.updateNode(sortedNodes[i], sequence, frame, counter);
         }
 
-        this.updateBoneBuffer();
+        this.updateBoneBuffer(boneBuffer);
     },
 
-    updateNode: function (node, sequence, frame, counter, context) {
-        var parent = this.getNode(node.parentId);
-        //var nodeImpl = node.nodeImpl;
-        //var translation = nodeImpl.getTranslation(sequence, frame, counter);
-        //var rotation = nodeImpl.getRotation(sequence, frame, counter);
-        //var scale = nodeImpl.getScale(sequence, frame, counter);
+    updateNode: function (node, sequence, frame, counter) {
+        var nodeImpl = node.nodeImpl;
+        var parent = this.getNode(nodeImpl.parentId);
+        var translation = nodeImpl.getTranslation(sequence, frame, counter);
+        var rotation = nodeImpl.getRotation(sequence, frame, counter);
+        var scale = nodeImpl.getScale(sequence, frame, counter);
         //var finalRotation = this.rotationQuat;
         
         //if (nodeImpl.billboarded) {
@@ -74,15 +81,15 @@ Mdx.Skeleton.prototype = {
         //    quat.copy(finalRotation, rotation);
         //}
         
-        node.update(parent, [0, 0, 0, 1], [0, 0, 0], [1, 1, 1]);
+        node.update(parent, rotation, translation, scale);
     },
 
-    updateBoneBuffer: function () {
+    updateBoneBuffer: function (boneBuffer) {
         var bones = this.bones,
-            boneBfufer = this.boneBuffer;
-
+            boneBuffer = this.boneBuffer;
+        
         for (var i = 0, l = bones.length; i < l; i++) {
-            boneBfufer.set(bones[i].worldMatrix, i * 16 + 16);
+            boneBuffer.set(bones[i].worldMatrix, i * 16 + 16);
         }
     }
 };

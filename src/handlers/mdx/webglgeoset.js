@@ -52,14 +52,16 @@ Mdx.WebGLGeoset.prototype = {
         ctx.vertexAttribPointer(shader.variables.a_bone_number, 1, ctx.UNSIGNED_BYTE, false, 1, offsets[4]);
     },
 
-    render: function (coordId, shader, polygonMode) {
+    render: function (shader, coordId) {
         var ctx = this.ctx;
         var offsets = this.offsets;
 
         this.bindCommon(shader, ctx);
 
-        //ctx.vertexAttribPointer(shader.variables.a_normal, 3, ctx.FLOAT, false, 12, offsets[1]);
-        //ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 8, offsets[2] + coordId * this.uvSetSize);
+        if (shader.variables.a_normal) {
+            ctx.vertexAttribPointer(shader.variables.a_normal, 3, ctx.FLOAT, false, 12, offsets[1]);
+            ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 8, offsets[2] + coordId * this.uvSetSize);
+        }
         
         ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.faceBuffer);
         ctx.drawElements(ctx.TRIANGLES, this.elements, ctx.UNSIGNED_SHORT, 0);
