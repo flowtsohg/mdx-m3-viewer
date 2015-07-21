@@ -30,13 +30,14 @@ Mdx.ModelInstance.prototype = {
 
         globalMessage.id = this.id;
         globalMessage.type = WORKER_UPDATE_SKELETON;
-        globalMessage.data = this.skeleton.boneBuffer;
-        postMessage(globalMessage);
+        globalMessage.data = boneBuffer;
+        globalTransferList[0] = boneBuffer.buffer;
+        postMessage(globalMessage, globalTransferList);
     },
 
     post: function () {
         globalMessage.id = this.id;
-        globalMessage.type = "new-skeleton";
+        globalMessage.type = WORKER_NEW_SKELETON;
         globalMessage.data = this.model.bones.length;
         postMessage(globalMessage);
 

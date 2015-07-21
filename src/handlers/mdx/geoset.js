@@ -63,10 +63,3 @@ Mdx.Geoset = function (geoset) {
     this.edgeArray = edges;
     this.uvSetSize = uvsetSize * 4;
 };
-
-Mdx.Geoset.prototype = {
-    post: function (id) {
-        var message = { id: id, type: "new-geoset", data: [this.locationArray, this.normalArray, this.uvsArray, this.boneIndexArray, this.boneNumberArray, this.faceArray, this.edgeArray, this.uvSetSize] };
-        postMessage(message, [message.data[0].buffer, message.data[1].buffer, message.data[2].buffer, message.data[3].buffer, message.data[4].buffer, message.data[5].buffer, message.data[6].buffer]);
-    }
-};

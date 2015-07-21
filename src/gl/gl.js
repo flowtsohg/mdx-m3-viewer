@@ -441,6 +441,8 @@ function GL(element, callbacks) {
 		    texture = textureStore[source];
 		} else if (typeof source === "number") {
 		    texture = textureStoreById[source];
+		} else {
+		    texture = source;
 		}
 
 		if (texture && texture.impl && texture.impl.ready) {

@@ -1,42 +1,21 @@
-Mdx.ShallowLayer = function (layer, geoset) {
-    this.layer = layer;
-    this.geoset = geoset;
+Mdx.WebGLLayer = function (data, ctx) {
+    this.ctx = ctx;
+
+    this.filterMode = data[0];
+    this.twoSided = data[1];
+    this.noDepthTest = data[2];
+    this.noDepthSet = data[3];
+    this.textureId = data[4];
+    this.coordId = data[5];
 };
 
-var filterModeToRenderOrder = {
-    0: 0, // Opaque
-    1: 1, // 1bit Alpha
-    2: 2, // 8bit Alpha
-    3: 3, // Additive
-    4: 3, // Add Alpha (according to Magos)
-    5: 3, // Modulate
-    6: 3  // Modulate 2X
-};
+Mdx.WebGLLayer.prototype = {
+    bind: function (shader) {
+        var ctx = this.ctx;
 
-Mdx.Layer = function (layer, model) {
-    var filterMode = Math.min(layer.filterMode, 6);
-    
-    this.filterMode = filterMode;
-    this.twoSided = layer.twoSided;
-    this.noDepthTest = layer.noDepthTest;
-    this.noDepthSet = layer.noDepthSet;
-    this.textureId = layer.textureId;
-    this.textureAnimationId = layer.textureAnimationId;
-    this.coordId = layer.coordId;
-    this.alpha = layer.alpha;
-    this.renderOrder = filterModeToRenderOrder[filterMode];
-    this.sd = new Mdx.SDContainer(layer.tracks, model);
-};
-
-Mdx.Layer.prototype = {
-    bind: function (shader, ctx) {
         ctx.uniform1f(shader.variables.u_alphaTest, 0);
 
         switch (this.filterMode) {
-            case 0:
-                ctx.depthMask(1);
-                ctx.disable(ctx.BLEND);
-                break;
             case 1:
                 ctx.depthMask(1);
                 ctx.disable(ctx.BLEND);
@@ -67,6 +46,9 @@ Mdx.Layer.prototype = {
                 ctx.enable(ctx.BLEND);
                 ctx.blendFunc(ctx.DST_COLOR, ctx.SRC_COLOR);
                 break;
+            default:
+                ctx.depthMask(1);
+                ctx.disable(ctx.BLEND);
         }
         
         if (this.twoSided) {
@@ -86,20 +68,14 @@ Mdx.Layer.prototype = {
         }
     },
 
-    unbind: function (shader, ctx) {
+    unbind: function (shader) {
+        var ctx = this.ctx;
+
         ctx.uniform1f(shader.variables.u_alphaTest, 0);
 
         ctx.depthMask(1);
         ctx.disable(ctx.BLEND);
         ctx.enable(ctx.CULL_FACE);
         ctx.enable(ctx.DEPTH_TEST);
-    },
-
-    getAlpha: function (sequence, frame, counter) {
-        return this.sd.getKMTA(sequence, frame, counter, this.alpha);
-    },
-
-    getTextureId: function (sequence, frame, counter) {
-        return this.sd.getKMTF(sequence, frame, counter, this.textureId);
     }
 };

@@ -4,7 +4,7 @@ Mdx.WebGLSkeleton = function (numberOfBones, ctx) {
     this.boneTextureSize = Math.max(2, Math.powerOfTwo(numberOfBones)) * 4;
     this.vectorFraction = 1 / this.boneTextureSize;
     this.matrixFraction = 4 / this.boneTextureSize;
-    //this.boneBuffer = new Float32Array(numberOfBones * 16 + 16);
+    this.boneBuffer = new Float32Array(numberOfBones * 16 + 16);
 
     ctx.activeTexture(ctx.TEXTURE15);
     ctx.bindTexture(ctx.TEXTURE_2D, this.boneTexture);
@@ -21,7 +21,7 @@ Mdx.WebGLSkeleton.prototype = {
         ctx.bindTexture(ctx.TEXTURE_2D, this.boneTexture);
         ctx.texSubImage2D(ctx.TEXTURE_2D, 0, 0, 0, boneBuffer.length / 4, 1, ctx.RGBA, ctx.FLOAT, boneBuffer);
 
-        //this.boneBuffer = boneBuffer;
+        this.boneBuffer = boneBuffer;
     },
 
     bind: function (shader) {

@@ -17,11 +17,13 @@ importScripts("modelinstance.js");
 importScripts("skeleton.js");
 importScripts("sd.js");
 importScripts("node.js");
+importScripts("layer.js");
 
 var models = {};
 var instances = {};
 
-var globalMessage = {id: 0, type: "test", data: 0};
+var globalMessage = {id: 0, type: 0, data: 0};
+var globalTransferList = [];
 
 onmessage = function (e) {
     var message = e.data;
@@ -29,13 +31,13 @@ onmessage = function (e) {
     var type = message.type;
     var data = message.data;
 
-    if (type === "new-model") {
+    if (type === WORKER_NEW_MODEL) {
         var model = new Mdx.Model(data, id);
 
         models[id] = model;
 
         model.post();
-    } else if (type === "new-instance") {
+    } else if (type === WORKER_NEW_INSTANCE) {
         var instance = new Mdx.ModelInstance(models[data], id);
 
         instances[id] = instance;

@@ -13,14 +13,14 @@ Mdx.WebGLModelInstance.prototype = extend(BaseModelInstance.prototype, {
         this.model = model;
         this.wantUpdate = false;
 
-        var message = { id: asyncInstance.id, type: "new-instance", data: model.asyncModel.id };
+        var message = { id: asyncInstance.id, type: WORKER_NEW_INSTANCE, data: model.asyncModel.id };
         this.worker.postMessage(message);
     },
 
     gotMessage: function (type, data) {
         //console.log(type, data);
 
-        if (type === "new-skeleton") {
+        if (type === WORKER_NEW_SKELETON) {
             this.skeleton = new Mdx.WebGLSkeleton(data, this.ctx);
             this.wantUpdate = true
         } else if (type === WORKER_UPDATE_SKELETON) {
@@ -39,9 +39,9 @@ Mdx.WebGLModelInstance.prototype = extend(BaseModelInstance.prototype, {
 
             globalMessage.id = this.asyncInstance.id;
             globalMessage.type = WORKER_UPDATE_INSTANCE;
-            //globalMessage.data = this.skeleton.boneBuffer;
-            //globalTransferList[0] = globalMessage.data.buffer;
-            this.worker.postMessage(globalMessage);
+            globalMessage.data = this.skeleton.boneBuffer;
+            globalTransferList[0] = globalMessage.data.buffer;
+            this.worker.postMessage(globalMessage, globalTransferList);
         }
         
     },

@@ -85,8 +85,7 @@ Mdx.Skeleton.prototype = {
     },
 
     updateBoneBuffer: function (boneBuffer) {
-        var bones = this.bones,
-            boneBuffer = this.boneBuffer;
+        var bones = this.bones;
         
         for (var i = 0, l = bones.length; i < l; i++) {
             boneBuffer.set(bones[i].worldMatrix, i * 16 + 16);
