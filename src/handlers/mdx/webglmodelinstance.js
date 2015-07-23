@@ -27,6 +27,8 @@ Mdx.WebGLModelInstance.prototype = extend(BaseModelInstance.prototype, {
             //console.log(new Float32Array(data.buffer, 16*4*4, 16));
             this.skeleton.updateTexture(data);
             this.wantUpdate = true;
+        } else if (type === WORKER_UPDATE_BATCH_VISIBILITIES) {
+            this.batchVisibilities = data;
         } else {
             console.log(data);
         }
@@ -38,6 +40,10 @@ Mdx.WebGLModelInstance.prototype = extend(BaseModelInstance.prototype, {
             //console.log("requesting update");
 
             globalMessage.id = this.asyncInstance.id;
+            globalMessage.type = WORKER_UPDATE_INSTANCE_ROOT;
+            globalMessage.data = instance.worldMatrix;
+            this.worker.postMessage(globalMessage);
+
             globalMessage.type = WORKER_UPDATE_INSTANCE;
             globalMessage.data = this.skeleton.boneBuffer;
             globalTransferList[0] = globalMessage.data.buffer;
@@ -59,7 +65,10 @@ Mdx.WebGLModelInstance.prototype = extend(BaseModelInstance.prototype, {
     },
 
     setSequence: function (id) {
-       
+        globalMessage.id = this.asyncInstance.id;
+        globalMessage.type = WORKER_SET_SEQUENCE;
+        globalMessage.data = id;
+        this.worker.postMessage(globalMessage);
     },
 
     getAttachment: function (id) {

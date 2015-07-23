@@ -74,6 +74,9 @@ Mdx.Model = function (arrayBuffer, id) {
     // Textures
     this.textures = this.transformTextures(chunks.TEXS.elements);
 
+    // Geoset animations
+    this.geosetAnimations = this.transformTypeFromChunk(chunks.GEOA, Mdx.GeosetAnimation);
+
     //postMessage({ id: id, type: "debug", data: this.textures });
 
     this.id = id;
@@ -101,6 +104,20 @@ Mdx.Model.prototype = {
 
         for (var i = 0, l = elements.length; i < l; i++) {
             output[i] = new Func(elements[i], this);
+        }
+
+        return output;
+    },
+
+    transformTypeFromChunk: function (chunk, Func) {
+        var output = [];
+
+        if (chunk) {
+            var elements = chunk.elements;
+
+            for (var i = 0, l = elements.length; i < l; i++) {
+                output[i] = new Func(elements[i], this);
+            }
         }
 
         return output;
@@ -144,6 +161,31 @@ Mdx.Model.prototype = {
         return output;
     },
 
+    shouldRenderBatch: function (sequence, frame, counter, which) {
+        var batch = this.batches[which];
+        var layer = this.layers[batch[0]];
+        var geoset = this.geosets[batch[1]];
+        var i, l, geosetAnimation, geosetAnimations = this.geosetAnimations;
+
+        if (layer.getAlpha(sequence, frame, counter) < 0.75) {
+            return 0;
+        }
+
+        if (geosetAnimations) {
+            for (i = 0, l = geosetAnimations.length; i < l; i++) {
+                geosetAnimation = geosetAnimations[i];
+
+                if (geosetAnimation.geosetId === geoset.index) {
+                    if (geosetAnimation.getAlpha(sequence, frame, counter) < 0.75) {
+                        return 0;
+                    }
+                }
+            }
+        }
+
+        return 1;
+    },
+
     post: function () {
         var i, l, elements, element;
 
@@ -173,6 +215,10 @@ Mdx.Model.prototype = {
 
         globalMessage.type = WORKER_NEW_TEXTURES;
         globalMessage.data = this.textures;
+        postMessage(globalMessage);
+
+        globalMessage.type = WORKER_NEW_SEQUENCES;
+        globalMessage.data = this.sequences;
         postMessage(globalMessage);
     }
 };

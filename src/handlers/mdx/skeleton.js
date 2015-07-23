@@ -52,10 +52,12 @@ Mdx.Skeleton.prototype = {
         return this.sharedNodes[whichNode];
     },
 
+    updateRoot: function (worldMatrix) {
+        this.rootNode.worldMatrix = worldMatrix;
+    },
+
     update: function (boneBuffer, sequence, frame, counter) {
         var sortedNodes = this.sortedNodes;
-
-        //this.rootNode.setFromParent(instance);
 
         for (var i = 0, l = sortedNodes.length; i < l; i++) {
             this.updateNode(sortedNodes[i], sequence, frame, counter);

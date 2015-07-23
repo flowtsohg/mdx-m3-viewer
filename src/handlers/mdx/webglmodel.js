@@ -69,15 +69,15 @@ Mdx.WebGLModel.prototype = extend(BaseModel.prototype, {
 
                 this.textures[i] = gl.loadTexture(path, fileType);
             }
-
-            //console.log(this.layers);
+        } else if (type === WORKER_NEW_SEQUENCES) {
+            this.sequences = data;
         } else {
             console.log(this.asyncModel.id, data);
         }
     },
 
     render: function (instance, context, tint) {
-        if (instance.skeleton) {
+        if (instance.batchVisibilities) {
             var gl = context.gl;
             var ctx = gl.ctx;
             var i, l;
@@ -94,37 +94,41 @@ Mdx.WebGLModel.prototype = extend(BaseModel.prototype, {
             var heap3 = this.heap3;
             var heap4 = this.heap4;
 
+            var batchVisibilities = instance.batchVisibilities;
+
             instance.skeleton.bind(shader);
 
             ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
 
             for (i = 0, l = batches.length; i < l; i++) {
-                batch = batches[i];
-                layer = layers[batch[0]];
-                geoset = geosets[batch[1]];
+                if (batchVisibilities[i]) {
+                    batch = batches[i];
+                    layer = layers[batch[0]];
+                    geoset = geosets[batch[1]];
 
-                ctx.uniform1i(shader.variables.u_texture, 0);
-                gl.bindTexture(textures[layer.textureId], 0);
+                    ctx.uniform1i(shader.variables.u_texture, 0);
+                    gl.bindTexture(textures[layer.textureId], 0);
 
-                heap3[0] = 0;
-                heap3[1] = 0;
-                heap3[2] = 0;
+                    heap3[0] = 0;
+                    heap3[1] = 0;
+                    heap3[2] = 0;
 
-                heap4[0] = 1;
-                heap4[1] = 1;
-                heap4[2] = 1;
-                heap4[3] = 1;
+                    heap4[0] = 1;
+                    heap4[1] = 1;
+                    heap4[2] = 1;
+                    heap4[3] = 1;
 
-                ctx.uniform3fv(shader.variables.u_uv_offset, heap3);
-                ctx.uniform4fv(shader.variables.u_modifier, heap4);
+                    ctx.uniform3fv(shader.variables.u_uv_offset, heap3);
+                    ctx.uniform4fv(shader.variables.u_modifier, heap4);
 
-                ctx.uniform4fv(shader.variables.u_tint, tint);
+                    ctx.uniform4fv(shader.variables.u_tint, tint);
 
-                layer.bind(shader);
+                    layer.bind(shader);
 
-                geoset.render(shader, layer.coordId);
+                    geoset.render(shader, layer.coordId);
 
-                layer.unbind(shader);
+                    layer.unbind(shader);
+                }
             }
         }
     },
