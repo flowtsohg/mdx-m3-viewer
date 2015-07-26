@@ -655,7 +655,7 @@ window["ModelViewer"] = function (canvas, worldPaths) {
     }
 
     function setSkipFrames(skipFrames) {
-        skipFrames = Math.min(skipFrames, 1)
+        skipFrames = Math.max(skipFrames, 1)
 
         context.skipFrames = skipFrames;
         context.frameTimeMS = context.frameTime * skipFrames;
