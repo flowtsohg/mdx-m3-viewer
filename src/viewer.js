@@ -5,32 +5,32 @@
  * @param {object} urls An object with the necessary methods to get urls from the server.
  * @param {boolean} debugMode If true, the viewer will log the loaded models and their parser to the console.
  */
-window["ModelViewer"] = function (canvas, worldPaths) {
+window["ModelViewer"] = function (canvas) {
+    var viewerObject = new EventDispatcher();
+
+    // Only needs to be created once
+    var renderEvent = { type: "render", target: viewerObject };
+
     var objectsNotReady = 0;
 
     function onabort(object) {
-        dispatchEvent({type: "abort", target: object});
+        viewerObject.dispatchEvent({ type: "abort", target: object });
     }
   
     function onloadstart(object) {
         objectsNotReady += 1;
         
-        dispatchEvent({type: "loadstart", target: object});
+        viewerObject.dispatchEvent({ type: "loadstart", target: object });
     }
     
     function onloadend(object) {
         objectsNotReady -= 1;
         
-        dispatchEvent({type: "loadend", target: object});
+        viewerObject.dispatchEvent({ type: "loadend", target: object });
     }
     
     function onload(object) {
-        // If this model isn't in the cache yet, add it
-        if (object.type === "model" && !modelCache[object.source]) {
-            modelCache[object.source] = object;
-        }
-        
-        dispatchEvent({type: "load", target: object});
+        viewerObject.dispatchEvent({ type: "load", target: object });
         
         onloadend(object);
     }
@@ -40,19 +40,19 @@ window["ModelViewer"] = function (canvas, worldPaths) {
             error = "" + error.target.status;
         }
 
-        dispatchEvent({type: "error", error: error, target: object});
+        viewerObject.dispatchEvent({ type: "error", error: error, target: object });
         
         onloadend(object);
     }
     
     function onprogress(object, e) {
         if (e.target.status === 200) {
-            dispatchEvent({type: "progress", target: object, loaded: e.loaded, total: e.total, lengthComputable: e.lengthComputable});
+            viewerObject.dispatchEvent({ type: "progress", target: object, loaded: e.loaded, total: e.total, lengthComputable: e.lengthComputable });
         }
     }
   
     function onremove(object) {
-        dispatchEvent({type: "remove", target: object});
+        viewerObject.dispatchEvent({ type: "remove", target: object });
     }
 
     var callbacks = {
@@ -66,22 +66,14 @@ window["ModelViewer"] = function (canvas, worldPaths) {
     };
   
     var listeners = {}
-    var viewerObject = {};
     
     var gl = GL(canvas, callbacks);
     var ctx = gl.ctx;
     
-    var groundPath = worldPaths("ground.png");
-    var waterPath = worldPaths("water.png");
-    var skyPath = worldPaths("sky.png");
-
     var modelArray = []; // All models
     var instanceArray = []; // All instances
     var modelInstanceMap = {}; // Referebce by ID. This is a map to support deletions.
     var modelMap = {}; // Reference by source
-    // Much like modelMap, but isn't cleared when something is removeed.
-    // It is used to make loading faster if a model was removeed, or clear was called, and then the model is requested to load again.
-    var modelCache = {};
     
     var supportedModelFileTypes = {};
     var supportedTextureFileTypes = {".png":1, ".gif":1, ".jpg":1};
@@ -170,9 +162,7 @@ window["ModelViewer"] = function (canvas, worldPaths) {
     gl.createShader("white", SHADERS.vswhite, SHADERS.pswhite);
     gl.createShader("texture", SHADERS.vstexture, SHADERS.pstexture);
     
-    gl.loadTexture(groundPath, ".png");
-    gl.loadTexture(waterPath, ".png");
-    gl.loadTexture(skyPath, ".png");
+    var groundTexture, skyTexture, waterTexture;
     
     function setupColorFramebuffer(width, height) {
         // Color texture
@@ -231,42 +221,46 @@ window["ModelViewer"] = function (canvas, worldPaths) {
             ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
 
             if (mode === 1) {
-                ctx.uniform2fv(shader.variables.u_uv_offset, [0, 0]);
-                ctx.uniform1f(shader.variables.u_a, 1);
-                
-                gl.bindTexture(groundPath, 0);
-                context.ground.render(shader);
+                if (groundTexture) {
+                    ctx.uniform2fv(shader.variables.u_uv_offset, [0, 0]);
+                    ctx.uniform1f(shader.variables.u_a, 1);
+
+                    gl.newBindTexture(groundTexture, 0);
+                    context.ground.render(shader);
+                }
             } else {
-                context.uvOffset[0] += context.uvSpeed[0];
-                context.uvOffset[1] += context.uvSpeed[1];
+                if (waterTexture) {
+                    context.uvOffset[0] += context.uvSpeed[0];
+                    context.uvOffset[1] += context.uvSpeed[1];
 
-                ctx.uniform2fv(shader.variables.u_uv_offset, context.uvOffset);
-                ctx.uniform1f(shader.variables.u_a, 0.6);
-                
-                ctx.enable(ctx.BLEND);
-                ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
+                    ctx.uniform2fv(shader.variables.u_uv_offset, context.uvOffset);
+                    ctx.uniform1f(shader.variables.u_a, 0.6);
 
-                gl.bindTexture(waterPath, 0);
-                context.ground.render(shader);
+                    ctx.enable(ctx.BLEND);
+                    ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
 
-                ctx.disable(ctx.BLEND);
+                    gl.newBindTexture(waterTexture, 0);
+                    context.ground.render(shader);
+
+                    ctx.disable(ctx.BLEND);
+                }
             }
         }
     }
   
     function renderSky() {
-        if (gl.shaderStatus("world")) {
+        if (gl.shaderStatus("world") && skyTexture) {
             var shader = gl.bindShader("world");
 
             ctx.uniform2fv(shader.variables.u_uv_offset, [0, 0]);
             ctx.uniform1f(shader.variables.u_a, 1);
             ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getProjectionMatrix());
 
-            gl.bindTexture(skyPath, 0);
+            gl.newBindTexture(skyTexture, 0);
             context.sky.render(shader);
         }
     }
-    
+
     function render() {
         var i,
             l = instanceArray.length;
@@ -309,7 +303,7 @@ window["ModelViewer"] = function (canvas, worldPaths) {
             renderGround(context.groundMode);
         }
         
-        dispatchEvent("render");
+        viewerObject.dispatchEvent(renderEvent);
     }
   
     function renderColor() {
@@ -359,13 +353,7 @@ window["ModelViewer"] = function (canvas, worldPaths) {
     }
     
     function loadModel(source, fileType, customPaths, isFromMemory) {
-        // If the model is cached, but not in the model map, add it to the model map
-        if (modelCache[source]) {
-            if (!modelMap[source]) {
-                modelMap[source] = modelCache[source];
-            }
-        // If the model isn't in the cache, it's also likely not in the model map, so do a real load
-        } else {
+        if (!modelMap[source]) {
             var model = new AsyncModel(source, fileType, customPaths, isFromMemory, context);
 
             modelMap[source] = model;
@@ -469,82 +457,77 @@ window["ModelViewer"] = function (canvas, worldPaths) {
   // Model loading API
   // ---------------------
   
-  /**
-    * Loads a resource.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {string} source The source to load from. Can be an absolute url, a path to a file in the MPQ files of Warcraft 3 and Starcraft 2, a form of identifier to be used for headers, an AsyncModel object, or an AsyncModelInstance object.
-    */
-    function load(source, customPaths, overrideFileType, isFromMemory) {
+    function loadSingle(src, pathSolver, type) {
         var fileType;
 
-        if (typeof customPaths !== "function") {
-            customPaths = identityPaths;
+        if (typeof src === "string" && !type) {
+            src = pathSolver(src);
         }
 
-        if (typeof source === "string" && !isFromMemory) {
-            source = customPaths(source);
+        var isFromMemory;
+
+        if (src.type === "model" || src.type === "instance") {
+            pathSolver = src.customPaths;
+            fileType = src.fileType;
+            isFromMemory = src.isFromMemory;
+            src = src.source;
         }
 
-        if (source.type === "model" || source.type === "instance") {
-            customPaths = source.customPaths;
-            fileType = source.fileType;
-            isFromMemory = source.isFromMemory;
-            source = source.source;
-        }
-
-        if (typeof overrideFileType === "string") {
-            fileType = overrideFileType;
-        } else if (typeof source === "string") {
-            fileType = fileTypeFromPath(source);
+        if (typeof type === "string") {
+            fileType = type;
+            isFromMemory = true;
+        } else if (typeof src === "string") {
+            fileType = fileTypeFromPath(src);
         }
 
         if (supportedFileTypes[fileType]) {
-            return loadResource(source, customPaths, fileType, isFromMemory);
+            return loadResource(src, pathSolver, fileType, isFromMemory);
         }
     }
 
-  /**
-    * removes a resource.
-    *
-    * @memberof ModelViewer
-    * @instance
-    * @param {(string|number)} source The source to remove from. Can be the source of a previously loaded resource, or a valid model or instance ID.
-    */
-    function remove(source) {
-        var object,
-            type;
-        
-        if (source) {
-            type = source.type;
-            
-            if (type) {
-                if (type === "model") {
-                    removeModel(source);
-                } else {
-                    removeInstance(source);
-                }
-            } else if (typeof source === "number") {
-                object = modelInstanceMap[source];
-                
-                if (object) {
-                    type = object.type;
-                    
-                    if (type === "model") {
-                        removeModel(object);
-                    } else {
-                        removeInstance(object);
-                    }
+    function load(src, pathSolver, type) {
+        if (typeof pathSolver !== "function") {
+            pathSolver = identityPaths;
+        }
+
+        if (Array.isArray(src)) {
+            var resources = [];
+
+            if (Array.isArray(type)) {
+                for (var i = 0, l = src.length; i < l; i++) {
+                    resources[i] = loadSingle(src[i], pathSolver, type[i]);
                 }
             } else {
-                object = modelMap[source];
+                for (var i = 0, l = src.length; i < l; i++) {
+                    resources[i] = loadSingle(src[i], pathSolver, type);
+                }
+            }
+            
+            return resources;
+        } else {
+            return loadSingle(src, pathSolver, type);
+        }
+    }
 
-                if (object) {
-                    removeModel(object);
+    // src must be one of AsyncModel or AsyncModelInstance or AsyncTexture.
+    // If removing an instance, and it is the last instance of the model, removeModelIfLastInstance can be specified if the model should be automatically removed too.
+    function remove(src, removeModelIfLastInstance) {
+        if (src && src.type) {
+            var type = src.type;
+            
+            if (type === "model") {
+                removeModel(src);
+            } else if (type === "instance") {
+                // If the owning model has only 1 instance, it must be this one.
+                // Therefore if the client wants to remove the model if it has no instances, remove it.
+                if (src.model.instances.length === 1 && removeModelIfLastInstance) {
+                    removeModel(src.model);
                 } else {
-                    gl.removeTexture(source);
-                } 
+                    removeInstance(src);
+                }
+                
+            } else if (type === "texture") {
+                gl.removeTexture(src);
             }
         }
     }
@@ -568,10 +551,6 @@ window["ModelViewer"] = function (canvas, worldPaths) {
         Array.clear(instanceArray);
         Object.clear(modelInstanceMap);
         Object.clear(modelMap);
-    }
-    
-    function clearCache() {
-        Object.clear(modelCache);
     }
     
     function loadingEnded() {
@@ -622,14 +601,16 @@ window["ModelViewer"] = function (canvas, worldPaths) {
         return instanceArray;
     }
     
-    function getCache() {
-        return modelCache;
-    }
-    
   // -------------------
   // General settings
   // -------------------
   
+    function setWorldTextures(ground, sky, water) {
+        groundTexture = ground;
+        skyTexture = sky;
+        waterTexture = water;
+    }
+
   /**
     * Sets the animation speed.
     *
@@ -981,53 +962,6 @@ window["ModelViewer"] = function (canvas, worldPaths) {
         supportedTextureFileTypes[fileType] = 1;
         supportedFileTypes[fileType] = 1;
     }
-    
-    function addEventListener(type, listener) {
-        if (listeners[type] === undefined){
-            listeners[type] = [];
-        }
-
-        listeners[type].push(listener);
-    }
-    
-    function removeEventListener(type, listener) {
-        if (listeners[type] !== undefined){
-            var _listeners = listeners[type],
-                i,
-                l;
-            
-            for (i = 0, l = _listeners.length; i < l; i++){
-                if (_listeners[i] === listener){
-                    _listeners.splice(i, 1);
-                    return;
-                }
-            }
-        }
-    }
-    
-    function dispatchEvent(event) {
-        if (typeof event === "string") {
-            event = {type: event};
-        }
-        
-        if (!event.target) {
-            event.target = viewerObject;
-        }
-        
-        if (!event.type) {
-            return;
-        }
-        
-        if (listeners[event.type] !== undefined) {
-            var _listeners = listeners[event.type],
-                i,
-                l;
-            
-            for (i = 0, l = _listeners.length; i < l; i++){
-                _listeners[i].call(viewerObject, event);
-            }
-        }
-    }
   
     function getWebGLContext() {
         return ctx;
@@ -1042,13 +976,12 @@ window["ModelViewer"] = function (canvas, worldPaths) {
         load: load,
         remove: remove,
         clear: clear,
-        clearCache: clearCache,
         loadingEnded: loadingEnded,
         dependenciesLoaded: dependenciesLoaded,
         getModels: getModels,
         getInstances: getInstances,
-        getCache: getCache,
         // General settings
+        setWorldTextures: setWorldTextures,
         setAnimationSpeed: setAnimationSpeed,
         getAnimationSpeed: getAnimationSpeed,
         setSkipFrames: setSkipFrames,
@@ -1079,10 +1012,6 @@ window["ModelViewer"] = function (canvas, worldPaths) {
         // Extending
         registerModelHandler: registerModelHandler,
         registerTextureHandler: registerTextureHandler,
-        // Events
-        addEventListener: addEventListener,
-        removeEventListener: removeEventListener,
-        dispatchEvent: dispatchEvent,
         // Experiemental
         renderTexture: renderTexture
     };

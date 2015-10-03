@@ -13,7 +13,7 @@ var filterModeToRenderOrder = {
     6: 3  // Modulate 2X
 };
 
-Mdx.Layer = function (layer, model) {
+Mdx.Layer = function (layer, model, textureAnimations) {
     var filterMode = Math.min(layer.filterMode, 6);
     
     this.filterMode = filterMode;
@@ -26,6 +26,10 @@ Mdx.Layer = function (layer, model) {
     this.alpha = layer.alpha;
     this.renderOrder = filterModeToRenderOrder[filterMode];
     this.sd = new Mdx.SDContainer(layer.tracks, model);
+
+    if (layer.textureAnimationId !== -1 && textureAnimations[layer.textureAnimationId]) {
+        this.textureAnimation = textureAnimations[layer.textureAnimationId];
+    }
 };
 
 Mdx.Layer.prototype = {

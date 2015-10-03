@@ -111,25 +111,25 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
 
         this.skeleton.update(this.sequence, this.frame, this.counter, instance, context);
 
-        this.updateEmitters(this.particleEmitters, allowCreate, context);
-        this.updateEmitters(this.particleEmitters2, allowCreate, context);
-        this.updateEmitters(this.ribbonEmitters, allowCreate, context);
-        this.updateEmitters(this.eventObjectEmitters, allowCreate, context);
+        //this.updateEmitters(this.particleEmitters, allowCreate, context);
+        //this.updateEmitters(this.particleEmitters2, allowCreate, context);
+        //this.updateEmitters(this.ribbonEmitters, allowCreate, context);
+        //this.updateEmitters(this.eventObjectEmitters, allowCreate, context);
         
-        var attachmentInstances = this.attachmentInstances;
-        var attachments = this.attachments;
-        var attachmentVisible = this.attachmentVisible;
-        var attachment;
+        //var attachmentInstances = this.attachmentInstances;
+        //var attachments = this.attachments;
+        //var attachmentVisible = this.attachmentVisible;
+        //var attachment;
         
-        for (var i = 0, l = attachments.length; i < l; i++) {
-            attachment = attachments[i];
+        //for (var i = 0, l = attachments.length; i < l; i++) {
+        //    attachment = attachments[i];
 
-            attachmentVisible[i] = attachment.getVisibility(this.sequence, this.frame, this.counter) > 0.1;
+        //    attachmentVisible[i] = attachment.getVisibility(this.sequence, this.frame, this.counter) > 0.1;
             
-            if (attachmentVisible[i]) {
-                this.attachmentInstances[i].update(context);
-            }
-        }
+        //    if (attachmentVisible[i]) {
+        //        this.attachmentInstances[i].update(context);
+        //    }
+        //}
     },
     
     render: function(context, tint) {

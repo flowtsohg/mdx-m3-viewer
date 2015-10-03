@@ -21,6 +21,7 @@ function AsyncModel(source, fileType, customPaths, isFromMemory, context) {
     this.instances = [];
 
     Async.call(this);
+    EventDispatcher.call(this);
 
     this.context = context;
 
@@ -29,6 +30,8 @@ function AsyncModel(source, fileType, customPaths, isFromMemory, context) {
     this.onload = callbacks.onload;
 
     callbacks.onloadstart(this);
+
+    this.dispatchEvent("loadstart");
 
     this.isFromMemory = isFromMemory;
     this.source = source;
@@ -46,6 +49,9 @@ AsyncModel.prototype = {
     abort: function () {
         if (this.request && this.request.readyState !== XMLHttpRequest.DONE) {
             this.request.abort();
+
+            this.dispatchEvent("abort");
+
             return true;
         }
         
@@ -67,6 +73,7 @@ AsyncModel.prototype = {
             this.setupFromMemory(e.target.response);
         } else {
             this.onerror(this, "" + status);
+            this.dispatchEvent("error");
         }
     },
 
@@ -80,6 +87,9 @@ AsyncModel.prototype = {
             this.runFunctors();
 
             this.onload(this);
+
+            this.dispatchEvent("load");
+            this.dispatchEvent("loadend");
         }
     },
  
@@ -255,3 +265,4 @@ AsyncModel.prototype = {
 };
 
 mixin(Async.prototype, AsyncModel.prototype);
+mixin(EventDispatcher.prototype, AsyncModel.prototype);

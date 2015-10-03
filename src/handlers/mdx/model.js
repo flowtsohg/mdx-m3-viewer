@@ -26,6 +26,8 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         this.boundingShapes = [];
         this.attachments = [];
 
+        this.newTextures = [];
+
         if (chunks.TEXS) {
             objects = chunks.TEXS.elements;
 
@@ -77,6 +79,8 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         var groups;
         var mesh;
 
+        this.textureAnimations = this.transformElements(chunks.TXAN, Mdx.TextureAnimation);
+
         if (chunks.MTLS) {
             objects = chunks.MTLS.elements;
             materials = [];
@@ -89,7 +93,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
                 materials[i] = [];
 
                 for (j = 0, k = layers.length; j < k; j++) {
-                    layer = new Mdx.Layer(layers[j], this);
+                    layer = new Mdx.Layer(layers[j], this, this.textureAnimations);
 
                     materials[i][j] = layer;
                     this.layers.push(layer);
@@ -99,6 +103,8 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
             this.materials = materials;
         }
 
+        this.geosetAnimations = this.transformElements(chunks.GEOA, Mdx.GeosetAnimation);
+
         if (chunks.GEOS) {
             geosets = chunks.GEOS.elements;
             groups = [[], [], [], []];
@@ -107,7 +113,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
                 geoset = geosets[i];
                 layers = materials[geoset.materialId];
 
-                mesh = new Mdx.Geoset(geoset, i, gl.ctx);
+                mesh = new Mdx.Geoset(geoset, i, gl.ctx, this.geosetAnimations);
 
                 this.meshes.push(mesh);
 
@@ -125,8 +131,6 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         }
 
         this.cameras = this.transformElements(chunks.CAMS, Mdx.Camera);
-        this.geosetAnimations = this.transformElements(chunks.GEOA, Mdx.GeosetAnimation);
-        this.textureAnimations = this.transformElements(chunks.TXAN, Mdx.TextureAnimation);
 
         if (chunks.PREM) {
             this.particleEmitters = chunks.PREM.elements;
@@ -220,12 +224,12 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
 
         var realPath = customPaths(path);
 
-        this.textures.push(path);
+        //this.textures.push(path);
         this.textureMap[path] = realPath;
 
         var fileType = fileTypeFromPath(path);
 
-        gl.loadTexture(realPath, fileType);
+        this.textures.push(gl.loadTexture(realPath, fileType));
     },
 
     calculateExtent: function () {
@@ -342,35 +346,23 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
                         layer.bind(shader, ctx);
 
                         textureId = layer.getTextureId(sequence, frame, counter);
+                        this.bindTexture(this.textures[textureId], context);
 
-                        this.bindTexture(textures[textureId], 0, instance.textureMap, context);
+                        if (geoset.geosetAnimation) {
+                            var tempVec3 = geoset.geosetAnimation.getColor(sequence, frame, counter);
 
-                        if (this.geosetAnimations) {
-                            for (var j = this.geosetAnimations.length; j--;) {
-                                var geosetAnimation = this.geosetAnimations[j];
-
-                                if (geosetAnimation.geosetId === geoset.index) {
-                                    var tempVec3 = geosetAnimation.getColor(sequence, frame, counter);
-
-                                    modifier[0] = tempVec3[2];
-                                    modifier[1] = tempVec3[1];
-                                    modifier[2] = tempVec3[0];
-                                }
-                            }
+                            modifier[0] = tempVec3[2];
+                            modifier[1] = tempVec3[1];
+                            modifier[2] = tempVec3[0];
                         }
 
                         modifier[3] = layer.getAlpha(sequence, frame, counter);
 
                         ctx.uniform4fv(shader.variables.u_modifier, modifier);
 
-                        if (layer.textureAnimationId !== -1 && this.textureAnimations) {
-                            var textureAnimation = this.textureAnimations[layer.textureAnimationId];
-
-                            if (textureAnimation) {
-                                // What is Z used for?
-                                uvoffset = textureAnimation.getTranslation(sequence, frame, counter);
-                            }
-
+                        if (layer.textureAnimation) {
+                            // What is Z used for?
+                            uvoffset = layer.textureAnimation.getTranslation(sequence, frame, counter);
                         }
 
                         ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
@@ -520,40 +512,18 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
             return false;
         }
 
-        if (geosetAnimations) {
-            for (i = 0, l = geosetAnimations.length; i < l; i++) {
-                geosetAnimation = geosetAnimations[i];
-
-                if (geosetAnimation.geosetId === geoset.index) {
-                    if (geosetAnimation.getAlpha(sequence, frame, counter) < 0.75) {
-                        return false;
-                    }
-                }
-            }
+        if (geoset.geosetAnimation && geoset.geosetAnimation.getAlpha(sequence, frame, counter) < 0.75) {
+            return false;
         }
 
         return true;
     },
 
-    bindTexture: function (source, unit, textureMap, context) {
-        var texture = source;
-
-        // Must be checked against undefined, because empty strings evaluate to false
-        if (this.textureMap[source] !== undefined) {
-            texture = this.textureMap[source];
+    bindTexture: function (asyncTexture, context) {
+        if (!context.teamColorsMode && asyncTexture.source.endsWith("00.blp")) {
+            asyncTexture = null;
         }
 
-        // Must be checked against undefined, because empty strings evaluate to false
-        if (textureMap[source] !== undefined) {
-            texture = textureMap[source];
-        }
-
-        if (!context.teamColorsMode && source.endsWith("00.blp")) {
-            texture = null;
-        }
-
-       // console.log(source, texture);
-
-        context.gl.bindTexture(texture, unit);
+        context.gl.newBindTexture(asyncTexture, 0);
     }
 });

@@ -34,10 +34,12 @@ function AsyncModelInstance(model, isInternal) {
 
     Async.call(this);
     Spatial.call(this);
+    EventDispatcher.call(this);
 
     // Don't report internal instances
     if (!isInternal) {
         callbacks.onloadstart(this);
+        this.dispatchEvent("loadstart");
     }
         
     this.model = model;
@@ -71,6 +73,9 @@ AsyncModelInstance.prototype = {
         if (!this.delayOnload) {
             this.onload(this);
         }
+
+        this.dispatchEvent("load");
+        this.dispatchEvent("loadend");
     },
   
   /**
@@ -460,3 +465,4 @@ AsyncModelInstance.prototype = {
 
 mixin(Async.prototype, AsyncModelInstance.prototype);
 mixin(Spatial.prototype, AsyncModelInstance.prototype);
+mixin(EventDispatcher.prototype, AsyncModelInstance.prototype);

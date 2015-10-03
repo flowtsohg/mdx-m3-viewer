@@ -11,7 +11,11 @@ function AsyncTexture(source, fileType, options, textureHandlers, ctx, compresse
     this.id = generateID();
     
     callbacks.onloadstart(this);
-    
+
+    EventDispatcher.call(this);
+
+    this.dispatchEvent("loadstart");
+
     if (handler) {
         if (isFromMemory) {
             this.impl = new this.handler(source, this.options, ctx, this.onerror.bind(undefined, this), this.onload.bind(undefined, this), compressedTextures, isFromMemory);
@@ -20,6 +24,8 @@ function AsyncTexture(source, fileType, options, textureHandlers, ctx, compresse
         }
     } else {
         callbacks.onerror(this, "NoHandler");
+        this.dispatchEvent("error");
+        this.dispatchEvent("loadend");
     }
 }
 
@@ -30,10 +36,14 @@ AsyncTexture.prototype = {
             status = target.status;
         
         if (status === 200) {
-            this.impl = new this.handler(target.response, this.options, ctx, this.onerror.bind(undefined, this),  this.onload.bind(undefined, this), compressedTextures);
+            this.impl = new this.handler(target.response, this.options, ctx, this.onerror.bind(undefined, this), this.onload.bind(undefined, this), compressedTextures);
+            this.dispatchEvent("load");
         } else {
             this.onerror(this, "" + status);
+            this.dispatchEvent("error");
         }
+
+        this.dispatchEvent("loadend");
     },
     
     loaded: function () {
@@ -44,3 +54,5 @@ AsyncTexture.prototype = {
         return false;
     }
 };
+
+mixin(EventDispatcher.prototype, AsyncTexture.prototype);

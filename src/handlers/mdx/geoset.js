@@ -1,4 +1,4 @@
-Mdx.Geoset = function (geoset, index, ctx) {
+Mdx.Geoset = function (geoset, index, ctx, geosetAnimations) {
     var i, l, j, k;
     var positions = geoset.vertices;
     var normals = geoset.normals;
@@ -118,6 +118,13 @@ Mdx.Geoset = function (geoset, index, ctx) {
     this.elements = faces.length;
     this.min = [minX, minY, minZ];
     this.max = [maxX, maxY, maxZ];
+
+    for (i = 0, l = geosetAnimations.length; i < l; i++) {
+        if (geosetAnimations[i].geosetId === index) {
+            this.geosetAnimation = geosetAnimations[i];
+            break;
+        }
+    }
 };
 
 Mdx.Geoset.prototype = {

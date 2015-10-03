@@ -410,11 +410,13 @@ function GL(element, callbacks) {
 	 * @param {string} source The texture's url.
 	 */
 	function removeTexture(source) {
-		if (textureStore[source]) {
-			callbacks.onremove(textureStore[source]);
+	    callbacks.onremove(source);
+	    console.error("GL::removeTexture is not valid, must change the way textures are stored first to account for in-memory sources");
+		//if (textureStore[source]) {
+		//	callbacks.onremove(textureStore[source]);
 			
-			delete textureStore[source]; 
-		}
+		//	delete textureStore[source]; 
+		//}
 	}
 
 	function textureLoaded(source) {
@@ -457,6 +459,16 @@ function GL(element, callbacks) {
 			ctx.activeTexture(ctx.TEXTURE0 + unit);
 			ctx.bindTexture(ctx.TEXTURE_2D, null);
 		}
+	}
+
+	function newBindTexture(asyncTexture, unit) {
+	    if (asyncTexture && asyncTexture.impl && asyncTexture.impl.ready) {
+	        ctx.activeTexture(ctx.TEXTURE0 + unit);
+	        ctx.bindTexture(ctx.TEXTURE_2D, asyncTexture.impl.id);
+	    } else {
+	        ctx.activeTexture(ctx.TEXTURE0 + unit);
+	        ctx.bindTexture(ctx.TEXTURE_2D, null);
+	    }
 	}
 
 	/**
@@ -567,6 +579,7 @@ function GL(element, callbacks) {
 		textureLoaded: textureLoaded,
 		textureOptions: textureOptions,
 		bindTexture: bindTexture,
+		newBindTexture: newBindTexture,
 		createRect: createRect,
 		createSphere: createSphere,
 		createCube: createCube,

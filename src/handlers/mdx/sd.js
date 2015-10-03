@@ -161,14 +161,6 @@ Mdx.SD.prototype = {
 
         this.getInterval(frame, start, end, interval);
         
-        if (interval[0] === -1) {
-            interval[0] = 0;
-        }
-        
-        if (interval[1] === -1) {
-            interval[1] = 0;
-        }
-        
         //~ var tracks = this.tracks;
         //~ var length = tracks.length;
         //~ var a = interval[0];
@@ -190,14 +182,12 @@ Mdx.SD.prototype = {
         //~ }
         
         var tracks = this.tracks;
-        var a = tracks[interval[0]];
-        var b = tracks[interval[1]];
-        var t;
-        
+        var a = tracks[Math.max(interval[0], 0)];
+        var b = tracks[Math.max(interval[1], 0)];
+        var t = 0;
+
         if (b.frame - a.frame > 0) {
             t = Math.clamp((frame - a.frame) / (b.frame - a.frame), 0, 1);
-        } else {
-            t = 0;
         }
         
         return interpolator(this.tempVector, a.data, a.outTan, b.inTan, b.data, t, this.interpolationType);
