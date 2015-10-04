@@ -158,7 +158,7 @@ Mdx.EventObjectSpl.prototype = {
                 break;
         }
         
-        context.gl.bindTexture(emitter.texture, 0);
+        context.gl.bindTexture(emitter.texture, null, 0);
         
         ctx.uniform2fv(shader.variables.u_dimensions, emitter.dimensions);
 

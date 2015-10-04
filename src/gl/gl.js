@@ -17,6 +17,9 @@ function GL(element, callbacks) {
   
     for (var i = 0, l = identifiers.length; i < l; ++i) {
         try {
+            // preserveDrawingBuffer is needed normally to be able to use the WebGL canvas as an image source (e.g. RTT).
+            // It however makes rendering slower, since it doesn't let browsers implement optimizations.
+            // For proper support, use the viewer's render event - the internal WebGL buffer is still valid there.
             ctx = element.getContext(identifiers[i], {antialias: true, alpha: false/*, preserveDrawingBuffer: true*/});
         } catch(e) {
             
@@ -409,59 +412,17 @@ function GL(element, callbacks) {
 	 * @instance
 	 * @param {string} source The texture's url.
 	 */
-	function removeTexture(source) {
-	    callbacks.onremove(source);
-	    console.error("GL::removeTexture is not valid, must change the way textures are stored first to account for in-memory sources");
-		//if (textureStore[source]) {
-		//	callbacks.onremove(textureStore[source]);
-			
-		//	delete textureStore[source]; 
-		//}
+	function removeTexture(asyncTexture) {
+	    callbacks.onremove(asyncTexture);
+
+	    delete textureStore[asyncTexture.source];
 	}
 
-	function textureLoaded(source) {
-		var texture = textureStore[source];
-		
-		return (texture && texture.loaded());
+	function textureLoaded(asyncTexture) {
+	    return (asyncTexture && asyncTexture.loaded());
 	}
 
-	/**
-	 * Binds a texture to the specified texture unit.
-	 *
-	 * @memberof GL
-	 * @instance
-	 * @param {(string|null)} object A texture source.
-	 * @param {number} [unit] The texture unit.
-	 */
-	function bindTexture(source, unit) {
-	    //console.log(source);
-		var texture;
-
-		unit = unit || 0;
-
-		if (typeof source === "string") {
-		    texture = textureStore[source];
-		} else if (typeof source === "number") {
-		    texture = textureStoreById[source];
-		}
-
-		if (texture && texture.impl && texture.impl.ready) {
-			// Only bind if actually necessary
-			if (!boundTextures[unit] || boundTextures[unit].id !== texture.id) {
-				boundTextures[unit] = texture.impl;
-
-				ctx.activeTexture(ctx.TEXTURE0 + unit);
-				ctx.bindTexture(ctx.TEXTURE_2D, texture.impl.id);
-			}
-		} else {
-			boundTextures[unit] = null;
-
-			ctx.activeTexture(ctx.TEXTURE0 + unit);
-			ctx.bindTexture(ctx.TEXTURE_2D, null);
-		}
-	}
-
-	function newBindTexture(asyncTexture, unit) {
+	function bindTexture(asyncTexture, unit) {
 	    if (asyncTexture && asyncTexture.impl && asyncTexture.impl.ready) {
 	        ctx.activeTexture(ctx.TEXTURE0 + unit);
 	        ctx.bindTexture(ctx.TEXTURE_2D, asyncTexture.impl.id);
@@ -579,7 +540,6 @@ function GL(element, callbacks) {
 		textureLoaded: textureLoaded,
 		textureOptions: textureOptions,
 		bindTexture: bindTexture,
-		newBindTexture: newBindTexture,
 		createRect: createRect,
 		createSphere: createSphere,
 		createCube: createCube,

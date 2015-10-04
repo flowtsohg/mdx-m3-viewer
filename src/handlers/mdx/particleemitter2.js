@@ -341,7 +341,7 @@ Mdx.ParticleEmitter2.prototype = {
                     break;
             }
 
-            this.model.bindTexture(this.texture, context);
+            this.model.bindTexture(this.texture, null, context);
 
             ctx.uniform2fv(shader.variables.u_dimensions, this.dimensions);
 

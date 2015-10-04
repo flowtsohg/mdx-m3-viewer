@@ -2,8 +2,7 @@ Mdx.Skeleton = function (model, ctx) {
     var nodes = model.nodes,
         bones = model.bones;
 
-    // This list is used to access all the nodes in a loop while keeping the hierarchy in mind.
-    this.hierarchy = this.setupHierarchy([], nodes, -1);
+    this.hierarchy = model.hierarchy;
 
     BaseSkeleton.call(this, bones.length + 1, ctx);
 
@@ -30,22 +29,6 @@ Mdx.Skeleton = function (model, ctx) {
 };
 
 Mdx.Skeleton.prototype = extend(BaseSkeleton.prototype, {
-    setupHierarchy: function (hierarchy, nodes, parent) {
-        var node;
-
-        for (var i = 0, l = nodes.length; i < l; i++) {
-            node = nodes[i];
-
-            if (node.parentId === parent) {
-                hierarchy.push(i);
-
-                this.setupHierarchy(hierarchy, nodes, node.objectId);
-            }
-        }
-
-        return hierarchy;
-    },
-
     update: function (sequence, frame, counter, instance, context) {
         var nodes = this.sortedNodes;
         var hierarchy = this.hierarchy;

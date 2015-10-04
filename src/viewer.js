@@ -8,9 +8,6 @@
 window["ModelViewer"] = function (canvas) {
     var viewerObject = new EventDispatcher();
 
-    // Only needs to be created once
-    var renderEvent = { type: "render", target: viewerObject };
-
     var objectsNotReady = 0;
 
     function onabort(object) {
@@ -64,15 +61,13 @@ window["ModelViewer"] = function (canvas) {
         onprogress: onprogress,
         onremove: onremove
     };
-  
-    var listeners = {}
     
     var gl = GL(canvas, callbacks);
     var ctx = gl.ctx;
     
     var modelArray = []; // All models
     var instanceArray = []; // All instances
-    var modelInstanceMap = {}; // Referebce by ID. This is a map to support deletions.
+    var modelInstanceMap = {}; // Reference by ID.
     var modelMap = {}; // Reference by source
     
     var supportedModelFileTypes = {};
@@ -225,7 +220,7 @@ window["ModelViewer"] = function (canvas) {
                     ctx.uniform2fv(shader.variables.u_uv_offset, [0, 0]);
                     ctx.uniform1f(shader.variables.u_a, 1);
 
-                    gl.newBindTexture(groundTexture, 0);
+                    gl.bindTexture(groundTexture, 0);
                     context.ground.render(shader);
                 }
             } else {
@@ -239,7 +234,7 @@ window["ModelViewer"] = function (canvas) {
                     ctx.enable(ctx.BLEND);
                     ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
 
-                    gl.newBindTexture(waterTexture, 0);
+                    gl.bindTexture(waterTexture, 0);
                     context.ground.render(shader);
 
                     ctx.disable(ctx.BLEND);
@@ -256,7 +251,7 @@ window["ModelViewer"] = function (canvas) {
             ctx.uniform1f(shader.variables.u_a, 1);
             ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getProjectionMatrix());
 
-            gl.newBindTexture(skyTexture, 0);
+            gl.bindTexture(skyTexture, 0);
             context.sky.render(shader);
         }
     }
@@ -303,7 +298,7 @@ window["ModelViewer"] = function (canvas) {
             renderGround(context.groundMode);
         }
         
-        viewerObject.dispatchEvent(renderEvent);
+        viewerObject.dispatchEvent("render");
     }
   
     function renderColor() {
@@ -319,7 +314,7 @@ window["ModelViewer"] = function (canvas) {
     }
     
     var textureRect = gl.createRect(0, 0, 0, 1, 1, 2);
-    function renderTexture(path, location, scale, isScreen) {
+    function renderTexture(texture, location, scale, isScreen) {
         var shader = gl.bindShader("texture");
         
         if (isScreen) {
@@ -340,7 +335,7 @@ window["ModelViewer"] = function (canvas) {
         ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
         gl.popMatrix();
         
-        gl.bindTexture(path, 0);
+        gl.bindTexture(texture, 0);
         
         ctx.depthMask(0);
         ctx.enable(ctx.BLEND);
@@ -471,6 +466,11 @@ window["ModelViewer"] = function (canvas) {
             fileType = src.fileType;
             isFromMemory = src.isFromMemory;
             src = src.source;
+        }
+
+        // If using a JS object as a texture source, it is always an in-memory load with the type being png, and the path solver isn't required
+        if (src instanceof HTMLImageElement || src instanceof HTMLVideoElement || src instanceof HTMLCanvasElement || src instanceof ImageData) {
+            return loadResource(src, null, ".png", true);
         }
 
         if (typeof type === "string") {

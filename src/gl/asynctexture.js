@@ -9,6 +9,8 @@ function AsyncTexture(source, fileType, options, textureHandlers, ctx, compresse
     this.onprogress = callbacks.onprogress;
     this.onload = callbacks.onload;
     this.id = generateID();
+
+    this.ctx = ctx;
     
     callbacks.onloadstart(this);
 
@@ -52,6 +54,16 @@ AsyncTexture.prototype = {
         }
         
         return false;
+    },
+
+    update: function (src) {
+        if (this.impl && this.impl.ready) {
+            var ctx = this.ctx;
+
+            ctx.bindTexture(ctx.TEXTURE_2D, this.impl.id);
+            //ctx.texSubImage2D(ctx.TEXTURE_2D, 0, 0, 0, ctx.RGBA, ctx.UNSIGNED_BYTE, src);
+            ctx.texImage2D(ctx.TEXTURE_2D, 0, ctx.RGBA, ctx.RGBA, ctx.UNSIGNED_BYTE, src);
+        }
     }
 };
 

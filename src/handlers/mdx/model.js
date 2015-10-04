@@ -26,7 +26,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         this.boundingShapes = [];
         this.attachments = [];
 
-        this.newTextures = [];
+        this.texturePaths = [];
 
         if (chunks.TEXS) {
             objects = chunks.TEXS.elements;
@@ -62,6 +62,9 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         if (this.nodes.length === 0) {
             this.nodes[0] = new Mdx.Node({ objectId: 0, parentId: 0xFFFFFFFF }, this, pivots);
         }
+
+        // This list is used to access all the nodes in a loop while keeping the hierarchy in mind.
+        this.hierarchy = this.setupHierarchy([], this.nodes, -1);
 
         if (chunks.BONE) {
             this.bones = chunks.BONE.elements;
@@ -161,6 +164,22 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         this.setupTeamColors(gl, customPaths);
     },
 
+    setupHierarchy: function (hierarchy, nodes, parent) {
+        var node;
+
+        for (var i = 0, l = nodes.length; i < l; i++) {
+            node = nodes[i];
+
+            if (node.parentId === parent) {
+                hierarchy.push(i);
+
+                this.setupHierarchy(hierarchy, nodes, node.objectId);
+            }
+        }
+
+        return hierarchy;
+    },
+
     transformElements: function (chunk, Func, gl) {
         var output = [];
 
@@ -230,6 +249,8 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         var fileType = fileTypeFromPath(path);
 
         this.textures.push(gl.loadTexture(realPath, fileType));
+
+        this.texturePaths.push(path);
     },
 
     calculateExtent: function () {
@@ -346,7 +367,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
                         layer.bind(shader, ctx);
 
                         textureId = layer.getTextureId(sequence, frame, counter);
-                        this.bindTexture(this.textures[textureId], context);
+                        this.bindTexture(this.textures[textureId], instance.textureMap[this.texturePaths[textureId]], context);
 
                         if (geoset.geosetAnimation) {
                             var tempVec3 = geoset.geosetAnimation.getColor(sequence, frame, counter);
@@ -519,11 +540,13 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         return true;
     },
 
-    bindTexture: function (asyncTexture, context) {
+    bindTexture: function (modelTexture, instanceTexture, context) {
+        var texture = instanceTexture || modelTexture;
+
         if (!context.teamColorsMode && asyncTexture.source.endsWith("00.blp")) {
-            asyncTexture = null;
+            texture = null;
         }
 
-        context.gl.newBindTexture(asyncTexture, 0);
+        context.gl.bindTexture(texture, 0);
     }
 });

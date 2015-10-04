@@ -44,7 +44,7 @@ Mdx.EventObjectEmitter = function (eventObject, model, instance, context, custom
             
             this.dimensions = [this.columns, this.rows];
             
-            context.gl.loadTexture(this.texture, ".blp");
+            this.texture = context.gl.loadTexture(this.texture, ".blp");
         }
     } else if (type === "UBR") {
         var slkLine = eventObjectPaths[type][path];
@@ -63,7 +63,7 @@ Mdx.EventObjectEmitter = function (eventObject, model, instance, context, custom
             this.dimensions = [1, 1];
             this.columns = 1;
             
-            context.gl.loadTexture(this.texture, ".blp");
+            this.texture = context.gl.loadTexture(this.texture, ".blp");
         }
     }
     

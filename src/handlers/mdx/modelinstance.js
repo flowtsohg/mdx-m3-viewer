@@ -11,7 +11,9 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
         var i, l, objects;
 
         // Need to reference context.urls in setTeamColor
+        this.gl = gl;
         this.context = context;
+        this.customPaths = customPaths;
 
         this.counter = 0;
         this.skeleton = new Mdx.Skeleton(model, ctx);
@@ -111,25 +113,25 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
 
         this.skeleton.update(this.sequence, this.frame, this.counter, instance, context);
 
-        //this.updateEmitters(this.particleEmitters, allowCreate, context);
-        //this.updateEmitters(this.particleEmitters2, allowCreate, context);
-        //this.updateEmitters(this.ribbonEmitters, allowCreate, context);
-        //this.updateEmitters(this.eventObjectEmitters, allowCreate, context);
+        this.updateEmitters(this.particleEmitters, allowCreate, context);
+        this.updateEmitters(this.particleEmitters2, allowCreate, context);
+        this.updateEmitters(this.ribbonEmitters, allowCreate, context);
+        this.updateEmitters(this.eventObjectEmitters, allowCreate, context);
         
-        //var attachmentInstances = this.attachmentInstances;
-        //var attachments = this.attachments;
-        //var attachmentVisible = this.attachmentVisible;
-        //var attachment;
+        var attachmentInstances = this.attachmentInstances;
+        var attachments = this.attachments;
+        var attachmentVisible = this.attachmentVisible;
+        var attachment;
         
-        //for (var i = 0, l = attachments.length; i < l; i++) {
-        //    attachment = attachments[i];
+        for (var i = 0, l = attachments.length; i < l; i++) {
+            attachment = attachments[i];
 
-        //    attachmentVisible[i] = attachment.getVisibility(this.sequence, this.frame, this.counter) > 0.1;
+            attachmentVisible[i] = attachment.getVisibility(this.sequence, this.frame, this.counter) > 0.1;
             
-        //    if (attachmentVisible[i]) {
-        //        this.attachmentInstances[i].update(context);
-        //    }
-        //}
+            if (attachmentVisible[i]) {
+                this.attachmentInstances[i].update(context);
+            }
+        }
     },
     
     render: function(context, tint) {
@@ -177,8 +179,8 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
     setTeamColor: function (id) {
         var idString = ((id < 10) ? "0" + id : id);
 
-        this.overrideTexture("replaceabletextures/teamcolor/teamcolor00.blp", this.context.urls.mpqFile("replaceabletextures/teamcolor/teamcolor" + idString + ".blp"));
-        this.overrideTexture("replaceabletextures/teamglow/teamglow00.blp", this.context.urls.mpqFile("replaceabletextures/teamglow/teamglow" + idString + ".blp"));
+        this.overrideTexture("replaceabletextures/TeamColor/TeamColor00.blp", this.gl.loadTexture(this.customPaths("replaceabletextures/teamcolor/teamcolor" + idString + ".blp")));
+        this.overrideTexture("replaceabletextures/TeamGlow/TeamGlow00.blp", this.gl.loadTexture(this.customPaths("replaceabletextures/teamglow/teamglow" + idString + ".blp")));
         this.teamColor = id;
     },
 

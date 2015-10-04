@@ -127,7 +127,7 @@ Mdx.RibbonEmitter.prototype = {
 
                 textureId = layer.getTextureId(sequence, frame, counter);
 
-                this.model.bindTexture(this.textures[textureId], 0, textureMap, context);
+                this.model.bindTexture(this.textures[textureId], textureMap[this.model.texturePaths[textureId]], context);
 
                 color = this.getColor(sequence, frame, counter);
                 uvoffset = this.defaultUvoffsetVec;
