@@ -15,7 +15,7 @@ Mdx.Particle2.prototype = {
     reset: function (emitter, head, id, sequence, frame, counter) {
         var pivot = emitter.node.pivot;
         var worldMatrix = emitter.node.worldMatrix;
-        var scale = emitter.node.scale;
+        var scale = emitter.node.worldScale;
         var width = emitter.getWidth(sequence, frame, counter) * 0.5 * scale[0];
         var length = emitter.getLength(sequence, frame, counter) * 0.5 * scale[1];
         var speed = emitter.getSpeed(sequence, frame, counter) + Math.randomRange(-emitter.variation, emitter.variation);

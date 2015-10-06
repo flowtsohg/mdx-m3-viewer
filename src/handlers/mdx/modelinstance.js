@@ -1,11 +1,11 @@
-Mdx.ModelInstance = function (model, customPaths, context) {
+Mdx.ModelInstance = function (asyncInstance, model, customPaths, context) {
     BaseModelInstance.call(this, model, {});
 
-    this.setup(model, customPaths, context);
+    this.setup(asyncInstance, model, customPaths, context);
 }
 
 Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
-    setup: function (model, customPaths, context) {
+    setup: function (asyncInstance, model, customPaths, context) {
         var gl = context.gl;
         var ctx = gl.ctx;
         var i, l, objects;
@@ -16,7 +16,7 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
         this.customPaths = customPaths;
 
         this.counter = 0;
-        this.skeleton = new Mdx.Skeleton(model, ctx);
+        this.skeleton = new Mdx.Skeleton(asyncInstance, model, ctx);
 
         if (model.particleEmitters && model.particleEmitters.length > 0) {
             objects = model.particleEmitters;

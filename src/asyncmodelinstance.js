@@ -33,7 +33,7 @@ function AsyncModelInstance(model, isInternal) {
     this.onload = callbacks.onload;
 
     Async.call(this);
-    Spatial.call(this);
+    Node.call(this, true);
     EventDispatcher.call(this);
 
     // Don't report internal instances
@@ -62,7 +62,7 @@ AsyncModelInstance.prototype = {
     * @param {object} textureMap An object with texture path -> absolute urls mapping.
     */
     setup: function (model) {
-        this.instance = new AsyncModelInstance.handlers[this.fileType](model, this.customPaths, this.context);
+        this.instance = new AsyncModelInstance.handlers[this.fileType](this, model, this.customPaths, this.context);
 
         this.ready = true;
 
@@ -464,5 +464,5 @@ AsyncModelInstance.prototype = {
 };
 
 mixin(Async.prototype, AsyncModelInstance.prototype);
-mixin(Spatial.prototype, AsyncModelInstance.prototype);
+mixin(Node.prototype, AsyncModelInstance.prototype);
 mixin(EventDispatcher.prototype, AsyncModelInstance.prototype);

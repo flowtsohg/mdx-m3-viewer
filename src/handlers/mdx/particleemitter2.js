@@ -184,7 +184,7 @@ Mdx.ParticleEmitter2.prototype = {
         var scale, textureIndex, left, top, right, bottom, r, g, b, a, px, py, pz;
         var v1x, v1y, v1z, v2x, v2y, v2z, v3x, v3y, v3z, v4x, v4y, v4z;
         var lta, lba, rta, rba, rgb;
-        var nodeScale = this.node.scale;
+        var nodeScale = this.node.worldScale;
 
         for (var i = 0, l = activeParticles.length; i < l; i++) {
             particle = particles[activeParticles[i]];

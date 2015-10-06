@@ -1,5 +1,5 @@
 M3.ShallowBone = function (bone) {
-    BaseNode.call(this);
+    Node.call(this);
 
     this.boneImpl = bone;
     this.parent = bone.parent;
@@ -7,7 +7,7 @@ M3.ShallowBone = function (bone) {
     this.externalWorldMatrix = mat4.create();
 };
 
-M3.ShallowBone.prototype = extend(BaseNode.prototype, {
+M3.ShallowBone.prototype = extend(Node.prototype, {
     getTransformation: function () {
         var m = this.externalWorldMatrix;
 

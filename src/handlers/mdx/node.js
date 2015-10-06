@@ -38,7 +38,7 @@ Mdx.Node.prototype = {
 // Used by each copy of a skeleton to hold the node hierarchy
 // Keeps a reference to the actual node containing the animation data, that the model owns
 Mdx.ShallowNode = function (node) {
-    BaseNode.call(this);
+    Node.call(this);
 
     this.nodeImpl = node;
     this.objectId = node.objectId;
@@ -49,7 +49,7 @@ Mdx.ShallowNode = function (node) {
     this.externalWorldMatrix = mat4.create();
 }
 
-Mdx.ShallowNode.prototype = extend(BaseNode.prototype, {
+Mdx.ShallowNode.prototype = extend(Node.prototype, {
     getTransformation: function () {
         var m = this.externalWorldMatrix;
 

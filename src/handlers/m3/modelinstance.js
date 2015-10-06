@@ -1,4 +1,4 @@
-M3.ModelInstance = function (model, customPaths, context) {
+M3.ModelInstance = function (asyncInstance, model, customPaths, context) {
     BaseModelInstance.call(this, model, {});
 
     this.setup(model, context);

@@ -1,12 +1,12 @@
 window["BaseSkeleton"] = function (numberOfBones, ctx) {
-    /// <field name="rootNode" type="BaseNode"></param>
+    /// <field name="rootNode" type="Node"></param>
     /// <field name="nodes" type="array"></param>
     /// <field name="hwbones" type="Float32Array"></param>
     /// <field name="boneTexture" type="WebGLTexture"></param>
     /// <field name="boneTextureSize" type="number"></param>
     /// <field name="texelFraction" type="number"></param>
     /// <field name="matrixFraction" type="number"></param>
-    this.rootNode = new BaseNode();
+    this.rootNode = new Node();
     this.nodes = [];
     this.hwbones = new Float32Array(16 * numberOfBones);
     this.boneTexture = ctx.createTexture();

@@ -14,7 +14,7 @@ Mdx.EventObjectSpl = function (emitter, context) {
     this.time = 0;
     this.endTime = emitter.firstIntervalTime + emitter.secondIntervalTime;
     this.location = vec3.clone(emitter.node.worldLocation);
-    this.scale = vec3.clone(emitter.node.scale);
+    this.scale = vec3.clone(emitter.node.worldScale);
     this.color = vec4.create();
     this.index = 0;
 };

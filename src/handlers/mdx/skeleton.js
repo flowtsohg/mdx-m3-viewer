@@ -1,4 +1,4 @@
-Mdx.Skeleton = function (model, ctx) {
+Mdx.Skeleton = function (asyncInstance, model, ctx) {
     var nodes = model.nodes,
         bones = model.bones;
 
@@ -9,6 +9,11 @@ Mdx.Skeleton = function (model, ctx) {
     // Shallow nodes referencing the actual nodes in the model
     for (var i = 0, l = nodes.length; i < l; i++) {
         this.nodes[i] = new Mdx.ShallowNode(nodes[i]);
+    }
+
+    // Set the node parent references
+    for (var i = 0, l = nodes.length; i < l; i++) {
+        this.nodes[i].setParent(this.getNode(this.nodes[i].parentId));
     }
 
     // The sorted version of the nodes, for straight iteration in update()
@@ -26,6 +31,8 @@ Mdx.Skeleton = function (model, ctx) {
     // To avoid heap allocations
     this.rotationQuat = quat.create();
     this.rotationQuat2 = quat.create();
+
+    this.rootNode.setParent(asyncInstance);
 };
 
 Mdx.Skeleton.prototype = extend(BaseSkeleton.prototype, {
@@ -33,7 +40,7 @@ Mdx.Skeleton.prototype = extend(BaseSkeleton.prototype, {
         var nodes = this.sortedNodes;
         var hierarchy = this.hierarchy;
 
-        this.rootNode.setFromParent(instance);
+        this.rootNode.recalculateTransformation();
 
         for (var i = 0, l = hierarchy.length; i < l; i++) {
             this.updateNode(nodes[i], sequence, frame, counter, context);
@@ -59,7 +66,7 @@ Mdx.Skeleton.prototype = extend(BaseSkeleton.prototype, {
             quat.copy(finalRotation, rotation);
         }
         
-        node.update(parent, finalRotation, translation, scale);
+        node.setLocal(translation, finalRotation, scale);
     },
 
     updateHW: function (ctx) {
