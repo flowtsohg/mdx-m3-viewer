@@ -56,7 +56,6 @@ window["TGATexture"] = function TGATexture(arrayBuffer, options, ctx, onerror, o
     ctx.generateMipmap(ctx.TEXTURE_2D);
 
     this.id = id;
-    this.ready = true;
     
     onload();
 };

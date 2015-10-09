@@ -398,7 +398,7 @@ function GL(element, callbacks) {
 	 */
 	function loadTexture(source, fileType, isFromMemory, options) {
 	    if (!textureStore[source]) {
-	        textureStore[source] = new AsyncTexture(source, fileType, options, textureHandlers, ctx, compressedTextures, callbacks, isFromMemory);
+	        textureStore[source] = new AsyncTexture(source, fileType, options, textureHandlers[fileType], ctx, compressedTextures, isFromMemory);
 	        textureStoreById[textureStore[source].id] = textureStore[source];
 	    }
 
@@ -413,19 +413,15 @@ function GL(element, callbacks) {
 	 * @param {string} source The texture's url.
 	 */
 	function removeTexture(asyncTexture) {
-	    callbacks.onremove(asyncTexture);
+	    asyncTexture.dispatchEvent("remove");
 
 	    delete textureStore[asyncTexture.source];
 	}
 
-	function textureLoaded(asyncTexture) {
-	    return (asyncTexture && asyncTexture.loaded());
-	}
-
 	function bindTexture(asyncTexture, unit) {
-	    if (asyncTexture && asyncTexture.impl && asyncTexture.impl.ready) {
+	    if (asyncTexture && asyncTexture.ready) {
 	        ctx.activeTexture(ctx.TEXTURE0 + unit);
-	        ctx.bindTexture(ctx.TEXTURE_2D, asyncTexture.impl.id);
+	        ctx.bindTexture(ctx.TEXTURE_2D, asyncTexture.texture.id);
 	    } else {
 	        ctx.activeTexture(ctx.TEXTURE0 + unit);
 	        ctx.bindTexture(ctx.TEXTURE_2D, null);
@@ -537,7 +533,6 @@ function GL(element, callbacks) {
 		setViewMatrix: setViewMatrix,
 		loadTexture: loadTexture,
 		removeTexture: removeTexture,
-		textureLoaded: textureLoaded,
 		textureOptions: textureOptions,
 		bindTexture: bindTexture,
 		createRect: createRect,

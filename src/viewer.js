@@ -17,34 +17,53 @@ window["ModelViewer"] = function (canvas) {
     function onloadstart(object) {
         objectsNotReady += 1;
         
-        viewerObject.dispatchEvent({ type: "loadstart", target: object });
+        if (object.type) {
+            viewerObject.dispatchEvent(object);
+        } else {
+            viewerObject.dispatchEvent({ type: "loadstart", target: object });
+        }
+        
     }
     
     function onloadend(object) {
         objectsNotReady -= 1;
         
-        viewerObject.dispatchEvent({ type: "loadend", target: object });
+        if (object.type) {
+            viewerObject.dispatchEvent(object);
+        } else {
+            viewerObject.dispatchEvent({ type: "loadend", target: object });
+        }  
     }
     
     function onload(object) {
-        viewerObject.dispatchEvent({ type: "load", target: object });
-        
-        onloadend(object);
+        if (object.type) {
+            viewerObject.dispatchEvent(object);
+        } else {
+            viewerObject.dispatchEvent({ type: "load", target: object });
+            onloadend(object);
+        }
     }
 
     function onerror(object, error) {
-        if (typeof error !== "string") {
-            error = "" + error.target.status;
-        }
+        if (object.type) {
+            viewerObject.dispatchEvent(object);
+        } else {
+            if (typeof error !== "string") {
+                error = "" + error.target.status;
+            }
 
-        viewerObject.dispatchEvent({ type: "error", error: error, target: object });
-        
-        onloadend(object);
+            viewerObject.dispatchEvent({ type: "error", error: error, target: object });
+            onloadend(object);
+        }
     }
     
     function onprogress(object, e) {
-        if (e.target.status === 200) {
-            viewerObject.dispatchEvent({ type: "progress", target: object, loaded: e.loaded, total: e.total, lengthComputable: e.lengthComputable });
+        if (object.type) {
+            viewerObject.dispatchEvent(object);
+        } else {
+            if (e.target.status === 200) {
+                viewerObject.dispatchEvent({ type: "progress", target: object, loaded: e.loaded, total: e.total, lengthComputable: e.lengthComputable });
+            }
         }
     }
   
@@ -96,6 +115,7 @@ window["ModelViewer"] = function (canvas) {
         shaders: [ "standard", "diffuse", "normals", "uvs", "normalmap", "specular", "specular_normalmap", "emissive", "unshaded", "unshaded_normalmap", "decal", "white"],
         lightPosition: [0, 0, 10000],
         loadInternalResource: loadInternalResource,
+        loadTexture: loadTexture,
         uvOffset: [0, 0],
         uvSpeed: [Math.randomRange(-0.004, 0.004), Math.randomRange(-0.004, 0.004)],
         ground: gl.createRect(0, 0, -1, 256, 256, 6),
@@ -191,9 +211,8 @@ window["ModelViewer"] = function (canvas) {
     function updateCamera() {
         var camera = context.camera;
         
-        camera.update();
-        gl.setProjectionMatrix(camera.projection);
-        gl.setViewMatrix(camera.view);
+        gl.setProjectionMatrix(camera.projectionMatrix);
+        gl.setViewMatrix(camera.viewMatrix);
     }
 
     function update() {
@@ -347,13 +366,21 @@ window["ModelViewer"] = function (canvas) {
         ctx.disable(ctx.BLEND);
     }
     
-    function loadModel(source, fileType, customPaths, isFromMemory) {
+    function loadModel(source, fileType, pathSolver, isFromMemory) {
         if (!modelMap[source]) {
-            var model = new AsyncModel(source, fileType, customPaths, isFromMemory, context);
+            var model = new AsyncModel(source, fileType, pathSolver, isFromMemory, context);
 
             modelMap[source] = model;
             modelArray.push(model);
             modelInstanceMap[model.id] = model;
+
+            model.addEventListener("loadstart", onloadstart);
+            model.addEventListener("load", onload);
+            model.addEventListener("loadend", onloadend);
+            model.addEventListener("error", onerror);
+            model.addEventListener("progress", onprogress);
+
+            model.loadstart();
         }
 
         return modelMap[source];
@@ -365,27 +392,47 @@ window["ModelViewer"] = function (canvas) {
         modelInstanceMap[instance.id] = instance;
         instanceArray.push(instance);
 
-        if (instance.delayOnload) {
-            onload(instance);
-        }
+        instance.addEventListener("loadstart", onloadstart);
+        instance.addEventListener("load", onload);
+        instance.addEventListener("loadend", onloadend);
+
+        instance.loadstart();
 
         return instance;
     }
+
+    function loadTexture(src, fileType, isFromMemory, options) {
+        var texture = gl.loadTexture(src, fileType, isFromMemory, options);
+
+        texture.addEventListener("loadstart", onloadstart);
+        texture.addEventListener("load", onload);
+        texture.addEventListener("loadend", onloadend);
+        texture.addEventListener("error", onerror);
+        texture.addEventListener("progress", onprogress);
+
+        texture.loadstart();
+
+        return texture;
+    }
   
     // Load a model or texture from an absolute url, with an optional texture map, and an optional hidden parameter
-    function loadResource(source, customPaths, fileType, isFromMemory, isInternal) {
-        if (supportedModelFileTypes[fileType]) {
-            loadModel(source, fileType, customPaths, isFromMemory);
+    function loadResource(source, pathSolver, fileType, isFromMemory, isInternal) {
+        if (supportedFileTypes[fileType]) {
+            if (supportedModelFileTypes[fileType]) {
+                loadModel(source, fileType, pathSolver, isFromMemory);
 
-            return loadInstance(source, isInternal);
+                return loadInstance(source, isInternal);
+            } else {
+                return loadTexture(source, fileType, isFromMemory, {});
+            }
         } else {
-            return gl.loadTexture(source, fileType, isFromMemory, {});
+            viewerObject.dispatchEvent({type: "error", error: "MissingHandler" + fileType})
         }
     }
 
     // Used by Mdx.ParticleEmitter since they don't need to be automatically updated and rendered
-    function loadInternalResource(source, customPaths) {
-        return loadResource(source, customPaths, ".mdx", false, true);
+    function loadInternalResource(source, pathSolver) {
+        return loadResource(source, pathSolver, ".mdx", false, true);
     }
   
     function removeInstance(instance, removeingModel) {
@@ -462,7 +509,7 @@ window["ModelViewer"] = function (canvas) {
         var isFromMemory;
 
         if (src.type === "model" || src.type === "instance") {
-            pathSolver = src.customPaths;
+            pathSolver = src.pathSolver;
             fileType = src.fileType;
             isFromMemory = src.isFromMemory;
             src = src.source;

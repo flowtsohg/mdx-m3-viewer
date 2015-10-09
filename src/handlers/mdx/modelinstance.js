@@ -1,11 +1,17 @@
-Mdx.ModelInstance = function (asyncInstance, model, customPaths, context) {
-    BaseModelInstance.call(this, model, {});
+Mdx.ModelInstance = function (asyncInstance) {
+    this.asyncInstance = asyncInstance;
 
-    this.setup(asyncInstance, model, customPaths, context);
+    BaseModelInstance.call(this, asyncInstance.asyncModel.model, {});
+
+    this.setup(asyncInstance);
 }
 
 Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
-    setup: function (asyncInstance, model, customPaths, context) {
+    setup: function (asyncInstance) {
+        var model = asyncInstance.asyncModel.model;
+        var pathSolver = asyncInstance.pathSolver;
+        var context = asyncInstance.context;
+
         var gl = context.gl;
         var ctx = gl.ctx;
         var i, l, objects;
@@ -13,7 +19,7 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
         // Need to reference context.urls in setTeamColor
         this.gl = gl;
         this.context = context;
-        this.customPaths = customPaths;
+        this.pathSolver = pathSolver;
 
         this.counter = 0;
         this.skeleton = new Mdx.Skeleton(asyncInstance, model, ctx);
@@ -24,7 +30,7 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
             this.particleEmitters = [];
 
             for (i = 0, l = objects.length; i < l; i++) {
-                this.particleEmitters[i] = new Mdx.ParticleEmitter(objects[i], model, this, context, customPaths);
+                this.particleEmitters[i] = new Mdx.ParticleEmitter(objects[i], model, this, context, pathSolver);
             }
         }
 
@@ -57,7 +63,7 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
             
             // Second condition is against custom resources using arbitrary paths...
             if (path !== "" && path.indexOf(".mdx") != -1) {
-                var instance = context.loadInternalResource(customPaths(path));
+                var instance = context.loadInternalResource(pathSolver(path));
                 instance.setSequence(0);
                 instance.setSequenceLoopMode(2);
                 instance.setParent(this.getAttachment(model.attachments[i].attachmentId));
@@ -75,20 +81,22 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
             this.eventObjectEmitters = [];
             
             for (i = 0, l = objects.length; i < l; i++) {
-                this.eventObjectEmitters[i] = new Mdx.EventObjectEmitter(objects[i], model, this, context, customPaths);
+                this.eventObjectEmitters[i] = new Mdx.EventObjectEmitter(objects[i], model, this, context, pathSolver);
             }
         }
     },
 
-    updateEmitters: function (emitters, allowCreate, context) {
+    updateEmitters: function (emitters, allowCreate) {
         if (emitters) {
             for (var i = 0, l = emitters.length; i < l; i++) {
-                emitters[i].update(allowCreate, this.sequence, this.frame, this.counter, context);
+                emitters[i].update(allowCreate, this.sequence, this.frame, this.counter, this.context);
             }
         }
     },
 
-    update: function (instance, context) {
+    update: function () {
+        var context = this.context;
+
         var allowCreate = false;
 
         if (this.sequence !== -1) {
@@ -111,12 +119,12 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
             }
         }
 
-        this.skeleton.update(this.sequence, this.frame, this.counter, instance, context);
+        this.skeleton.update(this.sequence, this.frame, this.counter, context);
 
-        this.updateEmitters(this.particleEmitters, allowCreate, context);
-        this.updateEmitters(this.particleEmitters2, allowCreate, context);
-        this.updateEmitters(this.ribbonEmitters, allowCreate, context);
-        this.updateEmitters(this.eventObjectEmitters, allowCreate, context);
+        this.updateEmitters(this.particleEmitters, allowCreate);
+        this.updateEmitters(this.particleEmitters2, allowCreate);
+        this.updateEmitters(this.ribbonEmitters, allowCreate);
+        this.updateEmitters(this.eventObjectEmitters, allowCreate);
         
         var attachmentInstances = this.attachmentInstances;
         var attachments = this.attachments;
@@ -129,49 +137,49 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
             attachmentVisible[i] = attachment.getVisibility(this.sequence, this.frame, this.counter) > 0.1;
             
             if (attachmentVisible[i]) {
-                this.attachmentInstances[i].update(context);
+                this.attachmentInstances[i].update();
             }
         }
     },
     
-    render: function(context, tint) {
+    render: function () {
         if (this.eventObjectEmitters) {
             var emitters = this.eventObjectEmitters;
             
             for (i = 0, l = emitters.length; i < l; i++) {
-                emitters[i].render(context);
+                emitters[i].render();
             }
         }
         
-        this.model.render(this, context, tint);
+        this.model.render(this);
         
         var attachmentInstances = this.attachmentInstances;
         var attachmentVisible = this.attachmentVisible;
         
         for (var i = 0, l = attachmentInstances.length; i < l; i++) {
             if (attachmentVisible[i]) {
-                attachmentInstances[i].render(context);
+                attachmentInstances[i].render();
             }
         }
     },
     
-    renderEmitters: function(context) {
+    renderEmitters: function () {
         if (this.eventObjectEmitters) {
             var emitters = this.eventObjectEmitters;
             
             for (i = 0, l = emitters.length; i < l; i++) {
-                emitters[i].renderEmitters(context);
+                emitters[i].renderEmitters();
             }
         }
         
-        this.model.renderEmitters(this, context);
+        this.model.renderEmitters(this);
         
         var attachmentInstances = this.attachmentInstances;
         var attachmentVisible = this.attachmentVisible;
         
         for (var i = 0, l = attachmentInstances.length; i < l; i++) {
             if (attachmentVisible[i]) {
-                attachmentInstances[i].renderEmitters(context);
+                attachmentInstances[i].renderEmitters();
             }
         }
     },
@@ -179,8 +187,8 @@ Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
     setTeamColor: function (id) {
         var idString = ((id < 10) ? "0" + id : id);
 
-        this.overrideTexture("replaceabletextures/TeamColor/TeamColor00.blp", this.gl.loadTexture(this.customPaths("replaceabletextures/teamcolor/teamcolor" + idString + ".blp")));
-        this.overrideTexture("replaceabletextures/TeamGlow/TeamGlow00.blp", this.gl.loadTexture(this.customPaths("replaceabletextures/teamglow/teamglow" + idString + ".blp")));
+        this.overrideTexture("replaceabletextures/TeamColor/TeamColor00.blp", this.gl.loadTexture(this.pathSolver("replaceabletextures/teamcolor/teamcolor" + idString + ".blp")));
+        this.overrideTexture("replaceabletextures/TeamGlow/TeamGlow00.blp", this.gl.loadTexture(this.pathSolver("replaceabletextures/teamglow/teamglow" + idString + ".blp")));
         this.teamColor = id;
     },
 

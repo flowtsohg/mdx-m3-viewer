@@ -25,37 +25,37 @@ window["Node"] = function (dontInheritScale) {
 }
 
 Node.prototype = {
-    copyLocal: function (node) {
-        vec3.copy(this.localLocation, node.localLocation);
-        quat.copy(this.localRotation, node.localRotation);
-        vec3.copy(this.localScale, node.localScale);
-    },
-
     setParent: function (parent) {
         this.parent = parent;
 
         this.recalculateTransformation();
     },
 
-    setLocalLocation: function (location) {
+    setLocation: function (location) {
         vec3.copy(this.localLocation, location);
 
         this.recalculateTransformation();
     },
 
-    setLocalRotation: function (rotation) {
+    setRotation: function (rotation) {
         quat.copy(this.localRotation, rotation);
 
         this.recalculateTransformation();
     },
 
-    setLocalScale: function (scale) {
-        vec3.copy(this.localScale, scale);
+    setScale: function (varying) {
+        vec3.copy(this.localScale, varying);
 
         this.recalculateTransformation();
     },
 
-    setLocal: function (location, rotation, scale) {
+    setUniformScale: function (uniform) {
+        vec3.set(this.localScale, uniform, uniform, uniform);
+
+        this.recalculateTransformation();
+    },
+
+    set: function (location, rotation, scale) {
         vec3.copy(this.localLocation, location);
         quat.copy(this.localRotation, rotation);
         vec3.copy(this.localScale, scale);

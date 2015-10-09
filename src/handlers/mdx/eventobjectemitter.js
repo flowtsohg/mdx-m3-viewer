@@ -1,4 +1,4 @@
-Mdx.EventObjectEmitter = function (eventObject, model, instance, context, customPaths) {
+Mdx.EventObjectEmitter = function (eventObject, model, instance, context, pathSolver) {
     var node = instance.skeleton.nodes[eventObject.node.index];
     var name = node.nodeImpl.name;
     var type = name.substring(0, 3);
@@ -18,8 +18,8 @@ Mdx.EventObjectEmitter = function (eventObject, model, instance, context, custom
     this.tracks = eventObject.tracks;
     this.lastTrack = vec3.create();
     this.eventObjects = [];
-    
-    this.customPaths = customPaths;
+    this.context = context;
+    this.pathSolver = pathSolver;
 
     if (type === "SPN") {
         this.ready = 1;
@@ -31,7 +31,7 @@ Mdx.EventObjectEmitter = function (eventObject, model, instance, context, custom
         if (slkLine) {
             this.ready = 1;
             
-            this.texture = customPaths("replaceabletextures/splats/splat01mature.blp");
+            this.texture = pathSolver("replaceabletextures/splats/splat01mature.blp");
             this.rows = slkLine[0];
             this.columns = slkLine[1];
             this.blendMode = slkLine[2];
@@ -44,7 +44,7 @@ Mdx.EventObjectEmitter = function (eventObject, model, instance, context, custom
             
             this.dimensions = [this.columns, this.rows];
             
-            this.texture = context.gl.loadTexture(this.texture, ".blp");
+            this.texture = context.loadTexture(this.texture, ".blp");
         }
     } else if (type === "UBR") {
         var slkLine = eventObjectPaths[type][path];
@@ -52,7 +52,7 @@ Mdx.EventObjectEmitter = function (eventObject, model, instance, context, custom
         if (slkLine) {
             this.ready = 1;
             
-            this.texture = customPaths("replaceabletextures/splats/" + slkLine[0] + ".blp");
+            this.texture = pathSolver("replaceabletextures/splats/" + slkLine[0] + ".blp");
             this.blendMode = slkLine[1];
             this.scale = slkLine[2];
             this.firstIntervalTime = slkLine[3];
@@ -63,7 +63,7 @@ Mdx.EventObjectEmitter = function (eventObject, model, instance, context, custom
             this.dimensions = [1, 1];
             this.columns = 1;
             
-            this.texture = context.gl.loadTexture(this.texture, ".blp");
+            this.texture = context.loadTexture(this.texture, ".blp");
         }
     }
     
@@ -80,13 +80,13 @@ Mdx.EventObjectEmitter.prototype = {
             if (track[0] === 1 && (track[0] !== this.lastTrack[0] || track[1] !== this.lastTrack[1])) {
                 switch (this.type) {
                     case "SPN":
-                        eventObject = new Mdx.EventObjectSpn(this, context, this.customPaths);
+                        eventObject = new Mdx.EventObjectSpn(this);
                         break;
                     case "SPL":
-                        eventObject = new Mdx.EventObjectSpl(this, context);
+                        eventObject = new Mdx.EventObjectSpl(this);
                         break;
                     case "UBR":
-                        eventObject = new Mdx.EventObjectUbr(this, context);
+                        eventObject = new Mdx.EventObjectUbr(this);
                         break;
                 }
                 
@@ -97,7 +97,7 @@ Mdx.EventObjectEmitter.prototype = {
             this.lastTrack[1] = track[1];
             
             for (var i = 0, l = eventObjects.length; i < l; i++) {
-                eventObjects[i].update(this, context);
+                eventObjects[i].update(this);
             }
             
             if (eventObjects.length) {
@@ -108,22 +108,22 @@ Mdx.EventObjectEmitter.prototype = {
         }
     },
 
-    render: function (context) {
+    render: function () {
         if (this.ready) {
             var eventObjects = this.eventObjects;
             
             for (var i = 0, l = eventObjects.length; i < l; i++) {
-                eventObjects[i].render(this, context);
+                eventObjects[i].render(this);
             }
         }
     },
     
-    renderEmitters: function (context) {
+    renderEmitters: function () {
         if (this.ready) {
             var eventObjects = this.eventObjects;
             
             for (var i = 0, l = eventObjects.length; i < l; i++) {
-                eventObjects[i].renderEmitters(this, context);
+                eventObjects[i].renderEmitters(this);
             }
         }
     },

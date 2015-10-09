@@ -1,4 +1,5 @@
-Mdx.EventObjectSpl = function (emitter, context) {
+Mdx.EventObjectSpl = function (emitter) {
+    var context = emitter.context;
     var ctx = context.gl.ctx;
     
     this.emitter = emitter;
@@ -20,7 +21,8 @@ Mdx.EventObjectSpl = function (emitter, context) {
 };
 
 Mdx.EventObjectSpl.prototype = {
-    update: function (emitter, context) {
+    update: function (emitter) {
+        var context = emitter.context;
         var dt = context.frameTime / 100;
         
         this.time = Math.min(this.time + dt, this.endTime);
@@ -47,7 +49,8 @@ Mdx.EventObjectSpl.prototype = {
         this.index = Math.floor(index);
     },
     
-    updateHW: function (emitter, context) {
+    updateHW: function (emitter) {
+        var context = emitter.context;
         var columns = emitter.columns;
         var position = this.location;
         var nodeScale = this.scale;
@@ -121,7 +124,8 @@ Mdx.EventObjectSpl.prototype = {
         data[29] = rgb;
     },
     
-    render: function (emitter, context) {
+    render: function (emitter) {
+        var context = emitter.context;
         var gl = context.gl;
         var ctx = gl.ctx;
         
@@ -173,8 +177,8 @@ Mdx.EventObjectSpl.prototype = {
         ctx.drawArrays(ctx.TRIANGLES, 0, 6);
     },
     
-    renderEmitters: function (emitter, context) {
-        
+    renderEmitters: function (emitter) {
+
     },
     
     ended: function () {

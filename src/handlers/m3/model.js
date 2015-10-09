@@ -1,16 +1,18 @@
-M3.Model = function (arrayBuffer, customPaths, context, onerror) {
+M3.Model = function (asyncModel, arrayBuffer) {
     BaseModel.call(this, {});
 
     var parser = M3.Parser(new BinaryReader(arrayBuffer));
 
+    this.asyncModel = asyncModel;
+
     if (parser) {
-        this.setup(parser, customPaths, context.gl);
-        this.setupShaders(parser, context.gl);
+        this.setup(parser, asyncModel.pathSolver, asyncModel.context.gl);
+        this.setupShaders(parser, asyncModel.context.gl);
     }
 };
 
 M3.Model.prototype = extend(BaseModel.prototype, {
-    setup: function (parser, customPaths, gl) {
+    setup: function (parser, pathSolver, gl) {
         var i, l;
         var material;
         var div = parser.divisions[0];
@@ -32,7 +34,7 @@ M3.Model.prototype = extend(BaseModel.prototype, {
         for (i = 0, l = materials[0].length; i < l; i++) {
             material = materials[0][i];
 
-            this.materials[1][i] = new M3.StandardMaterial(material, this, customPaths, gl);
+            this.materials[1][i] = new M3.StandardMaterial(this, material);
         }
 
         // Create concrete batch objects
@@ -344,7 +346,8 @@ M3.Model.prototype = extend(BaseModel.prototype, {
         ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
     },
 
-    render: function (instance, context) {
+    render: function (instance) {
+        var context = instance.asyncInstance.context;
         var gl = context.gl;
         var ctx = gl.ctx;
         var i, l;
@@ -437,7 +440,7 @@ M3.Model.prototype = extend(BaseModel.prototype, {
         }
     },
 
-    renderEmitters: function (instance, context) {
+    renderEmitters: function (instance) {
     /*
     if (this.particleEmitters) {
     ctx.disable(ctx.CULL_FACE);
@@ -455,7 +458,8 @@ M3.Model.prototype = extend(BaseModel.prototype, {
     */
     },
 
-    renderBoundingShapes: function (instance, context) {
+    renderBoundingShapes: function (instance) {
+        var context = instance.asyncInstance.context;
         var gl = context.gl,
             ctx = gl.ctx,
             shader,
@@ -472,7 +476,9 @@ M3.Model.prototype = extend(BaseModel.prototype, {
         }
     },
 
-    renderColor: function (instance, color, context) {
+    renderColor: function (instance) {
+        var context = instance.asyncInstance.context;
+        var color = instance.asyncInstance.color;
         var gl = context.gl;
         var ctx = gl.ctx;
         var i, l;
@@ -501,16 +507,8 @@ M3.Model.prototype = extend(BaseModel.prototype, {
         }
     },
 
-    bindTexture: function (source, unit, textureMap, context) {
-        var texture;
-
-        if (this.textureMap[source]) {
-            texture = this.textureMap[source];
-        }
-
-        if (textureMap[source]) {
-            texture = textureMap[source];   
-        }
+    bindTexture: function (texture, unit) {
+        var context = this.asyncModel.context;
 
         context.gl.bindTexture(texture, unit);
     }

@@ -1,15 +1,15 @@
-M3.ModelInstance = function (asyncInstance, model, customPaths, context) {
-    BaseModelInstance.call(this, model, {});
+M3.ModelInstance = function (asyncInstance) {
+    BaseModelInstance.call(this, asyncInstance.asyncModel.model, {});
 
-    this.setup(model, context);
+    this.asyncInstance = asyncInstance;
+
+    this.skeleton = new M3.Skeleton(asyncInstance, asyncInstance.asyncModel.model, asyncInstance.context.gl.ctx);
+
 };
 
 M3.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
-    setup: function (model, context) {
-        this.skeleton = new M3.Skeleton(model, context.gl.ctx);
-    },
-
-    update: function (worldMatrix, context) {
+    update: function () {
+        var context = this.asyncInstance.context;
         var i, l;
         var sequenceId = this.sequence;
         var allowCreate = false;
@@ -17,7 +17,7 @@ M3.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
         if (sequenceId !== -1) {
             var sequence = this.model.sequences[sequenceId];
 
-            this.frame += context.frameTime;
+            this.frame += context.frameTimeMS;
 
             if (this.frame > sequence.animationEnd) {
                 if ((this.sequenceLoopMode === 0 && !(sequence.flags & 0x1)) || this.sequenceLoopMode === 2) {
@@ -28,7 +28,7 @@ M3.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
             allowCreate = true;
         }
 
-        this.skeleton.update(sequenceId, this.frame, worldMatrix, context.gl.ctx);
+        this.skeleton.update(sequenceId, this.frame, context.gl.ctx);
 
         /*
         if (this.particleEmitters) {

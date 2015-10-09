@@ -8,54 +8,50 @@
  * @param {number} id The id of this model.
  * @param {object} textureMap An object with texture path -> absolute urls mapping.
  */
-function AsyncModel(source, fileType, customPaths, isFromMemory, context) {
-    var callbacks = context.callbacks;
-    
+function AsyncModel(source, fileType, pathSolver, isFromMemory, context) {
     this.type = "model";
     this.ready = false;
     this.fileType = fileType;
     this.id = generateID();
-    this.customPaths = customPaths;
-
-    // All the instances owned by this model
+    this.pathSolver = pathSolver;
+    this.context = context;
+    this.isFromMemory = isFromMemory;
+    this.source = source;
     this.instances = [];
 
     Async.call(this);
-    EventDispatcher.call(this);
-
-    this.context = context;
-
-    this.onerror = callbacks.onerror;
-    this.onprogress = callbacks.onprogress;
-    this.onload = callbacks.onload;
-
-    callbacks.onloadstart(this);
-
-    this.dispatchEvent("loadstart");
-
-    this.isFromMemory = isFromMemory;
-    this.source = source;
-
-    if (isFromMemory) {
-        this.setupFromMemory(source);
-    } else {
-        this.request = getRequest(source, AsyncModel.handlers[fileType][1], this.setup.bind(this), callbacks.onerror.bind(undefined, this), callbacks.onprogress.bind(undefined, this));
-    } 
+    EventDispatcher.call(this); 
 }
 
 AsyncModel.handlers = {};
 
 AsyncModel.prototype = {
+    loadstart: function () {
+        this.dispatchEvent("loadstart");
+
+        if (this.isFromMemory) {
+            this.setupFromMemory(this.source);
+        } else {
+            this.request = getRequest(this.source, AsyncModel.handlers[this.fileType][1], this.setup.bind(this), this.error.bind(undefined, this), this.progress.bind(this));
+        }
+    },
+
+    error: function (e) {
+        this.dispatchEvent({ type: "error", error: e.target.status });
+    },
+
+    progress: function (e) {
+        if (e.target.status === 200) {
+            this.dispatchEvent({ type: "progress", loaded: e.loaded, total: e.total, lengthComputable: e.lengthComputable });
+        }
+    },
+
     abort: function () {
         if (this.request && this.request.readyState !== XMLHttpRequest.DONE) {
             this.request.abort();
 
             this.dispatchEvent("abort");
-
-            return true;
         }
-        
-        return false;
     },
     
   /**
@@ -72,21 +68,19 @@ AsyncModel.prototype = {
         if (status === 200) {
             this.setupFromMemory(e.target.response);
         } else {
-            this.onerror(this, "" + status);
-            this.dispatchEvent("error");
+            this.dispatchEvent({ type: "error", error: status });
+            this.dispatchEvent("loadend");
         }
     },
 
     setupFromMemory: function (memory) {
-        var model = new AsyncModel.handlers[this.fileType][0](memory, this.customPaths, this.context, this.onerror.bind(undefined, this));
+        var model = new AsyncModel.handlers[this.fileType][0](this, memory);
 
         if (model.ready) {
             this.model = model;
             this.ready = true;
 
             this.runFunctors();
-
-            this.onload(this);
 
             this.dispatchEvent("load");
             this.dispatchEvent("loadend");
@@ -105,7 +99,7 @@ AsyncModel.prototype = {
         if (this.ready) {
             this.instances.push(instance);
 
-            instance.setup(this.model);
+            instance.setup();
         } else {
             this.addFunctor("setupInstance", arguments);
         }

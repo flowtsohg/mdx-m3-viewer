@@ -1,4 +1,5 @@
-Mdx.EventObjectUbr = function (emitter, context) {
+Mdx.EventObjectUbr = function (emitter) {
+    var context = emitter.context;
     var ctx = context.gl.ctx;
     
     this.emitter = emitter;
@@ -20,7 +21,8 @@ Mdx.EventObjectUbr = function (emitter, context) {
 };
 
 Mdx.EventObjectUbr.prototype = {
-    update: function (emitter, context) {
+    update: function (emitter) {
+        var context = emitter.context;
         var dt = context.frameTime / 100;
         
         this.time = Math.min(this.time + dt, this.endTime);

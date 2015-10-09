@@ -1,15 +1,17 @@
-Mdx.Model = function (arrayBuffer, customPaths, context, onerror) {
+Mdx.Model = function (asyncModel, arrayBuffer) {
     BaseModel.call(this, {});
+
+    this.asyncModel = asyncModel;
 
     var parser = Mdx.Parser(new BinaryReader(arrayBuffer));
 
     if (parser) {
-        this.setup(parser, customPaths, context);
+        this.setup(parser, asyncModel.pathSolver, asyncModel.context);
     }
 };
 
 Mdx.Model.prototype = extend(BaseModel.prototype, {
-    setup: function (parser, customPaths, context) {
+    setup: function (parser, pathSolver, context) {
         var gl = context.gl;
         var objects, i, l, j, k;
         var chunks = parser.chunks;
@@ -32,7 +34,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
             objects = chunks.TEXS.elements;
 
             for (i = 0, l = objects.length; i < l; i++) {
-                this.loadTexture(objects[i], gl, customPaths);
+                this.loadTexture(objects[i], gl, pathSolver);
             }
         }
 
@@ -161,7 +163,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         this.ready = true;
 
         this.setupShaders(chunks, gl);
-        this.setupTeamColors(gl, customPaths);
+        this.setupTeamColors(gl, pathSolver);
     },
 
     setupHierarchy: function (hierarchy, nodes, parent) {
@@ -221,19 +223,20 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         }
     },
 
-    setupTeamColors: function (gl, customPaths) {
-        var i,
-            number;
+    setupTeamColors: function (gl, pathSolver) {
+        var context = this.asyncModel.context;
 
-        for (i = 0; i < 13; i++) {
-            number = ((i < 10) ? "0" + i : i);
+        for (var i = 0; i < 13; i++) {
+            var number = ((i < 10) ? "0" + i : i);
 
-            gl.loadTexture(customPaths("replaceabletextures/teamcolor/teamcolor" + number + ".blp"), ".blp");
-            gl.loadTexture(customPaths("replaceabletextures/teamglow/teamglow" + number + ".blp"), ".blp");
+            context.loadTexture(pathSolver("replaceabletextures/teamcolor/teamcolor" + number + ".blp"), ".blp");
+            context.loadTexture(pathSolver("replaceabletextures/teamglow/teamglow" + number + ".blp"), ".blp");
         }
     },
 
-    loadTexture: function (texture, gl, customPaths) {
+    loadTexture: function (texture, gl, pathSolver) {
+        var context = this.asyncModel.context;
+
         var path = texture.path;
         var replaceableId = texture.replaceableId;
 
@@ -241,14 +244,14 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
             path = "replaceabletextures/" + Mdx.replaceableIdToName[replaceableId] + ".blp";
         }
 
-        var realPath = customPaths(path);
+        var realPath = pathSolver(path);
 
         //this.textures.push(path);
         this.textureMap[path] = realPath;
 
         var fileType = fileTypeFromPath(path);
 
-        this.textures.push(gl.loadTexture(realPath, fileType));
+        this.textures.push(context.loadTexture(realPath, fileType));
 
         this.texturePaths.push(path);
     },
@@ -307,7 +310,9 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         this.extent = {radius: Math.sqrt(dX * dX + dY * dY + dZ * dZ) / 2, min: [minX, minY, minZ], max: [maxX, maxY, maxZ] };
     },
 
-    render: function (instance, context, tint) {
+    render: function (instance) {
+        var context = instance.asyncInstance.context;
+        var tint = instance.asyncInstance.tint;
         var gl = context.gl;
         var ctx = gl.ctx;
         var i, l, v;
@@ -431,7 +436,8 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         ctx.enable(ctx.DEPTH_TEST);
     },
 
-    renderEmitters: function (instance, context) {
+    renderEmitters: function (instance) {
+        var context = instance.asyncInstance.context;
         var gl = context.gl;
         var ctx = gl.ctx;
         var i, l;
@@ -475,7 +481,8 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         ctx.enable(ctx.CULL_FACE);
     },
 
-    renderBoundingShapes: function (instance, context) {
+    renderBoundingShapes: function (instance) {
+        var context = instance.asyncInstance.context;
         var gl = context.gl;
         var shader;
 
@@ -488,7 +495,9 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         }
     },
 
-    renderColor: function (instance, color, context) {
+    renderColor: function (instance) {
+        var context = instance.asyncInstance.context;
+        var color = instance.asyncInstance.color;
         var gl = context.gl;
         var ctx = gl.ctx;
         var i, l;

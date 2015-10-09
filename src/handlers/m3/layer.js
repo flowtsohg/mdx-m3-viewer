@@ -1,4 +1,9 @@
-M3.Layer = function (layer, type, op, model, customPaths, gl) {
+M3.Layer = function (material, layer, type, op) {
+    var model = material.model;
+    var pathSolver = model.asyncModel.pathSolver;
+    var context = model.asyncModel.context;
+    var gl = context.gl;
+
     this.active = false;
 
     // Since Gloss doesn't exist in all versions
@@ -50,7 +55,7 @@ M3.Layer = function (layer, type, op, model, customPaths, gl) {
         var source = layer.imagePath.toLowerCase();
 
         if (source !== "") {
-            var realPath = customPaths(source);
+            var realPath = pathSolver(source);
 
             this.source = source;
 
@@ -58,7 +63,7 @@ M3.Layer = function (layer, type, op, model, customPaths, gl) {
 
             var fileType = fileTypeFromPath(source);
 
-            gl.loadTexture(realPath, fileType, false, { clampS: !(flags & 0x4), clampT: !(flags & 0x8) });
+            this.texture = context.loadTexture(realPath, fileType, false, { clampS: !(flags & 0x4), clampT: !(flags & 0x8) });
 
             this.active = true;
         }
@@ -73,7 +78,8 @@ M3.Layer.prototype = {
 
         if (this.active) {
             ctx.uniform1i(variables[uniforms.map], unit);
-            this.model.bindTexture(this.source, unit, textureMap, context);
+
+            this.model.bindTexture(this.texture, unit);
 
             ctx.uniform1f(variables[uniforms.enabled], 1);
             ctx.uniform1f(variables[uniforms.op], this.op);

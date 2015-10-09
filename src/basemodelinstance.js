@@ -37,7 +37,7 @@ BaseModelInstance.prototype = {
     * @param {mat4} worldMatrix The world matrix of the parent {@link AsyncModelInstance}.
     * @param {object} context An object containing the global state of the viewer.
     */
-    update: function(worldMatrix, context) {
+    update: function() {
 
     },
 
@@ -46,8 +46,8 @@ BaseModelInstance.prototype = {
     *
     * @param {object} context An object containing the global state of the viewer.
     */
-    render: function(context) {
-        this.model.render(this, context);
+    render: function() {
+        this.model.render(this);
     },
 
   /**
@@ -55,8 +55,8 @@ BaseModelInstance.prototype = {
     *
     * @param {object} context An object containing the global state of the viewer.
     */
-    renderEmitters: function(context) {
-        this.model.renderEmitters(this, context);
+    renderEmitters: function() {
+        this.model.renderEmitters(this);
     },
 
   /**
@@ -64,8 +64,8 @@ BaseModelInstance.prototype = {
     *
     * @param {object} context An object containing the global state of the viewer.
     */
-    renderBoundingShapes: function(context) {
-        this.model.renderBoundingShapes(this, context);
+    renderBoundingShapes: function() {
+        this.model.renderBoundingShapes(this);
     },
 
   /**
@@ -74,8 +74,8 @@ BaseModelInstance.prototype = {
     * @param {vec3} color A RGB color.
     * @param {object} context An object containing the global state of the viewer.
     */
-    renderColor: function(color, context) {
-        this.model.renderColor(this, color, context);
+    renderColor: function() {
+        this.model.renderColor(this);
     },
 
   /**

@@ -1,4 +1,4 @@
-Mdx.ParticleEmitter = function (emitter, model, instance, context, customPaths) {
+Mdx.ParticleEmitter = function (emitter, model, instance, context, pathSolver) {
     var i, l;
     var keys = Object.keys(emitter);
 
@@ -10,7 +10,7 @@ Mdx.ParticleEmitter = function (emitter, model, instance, context, customPaths) 
 
     var path = emitter.path.replace(/\\/g, "/").toLowerCase().replace(".mdl", ".mdx");
 
-    this.spawnModel = context.loadInternalResource(customPaths(path));
+    this.spawnModel = context.loadInternalResource(pathSolver(path));
     this.spawnModel.setSequence(0);
 
     var particles;

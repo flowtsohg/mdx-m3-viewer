@@ -339,7 +339,6 @@ window["DDSTexture"] = function DDSTexture(arrayBuffer, options, ctx, onerror, o
     }
 
     this.id = id;
-    this.ready = true;
     
     onload();
 };

@@ -25,7 +25,6 @@ function NativeTexture(source, options, ctx, onerror, onload, compressedTextures
         ctx.generateMipmap(ctx.TEXTURE_2D);
 
         this.id = id;
-        this.ready = true;
 
         onload();
     } else {
@@ -46,7 +45,6 @@ function NativeTexture(source, options, ctx, onerror, onload, compressedTextures
             ctx.generateMipmap(ctx.TEXTURE_2D);
 
             self.id = id;
-            self.ready = true;
 
             onload();
         };

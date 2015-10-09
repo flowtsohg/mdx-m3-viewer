@@ -1,7 +1,7 @@
-Mdx.EventObjectSpn = function (emitter, context, customPaths) {
-    var instance = context.loadInternalResource(customPaths(emitter.path), customPaths);
-    
-    console.log(emitter.node.worldLocation);
+Mdx.EventObjectSpn = function (emitter) {
+    var context = emitter.context;
+    var pathSolver = emitter.pathSolver;
+    var instance = context.loadInternalResource(pathSolver(emitter.path), pathSolver);
 
     instance.setSequence(0);
     instance.setLocation(emitter.node.worldLocation);
@@ -12,16 +12,16 @@ Mdx.EventObjectSpn = function (emitter, context, customPaths) {
 };
 
 Mdx.EventObjectSpn.prototype = {
-    update: function (emitter, context) {
-        this.instance.update(context);
+    update: function (emitter) {
+        this.instance.update();
     },
     
-    render: function (emitter, context) {
-        this.instance.render(context);
+    render: function (emitter) {
+        this.instance.render();
     },
     
-    renderEmitters: function (emitter, context) {
-        this.instance.renderEmitters(context);
+    renderEmitters: function (emitter) {
+        this.instance.renderEmitters();
     },
     
     ended: function () {

@@ -10,10 +10,7 @@
  * @param {vec3} color The color this instance uses for {@link AsyncModelInstance.renderColor}.
  * @param {object} textureMap An object with texture path -> absolute urls mapping.
  */
-function AsyncModelInstance(model, isInternal) {
-    var context = model.context;
-    var callbacks = context.callbacks;
-
+function AsyncModelInstance(asyncModel, isInternal) {
     this.type = "instance";
     this.ready = false;
     this.id = generateID();
@@ -21,38 +18,25 @@ function AsyncModelInstance(model, isInternal) {
     this.tint = vec4.fromValues(1, 1, 1, 1);
     this.visible = 1;
     this.selectable = 1;
-    this.customPaths = model.customPaths;
-
-    // If the model is already ready, the onload message from setup() must be delayed, since this instance wouldn't be added to the cache yet.
-    if ((model && model.ready) || isInternal) {
-        this.delayOnload = true;
-    }
-
-    this.context = context;
-
-    this.onload = callbacks.onload;
+    this.pathSolver = asyncModel.pathSolver;
+    this.isInternal = isInternal;
+    this.asyncModel = asyncModel;
+    this.context = asyncModel.context;
 
     Async.call(this);
     Node.call(this, true);
     EventDispatcher.call(this);
-
-    // Don't report internal instances
-    if (!isInternal) {
-        callbacks.onloadstart(this);
-        this.dispatchEvent("loadstart");
-    }
-        
-    this.model = model;
-    this.fileType = model.fileType;
-    this.source = model.source;
-    this.isFromMemory = model.isFromMemory;
-
-    model.setupInstance(this);
 }
 
 AsyncModelInstance.handlers = {};
 
 AsyncModelInstance.prototype = {
+    loadstart: function () {
+        this.dispatchEvent("loadstart");
+        
+        this.asyncModel.setupInstance(this);
+    },
+
   /**
     * Setup a model instance.
     *
@@ -61,18 +45,12 @@ AsyncModelInstance.prototype = {
     * @param {BaseModel} model The model implementation this instance points to.
     * @param {object} textureMap An object with texture path -> absolute urls mapping.
     */
-    setup: function (model) {
-        this.instance = new AsyncModelInstance.handlers[this.fileType](this, model, this.customPaths, this.context);
+    setup: function () {
+        this.instance = new AsyncModelInstance.handlers[this.asyncModel.fileType](this);
 
         this.ready = true;
 
         this.runFunctors();
-
-        this.recalculateTransformation();
-
-        if (!this.delayOnload) {
-            this.onload(this);
-        }
 
         this.dispatchEvent("load");
         this.dispatchEvent("loadend");
@@ -85,13 +63,9 @@ AsyncModelInstance.prototype = {
     * @instance
     * @param {object} context An object containing the global state of the viewer.
     */
-    update: function (context) {
+    update: function () {
         if (this.ready) {
-            if (this.parent) {
-                    this.recalculateTransformation();
-            }
-            
-            this.instance.update(this, context);
+            this.instance.update();
         }
     },
   
@@ -102,9 +76,9 @@ AsyncModelInstance.prototype = {
     * @instance
     * @param {object} context An object containing the global state of the viewer.
     */
-    render: function (context) {
+    render: function () {
         if (this.ready && this.visible) {
-            this.instance.render(context, this.tint);
+            this.instance.render();
         }
     },
   
@@ -115,9 +89,9 @@ AsyncModelInstance.prototype = {
     * @instance
     * @param {object} context An object containing the global state of the viewer.
     */
-    renderEmitters: function (context) {
+    renderEmitters: function () {
         if (this.ready && this.visible) {
-            this.instance.renderEmitters(context);
+            this.instance.renderEmitters();
         }
     },
   
@@ -128,9 +102,9 @@ AsyncModelInstance.prototype = {
     * @instance
     * @param {object} context An object containing the global state of the viewer.
     */
-    renderBoundingShapes: function (context) {
+    renderBoundingShapes: function () {
         if (this.ready && this.visible) {
-            this.instance.renderBoundingShapes(context);
+            this.instance.renderBoundingShapes();
         }
     },
   
@@ -141,9 +115,9 @@ AsyncModelInstance.prototype = {
     * @instance
     * @param {object} context An object containing the global state of the viewer.
     */
-    renderColor: function (context) {
+    renderColor: function () {
         if (this.ready && this.visible && this.selectable) {
-            this.instance.renderColor(this.color, context);
+            this.instance.renderColor();
         }
     },
   

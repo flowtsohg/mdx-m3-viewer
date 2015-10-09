@@ -36,7 +36,7 @@ Mdx.Skeleton = function (asyncInstance, model, ctx) {
 };
 
 Mdx.Skeleton.prototype = extend(BaseSkeleton.prototype, {
-    update: function (sequence, frame, counter, instance, context) {
+    update: function (sequence, frame, counter, context) {
         var nodes = this.sortedNodes;
         var hierarchy = this.hierarchy;
 
@@ -66,7 +66,7 @@ Mdx.Skeleton.prototype = extend(BaseSkeleton.prototype, {
             quat.copy(finalRotation, rotation);
         }
         
-        node.setLocal(translation, finalRotation, scale);
+        node.set(translation, finalRotation, scale);
     },
 
     updateHW: function (ctx) {

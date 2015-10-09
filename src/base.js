@@ -10,40 +10,6 @@ function computeSphericalCoordinates(start, end) {
     return [r, theta, phi];
 }
 
-function sphericalToQuat(out, theta, phi) {
-    quat.identity(out);
-    quat.rotateZ(out, out, theta);
-    quat.rotateX(out, out, phi);
-
-    return out;
-}
-
-function quatToSpherical(out, q) {
-    var m = mat3.create();
-    var v = vec3.fromValues(0, 0, -1);
-
-    console.log(q);
-    //console.log(v);
-
-    mat3.fromQuat(m, q);
-    vec3.transformMat3(v, v, m);
-
-    console.log(m);
-    console.log(v);
-
-    var latitude = Math.toDeg(Math.asin(v[1]));
-    var longitude = Math.toDeg(-Math.atan2(v[2], v[0])) - 90;
-
-    //if (lon<-180) lon+=360;
-
-    //console.log(latitude, longitude);
-
-    out[0] = latitude;
-    out[1] = longitude;
-
-    return out;
-}
-
 // A simple incrementing ID generator
 var generateID = (function () {
     var i = -1;
