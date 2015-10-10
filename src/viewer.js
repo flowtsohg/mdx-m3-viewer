@@ -7,94 +7,11 @@
  */
 window["ModelViewer"] = function (canvas) {
     var viewerObject = new EventDispatcher();
-
-    var objectsNotReady = 0;
-
-    function onabort(object) {
-        viewerObject.dispatchEvent({ type: "abort", target: object });
-    }
-  
-    function onloadstart(object) {
-        objectsNotReady += 1;
-        
-        if (object.type) {
-            viewerObject.dispatchEvent(object);
-        } else {
-            viewerObject.dispatchEvent({ type: "loadstart", target: object });
-        }
-        
-    }
-    
-    function onloadend(object) {
-        objectsNotReady -= 1;
-        
-        if (object.type) {
-            viewerObject.dispatchEvent(object);
-        } else {
-            viewerObject.dispatchEvent({ type: "loadend", target: object });
-        }  
-    }
-    
-    function onload(object) {
-        if (object.type) {
-            viewerObject.dispatchEvent(object);
-        } else {
-            viewerObject.dispatchEvent({ type: "load", target: object });
-            onloadend(object);
-        }
-    }
-
-    function onerror(object, error) {
-        if (object.type) {
-            viewerObject.dispatchEvent(object);
-        } else {
-            if (typeof error !== "string") {
-                error = "" + error.target.status;
-            }
-
-            viewerObject.dispatchEvent({ type: "error", error: error, target: object });
-            onloadend(object);
-        }
-    }
-    
-    function onprogress(object, e) {
-        if (object.type) {
-            viewerObject.dispatchEvent(object);
-        } else {
-            if (e.target.status === 200) {
-                viewerObject.dispatchEvent({ type: "progress", target: object, loaded: e.loaded, total: e.total, lengthComputable: e.lengthComputable });
-            }
-        }
-    }
-  
-    function onremove(object) {
-        viewerObject.dispatchEvent({ type: "remove", target: object });
-    }
-
-    var callbacks = {
-        onabort: onabort,
-        onloadstart: onloadstart,
-        onloadend: onloadend,
-        onload: onload,
-        onerror: onerror,
-        onprogress: onprogress,
-        onremove: onremove
-    };
-    
-    var gl = GL(canvas, callbacks);
+    var gl = GL(canvas);
     var ctx = gl.ctx;
-    
-    var modelArray = []; // All models
-    var instanceArray = []; // All instances
-    var modelInstanceMap = {}; // Reference by ID.
-    var modelMap = {}; // Reference by source
-    
-    var supportedModelFileTypes = {};
-    var supportedTextureFileTypes = {".png":1, ".gif":1, ".jpg":1};
-    var supportedFileTypes = {".png":1, ".gif":1, ".jpg":1};
-  
+
     var context = {
-        callbacks: callbacks,
+        objectsNotReady: 0,
         frameTime: 1000 / 60,
         frameTimeMS: 1000 / 30,
         frameTimeS: 1 / 30,
@@ -112,15 +29,41 @@ window["ModelViewer"] = function (canvas) {
         shader: 0,
         gl: gl,
         teamColors: [[255, 3, 3], [0, 66, 255], [28, 230, 185], [84, 0, 129], [255, 252, 1], [254, 138, 14], [32, 192, 0], [229, 91, 176], [149, 150, 151], [126, 191, 241], [16, 98, 70], [78, 42, 4], [40, 40, 40], [0, 0, 0]],
-        shaders: [ "standard", "diffuse", "normals", "uvs", "normalmap", "specular", "specular_normalmap", "emissive", "unshaded", "unshaded_normalmap", "decal", "white"],
+        shaders: ["standard", "diffuse", "normals", "uvs", "normalmap", "specular", "specular_normalmap", "emissive", "unshaded", "unshaded_normalmap", "decal", "white"],
         lightPosition: [0, 0, 10000],
         loadInternalResource: loadInternalResource,
         loadTexture: loadTexture,
         uvOffset: [0, 0],
         uvSpeed: [Math.randomRange(-0.004, 0.004), Math.randomRange(-0.004, 0.004)],
         ground: gl.createRect(0, 0, -1, 256, 256, 6),
-        sky: gl.createSphere(0, 0, 0, 5, 40, 50000)
+        sky: gl.createSphere(0, 0, 0, 5, 40, 50000),
+        modelArray: [],
+        instanceArray: [],
+        textureArray: [],
+        modelMap: {},
+        instanceMap: {},
+        textureMap: {},
+        supportedFileTypes: {
+            models: {},
+            textures: { ".png": true, ".gif": true, ".jpg": true },
+            both: { ".png": true, ".gif": true, ".jpg": true }
+        },
+        worldTextures: {
+            ground: null,
+            sky: null,
+            water: null
+        }
     };
+
+    function dispatchEvent(e) {
+        if (e.type === "loadstart") {
+            context.objectsNotReady += 1;
+        } else if (e.type === "loadend") {
+            context.objectsNotReady -= 1;
+        }
+
+        viewerObject.dispatchEvent(e);
+    }
     
     //function saveContext() {
     //    var camera = context.camera,
@@ -177,8 +120,6 @@ window["ModelViewer"] = function (canvas) {
     gl.createShader("white", SHADERS.vswhite, SHADERS.pswhite);
     gl.createShader("texture", SHADERS.vstexture, SHADERS.pstexture);
     
-    var groundTexture, skyTexture, waterTexture;
-    
     function setupColorFramebuffer(width, height) {
         // Color texture
         var color = ctx.createTexture();
@@ -208,22 +149,19 @@ window["ModelViewer"] = function (canvas) {
     var colorFramebuffer = setupColorFramebuffer(colorFramebufferSize, colorFramebufferSize);
     var colorPixel = new Uint8Array(4);
     
-    function updateCamera() {
-        var camera = context.camera;
-        
-        gl.setProjectionMatrix(camera.projectionMatrix);
-        gl.setViewMatrix(camera.viewMatrix);
-    }
-
     function update() {
-        var i,
-            l;
+        var instances = context.instanceArray;
         
-        for (i = 0, l = instanceArray.length; i < l; i++) {
-            instanceArray[i].update(context);
+        for (var i = 0, l = instances.length; i < l; i++) {
+            instances[i].update();
         }
         
-        updateCamera();
+        var camera = context.camera;
+
+        camera.update();
+
+        gl.setProjectionMatrix(camera.projectionMatrix);
+        gl.setViewMatrix(camera.viewMatrix);
     }
 
     function renderGround(mode) {
@@ -235,15 +173,15 @@ window["ModelViewer"] = function (canvas) {
             ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
 
             if (mode === 1) {
-                if (groundTexture) {
+                if (context.worldTextures.ground) {
                     ctx.uniform2fv(shader.variables.u_uv_offset, [0, 0]);
                     ctx.uniform1f(shader.variables.u_a, 1);
 
-                    gl.bindTexture(groundTexture, 0);
+                    gl.bindTexture(context.worldTextures.ground, 0);
                     context.ground.render(shader);
                 }
             } else {
-                if (waterTexture) {
+                if (context.worldTextures.water) {
                     context.uvOffset[0] += context.uvSpeed[0];
                     context.uvOffset[1] += context.uvSpeed[1];
 
@@ -253,7 +191,7 @@ window["ModelViewer"] = function (canvas) {
                     ctx.enable(ctx.BLEND);
                     ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
 
-                    gl.bindTexture(waterTexture, 0);
+                    gl.bindTexture(context.worldTextures.water, 0);
                     context.ground.render(shader);
 
                     ctx.disable(ctx.BLEND);
@@ -263,21 +201,22 @@ window["ModelViewer"] = function (canvas) {
     }
   
     function renderSky() {
-        if (gl.shaderStatus("world") && skyTexture) {
+        if (gl.shaderStatus("world") && context.worldTextures.sky) {
             var shader = gl.bindShader("world");
 
             ctx.uniform2fv(shader.variables.u_uv_offset, [0, 0]);
             ctx.uniform1f(shader.variables.u_a, 1);
             ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getProjectionMatrix());
 
-            gl.bindTexture(skyTexture, 0);
+            gl.bindTexture(context.worldTextures.sky, 0);
             context.sky.render(shader);
         }
     }
 
     function render() {
-        var i,
-            l = instanceArray.length;
+        var instances = context.instanceArray,
+            i,
+            l = instances.length;
 
         // https://www.opengl.org/wiki/FAQ#Masking
         ctx.depthMask(1);
@@ -295,21 +234,21 @@ window["ModelViewer"] = function (canvas) {
         // Render geometry
         if (context.polygonMode > 0) {
             for (i = 0; i < l; i++) {
-                instanceArray[i].render(context);
+                instances[i].render();
             }
         }
 
         // Render particles
         if (context.emittersMode) {
             for (i = 0; i < l; i++) {
-                instanceArray[i].renderEmitters(context);
+                instances[i].renderEmitters();
             }
         }
 
         // Render bounding shapes
         if (context.boundingShapesMode) {
             for (i = 0; i < l; i++) {
-                instanceArray[i].renderBoundingShapes(context);
+                instances[i].renderBoundingShapes();
             }
         }
 
@@ -321,12 +260,13 @@ window["ModelViewer"] = function (canvas) {
     }
   
     function renderColor() {
-        ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
+        var instances = context.instanceArray;
 
+        ctx.clear(ctx.COLOR_BUFFER_BIT | ctx.DEPTH_BUFFER_BIT);
         ctx.disable(ctx.CULL_FACE);
 
-        for (var i = 0, l = instanceArray.length; i < l; i++) {
-            instanceArray[i].renderColor(context);
+        for (var i = 0, l = instances.length; i < l; i++) {
+            instances[i].renderColor();
         }
 
         ctx.enable(ctx.CULL_FACE);
@@ -366,35 +306,40 @@ window["ModelViewer"] = function (canvas) {
         ctx.disable(ctx.BLEND);
     }
     
-    function loadModel(source, fileType, pathSolver, isFromMemory) {
-        if (!modelMap[source]) {
-            var model = new AsyncModel(source, fileType, pathSolver, isFromMemory, context);
+    function loadModel(src, fileType, pathSolver, isFromMemory) {
+        var modelMap = context.modelMap;
 
-            modelMap[source] = model;
-            modelArray.push(model);
-            modelInstanceMap[model.id] = model;
+        if (!modelMap[src]) {
+            var model = new AsyncModel(src, fileType, pathSolver, isFromMemory, context);
 
-            model.addEventListener("loadstart", onloadstart);
-            model.addEventListener("load", onload);
-            model.addEventListener("loadend", onloadend);
-            model.addEventListener("error", onerror);
-            model.addEventListener("progress", onprogress);
+            modelMap[src] = model;
+            context.modelArray.push(model);
+
+            model.addEventListener("loadstart", dispatchEvent);
+            model.addEventListener("load", dispatchEvent);
+            model.addEventListener("loadend", dispatchEvent);
+            model.addEventListener("error", dispatchEvent);
+            model.addEventListener("progress", dispatchEvent);
+            model.addEventListener("abort", dispatchEvent);
+            model.addEventListener("remove", dispatchEvent);
 
             model.loadstart();
         }
 
-        return modelMap[source];
+        return modelMap[src];
     }
   
     function loadInstance(source, isInternal) {
-        var instance = new AsyncModelInstance(modelMap[source], isInternal);
+        var instance = new AsyncModelInstance(context.modelMap[source], isInternal);
 
-        modelInstanceMap[instance.id] = instance;
-        instanceArray.push(instance);
+        context.instanceArray.push(instance);
+        context.instanceMap[instance.id] = instance;
 
-        instance.addEventListener("loadstart", onloadstart);
-        instance.addEventListener("load", onload);
-        instance.addEventListener("loadend", onloadend);
+        instance.addEventListener("loadstart", dispatchEvent);
+        instance.addEventListener("load", dispatchEvent);
+        instance.addEventListener("loadend", dispatchEvent);
+        instance.addEventListener("error", dispatchEvent);
+        instance.addEventListener("remove", dispatchEvent);
 
         instance.loadstart();
 
@@ -402,23 +347,32 @@ window["ModelViewer"] = function (canvas) {
     }
 
     function loadTexture(src, fileType, isFromMemory, options) {
-        var texture = gl.loadTexture(src, fileType, isFromMemory, options);
+        var textureMap = context.textureMap;
 
-        texture.addEventListener("loadstart", onloadstart);
-        texture.addEventListener("load", onload);
-        texture.addEventListener("loadend", onloadend);
-        texture.addEventListener("error", onerror);
-        texture.addEventListener("progress", onprogress);
+        if (!textureMap[src]) {
+            var texture = gl.loadTexture(src, fileType, isFromMemory, options);
 
-        texture.loadstart();
+            textureMap[src] = texture;
+            context.textureArray.push(texture);
 
-        return texture;
+            texture.addEventListener("loadstart", dispatchEvent);
+            texture.addEventListener("load", dispatchEvent);
+            texture.addEventListener("loadend", dispatchEvent);
+            texture.addEventListener("error", dispatchEvent);
+            texture.addEventListener("progress", dispatchEvent);
+            texture.addEventListener("abort", dispatchEvent);
+            texture.addEventListener("remove", dispatchEvent);
+
+            texture.loadstart();
+        }
+
+        return textureMap[src];
     }
   
     // Load a model or texture from an absolute url, with an optional texture map, and an optional hidden parameter
     function loadResource(source, pathSolver, fileType, isFromMemory, isInternal) {
-        if (supportedFileTypes[fileType]) {
-            if (supportedModelFileTypes[fileType]) {
+        if (context.supportedFileTypes.both[fileType]) {
+            if (context.supportedFileTypes.models[fileType]) {
                 loadModel(source, fileType, pathSolver, isFromMemory);
 
                 return loadInstance(source, isInternal);
@@ -435,23 +389,27 @@ window["ModelViewer"] = function (canvas) {
         return loadResource(source, pathSolver, ".mdx", false, true);
     }
   
-    function removeInstance(instance, removeingModel) {
-        var i,
-            l,
-            instances = instance.model.instances;
+    function removeInstance(instance, removingModel) {
+        var instanceArray = context.instanceArray,
+            instanceMap = context.instanceMap,
+            i,
+            l;
 
         // Remove from the instance array
         for (i = 0, l = instanceArray.length; i < l; i++) {
             if (instanceArray[i] === instance) {
                 instanceArray.splice(i, 1);
+                break;
             }
         }
 
         // Remove from the model-instance map
-        delete modelInstanceMap[instance.id];
+        delete instanceMap[instance.id];
 
         // Don't remove from the model if the model itself is removeed
-        if (!removeingModel) {
+        if (!removingModel) {
+            var instances = instance.asyncModel.instances;
+
             // Remove from the instances list of the owning model
             for (i = 0, l = instances.length; i < l; i++) {
                 if (instances[i] === instance) {
@@ -460,18 +418,18 @@ window["ModelViewer"] = function (canvas) {
             }
         }
 
-        onremove(instance);
+        instance.dispatchEvent("remove");
     }
   
     function removeModel(model) {
-        var instances = model.instances,
+        var modelArray = context.modelArray,
+            modelMap = context.modelMap,
+            instances = model.instances,
             i,
             l;
 
         // If the model was still in the middle of loading, abort the XHR request.
-        if (model.abort()) {
-            onabort(model);
-        }
+        model.abort();
         
         // Remove all instances owned by this model
         for (i = 0, l = instances.length; i < l; i++) {
@@ -482,13 +440,32 @@ window["ModelViewer"] = function (canvas) {
         for (i = 0, l = modelArray.length; i < l; i++) {
             if (modelArray[i] === model) {
                 modelArray.splice(i, 1);
+                break;
             }
         }
 
         // Remove from the model-instance map
-        delete modelInstanceMap[model.id];
+        delete modelMap[model.source];
         
-        onremove(model);
+        model.dispatchEvent("remove");
+    }
+
+    function removeTexture(texture) {
+        var textureArray = context.textureArray,
+            textureMap = context.textureMap,
+            i,
+            l;
+
+        for (i = 0, l = textureArray.length; i < l; i++) {
+            if (textureArray[i] === texture) {
+                textureArray.splice(i, 1);
+                break;
+            }
+        }
+
+        delete textureMap[texture.source];
+
+        gl.removeTexture(texture);  
     }
   
     function identityPaths(path) {
@@ -527,9 +504,7 @@ window["ModelViewer"] = function (canvas) {
             fileType = fileTypeFromPath(src);
         }
 
-        if (supportedFileTypes[fileType]) {
-            return loadResource(src, pathSolver, fileType, isFromMemory);
-        }
+        return loadResource(src, pathSolver, fileType, isFromMemory);
     }
 
     function load(src, pathSolver, type) {
@@ -567,14 +542,14 @@ window["ModelViewer"] = function (canvas) {
             } else if (type === "instance") {
                 // If the owning model has only 1 instance, it must be this one.
                 // Therefore if the client wants to remove the model if it has no instances, remove it.
-                if (src.model.instances.length === 1 && removeModelIfLastInstance) {
-                    removeModel(src.model);
+                if (src.asyncModel.instances.length === 1 && removeModelIfLastInstance) {
+                    removeModel(src.asyncModel);
                 } else {
                     removeInstance(src);
                 }
                 
             } else if (type === "texture") {
-                gl.removeTexture(src);
+                removeTexture(src);
             }
         }
     }
@@ -586,22 +561,29 @@ window["ModelViewer"] = function (canvas) {
       * @instance
       */
     function clear() {
-        var keys = Object.keys(modelMap),
+        var modelArray = context.modelArray,
+            textureArray = context.textureArray,
             i,
             l;
         
-        for (i = 0, l = keys.length; i < l; i++) {
-            removeModel(modelMap[keys[i]]);
+        for (i = 0, l = modelArray.length; i < l; i++) {
+            removeModel(modelArray[i]);
+        }
+
+        for (i = 0, l = textureArray.length; i < l; i++) {
+            removeTexture(textureArray[0]);
         }
         
         Array.clear(modelArray);
-        Array.clear(instanceArray);
-        Object.clear(modelInstanceMap);
-        Object.clear(modelMap);
+        Array.clear(context.instanceArray);
+        Array.clear(textureArray);
+        Object.clear(context.modelInstanceMap);
+        Object.clear(context.modelMap);
+        Object.clear(context.textureMap);
     }
     
     function loadingEnded() {
-        return objectsNotReady === 0;
+        return context.objectsNotReady === 0;
     }
     
     // TODO: Add a way to check for internal instances/models and their textures too.
@@ -640,12 +622,8 @@ window["ModelViewer"] = function (canvas) {
         }
     }
     
-    function getModels() {
-        return modelArray;
-    }
-    
-    function getInstances() {
-        return instanceArray;
+    function getContext() {
+        return context;
     }
     
   // -------------------
@@ -653,9 +631,9 @@ window["ModelViewer"] = function (canvas) {
   // -------------------
   
     function setWorldTextures(ground, sky, water) {
-        groundTexture = ground;
-        skyTexture = sky;
-        waterTexture = water;
+        context.worldTextures.ground = ground;
+        context.worldTextures.sky = sky;
+        context.worldTextures.water = water;
     }
 
   /**
@@ -874,11 +852,8 @@ window["ModelViewer"] = function (canvas) {
         ctx.viewport(0, 0, canvas.width, canvas.height);
         
         var id = encodeFloat3(colorPixel[0], colorPixel[1], colorPixel[2]);
-        var object = modelInstanceMap[id];
 
-        if (object && object.type === "instance") {
-            return object;
-        }
+        return context.instanceMap[id];
     }
   
   /**
@@ -987,12 +962,12 @@ window["ModelViewer"] = function (canvas) {
     * @param {BaseModelInstance} modelInstanceHandler A BaseModelInstance-like object.
     * @param {boolean} binary Determines what type of input the model handler will get - a string, or an ArrayBuffer.
     */
-    function registerModelHandler(fileType, modelHandler, modelInstanceHandler, binary) {
-        AsyncModel.handlers[fileType] = [modelHandler, !!binary];
+    function registerModelHandler(fileType, modelHandler, modelInstanceHandler, isAscii) {
+        AsyncModel.handlers[fileType] = [modelHandler, !isAscii];
         AsyncModelInstance.handlers[fileType] = modelInstanceHandler;
 
-        supportedModelFileTypes[fileType] = 1;
-        supportedFileTypes[fileType] = 1;
+        context.supportedFileTypes.both[fileType] = true;
+        context.supportedFileTypes.models[fileType] = true;
     }
   
   /**
@@ -1003,19 +978,11 @@ window["ModelViewer"] = function (canvas) {
     * @param {string} fileType The file format the handler handles.
     * @param {function} textureHandler
     */
-    function registerTextureHandler(fileType, textureHandler) {
-        gl.registerTextureHandler(fileType, textureHandler);
+    function registerTextureHandler(fileType, textureHandler, isAscii) {
+        gl.registerTextureHandler(fileType, textureHandler, !isAscii);
 
-        supportedTextureFileTypes[fileType] = 1;
-        supportedFileTypes[fileType] = 1;
-    }
-  
-    function getWebGLContext() {
-        return ctx;
-    }
-    
-    function getCamera() {
-        return context.camera;
+        context.supportedFileTypes.both[fileType] = true;
+        context.supportedFileTypes.textures[fileType] = true;
     }
     
     var API = {
@@ -1025,8 +992,6 @@ window["ModelViewer"] = function (canvas) {
         clear: clear,
         loadingEnded: loadingEnded,
         dependenciesLoaded: dependenciesLoaded,
-        getModels: getModels,
-        getInstances: getInstances,
         // General settings
         setWorldTextures: setWorldTextures,
         setAnimationSpeed: setAnimationSpeed,
@@ -1049,13 +1014,12 @@ window["ModelViewer"] = function (canvas) {
         getPolygonMode: getPolygonMode,
         setShader: setShader,
         getShader: getShader,
-        getWebGLContext: getWebGLContext,
-        getCamera: getCamera,
         // Misc
         selectInstance: selectInstance,
         resetViewport: resetViewport,
         //saveScene: saveScene,
         //loadScene: loadScene,
+        getContext: getContext,
         // Extending
         registerModelHandler: registerModelHandler,
         registerTextureHandler: registerTextureHandler,

@@ -40,7 +40,7 @@ EventDispatcher.prototype = {
         if (!event.type) {
             return;
         }
-    
+
         var listeners = this.listeners;
 
         if (listeners[event.type] !== undefined) {

@@ -27,7 +27,7 @@ function ShaderUnit(ctx, source, type, name) {
         //console.warn("Failed to compile a shader:");
         console.warn(name, ctx.getShaderInfoLog(this.id));
         //console.warn(source);
-        onerror(this, "Compile");
+        //onerror(this, "Compile");
     }
 }
 
@@ -64,7 +64,7 @@ function Shader(ctx, name, vertexUnit, fragmentUnit) {
         this.ready = true;
     } else {
         console.warn(name, ctx.getProgramInfoLog(this.id));
-        onerror(this, "Link");
+        //onerror(this, "Link");
     }
 }
 

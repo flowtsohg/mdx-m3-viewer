@@ -9,18 +9,16 @@
  * @param {function} callbacks.onremove A callback function.
  * @property {WebGLRenderingContext} ctx
  */
-function GL(element, callbacks) {
+function GL(canvas) {
     var ctx,
-        identifiers = ["webgl", "experimental-webgl"],
-        i,
-        l;
+        identifiers = ["webgl", "experimental-webgl"];
   
     for (var i = 0, l = identifiers.length; i < l; ++i) {
         try {
             // preserveDrawingBuffer is needed normally to be able to use the WebGL canvas as an image source (e.g. RTT).
             // It however makes rendering slower, since it doesn't let browsers implement optimizations.
             // For proper support, use the viewer's render event - the internal WebGL buffer is still valid there.
-            ctx = element.getContext(identifiers[i], {antialias: true, alpha: false/*, preserveDrawingBuffer: true*/});
+            ctx = canvas.getContext(identifiers[i], { antialias: true, alpha: false/*, preserveDrawingBuffer: true*/ });
         } catch(e) {
             
         }
@@ -68,7 +66,7 @@ function GL(element, callbacks) {
     var floatPrecision = "precision mediump float;\n";
     var textureHandlers = {};
 
-    ctx.viewport(0, 0, element.clientWidth, element.clientHeight);
+    ctx.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
     ctx.depthFunc(ctx.LEQUAL);
     ctx.enable(ctx.DEPTH_TEST);
     ctx.enable(ctx.CULL_FACE);
@@ -504,13 +502,13 @@ function GL(element, callbacks) {
 	 * @param {string} fileType The file format the handler handles.
 	 * @param {function} textureHandler
 	 */
-	function registerTextureHandler(fileType, textureHandler) {
-		textureHandlers[fileType] = textureHandler;
+	function registerTextureHandler(fileType, textureHandler, isBinary) {
+	    textureHandlers[fileType] = [textureHandler, isBinary];
 	}
 	
-	textureHandlers[".png"] = NativeTexture;
-	textureHandlers[".gif"] = NativeTexture;
-	textureHandlers[".jpg"] = NativeTexture;
+	textureHandlers[".png"] = [NativeTexture, true];
+	textureHandlers[".gif"] = [NativeTexture, true];
+	textureHandlers[".jpg"] = [NativeTexture, true];
 
 	return {
 		setPerspective: setPerspective,

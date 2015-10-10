@@ -32,7 +32,7 @@ AsyncTexture.prototype = {
         if (this.isFromMemory) {
             this.loadFromMemory(this.source);
         } else {
-            this.request = getRequest(this.source, true, this.onloadTexture.bind(this), this.error.bind(this), this.progress.bind(this));
+            this.request = getRequest(this.source, this.handler[1], this.onloadTexture.bind(this), this.error.bind(this), this.progress.bind(this));
         }
     },
 
@@ -66,7 +66,8 @@ AsyncTexture.prototype = {
     },
 
     loadFromMemory: function (src) {
-        this.texture = new this.handler(src, this.options, this.ctx, this.reportError.bind(this), this.reportLoad.bind(this), this.compressedTextures, this.isFromMemory);
+        this.texture = new this.handler[0]();
+        this.texture.loadstart(this, src, this.reportError.bind(this), this.reportLoad.bind(this))
     },
     
     loaded: function () {

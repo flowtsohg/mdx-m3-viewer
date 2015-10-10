@@ -31,6 +31,20 @@ function AsyncModelInstance(asyncModel, isInternal) {
 AsyncModelInstance.handlers = {};
 
 AsyncModelInstance.prototype = {
+    reportError: function (error) {
+        this.dispatchEvent({ type: "error", error: error });
+        this.dispatchEvent("loadend");
+    },
+
+    reportLoad: function () {
+        this.ready = true;
+
+        this.runFunctors();
+
+        this.dispatchEvent("load");
+        this.dispatchEvent("loadend");
+    },
+
     loadstart: function () {
         this.dispatchEvent("loadstart");
         
@@ -46,14 +60,8 @@ AsyncModelInstance.prototype = {
     * @param {object} textureMap An object with texture path -> absolute urls mapping.
     */
     setup: function () {
-        this.instance = new AsyncModelInstance.handlers[this.asyncModel.fileType](this);
-
-        this.ready = true;
-
-        this.runFunctors();
-
-        this.dispatchEvent("load");
-        this.dispatchEvent("loadend");
+        this.instance = new AsyncModelInstance.handlers[this.asyncModel.fileType]();
+        this.instance.loadstart(this, this.reportError.bind(this), this.reportLoad.bind(this));
     },
   
   /**

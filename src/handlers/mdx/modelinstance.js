@@ -1,13 +1,20 @@
-Mdx.ModelInstance = function (asyncInstance) {
-    this.asyncInstance = asyncInstance;
-
-    BaseModelInstance.call(this, asyncInstance.asyncModel.model, {});
-
-    this.setup(asyncInstance);
+Mdx.ModelInstance = function () {
+    
 }
 
 Mdx.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
-    setup: function (asyncInstance) {
+    loadstart: function (asyncInstance, reportError, reportLoad) {
+        BaseModelInstance.call(this, asyncInstance.asyncModel.model, {});
+
+        this.asyncInstance = asyncInstance;
+
+        this.setup();
+
+        reportLoad();
+    },
+
+    setup: function () {
+        var asyncInstance = this.asyncInstance;
         var model = asyncInstance.asyncModel.model;
         var pathSolver = asyncInstance.pathSolver;
         var context = asyncInstance.context;

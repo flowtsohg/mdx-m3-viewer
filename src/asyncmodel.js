@@ -26,6 +26,20 @@ function AsyncModel(source, fileType, pathSolver, isFromMemory, context) {
 AsyncModel.handlers = {};
 
 AsyncModel.prototype = {
+    reportError: function (error) {
+        this.dispatchEvent({ type: "error", error: error });
+        this.dispatchEvent("loadend");
+    },
+
+    reportLoad: function () {
+        this.ready = true;
+
+        this.runFunctors();
+
+        this.dispatchEvent("load");
+        this.dispatchEvent("loadend");
+    },
+
     loadstart: function () {
         this.dispatchEvent("loadstart");
 
@@ -68,23 +82,13 @@ AsyncModel.prototype = {
         if (status === 200) {
             this.setupFromMemory(e.target.response);
         } else {
-            this.dispatchEvent({ type: "error", error: status });
-            this.dispatchEvent("loadend");
+            this.reportError(status);
         }
     },
 
     setupFromMemory: function (memory) {
-        var model = new AsyncModel.handlers[this.fileType][0](this, memory);
-
-        if (model.ready) {
-            this.model = model;
-            this.ready = true;
-
-            this.runFunctors();
-
-            this.dispatchEvent("load");
-            this.dispatchEvent("loadend");
-        }
+        this.model = new AsyncModel.handlers[this.fileType][0]();
+        this.model.loadstart(this, memory, this.reportError.bind(this), this.reportLoad.bind(this));
     },
  
   /**

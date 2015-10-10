@@ -1,13 +1,18 @@
-M3.ModelInstance = function (asyncInstance) {
-    BaseModelInstance.call(this, asyncInstance.asyncModel.model, {});
-
-    this.asyncInstance = asyncInstance;
-
-    this.skeleton = new M3.Skeleton(asyncInstance, asyncInstance.asyncModel.model, asyncInstance.context.gl.ctx);
+M3.ModelInstance = function () {
 
 };
 
 M3.ModelInstance.prototype = extend(BaseModelInstance.prototype, {
+    loadstart: function (asyncInstance, reportError, reportLoad) {
+        BaseModelInstance.call(this, asyncInstance.asyncModel.model, {});
+
+        this.asyncInstance = asyncInstance;
+
+        this.skeleton = new M3.Skeleton(this.asyncInstance, this.asyncInstance.asyncModel.model, this.asyncInstance.context.gl.ctx);
+
+        reportLoad();
+    },
+
     update: function () {
         var context = this.asyncInstance.context;
         var i, l;

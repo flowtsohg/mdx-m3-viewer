@@ -1,16 +1,22 @@
-Mdx.Model = function (asyncModel, arrayBuffer) {
-    BaseModel.call(this, {});
+Mdx.Model = function () {
 
-    this.asyncModel = asyncModel;
-
-    var parser = Mdx.Parser(new BinaryReader(arrayBuffer));
-
-    if (parser) {
-        this.setup(parser, asyncModel.pathSolver, asyncModel.context);
-    }
 };
 
 Mdx.Model.prototype = extend(BaseModel.prototype, {
+    loadstart: function (asyncModel, src, reportError, reportLoad) {
+        BaseModel.call(this, {});
+
+        this.asyncModel = asyncModel;
+
+        var parser = Mdx.Parser(new BinaryReader(src));
+
+        if (parser) {
+            this.setup(parser, this.asyncModel.pathSolver, this.asyncModel.context);
+        }
+
+        reportLoad();
+    },
+
     setup: function (parser, pathSolver, context) {
         var gl = context.gl;
         var objects, i, l, j, k;

@@ -1,86 +1,87 @@
 function Camera() {
     this.viewport = vec4.create();
-    this.fov = 0.7853981633974483;
-    this.aspect = 1;
-    this.near = 0.1;
-    this.far = 100000;
-    this.projection = mat4.create();
-    this.location = vec3.create();
+
     this.target = vec3.create();
     this.originalTarget = vec3.create();
     this.panVector = vec3.create();
-    this.view = mat4.create();
-    this.viewProjection = mat4.create();
-    this.inverseViewProjection = mat4.create();
-    this.inverseView = mat4.create();
-    this.inverseRotation = mat4.create();
+
     this.theta = 0;
     this.phi = 0;
+
     // The first four vector describe a rectangle, the last three describe scale vectors
     this.rect = [vec3.fromValues(-1, -1, 0), vec3.fromValues(-1, 1, 0), vec3.fromValues(1, 1, 0), vec3.fromValues(1, -1, 0), vec3.fromValues(1, 0, 0), vec3.fromValues(0, 1, 0), vec3.fromValues(0, 0, 1)];
     this.billboardedRect = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
-    this.dirty = true;
     
     this.heap1 = vec3.create();
     this.heap2 = vec3.create();
+
+
+    this.horizontalFov = 0.7853981633974483;
+    this.aspectRatio = 1;
+    this.nearPlane = 1;
+    this.farPlane = 100000;
+
     
-    this.reset();
+    this.worldMatrix = mat4.create();
+    this.viewMatrix = mat4.create();
+    this.projectionMatrix = mat4.create();
+    this.viewProjMatrix = mat4.create();
+    this.worldRotationMatrix = mat4.create();
+    this.inverseViewProjMatrix = mat4.create();
+
+    this.location = vec3.create();
+    this.rotation = quat.create();
+    this.scale = vec3.fromValues(1, 1, 1);
+
+    this.computeProjectionMatrix();
 }
 
 Camera.prototype = {
-    reset: function () {
-        vec3.set(this.panVector, 0, 0, -300);
-        vec3.set(this.target, 0, 0, 0);
-        vec3.set(this.originalTarget, 0, 0, 0);
-        
-        this.theta = 5.5;
-        this.phi = 4;  
-        
-        this.dirty = true;
-    },
-    
-    update: function () {
-        if (this.dirty) {
-            var view = this.view,
-                projection = this.projection,
-                viewProjection = this.viewProjection,
-                location = this.location,
-                inverseView = this.inverseView,
-                inverseRotation = this.inverseRotation,
-                theta = this.theta,
-                phi = this.phi,
-                rect = this.rect,
-                billboardedRect = this.billboardedRect,
-                i;
-            
-            mat4.perspective(projection, this.fov, this.aspect, this.near, this.far);
-            
-            mat4.identity(view);
-            mat4.translate(view, view, this.panVector);
-            mat4.rotateX(view, view, theta);
-            mat4.rotateZ(view, view, phi);
-            mat4.translate(view, view, this.target);
-            
-            mat4.multiply(viewProjection, projection, view);
-            mat4.invert(this.inverseViewProjection, viewProjection);
-            
-            mat4.identity(inverseRotation);
-            mat4.rotateZ(inverseRotation, inverseRotation, -phi);
-            mat4.rotateX(inverseRotation, inverseRotation, -theta);
+    computeWorldMatrix: function () {
+        var worldMatrix = this.worldMatrix;
 
-            mat4.invert(inverseView, view);
-            vec3.transformMat4(location, vec3.UNIT_Z, inverseView);
-            
-            for (i = 0; i < 7; i++) {
-                vec3.transformMat4(billboardedRect[i], rect[i], inverseRotation);
-            }
-            
-            this.dirty = false;
-            
-            return true;
+        mat4.identity(worldMatrix);
+        mat4.translate(worldMatrix, worldMatrix, this.panVector);
+        mat4.rotateZ(worldMatrix, worldMatrix, -this.phi);
+        mat4.rotateX(worldMatrix, worldMatrix, -this.theta);
+        mat4.translate(worldMatrix, worldMatrix, this.target);
+
+        vec3.transformMat4(this.location, vec3.UNIT_Z, worldMatrix);
+    },
+
+    computeProjectionMatrix: function () {
+        mat4.perspective(this.projectionMatrix, this.horizontalFov, this.aspectRatio, this.nearPlane, this.farPlane);
+    },
+
+    computeViewProjMatrix: function () {
+        mat4.invert(this.viewMatrix, this.worldMatrix);
+        mat4.mul(this.viewProjMatrix, this.projectionMatrix, this.viewMatrix)
+        mat4.invert(this.inverseViewProjMatrix, this.viewProjMatrix);
+    },
+
+    computeBillboardRect: function () {
+        var worldRotationMatrix = this.worldRotationMatrix,
+            rect = this.rect,
+            billboardedRect = this.billboardedRect;
+
+        mat4.identity(worldRotationMatrix);
+        mat4.rotateZ(worldRotationMatrix, worldRotationMatrix, -this.phi);
+        mat4.rotateX(worldRotationMatrix, worldRotationMatrix, -this.theta);
+
+        for (i = 0; i < 7; i++) {
+            vec3.transformMat4(billboardedRect[i], rect[i], worldRotationMatrix);
         }
-        
-        return false;
+    },
+
+    worldMatrixChanged: function () {
+        this.computeWorldMatrix();
+        this.computeBillboardRect();
+        this.computeViewProjMatrix();
+    },
+
+    projectionMatrixChanged: function () {
+        this.computeProjectionMatrix();
+        this.computeViewProjMatrix();
     },
     
     moveLocation: function (offset) {
@@ -105,13 +106,13 @@ Camera.prototype = {
         
         vec3.sub(target, target, offset);
         
-        this.dirty = true;
+        this.worldMatrixChanged();
     },
     
     moveTo: function (target) {
         vec3.negate(this.target, target);
         
-        this.dirty = true;
+        this.worldMatrixChanged();
     },
     
     setLocation: function (location) {
@@ -133,7 +134,7 @@ Camera.prototype = {
         this.theta = -sphericalCoordinate[2]
         this.phi = -sphericalCoordinate[1] - Math.PI / 2;
         
-        this.dirty = true;
+        this.worldMatrixChanged();
     },
     
     // Move the camera in camera space
@@ -142,77 +143,53 @@ Camera.prototype = {
         
         vec3.add(panVector, panVector, pan);
         
-        this.dirty = true;
+        this.worldMatrixChanged();
     },
     
     setPan: function (pan) {
         vec3.copy(this.panVector, pan);
         
-        this.dirty = true;
+        this.worldMatrixChanged();
     },
     
     rotate: function (theta, phi) {
         this.theta += theta;
         this.phi += phi;
-        
-        this.dirty = true;
+
+        this.worldMatrixChanged();
     },
     
     setRotation: function (theta, phi) {
         this.theta = theta;
         this.phi = phi;
         
-        this.dirty = true;
+        this.worldMatrixChanged();
     },
     
     zoom: function (factor) {
         this.panVector[2] *= factor;
         
-        this.dirty = true;
+        this.worldMatrixChanged();
     },
     
     setZoom: function (zoom) {
         this.panVector[2] = zoom;
         
-        this.dirty = true;
-    },
-    
-    setFov: function (fov) {
-        this.fov = fov;
-        
-        this.dirty = true;
-    },
-    
-    setAspect: function (aspect) {
-        this.aspect = aspect;
-        
-        this.dirty = true;
-    },
-    
-    setNearPlane: function (near) {
-        this.near = near;
-        
-        this.dirty = true;
-    },
-    
-    setFarPlane: function (far) {
-        this.far = far;
-        
-        this.dirty = true;
+        this.worldMatrixChanged();
     },
     
     setViewport: function (viewport) {
         vec4.copy(this.viewport, viewport);
         
-        this.aspect = viewport[2] / viewport[3];
+        this.aspectRatio = viewport[2] / viewport[3];
         
-        this.dirty = true;
+        this.projectionMatrixChanged();
     },
     
     // Given a 3D camera space offset, returns a 3D world offset.
     cameraToWorld: function (out, offset) {
         vec3.set(out, offset[0], offset[1], offset[2]);
-        vec3.transformMat4(out, out, this.inverseRotation);
+        vec3.transformMat4(out, out, this.worldRotationMatrix);
         
         return out;
     },
@@ -223,12 +200,12 @@ Camera.prototype = {
             b = this.heap2,
             x = coordinate[0],
             y = coordinate[1],
-            inverseViewProjection = this.inverseViewProjection,
+            inverseViewProjMatrix = this.inverseViewProjMatrix,
             viewport = this.viewport,
             zIntersection;
         
-        vec3.unproject(a, x, y, 0, inverseViewProjection, viewport);
-        vec3.unproject(b, x, y, 1, inverseViewProjection, viewport);
+        vec3.unproject(a, x, y, 0, inverseViewProjMatrix, viewport);
+        vec3.unproject(b, x, y, 1, inverseViewProjMatrix, viewport);
         
         zIntersection = -a[2] / (b[2] - a[2]);
         
@@ -239,10 +216,10 @@ Camera.prototype = {
     
     worldToScreen: function (out, coordinate) {
         var a = this.heap1,
-            viewProjection = this.viewProjection,
+            viewProjMatrix = this.viewProjMatrix,
             viewport = this.viewport;
         
-        vec3.transformMat4(a, coordinate, viewProjection);
+        vec3.transformMat4(a, coordinate, viewProjMatrix);
         
         out[0] = Math.round(((a[0] + 1) / 2) * viewport[2]);
         out[1] = Math.round(((a[1] + 1) / 2) * viewport[3]);

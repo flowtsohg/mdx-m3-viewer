@@ -1,17 +1,23 @@
-M3.Model = function (asyncModel, arrayBuffer) {
-    BaseModel.call(this, {});
-
-    var parser = M3.Parser(new BinaryReader(arrayBuffer));
-
-    this.asyncModel = asyncModel;
-
-    if (parser) {
-        this.setup(parser, asyncModel.pathSolver, asyncModel.context.gl);
-        this.setupShaders(parser, asyncModel.context.gl);
-    }
+M3.Model = function () {
+    
 };
 
 M3.Model.prototype = extend(BaseModel.prototype, {
+    loadstart: function (asyncModel, src, reportError, reportLoad) {
+        BaseModel.call(this, {});
+
+        this.asyncModel = asyncModel;
+
+        var parser = M3.Parser(new BinaryReader(src));
+
+        if (parser) {
+            this.setup(parser, this.asyncModel.pathSolver, this.asyncModel.context.gl);
+            this.setupShaders(parser, this.asyncModel.context.gl);
+        }
+
+        reportLoad();
+    },
+
     setup: function (parser, pathSolver, gl) {
         var i, l;
         var material;
