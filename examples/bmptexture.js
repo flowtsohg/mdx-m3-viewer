@@ -10,7 +10,7 @@ BMPTexture.prototype = {
 
         // BMP magic identifier
         if (read(binaryReader, 2) !== "BM") {
-            onerror("BMP: BadFormat");
+            reportError("BMP: BadFormat");
             return;
         }
 
@@ -28,14 +28,14 @@ BMPTexture.prototype = {
         var bpp = readUint16(binaryReader);
 
         if (bpp !== 24) {
-            onerror("BMP: Only 24 bits per pixel supported");
+            reportError("BMP: Only 24 bits per pixel supported");
             return;
         }
 
         var compression = readUint32(binaryReader);
 
         if (compression !== 0) {
-            onerror("BMP: compressed images are not supported");
+            reportError("BMP: compressed images are not supported");
             return;
         }
 
