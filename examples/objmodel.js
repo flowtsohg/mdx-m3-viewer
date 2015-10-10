@@ -1,14 +1,18 @@
-// context is an object that contains all the global settings of the viewer.
-// onerror is used to report errors if there are any, simply call it with a string.
-function OBJModel(data, textureMap, context, onerror) {
-    BaseModel.call(this, textureMap);
+function OBJModel() {
 
-    // context.gl is of type GL and adds helper functionality around WebGL.
-    this.setup(data, context.gl);
-    this.setupShaders(context.gl);
 }
 
 OBJModel.prototype = Object.create(BaseModel.prototype);
+
+OBJModel.prototype.loadstart = function (asyncModel, src, reportError, reportLoad) {
+    BaseModel.call(this, {});
+
+    this.asyncModel = asyncModel;
+
+    // context.gl is of type GL and adds helper functionality around WebGL.
+    this.setupShaders(asyncModel.context.gl);
+    this.setup(src, asyncModel.context.gl);
+};
 
 OBJModel.prototype.setup = function (data, gl) {
     var lines = data.split("\n");
@@ -59,8 +63,8 @@ OBJModel.prototype.setup = function (data, gl) {
     this.elementBuffer = elementBuffer;
     this.elements = faces.length;
 
-    // Must be set to true in order to signal that this model was parsed successfully.
-    this.ready = true;
+    // Report that this model was loaded properly, otherwise it will be ignored
+    reportLoad();
 };
 
 OBJModel.prototype.setupShaders = function (gl) {
@@ -74,8 +78,8 @@ OBJModel.prototype.setupShaders = function (gl) {
 };
 
 // Note: instance refers to the OBJModelInstance that is getting rendered.
-OBJModel.prototype.render = function (instance, context) {
-    var gl = context.gl;
+OBJModel.prototype.render = function () {
+    var gl = this.asyncModel.context.gl;
     var ctx = gl.ctx;
 
     // A GL.Shader object.
