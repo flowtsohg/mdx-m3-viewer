@@ -32,85 +32,6 @@ vec3.bezier = function (out, a, b, c, d, t) {
     return out;
 };
 
-mat4.fromRotationTranslationScale = function (out, q, v, s) {
-    var x = q[0], y = q[1], z = q[2], w = q[3],
-        x2 = x + x,
-        y2 = y + y,
-        z2 = z + z,
-        xx = x * x2,
-        xy = x * y2,
-        xz = x * z2,
-        yy = y * y2,
-        yz = y * z2,
-        zz = z * z2,
-        wx = w * x2,
-        wy = w * y2,
-        wz = w * z2,
-        sx = s[0],
-        sy = s[1],
-        sz = s[2];
-    
-    out[0] = (1 - (yy + zz)) * sx;
-    out[1] = (xy + wz) * sx;
-    out[2] = (xz - wy) * sx;
-    out[3] = 0;
-    out[4] = (xy - wz) * sy;
-    out[5] = (1 - (xx + zz)) * sy;
-    out[6] = (yz + wx) * sy;
-    out[7] = 0;
-    out[8] = (xz + wy) * sz;
-    out[9] = (yz - wx) * sz;
-    out[10] = (1 - (xx + yy)) * sz;
-    out[11] = 0;
-    out[12] = v[0];
-    out[13] = v[1];
-    out[14] = v[2];
-    out[15] = 1;
-
-    return out;
-};
-
-mat4.fromRotationTranslationScaleOrigin = function (out, q, v, s, o) {
-    var x = q[0], y = q[1], z = q[2], w = q[3],
-        x2 = x + x,
-        y2 = y + y,
-        z2 = z + z,
-        xx = x * x2,
-        xy = x * y2,
-        xz = x * z2,
-        yy = y * y2,
-        yz = y * z2,
-        zz = z * z2,
-        wx = w * x2,
-        wy = w * y2,
-        wz = w * z2,
-        sx = s[0],
-        sy = s[1],
-        sz = s[2],
-        ox = o[0],
-        oy = o[1],
-        oz = o[2];
-    
-    out[0] = (1 - (yy + zz)) * sx;
-    out[1] = (xy + wz) * sx;
-    out[2] = (xz - wy) * sx;
-    out[3] = 0;
-    out[4] = (xy - wz) * sy;
-    out[5] = (1 - (xx + zz)) * sy;
-    out[6] = (yz + wx) * sy;
-    out[7] = 0;
-    out[8] = (xz + wy) * sz;
-    out[9] = (yz - wx) * sz;
-    out[10] = (1 - (xx + yy)) * sz;
-    out[11] = 0;
-    out[12] = v[0] + ox - (out[0] * ox + out[4] * oy + out[8] * oz);
-    out[13] = v[1] + oy - (out[1] * ox + out[5] * oy + out[9] * oz);
-    out[14] = v[2] + oz - (out[2] * ox + out[6] * oy + out[10] * oz);
-    out[15] = 1;
-    
-    return out;
-};
-
 mat4.toRotationMat4 = (function () {
     var quadrent = mat3.create();
     
@@ -121,15 +42,15 @@ mat4.toRotationMat4 = (function () {
         out[0] = quadrent[0];
         out[1] = quadrent[1];
         out[2] = quadrent[2];
-        out[3] = 1;
+        out[3] = 0;
         out[4] = quadrent[3];
         out[5] = quadrent[4];
         out[6] = quadrent[5];
-        out[7] = 1;
+        out[7] = 0;
         out[8] = quadrent[6];
         out[9] = quadrent[7];
         out[10] = quadrent[8];
-        out[11] = 1;
+        out[11] = 0;
         out[12] = 0;
         out[13] = 0;
         out[14] = 0;
@@ -200,13 +121,3 @@ quat.nquad = (function () {
         return out;
     };
 }());
-
-vec3.compare = function (a, b) {
-    return a[0] != b[0] || a[1] != b[1] || a[2] != b[2];
-};
-
-vec4.compare = function (a, b) {
-    return a[0] != b[0] || a[1] != b[1] || a[2] != b[2] || a[3] != b[3];
-};
-
-quat.compare = vec4.compare;

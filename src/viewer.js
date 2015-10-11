@@ -11,13 +11,12 @@ window["ModelViewer"] = function (canvas) {
     var ctx = gl.ctx;
 
     var context = {
+        canvas: canvas,
+        gl: gl,
         objectsNotReady: 0,
-        frameTime: 1000 / 60,
-        frameTimeMS: 1000 / 30,
-        frameTimeS: 1 / 30,
-        skipFrames: 2,
+        frameTimeMS: 1000 / 60,
+        frameTimeS: 1 / 60,
         camera: new Camera([0, 0, canvas.clientWidth, canvas.clientHeight]),
-        instanceCamera: [-1, -1],
         skyMode: 1,
         groundMode: 1,
         groundSize: 256,
@@ -27,7 +26,6 @@ window["ModelViewer"] = function (canvas) {
         boundingShapesMode: false,
         texturesMode: true,
         shader: 0,
-        gl: gl,
         teamColors: [[255, 3, 3], [0, 66, 255], [28, 230, 185], [84, 0, 129], [255, 252, 1], [254, 138, 14], [32, 192, 0], [229, 91, 176], [149, 150, 151], [126, 191, 241], [16, 98, 70], [78, 42, 4], [40, 40, 40], [0, 0, 0]],
         shaders: ["standard", "diffuse", "normals", "uvs", "normalmap", "specular", "specular_normalmap", "emissive", "unshaded", "unshaded_normalmap", "decal", "white"],
         lightPosition: [0, 0, 10000],
@@ -40,9 +38,9 @@ window["ModelViewer"] = function (canvas) {
         modelArray: [],
         instanceArray: [],
         textureArray: [],
-        modelMap: {},
-        instanceMap: {},
-        textureMap: {},
+        modelMap: new Map(),
+        instanceMap: new Map(),
+        textureMap: new Map(),
         supportedFileTypes: {
             models: {},
             textures: { ".png": true, ".gif": true, ".jpg": true },
@@ -329,8 +327,8 @@ window["ModelViewer"] = function (canvas) {
         return modelMap[src];
     }
   
-    function loadInstance(source, isInternal) {
-        var instance = new AsyncModelInstance(context.modelMap[source], isInternal);
+    function loadInstance(src, isInternal) {
+        var instance = new AsyncModelInstance(context.modelMap[src], isInternal);
 
         context.instanceArray.push(instance);
         context.instanceMap[instance.id] = instance;
@@ -391,7 +389,6 @@ window["ModelViewer"] = function (canvas) {
   
     function removeInstance(instance, removingModel) {
         var instanceArray = context.instanceArray,
-            instanceMap = context.instanceMap,
             i,
             l;
 
@@ -404,7 +401,7 @@ window["ModelViewer"] = function (canvas) {
         }
 
         // Remove from the model-instance map
-        delete instanceMap[instance.id];
+        context.instanceMap.delete(instance.id);
 
         // Don't remove from the model if the model itself is removeed
         if (!removingModel) {
@@ -423,7 +420,6 @@ window["ModelViewer"] = function (canvas) {
   
     function removeModel(model) {
         var modelArray = context.modelArray,
-            modelMap = context.modelMap,
             instances = model.instances,
             i,
             l;
@@ -445,25 +441,22 @@ window["ModelViewer"] = function (canvas) {
         }
 
         // Remove from the model-instance map
-        delete modelMap[model.source];
+        context.modelMap.delete(model.source);
         
         model.dispatchEvent("remove");
     }
 
     function removeTexture(texture) {
-        var textureArray = context.textureArray,
-            textureMap = context.textureMap,
-            i,
-            l;
+        var textureArray = context.textureArray;
 
-        for (i = 0, l = textureArray.length; i < l; i++) {
+        for (var i = 0, l = textureArray.length; i < l; i++) {
             if (textureArray[i] === texture) {
                 textureArray.splice(i, 1);
                 break;
             }
         }
 
-        delete textureMap[texture.source];
+        context.textureMap.delete(texture.source);
 
         gl.removeTexture(texture);  
     }
@@ -533,21 +526,14 @@ window["ModelViewer"] = function (canvas) {
 
     // src must be one of AsyncModel or AsyncModelInstance or AsyncTexture.
     // If removing an instance, and it is the last instance of the model, removeModelIfLastInstance can be specified if the model should be automatically removed too.
-    function remove(src, removeModelIfLastInstance) {
+    function remove(src) {
         if (src && src.type) {
             var type = src.type;
             
             if (type === "model") {
                 removeModel(src);
             } else if (type === "instance") {
-                // If the owning model has only 1 instance, it must be this one.
-                // Therefore if the client wants to remove the model if it has no instances, remove it.
-                if (src.asyncModel.instances.length === 1 && removeModelIfLastInstance) {
-                    removeModel(src.asyncModel);
-                } else {
-                    removeInstance(src);
-                }
-                
+                removeInstance(src);
             } else if (type === "texture") {
                 removeTexture(src);
             }
@@ -567,7 +553,7 @@ window["ModelViewer"] = function (canvas) {
             l;
         
         for (i = 0, l = modelArray.length; i < l; i++) {
-            removeModel(modelArray[i]);
+            removeModel(modelArray[0]);
         }
 
         for (i = 0, l = textureArray.length; i < l; i++) {
@@ -577,9 +563,9 @@ window["ModelViewer"] = function (canvas) {
         Array.clear(modelArray);
         Array.clear(context.instanceArray);
         Array.clear(textureArray);
-        Object.clear(context.modelInstanceMap);
-        Object.clear(context.modelMap);
-        Object.clear(context.textureMap);
+        context.modelMap.clear();
+        context.instanceMap.clear();
+        context.textureMap.clear();
     }
     
     function loadingEnded() {
@@ -643,10 +629,11 @@ window["ModelViewer"] = function (canvas) {
     * @instance
     * @param {number} ratio The speed.
     */
-    function setAnimationSpeed(ratio) {
-        context.frameTime = ratio / 60 * 1000;
-        context.frameTimeMS = context.frameTime * context.skipFrames;
-        context.frameTimeS = context.frameTimeMS / 1000;
+    function setAnimationSpeed(speed) {
+        speed = Math.max(speed, 0);
+
+        context.frameTimeS = speed / 60;
+        context.frameTimeMS = context.frameTimeS * 1000;
     }
   
   /**
@@ -657,21 +644,9 @@ window["ModelViewer"] = function (canvas) {
     * @returns {number} The speed.
     */
     function getAnimationSpeed() {
-        return context.frameTime / 1000 * 60;
+        return context.frameTimeS * 60;
     }
 
-    function setSkipFrames(skipFrames) {
-        skipFrames = Math.max(skipFrames, 1)
-
-        context.skipFrames = skipFrames;
-        context.frameTimeMS = context.frameTime * skipFrames;
-        context.frameTimeS = context.frameTimeMS / 1000;
-    }
-
-    function getSkipFrames() {
-        return context.skipFrames;
-    }
-  
     function setSkyMode(mode) {
         context.skyMode = mode;
     }
@@ -996,8 +971,6 @@ window["ModelViewer"] = function (canvas) {
         setWorldTextures: setWorldTextures,
         setAnimationSpeed: setAnimationSpeed,
         getAnimationSpeed: getAnimationSpeed,
-        setSkipFrames: setSkipFrames,
-        getSkipFrames: getSkipFrames,
         setSkyMode: setSkyMode,
         getSkyMode: getSkyMode,
         setGroundMode: setGroundMode,
@@ -1027,18 +1000,9 @@ window["ModelViewer"] = function (canvas) {
         renderTexture: renderTexture
     };
 
-    var skipFrames = 1;
-
     // The main loop of the viewer
     (function step() {
-        skipFrames -= 1;
-
-        if (skipFrames === 0) {
-            skipFrames = context.skipFrames;
-
-            update();
-        }
-        
+        update();
         render();
 
         requestAnimationFrame(step);

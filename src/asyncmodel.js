@@ -12,7 +12,6 @@ function AsyncModel(source, fileType, pathSolver, isFromMemory, context) {
     this.type = "model";
     this.ready = false;
     this.fileType = fileType;
-    this.id = generateID();
     this.pathSolver = pathSolver;
     this.context = context;
     this.isFromMemory = isFromMemory;

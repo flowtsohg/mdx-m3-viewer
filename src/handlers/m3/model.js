@@ -13,9 +13,9 @@ M3.Model.prototype = extend(BaseModel.prototype, {
         if (parser) {
             this.setup(parser, this.asyncModel.pathSolver, this.asyncModel.context.gl);
             this.setupShaders(parser, this.asyncModel.context.gl);
-        }
 
-        reportLoad();
+            reportLoad();
+        } 
     },
 
     setup: function (parser, pathSolver, gl) {
@@ -142,8 +142,6 @@ M3.Model.prototype = extend(BaseModel.prototype, {
 
         this.attachments = parser.attachmentPoints;
         this.cameras = parser.cameras;
-
-        this.ready = true;
     },
 
     setupShaders: function (parser, gl) {
@@ -308,15 +306,22 @@ M3.Model.prototype = extend(BaseModel.prototype, {
         }
     },
 
-    bind: function (shader, ctx) {
+    bindShared: function (shader, ctx) {
         var vertexSize = this.vertexSize;
-        var uvSetCount = this.uvSetCount;
 
         ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
 
         ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, vertexSize, 0);
         ctx.vertexAttribPointer(shader.variables.a_weights, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 12);
         ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 16);
+    },
+
+    bind: function (shader, ctx) {
+        var vertexSize = this.vertexSize;
+        var uvSetCount = this.uvSetCount;
+
+        this.bindShared(shader, ctx);
+
         ctx.vertexAttribPointer(shader.variables.a_normal, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 20);
 
         for (var i = 0; i < uvSetCount; i++) {
@@ -329,25 +334,13 @@ M3.Model.prototype = extend(BaseModel.prototype, {
     },
     
     bindWireframe: function (shader, ctx) {
-        var vertexSize = this.vertexSize;
-
-        ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
-
-        ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, vertexSize, 0);
-        ctx.vertexAttribPointer(shader.variables.a_weights, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 12);
-        ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 16);
+        this.bindShared(shader, ctx);
         
         ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
     },
 
     bindColor: function (shader, ctx) {
-        var vertexSize = this.vertexSize;
-
-        ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
-
-        ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, vertexSize, 0);
-        ctx.vertexAttribPointer(shader.variables.a_weights, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 12);
-        ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 16);
+        this.bindShared(shader, ctx);
 
         ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
     },

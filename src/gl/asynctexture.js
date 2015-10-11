@@ -4,7 +4,6 @@ function AsyncTexture(source, fileType, options, handler, ctx, compressedTexture
     this.fileType = fileType;
     this.options = options || {};
     this.handler = handler;
-    this.id = generateID();
     this.compressedTextures = compressedTextures;
     this.ctx = ctx;
     this.ready = false;
@@ -20,19 +19,19 @@ AsyncTexture.prototype = {
     },
 
     reportLoad: function () {
+        this.ready = true;
+
         this.dispatchEvent("load");
         this.dispatchEvent("loadend");
-
-        this.ready = true;
     },
 
     loadstart: function () {
         this.dispatchEvent("loadstart");
 
         if (this.isFromMemory) {
-            this.loadFromMemory(this.source);
+            this.setupFromMemory(this.source);
         } else {
-            this.request = getRequest(this.source, this.handler[1], this.onloadTexture.bind(this), this.error.bind(this), this.progress.bind(this));
+            this.request = getRequest(this.source, this.handler[1], this.setup.bind(this), this.error.bind(this), this.progress.bind(this));
         }
     },
 
@@ -54,18 +53,17 @@ AsyncTexture.prototype = {
         }
     },
 
-    onloadTexture: function (e) {
+    setup: function (e) {
         var target = e.target;
         
         if (target.status === 200) {
-            this.loadFromMemory(target.response);
+            this.setupFromMemory(target.response);
         } else {
-            this.dispatchEvent({ type: "error", error: target.status });
-            this.dispatchEvent("loadend");
+            this.reportError(target.status);
         }
     },
 
-    loadFromMemory: function (src) {
+    setupFromMemory: function (src) {
         this.texture = new this.handler[0]();
         this.texture.loadstart(this, src, this.reportError.bind(this), this.reportLoad.bind(this))
     },

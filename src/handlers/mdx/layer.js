@@ -1,4 +1,4 @@
-Mdx.ShallowLayer = function (layer, geoset) {
+Mdx.Batch = function (layer, geoset) {
     this.layer = layer;
     this.geoset = geoset;
 };

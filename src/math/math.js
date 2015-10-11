@@ -22,42 +22,6 @@ Math.toDeg = function (radians) {
 };
 
 /**
- * Convert an array of numbers from degrees to radians.
- *
- * @param {number} degrees
- * @returns {number} Radians.
- */
-Array.toRad = function (degrees) {
-    var arr = [],
-        i,
-        l;
-    
-    for (i = 0, l = degrees.length; i < l; i++) {
-        arr[i] = degrees[i] * Math.TO_RAD;
-    }
-    
-    return arr;
-};
-
-/**
- * Convert an array of numbers from radians to degrees.
- *
- * @param {number} radians
- * @returns {number} Degrees.
- */
-Array.toDeg = function (radians) {
-    var arr = [],
-        i,
-        l;
-    
-    for (i = 0, l = radians.length; i < l; i++) {
-        arr[i] = radians[i] * Math.TO_DEG;
-    }
-    
-    return arr;
-};
-
-/**
  * Gets a random number in the given range.
  *
  * @param {number} a
@@ -79,26 +43,6 @@ Math.setFloatPrecision = function (number, decimals) {
     var multiplier = Math.pow(10, decimals);
 
     return Math.round(number * multiplier) / multiplier;
-};
-
-/**
- * Sets the float precision of an array of numbers.
- *
- * @param {array} array
- * @param {number} decimals The number of decimals to keep.
- * @returns {number} Array of new numbers.
- */
-Array.setFloatPrecision = function (array, decimals) {
-    var multiplier = Math.pow(10, decimals),
-        arr = [],
-        i,
-        l;
-
-    for (i = 0, l = array.length; i < l; i++) {
-        arr[i] = Math.round(array[i] * multiplier) / multiplier;
-    }
-
-    return arr;
 };
 
 /**

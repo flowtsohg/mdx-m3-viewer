@@ -270,6 +270,8 @@ DDSTexture.prototype = {
         var compressedTextures = asyncTexture.compressedTextures;
         var options = asyncTexture.options;
 
+        this.asyncTexture = asyncTexture;
+
         var header = new Int32Array(src, 0, 31);
 
         if (header[0] !== DDS_MAGIC) {

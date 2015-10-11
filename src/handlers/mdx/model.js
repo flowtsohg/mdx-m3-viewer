@@ -12,9 +12,9 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
 
         if (parser) {
             this.setup(parser, this.asyncModel.pathSolver, this.asyncModel.context);
-        }
 
-        reportLoad();
+            reportLoad();
+        }
     },
 
     setup: function (parser, pathSolver, context) {
@@ -131,7 +131,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
                 for (j = 0, k = layers.length; j < k; j++) {
                     layer = layers[j];
 
-                    groups[layer.renderOrder].push(new Mdx.ShallowLayer(layer, mesh));
+                    groups[layer.renderOrder].push(new Mdx.Batch(layer, mesh));
                 }
             }
 
@@ -165,8 +165,6 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         // Avoid heap allocations in render()
         this.modifier = vec4.create();
         this.uvoffset = vec3.create();
-
-        this.ready = true;
 
         this.setupShaders(chunks, gl);
         this.setupTeamColors(gl, pathSolver);
@@ -529,11 +527,11 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
                 geoset = batch.geoset;
                 layer = batch.layer;
 
-                if (instance.meshVisibilities[geoset.index] && this.shouldRenderGeoset(sequence, frame, counter, geoset)) {
+                if (instance.meshVisibilities[geoset.index] && this.shouldRender(sequence, frame, counter, geoset, layer)) {
                     texture = textures[layer.textureId];
 
                     // Layers with team glows tend to be big planes that aren't parts of the actual geometry, so avoid selecting them
-                    if (texture !== "replaceabletextures/teamglow/teamglow00.blp") {
+                    if (!texture.source.match("teamglow")) {
                         geoset.renderColor(shader, ctx);
                     }
                 }

@@ -56,13 +56,11 @@ function GL(canvas) {
     var viewMatrix = mat4.create();
     var viewProjectionMatrix = mat4.create();
     var matrixStack = [];
-    var textureStore = {};
-    var textureStoreById = {};
+    var textureMap = new Map();
     var shaderUnitStore = {};
     var shaderStore = {};
     var boundShader;
     var boundShaderName = "";
-    var boundTextures = [];
     var floatPrecision = "precision mediump float;\n";
     var textureHandlers = {};
 
@@ -394,13 +392,12 @@ function GL(canvas) {
 	 * @param {string} source The texture's url.
 	 * @param {object} options Options.
 	 */
-	function loadTexture(source, fileType, isFromMemory, options) {
-	    if (!textureStore[source]) {
-	        textureStore[source] = new AsyncTexture(source, fileType, options, textureHandlers[fileType], ctx, compressedTextures, isFromMemory);
-	        textureStoreById[textureStore[source].id] = textureStore[source];
+	function loadTexture(src, fileType, isFromMemory, options) {
+	    if (!textureMap[src]) {
+	        textureMap[src] = new AsyncTexture(src, fileType, options, textureHandlers[fileType], ctx, compressedTextures, isFromMemory);
 	    }
 
-	    return textureStore[source];
+	    return textureMap[src];
 	}
 
 	/**
@@ -413,7 +410,7 @@ function GL(canvas) {
 	function removeTexture(asyncTexture) {
 	    asyncTexture.dispatchEvent("remove");
 
-	    delete textureStore[asyncTexture.source];
+	    textureMap.delete(asyncTexture.source);
 	}
 
 	function bindTexture(asyncTexture, unit) {

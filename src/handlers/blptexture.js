@@ -13,7 +13,7 @@ var BLP_PALLETE = 0x1;
  * @property {WebGLTexture} id
  * @property {boolean} ready
  */
-window["BLPTexture"] = function BLPTexture(asyncTexture) {
+window["BLPTexture"] = function BLPTexture() {
 
 };
 
@@ -21,6 +21,8 @@ BLPTexture.prototype = {
     loadstart: function (asyncTexture, src, reportError, reportLoad) {
         var ctx = asyncTexture.ctx;
         var i;
+
+        this.asyncTexture = asyncTexture;
 
         if (src.byteLength < 40) {
             onerror("BLP: Bad File");

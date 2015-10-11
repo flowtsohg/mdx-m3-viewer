@@ -18,6 +18,8 @@ TGATexture.prototype = {
         var ctx = asyncTexture.ctx;
         var options = asyncTexture.options;
 
+        this.asyncTexture = asyncTexture;
+
         var dataView = new DataView(src);
         var imageType = dataView.getUint8(2);
 

@@ -222,14 +222,6 @@ Object.copy = function (object) {
     return newObj;
 };
 
-Object.clear = function (object) {
-    for (var property in object) {
-        if (object.hasOwnProperty(property)) {
-            delete object[property];
-        }
-    }
-};
-
 /**
  * A shallow Array copy.
  *
