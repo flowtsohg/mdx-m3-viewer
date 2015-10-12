@@ -1,5 +1,5 @@
 // A simple 24-bit BMP handler
-function BMPTexture(arrayBuffer, options, ctx, onerror, onload, compressedTextures) {
+function BMPTexture() {
     
 }
 
@@ -53,7 +53,7 @@ BMPTexture.prototype = {
         ctx.pixelStorei(ctx.UNPACK_FLIP_Y_WEBGL, 0);
         ctx.generateMipmap(ctx.TEXTURE_2D);
 
-        this.id = id; // If the id isn't set, this texture wont be used
+        this.id = id; // If the id isn't set, this texture won't be bound to a texture unit
 
         // Report that this texture was loaded properly, otherwise it will be ignored
         reportLoad();

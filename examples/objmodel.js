@@ -78,7 +78,7 @@ OBJModel.prototype.setupShaders = function (gl) {
 };
 
 // Note: instance refers to the OBJModelInstance that is getting rendered.
-OBJModel.prototype.render = function () {
+OBJModel.prototype.render = function (instance) {
     var gl = this.asyncModel.context.gl;
     var ctx = gl.ctx;
 
