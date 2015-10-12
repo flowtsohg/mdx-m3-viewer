@@ -393,11 +393,11 @@ function GL(canvas) {
 	 * @param {object} options Options.
 	 */
 	function loadTexture(src, fileType, isFromMemory, options) {
-	    if (!textureMap[src]) {
-	        textureMap[src] = new AsyncTexture(src, fileType, options, textureHandlers[fileType], ctx, compressedTextures, isFromMemory);
+	    if (!textureMap.has(src)) {
+	        textureMap.set(src, new AsyncTexture(src, fileType, options, textureHandlers[fileType], ctx, compressedTextures, isFromMemory));
 	    }
 
-	    return textureMap[src];
+	    return textureMap.get(src);
 	}
 
 	/**

@@ -307,10 +307,10 @@ window["ModelViewer"] = function (canvas) {
     function loadModel(src, fileType, pathSolver, isFromMemory) {
         var modelMap = context.modelMap;
 
-        if (!modelMap[src]) {
+        if (!modelMap.has(src)) {
             var model = new AsyncModel(src, fileType, pathSolver, isFromMemory, context);
 
-            modelMap[src] = model;
+            modelMap.set(src, model);
             context.modelArray.push(model);
 
             model.addEventListener("loadstart", dispatchEvent);
@@ -324,14 +324,14 @@ window["ModelViewer"] = function (canvas) {
             model.loadstart();
         }
 
-        return modelMap[src];
+        return modelMap.get(src);
     }
   
     function loadInstance(src, isInternal) {
-        var instance = new AsyncModelInstance(context.modelMap[src], isInternal);
+        var instance = new AsyncModelInstance(context.modelMap.get(src), isInternal);
 
         context.instanceArray.push(instance);
-        context.instanceMap[instance.id] = instance;
+        context.instanceMap.set(instance.id, instance);
 
         instance.addEventListener("loadstart", dispatchEvent);
         instance.addEventListener("load", dispatchEvent);
@@ -347,10 +347,10 @@ window["ModelViewer"] = function (canvas) {
     function loadTexture(src, fileType, isFromMemory, options) {
         var textureMap = context.textureMap;
 
-        if (!textureMap[src]) {
+        if (!textureMap.has(src)) {
             var texture = gl.loadTexture(src, fileType, isFromMemory, options);
 
-            textureMap[src] = texture;
+            textureMap.set(src, texture);
             context.textureArray.push(texture);
 
             texture.addEventListener("loadstart", dispatchEvent);
@@ -364,7 +364,7 @@ window["ModelViewer"] = function (canvas) {
             texture.loadstart();
         }
 
-        return textureMap[src];
+        return textureMap.get(src);
     }
   
     // Load a model or texture from an absolute url, with an optional texture map, and an optional hidden parameter
@@ -525,7 +525,6 @@ window["ModelViewer"] = function (canvas) {
     }
 
     // src must be one of AsyncModel or AsyncModelInstance or AsyncTexture.
-    // If removing an instance, and it is the last instance of the model, removeModelIfLastInstance can be specified if the model should be automatically removed too.
     function remove(src) {
         if (src && src.type) {
             var type = src.type;
