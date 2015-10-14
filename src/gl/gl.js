@@ -62,7 +62,6 @@ function GL(canvas) {
     var boundShader;
     var boundShaderName = "";
     var floatPrecision = "precision mediump float;\n";
-    var textureHandlers = {};
 
     ctx.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
     ctx.depthFunc(ctx.LEQUAL);
@@ -392,9 +391,9 @@ function GL(canvas) {
 	 * @param {string} source The texture's url.
 	 * @param {object} options Options.
 	 */
-	function loadTexture(src, fileType, isFromMemory, options) {
+	function loadTexture(src, fileType, handler, isFromMemory, options) {
 	    if (!textureMap.has(src)) {
-	        textureMap.set(src, new AsyncTexture(src, fileType, options, textureHandlers[fileType], ctx, compressedTextures, isFromMemory));
+	        textureMap.set(src, new AsyncTexture(src, fileType, options, handler, ctx, compressedTextures, isFromMemory));
 	    }
 
 	    return textureMap.get(src);
@@ -491,22 +490,6 @@ function GL(canvas) {
 		return new Cylinder(ctx, x, y, z, r, h, bands);
 	}
 
-	/**
-	 * Registers an external handler for an unsupported texture type.
-	 *
-	 * @memberof GL
-	 * @instance
-	 * @param {string} fileType The file format the handler handles.
-	 * @param {function} textureHandler
-	 */
-	function registerTextureHandler(fileType, textureHandler, isBinary) {
-	    textureHandlers[fileType] = [textureHandler, isBinary];
-	}
-	
-	textureHandlers[".png"] = [NativeTexture, true];
-	textureHandlers[".gif"] = [NativeTexture, true];
-	textureHandlers[".jpg"] = [NativeTexture, true];
-
 	return {
 		setPerspective: setPerspective,
 		setOrtho: setOrtho,
@@ -534,7 +517,6 @@ function GL(canvas) {
 		createSphere: createSphere,
 		createCube: createCube,
 		createCylinder: createCylinder,
-		ctx: ctx,
-		registerTextureHandler: registerTextureHandler
+		ctx: ctx
 	};
 }

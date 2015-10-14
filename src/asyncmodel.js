@@ -17,12 +17,11 @@ function AsyncModel(source, fileType, pathSolver, isFromMemory, context) {
     this.isFromMemory = isFromMemory;
     this.source = source;
     this.instances = [];
+    this.handler = context.handlers.model.get(fileType);
 
     Async.call(this);
     EventDispatcher.call(this); 
 }
-
-AsyncModel.handlers = {};
 
 AsyncModel.prototype = {
     reportError: function (error) {
@@ -45,7 +44,7 @@ AsyncModel.prototype = {
         if (this.isFromMemory) {
             this.setupFromMemory(this.source);
         } else {
-            this.request = getRequest(this.source, AsyncModel.handlers[this.fileType][1], this.setup.bind(this), this.error.bind(undefined, this), this.progress.bind(this));
+            this.request = getRequest(this.source, this.handler[1], this.setup.bind(this), this.error.bind(undefined, this), this.progress.bind(this));
         }
     },
 
@@ -86,7 +85,7 @@ AsyncModel.prototype = {
     },
 
     setupFromMemory: function (memory) {
-        this.model = new AsyncModel.handlers[this.fileType][0]();
+        this.model = new this.handler[0]();
         this.model.loadstart(this, memory, this.reportError.bind(this), this.reportLoad.bind(this));
     },
  

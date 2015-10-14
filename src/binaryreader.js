@@ -477,3 +477,17 @@ function readVector4(reader) {
 function readMatrix(reader) {
     return readFloat32Array(reader, 16);
 }
+
+
+function writeUint8(reader, value) {
+    reader.uint8Array[reader.index] = value;
+    reader.index += 1;
+}
+
+function writeUint8Array(reader, array) {
+    for (var i = 0, l = array.byteLength; i < l; i++) {
+        reader.uint8Array[reader.index + i] = array[i];
+    }
+
+    reader.index += array.byteLength;
+}

@@ -41,10 +41,11 @@ window["ModelViewer"] = function (canvas) {
         modelMap: new Map(),
         instanceMap: new Map(),
         textureMap: new Map(),
-        supportedFileTypes: {
-            models: {},
-            textures: { ".png": true, ".gif": true, ".jpg": true },
-            both: { ".png": true, ".gif": true, ".jpg": true }
+        handlers: {
+            supported: new Map(),
+            model: new Map(),
+            instance: new Map(),
+            texture: new Map()
         },
         worldTextures: {
             ground: null,
@@ -348,7 +349,7 @@ window["ModelViewer"] = function (canvas) {
         var textureMap = context.textureMap;
 
         if (!textureMap.has(src)) {
-            var texture = gl.loadTexture(src, fileType, isFromMemory, options);
+            var texture = gl.loadTexture(src, fileType, context.handlers.texture.get(fileType), isFromMemory, options);
 
             textureMap.set(src, texture);
             context.textureArray.push(texture);
@@ -369,8 +370,8 @@ window["ModelViewer"] = function (canvas) {
   
     // Load a model or texture from an absolute url, with an optional texture map, and an optional hidden parameter
     function loadResource(source, pathSolver, fileType, isFromMemory, isInternal) {
-        if (context.supportedFileTypes.both[fileType]) {
-            if (context.supportedFileTypes.models[fileType]) {
+        if (context.handlers.supported.has(fileType)) {
+            if (context.handlers.model.has(fileType)) {
                 loadModel(source, fileType, pathSolver, isFromMemory);
 
                 return loadInstance(source, isInternal);
@@ -937,11 +938,9 @@ window["ModelViewer"] = function (canvas) {
     * @param {boolean} binary Determines what type of input the model handler will get - a string, or an ArrayBuffer.
     */
     function registerModelHandler(fileType, modelHandler, modelInstanceHandler, isAscii) {
-        AsyncModel.handlers[fileType] = [modelHandler, !isAscii];
-        AsyncModelInstance.handlers[fileType] = modelInstanceHandler;
-
-        context.supportedFileTypes.both[fileType] = true;
-        context.supportedFileTypes.models[fileType] = true;
+        context.handlers.model.set(fileType, [modelHandler, !isAscii]);
+        context.handlers.instance.set(fileType, modelInstanceHandler);
+        context.handlers.supported.set(fileType, true);
     }
   
   /**
@@ -953,12 +952,15 @@ window["ModelViewer"] = function (canvas) {
     * @param {function} textureHandler
     */
     function registerTextureHandler(fileType, textureHandler, isAscii) {
-        gl.registerTextureHandler(fileType, textureHandler, !isAscii);
-
-        context.supportedFileTypes.both[fileType] = true;
-        context.supportedFileTypes.textures[fileType] = true;
+        context.handlers.texture.set(fileType, [textureHandler, !isAscii]);
+        context.handlers.supported.set(fileType, true);
     }
-    
+
+    // Register by default native browser supported image types
+    registerTextureHandler(".png", NativeTexture);
+    registerTextureHandler(".jpg", NativeTexture);
+    registerTextureHandler(".gif", NativeTexture);
+
     var API = {
         // Resource API
         load: load,

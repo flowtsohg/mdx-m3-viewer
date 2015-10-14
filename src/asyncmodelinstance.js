@@ -22,13 +22,12 @@ function AsyncModelInstance(asyncModel, isInternal) {
     this.isInternal = isInternal;
     this.asyncModel = asyncModel;
     this.context = asyncModel.context;
+    this.handler = asyncModel.context.handlers.instance.get(asyncModel.fileType);
 
     Async.call(this);
     Node.call(this, true);
     EventDispatcher.call(this);
 }
-
-AsyncModelInstance.handlers = {};
 
 AsyncModelInstance.prototype = {
     reportError: function (error) {
@@ -60,7 +59,7 @@ AsyncModelInstance.prototype = {
     * @param {object} textureMap An object with texture path -> absolute urls mapping.
     */
     setup: function () {
-        this.instance = new AsyncModelInstance.handlers[this.asyncModel.fileType]();
+        this.instance = new this.handler();
         this.instance.loadstart(this, this.reportError.bind(this), this.reportLoad.bind(this));
     },
   
