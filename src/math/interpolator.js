@@ -1,8 +1,8 @@
-var interpolator = (function () {
-    var zeroV = vec3.create(),
-        zeroQ = quat.create();
+const Interpolator = {
+    heap3: vec3.create(),
+    heap4: quat.create(),
 
-    function scalar(a, b, c, d, t, type) {
+    scalar(a, b, c, d, t, type) {
         if (type === 0) {
             return a;
         } else if (type === 1) {
@@ -14,9 +14,9 @@ var interpolator = (function () {
         }
 
         return 0;
-    }
+    },
 
-    function vector(out, a, b, c, d, t, type) {
+    vector(out, a, b, c, d, t, type) {
         if (type === 0) {
             return a;
         } else if (type === 1) {
@@ -27,10 +27,10 @@ var interpolator = (function () {
             return vec3.bezier(out, a, b, c, d, t);
         }
 
-        return vec3.copy(out, zeroV);
-    }
+        return vec3.copy(out, vec3.ZERO);
+    },
 
-    function quaternion(out, a, b, c, d, t, type) {
+    quaternion(out, a, b, c, d, t, type) {
         if (type === 0) {
             return a;
         } else if (type === 1) {
@@ -39,18 +39,18 @@ var interpolator = (function () {
             return quat.nquad(out, a, b, c, d, t);
         }
 
-        return quat.copy(out, zeroQ);
-    }
+        return quat.copy(out, quat.ZERO);
+    },
 
-    return function (out, a, b, c, d, t, type) {
-        var length = a.length;
+    interpolate(a, b, c, d, t, type) {
+        const length = a.length;
 
         if (length === 3) {
-            return vector(out, a, b, c, d, t, type);
+            return this.vector(this.heap3, a, b, c, d, t, type);
         } else if (length === 4) {
-            return quaternion(out, a, b, c, d, t, type);
+            return this.quaternion(this.heap4, a, b, c, d, t, type);
         } else {
-            return scalar(a, b, c, d, t, type);
+            return this.scalar(a, b, c, d, t, type);
         }
-    };
-}());
+    }
+};

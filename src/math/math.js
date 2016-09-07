@@ -33,19 +33,6 @@ Math.randomRange = function (a, b) {
 };
 
 /**
- * Sets the float precision of a number.
- *
- * @param {number} number
- * @param {number} decimals The number of decimals to keep.
- * @returns {number} New number.
- */
-Math.setFloatPrecision = function (number, decimals) {
-    var multiplier = Math.pow(10, decimals);
-
-    return Math.round(number * multiplier) / multiplier;
-};
-
-/**
  * Clamp a number in a range.
  *
  * @param {number} x
@@ -162,3 +149,18 @@ Math.powerOfTwo = function (x) {
 
     return x;
 };
+
+function getRandomItem(list, weight) {
+    const total_weight = weight.reduce(function (prev, cur, i, arr) { return prev + cur; }),
+        n = Math.random() * total_weight;
+
+    let weightSum = 0;
+
+    for (let i = 0; i < list.length; i++) {
+        weightSum += weight[i];
+
+        if (n <= weightSum) {
+            return list[i];
+        }
+    }
+}

@@ -1,0 +1,390 @@
+function MdxModelInstance(env) {
+    ModelInstance.call(this, env);
+}
+
+MdxModelInstance.prototype = {
+    initialize() {
+        var model = this.model;
+        var pathSolver = model.pathSolver;
+
+        this.skeleton = new MdxSkeleton(this, model);
+
+        //this.ribbonEmitters = [];
+
+
+        this.particleEmitters = [];
+        if (model.particleEmitters && model.particleEmitters.length > 0) {
+            const objects = model.particleEmitters;
+
+            for (let i = 0, l = objects.length; i < l; i++) {
+                this.particleEmitters[i] = new MdxParticleEmitter(this, objects[i]);
+            }
+        }
+
+        this.particleEmitters2 = [];
+        if (model.particleEmitters2 && model.particleEmitters2.length > 0) {
+            const objects = model.particleEmitters2;
+            
+            for (let i = 0, l = objects.length; i < l; i++) {
+                this.particleEmitters2[i] = new MdxParticleEmitter2View(this, objects[i]);
+            }
+        }
+
+        /*
+        if (model.ribbonEmitters && model.ribbonEmitters.length > 0) {
+            objects = model.ribbonEmitters;
+
+            for (i = 0, l = objects.length; i < l; i++) {
+                this.ribbonEmitters[i] = new MdxRibbonEmitter(objects[i], model, this, ctx);
+            }
+        }
+        */
+
+        //-------------------------------------------------------------------------------------------------------
+        // NOTE: If I ever want to re-implement bounding shape rendering, this is pretty much how it should work
+        //       Possibly always create unit geometries and scale the instances, to avoid creating many models
+        //       This will allow me to introduce instanced rendering for SimpleMesh if I want to at some point
+        //       E.g. createSphere(1, 12, 12)
+        //            ...
+        //            instance.setUniformScale(radius)
+        //-------------------------------------------------------------------------------------------------------
+        //var boundingShapes = model.boundingShapes;
+        //for (var i = 0, l = boundingShapes.length; i < l; i++) {
+        //    var boundingShape = boundingShapes[i];
+
+        //    if (boundingShape.type === 0) {
+        //        var vertices = boundingShape.vertices,
+        //            x1 = vertices[0],
+        //            y1 = vertices[1],
+        //            z1 = vertices[2],
+        //            x2 = vertices[3],
+        //            y2 = vertices[4],
+        //            z2 = vertices[5];
+
+        //        var instance = viewer.load({ geometry: createCube((x2 - x1) / 2, (y2 - y1) / 2, (z2 - z1) / 2), material: { renderMode: 1 } }, null, ".simplemesh");
+        //        instance.dontInheritScale = false; // Override since the bounding shapes should scale with the instance
+        //        instance.setLocation([(x2 + x1) / 2, (y2 + y1) / 2, (z2 + z1) / 2]);
+        //        instance.setParent(this.skeleton.nodes[boundingShape.node.index]);
+        //    } else if (boundingShape.type === 2) {
+        //        var instance = viewer.load({ geometry: createSphere(boundingShape.radius, 12, 12), material: { renderMode: 1 } }, null, ".simplemesh");
+        //        instance.dontInheritScale = false; // Override since the bounding shapes should scale with the instance
+        //        instance.setLocation(boundingShape.vertices);
+        //        instance.setParent(this.skeleton.nodes[boundingShape.node.index]);
+        //    }
+        //}
+        //-------------------------------------------------------------------------------------------------------
+
+        this.attachmentInstances = [];
+        this.attachments = [];
+        this.attachmentVisible = [];
+        
+        //for (i = 0, l = model.attachments.length; i < l; i++) {
+        //    var path = model.attachments[i].path.replace(/\\/g, "/").toLowerCase().replace(".mdl", ".mdx");
+            
+        //    // Second condition is against custom resources using arbitrary paths...
+        //    if (path !== "" && path.indexOf(".mdx") != -1) {
+        //        var instance = viewer.loadInternalResource(pathSolver(path));
+        //        instance.setSequence(0);
+        //        instance.setSequenceLoopMode(2);
+        //        instance.setParent(this.getAttachment(model.attachments[i].attachmentId));
+                
+        //        this.attachmentInstances.push(instance);
+        //        this.attachments.push(model.attachments[i]);
+        //        this.attachmentVisible.push(true);
+        //    }
+        //}
+        
+        this.eventObjectEmitters = [];
+        
+        //if (model.eventObjects) {
+        //    objects = model.eventObjects;
+            
+        //    for (i = 0, l = objects.length; i < l; i++) {
+        //        this.eventObjectEmitters[i] = new MdxEventObjectEmitter(objects[i], model, this, viewer, pathSolver);
+        //    }
+        //}
+
+        this.sequence = -1;
+        this.sequenceLoopMode = 0;
+        this.sequenceObject = null;
+    },
+
+    setSharedData(sharedData) {
+        this.bucket = sharedData.bucket;
+
+        this.skeleton.boneArray = sharedData.boneArray;
+
+        // Update once at setup, since it might not be updated later, depending on sequence variancy
+        this.skeleton.update();
+
+        this.geosetColorArrays = sharedData.geosetColorArrays;
+        this.uvOffsetArrays = sharedData.uvOffsetArrays;
+
+        this.teamColorArray = sharedData.teamColorArray;
+        this.tintColorArray = sharedData.tintColorArray;
+
+        this.batchVisibilityArrays = sharedData.batchVisibilityArrays;
+    },
+
+    updateEmitters(allowCreate) {
+        let emitters;
+
+        emitters = this.particleEmitters;
+        for (let i = 0, l = emitters.length; i < l; i++) {
+            emitters[i].update(allowCreate);
+        }
+
+        emitters = this.particleEmitters2;
+        for (let i = 0, l = emitters.length; i < l; i++) {
+            emitters[i].update(allowCreate);
+        }
+        /*
+        emitters = this.ribbonEmitters;
+        for (var i = 0, l = emitters.length; i < l; i++) {
+            emitters[i].update(allowCreate, , viewer);
+        }
+
+        emitters = this.eventObjectEmitters;
+        for (var i = 0, l = emitters.length; i < l; i++) {
+            emitters[i].update(allowCreate, , viewer);
+        }
+        */
+    },
+
+    update() {
+        var viewer = this.env;
+
+        var allowCreate = false;
+
+        if (this.sequenceObject) {
+            var sequence = this.sequenceObject;
+
+            this.frame += viewer.frameTimeMS;
+
+            allowCreate = true;
+
+            if (this.frame >= sequence.interval[1]) {
+                if (this.sequenceLoopMode === 2 || (this.sequenceLoopMode === 0 && sequence.flags === 0)) {
+                    this.frame = sequence.interval[0];
+                    allowCreate = true;
+                } else {
+                    this.frame = sequence.interval[1];
+                    allowCreate = false;
+                }
+
+                this.dispatchEvent({ type: "seqend" });
+            }
+        }
+        
+        if (this.sequence !== -1 && this.model.variants[this.sequence]) {
+            this.skeleton.update();
+            
+            this.bucket.updateBoneTexture[0] = 1;
+        }
+
+        this.updateEmitters(allowCreate);
+
+        //var attachmentInstances = this.attachmentInstances;
+        //var attachments = this.attachments;
+        //var attachmentVisible = this.attachmentVisible;
+        //var attachment;
+        
+        //for (var i = 0, l = attachments.length; i < l; i++) {
+        //    attachment = attachments[i];
+
+        //    attachmentVisible[i] = attachment.getVisibility(this) > 0.1;
+            
+        //    if (attachmentVisible[i]) {
+        //        this.attachmentInstances[i].update();
+        //    }
+        //}
+
+        var model = this.model,
+            batches = model.batches,
+            layers = model.layers,
+            geosetColorArrays = this.geosetColorArrays,
+            uvOffsetArrays = this.uvOffsetArrays,
+            batchVisibilityArrays = this.batchVisibilityArrays;
+
+        // Update batch visibilities and geoset colors
+        for (var i = 0, l = batches.length; i < l; i++) {
+            var batch = batches[i],
+                index = batch.index,
+                geoset = batch.geoset,
+                layer = batch.layer,
+                geosetColorArray = geosetColorArrays[index];
+
+            var batchVisibility = batch.shouldRender(this);
+            batchVisibilityArrays[index][0] = batchVisibility;
+            this.bucket.updateBatches[index] |= batchVisibility;
+
+            if (batchVisibility) {
+                if (geoset.geosetAnimation) {
+                    var tempVec3 = geoset.geosetAnimation.getColor(this);
+
+                    geosetColorArray[0] = tempVec3[0] * 255;
+                    geosetColorArray[1] = tempVec3[1] * 255;
+                    geosetColorArray[2] = tempVec3[2] * 255;
+                }
+
+                geosetColorArray[3] = layer.getAlpha(this) * 255;
+            }
+        }
+
+        // Update texture coordinates
+        for (var i = 0, l = layers.length; i < l; i++) {
+            var layer = layers[i],
+                index = layer.index,
+                textureAnimation = layer.textureAnimation,
+                uvOffsetArray = uvOffsetArrays[index];
+
+            // Texture animation that works by offsetting the coordinates themselves
+            if (textureAnimation) {
+                // What is Z used for?
+                var uvOffset = textureAnimation.getTranslation(this);
+
+                uvOffsetArray[0] = uvOffset[0];
+                uvOffsetArray[1] = uvOffset[1];
+
+                this.bucket.updateUvOffsets[0] = 1;
+            }
+
+            // Texture animation that is based on a texture atlas, where the selected tile changes
+            if (layer.isTextureAnim) {
+                var uvDivisor = layer.uvDivisor;
+                var textureId = layer.getTextureId(this);
+
+                uvOffsetArray[2] = textureId % uvDivisor[0];
+                uvOffsetArray[3] = Math.floor(textureId / uvDivisor[1]);
+
+                this.bucket.updateUvOffsets[0] = 1;
+            }
+        }
+    },
+
+    recalculateTransformation() {
+        Node.prototype.recalculateTransformation.call(this);
+
+        if (this.rendered) {
+            this.skeleton.update();
+        } else {
+            this.addAction(() => this.skeleton.update(), []);
+        }
+    },
+    /*
+    render: function () {
+        if (this.eventObjectEmitters) {
+            var emitters = this.eventObjectEmitters;
+            
+            for (i = 0, l = emitters.length; i < l; i++) {
+                emitters[i].render();
+            }
+        }
+
+        this.model.render(this);
+
+        var attachmentInstances = this.attachmentInstances;
+        var attachmentVisible = this.attachmentVisible;
+        
+        for (var i = 0, l = attachmentInstances.length; i < l; i++) {
+            if (attachmentVisible[i]) {
+                attachmentInstances[i].render();
+            }
+        }
+    },
+    
+    renderEmitters: function () {
+        if (this.eventObjectEmitters) {
+            var emitters = this.eventObjectEmitters;
+            
+            for (i = 0, l = emitters.length; i < l; i++) {
+                emitters[i].renderEmitters();
+            }
+        }
+        
+        this.model.renderEmitters(this);
+        
+        var attachmentInstances = this.attachmentInstances;
+        var attachmentVisible = this.attachmentVisible;
+        
+        for (var i = 0, l = attachmentInstances.length; i < l; i++) {
+            if (attachmentVisible[i]) {
+                attachmentInstances[i].renderEmitters();
+            }
+        }
+    },
+    */
+    setTeamColor(id) {
+        if (this.rendered) {
+            this.teamColorArray[0] = id;
+            this.bucket.updateTeamColors[0] = 1;
+        } else {
+            this.addAction(id => this.setTeamColor(id), [id]);
+        }
+
+        return this;
+    },
+
+    setTintColor(color) {
+        if (this.rendered) {
+            this.tintColorArray.set(color);
+            this.bucket.updateTintColors[0] = 1;
+        } else {
+            this.addAction(id => this.setTintColor(color), [color]);
+        }
+
+        return this;
+    },
+
+    setSequence(id) {
+        if (this.rendered) {
+            var sequences = this.model.sequences.length;
+
+            if (id < sequences) {
+                this.sequence = id;
+
+                if (id === -1) {
+                    this.frame = 0;
+
+                    this.sequenceObject = null;
+                } else {
+                    var sequence = this.model.sequences[id];
+
+                    this.frame = sequence.interval[0];
+
+                    this.sequenceObject = sequence;
+                }
+
+                // Update the skeleton in case this sequence isn't vareiant, and thus it won't get updated in the update function
+                this.skeleton.update();
+            }
+        } else {
+            this.addAction(id => this.setSequence(id), [id]);
+        }
+
+        return this;
+    },
+
+    setSequenceLoopMode(mode) {
+        if (this.rendered) {
+            this.sequenceLoopMode = mode;
+        } else {
+            this.addAction(mode => this.setSequenceLoopMode(mode), [mode]);
+        }
+
+        return this;
+
+    },
+
+    getAttachment(id) {
+        var attachment = this.model.attachments[id];
+
+        if (attachment) {
+            return this.skeleton.nodes[attachment.node.index];
+        } else {
+            return this.skeleton.nodes[0];
+        }
+    }
+};
+
+mix(MdxModelInstance.prototype, ModelInstance.prototype);

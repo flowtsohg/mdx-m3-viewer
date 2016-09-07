@@ -3,51 +3,43 @@ function EventDispatcher() {
 }
  
 EventDispatcher.prototype = {
-    addEventListener: function (type, listener) {
-        var listeners = this.listeners;
+    addEventListener(type, listener) {
+        const listeners = this.listeners;
 
-        if (listeners[type] === undefined){
+        if (listeners[type] === undefined) {
             listeners[type] = [];
         }
 
         listeners[type].push(listener);
+
+        return this;
     },
     
-    removeEventListener: function (type, listener) {
-        var listeners = this.listeners;
+    removeEventListener(type, listener) {
+        const listeners = this.listeners[type];
 
-        if (listeners[type] !== undefined) {
-            var _listeners = listeners[type];
-            
-            for (var i = 0, l = _listeners.length; i < l; i++) {
-                if (_listeners[i] === listener) {
-                    _listeners.splice(i, 1);
+        if (listeners !== undefined) {
+            for (let i = 0, l = listeners.length; i < l; i++) {
+                if (listeners[i] === listener) {
+                    listeners.splice(i, 1);
                     return;
                 }
             }
         }
+
+        return this;
     },
     
-    dispatchEvent: function (event) {
-        if (typeof event === "string") {
-            event = {type: event};
-        }
-        
+    dispatchEvent(event) {
         if (!event.target) {
             event.target = this;
         }
 
-        if (!event.type) {
-            return;
-        }
+        const listeners = this.listeners[event.type];
 
-        var listeners = this.listeners;
-
-        if (listeners[event.type] !== undefined) {
-            var _listeners = listeners[event.type];
-            
-            for (var i = 0, l = _listeners.length; i < l; i++) {
-                _listeners[i].call(this, event);
+        if (listeners !== undefined) {
+            for (let i = 0, l = listeners.length; i < l; i++) {
+                listeners[i].call(this, event);
             }
         }
     }

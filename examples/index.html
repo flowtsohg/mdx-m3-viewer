@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-
+﻿<!DOCTYPE html>
 <html>
   <head>
     <title>Example</title>
@@ -9,10 +8,44 @@
   <body>
     <canvas id="canvas"></canvas>
     
-    <script src="viewer.js"></script>
-    <script src="objmodel.js"></script>
-    <script src="objmodelinstance.js"></script>
-    <script src="bmptexture.js"></script>
+    <script src="../src/fpsmeter.min.js"></script>
+    <script src="../src/math/gl-matrix-min.js"></script>
+    <script src="../src/math/gl-matrix-addon.js"></script>
+    <script src="../src/math/interpolator.js"></script>
+    <script src="../src/math/math.js"></script>
+    <script src="../src/binaryreader.js"></script>
+    <script src="../src/bitbuffer.js"></script>
+    <script src="../src/common.js"></script>
+    <script src="../src/geometry.js"></script>
+    <script src="../src/actionqueue.js"></script>
+    <script src="../src/eventdispatcher.js"></script>
+    <script src="../src/node.js"></script>
+    <script src="../src/asyncresource.js"></script>
+    <script src="../src/downloadableresource.js"></script>
+    <script src="../src/skeleton.js"></script>
+    <script src="../src/gl/resizeablebuffer.js"></script>
+    <script src="../src/gl/shader.js"></script>
+    <script src="../src/gl/gl.js"></script>
+    <script src="../src/camera.js"></script>
+    <script src="../src/handler.js"></script>
+    <script src="../src/modelhandler.js"></script>
+    <script src="../src/texturehandler.js"></script>
+    <script src="../src/filehandler.js"></script>
+    <script src="../src/model.js"></script>
+    <script src="../src/modelview.js"></script>
+    <script src="../src/modelinstance.js"></script>
+    <script src="../src/texture.js"></script>
+    <script src="../src/file.js"></script>
+    <script src="../src/bucket.js"></script>
+    <script src="../src/viewer.js"></script>
+
+      <script src="handlers/bmp/texture.js"></script>
+      <script src="handlers/bmp/handler.js"></script>
+
+      <script src="handlers/obj/model.js"></script>
+      <script src="handlers/obj/modelinstance.js"></script>
+      <script src="handlers/obj/handler.js"></script>
+
     <script src="main.js"></script>
   </body>
 </html>

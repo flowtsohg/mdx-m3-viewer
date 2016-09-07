@@ -1,60 +1,89 @@
-var canvas = document.getElementById("canvas");
-var viewer;
+let canvas = document.getElementById("canvas");
 
 canvas.width = 800;
 canvas.height = 600;
 
-// A simple event logger
-function logEvent(e) {
-    console.log(e);
-}
+// Create the viewer!
+let viewer = new ModelViewer(canvas);
+
+let camera = viewer.camera;
+camera.move([0, 0, -1000]);
+
+// The model viewer, and every resource it loads, all support the following events.
+// They are all event emitters, and use the standard JS model of event emitters (addEventListener, removeEventListener, dispatchEvent).
+// In addition to these events, the model viewer itself has the "render" event, which is called every frame right after rendering.
+// Since all resources are event emitters, it is very easy for the implementation to add its own events.
+// For an example of this, the Mdx and M3 model instances send the "seqend" event, every time an animation sequence finishes.
+viewer.addEventListener("loadstart", (e) => console.log(e));
+viewer.addEventListener("load", (e) => console.log(e));
+viewer.addEventListener("loadend", (e) => console.log(e));
+viewer.addEventListener("progress", (e) => console.log(e));
+viewer.addEventListener("error", (e) => console.log(e));
+viewer.addEventListener("delete", (e) => console.log(e));
+
+// A handler is an object that describes the neccassary properties to handle some resource.
+// For example, the Bmp handler is a texture handler, and thus has a Texture getter, that returns the texture implementation BmpTexture.
+// Every handler has a list of extensions that are linked to it, much like how extensions work on the operating system.
+// When a resource is being loaded, the extension used will determine the handler.
+// In this case, Bmp.extension is a getter that returns ".bmp".
+// If one handler handles multiple extensions, they can be added with pipe characters inbetween, like the Png handler's extension - ".png|.jpg|.gif".
+// Finally, the Bmp handler defines the binaryFormat getter to true, which means that any HTTP requests made for it will return an ArrayBuffer, instead of a string.
+viewer.addHandler(Bmp);
+
+// Same deal as the above, but Obj is a model handler.
+// Model handlers are slightly more complicated.
+// The same idea of getters apply also here, but there are 4 implementation getters instead of 1.
+// 1) Model - The model implementation (e.g. ObjModel).
+// 2) ModelView (optional) - The model's view implementation (e.g. ModelView).
+// 3) ModelInstance (optional_ - The model instance implementation (e.g. ObjModelInstance).
+// 4) Bucket (optional) - The model's bucket implementation (e.g. Bucket).
+// Note that ModelView, ModelInstance, and Bucket, default to the base implementation - you are not required to define your own implementations if you don't need to.
+viewer.addHandler(Obj);
 
 // A path solver is used for every load call.
-// The purpose of a path solver is to transform local paths to actual paths on the server.
-// For example, if your resources are in the directory "Resources", and you want to load the model "cube.obj", then the path solver should return "Resources/"+path.
-// You can use different solvers for different loads, to fit whatever mapping you want.
+// The purpose of a path solver is to transform local paths to either of 1) A server fetch, or 2) A local load.
+// A path solver must return the resource source, file extension, and whether it's a server fetch.
+// The above are served as an array of [src, extension, serverFetch]
+// This pathsolver returns the path prepended by "resources/", to make the paths you supply to load calls shorter.
+// It returns the extension of the path directly (assuming it's an actual file path!).
+// Lastly, it says that this path is a server fetch.
+// If the solver returns anything false-like for the third index, there will be no server fetch, and src will be directly sent to the implementation.
+// This can be used if you want in-memory loads (e.g. see the W3x handler's path solver, which handles both server fetches and local loads for Warcraft 3 maps).
 function pathSolver(path) {
-    return path;
+    return ["resources/" + path, path.substr(path.lastIndexOf(".")), true];
 }
 
-try {
-    viewer = ModelViewer(canvas);
-    
-    // Log events
-    viewer.addEventListener("loadstart", logEvent);
-    viewer.addEventListener("load", logEvent);
-    viewer.addEventListener("loadend", logEvent);
-    viewer.addEventListener("progress", logEvent);
-    viewer.addEventListener("error", logEvent);
-    viewer.addEventListener("remove", logEvent);
-    viewer.addEventListener("abort", logEvent);
+// Load our BMP image!
+// This returns the BMP handler's BmpTexture.
+// Note that while everything supposedly works instantly, the texture didn't actually finish loading yet, but the rest of the code is still free to reference this object.
+let texture = viewer.load("texture.bmp", pathSolver);
 
-    // The boolean at the end determines if the handler is going to receive a string (true) or an ArrayBuffer (false).
-    viewer.registerModelHandler(".obj", OBJModel, OBJModelInstance, true);
+// Every viewer resource has a whenLoaded function, and the viewer itself has whenAllLoaded.
+// These functions are much like attaching an event listener to the "loadend" event, but it also calls the given callback if the model was already loaded.
+// ModelViewer.whenAllLoaded works the same way, but takes an array of resources instead, for cases where you want to wait for multiple resources to load before doing something.
+// In this case, let's print that the texture was loaded, whenever it's actually loaded, and the time that passed.
+let initTime = new Date();
+texture.whenLoaded(() => console.log("texture.bmp loaded, it took " + (new Date() - initTime) + " miliseconds!"));
 
-    // Since BMP is a binary format, the last argument can ignored and will therefore evaluate to false.
-    viewer.registerTextureHandler(".bmp", BMPTexture);
-    
-    var myModelInstance = viewer.load("cube.obj", pathSolver); // returns AsyncModelInstance
-    var myTexture = viewer.load("test.bmp", pathSolver); // returns AsyncTexture
+// Load our OBJ model!
+let model = viewer.load("cube.obj", pathSolver);
 
-    // Note that you can do this as well, if the path solver is shared.
-    // Also note that since these resources were already loaded above, this call won't result in actual server fetches, but instead create an instance
-    // with the actual model loaded above as its model, and return a reference to the texture loaded above.
-    var myObjects = viewer.load(["cube.obj", "test.bmp"], pathSolver); // returns [AsyncModelInstance, AsyncTexture]
+// Create an instance of this model.
+let instance = model.addInstance();
 
-    // Here's an example of loading in-memory objects, such as valid JS image source (Image, Canvas, Video, ImageData), or just arbitrary data that an handler knows how to parse.
-    var myModelData = "put real data here"; // Any kind of source that an handler can use, e.g. a string in the case of BMP, or an ArrayBuffer for binary models, or anything else that your handler can handle.
-    var myImage = new Image(); // Put something meaningfull
+// Move the instance and scale it uniformly.
+instance.move([50, 0, 0]).uniformScale(2);
 
-    // The path solver might or might not be needed - this depends on your handler. For example, if it handles a model format with textures that will be fetched from the server, they will need a path solver.
-    // Note that to denote that a source is in-memory, you have to override its file type in the third and optional parameter of load.
-    // Also note that you never need to override the file type of JS image sources, they are special cases.
-    var myOtherObjects = viewer.load([myModelData, myImage], null, [".obj"])
+// Let's create another instance, and mess with it.
+let instance2 = model.addInstance().move([-100, 0, 0]).scale([0.5, 2, 7]);
 
-    // If you want to load both in-memory and server resources at the same time, the override for the server resources should be null, for example:
-    var myOtherOtherObjects = viewer.load(["fake/resource.bmp", myModelData], pathSolver, [null, ".obj"]);
-} catch (e) {
-    // Fatal error, the viewer can't run on this computer/browser (bad browser, bad GPU drivers, bad GPU, etc.)
-    console.log(e);
-}
+// Finally, let's mess around with nodes.
+instance2.setParent(instance);
+
+let q = quat.setAxisAngle([], vec3.normalize([], [1, 1, 1]), Math.PI / 90);
+let q2 = quat.setAxisAngle([], vec3.normalize([], [1, 1, 1]), Math.PI / 30);
+
+viewer.addEventListener("render", (e) => {
+    instance.rotate(q);
+    instance2.rotate(q);
+});
