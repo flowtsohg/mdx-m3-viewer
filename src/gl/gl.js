@@ -39,6 +39,8 @@ function WebGL(canvas) {
         console.warn("WebGL: No compressed textures support! This might reduce performance.");
     }
 
+    gl.extensions = extensions;
+
     // The only initial setup required, the rest should be handled by the handelrs
     gl.depthFunc(gl.LEQUAL);
     gl.enable(gl.DEPTH_TEST);

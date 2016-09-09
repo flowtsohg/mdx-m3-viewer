@@ -444,56 +444,72 @@ MdxModel.prototype = {
     },
 
     bind(bucket) {
-        var webgl = this.env.webgl;
+        const webgl = this.env.webgl;
         var gl = this.gl;
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.__webglElementBuffer);
 
         // HACK UNTIL I IMPLEMENT MULTIPLE SHADERS AGAIN
         var shader = Mdx.standardShader;
         webgl.useShaderProgram(shader);
         this.shader = shader;
 
-        gl.uniformMatrix4fv(shader.uniforms.get("u_mvp"), false, this.env.camera.worldProjectionMatrix);
+        const instancedArrays = gl.extensions.instancedArrays;
+        const attribs = shader.attribs;
+        const uniforms = shader.uniforms;
 
-        gl.uniform1i(shader.uniforms.get("u_texture"), 0);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.__webglElementBuffer);
+
+        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, this.env.camera.worldProjectionMatrix);
+
+        gl.uniform1i(uniforms.get("u_texture"), 0);
 
         // Team colors
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.teamColorBuffer);
-        gl.vertexAttribPointer(shader.attribs.get("a_teamColor"), 1, gl.UNSIGNED_BYTE, false, 1, 0);
-        webgl.extensions.instancedArrays.vertexAttribDivisorANGLE(shader.attribs.get("a_teamColor"), 1);
+        gl.vertexAttribPointer(attribs.get("a_teamColor"), 1, gl.UNSIGNED_BYTE, false, 1, 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_teamColor"), 1);
 
         // Tint colors
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.tintColorBuffer);
-        gl.vertexAttribPointer(shader.attribs.get("a_tintColor"), 3, gl.UNSIGNED_BYTE, true, 3, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
-        webgl.extensions.instancedArrays.vertexAttribDivisorANGLE(shader.attribs.get("a_tintColor"), 1);
+        gl.vertexAttribPointer(attribs.get("a_tintColor"), 3, gl.UNSIGNED_BYTE, true, 3, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_tintColor"), 1);
 
         gl.activeTexture(gl.TEXTURE15);
         gl.bindTexture(gl.TEXTURE_2D, bucket.boneTexture);
-        gl.uniform1i(shader.uniforms.get("u_boneMap"), 15);
-        gl.uniform1f(shader.uniforms.get("u_vector_size"), bucket.vectorSize);
-        gl.uniform1f(shader.uniforms.get("u_matrix_size"), bucket.matrixSize);
-        gl.uniform1f(shader.uniforms.get("u_row_size"), bucket.rowSize);
+        gl.uniform1i(uniforms.get("u_boneMap"), 15);
+        gl.uniform1f(uniforms.get("u_vector_size"), bucket.vectorSize);
+        gl.uniform1f(uniforms.get("u_matrix_size"), bucket.matrixSize);
+        gl.uniform1f(uniforms.get("u_row_size"), bucket.rowSize);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);
-        gl.vertexAttribPointer(shader.attribs.get("a_InstanceID"), 1, gl.UNSIGNED_SHORT, false, 2, 0);
-        webgl.extensions.instancedArrays.vertexAttribDivisorANGLE(shader.attribs.get("a_InstanceID"), 1);
+        gl.vertexAttribPointer(attribs.get("a_InstanceID"), 1, gl.UNSIGNED_SHORT, false, 2, 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 1);
     },
 
     unbind() {
         const gl = this.gl;
+        const instancedArrays = gl.extensions.instancedArrays;
+        const attribs = this.shader.attribs;
 
         // Reset gl values to default, to play nice with other handlers
         gl.depthMask(1);
         gl.disable(gl.BLEND);
         gl.enable(gl.CULL_FACE);
         gl.enable(gl.DEPTH_TEST);
+
+        /// Reset the attributes to play nice with other handlers
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_teamColor"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_tintColor"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_batchVisible"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_geosetColor"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_uvOffset"), 0);
     },
 
     renderBatch(bucket, batch) {
-        var webgl = this.env.webgl;
         var gl = this.gl;
+        const instancedArrays = gl.extensions.instancedArrays;
         var shader = this.shader;
+        const attribs = this.shader.attribs;
+        const uniforms = shader.uniforms;
         var layer = batch.layer;
         var shallowGeoset = this.shallowGeosets[batch.geoset.index];
 
@@ -503,41 +519,41 @@ MdxModel.prototype = {
 
         // Team color
         if (replaceable === 1) {
-            gl.uniform1i(shader.uniforms.get("u_isTeamColor"), 1);
-            gl.uniform1i(shader.uniforms.get("u_isTeamGlow"), 0);
+            gl.uniform1i(uniforms.get("u_isTeamColor"), 1);
+            gl.uniform1i(uniforms.get("u_isTeamGlow"), 0);
             // Team glow
         } else if (replaceable === 2) {
-            gl.uniform1i(shader.uniforms.get("u_isTeamColor"), 0);
-            gl.uniform1i(shader.uniforms.get("u_isTeamGlow"), 1);
+            gl.uniform1i(uniforms.get("u_isTeamColor"), 0);
+            gl.uniform1i(uniforms.get("u_isTeamGlow"), 1);
             // Normal texture
         } else {
-            gl.uniform1i(shader.uniforms.get("u_isTeamColor"), 0);
-            gl.uniform1i(shader.uniforms.get("u_isTeamGlow"), 0);
+            gl.uniform1i(uniforms.get("u_isTeamColor"), 0);
+            gl.uniform1i(uniforms.get("u_isTeamGlow"), 0);
 
             this.bindTexture(layer.textureId, bucket.modelView);
         }
         
         // Batch visibilities
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.batchVisibilityBuffers[batch.index]);
-        gl.vertexAttribPointer(shader.attribs.get("a_batchVisible"), 1, gl.UNSIGNED_BYTE, false, 1, 0);
-        webgl.extensions.instancedArrays.vertexAttribDivisorANGLE(shader.attribs.get("a_batchVisible"), 1);
+        gl.vertexAttribPointer(attribs.get("a_batchVisible"), 1, gl.UNSIGNED_BYTE, false, 1, 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_batchVisible"), 1);
 
         // Geoset colors
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.geosetColorBuffers[batch.index]);
-        gl.vertexAttribPointer(shader.attribs.get("a_geosetColor"), 4, gl.UNSIGNED_BYTE, true, 4, 0);
-        webgl.extensions.instancedArrays.vertexAttribDivisorANGLE(shader.attribs.get("a_geosetColor"), 1);
+        gl.vertexAttribPointer(attribs.get("a_geosetColor"), 4, gl.UNSIGNED_BYTE, true, 4, 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_geosetColor"), 1);
 
         // Texture coordinate animations
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.uvOffsetBuffers[layer.index]);
-        gl.vertexAttribPointer(shader.attribs.get("a_uvOffset"), 4, gl.FLOAT, false, 16, 0);
-        webgl.extensions.instancedArrays.vertexAttribDivisorANGLE(shader.attribs.get("a_uvOffset"), 1);
+        gl.vertexAttribPointer(attribs.get("a_uvOffset"), 4, gl.FLOAT, false, 16, 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_uvOffset"), 1);
 
         // Texture coordinate divisor
         // Used for layers that use image animations, in order to scale the coordinates to match the generated texture atlas
-        gl.uniform2f(shader.uniforms.get("u_uvScale"), 1 / layer.uvDivisor[0], 1 / layer.uvDivisor[1]);
+        gl.uniform2f(uniforms.get("u_uvScale"), 1 / layer.uvDivisor[0], 1 / layer.uvDivisor[1]);
 
         // Does this layer use texture animations with multiple textures?
-        gl.uniform1f(shader.uniforms.get("u_isTextureAnim"), layer.isTextureAnim);
+        gl.uniform1f(uniforms.get("u_isTextureAnim"), layer.isTextureAnim);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.__webglArrayBuffer);
 

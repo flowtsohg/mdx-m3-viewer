@@ -34,7 +34,8 @@ M3Region.prototype = {
         gl.uniform1f(shader.uniforms.get("u_firstBoneLookupIndex"), this.firstBoneLookupIndex);
         gl.uniform1f(shader.uniforms.get("u_boneWeightPairsCount"), this.boneWeightPairsCount);
 
-        gl.drawElements(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.offset);
+        //gl.drawElements(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.offset);
+        gl.extensions.instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.offset, instances);
     },
     
     renderWireframe(shader) {

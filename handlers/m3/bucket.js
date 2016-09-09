@@ -6,8 +6,9 @@ function M3Bucket(modelView) {
 
     this.gl = gl;
 
-    var numberOfBones = model.initialReference.length;
-
+    // POT required because for some reason, on some drivers, NPOT makes rendering go crazy.
+    var numberOfBones = Math.powerOfTwo(model.initialReference.length);
+    
     this.boneArrayInstanceSize = numberOfBones * 16;
     this.boneArray = new Float32Array(this.boneArrayInstanceSize * this.size);
 

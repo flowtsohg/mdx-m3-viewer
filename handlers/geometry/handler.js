@@ -46,7 +46,7 @@ const Geometry = {
     },
 
     get Instance() {
-        return GeometryInstance;
+        return GeometryModelInstance;
     },
 
     get Bucket() {

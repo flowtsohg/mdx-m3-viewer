@@ -6,6 +6,8 @@ canvas.height = 600;
 // Create the viewer!
 let viewer = new ModelViewer(canvas);
 
+// The viewer's camera object.
+// The camera is based on Node, so all Node functions work on it.
 let camera = viewer.camera;
 camera.move([0, 0, -1000]);
 
@@ -59,7 +61,7 @@ function pathSolver(path) {
 let texture = viewer.load("texture.bmp", pathSolver);
 
 // Every viewer resource has a whenLoaded function, and the viewer itself has whenAllLoaded.
-// These functions are much like attaching an event listener to the "loadend" event, but it also calls the given callback if the model was already loaded.
+// These functions are much like attaching an event listener to the "loadend" event, but it also calls the given callback if the resource was already loaded.
 // ModelViewer.whenAllLoaded works the same way, but takes an array of resources instead, for cases where you want to wait for multiple resources to load before doing something.
 // In this case, let's print that the texture was loaded, whenever it's actually loaded, and the time that passed.
 let initTime = new Date();
@@ -75,15 +77,15 @@ let instance = model.addInstance();
 instance.move([50, 0, 0]).uniformScale(2);
 
 // Let's create another instance, and mess with it.
-let instance2 = model.addInstance().move([-100, 0, 0]).scale([0.5, 2, 7]);
+let instance2 = model.addInstance().move([-150, 0, 0]).scale([0.5, 2, 5]);
 
 // Finally, let's mess around with nodes.
 instance2.setParent(instance);
 
-let q = quat.setAxisAngle([], vec3.normalize([], [1, 1, 1]), Math.PI / 90);
+let q = quat.setAxisAngle([], vec3.normalize([], [1, 1, 1]), Math.PI / 120);
 let q2 = quat.setAxisAngle([], vec3.normalize([], [1, 1, 1]), Math.PI / 30);
 
 viewer.addEventListener("render", (e) => {
     instance.rotate(q);
-    instance2.rotate(q);
+    instance2.rotate(q2);
 });

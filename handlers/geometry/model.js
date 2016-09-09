@@ -166,8 +166,8 @@ GeometryModel.prototype = {
             instancedArrays.drawElementsInstancedANGLE(gl.LINES, this.edgeArray.length, this.edgeIndexType, 0, instances.length);
         }
 
-        /// NOTE: If this isn't called, Mdx rendering gets all buggy....why?
-        instancedArrays.vertexAttribDivisorANGLE(null, 0);
+        /// Reset the attributes to play nice with other handlers
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 0);
     },
 
     renderTranslucent(bucket) {

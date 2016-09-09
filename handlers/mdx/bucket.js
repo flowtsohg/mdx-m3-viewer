@@ -7,7 +7,8 @@ function MdxBucket(modelView) {
 
     this.env = env;
 
-    var numberOfBones = model.bones.length + 1;
+    // POT required because for some reason, on some drivers, NPOT makes rendering go crazy.
+    var numberOfBones = Math.powerOfTwo(model.bones.length + 1);
 
     this.boneArrayInstanceSize = numberOfBones * 16;
     this.boneArray = new Float32Array(this.boneArrayInstanceSize * this.size);

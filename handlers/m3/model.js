@@ -194,49 +194,6 @@ M3Model.prototype = {
         this.arrayBuffer = arrayBuffer;
         this.vertexSize = (7 + uvSetCount) * 4;
         this.uvSetCount = uvSetCount;
-
-
-
-
-        const buffer = parser.vertices.getAll().buffer;
-        const reader = new BinaryReader(buffer);
-        const verticesCount = buffer.byteLength / 32;
-
-        const positions = new Float32Array(verticesCount * 3);
-        const boneLookups = new Uint8Array(verticesCount * 4);
-
-        for (let i = 0; i < verticesCount; i++) {
-            const position = readVector3(reader);
-
-            positions[i * 3 + 0] = position[0];
-            positions[i * 3 + 1] = position[1];
-            positions[i * 3 + 2] = position[2];
-
-            const boneWeights = readUint8Array(reader, 4);
-
-            //console.log(boneWeights)
-
-            const boneLookup = readUint8Array(reader, 4);
-            //console.log(position, boneLookup)
-            boneLookups[i * 4 + 0] = boneLookup[0];
-            boneLookups[i * 4 + 1] = boneLookup[1];
-            boneLookups[i * 4 + 2] = boneLookup[2];
-            boneLookups[i * 4 + 3] = boneLookup[3];
-
-            const normal = readUint8Array(reader, 4);
-
-            const uv0 = readUint16Array(reader, 2);
-
-            const tangent = readUint8Array(reader, 4);
-        }
-
-        var positionBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-
-        this.positionBuffer = positionBuffer;
-
-        console.log("Test");
     },
 
     mapMaterial(index) {
@@ -295,29 +252,35 @@ M3Model.prototype = {
             shader = this.shader,
             vertexSize = this.vertexSize;
 
+        const instancedArrays = gl.extensions.instancedArrays;
+        const attribs = shader.attribs;
+        const uniforms = shader.uniforms;
+
         // Team colors
-        //gl.bindBuffer(gl.ARRAY_BUFFER, bucket.teamColorBuffer);
-        //gl.vertexAttribPointer(shader.attribs.get("a_teamColor"), 1, gl.UNSIGNED_BYTE, false, 1, 0);
-        //webgl.extensions.instancedArrays.vertexAttribDivisorANGLE(shader.attribs.get("a_teamColor"), 1);
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.teamColorBuffer);
+        gl.vertexAttribPointer(attribs.get("a_teamColor"), 1, gl.UNSIGNED_BYTE, false, 1, 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_teamColor"), 1);
 
         // Tint colors
-        //gl.bindBuffer(gl.ARRAY_BUFFER, bucket.tintColorBuffer);
-        //gl.vertexAttribPointer(shader.attribs.get("a_tintColor"), 3, gl.UNSIGNED_BYTE, true, 3, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
-        //webgl.extensions.instancedArrays.vertexAttribDivisorANGLE(shader.attribs.get("a_tintColor"), 1);
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.tintColorBuffer);
+        gl.vertexAttribPointer(attribs.get("a_tintColor"), 3, gl.UNSIGNED_BYTE, true, 3, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_tintColor"), 1);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);
+        gl.vertexAttribPointer(attribs.get("a_InstanceID"), 1, gl.UNSIGNED_SHORT, false, 2, 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 1);
 
         gl.activeTexture(gl.TEXTURE15);
         gl.bindTexture(gl.TEXTURE_2D, bucket.boneTexture);
-        gl.uniform1i(shader.uniforms.get("u_boneMap"), 15);
-        gl.uniform1f(shader.uniforms.get("u_vector_size"), bucket.vectorSize);
-        gl.uniform1f(shader.uniforms.get("u_matrix_size"), bucket.matrixSize);
-        gl.uniform1f(shader.uniforms.get("u_row_size"), bucket.rowSize);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
-        gl.vertexAttribPointer(shader.attribs.get("a_position"), 3, gl.FLOAT, false, 0, 0);
+        gl.uniform1i(uniforms.get("u_boneMap"), 15);
+        gl.uniform1f(uniforms.get("u_vector_size"), bucket.vectorSize);
+        gl.uniform1f(uniforms.get("u_matrix_size"), bucket.matrixSize);
+        gl.uniform1f(uniforms.get("u_row_size"), bucket.rowSize);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
-        gl.vertexAttribPointer(shader.attribs.get("a_weights"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 12);
-        gl.vertexAttribPointer(shader.attribs.get("a_bones"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 16);
+        gl.vertexAttribPointer(attribs.get("a_position"), 3, gl.FLOAT, false, vertexSize, 0);
+        gl.vertexAttribPointer(attribs.get("a_weights"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 12);
+        gl.vertexAttribPointer(attribs.get("a_bones"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 16);
     },
 
     bind(bucket) {
@@ -334,25 +297,35 @@ M3Model.prototype = {
 
         this.bindShared(bucket);
 
-        gl.vertexAttribPointer(shader.attribs.get("a_normal"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 20);
+        const instancedArrays = webgl.extensions.instancedArrays;
+        const attribs = shader.attribs;
+        const uniforms = shader.uniforms;
+
+        gl.vertexAttribPointer(attribs.get("a_normal"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 20);
 
         for (var i = 0; i < uvSetCount; i++) {
-            gl.vertexAttribPointer(shader.attribs.get("a_uv" + i), 2, gl.SHORT, false, vertexSize, 24 + i * 4);
+            gl.vertexAttribPointer(attribs.get("a_uv" + i), 2, gl.SHORT, false, vertexSize, 24 + i * 4);
         }
 
-        gl.vertexAttribPointer(shader.attribs.get("a_tangent"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 24 + uvSetCount * 4);
+        gl.vertexAttribPointer(attribs.get("a_tangent"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 24 + uvSetCount * 4);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
 
-        gl.uniformMatrix4fv(shader.uniforms.get("u_mvp"), false, this.env.camera.worldProjectionMatrix);
-        gl.uniformMatrix4fv(shader.uniforms.get("u_mv"), false, this.env.camera.worldMatrix);
+        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, this.env.camera.worldProjectionMatrix);
+        gl.uniformMatrix4fv(uniforms.get("u_mv"), false, this.env.camera.worldMatrix);
 
-        gl.uniform3fv(shader.uniforms.get("u_eyePos"), this.env.camera.worldLocation);
-        gl.uniform3fv(shader.uniforms.get("u_lightPos"), M3.lightPosition);
+        gl.uniform3fv(uniforms.get("u_eyePos"), this.env.camera.worldLocation);
+        gl.uniform3fv(uniforms.get("u_lightPos"), M3.lightPosition);
     },
     
     unbind() {
+        const instancedArrays = this.gl.extensions.instancedArrays,
+            shader = this.shader,
+            attribs = shader.attribs;
 
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_teamColor"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_tintColor"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 0);
     },
 
     bindWireframe(shader, ctx) {

@@ -21,10 +21,9 @@ MdxShallowGeoset.prototype = {
     },
 
     render(instances) {
-        var webgl = this.model.env.webgl;
-        var gl = this.model.env.gl;
+        const gl = this.model.gl;
 
-        webgl.extensions.instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.offsets[5], instances);
+        gl.extensions.instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.offsets[5], instances);
     },
 
     renderWireframe(shader) {

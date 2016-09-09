@@ -74,25 +74,24 @@ MdxModelInstance.prototype = {
         //}
         //-------------------------------------------------------------------------------------------------------
 
-        this.attachmentInstances = [];
-        this.attachments = [];
-        this.attachmentVisible = [];
+        this.modelAttachments = [];
         
-        //for (i = 0, l = model.attachments.length; i < l; i++) {
-        //    var path = model.attachments[i].path.replace(/\\/g, "/").toLowerCase().replace(".mdl", ".mdx");
-            
-        //    // Second condition is against custom resources using arbitrary paths...
-        //    if (path !== "" && path.indexOf(".mdx") != -1) {
-        //        var instance = viewer.loadInternalResource(pathSolver(path));
-        //        instance.setSequence(0);
-        //        instance.setSequenceLoopMode(2);
-        //        instance.setParent(this.getAttachment(model.attachments[i].attachmentId));
-                
-        //        this.attachmentInstances.push(instance);
-        //        this.attachments.push(model.attachments[i]);
-        //        this.attachmentVisible.push(true);
-        //    }
-        //}
+        const attachments = model.attachments;
+
+        for (let i = 0, l = attachments.length; i < l; i++) {
+            const attachment = attachments[i],
+                attachedModel = attachment.attachedModel;
+
+            if (attachedModel) {
+                const instance = attachedModel.addInstance();
+
+                instance.setSequenceLoopMode(2);
+                instance.setParent(this.skeleton.nodes[attachment.node.objectId]);
+                instance.dontInheritScale = false;
+
+                this.modelAttachments[i] = [attachment, instance];
+            }
+        }
         
         this.eventObjectEmitters = [];
         
@@ -166,7 +165,6 @@ MdxModelInstance.prototype = {
             if (this.frame >= sequence.interval[1]) {
                 if (this.sequenceLoopMode === 2 || (this.sequenceLoopMode === 0 && sequence.flags === 0)) {
                     this.frame = sequence.interval[0];
-                    allowCreate = true;
                 } else {
                     this.frame = sequence.interval[1];
                     allowCreate = false;
@@ -174,30 +172,36 @@ MdxModelInstance.prototype = {
 
                 this.dispatchEvent({ type: "seqend" });
             }
+
+            if (this.model.variants[this.sequence]) {
+                this.skeleton.update();
+
+                this.bucket.updateBoneTexture[0] = 1;
+            }
         }
-        
-        if (this.sequence !== -1 && this.model.variants[this.sequence]) {
-            this.skeleton.update();
-            
-            this.bucket.updateBoneTexture[0] = 1;
-        }
+
 
         this.updateEmitters(allowCreate);
 
-        //var attachmentInstances = this.attachmentInstances;
-        //var attachments = this.attachments;
-        //var attachmentVisible = this.attachmentVisible;
-        //var attachment;
-        
-        //for (var i = 0, l = attachments.length; i < l; i++) {
-        //    attachment = attachments[i];
+        // Model attachments
+        const modelAttachments = this.modelAttachments;
 
-        //    attachmentVisible[i] = attachment.getVisibility(this) > 0.1;
-            
-        //    if (attachmentVisible[i]) {
-        //        this.attachmentInstances[i].update();
-        //    }
-        //}
+        for (let i = 0, l = modelAttachments.length; i < l; i++) {
+            const modelAttachment = modelAttachments[i],
+                attachment = modelAttachment[0],
+                instance = modelAttachment[1];
+
+            if (instance) {
+                if (attachment.getVisibility(this) > 0.1) {
+                    if (!instance.rendered) {
+                        instance.rendered = true;
+                        instance.setSequence(0);
+                    }
+                } else {
+                    instance.rendered = false;
+                }
+            }
+        }
 
         var model = this.model,
             batches = model.batches,

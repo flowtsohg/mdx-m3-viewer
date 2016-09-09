@@ -43,8 +43,8 @@ attribute vec4 a_bones;
 attribute vec4 a_weights;
 
 uniform vec3 u_teamColors[14];
-//attribute vec3 a_teamColor;
-//attribute vec3 a_tintColor;
+attribute float a_teamColor;
+attribute vec3 a_tintColor;
 
 varying vec3 v_normal;
 varying vec2 v_uv[4];
@@ -61,10 +61,10 @@ void transform(inout vec3 position, inout vec3 normal, inout vec3 tangent, inout
         if (u_boneWeightPairsCount == 1.0) {
             bone = boneAtIndex(bones[0], 0.0);
         } else {
-            bone += boneAtIndex(bones[0], 0.0) * weights[0];
-            bone += boneAtIndex(bones[1], 0.0) * weights[1];
-            bone += boneAtIndex(bones[2], 0.0) * weights[2];
-            bone += boneAtIndex(bones[3], 0.0) * weights[3];
+            bone += boneAtIndex(bones[0], a_InstanceID) * weights[0];
+            bone += boneAtIndex(bones[1], a_InstanceID) * weights[1];
+            bone += boneAtIndex(bones[2], a_InstanceID) * weights[2];
+            bone += boneAtIndex(bones[3], a_InstanceID) * weights[3];
         }
 
         position = vec3(bone * vec4(position, 1.0));
@@ -126,9 +126,8 @@ void main() {
     v_uv[3] = vec2(0.0);
     #endif
 
-    //v_teamColor = u_teamColors[int(a_teamColor)];
-    v_teamColor = vec3(255.0, 3.0, 3.0);
-	//v_tintColor = a_tintColor;
+    v_teamColor = u_teamColors[int(a_teamColor)];
+	v_tintColor = a_tintColor;
 
     gl_Position = u_mvp * vec4(position, 1.0);
     }
@@ -251,9 +250,9 @@ float calculateFresnelTerm(vec3 normal, vec3 eyeToVertex, float exponent, mat4 f
         } else if (layerSettings.op == LAYEROP_LERP) {
             result = mix(result, color.rgb, color.a);
         } else if (layerSettings.op == LAYEROP_TEAMCOLOR_EMISSIVE_ADD) {
-            result += color.a * (v_teamColor / 255.0);
+            result += color.a * v_teamColor;
         } else if (layerSettings.op == LAYEROP_TEAMCOLOR_DIFFUSE_ADD) {
-            result += color.a * (v_teamColor / 255.0);
+            result += color.a * v_teamColor;
         }
 
         return result;
@@ -309,9 +308,9 @@ float calculateFresnelTerm(vec3 normal, vec3 eyeToVertex, float exponent, mat4 f
         //}
 
         if (layerSettings.teamColorMode == TEAMCOLOR_DIFFUSE) {
-            result = vec4(mix(v_teamColor / 255.0, result.rgb, color.a), 1.0);
+            result = vec4(mix(v_teamColor, result.rgb, color.a), 1.0);
         } else if (layerSettings.teamColorMode == TEAMCOLOR_EMISSIVE) {
-            result = vec4(mix(v_teamColor / 255.0, result.rgb, color.a), 1.0);
+            result = vec4(mix(v_teamColor, result.rgb, color.a), 1.0);
         }
 
         if (layerSettings.invert) {
