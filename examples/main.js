@@ -37,7 +37,7 @@ viewer.addHandler(Bmp);
 // The same idea of getters apply also here, but there are 4 implementation getters instead of 1.
 // 1) Model - The model implementation (e.g. ObjModel).
 // 2) ModelView (optional) - The model's view implementation (e.g. ModelView).
-// 3) ModelInstance (optional_ - The model instance implementation (e.g. ObjModelInstance).
+// 3) ModelInstance (optional) - The model instance implementation (e.g. ObjModelInstance).
 // 4) Bucket (optional) - The model's bucket implementation (e.g. Bucket).
 // Note that ModelView, ModelInstance, and Bucket, default to the base implementation - you are not required to define your own implementations if you don't need to.
 viewer.addHandler(Obj);
@@ -49,13 +49,14 @@ viewer.addHandler(Obj);
 // This pathsolver returns the path prepended by "resources/", to make the paths you supply to load calls shorter.
 // It returns the extension of the path directly (assuming it's an actual file path!).
 // Lastly, it says that this path is a server fetch.
-// If the solver returns anything false-like for the third index, there will be no server fetch, and src will be directly sent to the implementation.
+// If the solver returns anything false-like for the third element, there will be no server fetch, and src will be directly sent to the implementation.
 // This can be used if you want in-memory loads (e.g. see the W3x handler's path solver, which handles both server fetches and local loads for Warcraft 3 maps).
 function pathSolver(path) {
     return ["resources/" + path, path.substr(path.lastIndexOf(".")), true];
 }
 
 // Load our BMP image!
+// Note that because of the path solver used, the final path is correctly "resources/texture.bmp".
 // This returns the BMP handler's BmpTexture.
 // Note that while everything supposedly works instantly, the texture didn't actually finish loading yet, but the rest of the code is still free to reference this object.
 let texture = viewer.load("texture.bmp", pathSolver);
@@ -68,7 +69,11 @@ let initTime = new Date();
 texture.whenLoaded(() => console.log("texture.bmp loaded, it took " + (new Date() - initTime) + " miliseconds!"));
 
 // Load our OBJ model!
+// Note that because of the path solver used, the final path is correctly "resources/cube.obj".
 let model = viewer.load("cube.obj", pathSolver);
+
+// Let's see that whenAllLoaded in action!
+viewer.whenAllLoaded([texture, model], (e) => "The texture and model finished loading!");
 
 // Create an instance of this model.
 let instance = model.addInstance();
@@ -82,9 +87,11 @@ let instance2 = model.addInstance().move([-150, 0, 0]).scale([0.5, 2, 5]);
 // Finally, let's mess around with nodes.
 instance2.setParent(instance);
 
+// quat and vec3 are a part of glMatrix, which is used by the viewer, see http://glmatrix.net/ 
 let q = quat.setAxisAngle([], vec3.normalize([], [1, 1, 1]), Math.PI / 120);
 let q2 = quat.setAxisAngle([], vec3.normalize([], [1, 1, 1]), Math.PI / 30);
 
+// e.target == viewer, for the "render" event.
 viewer.addEventListener("render", (e) => {
     instance.rotate(q);
     instance2.rotate(q2);

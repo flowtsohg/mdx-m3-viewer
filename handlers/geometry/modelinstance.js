@@ -8,13 +8,11 @@ GeometryModelInstance.prototype = {
     },
 
     setSharedData(sharedData) {
-        this.sharedWorldMatrix = sharedData.boneArray;
-        //this.sharedMemory = sharedData.sharedMemory;
+        this.boneArray = sharedData.boneArray;
     },
 
     update() {
-        //this.move([Atomics.load(this.sharedMemory, 0), 0, 0]);
-        mat4.copy(this.sharedWorldMatrix, this.worldMatrix);
+        mat4.copy(this.boneArray, this.worldMatrix);
     }
 };
 

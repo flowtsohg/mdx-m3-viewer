@@ -58,11 +58,11 @@ W3xMap.prototype = {
                 this.slkFiles[paths[i].substr(paths[i].lastIndexOf("/") + 1).toLowerCase().split(".")[0]] = files[i];
             }
 
-            this.env.whenAllLoaded(files, _ => {
+            this.env.whenAllLoaded(files, () => {
                 this.loadTerrain();
-                this.loadModifications();
-                this.loadDoodads();
-                this.loadUnits();
+                //this.loadModifications();
+                //this.loadDoodads();
+                //this.loadUnits();
             });
 
             return true;
@@ -206,13 +206,12 @@ W3xMap.prototype = {
             this.tilesetTextures = [];
 
             // Avoid creating mipmaps, since they create endless bleeding in the texture atlases
-            var ctx = this.env.gl;
+            var gl = this.env.gl;
 
             for (var i = 0, l = groundTilesets.length; i < l; i++) {
-                var row = slk.getRow(groundTilesets[i]),
-                    path = row.dir + "\\" + row.file + ".blp";
+                var row = slk.getRow(groundTilesets[i]) ;
 
-                this.tilesetTextures.push(this.loadFiles(path));
+                this.tilesetTextures.push(this.loadFiles(row.dir + "\\" + row.file + ".blp"));
             }
 
             var tilesetToBlight = {
@@ -245,79 +244,178 @@ W3xMap.prototype = {
             //console.log(cliffTilesets)
             //console.log(slk)
 
+            this.cliffs = [];
+            this.cliffTextures = [];
+
             for (var i = 0, l = cliffTilesets.length; i < l; i++) {
                 var row = cliffSlk.getRow(cliffTilesets[i]);
 
-                if (row) {
+                //if (row) {
                     path = row.dir + "\\" + row.file + ".blp";
 
-                    //this.tilesetTextures.push(this.loadFiles(path));
-                } else {
-                    console.warn("W3x: unknown tileset texture ID " + cliffTilesets[i]);
-                }
+                    this.cliffs.push(row);
+                    this.cliffTextures.push(this.loadFiles(path));
+                //} else {
+                //    console.warn("W3x: unknown tileset texture ID " + cliffTilesets[i]);
+                //}
             }
+
+            this.cliffTexturesOffset = groundTilesetCount + 1;
 
             this.env.whenAllLoaded(this.tilesetTextures, _ => {
                 // Try to avoid texture atlas bleeding
                 for (let texture of this.tilesetTextures) {
                     // To avoid WebGL errors if a texture failed to load
                     if (texture.loaded) {
-                        ctx.bindTexture(ctx.TEXTURE_2D, texture.webglResource);
-                        texture.setParameters(ctx.CLAMP_TO_EDGE, ctx.CLAMP_TO_EDGE, ctx.LINEAR, ctx.LINEAR);
+                        gl.bindTexture(gl.TEXTURE_2D, texture.webglResource);
+                        texture.setParameters(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR);
                     }
                 }
 
-                this.getTerrainLayers();
+                this.loadTerrainCliffs();
                 this.loadTerrainGeometry();
             });
         }
     },
 
-    getTerrainLayers() {
+    heightsToCliffTag(a, b, c, d) {
+        const map = {
+            0: "A",
+            1: "B",
+            2: "C"
+        };
+
+        return map[a] + map[b] + map[c] + map[d];
+    },
+
+    loadTerrainCliffs() {
         var mapSize = this.mapSize;
         var tilepoints = this.tilepoints;
         var centerOffset = this.offset;
 
-        var cliffModel = this.env.load({
+        var xAxisModel = this.env.load({
             geometry: createUnitCube(),
             material: { renderMode: 2, color: [1, 0, 0], twoSided: true }
         }, src =>[src, ".geo", false]);
 
+        var yAxisModel = this.env.load({
+            geometry: createUnitCube(),
+            material: { renderMode: 2, color: [0, 1, 0], twoSided: true }
+        }, src =>[src, ".geo", false]);
+
+        var zAxisModel = this.env.load({
+            geometry: createUnitCube(),
+            material: { renderMode: 2, color: [0, 0, 1], twoSided: true }
+        }, src =>[src, ".geo", false]);
+
+        var xAxis = xAxisModel.addInstance().scale([100, 8, 8]).move([100, 0, 0]);
+        var yAxis = yAxisModel.addInstance().scale([8, 100, 8]).move([0, 100, 0]);
+        var zAxis = zAxisModel.addInstance().scale([8, 8, 100]).move([0, 0, 100]);
+
         for (var y = 0; y < mapSize[1]; y++) {
             for (var x = 0; x < mapSize[0]; x++) {
                 var tile = tilepoints[y][x];
-                var diff = 0;
+                var L, R, B, T;
 
                 if (x > 0) {
-                    let otherTile = tilepoints[y][x - 1];
-
-                    diff = Math.max(diff, tile.layerHeight - otherTile.layerHeight);
+                    L = tile.layerHeight - tilepoints[y][x - 1].layerHeight;
                 }
 
                 if (x < mapSize[0] - 1) {
-                    let otherTile = tilepoints[y][x + 1];
-
-                    diff = Math.max(diff, tile.layerHeight - otherTile.layerHeight);
+                    R = tile.layerHeight -  tilepoints[y][x + 1].layerHeight;
                 }
 
                 if (y > 0) {
-                    let otherTile = tilepoints[y - 1][x];
-
-                    diff = Math.max(diff, tile.layerHeight - otherTile.layerHeight);
+                    B = tile.layerHeight - tilepoints[y - 1][x].layerHeight;
                 }
 
                 if (y < mapSize[1] - 1) {
-                    let otherTile = tilepoints[y + 1][x];
-
-                    diff = Math.max(diff, tile.layerHeight - otherTile.layerHeight);
+                    T = tile.layerHeight - tilepoints[y + 1][x].layerHeight;
                 }
 
-                if (diff > 0) {
-                    tile.isCliff = true;
-                    tile.cliffHeight = diff;
+                let cliffHeight = Math.max(L, R, B, T),
+                    locX = (x - centerOffset[0]) * 128,
+                    locY = (y - centerOffset[1]) * 128,
+                    locZ = tile.getCliffHeight(cliffHeight) * 128,
+                    variation = tile.variation;
 
-                    var instance = cliffModel.addInstance();
-                    instance.setScale([64, 64, 64 * diff]).setLocation([x * 128 - centerOffset[0] * 128, y * 128 - centerOffset[1] * 128, tile.getCliffHeight() * 128]);
+                //if (tile.whatIsThis) {
+                    //yAxisModel.addInstance().setLocation([locX, locY, locZ + 128]).uniformScale(32);
+                //}
+
+                if (L > 0 || R > 0 || B > 0 || T > 0) {
+                    let cliffRow = this.cliffs[tile.cliffTextureType];
+                    let model, instance;
+
+                    // A means height=0, B means height=1, C means height=2. The order is the corners.
+                    // [RT, RB, LB, LT]
+                    // The number is the variation (what selects this?)
+                    // What's the cliff class? should I care?
+
+                    /*
+                     * Scenarios:
+                     *  1) A single cliff - 4 corners, easy case
+                     *  2) 2 attached cliffs - diff 0 means straight walls
+                     */
+
+                    // Each corner needs the following checks:
+                    // 1) If both shared tiles are lower, this is a normal corner
+                    // 2) If one is higher, it is a straight wall towards it
+                    // 3) If both ar
+
+                    // Right top
+                    /*
+                    if (R > 0 && T > 0) {
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(cliffHeight, 0, 0, 0) + "0.mdx");
+                        instance = model.addInstance().setLocation([locX + 128, locY, locZ]);
+                    } else if (T > 0) {
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(cliffHeight, 0, 0, T) + "1.mdx");
+                        instance = model.addInstance().setLocation([locX + 128, locY, locZ]);
+                    } else if (R > 0) {
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(cliffHeight, R, 0, 0) + "1.mdx");
+                        instance = model.addInstance().setLocation([locX + 128, locY, locZ]);
+                    }
+                    */
+
+                    // Right bottom
+                    /*
+                    if (R > 0 && B > 0) {
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, cliffHeight, 0, 0) + "0.mdx");
+                        instance = model.addInstance().setLocation([locX + 128, locY - 128, locZ]);
+                    } else if (B > 0) {
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, cliffHeight, B, 0) + "1.mdx");
+                        instance = model.addInstance().setLocation([locX + 128, locY - 128, locZ]);
+                    } else if (R > 0) {
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(R, cliffHeight, 0, 0) + "1.mdx");
+                        instance = model.addInstance().setLocation([locX + 128, locY - 128, locZ]);
+                    }
+
+                    // Left bottom
+                    if (L > 0 && B > 0) {
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, cliffHeight, 0) + "0.mdx");
+                        instance = model.addInstance().setLocation([locX, locY - 128, locZ]);
+                    } else if (B > 0) {
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, B, cliffHeight, 0) + "1.mdx");
+                        instance = model.addInstance().setLocation([locX, locY - 128, locZ]);
+                    } else if (L > 0) {
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, cliffHeight, L) + "1.mdx");
+                        instance = model.addInstance().setLocation([locX, locY - 128, locZ]);
+                    }
+
+                    // Left top
+                    if (L > 0 && T > 0) {
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, 0, cliffHeight) + "0.mdx");
+                        instance = model.addInstance().setLocation([locX, locY, locZ]);
+                    } else if (T > 0) {
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(T, 0, 0, cliffHeight) + "1.mdx");
+                        instance = model.addInstance().setLocation([locX, locY, locZ]);
+                    } else if (L > 0) {
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, L, cliffHeight) + "1.mdx");
+                        instance = model.addInstance().setLocation([locX, locY, locZ]);
+                    }
+                    */
+                    model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, L, cliffHeight) + "0.mdx");
+                    instance = model.addInstance().setLocation([locX, locY, locZ]);
                 }
             }
         }
@@ -404,7 +502,7 @@ W3xMap.prototype = {
                     var offsetY = 0;
 
                     if (t === texture1 && t === texture2 && t === texture3 && t === texture4) {
-                        let variation = this.getTileVariation(tile1.textureDetails, extended)
+                        let variation = this.getTileVariation(tile1.variation, extended)
                         
                         offsetX = variation[0];
                         offsetY = variation[1];

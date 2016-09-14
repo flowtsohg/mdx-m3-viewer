@@ -20,22 +20,35 @@ function WebGL(canvas) {
         throw "WebGL: Failed to create a WebGL context!";
     }
 
-    const extensions = {
-        compressedTextureS3TC: gl.getExtension("WEBGL_compressed_texture_s3tc"),
-        instancedArrays: gl.getExtension("ANGLE_instanced_arrays"),
-        drawBuffers: gl.getExtension("WEBGL_draw_buffers"),
-        elementIndexUint: gl.getExtension("OES_element_index_uint")
-    };
+    function extensionToCamelCase(ext) {
+        let tokens = ext.split("_"),
+            result = tokens[1];
+
+        for (let i = 2, l = tokens.length; i < l; i++) {
+            result += tokens[i][0].toUpperCase() + tokens[i].substr(1);
+        }
+
+        return result;
+    }
+
+    let supportedExtensions = gl.getSupportedExtensions(),
+        extensions = {};
+
+    for (let i = 0, l = supportedExtensions.length; i < l; i++) {
+        const ext = supportedExtensions[i];
+
+        extensions[extensionToCamelCase(ext)] = gl.getExtension(ext);
+    }
 
     if (!gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS)) {
         throw "WebGL: No vertex shader texture support!";
     }
 
-    if (!gl.getExtension("OES_texture_float")) {
+    if (!extensions.textureFloat) {
         throw "WebGL: No floating point texture support!";
     }
-
-    if (!extensions.compressedTextureS3TC) {
+    
+    if (!extensions.compressedTextureS3tc) {
         console.warn("WebGL: No compressed textures support! This might reduce performance.");
     }
 

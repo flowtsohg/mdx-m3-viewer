@@ -375,19 +375,21 @@ W3xTilePoint = function (reader) {
     this.blight = flags & 0x0020;
     this.water = flags & 0x0040;
     this.boundry = flags & 0x4000;
+    
+    byte = readInt8(reader);
 
-    this.textureDetails = readInt8(reader);
+    this.variation = byte & 31;
+
+    // Values seen are 0, 1, and 2. What is this?
+    this.whatIsThis = (byte & 224) >> 5;
 
     byte = readInt8(reader);
 
     this.cliffTextureType = (byte & 0xF0) >> 4;
     this.layerHeight = byte & 0x0F;
 
-    this.isCliff = false;
-    this.cliffHeight = 0;
-    this.cliffFlags = 0;
-
-    //console.log(this.cliffTextureType)
+    //if (this.whatIsThis)
+     //console.log(this.whatIsThis)
 };
 
 W3xTilePoint.prototype = {
@@ -395,7 +397,7 @@ W3xTilePoint.prototype = {
         return ((this.groundHeight - 0x2000 + (this.layerHeight - 2) * 0x0200) / 4) / 128;
     },
 
-    getCliffHeight() {
-        return ((this.groundHeight - 0x2000 + (this.layerHeight - 2) * 0x0200) / 4 - this.cliffHeight * 64) / 128;
+    getCliffHeight(cliffHeight) {
+        return ((this.groundHeight - 0x2000 + (this.layerHeight - 2) * 0x0200) / 4 - cliffHeight * 128) / 128;
     }
 };
