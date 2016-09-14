@@ -1,4 +1,4 @@
-const Png = {
+const NativeTexture = {
     get extension() {
         return ".png|.jpg|.gif";
     },
@@ -12,4 +12,4 @@ const Png = {
     }
 };
 
-mix(Png, TextureHandler);
+mix(NativeTexture, TextureHandler);

@@ -150,9 +150,10 @@ Math.powerOfTwo = function (x) {
     return x;
 };
 
+// Given a list of items and a list of weights per item, get a random item
 function getRandomItem(list, weight) {
-    const total_weight = weight.reduce(function (prev, cur, i, arr) { return prev + cur; }),
-        n = Math.random() * total_weight;
+    const totalWeight = weight.reduce(function (prev, cur, i, arr) { return prev + cur; }),
+        n = Math.random() * totalWeight;
 
     let weightSum = 0;
 

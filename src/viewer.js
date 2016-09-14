@@ -54,8 +54,8 @@ function ModelViewer(canvas) {
             vec2 decodeFloat2(float f) {
                 vec2 v;
 
-                v[1]= floor(f / 256.0);
-                v[0]= floor(f -v[1]* 256.0);
+                v[1] = floor(f / 256.0);
+                v[0] = floor(f - v[1] * 256.0);
 
                 return v;
             }
@@ -63,23 +63,26 @@ function ModelViewer(canvas) {
             vec3 decodeFloat3(float f) {
                 vec3 v;
 
-                v[2]= floor(f / 65536.0);
-                v[1]= floor((f -v[2]* 65536.0) / 256.0);
-                v[0]= floor(f -v[2]* 65536.0 -v[1]* 256.0);
+                v[2] = floor(f / 65536.0);
+                v[1] = floor((f - v[2] * 65536.0) / 256.0);
+                v[0] = floor(f - v[2] * 65536.0 - v[1] * 256.0);
 
                 return v;
             }
         `
     };
 
+    // Add support for native textures
+    this.addHandler(NativeTexture);
+
     // Initialize the viewport
     this.resetViewport();
 
     // Update the viewport when the window is resized
-    window.addEventListener("resize", _ => this.resetViewport());
+    window.addEventListener("resize", () => this.resetViewport());
 
     // Main loop
-    const step = _ => { requestAnimationFrame(step); this.update(); this.render(); };
+    const step = () => { requestAnimationFrame(step); this.update(); this.render(); };
     step();
 }
 
@@ -114,7 +117,7 @@ ModelViewer.prototype = {
     // note that pathSolver will be used by the loaded resource to solve the paths of all internal resources (e.g. a model will use it to figure where its textures are located!)
     load(src, pathSolver) {
         if (Array.isArray(src)) {
-            return src.map(single => this.loadSingle(single, pathSolver));
+            return src.map((single) => this.loadSingle(single, pathSolver));
         }
 
         return this.loadSingle(src, pathSolver);
@@ -146,7 +149,7 @@ ModelViewer.prototype = {
             // Built-in texture source
             if (src instanceof HTMLImageElement || src instanceof HTMLVideoElement || src instanceof HTMLCanvasElement || src instanceof ImageData) {
                 extension = ".png";
-                isUrl = false;
+                serverFetch = false;
             } else {
                 [src, extension, serverFetch] = pathSolver(src);
             }
@@ -208,10 +211,7 @@ ModelViewer.prototype = {
     },
 
     clear() {
-        const resources = this.resources,
-            models = resources.models,
-            textures = resources.textures,
-            files = resources.files;
+        const resources = this.resources;
 
         for (let objects of [resources.models, resources.textures, resources.files]) {
             objects.array.length = 0;
@@ -225,31 +225,26 @@ ModelViewer.prototype = {
         for (let i = 0, l = models.length; i < l; i++) {
             models[i].update();
         }
-
-        /*
-        for (let model of this.resources.models.array) {
-            model.update();
-        }
-        */
     },
 
     render() {
         let gl = this.gl,
-            models = this.resources.models.array;
+            models = this.resources.models.array,
+            l = models.length;
 
         // See https://www.opengl.org/wiki/FAQ#Masking
         gl.depthMask(1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        for (let i = 0, l = models.length; i < l; i++) {
+        for (let i = 0; i < l; i++) {
             models[i].renderViewsOpaque();
         }
 
-        for (let i = 0, l = models.length; i < l; i++) {
+        for (let i = 0; i < l; i++) {
             models[i].renderViewsTranslucent();
         }
 
-        for (let i = 0, l = models.length; i < l; i++) {
+        for (let i = 0; i < l; i++) {
             models[i].renderViewsEmitters();
         }
 
@@ -258,7 +253,7 @@ ModelViewer.prototype = {
 
     resetViewport() {
         const width = canvas.clientWidth,
-              height = canvas.clientHeight;
+            height = canvas.clientHeight;
 
         canvas.width = width;
         canvas.height = height;

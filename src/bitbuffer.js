@@ -1,23 +1,26 @@
-function BitBuffer(buffer) {
-    if (buffer instanceof ArrayBuffer) {
-        this.uint8Array = new Uint8Array(buffer);
-    } else {
-        this.uint8Array = buffer;
+function BitBuffer(buffer, byteOffset, byteLength) {
+    if (!(buffer instanceof ArrayBuffer)) {
+        throw new TypeError("BitBuffer: expected ArrayBuffer, got " + buffer);
     }
 
+    this.buffer = buffer;
+    this.uint8array = new Uint8Array(buffer, byteOffset, byteLength);
     this.index = 0;
     this.byteLength = buffer.byteLength;
     this.bitBuffer = 0;
     this.bits = 0;
 }
 
-function peekBits(buffer, bits) {
-    if (buffer.bits < bits) {
+function loadBits(buffer, bits) {
+    while (buffer.bits < bits) {
         buffer.bitBuffer += buffer.uint8Array[buffer.index] << buffer.bits;
-        buffer.bits |= 8;
-
+        buffer.bits += 8;
         buffer.index += 1;
     }
+}
+
+function peekBits(buffer, bits) {
+    loadBits(buffer, bits);
 
     return (buffer.bitBuffer & (1 << bits));
 }
@@ -31,28 +34,8 @@ function readBits(buffer, bits) {
     return data;
 }
 
-// Note that readBits and writeBits should probably never be used on the same buffer
-function writeBits(buffer, value, bits) {
-    buffer.bitBuffer |= value << buffer.bits;
-    buffer.bits += bits;
-
-    while (buffer.bits >= 8) {
-        buffer.uint8Array[buffer.index] = buffer.bitBuffer & 0xFF;
-
-        buffer.index += 1;
-
-        buffer.bitBuffer >>>= 8;
-        buffer.bits -= 8;
-    }
-}
-
 function skipBits(buffer, bits) {
-    if (buffer.bits < bits) {
-        buffer.bitBuffer |= buffer.uint8Array[buffer.index] << buffer.bits;
-        buffer.bits += 8;
-
-        buffer.index += 1;
-    }
+    loadBits(buffer, bits);
 
     buffer.bitBuffer >>>= bits;
     buffer.bits -= bits;

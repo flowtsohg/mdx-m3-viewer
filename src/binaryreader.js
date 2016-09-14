@@ -1,24 +1,17 @@
-function BinaryReader(buffer) {
-    let byteOffset = 0;
-
-    if (ArrayBuffer.isView(buffer)) {
-        buffer = buffer.buffer;
-        byteOffset = buffer.byteOffset;
-    }
-
+function BinaryReader(buffer, byteOffset, byteLength) {
     if (!(buffer instanceof ArrayBuffer)) {
-        throw "BinaryReader: must construct with an ArrayBuffer object, or a view of one, given " + buffer;
+        throw new TypeError("BinaryReader: expected ArrayBuffer, got " + buffer);
     }
 
     this.buffer = buffer;
-    this.dataview = new DataView(buffer, byteOffset);
-    this.uint8array = new Uint8Array(buffer, byteOffset);
+    this.dataview = new DataView(buffer, byteOffset, byteLength);
+    this.uint8array = new Uint8Array(buffer, byteOffset, byteLength);
     this.index = 0;
     this.byteLength = buffer.byteLength;
 }
 
 function subreader(reader, byteLength) {
-    return new BinaryReader(reader.uint8array.slice(reader.index, reader.index + byteLength));
+    return new BinaryReader(reader.buffer, reader.index, byteLength);
 }
 
 function remaining(reader) {
@@ -40,11 +33,10 @@ function tell(reader) {
 function peek(reader, size) {
     let uint8array = reader.uint8array,
         index = reader.index,
-        b,
         data = "";
 
-    for (let i = 0, l = size; i < l; i++) {
-        b = uint8array[index + i];
+    for (let i = 0; i < size; i++) {
+        const b = uint8array[index + i];
 
         // Avoid \0
         if (b > 0) {
@@ -57,7 +49,7 @@ function peek(reader, size) {
 
 function read(reader, size) {
     // If the size isn't specified, default to everything
-    size = size || (reader.byteLength - reader.index);
+    size = size || remaining(reader);
 
     const data = peek(reader, size);
 
@@ -96,7 +88,7 @@ function peekCharArray(reader, size) {
         index = reader.index,
         data = "";
 
-    for (let i = 0, l = size; i < l; i++) {
+    for (let i = 0; i < size; i++) {
         data += String.fromCharCode(uint8array[index + i]);
     }
 
