@@ -23,7 +23,7 @@ Every model resource is actually composed of 4 different types of objects:
 * Model Instance - this is an instance of the model, and thus an actual entity in the scene. You can have any amount of instances of a single model (or rather, a single model view).
 * Bucket - model instances are put into buckets, and this is where shared instance data exists (e.g. a shared bone texture). Buckets are mainly used for instanced rendering.
 
-Both Model View and Bucket are optional, and have generic implementations automatically used, if you don't specify anything else.
+Model View, Model Instance, and Bucket, are all optional, and have generic implementations, if you don't specify anything.
 
 Finally, beside models, there are also:
 * Texture - a texture.
