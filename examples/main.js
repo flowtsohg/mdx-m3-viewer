@@ -73,7 +73,7 @@ texture.whenLoaded(() => console.log("texture.bmp loaded, it took " + (new Date(
 let model = viewer.load("cube.obj", pathSolver);
 
 // Let's see that whenAllLoaded in action!
-viewer.whenAllLoaded([texture, model], (e) => "The texture and model finished loading!");
+viewer.whenAllLoaded([texture, model], (e) => console.log("The texture and model finished loading!"));
 
 // Create an instance of this model.
 let instance = model.addInstance();
