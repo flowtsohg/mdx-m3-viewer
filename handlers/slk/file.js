@@ -38,7 +38,7 @@ SlkLine.prototype = {
 }
 
 function SlkFile(env, pathSolver) {
-    File.call(this, env, pathSolver);
+    GenericFile.call(this, env, pathSolver);
 }
 
 SlkFile.prototype = {
@@ -140,4 +140,4 @@ SlkFile.prototype = {
     }
 };
 
-mix(SlkFile.prototype, File.prototype);
+mix(SlkFile.prototype, GenericFile.prototype);

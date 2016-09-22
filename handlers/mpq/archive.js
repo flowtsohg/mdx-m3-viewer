@@ -1,5 +1,5 @@
 function MpqArchive(env, pathSolver) {
-    File.call(this, env, pathSolver);
+    GenericFile.call(this, env, pathSolver);
 }
 
 MpqArchive.prototype = {
@@ -82,4 +82,4 @@ MpqArchive.prototype = {
     }
 };
 
-mix(MpqArchive.prototype, File.prototype);
+mix(MpqArchive.prototype, GenericFile.prototype);

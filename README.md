@@ -27,7 +27,9 @@ Model View, Model Instance, and Bucket, are all optional, and have generic imple
 
 Finally, beside models, there are also:
 * Texture - a texture.
-* File - if a handler supports some generic file that isn't a model or a texture (e.g. SLK).
+* GenericFile - if a handler supports some generic file that isn't a model or a texture (e.g. SLK).
+
+------------------------
 
 #### Usage
 
@@ -35,19 +37,21 @@ Finally, beside models, there are also:
 let viewer = new ModelViewer(canvas)
 ```
 
-If the client doesn't have the requierments to run the viewer, an exception will be thrown, describing the error.
+If the client doesn't have the requierments to run the viewer, an exception will be thrown.
 
 ------------------------
 
-Resources can send events in their life span, very similar to those of native JavaScript objects.
-Use the EventTarget API to register events:
+Resources (including the viewer) can send events in their life span, very similar to those of native JavaScript objects.
+Use the EventTarget API:
 
 ```
-viewer.addEventListener(type, listener)
-viewer.removeEventListener(type, listener)
+resource.addEventListener(type, listener)
+resource.removeEventListener(type, listener)
+resource.dispatchEvent(event)
 ```
 
-Note that you can also attach listeners directly to resources returned by ModelViewer.load, although this will always miss the loadstart event, since the listener is registered after the resource started loading.
+Note that attaching a "loadstart" listener to a resource that is not the viewer is pointless, since the listener is registered after the resource started loading.
+To properly catch loadstart events, attach a listener to the viewer.
 
 The type can be one of:
 * `render` - called every frame after rendering is done.
@@ -72,4 +76,18 @@ For example, to support Warcraft 3 models, the client must include all of the so
 
 `viewer.addHandler(Mdx);`
 
+Also, in this specific case, note that the Mdx handler itself adds the Blp handler, meaning you also need all of the Blp handler source code.
+
+------------------------
+
+#### Getting started
+
 The examples directory has an example with partially working OBJ model and BMP texture handlers, I highly suggest looking at it first.
+
+Probably the easiest way to get it running is by downloading Python.
+Once you have it, run its built-in HTTP server from the main viewer directory.
+
+Python 2.x: python -m SimpleHTTPServer 80
+Python 3.x: python -m http.server 80
+
+Next, open your browser, and go to `127.0.0.1` (aka localhost).
