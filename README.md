@@ -91,4 +91,4 @@ Python 2.x: python -m SimpleHTTPServer 80
 
 Python 3.x: python -m http.server 80
 
-Next, open your browser, and go to `127.0.0.1` (aka localhost).
+Next, open your browser, and go to `127.0.0.1/examples/`.
