@@ -54,28 +54,20 @@ function UintToTag(uint) {
 
 function mix(dst, ...args) {
     for (let arg of args) {
-        /*/
-        const properties = Object.getOwnPropertyNames(arg);
-
-        for (let i = 0, l = properties.length; i < l; i++) {
-            const property = properties[i];
-
-            if (!dst[property]) {
-                dst[property] = arg[property];
-            }
-        }
-        */
-
-        const keys = Reflect.ownKeys(arg);
+        // Reflect not supported on Babel for now
+        //const keys = Reflect.ownKeys(arg);
+        const keys = Object.getOwnPropertyNames(arg).concat(Object.getOwnPropertySymbols(arg))
 
         for (let i = 0, l = keys.length; i < l; i++) {
             const key = keys[i];
             
-            if (!Reflect.has(dst, key)) {
-                Reflect.defineProperty(dst, key, Reflect.getOwnPropertyDescriptor(arg, key))
+            //if (!Reflect.has(dst, key)) {
+            if (!(key in dst)) {
+                //Reflect.defineProperty(dst, key, Reflect.getOwnPropertyDescriptor(arg, key))
+                Object.defineProperty(dst, key, Object.getOwnPropertyDescriptor(arg, key))
             }
         }
-    }
+}
 
     return dst;
 }

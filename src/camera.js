@@ -44,7 +44,7 @@ Camera.prototype = {
         mat4.perspective(projectionMatrix, this.fieldOfView, this.aspectRatio, this.nearClipPlane, this.farClipPlane);
 
         // Recalculate the node part
-        Reflect.apply(Node.prototype.recalculateTransformation, this, []);
+        Node.prototype.recalculateTransformation.call(this);
 
         // World projection matrix
         // World space -> NDC space
