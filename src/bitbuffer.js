@@ -13,7 +13,7 @@ function BitBuffer(buffer, byteOffset, byteLength) {
 
 function loadBits(buffer, bits) {
     while (buffer.bits < bits) {
-        buffer.bitBuffer += buffer.uint8Array[buffer.index] << buffer.bits;
+        buffer.bitBuffer += buffer.uint8array[buffer.index] << buffer.bits;
         buffer.bits += 8;
         buffer.index += 1;
     }

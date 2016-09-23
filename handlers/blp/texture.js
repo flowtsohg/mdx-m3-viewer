@@ -55,7 +55,7 @@ BlpTexture.prototype = {
                 bitsToByte = 1 / alphaBits * 255
 
             if (alphaBits > 0) {
-                bitBuffer = new BitBuffer(new Uint8Array(arrayData.buffer, mipmapAlphaOffset, Math.ceil((size * alphaBits) / 8)));
+                bitBuffer = new BitBuffer(arrayData.buffer, mipmapAlphaOffset, Math.ceil((size * alphaBits) / 8));
             }
 
             for (let index = 0; index < size; index++) {

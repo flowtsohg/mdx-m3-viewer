@@ -161,15 +161,20 @@ MdxSD.prototype = {
 };
 
 function MdxSdContainer(container, model) {
-    var tracks = container.sd;
-    var keys = Object.keys(tracks || {});
     var sd = [];
 
-    for (var i = 0, l = keys.length; i < l; i++) {
-        var type = keys[i];
-        var track = tracks[type];
+    // The SD container doesn't exist if a model had no nodes, and a fake node was injected.
+    if (container) {
+        var tracks = container.sd;
+        var keys = Object.keys(tracks || {});
 
-        sd[track.sdIndex] = new MdxSD(track, model);
+
+        for (var i = 0, l = keys.length; i < l; i++) {
+            var type = keys[i];
+            var track = tracks[type];
+
+            sd[track.sdIndex] = new MdxSD(track, model);
+        }
     }
 
     this.sd = sd;

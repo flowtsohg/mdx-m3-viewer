@@ -58,7 +58,7 @@ AsyncResource.prototype = {
         if (this.loaded || this.error) {
             callback(this);
         } else {
-            this.addEventListener("loadend", callback);
+            this.addAction((callback) => this.whenLoaded(callback), [callback]);
         }
 
         return this;

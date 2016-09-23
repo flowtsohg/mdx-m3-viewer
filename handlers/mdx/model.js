@@ -346,7 +346,6 @@ MdxModel.prototype = {
 
         if (chunk) {
             var elements = chunk.elements;
-            
 
             for (var i = 0, l = elements.length; i < l; i++) {
                 output[i] = new Func(elements[i], this);
@@ -361,7 +360,13 @@ MdxModel.prototype = {
         var replaceableId = texture.replaceableId;
 
         if (replaceableId !== 0) {
-            path = "replaceabletextures/" + MdxReplaceableIdToName[replaceableId] + ".blp";
+            let replaceable = MdxReplaceableIdToName[replaceableId];
+
+            if (!replaceable) {
+                console.error("Mdx: loadTexture: unknown replaceable ID " + replaceableId + " (" + this.name + ")");
+            }
+
+            path = "replaceabletextures/" + replaceable + ".blp";
         }
 
         this.replaceables.push(replaceableId);
