@@ -45,6 +45,11 @@ function selectSequence(type, sequences) {
 function standSequence(e) {
     var target = e.target;
 
+    if (e.objectType === "instance") {
+        console.trace();
+        throw "AA";
+    }
+
     if (target.model.sequences) {
         var sequences = target.model.sequences;
         var standSequence = selectSequence("stand", sequences);

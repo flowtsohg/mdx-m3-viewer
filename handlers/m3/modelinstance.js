@@ -62,11 +62,13 @@ M3ModelInstance.prototype = {
         */
     },
 
+    // This is overriden in order to update the skeleton when the parent node changes
     recalculateTransformation() {
         Node.prototype.recalculateTransformation.call(this);
 
         if (this.rendered) {
             this.skeleton.update();
+            this.bucket.updateBoneTexture[0] = 1;
         } else {
             this.addAction(() => this.skeleton.update(), []);
         }

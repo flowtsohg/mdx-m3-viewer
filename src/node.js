@@ -4,6 +4,10 @@ function Node(dontInheritScale, buffer, offset) {
         offset = 0;
     }
 
+    if (!(buffer instanceof ArrayBuffer)) {
+        throw new TypeError("Node: expected ArrayBuffer, got " + buffer);
+    }
+
     this.pivot = new Float32Array(buffer, offset + 0, 3);
     this.localLocation = new Float32Array(buffer, offset + 12, 3);
     this.localRotation = new Float32Array(buffer, offset + 24, 4);
@@ -15,6 +19,7 @@ function Node(dontInheritScale, buffer, offset) {
     this.localMatrix = new Float32Array(buffer, offset + 104, 16);
     this.worldMatrix = new Float32Array(buffer, offset + 168, 16);
     this.parent = null;
+    this.children = [];
     this.dontInheritScale = dontInheritScale || false;
 
     this.localRotation[3] = 1;
@@ -122,11 +127,34 @@ Node.prototype = {
     },
 
     setParent(parent) {
+        if (this.parent) {
+            this.parent.removeChild(this);
+        }
+
         this.parent = parent;
+
+        parent.addChild(this);
 
         this.recalculateTransformation();
 
         return this;
+    },
+
+    addChild(child) {
+        this.children.push(child);
+    },
+
+    removeChild(child) {
+        let children = this.children;
+
+        children.splice(children.indexOf(child), 1);
+    },
+
+    // This will be called by a parent when it is recalculated.
+    // Override at will if you want special functionality.
+    // Note that ModelInstance overrides this.
+    notify() {
+
     },
 
     getLocation() {
@@ -142,14 +170,15 @@ Node.prototype = {
     },
 
     recalculateTransformation() {
-        const localMatrix = this.localMatrix,
+        let localMatrix = this.localMatrix,
             localRotation = this.localRotation,
             worldMatrix = this.worldMatrix,
             worldLocation = this.worldLocation,
             worldRotation = this.worldRotation,
             worldScale = this.worldScale,
             pivot = this.pivot,
-            parent = this.parent;
+            parent = this.parent,
+            children = this.children;
 
         // Local matrix
         // Model space
@@ -173,11 +202,16 @@ Node.prototype = {
         }
 
         // Scale and inverse scale
-        mat4.decomposeScale(worldScale, worldMatrix);
+        mat4.getScale(worldScale, worldMatrix);
         vec3.inverse(this.inverseWorldScale, worldScale);
 
         // World location
         vec3.copy(worldLocation, pivot);
         vec3.transformMat4(worldLocation, worldLocation, worldMatrix);
+
+        // Notify the children
+        for (let i = 0, l = children.length; i < l; i++) {
+            children[i].notify();
+        }
     }
 };

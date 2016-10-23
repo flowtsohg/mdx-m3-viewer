@@ -1,7 +1,5 @@
-function MdxRibbon(emitter, instance) {
-    this.instance = instance;
-
-    this.alive = true;
+function MdxRibbon() {
+    this.health = 0;
     this.health = emitter.lifespan;
 
     var position = emitter.node.pivot;
@@ -19,12 +17,16 @@ function MdxRibbon(emitter, instance) {
 }
 
 MdxRibbon.prototype = {
-    update(emitter, viewer) {
+    reset(emitter, id, instance) {
         this.health -= viewer.frameTimeS;
 
         var zvelocity = emitter.gravity * viewer.frameTimeS * viewer.frameTimeS;
 
         this.p1[2] -= zvelocity;
         this.p2[2] -= zvelocity;
+    },
+
+    update(emitter) {
+
     }
 };

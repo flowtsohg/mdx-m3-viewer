@@ -1,31 +1,24 @@
-function MdxRibbonEmitter(emitter, instance) {
-    let gl = instance.model.env.gl;
+function MdxRibbonEmitter(emitter, model) {
+    let gl = model.env.gl;
 
     mix(this, emitter);
 
-    this.emitter = emitter;
-    this.instance = instance;
+    this.model = model;
 
     this.lastCreation = 0;
     this.ribbons = [];
+    this.openSlots = [];
+    this.activeSlots = [];
+    this.currentSlot = 0;
 
-    this.buffer = new ResizeableBuffer(instance.env.gl);
+    this.buffer = new ResizeableBuffer(gl);
 
     this.cellWidth = 1 / this.columns;
     this.cellHeight = 1 / this.rows;
 
-    var groups = [[], [], [], []];
-    var layers = model.materials[this.materialId];
+    this.layers = model.materials[this.materialId];
 
-    for (i = 0, l = layers.length; i < l; i++) {
-        var layer = new MdxLayer(layers[i]);
-
-        groups[layers[i].renderOrder].push(layer);
-    }
-
-    this.layers = groups[0].concat(groups[1]).concat(groups[2]).concat(groups[3]);
-
-    this.node = instance.skeleton.nodes[this.node.index];
+    this.node = model.nodes[this.node.index];
     this.sd = new MdxSdContainer(emitter.tracks, model);
 
     // Avoid heap allocations
@@ -36,54 +29,71 @@ function MdxRibbonEmitter(emitter, instance) {
 }
 
 MdxRibbonEmitter.prototype = {
-    update(allowCreate) {
-        let ribbons = this.ribbons;
+    emit(instance) {
+        const ribbons = this.ribbons,
+            openSlots = this.openSlots,
+            activeSlots = this.activeSlots;
 
-        // Ready for pop mode
-        activeSlots.reverse();
-
-        let ribbon = ribbons[ribbons.length - 1];
-
-        while (ribbon && ribbon.health <= 0) {
-            ribbons.pop();
-
-            // Need to recalculate the length each time
-            ribbon = ribbons[ribbons.length - 1];
+        if (this.buffer.float32array.length < (activeSlots.length + this.particlesPerEmit) * 30) {
+            this.buffer.resize((activeSlots.length + this.particlesPerEmit) * this.bytesPerParticle);
         }
 
-        // Ready for push mode
-        ribbons.reverse()
+        if (openSlots.length) {
+            const index = openSlots.pop();
 
-        // Second stage: update the living particles.
-        // All the dead particles were removed, so a simple loop is all that's required.
-        for (i = 0, l = ribbons.length; i < l; i++) {
-            ribbons[i].update();
+            ribbons[index].reset(this, isHead, index, instance);
+            activeSlots.push(index);
+        } else {
+            const ribbon = new MdxRibbon();
+
+            ribbon.reset(this, this.currentSlot, instance);
+            activeSlots.push(this.currentSlot);
+
+            ribbons[this.currentSlot] = ribbon;
+            this.currentSlot += 1;
         }
+    },
 
-
-
+    update() {
+        var ribbons = this.ribbons;
+        var openSlots = this.openSlots;
+        var activeSlots = this.activeSlots;
+        var activeParticlesCount = activeSlots.length;
         var i, l;
+        var ribbon;
 
-        for (i = 0, l = this.ribbons.length; i < l; i++) {
-            this.ribbons[i].update(this, viewer);
-        }
+        if (activeSlots.length > 0) {
+            // First stage: remove dead particles.
+            // The used particles array is a queue, dead particles will always come first.
+            // As of the time of writing, the easiest and fastest way to implement a queue in Javascript is a normal array.
+            // To add items, you push, to remove items, the array is reversed and you pop.
+            // So the first stage reverses the array, and then keeps checking the last element for its health.
+            // As long as we hit a dead particle, pop, and check the new last element.
 
-        while (this.ribbons.length > 0 && this.ribbons[0].health <= 0) {
-            this.ribbons.shift();
-        }
+            // Ready for pop mode
+            activeSlots.reverse();
 
-        if (allowCreate && this.shouldRender(sequence, frame, counter)) {
-            this.lastCreation += 1;
+            ribbon = ribbons[activeSlots[activeSlots.length - 1]];
+            while (ribbon && ribbon.health <= 0) {
+                activeSlots.pop();
+                this.openSlots.push(ribbon.id);
 
-            var amount = this.emissionRate * viewer.frameTimeS * this.lastCreation;
-
-            if (amount >= 1) {
-                this.lastCreation = 0;
-
-                for (i = 0; i < amount; i++) {
-                    this.ribbons.push(new MdxRibbon(this, sequence, frame, counter));
-                }
+                // Need to recalculate the length each time
+                ribbon = ribbons[activeSlots[activeSlots.length - 1]];
             }
+
+            // Ready for push mode
+            activeSlots.reverse()
+
+            // Second stage: update the living ribbons.
+            // All the dead ribbons were removed, so a simple loop is all that's required.
+            for (i = 0, l = activeSlots.length; i < l; i++) {
+                ribbon = ribbons[activeSlots[i]];
+
+                ribbon.update(this);
+            }
+
+            //this.updateHW();
         }
     },
 
@@ -166,31 +176,31 @@ MdxRibbonEmitter.prototype = {
         }
     },
 
-    shouldRender(sequence, frame, counter) {
-        return this.getVisibility(sequence, frame, counter) > 0.75;
+    shouldRender(instance) {
+        return this.getVisibility(instance) > 0.75;
     },
 
-    getHeightBelow(sequence, frame, counter) {
-        return this.sd.getKRHBValue(sequence, frame, counter, this.heightBelow);
+    getHeightBelow(instance) {
+        return this.sd.getKRHBValue(instance, this.heightBelow);
     },
 
-    getHeightAbove(sequence, frame, counter) {
-        return this.sd.getKRHAValue(sequence, frame, counter, this.heightAbove);
+    getHeightAbove(instance) {
+        return this.sd.getKRHAValue(instance, this.heightAbove);
     },
 
-    getTextureSlot(sequence, frame, counter) {
-        return this.sd.getKRTXValue(sequence, frame, counter, 0);
+    getTextureSlot(instance) {
+        return this.sd.getKRTXValue(instance, 0);
     },
 
-    getColor(sequence, frame, counter) {
-        return this.sd.getKRCOValue(sequence, frame, counter, this.color);
+    getColor(instance) {
+        return this.sd.getKRCOValue(instance, this.color);
     },
 
-    getAlpha(sequence, frame, counter) {
-        return this.sd.getKRALValue(sequence, frame, counter, this.alpha);
+    getAlpha(instance) {
+        return this.sd.getKRALValue(instance, this.alpha);
     },
 
-    getVisibility(sequence, frame, counter) {
-        return this.sd.getKRVSValue(sequence, frame, counter, 1);
+    getVisibility(instance) {
+        return this.sd.getKRVSValue(instance, 1);
     }
 };

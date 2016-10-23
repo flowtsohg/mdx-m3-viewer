@@ -105,7 +105,6 @@ MdxParticleEmitter2.prototype = {
             activeSlots.reverse();
 
             particle = particles[activeSlots[activeSlots.length - 1]];
-
             while (particle && particle.health <= 0) {
                 activeSlots.pop();
                 this.openSlots.push(particle.id);

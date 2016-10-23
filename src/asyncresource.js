@@ -56,7 +56,9 @@ AsyncResource.prototype = {
     // Similar to attaching an event listener to the "loadend" event, but handles the case where the resource already loaded, and the callback should still be called
     whenLoaded(callback) {
         if (this.loaded || this.error) {
-            callback(this);
+            // Match the objects given by event dispatching.
+            // Otherwise, callbacks might have to handle both cases, which is annoying.
+            callback({ target: this });
         } else {
             this.addAction((callback) => this.whenLoaded(callback), [callback]);
         }

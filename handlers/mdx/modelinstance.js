@@ -30,16 +30,20 @@ MdxModelInstance.prototype = {
             }
         }
 
-        /*
+        this.ribbonEmitters = [];
         if (model.ribbonEmitters && model.ribbonEmitters.length > 0) {
-            objects = model.ribbonEmitters;
+            const objects = model.ribbonEmitters;
 
             for (i = 0, l = objects.length; i < l; i++) {
-                this.ribbonEmitters[i] = new MdxRibbonEmitter(objects[i], model, this, ctx);
+                this.ribbonEmitters[i] = new MdxRibbonEmitterView(this, objects[i]);
             }
         }
-        */
 
+
+        let extent = this.model.parser.chunks.MODL.extent;
+        this.boundingShape = new BoundingShape();
+        this.boundingShape.fromBounds(extent.min, extent.max);
+        this.boundingShape.setParent(this);
         //-------------------------------------------------------------------------------------------------------
         // NOTE: If I ever want to re-implement bounding shape rendering, this is pretty much how it should work
         //       Possibly always create unit geometries and scale the instances, to avoid creating many models
@@ -106,6 +110,7 @@ MdxModelInstance.prototype = {
         this.sequence = -1;
         this.sequenceLoopMode = 0;
         this.sequenceObject = null;
+        this.allowParticleSpawn = false;
     },
 
     setSharedData(sharedData) {
@@ -125,8 +130,9 @@ MdxModelInstance.prototype = {
         this.batchVisibilityArrays = sharedData.batchVisibilityArrays;
     },
 
-    updateEmitters(allowCreate) {
-        let emitters;
+    updateEmitters() {
+        let allowCreate = this.allowParticleSpawn,
+            emitters;
 
         emitters = this.particleEmitters;
         for (let i = 0, l = emitters.length; i < l; i++) {
@@ -137,51 +143,51 @@ MdxModelInstance.prototype = {
         for (let i = 0, l = emitters.length; i < l; i++) {
             emitters[i].update(allowCreate);
         }
-        /*
+        
         emitters = this.ribbonEmitters;
         for (var i = 0, l = emitters.length; i < l; i++) {
-            emitters[i].update(allowCreate, , viewer);
+            //emitters[i].update(allowCreate);
         }
-
+        /*
         emitters = this.eventObjectEmitters;
         for (var i = 0, l = emitters.length; i < l; i++) {
-            emitters[i].update(allowCreate, , viewer);
+            emitters[i].update(allowCreate);
         }
         */
     },
 
-    update() {
-        var viewer = this.env;
-
-        var allowCreate = false;
-
+    preemptiveUpdate() {
         if (this.sequenceObject) {
             var sequence = this.sequenceObject;
 
-            this.frame += viewer.frameTimeMS;
+            this.frame += this.env.frameTimeMS;
 
-            allowCreate = true;
+            this.allowParticleSpawn = true;
 
             if (this.frame >= sequence.interval[1]) {
                 if (this.sequenceLoopMode === 2 || (this.sequenceLoopMode === 0 && sequence.flags === 0)) {
                     this.frame = sequence.interval[0];
                 } else {
                     this.frame = sequence.interval[1];
-                    allowCreate = false;
+                    this.allowParticleSpawn = false;
                 }
 
                 this.dispatchEvent({ type: "seqend" });
             }
+        }
+    },
 
-            if (this.model.variants[this.sequence]) {
-                this.skeleton.update();
+    update() {
+        var viewer = this.env;
 
-                this.bucket.updateBoneTexture[0] = 1;
-            }
+        if (this.sequenceObject && this.model.variants[this.sequence]) {
+            this.skeleton.update();
+            this.bucket.updateBoneTexture[0] = 1;
         }
 
+        this.updateEmitters();
 
-        this.updateEmitters(allowCreate);
+
 
         // Model attachments
         const modelAttachments = this.modelAttachments;
@@ -202,6 +208,8 @@ MdxModelInstance.prototype = {
                 }
             }
         }
+
+
 
         var model = this.model,
             batches = model.batches,
@@ -266,11 +274,13 @@ MdxModelInstance.prototype = {
         }
     },
 
+    // This is overriden in order to update the skeleton when the parent node changes
     recalculateTransformation() {
         Node.prototype.recalculateTransformation.call(this);
 
         if (this.rendered) {
             this.skeleton.update();
+            this.bucket.updateBoneTexture[0] = 1;
         } else {
             this.addAction(() => this.skeleton.update(), []);
         }
@@ -284,39 +294,7 @@ MdxModelInstance.prototype = {
                 emitters[i].render();
             }
         }
-
-        this.model.render(this);
-
-        var attachmentInstances = this.attachmentInstances;
-        var attachmentVisible = this.attachmentVisible;
-        
-        for (var i = 0, l = attachmentInstances.length; i < l; i++) {
-            if (attachmentVisible[i]) {
-                attachmentInstances[i].render();
-            }
-        }
-    },
-    
-    renderEmitters: function () {
-        if (this.eventObjectEmitters) {
-            var emitters = this.eventObjectEmitters;
-            
-            for (i = 0, l = emitters.length; i < l; i++) {
-                emitters[i].renderEmitters();
-            }
-        }
-        
-        this.model.renderEmitters(this);
-        
-        var attachmentInstances = this.attachmentInstances;
-        var attachmentVisible = this.attachmentVisible;
-        
-        for (var i = 0, l = attachmentInstances.length; i < l; i++) {
-            if (attachmentVisible[i]) {
-                attachmentInstances[i].renderEmitters();
-            }
-        }
-    },
+    }
     */
     setTeamColor(id) {
         if (this.rendered) {

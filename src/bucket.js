@@ -12,7 +12,6 @@ function Bucket(modelView) {
     gl.bufferData(gl.ARRAY_BUFFER, new Uint16Array(this.size).map((currentValue, index, array) => index), gl.STATIC_DRAW);
 }
 
-
 Bucket.prototype = {
     get objectType() {
         return "bucket";
@@ -43,12 +42,8 @@ Bucket.prototype = {
         for (let i = 0, l = instances.length; i < l; i++) {
             const instance = instances[i];
 
-            // If this instance has a parent, the node part must be updated to reflect possible changes in the parent's node
-            if (instance.parent) {
-                instance.recalculateTransformation();
-            }
+            instance.preemptiveUpdate();
 
-            
             if (instance.noCulling || this.isVisible(instance)) {
                 instance.update();
             }
@@ -56,6 +51,7 @@ Bucket.prototype = {
     },
 
     isVisible(instance) {
+        //*
         const ndc = vec3.heap,
             worldProjectionMatrix = this.model.env.camera.worldProjectionMatrix;
 
@@ -66,6 +62,9 @@ Bucket.prototype = {
         }
 
         return false;
+        //*/
+
+        //return this.model.env.camera.testIntersectionAABB(instance.boundingShape) > 0;
     },
 
     // Add a new instance to this bucket, and return the shared data object at its index

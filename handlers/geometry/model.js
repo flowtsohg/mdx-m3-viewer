@@ -117,6 +117,11 @@ GeometryModel.prototype = {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.uvBuffer);
         gl.vertexAttribPointer(attribs.get("a_uv"), 2, gl.FLOAT, false, 8, 0);
 
+        // Colors
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.colorBuffer);
+        gl.vertexAttribPointer(attribs.get("a_color"), 3, gl.UNSIGNED_BYTE, false, 3, 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_color"), 1);
+
         if (this.twoSided) {
             gl.disable(gl.CULL_FACE);
         } else {
@@ -147,8 +152,8 @@ GeometryModel.prototype = {
         if (this.renderMode === 0 || this.renderMode === 2) {
             webgl.bindTexture(this.texture, 0);
 
+            gl.uniform1f(uniforms.get("u_isEdge"), 0);
             gl.uniform2fv(uniforms.get("u_uvScale"), this.uvScale);
-            gl.uniform3fv(uniforms.get("u_color"), this.color);
             gl.uniform1f(uniforms.get("u_isBGR"), this.isBGR);
 
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.faceBuffer);
@@ -159,7 +164,7 @@ GeometryModel.prototype = {
         if (this.renderMode === 1 || this.renderMode === 2) {
             webgl.bindTexture(null, 0);
 
-            gl.uniform3fv(uniforms.get("u_color"), this.edgeColor);
+            gl.uniform1f(uniforms.get("u_isEdge"), 1);
 
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
 
@@ -168,6 +173,7 @@ GeometryModel.prototype = {
 
         /// Reset the attributes to play nice with other handlers
         instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_color"), 0);
     },
 
     renderTranslucent(bucket) {

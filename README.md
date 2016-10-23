@@ -8,9 +8,9 @@ Built-in handlers exist for the following formats:
 * M3 (Starcraft 2 model): partial support, file format not quite reverse engineered yet.
 * W3M/W3X (Warcraft 3 map): partial support, will grow in future.
 * BLP1 (Warcraft 3 texture): extensive support, almost everything should work.
-* MPQ1 (Warcraft 3 archive): partial support, only libzip support.
+* MPQ1 (Warcraft 3 archive): partial support, only inflate support.
 * TGA (image): partial support, only simple 24bit images.
-* SLK (table data): partial support, but will probably keep working.
+* SLK (table data): partial support, but will probably keep working for Warcraft 3 files.
 * DDS (compressed texture, used by Starcraft 2): partial support, should work for every Starcraft 2 texture.
 * PNG/JPG/GIF: supported as a wrapper around native Image objects.
 * GEO (my own simple geometry format used for simple shapes): supported, note that this is solely a run-time handler.
@@ -41,6 +41,8 @@ If the client doesn't have the requierments to run the viewer, an exception will
 
 ------------------------
 
+#### Events
+
 Resources (including the viewer) can send events in their life span, very similar to those of native JavaScript objects.
 Use the EventTarget API:
 
@@ -54,11 +56,11 @@ Note that attaching a "loadstart" listener to a resource that is not the viewer 
 To properly catch loadstart events, attach a listener to the viewer.
 
 The type can be one of:
-* `render` - called every frame after rendering is done.
+* `render` - called every frame after rendering is done (this event is only dispatched by the viewer).
 * `loadstart` - a resource started loading.
-* `progress` - progress updates for loads. The relevant progress properties will be set (loaded, total, lengthComputable).
+* `progress` - progress updates for loads. The `loaded`, `total`, and `lengthComputable` properties will be set.
 * `load` - a resource finished loading.
-* `error` - an error occured when loading a resource. In this case, the `error` value will contain a short string that will tell what the error is.
+* `error` - an error occured when loading a resource. The `error` property will be set.
 * `loadend` - sent when a resource finishes loading, either because of an error, or because it loaded successfully.
 * `delete` - a resource was deleted.
 

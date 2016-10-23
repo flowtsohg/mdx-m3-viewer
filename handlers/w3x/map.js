@@ -60,14 +60,13 @@ W3xMap.prototype = {
 
             this.env.whenAllLoaded(files, () => {
                 this.loadTerrain();
-                //this.loadModifications();
-                //this.loadDoodads();
-                //this.loadUnits();
+                this.loadModifications();
+                this.loadDoodads();
+                this.loadUnits();
             });
 
             return true;
         } else {
-            //auxiliaryFile.reject("Not a Warcraft 3 map");
             return false;
         }
     },
@@ -249,7 +248,7 @@ W3xMap.prototype = {
 
             for (var i = 0, l = cliffTilesets.length; i < l; i++) {
                 var row = cliffSlk.getRow(cliffTilesets[i]);
-
+                console.log(cliffTilesets[i])
                 //if (row) {
                     path = row.dir + "\\" + row.file + ".blp";
 
@@ -273,7 +272,7 @@ W3xMap.prototype = {
                 }
 
                 this.loadTerrainCliffs();
-                //this.loadTerrainGeometry();
+                this.loadTerrainGeometry();
             });
         }
     },
@@ -293,31 +292,11 @@ W3xMap.prototype = {
         var tilepoints = this.tilepoints;
         var centerOffset = this.offset;
 
-        var xAxisModel = this.env.load({
-            geometry: createUnitCube(),
-            material: { renderMode: 2, color: [1, 0, 0], twoSided: true }
-        }, src =>[src, ".geo", false]);
-
-        var yAxisModel = this.env.load({
-            geometry: createUnitCube(),
-            material: { renderMode: 2, color: [0, 1, 0], twoSided: true }
-        }, src =>[src, ".geo", false]);
-
-        var zAxisModel = this.env.load({
-            geometry: createUnitCube(),
-            material: { renderMode: 2, color: [0, 0, 1], twoSided: true }
-        }, src =>[src, ".geo", false]);
-
-        var xAxis = xAxisModel.addInstance().scale([100, 8, 8]).move([100, 0, 0]);
-        var yAxis = yAxisModel.addInstance().scale([8, 100, 8]).move([0, 100, 0]);
-        var zAxis = zAxisModel.addInstance().scale([8, 8, 100]).move([0, 0, 100]);
-
         for (var y = 0; y < mapSize[1]; y++) {
             for (var x = 0; x < mapSize[0]; x++) {
                 var tile = tilepoints[y][x];
-                var L, R, B, T;
-                var LTile, RTile, BTile, TTile;
                 var cliffMask = 0;
+                var ltMask = 0, rtMask = 0, lbMask = 0, rbMask = 0;
 
                 if (x > 0) {
                     tile.l = tilepoints[y][x - 1];
@@ -325,6 +304,8 @@ W3xMap.prototype = {
 
                     if (tile.dl > 0) {
                         cliffMask |= 1;
+                        ltMask |= 1;
+                        lbMask |= 4;
                     }
                 }
 
@@ -334,6 +315,8 @@ W3xMap.prototype = {
 
                     if (tile.dr > 0) {
                         cliffMask |= 2;
+                        rtMask |= 4;
+                        rbMask |= 1;
                     }
                 }
 
@@ -343,6 +326,8 @@ W3xMap.prototype = {
 
                     if (tile.db > 0) {
                         cliffMask |= 4;
+                        lbMask |= 1;
+                        rbMask |= 4;
                     }
                 }
 
@@ -352,6 +337,8 @@ W3xMap.prototype = {
 
                     if (tile.dt > 0) {
                         cliffMask |= 8;
+                        ltMask |= 4;
+                        rtMask |= 1;
                     }
                 }
 
@@ -361,6 +348,7 @@ W3xMap.prototype = {
 
                     if (tile.dlb > 0) {
                         cliffMask |= 16;
+                        lbMask |= 2;
                     }
                 }
 
@@ -370,6 +358,7 @@ W3xMap.prototype = {
 
                     if (tile.drb > 0) {
                         cliffMask |= 32;
+                        rbMask |= 2;
                     }
                 }
 
@@ -379,6 +368,7 @@ W3xMap.prototype = {
 
                     if (tile.dlt > 0) {
                         cliffMask |= 64;
+                        ltMask |= 2;
                     }
                 }
 
@@ -388,6 +378,7 @@ W3xMap.prototype = {
 
                     if (tile.drt > 0) {
                         cliffMask |= 128;
+                        rtMask |= 2;
                     }
                 }
 
@@ -402,6 +393,10 @@ W3xMap.prototype = {
                 if (cliffMask !== 0) {
                     tile.cliff = true;
                     tile.mask = cliffMask;
+                    tile.lbMask = lbMask;
+                    tile.ltMask = ltMask;
+                    tile.rtMask = rtMask;
+                    tile.rbMask = rbMask;
                 }
             }
         }
@@ -413,24 +408,10 @@ W3xMap.prototype = {
         var mapSize = this.mapSize;
         var tilepoints = this.tilepoints;
 
-        var xAxisModel = this.env.load({
+        var unitCube = this.env.load({
             geometry: createUnitCube(),
-            material: { renderMode: 2, color: [1, 0, 0], twoSided: true }
+            material: { renderMode: 2, color: [1, 1, 1], twoSided: true }
         }, src =>[src, ".geo", false]);
-
-        var yAxisModel = this.env.load({
-            geometry: createUnitCube(),
-            material: { renderMode: 2, color: [0, 1, 0], twoSided: true }
-        }, src =>[src, ".geo", false]);
-
-        var zAxisModel = this.env.load({
-            geometry: createUnitCube(),
-            material: { renderMode: 2, color: [0, 0, 1], twoSided: true }
-        }, src =>[src, ".geo", false]);
-
-        var xAxis = xAxisModel.addInstance().scale([100, 8, 8]).move([100, 0, 0]);
-        var yAxis = yAxisModel.addInstance().scale([8, 100, 8]).move([0, 100, 0]);
-        var zAxis = zAxisModel.addInstance().scale([8, 8, 100]).move([0, 0, 100]);
 
         for (var y = 0; y < mapSize[1]; y++) {
             for (var x = 0; x < mapSize[0]; x++) {
@@ -441,10 +422,18 @@ W3xMap.prototype = {
                 //}
 
                 if (!tile.cliff) {
-                    xAxisModel.addInstance().setLocation([tile.x, tile.y, tile.z]).uniformScale(32);
+                    //unitCube.addInstance().setColor([1, 0, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(16);
+                } else {
+                    //unitCube.addInstance().setColor([0, 1, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(16);
+                }
+
+                if (x === 24 && y === 6) {
+                    unitCube.addInstance().setColor([0, 0, 1]).setLocation([tile.x, tile.y, tile.z]).uniformScale(32);
+                    console.log(tile)
                 }
 
                 if (tile.cliff) {
+                    let cliffVariation = 0;
                     let variation = tile.variation;
                     let cliffRow = this.cliffs[tile.cliffTextureType];
                     let model, instance;
@@ -493,7 +482,150 @@ W3xMap.prototype = {
                         CLIFF_TYPE_TOP_WALL = 200,
                         CLIFF_TYPE_RIGHT_TOP_CORNER = 234;
                         
+                    let ltMask = tile.ltMask;
+                    let rtMask = tile.rtMask;
+                    let rbMask = tile.rbMask;
+                    let lbMask = tile.lbMask;
 
+                    /*
+                              1          2          4
+                 * ltMask = [left, left top, top]
+                 */
+
+                    switch (ltMask) {
+                        // Left wall
+                        // 0 T
+                        // 0 C
+                        case 3:
+                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, 1, 1) + cliffVariation + ".mdx");
+                            instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
+                            break;
+
+                        // ???
+                        // T 0
+                        // T C
+                        case 4:
+                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 1, 0, 1) + cliffVariation + ".mdx");
+                            instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
+                            break;
+
+                        // Diagonal connection
+                        // T 0
+                        // 0 C
+                        case 5:
+                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 1, 0, 1) + cliffVariation + ".mdx");
+                            instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
+                            break;
+
+                        // Left-top corner
+                        // 0 0
+                        // 0 C
+                        case 7:
+                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, 0, 1) + cliffVariation + ".mdx");
+                            instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
+                            break;
+                    }
+
+                    switch (rtMask) {
+                        // ???
+                        // 0 T
+                        // C T
+                        case 1:
+                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 0, 1, 1) + cliffVariation + ".mdx");
+                            instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
+                            break;
+
+                        // Top wall
+                        // 0 0
+                        // C T
+                        case 3:
+                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 0, 0, 1) + cliffVariation + ".mdx");
+                            instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
+                            break;
+
+                        // Diagonal connection
+                        // 0 T
+                        // C 0
+                        case 5:
+                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 0, 1, 0) + cliffVariation + ".mdx");
+                            instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
+                            break;
+
+                        // Right-top corner
+                        // 0 0
+                        // 0 C
+                        case 7:
+                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 0, 0, 0) + cliffVariation + ".mdx");
+                            instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
+                            break;
+
+                        // Right wall
+                        // T 0
+                        // C 0
+                        case 6:
+                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 1, 0, 0) + cliffVariation + ".mdx");
+                            instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
+                            break;
+                    }
+
+                    switch (rbMask) {
+                        // ???
+                        // C T
+                        // 0 T
+                        case 4:
+                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 1, 1, 1) + cliffVariation + ".mdx");
+                            instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
+                            break;
+
+                        // Right-bottom corner
+                        // C 0
+                        // 0 0
+                        case 7:
+                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 1, 0, 0) + cliffVariation + ".mdx");
+                            instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
+                            break;
+                    }
+
+                    switch (lbMask) {
+                        // ???
+                        // T C
+                        // T 0
+                        case 1:
+                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 1, 1, 0) + cliffVariation + ".mdx");
+                            instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
+                            break;
+
+                        // Bottom-wall
+                        // T C
+                        // 0 0
+                        case 3:
+                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 1, 1, 0) + cliffVariation + ".mdx");
+                            instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
+                            break;
+
+                        // Left-bottom corner
+                        // 0 C
+                        // 0 0
+                        case 7:
+                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, 1, 0) + cliffVariation + ".mdx");
+                            instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
+                            break;
+                    }
+
+                    /*
+                    switch (rtMask) {
+                        case 0:
+                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 0, 0, 0) + "0.mdx");
+                            instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
+                            break;
+                        case 1:
+                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 0, 0, 1) + "0.mdx");
+                            instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
+                            break;
+                    }
+                    */
+                    
+                    /*
                     if (tile.mask === CLIFF_TYPE_SINGLE_CLIFF) {
                         // Right top
                         model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 0, 0, 0) + "0.mdx");
@@ -626,7 +758,7 @@ W3xMap.prototype = {
                         model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 1, 1, 0) + "0.mdx");
                         instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
 
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 1, 1, 0) + "1.mdx");
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 1, 1, 0) + "0.mdx");
                         instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
                     } else if (tile.mask === CLIFF_TYPE_LEFT_WALL) {
                         model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, 1, 1) + "0.mdx");
@@ -635,26 +767,34 @@ W3xMap.prototype = {
                         model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, 1, 1) + "0.mdx");
                         instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
                     } else if (tile.mask === CLIFF_TYPE_RIGHT_WALL) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 1, 0, 0) + "1.mdx");
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 1, 0, 0) + "0.mdx");
                         instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
 
                         model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 1, 0, 0) + "0.mdx");
                         instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
                     } else if (tile.mask === CLIFF_TYPE_TOP_WALL) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 0, 0, 1) + "1.mdx");
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 0, 0, 1) + "0.mdx");
                         instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
 
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 0, 0, 1) + "1.mdx");
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 0, 0, 1) + "0.mdx");
                         instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
                     } else {
-                        if (tile.mask === 51) {
-                            zAxisModel.addInstance().setLocation([tile.x, tile.y, tile.z]).uniformScale(40);
-                        }
+                        //if (tile.mask === 51) {
+                            //unitCube.addInstance().setColor([0, 0, 1]).setLocation([tile.x, tile.y, tile.z]).uniformScale(32);
+                            ///zAxisModel.addInstance().setLocation([tile.x, tile.y, tile.z]).uniformScale(40);
+                       // }
 
-                        yAxisModel.addInstance().setLocation([tile.x, tile.y, tile.z]).uniformScale(32);
+                        unitCube.addInstance().setColor([0, 1, 0]).setLocation([tile.x, tile.y, tile.z]).uniformScale(32);
 
-                        console.warn("Unhandled cliff mask", tile.mask)
+                        //console.warn("Unhandled cliff mask", tile.mask)
                     }
+                    */
+
+
+
+
+
+
 
                     // Right top
                     /*
@@ -662,10 +802,10 @@ W3xMap.prototype = {
                         model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(cliffHeight, 0, 0, 0) + "0.mdx");
                         instance = model.addInstance().setLocation([locX + 128, locY, locZ]);
                     } else if (T > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(cliffHeight, 0, 0, T) + "1.mdx");
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(cliffHeight, 0, 0, T) + "0.mdx");
                         instance = model.addInstance().setLocation([locX + 128, locY, locZ]);
                     } else if (R > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(cliffHeight, R, 0, 0) + "1.mdx");
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(cliffHeight, R, 0, 0) + "0.mdx");
                         instance = model.addInstance().setLocation([locX + 128, locY, locZ]);
                     }
                     */
@@ -676,10 +816,10 @@ W3xMap.prototype = {
                         model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, cliffHeight, 0, 0) + "0.mdx");
                         instance = model.addInstance().setLocation([locX + 128, locY - 128, locZ]);
                     } else if (B > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, cliffHeight, B, 0) + "1.mdx");
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, cliffHeight, B, 0) + "0.mdx");
                         instance = model.addInstance().setLocation([locX + 128, locY - 128, locZ]);
                     } else if (R > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(R, cliffHeight, 0, 0) + "1.mdx");
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(R, cliffHeight, 0, 0) + "0.mdx");
                         instance = model.addInstance().setLocation([locX + 128, locY - 128, locZ]);
                     }
 
@@ -688,10 +828,10 @@ W3xMap.prototype = {
                         model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, cliffHeight, 0) + "0.mdx");
                         instance = model.addInstance().setLocation([locX, locY - 128, locZ]);
                     } else if (B > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, B, cliffHeight, 0) + "1.mdx");
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, B, cliffHeight, 0) + "0.mdx");
                         instance = model.addInstance().setLocation([locX, locY - 128, locZ]);
                     } else if (L > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, cliffHeight, L) + "1.mdx");
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, cliffHeight, L) + "0.mdx");
                         instance = model.addInstance().setLocation([locX, locY - 128, locZ]);
                     }
 
@@ -700,10 +840,10 @@ W3xMap.prototype = {
                         model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, 0, cliffHeight) + "0.mdx");
                         instance = model.addInstance().setLocation([locX, locY, locZ]);
                     } else if (T > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(T, 0, 0, cliffHeight) + "1.mdx");
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(T, 0, 0, cliffHeight) + "0.mdx");
                         instance = model.addInstance().setLocation([locX, locY, locZ]);
                     } else if (L > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, L, cliffHeight) + "1.mdx");
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, L, cliffHeight) + "0.mdx");
                         instance = model.addInstance().setLocation([locX, locY, locZ]);
                     }
                     */
@@ -720,7 +860,7 @@ W3xMap.prototype = {
 
                     // Right wall
                     if (tile.top.cliff && tile.bottom.cliff && tile.right.layerHeight !== tile.layerHeight) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 1, 0, 0) + "1.mdx");
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 1, 0, 0) + "0.mdx");
                         instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
 
                         model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 1, 0, 0) + "0.mdx");
@@ -729,10 +869,10 @@ W3xMap.prototype = {
 
                     // Top wall
                     if (tile.left.cliff && tile.right.cliff && tile.top.layerHeight !== tile.layerHeight) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 0, 0, 1) + "1.mdx");
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 0, 0, 1) + "0.mdx");
                         instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
 
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 0, 0, 1) + "1.mdx");
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(1, 0, 0, 1) + "0.mdx");
                         instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
                     }
 
@@ -741,7 +881,7 @@ W3xMap.prototype = {
                         model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 1, 1, 0) + "0.mdx");
                         instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
 
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 1, 1, 0) + "1.mdx");
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 1, 1, 0) + "0.mdx");
                         instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
                     }
 
@@ -788,7 +928,7 @@ W3xMap.prototype = {
 
                     if (tile.left.cliff) {
                         console.log("ASD")
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 1, tile.cliffHeight, 0) + "1.mdx");
+                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 1, tile.cliffHeight, 0) + "0.mdx");
                         instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
                     } else if (tile.dL > 0 && tile.dB > 0) {
                         model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, tile.cliffHeight, 0) + "0.mdx");

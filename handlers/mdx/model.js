@@ -159,8 +159,6 @@ MdxModel.prototype = {
             this.batches = opaqueBatches.concat(translucentBatches);
             this.opaqueBatches = opaqueBatches;
             this.translucentBatches = translucentBatches;
-
-            //this.calculateExtent();
         } else {
             this.batches = [];
         }
@@ -178,7 +176,7 @@ MdxModel.prototype = {
         }
 
         if (chunks.RIBB) {
-            this.ribbonEmitters = chunks.RIBB.elements;
+            this.ribbonEmitters = this.transformElements(chunks.RIBB, MdxRibbonEmitter);
         }
 
         this.boundingShapes = [];
@@ -192,7 +190,6 @@ MdxModel.prototype = {
         if (chunks.EVTS) {
             this.eventObjects = chunks.EVTS.elements;
         }
-
 
         this.calculateExtent();
 
@@ -441,6 +438,13 @@ MdxModel.prototype = {
         Model.prototype.update.call(this);
 
         let emitters = this.particleEmitters2;
+        if (emitters) {
+            for (let i = 0, l = emitters.length; i < l; i++) {
+                emitters[i].update();
+            }
+        }
+
+        emitters = this.ribbonEmitters;
         if (emitters) {
             for (let i = 0, l = emitters.length; i < l; i++) {
                 emitters[i].update();

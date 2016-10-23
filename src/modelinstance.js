@@ -33,6 +33,14 @@ ModelInstance.prototype = {
         this.dispatchEvent({ type: "loadend" });
     },
 
+    preemptiveUpdate() {
+
+    },
+
+    update() {
+
+    },
+
     set rendered(shouldRender) {
         if (this.loaded) {
             // Model.showInstance/hideInstance shouldn't be called multiple times, so check if the mode actually changed
@@ -56,8 +64,14 @@ ModelInstance.prototype = {
         return this.shouldRender;
     },
 
+    /// TODO: duplicated with BoundingShape, can I do something nice about this? (e.g. parent class)
+    // This will be called if this instance is parented to some node, and the node changed
+    notify() {
+        this.recalculateTransformation();
+    },
+
     setSharedData(sharedData) {
-        //throw "ModelInstance.setSharedData must be overriden!";
+
     }
 };
 

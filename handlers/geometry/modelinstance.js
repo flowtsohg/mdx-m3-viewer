@@ -4,15 +4,33 @@ function GeometryModelInstance(env) {
 
 GeometryModelInstance.prototype = {
     initialize() {
-
+        this.boundingShape = new BoundingShape();
+        this.boundingShape.fromVertices(this.model.vertexArray);
+        this.boundingShape.setParent(this);
     },
 
     setSharedData(sharedData) {
+        this.bucket = sharedData.bucket;
         this.boneArray = sharedData.boneArray;
+        this.colorArray = sharedData.colorArray;
+
+        // Initialize to the model's material color
+        this.setColor(this.model.color);
     },
 
     update() {
         mat4.copy(this.boneArray, this.worldMatrix);
+    },
+
+    setColor(color) {
+        if (this.rendered) {
+            this.colorArray.set(color);
+            this.bucket.updateColors[0] = 1;
+        } else {
+            this.addAction(id => this.setColor(color), [color]);
+        }
+
+        return this;
     }
 };
 

@@ -1,7 +1,7 @@
 function WebGL(canvas) {
     let gl;
 
-    for (let identifier of ["webgl", "experimental-webgl"]) {
+    for (let identifier of["webgl", "experimental-webgl"]) {
         try {
             // preserveDrawingBuffer is needed normally to be able to use the WebGL canvas as an image source (e.g. RTT).
             // It however makes rendering slower, since it doesn't let browsers implement optimizations.
@@ -31,13 +31,9 @@ function WebGL(canvas) {
         return result;
     }
 
-    let supportedExtensions = gl.getSupportedExtensions(),
-        extensions = {};
-
-    for (let i = 0, l = supportedExtensions.length; i < l; i++) {
-        const ext = supportedExtensions[i];
-
-        extensions[extensionToCamelCase(ext)] = gl.getExtension(ext);
+    let extensions = {};
+    for (let extension of gl.getSupportedExtensions()) {
+        extensions[extensionToCamelCase(extension)] = gl.getExtension(extension);
     }
 
     if (!gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS)) {
@@ -47,7 +43,11 @@ function WebGL(canvas) {
     if (!extensions.textureFloat) {
         throw "WebGL: No floating point texture support!";
     }
-    
+
+    if (!extensions.instancedArrays) {
+        throw "WebGL: No instanced rendering support!";
+    }
+
     if (!extensions.compressedTextureS3tc) {
         console.warn("WebGL: No compressed textures support! This might reduce performance.");
     }
