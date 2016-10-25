@@ -392,12 +392,14 @@ W3xTilePoint = function (reader) {
 
     this.cliffTextureType = (byte & 0xF0) >> 4;
     this.layerHeight = byte & 0x0F;
-
-    //if (this.whatIsThis)
-     //console.log(this.whatIsThis)
 };
 
 W3xTilePoint.prototype = {
+    getWaterHeight() {
+        return ((this.waterLevel - 0x2000 + (this.layerHeight - 2) * 0x0200) / 4) / 128;
+
+    },
+
     getHeight() {
         return ((this.groundHeight - 0x2000 + (this.layerHeight - 2) * 0x0200) / 4) / 128;
     },

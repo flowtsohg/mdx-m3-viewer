@@ -4,7 +4,7 @@ function createRectangle(width, depth) {
         uvs: new Float32Array([0, 0, 0, 1, 1, 1, 1, 0]),
         faces: new Uint8Array([0, 1, 2, 0, 2, 3]),
         edges: new Uint8Array([0, 1, 1, 2, 2, 3, 3, 0]),
-        boundingRadius: Math.max(width, height)
+        boundingRadius: Math.max(width, depth)
     };
 }
 

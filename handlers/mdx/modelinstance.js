@@ -210,66 +210,70 @@ MdxModelInstance.prototype = {
         }
 
 
-
+        
         var model = this.model,
-            batches = model.batches,
-            layers = model.layers,
-            geosetColorArrays = this.geosetColorArrays,
-            uvOffsetArrays = this.uvOffsetArrays,
-            batchVisibilityArrays = this.batchVisibilityArrays;
+            batches = model.batches;
 
-        // Update batch visibilities and geoset colors
-        for (var i = 0, l = batches.length; i < l; i++) {
-            var batch = batches[i],
-                index = batch.index,
-                geoset = batch.geoset,
-                layer = batch.layer,
-                geosetColorArray = geosetColorArrays[index];
+        // Not every model has batches
+        if (batches.length) {
+            let layers = model.layers,
+                geosetColorArrays = this.geosetColorArrays,
+                uvOffsetArrays = this.uvOffsetArrays,
+                batchVisibilityArrays = this.batchVisibilityArrays;
 
-            var batchVisibility = batch.shouldRender(this);
-            batchVisibilityArrays[index][0] = batchVisibility;
-            this.bucket.updateBatches[index] |= batchVisibility;
+            // Update batch visibilities and geoset colors
+            for (var i = 0, l = batches.length; i < l; i++) {
+                var batch = batches[i],
+                    index = batch.index,
+                    geoset = batch.geoset,
+                    layer = batch.layer,
+                    geosetColorArray = geosetColorArrays[index];
 
-            if (batchVisibility) {
-                if (geoset.geosetAnimation) {
-                    var tempVec3 = geoset.geosetAnimation.getColor(this);
+                var batchVisibility = batch.shouldRender(this);
+                batchVisibilityArrays[index][0] = batchVisibility;
+                this.bucket.updateBatches[index] |= batchVisibility;
 
-                    geosetColorArray[0] = tempVec3[0] * 255;
-                    geosetColorArray[1] = tempVec3[1] * 255;
-                    geosetColorArray[2] = tempVec3[2] * 255;
+                if (batchVisibility) {
+                    if (geoset.geosetAnimation) {
+                        var tempVec3 = geoset.geosetAnimation.getColor(this);
+
+                        geosetColorArray[0] = tempVec3[0] * 255;
+                        geosetColorArray[1] = tempVec3[1] * 255;
+                        geosetColorArray[2] = tempVec3[2] * 255;
+                    }
+
+                    geosetColorArray[3] = layer.getAlpha(this) * 255;
+                }
+            }
+
+            // Update texture coordinates
+            for (var i = 0, l = layers.length; i < l; i++) {
+                var layer = layers[i],
+                    index = layer.index,
+                    textureAnimation = layer.textureAnimation,
+                    uvOffsetArray = uvOffsetArrays[index];
+
+                // Texture animation that works by offsetting the coordinates themselves
+                if (textureAnimation) {
+                    // What is Z used for?
+                    var uvOffset = textureAnimation.getTranslation(this);
+
+                    uvOffsetArray[0] = uvOffset[0];
+                    uvOffsetArray[1] = uvOffset[1];
+
+                    this.bucket.updateUvOffsets[0] = 1;
                 }
 
-                geosetColorArray[3] = layer.getAlpha(this) * 255;
-            }
-        }
+                // Texture animation that is based on a texture atlas, where the selected tile changes
+                if (layer.isTextureAnim) {
+                    var uvDivisor = layer.uvDivisor;
+                    var textureId = layer.getTextureId(this);
 
-        // Update texture coordinates
-        for (var i = 0, l = layers.length; i < l; i++) {
-            var layer = layers[i],
-                index = layer.index,
-                textureAnimation = layer.textureAnimation,
-                uvOffsetArray = uvOffsetArrays[index];
+                    uvOffsetArray[2] = textureId % uvDivisor[0];
+                    uvOffsetArray[3] = Math.floor(textureId / uvDivisor[1]);
 
-            // Texture animation that works by offsetting the coordinates themselves
-            if (textureAnimation) {
-                // What is Z used for?
-                var uvOffset = textureAnimation.getTranslation(this);
-
-                uvOffsetArray[0] = uvOffset[0];
-                uvOffsetArray[1] = uvOffset[1];
-
-                this.bucket.updateUvOffsets[0] = 1;
-            }
-
-            // Texture animation that is based on a texture atlas, where the selected tile changes
-            if (layer.isTextureAnim) {
-                var uvDivisor = layer.uvDivisor;
-                var textureId = layer.getTextureId(this);
-
-                uvOffsetArray[2] = textureId % uvDivisor[0];
-                uvOffsetArray[3] = Math.floor(textureId / uvDivisor[1]);
-
-                this.bucket.updateUvOffsets[0] = 1;
+                    this.bucket.updateUvOffsets[0] = 1;
+                }
             }
         }
     },

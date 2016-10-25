@@ -61,56 +61,26 @@ function MdxBucket(modelView) {
     this.uvOffsetArrays = [];
     this.uvOffsetBuffers = [];
 
-    for (var i = 0, l = model.batches.length; i < l; i++) {
-        this.batchVisibilityArrays[i] = new Uint8Array(this.size);
-        this.batchVisibilityBuffers[i] = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.batchVisibilityBuffers[i]);
-        gl.bufferData(gl.ARRAY_BUFFER, this.batchVisibilityArrays[i], gl.DYNAMIC_DRAW);
+    if (model.batches.length) {
+        for (var i = 0, l = model.batches.length; i < l; i++) {
+            this.batchVisibilityArrays[i] = new Uint8Array(this.size);
+            this.batchVisibilityBuffers[i] = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.batchVisibilityBuffers[i]);
+            gl.bufferData(gl.ARRAY_BUFFER, this.batchVisibilityArrays[i], gl.DYNAMIC_DRAW);
 
-        this.geosetColorArrays[i] = new Uint8Array(4 * this.size).fill(255); // Geoset colors are initialized to white
-        this.geosetColorBuffers[i] = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetColorBuffers[i]);
-        gl.bufferData(gl.ARRAY_BUFFER, this.geosetColorArrays[i], gl.DYNAMIC_DRAW);
+            this.geosetColorArrays[i] = new Uint8Array(4 * this.size).fill(255); // Geoset colors are initialized to white
+            this.geosetColorBuffers[i] = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetColorBuffers[i]);
+            gl.bufferData(gl.ARRAY_BUFFER, this.geosetColorArrays[i], gl.DYNAMIC_DRAW);
+        }
+
+        for (var i = 0, l = model.layers.length; i < l; i++) {
+            this.uvOffsetArrays[i] = new Float32Array(4 * this.size);
+            this.uvOffsetBuffers[i] = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.uvOffsetBuffers[i]);
+            gl.bufferData(gl.ARRAY_BUFFER, this.uvOffsetArrays[i], gl.DYNAMIC_DRAW);
+        }
     }
-
-    for (var i = 0, l = model.layers.length; i < l; i++) {
-        this.uvOffsetArrays[i] = new Float32Array(4 * this.size);
-        this.uvOffsetBuffers[i] = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvOffsetBuffers[i]);
-        gl.bufferData(gl.ARRAY_BUFFER, this.uvOffsetArrays[i], gl.DYNAMIC_DRAW);
-    }
-
-    //var particles = 0;
-    //var particleEmitters = model.particleEmitters2;
-
-    //if (particleEmitters.length) {
-
-    //    for (var i = 0, l = particleEmitters.length; i < l; i++) {
-    //        var sd = particleEmitters[i].tracks.sd.KP2E;
-
-    //        if (sd) {
-    //            var tracks = sd.tracks;
-    //            var biggestValue = 0;
-
-    //            for (var i = 0, l = tracks.length; i < l; i++) {
-    //                if (tracks[i].value > biggestValue) {
-    //                    biggestValue = tracks[i].value;
-    //                }
-    //            }
-
-    //            particles += Math.ceil(particleEmitters[i].lifespan * biggestValue);
-    //        } else {
-    //            particles += Math.ceil(particleEmitters[i].lifespan * particleEmitters[i].emissionRate);
-    //        }
-
-    //    }
-
-
-
-    //    this.blarg = new Float32Array(particles * 30 * 512);
-
-    //    console.log(model.name, particles, this.blarg.byteLength / 1024 / 1024)
-    //}
 }
 
 MdxBucket.prototype = {
