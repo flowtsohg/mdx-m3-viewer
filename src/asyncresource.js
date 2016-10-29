@@ -9,6 +9,10 @@ function AsyncResource(env) {
 }
 
 AsyncResource.prototype = {
+    update() {
+
+    },
+
     loadstart() {
         this.dispatchEvent({ type: "loadstart" });
     },

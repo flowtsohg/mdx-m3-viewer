@@ -37,10 +37,6 @@ ModelInstance.prototype = {
 
     },
 
-    update() {
-
-    },
-
     set rendered(shouldRender) {
         if (this.loaded) {
             // Model.showInstance/hideInstance shouldn't be called multiple times, so check if the mode actually changed

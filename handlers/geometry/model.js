@@ -67,6 +67,7 @@ GeometryModel.prototype = {
         this.noDepthSet = material.noDepthSet || false;
 
         this.uvScale = material.uvScale || new Float32Array([1, 1]);
+        this.uvOffset = material.uvOffset || new Float32Array(2);
 
         this.color = material.color || new Float32Array(3);
         this.edgeColor = material.edgeColor || new Float32Array([1, 1, 1]);
@@ -80,10 +81,18 @@ GeometryModel.prototype = {
         this.isBGR = material.isBGR || false;
         this.isBlended = material.isBlended || false;
 
+        this.alpha = material.alpha || 1;
+
+        if (this.alpha < 1) {
+            this.translucent = true;
+        } else {
+            this.opaque = true;
+        }
+
         return true;
     },
 
-    renderOpaque(bucket) {
+    render(bucket) {
         const webgl = this.env.webgl,
             gl = this.env.gl,
             instancedArrays = webgl.extensions.instancedArrays,
@@ -139,7 +148,7 @@ GeometryModel.prototype = {
         } else {
             gl.depthMask(1);
         }
-        
+
         if (this.isBlended) {
             gl.enable(gl.BLEND);
             gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -154,7 +163,9 @@ GeometryModel.prototype = {
 
             gl.uniform1f(uniforms.get("u_isEdge"), 0);
             gl.uniform2fv(uniforms.get("u_uvScale"), this.uvScale);
+            gl.uniform2fv(uniforms.get("u_uvOffset"), this.uvOffset);
             gl.uniform1f(uniforms.get("u_isBGR"), this.isBGR);
+            gl.uniform1f(uniforms.get("u_alphaMod"), this.alpha)
 
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.faceBuffer);
 
@@ -176,8 +187,16 @@ GeometryModel.prototype = {
         instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_color"), 0);
     },
 
-    renderTranslucent(bucket) {
+    renderOpaque(bucket) {
+        if (this.opaque) {
+            this.render(bucket);
+        }
+    },
 
+    renderTranslucent(bucket) {
+        if (this.translucent) {
+            this.render(bucket);
+        }
     },
 
     renderEmitters(bucket) {

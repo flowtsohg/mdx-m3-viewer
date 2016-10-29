@@ -1,18 +1,18 @@
 var createTextureAtlas = (function () {
-    var canvas = document.createElement("canvas");
-    var ctx = canvas.getContext("2d");
-
-    /// TODO: Select a dynamic size based on the inputs
-    canvas.width = canvas.height = 256;
+    let canvas = document.createElement("canvas"),
+        ctx = canvas.getContext("2d");
 
     return function (src) {
         var textureWidth = src[0].width;
         var textureHeight = src[0].height;
-        var texturesPerRow = 256 / textureWidth;
+        var texturesPerRow = Math.powerOfTwo(Math.sqrt(src.length));
+        var pixelsPerRow = texturesPerRow * textureWidth;
 
-        for (var i = 0, l = src.length; i < l; i++) {
-            var x = (i % texturesPerRow) * textureHeight;
-            var y = Math.floor(i / texturesPerRow) * textureHeight;
+        canvas.width = canvas.height = pixelsPerRow;
+
+        for (let i = 0, l = src.length; i < l; i++) {
+            let x = (i % texturesPerRow) * textureHeight;
+                y = Math.floor(i / texturesPerRow) * textureHeight;
 
             ctx.putImageData(src[i], x, y);
         }

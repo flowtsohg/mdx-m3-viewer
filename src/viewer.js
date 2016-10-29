@@ -220,10 +220,21 @@ ModelViewer.prototype = {
     },
 
     update() {
-        const models = this.resources.models.array;
+        let resources = this.resources;
 
+        let models = resources.models.array;
         for (let i = 0, l = models.length; i < l; i++) {
             models[i].update();
+        }
+
+        let textures = resources.textures.array;
+        for (let i = 0, l = textures.length; i < l; i++) {
+            textures[i].update();
+        }
+
+        let files = resources.files.array;
+        for (let i = 0, l = files.length; i < l; i++) {
+            files[i].update();
         }
     },
 

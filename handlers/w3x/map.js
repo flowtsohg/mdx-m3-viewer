@@ -204,7 +204,6 @@ W3xMap.prototype = {
 
             this.tilesetTextures = [];
 
-            // Avoid creating mipmaps, since they create endless bleeding in the texture atlases
             var gl = this.env.gl;
 
             for (var i = 0, l = groundTilesets.length; i < l; i++) {
@@ -271,7 +270,7 @@ W3xMap.prototype = {
                 }
 
                 this.loadTerrainCliffs();
-                this.loadTerrainGeometry();
+                //this.loadTerrainGeometry();
                 this.loadWater();
             });
         }
@@ -413,6 +412,30 @@ W3xMap.prototype = {
         }
     },
 
+    update() {
+        if (this.water) {
+            this.BLAAA += 1;
+
+            if (this.BLAAA === 4) {
+                this.BLAAA = 0;
+                this.waterCounter += 1;
+
+            }
+            
+
+            if (this.waterCounter === 44) {
+                this.waterCounter = 0;
+            }
+
+            let x = this.waterCounter % 8,
+                y = Math.floor(this.waterCounter / 8),
+                uvOffset = this.water.model.uvOffset;
+
+            uvOffset[0] = x / 8;
+            uvOffset[1] = y / 8;
+        }
+    },
+
     loadWater() {
         var mapSize = this.mapSize;
         var tilepoints = this.tilepoints;
@@ -446,15 +469,45 @@ W3xMap.prototype = {
             }
         }
 
-        var waterTexture = this.loadFiles("Textures/Water00.blp");
+        let textures = [],
+            n;
 
-        var waterModel = this.env.load({
-            geometry: { vertices: new Float32Array(vertices), uvs: new Float32Array(uvs), faces: new Uint16Array(faces), edges: new Float32Array(edges) },
-            material: { renderMode: 0, twoSided: true, texture: waterTexture, isBGR: true, isBlended: true }
-        }, src =>[src, ".geo", false]);
-        var instance = waterModel.addInstance();
-        instance.setUniformScale(128).setLocation([-centerOffset[0] * 128, -centerOffset[1] * 128, 0]);
-        instance.noCulling = true;
+        for (let i = 0; i < 45; i++) {
+            n = (i < 10) ? "0" + i : "" + i;
+
+            textures[i] = this.loadFiles("Textures/Water" + n + "-0.blp");
+        }
+
+        this.env.whenAllLoaded(textures, _ => {
+            var images = [];
+
+            for (var i = 0, l = textures.length; i < l; i++) {
+                images[i] = textures[i].imageData;
+            }
+
+            var atlasData = createTextureAtlas(images);
+
+            var texture = this.env.load(atlasData.texture);
+
+            var gl = this.env.gl;
+            gl.bindTexture(gl.TEXTURE_2D, texture.webglResource);
+            texture.setParameters(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR);
+
+            var model = this.env.load({
+                geometry: { vertices: new Float32Array(vertices), uvs: new Float32Array(uvs), faces: new Uint16Array(faces), edges: new Float32Array(edges) },
+                material: { renderMode: 0, twoSided: true, alpha: 0.5, texture: texture, isBGR: true, isBlended: true }
+            }, src =>[src, ".geo", false]);
+            var instance = model.addInstance();
+            instance.setUniformScale(128).setLocation([-centerOffset[0] * 128, -centerOffset[1] * 128, 0]);
+            instance.noCulling = true;
+
+            this.water = instance;
+
+            model.uvScale[0] = model.uvScale[1] = 1 / 8;
+
+            this.waterCounter = 0;
+            this.BLAAA = 0;
+        });
     },
 
     loadTerrainCliffs() {
@@ -473,12 +526,12 @@ W3xMap.prototype = {
                 var tile = tilepoints[y][x];
 
                 if (!tile.cliff) {
-                    //unitCube.addInstance().setColor([1, 0, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(16);
+                    unitCube.addInstance().setColor([1, 0, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(16);
                 } else {
-                    //unitCube.addInstance().setColor([0, 1, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(16);
+                    unitCube.addInstance().setColor([0, 1, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(16);
                 }
 
-                if (x === 11 && y === 7) {
+                if (x === 13 && y === 12) {
                     unitCube.addInstance().setColor([0, 0, 1]).setLocation([tile.x, tile.y, tile.z]).uniformScale(32);
                     console.log(tile)
                 }
@@ -489,50 +542,6 @@ W3xMap.prototype = {
                     let cliffRow = this.cliffs[tile.cliffTextureType];
                     let model, instance;
 
-                    // A means height=0, B means height=1, C means height=2. The order is the corners.
-                    // [RT, RB, LB, LT]
-                    // The number is the variation (what selects this?)
-                    
-                    // The cliff type mask leads to way too many conditions.
-                    // What if I make a smaller mask per corner of each tilepoint?
-                    // This will also allow to ignore corners that are now placed multiple times in the same locations (e.g. two cliffs sharing a wall - both will have the wall spawned)
-                    // E.g. for the left top corner, the mask needs the left/top left/top tiles
-
-
-                    let LEFT = 1,
-                        RIGHT = 2,
-                        BOTTOM = 4,
-                        TOP = 8,
-                        LEFT_BOTTOM = 16,
-                        RIGHT_BOTTOM = 32,
-                        LEFT_TOP = 64,
-                        RIGHT_TOP = 128;
-
-                    function bitwiseNot(n) {
-                        let uint = new Uint8Array(1);
-
-                        uint[0] = n;
-                        uint[0] = ~uint[0];
-
-                        return uint[0];
-                    }
-
-                    
-
-                    let CLIFF_TYPE_SINGLE_CLIFF = 255,
-                        CLIFF_TYPE_LEFT = bitwiseNot(LEFT),
-                        CLIFF_TYPE_RIGHT = bitwiseNot(RIGHT),
-                        CLIFF_TYPE_BOTTOM = bitwiseNot(BOTTOM),
-                        CLIFF_TYPE_TOP = bitwiseNot(TOP),
-                        CLIFF_TYPE_LEFT_BOTTOM_CORNER = 117,
-                        CLIFF_TYPE_BOTTOM_WALL = 52,
-                        CLIFF_TYPE_RIGHT_BOTTOM_CORNER = 182,
-                        CLIFF_TYPE_LEFT_WALL = 81,
-                        CLIFF_TYPE_RIGHT_WALL = 162,
-                        CLIFF_TYPE_LEFT_TOP_CORNER = 217,
-                        CLIFF_TYPE_TOP_WALL = 200,
-                        CLIFF_TYPE_RIGHT_TOP_CORNER = 234;
-                        
                     let ltMask = tile.ltMask;
                     let rtMask = tile.rtMask;
                     let rbMask = tile.rbMask;
@@ -565,12 +574,24 @@ W3xMap.prototype = {
                                 tag = this.heightsToCliffTag(0, 1, 0, 1);
                                 break;
 
+                            // T T
+                            // 0 C
+                            case 8:
+                                tag = this.heightsToCliffTag(0, 2, 2, 2);
+                                break;
+
                                 // Left-top corner
                                 // 0 0
                                 // 0 C
                             case 7: // Low
                             case 56: // High
                                 tag = this.heightsToCliffTag(0, 0, 0, tile.dlt);
+                                break;
+
+                            // 1 0
+                            // 1 C
+                            case 32:
+                                tag = this.heightsToCliffTag(2, 2, 0, 2);
                                 break;
 
                             default:
@@ -600,6 +621,12 @@ W3xMap.prototype = {
                             case 3:
                             case 24:
                                 tag = this.heightsToCliffTag(tile.drt, 0, 0, tile.drt);
+                                break;
+
+                            // 0 T
+                            // C T
+                            case 8:
+                                tag = this.heightsToCliffTag(2, 0, 2, 2);
                                 break;
 
                                 // Diagonal connection
