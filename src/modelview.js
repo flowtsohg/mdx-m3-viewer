@@ -1,18 +1,38 @@
+/**
+ * @class
+ * @classdesc This class holds all of the model instances.
+ *            It is used to possibly give multiple "views" of the same model.
+ *            That is, use the same base model, but have some variations on a per-view basis, hence giving multiple versions of the model.
+ *            Mostly used for texture overriding, to allow having multiple instances with different textures.
+ * @extends ActionQueue
+ * @param {Model} model The model that this view belongs to.
+ */
 function ModelView(model) {
+    /** @member {Model} */
     this.model = model;
+    /** @member {ModelInstance[]} */
     this.instances = [];
+    /** @member {Bucket[]} */
     this.buckets = [];
+    /** @member {map.<ModelInstance, Bucket>} */
     this.instanceToBucket = new Map(); // instance->bucket map
+    /** @member {boolean} */
     this.rendered = true;
 
     ActionQueue.call(this);
 }
 
 ModelView.prototype = {
+    /** @member {string} */
     get objectType() {
         return "modelview";
     },
 
+    /**
+     * @method
+     * @desc Adds a new instance  to this view, and returns the instance.
+     * @returns {@link ModelInstance}
+     */
     addInstance() {
         const model = this.model;
 

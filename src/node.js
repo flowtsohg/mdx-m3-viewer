@@ -1,3 +1,10 @@
+/**
+ * @class
+ * @classdesc A scene node, that can be moved around and parented to other nodes.
+ * @param {boolean} dontInheritScale True if this node should not inherit the parent's scale if this node is parented.
+ * @param {?ArrayBuffer} buffer An ArrayBuffer object to add this node to. A new buffer will be created if one isn't given.
+ * @param {?number} offset An offset into the buffer, if one was given.
+ */
 function Node(dontInheritScale, buffer, offset) {
     if (!buffer) {
         buffer = new ArrayBuffer(58 * 4);
@@ -8,18 +15,31 @@ function Node(dontInheritScale, buffer, offset) {
         throw new TypeError("Node: expected ArrayBuffer, got " + buffer);
     }
 
+    /** @member {vec3} */
     this.pivot = new Float32Array(buffer, offset + 0, 3);
+    /** @member {vec3} */
     this.localLocation = new Float32Array(buffer, offset + 12, 3);
+    /** @member {quat} */
     this.localRotation = new Float32Array(buffer, offset + 24, 4);
+    /** @member {vec3} */
     this.localScale = new Float32Array(buffer, offset + 40, 3);
+    /** @member {vec3} */
     this.worldLocation = new Float32Array(buffer, offset + 52, 3);
+    /** @member {quat} */
     this.worldRotation = new Float32Array(buffer, offset + 64, 4);
+    /** @member {vec3} */
     this.worldScale = new Float32Array(buffer, offset + 80, 3);
+    /** @member {vec3} */
     this.inverseWorldScale = new Float32Array(buffer, offset + 92, 3);
+    /** @member {mat4} */
     this.localMatrix = new Float32Array(buffer, offset + 104, 16);
+    /** @member {mat4} */
     this.worldMatrix = new Float32Array(buffer, offset + 168, 16);
+    /** @member {?Node} */
     this.parent = null;
+    /** @member {Node[]} */
     this.children = [];
+    /** @member {boolean} */
     this.dontInheritScale = dontInheritScale || false;
 
     this.localRotation[3] = 1;
@@ -28,6 +48,12 @@ function Node(dontInheritScale, buffer, offset) {
 }
 
 Node.prototype = {
+    /**
+     * @method
+     * @desc Sets the node's pivot.
+     * @param {vec3} pivot The new pivot.
+     * @returns this
+     */
     setPivot(pivot) {
         vec3.copy(this.pivot, pivot);
 
@@ -36,6 +62,12 @@ Node.prototype = {
         return this;
     },
 
+    /**
+     * @method
+     * @desc Sets the node's local location.
+     * @param {vec3} location The new location.
+     * @returns this
+     */
     setLocation(location) {
         vec3.copy(this.localLocation, location);
 
@@ -44,6 +76,12 @@ Node.prototype = {
         return this;
     },
 
+    /**
+     * @method
+     * @desc Sets the node's local rotation.
+     * @param {quat} rotation The new rotation.
+     * @returns this
+     */
     setRotation(rotation) {
         quat.copy(this.localRotation, rotation);
 
@@ -52,6 +90,12 @@ Node.prototype = {
         return this;
     },
 
+    /**
+     * @method
+     * @desc Sets the node's local scale.
+     * @param {vec3} varying The new scale.
+     * @returns this
+     */
     setScale(varying) {
         vec3.copy(this.localScale, varying);
 
@@ -60,6 +104,12 @@ Node.prototype = {
         return this;
     },
 
+    /**
+     * @method
+     * @desc Sets the node's local scale uniformly.
+     * @param {number} uniform The new scale.
+     * @returns this
+     */
     setUniformScale(uniform) {
         vec3.set(this.localScale, uniform, uniform, uniform);
 
@@ -68,6 +118,14 @@ Node.prototype = {
         return this;
     },
 
+    /**
+     * @method
+     * @desc Sets the node's local location, rotation, and scale.
+     * @param {vec3} location The new location.
+     * @param {quat} rotation The new rotation.
+     * @param {vec3} scale The new scale.
+     * @returns this
+     */
     setTransformation(location, rotation, scale) {
         vec3.copy(this.localLocation, location);
         quat.copy(this.localRotation, rotation);
@@ -78,6 +136,12 @@ Node.prototype = {
         return this;
     },
 
+    /**
+     * @method
+     * @desc Moves the node's pivot.
+     * @param {vec3} offset The offset.
+     * @returns this
+     */
     movePivot(offset) {
         vec3.add(this.pivot, this.pivot, offset);
 
@@ -86,6 +150,12 @@ Node.prototype = {
         return this;
     },
 
+    /**
+     * @method
+     * @desc Moves the node's local location.
+     * @param {vec3} offset The offset.
+     * @returns this
+     */
     move(offset) {
         vec3.add(this.localLocation, this.localLocation, offset);
 
@@ -94,6 +164,12 @@ Node.prototype = {
         return this;
     },
 
+    /**
+     * @method
+     * @desc Rotates the node's local rotation in world space.
+     * @param {vec3} rotation The rotation.
+     * @returns this
+     */
     rotate(rotation) {
         quat.mul(this.localRotation, this.localRotation, rotation);
 
@@ -102,6 +178,12 @@ Node.prototype = {
         return this;
     },
 
+    /**
+     * @method
+     * @desc Rotates the node's local rotation in local space.
+     * @param {vec3} rotation The rotation.
+     * @returns this
+     */
     rotateLocal(rotation) {
         quat.mul(this.localRotation, rotation, this.localRotation);
 
@@ -110,6 +192,12 @@ Node.prototype = {
         return this;
     },
 
+    /**
+     * @method
+     * @desc Scales the node.
+     * @param {vec3} scale The scale.
+     * @returns this
+     */
     scale(scale) {
         vec3.mul(this.localScale, this.localScale, scale);
 
@@ -118,6 +206,12 @@ Node.prototype = {
         return this;
     },
 
+    /**
+     * @method
+     * @desc Scales the node uniformly.
+     * @param {number} scale The scale.
+     * @returns this
+     */
     uniformScale(scale) {
         vec3.scale(this.localScale, this.localScale, scale);
 
@@ -126,6 +220,12 @@ Node.prototype = {
         return this;
     },
 
+    /**
+     * @method
+     * @desc Sets the node's parent.
+     * @param {?Node} parent The parent. NOTE: don't set parent to null manually, instead use setParent(null).
+     * @returns this
+     */
     setParent(parent) {
         if (this.parent) {
             this.parent.removeChild(this);
@@ -157,14 +257,29 @@ Node.prototype = {
 
     },
 
+    /**
+     * @method
+     * @desc Get the node's world location.
+     * @returns {vec3}
+     */
     getLocation() {
         return this.worldLocation;
     },
 
+    /**
+     * @method
+     * @desc Get the node's world rotation.
+     * @returns {quat}
+     */
     getRotation() {
         return this.worldRotation;
     },
 
+    /**
+     * @method
+     * @desc Get the node's world scale.
+     * @returns {vec3}
+     */
     getScale() {
         return this.worldScale;
     },

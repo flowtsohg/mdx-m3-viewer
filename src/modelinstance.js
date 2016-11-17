@@ -1,3 +1,10 @@
+/**
+ * @class
+ * @classdesc An instance of a model, and an entity in the world that you can see, and move around.
+ * @extends AsyncResource
+ * @extends Node
+ * @param {ModelViewer} env The model viewer object that this instance belongs to.
+ */
 function ModelInstance(env) {
     AsyncResource.call(this, env);
     Node.call(this, true);
@@ -5,7 +12,9 @@ function ModelInstance(env) {
 
 ModelInstance.prototype = {
     load(modelView) {
+        /** @member {ModelView} */
         this.modelView = modelView;
+        /** @member {Model} */
         this.model = modelView.model;
         this.shouldRender = false; // This value should not be used directly, instead use ModelInstance.rendered
         this.noCulling = false; // Set to true if the model should always be rendered
@@ -37,6 +46,10 @@ ModelInstance.prototype = {
 
     },
 
+    /**
+     * @member {boolean}
+     * @desc Sets whether this instance gets rendered or not.
+     */
     set rendered(shouldRender) {
         if (this.loaded) {
             // Model.showInstance/hideInstance shouldn't be called multiple times, so check if the mode actually changed

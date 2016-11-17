@@ -270,7 +270,7 @@ W3xMap.prototype = {
                 }
 
                 this.loadTerrainCliffs();
-                //this.loadTerrainGeometry();
+                this.loadTerrainGeometry();
                 this.loadWater();
             });
         }
@@ -526,13 +526,13 @@ W3xMap.prototype = {
                 var tile = tilepoints[y][x];
 
                 if (!tile.cliff) {
-                    unitCube.addInstance().setColor([1, 0, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(16);
+                    //unitCube.addInstance().setColor([1, 0, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(16);
                 } else {
-                    unitCube.addInstance().setColor([0, 1, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(16);
+                    //unitCube.addInstance().setColor([0, 1, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(16);
                 }
 
                 if (x === 13 && y === 12) {
-                    unitCube.addInstance().setColor([0, 0, 1]).setLocation([tile.x, tile.y, tile.z]).uniformScale(32);
+                    //unitCube.addInstance().setColor([0, 0, 1]).setLocation([tile.x, tile.y, tile.z]).uniformScale(32);
                     console.log(tile)
                 }
 

@@ -1,6 +1,13 @@
+/**
+ * @class
+ * @classdesc The main model viewer class. The starting point of your journey.
+ * @extends EventDispatcher
+ * @param {HTMLCanvasElement} canvas The canvas object that this model viewer should use.
+ */
 function ModelViewer(canvas) {
     EventDispatcher.call(this);
 
+    /** @member {object} */
     this.resources = {
         models: {
             array: [],
@@ -18,17 +25,27 @@ function ModelViewer(canvas) {
         }
     };
 
+    /** @member {number} */
     this.frameTimeMS = 1000 / 60;
+    /** @member {number} */
     this.frameTimeS = 1 / 60;
 
+    /** @member {map.<string, Handler>} */
     this.handlers = new Map(); // Map from a file extension to an handler
 
+    /** @member {Camera} */
     this.camera = new Camera(Math.PI / 4, 1, 10, 100000);
 
+    /** @member {HTMLCanvasElement} */
     this.canvas = canvas;
+
+    /** @member {WebGL} */
     this.webgl = new WebGL(canvas);
+
+    /** @member {WebGLRenderingContext} */
     this.gl = this.webgl.gl;
 
+    /** @member {object} */
     this.sharedShaders = {
         // Shared shader code to mimic gl_InstanceID
         "instanceId": `
@@ -87,6 +104,12 @@ function ModelViewer(canvas) {
 }
 
 ModelViewer.prototype = {
+    /**
+     * @method
+     * @desc Registers a new handler.
+     * @param {Handler} handler The handler.
+     * @returns this
+     */
     addHandler(handler) {
         const handlers = this.handlers;
 
@@ -115,6 +138,15 @@ ModelViewer.prototype = {
     // if isUrl is true-like, the source is considered to be an url, and a server fetch will be done
     // if isUrl is false-like, the source is considered to be a buffer that the handler can parse, with no server fetches
     // note that pathSolver will be used by the loaded resource to solve the paths of all internal resources (e.g. a model will use it to figure where its textures are located!)
+    /**
+     * @method
+     * @desc Load something. The meat of this whole project.
+     *       If a single source was given, a single object will be returned. If an array was given, an array will be returned, with the same ordering.
+     * @param {any|any[]} src The source used for the load.
+     * @param {function} pathSolver The path solver used by this load, and any subsequent loads that are caused by it (for example, a model that loads its textures).
+     * @see See more {@link LoadPathSolver here}.
+     * @returns {AsyncResource|AsyncResource[]}
+     */
     load(src, pathSolver) {
         if (Array.isArray(src)) {
             return src.map((single) => this.loadSingle(single, pathSolver));
@@ -125,6 +157,12 @@ ModelViewer.prototype = {
 
     // Call callback when all of the given resources have finished loading
     // If all of the given resources already loaded, it will be called immediately
+    /**
+     * @method
+     * @desc Calls the given callback, when all of the given resources finished loading. In the case all of the resources are already loaded, the call happens immediately.
+     * @param {AsyncResource[]} resources The resources to wait for.
+     * @param {function} callback The callback.
+     */
     whenAllLoaded(resources, callback) {
         let loaded = 0,
             wantLoaded = resources.length;
@@ -210,6 +248,10 @@ ModelViewer.prototype = {
         return map.get(src);
     },
 
+    /**
+     * @method
+     * @desc Remove all of the resources from this model viewer.
+     */
     clear() {
         const resources = this.resources;
 
@@ -241,21 +283,22 @@ ModelViewer.prototype = {
     render() {
         let gl = this.gl,
             models = this.resources.models.array,
+            i
             l = models.length;
 
         // See https://www.opengl.org/wiki/FAQ#Masking
         gl.depthMask(1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        for (let i = 0; i < l; i++) {
+        for (i = 0; i < l; i++) {
             models[i].renderViewsOpaque();
         }
 
-        for (let i = 0; i < l; i++) {
+        for (i = 0; i < l; i++) {
             models[i].renderViewsTranslucent();
         }
 
-        for (let i = 0; i < l; i++) {
+        for (i = 0; i < l; i++) {
             models[i].renderViewsEmitters();
         }
 
@@ -263,7 +306,7 @@ ModelViewer.prototype = {
     },
 
     resetViewport() {
-        const width = canvas.clientWidth,
+        let width = canvas.clientWidth,
             height = canvas.clientHeight;
 
         canvas.width = width;

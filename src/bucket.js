@@ -1,7 +1,16 @@
+/**
+ * @class
+ * @classdesc A bucket of instances. Used for batch rendering of many instances at the same time, using instanced rendering.
+ * @param {ModelView} modelView The view this bucket belongs to.
+ */
 function Bucket(modelView) {
+    /** @member {ModelView} */
     this.modelView = modelView;
+    /** @member {Model} */
     this.model = modelView.model;
+    /** @member {ModelInstance[]} */
     this.instances = [];
+    /** @member {map.<ModelInstance, number>} */
     this.instanceToIndex = new Map();
 
     // The index buffer is used instead of gl_InstanceID, which isn't defined in WebGL shaders
@@ -20,6 +29,7 @@ Bucket.prototype = {
     // The capacity of this bucket, override at will
     // TODO: This should possibly be dynamic, although tests in the past have shown it to be slower for some unknown reason
     //       For example, the bucket size of a simple model can probably be a lot bigger than that of a complex one
+    /** @member {number} */
     get size() {
         return 256;
     },

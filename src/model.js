@@ -1,6 +1,14 @@
+/**
+ * @class
+ * @classdesc A model. The point of this viewer.
+ * @extends DownloadableResource
+ * @param {ModelViewer} env The model viewer object that this model belongs to.
+ * @param {function} pathSolver A function that solves paths. See more {@link LoadPathSolver here}.
+ */
 function Model(env, pathSolver) {
     DownloadableResource.call(this, env, pathSolver);
 
+    /** @member {ModelView[]} */
     this.views = [];
 
     this.addView(); // Default view
@@ -16,6 +24,11 @@ Model.prototype = {
         throw "Model.Handler must be overriden!";
     },
 
+    /**
+     * @method
+     * @desc Adds a new view to this model, and returns the view.
+     * @returns {@link ModelView}
+     */
     addView() {
         const view = new this.Handler.ModelView(this);
 
@@ -35,6 +48,12 @@ Model.prototype = {
     },
 
     // A useful shortcut?
+    /**
+     * @method
+     * @desc Adds a new instance to the first view owned by this model, and returns the instance.
+     *       Equivalent to model.views[0].addInstance()
+     * @returns {@link ModelInstance}
+     */
     addInstance() {
         return this.views[0].addInstance();
     },

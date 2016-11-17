@@ -1,7 +1,19 @@
+/**
+ * @class
+ * @classdesc A common base class for almost all of the objects used by the viewer (including the viewer object itself).
+ *            This object handles event dispatching when objects are being loaded.
+ * @extends EventDispatcher
+ * @extends ActionQueue
+ * @param {ModelViewer} env The model viewer object this resource belongs to.
+ */
 function AsyncResource(env) {
+    /** @member {ModelViewer} */
     this.env = env;
+    /** @member {WebGLRenderingContext} */
     this.gl = env.gl;
+    /** @member {boolean} */
     this.loaded = false;
+    /** @member {boolean} */
     this.error = false;
 
     EventDispatcher.call(this);
@@ -57,7 +69,12 @@ AsyncResource.prototype = {
         this.dispatchEvent({ type: "loadend" });
     },
 
-    // Similar to attaching an event listener to the "loadend" event, but handles the case where the resource already loaded, and the callback should still be called
+    /**
+     * @method
+     * @desc Similar to attaching an event listener to the "loadend" event, but handles the case where the resource already loaded, and the callback should still be called.
+     * @param {function} callback The function to call.
+     * @returns this
+     */
     whenLoaded(callback) {
         if (this.loaded || this.error) {
             // Match the objects given by event dispatching.

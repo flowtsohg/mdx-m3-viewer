@@ -223,7 +223,7 @@ MdxModel.prototype = {
         var textureIds = layer.getAllTextureIds();
 
         if (textureIds.length > 1) {
-            var hash = Array.hashCode(textureIds);
+            var hash = hashFromArray(textureIds);
             var textures = [];
 
             for (var i = 0, l = textureIds.length; i < l; i++) {
@@ -369,7 +369,15 @@ MdxModel.prototype = {
         this.replaceables.push(replaceableId);
 
         this.textures.push(this.env.load(path, pathSolver));
-        this.texturePaths.push(path);
+        this.texturePaths.push(normalizePath(path));
+    },
+
+    replaceTextureById(id, newTexture) {
+        this.views[0].replaceTextureById(id, newTexture);
+    },
+
+    replaceTextureByPath(path, newTexture) {
+        this.views[0].replaceTextureByPath(path, newTexture);
     },
 
     calculateExtent() {

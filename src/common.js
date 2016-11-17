@@ -1,20 +1,25 @@
+// Normalize file paths to lowercase, and all slashes being forward.
+function normalizePath(path) {
+    return path.toLocaleLowerCase().replace(/\\/g, "/");
+}
+
+// Given an array of Image objects, constructs a texture atlas.
+// The dimensions of each tile are the dimensions of the first Image object (that is, all images are assumed to have the same size!).
+// The resulting texture atlas is always square, and power of two.
 var createTextureAtlas = (function () {
     let canvas = document.createElement("canvas"),
         ctx = canvas.getContext("2d");
 
     return function (src) {
-        var textureWidth = src[0].width;
-        var textureHeight = src[0].height;
-        var texturesPerRow = Math.powerOfTwo(Math.sqrt(src.length));
-        var pixelsPerRow = texturesPerRow * textureWidth;
+        let width = src[0].width,
+            height = src[0].height,
+            texturesPerRow = Math.powerOfTwo(Math.sqrt(src.length)),
+            pixelsPerRow = texturesPerRow * width;
 
-        canvas.width = canvas.height = pixelsPerRow;
+        canvas.width = canvas.height = width;
 
         for (let i = 0, l = src.length; i < l; i++) {
-            let x = (i % texturesPerRow) * textureHeight;
-                y = Math.floor(i / texturesPerRow) * textureHeight;
-
-            ctx.putImageData(src[i], x, y);
+            ctx.putImageData(src[i], (i % texturesPerRow) * height, Math.floor(i / texturesPerRow) * height);
         }
 
         return { texture: ctx.getImageData(0, 0, canvas.width, canvas.height), columns: texturesPerRow, rows: texturesPerRow };
@@ -126,31 +131,6 @@ function decodeFloat3(f) {
     return v;
 }
 
-/**
- * Gets the file name from a file path.
- *
- * @param {string} source The file path.
- * @returns {string} The file name.
- */
-function fileNameFromPath(path) {
-    var input = path.replace(/^.*[\\\/]/, "")
-    
-    return input.substr(0, input.lastIndexOf(".")) || input;
-}
-
-/**
- * Gets the file extention from a file path.
- *
- * @param {string} source The file path.
- * @returns {string} The file extension.
- */
-function fileTypeFromPath(path) {
-    var input = path.replace(/^.*[\\\/]/, ""),
-        output = input.substring(input.lastIndexOf(".")) || "";
-    
-    return output.toLowerCase();
-}
-
 if (!window.requestAnimationFrame ) {
     window.requestAnimationFrame = (function() {
         return window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) { window.setTimeout(callback, 1000 / 60); };
@@ -190,47 +170,12 @@ function get(path, binary, onprogress) {
 }
 
 /**
- * Sends an XHR2 request.
- *
- * @param {string} path The url to request.
- * @param {boolean} binary If true, the request type will be arraybuffer.
- * @param {function} onload onload callback.
- * @param {function} onerror onerror callback.
- * @param {function} onprogress onprogress callback.
- */
-function GET(path, binary, onload, onerror, onprogress) {
-    var xhr = new XMLHttpRequest();
-
-    if (onload) {
-        xhr.addEventListener("load", onload);
-    }
-
-    if (onerror) {
-        xhr.addEventListener("error", onerror);
-    }
-
-    if (onprogress) {
-        xhr.addEventListener("progress", onprogress);
-    }
-
-    xhr.open("GET", path, true);
-
-    if (binary) {
-        xhr.responseType = "arraybuffer";
-    }
-
-    xhr.send();
-    
-    return xhr;
-}
-
-/**
  * A very simple string hashing algorithm.
  *
- * @param {string} s String to hash.
- * @returns {number} The string hash.
+ * @param {string} s A string to hash.
+ * @returns {number} The hash.
  */
-String.hashCode = function(s) {
+function hashFromString(s) {
     var hash = 0;
 
     for (var i = 0, l = s.length; i < l; i++) {
@@ -239,9 +184,15 @@ String.hashCode = function(s) {
     }
 
     return hash;
-};
+}
 
-Array.hashCode = function (a) {
+/**
+ * A very simple array-of-numbers hashing algorithm.
+ *
+ * @param {number[]} a An array fo numbers to hash.
+ * @returns {number} The hash.
+ */
+function hashFromArray(a) {
     var hash = 0;
 
     for (var i = 0, l = a.length; i < l; i++) {
@@ -256,7 +207,7 @@ Array.hashCode = function (a) {
     }
 
     return hash;
-};
+}
 
 /**
  * A deep Object copy.
@@ -297,14 +248,27 @@ Array.copy = function (array) {
     return newArray;
 };
 
-Array.clear = function (array) {
-    while (array.length) {
-        array.pop();
+/**
+ * Clear an array.
+ *
+ * @param {array} a The array to clear.
+ * @returns {array}.
+ */
+Array.clear = function (a) {
+    while (a.length) {
+        a.pop();
     }
     
-    return array;
+    return a;
 };
 
+/**
+ * Shallow array equality test.
+ *
+ * @param {array} a The first array.
+ * @param {array} b The second array.
+ * @returns {boolean}.
+ */
 Array.areEqual = function (a, b) {
     if (a === b) {
         return true;
@@ -323,12 +287,23 @@ Array.areEqual = function (a, b) {
     return true;
 };
 
+/**
+ * Returns an array that only contains unique values found in the source array.
+ * In other words, all duplicated values are deleted.
+ *
+ * @returns {array}.
+ */
 Array.prototype.unique = function () {
     return this.reverse().filter(function (e, i, arr) {
         return arr.indexOf(e, i + 1) === -1;
     }).reverse();
-}
+};
 
+/**
+ * Returns a reversed copy of the source array.
+ *
+ * @returns {array}.
+ */
 String.prototype.reverse = function () {
     return [...this].reverse().join("");
 };
