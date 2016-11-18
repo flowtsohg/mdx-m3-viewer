@@ -79,9 +79,7 @@ AsyncResource.prototype = {
      */
     whenLoaded(callback) {
         if (this.loaded || this.error) {
-            // Match the objects given by event dispatching.
-            // Otherwise, callbacks might have to handle both cases, which is annoying.
-            callback({ target: this });
+            callback(this);
         } else {
             this.addAction((callback) => this.whenLoaded(callback), [callback]);
         }

@@ -196,6 +196,80 @@ MdxModel.prototype = {
         return true;
     },
 
+    // Checks the parser for any errors that will not affect the viewer, but affect the model when it is used in Warcraft 3.
+    // For example, things that make the model completely invalid and unloadable in the game, but work just fine in the viewer.
+    sanityCheck() {
+        let errors = [],
+            warnings = [],
+            chunks = this.parser.chunks;
+
+        // Sequences
+        if (chunks.SEQS) {
+            let sequences = chunks.SEQS.elements,
+                foundDeath = false;
+
+            for (let i = 0, l = sequences.length; i < l; i++) {
+                let sequence = sequences[i],
+                    interval = sequence.interval,
+                    length = interval[1] - interval[0];
+
+                if (sequence.name.toLowerCase() === "death") {
+                    foundDeath = true;
+                }
+
+                if (length <= 0) {
+                    errors.push("Sequence " + sequence.name + ": Invalid length " + length);
+                }
+            }
+
+            if (!foundDeath) {
+                warnings.push("Death animation missing");
+            }
+        }
+        
+        // Geoset animations
+        if (chunks.GEOA && chunks.GEOS) {
+            let biggest = chunks.GEOS.elements.length - 1,
+                geosetAnimations = chunks.GEOA.elements;
+
+            for (let i = 0, l = geosetAnimations.length; i < l; i++) {
+                let geosetId = geosetAnimations[i].geosetId;
+
+                if (geosetId < 0 || geosetId > biggest) {
+                    errors.push("Geoset animation " + i + ": Invalid geoset ID " + geosetId);
+                }
+            }
+        }
+
+        // Lights
+        if (chunks.LITE) {
+            let lights = chunks.LITE.elements;
+
+            for (let i = 0, l = lights.length; i < l; i++) {
+                let attenuation = lights[i].attenuation;
+
+                if (attenuation[0] < 80 || attenuation[1] > 200) {
+                    warnings.push("Light " + light.node.name + ": Recommended attenuation values are Min=80 Max=200");
+                }
+            }
+        }
+
+        // Event objects
+        if (chunks.EVTS) {
+            let eventObjects = chunks.EVTS.elements;
+
+            for (let i = 0, l = eventObjects.length; i < l; i++) {
+                let eventObject = eventObjects[i];
+
+                if (eventObject.tracks.length === 0) {
+                    errors.push("Event object " + eventObject.node.name + ": No keys");
+                }
+            }
+        }
+
+        return [errors, warnings];
+    },
+
     isVariant(sequence) {
         var nodes = this.nodes;
 

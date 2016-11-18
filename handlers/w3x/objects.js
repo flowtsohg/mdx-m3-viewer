@@ -42,12 +42,11 @@ function selectSequence(type, sequences) {
     return sequence;
 }
 
-function standSequence(e) {
-    var target = e.target;
-
-    if (e.objectType === "instance") {
-        console.trace();
-        throw "AA";
+function standSequence(target) {
+    // This function is registered both with whenLoaded, and with addEventListener.
+    // The former sends the object directly, while the latter passes an event object, so take care of this difference here.
+    if (target.target) {
+        target = target.target;
     }
 
     if (target.model.sequences) {
