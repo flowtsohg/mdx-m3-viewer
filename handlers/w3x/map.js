@@ -10,65 +10,66 @@ W3xMap.prototype = {
     initialize(src) {
         var reader = new BinaryReader(src);
 
-        if (read(reader, 4) === "HM3W") {
-            skip(reader, 4);
-
-            this.name = readUntilNull(reader);
-            this.flags = readInt32(reader);
-            this.maxPlayers = readInt32(reader);
-
-            this.mpq = new MpqArchive(this.env);
-            this.mpq.initialize(src);
-
-            console.log(this.mpq.getFileList());
-
-            this.pathSolver = (path) => {
-                if (this.mpq.hasFile(path)) {
-                    return [this.mpq.getFile(path).buffer, true];
-                }
-
-                path = path.toLowerCase().replace(/\\/g, "/");
-
-                if (window.location.hostname.match("hiveworkshop")) {
-                    path = "http://www.hiveworkshop.com/mpq-contents/?path=" + path;
-                } else {
-                    path = "resources/warcraft/" + path;
-                }
-
-                return [path, path.substr(path.lastIndexOf(".")), true];
-            };
-
-            var paths = [
-                "Doodads/Doodads.slk",
-                "Doodads/DoodadMetaData.slk",
-                "Units/DestructableData.slk",
-                "Units/DestructableMetaData.slk",
-                "Units/UnitData.slk",
-                "Units/ItemData.slk",
-                "Units/UnitMetaData.slk",
-                "Units/unitUI.slk",
-                "TerrainArt/Terrain.slk",
-                "TerrainArt/CliffTypes.slk"];
-
-            var files = this.loadFiles(paths);
-
-            this.slkFiles = {};
-
-            for (var i = 0, l = files.length; i < l; i++) {
-                this.slkFiles[paths[i].substr(paths[i].lastIndexOf("/") + 1).toLowerCase().split(".")[0]] = files[i];
-            }
-
-            this.env.whenAllLoaded(files, () => {
-                this.loadTerrain();
-                this.loadModifications();
-                this.loadDoodads();
-                this.loadUnits();
-            });
-
-            return true;
-        } else {
+        if (read(reader, 4) !== "HM3W") {
+            this.onerror("InvalidSource", "WrongMagicNumber");
             return false;
         }
+
+        skip(reader, 4);
+
+        this.name = readUntilNull(reader);
+        this.flags = readInt32(reader);
+        this.maxPlayers = readInt32(reader);
+
+        this.mpq = new MpqArchive(this.env);
+        this.mpq.initialize(src);
+
+        console.log(this.mpq.getFileList());
+
+        this.pathSolver = (path) => {
+            if (this.mpq.hasFile(path)) {
+                return [this.mpq.getFile(path).buffer, true];
+            }
+
+            path = path.toLowerCase().replace(/\\/g, "/");
+
+            if (window.location.hostname.match("hiveworkshop")) {
+                path = "http://www.hiveworkshop.com/mpq-contents/?path=" + path;
+            } else {
+                path = "resources/warcraft/" + path;
+            }
+
+            return [path, path.substr(path.lastIndexOf(".")), true];
+        };
+
+        var paths = [
+            "Doodads/Doodads.slk",
+            "Doodads/DoodadMetaData.slk",
+            "Units/DestructableData.slk",
+            "Units/DestructableMetaData.slk",
+            "Units/UnitData.slk",
+            "Units/ItemData.slk",
+            "Units/UnitMetaData.slk",
+            "Units/unitUI.slk",
+            "TerrainArt/Terrain.slk",
+            "TerrainArt/CliffTypes.slk"];
+
+        var files = this.loadFiles(paths);
+
+        this.slkFiles = {};
+
+        for (var i = 0, l = files.length; i < l; i++) {
+            this.slkFiles[paths[i].substr(paths[i].lastIndexOf("/") + 1).toLowerCase().split(".")[0]] = files[i];
+        }
+
+        this.env.whenAllLoaded(files, () => {
+            this.loadTerrain();
+            this.loadModifications();
+            this.loadDoodads();
+            this.loadUnits();
+        });
+
+        return true;
     },
 
     loadFiles(src) {

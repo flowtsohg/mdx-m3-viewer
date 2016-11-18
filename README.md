@@ -16,7 +16,7 @@ Built-in handlers exist for the following formats:
 * GEO (my own simple geometry format used for simple shapes): supported, note that this is solely a run-time handler.
 
 You can include all of the viewer files in the right order, which is seen in the examples folder.
-Another option is to run the given Ruby script in `compiler.rb`. This script gives you compilation options if you open it, and will result in `viewer.min.js` getting generated, if you tell it to minify.
+Another option is to run the given Ruby script `compiler.rb`. This script gives you compilation options if you open it with a text editor, and will result in `viewer.min.js` getting generated, if you tell it to minify.
 
 ------------------------
 
@@ -44,7 +44,7 @@ If the client doesn't have the requierments to run the viewer, an exception will
 
 So how do you actually load models and other files?
 The model viewer uses a system of path solving functions.
-That is, you supply a function that takes the src of the object you want to load (e.g. a file path), and you need to return specific results so the viewer knows what to do.
+That is, you supply a function that takes the source you want to load (e.g. an url), and you need to return specific results so the viewer knows what to do.
 The load function itself looks like this:
 
 ```javascript
@@ -60,7 +60,7 @@ The argument is the source (or iteratively an array of sources) you gave the loa
 It returns an array with three indices.
 The first index is the actual source to load from. Again, this highly depends on your code.
 The second index is the extension of the resource you are loading. Generally speaking, this will probably usually be the extension of the source, in the case of urls.
-The extension is given as a ".ext" format. That is, a string that contains a dot, followed by the extension.
+The extension is given in a ".ext" format. That is, a string that contains a dot, followed by the extension.
 Finally, isServerFetch is a boolean, and will determine if this is an in-memory load, or an actual server fetch. This will usually be true.
 
 So let's use an example.
@@ -94,7 +94,7 @@ let model = viewer.load("model.mdx", myPathSolver);
 
 This function call results in the following chain of events:
 1) myPathSolver is called with `"model.mdx"` and returns `["Resources/model.mdx", ".mdx", true]`.
-2) The viewer choses the correct handler based on the extension, in this case the MDX handler, sees this is a server fetch, and uses the source for the fetch.
+2) The viewer chooses the correct handler based on the extension - in this case the MDX handler - sees this is a server fetch, and uses the source for the fetch.
 3) A new Model is created and starts loading (at this point the viewer gets a `loadstart` event from the resource).
 4) The model is returned.
 5) ...time passes until the model really loads.
@@ -102,7 +102,7 @@ This function call results in the following chain of events:
 7) The model loads `texture.blp` by using its path solver, which returns `["Resources/texture.blp", ".blp", true]`, the viewer gets a `loadstart` event, etc.
 
 The path solver did two jobs here. First of all, it made the load calls shorter by avoiding to type "Resources/". But the real deal, is that it allowes to selectively override sources, and change them in interesting ways.
-Generally speaking an identity solver is what you'll need (as in, it returns the source assuming its an url, its extesnion, and true for server fetch), but there are cases where this is not the case, such as loading custom user-made models, handling both in-memory and server-fetches in the same handler (used by the W3X handler), etc.
+Generally speaking an identity solver is what you'll need (as in, it returns the source assuming its an url, its extesnion, and true for server fetch), but there are cases where this is not the case, such as loading custom user-made models, handling both in-memory and server-fetches in the same solver (used by the W3X handler), etc.
 
 So, we now have a model, but a model isn't something you can see. What you see in a scene are instances of a model.
 Creating instances is as simple as this:
@@ -114,7 +114,7 @@ let instance = model.addInstance();
 This instance can be rendered, moved, rotated, scaled, parented to other instances or nodes, play animations, and so on.
 
 A big design part of this viewer is that it tries to allow you to write as linear code as you can.
-That is, even though this code heavily relies on asyncronous code (and not only in server fetches, you'd be surprised), it tries to hide this fact, and make the code feel linear to the user.
+That is, even though this code heavily relies on asyncronous actions (and not only in server fetches, you'd be surprised), it tries to hide this fact, and make the code feel syncronous to the user.
 For example, let's say we want the instance above to play an animation, assuming its model has any.
 
 ```javascript
@@ -122,13 +122,13 @@ instance.setSequence(0); // first animation, -1 == no animation.
 ```
 
 This should work, right? You have an instance, and you call its method, nothing special.
-Except, this method needs to get animation data from the model, which, if all of this code is put together, is not loaded yet! (even if you run locally, the file fetch will finish after this line)
+Except, this method needs to get animation data from the model, which, if all of this code is put together, is not loaded yet! (even if you run locally, the file fetch will finish after this line).
 That isn't to say this line of code will not work - it does! But that's because there's code behind the scenes that handles asyncronous actions.
 Generally speaking, whenever you want to set/change something, you will be able to do it with straightforward code that looks syncronous, whether it really is or not behind the scenes.
 
 If you want to get information, like a list of animations, or textures, then the model obviously needs to exist before.
 For this reason, there are two ways to do things when a model finishes loading.
-First of all, as the next section explains, every resource uses event dispatching much like regular asyncronous JavaScript objects.
+First of all, as the next section explains, every resource uses event dispatching, much like regular asyncronous JavaScript objects (e.g. Image, XMLHttpRequest, and so on).
 In addition, every resource has a `whenLoaded(callback)` method that gets `callback` called when it loads, or immediatelty if it was already loaded.
 The viewer itself has `whenAllLoaded(resources, callback)`, which is the same, but waits for multiple resources in an array to load.
 
@@ -158,6 +158,19 @@ The type can be one of:
 * `delete` - a resource was deleted.
 
 The target property is set to the object that the event is related to. In the case of the render event, this is the viewer itself.
+
+Errors might occur, most of the time because your path solvers aren't correct, but there are other causes.
+When a resource gets loaded, the handler can choose to send errors if something goes wrong.
+The built-in handlers try to do this in a consistent way.
+There are three types of errors:
+* UnsupportedFileType - sent by the viewer itself, if you try to load some resource with an unknown extension (did you forget to register the handler?).
+* InvalidSource - sent by handlers when they think your source is not valid, such as trying to load a file as Mdx, but it's not really an Mdx file.
+* UnsupportedFeature - sent by handlers when the source is valid, but a feature in the format isn't supported, such as DDS textures not supporting encodings that are not DXT1/3/5.
+
+Together with these error strings (in the `error` property naturally), the handlers can choose to add more information in the `extra` property.
+For example, when you get an UnsupportedFileType error because you tried loading an unknown extension, the extra property will hold an array, with the first index being the extension you tried to use, and the source.
+Another example - in the formats that have some form of magic number for validation, and upon the handlers getting wrong numbers, the InvalidSource error will be sent, and extra will be "WrongMagicNumber".
+There are only a few errors, and you can choose to respond to them however you want.
 
 ------------------------
 

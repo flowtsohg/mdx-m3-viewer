@@ -11,7 +11,7 @@ M3Model.prototype = {
         var parser = M3Parser(new BinaryReader(src));
 
         if (!parser) {
-            this.onerror("Failed to parse");
+            this.onerror("InvalidSource", "WrongMagicNumber");
             return false;
         }
 

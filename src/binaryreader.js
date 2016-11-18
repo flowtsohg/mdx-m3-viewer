@@ -3,6 +3,14 @@ function BinaryReader(buffer, byteOffset, byteLength) {
         throw new TypeError("BinaryReader: expected ArrayBuffer, got " + buffer);
     }
 
+    // Note: These four lines exist just for Firefox, since, at the time of writing, its implementation fails ECMAScript 2015 section 22.2.1.5 step 13.
+    //       In other words, if you create a typed array with byteLength of undefined, the typed array will have zero length, instead of buffer.byteLength - byteOffset.
+    //       See bug report at https://bugzilla.mozilla.org/show_bug.cgi?id=1040402
+    byteOffset = byteOffset || 0;
+    if (byteLength === undefined) {
+        byteLength = buffer.byteLength - byteOffset;
+    }
+
     this.buffer = buffer;
     this.dataview = new DataView(buffer, byteOffset, byteLength);
     this.uint8array = new Uint8Array(buffer, byteOffset, byteLength);

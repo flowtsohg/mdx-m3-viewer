@@ -14,7 +14,7 @@ BmpTexture.prototype = {
 
         // BMP magic identifier
         if (read(binaryReader, 2) !== "BM") {
-            this.dispatchEvent({ type: "error", error: "Bad Format" });
+            this.onerror("InvalidSource", "WrongMagicNumber");
             return false;
         }
 
@@ -32,14 +32,14 @@ BmpTexture.prototype = {
         const bpp = readUint16(binaryReader);
 
         if (bpp !== 24) {
-            this.dispatchEvent({ type: "error", error: "Only 24 bits per pixel supported (given " + bpp + ")" });
+            this.onerror("UnsupportedFeature", "BPP");
             return false;
         }
 
         const compression = readUint32(binaryReader);
 
         if (compression !== 0) {
-            this.dispatchEvent({ type: "error", error: "Compressed images are not supported" });
+            this.onerror("UnsupportedFeature", "Compression");
             return false;
         }
 

@@ -38,7 +38,7 @@ ModelInstance.prototype = {
     modelError() {
         this.error = true;
 
-        this.dispatchEvent({ type: "error" });
+        this.dispatchEvent({ type: "error", error: "InvalidModel" });
         this.dispatchEvent({ type: "loadend" });
     },
 

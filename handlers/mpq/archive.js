@@ -12,6 +12,11 @@ MpqArchive.prototype = {
 
         this.headerOffset = this.searchHeader(reader);
 
+        if (this.headerOffset === -1) {
+            this.onerror("InvalidSource", "HeaderNotFound");
+            return false;
+        }
+
         this.buffer = src.slice(this.headerOffset);
 
         if (this.headerOffset > -1) {

@@ -93,7 +93,7 @@ MdxModelInstance.prototype = {
                 instance.setParent(this.skeleton.nodes[attachment.node.objectId]);
                 instance.dontInheritScale = false;
 
-                this.modelAttachments[i] = [attachment, instance];
+                this.modelAttachments.push([attachment, instance]);
             }
         }
         
@@ -187,8 +187,6 @@ MdxModelInstance.prototype = {
 
         this.updateEmitters();
 
-
-
         // Model attachments
         const modelAttachments = this.modelAttachments;
 
@@ -208,8 +206,6 @@ MdxModelInstance.prototype = {
                 }
             }
         }
-
-
         
         var model = this.model,
             batches = model.batches;

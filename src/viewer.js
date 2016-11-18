@@ -198,7 +198,7 @@ ModelViewer.prototype = {
             if (handler) {
                 return this.loadResource(src, extension, serverFetch, pathSolver, handler);
             } else {
-                this.dispatchEvent({ type: "error", error: "Unsupported file extension: " + extension + " (" + src + ")" })
+                this.dispatchEvent({ type: "error", error: "UnsupportedFileType", extra: [extension, src] })
             }
         }
     },

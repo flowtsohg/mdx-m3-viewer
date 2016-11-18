@@ -33,10 +33,6 @@ AsyncResource.prototype = {
         throw "AsyncResource.load must be overriden!";
     },
 
-    onerror(e) {
-        this.dispatchEvent({ type: "error", error: e });
-    },
-
     onprogress(e) {
         if (e.target.status === 200) {
             this.dispatchEvent({ type: "progress", loaded: e.loaded, total: e.total, lengthComputable: e.lengthComputable });
@@ -57,10 +53,16 @@ AsyncResource.prototype = {
         this.onloadend();
     },
 
-    onerror(e) {
+    onerror(error, extra) {
         this.error = true;
 
-        this.dispatchEvent({ type: "error", error: e });
+        let e = { type: "error", error: error, extra: extra };
+
+        if (extra) {
+            e.extra = extra;
+        }
+
+        this.dispatchEvent(e);
         this.onloadend();
     },
 

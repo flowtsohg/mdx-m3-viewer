@@ -14,14 +14,14 @@ BlpTexture.prototype = {
               BLP_PALLETE = 0x1;
 
         if (src.byteLength < 40) {
-            this.dispatchEvent({ type: "error", error: "Bad file" });
+            this.onerror("InvalidSource", "FileTooSmall");
             return false;
         }
 
         const header = new Int32Array(src, 0, 39);
 
         if (header[0] !== BLP1_MAGIC) {
-            this.dispatchEvent({ type: "error", error: "Bad format" });
+            this.onerror("InvalidSource", "WrongMagicNumber");
             return false;
         }
 

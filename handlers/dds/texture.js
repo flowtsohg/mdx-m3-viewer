@@ -21,12 +21,12 @@ DdsTexture.prototype = {
             header = new Int32Array(src, 0, 31);
 
         if (header[0] !== DDS_MAGIC) {
-            this.onerror("Bad format");
+            this.onerror("InvalidSource", "WrongMagicNumber");
             return false;
         }
 
         if (!header[20] & DDPF_FOURCC) {
-            this.onerror("FourCC");
+            this.onerror("UnsupportedFeature", "FourCC");
             return false;
         }
 

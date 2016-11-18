@@ -47,6 +47,11 @@ SlkFile.prototype = {
     },
 
     initialize(src) {
+        if (!src.startsWith("ID")) {
+            this.onerror("InvalidSource", "WrongMagicNumber");
+            return false;
+        }
+
         this.parseRows(src);
         this.mapRows();
         this.mapByID();

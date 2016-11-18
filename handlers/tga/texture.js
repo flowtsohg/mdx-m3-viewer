@@ -8,12 +8,12 @@ TgaTexture.prototype = {
     },
 
     initialize(src) {
-        const gl = this.env.gl,
+        let gl = this.env.gl,
             dataView = new DataView(src),
             imageType = dataView.getUint8(2);
 
         if (imageType !== 2) {
-            this.onerror("ImageType");
+            this.onerror("UnsupportedFeature", "ImageType");
             return false;
         }
 
@@ -23,7 +23,7 @@ TgaTexture.prototype = {
             imageDescriptor = dataView.getUint8(17);
 
         if (pixelDepth !== 32) {
-            this.onerror("PixelDepth");
+            this.onerror("UnsupportedFeature", "BPP");
             return false;
         }
 

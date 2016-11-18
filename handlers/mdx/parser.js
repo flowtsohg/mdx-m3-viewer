@@ -1,4 +1,4 @@
-MdxParser = (function () {
+let MdxParser = (function () {
     // Mapping from track tags to their type and default value
     var tagToTrack = {
         // LAYS

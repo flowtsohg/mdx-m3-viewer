@@ -11,7 +11,7 @@ MdxModel.prototype = {
         var parser = MdxParser(new BinaryReader(src));
 
         if (!parser) {
-            this.onerror("Failed to parse");
+            this.onerror("InvalidSource", "WrongMagicNumber");
             return false;
         }
 
