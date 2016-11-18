@@ -1,10 +1,10 @@
-WANT_W3X = true # Will include MPQ, MDX, SLK, BLP, and TGA
+WANT_W3X = true # Will include MPQ, MDX, SLK, BLP, and TGA.
 WANT_MPQ = true
-WANT_MDX = true # Will include SLK, BLP, and TGA
+WANT_MDX = true # Will include SLK, BLP, and TGA.
 WANT_SLK = true
 WANT_BLP = true
 WANT_TGA = true
-WANT_M3 = true # Wil include DDS, and TGA
+WANT_M3 = true # Will include DDS, and TGA.
 WANT_DDS = true
 WANT_GEO = true
 
