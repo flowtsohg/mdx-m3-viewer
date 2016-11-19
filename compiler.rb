@@ -13,9 +13,9 @@ WANT_MINIFY = true
 WANT_GEN_DOCS = false # Assumes you have JSDoc in your PATH system variable.
 
 Files = [
-    "src/common.js",
+	"src/common.js",
 	"src/binaryreader.js",
-    "src/bitbuffer.js",
+	"src/bitbuffer.js",
 	"external/gl-matrix-min.js",
     "src/math/gl-matrix-addon.js",
     "src/math/interpolator.js",

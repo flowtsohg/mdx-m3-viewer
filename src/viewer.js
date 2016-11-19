@@ -189,7 +189,7 @@ ModelViewer.prototype = {
                 [src, extension, serverFetch] = pathSolver(src);
             }
 
-            const handler = this.handlers.get(extension);
+            const handler = this.handlers.get(extension.toLowerCase());
 
             // Is there an handler for this file type?
             if (handler) {
@@ -280,7 +280,7 @@ ModelViewer.prototype = {
     render() {
         let gl = this.gl,
             models = this.resources.models.array,
-            i
+            i,
             l = models.length;
 
         // See https://www.opengl.org/wiki/FAQ#Masking
