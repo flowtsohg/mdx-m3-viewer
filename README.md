@@ -105,7 +105,7 @@ This function call results in the following chain of events:
 2. The viewer chooses the correct handler based on the extension - in this case the MDX handler - sees this is a server fetch, and uses the source for the fetch.
 3. A new MDX model is created and starts loading (at this point the viewer gets a `loadstart` event from the model).
 4. The model is returned.
-5. ...time passes until the model finished loading.
+5. ...time passes until the model finishes loading...
 6. The model is parsed and populated. In the case of MDX, this will also cause it to load its textures, in this case `texture.blp`.
 7. The model loads `texture.blp` by using its path solver, which returns `["Resources/texture.blp", ".blp", true]`, the viewer gets a `loadstart` event, etc.
 
@@ -152,7 +152,7 @@ resource.removeEventListener(type, listener)
 resource.dispatchEvent(event)
 ```
 
-Note that attaching a "loadstart" listener to a resource that is not the viewer is pointless, since the listener is registered after the resource started loading.
+Note that attaching a `loadstart` listener to a resource that is not the viewer is pointless, since the listener is registered after the resource started loading.
 To properly catch loadstart events, attach a listener to the viewer.
 
 The type can be one of:
@@ -169,17 +169,18 @@ The target property is set to the object that the event is related to. In the ca
 Errors might occur, most of the time because your path solvers aren't correct, but there are other causes.
 When a resource gets loaded, the handler can choose to send errors if something goes wrong.
 The built-in handlers try to do this in a consistent way.
-There are three types of errors:
+There are four types of errors:
 * UnsupportedFileType - sent by the viewer itself, if you try to load some resource with an unknown extension (did you forget to register the handler?).
 * InvalidSource - sent by handlers when they think your source is not valid, such as trying to load a file as Mdx, but it's not really an Mdx file.
 * UnsupportedFeature - sent by handlers when the source is valid, but a feature in the format isn't supported, such as DDS textures not supporting encodings that are not DXT1/3/5.
 * HttpError - sent by handlers when a server fetch failed.
 
 Together with these error strings (in the `error` property naturally), the handlers can choose to add more information in the `extra` property.
-For example, when you get an UnsupportedFileType error because you tried loading an unknown extension, the extra property will hold an array, with the first index being the extension you tried to use, and the second one being the source.
-Another example - in the formats that have some form of magic number for validation, and upon the handlers getting wrong numbers, the InvalidSource error will be sent, and extra will contain "WrongMagicNumber".
+For example, when you get an UnsupportedFileType error because you tried loading an unknown extension, the `extra` property will hold an array, with the first index being the extension you tried to use, and the second one being the source.
+Another example - in the formats that have some form of magic number for validation, and upon the handlers getting wrong numbers, the InvalidSource error will be sent, and `extra` will contain "WrongMagicNumber".
+For the final example - when an HttpError occurs, `extra` will contain the XMLHttpRequest object of the fetch.
 There are only a few errors, and you can choose to respond to them however you want.
-For the final example - when an HttpError occurs, the extra will contain the XMLHttpRequest object of the fetch.
+
 ------------------------
 
 #### Adding Handlers
