@@ -697,9 +697,8 @@ MdxModel.prototype = {
 
             gl.uniform1i(shader.uniforms.get("u_texture"), 0);
 
-
             for (let i = 0, l = emitters.length; i < l; i++) {
-                emitters[i].render(shader);
+                emitters[i].render(shader, bucket.modelView);
             }
 
             gl.depthMask(1);

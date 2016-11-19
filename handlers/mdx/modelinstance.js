@@ -9,9 +9,6 @@ MdxModelInstance.prototype = {
 
         this.skeleton = new MdxSkeleton(this, model);
 
-        //this.ribbonEmitters = [];
-
-
         this.particleEmitters = [];
         if (model.particleEmitters && model.particleEmitters.length > 0) {
             const objects = model.particleEmitters;
@@ -38,7 +35,6 @@ MdxModelInstance.prototype = {
                 this.ribbonEmitters[i] = new MdxRibbonEmitterView(this, objects[i]);
             }
         }
-
 
         let extent = this.model.parser.chunks.MODL.extent;
         this.boundingShape = new BoundingShape();
@@ -146,7 +142,7 @@ MdxModelInstance.prototype = {
         
         emitters = this.ribbonEmitters;
         for (var i = 0, l = emitters.length; i < l; i++) {
-            //emitters[i].update(allowCreate);
+            emitters[i].update(allowCreate);
         }
         /*
         emitters = this.eventObjectEmitters;
@@ -178,11 +174,12 @@ MdxModelInstance.prototype = {
     },
 
     update() {
-        var viewer = this.env;
+        var model = this.model,
+            bucket = this.bucket;
 
-        if (this.sequenceObject && this.model.variants[this.sequence]) {
+        if (this.sequenceObject && model.variants[this.sequence]) {
             this.skeleton.update();
-            this.bucket.updateBoneTexture[0] = 1;
+            bucket.updateBoneTexture[0] = 1;
         }
 
         this.updateEmitters();
@@ -191,24 +188,21 @@ MdxModelInstance.prototype = {
         const modelAttachments = this.modelAttachments;
 
         for (let i = 0, l = modelAttachments.length; i < l; i++) {
-            const modelAttachment = modelAttachments[i],
+            let modelAttachment = modelAttachments[i],
                 attachment = modelAttachment[0],
                 instance = modelAttachment[1];
 
-            if (instance) {
-                if (attachment.getVisibility(this) > 0.1) {
-                    if (!instance.rendered) {
-                        instance.rendered = true;
-                        instance.setSequence(0);
-                    }
-                } else {
-                    instance.rendered = false;
+            if (attachment.getVisibility(this) > 0.1) {
+                if (!instance.rendered) {
+                    instance.rendered = true;
+                    instance.setSequence(0);
                 }
+            } else {
+                instance.rendered = false;
             }
         }
         
-        var model = this.model,
-            batches = model.batches;
+        var batches = model.batches;
 
         // Not every model has batches
         if (batches.length) {
@@ -227,7 +221,7 @@ MdxModelInstance.prototype = {
 
                 var batchVisibility = batch.shouldRender(this);
                 batchVisibilityArrays[index][0] = batchVisibility;
-                this.bucket.updateBatches[index] |= batchVisibility;
+                bucket.updateBatches[index] |= batchVisibility;
 
                 if (batchVisibility) {
                     if (geoset.geosetAnimation) {
@@ -257,7 +251,7 @@ MdxModelInstance.prototype = {
                     uvOffsetArray[0] = uvOffset[0];
                     uvOffsetArray[1] = uvOffset[1];
 
-                    this.bucket.updateUvOffsets[0] = 1;
+                    bucket.updateUvOffsets[0] = 1;
                 }
 
                 // Texture animation that is based on a texture atlas, where the selected tile changes
@@ -268,7 +262,7 @@ MdxModelInstance.prototype = {
                     uvOffsetArray[2] = textureId % uvDivisor[0];
                     uvOffsetArray[3] = Math.floor(textureId / uvDivisor[1]);
 
-                    this.bucket.updateUvOffsets[0] = 1;
+                    bucket.updateUvOffsets[0] = 1;
                 }
             }
         }

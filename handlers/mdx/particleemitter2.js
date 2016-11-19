@@ -284,7 +284,7 @@ MdxParticleEmitter2.prototype = {
         }
     },
 
-    render(shader) {
+    render(shader, modelView) {
         var gl = this.model.env.gl;
         var particles = this.activeSlots.length;
 
@@ -317,11 +317,20 @@ MdxParticleEmitter2.prototype = {
                     break;
             }
 
-            this.model.bindTexture(this.textureId);
+            this.updateHW();
 
             gl.uniform2fv(shader.uniforms.get("u_dimensions"), this.dimensions);
 
-            this.updateHW();
+
+
+            /// NOTE TO SELF: ALL OF THE RENDERING CODE BELOW NEEDS TO BE IN A PER-MODEL-VIEW LOOP
+            /// That means:
+            ///     Layer 1: Model emitter = Parser emiter (metadata)
+            ///     Layer 2: Particle2Emitter in ModelView
+            ///     Layer 3: Particle2EmitterView in ModelInstance
+
+
+            this.model.bindTexture(this.textureId, modelView);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.buffer);
             gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.buffer.float32array.subarray(0, particles * 30));

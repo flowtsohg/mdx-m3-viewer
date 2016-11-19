@@ -2,6 +2,8 @@ function MdxRibbonEmitterView(instance, emitter) {
     this.instance = instance;
     this.emitter = emitter;
     this.currentEmission = 0;
+    this.lastRibbon = null;
+    this.activeRibbons = 0;
 }
 
 MdxRibbonEmitterView.prototype = {
@@ -26,10 +28,10 @@ MdxRibbonEmitterView.prototype = {
             let emitter = this.emitter;
 
             this.currentEmission += emitter.emissionRate * this.instance.model.env.frameTimeS;
-            console.log(this.currentEmission)
+
             if (this.currentEmission >= 1) {
-                for (let i = 0, l = Math.floor(this.currentEmission) ; i < l; i++) {
-                    emitter.emit(this.instance);
+                for (let i = 0, l = Math.floor(this.currentEmission); i < l; i++) {
+                    this.lastRibbon = emitter.emit(this);
 
                     this.currentEmission -= 1;
                 }

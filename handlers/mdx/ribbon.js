@@ -1,32 +1,47 @@
 function MdxRibbon() {
+    this.location = vec3.create();
     this.health = 0;
-    this.health = emitter.lifespan;
-
-    var position = emitter.node.pivot;
-    var heightBelow = emitter.getHeightBelow(instance);
-    var heightAbove = emitter.getHeightAbove(instance);
-
-    var p1 = [position[0], position[1] - heightBelow, position[2]];
-    var p2 = [position[0], position[1] + heightAbove, position[2]];
-
-    vec3.transformMat4(p1, p1, emitter.node.worldMatrix);
-    vec3.transformMat4(p2, p2, emitter.node.worldMatrix);
-
-    this.p1 = p1;
-    this.p2 = p2;
+    this.p1 = vec3.create();
+    this.p2 = vec3.create();
+    this.lastRibbon = null;
 }
 
 MdxRibbon.prototype = {
-    reset(emitter, id, instance) {
-        this.health -= viewer.frameTimeS;
+    reset(emitter, view, slot) {
+        let instance = view.instance,
+            node = instance.skeleton.nodes[emitter.node.index],
+            location = node.pivot,
+            p1 = this.p1,
+            p2 = this.p2;
 
-        var zvelocity = emitter.gravity * viewer.frameTimeS * viewer.frameTimeS;
+        p1[0] = location[0];
+        p1[1] = location[1] - emitter.getHeightBelow(instance);
+        p1[2] = location[2];
+        vec3.transformMat4(p1, p1, node.worldMatrix);
 
+        p2[0] = location[0];
+        p2[1] = location[1] + emitter.getHeightAbove(instance);
+        p2[2] = location[2];
+        vec3.transformMat4(p2, p2, node.worldMatrix);
+
+        this.view = view;
+        this.lastRibbon = view.lastRibbon;
+        this.health = emitter.lifespan;
+        this.slot = slot;
+
+        view.activeRibbons += 1;
+    },
+
+    update(emitter) {
+        let dt = emitter.model.env.frameTimeS,
+            zvelocity = emitter.gravity * dt * dt;
+
+        this.health -= dt;
         this.p1[2] -= zvelocity;
         this.p2[2] -= zvelocity;
     },
 
-    update(emitter) {
-
+    kill() {
+        this.view.activeRibbons -= 1;
     }
 };

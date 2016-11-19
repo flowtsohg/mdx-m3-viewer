@@ -389,7 +389,7 @@ function readMatrixArray(reader, size) {
 }
 
 function readPixel(reader) {
-    return readUint8Array(4);
+    return readUint8Array(reader, 4);
 }
 
 function readPixelArray(reader, size) {

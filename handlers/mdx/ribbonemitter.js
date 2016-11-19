@@ -18,7 +18,6 @@ function MdxRibbonEmitter(emitter, model) {
 
     this.layers = model.materials[this.materialId];
 
-    this.node = model.nodes[this.node.index];
     this.sd = new MdxSdContainer(emitter.tracks, model);
 
     // Avoid heap allocations
@@ -29,8 +28,8 @@ function MdxRibbonEmitter(emitter, model) {
 }
 
 MdxRibbonEmitter.prototype = {
-    emit(instance) {
-        const ribbons = this.ribbons,
+    emit(view) {
+        let ribbons = this.ribbons,
             openSlots = this.openSlots,
             activeSlots = this.activeSlots;
 
@@ -39,18 +38,22 @@ MdxRibbonEmitter.prototype = {
         }
 
         if (openSlots.length) {
-            const index = openSlots.pop();
+            const slot = openSlots.pop();
 
-            ribbons[index].reset(this, isHead, index, instance);
-            activeSlots.push(index);
+            ribbons[slot].reset(this, view, slot);
+            activeSlots.push(slot);
+
+            return ribbons[slot];
         } else {
             const ribbon = new MdxRibbon();
 
-            ribbon.reset(this, this.currentSlot, instance);
+            ribbon.reset(this, view, this.currentSlot);
             activeSlots.push(this.currentSlot);
 
             ribbons[this.currentSlot] = ribbon;
             this.currentSlot += 1;
+
+            return ribbon;
         }
     },
 
@@ -76,7 +79,9 @@ MdxRibbonEmitter.prototype = {
             ribbon = ribbons[activeSlots[activeSlots.length - 1]];
             while (ribbon && ribbon.health <= 0) {
                 activeSlots.pop();
-                this.openSlots.push(ribbon.id);
+                this.openSlots.push(ribbon.slot);
+
+                ribbon.kill();
 
                 // Need to recalculate the length each time
                 ribbon = ribbons[activeSlots[activeSlots.length - 1]];
@@ -88,9 +93,7 @@ MdxRibbonEmitter.prototype = {
             // Second stage: update the living ribbons.
             // All the dead ribbons were removed, so a simple loop is all that's required.
             for (i = 0, l = activeSlots.length; i < l; i++) {
-                ribbon = ribbons[activeSlots[i]];
-
-                ribbon.update(this);
+                ribbons[activeSlots[i]].update(this);
             }
 
             //this.updateHW();
@@ -100,37 +103,45 @@ MdxRibbonEmitter.prototype = {
     render(sequence, frame, counter, textureMap, shader, viewer) {
         var ctx = viewer.gl.ctx;
         var i, l;
-        var ribbons = Math.min(this.ribbons.length, this.maxRibbons);
+        var ribbonCount = Math.min(this.ribbons.length, this.maxRibbons);
 
-        if (ribbons > 2) {
+        if (ribbonCount > 2) {
             var textureSlot = this.getTextureSlot(sequence, frame, counter);
             //var uvOffsetX = (textureSlot % this.columns) / this.columns;
             var uvOffsetY = Math.floor(textureSlot / this.rows) / this.rows;
-            var uvFactor = 1 / ribbons * this.cellWidth;
+            var uvFactor = 1 / ribbonCount * this.cellWidth;
             var top = uvOffsetY;
             var bottom = uvOffsetY + this.cellHeight;
             var data = this.emitter.data;
             var index, ribbon, left, right, v1, v2;
+            var quads = 0;
 
-            for (i = 0, l = ribbons; i < l; i++) {
-                index = i * 10;
-                ribbon = this.ribbons[i];
-                left = (ribbons - i) * uvFactor;
-                right = left - uvFactor;
-                v1 = ribbon.p2;
-                v2 = ribbon.p1;
+            let ribbons = this.ribbons;
 
-                data[index + 0] = v1[0];
-                data[index + 1] = v1[1];
-                data[index + 2] = v1[2];
-                data[index + 3] = left;
-                data[index + 4] = top;
+            for (i = 0; i < ribbonCount; i++) {
+                let ribbon = ribbons[i],
+                    lastRibbon = ribbon.lastRibbon;
 
-                data[index + 5] = v2[0];
-                data[index + 6] = v2[1];
-                data[index + 7] = v2[2];
-                data[index + 8] = right;
-                data[index + 9] = bottom;
+                // Only add a quad if this isn't the first ribbon of a chain
+                if (lastRibbon) {
+                    let index = quads * 20,
+                        left = (ribbonCount - i) * uvFactor,
+                        right = left - uvFactor,
+                        v1 = ribbon.p2,
+                        v2 = ribbon.p1;
+
+                    data[index + 0] = v1[0];
+                    data[index + 1] = v1[1];
+                    data[index + 2] = v1[2];
+                    data[index + 3] = left;
+                    data[index + 4] = top;
+
+                    data[index + 5] = v2[0];
+                    data[index + 6] = v2[1];
+                    data[index + 7] = v2[2];
+                    data[index + 8] = right;
+                    data[index + 9] = bottom;
+                }
             }
 
             ctx.bindBuffer(ctx.ARRAY_BUFFER, this.emitter.buffer);
@@ -169,7 +180,7 @@ MdxRibbonEmitter.prototype = {
 
                 ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
 
-                ctx.drawArrays(ctx.TRIANGLE_STRIP, 0, ribbons * 2);
+                ctx.drawArrays(ctx.TRIANGLE_STRIP, 0, ribbonCount * 2);
 
                 layer.unbind(shader, ctx);
             }
