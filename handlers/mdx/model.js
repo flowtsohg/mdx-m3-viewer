@@ -206,14 +206,23 @@ MdxModel.prototype = {
         // Sequences
         if (chunks.SEQS) {
             let sequences = chunks.SEQS.elements,
+                foundStand = false,
                 foundDeath = false;
+
+            if (sequences.length === 0) {
+                warnings.push("No animations");
+            }
 
             for (let i = 0, l = sequences.length; i < l; i++) {
                 let sequence = sequences[i],
                     interval = sequence.interval,
                     length = interval[1] - interval[0];
 
-                if (sequence.name.toLowerCase() === "death") {
+                if (sequence.name.toLowerCase().indexOf("stand") !== -1) {
+                    foundStand = true;
+                }
+
+                if (sequence.name.toLowerCase().indexOf("death") !== -1) {
                     foundDeath = true;
                 }
 
@@ -222,14 +231,56 @@ MdxModel.prototype = {
                 }
             }
 
+            if (!foundStand) {
+                warnings.push("No stand animation");
+            }
+
             if (!foundDeath) {
-                warnings.push("Death animation missing");
+                warnings.push("No death animation");
             }
         }
         
+        // Textures
+        if (chunks.TEXS) {
+            let textures = chunks.TEXS.elements;
+
+            for (let i = 0, l = textures.length; i < l; i++) {
+                let texture = textures[i],
+                    replaceableId = texture.replaceableId,
+                    path = texture.path;
+
+                if (path === "" && MdxReplaceableIdToName[replaceableId] === undefined) {
+                    errors.push("Texture " + i + ": Unknown replaceable ID " + replaceableId);
+                }
+
+                // Is this a warning or an error?
+                if (path !== "" && replaceableId !== 0) {
+                    warnings.push("Texture " + i + ": Path " + path + " and replaceable ID " + replaceableId + " used together");
+                }
+            }
+        }
+
+        // Geosets
+        if (chunks.GEOS) {
+            let geosets = chunks.GEOS.elements;
+
+            for (let i = 0, l = geosets.length; i < l; i++) {
+                let matrixGroups = geosets[i].matrixGroups;
+
+                for (let j = 0, k = matrixGroups.length; j < k; j++) {
+                    let matrixGroup = matrixGroups[j];
+
+                    if (matrixGroup < 1 || matrixGroup > 4) {
+                        warnings.push("Geoset " + i + ": Vertex " + j + " is attached to " + matrixGroup + " bones");
+                    }
+                }
+            }
+        }
+
         // Geoset animations
         if (chunks.GEOA && chunks.GEOS) {
             let biggest = chunks.GEOS.elements.length - 1,
+                usageMap = {},
                 geosetAnimations = chunks.GEOA.elements;
 
             for (let i = 0, l = geosetAnimations.length; i < l; i++) {
@@ -237,6 +288,23 @@ MdxModel.prototype = {
 
                 if (geosetId < 0 || geosetId > biggest) {
                     errors.push("Geoset animation " + i + ": Invalid geoset ID " + geosetId);
+                }
+
+                if (!usageMap[geosetId]) {
+                    usageMap[geosetId] = [];
+                }
+
+                usageMap[geosetId].push(i);
+            }
+
+            let keys = Object.keys(usageMap);
+
+            for (let i = 0, l = keys.length; i < l; i++) {
+                let geoset = keys[i],
+                    users = usageMap[geoset];
+
+                if (users.length > 1) {
+                    errors.push("Geoset " + geoset + " has " + users.length + " geoset animations referencing it (" + users.join(", ") + ")");
                 }
             }
         }
@@ -246,10 +314,11 @@ MdxModel.prototype = {
             let lights = chunks.LITE.elements;
 
             for (let i = 0, l = lights.length; i < l; i++) {
-                let attenuation = lights[i].attenuation;
+                let light = lights[i],
+                    attenuation = light.attenuation;
 
                 if (attenuation[0] < 80 || attenuation[1] > 200) {
-                    warnings.push("Light " + light.node.name + ": Recommended attenuation values are Min=80 Max=200");
+                    warnings.push("Light " + light.node.name + ": Attenuation min=" + attenuation[0] + " max=" + attenuation[1]);
                 }
             }
         }
@@ -431,13 +500,7 @@ MdxModel.prototype = {
         var replaceableId = texture.replaceableId;
 
         if (replaceableId !== 0) {
-            let replaceable = MdxReplaceableIdToName[replaceableId];
-
-            if (!replaceable) {
-                console.error("Mdx: loadTexture: unknown replaceable ID " + replaceableId + " (" + this.name + ")");
-            }
-
-            path = "replaceabletextures/" + replaceable + ".blp";
+            path = "replaceabletextures/" + MdxReplaceableIdToName[replaceableId] + ".blp";
         }
 
         this.replaceables.push(replaceableId);

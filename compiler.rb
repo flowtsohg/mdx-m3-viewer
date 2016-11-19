@@ -1,4 +1,5 @@
-WANT_W3X = true # Will include MPQ, MDX, SLK, BLP, and TGA.
+WANT_NATIVE = true # PNG / JPG / GIF
+WANT_W3X = true # Will include SLK, MPQ, MDX, GEO, BLP, and TGA.
 WANT_MPQ = true
 WANT_MDX = true # Will include SLK, BLP, and TGA.
 WANT_SLK = true
@@ -41,27 +42,29 @@ Files = [
     "src/texture.js",
     "src/genericfile.js",
     "src/bucket.js",
-    "src/viewer.js",
-	"src/nativetexture/texture.js",
-    "src/nativetexture/handler.js"
+    "src/viewer.js"
 ]
- 
-puts "Hi"
 
-if WANT_W3X
-	puts "Adding W3X"
+NATIVE = {
+	"name" => "NATIVE",
+	"files" => [
+		"src/nativetexture/texture.js",
+		"src/nativetexture/handler.js"
+	]
+}
 
-	Files.concat [
+W3X = {
+	"name" => "W3X",
+	"files" => [
 		"handlers/w3x/objects.js",
 		"handlers/w3x/map.js",
 		"handlers/w3x/handler.js"
 	]
-end
+}
 
-if WANT_MDX or WANT_W3X
-	puts "Adding MDX"
-
-	Files.concat [
+MDX = {
+	"name" => "MDX",
+	"files" => [
 		"handlers/mdx/shaders.js",
 		"handlers/mdx/parser.js",
 		"handlers/mdx/sd.js",
@@ -93,31 +96,28 @@ if WANT_MDX or WANT_W3X
 		"handlers/mdx/modelinstance.js",
 		"handlers/mdx/handler.js"
 	]
-end
+}
 
-if WANT_BLP or WANT_MDX or WANT_W3X
-	puts "Adding BLP"
-
-	Files.concat [
+BLP = {
+	"name" => "BLP",
+	"files" => [
 		"external/jpg.js",
 		"handlers/blp/texture.js",
 		"handlers/blp/handler.js"
 	]
-end
+}
 
-if WANT_SLK or WANT_MDX or WANT_W3X
-	puts "Adding SLK"
-
-	Files.concat [
+SLK = {
+	"name" => "SLK",
+	"files" => [
 		"handlers/slk/file.js",
 		"handlers/slk/handler.js"
 	]
-end
+}
 
-if WANT_MPQ or WANT_W3X
-	puts "Adding MPQ"
-
-	Files.concat [
+MPQ = {
+	"name" => "MPQ",
+	"files" => [
 		"external/inflate.min.js",
 		"handlers/mpq/crypto.js",
 		"handlers/mpq/hashtable.js",
@@ -126,21 +126,19 @@ if WANT_MPQ or WANT_W3X
 		"handlers/mpq/archive.js",
 		"handlers/mpq/handler.js"
 	]
-end
+}
 
-if WANT_TGA or WANT_MDX or WANT_W3X or WANT_M3
-	puts "Adding TGA"
-
-	Files.concat [
+TGA = {
+	"name" => "TGA",
+	"files" => [
 		"handlers/tga/texture.js",
 		"handlers/tga/handler.js"
 	]
-end
+}
 
-if WANT_M3
-	puts "Adding M3"
-
-	Files.concat [
+M3 = {
+	"name" => "M3",
+	"files" => [
 		"handlers/m3/shaders.js",
 		"handlers/m3/parser.js",
 		"handlers/m3/sd.js",
@@ -160,35 +158,83 @@ if WANT_M3
 		"handlers/m3/modelinstance.js",
 		"handlers/m3/handler.js"
 	]
-end
+}
 
-if WANT_DDS or WANT_M3
-	puts "Adding DDS"
-
-	Files.concat [
+DDS = {
+	"name" => "DDS",
+	"files" => [
 		"handlers/dds/dxt.js",
 		"handlers/dds/texture.js",
 		"handlers/dds/handler.js"
 	]
-end
+}
 
-if WANT_GEO
-	puts "Adding GEO"
-
-	Files.concat [
+GEO = {
+	"name" => "GEO",
+	"files" => [
 		"handlers/geometry/geometry.js",
 		"handlers/geometry/model.js",
 		"handlers/geometry/modelinstance.js",
 		"handlers/geometry/bucket.js",
 		"handlers/geometry/handler.js"
 	]
+}
+
+Added = {}
+
+def add(what, is_forced=false)
+	if not Added.has_key? what
+		Added[what] = true
+
+		print "Adding " + what["name"]
+		print " (F)" if is_forced
+		puts
+
+		Files.concat what["files"]
+	end
 end
+
+def add_forced(what)
+	add what, true
+end
+
+puts "Hi"
+
+if WANT_W3X
+	add W3X
+	add_forced SLK if not WANT_SLK
+	add_forced MPQ if not WANT_MPQ
+	add_forced MDX if not WANT_MDX
+	add_forced GEO if not WANT_GEO
+	add_forced BLP if not WANT_BLP
+	add_forced TGA if not WANT_TGA
+end
+
+if WANT_MDX
+	add MDX
+	add_forced SLK if not WANT_SLK
+	add_forced BLP if not WANT_BLP
+	add_forced TGA if not WANT_TGA
+end
+
+if WANT_M3
+	add M3
+	add_forced DDS if not WANT_DDS
+	add_forced TGA if not WANT_TGA
+end
+
+add NATIVE if WANT_NATIVE
+add BLP if WANT_BLP
+add SLK if WANT_SLK
+add MPQ if WANT_MPQ
+add TGA if WANT_TGA
+add DDS if WANT_DDS
+add GEO if WANT_GEO
 
 if WANT_MINIFY
 	print "Minifying..."
 
 	File.open("viewer.min.js", "w") { |out|
-
 		out.write "/* #{File.read('LICENSE').strip} */\n"
 
 		Files.each { |file|

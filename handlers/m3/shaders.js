@@ -40,12 +40,12 @@ const M3Shaders = {
         attribute vec3 a_tintColor;
 
         varying vec3 v_normal;
-        varying vec2 v_uv[4];
+        varying vec4 v_uv[2]; // Pack 4 vec2 in 2 vec4, to reduce the varyings count
         varying vec3 v_lightDir;
         varying vec3 v_eyeVec;
         varying vec3 v_halfVec;
         varying vec3 v_teamColor;
-        varying vec3 v_tintColor;
+        //varying vec3 v_tintColor;
 
         void transform(inout vec3 position, inout vec3 normal, inout vec3 tangent, inout vec3 binormal, vec4 bones, vec4 weights) {
             if (u_boneWeightPairsCount > 0.0) {
@@ -96,31 +96,25 @@ const M3Shaders = {
 
             v_normal = n;
 
-            v_uv[0] = a_uv0 / 2048.0;
+            v_uv[0].xy = a_uv0 / 2048.0;
 
             #ifdef EXPLICITUV1
-            v_uv[1] = a_uv1 / 2048.0;
-            #else
-            v_uv[1] = vec2(0.0);
+            v_uv[0].zw = a_uv1 / 2048.0;
             #endif
 
             #ifdef EXPLICITUV2
-            v_uv[1] = a_uv1 / 2048.0;
-            v_uv[2] = a_uv2 / 2048.0;
-            #else
-            v_uv[2] = vec2(0.0);
+            v_uv[0].zw = a_uv1 / 2048.0;
+            v_uv[1].xy = a_uv2 / 2048.0;
             #endif
 
             #ifdef EXPLICITUV3
-            v_uv[1] = a_uv1 / 2048.0;
-            v_uv[2] = a_uv2 / 2048.0;
-            v_uv[3] = a_uv3 / 2048.0;
-            #else
-            v_uv[3] = vec2(0.0);
+            v_uv[0].zw = a_uv1 / 2048.0;
+            v_uv[1].xy = a_uv2 / 2048.0;
+            v_uv[1].zw = a_uv3 / 2048.0;
             #endif
 
             v_teamColor = u_teamColors[int(a_teamColor)];
-	        v_tintColor = a_tintColor;
+	        //v_tintColor = a_tintColor;
 
             gl_Position = u_mvp * vec4(position, 1.0);
         }
@@ -128,7 +122,7 @@ const M3Shaders = {
 
     "ps_common": `
         varying vec3 v_normal;
-        varying vec2 v_uv[4];
+        varying vec4 v_uv[2];
         varying vec3 v_lightDir;
         varying vec3 v_eyeVec;
         varying vec3 v_halfVec;
@@ -268,14 +262,14 @@ const M3Shaders = {
 
         vec2 getUV(LayerSettings layerSettings) {
             if (layerSettings.uvCoordinate == 1.0) {
-                return v_uv[1];
+                return v_uv[0].zw;
             } else if (layerSettings.uvCoordinate == 2.0) {
-                return v_uv[2];
+                return v_uv[1].xy;
             } else if (layerSettings.uvCoordinate == 3.0) {
-                return v_uv[3];
+                return v_uv[1].zw;
             }
 
-            return v_uv[0];
+            return v_uv[0].xy;
         }
 
         vec4 sampleLayer(sampler2D layer, LayerSettings layerSettings) {
@@ -338,7 +332,7 @@ const M3Shaders = {
         }
 
         vec3 decodeNormal(sampler2D map) {
-            vec4 texel = texture2D(map, v_uv[0]);
+            vec4 texel = texture2D(map, v_uv[0].xy);
             vec3 normal;
 
             normal.xy = 2.0 * texel.wy -1.0;

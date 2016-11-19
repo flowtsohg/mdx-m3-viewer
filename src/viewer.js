@@ -89,9 +89,6 @@ function ModelViewer(canvas) {
         `
     };
 
-    // Add support for native textures
-    this.addHandler(NativeTexture);
-
     // Initialize the viewport
     this.resetViewport();
 
@@ -306,7 +303,8 @@ ModelViewer.prototype = {
     },
 
     resetViewport() {
-        let width = canvas.clientWidth,
+        let canvas = this.canvas,
+            width = canvas.clientWidth,
             height = canvas.clientHeight;
 
         canvas.width = width;

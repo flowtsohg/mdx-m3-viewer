@@ -138,9 +138,9 @@ if (!window.requestAnimationFrame ) {
 }
 
 function get(path, binary, onprogress) {
-    var xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
 
-    var promise = new Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         xhr.addEventListener("load", function () {
             if (xhr.status >= 200 && xhr.status < 300) {
                 resolve(xhr);
@@ -164,9 +164,7 @@ function get(path, binary, onprogress) {
         }
 
         xhr.send();
-    });
-
-    return promise;
+    });;
 }
 
 /**

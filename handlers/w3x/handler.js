@@ -1,10 +1,8 @@
 const W3x = {
     initialize(env) {
         env.addHandler(Mpq);
-        env.addHandler(Slk);
-        env.addHandler(Geometry);
         env.addHandler(Mdx);
-        env.addHandler(Blp);
+        env.addHandler(Geometry);
     },
 
     get extension() {
