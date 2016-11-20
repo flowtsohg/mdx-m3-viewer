@@ -48,8 +48,8 @@ Files = [
 NATIVE = {
 	"name" => "NATIVE",
 	"files" => [
-		"src/nativetexture/texture.js",
-		"src/nativetexture/handler.js"
+		"handlers/nativetexture/texture.js",
+		"handlers/nativetexture/handler.js"
 	]
 }
 
