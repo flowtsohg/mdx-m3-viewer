@@ -1,4 +1,4 @@
-const Geometry = {
+const Geo = {
     initialize(env) {
         this.shader = env.webgl.createShaderProgram(
             env.sharedShaders.boneTexture + env.sharedShaders.instanceId + `
@@ -10,13 +10,16 @@ const Geometry = {
                 attribute vec2 a_uv;
                 attribute vec2 a_uvScale;
                 attribute vec3 a_color;
+                attribute vec3 a_edgeColor;
 
                 varying vec2 v_uv;
                 varying vec3 v_color;
+                varying vec3 v_edgeColor;
 
                 void main() {
                     v_uv = a_uv * u_uvScale + u_uvOffset;
                     v_color = a_color;
+                    v_edgeColor = a_edgeColor;
 
                     gl_Position = u_mvp * boneAtIndex(0.0, a_InstanceID) * vec4(a_position, 1.0);
                 }
@@ -29,10 +32,11 @@ const Geometry = {
 
                 varying vec2 v_uv;
                 varying vec3 v_color;
+                varying vec3 v_edgeColor;
 
                 void main() {
                     if (u_isEdge) {
-                        gl_FragColor = vec4(1.0);
+                        gl_FragColor = vec4(v_edgeColor, 1.0);
                     } else {
                         vec4 texel = texture2D(u_diffuseMap, v_uv);
                         vec4 color = vec4(v_color, 1.0);
@@ -67,6 +71,10 @@ const Geometry = {
     get Bucket() {
         return GeometryBucket;
     },
+
+    pathSolver(src) {
+        return [src, ".geo", false];
+    }
 };
 
-mix(Geometry, ModelHandler);
+mix(Geo, ModelHandler);

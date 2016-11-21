@@ -60,29 +60,29 @@ function standSequence(target) {
 }
 
 
-W3xDroppedItem = function (reader) {
+function W3xDroppedItem(reader) {
     this.id = read(reader, 4);
     this.chance = readInt32(reader);
-};
+}
 
-W3xDroppedItemSet = function (reader) {
+function W3xDroppedItemSet(reader) {
     this.items = [];
 
     for (var i = 0, l = readInt32(reader) ; i < l; i++) {
         this.items[i] = new W3xDroppedItem(reader);
     }
-};
+}
 
-W3xModifiedAbility = function (reader) {
+function W3xModifiedAbility(reader) {
     this.id = read(reader, 4);
     this.activeForAutocast = readInt32(reader);
     this.heroLevel = readInt32(reader);
-};
+}
 
-W3xInventoryItem = function (reader) {
+function W3xInventoryItem(reader) {
     this.slot = readInt32(reader);
     this.id = read(reader, 4);
-};
+}
 
 function W3xRandomUnit(reader) {
     this.id = read(reader, 4);
@@ -300,7 +300,7 @@ W3xDoodad.prototype = {
     }
 };
 
-W3xSpecialDoodad = function (reader, version, map) {
+function W3xSpecialDoodad(reader, version, map) {
     var id = read(reader, 4);
     var z = readFloat32(reader);
     var x = readFloat32(reader);
@@ -322,7 +322,7 @@ W3xSpecialDoodad = function (reader, version, map) {
     }
 }
 
-W3xModification = function (reader, useOptionalInts) {
+function W3xModification(reader, useOptionalInts) {
     this.id = read(reader, 4);
 
     var variableType = readInt32(reader);
@@ -341,9 +341,9 @@ W3xModification = function (reader, useOptionalInts) {
     }
 
     var endModification = read(reader, 4);
-};
+}
 
-W3xModifiedObject = function (reader, useOptionalInts) {
+function W3xModifiedObject(reader, useOptionalInts) {
     this.oldID = read(reader, 4);
     this.newID = read(reader, 4);
     this.modifications = [];
@@ -352,17 +352,17 @@ W3xModifiedObject = function (reader, useOptionalInts) {
         this.modifications[i] = new W3xModification(reader, useOptionalInts);
 
     }
-};
+}
 
-W3xModificationTable = function (reader, useOptionalInts) {
+function W3xModificationTable(reader, useOptionalInts) {
     this.objects = [];
 
     for (var i = 0, l = readInt32(reader) ; i < l; i++) {
         this.objects[i] = new W3xModifiedObject(reader, useOptionalInts);
     }
-};
+}
 
-W3xTilePoint = function (reader) {
+function W3xTilePoint(reader) {
     this.groundHeight = readInt16(reader);
 
     var short = readInt16(reader);
@@ -391,7 +391,7 @@ W3xTilePoint = function (reader) {
 
     this.cliffTextureType = (byte & 0xF0) >> 4;
     this.layerHeight = byte & 0x0F;
-};
+}
 
 W3xTilePoint.prototype = {
     getWaterHeight() {

@@ -1,8 +1,6 @@
 function MdxGeosetAnimation(geosetAnimation, model) {
-    var color = geosetAnimation.color;
-
     this.alpha = geosetAnimation.alpha;
-    this.color = [color[2], color[1], color[0]];
+    this.color = [...geosetAnimation.color].reverse();
     this.geosetId = geosetAnimation.geosetId;
     this.sd = new MdxSdContainer(geosetAnimation.tracks, model);
 }
@@ -18,6 +16,15 @@ MdxGeosetAnimation.prototype = {
     },
 
     getColor(instance) {
-        return this.sd.getKGACValue(instance, this.color);
+        // NOTE: BGRA data, it gets sizzled in the shader
+        let color = this.sd.getKGACValue(instance, this.color);
+
+        // Some Blizzard models have values greater than 1, which messes things up.
+        // Geoset animations are supposed to modulate colors, not intensify them.
+        color[0] = Math.min(color[0], 1);
+        color[1] = Math.min(color[1], 1);
+        color[2] = Math.min(color[2], 1);
+
+        return color;
     }
 };

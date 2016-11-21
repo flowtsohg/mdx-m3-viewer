@@ -59,7 +59,7 @@ BlpTexture.prototype = {
             }
 
             for (let index = 0; index < size; index++) {
-                const i = arrayData[mipmapOffset + index] * 4,
+                let i = arrayData[mipmapOffset + index] * 4,
                     dstI = index * 4;
 
                 imageData.data[dstI] = pallete[i];
@@ -74,6 +74,7 @@ BlpTexture.prototype = {
             }
         }
 
+        // NOTE: BGRA data, it gets sizzled in the shader
         const id = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, id);
         this.setParameters(gl.REPEAT, gl.REPEAT, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);

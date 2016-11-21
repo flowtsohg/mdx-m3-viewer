@@ -247,6 +247,15 @@ ModelViewer.prototype = {
 
     /**
      * @method
+     * @desc Deletes a resource from the viewer.
+     *       Note that this only removes references to this resource, so your code should do the same, to allow GC to work.
+     */
+    delete(resource) {
+        throw "IMPLEMENT ME";
+    },
+
+    /**
+     * @method
      * @desc Remove all of the resources from this model viewer.
      */
     clear() {
@@ -259,21 +268,24 @@ ModelViewer.prototype = {
     },
 
     update() {
-        let resources = this.resources;
+        let resources = this.resources,
+            objects,
+            i,
+            l;
 
-        let models = resources.models.array;
-        for (let i = 0, l = models.length; i < l; i++) {
-            models[i].update();
+        objects = resources.models.array;
+        for (i = 0, l = objects.length; i < l; i++) {
+            objects[i].update();
         }
 
-        let textures = resources.textures.array;
-        for (let i = 0, l = textures.length; i < l; i++) {
-            textures[i].update();
+        objects = resources.textures.array;
+        for (i = 0, l = objects.length; i < l; i++) {
+            objects[i].update();
         }
 
-        let files = resources.files.array;
-        for (let i = 0, l = files.length; i < l; i++) {
-            files[i].update();
+        objects = resources.files.array;
+        for (i = 0, l = objects.length; i < l; i++) {
+            objects[i].update();
         }
     },
 

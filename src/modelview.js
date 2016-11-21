@@ -45,6 +45,23 @@ ModelView.prototype = {
         return resource;
     },
 
+    /**
+     * @method
+     * @desc Deletes the given instance from this view, and returns it.
+     * @returns {@link ModelInstance}
+     */
+    deleteInstance(instance) {
+        const instances = this.instances;
+
+        this.hideInstance(instance);
+
+        instances.splice(instances.indexOf(instance), 1);
+
+        this.instanceToBucket.delete(instance);
+
+        return instance;
+    },
+
     // Find a bucket that isn't full. If no bucket is found, add a new bucket and return it.
     getAvailableBucket() {
         const model = this.model,
@@ -101,16 +118,6 @@ ModelView.prototype = {
         this.instanceToBucket.delete(instance);
 
         bucket.delete(instance);
-    },
-
-    delete(instance) {
-        const instances = this.instances;
-
-        this.hideInstance(instance);
-
-        instances.splice(instances.indexOf(instance), 1);
-
-        this.instanceToBucket.delete(instance);
     },
 
     update() {

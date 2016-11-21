@@ -13,9 +13,11 @@ GeometryModelInstance.prototype = {
         this.bucket = sharedData.bucket;
         this.boneArray = sharedData.boneArray;
         this.colorArray = sharedData.colorArray;
+        this.edgeColorArray = sharedData.edgeColorArray;
 
         // Initialize to the model's material color
         this.setColor(this.model.color);
+        this.setEdgeColor(this.model.edgeColor);
     },
 
     update() {
@@ -28,6 +30,17 @@ GeometryModelInstance.prototype = {
             this.bucket.updateColors[0] = 1;
         } else {
             this.addAction(id => this.setColor(color), [color]);
+        }
+
+        return this;
+    },
+
+    setEdgeColor(color) {
+        if (this.rendered) {
+            this.edgeColorArray.set(color);
+            this.bucket.updateEdgeColors[0] = 1;
+        } else {
+            this.addAction(id => this.setEdgeColor(color), [color]);
         }
 
         return this;

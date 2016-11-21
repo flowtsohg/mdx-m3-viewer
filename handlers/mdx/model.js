@@ -58,7 +58,7 @@ MdxModel.prototype = {
         if (chunks.PIVT) {
             pivots = chunks.PIVT.elements;
         } else {
-            pivots = [[0, 0, 0]];
+            pivots = [{ value: [0, 0, 0] }];
         }
 
         this.nodes = [];
@@ -69,7 +69,7 @@ MdxModel.prototype = {
         }
 
         if (this.nodes.length === 0) {
-            this.nodes[0] = new MdxNode({ objectId: 0, parentId: 0xFFFFFFFF }, this, pivots);
+            this.nodes[0] = new MdxNode({ objectId: 0, parentId: -1 }, this, pivots);
         }
 
         // This list is used to access all the nodes in a loop while keeping the hierarchy in mind.
@@ -340,9 +340,9 @@ MdxModel.prototype = {
     },
 
     isVariant(sequence) {
-        var nodes = this.nodes;
+        let nodes = this.nodes;
 
-        for (var i = 0, l = nodes.length; i < l; i++) {
+        for (let i = 0, l = nodes.length; i < l; i++) {
             if (nodes[i].isVariant(sequence)) {
                 return true;
             }
@@ -466,10 +466,8 @@ MdxModel.prototype = {
     },
 
     setupHierarchy(hierarchy, nodes, parent) {
-        var node;
-
-        for (var i = 0, l = nodes.length; i < l; i++) {
-            node = nodes[i];
+        for (let i = 0, l = nodes.length; i < l; i++) {
+            let node = nodes[i];
 
             if (node.parentId === parent) {
                 hierarchy.push(i);
@@ -617,14 +615,16 @@ MdxModel.prototype = {
         gl.uniform1i(uniforms.get("u_texture"), 0);
 
         // Team colors
+        let teamColor = attribs.get("a_teamColor");
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.teamColorBuffer);
-        gl.vertexAttribPointer(attribs.get("a_teamColor"), 1, gl.UNSIGNED_BYTE, false, 1, 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_teamColor"), 1);
+        gl.vertexAttribPointer(teamColor, 1, gl.UNSIGNED_BYTE, false, 1, 0);
+        instancedArrays.vertexAttribDivisorANGLE(teamColor, 1);
 
         // Tint colors
+        let tintColor = attribs.get("a_tintColor");
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.tintColorBuffer);
-        gl.vertexAttribPointer(attribs.get("a_tintColor"), 3, gl.UNSIGNED_BYTE, true, 3, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_tintColor"), 1);
+        gl.vertexAttribPointer(tintColor, 3, gl.UNSIGNED_BYTE, true, 3, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
+        instancedArrays.vertexAttribDivisorANGLE(tintColor, 1);
 
         gl.activeTexture(gl.TEXTURE15);
         gl.bindTexture(gl.TEXTURE_2D, bucket.boneTexture);
@@ -671,36 +671,42 @@ MdxModel.prototype = {
 
         var replaceable = this.replaceables[layer.textureId];
 
+        let isTeamColor = uniforms.get("u_isTeamColor"),
+            isTeamGlow = uniforms.get("u_isTeamGlow"),
+            teamColorValue = 0,
+            teamGlowValue = 0;
+
         // Team color
         if (replaceable === 1) {
-            gl.uniform1i(uniforms.get("u_isTeamColor"), 1);
-            gl.uniform1i(uniforms.get("u_isTeamGlow"), 0);
-            // Team glow
+            teamColorValue = 1;
+        // Team glow
         } else if (replaceable === 2) {
-            gl.uniform1i(uniforms.get("u_isTeamColor"), 0);
-            gl.uniform1i(uniforms.get("u_isTeamGlow"), 1);
-            // Normal texture
+            teamGlowValue = 1;
+        // Normal texture
         } else {
-            gl.uniform1i(uniforms.get("u_isTeamColor"), 0);
-            gl.uniform1i(uniforms.get("u_isTeamGlow"), 0);
-
             this.bindTexture(layer.textureId, bucket.modelView);
         }
         
+        gl.uniform1i(isTeamColor, teamColorValue);
+        gl.uniform1i(isTeamGlow, teamGlowValue);
+
         // Batch visibilities
+        let batchVisible = attribs.get("a_batchVisible");
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.batchVisibilityBuffers[batch.index]);
-        gl.vertexAttribPointer(attribs.get("a_batchVisible"), 1, gl.UNSIGNED_BYTE, false, 1, 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_batchVisible"), 1);
+        gl.vertexAttribPointer(batchVisible, 1, gl.UNSIGNED_BYTE, false, 1, 0);
+        instancedArrays.vertexAttribDivisorANGLE(batchVisible, 1);
 
         // Geoset colors
+        let geosetColor = attribs.get("a_geosetColor");
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.geosetColorBuffers[batch.index]);
-        gl.vertexAttribPointer(attribs.get("a_geosetColor"), 4, gl.UNSIGNED_BYTE, true, 4, 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_geosetColor"), 1);
+        gl.vertexAttribPointer(geosetColor, 4, gl.UNSIGNED_BYTE, true, 4, 0);
+        instancedArrays.vertexAttribDivisorANGLE(geosetColor, 1);
 
         // Texture coordinate animations
+        let uvOffset = attribs.get("a_uvOffset");
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.uvOffsetBuffers[layer.index]);
-        gl.vertexAttribPointer(attribs.get("a_uvOffset"), 4, gl.FLOAT, false, 16, 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_uvOffset"), 1);
+        gl.vertexAttribPointer(uvOffset, 4, gl.FLOAT, false, 16, 0);
+        instancedArrays.vertexAttribDivisorANGLE(uvOffset, 1);
 
         // Texture coordinate divisor
         // Used for layers that use image animations, in order to scale the coordinates to match the generated texture atlas

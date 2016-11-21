@@ -1,4 +1,4 @@
-function MdxModelView(model) {
+function M3ModelView(model) {
     ModelView.call(this, model);
 
     this.textures = [];

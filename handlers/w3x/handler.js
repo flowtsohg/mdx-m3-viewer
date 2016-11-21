@@ -2,7 +2,7 @@ const W3x = {
     initialize(env) {
         env.addHandler(Mpq);
         env.addHandler(Mdx);
-        env.addHandler(Geometry);
+        env.addHandler(Geo);
     },
 
     get extension() {

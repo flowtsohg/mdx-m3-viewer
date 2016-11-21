@@ -13,7 +13,7 @@ MdxParticleEmitter2View.prototype = {
 
             if (this.currentEmission >= 1) {
                 for (let i = 0, l = Math.floor(this.currentEmission); i < l; i++) {
-                    //emitter.emit(this.instance);
+                    emitter.emit(this.instance);
 
                     this.currentEmission -= 1;
                 }

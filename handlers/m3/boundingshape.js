@@ -1,4 +1,4 @@
-M3BoundingShape = function (boundingshape, bones, gl) {
+function M3BoundingShape(boundingshape, bones, gl) {
     this.bone = boundingshape.bone;
     this.matrix = boundingshape.matrix;
     this.name = bones[boundingshape.bone].name;
@@ -15,23 +15,4 @@ M3BoundingShape = function (boundingshape, bones, gl) {
     }
 
     this.shape = shape;
-};
-
-M3BoundingShape.prototype = {
-    render: function (shader, bones, gl) {
-        var ctx = gl.ctx;
-
-        if (this.shape) {
-            gl.pushMatrix();
-
-            gl.multMat(bones[this.bone].worldMatrix);
-            gl.multMat(this.matrix);
-
-            ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
-
-            gl.popMatrix();
-
-            this.shape.renderLines(shader);
-        }
-    }
-};
+}

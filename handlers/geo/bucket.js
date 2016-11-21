@@ -30,6 +30,13 @@ function GeometryBucket(modelView) {
     this.colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, this.colorArray, gl.DYNAMIC_DRAW);
+
+    // Edge color (per instance)
+    this.updateEdgeColors = new Uint8Array(1);
+    this.edgeColorArray = new Uint8Array(3 * this.size);
+    this.edgeColorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.edgeColorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this.edgeColorArray, gl.DYNAMIC_DRAW);
 }
 
 GeometryBucket.prototype = {
@@ -49,13 +56,21 @@ GeometryBucket.prototype = {
 
             this.updateColors[0] = 0;
         }
+
+        if (this.updateEdgeColors[0]) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.edgeColorBuffer);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.edgeColorArray.subarray(0, size * 3));
+
+            this.updateEdgeColors[0] = 0;
+        }
     },
 
     getSharedData(index) {
         return {
             bucket: this,
             boneArray: new Float32Array(this.boneArray.buffer, this.boneArrayInstanceSize * 4 * index, this.boneArrayInstanceSize),
-            colorArray: new Uint8Array(this.colorArray.buffer, 3 * index, 3)
+            colorArray: new Uint8Array(this.colorArray.buffer, 3 * index, 3),
+            edgeColorArray: new Uint8Array(this.edgeColorArray.buffer, 3 * index, 3)
         };
     }
 };

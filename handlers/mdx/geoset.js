@@ -7,21 +7,19 @@ function MdxShallowGeoset(offsets, uvSetSize, elements, model) {
 
 MdxShallowGeoset.prototype = {
     bind(shader, coordId) {
-        var gl = this.model.env.gl;
-        var offsets = this.offsets;
+        let gl = this.model.env.gl,
+            offsets = this.offsets,
+            attribs = shader.attribs;
 
-        gl.vertexAttribPointer(shader.attribs.get("a_position"), 3, gl.FLOAT, false, 12, offsets[0]);
-        gl.vertexAttribPointer(shader.attribs.get("a_bones"), 4, gl.UNSIGNED_BYTE, false, 4, offsets[3]);
-        gl.vertexAttribPointer(shader.attribs.get("a_bone_number"), 4, gl.UNSIGNED_BYTE, false, 4, offsets[4]);
-
-        if (shader.attribs.has("a_normal")) {
-            gl.vertexAttribPointer(shader.attribs.get("a_normal"), 3, gl.FLOAT, false, 12, offsets[1]);
-            gl.vertexAttribPointer(shader.attribs.get("a_uv"), 2, gl.FLOAT, false, 8, offsets[2] + coordId * this.uvSetSize);
-        }
+        gl.vertexAttribPointer(attribs.get("a_position"), 3, gl.FLOAT, false, 12, offsets[0]);
+        gl.vertexAttribPointer(attribs.get("a_bones"), 4, gl.UNSIGNED_BYTE, false, 4, offsets[3]);
+        gl.vertexAttribPointer(attribs.get("a_boneNumber"), 4, gl.UNSIGNED_BYTE, false, 4, offsets[4]);
+        gl.vertexAttribPointer(attribs.get("a_normal"), 3, gl.FLOAT, false, 12, offsets[1]);
+        gl.vertexAttribPointer(attribs.get("a_uv"), 2, gl.FLOAT, false, 8, offsets[2] + coordId * this.uvSetSize);
     },
 
     render(instances) {
-        const gl = this.model.gl;
+        let gl = this.model.gl;
 
         gl.extensions.instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.offsets[5], instances);
     },
@@ -36,7 +34,7 @@ MdxShallowGeoset.prototype = {
     }
 };
 
-MdxGeoset = function (geoset, geosetAnimations) {
+function MdxGeoset(geoset, geosetAnimations) {
     var i, l, j, k;
     var positions = geoset.vertices;
     var normals = geoset.normals;
@@ -107,7 +105,7 @@ MdxGeoset = function (geoset, geosetAnimations) {
             break;
         }
     }
-};
+}
 
 MdxGeoset.prototype = {
     getAlpha(instance) {
@@ -131,8 +129,8 @@ MdxGeoset.prototype = {
         let minX = 1E9, minY = 1E9, minZ = 1E9, maxX = -1E9, maxY = -1E9, maxZ = -1E9;
 
         for (let i = 0, l = positions.length; i < l; i += 3) {
-            const x = positions[i];
-                y = positions[i + 1];
+            let x = positions[i],
+                y = positions[i + 1],
                 z = positions[i + 2];
 
             if (x > maxX) {
@@ -154,7 +152,7 @@ MdxGeoset.prototype = {
             }
         }
 
-        const dX = maxX - minX,
+        let dX = maxX - minX,
             dY = maxY - minY,
             dZ = maxZ - minZ;
 

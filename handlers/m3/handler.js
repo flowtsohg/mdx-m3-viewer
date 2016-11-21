@@ -32,9 +32,9 @@ const M3 = {
         return M3Model;
     },
 
-    //get ModelView() {
-    //    return ModelView;
-    //},
+    get ModelView() {
+        return M3ModelView;
+    },
 
     get Instance() {
         return M3ModelInstance;

@@ -1,4 +1,4 @@
-M3StandardMaterial = function (model, material) {
+function M3StandardMaterial(model, material) {
     this.model = model;
     this.gl = model.env.gl;
 
@@ -31,7 +31,7 @@ M3StandardMaterial = function (model, material) {
         new M3Layer(this, material.lightMapLayer.get(), "lightMap", 2),
         new M3Layer(this, material.ambientOcclusionLayer.get(), "ao", 2)
     ];
-};
+}
 
 M3StandardMaterial.prototype = {
     bindCommon() {

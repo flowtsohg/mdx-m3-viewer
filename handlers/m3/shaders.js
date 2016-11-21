@@ -16,6 +16,7 @@ const M3Shaders = {
         uniform vec3 u_lightPos;
         uniform float u_firstBoneLookupIndex;
         uniform float u_boneWeightPairsCount;
+        uniform vec3 u_teamColors[14];
 
         attribute vec3 a_position;
         attribute vec4 a_normal;
@@ -34,8 +35,6 @@ const M3Shaders = {
         attribute vec4 a_tangent;
         attribute vec4 a_bones;
         attribute vec4 a_weights;
-
-        uniform vec3 u_teamColors[14];
         attribute float a_teamColor;
         attribute vec3 a_tintColor;
 

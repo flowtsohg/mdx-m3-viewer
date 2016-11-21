@@ -1,5 +1,5 @@
 function MdxSkeleton(instance) {
-    const model = instance.model,
+    let model = instance.model,
         nodes = model.nodes,
         bones = model.bones,
         hierarchy = model.hierarchy;

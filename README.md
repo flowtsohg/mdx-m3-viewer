@@ -42,6 +42,9 @@ let viewer = new ModelViewer(canvas)
 // Add the Mdx handler, which by itself adds the Blp, Slk, and Tga handlers.
 // So in the case you want to use the Mdx handler, you will need to include the source for all of the above.
 viewer.addHandler(Mdx);
+
+// Move away from the origin, so you'll actually be able to see stuff you load.
+viewer.camera.move([0, 0, -500);
 ```
 
 If the client doesn't have the WebGL requierments to run the viewer, an exception will be thrown when trying to create it.
@@ -63,12 +66,12 @@ The source here can be anything - a string, an object, a typed array, whatever -
 Generally speaking though, the source will probably be a string containing an url.
 
 The path solver is a function with this signature: `function(src) => [finalSrc, srcExtension, isServerFetch]`.
-The argument is the source (or iteratively an array of sources) you gave the load call.
+`src` is the source (or iteratively an array of sources) you gave the load call.
 It returns an array with three indices.
-The first index is the actual source to load from. Again, this highly depends on your code.
-The second index is the extension of the resource you are loading. Generally speaking, this will probably usually be the extension of the source, in the case of urls.
+`finalSrc` is the actual source to load from. Again, this highly depends on your code.
+`srcExtension` is the extension of the resource you are loading, which selects the handler to use. Generally speaking, this will probably usually be the extension of the source, in the case of url strings.
 The extension is given in a ".ext" format. That is, a string that contains a dot, followed by the extension.
-Finally, isServerFetch is a boolean, and will determine if this is an in-memory load, or an actual server fetch. This will usually be true.
+Finally, `isServerFetch` is a boolean, and will determine if this is an in-memory load, or a server fetch. This will usually be true.
 
 So let's use an example.
 

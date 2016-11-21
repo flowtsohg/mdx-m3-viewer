@@ -4,7 +4,7 @@ function GeometryModel(env, pathSolver) {
 
 GeometryModel.prototype = {
     get Handler() {
-        return Geometry;
+        return Geo;
     },
 
     initialize(src) {
@@ -70,7 +70,7 @@ GeometryModel.prototype = {
         this.uvOffset = material.uvOffset || new Float32Array(2);
 
         this.color = material.color || new Float32Array(3);
-        this.edgeColor = material.edgeColor || new Float32Array([1, 1, 1]);
+        this.edgeColor = material.edgeColor || new Float32Array([255, 255, 255]);
 
         this.renderMode = 0;
 
@@ -96,7 +96,7 @@ GeometryModel.prototype = {
         const webgl = this.env.webgl,
             gl = this.env.gl,
             instancedArrays = webgl.extensions.instancedArrays,
-            shader = Geometry.shader,
+            shader = Geo.shader,
             uniforms = shader.uniforms,
             attribs = shader.attribs,
             instances = bucket.instances;
@@ -114,9 +114,10 @@ GeometryModel.prototype = {
         gl.uniform1f(uniforms.get("u_row_size"), bucket.rowSize);
 
         // Instanced IDs
+        let instanceIdAttrib = attribs.get("a_InstanceID");
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);
-        gl.vertexAttribPointer(attribs.get("a_InstanceID"), 1, gl.UNSIGNED_SHORT, false, 2, 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 1);
+        gl.vertexAttribPointer(instanceIdAttrib, 1, gl.UNSIGNED_SHORT, false, 2, 0);
+        instancedArrays.vertexAttribDivisorANGLE(instanceIdAttrib, 1);
 
         // Vertices
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
@@ -127,9 +128,16 @@ GeometryModel.prototype = {
         gl.vertexAttribPointer(attribs.get("a_uv"), 2, gl.FLOAT, false, 8, 0);
 
         // Colors
+        let colorAttrib = attribs.get("a_color");
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.colorBuffer);
-        gl.vertexAttribPointer(attribs.get("a_color"), 3, gl.UNSIGNED_BYTE, false, 3, 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_color"), 1);
+        gl.vertexAttribPointer(colorAttrib, 3, gl.UNSIGNED_BYTE, true, 3, 0);
+        instancedArrays.vertexAttribDivisorANGLE(colorAttrib, 1);
+
+        // Edge colors
+        let edgeColorAttrib = attribs.get("a_edgeColor");
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.edgeColorBuffer);
+        gl.vertexAttribPointer(edgeColorAttrib, 3, gl.UNSIGNED_BYTE, true, 3, 0);
+        instancedArrays.vertexAttribDivisorANGLE(edgeColorAttrib, 1);
 
         if (this.twoSided) {
             gl.disable(gl.CULL_FACE);
@@ -183,8 +191,9 @@ GeometryModel.prototype = {
         }
 
         /// Reset the attributes to play nice with other handlers
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_color"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(instanceIdAttrib, 0);
+        instancedArrays.vertexAttribDivisorANGLE(colorAttrib, 0);
+        instancedArrays.vertexAttribDivisorANGLE(edgeColorAttrib, 0);
     },
 
     renderOpaque(bucket) {

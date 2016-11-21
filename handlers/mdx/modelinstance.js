@@ -36,10 +36,11 @@ MdxModelInstance.prototype = {
             }
         }
 
-        let extent = this.model.parser.chunks.MODL.extent;
-        this.boundingShape = new BoundingShape();
-        this.boundingShape.fromBounds(extent.min, extent.max);
-        this.boundingShape.setParent(this);
+        //let extent = this.model.parser.chunks.MODL.extent;
+        //this.boundingShape = new BoundingShape();
+        //this.boundingShape.fromBounds(extent.min, extent.max);
+        //this.boundingShape.setParent(this);
+
         //-------------------------------------------------------------------------------------------------------
         // NOTE: If I ever want to re-implement bounding shape rendering, this is pretty much how it should work
         //       Possibly always create unit geometries and scale the instances, to avoid creating many models
@@ -48,30 +49,66 @@ MdxModelInstance.prototype = {
         //            ...
         //            instance.setUniformScale(radius)
         //-------------------------------------------------------------------------------------------------------
-        //var boundingShapes = model.boundingShapes;
-        //for (var i = 0, l = boundingShapes.length; i < l; i++) {
-        //    var boundingShape = boundingShapes[i];
+        var boundingShapes = model.boundingShapes;
+        boundingShapes = [];
+        for (var i = 0, l = boundingShapes.length; i < l; i++) {
+            var boundingShape = boundingShapes[i];
 
-        //    if (boundingShape.type === 0) {
-        //        var vertices = boundingShape.vertices,
-        //            x1 = vertices[0],
-        //            y1 = vertices[1],
-        //            z1 = vertices[2],
-        //            x2 = vertices[3],
-        //            y2 = vertices[4],
-        //            z2 = vertices[5];
+            if (boundingShape.type === 0) {
+                var vertices = boundingShape.vertices,
+                    x1 = vertices[0],
+                    y1 = vertices[1],
+                    z1 = vertices[2],
+                    x2 = vertices[3],
+                    y2 = vertices[4],
+                    z2 = vertices[5];
 
-        //        var instance = viewer.load({ geometry: createCube((x2 - x1) / 2, (y2 - y1) / 2, (z2 - z1) / 2), material: { renderMode: 1 } }, null, ".simplemesh");
-        //        instance.dontInheritScale = false; // Override since the bounding shapes should scale with the instance
-        //        instance.setLocation([(x2 + x1) / 2, (y2 + y1) / 2, (z2 + z1) / 2]);
-        //        instance.setParent(this.skeleton.nodes[boundingShape.node.index]);
-        //    } else if (boundingShape.type === 2) {
-        //        var instance = viewer.load({ geometry: createSphere(boundingShape.radius, 12, 12), material: { renderMode: 1 } }, null, ".simplemesh");
-        //        instance.dontInheritScale = false; // Override since the bounding shapes should scale with the instance
-        //        instance.setLocation(boundingShape.vertices);
-        //        instance.setParent(this.skeleton.nodes[boundingShape.node.index]);
-        //    }
-        //}
+                var boundingModel = viewer.load({ geometry: createCube((x2 - x1) / 2, (y2 - y1) / 2, (z2 - z1) / 2), material: { renderMode: 1 } }, Geo.pathSolver);
+                var instance = boundingModel.addInstance();
+                instance.dontInheritScale = false; // Override since the bounding shapes should scale with the instance
+                instance.setLocation([(x2 + x1) / 2, (y2 + y1) / 2, (z2 + z1) / 2]);
+                instance.setParent(this.skeleton.nodes[boundingShape.node.index]);
+            } else if (boundingShape.type === 2) {
+                var boundingModel = viewer.load({ geometry: createSphere(boundingShape.radius, 12, 12), material: { renderMode: 1 } }, Geo.pathSolver);
+                var instance = boundingModel.addInstance();
+                instance.dontInheritScale = false; // Override since the bounding shapes should scale with the instance
+                instance.setLocation(boundingShape.vertices);
+                instance.setParent(this.skeleton.nodes[boundingShape.node.index]);
+            }
+        }
+
+        if (0) {
+            let extent = model.extent,
+                min = extent.min,
+                max = extent.max,
+                dx = (max[0] - min[0]) / 2,
+                dy = (max[1] - min[1]) / 2,
+                dz = (max[2] - min[2]) / 2;
+
+            // Viewer X = Game Y
+            // Viewer Y = Game Z
+            // Viewer Z = Game X
+
+            console.log(dx, dy, dz);
+            //let shape = createSphere(model.extent.radius, 12, 12);
+            let shape = createCube(dx, dy, dz);
+            var boundingModel = viewer.load({ geometry: shape, material: { renderMode: 1, edgeColor: [150, 200, 150] } }, Geo.pathSolver);
+            var instance = boundingModel.addInstance();
+            instance.dontInheritScale = false; // Override since the bounding shapes should scale with the instance
+            //instance.move([dx / 2, dy / 2, dz / 2]);
+            instance.setParent(this);
+
+
+            shape = createSphere(model.extent.radius, 12, 12);
+            boundingModel = viewer.load({ geometry: shape, material: { renderMode: 1, edgeColor: [150, 200, 150] } }, Geo.pathSolver);
+            instance = boundingModel.addInstance();
+            instance.dontInheritScale = false; // Override since the bounding shapes should scale with the instance
+            //instance.move([dx / 2, dy / 2, dz / 2]);
+            instance.setParent(this);
+
+            console.log(model.extent)
+        }
+
         //-------------------------------------------------------------------------------------------------------
 
         this.modelAttachments = [];

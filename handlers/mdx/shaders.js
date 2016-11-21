@@ -1,24 +1,18 @@
 const MdxShaders = {
     "vs_main": `
         uniform mat4 u_mvp;
-
         uniform vec2 u_uvScale;
-
         uniform vec3 u_teamColors[14];
-
         uniform bool u_isTextureAnim;
 
         attribute vec3 a_position;
         attribute vec3 a_normal;
         attribute vec2 a_uv;
         attribute vec4 a_bones;
-        attribute float a_bone_number;
-
+        attribute float a_boneNumber;
         attribute float a_teamColor;
         attribute vec3 a_tintColor;
-
         attribute float a_InstanceID;
-
         attribute float a_batchVisible;
         attribute vec4 a_geosetColor;
         attribute vec4 a_uvOffset;
@@ -29,40 +23,24 @@ const MdxShaders = {
         varying vec3 v_tintColor;
         varying vec4 v_geosetColor;
 
-        void transform(vec3 inposition, vec3 innormal, float bone_number, vec4 bones, out vec3 outposition, out vec3 outnormal) {
-            vec4 position = vec4(inposition, 1);
-            vec4 normal = vec4(innormal, 0);
-            vec4 temp;
+        void transform(inout vec3 position, inout vec3 normal, float boneNumber, vec4 bones) {
+            mat4 m;
 
-	        mat4 bone0 = boneAtIndex(bones[0], a_InstanceID);
-	        mat4 bone1 = boneAtIndex(bones[1], a_InstanceID);
-	        mat4 bone2 = boneAtIndex(bones[2], a_InstanceID);
-	        mat4 bone3 = boneAtIndex(bones[3], a_InstanceID);
+            m += boneAtIndex(bones[0], a_InstanceID);
+            m += boneAtIndex(bones[1], a_InstanceID);
+            m += boneAtIndex(bones[2], a_InstanceID);
+            m += boneAtIndex(bones[3], a_InstanceID);
 
-            temp = vec4(0);
-            temp += bone0 * position;
-            temp += bone1 * position;
-            temp += bone2 * position;
-            temp += bone3 * position;
-            temp /= bone_number;
-            outposition = vec3(temp);
-
-            temp = vec4(0);
-            temp += bone0 * normal;
-            temp += bone1 * normal;
-            temp += bone2 * normal;
-            temp += bone3 * normal;
-            outnormal = normalize(vec3(temp));
+            position = vec3((m * vec4(position, 1)) / boneNumber);
+            normal = normalize(vec3(m * vec4(normal, 0)));
         }
 
         void main() {
-            vec3 position, normal;
-
-            transform(a_position, a_normal, a_bone_number, a_bones, position, normal);
-
-	        v_normal = normal;
-
             vec2 uv = a_uv;
+            vec3 position = a_position,
+                 normal = a_normal;
+            
+            transform(position, normal, a_boneNumber, a_bones);
 
             if (u_isTextureAnim) {
                 v_uv = (fract(a_uv +a_uvOffset.xy) +a_uvOffset.zw) * u_uvScale;
@@ -70,9 +48,9 @@ const MdxShaders = {
                 v_uv = a_uv;
             }
 
+            v_normal = normal;
 	        v_teamColor = u_teamColors[int(a_teamColor)];
 	        v_tintColor = a_tintColor;
-
 	        v_geosetColor = a_geosetColor;
 
 	        if (a_batchVisible == 0.0) {
@@ -87,16 +65,13 @@ const MdxShaders = {
         uniform sampler2D u_texture;
         uniform bool u_alphaTest;
         uniform vec4 u_modifier;
+        uniform bool u_isTeamColor;
+        uniform bool u_isTeamGlow;
 
         varying vec3 v_normal;
         varying vec2 v_uv;
-
-        uniform bool u_isTeamColor;
-        uniform bool u_isTeamGlow;
         varying vec3 v_teamColor;
-
         varying vec3 v_tintColor;
-
         varying vec4 v_geosetColor;
 
         void main() {
@@ -110,7 +85,7 @@ const MdxShaders = {
 		        vec2 coord = (v_uv -0.5) * 2.0;
 
 		        // Distance of the coordinate from the center
-		        float dist = sqrt(coord.x * coord.x +coord.y * coord.y);
+		        float dist = sqrt(dot(coord, coord));
 
 		        // An estimation of the equation that created the team glow textures used by Warcraft 3
 		        float factor = max(0.55 -dist, 0.0);
@@ -125,7 +100,7 @@ const MdxShaders = {
                 discard;
             }
 
-	        gl_FragColor = texel * v_geosetColor * vec4(v_tintColor, 1.0);
+	        gl_FragColor = texel * v_geosetColor.bgra * vec4(v_tintColor, 1.0);
             #endif
 
             #ifdef UVS_PASS

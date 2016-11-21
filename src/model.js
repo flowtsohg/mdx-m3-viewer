@@ -47,7 +47,6 @@ Model.prototype = {
         }
     },
 
-    // A useful shortcut?
     /**
      * @method
      * @desc Adds a new instance to the first view owned by this model, and returns the instance.
@@ -56,6 +55,16 @@ Model.prototype = {
      */
     addInstance() {
         return this.views[0].addInstance();
+    },
+
+    /**
+     * @method
+     * @desc Deletes an instance from the first view owned by this model, and returns the instance.
+     *       Equivalent to model.views[0].deleteInstance(instance)
+     * @returns {@link ModelInstance}
+     */
+    deleteInstance(instance) {
+        return this.views[0].deleteInstance(instance);
     },
 
     update() {

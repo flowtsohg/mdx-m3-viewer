@@ -1,13 +1,15 @@
-WANT_NATIVE = true # PNG / JPG / GIF
-WANT_W3X = true # Will include SLK, MPQ, MDX, GEO, BLP, and TGA.
-WANT_MPQ = true
-WANT_MDX = true # Will include SLK, BLP, and TGA.
 WANT_SLK = true
+WANT_MPQ = true
+WANT_NATIVE = true # PNG / JPG / GIF
 WANT_BLP = true
-WANT_TGA = true
-WANT_M3 = true # Will include DDS, and TGA.
 WANT_DDS = true
+WANT_TGA = true
 WANT_GEO = true
+WANT_W3X = true # Will include SLK, MPQ, MDX, GEO, BLP, and TGA.
+WANT_MDX = true # Will include SLK, BLP, and TGA.
+WANT_M3 = true # Will include DDS, and TGA.
+
+WANT_STRICT_MODE = true
 
 WANT_MINIFY = true
 WANT_GEN_DOCS = false # Assumes you have JSDoc in your PATH system variable.
@@ -150,10 +152,10 @@ M3 = {
 		"handlers/m3/region.js",
 		"handlers/m3/layer.js",
 		"handlers/m3/standardmaterial.js",
-		"handlers/m3/particle.js",
-		"handlers/m3/particleemitter.js",
+		#"handlers/m3/particle.js",
+		#"handlers/m3/particleemitter.js",
 		"handlers/m3/bucket.js",
-		#"handlers/m3/modelview.js",
+		"handlers/m3/modelview.js",
 		"handlers/m3/model.js",
 		"handlers/m3/modelinstance.js",
 		"handlers/m3/handler.js"
@@ -172,11 +174,11 @@ DDS = {
 GEO = {
 	"name" => "GEO",
 	"files" => [
-		"handlers/geometry/geometry.js",
-		"handlers/geometry/model.js",
-		"handlers/geometry/modelinstance.js",
-		"handlers/geometry/bucket.js",
-		"handlers/geometry/handler.js"
+		"handlers/geo/geometry.js",
+		"handlers/geo/model.js",
+		"handlers/geo/modelinstance.js",
+		"handlers/geo/bucket.js",
+		"handlers/geo/handler.js"
 	]
 }
 
@@ -200,42 +202,43 @@ end
 
 puts "Hi"
 
+add SLK if WANT_SLK
+add MPQ if WANT_MPQ
+add NATIVE if WANT_NATIVE
+add BLP if WANT_BLP
+add DDS if WANT_DDS
+add TGA if WANT_TGA
+add GEO if WANT_GEO
+
 if WANT_W3X
-	add W3X
 	add_forced SLK if not WANT_SLK
 	add_forced MPQ if not WANT_MPQ
-	add_forced MDX if not WANT_MDX
-	add_forced GEO if not WANT_GEO
 	add_forced BLP if not WANT_BLP
 	add_forced TGA if not WANT_TGA
+	add_forced MDX if not WANT_MDX
+	add_forced GEO if not WANT_GEO
+	add W3X
 end
 
 if WANT_MDX
-	add MDX
 	add_forced SLK if not WANT_SLK
 	add_forced BLP if not WANT_BLP
 	add_forced TGA if not WANT_TGA
+	add MDX
 end
 
 if WANT_M3
-	add M3
 	add_forced DDS if not WANT_DDS
 	add_forced TGA if not WANT_TGA
+	add M3
 end
-
-add NATIVE if WANT_NATIVE
-add BLP if WANT_BLP
-add SLK if WANT_SLK
-add MPQ if WANT_MPQ
-add TGA if WANT_TGA
-add DDS if WANT_DDS
-add GEO if WANT_GEO
 
 if WANT_MINIFY
 	print "Minifying..."
 
 	File.open("viewer.min.js", "w") { |out|
 		out.write "/* #{File.read('LICENSE').strip} */\n"
+		out.write "\"use strict\";\n" if WANT_STRICT_MODE
 
 		Files.each { |file|
 			out.write File.read file
