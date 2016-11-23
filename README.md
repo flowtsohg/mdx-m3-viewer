@@ -173,16 +173,16 @@ The target property is set to the object that the event is related to. In the ca
 Errors might occur, most of the time because your path solvers aren't correct, but there are other causes.
 When a resource gets loaded, the handler can choose to send errors if something goes wrong.
 The built-in handlers try to do this in a consistent way.
-There are four types of errors:
-* UnsupportedFileType - sent by the viewer itself, if you try to load some resource with an unknown extension (did you forget to register the handler?).
+These are the errors they use:
+* InvalidHandler - sent by the viewer when adding an invalid handler (either its type is unknown, or it was already added).
+* MissingHandler - sent by the viewer if you try to load some resource with an unknown extension (did you forget to register the handler?).
+* HttpError - sent by handlers when a server fetch failed.
 * InvalidSource - sent by handlers when they think your source is not valid, such as trying to load a file as MDX, but it's not really an MDX file.
 * UnsupportedFeature - sent by handlers when the source is valid, but a feature in the format isn't supported, such as DDS textures not supporting encodings that are not DXT1/3/5.
-* HttpError - sent by handlers when a server fetch failed.
 
 Together with these error strings (in the `error` property naturally), the handlers can choose to add more information in the `extra` property.
-For example, when you get an UnsupportedFileType error because you tried loading an unknown extension, the `extra` property will hold an array, with the first index being the extension you tried to use, and the second one being the source.
-Another example - in the formats that have some form of magic number for validation, and upon the handlers getting wrong numbers, the InvalidSource error will be sent, and `extra` will contain "WrongMagicNumber".
-For the final example - when an HttpError occurs, `extra` will contain the XMLHttpRequest object of the fetch.
+For example, when you get an MissingHandler error because you tried loading an unknown extension, the `extra` property will hold the result from your path solver.
+Another example - when an HttpError occurs, `extra` will contain the XMLHttpRequest object of the fetch.
 You can choose to respond to errors (or not) however you want.
 
 ------------------------
