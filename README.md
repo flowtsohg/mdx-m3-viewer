@@ -20,34 +20,31 @@ Another option is to run the given Ruby script `compiler.rb`. This script gives 
 
 ------------------------
 
-Every model resource is actually composed of 4 different types of objects:
-* Model - this is the main object, here the file is parsed, and all of the heavy weight data exists (vertices, animation data, etc.).
-* ModelView - this is a very light weight object that is used to have multiple views of the same model. This allows to override specific things in the model, per view. For example, overriding textures, to have two versions of the same model.
-* ModelInstance - this is an instance of the model, and an actual entity in the scene. You can have any amount of instances of a single model (or rather, a single model view).
-* Bucket - model instances are put into buckets, and this is where shared instance data exists. Buckets are mainly used for instanced rendering.
-
-ModelView, ModelInstance, and Bucket, are all optional, and have generic implementations, if you don't specify anything.
-
-Finally, beside models, there are also:
-* Texture - a texture.
-* GenericFile - a file that isn't a model or a texture (e.g. SLK).
-
-------------------------
-
 #### Usage
 
+First, let's create the viewer.
 ```javascript
 let viewer = new ModelViewer(canvas)
-
-// Add the Mdx handler, which by itself adds the Blp, Slk, and Tga handlers.
-// So in the case you want to use the Mdx handler, you will need to include the source for all of the above.
-viewer.addHandler(Mdx);
-
-// Move away from the origin, so you'll actually be able to see stuff you load.
-viewer.camera.move([0, 0, -500);
 ```
 
 If the client doesn't have the WebGL requierments to run the viewer, an exception will be thrown when trying to create it.
+
+When a new viewer instance is created, it doesn't yet support loading anything, since it has no handlers.
+Handlers are simple JS objects with a specific signature, that give information to the viewer (such as a file format(s), and the implementation objects).
+When you want to load something, the viewer will select the appropriate handler, if there is one, and use it to construct the object.
+
+Let's add the MDX handler.
+This handler handles MDX files, unsurprisingly. It also adds the SLK, BLP, and TGA handlers automatically, since it requires them.
+
+```javascript
+viewer.addHandler(Mdx);
+```
+
+Finally for the initial setup, the viewer's camera is right in the origin, so let's move it a little.
+```javascript
+// Move away from the origin, so you'll actually be able to see stuff you load.
+viewer.camera.move([0, 0, -500);
+```
 
 So how do you actually load models and other files?
 The model viewer uses a system of path solving functions.
@@ -87,7 +84,7 @@ Resources
 
 And suppose we know that `model.mdx` uses the texture `texture.blp`.
 
-Now, let's see how a possible path solver will look (again, there are endless ways to write solvers, it totally depends on you).
+Let's see how a possible path solver will look (again, there are endless ways to write solvers, it totally depends on you).
 I'll make it assume it's getting urls, and automatically append "Resources/" to sources, just so I'll have to type less in load calls.
 
 ```javascript
@@ -108,11 +105,12 @@ This function call results in the following chain of events:
 2. The viewer chooses the correct handler based on the extension - in this case the MDX handler - sees this is a server fetch, and uses the source for the fetch.
 3. A new MDX model is created and starts loading (at this point the viewer gets a `loadstart` event from the model).
 4. The model is returned.
-5. ...time passes until the model finishes loading...
-6. The model is parsed and populated. In the case of MDX, this will also cause it to load its textures, in this case `texture.blp`.
-7. The model loads `texture.blp` by using its path solver, which returns `["Resources/texture.blp", ".blp", true]`, the viewer gets a `loadstart` event, etc.
+5. ...time passes until the model finishes loading...(meanwhile, the model sends `progress` events)
+6. The model is constructed successfuly, or not, and sends a `load` or `error` event respectively, followed by the `loadend` event.
+7. In the case of a MDX model, the previous step will also cause it to load its textures, in this case `texture.blp`.
+8. myPathSolver is called with `texture.blp`, which returns `["Resources/texture.blp", ".blp", true]`, and we loop back to step 2, but with a texture this time.
 
-The path solver did two jobs here. First of all, it made the load calls shorter by avoiding to type "Resources/". But the real deal, is that it allowes to selectively override sources, and change them in interesting ways.
+The path solver does two jobs here. First of all, it made the load calls shorter by avoiding to type "Resources/". But the real deal, is that it allows to selectively override sources, and change them in interesting ways.
 Generally speaking an identity solver is what you'll need (as in, it returns the source assuming its an url, its extesnion, and true for server fetch), but there are cases where this is not the case, such as loading custom user-made models, handling both in-memory and server-fetches in the same solver (used by the W3X handler), etc.
 
 So, we now have a model, but a model isn't something you can see. What you see in a scene are instances of a model.
@@ -134,20 +132,21 @@ instance.setSequence(0); // first animation, -1 == no animation.
 
 This should work, right? You have an instance, and you call its method, nothing special.
 Except, this method needs to get animation data from the model, which, if all of this code is put together, is not loaded yet! (even if you run locally, the file fetch will finish after this line).
-That isn't to say this line of code will not work - it does! But that's because there's code behind the scenes that handles asyncronous actions.
+In fact, even upon constructing the instance itself, using `model.addInstance()` is indeed asyncronous - you can do that immediately, without waiting for the model to load.
+This code works in a seeminly syncronous way, while it uses asyncronous action queues, to allow this illusion.
 Generally speaking, whenever you want to set/change something, you will be able to do it with straightforward code that looks syncronous, whether it really is or not behind the scenes.
 
 If you want to get any information from the model, like a list of animations, or textures, then the model obviously needs to exist before.
 For this reason, there are two ways to do things when a model finishes loading.
-First of all, as the next section explains, every resource uses event dispatching, much like regular asyncronous JS objects (e.g. Image, XMLHttpRequest, and so on).
-In addition, every resource has a `whenLoaded(callback)` method that gets `callback` called when it loads, or immediatelty if it was already loaded.
+First of all, as the next section explains (and as is mentioned above), every resource uses event dispatching, much like regular asyncronous JS objects (Image, XMLHttpRequest, and so on).
+In addition, every resource has a `whenLoaded(callback)` method that calls `callback` when the resource loads, or immediately if it was already loaded.
 The viewer itself has `whenAllLoaded(resources, callback)`, which is the same, but waits for multiple resources in an array to load.
 
 ------------------------
 
 #### Events
 
-Resources (including the viewer) can send events in their life span, very similar to those of native JS objects:
+Resources (including the viewer) can send events very similar to those of native JS objects, with the same API:
 
 ```
 resource.addEventListener(type, listener)
@@ -155,8 +154,10 @@ resource.removeEventListener(type, listener)
 resource.dispatchEvent(event)
 ```
 
+When an event listener is attached to a specific resource, such as a model, it only gets events from that object.
+If however a listener is attached to the viewer itself, it will receive events for all resources.
+
 Note that attaching a `loadstart` listener to a resource that is not the viewer is pointless, since the listener is registered after the resource started loading.
-To properly catch loadstart events, attach a listener to the viewer.
 
 The type can be one of:
 * `render` - called every frame after rendering is done (this event is only dispatched by the viewer).
@@ -174,7 +175,7 @@ When a resource gets loaded, the handler can choose to send errors if something 
 The built-in handlers try to do this in a consistent way.
 There are four types of errors:
 * UnsupportedFileType - sent by the viewer itself, if you try to load some resource with an unknown extension (did you forget to register the handler?).
-* InvalidSource - sent by handlers when they think your source is not valid, such as trying to load a file as Mdx, but it's not really an Mdx file.
+* InvalidSource - sent by handlers when they think your source is not valid, such as trying to load a file as MDX, but it's not really an MDX file.
 * UnsupportedFeature - sent by handlers when the source is valid, but a feature in the format isn't supported, such as DDS textures not supporting encodings that are not DXT1/3/5.
 * HttpError - sent by handlers when a server fetch failed.
 
@@ -182,21 +183,7 @@ Together with these error strings (in the `error` property naturally), the handl
 For example, when you get an UnsupportedFileType error because you tried loading an unknown extension, the `extra` property will hold an array, with the first index being the extension you tried to use, and the second one being the source.
 Another example - in the formats that have some form of magic number for validation, and upon the handlers getting wrong numbers, the InvalidSource error will be sent, and `extra` will contain "WrongMagicNumber".
 For the final example - when an HttpError occurs, `extra` will contain the XMLHttpRequest object of the fetch.
-There are only a few errors, and you can choose to respond to them however you want.
-
-------------------------
-
-#### Adding Handlers
-
-A handler is a simple JS object, with some properties that define what file format(s) it supports, whether it's a binary format or ASCII - in case you make server fetches - and the implementation objects that will be used.
-
-Upon creation, the model viewer object supports no handlers.
-The client can choose which handlers it cares about, and register only those (and thus only include them in the final source).
-For example, to support Warcraft 3 models, the client must include all of the source code of the Mdx handler, and register it at run-time:
-
-`viewer.addHandler(Mdx);`
-
-Also, in this specific case, note that the Mdx handler itself adds the Blp, Slk, and Tga handlers, meaning you need also their source code for Mdx to function.
+You can choose to respond to errors (or not) however you want.
 
 ------------------------
 
@@ -211,4 +198,4 @@ Python 2.x: python -m SimpleHTTPServer 80
 
 Python 3.x: python -m http.server 80
 
-Next, open your browser, and go to `127.0.0.1/examples/`.
+Next, go to your browser, and open `http://localhost/examples/`.

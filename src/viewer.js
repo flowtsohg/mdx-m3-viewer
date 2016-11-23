@@ -96,7 +96,7 @@ function ModelViewer(canvas) {
     window.addEventListener("resize", () => this.resetViewport());
 
     // Main loop
-    const step = () => { requestAnimationFrame(step); this.update(); this.render(); };
+    let step = () => { requestAnimationFrame(step); this.update(); this.render(); };
     step();
 }
 
@@ -123,18 +123,6 @@ ModelViewer.prototype = {
         }
     },
 
-    // src can either be a single object, or an array
-    // if it's an array, an array will be returned, otherwise a single object will be returned
-    //
-    // options:
-    //      1) src is a model or an instance => create a new instance
-    //      2) src is an url or some kind of buffer => normal load
-    //      3) src is a built-in JS image source (HTMLImageElement, HTMLVideoElement, HTMLCanvasElement, ImageData) => pathSolver isn't used
-    //
-    // pathSolver is a function with the following signature: function (source) => [source, fileType, isUrl]
-    // if isUrl is true-like, the source is considered to be an url, and a server fetch will be done
-    // if isUrl is false-like, the source is considered to be a buffer that the handler can parse, with no server fetches
-    // note that pathSolver will be used by the loaded resource to solve the paths of all internal resources (e.g. a model will use it to figure where its textures are located!)
     /**
      * @method
      * @desc Load something. The meat of this whole project.
@@ -152,8 +140,6 @@ ModelViewer.prototype = {
         return this.loadSingle(src, pathSolver);
     },
 
-    // Call callback when all of the given resources have finished loading
-    // If all of the given resources already loaded, it will be called immediately
     /**
      * @method
      * @desc Calls the given callback, when all of the given resources finished loading. In the case all of the resources are already loaded, the call happens immediately.
@@ -173,7 +159,12 @@ ModelViewer.prototype = {
         }
 
         for (let i = 0; i < wantLoaded; i++) {
-            resources[i].whenLoaded(gotLoaded);
+            let resource = resources[i];
+
+            if (this.isViewerResource(resource)) {
+                resource.whenLoaded(gotLoaded);
+            }
+            
         }
     },
 
@@ -198,12 +189,6 @@ ModelViewer.prototype = {
                 this.dispatchEvent({ type: "error", error: "UnsupportedFileType", extra: [extension, src] })
             }
         }
-    },
-
-    registerEvents(resource) {
-        const listener = e => this.dispatchEvent(e);
-
-        ["loadstart", "load", "loadend", "error", "progress", "delete"].map(e => resource.addEventListener(e, listener));
     },
 
     loadResource(src, extension, serverFetch, pathSolver, handler) {
@@ -231,12 +216,13 @@ ModelViewer.prototype = {
         const map = resources.map;
 
         if (!map.has(src)) {
-            const resource = new constructor(this, pathSolver);
+            let resource = new constructor(this, pathSolver);
 
             map.set(src, resource);
             resources.array.push(resource);
 
-            this.registerEvents(resource);
+            let listener = e => this.dispatchEvent(e);
+            ["loadstart", "load", "loadend", "error", "progress", "delete"].map(e => resource.addEventListener(e, listener));
 
             resource.loadstart();
             resource.load(src, handler.binaryFormat, serverFetch);
@@ -250,8 +236,29 @@ ModelViewer.prototype = {
      * @desc Deletes a resource from the viewer.
      *       Note that this only removes references to this resource, so your code should do the same, to allow GC to work.
      */
-    delete(resource) {
-        throw "IMPLEMENT ME";
+    delete (resource) {
+        if (this.isViewerResource(resource)) {
+            throw "IMPLEMENT ME";
+        }
+    },
+
+    /**
+     * @method
+     * @desc Checks if a given object is a resource of the viewer.
+     *       This is done by checking the object's objectType field.
+     * @param {object} object The object to check.
+     * @returns {boolean}
+     */
+    isViewerResource(object) {
+        if (object) {
+            let objectType = object.objectType;
+
+            if (objectType) {
+                return objectType === "model" || objectType === "texture" || objectType === "file";
+            }
+        }
+
+        return false;
     },
 
     /**
