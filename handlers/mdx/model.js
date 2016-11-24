@@ -1,3 +1,11 @@
+/**
+ * @class
+ * @classdesc A Warcraft 3 model.
+ * @extends Model
+ * @memberOf Mdx
+ * @param {ModelViewer} env The model viewer object that this texture belongs to.
+ * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
+ */
 function MdxModel(env, pathSolver) {
     Model.call(this, env, pathSolver);
 }
@@ -249,7 +257,7 @@ MdxModel.prototype = {
                     replaceableId = texture.replaceableId,
                     path = texture.path;
 
-                if (path === "" && MdxReplaceableIdToName[replaceableId] === undefined) {
+                if (path === "" && Mdx.replaceableIdToName[replaceableId] === undefined) {
                     errors.push("Texture " + i + ": Unknown replaceable ID " + replaceableId);
                 }
 
@@ -498,7 +506,7 @@ MdxModel.prototype = {
         var replaceableId = texture.replaceableId;
 
         if (replaceableId !== 0) {
-            path = "replaceabletextures/" + MdxReplaceableIdToName[replaceableId] + ".blp";
+            path = "replaceabletextures/" + Mdx.replaceableIdToName[replaceableId] + ".blp";
         }
 
         this.replaceables.push(replaceableId);
@@ -809,11 +817,7 @@ MdxModel.prototype = {
             texture = view.textures[textureId];
         }
 
-        if (!texture) {
-            texture = this.textures[textureId];
-        }
-
-        this.env.webgl.bindTexture(texture, 0);
+        this.env.webgl.bindTexture(texture || this.textures[textureId], 0);
     },
 };
 

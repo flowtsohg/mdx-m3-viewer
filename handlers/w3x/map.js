@@ -1,3 +1,11 @@
+/**
+ * @class
+ * @classdesc A Warcraft 3 map.
+ * @extends GenericFile
+ * @memberOf W3x
+ * @param {ModelViewer} env The model viewer object that this texture belongs to.
+ * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
+ */
 function W3xMap(env, pathSolver) {
     GenericFile.call(this, env, pathSolver);
 }

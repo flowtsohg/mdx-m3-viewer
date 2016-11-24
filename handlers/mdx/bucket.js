@@ -1,3 +1,10 @@
+/**
+ * @class
+ * @classdesc An MDX bucket.
+ * @extends Bucket
+ * @memberOf Mdx
+ * @param {MdxModelView} env The model view that this bucket belongs to.
+ */
 function MdxBucket(modelView) {
     Bucket.call(this, modelView);
 

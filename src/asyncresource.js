@@ -56,7 +56,7 @@ AsyncResource.prototype = {
     onerror(error, extra) {
         this.error = true;
 
-        let e = { type: "error", error: error, extra: extra };
+        let e = { type: "error", error: error };
 
         if (extra) {
             e.extra = extra;

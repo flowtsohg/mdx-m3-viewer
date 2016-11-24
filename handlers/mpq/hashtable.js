@@ -1,8 +1,3 @@
-const MPQ_KEY_HASH_TABLE = 0xC3AF3770,
-    MPQ_HASH_TABLE_INDEX = 0,
-    MPQ_HASH_NAME_A = 1,
-    MPQ_HASH_NAME_B = 2;
-
 function MpqHashTableEntry(reader) {
     this.name1 = readUint32(reader);
     this.name2 = readUint32(reader);
@@ -14,7 +9,7 @@ function MpqHashTableEntry(reader) {
 function MpqHashTable(buffer, c) {
     this.hashSize = buffer.byteLength / 16;
     this.c = c;
-    this.prepareEntries(c.decryptBlock(buffer, MPQ_KEY_HASH_TABLE));
+    this.prepareEntries(c.decryptBlock(buffer, Mpq.HASH_TABLE_KEY));
 }
 
 MpqHashTable.prototype = {
@@ -31,9 +26,9 @@ MpqHashTable.prototype = {
 
     getBlockIndexOfFile(name) {
         let c = this.c,
-            name1 = c.hash(name, MPQ_HASH_NAME_A),
-            name2 = c.hash(name, MPQ_HASH_NAME_B),
-            offset = c.hash(name, MPQ_HASH_TABLE_INDEX) & (this.hashSize - 1),
+            name1 = c.hash(name, Mpq.HASH_NAME_A),
+            name2 = c.hash(name, Mpq.HASH_NAME_B),
+            offset = c.hash(name, Mpq.HASH_TABLE_INDEX) & (this.hashSize - 1),
             entries = this.entries,
             entry;
 

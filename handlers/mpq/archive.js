@@ -1,3 +1,11 @@
+/**
+ * @class
+ * @classdesc A MPQ archive, used by Warcraft 3.
+ * @extends GenericFile
+ * @memberOf Mpq
+ * @param {ModelViewer} env The model viewer object that this texture belongs to.
+ * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
+ */
 function MpqArchive(env, pathSolver) {
     GenericFile.call(this, env, pathSolver);
 }
@@ -29,6 +37,8 @@ MpqArchive.prototype = {
             this.hashTable = new MpqHashTable(this.buffer.slice(this.hashPos, this.hashPos + this.hashSize * 16), this.c);
 
             this.blockTable = new MpqBlockTable(this.buffer.slice(this.blockPos, this.blockPos + this.blockSize * 16), this.c);
+
+            this.files = {};
             //}
         }
 
@@ -60,20 +70,48 @@ MpqArchive.prototype = {
         this.blockSize = readUint32(reader);
     },
 
+    /**
+     * @method
+     * @desc Checks if a file exists in this archive.
+     * @param {string} name The file name.
+     * @returns {boolean}
+     */
     hasFile(name) {
         return this.hashTable.getBlockIndexOfFile(name) !== -1;
     },
 
+    /**
+     * @method
+     * @desc Extract a file from this archive. Note that this is a lazy and cached operation. That is, files are only decoded from the archive on extraction, and the result is then cached. Further requests to get the same file will get the cached result.
+     * @param {string} name The file name.
+     * @returns {MpqFile}
+     */
     getFile(name) {
-        let blockIndex = this.hashTable.getBlockIndexOfFile(name);
+        let files = this.files;
 
-        if (blockIndex !== -1) {
-            let blockEntry = this.blockTable.entries[blockIndex];
+        name = normalizePath(name);
 
-            return new MpqFile(this, blockEntry, name);
+        if (!files[name]) {
+            let blockIndex = this.hashTable.getBlockIndexOfFile(name);
+
+            if (blockIndex !== -1) {
+                let blockEntry = this.blockTable.entries[blockIndex],
+                    file = new MpqFile(this, blockEntry, name);
+
+                this.files[name] = file;
+            }
         }
+        
+        return files[name];
     },
 
+    /**
+     * @method
+     * @desc Get an array of strings, populated by all of the file names in this archive.
+     *       Note that this assumes this archive has a listfile, which is not always true.
+     *       If there is no listfile, an empty array will be returned.
+     * @returns {string[]}
+     */
     getFileList() {
         if (this.hasFile("(listfile)")) {
             let file = this.getFile("(listfile)");

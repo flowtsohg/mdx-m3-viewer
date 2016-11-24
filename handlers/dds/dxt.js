@@ -19,6 +19,14 @@ function setRgba8888Dxt5(dst, i, int565, a) {
     dst[i + 3] = a;
 }
 
+/**
+ * Trasnforms DXT1 data to a Uint16Array typed array with 5-6-5 RGB bits.
+ * 
+ * @param {Uint16Array} src The DXT1 data.
+ * @param {number} width The width of the data.
+ * @param {number} height The height of the data.
+ * @returns {Uint16Array}
+ */
 function dxt1ToRgb565(src, width, height) {
     let c = new Uint16Array(4),
         dst = new Uint16Array(width * height),
@@ -75,6 +83,14 @@ function dxt1ToRgb565(src, width, height) {
     return dst;
 }
 
+/**
+ * Trasnforms DXT3 data to a Uint8Array typed array with 8-8-8-8 RGBA bits.
+ * 
+ * @param {Uint16Array} src The DXT3 data.
+ * @param {number} width The width of the data.
+ * @param {number} height The height of the data.
+ * @returns {Uint8Array}
+ */
 function dxt3ToRgba8888(src, width, height) {
     let c = new Uint16Array(4),
         dst = new Uint8Array(width * height * 4),
@@ -131,6 +147,14 @@ function dxt3ToRgba8888(src, width, height) {
     return dst;
 }
 
+/**
+ * Trasnforms DXT5 data to a Uint8Array typed array with 8-8-8-8 RGBA bits.
+ * 
+ * @param {Uint16Array} src The DXT5 data.
+ * @param {number} width The width of the data.
+ * @param {number} height The height of the data.
+ * @returns {Uint8Array}
+ */
 function dxt5ToRgba8888(src, width, height) {
     let c = new Uint16Array(4),
         a = new Uint8Array(8),

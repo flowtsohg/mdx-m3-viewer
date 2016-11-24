@@ -1,3 +1,11 @@
+/**
+ * @class
+ * @classdesc A TGA texture.
+ * @extends Texture
+ * @memberOf Tga
+ * @param {ModelViewer} env The model viewer object that this texture belongs to.
+ * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
+ */
 function TgaTexture(env, pathSolver) {
     Texture.call(this, env, pathSolver);
 }

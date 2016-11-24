@@ -1,3 +1,11 @@
+/**
+ * @class
+ * @classdesc A BLP texture, used by Warcraft 3.
+ * @extends Texture
+ * @memberOf Blp
+ * @param {ModelViewer} env The model viewer object that this model belongs to.
+ * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
+ */
 function BlpTexture(env, pathSolver) {
     Texture.call(this, env, pathSolver);
 }

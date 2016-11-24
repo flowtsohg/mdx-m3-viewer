@@ -1,4 +1,11 @@
-// While this texture is called Png, this class is actually used for all browser native formats (.png, .jpg, .gif)
+/**
+ * @class
+ * @classdesc A texture that wraps Image, thus supporting PNG, JPG, and GIF.
+ * @extends Texture
+ * @memberOf NativeTexture
+ * @param {ModelViewer} env The model viewer object that this texture belongs to.
+ * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
+ */
 function PngTexture(env, pathSolver) {
     Texture.call(this, env, pathSolver);
 }

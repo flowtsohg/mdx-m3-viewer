@@ -1,3 +1,11 @@
+/**
+ * @class
+ * @classdesc A Starcraft 2 model.
+ * @extends Model
+ * @memberOf M3
+ * @param {ModelViewer} env The model viewer object that this texture belongs to.
+ * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
+ */
 function M3Model(env, pathSolver) {
     Model.call(this, env, pathSolver);
 }

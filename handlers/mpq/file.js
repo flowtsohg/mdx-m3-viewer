@@ -1,11 +1,11 @@
-const MPQ_HASH_FILE_KEY = 3,
-    MPQ_FILE_COMPRESSED = 0x00000200,
-    MPQ_FILE_ENCRYPTED = 0x00010000,
-    MPQ_FILE_SINGLEUNIT = 0x0100000,
-    MPQ_FILE_ADJUSTED_ENCRYPTED = 0x00020000,
-    MPQ_FILE_EXISTS = 0x80000000,
-    MPQ_FILE_DELETED = 0x02000000;
-
+/**
+ * @class
+ * @classdesc A MPQ file, used by Warcraft 3.
+ * @memberOf Mpq
+ * @param {MpqArchive} archive The archive that owns this file.
+ * @param {MpqBlockTableEntry} block This file's block.
+ * @param {string} name This file's name.
+ */
 function MpqFile(archive, block, name) {
     this.archive = archive;
     this.block = block;
@@ -13,14 +13,14 @@ function MpqFile(archive, block, name) {
     this.sectorCount = Math.ceil(block.normalSize / archive.sectorSize);
     this.encryptionKey = 0;
 
-    if (block.flags & MPQ_FILE_ENCRYPTED) {
+    if (block.flags & Mpq.FILE_ENCRYPTED) {
         let sepIndex = name.lastIndexOf("\\"),
             pathlessName = name.substring(sepIndex + 1);
 
         this.c = archive.c;
-        this.encryptionKey = this.c.hash(pathlessName, MPQ_HASH_FILE_KEY);
+        this.encryptionKey = this.c.hash(pathlessName, Mpq.HASH_FILE_KEY);
 
-        if (block.flags & MPQ_FILE_ADJUSTED_ENCRYPTED) {
+        if (block.flags & Mpq.FILE_ADJUSTED_ENCRYPTED) {
             this.encryptionKey = (this.encryptionKey + block.filePos) ^ block.normalSize;
         }
     }
@@ -41,18 +41,18 @@ MpqFile.prototype = {
         // Go to the position of this block
         seek(reader, block.filePos);
 
-        if (flags & MPQ_FILE_SINGLEUNIT) {
+        if (flags & Mpq.FILE_SINGLEUNIT) {
             console.warn("[MPQFile::parse] Single unit (add support!)")
             console.log(this);
 
-            if (flags & MPQ_FILE_COMPRESSED) {
+            if (flags & Mpq.FILE_COMPRESSED) {
 
             } else {
 
             }
         }
 
-        if (flags & MPQ_FILE_COMPRESSED) {
+        if (flags & Mpq.FILE_COMPRESSED) {
             // Alocate a buffer for the uncompressed block size
             let buffer = new Uint8Array(block.normalSize)
 

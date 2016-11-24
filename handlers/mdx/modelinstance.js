@@ -1,3 +1,10 @@
+/**
+ * @class
+ * @classdesc An MDX model instance.
+ * @extends ModelInstance
+ * @memberOf Mdx
+ * @param {ModelViewer} env The model viewer object that this texture belongs to.
+ */
 function MdxModelInstance(env) {
     ModelInstance.call(this, env);
 }

@@ -1,6 +1,6 @@
 WANT_SLK = true
 WANT_MPQ = true
-WANT_NATIVE = true # PNG / JPG / GIF
+WANT_PNG = true # PNG / JPG / GIF
 WANT_BLP = true
 WANT_DDS = true
 WANT_TGA = true
@@ -12,177 +12,185 @@ WANT_M3 = true # Will include DDS, and TGA.
 WANT_STRICT_MODE = true
 
 WANT_MINIFY = true
-WANT_GEN_DOCS = false # Assumes you have JSDoc in your PATH system variable.
+WANT_GEN_DOCS = true # Assumes you have JSDoc in your PATH system variable.
 
-Files = [
-	"src/common.js",
-	"src/binaryreader.js",
-	"src/bitbuffer.js",
-	"external/gl-matrix-min.js",
-    "src/math/gl-matrix-addon.js",
-    "src/math/interpolator.js",
-    "src/math/math.js",
-    "src/actionqueue.js",
-    "src/eventdispatcher.js",
-    "src/node.js",
-    "src/boundingshape.js",
-    "src/asyncresource.js",
-    "src/downloadableresource.js",
-    "src/skeleton.js",
-    "src/gl/resizeablebuffer.js",
-    "src/gl/shader.js",
-    "src/gl/gl.js",
-    "src/frustum.js",
-    "src/camera.js",
-    "src/handler.js",
-    "src/modelhandler.js",
-    "src/texturehandler.js",
-    "src/filehandler.js",
-    "src/model.js",
-    "src/modelview.js",
-    "src/modelinstance.js",
-    "src/texture.js",
-    "src/genericfile.js",
-    "src/bucket.js",
-    "src/viewer.js"
-]
+def batch(name, base_path, files, externals=[])
+	return {
+		"name" => name,
+		"files" => files.map { |file| "#{base_path}#{file}.js" },
+		"external_files" => externals.map { |file| "external/#{file}.js" }
+	}
+end
 
-NATIVE = {
-	"name" => "NATIVE",
-	"files" => [
-		"handlers/nativetexture/texture.js",
-		"handlers/nativetexture/handler.js"
-	]
-}
+BASE = batch "BASE",
+			"src/",
+			[
+				"common",
+				"binaryreader",
+				"bitbuffer",
+				"math/gl-matrix-addon",
+				"math/interpolator",
+				"math/math",
+				"actionqueue",
+				"eventdispatcher",
+				"node",
+				"boundingshape",
+				"asyncresource",
+				"downloadableresource",
+				"skeleton",
+				"gl/resizeablebuffer",
+				"gl/shader",
+				"gl/gl",
+				"frustum",
+				"camera",
+				"handler",
+				"modelhandler",
+				"texturehandler",
+				"filehandler",
+				"model",
+				"modelview",
+				"modelinstance",
+				"texture",
+				"genericfile",
+				"bucket",
+				"viewer"
+			],
+			[
+				"gl-matrix-min"
+			]
 
-W3X = {
-	"name" => "W3X",
-	"files" => [
-		"handlers/w3x/objects.js",
-		"handlers/w3x/map.js",
-		"handlers/w3x/handler.js"
-	]
-}
+PNG = batch "PNG",
+			"handlers/nativetexture/",
+			[
+				"texture",
+				"handler"
+			]
 
-MDX = {
-	"name" => "MDX",
-	"files" => [
-		"handlers/mdx/shaders.js",
-		"handlers/mdx/parser.js",
-		"handlers/mdx/sd.js",
-		"handlers/mdx/skeleton.js",
-		"handlers/mdx/collisionshape.js",
-		"handlers/mdx/camera.js",
-		"handlers/mdx/texture.js",
-		"handlers/mdx/geoset.js",
-		"handlers/mdx/layer.js",
-		"handlers/mdx/geosetanimation.js",
-		"handlers/mdx/textureanimation.js",
-		"handlers/mdx/node.js",
-		"handlers/mdx/attachment.js",
-		"handlers/mdx/eventobjectspn.js",
-		"handlers/mdx/eventobjectspl.js",
-		"handlers/mdx/eventobjectubr.js",
-		"handlers/mdx/eventobjectemitter.js",
-		"handlers/mdx/particle.js",
-		"handlers/mdx/particleemitter.js",
-		"handlers/mdx/particle2.js",
-		"handlers/mdx/particleemitter2.js",
-		"handlers/mdx/particleemitter2view.js",
-		"handlers/mdx/ribbon.js",
-		"handlers/mdx/ribbonemitter.js",
-		"handlers/mdx/ribbonemitterview.js",
-		"handlers/mdx/bucket.js",
-		"handlers/mdx/modelview.js",
-		"handlers/mdx/model.js",
-		"handlers/mdx/modelinstance.js",
-		"handlers/mdx/handler.js"
-	]
-}
+W3X = batch "W3X",
+			"handlers/w3x/",
+			[
+				"objects",
+				"map",
+				"handler"
+			]
 
-BLP = {
-	"name" => "BLP",
-	"files" => [
-		"external/jpg.js",
-		"handlers/blp/texture.js",
-		"handlers/blp/handler.js"
-	]
-}
+MDX = batch "MDX",
+			"handlers/mdx/",
+			[
+				"shaders",
+				"parser",
+				"sd",
+				"skeleton",
+				"collisionshape",
+				"camera",
+				"geoset",
+				"layer",
+				"geosetanimation",
+				"textureanimation",
+				"node",
+				"attachment",
+				"eventobjectspn",
+				"eventobjectspl",
+				"eventobjectubr",
+				"eventobjectemitter",
+				"particle",
+				"particleemitter",
+				"particle2",
+				"particleemitter2",
+				"particleemitter2view",
+				"ribbon",
+				"ribbonemitter",
+				"ribbonemitterview",
+				"bucket",
+				"modelview",
+				"model",
+				"modelinstance",
+				"handler"
+			]
 
-SLK = {
-	"name" => "SLK",
-	"files" => [
-		"handlers/slk/file.js",
-		"handlers/slk/handler.js"
-	]
-}
+BLP = batch "BLP",
+			"handlers/blp/",
+			[
+				"texture",
+				"handler"
+			],
+			[
+				"jpg"
+			]
 
-MPQ = {
-	"name" => "MPQ",
-	"files" => [
-		"external/inflate.min.js",
-		"handlers/mpq/crypto.js",
-		"handlers/mpq/hashtable.js",
-		"handlers/mpq/blocktable.js",
-		"handlers/mpq/file.js",
-		"handlers/mpq/archive.js",
-		"handlers/mpq/handler.js"
-	]
-}
+SLK = batch "SLK",
+			"handlers/slk/",
+			[
+				"line",
+				"file",
+				"handler"
+			]
 
-TGA = {
-	"name" => "TGA",
-	"files" => [
-		"handlers/tga/texture.js",
-		"handlers/tga/handler.js"
-	]
-}
+MPQ = batch "MPQ",
+			"handlers/mpq/",
+			[
+				"crypto",
+				"hashtable",
+				"blocktable",
+				"file",
+				"archive",
+				"handler"
+			],
+			[
+				"inflate.min"
+			]
 
-M3 = {
-	"name" => "M3",
-	"files" => [
-		"handlers/m3/shaders.js",
-		"handlers/m3/parser.js",
-		"handlers/m3/sd.js",
-		"handlers/m3/sts.js",
-		"handlers/m3/stc.js",
-		"handlers/m3/stg.js",
-		"handlers/m3/skeleton.js",
-		"handlers/m3/boundingshape.js",
-		"handlers/m3/region.js",
-		"handlers/m3/layer.js",
-		"handlers/m3/standardmaterial.js",
-		#"handlers/m3/particle.js",
-		#"handlers/m3/particleemitter.js",
-		"handlers/m3/bucket.js",
-		"handlers/m3/modelview.js",
-		"handlers/m3/model.js",
-		"handlers/m3/modelinstance.js",
-		"handlers/m3/handler.js"
-	]
-}
+TGA = batch "TGA",
+			"handlers/tga/",
+			[
+				"texture",
+				"handler"
+			]
 
-DDS = {
-	"name" => "DDS",
-	"files" => [
-		"handlers/dds/dxt.js",
-		"handlers/dds/texture.js",
-		"handlers/dds/handler.js"
-	]
-}
+M3 = batch "M3",
+			"handlers/m3/",
+			[
+				"shaders",
+				"parser",
+				"sd",
+				"sts",
+				"stc",
+				"stg",
+				"skeleton",
+				"boundingshape",
+				"region",
+				"layer",
+				"standardmaterial",
+				#"particle",
+				#"particleemitter",
+				"bucket",
+				"modelview",
+				"model",
+				"modelinstance",
+				"handler"
+			]
 
-GEO = {
-	"name" => "GEO",
-	"files" => [
-		"handlers/geo/geometry.js",
-		"handlers/geo/model.js",
-		"handlers/geo/modelinstance.js",
-		"handlers/geo/bucket.js",
-		"handlers/geo/handler.js"
-	]
-}
+DDS = batch "DDS",
+			"handlers/dds/",
+			[
+				"dxt",
+				"texture",
+				"handler"
+			]
+
+GEO = batch "GEO",
+			"handlers/geo/",
+			[
+				"geometry",
+				"model",
+				"modelinstance",
+				"bucket",
+				"handler"
+			]
 
 Added = {}
+Code = []
+External = []
 
 def add(what, is_forced=false)
 	if not Added.has_key? what
@@ -192,7 +200,8 @@ def add(what, is_forced=false)
 		print " (F)" if is_forced
 		puts
 
-		Files.concat what["files"]
+		Code.concat what["files"]
+		External.concat what["external_files"]
 	end
 end
 
@@ -200,11 +209,34 @@ def add_forced(what)
 	add what, true
 end
 
+def minify()
+	print "Minifying..."
+
+	File.open("viewer.min.js", "w") { |out|
+		out.write "/* #{File.read('LICENSE').strip} */\n"
+		out.write "\"use strict\";\n" if WANT_STRICT_MODE
+
+		External.each { |file| out.write File.read file }
+		Code.each { |file| out.write File.read file }
+	}
+
+	puts "Done (#{File.size('viewer.min.js') / 2**10}KB)"
+end
+
+def gen_docs()
+	print "Running JSDoc..."
+
+	`jsdoc #{Code.join " "}`
+
+	puts "Done"
+end
+
 puts "Hi"
 
+add BASE
 add SLK if WANT_SLK
 add MPQ if WANT_MPQ
-add NATIVE if WANT_NATIVE
+add PNG if WANT_PNG
 add BLP if WANT_BLP
 add DDS if WANT_DDS
 add TGA if WANT_TGA
@@ -233,27 +265,7 @@ if WANT_M3
 	add M3
 end
 
-if WANT_MINIFY
-	print "Minifying..."
-
-	File.open("viewer.min.js", "w") { |out|
-		out.write "/* #{File.read('LICENSE').strip} */\n"
-		out.write "\"use strict\";\n" if WANT_STRICT_MODE
-
-		Files.each { |file|
-			out.write File.read file
-		}
-	}
-
-	puts "Done (#{File.size('viewer.min.js') / 2**10}KB)"
-end
-
-if WANT_GEN_DOCS
-	print "Running JSDoc..."
-
-	`jsdoc #{Files.join " "}`
-
-	puts "Done"
-end
+minify if WANT_MINIFY
+gen_docs if WANT_GEN_DOCS
 
 puts "Bye"

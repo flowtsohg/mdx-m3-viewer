@@ -2,7 +2,7 @@
  * @class
  * @classdesc A base class for all textures.
  * @extends DownloadableResource
- * @param {ModelViewer} env The model viewer object that this model belongs to.
+ * @param {ModelViewer} env The model viewer object that this texture belongs to.
  * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
  */
 function Texture(env, pathSolver) {

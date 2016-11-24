@@ -1,3 +1,11 @@
+/**
+ * @class
+ * @classdesc A geometry model.
+ * @extends Model
+ * @memberOf Geo
+ * @param {ModelViewer} env The model viewer object that this texture belongs to.
+ * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
+ */
 function GeometryModel(env, pathSolver) {
     Model.call(this, env, pathSolver);
 }
@@ -167,7 +175,7 @@ GeometryModel.prototype = {
         gl.uniform1i(uniforms.get("u_texture"), 0);
 
         if (this.renderMode === 0 || this.renderMode === 2) {
-            webgl.bindTexture(this.texture, 0);
+            webgl.bindTexture(bucket.modelView.texture || this.texture, 0);
 
             gl.uniform1f(uniforms.get("u_isEdge"), 0);
             gl.uniform2fv(uniforms.get("u_uvScale"), this.uvScale);

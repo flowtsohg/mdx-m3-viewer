@@ -1,3 +1,10 @@
+/**
+ * @class
+ * @classdesc A geometry bucket.
+ * @extends Bucket
+ * @memberOf Geo
+ * @param {GeometryModelView} modelView The model view that this bucket belongs to.
+ */
 function GeometryBucket(modelView) {
     Bucket.call(this, modelView);
 

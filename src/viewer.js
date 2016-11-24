@@ -108,19 +108,39 @@ ModelViewer.prototype = {
      * @returns this
      */
     addHandler(handler) {
-        const handlers = this.handlers;
+        if (handler) {
+            let handlers = this.handlers,
+                objectType = handler.objectType;
 
-        // Run the global initialization function of the handler
-        handler.initialize(this);
+            if (objectType === "modelhandler" || objectType === "texturehandler" || objectType === "filehandler") {
+                // Check to see if this handler was registered already.
+                // A map lookup would be preferred, but since this code essentially runs once at init, I prefer to not add an extra map.
+                for (let h of handlers.values()) {
+                    if (handler === h) {
+                        this.dispatchEvent({ type: "error", error: "InvalidHandler", extra: "AlreadyAdded" });
+                        return false;
+                    }
+                }
 
-        // Register the handler for each of its file types
-        for (let extension of handler.extension.split("|")) {
-            if (!handlers.has(extension)) {
-                handlers.set(extension, handler);
+                // Run the global initialization function of the handler
+                handler.initialize(this);
 
-                //console.debug("Registered handler:", extension);
+                // Register the handler for each of its file types
+                for (let extension of handler.extension.split("|")) {
+                    if (!handlers.has(extension)) {
+                        handlers.set(extension, handler);
+
+                        //console.debug("Registered handler:", extension);
+                    }
+                }
+
+                return true;
             }
+        } else {
+            this.dispatchEvent({ type: "error", error: "InvalidHandler", extra: "UnknownHandlerType" });
         }
+
+        return false;
     },
 
     /**
@@ -186,9 +206,15 @@ ModelViewer.prototype = {
             if (handler) {
                 return this.loadResource(src, extension, serverFetch, pathSolver, handler);
             } else {
-                this.dispatchEvent({ type: "error", error: "UnsupportedFileType", extra: [extension, src] })
+                this.dispatchEvent({ type: "error", error: "MissingHandler", extra: [src, extension, serverFetch] });
             }
         }
+    },
+
+    registerEvents(resource) {
+        let listener = e => this.dispatchEvent(e);
+
+        ["loadstart", "load", "loadend", "error", "progress", "delete"].map(e => resource.addEventListener(e, listener));
     },
 
     loadResource(src, extension, serverFetch, pathSolver, handler) {
@@ -208,9 +234,6 @@ ModelViewer.prototype = {
         } else if (handler.objectType === "filehandler") {
             resources = allResources.files;
             constructor = handler.File;
-        } else {
-            console.log(handler);
-            throw "Trying to load a resource using an unknown handler for file extension " + extension + " (mix ModelHandler|TextureHandler|FileHandler with your handler!)";
         }
 
         const map = resources.map;
@@ -221,8 +244,7 @@ ModelViewer.prototype = {
             map.set(src, resource);
             resources.array.push(resource);
 
-            let listener = e => this.dispatchEvent(e);
-            ["loadstart", "load", "loadend", "error", "progress", "delete"].map(e => resource.addEventListener(e, listener));
+            this.registerEvents(resource);
 
             resource.loadstart();
             resource.load(src, handler.binaryFormat, serverFetch);

@@ -1,3 +1,10 @@
+/**
+ * @class
+ * @classdesc An M3 bucket.
+ * @extends Bucket
+ * @memberOf M3
+ * @param {M3ModelView} env The model view that this bucket belongs to.
+ */
 function M3Bucket(modelView) {
     Bucket.call(this, modelView);
 

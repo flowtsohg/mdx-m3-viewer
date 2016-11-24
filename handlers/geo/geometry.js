@@ -1,3 +1,10 @@
+/**
+ * Creates a rectangle geometry object.
+ *
+ * @param {number} width The width of the rectangle.
+ * @param {number} depth The depth of the rectangle.
+ * @returns {object} The geometry object.
+ */
 function createRectangle(width, depth) {
     return {
         vertices: new Float32Array([-width, depth, 0, -width, -depth, 0, width, -depth, 0, width, depth, 0]),
@@ -8,10 +15,23 @@ function createRectangle(width, depth) {
     };
 }
 
+/**
+ * Creates a unit rectangle geometry object.
+ * 
+ * @returns {object} The geometry object.
+ */
 function createUnitRectangle() {
     return createRectangle(1, 1);
 }
 
+/**
+ * Creates a cube geometry object.
+ *
+ * @param {number} width The width of the cube.
+ * @param {number} depth The depth of the cube.
+ * @param {number} height The height of the cube.
+ * @returns {object} The geometry object.
+ */
 function createCube(width, depth, height) {
     return { 
         vertices: new Float32Array([-width, -depth, -height, -width, -depth, height, -width, depth, -height, -width, depth, height, width, depth, -height, width, depth, height, width, -depth, -height, width, -depth, height]),
@@ -22,6 +42,11 @@ function createCube(width, depth, height) {
     };
 }
 
+/**
+ * Creates a unit cube geometry object.
+ * 
+ * @returns {object} The geometry object.
+ */
 function createUnitCube() {
     return createCube(1, 1, 1);
 }
@@ -37,6 +62,14 @@ function createIndexArray(size, biggestIndex) {
     }
 }
 
+/**
+ * Creates a sphere geometry object.
+ *
+ * @param {number} radius The radius of the sphere.
+ * @param {number} stacks The amount of layers from bottom to top.
+ * @param {number} slices The number of divisions around the Y axis.
+ * @returns {object} The geometry object.
+ */
 function createSphere(radius, stacks, slices) {
     const points = (stacks + 1) * (slices + 1),
         vertices = new Float32Array(points * 3),
@@ -98,10 +131,25 @@ function createSphere(radius, stacks, slices) {
     };
 }
 
+/**
+ * Creates a unit sphere geometry object.
+ * 
+ * @param {number} stacks The amount of layers from bottom to top.
+ * @param {number} slices The number of divisions around the Y axis.
+ * @returns {object} The geometry object.
+ */
 function createUnitSphere(stacks, slices) {
     return createSphere(1, stacks, slices);
 }
 
+/**
+ * Creates a cylinder geometry object.
+ *
+ * @param {number} radius The radius of the cylinder.
+ * @param {number} height The height of the cylinder.
+ * @param {number} slices The number of divisions around the Y axis.
+ * @returns {object} The geometry object.
+ */
 function createCylinder(radius, height, slices) {
     slices = Math.max(slices, 3);
 
@@ -191,11 +239,23 @@ function createCylinder(radius, height, slices) {
     };
 }
 
+/**
+ * Creates a unit cylinder geometry object.
+ * 
+ * @param {number} slices The number of divisions around the Y axis.
+ * @returns {object} The geometry object.
+ */
 function createUnitCylinder(slices) {
     return createCylinder(1, 1, slices);
 }
 
 // See http://gamedev.stackexchange.com/questions/24572/how-does-terrain-following-work-on-height-map/24574#24574
+/**
+ * Creates an height map geometry object.
+ *
+ * @param {Array.<number[]>} heightmap The height map as an array of arrays of numbers.
+ * @returns {object} The geometry object.
+ */
 function createHeightMap(heightmap) {
     let columns = heightmap[0].length,
         rows = heightmap.length,
