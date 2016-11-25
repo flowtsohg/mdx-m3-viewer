@@ -26,7 +26,8 @@ function ShaderUnit(gl, src, type) {
         let error = gl.getShaderInfoLog(id),
             lines = src.split("\n");
 
-        console.log(error);
+        console.error("Shader unit failed to compile!");
+        console.error(error);
 
         let regex = /:(\d+):/g,
             lineNumber = regex.exec(error);
@@ -117,6 +118,7 @@ function ShaderProgram(gl, vertexShader, fragmentShader) {
            
         this.loaded = true;
     } else {
-        console.warn(gl.getProgramInfoLog(id));
+        console.error("Shader program failed to link!");
+        console.error(gl.getProgramInfoLog(id));
     }
 }

@@ -8,6 +8,11 @@ const Mdx = {
         this.particleShader = env.webgl.createShaderProgram(env.sharedShaders.decodeFloat + MdxShaders.vs_particles, MdxShaders.ps_particles);
         //this.ribbonShader = env.webgl.createShaderProgram(MdxShaders.vs_ribbons, "#define STANDARD_PASS\n" + MdxShaders.ps_main);
 
+        // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
+        if (!this.standardShader.loaded || !this.particleShader.loaded) {
+            return false;
+        }
+
         const teamColors = [[255, 3, 3], [0, 66, 255], [28, 230, 185], [84, 0, 129], [255, 252, 1], [254, 138, 14], [32, 192, 0], [229, 91, 176], [149, 150, 151], [126, 191, 241], [16, 98, 70], [78, 42, 4], [40, 40, 40], [0, 0, 0]];
         
         this.teamColors = 14;
@@ -37,6 +42,7 @@ const Mdx = {
             37: "OutlandMushroomTree/MushroomTree"
         };
 
+        return true;
     },
 
     get extension() {

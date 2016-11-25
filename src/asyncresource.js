@@ -1,7 +1,8 @@
 /**
  * @class
- * @classdesc A common base class for almost all of the objects used by the viewer (including the viewer object itself).
- *            This object handles event dispatching when objects are being loaded.
+ * @classdesc A common base class for almost all of the objects used by the viewer.
+ *            This class handles the different states of loading, and the events sent as a result.
+ *            It also extends action queue, which is the class that gives every object the ability to support asyncronous actions.
  * @extends EventDispatcher
  * @extends ActionQueue
  * @param {ModelViewer} env The model viewer object this resource belongs to.
@@ -23,10 +24,6 @@ function AsyncResource(env) {
 AsyncResource.prototype = {
     update() {
 
-    },
-
-    loadstart() {
-        this.dispatchEvent({ type: "loadstart" });
     },
 
     load() {

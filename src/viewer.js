@@ -117,24 +117,23 @@ ModelViewer.prototype = {
                 // A map lookup would be preferred, but since this code essentially runs once at init, I prefer to not add an extra map.
                 for (let h of handlers.values()) {
                     if (handler === h) {
-                        this.dispatchEvent({ type: "error", error: "InvalidHandler", extra: "AlreadyAdded" });
+                        this.dispatchEvent({ type: "error", target: handler, error: "InvalidHandler", extra: "AlreadyAdded" });
                         return false;
                     }
                 }
 
-                // Run the global initialization function of the handler
-                handler.initialize(this);
-
-                // Register the handler for each of its file types
-                for (let extension of handler.extension.split("|")) {
-                    if (!handlers.has(extension)) {
+                // Run the global initialization function of the handler.
+                // If it returns true, to signifiy everything worked correctly, add the handler to the handlers map.
+                if (handler.initialize(this)) {
+                    // Register the handler for each of its file types
+                    for (let extension of handler.extension.split("|")) {
                         handlers.set(extension, handler);
-
-                        //console.debug("Registered handler:", extension);
                     }
-                }
 
-                return true;
+                    return true;
+                } else {
+                    this.dispatchEvent({ type: "error", error: "InvalidHandler", extra: "FailedToInitalize" });
+                }
             }
         } else {
             this.dispatchEvent({ type: "error", error: "InvalidHandler", extra: "UnknownHandlerType" });
@@ -246,7 +245,8 @@ ModelViewer.prototype = {
 
             this.registerEvents(resource);
 
-            resource.loadstart();
+            this.dispatchEvent({ type: "loadstart", target: resource });
+
             resource.load(src, handler.binaryFormat, serverFetch);
         }
 

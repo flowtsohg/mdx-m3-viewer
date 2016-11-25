@@ -14,6 +14,8 @@ const Mpq = {
         Mpq.FILE_ADJUSTED_ENCRYPTED = 0x00020000;
         Mpq.FILE_EXISTS = 0x80000000;
         Mpq.FILE_DELETED = 0x02000000;
+
+        return true;
     },
 
     get extension() {

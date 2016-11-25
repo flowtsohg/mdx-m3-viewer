@@ -3,6 +3,8 @@ const W3x = {
         env.addHandler(Mpq);
         env.addHandler(Mdx);
         env.addHandler(Geo);
+
+        return true;
     },
 
     get extension() {

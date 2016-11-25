@@ -54,6 +54,13 @@ const Geo = {
                 }
             `
         );
+
+        // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
+        if (!this.shader.loaded) {
+            return false;
+        }
+
+        return true;
     },
 
     get extension() {
