@@ -4,7 +4,7 @@ const TextureHandler = {
     },
 
     get Texture() {
-        throw "TextureHandler.Texture must be overriden!";
+        throw new Error("TextureHandler.Texture must be overriden!");
     }
 };
 

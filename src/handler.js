@@ -5,12 +5,12 @@ const Handler = {
     },
 
     get objectType() {
-        throw "Handler.objectType must be overriden!";
+        throw new Error("Handler.objectType must be overriden!");
     },
 
     // The file extension as a string, e.g. ".png", or if it handles multiple extensions - ".png|.jpg"
     get extension() {
-        throw "Handler.extension must be overriden!";
+        throw new Error("Handler.extension must be overriden!");
     },
 
     get binaryFormat() {

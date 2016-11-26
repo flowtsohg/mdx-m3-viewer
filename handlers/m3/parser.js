@@ -543,8 +543,6 @@ const M3Parser = (function () {
     };
 
     function Reference(reader, index) {
-        //console.assert(index, "Reference created with no index!")
-
         this.index = index;
         this.entries = readUint32(reader);
         this.id = readUint32(reader);
@@ -553,22 +551,14 @@ const M3Parser = (function () {
 
     Reference.prototype = {
         getAll() {
-            const id = this.id;
+            let id = this.id;
 
             // For empty references (e.g. Layer.imagePath)
             if (id === 0 || this.entries === 0) {
                 return [];
             }
 
-            const entry = this.index[id];
-
-            if (entry.entries.length !== this.entries) {
-                //console.log(this.entries, entry)
-                //console.trace();
-                //throw "Found an Index Entry with entries not equal to the entries of a reference pointing to it!";
-            }
-
-            return entry.entries;
+            return this.index[id].entries;
         },
 
         get() {
@@ -685,8 +675,7 @@ const M3Parser = (function () {
                     entrySize = entrySizes[version];
 
                 if (!entrySize) {
-                    console.trace();
-                    throw "1 Unsupported object with tag " + UintToTag(this.tag) + " and version " + version;
+                    throw new Error("Unsupported object version - tag " + UintToTag(this.tag) + " and version " + version);
                 }
 
                 for (let i = 0, l = entriesCount; i < l; i++) {
@@ -700,8 +689,7 @@ const M3Parser = (function () {
 
             seek(reader, readerOffset);
         } else {
-            console.trace();
-            throw "2 Unsupported object with tag " + UintToTag(this.tag) + " and version " + this.version;
+            throw new Error("Unsupported object tag - tag " + UintToTag(this.tag) + " and version " + this.version);
         }
     }
 

@@ -39,9 +39,8 @@ This handler handles MDX files, unsurprisingly. It also adds the SLK, BLP, and T
 viewer.addHandler(Mdx);
 ```
 
-Finally for the initial setup, the viewer's camera is right in the origin, so let's move it a little.
+Finally for the initial setup, the viewer's camera is right at the origin, so let's move it a little.
 ```javascript
-// Move away from the origin, so you'll actually be able to see stuff you load.
 viewer.camera.move([0, 0, -500);
 ```
 

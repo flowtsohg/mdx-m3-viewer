@@ -22,7 +22,7 @@ function WebGL(canvas) {
     }
 
     if (!gl) {
-        throw "WebGL: Failed to create a WebGL context!";
+        throw new Error("WebGL: Failed to create a WebGL context!");
     }
 
     function extensionToCamelCase(ext) {
@@ -42,15 +42,15 @@ function WebGL(canvas) {
     }
 
     if (!gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS)) {
-        throw "WebGL: No vertex shader texture support!";
+        throw new Error("WebGL: No vertex shader texture support!");
     }
 
     if (!extensions.textureFloat) {
-        throw "WebGL: No floating point texture support!";
+        throw new Error("WebGL: No floating point texture support!");
     }
 
     if (!extensions.instancedArrays) {
-        throw "WebGL: No instanced rendering support!";
+        throw new Error("WebGL: No instanced rendering support!");
     }
 
     if (!extensions.compressedTextureS3tc) {

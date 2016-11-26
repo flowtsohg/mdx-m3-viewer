@@ -4,7 +4,7 @@ const ModelHandler = {
     },
 
     get Model() {
-        throw "ModelHandler.Model must be overriden!";
+        throw new Error("ModelHandler.Model must be overriden!");
     },
 
     get ModelView() {

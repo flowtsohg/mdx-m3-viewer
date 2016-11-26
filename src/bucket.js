@@ -35,11 +35,11 @@ Bucket.prototype = {
     },
 
     update() {
-        //throw "Bucket.update must be overriden!";
+        
     },
 
     getSharedData(index) {
-        //throw "Bucket.getSharedData must be overriden!";
+        
     },
 
     isFull() {

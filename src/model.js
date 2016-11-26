@@ -21,7 +21,7 @@ Model.prototype = {
     },
 
     get Handler() {
-        throw "Model.Handler must be overriden!";
+        throw new Error("Model.Handler must be overriden!");
     },
 
     /**

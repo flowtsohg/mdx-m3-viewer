@@ -4,7 +4,7 @@ const FileHandler = {
     },
 
     get File() {
-        throw "FileHandler.File must be overriden!";
+        throw new Error("FileHandler.File must be overriden!");
     }
 };
 

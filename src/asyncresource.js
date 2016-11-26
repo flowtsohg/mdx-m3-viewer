@@ -27,7 +27,7 @@ AsyncResource.prototype = {
     },
 
     load() {
-        throw "AsyncResource.load must be overriden!";
+        throw new Error("AsyncResource.load must be overriden!");
     },
 
     onprogress(e) {
