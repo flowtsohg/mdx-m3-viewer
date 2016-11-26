@@ -109,30 +109,28 @@ ModelViewer.prototype = {
      */
     addHandler(handler) {
         if (handler) {
-            let handlers = this.handlers,
-                objectType = handler.objectType;
+            let objectType = handler.objectType;
 
             if (objectType === "modelhandler" || objectType === "texturehandler" || objectType === "filehandler") {
-                // Check to see if this handler was registered already.
-                // A map lookup would be preferred, but since this code essentially runs once at init, I prefer to not add an extra map.
-                for (let h of handlers.values()) {
-                    if (handler === h) {
-                        this.dispatchEvent({ type: "error", target: handler, error: "InvalidHandler", extra: "AlreadyAdded" });
-                        return false;
-                    }
-                }
+                let handlers = this.handlers,
+                    extensions = handler.extension.split("|");
 
-                // Run the global initialization function of the handler.
-                // If it returns true, to signifiy everything worked correctly, add the handler to the handlers map.
-                if (handler.initialize(this)) {
-                    // Register the handler for each of its file types
-                    for (let extension of handler.extension.split("|")) {
-                        handlers.set(extension, handler);
-                    }
+                // Check to see if this handler was added already.
+                if (!handlers.has(extensions[0])) {
+                    // Run the global initialization function of the handler.
+                    // If it returns true, to signifiy everything worked correctly, add the handler to the handlers map.
+                    if (handler.initialize(this)) {
+                        // Add each of the handler's extensions to the handler map.
+                        for (let extension of extension) {
+                            handlers.set(extension, handler);
+                        }
 
-                    return true;
+                        return true;
+                    } else {
+                        this.dispatchEvent({ type: "error", error: "InvalidHandler", extra: "FailedToInitalize" });
+                    }
                 } else {
-                    this.dispatchEvent({ type: "error", error: "InvalidHandler", extra: "FailedToInitalize" });
+                    this.dispatchEvent({ type: "error", target: handler, error: "InvalidHandler", extra: "AlreadyAdded" });
                 }
             }
         } else {
