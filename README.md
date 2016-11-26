@@ -15,8 +15,7 @@ Built-in handlers exist for the following formats:
 * PNG/JPG/GIF: supported as a wrapper around Image.
 * GEO (my own simple JS format used for simple geometric shapes): supported, note that this is solely a run-time handler.
 
-You can include all of the viewer files in the right order, which is seen in the examples folder.
-Another option is to run the given Ruby script `compiler.rb`. This script gives you compilation options if you open it with a text editor, and will result in `viewer.min.js` getting generated, if you tell it to minify. Running it without changes will generate the minified version including all built-in handlers.
+To get a single includeable file, run the given Ruby script in `compiler.rb`. This script gives you compilation options if you open it with a text editor, and will result in `viewer.min.js` getting generated, if you tell it to minify. Running it without changes will generate the minified version including all built-in handlers.
 
 ------------------------
 
@@ -76,7 +75,6 @@ Suppose we have the following directory structure for your website:
 
 ```
 index.html
-main.js
 Resources
 	model.mdx
 	texture.blp
@@ -85,7 +83,7 @@ Resources
 And suppose we know that `model.mdx` uses the texture `texture.blp`.
 
 Let's see how a possible path solver will look (again, there are endless ways to write solvers, it totally depends on you).
-I'll make it assume it's getting urls, and automatically append "Resources/" to sources, just so I'll have to type less in load calls.
+I'll make it assume it's getting urls, and automatically prepend "Resources/" to sources.
 
 ```javascript
 function myPathSolver(path) {
@@ -105,7 +103,7 @@ This function call results in the following chain of events:
 2. The viewer chooses the correct handler based on the extension - in this case the MDX handler - sees this is a server fetch, and uses the source for the fetch.
 3. A new MDX model is created and starts loading (at this point the viewer gets a `loadstart` event from the model).
 4. The model is returned.
-5. ...time passes until the model finishes loading...(meanwhile, the model sends `progress` events)
+5. ...time passes until the model finishes loading...(meanwhile, the model sends `progress` events, if it's a server fetch)
 6. The model is constructed successfuly, or not, and sends a `load` or `error` event respectively, followed by the `loadend` event.
 7. In the case of a MDX model, the previous step will also cause it to load its textures, in this case `texture.blp`.
 8. myPathSolver is called with `texture.blp`, which returns `["Resources/texture.blp", ".blp", true]`, and we loop back to step 2, but with a texture this time.
@@ -123,7 +121,8 @@ let instance = model.addInstance();
 This instance can be rendered, moved, rotated, scaled, parented to other instances or nodes, play animations, and so on.
 
 A big design part of this viewer is that it tries to allow you to write as linear code as you can.
-That is, even though this code heavily relies on asyncronous actions (and not only in server fetches, you'd be surprised), it tries to hide this fact, and make the code feel syncronous to the user.
+That is, even though this code heavily relies on asyncronous actions (and not only in server fetches, you'd be surprised), it tries to hide this fact, and make the code feel syncronous to the client.
+
 For example, let's say we want the instance above to play an animation, assuming its model has any.
 
 ```javascript
@@ -132,13 +131,13 @@ instance.setSequence(0); // first animation, -1 == no animation.
 
 This should work, right? You have an instance, and you call its method, nothing special.
 Except, this method needs to get animation data from the model, which, if all of this code is put together, is not loaded yet! (even if you run locally, the file fetch will finish after this line).
-In fact, even upon constructing the instance itself, using `model.addInstance()` is indeed asyncronous - you can do that immediately, without waiting for the model to load.
+In fact, even constructing the instance itself with `model.addInstance()` is an asyncronous action, in the sense that the model doesn't need to be loaded for instances of it to exist (and for you to be able to manipulate them!).
 This code works in a seeminly syncronous way, while it uses asyncronous action queues, to allow this illusion.
 Generally speaking, whenever you want to set/change something, you will be able to do it with straightforward code that looks syncronous, whether it really is or not behind the scenes.
 
 If you want to get any information from the model, like a list of animations, or textures, then the model obviously needs to exist before.
-For this reason, there are two ways to do things when a model finishes loading.
-First of all, as the next section explains (and as is mentioned above), every resource uses event dispatching, much like regular asyncronous JS objects (Image, XMLHttpRequest, and so on).
+For this reason, there are two ways to react to resources get loaded.
+First of all, as the next section explains (and as is mentioned above shortly), every resource uses event dispatching, much like regular asyncronous JS objects (Image, XMLHttpRequest, and so on).
 In addition, every resource has a `whenLoaded(callback)` method that calls `callback` when the resource loads, or immediately if it was already loaded.
 The viewer itself has `whenAllLoaded(resources, callback)`, which is the same, but waits for multiple resources in an array to load.
 
@@ -146,7 +145,7 @@ The viewer itself has `whenAllLoaded(resources, callback)`, which is the same, b
 
 #### Events
 
-Resources (including the viewer) can send events very similar to those of native JS objects, with the same API:
+Resources, including the viewer, can send events, very similar to those of native JS objects, and with the same API:
 
 ```
 resource.addEventListener(type, listener)
@@ -155,7 +154,7 @@ resource.dispatchEvent(event)
 ```
 
 When an event listener is attached to a specific resource, such as a model, it only gets events from that object.
-If however a listener is attached to the viewer itself, it will receive events for all resources.
+If, however, a listener is attached to the viewer itself, it will receive events for all resources.
 
 Note that attaching a `loadstart` listener to a resource that is not the viewer is pointless, since the listener is registered after the resource started loading.
 
@@ -168,20 +167,21 @@ The type can be one of:
 * `loadend` - sent when a resource finishes loading, either because of an error, or because it loaded successfully.
 * `delete` - a resource was deleted.
 
-The target property is set to the object that the event is related to. In the case of the render event, this is the viewer itself.
+The event object that a listener recieves has the same structure as JS events.
+For example, for the load call above, the following is how a `progress` event could look: `{type: "progress", target: MdxModel, loaded: 101, total: 9001, lengthComputable: true}`, `MdxModel` being our `model` variable in this case. That is, `e.target === model`.
+In the case of the render event, `e.target === viewer` (in other words, only the viewer sends `render`!)
 
 Errors might occur, most of the time because your path solvers aren't correct, but there are other causes.
 When a resource gets loaded, the handler can choose to send errors if something goes wrong.
-The built-in handlers try to do this in a consistent way.
-These are the errors they use:
-* InvalidHandler - sent by the viewer when adding an invalid handler (either its type is unknown, or it was already added).
-* MissingHandler - sent by the viewer if you try to load some resource with an unknown extension (did you forget to register the handler?).
+These are the errors the code uses:
+* InvalidHandler - sent by the viewer when adding an invalid handler - either its type is unknown, or it was already added, or its `initialize()` function failed (e.g. a shader failed to compile).
+* MissingHandler - sent by the viewer if you try to load some resource with an unknown extension (did you forget to add the handler?).
 * HttpError - sent by handlers when a server fetch failed.
 * InvalidSource - sent by handlers when they think your source is not valid, such as trying to load a file as MDX, but it's not really an MDX file.
 * UnsupportedFeature - sent by handlers when the source is valid, but a feature in the format isn't supported, such as DDS textures not supporting encodings that are not DXT1/3/5.
 
 Together with these error strings (in the `error` property naturally), the handlers can choose to add more information in the `extra` property.
-For example, when you get an MissingHandler error because you tried loading an unknown extension, the `extra` property will hold the result from your path solver.
+For example, when you get a MissingHandler error because you tried loading an unknown extension, the `extra` property will hold the result from your path solver.
 Another example - when an HttpError occurs, `extra` will contain the XMLHttpRequest object of the fetch.
 You can choose to respond to errors (or not) however you want.
 
