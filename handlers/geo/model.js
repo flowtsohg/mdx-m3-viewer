@@ -101,7 +101,7 @@ GeometryModel.prototype = {
     },
 
     render(bucket) {
-        const webgl = this.env.webgl,
+        let webgl = this.env.webgl,
             gl = this.env.gl,
             instancedArrays = webgl.extensions.instancedArrays,
             shader = Geo.shader,
@@ -134,18 +134,6 @@ GeometryModel.prototype = {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.uvBuffer);
         gl.vertexAttribPointer(attribs.get("a_uv"), 2, gl.FLOAT, false, 8, 0);
 
-        // Colors
-        let colorAttrib = attribs.get("a_color");
-        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.colorBuffer);
-        gl.vertexAttribPointer(colorAttrib, 3, gl.UNSIGNED_BYTE, true, 3, 0);
-        instancedArrays.vertexAttribDivisorANGLE(colorAttrib, 1);
-
-        // Edge colors
-        let edgeColorAttrib = attribs.get("a_edgeColor");
-        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.edgeColorBuffer);
-        gl.vertexAttribPointer(edgeColorAttrib, 3, gl.UNSIGNED_BYTE, true, 3, 0);
-        instancedArrays.vertexAttribDivisorANGLE(edgeColorAttrib, 1);
-
         if (this.twoSided) {
             gl.disable(gl.CULL_FACE);
         } else {
@@ -173,6 +161,9 @@ GeometryModel.prototype = {
 
         gl.uniform1i(uniforms.get("u_texture"), 0);
 
+        let colorAttrib = attribs.get("a_color");
+        instancedArrays.vertexAttribDivisorANGLE(colorAttrib, 1);
+
         if (this.renderMode === 0 || this.renderMode === 2) {
             webgl.bindTexture(bucket.modelView.texture || this.texture, 0);
 
@@ -182,8 +173,11 @@ GeometryModel.prototype = {
             gl.uniform1f(uniforms.get("u_isBGR"), this.isBGR);
             gl.uniform1f(uniforms.get("u_alphaMod"), this.alpha)
 
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.faceBuffer);
+            // Colors
+            gl.bindBuffer(gl.ARRAY_BUFFER, bucket.colorBuffer);
+            gl.vertexAttribPointer(colorAttrib, 3, gl.UNSIGNED_BYTE, true, 3, 0);
 
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.faceBuffer);
             instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.faceArray.length, this.faceIndexType, 0, instances.length);
         }
 
@@ -192,15 +186,17 @@ GeometryModel.prototype = {
 
             gl.uniform1f(uniforms.get("u_isEdge"), 1);
 
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
+            // Edge colors
+            gl.bindBuffer(gl.ARRAY_BUFFER, bucket.edgeColorBuffer);
+            gl.vertexAttribPointer(colorAttrib, 3, gl.UNSIGNED_BYTE, true, 3, 0);
 
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
             instancedArrays.drawElementsInstancedANGLE(gl.LINES, this.edgeArray.length, this.edgeIndexType, 0, instances.length);
         }
 
         /// Reset the attributes to play nice with other handlers
         instancedArrays.vertexAttribDivisorANGLE(instanceIdAttrib, 0);
         instancedArrays.vertexAttribDivisorANGLE(colorAttrib, 0);
-        instancedArrays.vertexAttribDivisorANGLE(edgeColorAttrib, 0);
     },
 
     renderOpaque(bucket) {
