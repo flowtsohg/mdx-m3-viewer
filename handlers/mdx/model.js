@@ -382,7 +382,9 @@ MdxModel.prototype = {
             }
             
             this.env.whenAllLoaded(textures, _ => {
-                if (!this.textureAtlases[hash]) {
+                let textureAtlases = this.textureAtlases;
+
+                if (!textureAtlases[hash]) {
                     var images = [];
 
                     for (var i = 0, l = textures.length; i < l; i++) {
@@ -393,16 +395,11 @@ MdxModel.prototype = {
 
                     var texture = this.env.load(atlasData.texture);
 
-                    this.textureAtlases[hash] = { textureId: this.textures.length, columns: atlasData.columns, rows: atlasData.rows };
+                    textureAtlases[hash] = { textureId: this.textures.length, columns: atlasData.columns, rows: atlasData.rows };
                     this.textures.push(texture);
                 }
 
-                var atlas = this.textureAtlases[hash];
-
-                layer.textureId = atlas.textureId;
-                layer.uvDivisor[0] = atlas.columns;
-                layer.uvDivisor[1] = atlas.rows;
-                layer.isTextureAnim = true;
+                layer.setAtlas(textureAtlases[hash]);
             });
         }
     },
@@ -513,14 +510,6 @@ MdxModel.prototype = {
 
         this.textures.push(this.env.load(path, pathSolver));
         this.texturePaths.push(normalizePath(path));
-    },
-
-    replaceTextureById(id, newTexture) {
-        this.views[0].replaceTextureById(id, newTexture);
-    },
-
-    replaceTextureByPath(path, newTexture) {
-        this.views[0].replaceTextureByPath(path, newTexture);
     },
 
     calculateExtent() {
@@ -646,9 +635,9 @@ MdxModel.prototype = {
     },
 
     unbind() {
-        const gl = this.gl;
-        const instancedArrays = gl.extensions.instancedArrays;
-        const attribs = this.shader.attribs;
+        let gl = this.gl.
+            instancedArrays = gl.extensions.instancedArrays.
+            attribs = this.shader.attribs;
 
         // Reset gl values to default, to play nice with other handlers
         gl.depthMask(1);
@@ -691,6 +680,9 @@ MdxModel.prototype = {
             teamGlowValue = 1;
         // Normal texture
         } else {
+            // Does this layer use texture animations with multiple textures?
+            gl.uniform1f(uniforms.get("u_isTextureAnim"), layer.isTextureAnim);
+
             this.bindTexture(layer.textureId, bucket.modelView);
         }
         
@@ -719,11 +711,7 @@ MdxModel.prototype = {
         // Used for layers that use image animations, in order to scale the coordinates to match the generated texture atlas
         gl.uniform2f(uniforms.get("u_uvScale"), 1 / layer.uvDivisor[0], 1 / layer.uvDivisor[1]);
 
-        // Does this layer use texture animations with multiple textures?
-        gl.uniform1f(uniforms.get("u_isTextureAnim"), layer.isTextureAnim);
-
         gl.bindBuffer(gl.ARRAY_BUFFER, this.__webglArrayBuffer);
-
         shallowGeoset.bind(shader, layer.coordId);
 
         shallowGeoset.render(bucket.instances.length);

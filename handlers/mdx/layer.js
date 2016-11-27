@@ -117,6 +117,12 @@ MdxLayer.prototype = {
         }
     },
 
+    setAtlas(atlas) {
+        this.textureId = atlas.textureId;
+        this.uvDivisor.set([atlas.columns, atlas.rows]);
+        this.isTextureAnim = true;
+    },
+
     getAllTextureIds() {
         var kmtf = this.sd.getKMTF();
 
