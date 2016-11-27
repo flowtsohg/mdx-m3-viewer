@@ -55,11 +55,10 @@ function ModelViewer(canvas) {
         "boneTexture": `
             uniform sampler2D u_boneMap;
             uniform float u_vector_size;
-            uniform float u_matrix_size;
             uniform float u_row_size;
 
             mat4 boneAtIndex(float column, float row) {
-                float offset = column * u_matrix_size,
+                float offset = column * u_vector_size * 4.0,
                 rowOffset = row * u_row_size;
 
                 return mat4(texture2D(u_boneMap, vec2(offset, rowOffset)), texture2D(u_boneMap, vec2(offset + u_vector_size, rowOffset)), texture2D(u_boneMap, vec2(offset + u_vector_size * 2.0, rowOffset)), texture2D(u_boneMap, vec2(offset + u_vector_size * 3.0, rowOffset)));

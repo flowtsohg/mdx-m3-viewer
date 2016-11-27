@@ -25,7 +25,6 @@ function MdxBucket(modelView) {
     this.boneTextureWidth = numberOfBones * 4;
     this.boneTextureHeight = this.size;
     this.vectorSize = 1 / this.boneTextureWidth;
-    this.matrixSize = 4 / this.boneTextureWidth;
     this.rowSize = 1 / this.boneTextureHeight;
 
     gl.activeTexture(gl.TEXTURE15);

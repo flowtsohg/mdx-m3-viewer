@@ -282,7 +282,6 @@ M3Model.prototype = {
         gl.bindTexture(gl.TEXTURE_2D, bucket.boneTexture);
         gl.uniform1i(uniforms.get("u_boneMap"), 15);
         gl.uniform1f(uniforms.get("u_vector_size"), bucket.vectorSize);
-        gl.uniform1f(uniforms.get("u_matrix_size"), bucket.matrixSize);
         gl.uniform1f(uniforms.get("u_row_size"), bucket.rowSize);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
