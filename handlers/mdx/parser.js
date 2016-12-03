@@ -208,16 +208,7 @@ let MdxParser = (function () {
         this.path = read(reader, 260);
         this.flags = readUint32(reader);
     }
-    /*
-    // Note: this chunk was reverse engineered from the game executable itself, but was never seen in any resource
-    function SoundTrack(reader, index) {
-        this.index = index;
-        this.path = read(reader, 260);
-        this.volume = readFloat32(reader);
-        this.pitch = readFloat32(reader);
-        this.flags = readUint32(reader);
-    }
-    */
+    
     function Layer(reader, index) {
         this.index = index;
         this.size = readUint32(reader);
@@ -460,6 +451,17 @@ let MdxParser = (function () {
 
         this.size = size;
     }
+
+    /*
+    // Note: this chunk was reverse engineered from the game executable itself, but was never seen in any resource
+    function SoundTrack(reader, index) {
+        this.index = index;
+        this.path = read(reader, 260);
+        this.volume = readFloat32(reader);
+        this.pitch = readFloat32(reader);
+        this.flags = readUint32(reader);
+    }
+    */
 
     // Chunks that have elements with known sizes
     var tagToKnownChunk = {

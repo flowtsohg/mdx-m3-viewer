@@ -211,6 +211,11 @@ MdxModel.prototype = {
             warnings = [],
             chunks = this.parser.chunks;
 
+        // Found in game.dll: "File contains no geosets, lights, sound emitters, attachments, cameras, particle emitters, or ribbon emitters."
+        if (!chunks.GEOS && !chunks.LITE /* && !chunks.SNDS */ && !chunks.ATCH && !chunks.CAMS && !chunks.PREM && !chunks.PRE2 && !chunks.RIBB) {
+            errors.push("The model has no geosets, lights, attachments, cameras, particle emitters, or ribbon emitters");
+        }
+
         // Sequences
         if (chunks.SEQS) {
             let sequences = chunks.SEQS.elements,

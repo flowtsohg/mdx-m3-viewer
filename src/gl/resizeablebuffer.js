@@ -2,16 +2,17 @@
  * @class
  * @classdesc A class that emulates a resizeable WebGL buffer.
  * @param {WebGLRenderingContext} gl The WebGL context.
+ * @param {?number} size The initial buffer size. Defaults to 32.
  */
-function ResizeableBuffer(gl) {
-    const arraybuffer = new ArrayBuffer(32); // Arbitrary initial size
+function ResizeableBuffer(gl, size) {
+    let buffer = new ArrayBuffer(size || 32); // Arbitrary default size
 
     /** @member {WebGLRenderingContext} */
     this.gl = gl;
     /** @member {Uint8Array} */
-    this.uint8array = new Uint8Array(arraybuffer);
+    this.uint8array = new Uint8Array(buffer);
     /** @member {Float32Array} */
-    this.float32array = new Float32Array(arraybuffer);
+    this.float32array = new Float32Array(buffer);
     /** @member {WebGLBuffer} */
     this.buffer = gl.createBuffer();
     
@@ -27,11 +28,12 @@ ResizeableBuffer.prototype = {
     /**
      * @method
      * @desc Binds this buffer to the array buffer target.
+     * @param {?number} target The WebGL buffer target enum. Defaults to GL_ARRAY_BUFFER.
      */
-    bind() {
-        const gl = this.gl;
+    bind(target) {
+        let gl = this.gl;
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+        gl.bindBuffer(target || gl.ARRAY_BUFFER, this.buffer);
     },
 
     /**

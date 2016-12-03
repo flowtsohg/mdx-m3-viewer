@@ -8,14 +8,31 @@ Built-in handlers exist for the following formats:
 * M3 (Starcraft 2 model): partial support, file format not quite reverse engineered yet.
 * W3M/W3X (Warcraft 3 map): partial support, will grow in future.
 * BLP1 (Warcraft 3 texture): extensive support, almost everything should work.
-* MPQ1 (Warcraft 3 archive): partial support, only inflate support.
+* MPQ1 (Warcraft 3 archive): partial support, only inflate (which accounts for all models, textures, and table files, but no sound files or weird things).
 * TGA (image): partial support, only simple 24bit images.
 * SLK (table data): partial support, but will probably keep working for Warcraft 3 files.
 * DDS (compressed texture, used by Starcraft 2): partial support, should work for every Starcraft 2 texture, and probably for most DDS files in existence (DXT1/3/5).
 * PNG/JPG/GIF: supported as a wrapper around Image.
-* GEO (my own simple JS format used for simple geometric shapes): supported, note that this is solely a run-time handler.
+* GEO (my own simple JS format used for simple geometric shapes): note that this is solely a run-time handler.
 
 To get a single includeable file, run the given Ruby script in `compiler.rb`. This script gives you compilation options if you open it with a text editor, and will result in `viewer.min.js` getting generated, if you tell it to minify. Running it without changes will generate the minified version including all built-in handlers.
+
+------------------------
+
+#### Getting started
+
+The examples directory has an example with partially working OBJ model and BMP texture handlers, I highly suggest looking at it first.
+
+Probably the easiest way to get it running is by downloading Python.
+Once you have it, run its built-in HTTP server from the main viewer directory.
+
+Python 2.x: python -m SimpleHTTPServer 80
+
+Python 3.x: python -m http.server 80
+
+Next, go to your browser, and open `http://localhost/examples/`.
+
+If you don't want to run an HTTP server, you can use the file:// notation for local files, but note that you must enable local files in your browser settings (otherwise CORS will block fetches). You really should run a server though.
 
 ------------------------
 
@@ -70,7 +87,7 @@ Finally, `isServerFetch` is a boolean, and will determine if this is an in-memor
 
 So let's use an example.
 
-Suppose we have the following directory structure for your website:
+Suppose we have the following directory structure:
 
 ```
 index.html
@@ -90,7 +107,7 @@ function myPathSolver(path) {
 }
 ```
 
-Now let's try to load it.
+Now let's try to load the model.
 
 ```javascript
 let model = viewer.load("model.mdx", myPathSolver);
@@ -111,7 +128,7 @@ The path solver does two jobs here. First of all, it made the load calls shorter
 Generally speaking an identity solver is what you'll need (as in, it returns the source assuming its an url, its extesnion, and true for server fetch), but there are cases where this is not the case, such as loading custom user-made models, handling both in-memory and server-fetches in the same solver (used by the W3X handler), etc.
 
 So, we now have a model, but a model isn't something you can see. What you see in a scene are instances of a model.
-Creating instances is as simple as this:
+Creating a new instance is as simple as this:
 
 ```javascript
 let instance = model.addInstance();
@@ -135,8 +152,8 @@ This code works in a seeminly syncronous way, while it uses asyncronous action q
 Generally speaking, whenever you want to set/change something, you will be able to do it with straightforward code that looks syncronous, whether it really is or not behind the scenes.
 
 If you want to get any information from the model, like a list of animations, or textures, then the model obviously needs to exist before.
-For this reason, there are two ways to react to resources get loaded.
-First of all, as the next section explains (and as is mentioned above shortly), every resource uses event dispatching, much like regular asyncronous JS objects (Image, XMLHttpRequest, and so on).
+For this reason, there are two ways to react to resources being loaded.
+First of all, as the next section explains (and as is mentioned above), every resource uses event dispatching, much like regular asyncronous JS objects (Image, XMLHttpRequest, and so on).
 In addition, every resource has a `whenLoaded(callback)` method that calls `callback` when the resource loads, or immediately if it was already loaded.
 The viewer itself has `whenAllLoaded(resources, callback)`, which is the same, but waits for multiple resources in an array to load.
 
@@ -168,33 +185,17 @@ The type can be one of:
 
 The event object that a listener recieves has the same structure as JS events.
 For example, for the load call above, the following is how a `progress` event could look: `{type: "progress", target: MdxModel, loaded: 101, total: 9001, lengthComputable: true}`, `MdxModel` being our `model` variable in this case. That is, `e.target === model`.
-In the case of the render event, `e.target === viewer` (in other words, only the viewer sends `render`!)
+In the case of the render event, `e.target === viewer`.
 
-Errors might occur, most of the time because your path solvers aren't correct, but there are other causes.
-When a resource gets loaded, the handler can choose to send errors if something goes wrong.
+Errors might occur - most of the time because your path solvers aren't correct, but there are other causes.
 These are the errors the code uses:
-* InvalidHandler - sent by the viewer when adding an invalid handler - either its type is unknown, or it was already added, or its `initialize()` function failed (e.g. a shader failed to compile).
+* InvalidHandler - sent by the viewer when adding an invalid handler - either its type is unknown, or its `initialize()` function failed (e.g. a shader failed to compile).
 * MissingHandler - sent by the viewer if you try to load some resource with an unknown extension (did you forget to add the handler?).
 * HttpError - sent by handlers when a server fetch failed.
 * InvalidSource - sent by handlers when they think your source is not valid, such as trying to load a file as MDX, but it's not really an MDX file.
 * UnsupportedFeature - sent by handlers when the source is valid, but a feature in the format isn't supported, such as DDS textures not supporting encodings that are not DXT1/3/5.
 
-Together with these error strings (in the `error` property naturally), the handlers can choose to add more information in the `extra` property.
+Together with these error strings (in the `error` property naturally), more information can be added in the `extra` property.
 For example, when you get a MissingHandler error because you tried loading an unknown extension, the `extra` property will hold the result from your path solver.
 Another example - when an HttpError occurs, `extra` will contain the XMLHttpRequest object of the fetch.
 You can choose to respond to errors (or not) however you want.
-
-------------------------
-
-#### Getting started
-
-The examples directory has an example with partially working OBJ model and BMP texture handlers, I highly suggest looking at it first.
-
-Probably the easiest way to get it running is by downloading Python.
-Once you have it, run its built-in HTTP server from the main viewer directory.
-
-Python 2.x: python -m SimpleHTTPServer 80
-
-Python 3.x: python -m http.server 80
-
-Next, go to your browser, and open `http://localhost/examples/`.

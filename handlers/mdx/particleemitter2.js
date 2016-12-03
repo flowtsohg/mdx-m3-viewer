@@ -47,6 +47,39 @@ function MdxParticleEmitter2(emitter, model) {
     this.dimensions = [this.columns, this.rows];
     
     this.currentEmission = 0;
+
+    let blendSrc, blendDst;
+
+    switch (this.filterMode) {
+        // Blend
+        case 0:
+            blendSrc = gl.SRC_ALPHA;
+            blendDst = gl.ONE_MINUS_SRC_ALPHA;
+            break;
+            // Additive
+        case 1:
+            blendSrc = gl.SRC_ALPHA;
+            blendDst = gl.ONE;
+            break;
+            // Modulate
+        case 2:
+            blendSrc = gl.ZERO;
+            blendDst = gl.SRC_COLOR;
+            break;
+            // Modulate 2X
+        case 3:
+            blendSrc = gl.DEST_COLOR;
+            blendDst = gl.SRC_COLOR;
+            break;
+            // Add Alpha
+        case 4:
+            blendSrc = gl.SRC_ALPHA;
+            blendDst = gl.ONE;
+            break;
+    }
+
+    this.blendSrc = blendSrc;
+    this.blendDst = blendDst;
 }
 
 MdxParticleEmitter2.prototype = {
@@ -293,29 +326,7 @@ MdxParticleEmitter2.prototype = {
             gl.enable(gl.DEPTH_TEST);
             gl.depthMask(0);
             gl.enable(gl.BLEND);
-
-            switch (this.filterMode) {
-                // Blend
-                case 0:
-                    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-                    break;
-                    // Additive
-                case 1:
-                    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-                    break;
-                    // Modulate
-                case 2:
-                    gl.blendFunc(gl.ZERO, gl.SRC_COLOR);
-                    break;
-                    // Modulate 2X
-                case 3:
-                    gl.blendFunc(gl.DEST_COLOR, gl.SRC_COLOR);
-                    break;
-                    // Add Alpha
-                case 4:
-                    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-                    break;
-            }
+            gl.blendFunc(this.blendSrc, this.blendDst);
 
             this.updateHW();
 
@@ -326,8 +337,11 @@ MdxParticleEmitter2.prototype = {
             /// NOTE TO SELF: ALL OF THE RENDERING CODE BELOW NEEDS TO BE IN A PER-MODEL-VIEW LOOP
             /// That means:
             ///     Layer 1: Model emitter = Parser emiter (metadata)
+            ///              Can run the rendering-related code above if I can make it in a non-messy way. No big deal if it runs per view.
             ///     Layer 2: Particle2Emitter in ModelView
+            ///              Runs the code below, since each view has its own texture, and thus requires a separate draw call.
             ///     Layer 3: Particle2EmitterView in ModelInstance
+            ///              Emits particles via the emitters as usual.
 
 
             this.model.bindTexture(this.textureId, modelView);

@@ -128,12 +128,10 @@ ModelViewer.prototype = {
                     } else {
                         this.dispatchEvent({ type: "error", error: "InvalidHandler", extra: "FailedToInitalize" });
                     }
-                } else {
-                    this.dispatchEvent({ type: "error", target: handler, error: "InvalidHandler", extra: "AlreadyAdded" });
                 }
+            } else {
+                this.dispatchEvent({ type: "error", error: "InvalidHandler", extra: "UnknownHandlerType" });
             }
-        } else {
-            this.dispatchEvent({ type: "error", error: "InvalidHandler", extra: "UnknownHandlerType" });
         }
 
         return false;
