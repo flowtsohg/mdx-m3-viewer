@@ -597,7 +597,7 @@ MdxModel.prototype = {
         }
     },
 
-    bind(bucket) {
+    bindBucket(bucket) {
         const webgl = this.env.webgl;
         var gl = this.gl;
 
@@ -640,8 +640,8 @@ MdxModel.prototype = {
     },
 
     unbind() {
-        let gl = this.gl.
-            instancedArrays = gl.extensions.instancedArrays.
+        let gl = this.gl,
+            instancedArrays = gl.extensions.instancedArrays,
             attribs = this.shader.attribs;
 
         // Reset gl values to default, to play nice with other handlers
@@ -726,7 +726,7 @@ MdxModel.prototype = {
         if (batches && batches.length) {
             const updateBatches = bucket.updateBatches;
 
-            this.bind(bucket);
+            this.bindBucket(bucket);
 
             for (let i = 0, l = batches.length; i < l; i++) {
                 const batch = batches[i];

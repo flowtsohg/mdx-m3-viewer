@@ -120,7 +120,7 @@ ModelViewer.prototype = {
                     // If it returns true, to signifiy everything worked correctly, add the handler to the handlers map.
                     if (handler.initialize(this)) {
                         // Add each of the handler's extensions to the handler map.
-                        for (let extension of extension) {
+                        for (let extension of extensions) {
                             handlers.set(extension, handler);
                         }
 

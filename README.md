@@ -77,13 +77,15 @@ If an array is given, an array will be returned, with the same ordering.
 The source here can be anything - a string, an object, a typed array, whatever - it highly depends on your code, and on the path solver.
 Generally speaking though, the source will probably be a string containing an url.
 
-The path solver is a function with this signature: `function(src) => [finalSrc, srcExtension, isServerFetch]`.
-`src` is the source (or iteratively an array of sources) you gave the load call.
+The path solver is a function with this signature: `function(src) => [finalSrc, srcExtension, isServerFetch]`, where:
+* `src` is the source (or iteratively an array of sources) you gave the load call.
 It returns an array with three indices.
-`finalSrc` is the actual source to load from. Again, this highly depends on your code.
-`srcExtension` is the extension of the resource you are loading, which selects the handler to use. Generally speaking, this will probably usually be the extension of the source, in the case of url strings.
-The extension is given in a ".ext" format. That is, a string that contains a dot, followed by the extension.
-Finally, `isServerFetch` is a boolean, and will determine if this is an in-memory load, or a server fetch. This will usually be true.
+* `finalSrc` is the actual source to load from. If this is a server fetch, then this is a path string to fetch from.
+If it's an in-memory load, it depends on what each handler needs.
+* `srcExtension` is the extension of the resource you are loading, which selects the handler to use. The extension is given in a ".ext" format.
+That is, a string that contains a dot, followed by the extension.
+Generally speaking, this will usually be the extension of a path string.
+* `isServerFetch` is a boolean, and will determine if this is an in-memory load, or a server fetch. This will usually be true.
 
 So let's use an example.
 
@@ -98,7 +100,7 @@ Resources
 
 And suppose we know that `model.mdx` uses the texture `texture.blp`.
 
-Let's see how a possible path solver will look (again, there are endless ways to write solvers, it totally depends on you).
+Let's see how a possible path solver could look.
 I'll make it assume it's getting urls, and automatically prepend "Resources/" to sources.
 
 ```javascript
@@ -125,7 +127,8 @@ This function call results in the following chain of events:
 8. myPathSolver is called with `texture.blp`, which returns `["Resources/texture.blp", ".blp", true]`, and we loop back to step 2, but with a texture this time.
 
 The path solver does two jobs here. First of all, it made the load calls shorter by avoiding to type "Resources/". But the real deal, is that it allows to selectively override sources, and change them in interesting ways.
-Generally speaking an identity solver is what you'll need (as in, it returns the source assuming its an url, its extesnion, and true for server fetch), but there are cases where this is not the case, such as loading custom user-made models, handling both in-memory and server-fetches in the same solver (used by the W3X handler), etc.
+In this case, it allowed `model.mdx` to load `texture.blp`, wnich is a relative path. If the path would have been given directly, then the file wouldn't have been found.
+Generally speaking, an identity solver is what you'll need (as in, it returns the source assuming its an url but prepended by some directory, its extension, and true for server fetch), but there are cases where this is not the case, such as loading custom user-made models, handling both in-memory and server-fetches in the same solver (used by the W3X handler), etc.
 
 So, we now have a model, but a model isn't something you can see. What you see in a scene are instances of a model.
 Creating a new instance is as simple as this:
@@ -136,6 +139,10 @@ let instance = model.addInstance();
 
 This instance can be rendered, moved, rotated, scaled, parented to other instances or nodes, play animations, and so on.
 
+------------------------
+
+#### Async everywhere I go
+
 A big design part of this viewer is that it tries to allow you to write as linear code as you can.
 That is, even though this code heavily relies on asyncronous actions (and not only in server fetches, you'd be surprised), it tries to hide this fact, and make the code feel syncronous to the client.
 
@@ -145,10 +152,8 @@ For example, let's say we want the instance above to play an animation, assuming
 instance.setSequence(0); // first animation, -1 == no animation.
 ```
 
-This should work, right? You have an instance, and you call its method, nothing special.
-Except, this method needs to get animation data from the model, which, if all of this code is put together, is not loaded yet! (even if you run locally, the file fetch will finish after this line).
-In fact, even constructing the instance itself with `model.addInstance()` is an asyncronous action, in the sense that the model doesn't need to be loaded for instances of it to exist (and for you to be able to manipulate them!).
-This code works in a seeminly syncronous way, while it uses asyncronous action queues, to allow this illusion.
+This method needs to get animation data from the model, which, if all of this code is put together, is not loaded yet! (even if you run locally, the file fetch will finish after this line).
+In fact, even constructing the instance itself with `model.addInstance()` is an asyncronous action - the model doesn't need to be loaded for instances of it to exist, and for you to be able to manipulate them.
 Generally speaking, whenever you want to set/change something, you will be able to do it with straightforward code that looks syncronous, whether it really is or not behind the scenes.
 
 If you want to get any information from the model, like a list of animations, or textures, then the model obviously needs to exist before.
