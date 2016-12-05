@@ -65,8 +65,7 @@ const MdxShaders = {
         uniform sampler2D u_texture;
         uniform bool u_alphaTest;
         uniform vec4 u_modifier;
-        uniform bool u_isTeamColor;
-        uniform bool u_isTeamGlow;
+        uniform float u_colorMode;
 
         varying vec3 v_normal;
         varying vec2 v_uv;
@@ -78,9 +77,9 @@ const MdxShaders = {
             #ifdef STANDARD_PASS
 	        vec4 texel;
 
-	        if (u_isTeamColor) {
+	        if (u_colorMode == 1.0) {
 		        texel = vec4(v_teamColor, 1.0);
-            } else if (u_isTeamGlow) {
+            } else if (u_colorMode == 2.0) {
 		        // Change the coordinate from [0, 1] to [-1, 1]
 		        vec2 coord = (v_uv -0.5) * 2.0;
 

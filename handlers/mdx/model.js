@@ -660,29 +660,24 @@ MdxModel.prototype = {
     },
 
     renderBatch(bucket, batch) {
-        var gl = this.gl;
-        const instancedArrays = gl.extensions.instancedArrays;
-        var shader = this.shader;
-        const attribs = this.shader.attribs;
-        const uniforms = shader.uniforms;
-        var layer = batch.layer;
-        var shallowGeoset = this.shallowGeosets[batch.geoset.index];
+        let gl = this.gl,
+            instancedArrays = gl.extensions.instancedArrays,
+            shader = this.shader,
+            attribs = this.shader.attribs,
+            uniforms = shader.uniforms,
+            layer = batch.layer,
+            shallowGeoset = this.shallowGeosets[batch.geoset.index],
+            replaceable = this.replaceables[layer.textureId],
+            colorMode = 0;
 
         layer.bind(shader);
 
-        var replaceable = this.replaceables[layer.textureId];
-
-        let isTeamColor = uniforms.get("u_isTeamColor"),
-            isTeamGlow = uniforms.get("u_isTeamGlow"),
-            teamColorValue = 0,
-            teamGlowValue = 0;
-
         // Team color
         if (replaceable === 1) {
-            teamColorValue = 1;
+            colorMode = 1;
         // Team glow
         } else if (replaceable === 2) {
-            teamGlowValue = 1;
+            colorMode = 2;
         // Normal texture
         } else {
             // Does this layer use texture animations with multiple textures?
@@ -691,8 +686,7 @@ MdxModel.prototype = {
             this.bindTexture(layer.textureId, bucket.modelView);
         }
         
-        gl.uniform1i(isTeamColor, teamColorValue);
-        gl.uniform1i(isTeamGlow, teamGlowValue);
+        gl.uniform1f(uniforms.get("u_colorMode"), colorMode);
 
         // Batch visibilities
         let batchVisible = attribs.get("a_batchVisible");
