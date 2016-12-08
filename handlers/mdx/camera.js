@@ -1,7 +1,7 @@
 function MdxCamera(camera, model) {
     this.name = camera.name;
     this.position = camera.position;
-    this.fov = camera.fieldOfView;
+    this.fieldOfView = camera.fieldOfView;
     this.farClippingPlane = camera.farClippingPlane;
     this.nearClippingPlane = camera.nearClippingPlane;
     this.targetPosition = camera.targetPosition;

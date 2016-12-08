@@ -280,7 +280,7 @@ Node.prototype = {
      * @desc Get the node's world scale.
      * @returns {vec3}
      */
-    getScale() {
+    getScaling() {
         return this.worldScale;
     },
 
@@ -317,7 +317,7 @@ Node.prototype = {
         }
 
         // Scale and inverse scale
-        mat4.getScale(worldScale, worldMatrix);
+        mat4.getScaling(worldScale, worldMatrix);
         vec3.inverse(this.inverseWorldScale, worldScale);
 
         // World location

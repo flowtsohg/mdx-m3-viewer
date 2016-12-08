@@ -5,8 +5,8 @@ WANT_BLP = true
 WANT_DDS = true
 WANT_TGA = true
 WANT_GEO = true
-WANT_W3X = true # Will include SLK, MPQ, MDX, GEO, BLP, and TGA.
-WANT_MDX = true # Will include SLK, BLP, and TGA.
+WANT_W3X = true # Will include SLK, MPQ, MDX, GEO, BLP, TGA, and PNG.
+WANT_MDX = true # Will include SLK, BLP, TGA, and PNG.
 WANT_M3 = true # Will include DDS, and TGA.
 
 WANT_STRICT_MODE = true
@@ -53,10 +53,19 @@ BASE = batch "BASE",
 				"texture",
 				"genericfile",
 				"bucket",
+				"scene",
 				"viewer"
 			],
 			[
-				"gl-matrix-min"
+				"gl-matrix/common",
+				"gl-matrix/vec2",
+				"gl-matrix/vec3",
+				"gl-matrix/vec4",
+				"gl-matrix/mat2",
+				"gl-matrix/mat2d",
+				"gl-matrix/mat3",
+				"gl-matrix/mat4",
+				"gl-matrix/quat"
 			]
 
 PNG = batch "PNG",
@@ -250,6 +259,7 @@ if WANT_W3X
 	add_forced TGA if not WANT_TGA
 	add_forced MDX if not WANT_MDX
 	add_forced GEO if not WANT_GEO
+	add_forced PNG if not WANT_PNG
 	add W3X
 end
 
@@ -257,6 +267,7 @@ if WANT_MDX
 	add_forced SLK if not WANT_SLK
 	add_forced BLP if not WANT_BLP
 	add_forced TGA if not WANT_TGA
+	add_forced PNG if not WANT_PNG
 	add MDX
 end
 

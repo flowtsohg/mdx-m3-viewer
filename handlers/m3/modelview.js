@@ -12,4 +12,4 @@ function M3ModelView(model) {
     this.textures = [];
 }
 
-mix(MdxModelView.prototype, ModelView.prototype);
+mix(M3ModelView.prototype, ModelView.prototype);

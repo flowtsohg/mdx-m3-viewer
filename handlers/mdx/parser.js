@@ -422,7 +422,7 @@ let MdxParser = (function () {
         this.size = readUint32(reader);
         this.name = read(reader, 80);
         this.position = readVector3(reader);
-        this.fov = readFloat32(reader);
+        this.fieldOfView = readFloat32(reader);
         this.farClippingPlane = readFloat32(reader);
         this.nearClippingPlane = readFloat32(reader);
         this.targetPosition = readVector3(reader);
@@ -631,7 +631,8 @@ let MdxParser = (function () {
                     for (let j = 0, k = matrixGroups.length; j < k; j++) {
                         let matrixGroup = matrixGroups[j];
 
-                        if (matrixGroup < 1 || matrixGroup > 4) {
+                        // There are built-in models with vertices attached to 8 bones, so I assume the game has no upper limit.
+                        if (matrixGroup < 1 /*|| matrixGroup > 4*/) {
                             warnings.push("Geoset " + i + ": Vertex " + j + " is attached to " + matrixGroup + " bones");
                         }
                     }

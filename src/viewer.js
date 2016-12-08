@@ -7,6 +7,9 @@
 function ModelViewer(canvas) {
     EventDispatcher.call(this);
 
+    /** @member {boolean} */
+    this.paused = false;
+
     /** @member {object} */
     this.resources = {
         models: {
@@ -90,7 +93,7 @@ function ModelViewer(canvas) {
     this.scenes = [new Scene(this)];
 
     // Main loop
-    let step = () => { requestAnimationFrame(step); this.update(); this.render(); };
+    let step = () => { requestAnimationFrame(step); if (!this.paused) { this.update(); this.render(); }};
     step();
 }
 

@@ -45,8 +45,8 @@ const M3Parser = (function () {
 
     function BoundingShape(reader) {
         this.shape = readUint32(reader); // 0 cube
-                                         // 1 sphere
-                                         // 2 cylinder
+        // 1 sphere
+        // 2 cylinder
         this.bone = readInt16(reader);
         this.unknown0 = readUint16(reader);
         this.matrix = readMatrix(reader);
@@ -65,23 +65,23 @@ const M3Parser = (function () {
         this.imagePath = new Reference(reader, index);
         this.color = new AnimationReference(reader, readPixel);
         this.flags = readUint32(reader); // 0x4 textureWrapX
-                                         // 0x8 textureWrapY
-                                         // 0x10 invertColor
-                                         // 0x20 clampColor
-                                         // 0x100 useParticleFlipBook
-                                         // 0x200 isVideo
-                                         // 0x400 colorEnabled
-                                         // 0x4000 ignoredFresnelFlag1
-                                         // 0x8000 ignoredFresnelFlag2
-                                         // 0x10000 fresnelLocalTransform
-                                         // 0x20000 fresnelDoNotMirror
+        // 0x8 textureWrapY
+        // 0x10 invertColor
+        // 0x20 clampColor
+        // 0x100 useParticleFlipBook
+        // 0x200 isVideo
+        // 0x400 colorEnabled
+        // 0x4000 ignoredFresnelFlag1
+        // 0x8000 ignoredFresnelFlag2
+        // 0x10000 fresnelLocalTransform
+        // 0x20000 fresnelDoNotMirror
         this.uvSource = readUint32(reader);
         this.colorChannelSetting = readUint32(reader); // 0 RGB
-                                                       // 1 RGBA
-                                                       // 2 A
-                                                       // 3 R
-                                                       // 4 G
-                                                       // 5 B
+        // 1 RGBA
+        // 2 A
+        // 3 R
+        // 4 G
+        // 5 B
         this.brightMult = new AnimationReference(reader, readFloat32);
         this.midtoneOffset = new AnimationReference(reader, readFloat32);
         this.unknown1 = readUint32(reader);
@@ -104,7 +104,7 @@ const M3Parser = (function () {
         this.flipBookFrame = new AnimationReference(reader, readUint16);
         this.uvOffset = new AnimationReference(reader, readVector2);
         this.uvAngle = new AnimationReference(reader, readVector3);
-        this.uvTiling = new AnimationReference(reader,  readVector2);
+        this.uvTiling = new AnimationReference(reader, readVector2);
         this.unknown2 = new AnimationReference(reader, readUint32);
         this.unknown3 = new AnimationReference(reader, readFloat32);
         this.brightness = new AnimationReference(reader, readFloat32);
@@ -131,59 +131,59 @@ const M3Parser = (function () {
             this.unknown7 = readUint32(reader);
         }
     }
-    
+
     function StandardMaterial(reader, version, index) {
         this.version = version;
         this.name = new Reference(reader, index);
         this.additionalFlags = readUint32(reader); // 0x1 useDepthBlendFalloff
-                                                   // 0x4 makesUseOfVertexColor
-                                                   // 0x8 makesUseOfVertexAlpha
-                                                   // 0x200 ?
+        // 0x4 makesUseOfVertexColor
+        // 0x8 makesUseOfVertexAlpha
+        // 0x200 ?
         this.flags = readUint32(reader); // 0x1 useVertexColor
-                                         // 0x2 useVertexAlpha
-                                         // 0x4 unfogged
-                                         // 0x8 twoSided
-                                         // 0x10 unshaded
-                                         // 0x20 noShadowsCast
-                                         // 0x40 noHitTest
-                                         // 0x80 noShadowsReceived
-                                         // 0x100 depthPrepass
-                                         // 0x200 useTerrainHDR
-                                         // 0x400 ?
-                                         // 0x800 splatUVfix
-                                         // 0x1000 softBlending
-                                         // 0x2000 ?
-                                         // 0x4000 ?
-                                         // 0x8000 decalLighting
-                                         // 0x10000 transparency
-                                         // 0x20000 ?
-                                         // 0x40000 disableSoft
-                                         // 0x80000 doubleLambert
-                                         // 0x100000 hairLayerSorting
-                                         // 0x200000 acceptSplatsOnly
-                                         // 0x400000 decalRequiredOnLowEnd
-                                         // 0x800000 emissiveRequiredOnLowEnd
-                                         // 0x1000000 specularRequiredOnLowEnd
-                                         // 0x2000000 acceptSplats
-                                         // 0x4000000 backgroundObject
-                                         // 0x10000000 zpFillRequiredOnLowEnd
-                                         // 0x20000000 excludeFromHighlighting
-                                         // 0x40000000 clampOutput
-                                         // 0x80000000 geometryVisible
+        // 0x2 useVertexAlpha
+        // 0x4 unfogged
+        // 0x8 twoSided
+        // 0x10 unshaded
+        // 0x20 noShadowsCast
+        // 0x40 noHitTest
+        // 0x80 noShadowsReceived
+        // 0x100 depthPrepass
+        // 0x200 useTerrainHDR
+        // 0x400 ?
+        // 0x800 splatUVfix
+        // 0x1000 softBlending
+        // 0x2000 ?
+        // 0x4000 ?
+        // 0x8000 decalLighting
+        // 0x10000 transparency
+        // 0x20000 ?
+        // 0x40000 disableSoft
+        // 0x80000 doubleLambert
+        // 0x100000 hairLayerSorting
+        // 0x200000 acceptSplatsOnly
+        // 0x400000 decalRequiredOnLowEnd
+        // 0x800000 emissiveRequiredOnLowEnd
+        // 0x1000000 specularRequiredOnLowEnd
+        // 0x2000000 acceptSplats
+        // 0x4000000 backgroundObject
+        // 0x10000000 zpFillRequiredOnLowEnd
+        // 0x20000000 excludeFromHighlighting
+        // 0x40000000 clampOutput
+        // 0x80000000 geometryVisible
         this.blendMode = readUint32(reader); // 0 opaque
-                                             // 1 blend
-                                             // 2 additive
-                                             // 3 probably addAlpha
-                                             // 4 mod
-                                             // 5 mod2x
+        // 1 blend
+        // 2 additive
+        // 3 probably addAlpha
+        // 4 mod
+        // 5 mod2x
         this.priority = readInt32(reader);
         this.usedRTTChannels = readUint32(reader); // 0x1 channel0
-                                                   // 0x2 channel1
-                                                   // 0x4 channel2
-                                                   // 0x8 channel3
-                                                   // 0x10 channel4
-                                                   // 0x20 channel5
-                                                   // 0x40 channel6
+        // 0x2 channel1
+        // 0x4 channel2
+        // 0x8 channel3
+        // 0x10 channel4
+        // 0x20 channel5
+        // 0x40 channel6
         this.specularity = readFloat32(reader);
         this.depthBlendFalloff = readFloat32(reader);
         this.cutoutThresh = readUint8(reader);
@@ -264,9 +264,9 @@ const M3Parser = (function () {
         this.unknown0 = readUint8(reader);
         this.bone = readInt16(reader);
         this.flags = readUint32(reader); // 0x1 shadowCast
-                                  // 0x2 specular
-                                  // 0x4 unknown
-                                  // 0x8 turnOn
+        // 0x2 specular
+        // 0x4 unknown
+        // 0x8 turnOn
         this.unknown1 = readUint32(reader);
         this.unknown2 = readInt32(reader);
         this.lightColor = new AnimationReference(reader, readVector3);
@@ -338,15 +338,15 @@ const M3Parser = (function () {
         this.unknown0 = readInt32(reader);
         this.name = new Reference(reader, index);
         this.flags = readUint32(reader); // 0x1 inheritTranslation
-                                  // 0x2 inheritScale
-                                  // 0x4 inheritRotation
-                                  // 0x10 billboard1
-                                  // 0x40 billboard2
-                                  // 0x100 twoDProjection
-                                  // 0x200 animated
-                                  // 0x400 inverseKinematics
-                                  // 0x800 skinned
-                                  // 0x2000 real -- what does this mean?
+        // 0x2 inheritScale
+        // 0x4 inheritRotation
+        // 0x10 billboard1
+        // 0x40 billboard2
+        // 0x100 twoDProjection
+        // 0x200 animated
+        // 0x400 inverseKinematics
+        // 0x800 skinned
+        // 0x2000 real -- what does this mean?
         this.parent = readInt16(reader);
         this.unknown1 = readUint16(reader);
         this.location = new AnimationReference(reader, readVector3);
@@ -406,8 +406,8 @@ const M3Parser = (function () {
         this.interval = readUint32Array(reader, 2);
         this.movementSpeed = readFloat32(reader);
         this.flags = readUint32(reader); // 0x1 notLooping
-                                  // 0x2 alwaysGlobal
-                                  // 0x8 globalInPreviewer
+        // 0x2 alwaysGlobal
+        // 0x8 globalInPreviewer
         this.frequency = readUint32(reader);
 
         skip(reader, 12); // ?
@@ -436,10 +436,10 @@ const M3Parser = (function () {
         this.bones = new Reference(reader, index);
         this.numberOfBonesToCheckForSkin = readUint32(reader);
         this.vertexFlags = readUint32(reader); // 0x200 hasVertexColors
-                                               // 0x20000 hasVertices
-                                               // 0x40000 useUVChannel1
-                                               // 0x80000 useUVChannel2
-                                               // 0x100000 useUVChannel3
+        // 0x20000 hasVertices
+        // 0x40000 useUVChannel1
+        // 0x80000 useUVChannel2
+        // 0x100000 useUVChannel3
         this.vertices = new Reference(reader, index);
         this.divisions = new Reference(reader, index);
         this.boneLookup = new Reference(reader, index);
@@ -460,7 +460,7 @@ const M3Parser = (function () {
             new Reference(reader, index), // Volume
             new Reference(reader, index), // ?
             new Reference(reader, index)  // Creep
-            
+
         ];
 
         if (version > 24) {
@@ -538,7 +538,7 @@ const M3Parser = (function () {
         },
 
         get() {
-            
+
         }
     };
 

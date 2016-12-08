@@ -44,18 +44,6 @@ mat4.toRotationMat4 = (function () {
     };
 }());
 
-mat4.getScale = function (out, m) {
-    const m0 = m[0], m1 = m[1], m2 = m[2],
-        m4 = m[4], m5 = m[5], m6 = m[6],
-        m8 = m[8], m9 = m[9], m10 = m[10];
-    
-    out[0] = Math.sqrt(m0*m0 + m1*m1 + m2*m2);
-    out[1] = Math.sqrt(m4*m4 + m5*m5 + m6*m6);
-    out[2] = Math.sqrt(m8*m8 + m9*m9 + m10*m10);
-    
-    return out;
-};
-
 vec3.unproject = (function () {
     const heap = vec4.create();
     

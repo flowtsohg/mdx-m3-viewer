@@ -22,81 +22,66 @@ MdxShallowGeoset.prototype = {
         let gl = this.model.gl;
 
         gl.extensions.instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.offsets[5], instances);
-    },
-
-    renderWireframe(shader) {
-        var ctx = this.ctx;
-
-        this.bindCommon(shader, ctx);
-
-        ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
-        ctx.drawElements(ctx.LINES, this.elements * 2, ctx.UNSIGNED_SHORT, 0);
     }
 };
 
 function MdxGeoset(geoset, geosetAnimations) {
-    var i, l, j, k;
-    var positions = geoset.vertices;
-    var normals = geoset.normals;
-    var textureCoordinateSets = geoset.textureCoordinateSets;
-    var uvsetSize = textureCoordinateSets[0].length;
-    var vertices = positions.length / 3;
-    var uvs = new Float32Array(textureCoordinateSets.length * uvsetSize);
-    var boneIndices = new Uint8Array(vertices * 4);
-    var boneNumbers = new Uint32Array(vertices);
-    var faces = geoset.faces;
-    var edges = new Uint16Array(faces.length * 2);
-    var matrixGroups = [];
-
-    this.index = geoset.index;
-    this.materialId = geoset.materialId;
-
-    for (i = 0, l = faces.length, k = 0; i < l; i += 3, k += 6) {
-        edges[k + 0] = faces[i + 0];
-        edges[k + 1] = faces[i + 1];
-        edges[k + 2] = faces[i + 1];
-        edges[k + 3] = faces[i + 2];
-        edges[k + 4] = faces[i + 2];
-        edges[k + 5] = faces[i + 0];
-    }
+    let positions = geoset.vertices,
+        normals = geoset.normals,
+        textureCoordinateSets = geoset.textureCoordinateSets,
+        uvsetSize = textureCoordinateSets[0].length,
+        vertices = positions.length / 3,
+        uvs,
+        boneIndices = new Uint8Array(vertices * 4),
+        boneNumbers = new Uint32Array(vertices),
+        matrixGroups = geoset.matrixGroups,
+        matrixIndexes = geoset.matrixIndexes,
+        slices = [],
+        i, l, j, k;
 
     // Make one typed array for the texture coordinates, in case there are multiple ones
-    for (i = 0, l = textureCoordinateSets.length; i < l; i++) {
-        uvs.set(textureCoordinateSets[i], i * uvsetSize);
+    if (textureCoordinateSets.length > 1) {
+        uvs = new Float32Array(textureCoordinateSets.length * uvsetSize);
+
+        for (i = 0, l = textureCoordinateSets.length; i < l; i++) {
+            uvs.set(textureCoordinateSets[i], i * uvsetSize);
+        }
+    } else {
+        uvs = textureCoordinateSets[0];
     }
 
-    // Parse the bone indices
-    for (i = 0, l = geoset.matrixGroups.length, k = 0; i < l; i++) {
-        matrixGroups.push(geoset.matrixIndexes.subarray(k, k + geoset.matrixGroups[i]));
-        k += geoset.matrixGroups[i];
+    // Parse the bone indices by slicing the matrix groups
+    for (i = 0, l = matrixGroups.length, k = 0; i < l; i++) {
+        slices.push(matrixIndexes.subarray(k, k + matrixGroups[i]));
+        k += matrixGroups[i];
     }
 
+    // Construct the final bone arrays
     for (i = 0, l = vertices, k = 0; i < l; i++) {
-        var matrixGroup = matrixGroups[geoset.vertexGroups[i]];
-        var count = 0;
+        let slice = slices[geoset.vertexGroups[i]],
+            bones = 0;
 
         // 1 is added to every index for shader optimization (index 0 is a zero matrix)
-        for (j = 0; j < 4; j++) {
-            if (matrixGroup && j < matrixGroup.length) {
-                boneIndices[k] = matrixGroup[j] + 1;
-                count += 1;
+        for (j = 0; j < 4; j++, k++) {
+            if (slice && j < slice.length) {
+                boneIndices[k] = slice[j] + 1;
+                bones += 1;
             } else {
                 boneIndices[k] = 0;
             }
-
-            k += 1;
         }
 
-        boneNumbers[i] = count;
+        boneNumbers[i] = bones;
     }
 
+    this.index = geoset.index;
+    this.materialId = geoset.materialId;
     this.locationArray = positions;
     this.normalArray = normals;
     this.uvsArray = uvs;
     this.boneIndexArray = boneIndices;
     this.boneNumberArray = boneNumbers;
-    this.faceArray = faces;
-    this.edgeArray = edges;
+    this.faceArray = geoset.faces;
     this.uvSetSize = uvsetSize * 4;
 
     for (i = 0, l = geosetAnimations.length; i < l; i++) {

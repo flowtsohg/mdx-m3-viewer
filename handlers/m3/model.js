@@ -53,7 +53,7 @@ M3Model.prototype = {
             var materialMap = materialMaps[batch.materialReferenceIndex];
 
             if (materialMap.materialType === 1) {
-                batches.push({regionId: regionId, region: this.meshes[regionId], material: this.materials[1][materialMap.materialIndex]});
+                batches.push({ regionId: regionId, region: this.regions[regionId], material: this.materials[1][materialMap.materialIndex] });
             }
         }
 
@@ -177,23 +177,18 @@ M3Model.prototype = {
         }
 
         var elementArray = new Uint16Array(totalElements);
-        var edgeArray = new Uint16Array(totalElements * 2);
 
-        this.meshes = [];
+        this.regions = [];
 
         const triangles = div.triangles.getAll();
 
         for (i = 0, l = regions.length; i < l; i++) {
-            this.meshes.push(new M3Region(regions[i], triangles, elementArray, edgeArray, offsets[i], gl));
+            this.regions.push(new M3Region(regions[i], triangles, elementArray, offsets[i], gl));
         }
 
         this.elementBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, elementArray, gl.STATIC_DRAW);
-
-        this.edgeBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, edgeArray, gl.STATIC_DRAW);
 
         var arrayBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
@@ -256,13 +251,12 @@ M3Model.prototype = {
     },
 
     bindShared(bucket) {
-        const gl = this.gl,
+        let gl = this.gl,
             shader = this.shader,
-            vertexSize = this.vertexSize;
-
-        const instancedArrays = gl.extensions.instancedArrays;
-        const attribs = shader.attribs;
-        const uniforms = shader.uniforms;
+            vertexSize = this.vertexSize,
+            instancedArrays = gl.extensions.instancedArrays,
+            attribs = shader.attribs,
+            uniforms = shader.uniforms;
 
         // Team colors
         let teamColorAttrib = attribs.get("a_teamColor");
@@ -321,10 +315,12 @@ M3Model.prototype = {
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
 
-        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, this.env.camera.worldProjectionMatrix);
-        gl.uniformMatrix4fv(uniforms.get("u_mv"), false, this.env.camera.worldMatrix);
+        let camera = bucket.modelView.scene.camera;
 
-        gl.uniform3fv(uniforms.get("u_eyePos"), this.env.camera.worldLocation);
+        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, camera.worldProjectionMatrix);
+        gl.uniformMatrix4fv(uniforms.get("u_mv"), false, camera.worldMatrix);
+
+        gl.uniform3fv(uniforms.get("u_eyePos"), camera.worldLocation);
         gl.uniform3fv(uniforms.get("u_lightPos"), M3.lightPosition);
     },
     
@@ -336,12 +332,6 @@ M3Model.prototype = {
         instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_teamColor"), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_tintColor"), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 0);
-    },
-
-    bindWireframe(shader, ctx) {
-        this.bindShared(shader, ctx);
-        
-        ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
     },
 
     renderBatch(bucket, batch) {

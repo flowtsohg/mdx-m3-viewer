@@ -30,7 +30,7 @@ MdxModel.prototype = {
         this.name = chunks.MODL.name;
         this.sequences = [];
         this.textures = [];
-        this.meshes = [];
+        this.geosets = [];
         this.cameras = [];
         this.particleEmitters = [];
         this.particleEmitters2 = [];
@@ -131,19 +131,17 @@ MdxModel.prototype = {
         this.geosetAnimations = this.transformElements(chunks.GEOA, MdxGeosetAnimation);
 
         if (chunks.GEOS) {
-            var geosets = chunks.GEOS.elements,
+            let geosets = chunks.GEOS.elements,
                 opaqueBatches = [],
-                translucentBatches = [];
-           
-            var batchId = 0;
+                translucentBatches = [],
+                batchId = 0;
 
             for (i = 0, l = geosets.length; i < l; i++) {
-                var geoset = geosets[i];
-                var layers = materials[geoset.materialId];
+                let geoset = geosets[i],
+                    layers = materials[geoset.materialId],
+                    mesh = new MdxGeoset(geoset, this.geosetAnimations);
 
-                var mesh = new MdxGeoset(geoset, this.geosetAnimations);
-
-                this.meshes.push(mesh);
+                this.geosets.push(mesh);
 
                 for (j = 0, k = layers.length; j < k; j++) {
                     layer = layers[j];
@@ -171,7 +169,7 @@ MdxModel.prototype = {
             this.batches = [];
         }
 
-        this.setupGeosets(this.meshes);
+        this.setupGeosets();
 
         this.cameras = this.transformElements(chunks.CAMS, MdxCamera);
 
@@ -192,7 +190,6 @@ MdxModel.prototype = {
             this.boundingShapes = chunks.CLID.elements;
         }
 
-        //this.boundingShapes = this.transformElements(chunks.CLID, MdxCollisionShape, gl);
         this.attachments = this.transformElements(chunks.ATCH, MdxAttachment);
 
         if (chunks.EVTS) {
@@ -217,10 +214,9 @@ MdxModel.prototype = {
     },
 
     setupVariants() {
-        var sequences = this.sequences,
-            variants = [];
+        let variants = [];
 
-        for (var i = 0, l = sequences.length; i < l; i++) {
+        for (let i = 0, l = this.sequences.length; i < l; i++) {
             variants[i] = this.isVariant(i);
         }
 
@@ -228,92 +224,94 @@ MdxModel.prototype = {
     },
 
     setupVaryingTextures(layer) {
-        var textureIds = layer.getAllTextureIds();
+        // Get all unique texture IDs used by this layer
+        let textureIds = layer.getAllTextureIds();
 
         if (textureIds.length > 1) {
-            var hash = hashFromArray(textureIds);
-            var textures = [];
+            let hash = hashFromArray(textureIds),
+                textures = [];
 
-            for (var i = 0, l = textureIds.length; i < l; i++) {
+            // Grab all of the textures
+            for (let i = 0, l = textureIds.length; i < l; i++) {
                 textures[i] = this.textures[textureIds[i]];
             }
             
-            this.env.whenAllLoaded(textures, _ => {
+            // When all of the textures are loaded, it's time to construct a texture atlas
+            this.env.whenAllLoaded(textures, () => {
                 let textureAtlases = this.textureAtlases;
 
+                // Cache atlases
                 if (!textureAtlases[hash]) {
-                    var images = [];
+                    let images = [];
 
-                    for (var i = 0, l = textures.length; i < l; i++) {
+                    // Grab all the ImageData objects from the loaded textures
+                    for (let i = 0, l = textures.length; i < l; i++) {
                         images[i] = textures[i].imageData;
                     }
 
-                    var atlasData = createTextureAtlas(images);
-
-                    var texture = this.env.load(atlasData.texture);
+                    // Finally create the atlas
+                    let atlasData = createTextureAtlas(images);
 
                     textureAtlases[hash] = { textureId: this.textures.length, columns: atlasData.columns, rows: atlasData.rows };
-                    this.textures.push(texture);
+                    
+                    this.textures.push(this.env.load(atlasData.texture));
                 }
 
+                // Tell the layer to use this texture atlas, instead of its original texture
                 layer.setAtlas(textureAtlases[hash]);
             });
         }
     },
 
-    setupGeosets(geosets) {
+    setupGeosets() {
+        let geosets = this.geosets;
+
         if (geosets.length > 0) {
-            var i, l;
-            var gl = this.gl;
-            var shallowGeosets = [];
-            var geosetData;
-            var arrayTypedArrays = [];
-            var totalArrayOffset = 0;
-            var elementTypedArrays = [];
-            var totalElementOffset = 0;
+            let gl = this.gl,
+                shallowGeosets = [],
+                typedArrays = [],
+                totalArrayOffset = 0,
+                elementTypedArrays = [],
+                totalElementOffset = 0,
+                i, l;
 
             for (i = 0, l = geosets.length; i < l; i++) {
-                var geoset = geosets[i],
+                let geoset = geosets[i],
                     vertices = geoset.locationArray,
                     normals = geoset.normalArray,
                     uvSets = geoset.uvsArray,
                     boneIndices = geoset.boneIndexArray,
                     boneNumbers = geoset.boneNumberArray,
                     faces = geoset.faceArray,
-                    edges = geoset.edgeArray,
-                    uvSetSize = geoset.uvSetSize,
                     verticesOffset = totalArrayOffset,
                     normalsOffset = verticesOffset + vertices.byteLength,
                     uvSetsOffset = normalsOffset + normals.byteLength,
                     boneIndicesOffset = uvSetsOffset + uvSets.byteLength,
-                    boneNumbersOffset = boneIndicesOffset + boneIndices.byteLength,
-                    facesOffset = totalElementOffset,
-                    arraySize = boneNumbersOffset + boneNumbers.byteLength,
-                    elementSize = faces.byteLength;
+                    boneNumbersOffset = boneIndicesOffset + boneIndices.byteLength;
 
-                shallowGeosets[i] = new MdxShallowGeoset([verticesOffset, normalsOffset, uvSetsOffset, boneIndicesOffset, boneNumbersOffset, totalElementOffset], uvSetSize, faces.length, this);
+                shallowGeosets[i] = new MdxShallowGeoset([verticesOffset, normalsOffset, uvSetsOffset, boneIndicesOffset, boneNumbersOffset, totalElementOffset], geoset.uvSetSize, faces.length, this);
 
-                totalArrayOffset = arraySize;
-                totalElementOffset += elementSize;
+                typedArrays.push([verticesOffset, vertices]);
+                typedArrays.push([normalsOffset, normals]);
+                typedArrays.push([uvSetsOffset, uvSets]);
+                typedArrays.push([boneIndicesOffset, boneIndices]);
+                typedArrays.push([boneNumbersOffset, boneNumbers]);
 
-                arrayTypedArrays.push([verticesOffset, vertices]);
-                arrayTypedArrays.push([normalsOffset, normals]);
-                arrayTypedArrays.push([uvSetsOffset, uvSets]);
-                arrayTypedArrays.push([boneIndicesOffset, boneIndices]);
-                arrayTypedArrays.push([boneNumbersOffset, boneNumbers]);
+                elementTypedArrays.push([totalElementOffset, faces]);
 
-                elementTypedArrays.push([facesOffset, faces]);
+                totalArrayOffset = boneNumbersOffset + boneNumbers.byteLength;
+                totalElementOffset += faces.byteLength;
             }
 
-            var arrayBuffer = gl.createBuffer();
+            let arrayBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
             gl.bufferData(gl.ARRAY_BUFFER, totalArrayOffset, gl.STATIC_DRAW);
 
-            for (i = 0, l = arrayTypedArrays.length; i < l; i++) {
-                gl.bufferSubData(gl.ARRAY_BUFFER, arrayTypedArrays[i][0], arrayTypedArrays[i][1]);
+            for (i = 0, l = typedArrays.length; i < l; i++) {
+                gl.bufferSubData(gl.ARRAY_BUFFER, typedArrays[i][0], typedArrays[i][1]);
             }
 
-            var faceBuffer = gl.createBuffer();
+            let faceBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, totalElementOffset, gl.STATIC_DRAW);
 
@@ -370,7 +368,7 @@ MdxModel.prototype = {
     },
 
     calculateExtent() {
-        var meshes = this.meshes;
+        var meshes = this.geosets;
         var mesh;
         var min, max;
         var x, y, z;
