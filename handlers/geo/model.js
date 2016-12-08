@@ -107,11 +107,12 @@ GeometryModel.prototype = {
             shader = Geo.shader,
             uniforms = shader.uniforms,
             attribs = shader.attribs,
-            instances = bucket.instances;
+            instances = bucket.instances,
+            modelView = bucket.modelView;
 
         webgl.useShaderProgram(shader);
 
-        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, this.env.camera.worldProjectionMatrix);
+        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, modelView.scene.camera.worldProjectionMatrix);
 
         // Bone texture
         gl.activeTexture(gl.TEXTURE15);
@@ -165,7 +166,7 @@ GeometryModel.prototype = {
         instancedArrays.vertexAttribDivisorANGLE(colorAttrib, 1);
 
         if (this.renderMode === 0 || this.renderMode === 2) {
-            webgl.bindTexture(bucket.modelView.texture || this.texture, 0);
+            webgl.bindTexture(modelView.texture || this.texture, 0);
 
             gl.uniform1f(uniforms.get("u_isEdge"), 0);
             gl.uniform2fv(uniforms.get("u_uvScale"), this.uvScale);

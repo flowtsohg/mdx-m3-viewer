@@ -11,7 +11,7 @@ const W3x = {
         return ".w3x|.w3m";
     },
 
-    get File() {
+    get Constructor() {
         return W3xMap;
     },
 

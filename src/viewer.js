@@ -25,16 +25,11 @@ function ModelViewer(canvas) {
         }
     };
 
-    /** @member {number} */
-    this.frameTimeMS = 1000 / 60;
-    /** @member {number} */
-    this.frameTimeS = 1 / 60;
-
-    /** @member {map.<string, Handler>} */
-    this.handlers = new Map(); // Map from a file extension to an handler
-
-    /** @member {Camera} */
-    this.camera = new Camera(Math.PI / 4, 1, 10, 100000);
+    /** 
+     * @desc The speed of animation. Note that this is not the time of a frame in milliseconds, but rather the amount of animation frames to advance each update.
+     * @member {number} 
+     */
+    this.frameTime = 1000 / 60;
 
     /** @member {HTMLCanvasElement} */
     this.canvas = canvas;
@@ -88,11 +83,11 @@ function ModelViewer(canvas) {
         `
     };
 
-    // Initialize the viewport
-    this.resetViewport();
+    /** @member {map.<string, Handler>} */
+    this.handlers = new Map(); // Map from a file extension to an handler
 
-    // Update the viewport when the window is resized
-    window.addEventListener("resize", () => this.resetViewport());
+    /** @member {scene} */
+    this.scenes = [new Scene(this)];
 
     // Main loop
     let step = () => { requestAnimationFrame(step); this.update(); this.render(); };
@@ -135,6 +130,14 @@ ModelViewer.prototype = {
         }
 
         return false;
+    },
+
+    addScene() {
+        let scene = new Scene(this);
+
+        this.scenes.push(scene);
+
+        return scene;
     },
 
     /**
@@ -184,7 +187,8 @@ ModelViewer.prototype = {
 
     loadSingle(src, pathSolver) {
         if (src) {
-            let extension, serverFetch;
+            let extension,
+                serverFetch;
 
             // Built-in texture source
             if (src instanceof HTMLImageElement || src instanceof HTMLVideoElement || src instanceof HTMLCanvasElement || src instanceof ImageData) {
@@ -194,7 +198,7 @@ ModelViewer.prototype = {
                 [src, extension, serverFetch] = pathSolver(src);
             }
 
-            const handler = this.handlers.get(extension.toLowerCase());
+            let handler = this.handlers.get(extension.toLowerCase());
 
             // Is there an handler for this file type?
             if (handler) {
@@ -206,37 +210,34 @@ ModelViewer.prototype = {
     },
 
     registerEvents(resource) {
-        let listener = e => this.dispatchEvent(e);
+        let listener = (e) => this.dispatchEvent(e);
 
         ["loadstart", "load", "loadend", "error", "progress", "delete"].map(e => resource.addEventListener(e, listener));
     },
 
-    loadResource(src, extension, serverFetch, pathSolver, handler) {
-        let allResources = this.resources,
-            resources,
-            constructor;
+    pairFromType(objectType) {
+        let resources = this.resources;
 
-        // Model
-        if (handler.objectType === "modelhandler") {
-            resources = allResources.models;
-            constructor = handler.Model;
-        // Texture
-        } else if (handler.objectType === "texturehandler") {
-            resources = allResources.textures;
-            constructor = handler.Texture;
-        // File
-        } else if (handler.objectType === "filehandler") {
-            resources = allResources.files;
-            constructor = handler.File;
+        if (objectType === "model" || objectType === "modelhandler") {
+            return resources.models;
+        } else if (objectType === "texture" || objectType === "texturehandler") {
+            return resources.textures;
+        } else if (objectType === "file" || objectType === "filehandler") {
+            return resources.files;
+        } else {
+            throw new Error("NOPE");
         }
+    },
 
-        const map = resources.map;
+    loadResource(src, extension, serverFetch, pathSolver, handler) {
+        let pair = this.pairFromType(handler.objectType),
+            map = pair.map;
 
         if (!map.has(src)) {
-            let resource = new constructor(this, pathSolver);
+            let resource = new handler.Constructor(this, pathSolver);
 
             map.set(src, resource);
-            resources.array.push(resource);
+            pair.array.push(resource);
 
             this.registerEvents(resource);
 
@@ -252,10 +253,28 @@ ModelViewer.prototype = {
      * @method
      * @desc Deletes a resource from the viewer.
      *       Note that this only removes references to this resource, so your code should do the same, to allow GC to work.
+     *       This also means that if a resource is referenced by another resource, it is not going to be GC'd.
+     *       For example, deleting a texture that is being used by a model, will not actually let the GC to collect it, until the model is deleted too and loses all references.
      */
     delete (resource) {
         if (this.isViewerResource(resource)) {
-            throw "IMPLEMENT ME";
+            let pair = this.pairFromType(resource.objectType),
+                objects,
+                key;
+
+            // Find the resource in the array and splice it.
+            objects = pair.array;
+            key = objects.indexOf(resource);
+            if (key !== -1) {
+                objects.splice(key, 1);
+            }
+
+            // Find the resource in the map and delete it.
+            objects = pair.map;
+            key = objects.findKey(resource);
+            if (key) {
+                objects.delete(key);
+            }
         }
     },
 
@@ -270,9 +289,7 @@ ModelViewer.prototype = {
         if (object) {
             let objectType = object.objectType;
 
-            if (objectType) {
-                return objectType === "model" || objectType === "texture" || objectType === "file";
-            }
+            return objectType === "model" || objectType === "texture" || objectType === "file";
         }
 
         return false;
@@ -283,11 +300,11 @@ ModelViewer.prototype = {
      * @desc Remove all of the resources from this model viewer.
      */
     clear() {
-        const resources = this.resources;
+        let resources = this.resources;
 
-        for (let objects of [resources.models, resources.textures, resources.files]) {
-            objects.array.length = 0;
-            objects.map.clear();
+        for (let pair of [resources.models, resources.textures, resources.files]) {
+            pair.array.length = 0;
+            pair.map.clear();
         }
     },
 
@@ -314,41 +331,28 @@ ModelViewer.prototype = {
     },
 
     render() {
-        let gl = this.gl,
-            models = this.resources.models.array,
+        let scenes = this.scenes,
+            gl = this.gl,
             i,
-            l = models.length;
+            l = scenes.length;
 
         // See https://www.opengl.org/wiki/FAQ#Masking
         gl.depthMask(1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         for (i = 0; i < l; i++) {
-            models[i].renderViewsOpaque();
+            scenes[i].renderViewsOpaque();
         }
 
         for (i = 0; i < l; i++) {
-            models[i].renderViewsTranslucent();
+            scenes[i].renderViewsTranslucent();
         }
 
         for (i = 0; i < l; i++) {
-            models[i].renderViewsEmitters();
+            scenes[i].renderViewsEmitters();
         }
 
         this.dispatchEvent({ type: "render" })
-    },
-
-    resetViewport() {
-        let canvas = this.canvas,
-            width = canvas.clientWidth,
-            height = canvas.clientHeight;
-
-        canvas.width = width;
-        canvas.height = height;
-
-        this.gl.viewport(0, 0, width, height);
-
-        this.camera.setViewport([0, 0, width, height]);
     }
 };
 

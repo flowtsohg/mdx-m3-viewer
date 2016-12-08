@@ -265,18 +265,21 @@ M3Model.prototype = {
         const uniforms = shader.uniforms;
 
         // Team colors
+        let teamColorAttrib = attribs.get("a_teamColor");
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.teamColorBuffer);
-        gl.vertexAttribPointer(attribs.get("a_teamColor"), 1, gl.UNSIGNED_BYTE, false, 1, 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_teamColor"), 1);
+        gl.vertexAttribPointer(teamColorAttrib, 1, gl.UNSIGNED_BYTE, false, 1, 0);
+        instancedArrays.vertexAttribDivisorANGLE(teamColorAttrib, 1);
 
         // Tint colors
+        let tintColorAttrib = attribs.get("a_tintColor");
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.tintColorBuffer);
-        gl.vertexAttribPointer(attribs.get("a_tintColor"), 3, gl.UNSIGNED_BYTE, true, 3, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_tintColor"), 1);
+        gl.vertexAttribPointer(tintColorAttrib, 3, gl.UNSIGNED_BYTE, true, 3, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
+        instancedArrays.vertexAttribDivisorANGLE(tintColorAttrib, 1);
 
+        let instanceIdAttrib = attribs.get("a_InstanceID");
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);
-        gl.vertexAttribPointer(attribs.get("a_InstanceID"), 1, gl.UNSIGNED_SHORT, false, 2, 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 1);
+        gl.vertexAttribPointer(instanceIdAttrib, 1, gl.UNSIGNED_SHORT, false, 2, 0);
+        instancedArrays.vertexAttribDivisorANGLE(instanceIdAttrib, 1);
 
         gl.activeTexture(gl.TEXTURE15);
         gl.bindTexture(gl.TEXTURE_2D, bucket.boneTexture);
@@ -304,13 +307,13 @@ M3Model.prototype = {
 
         this.bindShared(bucket);
 
-        const instancedArrays = webgl.extensions.instancedArrays;
-        const attribs = shader.attribs;
-        const uniforms = shader.uniforms;
+        let instancedArrays = webgl.extensions.instancedArrays,
+            attribs = shader.attribs,
+            uniforms = shader.uniforms;
 
         gl.vertexAttribPointer(attribs.get("a_normal"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 20);
 
-        for (var i = 0; i < uvSetCount; i++) {
+        for (let i = 0; i < uvSetCount; i++) {
             gl.vertexAttribPointer(attribs.get("a_uv" + i), 2, gl.SHORT, false, vertexSize, 24 + i * 4);
         }
 
@@ -326,7 +329,7 @@ M3Model.prototype = {
     },
     
     unbind() {
-        const instancedArrays = this.gl.extensions.instancedArrays,
+        let instancedArrays = this.gl.extensions.instancedArrays,
             shader = this.shader,
             attribs = shader.attribs;
 
@@ -342,7 +345,7 @@ M3Model.prototype = {
     },
 
     renderBatch(bucket, batch) {
-        const shader = this.shader,
+        let shader = this.shader,
             region = batch.region,
             material = batch.material;
 
@@ -375,68 +378,6 @@ M3Model.prototype = {
 
     renderTranslucent(bucket) {
 
-    },
-
-    render(instance) {
-        var context = instance.asyncInstance.context;
-        var gl = context.gl;
-        var ctx = gl.ctx;
-        var i, l;
-        var sequence = instance.sequence;
-        var frame = instance.frame;
-        var tc;
-        var teamId = instance.teamColor;
-        var shaderName = context.shaders[context.shader];
-        var uvSetCount = this.uvSetCount;
-        var realShaderName = "s" + shaderName + uvSetCount;
-        // Instance-based texture overriding
-        var textureMap = instance.textureMap;
-        var shader;
-       
-
-        shader = gl.bindShader(realShaderName);
-
-        instance.skeleton.bind(shader, ctx);
-
-        ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
-        ctx.uniformMatrix4fv(shader.variables.u_mv, false, gl.getViewMatrix());
-
-        ctx.uniform3fv(shader.variables.u_teamColor, context.teamColors[teamId]);
-        ctx.uniform3fv(shader.variables.u_eyePos, context.camera.location);
-        ctx.uniform3fv(shader.variables.u_lightPos, context.lightPosition);
-
-        // Bind the vertices
-        this.bind(shader, ctx);
-
-        for (i = 0, l = this.batches.length; i < l; i++) {
-            var batch = this.batches[i];
-
-            if (instance.meshVisibilities[batch.regionId]) {
-                var region = batch.region;
-                var material = batch.material;
-
-                if (shaderName === "standard" || shaderName === "uvs") {
-                    material.bind(sequence, frame, textureMap, shader, context);
-                } else if (shaderName === "diffuse") {
-                    material.bindDiffuse(sequence, frame, textureMap, shader, context);
-                } else if (shaderName === "normalmap" || shaderName === "unshaded_normalmap") {
-                    material.bindNormalMap(sequence, frame, textureMap, shader, context);
-                } else if (shaderName === "specular") {
-                    material.bindSpecular(sequence, frame, textureMap, shader, context);
-                } else if (shaderName === "specular_normalmap") {
-                    material.bindSpecular(sequence, frame, textureMap, shader, context);
-                    material.bindNormalMap(sequence, frame, textureMap, shader, context);
-                } else if (shaderName === "emissive") {
-                    material.bindEmissive(sequence, frame, textureMap, shader, context);
-                } else if (shaderName === "decal") {
-                    material.bindDecal(sequence, frame, textureMap, shader, context);
-                }
-
-                region.render(shader, ctx, context.polygonMode);
-
-                material.unbind(shader, ctx); // This is required to not use by mistake layers from this material that were bound and are not overwritten by the next material
-            }
-        }
     },
 
     renderEmitters(bucket) {

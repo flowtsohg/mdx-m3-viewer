@@ -204,154 +204,6 @@ MdxModel.prototype = {
         return true;
     },
 
-    // Checks the parser for any errors that will not affect the viewer, but affect the model when it is used in Warcraft 3.
-    // For example, things that make the model completely invalid and unloadable in the game, but work just fine in the viewer.
-    sanityCheck() {
-        let errors = [],
-            warnings = [],
-            chunks = this.parser.chunks;
-
-        // Found in game.dll: "File contains no geosets, lights, sound emitters, attachments, cameras, particle emitters, or ribbon emitters."
-        if (!chunks.GEOS && !chunks.LITE /* && !chunks.SNDS */ && !chunks.ATCH && !chunks.CAMS && !chunks.PREM && !chunks.PRE2 && !chunks.RIBB) {
-            errors.push("The model has no geosets, lights, attachments, cameras, particle emitters, or ribbon emitters");
-        }
-
-        // Sequences
-        if (chunks.SEQS) {
-            let sequences = chunks.SEQS.elements,
-                foundStand = false,
-                foundDeath = false;
-
-            if (sequences.length === 0) {
-                warnings.push("No animations");
-            }
-
-            for (let i = 0, l = sequences.length; i < l; i++) {
-                let sequence = sequences[i],
-                    interval = sequence.interval,
-                    length = interval[1] - interval[0];
-
-                if (sequence.name.toLowerCase().indexOf("stand") !== -1) {
-                    foundStand = true;
-                }
-
-                if (sequence.name.toLowerCase().indexOf("death") !== -1) {
-                    foundDeath = true;
-                }
-
-                if (length <= 0) {
-                    errors.push("Sequence " + sequence.name + ": Invalid length " + length);
-                }
-            }
-
-            if (!foundStand) {
-                warnings.push("No stand animation");
-            }
-
-            if (!foundDeath) {
-                warnings.push("No death animation");
-            }
-        }
-        
-        // Textures
-        if (chunks.TEXS) {
-            let textures = chunks.TEXS.elements;
-
-            for (let i = 0, l = textures.length; i < l; i++) {
-                let texture = textures[i],
-                    replaceableId = texture.replaceableId,
-                    path = texture.path;
-
-                if (path === "" && Mdx.replaceableIdToName[replaceableId] === undefined) {
-                    errors.push("Texture " + i + ": Unknown replaceable ID " + replaceableId);
-                }
-
-                // Is this a warning or an error?
-                if (path !== "" && replaceableId !== 0) {
-                    warnings.push("Texture " + i + ": Path " + path + " and replaceable ID " + replaceableId + " used together");
-                }
-            }
-        }
-
-        // Geosets
-        if (chunks.GEOS) {
-            let geosets = chunks.GEOS.elements;
-
-            for (let i = 0, l = geosets.length; i < l; i++) {
-                let matrixGroups = geosets[i].matrixGroups;
-
-                for (let j = 0, k = matrixGroups.length; j < k; j++) {
-                    let matrixGroup = matrixGroups[j];
-
-                    if (matrixGroup < 1 || matrixGroup > 4) {
-                        warnings.push("Geoset " + i + ": Vertex " + j + " is attached to " + matrixGroup + " bones");
-                    }
-                }
-            }
-        }
-
-        // Geoset animations
-        if (chunks.GEOA && chunks.GEOS) {
-            let biggest = chunks.GEOS.elements.length - 1,
-                usageMap = {},
-                geosetAnimations = chunks.GEOA.elements;
-
-            for (let i = 0, l = geosetAnimations.length; i < l; i++) {
-                let geosetId = geosetAnimations[i].geosetId;
-
-                if (geosetId < 0 || geosetId > biggest) {
-                    errors.push("Geoset animation " + i + ": Invalid geoset ID " + geosetId);
-                }
-
-                if (!usageMap[geosetId]) {
-                    usageMap[geosetId] = [];
-                }
-
-                usageMap[geosetId].push(i);
-            }
-
-            let keys = Object.keys(usageMap);
-
-            for (let i = 0, l = keys.length; i < l; i++) {
-                let geoset = keys[i],
-                    users = usageMap[geoset];
-
-                if (users.length > 1) {
-                    errors.push("Geoset " + geoset + " has " + users.length + " geoset animations referencing it (" + users.join(", ") + ")");
-                }
-            }
-        }
-
-        // Lights
-        if (chunks.LITE) {
-            let lights = chunks.LITE.elements;
-
-            for (let i = 0, l = lights.length; i < l; i++) {
-                let light = lights[i],
-                    attenuation = light.attenuation;
-
-                if (attenuation[0] < 80 || attenuation[1] > 200) {
-                    warnings.push("Light " + light.node.name + ": Attenuation min=" + attenuation[0] + " max=" + attenuation[1]);
-                }
-            }
-        }
-
-        // Event objects
-        if (chunks.EVTS) {
-            let eventObjects = chunks.EVTS.elements;
-
-            for (let i = 0, l = eventObjects.length; i < l; i++) {
-                let eventObject = eventObjects[i];
-
-                if (eventObject.tracks.length === 0) {
-                    errors.push("Event object " + eventObject.node.name + ": No keys");
-                }
-            }
-        }
-
-        return [errors, warnings];
-    },
-
     isVariant(sequence) {
         let nodes = this.nodes;
 
@@ -597,7 +449,7 @@ MdxModel.prototype = {
         }
     },
 
-    bindBucket(bucket) {
+    bind(bucket) {
         const webgl = this.env.webgl;
         var gl = this.gl;
 
@@ -612,7 +464,7 @@ MdxModel.prototype = {
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.__webglElementBuffer);
 
-        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, this.env.camera.worldProjectionMatrix);
+        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, bucket.modelView.scene.camera.worldProjectionMatrix);
 
         gl.uniform1i(uniforms.get("u_texture"), 0);
 
@@ -650,7 +502,7 @@ MdxModel.prototype = {
         gl.enable(gl.CULL_FACE);
         gl.enable(gl.DEPTH_TEST);
 
-        /// Reset the attributes to play nice with other handlers
+        // Reset the attributes to play nice with other handlers
         instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_teamColor"), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_tintColor"), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 0);
@@ -720,7 +572,7 @@ MdxModel.prototype = {
         if (batches && batches.length) {
             const updateBatches = bucket.updateBatches;
 
-            this.bindBucket(bucket);
+            this.bind(bucket);
 
             for (let i = 0, l = batches.length; i < l; i++) {
                 const batch = batches[i];
@@ -745,9 +597,8 @@ MdxModel.prototype = {
     renderEmitters(bucket) {
         let webgl = this.env.webgl,
             gl = this.env.gl,
-            emitters;
+            emitters = this.particleEmitters2;
 
-        emitters = this.particleEmitters2;
         if (emitters.length) {
             gl.depthMask(0);
             gl.enable(gl.BLEND);
@@ -756,7 +607,7 @@ MdxModel.prototype = {
             var shader = Mdx.particleShader;
             webgl.useShaderProgram(shader);
 
-            gl.uniformMatrix4fv(shader.uniforms.get("u_mvp"), false, this.env.camera.worldProjectionMatrix);
+            gl.uniformMatrix4fv(shader.uniforms.get("u_mvp"), false, bucket.modelView.scene.camera.worldProjectionMatrix);
 
             gl.uniform1i(shader.uniforms.get("u_texture"), 0);
 
@@ -770,30 +621,6 @@ MdxModel.prototype = {
         gl.depthMask(1);
         gl.disable(gl.BLEND);
         gl.enable(gl.CULL_FACE);
-
-        /*
-        var viewer = instance.asyncInstance.viewer;
-        var gl = viewer.gl;
-        var ctx = gl.ctx;
-        var i, l;
-        var sequence = instance.sequence;
-        var frame = instance.frame;
-        var counter = instance.counter;
-        var shader;
-
-        if (instance.ribbonEmitters && gl.shaderStatus("wribbons")) {
-            ctx.depthMask(1);
-            ctx.disable(ctx.CULL_FACE);
-
-            shader = gl.bindShader("wribbons");
-            ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
-            ctx.uniform1i(shader.variables.u_texture, 0);
-
-            for (i = 0, l = instance.ribbonEmitters.length; i < l; i++) {
-                instance.ribbonEmitters[i].render(, instance.textureMap, shader, viewer);
-            }
-        }
-        */
     },
 
     bindTexture(textureId, view) {

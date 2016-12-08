@@ -18,6 +18,8 @@ function ModelView(model) {
     this.instanceToBucket = new Map(); // instance->bucket map
     /** @member {boolean} */
     this.rendered = true;
+    /** @member {Scene} */
+    this.scene = null;
 
     ActionQueue.call(this);
 }
@@ -28,15 +30,20 @@ ModelView.prototype = {
         return "modelview";
     },
 
+    setScene(scene) {
+        if (scene && scene.objectType === "scene") {
+            this.scene = scene;
+        }
+    },
+
     /**
      * @method
      * @desc Adds a new instance  to this view, and returns the instance.
      * @returns {@link ModelInstance}
      */
     addInstance() {
-        const model = this.model;
-
-        const resource = new model.Handler.Instance(model.env);
+        let model = this.model,
+            resource = new model.Handler.Instance(model.env);
 
         model.env.registerEvents(resource);
 
@@ -132,7 +139,7 @@ ModelView.prototype = {
 
     renderOpaque() {
         if (this.rendered) {
-            const model = this.model,
+            let model = this.model,
                 buckets = this.buckets;
 
             for (let i = 0, l = buckets.length; i < l; i++) {
@@ -143,7 +150,7 @@ ModelView.prototype = {
 
     renderTranslucent() {
         if (this.rendered) {
-            const model = this.model,
+            let model = this.model,
                 buckets = this.buckets;
 
             for (let i = 0, l = buckets.length; i < l; i++) {
@@ -154,7 +161,7 @@ ModelView.prototype = {
 
     renderEmitters() {
         if (this.rendered) {
-            const model = this.model,
+            let model = this.model,
                 buckets = this.buckets;
 
             for (let i = 0, l = buckets.length; i < l; i++) {

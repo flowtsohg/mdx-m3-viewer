@@ -12,7 +12,7 @@ WANT_M3 = true # Will include DDS, and TGA.
 WANT_STRICT_MODE = true
 
 WANT_MINIFY = true
-WANT_GEN_DOCS = true # Assumes you have JSDoc in your PATH system variable.
+WANT_GEN_DOCS = false # Assumes you have JSDoc in your PATH system variable.
 
 def batch(name, base_path, files, externals=[])
 	return {
@@ -182,6 +182,7 @@ GEO = batch "GEO",
 			"handlers/geo/",
 			[
 				"geometry",
+				"modelview",
 				"model",
 				"modelinstance",
 				"bucket",

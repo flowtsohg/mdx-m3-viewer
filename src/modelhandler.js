@@ -3,10 +3,6 @@ const ModelHandler = {
         return "modelhandler"
     },
 
-    get Model() {
-        throw new Error("ModelHandler.Model must be overriden!");
-    },
-
     get ModelView() {
         return ModelView;
     },

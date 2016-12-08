@@ -11,7 +11,8 @@ function Model(env, pathSolver) {
     /** @member {ModelView[]} */
     this.views = [];
 
-    this.addView(); // Default view
+    // Create a default view
+    this.addView();
 }
 
 
@@ -29,11 +30,19 @@ Model.prototype = {
      * @desc Adds a new view to this model, and returns the view.
      * @returns {@link ModelView}
      */
-    addView() {
+    addView(scene) {
+        // If no scene is given, use the default scene
+        scene = scene || this.env.scenes[0];
+
         const view = new this.Handler.ModelView(this);
 
+        // Add this view to the model
         this.views.push(view);
 
+        // Add this view to the scene
+        scene.addView(view);
+
+        // Call the view's modelReady function when the model is ready
         this.finalizeView(view);
 
         return view;
@@ -72,30 +81,6 @@ Model.prototype = {
 
         for (let i = 0, l = views.length; i < l; i++) {
             views[i].update();
-        }
-    },
-
-    renderViewsOpaque() {
-        const views = this.views;
-
-        for (let i = 0, l = views.length; i < l; i++) {
-            views[i].renderOpaque();
-        }
-    },
-
-    renderViewsTranslucent() {
-        const views = this.views;
-
-        for (let i = 0, l = views.length; i < l; i++) {
-            views[i].renderTranslucent();
-        }
-    },
-
-    renderViewsEmitters() {
-        const views = this.views;
-
-        for (let i = 0, l = views.length; i < l; i++) {
-            views[i].renderEmitters();
         }
     },
 

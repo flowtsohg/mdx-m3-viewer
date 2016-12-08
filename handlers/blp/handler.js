@@ -3,7 +3,7 @@ const Blp = {
         return ".blp";
     },
 
-    get Texture() {
+    get Constructor() {
         return BlpTexture;
     },
 

@@ -62,7 +62,7 @@ ObjModel.prototype = {
 
     // Called every frame, render opaque stuff here.
     renderOpaque(bucket) {
-        const webgl = this.env.webgl,
+        let webgl = this.env.webgl,
             gl = this.env.gl,
             instancedArrays = webgl.extensions.instancedArrays,
             shader = Obj.shader,
@@ -73,7 +73,7 @@ ObjModel.prototype = {
 
         webgl.useShaderProgram(shader);
 
-        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, this.env.camera.worldProjectionMatrix);
+        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, bucket.modelView.scene.camera.worldProjectionMatrix);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.vertexAttribPointer(attribs.get("a_position"), 3, gl.FLOAT, false, 12, 0);

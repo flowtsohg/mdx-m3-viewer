@@ -13,7 +13,7 @@ Built-in handlers exist for the following formats:
 * SLK (table data): partial support, but will probably keep working for Warcraft 3 files.
 * DDS (compressed texture, used by Starcraft 2): partial support, should work for every Starcraft 2 texture, and probably for most DDS files in existence (DXT1/3/5).
 * PNG/JPG/GIF: supported as a wrapper around Image.
-* GEO (my own simple JS format used for simple geometric shapes): note that this is solely a run-time handler.
+* GEO (a simple JS format used for geometric shapes): note that this is solely a run-time handler.
 
 To get a single includeable file, run the given Ruby script in `compiler.rb`. This script gives you compilation options if you open it with a text editor, and will result in `viewer.min.js` getting generated, if you tell it to minify. Running it without changes will generate the minified version including all built-in handlers.
 
@@ -32,7 +32,7 @@ Python 3.x: python -m http.server 80
 
 Next, go to your browser, and open `http://localhost/examples/`.
 
-If you don't want to run an HTTP server, you can use the file:// notation for local files, but note that you must enable local files in your browser settings (otherwise CORS will block fetches). You really should run a server though.
+If you don't want to run an HTTP server, you can use the `file://` notation for local files, but note that you must enable local files in your browser settings (otherwise CORS will block the fetches). You really should run a server though.
 
 ------------------------
 
@@ -71,20 +71,20 @@ let resource = viewer.load(src|src[], pathSolver)
 ```
 
 In other words, you give it either a source, or an array of sources, and the path solver.
-If a single source is given, a single resource (a model, texture, or file object) will be returned.
+If a single source is given, a single resource will be returned.
 If an array is given, an array will be returned, with the same ordering.
+A resource in this context means a model, a texture, or a generic file (any handler that is not a model or texture handler, such as SLK).
 
 The source here can be anything - a string, an object, a typed array, whatever - it highly depends on your code, and on the path solver.
 Generally speaking though, the source will probably be a string containing an url.
 
 The path solver is a function with this signature: `function(src) => [finalSrc, srcExtension, isServerFetch]`, where:
 * `src` is the source (or iteratively an array of sources) you gave the load call.
-It returns an array with three indices.
-* `finalSrc` is the actual source to load from. If this is a server fetch, then this is a path string to fetch from.
-If it's an in-memory load, it depends on what each handler needs.
+* `finalSrc` is the actual source to load from. If this is a server fetch, then this is the url to fetch from.
+If it's an in-memory load, it depends on what each handler requires.
 * `srcExtension` is the extension of the resource you are loading, which selects the handler to use. The extension is given in a ".ext" format.
 That is, a string that contains a dot, followed by the extension.
-Generally speaking, this will usually be the extension of a path string.
+Generally speaking, this will usually be the extension of an url.
 * `isServerFetch` is a boolean, and will determine if this is an in-memory load, or a server fetch. This will usually be true.
 
 So let's use an example.

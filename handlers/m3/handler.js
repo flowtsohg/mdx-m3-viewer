@@ -34,7 +34,7 @@ const M3 = {
         return ".m3";
     },
 
-    get Model() {
+    get Constructor() {
         return M3Model;
     },
 

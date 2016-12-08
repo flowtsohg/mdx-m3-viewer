@@ -31,8 +31,8 @@ const MdxShaders = {
             m += boneAtIndex(bones[2], a_InstanceID);
             m += boneAtIndex(bones[3], a_InstanceID);
 
-            position = vec3((m * vec4(position, 1)) / boneNumber);
-            normal = normalize(vec3(m * vec4(normal, 0)));
+            position = vec3(m * vec4(position, 1)) / boneNumber;
+            normal = normalize(mat3(m) * normal);
         }
 
         void main() {

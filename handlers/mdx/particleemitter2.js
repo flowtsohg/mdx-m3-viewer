@@ -84,12 +84,13 @@ function MdxParticleEmitter2(emitter, model) {
 
 MdxParticleEmitter2.prototype = {
     emitParticle(isHead, instance) {
-        const particles = this.particles,
+        let particles = this.particles,
             openSlots = this.openSlots,
-            activeSlots = this.activeSlots;
+            activeSlots = this.activeSlots,
+            size = (activeSlots.length + this.particlesPerEmit) * this.bytesPerParticle;
 
-        if (this.buffer.float32array.length < (activeSlots.length + this.particlesPerEmit) * 30) {
-            this.buffer.resize((activeSlots.length + this.particlesPerEmit) * this.bytesPerParticle);
+        if (this.buffer.byteLength < size) {
+            this.buffer.resize(size);
         }
 
         if (openSlots.length) {
@@ -170,7 +171,8 @@ MdxParticleEmitter2.prototype = {
         var pv1, pv2, pv3, pv4, csx, csy, csz;
         var rect;
 
-        let camera = this.model.env.camera;
+        /// NOTE: This needs to change when/if I make particle emitters per-model-view as planned.
+        let camera = this.model.env.scenes[0].camera;
 
         // Choose between a default rectangle or billboarded one
         if (this.xYQuad) {

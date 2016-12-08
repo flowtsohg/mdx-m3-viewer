@@ -83,7 +83,7 @@ MdxParticle2.prototype = {
     },
 
     update(emitter) {
-        var dt = emitter.model.env.frameTimeS;
+        var dt = emitter.model.env.frameTime * 0.001;
         var position = this.position;
 
         this.health -= dt;

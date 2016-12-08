@@ -64,8 +64,12 @@ const Geo = {
         return ".geo";
     },
 
-    get Model() {
+    get Constructor() {
         return GeometryModel;
+    },
+
+    get ModelView() {
+        return GeometryModelView;
     },
 
     get Instance() {

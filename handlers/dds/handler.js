@@ -3,7 +3,7 @@ const Dds = {
         return ".dds";
     },
 
-    get Texture() {
+    get Constructor() {
         return DdsTexture;
     },
 

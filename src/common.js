@@ -305,3 +305,11 @@ Array.prototype.unique = function () {
 String.prototype.reverse = function () {
     return [...this].reverse().join("");
 };
+
+Map.prototype.findKey = function (value) {
+    for (let entry of this.entries()) {
+        if (value === entry[1]) {
+            return entry[0];
+        }
+    }
+};

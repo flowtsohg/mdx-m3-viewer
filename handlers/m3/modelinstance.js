@@ -42,7 +42,7 @@ M3ModelInstance.prototype = {
 
             var interval = sequence.interval;
 
-            this.frame += env.frameTimeMS;
+            this.frame += env.frameTime;
 
             if (this.frame > interval[1]) {
                 if ((this.sequenceLoopMode === 0 && !(sequence.flags & 0x1)) || this.sequenceLoopMode === 2) {

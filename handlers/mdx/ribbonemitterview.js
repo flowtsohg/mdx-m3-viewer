@@ -12,7 +12,7 @@ MdxRibbonEmitterView.prototype = {
         if (allowCreate && this.shouldRender(instance)) {
             this.lastCreation += 1;
 
-            var amount = this.emissionRate * viewer.frameTimeS * this.lastCreation;
+            var amount = this.emissionRate * viewer.frameTime * 0.001 * this.lastCreation;
 
             if (amount >= 1) {
                 this.lastCreation = 0;
@@ -27,7 +27,7 @@ MdxRibbonEmitterView.prototype = {
         if (allowCreate && this.shouldRender()) {
             let emitter = this.emitter;
 
-            this.currentEmission += emitter.emissionRate * this.instance.model.env.frameTimeS;
+            this.currentEmission += emitter.emissionRate * this.instance.model.env.frameTime * 0.001;
 
             if (this.currentEmission >= 1) {
                 for (let i = 0, l = Math.floor(this.currentEmission); i < l; i++) {

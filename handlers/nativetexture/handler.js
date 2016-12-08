@@ -3,7 +3,7 @@ const NativeTexture = {
         return ".png|.jpg|.gif";
     },
 
-    get Texture() {
+    get Constructor() {
         return PngTexture;
     },
 

@@ -79,7 +79,7 @@ MdxParticleEmitter.prototype = {
         if (allowCreate && this.shouldRender()) {
             this.lastCreation += 1;
 
-            const amount = this.getEmissionRate() * this.instance.env.frameTimeS * this.lastCreation;
+            const amount = this.getEmissionRate() * this.instance.env.frameTime * 0.001 * this.lastCreation;
 
             if (amount >= 1) {
                 this.lastCreation = 0;

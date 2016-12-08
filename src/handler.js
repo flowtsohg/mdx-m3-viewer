@@ -13,6 +13,12 @@ const Handler = {
         throw new Error("Handler.extension must be overriden!");
     },
 
+    // The main implementation object that this handler handles.
+    // E.g. the model constructor for a model handler.
+    get Constructor() {
+        throw new Error("Handler.Constructor must be overriden!");
+    },
+
     get binaryFormat() {
         return false;
     }

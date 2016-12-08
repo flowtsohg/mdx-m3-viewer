@@ -15,7 +15,7 @@ const Obj = {
         return ".obj";
     },
 
-    get Model() {
+    get Constructor() {
         return ObjModel;
     },
 

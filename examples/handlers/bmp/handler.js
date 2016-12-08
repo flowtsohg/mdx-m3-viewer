@@ -3,7 +3,7 @@ const Bmp = {
         return ".bmp";
     },
 
-    get Texture() {
+    get Constructor() {
         return BmpTexture;
     },
 

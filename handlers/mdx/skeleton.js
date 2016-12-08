@@ -47,7 +47,7 @@ MdxSkeleton.prototype = {
                     scale = modelNode.getScale(instance);
 
                 if (modelNode.billboarded) {
-                    const camera = instance.env.camera;
+                    const camera = instance.bucket.modelView.scene.camera;
 
                     var blarg = [0, 0, 0, 1];
 

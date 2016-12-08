@@ -9,7 +9,7 @@ MdxParticleEmitter2View.prototype = {
         if (allowCreate && this.shouldRender()) {
             let emitter = this.emitter;
 
-            this.currentEmission += this.getEmissionRate() * this.instance.model.env.frameTimeS;
+            this.currentEmission += this.getEmissionRate() * this.instance.model.env.frameTime * 0.001;
 
             if (this.currentEmission >= 1) {
                 for (let i = 0, l = Math.floor(this.currentEmission); i < l; i++) {

@@ -44,21 +44,24 @@ ResizeableBuffer.prototype = {
     resize(size) {
         size = Math.powerOfTwo(size);
 
-        let gl = this.gl,
-            array = new Uint8Array(size),
-            oldArray = this.uint8array;
+        // Only bother resizing if the size isn't the same.
+        if (size !== this.byteLength) {
+            let gl = this.gl,
+                array = new Uint8Array(size),
+                oldArray = this.uint8array;
 
-        if (oldArray.byteLength <= size) {
-            array.set(oldArray);
-        } else {
-            array.set(oldArray.subarray(0, size - 1));
+            if (oldArray.byteLength <= size) {
+                array.set(oldArray);
+            } else {
+                array.set(oldArray.subarray(0, size - 1));
+            }
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, array, gl.DYNAMIC_DRAW);
+
+            this.uint8array = array;
+            this.float32array = new Float32Array(array.buffer);
         }
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-        gl.bufferData(gl.ARRAY_BUFFER, array, gl.DYNAMIC_DRAW);
-
-        this.uint8array = array;
-        this.float32array = new Float32Array(array.buffer);
     },
 
     /**

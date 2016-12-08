@@ -6,9 +6,10 @@ canvas.height = 600;
 // Create the viewer!
 let viewer = new ModelViewer(canvas);
 
-// The viewer's camera object.
+// Scenes are generally not something you'll need, they are used to have different cameras for different instances.
+// In any case, all instances go by default to the first scene, and therefore the first scene's camera is the default camera.
 // The camera is based on Node, so all Node functions work on it.
-let camera = viewer.camera;
+let camera = viewer.scenes[0].camera;
 camera.move([0, 0, -1000]);
 
 // The model viewer, and every resource it loads, all support the following events.

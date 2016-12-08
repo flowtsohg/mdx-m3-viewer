@@ -3,7 +3,7 @@ const Tga = {
         return ".tga";
     },
 
-    get Texture() {
+    get Constructor() {
         return TgaTexture;
     },
 

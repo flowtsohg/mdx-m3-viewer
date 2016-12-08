@@ -22,7 +22,7 @@ const Mpq = {
         return ".mpq";
     },
 
-    get File() {
+    get Constructor() {
         return MpqArchive;
     },
 

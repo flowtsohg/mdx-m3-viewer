@@ -49,7 +49,7 @@ const Mdx = {
         return ".mdx";
     },
 
-    get Model() {
+    get Constructor() {
         return MdxModel;
     },
 

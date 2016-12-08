@@ -3,7 +3,7 @@ const Slk = {
         return ".slk";
     },
 
-    get File() {
+    get Constructor() {
         return SlkFile;
     }
 };

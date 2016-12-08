@@ -4,18 +4,22 @@
  * @param {ModelView} modelView The view this bucket belongs to.
  */
 function Bucket(modelView) {
+    let model = modelView.model,
+        gl = model.env.gl;
+
     /** @member {ModelView} */
     this.modelView = modelView;
     /** @member {Model} */
-    this.model = modelView.model;
+    this.model = model;
     /** @member {ModelInstance[]} */
     this.instances = [];
     /** @member {map.<ModelInstance, number>} */
     this.instanceToIndex = new Map();
 
-    // The index buffer is used instead of gl_InstanceID, which isn't defined in WebGL shaders
-    // It's a simple buffer of indices, [0, 1, ..., this.size - 1]
-    const gl = this.model.env.gl;
+    // The index buffer is used instead of gl_InstanceID, which isn't defined in WebGL shaders.
+    // It's a simple buffer of indices, [0, 1, ..., this.size - 1].
+    // While it can be shared between all buckets in the viewer, this makes the code slightly messy and less dynamic.
+    // It's 256 bytes per bucket, no big deal. Right?
     this.instanceIdBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceIdBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Uint16Array(this.size).map((currentValue, index, array) => index), gl.STATIC_DRAW);
@@ -62,8 +66,8 @@ Bucket.prototype = {
 
     isVisible(instance) {
         //*
-        const ndc = vec3.heap,
-            worldProjectionMatrix = this.model.env.camera.worldProjectionMatrix;
+        let ndc = vec3.heap,
+            worldProjectionMatrix = this.modelView.scene.camera.worldProjectionMatrix;
 
         // This test checks whether the instance's position is visible in NDC space. In other words, that it lies in [-1, 1] on all axes
         vec3.transformMat4(ndc, instance.worldLocation, worldProjectionMatrix);

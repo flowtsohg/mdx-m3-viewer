@@ -36,7 +36,7 @@ Camera.prototype = {
     },
 
     recalculateTransformation() {
-        const worldMatrix = this.worldMatrix,
+        let worldMatrix = this.worldMatrix,
             projectionMatrix = this.projectionMatrix,
             worldProjectionMatrix = this.worldProjectionMatrix,
             inverseRotation = this.inverseRotation,
@@ -92,8 +92,8 @@ Camera.prototype = {
     },
 
     // Given a vector in world space, return the vector transformed to screen space
-    worldToScreen: function (out, v) {
-        const temp = vec3.heap,
+    worldToScreen(out, v) {
+        let temp = vec3.heap,
             viewport = this.viewport;
 
         vec3.transformMat4(temp, v, this.worldProjectionMatrix);
@@ -105,8 +105,8 @@ Camera.prototype = {
     },
 
     // Given a vector in screen space, return the vector transformed to world space, projected on the X-Y plane
-    screenToWorld: function (out, v) {
-        const a = vec3.heap,
+    screenToWorld(out, v) {
+        let a = vec3.heap,
             b = vec3.heap2,
             c = vec3.heap3,
             x = v[0],

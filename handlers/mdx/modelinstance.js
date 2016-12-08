@@ -200,7 +200,7 @@ MdxModelInstance.prototype = {
         if (this.sequenceObject) {
             var sequence = this.sequenceObject;
 
-            this.frame += this.env.frameTimeMS;
+            this.frame += this.env.frameTime;
 
             this.allowParticleSpawn = true;
 

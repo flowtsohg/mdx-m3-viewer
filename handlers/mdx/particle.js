@@ -65,7 +65,7 @@ MdxParticle.prototype = {
 
     update() {
         if (this.alive) {
-            const frameTimeS = this.spawnedInstance.env.frameTimeS;
+            const frameTimeS = this.spawnedInstance.env.frameTime * 0.001;
 
             this.health -= frameTimeS;
 
