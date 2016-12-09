@@ -41,7 +41,7 @@ const M3Shaders = {
         varying vec3 v_normal;
         varying vec4 v_uv[2]; // Pack 4 vec2 in 2 vec4, to reduce the varyings count
         varying vec3 v_lightDir;
-        varying vec3 v_eyeVec;
+        //varying vec3 v_eyeVec;
         varying vec3 v_halfVec;
         varying vec3 v_teamColor;
         //varying vec3 v_tintColor;
@@ -90,27 +90,29 @@ const M3Shaders = {
             vec3 eyeVec = normalize(u_eyePos - position_mv);
             vec3 halfVec = normalize(eyeVec - u_lightPos);
 
-            v_eyeVec = TBN(eyeVec, t, b, n);
+            //v_eyeVec = TBN(eyeVec, t, b, n);
             v_halfVec = TBN(halfVec, t, b, n);
 
             v_normal = n;
 
-            v_uv[0].xy = a_uv0 / 2048.0;
+            vec4 uv0, uv1;
+
+            uv0.xy = a_uv0 / 2048.0;
 
             #ifdef EXPLICITUV1
-            v_uv[0].zw = a_uv1 / 2048.0;
+                uv0.zw = a_uv1 / 2048.0;
             #endif
 
             #ifdef EXPLICITUV2
-            v_uv[0].zw = a_uv1 / 2048.0;
-            v_uv[1].xy = a_uv2 / 2048.0;
+                uv1.xy = a_uv2 / 2048.0;
             #endif
 
             #ifdef EXPLICITUV3
-            v_uv[0].zw = a_uv1 / 2048.0;
-            v_uv[1].xy = a_uv2 / 2048.0;
-            v_uv[1].zw = a_uv3 / 2048.0;
+                uv1.zw = a_uv3 / 2048.0;
             #endif
+
+            v_uv[0]= uv0;
+            v_uv[1] = uv1;
 
             v_teamColor = u_teamColors[int(a_teamColor)];
 	        //v_tintColor = a_tintColor;
@@ -123,7 +125,7 @@ const M3Shaders = {
         varying vec3 v_normal;
         varying vec4 v_uv[2];
         varying vec3 v_lightDir;
-        varying vec3 v_eyeVec;
+        //varying vec3 v_eyeVec;
         varying vec3 v_halfVec;
         varying vec3 v_teamColor;
         //varying vec3 v_tintColor;

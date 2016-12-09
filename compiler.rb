@@ -14,6 +14,8 @@ WANT_STRICT_MODE = true
 WANT_MINIFY = true
 WANT_GEN_DOCS = false # Assumes you have JSDoc in your PATH system variable.
 
+WANT_SPLIT_EXTERNAL = false # Split the external code to a separate file - external.min.js
+
 def batch(name, base_path, files, externals=[])
 	return {
 		"name" => name,
@@ -226,9 +228,15 @@ def minify()
 		out.write "/* #{File.read('LICENSE').strip} */\n"
 		out.write "\"use strict\";\n" if WANT_STRICT_MODE
 
-		External.each { |file| out.write File.read file }
+		External.each { |file| out.write File.read file } if not WANT_SPLIT_EXTERNAL
 		Code.each { |file| out.write File.read file }
 	}
+
+	if WANT_SPLIT_EXTERNAL
+		File.open("external.min.js", "w") { |out|
+			External.each { |file| out.write File.read file }
+		}
+	end
 
 	puts "Done (#{File.size('viewer.min.js') / 2**10}KB)"
 end
