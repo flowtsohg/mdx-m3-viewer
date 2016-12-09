@@ -1,3 +1,7 @@
+def arg_exists?(name)
+	return ARGV.include? "--#{name}"
+end
+
 WANT_SLK = true
 WANT_MPQ = true
 WANT_PNG = true # PNG / JPG / GIF
@@ -10,11 +14,9 @@ WANT_MDX = true # Will include SLK, BLP, TGA, and PNG.
 WANT_M3 = true # Will include DDS, and TGA.
 
 WANT_STRICT_MODE = true
-
 WANT_MINIFY = true
-WANT_GEN_DOCS = false # Assumes you have JSDoc in your PATH system variable.
-
-WANT_SPLIT_EXTERNAL = false # Split the external code to a separate file - external.min.js
+WANT_GEN_DOCS = arg_exists? "gen-docs" # Assumes you have JSDoc in your PATH system variable.
+WANT_SPLIT_EXTERNAL = arg_exists? "split-external" # Split the external code to a separate file - external.min.js
 
 def batch(name, base_path, files, externals=[])
 	return {
