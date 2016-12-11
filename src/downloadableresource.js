@@ -20,6 +20,8 @@ DownloadableResource.prototype = {
     load(src, isBinary, serverFetch) {
         this.originalSrc = src;
 
+        this.dispatchEvent({ type: "loadstart" });
+
         if (serverFetch) {
             get(src, isBinary, xhr => this.onprogress(xhr)).then(xhr => this.onload(xhr.response), xhr => this.onerrorXHR(xhr));
         } else {

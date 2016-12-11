@@ -40,7 +40,7 @@ Model.prototype = {
         this.views.push(view);
 
         // Add this view to the scene
-        scene.addView(view);
+        view.attach(scene);
 
         // Call the view's modelReady function when the model is ready
         this.finalizeView(view);

@@ -313,3 +313,27 @@ Map.prototype.findKey = function (value) {
         }
     }
 };
+
+Map.prototype.deleteValue = function (value) {
+    let key = this.findKey(value);
+
+    if (key) {
+        this.delete(key);
+
+        return true;
+    }
+
+    return false;
+};
+
+Array.prototype.delete = function (value) {
+    let key = this.indexOf(value);
+
+    if (key !== -1) {
+        this.splice(key, 1);
+
+        return true;
+    }
+
+    return false;
+};

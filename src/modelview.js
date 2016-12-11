@@ -30,9 +30,34 @@ ModelView.prototype = {
         return "modelview";
     },
 
-    setScene(scene) {
+    /**
+     * @method
+     * @desc Attach this view to a specific scene.
+     * @param {Scene} scene The scene to attach to.
+     */
+    attach(scene) {
         if (scene && scene.objectType === "scene") {
+            if (this.scene) {
+                this.detach();
+            }
+
             this.scene = scene;
+
+            scene.addView(this);
+        }
+    },
+
+    /**
+     * @method
+     * @desc Detach this view from the scene it is attached to.
+     */
+    detach() {
+        let scene = this.scene;
+
+        if (scene) {
+            this.scene = null;
+
+            scene.removeView(this);
         }
     },
 

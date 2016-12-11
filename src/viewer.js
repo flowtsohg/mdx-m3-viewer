@@ -217,6 +217,7 @@ ModelViewer.prototype = {
         }
     },
 
+    // Load a single resource, called by load (possibly multiple times, if it was given an array).
     loadSingle(src, pathSolver) {
         if (src) {
             let extension,
@@ -241,12 +242,14 @@ ModelViewer.prototype = {
         }
     },
 
+    // Register the viewer to all of the standard events of a resource.
     registerEvents(resource) {
         let listener = (e) => this.dispatchEvent(e);
 
         ["loadstart", "load", "loadend", "error", "progress", "delete"].map(e => resource.addEventListener(e, listener));
     },
 
+    // Used to easily get the resources object from an object type.
     pairFromType(objectType) {
         let resources = this.resources;
 
@@ -261,23 +264,27 @@ ModelViewer.prototype = {
         }
     },
 
+    // The actual resource loader, called by loadSingle.
     loadResource(src, extension, serverFetch, pathSolver, handler) {
         let pair = this.pairFromType(handler.objectType),
             map = pair.map;
 
+        // Only construct the resource if the source was not already loaded.
         if (!map.has(src)) {
             let resource = new handler.Constructor(this, pathSolver);
 
+            // Cache the resource
             map.set(src, resource);
             pair.array.push(resource);
 
+            // Register the standard events.
             this.registerEvents(resource);
 
-            this.dispatchEvent({ type: "loadstart", target: resource });
-
+            // Tell the resource to actually load itself
             resource.load(src, handler.binaryFormat, serverFetch);
         }
 
+        // Get the resource from the cache.
         return map.get(src);
     },
 
@@ -290,22 +297,23 @@ ModelViewer.prototype = {
      */
     delete (resource) {
         if (this.isViewerResource(resource)) {
-            let pair = this.pairFromType(resource.objectType),
-                objects,
-                key;
+            let objectType = resource.objectType,
+                pair = this.pairFromType(objectType);
 
             // Find the resource in the array and splice it.
-            objects = pair.array;
-            key = objects.indexOf(resource);
-            if (key !== -1) {
-                objects.splice(key, 1);
-            }
+            pair.array.delete(resource);
 
             // Find the resource in the map and delete it.
-            objects = pair.map;
-            key = objects.findKey(resource);
-            if (key) {
-                objects.delete(key);
+            pair.map.deleteValue(resource);
+
+            // This is a model, all of its views should be removed from their respective scenes.
+            if (objectType === "model") {
+                let modelViews = resource.views;
+
+                for (let i = 0, l = modelViews.length; i < l; i++) {
+                    // Detach the model view from its scene
+                    modelViews[i].detach();
+                }
             }
         }
     },

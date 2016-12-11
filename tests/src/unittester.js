@@ -13,15 +13,18 @@ function UnitTester() {
     this.canvas = canvas;
     this.viewer = viewer;
     this.tests = new Map();
+    this.mathRandom = Math.random;
 }
 
 UnitTester.prototype = {
     // Run the tests and compare the results against the (hopefully) correct images located on the server.
     // The given callback gets called after each comparison, with the result data.
     run(callback) {
+        this.replaceMathRandom();
+
         this.start((entry) => {
             if (!entry.done) {
-                this.getRenderedUrl((url) => {
+                this.getRenderedAsUrl((url) => {
                     let name = entry.value[0];
 
                     resemble(url).compareTo("tests/" + name + ".png").onComplete(function (data) {
@@ -42,12 +45,18 @@ UnitTester.prototype = {
     downloadTestResults() {
         this.start((entry) => {
             if (!entry.done) {
-                this.downloadRenderedImage(entry.value[0]);
+                this.getRenderedAsUrl((url) => {
+                    this.downloadUrl(url, entry.value[0]);
+                });
+
                 this.next();
-            } else {
-                callback(entry);
             }
         });
+    },
+
+    // Add a new test
+    addTest(name, test) {
+        this.tests.set(name, test);
     },
 
     // Start running tests
@@ -69,6 +78,8 @@ UnitTester.prototype = {
             // Clear the viewer
             viewer.clear();
 
+            this.replaceMathRandom();
+
             // Run the test code
             entry.value[1](viewer);
 
@@ -76,14 +87,11 @@ UnitTester.prototype = {
                 // Update the viewer once to make all of the changes appear
                 viewer.updateAndRender();
 
+                this.resetMathRandom();
+
                 this.callback(entry);
             });
         }
-    },
-
-    // Add a new test
-    addTest(name, test) {
-        this.tests.set(name, test);
     },
 
     /// TODO: Move out of here
@@ -95,34 +103,32 @@ UnitTester.prototype = {
         this.canvas.toBlob((blob) => callback(blob));
     },
 
+    /// TODO: Move out of here
     // Download what is currently rendered by the viewer, with the given file name.
     // The name doesn't seem to work in Firefox (only tested in Firefox and Chrome on Windows).
-    downloadRenderedImage(name) {
-        this.getBlob((blob) => {
-            let a = document.createElement("a"),
-                    url = URL.createObjectURL(blob);
+    downloadUrl(url, name) {
+        let a = document.createElement("a");
 
-            a.href = url;
-            a.download = name;
+        a.href = url;
+        a.download = name;
 
-            a.dispatchEvent(new MouseEvent("click"));
-
-            URL.revokeObjectURL(url);
-        });
+        a.dispatchEvent(new MouseEvent("click"));
     },
 
+    /// TODO: Move out of here
     // Get what is currently rendered by the viewer, as an URL.
-    // Will call callback with the resulting url.
-    getRenderedUrl(callback) {
+    // Will call callback with the resulting URL.
+    getRenderedAsUrl(callback) {
         this.getBlob((blob) => {
             callback(URL.createObjectURL(blob));
         });
     },
 
+    /// TODO: Move out of here
     // Get what is currently renderd by the viewer, as an Image object.
     // Will call callback with the resulting Image.
-    getRenderedImage(callback) {
-        this.getRenderedUrl((url) => {
+    getRenderedAsImage(callback) {
+        this.getRenderedAsUrl((url) => {
             let image = new Image();
 
             image.addEventListener("load", (e) => {
@@ -132,4 +138,25 @@ UnitTester.prototype = {
             image.src = url;
         });
     },
+
+    // Replace Math.random with a custom RNG that allows to set the seed, and use an arbitrary constant seed.
+    // This allows to run the viewer in a deterministic environment for tests.
+    // For example, particles have some randomized data, which can make tests mismatch.
+    // Function taken from http://indiegamr.com/generate-repeatable-random-numbers-in-js/
+    // I simplified it so it will be a direct replacement for Math.random.
+    replaceMathRandom() {
+        let seed = 6;
+        
+        Math.random = function () {
+            seed = (seed * 9301 + 49297) % 233280;
+
+            return seed / 233280;
+        };
+
+        
+    },
+
+    resetMathRandom() {
+        Math.random = this.mathRandom;
+    }
 };

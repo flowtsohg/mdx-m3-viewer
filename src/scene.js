@@ -27,17 +27,30 @@ Scene.prototype = {
 
     /**
      * @method
-     * @desc Adds a new view  to this scene, while setting the view's scene to this scene.
+     * @desc Adds a new view to this scene, while setting the view's scene to this scene.
      * @param {ModelView} modelView The model view to add.
      */
     addView(modelView) {
         if (modelView && modelView.objectType === "modelview") {
-            modelView.setScene(this);
-
             this.modelViews.push(modelView);
         }
     },
 
+    /**
+     * @method
+     * @desc Removes the given view from this scene, if it was in it.
+     * @param {ModelView} modelView The model view to remove.
+     */
+    removeView(modelView) {
+        if (modelView && modelView.objectType === "modelview") {
+            this.modelViews.delete(modelView);
+        }
+    },
+
+    /**
+     * @method
+     * @desc Clear this scene of model views.
+     */
     clear() {
         this.modelViews.length = 0;
     },
