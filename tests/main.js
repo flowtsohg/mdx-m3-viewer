@@ -40,7 +40,7 @@ function addTestResult(testResult) {
 document.body.appendChild(unitTester.canvas);
 
 //*
-unitTester.runTests((testResult) => {
+unitTester.run((testResult) => {
     if (!testResult.done) {
         addTestResult(testResult.value)
     }
