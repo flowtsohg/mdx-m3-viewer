@@ -12,26 +12,7 @@
     </head>
 
     <body>
-        <script src="../external.min.js"></script>
-        <script src="../viewer.min.js"></script>
-        <script src="../external/resemble.js"></script>
-
-        <script src="src/unittest.js"></script>
-        <script src="src/unittester.js"></script>
-        <script src="src/common.js"></script>
-
-        <script src="common.js"></script>
-
-        <!-- TESTS GO IN HERE -->
-        <script src="tests/mdx-load.js"></script>
-        <script src="tests/mdx-sequence.js"></script>
-        <script src="tests/mdx-team-color.js"></script>
-        <script src="tests/mdx-tint-color.js"></script>
-        <script src="tests/mdx-particle-emitter.js"></script>
-        <script src="tests/mdx-particle-emitter-2.js"></script>
-        <script src="tests/mdx-texture-animation.js"></script>
-        <!-- TESTS GO IN HERE -->
-
-        <script src="main.js"></script>
+        <script src="../loader.js"></script>
+        <script>loadUnitTests("../", "main.js")</script>
     </body>
 </html>

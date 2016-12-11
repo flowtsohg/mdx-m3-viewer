@@ -1,3 +1,14 @@
+// Download an url to a file with the given name.
+// The name doesn't seem to work in Firefox (only tested in Firefox and Chrome on Windows).
+function downloadUrl(url, name) {
+    let a = document.createElement("a");
+
+    a.href = url;
+    a.download = name;
+
+    a.dispatchEvent(new MouseEvent("click"));
+}
+
 // Normalize file paths to lowercase, and all slashes being forward.
 function normalizePath(path) {
     return path.toLocaleLowerCase().replace(/\\/g, "/");

@@ -1,0 +1,230 @@
+{
+  "BASE": {
+    "path": "src/",
+    "internal_files": [
+      "common",
+      "binaryreader",
+      "bitbuffer",
+      "math/gl-matrix-addon",
+      "math/interpolator",
+      "math/math",
+      "actionqueue",
+      "eventdispatcher",
+      "node",
+      "boundingshape",
+      "asyncresource",
+      "downloadableresource",
+      "skeleton",
+      "gl/resizeablebuffer",
+      "gl/shader",
+      "gl/gl",
+      "frustum",
+      "camera",
+      "handler",
+      "modelhandler",
+      "texturehandler",
+      "filehandler",
+      "model",
+      "modelview",
+      "modelinstance",
+      "texture",
+      "genericfile",
+      "bucket",
+      "scene",
+      "viewer"
+    ],
+    "external_files": [
+      "gl-matrix/common",
+      "gl-matrix/vec2",
+      "gl-matrix/vec3",
+      "gl-matrix/vec4",
+      "gl-matrix/mat2",
+      "gl-matrix/mat2d",
+      "gl-matrix/mat3",
+      "gl-matrix/mat4",
+      "gl-matrix/quat"
+    ]
+  },
+  "PNG": {
+    "path": "handlers/nativetexture/",
+    "internal_files": [
+      "texture",
+      "handler"
+    ],
+    "external_files": [
+    ]
+  },
+  "BMP": {
+    "path": "handlers/bmp/",
+    "internal_files": [
+      "texture",
+      "handler"
+    ],
+    "external_files": [
+    ]
+  },
+  "W3X": {
+    "path": "handlers/w3x/",
+    "internal_files": [
+      "objects",
+      "map",
+      "handler"
+    ],
+    "external_files": [
+    ]
+  },
+  "MDX": {
+    "path": "handlers/mdx/",
+    "internal_files": [
+      "shaders",
+      "parser",
+      "sd",
+      "skeleton",
+      "collisionshape",
+      "camera",
+      "geoset",
+      "layer",
+      "geosetanimation",
+      "textureanimation",
+      "node",
+      "attachment",
+      "eventobjectspn",
+      "eventobjectspl",
+      "eventobjectubr",
+      "eventobjectemitter",
+      "particle",
+      "particleemitter",
+      "particle2",
+      "particleemitter2",
+      "particleemitter2view",
+      "ribbon",
+      "ribbonemitter",
+      "ribbonemitterview",
+      "bucket",
+      "modelview",
+      "model",
+      "modelinstance",
+      "handler"
+    ],
+    "external_files": [
+    ]
+  },
+  "BLP": {
+    "path": "handlers/blp/",
+    "internal_files": [
+      "texture",
+      "handler"
+    ],
+    "external_files": [
+      "jpg"
+    ]
+  },
+  "SLK": {
+    "path": "handlers/slk/",
+    "internal_files": [
+      "line",
+      "file",
+      "handler"
+    ],
+    "external_files": [
+    ]
+  },
+  "MPQ": {
+    "path": "handlers/mpq/",
+    "internal_files": [
+      "crypto",
+      "hashtable",
+      "blocktable",
+      "file",
+      "archive",
+      "handler"
+    ],
+    "external_files": [
+      "inflate.min"
+    ]
+  },
+  "TGA": {
+    "path": "handlers/tga/",
+    "internal_files": [
+      "texture",
+      "handler"
+    ],
+    "external_files": [
+    ]
+  },
+  "M3": {
+    "path": "handlers/m3/",
+    "internal_files": [
+      "shaders",
+      "parser",
+      "sequence",
+      "sd",
+      "sts",
+      "stc",
+      "stg",
+      "skeleton",
+      "boundingshape",
+      "region",
+      "layer",
+      "standardmaterial",
+      "bucket",
+      "modelview",
+      "model",
+      "modelinstance",
+      "handler"
+    ],
+    "external_files": [
+    ]
+  },
+  "DDS": {
+    "path": "handlers/dds/",
+    "internal_files": [
+      "dxt",
+      "texture",
+      "handler"
+    ],
+    "external_files": [
+    ]
+  },
+  "GEO": {
+    "path": "handlers/geo/",
+    "internal_files": [
+      "geometry",
+      "modelview",
+      "model",
+      "modelinstance",
+      "bucket",
+      "handler"
+    ],
+    "external_files": [
+    ]
+  },
+  "OBJ": {
+    "path": "handlers/obj/",
+    "internal_files": [
+      "model",
+      "modelinstance",
+      "handler"
+    ],
+    "external_files": [
+    ]
+  },
+  "UNIT_TESTS": {
+    "path": "tests/",
+    "internal_files": [
+      "src/unittest",
+      "src/unittester",
+      "src/common",
+      "tests/mdx-load",
+      "tests/mdx-sequence",
+      "tests/mdx-team-color",
+      "tests/mdx-tint-color",
+      "tests/mdx-particle-emitter",
+      "tests/mdx-particle-emitter-2",
+      "tests/mdx-texture-animation"
+    ],
+    "external_files": [
+      "resemble"
+    ]
+  }
+}

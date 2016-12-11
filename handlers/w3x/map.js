@@ -70,7 +70,7 @@ W3xMap.prototype = {
             this.slkFiles[paths[i].substr(paths[i].lastIndexOf("/") + 1).toLowerCase().split(".")[0]] = files[i];
         }
 
-        this.env.whenAllLoaded(files, () => {
+        this.env.whenLoaded(files, () => {
             this.loadTerrain();
             this.loadModifications();
             this.loadDoodads();
@@ -268,7 +268,7 @@ W3xMap.prototype = {
 
             this.cliffTexturesOffset = groundTilesetCount + 1;
 
-            this.env.whenAllLoaded(this.tilesetTextures, _ => {
+            this.env.whenLoaded(this.tilesetTextures, _ => {
                 // Try to avoid texture atlas bleeding
                 for (let texture of this.tilesetTextures) {
                     // To avoid WebGL errors if a texture failed to load
@@ -487,7 +487,7 @@ W3xMap.prototype = {
             textures[i] = this.loadFiles("Textures/Water" + n + "-0.blp");
         }
 
-        this.env.whenAllLoaded(textures, _ => {
+        this.env.whenLoaded(textures, _ => {
             var images = [];
 
             for (var i = 0, l = textures.length; i < l; i++) {

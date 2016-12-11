@@ -140,6 +140,11 @@ ModelViewer.prototype = {
         return false;
     },
 
+    /**
+     * @method
+     * @desc Add a new scene to the viewer, and return it.
+     * @returns {Scene}
+     */
     addScene() {
         let scene = new Scene(this);
 
@@ -206,15 +211,136 @@ ModelViewer.prototype = {
         if (this.resourcesLoading === 0) {
             callback(this);
         } else {
-            if (typeof callback !== "function") {
-                console.log(callback)
-                console.trace();
-            }
             // Self removing listener
             let listener = () => { if (this.resourcesLoading === 0) { this.removeEventListener("loadend", listener); callback(this); } };
 
             this.addEventListener("loadend", listener);
         }
+    },
+
+    /**
+     * @method
+     * @desc Deletes a resource from the viewer.
+     *       Note that this only removes references to this resource, so your code should do the same, to allow GC to work.
+     *       This also means that if a resource is referenced by another resource, it is not going to be GC'd.
+     *       For example, deleting a texture that is being used by a model, will not actually let the GC to collect it, until the model is deleted too and loses all references.
+     */
+    delete (resource) {
+        if (this.isViewerResource(resource)) {
+            let objectType = resource.objectType,
+                pair = this.pairFromType(objectType);
+
+            // Find the resource in the array and splice it.
+            pair.array.delete(resource);
+
+            // Find the resource in the map and delete it.
+            pair.map.deleteValue(resource);
+
+            // This is a model, all of its views should be removed from their respective scenes.
+            if (objectType === "model") {
+                let modelViews = resource.views;
+
+                for (let i = 0, l = modelViews.length; i < l; i++) {
+                    // Detach the model view from its scene
+                    modelViews[i].detach();
+                }
+            }
+        }
+    },
+
+    /**
+     * @method
+     * @desc Checks if a given object is a resource of the viewer.
+     *       This is done by checking the object's objectType field.
+     * @param {object} object The object to check.
+     * @returns {boolean}
+     */
+    isViewerResource(object) {
+        if (object) {
+            let objectType = object.objectType;
+
+            return objectType === "model" || objectType === "texture" || objectType === "file";
+        }
+
+        return false;
+    },
+
+    /**
+     * @method
+     * @desc Remove all of the resources from this model viewer.
+     */
+    clear() {
+        let resources = this.resources;
+
+        for (let pair of [resources.models, resources.textures, resources.files]) {
+            pair.array.length = 0;
+            pair.map.clear();
+        }
+
+        for (let scene of this.scenes) {
+            scene.clear();
+        }
+    },
+
+    /**
+     * @method
+     * @desc Gets a Blob object representing the canvas, and calls the callback with it.
+     *       If you were to manually call viewer.canvas.toBlob(...), chances are the result will be pitch black!
+     *       This is because browsers do funny stuff with the internal buffers of canvases when using WebGL contexts.
+     *       As far as this library is concerned, the only safe place to do rendering-related things is in a "render" event listener.
+     *       This function takes care of this, but keep this information in mind, if you want to do anything related to rendering.
+     * @param {function} callback The callback to call with the blob.
+     */
+    getRenderedAsBlob(callback) {
+        // If the viewer is paused, grab the blob immediately.
+        if (this.paused) {
+            this.canvas.toBlob((blob) => callback(blob));
+        } else {
+            // Not paused, so attach a self-removing "render" event listener, and get the blob there.
+            let listener = () => { this.removeEventListener("render", listener); this.canvas.toBlob((blob) => callback(blob)); };
+
+            this.addEventListener("render", listener);
+        }
+        
+    },
+
+    /**
+     * @method
+     * @desc Gets an URL object representing the canvas, and calls the callback with it.
+     * @param {function} callback The callback to call with the url.
+     */
+    getRenderedAsUrl(callback) {
+        this.getRenderedAsBlob((blob) => {
+            callback(URL.createObjectURL(blob));
+        });
+    },
+
+    /**
+     * @method
+     * @desc Gets an Image object representing the canvas, and calls the callback with it.
+     * @param {function} callback The callback to call with the image.
+     */
+    getRenderedAsImage(callback) {
+        this.getRenderedAsUrl((url) => {
+            let image = new Image();
+
+            image.addEventListener("load", (e) => {
+                callback(image);
+            });
+
+            image.src = url;
+        });
+    },
+
+    /**
+     * @method
+     * @desc Update and render a frame.
+     *       Used by the viewer's main loop, but can also be used for manual control when setting [paused]{@link ModelViewer#paused} to true.
+     * @param {function} callback The callback to call with the image.
+     */
+    updateAndRender() {
+        this.update();
+        this.render();
     },
 
     // Load a single resource, called by load (possibly multiple times, if it was given an array).
@@ -288,70 +414,6 @@ ModelViewer.prototype = {
         return map.get(src);
     },
 
-    /**
-     * @method
-     * @desc Deletes a resource from the viewer.
-     *       Note that this only removes references to this resource, so your code should do the same, to allow GC to work.
-     *       This also means that if a resource is referenced by another resource, it is not going to be GC'd.
-     *       For example, deleting a texture that is being used by a model, will not actually let the GC to collect it, until the model is deleted too and loses all references.
-     */
-    delete (resource) {
-        if (this.isViewerResource(resource)) {
-            let objectType = resource.objectType,
-                pair = this.pairFromType(objectType);
-
-            // Find the resource in the array and splice it.
-            pair.array.delete(resource);
-
-            // Find the resource in the map and delete it.
-            pair.map.deleteValue(resource);
-
-            // This is a model, all of its views should be removed from their respective scenes.
-            if (objectType === "model") {
-                let modelViews = resource.views;
-
-                for (let i = 0, l = modelViews.length; i < l; i++) {
-                    // Detach the model view from its scene
-                    modelViews[i].detach();
-                }
-            }
-        }
-    },
-
-    /**
-     * @method
-     * @desc Checks if a given object is a resource of the viewer.
-     *       This is done by checking the object's objectType field.
-     * @param {object} object The object to check.
-     * @returns {boolean}
-     */
-    isViewerResource(object) {
-        if (object) {
-            let objectType = object.objectType;
-
-            return objectType === "model" || objectType === "texture" || objectType === "file";
-        }
-
-        return false;
-    },
-
-    /**
-     * @method
-     * @desc Remove all of the resources from this model viewer.
-     */
-    clear() {
-        let resources = this.resources;
-
-        for (let pair of [resources.models, resources.textures, resources.files]) {
-            pair.array.length = 0;
-            pair.map.clear();
-        }
-
-        for (let scene of this.scenes) {
-            scene.clear();
-        }
-    },
-
     update() {
         let resources = this.resources,
             objects,
@@ -397,11 +459,6 @@ ModelViewer.prototype = {
         }
 
         this.dispatchEvent({ type: "render" })
-    },
-
-    updateAndRender() {
-        this.update();
-        this.render();
     }
 };
 

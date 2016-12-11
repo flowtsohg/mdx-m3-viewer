@@ -39,18 +39,8 @@ function addTestResult(testResult) {
 
 document.body.appendChild(unitTester.canvas);
 
-//*
 unitTester.run((testResult) => {
     if (!testResult.done) {
         addTestResult(testResult.value)
     }
 });
-//*/
-
-/*
-unitTester.saveTests((testResult) => {
-    if (!testResult.done) {
-        console.log("RESULT", testResult);
-    }
-});
-//*/
