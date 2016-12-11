@@ -19,6 +19,8 @@ ModelInstance.prototype = {
         this.shouldRender = false; // This value should not be used directly, instead use ModelInstance.rendered
         this.noCulling = false; // Set to true if the model should always be rendered
 
+        this.dispatchEvent({ type: "loadstart" });
+
         modelView.add(this);
     },
 

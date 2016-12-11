@@ -78,7 +78,10 @@ AsyncResource.prototype = {
         if (this.loaded || this.error) {
             callback(this);
         } else {
-            this.addAction((callback) => this.whenLoaded(callback), [callback]);
+            // Self removing listener
+            let listener = () => { this.removeEventListener(listener); callback(this); };
+
+            this.addEventListener("loadend", listener);
         }
 
         return this;

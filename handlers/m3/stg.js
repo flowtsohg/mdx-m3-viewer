@@ -1,5 +1,5 @@
 function M3Stg(stg, sts, stc) {
-    this.name = stg.name.getAll();
+    this.name = stg.name.getAll().join("");
     this.stcIndices = stg.stcIndices.getAll();
     this.sts = sts;
     this.stc = stc;

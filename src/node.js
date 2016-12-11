@@ -138,6 +138,22 @@ Node.prototype = {
 
     /**
      * @method
+     * @desc Resets the node's local location, pivot, rotation, and scale, to the default values.
+     * @returns this
+     */
+    resetTransformation() {
+        vec3.copy(this.localLocation, vec3.ZERO);
+        vec3.copy(this.pivot, vec3.ZERO);
+        quat.copy(this.localRotation, quat.DEFAULT);
+        vec3.copy(this.localScale, vec3.ONE);
+
+        this.recalculateTransformation();
+
+        return this;
+    },
+
+    /**
+     * @method
      * @desc Moves the node's pivot.
      * @param {vec3} offset The offset.
      * @returns this

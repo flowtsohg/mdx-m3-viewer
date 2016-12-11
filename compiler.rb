@@ -165,6 +165,7 @@ M3 = batch "M3",
 			[
 				"shaders",
 				"parser",
+				"sequence",
 				"sd",
 				"sts",
 				"stc",
@@ -240,7 +241,9 @@ def minify()
 		}
 	end
 
-	puts "Done (#{File.size('viewer.min.js') / 2**10}KB)"
+	puts "Done"
+	puts "> viewer.min.js (#{File.size('viewer.min.js') / 2**10}KB)"
+	puts "> external.min.js (#{File.size('external.min.js') / 2**10}KB)" if WANT_SPLIT_EXTERNAL
 end
 
 def gen_docs()

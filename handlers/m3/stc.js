@@ -1,7 +1,7 @@
 function M3Stc(stc) {
     const animIds = stc.animIds.getAll();
 
-    this.name = stc.name.getAll();
+    this.name = stc.name.getAll().join("");
     this.runsConcurrent = stc.runsConcurrent;
     this.priority = stc.priority;
     this.stsIndex = stc.stsIndex;

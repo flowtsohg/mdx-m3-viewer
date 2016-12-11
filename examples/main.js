@@ -64,7 +64,7 @@ let texture = viewer.load("texture.bmp", pathSolver);
 
 // Every viewer resource has a whenLoaded function, and the viewer itself has whenAllLoaded.
 // These functions are much like attaching an event listener to the "loadend" event, but it also calls the given callback if the resource was already loaded.
-// ModelViewer.whenAllLoaded works the same way, but takes an array of resources instead, for cases where you want to wait for multiple resources to load before doing something.
+// ModelViewer.whenLoaded works the same way, but takes an array of resources instead, for cases where you want to wait for multiple resources to load before doing something.
 // In this case, let's print that the texture was loaded, whenever it's actually loaded, and the time that passed.
 let initTime = new Date();
 texture.whenLoaded(() => console.log("texture.bmp loaded, it took " + (new Date() - initTime) + " miliseconds!"));
@@ -73,8 +73,12 @@ texture.whenLoaded(() => console.log("texture.bmp loaded, it took " + (new Date(
 // Note that because of the path solver used, the final path is correctly "resources/cube.obj".
 let model = viewer.load("cube.obj", pathSolver);
 
-// Let's see that whenAllLoaded in action!
-viewer.whenAllLoaded([texture, model], (e) => console.log("The texture and model finished loading!"));
+// Let's see that viewer.whenALoaded in action!
+viewer.whenLoaded([texture, model], (e) => console.log("The texture and model finished loading!"));
+
+// Calls the callback when the viewer finishes loading all currently loading resources, or immediately if no resources are being loaded.
+// Note that this includes instances!
+viewer.whenAllLoaded((e) => console.log("Everything loaded"));
 
 // Create an instance of this model.
 let instance = model.addInstance();

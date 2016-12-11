@@ -416,7 +416,7 @@ const M3Parser = (function () {
             skip(reader, 4); // ?
         }
 
-        this.boundingSphere = BoundingSphere(reader);
+        this.boundingSphere = new BoundingSphere(reader);
 
         skip(reader, 12); // ?
     }

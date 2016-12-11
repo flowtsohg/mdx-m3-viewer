@@ -92,8 +92,13 @@ function ModelViewer(canvas) {
     /** @member {scene} */
     this.scenes = [new Scene(this)];
 
+    /** @member {number} */
+    this.resourcesLoading = 0;
+    this.addEventListener("loadstart", () => this.resourcesLoading += 1);
+    this.addEventListener("loadend", () => this.resourcesLoading -= 1);
+
     // Main loop
-    let step = () => { requestAnimationFrame(step); if (!this.paused) { this.update(); this.render(); }};
+    let step = () => { requestAnimationFrame(step); if (!this.paused) { this.updateAndRender(); } };
     step();
 }
 
@@ -166,7 +171,7 @@ ModelViewer.prototype = {
      * @param {AsyncResource[]} resources The resources to wait for.
      * @param {function} callback The callback.
      */
-    whenAllLoaded(resources, callback) {
+    whenLoaded(resources, callback) {
         let loaded = 0,
             wantLoaded = resources.length;
 
@@ -183,8 +188,32 @@ ModelViewer.prototype = {
 
             if (this.isViewerResource(resource)) {
                 resource.whenLoaded(gotLoaded);
+            } else {
+                wantLoaded -= 1;
             }
             
+        }
+    },
+
+    /**
+     * @method
+     * @desc Calls the given callback, when all of the viewer resources finished loading. In the case all of the resources are already loaded, the call happens immediately.
+     *       Note that instances are also counted.
+     * @param {AsyncResource[]} resources The resources to wait for.
+     * @param {function} callback The callback.
+     */
+    whenAllLoaded(callback) {
+        if (this.resourcesLoading === 0) {
+            callback(this);
+        } else {
+            if (typeof callback !== "function") {
+                console.log(callback)
+                console.trace();
+            }
+            // Self removing listener
+            let listener = () => { if (this.resourcesLoading === 0) { this.removeEventListener("loadend", listener); callback(this); } };
+
+            this.addEventListener("loadend", listener);
         }
     },
 
@@ -309,6 +338,10 @@ ModelViewer.prototype = {
             pair.array.length = 0;
             pair.map.clear();
         }
+
+        for (let scene of this.scenes) {
+            scene.clear();
+        }
     },
 
     update() {
@@ -356,6 +389,11 @@ ModelViewer.prototype = {
         }
 
         this.dispatchEvent({ type: "render" })
+    },
+
+    updateAndRender() {
+        this.update();
+        this.render();
     }
 };
 

@@ -3,8 +3,8 @@
  * @classdesc An event dispatcher. Not much else to say.
  */
 function EventDispatcher() {
-    /** @member {array} */
-    this.listeners = [];
+    /** @member {Map.<string, function>} */
+    this.listeners = new Map();
 }
  
 EventDispatcher.prototype = {
@@ -16,13 +16,13 @@ EventDispatcher.prototype = {
      * @returns this
      */
     addEventListener(type, listener) {
-        const listeners = this.listeners;
+        let listeners = this.listeners;
 
-        if (listeners[type] === undefined) {
-            listeners[type] = [];
+        if (!listeners.has(type)) {
+            listeners.set(type, []);
         }
 
-        listeners[type].push(listener);
+        listeners.get(type).push(listener);
 
         return this;
     },
@@ -35,14 +35,13 @@ EventDispatcher.prototype = {
      * @returns this
      */
     removeEventListener(type, listener) {
-        const listeners = this.listeners[type];
+        let listeners = this.listeners.get(type);
 
-        if (listeners !== undefined) {
-            for (let i = 0, l = listeners.length; i < l; i++) {
-                if (listeners[i] === listener) {
-                    listeners.splice(i, 1);
-                    return;
-                }
+        if (listeners) {
+            let index = listeners.indexOf(listener);
+
+            if (index !== -1) {
+                listeners.splice(index, 1);
             }
         }
 
@@ -59,12 +58,14 @@ EventDispatcher.prototype = {
             event.target = this;
         }
 
-        const listeners = this.listeners[event.type];
+        let listeners = this.listeners.get(event.type);
 
-        if (listeners !== undefined) {
+        if (listeners) {
             for (let i = 0, l = listeners.length; i < l; i++) {
                 listeners[i].call(this, event);
             }
         }
+
+        return this;
     }
 };

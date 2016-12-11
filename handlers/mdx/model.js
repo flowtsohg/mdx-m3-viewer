@@ -237,7 +237,7 @@ MdxModel.prototype = {
             }
             
             // When all of the textures are loaded, it's time to construct a texture atlas
-            this.env.whenAllLoaded(textures, () => {
+            this.env.whenLoaded(textures, () => {
                 let textureAtlases = this.textureAtlases;
 
                 // Cache atlases
@@ -528,15 +528,20 @@ MdxModel.prototype = {
         // Team glow
         } else if (replaceable === 2) {
             colorMode = 2;
-        // Normal texture
-        } else {
-            // Does this layer use texture animations with multiple textures?
-            gl.uniform1f(uniforms.get("u_isTextureAnim"), layer.isTextureAnim);
-
-            this.bindTexture(layer.textureId, bucket.modelView);
         }
         
         gl.uniform1f(uniforms.get("u_colorMode"), colorMode);
+
+        // If this is team color/glow, bind the black texture to avoid WebGL errors.
+        // Otherwise, bind the texture used by this layer.
+        if (colorMode) {
+            this.bindTexture();
+        } else {
+            this.bindTexture(layer.textureId, bucket.modelView);
+
+            // Does this layer use texture animations with multiple textures?
+            gl.uniform1f(uniforms.get("u_isTextureAnim"), layer.isTextureAnim);
+        }
 
         // Batch visibilities
         let batchVisible = attribs.get("a_batchVisible");

@@ -16,7 +16,7 @@ function Scene(env) {
     this.rendered = true;
 
     // Default the camera's viewport to the whole canvas used by the viewer
-    this.camera.setViewport([0, 0, canvas.clientWidth, canvas.clientHeight]);
+    this.camera.setViewport([0, 0, canvas.width, canvas.height]);
 }
 
 Scene.prototype = {
@@ -36,6 +36,10 @@ Scene.prototype = {
 
             this.modelViews.push(modelView);
         }
+    },
+
+    clear() {
+        this.modelViews.length = 0;
     },
 
     renderViewsOpaque() {

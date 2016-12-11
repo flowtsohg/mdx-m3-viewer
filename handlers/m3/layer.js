@@ -40,7 +40,7 @@ function M3Layer(material, layer, type, op) {
 
     // Since Gloss doesn't exist in all versions
     if (layer) {
-        let source = layer.imagePath.getAll();
+        let source = layer.imagePath.getAll().join("");
 
         if (source.length !== 0) {
             source = source.replace("\0", "").toLowerCase();

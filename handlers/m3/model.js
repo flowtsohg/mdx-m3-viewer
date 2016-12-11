@@ -27,7 +27,7 @@ M3Model.prototype = {
         var div = parser.divisions.get();
 
         this.parser = parser;
-        this.name = parser.modelName.getAll();
+        this.name = parser.modelName.getAll().join("");
 
         this.setupGeometry(parser, div);
 
@@ -110,7 +110,16 @@ M3Model.prototype = {
         this.initialReference = parser.absoluteInverseBoneRestPositions.getAll();
         this.bones = parser.bones.getAll();
         this.boneLookup = parser.boneLookup.getAll();
-        this.sequences = parser.sequences.getAll();
+
+
+        let sequences = parser.sequences.getAll();
+
+        this.sequences = [];
+
+        for (i = 0, l = sequences.length; i < l; i++) {
+            this.sequences[i] = new M3Sequence(sequences[i]);
+        }
+
         this.sts = [];
         this.stc = [];
         this.stg = [];

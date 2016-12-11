@@ -94,10 +94,10 @@ function readUntilNull(reader) {
 function peekCharArray(reader, size) {
     let uint8array = reader.uint8array,
         index = reader.index,
-        data = "";
+        data = [];
 
     for (let i = 0; i < size; i++) {
-        data += String.fromCharCode(uint8array[index + i]);
+        data[i] = String.fromCharCode(uint8array[index + i]);
     }
 
     return data;

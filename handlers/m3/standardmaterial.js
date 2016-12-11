@@ -2,7 +2,7 @@ function M3StandardMaterial(model, material) {
     this.model = model;
     this.gl = model.env.gl;
 
-    this.name = material.name.getAll();
+    this.name = material.name.getAll().join("");
     this.specialFlags = material.specialFlags;
     this.flags = material.flags;
     this.blendMode = material.blendMode;

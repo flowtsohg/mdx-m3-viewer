@@ -1,9 +1,9 @@
-function Camera(fieldOfView, aspect, nearClipPlane, farClipPlane) {
+function Camera(fieldOfView, aspectRatio, nearClipPlane, farClipPlane) {
     Node.call(this, true);
     Frustum.call(this);
 
     this.fieldOfView = fieldOfView;
-    this.aspectRatio = aspect;
+    this.aspectRatio = aspectRatio;
     this.nearClipPlane = nearClipPlane;
     this.farClipPlane = farClipPlane;
     this.viewport = vec4.create();
