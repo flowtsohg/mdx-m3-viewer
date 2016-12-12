@@ -221,7 +221,8 @@
       "tests/mdx-tint-color",
       "tests/mdx-particle-emitter",
       "tests/mdx-particle-emitter-2",
-      "tests/mdx-texture-animation"
+      "tests/mdx-texture-animation",
+      "tests/mdx-attachment-model"
     ],
     "external_files": [
       "resemble"

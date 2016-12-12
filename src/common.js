@@ -242,36 +242,6 @@ Object.copy = function (object) {
 };
 
 /**
- * A shallow Array copy.
- *
- * @param {array} a The array to copy.
- * @returns {array} The copied array.
- */
-Array.copy = function (array) {
-    var newArray = [];
-
-    for (var i = 0, l = array.length; i < l; i++) {
-        newArray[i] = array[i];
-    }
-
-    return newArray;
-};
-
-/**
- * Clear an array.
- *
- * @param {array} a The array to clear.
- * @returns {array}.
- */
-Array.clear = function (a) {
-    while (a.length) {
-        a.pop();
-    }
-    
-    return a;
-};
-
-/**
  * Shallow array equality test.
  *
  * @param {array} a The first array.

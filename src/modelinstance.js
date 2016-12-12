@@ -33,7 +33,9 @@ ModelInstance.prototype = {
 
         this.initialize();
         this.dispatchEvent({ type: "load" });
+
         this.rendered = true;
+
         this.dispatchEvent({ type: "loadend" });
     },
 
@@ -60,8 +62,10 @@ ModelInstance.prototype = {
 
                 if (shouldRender) {
                     this.modelView.showInstance(this);
-                    this.applyActions(); // This allows to call setters such as setTeamColor also when the instance has no valid arrays, by delaying the actual calls
-                    // When the instance is inserted into a bucket again, the calls will be used with the new valid arrays
+
+                    // This allows to call setters such as setTeamColor also when the instance has no valid arrays, by delaying the actual calls.
+                    // When the instance is inserted into a bucket again, the calls will be used with the new valid arrays.
+                    this.applyActions(); 
                 } else {
                     this.modelView.hideInstance(this);
                 }

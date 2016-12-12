@@ -123,7 +123,7 @@ MdxModelInstance.prototype = {
         const attachments = model.attachments;
 
         for (let i = 0, l = attachments.length; i < l; i++) {
-            const attachment = attachments[i],
+            let attachment = attachments[i],
                 attachedModel = attachment.attachedModel;
 
             if (attachedModel) {
@@ -132,6 +132,7 @@ MdxModelInstance.prototype = {
                 instance.setSequenceLoopMode(2);
                 instance.setParent(this.skeleton.nodes[attachment.node.objectId]);
                 instance.dontInheritScale = false;
+                instance.rendered = false;
 
                 this.modelAttachments.push([attachment, instance]);
             }
@@ -147,6 +148,7 @@ MdxModelInstance.prototype = {
         //    }
         //}
 
+        this.frame = 0;
         this.sequence = -1;
         this.sequenceLoopMode = 0;
         this.sequenceObject = null;
@@ -196,6 +198,27 @@ MdxModelInstance.prototype = {
         */
     },
 
+    updateAttachments() {
+        const modelAttachments = this.modelAttachments;
+        
+        for (let i = 0, l = modelAttachments.length; i < l; i++) {
+            let modelAttachment = modelAttachments[i],
+                attachment = modelAttachment[0],
+                instance = modelAttachment[1];
+
+            if (attachment.getVisibility(this) > 0.1) {
+                if (!instance.rendered) {
+                    instance.rendered = true;
+                    
+                    // Every time the attachment becomes visible again, restart its first sequence.
+                    instance.setSequence(0);
+                }
+            } else {
+                instance.rendered = false;
+            }
+        }
+    },
+
     preemptiveUpdate() {
         if (this.sequenceObject) {
             var sequence = this.sequenceObject;
@@ -228,23 +251,7 @@ MdxModelInstance.prototype = {
 
         this.updateEmitters();
 
-        // Model attachments
-        const modelAttachments = this.modelAttachments;
-
-        for (let i = 0, l = modelAttachments.length; i < l; i++) {
-            let modelAttachment = modelAttachments[i],
-                attachment = modelAttachment[0],
-                instance = modelAttachment[1];
-
-            if (attachment.getVisibility(this) > 0.1) {
-                if (!instance.rendered) {
-                    instance.rendered = true;
-                    instance.setSequence(0);
-                }
-            } else {
-                instance.rendered = false;
-            }
-        }
+        this.updateAttachments();
         
         var batches = model.batches;
 

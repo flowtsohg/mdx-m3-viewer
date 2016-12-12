@@ -26,8 +26,8 @@ UnitTester.prototype = {
             if (!entry.done) {
                 this.viewer.getRenderedAsUrl((url) => {
                     let name = entry.value[0];
-
-                    resemble(url).compareTo("tests/" + name + ".png").onComplete(function (data) {
+                    
+                    resemble(url).compareTo("tests/" + name + ".png").ignoreOutput().onComplete(function (data) {
                         callback({ value: [name, { data, imageSrc: url, testImageSrc: name + ".png" }], done: entry.done });
                     });
 
@@ -47,9 +47,9 @@ UnitTester.prototype = {
             if (!entry.done) {
                 this.viewer.getRenderedAsUrl((url) => {
                     downloadUrl(url, entry.value[0]);
-                });
 
-                this.next();
+                    this.next();
+                });
             }
         });
     },
@@ -78,6 +78,7 @@ UnitTester.prototype = {
             // Clear the viewer
             viewer.clear();
 
+            // Replace Math.random with a custom random seeded function
             this.replaceMathRandom();
 
             // Run the test code
@@ -87,6 +88,7 @@ UnitTester.prototype = {
                 // Update the viewer once to make all of the changes appear
                 viewer.updateAndRender();
 
+                // Put back Math.random in its place
                 this.resetMathRandom();
 
                 this.callback(entry);

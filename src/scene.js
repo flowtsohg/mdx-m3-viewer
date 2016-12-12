@@ -55,7 +55,7 @@ Scene.prototype = {
         this.modelViews.length = 0;
     },
 
-    renderViewsOpaque() {
+    renderOpaque() {
         if (this.rendered) {
             let views = this.modelViews;
 
@@ -67,7 +67,7 @@ Scene.prototype = {
         }
     },
 
-    renderViewsTranslucent() {
+    renderTranslucent() {
         if (this.rendered) {
             let views = this.modelViews;
 
@@ -79,7 +79,7 @@ Scene.prototype = {
         }
     },
 
-    renderViewsEmitters() {
+    renderEmitters() {
         if (this.rendered) {
             let views = this.modelViews;
             

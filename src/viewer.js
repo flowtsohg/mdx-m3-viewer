@@ -225,7 +225,7 @@ ModelViewer.prototype = {
      *       This also means that if a resource is referenced by another resource, it is not going to be GC'd.
      *       For example, deleting a texture that is being used by a model, will not actually let the GC to collect it, until the model is deleted too and loses all references.
      */
-    delete (resource) {
+    delete(resource) {
         if (this.isViewerResource(resource)) {
             let objectType = resource.objectType,
                 pair = this.pairFromType(objectType);
@@ -285,23 +285,12 @@ ModelViewer.prototype = {
     /**
      * @method
      * @desc Gets a Blob object representing the canvas, and calls the callback with it.
-     *       If you were to manually call viewer.canvas.toBlob(...), chances are the result will be pitch black!
-     *       This is because browsers do funny stuff with the internal buffers of canvases when using WebGL contexts.
-     *       As far as this library is concerned, the only safe place to do rendering-related things is in a "render" event listener.
-     *       This function takes care of this, but keep this information in mind, if you want to do anything related to rendering.
      * @param {function} callback The callback to call with the blob.
      */
     getRenderedAsBlob(callback) {
-        // If the viewer is paused, grab the blob immediately.
-        if (this.paused) {
-            this.canvas.toBlob((blob) => callback(blob));
-        } else {
-            // Not paused, so attach a self-removing "render" event listener, and get the blob there.
-            let listener = () => { this.removeEventListener("render", listener); this.canvas.toBlob((blob) => callback(blob)); };
-
-            this.addEventListener("render", listener);
-        }
-        
+        // Must render to ensure that the internal canvas buffer is valid.
+        this.render();
+        this.canvas.toBlob((blob) => callback(blob));
     },
 
     /**
@@ -414,6 +403,7 @@ ModelViewer.prototype = {
         return map.get(src);
     },
 
+    // Update. Duh.
     update() {
         let resources = this.resources,
             objects,
@@ -436,6 +426,7 @@ ModelViewer.prototype = {
         }
     },
 
+    // Render. Duh.
     render() {
         let scenes = this.scenes,
             gl = this.gl,
@@ -447,15 +438,15 @@ ModelViewer.prototype = {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         for (i = 0; i < l; i++) {
-            scenes[i].renderViewsOpaque();
+            scenes[i].renderOpaque();
         }
 
         for (i = 0; i < l; i++) {
-            scenes[i].renderViewsTranslucent();
+            scenes[i].renderTranslucent();
         }
 
         for (i = 0; i < l; i++) {
-            scenes[i].renderViewsEmitters();
+            scenes[i].renderEmitters();
         }
 
         this.dispatchEvent({ type: "render" })

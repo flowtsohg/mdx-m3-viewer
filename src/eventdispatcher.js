@@ -61,6 +61,9 @@ EventDispatcher.prototype = {
         let listeners = this.listeners.get(event.type);
 
         if (listeners) {
+            // If the original array is looped, and a callback removes a listener (e.g. a self-removing listener), the iteration logic is broken.
+            listeners = listeners.slice();
+
             for (let i = 0, l = listeners.length; i < l; i++) {
                 listeners[i].call(this, event);
             }

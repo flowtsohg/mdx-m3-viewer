@@ -24,10 +24,12 @@ ActionQueue.prototype = {
      * @desc Runs all of the actions in the queue, emptying it.
      */
     applyActions() {
-        for (let action of this.actions) {
-            action[0].apply(this, action[1]);
-        }
+        let actions = this.actions;
 
         this.actions = [];
+
+        for (let action of actions) {
+            action[0].apply(this, action[1]);
+        }  
     }
 };

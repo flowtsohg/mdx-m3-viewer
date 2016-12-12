@@ -14,8 +14,12 @@ Built-in handlers exist for the following formats:
 * DDS (compressed texture, used by Starcraft 2): partial support, should work for every Starcraft 2 texture, and probably for most DDS files in existence (DXT1/3/5).
 * PNG/JPG/GIF: supported as a wrapper around Image.
 * GEO (a simple JS format used for geometric shapes): note that this is solely a run-time handler.
+* OBJ: partial support (more of an example handler).
+* BMP: partial support (more of an example handler).
 
 To get a single includeable file, run the given Ruby script in `compiler.rb`. This script gives you compilation options if you open it with a text editor, and will result in `viewer.min.js` getting generated, if you tell it to minify. Running it without changes will generate the minified version including all built-in handlers.
+In addition, the compiler supports `--gen-docs`, which creates the documentation files (assuming you have JSDoc in your system PATH variable), `--split-external`, which splits the final output to all viewer files in `viewer.min.js`, and all external sources (e.g. glMatrix) in external.min.js.
+Finally, there's `--unit-tests', which includes the unit tester and all of the unit tests.
 
 ------------------------
 
@@ -121,13 +125,13 @@ This function call results in the following chain of events:
 2. The viewer chooses the correct handler based on the extension - in this case the MDX handler - sees this is a server fetch, and uses the source for the fetch.
 3. A new MDX model is created and starts loading (at this point the viewer gets a `loadstart` event from the model).
 4. The model is returned.
-5. ...time passes until the model finishes loading...(meanwhile, the model sends `progress` events, if it's a server fetch)
+5. ...time passes until the model finishes loading...(meanwhile, the model sends `progress` events, if it's a server fetch, which it is in this case)
 6. The model is constructed successfuly, or not, and sends a `load` or `error` event respectively, followed by the `loadend` event.
 7. In the case of a MDX model, the previous step will also cause it to load its textures, in this case `texture.blp`.
 8. myPathSolver is called with `texture.blp`, which returns `["Resources/texture.blp", ".blp", true]`, and we loop back to step 2, but with a texture this time.
 
 The path solver does two jobs here. First of all, it made the load calls shorter by avoiding to type "Resources/". But the real deal, is that it allows to selectively override sources, and change them in interesting ways.
-In this case, it allowed `model.mdx` to load `texture.blp`, wnich is a relative path. If the path would have been given directly, then the file wouldn't have been found.
+In this case, it allowed `model.mdx` to load `texture.blp`, which is a relative path. If the path would have been given directly, then the file wouldn't have been found.
 Generally speaking, an identity solver is what you'll need (as in, it returns the source assuming its an url but prepended by some directory, its extension, and true for server fetch), but there are cases where this is not the case, such as loading custom user-made models, handling both in-memory and server-fetches in the same solver (used by the W3X handler), etc.
 
 So, we now have a model, but a model isn't something you can see. What you see in a scene are instances of a model.
