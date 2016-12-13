@@ -6,6 +6,14 @@ canvas.height = 600;
 // Create the viewer!
 let viewer = new ModelViewer(canvas);
 
+// The viewer has the update(), render(), and updateAndRender() functions.
+// Generally speaking, you will want a simple never ending loop like the one that follows, but who knows. The control is in your hands.
+(function step() {
+    requestAnimationFrame(step);
+
+    viewer.updateAndRender();
+}());
+
 // Scenes are generally not something you'll need, they are used to have different cameras for different instances.
 // In any case, all instances go by default to the first scene, and therefore the first scene's camera is the default camera.
 // The camera is based on Node, so all Node functions work on it.
@@ -76,10 +84,6 @@ let model = viewer.load("cube.obj", pathSolver);
 // Let's see that viewer.whenALoaded in action!
 viewer.whenLoaded([texture, model], (e) => console.log("The texture and model finished loading!"));
 
-// Calls the callback when the viewer finishes loading all currently loading resources, or immediately if no resources are being loaded.
-// Note that this includes instances!
-viewer.whenAllLoaded((e) => console.log("Everything loaded"));
-
 // Create an instance of this model.
 let instance = model.addInstance();
 
@@ -89,6 +93,10 @@ instance.move([50, 0, 0]).uniformScale(2);
 // Let's create another instance, and mess with it.
 let instance2 = model.addInstance().move([-150, 0, 0]).scale([0.5, 2, 5]);
 
+// Calls the callback when the viewer finishes loading all currently loading resources, or immediately if no resources are being loaded.
+// Note that this includes instances!
+viewer.whenAllLoaded((e) => console.log("Everything loaded (including instance and instance2)"));
+
 // Finally, let's mess around with nodes.
 instance2.setParent(instance);
 
@@ -97,6 +105,7 @@ let q = quat.setAxisAngle([], vec3.normalize([], [1, 1, 1]), Math.PI / 120);
 let q2 = quat.setAxisAngle([], vec3.normalize([], [1, 1, 1]), Math.PI / 30);
 
 // e.target == viewer, for the "render" event.
+// Obviously you can also put this code in the updateAndRender loop above.
 viewer.addEventListener("render", (e) => {
     instance.rotate(q);
     instance2.rotate(q2);

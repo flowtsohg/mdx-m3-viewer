@@ -8,7 +8,6 @@ function UnitTester() {
     viewer.addHandler(W3x);
     viewer.addHandler(M3);
     viewer.addEventListener("error", (e) => console.log(e));
-    viewer.paused = true; // The viewer will be manually controlled anyway, might as well not have it running all the time
 
     this.canvas = canvas;
     this.viewer = viewer;
@@ -16,19 +15,42 @@ function UnitTester() {
     this.mathRandom = Math.random;
 }
 
+mix(UnitTester, {
+    // ModelViewer.load, but waits for each resource to load, until the next one starts loading.
+    // Can be used to run a simple JS test over a big list of sources, without hogging browser resources.
+    loadSync(viewer, sources, pathSolver, callback) {
+        this.loadResourceSync(viewer, callback, pathSolver, sources, 0, sources.length, new Date());
+    },
+
+    loadResourceSync(viewer, callback, pathSolver, sources, currentIndex, finalIndex, startTime) {
+        let time = new Date() - startTime;
+
+        if (currentIndex < finalIndex) {
+            let resource = viewer.load(sources[currentIndex], pathSolver);
+
+            resource.whenLoaded((resource) => {
+                callback({ value: { sources, currentIndex, resource, time }, done: false });
+
+                this.loadResourceSync(viewer, callback, pathSolver, sources, currentIndex + 1, finalIndex, startTime);
+            });
+        } else {
+            callback({ value: { time }, done: true });
+        }
+    }
+});
+
 UnitTester.prototype = {
     // Run the tests and compare the results against the (hopefully) correct images located on the server.
     // The given callback gets called after each comparison, with the result data.
     run(callback) {
-        this.replaceMathRandom();
-
         this.start((entry) => {
             if (!entry.done) {
-                this.viewer.getRenderedAsUrl((url) => {
-                    let name = entry.value[0];
+                this.viewer.toBlob((blob) => {
+                    let url = URL.createObjectURL(blob),
+                        name = entry.value[0];
                     
                     resemble(url).compareTo("tests/" + name + ".png").ignoreOutput().onComplete(function (data) {
-                        callback({ value: [name, { data, imageSrc: url, testImageSrc: name + ".png" }], done: entry.done });
+                        callback({ value: [name, data], done: entry.done });
                     });
 
                     this.next();
@@ -45,8 +67,8 @@ UnitTester.prototype = {
     downloadTestResults() {
         this.start((entry) => {
             if (!entry.done) {
-                this.viewer.getRenderedAsUrl((url) => {
-                    downloadUrl(url, entry.value[0]);
+                this.viewer.toBlob((blob) => {
+                    downloadUrl(URL.createObjectURL(blob), entry.value[0]);
 
                     this.next();
                 });
@@ -78,7 +100,7 @@ UnitTester.prototype = {
             // Clear the viewer
             viewer.clear();
 
-            // Replace Math.random with a custom random seeded function
+            // Replace Math.random with a custom seeded random function
             this.replaceMathRandom();
 
             // Run the test code
@@ -96,21 +118,11 @@ UnitTester.prototype = {
         }
     },
 
-    // Replace Math.random with a custom RNG that allows to set the seed, and use an arbitrary constant seed.
+    // Replace Math.random with a custom seeded random generator.
     // This allows to run the viewer in a deterministic environment for tests.
     // For example, particles have some randomized data, which can make tests mismatch.
-    // Function taken from http://indiegamr.com/generate-repeatable-random-numbers-in-js/
-    // I simplified it so it will be a direct replacement for Math.random.
     replaceMathRandom() {
-        let seed = 6;
-        
-        Math.random = function () {
-            seed = (seed * 9301 + 49297) % 233280;
-
-            return seed / 233280;
-        };
-
-        
+        Math.random = seededRandom(6);
     },
 
     // Reset Math.random to the original function

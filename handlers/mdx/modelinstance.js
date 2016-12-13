@@ -56,6 +56,7 @@ MdxModelInstance.prototype = {
         //            ...
         //            instance.setUniformScale(radius)
         //-------------------------------------------------------------------------------------------------------
+        var viewer = model.env;
         var boundingShapes = model.boundingShapes;
         boundingShapes = [];
         for (var i = 0, l = boundingShapes.length; i < l; i++) {
@@ -73,7 +74,7 @@ MdxModelInstance.prototype = {
                 var boundingModel = viewer.load({ geometry: createCube((x2 - x1) / 2, (y2 - y1) / 2, (z2 - z1) / 2), material: { renderMode: 1 } }, Geo.pathSolver);
                 var instance = boundingModel.addInstance();
                 instance.dontInheritScale = false; // Override since the bounding shapes should scale with the instance
-                instance.setLocation([(x2 + x1) / 2, (y2 + y1) / 2, (z2 + z1) / 2]);
+                instance.setLocation([(x2 + x1) / 2, (y2 + y1) / 2, -(z2 + z1) / 4]);
                 instance.setParent(this.skeleton.nodes[boundingShape.node.index]);
             } else if (boundingShape.type === 2) {
                 var boundingModel = viewer.load({ geometry: createSphere(boundingShape.radius, 12, 12), material: { renderMode: 1 } }, Geo.pathSolver);
@@ -149,6 +150,7 @@ MdxModelInstance.prototype = {
         //}
 
         this.frame = 0;
+        this.counter = 0; // Global sequences
         this.sequence = -1;
         this.sequenceLoopMode = 0;
         this.sequenceObject = null;
@@ -221,10 +223,11 @@ MdxModelInstance.prototype = {
 
     preemptiveUpdate() {
         if (this.sequenceObject) {
-            var sequence = this.sequenceObject;
+            var sequence = this.sequenceObject,
+                frameTime = this.env.frameTime;
 
-            this.frame += this.env.frameTime;
-
+            this.frame += frameTime;
+            this.counter += frameTime;
             this.allowParticleSpawn = true;
 
             if (this.frame >= sequence.interval[1]) {
@@ -232,6 +235,7 @@ MdxModelInstance.prototype = {
                     this.frame = sequence.interval[0];
                 } else {
                     this.frame = sequence.interval[1];
+                    this.counter -= frameTime;
                     this.allowParticleSpawn = false;
                 }
 

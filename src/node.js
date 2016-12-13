@@ -336,40 +336,24 @@ Node.prototype = {
 
             mat4.copy(heap, parent.worldMatrix);
 
-            // If this node shouldn't inherit the parent's rotation, rotation it by the inverse
+            // If this node shouldn't inherit the parent's rotation, rotate it by the inverse.
             if (this.dontInheritRotation) {
                 mat4.rotate(heap, heap, parent.inverseWorldRotation);
             }
 
-            // If this node shouldn't inherit the parent's scale, scale it by the inverse
+            // If this node shouldn't inherit the parent's scale, scale it by the inverse.
             if (this.dontInheritScaling) {
                 mat4.scale(heap, heap, parent.inverseWorldScale);
             }
 
-            // If this node shouldn't inherit the parent's translation, translate it by the inverse
+            // If this node shouldn't inherit the parent's translation, translate it by the inverse.
             if (this.dontInheritTranslation) {
                 mat4.translate(heap, heap, parent.inverseWorldLocation);
             }
 
             mat4.mul(worldMatrix, heap, localMatrix);
 
-            //mat4.mul(worldMatrix, parent.worldMatrix, localMatrix);
-            /*
-            // If this node shouldn't inherit the parent's rotation, rotation it by the inverse
-            if (this.dontInheritRotation) {
-                mat4.rotate(worldMatrix, worldMatrix, parent.inverseWorldRotation);
-            }
-
-            // If this node shouldn't inherit the parent's scale, scale it by the inverse
-            if (this.dontInheritScaling) {
-                mat4.scale(worldMatrix, worldMatrix, parent.inverseWorldScale);
-            }
-
-            // If this node shouldn't inherit the parent's translation, translate it by the inverse
-            if (this.dontInheritTranslation) {
-                mat4.translate(worldMatrix, worldMatrix, parent.inverseWorldLocation);
-            }
-            */
+            /// TODO: what happens when dontInheritRotation is true?
 
             // World rotation and inverse world rotation
             quat.mul(worldRotation, parent.worldRotation, localRotation);
@@ -383,6 +367,8 @@ Node.prototype = {
         // Scale and inverse scale
         mat4.getScaling(worldScale, worldMatrix);
         vec3.inverse(this.inverseWorldScale, worldScale);
+
+        /// TODO: what happens when dontInheritTranslation is true?
 
         // World location and inverse world location
         vec3.copy(worldLocation, pivot);

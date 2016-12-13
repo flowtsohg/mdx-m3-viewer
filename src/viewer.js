@@ -7,9 +7,6 @@
 function ModelViewer(canvas) {
     EventDispatcher.call(this);
 
-    /** @member {boolean} */
-    this.paused = false;
-
     /** @member {object} */
     this.resources = {
         models: {
@@ -96,10 +93,6 @@ function ModelViewer(canvas) {
     this.resourcesLoading = 0;
     this.addEventListener("loadstart", () => this.resourcesLoading += 1);
     this.addEventListener("loadend", () => this.resourcesLoading -= 1);
-
-    // Main loop
-    let step = () => { requestAnimationFrame(step); if (!this.paused) { this.updateAndRender(); } };
-    step();
 }
 
 ModelViewer.prototype = {
@@ -107,7 +100,7 @@ ModelViewer.prototype = {
      * @method
      * @desc Registers a new handler.
      * @param {Handler} handler The handler.
-     * @returns this
+     * @returns {boolean}
      */
     addHandler(handler) {
         if (handler) {
@@ -159,15 +152,14 @@ ModelViewer.prototype = {
      *       If a single source was given, a single object will be returned. If an array was given, an array will be returned, with the same ordering.
      * @param {any|any[]} src The source used for the load.
      * @param {function} pathSolver The path solver used by this load, and any subsequent loads that are caused by it (for example, a model that loads its textures).
-     * @see See more {@link LoadPathSolver here}.
      * @returns {AsyncResource|AsyncResource[]}
      */
     load(src, pathSolver) {
         if (Array.isArray(src)) {
-            return src.map((single) => this.loadSingle(single, pathSolver));
+            return src.map((element) => this.loadResource(element, pathSolver));
         }
 
-        return this.loadSingle(src, pathSolver);
+        return this.loadResource(src, pathSolver);
     },
 
     /**
@@ -191,7 +183,7 @@ ModelViewer.prototype = {
         for (let i = 0; i < wantLoaded; i++) {
             let resource = resources[i];
 
-            if (this.isViewerResource(resource)) {
+            if (this.isResource(resource)) {
                 resource.whenLoaded(gotLoaded);
             } else {
                 wantLoaded -= 1;
@@ -204,7 +196,6 @@ ModelViewer.prototype = {
      * @method
      * @desc Calls the given callback, when all of the viewer resources finished loading. In the case all of the resources are already loaded, the call happens immediately.
      *       Note that instances are also counted.
-     * @param {AsyncResource[]} resources The resources to wait for.
      * @param {function} callback The callback.
      */
     whenAllLoaded(callback) {
@@ -223,10 +214,10 @@ ModelViewer.prototype = {
      * @desc Deletes a resource from the viewer.
      *       Note that this only removes references to this resource, so your code should do the same, to allow GC to work.
      *       This also means that if a resource is referenced by another resource, it is not going to be GC'd.
-     *       For example, deleting a texture that is being used by a model, will not actually let the GC to collect it, until the model is deleted too and loses all references.
+     *       For example, deleting a texture that is being used by a model will not actually let the GC to collect it, until the model is deleted too, and loses all references.
      */
     delete(resource) {
-        if (this.isViewerResource(resource)) {
+        if (this.isResource(resource)) {
             let objectType = resource.objectType,
                 pair = this.pairFromType(objectType);
 
@@ -236,12 +227,12 @@ ModelViewer.prototype = {
             // Find the resource in the map and delete it.
             pair.map.deleteValue(resource);
 
-            // This is a model, all of its views should be removed from their respective scenes.
+            // If this is a model, all of its views should be removed from their respective scenes.
             if (objectType === "model") {
                 let modelViews = resource.views;
 
                 for (let i = 0, l = modelViews.length; i < l; i++) {
-                    // Detach the model view from its scene
+                    // Detach the view from its scene.
                     modelViews[i].detach();
                 }
             }
@@ -255,7 +246,7 @@ ModelViewer.prototype = {
      * @param {object} object The object to check.
      * @returns {boolean}
      */
-    isViewerResource(object) {
+    isResource(object) {
         if (object) {
             let objectType = object.objectType;
 
@@ -267,7 +258,7 @@ ModelViewer.prototype = {
 
     /**
      * @method
-     * @desc Remove all of the resources from this model viewer.
+     * @desc Removes all of the resources from this model viewer.
      */
     clear() {
         let resources = this.resources;
@@ -287,53 +278,87 @@ ModelViewer.prototype = {
      * @desc Gets a Blob object representing the canvas, and calls the callback with it.
      * @param {function} callback The callback to call with the blob.
      */
-    getRenderedAsBlob(callback) {
+    toBlob(callback) {
         // Must render to ensure that the internal canvas buffer is valid.
-        this.render();
+        if (!this.paused) {
+            this.render();
+        }
+
         this.canvas.toBlob((blob) => callback(blob));
     },
 
     /**
      * @method
-     * @desc Gets an URL object representing the canvas, and calls the callback with it.
-     * @param {function} callback The callback to call with the url.
-     */
-    getRenderedAsUrl(callback) {
-        this.getRenderedAsBlob((blob) => {
-            callback(URL.createObjectURL(blob));
-        });
-    },
-
-    /**
-     * @method
-     * @desc Gets an Image object representing the canvas, and calls the callback with it.
-     * @param {function} callback The callback to call with the image.
-     */
-    getRenderedAsImage(callback) {
-        this.getRenderedAsUrl((url) => {
-            let image = new Image();
-
-            image.addEventListener("load", (e) => {
-                callback(image);
-            });
-
-            image.src = url;
-        });
-    },
-
-    /**
-     * @method
      * @desc Update and render a frame.
-     *       Used by the viewer's main loop, but can also be used for manual control when setting [paused]{@link ModelViewer#paused} to true.
-     * @param {function} callback The callback to call with the image.
      */
     updateAndRender() {
         this.update();
         this.render();
     },
 
+    /**
+     * @method
+     * @desc Update.
+     */
+    update() {
+        let resources = this.resources,
+            objects,
+            i,
+            l;
+
+        // Update all of the models (or rather, their instances).
+        objects = resources.models.array;
+        for (i = 0, l = objects.length; i < l; i++) {
+            objects[i].update();
+        }
+
+        // Update all of the textures.
+        objects = resources.textures.array;
+        for (i = 0, l = objects.length; i < l; i++) {
+            objects[i].update();
+        }
+
+        // Update all of the generic files.
+        objects = resources.files.array;
+        for (i = 0, l = objects.length; i < l; i++) {
+            objects[i].update();
+        }
+    },
+
+    /**
+     * @method
+     * @desc Render.
+     */
+    render() {
+        let scenes = this.scenes,
+            gl = this.gl,
+            i,
+            l = scenes.length;
+
+        // See https://www.opengl.org/wiki/FAQ#Masking
+        gl.depthMask(1);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        // Render all of  the opaque stuff.
+        for (i = 0; i < l; i++) {
+            scenes[i].renderOpaque();
+        }
+
+        // Render all of the translucent stuff.
+        for (i = 0; i < l; i++) {
+            scenes[i].renderTranslucent();
+        }
+
+        // Render particle emitters.
+        for (i = 0; i < l; i++) {
+            scenes[i].renderEmitters();
+        }
+
+        this.dispatchEvent({ type: "render" })
+    },
+
     // Load a single resource, called by load (possibly multiple times, if it was given an array).
-    loadSingle(src, pathSolver) {
+    loadResource(src, pathSolver) {
         if (src) {
             let extension,
                 serverFetch;
@@ -350,7 +375,26 @@ ModelViewer.prototype = {
 
             // Is there an handler for this file type?
             if (handler) {
-                return this.loadResource(src, extension, serverFetch, pathSolver, handler);
+                let pair = this.pairFromType(handler.objectType),
+                    map = pair.map;
+
+                // Only construct the resource if the source was not already loaded.
+                if (!map.has(src)) {
+                    let resource = new handler.Constructor(this, pathSolver);
+
+                    // Cache the resource
+                    map.set(src, resource);
+                    pair.array.push(resource);
+
+                    // Register the standard events.
+                    this.registerEvents(resource);
+
+                    // Tell the resource to actually load itself
+                    resource.load(src, handler.binaryFormat, serverFetch);
+                }
+
+                // Get the resource from the cache.
+                return map.get(src);
             } else {
                 this.dispatchEvent({ type: "error", error: "MissingHandler", extra: [src, extension, serverFetch] });
             }
@@ -377,79 +421,6 @@ ModelViewer.prototype = {
         } else {
             throw new Error("NOPE");
         }
-    },
-
-    // The actual resource loader, called by loadSingle.
-    loadResource(src, extension, serverFetch, pathSolver, handler) {
-        let pair = this.pairFromType(handler.objectType),
-            map = pair.map;
-
-        // Only construct the resource if the source was not already loaded.
-        if (!map.has(src)) {
-            let resource = new handler.Constructor(this, pathSolver);
-
-            // Cache the resource
-            map.set(src, resource);
-            pair.array.push(resource);
-
-            // Register the standard events.
-            this.registerEvents(resource);
-
-            // Tell the resource to actually load itself
-            resource.load(src, handler.binaryFormat, serverFetch);
-        }
-
-        // Get the resource from the cache.
-        return map.get(src);
-    },
-
-    // Update. Duh.
-    update() {
-        let resources = this.resources,
-            objects,
-            i,
-            l;
-
-        objects = resources.models.array;
-        for (i = 0, l = objects.length; i < l; i++) {
-            objects[i].update();
-        }
-
-        objects = resources.textures.array;
-        for (i = 0, l = objects.length; i < l; i++) {
-            objects[i].update();
-        }
-
-        objects = resources.files.array;
-        for (i = 0, l = objects.length; i < l; i++) {
-            objects[i].update();
-        }
-    },
-
-    // Render. Duh.
-    render() {
-        let scenes = this.scenes,
-            gl = this.gl,
-            i,
-            l = scenes.length;
-
-        // See https://www.opengl.org/wiki/FAQ#Masking
-        gl.depthMask(1);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-        for (i = 0; i < l; i++) {
-            scenes[i].renderOpaque();
-        }
-
-        for (i = 0; i < l; i++) {
-            scenes[i].renderTranslucent();
-        }
-
-        for (i = 0; i < l; i++) {
-            scenes[i].renderEmitters();
-        }
-
-        this.dispatchEvent({ type: "render" })
     }
 };
 

@@ -127,7 +127,7 @@ MdxSD.prototype = {
         if (this.globalSequence) {
             var globalSequence = this.globalSequence;
 
-            return globalSequence.getValue(Date.now() % globalSequence.end);
+            return globalSequence.getValue(instance.counter % globalSequence.end);
         } else if (instance.sequence !== -1) {
             return this.sequences[instance.sequence].getValue(instance.frame);
         } else {

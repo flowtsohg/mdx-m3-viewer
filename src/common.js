@@ -9,6 +9,16 @@ function downloadUrl(url, name) {
     a.dispatchEvent(new MouseEvent("click"));
 }
 
+// Return a function that works in the same exact way as Math.random(), but with a seed.
+// See http://indiegamr.com/generate-repeatable-random-numbers-in-js/
+function seededRandom(seed) {
+    return function () {
+        seed = (seed * 9301 + 49297) % 233280;
+
+        return seed / 233280;
+    };    
+}
+
 // Normalize file paths to lowercase, and all slashes being forward.
 function normalizePath(path) {
     return path.toLocaleLowerCase().replace(/\\/g, "/");
@@ -35,29 +45,6 @@ var createTextureAtlas = (function () {
 
         return { texture: ctx.getImageData(0, 0, canvas.width, canvas.height), columns: texturesPerRow, rows: texturesPerRow };
     }
-}());
-
-// Compute the spherical coordinates of a vector (end - start).
-// The returned values are [radius, azimuthal angle, polar angle].
-// See mathworld.wolfram.com/SphericalCoordinates.html
-function computeSphericalCoordinates(start, end) {
-    var v = vec3.sub([], start, end),
-        r = vec3.len(v),
-        theta = Math.atan2(v[1], v[0]),
-        phi = Math.acos(v[2] / r);
-    
-    return [r, theta, phi];
-}
-
-// A simple incrementing ID generator
-var generateID = (function () {
-    var i = -1;
-
-    return function () {
-        i += 1;
-
-        return i;
-    };
 }());
 
 function TagToUint(tag) {
@@ -207,6 +194,7 @@ function hashFromArray(a) {
     for (var i = 0, l = a.length; i < l; i++) {
         var n = a[i];
 
+        // Zeroes should affect the hash too!
         if (n === 0) {
             n = 1;
         }

@@ -2,8 +2,8 @@ function addTestResult(testResult) {
     let div = document.createElement("div"),
         name = document.createElement("p"),
         status = document.createElement("p"),
-        value = testResult[1],
-        misMatchPercentage = Math.round(value.data.rawMisMatchPercentage),
+        data = testResult[1],
+        misMatchPercentage = Math.round(data.rawMisMatchPercentage),
         result = misMatchPercentage <= 5; // allow 5% mismatch
 
     name.textContent = testResult[0] + " ";
