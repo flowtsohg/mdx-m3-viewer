@@ -47,11 +47,16 @@ function MdxSkeleton(instance) {
 
 MdxSkeleton.prototype = {
     update() {
+        // If this skeleton has no bone array, it means the owning instance is not visible.
+        // Therefore, there is no point to update the nodes.
         if (this.boneArray) {
-            const nodes = this.sortedNodes,
+            let nodes = this.sortedNodes,
                 modelNodes = this.modelNodes,
-                instance = this.instance;
+                instance = this.instance,
+                bones = this.bones,
+                boneArray = this.boneArray;
 
+            // Update the nodes
             for (let i = 0, l = nodes.length; i < l; i++) {
                 let node = nodes[i],
                     modelNode = modelNodes[i],
@@ -60,7 +65,7 @@ MdxSkeleton.prototype = {
                     scale = modelNode.getScale(instance);
 
                 if (modelNode.billboarded) {
-                    const camera = instance.bucket.modelView.scene.camera;
+                    let camera = instance.bucket.modelView.scene.camera;
 
                     var blarg = [0, 0, 0, 1];
 
@@ -85,10 +90,7 @@ MdxSkeleton.prototype = {
                 node.setTransformation(translation, rotation, scale);
             }
 
-            const bones = this.bones,
-                boneArray = this.boneArray;
-
-
+            // Update the bones.
             for (let i = 0, l = bones.length; i < l; i++) {
                 boneArray.set(bones[i].worldMatrix, i * 16 + 16);
             }
