@@ -1,34 +1,47 @@
 function MdxSkeleton(instance) {
     let model = instance.model,
-        nodes = model.nodes,
-        bones = model.bones,
-        hierarchy = model.hierarchy;
+        modelNodes = model.nodes,
+        modelBones = model.bones,
+        hierarchy = model.hierarchy,
+        nodes,
+        sortedNodes = [],
+        bones = [];
 
-    Skeleton.call(this, instance, nodes.length);
+    Skeleton.call(this, instance, modelNodes.length);
 
-    this.sortedNodes = [];
+    // Not defined before the Skeleton constructor
+    nodes = this.nodes;
 
-    for (let i = 0, l = nodes.length; i < l; i++) {
+    for (let i = 0, l = modelNodes.length; i < l; i++) {
+        let node = nodes[i],
+            modelNode = modelNodes[i];
+
         // Set the node pivots
-        this.nodes[i].setPivot(nodes[i].pivot);
+        node.setPivot(modelNode.pivot);
 
         // Set the node parent references
-        this.nodes[i].setParent(this.getNode(nodes[i].parentId));
+        node.setParent(this.getNode(modelNode.parentId));
+
+        // Node flags
+        node.dontInheritTranslation = modelNode.dontInheritTranslation;
+        node.dontInheritRotation = modelNode.dontInheritRotation;
+        node.dontInheritScaling = modelNode.dontInheritScaling;
 
         // The sorted version of the nodes, for straight iteration in update()
-        this.sortedNodes[i] = this.nodes[hierarchy[i]];
+        sortedNodes[i] = nodes[hierarchy[i]];
     }
 
     // The sorted version of the bone references in the model, for straight iteration in updateHW()
-    this.bones = [];
-    for (let i = 0, l = bones.length; i < l; i++) {
-        this.bones[i] = this.nodes[bones[i].node.index];
+    for (let i = 0, l = modelBones.length; i < l; i++) {
+        bones[i] = nodes[modelBones[i].node.index];
     }
 
     this.modelNodes = model.sortedNodes;
-
+    this.sortedNodes = sortedNodes;
+    this.bones = bones;
     this.instance = instance;
 
+    // Will be set by the instance when it is added to a bucket.
     this.boneArray = null;
 }
 

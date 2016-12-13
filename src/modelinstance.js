@@ -7,7 +7,9 @@
  */
 function ModelInstance(env) {
     AsyncResource.call(this, env);
-    Node.call(this, true);
+
+    Node.call(this);
+    this.dontInheritScaling = true;
 }
 
 ModelInstance.prototype = {

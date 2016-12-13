@@ -1,5 +1,7 @@
 function Camera(fieldOfView, aspectRatio, nearClipPlane, farClipPlane) {
-    Node.call(this, true);
+    Node.call(this);
+    this.dontInheritScaling = true;
+
     Frustum.call(this);
 
     this.fieldOfView = fieldOfView;
@@ -19,9 +21,6 @@ function Camera(fieldOfView, aspectRatio, nearClipPlane, farClipPlane) {
 
     // First four vectors are the corners of a 2x2 rectangle billboarded to the camera, the last three vectors are the unit axes billboarded
     this.billboardedVectors = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
-
-    // Left, right, top, bottom, near, far
-    this.planes = [quat.create(), quat.create(), quat.create(), quat.create(), quat.create(), quat.create()];
 
     this.recalculateTransformation();
 }
@@ -43,12 +42,12 @@ Camera.prototype = {
             vectors = this.vectors,
             billboardedVectors = this.billboardedVectors;
 
+        // Recalculate the node part
+        Node.prototype.recalculateTransformation.call(this);
+
         // Projection matrix
         // Camera space -> NDC space
         mat4.perspective(projectionMatrix, this.fieldOfView, this.aspectRatio, this.nearClipPlane, this.farClipPlane);
-
-        // Recalculate the node part
-        Node.prototype.recalculateTransformation.call(this);
 
         // World projection matrix
         // World space -> NDC space
@@ -72,8 +71,8 @@ Camera.prototype = {
             vec3.transformQuat(billboardedVectors[i], vectors[i], inverseRotation);
         }
 
-        // Caculate the camera's frusum planes
-        this.recalculateFrustum(worldProjectionMatrix);
+        // Recaculate the camera's frusum planes
+        this.recalculatePlanes(worldProjectionMatrix);
     },
 
     // Given a vector in camera space, return the vector transformed to world space

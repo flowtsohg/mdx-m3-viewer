@@ -142,8 +142,8 @@ let MdxParser = (function () {
     }
 
     function Node(reader, index, object) {
-        this.object = object;
         this.index = index;
+        this.object = object;
         this.size = readUint32(reader);
         this.name = read(reader, 80);
         this.objectId = readUint32(reader);

@@ -5,7 +5,13 @@ function MdxNode(object, model, pivots) {
     this.objectId = object.objectId;
     this.parentId = object.parentId;
     this.pivot = pivot ? pivot.value : [0, 0, 0];
+    this.dontInheritTranslation = object.dontInheritTranslation;
+    this.dontInheritRotation = object.dontInheritRotation;
+    this.dontInheritScaling = object.dontInheritScaling;
     this.billboarded = object.billboarded;
+    this.billboardedX = object.billboardedX;
+    this.billboardedY = object.billboardedY;
+    this.billboardedZ = object.billboardedZ;
     this.modelSpace = object.modelSpace;
     this.xYQuad = object.xYQuad;
     this.sd = new MdxSdContainer(object.tracks, model);

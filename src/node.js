@@ -1,13 +1,14 @@
 /**
  * @class
  * @classdesc A scene node, that can be moved around and parented to other nodes.
- * @param {boolean} dontInheritScale True if this node should not inherit the parent's scale if this node is parented.
+ * @param {boolean} dontInheritScaling True if this node should not inherit the parent's scale when it is parented.
  * @param {?ArrayBuffer} buffer An ArrayBuffer object to add this node to. A new buffer will be created if one isn't given.
  * @param {?number} offset An offset into the buffer, if one was given.
  */
-function Node(dontInheritScale, buffer, offset) {
+function Node(buffer, offset) {
     if (!buffer) {
-        buffer = new ArrayBuffer(58 * 4);
+        // 65 floats per node.
+        buffer = new ArrayBuffer(Node.BYTES_PER_ELEMENT);
         offset = 0;
     }
 
@@ -30,22 +31,34 @@ function Node(dontInheritScale, buffer, offset) {
     /** @member {vec3} */
     this.worldScale = new Float32Array(buffer, offset + 80, 3);
     /** @member {vec3} */
-    this.inverseWorldScale = new Float32Array(buffer, offset + 92, 3);
+    this.inverseWorldLocation = new Float32Array(buffer, offset + 92, 3);
+    /** @member {vec4} */
+    this.inverseWorldRotation = new Float32Array(buffer, offset + 104, 4);
+    /** @member {vec3} */
+    this.inverseWorldScale = new Float32Array(buffer, offset + 120, 3);
     /** @member {mat4} */
-    this.localMatrix = new Float32Array(buffer, offset + 104, 16);
+    this.localMatrix = new Float32Array(buffer, offset + 132, 16);
     /** @member {mat4} */
-    this.worldMatrix = new Float32Array(buffer, offset + 168, 16);
+    this.worldMatrix = new Float32Array(buffer, offset + 196, 16);
     /** @member {?Node} */
     this.parent = null;
     /** @member {Node[]} */
     this.children = [];
     /** @member {boolean} */
-    this.dontInheritScale = dontInheritScale || false;
+    this.dontInheritTranslation = false;
+    /** @member {boolean} */
+    this.dontInheritRotation = false;
+    /** @member {boolean} */
+    this.dontInheritScaling = false;
 
     this.localRotation[3] = 1;
     this.localScale.fill(1);
     mat4.identity(this.worldMatrix);
 }
+
+// Used in the constructor above, and in the Skeleton constructor.
+// Chances are I'll forget updating one of them when I change stuff, so do it in one place.
+Node.BYTES_PER_ELEMENT = 65 * 4;
 
 Node.prototype = {
     /**
@@ -249,26 +262,22 @@ Node.prototype = {
 
         this.parent = parent;
 
-        parent.addChild(this);
+        if (parent) {
+            parent.addChild(this);
+        }
 
         this.recalculateTransformation();
 
         return this;
     },
 
-    addChild(child) {
-        this.children.push(child);
-    },
-
-    removeChild(child) {
-        let children = this.children;
-
-        children.splice(children.indexOf(child), 1);
-    },
-
-    // This will be called by a parent when it is recalculated.
-    // Override at will if you want special functionality.
-    // Note that ModelInstance overrides this.
+    /**
+     * @method
+     * @desc Called by this node's parent, when the parent is recalculated.
+     *       Override this if you want special behavior.
+     *       Note that ModelInstance overrides this.
+     * @returns {vec3}
+     */
     notify() {
 
     },
@@ -300,6 +309,10 @@ Node.prototype = {
         return this.worldScale;
     },
 
+    /**
+     * @method
+     * @desc Recalculate this node's transformation data.
+     */
     recalculateTransformation() {
         let localMatrix = this.localMatrix,
             localRotation = this.localRotation,
@@ -308,6 +321,7 @@ Node.prototype = {
             worldRotation = this.worldRotation,
             worldScale = this.worldScale,
             pivot = this.pivot,
+            inverseWorldRotation = this.inverseWorldRotation,
             parent = this.parent,
             children = this.children;
 
@@ -318,31 +332,81 @@ Node.prototype = {
         // World matrix
         // Model space -> World space
         if (parent) {
-            mat4.mul(worldMatrix, parent.worldMatrix, localMatrix);
+            let heap = mat4.heap;
+
+            mat4.copy(heap, parent.worldMatrix);
+
+            // If this node shouldn't inherit the parent's rotation, rotation it by the inverse
+            if (this.dontInheritRotation) {
+                mat4.rotate(heap, heap, parent.inverseWorldRotation);
+            }
 
             // If this node shouldn't inherit the parent's scale, scale it by the inverse
-            if (this.dontInheritScale) {
+            if (this.dontInheritScaling) {
+                mat4.scale(heap, heap, parent.inverseWorldScale);
+            }
+
+            // If this node shouldn't inherit the parent's translation, translate it by the inverse
+            if (this.dontInheritTranslation) {
+                mat4.translate(heap, heap, parent.inverseWorldLocation);
+            }
+
+            mat4.mul(worldMatrix, heap, localMatrix);
+
+            //mat4.mul(worldMatrix, parent.worldMatrix, localMatrix);
+            /*
+            // If this node shouldn't inherit the parent's rotation, rotation it by the inverse
+            if (this.dontInheritRotation) {
+                mat4.rotate(worldMatrix, worldMatrix, parent.inverseWorldRotation);
+            }
+
+            // If this node shouldn't inherit the parent's scale, scale it by the inverse
+            if (this.dontInheritScaling) {
                 mat4.scale(worldMatrix, worldMatrix, parent.inverseWorldScale);
             }
 
-            // World rotation
+            // If this node shouldn't inherit the parent's translation, translate it by the inverse
+            if (this.dontInheritTranslation) {
+                mat4.translate(worldMatrix, worldMatrix, parent.inverseWorldLocation);
+            }
+            */
+
+            // World rotation and inverse world rotation
             quat.mul(worldRotation, parent.worldRotation, localRotation);
+            quat.conjugate(inverseWorldRotation, worldRotation);
         } else {
             mat4.copy(worldMatrix, localMatrix);
             quat.copy(worldRotation, localRotation);
+            quat.conjugate(inverseWorldRotation, localRotation);
         }
 
         // Scale and inverse scale
         mat4.getScaling(worldScale, worldMatrix);
         vec3.inverse(this.inverseWorldScale, worldScale);
 
-        // World location
+        // World location and inverse world location
         vec3.copy(worldLocation, pivot);
         vec3.transformMat4(worldLocation, worldLocation, worldMatrix);
+        vec3.negate(this.inverseWorldLocation, worldLocation);
 
         // Notify the children
         for (let i = 0, l = children.length; i < l; i++) {
             children[i].notify();
+        }
+
+        return this;
+    },
+
+    addChild(child) {
+        this.children.push(child);
+    },
+
+    removeChild(child) {
+        let children = this.children,
+            index = children.indexOf(child);
+
+        if (index !== -1) {
+            children.splice(index, 1);
         }
     }
 };

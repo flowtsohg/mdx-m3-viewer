@@ -87,7 +87,7 @@ plane.classifyPoint = function (plane, point) {
         return result;
     },
 
-    recalculateFrustum(m) {
+    recalculatePlanes(m) {
         let a00 = m[0], a01 = m[4], a02 = m[8], a03 = m[12],
             a10 = m[1], a11 = m[5], a12 = m[9], a13 = m[13],
             a20 = m[2], a21 = m[6], a22 = m[10], a23 = m[14],

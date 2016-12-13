@@ -5,11 +5,11 @@
  * @param {number} nodeCount The number of nodes in this skeleton.
  */
 function Skeleton(parentNode, nodeCount) {
-    const buffer = new ArrayBuffer(58 * 4 * nodeCount),
+    let buffer = new ArrayBuffer(nodeCount * Node.BYTES_PER_ELEMENT),
         nodes = [];
 
     for (let i = 0; i < nodeCount; i++) {
-        nodes[i] = new Node(false, buffer, i * 58 * 4);
+        nodes[i] = new Node(buffer, i * Node.BYTES_PER_ELEMENT);
     }
 
     /** @member {Node} */
