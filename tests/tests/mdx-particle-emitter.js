@@ -2,7 +2,7 @@ unitTester.addTest("mdx-particle-emitter", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
-    camera.move([0, 0, -300]);
+    camera.move([0, 0, -150]);
 
     let model = viewer.load("Units/Creeps/AzureDragon/AzureDragon.mdx", wc3Solver),
         instance = model.addInstance().setSequence(5);

@@ -279,11 +279,6 @@ ModelViewer.prototype = {
      * @param {function} callback The callback to call with the blob.
      */
     toBlob(callback) {
-        // Must render to ensure that the internal canvas buffer is valid.
-        if (!this.paused) {
-            this.render();
-        }
-
         this.canvas.toBlob((blob) => callback(blob));
     },
 

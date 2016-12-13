@@ -4,8 +4,9 @@ function addTestResult(testResult) {
         status = document.createElement("p"),
         data = testResult[1],
         misMatchPercentage = Math.round(data.rawMisMatchPercentage),
-        result = misMatchPercentage <= 5; // allow 5% mismatch
+        result = misMatchPercentage <= 1; // allow 1% mismatch
 
+    console.log(misMatchPercentage);
     name.textContent = testResult[0] + " ";
     name.className = "item";
 

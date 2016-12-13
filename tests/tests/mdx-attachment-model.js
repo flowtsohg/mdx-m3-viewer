@@ -2,7 +2,7 @@ unitTester.addTest("mdx-attachment-model", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
-    camera.move([0, 0, -600]);
+    camera.move([10, -130, -320]);
 
     let model = viewer.load("Buildings/Undead/HauntedMine/HauntedMine.mdx", wc3Solver),
         instance = model.addInstance().setSequence(0);
@@ -14,8 +14,9 @@ unitTester.addTest("mdx-attachment-model", (viewer) => {
         // If the attachment's frame was set without first updating, it will just get reset to the sequence's beginning.
         viewer.update();
 
-        instance.modelAttachments[0][1].noCulling = true;
+        let attachment = instance.modelAttachments[0][1];
 
-        instance.modelAttachments[0][1].frame = instance.frame;
+        attachment.noCulling = true;
+        attachment.frame = instance.frame;
     });
 })

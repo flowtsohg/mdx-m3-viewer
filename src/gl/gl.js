@@ -4,21 +4,10 @@
  * @param {HTMLCanvasElement} canvas The canvas to create a WebGL context for.
  */
 function WebGL(canvas) {
-    let gl;
+    let gl = canvas.getContext("webgl", { alpha: false });
 
-    for (let identifier of["webgl", "experimental-webgl"]) {
-        try {
-            // preserveDrawingBuffer is needed normally to be able to use the WebGL canvas as an image source (e.g. RTT).
-            // It however makes rendering slower, since it doesn't let browsers implement optimizations.
-            // For proper support, use the viewer's render event - the internal WebGL buffer is still valid there.
-            gl = canvas.getContext(identifier, { antialias: true, alpha: false/*, preserveDrawingBuffer: true*/ });
-        } catch (e) {
-
-        }
-
-        if (gl) {
-            break;
-        }
+    if (!gl) {
+        gl = canvas.getContext("experimental-webgl", { alpha: false });
     }
 
     if (!gl) {
@@ -161,12 +150,14 @@ WebGL.prototype = {
      * @param {ShaderProgram} shaderProgram The program.
      */
     useShaderProgram(shaderProgram) {
-        if (shaderProgram && shaderProgram.loaded && shaderProgram !== this.currentShaderProgram) {
+        let currentShaderProgram = this.currentShaderProgram;
+
+        if (shaderProgram && shaderProgram.loaded && shaderProgram !== currentShaderProgram) {
             let oldAttribs = 0,
                 newAttribs = shaderProgram.attribs.size;
 
-            if (this.currentShaderProgram) {
-                oldAttribs = this.currentShaderProgram.attribs.size;
+            if (currentShaderProgram) {
+                oldAttribs = currentShaderProgram.attribs.size;
             }
 
             this.gl.useProgram(shaderProgram.webglResource);
@@ -183,7 +174,8 @@ WebGL.prototype = {
 
     /**
      * @method
-     * @desc Bind a texture. Note: if the given texture is invalid (null or not loaded) then a 2x2 black texture will be bound instead to avoid WebGL errors.
+     * @desc Bind a texture.
+     *       Note that if the given texture is invalid (null or not loaded) then a 2x2 black texture will be bound instead.
      * @param {Texture} texture The texture to bind.
      * @param {number} unit The texture unit to bind to.
      */
@@ -195,7 +187,8 @@ WebGL.prototype = {
         if (texture && texture.loaded) {
             gl.bindTexture(gl.TEXTURE_2D, texture.webglResource);
         } else {
-            gl.bindTexture(gl.TEXTURE_2D, this.emptyTexture); // To avoid WebGL errors, bind an empty texture, in case an invalid one was given
+            // Bind an empty texture in case an invalid one was given, to avoid WebGL errors.
+            gl.bindTexture(gl.TEXTURE_2D, this.emptyTexture);
         }
     }
 };
