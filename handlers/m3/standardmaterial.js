@@ -16,20 +16,20 @@ function M3StandardMaterial(model, material) {
     this.doubleSided = material.flags & 0x8;
 
     this.layers = [
-        new M3Layer(this, material.diffuseLayer.get(), "diffuse", 2),
-        new M3Layer(this, material.decalLayer.get(), "decal", 2),
-        new M3Layer(this, material.specularLayer.get(), "specular", 2),
-        new M3Layer(this, material.glossLayer.get(), "gloss", 2),
-        new M3Layer(this, material.emissiveLayer.get(), "emissive", material.emisBlendType),
-        new M3Layer(this, material.emissive2Layer.get(), "emissive2", material.emisMode),
-        new M3Layer(this, material.evioLayer.get(), "evio", 2),
-        new M3Layer(this, material.evioMaskLayer.get(), "evioMask", 2),
-        new M3Layer(this, material.alphaMaskLayer.get(), "alphaMask", 2),
-        new M3Layer(this, material.alphaMask2Layer.get(), "alphaMask2", 2),
-        new M3Layer(this, material.normalLayer.get(), "normal", 2),
-        new M3Layer(this, material.heightLayer.get(), "heightMap", 2),
-        new M3Layer(this, material.lightMapLayer.get(), "lightMap", 2),
-        new M3Layer(this, material.ambientOcclusionLayer.get(), "ao", 2)
+        new M3Layer(this, material.diffuseLayer, "diffuse", 2),
+        new M3Layer(this, material.decalLayer, "decal", 2),
+        new M3Layer(this, material.specularLayer, "specular", 2),
+        new M3Layer(this, material.glossLayer, "gloss", 2),
+        new M3Layer(this, material.emissiveLayer, "emissive", material.emisBlendType),
+        new M3Layer(this, material.emissive2Layer, "emissive2", material.emisMode),
+        new M3Layer(this, material.evioLayer, "evio", 2),
+        new M3Layer(this, material.evioMaskLayer, "evioMask", 2),
+        new M3Layer(this, material.alphaMaskLayer, "alphaMask", 2),
+        new M3Layer(this, material.alphaMask2Layer, "alphaMask2", 2),
+        new M3Layer(this, material.normalLayer, "normal", 2),
+        new M3Layer(this, material.heightLayer, "heightMap", 2),
+        new M3Layer(this, material.lightMapLayer, "lightMap", 2),
+        new M3Layer(this, material.ambientOcclusionLayer, "ao", 2)
     ];
 }
 

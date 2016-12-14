@@ -1,7 +1,7 @@
 function UnitTester() {
     let canvas = document.createElement("canvas");
 
-    canvas.width = canvas.height = 512;
+    canvas.width = canvas.height = 256;
 
     let viewer = new ModelViewer(canvas);
 
@@ -49,7 +49,7 @@ UnitTester.prototype = {
                     let url = URL.createObjectURL(blob),
                         name = entry.value[0];
                     
-                    resemble(url).compareTo("tests/" + name + ".png").ignoreOutput().onComplete(function (data) {
+                    resemble(url).compareTo("tests/compare/" + name + ".png").ignoreOutput().scaleToSameSize().onComplete(function (data) {
                         callback({ value: [name, data], done: entry.done });
                     });
 

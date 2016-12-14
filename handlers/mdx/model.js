@@ -361,6 +361,15 @@ MdxModel.prototype = {
             path = "replaceabletextures/" + Mdx.replaceableIdToName[replaceableId] + ".blp";
         }
 
+        // If the path is corrupted, try to fix it.
+        if (!path.endsWith(".blp")) {
+            var index = path.indexOf(".blp");
+
+            if (index !== -1) {
+                path = path.slice(0, index + 4);
+            }
+        }
+
         this.replaceables.push(replaceableId);
 
         this.textures.push(this.env.load(path, pathSolver));

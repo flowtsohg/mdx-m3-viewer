@@ -215,14 +215,8 @@
       "src/unittest",
       "src/unittester",
       "src/common",
-      "tests/mdx-load",
-      "tests/mdx-sequence",
-      "tests/mdx-team-color",
-      "tests/mdx-tint-color",
-      "tests/mdx-particle-emitter",
-      "tests/mdx-particle-emitter-2",
-      "tests/mdx-texture-animation",
-      "tests/mdx-attachment-model"
+      "tests/mdx",
+      "tests/m3"
     ],
     "external_files": [
       "resemble"

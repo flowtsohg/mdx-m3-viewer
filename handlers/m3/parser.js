@@ -186,7 +186,7 @@ const M3Parser = (function () {
         // 0x40 channel6
         this.specularity = readFloat32(reader);
         this.depthBlendFalloff = readFloat32(reader);
-        this.cutoutThresh = readUint8(reader);
+        this.cutoutThreshold = readUint8(reader);
         this.unknown1 = readUint8(reader); // ?
         this.unknown2 = readUint8(reader); // ?
         this.unknown3 = readUint8(reader); // ?
@@ -198,8 +198,6 @@ const M3Parser = (function () {
 
         if (version > 15) {
             this.glossLayer = new Reference(reader, index);
-        } else {
-            this.glossLayer = new FakeReference();
         }
 
         this.emissiveLayer = new Reference(reader, index);
@@ -518,29 +516,18 @@ const M3Parser = (function () {
     }
 
     function MD34(reader, version, index) {
-        this.tag = readUint32(reader);
+        this.tag = read(reader, 4).reverse();
         this.offset = readUint32(reader);
         this.entries = readUint32(reader);
         this.model = new Reference(reader, index);
     }
 
+    // This is used for entries that have known structures (or at least sizes), but this parser isn't going to actually parse.
+    // The entry will simply contain its own reader and version, if the client code wants to do anything with it.
     function UnsupportedEntry(reader, version, index) {
-
+        this.reader = reader;
+        this.version = version;
     }
-
-    function FakeReference() {
-
-    }
-
-    FakeReference.prototype = {
-        getAll() {
-            return [];
-        },
-
-        get() {
-
-        }
-    };
 
     function Reference(reader, index) {
         this.index = index;
@@ -566,146 +553,155 @@ const M3Parser = (function () {
         }
     };
 
+    // Mapping from entry tags, to their constructors and known version->size values.
     const TagMapping = {
         // Objects
-        [TagToUint("MD34")]: [0, MD34, { 11: 24 }],
-        [TagToUint("MODL")]: [0, Model, { 23: 784, 25: 808, 26: 820, 28: 844, 29: 856 }],
-        [TagToUint("SEQS")]: [0, Sequence, { 1: 96, 2: 92 }],
-        [TagToUint("STC_")]: [0, STC, { 4: 204 }],
-        [TagToUint("STG_")]: [0, STG, { 0: 24 }],
-        [TagToUint("STS_")]: [0, STS, { 0: 28 }],
-        [TagToUint("BONE")]: [0, Bone, { 1: 160 }],
-        [TagToUint("DIV_")]: [0, Division, { 2: 52 }],
-        [TagToUint("REGN")]: [0, Region, { 3: 36, 4: 40, 5: 48 }],
-        [TagToUint("BAT_")]: [0, Batch, { 1: 14 }],
-        [TagToUint("MSEC")]: [0, MSEC, { 1: 72 }],
-        [TagToUint("MATM")]: [0, MaterialReference, { 0: 8 }],
-        [TagToUint("MAT_")]: [0, StandardMaterial, { 15: 268, 16: 280, 17: 280, 18: 280, 19: 340 }],
-        [TagToUint("LAYR")]: [0, Layer, { 22: 356, 24: 436, 25: 468, 26: 464 }],
-        [TagToUint("EVNT")]: [0, Event, { 0: 96, 1: 104, 2: 108 }],
-        [TagToUint("BNDS")]: [0, BoundingSphere, { 0: 28 }],
-        [TagToUint("SDEV")]: [0, SD, { 0: 32 }],
-        [TagToUint("SDU6")]: [0, SD, { 0: 32 }],
-        [TagToUint("SDFG")]: [0, SD, { 0: 32 }],
-        [TagToUint("SDS6")]: [0, SD, { 0: 32 }],
-        [TagToUint("SDR3")]: [0, SD, { 0: 32 }],
-        [TagToUint("SD2V")]: [0, SD, { 0: 32 }],
-        [TagToUint("SD3V")]: [0, SD, { 0: 32 }],
-        [TagToUint("SD4Q")]: [0, SD, { 0: 32 }],
-        [TagToUint("SDCC")]: [0, SD, { 0: 32 }],
-        [TagToUint("SDMB")]: [0, SD, { 0: 32 }],
-        [TagToUint("FLAG")]: [0, SD, { 0: 32 }],
+        MD34: [MD34, { 11: 24 }],
+        MODL: [Model, { 23: 784, 25: 808, 26: 820, 28: 844, 29: 856 }],
+        SEQS: [Sequence, { 1: 96, 2: 92 }],
+        STC_: [STC, { 4: 204 }],
+        STG_: [STG, { 0: 24 }],
+        STS_: [STS, { 0: 28 }],
+        BONE: [Bone, { 1: 160 }],
+        DIV_: [Division, { 2: 52 }],
+        REGN: [Region, { 3: 36, 4: 40, 5: 48 }],
+        BAT_: [Batch, { 1: 14 }],
+        MSEC: [MSEC, { 1: 72 }],
+        MATM: [MaterialReference, { 0: 8 }],
+        MAT_: [StandardMaterial, { 15: 268, 16: 280, 17: 280, 18: 280, 19: 340 }],
+        LAYR: [Layer, { 22: 356, 24: 436, 25: 468, 26: 464 }],
+        EVNT: [Event, { 0: 96, 1: 104, 2: 108 }],
+        BNDS: [BoundingSphere, { 0: 28 }],
+        SDEV: [SD, { 0: 32 }],
+        SDU6: [SD, { 0: 32 }],
+        SDFG: [SD, { 0: 32 }],
+        SDS6: [SD, { 0: 32 }],
+        SDR3: [SD, { 0: 32 }],
+        SD2V: [SD, { 0: 32 }],
+        SD3V: [SD, { 0: 32 }],
+        SD4Q: [SD, { 0: 32 }],
+        SDCC: [SD, { 0: 32 }],
+        SDMB: [SD, { 0: 32 }],
+        FLAG: [SD, { 0: 32 }],
         // Unsupported entries
-        [TagToUint("ATT_")]: [0, null, { 1: 20 }],
-        [TagToUint("LITE")]: [0, null, { 7: 212 }],
-        [TagToUint("ATVL")]: [0, null, { 0: 116 }],
-        [TagToUint("PATU")]: [0, null, { 4: 152 }],
-        [TagToUint("TRGD")]: [0, null, { 0: 24 }],
-        [TagToUint("DIS_")]: [0, null, { 4: 68 }],
-        [TagToUint("CMS_")]: [0, null, { 0: 24 }],
-        [TagToUint("CMP_")]: [0, null, { 2: 28 }],
-        [TagToUint("TER_")]: [0, null, { 0: 24, 1: 28 }],
-        [TagToUint("VOL_")]: [0, null, { 0: 84 }],
-        [TagToUint("VON_")]: [0, null, { 0: 268 }],
-        [TagToUint("CREP")]: [0, null, { 0: 24, 1: 28 }],
-        [TagToUint("STBM")]: [0, null, { 0: 48 }],
-        [TagToUint("LFSB")]: [0, null, { 2: 56 }],
-        [TagToUint("LFLR")]: [0, null, { 2: 80, 3: 152 }],
-        [TagToUint("PAR_")]: [0, null, { 12: 1316, 17: 1460, 18: 1464, 19: 1464, 21: 1464, 22: 1484, 23: 1492, 24: 1496 }],
-        [TagToUint("PARC")]: [0, null, { 0: 40 }],
-        [TagToUint("PROJ")]: [0, null, { 4: 388, 5: 382 }],
-        [TagToUint("PHYJ")]: [0, null, { 0: 180 }],
-        [TagToUint("PHCC")]: [0, null, { 0: 76 }],
-        [TagToUint("PHAC")]: [0, null, { 0: 32 }],
-        [TagToUint("PHCL")]: [0, null, { 2: 128 }],
-        [TagToUint("FOR_")]: [0, null, { 1: 104, 2: 104 }],
-        [TagToUint("DMSE")]: [0, null, { 0: 4 }],
-        [TagToUint("PHSH")]: [0, null, { 1: 132, 3: 300 }],
-        [TagToUint("PHRB")]: [0, null, { 2: 104, 4: 80 }],
-        [TagToUint("SSGS")]: [0, null, { 1: 108 }],
-        [TagToUint("BBSC")]: [0, null, { 0: 48 }],
-        [TagToUint("SRIB")]: [0, null, { 0: 272 }],
-        [TagToUint("RIB_")]: [0, null, { 6: 748, 8: 756, 9: 760 }],
-        [TagToUint("IKJT")]: [0, null, { 0: 32 }],
-        [TagToUint("SHBX")]: [0, null, { 0: 64 }],
-        [TagToUint("CAM_")]: [0, null, { 3: 180, 5: 264 }],
-        [TagToUint("WRP_")]: [0, null, { 1: 132 }],
+        ATT_: [UnsupportedEntry, { 1: 20 }],
+        LITE: [UnsupportedEntry, { 7: 212 }],
+        ATVL: [UnsupportedEntry, { 0: 116 }],
+        PATU: [UnsupportedEntry, { 4: 152 }],
+        TRGD: [UnsupportedEntry, { 0: 24 }],
+        DIS_: [UnsupportedEntry, { 4: 68 }],
+        CMS_: [UnsupportedEntry, { 0: 24 }],
+        CMP_: [UnsupportedEntry, { 2: 28 }],
+        TER_: [UnsupportedEntry, { 0: 24, 1: 28 }],
+        VOL_: [UnsupportedEntry, { 0: 84 }],
+        VON_: [UnsupportedEntry, { 0: 268 }],
+        CREP: [UnsupportedEntry, { 0: 24, 1: 28 }],
+        STBM: [UnsupportedEntry, { 0: 48 }],
+        LFSB: [UnsupportedEntry, { 2: 56 }],
+        LFLR: [UnsupportedEntry, { 2: 80, 3: 152 }],
+        PAR_: [UnsupportedEntry, { 12: 1316, 17: 1460, 18: 1464, 19: 1464, 21: 1464, 22: 1484, 23: 1492, 24: 1496 }],
+        PARC: [UnsupportedEntry, { 0: 40 }],
+        PROJ: [UnsupportedEntry, { 4: 388, 5: 382 }],
+        PHYJ: [UnsupportedEntry, { 0: 180 }],
+        PHCC: [UnsupportedEntry, { 0: 76 }],
+        PHAC: [UnsupportedEntry, { 0: 32 }],
+        PHCL: [UnsupportedEntry, { 2: 128 }],
+        FOR_: [UnsupportedEntry, { 1: 104, 2: 104 }],
+        DMSE: [UnsupportedEntry, { 0: 4 }],
+        PHSH: [UnsupportedEntry, { 1: 132, 3: 300 }],
+        PHRB: [UnsupportedEntry, { 2: 104, 4: 80 }],
+        SSGS: [UnsupportedEntry, { 1: 108 }],
+        BBSC: [UnsupportedEntry, { 0: 48 }],
+        SRIB: [UnsupportedEntry, { 0: 272 }],
+        RIB_: [UnsupportedEntry, { 6: 748, 8: 756, 9: 760 }],
+        IKJT: [UnsupportedEntry, { 0: 32 }],
+        SHBX: [UnsupportedEntry, { 0: 64 }],
+        CAM_: [UnsupportedEntry, { 3: 180, 5: 264 }],
+        WRP_: [UnsupportedEntry, { 1: 132 }],
         // Typed arrays
-        [TagToUint("CHAR")]: [1, readCharArray],
-        [TagToUint("SCHR")]: [1, readCharArray],
-        [TagToUint("U8__")]: [1, readUint8Array],
-        [TagToUint("U16_")]: [1, readUint16Array],
-        [TagToUint("U32_")]: [1, readUint32Array],
-        [TagToUint("I32_")]: [1, readInt32Array],
-        [TagToUint("REAL")]: [1, readFloat32Array],
-        [TagToUint("VEC2")]: [1, readVector2Array],
-        [TagToUint("VEC3")]: [1, readVector3Array],
-        [TagToUint("SVC3")]: [1, readVector3Array],
-        [TagToUint("VEC4")]: [1, readVector4Array],
-        [TagToUint("QUAT")]: [1, readVector4Array],
-        [TagToUint("IREF")]: [1, readMatrixArray]
+        CHAR: readCharArray,
+        SCHR: readCharArray,
+        U8__: readUint8Array,
+        U16_: readUint16Array,
+        U32_: readUint32Array,
+        I32_: readInt32Array,
+        REAL: readFloat32Array,
+        VEC2: readVector2Array,
+        VEC3: readVector3Array,
+        SVC3: readVector3Array,
+        VEC4: readVector4Array,
+        QUAT: readVector4Array,
+        IREF: readMatrixArray
     };
 
     function IndexEntry(reader, index) {
+        let tag = read(reader, 4).reverse(),
+            offset = readUint32(reader),
+            entriesCount = readUint32(reader),
+            version = readUint32(reader);
+
         this.index = index;
-        this.tag = readUint32(reader);
-        this.offset = readUint32(reader);
-
-        const entriesCount = readUint32(reader);
-
-        this.version = readUint32(reader);
-
-        const mapping = TagMapping[this.tag];
+        this.tag = tag;
+        this.offset = offset;
+        this.version = version;
+        
+        let mapping = TagMapping[tag];
 
         if (mapping) {
-            const readerOffset = tell(reader);
+            let readerOffset = tell(reader);
 
-            seek(reader, this.offset);
+            seek(reader, offset);
 
-            const isTypedArray = mapping[0],
-                Func = mapping[1];
-
-            if (isTypedArray) {
-                this.entries = Func(reader, entriesCount);
-            } else if (Func) {
-                let entries = [],
-                    entrySizes = mapping[2],
-                    index = this.index,
-                    version = this.version,
-                    entrySize = entrySizes[version];
+            // Is this an array of objects, or a typed array?
+            // See TagMapping above.
+            if (Array.isArray(mapping)) {
+                let constructor = mapping[0],
+                    entrySize = mapping[1][version];
 
                 if (!entrySize) {
-                    throw new Error("Unsupported object version - tag " + UintToTag(this.tag) + " and version " + version);
+                    // Yey found a new version!
+                    throw new Error("M3Parser: Unsupported object version - tag " + tag + " and version " + version);
                 }
 
+                let entries = [];
+
                 for (let i = 0, l = entriesCount; i < l; i++) {
-                    entries[i] = new Func(subreader(reader, entrySize), version, index);
+                    // A sub reader is given for each object constructor.
+                    // This allows for parsing to work consistently, even if we don't quite know exactly how the structures look.
+                    // If some bytes aren't read, the error will not carry to the next object.
+                    // Since new versions of objects usually add data to the end, this allows the parser to work, even if trying to load newer versions.
+                    // Of course, the new version size needs to be added to TagMapping when finding one.
+                    entries[i] = new constructor(subreader(reader, entrySize), version, index);
 
                     skip(reader, entrySize);
                 }
 
                 this.entries = entries;
+            } else {
+                this.entries = mapping(reader, entriesCount);
             }
 
             seek(reader, readerOffset);
         } else {
-            throw new Error("Unsupported object tag - tag " + UintToTag(this.tag) + " and version " + this.version);
+            // Yey found a new tag!
+            throw new Error("M3Parser: Unsupported object tag - tag " + tag + " and version " + version);
         }
     }
 
     return (function (reader) {
-        const header = new MD34(reader);
+        let header = new MD34(reader);
 
-        if (header.tag === TagToUint("MD34")) {
-            const entries = [];
-
+        if (header.tag === "MD34") {
             seek(reader, header.offset);
+
+            let entries = [];
 
             // Read the index entries
             for (let i = 0, l = header.entries; i < l; i++) {
                 entries[i] = new IndexEntry(reader, entries);
             }
 
+            // Return the MODL entry.
             return entries[header.model.id].entries[0];
         }
     });

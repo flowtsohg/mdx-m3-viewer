@@ -16,30 +16,32 @@ const M3LayerTypeToTextureUnit = {
 };
 
 function M3Layer(material, layer, type, op) {
-    var model = material.model;
-    var pathSolver = model.pathSolver;;
-
-    this.active = false;
-    this.layer = layer;
-    this.gl = material.gl;
-
-    var uniform = "u_" + type;
-
-    var settings = uniform + "LayerSettings.";
-
-    this.uniformMap = {
-        map: uniform + "Map",
-        enabled: settings + "enabled",
-        op: settings + "op",
-        channels: settings + "channels",
-        teamColorMode: settings + "teamColorMode",
-        invert: settings + "invert",
-        clampResult: settings + "clampResult",
-        uvCoordinate: settings + "uvCoordinate"
-    };
-
     // Since Gloss doesn't exist in all versions
     if (layer) {
+        layer = layer.get();
+
+        var model = material.model;
+        var pathSolver = model.pathSolver;;
+
+        this.active = false;
+        this.layer = layer;
+        this.gl = material.gl;
+
+        var uniform = "u_" + type;
+
+        var settings = uniform + "LayerSettings.";
+
+        this.uniformMap = {
+            map: uniform + "Map",
+            enabled: settings + "enabled",
+            op: settings + "op",
+            channels: settings + "channels",
+            teamColorMode: settings + "teamColorMode",
+            invert: settings + "invert",
+            clampResult: settings + "clampResult",
+            uvCoordinate: settings + "uvCoordinate"
+        };
+
         let source = layer.imagePath.getAll().join("");
 
         if (source.length !== 0) {

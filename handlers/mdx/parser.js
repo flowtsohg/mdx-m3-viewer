@@ -1,4 +1,4 @@
-let MdxParser = (function () {
+var MdxParser = (function () {
     // Mapping from track tags to their type and default value
     var tagToTrack = {
         // LAYS
@@ -56,13 +56,13 @@ let MdxParser = (function () {
     };
 
     // Read elements with unknown sizes
-    function readUnknownElements(reader, size, Func, nodes) {
+    function readUnknownElements(reader, size, constructor, nodes) {
         var totalSize = 0,
             elements = [],
             element;
         
         while (totalSize !== size) {
-            element = new Func(reader, nodes, elements.length);
+            element = new constructor(reader, nodes, elements.length);
 
             totalSize += element.size;
 
@@ -73,11 +73,11 @@ let MdxParser = (function () {
     }
 
     // Read elements with known sizes
-    function readKnownElements(reader, count, Func) {
+    function readKnownElements(reader, count, constructor) {
         var elements = [];
 
         for (var i = 0; i < count; i++) {
-            elements[i] = new Func(reader, i);
+            elements[i] = new constructor(reader, i);
         }
 
         return elements;
@@ -109,36 +109,38 @@ let MdxParser = (function () {
     }
 
     function SD(reader) {
-        this.tag = read(reader, 4);
+        var tag = read(reader, 4),
+            tracksCount = readUint32(reader),
+            interpolationType = readUint32(reader),
+            globalSequenceId = readInt32(reader),
+            tracks = [],
+            sdTrackInfo = tagToTrack[tag],
+            constructor = sdTrackInfo[0],
+            defval = sdTrackInfo[1],
+            elementsPerTrack = 1 + (defval.length ? defval.length : 1) * (interpolationType > 1 ? 3 : 1);
 
-        var tracks = readUint32(reader);
-
-        this.interpolationType = readUint32(reader);
-        this.globalSequenceId = readInt32(reader);
-        this.tracks = [];
-
-        var sdTrackInfo = tagToTrack[this.tag];
-
-        for (var i = 0; i < tracks; i++) {
-            this.tracks[i] = new SDTrack(reader, this.interpolationType, sdTrackInfo[0])
+        for (var i = 0; i < tracksCount; i++) {
+            tracks[i] = new SDTrack(reader, interpolationType, constructor)
         }
 
-        this.defval = sdTrackInfo[1];
+        this.tag = tag;
+        this.interpolationType = interpolationType;
+        this.globalSequenceId = globalSequenceId;
+        this.tracks = tracks;
+        this.defval = defval;
         this.sdIndex = sdTrackInfo[2];
-
-        var elementsPerTrack = 1 + (typeof this.defval === "number" ? 1 : this.defval.length) * (this.interpolationType > 1 ? 3 : 1);
-
-        this.size = 16 + tracks * elementsPerTrack * 4;
+        this.size = 16 + tracksCount * elementsPerTrack * 4;
     }
 
     function SDContainer(reader, size) {
-        this.sd = {};
-
-        var sd = readUnknownElements(reader, size, SD);
+        var sd = readUnknownElements(reader, size, SD),
+            map = {};
 
         for (var i = 0, l = sd.length; i < l; i++) {
-            this.sd[sd[i].tag] = sd[i];
+            map[sd[i].tag] = sd[i];
         }
+
+        this.sd = map;
     }
 
     function Node(reader, index, object) {
@@ -308,16 +310,19 @@ let MdxParser = (function () {
     }
 
     function Light(reader, nodes, index) {
+        var size = readUint32(reader),
+            node = readNode(reader, nodes, this);
+
         this.index = index;
-        this.size = readUint32(reader);
-        this.node = readNode(reader, nodes, this);
+        this.size = size;
+        this.node = node;
         this.type = readUint32(reader);
         this.attenuation = readFloat32Array(reader, 2);
         this.color = readVector3(reader);
         this.intensity = readFloat32(reader);
         this.ambientColor = readVector3(reader);
         this.ambientIntensity = readFloat32(reader);
-        this.tracks = new SDContainer(reader, this.size - this.node.size - 48);
+        this.tracks = new SDContainer(reader, size - node.size - 48);
     }
 
     function Helper(reader, nodes, index) {
@@ -327,12 +332,15 @@ let MdxParser = (function () {
     }
 
     function Attachment(reader, nodes, index) {
+        var size = readUint32(reader),
+            node = readNode(reader, nodes, this);
+
         this.index = index;
-        this.size = readUint32(reader);
-        this.node = readNode(reader, nodes, this);
+        this.size = size;
+        this.node = node;
         this.path = read(reader, 260);
         this.attachmentId = readUint32(reader);
-        this.tracks = new SDContainer(reader, this.size - this.node.size - 268);
+        this.tracks = new SDContainer(reader, size - node.size - 268);
     }
 
     function PivotPoint(reader, index) {
@@ -341,9 +349,12 @@ let MdxParser = (function () {
     }
 
     function ParticleEmitter(reader, nodes, index) {
+        var size = readUint32(reader),
+            node = readNode(reader, nodes, this);
+
         this.index = index;
-        this.size = readUint32(reader);
-        this.node = readNode(reader, nodes, this);
+        this.size = size;
+        this.node = node;
         this.emissionRate = readFloat32(reader);
         this.gravity = readFloat32(reader);
         this.longitude = readFloat32(reader);
@@ -351,13 +362,16 @@ let MdxParser = (function () {
         this.path = read(reader, 260);
         this.lifespan = readFloat32(reader);
         this.speed = readFloat32(reader);
-        this.tracks = new SDContainer(reader, this.size - this.node.size - 288);
+        this.tracks = new SDContainer(reader, size - node.size - 288);
     }
 
     function ParticleEmitter2(reader, nodes, index) {
+        var size = readUint32(reader),
+            node = readNode(reader, nodes, this);
+
         this.index = index;
-        this.size = readUint32(reader);
-        this.node = readNode(reader, nodes, this);
+        this.size = size;
+        this.node = node;
         this.speed = readFloat32(reader);
         this.variation = readFloat32(reader);
         this.latitude = readFloat32(reader);
@@ -383,13 +397,16 @@ let MdxParser = (function () {
         this.squirt = readUint32(reader);
         this.priorityPlane = readUint32(reader);
         this.replaceableId = readUint32(reader);
-        this.tracks = new SDContainer(reader, this.size - this.node.size - 175);
+        this.tracks = new SDContainer(reader, size - node.size - 175);
     }
 
     function RibbonEmitter(reader, nodes, index) {
+        var size = readUint32(reader),
+            node = readNode(reader, nodes, this);
+
         this.index = index;
-        this.size = readUint32(reader);
-        this.node = readNode(reader, nodes, this);
+        this.size = size;
+        this.node = node;
         this.heightAbove = readFloat32(reader);
         this.heightBelow = readFloat32(reader);
         this.alpha = readFloat32(reader);
@@ -401,12 +418,14 @@ let MdxParser = (function () {
         this.columns = readUint32(reader);
         this.materialId = readUint32(reader);
         this.gravity = readFloat32(reader);
-        this.tracks = new SDContainer(reader, this.size - this.node.size - 56);
+        this.tracks = new SDContainer(reader, size - node.size - 56);
     }
 
     function EventObject(reader, nodes, index) {
+        var node = readNode(reader, nodes, this);
+
         this.index = index;
-        this.node = readNode(reader, nodes, this);
+        this.node = node;
         
         skip(reader, 4); // KEVT
         
@@ -414,19 +433,21 @@ let MdxParser = (function () {
 
         this.globalSequenceId = readInt32(reader);
         this.tracks = readUint32Array(reader, count);
-        this.size = this.node.size + 12 + count * 4;
+        this.size = node.size + 12 + count * 4;
     }
 
     function Camera(reader, nodes, index) {
+        var size = readUint32(reader);
+
         this.index = index;
-        this.size = readUint32(reader);
+        this.size = size;
         this.name = read(reader, 80);
         this.position = readVector3(reader);
         this.fieldOfView = readFloat32(reader);
         this.farClippingPlane = readFloat32(reader);
         this.nearClippingPlane = readFloat32(reader);
         this.targetPosition = readVector3(reader);
-        this.tracks = new SDContainer(reader, this.size - 120);
+        this.tracks = new SDContainer(reader, size - 120);
     }
     
     function CollisionShape(reader, nodes, index) {
@@ -435,15 +456,18 @@ let MdxParser = (function () {
         this.type = readUint32(reader);
 
         var type = this.type,
-            size = this.node.size + 4;
+            size = this.node.size + 4,
+            vertices;
         
         if (type === 0 || type === 1 || type === 3) {
-            this.vertices = readFloat32Array(reader, 6);
+            vertices = readFloat32Array(reader, 6);
             size += 24;
         } else if (type === 2) {
-            this.vertices = readVector3(reader);
+            vertices = readVector3(reader);
             size += 12;
         }
+
+        this.vertices = vertices;
 
         if (type === 2 || type === 3) {
             this.radius = readFloat32(reader);
@@ -498,9 +522,7 @@ let MdxParser = (function () {
     }
 
     function GenericUnknownChunk(reader, tag, size, nodes) {
-        var tagInfo = tagToUnknownChunk[tag];
-
-        this.elements = readUnknownElements(reader, size, tagInfo, nodes);
+        this.elements = readUnknownElements(reader, size, tagToUnknownChunk[tag], nodes);
     }
     
     var tagToFunc = {
@@ -528,19 +550,16 @@ let MdxParser = (function () {
     };
 
     function Parser(reader) {
-        var tag,
-            size,
-            Func,
-            chunks = {},
+        var chunks = {},
             nodes = [];
 
         while (remaining(reader) > 0) {
-            tag = read(reader, 4);
-            size = readUint32(reader);
-            Func = tagToFunc[tag];
+            var tag = read(reader, 4),
+                size = readUint32(reader),
+                constructor = tagToFunc[tag];
 
-            if (Func) {
-                chunks[tag] = new Func(reader, tag, size, nodes);
+            if (constructor) {
+                chunks[tag] = new constructor(reader, tag, size, nodes);
             } else {
                 //console.log("Didn't parse chunk " + tag);
                 skip(reader, size);
@@ -555,7 +574,7 @@ let MdxParser = (function () {
         // Checks the parser for any errors that will not affect the viewer, but affect the model when it is used in Warcraft 3.
         // For example, things that make the model completely invalid and unloadable in the game, but work just fine in the viewer.
         sanityCheck() {
-            let errors = [],
+            var errors = [],
                 warnings = [],
                 chunks = this.chunks;
 
@@ -566,7 +585,7 @@ let MdxParser = (function () {
 
             // Sequences
             if (chunks.SEQS) {
-                let sequences = chunks.SEQS.elements,
+                var sequences = chunks.SEQS.elements,
                     foundStand = false,
                     foundDeath = false;
 
@@ -574,8 +593,8 @@ let MdxParser = (function () {
                     warnings.push("No animations");
                 }
 
-                for (let i = 0, l = sequences.length; i < l; i++) {
-                    let sequence = sequences[i],
+                for (var i = 0, l = sequences.length; i < l; i++) {
+                    var sequence = sequences[i],
                         interval = sequence.interval,
                         length = interval[1] - interval[0];
 
@@ -603,12 +622,17 @@ let MdxParser = (function () {
         
             // Textures
             if (chunks.TEXS) {
-                let textures = chunks.TEXS.elements;
+                var textures = chunks.TEXS.elements;
 
-                for (let i = 0, l = textures.length; i < l; i++) {
-                    let texture = textures[i],
+                for (var i = 0, l = textures.length; i < l; i++) {
+                    var texture = textures[i],
                         replaceableId = texture.replaceableId,
                         path = texture.path;
+
+                    // If the path is corrupted
+                    if (!path.endsWith(".blp") && path.indexOf(".blp") !== -1) {
+                        errors.push("Texture " + i + ": Corrupted path " + path);
+                    }
 
                     if (path === "" && Mdx.replaceableIdToName[replaceableId] === undefined) {
                         errors.push("Texture " + i + ": Unknown replaceable ID " + replaceableId);
@@ -623,13 +647,13 @@ let MdxParser = (function () {
 
             // Geosets
             if (chunks.GEOS) {
-                let geosets = chunks.GEOS.elements;
+                var geosets = chunks.GEOS.elements;
 
-                for (let i = 0, l = geosets.length; i < l; i++) {
-                    let matrixGroups = geosets[i].matrixGroups;
+                for (var i = 0, l = geosets.length; i < l; i++) {
+                    var matrixGroups = geosets[i].matrixGroups;
 
-                    for (let j = 0, k = matrixGroups.length; j < k; j++) {
-                        let matrixGroup = matrixGroups[j];
+                    for (var j = 0, k = matrixGroups.length; j < k; j++) {
+                        var matrixGroup = matrixGroups[j];
 
                         // There are built-in models with vertices attached to 8 bones, so I assume the game has no upper limit.
                         if (matrixGroup < 1 /*|| matrixGroup > 4*/) {
@@ -641,12 +665,12 @@ let MdxParser = (function () {
 
             // Geoset animations
             if (chunks.GEOA && chunks.GEOS) {
-                let biggest = chunks.GEOS.elements.length - 1,
+                var biggest = chunks.GEOS.elements.length - 1,
                     usageMap = {},
                     geosetAnimations = chunks.GEOA.elements;
 
-                for (let i = 0, l = geosetAnimations.length; i < l; i++) {
-                    let geosetId = geosetAnimations[i].geosetId;
+                for (var i = 0, l = geosetAnimations.length; i < l; i++) {
+                    var geosetId = geosetAnimations[i].geosetId;
 
                     if (geosetId < 0 || geosetId > biggest) {
                         errors.push("Geoset animation " + i + ": Invalid geoset ID " + geosetId);
@@ -659,10 +683,10 @@ let MdxParser = (function () {
                     usageMap[geosetId].push(i);
                 }
 
-                let keys = Object.keys(usageMap);
+                var keys = Object.keys(usageMap);
 
-                for (let i = 0, l = keys.length; i < l; i++) {
-                    let geoset = keys[i],
+                for (var i = 0, l = keys.length; i < l; i++) {
+                    var geoset = keys[i],
                         users = usageMap[geoset];
 
                     if (users.length > 1) {
@@ -673,10 +697,10 @@ let MdxParser = (function () {
 
             // Lights
             if (chunks.LITE) {
-                let lights = chunks.LITE.elements;
+                var lights = chunks.LITE.elements;
 
-                for (let i = 0, l = lights.length; i < l; i++) {
-                    let light = lights[i],
+                for (var i = 0, l = lights.length; i < l; i++) {
+                    var light = lights[i],
                         attenuation = light.attenuation;
 
                     if (attenuation[0] < 80 || attenuation[1] > 200) {
@@ -687,10 +711,10 @@ let MdxParser = (function () {
 
             // Event objects
             if (chunks.EVTS) {
-                let eventObjects = chunks.EVTS.elements;
+                var eventObjects = chunks.EVTS.elements;
 
-                for (let i = 0, l = eventObjects.length; i < l; i++) {
-                    let eventObject = eventObjects[i];
+                for (var i = 0, l = eventObjects.length; i < l; i++) {
+                    var eventObject = eventObjects[i];
 
                     if (eventObject.tracks.length === 0) {
                         errors.push("Event object " + eventObject.node.name + ": No keys");

@@ -13,17 +13,15 @@ function DownloadableResource(env, pathSolver) {
 }
 
 DownloadableResource.prototype = {
-    onerrorXHR(xhr) {
-        this.onerror("HttpError", xhr);
-    },
-
     load(src, isBinary, serverFetch) {
-        this.originalSrc = src;
+        if (serverFetch) {
+            this.fetchUrl = src;
+        }
 
         this.dispatchEvent({ type: "loadstart" });
 
         if (serverFetch) {
-            get(src, isBinary, xhr => this.onprogress(xhr)).then(xhr => this.onload(xhr.response), xhr => this.onerrorXHR(xhr));
+            get(src, isBinary, (xhr) => this.onprogress(xhr)).then((xhr) => this.onload(xhr.response), (xhr) => this.onerror("HttpError", xhr));
         } else {
             this.onload(src);
         }
