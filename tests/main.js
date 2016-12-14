@@ -1,3 +1,6 @@
+let testsCount = 0,
+    testsPassed = 0;
+
 function addTestResult(testResult) {
     let div = document.createElement("div"),
         name = document.createElement("p"),
@@ -5,6 +8,9 @@ function addTestResult(testResult) {
         data = testResult[1],
         misMatchPercentage = Math.round(data.rawMisMatchPercentage),
         result = misMatchPercentage <= 1; // allow 1% mismatch
+
+    testsCount += 1;
+    testsPassed += result ? 1 : 0;
 
     console.log(misMatchPercentage);
     name.textContent = testResult[0] + " ";
@@ -38,10 +44,35 @@ function addTestResult(testResult) {
     document.body.appendChild(div);
 }
 
-document.body.appendChild(unitTester.canvas);
+let canvas = document.createElement("canvas");
 
-unitTester.run((testResult) => {
+canvas.width = canvas.height = 256;
+
+let viewer = new ModelViewer(canvas);
+
+viewer.addEventListener("error", (e) => console.log(e));
+
+viewer.addHandler(W3x);
+viewer.addHandler(M3);
+
+document.body.appendChild(canvas);
+
+UnitTester.run(viewer, (testResult) => {
     if (!testResult.done) {
         addTestResult(testResult.value)
+    } else {
+        let element = document.createElement("p");
+
+        element.className = "item";
+
+        if (testsPassed === testsCount) {
+            element.style.color = "green";
+        } else {
+            element.style.color = "red";
+        }
+
+        element.appendChild(document.createTextNode(testsPassed + "/" + testsCount + " tests passed"));
+
+        document.body.appendChild(element);
     }
 });

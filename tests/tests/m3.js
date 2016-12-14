@@ -1,5 +1,5 @@
 // Load a model and create an instance.
-unitTester.addTest("m3-load", (viewer) => {
+UnitTester.addTest("m3-load", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
@@ -10,7 +10,7 @@ unitTester.addTest("m3-load", (viewer) => {
 });
 
 // Get to a specific frame of animation in a sequence.
-unitTester.addTest("m3-sequence", (viewer) => {
+UnitTester.addTest("m3-sequence", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
@@ -23,7 +23,7 @@ unitTester.addTest("m3-sequence", (viewer) => {
 });
 
 // Change team colors.
-unitTester.addTest("m3-team-color", (viewer) => {
+UnitTester.addTest("m3-team-color", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
@@ -34,7 +34,7 @@ unitTester.addTest("m3-team-color", (viewer) => {
 });
 
 // Change tint colors.
-unitTester.addTest("m3-tint-color", (viewer) => {
+UnitTester.addTest("m3-tint-color", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();

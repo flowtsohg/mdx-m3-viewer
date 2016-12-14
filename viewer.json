@@ -212,7 +212,6 @@
   "UNIT_TESTS": {
     "path": "tests/",
     "internal_files": [
-      "src/unittest",
       "src/unittester",
       "src/common",
       "tests/mdx",

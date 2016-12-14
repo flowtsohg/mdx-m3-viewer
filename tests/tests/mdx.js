@@ -1,5 +1,5 @@
 // Load a model and create an instance.
-unitTester.addTest("mdx-load", (viewer) => {
+UnitTester.addTest("mdx-load", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
@@ -10,7 +10,7 @@ unitTester.addTest("mdx-load", (viewer) => {
 });
 
 // Get to a specific frame of animation in a sequence.
-unitTester.addTest("mdx-sequence", (viewer) => {
+UnitTester.addTest("mdx-sequence", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
@@ -23,7 +23,7 @@ unitTester.addTest("mdx-sequence", (viewer) => {
 });
 
 // Change team colors.
-unitTester.addTest("mdx-team-color", (viewer) => {
+UnitTester.addTest("mdx-team-color", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
@@ -33,7 +33,7 @@ unitTester.addTest("mdx-team-color", (viewer) => {
 });
 
 // Change tint colors.
-unitTester.addTest("mdx-tint-color", (viewer) => {
+UnitTester.addTest("mdx-tint-color", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
@@ -43,7 +43,7 @@ unitTester.addTest("mdx-tint-color", (viewer) => {
 });
 
 // Texture animations (both image based and UV offset based).
-unitTester.addTest("mdx-texture-animation", (viewer) => {
+UnitTester.addTest("mdx-texture-animation", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
@@ -56,7 +56,7 @@ unitTester.addTest("mdx-texture-animation", (viewer) => {
 });
 
 // Particle emitters type 1.
-unitTester.addTest("mdx-particle-emitter", (viewer) => {
+UnitTester.addTest("mdx-particle-emitter", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
@@ -74,7 +74,7 @@ unitTester.addTest("mdx-particle-emitter", (viewer) => {
 });
 
 // Particle emitters type 2.
-unitTester.addTest("mdx-particle-emitter-2", (viewer) => {
+UnitTester.addTest("mdx-particle-emitter-2", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
@@ -93,7 +93,7 @@ unitTester.addTest("mdx-particle-emitter-2", (viewer) => {
 });
 
 // Attachments that define model paths.
-unitTester.addTest("mdx-attachment-model", (viewer) => {
+UnitTester.addTest("mdx-attachment-model", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
