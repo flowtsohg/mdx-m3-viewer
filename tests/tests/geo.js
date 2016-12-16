@@ -58,6 +58,36 @@ UnitTester.addTest("geo-cylinder", (viewer) => {
     viewer.load(data, geoSolver).addInstance().uniformScale(38).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
 });
 
+// Edges.
+UnitTester.addTest("geo-edges", (viewer) => {
+    let camera = viewer.scenes[0].camera;
+
+    camera.resetTransformation();
+    camera.move([0, 0, -110]);
+
+    let data = {
+        geometry: createUnitRectangle(),
+        material: { renderMode: 1 }
+    };
+
+    viewer.load(data, geoSolver).addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+});
+
+// Faces + edges.
+UnitTester.addTest("geo-faces-and-edges", (viewer) => {
+    let camera = viewer.scenes[0].camera;
+
+    camera.resetTransformation();
+    camera.move([0, 0, -110]);
+
+    let data = {
+        geometry: createUnitRectangle(),
+        material: { renderMode: 2 }
+    };
+
+    viewer.load(data, geoSolver).addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+});
+
 // Color.
 UnitTester.addTest("geo-color", (viewer) => {
     let camera = viewer.scenes[0].camera;
@@ -71,6 +101,21 @@ UnitTester.addTest("geo-color", (viewer) => {
     };
 
     viewer.load(data, geoSolver).addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8)).setColor([255, 0, 0]);
+});
+
+// Edge color.
+UnitTester.addTest("geo-edge-color", (viewer) => {
+    let camera = viewer.scenes[0].camera;
+
+    camera.resetTransformation();
+    camera.move([0, 0, -110]);
+
+    let data = {
+        geometry: createUnitRectangle(),
+        material: { renderMode: 1 }
+    };
+
+    viewer.load(data, geoSolver).addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8)).setEdgeColor([255, 0, 0]);
 });
 
 // Two sided.
