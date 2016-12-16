@@ -690,7 +690,7 @@ var MdxParser = (function () {
                         users = usageMap[geoset];
 
                     if (users.length > 1) {
-                        errors.push("Geoset " + geoset + " has " + users.length + " geoset animations referencing it (" + users.join(", ") + ")");
+                        warnings.push("Geoset " + geoset + " has " + users.length + " geoset animations referencing it (" + users.join(", ") + ")");
                     }
                 }
             }

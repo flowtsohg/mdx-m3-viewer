@@ -87,7 +87,6 @@ function MdxGeoset(geoset, geosetAnimations) {
     for (i = 0, l = geosetAnimations.length; i < l; i++) {
         if (geosetAnimations[i].geosetId === geoset.index) {
             this.geosetAnimation = geosetAnimations[i];
-            break;
         }
     }
 }
