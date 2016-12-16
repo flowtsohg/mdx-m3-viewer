@@ -50,6 +50,8 @@ canvas.width = canvas.height = 256;
 
 let viewer = new ModelViewer(canvas);
 
+viewer.gl.clearColor(0.1, 0.1, 0.1, 1);
+
 viewer.addEventListener("error", (e) => console.log(e));
 
 viewer.addHandler(W3x);

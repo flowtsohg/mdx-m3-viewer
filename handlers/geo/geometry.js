@@ -1,17 +1,17 @@
 /**
  * Creates a rectangle geometry object.
  *
- * @param {number} width The width of the rectangle.
- * @param {number} depth The depth of the rectangle.
+ * @param {number} w The width of the rectangle.
+ * @param {number} d The depth of the rectangle.
  * @returns {object} The geometry object.
  */
-function createRectangle(width, depth) {
+function createRectangle(w, d) {
     return {
-        vertices: new Float32Array([-width, depth, 0, -width, -depth, 0, width, -depth, 0, width, depth, 0]),
+        vertices: new Float32Array([-w, d, 0, -w, -d, 0, w, -d, 0, w, d, 0]),
         uvs: new Float32Array([0, 0, 0, 1, 1, 1, 1, 0]),
         faces: new Uint8Array([0, 1, 2, 0, 2, 3]),
         edges: new Uint8Array([0, 1, 1, 2, 2, 3, 3, 0]),
-        boundingRadius: Math.max(width, depth)
+        boundingRadius: Math.max(w, d)
     };
 }
 
@@ -27,18 +27,18 @@ function createUnitRectangle() {
 /**
  * Creates a cube geometry object.
  *
- * @param {number} width The width of the cube.
- * @param {number} depth The depth of the cube.
- * @param {number} height The height of the cube.
+ * @param {number} w The width of the cube.
+ * @param {number} d The depth of the cube.
+ * @param {number} h The height of the cube.
  * @returns {object} The geometry object.
  */
-function createCube(width, depth, height) {
+function createCube(w, d, h) {
     return { 
-        vertices: new Float32Array([-width, -depth, -height, -width, -depth, height, -width, depth, -height, -width, depth, height, width, depth, -height, width, depth, height, width, -depth, -height, width, -depth, height]),
+        vertices: new Float32Array([-w, -d, -h, -w, -d, h, -w, d, -h, -w, d, h, w, d, -h, w, d, h, w, -d, -h, w, -d, h]),
         uvs: new Float32Array([0, 0, 0, 1, 0.25, 0, 0.25, 1, 0.5, 0, 0.5, 1, 0.75, 0, 0.75, 1]),
-        faces: new Uint8Array([0, 2, 1, 1, 2, 3, 2, 4, 3, 3, 4, 5, 4, 6, 5, 5, 6, 7, 6, 0, 7, 7, 0, 1, 0, 2, 4, 0, 4, 6, 1, 3, 5, 1, 5, 7]),
+        faces: new Uint8Array([0, 1, 2, 1, 3, 2, 2, 3, 4, 3, 5, 4, 4, 5, 6, 5, 7, 6, 6, 7, 0, 7, 1, 0, 0, 2, 4, 0, 4, 6, 1, 5, 3, 1, 7, 5]),
         edges: new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 0, 2, 2, 4, 4, 6, 6, 0, 1, 3, 3, 5, 5, 7, 7, 1]),
-        boundingRadius: Math.max(width, depth, height)
+        boundingRadius: Math.max(w, d, h)
     };
 }
 
@@ -71,7 +71,7 @@ function createIndexArray(size, biggestIndex) {
  * @returns {object} The geometry object.
  */
 function createSphere(radius, stacks, slices) {
-    const points = (stacks + 1) * (slices + 1),
+    let points = (stacks + 1) * (slices + 1),
         vertices = new Float32Array(points * 3),
         uvs = new Float32Array(points * 2),
         faces = createIndexArray(stacks * slices * 6, points),
@@ -153,14 +153,16 @@ function createUnitSphere(stacks, slices) {
 function createCylinder(radius, height, slices) {
     slices = Math.max(slices, 3);
 
-    const points = (slices + 1) * 2 + 2,
+    let points = (slices + 1) * 2 + 2,
         vertices = new Float32Array(points * 3),
         uvs = new Float32Array(points * 2),
         faces = createIndexArray(slices * 12, points),
         edges = createIndexArray(slices * 10, points),
-        step = (Math.PI * 2) / slices;
+        step = (Math.PI * 2) / slices,
+        vOffset = 0,
+        uOffset = 0;
 
-    for (let slice = 0, vOffset = 0, uOffset = 0; slice < slices + 1; slice++, vOffset += 6, uOffset += 4) {
+    for (let slice = 0; slice < slices + 1; slice++, vOffset += 6, uOffset += 4) {
         let x = Math.cos(step * slice) * radius,
             y = Math.sin(step * slice) * radius,
             u = slice / slices;

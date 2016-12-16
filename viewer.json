@@ -11,6 +11,7 @@
       "actionqueue",
       "eventdispatcher",
       "node",
+      "notifiednode",
       "boundingshape",
       "asyncresource",
       "downloadableresource",
@@ -209,16 +210,24 @@
     "external_files": [
     ]
   },
-  "UNIT_TESTS": {
-    "path": "tests/",
+  "UNIT_TESTER": {
+    "path": "tests/src/",
     "internal_files": [
-      "src/unittester",
-      "src/common",
-      "tests/mdx",
-      "tests/m3"
+      "unittester",
+      "common"
     ],
     "external_files": [
       "resemble"
+    ]
+  },
+  "UNIT_TESTS": {
+    "path": "tests/tests/",
+    "internal_files": [
+      "geo",
+      "mdx",
+      "m3"
+    ],
+    "external_files": [
     ]
   }
 }
