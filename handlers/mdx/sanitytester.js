@@ -373,7 +373,7 @@ MdxSanityTester.prototype = {
                     replaceableId = emitter.replaceableId;
 
                 this.assertWarning(this.inRange(emitter.filterMode, 0, 4), "Particle Emitter 2 " + i + ": Invalid filter mode " + emitter.filterMode);
-                this.assertWarning(this.inRange(emitter.textureId, 0, this.textureCount), "Particle Emitter 2 " + i + ": Referencing invalid texture ID " + emitter.textureId);
+                this.assertWarning(this.inRange(emitter.textureId, 0, this.textureCount - 1), "Particle Emitter 2 " + i + ": Referencing invalid texture ID " + emitter.textureId);
                 this.assertError(replaceableId === 0 || Mdx.replaceableIdToName[replaceableId], "Particle Emitter 2 " + i + ": Unknown replaceable ID " + replaceableId);
 
                 this.testSDContainer(emitter)
@@ -383,7 +383,7 @@ MdxSanityTester.prototype = {
         }
     },
 
-    // Error: Referencing an invalid material ID
+    // Error: Referencing an invalid material ID (?).
     testRibbonEmitters(chunks) {
         let ribbonEmitterChunk = chunks.RIBB;
 
@@ -557,6 +557,10 @@ MdxSanityTester.prototype = {
         }
     },
 
+    // Given a frame, and possibly a global sequence ID, get the following information:
+    // 1) What is the index (if any) of the sequence (or global sequence) that this frame is in.
+    // 2) Is this frame the beginning frame of this sequence.
+    // 3) Is this frame the ending frame of this sequence.
     getSequenceInfoFromFrame(frame, globalSequenceId) {
         let index = -1,
             isBeginning = false,
