@@ -158,6 +158,8 @@ MdxSanityTester.prototype = {
         }
     },
 
+    // Warning: No layers (?).
+    // Warning: Invalid filter mode (?).
     testMaterial(material) {
         let layers = material.layers;
 
@@ -178,7 +180,7 @@ MdxSanityTester.prototype = {
             let textureAnimations = textureAnimationChunk.elements;
 
             for (let i = 0, l = textureAnimations.length; i < l; i++) {
-                this.testTracks(textureAnimations[i]);
+                this.testSDContainer(textureAnimations[i]);
             }
 
         }
@@ -242,7 +244,7 @@ MdxSanityTester.prototype = {
             }
 
             for (let i = 0, l = geosetAnimations.length; i < l; i++) {
-                this.testTracks(geosetAnimations[i]);
+                this.testSDContainer(geosetAnimations[i]);
             }
         } 
     },
@@ -293,7 +295,7 @@ MdxSanityTester.prototype = {
 
                 this.assertWarning(attenuation[0] >= 80 && attenuation[1] <= 200 && attenuation[1] - attenuation[0] > 0, "Light " + i + " " + light.node.name + ": Attenuation min=" + attenuation[0] + " max=" + attenuation[1]);
 
-                this.testTracks(light)
+                this.testSDContainer(light)
                 this.testNode(light);
             }
         }
@@ -326,7 +328,7 @@ MdxSanityTester.prototype = {
 
                 this.assertError(path === "" || path.endsWith(".mdl"), "Attachment " + i + ": Invalid path");
 
-                this.testTracks(attachment)
+                this.testSDContainer(attachment)
                 this.testNode(attachment);
             }
 
@@ -352,7 +354,7 @@ MdxSanityTester.prototype = {
 
                 this.assertError(emitter.path.endsWith(".mdl"), "Particle Emitter " + i + ": Corrupted path");
 
-                this.testTracks(emitter)
+                this.testSDContainer(emitter)
                 this.testNode(emitter);
             }
 
@@ -374,7 +376,7 @@ MdxSanityTester.prototype = {
                 this.assertWarning(this.inRange(emitter.textureId, 0, this.textureCount), "Particle Emitter 2 " + i + ": Referencing invalid texture ID " + emitter.textureId);
                 this.assertError(replaceableId === 0 || Mdx.replaceableIdToName[replaceableId], "Particle Emitter 2 " + i + ": Unknown replaceable ID " + replaceableId);
 
-                this.testTracks(emitter)
+                this.testSDContainer(emitter)
                 this.testNode(emitter);
             }
 
@@ -393,7 +395,7 @@ MdxSanityTester.prototype = {
 
                 this.assertError(this.inRange(emitter.materialId, 0, this.materialCount), "Ribbon Emitter " + i + ": Referencing invalid material ID " + emtiter.materialId);
 
-                this.testTracks(emitter)
+                this.testSDContainer(emitter)
                 this.testNode(emitter);
             }
 
@@ -429,7 +431,7 @@ MdxSanityTester.prototype = {
             let cameras = cameraChunk.elements;
 
             for (let i = 0, l = cameras.length; i < l; i++) {
-                this.testTracks(cameras[i]);
+                this.testSDContainer(cameras[i]);
             }
         }
     },
@@ -460,10 +462,10 @@ MdxSanityTester.prototype = {
         this.assertError(objectId === parentId || parentId === -1 || parentId < this.nodeCount, "Node " + name + ": Invalid parent ID " + parentId);
         this.assertError(objectId !== parentId, "Node " + name + ": Same object ID and parent ID");
             
-        this.testTracks(node);
+        this.testSDContainer(node);
     },
 
-    testTracks(object) {
+    testSDContainer(object) {
         let tracks = object.tracks,
             sds = tracks.sd,
             keys = Object.keys(sds);
@@ -483,8 +485,8 @@ MdxSanityTester.prototype = {
 
         this.assertError(globalSequenceId === -1 || globalSequenceId < this.globalSequenceCount, typeInfo[0] + " " + objectName + ": Referencing invalid global sequence " + globalSequenceId);
 
-        this.testSDTracks(object, typeInfo, sd.tracks, globalSequenceId);
         this.testInterpolationType(object, typeInfo, sd.interpolationType);
+        this.testTracks(object, typeInfo, sd.tracks, globalSequenceId);
     },
 
     // Warning: Zero tracks (?).
@@ -493,7 +495,7 @@ MdxSanityTester.prototype = {
     // Warning: Negative frame (?).
     // Warning: No opening frame for a sequence (can cause weird animations).
     // Warning: No closing frame for a sequence (can cause weird animations).
-    testSDTracks(object, typeInfo, tracks, globalSequenceId) {
+    testTracks(object, typeInfo, tracks, globalSequenceId) {
         let objectName = this.getIdentifier(object),
             sequences = this.sequences,
             usageMap = {};

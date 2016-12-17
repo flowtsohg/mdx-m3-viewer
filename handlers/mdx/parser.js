@@ -98,7 +98,7 @@ var MdxParser = (function () {
         this.max = readVector3(reader);
     }
 
-    function SDTrack(reader, interpolationType, Func) {
+    function Track(reader, interpolationType, Func) {
         this.frame = readInt32(reader);
         this.value = Func(reader);
 
@@ -113,14 +113,14 @@ var MdxParser = (function () {
             tracksCount = readUint32(reader),
             interpolationType = readUint32(reader),
             globalSequenceId = readInt32(reader),
-            tracks = [],
             sdTrackInfo = tagToTrack[tag],
             constructor = sdTrackInfo[0],
             defval = sdTrackInfo[1],
-            elementsPerTrack = 1 + (defval.length ? defval.length : 1) * (interpolationType > 1 ? 3 : 1);
+            elementsPerTrack = 1 + (defval.length ? defval.length : 1) * (interpolationType > 1 ? 3 : 1),
+            tracks = [];
 
         for (var i = 0; i < tracksCount; i++) {
-            tracks[i] = new SDTrack(reader, interpolationType, constructor)
+            tracks[i] = new Track(reader, interpolationType, constructor)
         }
 
         this.tag = tag;
@@ -279,7 +279,7 @@ var MdxParser = (function () {
         this.materialId = readUint32(reader);
         this.selectionGroup = readUint32(reader);
         this.selectionFlags = readUint32(reader);
-        this.extent =  new Extent(reader);
+        this.extent = new Extent(reader);
         this.extents = readKnownElements(reader, readUint32(reader), Extent);
 
         skip(reader, 4); // UVAS
