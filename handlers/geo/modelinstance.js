@@ -27,6 +27,13 @@ GeometryModelInstance.prototype = {
         this.setEdgeColor(this.model.edgeColor);
     },
 
+    invalidateSharedData() {
+        this.bucket = null;
+        this.boneArray = null;
+        this.colorArray = null;
+        this.edgeColorArray = null;
+    },
+
     update() {
         mat4.copy(this.boneArray, this.worldMatrix);
     },

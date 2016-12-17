@@ -148,7 +148,7 @@ var MdxParser = (function () {
         this.object = object;
         this.size = readUint32(reader);
         this.name = read(reader, 80);
-        this.objectId = readUint32(reader);
+        this.objectId = readInt32(reader);
         this.parentId = readInt32(reader);
         this.flags = readUint32(reader);
         this.tracks = new SDContainer(reader, this.size - 96);
@@ -298,14 +298,14 @@ var MdxParser = (function () {
         this.alpha = readFloat32(reader);
         this.flags = readUint32(reader);
         this.color = readVector3(reader);
-        this.geosetId = readUint32(reader);
+        this.geosetId = readInt32(reader);
         this.tracks = new SDContainer(reader, this.size - 28);
     }
 
     function Bone(reader, nodes, index) {
         this.node = readNode(reader, nodes, this);
-        this.geosetId = readUint32(reader);
-        this.geosetAnimationId = readUint32(reader);
+        this.geosetId = readInt32(reader);
+        this.geosetAnimationId = readInt32(reader);
         this.size = this.node.size + 8;
     }
 
@@ -569,162 +569,6 @@ var MdxParser = (function () {
         this.chunks = chunks;
         this.nodes = nodes;
     }
-
-    Parser.prototype = {
-        // Checks the parser for any errors that will not affect the viewer, but affect the model when it is used in Warcraft 3.
-        // For example, things that make the model completely invalid and unloadable in the game, but work just fine in the viewer.
-        sanityCheck() {
-            var errors = [],
-                warnings = [],
-                chunks = this.chunks;
-
-            // Found in game.dll: "File contains no geosets, lights, sound emitters, attachments, cameras, particle emitters, or ribbon emitters."
-            if (!chunks.GEOS && !chunks.LITE /* && !chunks.SNDS */ && !chunks.ATCH && !chunks.CAMS && !chunks.PREM && !chunks.PRE2 && !chunks.RIBB) {
-                errors.push("The model has no geosets, lights, attachments, cameras, particle emitters, or ribbon emitters");
-            }
-
-            // Sequences
-            if (chunks.SEQS) {
-                var sequences = chunks.SEQS.elements,
-                    foundStand = false,
-                    foundDeath = false;
-
-                if (sequences.length === 0) {
-                    warnings.push("No animations");
-                }
-
-                for (var i = 0, l = sequences.length; i < l; i++) {
-                    var sequence = sequences[i],
-                        interval = sequence.interval,
-                        length = interval[1] - interval[0];
-
-                    if (sequence.name.toLowerCase().indexOf("stand") !== -1) {
-                        foundStand = true;
-                    }
-
-                    if (sequence.name.toLowerCase().indexOf("death") !== -1) {
-                        foundDeath = true;
-                    }
-
-                    if (length <= 0) {
-                        errors.push("Sequence " + sequence.name + ": Invalid length " + length);
-                    }
-                }
-
-                if (!foundStand) {
-                    warnings.push("No stand animation");
-                }
-
-                if (!foundDeath) {
-                    warnings.push("No death animation");
-                }
-            }
-        
-            // Textures
-            if (chunks.TEXS) {
-                var textures = chunks.TEXS.elements;
-
-                for (var i = 0, l = textures.length; i < l; i++) {
-                    var texture = textures[i],
-                        replaceableId = texture.replaceableId,
-                        path = texture.path;
-
-                    // If the path is corrupted
-                    if (!path.endsWith(".blp") && path.indexOf(".blp") !== -1) {
-                        errors.push("Texture " + i + ": Corrupted path " + path);
-                    }
-
-                    if (path === "" && Mdx.replaceableIdToName[replaceableId] === undefined) {
-                        errors.push("Texture " + i + ": Unknown replaceable ID " + replaceableId);
-                    }
-
-                    // Is this a warning or an error?
-                    if (path !== "" && replaceableId !== 0) {
-                        warnings.push("Texture " + i + ": Path " + path + " and replaceable ID " + replaceableId + " used together");
-                    }
-                }
-            }
-
-            // Geosets
-            if (chunks.GEOS) {
-                var geosets = chunks.GEOS.elements;
-
-                for (var i = 0, l = geosets.length; i < l; i++) {
-                    var matrixGroups = geosets[i].matrixGroups;
-
-                    for (var j = 0, k = matrixGroups.length; j < k; j++) {
-                        var matrixGroup = matrixGroups[j];
-
-                        // There are built-in models with vertices attached to 8 bones, so I assume the game has no upper limit.
-                        if (matrixGroup < 1 /*|| matrixGroup > 4*/) {
-                            warnings.push("Geoset " + i + ": Vertex " + j + " is attached to " + matrixGroup + " bones");
-                        }
-                    }
-                }
-            }
-
-            // Geoset animations
-            if (chunks.GEOA && chunks.GEOS) {
-                var biggest = chunks.GEOS.elements.length - 1,
-                    usageMap = {},
-                    geosetAnimations = chunks.GEOA.elements;
-
-                for (var i = 0, l = geosetAnimations.length; i < l; i++) {
-                    var geosetId = geosetAnimations[i].geosetId;
-
-                    if (geosetId < 0 || geosetId > biggest) {
-                        errors.push("Geoset animation " + i + ": Invalid geoset ID " + geosetId);
-                    }
-
-                    if (!usageMap[geosetId]) {
-                        usageMap[geosetId] = [];
-                    }
-
-                    usageMap[geosetId].push(i);
-                }
-
-                var keys = Object.keys(usageMap);
-
-                for (var i = 0, l = keys.length; i < l; i++) {
-                    var geoset = keys[i],
-                        users = usageMap[geoset];
-
-                    if (users.length > 1) {
-                        warnings.push("Geoset " + geoset + " has " + users.length + " geoset animations referencing it (" + users.join(", ") + ")");
-                    }
-                }
-            }
-
-            // Lights
-            if (chunks.LITE) {
-                var lights = chunks.LITE.elements;
-
-                for (var i = 0, l = lights.length; i < l; i++) {
-                    var light = lights[i],
-                        attenuation = light.attenuation;
-
-                    if (attenuation[0] < 80 || attenuation[1] > 200) {
-                        warnings.push("Light " + light.node.name + ": Attenuation min=" + attenuation[0] + " max=" + attenuation[1]);
-                    }
-                }
-            }
-
-            // Event objects
-            if (chunks.EVTS) {
-                var eventObjects = chunks.EVTS.elements;
-
-                for (var i = 0, l = eventObjects.length; i < l; i++) {
-                    var eventObject = eventObjects[i];
-
-                    if (eventObject.tracks.length === 0) {
-                        errors.push("Event object " + eventObject.node.name + ": No keys");
-                    }
-                }
-            }
-
-            return [errors, warnings];
-        }
-    };
 
     return (function (reader) {
         if (read(reader, 4) === "MDLX") {

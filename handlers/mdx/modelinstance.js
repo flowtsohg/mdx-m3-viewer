@@ -174,6 +174,16 @@ MdxModelInstance.prototype = {
         this.batchVisibilityArrays = sharedData.batchVisibilityArrays;
     },
 
+    invalidateSharedData() {
+        this.bucket = null;
+        this.skeleton.boneArray = null;
+        this.geosetColorArrays = null;
+        this.uvOffsetArrays = null;
+        this.teamColorArray = null;
+        this.tintColorArray = null;
+        this.batchVisibilityArrays = null;
+    },
+
     updateEmitters() {
         let allowCreate = this.allowParticleSpawn,
             emitters;
@@ -386,7 +396,7 @@ MdxModelInstance.prototype = {
                     this.sequenceObject = sequence;
                 }
 
-                // Update the skeleton in case this sequence isn't vareiant, and thus it won't get updated in the update function
+                // Update the skeleton in case this sequence isn't variant, and thus it won't get updated in the update function
                 this.skeleton.update();
             }
         } else {

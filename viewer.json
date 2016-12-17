@@ -79,6 +79,7 @@
     "internal_files": [
       "shaders",
       "parser",
+      "sanitytester",
       "sd",
       "skeleton",
       "collisionshape",

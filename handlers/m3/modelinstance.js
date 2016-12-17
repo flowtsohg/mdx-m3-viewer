@@ -30,6 +30,13 @@ M3ModelInstance.prototype = {
         this.tintColorArray = sharedData.tintColorArray;
     },
 
+    invalidateSharedData() {
+        this.bucket = null;
+        this.skeleton.boneArray = null;
+        this.teamColorArray = null;
+        this.tintColorArray = null;
+    },
+
     update() {
         const env = this.env;
 
