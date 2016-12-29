@@ -34,11 +34,11 @@ MdxRibbon.prototype = {
 
     update(emitter) {
         let dt = emitter.model.env.frameTime * 0.001,
-            zvelocity = emitter.gravity * dt * dt;
+            gravity = emitter.gravity * dt * dt;
 
         this.health -= dt;
-        this.p1[2] -= zvelocity;
-        this.p2[2] -= zvelocity;
+        this.p1[1] -= gravity;
+        this.p2[1] -= gravity;
     },
 
     kill() {

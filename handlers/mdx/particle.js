@@ -69,7 +69,7 @@ MdxParticle.prototype = {
 
             this.health -= frameTimeS;
 
-            this.velocity[2] -= this.gravity * frameTimeS;
+            this.velocity[1] -= this.gravity * frameTimeS;
 
             vec3.scaleAndAdd(this.position, this.position, this.velocity, frameTimeS);
 

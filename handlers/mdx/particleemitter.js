@@ -36,10 +36,7 @@ function MdxParticleEmitter(instance, emitter) {
         particles = Math.round(biggest * Math.ceil(emitter.lifespan) * 2);
     } else {
         particles = Math.round(emitter.emissionRate * Math.ceil(emitter.lifespan));
-    }
-
-
-    
+    }    
 
     this.particles = [];
     this.reusables = [];
@@ -102,30 +99,30 @@ MdxParticleEmitter.prototype = {
     },
 
     getSpeed() {
-        return this.sd.getKPESValue(this.instance, this.speed);
+        return this.sd.getValue("KPES", this.instance, this.speed);
     },
 
     getLatitude() {
-        return this.sd.getKPLTValue(this.instance, this.latitude);
+        return this.sd.getValue("KPLTV", this.instance, this.latitude);
     },
 
     getLongitude() {
-        return this.sd.getKPLNValue(this.instance, this.longitude);
+        return this.sd.getValue("KPLN", this.instance, this.longitude);
     },
 
     getLifespan() {
-        return this.sd.getKPELValue(this.instance, this.lifespan);
+        return this.sd.getValue("KPEL", this.instance, this.lifespan);
     },
 
     getGravity() {
-        return this.sd.getKPEGValue(this.instance, this.gravity);
+        return this.sd.getValue("KPEG", this.instance, this.gravity);
     },
 
     getEmissionRate() {
-        return this.sd.getKPEEValue(this.instance, this.emissionRate);
+        return this.sd.getValue("KPEE", this.instance, this.emissionRate);
     },
 
     getVisibility() {
-        return this.sd.getKPEVValue(this.instance, 1);
+        return this.sd.getValue("KPEV", this.instance, 1);
     }
 };

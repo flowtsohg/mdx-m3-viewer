@@ -5,6 +5,10 @@ function M3Skeleton(instance) {
 
     Skeleton.call(this, instance, bones.length);
 
+    // Transform M3 skeletons so they match the viewer's coordinate system.
+    this.rootNode.uniformScale(100);
+    this.rootNode.rotate(quat.setAxisAngle(quat.heap, vec3.UNIT_X, -Math.PI / 2));
+
     this.instance = instance;
     this.modelNodes = bones;
     this.initialReference = model.initialReference;
@@ -16,6 +20,8 @@ function M3Skeleton(instance) {
     // Set the bone parent references
     for (var i = 0, l = bones.length; i < l; i++) {
         this.nodes[i].setParent(this.getNode(bones[i].parent));
+
+        this.nodes[i].inverseBasisMatrix = M3.inverseBasisMatrix;
     }
 
     this.boneArray = null;
@@ -23,12 +29,12 @@ function M3Skeleton(instance) {
 
 M3Skeleton.prototype = {
     update() {
-        const instance = this.instance,
+        let instance = this.instance,
             nodes = this.nodes,
             modelNodes = this.modelNodes;
 
         for (let i = 0, l = nodes.length; i < l; i++) {
-            const modelNode = modelNodes[i],
+            let modelNode = modelNodes[i],
                 location = this.getValue(modelNode.location, instance),
                 rotation = this.getValue(modelNode.rotation, instance),
                 scale = this.getValue(modelNode.scale, instance);
@@ -44,7 +50,7 @@ M3Skeleton.prototype = {
         var finalMatrix;
 
         if (sequence === -1) {
-            finalMatrix = this.parentNode.worldMatrix;
+            finalMatrix = this.rootNode.worldMatrix;
         } else {
             finalMatrix = mat4.heap;
         }

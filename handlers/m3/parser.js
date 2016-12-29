@@ -240,7 +240,7 @@ const M3Parser = (function () {
     function Camera(reader, indexEntries, version) {
         this.version = version;
         this.bone = readUint32(reader);
-        this.name = parseReferenceString(reader, indexEntries);
+        this.name = new Reference(reader, index);
         this.fieldOfView = new AnimationReference(reader, readFloat32);
         this.unknown0 = readUint32(reader);
         this.farClip = new AnimationReference(reader, readFloat32);
@@ -450,6 +450,7 @@ const M3Parser = (function () {
         this.cameras = new Reference(reader, index);
         this.unknown21 = new Reference(reader, index);
         this.materialReferences = new Reference(reader, index);
+
         this.materials = [
             new Reference(reader, index), // Standard
             new Reference(reader, index), // Displacement
@@ -458,7 +459,6 @@ const M3Parser = (function () {
             new Reference(reader, index), // Volume
             new Reference(reader, index), // ?
             new Reference(reader, index)  // Creep
-
         ];
 
         if (version > 24) {
@@ -523,7 +523,7 @@ const M3Parser = (function () {
     }
 
     // This is used for entries that have known structures (or at least sizes), but this parser isn't going to actually parse.
-    // The entry will simply contain its own reader and version, if the client code wants to do anything with it.
+    // The entry will contain its own reader and version, in case the client code wants to do anything with it.
     function UnsupportedEntry(reader, version, index) {
         this.reader = reader;
         this.version = version;
@@ -572,6 +572,8 @@ const M3Parser = (function () {
         LAYR: [Layer, { 22: 356, 24: 436, 25: 468, 26: 464 }],
         EVNT: [Event, { 0: 96, 1: 104, 2: 108 }],
         BNDS: [BoundingSphere, { 0: 28 }],
+        ATT_: [AttachmentPoint, { 1: 20 }],
+        CAM_: [Camera, { 3: 180, 5: 264 }],
         SDEV: [SD, { 0: 32 }],
         SDU6: [SD, { 0: 32 }],
         SDFG: [SD, { 0: 32 }],
@@ -584,7 +586,6 @@ const M3Parser = (function () {
         SDMB: [SD, { 0: 32 }],
         FLAG: [SD, { 0: 32 }],
         // Unsupported entries
-        ATT_: [UnsupportedEntry, { 1: 20 }],
         LITE: [UnsupportedEntry, { 7: 212 }],
         ATVL: [UnsupportedEntry, { 0: 116 }],
         PATU: [UnsupportedEntry, { 4: 152 }],
@@ -616,7 +617,6 @@ const M3Parser = (function () {
         RIB_: [UnsupportedEntry, { 6: 748, 8: 756, 9: 760 }],
         IKJT: [UnsupportedEntry, { 0: 32 }],
         SHBX: [UnsupportedEntry, { 0: 64 }],
-        CAM_: [UnsupportedEntry, { 3: 180, 5: 264 }],
         WRP_: [UnsupportedEntry, { 1: 132 }],
         // Typed arrays
         CHAR: readCharArray,
@@ -704,5 +704,7 @@ const M3Parser = (function () {
             // Return the MODL entry.
             return entries[header.model.id].entries[0];
         }
+
+        throw new Error("WrongMagicNumber");
     });
 }());

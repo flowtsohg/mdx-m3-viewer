@@ -27,6 +27,13 @@ const M3 = {
             gl.uniform3fv(this.standardShader.uniforms.get("u_teamColors[" + i + "]"), [color[0] / 255, color[1] / 255, color[2] / 255]);
         }
 
+        let inverseBasisMatrix = mat4.create();
+        mat4.rotateX(inverseBasisMatrix, inverseBasisMatrix, -Math.PI / 2);
+        // WHY...................................
+        //mat4.scale(inverseBasisMatrix, inverseBasisMatrix, [100, 100, 100]);
+        mat4.invert(inverseBasisMatrix, inverseBasisMatrix);
+        this.inverseBasisMatrix = inverseBasisMatrix;
+
         return true;
     },
 

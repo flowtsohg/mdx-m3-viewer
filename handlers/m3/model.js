@@ -16,10 +16,12 @@ M3Model.prototype = {
     },
 
     initialize(src) {
-        var parser = M3Parser(new BinaryReader(src));
+        var parser;
 
-        if (!parser) {
-            this.onerror("InvalidSource", "WrongMagicNumber");
+        try {
+            parser = M3Parser(new BinaryReader(src));
+        } catch (e) {
+            this.onerror("InvalidSource", e);
             return false;
         }
 
@@ -113,9 +115,7 @@ M3Model.prototype = {
 
 
         let sequences = parser.sequences.getAll();
-
         this.sequences = [];
-
         for (i = 0, l = sequences.length; i < l; i++) {
             this.sequences[i] = new M3Sequence(sequences[i]);
         }
@@ -155,8 +155,17 @@ M3Model.prototype = {
         }
         */
 
-        //this.attachments = parser.attachmentPoints;
-        //this.cameras = parser.cameras;
+        let attachments = parser.attachmentPoints.getAll();
+        this.attachments = [];
+        for (i = 0, l = attachments.length; i < l; i++) {
+            this.attachments[i] = new M3Attachment(attachments[i]);
+        }
+
+        let cameras = parser.cameras.getAll();
+        this.cameras = [];
+        for (i = 0, l = cameras.length; i < l; i++) {
+            this.cameras[i] = new M3Camera(cameras[i]);
+        }
 
         return true;
     },

@@ -145,5 +145,7 @@ plane.classifyPoint = function (plane, point) {
         quat.normalize(planes[4], planes[4]);
         quat.normalize(planes[5], planes[5]);
         */
+
+        return this;
     }
 };

@@ -13,6 +13,7 @@ vec3.ONE = vec3.fromValues(1, 1, 1);
 
 quat.ZERO = quat.fromValues(0, 0, 0, 0);
 quat.DEFAULT = quat.create();
+quat.heap = quat.create();
 
 mat4.heap = mat4.create();
 

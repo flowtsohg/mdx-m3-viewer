@@ -1,7 +1,6 @@
 /**
  * @class
  * @classdesc A scene node, that can be moved around and parented to other nodes.
- * @param {boolean} dontInheritScaling True if this node should not inherit the parent's scale when it is parented.
  * @param {?ArrayBuffer} buffer An ArrayBuffer object to add this node to. A new buffer will be created if one isn't given.
  * @param {?number} offset An offset into the buffer, if one was given.
  */
@@ -51,9 +50,12 @@ function Node(buffer, offset) {
     /** @member {boolean} */
     this.dontInheritScaling = false;
 
+    this.inverseBasisMatrix = mat4.create();
+
     this.localRotation[3] = 1;
     this.localScale.fill(1);
-    mat4.identity(this.worldMatrix);
+
+    this.recalculateTransformation();
 }
 
 // Used in the constructor above, and in the Skeleton constructor.
@@ -155,8 +157,8 @@ Node.prototype = {
      * @returns this
      */
     resetTransformation() {
-        vec3.copy(this.localLocation, vec3.ZERO);
         vec3.copy(this.pivot, vec3.ZERO);
+        vec3.copy(this.localLocation, vec3.ZERO);
         quat.copy(this.localRotation, quat.DEFAULT);
         vec3.copy(this.localScale, vec3.ONE);
 
@@ -249,6 +251,29 @@ Node.prototype = {
         return this;
     },
 
+    lookAt(target) {
+        let l = [
+            -this.worldLocation[0],
+            -this.worldLocation[1],
+            -this.worldLocation[2]
+        ];
+
+        let t = [
+            -target[0],
+            -target[1],
+            -target[2]
+        ];
+
+        let rotation = mat4.getRotation(this.localRotation, mat4.lookAt(mat4.heap, l, t, vec3.UNIT_Y));
+
+        quat.normalize(rotation, rotation)
+        //quat.invert(rotation, rotation);
+
+        this.recalculateTransformation();
+
+        return this;
+    },
+
     /**
      * @method
      * @desc Sets the node's parent.
@@ -276,37 +301,9 @@ Node.prototype = {
      * @desc Called by this node's parent, when the parent is recalculated.
      *       Override this if you want special behavior.
      *       Note that ModelInstance overrides this.
-     * @returns {vec3}
      */
     notify() {
 
-    },
-
-    /**
-     * @method
-     * @desc Get the node's world location.
-     * @returns {vec3}
-     */
-    getLocation() {
-        return this.worldLocation;
-    },
-
-    /**
-     * @method
-     * @desc Get the node's world rotation.
-     * @returns {quat}
-     */
-    getRotation() {
-        return this.worldRotation;
-    },
-
-    /**
-     * @method
-     * @desc Get the node's world scale.
-     * @returns {vec3}
-     */
-    getScaling() {
-        return this.worldScale;
     },
 
     /**
@@ -332,9 +329,17 @@ Node.prototype = {
         // World matrix
         // Model space -> World space
         if (parent) {
-            let heap = mat4.heap;
+            // Is this an instance that is parented to a non-instance node?
+            let isInstanceAttachedToNode = this.objectType === "instance" && parent.objectType === undefined,
+                heap = mat4.heap;
 
             mat4.copy(heap, parent.worldMatrix);
+
+            // I don't even know anymore why this is needed...god damn math.
+            // If it isn't called, attaching an instance to a node with a non-zero pivot WILL mess up.
+            if (isInstanceAttachedToNode) {
+                mat4.translate(heap, heap, parent.pivot);
+            }
 
             // If this node shouldn't inherit the parent's rotation, rotate it by the inverse.
             if (this.dontInheritRotation) {
@@ -352,6 +357,13 @@ Node.prototype = {
             }
 
             mat4.mul(worldMatrix, heap, localMatrix);
+
+            // MDX and M3 both need basis transformations, since their coordinate systems do not match the viewer's.
+            // When attaching an instance of a format to a node used by another instance of the same format, the transformation will carry to the child, doubling it.
+            // Therefore, apply the inverse of the basis to the child.
+            if (isInstanceAttachedToNode) {
+                mat4.mul(worldMatrix, worldMatrix, parent.inverseBasisMatrix);
+            }
 
             /// TODO: what happens when dontInheritRotation is true?
 

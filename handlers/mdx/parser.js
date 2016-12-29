@@ -2,57 +2,57 @@ var MdxParser = (function () {
     // Mapping from track tags to their type and default value
     var tagToTrack = {
         // LAYS
-        KMTF: [readUint32, 0, 0],
-        KMTA: [readFloat32, 1, 1],
+        KMTF: [readUint32, 0],
+        KMTA: [readFloat32, 1],
         // TXAN
-        KTAT: [readVector3, new Float32Array([0, 0, 0]), 2],
-        KTAR: [readVector4, new Float32Array([0, 0, 0, 1]), 3],
-        KTAS: [readVector3, new Float32Array([1, 1, 1]), 4],
+        KTAT: [readVector3, new Float32Array([0, 0, 0])],
+        KTAR: [readVector4, new Float32Array([0, 0, 0, 1])],
+        KTAS: [readVector3, new Float32Array([1, 1, 1])],
         // GEOA
-        KGAO: [readFloat32, 1, 5],
-        KGAC: [readVector3, new Float32Array([0, 0, 0]), 6],
+        KGAO: [readFloat32, 1],
+        KGAC: [readVector3, new Float32Array([0, 0, 0])],
         // LITE
-        KLAS: [readFloat32, 0, 7],
-        KLAE: [readFloat32, 0, 8],
-        KLAC: [readVector3, new Float32Array([0, 0, 0]), 9],
-        KLAI: [readFloat32, 0, 10],
-        KLBI: [readFloat32, 0, 11],
-        KLBC: [readVector3, new Float32Array([0, 0, 0]), 12],
-        KLAV: [readFloat32, 1, 13],
+        KLAS: [readFloat32, 0],
+        KLAE: [readFloat32, 0],
+        KLAC: [readVector3, new Float32Array([0, 0, 0])],
+        KLAI: [readFloat32, 0],
+        KLBI: [readFloat32, 0],
+        KLBC: [readVector3, new Float32Array([0, 0, 0])],
+        KLAV: [readFloat32, 1],
         // ATCH
-        KATV: [readFloat32, 1, 14],
+        KATV: [readFloat32, 1],
         // PREM
-        KPEE: [readFloat32, 0, 15],
-        KPEG: [readFloat32, 0, 16],
-        KPLN: [readFloat32, 0, 17],
-        KPLT: [readFloat32, 0, 18],
-        KPEL: [readFloat32, 0, 19],
-        KPES: [readFloat32, 0, 20],
-        KPEV: [readFloat32, 1, 21],
+        KPEE: [readFloat32, 0],
+        KPEG: [readFloat32, 0],
+        KPLN: [readFloat32, 0],
+        KPLT: [readFloat32, 0],
+        KPEL: [readFloat32, 0],
+        KPES: [readFloat32, 0],
+        KPEV: [readFloat32, 1],
         // PRE2
-        KP2S: [readFloat32, 0, 22],
-        KP2R: [readFloat32, 0, 23],
-        KP2L: [readFloat32, 0, 24],
-        KP2G: [readFloat32, 0, 25],
-        KP2E: [readFloat32, 0, 26],
-        KP2N: [readFloat32, 0, 27],
-        KP2W: [readFloat32, 0, 28],
-        KP2V: [readFloat32, 1, 29],
+        KP2S: [readFloat32, 0],
+        KP2R: [readFloat32, 0],
+        KP2L: [readFloat32, 0],
+        KP2G: [readFloat32, 0],
+        KP2E: [readFloat32, 0],
+        KP2N: [readFloat32, 0],
+        KP2W: [readFloat32, 0],
+        KP2V: [readFloat32, 1],
         // RIBB
-        KRHA: [readFloat32, 0, 30],
-        KRHB: [readFloat32, 0, 31],
-        KRAL: [readFloat32, 1, 32],
-        KRCO: [readVector3, new Float32Array([0, 0, 0]), 33],
-        KRTX: [readUint32, 0, 34],
-        KRVS: [readFloat32, 1, 35],
+        KRHA: [readFloat32, 0],
+        KRHB: [readFloat32, 0],
+        KRAL: [readFloat32, 1],
+        KRCO: [readVector3, new Float32Array([0, 0, 0])],
+        KRTX: [readUint32, 0],
+        KRVS: [readFloat32, 1],
         // CAMS
-        KCTR: [readVector3, new Float32Array([0, 0, 0]), 36],
-        KTTR: [readVector3, new Float32Array([0, 0, 0]), 37],
-        KCRL: [readUint32, 0, 38],
+        KCTR: [readVector3, new Float32Array([0, 0, 0])],
+        KTTR: [readVector3, new Float32Array([0, 0, 0])],
+        KCRL: [readUint32, 0],
         // NODE
-        KGTR: [readVector3, new Float32Array([0, 0, 0]), 39],
-        KGRT: [readVector4, new Float32Array([0, 0, 0, 1]), 40],
-        KGSC: [readVector3, new Float32Array([1, 1, 1]), 41]
+        KGTR: [readVector3, new Float32Array([0, 0, 0])],
+        KGRT: [readVector4, new Float32Array([0, 0, 0, 1])],
+        KGSC: [readVector3, new Float32Array([1, 1, 1])]
     };
 
     // Read elements with unknown sizes
@@ -128,7 +128,6 @@ var MdxParser = (function () {
         this.globalSequenceId = globalSequenceId;
         this.tracks = tracks;
         this.defval = defval;
-        this.sdIndex = sdTrackInfo[2];
         this.size = 16 + tracksCount * elementsPerTrack * 4;
     }
 
@@ -211,6 +210,15 @@ var MdxParser = (function () {
         this.path = read(reader, 260);
         this.flags = readUint32(reader);
     }
+
+    // Note: this chunk was reverse engineered from the game executable itself, but was never seen in any resource
+    function SoundTrack(reader, index) {
+        this.index = index;
+        this.path = read(reader, 260);
+        this.volume = readFloat32(reader);
+        this.pitch = readFloat32(reader);
+        this.flags = readUint32(reader);
+    }
     
     function Layer(reader, index) {
         this.index = index;
@@ -274,7 +282,7 @@ var MdxParser = (function () {
         this.matrixGroups = readUint32Array(reader, readUint32(reader));
 
         skip(reader, 4); // MATS
-        this.matrixIndexes = readUint32Array(reader, readUint32(reader));
+        this.matrixIndices = readUint32Array(reader, readUint32(reader));
 
         this.materialId = readUint32(reader);
         this.selectionGroup = readUint32(reader);
@@ -304,8 +312,8 @@ var MdxParser = (function () {
 
     function Bone(reader, nodes, index) {
         this.node = readNode(reader, nodes, this);
-        this.geosetId = readInt32(reader);
-        this.geosetAnimationId = readInt32(reader);
+        this.geosetId = readInt32(reader); // Unsure if this is correct. What does it even mean for a bone to reference a geoset?
+        this.geosetAnimationId = readInt32(reader); // Unsure if this is correct. What does it even mean for a bone to reference a geoset animation?
         this.size = this.node.size + 8;
     }
 
@@ -426,9 +434,9 @@ var MdxParser = (function () {
 
         this.index = index;
         this.node = node;
-        
+
         skip(reader, 4); // KEVT
-        
+
         var count = readUint32(reader);
 
         this.globalSequenceId = readInt32(reader);
@@ -477,22 +485,18 @@ var MdxParser = (function () {
         this.size = size;
     }
 
-    /*
-    // Note: this chunk was reverse engineered from the game executable itself, but was never seen in any resource
-    function SoundTrack(reader, index) {
-        this.index = index;
-        this.path = read(reader, 260);
-        this.volume = readFloat32(reader);
-        this.pitch = readFloat32(reader);
-        this.flags = readUint32(reader);
+    // This is used for chunks that are not supported (e.g. custom chunks injected by authoring tools).
+    // The chunk will contain its own reader, in case the client code wants to do anything with it.
+    function UnsupportedChunk(reader) {
+        this.reader = reader;
     }
-    */
 
     // Chunks that have elements with known sizes
     var tagToKnownChunk = {
         SEQS: [Sequence, 132],
         GLBS: [GlobalSequence, 4],
         TEXS: [Texture, 268],
+        SNDS: [SoundTrack, 272],
         PIVT: [PivotPoint, 12]
     };
 
@@ -531,7 +535,7 @@ var MdxParser = (function () {
         SEQS: GenericKnownChunk,
         GLBS: GenericKnownChunk,
         TEXS: GenericKnownChunk,
-        //SNDS: GenericKnownChunk,
+        SNDS: GenericKnownChunk,
         MTLS: GenericUnknownChunk,
         TXAN: GenericUnknownChunk,
         GEOS: GenericUnknownChunk,
@@ -561,7 +565,8 @@ var MdxParser = (function () {
             if (constructor) {
                 chunks[tag] = new constructor(reader, tag, size, nodes);
             } else {
-                //console.log("Didn't parse chunk " + tag);
+                console.warn("MdxParser: Unsupported tag - " + tag);
+                chunks[tag] = new UnsupportedChunk(subreader(reader, size));
                 skip(reader, size);
             }
         }
@@ -574,5 +579,7 @@ var MdxParser = (function () {
         if (read(reader, 4) === "MDLX") {
             return new Parser(reader);
         }
+
+        throw new Error("WrongMagicNumber");
     });
 }());

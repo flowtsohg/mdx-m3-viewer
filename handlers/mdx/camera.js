@@ -10,14 +10,14 @@ function MdxCamera(camera, model) {
 
 MdxCamera.prototype = {
     getPositionTranslation(instance) {
-        return this.sd.getKCTRValue(instance, this.position);
+        return this.sd.getValue("KCTR", instance, this.position);
     },
 
     getTargetTranslation(instance) {
-        return this.sd.getKTTRValue(instance, this.targetPosition);
+        return this.sd.getValue("KTTR", instance, this.targetPosition);
     },
 
     getRotation(instance) {
-        return this.sd.getKCRLValue(instance, 0);
+        return this.sd.getValue("KCRL", instance, 0);
     }
 };

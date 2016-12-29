@@ -1,10 +1,10 @@
 /**
  * @class
  * @classdesc A base class for skeletons.
- * @param {?Node} parentNode The parent of this skeleton.
+ * @param {?Node} parent The parent of this skeleton.
  * @param {number} nodeCount The number of nodes in this skeleton.
  */
-function Skeleton(parentNode, nodeCount) {
+function Skeleton(parent, nodeCount) {
     let buffer = new ArrayBuffer(nodeCount * Node.BYTES_PER_ELEMENT),
         nodes = [];
 
@@ -13,11 +13,13 @@ function Skeleton(parentNode, nodeCount) {
     }
 
     /** @member {Node} */
-    this.parentNode = parentNode;
+    this.rootNode = new NotifiedNode();
     /** @member {ArrayBuffer} */
     this.buffer = buffer;
     /** @member {Node[]} */
     this.nodes = nodes;
+
+    this.rootNode.setParent(parent);
 
     //for (let i = 0; i < nodeCount; i++) {
     //    nodes[i].setParent(skeleton.getNode(hierarchy[i]));
@@ -33,7 +35,7 @@ Skeleton.prototype = {
      */
     getNode(id) {
         if (id === -1) {
-            return this.parentNode;
+            return this.rootNode;
         }
 
         return this.nodes[id];

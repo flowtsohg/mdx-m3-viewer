@@ -61,6 +61,16 @@ ModelView.prototype = {
         }
     },
 
+    clear() {
+        let instances = this.instances;
+
+        for (let i = 0, l = instances.length; i < l; i++) {
+            this.hideInstance(instances[i]);
+        }
+
+        instances.length = 0;
+    },
+
     /**
      * @method
      * @desc Adds a new instance  to this view, and returns the instance.
@@ -83,13 +93,11 @@ ModelView.prototype = {
      * @returns {@link ModelInstance}
      */
     deleteInstance(instance) {
-        const instances = this.instances;
+        let instances = this.instances;
 
         this.hideInstance(instance);
 
         instances.splice(instances.indexOf(instance), 1);
-
-        this.instanceToBucket.delete(instance);
 
         return instance;
     },
@@ -145,16 +153,19 @@ ModelView.prototype = {
     // Hide the given instance
     // This is done by deleting it from its bucket
     hideInstance(instance) {
-        const bucket = this.instanceToBucket.get(instance);
+        let bucket = this.instanceToBucket.get(instance);
 
         this.instanceToBucket.delete(instance);
 
         bucket.delete(instance);
+
+        // Invalidate whatever shared data this instance used, because it doesn't belong to it anymore.
+        instance.invalidateSharedData();
     },
 
     update() {
         if (this.rendered) {
-            const buckets = this.buckets;
+            let buckets = this.buckets;
 
             for (let i = 0, l = buckets.length; i < l; i++) {
                 buckets[i].update();

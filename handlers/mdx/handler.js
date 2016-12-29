@@ -14,17 +14,17 @@ const Mdx = {
             return false;
         }
 
-        const teamColors = [[255, 3, 3], [0, 66, 255], [28, 230, 185], [84, 0, 129], [255, 252, 1], [254, 138, 14], [32, 192, 0], [229, 91, 176], [149, 150, 151], [126, 191, 241], [16, 98, 70], [78, 42, 4], [40, 40, 40], [0, 0, 0]];
+        let teamColors = [[255, 3, 3], [0, 66, 255], [28, 230, 185], [84, 0, 129], [255, 252, 1], [254, 138, 14], [32, 192, 0], [229, 91, 176], [149, 150, 151], [126, 191, 241], [16, 98, 70], [78, 42, 4], [40, 40, 40], [0, 0, 0]];
         
         this.teamColors = 14;
 
-        const webgl = env.webgl,
+        let webgl = env.webgl,
             gl = env.gl;
 
         webgl.useShaderProgram(this.standardShader);
 
         for (let i = 0; i < 14; i++) {
-            const color = teamColors[i];
+            let color = teamColors[i];
 
             gl.uniform3fv(this.standardShader.uniforms.get("u_teamColors[" + i + "]"), [color[0] / 255, color[1] / 255, color[2] / 255]);
         }
@@ -42,6 +42,12 @@ const Mdx = {
             36: "RuinsTree/RuinsTree",
             37: "OutlandMushroomTree/MushroomTree"
         };
+
+        let inverseBasisMatrix = mat4.create();
+        mat4.rotateZ(inverseBasisMatrix, inverseBasisMatrix, -Math.PI / 2);
+        mat4.rotateY(inverseBasisMatrix, inverseBasisMatrix, -Math.PI / 2);
+        mat4.invert(inverseBasisMatrix, inverseBasisMatrix);
+        this.inverseBasisMatrix = inverseBasisMatrix;
 
         return true;
     },

@@ -227,15 +227,8 @@ ModelViewer.prototype = {
             // Find the resource in the map and delete it.
             pair.map.deleteValue(resource);
 
-            // If this is a model, all of its views should be removed from their respective scenes.
-            if (objectType === "model") {
-                let modelViews = resource.views;
-
-                for (let i = 0, l = modelViews.length; i < l; i++) {
-                    // Detach the view from its scene.
-                    modelViews[i].detach();
-                }
-            }
+            // Tell the resource to detach itself from whatever it might be attached to.
+            resource.detach();
         }
     },
 
@@ -258,18 +251,26 @@ ModelViewer.prototype = {
 
     /**
      * @method
-     * @desc Removes all of the resources from this model viewer.
+     * @desc Clears all of the scenes.
      */
-    clear() {
-        let resources = this.resources;
-
-        for (let pair of [resources.models, resources.textures, resources.files]) {
-            pair.array.length = 0;
-            pair.map.clear();
-        }
-
+    clear(deleteResources) {
         for (let scene of this.scenes) {
             scene.clear();
+        }
+
+        this.scenes = [new Scene(this)];
+
+        if (deleteResources) {
+            let resources = this.resources;
+
+            for (let pair of [resources.models, resources.textures, resources.files]) {
+                pair.array.length = 0;
+                pair.map.clear();
+            }
+        } else {
+            for (let model of this.resources.models.array) {
+                model.addView();
+            }
         }
     },
 
@@ -279,6 +280,9 @@ ModelViewer.prototype = {
      * @param {function} callback The callback to call with the blob.
      */
     toBlob(callback) {
+        // Render to ensure the internal WebGL buffer is valid.
+        this.render();
+
         this.canvas.toBlob((blob) => callback(blob));
     },
 

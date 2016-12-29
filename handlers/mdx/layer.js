@@ -124,7 +124,7 @@ MdxLayer.prototype = {
     },
 
     getAllTextureIds() {
-        var kmtf = this.sd.getKMTF();
+        var kmtf = this.sd.KMTF;
 
         if (kmtf) {
             var values = kmtf.getValues();
@@ -137,14 +137,14 @@ MdxLayer.prototype = {
     },
 
     getAlpha(instance) {
-        return this.sd.getKMTAValue(instance, this.alpha);
+        return this.sd.getValue("KMTA", instance, this.alpha);
     },
 
     isAlphaVariant(sequence) {
-        return this.sd.isKMTAVariant(sequence);
+        return this.sd.isVariant("KMTA", sequence);
     },
 
     getTextureId(instance) {
-        return this.sd.getKMTFValue(instance, this.textureId);
+        return this.sd.getValue("KMTF", instance, this.textureId);
     }
 };

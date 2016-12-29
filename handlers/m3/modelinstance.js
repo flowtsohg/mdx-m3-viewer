@@ -37,19 +37,15 @@ M3ModelInstance.prototype = {
         this.tintColorArray = null;
     },
 
-    update() {
-        const env = this.env;
-
-        var i, l;
+    preemptiveUpdate() {
         var sequenceId = this.sequence;
-        var allowCreate = false;
 
         if (sequenceId !== -1) {
             var sequence = this.model.sequences[sequenceId];
 
             var interval = sequence.interval;
 
-            this.frame += env.frameTime;
+            this.frame += this.env.frameTime;
 
             if (this.frame > interval[1]) {
                 if ((this.sequenceLoopMode === 0 && !(sequence.flags & 0x1)) || this.sequenceLoopMode === 2) {
@@ -60,12 +56,16 @@ M3ModelInstance.prototype = {
 
                 this.dispatchEvent({ type: "seqend" });
             }
-
-            allowCreate = true;
-
-            this.skeleton.update();
         }
-        //this.bucket.updateBoneTexture[0] = 1;
+    },
+
+    update() {
+        var sequenceId = this.sequence;
+
+        if (sequenceId !== -1) {
+            this.skeleton.update();
+            this.bucket.updateBoneTexture[0] = 1;
+        }
 
         /*
         if (this.particleEmitters) {
@@ -84,7 +84,7 @@ M3ModelInstance.prototype = {
             this.skeleton.update();
             this.bucket.updateBoneTexture[0] = 1;
         } else {
-            this.addAction(() => this.skeleton.update(), []);
+            this.addAction(() => this.recalculateTransformation(), []);
         }
     },
 
@@ -136,7 +136,7 @@ M3ModelInstance.prototype = {
     },
 
     getAttachment(id) {
-        var attachment = this.model.getAttachment(id);
+        var attachment = this.model.attachments[id];
 
         if (attachment) {
             return this.skeleton.nodes[attachment.bone];

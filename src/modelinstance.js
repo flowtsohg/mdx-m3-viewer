@@ -2,13 +2,13 @@
  * @class
  * @classdesc An instance of a model, and an entity in the world that you can see, and move around.
  * @extends AsyncResource
- * @extends Node
+ * @extends NotifiedNode
  * @param {ModelViewer} env The model viewer object that this instance belongs to.
  */
 function ModelInstance(env) {
     AsyncResource.call(this, env);
 
-    Node.call(this);
+    NotifiedNode.call(this);
     this.dontInheritScaling = true;
 }
 
@@ -34,10 +34,10 @@ ModelInstance.prototype = {
         this.loaded = true;
 
         this.initialize();
-        this.dispatchEvent({ type: "load" });
 
         this.rendered = true;
 
+        this.dispatchEvent({ type: "load" });
         this.dispatchEvent({ type: "loadend" });
     },
 
@@ -81,15 +81,13 @@ ModelInstance.prototype = {
         return this.shouldRender;
     },
 
-    /// TODO: duplicated with BoundingShape, can I do something nice about this? (e.g. parent class)
-    // This will be called if this instance is parented to some node, and the node changed
-    notify() {
-        this.recalculateTransformation();
+    setSharedData(sharedData) {
+
     },
 
-    setSharedData(sharedData) {
+    invalidateSharedData() {
 
     }
 };
 
-mix(ModelInstance.prototype, AsyncResource.prototype, Node.prototype);
+mix(ModelInstance.prototype, AsyncResource.prototype, NotifiedNode.prototype);

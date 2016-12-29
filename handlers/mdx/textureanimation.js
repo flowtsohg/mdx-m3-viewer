@@ -4,14 +4,14 @@ function MdxTextureAnimation(textureAnimation, model) {
 
 MdxTextureAnimation.prototype = {
     getTranslation(instance) {
-        return this.sd.getKTATValue(instance, vec3.ZERO);
+        return this.sd.getValue("KTAT", instance, vec3.ZERO);
     },
 
     getRotation(instance) {
-        return this.sd.getKTARValue(instance, quat.DEFAULT);
+        return this.sd.getValue("KTAR", instance, quat.DEFAULT);
     },
 
     getScale(instance) {
-        return this.sd.getKTASValue(instance, vec3.ONE);
+        return this.sd.getValue("KTAS", instance, vec3.ONE);
     }
 };

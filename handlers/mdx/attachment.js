@@ -14,6 +14,6 @@ function MdxAttachment(attachment, model) {
 
 MdxAttachment.prototype = {
     getVisibility(instance) {
-        return this.sd.getKATVValue(instance, 1);
+        return this.sd.getValue("KATV", instance, 1);
     }
 };

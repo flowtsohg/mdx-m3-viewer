@@ -6,13 +6,13 @@
  * @param {ModelViewer} env The model viewer object that this texture belongs to.
  * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
  */
-function PngTexture(env, pathSolver) {
+function ImageTexture(env, pathSolver) {
     Texture.call(this, env, pathSolver);
 }
 
-PngTexture.prototype = {
+ImageTexture.prototype = {
     get Handler() {
-        return Png;
+        return NativeTexture;
     },
 
     initialize(src) {
@@ -55,4 +55,4 @@ PngTexture.prototype = {
     }
 };
 
-mix(PngTexture.prototype, Texture.prototype);
+mix(ImageTexture.prototype, Texture.prototype);

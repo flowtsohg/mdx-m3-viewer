@@ -34,18 +34,20 @@ Model.prototype = {
         // If no scene is given, use the default scene
         scene = scene || this.env.scenes[0];
 
-        const view = new this.Handler.ModelView(this);
+        if (scene && scene.objectType === "scene") {
+            const view = new this.Handler.ModelView(this);
 
-        // Add this view to the model
-        this.views.push(view);
+            // Add this view to the model
+            this.views.push(view);
 
-        // Add this view to the scene
-        view.attach(scene);
+            // Add this view to the scene
+            view.attach(scene);
 
-        // Call the view's modelReady function when the model is ready
-        this.finalizeView(view);
+            // Call the view's modelReady function when the model is ready
+            this.finalizeView(view);
 
-        return view;
+            return view;
+        }
     },
 
     finalizeView(view) {
@@ -74,6 +76,17 @@ Model.prototype = {
      */
     deleteInstance(instance) {
         return this.views[0].deleteInstance(instance);
+    },
+
+    detach() {
+        let views = this.views;
+            
+        for (let i = 0, l = views.length; i < l; i++) {
+            // Detach the view from its scene.
+            views[i].detach();
+        }
+
+        this.views = [];
     },
 
     update() {

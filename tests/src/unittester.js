@@ -22,10 +22,11 @@ const UnitTester = (function () {
             if (!entry.done) {
                 viewer.toBlob((blob) => {
                     let url = URL.createObjectURL(blob),
-                        name = entry.value[0];
+                        name = entry.value[0],
+                        compare = "tests/compare/" + name + ".png";
 
-                    resemble(url).compareTo("tests/compare/" + name + ".png").ignoreOutput().scaleToSameSize().onComplete(function (data) {
-                        callback({ value: [name, data], done: entry.done });
+                    resemble(url).compareTo(compare).ignoreOutput().scaleToSameSize().onComplete(function (data) {
+                        callback({ value: [name, { data, a: url, b: compare }], done: entry.done });
 
                         next(viewer, loop, iterator);
                     });
@@ -69,7 +70,7 @@ const UnitTester = (function () {
             callback(entry, iterator);
         } else {
             // Clear the viewer
-            viewer.reset();
+            viewer.clear(true);
 
             // Replace Math.random with a custom seeded random function
             replaceMathRandom();
@@ -99,10 +100,10 @@ const UnitTester = (function () {
         let time = new Date() - startTime;
 
         if (currentIndex < finalIndex) {
-            let resource = viewer.load(sources[currentIndex], pathSolver);
+            let target = viewer.load(sources[currentIndex], pathSolver);
 
-            resource.whenLoaded((resource) => {
-                callback({ value: { sources, currentIndex, resource, time }, done: false });
+            target.whenLoaded((resource) => {
+                callback({ value: { sources, currentIndex, target, time }, done: false });
 
                 loadResourceSync(viewer, callback, pathSolver, sources, currentIndex + 1, finalIndex, startTime);
             });
@@ -138,7 +139,7 @@ const UnitTester = (function () {
         y.setParent(node);
         z.setParent(node);
         
-        node.dontInheritScaling = true;
+        //node.dontInheritScaling = true;
 
         return node;
     }

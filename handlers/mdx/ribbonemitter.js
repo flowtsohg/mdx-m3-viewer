@@ -192,26 +192,26 @@ MdxRibbonEmitter.prototype = {
     },
 
     getHeightBelow(instance) {
-        return this.sd.getKRHBValue(instance, this.heightBelow);
+        return this.sd.getValue("KRHB", instance, this.heightBelow);
     },
 
     getHeightAbove(instance) {
-        return this.sd.getKRHAValue(instance, this.heightAbove);
+        return this.sd.getValue("KRHA", instance, this.heightAbove);
     },
 
     getTextureSlot(instance) {
-        return this.sd.getKRTXValue(instance, 0);
+        return this.sd.getValue("KRTX", instance, 0);
     },
 
     getColor(instance) {
-        return this.sd.getKRCOValue(instance, this.color);
+        return this.sd.getValue("KRCO", instance, this.color);
     },
 
     getAlpha(instance) {
-        return this.sd.getKRALValue(instance, this.alpha);
+        return this.sd.getValue("KRAL", instance, this.alpha);
     },
 
     getVisibility(instance) {
-        return this.sd.getKRVSValue(instance, 1);
+        return this.sd.getValue("KRVS", instance, 1);
     }
 };

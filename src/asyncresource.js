@@ -85,6 +85,10 @@ AsyncResource.prototype = {
         }
 
         return this;
+    },
+
+    detach() {
+
     }
 };
 

@@ -4,7 +4,7 @@ const NativeTexture = {
     },
 
     get Constructor() {
-        return PngTexture;
+        return ImageTexture;
     },
 
     get binaryFormat() {

@@ -5,7 +5,8 @@ function addTestResult(testResult) {
     let div = document.createElement("div"),
         name = document.createElement("p"),
         status = document.createElement("p"),
-        data = testResult[1],
+        value = testResult[1],
+        data = value.data,
         misMatchPercentage = Math.round(data.rawMisMatchPercentage),
         result = misMatchPercentage <= 1; // allow 1% mismatch
 
@@ -23,7 +24,7 @@ function addTestResult(testResult) {
     div.appendChild(name);
     div.appendChild(status);
 
-    if (misMatchPercentage) {
+    if (!result) {
         let mismatch = document.createElement("p");
 
         mismatch.className = "item";
@@ -37,6 +38,18 @@ function addTestResult(testResult) {
 
         mismatch.appendChild(span);
         mismatch.appendChild(document.createTextNode(" mismatch"));
+
+        let a = document.createElement("a");
+        a.href = value.a;
+        a.textContent = "a";
+        a.className = "item";
+        mismatch.appendChild(a);
+
+        let b = document.createElement("a");
+        b.href = value.b;
+        b.textContent = "b";
+        b.className = "item";
+        mismatch.appendChild(b);
 
         div.appendChild(mismatch);
     }

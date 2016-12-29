@@ -1,7 +1,4 @@
 function Camera(fieldOfView, aspectRatio, nearClipPlane, farClipPlane) {
-    Node.call(this);
-    this.dontInheritScaling = true;
-
     Frustum.call(this);
 
     this.fieldOfView = fieldOfView;
@@ -22,7 +19,9 @@ function Camera(fieldOfView, aspectRatio, nearClipPlane, farClipPlane) {
     // First four vectors are the corners of a 2x2 rectangle billboarded to the camera, the last three vectors are the unit axes billboarded
     this.billboardedVectors = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
 
-    this.recalculateTransformation();
+    Node.call(this);
+
+    this.dontInheritScaling = true;
 }
 
 Camera.prototype = {
@@ -31,7 +30,7 @@ Camera.prototype = {
         
         this.aspectRatio = viewport[2] / viewport[3];
         
-        this.recalculateTransformation();
+        return this.recalculateTransformation();
     },
 
     recalculateTransformation() {
@@ -73,6 +72,8 @@ Camera.prototype = {
 
         // Recaculate the camera's frusum planes
         this.recalculatePlanes(worldProjectionMatrix);
+
+        return this;
     },
 
     // Given a vector in camera space, return the vector transformed to world space
@@ -103,7 +104,7 @@ Camera.prototype = {
         return out;
     },
 
-    // Given a vector in screen space, return the vector transformed to world space, projected on the X-Y plane
+    // Given a vector in screen space, return the vector transformed to world space, projected on the X-Z plane
     screenToWorld(out, v) {
         let a = vec3.heap,
             b = vec3.heap2,
@@ -122,7 +123,7 @@ Camera.prototype = {
         // Intersection on the X-Y plane
         let zIntersection = -a[2] / (b[2] - a[2]);
 
-        vec3.set(out, a[0] + (b[0] - a[0]) * zIntersection, a[1] + (b[1] - a[1]) * zIntersection, 0);
+        vec3.set(out, a[0] + (b[0] - a[0]) * zIntersection, 0, a[1] + (b[1] - a[1]) * zIntersection);
 
         //console.log(out, a, b, zIntersection)
         return out;

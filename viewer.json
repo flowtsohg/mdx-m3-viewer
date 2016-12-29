@@ -169,6 +169,8 @@
       "region",
       "layer",
       "standardmaterial",
+      "attachment",
+      "camera",
       "bucket",
       "modelview",
       "model",
@@ -226,7 +228,8 @@
     "internal_files": [
       "geo",
       "mdx",
-      "m3"
+      "m3",
+      "base"
     ],
     "external_files": [
     ]

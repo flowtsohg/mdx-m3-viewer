@@ -35,7 +35,7 @@ function MdxGeoset(geoset, geosetAnimations) {
         boneIndices = new Uint8Array(vertices * 4),
         boneNumbers = new Uint32Array(vertices),
         matrixGroups = geoset.matrixGroups,
-        matrixIndexes = geoset.matrixIndexes,
+        matrixIndices = geoset.matrixIndices,
         slices = [],
         i, l, j, k;
 
@@ -52,7 +52,7 @@ function MdxGeoset(geoset, geosetAnimations) {
 
     // Parse the bone indices by slicing the matrix groups
     for (i = 0, l = matrixGroups.length, k = 0; i < l; i++) {
-        slices.push(matrixIndexes.subarray(k, k + matrixGroups[i]));
+        slices.push(matrixIndices.subarray(k, k + matrixGroups[i]));
         k += matrixGroups[i];
     }
 

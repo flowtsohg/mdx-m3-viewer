@@ -341,7 +341,7 @@ MdxModelInstance.prototype = {
             this.skeleton.update();
             this.bucket.updateBoneTexture[0] = 1;
         } else {
-            this.addAction(() => this.skeleton.update(), []);
+            this.addAction(() => this.recalculateTransformation(), []);
         }
     },
     /*

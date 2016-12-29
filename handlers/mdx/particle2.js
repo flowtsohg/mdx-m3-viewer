@@ -87,7 +87,7 @@ MdxParticle2.prototype = {
         var position = this.position;
 
         this.health -= dt;
-        this.velocity[2] -= this.gravity * dt;
+        this.velocity[1] -= this.gravity * dt;
         
         vec3.scaleAndAdd(position, position, this.velocity, dt);
         

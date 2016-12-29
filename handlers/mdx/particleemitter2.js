@@ -364,31 +364,31 @@ MdxParticleEmitter2.prototype = {
     },
 
     getWidth(instance) {
-        return this.sd.getKP2WValue(instance, this.width);
+        return this.sd.getValue("KP2W", instance, this.width);
     },
 
     getLength(instance) {
-        return this.sd.getKP2NValue(instance, this.length);
+        return this.sd.getValue("KP2N", instance, this.length);
     },
 
     getSpeed(instance) {
-        return this.sd.getKP2SValue(instance, this.speed);
+        return this.sd.getValue("KP2S", instance, this.speed);
     },
 
     getLatitude(instance) {
-        return this.sd.getKP2LValue(instance, this.latitude);
+        return this.sd.getValue("KP2L", instance, this.latitude);
     },
 
     getGravity(instance) {
-        return this.sd.getKP2GValue(instance, this.gravity);
+        return this.sd.getValue("KP2G", instance, this.gravity);
     },
 
     getEmissionRate(instance) {
-        return this.sd.getKP2EValue(instance, this.emissionRate);
+        return this.sd.getValue("KP2E", instance, this.emissionRate);
     },
 
     getVisibility(instance) {
-        return this.sd.getKP2VValue(instance, 1);
+        return this.sd.getValue("KP2V", instance, 1);
     }
 
     //getVariation(sequence, frame, counter) {

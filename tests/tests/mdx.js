@@ -3,10 +3,12 @@ UnitTester.addTest("mdx-load", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
-    camera.move([0, 0, -110]);
+    camera.move([0, -50, -90]);
 
     let model = viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver),
         instance = model.addInstance();
+
+    instance.noCulling = true; // :(
 });
 
 // Get to a specific frame of animation in a sequence.
@@ -14,12 +16,13 @@ UnitTester.addTest("mdx-sequence", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
-    camera.move([0, 0, -110]);
+    camera.move([0, -50, -90]);
 
     let model = viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver),
         instance = model.addInstance().setSequence(0);
 
     instance.frame = 800;
+    instance.noCulling = true; // :(
 });
 
 // Change team colors.
@@ -27,9 +30,12 @@ UnitTester.addTest("mdx-team-color", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
-    camera.move([0, 15, -95]);
+    camera.move([0, -50, -90]);
 
-    viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver).addInstance().setTeamColor(1);
+    let model = viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver),
+        instance = model.addInstance().setTeamColor(1);
+
+    instance.noCulling = true; // :(
 });
 
 // Change tint colors.
@@ -37,9 +43,12 @@ UnitTester.addTest("mdx-tint-color", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
-    camera.move([0, 0, -110]);
+    camera.move([0, -50, -90]);
 
-    viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver).addInstance().setTintColor([255, 0, 0]);
+    let model = viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver),
+        instance = model.addInstance().setTintColor([255, 0, 0]);
+
+    instance.noCulling = true; // :(
 });
 
 // Texture animations (both image based and UV offset based).
@@ -47,12 +56,13 @@ UnitTester.addTest("mdx-texture-animation", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
-    camera.move([0, 0, -220]);
+    camera.move([0, -50, -90]);
 
     let model = viewer.load("Units/Human/WaterElemental/WaterElemental.mdx", wc3Solver),
         instance = model.addInstance().setSequence(0);
 
     instance.frame = 800;
+    instance.noCulling = true; // :(
 });
 
 // Particle emitters type 1.
@@ -60,11 +70,12 @@ UnitTester.addTest("mdx-particle-emitter", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
-    camera.move([0, 0, -150]);
+    camera.move([0, -60, -70]);
 
     let model = viewer.load("Units/Creeps/AzureDragon/AzureDragon.mdx", wc3Solver),
         instance = model.addInstance().setSequence(5);
 
+    instance.noCulling = true; // :(
 
     instance.whenLoaded(() => {
         for (let i = 0; i < 20; i++) {
@@ -78,12 +89,12 @@ UnitTester.addTest("mdx-particle-emitter-2", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
-    camera.move([-150, 0, -120]);
+    camera.move([0, 20, -200]);
 
     let model = viewer.load("Units/Creeps/AzureDragon/AzureDragon.mdx", wc3Solver),
         instance = model.addInstance().setSequence(1);
 
-    instance.noCulling = true;
+    instance.noCulling = true; // :(
 
     instance.whenLoaded(() => {
         for (let i = 0; i < 90; i++) {
@@ -97,7 +108,7 @@ UnitTester.addTest("mdx-attachment-model", (viewer) => {
     let camera = viewer.scenes[0].camera;
 
     camera.resetTransformation();
-    camera.move([10, -130, -320]);
+    camera.move([0, 0, -400]);
 
     let model = viewer.load("Buildings/Undead/HauntedMine/HauntedMine.mdx", wc3Solver),
         instance = model.addInstance().setSequence(0);
@@ -111,7 +122,7 @@ UnitTester.addTest("mdx-attachment-model", (viewer) => {
 
         let attachment = instance.modelAttachments[0][1];
 
-        attachment.noCulling = true;
+        attachment.noCulling = true; // :(
         attachment.frame = instance.frame;
     });
 });
