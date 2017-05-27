@@ -7,12 +7,12 @@ function M3Stg(stg, sts, stc) {
 
 M3Stg.prototype = {
     getValue(animRef, instance) {
-        const stcIndices = this.stcIndices,
+        let stcIndices = this.stcIndices,
             stcs = this.stc,
             stss = this.sts;
 
         for (let i = 0, l = stcIndices.length; i < l; i++) {
-            const stc = stcs[stcIndices[i]];
+            let stc = stcs[stcIndices[i]],
                 sts = stss[stc.stsIndex];
 
             // First check if this STC actually has data for this animation reference

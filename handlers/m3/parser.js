@@ -26,6 +26,10 @@ const M3Parser = (function () {
         this.radius = readFloat32(reader);
     }
 
+    function readBoundingSphere(reader) {
+        return new BoundingSphere(reader);
+    }
+
     function SD(reader, version, index) {
         this.keys = new Reference(reader, index);
         this.flags = readUint32(reader);
@@ -287,7 +291,7 @@ const M3Parser = (function () {
 
     function MSEC(reader, version, index) {
         this.unknown0 = readUint32(reader);
-        this.boundings = new AnimationReference(reader, BoundingSphere);
+        this.boundings = new AnimationReference(reader, readBoundingSphere);
     }
 
     function Batch(reader, version, index) {
@@ -441,7 +445,7 @@ const M3Parser = (function () {
         this.vertices = new Reference(reader, index);
         this.divisions = new Reference(reader, index);
         this.boneLookup = new Reference(reader, index);
-        this.boundings = BoundingSphere(reader);
+        this.boundings = new BoundingSphere(reader);
         this.unknown4To20 = readUint32Array(reader, 16);
         this.attachmentPoints = new Reference(reader, index);
         this.attachmentPointAddons = new Reference(reader, index);

@@ -100,7 +100,7 @@ GeometryModel.prototype = {
         return true;
     },
 
-    render(bucket) {
+    render(bucket, scene) {
         let webgl = this.env.webgl,
             gl = this.env.gl,
             instancedArrays = webgl.extensions.instancedArrays,
@@ -112,7 +112,7 @@ GeometryModel.prototype = {
 
         webgl.useShaderProgram(shader);
 
-        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, modelView.scene.camera.worldProjectionMatrix);
+        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, scene.camera.worldProjectionMatrix);
 
         // Bone texture
         gl.activeTexture(gl.TEXTURE15);
@@ -200,19 +200,19 @@ GeometryModel.prototype = {
         instancedArrays.vertexAttribDivisorANGLE(colorAttrib, 0);
     },
 
-    renderOpaque(bucket) {
+    renderOpaque(bucket, scene) {
         if (this.opaque) {
-            this.render(bucket);
+            this.render(bucket, scene);
         }
     },
 
-    renderTranslucent(bucket) {
+    renderTranslucent(bucket, scene) {
         if (this.translucent) {
-            this.render(bucket);
+            this.render(bucket, scene);
         }
     },
 
-    renderEmitters(bucket) {
+    renderEmitters(bucket, scene) {
 
     }
 };

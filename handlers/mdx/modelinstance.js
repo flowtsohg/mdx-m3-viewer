@@ -16,6 +16,13 @@ MdxModelInstance.prototype = {
 
         this.skeleton = new MdxSkeleton(this, model);
 
+        this.geosetColor = vec4.create();
+        //this.uvOffsetArrays = null;
+        this.teamColor = 0;
+        this.tintColor = vec3.fromValues(255, 255, 255);
+        this.batchVisibilityArrays = null;
+
+
         this.particleEmitters = [];
         if (model.particleEmitters && model.particleEmitters.length > 0) {
             const objects = model.particleEmitters;
@@ -172,6 +179,10 @@ MdxModelInstance.prototype = {
         this.tintColorArray = sharedData.tintColorArray;
 
         this.batchVisibilityArrays = sharedData.batchVisibilityArrays;
+
+        this.geosetColorArray.set(this.geosetColor);
+        this.teamColorArray[0] = this.teamColor;
+        this.tintColorArray.set(this.tintColor);
     },
 
     invalidateSharedData() {
@@ -340,8 +351,6 @@ MdxModelInstance.prototype = {
         if (this.rendered) {
             this.skeleton.update();
             this.bucket.updateBoneTexture[0] = 1;
-        } else {
-            this.addAction(() => this.recalculateTransformation(), []);
         }
     },
     /*
@@ -356,62 +365,56 @@ MdxModelInstance.prototype = {
     }
     */
     setTeamColor(id) {
+        this.teamColor = id;
+
         if (this.rendered) {
             this.teamColorArray[0] = id;
             this.bucket.updateTeamColors[0] = 1;
-        } else {
-            this.addAction(id => this.setTeamColor(id), [id]);
         }
 
         return this;
     },
 
     setTintColor(color) {
+        this.tintColor.set(color);
+
         if (this.rendered) {
             this.tintColorArray.set(color);
             this.bucket.updateTintColors[0] = 1;
-        } else {
-            this.addAction(id => this.setTintColor(color), [color]);
         }
 
         return this;
     },
 
     setSequence(id) {
-        if (this.rendered) {
-            var sequences = this.model.sequences.length;
+        var sequences = this.model.sequences.length;
 
-            if (id < sequences) {
-                this.sequence = id;
+        if (id < sequences) {
+            this.sequence = id;
 
-                if (id === -1) {
-                    this.frame = 0;
+            if (id === -1) {
+                this.frame = 0;
 
-                    this.sequenceObject = null;
-                } else {
-                    var sequence = this.model.sequences[id];
+                this.sequenceObject = null;
+            } else {
+                var sequence = this.model.sequences[id];
 
-                    this.frame = sequence.interval[0];
+                this.frame = sequence.interval[0];
 
-                    this.sequenceObject = sequence;
-                }
+                this.sequenceObject = sequence;
+            }
 
-                // Update the skeleton in case this sequence isn't variant, and thus it won't get updated in the update function
+            // Update the skeleton in case this sequence isn't variant, and thus it won't get updated in the update function
+            if (this.rendered) {
                 this.skeleton.update();
             }
-        } else {
-            this.addAction(id => this.setSequence(id), [id]);
         }
 
         return this;
     },
 
     setSequenceLoopMode(mode) {
-        if (this.rendered) {
-            this.sequenceLoopMode = mode;
-        } else {
-            this.addAction(mode => this.setSequenceLoopMode(mode), [mode]);
-        }
+        this.sequenceLoopMode = mode;
 
         return this;
 

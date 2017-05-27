@@ -5,7 +5,7 @@ const Mdx = {
         env.addHandler(Slk);
         env.addHandler(NativeTexture); // Needed for texture atlases
 
-        this.standardShader = env.webgl.createShaderProgram(env.sharedShaders.boneTexture + MdxShaders.vs_main, "#define STANDARD_PASS\n" + MdxShaders.ps_main);
+        this.standardShader = env.webgl.createShaderProgram(env.sharedShaders.instanceId + env.sharedShaders.boneTexture + MdxShaders.vs_main, "#define STANDARD_PASS\n" + MdxShaders.ps_main);
         this.particleShader = env.webgl.createShaderProgram(env.sharedShaders.decodeFloat + MdxShaders.vs_particles, MdxShaders.ps_particles);
         //this.ribbonShader = env.webgl.createShaderProgram(MdxShaders.vs_ribbons, "#define STANDARD_PASS\n" + MdxShaders.ps_main);
 

@@ -1,10 +1,16 @@
 function Camera(fieldOfView, aspectRatio, nearClipPlane, farClipPlane) {
     Frustum.call(this);
 
-    this.fieldOfView = fieldOfView;
-    this.aspectRatio = aspectRatio;
-    this.nearClipPlane = nearClipPlane;
-    this.farClipPlane = farClipPlane;
+    this.perspective = true;
+    this.ortho = false;
+    this.fieldOfView = 0;
+    this.aspectRatio = 0;
+    this.nearClipPlane = 0;
+    this.farClipPlane = 0;
+    this.leftClipPlane = 0;
+    this.rightClipPlane = 0;
+    this.bottomClipPlane = 0;
+    this.topClipPlane = 0;
     this.viewport = vec4.create();
     this.projectionMatrix = mat4.create();
     this.worldProjectionMatrix = mat4.create();
@@ -25,6 +31,30 @@ function Camera(fieldOfView, aspectRatio, nearClipPlane, farClipPlane) {
 }
 
 Camera.prototype = {
+    setPerspective(fieldOfView, aspectRatio, nearClipPlane, farClipPlane) {
+        this.perspective = true;
+        this.ortho = false;
+        this.fieldOfView = fieldOfView;
+        this.aspectRatio = aspectRatio;
+        this.nearClipPlane = nearClipPlane;
+        this.farClipPlane = farClipPlane;
+
+        this.recalculateTransformation();
+    },
+
+    setOrtho(left, right, bottom, top, near, far) {
+        this.perspective = false;
+        this.ortho = true;
+        this.leftClipPlane = left;
+        this.rightClipPlane = right;
+        this.bottomClipPlane = bottom;
+        this.topClipPlane = top;
+        this.nearClipPlane = near;
+        this.farClipPlane = far;
+
+        this.recalculateTransformation();
+    },
+
     setViewport(viewport) {
         vec4.copy(this.viewport, viewport);
         
@@ -46,7 +76,11 @@ Camera.prototype = {
 
         // Projection matrix
         // Camera space -> NDC space
-        mat4.perspective(projectionMatrix, this.fieldOfView, this.aspectRatio, this.nearClipPlane, this.farClipPlane);
+        if (this.perspective) {
+            mat4.perspective(projectionMatrix, this.fieldOfView, this.aspectRatio, this.nearClipPlane, this.farClipPlane);
+        } else {
+            mat4.ortho(projectionMatrix, this.leftClipPlane, this.rightClipPlane, this.bottomClipPlane, this.topClipPlane, this.nearClipPlane, this.farClipPlane);
+        }
 
         // World projection matrix
         // World space -> NDC space

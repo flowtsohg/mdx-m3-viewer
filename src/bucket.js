@@ -50,24 +50,36 @@ Bucket.prototype = {
         return this.instances.length === this.size;
     },
 
-    update() {
-        const instances = this.instances;
+    update(scene) {
+        let instances = this.instances;
 
         for (let i = 0, l = instances.length; i < l; i++) {
-            const instance = instances[i];
+            let instance = instances[i];
 
             instance.preemptiveUpdate();
 
-            if (instance.noCulling || this.isVisible(instance)) {
+            if (instance.noCulling || this.isVisible(instance, scene)) {
                 instance.update();
             }
         }
     },
 
-    isVisible(instance) {
+    renderOpaque(scene) {
+        this.model.renderOpaque(this, scene);
+    },
+
+    renderTranslucent(scene) {
+        this.model.renderTranslucent(this, scene);
+    },
+
+    renderEmitters(scene) {
+        this.model.renderEmitters(this, scene);
+    },
+
+    isVisible(instance, scene) {
         //*
         let ndc = vec3.heap,
-            worldProjectionMatrix = this.modelView.scene.camera.worldProjectionMatrix;
+            worldProjectionMatrix = scene.camera.worldProjectionMatrix;
 
         // This test checks whether the instance's position is visible in NDC space. In other words, that it lies in [-1, 1] on all axes
         vec3.transformMat4(ndc, instance.worldLocation, worldProjectionMatrix);
@@ -82,8 +94,8 @@ Bucket.prototype = {
     },
 
     // Add a new instance to this bucket, and return the shared data object at its index
-    add(instance) {
-        const index = this.instances.push(instance) - 1;
+    addInstance(instance) {
+        let index = this.instances.push(instance) - 1;
 
         this.instanceToIndex.set(instance, index);
 
@@ -91,9 +103,9 @@ Bucket.prototype = {
     },
 
     // This function deletes an instance by moving the last instance into the index of this one
-    delete(instance) {
-        const index = this.instanceToIndex.get(instance),
-              lastIndex = this.instances.length - 1;
+    removeInstance(instance) {
+        let index = this.instanceToIndex.get(instance),
+            lastIndex = this.instances.length - 1;
 
         // Remove the reference to this instance from the map
         this.instanceToIndex.delete(instance);
@@ -101,7 +113,7 @@ Bucket.prototype = {
         // If the instance being removed is the last one, there is no need to move anything
         if (index !== lastIndex) {
             // Get the last instance
-            const lastInstance = this.instances[lastIndex];
+            let lastInstance = this.instances[lastIndex];
 
             // Move the last instance to the index of the one being deleted
             this.instances[index] = lastInstance;

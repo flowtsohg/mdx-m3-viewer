@@ -109,7 +109,7 @@ MdxSanityTester.prototype = {
         }
     },
 
-    // Warning: A global sequence with zero length (does nothing?).
+    // Warning: A global sequence with zero length (the first track is selected, regardless of its frame).
     // Warning: A global sequence with negative length (?).
     testGlobalSequences(chunks) {
         let globalSequenceChunk = chunks.GLBS;

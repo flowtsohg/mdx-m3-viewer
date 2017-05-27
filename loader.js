@@ -53,9 +53,9 @@ function loadScriptBatches(relativePath, whatToLoad, entryPoint) {
 }
 
 function loadViewer(relativePath, entryPoint) {
-    loadScriptBatches(relativePath, ["BASE", "SLK", "MPQ", "PNG", "BMP", "BLP", "DDS", "TGA", "GEO", "W3X", "MDX", "M3", "OBJ"], entryPoint);
+    loadScriptBatches(relativePath, ["BASE", "SLK", "MPQ", "PNG", "BMP", "BLP", "DDS", "TGA", "GEO", "W3X", "MDX", "M3", "OBJ", "UNIT_TESTER"], entryPoint);
 }
 
 function loadUnitTests(relativePath, entryPoint) {
-    loadScriptBatches(relativePath, ["BASE", "SLK", "MPQ", "PNG", "BMP", "BLP", "DDS", "TGA", "GEO", "W3X", "MDX", "M3", "OBJ", "UNIT_TESTS"], entryPoint);
+    loadScriptBatches(relativePath, ["BASE", "SLK", "MPQ", "PNG", "BMP", "BLP", "DDS", "TGA", "GEO", "W3X", "MDX", "M3", "OBJ", "UNIT_TESTER", "UNIT_TESTS"], entryPoint);
 }

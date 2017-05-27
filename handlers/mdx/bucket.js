@@ -35,6 +35,29 @@ function MdxBucket(modelView) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.boneTextureWidth, this.boneTextureHeight, 0, gl.RGBA, gl.FLOAT, null);
 
+    // Every pixel 4 bytes
+    // Pixel 1: [Team Color Index, Tint Color R, Tint Color G, Tint Color B]
+    this.updateDataTexture = new Uint8Array([1]);
+    this.dataArray = new Uint8Array(2 * 16 * this.size);
+    this.dataTexture = gl.createTexture();
+    this.dataTextureWidth = 7;
+    this.dataTextureHeight = this.size;
+    this.dataVectorSize = 1 / this.dataTextureWidth;
+    this.dataRowSize = 1 / this.dataTextureHeight;
+    gl.activeTexture(gl.TEXTURE14);
+    gl.bindTexture(gl.TEXTURE_2D, this.dataTexture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.dataTextureWidth, this.dataTextureHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+    this.dataArray[0] = 1;
+    this.dataArray[1] = 255;
+    this.dataArray[2] = 255;
+    this.dataArray[3] = 255;
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.dataTextureWidth, this.size, gl.RGBA, gl.UNSIGNED_BYTE, this.dataArray);
+
     // Team colors (per instance)
     this.updateTeamColors = new Uint8Array(1);
     this.teamColorArray = new Uint8Array(this.size);
@@ -90,13 +113,13 @@ function MdxBucket(modelView) {
 }
 
 MdxBucket.prototype = {
-    update() {
-        const gl = this.env.gl,
+    update(scene) {
+        let gl = this.env.gl,
             size = this.instances.length;
 
         this.updateBatches.fill(0);
 
-        Bucket.prototype.update.call(this);
+        Bucket.prototype.update.call(this, scene);
 
         if (this.updateBoneTexture[0]) {
             gl.activeTexture(gl.TEXTURE15);

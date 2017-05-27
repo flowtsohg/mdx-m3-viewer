@@ -5,7 +5,7 @@
  */
 function Scene(env) {
     let canvas = env.canvas,
-        camera = new Camera(Math.PI / 4, 1, 8, 100000);
+        camera = new Camera();
 
     /** @member {ModelViewer} */
     this.env = env;
@@ -13,11 +13,10 @@ function Scene(env) {
     this.modelViews = [];
     /** @member {Camera} */
     this.camera = camera;
-    /** @member {boolean} */
-    this.rendered = true;
 
     // Default the camera's viewport to the whole canvas used by the viewer
     camera.setViewport([0, 0, canvas.width, canvas.height]);
+    camera.setPerspective(Math.PI / 4, 1, 8, 100000);
 }
 
 Scene.prototype = {
@@ -33,8 +32,16 @@ Scene.prototype = {
      */
     addView(modelView) {
         if (modelView && modelView.objectType === "modelview") {
-            this.modelViews.push(modelView);
+            let views = this.modelViews;
+
+            if (!views.has(modelView)) {
+                views.push(modelView);
+
+                return true;
+            }
         }
+
+        return false;
     },
 
     /**
@@ -44,8 +51,16 @@ Scene.prototype = {
      */
     removeView(modelView) {
         if (modelView && modelView.objectType === "modelview") {
-            this.modelViews.delete(modelView);
+            let views = this.modelViews;
+
+            if (views.has(modelView)) {
+                views.delete(modelView);
+
+                return true;
+            }
         }
+
+        return false;
     },
 
     /**
@@ -53,6 +68,7 @@ Scene.prototype = {
      * @desc Clears all of the model views in this scene.
      */
     clear() {
+        /*
         let views = this.modelViews;
 
         for (let i = 0, l = views.length; i < l; i++) {
@@ -60,41 +76,44 @@ Scene.prototype = {
         }
 
         this.modelViews = [];
+        */
+    },
+
+    update() {
+        let views = this.modelViews;
+
+        for (let i = 0, l = views.length; i < l; i++) {
+            views[i].update(this);
+        }
     },
 
     renderOpaque() {
-        if (this.rendered) {
-            let views = this.modelViews;
+        let views = this.modelViews;
 
-            this.setViewport();
+        this.setViewport();
 
-            for (let i = 0, l = views.length; i < l; i++) {
-                views[i].renderOpaque();
-            }
+        for (let i = 0, l = views.length; i < l; i++) {
+            views[i].renderOpaque(this);
         }
     },
 
     renderTranslucent() {
-        if (this.rendered) {
-            let views = this.modelViews;
+        let views = this.modelViews;
 
-            this.setViewport();
+        this.setViewport();
 
-            for (let i = 0, l = views.length; i < l; i++) {
-                views[i].renderTranslucent();
-            }
+        for (let i = 0, l = views.length; i < l; i++) {
+            views[i].renderTranslucent(this);
         }
     },
 
     renderEmitters() {
-        if (this.rendered) {
-            let views = this.modelViews;
+        let views = this.modelViews;
             
-            this.setViewport();
+        this.setViewport();
 
-            for (let i = 0, l = views.length; i < l; i++) {
-                views[i].renderEmitters();
-            }
+        for (let i = 0, l = views.length; i < l; i++) {
+            views[i].renderEmitters(this);
         }
     },
 

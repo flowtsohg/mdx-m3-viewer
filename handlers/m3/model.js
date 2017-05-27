@@ -305,7 +305,7 @@ M3Model.prototype = {
         gl.vertexAttribPointer(attribs.get("a_bones"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 16);
     },
 
-    bind(bucket) {
+    bind(bucket, scene) {
         const gl = this.gl,
             webgl = this.env.webgl;
 
@@ -313,7 +313,7 @@ M3Model.prototype = {
         var uvSetCount = this.uvSetCount;
 
         // HACK UNTIL I IMPLEMENT MULTIPLE SHADERS AGAIN
-        var shader = M3.standardShader;
+        var shader = M3.standardShaders[uvSetCount - 1];
         webgl.useShaderProgram(shader);
         this.shader = shader;
 
@@ -333,7 +333,7 @@ M3Model.prototype = {
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
 
-        let camera = bucket.modelView.scene.camera;
+        let camera = scene.camera;
 
         gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, camera.worldProjectionMatrix);
         gl.uniformMatrix4fv(uniforms.get("u_mv"), false, camera.worldMatrix);
@@ -364,13 +364,13 @@ M3Model.prototype = {
         material.unbind(shader); // This is required to not use by mistake layers from this material that were bound and are not overwritten by the next material
     },
 
-    renderOpaque(bucket) {
+    renderOpaque(bucket, scene) {
         const batches = this.batches;
 
         if (batches.length) {
             //const updateBatches = bucket.updateBatches;
 
-            this.bind(bucket);
+            this.bind(bucket, scene);
 
             for (let i = 0, l = batches.length; i < l; i++) {
                 const batch = batches[i];
@@ -384,11 +384,11 @@ M3Model.prototype = {
         }
     },
 
-    renderTranslucent(bucket) {
+    renderTranslucent(bucket, scene) {
 
     },
 
-    renderEmitters(bucket) {
+    renderEmitters(bucket, scene) {
     /*
     if (this.particleEmitters) {
     ctx.disable(ctx.CULL_FACE);

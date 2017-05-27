@@ -70,7 +70,7 @@ function mix(dst, ...args) {
                 Object.defineProperty(dst, key, Object.getOwnPropertyDescriptor(arg, key))
             }
         }
-}
+    }
 
     return dst;
 }

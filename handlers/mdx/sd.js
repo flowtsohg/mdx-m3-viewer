@@ -1,4 +1,4 @@
-function MdxSDSequence(sd, start, end, keyframes) {
+function MdxSDSequence(sd, start, end, keyframes, isGlobalSequence) {
     var defval = sd.defval;
 
     this.sd = sd;
@@ -6,69 +6,79 @@ function MdxSDSequence(sd, start, end, keyframes) {
     this.end = end;
     this.keyframes = [];
 
-    // When using a global sequence with zero length, the first keyframe is used, regardless of its frame.
-    // E.g. HeroMountainKing.
-    if (end - start > 0) {
-        for (var i = 0, l = keyframes.length; i < l; i++) {
-            var keyframe = keyframes[i],
-                frame = keyframe.frame,
-                value = keyframe.value;
-
-            if (frame >= start && frame <= end) {
-                this.keyframes.push(keyframe);
-            }
-        }
-    } else {
+    // When using a global sequence, where the first key is outside of the sequence's length, it becomes its constant value.
+    // When having one key in the sequence's range, and one key outside of it, results seem to be non-deterministic.
+    // Sometimes the second key is used too, sometimes not.
+    // It also differs depending where the model is viewed - the WE previewer, the WE itself, or the game.
+    // All three show different results, none of them make sense.
+    // Therefore, only handle the case where the first key is outside.
+    // This fixes problems spread over many models, e.g. HeroMountainKing (compare in WE and in Magos).
+    if (isGlobalSequence && keyframes[0].frame > end) {
         this.keyframes.push(keyframes[0]);
     }
 
+    // Go over the keyframes, and add all of the ones that are in this sequence (start <= frame <= end).
+    for (var i = 0, l = keyframes.length; i < l; i++) {
+        var keyframe = keyframes[i],
+            frame = keyframe.frame;
+
+        if (frame >= start && frame <= end) {
+            this.keyframes.push(keyframe);
+        }
+    }
+
     switch (this.keyframes.length) {
+        // If there are no keys, use the default value directly.
         case 0:
             this.constant = true;
             this.value = defval;
             break;
 
+        // If there's only one key, use it directly.
         case 1:
             this.constant = true;
             this.value = this.keyframes[0].value;
             break;
 
         default:
-            /// Mote: This code handles the case where there are multiple keyframes, but they all share the same value.
-            ///       It's not really likely to happen, so I commented it for now.
-            //var constant = true;
-            //var firstValue = this.keyframes[0].value;
+            // If all of the values in this sequence are the same, might as well make it constant.
+            var constant = true,
+                firstValue = this.keyframes[0].value;
 
-            //for (var i = 1, l = this.keyframes.length; i < l; i++) {
-            //    var keyframe = this.keyframes[i],
-            //        value = keyframe.value;
+            for (var i = 1, l = this.keyframes.length; i < l; i++) {
+                var keyframe = this.keyframes[i],
+                    value = keyframe.value;
 
-            //    if (typeof value === "number") {
-            //        if (value !== firstValue) {
-            //            constant = false;
-            //            break;
-            //        }
-            //    } else {
-            //        if (!Array.areEqual(value, firstValue)) {
-            //            constant = false;
-            //            break;
-            //        }
-            //    }
-            //}
-
-            //if (constant) {
-            //    console.log("MISSED")
-            //}
-
-            this.constant = false;
-
-            if (this.keyframes[0].frame !== start) {
-                this.keyframes.splice(0, 0, { frame: start, value: defval, inTan: defval, outTan: defval });
+                if (value.length > 0) {
+                    for (var j = 0, k = value.length; j < k; j++) {
+                        if (firstValue[j] !== value[j]) {
+                            constant = false;
+                            break;
+                        }
+                    }
+                } else {
+                    if (value !== firstValue) {
+                        constant = false;
+                        break;
+                    }
+                }
             }
 
-            if (this.keyframes[this.keyframes.length - 1].frame !== end) {
-                // Swap the in/out tangents
-                this.keyframes.splice(this.keyframes.length, 0, { frame: end, value: this.keyframes[0].value, inTan: this.keyframes[0].outTan, outTan: this.keyframes[0].inTan });
+            if (constant) {
+                this.constant = true;
+                this.value = firstValue;
+            } else {
+                this.constant = false;
+
+                // If there is no opening keyframe for this sequence, inject one with the default value.
+                if (this.keyframes[0].frame !== start) {
+                    this.keyframes.splice(0, 0, { frame: start, value: defval, inTan: defval, outTan: defval });
+                }
+
+                // If there is no closing keyframe for this sequence, inject one with the default value.
+                if (this.keyframes[this.keyframes.length - 1].frame !== end) {
+                    this.keyframes.splice(this.keyframes.length, 0, { frame: end, value: this.keyframes[0].value, inTan: this.keyframes[0].outTan, outTan: this.keyframes[0].inTan });
+                }
             }
 
             break;
@@ -116,7 +126,7 @@ function MdxSD(sd, model) {
     this.interpolationType = sd.interpolationType;
     
     if (globalSequenceId !== -1 && globalSequences) {
-        this.globalSequence = new MdxSDSequence(this, 0, globalSequences[globalSequenceId].value, tracks);
+        this.globalSequence = new MdxSDSequence(this, 0, globalSequences[globalSequenceId].value, tracks, true);
     } else {
         var sequences = model.sequences;
 
@@ -125,7 +135,7 @@ function MdxSD(sd, model) {
         for (var i = 0, l = sequences.length; i < l; i++) {
             var interval = sequences[i].interval;
 
-            this.sequences[i] = new MdxSDSequence(this, interval[0], interval[1], tracks);
+            this.sequences[i] = new MdxSDSequence(this, interval[0], interval[1], tracks, false);
         }
     }
 }

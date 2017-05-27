@@ -9,10 +9,7 @@ function Model(env, pathSolver) {
     DownloadableResource.call(this, env, pathSolver);
 
     /** @member {ModelView[]} */
-    this.views = [];
-
-    // Create a default view
-    this.addView();
+    this.modelViews = [];
 }
 
 
@@ -30,32 +27,12 @@ Model.prototype = {
      * @desc Adds a new view to this model, and returns the view.
      * @returns {@link ModelView}
      */
-    addView(scene) {
-        // If no scene is given, use the default scene
-        scene = scene || this.env.scenes[0];
+    addView() {
+        let view = new this.Handler.ModelView(this);
 
-        if (scene && scene.objectType === "scene") {
-            const view = new this.Handler.ModelView(this);
+        this.modelViews.push(view);
 
-            // Add this view to the model
-            this.views.push(view);
-
-            // Add this view to the scene
-            view.attach(scene);
-
-            // Call the view's modelReady function when the model is ready
-            this.finalizeView(view);
-
-            return view;
-        }
-    },
-
-    finalizeView(view) {
-        if (this.error || this.loaded) {
-            view.modelReady();
-        } else {
-            this.addAction(view => this.finalizeView(view), [view]);
-        }
+        return view;
     },
 
     /**
@@ -65,47 +42,36 @@ Model.prototype = {
      * @returns {@link ModelInstance}
      */
     addInstance() {
-        return this.views[0].addInstance();
+        let instance = new this.Handler.Instance(this.env);
+
+        this.env.registerEvents(instance);
+
+        instance.load(this);
+
+        this.finalizeInstance(instance);
+
+        return instance;
     },
 
-    /**
-     * @method
-     * @desc Deletes an instance from the first view owned by this model, and returns the instance.
-     *       Equivalent to model.views[0].deleteInstance(instance)
-     * @returns {@link ModelInstance}
-     */
-    deleteInstance(instance) {
-        return this.views[0].deleteInstance(instance);
-    },
-
-    detach() {
-        let views = this.views;
-            
-        for (let i = 0, l = views.length; i < l; i++) {
-            // Detach the view from its scene.
-            views[i].detach();
-        }
-
-        this.views = [];
-    },
-
-    update() {
-        const views = this.views;
-
-        for (let i = 0, l = views.length; i < l; i++) {
-            views[i].update();
+    finalizeInstance(instance) {
+        if (this.error) {
+            instance.modelError();
+        } else if (this.loaded) {
+            instance.modelReady();
+        } else {
+            this.addAction(instance => this.finalizeInstance(instance), [instance]);
         }
     },
 
-    renderOpaque(bucket) {
+    renderOpaque(bucket, scene) {
 
     },
 
-    renderTranslucent(bucket) {
+    renderTranslucent(bucket, scene) {
 
     },
 
-    renderEmitters(bucket) {
+    renderEmitters(bucket, scene) {
 
     }
 };

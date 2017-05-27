@@ -44,7 +44,7 @@ M3SdContainer.prototype = {
     },
 
     getInterval(keys, frame) {
-        var interval = vec2.heap;
+        var interval = vec3.heap4;
 
         var a = keys.length;
         var b = 0;

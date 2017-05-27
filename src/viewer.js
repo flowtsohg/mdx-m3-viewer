@@ -58,7 +58,6 @@ function ModelViewer(canvas) {
 
                 return mat4(texture2D(u_boneMap, vec2(offset, rowOffset)), texture2D(u_boneMap, vec2(offset + u_vector_size, rowOffset)), texture2D(u_boneMap, vec2(offset + u_vector_size * 2.0, rowOffset)), texture2D(u_boneMap, vec2(offset + u_vector_size * 3.0, rowOffset)));
             }
-
             `,
         // Shared shader code to handle decoding multiple bytes stored in floats
         "decodeFloat": `
@@ -87,7 +86,7 @@ function ModelViewer(canvas) {
     this.handlers = new Map(); // Map from a file extension to an handler
 
     /** @member {scene} */
-    this.scenes = [new Scene(this)];
+    this.scenes = [];
 
     /** @member {number} */
     this.resourcesLoading = 0;
@@ -133,17 +132,28 @@ ModelViewer.prototype = {
         return false;
     },
 
-    /**
-     * @method
-     * @desc Add a new scene to the viewer, and return it.
-     * @returns {Scene}
-     */
-    addScene() {
-        let scene = new Scene(this);
+    addScene(scene) {
+        if (scene && scene.objectType === "scene") {
+            this.scenes.push(scene);
 
-        this.scenes.push(scene);
+            return true;
+        }
 
-        return scene;
+        return false;
+    },
+
+    removeScene(scene) {
+        if (scene && scene.objectType === "scene") {
+            let index = this.scenes.indexOf(scene);
+
+            if (index !== -1) {
+                this.scenes.splice(this.scenes.indexOf(scene), 1);
+
+                return true;
+            }
+        }
+
+        return false;
     },
 
     /**
@@ -155,11 +165,46 @@ ModelViewer.prototype = {
      * @returns {AsyncResource|AsyncResource[]}
      */
     load(src, pathSolver) {
-        if (Array.isArray(src)) {
-            return src.map((element) => this.loadResource(element, pathSolver));
-        }
+        if (src) {
+            let extension,
+                serverFetch;
 
-        return this.loadResource(src, pathSolver);
+            // Built-in texture source
+            if (src instanceof HTMLImageElement || src instanceof HTMLVideoElement || src instanceof HTMLCanvasElement || src instanceof ImageData) {
+                extension = ".png";
+                serverFetch = false;
+            } else {
+                [src, extension, serverFetch] = pathSolver(src);
+            }
+
+            let handler = this.handlers.get(extension.toLowerCase());
+
+            // Is there an handler for this file type?
+            if (handler) {
+                let pair = this.pairFromType(handler.objectType),
+                    map = pair.map;
+
+                // Only construct the resource if the source was not already loaded.
+                if (!map.has(src)) {
+                    let resource = new handler.Constructor(this, pathSolver);
+
+                    // Cache the resource
+                    map.set(src, resource);
+                    pair.array.push(resource);
+
+                    // Register the standard events.
+                    this.registerEvents(resource);
+
+                    // Tell the resource to actually load itself
+                    resource.load(src, handler.binaryFormat, serverFetch);
+                }
+
+                // Get the resource from the cache.
+                return map.get(src);
+            } else {
+                this.dispatchEvent({ type: "error", error: "MissingHandler", extra: [src, extension, serverFetch] });
+            }
+        }
     },
 
     /**
@@ -211,12 +256,12 @@ ModelViewer.prototype = {
 
     /**
      * @method
-     * @desc Deletes a resource from the viewer.
+     * @desc Detach a resource from the viewer.
      *       Note that this only removes references to this resource, so your code should do the same, to allow GC to work.
      *       This also means that if a resource is referenced by another resource, it is not going to be GC'd.
      *       For example, deleting a texture that is being used by a model will not actually let the GC to collect it, until the model is deleted too, and loses all references.
      */
-    delete(resource) {
+    detachResource(resource) {
         if (this.isResource(resource)) {
             let objectType = resource.objectType,
                 pair = this.pairFromType(objectType);
@@ -251,9 +296,10 @@ ModelViewer.prototype = {
 
     /**
      * @method
-     * @desc Clears all of the scenes.
+     * @desc ???
      */
     clear(deleteResources) {
+        /*/
         for (let scene of this.scenes) {
             scene.clear();
         }
@@ -272,6 +318,7 @@ ModelViewer.prototype = {
                 model.addView();
             }
         }
+        */
     },
 
     /**
@@ -306,7 +353,7 @@ ModelViewer.prototype = {
             l;
 
         // Update all of the models (or rather, their instances).
-        objects = resources.models.array;
+        objects = this.scenes;
         for (i = 0, l = objects.length; i < l; i++) {
             objects[i].update();
         }
@@ -329,8 +376,8 @@ ModelViewer.prototype = {
      * @desc Render.
      */
     render() {
-        let scenes = this.scenes,
-            gl = this.gl,
+        let gl = this.gl,
+            scenes = this.scenes,
             i,
             l = scenes.length;
 
@@ -338,66 +385,19 @@ ModelViewer.prototype = {
         gl.depthMask(1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        // Render all of  the opaque stuff.
         for (i = 0; i < l; i++) {
             scenes[i].renderOpaque();
         }
 
-        // Render all of the translucent stuff.
         for (i = 0; i < l; i++) {
             scenes[i].renderTranslucent();
         }
 
-        // Render particle emitters.
         for (i = 0; i < l; i++) {
             scenes[i].renderEmitters();
         }
 
         this.dispatchEvent({ type: "render" })
-    },
-
-    // Load a single resource, called by load (possibly multiple times, if it was given an array).
-    loadResource(src, pathSolver) {
-        if (src) {
-            let extension,
-                serverFetch;
-
-            // Built-in texture source
-            if (src instanceof HTMLImageElement || src instanceof HTMLVideoElement || src instanceof HTMLCanvasElement || src instanceof ImageData) {
-                extension = ".png";
-                serverFetch = false;
-            } else {
-                [src, extension, serverFetch] = pathSolver(src);
-            }
-
-            let handler = this.handlers.get(extension.toLowerCase());
-
-            // Is there an handler for this file type?
-            if (handler) {
-                let pair = this.pairFromType(handler.objectType),
-                    map = pair.map;
-
-                // Only construct the resource if the source was not already loaded.
-                if (!map.has(src)) {
-                    let resource = new handler.Constructor(this, pathSolver);
-
-                    // Cache the resource
-                    map.set(src, resource);
-                    pair.array.push(resource);
-
-                    // Register the standard events.
-                    this.registerEvents(resource);
-
-                    // Tell the resource to actually load itself
-                    resource.load(src, handler.binaryFormat, serverFetch);
-                }
-
-                // Get the resource from the cache.
-                return map.get(src);
-            } else {
-                this.dispatchEvent({ type: "error", error: "MissingHandler", extra: [src, extension, serverFetch] });
-            }
-        }
     },
 
     // Register the viewer to all of the standard events of a resource.
