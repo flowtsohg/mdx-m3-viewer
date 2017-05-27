@@ -32,9 +32,10 @@ Scene.prototype = {
      */
     addView(modelView) {
         if (modelView && modelView.objectType === "modelview") {
-            let views = this.modelViews;
+            let views = this.modelViews,
+                index = views.indexOf(modelView);
 
-            if (!views.has(modelView)) {
+            if (index === -1) {
                 views.push(modelView);
 
                 return true;
@@ -51,10 +52,11 @@ Scene.prototype = {
      */
     removeView(modelView) {
         if (modelView && modelView.objectType === "modelview") {
-            let views = this.modelViews;
+            let views = this.modelViews,
+                index = views.indexOf(modelView);
 
-            if (views.has(modelView)) {
-                views.delete(modelView);
+            if (index !== -1) {
+                views.splice(index, 1);
 
                 return true;
             }
