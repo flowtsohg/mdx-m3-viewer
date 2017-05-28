@@ -19,6 +19,13 @@ function M3ModelInstance(env) {
 M3ModelInstance.prototype = {
     initialize() {
         this.skeleton = new M3Skeleton(this);
+
+        // This takes care of calling setSequence before the model is loaded.
+        // In this case, this.sequence will be set, but nothing else is changed.
+        // Now that the model is loaded, set it again to do the real work.
+        if (this.sequence !== -1) {
+            this.setSequence(this.sequence);
+        }
     },
 
     setSharedData(sharedData) {
@@ -83,7 +90,7 @@ M3ModelInstance.prototype = {
     recalculateTransformation() {
         Node.prototype.recalculateTransformation.call(this);
 
-        if (this.rendered) {
+        if (this.bucket) {
             this.skeleton.update();
             this.bucket.updateBoneTexture[0] = 1;
         }
@@ -92,7 +99,7 @@ M3ModelInstance.prototype = {
     setTeamColor(id) {
         this.teamColor = id;
 
-        if (this.rendered) {
+        if (this.bucket) {
             this.teamColorArray[0] = id;
             this.bucket.updateTeamColors[0] = 1;
         }
@@ -103,7 +110,7 @@ M3ModelInstance.prototype = {
     setTintColor(color) {
         this.tintColor.set(color);
 
-        if (this.rendered) {
+        if (this.bucket) {
             this.tintColorArray.set(color);
             this.bucket.updateTintColors[0] = 1;
         }
@@ -115,9 +122,19 @@ M3ModelInstance.prototype = {
         this.sequence = id;
         this.frame = 0;
 
-        if (this.rendered) {
-            // Update the skeleton in case this sequence isn't variant, and thus it won't get updated in the update function
-            this.skeleton.update();
+        if (this.model.loaded) {
+            var sequences = this.model.sequences.length;
+
+            if (id < -1 || id > sequences) {
+                id = -1;
+
+                this.sequence = id;
+            }
+
+            if (this.bucket) {
+                // Update the skeleton in case this sequence isn't variant, and thus it won't get updated in the update function
+                this.skeleton.update();
+            }
         }
 
         return this;

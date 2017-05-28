@@ -165,6 +165,13 @@ MdxModelInstance.prototype = {
         
         this.sequenceObject = null;
         this.allowParticleSpawn = false;
+
+        // This takes care of calling setSequence before the model is loaded.
+        // In this case, this.sequence will be set, but nothing else is changed.
+        // Now that the model is loaded, set it again to do the real work.
+        if (this.sequence !== -1) {
+            this.setSequence(this.sequence);
+        }
     },
 
     setSharedData(sharedData) {
@@ -348,7 +355,7 @@ MdxModelInstance.prototype = {
     recalculateTransformation() {
         Node.prototype.recalculateTransformation.call(this);
 
-        if (this.rendered) {
+        if (this.bucket) {
             this.skeleton.update();
             this.bucket.updateBoneTexture[0] = 1;
         }
@@ -367,7 +374,7 @@ MdxModelInstance.prototype = {
     setTeamColor(id) {
         this.teamColor = id;
 
-        if (this.rendered) {
+        if (this.bucket) {
             this.teamColorArray[0] = id;
             this.bucket.updateTeamColors[0] = 1;
         }
@@ -378,7 +385,7 @@ MdxModelInstance.prototype = {
     setTintColor(color) {
         this.tintColor.set(color);
 
-        if (this.rendered) {
+        if (this.bucket) {
             this.tintColorArray.set(color);
             this.bucket.updateTintColors[0] = 1;
         }
@@ -387,32 +394,34 @@ MdxModelInstance.prototype = {
     },
 
     setSequence(id) {
+        this.sequence = id;
+
         // If the model isn't loaded yet, a sequence can't be selected.
         if (this.model.loaded) {
             var sequences = this.model.sequences.length;
 
-            if (id < sequences) {
+            if (id < -1 || id > sequences) {
+                id = -1;
+
                 this.sequence = id;
-
-                if (id === -1) {
-                    this.frame = 0;
-
-                    this.sequenceObject = null;
-                } else {
-                    var sequence = this.model.sequences[id];
-
-                    this.frame = sequence.interval[0];
-
-                    this.sequenceObject = sequence;
-                }
-
-                // Update the skeleton in case this sequence isn't variant, and thus it won't get updated in the update function
-                if (this.rendered) {
-                    this.skeleton.update();
-                }
             }
-        } else {
-            this.model.whenLoaded(() => this.setSequence(id));
+
+            if (id === -1) {
+                this.frame = 0;
+
+                this.sequenceObject = null;
+            } else {
+                var sequence = this.model.sequences[id];
+
+                this.frame = sequence.interval[0];
+
+                this.sequenceObject = sequence;
+            }
+
+            // Update the skeleton in case this sequence isn't variant, and thus it won't get updated in the update function
+            if (this.bucket) {
+                this.skeleton.update();
+            }
         }
 
         return this;

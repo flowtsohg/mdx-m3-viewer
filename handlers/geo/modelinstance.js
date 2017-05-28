@@ -7,6 +7,9 @@
  */
 function GeometryModelInstance(env) {
     ModelInstance.call(this, env);
+
+    this.color = vec3.create();
+    this.edgeColor = vec3.create;
 }
 
 GeometryModelInstance.prototype = {
@@ -14,6 +17,10 @@ GeometryModelInstance.prototype = {
         this.boundingShape = new BoundingShape();
         this.boundingShape.fromVertices(this.model.vertexArray);
         this.boundingShape.setParent(this);
+
+        // Initialize to the model's material color
+        this.setColor(this.model.color);
+        this.setEdgeColor(this.model.edgeColor);
     },
 
     setSharedData(sharedData) {
@@ -21,9 +28,8 @@ GeometryModelInstance.prototype = {
         this.colorArray = sharedData.colorArray;
         this.edgeColorArray = sharedData.edgeColorArray;
 
-        // Initialize to the model's material color
-        this.setColor(this.model.color);
-        this.setEdgeColor(this.model.edgeColor);
+        this.colorArray.set(this.color);
+        this.edgeColorArray.set(this.edgeColor);
     },
 
     invalidateSharedData() {
@@ -37,22 +43,22 @@ GeometryModelInstance.prototype = {
     },
 
     setColor(color) {
-        if (this.rendered) {
+        this.color.set(color);
+
+        if (this.bucket) {
             this.colorArray.set(color);
             this.bucket.updateColors[0] = 1;
-        } else {
-            this.addAction(id => this.setColor(color), [color]);
         }
 
         return this;
     },
 
     setEdgeColor(color) {
-        if (this.rendered) {
+        this.edgeColor.set(color);
+
+        if (this.bucket) {
             this.edgeColorArray.set(color);
             this.bucket.updateEdgeColors[0] = 1;
-        } else {
-            this.addAction(id => this.setEdgeColor(color), [color]);
         }
 
         return this;
