@@ -458,7 +458,7 @@ MdxModel.prototype = {
         }
     },
 
-    bind(bucket, scene) {
+    bind(bucket) {
         const webgl = this.env.webgl;
         var gl = this.gl;
 
@@ -471,7 +471,7 @@ MdxModel.prototype = {
         const attribs = shader.attribs;
         const uniforms = shader.uniforms;
 
-        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, scene.camera.worldProjectionMatrix);
+        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, bucket.modelView.scene.camera.worldProjectionMatrix);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.__webglElementBuffer);
 
@@ -586,11 +586,11 @@ MdxModel.prototype = {
         shallowGeoset.render(bucket.instances.length);
     },
 
-    renderBatches(bucket, scene, batches) {
+    renderBatches(bucket, batches) {
         if (batches && batches.length) {
             const updateBatches = bucket.updateBatches;
 
-            this.bind(bucket, scene);
+            this.bind(bucket);
 
             for (let i = 0, l = batches.length; i < l; i++) {
                 const batch = batches[i];
@@ -604,15 +604,15 @@ MdxModel.prototype = {
         }
     },
 
-    renderOpaque(bucket, scene) {
-        this.renderBatches(bucket, scene, this.opaqueBatches);
+    renderOpaque(bucket) {
+        this.renderBatches(bucket, this.opaqueBatches);
     },
 
-    renderTranslucent(bucket, scene) {
-        this.renderBatches(bucket, scene, this.translucentBatches);
+    renderTranslucent(bucket) {
+        this.renderBatches(bucket, this.translucentBatches);
     },
 
-    renderEmitters(bucket, scene) {
+    renderEmitters(bucket) {
         let webgl = this.env.webgl,
             gl = this.env.gl,
             emitters = this.particleEmitters2;
@@ -625,7 +625,7 @@ MdxModel.prototype = {
             var shader = Mdx.particleShader;
             webgl.useShaderProgram(shader);
 
-            gl.uniformMatrix4fv(shader.uniforms.get("u_mvp"), false, scene.camera.worldProjectionMatrix);
+            gl.uniformMatrix4fv(shader.uniforms.get("u_mvp"), false, bucket.modelView.scene.camera.worldProjectionMatrix);
 
             gl.uniform1i(shader.uniforms.get("u_texture"), 0);
 

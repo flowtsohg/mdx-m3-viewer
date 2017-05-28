@@ -113,13 +113,13 @@ function MdxBucket(modelView) {
 }
 
 MdxBucket.prototype = {
-    update(scene) {
+    update() {
         let gl = this.env.gl,
             size = this.instances.length;
 
         this.updateBatches.fill(0);
 
-        Bucket.prototype.update.call(this, scene);
+        Bucket.prototype.update.call(this);
 
         if (this.updateBoneTexture[0]) {
             gl.activeTexture(gl.TEXTURE15);
@@ -167,7 +167,6 @@ MdxBucket.prototype = {
 
     getSharedData(index) {
         var data = {
-            bucket: this,
             boneArray: new Float32Array(this.boneArray.buffer, this.boneArrayInstanceSize * 4 * index, this.boneArrayInstanceSize),
             geosetColorArrays: [],
             uvOffsetArrays: [],

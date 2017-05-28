@@ -85,7 +85,7 @@ function ModelViewer(canvas) {
     /** @member {map.<string, Handler>} */
     this.handlers = new Map(); // Map from a file extension to an handler
 
-    /** @member {scene} */
+    /** @member {Scene[]} */
     this.scenes = [];
 
     /** @member {number} */
@@ -134,9 +134,14 @@ ModelViewer.prototype = {
 
     addScene(scene) {
         if (scene && scene.objectType === "scene") {
-            this.scenes.push(scene);
+            let scenes = this.scenes,
+                index = scenes.indexOf(scene);
 
-            return true;
+            if (index === -1) {
+                scenes.push(scene);
+
+                return true;
+            }
         }
 
         return false;
@@ -144,10 +149,11 @@ ModelViewer.prototype = {
 
     removeScene(scene) {
         if (scene && scene.objectType === "scene") {
-            let index = this.scenes.indexOf(scene);
+            let scenes = this.scenes,
+                index = scenes.indexOf(scene);
 
             if (index !== -1) {
-                this.scenes.splice(this.scenes.indexOf(scene), 1);
+                scenes.splice(index, 1);
 
                 return true;
             }
@@ -183,7 +189,7 @@ ModelViewer.prototype = {
             if (handler) {
                 let pair = this.pairFromType(handler.objectType),
                     map = pair.map;
-
+                
                 // Only construct the resource if the source was not already loaded.
                 if (!map.has(src)) {
                     let resource = new handler.Constructor(this, pathSolver);
@@ -256,12 +262,12 @@ ModelViewer.prototype = {
 
     /**
      * @method
-     * @desc Detach a resource from the viewer.
+     * @desc Remove a resource from the viewer.
      *       Note that this only removes references to this resource, so your code should do the same, to allow GC to work.
      *       This also means that if a resource is referenced by another resource, it is not going to be GC'd.
      *       For example, deleting a texture that is being used by a model will not actually let the GC to collect it, until the model is deleted too, and loses all references.
      */
-    detachResource(resource) {
+    removeResource(resource) {
         if (this.isResource(resource)) {
             let objectType = resource.objectType,
                 pair = this.pairFromType(objectType);
@@ -352,7 +358,7 @@ ModelViewer.prototype = {
             i,
             l;
 
-        // Update all of the models (or rather, their instances).
+        // Update all of the scenes.
         objects = this.scenes;
         for (i = 0, l = objects.length; i < l; i++) {
             objects[i].update();
@@ -404,19 +410,17 @@ ModelViewer.prototype = {
     registerEvents(resource) {
         let listener = (e) => this.dispatchEvent(e);
 
-        ["loadstart", "load", "loadend", "error", "progress", "delete"].map(e => resource.addEventListener(e, listener));
+        ["loadstart", "load", "loadend", "error", "progress", "delete"].map((e) => resource.addEventListener(e, listener));
     },
 
     // Used to easily get the resources object from an object type.
     pairFromType(objectType) {
-        let resources = this.resources;
-
         if (objectType === "model" || objectType === "modelhandler") {
-            return resources.models;
+            return this.resources.models;
         } else if (objectType === "texture" || objectType === "texturehandler") {
-            return resources.textures;
+            return this.resources.textures;
         } else if (objectType === "file" || objectType === "filehandler") {
-            return resources.files;
+            return this.resources.files;
         } else {
             throw new Error("NOPE");
         }

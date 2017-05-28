@@ -50,7 +50,7 @@ Bucket.prototype = {
         return this.instances.length === this.size;
     },
 
-    update(scene) {
+    update() {
         let instances = this.instances;
 
         for (let i = 0, l = instances.length; i < l; i++) {
@@ -58,28 +58,28 @@ Bucket.prototype = {
 
             instance.preemptiveUpdate();
 
-            if (instance.noCulling || this.isVisible(instance, scene)) {
+            if (instance.noCulling || this.isVisible(instance)) {
                 instance.update();
             }
         }
     },
 
-    renderOpaque(scene) {
-        this.model.renderOpaque(this, scene);
+    renderOpaque() {
+        this.model.renderOpaque(this);
     },
 
-    renderTranslucent(scene) {
-        this.model.renderTranslucent(this, scene);
+    renderTranslucent() {
+        this.model.renderTranslucent(this);
     },
 
-    renderEmitters(scene) {
-        this.model.renderEmitters(this, scene);
+    renderEmitters() {
+        this.model.renderEmitters(this);
     },
 
-    isVisible(instance, scene) {
+    isVisible(instance) {
         //*
         let ndc = vec3.heap,
-            worldProjectionMatrix = scene.camera.worldProjectionMatrix;
+            worldProjectionMatrix = instance.modelView.scene.camera.worldProjectionMatrix;
 
         // This test checks whether the instance's position is visible in NDC space. In other words, that it lies in [-1, 1] on all axes
         vec3.transformMat4(ndc, instance.worldLocation, worldProjectionMatrix);

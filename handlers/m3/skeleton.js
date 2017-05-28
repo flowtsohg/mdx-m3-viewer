@@ -23,46 +23,46 @@ function M3Skeleton(instance) {
 
         this.nodes[i].inverseBasisMatrix = M3.inverseBasisMatrix;
     }
-
-    this.boneArray = null;
 }
 
 M3Skeleton.prototype = {
     update() {
-        let instance = this.instance,
-            nodes = this.nodes,
-            modelNodes = this.modelNodes;
+        if (this.instance.bucket) {
+            let instance = this.instance,
+                nodes = this.nodes,
+                modelNodes = this.modelNodes;
 
-        for (let i = 0, l = nodes.length; i < l; i++) {
-            let modelNode = modelNodes[i],
-                location = this.getValue(modelNode.location, instance),
-                rotation = this.getValue(modelNode.rotation, instance),
-                scale = this.getValue(modelNode.scale, instance);
+            for (let i = 0, l = nodes.length; i < l; i++) {
+                let modelNode = modelNodes[i],
+                    location = this.getValue(modelNode.location, instance),
+                    rotation = this.getValue(modelNode.rotation, instance),
+                    scale = this.getValue(modelNode.scale, instance);
 
-            nodes[i].setTransformation(location, rotation, scale);
-        }
-
-        const sequence = instance.sequence;
-
-        var hwbones = this.boneArray;
-        var initialReferences = this.initialReference;
-        var boneLookup = this.boneLookup;
-        var finalMatrix;
-
-        if (sequence === -1) {
-            finalMatrix = this.rootNode.worldMatrix;
-        } else {
-            finalMatrix = mat4.heap;
-        }
-
-        for (var i = 0, l = boneLookup.length; i < l; i++) {
-            if (sequence !== -1) {
-                const bone = boneLookup[i];
-
-                mat4.multiply(finalMatrix, nodes[bone].worldMatrix, initialReferences[bone]);
+                nodes[i].setTransformation(location, rotation, scale);
             }
 
-            hwbones.set(finalMatrix, i * 16);
+            const sequence = instance.sequence;
+
+            var hwbones = this.instance.boneArray;
+            var initialReferences = this.initialReference;
+            var boneLookup = this.boneLookup;
+            var finalMatrix;
+
+            if (sequence === -1) {
+                finalMatrix = this.rootNode.worldMatrix;
+            } else {
+                finalMatrix = mat4.heap;
+            }
+
+            for (var i = 0, l = boneLookup.length; i < l; i++) {
+                if (sequence !== -1) {
+                    const bone = boneLookup[i];
+
+                    mat4.multiply(finalMatrix, nodes[bone].worldMatrix, initialReferences[bone]);
+                }
+
+                hwbones.set(finalMatrix, i * 16);
+            }
         }
     },
 

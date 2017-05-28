@@ -17,7 +17,6 @@ GeometryModelInstance.prototype = {
     },
 
     setSharedData(sharedData) {
-        this.bucket = sharedData.bucket;
         this.boneArray = sharedData.boneArray;
         this.colorArray = sharedData.colorArray;
         this.edgeColorArray = sharedData.edgeColorArray;
@@ -28,7 +27,6 @@ GeometryModelInstance.prototype = {
     },
 
     invalidateSharedData() {
-        this.bucket = null;
         this.boneArray = null;
         this.colorArray = null;
         this.edgeColorArray = null;

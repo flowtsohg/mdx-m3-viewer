@@ -7,6 +7,14 @@
  */
 function MdxModelInstance(env) {
     ModelInstance.call(this, env);
+
+    this.frame = 0;
+    this.counter = 0; // Global sequences
+    this.sequence = -1;
+    this.sequenceLoopMode = 0;
+
+    this.teamColor = 0;
+    this.tintColor = vec3.fromValues(255, 255, 255);
 }
 
 MdxModelInstance.prototype = {
@@ -16,10 +24,8 @@ MdxModelInstance.prototype = {
 
         this.skeleton = new MdxSkeleton(this, model);
 
-        this.geosetColor = vec4.create();
         //this.uvOffsetArrays = null;
-        this.teamColor = 0;
-        this.tintColor = vec3.fromValues(255, 255, 255);
+        
         this.batchVisibilityArrays = null;
 
 
@@ -156,18 +162,13 @@ MdxModelInstance.prototype = {
         //    }
         //}
 
-        this.frame = 0;
-        this.counter = 0; // Global sequences
-        this.sequence = -1;
-        this.sequenceLoopMode = 0;
+        
         this.sequenceObject = null;
         this.allowParticleSpawn = false;
     },
 
     setSharedData(sharedData) {
-        this.bucket = sharedData.bucket;
-
-        this.skeleton.boneArray = sharedData.boneArray;
+        this.boneArray = sharedData.boneArray;
 
         // Update once at setup, since it might not be updated later, depending on sequence variancy
         this.skeleton.update();
@@ -180,13 +181,12 @@ MdxModelInstance.prototype = {
 
         this.batchVisibilityArrays = sharedData.batchVisibilityArrays;
 
-        this.geosetColorArray.set(this.geosetColor);
+        //this.geosetColorArrays.set(this.geosetColor);
         this.teamColorArray[0] = this.teamColor;
         this.tintColorArray.set(this.tintColor);
     },
 
     invalidateSharedData() {
-        this.bucket = null;
         this.skeleton.boneArray = null;
         this.geosetColorArrays = null;
         this.uvOffsetArrays = null;
@@ -387,27 +387,32 @@ MdxModelInstance.prototype = {
     },
 
     setSequence(id) {
-        var sequences = this.model.sequences.length;
+        // If the model isn't loaded yet, a sequence can't be selected.
+        if (this.model.loaded) {
+            var sequences = this.model.sequences.length;
 
-        if (id < sequences) {
-            this.sequence = id;
+            if (id < sequences) {
+                this.sequence = id;
 
-            if (id === -1) {
-                this.frame = 0;
+                if (id === -1) {
+                    this.frame = 0;
 
-                this.sequenceObject = null;
-            } else {
-                var sequence = this.model.sequences[id];
+                    this.sequenceObject = null;
+                } else {
+                    var sequence = this.model.sequences[id];
 
-                this.frame = sequence.interval[0];
+                    this.frame = sequence.interval[0];
 
-                this.sequenceObject = sequence;
+                    this.sequenceObject = sequence;
+                }
+
+                // Update the skeleton in case this sequence isn't variant, and thus it won't get updated in the update function
+                if (this.rendered) {
+                    this.skeleton.update();
+                }
             }
-
-            // Update the skeleton in case this sequence isn't variant, and thus it won't get updated in the update function
-            if (this.rendered) {
-                this.skeleton.update();
-            }
+        } else {
+            this.model.whenLoaded(() => this.setSequence(id));
         }
 
         return this;

@@ -48,21 +48,18 @@ function MdxSkeleton(instance) {
     this.sortedNodes = sortedNodes;
     this.bones = bones;
     this.instance = instance;
-
-    // Will be set by the instance when it is added to a bucket.
-    this.boneArray = null;
 }
 
 MdxSkeleton.prototype = {
     update() {
         // If this skeleton has no bone array, it means the owning instance is not visible.
         // Therefore, there is no point to update the nodes.
-        if (this.boneArray) {
+        if (this.instance.bucket) {
             let nodes = this.sortedNodes,
                 modelNodes = this.modelNodes,
                 instance = this.instance,
                 bones = this.bones,
-                boneArray = this.boneArray;
+                boneArray = this.instance.boneArray;
 
             // Update the nodes
             for (let i = 0, l = nodes.length; i < l; i++) {

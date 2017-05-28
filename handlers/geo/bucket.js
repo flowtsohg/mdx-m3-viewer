@@ -73,7 +73,6 @@ GeometryBucket.prototype = {
 
     getSharedData(index) {
         return {
-            bucket: this,
             boneArray: new Float32Array(this.boneArray.buffer, this.boneArrayInstanceSize * 4 * index, this.boneArrayInstanceSize),
             colorArray: new Uint8Array(this.colorArray.buffer, 3 * index, 3),
             edgeColorArray: new Uint8Array(this.edgeColorArray.buffer, 3 * index, 3)

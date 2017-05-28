@@ -107,7 +107,6 @@ M3Bucket.prototype = {
 
     getSharedData(index) {
         var data = {
-            bucket: this,
             boneArray: new Float32Array(this.boneArray.buffer, this.boneArrayInstanceSize * 4 * index, this.boneArrayInstanceSize),
             teamColorArray: new Uint8Array(this.teamColorArray.buffer, index, 1),
             tintColorArray: new Uint8Array(this.tintColorArray.buffer, 3 * index, 3),

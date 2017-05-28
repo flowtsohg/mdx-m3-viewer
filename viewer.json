@@ -8,7 +8,6 @@
       "math/gl-matrix-addon",
       "math/interpolator",
       "math/math",
-      "actionqueue",
       "eventdispatcher",
       "node",
       "notifiednode",

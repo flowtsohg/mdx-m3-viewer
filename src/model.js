@@ -48,19 +48,13 @@ Model.prototype = {
 
         instance.load(this);
 
-        this.finalizeInstance(instance);
-
-        return instance;
-    },
-
-    finalizeInstance(instance) {
-        if (this.error) {
-            instance.modelError();
-        } else if (this.loaded) {
+        if (this.loaded || this.error) {
             instance.modelReady();
         } else {
-            this.addAction(instance => this.finalizeInstance(instance), [instance]);
+            this.whenLoaded(() => instance.modelReady());
         }
+
+        return instance;
     },
 
     renderOpaque(bucket, scene) {

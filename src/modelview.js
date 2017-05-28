@@ -10,6 +10,8 @@
 function ModelView(model) {
     /** @member {Model} */
     this.model = model;
+    /** @member {Scene} */
+    this.scene = null;
     /** @member {ModelInstance[]} */
     this.instances = [];
     /** @member {Bucket[]} */
@@ -42,12 +44,15 @@ ModelView.prototype = {
     addInstance(instance) {
         if (instance && instance.objectType === "instance") {
             if (instance.loaded) {
+                // If the instance is already in another view, remove it first.
+                if (instance.modelView) {
+                    instance.modelView.removeInstance(instance);
+                }
+
                 this.instances.push(instance);
 
                 instance.modelView = this;
                 instance.rendered = true;
-
-                this.showInstance(instance);
             } else {
                 instance.whenLoaded(() => this.addInstance(instance));
             }
@@ -61,8 +66,6 @@ ModelView.prototype = {
      */
     removeInstance(instance) {
         if (instance && instance.objectType === "instance") {
-            this.hideInstance(instance);
-
             instance.rendered = false;
             instance.modelView = null;
 
@@ -89,56 +92,56 @@ ModelView.prototype = {
 
     // Show the given instance
     // This is done by adding it to a bucket, and calling its setSharedData function
-    showInstance(instance) {
-        let bucket = this.getAvailableBucket();
+    setVisibility(instance, visibility) {
+        if (visibility) {
+            let bucket = this.getAvailableBucket();
 
-        this.instanceToBucket.set(instance, bucket);
+            this.instanceToBucket.set(instance, bucket);
 
-        instance.setSharedData(bucket.addInstance(instance));
-    },
+            instance.bucket = bucket;
+            instance.setSharedData(bucket.addInstance(instance));
+        } else {
+            let bucket = this.instanceToBucket.get(instance);
 
-    // Hide the given instance
-    // This is done by deleting it from its bucket
-    hideInstance(instance) {
-        let bucket = this.instanceToBucket.get(instance);
+            this.instanceToBucket.delete(instance);
 
-        this.instanceToBucket.delete(instance);
+            bucket.removeInstance(instance);
 
-        bucket.removeInstance(instance);
-
-        // Invalidate whatever shared data this instance used, because it doesn't belong to it anymore.
-        instance.invalidateSharedData();
-    },
-
-    update(scene) {
-        let buckets = this.buckets;
-
-        for (let i = 0, l = buckets.length; i < l; i++) {
-            buckets[i].update(scene);
+            // Invalidate whatever shared data this instance used, because it doesn't belong to it anymore.
+            instance.bucket = null;
+            instance.invalidateSharedData();
         }
     },
 
-    renderOpaque(scene) {
+    update() {
         let buckets = this.buckets;
 
         for (let i = 0, l = buckets.length; i < l; i++) {
-            buckets[i].renderOpaque(scene);
+            buckets[i].update();
         }
     },
 
-    renderTranslucent(scene) {
+    renderOpaque() {
         let buckets = this.buckets;
 
         for (let i = 0, l = buckets.length; i < l; i++) {
-            buckets[i].renderTranslucent(scene);
+            buckets[i].renderOpaque();
         }
     },
 
-    renderEmitters(scene) {
+    renderTranslucent() {
         let buckets = this.buckets;
 
         for (let i = 0, l = buckets.length; i < l; i++) {
-            buckets[i].renderEmitters(scene);
+            buckets[i].renderTranslucent();
+        }
+    },
+
+    renderEmitters() {
+        let buckets = this.buckets;
+
+        for (let i = 0, l = buckets.length; i < l; i++) {
+            buckets[i].renderEmitters();
         }
     }
 };

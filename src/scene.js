@@ -29,14 +29,22 @@ Scene.prototype = {
      * @method
      * @desc Adds a new view to this scene, while setting the view's scene to this scene.
      * @param {ModelView} modelView The model view to add.
+     * @returns {boolean}.
      */
     addView(modelView) {
         if (modelView && modelView.objectType === "modelview") {
+            // If the view is already in another scene, remove it first.
+            if (modelView.scene) {
+                modelView.scene.removeView(modelView);
+            }
+
             let views = this.modelViews,
                 index = views.indexOf(modelView);
 
             if (index === -1) {
                 views.push(modelView);
+
+                modelView.scene = this;
 
                 return true;
             }
@@ -49,6 +57,7 @@ Scene.prototype = {
      * @method
      * @desc Removes the given view from this scene, if it was in it.
      * @param {ModelView} modelView The model view to remove.
+     * @returns {boolean}.
      */
     removeView(modelView) {
         if (modelView && modelView.objectType === "modelview") {
@@ -57,6 +66,8 @@ Scene.prototype = {
 
             if (index !== -1) {
                 views.splice(index, 1);
+
+                modelView.scene = null;
 
                 return true;
             }
@@ -85,7 +96,7 @@ Scene.prototype = {
         let views = this.modelViews;
 
         for (let i = 0, l = views.length; i < l; i++) {
-            views[i].update(this);
+            views[i].update();
         }
     },
 
@@ -95,7 +106,7 @@ Scene.prototype = {
         this.setViewport();
 
         for (let i = 0, l = views.length; i < l; i++) {
-            views[i].renderOpaque(this);
+            views[i].renderOpaque();
         }
     },
 
@@ -105,7 +116,7 @@ Scene.prototype = {
         this.setViewport();
 
         for (let i = 0, l = views.length; i < l; i++) {
-            views[i].renderTranslucent(this);
+            views[i].renderTranslucent();
         }
     },
 
@@ -115,7 +126,7 @@ Scene.prototype = {
         this.setViewport();
 
         for (let i = 0, l = views.length; i < l; i++) {
-            views[i].renderEmitters(this);
+            views[i].renderEmitters();
         }
     },
 

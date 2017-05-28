@@ -7,31 +7,34 @@
  */
 function M3ModelInstance(env) {
     ModelInstance.call(this, env);
+
+    this.skeleton = null;
+    this.teamColor = 0;
+    this.tintColor = vec3.fromValues(255, 255, 255);
+    this.sequence = -1;
+    this.frame = 0;
+    this.sequenceLoopMode = 0;
 }
 
 M3ModelInstance.prototype = {
     initialize() {
         this.skeleton = new M3Skeleton(this);
-
-        this.sequence = -1;
-        this.frame = 0;
-        this.sequenceLoopMode = 0;
     },
 
     setSharedData(sharedData) {
-        this.bucket = sharedData.bucket;
-
-        this.skeleton.boneArray = sharedData.boneArray;
+        this.boneArray = sharedData.boneArray;
 
         // Update once at setup, since it might not be updated later, depending on sequence variancy
         this.skeleton.update();
 
         this.teamColorArray = sharedData.teamColorArray;
         this.tintColorArray = sharedData.tintColorArray;
+
+        this.teamColorArray[0] = this.teamColor;
+        this.tintColorArray.set(this.tintColor);
     },
 
     invalidateSharedData() {
-        this.bucket = null;
         this.skeleton.boneArray = null;
         this.teamColorArray = null;
         this.tintColorArray = null;
@@ -83,53 +86,45 @@ M3ModelInstance.prototype = {
         if (this.rendered) {
             this.skeleton.update();
             this.bucket.updateBoneTexture[0] = 1;
-        } else {
-            this.addAction(() => this.recalculateTransformation(), []);
         }
     },
 
     setTeamColor(id) {
+        this.teamColor = id;
+
         if (this.rendered) {
             this.teamColorArray[0] = id;
             this.bucket.updateTeamColors[0] = 1;
-        } else {
-            this.addAction((id) => this.setTeamColor(id), [id]);
         }
 
         return this;
     },
 
     setTintColor(color) {
+        this.tintColor.set(color);
+
         if (this.rendered) {
             this.tintColorArray.set(color);
             this.bucket.updateTintColors[0] = 1;
-        } else {
-            this.addAction((id) => this.setTintColor(color), [color]);
         }
 
         return this;
     },
 
     setSequence(id) {
-        if (this.rendered) {
-            this.sequence = id;
-            this.frame = 0;
+        this.sequence = id;
+        this.frame = 0;
 
+        if (this.rendered) {
             // Update the skeleton in case this sequence isn't variant, and thus it won't get updated in the update function
             this.skeleton.update();
-        } else {
-            this.addAction((id) => this.setSequence(id), [id]);
         }
 
         return this;
     },
 
     setSequenceLoopMode(mode) {
-        if (this.rendered) {
-            this.sequenceLoopMode = mode;
-        } else {
-            this.addAction((mode) => this.setSequenceLoopMode(mode), [mode]);
-        }
+        this.sequenceLoopMode = mode;
 
         return this;
 

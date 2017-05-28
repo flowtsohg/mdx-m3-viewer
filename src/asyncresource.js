@@ -18,7 +18,6 @@ function AsyncResource(env) {
     this.error = false;
 
     EventDispatcher.call(this);
-    ActionQueue.call(this);
 }
 
 AsyncResource.prototype = {
@@ -64,7 +63,6 @@ AsyncResource.prototype = {
     },
 
     onloadend() {
-        this.applyActions();
         this.dispatchEvent({ type: "loadend" });
     },
 
@@ -85,11 +83,7 @@ AsyncResource.prototype = {
         }
 
         return this;
-    },
-
-    detach() {
-
     }
 };
 
-mix(AsyncResource.prototype, EventDispatcher.prototype, ActionQueue.prototype);
+mix(AsyncResource.prototype, EventDispatcher.prototype);
