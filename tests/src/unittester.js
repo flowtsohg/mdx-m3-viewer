@@ -70,13 +70,21 @@ const UnitTester = (function () {
             callback(entry, iterator);
         } else {
             // Clear the viewer
-            viewer.clear(true);
+            viewer.clear();
+
+            let scene = new Scene();
+            let camera = scene.camera;
+
+            camera.setViewport([0, 0, viewer.canvas.width, viewer.canvas.height]);
+            camera.setPerspective(Math.PI / 4, 1, 8, 100000);
+
+            viewer.addScene(scene);
 
             // Replace Math.random with a custom seeded random function
             replaceMathRandom();
 
             // Run the test code
-            entry.value[1](viewer);
+            entry.value[1](viewer, scene);
 
             viewer.whenAllLoaded(() => {
                 // Update the viewer once to make all of the changes appear

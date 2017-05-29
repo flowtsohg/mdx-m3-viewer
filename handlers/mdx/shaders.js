@@ -1,7 +1,5 @@
 const MdxShaders = {
     "vs_main": `
-        uniform sampler2D u_dataMap;
-
         uniform mat4 u_mvp;
         uniform vec2 u_uvScale;
         uniform vec3 u_teamColors[14];
@@ -49,14 +47,9 @@ const MdxShaders = {
                 v_uv = a_uv;
             }
 
-            vec4 dataTexel1 = texture2D(u_dataMap, vec2(0, 0));
-            //vec4 teamAndTintColors = packFloatToVec4i(dataTexel1.r);
-
             v_normal = normal;
-	        //v_teamColor = u_teamColors[int(a_teamColor)];
-	        //v_tintColor = a_tintColor;
-            v_teamColor = u_teamColors[int(dataTexel1.r * 255.0)];
-	        v_tintColor = dataTexel1.gba;
+	        v_teamColor = u_teamColors[int(a_teamColor)];
+	        v_tintColor = a_tintColor;
 	        v_geosetColor = a_geosetColor;
 
 	        if (a_batchVisible == 0.0) {

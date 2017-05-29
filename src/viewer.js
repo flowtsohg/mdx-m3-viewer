@@ -180,6 +180,18 @@ ModelViewer.prototype = {
 
     /**
      * @method
+     * @desc Detaches all of the scenes in the viewer.
+     */
+    clear() {
+        let scenes = this.scenes;
+
+        for (let i = 0, l = scenes.length; i < l; i++) {
+            this.removeScene(scenes[i]);
+        }
+    },
+
+    /**
+     * @method
      * @desc Load something. The meat of this whole project.
      *       If a single source was given, a single object will be returned. If an array was given, an array will be returned, with the same ordering.
      * @param {any|any[]} src The source used for the load.

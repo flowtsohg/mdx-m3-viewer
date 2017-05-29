@@ -38,7 +38,10 @@ M3ModelInstance.prototype = {
         this.tintColorArray = sharedData.tintColorArray;
 
         this.teamColorArray[0] = this.teamColor;
+        this.bucket.updateTeamColors[0] = 1;
+
         this.tintColorArray.set(this.tintColor);
+        this.bucket.updateTintColors[0] = 1;
     },
 
     invalidateSharedData() {

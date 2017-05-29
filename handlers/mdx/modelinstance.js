@@ -189,8 +189,12 @@ MdxModelInstance.prototype = {
         this.batchVisibilityArrays = sharedData.batchVisibilityArrays;
 
         //this.geosetColorArrays.set(this.geosetColor);
+
         this.teamColorArray[0] = this.teamColor;
+        this.bucket.updateTeamColors[0] = 1;
+
         this.tintColorArray.set(this.tintColor);
+        this.bucket.updateTintColors[0] = 1;
     },
 
     invalidateSharedData() {
@@ -431,7 +435,6 @@ MdxModelInstance.prototype = {
         this.sequenceLoopMode = mode;
 
         return this;
-
     },
 
     getAttachment(id) {

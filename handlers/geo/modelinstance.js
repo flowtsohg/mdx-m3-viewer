@@ -29,7 +29,10 @@ GeometryModelInstance.prototype = {
         this.edgeColorArray = sharedData.edgeColorArray;
 
         this.colorArray.set(this.color);
+        this.bucket.updateColors[0] = 1;
+
         this.edgeColorArray.set(this.edgeColor);
+        this.bucket.updateEdgeColors[0] = 1;
     },
 
     invalidateSharedData() {

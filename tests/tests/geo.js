@@ -1,6 +1,6 @@
 // Retangle.
-UnitTester.addTest("geo-rectangle", (viewer) => {
-    let camera = viewer.scenes[0].camera;
+UnitTester.addTest("geo-rectangle", (viewer, scene) => {
+    let camera = scene.camera;
 
     camera.resetTransformation();
     camera.move([0, 0, -110]);
@@ -10,12 +10,17 @@ UnitTester.addTest("geo-rectangle", (viewer) => {
         material: { renderMode: 0 }
     };
 
-    viewer.load(data, geoSolver).addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+    let model = viewer.load(data, geoSolver);
+    let view = model.addView();
+    let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+
+    view.addInstance(instance);
+    scene.addView(view);
 });
 
 // Cube.
-UnitTester.addTest("geo-cube", (viewer) => {
-    let camera = viewer.scenes[0].camera;
+UnitTester.addTest("geo-cube", (viewer, scene) => {
+    let camera = scene.camera;
 
     camera.resetTransformation();
     camera.move([0, 0, -110]);
@@ -25,12 +30,17 @@ UnitTester.addTest("geo-cube", (viewer) => {
         material: { renderMode: 0 }
     };
 
-    viewer.load(data, geoSolver).addInstance().uniformScale(31).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+    let model = viewer.load(data, geoSolver);
+    let view = model.addView();
+    let instance = model.addInstance().uniformScale(31).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+
+    view.addInstance(instance);
+    scene.addView(view);
 });
 
 // Sphere.
-UnitTester.addTest("geo-sphere", (viewer) => {
-    let camera = viewer.scenes[0].camera;
+UnitTester.addTest("geo-sphere", (viewer, scene) => {
+    let camera = scene.camera;
 
     camera.resetTransformation();
     camera.move([0, 0, -110]);
@@ -40,12 +50,17 @@ UnitTester.addTest("geo-sphere", (viewer) => {
         material: { renderMode: 0 }
     };
 
-    viewer.load(data, geoSolver).addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+    let model = viewer.load(data, geoSolver);
+    let view = model.addView();
+    let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+
+    view.addInstance(instance);
+    scene.addView(view);
 });
 
 // Cylinder.
-UnitTester.addTest("geo-cylinder", (viewer) => {
-    let camera = viewer.scenes[0].camera;
+UnitTester.addTest("geo-cylinder", (viewer, scene) => {
+    let camera = scene.camera;
 
     camera.resetTransformation();
     camera.move([0, 0, -110]);
@@ -55,12 +70,17 @@ UnitTester.addTest("geo-cylinder", (viewer) => {
         material: { renderMode: 0 }
     };
 
-    viewer.load(data, geoSolver).addInstance().uniformScale(38).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+    let model = viewer.load(data, geoSolver);
+    let view = model.addView();
+    let instance = model.addInstance().uniformScale(38).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+
+    view.addInstance(instance);
+    scene.addView(view);
 });
 
 // Edges.
-UnitTester.addTest("geo-edges", (viewer) => {
-    let camera = viewer.scenes[0].camera;
+UnitTester.addTest("geo-edges", (viewer, scene) => {
+    let camera = scene.camera;
 
     camera.resetTransformation();
     camera.move([0, 0, -110]);
@@ -70,12 +90,17 @@ UnitTester.addTest("geo-edges", (viewer) => {
         material: { renderMode: 1 }
     };
 
-    viewer.load(data, geoSolver).addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+    let model = viewer.load(data, geoSolver);
+    let view = model.addView();
+    let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+
+    view.addInstance(instance);
+    scene.addView(view);
 });
 
 // Faces + edges.
-UnitTester.addTest("geo-faces-and-edges", (viewer) => {
-    let camera = viewer.scenes[0].camera;
+UnitTester.addTest("geo-faces-and-edges", (viewer, scene) => {
+    let camera = scene.camera;
 
     camera.resetTransformation();
     camera.move([0, 0, -110]);
@@ -85,12 +110,17 @@ UnitTester.addTest("geo-faces-and-edges", (viewer) => {
         material: { renderMode: 2 }
     };
 
-    viewer.load(data, geoSolver).addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+    let model = viewer.load(data, geoSolver);
+    let view = model.addView();
+    let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+
+    view.addInstance(instance);
+    scene.addView(view);
 });
 
 // Color.
-UnitTester.addTest("geo-color", (viewer) => {
-    let camera = viewer.scenes[0].camera;
+UnitTester.addTest("geo-color", (viewer, scene) => {
+    let camera = scene.camera;
 
     camera.resetTransformation();
     camera.move([0, 0, -110]);
@@ -100,12 +130,17 @@ UnitTester.addTest("geo-color", (viewer) => {
         material: { renderMode: 0 }
     };
 
-    viewer.load(data, geoSolver).addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8)).setColor([255, 0, 0]);
+    let model = viewer.load(data, geoSolver);
+    let view = model.addView();
+    let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8)).setColor([255, 0, 0]);
+
+    view.addInstance(instance);
+    scene.addView(view);
 });
 
 // Edge color.
-UnitTester.addTest("geo-edge-color", (viewer) => {
-    let camera = viewer.scenes[0].camera;
+UnitTester.addTest("geo-edge-color", (viewer, scene) => {
+    let camera = scene.camera;
 
     camera.resetTransformation();
     camera.move([0, 0, -110]);
@@ -115,12 +150,17 @@ UnitTester.addTest("geo-edge-color", (viewer) => {
         material: { renderMode: 1 }
     };
 
-    viewer.load(data, geoSolver).addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8)).setEdgeColor([255, 0, 0]);
+    let model = viewer.load(data, geoSolver);
+    let view = model.addView();
+    let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8)).setEdgeColor([255, 0, 0]);
+
+    view.addInstance(instance);
+    scene.addView(view);
 });
 
 // Two sided.
-UnitTester.addTest("geo-two-sided", (viewer) => {
-    let camera = viewer.scenes[0].camera;
+UnitTester.addTest("geo-two-sided", (viewer, scene) => {
+    let camera = scene.camera;
 
     camera.resetTransformation();
     camera.move([0, 0, -110]);
@@ -130,12 +170,17 @@ UnitTester.addTest("geo-two-sided", (viewer) => {
         material: { renderMode: 0, twoSided: true }
     };
 
-    viewer.load(data, geoSolver).addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI + Math.PI / 8));
+    let model = viewer.load(data, geoSolver);
+    let view = model.addView();
+    let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI + Math.PI / 8));
+
+    view.addInstance(instance);
+    scene.addView(view);
 });
 
 // Texture.
-UnitTester.addTest("geo-texture", (viewer) => {
-    let camera = viewer.scenes[0].camera;
+UnitTester.addTest("geo-texture", (viewer, scene) => {
+    let camera = scene.camera;
 
     camera.resetTransformation();
     camera.move([0, 0, -110]);
@@ -145,5 +190,10 @@ UnitTester.addTest("geo-texture", (viewer) => {
         material: { renderMode: 0, texture: viewer.load("tests/compare/mdx-load.png", (path) => [path, ".png", true]) }
     };
 
-    viewer.load(data, geoSolver).addInstance().uniformScale(44);
+    let model = viewer.load(data, geoSolver);
+    let view = model.addView();
+    let instance = model.addInstance().uniformScale(44);
+
+    view.addInstance(instance);
+    scene.addView(view);
 });

@@ -8,12 +8,11 @@ function addTestResult(testResult) {
         value = testResult[1],
         data = value.data,
         misMatchPercentage = Math.round(data.rawMisMatchPercentage),
-        result = misMatchPercentage <= 1; // allow 1% mismatch
+        result = misMatchPercentage === 0; // allow no mismtach
 
     testsCount += 1;
     testsPassed += result ? 1 : 0;
 
-    console.log(misMatchPercentage);
     name.textContent = testResult[0] + " ";
     name.className = "item";
 
@@ -24,35 +23,25 @@ function addTestResult(testResult) {
     div.appendChild(name);
     div.appendChild(status);
 
-    if (!result) {
-        let mismatch = document.createElement("p");
+    let results = document.createElement("p");
 
-        mismatch.className = "item";
+    results.className = "item";
 
-        mismatch.appendChild(document.createTextNode(" with "));
+    let a = document.createElement("a");
+    a.href = value.a;
+    a.textContent = "a";
+    a.className = "item";
+    a.target = "_blank";
+    results.appendChild(a);
 
-        let span = document.createElement("span");
+    let b = document.createElement("a");
+    b.href = value.b;
+    b.textContent = "b";
+    b.className = "item";
+    b.target = "_blank";
+    results.appendChild(b);
 
-        span.textContent = misMatchPercentage + " percent";
-        span.style.color = "red";
-
-        mismatch.appendChild(span);
-        mismatch.appendChild(document.createTextNode(" mismatch"));
-
-        let a = document.createElement("a");
-        a.href = value.a;
-        a.textContent = "a";
-        a.className = "item";
-        mismatch.appendChild(a);
-
-        let b = document.createElement("a");
-        b.href = value.b;
-        b.textContent = "b";
-        b.className = "item";
-        mismatch.appendChild(b);
-
-        div.appendChild(mismatch);
-    }
+    div.appendChild(results);
 
     document.body.appendChild(div);
 }
@@ -69,6 +58,15 @@ viewer.addEventListener("error", (e) => console.log(e));
 
 viewer.addHandler(W3x);
 viewer.addHandler(M3);
+
+let scene = new Scene();
+
+viewer.addScene(scene);
+
+let camera = scene.camera;
+
+camera.setViewport([0, 0, canvas.width, canvas.height]);
+camera.setPerspective(Math.PI / 4, 1, 8, 100000);
 
 document.body.appendChild(canvas);
 
