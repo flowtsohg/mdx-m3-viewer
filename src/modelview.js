@@ -4,7 +4,6 @@
  *            It is used to possibly give multiple "views" of the same model.
  *            That is, use the same base model, but have some variations on a per-view basis, hence giving multiple versions of the model.
  *            Mostly used for texture overriding, to allow having multiple instances with different textures.
- * @extends ActionQueue
  * @param {Model} model The model that this view belongs to.
  */
 function ModelView(model) {
@@ -44,7 +43,8 @@ ModelView.prototype = {
                 instance.modelView = this;
                 instance.rendered = true;
             } else {
-                instance.whenLoaded(() => this.addInstance(instance));
+                // See ModelInstance.modelReady
+                instance.modelView = this;
             }
         }
     },
@@ -90,8 +90,8 @@ ModelView.prototype = {
         return bucket;
     },
 
-    // Show the given instance
-    // This is done by adding it to a bucket, and calling its setSharedData function
+    // Set the visibility of this instance (assuming it's in this view).
+    // This is done by adding or removing it from a bucket.
     setVisibility(instance, visibility) {
         if (visibility) {
             let bucket = this.getAvailableBucket();

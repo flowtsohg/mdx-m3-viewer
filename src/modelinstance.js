@@ -48,6 +48,13 @@ ModelInstance.prototype = {
 
             this.dispatchEvent({ type: "load" });
             this.dispatchEvent({ type: "loadend" });
+
+            // Instances can't be added to model views before the model is loaded.
+            // Therefore, if an instance is added to a view before, it only sets the model view of the instance, but doesn't add it.
+            // This check allows to, now that the model loaded, actually add the instance and allocate space in a bucket.
+            if (this.modelView) {
+                this.modelView.addInstance(this);
+            }
         } else {
             this.error = true;
 

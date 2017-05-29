@@ -10,6 +10,8 @@ function Model(env, pathSolver) {
 
     /** @member {ModelView[]} */
     this.modelViews = [];
+
+    this.preloadedInstances = [];
 }
 
 
@@ -51,10 +53,21 @@ Model.prototype = {
         if (this.loaded || this.error) {
             instance.modelReady();
         } else {
-            this.whenLoaded(() => instance.modelReady());
+            this.preloadedInstances.push(instance);
         }
 
         return instance;
+    },
+
+    // This allows setting up preloaded instances without event listeners.
+    finalizeLoad() {
+        AsyncResource.prototype.finalizeLoad.call(this);
+
+        let instances = this.preloadedInstances;
+
+        for (let i = 0, l = instances.length; i < l; i++) {
+            instances[i].modelReady();
+        }
     },
 
     /**

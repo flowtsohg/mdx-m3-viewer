@@ -49,23 +49,13 @@ AsyncResource.prototype = {
         this.loaded = true;
 
         this.dispatchEvent({ type: "load" });
-        this.onloadend();
+        this.dispatchEvent({ type: "loadend" });
     },
 
     onerror(error, extra) {
         this.error = true;
 
-        let e = { type: "error", error: error };
-
-        if (extra) {
-            e.extra = extra;
-        }
-
-        this.dispatchEvent(e);
-        this.onloadend();
-    },
-
-    onloadend() {
+        this.dispatchEvent({ type: "error", error: error, extra: extra });
         this.dispatchEvent({ type: "loadend" });
     },
 
