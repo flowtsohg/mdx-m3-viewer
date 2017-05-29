@@ -6,8 +6,8 @@ function filterSequences(type, sequences) {
     var filtered = [];
 
     for (var i = 0, l = sequences.length; i < l; i++) {
-        sequence = sequences[i];
-        name = sequence.name.split("-")[0].replace(/\d/g, "").trim().toLowerCase();
+        var sequence = sequences[i],
+            name = sequence.name.split("-")[0].replace(/\d/g, "").trim().toLowerCase();
 
         if (name === type) {
             filtered.push(sequence);
@@ -270,7 +270,7 @@ function W3xDoodad(reader, version, map) {
             }
 
             if (row.numVar > 1) {
-                path += variation;
+                path += row.variation;
             }
 
             path += ".mdx";
@@ -293,18 +293,18 @@ W3xDoodad.prototype = {
         let model = this.map.loadFiles(this.path);
 
         if (!model.modelViews.length) {
-            this.map.scene.addView(model.addView())
+            this.map.scene.addView(model.addView());
+
+            // This is used by trees and other doodads that share a model, but override the texture
+            if (this.texFile) {
+                model.addEventListener("load", () => {
+                    model.modelViews[0].textures[0] = this.texFile
+                });
+            }
         }
 
         if (!this.model) {
             this.model = model;
-
-            // This is used by trees and other doodads that share a model, but override the texture
-            if (this.texFile) {
-                //model.addEventListener("load", () => {
-                //    view.textures[0] = this.texFile
-                //});
-            }
         }
     },
 
@@ -333,7 +333,7 @@ function W3xSpecialDoodad(reader, version, map) {
         var path = row.file;
 
         if (row.numVar > 1) {
-            path += variation;
+            path += row.variation;
         }
 
         path += ".mdx";

@@ -4,10 +4,10 @@
  * @param {?ArrayBuffer} buffer An ArrayBuffer object to add this node to. A new buffer will be created if one isn't given.
  * @param {?number} offset An offset into the buffer, if one was given.
  */
-function Node(buffer, offset) {
+function ViewerNode(buffer, offset) {
     if (!buffer) {
         // 65 floats per node.
-        buffer = new ArrayBuffer(Node.BYTES_PER_ELEMENT);
+        buffer = new ArrayBuffer(ViewerNode.BYTES_PER_ELEMENT);
         offset = 0;
     }
 
@@ -58,9 +58,9 @@ function Node(buffer, offset) {
 
 // Used in the constructor above, and in the Skeleton constructor.
 // Chances are I'll forget updating one of them when I change stuff, so do it in one place.
-Node.BYTES_PER_ELEMENT = 65 * 4;
+ViewerNode.BYTES_PER_ELEMENT = 65 * 4;
 
-Node.prototype = {
+ViewerNode.prototype = {
     /**
      * @method
      * @desc Sets the node's pivot.
@@ -140,9 +140,29 @@ Node.prototype = {
      * @returns this
      */
     setTransformation(location, rotation, scale) {
+        /*
+        let localLocation = this.localLocation,
+            localRotation = this.localRotation,
+            localScale = this.localScale;
+
+        localLocation[0] = location[0];
+        localLocation[1] = location[1];
+        localLocation[2] = location[2];
+
+        localRotation[0] = rotation[0];
+        localRotation[1] = rotation[1];
+        localRotation[2] = rotation[2];
+        localRotation[3] = rotation[3];
+
+        localScale[0] = scale[0];
+        localScale[1] = scale[1];
+        localScale[2] = scale[2];
+        */
+        //*
         vec3.copy(this.localLocation, location);
         quat.copy(this.localRotation, rotation);
         vec3.copy(this.localScale, scale);
+        //*/
 
         this.recalculateTransformation();
 
@@ -316,7 +336,9 @@ Node.prototype = {
             worldRotation = this.worldRotation,
             worldScale = this.worldScale,
             pivot = this.pivot,
+            inverseWorldLocation = this.inverseWorldLocation,
             inverseWorldRotation = this.inverseWorldRotation,
+            inverseWorldScale = this.inverseWorldScale,
             parent = this.parent,
             children = this.children;
 
@@ -357,13 +379,26 @@ Node.prototype = {
 
         // Scale and inverse scale
         mat4.getScaling(worldScale, worldMatrix);
+
+        //inverseWorldScale[0] = -worldScale[0];
+        //inverseWorldScale[1] = -worldScale[1];
+        //inverseWorldScale[2] = -worldScale[2];
         vec3.inverse(this.inverseWorldScale, worldScale);
 
         /// TODO: what happens when dontInheritTranslation is true?
 
         // World location and inverse world location
+
+        //worldLocation[0] = pivot[0];
+        //worldLocation[1] = pivot[1];
+        //worldLocation[2] = pivot[2];
         vec3.copy(worldLocation, pivot);
+
         vec3.transformMat4(worldLocation, worldLocation, worldMatrix);
+
+        //inverseWorldLocation[0] = -worldLocation[0];
+        //inverseWorldLocation[1] = -worldLocation[1];
+        //inverseWorldLocation[2] = -worldLocation[2];
         vec3.negate(this.inverseWorldLocation, worldLocation);
 
         // Notify the children

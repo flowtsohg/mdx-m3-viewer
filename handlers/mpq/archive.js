@@ -7,7 +7,7 @@
  * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
  */
 function MpqArchive(env, pathSolver) {
-    GenericFile.call(this, env, pathSolver);
+    ViewerFile.call(this, env, pathSolver);
 }
 
 MpqArchive.prototype = {
@@ -114,7 +114,7 @@ MpqArchive.prototype = {
      */
     getFileList() {
         if (this.hasFile("(listfile)")) {
-            let file = this.getFile("(listfile)");
+            let file = this.getFile("(listfile)"),
                 reader = new BinaryReader(file.buffer),
                 data = read(reader, reader.byteLength);
 
@@ -125,4 +125,4 @@ MpqArchive.prototype = {
     }
 };
 
-mix(MpqArchive.prototype, GenericFile.prototype);
+mix(MpqArchive.prototype, ViewerFile.prototype);

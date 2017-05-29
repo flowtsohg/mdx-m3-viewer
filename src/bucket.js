@@ -38,10 +38,6 @@ Bucket.prototype = {
         return 256;
     },
 
-    update() {
-        
-    },
-
     getSharedData(index) {
         
     },

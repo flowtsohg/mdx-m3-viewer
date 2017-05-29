@@ -25,7 +25,7 @@ function Camera(fieldOfView, aspectRatio, nearClipPlane, farClipPlane) {
     // First four vectors are the corners of a 2x2 rectangle billboarded to the camera, the last three vectors are the unit axes billboarded
     this.billboardedVectors = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
 
-    Node.call(this);
+    ViewerNode.call(this);
 
     this.dontInheritScaling = true;
 }
@@ -72,7 +72,7 @@ Camera.prototype = {
             billboardedVectors = this.billboardedVectors;
 
         // Recalculate the node part
-        Node.prototype.recalculateTransformation.call(this);
+        ViewerNode.prototype.recalculateTransformation.call(this);
 
         // Projection matrix
         // Camera space -> NDC space
@@ -164,4 +164,4 @@ Camera.prototype = {
     }
 };
 
-mix(Camera.prototype, Node.prototype, Frustum.prototype);
+mix(Camera.prototype, ViewerNode.prototype, Frustum.prototype);

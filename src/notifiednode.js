@@ -6,7 +6,7 @@
  * @param {?number} offset An offset into the buffer, if one was given.
  */
 function NotifiedNode(buffer, offset) {
-    Node.call(this, buffer, offset);
+    ViewerNode.call(this, buffer, offset);
 }
 
 NotifiedNode.prototype = {
@@ -21,4 +21,4 @@ NotifiedNode.prototype = {
     }
 };
 
-mix(NotifiedNode.prototype, Node.prototype);
+mix(NotifiedNode.prototype, ViewerNode.prototype);

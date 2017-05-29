@@ -7,7 +7,7 @@
  * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
  */
 function W3xMap(env, pathSolver) {
-    GenericFile.call(this, env, pathSolver);
+    ViewerFile.call(this, env, pathSolver);
 }
 
 W3xMap.prototype = {
@@ -269,7 +269,7 @@ W3xMap.prototype = {
             for (var i = 0, l = cliffTilesets.length; i < l; i++) {
                 var row = cliffSlk.getRow(cliffTilesets[i]);
                 //if (row) {
-                    path = row.dir + "\\" + row.file + ".blp";
+                    var path = row.dir + "\\" + row.file + ".blp";
 
                     this.cliffs.push(row);
                     this.cliffTextures.push(this.loadFiles(path));
@@ -1455,4 +1455,4 @@ W3xMap.prototype = {
     }
 };
 
-mix(W3xMap.prototype, GenericFile.prototype);
+mix(W3xMap.prototype, ViewerFile.prototype);

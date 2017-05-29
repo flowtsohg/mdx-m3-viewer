@@ -241,7 +241,7 @@ const M3Parser = (function () {
         this.materialIndex = readUint32(reader);
     }
 
-    function Camera(reader, indexEntries, version) {
+    function Camera(reader, index, version) {
         this.version = version;
         this.bone = readUint32(reader);
         this.name = new Reference(reader, index);
@@ -256,11 +256,11 @@ const M3Parser = (function () {
         this.depthOfField = new AnimationReference(reader, readFloat32);
     }
     /*
-    function SHBX(reader, indexEntries, version) {
+    function SHBX(reader, index, version) {
     this.version = version;
     }
     */
-    function Light(reader, indexEntries, version) {
+    function Light(reader, index, version) {
         this.version = version;
         this.type = readUint8(reader);
         this.unknown0 = readUint8(reader);

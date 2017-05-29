@@ -5,11 +5,11 @@
  * @param {number} nodeCount The number of nodes in this skeleton.
  */
 function Skeleton(parent, nodeCount) {
-    let buffer = new ArrayBuffer(nodeCount * Node.BYTES_PER_ELEMENT),
+    let buffer = new ArrayBuffer(nodeCount * ViewerNode.BYTES_PER_ELEMENT),
         nodes = [];
 
     for (let i = 0; i < nodeCount; i++) {
-        nodes[i] = new Node(buffer, i * Node.BYTES_PER_ELEMENT);
+        nodes[i] = new ViewerNode(buffer, i * ViewerNode.BYTES_PER_ELEMENT);
     }
 
     /** @member {Node} */

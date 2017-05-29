@@ -154,7 +154,7 @@ MdxSanityTester.prototype = {
         if (materialChunk) {
             let materials = materialChunk.elements;
 
-            for (let i = 0, l = length; i < l; i++) {
+            for (let i = 0, l = materials.length; i < l; i++) {
                 let material = materials[i];
 
                 this.testMaterial(material);

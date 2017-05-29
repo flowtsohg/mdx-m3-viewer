@@ -91,7 +91,7 @@ M3ModelInstance.prototype = {
 
     // This is overriden in order to update the skeleton when the parent node changes
     recalculateTransformation() {
-        Node.prototype.recalculateTransformation.call(this);
+        ViewerNode.prototype.recalculateTransformation.call(this);
 
         if (this.bucket) {
             this.skeleton.update();

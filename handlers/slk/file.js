@@ -7,7 +7,13 @@
  * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
  */
 function SlkFile(env, pathSolver) {
-    GenericFile.call(this, env, pathSolver);
+    ViewerFile.call(this, env, pathSolver);
+
+    this.x = 0;
+    this.y = 0;
+    this.rows = [];
+    this.mappedRows = [];
+    this.map = {};
 }
 
 SlkFile.prototype = {
@@ -29,57 +35,54 @@ SlkFile.prototype = {
     },
 
     parseRows(src) {
-        let rows = [],
-            lines = src.split("\n"),
-            line,
-            tokens,
-            x = 0,
-            y = 0;
+        let lines = src.split("\n");
 
         for (let i = 0, l = lines.length; i < l; i++) {
-            line = lines[i];
+            this.parseRow(lines[i]);
+            
+        }
+    },
 
-            // The B command is supposed to define the total number of columns and rows, however in UbetSplatData.slk it gives wrong information
-            // Therefore, just ignore it, since JavaScript arrays grow as they want either way
-            if (line[0] !== "B") {
-                tokens = line.split(";")
+    parseRow(line) {
+        // The B command is supposed to define the total number of columns and rows, however in UbetSplatData.slk it gives wrong information
+        // Therefore, just ignore it, since JavaScript arrays grow as they want either way
+        if (line[0] !== "B") {
+            let tokens = line.split(";"),
+                rows = this.rows;
 
-                for (let i = 1, l = tokens.length; i < l; i++) {
-                    token = tokens[i];
+            for (let i = 1, l = tokens.length; i < l; i++) {
+                let token = tokens[i],
                     value = token.substring(1);
 
-                    switch (token[0]) {
-                        case "X":
-                            x = parseInt(value, 10) - 1;
-                            break;
+                switch (token[0]) {
+                    case "X":
+                        this.x = parseInt(value, 10) - 1;
+                        break;
 
-                        case "Y":
-                            y = parseInt(value, 10) - 1;
-                            break;
+                    case "Y":
+                        this.y = parseInt(value, 10) - 1;
+                        break;
 
-                        case "K":
-                            if (!rows[y]) {
-                                rows[y] = [];
-                            }
+                    case "K":
+                        if (!rows[this.y]) {
+                            rows[this.y] = [];
+                        }
 
-                            if (value[0] === "\"") {
-                                rows[y][x] = value.trim().substring(1, value.length - 2);
-                            } else {
-                                rows[y][x] = parseFloat(value);
-                            }
+                        if (value[0] === "\"") {
+                            rows[this.y][this.x] = value.trim().substring(1, value.length - 2);
+                        } else {
+                            rows[this.y][this.x] = parseFloat(value);
+                        }
 
-                            break;
-                    }
+                        break;
                 }
             }
         }
-
-        this.rows = rows;
     },
 
     // This assumes the first row is a header that defines the names of the columns, which is how Blizzard SLKs are written
     mapRows() {
-        var mappedRows = [],
+        var mappedRows = this.mappedRows,
             rows = this.rows,
             header = rows[0],
             mappedRow;
@@ -90,8 +93,6 @@ SlkFile.prototype = {
         for (var i = 1, l = rows.length; i < l; i++) {
             mappedRows[i - 1] = this.mapRow(header, rows[i]);
         }
-
-        this.mappedRows = mappedRows;
     },
 
     mapRow(header, row) {
@@ -108,7 +109,7 @@ SlkFile.prototype = {
     // This assumes that there is some ID to map every row against
     // It allows to get a row by its ID without an O(n) search
     mapByID() {
-        var map = {},
+        var map = this.map,
             mappedRows = this.mappedRows,
             mappedRow;
 
@@ -117,8 +118,6 @@ SlkFile.prototype = {
 
             map[mappedRow.ID] = mappedRow;
         }
-
-        this.map = map;
     },
 
     getRow(key) {
@@ -126,4 +125,4 @@ SlkFile.prototype = {
     }
 };
 
-mix(SlkFile.prototype, GenericFile.prototype);
+mix(SlkFile.prototype, ViewerFile.prototype);

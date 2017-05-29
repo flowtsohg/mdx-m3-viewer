@@ -28,7 +28,7 @@
       "modelview",
       "modelinstance",
       "texture",
-      "genericfile",
+      "file",
       "bucket",
       "scene",
       "viewer"
@@ -123,7 +123,6 @@
   "SLK": {
     "path": "handlers/slk/",
     "internal_files": [
-      "line",
       "file",
       "handler"
     ],
