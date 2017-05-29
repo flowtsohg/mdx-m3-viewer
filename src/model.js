@@ -86,15 +86,15 @@ Model.prototype = {
         this.env.removeReference(this);
     },
 
-    renderOpaque(bucket, scene) {
+    renderOpaque(bucket) {
 
     },
 
-    renderTranslucent(bucket, scene) {
+    renderTranslucent(bucket) {
 
     },
 
-    renderEmitters(bucket, scene) {
+    renderEmitters(bucket) {
 
     }
 };

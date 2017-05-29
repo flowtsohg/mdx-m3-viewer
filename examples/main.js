@@ -14,10 +14,18 @@ let viewer = new ModelViewer(canvas);
     viewer.updateAndRender();
 }());
 
-// Scenes are generally not something you'll need, they are used to have different cameras for different instances.
-// In any case, all instances go by default to the first scene, and therefore the first scene's camera is the default camera.
-// The camera is based on Node, so all Node functions work on it.
-let camera = viewer.scenes[0].camera;
+// Create a new scene. Each scene has its own camera, and a list of things to render.
+let scene = new Scene();
+
+// Add the scene to the viewer.
+viewer.addScene(scene);
+
+// Get the scene's camera.
+let camera = scene.camera;
+
+// Some initial camera setup
+camera.setViewport([0, 0, 800, 600]);
+camera.setPerspective(Math.PI / 4, 1, 8, 100000);
 camera.move([0, 0, -1000]);
 
 // The model viewer, and every resource it loads, all support the following events.
@@ -30,7 +38,6 @@ viewer.addEventListener("load", (e) => console.log(e));
 viewer.addEventListener("loadend", (e) => console.log(e));
 viewer.addEventListener("progress", (e) => console.log(e));
 viewer.addEventListener("error", (e) => console.log(e));
-viewer.addEventListener("delete", (e) => console.log(e));
 
 // A handler is an object that describes the neccassary properties to handle some resource.
 // For example, the Bmp handler is a texture handler, and thus has a Texture getter, that returns the texture implementation BmpTexture.
@@ -81,17 +88,29 @@ texture.whenLoaded(() => console.log("texture.bmp loaded, it took " + (new Date(
 // Note that because of the path solver used, the final path is correctly "resources/cube.obj".
 let model = viewer.load("cube.obj", pathSolver);
 
+// A model is used as a source of data. Views allow to use the model, while allowing each view to have its own data.
+let view = model.addView();
+
+// Views are added to scenes, so they get rendered.
+scene.addView(view);
+
 // Let's see that viewer.whenALoaded in action!
 viewer.whenLoaded([texture, model], (e) => console.log("The texture and model finished loading!"));
 
 // Create an instance of this model.
 let instance = model.addInstance();
 
+// Instances are put into views to "use" them.
+view.addInstance(instance);
+
 // Move the instance and scale it uniformly.
 instance.move([50, 0, 0]).uniformScale(2);
 
 // Let's create another instance, and mess with it.
 let instance2 = model.addInstance().move([-150, 0, 0]).scale([0.5, 2, 5]);
+
+// Add also this instance to the view.
+view.addInstance(instance2);
 
 // Calls the callback when the viewer finishes loading all currently loading resources, or immediately if no resources are being loaded.
 // Note that this includes instances!

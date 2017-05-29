@@ -146,6 +146,8 @@ ModelViewer.prototype = {
             if (index === -1) {
                 scenes.push(scene);
 
+                scene.env = this;
+
                 return true;
             }
         }
@@ -166,6 +168,8 @@ ModelViewer.prototype = {
 
             if (index !== -1) {
                 scenes.splice(index, 1);
+
+                scene.env = null;
 
                 return true;
             }

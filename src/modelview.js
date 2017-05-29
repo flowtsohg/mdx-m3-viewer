@@ -33,9 +33,16 @@ ModelView.prototype = {
     addInstance(instance) {
         if (instance && instance.objectType === "instance") {
             if (instance.loaded) {
+                let modelView = instance.modelView;
+
                 // If the instance is already in another view, remove it first.
-                if (instance.modelView) {
-                    instance.modelView.removeInstance(instance);
+                if (modelView) {
+                    // If it's a double insertion, just return
+                    if (modelView === this) {
+                        return;
+                    }
+
+                    modelView.removeInstance(instance);
                 }
 
                 this.instances.push(instance);

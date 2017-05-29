@@ -36,14 +36,14 @@ Python 3.x: python -m http.server 80
 
 Next, go to your browser, and open `http://localhost/examples/`.
 
-If you don't want to run an HTTP server, you can use the `file://` notation for local files, but note that you must enable local files in your browser settings (otherwise CORS will block the fetches). You really should run a server though.
-
 ------------------------
 
 #### Usage
 
 First, let's create the viewer.
 ```javascript
+let canvas = ...; // A <canvas> aka HTMLCanvasElement object
+
 let viewer = new ModelViewer(canvas)
 ```
 
@@ -60,10 +60,27 @@ This handler handles MDX files, unsurprisingly. It also adds the SLK, BLP, and T
 viewer.addHandler(Mdx);
 ```
 
-Finally for the initial setup, the viewer's camera is right at the origin, so let's move it a little.
+Next, let's create a scene and add it to the viewer. Each scene has its own camera and viewport, and holds a list of things to render.
 ```javascript
-viewer.camera.move([0, 0, -500);
+let scene = new Scene();
+
+viewer.addScene(scene);
 ```
+
+Finally, setup the scene's camera.
+```javascript
+let camera = scene.camera;
+
+// Use the whole canvas
+camera.setViewport([0, 0, canvas.width, canvas.height]);
+
+// Use perspective projection with normal settings
+camera.setPerspective(Math.PI / 4, 1, 8, 100000);
+
+// Move the camera back, so you could see things
+camera.move([0, 0, -500]);
+```
+
 
 So how do you actually load models and other files?
 The model viewer uses a system of path solving functions.
@@ -71,21 +88,19 @@ That is, you supply a function that takes a source you want to load, such as an 
 The load function itself looks like this:
 
 ```javascript
-let resource = viewer.load(src|src[], pathSolver)
+let resource = viewer.load(src, pathSolver)
 ```
 
-In other words, you give it either a source, or an array of sources, and the path solver.
-If a single source is given, a single resource will be returned.
-If an array is given, an array will be returned, with the same ordering.
+In other words, you give it either a source, and a resource is returned.
 A resource in this context means a model, a texture, or a generic file (any handler that is not a model or texture handler, such as SLK).
 
 The source here can be anything - a string, an object, a typed array, whatever - it highly depends on your code, and on the path solver.
-Generally speaking though, the source will probably be a string containing an url.
+Generally speaking though, the source will probably be a an url string.
 
 The path solver is a function with this signature: `function(src) => [finalSrc, srcExtension, isServerFetch]`, where:
-* `src` is the source (or iteratively an array of sources) you gave the load call.
+* `src` is the source you gave the load call.
 * `finalSrc` is the actual source to load from. If this is a server fetch, then this is the url to fetch from.
-If it's an in-memory load, it depends on what each handler requires.
+If it's an in-memory load, it depends on what each handler expects.
 * `srcExtension` is the extension of the resource you are loading, which selects the handler to use. The extension is given in a ".ext" format.
 That is, a string that contains a dot, followed by the extension.
 Generally speaking, this will usually be the extension of an url.
@@ -134,14 +149,37 @@ The path solver does two jobs here. First of all, it made the load calls shorter
 In this case, it allowed `model.mdx` to load `texture.blp`, which is a relative path. If the path would have been given directly, then the file wouldn't have been found.
 Generally speaking, an identity solver is what you'll need (as in, it returns the source assuming its an url but prepended by some directory, its extension, and true for server fetch), but there are cases where this is not the case, such as loading custom user-made models, handling both in-memory and server-fetches in the same solver (used by the W3X handler), etc.
 
-So, we now have a model, but a model isn't something you can see. What you see in a scene are instances of a model.
-Creating a new instance is as simple as this:
+We now have a model, however a model in this context is simply a source of data, not something that you see.
+The next step is to create a model view.
+Model views are, much as they are named, views into a model.
+They allow to use the same model as a source of data, but have per-view data.
+For example, with them, you can render the same model but with different textures.
+Model views are put into scenes.
+```javascript
+let view = model.addView();
 
+scene.addView(view);
+```
+
+Finally, let's create an actual instance of the model, and add it to the view.
 ```javascript
 let instance = model.addInstance();
+
+view.addInstance(instance);
 ```
 
 This instance can be rendered, moved, rotated, scaled, parented to other instances or nodes, play animations, and so on.
+
+So in the end, we have instances in model views, that are in scenes, that are added to the viewer. Easy, right?
+
+Never forget the actual rendering loop!
+```javascript
+(function step() {
+    requestAnimationFrame(step);
+
+    viewer.updateAndRender();
+}());
+```
 
 ------------------------
 
@@ -164,7 +202,7 @@ If you want to get any information from the model, like a list of animations, or
 For this reason, there are two ways to react to resources being loaded.
 First of all, as the next section explains (and as is mentioned above), every resource uses event dispatching, much like regular asyncronous JS objects (Image, XMLHttpRequest, and so on).
 In addition, every resource has a `whenLoaded(callback)` method that calls `callback` when the resource loads, or immediately if it was already loaded.
-The viewer itself has `whenAllLoaded(resources, callback)`, which is the same, but waits for multiple resources in an array to load.
+The viewer itself has `whenLoaded(resources, callback)` which does the same when all of the given resources in an array have been loaded, and also `whenAllLoaded(callback)`, which calls the callback when there are no longer resources being loaded.
 
 ------------------------
 
@@ -179,7 +217,7 @@ resource.dispatchEvent(event)
 ```
 
 When an event listener is attached to a specific resource, such as a model, it only gets events from that object.
-If, however, a listener is attached to the viewer itself, it will receive events for all resources.
+If a listener is attached to the viewer itself, it will receive events for all resources.
 
 Note that attaching a `loadstart` listener to a resource that is not the viewer is pointless, since the listener is registered after the resource started loading.
 
@@ -190,13 +228,12 @@ The type can be one of:
 * `load` - a resource finished loading.
 * `error` - an error occured when loading a resource. The `error` property will be set.
 * `loadend` - sent when a resource finishes loading, either because of an error, or because it loaded successfully.
-* `delete` - a resource was deleted.
 
 The event object that a listener recieves has the same structure as JS events.
 For example, for the load call above, the following is how a `progress` event could look: `{type: "progress", target: MdxModel, loaded: 101, total: 9001, lengthComputable: true}`, `MdxModel` being our `model` variable in this case. That is, `e.target === model`.
 In the case of the render event, `e.target === viewer`.
 
-Errors might occur - most of the time because your path solvers aren't correct, but there are other causes.
+Errors might occur, but don't panic.
 These are the errors the code uses:
 * InvalidHandler - sent by the viewer when adding an invalid handler - either its type is unknown, or its `initialize()` function failed (e.g. a shader failed to compile).
 * MissingHandler - sent by the viewer if you try to load some resource with an unknown extension (did you forget to add the handler?).

@@ -3,20 +3,13 @@
  * @classdesc A scene.
  *            Scenes allow to render different model views with different cameras.
  */
-function Scene(env) {
-    let canvas = env.canvas,
-        camera = new Camera();
-
+function Scene() {
     /** @member {ModelViewer} */
-    this.env = env;
+    this.env = null;
     /** @member {ModelView[]} */
     this.modelViews = [];
     /** @member {Camera} */
-    this.camera = camera;
-
-    // Default the camera's viewport to the whole canvas used by the viewer
-    camera.setViewport([0, 0, canvas.width, canvas.height]);
-    camera.setPerspective(Math.PI / 4, 1, 8, 100000);
+    this.camera = new Camera();
 }
 
 Scene.prototype = {
