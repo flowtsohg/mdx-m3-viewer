@@ -253,7 +253,7 @@ MdxModelInstance.prototype = {
         }
     },
 
-    preemptiveUpdate() {
+    globalUpdate() {
         if (this.sequenceObject) {
             var sequence = this.sequenceObject,
                 frameTime = this.env.frameTime;

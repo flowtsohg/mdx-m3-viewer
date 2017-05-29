@@ -194,6 +194,7 @@ function W3xUnit(reader, version, map) {
     }
 
     if (this.path) {
+        this.loadModel();
         this.addInstance();
     } else {
         console.log("Unknown unit/item ID", id, randomUnitTable)
@@ -201,9 +202,20 @@ function W3xUnit(reader, version, map) {
 }
 
 W3xUnit.prototype = {
+    loadModel() {
+        let model = this.map.loadFiles(this.path);
+
+        if (!model.modelViews.length) {
+            this.map.scene.addView(model.addView())
+        }
+
+        this.model = model;
+    },
+
     addInstance() {
-        const model = this.map.loadFiles(this.path),
-            instance = model.addInstance();
+        let instance = this.model.addInstance();
+
+        this.model.modelViews[0].addInstance(instance);
 
         instance.setLocation(this.location);
         instance.setRotation(quat.setAxisAngle(quat.create(), vec3.UNIT_Z, this.angle));
@@ -278,23 +290,33 @@ function W3xDoodad(reader, version, map) {
 
 W3xDoodad.prototype = {
     loadModel() {
-        const model = this.map.loadFiles(this.path);
+        let model = this.map.loadFiles(this.path);
 
-        // This is used by trees and other doodads that share a model, but override the texture
-        if (this.texFile) {
-            model.addEventListener("load", () => model.views[0].textures[0] = this.texFile);
+        if (!model.modelViews.length) {
+            this.map.scene.addView(model.addView())
         }
 
-        this.model = model;
+        if (!this.model) {
+            this.model = model;
+
+            // This is used by trees and other doodads that share a model, but override the texture
+            if (this.texFile) {
+                //model.addEventListener("load", () => {
+                //    view.textures[0] = this.texFile
+                //});
+            }
+        }
     },
 
     addInstance() {
-        const instance = this.model.addInstance();
+        let instance = this.model.addInstance();
 
         instance.setLocation(this.location);
         instance.setRotation(quat.setAxisAngle(quat.create(), vec3.UNIT_Z, this.angle));
         instance.setScale(this.scale);
         instance.setSequence(0);
+
+        this.model.modelViews[0].addInstance(instance);
 
         this.instance = instance;
     }

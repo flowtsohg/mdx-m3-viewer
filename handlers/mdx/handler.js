@@ -43,12 +43,6 @@ const Mdx = {
             37: "OutlandMushroomTree/MushroomTree"
         };
 
-        let inverseBasisMatrix = mat4.create();
-        mat4.rotateZ(inverseBasisMatrix, inverseBasisMatrix, -Math.PI / 2);
-        mat4.rotateY(inverseBasisMatrix, inverseBasisMatrix, -Math.PI / 2);
-        mat4.invert(inverseBasisMatrix, inverseBasisMatrix);
-        this.inverseBasisMatrix = inverseBasisMatrix;
-
         return true;
     },
 

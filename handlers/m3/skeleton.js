@@ -1,13 +1,9 @@
 function M3Skeleton(instance) {
-    const model = instance.model,
+    let model = instance.model,
         bones = model.bones,
         boneLookup = model.boneLookup;
 
     Skeleton.call(this, instance, bones.length);
-
-    // Transform M3 skeletons so they match the viewer's coordinate system.
-    this.rootNode.uniformScale(100);
-    this.rootNode.rotate(quat.setAxisAngle(quat.heap, vec3.UNIT_X, -Math.PI / 2));
 
     this.instance = instance;
     this.modelNodes = bones;
@@ -18,10 +14,8 @@ function M3Skeleton(instance) {
     this.boneLookup = boneLookup;
     
     // Set the bone parent references
-    for (var i = 0, l = bones.length; i < l; i++) {
+    for (let i = 0, l = bones.length; i < l; i++) {
         this.nodes[i].setParent(this.getNode(bones[i].parent));
-
-        this.nodes[i].inverseBasisMatrix = M3.inverseBasisMatrix;
     }
 }
 
@@ -67,7 +61,7 @@ M3Skeleton.prototype = {
     },
 
     getValue(animRef, instance) {
-        const sequence = instance.sequence;
+        let sequence = instance.sequence;
 
         if (sequence !== -1) {
             return this.stg[sequence].getValue(animRef, instance)

@@ -50,7 +50,7 @@ M3ModelInstance.prototype = {
         this.tintColorArray = null;
     },
 
-    preemptiveUpdate() {
+    globalUpdate() {
         var sequenceId = this.sequence;
 
         if (sequenceId !== -1) {

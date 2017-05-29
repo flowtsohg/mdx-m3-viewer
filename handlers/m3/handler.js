@@ -23,13 +23,6 @@ const M3 = {
             this.standardShaders[i] = shader;
         }
 
-        let inverseBasisMatrix = mat4.create();
-        mat4.rotateX(inverseBasisMatrix, inverseBasisMatrix, -Math.PI / 2);
-        // WHY...................................
-        //mat4.scale(inverseBasisMatrix, inverseBasisMatrix, [100, 100, 100]);
-        mat4.invert(inverseBasisMatrix, inverseBasisMatrix);
-        this.inverseBasisMatrix = inverseBasisMatrix;
-
         return true;
     },
 

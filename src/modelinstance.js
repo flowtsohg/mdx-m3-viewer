@@ -40,6 +40,10 @@ ModelInstance.prototype = {
         }
     },
 
+    globalUpdate() {
+
+    },
+
     modelReady() {
         if (this.model.loaded) {
             this.loaded = true;
@@ -65,10 +69,6 @@ ModelInstance.prototype = {
             this.dispatchEvent({ type: "error", error: "InvalidModel" });
             this.dispatchEvent({ type: "loadend" });
         }
-    },
-
-    preemptiveUpdate() {
-
     },
 
     /**

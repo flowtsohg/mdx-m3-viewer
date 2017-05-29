@@ -32,7 +32,7 @@ W3xMap.prototype = {
         this.mpq = new MpqArchive(this.env);
         this.mpq.initialize(src);
 
-        console.log(this.mpq.getFileList());
+        //console.log(this.mpq.getFileList());
 
         this.pathSolver = (path) => {
             if (this.mpq.hasFile(path)) {
@@ -70,6 +70,8 @@ W3xMap.prototype = {
             this.slkFiles[paths[i].substr(paths[i].lastIndexOf("/") + 1).toLowerCase().split(".")[0]] = files[i];
         }
 
+        this.scene = new Scene();
+
         this.env.whenLoaded(files, () => {
             this.loadTerrain();
             this.loadModifications();
@@ -81,6 +83,16 @@ W3xMap.prototype = {
     },
 
     loadFiles(src) {
+        if (Array.isArray(src)) {
+            let files = [];
+
+            for (let i = 0, l = src.length; i < l; i++) {
+                files[i] = this.env.load(src[i], this.pathSolver);
+            }
+
+            return files;
+        }
+
         return this.env.load(src, this.pathSolver);
     },
 
@@ -422,10 +434,11 @@ W3xMap.prototype = {
     },
 
     update() {
+        /*
         if (this.water) {
             this.BLAAA += 1;
 
-            if (this.BLAAA === 4) {
+            if (this.BLAAA === 1) {
                 this.BLAAA = 0;
                 this.waterCounter += 1;
 
@@ -443,6 +456,7 @@ W3xMap.prototype = {
             uvOffset[0] = x / 8;
             uvOffset[1] = y / 8;
         }
+        */
     },
 
     loadWater() {
@@ -506,9 +520,13 @@ W3xMap.prototype = {
                 geometry: { vertices: new Float32Array(vertices), uvs: new Float32Array(uvs), faces: new Uint16Array(faces), edges: new Float32Array(edges) },
                 material: { renderMode: 0, twoSided: true, alpha: 0.5, texture: texture, isBGR: true, isBlended: true }
             }, src =>[src, ".geo", false]);
+            var view = model.addView();
             var instance = model.addInstance();
             instance.setUniformScale(128).setLocation([-centerOffset[0] * 128, -centerOffset[1] * 128, 0]);
             instance.noCulling = true;
+
+            view.addInstance(instance);
+            this.scene.addView(view);
 
             this.water = instance;
 
@@ -609,7 +627,14 @@ W3xMap.prototype = {
 
                         if (supportedMask) {
                             model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + tag + cliffVariation + ".mdx");
+
+                            if (!model.modelViews.length) {
+                                model.addView();
+                            }
+
                             instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
+
+                            model.modelViews[0].addInstance(instance);
                         }
                     }
 
@@ -682,7 +707,14 @@ W3xMap.prototype = {
 
                         if (supportedMask) {
                             model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + tag + cliffVariation + ".mdx");
+
+                            if (!model.modelViews.length) {
+                                model.addView();
+                            }
+
                             instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
+
+                            model.modelViews[0].addInstance(instance);
                         }
                     }
 
@@ -716,7 +748,14 @@ W3xMap.prototype = {
 
                         if (supportedMask) {
                             model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + tag + cliffVariation + ".mdx");
+
+                            if (!model.modelViews.length) {
+                                model.addView();
+                            }
+
                             instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
+
+                            model.modelViews[0].addInstance(instance);
                         }
                     }
 
@@ -775,7 +814,14 @@ W3xMap.prototype = {
 
                         if (supportedMask) {
                             model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + tag + cliffVariation + ".mdx");
+
+                            if (!model.modelViews.length) {
+                                model.addView();
+                            }
+
                             instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
+
+                            model.modelViews[0].addInstance(instance);
                         }
                     }
 
@@ -1321,9 +1367,13 @@ W3xMap.prototype = {
                     geometry: { vertices: v, uvs: u, faces: f, edges: e },
                     material: { renderMode: 2, twoSided: true, texture: t, isBGR: true, isBlended: true }
                 }, src =>[src, ".geo", false]);
+                var view = terrainModel.addView();
                 var instance = terrainModel.addInstance();
                 instance.setUniformScale(128).setLocation([-centerOffset[0] * 128, -centerOffset[1] * 128, 0]);
                 instance.noCulling = true;
+
+                view.addInstance(instance);
+                this.scene.addView(view);
             }
         }
     },

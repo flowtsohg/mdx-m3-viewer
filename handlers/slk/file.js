@@ -29,36 +29,48 @@ SlkFile.prototype = {
     },
 
     parseRows(src) {
-        var rows = [],
+        let rows = [],
             lines = src.split("\n"),
             line,
+            tokens,
             x = 0,
             y = 0;
 
-        for (var i = 0, l = lines.length; i < l; i++) {
-            line = new SlkLine(lines[i]);
+        for (let i = 0, l = lines.length; i < l; i++) {
+            line = lines[i];
 
-            if (line.y) {
-                y = line.y - 1;
+            // The B command is supposed to define the total number of columns and rows, however in UbetSplatData.slk it gives wrong information
+            // Therefore, just ignore it, since JavaScript arrays grow as they want either way
+            if (line[0] !== "B") {
+                tokens = line.split(";")
 
-                // If this row doesn't exist yet, add it
-                if (!rows[y]) {
-                    rows[y] = [];
+                for (let i = 1, l = tokens.length; i < l; i++) {
+                    token = tokens[i];
+                    value = token.substring(1);
+
+                    switch (token[0]) {
+                        case "X":
+                            x = parseInt(value, 10) - 1;
+                            break;
+
+                        case "Y":
+                            y = parseInt(value, 10) - 1;
+                            break;
+
+                        case "K":
+                            if (!rows[y]) {
+                                rows[y] = [];
+                            }
+
+                            if (value[0] === "\"") {
+                                rows[y][x] = value.trim().substring(1, value.length - 2);
+                            } else {
+                                rows[y][x] = parseFloat(value);
+                            }
+
+                            break;
+                    }
                 }
-            }
-
-            if (line.x) {
-                x = line.x - 1;
-            }
-
-            // Must check against undefined for 0 values
-            if (line.value !== undefined) {
-                // ...
-                if (!rows[y]) {
-                    rows[y] = [];
-                }
-
-                rows[y][x] = line.value;
             }
         }
 

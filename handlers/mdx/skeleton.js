@@ -12,12 +12,6 @@ function MdxSkeleton(instance) {
     // Not defined before the Skeleton constructor
     nodes = this.nodes;
 
-    // x, front -> right
-    // y, right -> up
-    // z, up -> front
-    this.rootNode.rotate(quat.setAxisAngle(quat.heap, vec3.UNIT_Z, -Math.PI / 2));
-    this.rootNode.rotate(quat.setAxisAngle(quat.heap, vec3.UNIT_Y, -Math.PI / 2));
-
     for (let i = 0, l = modelNodes.length; i < l; i++) {
         let node = nodes[i],
             modelNode = modelNodes[i];
@@ -32,8 +26,6 @@ function MdxSkeleton(instance) {
         //node.dontInheritTranslation = modelNode.dontInheritTranslation;
         //node.dontInheritRotation = modelNode.dontInheritRotation;
         //node.dontInheritScaling = modelNode.dontInheritScaling;
-
-        node.inverseBasisMatrix = Mdx.inverseBasisMatrix;
 
         // The sorted version of the nodes, for straight iteration in update()
         sortedNodes[i] = nodes[hierarchy[i]];

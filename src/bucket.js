@@ -56,7 +56,7 @@ Bucket.prototype = {
         for (let i = 0, l = instances.length; i < l; i++) {
             let instance = instances[i];
 
-            instance.preemptiveUpdate();
+            instance.globalUpdate();
 
             if (instance.noCulling || this.isVisible(instance)) {
                 instance.update();

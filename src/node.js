@@ -50,8 +50,6 @@ function Node(buffer, offset) {
     /** @member {boolean} */
     this.dontInheritScaling = false;
 
-    this.inverseBasisMatrix = mat4.create();
-
     this.localRotation[3] = 1;
     this.localScale.fill(1);
 
@@ -329,40 +327,21 @@ Node.prototype = {
         // World matrix
         // Model space -> World space
         if (parent) {
-            // Is this an instance that is parented to a non-instance node?
-            let isInstanceAttachedToNode = this.objectType === "instance" && parent.objectType === undefined,
-                heap = mat4.heap;
-
-            mat4.copy(heap, parent.worldMatrix);
-
-            // I don't even know anymore why this is needed...god damn math.
-            // If it isn't called, attaching an instance to a node with a non-zero pivot WILL mess up.
-            if (isInstanceAttachedToNode) {
-                mat4.translate(heap, heap, parent.pivot);
-            }
+            mat4.mul(worldMatrix, parent.worldMatrix, localMatrix);
 
             // If this node shouldn't inherit the parent's rotation, rotate it by the inverse.
             if (this.dontInheritRotation) {
-                mat4.rotate(heap, heap, parent.inverseWorldRotation);
+                mat4.rotate(worldMatrix, worldMatrix, parent.inverseWorldRotation);
             }
 
             // If this node shouldn't inherit the parent's scale, scale it by the inverse.
             if (this.dontInheritScaling) {
-                mat4.scale(heap, heap, parent.inverseWorldScale);
+                mat4.scale(worldMatrix, worldMatrix, parent.inverseWorldScale);
             }
 
             // If this node shouldn't inherit the parent's translation, translate it by the inverse.
             if (this.dontInheritTranslation) {
-                mat4.translate(heap, heap, parent.inverseWorldLocation);
-            }
-
-            mat4.mul(worldMatrix, heap, localMatrix);
-
-            // MDX and M3 both need basis transformations, since their coordinate systems do not match the viewer's.
-            // When attaching an instance of a format to a node used by another instance of the same format, the transformation will carry to the child, doubling it.
-            // Therefore, apply the inverse of the basis to the child.
-            if (isInstanceAttachedToNode) {
-                mat4.mul(worldMatrix, worldMatrix, parent.inverseBasisMatrix);
+                mat4.translate(worldMatrix, worldMatrix, parent.inverseWorldLocation);
             }
 
             /// TODO: what happens when dontInheritRotation is true?
