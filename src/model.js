@@ -57,6 +57,22 @@ Model.prototype = {
         return instance;
     },
 
+    /**
+     * @method
+     * @desc Detach this model from the viewer. This removes references to it from the viewer, and also detaches all of the model views it owns.
+     */
+    detach() {
+        // Detach all of the views
+        let views = this.modelViews;
+
+        for (let i = 0, l = views.length; i < l; i++) {
+            views[i].detach();
+        }
+
+        // Remove references from the viewer
+        this.env.removeReference(this);
+    },
+
     renderOpaque(bucket, scene) {
 
     },

@@ -33,15 +33,15 @@ Scene.prototype = {
      */
     addView(modelView) {
         if (modelView && modelView.objectType === "modelview") {
-            // If the view is already in another scene, remove it first.
-            if (modelView.scene) {
-                modelView.scene.removeView(modelView);
-            }
-
             let views = this.modelViews,
                 index = views.indexOf(modelView);
 
             if (index === -1) {
+                // If the view is already in another scene, remove it first.
+                if (modelView.scene) {
+                    modelView.scene.removeView(modelView);
+                }
+
                 views.push(modelView);
 
                 modelView.scene = this;
@@ -78,18 +78,10 @@ Scene.prototype = {
 
     /**
      * @method
-     * @desc Clears all of the model views in this scene.
+     * @desc Detach this scene from the viewer.
      */
-    clear() {
-        /*
-        let views = this.modelViews;
-
-        for (let i = 0, l = views.length; i < l; i++) {
-            views[i].clear();
-        }
-
-        this.modelViews = [];
-        */
+    detach() {
+        this.env.removeScene(this);
     },
 
     update() {

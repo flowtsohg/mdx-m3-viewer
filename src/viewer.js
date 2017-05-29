@@ -132,6 +132,12 @@ ModelViewer.prototype = {
         return false;
     },
 
+    /**
+     * @method
+     * @desc Add a scene.
+     * @param {Scene} scene The scene to add.
+     * @returns {boolean}
+     */
     addScene(scene) {
         if (scene && scene.objectType === "scene") {
             let scenes = this.scenes,
@@ -147,6 +153,12 @@ ModelViewer.prototype = {
         return false;
     },
 
+    /**
+     * @method
+     * @desc Remove a scene.
+     * @param {Scene} scene The scene to remove.
+     * @returns {boolean}
+     */
     removeScene(scene) {
         if (scene && scene.objectType === "scene") {
             let scenes = this.scenes,
@@ -268,6 +280,13 @@ ModelViewer.prototype = {
      *       For example, deleting a texture that is being used by a model will not actually let the GC to collect it, until the model is deleted too, and loses all references.
      */
     removeResource(resource) {
+        if (this.removeReference(resource)) {
+            // Tell the resource to detach itself
+            resource.detach();
+        }
+    },
+
+    removeReference(resource) {
         if (this.isResource(resource)) {
             let objectType = resource.objectType,
                 pair = this.pairFromType(objectType);
@@ -278,9 +297,10 @@ ModelViewer.prototype = {
             // Find the resource in the map and delete it.
             pair.map.deleteValue(resource);
 
-            // Tell the resource to detach itself from whatever it might be attached to.
-            resource.detach();
+            return true;
         }
+
+        return false;
     },
 
     /**
@@ -298,33 +318,6 @@ ModelViewer.prototype = {
         }
 
         return false;
-    },
-
-    /**
-     * @method
-     * @desc ???
-     */
-    clear(deleteResources) {
-        /*/
-        for (let scene of this.scenes) {
-            scene.clear();
-        }
-
-        this.scenes = [new Scene(this)];
-
-        if (deleteResources) {
-            let resources = this.resources;
-
-            for (let pair of [resources.models, resources.textures, resources.files]) {
-                pair.array.length = 0;
-                pair.map.clear();
-            }
-        } else {
-            for (let model of this.resources.models.array) {
-                model.addView();
-            }
-        }
-        */
     },
 
     /**

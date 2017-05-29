@@ -9,7 +9,7 @@ function GeometryModelInstance(env) {
     ModelInstance.call(this, env);
 
     this.color = vec3.create();
-    this.edgeColor = vec3.create;
+    this.edgeColor = vec3.create();
 }
 
 GeometryModelInstance.prototype = {

@@ -30,6 +30,16 @@ ModelInstance.prototype = {
         this.dispatchEvent({ type: "loadstart" });
     },
 
+    /**
+     * @method
+     * @desc Detach this instance from the model view it's in.
+     */
+    detach() {
+        if (this.modelView) {
+            this.modelView.removeInstance(this);
+        }
+    },
+
     modelReady() {
         if (this.model.loaded) {
             this.loaded = true;

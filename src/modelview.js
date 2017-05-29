@@ -26,16 +26,6 @@ ModelView.prototype = {
         return "modelview";
     },
 
-    clear() {
-        let instances = this.instances;
-
-        for (let i = 0, l = instances.length; i < l; i++) {
-            this.hideInstance(instances[i]);
-        }
-
-        instances.length = 0;
-    },
-
     /**
      * @method
      * @desc Add an instance to this model view.
@@ -70,6 +60,16 @@ ModelView.prototype = {
             instance.modelView = null;
 
             this.instances.splice(this.instances.indexOf(instance), 1);
+        }
+    },
+
+    /**
+     * @method
+     * @desc Detach this model view from the scene it's in.
+     */
+    detach() {
+        if (this.scene) {
+            this.scene.removeView(this);
         }
     },
 

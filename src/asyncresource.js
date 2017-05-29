@@ -20,6 +20,10 @@ function AsyncResource(env) {
 }
 
 AsyncResource.prototype = {
+    detach() {
+
+    },
+
     update() {
 
     },
