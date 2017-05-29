@@ -71,6 +71,18 @@ Scene.prototype = {
 
     /**
      * @method
+     * @desc Detaches all of the views in this scene.
+     */
+    clear() {
+        let views = this.modelViews;
+
+        for (let i = 0, l = views.length; i < l; i++) {
+            this.removeView(views[i]);
+        }
+    },
+
+    /**
+     * @method
      * @desc Detach this scene from the viewer.
      */
     detach() {

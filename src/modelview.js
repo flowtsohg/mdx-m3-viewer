@@ -72,6 +72,18 @@ ModelView.prototype = {
 
     /**
      * @method
+     * @desc Detaches all of the instances in this view.
+     */
+    clear() {
+        let instances = this.instances;
+
+        for (let i = 0, l = instances.length; i < l; i++) {
+            this.removeInstance(instances[i]);
+        }
+    },
+
+    /**
+     * @method
      * @desc Detach this model view from the scene it's in.
      */
     detach() {
