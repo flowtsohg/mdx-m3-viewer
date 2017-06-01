@@ -140,7 +140,6 @@ ViewerNode.prototype = {
      * @returns this
      */
     setTransformation(location, rotation, scale) {
-        /*
         let localLocation = this.localLocation,
             localRotation = this.localRotation,
             localScale = this.localScale;
@@ -157,12 +156,12 @@ ViewerNode.prototype = {
         localScale[0] = scale[0];
         localScale[1] = scale[1];
         localScale[2] = scale[2];
-        */
-        //*
+
+        /*
         vec3.copy(this.localLocation, location);
         quat.copy(this.localRotation, rotation);
         vec3.copy(this.localScale, scale);
-        //*/
+        */
 
         this.recalculateTransformation();
 
@@ -370,36 +369,67 @@ ViewerNode.prototype = {
 
             // World rotation and inverse world rotation
             quat.mul(worldRotation, parent.worldRotation, localRotation);
-            quat.conjugate(inverseWorldRotation, worldRotation);
+
+            inverseWorldRotation[0] = -worldRotation[0];
+            inverseWorldRotation[1] = -worldRotation[1];
+            inverseWorldRotation[2] = -worldRotation[2];
+            inverseWorldRotation[3] = worldRotation[3];
+            //quat.conjugate(inverseWorldRotation, worldRotation);
         } else {
-            mat4.copy(worldMatrix, localMatrix);
-            quat.copy(worldRotation, localRotation);
-            quat.conjugate(inverseWorldRotation, localRotation);
+            worldMatrix[0] = localMatrix[0];
+            worldMatrix[1] = localMatrix[1];
+            worldMatrix[2] = localMatrix[2];
+            worldMatrix[3] = localMatrix[3];
+            worldMatrix[4] = localMatrix[4];
+            worldMatrix[5] = localMatrix[5];
+            worldMatrix[6] = localMatrix[6];
+            worldMatrix[7] = localMatrix[7];
+            worldMatrix[8] = localMatrix[8];
+            worldMatrix[9] = localMatrix[9];
+            worldMatrix[10] = localMatrix[10];
+            worldMatrix[11] = localMatrix[11];
+            worldMatrix[12] = localMatrix[12];
+            worldMatrix[13] = localMatrix[13];
+            worldMatrix[14] = localMatrix[14];
+            worldMatrix[15] = localMatrix[15];
+            //mat4.copy(worldMatrix, localMatrix);
+
+            worldRotation[0] = localRotation[0];
+            worldRotation[1] = localRotation[1];
+            worldRotation[2] = localRotation[2];
+            worldRotation[3] = localRotation[3];
+            //quat.copy(worldRotation, localRotation);
+
+            inverseWorldRotation[0] = -localRotation[0];
+            inverseWorldRotation[1] = -localRotation[1];
+            inverseWorldRotation[2] = -localRotation[2];
+            inverseWorldRotation[3] = localRotation[3];
+            //quat.conjugate(inverseWorldRotation, localRotation);
         }
 
         // Scale and inverse scale
         mat4.getScaling(worldScale, worldMatrix);
 
-        //inverseWorldScale[0] = -worldScale[0];
-        //inverseWorldScale[1] = -worldScale[1];
-        //inverseWorldScale[2] = -worldScale[2];
-        vec3.inverse(this.inverseWorldScale, worldScale);
+        inverseWorldScale[0] = -worldScale[0];
+        inverseWorldScale[1] = -worldScale[1];
+        inverseWorldScale[2] = -worldScale[2];
+        //vec3.inverse(this.inverseWorldScale, worldScale);
 
         /// TODO: what happens when dontInheritTranslation is true?
 
         // World location and inverse world location
 
-        //worldLocation[0] = pivot[0];
-        //worldLocation[1] = pivot[1];
-        //worldLocation[2] = pivot[2];
-        vec3.copy(worldLocation, pivot);
+        worldLocation[0] = pivot[0];
+        worldLocation[1] = pivot[1];
+        worldLocation[2] = pivot[2];
+        //vec3.copy(worldLocation, pivot);
 
         vec3.transformMat4(worldLocation, worldLocation, worldMatrix);
 
-        //inverseWorldLocation[0] = -worldLocation[0];
-        //inverseWorldLocation[1] = -worldLocation[1];
-        //inverseWorldLocation[2] = -worldLocation[2];
-        vec3.negate(this.inverseWorldLocation, worldLocation);
+        inverseWorldLocation[0] = -worldLocation[0];
+        inverseWorldLocation[1] = -worldLocation[1];
+        inverseWorldLocation[2] = -worldLocation[2];
+        //vec3.negate(this.inverseWorldLocation, worldLocation);
 
         // Notify the children
         for (let i = 0, l = children.length; i < l; i++) {

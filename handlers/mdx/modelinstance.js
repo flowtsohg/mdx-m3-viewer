@@ -282,7 +282,6 @@ MdxModelInstance.prototype = {
 
         if (this.sequenceObject && model.variants[this.sequence]) {
             this.skeleton.update();
-            bucket.updateBoneTexture[0] = 1;
         }
 
         this.updateEmitters();
@@ -293,18 +292,23 @@ MdxModelInstance.prototype = {
 
         // Not every model has batches
         if (batches.length) {
-            let layers = model.layers,
+            var layers = model.layers,
                 geosetColorArrays = this.geosetColorArrays,
                 uvOffsetArrays = this.uvOffsetArrays,
                 batchVisibilityArrays = this.batchVisibilityArrays;
 
             // Update batch visibilities and geoset colors
-            for (var i = 0, l = batches.length; i < l; i++) {
-                var batch = batches[i],
+            for (let i = 0, l = batches.length; i < l; i++) {
+                let batch = batches[i],
                     index = batch.index,
                     geoset = batch.geoset,
                     layer = batch.layer,
                     geosetColorArray = geosetColorArrays[index];
+
+                //if (layer.isAlphaVariant(0) || geoset.isAlphaVariant(0) || geoset.isColorVariant(0)) {
+                    //console.log(model.name);
+                    //console.log(geoset.geosetAnimation)
+                //}
 
                 var batchVisibility = batch.shouldRender(this);
                 batchVisibilityArrays[index][0] = batchVisibility;
@@ -323,33 +327,38 @@ MdxModelInstance.prototype = {
                 }
             }
 
-            // Update texture coordinates
-            for (var i = 0, l = layers.length; i < l; i++) {
-                var layer = layers[i],
-                    index = layer.index,
-                    textureAnimation = layer.textureAnimation,
-                    uvOffsetArray = uvOffsetArrays[index];
+            let hasTextureAnims = model.hasTextureAnims,
+                hasLayerAnims = model.hasLayerAnims;
 
-                // Texture animation that works by offsetting the coordinates themselves
-                if (textureAnimation) {
-                    // What is Z used for?
-                    var uvOffset = textureAnimation.getTranslation(this);
+            if (hasTextureAnims || hasLayerAnims) {
+                // Update texture coordinates
+                for (let i = 0, l = layers.length; i < l; i++) {
+                    let layer = layers[i],
+                        index = layer.index,
+                        textureAnimation = layer.textureAnimation,
+                        uvOffsetArray = uvOffsetArrays[index];
 
-                    uvOffsetArray[0] = uvOffset[0];
-                    uvOffsetArray[1] = uvOffset[1];
+                    // Texture animation that works by offsetting the coordinates themselves
+                    if (textureAnimation) {
+                        // What is Z used for?
+                        var uvOffset = textureAnimation.getTranslation(this);
 
-                    bucket.updateUvOffsets[0] = 1;
-                }
+                        uvOffsetArray[0] = uvOffset[0];
+                        uvOffsetArray[1] = uvOffset[1];
 
-                // Texture animation that is based on a texture atlas, where the selected tile changes
-                if (layer.isTextureAnim) {
-                    var uvDivisor = layer.uvDivisor;
-                    var textureId = layer.getTextureId(this);
+                        bucket.updateUvOffsets[0] = 1;
+                    }
 
-                    uvOffsetArray[2] = textureId % uvDivisor[0];
-                    uvOffsetArray[3] = Math.floor(textureId / uvDivisor[1]);
+                    // Texture animation that is based on a texture atlas, where the selected tile changes
+                    if (layer.isTextureAnim) {
+                        var uvDivisor = layer.uvDivisor;
+                        var textureId = layer.getTextureId(this);
 
-                    bucket.updateUvOffsets[0] = 1;
+                        uvOffsetArray[2] = textureId % uvDivisor[0];
+                        uvOffsetArray[3] = Math.floor(textureId / uvDivisor[1]);
+
+                        bucket.updateUvOffsets[0] = 1;
+                    }
                 }
             }
         }
@@ -361,7 +370,6 @@ MdxModelInstance.prototype = {
 
         if (this.bucket) {
             this.skeleton.update();
-            this.bucket.updateBoneTexture[0] = 1;
         }
     },
     /*
@@ -438,12 +446,14 @@ MdxModelInstance.prototype = {
     },
 
     getAttachment(id) {
-        var attachment = this.model.attachments[id];
+        if (this.model.loaded) {
+            var attachment = this.model.attachments[id];
 
-        if (attachment) {
-            return this.skeleton.nodes[attachment.node.index];
-        } else {
-            return this.skeleton.nodes[0];
+            if (attachment) {
+                return this.skeleton.nodes[attachment.node.index];
+            } else {
+                return this.skeleton.nodes[0];
+            }
         }
     }
 };

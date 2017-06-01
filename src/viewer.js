@@ -53,10 +53,13 @@ function ModelViewer(canvas) {
             uniform float u_row_size;
 
             mat4 boneAtIndex(float column, float row) {
-                float offset = column * u_vector_size * 4.0,
-                rowOffset = row * u_row_size;
+                column *= u_vector_size * 4.0;
+                row *= u_row_size;
 
-                return mat4(texture2D(u_boneMap, vec2(offset, rowOffset)), texture2D(u_boneMap, vec2(offset + u_vector_size, rowOffset)), texture2D(u_boneMap, vec2(offset + u_vector_size * 2.0, rowOffset)), texture2D(u_boneMap, vec2(offset + u_vector_size * 3.0, rowOffset)));
+                return mat4(texture2D(u_boneMap, vec2(column, row)),
+                            texture2D(u_boneMap, vec2(column + u_vector_size, row)),
+                            texture2D(u_boneMap, vec2(column + u_vector_size * 2.0, row)),
+                            texture2D(u_boneMap, vec2(column + u_vector_size * 3.0, row)));
             }
             `,
         // Shared shader code to handle decoding multiple bytes stored in floats
@@ -204,7 +207,7 @@ ModelViewer.prototype = {
                 serverFetch;
 
             // Built-in texture source
-            if (src instanceof HTMLImageElement || src instanceof HTMLVideoElement || src instanceof HTMLCanvasElement || src instanceof ImageData) {
+            if (src instanceof HTMLImageElement || src instanceof HTMLVideoElement || src instanceof HTMLCanvasElement || src instanceof ImageData || src instanceof WebGLTexture) {
                 extension = ".png";
                 serverFetch = false;
             } else {
@@ -302,6 +305,7 @@ ModelViewer.prototype = {
         }
     },
 
+    // Removes the reference pair of this resource.
     removeReference(resource) {
         if (this.isResource(resource)) {
             let objectType = resource.objectType,

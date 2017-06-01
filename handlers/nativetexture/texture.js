@@ -31,6 +31,10 @@ ImageTexture.prototype = {
             this.webglResource = id;
 
             return true;
+        } else if (src instanceof WebGLTexture) {
+            this.webglResource = src;
+
+            return true;
         } else {
             var blob = new Blob([src]),
                 url = URL.createObjectURL(blob),

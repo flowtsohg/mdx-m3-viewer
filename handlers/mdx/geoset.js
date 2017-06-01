@@ -108,6 +108,14 @@ MdxGeoset.prototype = {
         return false;
     },
 
+    isColorVariant(sequence) {
+        if (this.geosetAnimation) {
+            return this.geosetAnimation.isColorVariant(sequence);
+        }
+
+        return false;
+    },
+
     calculateExtent() {
         const positions = this.locationArray;
         let minX = 1E9, minY = 1E9, minZ = 1E9, maxX = -1E9, maxY = -1E9, maxZ = -1E9;

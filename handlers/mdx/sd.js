@@ -179,7 +179,7 @@ MdxSD.prototype = {
 };
 
 function MdxSdContainer(container, model) {
-    var sd = [];
+    var sd = {};
 
     // The SD container doesn't exist if a model had no nodes, and a fake node was injected.
     if (container) {

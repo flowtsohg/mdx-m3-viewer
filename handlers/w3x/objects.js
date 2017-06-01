@@ -270,7 +270,7 @@ function W3xDoodad(reader, version, map) {
             }
 
             if (row.numVar > 1) {
-                path += row.variation;
+                path += Math.floor((row.numVar - 1) * Math.random());
             }
 
             path += ".mdx";

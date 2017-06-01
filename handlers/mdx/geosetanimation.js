@@ -25,5 +25,9 @@ MdxGeosetAnimation.prototype = {
         color[2] = Math.min(color[2], 1);
 
         return color;
+    },
+
+    isColorVariant(sequence) {
+        return this.sd.isVariant("KGAC", sequence);
     }
 };

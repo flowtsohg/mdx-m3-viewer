@@ -128,6 +128,9 @@ MdxModel.prototype = {
             }
 
             this.materials = materials;
+
+            this.hasTextureAnims = !!this.textureAnimations.length;
+            this.hasLayerAnims = false;
         }
 
         this.geosetAnimations = this.transformElements(chunks.GEOA, MdxGeosetAnimation);
@@ -261,6 +264,8 @@ MdxModel.prototype = {
 
                 // Tell the layer to use this texture atlas, instead of its original texture
                 layer.setAtlas(textureAtlases[hash]);
+
+                this.hasLayerAnims = true;
             });
         }
     },
