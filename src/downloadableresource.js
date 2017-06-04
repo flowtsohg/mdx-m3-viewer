@@ -18,7 +18,7 @@ DownloadableResource.prototype = {
             this.fetchUrl = src;
         }
 
-        this.dispatchEvent({ type: "loadstart" });
+        AsyncResource.prototype.load.call(this);
 
         if (serverFetch) {
             get(src, isBinary, (xhr) => this.onprogress(xhr)).then((xhr) => this.onload(xhr.response), (xhr) => this.onerror("HttpError", xhr));

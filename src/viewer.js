@@ -197,9 +197,9 @@ ModelViewer.prototype = {
      * @method
      * @desc Load something. The meat of this whole project.
      *       If a single source was given, a single object will be returned. If an array was given, an array will be returned, with the same ordering.
-     * @param {any|any[]} src The source used for the load.
+     * @param {any} src The source used for the load.
      * @param {function} pathSolver The path solver used by this load, and any subsequent loads that are caused by it (for example, a model that loads its textures).
-     * @returns {AsyncResource|AsyncResource[]}
+     * @returns {AsyncResource}
      */
     load(src, pathSolver) {
         if (src) {
@@ -347,6 +347,7 @@ ModelViewer.prototype = {
      */
     toBlob(callback) {
         // Render to ensure the internal WebGL buffer is valid.
+        // I am not sure if this is needed.
         this.render();
 
         this.canvas.toBlob((blob) => callback(blob));
@@ -423,7 +424,7 @@ ModelViewer.prototype = {
     registerEvents(resource) {
         let listener = (e) => this.dispatchEvent(e);
 
-        ["loadstart", "load", "loadend", "error", "progress", "delete"].map((e) => resource.addEventListener(e, listener));
+        ["loadstart", "load", "loadend", "error", "progress"].map((e) => resource.addEventListener(e, listener));
     },
 
     // Used to easily get the resources object from an object type.
@@ -434,8 +435,6 @@ ModelViewer.prototype = {
             return this.resources.textures;
         } else if (objectType === "file" || objectType === "filehandler") {
             return this.resources.files;
-        } else {
-            throw new Error("NOPE");
         }
     }
 };

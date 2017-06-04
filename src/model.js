@@ -44,7 +44,7 @@ Model.prototype = {
      * @returns {@link ModelInstance}
      */
     addInstance() {
-        let instance = new this.Handler.Instance(this.env);
+        let instance = new this.Handler.Instance(this);
 
         this.env.registerEvents(instance);
 
@@ -67,6 +67,12 @@ Model.prototype = {
 
         for (let i = 0, l = instances.length; i < l; i++) {
             instances[i].modelReady();
+        }
+
+        let views = this.modelViews;
+
+        for (let i = 0, l = views.length; i < l; i++) {
+            views[i].modelReady();
         }
     },
 

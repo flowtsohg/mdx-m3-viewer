@@ -29,7 +29,7 @@ AsyncResource.prototype = {
     },
 
     load() {
-        throw new Error("AsyncResource.load must be overriden!");
+        this.dispatchEvent({ type: "loadstart" });
     },
 
     onprogress(e) {

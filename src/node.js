@@ -410,9 +410,9 @@ ViewerNode.prototype = {
         // Scale and inverse scale
         mat4.getScaling(worldScale, worldMatrix);
 
-        inverseWorldScale[0] = -worldScale[0];
-        inverseWorldScale[1] = -worldScale[1];
-        inverseWorldScale[2] = -worldScale[2];
+        inverseWorldScale[0] = 1 / worldScale[0];
+        inverseWorldScale[1] = 1 / worldScale[1];
+        inverseWorldScale[2] = 1 / worldScale[2];
         //vec3.inverse(this.inverseWorldScale, worldScale);
 
         /// TODO: what happens when dontInheritTranslation is true?

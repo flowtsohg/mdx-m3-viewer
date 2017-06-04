@@ -25,6 +25,18 @@ ModelView.prototype = {
         return "modelview";
     },
 
+    modelReady() {
+        let instances = this.instances;
+
+        for (let i = 0, l = instances.length; i < l; i++) {
+            let instance = instances[i];
+
+            if (instance.rendered) {
+                this.setVisibility(instance, true);
+            }
+        }
+    },
+
     /**
      * @method
      * @desc Add an instance to this model view.
@@ -32,26 +44,24 @@ ModelView.prototype = {
      */
     addInstance(instance) {
         if (instance && instance.objectType === "instance") {
-            if (instance.loaded) {
-                let modelView = instance.modelView;
+            let modelView = instance.modelView;
 
-                // If the instance is already in another view, remove it first.
-                if (modelView) {
-                    // If it's a double insertion, just return
-                    if (modelView === this) {
-                        return;
-                    }
-
-                    modelView.removeInstance(instance);
+            // If the instance is already in another view, remove it first.
+            if (modelView) {
+                // If it's a double insertion, just return
+                if (modelView === this) {
+                    return;
                 }
 
-                this.instances.push(instance);
+                modelView.removeInstance(instance);
+            }
 
-                instance.modelView = this;
-                instance.rendered = true;
-            } else {
-                // See ModelInstance.modelReady
-                instance.modelView = this;
+            this.instances.push(instance);
+
+            instance.modelView = this;
+
+            if (instance.rendered && this.model.loaded) {
+                this.setVisibility(instance, true);
             }
         }
     },
@@ -111,8 +121,8 @@ ModelView.prototype = {
 
     // Set the visibility of this instance (assuming it's in this view).
     // This is done by adding or removing it from a bucket.
-    setVisibility(instance, visibility) {
-        if (visibility) {
+    setVisibility(instance, shouldRender) {
+        if (shouldRender) {
             let bucket = this.getAvailableBucket();
 
             this.instanceToBucket.set(instance, bucket);

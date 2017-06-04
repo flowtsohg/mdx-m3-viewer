@@ -7,14 +7,24 @@
  */
 function MdxModelInstance(env) {
     ModelInstance.call(this, env);
+    
+    this.particleEmitters = [];
+    this.particleEmitters2 = [];
+    this.ribbonEmitters = [];
+    this.attachments = [];
+    this.eventObjectEmitters = [];
 
+    this.skeleton = null;
     this.frame = 0;
     this.counter = 0; // Global sequences
     this.sequence = -1;
+    this.sequenceObject = null;
     this.sequenceLoopMode = 0;
 
     this.teamColor = 0;
     this.tintColor = vec3.fromValues(255, 255, 255);
+
+    this.allowParticleSpawn = false;
 }
 
 MdxModelInstance.prototype = {
@@ -23,13 +33,7 @@ MdxModelInstance.prototype = {
         var pathSolver = model.pathSolver;
 
         this.skeleton = new MdxSkeleton(this, model);
-
-        //this.uvOffsetArrays = null;
         
-        this.batchVisibilityArrays = null;
-
-
-        this.particleEmitters = [];
         if (model.particleEmitters && model.particleEmitters.length > 0) {
             const objects = model.particleEmitters;
 
@@ -37,8 +41,7 @@ MdxModelInstance.prototype = {
                 this.particleEmitters[i] = new MdxParticleEmitter(this, objects[i]);
             }
         }
-
-        this.particleEmitters2 = [];
+        
         if (model.particleEmitters2 && model.particleEmitters2.length > 0) {
             const objects = model.particleEmitters2;
             
@@ -47,7 +50,6 @@ MdxModelInstance.prototype = {
             }
         }
 
-        this.ribbonEmitters = [];
         if (model.ribbonEmitters && model.ribbonEmitters.length > 0) {
             const objects = model.ribbonEmitters;
 
@@ -131,28 +133,16 @@ MdxModelInstance.prototype = {
         }
 
         //-------------------------------------------------------------------------------------------------------
-
-        this.modelAttachments = [];
         
-        const attachments = model.attachments;
+        let attachments = model.attachments;
 
         for (let i = 0, l = attachments.length; i < l; i++) {
-            let attachment = attachments[i],
-                attachedModel = attachment.attachedModel;
+            let attachment = attachments[i];
 
-            if (attachedModel) {
-                const instance = attachedModel.addInstance();
-
-                instance.setSequenceLoopMode(2);
-                instance.setParent(this.skeleton.nodes[attachment.node.objectId]);
-                instance.dontInheritScale = false;
-                instance.rendered = false;
-
-                this.modelAttachments.push([attachment, instance]);
+            if (attachment.internalModel) {
+                this.attachments.push(new MdxShallowAttachment(this, attachment));
             }
         }
-        
-        this.eventObjectEmitters = [];
         
         //if (model.eventObjects) {
         //    objects = model.eventObjects;
@@ -161,10 +151,6 @@ MdxModelInstance.prototype = {
         //        this.eventObjectEmitters[i] = new MdxEventObjectEmitter(objects[i], model, this, viewer, pathSolver);
         //    }
         //}
-
-        
-        this.sequenceObject = null;
-        this.allowParticleSpawn = false;
 
         // This takes care of calling setSequence before the model is loaded.
         // In this case, this.sequence will be set, but nothing else is changed.
@@ -233,23 +219,10 @@ MdxModelInstance.prototype = {
     },
 
     updateAttachments() {
-        const modelAttachments = this.modelAttachments;
+        let attachments = this.attachments;
         
-        for (let i = 0, l = modelAttachments.length; i < l; i++) {
-            let modelAttachment = modelAttachments[i],
-                attachment = modelAttachment[0],
-                instance = modelAttachment[1];
-
-            if (attachment.getVisibility(this) > 0.1) {
-                if (!instance.rendered) {
-                    instance.rendered = true;
-                    
-                    // Every time the attachment becomes visible again, restart its first sequence.
-                    instance.setSequence(0);
-                }
-            } else {
-                instance.rendered = false;
-            }
+        for (let i = 0, l = attachments.length; i < l; i++) {
+            attachments[i].update();
         }
     },
 

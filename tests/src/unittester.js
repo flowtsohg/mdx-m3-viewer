@@ -21,8 +21,8 @@ const UnitTester = (function () {
         start(viewer, function loop(entry, iterator) {
             if (!entry.done) {
                 viewer.toBlob((blob) => {
-                    let url = URL.createObjectURL(blob),
-                        name = entry.value[0],
+                    let name = entry.value[0],
+                        url = URL.createObjectURL(blob),
                         compare = "tests/compare/" + name + ".png";
 
                     resemble(url).compareTo(compare).ignoreOutput().scaleToSameSize().onComplete(function (data) {

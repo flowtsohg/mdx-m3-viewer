@@ -166,7 +166,7 @@ UnitTester.addTest("mdx-attachment-model", (viewer, scene) => {
         // If the attachment's frame was set without first updating, it will just get reset to the sequence's beginning.
         viewer.update();
 
-        let attachment = instance.modelAttachments[0][1];
+        let attachment = instance.attachments[0].internalInstance;
 
         attachment.noCulling = true; // :(
         attachment.frame = instance.frame;
