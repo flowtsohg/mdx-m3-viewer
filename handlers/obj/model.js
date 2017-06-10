@@ -61,7 +61,7 @@ ObjModel.prototype = {
     },
 
     // Called every frame, render opaque stuff here.
-    renderOpaque(bucket) {
+    renderOpaque(bucket, scene) {
         let webgl = this.env.webgl,
             gl = this.env.gl,
             instancedArrays = webgl.extensions.instancedArrays,
@@ -73,7 +73,7 @@ ObjModel.prototype = {
 
         webgl.useShaderProgram(shader);
 
-        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, bucket.modelView.scene.camera.worldProjectionMatrix);
+        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, scene.camera.worldProjectionMatrix);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.vertexAttribPointer(attribs.get("a_position"), 3, gl.FLOAT, false, 12, 0);
@@ -93,12 +93,12 @@ ObjModel.prototype = {
     },
 
     // Called every frame, render stuff with alpha translucency here.
-    renderTranslucent(bucket) {
+    renderTranslucent(bucket, scene) {
 
     },
 
     // Called every frame, render any kind of particle emitter here.
-    renderEmitters(bucket) {
+    renderEmitters(bucket, scene) {
 
     }
 };

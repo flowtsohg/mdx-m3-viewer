@@ -6,10 +6,13 @@
 function Scene() {
     /** @member {ModelViewer} */
     this.env = null;
-    /** @member {ModelView[]} */
-    this.modelViews = [];
+    /** @member {Set.<Instance>} */
+    this.instances = new Set();
     /** @member {Camera} */
     this.camera = new Camera();
+
+    this.buckets = [];
+    this.bucketSet = new Set();
 }
 
 Scene.prototype = {
@@ -18,26 +21,45 @@ Scene.prototype = {
         return "scene";
     },
 
+    addBucket(bucket) {
+        let bucketSet = this.bucketSet;
+
+        if (!bucketSet.has(bucket)) {
+            bucketSet.add(bucket);
+
+            this.buckets.push(bucket);
+        }
+    },
+
+    removeBucket(bucket) {
+        let instances = bucket.instances.length;
+
+        if (instances === 0) {
+            this.bucketSet.delete(bucket);
+
+            let buckets = this.buckets;
+
+            buckets.splice(buckets.indexOf(bucket), 1);
+
+            return true;
+        }
+
+        return false;        
+    },
+
     /**
      * @method
-     * @desc Adds a new view to this scene, while setting the view's scene to this scene.
-     * @param {ModelView} modelView The model view to add.
-     * @returns {boolean}.
+     * @desc Add an instance to this scene.
+     * @param {Instance} instance The instance to add.
      */
-    addView(modelView) {
-        if (modelView && modelView.objectType === "modelview") {
-            let views = this.modelViews,
-                index = views.indexOf(modelView);
+    addInstance(instance) {
+        if (instance && instance.objectType === "instance") {
+            let instances = this.instances;
 
-            if (index === -1) {
-                // If the view is already in another scene, remove it first.
-                if (modelView.scene) {
-                    modelView.scene.removeView(modelView);
-                }
+            if (!instances.has(instance)) {
+                instances.add(instance);
 
-                views.push(modelView);
-
-                modelView.scene = this;
+                instance.modelView.sceneChanged(instance, this);
 
                 return true;
             }
@@ -48,19 +70,17 @@ Scene.prototype = {
 
     /**
      * @method
-     * @desc Removes the given view from this scene, if it was in it.
-     * @param {ModelView} modelView The model view to remove.
-     * @returns {boolean}.
+     * @desc Remove an instance from this scene.
+     * @param {Instance} instance The instance to remove.
      */
-    removeView(modelView) {
-        if (modelView && modelView.objectType === "modelview") {
-            let views = this.modelViews,
-                index = views.indexOf(modelView);
+    removeInstance(instance) {
+        if (instance && instance.objectType === "instance") {
+            let instances = this.instances;
 
-            if (index !== -1) {
-                views.splice(index, 1);
+            if (instances.has(instance)) {
+                instances.delete(instance);
 
-                modelView.scene = null;
+                instance.modelView.sceneChanged(instance, null);
 
                 return true;
             }
@@ -74,11 +94,13 @@ Scene.prototype = {
      * @desc Detaches all of the views in this scene.
      */
     clear() {
-        let views = this.modelViews;
+        let buckets = this.buckets;
 
         for (let i = 0, l = views.length; i < l; i++) {
-            this.removeView(views[i]);
+            this.removeBucket(buckets[i]);
         }
+
+        this.instances.clear();
     },
 
     /**
@@ -90,40 +112,40 @@ Scene.prototype = {
     },
 
     update() {
-        let views = this.modelViews;
+        let buckets = this.buckets;
 
-        for (let i = 0, l = views.length; i < l; i++) {
-            views[i].update();
+        for (let i = 0, l = buckets.length; i < l; i++) {
+            buckets[i].update(this);
         }
     },
 
     renderOpaque() {
-        let views = this.modelViews;
+        let buckets = this.buckets;
 
         this.setViewport();
 
-        for (let i = 0, l = views.length; i < l; i++) {
-            views[i].renderOpaque();
+        for (let i = 0, l = buckets.length; i < l; i++) {
+            buckets[i].renderOpaque(this);
         }
     },
 
     renderTranslucent() {
-        let views = this.modelViews;
+        let buckets = this.buckets;
 
         this.setViewport();
 
-        for (let i = 0, l = views.length; i < l; i++) {
-            views[i].renderTranslucent();
+        for (let i = 0, l = buckets.length; i < l; i++) {
+            buckets[i].renderTranslucent(this);
         }
     },
 
     renderEmitters() {
-        let views = this.modelViews;
+        let buckets = this.buckets;
             
         this.setViewport();
 
-        for (let i = 0, l = views.length; i < l; i++) {
-            views[i].renderEmitters();
+        for (let i = 0, l = buckets.length; i < l; i++) {
+            buckets[i].renderEmitters(this);
         }
     },
 

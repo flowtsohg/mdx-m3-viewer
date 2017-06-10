@@ -1,4 +1,4 @@
-function MdxParticleEmitter2(emitter, model) {
+function MdxParticleEmitter2(model, emitter) {
     let gl = model.env.gl;
 
     mix(this, emitter);

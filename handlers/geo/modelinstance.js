@@ -5,8 +5,8 @@
  * @memberOf Geo
  * @param {ModelViewer} env The model viewer object that this texture belongs to.
  */
-function GeometryModelInstance(env) {
-    ModelInstance.call(this, env);
+function GeometryModelInstance(model) {
+    ModelInstance.call(this, model);
 
     this.color = vec3.create();
     this.edgeColor = vec3.create();

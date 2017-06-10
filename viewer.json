@@ -27,6 +27,9 @@
       "model",
       "modelview",
       "modelinstance",
+      "texturedmodel",
+      "texturedmodelview",
+      "texturedmodelinstance",
       "texture",
       "file",
       "bucket",
@@ -95,6 +98,7 @@
       "eventobjectemitter",
       "particle",
       "particleemitter",
+      "particleemitterview",
       "particle2",
       "particleemitter2",
       "particleemitter2view",
@@ -218,7 +222,6 @@
       "common"
     ],
     "external_files": [
-      "resemble"
     ]
   },
   "UNIT_TESTS": {

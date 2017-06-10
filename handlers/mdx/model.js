@@ -7,7 +7,17 @@
  * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
  */
 function MdxModel(env, pathSolver) {
-    Model.call(this, env, pathSolver);
+    TexturedModel.call(this, env, pathSolver);
+
+    this.sequences = [];
+    this.textures = [];
+    this.geosets = [];
+    this.cameras = [];
+    this.particleEmitters = [];
+    this.particleEmitters2 = [];
+    this.ribbonEmitters = [];
+    this.boundingShapes = [];
+    this.attachments = [];
 }
 
 MdxModel.prototype = {
@@ -30,16 +40,7 @@ MdxModel.prototype = {
 
         this.parser = parser;
         this.name = chunks.MODL.name;
-        this.sequences = [];
-        this.textures = [];
-        this.geosets = [];
-        this.cameras = [];
-        this.particleEmitters = [];
-        this.particleEmitters2 = [];
-        this.ribbonEmitters = [];
-        this.boundingShapes = [];
-        this.attachments = [];
-
+        
         this.texturePaths = [];
 
         this.replaceables = [];
@@ -183,11 +184,11 @@ MdxModel.prototype = {
         }
 
         if (chunks.PRE2) {
-            this.particleEmitters2 = this.transformElements(chunks.PRE2, MdxParticleEmitter2);
+            //this.particleEmitters2 = chunks.PRE2.elements;
         }
 
         if (chunks.RIBB) {
-            this.ribbonEmitters = this.transformElements(chunks.RIBB, MdxRibbonEmitter);
+            //this.ribbonEmitters = this.transformElements(chunks.RIBB, MdxRibbonEmitter);
         }
 
         this.boundingShapes = [];
@@ -353,7 +354,7 @@ MdxModel.prototype = {
             var elements = chunk.elements;
 
             for (var i = 0, l = elements.length; i < l; i++) {
-                output[i] = new Func(elements[i], this);
+                output[i] = new Func(this, elements[i]);
             }
         }
 
@@ -439,31 +440,7 @@ MdxModel.prototype = {
         this.extent = {radius: Math.sqrt(dX * dX + dY * dY + dZ * dZ) / 2, min: [minX, minY, minZ], max: [maxX, maxY, maxZ] };
     },
 
-    update() {
-        if (!window.oops) {
-            window.oops = 1;
-
-            console.warn("[MdxModel.update] Do I really want this stuff here?");
-        }
-
-        Model.prototype.update.call(this);
-
-        let emitters = this.particleEmitters2;
-        if (emitters) {
-            for (let i = 0, l = emitters.length; i < l; i++) {
-                emitters[i].update();
-            }
-        }
-
-        emitters = this.ribbonEmitters;
-        if (emitters) {
-            for (let i = 0, l = emitters.length; i < l; i++) {
-                emitters[i].update();
-            }
-        }
-    },
-
-    bind(bucket) {
+    bind(bucket, scene) {
         const webgl = this.env.webgl;
         var gl = this.gl;
 
@@ -476,7 +453,7 @@ MdxModel.prototype = {
         const attribs = shader.attribs;
         const uniforms = shader.uniforms;
 
-        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, bucket.modelView.scene.camera.worldProjectionMatrix);
+        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, scene.camera.worldProjectionMatrix);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.__webglElementBuffer);
 
@@ -500,13 +477,10 @@ MdxModel.prototype = {
         gl.uniform1f(uniforms.get("u_vector_size"), bucket.vectorSize);
         gl.uniform1f(uniforms.get("u_row_size"), bucket.rowSize);
 
-        gl.activeTexture(gl.TEXTURE14);
-        gl.bindTexture(gl.TEXTURE_2D, bucket.dataTexture);
-        gl.uniform1i(uniforms.get("u_dataMap"), 14);
-
+        let instanceId = attribs.get("a_InstanceID");
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);
-        gl.vertexAttribPointer(attribs.get("a_InstanceID"), 1, gl.UNSIGNED_SHORT, false, 2, 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 1);
+        gl.vertexAttribPointer(instanceId, 1, gl.UNSIGNED_SHORT, false, 0, 0);
+        instancedArrays.vertexAttribDivisorANGLE(instanceId, 1);
     },
 
     unbind() {
@@ -555,9 +529,9 @@ MdxModel.prototype = {
         // If this is team color/glow, bind the black texture to avoid WebGL errors.
         // Otherwise, bind the texture used by this layer.
         if (colorMode) {
-            this.bindTexture();
+            this.bindTexture(null, 0, bucket.modelView);
         } else {
-            this.bindTexture(layer.textureId, bucket.modelView);
+            this.bindTexture(this.textures[layer.textureId], 0, bucket.modelView);
 
             // Does this layer use texture animations with multiple textures?
             gl.uniform1f(uniforms.get("u_isTextureAnim"), layer.isTextureAnim);
@@ -591,11 +565,11 @@ MdxModel.prototype = {
         shallowGeoset.render(bucket.instances.length);
     },
 
-    renderBatches(bucket, batches) {
+    renderBatches(bucket, scene, batches) {
         if (batches && batches.length) {
             const updateBatches = bucket.updateBatches;
 
-            this.bind(bucket);
+            this.bind(bucket, scene);
 
             for (let i = 0, l = batches.length; i < l; i++) {
                 const batch = batches[i];
@@ -609,15 +583,15 @@ MdxModel.prototype = {
         }
     },
 
-    renderOpaque(bucket) {
-        this.renderBatches(bucket, this.opaqueBatches);
+    renderOpaque(bucket, scene) {
+        this.renderBatches(bucket, scene, this.opaqueBatches);
     },
 
-    renderTranslucent(bucket) {
-        this.renderBatches(bucket, this.translucentBatches);
+    renderTranslucent(bucket, scene) {
+        this.renderBatches(bucket, scene, this.translucentBatches);
     },
 
-    renderEmitters(bucket) {
+    renderEmitters(bucket, scene) {
         let webgl = this.env.webgl,
             gl = this.env.gl,
             emitters = this.particleEmitters2;
@@ -644,17 +618,7 @@ MdxModel.prototype = {
         gl.depthMask(1);
         gl.disable(gl.BLEND);
         gl.enable(gl.CULL_FACE);
-    },
-
-    bindTexture(textureId, view) {
-        let texture;
-
-        if (view) {
-            texture = view.textures[textureId];
-        }
-
-        this.env.webgl.bindTexture(texture || this.textures[textureId], 0);
-    },
+    }
 };
 
-mix(MdxModel.prototype, Model.prototype);
+mix(MdxModel.prototype, TexturedModel.prototype);

@@ -6,11 +6,9 @@ UnitTester.addTest("m3-load", (viewer, scene) => {
     camera.move([0, -30, -90]);
 
     let model = viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver),
-        view = model.addView(),
         instance = model.addInstance();
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 });
 
 // Get to a specific frame of animation in a sequence.
@@ -21,11 +19,9 @@ UnitTester.addTest("m3-sequence", (viewer, scene) => {
     camera.move([0, -30, -90]);
 
     let model = viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver),
-        view = model.addView(),
         instance = model.addInstance();
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 
     instance.setSequence(0);
     instance.frame = 800;
@@ -39,11 +35,9 @@ UnitTester.addTest("m3-team-color", (viewer, scene) => {
     camera.move([0, -30, -90]);
 
     let model = viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver),
-        view = model.addView(),
         instance = model.addInstance();
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 
     instance.setTeamColor(1);
 });
@@ -56,11 +50,9 @@ UnitTester.addTest("m3-tint-color", (viewer, scene) => {
     camera.move([0, -30, -90]);
 
     let model = viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver),
-        view = model.addView(),
         instance = model.addInstance();
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 
     instance.setTintColor([255, 0, 0]);
 });

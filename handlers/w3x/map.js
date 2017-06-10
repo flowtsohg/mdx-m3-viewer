@@ -8,6 +8,8 @@
  */
 function W3xMap(env, pathSolver) {
     ViewerFile.call(this, env, pathSolver);
+
+    this.scene = new Scene();
 }
 
 W3xMap.prototype = {
@@ -69,8 +71,6 @@ W3xMap.prototype = {
         for (var i = 0, l = files.length; i < l; i++) {
             this.slkFiles[paths[i].substr(paths[i].lastIndexOf("/") + 1).toLowerCase().split(".")[0]] = files[i];
         }
-
-        this.scene = new Scene();
 
         this.env.whenLoaded(files, () => {
             this.loadTerrain();
@@ -520,13 +520,11 @@ W3xMap.prototype = {
                 geometry: { vertices: new Float32Array(vertices), uvs: new Float32Array(uvs), faces: new Uint16Array(faces), edges: new Float32Array(edges) },
                 material: { renderMode: 0, twoSided: true, alpha: 0.5, texture: texture, isBGR: true, isBlended: true }
             }, src =>[src, ".geo", false]);
-            var view = model.addView();
             var instance = model.addInstance();
             instance.setUniformScale(128).setLocation([-centerOffset[0] * 128, -centerOffset[1] * 128, 0]);
             instance.noCulling = true;
 
-            view.addInstance(instance);
-            this.scene.addView(view);
+            this.scene.addInstance(instance);
 
             this.water = instance;
 
@@ -542,26 +540,26 @@ W3xMap.prototype = {
 
         var mapSize = this.mapSize;
         var tilepoints = this.tilepoints;
-
+        /*
         var unitCube = this.env.load({
             geometry: createUnitCube(),
             material: { renderMode: 2, color: [1, 1, 1], twoSided: true }
         }, src =>[src, ".geo", false]);
-
+        */
         for (var y = 0; y < mapSize[1]; y++) {
             for (var x = 0; x < mapSize[0]; x++) {
                 var tile = tilepoints[y][x];
 
-                if (!tile.cliff) {
+                //if (!tile.cliff) {
                     //unitCube.addInstance().setColor([1, 0, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(16);
-                } else {
+                //} else {
                     //unitCube.addInstance().setColor([0, 1, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(16);
-                }
+                //}
 
-                if (x === 13 && y === 12) {
+                //if (x === 13 && y === 12) {
                     //unitCube.addInstance().setColor([0, 0, 1]).setLocation([tile.x, tile.y, tile.z]).uniformScale(32);
-                    console.log(tile)
-                }
+                    //console.log(tile)
+                //}
 
                 if (tile.cliff) {
                     let cliffVariation = 0;
@@ -627,14 +625,8 @@ W3xMap.prototype = {
 
                         if (supportedMask) {
                             model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + tag + cliffVariation + ".mdx");
-
-                            if (!model.modelViews.length) {
-                                model.addView();
-                            }
-
                             instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
-
-                            model.modelViews[0].addInstance(instance);
+                            this.scene.addInstance(instance);
                         }
                     }
 
@@ -707,14 +699,8 @@ W3xMap.prototype = {
 
                         if (supportedMask) {
                             model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + tag + cliffVariation + ".mdx");
-
-                            if (!model.modelViews.length) {
-                                model.addView();
-                            }
-
                             instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
-
-                            model.modelViews[0].addInstance(instance);
+                            this.scene.addInstance(instance);
                         }
                     }
 
@@ -748,14 +734,8 @@ W3xMap.prototype = {
 
                         if (supportedMask) {
                             model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + tag + cliffVariation + ".mdx");
-
-                            if (!model.modelViews.length) {
-                                model.addView();
-                            }
-
                             instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
-
-                            model.modelViews[0].addInstance(instance);
+                            this.scene.addInstance(instance);
                         }
                     }
 
@@ -814,14 +794,8 @@ W3xMap.prototype = {
 
                         if (supportedMask) {
                             model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + tag + cliffVariation + ".mdx");
-
-                            if (!model.modelViews.length) {
-                                model.addView();
-                            }
-
                             instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
-
-                            model.modelViews[0].addInstance(instance);
+                            this.scene.addInstance(instance);
                         }
                     }
 
@@ -1360,20 +1334,18 @@ W3xMap.prototype = {
                 var v = new Float32Array(vertices[i]),
                     u = new Float32Array(uvs[i]),
                     f = new Uint32Array(faces[i]),
-                    e = new Float32Array(edges[i]),
+                    e = new Uint32Array(edges[i]),
                     t = tilesetTextures[i];
-
+                
                 var terrainModel = this.env.load({
                     geometry: { vertices: v, uvs: u, faces: f, edges: e },
-                    material: { renderMode: 2, twoSided: true, texture: t, isBGR: true, isBlended: true }
+                    material: { renderMode: 0, twoSided: true, texture: t, isBGR: true, isBlended: true }
                 }, src =>[src, ".geo", false]);
-                var view = terrainModel.addView();
                 var instance = terrainModel.addInstance();
                 instance.setUniformScale(128).setLocation([-centerOffset[0] * 128, -centerOffset[1] * 128, 0]);
                 instance.noCulling = true;
 
-                view.addInstance(instance);
-                this.scene.addView(view);
+                this.scene.addInstance(instance);
             }
         }
     },

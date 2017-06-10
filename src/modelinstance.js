@@ -29,12 +29,15 @@ ModelInstance.prototype = {
 
     /**
      * @method
-     * @desc Detach this instance from the model view it's in.
+     * @desc Detach this instance from the scene it's in.
+     * @returns {boolean}
      */
     detach() {
-        if (this.modelView) {
-            this.modelView.removeInstance(this);
+        if (this.scene) {
+            return this.scene.removeInstance(this);
         }
+
+        return false;
     },
 
     globalUpdate() {
@@ -46,6 +49,10 @@ ModelInstance.prototype = {
             this.loaded = true;
 
             this.initialize();
+
+            if (this.rendered && this.scene) {
+                this.modelView.setVisibility(this, true);
+            }
 
             this.dispatchEvent({ type: "load" });
             this.dispatchEvent({ type: "loadend" });
@@ -66,8 +73,8 @@ ModelInstance.prototype = {
         if (this.shouldRender !== shouldRender) {
             this.shouldRender = shouldRender;
 
-            // Only set visibility if the instance is in a model view, and the model loaded.
-            if (this.modelView && this.model.loaded) {
+            // Only set visibility if the model loaded.
+            if (this.loaded && this.scene) {
                 this.modelView.setVisibility(this, shouldRender);
             }
         }

@@ -1,32 +1,43 @@
 function MdxParticle(emitter) {
     this.emitter = emitter;
 
-    this.spawnedInstance = null;
-
     this.position = vec3.create();
     this.velocity = vec3.create();
     this.orientation = 0;
     this.gravity = 0;
+
+    let model = emitter.internalModel;
+
+    this.instance = null;
+    this.node = null;
+
+    this.internalInstance = model.addInstance().setSequence(0);
 }
 
 MdxParticle.prototype = {
-    reset() {
+    reset(instance) {
         const emitter = this.emitter;
+        const node = instance.skeleton.nodes[emitter.node.index];
 
-        var scale = emitter.node.worldScale;
+        this.instance = instance;
+        this.node = node;
+
+        instance.scene.addInstance(this.internalInstance);
+
+        var scale = node.worldScale;
         var speed = emitter.getSpeed();
         var latitude = emitter.getLatitude();
         var longitude = emitter.getLongitude();
         var lifespan = emitter.getLifespan();
         var gravity = emitter.getGravity() * scale[2];
         var position = this.position;
-        var worldMatrix = emitter.node.worldMatrix;
+        var worldMatrix = node.worldMatrix;
 
         this.alive = true;
 
         this.health = lifespan;
 
-        vec3.transformMat4(position, emitter.node.pivot, emitter.node.worldMatrix);
+        vec3.transformMat4(position, node.pivot, node.worldMatrix);
 
         var velocity = emitter.heapVelocity;
         var rotation = emitter.heapMat;
@@ -54,32 +65,27 @@ MdxParticle.prototype = {
         this.orientation = Math.randomRange(0, Math.PI * 2);
         this.gravity = gravity;
 
-        if (!this.spawnedInstance) {
-            this.spawnedInstance = emitter.spawnModel.addInstance().setSequence(0);
-        } else {
-            this.spawnedInstance.rendered = true;
-        }
-
-        this.spawnedInstance.rotate(quat.setAxisAngle([], [0, 0, 1], this.orientation));
+        this.internalInstance.rotate(quat.setAxisAngle([], [0, 0, 1], this.orientation));
+        this.internalInstance.rendered = true;
     },
 
     update() {
         if (this.alive) {
-            const frameTimeS = this.spawnedInstance.env.frameTime * 0.001;
+            const frameTimeS = this.internalInstance.env.frameTime * 0.001;
 
             this.health -= frameTimeS;
 
-            this.velocity[1] -= this.gravity * frameTimeS;
+            this.velocity[2] -= this.gravity * frameTimeS;
 
             vec3.scaleAndAdd(this.position, this.position, this.velocity, frameTimeS);
 
-            this.spawnedInstance.setLocation(this.position);
-            this.spawnedInstance.setScale(this.emitter.node.worldScale);
+            this.internalInstance.setLocation(this.position);
+            this.internalInstance.setScale(this.node.worldScale);
         }
     },
 
     kill() {
         this.alive = false;
-        this.spawnedInstance.rendered = false;
+        this.internalInstance.rendered = false;
     }
 };

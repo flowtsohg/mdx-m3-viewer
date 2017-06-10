@@ -1,49 +1,52 @@
 let testsCount = 0,
-    testsPassed = 0;
+    testsPassed = 0,
+    table = document.createElement("table");
+
+document.body.appendChild(table);
 
 function addTestResult(testResult) {
-    let div = document.createElement("div"),
-        name = document.createElement("p"),
-        status = document.createElement("p"),
+    let tr = table.insertRow(),
+        name = document.createElement("td"),
+        status = document.createElement("td"),
+        imageA = document.createElement("td"),
+        imageB = document.createElement("td"),
         value = testResult[1],
-        data = value.data,
-        misMatchPercentage = Math.round(data.rawMisMatchPercentage),
-        result = misMatchPercentage === 0; // allow no mismtach
+        result = value.result;
 
     testsCount += 1;
     testsPassed += result ? 1 : 0;
 
+    // Name of the test
     name.textContent = testResult[0] + " ";
-    name.className = "item";
-
+    
+    // Status of the test
     status.textContent = result ? "passed" : "failed";
     status.style.color = result ? "green" : "red";
-    status.className = "item";
 
-    div.appendChild(name);
-    div.appendChild(status);
-
-    let results = document.createElement("p");
-
-    results.className = "item";
-
+    // The rendered image
     let a = document.createElement("a");
-    a.href = value.a;
-    a.textContent = "a";
-    a.className = "item";
+    a.href = value.a.src;
     a.target = "_blank";
-    results.appendChild(a);
 
+    a.appendChild(value.a);
+    value.a.style.width = "16px";
+
+    // The comparison image
     let b = document.createElement("a");
-    b.href = value.b;
-    b.textContent = "b";
-    b.className = "item";
+    b.href = value.b.src;
     b.target = "_blank";
-    results.appendChild(b);
 
-    div.appendChild(results);
+    b.appendChild(value.b);
+    value.b.style.width = "16px";
 
-    document.body.appendChild(div);
+    imageA.appendChild(a);
+    imageB.appendChild(b);
+
+    // Add everything to a row
+    tr.appendChild(name);
+    tr.appendChild(status);
+    tr.appendChild(imageA);
+    tr.appendChild(imageB);
 }
 
 let canvas = document.createElement("canvas");
@@ -67,8 +70,6 @@ let camera = scene.camera;
 
 camera.setViewport([0, 0, canvas.width, canvas.height]);
 camera.setPerspective(Math.PI / 4, 1, 8, 100000);
-
-document.body.appendChild(canvas);
 
 UnitTester.run(viewer, (testResult) => {
     if (!testResult.done) {

@@ -25,8 +25,8 @@ const UnitTester = (function () {
                         url = URL.createObjectURL(blob),
                         compare = "tests/compare/" + name + ".png";
 
-                    resemble(url).compareTo(compare).ignoreOutput().scaleToSameSize().onComplete(function (data) {
-                        callback({ value: [name, { data, a: url, b: compare }], done: entry.done });
+                    compareImagesFromURLs(url, compare, function (imgA, imgB, result) {
+                        callback({ value: [name, { a: imgA, b: imgB, result}], done: entry.done });
 
                         next(viewer, loop, iterator);
                     });

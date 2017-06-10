@@ -1,4 +1,4 @@
-function MdxCamera(camera, model) {
+function MdxCamera(model, camera) {
     this.name = camera.name;
     this.position = camera.position;
     this.fieldOfView = camera.fieldOfView;

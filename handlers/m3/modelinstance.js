@@ -5,8 +5,8 @@
  * @memberOf M3
  * @param {ModelViewer} env The model viewer object that this texture belongs to.
  */
-function M3ModelInstance(env) {
-    ModelInstance.call(this, env);
+function M3ModelInstance(model) {
+    TexturedModelInstance.call(this, model);
 
     this.skeleton = null;
     this.teamColor = 0;
@@ -161,4 +161,4 @@ M3ModelInstance.prototype = {
     }
 };
 
-mix(M3ModelInstance.prototype, ModelInstance.prototype);
+mix(M3ModelInstance.prototype, TexturedModelInstance.prototype);

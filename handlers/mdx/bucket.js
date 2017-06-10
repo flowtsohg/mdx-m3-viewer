@@ -15,7 +15,7 @@ function MdxBucket(modelView) {
     this.env = env;
 
     // POT required because for some reason, on some drivers, NPOT makes rendering go crazy.
-    var numberOfBones = Math.powerOfTwo(model.bones.length + 1);
+    var numberOfBones = model.bones.length + 1;
 
     this.boneArrayInstanceSize = numberOfBones * 16;
     this.boneArray = new Float32Array(this.boneArrayInstanceSize * this.size);
@@ -33,7 +33,7 @@ function MdxBucket(modelView) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.boneTextureWidth, this.boneTextureHeight, 0, gl.RGBA, gl.FLOAT, null);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.boneTextureWidth, this.boneTextureHeight, 0, gl.RGBA, gl.FLOAT, this.boneArray);
 
     // Team colors (per instance)
     this.updateTeamColors = new Uint8Array(1);
@@ -90,13 +90,13 @@ function MdxBucket(modelView) {
 }
 
 MdxBucket.prototype = {
-    update() {
+    update(scene) {
         let gl = this.env.gl,
             size = this.instances.length;
 
         this.updateBatches.fill(0);
 
-        Bucket.prototype.update.call(this);
+        Bucket.prototype.update.call(this, scene);
 
         if (this.updateBoneTexture[0]) {
             gl.activeTexture(gl.TEXTURE15);

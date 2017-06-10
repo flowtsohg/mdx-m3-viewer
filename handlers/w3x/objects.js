@@ -194,7 +194,6 @@ function W3xUnit(reader, version, map) {
     }
 
     if (this.path) {
-        this.loadModel();
         this.addInstance();
     } else {
         console.log("Unknown unit/item ID", id, randomUnitTable)
@@ -202,20 +201,14 @@ function W3xUnit(reader, version, map) {
 }
 
 W3xUnit.prototype = {
-    loadModel() {
-        let model = this.map.loadFiles(this.path);
-
-        if (!model.modelViews.length) {
-            this.map.scene.addView(model.addView())
+    addInstance() {
+        if (!this.model) {
+            this.model = this.map.loadFiles(this.path);
         }
 
-        this.model = model;
-    },
-
-    addInstance() {
         let instance = this.model.addInstance();
 
-        this.model.modelViews[0].addInstance(instance);
+        this.map.scene.addInstance(instance);
 
         instance.setLocation(this.location);
         instance.setRotation(quat.setAxisAngle(quat.create(), vec3.UNIT_Z, this.angle));
@@ -280,7 +273,6 @@ function W3xDoodad(reader, version, map) {
     }
 
     if (this.path) {
-        this.loadModel();
         this.addInstance();
     } else {
         console.log("Unknown doodad/destructable ID", id)
@@ -289,34 +281,24 @@ function W3xDoodad(reader, version, map) {
 }
 
 W3xDoodad.prototype = {
-    loadModel() {
-        let model = this.map.loadFiles(this.path);
-
-        if (!model.modelViews.length) {
-            this.map.scene.addView(model.addView());
-
-            // This is used by trees and other doodads that share a model, but override the texture
-            if (this.texFile) {
-                model.addEventListener("load", () => {
-                    model.modelViews[0].textures[0] = this.texFile
-                });
-            }
-        }
-
-        if (!this.model) {
-            this.model = model;
-        }
-    },
-
     addInstance() {
+        if (!this.model) {
+            this.model = this.map.loadFiles(this.path);
+        }
+
         let instance = this.model.addInstance();
+
+        this.map.scene.addInstance(instance);
+
+        // This is used by trees and other doodads that share a model, but override the texture
+        if (this.texFile) {
+            instance.setTexture(0, this.texFile);
+        }
 
         instance.setLocation(this.location);
         instance.setRotation(quat.setAxisAngle(quat.create(), vec3.UNIT_Z, this.angle));
         instance.setScale(this.scale);
         instance.setSequence(0);
-
-        this.model.modelViews[0].addInstance(instance);
 
         this.instance = instance;
     }

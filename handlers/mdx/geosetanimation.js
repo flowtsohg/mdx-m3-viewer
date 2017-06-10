@@ -1,4 +1,4 @@
-function MdxGeosetAnimation(geosetAnimation, model) {
+function MdxGeosetAnimation(model, geosetAnimation) {
     this.alpha = geosetAnimation.alpha;
     this.color = [...geosetAnimation.color].reverse(); // Stored as RGB, but animated colors are stored as BGR, so sizzle.
     this.geosetId = geosetAnimation.geosetId;

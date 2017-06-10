@@ -1,4 +1,4 @@
-function MdxTextureAnimation(textureAnimation, model) {
+function MdxTextureAnimation(model, textureAnimation) {
     this.sd = new MdxSdContainer(textureAnimation.tracks, model);
 }
 

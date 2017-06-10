@@ -1,15 +1,12 @@
 /**
  * @class
  * @classdesc An M3 model view.
- * @extends ModelView
+ * @extends TexturedModelView
  * @memberOf M3
  * @param {M3Model} model The model that this view belongs to.
  */
 function M3ModelView(model) {
-    ModelView.call(this, model);
-
-    /** @member {Texture[]} */
-    this.textures = [];
+    TexturedModelView.call(this, model);
 }
 
-mix(M3ModelView.prototype, ModelView.prototype);
+mix(M3ModelView.prototype, TexturedModelView.prototype);

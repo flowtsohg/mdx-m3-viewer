@@ -5,8 +5,8 @@
  * @memberOf Mdx
  * @param {ModelViewer} env The model viewer object that this texture belongs to.
  */
-function MdxModelInstance(env) {
-    ModelInstance.call(this, env);
+function MdxModelInstance(model) {
+    TexturedModelInstance.call(this, model);
     
     this.particleEmitters = [];
     this.particleEmitters2 = [];
@@ -34,19 +34,11 @@ MdxModelInstance.prototype = {
 
         this.skeleton = new MdxSkeleton(this, model);
         
-        if (model.particleEmitters && model.particleEmitters.length > 0) {
-            const objects = model.particleEmitters;
-
-            for (let i = 0, l = objects.length; i < l; i++) {
-                this.particleEmitters[i] = new MdxParticleEmitter(this, objects[i]);
-            }
-        }
-        
         if (model.particleEmitters2 && model.particleEmitters2.length > 0) {
             const objects = model.particleEmitters2;
             
             for (let i = 0, l = objects.length; i < l; i++) {
-                this.particleEmitters2[i] = new MdxParticleEmitter2View(this, objects[i]);
+                //this.particleEmitters2[i] = new MdxParticleEmitter2View(this, objects[i]);
             }
         }
 
@@ -54,7 +46,7 @@ MdxModelInstance.prototype = {
             const objects = model.ribbonEmitters;
 
             for (i = 0, l = objects.length; i < l; i++) {
-                this.ribbonEmitters[i] = new MdxRibbonEmitterView(this, objects[i]);
+                //this.ribbonEmitters[i] = new MdxRibbonEmitterView(this, objects[i]);
             }
         }
 
@@ -181,6 +173,18 @@ MdxModelInstance.prototype = {
 
         this.tintColorArray.set(this.tintColor);
         this.bucket.updateTintColors[0] = 1;
+
+        let emitters;
+        
+        emitters = this.modelView.particleEmitters;
+        for (let i = 0, l = emitters.length; i < l; i++) {
+            this.particleEmitters[i] = new MdxParticleEmitterView(this, emitters[i]);
+        }
+
+        emitters = this.modelView.particleEmitters2;
+        for (let i = 0, l = emitters.length; i < l; i++) {
+            this.particleEmitters2[i] = new MdxParticleEmitter2View(this, emitters[i]);
+        }
     },
 
     invalidateSharedData() {
@@ -190,19 +194,22 @@ MdxModelInstance.prototype = {
         this.teamColorArray = null;
         this.tintColorArray = null;
         this.batchVisibilityArrays = null;
+
+        this.particleEmitters = [];
+        this.particleEmitters2 = [];
     },
 
     updateEmitters() {
-        let allowCreate = this.allowParticleSpawn,
+        var allowCreate = this.allowParticleSpawn,
             emitters;
 
         emitters = this.particleEmitters;
-        for (let i = 0, l = emitters.length; i < l; i++) {
+        for (var i = 0, l = emitters.length; i < l; i++) {
             emitters[i].update(allowCreate);
         }
 
         emitters = this.particleEmitters2;
-        for (let i = 0, l = emitters.length; i < l; i++) {
+        for (var i = 0, l = emitters.length; i < l; i++) {
             emitters[i].update(allowCreate);
         }
         
@@ -219,9 +226,9 @@ MdxModelInstance.prototype = {
     },
 
     updateAttachments() {
-        let attachments = this.attachments;
+        var attachments = this.attachments;
         
-        for (let i = 0, l = attachments.length; i < l; i++) {
+        for (var i = 0, l = attachments.length; i < l; i++) {
             attachments[i].update();
         }
     },
@@ -271,7 +278,7 @@ MdxModelInstance.prototype = {
                 batchVisibilityArrays = this.batchVisibilityArrays;
 
             // Update batch visibilities and geoset colors
-            for (let i = 0, l = batches.length; i < l; i++) {
+            for (var i = 0, l = batches.length; i < l; i++) {
                 let batch = batches[i],
                     index = batch.index,
                     geoset = batch.geoset,
@@ -300,13 +307,13 @@ MdxModelInstance.prototype = {
                 }
             }
 
-            let hasTextureAnims = model.hasTextureAnims,
+            var hasTextureAnims = model.hasTextureAnims,
                 hasLayerAnims = model.hasLayerAnims;
 
             if (hasTextureAnims || hasLayerAnims) {
                 // Update texture coordinates
-                for (let i = 0, l = layers.length; i < l; i++) {
-                    let layer = layers[i],
+                for (var i = 0, l = layers.length; i < l; i++) {
+                    var layer = layers[i],
                         index = layer.index,
                         textureAnimation = layer.textureAnimation,
                         uvOffsetArray = uvOffsetArrays[index];
@@ -431,4 +438,4 @@ MdxModelInstance.prototype = {
     }
 };
 
-mix(MdxModelInstance.prototype, ModelInstance.prototype);
+mix(MdxModelInstance.prototype, TexturedModelInstance.prototype);

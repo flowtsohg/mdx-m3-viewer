@@ -7,7 +7,7 @@
  * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
  */
 function M3Model(env, pathSolver) {
-    Model.call(this, env, pathSolver);
+    TexturedModel.call(this, env, pathSolver);
 }
 
 M3Model.prototype = {
@@ -305,7 +305,7 @@ M3Model.prototype = {
         gl.vertexAttribPointer(attribs.get("a_bones"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 16);
     },
 
-    bind(bucket) {
+    bind(bucket, scene) {
         const gl = this.gl,
             webgl = this.env.webgl;
 
@@ -333,7 +333,7 @@ M3Model.prototype = {
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
 
-        let camera = bucket.modelView.scene.camera;
+        let camera = scene.camera;
 
         gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, camera.worldProjectionMatrix);
         gl.uniformMatrix4fv(uniforms.get("u_mv"), false, camera.worldMatrix);
@@ -357,20 +357,20 @@ M3Model.prototype = {
             region = batch.region,
             material = batch.material;
 
-        material.bind(shader);
+        material.bind(shader, bucket);
 
         region.render(shader, bucket.instances.length);
 
         material.unbind(shader); // This is required to not use by mistake layers from this material that were bound and are not overwritten by the next material
     },
 
-    renderOpaque(bucket) {
+    renderOpaque(bucket, scene) {
         const batches = this.batches;
 
         if (batches.length) {
             //const updateBatches = bucket.updateBatches;
 
-            this.bind(bucket);
+            this.bind(bucket, scene);
 
             for (let i = 0, l = batches.length; i < l; i++) {
                 const batch = batches[i];
@@ -384,11 +384,11 @@ M3Model.prototype = {
         }
     },
 
-    renderTranslucent(bucket) {
+    renderTranslucent(bucket, scene) {
 
     },
 
-    renderEmitters(bucket) {
+    renderEmitters(bucket, scene) {
     /*
     if (this.particleEmitters) {
     ctx.disable(ctx.CULL_FACE);
@@ -404,11 +404,7 @@ M3Model.prototype = {
     ctx.enable(ctx.CULL_FACE);
     }
     */
-    },
-
-    bindTexture(texture, unit) {
-        this.env.webgl.bindTexture(texture, unit);
     }
 };
 
-mix(M3Model.prototype, Model.prototype);
+mix(M3Model.prototype, TexturedModel.prototype);

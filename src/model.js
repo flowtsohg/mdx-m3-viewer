@@ -8,10 +8,14 @@
 function Model(env, pathSolver) {
     DownloadableResource.call(this, env, pathSolver);
 
-    /** @member {ModelView[]} */
-    this.modelViews = [];
+    /** @member {ModelInstance[]} */
+    this.instances = [];
 
-    this.preloadedInstances = [];
+    /** @member {ModelView[]} */
+    this.views = [];
+
+    // Add the default view
+    this.addView();
 }
 
 
@@ -22,19 +26,6 @@ Model.prototype = {
 
     get Handler() {
         throw new Error("Model.Handler must be overriden!");
-    },
-
-    /**
-     * @method
-     * @desc Adds a new view to this model, and returns the view.
-     * @returns {@link ModelView}
-     */
-    addView() {
-        let view = new this.Handler.ModelView(this);
-
-        this.modelViews.push(view);
-
-        return view;
     },
 
     /**
@@ -50,30 +41,14 @@ Model.prototype = {
 
         instance.load(this);
 
+        this.instances.push(instance);
+        this.views[0].addInstance(instance);
+
         if (this.loaded || this.error) {
             instance.modelReady();
-        } else {
-            this.preloadedInstances.push(instance);
         }
 
         return instance;
-    },
-
-    // This allows setting up preloaded instances without event listeners.
-    finalizeLoad() {
-        AsyncResource.prototype.finalizeLoad.call(this);
-
-        let instances = this.preloadedInstances;
-
-        for (let i = 0, l = instances.length; i < l; i++) {
-            instances[i].modelReady();
-        }
-
-        let views = this.modelViews;
-
-        for (let i = 0, l = views.length; i < l; i++) {
-            views[i].modelReady();
-        }
     },
 
     /**
@@ -82,10 +57,10 @@ Model.prototype = {
      */
     detach() {
         // Detach all of the views
-        let views = this.modelViews;
+        let views = this.views;
 
         for (let i = 0, l = views.length; i < l; i++) {
-            views[i].detach();
+            views[i].clear();
         }
 
         // Remove references from the viewer
@@ -102,6 +77,51 @@ Model.prototype = {
 
     renderEmitters(bucket) {
 
+    },
+
+    addView() {
+        let view = new this.Handler.ModelView(this);
+
+        this.views.push(view);
+
+        return view;
+    },
+
+    removeView(modelView) {
+        let views = this.views;
+
+        views.splice(views.indexOf(modelView), 1);
+    },
+
+    viewChanged(instance, shallowView) {
+        // Check if there's another view that matches the instance
+        let views = this.views;
+
+        for (let i = 0, l = views.length; i < l; i++) {
+            let view = views[i];
+
+            if (view.equals(shallowView)) {
+                view.addInstance(instance);
+                return;
+            }
+        }
+
+        // Since no view matched, create a new one
+        let view = this.addView();
+
+        view.applyShallowCopy(shallowView);
+        view.addInstance(instance);
+    },
+
+    // This allows setting up preloaded instances without event listeners.
+    finalizeLoad() {
+        AsyncResource.prototype.finalizeLoad.call(this);
+
+        let instances = this.instances;
+
+        for (let i = 0, l = instances.length; i < l; i++) {
+            instances[i].modelReady();
+        }
     }
 };
 

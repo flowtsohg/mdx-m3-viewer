@@ -11,11 +11,9 @@ UnitTester.addTest("geo-rectangle", (viewer, scene) => {
     };
 
     let model = viewer.load(data, geoSolver);
-    let view = model.addView();
     let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 });
 
 // Cube.
@@ -31,11 +29,9 @@ UnitTester.addTest("geo-cube", (viewer, scene) => {
     };
 
     let model = viewer.load(data, geoSolver);
-    let view = model.addView();
     let instance = model.addInstance().uniformScale(31).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 });
 
 // Sphere.
@@ -51,11 +47,9 @@ UnitTester.addTest("geo-sphere", (viewer, scene) => {
     };
 
     let model = viewer.load(data, geoSolver);
-    let view = model.addView();
     let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 });
 
 // Cylinder.
@@ -71,11 +65,9 @@ UnitTester.addTest("geo-cylinder", (viewer, scene) => {
     };
 
     let model = viewer.load(data, geoSolver);
-    let view = model.addView();
     let instance = model.addInstance().uniformScale(38).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 });
 
 // Edges.
@@ -91,11 +83,9 @@ UnitTester.addTest("geo-edges", (viewer, scene) => {
     };
 
     let model = viewer.load(data, geoSolver);
-    let view = model.addView();
     let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 });
 
 // Faces + edges.
@@ -111,11 +101,9 @@ UnitTester.addTest("geo-faces-and-edges", (viewer, scene) => {
     };
 
     let model = viewer.load(data, geoSolver);
-    let view = model.addView();
     let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 });
 
 // Color.
@@ -131,11 +119,9 @@ UnitTester.addTest("geo-color", (viewer, scene) => {
     };
 
     let model = viewer.load(data, geoSolver);
-    let view = model.addView();
     let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8)).setColor([255, 0, 0]);
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 });
 
 // Edge color.
@@ -151,11 +137,9 @@ UnitTester.addTest("geo-edge-color", (viewer, scene) => {
     };
 
     let model = viewer.load(data, geoSolver);
-    let view = model.addView();
     let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8)).setEdgeColor([255, 0, 0]);
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 });
 
 // Two sided.
@@ -171,11 +155,9 @@ UnitTester.addTest("geo-two-sided", (viewer, scene) => {
     };
 
     let model = viewer.load(data, geoSolver);
-    let view = model.addView();
     let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI + Math.PI / 8));
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 });
 
 // Texture.
@@ -191,9 +173,7 @@ UnitTester.addTest("geo-texture", (viewer, scene) => {
     };
 
     let model = viewer.load(data, geoSolver);
-    let view = model.addView();
     let instance = model.addInstance().uniformScale(44);
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 });

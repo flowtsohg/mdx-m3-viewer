@@ -44,7 +44,7 @@ First, let's create the viewer.
 ```javascript
 let canvas = ...; // A <canvas> aka HTMLCanvasElement object
 
-let viewer = new ModelViewer(canvas)
+let viewer = new ModelViewer(canvas);
 ```
 
 If the client doesn't have the WebGL requierments to run the viewer, an exception will be thrown when trying to create it.
@@ -150,25 +150,18 @@ In this case, it allowed `model.mdx` to load `texture.blp`, which is a relative 
 Generally speaking, an identity solver is what you'll need (as in, it returns the source assuming its an url but prepended by some directory, its extension, and true for server fetch), but there are cases where this is not the case, such as loading custom user-made models, handling both in-memory and server-fetches in the same solver (used by the W3X handler), etc.
 
 We now have a model, however a model in this context is simply a source of data, not something that you see.
-The next step is to create a model view.
-Model views are, much as they are named, views into a model.
-They allow to use the same model as a source of data, but have per-view data.
-For example, with them, you can render the same model but with different textures.
-Model views are put into scenes.
-```javascript
-let view = model.addView();
-
-scene.addView(view);
-```
-
-Finally, let's create an actual instance of the model, and add it to the view.
+The next step is to create an instance of this model.
+Instances can be rendered, moved, rotated, scaled, parented to other instances or nodes, play animations, and so on.
 ```javascript
 let instance = model.addInstance();
-
-view.addInstance(instance);
 ```
 
-This instance can be rendered, moved, rotated, scaled, parented to other instances or nodes, play animations, and so on.
+Finally, let's add the instance to the scene, so it's rendered:
+```javascript
+scene.addInstance(instance);
+```
+
+
 
 So in the end, we have instances in model views, that are in scenes, that are added to the viewer. Easy, right?
 

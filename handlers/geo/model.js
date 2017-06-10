@@ -100,7 +100,7 @@ GeometryModel.prototype = {
         return true;
     },
 
-    render(bucket) {
+    render(bucket, scene) {
         let webgl = this.env.webgl,
             gl = this.env.gl,
             instancedArrays = webgl.extensions.instancedArrays,
@@ -112,7 +112,7 @@ GeometryModel.prototype = {
 
         webgl.useShaderProgram(shader);
 
-        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, bucket.modelView.scene.camera.worldProjectionMatrix);
+        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, scene.camera.worldProjectionMatrix);
 
         // Bone texture
         gl.activeTexture(gl.TEXTURE15);
@@ -176,20 +176,18 @@ GeometryModel.prototype = {
 
             // Colors
             gl.bindBuffer(gl.ARRAY_BUFFER, bucket.colorBuffer);
-            gl.vertexAttribPointer(colorAttrib, 3, gl.UNSIGNED_BYTE, true, 3, 0);
+            gl.vertexAttribPointer(colorAttrib, 3, gl.UNSIGNED_BYTE, true, 0, 0);
 
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.faceBuffer);
             instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.faceArray.length, this.faceIndexType, 0, instances.length);
         }
 
         if (this.renderMode === 1 || this.renderMode === 2) {
-            webgl.bindTexture(null, 0);
-
             gl.uniform1f(uniforms.get("u_isEdge"), 1);
 
             // Edge colors
             gl.bindBuffer(gl.ARRAY_BUFFER, bucket.edgeColorBuffer);
-            gl.vertexAttribPointer(colorAttrib, 3, gl.UNSIGNED_BYTE, true, 3, 0);
+            gl.vertexAttribPointer(colorAttrib, 3, gl.UNSIGNED_BYTE, true, 0, 0);
 
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
             instancedArrays.drawElementsInstancedANGLE(gl.LINES, this.edgeArray.length, this.edgeIndexType, 0, instances.length);
@@ -200,19 +198,19 @@ GeometryModel.prototype = {
         instancedArrays.vertexAttribDivisorANGLE(colorAttrib, 0);
     },
 
-    renderOpaque(bucket) {
+    renderOpaque(bucket, scene) {
         if (this.opaque) {
-            this.render(bucket);
+            this.render(bucket, scene);
         }
     },
 
-    renderTranslucent(bucket) {
+    renderTranslucent(bucket, scene) {
         if (this.translucent) {
-            this.render(bucket);
+            this.render(bucket, scene);
         }
     },
 
-    renderEmitters(bucket) {
+    renderEmitters(bucket, scene) {
 
     }
 };

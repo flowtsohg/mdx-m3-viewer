@@ -87,7 +87,7 @@ function M3Layer(material, layer, type, op) {
 }
 
 M3Layer.prototype = {
-    bind(shader) {
+    bind(shader, bucket) {
         const gl = this.gl,
             uniformMap = this.uniformMap,
             uniforms = shader.uniforms,
@@ -97,7 +97,7 @@ M3Layer.prototype = {
 
         if (active) {
             gl.uniform1i(uniforms.get(uniformMap.map), this.textureUnit);
-            this.model.bindTexture(this.texture, this.textureUnit);
+            this.model.bindTexture(this.texture, this.textureUnit, bucket.modelView);
             
             gl.uniform1f(uniforms.get(uniformMap.op), this.op);
             gl.uniform1f(uniforms.get(uniformMap.channels), this.colorChannels);

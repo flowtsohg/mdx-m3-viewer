@@ -1,4 +1,4 @@
-function MdxRibbonEmitter(emitter, model) {
+function MdxRibbonEmitter(model, emitter) {
     let gl = model.env.gl;
 
     mix(this, emitter);

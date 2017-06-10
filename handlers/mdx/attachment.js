@@ -1,13 +1,7 @@
 function MdxShallowAttachment(instance, attachment) {
-    let model = attachment.internalModel,
-        internalInstance = model.addInstance();
+    let internalInstance = attachment.internalModel.addInstance();
 
-    /// Very bad. How to solve this?
-    if (model.modelViews.length === 0) {
-        instance.modelView.scene.addView(model.addView());
-    }
-
-    model.modelViews[0].addInstance(internalInstance);
+    instance.scene.addInstance(internalInstance);
 
     internalInstance.setSequenceLoopMode(2);
     internalInstance.dontInheritScale = false;
@@ -37,7 +31,7 @@ MdxShallowAttachment.prototype = {
     }
 };
 
-function MdxAttachment(attachment, model) {
+function MdxAttachment(model, attachment) {
     let path = attachment.path.replace(/\\/g, "/").toLowerCase().replace(".mdl", ".mdx");
 
     this.node = attachment.node;

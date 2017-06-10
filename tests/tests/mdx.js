@@ -6,11 +6,9 @@ UnitTester.addTest("mdx-load", (viewer, scene) => {
     camera.move([0, -50, -90]);
 
     let model = viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver),
-        view = model.addView(),
         instance = model.addInstance();
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 
     instance.noCulling = true; // :(
 });
@@ -23,11 +21,9 @@ UnitTester.addTest("mdx-sequence", (viewer, scene) => {
     camera.move([0, -50, -90]);
 
     let model = viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver),
-        view = model.addView(),
         instance = model.addInstance();
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 
     instance.setSequence(0);
     instance.frame = 800;
@@ -43,11 +39,9 @@ UnitTester.addTest("mdx-team-color", (viewer, scene) => {
     camera.move([0, -50, -90]);
 
     let model = viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver),
-        view = model.addView(),
         instance = model.addInstance();
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 
     instance.setTeamColor(1);
 
@@ -62,11 +56,9 @@ UnitTester.addTest("mdx-tint-color", (viewer, scene) => {
     camera.move([0, -50, -90]);
 
     let model = viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver),
-        view = model.addView(),
         instance = model.addInstance();
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 
     instance.setTintColor([255, 0, 0]);
 
@@ -81,11 +73,9 @@ UnitTester.addTest("mdx-texture-animation", (viewer, scene) => {
     camera.move([0, -50, -90]);
 
     let model = viewer.load("Units/Human/WaterElemental/WaterElemental.mdx", wc3Solver),
-        view = model.addView(),
         instance = model.addInstance();
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 
     instance.setSequence(0);
     instance.frame = 800;
@@ -101,11 +91,9 @@ UnitTester.addTest("mdx-particle-emitter", (viewer, scene) => {
     camera.move([0, -60, -70]);
 
     let model = viewer.load("Units/Creeps/AzureDragon/AzureDragon.mdx", wc3Solver),
-        view = model.addView(),
         instance = model.addInstance();
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 
     instance.setSequence(5);
 
@@ -126,11 +114,9 @@ UnitTester.addTest("mdx-particle-emitter-2", (viewer, scene) => {
     camera.move([0, 20, -200]);
 
     let model = viewer.load("Units/Creeps/AzureDragon/AzureDragon.mdx", wc3Solver),
-        view = model.addView(),
         instance = model.addInstance();
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 
     instance.setSequence(1);
 
@@ -151,11 +137,9 @@ UnitTester.addTest("mdx-attachment-model", (viewer, scene) => {
     camera.move([0, 0, -400]);
 
     let model = viewer.load("Buildings/Undead/HauntedMine/HauntedMine.mdx", wc3Solver),
-        view = model.addView(),
         instance = model.addInstance();
 
-    view.addInstance(instance);
-    scene.addView(view);
+    scene.addInstance(instance);
 
     instance.setSequence(0);
 

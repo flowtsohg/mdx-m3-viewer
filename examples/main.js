@@ -88,20 +88,14 @@ texture.whenLoaded(() => console.log("texture.bmp loaded, it took " + (new Date(
 // Note that because of the path solver used, the final path is correctly "resources/cube.obj".
 let model = viewer.load("cube.obj", pathSolver);
 
-// A model is used as a source of data. Views allow to use the model, while allowing each view to have its own data.
-let view = model.addView();
-
-// Views are added to scenes, so they get rendered.
-scene.addView(view);
-
 // Let's see that viewer.whenALoaded in action!
 viewer.whenLoaded([texture, model], (e) => console.log("The texture and model finished loading!"));
 
 // Create an instance of this model.
 let instance = model.addInstance();
 
-// Instances are put into views to "use" them.
-view.addInstance(instance);
+// Instances are added to scenes, so they get rendered.
+scene.addInstance(instance);
 
 // Move the instance and scale it uniformly.
 instance.move([50, 0, 0]).uniformScale(2);
@@ -109,8 +103,8 @@ instance.move([50, 0, 0]).uniformScale(2);
 // Let's create another instance, and mess with it.
 let instance2 = model.addInstance().move([-150, 0, 0]).scale([0.5, 2, 5]);
 
-// Add also this instance to the view.
-view.addInstance(instance2);
+// Add also this instance to the scene.
+scene.addInstance(instance2);
 
 // Calls the callback when the viewer finishes loading all currently loading resources, or immediately if no resources are being loaded.
 // Note that this includes instances!

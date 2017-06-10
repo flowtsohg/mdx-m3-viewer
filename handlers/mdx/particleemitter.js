@@ -1,51 +1,19 @@
-function MdxParticleEmitter(instance, emitter) {
-    const model = instance.model;
+function MdxParticleEmitter(modelView, emitter) {
+    mix(this, emitter);
 
-    var i, l;
-    var keys = Object.keys(emitter);
-
-    for (i = keys.length; i--;) {
-        this[keys[i]] = emitter[keys[i]];
-    }
+    let model = modelView.model;
 
     this.lastCreation = 0;
 
-    var path = emitter.path.replace(/\\/g, "/").toLowerCase().replace(".mdl", ".mdx");
+    this.modelView = modelView;
+    this.model = model;
+    this.internalModel = model.env.load(emitter.path.replace(/\\/g, "/").toLowerCase().replace(".mdl", ".mdx"), model.pathSolver);
 
-    this.instance = instance;
-    this.spawnModel = model.env.load(path, model.pathSolver);
-
-    this.node = instance.skeleton.nodes[emitter.node.index];
     this.sd = new MdxSdContainer(emitter.tracks, model);
 
-    var particles;
-
-    // This is the maximum number of particles that are going to exist at the same time
-    if (emitter.tracks.emissionRate) {
-        var tracks = emitter.tracks.emissionRate;
-        var biggest = 0;
-
-        for (i = 0, l = tracks.length; i < l; i++) {
-            var track = tracks[i];
-
-            if (track.vector > biggest) {
-                biggest = track.vector;
-            }
-        }
-        // For a reason I can't understand, biggest*lifespan isn't enough for emission rate tracks, multiplying by 2 seems to be the lowest reasonable value that works
-        particles = Math.round(biggest * Math.ceil(emitter.lifespan) * 2);
-    } else {
-        particles = Math.round(emitter.emissionRate * Math.ceil(emitter.lifespan));
-    }    
-
     this.particles = [];
-    this.reusables = [];
-
-    for (let i = 0; i < particles; i++) {
-        this.particles[i] = new MdxParticle(this);
-        this.reusables.push(i);
-    }
-    
+    this.inactive = [];
+    this.currentSlot = 0;
 
     // To avoid heap alocations
     this.heapVelocity = vec3.create();
@@ -55,37 +23,51 @@ function MdxParticleEmitter(instance, emitter) {
 }
 
 MdxParticleEmitter.prototype = {
-    update(allowCreate) {
-        const particles = this.particles,
-            reusables = this.reusables;
+    emit(instance) {
+        let inactive = this.inactive,
+            particle;
 
-        for (let i = 0, l = particles.length; i < l; i++) {
-            const particle = particles[i];
-
-            if (particle.alive) {
-                if (particle.health <= 0) {
-                    particle.kill();
-
-                    reusables.push(i);
-                } else {
-                    particle.update();
-                }
-            }
+        if (inactive.length) {
+            particle = inactive.pop();
+        } else {
+            particle = new MdxParticle(this);
         }
 
-        if (allowCreate && this.shouldRender()) {
-            this.lastCreation += 1;
+        particle.reset(instance);
 
-            const amount = this.getEmissionRate() * this.instance.env.frameTime * 0.001 * this.lastCreation;
+        this.particles.push(particle);
+    },
 
-            if (amount >= 1) {
-                this.lastCreation = 0;
+    update(allowCreate) {
+        let particles = this.particles,
+            inactive = this.inactive;
 
-                for (let i = 0; i < amount; i++) {
-                    if (reusables.length > 0) {
-                        particles[reusables.pop()].reset();
-                    }
-                }
+        if (particles.length > 0) {
+            // First stage: remove dead particles.
+            // The used particles array is a queue, dead particles will always come first.
+            // As of the time of writing, the easiest and fastest way to implement a queue in Javascript is a normal array.
+            // To add items, you push, to remove items, the array is reversed and you pop.
+            // So the first stage reverses the array, and then keeps checking the last element for its health.
+            // As long as we hit a dead particle, pop, and check the new last element.
+
+            // Ready for pop mode
+            particles.reverse();
+
+            let particle = particles[particles.length - 1];
+            while (particle && particle.health <= 0) {
+                inactive.push(particles.pop());
+
+                // Need to recalculate the length each time
+                particle = particles[particles.length - 1];
+            }
+
+            // Ready for push mode
+            particles.reverse()
+
+            // Second stage: update the living particles.
+            // All the dead particles were removed, so a simple loop is all that's required.
+            for (let i = 0, l = particles.length; i < l; i++) {
+                particles[i].update();
             }
         }
     },
@@ -94,35 +76,35 @@ MdxParticleEmitter.prototype = {
         
     },
 
-    shouldRender() {
-        return this.getVisibility(this.instance) > 0.75;
+    shouldRender(instance) {
+        return this.getVisibility(instance) > 0.75;
     },
 
-    getSpeed() {
-        return this.sd.getValue("KPES", this.instance, this.speed);
+    getSpeed(instance) {
+        return this.sd.getValue("KPES", instance, this.speed);
     },
 
-    getLatitude() {
-        return this.sd.getValue("KPLTV", this.instance, this.latitude);
+    getLatitude(instance) {
+        return this.sd.getValue("KPLTV", instance, this.latitude);
     },
 
-    getLongitude() {
-        return this.sd.getValue("KPLN", this.instance, this.longitude);
+    getLongitude(instance) {
+        return this.sd.getValue("KPLN", instance, this.longitude);
     },
 
-    getLifespan() {
-        return this.sd.getValue("KPEL", this.instance, this.lifespan);
+    getLifespan(instance) {
+        return this.sd.getValue("KPEL", instance, this.lifespan);
     },
 
-    getGravity() {
-        return this.sd.getValue("KPEG", this.instance, this.gravity);
+    getGravity(instance) {
+        return this.sd.getValue("KPEG", instance, this.gravity);
     },
 
-    getEmissionRate() {
-        return this.sd.getValue("KPEE", this.instance, this.emissionRate);
+    getEmissionRate(instance) {
+        return this.sd.getValue("KPEE", instance, this.emissionRate);
     },
 
-    getVisibility() {
-        return this.sd.getValue("KPEV", this.instance, 1);
+    getVisibility(instance) {
+        return this.sd.getValue("KPEV", instance, 1);
     }
 };
