@@ -1,17 +1,16 @@
 /**
- * @class
- * @classdesc An MDX model view.
+ * @constructor
  * @extends TexturedModelView
  * @memberOf Mdx
- * @param {MdxModel} model The model that this view belongs to.
+ * @param {MdxModel} model
  */
 function MdxModelView(model) {
     TexturedModelView.call(this, model);
 
-    /** @member {MdxParticleEmitter[]} */
+    /** @member {Array<MdxParticleEmitter>} */
     this.particleEmitters = [];
 
-    /** @member {MdxParticleEmitter2[]} */
+    /** @member {Array<MdxParticleEmitter2>} */
     this.particleEmitters2 = [];
 }
 

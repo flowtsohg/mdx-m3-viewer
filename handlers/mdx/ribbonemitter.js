@@ -1,3 +1,6 @@
+/**
+ * @constructor
+ */
 function MdxRibbonEmitter(model, emitter) {
     let gl = model.env.gl;
 

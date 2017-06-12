@@ -1,3 +1,6 @@
+/**
+ * @constructor
+ */
 function MdxParticle2() {
     this.id = 0;
     this.health = 0;

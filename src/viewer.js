@@ -1,8 +1,7 @@
 /**
- * @class
- * @classdesc The main model viewer class. The starting point of your journey.
- * @extends EventDispatcher
- * @param {HTMLCanvasElement} canvas The canvas object that this model viewer should use.
+ * @constructor
+ * @mixes EventDispatcher
+ * @param {HTMLCanvasElement} canvas
  */
 function ModelViewer(canvas) {
     EventDispatcher.call(this);
@@ -88,7 +87,7 @@ function ModelViewer(canvas) {
     /** @member {map.<string, Handler>} */
     this.handlers = new Map(); // Map from a file extension to an handler
 
-    /** @member {Scene[]} */
+    /** @member {Array<Scene>} */
     this.scenes = [];
 
     /** @member {number} */
@@ -198,7 +197,7 @@ ModelViewer.prototype = {
      * @desc Load something. The meat of this whole project.
      *       If a single source was given, a single object will be returned. If an array was given, an array will be returned, with the same ordering.
      * @param {any} src The source used for the load.
-     * @param {function} pathSolver The path solver used by this load, and any subsequent loads that are caused by it (for example, a model that loads its textures).
+     * @param {function(?)} pathSolver The path solver used by this load, and any subsequent loads that are caused by it (for example, a model that loads its textures).
      * @returns {AsyncResource}
      */
     load(src, pathSolver) {
@@ -247,8 +246,8 @@ ModelViewer.prototype = {
     /**
      * @method
      * @desc Calls the given callback, when all of the given resources finished loading. In the case all of the resources are already loaded, the call happens immediately.
-     * @param {AsyncResource[]} resources The resources to wait for.
-     * @param {function} callback The callback.
+     * @param {Array<AsyncResource>} resources The resources to wait for.
+     * @param {function(Array<AsyncResource>)} callback The callback.
      */
     whenLoaded(resources, callback) {
         let loaded = 0,
@@ -278,7 +277,7 @@ ModelViewer.prototype = {
      * @method
      * @desc Calls the given callback, when all of the viewer resources finished loading. In the case all of the resources are already loaded, the call happens immediately.
      *       Note that instances are also counted.
-     * @param {function} callback The callback.
+     * @param {function(ModelViewer)} callback The callback.
      */
     whenAllLoaded(callback) {
         if (this.resourcesLoading === 0) {
@@ -297,6 +296,7 @@ ModelViewer.prototype = {
      *       Note that this only removes references to this resource, so your code should do the same, to allow GC to work.
      *       This also means that if a resource is referenced by another resource, it is not going to be GC'd.
      *       For example, deleting a texture that is being used by a model will not actually let the GC to collect it, until the model is deleted too, and loses all references.
+     * @param {AsyncResource} resource
      */
     removeResource(resource) {
         if (this.removeReference(resource)) {
@@ -343,7 +343,7 @@ ModelViewer.prototype = {
     /**
      * @method
      * @desc Gets a Blob object representing the canvas, and calls the callback with it.
-     * @param {function} callback The callback to call with the blob.
+     * @param {function(Blob)} callback The callback to call with the blob.
      */
     toBlob(callback) {
         // Render to ensure the internal WebGL buffer is valid.

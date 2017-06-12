@@ -1,3 +1,8 @@
+/**
+ * @constructor
+ * @param {ParticleEmitter} particleEmitter
+ * @param {M3Model} model
+ */
 M3ParticleEmitter = function (particleEmitter, model) {
     var i, l;
     var keys = Object.keys(particleEmitter);

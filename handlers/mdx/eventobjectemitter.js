@@ -1,3 +1,6 @@
+/**
+ * @constructor
+ */
 function MdxEventObjectEmitter(eventObject, model, instance, viewer, pathSolver) {
     var node = instance.skeleton.nodes[eventObject.node.index];
     var name = node.nodeImpl.name;

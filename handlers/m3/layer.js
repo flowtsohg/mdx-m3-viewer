@@ -15,6 +15,13 @@ const M3LayerTypeToTextureUnit = {
     ao: 14
 };
 
+/**
+ * @constructor
+ * @param {M3StandardMaterial} material
+ * @param {Layer} layer
+ * @param {string} type
+ * @param {number} op
+ */
 function M3Layer(material, layer, type, op) {
     // Since Gloss doesn't exist in all versions
     if (layer) {

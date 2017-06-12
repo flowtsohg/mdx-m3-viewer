@@ -1,10 +1,10 @@
 /**
- * @class
+ * @constructor
  * @classdesc A Warcraft 3 map.
- * @extends GenericFile
+ * @extends ViewerFile
  * @memberOf W3x
- * @param {ModelViewer} env The model viewer object that this texture belongs to.
- * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
+ * @param {ModelViewer} env
+ * @param {function(?)} pathSolver
  */
 function W3xMap(env, pathSolver) {
     ViewerFile.call(this, env, pathSolver);
@@ -1368,7 +1368,7 @@ W3xMap.prototype = {
     },
 
     loadModificationFile(file, useOptionalInts, dataTable, metadataTable) {
-        var file = this.mpq.getFile("war3map.w3" + file);
+        file = this.mpq.getFile("war3map.w3" + file);
 
         if (file) {
             var reader = new BinaryReader(file.buffer);

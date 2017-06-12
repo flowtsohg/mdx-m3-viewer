@@ -255,7 +255,7 @@ function createUnitCylinder(slices) {
 /**
  * Creates an height map geometry object.
  *
- * @param {Array.<number[]>} heightmap The height map as an array of arrays of numbers.
+ * @param {Array<Array<number>>} heightmap The height map as an array of arrays of numbers.
  * @returns {object} The geometry object.
  */
 function createHeightMap(heightmap) {
@@ -320,5 +320,48 @@ function createHeightMap(heightmap) {
         uvs: uvs,
         faces: faces,
         edges: edges
+    };
+}
+
+function createFrustum(fieldOfView, aspectRatio, nearClipPlane, farClipPlane) {
+    let tanFov = 2 * Math.tan(fieldOfView / 2),
+        nearHeight = (tanFov * nearClipPlane) / 2;
+        nearWidth = (nearClipPlane * aspectRatio) / 2,
+        farHeight = (tanFov * farClipPlane) / 2,
+        farWidth = (farClipPlane * aspectRatio) / 2;
+    /*
+    float nearHeight = 2 * tan(mFOV / 2) * mNear;
+    float nearWidth = mNear * mRatio;
+
+    float farHeight = 2 * tan(mFOV / 2) * mFar;
+    float farWidth = mFar * mRatio;
+
+    glm::vec3 fc = mPos + mFront * mFar;
+    glm::vec3 nc = mPos + mFront * mNear;
+
+    mFrustum.frustumCorners[0] = fc + (mUp * farHeight / 2.0f) - (mRight * farWidth / 2.0f);
+    mFrustum.frustumCorners[1] = fc + (mUp * farHeight / 2.0f) + (mRight * farWidth / 2.0f);
+    mFrustum.frustumCorners[2] = fc - (mUp * farHeight / 2.0f) - (mRight * farWidth / 2.0f);
+    mFrustum.frustumCorners[3] = fc - (mUp * farHeight / 2.0f) + (mRight * farWidth / 2.0f);
+
+    mFrustum.frustumCorners[4] = nc + (mUp * nearHeight / 2.0f) - (mRight * nearWidth / 2.0f);
+    mFrustum.frustumCorners[5] = nc + (mUp * nearHeight / 2.0f) + (mRight * nearWidth / 2.0f);
+    mFrustum.frustumCorners[6] = nc - (mUp * nearHeight / 2.0f) - (mRight * nearWidth / 2.0f);
+    mFrustum.frustumCorners[7] = nc - (mUp * nearHeight / 2.0f) + (mRight * nearWidth / 2.0f);
+    */
+
+    return {
+        vertices: new Float32Array([
+            -nearWidth, nearClipPlane, -nearHeight,
+            -nearWidth, nearClipPlane, nearHeight,
+            -farWidth, farClipPlane, -farHeight,
+            -farWidth, farClipPlane, farHeight,
+            farWidth, farClipPlane, -farHeight,
+            farWidth, farClipPlane, farHeight,
+            nearWidth, nearClipPlane, -nearHeight,
+            nearWidth, nearClipPlane, nearHeight]),
+        uvs: new Float32Array([0, 0, 0, 1, 0.25, 0, 0.25, 1, 0.5, 0, 0.5, 1, 0.75, 0, 0.75, 1]),
+        faces: new Uint8Array([0, 1, 2, 1, 3, 2, 2, 3, 4, 3, 5, 4, 4, 5, 6, 5, 7, 6, 6, 7, 0, 7, 1, 0, 0, 2, 4, 0, 4, 6, 1, 5, 3, 1, 7, 5]),
+        edges: new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 0, 2, 2, 4, 4, 6, 6, 0, 1, 3, 3, 5, 5, 7, 7, 1])
     };
 }

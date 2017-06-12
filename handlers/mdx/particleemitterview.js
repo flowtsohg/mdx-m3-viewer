@@ -1,3 +1,8 @@
+/**
+ * @constructor
+ * @param {MdxModelInstance} instance
+ * @param {MdxParticleEmitter} emitter
+ */
 function MdxParticleEmitterView(instance, emitter) {
     this.instance = instance;
     this.emitter = emitter;

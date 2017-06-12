@@ -1,3 +1,6 @@
+/**
+ * @constructor
+ */
 function MdxCollisionShape(collisionshape, model, gl) {
     this.node = collisionshape.node;
 

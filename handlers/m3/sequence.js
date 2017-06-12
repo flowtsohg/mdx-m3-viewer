@@ -1,3 +1,7 @@
+/**
+ * @constructor
+ * @param {Sequence} sequence
+ */
 function M3Sequence(sequence) {
     this.name = sequence.name.getAll().join("");
     this.interval = sequence.interval;

@@ -1,9 +1,8 @@
 /**
- * @class
- * @classdesc A geometry model instance.
+ * @constructor
  * @extends ModelInstance
  * @memberOf Geo
- * @param {ModelViewer} env The model viewer object that this texture belongs to.
+ * @param {GeometryModel} model
  */
 function GeometryModelInstance(model) {
     ModelInstance.call(this, model);

@@ -1,3 +1,10 @@
+/**
+ * @constructor
+ * @extends Model
+ * @memberOf Obj
+ * @param {ModelViewer} env
+ * @param {function(?)} pathSolver
+ */
 function ObjModel(env, pathSolver) {
     // Run the base Model constructor.
     Model.call(this, env, pathSolver);

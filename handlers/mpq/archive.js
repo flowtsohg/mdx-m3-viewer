@@ -1,10 +1,10 @@
 /**
- * @class
+ * @constructor
  * @classdesc A MPQ archive, used by Warcraft 3.
- * @extends GenericFile
+ * @extends ViewerFile
  * @memberOf Mpq
- * @param {ModelViewer} env The model viewer object that this texture belongs to.
- * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
+ * @param {ModelViewer} env
+ * @param {function(?)} pathSolver
  */
 function MpqArchive(env, pathSolver) {
     ViewerFile.call(this, env, pathSolver);
@@ -110,7 +110,7 @@ MpqArchive.prototype = {
      * @desc Get an array of strings, populated by all of the file names in this archive.
      *       Note that this assumes this archive has a listfile, which is not always true.
      *       If there is no listfile, an empty array will be returned.
-     * @returns {string[]}
+     * @returns {Array<string>}
      */
     getFileList() {
         if (this.hasFile("(listfile)")) {

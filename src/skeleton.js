@@ -1,10 +1,9 @@
 /**
- * @class
- * @classdesc A base class for skeletons.
- * @param {?Node} parent The parent of this skeleton.
- * @param {number} nodeCount The number of nodes in this skeleton.
+ * @constructor
+ * @param {number} nodeCount
+ * @param {?Node} parent
  */
-function Skeleton(parent, nodeCount) {
+function Skeleton(nodeCount, parent) {
     let buffer = new ArrayBuffer(nodeCount * ViewerNode.BYTES_PER_ELEMENT),
         nodes = [];
 
@@ -16,7 +15,7 @@ function Skeleton(parent, nodeCount) {
     this.rootNode = new NotifiedNode();
     /** @member {ArrayBuffer} */
     this.buffer = buffer;
-    /** @member {Node[]} */
+    /** @member {Array<Node>} */
     this.nodes = nodes;
 
     this.rootNode.setParent(parent);

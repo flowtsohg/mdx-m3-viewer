@@ -1,9 +1,8 @@
 /**
- * @class
- * @classdesc A geometry model view.
+ * @constructor
  * @extends ModelView
  * @memberOf Geo
- * @param {GeometryModel} model The model that this view belongs to.
+ * @param {GeometryModel} model
  */
 function GeometryModelView(model) {
     ModelView.call(this, model);

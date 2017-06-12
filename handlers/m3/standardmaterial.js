@@ -1,3 +1,8 @@
+/**
+ * @constructor
+ * @param {M3Model} model
+ * @param {StandardMaterial} material
+ */
 function M3StandardMaterial(model, material) {
     this.model = model;
     this.gl = model.env.gl;

@@ -1,3 +1,8 @@
+/**
+ * @constructor
+ * @param {MdxModel} model
+ * @param {ParticleEmitter2} emitter
+ */
 function MdxParticleEmitter2(model, emitter) {
     let gl = model.env.gl;
 

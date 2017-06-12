@@ -1,3 +1,7 @@
+/**
+ * @constructor
+ * @mixes NotifiedNode
+ */
 function BoundingShape() {
     NotifiedNode.call(this, false);
 

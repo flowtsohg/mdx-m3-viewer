@@ -1,3 +1,9 @@
+/**
+ * @constructor
+ * @param {STG} stg
+ * @param {Array<STS>} sts
+ * @param {Array<STC>} stc
+ */
 function M3Stg(stg, sts, stc) {
     this.name = stg.name.getAll().join("");
     this.stcIndices = stg.stcIndices.getAll();

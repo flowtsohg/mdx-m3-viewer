@@ -1,3 +1,7 @@
+/**
+ * @constructor
+ * @param {BinaryReader} reader
+ */
 function MpqHashTableEntry(reader) {
     this.name1 = readUint32(reader);
     this.name2 = readUint32(reader);
@@ -6,6 +10,11 @@ function MpqHashTableEntry(reader) {
     this.blockIndex = readUint32(reader);
 }
 
+/**
+ * @constructor
+ * @param {ArrayBuffer} buffer
+ * @param {MpqCrypto} c
+ */
 function MpqHashTable(buffer, c) {
     this.hashSize = buffer.byteLength / 16;
     this.c = c;

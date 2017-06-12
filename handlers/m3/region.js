@@ -1,3 +1,11 @@
+/**
+ * @constructor
+ * @param {Region} region
+ * @param {Uint16Array} triangles
+ * @param {Uint16Array} elementArray
+ * @param {number} offset
+ * @param {WebGLRenderingContext} gl
+ */
 function M3Region(region, triangles, elementArray, offset, gl) {
     let firstVertexIndex = region.firstVertexIndex,
         triangleIndicesCount = region.triangleIndicesCount,

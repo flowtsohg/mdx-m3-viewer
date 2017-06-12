@@ -1,3 +1,7 @@
+/**
+ * @constructor
+ * @param {EventEmitter} emitter
+ */
 function MdxEventObjectSpn(emitter) {
     var viewer = emitter.viewer;
     var pathSolver = emitter.pathSolver;

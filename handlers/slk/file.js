@@ -1,10 +1,10 @@
 /**
- * @class
+ * @constructor
  * @classdesc An SLK file, used for table data by Warcraft 3.
- * @extends GenericFile
+ * @extends ViewerFile
  * @memberOf Slk
- * @param {ModelViewer} env The model viewer object that this texture belongs to.
- * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
+ * @param {ModelViewer} env
+ * @param {function(?)} pathSolver
  */
 function SlkFile(env, pathSolver) {
     ViewerFile.call(this, env, pathSolver);

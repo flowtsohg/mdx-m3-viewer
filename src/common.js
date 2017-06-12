@@ -1,3 +1,5 @@
+var SIMD, Zlib;
+
 function getImageDataFromImage(image) {
     let canvas = document.createElement("canvas"),
         context = canvas.getContext("2d"),
@@ -244,7 +246,7 @@ function hashFromString(s) {
 /**
  * A very simple array-of-numbers hashing algorithm.
  *
- * @param {number[]} a An array fo numbers to hash.
+ * @param {Array<number>} a An array fo numbers to hash.
  * @returns {number} The hash.
  */
 function hashFromArray(a) {

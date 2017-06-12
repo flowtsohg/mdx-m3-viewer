@@ -1,10 +1,6 @@
 /**
- * @class
- * @classdesc This class holds all of the model instances.
- *            It is used to possibly give multiple "views" of the same model.
- *            That is, use the same base model, but have some variations on a per-view basis, hence giving multiple versions of the model.
- *            Mostly used for texture overriding, to allow having multiple instances with different textures.
- * @param {Model} model The model that this view belongs to.
+ * @constructor
+ * @param {Model} model.
  */
 function ModelView(model) {
     /** @member {Model} */

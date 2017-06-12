@@ -1,3 +1,7 @@
+/**
+ * @constructor
+ * @param {Camera} camera
+ */
 function M3Camera(camera) {
     this.bone = camera.bone;
     this.name = camera.name.getAll().join("");

@@ -18,7 +18,7 @@ function filterSequences(type, sequences) {
 }
 
 function selectSequence(type, sequences) {
-    var sequences = filterSequences(type, sequences);
+    sequences = filterSequences(type, sequences);
 
     sequences.sort(sequenceSorter);
 
@@ -60,11 +60,17 @@ function standSequence(target) {
 }
 
 
+/**
+ * @constructor
+ */
 function W3xDroppedItem(reader) {
     this.id = read(reader, 4);
     this.chance = readInt32(reader);
 }
 
+/**
+ * @constructor
+ */
 function W3xDroppedItemSet(reader) {
     this.items = [];
 
@@ -73,22 +79,34 @@ function W3xDroppedItemSet(reader) {
     }
 }
 
+/**
+ * @constructor
+ */
 function W3xModifiedAbility(reader) {
     this.id = read(reader, 4);
     this.activeForAutocast = readInt32(reader);
     this.heroLevel = readInt32(reader);
 }
 
+/**
+ * @constructor
+ */
 function W3xInventoryItem(reader) {
     this.slot = readInt32(reader);
     this.id = read(reader, 4);
 }
 
+/**
+ * @constructor
+ */
 function W3xRandomUnit(reader) {
     this.id = read(reader, 4);
     this.chance = readUint32(reader);
 }
 
+/**
+ * @constructor
+ */
 function W3xUnit(reader, version, map) {
     this.map = map;
 
@@ -225,6 +243,9 @@ W3xUnit.prototype = {
     }
 };
 
+/**
+ * @constructor
+ */
 function W3xDoodad(reader, version, map) {
     this.map = map;
 
@@ -304,6 +325,9 @@ W3xDoodad.prototype = {
     }
 };
 
+/**
+ * @constructor
+ */
 function W3xSpecialDoodad(reader, version, map) {
     var id = read(reader, 4);
     var z = readFloat32(reader);
@@ -326,6 +350,9 @@ function W3xSpecialDoodad(reader, version, map) {
     }
 }
 
+/**
+ * @constructor
+ */
 function W3xModification(reader, useOptionalInts) {
     this.id = read(reader, 4);
 
@@ -347,6 +374,9 @@ function W3xModification(reader, useOptionalInts) {
     var endModification = read(reader, 4);
 }
 
+/**
+ * @constructor
+ */
 function W3xModifiedObject(reader, useOptionalInts) {
     this.oldID = read(reader, 4);
     this.newID = read(reader, 4);
@@ -358,6 +388,9 @@ function W3xModifiedObject(reader, useOptionalInts) {
     }
 }
 
+/**
+ * @constructor
+ */
 function W3xModificationTable(reader, useOptionalInts) {
     this.objects = [];
 
@@ -366,6 +399,9 @@ function W3xModificationTable(reader, useOptionalInts) {
     }
 }
 
+/**
+ * @constructor
+ */
 function W3xTilePoint(reader) {
     this.groundHeight = readInt16(reader);
 

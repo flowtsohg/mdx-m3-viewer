@@ -1,3 +1,11 @@
+/**
+ * @constructor
+ * @param {MdxSD} sd
+ * @param {number} start
+ * @param {number} end
+ * @param {Array<Track>} keyframes
+ * @param {boolean} isGlobalSequence
+ */
 function MdxSDSequence(sd, start, end, keyframes, isGlobalSequence) {
     var defval = sd.defval;
 
@@ -114,6 +122,11 @@ MdxSDSequence.prototype = {
     }
 };
 
+/**
+ * @constructor
+ * @param {SD} sd
+ * @param {MdxModel} model
+ */
 function MdxSD(sd, model) {
     var globalSequenceId = sd.globalSequenceId,
         globalSequences = model.globalSequences,
@@ -178,6 +191,11 @@ MdxSD.prototype = {
     }
 };
 
+/**
+ * @constructor
+ * @param {SdContainer} container
+ * @param {MdxModel} model
+ */
 function MdxSdContainer(container, model) {
     var sd = {};
 

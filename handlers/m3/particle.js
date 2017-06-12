@@ -1,3 +1,6 @@
+/**
+ * @constructor
+ */
 M3Particle = function () {
 
 };

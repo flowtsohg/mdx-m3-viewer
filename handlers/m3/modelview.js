@@ -1,9 +1,8 @@
 /**
- * @class
- * @classdesc An M3 model view.
+ * @constructor
  * @extends TexturedModelView
  * @memberOf M3
- * @param {M3Model} model The model that this view belongs to.
+ * @param {M3Model} model
  */
 function M3ModelView(model) {
     TexturedModelView.call(this, model);

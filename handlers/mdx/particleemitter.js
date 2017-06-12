@@ -1,3 +1,8 @@
+/**
+ * @constructor
+ * @param {MdxModelView} modelView
+ * @param {ParticleEmitter} emitter
+ */
 function MdxParticleEmitter(modelView, emitter) {
     mix(this, emitter);
 

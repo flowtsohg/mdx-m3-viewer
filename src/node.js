@@ -1,8 +1,7 @@
 /**
- * @class
- * @classdesc A scene node, that can be moved around and parented to other nodes.
- * @param {?ArrayBuffer} buffer An ArrayBuffer object to add this node to. A new buffer will be created if one isn't given.
- * @param {?number} offset An offset into the buffer, if one was given.
+ * @constructor
+ * @param {?ArrayBuffer} buffer
+ * @param {?number} offset
  */
 function ViewerNode(buffer, offset) {
     if (!buffer) {

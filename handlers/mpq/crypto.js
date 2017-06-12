@@ -1,3 +1,6 @@
+/**
+ * @constructor
+ */
 function MpqCrypto() {
     this.prepareCryptTable();
 }

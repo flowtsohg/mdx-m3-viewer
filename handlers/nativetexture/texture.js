@@ -1,10 +1,9 @@
 /**
- * @class
- * @classdesc A texture that wraps Image, thus supporting PNG, JPG, and GIF.
+ * @constructor
  * @extends Texture
  * @memberOf NativeTexture
- * @param {ModelViewer} env The model viewer object that this texture belongs to.
- * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
+ * @param {ModelViewer} env
+ * @param {function(?)} pathSolver
  */
 function ImageTexture(env, pathSolver) {
     Texture.call(this, env, pathSolver);

@@ -1,9 +1,8 @@
 /**
- * @class
- * @classdesc A model. The point of this viewer.
- * @extends DownloadableResource
- * @param {ModelViewer} env The model viewer object that this model belongs to.
- * @param {function} pathSolver A function that solves paths. See more {@link LoadPathSolver here}.
+ * @constructor
+ * @mixes Model
+ * @param {ModelViewer} env
+ * @param {function(?)} pathSolver
  */
 function TexturedModel(env, pathSolver) {
     Model.call(this, env, pathSolver);

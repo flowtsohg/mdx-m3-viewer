@@ -1,5 +1,5 @@
 /**
- * @class
+ * @constructor
  * @classdesc An MDX bucket.
  * @extends Bucket
  * @memberOf Mdx

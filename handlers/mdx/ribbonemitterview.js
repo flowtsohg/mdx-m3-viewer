@@ -1,3 +1,8 @@
+/**
+ * @constructor
+ * @param {MdxModelInstance} instance
+ * @param {MdxRibbonEmitter} emitter
+ */
 function MdxRibbonEmitterView(instance, emitter) {
     this.instance = instance;
     this.emitter = emitter;

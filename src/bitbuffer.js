@@ -1,3 +1,9 @@
+/**
+ * @constructor
+ * @param {ArrayBuffer} buffer
+ * @param {number=} byteOffset
+ * @param {number=} byteLength
+ */
 function BitBuffer(buffer, byteOffset, byteLength) {
     if (!(buffer instanceof ArrayBuffer)) {
         throw new TypeError("BitBuffer: expected ArrayBuffer, got " + buffer);

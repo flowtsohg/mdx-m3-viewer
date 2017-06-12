@@ -1,6 +1,5 @@
 /**
- * @class
- * @classdesc A MPQ file, used by Warcraft 3.
+ * @constructor
  * @memberOf Mpq
  * @param {MpqArchive} archive The archive that owns this file.
  * @param {MpqBlockTableEntry} block This file's block.
@@ -44,12 +43,13 @@ MpqFile.prototype = {
         if (flags & Mpq.FILE_SINGLEUNIT) {
             console.warn("[MPQFile::parse] Single unit (add support!)")
             console.log(this);
-
+            /*
             if (flags & Mpq.FILE_COMPRESSED) {
 
             } else {
 
             }
+            */
         }
 
         if (flags & Mpq.FILE_COMPRESSED) {

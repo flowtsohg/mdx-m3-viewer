@@ -1,10 +1,9 @@
 /**
- * @class
- * @classdesc A geometry model.
+ * @constructor
  * @extends Model
  * @memberOf Geo
- * @param {ModelViewer} env The model viewer object that this texture belongs to.
- * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
+ * @param {ModelViewer} env
+ * @param {function(?)} pathSolver
  */
 function GeometryModel(env, pathSolver) {
     Model.call(this, env, pathSolver);

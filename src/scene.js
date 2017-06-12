@@ -1,17 +1,16 @@
 /**
- * @class
- * @classdesc A scene.
- *            Scenes allow to render different model views with different cameras.
+ * @constructor
  */
 function Scene() {
     /** @member {ModelViewer} */
     this.env = null;
-    /** @member {Set.<Instance>} */
-    this.instances = new Set();
     /** @member {Camera} */
     this.camera = new Camera();
-
+    /** @member {Set.<Instance>} */
+    this.instances = new Set();
+    /** @member {Array<Bucket>} */
     this.buckets = [];
+    /** @member {Set.<Bucket>} */
     this.bucketSet = new Set();
 }
 
@@ -96,7 +95,7 @@ Scene.prototype = {
     clear() {
         let buckets = this.buckets;
 
-        for (let i = 0, l = views.length; i < l; i++) {
+        for (let i = 0, l = buckets.length; i < l; i++) {
             this.removeBucket(buckets[i]);
         }
 

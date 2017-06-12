@@ -1,3 +1,8 @@
+/**
+ * @constructor
+ * @param {MdxModel} model
+ * @param {TextureAnimation} textureAnimation
+ */
 function MdxTextureAnimation(model, textureAnimation) {
     this.sd = new MdxSdContainer(textureAnimation.tracks, model);
 }

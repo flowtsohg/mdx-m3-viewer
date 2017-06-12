@@ -1,10 +1,7 @@
 /**
- * @class
- * @classdesc A common base class for almost all of the objects used by the viewer.
- *            This class handles the different states of loading, and the events sent as a result.
- *            It also extends action queue, which is the class that gives every object the ability to support asyncronous actions.
- * @extends EventDispatcher
- * @param {ModelViewer} env The model viewer object this resource belongs to.
+ * @constructor
+ * @mixes EventDispatcher
+ * @param {ModelViewer} env
  */
 function AsyncResource(env) {
     /** @member {ModelViewer} */
@@ -62,7 +59,7 @@ AsyncResource.prototype = {
     /**
      * @method
      * @desc Similar to attaching an event listener to the "loadend" event, but handles the case where the resource already loaded, and the callback should still be called.
-     * @param {function} callback The function to call.
+     * @param {function(AsyncResource)} callback The function to call.
      * @returns this
      */
     whenLoaded(callback) {

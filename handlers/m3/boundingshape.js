@@ -1,3 +1,9 @@
+/**
+ * @constructor
+ * @param {BoundingShape} boundingshape
+ * @param {Array<Bone>} bones
+ * @param {WebGLRenderingContext} gl
+ */
 function M3BoundingShape(boundingshape, bones, gl) {
     this.bone = boundingshape.bone;
     this.matrix = boundingshape.matrix;

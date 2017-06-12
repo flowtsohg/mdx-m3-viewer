@@ -1,7 +1,6 @@
 /**
- * @class
- * @classdesc A simple wrapper around WebGL.
- * @param {HTMLCanvasElement} canvas The canvas to create a WebGL context for.
+ * @constructor
+ * @param {HTMLCanvasElement} canvas
  */
 function WebGL(canvas) {
     let gl = canvas.getContext("webgl", { alpha: false });

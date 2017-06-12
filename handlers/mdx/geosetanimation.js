@@ -1,3 +1,8 @@
+/**
+ * @constructor
+ * @param {MdxModel} model
+ * @param {GeosetAnimation} geosetAnimation
+ */
 function MdxGeosetAnimation(model, geosetAnimation) {
     this.alpha = geosetAnimation.alpha;
     this.color = [...geosetAnimation.color].reverse(); // Stored as RGB, but animated colors are stored as BGR, so sizzle.

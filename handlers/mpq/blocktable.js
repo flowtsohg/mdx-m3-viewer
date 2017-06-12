@@ -1,3 +1,7 @@
+/**
+ * @constructor
+ * @param {BinaryReader} reader
+ */
 function MpqBlockTableEntry(reader) {
     this.filePos = readUint32(reader);
     this.compressedSize = readUint32(reader);
@@ -5,6 +9,11 @@ function MpqBlockTableEntry(reader) {
     this.flags = readUint32(reader);
 }
 
+/**
+ * @constructor
+ * @param {ArrayBuffer} buffer
+ * @param {MpqCrypto} c
+ */
 function MpqBlockTable(buffer, c) {
     this.hashSize = buffer.byteLength / 16;
     this.c = c;

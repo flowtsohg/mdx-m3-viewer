@@ -1,3 +1,6 @@
+/**
+ * @constructor
+ */
 function Frustum() {
     // Left, right, top, bottom, near, far
     this.planes = [quat.create(), quat.create(), quat.create(), quat.create(), quat.create(), quat.create()];

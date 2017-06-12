@@ -1,3 +1,7 @@
+/**
+ * @constructor
+ * @param {EventEmitter} emitter
+ */
 function MdxEventObjectUbr(emitter) {
     var viewer = emitter.viewer;
     var ctx = viewer.gl.ctx;

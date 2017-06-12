@@ -1,9 +1,8 @@
 /**
- * @class
- * @classdesc An MDX model instance.
+ * @constructor
  * @extends ModelInstance
  * @memberOf Mdx
- * @param {ModelViewer} env The model viewer object that this texture belongs to.
+ * @param {MdxModel} model
  */
 function MdxModelInstance(model) {
     TexturedModelInstance.call(this, model);
@@ -32,9 +31,9 @@ MdxModelInstance.prototype = {
         var model = this.model;
         var pathSolver = model.pathSolver;
 
-        this.skeleton = new MdxSkeleton(this, model);
+        this.skeleton = new MdxSkeleton(this);
         
-        if (model.particleEmitters2 && model.particleEmitters2.length > 0) {
+        if (model.particleEmitters2.length > 0) {
             const objects = model.particleEmitters2;
             
             for (let i = 0, l = objects.length; i < l; i++) {
@@ -42,7 +41,7 @@ MdxModelInstance.prototype = {
             }
         }
 
-        if (model.ribbonEmitters && model.ribbonEmitters.length > 0) {
+        if (model.ribbonEmitters.length > 0) {
             const objects = model.ribbonEmitters;
 
             for (i = 0, l = objects.length; i < l; i++) {
@@ -92,6 +91,7 @@ MdxModelInstance.prototype = {
             }
         }
 
+        /*
         if (0) {
             let extent = model.extent,
                 min = extent.min,
@@ -123,6 +123,7 @@ MdxModelInstance.prototype = {
 
             console.log(model.extent)
         }
+        //*/
 
         //-------------------------------------------------------------------------------------------------------
         
@@ -234,19 +235,20 @@ MdxModelInstance.prototype = {
     },
 
     globalUpdate() {
-        if (this.sequenceObject) {
+        if (this.sequence !== -1) {
             var sequence = this.sequenceObject,
+                interval = sequence.interval,
                 frameTime = this.env.frameTime;
 
             this.frame += frameTime;
             this.counter += frameTime;
             this.allowParticleSpawn = true;
 
-            if (this.frame >= sequence.interval[1]) {
+            if (this.frame >= interval[1]) {
                 if (this.sequenceLoopMode === 2 || (this.sequenceLoopMode === 0 && sequence.flags === 0)) {
-                    this.frame = sequence.interval[0];
+                    this.frame = interval[0];
                 } else {
-                    this.frame = sequence.interval[1];
+                    this.frame = interval[1];
                     this.counter -= frameTime;
                     this.allowParticleSpawn = false;
                 }
@@ -260,7 +262,7 @@ MdxModelInstance.prototype = {
         var model = this.model,
             bucket = this.bucket;
 
-        if (this.sequenceObject && model.variants[this.sequence]) {
+        if (this.sequence !== -1 && model.variants[this.sequence]) {
             this.skeleton.update();
         }
 

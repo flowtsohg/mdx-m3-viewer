@@ -1,10 +1,9 @@
 /**
- * @class
- * @classdesc A Warcraft 3 model.
+ * @constructor
  * @extends Model
  * @memberOf Mdx
- * @param {ModelViewer} env The model viewer object that this texture belongs to.
- * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
+ * @param {ModelViewer} env
+ * @param {function(?)} pathSolver
  */
 function MdxModel(env, pathSolver) {
     TexturedModel.call(this, env, pathSolver);
@@ -29,7 +28,7 @@ MdxModel.prototype = {
         var parser;
         
         try {
-            parser = MdxParser(new BinaryReader(src));
+            parser = new MdxParser(src);
         } catch (e) {
             this.onerror("InvalidSource", e);
             return false;
@@ -184,14 +183,13 @@ MdxModel.prototype = {
         }
 
         if (chunks.PRE2) {
-            //this.particleEmitters2 = chunks.PRE2.elements;
+            this.particleEmitters2 = chunks.PRE2.elements;
         }
 
         if (chunks.RIBB) {
-            //this.ribbonEmitters = this.transformElements(chunks.RIBB, MdxRibbonEmitter);
+            this.ribbonEmitters = chunks.RIBB.elements;
         }
 
-        this.boundingShapes = [];
         if (chunks.CLID) {
             this.boundingShapes = chunks.CLID.elements;
         }
@@ -347,7 +345,7 @@ MdxModel.prototype = {
         return hierarchy;
     },
 
-    transformElements(chunk, Func, gl) {
+    transformElements(chunk, Func) {
         var output = [];
 
         if (chunk) {
@@ -592,6 +590,7 @@ MdxModel.prototype = {
     },
 
     renderEmitters(bucket, scene) {
+        /*
         let webgl = this.env.webgl,
             gl = this.env.gl,
             emitters = this.particleEmitters2;
@@ -604,7 +603,7 @@ MdxModel.prototype = {
             var shader = Mdx.particleShader;
             webgl.useShaderProgram(shader);
 
-            gl.uniformMatrix4fv(shader.uniforms.get("u_mvp"), false, bucket.modelView.scene.camera.worldProjectionMatrix);
+            gl.uniformMatrix4fv(shader.uniforms.get("u_mvp"), false, scene.camera.worldProjectionMatrix);
 
             gl.uniform1i(shader.uniforms.get("u_texture"), 0);
 
@@ -618,6 +617,7 @@ MdxModel.prototype = {
         gl.depthMask(1);
         gl.disable(gl.BLEND);
         gl.enable(gl.CULL_FACE);
+        */
     }
 };
 

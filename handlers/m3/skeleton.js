@@ -1,9 +1,13 @@
+/**
+ * @constructor
+ * @param {M3Instance} instance
+ */
 function M3Skeleton(instance) {
     let model = instance.model,
         bones = model.bones,
         boneLookup = model.boneLookup;
 
-    Skeleton.call(this, instance, bones.length);
+    Skeleton.call(this, bones.length, instance);
 
     this.instance = instance;
     this.modelNodes = bones;

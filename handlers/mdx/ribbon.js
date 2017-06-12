@@ -1,3 +1,6 @@
+/**
+ * @constructor
+ */
 function MdxRibbon() {
     this.location = vec3.create();
     this.health = 0;

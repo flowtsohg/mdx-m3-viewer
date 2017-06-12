@@ -1,3 +1,9 @@
+/**
+ * @constructor
+ * @param {number} index
+ * @param {MdxLayer} layer
+ * @param {MdxGeoset} geoset
+ */
 function MdxBatch(index, layer, geoset) {
     this.index = index;
     this.layer = layer;
@@ -24,6 +30,13 @@ var MdxFilterModeToRenderOrder = {
     6: 3  // Modulate 2X
 };
 
+/**
+ * @constructor
+ * @param {Layer} layer
+ * @param {number} layerId
+ * @param {number} priorityPlane
+ * @param {MdxModel} model
+ */
 function MdxLayer(layer, layerId, priorityPlane, model) {
     let filterMode = Math.min(layer.filterMode, 6),
         textureAnimationId = layer.textureAnimationId,
@@ -33,14 +46,20 @@ function MdxLayer(layer, layerId, priorityPlane, model) {
     this.index = layerId;
     this.priorityPlane = priorityPlane;
     this.filterMode = filterMode;
-    this.twoSided = layer.twoSided;
-    this.noDepthTest = layer.noDepthTest;
-    this.noDepthSet = layer.noDepthSet;
     this.textureId = layer.textureId;
     this.coordId = layer.coordId;
     this.alpha = layer.alpha;
     this.renderOrder = MdxFilterModeToRenderOrder[filterMode];
     this.sd = new MdxSdContainer(layer.tracks, model);
+
+    var flags = layer.flags;
+
+    this.unshaded = flags & 1;
+    this.sphereEnvironmentMap = flags & 2;
+    this.twoSided = flags & 16;
+    this.unfogged = flags & 32;
+    this.noDepthTest = flags & 64;
+    this.noDepthSet = flags & 128;
 
     if (textureAnimationId !== -1) {
         let textureAnimation = model.textureAnimations[textureAnimationId];

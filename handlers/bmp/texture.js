@@ -1,4 +1,10 @@
-// A simple 24-bit BMP handler
+/**
+ * @constructor
+ * @extends Texture
+ * @memberOf Bmp
+ * @param {ModelViewer} env
+ * @param {function(?)} pathSolver
+ */
 function BmpTexture(env, pathSolver) {
     Texture.call(this, env, pathSolver);
 }

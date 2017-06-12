@@ -4,7 +4,7 @@ end
 
 WANT_SLK = true
 WANT_MPQ = true
-WANT_PNG = true # PNG / JPG / GIF
+WANT_PNG = true # PNG / JPG / GIF / WebGLTexture
 WANT_BLP = true
 WANT_DDS = true
 WANT_TGA = true
@@ -18,9 +18,9 @@ WANT_OBJ = true
 WANT_UNIT_TESTER = true
 WANT_UNIT_TESTS = arg_exists? "unit-tests"
 WANT_STRICT_MODE = true
-WANT_MINIFY = true
+WANT_MINIFY = true # Do you want to minify everything into one file?
+WANT_COMPILE = true # If you minifiged, do you want to also compress the output with closure?
 WANT_GEN_DOCS = arg_exists? "gen-docs" # Assumes you have JSDoc in your PATH system variable.
-WANT_SPLIT_EXTERNAL = arg_exists? "split-external" # Split the external code to a separate file - external.min.js
 
 require "json"
 BATCHES = JSON.parse File.read "viewer.json"
@@ -37,15 +37,17 @@ def add_batch(name)
     batch name, BATCHES[name]
 end
 
-BASE = add_batch "BASE"
+CORE = add_batch "CORE"
 PNG = add_batch "PNG"
 W3X = add_batch "W3X"
+MDX_PARSER = add_batch "MDX_PARSER"
 MDX = add_batch "MDX"
 BLP = add_batch "BLP"
 SLK = add_batch "SLK"
 TGA = add_batch "TGA"
 BMP = add_batch "BMP"
 MPQ = add_batch "MPQ"
+M3_PARSER = add_batch "M3_PARSER"
 M3 = add_batch "M3"
 DDS = add_batch "DDS"
 GEO = add_batch "GEO"
@@ -75,25 +77,33 @@ def add_forced(what)
 end
 
 def minify()
-	print "Minifying..."
+	puts "Minifying..."
 
-	File.open("viewer.min.js", "w") { |out|
-		out.write "/* #{File.read('LICENSE').strip} */\n"
+	File.open("viewer.js", "w") { |out|
+		out.write "/** @license #{File.read('LICENSE').strip}*/\n"
 		out.write "\"use strict\";\n" if WANT_STRICT_MODE
 
-		External.each { |file| out.write File.read file } if not WANT_SPLIT_EXTERNAL
+		External.each { |file| out.write File.read file }
 		Code.each { |file| out.write File.read file }
 	}
 
-	if WANT_SPLIT_EXTERNAL
-		File.open("external.min.js", "w") { |out|
-			External.each { |file| out.write File.read file }
-		}
+	puts "> viewer.js (#{File.size('viewer.js') / 2**10}KB)"
+
+	if WANT_COMPILE
+		if File.file?("closure-compiler.jar")
+			puts "Compiling the output with Closure..."
+
+			# --compilation_level ADVANCED_OPTIMIZATIONS
+			system("java -jar closure-compiler.jar --js viewer.js --js_output_file viewer.min.js");
+
+		
+			puts "> viewer.min.js (#{File.size('viewer.min.js') / 2**10}KB)"
+		else
+			puts "Compilation requested, but closure-compiler.jar isn't there"
+		end
 	end
 
 	puts "Done"
-	puts "> viewer.min.js (#{File.size('viewer.min.js') / 2**10}KB)"
-	puts "> external.min.js (#{File.size('external.min.js') / 2**10}KB)" if WANT_SPLIT_EXTERNAL
 end
 
 def gen_docs()
@@ -106,7 +116,7 @@ end
 
 puts "Hi"
 
-add BASE
+add CORE
 add SLK if WANT_SLK
 add MPQ if WANT_MPQ
 add PNG if WANT_PNG
@@ -121,6 +131,7 @@ if WANT_W3X
 	add_forced MPQ if not WANT_MPQ
 	add_forced BLP if not WANT_BLP
 	add_forced TGA if not WANT_TGA
+	add_forced MDX_PARSER if not WANT_MDX
 	add_forced MDX if not WANT_MDX
 	add_forced GEO if not WANT_GEO
 	add_forced PNG if not WANT_PNG
@@ -132,12 +143,14 @@ if WANT_MDX
 	add_forced BLP if not WANT_BLP
 	add_forced TGA if not WANT_TGA
 	add_forced PNG if not WANT_PNG
+	add MDX_PARSER
 	add MDX
 end
 
 if WANT_M3
 	add_forced DDS if not WANT_DDS
 	add_forced TGA if not WANT_TGA
+	add M3_PARSER
 	add M3
 end
 

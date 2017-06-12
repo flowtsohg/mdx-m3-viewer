@@ -1,9 +1,8 @@
 /**
- * @class
- * @classdesc An M3 model instance.
- * @extends ModelInstance
+ * @constructor
+ * @extends TexturedModelInstance
  * @memberOf M3
- * @param {ModelViewer} env The model viewer object that this texture belongs to.
+ * @param {M3Model} model
  */
 function M3ModelInstance(model) {
     TexturedModelInstance.call(this, model);

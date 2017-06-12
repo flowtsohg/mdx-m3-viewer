@@ -1,3 +1,7 @@
+/**
+ * @constructor
+ * @param {STC} stc
+ */
 function M3Stc(stc) {
     const animIds = stc.animIds.getAll();
 

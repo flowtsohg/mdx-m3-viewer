@@ -1,11 +1,10 @@
-// Note: This file is largely based on https://github.com/toji/webctx-texture-utils/blob/master/texture-util/dds.js
 /**
- * @class
- * @classdesc A DDS texture, used by Starcraft 2.
+ * @see Largely based on https://github.com/toji/webctx-texture-utils/blob/master/texture-util/dds.js
+ * @constructor
  * @extends Texture
  * @memberOf Dds
- * @param {ModelViewer} env The model viewer object that this texture belongs to.
- * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
+ * @param {ModelViewer} env
+ * @param {function(?)} pathSolver
  */
 function DdsTexture(env, pathSolver) {
     Texture.call(this, env, pathSolver);

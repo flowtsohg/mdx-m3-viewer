@@ -1,3 +1,8 @@
+/**
+ * @constructor
+ * @extends Skeleton
+ * @param {MdxModelInstance} instance
+ */
 function MdxSkeleton(instance) {
     let model = instance.model,
         modelNodes = model.nodes,
@@ -7,7 +12,7 @@ function MdxSkeleton(instance) {
         sortedNodes = [],
         bones = [];
 
-    Skeleton.call(this, instance, modelNodes.length);
+    Skeleton.call(this, modelNodes.length, instance);
 
     // Not defined before the Skeleton constructor
     nodes = this.nodes;

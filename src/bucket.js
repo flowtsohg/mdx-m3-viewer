@@ -1,7 +1,6 @@
 /**
- * @class
- * @classdesc A bucket of instances. Used for batch rendering of many instances at the same time, using instanced rendering.
- * @param {ModelView} modelView The view this bucket belongs to.
+ * @constructor
+ * @param {ModelView} modelView
  */
 function Bucket(modelView) {
     let model = modelView.model,
@@ -11,7 +10,7 @@ function Bucket(modelView) {
     this.modelView = modelView;
     /** @member {Model} */
     this.model = model;
-    /** @member {ModelInstance[]} */
+    /** @member {Array<ModelInstance>} */
     this.instances = [];
     /** @member {map.<ModelInstance, number>} */
     this.instanceToIndex = new Map();

@@ -1,10 +1,9 @@
 /**
- * @class
- * @classdesc A Starcraft 2 model.
+ * @constructor
  * @extends Model
  * @memberOf M3
- * @param {ModelViewer} env The model viewer object that this texture belongs to.
- * @param {function} pathSolver A function that solves paths. See more {@link PathSolver here}.
+ * @param {ModelViewer} env
+ * @param {function(?)} pathSolver
  */
 function M3Model(env, pathSolver) {
     TexturedModel.call(this, env, pathSolver);
@@ -19,26 +18,27 @@ M3Model.prototype = {
         var parser;
 
         try {
-            parser = M3Parser(new BinaryReader(src));
+            parser = new M3Parser(src);
         } catch (e) {
             this.onerror("InvalidSource", e);
             return false;
         }
 
         var i, l;
-        var div = parser.divisions.get();
+        var model = parser.model;
+        var div = model.divisions.get();
 
         this.parser = parser;
-        this.name = parser.modelName.getAll().join("");
+        this.name = model.modelName.getAll().join("");
 
-        this.setupGeometry(parser, div);
+        this.setupGeometry(model, div);
 
         this.batches = [];
         this.materials = [[], []]; // 2D array for the possibility of adding more material types in the future
-        this.materialMaps = parser.materialReferences.getAll();
+        this.materialMaps = model.materialReferences.getAll();
 
         var materialMaps = this.materialMaps;
-        var materials = parser.materials[0].getAll();
+        var materials = model.materials[0].getAll();
         var batches = [];
 
         // Create concrete material objects for standard materials
@@ -105,16 +105,17 @@ M3Model.prototype = {
         
         this.batches = batches;
 
-        var sts = parser.sts.getAll();
-        var stc = parser.stc.getAll();
-        var stg = parser.stg.getAll();
+        var sts = model.sts.getAll();
+        var stc = model.stc.getAll();
+        var stg = model.stg.getAll();
 
-        this.initialReference = parser.absoluteInverseBoneRestPositions.getAll();
-        this.bones = parser.bones.getAll();
-        this.boneLookup = parser.boneLookup.getAll();
+        this.initialReference = model.absoluteInverseBoneRestPositions.getAll();
+
+        this.bones = model.bones.getAll();
+        this.boneLookup = model.boneLookup.getAll();
 
 
-        let sequences = parser.sequences.getAll();
+        let sequences = model.sequences.getAll();
         this.sequences = [];
         for (i = 0, l = sequences.length; i < l; i++) {
             this.sequences[i] = new M3Sequence(sequences[i]);
@@ -155,13 +156,13 @@ M3Model.prototype = {
         }
         */
 
-        let attachments = parser.attachmentPoints.getAll();
+        let attachments = model.attachmentPoints.getAll();
         this.attachments = [];
         for (i = 0, l = attachments.length; i < l; i++) {
             this.attachments[i] = new M3Attachment(attachments[i]);
         }
 
-        let cameras = parser.cameras.getAll();
+        let cameras = model.cameras.getAll();
         this.cameras = [];
         for (i = 0, l = cameras.length; i < l; i++) {
             this.cameras[i] = new M3Camera(cameras[i]);

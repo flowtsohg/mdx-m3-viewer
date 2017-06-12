@@ -1,4 +1,9 @@
-function Camera(fieldOfView, aspectRatio, nearClipPlane, farClipPlane) {
+/**
+ * @constructor
+ * @mixes ViewerNode
+ * @mixes Frustum
+ */
+function Camera() {
     Frustum.call(this);
 
     this.perspective = true;

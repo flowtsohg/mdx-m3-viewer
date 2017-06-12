@@ -1,3 +1,6 @@
+/**
+ * @constructor
+ */
 function MdxShallowAttachment(instance, attachment) {
     let internalInstance = attachment.internalModel.addInstance();
 
@@ -31,6 +34,9 @@ MdxShallowAttachment.prototype = {
     }
 };
 
+/**
+ * @constructor
+ */
 function MdxAttachment(model, attachment) {
     let path = attachment.path.replace(/\\/g, "/").toLowerCase().replace(".mdl", ".mdx");
 

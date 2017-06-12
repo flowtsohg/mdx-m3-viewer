@@ -1,9 +1,17 @@
+/**
+ * @constructor
+ * @param {SD} sd
+ */
 function M3Sd(sd) {
     this.keys = sd.keys.getAll();
     this.values = sd.values.getAll();
     this.biggestKey = sd.biggestKey;
 }
 
+/**
+ * @constructor
+ * @param {Array<SD>} sd
+ */
 function M3SdContainer(sd) {
     this.sd = sd.map((sd) => new M3Sd(sd));
 }

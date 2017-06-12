@@ -1,6 +1,12 @@
-function ObjModelInstance(env) {
+/**
+ * @constructor
+ * @extends ModelInstance
+ * @memberOf Obj
+ * @param {ObjModel} model
+ */
+function ObjModelInstance(model) {
     // Run the base ModelInstance constructor.
-    ModelInstance.call(this, env);
+    ModelInstance.call(this, model);
 }
 
 ObjModelInstance.prototype = {

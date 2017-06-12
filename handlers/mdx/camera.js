@@ -1,3 +1,6 @@
+/**
+ * @constructor
+ */
 function MdxCamera(model, camera) {
     this.name = camera.name;
     this.position = camera.position;

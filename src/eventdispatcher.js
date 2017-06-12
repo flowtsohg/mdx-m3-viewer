@@ -1,6 +1,5 @@
 /**
- * @class
- * @classdesc An event dispatcher. Not much else to say.
+ * @constructor
  */
 function EventDispatcher() {
     /** @member {Map.<string, function>} */
@@ -12,7 +11,7 @@ EventDispatcher.prototype = {
      * @method
      * @desc Add a new event listener.
      * @param {string} type The event type.
-     * @param {function} listener The event listener.
+     * @param {function(Event)} listener The event listener.
      * @returns this
      */
     addEventListener(type, listener) {
@@ -31,7 +30,7 @@ EventDispatcher.prototype = {
      * @method
      * @desc Remove an existing event listener.
      * @param {string} type The event type.
-     * @param {function} listener The event listener.
+     * @param {function(Event)} listener The event listener.
      * @returns this
      */
     removeEventListener(type, listener) {

@@ -1,8 +1,7 @@
 /**
- * @class
- * @classdesc A class that emulates a resizeable WebGL buffer.
- * @param {WebGLRenderingContext} gl The WebGL context.
- * @param {?number} size The initial buffer size. Defaults to 32.
+ * @constructor
+ * @param {WebGLRenderingContext} gl
+ * @param {?number} size
  */
 function ResizeableBuffer(gl, size) {
     let buffer = new ArrayBuffer(size || 32); // Arbitrary default size

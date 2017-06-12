@@ -1,3 +1,10 @@
+/**
+ * @constructor
+ * @param {Array<number>} offsets
+ * @param {number} uvSetSize
+ * @param {Uint16Array} elements
+ * @param {MdxModel} model
+ */
 function MdxShallowGeoset(offsets, uvSetSize, elements, model) {
     this.model = model;
     this.offsets = offsets;
@@ -25,6 +32,9 @@ MdxShallowGeoset.prototype = {
     }
 };
 
+/**
+ * @constructor
+ */
 function MdxGeoset(geoset, geosetAnimations) {
     let positions = geoset.vertices,
         normals = geoset.normals,

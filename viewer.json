@@ -1,5 +1,5 @@
 {
-  "BASE": {
+  "CORE": {
     "path": "src/",
     "internal_files": [
       "common",
@@ -17,6 +17,7 @@
       "skeleton",
       "gl/resizeablebuffer",
       "gl/shader",
+      "gl/program",
       "gl/gl",
       "frustum",
       "camera",
@@ -76,11 +77,48 @@
     "external_files": [
     ]
   },
+  "MDX_PARSER": {
+    "path": "handlers/mdx/parser/",
+    "internal_files": [
+      "binaryreader",
+      "extent",
+      "node",
+      "track",
+      "sd",
+      "versionchunk",
+      "modelchunk",
+      "sequence",
+      "globalsequence",
+      "texture",
+      "soundtrack",
+      "layer",
+      "material",
+      "textureanimation",
+      "geoset",
+      "geosetanimation",
+      "bone",
+      "light",
+      "helper",
+      "attachment",
+      "pivotpoint",
+      "particleemitter",
+      "particleemitter2",
+      "ribbonemitter",
+      "eventobject",
+      "camera",
+      "collisionshape",
+      "genericknownchunk",
+      "genericunknownchunk",
+      "unsupportedchunk",
+      "parser"
+    ],
+    "external_files": [
+    ]
+  },
   "MDX": {
     "path": "handlers/mdx/",
     "internal_files": [
       "shaders",
-      "parser",
       "sanitytester",
       "sd",
       "skeleton",
@@ -156,11 +194,41 @@
     "external_files": [
     ]
   },
+  "M3_PARSER": {
+    "path": "handlers/m3/parser/",
+    "internal_files": [
+      "animationreference",
+      "boundingshape",
+      "unsupportedentry",
+      "sd",
+      "camera",
+      "attachmentpoint",
+      "boundingsphere",
+      "event",
+      "layer",
+      "standardmaterial",
+      "materialreference",
+      "batch",
+      "region",
+      "division",
+      "bone",
+      "sts",
+      "stg",
+      "stc",
+      "sequence",
+      "model",
+      "md34",
+      "reference",
+      "indexentry",
+      "parser"
+    ],
+    "external_files": [
+    ]
+  },
   "M3": {
     "path": "handlers/m3/",
     "internal_files": [
       "shaders",
-      "parser",
       "sequence",
       "sd",
       "sts",

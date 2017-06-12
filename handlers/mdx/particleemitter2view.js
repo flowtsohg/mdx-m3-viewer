@@ -1,11 +1,15 @@
+/**
+ * @constructor
+ * @param {MdxModelInstance} instance
+ */
 function MdxParticleEmitter2View(instance) {
     this.instance = instance;
-    this.index = index;
     this.currentEmission = 0;
 }
 
 MdxParticleEmitter2View.prototype = {
     update(allowCreate) {
+        /*
         let instance = this.instance;
 
         if (instance.bucket && allowCreate && this.shouldRender()) {
@@ -21,6 +25,7 @@ MdxParticleEmitter2View.prototype = {
                 }
             }
         }
+        */
     },
 
     shouldRender() {
