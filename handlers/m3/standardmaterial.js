@@ -1,14 +1,13 @@
 /**
  * @constructor
  * @param {M3Model} model
- * @param {StandardMaterial} material
+ * @param {M3ParserStandardMaterial} material
  */
 function M3StandardMaterial(model, material) {
     this.model = model;
     this.gl = model.env.gl;
 
     this.name = material.name.getAll().join("");
-    this.specialFlags = material.specialFlags;
     this.flags = material.flags;
     this.blendMode = material.blendMode;
     this.priority = material.priority;

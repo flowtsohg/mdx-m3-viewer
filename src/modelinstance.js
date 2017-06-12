@@ -1,7 +1,7 @@
 /**
  * @constructor
- * @mixes AsyncResource
- * @mixes NotifiedNode
+ * @extends {AsyncResource}
+ * @extends {NotifiedNode}
  * @param {Model} model
  */
 function ModelInstance(model) {

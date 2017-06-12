@@ -40,7 +40,7 @@ ObjModel.prototype = {
 
                     if (match) {
                         // OBJ uses 1-based indexing, so we have to deduce 1
-                        faces.push(parseInt(match[1]) - 1, parseInt(match[2]) - 1, parseInt(match[3]) - 1);
+                        faces.push(parseInt(match[1], 10) - 1, parseInt(match[2], 10) - 1, parseInt(match[3], 10) - 1);
                     }
                 }
             }

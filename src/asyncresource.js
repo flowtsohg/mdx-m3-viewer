@@ -1,9 +1,11 @@
 /**
  * @constructor
- * @extends EventDispatcher
+ * @extends {EventDispatcher}
  * @param {ModelViewer} env
  */
 function AsyncResource(env) {
+    EventDispatcher.call(this);
+
     /** @member {ModelViewer} */
     this.env = env;
     /** @member {WebGLRenderingContext} */
@@ -12,8 +14,6 @@ function AsyncResource(env) {
     this.loaded = false;
     /** @member {boolean} */
     this.error = false;
-
-    EventDispatcher.call(this);
 }
 
 AsyncResource.prototype = {

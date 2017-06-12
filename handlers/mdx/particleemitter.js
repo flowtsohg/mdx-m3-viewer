@@ -1,30 +1,16 @@
 /**
  * @constructor
- * @param {MdxModelView} modelView
- * @param {ParticleEmitter} emitter
+ * @param {TexruredModelView} modelView
+ * @param {MdxParserParticleEmitter} emitter
  */
-function MdxParticleEmitter(modelView, emitter) {
+function MdxParticleEmitter(model, emitter) {
     mix(this, emitter);
 
-    let model = modelView.model;
-
-    this.lastCreation = 0;
-
-    this.modelView = modelView;
     this.model = model;
     this.internalModel = model.env.load(emitter.path.replace(/\\/g, "/").toLowerCase().replace(".mdl", ".mdx"), model.pathSolver);
-
-    this.sd = new MdxSdContainer(emitter.tracks, model);
-
     this.particles = [];
     this.inactive = [];
-    this.currentSlot = 0;
-
-    // To avoid heap alocations
-    this.heapVelocity = vec3.create();
-    this.heapMat = mat4.create();
-    this.heapVel1 = vec3.create();
-    this.heapVel3 = vec3.create();
+    this.sd = new MdxSdContainer(model, emitter.tracks);
 }
 
 MdxParticleEmitter.prototype = {
@@ -43,7 +29,7 @@ MdxParticleEmitter.prototype = {
         this.particles.push(particle);
     },
 
-    update(allowCreate) {
+    update() {
         let particles = this.particles,
             inactive = this.inactive;
 

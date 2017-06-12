@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @extends TexturedModelInstance
+ * @extends {TexturedModelInstance}
  * @memberOf M3
  * @param {M3Model} model
  */

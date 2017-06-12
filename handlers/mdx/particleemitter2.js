@@ -4,7 +4,7 @@
  * @param {ParticleEmitter2} emitter
  */
 function MdxParticleEmitter2(model, emitter) {
-    let gl = model.env.gl;
+    let gl = model.gl;
 
     mix(this, emitter);
 
@@ -19,9 +19,7 @@ function MdxParticleEmitter2(model, emitter) {
     this.buffer = new ResizeableBuffer(gl);
 
     this.particles = [];
-    this.openSlots = [];
-    this.activeSlots = [];
-    this.currentSlot = 0;
+    this.inactive = [];
 
     this.cellWidth = 1 / this.columns;
     this.cellHeight = 1 / this.rows;
@@ -34,11 +32,11 @@ function MdxParticleEmitter2(model, emitter) {
         this.colors[i] = [Math.floor(colors[i][0] * 255), Math.floor(colors[i][1] * 255), Math.floor(colors[i][2] * 255), alpha[i]];
     }
 
-    let modelNode = this.model.nodes[this.node.index];
-    this.xYQuad = modelNode.xYQuad;
-    this.modelSpace = modelNode.modelSpace;
+    let node = this.model.nodes[this.node.index];
+    this.xYQuad = node.xYQuad;
+    this.modelSpace = node.modelSpace;
 
-    this.sd = new MdxSdContainer(emitter.tracks, model);
+    this.sd = new MdxSdContainer(model, emitter.tracks);
 
     // Avoid heap alocations in Particle2.reset
     this.particleLocalPosition = vec3.create();
@@ -50,89 +48,73 @@ function MdxParticleEmitter2(model, emitter) {
     
 
     this.dimensions = [this.columns, this.rows];
-    
-    this.currentEmission = 0;
-
-    let blendSrc, blendDst;
 
     switch (this.filterMode) {
         // Blend
         case 0:
-            blendSrc = gl.SRC_ALPHA;
-            blendDst = gl.ONE_MINUS_SRC_ALPHA;
+            this.blendSrc = gl.SRC_ALPHA;
+            this.blendDst = gl.ONE_MINUS_SRC_ALPHA;
             break;
-            // Additive
+        // Additive
         case 1:
-            blendSrc = gl.SRC_ALPHA;
-            blendDst = gl.ONE;
+            this.blendSrc = gl.SRC_ALPHA;
+            this.blendDst = gl.ONE;
             break;
-            // Modulate
+        // Modulate
         case 2:
-            blendSrc = gl.ZERO;
-            blendDst = gl.SRC_COLOR;
+            this.blendSrc = gl.ZERO;
+            this.blendDst = gl.SRC_COLOR;
             break;
-            // Modulate 2X
+        // Modulate 2X
         case 3:
-            blendSrc = gl.DEST_COLOR;
-            blendDst = gl.SRC_COLOR;
+            this.blendSrc = gl.DEST_COLOR;
+            this.blendDst = gl.SRC_COLOR;
             break;
-            // Add Alpha
+        // Add Alpha
         case 4:
-            blendSrc = gl.SRC_ALPHA;
-            blendDst = gl.ONE;
+            this.blendSrc = gl.SRC_ALPHA;
+            this.blendDst = gl.ONE;
             break;
     }
-
-    this.blendSrc = blendSrc;
-    this.blendDst = blendDst;
 }
 
 MdxParticleEmitter2.prototype = {
-    emitParticle(isHead, instance) {
-        let particles = this.particles,
-            openSlots = this.openSlots,
-            activeSlots = this.activeSlots,
-            size = (activeSlots.length + this.particlesPerEmit) * this.bytesPerParticle;
+    emitParticle(instance, isHead) {
+        let size = (this.particles.length + this.particlesPerEmit) * this.bytesPerParticle;
 
         if (this.buffer.byteLength < size) {
             this.buffer.resize(size);
         }
 
-        if (openSlots.length) {
-            const index = openSlots.pop();
+        let inactive = this.inactive,
+            particle;
 
-            particles[index].reset(this, isHead, index, instance);
-            activeSlots.push(index);
+        if (inactive.length) {
+            particle = inactive.pop();
         } else {
-            const particle = new MdxParticle2();
-
-            particle.reset(this, isHead, this.currentSlot, instance);
-            activeSlots.push(this.currentSlot);
-
-            particles[this.currentSlot] = particle;
-            this.currentSlot += 1;
+            particle = new MdxParticle2(this);
         }
+
+        particle.reset(instance, isHead);
+
+        this.particles.push(particle);
     },
 
     emit(instance) {
         if (this.head) {
-            this.emitParticle(true, instance);
+            this.emitParticle(instance, true);
         }
 
         if (this.tail) {
-            this.emitParticle(false, instance);
+            this.emitParticle(instance, false);
         }
     },
 
-    update() {
-        var particles = this.particles;
-        var openSlots = this.openSlots;
-        var activeSlots = this.activeSlots;
-        var activeParticlesCount = activeSlots.length;
-        var i, l;
-        var particle;
+    update(scene) {
+        let particles = this.particles,
+            inactive = this.inactive;
 
-        if (activeSlots.length > 0) {
+        if (particles.length > 0) {
             // First stage: remove dead particles.
             // The used particles array is a queue, dead particles will always come first.
             // As of the time of writing, the easiest and fastest way to implement a queue in Javascript is a normal array.
@@ -141,43 +123,39 @@ MdxParticleEmitter2.prototype = {
             // As long as we hit a dead particle, pop, and check the new last element.
 
             // Ready for pop mode
-            activeSlots.reverse();
+            particles.reverse();
 
-            particle = particles[activeSlots[activeSlots.length - 1]];
+            let particle = particles[particles.length - 1];
             while (particle && particle.health <= 0) {
-                activeSlots.pop();
-                this.openSlots.push(particle.id);
+                inactive.push(particles.pop());
 
                 // Need to recalculate the length each time
-                particle = particles[activeSlots[activeSlots.length - 1]];
+                particle = particles[particles.length - 1];
             }
 
             // Ready for push mode
-            activeSlots.reverse()
+            particles.reverse()
 
             // Second stage: update the living particles.
             // All the dead particles were removed, so a simple loop is all that's required.
-            for (i = 0, l = activeSlots.length; i < l; i++) {
-                particle = particles[activeSlots[i]];
-
-                particle.update(this);
+            for (let i = 0, l = particles.length; i < l; i++) {
+                particles[i].update();
             }
 
-            this.updateHW();
+            this.updateHW(scene);
         }
     },
 
-    updateHW() {
-        var activeSlots = this.activeSlots;
+    updateHW(scene) {
+        let particles = this.particles;
+
         var data = this.buffer.float32array;
-        var particles = this.particles;
         var columns = this.columns;
-        var particle, index, position, color;
+        var particle, position, color;
         var pv1, pv2, pv3, pv4, csx, csy, csz;
         var rect;
 
-        /// NOTE: This needs to change when/if I make particle emitters per-model-view as planned.
-        let camera = this.model.env.scenes[0].camera;
+        let camera = scene.camera;
 
         // Choose between a default rectangle or billboarded one
         if (this.xYQuad) {
@@ -198,13 +176,10 @@ MdxParticleEmitter2.prototype = {
         var v1x, v1y, v1z, v2x, v2y, v2z, v3x, v3y, v3z, v4x, v4y, v4z;
         var lta, lba, rta, rba, rgb;
 
-        for (var i = 0, l = activeSlots.length; i < l; i++) {
-            particle = particles[activeSlots[i]];
+        for (let i = 0, l = particles.length, index = 0; i < l; i++, index += 30) {
+            let particle = particles[i],
+                nodeScale = particle.nodeScale;
 
-            const node = particle.node,
-                nodeScale = node.worldScale;
-
-            index = i * 30;
             position = particle.worldLocation;
             scale = particle.scale;
             textureIndex = particle.index;
@@ -324,9 +299,10 @@ MdxParticleEmitter2.prototype = {
         }
     },
 
-    render(shader, modelView) {
-        var gl = this.model.env.gl;
-        var particles = this.activeSlots.length;
+    render(bucket, shader) {
+        let model = this.model,
+            gl = model.gl,
+            particles = this.particles.length;
 
         if (particles > 0) {
             gl.disable(gl.CULL_FACE);
@@ -335,28 +311,13 @@ MdxParticleEmitter2.prototype = {
             gl.enable(gl.BLEND);
             gl.blendFunc(this.blendSrc, this.blendDst);
 
-            this.updateHW();
-
             gl.uniform2fv(shader.uniforms.get("u_dimensions"), this.dimensions);
 
-
-
-            /// NOTE TO SELF: ALL OF THE RENDERING CODE BELOW NEEDS TO BE IN A PER-MODEL-VIEW LOOP
-            /// That means:
-            ///     Layer 1: Model emitter = Parser emiter (metadata)
-            ///              Can run the rendering-related code above if I can make it in a non-messy way. No big deal if it runs per view.
-            ///     Layer 2: Particle2Emitter in ModelView
-            ///              Runs the code below, since each view has its own texture, and thus requires a separate draw call.
-            ///     Layer 3: Particle2EmitterView in ModelInstance
-            ///              Emits particles via the emitters as usual.
-
-
-            this.model.bindTexture(this.textureId, modelView);
+            model.bindTexture(model.textures[this.textureId], 0, bucket.modelView);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.buffer);
             gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.buffer.float32array.subarray(0, particles * 30));
 
-            //console.log(particles * 30, this.resizeableBuffer.float32array.length)
             gl.vertexAttribPointer(shader.attribs.get("a_position"), 3, gl.FLOAT, false, 20, 0);
             gl.vertexAttribPointer(shader.attribs.get("a_uva_rgb"), 2, gl.FLOAT, false, 20, 12);
 

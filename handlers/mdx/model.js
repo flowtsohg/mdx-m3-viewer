@@ -17,6 +17,8 @@ function MdxModel(env, pathSolver) {
     this.ribbonEmitters = [];
     this.boundingShapes = [];
     this.attachments = [];
+    this.textureAnimations = [];
+    this.geosetAnimations = [];
 }
 
 MdxModel.prototype = {
@@ -75,11 +77,11 @@ MdxModel.prototype = {
         this.sortedNodes = [];
 
         for (i = 0, l = nodes.length; i < l; i++) {
-            this.nodes[i] = new MdxNode(nodes[i], this, pivots);
+            this.nodes[i] = new MdxNode(this, nodes[i], pivots);
         }
 
         if (this.nodes.length === 0) {
-            this.nodes[0] = new MdxNode({ objectId: 0, parentId: -1 }, this, pivots);
+            this.nodes[0] = new MdxNode(this, { objectId: 0, parentId: -1 }, pivots);
         }
 
         // This list is used to access all the nodes in a loop while keeping the hierarchy in mind.
@@ -99,7 +101,13 @@ MdxModel.prototype = {
             this.bones = [{ node: { objectId: 0, index: 0 } }];
         }
 
-        this.textureAnimations = this.transformElements(chunks.TXAN, MdxTextureAnimation);
+        if (chunks.TXAN) {
+            let textureAnimations = chunks.TXAN.elements;
+
+            for (let i = 0, l = textureAnimations.length; i < l; i++) {
+                this.textureAnimations[i] = new MdxTextureAnimation(this, textureAnimations[i]);
+            }
+        }
 
         if (chunks.MTLS) {
             objects = chunks.MTLS.elements;
@@ -116,7 +124,7 @@ MdxModel.prototype = {
                 materials[i] = [];
 
                 for (j = 0, k = layers.length; j < k; j++) {
-                    var layer = new MdxLayer(layers[j], layerId, objects[i].priorityPlane, this);
+                    var layer = new MdxLayer(this, layers[j], layerId, objects[i].priorityPlane);
 
                     layerId += 1;
 
@@ -133,7 +141,13 @@ MdxModel.prototype = {
             this.hasLayerAnims = false;
         }
 
-        this.geosetAnimations = this.transformElements(chunks.GEOA, MdxGeosetAnimation);
+        if (chunks.GEOA) {
+            let geosetAnimations = chunks.GEOA.elements;
+
+            for (let i = 0, l = geosetAnimations.length; i < l; i++) {
+                this.geosetAnimations[i] = new MdxGeosetAnimation(this, geosetAnimations[i]);
+            }
+        }
 
         if (chunks.GEOS) {
             let geosets = chunks.GEOS.elements,
@@ -176,7 +190,13 @@ MdxModel.prototype = {
 
         this.setupGeosets();
 
-        this.cameras = this.transformElements(chunks.CAMS, MdxCamera);
+        if (chunks.CAMS) {
+            let cameras = chunks.CAMS.elements;
+
+            for (let i = 0, l = cameras.length; i < l; i++) {
+                this.cameras[i] = new MdxCamera(this, cameras[i]);
+            }
+        }
 
         if (chunks.PREM) {
             this.particleEmitters = chunks.PREM.elements;
@@ -194,7 +214,13 @@ MdxModel.prototype = {
             this.boundingShapes = chunks.CLID.elements;
         }
 
-        this.attachments = this.transformElements(chunks.ATCH, MdxAttachment);
+        if (chunks.ATCH) {
+            let attachments = chunks.ATCH.elements;
+
+            for (let i = 0, l = attachments.length; i < l; i++) {
+                this.attachments[i] = new MdxAttachment(this, attachments[i]);
+            }
+        }
 
         if (chunks.EVTS) {
             this.eventObjects = chunks.EVTS.elements;
@@ -295,7 +321,7 @@ MdxModel.prototype = {
                     boneIndicesOffset = uvSetsOffset + uvSets.byteLength,
                     boneNumbersOffset = boneIndicesOffset + boneIndices.byteLength;
 
-                shallowGeosets[i] = new MdxShallowGeoset([verticesOffset, normalsOffset, uvSetsOffset, boneIndicesOffset, boneNumbersOffset, totalElementOffset], geoset.uvSetSize, faces.length, this);
+                shallowGeosets[i] = new MdxShallowGeoset(this, [verticesOffset, normalsOffset, uvSetsOffset, boneIndicesOffset, boneNumbersOffset, totalElementOffset], geoset.uvSetSize, faces.length);
 
                 typedArrays.push([verticesOffset, vertices]);
                 typedArrays.push([normalsOffset, normals]);
@@ -343,20 +369,6 @@ MdxModel.prototype = {
         }
 
         return hierarchy;
-    },
-
-    transformElements(chunk, Func) {
-        var output = [];
-
-        if (chunk) {
-            var elements = chunk.elements;
-
-            for (var i = 0, l = elements.length; i < l; i++) {
-                output[i] = new Func(this, elements[i]);
-            }
-        }
-
-        return output;
     },
 
     loadTexture(texture, pathSolver) {
@@ -524,16 +536,19 @@ MdxModel.prototype = {
         
         gl.uniform1f(uniforms.get("u_colorMode"), colorMode);
 
-        // If this is team color/glow, bind the black texture to avoid WebGL errors.
-        // Otherwise, bind the texture used by this layer.
-        if (colorMode) {
-            this.bindTexture(null, 0, bucket.modelView);
-        } else {
-            this.bindTexture(this.textures[layer.textureId], 0, bucket.modelView);
+        let texture;
+
+        // If this is not a team color/glow, set the texture, and see if it's a texture animation.
+        if (colorMode === 0) {
+            texture = this.textures[layer.textureId];
 
             // Does this layer use texture animations with multiple textures?
             gl.uniform1f(uniforms.get("u_isTextureAnim"), layer.isTextureAnim);
         }
+
+        // When this is a team color/glow, texture is undefined, so the black texture will get bound.
+        // This is better than not binding anything at all, since that can lead to WebGL errors.
+        this.bindTexture(texture, 0, bucket.modelView);
 
         // Batch visibilities
         let batchVisible = attribs.get("a_batchVisible");
@@ -590,10 +605,9 @@ MdxModel.prototype = {
     },
 
     renderEmitters(bucket, scene) {
-        /*
         let webgl = this.env.webgl,
             gl = this.env.gl,
-            emitters = this.particleEmitters2;
+            emitters = bucket.particleEmitters2;
 
         if (emitters.length) {
             gl.depthMask(0);
@@ -608,16 +622,13 @@ MdxModel.prototype = {
             gl.uniform1i(shader.uniforms.get("u_texture"), 0);
 
             for (let i = 0, l = emitters.length; i < l; i++) {
-                emitters[i].render(shader, bucket.modelView);
+                emitters[i].render(bucket, shader);
             }
-
-            gl.depthMask(1);
         }
 
         gl.depthMask(1);
         gl.disable(gl.BLEND);
         gl.enable(gl.CULL_FACE);
-        */
     }
 };
 

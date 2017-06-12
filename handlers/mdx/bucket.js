@@ -7,14 +7,10 @@
 function MdxBucket(modelView) {
     Bucket.call(this, modelView);
 
-    const model = this.model;
-    const env = model.env;
-    const gl = env.gl;
-
-    this.env = env;
-
-    // POT required because for some reason, on some drivers, NPOT makes rendering go crazy.
-    var numberOfBones = model.bones.length + 1;
+    let model = this.model,
+        gl = model.env.gl,
+        numberOfBones = model.bones.length + 1,
+        objects;
 
     this.boneArrayInstanceSize = numberOfBones * 16;
     this.boneArray = new Float32Array(this.boneArrayInstanceSize * this.size);
@@ -66,6 +62,7 @@ function MdxBucket(modelView) {
     this.uvOffsetArrays = [];
     this.uvOffsetBuffers = [];
 
+    // Batches
     if (model.batches.length) {
         for (var i = 0, l = model.batches.length; i < l; i++) {
             this.batchVisibilityArrays[i] = new Uint8Array(this.size);
@@ -86,16 +83,41 @@ function MdxBucket(modelView) {
             gl.bufferData(gl.ARRAY_BUFFER, this.uvOffsetArrays[i], gl.DYNAMIC_DRAW);
         }
     }
+
+    // Emitters
+    this.particleEmitters = [];
+    this.particleEmitters2 = [];
+
+    objects = model.particleEmitters;
+    for (let i = 0, l = objects.length; i < l; i++) {
+        this.particleEmitters[i] = new MdxParticleEmitter(model, objects[i]);
+    }
+
+    objects = model.particleEmitters2;
+    for (let i = 0, l = objects.length; i < l; i++) {
+        this.particleEmitters2[i] = new MdxParticleEmitter2(model, objects[i]);
+    }
 }
 
 MdxBucket.prototype = {
     update(scene) {
-        let gl = this.env.gl,
-            size = this.instances.length;
+        let gl = this.model.env.gl,
+            size = this.instances.length,
+            objects;
 
         this.updateBatches.fill(0);
 
         Bucket.prototype.update.call(this, scene);
+
+        objects = this.particleEmitters;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            objects[i].update();
+        }
+
+        objects = this.particleEmitters2;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            objects[i].update(scene);
+        }
 
         if (this.updateBoneTexture[0]) {
             gl.activeTexture(gl.TEXTURE15);

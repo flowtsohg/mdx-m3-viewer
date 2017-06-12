@@ -1,8 +1,8 @@
 /**
  * @constructor
- * @param {STG} stg
- * @param {Array<STS>} sts
- * @param {Array<STC>} stc
+ * @param {M3ParserStg} stg
+ * @param {Array<M3Sts>} sts
+ * @param {Array<M3Stc>} stc
  */
 function M3Stg(stg, sts, stc) {
     this.name = stg.name.getAll().join("");

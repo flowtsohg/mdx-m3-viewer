@@ -10,7 +10,7 @@ function MdxCamera(model, camera) {
     this.farClippingPlane = camera.farClippingPlane;
     this.nearClippingPlane = camera.nearClippingPlane;
     this.targetPosition = camera.targetPosition;
-    this.sd = new MdxSdContainer(camera.tracks, model);
+    this.sd = new MdxSdContainer(model, camera.tracks);
 }
 
 MdxCamera.prototype = {

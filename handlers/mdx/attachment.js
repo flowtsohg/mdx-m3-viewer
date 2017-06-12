@@ -47,7 +47,7 @@ function MdxAttachment(model, attachment) {
     this.node = attachment.node;
     this.path = path;
     this.attachmentId = attachment.attachmentId;
-    this.sd = new MdxSdContainer(attachment.tracks, model);
+    this.sd = new MdxSdContainer(model, attachment.tracks);
 
     // Second condition is against custom resources using arbitrary paths...
     if (path !== "" && path.indexOf(".mdx") != -1) {

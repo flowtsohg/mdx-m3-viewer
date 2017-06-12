@@ -1,5 +1,6 @@
 /**
  * @constructor
+ * @extends {BinaryReader}
  * @param {ArrayBuffer} buffer
  * @param {number=} byteOffset
  * @param {number=} byteLength

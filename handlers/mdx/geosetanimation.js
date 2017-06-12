@@ -7,7 +7,7 @@ function MdxGeosetAnimation(model, geosetAnimation) {
     this.alpha = geosetAnimation.alpha;
     this.color = [...geosetAnimation.color].reverse(); // Stored as RGB, but animated colors are stored as BGR, so sizzle.
     this.geosetId = geosetAnimation.geosetId;
-    this.sd = new MdxSdContainer(geosetAnimation.tracks, model);
+    this.sd = new MdxSdContainer(model, geosetAnimation.tracks);
 }
 
 MdxGeosetAnimation.prototype = {

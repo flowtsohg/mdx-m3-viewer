@@ -1,11 +1,11 @@
 /**
  * @constructor
+ * @param {MdxModel} model
  * @param {Array<number>} offsets
  * @param {number} uvSetSize
  * @param {Uint16Array} elements
- * @param {MdxModel} model
  */
-function MdxShallowGeoset(offsets, uvSetSize, elements, model) {
+function MdxShallowGeoset(model, offsets, uvSetSize, elements) {
     this.model = model;
     this.offsets = offsets;
     this.uvSetSize = uvSetSize;

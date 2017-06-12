@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @param {STS} sts
+ * @param {M3ParserSts} sts
  */
 function M3Sts(sts) {
     const animIds = sts.animIds.getAll();

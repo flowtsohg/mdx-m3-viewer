@@ -4,7 +4,7 @@
  * @param {number} version
  * @param {Array<M3ParserIndexEntry>} index
  */
-function M3ParserSTS(reader, version, index) {
+function M3ParserSts(reader, version, index) {
     this.version = version;
     this.animIds = new M3ParserReference(reader, index);
 

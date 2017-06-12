@@ -3,7 +3,7 @@
  * @extends NotifiedNode
  */
 function BoundingShape() {
-    NotifiedNode.call(this, false);
+    NotifiedNode.call(this);
 
     this.min = new Float32Array([-1, -1, -1]);
     this.max = new Float32Array([1, 1, 1]);

@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @param {SD} sd
+ * @param {M3ParserSd} sd
  */
 function M3Sd(sd) {
     this.keys = sd.keys.getAll();
@@ -10,7 +10,7 @@ function M3Sd(sd) {
 
 /**
  * @constructor
- * @param {Array<SD>} sd
+ * @param {Array<M3ParserSd>} sd
  */
 function M3SdContainer(sd) {
     this.sd = sd.map((sd) => new M3Sd(sd));

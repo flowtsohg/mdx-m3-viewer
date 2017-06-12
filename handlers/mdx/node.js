@@ -1,19 +1,18 @@
 /**
  * @constructor
- * @param {MdxParserNode} object
  * @param {MdxModel} model
+ * @param {MdxParserNode} node
  * @param {Array<MdxParserPivot>} pivots
  */
-function MdxNode(object, model, pivots) {
-    var pivot = pivots[object.objectId];
+function MdxNode(model, node, pivots) {
+    let pivot = pivots[node.objectId],
+        flags = node.flags;
 
-    this.name = object.name;
-    this.objectId = object.objectId;
-    this.parentId = object.parentId;
+    this.name = node.name;
+    this.objectId = node.objectId;
+    this.parentId = node.parentId;
     this.pivot = pivot ? pivot.value : [0, 0, 0];
-    this.sd = new MdxSdContainer(object.tracks, model);
-
-    var flags = object.flags;
+    this.sd = new MdxSdContainer(model, node.tracks);
 
     this.dontInheritTranslation = flags & 1;
     this.dontInheritRotation = flags & 2;
@@ -37,7 +36,7 @@ function MdxNode(object, model, pivots) {
     this.modelSpace = flags & 524288;
     this.xYQuad = flags & 1048576;
 
-    if (object.objectId === object.parentId) {
+    if (node.objectId === node.parentId) {
         this.parentId = -1;
     }
 }

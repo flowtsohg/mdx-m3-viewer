@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @param {Sequence} sequence
+ * @param {M3ParserSequence} sequence
  */
 function M3Sequence(sequence) {
     this.name = sequence.name.getAll().join("");

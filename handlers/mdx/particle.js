@@ -10,12 +10,9 @@ function MdxParticle(emitter) {
     this.orientation = 0;
     this.gravity = 0;
 
-    let model = emitter.internalModel;
-
     this.instance = null;
     this.node = null;
-
-    this.internalInstance = model.addInstance().setSequence(0);
+    this.internalInstance = emitter.internalModel.addInstance().setSequence(0);
 }
 
 MdxParticle.prototype = {
@@ -43,10 +40,10 @@ MdxParticle.prototype = {
 
         vec3.transformMat4(position, node.pivot, node.worldMatrix);
 
-        var velocity = emitter.heapVelocity;
-        var rotation = emitter.heapMat;
-        var velocityStart = emitter.heapVel1;
-        var velocityEnd = vec3.heap;
+        var velocity = vec3.heap;
+        var rotation = mat4.heap;
+        var velocityStart = vec3.heap2;
+        var velocityEnd = vec3.heap3;
 
         mat4.identity(rotation);
         mat4.rotateZ(rotation, rotation, Math.randomRange(-Math.PI, Math.PI));

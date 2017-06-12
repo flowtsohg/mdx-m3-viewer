@@ -1,8 +1,8 @@
 /**
  * @constructor
  */
-function MdxParticle2() {
-    this.id = 0;
+function MdxParticle2(emitter) {
+    this.emitter = emitter;
     this.health = 0;
     this.head = true;
     this.position = [];
@@ -12,11 +12,13 @@ function MdxParticle2() {
     this.gravity = 0;
     this.scale = 1;
     this.index = 0;
+    this.nodeScale = vec3.create();
 }
 
 MdxParticle2.prototype = {
-    reset(emitter, head, id, instance) {
-        const node = instance.skeleton.nodes[emitter.node.index];
+    reset(instance, isHead) {
+        let emitter = this.emitter,
+            node = instance.skeleton.nodes[emitter.node.index];
 
         var pivot = node.pivot;
         var worldMatrix = node.worldMatrix;
@@ -34,11 +36,11 @@ MdxParticle2.prototype = {
         var velocityStart = emitter.particleVelocityStart;
         var velocityEnd = emitter.particleVelocityEnd;
         var modelSpace = emitter.modelSpace;
-        
+
         localPosition[0] = pivot[0] + Math.randomRange(-width, width);
         localPosition[1] = pivot[1] + Math.randomRange(-length, length);
         localPosition[2] = pivot[2];
-        
+
         if (modelSpace) {
             vec3.copy(position, localPosition);
         } else {
@@ -65,16 +67,15 @@ MdxParticle2.prototype = {
             vec3.scale(velocity, velocity, speed);
         }
         
-        if (!head) {
+        if (!isHead) {
             var tailLength = emitter.tailLength * 0.5;
 
             vec3.scaleAndAdd(position, velocity, -tailLength);
         }
 
         this.node = node;
-        this.id = id;
         this.health = emitter.lifespan;
-        this.head = head;
+        this.head = isHead;
 
         vec3.copy(this.position, position);
         vec3.multiply(this.velocity, velocity, scale);
@@ -82,10 +83,13 @@ MdxParticle2.prototype = {
 
         this.gravity = gravity;
         this.scale = 1;
+        vec3.copy(this.nodeScale, scale);
         this.index = 0;
     },
 
-    update(emitter) {
+    update() {
+        let emitter = this.emitter;
+
         var dt = emitter.model.env.frameTime * 0.001;
         var position = this.position;
 

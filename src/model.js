@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @mixes DownloadableResource
+ * @extends {DownloadableResource}
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
  */

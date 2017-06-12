@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @extends Model
+ * @extends {Model}
  * @memberOf M3
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver

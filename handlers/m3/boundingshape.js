@@ -1,14 +1,14 @@
 /**
  * @constructor
- * @param {BoundingShape} boundingshape
- * @param {Array<Bone>} bones
+ * @param {M3ParserBoundingShape} boundingshape
+ * @param {Array<M3ParserBone>} bones
  * @param {WebGLRenderingContext} gl
  */
 function M3BoundingShape(boundingshape, bones, gl) {
     this.bone = boundingshape.bone;
     this.matrix = boundingshape.matrix;
     this.name = bones[boundingshape.bone].name;
-
+    /*
     var size = boundingshape.size;
     var shape;
 
@@ -21,4 +21,5 @@ function M3BoundingShape(boundingshape, bones, gl) {
     }
 
     this.shape = shape;
+    */
 }

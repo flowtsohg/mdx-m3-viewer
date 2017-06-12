@@ -1,11 +1,11 @@
 /**
  * @constructor
+ * @param {MdxModel} model
  * @param {MdxParserLayer} layer
  * @param {number} layerId
  * @param {number} priorityPlane
- * @param {MdxModel} model
  */
-function MdxLayer(layer, layerId, priorityPlane, model) {
+function MdxLayer(model, layer, layerId, priorityPlane) {
     let filterMode = Math.min(layer.filterMode, 6),
         textureAnimationId = layer.textureAnimationId,
         gl = model.gl;
@@ -18,7 +18,7 @@ function MdxLayer(layer, layerId, priorityPlane, model) {
     this.coordId = layer.coordId;
     this.alpha = layer.alpha;
     this.renderOrder = MdxLayer.filterModeToRenderOrder[filterMode];
-    this.sd = new MdxSdContainer(layer.tracks, model);
+    this.sd = new MdxSdContainer(model, layer.tracks);
 
     var flags = layer.flags;
 

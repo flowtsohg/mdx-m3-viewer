@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @extends ModelInstance
+ * @extends {ModelInstance}
  * @param {Model} model
  */
 function TexturedModelInstance(model) {

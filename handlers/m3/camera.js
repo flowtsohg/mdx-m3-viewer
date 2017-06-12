@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @param {Camera} camera
+ * @param {M3ParserCamera} camera
  */
 function M3Camera(camera) {
     this.bone = camera.bone;

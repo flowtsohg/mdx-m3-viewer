@@ -1,15 +1,9 @@
 /**
  * @constructor
- * @param {?ArrayBuffer} buffer
- * @param {?number} offset
+ * @param {ArrayBuffer} buffer
+ * @param {number} offset
  */
 function ViewerNode(buffer, offset) {
-    if (!buffer) {
-        // 65 floats per node.
-        buffer = new ArrayBuffer(ViewerNode.BYTES_PER_ELEMENT);
-        offset = 0;
-    }
-
     if (!(buffer instanceof ArrayBuffer)) {
         throw new TypeError("Node: expected ArrayBuffer, got " + buffer);
     }
@@ -38,9 +32,9 @@ function ViewerNode(buffer, offset) {
     this.localMatrix = new Float32Array(buffer, offset + 132, 16);
     /** @member {mat4} */
     this.worldMatrix = new Float32Array(buffer, offset + 196, 16);
-    /** @member {?Node} */
+    /** @member {ViewerNode|null} */
     this.parent = null;
-    /** @member {Node[]} */
+    /** @member {Array<ViewerNode>} */
     this.children = [];
     /** @member {boolean} */
     this.dontInheritTranslation = false;
@@ -61,8 +55,8 @@ ViewerNode.BYTES_PER_ELEMENT = 65 * 4;
 
 ViewerNode.prototype = {
     /**
-     * @method
-     * @desc Sets the node's pivot.
+     * Sets the node's pivot.
+     * 
      * @param {vec3} pivot The new pivot.
      * @returns this
      */
@@ -75,8 +69,8 @@ ViewerNode.prototype = {
     },
 
     /**
-     * @method
-     * @desc Sets the node's local location.
+     * Sets the node's local location.
+     * 
      * @param {vec3} location The new location.
      * @returns this
      */
@@ -89,8 +83,8 @@ ViewerNode.prototype = {
     },
 
     /**
-     * @method
-     * @desc Sets the node's local rotation.
+     * Sets the node's local rotation.
+     * 
      * @param {quat} rotation The new rotation.
      * @returns this
      */
@@ -103,8 +97,8 @@ ViewerNode.prototype = {
     },
 
     /**
-     * @method
-     * @desc Sets the node's local scale.
+     * Sets the node's local scale.
+     * 
      * @param {vec3} varying The new scale.
      * @returns this
      */
@@ -117,8 +111,8 @@ ViewerNode.prototype = {
     },
 
     /**
-     * @method
-     * @desc Sets the node's local scale uniformly.
+     * Sets the node's local scale uniformly.
+     * 
      * @param {number} uniform The new scale.
      * @returns this
      */
@@ -131,8 +125,8 @@ ViewerNode.prototype = {
     },
 
     /**
-     * @method
-     * @desc Sets the node's local location, rotation, and scale.
+     * Sets the node's local location, rotation, and scale.
+     * 
      * @param {vec3} location The new location.
      * @param {quat} rotation The new rotation.
      * @param {vec3} scale The new scale.
@@ -168,8 +162,8 @@ ViewerNode.prototype = {
     },
 
     /**
-     * @method
-     * @desc Resets the node's local location, pivot, rotation, and scale, to the default values.
+     * Resets the node's local location, pivot, rotation, and scale, to the default values.
+     * 
      * @returns this
      */
     resetTransformation() {
@@ -184,8 +178,8 @@ ViewerNode.prototype = {
     },
 
     /**
-     * @method
-     * @desc Moves the node's pivot.
+     * Moves the node's pivot.
+     * 
      * @param {vec3} offset The offset.
      * @returns this
      */
@@ -198,8 +192,8 @@ ViewerNode.prototype = {
     },
 
     /**
-     * @method
-     * @desc Moves the node's local location.
+     * Moves the node's local location.
+     * 
      * @param {vec3} offset The offset.
      * @returns this
      */
@@ -212,8 +206,8 @@ ViewerNode.prototype = {
     },
 
     /**
-     * @method
-     * @desc Rotates the node's local rotation in world space.
+     * Rotates the node's local rotation in world space.
+     * 
      * @param {vec3} rotation The rotation.
      * @returns this
      */
@@ -226,8 +220,8 @@ ViewerNode.prototype = {
     },
 
     /**
-     * @method
-     * @desc Rotates the node's local rotation in local space.
+     * Rotates the node's local rotation in local space.
+     * 
      * @param {vec3} rotation The rotation.
      * @returns this
      */
@@ -240,8 +234,8 @@ ViewerNode.prototype = {
     },
 
     /**
-     * @method
-     * @desc Scales the node.
+     * Scales the node.
+     * 
      * @param {vec3} scale The scale.
      * @returns this
      */
@@ -254,8 +248,8 @@ ViewerNode.prototype = {
     },
 
     /**
-     * @method
-     * @desc Scales the node uniformly.
+     * Scales the node uniformly.
+     * 
      * @param {number} scale The scale.
      * @returns this
      */
@@ -291,9 +285,9 @@ ViewerNode.prototype = {
     },
 
     /**
-     * @method
-     * @desc Sets the node's parent.
-     * @param {?Node} parent The parent. NOTE: don't set parent to null manually, instead use setParent(null).
+     * Sets the node's parent.
+     * 
+     * @param {Node=} parent The parent. NOTE: don't set parent to null manually, instead use setParent().
      * @returns this
      */
     setParent(parent) {
@@ -313,18 +307,16 @@ ViewerNode.prototype = {
     },
 
     /**
-     * @method
-     * @desc Called by this node's parent, when the parent is recalculated.
-     *       Override this if you want special behavior.
-     *       Note that ModelInstance overrides this.
+     * Called by this node's parent, when the parent is recalculated.
+     * Override this if you want special behavior.
+     * Note that ModelInstance overrides this.
      */
     notify() {
 
     },
 
     /**
-     * @method
-     * @desc Recalculate this node's transformation data.
+     * Recalculate this node's transformation data.
      */
     recalculateTransformation() {
         let localMatrix = this.localMatrix,

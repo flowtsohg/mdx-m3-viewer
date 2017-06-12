@@ -49,7 +49,7 @@ const M3 = {
     },
 
     get ModelView() {
-        return M3ModelView;
+        return TexturedModelView;
     },
 
     get Instance() {

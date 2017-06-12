@@ -1,7 +1,7 @@
 /**
  * @constructor
+ * @extends Frustum
  * @mixes ViewerNode
- * @mixes Frustum
  */
 function Camera() {
     Frustum.call(this);
@@ -30,7 +30,7 @@ function Camera() {
     // First four vectors are the corners of a 2x2 rectangle billboarded to the camera, the last three vectors are the unit axes billboarded
     this.billboardedVectors = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
 
-    ViewerNode.call(this);
+    NotifiedNode.call(this);
 
     this.dontInheritScaling = true;
 }
@@ -169,4 +169,4 @@ Camera.prototype = {
     }
 };
 
-mix(Camera.prototype, ViewerNode.prototype, Frustum.prototype);
+mix(Camera.prototype, NotifiedNode.prototype, Frustum.prototype);

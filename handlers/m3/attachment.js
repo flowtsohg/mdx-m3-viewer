@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @param {Attachment} attachment
+ * @param {M3ParserAttachmentPoint} attachment
  */
 function M3Attachment(attachment) {
     this.name = attachment.name.getAll().join("");

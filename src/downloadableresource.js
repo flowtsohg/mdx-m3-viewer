@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @mixes AsyncResource
+ * @extends {AsyncResource}
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
  */

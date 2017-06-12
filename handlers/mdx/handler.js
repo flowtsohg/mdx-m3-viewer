@@ -55,7 +55,7 @@ const Mdx = {
     },
 
     get ModelView() {
-        return MdxModelView;
+        return TexturedModelView;
     },
 
     get Instance() {

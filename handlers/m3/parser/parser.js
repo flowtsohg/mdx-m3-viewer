@@ -4,7 +4,7 @@
  */
 function M3Parser(src) {
     let reader = new M3ParserBinaryReader(src),
-        header = new M3ParserMD34(reader);
+        header = new M3ParserMd34(reader);
 
     this.entries = [];
     this.model = null;

@@ -124,10 +124,10 @@ MdxSDSequence.prototype = {
 
 /**
  * @constructor
- * @param {MdxParserSD} sd
  * @param {MdxModel} model
+ * @param {MdxParserSD} sd
  */
-function MdxSD(sd, model) {
+function MdxSD(model, sd) {
     var globalSequenceId = sd.globalSequenceId,
         globalSequences = model.globalSequences,
         tracks = sd.tracks;
@@ -193,10 +193,10 @@ MdxSD.prototype = {
 
 /**
  * @constructor
- * @param {MdxParserSdContainer} container
  * @param {MdxModel} model
+ * @param {MdxParserSdContainer} container
  */
-function MdxSdContainer(container, model) {
+function MdxSdContainer(model, container) {
     var sd = {};
 
     // The SD container doesn't exist if a model had no nodes, and a fake node was injected.
@@ -208,7 +208,7 @@ function MdxSdContainer(container, model) {
             var type = keys[i];
             var track = tracks[type];
 
-            sd[track.tag] = new MdxSD(track, model);
+            sd[track.tag] = new MdxSD(model, track);
         }
     }
 

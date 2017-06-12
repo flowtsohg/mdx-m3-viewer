@@ -11,7 +11,7 @@ function MdxParserRibbonEmitter(reader, nodes, index) {
     this.heightAbove = reader.readFloat32();
     this.heightBelow = reader.readFloat32();
     this.alpha = reader.readFloat32();
-    this.color = reader.readVector3();
+    this.color = reader.readFloat32Array(3);
     this.lifespan = reader.readFloat32();
     this.textureSlot = reader.readUint32();
     this.emissionRate = reader.readUint32();

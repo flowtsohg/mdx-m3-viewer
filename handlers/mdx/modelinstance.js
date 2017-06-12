@@ -28,24 +28,17 @@ function MdxModelInstance(model) {
 
 MdxModelInstance.prototype = {
     initialize() {
-        var model = this.model;
-        var pathSolver = model.pathSolver;
+        let model = this.model,
+            objects;
 
         this.skeleton = new MdxSkeleton(this);
-        
-        if (model.particleEmitters2.length > 0) {
-            const objects = model.particleEmitters2;
-            
-            for (let i = 0, l = objects.length; i < l; i++) {
-                //this.particleEmitters2[i] = new MdxParticleEmitter2View(this, objects[i]);
-            }
-        }
 
-        if (model.ribbonEmitters.length > 0) {
-            const objects = model.ribbonEmitters;
+        objects = model.attachments;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            let attachment = objects[i];
 
-            for (i = 0, l = objects.length; i < l; i++) {
-                //this.ribbonEmitters[i] = new MdxRibbonEmitterView(this, objects[i]);
+            if (attachment.internalModel) {
+                this.attachments.push(new MdxShallowAttachment(this, attachment));
             }
         }
 
@@ -62,6 +55,7 @@ MdxModelInstance.prototype = {
         //            ...
         //            instance.setUniformScale(radius)
         //-------------------------------------------------------------------------------------------------------
+        /*
         var viewer = model.env;
         var boundingShapes = model.boundingShapes;
         boundingShapes = [];
@@ -90,6 +84,7 @@ MdxModelInstance.prototype = {
                 instance.setParent(this.skeleton.nodes[boundingShape.node.index]);
             }
         }
+        */
 
         /*
         if (0) {
@@ -127,15 +122,7 @@ MdxModelInstance.prototype = {
 
         //-------------------------------------------------------------------------------------------------------
         
-        let attachments = model.attachments;
-
-        for (let i = 0, l = attachments.length; i < l; i++) {
-            let attachment = attachments[i];
-
-            if (attachment.internalModel) {
-                this.attachments.push(new MdxShallowAttachment(this, attachment));
-            }
-        }
+        
         
         //if (model.eventObjects) {
         //    objects = model.eventObjects;
@@ -175,17 +162,23 @@ MdxModelInstance.prototype = {
         this.tintColorArray.set(this.tintColor);
         this.bucket.updateTintColors[0] = 1;
 
-        let emitters;
-        
-        emitters = this.modelView.particleEmitters;
-        for (let i = 0, l = emitters.length; i < l; i++) {
-            this.particleEmitters[i] = new MdxParticleEmitterView(this, emitters[i]);
+        let bucket = this.bucket,
+            objects;
+
+        objects = bucket.particleEmitters;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            this.particleEmitters[i] = new MdxParticleEmitterView(this, objects[i]);
         }
 
-        emitters = this.modelView.particleEmitters2;
-        for (let i = 0, l = emitters.length; i < l; i++) {
-            this.particleEmitters2[i] = new MdxParticleEmitter2View(this, emitters[i]);
+        objects = bucket.particleEmitters2;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            this.particleEmitters2[i] = new MdxParticleEmitter2View(this, objects[i]);
         }
+
+        //objects = bucket.ribbonEmitters;
+        //for (let i = 0, l = objects.length; i < l; i++) {
+            //this.ribbonEmitters[i] = new MdxRibbonEmitterView(this, objects[i]);
+        //}
     },
 
     invalidateSharedData() {
@@ -198,39 +191,36 @@ MdxModelInstance.prototype = {
 
         this.particleEmitters = [];
         this.particleEmitters2 = [];
+        //this.ribbonEmitters = [];
     },
 
-    updateEmitters() {
-        var allowCreate = this.allowParticleSpawn,
-            emitters;
+    updateInternalObjects() {
+        let allowCreate = this.allowParticleSpawn,
+            objects;
 
-        emitters = this.particleEmitters;
-        for (var i = 0, l = emitters.length; i < l; i++) {
-            emitters[i].update(allowCreate);
+        objects = this.attachments;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            objects[i].update();
         }
 
-        emitters = this.particleEmitters2;
-        for (var i = 0, l = emitters.length; i < l; i++) {
-            emitters[i].update(allowCreate);
+        objects = this.particleEmitters;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            objects[i].update(allowCreate);
+        }
+
+        objects = this.particleEmitters2;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            objects[i].update(allowCreate);
         }
         
-        emitters = this.ribbonEmitters;
-        for (var i = 0, l = emitters.length; i < l; i++) {
-            emitters[i].update(allowCreate);
+        objects = this.ribbonEmitters;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            objects[i].update(allowCreate);
         }
-        /*
-        emitters = this.eventObjectEmitters;
-        for (var i = 0, l = emitters.length; i < l; i++) {
-            emitters[i].update(allowCreate);
-        }
-        */
-    },
 
-    updateAttachments() {
-        var attachments = this.attachments;
-        
-        for (var i = 0, l = attachments.length; i < l; i++) {
-            attachments[i].update();
+        objects = this.eventObjectEmitters;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            objects[i].update(allowCreate);
         }
     },
 
@@ -266,9 +256,7 @@ MdxModelInstance.prototype = {
             this.skeleton.update();
         }
 
-        this.updateEmitters();
-
-        this.updateAttachments();
+        this.updateInternalObjects();
         
         var batches = model.batches;
 

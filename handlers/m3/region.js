@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @param {Region} region
+ * @param {M3ParserRegion} region
  * @param {Uint16Array} triangles
  * @param {Uint16Array} elementArray
  * @param {number} offset

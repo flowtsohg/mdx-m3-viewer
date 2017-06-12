@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @param {ParticleEmitter} particleEmitter
+ * @param {M3ParserParticleEmitter} particleEmitter
  * @param {M3Model} model
  */
 M3ParticleEmitter = function (particleEmitter, model) {

@@ -1,6 +1,7 @@
 /**
  * @constructor
- * @param {M3Instance} instance
+ * @extends {Skeleton}
+ * @param {M3ModelInstance} instance
  */
 function M3Skeleton(instance) {
     let model = instance.model,
