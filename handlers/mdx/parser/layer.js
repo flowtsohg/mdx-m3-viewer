@@ -1,5 +1,7 @@
 /**
  * @constructor
+ * @param {MdxParserBinaryReader} reader
+ * @param {number} index
  */
 function MdxParserLayer(reader, index) {
     this.index = index;

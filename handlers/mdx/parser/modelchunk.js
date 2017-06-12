@@ -1,5 +1,9 @@
 /**
  * @constructor
+ * @param {MdxParserBinaryReader} reader
+ * @param {string} tag
+ * @param {number} size
+ * @param {Array<MdxNode>} nodes
  */
 function MdxParserModelChunk(reader, tag, size, nodes) {
     this.name = reader.read(80);

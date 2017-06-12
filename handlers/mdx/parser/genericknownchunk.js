@@ -1,5 +1,9 @@
 /**
  * @constructor
+ * @param {MdxParserBinaryReader} reader
+ * @param {string} tag
+ * @param {number} size
+ * @param {Array<MdxNode>} nodes
  */
 function MdxParserGenericKnownChunk(reader, tag, size, nodes) {
     var tagInfo = MdxParserGenericKnownChunk.tagToChunk[tag];

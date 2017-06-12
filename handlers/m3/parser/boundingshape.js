@@ -1,5 +1,6 @@
 /**
  * @constructor
+ * @param {M3ParserBinaryReader} reader
  */
 function M3ParserBoundingShape(reader) {
     this.shape = reader.readUint32();

@@ -1,5 +1,8 @@
 /**
  * @constructor
+ * @param {M3ParserBinaryReader} reader
+ * @param {number} version
+ * @param {Array<M3ParserIndexEntry>} index
  */
 function M3ParserLayer(reader, version, index) {
     this.version = version;
@@ -37,8 +40,8 @@ function M3ParserLayer(reader, version, index) {
     this.brightness = new M3ParserFloat32AnimationReference(reader);
 
     if (version > 23) {
-        this.triPlanarOffset = new M3ParserVector3AnimationReference(reader, readVector3);
-        this.triPlanarScale = new M3ParserVector3AnimationReference(reader, readVector3);
+        this.triPlanarOffset = new M3ParserVector3AnimationReference(reader);
+        this.triPlanarScale = new M3ParserVector3AnimationReference(reader);
     }
 
     this.unknown4 = reader.readInt32();

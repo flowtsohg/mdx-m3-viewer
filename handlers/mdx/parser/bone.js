@@ -1,5 +1,8 @@
 /**
  * @constructor
+ * @param {MdxParserBinaryReader} reader
+ * @param {Array<MdxNode>} nodes
+ * @param {number} index
  */
 function MdxParserBone(reader, nodes, index) {
     this.node = reader.readNode(nodes, this);

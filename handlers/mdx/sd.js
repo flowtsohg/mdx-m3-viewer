@@ -3,7 +3,7 @@
  * @param {MdxSD} sd
  * @param {number} start
  * @param {number} end
- * @param {Array<Track>} keyframes
+ * @param {Array<MdxParserTrack>} keyframes
  * @param {boolean} isGlobalSequence
  */
 function MdxSDSequence(sd, start, end, keyframes, isGlobalSequence) {
@@ -124,7 +124,7 @@ MdxSDSequence.prototype = {
 
 /**
  * @constructor
- * @param {SD} sd
+ * @param {MdxParserSD} sd
  * @param {MdxModel} model
  */
 function MdxSD(sd, model) {
@@ -193,7 +193,7 @@ MdxSD.prototype = {
 
 /**
  * @constructor
- * @param {SdContainer} container
+ * @param {MdxParserSdContainer} container
  * @param {MdxModel} model
  */
 function MdxSdContainer(container, model) {

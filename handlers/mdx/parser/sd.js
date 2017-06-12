@@ -1,5 +1,6 @@
 /**
  * @constructor
+ * @param {MdxParserBinaryReader} reader
  */
 function MdxParserSD(reader) {
     var tag = reader.read(4),
@@ -82,6 +83,8 @@ MdxParserSD.tagToTrack = {
 
 /**
  * @constructor
+ * @param {MdxParserBinaryReader} reader
+ * @param {number} size
  */
 function MdxParserSDContainer(reader, size) {
     var sd = reader.readUnknownElements(size, MdxParserSD),

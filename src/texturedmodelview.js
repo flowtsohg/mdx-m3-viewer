@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @mixes ModelView
+ * @extends ModelView
  * @param {Model} model
  */
 function TexturedModelView(model) {

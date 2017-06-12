@@ -16,43 +16,43 @@ BmpTexture.prototype = {
 
     initialize(src) {
         // Simple binary reader implementation, see src/binaryreader.
-        const binaryReader = new BinaryReader(src);
+        let reader = new BinaryReader(src);
 
         // BMP magic identifier
-        if (read(binaryReader, 2) !== "BM") {
+        if (reader.read(2) !== "BM") {
             this.onerror("InvalidSource", "WrongMagicNumber");
             return false;
         }
 
-        skip(binaryReader, 8);
+        reader.skip(8);
 
-        const dataOffset = readUint32(binaryReader);
+        const dataOffset = reader.readUint32();
 
-        skip(binaryReader, 4);
+        reader.skip(4);
 
-        const width = readUint32(binaryReader);
-        const height = readUint32(binaryReader);
+        const width = reader.readUint32();
+        const height = reader.readUint32();
 
-        skip(binaryReader, 2);
+        reader.skip(2);
 
-        const bpp = readUint16(binaryReader);
+        const bpp = reader.readUint16();
 
         if (bpp !== 24) {
             this.onerror("UnsupportedFeature", "BPP");
             return false;
         }
 
-        const compression = readUint32(binaryReader);
+        const compression = reader.readUint32();
 
         if (compression !== 0) {
             this.onerror("UnsupportedFeature", "Compression");
             return false;
         }
 
-        seek(binaryReader, dataOffset);
+        reader.seek(dataOffset);
 
         // Read width*height RGB pixels
-        const data = readUint8Array(binaryReader, width * height * 3);
+        const data = reader.readUint8Array(width * height * 3);
 
         const gl = this.gl;
 

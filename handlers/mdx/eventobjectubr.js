@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @param {EventEmitter} emitter
+ * @param {M3ParserEventEmitter} emitter
  */
 function MdxEventObjectUbr(emitter) {
     var viewer = emitter.viewer;

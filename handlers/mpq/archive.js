@@ -47,10 +47,10 @@ MpqArchive.prototype = {
 
     searchHeader(reader) {
         for (let i = 0, l = Math.floor(reader.byteLength / 512) ; i < l; i++) {
-            seek(reader, i * 512)
+            reader.seek(i * 512)
 
-            if (peek(reader, 4) === "MPQ\x1A") {
-                return tell(reader);
+            if (reader.peek(4) === "MPQ\x1A") {
+                return reader.tell();
             }
         }
 
@@ -58,16 +58,16 @@ MpqArchive.prototype = {
     },
 
     readHeader(reader) {
-        skip(reader, 4); // MPQ\x1A
-        skip(reader, 4); // Header size
+        reader.skip(4); // MPQ\x1A
+        reader.skip(4); // Header size
 
-        this.archiveSize = readUint32(reader);
-        this.formatVersion = readUint16(reader);
-        this.sectorSize = 512 * (1 << readUint16(reader));
-        this.hashPos = readUint32(reader);
-        this.blockPos = readUint32(reader);
-        this.hashSize = readUint32(reader);
-        this.blockSize = readUint32(reader);
+        this.archiveSize = reader.readUint32();
+        this.formatVersion = reader.readUint16();
+        this.sectorSize = 512 * (1 << reader.readUint16());
+        this.hashPos = reader.readUint32();
+        this.blockPos = reader.readUint32();
+        this.hashSize = reader.readUint32();
+        this.blockSize = reader.readUint32();
     },
 
     /**
@@ -116,7 +116,7 @@ MpqArchive.prototype = {
         if (this.hasFile("(listfile)")) {
             let file = this.getFile("(listfile)"),
                 reader = new BinaryReader(file.buffer),
-                data = read(reader, reader.byteLength);
+                data = reader.read(reader.byteLength);
 
             return data.trim().split("\r\n");
         }

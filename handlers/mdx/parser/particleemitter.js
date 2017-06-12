@@ -1,5 +1,8 @@
 /**
  * @constructor
+ * @param {MdxParserBinaryReader} reader
+ * @param {Array<MdxNode>} nodes
+ * @param {number} index
  */
 function MdxParserParticleEmitter(reader, nodes, index) {
     this.index = index;

@@ -64,8 +64,8 @@ function standSequence(target) {
  * @constructor
  */
 function W3xDroppedItem(reader) {
-    this.id = read(reader, 4);
-    this.chance = readInt32(reader);
+    this.id = reader.read(4);
+    this.chance = reader.readInt32();
 }
 
 /**
@@ -74,7 +74,7 @@ function W3xDroppedItem(reader) {
 function W3xDroppedItemSet(reader) {
     this.items = [];
 
-    for (var i = 0, l = readInt32(reader) ; i < l; i++) {
+    for (var i = 0, l = reader.readInt32() ; i < l; i++) {
         this.items[i] = new W3xDroppedItem(reader);
     }
 }
@@ -83,25 +83,25 @@ function W3xDroppedItemSet(reader) {
  * @constructor
  */
 function W3xModifiedAbility(reader) {
-    this.id = read(reader, 4);
-    this.activeForAutocast = readInt32(reader);
-    this.heroLevel = readInt32(reader);
+    this.id = reader.read(4);
+    this.activeForAutocast = reader.readInt32();
+    this.heroLevel = reader.readInt32();
 }
 
 /**
  * @constructor
  */
 function W3xInventoryItem(reader) {
-    this.slot = readInt32(reader);
-    this.id = read(reader, 4);
+    this.slot = reader.readInt32();
+    this.id = reader.read(4);
 }
 
 /**
  * @constructor
  */
 function W3xRandomUnit(reader) {
-    this.id = read(reader, 4);
-    this.chance = readUint32(reader);
+    this.id = reader.read(4);
+    this.chance = reader.readUint32();
 }
 
 /**
@@ -110,59 +110,59 @@ function W3xRandomUnit(reader) {
 function W3xUnit(reader, version, map) {
     this.map = map;
 
-    var id = read(reader, 4);
-    var variation = readInt32(reader);
-    this.location = readVector3(reader);
-    this.angle = readFloat32(reader);
-    this.scale = readVector3(reader);
-    var flags = readUint8(reader);
-    this.player = readInt32(reader);
-    skip(reader, 2); // ?
-    var hitpoints = readInt32(reader);
-    var mana = readInt32(reader);
+    var id = reader.read(4);
+    var variation = reader.readInt32();
+    this.location = reader.readFloat32Array(3);
+    this.angle = reader.readFloat32();
+    this.scale = reader.readFloat32Array(3);
+    var flags = reader.readUint8();
+    this.player = reader.readInt32();
+    reader.skip(2); // ?
+    var hitpoints = reader.readInt32();
+    var mana = reader.readInt32();
 
     if (version > 7) {
-        var droppedItemTable = readInt32(reader);
+        var droppedItemTable = reader.readInt32();
     }
 
-    var droppedItemSetsCount = readInt32(reader);
+    var droppedItemSetsCount = reader.readInt32();
     var droppedItemSets = [];
     for (var i = 0; i < droppedItemSetsCount; i++) {
         droppedItemSets[i] = new W3xDroppedItemSet(reader);
     }
 
-    var goldAmount = readInt32(reader);
-    var targetAcquisition = readFloat32(reader);
-    var heroLevel = readInt32(reader);
+    var goldAmount = reader.readInt32();
+    var targetAcquisition = reader.readFloat32();
+    var heroLevel = reader.readInt32();
 
     if (version > 7) {
-        var heroStrength = readInt32(reader);
-        var heroAgility = readInt32(reader);
-        var heroIntelligence = readInt32(reader);
+        var heroStrength = reader.readInt32();
+        var heroAgility = reader.readInt32();
+        var heroIntelligence = reader.readInt32();
     }
 
-    var itemsInInventoryCount = readInt32(reader);
+    var itemsInInventoryCount = reader.readInt32();
     var itemsInInventory = [];
     for (var i = 0; i < itemsInInventoryCount; i++) {
         itemsInInventory[i] = new W3xInventoryItem(reader);
     }
 
-    var modifiedAbilitiesCount = readInt32(reader);
+    var modifiedAbilitiesCount = reader.readInt32();
     var modifiedAbilities = [];
     for (var i = 0; i < modifiedAbilitiesCount; i++) {
         modifiedAbilities[i] = new W3xModifiedAbility(reader);
     }
 
     var randomUnitTable = [];
-    var randomFlag = readInt32(reader);
+    var randomFlag = reader.readInt32();
     if (randomFlag === 0) {
-        var level = read(reader, 3); // 24bit number
-        var itemClass = readUint8(reader);
+        var level = reader.read(3); // 24bit number
+        var itemClass = reader.readUint8();
     } else if (randomFlag === 1) {
-        var unitGroup = readUint8(reader);
-        var positionInGroup = readUint8(reader);
+        var unitGroup = reader.readUint8();
+        var positionInGroup = reader.readUint8();
     } else if (randomFlag === 2) {
-        var randomUnits = readInt32(reader);
+        var randomUnits = reader.readInt32();
         for (let i = 0; i < randomUnits; i++) {
             randomUnitTable[i] = new W3xRandomUnit(reader);
         }
@@ -172,9 +172,9 @@ function W3xUnit(reader, version, map) {
         id = randomUnitTable[0].id;
     }
 
-    var customTeamColor = readInt32(reader);
-    var waygate = readInt32(reader);
-    var creationNumber = readInt32(reader);
+    var customTeamColor = reader.readInt32();
+    var waygate = reader.readInt32();
+    var creationNumber = reader.readInt32();
 
     var row = map.slkFiles.unitdata.map[id] || map.slkFiles.itemdata.map[id];
     if (row) {
@@ -249,17 +249,17 @@ W3xUnit.prototype = {
 function W3xDoodad(reader, version, map) {
     this.map = map;
 
-    var id = read(reader, 4);
-    var variation = readInt32(reader);
-    this.location = readVector3(reader);
-    this.angle = readFloat32(reader);
-    this.scale = readVector3(reader);
-    var flags = readUint8(reader);
-    var life = readUint8(reader);
-    var editorId = readInt32(reader);
+    var id = reader.read(4);
+    var variation = reader.readInt32();
+    this.location = reader.readFloat32Array(3);
+    this.angle = reader.readFloat32();
+    this.scale = reader.readFloat32Array(3);
+    var flags = reader.readUint8();
+    var life = reader.readUint8();
+    var editorId = reader.readInt32();
 
     if (version > 7) {
-        read(reader, 8); // ?
+        reader.read(8); // ?
     }
 
     var row = map.slkFiles.doodads.map[id] || map.slkFiles.destructabledata.map[id];
@@ -329,10 +329,10 @@ W3xDoodad.prototype = {
  * @constructor
  */
 function W3xSpecialDoodad(reader, version, map) {
-    var id = read(reader, 4);
-    var z = readFloat32(reader);
-    var x = readFloat32(reader);
-    var y = readFloat32(reader);
+    var id = reader.read(4);
+    var z = reader.readFloat32();
+    var x = reader.readFloat32();
+    var y = reader.readFloat32();
 
     var row = map.slkFiles.doodads.map[id] || map.slkFiles.destructabledata.map[id];
     if (row) {
@@ -354,35 +354,35 @@ function W3xSpecialDoodad(reader, version, map) {
  * @constructor
  */
 function W3xModification(reader, useOptionalInts) {
-    this.id = read(reader, 4);
+    this.id = reader.read(4);
 
-    var variableType = readInt32(reader);
+    var variableType = reader.readInt32();
 
     if (useOptionalInts) {
-        this.levelOrVariation = readInt32(reader);
-        this.dataPointer = readInt32(reader);
+        this.levelOrVariation = reader.readInt32();
+        this.dataPointer = reader.readInt32();
     }
 
     if (variableType === 0) {
-        this.value = readInt32(reader);
+        this.value = reader.readInt32();
     } else if (variableType === 1 || variableType === 2) {
-        this.value = readFloat32(reader);
+        this.value = reader.readFloat32();
     } else if (variableType === 3) {
-        this.value = readUntilNull(reader);
+        this.value = reader.readUntilNull();
     }
 
-    var endModification = read(reader, 4);
+    var endModification = reader.read(4);
 }
 
 /**
  * @constructor
  */
 function W3xModifiedObject(reader, useOptionalInts) {
-    this.oldID = read(reader, 4);
-    this.newID = read(reader, 4);
+    this.oldID = reader.read(4);
+    this.newID = reader.read(4);
     this.modifications = [];
 
-    for (var i = 0, l = readInt32(reader) ; i < l; i++) {
+    for (var i = 0, l = reader.readInt32() ; i < l; i++) {
         this.modifications[i] = new W3xModification(reader, useOptionalInts);
 
     }
@@ -394,7 +394,7 @@ function W3xModifiedObject(reader, useOptionalInts) {
 function W3xModificationTable(reader, useOptionalInts) {
     this.objects = [];
 
-    for (var i = 0, l = readInt32(reader) ; i < l; i++) {
+    for (var i = 0, l = reader.readInt32() ; i < l; i++) {
         this.objects[i] = new W3xModifiedObject(reader, useOptionalInts);
     }
 }
@@ -403,14 +403,14 @@ function W3xModificationTable(reader, useOptionalInts) {
  * @constructor
  */
 function W3xTilePoint(reader) {
-    this.groundHeight = readInt16(reader);
+    this.groundHeight = reader.readInt16();
 
-    var short = readInt16(reader);
+    var short = reader.readInt16();
 
     this.waterLevel = short & 0x3FFF;
     this.mapEdge = short & 0xC000;
 
-    var byte = readInt8(reader);
+    var byte = reader.readInt8();
 
     this.groundTextureType = byte & 0x0F;
 
@@ -420,14 +420,14 @@ function W3xTilePoint(reader) {
     this.water = flags & 0x0040;
     this.boundry = flags & 0x4000;
     
-    byte = readInt8(reader);
+    byte = reader.readInt8();
 
     this.variation = byte & 31;
 
     // Values seen are 0, 1, and 2. What is this?
     this.whatIsThis = (byte & 224) >> 5;
 
-    byte = readInt8(reader);
+    byte = reader.readInt8();
 
     this.cliffTextureType = (byte & 0xF0) >> 4;
     this.layerHeight = byte & 0x0F;

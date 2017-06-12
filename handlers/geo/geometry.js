@@ -325,30 +325,10 @@ function createHeightMap(heightmap) {
 
 function createFrustum(fieldOfView, aspectRatio, nearClipPlane, farClipPlane) {
     let tanFov = 2 * Math.tan(fieldOfView / 2),
-        nearHeight = (tanFov * nearClipPlane) / 2;
+        nearHeight = (tanFov * nearClipPlane) / 2,
         nearWidth = (nearClipPlane * aspectRatio) / 2,
         farHeight = (tanFov * farClipPlane) / 2,
         farWidth = (farClipPlane * aspectRatio) / 2;
-    /*
-    float nearHeight = 2 * tan(mFOV / 2) * mNear;
-    float nearWidth = mNear * mRatio;
-
-    float farHeight = 2 * tan(mFOV / 2) * mFar;
-    float farWidth = mFar * mRatio;
-
-    glm::vec3 fc = mPos + mFront * mFar;
-    glm::vec3 nc = mPos + mFront * mNear;
-
-    mFrustum.frustumCorners[0] = fc + (mUp * farHeight / 2.0f) - (mRight * farWidth / 2.0f);
-    mFrustum.frustumCorners[1] = fc + (mUp * farHeight / 2.0f) + (mRight * farWidth / 2.0f);
-    mFrustum.frustumCorners[2] = fc - (mUp * farHeight / 2.0f) - (mRight * farWidth / 2.0f);
-    mFrustum.frustumCorners[3] = fc - (mUp * farHeight / 2.0f) + (mRight * farWidth / 2.0f);
-
-    mFrustum.frustumCorners[4] = nc + (mUp * nearHeight / 2.0f) - (mRight * nearWidth / 2.0f);
-    mFrustum.frustumCorners[5] = nc + (mUp * nearHeight / 2.0f) + (mRight * nearWidth / 2.0f);
-    mFrustum.frustumCorners[6] = nc - (mUp * nearHeight / 2.0f) - (mRight * nearWidth / 2.0f);
-    mFrustum.frustumCorners[7] = nc - (mUp * nearHeight / 2.0f) + (mRight * nearWidth / 2.0f);
-    */
 
     return {
         vertices: new Float32Array([

@@ -1,8 +1,9 @@
 /**
  * @constructor
+ * @param {ArrayBuffer} src
  */
 function M3Parser(src) {
-    let reader = new BinaryReader(src),
+    let reader = new M3ParserBinaryReader(src),
         header = new M3ParserMD34(reader);
 
     this.entries = [];

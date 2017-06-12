@@ -1,5 +1,8 @@
 /**
  * @constructor
+ * @param {MdxParserBinaryReader} reader
+ * @param {Array<MdxNode>} nodes
+ * @param {number} index
  */
 function MdxParserTextureAnimation(reader, nodes, index) {
     this.index = index;

@@ -1,8 +1,8 @@
 /**
  * @constructor
- * @param {Node} object
+ * @param {MdxParserNode} object
  * @param {MdxModel} model
- * @param {Array<Pivot>} pivots
+ * @param {Array<MdxParserPivot>} pivots
  */
 function MdxNode(object, model, pivots) {
     var pivot = pivots[object.objectId];

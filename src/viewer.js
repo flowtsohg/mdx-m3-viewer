@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @mixes EventDispatcher
+ * @extends EventDispatcher
  * @param {HTMLCanvasElement} canvas
  */
 function ModelViewer(canvas) {
@@ -182,7 +182,7 @@ ModelViewer.prototype = {
 
     /**
      * @method
-     * @desc Detaches all of the scenes in the viewer.
+     * @desc Removes all of the scenes in the viewer.
      */
     clear() {
         let scenes = this.scenes;
@@ -196,7 +196,7 @@ ModelViewer.prototype = {
      * @method
      * @desc Load something. The meat of this whole project.
      *       If a single source was given, a single object will be returned. If an array was given, an array will be returned, with the same ordering.
-     * @param {any} src The source used for the load.
+     * @param {?} src The source used for the load.
      * @param {function(?)} pathSolver The path solver used by this load, and any subsequent loads that are caused by it (for example, a model that loads its textures).
      * @returns {AsyncResource}
      */
@@ -305,29 +305,11 @@ ModelViewer.prototype = {
         }
     },
 
-    // Removes the reference pair of this resource.
-    removeReference(resource) {
-        if (this.isResource(resource)) {
-            let objectType = resource.objectType,
-                pair = this.pairFromType(objectType);
-
-            // Find the resource in the array and splice it.
-            pair.array.delete(resource);
-
-            // Find the resource in the map and delete it.
-            pair.map.deleteValue(resource);
-
-            return true;
-        }
-
-        return false;
-    },
-
     /**
      * @method
      * @desc Checks if a given object is a resource of the viewer.
      *       This is done by checking the object's objectType field.
-     * @param {object} object The object to check.
+     * @param {*} object The object to check.
      * @returns {boolean}
      */
     isResource(object) {
@@ -426,6 +408,24 @@ ModelViewer.prototype = {
         }
 
         this.dispatchEvent({ type: "render" })
+    },
+
+    // Removes the reference pair of this resource.
+    removeReference(resource) {
+        if (this.isResource(resource)) {
+            let objectType = resource.objectType,
+                pair = this.pairFromType(objectType);
+
+            // Find the resource in the array and splice it.
+            pair.array.delete(resource);
+
+            // Find the resource in the map and delete it.
+            pair.map.deleteValue(resource);
+
+            return true;
+        }
+
+        return false;
     },
 
     // Register the viewer to all of the standard events of a resource.

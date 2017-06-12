@@ -1,9 +1,8 @@
 /**
  * @constructor
- * @classdesc An MDX bucket.
  * @extends Bucket
  * @memberOf Mdx
- * @param {MdxModelView} env The model view that this bucket belongs to.
+ * @param {MdxModelView} modelView
  */
 function MdxBucket(modelView) {
     Bucket.call(this, modelView);

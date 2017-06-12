@@ -126,6 +126,7 @@
       "camera",
       "geoset",
       "layer",
+      "batch",
       "geosetanimation",
       "textureanimation",
       "node",
@@ -197,6 +198,7 @@
   "M3_PARSER": {
     "path": "handlers/m3/parser/",
     "internal_files": [
+      "binaryreader",
       "animationreference",
       "boundingshape",
       "unsupportedentry",

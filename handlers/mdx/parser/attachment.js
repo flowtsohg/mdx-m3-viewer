@@ -1,5 +1,8 @@
 /**
  * @constructor
+ * @param {MdxParserBinaryReader} reader
+ * @param {Array<MdxNode>} nodes
+ * @param {number} index
  */
 function MdxParserAttachment(reader, nodes, index) {
     this.index = index;

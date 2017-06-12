@@ -1,5 +1,6 @@
 /**
  * @constructor
+ * @param {M3ParserBinaryReader} reader
  */
 function M3ParserPixelAnimationReference(reader) {
     this.interpolationType = reader.readUint16();
@@ -12,6 +13,7 @@ function M3ParserPixelAnimationReference(reader) {
 
 /**
  * @constructor
+ * @param {M3ParserBinaryReader} reader
  */
 function M3ParserUint16AnimationReference(reader) {
     this.interpolationType = reader.readUint16();
@@ -24,6 +26,7 @@ function M3ParserUint16AnimationReference(reader) {
 
 /**
  * @constructor
+ * @param {M3ParserBinaryReader} reader
  */
 function M3ParserUint32AnimationReference(reader) {
     this.interpolationType = reader.readUint16();
@@ -36,6 +39,7 @@ function M3ParserUint32AnimationReference(reader) {
 
 /**
  * @constructor
+ * @param {M3ParserBinaryReader} reader
  */
 function M3ParserFloat32AnimationReference(reader) {
     this.interpolationType = reader.readUint16();
@@ -48,6 +52,7 @@ function M3ParserFloat32AnimationReference(reader) {
 
 /**
  * @constructor
+ * @param {M3ParserBinaryReader} reader
  */
 function M3ParserVector2AnimationReference(reader) {
     this.interpolationType = reader.readUint16();
@@ -60,8 +65,9 @@ function M3ParserVector2AnimationReference(reader) {
 
 /**
  * @constructor
+ * @param {M3ParserBinaryReader} reader
  */
-function M3ParserVector3AnimationReference(reader, Func) {
+function M3ParserVector3AnimationReference(reader) {
     this.interpolationType = reader.readUint16();
     this.animFlags = reader.readUint16();
     this.animId = reader.readUint32();
@@ -72,8 +78,9 @@ function M3ParserVector3AnimationReference(reader, Func) {
 
 /**
  * @constructor
+ * @param {M3ParserBinaryReader} reader
  */
-function M3ParserVector4AnimationReference(reader, Func) {
+function M3ParserVector4AnimationReference(reader) {
     this.interpolationType = reader.readUint16();
     this.animFlags = reader.readUint16();
     this.animId = reader.readUint32();

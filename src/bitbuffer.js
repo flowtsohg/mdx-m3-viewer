@@ -18,39 +18,57 @@ function BitBuffer(buffer, byteOffset, byteLength) {
     }
 
     this.buffer = buffer;
-    this.uint8array = new Uint8Array(buffer, byteOffset, byteLength);
+    this.byteArray = new Uint8Array(buffer, byteOffset, byteLength);
     this.index = 0;
     this.byteLength = buffer.byteLength;
     this.bitBuffer = 0;
     this.bits = 0;
 }
 
-function loadBits(buffer, bits) {
-    while (buffer.bits < bits) {
-        buffer.bitBuffer += buffer.uint8array[buffer.index] << buffer.bits;
-        buffer.bits += 8;
-        buffer.index += 1;
+BitBuffer.prototype = {
+    /**
+     * @desc Peek a number of bits
+     * @param {number} bits
+     * @returns {number}
+     */
+    peekBits(bits) {
+        this.loadBits(bits);
+
+        return (this.bitBuffer & (1 << bits));
+    },
+
+    /**
+     * @desc Read a number of bits
+     * @param {number} bits
+     * @returns {number}
+     */
+    readBits(bits) {
+        let data = this.peekBits(bits);
+
+        this.bitBuffer >>>= bits;
+        this.bits -= bits;
+
+        return data;
+    },
+
+    /**
+     * @desc Skip a number of bits
+     * @param {number} bits
+     * @returns {number}
+     */
+    skipBits(bits) {
+        this.loadBits(bits);
+
+        this.bitBuffer >>>= bits;
+        this.bits -= bits;
+    },
+
+    // Load more buts into the buffer
+    loadBits(bits) {
+        while (this.bits < bits) {
+            this.bitBuffer += this.byteArray[this.index] << this.bits;
+            this.bits += 8;
+            this.index += 1;
+        }
     }
-}
-
-function peekBits(buffer, bits) {
-    loadBits(buffer, bits);
-
-    return (buffer.bitBuffer & (1 << bits));
-}
-
-function readBits(buffer, bits) {
-    const data = peekBits(buffer, bits);
-
-    buffer.bitBuffer >>>= bits;
-    buffer.bits -= bits;
-
-    return data;
-}
-
-function skipBits(buffer, bits) {
-    loadBits(buffer, bits);
-
-    buffer.bitBuffer >>>= bits;
-    buffer.bits -= bits;
-}
+};

@@ -29,8 +29,7 @@ Model.prototype = {
 
     /**
      * @method
-     * @desc Adds a new instance to the first view owned by this model, and returns the instance.
-     *       Equivalent to model.views[0].addInstance()
+     * @desc Adds a new instance to this model, and returns it.
      * @returns {ModelInstance}
      */
     addInstance() {

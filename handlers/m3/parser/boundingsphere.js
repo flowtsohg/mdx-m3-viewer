@@ -1,5 +1,6 @@
 /**
  * @constructor
+ * @param {M3ParserBinaryReader} reader
  */
 function M3ParserBoundingSphere(reader) {
     this.min = reader.readFloat32Array(3);

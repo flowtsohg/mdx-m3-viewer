@@ -16,7 +16,7 @@ DdsTexture.prototype = {
     },
 
     initialize(src) {
-        const gl = this.env.gl,
+        let gl = this.env.gl,
             compressedTextures = this.env.webgl.extensions.compressedTextureS3tc,
             DDS_MAGIC = 0x20534444,
             DDSD_MIPMAPCOUNT = 0x20000,

@@ -1,5 +1,7 @@
 /**
  * @constructor
+ * @param {M3ParserBinaryReader} reader
+ * @param {Array<M3ParserIndexEntry>} index
  */
 function M3ParserReference(reader, index) {
     this.index = index;

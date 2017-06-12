@@ -1,7 +1,10 @@
 /**
  * @constructor
+ * @param {M3ParserBinaryReader} reader
+ * @param {number} version
+ * @param {Array<M3ParserIndexEntry>} index
  */
-function M3ParserCamera(reader, index, version) {
+function M3ParserCamera(reader, version, index) {
     this.version = version;
     this.bone = reader.readUint32();
     this.name = new M3ParserReference(reader, index);

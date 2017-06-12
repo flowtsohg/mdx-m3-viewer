@@ -1,38 +1,6 @@
 /**
  * @constructor
- * @param {number} index
- * @param {MdxLayer} layer
- * @param {MdxGeoset} geoset
- */
-function MdxBatch(index, layer, geoset) {
-    this.index = index;
-    this.layer = layer;
-    this.geoset = geoset;
-}
-
-MdxBatch.prototype = {
-    shouldRender(instance) {
-        if (this.layer.getAlpha(instance) < 0.75 || this.geoset.getAlpha(instance) < 0.75) {
-            return 0;
-        }
-
-        return 1;
-    }
-};
-
-var MdxFilterModeToRenderOrder = {
-    0: 0, // Opaque
-    1: 1, // 1bit Alpha
-    2: 2, // 8bit Alpha
-    3: 3, // Additive
-    4: 3, // Add Alpha (according to Magos)
-    5: 3, // Modulate
-    6: 3  // Modulate 2X
-};
-
-/**
- * @constructor
- * @param {Layer} layer
+ * @param {MdxParserLayer} layer
  * @param {number} layerId
  * @param {number} priorityPlane
  * @param {MdxModel} model
@@ -49,7 +17,7 @@ function MdxLayer(layer, layerId, priorityPlane, model) {
     this.textureId = layer.textureId;
     this.coordId = layer.coordId;
     this.alpha = layer.alpha;
-    this.renderOrder = MdxFilterModeToRenderOrder[filterMode];
+    this.renderOrder = MdxLayer.filterModeToRenderOrder[filterMode];
     this.sd = new MdxSdContainer(layer.tracks, model);
 
     var flags = layer.flags;
@@ -103,6 +71,16 @@ function MdxLayer(layer, layerId, priorityPlane, model) {
     this.uvDivisor = new Float32Array([1, 1]);
     this.isTextureAnim = false;
 }
+
+MdxLayer.filterModeToRenderOrder = {
+    0: 0, // Opaque
+    1: 1, // 1bit Alpha
+    2: 2, // 8bit Alpha
+    3: 3, // Additive
+    4: 3, // Add Alpha (according to Magos)
+    5: 3, // Modulate
+    6: 3  // Modulate 2X
+};
 
 MdxLayer.prototype = {
     bind(shader) {

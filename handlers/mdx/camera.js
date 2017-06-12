@@ -1,5 +1,7 @@
 /**
  * @constructor
+ * @param {MdxModel} model
+ * @param {MdxParserCamera} camera
  */
 function MdxCamera(model, camera) {
     this.name = camera.name;

@@ -1,7 +1,10 @@
 /**
  * @constructor
+ * @param {M3ParserBinaryReader} reader
+ * @param {number} version
+ * @param {Array<M3ParserIndexEntry>} index
  */
-function M3ParserLight(reader, index, version) {
+function M3ParserLight(reader, version, index) {
     this.version = version;
     this.type = reader.readUint8();
     this.unknown0 = reader.readUint8();

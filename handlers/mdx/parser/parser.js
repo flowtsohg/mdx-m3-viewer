@@ -1,5 +1,6 @@
 /**
  * @constructor
+ * @param {ArrayBuffer} src
  */
 function MdxParser(src) {
     var reader = new MdxParserBinaryReader(src);
@@ -17,7 +18,7 @@ function MdxParser(src) {
                 this.chunks[tag] = new constructor(reader, tag, size, this.nodes);
             } else {
                 console.warn("MdxParser: Unsupported tag - " + tag);
-                this.chunks[tag] = new MdxParserUnsupportedChunk(reader.subreader(size));
+                this.chunks[tag] = new MdxParserUnsupportedChunk(reader.subreader(size), tag, size, this.nodes);
                 reader.skip(size);
             }
         }

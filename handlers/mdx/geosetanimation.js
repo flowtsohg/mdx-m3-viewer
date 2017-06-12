@@ -1,7 +1,7 @@
 /**
  * @constructor
  * @param {MdxModel} model
- * @param {GeosetAnimation} geosetAnimation
+ * @param {MdxParserGeosetAnimation} geosetAnimation
  */
 function MdxGeosetAnimation(model, geosetAnimation) {
     this.alpha = geosetAnimation.alpha;

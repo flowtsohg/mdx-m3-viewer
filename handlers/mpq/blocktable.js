@@ -3,10 +3,10 @@
  * @param {BinaryReader} reader
  */
 function MpqBlockTableEntry(reader) {
-    this.filePos = readUint32(reader);
-    this.compressedSize = readUint32(reader);
-    this.normalSize = readUint32(reader);
-    this.flags = readUint32(reader);
+    this.filePos = reader.readUint32();
+    this.compressedSize = reader.readUint32();
+    this.normalSize = reader.readUint32();
+    this.flags = reader.readUint32();
 }
 
 /**

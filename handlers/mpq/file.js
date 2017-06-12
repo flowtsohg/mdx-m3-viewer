@@ -38,7 +38,7 @@ MpqFile.prototype = {
             reader = new BinaryReader(archive.buffer);
 
         // Go to the position of this block
-        seek(reader, block.filePos);
+        reader.seek(block.filePos);
 
         if (flags & Mpq.FILE_SINGLEUNIT) {
             console.warn("[MPQFile::parse] Single unit (add support!)")
@@ -57,7 +57,7 @@ MpqFile.prototype = {
             let buffer = new Uint8Array(block.normalSize)
 
             // Get the sector offsets
-            let sectorOffsets = readUint32Array(reader, sectorCount + 1);
+            let sectorOffsets = reader.readUint32Array(sectorCount + 1);
 
             // If this block is encrypted, decrypt the sector offsets
             if (c) {
@@ -70,10 +70,10 @@ MpqFile.prototype = {
 
             for (let i = 0; i < sectorCount; i++) {
                 // Go to the position of this sector
-                seek(reader, block.filePos + start);
+                reader.seek(block.filePos + start);
 
                 // Read the sector
-                let sector = readUint8Array(reader, end - start);
+                let sector = reader.readUint8Array(end - start);
 
                 // If this block is encrypted, decrypt the sector
                 if (c) {
@@ -107,7 +107,7 @@ MpqFile.prototype = {
             this.buffer = buffer.buffer;
         } else {
             // Read the sector
-            let sector = readUint8Array(reader, block.normalSize);
+            let sector = reader.readUint8Array(block.normalSize);
 
             // If this block is encrypted, decrypt the sector
             if (c) {

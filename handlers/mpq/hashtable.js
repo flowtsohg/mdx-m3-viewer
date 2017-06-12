@@ -3,11 +3,11 @@
  * @param {BinaryReader} reader
  */
 function MpqHashTableEntry(reader) {
-    this.name1 = readUint32(reader);
-    this.name2 = readUint32(reader);
-    this.locale = readUint16(reader);
-    this.platform = readUint16(reader);
-    this.blockIndex = readUint32(reader);
+    this.name1 = reader.readUint32();
+    this.name2 = reader.readUint32();
+    this.locale = reader.readUint16();
+    this.platform = reader.readUint16();
+    this.blockIndex = reader.readUint32();
 }
 
 /**

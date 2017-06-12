@@ -1,5 +1,7 @@
 /**
  * @constructor
+ * @param {MdxParserBinaryReader} reader
+ * @param {number} interpolationType
  */
 function MdxParserUintTrack(reader, interpolationType) {
     this.frame = reader.readInt32();
@@ -13,6 +15,8 @@ function MdxParserUintTrack(reader, interpolationType) {
 
 /**
  * @constructor
+ * @param {MdxParserBinaryReader} reader
+ * @param {number} interpolationType
  */
 function MdxParserFloatTrack(reader, interpolationType) {
     this.frame = reader.readInt32();
@@ -26,6 +30,8 @@ function MdxParserFloatTrack(reader, interpolationType) {
 
 /**
  * @constructor
+ * @param {MdxParserBinaryReader} reader
+ * @param {number} interpolationType
  */
 function MdxParserVector3Track(reader, interpolationType) {
     this.frame = reader.readInt32();
@@ -39,6 +45,8 @@ function MdxParserVector3Track(reader, interpolationType) {
 
 /**
  * @constructor
+ * @param {MdxParserBinaryReader} reader
+ * @param {number} interpolationType
  */
 function MdxParserVector4Track(reader, interpolationType) {
     this.frame = reader.readInt32();

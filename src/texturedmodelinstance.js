@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @mixes ModelInstance
+ * @extends ModelInstance
  * @param {Model} model
  */
 function TexturedModelInstance(model) {
@@ -8,6 +8,12 @@ function TexturedModelInstance(model) {
 }
 
 TexturedModelInstance.prototype = {
+    /*
+     * Overrides a texture with another one.
+     * 
+     * @param {Texture} which
+     * @param {Texture} texture
+     */
     setTexture(which, texture) {
         let view = this.modelView.getShallowCopy();
 

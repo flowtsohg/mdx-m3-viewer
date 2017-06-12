@@ -74,7 +74,7 @@ BlpTexture.prototype = {
                 imageData.data[dstI + 2] = pallete[i + 2];
 
                 if (alphaBits > 0) {
-                    imageData.data[dstI + 3] = readBits(bitBuffer, alphaBits) * bitsToByte;
+                    imageData.data[dstI + 3] = bitBuffer.readBits(alphaBits) * bitsToByte;
                 } else {
                     imageData.data[dstI + 3] = 255;
                 }

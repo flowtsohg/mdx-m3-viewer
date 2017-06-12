@@ -1,5 +1,6 @@
 /**
  * @constructor
+ * @param {MdxParserBinaryReader} reader
  */
 function MdxParserExtent(reader) {
     this.radius = reader.readFloat32();

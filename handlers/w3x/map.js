@@ -20,16 +20,16 @@ W3xMap.prototype = {
     initialize(src) {
         var reader = new BinaryReader(src);
 
-        if (read(reader, 4) !== "HM3W") {
+        if (reader.read(4) !== "HM3W") {
             this.onerror("InvalidSource", "WrongMagicNumber");
             return false;
         }
 
-        skip(reader, 4);
+        reader.skip(4);
 
-        this.name = readUntilNull(reader);
-        this.flags = readInt32(reader);
-        this.maxPlayers = readInt32(reader);
+        this.name = reader.readUntilNull();
+        this.flags = reader.readInt32();
+        this.maxPlayers = reader.readInt32();
 
         this.mpq = new MpqArchive(this.env);
         this.mpq.initialize(src);
@@ -103,10 +103,10 @@ W3xMap.prototype = {
         if (file) {
             var reader = new BinaryReader(file.buffer);
 
-            var id = read(reader, 4);
-            var version = readInt32(reader);
-            var something = readInt32(reader); // sub version?
-            var objects = readInt32(reader);
+            var id = reader.read(4);
+            var version = reader.readInt32();
+            var something = reader.readInt32(); // sub version?
+            var objects = reader.readInt32();
 
             for (var i = 0; i < objects; i++) {
                 new W3xDoodad(reader, version, this)
@@ -131,10 +131,10 @@ W3xMap.prototype = {
         if (file) {
             var reader = new BinaryReader(file.buffer);
 
-            var id = read(reader, 4);
-            var version = readInt32(reader);
-            var something = readInt32(reader); // sub version?
-            var objects = readInt32(reader);
+            var id = reader.read(4);
+            var version = reader.readInt32();
+            var something = reader.readInt32(); // sub version?
+            var objects = reader.readInt32();
 
             for (var i = 0; i < objects; i++) {
                 new W3xUnit(reader, version, this);
@@ -182,26 +182,26 @@ W3xMap.prototype = {
         if (file) {
             var reader = new BinaryReader(file.buffer);
 
-            var id = read(reader, 4);
-            var version = readInt32(reader);
-            var tileset = read(reader, 1);
-            var haveCustomTileset = readInt32(reader);
-            var groundTilesetCount = readInt32(reader);
+            var id = reader.read(4);
+            var version = reader.readInt32();
+            var tileset = reader.read(1);
+            var haveCustomTileset = reader.readInt32();
+            var groundTilesetCount = reader.readInt32();
             var groundTilesets = [];
 
             for (var i = 0; i < groundTilesetCount; i++) {
-                groundTilesets[i] = read(reader, 4);
+                groundTilesets[i] = reader.read(4);
             }
 
-            var cliffTilesetCount = readInt32(reader);
+            var cliffTilesetCount = reader.readInt32();
             var cliffTilesets = [];
 
             for (var i = 0; i < cliffTilesetCount; i++) {
-                cliffTilesets[i] = read(reader, 4);
+                cliffTilesets[i] = reader.read(4);
             }
 
-            var mapSize = readInt32Array(reader, 2);
-            var centerOffset = readFloat32Array(reader, 2);
+            var mapSize = reader.readInt32Array(2);
+            var centerOffset = reader.readFloat32Array(2);
 
             var tilepoints = [];
             var heightMap = [];
@@ -1373,7 +1373,7 @@ W3xMap.prototype = {
         if (file) {
             var reader = new BinaryReader(file.buffer);
 
-            var version = readInt32(reader);
+            var version = reader.readInt32();
 
             // Modifications to built-in objects
             var originalTable = new W3xModificationTable(reader, useOptionalInts);

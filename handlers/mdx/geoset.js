@@ -34,6 +34,8 @@ MdxShallowGeoset.prototype = {
 
 /**
  * @constructor
+ * @param {MdxParserGeoset} geoset
+ * @param {Array<MdxGeosetAnimation>} geosetAnimations
  */
 function MdxGeoset(geoset, geosetAnimations) {
     let positions = geoset.vertices,

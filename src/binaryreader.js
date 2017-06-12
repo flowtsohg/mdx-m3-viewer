@@ -17,36 +17,72 @@ function BinaryReader(buffer, byteOffset, byteLength) {
         byteLength = buffer.byteLength - byteOffset;
     }
 
+    /** @member {ArrayBuffer} */
     this.buffer = buffer;
+    /** @member {DataView} */
     this.dataView = new DataView(buffer, byteOffset, byteLength);
-    this.uint8array = new Uint8Array(buffer, byteOffset, byteLength);
+    /** @member {Uint8Array} */
+    this.byteArray = new Uint8Array(buffer, byteOffset, byteLength);
+    /** @member {number} */
     this.index = 0;
+    /** @member {number} */
     this.byteLength = buffer.byteLength;
 }
 
 BinaryReader.prototype = {
+    /**
+     * Create a subreader of this reader, at its position, with the given byte length
+     * 
+     * @returns {BinaryReader}
+     */
     subreader(byteLength) {
         return new BinaryReader(this.buffer, this.index, byteLength);
     },
 
+    /**
+     * Get the remaining bytes
+     * 
+     * @returns {number}
+     */
     remaining() {
         return this.byteLength - this.index;
     },
 
+    /**
+     * Skip a number of bytes
+     * 
+     * @param {number} bytes
+     */
     skip(bytes) {
         this.index += bytes;
     },
 
+    /**
+     * Set the reader's index
+     * 
+     * @param {number} index
+     */
     seek(index) {
         this.index = index;
     },
 
+    /**
+     * Get the reader's index
+     * 
+     * @returns {number}
+     */
     tell() {
         return this.index;
     },
 
+    /**
+     * Peek a string
+     * 
+     * @param {number} size
+     * @returns {string}
+     */
     peek(size) {
-        let uint8array = this.uint8array,
+        let uint8array = this.byteArray,
             index = this.index,
             data = "";
 
@@ -62,6 +98,12 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read a string
+     * 
+     * @param {number} size
+     * @returns {string}
+     */
     read(size) {
         // If the size isn't specified, default to everything
         size = size || this.remaining();
@@ -73,23 +115,35 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Peeks a string until finding a null byte
+     * 
+     * @param {number} size
+     * @returns {string}
+     */
     peekUntilNull() {
-        let uint8array = this.uint8array,
+        let byteArray = this.byteArray,
             index = this.index,
             data = "",
-            b = uint8array[index],
+            b = byteArray[index],
             i = 0;
 
         while (b !== 0) {
             data += String.fromCharCode(b);
 
-            b = uint8array[index + i]
+            b = byteArray[index + i]
             i += 1;
         }
 
         return data;
     },
 
+    /**
+     * Read a string until finding a null byte
+     * 
+     * @param {number} size
+     * @returns {string}
+     */
     readUntilNull() {
         let data = this.peekUntilNull();
 
@@ -98,29 +152,11 @@ BinaryReader.prototype = {
         return data;
     },
 
-    peekCharArray(size) {
-        let uint8array = this.uint8array,
-            index = this.index,
-            data = [];
-
-        for (let i = 0; i < size; i++) {
-            data[i] = String.fromCharCode(uint8array[index + i]);
-        }
-
-        return data;
-    },
-
-    readCharArray(size) {
-        // If the size isn't specified, default to everything
-        size = size || (this.byteLength - this.index);
-
-        let data = this.peekCharArray(size);
-
-        this.index += size;
-
-        return data;
-    },
-
+    /**
+     * Read a 8 bit signed integer
+     * 
+     * @returns {number}
+     */
     readInt8() {
         let data = this.dataView.getInt8(this.index, true);
 
@@ -129,6 +165,11 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read a 16 bit signed integer
+     * 
+     * @returns {number}
+     */
     readInt16() {
         let data = this.dataView.getInt16(this.index, true);
 
@@ -137,6 +178,11 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read a 32 bit signed integer
+     * 
+     * @returns {number}
+     */
     readInt32() {
         let data = this.dataView.getInt32(this.index, true);
 
@@ -145,6 +191,11 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read a 8 bit unsigned integer
+     * 
+     * @returns {number}
+     */
     readUint8() {
         let data = this.dataView.getUint8(this.index, true);
 
@@ -153,6 +204,11 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read a 16 bit unsigned integer
+     * 
+     * @returns {number}
+     */
     readUint16() {
         let data = this.dataView.getUint16(this.index, true);
 
@@ -161,6 +217,11 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read a 32 bit unsigned integer
+     * 
+     * @returns {number}
+     */
     readUint32() {
         let data = this.dataView.getUint32(this.index, true);
 
@@ -169,6 +230,11 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read a 32 bit float
+     * 
+     * @returns {number}
+     */
     readFloat32() {
         let data = this.dataView.getFloat32(this.index, true);
 
@@ -177,6 +243,11 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read a 64 bit float
+     * 
+     * @returns {number}
+     */
     readFloat64() {
         let data = this.dataView.getFloat64(this.index, true);
 
@@ -185,6 +256,12 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read an array of 8 bit signed integers
+     * 
+     * @param {number} count
+     * @returns {Int8Array}
+     */
     readInt8Array(count) {
         let data = new Int8Array(count),
             dataView = this.dataView,
@@ -199,6 +276,12 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read an array of 16 bit signed integers
+     * 
+     * @param {number} count
+     * @returns {Int16Array}
+     */
     readInt16Array(count) {
         let data = new Int16Array(count),
             dataView = this.dataView,
@@ -213,6 +296,12 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read an array of 32 bit signed integers
+     * 
+     * @param {number} count
+     * @returns {Int32Array}
+     */
     readInt32Array(count) {
         let data = new Int32Array(count),
             dataView = this.dataView,
@@ -227,6 +316,12 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read an array of 8 bit unsigned integers
+     * 
+     * @param {number} count
+     * @returns {Uint8Array}
+     */
     readUint8Array(count) {
         let data = new Uint8Array(count),
             dataView = this.dataView,
@@ -241,6 +336,12 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read an array of 16 bit unsigned integers
+     * 
+     * @param {number} count
+     * @returns {Uint16Array}
+     */
     readUint16Array(count) {
         let data = new Uint16Array(count),
             dataView = this.dataView,
@@ -255,6 +356,12 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read an array of 32 bit unsigned integers
+     * 
+     * @param {number} count
+     * @returns {Uint32Array}
+     */
     readUint32Array(count) {
         let data = new Uint32Array(count),
             dataView = this.dataView,
@@ -269,6 +376,12 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read an array of 32 bit floats
+     * 
+     * @param {number} count
+     * @returns {Float32Array}
+     */
     readFloat32Array(count) {
         let data = new Float32Array(count),
             dataView = this.dataView,
@@ -283,6 +396,12 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read an array of 64 bit floats
+     * 
+     * @param {number} count
+     * @returns {Float64Array}
+     */
     readFloat64Array(count) {
         let data = new Float64Array(count),
             dataView = this.dataView,
@@ -297,6 +416,13 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read an array of arrays of 8 bit signed integers
+     * 
+     * @param {number} rows
+     * @param {number} columns
+     * @returns {Array<Int8Array>}
+     */
     readInt8Matrix(rows, columns) {
         let data = [];
 
@@ -307,6 +433,13 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read an array of arrays of 16 bit signed integers
+     * 
+     * @param {number} rows
+     * @param {number} columns
+     * @returns {Array<Int16Array>}
+     */
     readInt16Matrix(rows, columns) {
         let data = [];
 
@@ -317,6 +450,13 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read an array of arrays of 32 bit signed integers
+     * 
+     * @param {number} rows
+     * @param {number} columns
+     * @returns {Array<Int32Array>}
+     */
     readInt32Matrix(rows, columns) {
         let data = [];
 
@@ -327,6 +467,13 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read an array of arrays of 8 bit unsigned integers
+     * 
+     * @param {number} rows
+     * @param {number} columns
+     * @returns {Array<Uint8Array>}
+     */
     readUint8Matrix(rows, columns) {
         let data = [];
 
@@ -337,6 +484,13 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read an array of arrays of 16 bit unsigned integers
+     * 
+     * @param {number} rows
+     * @param {number} columns
+     * @returns {Array<Uint16Array>}
+     */
     readUint16Matrix(rows, columns) {
         let data = [];
 
@@ -347,6 +501,13 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read an array of arrays of 32 bit unsigned integers
+     * 
+     * @param {number} rows
+     * @param {number} columns
+     * @returns {Array<Uint32Array>}
+     */
     readUint32Matrix(rows, columns) {
         let data = [];
 
@@ -357,6 +518,13 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read an array of arrays of 32 bit floats
+     * 
+     * @param {number} rows
+     * @param {number} columns
+     * @returns {Array<Float32Array>}
+     */
     readFloat32Matrix(rows, columns) {
         let data = [];
 
@@ -367,6 +535,13 @@ BinaryReader.prototype = {
         return data;
     },
 
+    /**
+     * Read an array of arrays of 64 bit floats
+     * 
+     * @param {number} rows
+     * @param {number} columns
+     * @returns {Array<Float64Array>}
+     */
     readFloat64Matrix(rows, columns) {
         let data = [];
 

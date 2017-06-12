@@ -9,6 +9,14 @@ function TexturedModel(env, pathSolver) {
 }
 
 TexturedModel.prototype = {
+    /*
+     * Bind a texture to some texture unit.
+     * Checks the model view for an override.
+     * 
+     * @param {Texture} texture
+     * @param {number} unit
+     * @param {ModelView} modelView
+     */
     bindTexture(texture, unit, modelView) {
         let textures = modelView.textures;
 

@@ -20,32 +20,6 @@ Scene.prototype = {
         return "scene";
     },
 
-    addBucket(bucket) {
-        let bucketSet = this.bucketSet;
-
-        if (!bucketSet.has(bucket)) {
-            bucketSet.add(bucket);
-
-            this.buckets.push(bucket);
-        }
-    },
-
-    removeBucket(bucket) {
-        let instances = bucket.instances.length;
-
-        if (instances === 0) {
-            this.bucketSet.delete(bucket);
-
-            let buckets = this.buckets;
-
-            buckets.splice(buckets.indexOf(bucket), 1);
-
-            return true;
-        }
-
-        return false;        
-    },
-
     /**
      * @method
      * @desc Add an instance to this scene.
@@ -108,6 +82,32 @@ Scene.prototype = {
      */
     detach() {
         this.env.removeScene(this);
+    },
+
+    addBucket(bucket) {
+        let bucketSet = this.bucketSet;
+
+        if (!bucketSet.has(bucket)) {
+            bucketSet.add(bucket);
+
+            this.buckets.push(bucket);
+        }
+    },
+
+    removeBucket(bucket) {
+        let instances = bucket.instances.length;
+
+        if (instances === 0) {
+            this.bucketSet.delete(bucket);
+
+            let buckets = this.buckets;
+
+            buckets.splice(buckets.indexOf(bucket), 1);
+
+            return true;
+        }
+
+        return false;        
     },
 
     update() {

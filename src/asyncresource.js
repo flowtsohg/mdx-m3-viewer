@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @mixes EventDispatcher
+ * @extends EventDispatcher
  * @param {ModelViewer} env
  */
 function AsyncResource(env) {
@@ -17,6 +17,25 @@ function AsyncResource(env) {
 }
 
 AsyncResource.prototype = {
+    /**
+     * @method
+     * @desc Similar to attaching an event listener to the "loadend" event, but handles the case where the resource already loaded, and the callback should still be called.
+     * @param {function(AsyncResource)} callback The function to call.
+     * @returns this
+     */
+    whenLoaded(callback) {
+        if (this.loaded || this.error) {
+            callback(this);
+        } else {
+            // Self removing listener
+            let listener = () => { this.removeEventListener(listener); callback(this); };
+
+            this.addEventListener("loadend", listener);
+        }
+
+        return this;
+    },
+
     detach() {
 
     },
@@ -54,25 +73,6 @@ AsyncResource.prototype = {
 
         this.dispatchEvent({ type: "error", error: error, extra: extra });
         this.dispatchEvent({ type: "loadend" });
-    },
-
-    /**
-     * @method
-     * @desc Similar to attaching an event listener to the "loadend" event, but handles the case where the resource already loaded, and the callback should still be called.
-     * @param {function(AsyncResource)} callback The function to call.
-     * @returns this
-     */
-    whenLoaded(callback) {
-        if (this.loaded || this.error) {
-            callback(this);
-        } else {
-            // Self removing listener
-            let listener = () => { this.removeEventListener(listener); callback(this); };
-
-            this.addEventListener("loadend", listener);
-        }
-
-        return this;
     }
 };
 
