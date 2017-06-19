@@ -44,6 +44,14 @@ Bucket.prototype = {
         return 0;
     },
 
+    /**
+     * The amount of triangles rendered each time this bucket is rendered.
+     * This includes emitters.
+     */
+    renderedPolygons() {
+        return 0;
+    },
+
     getSharedData(index) {
         
     },

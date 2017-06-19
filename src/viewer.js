@@ -221,6 +221,21 @@ ModelViewer.prototype = {
     },
 
     /**
+     * The amount of triangles rendered each time the viewer is rendered.
+     * This includes emitters.
+     */
+    renderedPolygons() {
+        let scenes = this.scenes,
+            count = 0;
+
+        for (let i = 0, l = scenes.length; i < l; i++) {
+            count += scenes[i].renderedPolygons();
+        }
+
+        return count;
+    },
+
+    /**
      * Load something. The meat of this whole project.
      * 
      * @param {?} src The source used for the load.

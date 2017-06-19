@@ -65,6 +65,17 @@ M3Bucket.prototype = {
         return this.model.batches.length;
     },
 
+    renderedPolygons() {
+        let batches = this.model.batches,
+            count = 0;
+
+        for (let i = 0, l = batches.length; i < l; i++) {
+            count += batches[i].region.elements / 3;
+        }
+
+        return count * this.instances.length;
+    },
+
     update(scene) {
         const gl = this.gl,
             size = this.instances.length;

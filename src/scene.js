@@ -49,6 +49,21 @@ Scene.prototype = {
     },
 
     /**
+     * The amount of triangles rendered each time this scene is rendered.
+     * This includes emitters.
+     */
+    renderedPolygons() {
+        let buckets = this.buckets,
+            count = 0;
+
+        for (let i = 0, l = buckets.length; i < l; i++) {
+            count += buckets[i].renderedPolygons();
+        }
+
+        return count;
+    },
+
+    /**
      * Add an instance to this scene.
      * 
      * @param {Instance} instance The instance to add.
@@ -107,7 +122,11 @@ Scene.prototype = {
      * Detach this scene from the viewer.
      */
     detach() {
-        this.env.removeScene(this);
+        if (this.env) {
+            return this.env.removeScene(this);
+        }
+
+        return false;
     },
 
     addBucket(bucket) {

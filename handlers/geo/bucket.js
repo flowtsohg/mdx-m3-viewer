@@ -55,6 +55,10 @@ GeometryBucket.prototype = {
         return 1;
     },
 
+    renderedPolygons() {
+        return (this.model.faceArray.length / 3) * this.instances.length;
+    },
+
     update(scene) {
         Bucket.prototype.update.call(this, scene);
 

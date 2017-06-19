@@ -115,29 +115,29 @@ MdxBucket.prototype = {
     renderCalls() {
         let model = this.model,
             renderCalls = model.batches.length,
-            emitters;
+            objects;
         
-        emitters = this.particleEmitters2;
-        for (let i = 0, l = emitters.length; i < l; i++) {
-            let emitter = emitters[i];
+        objects = this.particleEmitters2;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            let emitter = objects[i];
 
             if (emitter.active.length > 0) {
                 renderCalls += 1;
             }
         }
 
-        emitters = this.ribbonEmitters;
-        for (let i = 0, l = emitters.length; i < l; i++) {
-            let emitter = emitters[i];
+        objects = this.ribbonEmitters;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            let emitter = objects[i];
 
             if (emitter.active.length > 0) {
                 renderCalls += emitter.layers.length;
             }
         }
 
-        emitters = this.eventObjectEmitters;
-        for (let i = 0, l = emitters.length; i < l; i++) {
-            let emitter = emitters[i];
+        objects = this.eventObjectEmitters;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            let emitter = objects[i];
 
             if (emitter.active.length > 0) {
                 let type = emitter.type;
@@ -149,6 +149,42 @@ MdxBucket.prototype = {
         }
 
         return renderCalls;
+    },
+
+    renderedPolygons() {
+        let model = this.model,
+            count = 0,
+            objects;
+
+        objects = model.batches;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            count += (objects[i].geoset.faceArray.length / 3) * this.instances.length;
+        }
+
+        objects = this.particleEmitters2;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            count += objects[i].active.length * 2;
+        }
+
+        objects = this.ribbonEmitters;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            count += objects[i].active.length * 2;
+        }
+
+        objects = this.eventObjectEmitters;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            let emitter = objects[i];
+
+            if (emitter.active.length > 0) {
+                let type = emitter.type;
+
+                if (type === "SPL" || type === "UBR") {
+                    count += emitter.active.length * 2;
+                }
+            }
+        }
+
+        return count;
     },
 
     update(scene) {
