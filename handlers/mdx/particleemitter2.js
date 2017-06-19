@@ -144,7 +144,7 @@ MdxParticleEmitter2.prototype = {
     },
 
     updateHW(scene) {
-        let active = this.active;
+        var active = this.active;
 
         var data = this.buffer.float32array;
         var columns = this.columns;
@@ -173,8 +173,8 @@ MdxParticleEmitter2.prototype = {
         var v1x, v1y, v1z, v2x, v2y, v2z, v3x, v3y, v3z, v4x, v4y, v4z;
         var lta, lba, rta, rba, rgb;
 
-        for (let i = 0, l = active.length, index = 0; i < l; i++, index += 30) {
-            let particle = active[i],
+        for (var i = 0, l = active.length, index = 0; i < l; i++, index += 30) {
+            var particle = active[i],
                 nodeScale = particle.nodeScale;
 
             position = particle.worldLocation;

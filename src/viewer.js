@@ -187,7 +187,7 @@ ModelViewer.prototype = {
     clear() {
         let scenes = this.scenes;
 
-        for (let i = 0, l = scenes.length; i < l; i++) {
+        for (let i = scenes.length; i--;) {
             this.removeScene(scenes[i]);
         }
     },

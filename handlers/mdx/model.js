@@ -53,7 +53,7 @@ MdxModel.prototype = {
             objects = chunks.get("TEXS").elements;
 
             for (i = 0, l = objects.length; i < l; i++) {
-                this.loadTexture(objects[i], this.pathSolver);
+                this.loadTexture(objects[i]);
             }
         }
 
@@ -372,7 +372,7 @@ MdxModel.prototype = {
         return hierarchy;
     },
 
-    loadTexture(texture, pathSolver) {
+    loadTexture(texture) {
         var path = texture.path;
         var replaceableId = texture.replaceableId;
 
@@ -390,9 +390,7 @@ MdxModel.prototype = {
         }
 
         this.replaceables.push(replaceableId);
-
-        this.textures.push(this.env.load(path, pathSolver));
-        this.texturePaths.push(normalizePath(path));
+        this.textures.push(this.env.load(path, this.pathSolver));
     },
 
     calculateExtent() {

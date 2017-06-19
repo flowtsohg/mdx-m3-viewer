@@ -275,7 +275,8 @@ function W3xDoodad(reader, version, map) {
 
     var row = map.slkFiles.doodads.map[id] || map.slkFiles.destructabledata.map[id];
     if (row) {
-        if (row.texFile) {
+        // What does it mean when texFile is underscore?
+        if (row.texFile && row.texFile !== "_") {
             this.texFile = map.loadFiles(row.texFile + ".blp");
         }
 

@@ -23,31 +23,26 @@ const Geo = {
             `,
             `
                 uniform sampler2D u_diffuseMap;
-                uniform bool u_isBGR;
-                uniform bool u_isEdge;
                 uniform float u_alphaMod;
+                uniform bool u_isEdge;
+                uniform bool u_hasTexture;
+                uniform bool u_isBGR;
 
                 varying vec2 v_uv;
                 varying vec3 v_color;
 
                 void main() {
-                    vec4 color = vec4(v_color, 1.0);
-
-                    if (u_isEdge) {
-                        gl_FragColor = color;
-                    } else {
+                    gl_FragColor = vec4(v_color, u_alphaMod);
+      
+                    if (u_hasTexture && !u_isEdge) {
                         vec4 texel = texture2D(u_diffuseMap, v_uv);
 
                         if (u_isBGR) {
                             texel = texel.bgra;
                         }
 
-                        //gl_FragColor = color * texel;
-
-                        //gl_FragColor.a *= u_alphaMod;
-
-                        gl_FragColor = color + texel;
-                    }
+                        gl_FragColor *= texel;
+                    } 
                 }
             `
         );

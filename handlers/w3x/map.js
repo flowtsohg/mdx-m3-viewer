@@ -184,6 +184,9 @@ W3xMap.prototype = {
             var id = reader.read(4);
             var version = reader.readInt32();
             var tileset = reader.read(1);
+
+            this.tileset = tileset;
+
             var haveCustomTileset = reader.readInt32();
             var groundTilesetCount = reader.readInt32();
             var groundTilesets = [];
@@ -192,6 +195,7 @@ W3xMap.prototype = {
                 groundTilesets[i] = reader.read(4);
             }
 
+            
             var cliffTilesetCount = reader.readInt32();
             var cliffTilesets = [];
 
@@ -239,18 +243,18 @@ W3xMap.prototype = {
                 D: "Dungeon",
                 F: "Lordf",
                 G: "Lords", // Underground is what?
+                I: "Ice",
+                J: "DRuins",
+                K: "Citadel",
                 L: "Lords",
                 N: "North",
+                O: "Outland",
                 Q: "VillageFall",
                 V: "Village",
                 W: "Lordw",
                 X: "Lords", // Dalaran is what?
                 Y: "Lords", // Cityscape is what?
                 Z: "Lords", // Sunken ruins
-                I: "Ice",
-                J: "DRuins",
-                O: "Outland",
-                K: "Citadel"
             };
 
             this.tilesetTextures.push(this.loadFiles("TerrainArt\\Blight\\" + tilesetToBlight[tileset] + "_Blight.blp"));
@@ -259,22 +263,38 @@ W3xMap.prototype = {
 
             let cliffSlk = this.slkFiles.clifftypes;
 
-            //console.log(cliffTilesets)
-            //console.log(slk)
-
             this.cliffs = [];
             this.cliffTextures = [];
 
+            var tilesetToCliff = {
+                A: "A_", // Ashenvale
+                B: "B_", // Barrens
+                C: "C_", // Felwood
+                D: "D_", // Dungeon
+                F: "F_", // Lordaeron Fall
+                G: "G_", // Underground
+                I: "", // Icecrown Glacier - UNKNOWN TEXTURE
+                J: "", // Dalaran Ruins - UNKNOWN TEXTURE
+                K: "", // Black Citadel - UNKNOWN TEXTURE
+                L: "", // Lordaeron Summer
+                N: "N_", // Northrend
+                O: "", // Outland - UNKNOWN TEXTURE
+                Q: "Q_", // Village Fall
+                V: "V_", // Village
+                W: "W_", // Lordaeron Winter
+                X: "X_", // Dalaran
+                Y: "Y_", // Cityscape
+                Z: "" // Sunken Ruins - UNKNOWN TEXTURE
+            };
+
+            var cliffPath = tilesetToCliff[this.tileset];
+
             for (var i = 0, l = cliffTilesets.length; i < l; i++) {
                 var row = cliffSlk.getRow(cliffTilesets[i]);
-                //if (row) {
-                    var path = row.dir + "\\" + row.file + ".blp";
-
-                    this.cliffs.push(row);
-                    this.cliffTextures.push(this.loadFiles(path));
-                //} else {
-                //    console.warn("W3x: unknown tileset texture ID " + cliffTilesets[i]);
-                //}
+                
+                this.cliffs.push(row);
+                this.cliffTextures.push(this.loadFiles("ReplaceableTextures/Cliff/" + cliffPath + row.texFile + ".blp"));
+  
             }
 
             this.cliffTexturesOffset = groundTilesetCount + 1;
@@ -500,7 +520,7 @@ W3xMap.prototype = {
             textures[i] = this.loadFiles("Textures/Water" + n + "-0.blp");
         }
 
-        this.env.whenLoaded(textures, _ => {
+        this.env.whenLoaded(textures, () => {
             var images = [];
 
             for (var i = 0, l = textures.length; i < l; i++) {
@@ -542,13 +562,31 @@ W3xMap.prototype = {
         /*
         var unitCube = this.env.load({
             geometry: createUnitCube(),
-            material: { renderMode: 2, color: [1, 1, 1], twoSided: true }
+            material: { renderMode: 0, color: [1, 1, 1], twoSided: true }
         }, src =>[src, ".geo", false]);
-        */
+        //*/
+
+
         for (var y = 0; y < mapSize[1]; y++) {
             for (var x = 0; x < mapSize[0]; x++) {
                 var tile = tilepoints[y][x];
 
+                /*
+                if (tile.cliffTextureType === 0) {
+                    let bla = unitCube.addInstance().setColor([255, 0, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(32);
+                    this.scene.addInstance(bla);
+                }
+
+                if (tile.cliffTextureType === 1) {
+                    let bla = unitCube.addInstance().setColor([0, 255, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(32);
+                    this.scene.addInstance(bla);
+                }
+
+                if (tile.cliffTextureType === 15) {
+                    let bla = unitCube.addInstance().setColor([0, 0, 255]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(32);
+                    this.scene.addInstance(bla);
+                }
+                */
                 //if (!tile.cliff) {
                     //unitCube.addInstance().setColor([1, 0, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(16);
                 //} else {
@@ -563,14 +601,17 @@ W3xMap.prototype = {
                 if (tile.cliff) {
                     let cliffVariation = 0;
                     let variation = tile.variation;
-                    let cliffRow = this.cliffs[tile.cliffTextureType];
-                    let model, instance;
 
                     let ltMask = tile.ltMask;
                     let rtMask = tile.rtMask;
                     let rbMask = tile.rbMask;
                     let lbMask = tile.lbMask;
                     let tag, supportedMask;
+
+                    let cliffTextureType = tile.cliffTextureType;
+                    let texture = this.cliffTextures[cliffTextureType];
+                    let cliff = this.cliffs[cliffTextureType];
+                    let dir = cliff.cliffModelDir;
 
                     if (ltMask) {
                         supportedMask = true;
@@ -618,17 +659,24 @@ W3xMap.prototype = {
                                 tag = this.heightsToCliffTag(2, 2, 0, 2);
                                 break;
 
+                            case 40:
+                                tag = this.heightsToCliffTag(0, 2, 0, 2);
+                                break;
+
                             default:
                                 supportedMask = false;
                         }
 
                         if (supportedMask) {
-                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + tag + cliffVariation + ".mdx");
-                            instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
+                            let model = this.loadFiles("Doodads/Terrain/" + dir + "/" + dir + tag + cliffVariation + ".mdx"),
+                                instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
+
+                            model.whenLoaded(() => model.textures[0] = texture);
+
                             this.scene.addInstance(instance);
                         }
                     }
-
+                    
                     if (rtMask) {
                         supportedMask = true;
 
@@ -697,12 +745,15 @@ W3xMap.prototype = {
                         }
 
                         if (supportedMask) {
-                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + tag + cliffVariation + ".mdx");
-                            instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
+                            let model = this.loadFiles("Doodads/Terrain/" + dir + "/" + dir + tag + cliffVariation + ".mdx"),
+                                instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
+
+                            model.whenLoaded(() => model.textures[0] = texture);
+                            
                             this.scene.addInstance(instance);
                         }
                     }
-
+                    
                     if (rbMask) {
                         supportedMask = true;
 
@@ -732,8 +783,11 @@ W3xMap.prototype = {
                         }
 
                         if (supportedMask) {
-                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + tag + cliffVariation + ".mdx");
-                            instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
+                            let model = this.loadFiles("Doodads/Terrain/" + dir + "/" + dir + tag + cliffVariation + ".mdx"),
+                                instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
+
+                            model.whenLoaded(() => model.textures[0] = texture);
+
                             this.scene.addInstance(instance);
                         }
                     }
@@ -792,332 +846,14 @@ W3xMap.prototype = {
                         }
 
                         if (supportedMask) {
-                            model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + tag + cliffVariation + ".mdx");
-                            instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
+                            let model = this.loadFiles("Doodads/Terrain/" + dir + "/" + dir + tag + cliffVariation + ".mdx"),
+                                instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
+
+                            model.whenLoaded(() => model.textures[0] = texture);
+
                             this.scene.addInstance(instance);
                         }
                     }
-
-                  
-                    
-                    /*
-                    if (tile.mask === CLIFF_TYPE_SINGLE_CLIFF) {
-                        // Right top
-                        tag = this.heightsToCliffTag(1, 0, 0, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
-
-                        // Right bottom
-                        tag = this.heightsToCliffTag(0, 1, 0, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
-
-                        // Left bottom
-                        tag = this.heightsToCliffTag(0, 0, 1, 0);
-                        instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
-
-                        // Left top
-                        tag = this.heightsToCliffTag(0, 0, 0, 1);
-                        instance = model.addInstance().setLocation([tile.x, tile.y, tile.z])
-                    } else if (tile.mask === CLIFF_TYPE_LEFT) {
-                        // Right top
-                        tag = this.heightsToCliffTag(1, 0, 0, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
-
-                        // Right bottom
-                        tag = this.heightsToCliffTag(0, 1, 0, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
-
-                        // Left bottom
-                        tag = this.heightsToCliffTag(0, 1, 1, 0);
-                        instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
-
-                        // Left top
-                        tag = this.heightsToCliffTag(1, 0, 0, 1);
-                        instance = model.addInstance().setLocation([tile.x, tile.y, tile.z])
-                    } else if (tile.mask === CLIFF_TYPE_RIGHT) {
-                        // Right top
-                        tag = this.heightsToCliffTag(1, 0, 0, 1);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
-
-                        // Right bottom
-                        tag = this.heightsToCliffTag(0, 1, 1, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
-
-                        // Left bottom
-                        tag = this.heightsToCliffTag(0, 0, 1, 0);
-                        instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
-
-                        // Left top
-                        tag = this.heightsToCliffTag(0, 0, 0, 1);
-                        instance = model.addInstance().setLocation([tile.x, tile.y, tile.z])
-                    } else if (tile.mask === CLIFF_TYPE_BOTTOM) {
-                        // Right top
-                        tag = this.heightsToCliffTag(1, 0, 0, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
-
-                        // Right bottom
-                        tag = this.heightsToCliffTag(1, 1, 0, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
-
-                        // Left bottom
-                        tag = this.heightsToCliffTag(0, 0, 1, 1);
-                        instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
-
-                        // Left top
-                        tag = this.heightsToCliffTag(0, 0, 0, 1);
-                        instance = model.addInstance().setLocation([tile.x, tile.y, tile.z])
-                    } else if (tile.mask === CLIFF_TYPE_TOP) {
-                        // Right top
-                        tag = this.heightsToCliffTag(1, 1, 0, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
-
-                        // Right bottom
-                        tag = this.heightsToCliffTag(0, 1, 0, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
-
-                        // Left bottom
-                        tag = this.heightsToCliffTag(0, 0, 1, 0);
-                        instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
-
-                        // Left top
-                        tag = this.heightsToCliffTag(0, 0, 1, 1);
-                        instance = model.addInstance().setLocation([tile.x, tile.y, tile.z])
-                    } else if (tile.mask === CLIFF_TYPE_LEFT_BOTTOM_CORNER) {
-                        // Left top
-                        tag = this.heightsToCliffTag(0, 0, 1, 1);
-                        instance = model.addInstance().setLocation([tile.x, tile.y, tile.z])
-
-                        // Left bottom
-                        tag = this.heightsToCliffTag(0, 0, 1, 0);
-                        instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
-
-                        // Right bottom
-                        tag = this.heightsToCliffTag(0, 1, 1, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
-                    } else if (tile.mask === CLIFF_TYPE_RIGHT_BOTTOM_CORNER) {
-                        // Left bottom
-                        tag = this.heightsToCliffTag(0, 0, 1, 0);
-                        instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
-
-                        // Right bottom
-                        tag = this.heightsToCliffTag(0, 1, 0, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
-
-                        // Right top
-                        tag = this.heightsToCliffTag(1, 1, 0, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
-                    } else if (tile.mask === CLIFF_TYPE_LEFT_TOP_CORNER) {
-                        // Left bottom
-                        tag = this.heightsToCliffTag(0, 0, 1, 0);
-                        instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
-
-                        // Left top
-                        tag = this.heightsToCliffTag(0, 0, 0, 1);
-                        instance = model.addInstance().setLocation([tile.x, tile.y, tile.z])
-
-                        // Right top
-                        tag = this.heightsToCliffTag(1, 0, 0, 1);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
-                    } else if (tile.mask === CLIFF_TYPE_RIGHT_TOP_CORNER) {
-                        // Left top
-                        tag = this.heightsToCliffTag(0, 0, 0, 1);
-                        instance = model.addInstance().setLocation([tile.x, tile.y, tile.z])
-
-                        // Right top
-                        tag = this.heightsToCliffTag(1, 0, 0, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
-
-                        // Right bottom
-                        tag = this.heightsToCliffTag(0, 1, 0, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
-                    } else if (tile.mask === CLIFF_TYPE_BOTTOM_WALL) {
-                        tag = this.heightsToCliffTag(0, 1, 1, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
-
-                        tag = this.heightsToCliffTag(0, 1, 1, 0);
-                        instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
-                    } else if (tile.mask === CLIFF_TYPE_LEFT_WALL) {
-                        tag = this.heightsToCliffTag(0, 0, 1, 1);
-                        instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
-
-                        tag = this.heightsToCliffTag(0, 0, 1, 1);
-                        instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
-                    } else if (tile.mask === CLIFF_TYPE_RIGHT_WALL) {
-                        tag = this.heightsToCliffTag(1, 1, 0, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
-
-                        tag = this.heightsToCliffTag(1, 1, 0, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
-                    } else if (tile.mask === CLIFF_TYPE_TOP_WALL) {
-                        tag = this.heightsToCliffTag(1, 0, 0, 1);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
-
-                        tag = this.heightsToCliffTag(1, 0, 0, 1);
-                        instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
-                    } else {
-                        //if (tile.mask === 51) {
-                            //unitCube.addInstance().setColor([0, 0, 1]).setLocation([tile.x, tile.y, tile.z]).uniformScale(32);
-                            ///zAxisModel.addInstance().setLocation([tile.x, tile.y, tile.z]).uniformScale(40);
-                       // }
-
-                        unitCube.addInstance().setColor([0, 1, 0]).setLocation([tile.x, tile.y, tile.z]).uniformScale(32);
-
-                        //console.warn("Unhandled cliff mask", tile.mask)
-                    }
-                    */
-
-
-
-
-
-
-
-                    // Right top
-                    /*
-                    if (R > 0 && T > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(cliffHeight, 0, 0, 0) + "0.mdx");
-                        instance = model.addInstance().setLocation([locX + 128, locY, locZ]);
-                    } else if (T > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(cliffHeight, 0, 0, T) + "0.mdx");
-                        instance = model.addInstance().setLocation([locX + 128, locY, locZ]);
-                    } else if (R > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(cliffHeight, R, 0, 0) + "0.mdx");
-                        instance = model.addInstance().setLocation([locX + 128, locY, locZ]);
-                    }
-                    */
-
-                    // Right bottom
-                    /*
-                    if (R > 0 && B > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, cliffHeight, 0, 0) + "0.mdx");
-                        instance = model.addInstance().setLocation([locX + 128, locY - 128, locZ]);
-                    } else if (B > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, cliffHeight, B, 0) + "0.mdx");
-                        instance = model.addInstance().setLocation([locX + 128, locY - 128, locZ]);
-                    } else if (R > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(R, cliffHeight, 0, 0) + "0.mdx");
-                        instance = model.addInstance().setLocation([locX + 128, locY - 128, locZ]);
-                    }
-
-                    // Left bottom
-                    if (L > 0 && B > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, cliffHeight, 0) + "0.mdx");
-                        instance = model.addInstance().setLocation([locX, locY - 128, locZ]);
-                    } else if (B > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, B, cliffHeight, 0) + "0.mdx");
-                        instance = model.addInstance().setLocation([locX, locY - 128, locZ]);
-                    } else if (L > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, cliffHeight, L) + "0.mdx");
-                        instance = model.addInstance().setLocation([locX, locY - 128, locZ]);
-                    }
-
-                    // Left top
-                    if (L > 0 && T > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, 0, cliffHeight) + "0.mdx");
-                        instance = model.addInstance().setLocation([locX, locY, locZ]);
-                    } else if (T > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(T, 0, 0, cliffHeight) + "0.mdx");
-                        instance = model.addInstance().setLocation([locX, locY, locZ]);
-                    } else if (L > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, L, cliffHeight) + "0.mdx");
-                        instance = model.addInstance().setLocation([locX, locY, locZ]);
-                    }
-                    */
-
-                    /*
-                    // Left wall
-                    if (tile.top.cliff && tile.bottom.cliff && tile.left.layerHeight !== tile.layerHeight) {
-                        tag = this.heightsToCliffTag(0, 0, 1, 1);
-                        instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
-
-                        tag = this.heightsToCliffTag(0, 0, 1, 1);
-                        instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
-                    }
-
-                    // Right wall
-                    if (tile.top.cliff && tile.bottom.cliff && tile.right.layerHeight !== tile.layerHeight) {
-                        tag = this.heightsToCliffTag(1, 1, 0, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
-
-                        tag = this.heightsToCliffTag(1, 1, 0, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
-                    }
-
-                    // Top wall
-                    if (tile.left.cliff && tile.right.cliff && tile.top.layerHeight !== tile.layerHeight) {
-                        tag = this.heightsToCliffTag(1, 0, 0, 1);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
-
-                        tag = this.heightsToCliffTag(1, 0, 0, 1);
-                        instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
-                    }
-
-                    // Bottom wall
-                    if (tile.left.cliff && tile.right.cliff && tile.bottom.layerHeight !== tile.layerHeight) {
-                        tag = this.heightsToCliffTag(0, 1, 1, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
-
-                        tag = this.heightsToCliffTag(0, 1, 1, 0);
-                        instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
-                    }
-
-                    // Left top corner
-                    if (!tile.top.cliff && !tile.left.cliff) {
-                        tag = this.heightsToCliffTag(0, 0, 0, 1);
-                        instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
-                    }
-
-                    // Right top corner
-                    if (!tile.top.cliff && !tile.right.cliff) {
-                        tag = this.heightsToCliffTag(1, 0, 0, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
-                    }
-
-                    // Right bottom corner
-                    if (!tile.bottom.cliff && !tile.right.cliff) {
-                        tag = this.heightsToCliffTag(0, 1, 0, 0);
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
-                    }
-
-                    // Left bottom corner
-                    if (!tile.bottom.cliff && !tile.left.cliff) {
-                        tag = this.heightsToCliffTag(0, 0, 1, 0);
-                        instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
-                    }
-                    */
-                    /*
-                    if (tile.dR > 0 && tile.dT > 0 && tile.right.cliff) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(tile.cliffHeight, 0, 0, 1) + "0.mdx");
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
-                    } else if (tile.dR > 0 && tile.dT > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(tile.cliffHeight, 0, 0, 0) + "0.mdx");
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
-                    }
-
-                    if (tile.dR > 0 && tile.dB > 0 && tile.right.cliff) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, tile.cliffHeight, 1, 0) + "0.mdx");
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
-                    } else if (tile.dR > 0 && tile.dB > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, tile.cliffHeight, 0, 0) + "0.mdx");
-                        instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
-                    }
-
-                    if (tile.left.cliff) {
-                        console.log("ASD")
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 1, tile.cliffHeight, 0) + "0.mdx");
-                        instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
-                    } else if (tile.dL > 0 && tile.dB > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, tile.cliffHeight, 0) + "0.mdx");
-                        instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
-                    }
-
-                    if (tile.dL > 0 && tile.dT > 0) {
-                        model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, 0, tile.cliffHeight) + "0.mdx");
-                        instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
-                    }
-                    */
-
-                    //model = this.loadFiles("Doodads/Terrain/Cliffs/Cliffs" + this.heightsToCliffTag(0, 0, R, L) + "0.mdx");
-                    //instance = model.addInstance().setLocation([locX, locY, locZ]);
                 }
             }
         }

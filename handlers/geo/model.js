@@ -76,7 +76,7 @@ GeometryModel.prototype = {
         this.uvScale = material.uvScale || new Float32Array([1, 1]);
         this.uvOffset = material.uvOffset || new Float32Array(2);
 
-        this.color = material.color || new Float32Array(3);
+        this.color = material.color || new Float32Array([255, 255, 255]);
         this.edgeColor = material.edgeColor || new Float32Array([255, 255, 255]);
 
         this.renderMode = 0;
@@ -165,7 +165,16 @@ GeometryModel.prototype = {
         instancedArrays.vertexAttribDivisorANGLE(colorAttrib, 1);
 
         if (this.renderMode === 0 || this.renderMode === 2) {
+            let texture = modelView.texture || this.texture;
+
             webgl.bindTexture(modelView.texture || this.texture, 0);
+
+            let hasTexture = uniforms.get("u_hasTexture");
+            if (texture) {
+                gl.uniform1f(hasTexture, 1);
+            } else {
+                gl.uniform1f(hasTexture, 0);
+            }
 
             gl.uniform1f(uniforms.get("u_isEdge"), 0);
             gl.uniform2fv(uniforms.get("u_uvScale"), this.uvScale);
