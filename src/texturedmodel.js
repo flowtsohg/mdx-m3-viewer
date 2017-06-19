@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @mixes Model
+ * @augments Model
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
  */

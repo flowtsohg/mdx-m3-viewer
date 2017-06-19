@@ -1,7 +1,6 @@
 /**
  * @constructor
- * @classdesc A TGA texture.
- * @extends Texture
+ * @augments Texture
  * @memberOf Tga
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver

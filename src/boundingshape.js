@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @extends NotifiedNode
+ * @augments NotifiedNode
  */
 function BoundingShape() {
     NotifiedNode.call(this);

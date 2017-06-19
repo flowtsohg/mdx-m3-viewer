@@ -1,16 +1,16 @@
 /**
  * @constructor
- * @extends ModelInstance
+ * @augments ModelInstance
  * @memberOf Mdx
  * @param {MdxModel} model
  */
 function MdxModelInstance(model) {
     TexturedModelInstance.call(this, model);
     
+    this.attachments = [];
     this.particleEmitters = [];
     this.particleEmitters2 = [];
     this.ribbonEmitters = [];
-    this.attachments = [];
     this.eventObjectEmitters = [];
 
     this.skeleton = null;
@@ -154,8 +154,6 @@ MdxModelInstance.prototype = {
 
         this.batchVisibilityArrays = sharedData.batchVisibilityArrays;
 
-        //this.geosetColorArrays.set(this.geosetColor);
-
         this.teamColorArray[0] = this.teamColor;
         this.bucket.updateTeamColors[0] = 1;
 
@@ -179,6 +177,11 @@ MdxModelInstance.prototype = {
         //for (let i = 0, l = objects.length; i < l; i++) {
             //this.ribbonEmitters[i] = new MdxRibbonEmitterView(this, objects[i]);
         //}
+
+        objects = bucket.eventObjectEmitters;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            this.eventObjectEmitters[i] = new MdxEventObjectEmitterView(this, objects[i]);
+        }
     },
 
     invalidateSharedData() {
@@ -191,36 +194,40 @@ MdxModelInstance.prototype = {
 
         this.particleEmitters = [];
         this.particleEmitters2 = [];
-        //this.ribbonEmitters = [];
+        this.ribbonEmitters = [];
+        this.eventObjectEmitters = [];
     },
 
     updateInternalObjects() {
-        let allowCreate = this.allowParticleSpawn,
-            objects;
+        if (this.allowParticleSpawn) {
+            let objects,
+                i,
+                l;
 
-        objects = this.attachments;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            objects[i].update();
-        }
+            objects = this.attachments;
+            for (i = 0, l = objects.length; i < l; i++) {
+                objects[i].update();
+            }
 
-        objects = this.particleEmitters;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            objects[i].update(allowCreate);
-        }
+            objects = this.particleEmitters;
+            for (i = 0, l = objects.length; i < l; i++) {
+                objects[i].update();
+            }
 
-        objects = this.particleEmitters2;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            objects[i].update(allowCreate);
-        }
-        
-        objects = this.ribbonEmitters;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            objects[i].update(allowCreate);
-        }
+            objects = this.particleEmitters2;
+            for (i = 0, l = objects.length; i < l; i++) {
+                objects[i].update();
+            }
 
-        objects = this.eventObjectEmitters;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            objects[i].update(allowCreate);
+            objects = this.ribbonEmitters;
+            for (i = 0, l = objects.length; i < l; i++) {
+                objects[i].update();
+            }
+
+            objects = this.eventObjectEmitters;
+            for (i = 0, l = objects.length; i < l; i++) {
+                objects[i].update();
+            }
         }
     },
 

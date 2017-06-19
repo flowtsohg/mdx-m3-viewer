@@ -7,6 +7,10 @@
  * @param {Array<M3ParserIndexEntry>} index
  */
 function M3ParserUnsupportedEntry(reader, version, index) {
+    /** @member {M3ParserBinaryReader} */
     this.reader = reader;
+    /** @member {number} */
     this.version = version;
+    /** @member {Array<M3ParserIndexEntry>} */
+    this.index = index;
 }

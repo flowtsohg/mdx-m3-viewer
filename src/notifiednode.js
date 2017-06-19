@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @extends ViewerNode
+ * @augments ViewerNode
  */
 function NotifiedNode() {
     ViewerNode.call(this, new ArrayBuffer(ViewerNode.BYTES_PER_ELEMENT), 0);

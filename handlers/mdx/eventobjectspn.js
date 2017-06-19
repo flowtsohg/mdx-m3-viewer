@@ -1,40 +1,33 @@
 /**
  * @constructor
- * @param {M3ParserEventEmitter} emitter
+ * @param {MdxEventObjectEmitter} emitterView
  */
 function MdxEventObjectSpn(emitter) {
-    var viewer = emitter.viewer;
-    var pathSolver = emitter.pathSolver;
-    var instance = viewer.loadInternalResource(pathSolver(emitter.path), pathSolver);
-
-    instance.setSequence(0);
-    instance.setLocation(emitter.node.worldLocation);
-    instance.setScale(emitter.node.scale[0]); // Assuming uniform scale
-    instance.setRotationQuat(emitter.node.worldRotation);
-    
-    this.instance = instance;
+    this.emitter = emitter;
+    this.health = 1;
+    this.internalInstance = emitter.internalModel.addInstance();
 }
 
 MdxEventObjectSpn.prototype = {
-    update(emitter) {
-        this.instance.update();
+    reset(emitterView) {
+        let emitter = this.emitter,
+            instance = this.internalInstance,
+            node = emitterView.instance.skeleton.nodes[emitter.node.index];
+
+        instance.setSequence(0);
+        instance.setTransformation(node.worldLocation, node.worldRotation, node.worldScale);
+
+        emitterView.instance.scene.addInstance(instance);
     },
-    
-    render(emitter) {
-        this.instance.render();
-    },
-    
-    renderEmitters: function (emitter) {
-        this.instance.renderEmitters();
-    },
-    
-    ended() {
-        var instance = this.instance;
-        
-        if (instance.ready && instance.instance.frame >= instance.instance.model.sequences[0].interval[1]) {
-            return true;
+
+    update() {
+        let instance = this.internalInstance;
+
+        // Once the sequence finishes, this event object dies
+        if (instance.frame >= instance.model.sequences[0].interval[1]) {
+            this.health = 0;
+
+            instance.rendered = false;
         }
-        
-        return false;
     }
 };

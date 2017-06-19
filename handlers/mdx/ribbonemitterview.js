@@ -7,45 +7,27 @@ function MdxRibbonEmitterView(instance, emitter) {
     this.instance = instance;
     this.emitter = emitter;
     this.currentEmission = 0;
-    this.lastRibbon = null;
-    this.activeRibbons = 0;
+    this.emissions = 0;
+    this.lastEmit = null;
 }
 
 MdxRibbonEmitterView.prototype = {
-    update(allowCreate) {
-        /*
-        if (allowCreate && this.shouldRender(instance)) {
-            this.lastCreation += 1;
-
-            var amount = this.emissionRate * viewer.frameTime * 0.001 * this.lastCreation;
-
-            if (amount >= 1) {
-                this.lastCreation = 0;
-
-                for (i = 0; i < amount; i++) {
-                    this.ribbons.push(new MdxRibbon(this, instance));
-                }
-            }
-        }
-        */
-
-        if (allowCreate && this.shouldRender()) {
+    update() {
+        if (this.shouldRender()) {
             let emitter = this.emitter;
 
-            this.currentEmission += emitter.emissionRate * this.instance.model.env.frameTime * 0.001;
+            this.currentEmission += this.getEmissionRate() * this.instance.env.frameTime * 0.001;
 
             if (this.currentEmission >= 1) {
-                for (let i = 0, l = Math.floor(this.currentEmission); i < l; i++) {
-                    this.lastRibbon = emitter.emit(this);
-
-                    this.currentEmission -= 1;
+                for (let i = 0, l = Math.floor(this.currentEmission) ; i < l; i++, this.currentEmission--) {
+                    this.lastEmit = emitter.emit(this);
                 }
             }
         }
     },
 
     shouldRender() {
-        return this.getVisibility(this.instance) > 0.75;
+        return this.emitter.shouldRender(this.instance);
     },
 
     getHeightBelow() {

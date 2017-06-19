@@ -197,18 +197,16 @@ MdxSD.prototype = {
  * @param {MdxParserSdContainer} container
  */
 function MdxSdContainer(model, container) {
-    var sd = {};
+    let sd = {};
 
     // The SD container doesn't exist if a model had no nodes, and a fake node was injected.
     if (container) {
-        var tracks = container.sd;
-        var keys = Object.keys(tracks || {});
+        let elements = container.elements;
 
-        for (var i = 0, l = keys.length; i < l; i++) {
-            var type = keys[i];
-            var track = tracks[type];
+        for (let i = 0, l = elements.length; i < l; i++) {
+            let element = elements[i];
 
-            sd[track.tag] = new MdxSD(model, track);
+            sd[element.tag] = new MdxSD(model, element);
         }
     }
 

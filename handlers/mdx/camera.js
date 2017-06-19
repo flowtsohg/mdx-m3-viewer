@@ -4,12 +4,8 @@
  * @param {MdxParserCamera} camera
  */
 function MdxCamera(model, camera) {
-    this.name = camera.name;
-    this.position = camera.position;
-    this.fieldOfView = camera.fieldOfView;
-    this.farClippingPlane = camera.farClippingPlane;
-    this.nearClippingPlane = camera.nearClippingPlane;
-    this.targetPosition = camera.targetPosition;
+    mix(this, camera);
+
     this.sd = new MdxSdContainer(model, camera.tracks);
 }
 

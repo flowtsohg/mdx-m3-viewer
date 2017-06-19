@@ -5,11 +5,11 @@
 function ModelView(model) {
     /** @member {Model} */
     this.model = model;
-    /** @member {ModelInstance[]} */
+    /** @member {Array<ModelInstance>} */
     this.instances = [];
-    /** @member {Bucket[]} */
+    /** @member {Array<Bucket>} */
     this.buckets = [];
-    /** @member {map.<Scene, Bucket[]>} */
+    /** @member {Map<Scene, Array<Bucket>>} */
     this.sceneToBucket = new Map();
 }
 

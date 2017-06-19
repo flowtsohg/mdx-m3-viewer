@@ -5,11 +5,15 @@
  * @param {MdxParserBinaryReader} reader
  * @param {string} tag
  * @param {number} size
- * @param {Array<MdxNode>} nodes
+ * @param {Array<MdxParserNode>} nodes
  */
 function MdxParserUnsupportedChunk(reader, tag, size, nodes) {
+    /** @member {MdxParserBinaryReader} */
     this.reader = reader;
+    /** @member {string} */
     this.tag = tag;
+    /** @member {number} */
     this.size = size;
+    /** @member {Array<MdxParserNode>} */
     this.nodes = nodes;
 }

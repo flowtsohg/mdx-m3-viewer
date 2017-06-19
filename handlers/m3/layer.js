@@ -94,7 +94,7 @@ M3Layer.layerTypeToTextureUnit = {
 };
 
 M3Layer.prototype = {
-    bind(shader, bucket) {
+    bind(bucket, shader) {
         const gl = this.gl,
             uniformMap = this.uniformMap,
             uniforms = shader.uniforms,

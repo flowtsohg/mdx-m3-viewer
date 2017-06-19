@@ -2,7 +2,7 @@
  * @constructor
  * @extends Bucket
  * @memberOf M3
- * @param {M3ModelView} modelView
+ * @param {TexturedModelView} modelView
  */
 function M3Bucket(modelView) {
     Bucket.call(this, modelView);
@@ -61,6 +61,10 @@ function M3Bucket(modelView) {
 }
 
 M3Bucket.prototype = {
+    renderCalls() {
+        return this.model.batches.length;
+    },
+
     update(scene) {
         const gl = this.gl,
             size = this.instances.length;

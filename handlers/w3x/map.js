@@ -1,7 +1,6 @@
 /**
  * @constructor
- * @classdesc A Warcraft 3 map.
- * @extends ViewerFile
+ * @augments ViewerFile
  * @memberOf W3x
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver

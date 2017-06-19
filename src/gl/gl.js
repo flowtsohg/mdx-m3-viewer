@@ -38,7 +38,7 @@ function WebGL(canvas) {
     }
 
     if (!extensions.instancedArrays) {
-        //throw new Error("WebGL: No instanced rendering support!");
+        throw new Error("WebGL: No instanced rendering support!");
     }
 
     if (!extensions.compressedTextureS3tc) {
@@ -55,9 +55,9 @@ function WebGL(canvas) {
     this.gl = gl;
     /** @member {array} */
     this.extensions = extensions;
-    /** @member {map.<number, ShaderUnit>} */
+    /** @member {Map<number, ShaderUnit>} */
     this.shaderUnits = new Map();
-    /** @member {map.<number, ShaderProgram>} */
+    /** @member {Map<number, ShaderProgram>} */
     this.shaderPrograms = new Map();
     /** @member {?ShaderProgram} */
     this.currentShaderProgram = null;
@@ -78,8 +78,8 @@ function WebGL(canvas) {
 
 WebGL.prototype = {
     /**
-     * @method
-     * @desc Create a new shader unit. Uses caching.
+     * Create a new shader unit. Uses caching.
+     * 
      * @param {string} src The shader source.
      * @param {number} type The shader type.
      * @returns {ShaderUnit}
@@ -96,8 +96,8 @@ WebGL.prototype = {
     },
 
     /**
-     * @method
-     * @desc Create a new shader program. Uses caching.
+     * Create a new shader program. Uses caching.
+     * 
      * @param {ShaderUnit} vertexShader The vertex shader unit.
      * @param {ShaderUnit} fragmentShader The fragment shader unit.
      * @returns {ShaderProgram}
@@ -123,10 +123,6 @@ WebGL.prototype = {
         }
     },
 
-    createResizeableBuffer() {
-        return new ResizeableBuffer(this.gl);
-    },
-
     enableVertexAttribs(start, end) {
         const gl = this.gl;
 
@@ -144,8 +140,8 @@ WebGL.prototype = {
     },
 
     /**
-     * @method
-     * @desc Use a shader program.
+     * Use a shader program.
+     * 
      * @param {ShaderProgram} shaderProgram The program.
      */
     useShaderProgram(shaderProgram) {
@@ -172,9 +168,9 @@ WebGL.prototype = {
     },
 
     /**
-     * @method
-     * @desc Bind a texture.
-     *       Note that if the given texture is invalid (null or not loaded) then a 2x2 black texture will be bound instead.
+     * Bind a texture.
+     * Note that if the given texture is invalid (null or not loaded) then a 2x2 black texture will be bound instead.
+     * 
      * @param {Texture} texture The texture to bind.
      * @param {number} unit The texture unit to bind to.
      */

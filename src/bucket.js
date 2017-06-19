@@ -12,7 +12,7 @@ function Bucket(modelView) {
     this.model = model;
     /** @member {Array<ModelInstance>} */
     this.instances = [];
-    /** @member {map.<ModelInstance, number>} */
+    /** @member {Map<ModelInstance, number>} */
     this.instanceToIndex = new Map();
 
     // The index buffer is used instead of gl_InstanceID, which isn't defined in WebGL shaders.
@@ -35,6 +35,13 @@ Bucket.prototype = {
     /** @member {number} */
     get size() {
         return 256;
+    },
+
+    /**
+     * The amount of WebGL render calls being made each time this bucket is rendered.
+     */
+    renderCalls() {
+        return 0;
     },
 
     getSharedData(index) {

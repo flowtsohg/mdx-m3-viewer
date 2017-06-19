@@ -3,9 +3,13 @@
  * @param {BinaryReader} reader
  */
 function MpqBlockTableEntry(reader) {
+    /** @param {number} */
     this.filePos = reader.readUint32();
+    /** @param {number} */
     this.compressedSize = reader.readUint32();
+    /** @param {number} */
     this.normalSize = reader.readUint32();
+    /** @param {number} */
     this.flags = reader.readUint32();
 }
 
@@ -15,20 +19,19 @@ function MpqBlockTableEntry(reader) {
  * @param {MpqCrypto} c
  */
 function MpqBlockTable(buffer, c) {
-    this.hashSize = buffer.byteLength / 16;
+    let entries = [],
+        reader = new BinaryReader(c.decryptBlock(buffer, Mpq.BLOCK_TABLE_KEY)),
+        hashSize = buffer.byteLength / 16;
+
+    for (let i = 0, l = hashSize; i < l; i++) {
+        entries.push(new MpqBlockTableEntry(reader));
+    }
+
+    /** @param {number} */
+    this.hashSize = hashSize;
+    /** @param {MpqCrypto} */
     this.c = c;
-    this.prepareEntries(c.decryptBlock(buffer, Mpq.BLOCK_TABLE_KEY));
+    /** @param {Array<MpqBlockTableEntry>} */
+    this.entries = entries;
 }
 
-MpqBlockTable.prototype = {
-    prepareEntries(buffer) {
-        let entries = [],
-            reader = new BinaryReader(buffer);
-
-        for (let i = 0, l = this.hashSize; i < l; i++) {
-            entries.push(new MpqBlockTableEntry(reader));
-        }
-
-        this.entries = entries;
-    }
-};

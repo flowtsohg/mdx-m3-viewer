@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @extends ModelInstance
+ * @augments ModelInstance
  * @memberOf Obj
  * @param {ObjModel} model
  */

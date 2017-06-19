@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @param {TexruredModelView} modelView
+ * @param {MdxModel} model
  * @param {MdxParserParticleEmitter} emitter
  */
 function MdxParticleEmitter(model, emitter) {
@@ -8,32 +8,32 @@ function MdxParticleEmitter(model, emitter) {
 
     this.model = model;
     this.internalModel = model.env.load(emitter.path.replace(/\\/g, "/").toLowerCase().replace(".mdl", ".mdx"), model.pathSolver);
-    this.particles = [];
+    this.active = [];
     this.inactive = [];
     this.sd = new MdxSdContainer(model, emitter.tracks);
 }
 
 MdxParticleEmitter.prototype = {
-    emit(instance) {
+    emit(emitterView) {
         let inactive = this.inactive,
-            particle;
+            object;
 
         if (inactive.length) {
-            particle = inactive.pop();
+            object = inactive.pop();
         } else {
-            particle = new MdxParticle(this);
+            object = new MdxParticle(this);
         }
 
-        particle.reset(instance);
+        object.reset(emitterView);
 
-        this.particles.push(particle);
+        this.active.push(object);
     },
 
     update() {
-        let particles = this.particles,
+        let active = this.active,
             inactive = this.inactive;
 
-        if (particles.length > 0) {
+        if (active.length > 0) {
             // First stage: remove dead particles.
             // The used particles array is a queue, dead particles will always come first.
             // As of the time of writing, the easiest and fastest way to implement a queue in Javascript is a normal array.
@@ -42,23 +42,23 @@ MdxParticleEmitter.prototype = {
             // As long as we hit a dead particle, pop, and check the new last element.
 
             // Ready for pop mode
-            particles.reverse();
+            active.reverse();
 
-            let particle = particles[particles.length - 1];
-            while (particle && particle.health <= 0) {
-                inactive.push(particles.pop());
+            let object = active[active.length - 1];
+            while (object && object.health <= 0) {
+                inactive.push(active.pop());
 
                 // Need to recalculate the length each time
-                particle = particles[particles.length - 1];
+                object = active[active.length - 1];
             }
 
             // Ready for push mode
-            particles.reverse()
+            active.reverse()
 
             // Second stage: update the living particles.
             // All the dead particles were removed, so a simple loop is all that's required.
-            for (let i = 0, l = particles.length; i < l; i++) {
-                particles[i].update();
+            for (let i = 0, l = active.length; i < l; i++) {
+                active[i].update();
             }
         }
     },

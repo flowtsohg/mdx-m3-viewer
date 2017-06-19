@@ -10,12 +10,13 @@ function MdxParserBinaryReader(buffer, byteOffset, byteLength) {
 
 MdxParserBinaryReader.prototype = {
     /**
-     * @desc Read an array of elements using the given constructor.
-     *       Every element's name isn't known before reading it
+     * Read an array of elements using the given constructor.
+     * Every element's name isn't known before reading it.
+     * 
      * @param {number} size
      * @param {function(MdxParserBinaryReader, Array<MdxParserNode>, number)} constructor
      * @param {Array<MdxParserNode>} nodes
-     * @returns {Array<*>}
+     * @returns {Array<?>}
      */
     readUnknownElements(size, constructor, nodes) {
         var totalSize = 0,
@@ -34,10 +35,11 @@ MdxParserBinaryReader.prototype = {
     },
 
     /**
-     * @desc Read an array of elements using the given constructor
+     * Read an array of elements using the given constructor.
+     * 
      * @param {number} count
      * @param {function(MdxParserBinaryReader, number)} constructor
-     * @returns {Array<*>}
+     * @returns {Array<?>}
      */
     readKnownElements(count, constructor) {
         var elements = [];
@@ -50,9 +52,10 @@ MdxParserBinaryReader.prototype = {
     },
 
     /**
-    * @desc Read a node, and also add it to the nodes array
+    * Read a node, and also add it to the nodes array.
+    * 
     * @param {Array<MdxParserNode>} nodes
-    * @param {*} object
+    * @param {?} object
     * @returns {MdxParserNode}
     */
     readNode(nodes, object) {

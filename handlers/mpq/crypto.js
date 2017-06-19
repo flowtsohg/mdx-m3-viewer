@@ -2,31 +2,28 @@
  * @constructor
  */
 function MpqCrypto() {
-    this.prepareCryptTable();
-}
-
-MpqCrypto.prototype = {
-    prepareCryptTable() {
-        let cryptTable = new Uint32Array(0x500),
+    let cryptTable = new Uint32Array(0x500),
             seed = 0x00100001,
             temp1,
             temp2;
 
-        for (let index1 = 0; index1 < 0x100; index1++) {
-            for (let index2 = index1, i = 0; i < 5; i++, index2 += 0x100) {
-                seed = (seed * 125 + 3) % 0x2AAAAB;
-                temp1 = (seed & 0xFFFF) << 0x10;
+    for (let index1 = 0; index1 < 0x100; index1++) {
+        for (let index2 = index1, i = 0; i < 5; i++, index2 += 0x100) {
+            seed = (seed * 125 + 3) % 0x2AAAAB;
+            temp1 = (seed & 0xFFFF) << 0x10;
 
-                seed = (seed * 125 + 3) % 0x2AAAAB;
-                temp2 = (seed & 0xFFFF);
+            seed = (seed * 125 + 3) % 0x2AAAAB;
+            temp2 = (seed & 0xFFFF);
 
-                cryptTable[index2] = temp1 | temp2;
-            }
+            cryptTable[index2] = temp1 | temp2;
         }
+    }
 
-        this.cryptTable = cryptTable;
-    },
+    /** @member {Uint32Array} */
+    this.cryptTable = cryptTable;
+}
 
+MpqCrypto.prototype = {
     hash(name, hashType) {
         let cryptTable = this.cryptTable,
             seed1 = 0x7FED7FED,

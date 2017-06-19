@@ -9,10 +9,15 @@ function M3ParserIndexEntry(reader, index) {
         entriesCount = reader.readUint32(),
         version = reader.readUint32();
 
+    /** @member {Array<M3ParserIndexEntry>} */
     this.index = index;
+    /** @member {string} */
     this.tag = tag;
+    /** @member {number} */
     this.offset = offset;
+    /** @member {number} */
     this.version = version;
+    /** @member {null|Array<?>|Uint8Array|Uint16Array|Uint32Array|Int32Array|Float32Array} */
     this.entries = null;
 
     let mapping = M3ParserIndexEntry.tagMapping[tag],

@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @extends Bucket
+ * @augments Bucket
  * @memberOf Mdx
  * @param {MdxModelView} modelView
  */
@@ -87,6 +87,7 @@ function MdxBucket(modelView) {
     // Emitters
     this.particleEmitters = [];
     this.particleEmitters2 = [];
+    this.eventObjectEmitters = [];
 
     objects = model.particleEmitters;
     for (let i = 0, l = objects.length; i < l; i++) {
@@ -97,9 +98,33 @@ function MdxBucket(modelView) {
     for (let i = 0, l = objects.length; i < l; i++) {
         this.particleEmitters2[i] = new MdxParticleEmitter2(model, objects[i]);
     }
+
+    objects = model.eventObjectEmitters;
+    for (let i = 0, l = objects.length; i < l; i++) {
+        this.eventObjectEmitters[i] = new MdxEventObjectEmitter(model, objects[i]);
+    }
 }
 
 MdxBucket.prototype = {
+    renderCalls() {
+        let model = this.model,
+            renderCalls = model.batches.length + model.particleEmitters2.length;
+
+        for (let emitter of model.ribbonEmitters) {
+            renderCalls += emitter.layers.length;
+        }
+
+        for (let emitter of model.eventObjectEmitters) {
+            let type = model.nodes[emitter.node.index].name.substring(0, 3);
+
+            if (type === "SPL" || type === "UBR") {
+                renderCalls += 1;
+            }
+        }
+
+        return renderCalls;
+    },
+
     update(scene) {
         let gl = this.model.env.gl,
             size = this.instances.length,
@@ -115,6 +140,11 @@ MdxBucket.prototype = {
         }
 
         objects = this.particleEmitters2;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            objects[i].update(scene);
+        }
+
+        objects = this.eventObjectEmitters;
         for (let i = 0, l = objects.length; i < l; i++) {
             objects[i].update(scene);
         }

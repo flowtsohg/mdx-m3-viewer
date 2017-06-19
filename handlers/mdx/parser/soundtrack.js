@@ -6,8 +6,12 @@
  */
 function MdxParserSoundTrack(reader, index) {
     this.index = index;
+    /** @member {string} */
     this.path = reader.read(260);
+    /** @member {number} */
     this.volume = reader.readFloat32();
+    /** @member {number} */
     this.pitch = reader.readFloat32();
+    /** @member {number} */
     this.flags = reader.readUint32();
 }

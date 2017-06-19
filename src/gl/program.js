@@ -13,11 +13,11 @@ function ShaderProgram(gl, vertexShader, fragmentShader) {
     this.loaded = false;
     /** @member {WebGLProgram} */
     this.webglResource = id;
-    /** @member {ShaderUnit[]} */
+    /** @member {Array<ShaderUnit>} */
     this.shaders = [vertexShader, fragmentShader];
-    /** @member {map.<string, WebGLUniformLocation>} */
+    /** @member {Map<string, WebGLUniformLocation>} */
     this.uniforms = uniforms;
-    /** @member {map.<string, number>} */
+    /** @member {Map<string, number>} */
     this.attribs = attribs;
 
     gl.attachShader(id, vertexShader.webglResource);

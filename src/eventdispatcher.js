@@ -2,16 +2,16 @@
  * @constructor
  */
 function EventDispatcher() {
-    /** @member {Map.<string, function>} */
+    /** @member {Map<string, function(Event)>} */
     this.listeners = new Map();
 }
  
 EventDispatcher.prototype = {
     /**
-     * @method
-     * @desc Add a new event listener.
+     * Add a new event listener.
+     * 
      * @param {string} type The event type.
-     * @param {function(Event)} listener The event listener.
+     * @param {function(Event)} listener The event listener to add.
      * @returns this
      */
     addEventListener(type, listener) {
@@ -27,10 +27,10 @@ EventDispatcher.prototype = {
     },
     
     /**
-     * @method
-     * @desc Remove an existing event listener.
+     * Remove an existing event listener.
+     * 
      * @param {string} type The event type.
-     * @param {function(Event)} listener The event listener.
+     * @param {function(Event)} listener The event listener to remove.
      * @returns this
      */
     removeEventListener(type, listener) {
@@ -48,22 +48,23 @@ EventDispatcher.prototype = {
     },
     
     /**
-     * @method
-     * @desc Dispatch an event.
-     * @param {object} event The event object.
+     * Dispatch an event.
+     * 
+     * @param {object} event The event object to dispatch.
      */
     dispatchEvent(event) {
-        if (!event.target) {
-            event.target = this;
-        }
-
         let listeners = this.listeners.get(event.type);
 
         if (listeners) {
-            // If the original array is looped, and a callback removes a listener (e.g. a self-removing listener), the iteration logic is broken.
-            listeners = listeners.slice();
+            if (!event.target) {
+                event.target = this;
+            }
 
-            for (let i = 0, l = listeners.length; i < l; i++) {
+            // Looping backwards, in case of a self-removing listener.
+            // If the loop would go forwards and a listener removes itself, the iteration logic breaks.
+            let i = listeners.length;
+
+            while (i--) {
                 listeners[i].call(this, event);
             }
         }

@@ -1,5 +1,6 @@
 /**
  * @constructor
+ * @param {MdxParticleEmitter2} emitter
  */
 function MdxParticle2(emitter) {
     this.emitter = emitter;
@@ -16,18 +17,18 @@ function MdxParticle2(emitter) {
 }
 
 MdxParticle2.prototype = {
-    reset(instance, isHead) {
+    reset(emitterView, isHead) {
         let emitter = this.emitter,
-            node = instance.skeleton.nodes[emitter.node.index];
+            node = emitterView.instance.skeleton.nodes[emitter.node.index];
 
         var pivot = node.pivot;
         var worldMatrix = node.worldMatrix;
         var scale = node.worldScale;
-        var width = emitter.getWidth(instance) * 0.5;
-        var length = emitter.getLength(instance) * 0.5;
-        var speed = emitter.getSpeed(instance) + Math.randomRange(-emitter.variation, emitter.variation);
-        var latitude = Math.toRad(emitter.getLatitude(instance));
-        var gravity = emitter.getGravity(instance) * scale[2];
+        var width = emitterView.getWidth() * 0.5;
+        var length = emitterView.getLength() * 0.5;
+        var speed = emitterView.getSpeed() + Math.randomRange(-emitter.variation, emitter.variation);
+        var latitude = Math.toRad(emitterView.getLatitude());
+        var gravity = emitterView.getGravity() * scale[2];
         var color = emitter.colors[0];
         var localPosition = emitter.particleLocalPosition;
         var position = emitter.particlePosition;

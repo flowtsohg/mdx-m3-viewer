@@ -16,9 +16,9 @@ function MdxParticle(emitter) {
 }
 
 MdxParticle.prototype = {
-    reset(instance) {
-        const emitter = this.emitter;
-        const node = instance.skeleton.nodes[emitter.node.index];
+    reset(emitterView) {
+        let instance = emitterView.instance,
+            node = instance.skeleton.nodes[this.emitter.node.index];
 
         this.instance = instance;
         this.node = node;
@@ -26,11 +26,11 @@ MdxParticle.prototype = {
         instance.scene.addInstance(this.internalInstance);
 
         var scale = node.worldScale;
-        var speed = emitter.getSpeed();
-        var latitude = emitter.getLatitude();
-        var longitude = emitter.getLongitude();
-        var lifespan = emitter.getLifespan();
-        var gravity = emitter.getGravity() * scale[2];
+        var speed = emitterView.getSpeed();
+        var latitude = emitterView.getLatitude();
+        var longitude = emitterView.getLongitude();
+        var lifespan = emitterView.getLifespan();
+        var gravity = emitterView.getGravity() * scale[2];
         var position = this.position;
         var worldMatrix = node.worldMatrix;
 
@@ -72,7 +72,7 @@ MdxParticle.prototype = {
 
     update() {
         if (this.alive) {
-            const frameTimeS = this.internalInstance.env.frameTime * 0.001;
+            let frameTimeS = this.internalInstance.env.frameTime * 0.001;
 
             this.health -= frameTimeS;
 

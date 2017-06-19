@@ -1,7 +1,7 @@
 /**
  * @constructor
  * @param {WebGLRenderingContext} gl
- * @param {?number} size
+ * @param {number=} size
  */
 function ResizeableBuffer(gl, size) {
     let buffer = new ArrayBuffer(size || 32); // Arbitrary default size
@@ -20,13 +20,16 @@ function ResizeableBuffer(gl, size) {
 }
 
 ResizeableBuffer.prototype = {
+    /**
+     * Get the byte length of this buffer.
+     */
     get byteLength() {
         return this.uint8array.length;
     },
 
     /**
-     * @method
-     * @desc Binds this buffer to the array buffer target.
+     * Binds this buffer to the array buffer target.
+     * 
      * @param {?number} target The WebGL buffer target enum. Defaults to GL_ARRAY_BUFFER.
      */
     bind(target) {
@@ -36,8 +39,8 @@ ResizeableBuffer.prototype = {
     },
 
     /**
-     * @method
-     * @desc Resizes the internal buffer.
+     * Resizes the internal buffer.
+     * 
      * @param {number} size The requested size. Actual size is the closest power of two number, that is equal or bigger than size.
      */
     resize(size) {
@@ -64,18 +67,13 @@ ResizeableBuffer.prototype = {
     },
 
     /**
-     * @method
-     * @desc Double the buffer size.
+     * If size is bigger than the current buffer size, resize.
+     * 
+     * @param {number} size
      */
-    extend() {
-        this.resize(this.uint8array.length << 1);
-    },
-
-    /**
-     * @method
-     * @desc Halve the buffer size.
-     */
-    reduce() {
-        this.resize(this.uint8array.length >> 1);
+    grow(size) {
+        if (this.byteLength < size) {
+            this.resize(size);
+        }
     }
 };

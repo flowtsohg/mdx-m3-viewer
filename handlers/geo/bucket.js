@@ -47,6 +47,14 @@ function GeometryBucket(modelView) {
 }
 
 GeometryBucket.prototype = {
+    renderCalls() {
+        if (this.model.renderMode === 2) {
+            return 2;
+        }
+
+        return 1;
+    },
+
     update(scene) {
         Bucket.prototype.update.call(this, scene);
 

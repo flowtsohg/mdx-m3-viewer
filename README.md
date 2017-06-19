@@ -147,7 +147,7 @@ This function call results in the following chain of events:
 
 The path solver does two jobs here. First of all, it made the load calls shorter by avoiding to type "Resources/". But the real deal, is that it allows to selectively override sources, and change them in interesting ways.
 In this case, it allowed `model.mdx` to load `texture.blp`, which is a relative path. If the path would have been given directly, then the file wouldn't have been found.
-Generally speaking, an identity solver is what you'll need (as in, it returns the source assuming its an url but prepended by some directory, its extension, and true for server fetch), but there are cases where this is not the case, such as loading custom user-made models, handling both in-memory and server-fetches in the same solver (used by the W3X handler), etc.
+Generally speaking, an identity solver is what you'll need (as in, it returns the source assuming its an url but prepended by some directory, its extension, and true for server fetch), but there are times where this is not the case, such as loading custom user-made models, handling both in-memory and server-fetches in the same solver (used by the W3X handler), etc.
 
 We now have a model, however a model in this context is simply a source of data, not something that you see.
 The next step is to create an instance of this model.
@@ -160,10 +160,6 @@ Finally, let's add the instance to the scene, so it's rendered:
 ```javascript
 scene.addInstance(instance);
 ```
-
-
-
-So in the end, we have instances in model views, that are in scenes, that are added to the viewer. Easy, right?
 
 Never forget the actual rendering loop!
 ```javascript

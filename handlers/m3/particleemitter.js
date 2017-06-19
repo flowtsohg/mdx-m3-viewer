@@ -1,9 +1,9 @@
 /**
  * @constructor
- * @param {M3ParserParticleEmitter} particleEmitter
  * @param {M3Model} model
+ * @param {M3ParserParticleEmitter} particleEmitter
  */
-M3ParticleEmitter = function (particleEmitter, model) {
+function M3ParticleEmitter(model, particleEmitter) {
     var i, l;
     var keys = Object.keys(particleEmitter);
 
@@ -29,7 +29,7 @@ M3ParticleEmitter = function (particleEmitter, model) {
         this.particles[i] = new M3Particle();
         this.reusables.push(i);
     }
-};
+}
 
 M3ParticleEmitter.prototype = {
     update: function (allowCreate, sequenceId, frame) {

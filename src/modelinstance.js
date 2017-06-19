@@ -1,7 +1,7 @@
 /**
  * @constructor
- * @extends {AsyncResource}
- * @extends {NotifiedNode}
+ * @augments AsyncResource
+ * @augments NotifiedNode
  * @param {Model} model
  */
 function ModelInstance(model) {
@@ -10,9 +10,9 @@ function ModelInstance(model) {
     NotifiedNode.call(this);
     this.dontInheritScaling = true;
 
-    /** @member {ModelView} */
+    /** @member {?ModelView} */
     this.modelView = null;
-    /** @member {Bucket} */
+    /** @member {?Bucket} */
     this.bucket = null;
     /** @member {Model} */
     this.model = model;
@@ -27,8 +27,8 @@ ModelInstance.prototype = {
     },
 
     /**
-     * @method
-     * @desc Detach this instance from the scene it's in.
+     * Detach this instance from the scene it's in.
+     * 
      * @returns {boolean}
      */
     detach() {
@@ -64,8 +64,9 @@ ModelInstance.prototype = {
     },
 
     /**
+     * Sets whether this instance gets rendered or not.
+     * 
      * @member {boolean}
-     * @desc Sets whether this instance gets rendered or not.
      */
     set rendered(shouldRender) {
         // ModelView.showInstance/hideInstance shouldn't be called multiple times consecutively, so check if the mode actually changed

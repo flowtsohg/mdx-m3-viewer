@@ -1,7 +1,7 @@
 /**
  * @constructor
- * @extends Frustum
- * @mixes ViewerNode
+ * @augments Frustum
+ * @augments ViewerNode
  */
 function Camera() {
     Frustum.call(this);

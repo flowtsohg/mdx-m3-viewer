@@ -27,7 +27,8 @@ function BitBuffer(buffer, byteOffset, byteLength) {
 
 BitBuffer.prototype = {
     /**
-     * @desc Peek a number of bits
+     * Peek a number of bits
+     * 
      * @param {number} bits
      * @returns {number}
      */
@@ -38,7 +39,8 @@ BitBuffer.prototype = {
     },
 
     /**
-     * @desc Read a number of bits
+     * Read a number of bits
+     * 
      * @param {number} bits
      * @returns {number}
      */
@@ -52,7 +54,8 @@ BitBuffer.prototype = {
     },
 
     /**
-     * @desc Skip a number of bits
+     * Skip a number of bits
+     * 
      * @param {number} bits
      * @returns {number}
      */

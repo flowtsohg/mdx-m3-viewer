@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @extends {Model}
+ * @augments Model
  * @memberOf M3
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
@@ -172,7 +172,7 @@ M3Model.prototype = {
     },
 
     setupGeometry(parser, div) {
-        const gl = this.env.gl;
+        let gl = this.gl;
 
         var i, l;
         var uvSetCount = 1;
@@ -202,7 +202,7 @@ M3Model.prototype = {
         const triangles = div.triangles.getAll();
 
         for (i = 0, l = regions.length; i < l; i++) {
-            this.regions.push(new M3Region(regions[i], triangles, elementArray, offsets[i], gl));
+            this.regions.push(new M3Region(this, regions[i], triangles, elementArray, offsets[i]));
         }
 
         this.elementBuffer = gl.createBuffer();
@@ -358,7 +358,7 @@ M3Model.prototype = {
             region = batch.region,
             material = batch.material;
 
-        material.bind(shader, bucket);
+        material.bind(bucket, shader);
 
         region.render(shader, bucket.instances.length);
 

@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @extends EventDispatcher
+ * @augments EventDispatcher
  * @param {HTMLCanvasElement} canvas
  */
 function ModelViewer(canvas) {
@@ -25,7 +25,8 @@ function ModelViewer(canvas) {
     };
 
     /** 
-     * @desc The speed of animation. Note that this is not the time of a frame in milliseconds, but rather the amount of animation frames to advance each update.
+     * The speed of animation. Note that this is not the time of a frame in milliseconds, but rather the amount of animation frames to advance each update.
+     * 
      * @member {number} 
      */
     this.frameTime = 1000 / 60;
@@ -39,7 +40,7 @@ function ModelViewer(canvas) {
     /** @member {WebGLRenderingContext} */
     this.gl = this.webgl.gl;
 
-    /** @member {object} */
+    /** @member {Object<string, string>} */
     this.sharedShaders = {
         // Shared shader code to mimic gl_InstanceID
         "instanceId": `
@@ -84,7 +85,7 @@ function ModelViewer(canvas) {
         `
     };
 
-    /** @member {map.<string, Handler>} */
+    /** @member {Map<string, Handler>} */
     this.handlers = new Map(); // Map from a file extension to an handler
 
     /** @member {Array<Scene>} */
@@ -98,9 +99,9 @@ function ModelViewer(canvas) {
 
 ModelViewer.prototype = {
     /**
-     * @method
-     * @desc Registers a new handler.
-     * @param {Handler} handler The handler.
+     * Add an handler.
+     * 
+     * @param {Handler} handler The handler to add.
      * @returns {boolean}
      */
     addHandler(handler) {
@@ -135,8 +136,8 @@ ModelViewer.prototype = {
     },
 
     /**
-     * @method
-     * @desc Add a scene.
+     * Add a scene.
+     * 
      * @param {Scene} scene The scene to add.
      * @returns {boolean}
      */
@@ -158,8 +159,8 @@ ModelViewer.prototype = {
     },
 
     /**
-     * @method
-     * @desc Remove a scene.
+     * Remove a scene.
+     * 
      * @param {Scene} scene The scene to remove.
      * @returns {boolean}
      */
@@ -181,8 +182,7 @@ ModelViewer.prototype = {
     },
 
     /**
-     * @method
-     * @desc Removes all of the scenes in the viewer.
+     * Removes all of the scenes in the viewer.
      */
     clear() {
         let scenes = this.scenes;
@@ -193,9 +193,8 @@ ModelViewer.prototype = {
     },
 
     /**
-     * @method
-     * @desc Load something. The meat of this whole project.
-     *       If a single source was given, a single object will be returned. If an array was given, an array will be returned, with the same ordering.
+     * Load something. The meat of this whole project.
+     * 
      * @param {?} src The source used for the load.
      * @param {function(?)} pathSolver The path solver used by this load, and any subsequent loads that are caused by it (for example, a model that loads its textures).
      * @returns {AsyncResource}
@@ -244,8 +243,8 @@ ModelViewer.prototype = {
     },
 
     /**
-     * @method
-     * @desc Calls the given callback, when all of the given resources finished loading. In the case all of the resources are already loaded, the call happens immediately.
+     * Calls the given callback when all of the given resources finished loading. In the case all of the resources are already loaded, the call happens immediately.
+     * 
      * @param {Array<AsyncResource>} resources The resources to wait for.
      * @param {function(Array<AsyncResource>)} callback The callback.
      */
@@ -274,9 +273,9 @@ ModelViewer.prototype = {
     },
 
     /**
-     * @method
-     * @desc Calls the given callback, when all of the viewer resources finished loading. In the case all of the resources are already loaded, the call happens immediately.
-     *       Note that instances are also counted.
+     * Calls the given callback when all of the viewer resources finished loading. In the case all of the resources are already loaded, the call happens immediately.
+     * Note that instances are also counted.
+     * 
      * @param {function(ModelViewer)} callback The callback.
      */
     whenAllLoaded(callback) {
@@ -291,11 +290,11 @@ ModelViewer.prototype = {
     },
 
     /**
-     * @method
-     * @desc Remove a resource from the viewer.
-     *       Note that this only removes references to this resource, so your code should do the same, to allow GC to work.
-     *       This also means that if a resource is referenced by another resource, it is not going to be GC'd.
-     *       For example, deleting a texture that is being used by a model will not actually let the GC to collect it, until the model is deleted too, and loses all references.
+     * Remove a resource from the viewer.
+     * Note that this only removes references to this resource, so your code should do the same, to allow GC to work.
+     * This also means that if a resource is referenced by another resource, it is not going to be GC'd.
+     * For example, deleting a texture that is being used by a model will not actually let the GC to collect it, until the model is deleted too, and loses all references.
+     * 
      * @param {AsyncResource} resource
      */
     removeResource(resource) {
@@ -306,9 +305,9 @@ ModelViewer.prototype = {
     },
 
     /**
-     * @method
-     * @desc Checks if a given object is a resource of the viewer.
-     *       This is done by checking the object's objectType field.
+     * Checks if a given object is a resource of the viewer.
+     * This is done by checking the object's objectType field.
+     * 
      * @param {*} object The object to check.
      * @returns {boolean}
      */
@@ -323,9 +322,9 @@ ModelViewer.prototype = {
     },
 
     /**
-     * @method
-     * @desc Gets a Blob object representing the canvas, and calls the callback with it.
-     * @param {function(Blob)} callback The callback to call with the blob.
+     * Gets a Blob object representing the canvas, and calls the callback with it.
+     * 
+     * @param {function(Blob)} callback The callback to call.
      */
     toBlob(callback) {
         // Render to ensure the internal WebGL buffer is valid.
@@ -336,8 +335,7 @@ ModelViewer.prototype = {
     },
 
     /**
-     * @method
-     * @desc Update and render a frame.
+     * Update and render a frame.
      */
     updateAndRender() {
         this.update();
@@ -345,8 +343,7 @@ ModelViewer.prototype = {
     },
 
     /**
-     * @method
-     * @desc Update.
+     * Update.
      */
     update() {
         let resources = this.resources,
@@ -382,8 +379,7 @@ ModelViewer.prototype = {
     },
 
     /**
-     * @method
-     * @desc Render.
+     * Render.
      */
     render() {
         let gl = this.gl,

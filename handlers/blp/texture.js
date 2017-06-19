@@ -81,7 +81,8 @@ BlpTexture.prototype = {
             }
         }
 
-        // NOTE: BGRA data, it gets sizzled in the shader
+        // NOTE: BGRA data, it gets sizzled in the shader.
+        //       I feel like the noticeable slow down when sizzling once on the client side isn't worth it.
         const id = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, id);
         this.setParameters(gl.REPEAT, gl.REPEAT, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);

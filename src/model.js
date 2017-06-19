@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @extends {DownloadableResource}
+ * @augments DownloadableResource
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
  */
@@ -28,8 +28,8 @@ Model.prototype = {
     },
 
     /**
-     * @method
-     * @desc Adds a new instance to this model, and returns it.
+     * Adds a new instance to this model, and returns it.
+     * 
      * @returns {ModelInstance}
      */
     addInstance() {
@@ -50,8 +50,7 @@ Model.prototype = {
     },
 
     /**
-     * @method
-     * @desc Detach this model from the viewer. This removes references to it from the viewer, and also detaches all of the model views it owns.
+     * Detach this model from the viewer. This removes references to it from the viewer, and also detaches all of the model views it owns.
      */
     detach() {
         // Detach all of the views

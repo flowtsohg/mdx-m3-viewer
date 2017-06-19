@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @extends Texture
+ * @augments Texture
  * @memberOf NativeTexture
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver

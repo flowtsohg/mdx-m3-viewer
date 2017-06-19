@@ -1,7 +1,7 @@
 /**
  * @constructor
  * @param {MdxModel} model
- * @param {ParticleEmitter2} emitter
+ * @param {MdxParserParticleEmitter2} emitter
  */
 function MdxParticleEmitter2(model, emitter) {
     let gl = model.gl;
@@ -10,15 +10,16 @@ function MdxParticleEmitter2(model, emitter) {
 
     this.model = model;
 
+    this.texture = model.textures[this.textureId]
+
     this.head = (this.headOrTail === 0 || this.headOrTail === 2);
     this.tail = (this.headOrTail === 1 || this.headOrTail === 2);
-    this.particlesPerEmit = (this.headOrTail === 2) ? 2 : 1;
 
-    this.bytesPerParticle = 4 * 30; // 30 floats per particle
+    this.bytesPerEmit = ((this.headOrTail === 2) ? 2 : 1) * 4 * 30;
 
     this.buffer = new ResizeableBuffer(gl);
 
-    this.particles = [];
+    this.active = [];
     this.inactive = [];
 
     this.cellWidth = 1 / this.columns;
@@ -79,42 +80,38 @@ function MdxParticleEmitter2(model, emitter) {
 }
 
 MdxParticleEmitter2.prototype = {
-    emitParticle(instance, isHead) {
-        let size = (this.particles.length + this.particlesPerEmit) * this.bytesPerParticle;
-
-        if (this.buffer.byteLength < size) {
-            this.buffer.resize(size);
-        }
+    emitParticle(emitterView, isHead) {
+        this.buffer.grow((this.active.length + 1) * this.bytesPerEmit);
 
         let inactive = this.inactive,
-            particle;
+            object;
 
         if (inactive.length) {
-            particle = inactive.pop();
+            object = inactive.pop();
         } else {
-            particle = new MdxParticle2(this);
+            object = new MdxParticle2(this);
         }
 
-        particle.reset(instance, isHead);
+        object.reset(emitterView, isHead);
 
-        this.particles.push(particle);
+        this.active.push(object);
     },
 
-    emit(instance) {
+    emit(emitterView) {
         if (this.head) {
-            this.emitParticle(instance, true);
+            this.emitParticle(emitterView, true);
         }
 
         if (this.tail) {
-            this.emitParticle(instance, false);
+            this.emitParticle(emitterView, false);
         }
     },
 
     update(scene) {
-        let particles = this.particles,
+        let active = this.active,
             inactive = this.inactive;
 
-        if (particles.length > 0) {
+        if (active.length > 0) {
             // First stage: remove dead particles.
             // The used particles array is a queue, dead particles will always come first.
             // As of the time of writing, the easiest and fastest way to implement a queue in Javascript is a normal array.
@@ -123,23 +120,23 @@ MdxParticleEmitter2.prototype = {
             // As long as we hit a dead particle, pop, and check the new last element.
 
             // Ready for pop mode
-            particles.reverse();
+            active.reverse();
 
-            let particle = particles[particles.length - 1];
-            while (particle && particle.health <= 0) {
-                inactive.push(particles.pop());
+            let object = active[active.length - 1];
+            while (object && object.health <= 0) {
+                inactive.push(active.pop());
 
                 // Need to recalculate the length each time
-                particle = particles[particles.length - 1];
+                object = active[active.length - 1];
             }
 
             // Ready for push mode
-            particles.reverse()
+            active.reverse()
 
             // Second stage: update the living particles.
             // All the dead particles were removed, so a simple loop is all that's required.
-            for (let i = 0, l = particles.length; i < l; i++) {
-                particles[i].update();
+            for (let i = 0, l = active.length; i < l; i++) {
+                active[i].update();
             }
 
             this.updateHW(scene);
@@ -147,7 +144,7 @@ MdxParticleEmitter2.prototype = {
     },
 
     updateHW(scene) {
-        let particles = this.particles;
+        let active = this.active;
 
         var data = this.buffer.float32array;
         var columns = this.columns;
@@ -176,8 +173,8 @@ MdxParticleEmitter2.prototype = {
         var v1x, v1y, v1z, v2x, v2y, v2z, v3x, v3y, v3z, v4x, v4y, v4z;
         var lta, lba, rta, rba, rgb;
 
-        for (let i = 0, l = particles.length, index = 0; i < l; i++, index += 30) {
-            let particle = particles[i],
+        for (let i = 0, l = active.length, index = 0; i < l; i++, index += 30) {
+            let particle = active[i],
                 nodeScale = particle.nodeScale;
 
             position = particle.worldLocation;
@@ -300,28 +297,25 @@ MdxParticleEmitter2.prototype = {
     },
 
     render(bucket, shader) {
-        let model = this.model,
-            gl = model.gl,
-            particles = this.particles.length;
+        let active = this.active.length;
 
-        if (particles > 0) {
-            gl.disable(gl.CULL_FACE);
-            gl.enable(gl.DEPTH_TEST);
-            gl.depthMask(0);
-            gl.enable(gl.BLEND);
+        if (active > 0) {
+            let model = this.model,
+                gl = model.gl;
+
             gl.blendFunc(this.blendSrc, this.blendDst);
 
             gl.uniform2fv(shader.uniforms.get("u_dimensions"), this.dimensions);
 
-            model.bindTexture(model.textures[this.textureId], 0, bucket.modelView);
+            model.bindTexture(this.texture, 0, bucket.modelView);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.buffer);
-            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.buffer.float32array.subarray(0, particles * 30));
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.buffer.float32array.subarray(0, active * 30));
 
             gl.vertexAttribPointer(shader.attribs.get("a_position"), 3, gl.FLOAT, false, 20, 0);
             gl.vertexAttribPointer(shader.attribs.get("a_uva_rgb"), 2, gl.FLOAT, false, 20, 12);
 
-            gl.drawArrays(gl.TRIANGLES, 0, particles * 6);
+            gl.drawArrays(gl.TRIANGLES, 0, active * 6);
         }
     },
 

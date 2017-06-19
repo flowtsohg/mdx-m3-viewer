@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @extends {AsyncResource}
+ * @augments AsyncResource
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
  */
@@ -9,9 +9,17 @@ function DownloadableResource(env, pathSolver) {
 
     /** @member {function(?)} */
     this.pathSolver = pathSolver;
+
+    /** @member {string} */
+    this.fetchUrl = "";
 }
 
 DownloadableResource.prototype = {
+    /**
+     * Load this resource.
+     * If this is a server fetch, handles the fetching, and will call the onload method afterwards.
+     * If this isn't a server fetch, immediately calls onload.
+     */
     load(src, isBinary, serverFetch) {
         if (serverFetch) {
             this.fetchUrl = src;

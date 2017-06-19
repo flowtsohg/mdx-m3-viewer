@@ -1,7 +1,6 @@
 /**
  * @constructor
- * @classdesc An SLK file, used for table data by Warcraft 3.
- * @extends ViewerFile
+ * @augments ViewerFile
  * @memberOf Slk
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver

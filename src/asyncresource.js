@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @extends {EventDispatcher}
+ * @augments EventDispatcher
  * @param {ModelViewer} env
  */
 function AsyncResource(env) {
@@ -18,8 +18,8 @@ function AsyncResource(env) {
 
 AsyncResource.prototype = {
     /**
-     * @method
-     * @desc Similar to attaching an event listener to the "loadend" event, but handles the case where the resource already loaded, and the callback should still be called.
+     * Similar to attaching an event listener to the "loadend" event, but handles the case where the resource already loaded, and the callback should still be called.
+     * 
      * @param {function(AsyncResource)} callback The function to call.
      * @returns this
      */

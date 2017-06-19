@@ -13,6 +13,14 @@ Texture.prototype = {
         return "texture";
     },
 
+    /**
+     * Set the WebGL wrap and filter values.
+     * 
+     * @param {number} wrapS Wrap on the S axis.
+     * @param {number} wrapT Wrap on the T axis.
+     * @param {number} magFilter Maginfying filter.
+     * @param {number} minFilter Minifying filter.
+     */
     setParameters(wrapS, wrapT, magFilter, minFilter) {
         const gl = this.env.gl;
 

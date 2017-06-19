@@ -62,6 +62,7 @@ function standSequence(target) {
 
 /**
  * @constructor
+ * @param {BinaryReader} reader
  */
 function W3xDroppedItem(reader) {
     this.id = reader.read(4);
@@ -70,6 +71,7 @@ function W3xDroppedItem(reader) {
 
 /**
  * @constructor
+ * @param {BinaryReader} reader
  */
 function W3xDroppedItemSet(reader) {
     this.items = [];
@@ -81,6 +83,7 @@ function W3xDroppedItemSet(reader) {
 
 /**
  * @constructor
+ * @param {BinaryReader} reader
  */
 function W3xModifiedAbility(reader) {
     this.id = reader.read(4);
@@ -90,6 +93,7 @@ function W3xModifiedAbility(reader) {
 
 /**
  * @constructor
+ * @param {BinaryReader} reader
  */
 function W3xInventoryItem(reader) {
     this.slot = reader.readInt32();
@@ -98,6 +102,7 @@ function W3xInventoryItem(reader) {
 
 /**
  * @constructor
+ * @param {BinaryReader} reader
  */
 function W3xRandomUnit(reader) {
     this.id = reader.read(4);
@@ -106,6 +111,9 @@ function W3xRandomUnit(reader) {
 
 /**
  * @constructor
+ * @param {BinaryReader} reader
+ * @param {number} version
+ * @param {W3xMap} map
  */
 function W3xUnit(reader, version, map) {
     this.map = map;
@@ -245,6 +253,9 @@ W3xUnit.prototype = {
 
 /**
  * @constructor
+ * @param {BinaryReader} reader
+ * @param {number} version
+ * @param {W3xMap} map
  */
 function W3xDoodad(reader, version, map) {
     this.map = map;
@@ -327,6 +338,9 @@ W3xDoodad.prototype = {
 
 /**
  * @constructor
+ * @param {BinaryReader} reader
+ * @param {number} version
+ * @param {W3xMap} map
  */
 function W3xSpecialDoodad(reader, version, map) {
     var id = reader.read(4);
@@ -352,6 +366,8 @@ function W3xSpecialDoodad(reader, version, map) {
 
 /**
  * @constructor
+ * @param {BinaryReader} reader
+ * @param {boolean} useOptionalInts
  */
 function W3xModification(reader, useOptionalInts) {
     this.id = reader.read(4);
@@ -376,6 +392,8 @@ function W3xModification(reader, useOptionalInts) {
 
 /**
  * @constructor
+ * @param {BinaryReader} reader
+ * @param {boolean} useOptionalInts
  */
 function W3xModifiedObject(reader, useOptionalInts) {
     this.oldID = reader.read(4);
@@ -390,6 +408,8 @@ function W3xModifiedObject(reader, useOptionalInts) {
 
 /**
  * @constructor
+ * @param {BinaryReader} reader
+ * @param {boolean} useOptionalInts
  */
 function W3xModificationTable(reader, useOptionalInts) {
     this.objects = [];
@@ -401,6 +421,7 @@ function W3xModificationTable(reader, useOptionalInts) {
 
 /**
  * @constructor
+ * @param {BinaryReader} reader
  */
 function W3xTilePoint(reader) {
     this.groundHeight = reader.readInt16();

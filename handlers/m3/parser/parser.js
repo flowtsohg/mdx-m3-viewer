@@ -6,7 +6,9 @@ function M3Parser(src) {
     let reader = new M3ParserBinaryReader(src),
         header = new M3ParserMd34(reader);
 
+    /** @member {Array<M3ParserIndexEntry>} */
     this.entries = [];
+    /** @member {?M3ParserModel} */
     this.model = null;
 
     if (header.tag === "MD34") {

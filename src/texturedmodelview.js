@@ -1,12 +1,12 @@
 /**
  * @constructor
- * @extends ModelView
+ * @augments ModelView
  * @param {Model} model
  */
 function TexturedModelView(model) {
     ModelView.call(this, model);
 
-    /** @member {Map.<Texture, Texture>} */
+    /** @member {Map<Texture, Texture>} */
     this.textures = new Map();
 }
 

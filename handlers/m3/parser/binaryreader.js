@@ -11,7 +11,8 @@ function M3ParserBinaryReader(buffer, byteOffset, byteLength) {
 
 M3ParserBinaryReader.prototype = {
     /**
-     * @desc Peek a character array
+     * Peek a character array.
+     * 
      * @param {number} size
      * @returns {Array<string>}
      */
@@ -28,7 +29,8 @@ M3ParserBinaryReader.prototype = {
     },
 
     /**
-     * @desc Read a character array
+     * Read a character array.
+     * 
      * @param {number} size
      * @returns {Array<string>}
      */

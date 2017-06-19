@@ -1,12 +1,12 @@
 /**
  * @constructor
+ * @param {M3Model} model
  * @param {M3ParserRegion} region
  * @param {Uint16Array} triangles
  * @param {Uint16Array} elementArray
  * @param {number} offset
- * @param {WebGLRenderingContext} gl
  */
-function M3Region(region, triangles, elementArray, offset, gl) {
+function M3Region(model, region, triangles, elementArray, offset) {
     let firstVertexIndex = region.firstVertexIndex,
         triangleIndicesCount = region.triangleIndicesCount,
         firstTriangleIndex = region.firstTriangleIndex;
@@ -19,7 +19,7 @@ function M3Region(region, triangles, elementArray, offset, gl) {
         elementArray[offset + i] = triangles[firstTriangleIndex + i] + firstVertexIndex;
     }
 
-    this.gl = gl;
+    this.gl = model.gl;
     this.firstBoneLookupIndex = region.firstBoneLookupIndex;
     this.boneWeightPairsCount = region.boneWeightPairsCount;
     this.offset = offset * 2;

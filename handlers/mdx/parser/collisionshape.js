@@ -1,12 +1,14 @@
 /**
  * @constructor
  * @param {MdxParserBinaryReader} reader
- * @param {Array<MdxNode>} nodes
+ * @param {Array<MdxParserNode>} nodes
  * @param {number} index
  */
 function MdxParserCollisionShape(reader, nodes, index) {
     this.index = index;
+    /** @member {MdxParserNode} */
     this.node = reader.readNode(nodes, this);
+    /** @member {number} */
     this.type = reader.readUint32();
 
     var type = this.type,
@@ -21,12 +23,15 @@ function MdxParserCollisionShape(reader, nodes, index) {
         size += 12;
     }
 
+    /** @member {Float32Array} */
     this.vertices = vertices;
 
     if (type === 2 || type === 3) {
+        /** @member {number} */
         this.radius = reader.readFloat32();
         size += 4;
     }
 
+    /** @member {number} */
     this.size = size;
 }

@@ -135,6 +135,7 @@
       "eventobjectspl",
       "eventobjectubr",
       "eventobjectemitter",
+      "eventobjectemitterview",
       "particle",
       "particleemitter",
       "particleemitterview",

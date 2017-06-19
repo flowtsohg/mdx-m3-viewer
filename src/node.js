@@ -32,7 +32,7 @@ function ViewerNode(buffer, offset) {
     this.localMatrix = new Float32Array(buffer, offset + 132, 16);
     /** @member {mat4} */
     this.worldMatrix = new Float32Array(buffer, offset + 196, 16);
-    /** @member {ViewerNode|null} */
+    /** @member {?ViewerNode} */
     this.parent = null;
     /** @member {Array<ViewerNode>} */
     this.children = [];

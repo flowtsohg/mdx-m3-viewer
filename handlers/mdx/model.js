@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @extends Model
+ * @augments Model
  * @memberOf Mdx
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
@@ -19,6 +19,7 @@ function MdxModel(env, pathSolver) {
     this.attachments = [];
     this.textureAnimations = [];
     this.geosetAnimations = [];
+    this.eventObjectEmitters = [];
 }
 
 MdxModel.prototype = {
@@ -40,7 +41,7 @@ MdxModel.prototype = {
         var chunks = parser.chunks;
 
         this.parser = parser;
-        this.name = chunks.MODL.name;
+        this.name = chunks.get("MODL").name;
         
         this.texturePaths = [];
 
@@ -48,27 +49,27 @@ MdxModel.prototype = {
 
         this.textureAtlases = {};
 
-        if (chunks.TEXS) {
-            objects = chunks.TEXS.elements;
+        if (chunks.has("TEXS")) {
+            objects = chunks.get("TEXS").elements;
 
             for (i = 0, l = objects.length; i < l; i++) {
                 this.loadTexture(objects[i], this.pathSolver);
             }
         }
 
-        if (chunks.SEQS) {
-            this.sequences = chunks.SEQS.elements;
+        if (chunks.has("SEQS")) {
+            this.sequences = chunks.get("SEQS").elements;
         }
 
-        if (chunks.GLBS) {
-            this.globalSequences = chunks.GLBS.elements;
+        if (chunks.has("GLBS")) {
+            this.globalSequences = chunks.get("GLBS").elements;
         }
 
         var nodes = parser.nodes;
         var pivots;
 
-        if (chunks.PIVT) {
-            pivots = chunks.PIVT.elements;
+        if (chunks.has("PIVT")) {
+            pivots = chunks.get("PIVT").elements;
         } else {
             pivots = [{ value: [0, 0, 0] }];
         }
@@ -94,23 +95,23 @@ MdxModel.prototype = {
         // Checks what sequences are variant or not
         this.setupVariants();
 
-        if (chunks.BONE) {
-            this.bones = chunks.BONE.elements;
+        if (chunks.has("BONE")) {
+            this.bones = chunks.get("BONE").elements;
         } else {
             // If there are no bones, reference the injected root node, since the shader requires at least one bone
             this.bones = [{ node: { objectId: 0, index: 0 } }];
         }
 
-        if (chunks.TXAN) {
-            let textureAnimations = chunks.TXAN.elements;
+        if (chunks.has("TXAN")) {
+            let textureAnimations = chunks.get("TXAN").elements;
 
             for (let i = 0, l = textureAnimations.length; i < l; i++) {
                 this.textureAnimations[i] = new MdxTextureAnimation(this, textureAnimations[i]);
             }
         }
 
-        if (chunks.MTLS) {
-            objects = chunks.MTLS.elements;
+        if (chunks.has("MTLS")) {
+            objects = chunks.get("MTLS").elements;
 
             var materials = [];
 
@@ -141,16 +142,16 @@ MdxModel.prototype = {
             this.hasLayerAnims = false;
         }
 
-        if (chunks.GEOA) {
-            let geosetAnimations = chunks.GEOA.elements;
+        if (chunks.has("GEOA")) {
+            let geosetAnimations = chunks.get("GEOA").elements;
 
             for (let i = 0, l = geosetAnimations.length; i < l; i++) {
                 this.geosetAnimations[i] = new MdxGeosetAnimation(this, geosetAnimations[i]);
             }
         }
 
-        if (chunks.GEOS) {
-            let geosets = chunks.GEOS.elements,
+        if (chunks.has("GEOS")) {
+            let geosets = chunks.get("GEOS").elements,
                 opaqueBatches = [],
                 translucentBatches = [],
                 batchId = 0;
@@ -190,40 +191,40 @@ MdxModel.prototype = {
 
         this.setupGeosets();
 
-        if (chunks.CAMS) {
-            let cameras = chunks.CAMS.elements;
+        if (chunks.has("CAMS")) {
+            let cameras = chunks.get("CAMS").elements;
 
             for (let i = 0, l = cameras.length; i < l; i++) {
                 this.cameras[i] = new MdxCamera(this, cameras[i]);
             }
         }
 
-        if (chunks.PREM) {
-            this.particleEmitters = chunks.PREM.elements;
+        if (chunks.has("PREM")) {
+            this.particleEmitters = chunks.get("PREM").elements;
         }
 
-        if (chunks.PRE2) {
-            this.particleEmitters2 = chunks.PRE2.elements;
+        if (chunks.has("PRE2")) {
+            this.particleEmitters2 = chunks.get("PRE2").elements;
         }
 
-        if (chunks.RIBB) {
-            this.ribbonEmitters = chunks.RIBB.elements;
+        if (chunks.has("RIBB")) {
+            this.ribbonEmitters = chunks.get("RIBB").elements;
         }
 
-        if (chunks.CLID) {
-            this.boundingShapes = chunks.CLID.elements;
+        if (chunks.has("CLID")) {
+            this.boundingShapes = chunks.get("CLID").elements;
         }
 
-        if (chunks.ATCH) {
-            let attachments = chunks.ATCH.elements;
+        if (chunks.has("ATCH")) {
+            let attachments = chunks.get("ATCH").elements;
 
             for (let i = 0, l = attachments.length; i < l; i++) {
                 this.attachments[i] = new MdxAttachment(this, attachments[i]);
             }
         }
 
-        if (chunks.EVTS) {
-            this.eventObjects = chunks.EVTS.elements;
+        if (chunks.has("EVTS")) {
+            this.eventObjectEmitters = chunks.get("EVTS").elements;
         }
 
         this.calculateExtent();
@@ -455,6 +456,7 @@ MdxModel.prototype = {
         var gl = this.gl;
 
         // HACK UNTIL I IMPLEMENT MULTIPLE SHADERS AGAIN
+
         var shader = Mdx.standardShader;
         webgl.useShaderProgram(shader);
         this.shader = shader;
@@ -607,12 +609,15 @@ MdxModel.prototype = {
     renderEmitters(bucket, scene) {
         let webgl = this.env.webgl,
             gl = this.env.gl,
-            emitters = bucket.particleEmitters2;
+            particleEmitters2 = bucket.particleEmitters2,
+            eventObjectEmitters = bucket.eventObjectEmitters;
 
-        if (emitters.length) {
+
+        if (particleEmitters2.length || eventObjectEmitters.length) {
             gl.depthMask(0);
             gl.enable(gl.BLEND);
             gl.disable(gl.CULL_FACE);
+            gl.enable(gl.DEPTH_TEST);
 
             var shader = Mdx.particleShader;
             webgl.useShaderProgram(shader);
@@ -621,14 +626,14 @@ MdxModel.prototype = {
 
             gl.uniform1i(shader.uniforms.get("u_texture"), 0);
 
-            for (let i = 0, l = emitters.length; i < l; i++) {
-                emitters[i].render(bucket, shader);
+            for (let i = 0, l = particleEmitters2.length; i < l; i++) {
+                particleEmitters2[i].render(bucket, shader);
+            }
+
+            for (let i = 0, l = eventObjectEmitters.length; i < l; i++) {
+                eventObjectEmitters[i].render(bucket, shader);
             }
         }
-
-        gl.depthMask(1);
-        gl.disable(gl.BLEND);
-        gl.enable(gl.CULL_FACE);
     }
 };
 

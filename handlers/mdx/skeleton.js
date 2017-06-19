@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @extends Skeleton
+ * @augments Skeleton
  * @param {MdxModelInstance} instance
  */
 function MdxSkeleton(instance) {

@@ -61,7 +61,7 @@ M3StandardMaterial.prototype = {
         gl.enable(gl.DEPTH_TEST);
     },
 
-    bind(shader, bucket) {
+    bind(bucket, shader) {
         const gl = this.gl;
 
         this.bindCommon();
@@ -73,13 +73,13 @@ M3StandardMaterial.prototype = {
 
         const layers = this.layers;
 
-        layers[0].bind(shader, bucket);
-        layers[1].bind(shader, bucket);
-        layers[2].bind(shader, bucket);
-        layers[4].bind(shader, bucket);
-        layers[5].bind(shader, bucket);
-        layers[10].bind(shader, bucket);
-        layers[12].bind(shader, bucket);
+        layers[0].bind(bucket, shader);
+        layers[1].bind(bucket, shader);
+        layers[2].bind(bucket, shader);
+        layers[4].bind(bucket, shader);
+        layers[5].bind(bucket, shader);
+        layers[10].bind(bucket, shader);
+        layers[12].bind(bucket, shader);
     },
 
     unbind(shader) {

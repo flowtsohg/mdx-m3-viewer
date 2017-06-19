@@ -12,13 +12,11 @@ function Skeleton(nodeCount, parent) {
     }
 
     /** @member {ViewerNode} */
-    this.rootNode = new NotifiedNode();
+    this.parent = parent
     /** @member {ArrayBuffer} */
     this.buffer = buffer;
     /** @member {Array<ViewerNode>} */
     this.nodes = nodes;
-
-    this.rootNode.setParent(parent);
 
     //for (let i = 0; i < nodeCount; i++) {
     //    nodes[i].setParent(skeleton.getNode(hierarchy[i]));
@@ -27,14 +25,14 @@ function Skeleton(nodeCount, parent) {
 
 Skeleton.prototype = {
     /**
-     * @method
-     * @desc Get the i'th node. If the given id is -1, return the parent instead.
+     * Get the id'th node. If the given id is -1, return the parent instead.
+     * 
      * @param {number} id The index of the node.
      * @returns {ViewerNode}
      */
     getNode(id) {
         if (id === -1) {
-            return this.rootNode;
+            return this.parent;
         }
 
         return this.nodes[id];

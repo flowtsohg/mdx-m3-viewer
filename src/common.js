@@ -1,5 +1,3 @@
-var SIMD, Zlib;
-
 function getImageDataFromImage(image) {
     let canvas = document.createElement("canvas"),
         context = canvas.getContext("2d"),

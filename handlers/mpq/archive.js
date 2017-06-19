@@ -1,13 +1,21 @@
 /**
  * @constructor
- * @classdesc A MPQ archive, used by Warcraft 3.
- * @extends ViewerFile
+ * @augments ViewerFile
  * @memberOf Mpq
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
  */
 function MpqArchive(env, pathSolver) {
     ViewerFile.call(this, env, pathSolver);
+
+    /** @member {?ArrayBuffer} */
+    this.buffer = null;
+    /** @member {?MpqCrypto} */
+    this.c = null;
+    /** @member {?MpqHashTable} */
+    this.hashTable = null;
+    /** @member {?MpqBlockTable} */
+    this.blockTable = null;
 }
 
 MpqArchive.prototype = {
@@ -18,16 +26,16 @@ MpqArchive.prototype = {
     initialize(src) {
         let reader = new BinaryReader(src);
 
-        this.headerOffset = this.searchHeader(reader);
+        let headerOffset = this.searchHeader(reader);
 
-        if (this.headerOffset === -1) {
+        if (headerOffset === -1) {
             this.onerror("InvalidSource", "HeaderNotFound");
             return false;
         }
 
-        this.buffer = src.slice(this.headerOffset);
+        this.buffer = src.slice(headerOffset);
 
-        if (this.headerOffset > -1) {
+        if (headerOffset > -1) {
             this.readHeader(reader);
 
             // Only version 0 is supported, but apparently some maps fake their version, since WC3 ignores it, so ignore it too
@@ -38,7 +46,7 @@ MpqArchive.prototype = {
 
             this.blockTable = new MpqBlockTable(this.buffer.slice(this.blockPos, this.blockPos + this.blockSize * 16), this.c);
 
-            this.files = {};
+            this.files = new Map();
             //}
         }
 
@@ -71,9 +79,9 @@ MpqArchive.prototype = {
     },
 
     /**
-     * @method
-     * @desc Checks if a file exists in this archive.
-     * @param {string} name The file name.
+     * Checks if a file exists in this archive.
+     * 
+     * @param {string} name The file name to check
      * @returns {boolean}
      */
     hasFile(name) {
@@ -81,42 +89,42 @@ MpqArchive.prototype = {
     },
 
     /**
-     * @method
-     * @desc Extract a file from this archive. Note that this is a lazy and cached operation. That is, files are only decoded from the archive on extraction, and the result is then cached. Further requests to get the same file will get the cached result.
-     * @param {string} name The file name.
+     * Extract a file from this archive.
+     * Note that this is a lazy and cached operation. That is, files are only decoded from the archive on extraction, and the result is then cached.
+     * Further requests to get the same file will get the cached result.
+     * 
+     * @param {string} name The file name to get
      * @returns {MpqFile}
      */
     getFile(name) {
         let files = this.files;
 
-        name = normalizePath(name);
-
-        if (!files[name]) {
+        if (!files.has(name)) {
             let blockIndex = this.hashTable.getBlockIndexOfFile(name);
 
             if (blockIndex !== -1) {
                 let blockEntry = this.blockTable.entries[blockIndex],
                     file = new MpqFile(this, blockEntry, name);
 
-                this.files[name] = file;
+                files.set(name, file);
             }
         }
         
-        return files[name];
+        return files.get(name);
     },
 
     /**
-     * @method
-     * @desc Get an array of strings, populated by all of the file names in this archive.
-     *       Note that this assumes this archive has a listfile, which is not always true.
-     *       If there is no listfile, an empty array will be returned.
+     * Get an array of strings, populated by all of the file names in this archive.
+     * This is done by checking the archive's listfile, which does not always exist.
+     * If there is no listfile, an empty array will be returned.
+     * 
      * @returns {Array<string>}
      */
     getFileList() {
         if (this.hasFile("(listfile)")) {
             let file = this.getFile("(listfile)"),
                 reader = new BinaryReader(file.buffer),
-                data = reader.read(reader.byteLength);
+                data = reader.read();
 
             return data.trim().split("\r\n");
         }

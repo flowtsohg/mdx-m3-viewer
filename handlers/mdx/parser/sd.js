@@ -17,11 +17,17 @@ function MdxParserSD(reader) {
         tracks[i] = new constructor(reader, interpolationType)
     }
 
+    /** @member {string} */
     this.tag = tag;
+    /** @member {number} */
     this.interpolationType = interpolationType;
+    /** @member {number} */
     this.globalSequenceId = globalSequenceId;
+    /** @member {Array<?>} */
     this.tracks = tracks;
+    /** @member {number|Float32Array} */
     this.defval = defval;
+    /** @member {number} */
     this.size = 16 + tracksCount * elementsPerTrack * 4;
 }
 
@@ -87,12 +93,6 @@ MdxParserSD.tagToTrack = {
  * @param {number} size
  */
 function MdxParserSDContainer(reader, size) {
-    var sd = reader.readUnknownElements(size, MdxParserSD),
-        map = {};
-
-    for (var i = 0, l = sd.length; i < l; i++) {
-        map[sd[i].tag] = sd[i];
-    }
-
-    this.sd = map;
+    /** @member {Array<MdxParserSD>} */
+    this.elements = reader.readUnknownElements(size, MdxParserSD);
 }
