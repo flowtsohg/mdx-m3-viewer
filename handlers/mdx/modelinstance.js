@@ -399,6 +399,8 @@ MdxModelInstance.prototype = {
                 this.frame = 0;
 
                 this.sequenceObject = null;
+
+                this.allowParticleSpawn = false;
             } else {
                 var sequence = this.model.sequences[id];
 

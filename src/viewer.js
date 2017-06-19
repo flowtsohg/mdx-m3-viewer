@@ -193,6 +193,34 @@ ModelViewer.prototype = {
     },
 
     /**
+     * The amount of WebGL render calls being made each time the viewer is rendered.
+     */
+    renderCalls() {
+        let scenes = this.scenes,
+            count = 0;
+
+        for (let i = 0, l = scenes.length; i < l; i++) {
+            count += scenes[i].renderCalls();
+        }
+
+        return count;
+    },
+
+    /**
+     * The amount of instances being rendered each time the viewer is being rendered.
+     */
+    renderedInstances() {
+        let scenes = this.scenes,
+            count = 0;
+
+        for (let i = 0, l = scenes.length; i < l; i++) {
+            count += scenes[i].renderedInstances();
+        }
+
+        return count;
+    },
+
+    /**
      * Load something. The meat of this whole project.
      * 
      * @param {?} src The source used for the load.

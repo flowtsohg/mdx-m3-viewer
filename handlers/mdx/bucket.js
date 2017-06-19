@@ -88,6 +88,7 @@ function MdxBucket(modelView) {
     this.particleEmitters = [];
     this.particleEmitters2 = [];
     this.eventObjectEmitters = [];
+    this.ribbonEmitters = [];
 
     objects = model.particleEmitters;
     for (let i = 0, l = objects.length; i < l; i++) {
@@ -99,6 +100,11 @@ function MdxBucket(modelView) {
         this.particleEmitters2[i] = new MdxParticleEmitter2(model, objects[i]);
     }
 
+    objects = model.ribbonEmitters;
+    for (let i = 0, l = objects.length; i < l; i++) {
+        this.ribbonEmitters[i] = new MdxRibbonEmitter(model, objects[i]);
+    }
+
     objects = model.eventObjectEmitters;
     for (let i = 0, l = objects.length; i < l; i++) {
         this.eventObjectEmitters[i] = new MdxEventObjectEmitter(model, objects[i]);
@@ -108,17 +114,37 @@ function MdxBucket(modelView) {
 MdxBucket.prototype = {
     renderCalls() {
         let model = this.model,
-            renderCalls = model.batches.length + model.particleEmitters2.length;
+            renderCalls = model.batches.length,
+            emitters;
+        
+        emitters = this.particleEmitters2;
+        for (let i = 0, l = emitters.length; i < l; i++) {
+            let emitter = emitters[i];
 
-        for (let emitter of model.ribbonEmitters) {
-            renderCalls += emitter.layers.length;
+            if (emitter.active.length > 0) {
+                renderCalls += 1;
+            }
         }
 
-        for (let emitter of model.eventObjectEmitters) {
-            let type = model.nodes[emitter.node.index].name.substring(0, 3);
+        emitters = this.ribbonEmitters;
+        for (let i = 0, l = emitters.length; i < l; i++) {
+            let emitter = emitters[i];
 
-            if (type === "SPL" || type === "UBR") {
-                renderCalls += 1;
+            if (emitter.active.length > 0) {
+                renderCalls += emitter.layers.length;
+            }
+        }
+
+        emitters = this.eventObjectEmitters;
+        for (let i = 0, l = emitters.length; i < l; i++) {
+            let emitter = emitters[i];
+
+            if (emitter.active.length > 0) {
+                let type = emitter.type;
+
+                if (type === "SPL" || type === "UBR") {
+                    renderCalls += 1;
+                }
             }
         }
 

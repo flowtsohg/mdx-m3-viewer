@@ -18,6 +18,7 @@ function ModelInstance(model) {
     this.model = model;
 
     this.shouldRender = true; // This value should not be used directly, instead use ModelInstance.rendered
+    this.culled = false;
     this.noCulling = false; // Set to true if the model should always be rendered
 }
 
