@@ -42,6 +42,13 @@ function ViewerNode(buffer, offset) {
     this.dontInheritRotation = false;
     /** @member {boolean} */
     this.dontInheritScaling = false;
+    /** 
+     * When a node is a part of a skeleton, it doesn't need the parent's pivot applied to its local matrix.
+     * The Skeleton constructor sets this to true for all of its nodes automatically.
+     * 
+     * @member {boolean}
+     */
+    this.isSkeletal = false;
 
     this.localRotation[3] = 1;
     this.localScale.fill(1);
@@ -140,21 +147,18 @@ ViewerNode.prototype = {
         localLocation[0] = location[0];
         localLocation[1] = location[1];
         localLocation[2] = location[2];
+        //vec3.copy(this.localLocation, location);
 
         localRotation[0] = rotation[0];
         localRotation[1] = rotation[1];
         localRotation[2] = rotation[2];
         localRotation[3] = rotation[3];
+        //quat.copy(this.localRotation, rotation);
 
         localScale[0] = scale[0];
         localScale[1] = scale[1];
         localScale[2] = scale[2];
-
-        /*
-        vec3.copy(this.localLocation, location);
-        quat.copy(this.localRotation, rotation);
-        vec3.copy(this.localScale, scale);
-        */
+        //vec3.copy(this.localScale, scale);
 
         this.recalculateTransformation();
 
@@ -320,7 +324,9 @@ ViewerNode.prototype = {
      */
     recalculateTransformation() {
         let localMatrix = this.localMatrix,
+            localLocation = this.localLocation,
             localRotation = this.localRotation,
+            localScale = this.localScale,
             worldMatrix = this.worldMatrix,
             worldLocation = this.worldLocation,
             worldRotation = this.worldRotation,
@@ -332,13 +338,28 @@ ViewerNode.prototype = {
             parent = this.parent,
             children = this.children;
 
-        // Local matrix
-        // Model space
-        mat4.fromRotationTranslationScaleOrigin(localMatrix, localRotation, this.localLocation, this.localScale, pivot);
-
         // World matrix
         // Model space -> World space
         if (parent) {
+            let computedLocation;
+            
+            if (this.isSkeletal) {
+                computedLocation = localLocation;
+            } else {
+                let parentPivot = parent.pivot;
+
+                computedLocation = vec3.heap;
+
+                computedLocation[0] = localLocation[0] + parentPivot[0];
+                computedLocation[1] = localLocation[1] + parentPivot[1];
+                computedLocation[2] = localLocation[2] + parentPivot[2];
+                //vec3.add(computedLocation, localLocation, parentPivot);
+            }
+
+            // Local matrix
+            // Model space
+            mat4.fromRotationTranslationScaleOrigin(localMatrix, localRotation, computedLocation, localScale, pivot);
+
             mat4.mul(worldMatrix, parent.worldMatrix, localMatrix);
 
             // If this node shouldn't inherit the parent's rotation, rotate it by the inverse.
@@ -366,7 +387,17 @@ ViewerNode.prototype = {
             inverseWorldRotation[2] = -worldRotation[2];
             inverseWorldRotation[3] = worldRotation[3];
             //quat.conjugate(inverseWorldRotation, worldRotation);
+
+            let parentScale = parent.worldScale;
+            worldScale[0] = parentScale[0] * localScale[0];
+            worldScale[1] = parentScale[1] * localScale[1];
+            worldScale[2] = parentScale[2] * localScale[2];
+            //vec3.mul(worldScale, parentScale, localScale);
         } else {
+            // Local matrix
+            // Model space
+            mat4.fromRotationTranslationScaleOrigin(localMatrix, localRotation, localLocation, localScale, pivot);
+
             worldMatrix[0] = localMatrix[0];
             worldMatrix[1] = localMatrix[1];
             worldMatrix[2] = localMatrix[2];
@@ -396,10 +427,12 @@ ViewerNode.prototype = {
             inverseWorldRotation[2] = -localRotation[2];
             inverseWorldRotation[3] = localRotation[3];
             //quat.conjugate(inverseWorldRotation, localRotation);
-        }
 
-        // Scale and inverse scale
-        mat4.getScaling(worldScale, worldMatrix);
+            worldScale[0] = localScale[0];
+            worldScale[1] = localScale[1];
+            worldScale[2] = localScale[2];
+            //vec3.copy(worldScale, localScale);
+        }
 
         inverseWorldScale[0] = 1 / worldScale[0];
         inverseWorldScale[1] = 1 / worldScale[1];

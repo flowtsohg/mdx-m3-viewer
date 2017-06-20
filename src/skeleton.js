@@ -8,7 +8,13 @@ function Skeleton(nodeCount, parent) {
         nodes = [];
 
     for (let i = 0; i < nodeCount; i++) {
-        nodes[i] = new ViewerNode(buffer, i * ViewerNode.BYTES_PER_ELEMENT);
+        let node = new ViewerNode(buffer, i * ViewerNode.BYTES_PER_ELEMENT);
+
+        // Signal that this is a node in a skeleton.
+        // See Skeleton.
+        node.isSkeletal = true;
+
+        nodes[i] = node;
     }
 
     /** @member {ViewerNode} */

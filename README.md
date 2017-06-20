@@ -211,7 +211,6 @@ If a listener is attached to the viewer itself, it will receive events for all r
 Note that attaching a `loadstart` listener to a resource that is not the viewer is pointless, since the listener is registered after the resource started loading.
 
 The type can be one of:
-* `render` - called every frame after rendering is done (this event is only dispatched by the viewer).
 * `loadstart` - a resource started loading.
 * `progress` - progress updates for loads. The `loaded`, `total`, and `lengthComputable` properties will be set.
 * `load` - a resource finished loading.

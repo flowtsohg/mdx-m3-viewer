@@ -441,8 +441,6 @@ ModelViewer.prototype = {
         for (i = 0; i < l; i++) {
             scenes[i].renderEmitters();
         }
-
-        this.dispatchEvent({ type: "render" })
     },
 
     // Removes the reference pair of this resource.

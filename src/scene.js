@@ -175,13 +175,13 @@ Scene.prototype = {
         // First update all of the instances.
         // Note that this can result in them getting removed from buckets, and possibly the buckets themselves being removed.
         // E.g. in event listeners, attachments, emitters, etc.
-        let instances = this.instances;
+        var instances = this.instances;
 
-        for (let i = 0, l = instances.length; i < l; i++) {
-            let instance = instances[i];
+        for (var i = 0, l = instances.length; i < l; i++) {
+            var instance = instances[i];
 
             if (instance.loaded) {
-                let isVisible = this.isVisible(instance) || instance.noCulling;
+                var isVisible = this.isVisible(instance) || instance.noCulling;
 
                 instance.globalUpdate();
 
@@ -200,9 +200,9 @@ Scene.prototype = {
         }
 
         // Now that all of the instances are in their appropriate buckets, update the buckets.
-        let buckets = this.buckets;
+        var buckets = this.buckets;
 
-        for (let i = 0, l = buckets.length; i < l; i++) {
+        for (var i = 0, l = buckets.length; i < l; i++) {
             buckets[i].update(this);
         }
     },
