@@ -154,7 +154,7 @@ Scene.prototype = {
     removeBucket(bucket) {
         let bucketSet = this.bucketSet;
 
-        if (!bucketSet.has(bucket)) {
+        if (bucketSet.has(bucket)) {
             let instances = bucket.instances.length;
 
             if (instances === 0) {
@@ -172,30 +172,34 @@ Scene.prototype = {
     },
 
     update() {
+        // First update all of the instances.
+        // Note that this can result in them getting removed from buckets, and possibly the buckets themselves being removed.
+        // E.g. in event listeners, attachments, emitters, etc.
         let instances = this.instances;
 
         for (let i = 0, l = instances.length; i < l; i++) {
             let instance = instances[i];
 
             if (instance.loaded) {
-                let isVisible = this.isVisible(instance);
+                let isVisible = this.isVisible(instance) || instance.noCulling;
 
                 instance.globalUpdate();
 
                 if (isVisible && instance.culled) {
                     instance.culled = false;
-                    //instance.rendered = true;
+                    instance.rendered = true;
                 } else if (!isVisible && !instance.culled) {
                     instance.culled = true;
-                    //instance.rendered = false;
+                    instance.rendered = false;
                 }
 
-                if (instance.bucket && (!instance.culled || instance.noCulling)) {
+                if (instance.bucket && !instance.culled) {
                     instance.update();
                 }
             }
         }
 
+        // Now that all of the instances are in their appropriate buckets, update the buckets.
         let buckets = this.buckets;
 
         for (let i = 0, l = buckets.length; i < l; i++) {
