@@ -192,9 +192,7 @@ MdxBucket.prototype = {
             size = this.instances.length,
             objects;
 
-        this.updateBatches.fill(0);
-
-        Bucket.prototype.update.call(this, scene);
+        //this.updateBatches.fill(0);
 
         objects = this.particleEmitters;
         for (let i = 0, l = objects.length; i < l; i++) {

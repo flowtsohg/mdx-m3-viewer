@@ -77,12 +77,10 @@ M3Bucket.prototype = {
     },
 
     update(scene) {
-        const gl = this.gl,
+        let gl = this.gl,
             size = this.instances.length;
 
         //this.updateBatches.fill(0);
-
-        Bucket.prototype.update.call(this, scene);
 
         //if (this.updateBoneTexture[0]) {
             gl.activeTexture(gl.TEXTURE15);

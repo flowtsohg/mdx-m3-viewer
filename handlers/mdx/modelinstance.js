@@ -198,34 +198,40 @@ MdxModelInstance.prototype = {
         this.eventObjectEmitters = [];
     },
 
-    updateInternalObjects() {
+    updateAttachments() {
+        let objects = this.attachments;
+
+        for (let i = 0, l = objects.length; i < l; i++) {
+            objects[i].update();
+        }
+    },
+
+    updateEmitters() {
         if (this.allowParticleSpawn) {
-            let objects,
-                i,
-                l;
+            let objects;
 
             objects = this.attachments;
-            for (i = 0, l = objects.length; i < l; i++) {
+            for (let i = 0, l = objects.length; i < l; i++) {
                 objects[i].update();
             }
 
             objects = this.particleEmitters;
-            for (i = 0, l = objects.length; i < l; i++) {
+            for (let i = 0, l = objects.length; i < l; i++) {
                 objects[i].update();
             }
 
             objects = this.particleEmitters2;
-            for (i = 0, l = objects.length; i < l; i++) {
+            for (let i = 0, l = objects.length; i < l; i++) {
                 objects[i].update();
             }
 
             objects = this.ribbonEmitters;
-            for (i = 0, l = objects.length; i < l; i++) {
+            for (let i = 0, l = objects.length; i < l; i++) {
                 objects[i].update();
             }
 
             objects = this.eventObjectEmitters;
-            for (i = 0, l = objects.length; i < l; i++) {
+            for (let i = 0, l = objects.length; i < l; i++) {
                 objects[i].update();
             }
         }
@@ -263,7 +269,8 @@ MdxModelInstance.prototype = {
             this.skeleton.update();
         }
 
-        this.updateInternalObjects();
+        this.updateAttachments();
+        this.updateEmitters();
         
         var batches = model.batches;
 

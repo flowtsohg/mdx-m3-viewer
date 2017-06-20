@@ -242,7 +242,7 @@ W3xMap.prototype = {
                 C: "Felwood",
                 D: "Dungeon",
                 F: "Lordf",
-                G: "Lords", // Underground is what?
+                G: "G", // Underground is what?
                 I: "Ice",
                 J: "DRuins",
                 K: "Citadel",
@@ -453,11 +453,10 @@ W3xMap.prototype = {
     },
 
     update() {
-        /*
         if (this.water) {
             this.BLAAA += 1;
 
-            if (this.BLAAA === 1) {
+            if (this.BLAAA === 10) {
                 this.BLAAA = 0;
                 this.waterCounter += 1;
 
@@ -475,10 +474,11 @@ W3xMap.prototype = {
             uvOffset[0] = x / 8;
             uvOffset[1] = y / 8;
         }
-        */
     },
 
     loadWater() {
+        this.BLAAA = 0;
+
         var mapSize = this.mapSize;
         var tilepoints = this.tilepoints;
         var centerOffset = this.offset;
@@ -518,6 +518,8 @@ W3xMap.prototype = {
             n = (i < 10) ? "0" + i : "" + i;
 
             textures[i] = this.loadFiles("Textures/Water" + n + "-0.blp");
+            //textures[i] = this.loadFiles("Textures/Water" + n + ".blp");
+            //textures[i] = this.loadFiles("ReplaceableTextures/Water/N_Water" + n + ".blp");
         }
 
         this.env.whenLoaded(textures, () => {

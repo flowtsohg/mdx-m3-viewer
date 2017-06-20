@@ -6,8 +6,10 @@ function Scene() {
     this.env = null;
     /** @member {Camera} */
     this.camera = new Camera();
-    /** @member {Set<Instance>} */
-    this.instances = new Set();
+    /** @member {Array<ModelInstance>} */
+    this.instances = [];
+    /** @member {Set<ModelInstance>} */
+    this.instanceSet = new Set();
     /** @member {Array<Bucket>} */
     this.buckets = [];
     /** @member {Set<Bucket>} */
@@ -66,14 +68,16 @@ Scene.prototype = {
     /**
      * Add an instance to this scene.
      * 
-     * @param {Instance} instance The instance to add.
+     * @param {ModelInstance} instance The instance to add.
      */
     addInstance(instance) {
         if (instance && instance.objectType === "instance") {
-            let instances = this.instances;
+            let instanceSet = this.instanceSet;
 
-            if (!instances.has(instance)) {
-                instances.add(instance);
+            if (!instanceSet.has(instance)) {
+                instanceSet.add(instance);
+
+                this.instances.push(instance);
 
                 instance.modelView.sceneChanged(instance, this);
 
@@ -87,14 +91,18 @@ Scene.prototype = {
     /**
      * Remove an instance from this scene.
      * 
-     * @param {Instance} instance The instance to remove.
+     * @param {ModelInstance} instance The instance to remove.
      */
     removeInstance(instance) {
         if (instance && instance.objectType === "instance") {
-            let instances = this.instances;
+            let instanceSet = this.instanceSet;
 
-            if (instances.has(instance)) {
-                instances.delete(instance);
+            if (instanceSet.has(instance)) {
+                instanceSet.delete(instance);
+
+                let instances = this.instances;
+
+                instances.splice(instances.indexOf(instance), 1);
 
                 instance.modelView.sceneChanged(instance, null);
 
@@ -106,7 +114,7 @@ Scene.prototype = {
     },
 
     /**
-     * Removes all of the bucket in this scene.
+     * Removes all of the buckets in this scene.
      */
     clear() {
         let buckets = this.buckets;
@@ -136,31 +144,80 @@ Scene.prototype = {
             bucketSet.add(bucket);
 
             this.buckets.push(bucket);
+
+            return true;
         }
+
+        return false;
     },
 
     removeBucket(bucket) {
-        let instances = bucket.instances.length;
+        let bucketSet = this.bucketSet;
 
-        if (instances === 0) {
-            this.bucketSet.delete(bucket);
+        if (!bucketSet.has(bucket)) {
+            let instances = bucket.instances.length;
 
-            let buckets = this.buckets;
+            if (instances === 0) {
+                bucketSet.delete(bucket);
 
-            buckets.splice(buckets.indexOf(bucket), 1);
+                let buckets = this.buckets;
 
-            return true;
+                buckets.splice(buckets.indexOf(bucket), 1);
+
+                return true;
+            }
         }
 
         return false;        
     },
 
     update() {
+        let instances = this.instances;
+
+        for (let i = 0, l = instances.length; i < l; i++) {
+            let instance = instances[i];
+
+            if (instance.loaded) {
+                let isVisible = this.isVisible(instance);
+
+                instance.globalUpdate();
+
+                if (isVisible && instance.culled) {
+                    instance.culled = false;
+                    //instance.rendered = true;
+                } else if (!isVisible && !instance.culled) {
+                    instance.culled = true;
+                    //instance.rendered = false;
+                }
+
+                if (instance.bucket && (!instance.culled || instance.noCulling)) {
+                    instance.update();
+                }
+            }
+        }
+
         let buckets = this.buckets;
 
         for (let i = 0, l = buckets.length; i < l; i++) {
             buckets[i].update(this);
         }
+    },
+
+    isVisible(instance) {
+        //*
+        let ndc = vec3.heap,
+            worldProjectionMatrix = this.camera.worldProjectionMatrix;
+
+        // This test checks whether the instance's position is visible in NDC space. In other words, that it lies in [-1, 1] on all axes
+        vec3.transformMat4(ndc, instance.worldLocation, worldProjectionMatrix);
+        if (ndc[0] >= -1 && ndc[0] <= 1 && ndc[1] >= -1 && ndc[1] <= 1 && ndc[2] >= -1 && ndc[2] <= 1) {
+            return true;
+        }
+
+        return false;
+        //*/
+
+        //return this.model.env.camera.testIntersectionAABB(instance.boundingShape) > 0;
     },
 
     renderOpaque() {

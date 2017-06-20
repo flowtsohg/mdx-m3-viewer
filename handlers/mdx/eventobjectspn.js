@@ -16,8 +16,11 @@ MdxEventObjectSpn.prototype = {
 
         instance.setSequence(0);
         instance.setTransformation(node.worldLocation, node.worldRotation, node.worldScale);
+        instance.rendered = true;
 
         emitterView.instance.scene.addInstance(instance);
+
+        this.health = 1;
     },
 
     update() {

@@ -392,9 +392,6 @@ ModelViewer.prototype = {
         let resources = this.resources,
             objects;
 
-        // While one of the base resources could theoretically need updating, so far this was never the case.
-        // For now, I'll just comment this to reduce needless iteration.
-        /*
         // Update all of the models.
         objects = resources.models.array;
         for (let i = 0, l = objects.length; i < l; i++) {
@@ -407,12 +404,11 @@ ModelViewer.prototype = {
             objects[i].update();
         }
 
-        // Update all of the generic files.
+        // Update all of the files.
         objects = resources.files.array;
         for (let i = 0, l = objects.length; i < l; i++) {
             objects[i].update();
         }
-        */
 
         // Update all of the scenes.
         objects = this.scenes;

@@ -61,26 +61,7 @@ Bucket.prototype = {
     },
 
     update(scene) {
-        let instances = this.instances;
-
-        for (let i = 0, l = instances.length; i < l; i++) {
-            let instance = instances[i],
-                isVisible = this.isVisible(instance, scene);
-
-            instance.globalUpdate();
-
-            if (isVisible && instance.culled) {
-                instance.culled = false;
-                //instance.rendered = true;
-            } else if (!isVisible && !instance.culled) {
-                instance.culled = true;
-                //instance.rendered = false;
-            }
-
-            if (instance.rendered && (!instance.culled || instance.noCulling)) {
-                instance.update();
-            }
-        }
+        
     },
 
     renderOpaque(scene) {

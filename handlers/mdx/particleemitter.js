@@ -48,6 +48,8 @@ MdxParticleEmitter.prototype = {
             while (object && object.health <= 0) {
                 inactive.push(active.pop());
 
+                object.kill();
+
                 // Need to recalculate the length each time
                 object = active[active.length - 1];
             }

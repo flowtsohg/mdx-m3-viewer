@@ -12,7 +12,7 @@ function MdxParticle(emitter) {
 
     this.instance = null;
     this.node = null;
-    this.internalInstance = emitter.internalModel.addInstance().setSequence(0);
+    this.internalInstance = emitter.internalModel.addInstance();
 }
 
 MdxParticle.prototype = {
@@ -33,8 +33,6 @@ MdxParticle.prototype = {
         var gravity = emitterView.getGravity() * scale[2];
         var position = this.position;
         var worldMatrix = node.worldMatrix;
-
-        this.alive = true;
 
         this.health = lifespan;
 
@@ -67,26 +65,24 @@ MdxParticle.prototype = {
         this.gravity = gravity;
 
         this.internalInstance.rotate(quat.setAxisAngle([], [0, 0, 1], this.orientation));
+        this.internalInstance.setSequence(0);
         this.internalInstance.rendered = true;
     },
 
     update() {
-        if (this.alive) {
-            let frameTimeS = this.internalInstance.env.frameTime * 0.001;
+        let frameTimeS = this.internalInstance.env.frameTime * 0.001;
 
-            this.health -= frameTimeS;
+        this.health -= frameTimeS;
 
-            this.velocity[2] -= this.gravity * frameTimeS;
+        this.velocity[2] -= this.gravity * frameTimeS;
 
-            vec3.scaleAndAdd(this.position, this.position, this.velocity, frameTimeS);
+        vec3.scaleAndAdd(this.position, this.position, this.velocity, frameTimeS);
 
-            this.internalInstance.setLocation(this.position);
-            this.internalInstance.setScale(this.node.worldScale);
-        }
+        this.internalInstance.setLocation(this.position);
+        this.internalInstance.setScale(this.node.worldScale);
     },
 
     kill() {
-        this.alive = false;
         this.internalInstance.rendered = false;
     }
 };

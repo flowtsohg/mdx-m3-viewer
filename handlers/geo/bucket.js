@@ -60,9 +60,7 @@ GeometryBucket.prototype = {
     },
 
     update(scene) {
-        Bucket.prototype.update.call(this, scene);
-
-        const gl = this.env.gl,
+        let gl = this.env.gl,
             size = this.instances.length;
 
         gl.activeTexture(gl.TEXTURE15);
