@@ -105,24 +105,30 @@ function MdxGeoset(geoset, geosetAnimations) {
 
 MdxGeoset.prototype = {
     getAlpha(instance) {
-        if (this.geosetAnimation) {
-            return this.geosetAnimation.getAlpha(instance);
+        let geosetAnimation = this.geosetAnimation;
+
+        if (geosetAnimation) {
+            return geosetAnimation.getAlpha(instance);
         }
 
         return 1;
     },
 
     isAlphaVariant(sequence) {
-        if (this.geosetAnimation) {
-            return this.geosetAnimation.isAlphaVariant(sequence);
+        let geosetAnimation = this.geosetAnimation;
+
+        if (geosetAnimation) {
+            return geosetAnimation.isAlphaVariant(sequence);
         }
 
         return false;
     },
 
     isColorVariant(sequence) {
-        if (this.geosetAnimation) {
-            return this.geosetAnimation.isColorVariant(sequence);
+        let geosetAnimation = this.geosetAnimation;
+
+        if (geosetAnimation) {
+            return geosetAnimation.isColorVariant(sequence);
         }
 
         return false;

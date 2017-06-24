@@ -1,4 +1,4 @@
-/**
+ /**
  * @constructor
  * @param {ModelView} modelView
  */
@@ -14,6 +14,8 @@ function Bucket(modelView) {
     this.instances = [];
     /** @member {Map<ModelInstance, number>} */
     this.instanceToIndex = new Map();
+    /** @member {number} */
+    this.priority = 0;
 
     // The index buffer is used instead of gl_InstanceID, which isn't defined in WebGL shaders.
     // It's a simple buffer of indices, [0, 1, ..., this.size - 1].

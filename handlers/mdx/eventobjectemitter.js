@@ -219,7 +219,6 @@ MdxEventObjectEmitter.prototype = {
     updateHW(scene) {
         if (this.type === "SPL" || this.type === "UBR") {
             let active = this.active,
-                offset = 0,
                 data = this.buffer.float32array,
                 columns = this.columns,
                 emitterScale = this.scale;

@@ -6,10 +6,10 @@ function MdxParticle2(emitter) {
     this.emitter = emitter;
     this.health = 0;
     this.head = true;
-    this.position = [];
-    this.worldLocation = [];
-    this.velocity = [];
-    this.color = [];
+    this.location = vec3.create();
+    this.worldLocation = vec3.create();
+    this.velocity = vec3.create();
+    this.color = new Uint8Array(4);
     this.gravity = 0;
     this.scale = 1;
     this.index = 0;
@@ -19,122 +19,110 @@ function MdxParticle2(emitter) {
 MdxParticle2.prototype = {
     reset(emitterView, isHead) {
         let emitter = this.emitter,
-            node = emitterView.instance.skeleton.nodes[emitter.node.index];
-
-        var pivot = node.pivot;
-        var worldMatrix = node.worldMatrix;
-        var scale = node.worldScale;
-        var width = emitterView.getWidth() * 0.5;
-        var length = emitterView.getLength() * 0.5;
-        var speed = emitterView.getSpeed() + Math.randomRange(-emitter.variation, emitter.variation);
-        var latitude = Math.toRad(emitterView.getLatitude());
-        var gravity = emitterView.getGravity() * scale[2];
-        var color = emitter.colors[0];
-        var localPosition = emitter.particleLocalPosition;
-        var position = emitter.particlePosition;
-        var rotation = emitter.particleRotation;
-        var velocity = emitter.particleVelocity;
-        var velocityStart = emitter.particleVelocityStart;
-        var velocityEnd = emitter.particleVelocityEnd;
-        var modelSpace = emitter.modelSpace;
-
-        localPosition[0] = pivot[0] + Math.randomRange(-width, width);
-        localPosition[1] = pivot[1] + Math.randomRange(-length, length);
-        localPosition[2] = pivot[2];
-
-        if (modelSpace) {
-            vec3.copy(position, localPosition);
-        } else {
-            vec3.transformMat4(position, localPosition, worldMatrix);
-        }
-        
-        mat4.identity(rotation);
-        mat4.rotateZ(rotation, rotation, Math.randomRange(-Math.PI, Math.PI));
-        mat4.rotateY(rotation, rotation, Math.randomRange(-latitude, latitude));
-
-        vec3.transformMat4(velocity, vec3.UNIT_Z, rotation);
-        vec3.normalize(velocity, velocity);
-        
-        if (emitter.modelSpace) {
-            vec3.scale(velocity, velocity, speed);
-        } else {
-            vec3.add(velocityEnd, position, velocity);
-
-            vec3.transformMat4(velocityStart, position, worldMatrix);
-            vec3.transformMat4(velocityEnd, velocityEnd, worldMatrix);
-
-            vec3.subtract(velocity, velocityEnd, velocityStart);
-            vec3.normalize(velocity, velocity);
-            vec3.scale(velocity, velocity, speed);
-        }
-        
-        if (!isHead) {
-            var tailLength = emitter.tailLength * 0.5;
-
-            vec3.scaleAndAdd(position, velocity, -tailLength);
-        }
+            node = emitterView.instance.skeleton.nodes[emitter.node.index],
+            pivot = node.pivot,
+            scale = node.worldScale,
+            width = emitterView.getWidth() * 0.5,
+            length = emitterView.getLength() * 0.5,
+            latitude = Math.toRad(emitterView.getLatitude()),
+            location = this.location,
+            velocity = this.velocity,
+            q = quat.heap;
 
         this.node = node;
         this.health = emitter.lifespan;
         this.head = isHead;
-
-        vec3.copy(this.position, position);
-        vec3.multiply(this.velocity, velocity, scale);
-        vec4.copy(this.color, color);
-
-        this.gravity = gravity;
+        this.gravity = emitterView.getGravity() * scale[2];
         this.scale = 1;
-        vec3.copy(this.nodeScale, scale);
         this.index = 0;
+
+        vec4.copy(this.color, emitter.colors[0]);
+        vec3.copy(this.nodeScale, scale);
+
+        // Local location
+        location[0] = pivot[0] + Math.randomRange(-width, width);
+        location[1] = pivot[1] + Math.randomRange(-length, length);
+        location[2] = pivot[2];
+
+        // World location
+        if (!emitter.modelSpace) {
+            vec3.transformMat4(location, location, node.worldMatrix);
+        }
+
+        // Local rotation
+        quat.identity(q);
+        quat.rotateZ(q, q, Math.randomRange(-Math.PI, Math.PI));
+        quat.rotateY(q, q, Math.randomRange(-latitude, latitude));
+        vec3.transformQuat(velocity, vec3.UNIT_Z, q);
+
+        // World rotation
+        if (!emitter.modelSpace) {
+            vec3.transformQuat(velocity, velocity, node.worldRotation);
+        }
+
+        // Apply speed
+        vec3.scale(velocity, velocity, emitterView.getSpeed() + Math.randomRange(-emitter.variation, emitter.variation));
+
+        // Apply the parent's scale
+        vec3.mul(velocity, velocity, scale);
+
+        if (!isHead) {
+            var tailLength = emitter.tailLength * 0.5;
+
+            vec3.scaleAndAdd(location, velocity, -tailLength);
+        }
     },
 
     update() {
-        let emitter = this.emitter;
-
-        var dt = emitter.model.env.frameTime * 0.001;
-        var position = this.position;
+        let emitter = this.emitter,
+            dt = emitter.model.env.frameTime * 0.001,
+            location = this.location;
 
         this.health -= dt;
         this.velocity[1] -= this.gravity * dt;
-        
-        vec3.scaleAndAdd(position, position, this.velocity, dt);
-        
+
+        vec3.scaleAndAdd(location, location, this.velocity, dt);
+
         if (emitter.modelSpace) {
-            vec3.transformMat4(this.worldLocation, position, this.node.worldMatrix);
+            vec3.transformMat4(this.worldLocation, location, this.node.worldMatrix);
         } else {
-            vec3.copy(this.worldLocation, position);
+            vec3.copy(this.worldLocation, location);
         }
-        
-        var lifeFactor = (emitter.lifespan - this.health) / emitter.lifespan;
-        var tempFactor;
-        var scale;
-        var index;
-        
-        if (lifeFactor < emitter.timeMiddle) {
-            tempFactor = lifeFactor / emitter.timeMiddle;
-        
-            scale = Math.lerp(emitter.segmentScaling[0], emitter.segmentScaling[1], tempFactor);
-            vec4.lerp(this.color, emitter.colors[0], emitter.colors[1], tempFactor);
-            
-            if (this.head) {
-                index = Math.lerp(emitter.headInterval[0], emitter.headInterval[1], tempFactor);
+
+        let lifeFactor = (emitter.lifespan - this.health) / emitter.lifespan,
+            timeMiddle = emitter.timeMiddle,
+            factor,
+            firstColor,
+            head = this.head,
+            interval;
+
+        if (lifeFactor < timeMiddle) {
+            factor = lifeFactor / timeMiddle;
+
+            firstColor = 0;
+
+            if (head) {
+                interval = emitter.headInterval;
             } else {
-                index = Math.lerp(emitter.tailInterval[0], emitter.tailInterval[1], tempFactor);
+                interval = emitter.tailInterval;
             }
         } else {
-            tempFactor = (lifeFactor - emitter.timeMiddle) / (1 - emitter.timeMiddle);
-            
-            scale = Math.lerp(emitter.segmentScaling[1], emitter.segmentScaling[2], tempFactor);
-            vec4.lerp(this.color, emitter.colors[1], emitter.colors[2], tempFactor);
-            
-            if (this.head) {
-                index = Math.lerp(emitter.headDecayInterval[0], emitter.headDecayInterval[1], tempFactor);
+            factor = (lifeFactor - timeMiddle) / (1 - timeMiddle);
+
+            firstColor = 1;
+
+            if (head) {
+                interval = emitter.headDecayInterval;
             } else {
-                index = Math.lerp(emitter.tailDecayInterval[0], emitter.tailDecayInterval[1], tempFactor);
+                interval = emitter.tailDecayInterval;
             }
         }
 
-        this.index = Math.floor(index);
-        this.scale = scale;
+        let segmentScaling = emitter.segmentScaling,
+            colors = emitter.colors;
+
+        this.scale = Math.lerp(segmentScaling[0], segmentScaling[1], factor);
+        vec4.lerp(this.color, colors[firstColor], colors[firstColor + 1], factor);
+        this.index = Math.floor(Math.lerp(interval[0], interval[1], factor));
     }
 };

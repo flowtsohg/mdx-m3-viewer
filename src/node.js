@@ -341,7 +341,8 @@ ViewerNode.prototype = {
         // World matrix
         // Model space -> World space
         if (parent) {
-            let computedLocation;
+            let computedLocation,
+                computedRotation;
             
             if (this.isSkeletal) {
                 computedLocation = localLocation;
@@ -364,7 +365,7 @@ ViewerNode.prototype = {
 
             // If this node shouldn't inherit the parent's rotation, rotate it by the inverse.
             if (this.dontInheritRotation) {
-                mat4.rotate(worldMatrix, worldMatrix, parent.inverseWorldRotation);
+                //mat4.rotateQ(worldMatrix, worldMatrix, parent.inverseWorldRotation);
             }
 
             // If this node shouldn't inherit the parent's scale, scale it by the inverse.

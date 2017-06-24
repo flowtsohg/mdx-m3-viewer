@@ -57,8 +57,10 @@ M3StandardMaterial.prototype = {
             gl.enable(gl.CULL_FACE);
         }
 
-        // Not sure why it was disabled, or when to disable it
+        // Flags somewhere?
+        // Per layer?
         gl.enable(gl.DEPTH_TEST);
+        gl.depthMask(1);
     },
 
     bind(bucket, shader) {

@@ -309,9 +309,10 @@ W3xMap.prototype = {
                     }
                 }
 
-                this.loadTerrainCliffs();
-                this.loadTerrainGeometry();
+                this.loadSky();
                 this.loadWater();
+                this.loadTerrainGeometry();
+                this.loadTerrainCliffs();
             });
         }
     },
@@ -453,7 +454,7 @@ W3xMap.prototype = {
     },
 
     update() {
-        if (this.water) {
+        if (this.waterInstance) {
             this.BLAAA += 1;
 
             if (this.BLAAA === 10) {
@@ -469,7 +470,7 @@ W3xMap.prototype = {
 
             let x = this.waterCounter % 8,
                 y = Math.floor(this.waterCounter / 8),
-                uvOffset = this.water.model.uvOffset;
+                uvOffset = this.waterInstance.model.uvOffset;
 
             uvOffset[0] = x / 8;
             uvOffset[1] = y / 8;
@@ -545,14 +546,28 @@ W3xMap.prototype = {
             instance.setUniformScale(128).setLocation([-centerOffset[0] * 128, -centerOffset[1] * 128, 0]);
             instance.noCulling = true;
 
-            this.scene.addInstance(instance);
+            this.waterInstance = instance;
 
-            this.water = instance;
+            this.scene.addInstance(instance);
 
             model.uvScale[0] = model.uvScale[1] = 1 / 8;
 
             this.waterCounter = 0;
             this.BLAAA = 0;
+        });
+    },
+
+    loadSky() {
+        let model = this.loadFiles("Environment/Sky/LordaeronSummerSky/LordaeronSummerSky.mdx"),
+            instance = model.addInstance().uniformScale(3);
+
+        instance.noCulling = true;
+
+        this.scene.addInstance(instance);
+
+        instance.whenLoaded(() => {
+            instance.bucket.priority = 200;
+            this.scene.sortBuckets();
         });
     },
 
@@ -1083,6 +1098,11 @@ W3xMap.prototype = {
                 instance.noCulling = true;
 
                 this.scene.addInstance(instance);
+
+                instance.whenLoaded(() => {
+                    instance.bucket.priority = 100 - i;
+                    this.scene.sortBuckets();
+                });
             }
         }
     },

@@ -145,6 +145,9 @@ Scene.prototype = {
 
             this.buckets.push(bucket);
 
+            // Sort the buckets by priority.
+            this.sortBuckets();
+
             return true;
         }
 
@@ -171,6 +174,10 @@ Scene.prototype = {
         return false;        
     },
 
+    sortBuckets() {
+        this.buckets.sort((a, b) => b.priority - a.priority);
+    },
+
     update() {
         // First update all of the instances.
         // Note that this can result in them getting removed from buckets, and possibly the buckets themselves being removed.
@@ -183,8 +190,10 @@ Scene.prototype = {
             if (instance.loaded) {
                 var isVisible = this.isVisible(instance) || instance.noCulling;
 
+                // Update things that always need updating, like animation timers.
                 instance.globalUpdate();
 
+                // Handle culling
                 if (isVisible && instance.culled) {
                     instance.culled = false;
                     instance.rendered = true;
@@ -193,6 +202,7 @@ Scene.prototype = {
                     instance.rendered = false;
                 }
 
+                // If the instance is visible, do the heavy lifting.
                 if (instance.bucket && !instance.culled) {
                     instance.update();
                 }

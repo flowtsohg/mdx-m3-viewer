@@ -49,12 +49,13 @@ function MdxSkeleton(instance) {
 
 MdxSkeleton.prototype = {
     update() {
+        let instance = this.instance;
+
         // If this skeleton has no bone array, it means the owning instance is not visible.
         // Therefore, there is no point to update the nodes.
-        if (this.instance.bucket) {
+        if (instance.bucket) {
             let nodes = this.sortedNodes,
                 modelNodes = this.modelNodes,
-                instance = this.instance,
                 bones = this.bones,
                 boneArray = this.instance.boneArray;
 
@@ -66,35 +67,25 @@ MdxSkeleton.prototype = {
                     rotation = modelNode.getRotation(instance),
                     scale = modelNode.getScale(instance);
 
-                /*
                 if (modelNode.billboarded) {
-                    let camera = instance.bucket.modelView.scene.camera;
+                    rotation = quat.heap;
 
-                    var blarg = [0, 0, 0, 1];
+                    // Cancel the parent's rotation.
+                    quat.copy(rotation, node.parent.inverseWorldRotation);
 
-                    //quat.conjugate(blarg, node.worldRotation);
-                    
-                    
-                    quat.rotateZ(blarg, blarg, -Math.PI / 2);
-                    quat.rotateY(blarg, blarg, - Math.PI / 2);
-                    quat.mul(blarg, camera.inverseRotation, blarg);
+                    // The coordinate systems are different between the handler and the viewer.
+                    // Therefore, get to the viewer's coordinate system.
+                    quat.rotateZ(rotation, rotation, Math.PI / 2);
+                    quat.rotateY(rotation, rotation, -Math.PI / 2);
 
-                    //quat.copy(blarg, camera.inverseRotation)
-                    //quat.mul(blarg, blarg, node.parent.worldRotation);
-
-                    //quat.copy(rotation, blarg);
-
-                   // quat.copy(rotation, camera.inverseRotation)
-                    //rotation = camera.inverseRotation;
-
-                    rotation = blarg;
+                    // Rotate inversly to the camera, so as to always face it.
+                    quat.mul(rotation, instance.scene.camera.inverseWorldRotation, rotation);
                 }
-                */
 
                 node.setTransformation(translation, rotation, scale);
             }
 
-            // Update the bones.
+            // Update the bone texture.
             for (let i = 0, l = bones.length; i < l; i++) {
                 boneArray.set(bones[i].worldMatrix, i * 16 + 16);
             }

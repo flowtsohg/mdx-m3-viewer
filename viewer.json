@@ -241,6 +241,7 @@
       "region",
       "layer",
       "standardmaterial",
+      "bone",
       "attachment",
       "camera",
       "bucket",

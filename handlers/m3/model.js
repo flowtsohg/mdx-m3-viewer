@@ -7,6 +7,20 @@
  */
 function M3Model(env, pathSolver) {
     TexturedModel.call(this, env, pathSolver);
+
+    this.parser = null;
+    this.name = "";
+    this.batches = [];
+    this.materials = [[], []]; // 2D array for the possibility of adding more material types in the future
+    this.materialMaps = [];
+    this.bones = [];
+    this.boneLookup = [];
+    this.sequences = [];
+    this.sts = [];
+    this.stc = [];
+    this.stg = [];
+    this.attachments = [];
+    this.cameras = [];
 }
 
 M3Model.prototype = {
@@ -31,15 +45,13 @@ M3Model.prototype = {
         this.parser = parser;
         this.name = model.modelName.getAll().join("");
 
-        this.setupGeometry(model, div);
+        this.setupGeometry(model, div); 
 
-        this.batches = [];
-        this.materials = [[], []]; // 2D array for the possibility of adding more material types in the future
-        this.materialMaps = model.materialReferences.getAll();
-
-        var materialMaps = this.materialMaps;
+        var materialMaps = model.materialReferences.getAll();
         var materials = model.materials[0].getAll();
         var batches = [];
+
+        this.materialMaps = materialMaps;
 
         // Create concrete material objects for standard materials
         for (i = 0, l = materials.length; i < l; i++) {
@@ -111,19 +123,17 @@ M3Model.prototype = {
 
         this.initialReference = model.absoluteInverseBoneRestPositions.getAll();
 
-        this.bones = model.bones.getAll();
+        let bones = model.bones.getAll();
+        for (let i = 0, l = bones.length; i < l; i++) {
+            this.bones[i] = new M3Bone(this, bones[i]);
+        }
+
         this.boneLookup = model.boneLookup.getAll();
 
-
         let sequences = model.sequences.getAll();
-        this.sequences = [];
         for (i = 0, l = sequences.length; i < l; i++) {
             this.sequences[i] = new M3Sequence(sequences[i]);
         }
-
-        this.sts = [];
-        this.stc = [];
-        this.stg = [];
 
         for (i = 0, l = sts.length; i < l; i++) {
             this.sts[i] = new M3Sts(sts[i]);
@@ -157,13 +167,11 @@ M3Model.prototype = {
         */
 
         let attachments = model.attachmentPoints.getAll();
-        this.attachments = [];
         for (i = 0, l = attachments.length; i < l; i++) {
             this.attachments[i] = new M3Attachment(attachments[i]);
         }
 
         let cameras = model.cameras.getAll();
-        this.cameras = [];
         for (i = 0, l = cameras.length; i < l; i++) {
             this.cameras[i] = new M3Camera(cameras[i]);
         }

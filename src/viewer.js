@@ -358,7 +358,7 @@ ModelViewer.prototype = {
         if (object) {
             let objectType = object.objectType;
 
-            return objectType === "model" || objectType === "texture" || objectType === "file";
+            return objectType === "instance" || objectType === "model" || objectType === "texture" || objectType === "file";
         }
 
         return false;

@@ -72,7 +72,7 @@ Camera.prototype = {
         let worldMatrix = this.worldMatrix,
             projectionMatrix = this.projectionMatrix,
             worldProjectionMatrix = this.worldProjectionMatrix,
-            inverseRotation = this.inverseRotation,
+            inverseWorldRotation = this.inverseWorldRotation,
             vectors = this.vectors,
             billboardedVectors = this.billboardedVectors;
 
@@ -91,11 +91,6 @@ Camera.prototype = {
         // World space -> NDC space
         mat4.mul(worldProjectionMatrix, projectionMatrix, worldMatrix);
 
-        // Inverse rotation matrix
-        // Used for billboarding etc.
-        quat.invert(inverseRotation, this.worldRotation);
-        mat4.fromQuat(this.inverseRotationMatrix, inverseRotation);
-
         // Inverse world matrix
         // Camera space -> World space
         mat4.invert(this.inverseWorldMatrix, worldMatrix);
@@ -106,7 +101,7 @@ Camera.prototype = {
 
         // Cache the billboarded vectors
         for (let i = 0; i < 7; i++) {
-            vec3.transformQuat(billboardedVectors[i], vectors[i], inverseRotation);
+            vec3.transformQuat(billboardedVectors[i], vectors[i], inverseWorldRotation);
         }
 
         // Recaculate the camera's frusum planes
@@ -117,17 +112,17 @@ Camera.prototype = {
 
     // Given a vector in camera space, return the vector transformed to world space
     cameraToWorld(out, v) {
-        vec3.copy(out, v);
-        vec3.transformMat4(out, out, this.inverseWorldMatrix);
+        //vec3.copy(out, v);
+        //vec3.transformMat4(out, out, this.inverseWorldMatrix);
 
-        return out;
+        //return out;
     },
 
     // Given a vector in world space, return the vector transformed to camera space
     worldToCamera(out, v) {
-        vec3.transformQuat(out, v, this.inverseRotation);
+        //vec3.transformQuat(out, v, this.inverseWorldRotation);
 
-        return out;
+        //return out;
     },
 
     // Given a vector in world space, return the vector transformed to screen space

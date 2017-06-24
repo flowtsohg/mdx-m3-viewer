@@ -26,9 +26,11 @@ function M3Skeleton(instance) {
 
 M3Skeleton.prototype = {
     update() {
-        if (this.instance.bucket) {
-            let instance = this.instance,
-                nodes = this.nodes,
+        let instance = this.instance;
+
+        if (instance.bucket) {
+            // Update the nodes.
+            let nodes = this.nodes,
                 modelNodes = this.modelNodes;
 
             for (let i = 0, l = nodes.length; i < l; i++) {
@@ -37,25 +39,40 @@ M3Skeleton.prototype = {
                     rotation = this.getValue(modelNode.rotation, instance),
                     scale = this.getValue(modelNode.scale, instance);
 
+                if (modelNode.billboard1) {
+                    rotation = quat.heap;
+
+                    // Cancel the parent's rotation.
+                    quat.copy(rotation, node.parent.inverseWorldRotation);
+
+                    // The coordinate systems are different between the handler and the viewer.
+                    // Therefore, get to the viewer's coordinate system.
+                    quat.rotateZ(rotation, rotation, Math.PI / 2);
+                    quat.rotateY(rotation, rotation, -Math.PI / 2);
+
+                    // Rotate inversly to the camera, so as to always face it.
+                    quat.mul(rotation, instance.scene.camera.inverseWorldRotation, rotation);
+                }
+
                 nodes[i].setTransformation(location, rotation, scale);
             }
 
-            const sequence = instance.sequence;
-
-            var hwbones = this.instance.boneArray;
-            var initialReferences = this.initialReference;
-            var boneLookup = this.boneLookup;
-            var finalMatrix;
+            // Update the bone texture data.
+            let sequence = instance.sequence,
+                hwbones = instance.boneArray,
+                initialReferences = this.initialReference,
+                boneLookup = this.boneLookup,
+                finalMatrix;
 
             if (sequence === -1) {
-                finalMatrix = this.rootNode.worldMatrix;
+                finalMatrix = instance.worldMatrix;
             } else {
                 finalMatrix = mat4.heap;
             }
 
-            for (var i = 0, l = boneLookup.length; i < l; i++) {
+            for (let i = 0, l = boneLookup.length; i < l; i++) {
                 if (sequence !== -1) {
-                    const bone = boneLookup[i];
+                    let bone = boneLookup[i];
 
                     mat4.multiply(finalMatrix, nodes[bone].worldMatrix, initialReferences[bone]);
                 }

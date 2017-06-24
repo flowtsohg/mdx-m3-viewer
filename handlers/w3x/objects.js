@@ -277,7 +277,13 @@ function W3xDoodad(reader, version, map) {
     if (row) {
         // What does it mean when texFile is underscore?
         if (row.texFile && row.texFile !== "_") {
-            this.texFile = map.loadFiles(row.texFile + ".blp");
+            var texFile = row.texFile.replace(".tga", ".blp");
+
+            if (!texFile.endsWith(".blp")) {
+                texFile += ".blp";
+            }
+
+            this.texFile = map.loadFiles(texFile);
         }
 
         var path;

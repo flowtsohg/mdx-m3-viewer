@@ -143,6 +143,7 @@ ModelView.prototype = {
             instance.bucket = bucket;
             instance.setSharedData(bucket.addInstance(instance));
 
+            // Will add the bucket if it wasn't already added
             instance.scene.addBucket(bucket);
 
             return true;
@@ -155,6 +156,7 @@ ModelView.prototype = {
             instance.bucket = null;
             instance.invalidateSharedData();
 
+            // Will remove the bucket if it has 0 instances
             instance.scene.removeBucket(bucket);
 
             return false;

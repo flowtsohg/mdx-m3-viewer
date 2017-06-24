@@ -16,35 +16,9 @@ quat.ZERO = quat.fromValues(0, 0, 0, 0);
 quat.DEFAULT = quat.create();
 quat.heap = quat.create();
 
-mat4.heap = mat4.create();
+mat3.heap = mat3.create();
 
-mat4.toRotationMat4 = (function () {
-    const quadrent = mat3.create();
-    
-    return function (out, m) {
-        mat3.fromMat4(quadrent, m);
-        mat3.invert(quadrent, quadrent);
-        
-        out[0] = quadrent[0];
-        out[1] = quadrent[1];
-        out[2] = quadrent[2];
-        out[3] = 0;
-        out[4] = quadrent[3];
-        out[5] = quadrent[4];
-        out[6] = quadrent[5];
-        out[7] = 0;
-        out[8] = quadrent[6];
-        out[9] = quadrent[7];
-        out[10] = quadrent[8];
-        out[11] = 0;
-        out[12] = 0;
-        out[13] = 0;
-        out[14] = 0;
-        out[15] = 1;
-        
-        return out;
-    };
-}());
+mat4.heap = mat4.create();
 
 vec3.unproject = (function () {
     const heap = vec4.create();
@@ -95,11 +69,3 @@ quat.nquad = (function () {
         return out;
     };
 }());
-
-vec3.mulAndAdd = function (out, v, scale, add) {
-    out[0] = v[0] * scale[0] + add[0];
-    out[1] = v[1] * scale[1] + add[1];
-    out[2] = v[2] * scale[2] + add[2];
-
-    return out;
-};

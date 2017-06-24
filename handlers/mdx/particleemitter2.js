@@ -12,10 +12,12 @@ function MdxParticleEmitter2(model, emitter) {
 
     this.texture = model.textures[this.textureId]
 
-    this.head = (this.headOrTail === 0 || this.headOrTail === 2);
-    this.tail = (this.headOrTail === 1 || this.headOrTail === 2);
+    let headOrTail = this.headOrTail;
 
-    this.bytesPerEmit = ((this.headOrTail === 2) ? 2 : 1) * 4 * 30;
+    this.head = (headOrTail === 0 || headOrTail === 2);
+    this.tail = (headOrTail === 1 || headOrTail === 2);
+
+    this.bytesPerEmit = ((headOrTail === 2) ? 2 : 1) * 4 * 30;
 
     this.buffer = new ResizeableBuffer(gl);
 
@@ -26,11 +28,13 @@ function MdxParticleEmitter2(model, emitter) {
     this.cellHeight = 1 / this.rows;
     this.colors = [];
 
-    var colors = this.segmentColor;
-    var alpha = this.segmentAlpha;
+    let colors = this.segmentColors,
+        alpha = this.segmentAlpha;
 
     for (let i = 0; i < 3; i++) {
-        this.colors[i] = [Math.floor(colors[i][0] * 255), Math.floor(colors[i][1] * 255), Math.floor(colors[i][2] * 255), alpha[i]];
+        let color = colors[i];
+
+        this.colors[i] = new Uint8Array([Math.min(color[0], 1) * 255, Math.min(color[1], 1) * 255, Math.min(color[2], 1) * 255, alpha[i]]);
     }
 
     let node = this.model.nodes[this.node.index];
@@ -39,44 +43,41 @@ function MdxParticleEmitter2(model, emitter) {
 
     this.sd = new MdxSdContainer(model, emitter.tracks);
 
-    // Avoid heap alocations in Particle2.reset
-    this.particleLocalPosition = vec3.create();
-    this.particlePosition = vec3.create();
-    this.particleRotation = mat4.create();
-    this.particleVelocity = vec3.create();
-    this.particleVelocityStart = vec3.create();
-    this.particleVelocityEnd = vec3.create();
-    
-
     this.dimensions = [this.columns, this.rows];
+
+    let blendSrc,
+        blendDst;
 
     switch (this.filterMode) {
         // Blend
         case 0:
-            this.blendSrc = gl.SRC_ALPHA;
-            this.blendDst = gl.ONE_MINUS_SRC_ALPHA;
+            blendSrc = gl.SRC_ALPHA;
+            blendDst = gl.ONE_MINUS_SRC_ALPHA;
             break;
         // Additive
         case 1:
-            this.blendSrc = gl.SRC_ALPHA;
-            this.blendDst = gl.ONE;
+            blendSrc = gl.SRC_ALPHA;
+            blendDst = gl.ONE;
             break;
         // Modulate
         case 2:
-            this.blendSrc = gl.ZERO;
-            this.blendDst = gl.SRC_COLOR;
+            blendSrc = gl.ZERO;
+            blendDst = gl.SRC_COLOR;
             break;
         // Modulate 2X
         case 3:
-            this.blendSrc = gl.DEST_COLOR;
-            this.blendDst = gl.SRC_COLOR;
+            blendSrc = gl.DEST_COLOR;
+            blendDst = gl.SRC_COLOR;
             break;
         // Add Alpha
         case 4:
-            this.blendSrc = gl.SRC_ALPHA;
-            this.blendDst = gl.ONE;
+            blendSrc = gl.SRC_ALPHA;
+            blendDst = gl.ONE;
             break;
     }
+
+    this.blendSrc = blendSrc;
+    this.blendDst = blendDst;
 }
 
 MdxParticleEmitter2.prototype = {
@@ -220,21 +221,7 @@ MdxParticleEmitter2.prototype = {
                 px -= offsetx;
                 py -= offsety;
                 pz -= offsetz;
-                /*
-                v1x = px2 - csx[0] * scale + csz[0] * scale;
-                v1y = py2 - csx[1] * scale + csz[1] * scale;
-                v1z = pz2 - csx[2] * scale + csz[2] * scale;
 
-                v2x = px - csx[0] * scale - csz[0] * scale;
-                v2y = py - csx[1] * scale - csz[1] * scale;
-                v2z = pz - csx[2] * scale - csz[2] * scale;
-                v3x = px + csx[0] * scale - csz[0] * scale;
-                v3y = py + csx[1] * scale - csz[1] * scale;
-                v3z = pz + csx[2] * scale - csz[2] * scale;
-                v4x = px2 + csx[0] * scale + csz[0] * scale;
-                v4y = py2 + csx[1] * scale + csz[1] * scale;
-                v4z = pz2 + csx[2] * scale + csz[2] * scale;
-                */
                 v1x = px2 - csx[0] * scale * nodeScale[0];
                 v1y = py2 - csx[1] * scale * nodeScale[1];
                 v1z = pz2 - csx[2] * scale * nodeScale[2];

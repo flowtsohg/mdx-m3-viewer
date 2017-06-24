@@ -22,51 +22,59 @@ function MdxLayer(model, layer, layerId, priorityPlane) {
 
     var flags = layer.flags;
 
-    this.unshaded = flags & 1;
-    this.sphereEnvironmentMap = flags & 2;
-    this.twoSided = flags & 16;
-    this.unfogged = flags & 32;
-    this.noDepthTest = flags & 64;
-    this.noDepthSet = flags & 128;
+    this.unshaded = flags & 0x1;
+    this.sphereEnvironmentMap = flags & 0x2;
+    this.twoSided = flags & 0x10;
+    this.unfogged = flags & 0x20;
+    this.noDepthTest = flags & 0x40;
+    this.noDepthSet = flags & 0x80;
 
     if (textureAnimationId !== -1) {
         let textureAnimation = model.textureAnimations[textureAnimationId];
 
         if (textureAnimation) {
             this.textureAnimation = textureAnimation;
-        } else {
-            console.warn("Layer " + layerId + " is referencing a nonexistent texture animation " + textureAnimationId);
         }
     }
 
     this.depthMaskValue = (filterMode === 0 || filterMode === 1) ? 1 : 0;
     this.alphaTestValue = (filterMode === 1) ? 1 : 0;
-    this.blendValue = (filterMode > 1) ? true : false;
 
-    if (this.blendValue) {
+    let blended = (filterMode > 1) ? true : false;
+
+    if (blended) {
+        let blendSrc,
+            blendDst;
+
         switch (filterMode) {
             case 2:
-                this.blendSrc = gl.SRC_ALPHA;
-                this.blendDst = gl.ONE_MINUS_SRC_ALPHA;
+                blendSrc = gl.SRC_ALPHA;
+                blendDst = gl.ONE_MINUS_SRC_ALPHA;
                 break;
             case 3:
-                this.blendSrc = gl.ONE;
-                this.blendDst = gl.ONE;
+                blendSrc = gl.ONE;
+                blendDst = gl.ONE;
                 break;
             case 4:
-                this.blendSrc = gl.SRC_ALPHA;
-                this.blendDst = gl.ONE;
+                blendSrc = gl.SRC_ALPHA;
+                blendDst = gl.ONE;
                 break;
             case 5:
-                this.blendSrc = gl.ZERO;
-                this.blendDst = gl.SRC_COLOR;
+                blendSrc = gl.ZERO;
+                blendDst = gl.SRC_COLOR;
                 break;
             case 6:
-                this.blendSrc = gl.DST_COLOR;
-                this.blendDst = gl.SRC_COLOR;
+                blendSrc = gl.DST_COLOR;
+                blendDst = gl.SRC_COLOR;
                 break;
         }
+
+        this.blendSrc = blendSrc;
+        this.blendDst = blendDst;
     }
+
+    this.blended = blended;
+    
 
     this.uvDivisor = new Float32Array([1, 1]);
     this.isTextureAnim = false;
@@ -88,7 +96,7 @@ MdxLayer.prototype = {
 
         gl.uniform1f(shader.uniforms.get("u_alphaTest"), this.alphaTestValue);
 
-        if (this.blendValue) {
+        if (this.blended) {
             gl.enable(gl.BLEND);
             gl.blendFunc(this.blendSrc, this.blendDst);
         } else {
@@ -100,6 +108,7 @@ MdxLayer.prototype = {
         } else {
             gl.enable(gl.CULL_FACE);
         }
+        gl.disable(gl.CULL_FACE);
 
         if (this.noDepthTest) {
             gl.disable(gl.DEPTH_TEST);

@@ -39,7 +39,7 @@ function MdxParserParticleEmitter2(reader, nodes, index) {
     /** @member {number} */
     this.timeMiddle = reader.readFloat32();
     /** @member {Array<Float32Array>} */
-    this.segmentColor = reader.readFloat32Matrix(3, 3);
+    this.segmentColors = reader.readFloat32Matrix(3, 3);
     /** @member {Uint8Array} */
     this.segmentAlpha = reader.readUint8Array(3);
     /** @member {Float32Array} */

@@ -178,9 +178,7 @@ MdxModel.prototype = {
                 }
             }
 
-            translucentBatches.sort(function (a, b) {
-                return a.layer.priorityPlane > b.layer.priorityPlane;
-            });
+            translucentBatches.sort((a, b) => a.layer.priorityPlane - b.layer.priorityPlane);
 
             this.batches = opaqueBatches.concat(translucentBatches);
             this.opaqueBatches = opaqueBatches;
@@ -205,6 +203,8 @@ MdxModel.prototype = {
 
         if (chunks.has("PRE2")) {
             this.particleEmitters2 = chunks.get("PRE2").elements;
+
+            this.particleEmitters2.sort((a, b) => a.priorityPlane - b.priorityPlane);
         }
 
         if (chunks.has("RIBB")) {

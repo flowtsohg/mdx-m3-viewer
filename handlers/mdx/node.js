@@ -11,30 +11,30 @@ function MdxNode(model, node, pivots) {
     this.name = node.name;
     this.objectId = node.objectId;
     this.parentId = node.parentId;
-    this.pivot = pivot ? pivot.value : [0, 0, 0];
+    this.pivot = pivot ? pivot.value : vec3.create();
     this.sd = new MdxSdContainer(model, node.tracks);
 
-    this.dontInheritTranslation = flags & 1;
-    this.dontInheritRotation = flags & 2;
-    this.dontInheritScaling = flags & 4;
-    this.billboarded = flags & 8;
-    this.billboardedX = flags & 16;
-    this.billboardedY = flags & 32;
-    this.billboardedZ = flags & 64;
-    this.cameraAnchored = flags & 128;
-    this.bone = flags & 256;
-    this.light = flags & 512;
-    this.eventObject = flags & 1024;
-    this.attachment = flags & 2048;
-    this.particleEmitter = flags & 4096;
-    this.collisionShape = flags & 8192;
-    this.ribbonEmitter = flags & 16384;
-    this.emitterUsesMdlOrUnshaded = flags & 32768;
-    this.emitterUsesTgaOrSortPrimitivesFarZ = flags & 65536;
-    this.lineEmitter = flags & 131072;
-    this.unfogged = flags & 262144;
-    this.modelSpace = flags & 524288;
-    this.xYQuad = flags & 1048576;
+    this.dontInheritTranslation = flags & 0x1;
+    this.dontInheritRotation = flags & 0x2;
+    this.dontInheritScaling = flags & 0x4;
+    this.billboarded = flags & 0x8;
+    this.billboardedX = flags & 0x10;
+    this.billboardedY = flags & 0x20;
+    this.billboardedZ = flags & 0x40;
+    this.cameraAnchored = flags & 0x80;
+    this.bone = flags & 0x100;
+    this.light = flags & 0x200;
+    this.eventObject = flags & 0x400;
+    this.attachment = flags & 0x800;
+    this.particleEmitter = flags & 0x1000;
+    this.collisionShape = flags & 0x2000;
+    this.ribbonEmitter = flags & 0x4000;
+    this.emitterUsesMdlOrUnshaded = flags & 0x8000;
+    this.emitterUsesTgaOrSortPrimitivesFarZ = flags & 0x10000;
+    this.lineEmitter = flags & 0x20000;
+    this.unfogged = flags & 0x40000;
+    this.modelSpace = flags & 0x80000;
+    this.xYQuad = flags & 0x100000;
 
     if (node.objectId === node.parentId) {
         this.parentId = -1;
@@ -55,7 +55,7 @@ MdxNode.prototype = {
     },
 
     isVariant(sequence) {
-        var sd = this.sd;
+        let sd = this.sd;
 
         return sd.isVariant("KGTR", sequence) || sd.isVariant("KGRT", sequence) || sd.isVariant("KGSC", sequence);
     }
