@@ -12,10 +12,6 @@ function MdxBatch(index, layer, geoset) {
 
 MdxBatch.prototype = {
     shouldRender(instance) {
-        if (this.layer.getAlpha(instance) < 0.75 && this.geoset.getAlpha(instance) < 0.75) {
-            return 0;
-        }
-
-        return 1;
+        return this.geoset.getAlpha(instance) >= 0.75
     }
 };
