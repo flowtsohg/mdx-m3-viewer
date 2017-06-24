@@ -127,7 +127,7 @@ M3ModelInstance.prototype = {
         if (this.model.loaded) {
             var sequences = this.model.sequences.length;
 
-            if (id < -1 || id > sequences) {
+            if (id < -1 || id > sequences - 1) {
                 id = -1;
 
                 this.sequence = id;

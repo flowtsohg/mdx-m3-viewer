@@ -22,7 +22,7 @@ function MdxEventObjectEmitter(model, emitter) {
     this.inactive = [];
     this.id = id;
     this.ready = false;
-    this.globalSequence = 0;
+    this.globalSequence = null;
     this.defval = vec2.create();
 
     if (this.globalSequenceId !== -1) {
@@ -31,7 +31,6 @@ function MdxEventObjectEmitter(model, emitter) {
 
     // Load the appropriate SLK
     let slkFile;
-
     
     if (type === "SPN") {
         slkFile = "Splats/SpawnData.slk";
@@ -219,78 +218,50 @@ MdxEventObjectEmitter.prototype = {
     updateHW(scene) {
         if (this.type === "SPL" || this.type === "UBR") {
             let active = this.active,
-                data = this.buffer.float32array,
-                columns = this.columns,
-                emitterScale = this.scale;
+                data = this.buffer.float32array;
 
             for (let i = 0, l = active.length, offset = 0; i < l; i++, offset += 30) {
                 let object = active[i],
-                    location = object.location,
-                    index = object.index,
-                    color = object.color,
-                    scale = object.scale,
-                    left = index % columns,
-                    top = Math.floor(index / columns),
-                    right = left + 1,
-                    bottom = top + 1,
-                    r = Math.floor(color[0]);
-                    g = Math.floor(color[1]);
-                    b = Math.floor(color[2]);
-                    a = Math.floor(color[3]);
-                    px = location[0];
-                    py = location[1],
-                    pz = location[2],
-                    v1x = px - emitterScale,
-                    v1y = py - emitterScale * scale[1],
-                    v1z = pz,
-                    v2x = px - emitterScale * scale[0],
-                    v2y = py + emitterScale * scale[1],
-                    v2z = pz,
-                    v3x = px + emitterScale * scale[0],
-                    v3y = py + emitterScale * scale[1],
-                    v3z = pz,
-                    v4x = px + emitterScale * scale[0],
-                    v4y = py - emitterScale * scale[1],
-                    v4z = pz,
-                    lta = encodeFloat3(left, top, a),
-                    lba = encodeFloat3(left, bottom, a),
-                    rta = encodeFloat3(right, top, a),
-                    rba = encodeFloat3(right, bottom, a),
-                    rgb = encodeFloat3(r, g, b);
+                    vertices = object.vertices,
+                    lta = object.lta,
+                    lba = object.lba,
+                    rta = object.rta,
+                    rba = object.rba,
+                    rgb = object.rgb;
 
-                data[offset + 0] = v1x;
-                data[offset + 1] = v1y;
-                data[offset + 2] = v1z;
+                data[offset + 0] = vertices[0];
+                data[offset + 1] = vertices[1];
+                data[offset + 2] = vertices[2];
                 data[offset + 3] = lta;
                 data[offset + 4] = rgb;
 
-                data[offset + 5] = v2x;
-                data[offset + 6] = v2y;
-                data[offset + 7] = v2z;
+                data[offset + 5] = vertices[3];
+                data[offset + 6] = vertices[4];
+                data[offset + 7] = vertices[5];
                 data[offset + 8] = lba;
                 data[offset + 9] = rgb;
 
-                data[offset + 10] = v3x;
-                data[offset + 11] = v3y;
-                data[offset + 12] = v3z;
+                data[offset + 10] = vertices[6];
+                data[offset + 11] = vertices[7];
+                data[offset + 12] = vertices[8];
                 data[offset + 13] = rba;
                 data[offset + 14] = rgb;
 
-                data[offset + 15] = v1x;
-                data[offset + 16] = v1y;
-                data[offset + 17] = v1z;
+                data[offset + 15] = vertices[0];
+                data[offset + 16] = vertices[1];
+                data[offset + 17] = vertices[2];
                 data[offset + 18] = lta;
                 data[offset + 19] = rgb;
 
-                data[offset + 20] = v3x;
-                data[offset + 21] = v3y;
-                data[offset + 22] = v3z;
+                data[offset + 20] = vertices[6];
+                data[offset + 21] = vertices[7];
+                data[offset + 22] = vertices[8];
                 data[offset + 23] = rba;
                 data[offset + 24] = rgb;
 
-                data[offset + 25] = v4x;
-                data[offset + 26] = v4y;
-                data[offset + 27] = v4z;
+                data[offset + 25] = vertices[9];
+                data[offset + 26] = vertices[10];
+                data[offset + 27] = vertices[11];
                 data[offset + 28] = rta;
                 data[offset + 29] = rgb;
             }

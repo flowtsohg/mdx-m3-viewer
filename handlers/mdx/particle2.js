@@ -9,11 +9,19 @@ function MdxParticle2(emitter) {
     this.location = vec3.create();
     this.worldLocation = vec3.create();
     this.velocity = vec3.create();
-    this.color = new Uint8Array(4);
+    //this.color = new Uint8Array(4);
     this.gravity = 0;
     this.scale = 1;
     this.index = 0;
     this.nodeScale = vec3.create();
+
+    this.color = new Uint8Array(4);
+    this.vertices = new Float32Array(12);
+    this.lta = 0;
+    this.lba = 0;
+    this.rta = 0;
+    this.rba = 0;
+    this.rgb = 0;
 }
 
 MdxParticle2.prototype = {
@@ -73,20 +81,23 @@ MdxParticle2.prototype = {
         }
     },
 
-    update() {
+    update(scene) {
         let emitter = this.emitter,
             dt = emitter.model.env.frameTime * 0.001,
-            location = this.location;
+            location = this.location,
+            worldLocation = this.worldLocation,
+            velocity = this.velocity;
 
         this.health -= dt;
-        this.velocity[1] -= this.gravity * dt;
 
-        vec3.scaleAndAdd(location, location, this.velocity, dt);
+        velocity[1] -= this.gravity * dt;
+
+        vec3.scaleAndAdd(location, location, velocity, dt);
 
         if (emitter.modelSpace) {
-            vec3.transformMat4(this.worldLocation, location, this.node.worldMatrix);
+            vec3.transformMat4(worldLocation, location, this.node.worldMatrix);
         } else {
-            vec3.copy(this.worldLocation, location);
+            vec3.copy(worldLocation, location);
         }
 
         let lifeFactor = (emitter.lifespan - this.health) / emitter.lifespan,
@@ -119,10 +130,90 @@ MdxParticle2.prototype = {
         }
 
         let segmentScaling = emitter.segmentScaling,
-            colors = emitter.colors;
+            colors = emitter.colors,
+            color = this.color,
+            scale = Math.lerp(segmentScaling[0], segmentScaling[1], factor),
+            index = Math.floor(Math.lerp(interval[0], interval[1], factor));
 
-        this.scale = Math.lerp(segmentScaling[0], segmentScaling[1], factor);
-        vec4.lerp(this.color, colors[firstColor], colors[firstColor + 1], factor);
-        this.index = Math.floor(Math.lerp(interval[0], interval[1], factor));
+        vec4.lerp(color, colors[firstColor], colors[firstColor + 1], factor);
+
+        let camera = scene.camera,
+            vectors;
+
+        // Choose between a default rectangle or billboarded one
+        if (emitter.xYQuad) {
+            vectors = camera.vectors;
+        } else {
+            vectors = camera.billboardedVectors;
+        }
+
+        let vertices = this.vertices,
+            nodeScale = this.nodeScale,
+            px = worldLocation[0],
+            py = worldLocation[1],
+            pz = worldLocation[2];
+
+        if (head) {
+            let pv1 = vectors[0],
+                pv2 = vectors[1],
+                pv3 = vectors[2],
+                pv4 = vectors[3];
+
+            vertices[0] = px + pv1[0] * scale * nodeScale[0];
+            vertices[1] = py + pv1[1] * scale * nodeScale[1];
+            vertices[2] = pz + pv1[2] * scale * nodeScale[2];
+            vertices[3] = px + pv2[0] * scale * nodeScale[0];
+            vertices[4] = py + pv2[1] * scale * nodeScale[1];
+            vertices[5] = pz + pv2[2] * scale * nodeScale[2];
+            vertices[6] = px + pv3[0] * scale * nodeScale[0];
+            vertices[7] = py + pv3[1] * scale * nodeScale[1];
+            vertices[8] = pz + pv3[2] * scale * nodeScale[2];
+            vertices[9] = px + pv4[0] * scale * nodeScale[0];
+            vertices[10] = py + pv4[1] * scale * nodeScale[1];
+            vertices[11] = pz + pv4[2] * scale * nodeScale[2];
+        } else {
+            let csx = vectors[4],
+                csy = vectors[5],
+                csz = vectors[6];
+
+            var tailLength = this.tailLength;
+            var offsetx = tailLength * velocity[0];
+            var offsety = tailLength * velocity[1];
+            var offsetz = tailLength * velocity[2];
+
+            var px2 = px + offsetx;
+            var py2 = py + offsety;
+            var pz2 = pz + offsetz;
+
+            px -= offsetx;
+            py -= offsety;
+            pz -= offsetz;
+
+            vertices[0] = px2 - csx[0] * scale * nodeScale[0];
+            vertices[1] = py2 - csx[1] * scale * nodeScale[1];
+            vertices[2] = pz2 - csx[2] * scale * nodeScale[2];
+            vertices[3] = px - csx[0] * scale * nodeScale[0];
+            vertices[4] = py - csx[1] * scale * nodeScale[1];
+            vertices[5] = pz - csx[2] * scale * nodeScale[2];
+            vertices[6] = px + csx[0] * scale * nodeScale[0];
+            vertices[7] = py + csx[1] * scale * nodeScale[1];
+            vertices[8] = pz + csx[2] * scale * nodeScale[2];
+            vertices[9] = px2 + csx[0] * scale * nodeScale[0];
+            vertices[10] = py2 + csx[1] * scale * nodeScale[1];
+            vertices[11] = pz2 + csx[2] * scale * nodeScale[2];
+        }
+
+        let columns = emitter.columns,
+            left = index % columns,
+            top = Math.floor(index / columns),
+            right = left + 1,
+            bottom = top + 1,
+            a = color[3];
+
+        this.lta = encodeFloat3(left, top, a);
+        this.lba = encodeFloat3(left, bottom, a);
+        this.rta = encodeFloat3(right, top, a);
+        this.rba = encodeFloat3(right, bottom, a);
+        this.rgb = encodeFloat3(color[0], color[1], color[2]);
     }
 };
