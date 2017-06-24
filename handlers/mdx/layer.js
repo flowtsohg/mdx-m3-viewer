@@ -108,7 +108,6 @@ MdxLayer.prototype = {
         } else {
             gl.enable(gl.CULL_FACE);
         }
-        gl.disable(gl.CULL_FACE);
 
         if (this.noDepthTest) {
             gl.disable(gl.DEPTH_TEST);
