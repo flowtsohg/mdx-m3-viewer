@@ -69,17 +69,17 @@ MdxSkeleton.prototype = {
 
                 if (modelNode.billboarded) {
                     rotation = quat.heap;
-
+                    
                     // Cancel the parent's rotation.
                     quat.copy(rotation, node.parent.inverseWorldRotation);
+
+                    // Rotate inversly to the camera, so as to always face it.
+                    quat.mul(rotation, rotation, instance.scene.camera.inverseWorldRotation);
 
                     // The coordinate systems are different between the handler and the viewer.
                     // Therefore, get to the viewer's coordinate system.
                     quat.rotateZ(rotation, rotation, Math.PI / 2);
                     quat.rotateY(rotation, rotation, -Math.PI / 2);
-
-                    // Rotate inversly to the camera, so as to always face it.
-                    quat.mul(rotation, instance.scene.camera.inverseWorldRotation, rotation);
                 }
 
                 node.setTransformation(translation, rotation, scale);

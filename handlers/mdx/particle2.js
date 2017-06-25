@@ -132,7 +132,7 @@ MdxParticle2.prototype = {
         let segmentScaling = emitter.segmentScaling,
             colors = emitter.colors,
             color = this.color,
-            scale = Math.lerp(segmentScaling[0], segmentScaling[1], factor),
+            scale = Math.lerp(segmentScaling[firstColor], segmentScaling[firstColor + 1], factor),
             index = Math.floor(Math.lerp(interval[0], interval[1], factor));
 
         vec4.lerp(color, colors[firstColor], colors[firstColor + 1], factor);
