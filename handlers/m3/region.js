@@ -23,6 +23,7 @@ function M3Region(model, region, triangles, elementArray, offset) {
     this.firstBoneLookupIndex = region.firstBoneLookupIndex;
     this.boneWeightPairsCount = region.boneWeightPairsCount;
     this.offset = offset * 2;
+    this.verticesCount = region.verticesCount;
     this.elements = triangleIndicesCount;
 }
 

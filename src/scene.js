@@ -23,46 +23,32 @@ Scene.prototype = {
     },
 
     /**
-     * The amount of WebGL render calls being made each time this scene is rendered.
+     * Get the rendering statistics of this scene.
+     * This includes the following:
+     *     renderedBuckets
+     *     renderedInstances
+     *     renderCalls
+     *     renderedVertices
+     *     renderedPolygons
      */
-    renderCalls() {
+    getRenderStats() {
         let buckets = this.buckets,
-            count = 0;
+            renderedBuckets = buckets.length,
+            renderCalls = 0,
+            renderedInstances = 0,
+            renderedVertices = 0,
+            renderedPolygons = 0;
 
-        for (let i = 0, l = buckets.length; i < l; i++) {
-            count += buckets[i].renderCalls();
+        for (let i = 0; i < renderedBuckets; i++) {
+            let stats = buckets[i].getRenderStats();
+
+            renderCalls += stats.renderCalls;
+            renderedInstances += stats.renderedInstances;
+            renderedVertices += stats.renderedVertices;
+            renderedPolygons += stats.renderedPolygons;
         }
 
-        return count;
-    },
-
-    /**
-     * The amount of instances being rendered each time this scene is being rendered.
-     */
-    renderedInstances() {
-        let buckets = this.buckets,
-            count = 0;
-
-        for (let i = 0, l = buckets.length; i < l; i++) {
-            count += buckets[i].instances.length;
-        }
-
-        return count;
-    },
-
-    /**
-     * The amount of triangles rendered each time this scene is rendered.
-     * This includes emitters.
-     */
-    renderedPolygons() {
-        let buckets = this.buckets,
-            count = 0;
-
-        for (let i = 0, l = buckets.length; i < l; i++) {
-            count += buckets[i].renderedPolygons();
-        }
-
-        return count;
+        return { renderedBuckets, renderCalls, renderedInstances, renderedVertices, renderedPolygons };
     },
 
     /**

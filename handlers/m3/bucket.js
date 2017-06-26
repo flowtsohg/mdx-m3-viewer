@@ -61,19 +61,25 @@ function M3Bucket(modelView) {
 }
 
 M3Bucket.prototype = {
-    renderCalls() {
-        return this.model.batches.length;
-    },
+    getRenderStats() {
+        let model = this.model,
+            instances = this.instances,
+            renderedInstances = instances.length,
+            renderCalls = 0,
+            renderedVertices = 0,
+            renderedPolygons = 0,
+            objects;
 
-    renderedPolygons() {
-        let batches = this.model.batches,
-            count = 0;
+        objects = model.batches;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            let region = objects[i].region;
 
-        for (let i = 0, l = batches.length; i < l; i++) {
-            count += batches[i].region.elements / 3;
+            renderCalls += 1;
+            renderedVertices += region.verticesCount;
+            renderedPolygons += region.elements / 3;
         }
 
-        return count * this.instances.length;
+        return { renderedInstances, renderCalls, renderedVertices, renderedPolygons };
     },
 
     update(scene) {

@@ -112,79 +112,65 @@ function MdxBucket(modelView) {
 }
 
 MdxBucket.prototype = {
-    renderCalls() {
+    getRenderStats() {
         let model = this.model,
-            renderCalls = model.batches.length,
-            objects;
-        
-        objects = this.particleEmitters2;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            let emitter = objects[i];
-
-            if (emitter.active.length > 0) {
-                renderCalls += 1;
-            }
-        }
-
-        objects = this.ribbonEmitters;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            let emitter = objects[i];
-
-            if (emitter.active.length > 0) {
-                renderCalls += emitter.layers.length;
-            }
-        }
-
-        objects = this.eventObjectEmitters;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            let emitter = objects[i];
-
-            if (emitter.active.length > 0) {
-                let type = emitter.type;
-
-                if (type === "SPL" || type === "UBR") {
-                    renderCalls += 1;
-                }
-            }
-        }
-
-        return renderCalls;
-    },
-
-    renderedPolygons() {
-        let model = this.model,
-            count = 0,
+            instances = this.instances,
+            renderedInstances = instances.length,
+            renderCalls = 0,
+            renderedVertices = 0,
+            renderedPolygons = 0,
             objects;
 
         objects = model.batches;
         for (let i = 0, l = objects.length; i < l; i++) {
-            count += (objects[i].geoset.faceArray.length / 3) * this.instances.length;
+            let geoset = objects[i].geoset;
+
+            renderCalls += 1;
+            renderedPolygons += (geoset.locationArray.length / 3) * renderedInstances;
+            renderedPolygons += (geoset.faceArray.length / 3) * renderedInstances;
         }
 
         objects = this.particleEmitters2;
         for (let i = 0, l = objects.length; i < l; i++) {
-            count += objects[i].active.length * 2;
+            let emitter = objects[i],
+                active = emitter.active.length;
+
+            if (active > 0) {
+                renderCalls += 1;
+                renderedVertices += active * 3;
+                renderedPolygons += active * 2;
+            }
         }
 
         objects = this.ribbonEmitters;
         for (let i = 0, l = objects.length; i < l; i++) {
-            count += objects[i].active.length * 2;
+            let emitter = objects[i],
+                active = emitter.active.length;
+
+            if (active > 0) {
+                renderCalls += emitter.layers.length;
+                renderedVertices += active * 3;
+                renderedPolygons += active * 2;
+            }
         }
 
         objects = this.eventObjectEmitters;
         for (let i = 0, l = objects.length; i < l; i++) {
-            let emitter = objects[i];
+            let emitter = objects[i],
+                active = emitter.active.length;
 
-            if (emitter.active.length > 0) {
+            if (active > 0) {
                 let type = emitter.type;
 
                 if (type === "SPL" || type === "UBR") {
-                    count += emitter.active.length * 2;
+                    renderCalls += 1;
+                    renderedVertices += active * 3;
+                    renderedPolygons += active * 2;
                 }
             }
         }
-
-        return count;
+      
+        return { renderedInstances, renderCalls, renderedVertices, renderedPolygons };
     },
 
     update(scene) {

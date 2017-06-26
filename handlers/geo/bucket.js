@@ -47,16 +47,20 @@ function GeometryBucket(modelView) {
 }
 
 GeometryBucket.prototype = {
-    renderCalls() {
-        if (this.model.renderMode === 2) {
-            return 2;
+    getRenderStats() {
+        let model = this.model,
+            instances = this.instances,
+            renderedInstances = instances.length,
+            renderCalls = (model.renderMode === 2 ? 2 : 1),
+            renderedVertices = (model.vertexArray.length / 3) * renderedInstances,
+            renderedPolygons = (model.faceArray.length / 3) * renderedInstances;
+
+        // Add also edges
+        if (renderCalls === 2) {
+            renderedPolygons += (model.edgeArray.length / 2) * renderedInstances;
         }
 
-        return 1;
-    },
-
-    renderedPolygons() {
-        return (this.model.faceArray.length / 3) * this.instances.length;
+        return { renderedInstances, renderCalls, renderedVertices, renderedPolygons };
     },
 
     update(scene) {

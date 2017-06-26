@@ -40,18 +40,15 @@ Bucket.prototype = {
     },
 
     /**
-     * The amount of WebGL render calls being made each time this bucket is rendered.
+     * Get the rendering statistics of this bucket.
+     * This includes the following:
+     *     renderedInstances
+     *     renderCalls
+     *     renderedVertices
+     *     renderedPolygons
      */
-    renderCalls() {
-        return 0;
-    },
-
-    /**
-     * The amount of triangles rendered each time this bucket is rendered.
-     * This includes emitters.
-     */
-    renderedPolygons() {
-        return 0;
+    getRenderStats() {
+        throw new Error("Bucket.getRenderStats must be overriden");
     },
 
     getSharedData(index) {

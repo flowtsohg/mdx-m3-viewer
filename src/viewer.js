@@ -193,46 +193,35 @@ ModelViewer.prototype = {
     },
 
     /**
-     * The amount of WebGL render calls being made each time the viewer is rendered.
+     * Get the rendering statistics of this scene.
+     * This includes the following:
+     *     renderedScenes
+     *     renderedBuckets
+     *     renderedInstances
+     *     renderCalls
+     *     renderedVertices
+     *     renderedPolygons
      */
-    renderCalls() {
+    getRenderStats() {
         let scenes = this.scenes,
-            count = 0;
+            renderedScenes = scenes.length,
+            renderedBuckets = 0,
+            renderCalls = 0,
+            renderedInstances = 0,
+            renderedVertices = 0,
+            renderedPolygons = 0;
 
-        for (let i = 0, l = scenes.length; i < l; i++) {
-            count += scenes[i].renderCalls();
+        for (let i = 0; i < renderedScenes; i++) {
+            let stats = scenes[i].getRenderStats();
+
+            renderedBuckets += stats.renderedBuckets;
+            renderCalls += stats.renderCalls;
+            renderedInstances += stats.renderedInstances;
+            renderedVertices += stats.renderedVertices;
+            renderedPolygons += stats.renderedPolygons;
         }
 
-        return count;
-    },
-
-    /**
-     * The amount of instances being rendered each time the viewer is being rendered.
-     */
-    renderedInstances() {
-        let scenes = this.scenes,
-            count = 0;
-
-        for (let i = 0, l = scenes.length; i < l; i++) {
-            count += scenes[i].renderedInstances();
-        }
-
-        return count;
-    },
-
-    /**
-     * The amount of triangles rendered each time the viewer is rendered.
-     * This includes emitters.
-     */
-    renderedPolygons() {
-        let scenes = this.scenes,
-            count = 0;
-
-        for (let i = 0, l = scenes.length; i < l; i++) {
-            count += scenes[i].renderedPolygons();
-        }
-
-        return count;
+        return { renderedScenes, renderedBuckets, renderCalls, renderedInstances, renderedVertices, renderedPolygons };
     },
 
     /**
