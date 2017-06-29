@@ -137,7 +137,7 @@ MdxBucket.prototype = {
 
             if (active > 0) {
                 renderCalls += 1;
-                renderedVertices += active * 3;
+                renderedVertices += active * 4;
                 renderedPolygons += active * 2;
             }
         }
@@ -149,7 +149,7 @@ MdxBucket.prototype = {
 
             if (active > 0) {
                 renderCalls += emitter.layers.length;
-                renderedVertices += active * 3;
+                renderedVertices += active * 4;
                 renderedPolygons += active * 2;
             }
         }
@@ -164,7 +164,7 @@ MdxBucket.prototype = {
 
                 if (type === "SPL" || type === "UBR") {
                     renderCalls += 1;
-                    renderedVertices += active * 3;
+                    renderedVertices += active * 4;
                     renderedPolygons += active * 2;
                 }
             }

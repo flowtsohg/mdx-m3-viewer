@@ -44,7 +44,7 @@ MdxShallowAttachment.prototype = {
 function MdxAttachment(model, attachment) {
     let path = attachment.path.replace(/\\/g, "/").toLowerCase().replace(".mdl", ".mdx");
 
-    this.node = attachment.node;
+    this.node = model.nodes[attachment.node.index];
     this.path = path;
     this.attachmentId = attachment.attachmentId;
     this.sd = new MdxSdContainer(model, attachment.tracks);

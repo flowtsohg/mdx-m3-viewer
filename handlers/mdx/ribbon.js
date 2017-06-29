@@ -21,14 +21,10 @@ MdxRibbon.prototype = {
             below = this.below,
             above = this.above;
 
-        below[0] = pivot[0];
-        below[1] = pivot[1] - emitter.getHeightBelow(instance);
-        below[2] = pivot[2];
+        vec3.set(below, pivot[0], pivot[1] - emitter.getHeightBelow(instance), pivot[2])
         vec3.transformMat4(below, below, node.worldMatrix);
 
-        above[0] = pivot[0];
-        above[1] = pivot[1] + emitter.getHeightAbove(instance);
-        above[2] = pivot[2];
+        vec3.set(above, pivot[0], pivot[1] + emitter.getHeightAbove(instance), pivot[2])
         vec3.transformMat4(above, above, node.worldMatrix);
 
         this.health = emitter.lifespan;

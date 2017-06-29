@@ -6,13 +6,24 @@
 function MdxParticleEmitter2(model, emitter) {
     let gl = model.gl;
 
-    mix(this, emitter);
+    this.width = emitter.width;
+    this.length = emitter.length;
+    this.speed = emitter.speed;
+    this.latitude = emitter.latitude;
+    this.gravity = emitter.gravity;
+    this.emissionRate = emitter.emissionRate;
+
+    this.lifespan = emitter.lifespan;
+    this.modelSpace = emitter.modelSpace;
+    this.variation = emitter.variation;
+    this.tailLength = emitter.tailLength;
+    this.timeMiddle = emitter.timeMiddle;
 
     this.model = model;
 
-    this.texture = model.textures[this.textureId]
+    this.texture = model.textures[emitter.textureId]
 
-    let headOrTail = this.headOrTail;
+    let headOrTail = emitter.headOrTail;
 
     this.head = (headOrTail === 0 || headOrTail === 2);
     this.tail = (headOrTail === 1 || headOrTail === 2);
@@ -24,12 +35,12 @@ function MdxParticleEmitter2(model, emitter) {
     this.active = [];
     this.inactive = [];
 
-    this.cellWidth = 1 / this.columns;
-    this.cellHeight = 1 / this.rows;
+    this.cellWidth = 1 / emitter.columns;
+    this.cellHeight = 1 / emitter.rows;
     this.colors = [];
 
-    let colors = this.segmentColors,
-        alpha = this.segmentAlpha;
+    let colors = emitter.segmentColors,
+        alpha = emitter.segmentAlpha;
 
     for (let i = 0; i < 3; i++) {
         let color = colors[i];
@@ -37,18 +48,30 @@ function MdxParticleEmitter2(model, emitter) {
         this.colors[i] = new Uint8Array([Math.min(color[0], 1) * 255, Math.min(color[1], 1) * 255, Math.min(color[2], 1) * 255, alpha[i]]);
     }
 
-    let node = this.model.nodes[this.node.index];
+    this.scaling = emitter.segmentScaling;
+
+    this.intervals = [
+        emitter.headInterval,
+        emitter.tailInterval,
+        emitter.headDecayInterval,
+        emitter.tailDecayInterval
+    ];
+
+    let node = this.model.nodes[emitter.node.index];
+
+    this.node = node;
+
     this.xYQuad = node.xYQuad;
     this.modelSpace = node.modelSpace;
 
     this.sd = new MdxSdContainer(model, emitter.tracks);
 
-    this.dimensions = [this.columns, this.rows];
+    this.dimensions = [emitter.columns, emitter.rows];
 
     let blendSrc,
         blendDst;
 
-    switch (this.filterMode) {
+    switch (emitter.filterMode) {
         // Blend
         case 0:
             blendSrc = gl.SRC_ALPHA;
@@ -248,9 +271,9 @@ MdxParticleEmitter2.prototype = {
 
     getVisibility(instance) {
         return this.sd.getValue("KP2V", instance, 1);
-    }
+    },
 
-    //getVariation(sequence, frame, counter) {
-    //    return this.sd.getKP2R(sequence, frame, counter, ?);
-    //}
+    getVariation(instance) {
+        return this.sd.getValue("KP2R", instance, this.variation);
+    }
 };

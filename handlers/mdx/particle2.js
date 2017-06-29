@@ -33,6 +33,7 @@ MdxParticle2.prototype = {
             width = emitterView.getWidth() * 0.5,
             length = emitterView.getLength() * 0.5,
             latitude = Math.toRad(emitterView.getLatitude()),
+            variation = emitterView.getVariation(),
             location = this.location,
             velocity = this.velocity,
             q = quat.heap;
@@ -49,8 +50,8 @@ MdxParticle2.prototype = {
 
         // Local location
         location[0] = pivot[0] + Math.randomRange(-width, width);
-        location[1] = pivot[1] + Math.randomRange(-length, length);
-        location[2] = pivot[2];
+        location[1] = pivot[1];
+        location[2] = pivot[2] + Math.randomRange(-length, length);
 
         // World location
         if (!emitter.modelSpace) {
@@ -61,15 +62,17 @@ MdxParticle2.prototype = {
         quat.identity(q);
         quat.rotateZ(q, q, Math.randomRange(-Math.PI, Math.PI));
         quat.rotateY(q, q, Math.randomRange(-latitude, latitude));
-        vec3.transformQuat(velocity, vec3.UNIT_Z, q);
 
         // World rotation
         if (!emitter.modelSpace) {
-            vec3.transformQuat(velocity, velocity, node.worldRotation);
+            quat.mul(q, node.worldRotation, q);
         }
 
+        // Apply the rotation
+        vec3.transformQuat(velocity, vec3.UNIT_Z, q);
+
         // Apply speed
-        vec3.scale(velocity, velocity, emitterView.getSpeed() + Math.randomRange(-emitter.variation, emitter.variation));
+        vec3.scale(velocity, velocity, emitterView.getSpeed() + Math.randomRange(-variation, variation));
 
         // Apply the parent's scale
         vec3.mul(velocity, velocity, scale);
@@ -90,7 +93,7 @@ MdxParticle2.prototype = {
 
         this.health -= dt;
 
-        velocity[1] -= this.gravity * dt;
+        velocity[2] -= this.gravity * dt;
 
         vec3.scaleAndAdd(location, location, velocity, dt);
 
@@ -102,6 +105,7 @@ MdxParticle2.prototype = {
 
         let lifeFactor = (emitter.lifespan - this.health) / emitter.lifespan,
             timeMiddle = emitter.timeMiddle,
+            intervals = emitter.intervals,
             factor,
             firstColor,
             head = this.head,
@@ -113,9 +117,9 @@ MdxParticle2.prototype = {
             firstColor = 0;
 
             if (head) {
-                interval = emitter.headInterval;
+                interval = intervals[0];
             } else {
-                interval = emitter.tailInterval;
+                interval = intervals[1];
             }
         } else {
             factor = (lifeFactor - timeMiddle) / (1 - timeMiddle);
@@ -123,16 +127,16 @@ MdxParticle2.prototype = {
             firstColor = 1;
 
             if (head) {
-                interval = emitter.headDecayInterval;
+                interval = intervals[2];
             } else {
-                interval = emitter.tailDecayInterval;
+                interval = intervals[3];
             }
         }
 
-        let segmentScaling = emitter.segmentScaling,
+        let scaling = emitter.scaling,
             colors = emitter.colors,
             color = this.color,
-            scale = Math.lerp(segmentScaling[firstColor], segmentScaling[firstColor + 1], factor),
+            scale = Math.lerp(scaling[firstColor], scaling[firstColor + 1], factor),
             index = Math.floor(Math.lerp(interval[0], interval[1], factor));
 
         vec4.lerp(color, colors[firstColor], colors[firstColor + 1], factor);
@@ -203,17 +207,17 @@ MdxParticle2.prototype = {
             vertices[11] = pz2 + csx[2] * scale * nodeScale[2];
         }
 
-        let columns = emitter.columns,
+        let columns = emitter.dimensions[0],
             left = index % columns,
             top = Math.floor(index / columns),
             right = left + 1,
             bottom = top + 1,
             a = color[3];
 
-        this.lta = encodeFloat3(left, top, a);
+        this.lta = encodeFloat3(right, bottom, a);
         this.lba = encodeFloat3(left, bottom, a);
         this.rta = encodeFloat3(right, top, a);
-        this.rba = encodeFloat3(right, bottom, a);
+        this.rba = encodeFloat3(left, top, a);
         this.rgb = encodeFloat3(color[0], color[1], color[2]);
     }
 };

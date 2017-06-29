@@ -74,7 +74,6 @@ function MdxLayer(model, layer, layerId, priorityPlane) {
     }
 
     this.blended = blended;
-    
 
     this.uvDivisor = new Float32Array([1, 1]);
     this.isTextureAnim = false;
@@ -92,7 +91,7 @@ MdxLayer.filterModeToRenderOrder = {
 
 MdxLayer.prototype = {
     bind(shader) {
-        const gl = this.gl;
+        let gl = this.gl;
 
         gl.uniform1f(shader.uniforms.get("u_alphaTest"), this.alphaTestValue);
 

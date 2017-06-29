@@ -4,8 +4,6 @@
  * @param {MdxParserRibbonEmitter} emitter
  */
 function MdxRibbonEmitter(model, emitter) {
-    mix(this, emitter);
-
     this.model = model;
 
     this.active = [];

@@ -8,6 +8,7 @@ function MdxNode(model, node, pivots) {
     let pivot = pivots[node.objectId],
         flags = node.flags;
 
+    this.index = node.index;
     this.name = node.name;
     this.objectId = node.objectId;
     this.parentId = node.parentId;

@@ -4,8 +4,6 @@
  * @param {MdxParserEventObjectEmitter} emitter
  */
 function MdxEventObjectEmitter(model, emitter) {
-    mix(this, emitter);
-
     let node = model.nodes[emitter.node.index],
         name = node.name,
         type = name.substring(0, 3),
@@ -17,16 +15,19 @@ function MdxEventObjectEmitter(model, emitter) {
     }
     
     this.model = model;
+    this.node = node;
     this.type = type;
     this.active = [];
     this.inactive = [];
     this.id = id;
+    this.tracks = emitter.tracks;
     this.ready = false;
     this.globalSequence = null;
     this.defval = vec2.create();
 
-    if (this.globalSequenceId !== -1) {
-        this.globalSequence = model.globalSequences[this.globalSequenceId];
+    let globalSequenceId = emitter.globalSequenceId;
+    if (globalSequenceId !== -1) {
+        this.globalSequence = model.globalSequences[globalSequenceId];
     }
 
     // Load the appropriate SLK
@@ -58,66 +59,52 @@ MdxEventObjectEmitter.prototype = {
 
             if (type === "SPN") {
                 this.internalModel = model.env.load(row.Model.replace(".mdl", ".mdx"), model.pathSolver);
-            } else if (type === "SPL") {
-                // While every SLK row comes with the file, they all point to this texture, might as well just load it without checking
-                this.texture = model.env.load("replaceabletextures/splats/splat01mature.blp", model.pathSolver);
+            } else if (type === "SPL" || type === "UBR") {
+                let columns = 1,
+                    rows = 1,
+                    intervalTimes,
+                    intervals,
+                    lifespan;
 
-                this.rows = row.Rows;
-                this.columns = row.Columns;
-                this.blendMode = row.BlendMode;
-                this.scale = row.Scale;
-                this.firstIntervalTime = row.Lifespan;
-                this.secondIntervalTime = row.Decay;
-                this.firstInterval = [row.UVLifespanStart, row.UVLifespanEnd, row.LifespanRepeat];
-                this.secondInterval = [row.UVDecayStart, row.UVDecayEnd, row.DecayRepeat];
-                this.colors = [[row.StartR, row.StartG, row.StartB, row.StartA], [row.MiddleR, row.MiddleG, row.MiddleB, row.MiddleA], [row.EndR, row.EndG, row.EndB, row.EndA]];
-                this.dimensions = [this.columns, this.rows];
-                this.buffer = new ResizeableBuffer(model.gl);
-                this.bytesPerEmit = 4 * 30;
-                this.lifespan = this.firstIntervalTime + this.secondIntervalTime;
+                if (type === "SPL") {
+                    rows = row.Rows;
+                    columns = row.Columns;
 
-                switch (this.blendMode) {
-                    // Blend
-                    case 0:
-                        this.blendSrc = gl.SRC_ALPHA;
-                        this.blendDst = gl.ONE_MINUS_SRC_ALPHA;
-                        break;
-                    // Additive
-                    case 1:
-                        this.blendSrc = gl.SRC_ALPHA;
-                        this.blendDst = gl.ONE;
-                        break;
-                    // Modulate
-                    case 2:
-                        this.blendSrc = gl.ZERO;
-                        this.blendDst = gl.SRC_COLOR;
-                        break;
-                    // Modulate 2X
-                    case 3:
-                        this.blendSrc = gl.DEST_COLOR;
-                        this.blendDst = gl.SRC_COLOR;
-                        break;
-                    // Add Alpha
-                    case 4:
-                        this.blendSrc = gl.SRC_ALPHA;
-                        this.blendDst = gl.ONE;
-                        break;
+                    intervalTimes = [
+                        row.Lifespan,
+                        row.Decay
+                    ];
+
+                    lifespan = row.Lifespan + row.Decay;
+
+                    this.intervals = [
+                        [row.UVLifespanStart, row.UVLifespanEnd, row.LifespanRepeat],
+                        [row.UVDecayStart, row.UVDecayEnd, row.DecayRepeat]
+                    ];
+                } else {
+                    intervalTimes = [
+                        row.BirthTime,
+                        row.PauseTime,
+                        row.Decay
+                    ];
+
+                    lifespan = row.BirthTime + row.PauseTime + row.Decay;
                 }
-            } else {
-                this.texture = model.env.load("replaceabletextures/splats/" + row.file + ".blp", model.pathSolver);
-                this.blendMode = row.BlendMode;
-                this.scale = row.Scale
-                this.firstIntervalTime = row.BirthTime;
-                this.secondIntervalTime = row.PauseTime;
-                this.thirdIntervalTime = row.Decay;
-                this.colors = [[row.StartR, row.StartG, row.StartB, row.StartA], [row.MiddleR, row.MiddleG, row.MiddleB, row.MiddleA], [row.EndR, row.EndG, row.EndB, row.EndA]];
-                this.dimensions = [1, 1];
-                this.columns = 1;
-                this.buffer = new ResizeableBuffer(model.gl);
-                this.bytesPerEmit = 4 * 30;
-                this.lifespan = this.firstIntervalTime + this.secondIntervalTime + this.thirdIntervalTime;
 
-                switch (this.blendMode) {
+                this.texture = model.env.load("replaceabletextures/splats/" + row.file + ".blp", model.pathSolver);
+                this.dimensions = [columns, rows];
+
+                this.scale = row.Scale;
+                this.colors = [[row.StartR, row.StartG, row.StartB, row.StartA], [row.MiddleR, row.MiddleG, row.MiddleB, row.MiddleA], [row.EndR, row.EndG, row.EndB, row.EndA]];
+
+                this.intervalTimes = intervalTimes;
+                this.lifespan = lifespan;
+
+                this.buffer = new ResizeableBuffer(gl);
+                this.bytesPerEmit = 4 * 30;
+
+                let blendMode = row.BlendMode;
+                switch (blendMode) {
                     // Blend
                     case 0:
                         this.blendSrc = gl.SRC_ALPHA;

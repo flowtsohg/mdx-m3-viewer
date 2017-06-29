@@ -4,13 +4,20 @@
  * @param {MdxParserParticleEmitter} emitter
  */
 function MdxParticleEmitter(model, emitter) {
-    mix(this, emitter);
+    this.speed = emitter.speed;
+    this.latitude = emitter.latitude;
+    this.longitude = emitter.longitude;
+    this.lifespan = emitter.lifespan;
+    this.gravity = emitter.gravity;
+    this.emissionRate = emitter.emissionRate;
 
     this.model = model;
     this.internalModel = model.env.load(emitter.path.replace(/\\/g, "/").toLowerCase().replace(".mdl", ".mdx"), model.pathSolver);
+    this.node = model.nodes[emitter.node.index];
+    this.sd = new MdxSdContainer(model, emitter.tracks);
+
     this.active = [];
     this.inactive = [];
-    this.sd = new MdxSdContainer(model, emitter.tracks);
 }
 
 MdxParticleEmitter.prototype = {

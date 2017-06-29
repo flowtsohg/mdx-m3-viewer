@@ -4,7 +4,7 @@
  */
 function MdxEventObjectSpl(emitter) {
     this.emitter = emitter;
-    this.health = emitter.lifespan;
+    this.health = 0;
     this.color = new Uint8Array(4);
     this.vertices = new Float32Array(12);
     this.lta = 0;
@@ -21,29 +21,34 @@ MdxEventObjectSpl.prototype = {
             emitterScale = emitter.scale,
             node = emitterView.instance.skeleton.nodes[emitter.node.index],
             location = node.worldLocation,
-            scale = node.worldScale,
-            px = location[0],
-            py = location[1],
-            pz = location[2];
+            vertex;
 
-        vertices[0] = px - emitterScale * scale[0];
-        vertices[1] = py - emitterScale * scale[1];
-        vertices[2] = pz;
-        vertices[3] = px - emitterScale * scale[0];
-        vertices[4] = py + emitterScale * scale[1];
-        vertices[5] = pz;
-        vertices[6] = px + emitterScale * scale[0];
-        vertices[7] = py + emitterScale * scale[1];
-        vertices[8] = pz;
-        vertices[9] = px + emitterScale * scale[0];
-        vertices[10] = py - emitterScale * scale[1];
-        vertices[11] = pz;
+        vertex = new Float32Array(vertices.buffer, 0, 3);
+        vec3.transformMat4(vertex, [-emitterScale, -emitterScale, 0], node.worldMatrix);
+        vec3.add(vertex, vertex, location);
+
+        vertex = new Float32Array(vertices.buffer, 12, 3);
+        vec3.transformMat4(vertex, [-emitterScale, emitterScale, 0], node.worldMatrix);
+        vec3.add(vertex, vertex, location);
+
+        vertex = new Float32Array(vertices.buffer, 24, 3);
+        vec3.transformMat4(vertex, [emitterScale, emitterScale, 0], node.worldMatrix);
+        vec3.add(vertex, vertex, location);
+
+        vertex = new Float32Array(vertices.buffer, 36, 3);
+        vec3.transformMat4(vertex, [emitterScale, -emitterScale, 0], node.worldMatrix);
+        vec3.add(vertex, vertex, location);
+
+        this.health = emitter.lifespan;
     },
 
     update() {
         let emitter = this.emitter,
-            columns = emitter.columns,
-            first = emitter.firstIntervalTime,
+            columns = emitter.dimensions[0],
+            intervalTimes = emitter.intervalTimes,
+            intervals = emitter.intervals,
+            first = intervalTimes[0],
+            second = intervalTimes[1],
             colors = emitter.colors,
             color = this.color,
             factor,
@@ -58,11 +63,11 @@ MdxEventObjectSpl.prototype = {
         
         if (time < first) {
             factor = time / first;
-            interval = emitter.firstInterval;
+            interval = intervals[0];
             firstColor = 0;
         } else {
-            factor = (time - first) / emitter.secondIntervalTime;
-            interval = emitter.secondInterval;
+            factor = (time - first) / second;
+            interval = intervals[1];
             firstColor = 1;
         }
 
@@ -81,10 +86,10 @@ MdxEventObjectSpl.prototype = {
 
         // Encode the UV rectangle and color in floats.
         // This is a shader optimization.
-        this.lta = encodeFloat3(left, top, a);
+        this.lta = encodeFloat3(right, bottom, a);
         this.lba = encodeFloat3(left, bottom, a);
         this.rta = encodeFloat3(right, top, a);
-        this.rba = encodeFloat3(right, bottom, a);
+        this.rba = encodeFloat3(left, top, a);
         this.rgb = encodeFloat3(color[0], color[1], color[2]);
     }
 };

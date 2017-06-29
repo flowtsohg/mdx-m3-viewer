@@ -54,9 +54,9 @@ MdxParticleEmitter2View.prototype = {
 
     getVisibility() {
         return this.emitter.getVisibility(this.instance);
-    }
+    },
 
-    //getVariation(sequence, frame, counter) {
-    //    return this.sd.getKP2R(sequence, frame, counter, ?);
-    //}
+    getVariation(sequence, frame, counter) {
+        return this.emitter.getVariation(this.instance);
+    }
 };
