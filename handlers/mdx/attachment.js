@@ -10,7 +10,7 @@ function MdxShallowAttachment(instance, attachment) {
 
     internalInstance.setSequenceLoopMode(2);
     internalInstance.dontInheritScale = false;
-    internalInstance.rendered = false;
+    internalInstance.hide();
 
     instance.whenLoaded(() => internalInstance.setParent(instance.skeleton.nodes[attachment.node.objectId]));
 
@@ -24,14 +24,14 @@ MdxShallowAttachment.prototype = {
         let internalInstance = this.internalInstance;
 
         if (this.attachment.getVisibility(this.instance) > 0.1) {
-            if (!internalInstance.rendered) {
-                internalInstance.rendered = true;
+            if (internalInstance.hidden()) {
+                internalInstance.show();
 
                 // Every time the attachment becomes visible again, restart its first sequence.
                 internalInstance.setSequence(0);
             }
         } else {
-            internalInstance.rendered = false;
+            internalInstance.hide();
         }
     }
 };

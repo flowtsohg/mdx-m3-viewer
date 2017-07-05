@@ -14,7 +14,7 @@ ObjModelInstance.prototype = {
     // This is either right after creating it, or, in the case the model is still loading, when it finishes to load.
     initialize() {
         // Let's give every instance its own color!
-        this.color = [Math.random(), Math.random(), Math.random()];
+        this.color = new Float32Array([Math.random(), Math.random(), Math.random()]);
     },
 
     // This is where you update any instance-related logic (e.g. update skeletons, and whatnot).

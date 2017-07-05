@@ -47,7 +47,7 @@ ModelView.prototype = {
         instance.modelView = this;
 
         // If it should be rendered, add it to a bucket
-        if (instance.rendered && instance.loaded) {
+        if (instance.shouldRender && instance.scene && instance.loaded) {
             this.setVisibility(instance, true);
         }
     },
@@ -129,7 +129,7 @@ ModelView.prototype = {
             instance.scene = scene;
 
             // If the instance should be rendered, add it to a bucket
-            if (instance.rendered && scene && loaded) {
+            if (instance.shouldRender && !instance.culled && scene && loaded) {
                 this.setVisibility(instance, true);
             }
         }
@@ -157,6 +157,7 @@ ModelView.prototype = {
             instance.invalidateSharedData();
 
             // Will remove the bucket if it has 0 instances
+            // TODO: This causes weird logic, and can cause to loop over undefined buckets.
             instance.scene.removeBucket(bucket);
 
             return false;

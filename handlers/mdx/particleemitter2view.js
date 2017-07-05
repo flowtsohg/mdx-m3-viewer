@@ -7,6 +7,7 @@ function MdxParticleEmitter2View(instance, emitter) {
     this.instance = instance;
     this.emitter = emitter;
     this.currentEmission = 0;
+    this.lastEmissionKey = -1;
 }
 
 MdxParticleEmitter2View.prototype = {
@@ -14,7 +15,17 @@ MdxParticleEmitter2View.prototype = {
         if (this.shouldRender()) {
             let emitter = this.emitter;
 
-            this.currentEmission += this.getEmissionRate() * this.instance.env.frameTime * 0.001;
+            if (emitter.squirt) {
+                let keyframe = this.getEmissionRateKeyframe();
+
+                if (keyframe !== this.lastEmissionKey) {
+                    this.currentEmission += this.getEmissionRate();
+                }
+
+                this.lastEmissionKey = keyframe;
+            } else {
+                this.currentEmission += this.getEmissionRate() * this.instance.env.frameTime * 0.001;
+            }
 
             if (this.currentEmission >= 1) {
                 for (let i = 0, l = Math.floor(this.currentEmission) ; i < l; i++, this.currentEmission--) {
@@ -50,6 +61,10 @@ MdxParticleEmitter2View.prototype = {
 
     getEmissionRate() {
         return this.emitter.getEmissionRate(this.instance);
+    },
+
+    getEmissionRateKeyframe() {
+        return this.emitter.getEmissionRateKeyframe(this.instance);
     },
 
     getVisibility() {

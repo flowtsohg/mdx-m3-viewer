@@ -11,7 +11,7 @@ const MdxShaders = {
         attribute vec4 a_bones;
         attribute float a_boneNumber;
         attribute float a_teamColor;
-        attribute vec3 a_tintColor;
+        attribute vec4 a_vertexColor;
         attribute float a_batchVisible;
         attribute vec4 a_geosetColor;
         attribute vec4 a_uvOffset;
@@ -19,7 +19,7 @@ const MdxShaders = {
         varying vec3 v_normal;
         varying vec2 v_uv;
         varying vec3 v_teamColor;
-        varying vec3 v_tintColor;
+        varying vec4 v_vertexColor;
         varying vec4 v_geosetColor;
 
         void transform(inout vec3 position, inout vec3 normal, float boneNumber, vec4 bones) {
@@ -49,7 +49,7 @@ const MdxShaders = {
 
             v_normal = normal;
 	        v_teamColor = u_teamColors[int(a_teamColor)];
-	        v_tintColor = a_tintColor;
+	        v_vertexColor = a_vertexColor;
 	        v_geosetColor = a_geosetColor;
 
 	        if (a_batchVisible == 0.0) {
@@ -69,7 +69,7 @@ const MdxShaders = {
         varying vec3 v_normal;
         varying vec2 v_uv;
         varying vec3 v_teamColor;
-        varying vec3 v_tintColor;
+        varying vec4 v_vertexColor;
         varying vec4 v_geosetColor;
 
         void main() {
@@ -98,7 +98,7 @@ const MdxShaders = {
                 discard;
             }
 
-	        gl_FragColor = texel * v_geosetColor.bgra * vec4(v_tintColor, 1.0);
+	        gl_FragColor = texel * v_geosetColor.bgra * v_vertexColor;
             #endif
 
             #ifdef UVS_PASS

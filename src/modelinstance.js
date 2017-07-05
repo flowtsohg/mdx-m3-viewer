@@ -16,15 +16,85 @@ function ModelInstance(model) {
     this.bucket = null;
     /** @member {Model} */
     this.model = model;
-
-    this.shouldRender = true; // This value should not be used directly, instead use ModelInstance.rendered
+    /** @member {boolean} */
+    this.paused = false;
+    /** 
+     * @see Note: do not set this member directly, instead use show() and hide().
+     * 
+     * @member {boolean}
+     */
+    this.shouldRender = true;
+    /** 
+     * @see Note: do not set this member.
+     * 
+     * @member {boolean}
+     */
     this.culled = false;
+
     this.noCulling = false; // Set to true if the model should always be rendered
 }
 
 ModelInstance.prototype = {
     get objectType() {
         return "instance";
+    },
+
+    /**
+     * Hides this instance.
+     * 
+     * @returns {boolean}
+     */
+    hide() {
+        if (this.shouldRender) {
+            this.shouldRender = false;
+
+            // Is this instance actually shown? (e.g. not culled)
+            if (this.bucket) {
+                this.modelView.setVisibility(this, false);
+            }
+
+            return true;
+        }
+
+        return false;
+    },
+
+    /**
+     * Shows this instance.
+     * 
+     * @returns {boolean}
+     */
+    show() {
+        if (!this.shouldRender) {
+            this.shouldRender = true;
+
+            // Is this instance ready to be shown?
+            if (this.loaded && this.scene) {
+                this.modelView.setVisibility(this, true);
+            }
+
+            return true;
+        }
+
+        return false;
+    },
+
+    /**
+     * Is this instance shown?
+     * 
+     * @returns {boolean}
+     */
+    shown() {
+        return this.bucket !== null;
+    },
+
+    /**
+     * Is this instance hidden?
+     * 
+     * @returns {boolean}
+     */
+    hidden() {
+        return this.bucket === null;
     },
 
     /**
@@ -50,7 +120,7 @@ ModelInstance.prototype = {
 
             this.initialize();
 
-            if (this.rendered && this.scene) {
+            if (this.shouldRender && this.scene) {
                 this.modelView.setVisibility(this, true);
             }
 
@@ -62,27 +132,6 @@ ModelInstance.prototype = {
             this.dispatchEvent({ type: "error", error: "InvalidModel" });
             this.dispatchEvent({ type: "loadend" });
         }
-    },
-
-    /**
-     * Sets whether this instance gets rendered or not.
-     * 
-     * @member {boolean}
-     */
-    set rendered(shouldRender) {
-        // ModelView.showInstance/hideInstance shouldn't be called multiple times consecutively, so check if the mode actually changed
-        if (this.shouldRender !== shouldRender) {
-            this.shouldRender = shouldRender;
-
-            // Only set visibility if the model loaded.
-            if (this.loaded && this.scene) {
-                this.modelView.setVisibility(this, shouldRender);
-            }
-        }
-    },
-
-    get rendered() {
-        return this.shouldRender;
     },
 
     setSharedData(sharedData) {

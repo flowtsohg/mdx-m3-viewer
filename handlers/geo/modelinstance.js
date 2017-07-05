@@ -7,8 +7,8 @@
 function GeometryModelInstance(model) {
     ModelInstance.call(this, model);
 
-    this.color = vec3.create();
-    this.edgeColor = vec3.create();
+    this.vertexColor = vec4.create();
+    this.edgeColor = vec4.create();
 }
 
 GeometryModelInstance.prototype = {
@@ -18,17 +18,17 @@ GeometryModelInstance.prototype = {
         this.boundingShape.setParent(this);
 
         // Initialize to the model's material color
-        this.setColor(this.model.color);
+        this.setVertexColor(this.model.vertexColor);
         this.setEdgeColor(this.model.edgeColor);
     },
 
     setSharedData(sharedData) {
         this.boneArray = sharedData.boneArray;
-        this.colorArray = sharedData.colorArray;
+        this.vertexColorArray = sharedData.vertexColorArray;
         this.edgeColorArray = sharedData.edgeColorArray;
 
-        this.colorArray.set(this.color);
-        this.bucket.updateColors[0] = 1;
+        this.vertexColorArray.set(this.vertexColor);
+        this.bucket.updateVertexColors[0] = 1;
 
         this.edgeColorArray.set(this.edgeColor);
         this.bucket.updateEdgeColors[0] = 1;
@@ -36,7 +36,7 @@ GeometryModelInstance.prototype = {
 
     invalidateSharedData() {
         this.boneArray = null;
-        this.colorArray = null;
+        this.vertexColorArray = null;
         this.edgeColorArray = null;
     },
 
@@ -44,12 +44,12 @@ GeometryModelInstance.prototype = {
         mat4.copy(this.boneArray, this.worldMatrix);
     },
 
-    setColor(color) {
-        this.color.set(color);
+    setVertexColor(color) {
+        this.vertexColor.set(color);
 
         if (this.bucket) {
-            this.colorArray.set(color);
-            this.bucket.updateColors[0] = 1;
+            this.vertexColorArray.set(color);
+            this.bucket.updateVertexColors[0] = 1;
         }
 
         return this;

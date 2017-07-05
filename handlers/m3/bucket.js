@@ -40,12 +40,12 @@ function M3Bucket(modelView) {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, this.teamColorArray, gl.DYNAMIC_DRAW);
 
-    // Tint color (per instance)
-    this.updateTintColors = new Uint8Array(1);
-    this.tintColorArray = new Uint8Array(3 * this.size).fill(255); // Tint color initialized to white
-    this.tintColorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.tintColorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this.tintColorArray, gl.DYNAMIC_DRAW);
+    // Vertex color (per instance)
+    this.updateVertexColors = new Uint8Array(1);
+    this.vertexColorArray = new Uint8Array(4 * this.size).fill(255); // Vertex color initialized to white
+    this.vertexColorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this.vertexColorArray, gl.DYNAMIC_DRAW);
 
     // Batch visibility (per instance per batch)
     this.updateBatches = new Uint8Array(model.batches.length);
@@ -104,11 +104,11 @@ M3Bucket.prototype = {
             this.updateTeamColors[0] = 0;
         }
 
-        if (this.updateTintColors[0]) {
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.tintColorBuffer);
-            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.tintColorArray.subarray(0, 3 * size));
+        if (this.updateVertexColors[0]) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertexColorArray.subarray(0, 3 * size));
 
-            this.updateTintColors[0] = 0;
+            this.updateVertexColors[0] = 0;
         }
         /*
         for (var i = 0, l = this.batchVisibilityArrays.length; i < l; i++) {
@@ -127,7 +127,7 @@ M3Bucket.prototype = {
         var data = {
             boneArray: new Float32Array(this.boneArray.buffer, this.boneArrayInstanceSize * 4 * index, this.boneArrayInstanceSize),
             teamColorArray: new Uint8Array(this.teamColorArray.buffer, index, 1),
-            tintColorArray: new Uint8Array(this.tintColorArray.buffer, 3 * index, 3),
+            vertexColorArray: new Uint8Array(this.vertexColorArray.buffer, 4 * index, 4),
             batchVisibilityArrays: []
         };
 

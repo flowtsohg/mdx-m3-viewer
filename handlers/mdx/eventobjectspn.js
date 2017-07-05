@@ -15,7 +15,7 @@ MdxEventObjectSpn.prototype = {
 
         instance.setSequence(0);
         instance.setTransformation(node.worldLocation, node.worldRotation, node.worldScale);
-        instance.rendered = true;
+        instance.show();
 
         emitterView.instance.scene.addInstance(instance);
 
@@ -29,7 +29,7 @@ MdxEventObjectSpn.prototype = {
         if (instance.frame >= instance.model.sequences[0].interval[1]) {
             this.health = 0;
 
-            instance.rendered = false;
+            instance.hide();
         }
     }
 };

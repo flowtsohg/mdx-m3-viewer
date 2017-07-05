@@ -1,12 +1,12 @@
 /**
  * @constructor
- * @param {MdxSD} sd
+ * @param {MdxSd} sd
  * @param {number} start
  * @param {number} end
  * @param {Array<MdxParserTrack>} keyframes
  * @param {boolean} isGlobalSequence
  */
-function MdxSDSequence(sd, start, end, keyframes, isGlobalSequence) {
+function MdxSdSequence(sd, start, end, keyframes, isGlobalSequence) {
     var defval = sd.defval;
 
     this.sd = sd;
@@ -93,7 +93,7 @@ function MdxSDSequence(sd, start, end, keyframes, isGlobalSequence) {
     }
 }
 
-MdxSDSequence.prototype = {
+MdxSdSequence.prototype = {
     getValue(frame) {
         if (this.constant) {
             return this.value;
@@ -119,15 +119,38 @@ MdxSDSequence.prototype = {
                 }
             }
         }
+    },
+
+    getKeyframe(frame) {
+        if (this.constant) {
+            return 0;
+        } else {
+            var keyframes = this.keyframes,
+                l = keyframes.length;
+
+            if (frame <= this.start) {
+                return 0
+            } else if (frame >= this.end) {
+                return l - 1;
+            } else {
+                for (var i = 1; i < l; i++) {
+                    var keyframe = keyframes[i];
+
+                    if (keyframe.frame > frame) {
+                        return i;
+                    }
+                }
+            }
+        }
     }
 };
 
 /**
  * @constructor
  * @param {MdxModel} model
- * @param {MdxParserSD} sd
+ * @param {MdxParserSd} sd
  */
-function MdxSD(model, sd) {
+function MdxSd(model, sd) {
     var globalSequenceId = sd.globalSequenceId,
         globalSequences = model.globalSequences,
         tracks = sd.tracks;
@@ -139,7 +162,7 @@ function MdxSD(model, sd) {
     this.interpolationType = sd.interpolationType;
     
     if (globalSequenceId !== -1 && globalSequences) {
-        this.globalSequence = new MdxSDSequence(this, 0, globalSequences[globalSequenceId].value, tracks, true);
+        this.globalSequence = new MdxSdSequence(this, 0, globalSequences[globalSequenceId].value, tracks, true);
     } else {
         var sequences = model.sequences;
 
@@ -148,12 +171,12 @@ function MdxSD(model, sd) {
         for (var i = 0, l = sequences.length; i < l; i++) {
             var interval = sequences[i].interval;
 
-            this.sequences[i] = new MdxSDSequence(this, interval[0], interval[1], tracks, false);
+            this.sequences[i] = new MdxSdSequence(this, interval[0], interval[1], tracks, false);
         }
     }
 }
 
-MdxSD.prototype = {
+MdxSd.prototype = {
     getValue(instance) {
         if (this.globalSequence) {
             var globalSequence = this.globalSequence;
@@ -163,6 +186,18 @@ MdxSD.prototype = {
             return this.sequences[instance.sequence].getValue(instance.frame);
         } else {
             return this.defval;
+        }
+    },
+
+    getKeyframe(instance) {
+        if (this.globalSequence) {
+            var globalSequence = this.globalSequence;
+
+            return globalSequence.getKeyframe(instance.counter % globalSequence.end);
+        } else if (instance.sequence !== -1) {
+            return this.sequences[instance.sequence].getKeyframe(instance.frame);
+        } else {
+            return 0;
         }
     },
 
@@ -206,7 +241,7 @@ function MdxSdContainer(model, container) {
         for (let i = 0, l = elements.length; i < l; i++) {
             let element = elements[i];
 
-            sd[element.tag] = new MdxSD(model, element);
+            sd[element.tag] = new MdxSd(model, element);
         }
     }
 
@@ -222,6 +257,16 @@ MdxSdContainer.prototype = {
         }
 
         return defval;
+    },
+
+    getKeyframe(tag, instance) {
+        var sd = this.sd[tag];
+
+        if (sd) {
+            return sd.getKeyframe(instance);
+        }
+
+        return 0;
     },
 
     isVariant(tag, sequence) {

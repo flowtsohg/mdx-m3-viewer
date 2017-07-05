@@ -4,6 +4,7 @@
  */
 function MdxParticle2(emitter) {
     this.emitter = emitter;
+    this.instance = null;
     this.health = 0;
     this.head = true;
     this.location = vec3.create();
@@ -38,6 +39,7 @@ MdxParticle2.prototype = {
             velocity = this.velocity,
             q = quat.heap;
 
+        this.instance = emitterView.instance;
         this.node = node;
         this.health = emitter.lifespan;
         this.head = isHead;
@@ -60,7 +62,7 @@ MdxParticle2.prototype = {
 
         // Local rotation
         quat.identity(q);
-        quat.rotateZ(q, q, Math.randomRange(-Math.PI, Math.PI));
+        quat.rotateZ(q, q, Math.PI / 2);
         quat.rotateY(q, q, Math.randomRange(-latitude, latitude));
 
         // World rotation
@@ -132,6 +134,8 @@ MdxParticle2.prototype = {
                 interval = intervals[3];
             }
         }
+
+        factor = Math.min(factor, 1);
 
         let scaling = emitter.scaling,
             colors = emitter.colors,

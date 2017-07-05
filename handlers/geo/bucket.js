@@ -32,11 +32,11 @@ function GeometryBucket(modelView) {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.boneTextureWidth, this.boneTextureHeight, 0, gl.RGBA, gl.FLOAT, this.boneArray);
 
     // Color (per instance)
-    this.updateColors = new Uint8Array(1);
-    this.colorArray = new Uint8Array(3 * this.size);
-    this.colorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this.colorArray, gl.DYNAMIC_DRAW);
+    this.updateVertexColors = new Uint8Array(1);
+    this.vertexColorArray = new Uint8Array(4 * this.size);
+    this.vertexColorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this.vertexColorArray, gl.DYNAMIC_DRAW);
 
     // Edge color (per instance)
     this.updateEdgeColors = new Uint8Array(1);
@@ -77,16 +77,16 @@ GeometryBucket.prototype = {
         gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
         gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, size, gl.RGBA, gl.FLOAT, this.boneArray);
 
-        if (this.updateColors[0]) {
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
-            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.colorArray.subarray(0, size * 3));
+        if (this.updateVertexColors[0]) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertexColorArray.subarray(0, size * 4));
 
-            this.updateColors[0] = 0;
+            this.updateVertexColors[0] = 0;
         }
 
         if (this.updateEdgeColors[0]) {
             gl.bindBuffer(gl.ARRAY_BUFFER, this.edgeColorBuffer);
-            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.edgeColorArray.subarray(0, size * 3));
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.edgeColorArray.subarray(0, size * 4));
 
             this.updateEdgeColors[0] = 0;
         }
@@ -95,8 +95,8 @@ GeometryBucket.prototype = {
     getSharedData(index) {
         return {
             boneArray: new Float32Array(this.boneArray.buffer, this.boneArrayInstanceSize * 4 * index, this.boneArrayInstanceSize),
-            colorArray: new Uint8Array(this.colorArray.buffer, 3 * index, 3),
-            edgeColorArray: new Uint8Array(this.edgeColorArray.buffer, 3 * index, 3)
+            vertexColorArray: new Uint8Array(this.vertexColorArray.buffer, 4 * index, 4),
+            edgeColorArray: new Uint8Array(this.edgeColorArray.buffer, 4 * index, 4)
         };
     }
 };

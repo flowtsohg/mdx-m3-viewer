@@ -12,6 +12,7 @@ function MdxParticleEmitter2(model, emitter) {
     this.latitude = emitter.latitude;
     this.gravity = emitter.gravity;
     this.emissionRate = emitter.emissionRate;
+    this.squirt = emitter.squirt;
 
     this.lifespan = emitter.lifespan;
     this.modelSpace = emitter.modelSpace;
@@ -267,6 +268,10 @@ MdxParticleEmitter2.prototype = {
 
     getEmissionRate(instance) {
         return this.sd.getValue("KP2E", instance, this.emissionRate);
+    },
+
+    getEmissionRateKeyframe(instance) {
+        return this.sd.getKeyframe("KP2E", instance);
     },
 
     getVisibility(instance) {

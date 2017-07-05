@@ -42,8 +42,6 @@ MdxModel.prototype = {
 
         this.parser = parser;
         this.name = chunks.get("MODL").name;
-        
-        this.texturePaths = [];
 
         this.replaceables = [];
 
@@ -475,11 +473,11 @@ MdxModel.prototype = {
         gl.vertexAttribPointer(teamColor, 1, gl.UNSIGNED_BYTE, false, 1, 0);
         instancedArrays.vertexAttribDivisorANGLE(teamColor, 1);
 
-        // Tint colors
-        let tintColor = attribs.get("a_tintColor");
-        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.tintColorBuffer);
-        gl.vertexAttribPointer(tintColor, 3, gl.UNSIGNED_BYTE, true, 3, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
-        instancedArrays.vertexAttribDivisorANGLE(tintColor, 1);
+        // Vertex colors
+        let vertexColor = attribs.get("a_vertexColor");
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.vertexColorBuffer);
+        gl.vertexAttribPointer(vertexColor, 4, gl.UNSIGNED_BYTE, true, 4, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
+        instancedArrays.vertexAttribDivisorANGLE(vertexColor, 1);
 
         gl.activeTexture(gl.TEXTURE15);
         gl.bindTexture(gl.TEXTURE_2D, bucket.boneTexture);
@@ -506,7 +504,7 @@ MdxModel.prototype = {
 
         // Reset the attributes to play nice with other handlers
         instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_teamColor"), 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_tintColor"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_vertexColor"), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_batchVisible"), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_geosetColor"), 0);

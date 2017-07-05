@@ -36,7 +36,7 @@ const M3Shaders = {
         attribute vec4 a_bones;
         attribute vec4 a_weights;
         attribute float a_teamColor;
-        attribute vec3 a_tintColor;
+        attribute vec4 a_vertexColor;
 
         varying vec3 v_normal;
         varying vec4 v_uv[2]; // Pack 4 vec2 in 2 vec4, to reduce the varyings count
@@ -44,7 +44,7 @@ const M3Shaders = {
         //varying vec3 v_eyeVec;
         varying vec3 v_halfVec;
         varying vec3 v_teamColor;
-        varying vec3 v_tintColor;
+        varying vec4 v_vertexColor;
 
         void transform(inout vec3 position, inout vec3 normal, inout vec3 tangent, inout vec3 binormal, vec4 bones, vec4 weights) {
             if (u_boneWeightPairsCount > 0.0) {
@@ -115,7 +115,7 @@ const M3Shaders = {
             v_uv[1] = uv1;
 
             v_teamColor = u_teamColors[int(a_teamColor)];
-	        v_tintColor = a_tintColor;
+	        v_vertexColor = a_vertexColor;
 
             gl_Position = u_mvp * vec4(position, 1.0);
         }
@@ -128,7 +128,7 @@ const M3Shaders = {
         //varying vec3 v_eyeVec;
         varying vec3 v_halfVec;
         varying vec3 v_teamColor;
-        varying vec3 v_tintColor;
+        varying vec4 v_vertexColor;
 
         struct LayerSettings {
             bool enabled;
@@ -461,7 +461,7 @@ const M3Shaders = {
                 }
             }
 
-            gl_FragColor = final * vec4(v_tintColor, 1.0);
+            gl_FragColor = final * v_vertexColor;
         }
     `
 };

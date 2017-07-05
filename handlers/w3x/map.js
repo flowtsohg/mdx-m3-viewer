@@ -299,8 +299,7 @@ W3xMap.prototype = {
 
             this.cliffTexturesOffset = groundTilesetCount + 1;
 
-            this.env.whenLoaded(this.tilesetTextures, _ => {
-                // Try to avoid texture atlas bleeding
+            this.env.whenLoaded(this.tilesetTextures, () => {
                 for (let texture of this.tilesetTextures) {
                     // To avoid WebGL errors if a texture failed to load
                     if (texture.loaded) {
@@ -309,10 +308,10 @@ W3xMap.prototype = {
                     }
                 }
 
-                this.loadSky();
+                //this.loadSky();
                 this.loadWater();
-                this.loadTerrainGeometry();
                 this.loadTerrainCliffs();
+                this.loadTerrainGeometry();
             });
         }
     },
@@ -436,7 +435,7 @@ W3xMap.prototype = {
                 // TODO: Do I need to check all 8 surrounding tiles, or are the straight ones enough?
                 let locX = (x - centerOffset[0]) * 128,
                     locY = (y - centerOffset[1]) * 128,
-                    locZ = tile.getCliffHeight(Math.max(tile.dl, tile.dr, tile.dt, tile.db)) * 128;
+                    locZ = tile.getCliffHeight(Math.max(tile.dl || 0, tile.dr || 0, tile.dt || 0, tile.db || 0)) * 128;
 
                 tile.x = locX;
                 tile.y = locY;
@@ -454,6 +453,7 @@ W3xMap.prototype = {
     },
 
     update() {
+        /*
         if (this.waterInstance) {
             this.BLAAA += 1;
 
@@ -475,6 +475,7 @@ W3xMap.prototype = {
             uvOffset[0] = x / 8;
             uvOffset[1] = y / 8;
         }
+        */
     },
 
     loadWater() {
@@ -931,6 +932,8 @@ W3xMap.prototype = {
                     texture2 = tile2.blight ? blightTextureIndex : tile2.groundTextureType,
                     texture3 = tile3.blight ? blightTextureIndex : tile3.groundTextureType,
                     texture4 = tile4.blight ? blightTextureIndex : tile4.groundTextureType;
+
+                if (tile1.cliff || tile2.cliff || tile3.cliff || tile4.cliff) continue;
 
                 var textures = [texture1, texture2, texture3, texture4].unique();
 

@@ -21,7 +21,7 @@ function MdxModelInstance(model) {
     this.sequenceLoopMode = 0;
 
     this.teamColor = 0;
-    this.tintColor = vec3.fromValues(255, 255, 255);
+    this.vertexColor = vec4.fromValues(255, 255, 255, 255);
 
     this.allowParticleSpawn = false;
 }
@@ -150,15 +150,15 @@ MdxModelInstance.prototype = {
         this.uvOffsetArrays = sharedData.uvOffsetArrays;
 
         this.teamColorArray = sharedData.teamColorArray;
-        this.tintColorArray = sharedData.tintColorArray;
+        this.vertexColorArray = sharedData.vertexColorArray;
 
         this.batchVisibilityArrays = sharedData.batchVisibilityArrays;
 
         this.teamColorArray[0] = this.teamColor;
         this.bucket.updateTeamColors[0] = 1;
 
-        this.tintColorArray.set(this.tintColor);
-        this.bucket.updateTintColors[0] = 1;
+        this.vertexColorArray.set(this.vertexColor);
+        this.bucket.updateVertexColors[0] = 1;
 
         let bucket = this.bucket,
             objects;
@@ -189,13 +189,41 @@ MdxModelInstance.prototype = {
         this.geosetColorArrays = null;
         this.uvOffsetArrays = null;
         this.teamColorArray = null;
-        this.tintColorArray = null;
+        this.vertexColorArray = null;
         this.batchVisibilityArrays = null;
 
         this.particleEmitters = [];
         this.particleEmitters2 = [];
         this.ribbonEmitters = [];
         this.eventObjectEmitters = [];
+    },
+
+    hide() {
+        let changed = ModelInstance.prototype.hide.call(this);
+
+        if (changed) {
+            let attachments = this.attachments;
+
+            for (let i = 0, l = attachments.length; i < l; i++) {
+                attachments[i].internalInstance.hide();
+            }
+        }
+
+        return changed;
+    },
+
+    show() {
+        let changed = ModelInstance.prototype.show.call(this);
+
+        if (changed) {
+            let attachments = this.attachments;
+
+            for (let i = 0, l = attachments.length; i < l; i++) {
+                attachments[i].internalInstance.show();
+            }
+        }
+
+        return changed;
     },
 
     updateAttachments() {
@@ -268,10 +296,10 @@ MdxModelInstance.prototype = {
         if (this.sequence !== -1 && model.variants[this.sequence]) {
             this.skeleton.update();
         }
-
+        
         this.updateAttachments();
         this.updateEmitters();
-        
+
         var batches = model.batches;
 
         // Not every model has batches
@@ -378,12 +406,12 @@ MdxModelInstance.prototype = {
         return this;
     },
 
-    setTintColor(color) {
-        this.tintColor.set(color);
+    setVertexColor(color) {
+        this.vertexColor.set(color);
 
         if (this.bucket) {
-            this.tintColorArray.set(color);
-            this.bucket.updateTintColors[0] = 1;
+            this.vertexColorArray.set(color);
+            this.bucket.updateVertexColors[0] = 1;
         }
 
         return this;

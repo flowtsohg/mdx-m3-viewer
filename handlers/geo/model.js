@@ -76,8 +76,8 @@ GeometryModel.prototype = {
         this.uvScale = material.uvScale || new Float32Array([1, 1]);
         this.uvOffset = material.uvOffset || new Float32Array(2);
 
-        this.color = material.color || new Float32Array([255, 255, 255]);
-        this.edgeColor = material.edgeColor || new Float32Array([255, 255, 255]);
+        this.vertexColor = material.color || new Float32Array([255, 255, 255, 255]);
+        this.edgeColor = material.edgeColor || new Float32Array([255, 255, 255, 255]);
 
         this.renderMode = 0;
 
@@ -88,9 +88,7 @@ GeometryModel.prototype = {
         this.isBGR = material.isBGR || false;
         this.isBlended = material.isBlended || false;
 
-        this.alpha = material.alpha || 1;
-
-        if (this.alpha < 1) {
+        if (this.isBlended) {
             this.translucent = true;
         } else {
             this.opaque = true;
@@ -183,8 +181,8 @@ GeometryModel.prototype = {
             gl.uniform1f(uniforms.get("u_alphaMod"), this.alpha)
 
             // Colors
-            gl.bindBuffer(gl.ARRAY_BUFFER, bucket.colorBuffer);
-            gl.vertexAttribPointer(colorAttrib, 3, gl.UNSIGNED_BYTE, true, 0, 0);
+            gl.bindBuffer(gl.ARRAY_BUFFER, bucket.vertexColorBuffer);
+            gl.vertexAttribPointer(colorAttrib, 4, gl.UNSIGNED_BYTE, true, 0, 0);
 
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.faceBuffer);
             instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.faceArray.length, this.faceIndexType, 0, instances.length);
@@ -195,7 +193,7 @@ GeometryModel.prototype = {
 
             // Edge colors
             gl.bindBuffer(gl.ARRAY_BUFFER, bucket.edgeColorBuffer);
-            gl.vertexAttribPointer(colorAttrib, 3, gl.UNSIGNED_BYTE, true, 0, 0);
+            gl.vertexAttribPointer(colorAttrib, 4, gl.UNSIGNED_BYTE, true, 0, 0);
 
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
             instancedArrays.drawElementsInstancedANGLE(gl.LINES, this.edgeArray.length, this.edgeIndexType, 0, instances.length);

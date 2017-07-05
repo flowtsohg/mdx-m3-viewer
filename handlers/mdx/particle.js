@@ -45,13 +45,15 @@ MdxParticle.prototype = {
 
         internalInstance.setTransformation(node.worldLocation, quat.setAxisAngle(q, vec3.UNIT_Z, Math.randomRange(0, Math.PI * 2)), node.worldScale);
         internalInstance.setSequence(0);
-        internalInstance.rendered = true;
+        internalInstance.show();
     },
 
     update() {
         let internalInstance = this.internalInstance,
             velocity = this.velocity,
             frameTimeS = internalInstance.env.frameTime * 0.001;
+
+        internalInstance.paused = false;
 
         this.health -= frameTimeS;
 
@@ -61,6 +63,6 @@ MdxParticle.prototype = {
     },
 
     kill() {
-        this.internalInstance.rendered = false;
+        this.internalInstance.hide();
     }
 };

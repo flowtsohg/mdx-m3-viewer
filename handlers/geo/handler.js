@@ -9,10 +9,10 @@ const Geo = {
                 attribute vec3 a_position;
                 attribute vec2 a_uv;
                 attribute vec2 a_uvScale;
-                attribute vec3 a_color;
+                attribute vec4 a_color;
 
                 varying vec2 v_uv;
-                varying vec3 v_color;
+                varying vec4 v_color;
 
                 void main() {
                     v_uv = a_uv * u_uvScale + u_uvOffset;
@@ -29,10 +29,10 @@ const Geo = {
                 uniform bool u_isBGR;
 
                 varying vec2 v_uv;
-                varying vec3 v_color;
+                varying vec4 v_color;
 
                 void main() {
-                    gl_FragColor = vec4(v_color, u_alphaMod);
+                    gl_FragColor = v_color;
       
                     if (u_hasTexture && !u_isEdge) {
                         vec4 texel = texture2D(u_diffuseMap, v_uv);

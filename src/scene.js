@@ -109,7 +109,10 @@ Scene.prototype = {
             this.removeBucket(buckets[i]);
         }
 
-        this.instances.clear();
+        this.instanceSet.clear();
+
+        // Clear the array
+        this.instances.length = 0;
     },
 
     /**
@@ -171,25 +174,25 @@ Scene.prototype = {
         var instances = this.instances;
 
         for (var i = 0, l = instances.length; i < l; i++) {
-            var instance = instances[i];
+            var instance = instances[i],
+                isVisible = this.isVisible(instance) || instance.noCulling,
+                isCulled = instance.culled;
 
-            if (instance.loaded) {
-                var isVisible = this.isVisible(instance) || instance.noCulling;
+            // Handle culling
+            if (isVisible && isCulled) {
+                instance.culled = false;
+                instance.show();
+            } else if (!isVisible && !isCulled) {
+                instance.culled = true;
+                instance.hide();
+            }
 
-                // Update things that always need updating, like animation timers.
+            if (instance.loaded && !instance.paused) {
+                // Update animation timers and other lightweight things
                 instance.globalUpdate();
 
-                // Handle culling
-                if (isVisible && instance.culled) {
-                    instance.culled = false;
-                    instance.rendered = true;
-                } else if (!isVisible && !instance.culled) {
-                    instance.culled = true;
-                    instance.rendered = false;
-                }
-
-                // If the instance is visible, do the heavy lifting.
-                if (instance.bucket && !instance.culled) {
+                if (instance.shown()) {
+                    // Update the data
                     instance.update();
                 }
             }

@@ -291,11 +291,11 @@ M3Model.prototype = {
         gl.vertexAttribPointer(teamColorAttrib, 1, gl.UNSIGNED_BYTE, false, 1, 0);
         instancedArrays.vertexAttribDivisorANGLE(teamColorAttrib, 1);
 
-        // Tint colors
-        let tintColorAttrib = attribs.get("a_tintColor");
-        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.tintColorBuffer);
-        gl.vertexAttribPointer(tintColorAttrib, 3, gl.UNSIGNED_BYTE, true, 3, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
-        instancedArrays.vertexAttribDivisorANGLE(tintColorAttrib, 1);
+        // Vertex colors
+        let vertexColorAttrib = attribs.get("a_vertexColor");
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.vertexColorBuffer);
+        gl.vertexAttribPointer(vertexColorAttrib, 4, gl.UNSIGNED_BYTE, true, 4, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
+        instancedArrays.vertexAttribDivisorANGLE(vertexColorAttrib, 1);
 
         let instanceIdAttrib = attribs.get("a_InstanceID");
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);
@@ -357,7 +357,7 @@ M3Model.prototype = {
             attribs = shader.attribs;
 
         instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_teamColor"), 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_tintColor"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_vertexColor"), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 0);
     },
 

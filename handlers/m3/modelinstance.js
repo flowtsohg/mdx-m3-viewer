@@ -9,7 +9,7 @@ function M3ModelInstance(model) {
 
     this.skeleton = null;
     this.teamColor = 0;
-    this.tintColor = vec3.fromValues(255, 255, 255);
+    this.vertexColor = vec4.fromValues(255, 255, 255, 255);
     this.sequence = -1;
     this.frame = 0;
     this.sequenceLoopMode = 0;
@@ -34,19 +34,19 @@ M3ModelInstance.prototype = {
         this.skeleton.update();
 
         this.teamColorArray = sharedData.teamColorArray;
-        this.tintColorArray = sharedData.tintColorArray;
+        this.vertexColorArray = sharedData.vertexColorArray;
 
         this.teamColorArray[0] = this.teamColor;
         this.bucket.updateTeamColors[0] = 1;
 
-        this.tintColorArray.set(this.tintColor);
-        this.bucket.updateTintColors[0] = 1;
+        this.vertexColorArray.set(this.vertexColor);
+        this.bucket.updateVertexColors[0] = 1;
     },
 
     invalidateSharedData() {
         this.skeleton.boneArray = null;
         this.teamColorArray = null;
-        this.tintColorArray = null;
+        this.vertexColorArray = null;
     },
 
     globalUpdate() {
@@ -109,12 +109,12 @@ M3ModelInstance.prototype = {
         return this;
     },
 
-    setTintColor(color) {
-        this.tintColor.set(color);
+    setVertexColor(color) {
+        this.vertexColor.set(color);
 
         if (this.bucket) {
-            this.tintColorArray.set(color);
-            this.bucket.updateTintColors[0] = 1;
+            this.vertexColorArray.set(color);
+            this.bucket.updateVertexColors[0] = 1;
         }
 
         return this;

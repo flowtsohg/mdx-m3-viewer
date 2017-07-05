@@ -10,14 +10,13 @@ MdxSanityTester.prototype = {
         let chunks = parser.chunks;
 
         this.output = { errors: [], warnings: [] };
-
         this.nodeCount = parser.nodes.length;
-        this.sequences = this.getElements(chunks.SEQS);
-        this.globalSequences = this.getElements(chunks.GLBS);
+        this.sequences = this.getElements(chunks.get("SEQS"));
+        this.globalSequences = this.getElements(chunks.get("GLBS"));
         this.globalSequenceCount = this.globalSequences.length;
-        this.textureCount = this.getElementsCount(chunks.TEXS);
-        this.materialCount = this.getElementsCount(chunks.MTLS);
-        this.geosetCount = this.getElementsCount(chunks.GEOS);
+        this.textureCount = this.getElementsCount(chunks.get("TEXS"));
+        this.materialCount = this.getElementsCount(chunks.get("MTLS"));
+        this.geosetCount = this.getElementsCount(chunks.get("GEOS"));
 
         this.testVersion(chunks);
         this.testModel(chunks);
@@ -61,14 +60,14 @@ MdxSanityTester.prototype = {
 
     // Warning: Unknown version.
     testVersion(chunks) {
-        let versionChunk = chunks.VERS;
+        let versionChunk = chunks.get("VERS");
 
         this.assertWarning(versionChunk.version === 800, "Unknown version " + versionChunk.version);
     },
 
     // ?
     testModel(chunks) {
-        let modelChunk = chunks.MODL;
+        let modelChunk = chunks.get("MODL");
     },
 
     // Warning: No sequences (?).
@@ -78,7 +77,7 @@ MdxSanityTester.prototype = {
     // Warning: A zero length sequence (the sequence does nothing).
     // Warning: A negative length sequence (probably used as unsigned).
     testSequences(chunks) {
-        let sequenceChunk = chunks.SEQS;
+        let sequenceChunk = chunks.get("SEQS");
 
         this.assertWarning(sequenceChunk && sequenceChunk.elements.length > 0, "No sequences");
 
@@ -115,7 +114,7 @@ MdxSanityTester.prototype = {
     // Warning: A global sequence with zero length (the first track is selected, regardless of its frame).
     // Warning: A global sequence with negative length (?).
     testGlobalSequences(chunks) {
-        let globalSequenceChunk = chunks.GLBS;
+        let globalSequenceChunk = chunks.get("GLBS");
 
         if (globalSequenceChunk) {
             let sequences = globalSequenceChunk.elements;
@@ -133,7 +132,7 @@ MdxSanityTester.prototype = {
     // Error: An unknown replaceable ID (?).
     // Warning: A path and replaceable ID are used together (the path is ignored).
     testTextures(chunks) {
-        let textureChunk = chunks.TEXS;
+        let textureChunk = chunks.get("TEXS");
 
         if (textureChunk) {
             let textures = textureChunk.elements;
@@ -152,7 +151,7 @@ MdxSanityTester.prototype = {
 
     // ?
     testMaterials(chunks) {
-        let materialChunk = chunks.MATS;
+        let materialChunk = chunks.get("MATS");
 
         if (materialChunk) {
             let materials = materialChunk.elements;
@@ -181,7 +180,7 @@ MdxSanityTester.prototype = {
 
     // ?
     testTextureAnimations(chunks) {
-        let textureAnimationChunk = chunks.TXAN;
+        let textureAnimationChunk = chunks.get("TXAN");
 
         if (textureAnimationChunk) {
             let textureAnimations = textureAnimationChunk.elements;
@@ -196,8 +195,8 @@ MdxSanityTester.prototype = {
     // Warning: A vertex not attached to any bone (gets attached to a map's center instead).
     // Warning: A geoset is referenced by multiple geoset animations (?).
     testGeosets(chunks) {
-        let geosetChunk = chunks.GEOS,
-            geosetAnimationChunk = chunks.GEOA;
+        let geosetChunk = chunks.get("GEOS"),
+            geosetAnimationChunk = chunks.get("GEOA");
 
         if (geosetChunk) {
             let geosets = geosetChunk.elements;
@@ -229,7 +228,7 @@ MdxSanityTester.prototype = {
     // Warning: Referencing no geoset (the geoset animation does nothing).
     // Warning: There are geoset animations, but no geosets.
     testGeosetAnimations(chunks) {
-        let geosetAnimationChunk = chunks.GEOA;
+        let geosetAnimationChunk = chunks.get("GEOA");
 
         if (geosetAnimationChunk) {
             let geosetAnimations = geosetAnimationChunk.elements,
@@ -258,9 +257,9 @@ MdxSanityTester.prototype = {
     // Error: Referencing an invalid geoset (?).
     // Error: Referencing an invalid geoset animation (?).
     testBones(chunks) {
-        let boneChunk = chunks.BONE,
-            geosetChunk = chunks.GEOS,
-            geosetAnimationChunk = chunks.GEOA;
+        let boneChunk = chunks.get("BONE"),
+            geosetChunk = chunks.get("GEOS"),
+            geosetAnimationChunk = chunks.get("GEOA");
 
         if (boneChunk) {
             let bones = boneChunk.elements;
@@ -290,7 +289,7 @@ MdxSanityTester.prototype = {
 
     // Warning: Attenuation outside of the range min=80 max=200 (can mess with lighting).
     testLights(chunks) {
-        let lightChunk = chunks.LITE;
+        let lightChunk = chunks.get("LITE");
 
         if (lightChunk) {
             let lights = lightChunk.elements;
@@ -309,7 +308,7 @@ MdxSanityTester.prototype = {
 
     // ?
     testHelpers(chunks) {
-        let helperChunk = chunks.HELP;
+        let helperChunk = chunks.get("HELP");
 
         if (helperChunk) {
             let helpers = helperChunk.elements;
@@ -323,7 +322,7 @@ MdxSanityTester.prototype = {
 
     // Error: Attachment path that doesn't end with ".mdl".
     testAttachments(chunks) {
-        let attachmentChunk = chunks.ATCH;
+        let attachmentChunk = chunks.get("ATCH");
 
         if (attachmentChunk) {
             let attachments = attachmentChunk.elements;
@@ -343,14 +342,14 @@ MdxSanityTester.prototype = {
 
     // Warning: No pivot points (default one created at the origin?).
     testPivotPoints(chunks) {
-        let pivotPointChunk = chunks.PIVT;
+        let pivotPointChunk = chunks.get("PIVT");
 
         this.assertWarning(pivotPointChunk && pivotPointChunk.elements.length > 0, "No pivot points");
     },
 
     // Error: Corrupted path (?).
     testParticleEmitters(chunks) {
-        let particleEmitterChunk = chunks.PREM;
+        let particleEmitterChunk = chunks.get("PREM");
 
         if (particleEmitterChunk) {
             let emitters = particleEmitterChunk.elements;
@@ -369,7 +368,7 @@ MdxSanityTester.prototype = {
 
     // Warning: Invalid filter mode (?).
     testParticleEmitters2(chunks) {
-        let particleEmitterChunk2 = chunks.PRE2;
+        let particleEmitterChunk2 = chunks.get("PRE2");
 
         if (particleEmitterChunk2) {
             let emitters = particleEmitterChunk2.elements;
@@ -391,7 +390,7 @@ MdxSanityTester.prototype = {
 
     // Error: Referencing an invalid material ID (?).
     testRibbonEmitters(chunks) {
-        let ribbonEmitterChunk = chunks.RIBB;
+        let ribbonEmitterChunk = chunks.get("RIBB");
 
         if (ribbonEmitterChunk) {
             let emitters = ribbonEmitterChunk.elements;
@@ -411,7 +410,7 @@ MdxSanityTester.prototype = {
     // Error: Referencing an invalid global sequence (?).
     // Error: Zero keys (can't be loaded).
     testEventObjects(chunks) {
-        let eventObjectChunk = chunks.EVTS;
+        let eventObjectChunk = chunks.get("EVTS");
 
         if (eventObjectChunk) {
             let eventObjects = eventObjectChunk.elements;
@@ -440,7 +439,7 @@ MdxSanityTester.prototype = {
 
     // ?
     testCameras(chunks) {
-        let cameraChunk = chunks.CAMS;
+        let cameraChunk = chunks.get("CAMS");
 
         if (cameraChunk) {
             let cameras = cameraChunk.elements;
@@ -453,7 +452,7 @@ MdxSanityTester.prototype = {
 
     // ?
     testCollisionShapes(chunks) {
-        let collisionShapeChunk = chunks.CLID;
+        let collisionShapeChunk = chunks.get("CLID");
 
         if (collisionShapeChunk) {
             let collisionShapes = collisionShapeChunk.elements;
@@ -481,21 +480,17 @@ MdxSanityTester.prototype = {
     },
 
     testSDContainer(object) {
-        let tracks = object.tracks,
-            sds = tracks.sd,
-            keys = Object.keys(sds);
+        let elements = object.tracks.elements;
 
-        for (let i = 0, l = keys.length; i < l; i++) {
-            let key = keys[i];
-
-            this.testSD(object, key, sds[key]);
+        for (let i = 0, l = elements.length; i < l; i++) {
+            this.testSD(object, elements[i]);
         }
     },
 
     // Error: Referencing an invalid global sequence (?).
-    testSD(object, tag, sd) {
+    testSD(object, sd) {
         let objectName = this.getIdentifier(object),
-            typeInfo = this.tagToType[tag],
+            typeInfo = this.tagToType[sd.tag],
             globalSequenceId = sd.globalSequenceId;
 
         this.assertError(globalSequenceId === -1 || globalSequenceId < this.globalSequenceCount, typeInfo[0] + " " + objectName + ": Referencing invalid global sequence " + globalSequenceId);
