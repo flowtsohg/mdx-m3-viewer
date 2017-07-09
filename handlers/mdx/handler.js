@@ -5,12 +5,15 @@ const Mdx = {
         env.addHandler(Slk);
         env.addHandler(NativeTexture); // Needed for texture atlases
 
-        this.standardShader = env.webgl.createShaderProgram(env.sharedShaders.instanceId + env.sharedShaders.boneTexture + MdxShaders.vs_main, "#define STANDARD_PASS\n" + MdxShaders.ps_main);
-        this.particleShader = env.webgl.createShaderProgram(env.sharedShaders.decodeFloat + MdxShaders.vs_particles, MdxShaders.ps_particles);
+        let standardShader = env.webgl.createShaderProgram(env.sharedShaders.instanceId + env.sharedShaders.boneTexture + MdxShaders.vs_main, "#define STANDARD_PASS\n" + MdxShaders.ps_main);
+        let particleShader = env.webgl.createShaderProgram(env.sharedShaders.decodeFloat + MdxShaders.vs_particles, MdxShaders.ps_particles);
         //this.ribbonShader = env.webgl.createShaderProgram(MdxShaders.vs_ribbons, "#define STANDARD_PASS\n" + MdxShaders.ps_main);
 
+        env.shaderMap.set("MdxStandardShader", standardShader);
+        env.shaderMap.set("MdxParticleShader", particleShader);
+
         // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
-        if (!this.standardShader.loaded || !this.particleShader.loaded) {
+        if (!standardShader.loaded || !particleShader.loaded) {
             return false;
         }
 
@@ -21,12 +24,12 @@ const Mdx = {
         let webgl = env.webgl,
             gl = env.gl;
 
-        webgl.useShaderProgram(this.standardShader);
+        webgl.useShaderProgram(standardShader);
 
         for (let i = 0; i < 14; i++) {
             let color = teamColors[i];
 
-            gl.uniform3fv(this.standardShader.uniforms.get("u_teamColors[" + i + "]"), [color[0] / 255, color[1] / 255, color[2] / 255]);
+            gl.uniform3fv(standardShader.uniforms.get("u_teamColors[" + i + "]"), [color[0] / 255, color[1] / 255, color[2] / 255]);
         }
 
         this.replaceableIdToName = {

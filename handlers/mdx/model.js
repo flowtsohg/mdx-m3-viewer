@@ -30,12 +30,12 @@ MdxModel.prototype = {
     initialize(src) {
         var parser;
         
-        try {
+        //try {
             parser = new MdxParser(src);
-        } catch (e) {
-            this.onerror("InvalidSource", e);
-            return false;
-        }
+        //} catch (e) {
+        //    this.onerror("InvalidSource", e);
+        //    return false;
+        //}
 
         var objects, i, l, j, k;
         var chunks = parser.chunks;
@@ -379,10 +379,17 @@ MdxModel.prototype = {
         }
 
         // If the path is corrupted, try to fix it.
-        if (!path.endsWith(".blp")) {
+        if (!path.endsWith(".blp") || !path.endsWith(".tga")) {
+            // Try to search for .blp
             var index = path.indexOf(".blp");
 
+            if (index === -1) {
+                // Not a .blp, try to search for .tga
+                index = path.indexOf(".tga");
+            }
+
             if (index !== -1) {
+                // Hopefully fix the path
                 path = path.slice(0, index + 4);
             }
         }
@@ -453,7 +460,7 @@ MdxModel.prototype = {
 
         // HACK UNTIL I IMPLEMENT MULTIPLE SHADERS AGAIN
 
-        var shader = Mdx.standardShader;
+        var shader = this.env.shaderMap.get("MdxStandardShader");
         webgl.useShaderProgram(shader);
         this.shader = shader;
 
@@ -606,16 +613,17 @@ MdxModel.prototype = {
         let webgl = this.env.webgl,
             gl = this.env.gl,
             particleEmitters2 = bucket.particleEmitters2,
-            eventObjectEmitters = bucket.eventObjectEmitters;
+            eventObjectEmitters = bucket.eventObjectEmitters,
+            ribbonEmitters = bucket.ribbonEmitters;
 
 
-        if (particleEmitters2.length || eventObjectEmitters.length) {
+        if (particleEmitters2.length || eventObjectEmitters.length || ribbonEmitters.length) {
             gl.depthMask(0);
             gl.enable(gl.BLEND);
             gl.disable(gl.CULL_FACE);
             gl.enable(gl.DEPTH_TEST);
 
-            var shader = Mdx.particleShader;
+            var shader = this.env.shaderMap.get("MdxParticleShader");
             webgl.useShaderProgram(shader);
 
             gl.uniformMatrix4fv(shader.uniforms.get("u_mvp"), false, scene.camera.worldProjectionMatrix);
@@ -624,6 +632,10 @@ MdxModel.prototype = {
 
             for (let i = 0, l = particleEmitters2.length; i < l; i++) {
                 particleEmitters2[i].render(bucket, shader);
+            }
+
+            for (let i = 0, l = ribbonEmitters.length; i < l; i++) {
+                ribbonEmitters[i].render(bucket, shader);
             }
 
             for (let i = 0, l = eventObjectEmitters.length; i < l; i++) {

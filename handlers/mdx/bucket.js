@@ -9,9 +9,10 @@ function MdxBucket(modelView) {
 
     let model = this.model,
         gl = model.env.gl,
-        numberOfBones = model.bones.length + 1,
+        // POT required because for some reason, on some drivers (Hackintosh), NPOT makes rendering go crazy.
+        numberOfBones = Math.powerOfTwo(model.bones.length + 1),
         objects;
-
+    
     this.boneArrayInstanceSize = numberOfBones * 16;
     this.boneArray = new Float32Array(this.boneArrayInstanceSize * this.size);
 
@@ -137,7 +138,7 @@ MdxBucket.prototype = {
 
             if (active > 0) {
                 renderCalls += 1;
-                renderedVertices += active * 4;
+                renderedVertices += active * 6;
                 renderedPolygons += active * 2;
             }
         }
@@ -148,8 +149,8 @@ MdxBucket.prototype = {
                 active = emitter.active.length;
 
             if (active > 0) {
-                renderCalls += emitter.layers.length;
-                renderedVertices += active * 4;
+                renderCalls += 1;
+                renderedVertices += active * 6;
                 renderedPolygons += active * 2;
             }
         }
@@ -164,7 +165,7 @@ MdxBucket.prototype = {
 
                 if (type === "SPL" || type === "UBR") {
                     renderCalls += 1;
-                    renderedVertices += active * 4;
+                    renderedVertices += active * 6;
                     renderedPolygons += active * 2;
                 }
             }
@@ -186,6 +187,11 @@ MdxBucket.prototype = {
         }
 
         objects = this.particleEmitters2;
+        for (let i = 0, l = objects.length; i < l; i++) {
+            objects[i].update(scene);
+        }
+
+        objects = this.ribbonEmitters;
         for (let i = 0, l = objects.length; i < l; i++) {
             objects[i].update(scene);
         }

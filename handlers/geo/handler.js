@@ -1,6 +1,6 @@
 const Geo = {
     initialize(env) {
-        this.shader = env.webgl.createShaderProgram(
+        let shader = env.webgl.createShaderProgram(
             env.sharedShaders.boneTexture + env.sharedShaders.instanceId + `
                 uniform mat4 u_mvp;
                 uniform vec2 u_uvOffset;
@@ -48,9 +48,11 @@ const Geo = {
         );
 
         // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
-        if (!this.shader.loaded) {
+        if (!shader.loaded) {
             return false;
         }
+
+        env.shaderMap.set("GeoStandardShader", shader);
 
         return true;
     },

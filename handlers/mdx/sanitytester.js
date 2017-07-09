@@ -9,7 +9,8 @@ MdxSanityTester.prototype = {
     test(parser) {
         let chunks = parser.chunks;
 
-        this.output = { errors: [], warnings: [] };
+        this.output = { errors: [], warnings: [], usage: [] };
+        this.nodes = parser.nodes;
         this.nodeCount = parser.nodes.length;
         this.sequences = this.getElements(chunks.get("SEQS"));
         this.globalSequences = this.getElements(chunks.get("GLBS"));
@@ -17,6 +18,31 @@ MdxSanityTester.prototype = {
         this.textureCount = this.getElementsCount(chunks.get("TEXS"));
         this.materialCount = this.getElementsCount(chunks.get("MTLS"));
         this.geosetCount = this.getElementsCount(chunks.get("GEOS"));
+        this.textureAnimationCount = this.getElementsCount(chunks.get("TXAN"));
+
+        let textureUsage = [];
+        for (let i = 0, l = this.textureCount; i < l; i++) {
+            textureUsage[i] = 0;
+        }
+        this.textureUsage = textureUsage;
+
+        let materialUsage = [];
+        for (let i = 0, l = this.materialCount; i < l; i++) {
+            materialUsage[i] = 0;
+        }
+        this.materialUsage = materialUsage;
+
+        let textureAnimationUsage = [];
+        for (let i = 0, l = this.textureAnimationCount; i < l; i++) {
+            textureAnimationUsage[i] = 0;
+        }
+        this.textureAnimationUsage = textureAnimationUsage;
+
+        let globalSequenceUsage = [];
+        for (let i = 0, l = this.globalSequenceCount; i < l; i++) {
+            globalSequenceUsage[i] = 0;
+        }
+        this.globalSequenceUsage = globalSequenceUsage;
 
         this.testVersion(chunks);
         this.testModel(chunks);
@@ -38,6 +64,30 @@ MdxSanityTester.prototype = {
         this.testEventObjects(chunks);
         this.testCameras(chunks); 
         this.testCollisionShapes(chunks);
+
+        for (let i = 0, l = textureUsage.length; i < l; i++) {
+            if (textureUsage[i] === 0) {
+                this.addUsage("Texture " + i + ": Never used");
+            }
+        }
+
+        for (let i = 0, l = materialUsage.length; i < l; i++) {
+            if (materialUsage[i] === 0) {
+                this.addUsage("Material " + i + ": Never used");
+            }
+        }
+
+        for (let i = 0, l = textureAnimationUsage.length; i < l; i++) {
+            if (textureAnimationUsage[i] === 0) {
+                this.addUsage("Texture animation " + i + ": Never used");
+            }
+        }
+
+        for (let i = 0, l = globalSequenceUsage.length; i < l; i++) {
+            if (globalSequenceUsage[i] === 0) {
+                this.addUsage("Global sequence " + i + ": Never used");
+            }
+        }
 
         return this.output;
     },
@@ -75,7 +125,7 @@ MdxSanityTester.prototype = {
     // Warning: No stand sequence (can bother some use cases of models).
     // Warning: No death sequence (can bother some use cases of models).
     // Warning: A zero length sequence (the sequence does nothing).
-    // Warning: A negative length sequence (probably used as unsigned).
+    // Warning: A negative length sequence (can mess with community tools that think frames are unsigned).
     testSequences(chunks) {
         let sequenceChunk = chunks.get("SEQS");
 
@@ -89,25 +139,30 @@ MdxSanityTester.prototype = {
             for (let i = 0, l = sequences.length; i < l; i++) {
                 let sequence = sequences[i],
                     name = sequence.name,
-                    mainToken = name.toLowerCase().split("-")[0].split(" ")[0],
+                    tokens = name.toLowerCase().split("-")[0].split(/\s+/),
+                    token = tokens[0],
                     interval = sequence.interval,
                     length = interval[1] - interval[0];
 
-                if (mainToken === "stand") {
+                if (token === "alternate") {
+                    token = tokens[1];
+                }
+
+                if (token === "stand") {
                     foundStand = true;
                 }
 
-                if (mainToken === "death") {
+                if (token === "death") {
                     foundDeath = true;
                 }
 
-                this.assertWarning(this.sequenceNames[mainToken], "Sequence " + i + ": Invalid sequence name " + mainToken);
-                this.assertWarning(length !== 0, "Sequence " + i + " " + name + ": Zero length");
+                this.assertUsage(this.sequenceNames[token], "Sequence " + i + ": Not used due to an invalid name: \"" + token + "\"");
+                this.assertUsage(length !== 0, "Sequence " + i + " " + name + ": Not used due to zero length");
                 this.assertWarning(length > -1, "Sequence " + i + " " + name + ": Negative length " + length);
             }
 
-            this.assertWarning(foundStand, "No stand sequence");
-            this.assertWarning(foundDeath, "No death sequence");
+            this.assertWarning(foundStand, "No \"stand\" sequence");
+            this.assertWarning(foundDeath, "No \"death\" sequence");
         }
     },
 
@@ -140,42 +195,86 @@ MdxSanityTester.prototype = {
             for (let i = 0, l = textures.length; i < l; i++) {
                 let texture = textures[i],
                     replaceableId = texture.replaceableId,
-                    path = texture.path;
+                    path = texture.path.toLowerCase();
 
-                this.assertError(path === "" || path.toLowerCase().endsWith(".blp"), "Texture " + i + ": Corrupted path " + path);
+                this.assertError(path === "" || path.endsWith(".blp") || path.endsWith(".tga"), "Texture " + i + ": Corrupted path \"" + path + "\"");
                 this.assertError(replaceableId === 0 || Mdx.replaceableIdToName[replaceableId] !== undefined, "Texture " + i + ": Unknown replaceable ID " + replaceableId);
-                this.assertWarning(path === "" || replaceableId === 0, "Texture " + i + ": Path " + path + " and replaceable ID " + replaceableId + " used together");
+                this.assertWarning(path === "" || replaceableId === 0, "Texture " + i + ": Path \"" + path + "\" and replaceable ID " + replaceableId + " used together");
             }
         }
     },
 
     // ?
     testMaterials(chunks) {
-        let materialChunk = chunks.get("MATS");
+        let materialChunk = chunks.get("MTLS");
 
         if (materialChunk) {
             let materials = materialChunk.elements;
 
             for (let i = 0, l = materials.length; i < l; i++) {
-                let material = materials[i];
-
-                this.testMaterial(material);
+                this.testMaterial(materials[i]);
             }
         }
     },
 
     // Warning: No layers (?).
-    // Warning: Invalid filter mode (?).
     testMaterial(material) {
         let layers = material.layers;
 
-        this.assertWarning(layers.length > 0, "Material " + material.index + ": Does nothing");
+        this.assertUsage(layers.length > 0, "Material " + material.index + ": No layers");
 
         for (let i = 0, l = layers.length; i < l; i++) {
-            let layer = layers[i];
-
-            this.assertWarning(this.inRange(layer.filterMode, 0, 6), "Material " + material.index + ": Invalid filter mode " + layer.filterMode);
+            this.testLayer(material, layers[i])
         }
+    },
+
+    getTextureIds(layer) {
+        let textureIds = [];
+
+        for (let sd of layer.tracks.elements) {
+            if (sd.tag === "KMTF") {
+                let values = [];
+
+                for (let track of sd.tracks) {
+                    values.push(track.value);
+                }
+
+                return values.unique();
+            }
+        }
+
+        return [layer.textureId];
+    },
+
+    // Warning: Invalid filter mode (?).
+    // Warning: Invalid texture id (?)
+    testLayer(material, layer) {
+        for (let textureId of this.getTextureIds(layer)) {
+            let isInRange = this.inRange(textureId, 0, this.textureCount - 1);
+
+            if (isInRange) {
+                this.textureUsage[textureId]++;
+            } else {
+                this.addError("Material " + material.index + ": Layer " + layer.index + ": Invalid texture id " + textureId);
+            }
+        }
+        
+
+        let textureAnimationId = layer.textureAnimationId;
+
+        if (textureAnimationId !== -1) {
+            let isInRange = this.inRange(textureAnimationId, 0, this.textureAnimationCount - 1);
+
+            if (isInRange) {
+                this.textureAnimationUsage[textureAnimationId]++;
+            } else {
+                this.addWarning("Material " + material.index + ": Layer " + layer.index + " Invalid texture animation " + textureAnimationId);
+            }
+        }
+
+        this.assertWarning(this.inRange(layer.filterMode, 0, 6), "Material " + material.index + ": Layer " + layer.index + " Invalid filter mode " + layer.filterMode);
+        
+        this.testSDContainer(layer);
     },
 
     // ?
@@ -202,7 +301,9 @@ MdxSanityTester.prototype = {
             let geosets = geosetChunk.elements;
 
             for (let i = 0, l = geosets.length; i < l; i++) {
-                let matrixGroups = geosets[i].matrixGroups;
+                let geoset = geosets[i],
+                    matrixGroups = geoset.matrixGroups,
+                    materialId = geoset.materialId;
 
                 for (let j = 0, k = matrixGroups.length; j < k; j++) {
                     this.assertWarning(matrixGroups[j] > 0, "Geoset " + i + ": Vertex " + j + ": Not attached to any bones");
@@ -219,6 +320,12 @@ MdxSanityTester.prototype = {
                     }
 
                     this.assertWarning(references.length <= 1, "Geoset " + i + ": Referenced by " + references.length + " geoset animations (" + references.join(", ") + ")");
+                }
+
+                if (this.inRange(materialId, 0, this.materialCount)) {
+                    this.materialUsage[materialId]++;
+                } else {
+                    this.addError("Geoset " + i + ": Invalid material");
                 }
             }
         }
@@ -239,7 +346,7 @@ MdxSanityTester.prototype = {
                     let geosetId = geosetAnimations[i].geosetId;
 
                     if (geosetId === -1) {
-                        this.addWarning("Geoset animation " + i + ": Does nothing");
+                        this.addUsage("Geoset animation " + i + ": No geoset");
                     } else {
                         this.assertError(geosetId >= 0 && geosetId < geosetCount, "Geoset animation " + i + ": Invalid geoset ID " + geosetId);
                     }
@@ -331,7 +438,7 @@ MdxSanityTester.prototype = {
                 let attachment = attachments[i],
                     path = attachment.path;
 
-                this.assertError(path === "" || path.toLowerCase().endsWith(".mdl"), "Attachment " + i + ": Invalid path " + path);
+                this.assertError(path === "" || path.toLowerCase().endsWith(".mdl"), "Attachment " + i + ": Invalid path \"" + path + "\"");
 
                 this.testSDContainer(attachment)
                 this.testNode(attachment);
@@ -357,7 +464,7 @@ MdxSanityTester.prototype = {
             for (let i = 0, l = emitters.length; i < l; i++) {
                 let emitter = emitters[i];
 
-                this.assertError(emitter.path.toLowerCase().endsWith(".mdl"), "Particle Emitter " + i + ": Corrupted path " + emitter);
+                this.assertError(emitter.path.toLowerCase().endsWith(".mdl"), "Particle Emitter " + i + ": Invalid path \"" + emitter.path + "\"");
 
                 this.testSDContainer(emitter)
                 this.testNode(emitter);
@@ -377,8 +484,15 @@ MdxSanityTester.prototype = {
                 let emitter = emitters[i],
                     replaceableId = emitter.replaceableId;
 
+                let isInRange = this.inRange(emitter.textureId, 0, this.textureCount - 1);
+
+                if (isInRange) {
+                    this.textureUsage[emitter.textureId]++;
+                } else {
+                    this.addError("Particle Emitter 2 " + i + ": Referencing invalid texture ID " + emitter.textureId);
+                }
+
                 this.assertWarning(this.inRange(emitter.filterMode, 0, 4), "Particle Emitter 2 " + i + ": Invalid filter mode " + emitter.filterMode);
-                this.assertWarning(this.inRange(emitter.textureId, 0, this.textureCount - 1), "Particle Emitter 2 " + i + ": Referencing invalid texture ID " + emitter.textureId);
                 this.assertError(replaceableId === 0 || Mdx.replaceableIdToName[replaceableId] !== undefined, "Particle Emitter 2 " + i + ": Unknown replaceable ID " + replaceableId);
 
                 this.testSDContainer(emitter)
@@ -398,7 +512,13 @@ MdxSanityTester.prototype = {
             for (let i = 0, l = emitters.length; i < l; i++) {
                 let emitter = emitters[i];
 
-                this.assertError(this.inRange(emitter.materialId, 0, this.materialCount - 1), "Ribbon Emitter " + i + ": Referencing invalid material ID " + emitter.materialId);
+                let isInRange = this.inRange(emitter.materialId, 0, this.materialCount - 1);
+
+                if (isInRange) {
+                    this.materialUsage[emitter.materialId]++;
+                } else {
+                    this.addError("Ribbon Emitter " + i + ": Referencing invalid material ID " + emitter.materialId);
+                }
 
                 this.testSDContainer(emitter)
                 this.testNode(emitter);
@@ -420,7 +540,16 @@ MdxSanityTester.prototype = {
                     tracks = eventObject.tracks,
                     globalSequenceId = eventObject.globalSequenceId;
 
-                this.assertError(globalSequenceId === -1 || globalSequenceId < this.globalSequenceCount, "Event Object " + i + ": Referencing invalid global sequence " + globalSequenceId);
+                if (globalSequenceId !== -1) {
+                    let isInRange = this.inRange(globalSequenceId, 0, this.globalSequenceCount);
+
+                    if (isInRange) {
+                        this.globalSequenceUsage[globalSequenceId]++;
+                    } else {
+                        this.addError("Event Object " + i + ": Referencing invalid global sequence " + globalSequenceId);
+                    }
+                }
+                
                 this.assertError(tracks.length > 0, "Event Object " + i + " " + eventObject.node.name + ": Zero keys");
 
                 for (let j = 0, k = tracks.length; j < k; j++) {
@@ -472,11 +601,26 @@ MdxSanityTester.prototype = {
             objectId = node.objectId,
             parentId = node.parentId;
 
-        this.assertError(objectId >= 0 && objectId < this.nodeCount, "Node " + name + ": Invalid object ID " + objectId);
-        this.assertError(objectId === parentId || parentId === -1 || parentId < this.nodeCount, "Node " + name + ": Invalid parent ID " + parentId);
-        this.assertError(objectId !== parentId, "Node " + name + ": Same object ID and parent ID");
+        if (this.hasNode(parentId)) {
+
+        }
+
+        this.assertError(parentId === -1 || this.hasNode(parentId), "Node \"" + name + "\": Invalid parent ID " + parentId);
+        this.assertError(objectId !== parentId, "Node \"" + name + "\": Same object ID and parent ID");
             
         this.testSDContainer(node);
+    },
+
+    hasNode(id) {
+        let nodes = this.nodes;
+
+        for (let i = 0, l = nodes.length; i < l; i++) {
+            if (nodes[i].objectId === id) {
+                return true;
+            }
+        }
+
+        return false;
     },
 
     testSDContainer(object) {
@@ -493,7 +637,15 @@ MdxSanityTester.prototype = {
             typeInfo = this.tagToType[sd.tag],
             globalSequenceId = sd.globalSequenceId;
 
-        this.assertError(globalSequenceId === -1 || globalSequenceId < this.globalSequenceCount, typeInfo[0] + " " + objectName + ": Referencing invalid global sequence " + globalSequenceId);
+        if (globalSequenceId !== -1) {
+            let isInRange = this.inRange(globalSequenceId, 0, this.globalSequenceCount);
+
+            if (isInRange) {
+                this.globalSequenceUsage[globalSequenceId]++;
+            } else {
+                this.addError("Event Object " + i + ": Referencing invalid global sequence " + globalSequenceId);
+            }
+        }
 
         this.testInterpolationType(object, typeInfo, sd.interpolationType);
         this.testTracks(object, typeInfo, sd.tracks, globalSequenceId);
@@ -613,7 +765,7 @@ MdxSanityTester.prototype = {
         let id = "" + object.index;
 
         if (object.name) {
-            id += " " + object.name;
+            id += " \"" + object.name + "\"";
         }
 
         return id;
@@ -683,23 +835,33 @@ MdxSanityTester.prototype = {
         return x >= minVal && x <= maxVal;
     },
 
-    addError(what) {
-        this.output.errors.push(what);
+    addError(message) {
+        this.output.errors.push(message);
     },
 
-    addWarning(what) {
-        this.output.warnings.push(what);
+    addWarning(message) {
+        this.output.warnings.push(message);
     },
 
-    assertError(condition, error) {
+    addUsage(message) {
+        this.output.usage.push(message);
+    },
+
+    assertError(condition, message) {
         if (!condition) {
-            this.addError(error);
+            this.addError(message);
         }
     },
 
-    assertWarning(condition, warning) {
+    assertWarning(condition, message) {
         if (!condition) {
-            this.addWarning(warning);
+            this.addWarning(message);
+        }
+    },
+
+    assertUsage(condition, message) {
+        if (!condition) {
+            this.addUsage(message);
         }
     }
 };

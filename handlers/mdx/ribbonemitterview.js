@@ -7,7 +7,6 @@ function MdxRibbonEmitterView(instance, emitter) {
     this.instance = instance;
     this.emitter = emitter;
     this.currentEmission = 0;
-    this.emissions = 0;
     this.lastEmit = null;
 }
 
@@ -16,7 +15,7 @@ MdxRibbonEmitterView.prototype = {
         if (this.shouldRender()) {
             let emitter = this.emitter;
 
-            this.currentEmission += this.getEmissionRate() * this.instance.env.frameTime * 0.001;
+            this.currentEmission += emitter.emissionRate * this.instance.env.frameTime * 0.001;
 
             if (this.currentEmission >= 1) {
                 for (let i = 0, l = Math.floor(this.currentEmission) ; i < l; i++, this.currentEmission--) {

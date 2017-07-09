@@ -103,15 +103,8 @@ Scene.prototype = {
      * Removes all of the buckets in this scene.
      */
     clear() {
-        let buckets = this.buckets;
-
-        for (let i = 0, l = buckets.length; i < l; i++) {
-            this.removeBucket(buckets[i]);
-        }
-
+        this.buckets.length = 0;
         this.instanceSet.clear();
-
-        // Clear the array
         this.instances.length = 0;
     },
 

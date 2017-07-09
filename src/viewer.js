@@ -85,6 +85,9 @@ function ModelViewer(canvas) {
         `
     };
 
+    /** @member {Map<string, ShaderProgram>} */
+    this.shaderMap = new Map();
+
     /** @member {Map<string, Handler>} */
     this.handlers = new Map(); // Map from a file extension to an handler
 

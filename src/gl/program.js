@@ -26,47 +26,33 @@ function ShaderProgram(gl, vertexShader, fragmentShader) {
 
     if (gl.getProgramParameter(id, gl.LINK_STATUS)) {
         for (let i = 0, l = gl.getProgramParameter(id, gl.ACTIVE_UNIFORMS) ; i < l; i++) {
-            let object = gl.getActiveUniform(id, i),
-                location = gl.getUniformLocation(id, object.name);
+            let object = gl.getActiveUniform(id, i);
 
-            uniforms.set(object.name, location);
+            if (object.size === 1) {
+                uniforms.set(object.name, gl.getUniformLocation(id, object.name));
+            } else {
+                let base = object.name.substr(0, object.name.length - 3);
 
-            // Basic support for arrays
-            if (object.name.endsWith("[0]")) {
-                let base = object.name.substr(0, object.name.length - 3),
-                    index = 1,
-                    name = base + "[" + index + "]",
-                    location = gl.getUniformLocation(id, name);
+                for (let index = 0; index < object.size; index++) {
+                    let name = base + "[" + index + "]";
 
-                while (location) {
-                    uniforms.set(name, location);
-
-                    index += 1;
-                    name = base + "[" + index + "]",
-                    location = gl.getUniformLocation(id, name);
+                    uniforms.set(name, gl.getUniformLocation(id, name));
                 }
             }
         }
 
         for (let i = 0, l = gl.getProgramParameter(id, gl.ACTIVE_ATTRIBUTES) ; i < l; i++) {
-            let object = gl.getActiveAttrib(id, i),
-                location = gl.getAttribLocation(id, object.name);
+            let object = gl.getActiveAttrib(id, i);
 
-            attribs.set(object.name, location);
+            if (object.size === 1) {
+                attribs.set(object.name, gl.getAttribLocation(id, object.name));
+            } else {
+                let base = object.name.substr(0, object.name.length - 3);
 
-            // Basic support for arrays
-            if (object.name.endsWith("[0]")) {
-                let base = object.name.substr(0, object.name.length - 3),
-                    index = 1,
-                    name = base + "[" + index + "]",
-                    location = gl.getAttribLocation(id, name);
+                for (let index = 0; index < object.size; index++) {
+                    let name = base + "[" + index + "]";
 
-                while (location) {
-                    attribs.set(name, location);
-
-                    index += 1;
-                    name = base + "[" + index + "]",
-                    location = gl.getAttribLocation(id, name);
+                    attribs.set(name, gl.getAttribLocation(id, name));
                 }
             }
         }

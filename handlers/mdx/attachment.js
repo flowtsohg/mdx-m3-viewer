@@ -6,8 +6,6 @@
 function MdxShallowAttachment(instance, attachment) {
     let internalInstance = attachment.internalModel.addInstance();
 
-    instance.scene.addInstance(internalInstance);
-
     internalInstance.setSequenceLoopMode(2);
     internalInstance.dontInheritScale = false;
     internalInstance.hide();
@@ -24,6 +22,11 @@ MdxShallowAttachment.prototype = {
         let internalInstance = this.internalInstance;
 
         if (this.attachment.getVisibility(this.instance) > 0.1) {
+            // The parent instance might not actually be in a scene.
+            // This happens if loading a local model, where loading is instant and adding to a scene always comes afterwards.
+            // Therefore, do it here dynamically.
+            this.instance.scene.addInstance(internalInstance);
+
             if (internalInstance.hidden()) {
                 internalInstance.show();
 

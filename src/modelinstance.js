@@ -69,7 +69,7 @@ ModelInstance.prototype = {
             this.shouldRender = true;
 
             // Is this instance ready to be shown?
-            if (this.loaded && this.scene) {
+            if (this.loaded && this.scene && !this.culled) {
                 this.modelView.setVisibility(this, true);
             }
 

@@ -4,32 +4,78 @@
  * @param {MdxParserRibbonEmitter} emitter
  */
 function MdxRibbonEmitter(model, emitter) {
+    let gl = model.gl;
+
     this.model = model;
 
     this.active = [];
     this.inactive = [];
 
-    this.buffer = new ResizeableBuffer(model.gl);
+    this.buffer = new ResizeableBuffer(gl);
+    this.bytesPerEmit = 4 * 30;
 
-    this.cellWidth = 1 / this.columns;
-    this.cellHeight = 1 / this.rows;
+    this.heightAbove = emitter.heightAbove;
+    this.heightBelow = emitter.heightBelow;
+    this.alpha = emitter.alpha;
+    this.color = emitter.color;
+    this.lifespan = emitter.lifespan;
+    this.textureSlot = emitter.textureSlot;
+    this.emissionRate = emitter.emissionRate;
+    this.gravity = emitter.gravity;
 
-    this.layers = model.materials[this.materialId];
+    this.dimensions = [emitter.columns, emitter.rows];
+    this.cellWidth = 1 / emitter.columns;
+    this.cellHeight = 1 / emitter.rows;
+
+    this.node = model.nodes[emitter.node.index];
+
+    let layer = model.materials[emitter.materialId][0],
+        filterMode = layer.filterMode;
+
+    this.depthMaskValue = (filterMode === 0 || filterMode === 1) ? 1 : 0;
+    this.alphaTestValue = (filterMode === 1) ? 1 : 0;
+
+    let blended = (filterMode > 1) ? true : false;
+
+    if (blended) {
+        let blendSrc,
+            blendDst;
+
+        switch (filterMode) {
+            case 2:
+                blendSrc = gl.SRC_ALPHA;
+                blendDst = gl.ONE_MINUS_SRC_ALPHA;
+                break;
+            case 3:
+                blendSrc = gl.ONE;
+                blendDst = gl.ONE;
+                break;
+            case 4:
+                blendSrc = gl.SRC_ALPHA;
+                blendDst = gl.ONE;
+                break;
+            case 5:
+                blendSrc = gl.ZERO;
+                blendDst = gl.SRC_COLOR;
+                break;
+            case 6:
+                blendSrc = gl.DST_COLOR;
+                blendDst = gl.SRC_COLOR;
+                break;
+        }
+
+        this.blendSrc = blendSrc;
+        this.blendDst = blendDst;
+    }
+
+    this.texture = model.textures[layer.textureId];
 
     this.sd = new MdxSdContainer(model, emitter.tracks);
-
-    // Avoid heap allocations
-    this.colorVec = vec3.create();
-    this.modifierVec = vec4.create();
-    this.uvoffsetVec = vec3.create();
-    this.defaultUvoffsetVec = vec3.fromValues(0, 0, 0);
-
-    this.bytesPerEmit = 4 * 30;
 }
 
 MdxRibbonEmitter.prototype = {
     emit(emitterView) {
-        this.buffer.grow((this.active.length + 1) + this.bytesPerEmit);
+        this.buffer.grow((this.active.length + 1) * this.bytesPerEmit);
 
         let inactive = this.inactive,
             object;
@@ -37,17 +83,12 @@ MdxRibbonEmitter.prototype = {
         if (inactive.length) {
             object = inactive.pop();
         } else {
-            object = new MdxRibbon(emitterView);
+            object = new MdxRibbon(this);
         }
 
         object.reset(emitterView);
 
-        emitterView.emissions += 1;
-
-        // Don't actually add this emit if it's the first one, or the last one is dead
-        if (emitterView.lastEmit && emitterView.lastEmit.health > 0) {
-            this.active.push(object);
-        }
+        this.active.push(object);
             
         return object;
     },
@@ -71,8 +112,6 @@ MdxRibbonEmitter.prototype = {
             while (object && object.health <= 0) {
                 inactive.push(active.pop());
 
-                object.emitterView.emissions -= 1;
-
                 // Need to recalculate the length each time
                 object = active[active.length - 1];
             }
@@ -91,6 +130,80 @@ MdxRibbonEmitter.prototype = {
     },
 
     updateHW(scene) {
+        let active = this.active,
+            data = this.buffer.float32array;
+
+        for (let i = 0, l = active.length, offset = 0; i < l; i++, offset += 30) {
+            let object = active[i],
+                vertices = object.vertices,
+                lta = object.lta,
+                lba = object.lba,
+                rta = object.rta,
+                rba = object.rba,
+                rgb = object.rgb;
+
+            data[offset + 0] = vertices[0];
+            data[offset + 1] = vertices[1];
+            data[offset + 2] = vertices[2];
+            data[offset + 3] = lta;
+            data[offset + 4] = rgb;
+
+            data[offset + 5] = vertices[3];
+            data[offset + 6] = vertices[4];
+            data[offset + 7] = vertices[5];
+            data[offset + 8] = lba;
+            data[offset + 9] = rgb;
+
+            data[offset + 10] = vertices[6];
+            data[offset + 11] = vertices[7];
+            data[offset + 12] = vertices[8];
+            data[offset + 13] = rba;
+            data[offset + 14] = rgb;
+
+            data[offset + 15] = vertices[0];
+            data[offset + 16] = vertices[1];
+            data[offset + 17] = vertices[2];
+            data[offset + 18] = lta;
+            data[offset + 19] = rgb;
+
+            data[offset + 20] = vertices[6];
+            data[offset + 21] = vertices[7];
+            data[offset + 22] = vertices[8];
+            data[offset + 23] = rba;
+            data[offset + 24] = rgb;
+
+            data[offset + 25] = vertices[9];
+            data[offset + 26] = vertices[10];
+            data[offset + 27] = vertices[11];
+            data[offset + 28] = rta;
+            data[offset + 29] = rgb;
+        }
+    },
+
+    render(bucket, shader) {
+        let active = this.active.length;
+
+        if (active > 0) {
+            let model = this.model,
+                gl = model.gl;
+
+            gl.blendFunc(this.blendSrc, this.blendDst);
+
+            gl.uniform2fv(shader.uniforms.get("u_dimensions"), this.dimensions);
+
+            model.bindTexture(this.texture, 0, bucket.modelView);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.buffer);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.buffer.float32array.subarray(0, active * 30));
+
+            gl.vertexAttribPointer(shader.attribs.get("a_position"), 3, gl.FLOAT, false, 20, 0);
+            gl.vertexAttribPointer(shader.attribs.get("a_uva_rgb"), 2, gl.FLOAT, false, 20, 12);
+
+            gl.drawArrays(gl.TRIANGLES, 0, active * 6);
+        }
+    },
+
+    //updateHW(scene) {
         /*
         let active = this.active;
 
@@ -163,9 +276,9 @@ MdxRibbonEmitter.prototype = {
             data[index + 29] = rgb;
         }
         */
-    },
+    //},
 
-    render(sequence, frame, counter, textureMap, shader, viewer) {
+    //render(sequence, frame, counter, textureMap, shader, viewer) {
         /*
         var ctx = viewer.gl.ctx;
         var i, l;
@@ -252,7 +365,7 @@ MdxRibbonEmitter.prototype = {
             }
         }
         */
-    },
+    //},
 
     shouldRender(instance) {
         return this.getVisibility(instance) > 0.75;

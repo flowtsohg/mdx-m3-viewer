@@ -8,8 +8,6 @@ const M3 = {
 
         this.lightPosition = [0, 0, 10000];
 
-        this.standardShaders = [];
-
         for (let i = 0; i < 4; i++) {
             let shader = env.webgl.createShaderProgram("#define EXPLICITUV" + i + "\n" + env.sharedShaders.instanceId + env.sharedShaders.boneTexture + M3Shaders.vs_common + M3Shaders.vs_main, "#define STANDARD_PASS\n" + M3Shaders.ps_common + M3Shaders.ps_main);
 
@@ -20,7 +18,7 @@ const M3 = {
 
             this.initializeTeamColors(env, shader);
 
-            this.standardShaders[i] = shader;
+            env.shaderMap.set("M3StandardShader" + i, shader);
         }
 
         return true;

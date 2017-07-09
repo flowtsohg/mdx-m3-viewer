@@ -14,7 +14,7 @@ function MdxShallowGeoset(model, offsets, uvSetSize, elements) {
 
 MdxShallowGeoset.prototype = {
     bind(shader, coordId) {
-        let gl = this.model.env.gl,
+        let gl = this.model.gl,
             offsets = this.offsets,
             attribs = shader.attribs;
 

@@ -322,7 +322,7 @@ M3Model.prototype = {
         var uvSetCount = this.uvSetCount;
 
         // HACK UNTIL I IMPLEMENT MULTIPLE SHADERS AGAIN
-        var shader = M3.standardShaders[uvSetCount - 1];
+        var shader = this.env.shaderMap.get("M3StandardShader" + (uvSetCount - 1));
         webgl.useShaderProgram(shader);
         this.shader = shader;
 

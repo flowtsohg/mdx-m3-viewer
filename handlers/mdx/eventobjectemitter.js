@@ -147,6 +147,12 @@ MdxEventObjectEmitter.prototype = {
             } else {
                 switch (this.type) {
                     case "SPN":
+                        // An emitted object expects all of the state to be loaded.
+                        // This isn't true for models that simply fail to load due to an HTTP error.
+                        // Therefore, only emit instances if the model loaded.
+                        if (!this.internalModel.loaded) {
+                            return;
+                        }
                         object = new MdxEventObjectSpn(this);
                         break;
                     case "SPL":

@@ -26,7 +26,10 @@ function WebGL(canvas) {
 
     let extensions = {};
     for (let extension of gl.getSupportedExtensions()) {
-        extensions[extensionToCamelCase(extension)] = gl.getExtension(extension);
+        // Firefox keeps spamming errors about MOZ_ prefixed extension strings being deprecated.
+        if (!extension.startsWith("MOZ_")) {
+            extensions[extensionToCamelCase(extension)] = gl.getExtension(extension);
+        }
     }
 
     if (!gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS)) {
@@ -65,7 +68,7 @@ function WebGL(canvas) {
     this.floatPrecision = "precision mediump float;\n";
 
     // An empty 2x2 texture that is used automatically when binding an invalid texture
-    const emptyTexture = gl.createTexture();
+    let emptyTexture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, emptyTexture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
@@ -124,7 +127,7 @@ WebGL.prototype = {
     },
 
     enableVertexAttribs(start, end) {
-        const gl = this.gl;
+        let gl = this.gl;
 
         for (let i = start; i < end; i++) {
             gl.enableVertexAttribArray(i);
@@ -132,7 +135,7 @@ WebGL.prototype = {
     },
 
     disableVertexAttribs(start, end) {
-        const gl = this.gl;
+        let gl = this.gl;
 
         for (let i = start; i < end; i++) {
             gl.disableVertexAttribArray(i);
@@ -175,7 +178,7 @@ WebGL.prototype = {
      * @param {number} unit The texture unit to bind to.
      */
     bindTexture(texture, unit) {
-        const gl = this.gl;
+        let gl = this.gl;
 
         gl.activeTexture(gl.TEXTURE0 + unit);
 

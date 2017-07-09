@@ -153,14 +153,19 @@ MdxSdSequence.prototype = {
 function MdxSd(model, sd) {
     var globalSequenceId = sd.globalSequenceId,
         globalSequences = model.globalSequences,
-        tracks = sd.tracks;
+        tracks = sd.tracks,
+        forcedInterp = MdxSd.forcedInterp[sd.tag];
 
     this.tag = sd.tag;
     this.model = model;
     this.keyframes = tracks;
     this.defval = sd.defval;
-    this.interpolationType = sd.interpolationType;
-    
+
+    // Allow to force an interpolation type.
+    // The game seems to do this with visibility tracks, where the type is forced to None.
+    // It came up as a bug report by a user who used the wrong interpolation type.
+    this.interpolationType = forcedInterp !== undefined ? forcedInterp : sd.interpolationType;
+
     if (globalSequenceId !== -1 && globalSequences) {
         this.globalSequence = new MdxSdSequence(this, 0, globalSequences[globalSequenceId].value, tracks, true);
     } else {
@@ -175,6 +180,14 @@ function MdxSd(model, sd) {
         }
     }
 }
+
+MdxSd.forcedInterp = {
+    KLAV: 0,
+    KATV: 0,
+    KPEV: 0,
+    KP2V: 0,
+    KRVS: 0
+};
 
 MdxSd.prototype = {
     getValue(instance) {

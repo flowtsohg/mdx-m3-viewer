@@ -12,7 +12,7 @@ function M3Bucket(modelView) {
 
     this.gl = gl;
 
-    // POT required because for some reason, on some drivers, NPOT makes rendering go crazy.
+    // POT required because for some reason, on some drivers (Hackintosh), NPOT makes rendering go crazy.
     var numberOfBones = Math.powerOfTwo(model.initialReference.length);
     
     this.boneArrayInstanceSize = numberOfBones * 16;

@@ -6,7 +6,7 @@
  * @param {number} priorityPlane
  */
 function MdxLayer(model, layer, layerId, priorityPlane) {
-    let filterMode = Math.min(layer.filterMode, 6),
+    let filterMode = layer.filterMode,
         textureAnimationId = layer.textureAnimationId,
         gl = model.gl;
 
