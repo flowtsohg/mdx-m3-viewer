@@ -9,8 +9,7 @@ function MdxBucket(modelView) {
 
     let model = this.model,
         gl = model.env.gl,
-        // POT required because for some reason, on some drivers (Hackintosh), NPOT makes rendering go crazy.
-        numberOfBones = Math.powerOfTwo(model.bones.length + 1),
+        numberOfBones = model.bones.length + 1,
         objects;
     
     this.boneArrayInstanceSize = numberOfBones * 16;

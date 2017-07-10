@@ -23,15 +23,14 @@ const MdxShaders = {
         varying vec4 v_geosetColor;
 
         void transform(inout vec3 position, inout vec3 normal, float boneNumber, vec4 bones) {
-            mat4 b0 = boneAtIndex(bones[0], a_InstanceID);
-            mat4 b1 = boneAtIndex(bones[1], a_InstanceID);
-            mat4 b2 = boneAtIndex(bones[2], a_InstanceID);
-            mat4 b3 = boneAtIndex(bones[3], a_InstanceID);
-
+            mat4 b0 = fetchMatrix(bones[0], a_InstanceID);
+            mat4 b1 = fetchMatrix(bones[1], a_InstanceID);
+            mat4 b2 = fetchMatrix(bones[2], a_InstanceID);
+            mat4 b3 = fetchMatrix(bones[3], a_InstanceID);
             vec4 p = vec4(position, 1);
             vec4 n = vec4(normal, 0);
 
-            position = vec3((b0 * p + b1 * p + b2 * p + b3 * p) / boneNumber);
+            position = vec3(b0 * p + b1 * p + b2 * p + b3 * p) / boneNumber;
             normal = normalize(vec3(b0 * n + b1 * n + b2 * n + b3 * n));
         }
 
@@ -43,7 +42,7 @@ const MdxShaders = {
             transform(position, normal, a_boneNumber, a_bones);
 
             if (u_isTextureAnim) {
-                v_uv = (fract(a_uv +a_uvOffset.xy) +a_uvOffset.zw) * u_uvScale;
+                v_uv = (fract(a_uv + a_uvOffset.xy) + a_uvOffset.zw) * u_uvScale;
             } else {
                 v_uv = a_uv;
             }

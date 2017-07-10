@@ -51,12 +51,12 @@ const M3Shaders = {
                 mat4 bone;
 
                 if (u_boneWeightPairsCount == 1.0) {
-                    bone = boneAtIndex(bones[0], a_InstanceID);
+                    bone = fetchMatrix(bones[0], a_InstanceID);
                 } else {
-                    bone += boneAtIndex(bones[0], a_InstanceID) * weights[0];
-                    bone += boneAtIndex(bones[1], a_InstanceID) * weights[1];
-                    bone += boneAtIndex(bones[2], a_InstanceID) * weights[2];
-                    bone += boneAtIndex(bones[3], a_InstanceID) * weights[3];
+                    bone += fetchMatrix(bones[0], a_InstanceID) * weights[0];
+                    bone += fetchMatrix(bones[1], a_InstanceID) * weights[1];
+                    bone += fetchMatrix(bones[2], a_InstanceID) * weights[2];
+                    bone += fetchMatrix(bones[3], a_InstanceID) * weights[3];
                 }
 
                 position = vec3(bone * vec4(position, 1.0));

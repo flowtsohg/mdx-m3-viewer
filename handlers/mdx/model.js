@@ -489,8 +489,8 @@ MdxModel.prototype = {
         gl.activeTexture(gl.TEXTURE15);
         gl.bindTexture(gl.TEXTURE_2D, bucket.boneTexture);
         gl.uniform1i(uniforms.get("u_boneMap"), 15);
-        gl.uniform1f(uniforms.get("u_vector_size"), bucket.vectorSize);
-        gl.uniform1f(uniforms.get("u_row_size"), bucket.rowSize);
+        gl.uniform1f(uniforms.get("u_vectorSize"), bucket.vectorSize);
+        gl.uniform1f(uniforms.get("u_rowSize"), bucket.rowSize);
 
         let instanceId = attribs.get("a_InstanceID");
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);

@@ -153,7 +153,7 @@ Scene.prototype = {
             }
         }
 
-        return false;        
+        return false;
     },
 
     sortBuckets() {

@@ -18,7 +18,7 @@ const Geo = {
                     v_uv = a_uv * u_uvScale + u_uvOffset;
                     v_color = a_color;
 
-                    gl_Position = u_mvp * boneAtIndex(0.0, a_InstanceID) * vec4(a_position, 1.0);
+                    gl_Position = u_mvp * fetchMatrix(0.0, a_InstanceID) * vec4(a_position, 1.0);
                 }
             `,
             `
