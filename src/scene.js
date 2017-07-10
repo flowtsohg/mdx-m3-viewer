@@ -14,6 +14,9 @@ function Scene() {
     this.buckets = [];
     /** @member {Set<Bucket>} */
     this.bucketSet = new Set();
+
+    this.bucketsToAdd = [];
+    this.bucketsToRemove = [];
 }
 
 Scene.prototype = {
@@ -119,55 +122,29 @@ Scene.prototype = {
         return false;
     },
 
+    // Note: the bucket will actually be added at the next update call.
     addBucket(bucket) {
-        let bucketSet = this.bucketSet;
-
-        if (!bucketSet.has(bucket)) {
-            bucketSet.add(bucket);
-
-            this.buckets.push(bucket);
-
-            // Sort the buckets by priority.
-            this.sortBuckets();
-
-            return true;
-        }
-
-        return false;
+        this.bucketsToAdd.push(bucket);
     },
 
+    // Note: the bucket will actually be removed at the next update call.
     removeBucket(bucket) {
-        let bucketSet = this.bucketSet;
-
-        if (bucketSet.has(bucket)) {
-            let instances = bucket.instances.length;
-
-            if (instances === 0) {
-                bucketSet.delete(bucket);
-
-                let buckets = this.buckets;
-
-                buckets.splice(buckets.indexOf(bucket), 1);
-
-                return true;
-            }
-        }
-
-        return false;
+        this.bucketsToRemove.push(bucket);
     },
 
+    // Sort the buckets based on priority.
+    // Note that this is never called by the library so far, and is manually used by the W3x handler.
     sortBuckets() {
         this.buckets.sort((a, b) => b.priority - a.priority);
     },
 
     update() {
         // First update all of the instances.
-        // Note that this can result in them getting removed from buckets, and possibly the buckets themselves being removed.
-        // E.g. in event listeners, attachments, emitters, etc.
         var instances = this.instances;
 
         for (var i = 0, l = instances.length; i < l; i++) {
-            var instance = instances[i],
+            var instance = instances[i];
+            /*
                 isVisible = this.isVisible(instance) || instance.noCulling,
                 isCulled = instance.culled;
 
@@ -179,6 +156,7 @@ Scene.prototype = {
                 instance.culled = true;
                 instance.hide();
             }
+            */
 
             if (instance.loaded && !instance.paused) {
                 // Update animation timers and other lightweight things
@@ -191,12 +169,43 @@ Scene.prototype = {
             }
         }
 
-        // Now that all of the instances are in their appropriate buckets, update the buckets.
+        // Update the buckets.
         var buckets = this.buckets;
 
         for (var i = 0, l = buckets.length; i < l; i++) {
             buckets[i].update(this);
         }
+
+        // Now that all updates have finished, add and remove buckets.
+        var bucketSet = this.bucketSet,
+            bucketsToAdd = this.bucketsToAdd,
+            bucketsToRemove = this.bucketsToRemove;
+
+        // Add buckets.
+        for (var i = 0, l = bucketsToAdd.length; i < l; i++) {
+            var bucket = bucketsToAdd[i];
+
+            if (!bucketSet.has(bucket)) {
+                bucketSet.add(bucket);
+                buckets.push(bucket);
+            }
+        }
+
+        // Remove buckets.
+        for (var i = 0, l = bucketsToRemove.length; i < l; i++) {
+            var bucket = bucketsToRemove[i];
+
+            if (bucketSet.has(bucket)) {
+                if (bucket.instances.length === 0) {
+                    bucketSet.delete(bucket);
+                    buckets.splice(buckets.indexOf(bucket), 1);
+                }
+            }
+        }
+
+        // Reset the arrays.
+        bucketsToAdd.length = 0;
+        bucketsToRemove.length = 0;
     },
 
     isVisible(instance) {
