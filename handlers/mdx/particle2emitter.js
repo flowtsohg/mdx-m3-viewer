@@ -69,39 +69,7 @@ function MdxParticle2Emitter(model, emitter) {
 
     this.dimensions = [emitter.columns, emitter.rows];
 
-    let blendSrc,
-        blendDst;
-
-    switch (emitter.filterMode) {
-        // Blend
-        case 0:
-            blendSrc = gl.SRC_ALPHA;
-            blendDst = gl.ONE_MINUS_SRC_ALPHA;
-            break;
-        // Additive
-        case 1:
-            blendSrc = gl.SRC_ALPHA;
-            blendDst = gl.ONE;
-            break;
-        // Modulate
-        case 2:
-            blendSrc = gl.ZERO;
-            blendDst = gl.SRC_COLOR;
-            break;
-        // Modulate 2X
-        case 3:
-            blendSrc = gl.DEST_COLOR;
-            blendDst = gl.SRC_COLOR;
-            break;
-        // Add Alpha
-        case 4:
-            blendSrc = gl.SRC_ALPHA;
-            blendDst = gl.ONE;
-            break;
-    }
-
-    this.blendSrc = blendSrc;
-    this.blendDst = blendDst;
+    this.selectFilterMode(emitter.filterMode);
 }
 
 MdxParticle2Emitter.prototype = {
@@ -130,6 +98,43 @@ MdxParticle2Emitter.prototype = {
         if (this.tail) {
             this.emitParticle(emitterView, false);
         }
+    },
+
+    selectFilterMode(filterMode) {
+        let gl = this.model.gl,
+            blendSrc,
+            blendDst;
+
+        switch (filterMode) {
+            // Blend
+            case 0:
+                blendSrc = gl.SRC_ALPHA;
+                blendDst = gl.ONE_MINUS_SRC_ALPHA;
+                break;
+                // Additive
+            case 1:
+                blendSrc = gl.SRC_ALPHA;
+                blendDst = gl.ONE;
+                break;
+                // Modulate
+            case 2:
+                blendSrc = gl.ZERO;
+                blendDst = gl.SRC_COLOR;
+                break;
+                // Modulate 2X
+            case 3:
+                blendSrc = gl.DEST_COLOR;
+                blendDst = gl.SRC_COLOR;
+                break;
+                // Add Alpha
+            case 4:
+                blendSrc = gl.SRC_ALPHA;
+                blendDst = gl.ONE;
+                break;
+        }
+
+        this.blendSrc = blendSrc;
+        this.blendDst = blendDst;
     },
 
     update: MdxParticleEmitter.prototype.update,

@@ -52,34 +52,7 @@ MdxEventObjectUbrEmitter.prototype = {
 
             this.lifespan = row.BirthTime + row.PauseTime + row.Decay;
 
-            let blendMode = row.BlendMode;
-            switch (blendMode) {
-                // Blend
-                case 0:
-                    this.blendSrc = gl.SRC_ALPHA;
-                    this.blendDst = gl.ONE_MINUS_SRC_ALPHA;
-                    break;
-                    // Additive
-                case 1:
-                    this.blendSrc = gl.SRC_ALPHA;
-                    this.blendDst = gl.ONE;
-                    break;
-                    // Modulate
-                case 2:
-                    this.blendSrc = gl.ZERO;
-                    this.blendDst = gl.SRC_COLOR;
-                    break;
-                    // Modulate 2X
-                case 3:
-                    this.blendSrc = gl.DEST_COLOR;
-                    this.blendDst = gl.SRC_COLOR;
-                    break;
-                    // Add Alpha
-                case 4:
-                    this.blendSrc = gl.SRC_ALPHA;
-                    this.blendDst = gl.ONE;
-                    break;
-            }
+            this.selectFilterMode(row.BlendMode);
 
             this.ready = true;
         }
@@ -103,6 +76,7 @@ MdxEventObjectUbrEmitter.prototype = {
         }
     },
 
+    selectFilterMode: MdxParticle2Emitter.prototype.selectFilterMode,
     update: MdxParticleEmitter.prototype.update,
     updateData: MdxParticle2Emitter.prototype.updateData,
     render: MdxParticle2Emitter.prototype.render,

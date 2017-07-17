@@ -10,7 +10,6 @@ function MdxParticle2(emitter) {
     this.location = vec3.create();
     this.worldLocation = vec3.create();
     this.velocity = vec3.create();
-    //this.color = new Uint8Array(4);
     this.gravity = 0;
     this.scale = 1;
     this.index = 0;
