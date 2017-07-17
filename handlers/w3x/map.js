@@ -12,10 +12,6 @@ function W3xMap(env, pathSolver) {
 }
 
 W3xMap.prototype = {
-    get Handler() {
-        return W3x;
-    },
-
     initialize(src) {
         var reader = new BinaryReader(src);
 

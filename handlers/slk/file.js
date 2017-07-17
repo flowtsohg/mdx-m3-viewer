@@ -16,10 +16,6 @@ function SlkFile(env, pathSolver) {
 }
 
 SlkFile.prototype = {
-    get Handler() {
-        return Slk;
-    },
-
     initialize(src) {
         if (!src.startsWith("ID")) {
             this.onerror("InvalidSource", "WrongMagicNumber");

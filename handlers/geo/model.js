@@ -10,10 +10,6 @@ function GeometryModel(env, pathSolver) {
 }
 
 GeometryModel.prototype = {
-    get Handler() {
-        return Geo;
-    },
-
     initialize(src) {
         const gl = this.env.gl;
 

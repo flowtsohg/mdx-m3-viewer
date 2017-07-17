@@ -10,10 +10,6 @@ function TgaTexture(env, pathSolver) {
 }
 
 TgaTexture.prototype = {
-    get Handler() {
-        return Tga;
-    },
-
     initialize(src) {
         let gl = this.env.gl,
             dataView = new DataView(src),

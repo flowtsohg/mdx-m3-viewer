@@ -12,9 +12,6 @@ function Model(env, pathSolver) {
 
     /** @member {Array<ModelView>} */
     this.views = [];
-
-    // Add the default view
-    this.addView();
 }
 
 
@@ -23,24 +20,26 @@ Model.prototype = {
         return "model";
     },
 
-    get Handler() {
-        throw new Error("Model.Handler must be overriden!");
-    },
-
     /**
      * Adds a new instance to this model, and returns it.
      * 
      * @returns {ModelInstance}
      */
     addInstance() {
-        let instance = new this.Handler.Instance(this);
+        let views = this.views,
+            instance = new this.Handler.Instance(this);
 
         this.env.registerEvents(instance);
 
         instance.load(this);
 
         this.instances.push(instance);
-        this.views[0].addInstance(instance);
+
+        if (views.length === 0) {
+            this.addView();
+        }
+
+        views[0].addInstance(instance);
 
         if (this.loaded || this.error) {
             instance.modelReady();

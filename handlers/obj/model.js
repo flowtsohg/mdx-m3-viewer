@@ -11,11 +11,6 @@ function ObjModel(env, pathSolver) {
 }
 
 ObjModel.prototype = {
-    // Point back to this implementation's handler.
-    get Handler() {
-        return Obj;
-    },
-
     // Called when the model finishes loading.
     // src is either a string, or an ArrayBuffer, depending on the handler's binaryFormat getter (default to false, where src is a string).
     initialize(src) {

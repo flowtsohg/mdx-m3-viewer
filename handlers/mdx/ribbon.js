@@ -16,7 +16,7 @@ function MdxRibbon(emitter) {
 }
 
 MdxRibbon.prototype = {
-    reset(emitterView, index) {
+    reset(emitterView) {
         let instance = emitterView.instance,
             emitter = this.emitter,
             vertices = this.vertices,

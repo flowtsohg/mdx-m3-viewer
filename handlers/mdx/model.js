@@ -23,10 +23,6 @@ function MdxModel(env, pathSolver) {
 }
 
 MdxModel.prototype = {
-    get Handler() {
-        return Mdx;
-    },
-
     initialize(src) {
         var parser;
         

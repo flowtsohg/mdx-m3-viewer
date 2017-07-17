@@ -10,10 +10,6 @@ function BmpTexture(env, pathSolver) {
 }
 
 BmpTexture.prototype = {
-    get Handler() {
-        return Bmp;
-    },
-
     initialize(src) {
         // Simple binary reader implementation, see src/binaryreader.
         let reader = new BinaryReader(src);

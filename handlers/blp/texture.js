@@ -10,10 +10,6 @@ function BlpTexture(env, pathSolver) {
 }
 
 BlpTexture.prototype = {
-    get Handler() {
-        return Blp;
-    },
-
     initialize(src) {
         const gl = this.env.gl,
               BLP1_MAGIC = 0x31504c42,

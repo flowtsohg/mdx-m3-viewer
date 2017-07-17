@@ -11,10 +11,6 @@ function DdsTexture(env, pathSolver) {
 }
 
 DdsTexture.prototype = {
-    get Handler() {
-        return Dds;
-    },
-
     initialize(src) {
         let gl = this.env.gl,
             compressedTextures = this.env.webgl.extensions.compressedTextureS3tc,

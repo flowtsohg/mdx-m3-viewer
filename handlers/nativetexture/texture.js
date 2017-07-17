@@ -10,10 +10,6 @@ function ImageTexture(env, pathSolver) {
 }
 
 ImageTexture.prototype = {
-    get Handler() {
-        return NativeTexture;
-    },
-
     initialize(src) {
         // src can either be an Image, or an ArrayBuffer, depending on the way it was loaded
         if (src instanceof HTMLImageElement || src instanceof HTMLVideoElement || src instanceof HTMLCanvasElement || src instanceof ImageData) {
