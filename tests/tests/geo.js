@@ -106,8 +106,8 @@ UnitTester.addTest("geo-faces-and-edges", (viewer, scene) => {
     scene.addInstance(instance);
 });
 
-// Color.
-UnitTester.addTest("geo-color", (viewer, scene) => {
+// Vertex color.
+UnitTester.addTest("geo-vertex-color", (viewer, scene) => {
     let camera = scene.camera;
 
     camera.resetTransformation();
@@ -119,7 +119,7 @@ UnitTester.addTest("geo-color", (viewer, scene) => {
     };
 
     let model = viewer.load(data, geoSolver);
-    let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8)).setColor([255, 0, 0]);
+    let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8)).setVertexColor([255, 0, 0, 255]);
 
     scene.addInstance(instance);
 });
@@ -137,7 +137,25 @@ UnitTester.addTest("geo-edge-color", (viewer, scene) => {
     };
 
     let model = viewer.load(data, geoSolver);
-    let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8)).setEdgeColor([255, 0, 0]);
+    let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8)).setEdgeColor([255, 0, 0, 255]);
+
+    scene.addInstance(instance);
+});
+
+// Vertex and edge colors.
+UnitTester.addTest("geo-both-colors", (viewer, scene) => {
+    let camera = scene.camera;
+
+    camera.resetTransformation();
+    camera.move([0, 0, -110]);
+
+    let data = {
+        geometry: createUnitRectangle(),
+        material: { renderMode: 2 }
+    };
+
+    let model = viewer.load(data, geoSolver);
+    let instance = model.addInstance().uniformScale(44).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8)).setVertexColor([0, 0, 255, 255]).setEdgeColor([255, 0, 0, 255]);
 
     scene.addInstance(instance);
 });

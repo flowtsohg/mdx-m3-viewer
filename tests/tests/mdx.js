@@ -4,6 +4,8 @@ UnitTester.addTest("mdx-load", (viewer, scene) => {
 
     camera.resetTransformation();
     camera.move([0, -50, -90]);
+    camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
+    camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
     let model = viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver),
         instance = model.addInstance();
@@ -19,6 +21,8 @@ UnitTester.addTest("mdx-sequence", (viewer, scene) => {
 
     camera.resetTransformation();
     camera.move([0, -50, -90]);
+    camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
+    camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
     let model = viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver),
         instance = model.addInstance();
@@ -37,6 +41,8 @@ UnitTester.addTest("mdx-team-color", (viewer, scene) => {
 
     camera.resetTransformation();
     camera.move([0, -50, -90]);
+    camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
+    camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
     let model = viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver),
         instance = model.addInstance();
@@ -49,18 +55,20 @@ UnitTester.addTest("mdx-team-color", (viewer, scene) => {
 });
 
 // Change tint colors.
-UnitTester.addTest("mdx-tint-color", (viewer, scene) => {
+UnitTester.addTest("mdx-vertex-color", (viewer, scene) => {
     let camera = scene.camera;
 
     camera.resetTransformation();
     camera.move([0, -50, -90]);
+    camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
+    camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
     let model = viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver),
         instance = model.addInstance();
 
     scene.addInstance(instance);
 
-    instance.setTintColor([255, 0, 0]);
+    instance.setVertexColor([255, 0, 0, 255]);
 
     instance.noCulling = true; // :(
 });
@@ -71,6 +79,8 @@ UnitTester.addTest("mdx-texture-animation", (viewer, scene) => {
 
     camera.resetTransformation();
     camera.move([0, -50, -90]);
+    camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
+    camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
     let model = viewer.load("Units/Human/WaterElemental/WaterElemental.mdx", wc3Solver),
         instance = model.addInstance();
@@ -89,6 +99,8 @@ UnitTester.addTest("mdx-particle-emitter", (viewer, scene) => {
 
     camera.resetTransformation();
     camera.move([0, -60, -70]);
+    camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
+    camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
     let model = viewer.load("Units/Creeps/AzureDragon/AzureDragon.mdx", wc3Solver),
         instance = model.addInstance();
@@ -112,6 +124,8 @@ UnitTester.addTest("mdx-particle-emitter-2", (viewer, scene) => {
 
     camera.resetTransformation();
     camera.move([0, 20, -200]);
+    camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
+    camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
     let model = viewer.load("Units/Creeps/AzureDragon/AzureDragon.mdx", wc3Solver),
         instance = model.addInstance();
@@ -135,6 +149,8 @@ UnitTester.addTest("mdx-attachment-model", (viewer, scene) => {
 
     camera.resetTransformation();
     camera.move([0, 0, -400]);
+    camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
+    camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
     let model = viewer.load("Buildings/Undead/HauntedMine/HauntedMine.mdx", wc3Solver),
         instance = model.addInstance();

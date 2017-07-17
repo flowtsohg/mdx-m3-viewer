@@ -88,9 +88,15 @@ const UnitTester = (function () {
 
             viewer.whenAllLoaded(() => {
                 // Update the viewer once to make all of the changes appear
-                viewer.updateAndRender();
+                viewer.update();
 
-                // Put back Math.random in its place
+                // And a second update, becuase otherwise the viewer is empty????
+                viewer.update();
+
+                // Render the viewer
+                viewer.render();
+
+                // Put back Math.random in its place before client code is called
                 resetMathRandom();
 
                 callback(entry, iterator);
@@ -120,43 +126,10 @@ const UnitTester = (function () {
         }
     }
 
-    function generateAxes(viewer, width, length) {
-        let data = {
-            geometry: createUnitCube(),
-            material: { renderMode: 0, twoSided: true }
-        };
-
-        // Shared axis model
-        let axis = viewer.load(data, geoSolver);
-
-        // X RED
-        let x = axis.addInstance().setColor([255, 0, 0]).scale([length, width, width]).move([length, 0, 0]);
-        x.noCulling = true; // No proper culling yet :(
-
-        // Y GREEN
-        let y = axis.addInstance().setColor([0, 255, 0]).scale([width, length, width]).move([0, length, 0]);
-        y.noCulling = true; // No proper culling yet :(
-
-        // Z BLUE
-        let z = axis.addInstance().setColor([0, 0, 255]).scale([width, width, length]).move([0, 0, length]);
-        z.noCulling = true; // No proper culling yet :(
-
-        let node = new NotifiedNode();
-        
-        x.setParent(node);
-        y.setParent(node);
-        z.setParent(node);
-        
-        //node.dontInheritScaling = true;
-
-        return node;
-    }
-
     return {
         addTest,
         run,
         downloadTestResults,
-        loadSync,
-        generateAxes
+        loadSync
     };
 }());

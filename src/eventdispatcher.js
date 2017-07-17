@@ -60,11 +60,13 @@ EventDispatcher.prototype = {
                 event.target = this;
             }
 
-            // Looping backwards, in case of a self-removing listener.
-            // If the loop would go forwards and a listener removes itself, the iteration logic breaks.
-            let i = listeners.length;
+            // If the original array is looped, and a callback removes a listener (e.g. a self-removing listener), the iteration logic is broken.
+            // Therefore, the array is cloned, and the clone is iterated instead.
+            // This isn't ideal, however I don't have a fix yet.
+            // Iterating backwards breaks listener logic (listeners have to be called in the order they were registered).
+            listeners = listeners.slice();
 
-            while (i--) {
+            for (let i = 0, l = listeners.length; i < l; i++) {
                 listeners[i].call(this, event);
             }
         }

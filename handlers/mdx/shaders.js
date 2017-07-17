@@ -63,7 +63,6 @@ const MdxShaders = {
     "ps_main": `
         uniform sampler2D u_texture;
         uniform bool u_alphaTest;
-        uniform vec4 u_modifier;
         uniform float u_colorMode;
 
         varying vec3 v_normal;
@@ -149,17 +148,42 @@ const MdxShaders = {
 
     "vs_ribbons": `
         uniform mat4 u_mvp;
-        uniform vec3 u_uv_offset;
+        uniform vec2 u_dimensions;
 
         attribute vec3 a_position;
-        attribute vec2 a_uv;
+        attribute vec2 a_uva_rgb;
 
         varying vec2 v_uv;
+        varying vec4 v_color;
 
         void main() {
-            v_uv = a_uv + u_uv_offset.xy;
+            vec3 uva = decodeFloat3(a_uva_rgb[0]);
+            vec3 rgb = decodeFloat3(a_uva_rgb[1]);
 
-            gl_Position = u_mvp * vec4(a_position, 1.0);
+            v_uv = (uva.xy / 255.0) / u_dimensions;
+            v_color = vec4(rgb, uva.z) / 255.0;
+
+            gl_Position = u_mvp * vec4(a_position, 1);
+    }
+    `,
+
+    "ps_ribbons": `
+        uniform sampler2D u_texture;
+
+        uniform bool u_alphaTest;
+
+        varying vec2 v_uv;
+        varying vec4 v_color;
+
+        void main() {
+	        vec4 texel = texture2D(u_texture, v_uv).bgra;
+
+            // 1bit Alpha
+            if (u_alphaTest && texel.a < 0.75) {
+                discard;
+            }
+
+	        gl_FragColor = texel * v_color.rgba;
         }
-    `
+    `,
 };

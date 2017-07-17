@@ -3,10 +3,10 @@ UnitTester.addTest("m3-load", (viewer, scene) => {
     let camera = scene.camera;
 
     camera.resetTransformation();
-    camera.move([0, -30, -90]);
+    camera.move([0, -5, -100]);
 
     let model = viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver),
-        instance = model.addInstance();
+        instance = model.addInstance().uniformScale(50);
 
     scene.addInstance(instance);
 });
@@ -16,10 +16,10 @@ UnitTester.addTest("m3-sequence", (viewer, scene) => {
     let camera = scene.camera;
 
     camera.resetTransformation();
-    camera.move([0, -30, -90]);
+    camera.move([0, -5, -100]);
 
     let model = viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver),
-        instance = model.addInstance();
+        instance = model.addInstance().uniformScale(50);
 
     scene.addInstance(instance);
 
@@ -32,10 +32,10 @@ UnitTester.addTest("m3-team-color", (viewer, scene) => {
     let camera = scene.camera;
 
     camera.resetTransformation();
-    camera.move([0, -30, -90]);
+    camera.move([0, -5, -100]);
 
     let model = viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver),
-        instance = model.addInstance();
+        instance = model.addInstance().uniformScale(50);
 
     scene.addInstance(instance);
 
@@ -43,16 +43,16 @@ UnitTester.addTest("m3-team-color", (viewer, scene) => {
 });
 
 // Change tint colors.
-UnitTester.addTest("m3-tint-color", (viewer, scene) => {
+UnitTester.addTest("m3-vertex-color", (viewer, scene) => {
     let camera = scene.camera;
 
     camera.resetTransformation();
-    camera.move([0, -30, -90]);
+    camera.move([0, -5, -100]);
 
     let model = viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver),
-        instance = model.addInstance();
+        instance = model.addInstance().uniformScale(50);
 
     scene.addInstance(instance);
 
-    instance.setTintColor([255, 0, 0]);
+    instance.setVertexColor([255, 0, 0, 255]);
 });

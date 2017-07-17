@@ -1,3 +1,16 @@
+let canvas = document.createElement("canvas");
+
+canvas.width = canvas.height = 256;
+
+let viewer = new ModelViewer(canvas);
+
+viewer.gl.clearColor(0.1, 0.1, 0.1, 1);
+
+viewer.addEventListener("error", (e) => console.log(e));
+
+viewer.addHandler(W3x);
+viewer.addHandler(M3);
+
 let testsCount = 0,
     testsPassed = 0,
     table = document.createElement("table");
@@ -18,7 +31,7 @@ function addTestResult(testResult) {
 
     // Name of the test
     name.textContent = testResult[0] + " ";
-    
+
     // Status of the test
     status.textContent = result ? "passed" : "failed";
     status.style.color = result ? "green" : "red";
@@ -49,27 +62,7 @@ function addTestResult(testResult) {
     tr.appendChild(imageB);
 }
 
-let canvas = document.createElement("canvas");
-
-canvas.width = canvas.height = 256;
-
-let viewer = new ModelViewer(canvas);
-
-viewer.gl.clearColor(0.1, 0.1, 0.1, 1);
-
-viewer.addEventListener("error", (e) => console.log(e));
-
-viewer.addHandler(W3x);
-viewer.addHandler(M3);
-
-let scene = new Scene();
-
-viewer.addScene(scene);
-
-let camera = scene.camera;
-
-camera.setViewport([0, 0, canvas.width, canvas.height]);
-camera.setPerspective(Math.PI / 4, 1, 8, 100000);
+console.log(UnitTester);
 
 UnitTester.run(viewer, (testResult) => {
     if (!testResult.done) {
