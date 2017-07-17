@@ -170,7 +170,7 @@ MdxModelInstance.prototype = {
 
         objects = bucket.particleEmitters2;
         for (let i = 0, l = objects.length; i < l; i++) {
-            this.particleEmitters2[i] = new MdxParticleEmitter2View(this, objects[i]);
+            this.particleEmitters2[i] = new MdxParticle2EmitterView(this, objects[i]);
         }
 
         objects = bucket.ribbonEmitters;

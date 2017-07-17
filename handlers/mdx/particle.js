@@ -60,9 +60,9 @@ MdxParticle.prototype = {
         velocity[2] -= this.gravity * frameTimeS;
 
         internalInstance.move(vec3.scale(vec3.heap, velocity, frameTimeS));
-    },
 
-    kill() {
-        this.internalInstance.hide();
+        if (this.health <= 0) {
+            this.internalInstance.hide();
+        }
     }
 };

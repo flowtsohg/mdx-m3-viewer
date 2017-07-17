@@ -218,7 +218,11 @@ MdxModel.prototype = {
         }
 
         if (chunks.has("EVTS")) {
-            this.eventObjectEmitters = chunks.get("EVTS").elements;
+            let eventObjects = chunks.get("EVTS").elements;
+
+            for (let i = 0, l = eventObjects.length; i < l; i++) {
+                this.eventObjectEmitters.push(new MdxEventObject(this, eventObjects[i]));
+            }
         }
 
         this.calculateExtent();

@@ -4,7 +4,7 @@
  * @param {Array<MdxParserNode>} nodes
  * @param {number} index
  */
-function MdxParserParticleEmitter2(reader, nodes, index) {
+function MdxParserParticle2Emitter(reader, nodes, index) {
     this.index = index;
     /** @member {number} */
     this.size = reader.readUint32();

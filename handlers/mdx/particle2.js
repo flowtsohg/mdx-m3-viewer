@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @param {MdxParticleEmitter2} emitter
+ * @param {MdxParticle2Emitter} emitter
  */
 function MdxParticle2(emitter) {
     this.emitter = emitter;

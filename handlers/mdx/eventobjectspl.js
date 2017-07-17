@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @param {MdxEventObjectEmitter} emitterView
+ * @param {MdxEventObjectEmitter} emitter
  */
 function MdxEventObjectSpl(emitter) {
     this.emitter = emitter;

@@ -20,7 +20,7 @@ MdxParserGenericUnknownChunk.tagToChunk = {
     HELP: MdxParserHelper,
     ATCH: MdxParserAttachment,
     PREM: MdxParserParticleEmitter,
-    PRE2: MdxParserParticleEmitter2,
+    PRE2: MdxParserParticle2Emitter,
     RIBB: MdxParserRibbonEmitter,
     EVTS: MdxParserEventObject,
     CAMS: MdxParserCamera,

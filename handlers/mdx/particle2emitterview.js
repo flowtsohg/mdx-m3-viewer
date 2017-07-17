@@ -1,16 +1,16 @@
 /**
  * @constructor
  * @param {MdxModelInstance} instance
- * @param {MdxParticleEmitter2} emitter
+ * @param {MdxParticle2Emitter} emitter
  */
-function MdxParticleEmitter2View(instance, emitter) {
+function MdxParticle2EmitterView(instance, emitter) {
     this.instance = instance;
     this.emitter = emitter;
     this.currentEmission = 0;
     this.lastEmissionKey = -1;
 }
 
-MdxParticleEmitter2View.prototype = {
+MdxParticle2EmitterView.prototype = {
     update() {
         if (this.shouldRender()) {
             let emitter = this.emitter;
