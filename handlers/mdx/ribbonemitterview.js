@@ -8,6 +8,8 @@ function MdxRibbonEmitterView(instance, emitter) {
     this.emitter = emitter;
     this.currentEmission = 0;
     this.lastEmit = null;
+    this.currentRibbon = -1;
+    this.ribbonCount = 0;
 }
 
 MdxRibbonEmitterView.prototype = {
@@ -16,7 +18,7 @@ MdxRibbonEmitterView.prototype = {
             let emitter = this.emitter;
 
             this.currentEmission += emitter.emissionRate * this.instance.env.frameTime * 0.001;
-
+            
             if (this.currentEmission >= 1) {
                 for (let i = 0, l = Math.floor(this.currentEmission) ; i < l; i++, this.currentEmission--) {
                     this.lastEmit = emitter.emit(this);

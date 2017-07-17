@@ -18,8 +18,7 @@ Built-in handlers exist for the following formats:
 * BMP: partial support (more of an example handler).
 
 To get a single includeable file, run the given Ruby script in `compiler.rb`. This script gives you compilation options if you open it with a text editor, and will result in `viewer.min.js` getting generated, if you tell it to minify. Running it without changes will generate the minified version including all built-in handlers.
-In addition, the compiler supports `--gen-docs`, which creates the documentation files (assuming you have JSDoc in your system PATH variable), `--split-external`, which splits the final output to all viewer files in `viewer.min.js`, and all external sources (e.g. glMatrix) in external.min.js.
-Finally, there's `--unit-tests', which includes the unit tester and all of the unit tests.
+In addition, the compiler supports `--gen-docs`, which creates the documentation files (assuming you have JSDoc in your system PATH variable), `--split-external`, and finally, there's `--unit-tests', which includes the unit tester and all of the unit tests.
 
 ------------------------
 
@@ -91,7 +90,7 @@ The load function itself looks like this:
 let resource = viewer.load(src, pathSolver)
 ```
 
-In other words, you give it either a source, and a resource is returned.
+In other words, you give it a source, and a resource is returned.
 A resource in this context means a model, a texture, or a generic file (any handler that is not a model or texture handler, such as SLK).
 
 The source here can be anything - a string, an object, a typed array, whatever - it highly depends on your code, and on the path solver.
@@ -145,9 +144,8 @@ This function call results in the following chain of events:
 7. In the case of a MDX model, the previous step will also cause it to load its textures, in this case `texture.blp`.
 8. myPathSolver is called with `texture.blp`, which returns `["Resources/texture.blp", ".blp", true]`, and we loop back to step 2, but with a texture this time.
 
-The path solver does two jobs here. First of all, it made the load calls shorter by avoiding to type "Resources/". But the real deal, is that it allows to selectively override sources, and change them in interesting ways.
-In this case, it allowed `model.mdx` to load `texture.blp`, which is a relative path. If the path would have been given directly, then the file wouldn't have been found.
-Generally speaking, an identity solver is what you'll need (as in, it returns the source assuming its an url but prepended by some directory, its extension, and true for server fetch), but there are times where this is not the case, such as loading custom user-made models, handling both in-memory and server-fetches in the same solver (used by the W3X handler), etc.
+Had we used the paths directly, `model.mdx` would have tried to load `texture.blp`, a relative path, and would get a 404 error.
+Generally speaking, an identity solver is what you'll need (as in, it returns the source assuming its an url but prepended by some directory, its extension, and true for server fetch), but there are times where this is not the case, such as loading models with custom textures, handling both in-memory and server-fetches in the same solver (used by the W3X handler), etc.
 
 We now have a model, however a model in this context is simply a source of data, not something that you see.
 The next step is to create an instance of this model.
@@ -219,7 +217,6 @@ The type can be one of:
 
 The event object that a listener recieves has the same structure as JS events.
 For example, for the load call above, the following is how a `progress` event could look: `{type: "progress", target: MdxModel, loaded: 101, total: 9001, lengthComputable: true}`, `MdxModel` being our `model` variable in this case. That is, `e.target === model`.
-In the case of the render event, `e.target === viewer`.
 
 Errors might occur, but don't panic.
 These are the errors the code uses:

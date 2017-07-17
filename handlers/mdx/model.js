@@ -634,12 +634,21 @@ MdxModel.prototype = {
                 particleEmitters2[i].render(bucket, shader);
             }
 
-            for (let i = 0, l = ribbonEmitters.length; i < l; i++) {
-                ribbonEmitters[i].render(bucket, shader);
-            }
-
             for (let i = 0, l = eventObjectEmitters.length; i < l; i++) {
                 eventObjectEmitters[i].render(bucket, shader);
+            }
+        }
+
+        if (ribbonEmitters.length) {
+            var shader = this.env.shaderMap.get("MdxRibbonShader");
+            webgl.useShaderProgram(shader);
+
+            gl.uniformMatrix4fv(shader.uniforms.get("u_mvp"), false, scene.camera.worldProjectionMatrix);
+
+            gl.uniform1i(shader.uniforms.get("u_texture"), 0);
+
+            for (let i = 0, l = ribbonEmitters.length; i < l; i++) {
+                ribbonEmitters[i].render(bucket, shader);
             }
         }
     }

@@ -16,7 +16,7 @@ function MdxParserRibbonEmitter(reader, nodes, index) {
     this.heightBelow = reader.readFloat32();
     /** @member {number} */
     this.alpha = reader.readFloat32();
-    /** @member {number} */
+    /** @member {Float32Array} */
     this.color = reader.readFloat32Array(3);
     /** @member {number} */
     this.lifespan = reader.readFloat32();
@@ -32,6 +32,6 @@ function MdxParserRibbonEmitter(reader, nodes, index) {
     this.materialId = reader.readUint32();
     /** @member {number} */
     this.gravity = reader.readFloat32();
-    /** @member {number} */
+    /** @member {MdxParserSDContainer} */
     this.tracks = new MdxParserSDContainer(reader, this.size - this.node.size - 56);
 }

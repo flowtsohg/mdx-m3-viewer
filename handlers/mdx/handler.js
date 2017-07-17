@@ -7,15 +7,16 @@ const Mdx = {
 
         let standardShader = env.webgl.createShaderProgram(env.sharedShaders.instanceId + env.sharedShaders.boneTexture + MdxShaders.vs_main, "#define STANDARD_PASS\n" + MdxShaders.ps_main);
         let particleShader = env.webgl.createShaderProgram(env.sharedShaders.decodeFloat + MdxShaders.vs_particles, MdxShaders.ps_particles);
-        //this.ribbonShader = env.webgl.createShaderProgram(MdxShaders.vs_ribbons, "#define STANDARD_PASS\n" + MdxShaders.ps_main);
+        let ribbonShader = env.webgl.createShaderProgram(env.sharedShaders.decodeFloat + MdxShaders.vs_ribbons, MdxShaders.ps_ribbons);
+
+        // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
+        if (!standardShader.loaded || !particleShader.loaded || !ribbonShader.loaded) {
+            return false;
+        }
 
         env.shaderMap.set("MdxStandardShader", standardShader);
         env.shaderMap.set("MdxParticleShader", particleShader);
-
-        // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
-        if (!standardShader.loaded || !particleShader.loaded) {
-            return false;
-        }
+        env.shaderMap.set("MdxRibbonShader", ribbonShader);
 
         let teamColors = [[255, 3, 3], [0, 66, 255], [28, 230, 185], [84, 0, 129], [255, 252, 1], [254, 138, 14], [32, 192, 0], [229, 91, 176], [149, 150, 151], [126, 191, 241], [16, 98, 70], [78, 42, 4], [40, 40, 40], [0, 0, 0]];
         

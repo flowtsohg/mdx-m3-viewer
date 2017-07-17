@@ -367,10 +367,6 @@ ModelViewer.prototype = {
      * @param {function(Blob)} callback The callback to call.
      */
     toBlob(callback) {
-        // Render to ensure the internal WebGL buffer is valid.
-        // I am not sure if this is needed.
-        this.render();
-
         this.canvas.toBlob((blob) => callback(blob));
     },
 
