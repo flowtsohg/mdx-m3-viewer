@@ -23,4 +23,4 @@ const ModelHandler = {
 
 require('./common').mix(ModelHandler, Handler);
 
-module.exports = ModelHandler;
+export default ModelHandler;

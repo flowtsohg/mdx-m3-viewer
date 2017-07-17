@@ -27,4 +27,4 @@ TexturedModelInstance.prototype = {
 
 require('./common').mix(TexturedModelInstance.prototype, ModelInstance.prototype);
 
-module.exports = TexturedModelInstance;
+export default TexturedModelInstance;

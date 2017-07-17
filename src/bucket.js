@@ -127,4 +127,4 @@ Bucket.prototype = {
     }
 };
 
-module.exports = Bucket;
+export default Bucket;

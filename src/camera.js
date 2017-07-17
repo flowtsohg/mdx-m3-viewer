@@ -171,4 +171,4 @@ Camera.prototype = {
 
 require('./common').mix(Camera.prototype, NotifiedNode.prototype, Frustum.prototype);
 
-module.exports = Camera;
+export default Camera;

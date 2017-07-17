@@ -35,4 +35,4 @@ Texture.prototype = {
 
 require('./common').mix(Texture.prototype, DownloadableResource.prototype);
 
-module.exports = Texture;
+export default Texture;

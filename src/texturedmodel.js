@@ -32,4 +32,4 @@ TexturedModel.prototype = {
 
 require('./common').mix(TexturedModel.prototype, Model.prototype);
 
-module.exports = TexturedModel;
+export default TexturedModel;

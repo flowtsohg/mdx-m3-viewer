@@ -1,4 +1,4 @@
-const ModelHandler = require('../../src/modelhandler');
+import ModelHandler from '../../src/modelhandler';
 
 const M3 = {
     initialize(env) {
@@ -67,4 +67,4 @@ const M3 = {
 
 require('../../src/common').mix(M3, ModelHandler);
 
-module.exports = M3;
+export default M3;

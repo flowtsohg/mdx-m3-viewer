@@ -64,4 +64,4 @@ function ShaderProgram(gl, vertexShader, fragmentShader) {
     }
 }
 
-module.exports = ShaderProgram;
+export default ShaderProgram;

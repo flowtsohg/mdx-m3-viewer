@@ -1,5 +1,5 @@
-const BmpTexture = require('./texture');
-const TextureHandler = require('../../src/texturehandler');
+import BmpTexture from './texture';
+import TextureHandler from '../../src/texturehandler';
 
 const Bmp = {
     get extension() {
@@ -17,4 +17,4 @@ const Bmp = {
 
 require('../../src/common').mix(Bmp, TextureHandler);
 
-module.exports = Bmp;
+export default Bmp;

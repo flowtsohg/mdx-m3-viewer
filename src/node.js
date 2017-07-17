@@ -480,4 +480,4 @@ ViewerNode.prototype = {
     }
 };
 
-module.exports = ViewerNode;
+export default ViewerNode;

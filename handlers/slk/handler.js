@@ -1,4 +1,4 @@
-const FileHandler = require('../../src/filehandler');
+import FileHandler from '../../src/filehandler';
 
 const Slk = {
     get extension() {
@@ -12,4 +12,4 @@ const Slk = {
 
 require('../../src/common').mix(Slk, FileHandler);
 
-module.exports = Slk;
+export default Slk;

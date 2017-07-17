@@ -8,4 +8,4 @@ const FileHandler = {
 
 require('./common').mix(FileHandler, Handler);
 
-module.exports = FileHandler;
+export default FileHandler;

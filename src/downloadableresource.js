@@ -39,4 +39,4 @@ DownloadableResource.prototype = {
 
 require('./common').mix(DownloadableResource.prototype, AsyncResource.prototype);
 
-module.exports = DownloadableResource;
+export default DownloadableResource;

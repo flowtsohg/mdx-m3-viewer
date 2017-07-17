@@ -148,4 +148,4 @@ ModelInstance.prototype = {
 
 require('./common').mix(ModelInstance.prototype, AsyncResource.prototype, NotifiedNode.prototype);
 
-module.exports = ModelInstance;
+export default ModelInstance;

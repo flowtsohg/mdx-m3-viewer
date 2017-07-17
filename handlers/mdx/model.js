@@ -1,4 +1,4 @@
-const TexturedModel = require('../../src/texturedmodel');
+import TexturedModel from '../../src/texturedmodel';
 
 /**
  * @constructor
@@ -658,4 +658,4 @@ MdxModel.prototype = {
 
 require('../../src/common').mix(MdxModel.prototype, TexturedModel.prototype);
 
-module.exports = MdxModel;
+export default MdxModel;

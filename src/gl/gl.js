@@ -194,4 +194,4 @@ WebGL.prototype = {
     }
 };
 
-module.exports = WebGL;
+export default WebGL;

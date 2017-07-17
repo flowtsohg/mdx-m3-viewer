@@ -155,4 +155,4 @@ plane.classifyPoint = function (plane, point) {
     }
 };
 
-module.exports = Frustum;
+export default Frustum;

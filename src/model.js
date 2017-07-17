@@ -127,4 +127,4 @@ Model.prototype = {
 
 require('./common').mix(Model.prototype, DownloadableResource.prototype);
 
-module.exports = Model;
+export default Model;

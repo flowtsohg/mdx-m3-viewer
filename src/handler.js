@@ -24,4 +24,4 @@ const Handler = {
     }
 };
 
-module.exports = Handler;
+export default Handler;

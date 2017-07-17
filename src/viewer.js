@@ -478,4 +478,4 @@ ModelViewer.prototype = {
 
 require('./common').mix(ModelViewer.prototype, EventDispatcher.prototype);
 
-module.exports = ModelViewer;
+export default ModelViewer;

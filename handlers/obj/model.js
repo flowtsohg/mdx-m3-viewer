@@ -1,4 +1,4 @@
-const Model = require('../../src/model');
+import Model from '../../src/model';
 
 /**
  * @constructor
@@ -115,4 +115,4 @@ ObjModel.prototype = {
 // Inherit from Model.
 require('../../src/common').mix(ObjModel.prototype, Model.prototype);
 
-module.exports = ObjModel;
+export default ObjModel;

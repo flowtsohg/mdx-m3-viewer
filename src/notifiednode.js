@@ -20,4 +20,4 @@ NotifiedNode.prototype = {
 
 require('./common').mix(NotifiedNode.prototype, ViewerNode.prototype);
 
-module.exports = NotifiedNode;
+export default NotifiedNode;

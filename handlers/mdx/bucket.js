@@ -1,4 +1,4 @@
-const Bucket = require('../../src/bucket');
+import Bucket from '../../src/bucket';
 
 /**
  * @constructor

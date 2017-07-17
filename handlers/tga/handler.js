@@ -1,4 +1,4 @@
-const TextureHandler = require('../../src/texturehandler');
+import TextureHandler from '../../src/texturehandler';
 
 const Tga = {
     get extension() {
@@ -16,4 +16,4 @@ const Tga = {
 
 require('../../src/common').mix(Tga, TextureHandler);
 
-module.exports = Tga;
+export default Tga;

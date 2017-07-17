@@ -80,4 +80,4 @@ AsyncResource.prototype = {
 
 require('./common').mix(AsyncResource.prototype, EventDispatcher.prototype);
 
-module.exports = AsyncResource;
+export default AsyncResource;

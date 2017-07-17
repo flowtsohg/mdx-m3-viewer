@@ -8,4 +8,4 @@ const TextureHandler = {
 
 require('./common').mix(TextureHandler, Handler);
 
-module.exports = TextureHandler;
+export default TextureHandler;

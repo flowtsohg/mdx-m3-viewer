@@ -1,6 +1,6 @@
-const ModelHandler = require('../../src/modelhandler');
-const ObjModel = require('./model');
-const ObjModelInstance = require('./modelinstance');
+import ModelHandler from '../../src/modelhandler';
+import ObjModel from './model';
+import ObjModelInstance from './modelinstance';
 
 const Obj = {
     // One-time initialization, called when adding the handler.
@@ -37,4 +37,4 @@ const Obj = {
 
 require('../../src/common').mix(Obj, ModelHandler);
 
-module.exports = Obj;
+export default Obj;

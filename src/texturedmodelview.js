@@ -46,4 +46,4 @@ TexturedModelView.prototype = {
 
 require('./common').mix(TexturedModelView.prototype, ModelView.prototype);
 
-module.exports = TexturedModelView;
+export default TexturedModelView;

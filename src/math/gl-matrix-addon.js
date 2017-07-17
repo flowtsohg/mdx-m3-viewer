@@ -72,4 +72,4 @@ glMatrix.quat.nquad = (function () {
     };
 }());
 
-module.exports = glMatrix;
+export default glMatrix;

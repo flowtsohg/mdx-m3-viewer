@@ -1,4 +1,4 @@
-const TextureHandler = require('../../src/texturehandler');
+import TextureHandler from '../../src/texturehandler';
 
 const NativeTexture = {
     get extension() {
@@ -16,4 +16,4 @@ const NativeTexture = {
 
 require('../../src/common').mix(NativeTexture, TextureHandler);
 
-module.exports = TextureHandler;
+export default TextureHandler;

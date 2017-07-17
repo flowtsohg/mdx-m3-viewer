@@ -165,4 +165,4 @@ ModelView.prototype = {
     }
 };
 
-module.exports = ModelView;
+export default ModelView;

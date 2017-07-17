@@ -1,5 +1,5 @@
-const Texture = require('../../src/texture');
-const BinaryReader = require('../../src/binaryreader');
+import Texture from '../../src/texture';
+import BinaryReader from '../../src/binaryreader';
 
 /**
  * @constructor
@@ -75,4 +75,4 @@ BmpTexture.prototype = {
 
 require('../../src/common').mix(BmpTexture.prototype, Texture.prototype);
 
-module.exports = BmpTexture;
+export default BmpTexture;

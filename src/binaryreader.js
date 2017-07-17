@@ -553,4 +553,4 @@ BinaryReader.prototype = {
     }
 };
 
-module.exports = BinaryReader;
+export default BinaryReader;
