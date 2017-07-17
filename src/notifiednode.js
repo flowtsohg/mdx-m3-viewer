@@ -1,4 +1,4 @@
-const ViewerNode = require('./node');
+import ViewerNode from './node';
 
 /**
  * @constructor

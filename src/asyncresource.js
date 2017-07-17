@@ -1,4 +1,4 @@
-const EventDispatcher = require('./eventdispatcher');
+import EventDispatcher from './eventdispatcher';
 
 /**
  * @constructor

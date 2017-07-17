@@ -1,4 +1,4 @@
-const Handler = require('./handler');
+import Handler from './handler';
 
 const FileHandler = {
     get objectType() {

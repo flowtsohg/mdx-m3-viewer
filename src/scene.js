@@ -1,4 +1,4 @@
-const Camera = require('./camera');
+import Camera from './camera';
 
 /**
  * @constructor

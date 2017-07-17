@@ -1,5 +1,5 @@
-const AsyncResource = require('./asyncresource');
-const NotifiedNode = require('./notifiednode');
+import AsyncResource from './asyncresource';
+import NotifiedNode from './notifiednode';
 
 /**
  * @constructor

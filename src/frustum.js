@@ -1,4 +1,4 @@
-const glMatrix = require('./math/gl-matrix-addon');
+import glMatrix from './math/gl-matrix-addon';
 
 /**
  * @constructor

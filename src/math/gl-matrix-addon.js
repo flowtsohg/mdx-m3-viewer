@@ -1,4 +1,4 @@
-const glMatrix = require('gl-matrix');
+import glMatrix from 'gl-matrix';
 
 glMatrix.vec2.heap = glMatrix.vec2.create();
 

@@ -1,5 +1,5 @@
-const EventDispatcher = require('./eventdispatcher');
-const WebGL = require('./gl/gl');
+import EventDispatcher from './eventdispatcher';
+import WebGL from './gl/gl';
 
 /**
  * @constructor

@@ -1,4 +1,4 @@
-const DownloadableResource = require('./downloadableresource');
+import DownloadableResource from './downloadableresource';
 
 /**
  * @constructor

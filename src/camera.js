@@ -1,7 +1,7 @@
-const Frustum = require('./frustum');
-const NotifiedNode = require('./notifiednode');
-const glMatrix = require('./math/gl-matrix-addon');
-const ViewerNode = require('./node');
+import Frustum from './frustum';
+import NotifiedNode from './notifiednode';
+import glMatrix from './math/gl-matrix-addon';
+import ViewerNode from './node';
 
 /**
  * @constructor

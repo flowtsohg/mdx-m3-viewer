@@ -1,4 +1,4 @@
-const ModelView = require('./modelview');
+import ModelView from './modelview';
 
 /**
  * @constructor

@@ -1,7 +1,7 @@
-const Handler = require('./handler');
-const ModelView = require('./modelview');
-const ModelInstance = require('./modelinstance');
-const Bucket = require('./bucket');
+import Handler from './handler';
+import ModelView from './modelview';
+import ModelInstance from './modelinstance';
+import Bucket from './bucket';
 
 const ModelHandler = {
     get objectType() {

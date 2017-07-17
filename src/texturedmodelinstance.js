@@ -1,4 +1,4 @@
-const ModelInstance = require('./modelinstance');
+import ModelInstance from './modelinstance';
 
 /**
  * @constructor

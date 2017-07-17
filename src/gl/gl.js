@@ -1,5 +1,5 @@
-const ShaderUnit = require('./shader');
-const ShaderProgram = require('./program');
+import ShaderUnit from './shader';
+import ShaderProgram from './program';
 
 /**
  * @constructor

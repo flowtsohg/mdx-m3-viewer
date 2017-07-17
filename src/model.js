@@ -1,5 +1,5 @@
-const DownloadableResource = require('./downloadableresource');
-const AsyncResource = require('./asyncresource');
+import DownloadableResource from './downloadableresource';
+import AsyncResource from './asyncresource';
 
 /**
  * @constructor

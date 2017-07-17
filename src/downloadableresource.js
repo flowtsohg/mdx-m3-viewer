@@ -1,4 +1,4 @@
-const AsyncResource = require('./asyncresource');
+import AsyncResource from './asyncresource';
 
 /**
  * @constructor

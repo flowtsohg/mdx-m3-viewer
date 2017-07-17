@@ -1,9 +1,17 @@
+import ModelViewer from './viewer';
+import Mdx from '../handlers/mdx/handler';
+import M3 from '../handlers/m3/handler';
+import Scene from './scene';
+import Bmp from '../handlers/bmp/handler';
+import Obj from '../handlers/obj/handler';
+import glMatrix from './math/gl-matrix-addon';
+
 module.exports = {
-	ModelViewer: require('./viewer'),
-	Mdx: require('../handlers/mdx/handler'),
-	M3: require('../handlers/m3/handler'),
-	Scene: require('./scene'),
-	Bmp: require('../handlers/bmp/handler'),
-	Obj: require('../handlers/obj/handler'),
-	glMatrix: require('./math/gl-matrix-addon'),
+	ModelViewer,
+	Mdx,
+	M3,
+	Scene,
+	Bmp,
+	Obj,
+	glMatrix,
 };
