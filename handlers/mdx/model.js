@@ -657,3 +657,5 @@ MdxModel.prototype = {
 };
 
 require('../../src/common').mix(MdxModel.prototype, TexturedModel.prototype);
+
+module.exports = MdxModel;
