@@ -159,6 +159,7 @@
   "BLP": {
     "path": "handlers/blp/",
     "internal_files": [
+      "jpg-addon",
       "texture",
       "handler"
     ],

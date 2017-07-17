@@ -49,7 +49,7 @@ BlpTexture.prototype = {
 
             jpegImage.loadFromBuffer(jpegData);
 
-            jpegImage.getData(imageData, jpegImage.width, jpegImage.height);
+            jpegImage.getDataNoTransform(imageData, jpegImage.width, jpegImage.height);
         } else {
             let pallete = new Uint8Array(src, 156, 1024),
                 size = width * height,
