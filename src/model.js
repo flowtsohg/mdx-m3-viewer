@@ -1,3 +1,6 @@
+const DownloadableResource = require('./downloadableresource');
+const AsyncResource = require('./asyncresource');
+
 /**
  * @constructor
  * @augments DownloadableResource
@@ -122,4 +125,6 @@ Model.prototype = {
     }
 };
 
-mix(Model.prototype, DownloadableResource.prototype);
+require('./common').mix(Model.prototype, DownloadableResource.prototype);
+
+module.exports = Model;

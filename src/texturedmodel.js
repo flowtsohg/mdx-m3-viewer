@@ -1,3 +1,5 @@
+const Model = require('./model');
+
 /**
  * @constructor
  * @augments Model
@@ -28,4 +30,6 @@ TexturedModel.prototype = {
     }
 };
 
-mix(TexturedModel.prototype, Model.prototype);
+require('./common').mix(TexturedModel.prototype, Model.prototype);
+
+module.exports = TexturedModel;

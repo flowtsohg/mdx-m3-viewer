@@ -72,3 +72,5 @@ EventDispatcher.prototype = {
         return this;
     }
 };
+
+module.exports = EventDispatcher;

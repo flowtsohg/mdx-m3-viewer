@@ -1,7 +1,11 @@
+const Handler = require('./handler');
+
 const TextureHandler = {
     get objectType() {
         return "texturehandler"
     }
 };
 
-mix(TextureHandler, Handler);
+require('./common').mix(TextureHandler, Handler);
+
+module.exports = TextureHandler;

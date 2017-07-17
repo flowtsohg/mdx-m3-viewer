@@ -1,3 +1,6 @@
+const AsyncResource = require('./asyncresource');
+const NotifiedNode = require('./notifiednode');
+
 /**
  * @constructor
  * @augments AsyncResource
@@ -143,4 +146,6 @@ ModelInstance.prototype = {
     }
 };
 
-mix(ModelInstance.prototype, AsyncResource.prototype, NotifiedNode.prototype);
+require('./common').mix(ModelInstance.prototype, AsyncResource.prototype, NotifiedNode.prototype);
+
+module.exports = ModelInstance;

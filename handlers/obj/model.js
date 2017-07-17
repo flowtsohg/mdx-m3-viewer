@@ -1,3 +1,5 @@
+const Model = require('../../src/model');
+
 /**
  * @constructor
  * @augments Model
@@ -13,7 +15,7 @@ function ObjModel(env, pathSolver) {
 ObjModel.prototype = {
     // Point back to this implementation's handler.
     get Handler() {
-        return Obj;
+        return require('./handler');
     },
 
     // Called when the model finishes loading.
@@ -72,7 +74,7 @@ ObjModel.prototype = {
         let webgl = this.env.webgl,
             gl = this.env.gl,
             instancedArrays = webgl.extensions.instancedArrays,
-            shader = Obj.shader,
+            shader = this.Handler.shader,
             uniforms = shader.uniforms,
             attribs = shader.attribs,
             instances = bucket.instances;
@@ -111,4 +113,6 @@ ObjModel.prototype = {
 };
 
 // Inherit from Model.
-mix(ObjModel.prototype, Model.prototype);
+require('../../src/common').mix(ObjModel.prototype, Model.prototype);
+
+module.exports = ObjModel;

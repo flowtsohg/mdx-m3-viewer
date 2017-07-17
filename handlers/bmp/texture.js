@@ -1,3 +1,6 @@
+const Texture = require('../../src/texture');
+const BinaryReader = require('../../src/binaryreader');
+
 /**
  * @constructor
  * @extends Texture
@@ -70,4 +73,6 @@ BmpTexture.prototype = {
     }
 };
 
-mix(BmpTexture.prototype, Texture.prototype);
+require('../../src/common').mix(BmpTexture.prototype, Texture.prototype);
+
+module.exports = BmpTexture;

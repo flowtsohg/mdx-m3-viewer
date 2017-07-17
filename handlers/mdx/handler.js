@@ -1,3 +1,13 @@
+const MdxBucket = require('./bucket');
+const MdxModel = require('./model');
+const MdxModelInstance = require('./modelinstance');
+const ModelHandler = require('../../src/modelhandler');
+const TexturedModelView = require('../../src/texturedmodelview');
+const Blp = require('../blp/handler');
+const Tga = require('../tga/handler');
+const Slk = require('../slk/handler');
+const NativeTexture = require('../nativetexture/handler');
+
 const Mdx = {
     initialize(env) {
         env.addHandler(Blp);
@@ -74,4 +84,6 @@ const Mdx = {
     }
 };
 
-mix(Mdx, ModelHandler);
+require('../../src/common').mix(Mdx, ModelHandler);
+
+module.exports = Mdx;

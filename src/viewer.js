@@ -1,3 +1,6 @@
+const EventDispatcher = require('./eventdispatcher');
+const WebGL = require('./gl/gl');
+
 /**
  * @constructor
  * @augments EventDispatcher
@@ -477,4 +480,6 @@ ModelViewer.prototype = {
     }
 };
 
-mix(ModelViewer.prototype, EventDispatcher.prototype);
+require('./common').mix(ModelViewer.prototype, EventDispatcher.prototype);
+
+module.exports = ModelViewer;

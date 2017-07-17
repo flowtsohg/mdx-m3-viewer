@@ -1,3 +1,6 @@
+const ShaderUnit = require('./shader');
+const ShaderProgram = require('./program');
+
 /**
  * @constructor
  * @param {HTMLCanvasElement} canvas
@@ -88,7 +91,7 @@ WebGL.prototype = {
      * @returns {ShaderUnit}
      */
     createShaderUnit(src, type) {
-        let hash = hashFromString(src),
+        let hash = require('../common').hashFromString(src),
             shaderUnits = this.shaderUnits;
 
         if (!shaderUnits.has(hash)) {
@@ -112,7 +115,7 @@ WebGL.prototype = {
             shaderPrograms = this.shaderPrograms;
 
         if (vertexShader.loaded && fragmentShader.loaded) {
-            let hash = hashFromString(vertexSource + fragmentSource);
+            let hash = require('../common').hashFromString(vertexSource + fragmentSource);
 
             if (!shaderPrograms.has(hash)) {
                 shaderPrograms.set(hash, new ShaderProgram(gl, vertexShader, fragmentShader));
@@ -190,3 +193,5 @@ WebGL.prototype = {
         }
     }
 };
+
+module.exports = WebGL;

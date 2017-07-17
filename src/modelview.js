@@ -164,3 +164,5 @@ ModelView.prototype = {
         } 
     }
 };
+
+module.exports = ModelView;

@@ -552,3 +552,5 @@ BinaryReader.prototype = {
         return data;
     }
 };
+
+module.exports = BinaryReader;

@@ -1,3 +1,5 @@
+const ModelInstance = require('./modelinstance');
+
 /**
  * @constructor
  * @augments ModelInstance
@@ -23,4 +25,6 @@ TexturedModelInstance.prototype = {
     }
 };
 
-mix(TexturedModelInstance.prototype, ModelInstance.prototype);
+require('./common').mix(TexturedModelInstance.prototype, ModelInstance.prototype);
+
+module.exports = TexturedModelInstance;

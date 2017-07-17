@@ -1,7 +1,11 @@
+const Handler = require('./handler');
+
 const FileHandler = {
     get objectType() {
         return "filehandler"
     }
 };
 
-mix(FileHandler, Handler);
+require('./common').mix(FileHandler, Handler);
+
+module.exports = FileHandler;

@@ -1,3 +1,5 @@
+const AsyncResource = require('./asyncresource');
+
 /**
  * @constructor
  * @augments AsyncResource
@@ -28,11 +30,13 @@ DownloadableResource.prototype = {
         AsyncResource.prototype.load.call(this);
 
         if (serverFetch) {
-            get(src, isBinary, (xhr) => this.onprogress(xhr)).then((xhr) => this.onload(xhr.response), (xhr) => this.onerror("HttpError", xhr));
+            require('./common').get(src, isBinary, (xhr) => this.onprogress(xhr)).then((xhr) => this.onload(xhr.response), (xhr) => this.onerror("HttpError", xhr));
         } else {
             this.onload(src);
         }
     }
 };
 
-mix(DownloadableResource.prototype, AsyncResource.prototype);
+require('./common').mix(DownloadableResource.prototype, AsyncResource.prototype);
+
+module.exports = DownloadableResource;

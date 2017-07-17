@@ -1,3 +1,5 @@
+const ModelInstance = require('../../src/modelinstance');
+
 /**
  * @constructor
  * @augments ModelInstance
@@ -25,4 +27,6 @@ ObjModelInstance.prototype = {
 };
 
 // Inherit from ModelInstance.
-mix(ObjModelInstance.prototype, ModelInstance.prototype);
+require('../../src/common').mix(ObjModelInstance.prototype, ModelInstance.prototype);
+
+module.exports = ObjModelInstance;

@@ -1,3 +1,5 @@
+const ModelHandler = require('../../src/modelhandler');
+
 const M3 = {
     initialize(env) {
         env.addHandler(Dds);
@@ -63,4 +65,6 @@ const M3 = {
     }
 };
 
-mix(M3, ModelHandler);
+require('../../src/common').mix(M3, ModelHandler);
+
+module.exports = M3;

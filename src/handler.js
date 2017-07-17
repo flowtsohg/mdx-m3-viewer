@@ -23,3 +23,5 @@ const Handler = {
         return false;
     }
 };
+
+module.exports = Handler;

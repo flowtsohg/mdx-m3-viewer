@@ -1,3 +1,5 @@
+const TextureHandler = require('../../src/texturehandler');
+
 const NativeTexture = {
     get extension() {
         return ".png|.jpg|.gif";
@@ -12,4 +14,6 @@ const NativeTexture = {
     }
 };
 
-mix(NativeTexture, TextureHandler);
+require('../../src/common').mix(NativeTexture, TextureHandler);
+
+module.exports = TextureHandler;

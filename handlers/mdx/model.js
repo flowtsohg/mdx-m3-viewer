@@ -1,3 +1,5 @@
+const TexturedModel = require('../../src/texturedmodel');
+
 /**
  * @constructor
  * @augments Model
@@ -645,4 +647,4 @@ MdxModel.prototype = {
     }
 };
 
-mix(MdxModel.prototype, TexturedModel.prototype);
+require('../../src/common').mix(MdxModel.prototype, TexturedModel.prototype);

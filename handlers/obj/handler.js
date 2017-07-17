@@ -1,3 +1,7 @@
+const ModelHandler = require('../../src/modelhandler');
+const ObjModel = require('./model');
+const ObjModelInstance = require('./modelinstance');
+
 const Obj = {
     // One-time initialization, called when adding the handler.
     // This is the place to run things that this handler needs, whether it's creating shaders, adding other handlers, etc.
@@ -24,4 +28,6 @@ const Obj = {
     }
 };
 
-mix(Obj, ModelHandler);
+require('../../src/common').mix(Obj, ModelHandler);
+
+module.exports = Obj;

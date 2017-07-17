@@ -1,3 +1,5 @@
+const TexturedModelInstance = require('../../src/texturedmodelinstance');
+
 /**
  * @constructor
  * @augments ModelInstance
@@ -472,4 +474,6 @@ MdxModelInstance.prototype = {
     }
 };
 
-mix(MdxModelInstance.prototype, TexturedModelInstance.prototype);
+require('../../src/common').mix(MdxModelInstance.prototype, TexturedModelInstance.prototype);
+
+module.exports = MdxModelInstance;

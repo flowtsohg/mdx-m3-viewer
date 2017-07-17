@@ -365,3 +365,20 @@ Array.prototype.delete = function (value) {
 
     return false;
 };
+
+module.exports = {
+    compareImagesFromURLs: compareImagesFromURLs,
+    downloadUrl: downloadUrl,
+    seededRandom: seededRandom,
+    normalizePath: normalizePath,
+    TagToUint: TagToUint,
+    UintToTag: UintToTag,
+    mix: mix,
+    encodeFloat2: encodeFloat2,
+    decodeFloat2: decodeFloat2,
+    encodeFloat3: encodeFloat3,
+    decodeFloat3: decodeFloat3,
+    get: get,
+    hashFromString: hashFromString,
+    hashFromArray: hashFromArray,
+};

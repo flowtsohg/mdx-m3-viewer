@@ -1,3 +1,5 @@
+const TextureHandler = require('../../src/texturehandler');
+
 const Blp = {
     get extension() {
         return ".blp";
@@ -12,4 +14,6 @@ const Blp = {
     }
 };
 
-mix(Blp, TextureHandler);
+require('../../src/common').mix(Blp, TextureHandler);
+
+module.exports = Blp;

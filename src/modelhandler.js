@@ -1,3 +1,8 @@
+const Handler = require('./handler');
+const ModelView = require('./modelview');
+const ModelInstance = require('./modelinstance');
+const Bucket = require('./bucket');
+
 const ModelHandler = {
     get objectType() {
         return "modelhandler"
@@ -16,4 +21,6 @@ const ModelHandler = {
     }
 };
 
-mix(ModelHandler, Handler);
+require('./common').mix(ModelHandler, Handler);
+
+module.exports = ModelHandler;

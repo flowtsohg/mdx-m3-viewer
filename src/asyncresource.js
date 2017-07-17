@@ -1,3 +1,5 @@
+const EventDispatcher = require('./eventdispatcher');
+
 /**
  * @constructor
  * @augments EventDispatcher
@@ -76,4 +78,6 @@ AsyncResource.prototype = {
     }
 };
 
-mix(AsyncResource.prototype, EventDispatcher.prototype);
+require('./common').mix(AsyncResource.prototype, EventDispatcher.prototype);
+
+module.exports = AsyncResource;

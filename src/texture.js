@@ -1,3 +1,5 @@
+const DownloadableResource = require('./downloadableresource');
+
 /**
  * @constructor
  * @mixes DownloadableResource
@@ -31,4 +33,6 @@ Texture.prototype = {
     }
 };
 
-mix(Texture.prototype, DownloadableResource.prototype);
+require('./common').mix(Texture.prototype, DownloadableResource.prototype);
+
+module.exports = Texture;

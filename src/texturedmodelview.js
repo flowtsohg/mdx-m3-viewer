@@ -1,3 +1,5 @@
+const ModelView = require('./modelview');
+
 /**
  * @constructor
  * @augments ModelView
@@ -42,4 +44,6 @@ TexturedModelView.prototype = {
     }
 };
 
-mix(TexturedModelView.prototype, ModelView.prototype);
+require('./common').mix(TexturedModelView.prototype, ModelView.prototype);
+
+module.exports = TexturedModelView;

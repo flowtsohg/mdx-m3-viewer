@@ -1,3 +1,5 @@
+const Bucket = require('../../src/bucket');
+
 /**
  * @constructor
  * @augments Bucket
@@ -267,4 +269,4 @@ MdxBucket.prototype = {
     }
 };
 
-mix(MdxBucket.prototype, Bucket.prototype);
+require('../../src/common').mix(MdxBucket.prototype, Bucket.prototype);

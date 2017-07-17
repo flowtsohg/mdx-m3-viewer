@@ -1,3 +1,5 @@
+const ViewerNode = require('./node');
+
 /**
  * @constructor
  * @augments ViewerNode
@@ -16,4 +18,6 @@ NotifiedNode.prototype = {
     }
 };
 
-mix(NotifiedNode.prototype, ViewerNode.prototype);
+require('./common').mix(NotifiedNode.prototype, ViewerNode.prototype);
+
+module.exports = NotifiedNode;
