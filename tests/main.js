@@ -1,24 +1,10 @@
-let canvas = document.createElement("canvas");
-
-canvas.width = canvas.height = 256;
-
-let viewer = new ModelViewer(canvas);
-
-viewer.gl.clearColor(0.1, 0.1, 0.1, 1);
-
-viewer.addEventListener("error", (e) => console.log(e));
-
-viewer.addHandler(W3x);
-viewer.addHandler(M3);
-
 let testsCount = 0,
     testsPassed = 0,
-    table = document.createElement("table");
-
-document.body.appendChild(table);
+    testsElement = document.getElementById("tests"),
+    resultElement = document.getElementById("result");
 
 function addTestResult(testResult) {
-    let tr = table.insertRow(),
+    let tr = testsElement.insertRow(),
         name = document.createElement("td"),
         status = document.createElement("td"),
         imageA = document.createElement("td"),
@@ -30,11 +16,11 @@ function addTestResult(testResult) {
     testsPassed += result ? 1 : 0;
 
     // Name of the test
-    name.textContent = testResult[0] + " ";
+    name.textContent = testResult[0];
 
     // Status of the test
     status.textContent = result ? "passed" : "failed";
-    status.style.color = result ? "green" : "red";
+    status.className = result ? "success" : "failure";
 
     // The rendered image
     let a = document.createElement("a");
@@ -55,6 +41,9 @@ function addTestResult(testResult) {
     imageA.appendChild(a);
     imageB.appendChild(b);
 
+    imageA.className = "centered";
+    imageB.className = "centered";
+
     // Add everything to a row
     tr.appendChild(name);
     tr.appendChild(status);
@@ -62,24 +51,18 @@ function addTestResult(testResult) {
     tr.appendChild(imageB);
 }
 
-console.log(UnitTester);
+let unitTester = new UnitTester();
 
-UnitTester.run(viewer, (testResult) => {
+unitTester.addTests(geoTests);
+unitTester.addTests(mdxTests);
+unitTester.addTests(m3Tests);
+unitTester.addTests(baseTests);
+
+unitTester.run((testResult) => {
     if (!testResult.done) {
         addTestResult(testResult.value)
     } else {
-        let element = document.createElement("p");
-
-        element.className = "item";
-
-        if (testsPassed === testsCount) {
-            element.style.color = "green";
-        } else {
-            element.style.color = "red";
-        }
-
-        element.appendChild(document.createTextNode(testsPassed + "/" + testsCount + " tests passed"));
-
-        document.body.appendChild(element);
+        resultElement.innerText = testsPassed + "/" + testsCount + " tests passed";
+        resultElement.className = (testsPassed === testsCount) ? "success" : "failure";
     }
 });

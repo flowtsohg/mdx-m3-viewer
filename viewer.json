@@ -286,17 +286,9 @@
     ]
   },
   "UNIT_TESTER": {
-    "path": "tests/src/",
+    "path": "tests/",
     "internal_files": [
       "unittester",
-      "common"
-    ],
-    "external_files": [
-    ]
-  },
-  "UNIT_TESTS": {
-    "path": "tests/tests/",
-    "internal_files": [
       "geo",
       "mdx",
       "m3",

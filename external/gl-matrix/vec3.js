@@ -157,6 +157,28 @@ vec3.multiply = function(out, a, b) {
 vec3.mul = vec3.multiply;
 
 /**
+ * Multiplies two vec3's while also adding another one to the result (also known as MAD)
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a the first operand
+ * @param {vec3} b the second operand
+ * @returns {vec3} out
+ */
+vec3.multiplyAndAdd = function (out, a, b, add) {
+    out[0] = a[0] * b[0] + add[0];
+    out[1] = a[1] * b[1] + add[1];
+    out[2] = a[2] * b[2] + add[2];
+
+    return out;
+};
+
+/**
+ * Alias for {@link vec3.multiplyAndAdd}
+ * @function
+ */
+vec3.mulAndAdd = vec3.multiplyAndAdd;
+
+/**
  * Divides two vec3's
  *
  * @param {vec3} out the receiving vector
