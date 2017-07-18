@@ -1,3 +1,5 @@
+import M3SdContainer from "./sd";
+
 /**
  * @constructor
  * @param {M3ParserStc} stc
@@ -33,3 +35,5 @@ M3Stc.prototype = {
         return animRef.initValue;
     }
 };
+
+export default M3Stc;

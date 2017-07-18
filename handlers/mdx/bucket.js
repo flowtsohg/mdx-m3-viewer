@@ -1,5 +1,11 @@
-import Bucket from '../../src/bucket';
-import common from '../../src/common';
+import Bucket from "../../src/bucket";
+import { mix } from "../../src/common";
+import MdxParticleEmitter from "./particleemitter";
+import MdxParticle2Emitter from "./particle2emitter";
+import MdxRibbonEmitter from "./ribbonemitter";
+import MdxEventObjectSpnEmitter from "./eventobjectspnemitter";
+import MdxEventObjectSplEmitter from "./eventobjectsplemitter";
+import MdxEventObjectUbrEmitter from "./eventobjectubremitter";
 
 /**
  * @constructor
@@ -95,7 +101,7 @@ function MdxBucket(modelView) {
 
     objects = model.particleEmitters;
     for (let i = 0, l = objects.length; i < l; i++) {
-        this.particleEmitters[i] = new MdxParticleEmitter(model, objects[i]);
+        this.particleEmitters[i] = new MdxParticleEmitter(objects[i]);
     }
 
     objects = model.particleEmitters2;
@@ -279,6 +285,6 @@ MdxBucket.prototype = {
     }
 };
 
-common.mix(MdxBucket.prototype, Bucket.prototype);
+mix(MdxBucket.prototype, Bucket.prototype);
 
 export default MdxBucket;

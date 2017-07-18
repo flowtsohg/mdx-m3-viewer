@@ -1,3 +1,6 @@
+import ViewerFile from "../../src/file";
+import { mix } from "../../src/common";
+
 /**
  * @constructor
  * @augments ViewerFile
@@ -121,3 +124,5 @@ SlkFile.prototype = {
 };
 
 mix(SlkFile.prototype, ViewerFile.prototype);
+
+export default SlkFile;

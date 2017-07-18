@@ -1,5 +1,19 @@
-import TexturedModel from '../../src/texturedmodel';
-import common from '../../src/common';
+import TexturedModel from "../../src/texturedmodel";
+import { mix, hashFromArray, createTextureAtlas } from "../../src/common";
+import MdxParser from "./parser/parser";
+import MdxNode from "./node";
+import MdxTextureAnimation from "./textureanimation";
+import MdxLayer from "./layer";
+import MdxGeosetAnimation from "./geosetanimation";
+import { MdxGeoset } from "./geoset";
+import MdxBatch from "./batch";
+import MdxCamera from "./camera";
+import MdxModelParticleEmitter from "./modelparticleemitter";
+import MdxModelParticle2Emitter from "./modelparticle2emitter";
+import { MdxModelAttachment } from "./attachment";
+import MdxModelEventObject from "./modeleventobject";
+import { MdxShallowGeoset } from "./geoset";
+import Mdx from "./handler";
 
 /**
  * @constructor
@@ -665,6 +679,6 @@ MdxModel.prototype = {
     }
 };
 
-common.mix(MdxModel.prototype, TexturedModel.prototype);
+mix(MdxModel.prototype, TexturedModel.prototype);
 
 export default MdxModel;

@@ -1,9 +1,9 @@
 /**
  * @constructor
  */
-M3Particle = function () {
+function M3Particle() {
 
-};
+}
 
 M3Particle.prototype = {
     reset: function (emitter, model) {
@@ -19,3 +19,5 @@ M3Particle.prototype = {
         this.health -= FRAME_TIME * ANIMATION_SCALE;
     }
 };
+
+export default M3Particle;

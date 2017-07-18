@@ -32,3 +32,5 @@ M3Stg.prototype = {
         return animRef.initValue;
     }
 };
+
+export default M3Stg;

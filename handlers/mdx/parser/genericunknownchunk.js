@@ -1,16 +1,19 @@
-/**
- * @constructor
- * @param {MdxParserBinaryReader} reader
- * @param {string} tag
- * @param {number} size
- * @param {Array<MdxParserNode>} nodes
- */
-function MdxParserGenericUnknownChunk(reader, tag, size, nodes) {
-    /** @member {Array<?>} */
-    this.elements = reader.readUnknownElements(size, MdxParserGenericUnknownChunk.tagToChunk[tag], nodes);
-}
+import MdxParserMaterial from "./material";
+import MdxParserTextureAnimation from "./textureanimation";
+import MdxParserGeoset from "./geoset";
+import MdxParserGeosetAnimation from "./geosetanimation";
+import MdxParserBone from "./bone";
+import MdxParserLight from "./light";
+import MdxParserHelper from "./helper";
+import MdxParserAttachment from "./attachment";
+import MdxParserParticleEmitter from "./particleemitter";
+import MdxParserParticle2Emitter from "./particle2emitter";
+import MdxParserRibbonEmitter from "./ribbonemitter";
+import MdxParserEventObject from "./eventobject";
+import MdxParserCamera from "./camera";
+import MdxParserCollisionShape from "./collisionshape";
 
-MdxParserGenericUnknownChunk.tagToChunk = {
+let tagToChunk = {
     MTLS: MdxParserMaterial,
     TXAN: MdxParserTextureAnimation,
     GEOS: MdxParserGeoset,
@@ -26,3 +29,17 @@ MdxParserGenericUnknownChunk.tagToChunk = {
     CAMS: MdxParserCamera,
     CLID: MdxParserCollisionShape
 };
+
+/**
+ * @constructor
+ * @param {MdxParserBinaryReader} reader
+ * @param {string} tag
+ * @param {number} size
+ * @param {Array<MdxParserNode>} nodes
+ */
+function MdxParserGenericUnknownChunk(reader, tag, size, nodes) {
+    /** @member {Array<?>} */
+    this.elements = reader.readUnknownElements(size, tagToChunk[tag], nodes);
+}
+
+export default MdxParserGenericUnknownChunk;

@@ -1,3 +1,8 @@
+import ModelInstance from "../../src/modelinstance";
+import BoundingShape from "../../src/boundingshape";
+import { mix } from "../../src/common";
+import { mat4 } from "gl-matrix";
+
 /**
  * @constructor
  * @extends ModelInstance
@@ -7,8 +12,8 @@
 function GeometryModelInstance(model) {
     ModelInstance.call(this, model);
 
-    this.vertexColor = vec4.create();
-    this.edgeColor = vec4.create();
+    this.vertexColor = new Uint8Array(4);
+    this.edgeColor = new Uint8Array(4);
 }
 
 GeometryModelInstance.prototype = {
@@ -68,3 +73,5 @@ GeometryModelInstance.prototype = {
 };
 
 mix(GeometryModelInstance.prototype, ModelInstance.prototype);
+
+export default GeometryModelInstance;

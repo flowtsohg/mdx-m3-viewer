@@ -1,3 +1,10 @@
+import MdxParserBinaryReader from "./binaryreader";
+import MdxParserUnsupportedChunk from "./unsupportedchunk";
+import MdxParserVersionChunk from "./versionchunk";
+import MdxParserModelChunk from "./modelchunk";
+import MdxParserGenericKnownChunk from "./genericknownchunk";
+import MdxParserGenericUnknownChunk from "./genericunknownchunk";
+
 /**
  * @constructor
  * @param {ArrayBuffer} src
@@ -52,3 +59,5 @@ MdxParser.tagToFunc = {
     CAMS: MdxParserGenericUnknownChunk,
     CLID: MdxParserGenericUnknownChunk
 };
+
+export default MdxParser;

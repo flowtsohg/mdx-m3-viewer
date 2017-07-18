@@ -1,7 +1,3 @@
-function sc2Solver(path) {
-    return ["../resources/starcraft2/" + path, path.substr(path.lastIndexOf(".")), true];
-}
-
 let m3Tests = [
     ["m3-load", (viewer, scene) => {
         let camera = scene.camera;

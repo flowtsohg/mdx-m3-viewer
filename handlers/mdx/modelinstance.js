@@ -1,5 +1,13 @@
-import TexturedModelInstance from '../../src/texturedmodelinstance';
-import common from '../../src/common';
+import ModelInstance from "../../src/modelinstance";
+import TexturedModelInstance from "../../src/texturedmodelinstance";
+import NotifiedNode from "../../src/notifiednode";
+import { mix } from "../../src/common";
+import MdxSkeleton from "./skeleton";
+import { MdxAttachment } from "./attachment";
+import MdxParticleEmitterView from "./particleemitterview";
+import MdxParticle2EmitterView from "./particle2emitterview";
+import MdxRibbonEmitterView from "./ribbonemitterview";
+import MdxEventObjectEmitterView from "./eventobjectemitterview";
 
 /**
  * @constructor
@@ -24,7 +32,7 @@ function MdxModelInstance(model) {
     this.sequenceLoopMode = 0;
 
     this.teamColor = 0;
-    this.vertexColor = vec4.fromValues(255, 255, 255, 255);
+    this.vertexColor = new Uint8Array([255, 255, 255, 255]);
 
     this.allowParticleSpawn = false;
 }
@@ -475,6 +483,6 @@ MdxModelInstance.prototype = {
     }
 };
 
-common.mix(MdxModelInstance.prototype, TexturedModelInstance.prototype);
+mix(MdxModelInstance.prototype, TexturedModelInstance.prototype);
 
 export default MdxModelInstance;

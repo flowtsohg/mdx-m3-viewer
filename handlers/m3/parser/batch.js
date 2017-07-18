@@ -18,3 +18,5 @@ function M3ParserBatch(reader, version, index) {
     /** @member {number} */
     this.unknown2 = reader.readUint16();
 }
+
+export default M3ParserBatch;

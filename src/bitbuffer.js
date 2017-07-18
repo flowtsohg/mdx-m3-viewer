@@ -75,3 +75,5 @@ BitBuffer.prototype = {
         }
     }
 };
+
+export default BitBuffer;

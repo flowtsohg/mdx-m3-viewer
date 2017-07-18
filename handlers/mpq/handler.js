@@ -1,3 +1,7 @@
+import FileHandler from "../../src/filehandler";
+import MpqArchive from "./archive";
+import { mix } from "../../src/common";
+
 const Mpq = {
     get extension() {
         return ".mpq";
@@ -27,3 +31,5 @@ Mpq.FILE_EXISTS = 0x80000000;
 Mpq.FILE_DELETED = 0x02000000;
 
 mix(Mpq, FileHandler);
+
+export default Mpq;

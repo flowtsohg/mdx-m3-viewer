@@ -1,3 +1,7 @@
+import M3ParserBinaryReader from "./binaryreader";
+import M3ParserMd34 from "./md34";
+import M3ParserIndexEntry from "./indexentry";
+
 /**
  * @constructor
  * @param {ArrayBuffer} src
@@ -24,3 +28,5 @@ function M3Parser(src) {
         throw new Error("WrongMagicNumber");
     }
 }
+
+export default M3Parser;

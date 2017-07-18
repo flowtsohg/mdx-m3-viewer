@@ -465,3 +465,5 @@ const M3Shaders = {
         }
     `
 };
+
+export default M3Shaders;

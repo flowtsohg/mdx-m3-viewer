@@ -1,6 +1,6 @@
-import AsyncResource from './asyncresource';
-import NotifiedNode from './notifiednode';
-import common from './common';
+import AsyncResource from "./asyncresource";
+import NotifiedNode from "./notifiednode";
+import { mix } from "./common";
 
 /**
  * @constructor
@@ -147,6 +147,6 @@ ModelInstance.prototype = {
     }
 };
 
-common.mix(ModelInstance.prototype, AsyncResource.prototype, NotifiedNode.prototype);
+mix(ModelInstance.prototype, AsyncResource.prototype, NotifiedNode.prototype);
 
 export default ModelInstance;

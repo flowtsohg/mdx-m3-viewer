@@ -1,3 +1,14 @@
+import BinaryReader from "../../src/binaryreader";
+import { inflate } from "pako";
+
+let HASH_FILE_KEY = 3,
+    FILE_COMPRESSED = 0x00000200,
+    FILE_ENCRYPTED = 0x00010000,
+    FILE_SINGLEUNIT = 0x0100000,
+    FILE_ADJUSTED_ENCRYPTED = 0x00020000,
+    FILE_EXISTS = 0x80000000,
+    FILE_DELETED = 0x02000000;
+
 /**
  * @constructor
  * @memberOf Mpq
@@ -23,14 +34,14 @@ function MpqFile(archive, block, name) {
     /** @member {boolean} */
     this.isEncrypted = false;
 
-    if (block.flags & Mpq.FILE_ENCRYPTED) {
+    if (block.flags & FILE_ENCRYPTED) {
         let sepIndex = name.lastIndexOf("\\"),
             pathlessName = name.substring(sepIndex + 1);
 
         this.isEncrypted = true;
-        this.encryptionKey = this.c.hash(pathlessName, Mpq.HASH_FILE_KEY);
+        this.encryptionKey = this.c.hash(pathlessName, HASH_FILE_KEY);
 
-        if (block.flags & Mpq.FILE_ADJUSTED_ENCRYPTED) {
+        if (block.flags & FILE_ADJUSTED_ENCRYPTED) {
             this.encryptionKey = (this.encryptionKey + block.filePos) ^ block.normalSize;
         }
     }
@@ -52,7 +63,7 @@ MpqFile.prototype = {
         // Go to the position of this block
         reader.seek(block.filePos);
 
-        if (flags & Mpq.FILE_SINGLEUNIT) {
+        if (flags & FILE_SINGLEUNIT) {
             console.warn("[MPQFile::parse] Single unit (add support!)")
             console.log(this);
             /*
@@ -64,7 +75,7 @@ MpqFile.prototype = {
             */
         }
 
-        if (flags & Mpq.FILE_COMPRESSED) {
+        if (flags & FILE_COMPRESSED) {
             // Alocate a buffer for the uncompressed block size
             let buffer = new Uint8Array(block.normalSize)
 
@@ -144,9 +155,11 @@ MpqFile.prototype = {
 
                 // ZLib
                 case 2:
-                    var inflate = new Zlib.Inflate(new Uint8Array(buffer.buffer, 1));
+                    //var inflate = new Zlib.Inflate(new Uint8Array(buffer.buffer, 1));
 
-                    return inflate.decompress();
+                    //return inflate.decompress();
+
+                    return inflate(new Uint8Array(buffer.buffer, 1));
 
                     // PKWare DCL Explode
                     //case 8:
@@ -160,3 +173,5 @@ MpqFile.prototype = {
         }
     }
 };
+
+export default MpqFile;

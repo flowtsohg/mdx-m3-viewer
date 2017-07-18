@@ -1,3 +1,5 @@
+import M3ParserReference from "./reference";
+
 /**
  * @constructor
  * @param {M3ParserBinaryReader} reader
@@ -36,3 +38,5 @@ function M3ParserEvent(reader, version, index) {
         this.unknown8 = reader.readInt32();
     }
 }
+
+export default M3ParserEvent;

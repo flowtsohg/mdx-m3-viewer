@@ -8,3 +8,5 @@ function MdxParserPivotPoint(reader, index) {
     /** @member {Float32Array} */
     this.value = reader.readFloat32Array(3);
 }
+
+export default MdxParserPivotPoint;

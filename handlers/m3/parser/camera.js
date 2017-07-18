@@ -1,3 +1,6 @@
+import M3ParserReference from "./reference";
+import { M3ParserFloat32AnimationReference } from "./animationreference";
+
 /**
  * @constructor
  * @param {M3ParserBinaryReader} reader
@@ -30,3 +33,5 @@ function M3ParserCamera(reader, version, index) {
     /** @member {M3ParserFloat32AnimationReference} */
     this.depthOfField = new M3ParserFloat32AnimationReference(reader);
 }
+
+export default M3ParserCamera;

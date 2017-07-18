@@ -1,3 +1,5 @@
+import MdxSdContainer from "./sd";
+
 /**
  * @constructor
  * @param {MdxModel} model
@@ -36,3 +38,5 @@ MdxGeosetAnimation.prototype = {
         return this.sd.isVariant("KGAC", sequence);
     }
 };
+
+export default MdxGeosetAnimation;

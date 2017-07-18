@@ -26,3 +26,5 @@ function M3ParserBoundingShape(reader) {
     /** @member {Float32Array} */
     this.size = reader.readFloat32Array(3);
 }
+
+export default M3ParserBoundingShape;

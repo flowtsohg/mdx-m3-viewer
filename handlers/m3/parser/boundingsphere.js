@@ -10,3 +10,5 @@ function M3ParserBoundingSphere(reader) {
     /** @member {number} */
     this.radius = reader.readFloat32();
 }
+
+export default M3ParserBoundingSphere;

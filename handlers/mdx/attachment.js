@@ -1,3 +1,5 @@
+import MdxSdContainer from "./sd";
+
 /**
  * @constructor
  * @param {MdxInstance} instance
@@ -62,4 +64,9 @@ MdxModelAttachment.prototype = {
     getVisibility(instance) {
         return this.sd.getValue("KATV", instance, 1);
     }
+};
+
+export {
+    MdxAttachment,
+    MdxModelAttachment
 };

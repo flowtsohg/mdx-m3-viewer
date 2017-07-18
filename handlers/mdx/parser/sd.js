@@ -1,38 +1,7 @@
-/**
- * @constructor
- * @param {MdxParserBinaryReader} reader
- */
-function MdxParserSD(reader) {
-    var tag = reader.read(4),
-        tracksCount = reader.readUint32(),
-        interpolationType = reader.readUint32(),
-        globalSequenceId = reader.readInt32(),
-        sdTrackInfo = MdxParserSD.tagToTrack[tag],
-        constructor = sdTrackInfo[0],
-        defval = sdTrackInfo[1],
-        elementsPerTrack = 1 + (defval.length ? defval.length : 1) * (interpolationType > 1 ? 3 : 1),
-        tracks = [];
-
-    for (var i = 0; i < tracksCount; i++) {
-        tracks[i] = new constructor(reader, interpolationType)
-    }
-
-    /** @member {string} */
-    this.tag = tag;
-    /** @member {number} */
-    this.interpolationType = interpolationType;
-    /** @member {number} */
-    this.globalSequenceId = globalSequenceId;
-    /** @member {Array<?>} */
-    this.tracks = tracks;
-    /** @member {number|Float32Array} */
-    this.defval = defval;
-    /** @member {number} */
-    this.size = 16 + tracksCount * elementsPerTrack * 4;
-}
+import { MdxParserUintTrack, MdxParserFloatTrack, MdxParserVector3Track, MdxParserVector4Track } from "./track";
 
 // Mapping from track tags to their type and default value
-MdxParserSD.tagToTrack = {
+let tagToTrack = {
     // LAYS
     KMTF: [MdxParserUintTrack, 0],
     KMTA: [MdxParserFloatTrack, 1],
@@ -90,9 +59,44 @@ MdxParserSD.tagToTrack = {
 /**
  * @constructor
  * @param {MdxParserBinaryReader} reader
+ */
+function MdxParserSD(reader) {
+    var tag = reader.read(4),
+        tracksCount = reader.readUint32(),
+        interpolationType = reader.readUint32(),
+        globalSequenceId = reader.readInt32(),
+        sdTrackInfo = tagToTrack[tag],
+        constructor = sdTrackInfo[0],
+        defval = sdTrackInfo[1],
+        elementsPerTrack = 1 + (defval.length ? defval.length : 1) * (interpolationType > 1 ? 3 : 1),
+        tracks = [];
+
+    for (var i = 0; i < tracksCount; i++) {
+        tracks[i] = new constructor(reader, interpolationType)
+    }
+
+    /** @member {string} */
+    this.tag = tag;
+    /** @member {number} */
+    this.interpolationType = interpolationType;
+    /** @member {number} */
+    this.globalSequenceId = globalSequenceId;
+    /** @member {Array<?>} */
+    this.tracks = tracks;
+    /** @member {number|Float32Array} */
+    this.defval = defval;
+    /** @member {number} */
+    this.size = 16 + tracksCount * elementsPerTrack * 4;
+}
+
+/**
+ * @constructor
+ * @param {MdxParserBinaryReader} reader
  * @param {number} size
  */
 function MdxParserSDContainer(reader, size) {
     /** @member {Array<MdxParserSD>} */
     this.elements = reader.readUnknownElements(size, MdxParserSD);
 }
+
+export default MdxParserSDContainer;

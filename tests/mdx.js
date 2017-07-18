@@ -1,8 +1,3 @@
-function wc3Solver(path) {
-    return ["../resources/warcraft/" + path, path.substr(path.lastIndexOf(".")), true];
-}
-
-
 let mdxTests = [
     ["mdx-load", (viewer, scene) => {
         let camera = scene.camera;

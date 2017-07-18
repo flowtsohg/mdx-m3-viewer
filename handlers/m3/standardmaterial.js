@@ -1,3 +1,5 @@
+import M3Layer from "./layer";
+
 /**
  * @constructor
  * @param {M3Model} model
@@ -139,3 +141,5 @@ M3StandardMaterial.prototype = {
         this.layers[1].bind(shader);
     }
 };
+
+export default M3StandardMaterial;

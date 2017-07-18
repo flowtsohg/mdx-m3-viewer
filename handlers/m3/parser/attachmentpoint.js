@@ -1,3 +1,5 @@
+import M3ParserReference from "./reference";
+
 /**
  * @constructor
  * @param {M3ParserBinaryReader} reader
@@ -14,3 +16,5 @@ function M3ParserAttachmentPoint(reader, version, index) {
     /** @member {number} */
     this.bone = reader.readUint32();
 }
+
+export default M3ParserAttachmentPoint;

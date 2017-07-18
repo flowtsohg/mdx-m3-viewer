@@ -1,3 +1,6 @@
+import { vec3} from "gl-matrix";
+import { encodeFloat3 } from "../../src/common";
+
 /**
  * @constructor
  * @param {MdxRibbonEmitter} emitter
@@ -124,3 +127,5 @@ MdxRibbon.prototype = {
         this.rgb = encodeFloat3(Math.floor(animatedColor[0] * 255), Math.floor(animatedColor[1] * 255), Math.floor(animatedColor[2] * 255)); // Color even used???
     }
 };
+
+export default MdxRibbon;

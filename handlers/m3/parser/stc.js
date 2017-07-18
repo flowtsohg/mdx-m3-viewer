@@ -1,3 +1,5 @@
+import M3ParserReference from "./reference";
+
 /**
  * @constructor
  * @param {M3ParserBinaryReader} reader
@@ -41,3 +43,5 @@ function M3ParserStc(reader, version, index) {
         new M3ParserReference(reader, index)
     ];
 }
+
+export default M3ParserStc;

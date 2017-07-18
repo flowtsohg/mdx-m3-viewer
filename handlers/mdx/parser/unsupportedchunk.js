@@ -17,3 +17,5 @@ function MdxParserUnsupportedChunk(reader, tag, size, nodes) {
     /** @member {Array<MdxParserNode>} */
     this.nodes = nodes;
 }
+
+export default MdxParserUnsupportedChunk;

@@ -73,3 +73,10 @@ function MdxParserVector4Track(reader, interpolationType) {
         this.outTan = reader.readFloat32Array(4);
     }
 }
+
+export {
+    MdxParserUintTrack,
+    MdxParserFloatTrack,
+    MdxParserVector3Track,
+    MdxParserVector4Track
+}

@@ -11,3 +11,5 @@ function MdxParserHelper(reader, nodes, index) {
     /** @member {number} */
     this.size = this.node.size;
 }
+
+export default MdxParserHelper;

@@ -1,3 +1,6 @@
+import ModelView from "../../src/modelview";
+import { mix } from "../../src/common";
+
 /**
  * @constructor
  * @extends ModelView
@@ -12,3 +15,5 @@ function GeometryModelView(model) {
 }
 
 mix(GeometryModelView.prototype, ModelView.prototype);
+
+export default GeometryModelView;

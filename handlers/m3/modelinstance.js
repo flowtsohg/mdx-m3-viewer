@@ -1,3 +1,8 @@
+import TexturedModelInstance from "../../src/texturedmodelinstance";
+import ViewerNode from "../../src/node";
+import M3Skeleton from "./skeleton";
+import { mix } from "../../src/common";
+
 /**
  * @constructor
  * @extends {TexturedModelInstance}
@@ -9,7 +14,7 @@ function M3ModelInstance(model) {
 
     this.skeleton = null;
     this.teamColor = 0;
-    this.vertexColor = vec4.fromValues(255, 255, 255, 255);
+    this.vertexColor = new Uint8Array([255, 255, 255, 255]);
     this.sequence = -1;
     this.frame = 0;
     this.sequenceLoopMode = 0;
@@ -161,3 +166,5 @@ M3ModelInstance.prototype = {
 };
 
 mix(M3ModelInstance.prototype, TexturedModelInstance.prototype);
+
+export default M3ModelInstance;

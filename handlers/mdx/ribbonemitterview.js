@@ -55,3 +55,5 @@ MdxRibbonEmitterView.prototype = {
         return this.emitter.getVisibility(this.instance);
     }
 };
+
+export default MdxRibbonEmitterView;

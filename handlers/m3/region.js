@@ -41,3 +41,5 @@ M3Region.prototype = {
         return this.elements / 3;
     }
 };
+
+export default M3Region;

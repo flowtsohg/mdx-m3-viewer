@@ -15,7 +15,7 @@ MdxParticle2EmitterView.prototype = {
         if (this.shouldRender()) {
             let emitter = this.emitter;
 
-            if (emitter.squirt) {
+            if (emitter.modelObject.squirt) {
                 let keyframe = this.getEmissionRateKeyframe();
 
                 if (keyframe !== this.lastEmissionKey) {
@@ -75,3 +75,5 @@ MdxParticle2EmitterView.prototype = {
         return this.emitter.getVariation(this.instance);
     }
 };
+
+export default MdxParticle2EmitterView;

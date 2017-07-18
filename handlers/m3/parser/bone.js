@@ -1,3 +1,6 @@
+import M3ParserReference from "./reference";
+import { M3ParserUint32AnimationReference, M3ParserVector3AnimationReference, M3ParserVector4AnimationReference } from "./animationreference";
+
 /**
  * @constructor
  * @param {M3ParserBinaryReader} reader
@@ -26,3 +29,5 @@ function M3ParserBone(reader, version, index) {
     /** @member {M3ParserUint32AnimationReference} */
     this.visibility = new M3ParserUint32AnimationReference(reader);
 }
+
+export default M3ParserBone;

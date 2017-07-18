@@ -1,3 +1,20 @@
+let layerTypeToTextureUnit = {
+    diffuse: 1,
+    decal: 2,
+    specular: 3,
+    gloss: 4,
+    emissive: 5,
+    emissive2: 6,
+    evio: 7,
+    evioMask: 8,
+    alphaMask: 9,
+    alphaMask2: 10,
+    normal: 11,
+    heightMap: 12,
+    lightMap: 13,
+    ao: 14
+};
+
 /**
  * @constructor
  * @param {M3StandardMaterial} material
@@ -65,7 +82,7 @@ function M3Layer(material, layer, type, op) {
 
             this.uvCoordinate = uvCoordinate;
 
-            this.textureUnit = M3Layer.layerTypeToTextureUnit[type];
+            this.textureUnit = layerTypeToTextureUnit[type];
 
             this.invert = flags & 0x10;
             this.clampResult = flags & 0x20;
@@ -75,23 +92,6 @@ function M3Layer(material, layer, type, op) {
         }
     }
 }
-
-M3Layer.layerTypeToTextureUnit = {
-    diffuse: 1,
-    decal: 2,
-    specular: 3,
-    gloss: 4,
-    emissive: 5,
-    emissive2: 6,
-    evio: 7,
-    evioMask: 8,
-    alphaMask: 9,
-    alphaMask2: 10,
-    normal: 11,
-    heightMap: 12,
-    lightMap: 13,
-    ao: 14
-};
 
 M3Layer.prototype = {
     bind(bucket, shader) {
@@ -136,3 +136,5 @@ M3Layer.prototype = {
         }
     }
 };
+
+export default M3Layer;

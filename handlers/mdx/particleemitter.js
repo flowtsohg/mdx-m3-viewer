@@ -1,22 +1,12 @@
+import MdxParticle from "./particle";
+
 /**
  * @constructor
  * @param {MdxModel} model
- * @param {MdxModelParticleEmitter} emitter
+ * @param {MdxModelParticleEmitter} modelObject
  */
-function MdxParticleEmitter(model, modelEmitter) {
-    let emitter = modelEmitter.emitter;
-
-    this.model = model;
-    this.internalModel = modelEmitter.internalModel;
-    this.node = modelEmitter.node;
-    this.sd = modelEmitter.sd;
-
-    this.speed = emitter.speed;
-    this.latitude = emitter.latitude;
-    this.longitude = emitter.longitude;
-    this.lifespan = emitter.lifespan;
-    this.gravity = emitter.gravity;
-    this.emissionRate = emitter.emissionRate;
+function MdxParticleEmitter(modelObject) {
+    this.modelObject = modelObject;
 
     this.active = [];
     this.inactive = [];
@@ -80,30 +70,32 @@ MdxParticleEmitter.prototype = {
     },
 
     getSpeed(instance) {
-        return this.sd.getValue("KPES", instance, this.speed);
+        return this.modelObject.sd.getValue("KPES", instance, this.modelObject.speed);
     },
 
     getLatitude(instance) {
-        return this.sd.getValue("KPLTV", instance, this.latitude);
+        return this.modelObject.sd.getValue("KPLTV", instance, this.modelObject.latitude);
     },
 
     getLongitude(instance) {
-        return this.sd.getValue("KPLN", instance, this.longitude);
+        return this.modelObject.sd.getValue("KPLN", instance, this.modelObject.longitude);
     },
 
     getLifespan(instance) {
-        return this.sd.getValue("KPEL", instance, this.lifespan);
+        return this.modelObject.sd.getValue("KPEL", instance, this.modelObject.lifespan);
     },
 
     getGravity(instance) {
-        return this.sd.getValue("KPEG", instance, this.gravity);
+        return this.modelObject.sd.getValue("KPEG", instance, this.modelObject.gravity);
     },
 
     getEmissionRate(instance) {
-        return this.sd.getValue("KPEE", instance, this.emissionRate);
+        return this.modelObject.sd.getValue("KPEE", instance, this.modelObject.emissionRate);
     },
 
     getVisibility(instance) {
-        return this.sd.getValue("KPEV", instance, 1);
+        return this.modelObject.sd.getValue("KPEV", instance, 1);
     }
 };
+
+export default MdxParticleEmitter;

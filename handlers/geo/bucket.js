@@ -1,3 +1,6 @@
+import Bucket from "../../src/bucket";
+import { mix } from "../../src/common";
+
 /**
  * @constructor
  * @extends Bucket
@@ -102,3 +105,5 @@ GeometryBucket.prototype = {
 };
 
 mix(GeometryBucket.prototype, Bucket.prototype);
+
+export default GeometryBucket;

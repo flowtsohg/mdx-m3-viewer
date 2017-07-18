@@ -1,3 +1,8 @@
+import Texture from "../../src/texture";
+import JpegImage from "./jpg-addon";
+import BitBuffer from "../../src/bitbuffer";
+import { mix } from "../../src/common";
+
 /**
  * @constructor
  * @extends Texture
@@ -95,3 +100,5 @@ BlpTexture.prototype = {
 };
 
 mix(BlpTexture.prototype, Texture.prototype);
+
+export default BlpTexture;

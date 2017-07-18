@@ -1,3 +1,5 @@
+import M3Particle from "./particle";
+
 /**
  * @constructor
  * @param {M3Model} model
@@ -209,3 +211,5 @@ M3ParticleEmitter.prototype = {
 
     }
 };
+
+export default M3ParticleEmitter;

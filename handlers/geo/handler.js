@@ -1,3 +1,10 @@
+import ModelHandler from "../../src/modelhandler";
+import GeometryModel from "./model";
+import GeometryModelView from "./modelview";
+import GeometryModelInstance from "./modelinstance";
+import GeometryBucket from "./bucket";
+import { mix } from "../../src/common";
+
 const Geo = {
     initialize(env) {
         let shader = env.webgl.createShaderProgram(
@@ -83,3 +90,5 @@ const Geo = {
 };
 
 mix(Geo, ModelHandler);
+
+export default Geo;

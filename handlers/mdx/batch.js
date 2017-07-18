@@ -15,3 +15,5 @@ MdxBatch.prototype = {
         return this.geoset.getAlpha(instance) >= 0.75;
     }
 };
+
+export default MdxBatch;

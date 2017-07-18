@@ -1,3 +1,5 @@
+import MdxSdContainer from "./sd";
+
 /**
  * @constructor
  * @param {MdxModel} model
@@ -152,3 +154,5 @@ MdxLayer.prototype = {
         return this.sd.getValue("KMTF", instance, this.textureId);
     }
 };
+
+export default MdxLayer;

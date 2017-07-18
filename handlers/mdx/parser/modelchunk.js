@@ -1,3 +1,5 @@
+import MdxParserExtent from "./extent";
+
 /**
  * @constructor
  * @param {MdxParserBinaryReader} reader
@@ -15,3 +17,5 @@ function MdxParserModelChunk(reader, tag, size, nodes) {
     /** @member {number} */
     this.blendTime = reader.readUint32();
 }
+
+export default MdxParserModelChunk;

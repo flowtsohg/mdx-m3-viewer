@@ -40,3 +40,5 @@ M3ParserReference.prototype = {
         return this.getAll()[0];
     }
 };
+
+export default M3ParserReference;

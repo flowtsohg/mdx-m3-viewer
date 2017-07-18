@@ -1,3 +1,8 @@
+import ResizeableBuffer from "../../src/gl/resizeablebuffer";
+import MdxEventObjectSpl from "./eventobjectspl";
+import MdxParticleEmitter from "./particleemitter";
+import MdxParticle2Emitter from "./particle2emitter";
+
 /**
  * @constructor
  * @param {MdxModelEventObject} modelObject
@@ -36,3 +41,5 @@ MdxEventObjectSplEmitter.prototype = {
     updateData: MdxParticle2Emitter.prototype.updateData,
     render: MdxParticle2Emitter.prototype.render
 };
+
+export default MdxEventObjectSplEmitter;

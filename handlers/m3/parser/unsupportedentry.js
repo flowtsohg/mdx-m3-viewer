@@ -14,3 +14,5 @@ function M3ParserUnsupportedEntry(reader, version, index) {
     /** @member {Array<M3ParserIndexEntry>} */
     this.index = index;
 }
+
+export default M3ParserUnsupportedEntry;

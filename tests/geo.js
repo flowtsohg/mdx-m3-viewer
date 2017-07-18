@@ -1,7 +1,3 @@
-function geoSolver(src) {
-    return [src, ".geo", false];
-}
-
 let geoTests = [
     ["geo-rectangle", (viewer, scene) => {
         let camera = scene.camera;
@@ -10,7 +6,7 @@ let geoTests = [
         camera.move([0, 0, -110]);
 
         let data = {
-            geometry: createUnitRectangle(),
+            geometry: geometry.createUnitRectangle(),
             material: { renderMode: 0 }
         };
 
@@ -27,7 +23,7 @@ let geoTests = [
         camera.move([0, 0, -110]);
 
         let data = {
-            geometry: createUnitCube(),
+            geometry: geometry.createUnitCube(),
             material: { renderMode: 0 }
         };
 
@@ -44,7 +40,7 @@ let geoTests = [
         camera.move([0, 0, -110]);
 
         let data = {
-            geometry: createUnitSphere(4, 20),
+            geometry: geometry.createUnitSphere(4, 20),
             material: { renderMode: 0 }
         };
 
@@ -61,7 +57,7 @@ let geoTests = [
         camera.move([0, 0, -110]);
 
         let data = {
-            geometry: createUnitCylinder(16),
+            geometry: geometry.createUnitCylinder(16),
             material: { renderMode: 0 }
         };
 
@@ -78,7 +74,7 @@ let geoTests = [
         camera.move([0, 0, -110]);
 
         let data = {
-            geometry: createUnitRectangle(),
+            geometry: geometry.createUnitRectangle(),
             material: { renderMode: 1 }
         };
 
@@ -95,7 +91,7 @@ let geoTests = [
         camera.move([0, 0, -110]);
 
         let data = {
-            geometry: createUnitRectangle(),
+            geometry: geometry.createUnitRectangle(),
             material: { renderMode: 2 }
         };
 
@@ -112,7 +108,7 @@ let geoTests = [
         camera.move([0, 0, -110]);
 
         let data = {
-            geometry: createUnitRectangle(),
+            geometry: geometry.createUnitRectangle(),
             material: { renderMode: 0 }
         };
 
@@ -129,7 +125,7 @@ let geoTests = [
         camera.move([0, 0, -110]);
 
         let data = {
-            geometry: createUnitRectangle(),
+            geometry: geometry.createUnitRectangle(),
             material: { renderMode: 1 }
         };
 
@@ -146,7 +142,7 @@ let geoTests = [
         camera.move([0, 0, -110]);
 
         let data = {
-            geometry: createUnitRectangle(),
+            geometry: geometry.createUnitRectangle(),
             material: { renderMode: 2 }
         };
 
@@ -163,7 +159,7 @@ let geoTests = [
         camera.move([0, 0, -110]);
 
         let data = {
-            geometry: createUnitRectangle(),
+            geometry: geometry.createUnitRectangle(),
             material: { renderMode: 0, twoSided: true }
         };
 
@@ -180,7 +176,7 @@ let geoTests = [
         camera.move([0, 0, -110]);
 
         let data = {
-            geometry: createUnitRectangle(),
+            geometry: geometry.createUnitRectangle(),
             material: { renderMode: 0, texture: viewer.load("resources/checkers.jpg", (path) => [path, ".jpg", true]) }
         };
 

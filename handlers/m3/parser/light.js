@@ -1,3 +1,5 @@
+import { M3ParserFloat32AnimationReference, M3ParserVector3AnimationReference } from "./animationreference";
+
 /**
  * @constructor
  * @param {M3ParserBinaryReader} reader
@@ -38,3 +40,5 @@ function M3ParserLight(reader, version, index) {
     /** @member {M3ParserFloat32AnimationReference} */
     this.falloff = new M3ParserFloat32AnimationReference(reader);
 }
+
+export default M3ParserLight;

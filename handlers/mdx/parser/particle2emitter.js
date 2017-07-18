@@ -1,3 +1,5 @@
+import MdxParserSDContainer from "./sd";
+
 /**
  * @constructor
  * @param {MdxParserBinaryReader} reader
@@ -63,3 +65,5 @@ function MdxParserParticle2Emitter(reader, nodes, index) {
     /** @member {MdxParserSDContainer} */
     this.tracks = new MdxParserSDContainer(reader, this.size - this.node.size - 175);
 }
+
+export default MdxParserParticle2Emitter;

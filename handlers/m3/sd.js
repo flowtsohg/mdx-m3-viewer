@@ -1,3 +1,6 @@
+import Interpolator from "../../src/math/interpolator";
+import { vec3 } from "gl-matrix";
+
 /**
  * @constructor
  * @param {M3ParserSd} sd
@@ -68,3 +71,5 @@ M3SdContainer.prototype = {
         return interval;
     }
 };
+
+export default M3SdContainer;

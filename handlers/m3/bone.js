@@ -6,7 +6,12 @@
 function M3Bone(model, bone) {
     let flags = bone.flags;
 
-    mix(this, bone);
+    this.name = bone.name;
+    this.parent = bone.parent;
+    this.location = bone.location;
+    this.rotation = bone.rotation;
+    this.scale = bone.scale;
+    this.visibility = bone.visibility;
 
     this.inhertTranslation = flags & 0x1;
     this.inheritScale = flags & 0x2;
@@ -19,3 +24,5 @@ function M3Bone(model, bone) {
     this.skinned = flags & 0x800;
     this.real = flags & 0x2000;
 }
+
+export default M3Bone;

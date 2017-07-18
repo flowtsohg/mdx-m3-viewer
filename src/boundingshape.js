@@ -1,3 +1,6 @@
+import NotifiedNode from "./notifiednode";
+import { mix } from "./common";
+
 /**
  * @constructor
  * @augments NotifiedNode
@@ -132,3 +135,5 @@ BoundingShape.prototype = {
 };
 
 mix(BoundingShape.prototype, NotifiedNode.prototype);
+
+export default BoundingShape;

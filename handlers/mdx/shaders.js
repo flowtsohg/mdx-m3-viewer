@@ -187,3 +187,5 @@ const MdxShaders = {
         }
     `,
 };
+
+export default MdxShaders;

@@ -23,3 +23,5 @@ function M3BoundingShape(boundingshape, bones, gl) {
     this.shape = shape;
     */
 }
+
+export default M3BoundingShape;

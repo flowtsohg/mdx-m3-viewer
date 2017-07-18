@@ -1,8 +1,8 @@
-import Handler from './handler';
-import ModelView from './modelview';
-import ModelInstance from './modelinstance';
-import Bucket from './bucket';
-import common from './common';
+import Handler from "./handler";
+import ModelView from "./modelview";
+import ModelInstance from "./modelinstance";
+import Bucket from "./bucket";
+import { mix } from "./common";
 
 const ModelHandler = {
     get objectType() {
@@ -22,6 +22,6 @@ const ModelHandler = {
     }
 };
 
-common.mix(ModelHandler, Handler);
+mix(ModelHandler, Handler);
 
 export default ModelHandler;

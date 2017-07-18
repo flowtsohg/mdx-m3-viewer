@@ -1,3 +1,6 @@
+import Texture from "../../src/texture";
+import { mix } from "../../src/common";
+
 /**
  * @constructor
  * @augments Texture
@@ -53,3 +56,5 @@ ImageTexture.prototype = {
 };
 
 mix(ImageTexture.prototype, Texture.prototype);
+
+export default ImageTexture;

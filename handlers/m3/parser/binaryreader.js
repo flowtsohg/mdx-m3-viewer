@@ -1,3 +1,6 @@
+import BinaryReader from "../../../src/binaryreader";
+import { mix } from "../../../src/common";
+
 /**
  * @constructor
  * @extends {BinaryReader}
@@ -47,3 +50,5 @@ M3ParserBinaryReader.prototype = {
 };
 
 mix(M3ParserBinaryReader.prototype, BinaryReader.prototype);
+
+export default M3ParserBinaryReader;

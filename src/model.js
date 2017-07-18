@@ -1,6 +1,6 @@
-import DownloadableResource from './downloadableresource';
-import AsyncResource from './asyncresource';
-import common from './common';
+import DownloadableResource from "./downloadableresource";
+import AsyncResource from "./asyncresource";
+import { mix } from "./common";
 
 /**
  * @constructor
@@ -125,6 +125,6 @@ Model.prototype = {
     }
 };
 
-common.mix(Model.prototype, DownloadableResource.prototype);
+mix(Model.prototype, DownloadableResource.prototype);
 
 export default Model;

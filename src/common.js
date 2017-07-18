@@ -366,13 +366,16 @@ Array.prototype.delete = function (value) {
     return false;
 };
 
-export default {
+export {
+    getImageDataFromImage,
     compareImagesFromURLs,
     downloadUrl,
     seededRandom,
     normalizePath,
-    TagToUint,
+    createTextureAtlas,
+    TagToUint ,
     UintToTag,
+
     mix,
     encodeFloat2,
     decodeFloat2,
@@ -380,5 +383,5 @@ export default {
     decodeFloat3,
     get,
     hashFromString,
-    hashFromArray,
+    hashFromArray
 };

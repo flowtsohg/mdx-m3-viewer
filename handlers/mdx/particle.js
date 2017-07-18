@@ -1,3 +1,5 @@
+import { vec3, quat } from "gl-matrix";
+
 /**
  * @constructor
  * @param {MdxParticleEmitter} emitter
@@ -5,7 +7,8 @@
 function MdxParticle(emitter) {
     this.emitter = emitter;
     this.instance = null;
-    this.internalInstance = emitter.internalModel.addInstance();
+
+    this.internalInstance = emitter.modelObject.internalResource.addInstance();
     this.velocity = vec3.create();
     this.gravity = 0;
 }
@@ -13,7 +16,7 @@ function MdxParticle(emitter) {
 MdxParticle.prototype = {
     reset(emitterView) {
         let instance = emitterView.instance,
-            node = instance.skeleton.nodes[this.emitter.node.index],
+            node = instance.skeleton.nodes[this.emitter.modelObject.node.index],
             internalInstance = this.internalInstance,
             scale = node.worldScale,
             latitude = emitterView.getLatitude(),
@@ -66,3 +69,5 @@ MdxParticle.prototype = {
         }
     }
 };
+
+export default MdxParticle;

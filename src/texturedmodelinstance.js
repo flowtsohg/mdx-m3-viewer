@@ -1,5 +1,5 @@
-import ModelInstance from './modelinstance';
-import common from './common';
+import ModelInstance from "./modelinstance";
+import { mix } from "./common";
 
 /**
  * @constructor
@@ -26,6 +26,6 @@ TexturedModelInstance.prototype = {
     }
 };
 
-common.mix(TexturedModelInstance.prototype, ModelInstance.prototype);
+mix(TexturedModelInstance.prototype, ModelInstance.prototype);
 
 export default TexturedModelInstance;

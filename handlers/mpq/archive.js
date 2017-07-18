@@ -1,3 +1,11 @@
+import ViewerFile from "../../src/file";
+import BinaryReader from "../../src/binaryreader";
+import MpqCrypto from "./crypto";
+import MpqHashTable from "./hashtable";
+import MpqBlockTable from "./blocktable";
+import MpqFile from "./file";
+import { mix } from "../../src/common";
+
 /**
  * @constructor
  * @augments ViewerFile
@@ -19,10 +27,6 @@ function MpqArchive(env, pathSolver) {
 }
 
 MpqArchive.prototype = {
-    get handler() {
-        return Mpq;
-    },
-
     initialize(src) {
         let reader = new BinaryReader(src);
 
@@ -134,3 +138,5 @@ MpqArchive.prototype = {
 };
 
 mix(MpqArchive.prototype, ViewerFile.prototype);
+
+export default MpqArchive;

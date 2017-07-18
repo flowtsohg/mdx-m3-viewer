@@ -1,3 +1,9 @@
+import ResizeableBuffer from "../../src/gl/resizeablebuffer";
+import MdxSdContainer from "./sd";
+import MdxRibbon from "./ribbon";
+import MdxParticleEmitter from "./particleemitter";
+import MdxParticle2Emitter from "./particle2emitter";
+
 /**
  * @constructor
  * @param {MdxModel} model
@@ -110,3 +116,5 @@ MdxRibbonEmitter.prototype = {
         return this.sd.getValue("KRVS", instance, 1);
     }
 };
+
+export default MdxRibbonEmitter;

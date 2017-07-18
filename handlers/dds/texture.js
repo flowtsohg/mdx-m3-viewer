@@ -1,3 +1,7 @@
+import Texture from "../../src/texture";
+import { dxt1ToRgb565, dxt3ToRgba8888, dxt5ToRgba8888 } from "./dxt";
+import { mix } from "../../src/common";
+
 /**
  * @see Largely based on https://github.com/toji/webctx-texture-utils/blob/master/texture-util/dds.js
  * @constructor
@@ -101,3 +105,5 @@ DdsTexture.prototype = {
 };
 
 mix(DdsTexture.prototype, Texture.prototype);
+
+export default DdsTexture;
