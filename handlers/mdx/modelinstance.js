@@ -1,4 +1,5 @@
 import TexturedModelInstance from '../../src/texturedmodelinstance';
+import common from '../../src/common';
 
 /**
  * @constructor
@@ -474,6 +475,6 @@ MdxModelInstance.prototype = {
     }
 };
 
-require('../../src/common').mix(MdxModelInstance.prototype, TexturedModelInstance.prototype);
+common.mix(MdxModelInstance.prototype, TexturedModelInstance.prototype);
 
 export default MdxModelInstance;

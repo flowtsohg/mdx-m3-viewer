@@ -1,4 +1,5 @@
 import AsyncResource from './asyncresource';
+import common from './common';
 
 /**
  * @constructor
@@ -30,13 +31,13 @@ DownloadableResource.prototype = {
         AsyncResource.prototype.load.call(this);
 
         if (serverFetch) {
-            require('./common').get(src, isBinary, (xhr) => this.onprogress(xhr)).then((xhr) => this.onload(xhr.response), (xhr) => this.onerror("HttpError", xhr));
+            common.get(src, isBinary, (xhr) => this.onprogress(xhr)).then((xhr) => this.onload(xhr.response), (xhr) => this.onerror("HttpError", xhr));
         } else {
             this.onload(src);
         }
     }
 };
 
-require('./common').mix(DownloadableResource.prototype, AsyncResource.prototype);
+common.mix(DownloadableResource.prototype, AsyncResource.prototype);
 
 export default DownloadableResource;

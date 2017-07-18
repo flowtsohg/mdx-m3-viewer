@@ -1,4 +1,5 @@
 import TextureHandler from '../../src/texturehandler';
+import common from '../../src/common';
 
 const Tga = {
     get extension() {
@@ -14,6 +15,6 @@ const Tga = {
     }
 };
 
-require('../../src/common').mix(Tga, TextureHandler);
+common.mix(Tga, TextureHandler);
 
 export default Tga;

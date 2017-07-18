@@ -1,4 +1,5 @@
 import FileHandler from '../../src/filehandler';
+import common from '../../src/common';
 
 const Slk = {
     get extension() {
@@ -10,6 +11,6 @@ const Slk = {
     }
 };
 
-require('../../src/common').mix(Slk, FileHandler);
+common.mix(Slk, FileHandler);
 
 export default Slk;

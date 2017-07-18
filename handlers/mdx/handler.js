@@ -7,6 +7,7 @@ import Blp from '../blp/handler';
 import Tga from '../tga/handler';
 import Slk from '../slk/handler';
 import NativeTexture from '../nativetexture/handler';
+import common from '../../src/common';
 
 const Mdx = {
     initialize(env) {
@@ -85,6 +86,6 @@ const Mdx = {
     }
 };
 
-require('../../src/common').mix(Mdx, ModelHandler);
+common.mix(Mdx, ModelHandler);
 
 export default Mdx;

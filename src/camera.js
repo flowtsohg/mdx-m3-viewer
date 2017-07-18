@@ -2,6 +2,7 @@ import Frustum from './frustum';
 import NotifiedNode from './notifiednode';
 import glMatrix from './math/gl-matrix-addon';
 import ViewerNode from './node';
+import common from './common';
 
 /**
  * @constructor
@@ -169,6 +170,6 @@ Camera.prototype = {
     }
 };
 
-require('./common').mix(Camera.prototype, NotifiedNode.prototype, Frustum.prototype);
+common.mix(Camera.prototype, NotifiedNode.prototype, Frustum.prototype);
 
 export default Camera;

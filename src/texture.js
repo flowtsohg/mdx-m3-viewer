@@ -1,4 +1,5 @@
 import DownloadableResource from './downloadableresource';
+import common from './common';
 
 /**
  * @constructor
@@ -33,6 +34,6 @@ Texture.prototype = {
     }
 };
 
-require('./common').mix(Texture.prototype, DownloadableResource.prototype);
+common.mix(Texture.prototype, DownloadableResource.prototype);
 
 export default Texture;

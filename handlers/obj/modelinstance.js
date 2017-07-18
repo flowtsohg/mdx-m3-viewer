@@ -1,4 +1,5 @@
 import ModelInstance from '../../src/modelinstance';
+import common from '../../src/common';
 
 /**
  * @constructor
@@ -27,6 +28,6 @@ ObjModelInstance.prototype = {
 };
 
 // Inherit from ModelInstance.
-require('../../src/common').mix(ObjModelInstance.prototype, ModelInstance.prototype);
+common.mix(ObjModelInstance.prototype, ModelInstance.prototype);
 
 export default ObjModelInstance;

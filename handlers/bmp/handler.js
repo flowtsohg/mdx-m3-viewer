@@ -1,5 +1,6 @@
 import BmpTexture from './texture';
 import TextureHandler from '../../src/texturehandler';
+import common from '../../src/common';
 
 const Bmp = {
     get extension() {
@@ -15,6 +16,6 @@ const Bmp = {
     }
 };
 
-require('../../src/common').mix(Bmp, TextureHandler);
+common.mix(Bmp, TextureHandler);
 
 export default Bmp;

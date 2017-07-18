@@ -1,4 +1,5 @@
 import ModelView from './modelview';
+import common from './common';
 
 /**
  * @constructor
@@ -44,6 +45,6 @@ TexturedModelView.prototype = {
     }
 };
 
-require('./common').mix(TexturedModelView.prototype, ModelView.prototype);
+common.mix(TexturedModelView.prototype, ModelView.prototype);
 
 export default TexturedModelView;

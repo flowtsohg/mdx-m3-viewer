@@ -1,5 +1,6 @@
 import EventDispatcher from './eventdispatcher';
 import WebGL from './gl/gl';
+import common from './common';
 
 /**
  * @constructor
@@ -476,6 +477,6 @@ ModelViewer.prototype = {
     }
 };
 
-require('./common').mix(ModelViewer.prototype, EventDispatcher.prototype);
+common.mix(ModelViewer.prototype, EventDispatcher.prototype);
 
 export default ModelViewer;

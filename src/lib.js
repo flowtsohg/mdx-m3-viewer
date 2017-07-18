@@ -6,7 +6,7 @@ import Bmp from '../handlers/bmp/handler';
 import Obj from '../handlers/obj/handler';
 import glMatrix from './math/gl-matrix-addon';
 
-module.exports = {
+export {
 	ModelViewer,
 	Mdx,
 	M3,

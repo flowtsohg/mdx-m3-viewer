@@ -1,6 +1,7 @@
 import ModelHandler from '../../src/modelhandler';
 import ObjModel from './model';
 import ObjModelInstance from './modelinstance';
+import common from '../../src/common';
 
 const Obj = {
     // One-time initialization, called when adding the handler.
@@ -35,6 +36,6 @@ const Obj = {
     }
 };
 
-require('../../src/common').mix(Obj, ModelHandler);
+common.mix(Obj, ModelHandler);
 
 export default Obj;
