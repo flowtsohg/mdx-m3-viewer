@@ -26,12 +26,12 @@ MdxModel.prototype = {
     initialize(src) {
         var parser;
         
-        //try {
+        try {
             parser = new MdxParser(src);
-        //} catch (e) {
-        //    this.onerror("InvalidSource", e);
-        //    return false;
-        //}
+        } catch (e) {
+            this.onerror("InvalidSource", e);
+            return false;
+        }
 
         var objects, i, l, j, k;
         var chunks = parser.chunks;
@@ -192,13 +192,21 @@ MdxModel.prototype = {
         }
 
         if (chunks.has("PREM")) {
-            this.particleEmitters = chunks.get("PREM").elements;
+            let particleEmitters = chunks.get("PREM").elements;
+
+            for (let i = 0, l = particleEmitters.length; i < l; i++) {
+                this.particleEmitters[i] = new MdxModelParticleEmitter(this, particleEmitters[i]);
+            }
         }
 
         if (chunks.has("PRE2")) {
-            this.particleEmitters2 = chunks.get("PRE2").elements;
+            let particleEmitters2 = chunks.get("PRE2").elements;
 
-            this.particleEmitters2.sort((a, b) => a.priorityPlane - b.priorityPlane);
+            particleEmitters2.sort((a, b) => a.priorityPlane - b.priorityPlane);
+
+            for (let i = 0, l = particleEmitters2.length; i < l; i++) {
+                this.particleEmitters2[i] = new MdxModelParticle2Emitter(this, particleEmitters2[i]);
+            }
         }
 
         if (chunks.has("RIBB")) {
@@ -213,7 +221,7 @@ MdxModel.prototype = {
             let attachments = chunks.get("ATCH").elements;
 
             for (let i = 0, l = attachments.length; i < l; i++) {
-                this.attachments[i] = new MdxAttachment(this, attachments[i]);
+                this.attachments[i] = new MdxModelAttachment(this, attachments[i]);
             }
         }
 
@@ -221,7 +229,7 @@ MdxModel.prototype = {
             let eventObjects = chunks.get("EVTS").elements;
 
             for (let i = 0, l = eventObjects.length; i < l; i++) {
-                this.eventObjectEmitters.push(new MdxEventObject(this, eventObjects[i]));
+                this.eventObjectEmitters.push(new MdxModelEventObject(this, eventObjects[i]));
             }
         }
 

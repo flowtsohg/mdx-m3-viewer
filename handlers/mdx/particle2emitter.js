@@ -1,75 +1,15 @@
 /**
  * @constructor
- * @param {MdxModel} model
- * @param {MdxParserParticle2Emitter} emitter
+ * @param {MdxModelParticle2Emitter} modelObject
  */
-function MdxParticle2Emitter(model, emitter) {
-    let gl = model.gl;
-
-    this.width = emitter.width;
-    this.length = emitter.length;
-    this.speed = emitter.speed;
-    this.latitude = emitter.latitude;
-    this.gravity = emitter.gravity;
-    this.emissionRate = emitter.emissionRate;
-    this.squirt = emitter.squirt;
-
-    this.lifespan = emitter.lifespan;
-    this.modelSpace = emitter.modelSpace;
-    this.variation = emitter.variation;
-    this.tailLength = emitter.tailLength;
-    this.timeMiddle = emitter.timeMiddle;
-
-    this.model = model;
-
-    this.texture = model.textures[emitter.textureId]
-
-    let headOrTail = emitter.headOrTail;
-
-    this.head = (headOrTail === 0 || headOrTail === 2);
-    this.tail = (headOrTail === 1 || headOrTail === 2);
-
-    this.bytesPerEmit = ((headOrTail === 2) ? 2 : 1) * 4 * 30;
-
-    this.buffer = new ResizeableBuffer(gl);
+function MdxParticle2Emitter(modelObject) {
+    this.modelObject = modelObject;
 
     this.active = [];
     this.inactive = [];
 
-    this.cellWidth = 1 / emitter.columns;
-    this.cellHeight = 1 / emitter.rows;
-    this.colors = [];
-
-    let colors = emitter.segmentColors,
-        alpha = emitter.segmentAlpha;
-
-    for (let i = 0; i < 3; i++) {
-        let color = colors[i];
-
-        this.colors[i] = new Uint8Array([Math.min(color[0], 1) * 255, Math.min(color[1], 1) * 255, Math.min(color[2], 1) * 255, alpha[i]]);
-    }
-
-    this.scaling = emitter.segmentScaling;
-
-    this.intervals = [
-        emitter.headInterval,
-        emitter.tailInterval,
-        emitter.headDecayInterval,
-        emitter.tailDecayInterval
-    ];
-
-    let node = this.model.nodes[emitter.node.index];
-
-    this.node = node;
-
-    this.xYQuad = node.xYQuad;
-    this.modelSpace = node.modelSpace;
-
-    this.sd = new MdxSdContainer(model, emitter.tracks);
-
-    this.dimensions = [emitter.columns, emitter.rows];
-
-    this.selectFilterMode(emitter.filterMode);
+    this.bytesPerEmit = ((modelObject.headOrTail === 2) ? 2 : 1) * 4 * 30;
+    this.buffer = new ResizeableBuffer(modelObject.model.gl);
 }
 
 MdxParticle2Emitter.prototype = {
@@ -98,43 +38,6 @@ MdxParticle2Emitter.prototype = {
         if (this.tail) {
             this.emitParticle(emitterView, false);
         }
-    },
-
-    selectFilterMode(filterMode) {
-        let gl = this.model.gl,
-            blendSrc,
-            blendDst;
-
-        switch (filterMode) {
-            // Blend
-            case 0:
-                blendSrc = gl.SRC_ALPHA;
-                blendDst = gl.ONE_MINUS_SRC_ALPHA;
-                break;
-                // Additive
-            case 1:
-                blendSrc = gl.SRC_ALPHA;
-                blendDst = gl.ONE;
-                break;
-                // Modulate
-            case 2:
-                blendSrc = gl.ZERO;
-                blendDst = gl.SRC_COLOR;
-                break;
-                // Modulate 2X
-            case 3:
-                blendSrc = gl.DEST_COLOR;
-                blendDst = gl.SRC_COLOR;
-                break;
-                // Add Alpha
-            case 4:
-                blendSrc = gl.SRC_ALPHA;
-                blendDst = gl.ONE;
-                break;
-        }
-
-        this.blendSrc = blendSrc;
-        this.blendDst = blendDst;
     },
 
     update: MdxParticleEmitter.prototype.update,
@@ -191,17 +94,18 @@ MdxParticle2Emitter.prototype = {
     },
 
     render(bucket, shader) {
-        let active = this.active.length;
+        let modelObject = this.modelObject,
+            active = this.active.length;
 
-        if (active > 0) {
-            let model = this.model,
+        if (modelObject.internalResource && active > 0) {
+            let model = modelObject.model,
                 gl = model.gl;
 
-            gl.blendFunc(this.blendSrc, this.blendDst);
+            gl.blendFunc(modelObject.blendSrc, modelObject.blendDst);
 
-            gl.uniform2fv(shader.uniforms.get("u_dimensions"), this.dimensions);
+            gl.uniform2fv(shader.uniforms.get("u_dimensions"), modelObject.dimensions);
 
-            model.bindTexture(this.texture, 0, bucket.modelView);
+            model.bindTexture(modelObject.internalResource, 0, bucket.modelView);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.buffer);
             gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.buffer.float32array.subarray(0, active * 30));
@@ -218,38 +122,38 @@ MdxParticle2Emitter.prototype = {
     },
 
     getWidth(instance) {
-        return this.sd.getValue("KP2W", instance, this.width);
+        return this.modelObject.sd.getValue("KP2W", instance, this.width);
     },
 
     getLength(instance) {
-        return this.sd.getValue("KP2N", instance, this.length);
+        return this.modelObject.sd.getValue("KP2N", instance, this.length);
     },
 
     getSpeed(instance) {
-        return this.sd.getValue("KP2S", instance, this.speed);
+        return this.modelObject.sd.getValue("KP2S", instance, this.speed);
     },
 
     getLatitude(instance) {
-        return this.sd.getValue("KP2L", instance, this.latitude);
+        return this.modelObject.sd.getValue("KP2L", instance, this.latitude);
     },
 
     getGravity(instance) {
-        return this.sd.getValue("KP2G", instance, this.gravity);
+        return this.modelObject.sd.getValue("KP2G", instance, this.gravity);
     },
 
     getEmissionRate(instance) {
-        return this.sd.getValue("KP2E", instance, this.emissionRate);
+        return this.modelObject.sd.getValue("KP2E", instance, this.emissionRate);
     },
 
     getEmissionRateKeyframe(instance) {
-        return this.sd.getKeyframe("KP2E", instance);
+        return this.modelObject.sd.getKeyframe("KP2E", instance);
     },
 
     getVisibility(instance) {
-        return this.sd.getValue("KP2V", instance, 1);
+        return this.modelObject.sd.getValue("KP2V", instance, 1);
     },
 
     getVariation(instance) {
-        return this.sd.getValue("KP2R", instance, this.variation);
+        return this.modelObject.sd.getValue("KP2R", instance, this.variation);
     }
 };

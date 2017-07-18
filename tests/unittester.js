@@ -12,6 +12,9 @@ function UnitTester() {
     viewer.addHandler(W3x);
     viewer.addHandler(M3);
 
+    viewer.addEventListener("loadstart", (e) => console.log(e));
+    viewer.addEventListener("loadend", (e) => console.log(e));
+
     this.viewer = viewer;
     this.mathRandom = Math.random;
     this.tests = [];
@@ -98,10 +101,12 @@ UnitTester.prototype = {
             // Replace Math.random with a custom seeded random function
             this.replaceMathRandom();
 
+            console.log("Running test", entry.value[1][0]);
             // Run the test code
             entry.value[1][1](viewer, scene);
 
             viewer.whenAllLoaded(() => {
+                console.log("viewer.whenAllLoaded()")
                 // Update the viewer once to make all of the changes appear
                 viewer.update();
 

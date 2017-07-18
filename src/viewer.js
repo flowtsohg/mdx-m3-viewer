@@ -285,6 +285,23 @@ ModelViewer.prototype = {
     },
 
     /**
+     * A fake load.
+     * This is needed for resources that know they are going to load internal resources, but don't yet know what they are.
+     * So, in order to delay Viewer.whenAllLoaded() so it catches all internal resources, the resource can load fake place-holder resources.
+     * 
+     * @returns {PromiseResource}
+     */
+    makePromise() {
+        let resource = new PromiseResource(this);
+
+        this.registerEvents(resource);
+
+        resource.load();
+
+        return resource;
+    },
+
+    /**
      * Calls the given callback when all of the given resources finished loading. In the case all of the resources are already loaded, the call happens immediately.
      * 
      * @param {Array<AsyncResource>} resources The resources to wait for.

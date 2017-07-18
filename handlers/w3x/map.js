@@ -67,11 +67,17 @@ W3xMap.prototype = {
             this.slkFiles[paths[i].substr(paths[i].lastIndexOf("/") + 1).toLowerCase().split(".")[0]] = files[i];
         }
 
+        // Promise that there is a future load that the code cannot know about yet, so Viewer.whenAllLoaded() isn't called prematurely.
+        let promise = this.env.makePromise();
+
         this.env.whenLoaded(files, () => {
             this.loadTerrain();
             this.loadModifications();
             this.loadDoodads();
             this.loadUnits();
+
+            // Resolve the promise
+            promise.resolve();
         });
 
         return true;

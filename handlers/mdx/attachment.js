@@ -3,7 +3,7 @@
  * @param {MdxInstance} instance
  * @param {MdxAttachment} attachment
  */
-function MdxShallowAttachment(instance, attachment) {
+function MdxAttachment(instance, attachment) {
     let internalInstance = attachment.internalModel.addInstance();
 
     internalInstance.setSequenceLoopMode(2);
@@ -17,7 +17,7 @@ function MdxShallowAttachment(instance, attachment) {
     this.internalInstance = internalInstance;
 }
 
-MdxShallowAttachment.prototype = {
+MdxAttachment.prototype = {
     update() {
         let internalInstance = this.internalInstance;
 
@@ -44,7 +44,7 @@ MdxShallowAttachment.prototype = {
  * @param {MdxModel} model
  * @param {MdxParserAttachment} attachment
  */
-function MdxAttachment(model, attachment) {
+function MdxModelAttachment(model, attachment) {
     let path = attachment.path.replace(/\\/g, "/").toLowerCase().replace(".mdl", ".mdx");
 
     this.node = model.nodes[attachment.node.index];
@@ -58,7 +58,7 @@ function MdxAttachment(model, attachment) {
     }
 }
 
-MdxAttachment.prototype = {
+MdxModelAttachment.prototype = {
     getVisibility(instance) {
         return this.sd.getValue("KATV", instance, 1);
     }

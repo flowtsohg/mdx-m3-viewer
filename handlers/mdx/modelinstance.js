@@ -38,7 +38,7 @@ MdxModelInstance.prototype = {
             let attachment = objects[i];
 
             if (attachment.internalModel) {
-                this.attachments.push(new MdxShallowAttachment(this, attachment));
+                this.attachments.push(new MdxAttachment(this, attachment));
             }
         }
 

@@ -16,10 +16,10 @@ function MdxEventObjectUbr(emitter) {
 
 MdxEventObjectUbr.prototype = {
     reset(emitterView) {
-        let emitter = this.emitter,
+        let modelObject = this.emitter.modelObject,
             vertices = this.vertices,
-            emitterScale = emitter.scale,
-            node = emitterView.instance.skeleton.nodes[emitter.node.index],
+            emitterScale = modelObject.scale,
+            node = emitterView.instance.skeleton.nodes[modelObject.node.index],
             location = node.worldLocation,
             vertex;
 
@@ -39,27 +39,27 @@ MdxEventObjectUbr.prototype = {
         vec3.transformMat4(vertex, [emitterScale, -emitterScale, 0], node.worldMatrix);
         vec3.add(vertex, vertex, location);
 
-        this.health = emitter.lifespan;
+        this.health = modelObject.lifespan;
     },
 
     update() {
-        let emitter = this.emitter,
-            intervalTimes = emitter.intervalTimes,
+        let modelObject = this.emitter.modelObject,
+            intervalTimes = modelObject.intervalTimes,
             first = intervalTimes[0],
             second = intervalTimes[1],
             third = intervalTimes[2],
-            colors = emitter.colors,
+            colors = modelObject.colors,
             color = this.color;
 
-        this.health -= emitter.model.env.frameTime * 0.001;
+        this.health -= modelObject.model.env.frameTime * 0.001;
 
         // Inverse of health
-        let time = emitter.lifespan - this.health;
+        let time = modelObject.lifespan - this.health;
         
         if (time < first) {
             vec4.lerp(color, colors[0], colors[1], time / first);
         } else if (time < first + second) {
-            vec4.copy(color, emitter.colors[1]);
+            vec4.copy(color, modelObject.colors[1]);
         } else {
             vec4.lerp(color, colors[1], colors[2], (time - first - second) / third);
         }

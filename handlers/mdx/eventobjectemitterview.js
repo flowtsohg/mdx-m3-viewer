@@ -12,7 +12,7 @@ function MdxEventObjectEmitterView(instance, emitter) {
 MdxEventObjectEmitterView.prototype = {
     update() {
         let emitter = this.emitter,
-            track = emitter.getValue(this.instance),
+            track = emitter.modelObject.getValue(this.instance),
             lastTrack = this.lastTrack;
         
         if (track[0] === 1 && (track[0] !== lastTrack[0] || track[1] !== lastTrack[1])) {
