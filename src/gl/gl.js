@@ -1,3 +1,7 @@
+import ShaderUnit from './shader';
+import ShaderProgram from './program';
+import common from '../common';
+
 /**
  * @constructor
  * @param {HTMLCanvasElement} canvas
@@ -88,7 +92,7 @@ WebGL.prototype = {
      * @returns {ShaderUnit}
      */
     createShaderUnit(src, type) {
-        let hash = hashFromString(src),
+        let hash = common.hashFromString(src),
             shaderUnits = this.shaderUnits;
 
         if (!shaderUnits.has(hash)) {
@@ -112,7 +116,7 @@ WebGL.prototype = {
             shaderPrograms = this.shaderPrograms;
 
         if (vertexShader.loaded && fragmentShader.loaded) {
-            let hash = hashFromString(vertexSource + fragmentSource);
+            let hash = common.hashFromString(vertexSource + fragmentSource);
 
             if (!shaderPrograms.has(hash)) {
                 shaderPrograms.set(hash, new ShaderProgram(gl, vertexShader, fragmentShader));
@@ -190,3 +194,5 @@ WebGL.prototype = {
         }
     }
 };
+
+export default WebGL;

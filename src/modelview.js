@@ -164,3 +164,5 @@ ModelView.prototype = {
         } 
     }
 };
+
+export default ModelView;

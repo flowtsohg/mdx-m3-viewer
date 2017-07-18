@@ -1,3 +1,5 @@
+import glMatrix from './math/gl-matrix-addon';
+
 /**
  * @constructor
  * @param {ArrayBuffer} buffer
@@ -68,7 +70,7 @@ ViewerNode.prototype = {
      * @returns this
      */
     setPivot(pivot) {
-        vec3.copy(this.pivot, pivot);
+        glMatrix.vec3.copy(this.pivot, pivot);
 
         this.recalculateTransformation();
 
@@ -82,7 +84,7 @@ ViewerNode.prototype = {
      * @returns this
      */
     setLocation(location) {
-        vec3.copy(this.localLocation, location);
+        glMatrix.vec3.copy(this.localLocation, location);
 
         this.recalculateTransformation();
 
@@ -96,7 +98,7 @@ ViewerNode.prototype = {
      * @returns this
      */
     setRotation(rotation) {
-        quat.copy(this.localRotation, rotation);
+        glMatrix.quat.copy(this.localRotation, rotation);
 
         this.recalculateTransformation();
 
@@ -110,7 +112,7 @@ ViewerNode.prototype = {
      * @returns this
      */
     setScale(varying) {
-        vec3.copy(this.localScale, varying);
+        glMatrix.vec3.copy(this.localScale, varying);
 
         this.recalculateTransformation();
 
@@ -124,7 +126,7 @@ ViewerNode.prototype = {
      * @returns this
      */
     setUniformScale(uniform) {
-        vec3.set(this.localScale, uniform, uniform, uniform);
+        glMatrix.vec3.set(this.localScale, uniform, uniform, uniform);
 
         this.recalculateTransformation();
 
@@ -147,18 +149,18 @@ ViewerNode.prototype = {
         localLocation[0] = location[0];
         localLocation[1] = location[1];
         localLocation[2] = location[2];
-        //vec3.copy(this.localLocation, location);
+        //glMatrix.vec3.copy(this.localLocation, location);
 
         localRotation[0] = rotation[0];
         localRotation[1] = rotation[1];
         localRotation[2] = rotation[2];
         localRotation[3] = rotation[3];
-        //quat.copy(this.localRotation, rotation);
+        //glMatrix.quat.copy(this.localRotation, rotation);
 
         localScale[0] = scale[0];
         localScale[1] = scale[1];
         localScale[2] = scale[2];
-        //vec3.copy(this.localScale, scale);
+        //glMatrix.vec3.copy(this.localScale, scale);
 
         this.recalculateTransformation();
 
@@ -171,10 +173,10 @@ ViewerNode.prototype = {
      * @returns this
      */
     resetTransformation() {
-        vec3.copy(this.pivot, vec3.ZERO);
-        vec3.copy(this.localLocation, vec3.ZERO);
-        quat.copy(this.localRotation, quat.DEFAULT);
-        vec3.copy(this.localScale, vec3.ONE);
+        glMatrix.vec3.copy(this.pivot, glMatrix.vec3.ZERO);
+        glMatrix.vec3.copy(this.localLocation, glMatrix.vec3.ZERO);
+        glMatrix.quat.copy(this.localRotation, glMatrix.quat.DEFAULT);
+        glMatrix.vec3.copy(this.localScale, glMatrix.vec3.ONE);
 
         this.recalculateTransformation();
 
@@ -188,7 +190,7 @@ ViewerNode.prototype = {
      * @returns this
      */
     movePivot(offset) {
-        vec3.add(this.pivot, this.pivot, offset);
+        glMatrix.vec3.add(this.pivot, this.pivot, offset);
 
         this.recalculateTransformation();
 
@@ -202,7 +204,7 @@ ViewerNode.prototype = {
      * @returns this
      */
     move(offset) {
-        vec3.add(this.localLocation, this.localLocation, offset);
+        glMatrix.vec3.add(this.localLocation, this.localLocation, offset);
 
         this.recalculateTransformation();
 
@@ -216,7 +218,7 @@ ViewerNode.prototype = {
      * @returns this
      */
     rotate(rotation) {
-        quat.mul(this.localRotation, this.localRotation, rotation);
+        glMatrix.quat.mul(this.localRotation, this.localRotation, rotation);
 
         this.recalculateTransformation();
 
@@ -230,7 +232,7 @@ ViewerNode.prototype = {
      * @returns this
      */
     rotateLocal(rotation) {
-        quat.mul(this.localRotation, rotation, this.localRotation);
+        glMatrix.quat.mul(this.localRotation, rotation, this.localRotation);
 
         this.recalculateTransformation();
 
@@ -244,7 +246,7 @@ ViewerNode.prototype = {
      * @returns this
      */
     scale(scale) {
-        vec3.mul(this.localScale, this.localScale, scale);
+        glMatrix.vec3.mul(this.localScale, this.localScale, scale);
 
         this.recalculateTransformation();
 
@@ -258,7 +260,7 @@ ViewerNode.prototype = {
      * @returns this
      */
     uniformScale(scale) {
-        vec3.scale(this.localScale, this.localScale, scale);
+        glMatrix.vec3.scale(this.localScale, this.localScale, scale);
 
         this.recalculateTransformation();
 
@@ -278,10 +280,10 @@ ViewerNode.prototype = {
             -target[2]
         ];
 
-        let rotation = mat4.getRotation(this.localRotation, mat4.lookAt(mat4.heap, l, t, vec3.UNIT_Y));
+        let rotation = glMatrix.mat4.getRotation(this.localRotation, glMatrix.mat4.lookAt(glMatrix.mat4.heap, l, t, glMatrix.vec3.UNIT_Y));
 
-        quat.normalize(rotation, rotation)
-        //quat.invert(rotation, rotation);
+        glMatrix.quat.normalize(rotation, rotation)
+        //glMatrix.quat.invert(rotation, rotation);
 
         this.recalculateTransformation();
 
@@ -350,38 +352,38 @@ ViewerNode.prototype = {
             } else {
                 let parentPivot = parent.pivot;
 
-                computedLocation = vec3.heap;
+                computedLocation = glMatrix.vec3.heap;
 
                 computedLocation[0] = localLocation[0] + parentPivot[0];
                 computedLocation[1] = localLocation[1] + parentPivot[1];
                 computedLocation[2] = localLocation[2] + parentPivot[2];
-                //vec3.add(computedLocation, localLocation, parentPivot);
+                //glMatrix.vec3.add(computedLocation, localLocation, parentPivot);
             }
 
             // If this node shouldn't inherit the parent's rotation, rotate it by the inverse.
             if (this.dontInheritRotation) {
-                //mat4.rotateQ(worldMatrix, worldMatrix, parent.inverseWorldRotation);
+                //glMatrix.mat4.rotateQ(worldMatrix, worldMatrix, parent.inverseWorldRotation);
             }
 
             // If this node shouldn't inherit the parent's translation, translate it by the inverse.
             if (this.dontInheritTranslation) {
-                //mat4.translate(worldMatrix, worldMatrix, parent.inverseWorldLocation);
+                //glMatrix.mat4.translate(worldMatrix, worldMatrix, parent.inverseWorldLocation);
             }
 
             if (this.dontInheritScaling) {
                 let parentInverseScale = parent.inverseWorldScale;
 
-                computedScaling = vec3.heap2;
+                computedScaling = glMatrix.vec3.heap2;
 
                 computedScaling[0] = parentInverseScale[0] * localScale[0];
                 computedScaling[1] = parentInverseScale[1] * localScale[1];
                 computedScaling[2] = parentInverseScale[2] * localScale[2];
-                //vec3.mul(computedScaling, parent.inverseWorldScale, localScale);
+                //glMatrix.vec3.mul(computedScaling, parent.inverseWorldScale, localScale);
 
                 worldScale[0] = localScale[0];
                 worldScale[1] = localScale[1];
                 worldScale[2] = localScale[2];
-                //vec3.copy(worldScale, localScale);
+                //glMatrix.vec3.copy(worldScale, localScale);
             } else {
                 computedScaling = localScale;
 
@@ -389,29 +391,29 @@ ViewerNode.prototype = {
                 worldScale[0] = parentScale[0] * localScale[0];
                 worldScale[1] = parentScale[1] * localScale[1];
                 worldScale[2] = parentScale[2] * localScale[2];
-                //vec3.mul(worldScale, parentScale, localScale);
+                //glMatrix.vec3.mul(worldScale, parentScale, localScale);
             }
 
             // Local matrix
             // Model space
-            mat4.fromRotationTranslationScaleOrigin(localMatrix, localRotation, computedLocation, computedScaling, pivot);
+            glMatrix.mat4.fromRotationTranslationScaleOrigin(localMatrix, localRotation, computedLocation, computedScaling, pivot);
 
-            mat4.mul(worldMatrix, parent.worldMatrix, localMatrix);
+            glMatrix.mat4.mul(worldMatrix, parent.worldMatrix, localMatrix);
 
             /// TODO: what happens when dontInheritRotation is true?
 
             // World rotation and inverse world rotation
-            quat.mul(worldRotation, parent.worldRotation, localRotation);
+            glMatrix.quat.mul(worldRotation, parent.worldRotation, localRotation);
 
             inverseWorldRotation[0] = -worldRotation[0];
             inverseWorldRotation[1] = -worldRotation[1];
             inverseWorldRotation[2] = -worldRotation[2];
             inverseWorldRotation[3] = worldRotation[3];
-            //quat.conjugate(inverseWorldRotation, worldRotation);
+            //glMatrix.quat.conjugate(inverseWorldRotation, worldRotation);
         } else {
             // Local matrix
             // Model space
-            mat4.fromRotationTranslationScaleOrigin(localMatrix, localRotation, localLocation, localScale, pivot);
+            glMatrix.mat4.fromRotationTranslationScaleOrigin(localMatrix, localRotation, localLocation, localScale, pivot);
 
             worldMatrix[0] = localMatrix[0];
             worldMatrix[1] = localMatrix[1];
@@ -429,30 +431,30 @@ ViewerNode.prototype = {
             worldMatrix[13] = localMatrix[13];
             worldMatrix[14] = localMatrix[14];
             worldMatrix[15] = localMatrix[15];
-            //mat4.copy(worldMatrix, localMatrix);
+            //glMatrix.mat4.copy(worldMatrix, localMatrix);
 
             worldRotation[0] = localRotation[0];
             worldRotation[1] = localRotation[1];
             worldRotation[2] = localRotation[2];
             worldRotation[3] = localRotation[3];
-            //quat.copy(worldRotation, localRotation);
+            //glMatrix.quat.copy(worldRotation, localRotation);
 
             inverseWorldRotation[0] = -localRotation[0];
             inverseWorldRotation[1] = -localRotation[1];
             inverseWorldRotation[2] = -localRotation[2];
             inverseWorldRotation[3] = localRotation[3];
-            //quat.conjugate(inverseWorldRotation, localRotation);
+            //glMatrix.quat.conjugate(inverseWorldRotation, localRotation);
 
             worldScale[0] = localScale[0];
             worldScale[1] = localScale[1];
             worldScale[2] = localScale[2];
-            //vec3.copy(worldScale, localScale);
+            //glMatrix.vec3.copy(worldScale, localScale);
         }
 
         inverseWorldScale[0] = 1 / worldScale[0];
         inverseWorldScale[1] = 1 / worldScale[1];
         inverseWorldScale[2] = 1 / worldScale[2];
-        //vec3.inverse(this.inverseWorldScale, worldScale);
+        //glMatrix.vec3.inverse(this.inverseWorldScale, worldScale);
 
         /// TODO: what happens when dontInheritTranslation is true?
 
@@ -461,14 +463,14 @@ ViewerNode.prototype = {
         worldLocation[0] = pivot[0];
         worldLocation[1] = pivot[1];
         worldLocation[2] = pivot[2];
-        //vec3.copy(worldLocation, pivot);
+        //glMatrix.vec3.copy(worldLocation, pivot);
 
-        vec3.transformMat4(worldLocation, worldLocation, worldMatrix);
+        glMatrix.vec3.transformMat4(worldLocation, worldLocation, worldMatrix);
 
         inverseWorldLocation[0] = -worldLocation[0];
         inverseWorldLocation[1] = -worldLocation[1];
         inverseWorldLocation[2] = -worldLocation[2];
-        //vec3.negate(this.inverseWorldLocation, worldLocation);
+        //glMatrix.vec3.negate(this.inverseWorldLocation, worldLocation);
 
         // Notify the children
         for (let i = 0, l = children.length; i < l; i++) {
@@ -491,3 +493,5 @@ ViewerNode.prototype = {
         }
     }
 };
+
+export default ViewerNode;

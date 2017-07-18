@@ -1,3 +1,6 @@
+import ViewerNode from './node';
+import common from './common';
+
 /**
  * @constructor
  * @augments ViewerNode
@@ -16,4 +19,6 @@ NotifiedNode.prototype = {
     }
 };
 
-mix(NotifiedNode.prototype, ViewerNode.prototype);
+common.mix(NotifiedNode.prototype, ViewerNode.prototype);
+
+export default NotifiedNode;

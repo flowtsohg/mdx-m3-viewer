@@ -126,3 +126,5 @@ Bucket.prototype = {
         this.instances.pop();
     }
 };
+
+export default Bucket;

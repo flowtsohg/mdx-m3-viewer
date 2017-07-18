@@ -1,3 +1,6 @@
+import Model from '../../src/model';
+import common from '../../src/common';
+
 /**
  * @constructor
  * @augments Model
@@ -106,4 +109,6 @@ ObjModel.prototype = {
 };
 
 // Inherit from Model.
-mix(ObjModel.prototype, Model.prototype);
+common.mix(ObjModel.prototype, Model.prototype);
+
+export default ObjModel;

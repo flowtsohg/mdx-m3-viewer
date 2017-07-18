@@ -1,3 +1,14 @@
+import MdxBucket from './bucket';
+import MdxModel from './model';
+import MdxModelInstance from './modelinstance';
+import ModelHandler from '../../src/modelhandler';
+import TexturedModelView from '../../src/texturedmodelview';
+import Blp from '../blp/handler';
+import Tga from '../tga/handler';
+import Slk from '../slk/handler';
+import NativeTexture from '../nativetexture/handler';
+import common from '../../src/common';
+
 const Mdx = {
     initialize(env) {
         env.addHandler(Blp);
@@ -75,4 +86,6 @@ const Mdx = {
     }
 };
 
-mix(Mdx, ModelHandler);
+common.mix(Mdx, ModelHandler);
+
+export default Mdx;

@@ -1,3 +1,6 @@
+import Model from './model';
+import common from './common';
+
 /**
  * @constructor
  * @augments Model
@@ -28,4 +31,6 @@ TexturedModel.prototype = {
     }
 };
 
-mix(TexturedModel.prototype, Model.prototype);
+common.mix(TexturedModel.prototype, Model.prototype);
+
+export default TexturedModel;

@@ -63,3 +63,5 @@ function ShaderProgram(gl, vertexShader, fragmentShader) {
         console.error(gl.getProgramInfoLog(id));
     }
 }
+
+export default ShaderProgram;

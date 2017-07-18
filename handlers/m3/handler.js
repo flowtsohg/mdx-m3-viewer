@@ -1,3 +1,6 @@
+import ModelHandler from '../../src/modelhandler';
+import common from '../../src/common';
+
 const M3 = {
     initialize(env) {
         env.addHandler(Dds);
@@ -63,4 +66,6 @@ const M3 = {
     }
 };
 
-mix(M3, ModelHandler);
+common.mix(M3, ModelHandler);
+
+export default M3;

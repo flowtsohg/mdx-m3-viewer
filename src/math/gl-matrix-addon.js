@@ -1,43 +1,45 @@
-vec2.heap = vec2.create();
+import glMatrix from 'gl-matrix';
 
-vec3.UNIT_X = vec3.fromValues(1, 0, 0);
-vec3.UNIT_Y = vec3.fromValues(0, 1, 0);
-vec3.UNIT_Z = vec3.fromValues(0, 0, 1);
+glMatrix.vec2.heap = glMatrix.vec2.create();
 
-vec3.heap = vec3.create();
-vec3.heap2 = vec3.create();
-vec3.heap3 = vec3.create();
-vec3.heap4 = vec3.create();
+glMatrix.vec3.UNIT_X = glMatrix.vec3.fromValues(1, 0, 0);
+glMatrix.vec3.UNIT_Y = glMatrix.vec3.fromValues(0, 1, 0);
+glMatrix.vec3.UNIT_Z = glMatrix.vec3.fromValues(0, 0, 1);
 
-vec3.ZERO = vec3.create();
-vec3.ONE = vec3.fromValues(1, 1, 1);
+glMatrix.vec3.heap = glMatrix.vec3.create();
+glMatrix.vec3.heap2 = glMatrix.vec3.create();
+glMatrix.vec3.heap3 = glMatrix.vec3.create();
+glMatrix.vec3.heap4 = glMatrix.vec3.create();
 
-quat.ZERO = quat.fromValues(0, 0, 0, 0);
-quat.DEFAULT = quat.create();
-quat.heap = quat.create();
+glMatrix.vec3.ZERO = glMatrix.vec3.create();
+glMatrix.vec3.ONE = glMatrix.vec3.fromValues(1, 1, 1);
 
-mat3.heap = mat3.create();
+glMatrix.quat.ZERO = glMatrix.quat.fromValues(0, 0, 0, 0);
+glMatrix.quat.DEFAULT = glMatrix.quat.create();
+glMatrix.quat.heap = glMatrix.quat.create();
 
-mat4.heap = mat4.create();
+glMatrix.mat3.heap = glMatrix.mat3.create();
 
-vec3.unproject = (function () {
-    const heap = vec4.create();
+glMatrix.mat4.heap = glMatrix.mat4.create();
+
+glMatrix.vec3.unproject = (function () {
+    const heap = glMatrix.vec4.create();
     
     return function (out, v, inverseMatrix, viewport) {
         const x = 2 * (v[0] - viewport[0]) / viewport[2] - 1,
             y = 1 - 2 * (v[1] - viewport[1]) / viewport[3],
             z = 2 * v[2] - 1;
         
-        vec4.set(heap, x, y, z, 1);
-        vec4.transformMat4(heap, heap, inverseMatrix);
-        vec3.set(out, heap[0] / heap[3], heap[1] / heap[3], heap[2] / heap[3]);
+        glMatrix.vec4.set(heap, x, y, z, 1);
+        glMatrix.vec4.transformMat4(heap, heap, inverseMatrix);
+        glMatrix.vec3.set(out, heap[0] / heap[3], heap[1] / heap[3], heap[2] / heap[3]);
         
         return out;
     };
 }());
 
-quat.nlerp = function (out, a, b, t) {
-    const dot = quat.dot(a, b),
+glMatrix.quat.nlerp = function (out, a, b, t) {
+    const dot = glMatrix.quat.dot(a, b),
         inverseFactor = 1 - t;
 
     if (dot < 0) {
@@ -52,20 +54,22 @@ quat.nlerp = function (out, a, b, t) {
         out[3] = inverseFactor * a[3] + t * b[3];
     }
 
-    quat.normalize(out, out);
+    glMatrix.quat.normalize(out, out);
 
     return out;
 };
 
-quat.nquad = (function () {
-    const temp1 = quat.create(),
-        temp2 = quat.create();
+glMatrix.quat.nquad = (function () {
+    const temp1 = glMatrix.quat.create(),
+        temp2 = glMatrix.quat.create();
   
     return function (out, a, b, c, d, t) {
-        quat.nlerp(temp1, a, d, t);
-        quat.nlerp(temp2, b, c, t);
-        quat.nlerp(out, temp1, temp2, 2 * t * (1 - t));
+        glMatrix.quat.nlerp(temp1, a, d, t);
+        glMatrix.quat.nlerp(temp2, b, c, t);
+        glMatrix.quat.nlerp(out, temp1, temp2, 2 * t * (1 - t));
 
         return out;
     };
 }());
+
+export default glMatrix;

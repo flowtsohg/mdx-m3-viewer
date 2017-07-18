@@ -4,7 +4,7 @@ canvas.width = 800;
 canvas.height = 600;
 
 // Create the viewer!
-let viewer = new ModelViewer(canvas);
+let viewer = new ModelViewer.ModelViewer(canvas);
 
 // The viewer has the update(), render(), and updateAndRender() functions.
 // Generally speaking, you will want a simple never ending loop like the one that follows, but who knows. The control is in your hands.
@@ -15,7 +15,7 @@ let viewer = new ModelViewer(canvas);
 }());
 
 // Create a new scene. Each scene has its own camera, and a list of things to render.
-let scene = new Scene();
+let scene = new ModelViewer.Scene();
 
 // Add the scene to the viewer.
 viewer.addScene(scene);
@@ -46,7 +46,7 @@ viewer.addEventListener("error", (e) => console.log(e));
 // In this case, Bmp.extension is a getter that returns ".bmp".
 // If one handler handles multiple extensions, they can be added with pipe characters inbetween, like the Png handler's extension - ".png|.jpg|.gif".
 // Finally, the Bmp handler defines the binaryFormat getter to true, which means that any HTTP requests made for it will return an ArrayBuffer, instead of a string.
-viewer.addHandler(Bmp);
+viewer.addHandler(ModelViewer.Bmp);
 
 // Same deal as the above, but Obj is a model handler.
 // Model handlers are slightly more complicated.
@@ -56,7 +56,7 @@ viewer.addHandler(Bmp);
 // 3) ModelInstance (optional) - The model instance implementation (e.g. ObjModelInstance).
 // 4) Bucket (optional) - The model's bucket implementation (e.g. Bucket).
 // Note that ModelView, ModelInstance, and Bucket, default to the base implementation - you are not required to define your own implementations if you don't need to.
-viewer.addHandler(Obj);
+viewer.addHandler(ModelViewer.Obj);
 
 // A path solver is used for every load call.
 // The purpose of a path solver is to transform local paths to either of 1) A server fetch, or 2) A local load.
@@ -114,8 +114,8 @@ viewer.whenAllLoaded((e) => console.log("Everything loaded (including instance a
 instance2.setParent(instance);
 
 // quat and vec3 are a part of glMatrix, which is used by the viewer, see http://glmatrix.net/ 
-let q = quat.setAxisAngle([], vec3.normalize([], [1, 1, 1]), Math.PI / 120);
-let q2 = quat.setAxisAngle([], vec3.normalize([], [1, 1, 1]), Math.PI / 30);
+let q = ModelViewer.glMatrix.quat.setAxisAngle([], ModelViewer.glMatrix.vec3.normalize([], [1, 1, 1]), Math.PI / 120);
+let q2 = ModelViewer.glMatrix.quat.setAxisAngle([], ModelViewer.glMatrix.vec3.normalize([], [1, 1, 1]), Math.PI / 30);
 
 // e.target == viewer, for the "render" event.
 // Obviously you can also put this code in the updateAndRender loop above.

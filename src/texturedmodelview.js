@@ -1,3 +1,6 @@
+import ModelView from './modelview';
+import common from './common';
+
 /**
  * @constructor
  * @augments ModelView
@@ -42,4 +45,6 @@ TexturedModelView.prototype = {
     }
 };
 
-mix(TexturedModelView.prototype, ModelView.prototype);
+common.mix(TexturedModelView.prototype, ModelView.prototype);
+
+export default TexturedModelView;

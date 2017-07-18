@@ -1,3 +1,7 @@
+import EventDispatcher from './eventdispatcher';
+import WebGL from './gl/gl';
+import common from './common';
+
 /**
  * @constructor
  * @augments EventDispatcher
@@ -492,4 +496,6 @@ ModelViewer.prototype = {
     }
 };
 
-mix(ModelViewer.prototype, EventDispatcher.prototype);
+common.mix(ModelViewer.prototype, EventDispatcher.prototype);
+
+export default ModelViewer;

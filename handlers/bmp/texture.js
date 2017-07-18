@@ -1,3 +1,7 @@
+import Texture from '../../src/texture';
+import BinaryReader from '../../src/binaryreader';
+import common from '../../src/common';
+
 /**
  * @constructor
  * @extends Texture
@@ -66,4 +70,6 @@ BmpTexture.prototype = {
     }
 };
 
-mix(BmpTexture.prototype, Texture.prototype);
+common.mix(BmpTexture.prototype, Texture.prototype);
+
+export default BmpTexture;

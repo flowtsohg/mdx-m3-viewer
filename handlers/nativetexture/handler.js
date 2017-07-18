@@ -1,3 +1,6 @@
+import TextureHandler from '../../src/texturehandler';
+import common from '../../src/common';
+
 const NativeTexture = {
     get extension() {
         return ".png|.jpg|.gif";
@@ -12,4 +15,6 @@ const NativeTexture = {
     }
 };
 
-mix(NativeTexture, TextureHandler);
+common.mix(NativeTexture, TextureHandler);
+
+export default TextureHandler;

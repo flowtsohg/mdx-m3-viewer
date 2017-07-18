@@ -1,3 +1,6 @@
+import Bucket from '../../src/bucket';
+import common from '../../src/common';
+
 /**
  * @constructor
  * @augments Bucket
@@ -276,4 +279,6 @@ MdxBucket.prototype = {
     }
 };
 
-mix(MdxBucket.prototype, Bucket.prototype);
+common.mix(MdxBucket.prototype, Bucket.prototype);
+
+export default MdxBucket;

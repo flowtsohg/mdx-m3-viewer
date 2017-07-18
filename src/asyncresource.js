@@ -1,3 +1,6 @@
+import EventDispatcher from './eventdispatcher';
+import common from './common';
+
 /**
  * @constructor
  * @augments EventDispatcher
@@ -82,4 +85,6 @@ AsyncResource.prototype = {
     }
 };
 
-mix(AsyncResource.prototype, EventDispatcher.prototype);
+common.mix(AsyncResource.prototype, EventDispatcher.prototype);
+
+export default AsyncResource;

@@ -23,3 +23,5 @@ const Handler = {
         return false;
     }
 };
+
+export default Handler;

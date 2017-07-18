@@ -74,3 +74,5 @@ EventDispatcher.prototype = {
         return this;
     }
 };
+
+export default EventDispatcher;

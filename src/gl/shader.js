@@ -40,3 +40,5 @@ function ShaderUnit(gl, src, type) {
         }
     }
 }
+
+export default ShaderUnit;

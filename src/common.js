@@ -365,3 +365,20 @@ Array.prototype.delete = function (value) {
 
     return false;
 };
+
+export default {
+    compareImagesFromURLs,
+    downloadUrl,
+    seededRandom,
+    normalizePath,
+    TagToUint,
+    UintToTag,
+    mix,
+    encodeFloat2,
+    decodeFloat2,
+    encodeFloat3,
+    decodeFloat3,
+    get,
+    hashFromString,
+    hashFromArray,
+};
