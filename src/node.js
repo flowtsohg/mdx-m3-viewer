@@ -344,7 +344,8 @@ ViewerNode.prototype = {
         // Model space -> World space
         if (parent) {
             let computedLocation,
-                computedRotation;
+                computedRotation,
+                computedScaling;
             
             if (this.isSkeletal) {
                 computedLocation = localLocation;
@@ -359,26 +360,45 @@ ViewerNode.prototype = {
                 //glMatrix.vec3.add(computedLocation, localLocation, parentPivot);
             }
 
-            // Local matrix
-            // Model space
-            glMatrix.mat4.fromRotationTranslationScaleOrigin(localMatrix, localRotation, computedLocation, localScale, pivot);
-
-            glMatrix.mat4.mul(worldMatrix, parent.worldMatrix, localMatrix);
-
             // If this node shouldn't inherit the parent's rotation, rotate it by the inverse.
             if (this.dontInheritRotation) {
                 //glMatrix.mat4.rotateQ(worldMatrix, worldMatrix, parent.inverseWorldRotation);
             }
 
-            // If this node shouldn't inherit the parent's scale, scale it by the inverse.
-            if (this.dontInheritScaling) {
-                glMatrix.mat4.scale(worldMatrix, worldMatrix, parent.inverseWorldScale);
-            }
-
             // If this node shouldn't inherit the parent's translation, translate it by the inverse.
             if (this.dontInheritTranslation) {
-                glMatrix.mat4.translate(worldMatrix, worldMatrix, parent.inverseWorldLocation);
+                //glMatrix.mat4.translate(worldMatrix, worldMatrix, parent.inverseWorldLocation);
             }
+
+            if (this.dontInheritScaling) {
+                let parentInverseScale = parent.inverseWorldScale;
+
+                computedScaling = glMatrix.vec3.heap2;
+
+                computedScaling[0] = parentInverseScale[0] * localScale[0];
+                computedScaling[1] = parentInverseScale[1] * localScale[1];
+                computedScaling[2] = parentInverseScale[2] * localScale[2];
+                //glMatrix.vec3.mul(computedScaling, parent.inverseWorldScale, localScale);
+
+                worldScale[0] = localScale[0];
+                worldScale[1] = localScale[1];
+                worldScale[2] = localScale[2];
+                //glMatrix.vec3.copy(worldScale, localScale);
+            } else {
+                computedScaling = localScale;
+
+                let parentScale = parent.worldScale;
+                worldScale[0] = parentScale[0] * localScale[0];
+                worldScale[1] = parentScale[1] * localScale[1];
+                worldScale[2] = parentScale[2] * localScale[2];
+                //glMatrix.vec3.mul(worldScale, parentScale, localScale);
+            }
+
+            // Local matrix
+            // Model space
+            glMatrix.mat4.fromRotationTranslationScaleOrigin(localMatrix, localRotation, computedLocation, computedScaling, pivot);
+
+            glMatrix.mat4.mul(worldMatrix, parent.worldMatrix, localMatrix);
 
             /// TODO: what happens when dontInheritRotation is true?
 
@@ -390,12 +410,6 @@ ViewerNode.prototype = {
             inverseWorldRotation[2] = -worldRotation[2];
             inverseWorldRotation[3] = worldRotation[3];
             //glMatrix.quat.conjugate(inverseWorldRotation, worldRotation);
-
-            let parentScale = parent.worldScale;
-            worldScale[0] = parentScale[0] * localScale[0];
-            worldScale[1] = parentScale[1] * localScale[1];
-            worldScale[2] = parentScale[2] * localScale[2];
-            //glMatrix.vec3.mul(worldScale, parentScale, localScale);
         } else {
             // Local matrix
             // Model space

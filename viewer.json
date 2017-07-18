@@ -131,20 +131,23 @@
       "textureanimation",
       "node",
       "attachment",
-      "eventobjectspn",
-      "eventobjectspl",
-      "eventobjectubr",
-      "eventobjectemitter",
-      "eventobjectemitterview",
       "particle",
       "particleemitter",
       "particleemitterview",
       "particle2",
-      "particleemitter2",
-      "particleemitter2view",
+      "particle2emitter",
+      "particle2emitterview",
       "ribbon",
       "ribbonemitter",
       "ribbonemitterview",
+      "eventobject",
+      "eventobjectspn",
+      "eventobjectspnemitter",
+      "eventobjectspl",
+      "eventobjectsplemitter",
+      "eventobjectubr",
+      "eventobjectubremitter",
+      "eventobjectemitterview",
       "bucket",
       "model",
       "modelinstance",
@@ -156,6 +159,7 @@
   "BLP": {
     "path": "handlers/blp/",
     "internal_files": [
+      "jpg-addon",
       "texture",
       "handler"
     ],
@@ -286,17 +290,9 @@
     ]
   },
   "UNIT_TESTER": {
-    "path": "tests/src/",
+    "path": "tests/",
     "internal_files": [
       "unittester",
-      "common"
-    ],
-    "external_files": [
-    ]
-  },
-  "UNIT_TESTS": {
-    "path": "tests/tests/",
-    "internal_files": [
       "geo",
       "mdx",
       "m3",

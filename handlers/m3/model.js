@@ -24,10 +24,6 @@ function M3Model(env, pathSolver) {
 }
 
 M3Model.prototype = {
-    get Handler() {
-        return M3;
-    },
-
     initialize(src) {
         var parser;
 

@@ -3,9 +3,43 @@
     <head>
         <title>Unit Tests</title>
         <meta charset="utf-8" />
+
+        <style>
+            td {
+                padding-left: 4px;
+                padding-right: 4px;
+            }
+
+            .bold {
+                font-weight: bold;
+            }
+
+            .centered {
+                text-align: center;
+            }
+
+            .success {
+                color: green;
+            }
+
+            .failure {
+                color: red;
+            }
+        </style>
     </head>
 
     <body>
+        <table id="tests">
+            <tr class="bold">
+                <td>Test</td>
+                <td>Status</td>
+                <td>A</td>
+                <td>B</td>
+            </tr>
+        </table>
+
+        <p id="result"></p>
+
         <script src="../loader.js"></script>
         <script>loadUnitTests("../", "main.js")</script>
     </body>

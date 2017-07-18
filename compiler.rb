@@ -16,7 +16,6 @@ WANT_M3 = true # Will include DDS, and TGA.
 WANT_OBJ = true
 
 WANT_UNIT_TESTER = true
-WANT_UNIT_TESTS = arg_exists? "unit-tests"
 WANT_STRICT_MODE = true
 WANT_MINIFY = true # Do you want to minify everything into one file?
 WANT_COMPILE = true # If you minifiged, do you want to also compress the output with closure?
@@ -53,7 +52,6 @@ DDS = add_batch "DDS"
 GEO = add_batch "GEO"
 OBJ = add_batch "OBJ"
 UNIT_TESTER = add_batch "UNIT_TESTER"
-UNIT_TESTS = add_batch "UNIT_TESTS"
 
 Added = {}
 Code = []
@@ -157,7 +155,6 @@ end
 add OBJ if WANT_OBJ
 
 add UNIT_TESTER if WANT_UNIT_TESTER
-add UNIT_TESTS if WANT_UNIT_TESTS
 
 minify if WANT_MINIFY
 gen_docs if WANT_GEN_DOCS

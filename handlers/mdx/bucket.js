@@ -100,7 +100,7 @@ function MdxBucket(modelView) {
 
     objects = model.particleEmitters2;
     for (let i = 0, l = objects.length; i < l; i++) {
-        this.particleEmitters2[i] = new MdxParticleEmitter2(model, objects[i]);
+        this.particleEmitters2[i] = new MdxParticle2Emitter(model, objects[i]);
     }
 
     objects = model.ribbonEmitters;
@@ -110,7 +110,16 @@ function MdxBucket(modelView) {
 
     objects = model.eventObjectEmitters;
     for (let i = 0, l = objects.length; i < l; i++) {
-        this.eventObjectEmitters[i] = new MdxEventObjectEmitter(model, objects[i]);
+        let object = objects[i],
+            type = object.type;
+
+        if (type === "SPN") {
+            this.eventObjectEmitters.push(new MdxEventObjectSpnEmitter(model, object));
+        } else if (type === "SPL") {
+            this.eventObjectEmitters.push(new MdxEventObjectSplEmitter(model, object));
+        } else if (type === "UBR") {
+            this.eventObjectEmitters.push(new MdxEventObjectUbrEmitter(model, object));
+        }
     }
 }
 

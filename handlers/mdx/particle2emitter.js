@@ -1,9 +1,9 @@
 /**
  * @constructor
  * @param {MdxModel} model
- * @param {MdxParserParticleEmitter2} emitter
+ * @param {MdxParserParticle2Emitter} emitter
  */
-function MdxParticleEmitter2(model, emitter) {
+function MdxParticle2Emitter(model, emitter) {
     let gl = model.gl;
 
     this.width = emitter.width;
@@ -69,42 +69,10 @@ function MdxParticleEmitter2(model, emitter) {
 
     this.dimensions = [emitter.columns, emitter.rows];
 
-    let blendSrc,
-        blendDst;
-
-    switch (emitter.filterMode) {
-        // Blend
-        case 0:
-            blendSrc = gl.SRC_ALPHA;
-            blendDst = gl.ONE_MINUS_SRC_ALPHA;
-            break;
-        // Additive
-        case 1:
-            blendSrc = gl.SRC_ALPHA;
-            blendDst = gl.ONE;
-            break;
-        // Modulate
-        case 2:
-            blendSrc = gl.ZERO;
-            blendDst = gl.SRC_COLOR;
-            break;
-        // Modulate 2X
-        case 3:
-            blendSrc = gl.DEST_COLOR;
-            blendDst = gl.SRC_COLOR;
-            break;
-        // Add Alpha
-        case 4:
-            blendSrc = gl.SRC_ALPHA;
-            blendDst = gl.ONE;
-            break;
-    }
-
-    this.blendSrc = blendSrc;
-    this.blendDst = blendDst;
+    this.selectFilterMode(emitter.filterMode);
 }
 
-MdxParticleEmitter2.prototype = {
+MdxParticle2Emitter.prototype = {
     emitParticle(emitterView, isHead) {
         this.buffer.grow((this.active.length + 1) * this.bytesPerEmit);
 
@@ -132,43 +100,46 @@ MdxParticleEmitter2.prototype = {
         }
     },
 
-    update(scene) {
-        let active = this.active,
-            inactive = this.inactive;
+    selectFilterMode(filterMode) {
+        let gl = this.model.gl,
+            blendSrc,
+            blendDst;
 
-        if (active.length > 0) {
-            // First stage: remove dead particles.
-            // The used particles array is a queue, dead particles will always come first.
-            // As of the time of writing, the easiest and fastest way to implement a queue in Javascript is a normal array.
-            // To add items, you push, to remove items, the array is reversed and you pop.
-            // So the first stage reverses the array, and then keeps checking the last element for its health.
-            // As long as we hit a dead particle, pop, and check the new last element.
-
-            // Ready for pop mode
-            active.reverse();
-
-            let object = active[active.length - 1];
-            while (object && object.health <= 0) {
-                inactive.push(active.pop());
-
-                // Need to recalculate the length each time
-                object = active[active.length - 1];
-            }
-
-            // Ready for push mode
-            active.reverse()
-
-            // Second stage: update the living particles.
-            // All the dead particles were removed, so a simple loop is all that's required.
-            for (let i = 0, l = active.length; i < l; i++) {
-                active[i].update(scene);
-            }
-
-            this.updateHW(scene);
+        switch (filterMode) {
+            // Blend
+            case 0:
+                blendSrc = gl.SRC_ALPHA;
+                blendDst = gl.ONE_MINUS_SRC_ALPHA;
+                break;
+                // Additive
+            case 1:
+                blendSrc = gl.SRC_ALPHA;
+                blendDst = gl.ONE;
+                break;
+                // Modulate
+            case 2:
+                blendSrc = gl.ZERO;
+                blendDst = gl.SRC_COLOR;
+                break;
+                // Modulate 2X
+            case 3:
+                blendSrc = gl.DEST_COLOR;
+                blendDst = gl.SRC_COLOR;
+                break;
+                // Add Alpha
+            case 4:
+                blendSrc = gl.SRC_ALPHA;
+                blendDst = gl.ONE;
+                break;
         }
+
+        this.blendSrc = blendSrc;
+        this.blendDst = blendDst;
     },
 
-    updateHW(scene) {
+    update: MdxParticleEmitter.prototype.update,
+
+    updateData() {
         let active = this.active,
             data = this.buffer.float32array;
 

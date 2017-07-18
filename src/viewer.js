@@ -267,6 +267,8 @@ ModelViewer.prototype = {
                 if (!map.has(src)) {
                     let resource = new handler.Constructor(this, pathSolver);
 
+                    resource.Handler = handler;
+
                     // Cache the resource
                     map.set(src, resource);
                     pair.array.push(resource);

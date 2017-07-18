@@ -10,10 +10,6 @@ function BlpTexture(env, pathSolver) {
 }
 
 BlpTexture.prototype = {
-    get Handler() {
-        return Blp;
-    },
-
     initialize(src) {
         const gl = this.env.gl,
               BLP1_MAGIC = 0x31504c42,
@@ -53,7 +49,7 @@ BlpTexture.prototype = {
 
             jpegImage.loadFromBuffer(jpegData);
 
-            jpegImage.getData(imageData, jpegImage.width, jpegImage.height);
+            jpegImage.getDataNoTransform(imageData, jpegImage.width, jpegImage.height);
         } else {
             let pallete = new Uint8Array(src, 156, 1024),
                 size = width * height,

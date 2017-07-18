@@ -36,43 +36,40 @@ MdxParticleEmitter.prototype = {
         this.active.push(object);
     },
 
-    update() {
+    update(scene) {
         let active = this.active,
             inactive = this.inactive;
 
         if (active.length > 0) {
-            // First stage: remove dead particles.
-            // The used particles array is a queue, dead particles will always come first.
-            // As of the time of writing, the easiest and fastest way to implement a queue in Javascript is a normal array.
-            // To add items, you push, to remove items, the array is reversed and you pop.
-            // So the first stage reverses the array, and then keeps checking the last element for its health.
-            // As long as we hit a dead particle, pop, and check the new last element.
+            // First update all of the active particles
+            for (let i = 0, l = active.length; i < l; i++) {
+                active[i].update(scene);
+            }
 
-            // Ready for pop mode
+            // Reverse the array
             active.reverse();
 
+            // All dead active particles will now be at the end of the array, so pop them
             let object = active[active.length - 1];
             while (object && object.health <= 0) {
                 inactive.push(active.pop());
-
-                object.kill();
 
                 // Need to recalculate the length each time
                 object = active[active.length - 1];
             }
 
-            // Ready for push mode
+            // Reverse the array again
             active.reverse()
 
-            // Second stage: update the living particles.
-            // All the dead particles were removed, so a simple loop is all that's required.
-            for (let i = 0, l = active.length; i < l; i++) {
-                active[i].update();
-            }
+            this.updateData();
         }
     },
 
-    render() {
+    updateData() {
+
+    },
+
+    render(bucket, shader) {
         
     },
 
