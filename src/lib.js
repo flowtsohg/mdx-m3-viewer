@@ -1,3 +1,5 @@
+import "babel-polyfill";
+
 import ModelViewer from './viewer';
 import Mdx from '../handlers/mdx/handler';
 import M3 from '../handlers/m3/handler';
