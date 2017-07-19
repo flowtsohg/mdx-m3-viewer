@@ -53,10 +53,10 @@ function addTestResult(testResult) {
 
 let unitTester = new ModelViewer.UnitTester();
 
-unitTester.addTests(geoTests);
-unitTester.addTests(mdxTests);
-unitTester.addTests(m3Tests);
-unitTester.addTests(baseTests);
+unitTester.add(geoTests);
+unitTester.add(mdxTests);
+unitTester.add(m3Tests);
+unitTester.add(baseTests);
 
 unitTester.run((testResult) => {
     if (!testResult.done) {

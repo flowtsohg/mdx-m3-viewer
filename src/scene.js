@@ -30,30 +30,30 @@ Scene.prototype = {
     /**
      * Get the rendering statistics of this scene.
      * This includes the following:
-     *     renderedBuckets
-     *     renderedInstances
-     *     renderCalls
-     *     renderedVertices
-     *     renderedPolygons
+     *     buckets
+     *     calls
+     *     instances
+     *     vertices
+     *     polygons
      */
     getRenderStats() {
-        let buckets = this.buckets,
-            renderedBuckets = buckets.length,
-            renderCalls = 0,
-            renderedInstances = 0,
-            renderedVertices = 0,
-            renderedPolygons = 0;
+        let objects = this.buckets,
+            buckets = objects.length,
+            calls = 0,
+            instances = 0,
+            vertices = 0,
+            polygons = 0;
 
-        for (let i = 0; i < renderedBuckets; i++) {
-            let stats = buckets[i].getRenderStats();
+        for (let i = 0; i < buckets; i++) {
+            let stats = objects[i].getRenderStats();
 
-            renderCalls += stats.renderCalls;
-            renderedInstances += stats.renderedInstances;
-            renderedVertices += stats.renderedVertices;
-            renderedPolygons += stats.renderedPolygons;
+            calls += stats.calls;
+            instances += stats.instances;
+            vertices += stats.vertices;
+            polygons += stats.polygons;
         }
 
-        return { renderedBuckets, renderCalls, renderedInstances, renderedVertices, renderedPolygons };
+        return { buckets, calls, instances, vertices, polygons };
     },
 
     /**

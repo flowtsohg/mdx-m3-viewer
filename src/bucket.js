@@ -42,10 +42,10 @@ Bucket.prototype = {
     /**
      * Get the rendering statistics of this bucket.
      * This includes the following:
-     *     renderedInstances
-     *     renderCalls
-     *     renderedVertices
-     *     renderedPolygons
+     *     calls
+     *     instances
+     *     vertices
+     *     polygons
      */
     getRenderStats() {
         throw new Error("Bucket.getRenderStats must be overriden");

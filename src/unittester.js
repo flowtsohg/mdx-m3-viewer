@@ -1,6 +1,5 @@
 import ModelViewer from "./viewer";
 import Scene from "./scene";
-import { seededRandom, compareImagesFromURLs, downloadUrl } from "./common";
 import W3x from "../handlers/w3x/handler";
 import M3 from "../handlers/m3/handler";
 
@@ -21,6 +20,7 @@ function UnitTester() {
     viewer.addHandler(W3x);
     viewer.addHandler(M3);
 
+    this.canvas = canvas;
     this.viewer = viewer;
     this.mathRandom = Math.random;
     this.tests = [];
@@ -31,12 +31,95 @@ UnitTester.prototype = {
     // This allows to run the viewer in a deterministic environment for tests.
     // For example, particles have some randomized data, which can make tests mismatch.
     replaceMathRandom() {
-        Math.random = seededRandom(6);
+        Math.random = this.seededRandom(6);
     },
 
     // Reset Math.random to the original function
     resetMathRandom() {
         Math.random = this.mathRandom;
+    },
+
+    // Download an url to a file with the given name.
+    // The name doesn't seem to work in Firefox (only tested in Firefox and Chrome on Windows).
+    downloadUrl(url, name) {
+        let a = document.createElement("a");
+
+        a.href = url;
+        a.download = name;
+
+        a.dispatchEvent(new MouseEvent("click"));
+    },
+
+    // Return a function that works in the same exact way as Math.random(), but with a seed.
+    // See http://indiegamr.com/generate-repeatable-random-numbers-in-js/
+    seededRandom(seed) {
+        return function () {
+            seed = (seed * 9301 + 49297) % 233280;
+
+            return seed / 233280;
+        };    
+    },
+
+    getImageDataFromImage(image) {
+        let canvas = document.createElement("canvas"),
+            context = canvas.getContext("2d"),
+            w = image.width,
+            h = image.height;
+
+        canvas.width = w;
+        canvas.height = h;
+
+        context.drawImage(image, 0, 0);
+
+        return context.getImageData(0, 0, w, h);
+    },
+
+    compareImagesFromURLs(a, b, callback) {
+        let imageA = new Image(),
+            imageB = new Image(),
+            loadedA = false,
+            loadedB = false;
+
+        let whenBothLoaded = () => {
+            if (imageA.width !== imageB.width || imageA.height !== imageB.height) {
+                callback(imageA, imageB, false);
+                return;
+            }
+
+            let dataA = this.getImageDataFromImage(imageA).data,
+                dataB = this.getImageDataFromImage(imageB).data;
+
+            for (let i = 0, l = dataA.length; i < l; i++) {
+                if (dataA[i] !== dataB[i]) {
+                    callback(imageA, imageB, false);
+                    return;
+                }
+            }
+
+            callback(imageA, imageB, true);
+        }
+
+        imageA.onload = () => {
+            loadedA = true;
+
+            if (loadedB) {
+                whenBothLoaded();
+            }
+        };
+
+        imageB.onload = () => {
+            loadedB = true;
+
+            if (loadedA) {
+                whenBothLoaded();
+            }
+        };
+
+        // When adding new tests, avoid getting stuck.
+        imageB.onerror = imageB.onload;
+
+        imageA.src = a;
+        imageB.src = b;
     },
 
     // Run the tests and compare the results against the (hopefully) correct images located on the server.
@@ -48,7 +131,7 @@ UnitTester.prototype = {
                     url = URL.createObjectURL(blob),
                     compare = "compare/" + name + ".png";
 
-                compareImagesFromURLs(url, compare, function (imgA, imgB, result) {
+                tester.compareImagesFromURLs(url, compare, function (imgA, imgB, result) {
                     callback({ value: [name, { a: imgA, b: imgB, result }], done: entry.done });
 
                     tester.next(loop, iterator);
@@ -65,7 +148,7 @@ UnitTester.prototype = {
     downloadTestResults() {
         this.start(function loop(entry, iterator, blob, tester) {
             if (!entry.done) {
-                downloadUrl(URL.createObjectURL(blob), entry.value[1][0]);
+                tester.downloadUrl(URL.createObjectURL(blob), entry.value[1][0]);
 
                 tester.next(loop, iterator);
             }
@@ -73,7 +156,7 @@ UnitTester.prototype = {
     },
 
     // Add tests
-    addTests(tests) {
+    add(tests) {
         for (let test of tests) {
             this.tests.push(test);
         }
@@ -91,32 +174,32 @@ UnitTester.prototype = {
         if (entry.done) {
             callback(entry, iterator, null);
         } else {
-            let viewer = this.viewer;
+            let viewer = this.viewer,
+                scene = new Scene(),
+                camera = scene.camera;
 
             // Clear the viewer
             viewer.clear();
-
-            let scene = new Scene();
-            let camera = scene.camera;
-
+            viewer.addScene(scene);
+            
+            // Setup the camera
             camera.setViewport([0, 0, viewer.canvas.width, viewer.canvas.height]);
             camera.setPerspective(Math.PI / 4, 1, 8, 100000);
-
-            viewer.addScene(scene);
+            camera.resetTransformation();
 
             // Replace Math.random with a custom seeded random function
             this.replaceMathRandom();
 
-            console.log("Running test", entry.value[1][0]);
+            //console.log("Running", entry.value[1][0]);
+
             // Run the test code
-            entry.value[1][1](viewer, scene);
+            entry.value[1][1](viewer, scene, camera);
 
             viewer.whenAllLoaded(() => {
-                console.log("viewer.whenAllLoaded()")
-                // Update the viewer once to make all of the changes appear
+                //console.log("UnitTester.whenAllLoaded");
+                // Update a couple of times to ensure everything is inserted correctly into the scene.
                 viewer.update();
-
-                // And a second update, becuase otherwise the viewer is empty????
+                viewer.update();
                 viewer.update();
 
                 // Render the viewer

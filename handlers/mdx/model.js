@@ -282,16 +282,20 @@ MdxModel.prototype = {
         let textureIds = layer.getAllTextureIds();
 
         if (textureIds.length > 1) {
-            let hash = hashFromArray(textureIds),
+            let env = this.env,
+                hash = hashFromArray(textureIds),
                 textures = [];
 
             // Grab all of the textures
             for (let i = 0, l = textureIds.length; i < l; i++) {
                 textures[i] = this.textures[textureIds[i]];
             }
-            
+
+            // Promise that there is a future load that the code cannot know about yet, so Viewer.whenAllLoaded() isn't called prematurely.
+            let promise = env.makePromise();
+
             // When all of the textures are loaded, it's time to construct a texture atlas
-            this.env.whenLoaded(textures, () => {
+            env.whenLoaded(textures, () => {
                 let textureAtlases = this.textureAtlases;
 
                 // Cache atlases
@@ -308,13 +312,16 @@ MdxModel.prototype = {
 
                     textureAtlases[hash] = { textureId: this.textures.length, columns: atlasData.columns, rows: atlasData.rows };
                     
-                    this.textures.push(this.env.load(atlasData.texture));
+                    this.textures.push(env.load(atlasData.texture));
                 }
 
                 // Tell the layer to use this texture atlas, instead of its original texture
                 layer.setAtlas(textureAtlases[hash]);
 
                 this.hasLayerAnims = true;
+
+                // Resolve the promise.
+                promise.resolve();
             });
         }
     },

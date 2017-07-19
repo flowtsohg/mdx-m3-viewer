@@ -132,20 +132,19 @@ function MdxBucket(modelView) {
 MdxBucket.prototype = {
     getRenderStats() {
         let model = this.model,
-            instances = this.instances,
-            renderedInstances = instances.length,
-            renderCalls = 0,
-            renderedVertices = 0,
-            renderedPolygons = 0,
+            calls = 0,
+            instances = this.instances.length,
+            vertices = 0,
+            polygons = 0,
             objects;
 
         objects = model.batches;
         for (let i = 0, l = objects.length; i < l; i++) {
             let geoset = objects[i].geoset;
 
-            renderCalls += 1;
-            renderedVertices += (geoset.locationArray.length / 3) * renderedInstances;
-            renderedPolygons += (geoset.faceArray.length / 3) * renderedInstances;
+            calls += 1;
+            vertices += (geoset.locationArray.length / 3) * instances;
+            polygons += (geoset.faceArray.length / 3) * instances;
         }
 
         objects = this.particleEmitters2;
@@ -154,9 +153,9 @@ MdxBucket.prototype = {
                 active = emitter.active.length;
 
             if (active > 0) {
-                renderCalls += 1;
-                renderedVertices += active * 6;
-                renderedPolygons += active * 2;
+                calls += 1;
+                vertices += active * 6;
+                polygons += active * 2;
             }
         }
 
@@ -166,9 +165,9 @@ MdxBucket.prototype = {
                 active = emitter.active.length;
 
             if (active > 0) {
-                renderCalls += 1;
-                renderedVertices += active * 6;
-                renderedPolygons += active * 2;
+                calls += 1;
+                vertices += active * 6;
+                polygons += active * 2;
             }
         }
 
@@ -181,14 +180,14 @@ MdxBucket.prototype = {
                 let type = emitter.type;
 
                 if (type === "SPL" || type === "UBR") {
-                    renderCalls += 1;
-                    renderedVertices += active * 6;
-                    renderedPolygons += active * 2;
+                    calls += 1;
+                    vertices += active * 6;
+                    polygons += active * 2;
                 }
             }
         }
       
-        return { renderedInstances, renderCalls, renderedVertices, renderedPolygons };
+        return { calls, instances, vertices, polygons };
     },
 
     update(scene) {

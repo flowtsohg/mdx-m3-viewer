@@ -106,8 +106,8 @@ function ModelViewer(canvas) {
 
     /** @member {number} */
     this.resourcesLoading = 0;
-    this.addEventListener("loadstart", () => this.resourcesLoading += 1);
-    this.addEventListener("loadend", () => this.resourcesLoading -= 1);
+    this.addEventListener("loadstart", (e) => { if (e.target.objectType !== "instance") { this.resourcesLoading += 1; } });
+    this.addEventListener("loadend", (e) => { if (e.target.objectType !== "instance") { this.resourcesLoading -= 1; } });
 }
 
 ModelViewer.prototype = {
@@ -206,35 +206,35 @@ ModelViewer.prototype = {
     },
 
     /**
-     * Get the rendering statistics of this scene.
+     * Get the rendering statistics of the viewer.
      * This includes the following:
-     *     renderedScenes
-     *     renderedBuckets
-     *     renderedInstances
-     *     renderCalls
-     *     renderedVertices
-     *     renderedPolygons
+     *     scenes
+     *     buckets
+     *     calls
+     *     instances
+     *     vertices
+     *     polygons
      */
     getRenderStats() {
-        let scenes = this.scenes,
-            renderedScenes = scenes.length,
-            renderedBuckets = 0,
-            renderCalls = 0,
-            renderedInstances = 0,
-            renderedVertices = 0,
-            renderedPolygons = 0;
+        let objects = this.scenes,
+            scenes = objects.length,
+            buckets = 0,
+            calls = 0,
+            instances = 0,
+            vertices = 0,
+            polygons = 0;
 
-        for (let i = 0; i < renderedScenes; i++) {
-            let stats = scenes[i].getRenderStats();
+        for (let i = 0; i < scenes; i++) {
+            let stats = objects[i].getRenderStats();
 
-            renderedBuckets += stats.renderedBuckets;
-            renderCalls += stats.renderCalls;
-            renderedInstances += stats.renderedInstances;
-            renderedVertices += stats.renderedVertices;
-            renderedPolygons += stats.renderedPolygons;
+            buckets += stats.buckets;
+            calls += stats.calls;
+            instances += stats.instances;
+            vertices += stats.vertices;
+            polygons += stats.polygons;
         }
 
-        return { renderedScenes, renderedBuckets, renderCalls, renderedInstances, renderedVertices, renderedPolygons };
+        return { scenes, buckets, calls, instances, vertices, polygons };
     },
 
     /**

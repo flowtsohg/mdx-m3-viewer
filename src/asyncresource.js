@@ -17,12 +17,6 @@ function AsyncResource(env) {
     this.loaded = false;
     /** @member {boolean} */
     this.error = false;
-    /** 
-     * Note: this is set by the viewer right after the object is constructed.
-     * 
-     * @member {Handler}
-     */
-    this.Handler = null;
 }
 
 AsyncResource.prototype = {

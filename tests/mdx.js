@@ -1,9 +1,6 @@
 let mdxTests = [
-    ["mdx-load", (viewer, scene) => {
-        let camera = scene.camera;
-
-        camera.resetTransformation();
-        camera.move([0, -50, -90]);
+    ["mdx-base", (viewer, scene, camera) => {
+        camera.move([0, -55, -140]);
         camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
         camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
@@ -11,52 +8,35 @@ let mdxTests = [
             instance = model.addInstance();
 
         scene.addInstance(instance);
-
-        instance.noCulling = true; // :(
     }],
 
-    ["mdx-sequence", (viewer, scene) => {
-        let camera = scene.camera;
-
-        camera.resetTransformation();
-        camera.move([0, -50, -90]);
+    ["mdx-sequence", (viewer, scene, camera) => {
+        camera.move([0, -55, -140]);
         camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
         camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
         let model = viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver),
-            instance = model.addInstance();
+            instance = model.addInstance().setSequence(0);
 
-        scene.addInstance(instance);
-
-        instance.setSequence(0);
         instance.frame = 800;
 
-        instance.noCulling = true; // :(
+        scene.addInstance(instance);
+        
     }],
 
-    ["mdx-team-color", (viewer, scene) => {
-        let camera = scene.camera;
-
-        camera.resetTransformation();
-        camera.move([0, -50, -90]);
+    ["mdx-team-color", (viewer, scene, camera) => {
+        camera.move([0, -55, -140]);
         camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
         camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
         let model = viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver),
-            instance = model.addInstance();
+            instance = model.addInstance().setTeamColor(1);
 
         scene.addInstance(instance);
-
-        instance.setTeamColor(1);
-
-        instance.noCulling = true; // :(
     }],
 
-    ["mdx-vertex-color", (viewer, scene) => {
-        let camera = scene.camera;
-
-        camera.resetTransformation();
-        camera.move([0, -50, -90]);
+    ["mdx-vertex-color", (viewer, scene, camera) => {
+        camera.move([0, -55, -140]);
         camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
         camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
@@ -66,40 +46,38 @@ let mdxTests = [
         scene.addInstance(instance);
 
         instance.setVertexColor([255, 0, 0, 255]);
-
-        instance.noCulling = true; // :(
     }],
 
-    ["mdx-texture-animation", (viewer, scene) => {
-        let camera = scene.camera;
+    ["mdx-vertex-and-team-colors", (viewer, scene, camera) => {
+        camera.move([0, -55, -140]);
+        camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
+        camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
-        camera.resetTransformation();
-        camera.move([0, -50, -90]);
+        let model = viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver),
+            instance = model.addInstance().setVertexColor([255, 0, 0, 255]).setTeamColor(1);
+
+        scene.addInstance(instance);
+    }],
+
+    ["mdx-texture-animation", (viewer, scene, camera) => {
+        camera.move([0, -80, -200]);
         camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
         camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
         let model = viewer.load("Units/Human/WaterElemental/WaterElemental.mdx", wc3Solver),
-            instance = model.addInstance();
+            instance = model.addInstance().setSequence(0);
 
-        scene.addInstance(instance);
-
-        instance.setSequence(0);
         instance.frame = 800;
 
-        instance.noCulling = true; // :(
+        scene.addInstance(instance);
     }],
 
-    ["mdx-billboarding", (viewer, scene) => {
-        let camera = scene.camera;
-
-        camera.resetTransformation();
+    ["mdx-billboarding", (viewer, scene, camera) => {
         camera.move([30, -20, -180]);
         camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-45)));
 
         let model = viewer.load("units/creeps/gnoll/gnoll.mdx", wc3Solver),
             instance = model.addInstance().setSequence(1).setSequenceLoopMode(2);
-
-        scene.addInstance(instance);
 
         // Rotate also the instance, to be sure billboarding works in all cases.
         // It happened in a past implementation that billboaring worked as long as the instance isn't rotated.
@@ -107,22 +85,18 @@ let mdxTests = [
         instance.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-45)));
 
         instance.frame = 800;
-    }],
-
-    ["mdx-attachment-model", (viewer, scene) => {
-        let camera = scene.camera;
-
-        camera.resetTransformation();
-        camera.move([0, 0, -400]);
-        camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
-        camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
-
-        let model = viewer.load("Buildings/Undead/HauntedMine/HauntedMine.mdx", wc3Solver),
-            instance = model.addInstance();
 
         scene.addInstance(instance);
+    }],
 
-        instance.setSequence(0);
+    ["mdx-attachment-model", (viewer, scene, camera) => {
+        camera.move([0, 0, -600]);
+        camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
+
+        let model = viewer.load("Buildings/Undead/HauntedMine/HauntedMine.mdx", wc3Solver),
+            instance = model.addInstance().setSequence(0);
+
+        scene.addInstance(instance);
 
         viewer.whenAllLoaded(() => {
             instance.frame = 20000;
@@ -133,51 +107,36 @@ let mdxTests = [
 
             let attachment = instance.attachments[0].internalInstance;
 
-            attachment.noCulling = true; // :(
             attachment.frame = instance.frame;
         });
     }],
 
-    ["mdx-particle-emitter", (viewer, scene) => {
-        let camera = scene.camera;
-
-        camera.resetTransformation();
-        camera.move([0, -60, -70]);
+    ["mdx-particle-emitter", (viewer, scene, camera) => {
+        camera.move([0, -60, -150]);
         camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
         camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
         let model = viewer.load("Units/Creeps/AzureDragon/AzureDragon.mdx", wc3Solver),
-            instance = model.addInstance();
+            instance = model.addInstance().setSequence(5);
 
         scene.addInstance(instance);
 
-        instance.setSequence(5);
-
-        instance.noCulling = true; // :(
-
         instance.whenLoaded(() => {
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 30; i++) {
                 viewer.update();
             }
         });
     }],
 
-    ["mdx-particle-emitter-2", (viewer, scene) => {
-        let camera = scene.camera;
-
-        camera.resetTransformation();
-        camera.move([0, 20, -200]);
+    ["mdx-particle-emitter-2", (viewer, scene, camera) => {
+        camera.move([0, 20, -300]);
         camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
         camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
         let model = viewer.load("Units/Creeps/AzureDragon/AzureDragon.mdx", wc3Solver),
-            instance = model.addInstance();
+            instance = model.addInstance().setSequence(1);
 
         scene.addInstance(instance);
-
-        instance.setSequence(1);
-
-        instance.noCulling = true; // :(
 
         instance.whenLoaded(() => {
             for (let i = 0; i < 90; i++) {
@@ -186,11 +145,8 @@ let mdxTests = [
         });
     }],
 
-    ["mdx-ribbon-emitter", (viewer, scene) => {
-        let camera = scene.camera;
-
-        camera.resetTransformation();
-        camera.move([0, -50, -200]);
+    ["mdx-ribbon-emitter", (viewer, scene, camera) => {
+        camera.move([0, -65, -240]);
         camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
         camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 

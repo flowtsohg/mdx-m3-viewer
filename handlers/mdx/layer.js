@@ -130,13 +130,11 @@ MdxLayer.prototype = {
     },
 
     getAllTextureIds() {
-        var kmtf = this.sd.KMTF;
+        var textureIds = this.sd.getValues("KMTF");
 
-        if (kmtf) {
-            var values = kmtf.getValues();
-
+        if (textureIds.length) {
             // Remove duplicate elements but keep the unique ones in order
-            return values.unique();
+            return textureIds.unique();
         } else {
             return [this.textureId];
         }

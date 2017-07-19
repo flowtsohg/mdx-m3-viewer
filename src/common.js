@@ -1,83 +1,3 @@
-function getImageDataFromImage(image) {
-    let canvas = document.createElement("canvas"),
-        context = canvas.getContext("2d"),
-        w = image.width,
-        h = image.height;
-
-    canvas.width = w;
-    canvas.height = h;
-
-    context.drawImage(image, 0, 0);
-
-    return context.getImageData(0, 0, w, h);
-}
-
-function compareImagesFromURLs(a, b, callback) {
-    let imageA = new Image(),
-        imageB = new Image(),
-        loadedA = false,
-        loadedB = false;
-
-    function whenBothLoaded() {
-        if (imageA.width !== imageB.width || imageA.height !== imageB.height) {
-            callback(imageA, imageB, false);
-            return;
-        }
-
-        let dataA = getImageDataFromImage(imageA),
-            dataB = getImageDataFromImage(imageB);
-
-        for (let i = 0, l = dataA.data.length; i < l; i++) {
-            if (dataA.data[i] !== dataB.data[i]) {
-                callback(imageA, imageB, false);
-                return;
-            }
-        }
-
-        callback(imageA, imageB, true);
-    }
-
-    imageA.onload = function () {
-        loadedA = true;
-
-        if (loadedB) {
-            whenBothLoaded();
-        }
-    };
-
-    imageB.onload = function () {
-        loadedB = true;
-
-        if (loadedA) {
-            whenBothLoaded();
-        }
-    };
-
-    imageA.src = a;
-    imageB.src = b;
-}
-
-// Download an url to a file with the given name.
-// The name doesn't seem to work in Firefox (only tested in Firefox and Chrome on Windows).
-function downloadUrl(url, name) {
-    let a = document.createElement("a");
-
-    a.href = url;
-    a.download = name;
-
-    a.dispatchEvent(new MouseEvent("click"));
-}
-
-// Return a function that works in the same exact way as Math.random(), but with a seed.
-// See http://indiegamr.com/generate-repeatable-random-numbers-in-js/
-function seededRandom(seed) {
-    return function () {
-        seed = (seed * 9301 + 49297) % 233280;
-
-        return seed / 233280;
-    };    
-}
-
 // Normalize file paths to lowercase, and all slashes being forward.
 function normalizePath(path) {
     return path.toLocaleLowerCase().replace(/\\/g, "/");
@@ -367,15 +287,10 @@ Array.prototype.delete = function (value) {
 };
 
 export {
-    getImageDataFromImage,
-    compareImagesFromURLs,
-    downloadUrl,
-    seededRandom,
     normalizePath,
     createTextureAtlas,
     TagToUint ,
     UintToTag,
-
     mix,
     encodeFloat2,
     decodeFloat2,

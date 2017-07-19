@@ -15,6 +15,13 @@ function DownloadableResource(env, pathSolver) {
 
     /** @member {string} */
     this.fetchUrl = "";
+
+    /** 
+     * Note: this is set by the viewer right after the object is constructed.
+     * 
+     * @member {Handler}
+     */
+    this.Handler = null;
 }
 
 DownloadableResource.prototype = {

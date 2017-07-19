@@ -75,7 +75,7 @@ GeometryModel.prototype = {
         this.uvScale = material.uvScale || new Float32Array([1, 1]);
         this.uvOffset = material.uvOffset || new Float32Array(2);
 
-        this.vertexColor = material.color || new Float32Array([255, 255, 255, 255]);
+        this.vertexColor = material.vertexColor || new Float32Array([255, 255, 255, 255]);
         this.edgeColor = material.edgeColor || new Float32Array([255, 255, 255, 255]);
 
         this.renderMode = 0;

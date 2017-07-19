@@ -264,6 +264,16 @@ function MdxSdContainer(model, container) {
 }
 
 MdxSdContainer.prototype = {
+    getValues(tag) {
+        var sd = this.sd[tag];
+
+        if (sd) {
+            return sd.getValues();
+        }
+
+        return [];
+    },
+
     getValue(tag, instance, defval) {
         var sd = this.sd[tag];
 
