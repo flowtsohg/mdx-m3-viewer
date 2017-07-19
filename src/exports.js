@@ -20,7 +20,7 @@ import W3x from "../handlers/w3x/handler";
 import UnitTester from "./unittester";
 
 export {
-	ModelViewer,
+    ModelViewer,
     Scene,
     glMatrix,
     Blp,
