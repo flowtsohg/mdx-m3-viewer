@@ -1,3 +1,6 @@
+import { vec3, vec4 } from "gl-matrix";
+import { encodeFloat3 } from "../../src/common";
+
 /**
  * @constructor
  * @param {MdxEventObjectEmitter} emitter
@@ -76,3 +79,5 @@ MdxEventObjectUbr.prototype = {
         this.rgb = encodeFloat3(color[0], color[1], color[2]);
     }
 };
+
+export default MdxEventObjectUbr;

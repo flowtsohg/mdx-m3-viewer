@@ -1,3 +1,5 @@
+import MdxParserExtent from "./extent";
+
 /**
  * @constructor
  * @param {MdxParserBinaryReader} reader
@@ -70,3 +72,5 @@ function MdxParserGeoset(reader, nodes, index) {
         this.textureCoordinateSets[i] = reader.readFloat32Array(reader.readUint32() * 2);
     }
 }
+
+export default MdxParserGeoset;

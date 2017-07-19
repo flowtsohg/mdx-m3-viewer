@@ -44,3 +44,5 @@ function M3ParserRegion(reader, version, index) {
         this.unknown5 = reader.read(8);
     }
 }
+
+export default M3ParserRegion;

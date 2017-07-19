@@ -1,3 +1,5 @@
+import MdxSdContainer from "./sd";
+
 /**
  * @constructor
  * @param {MdxModel} model
@@ -101,3 +103,5 @@ MdxModelParticle2Emitter.prototype = {
         this.blendDst = blendDst;
     }
 };
+
+export default MdxModelParticle2Emitter;

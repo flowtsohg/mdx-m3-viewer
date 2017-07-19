@@ -1,3 +1,17 @@
+import M3 from "./handler";
+import TexturedModel from "../../src/texturedmodel";
+import M3Parser from "./parser/parser";
+import M3StandardMaterial from "./standardmaterial";
+import M3Bone from "./bone";
+import M3Sequence from "./sequence";
+import M3Sts from "./sts";
+import M3Stc from "./stc";
+import M3Stg from "./stg";
+import M3Attachment from "./attachment";
+import M3Camera from "./camera";
+import M3Region from "./region";
+import { mix } from "../../src/common";
+
 /**
  * @constructor
  * @augments Model
@@ -413,3 +427,5 @@ M3Model.prototype = {
 };
 
 mix(M3Model.prototype, TexturedModel.prototype);
+
+export default M3Model;

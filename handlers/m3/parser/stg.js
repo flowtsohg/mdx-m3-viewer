@@ -1,3 +1,5 @@
+import M3ParserReference from "./reference";
+
 /**
  * @constructor
  * @param {M3ParserBinaryReader} reader
@@ -12,3 +14,5 @@ function M3ParserStg(reader, version, index) {
     /** @member {M3ParserReference} */
     this.stcIndices = new M3ParserReference(reader, index);
 }
+
+export default M3ParserStg;

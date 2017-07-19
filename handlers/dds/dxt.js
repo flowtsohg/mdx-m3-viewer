@@ -244,3 +244,9 @@ function dxt5ToRgba8888(src, width, height) {
 
     return dst;
 }
+
+export {
+    dxt1ToRgb565,
+    dxt3ToRgba8888,
+    dxt5ToRgba8888
+};

@@ -20,3 +20,5 @@ function MdxParserEventObject(reader, nodes, index) {
     /** @member {number} */
     this.size = this.node.size + 12 + count * 4;
 }
+
+export default MdxParserEventObject;

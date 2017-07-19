@@ -19,6 +19,10 @@ MdxEventObjectEmitterView.prototype = {
             emitter.emit(this);
         }
          
-        vec2.copy(lastTrack, track);
+        lastTrack[0] = track[0];
+        lastTrack[1] = track[1];
+        //vec2.copy(lastTrack, track);
     }
 };
+
+export default MdxEventObjectEmitterView;

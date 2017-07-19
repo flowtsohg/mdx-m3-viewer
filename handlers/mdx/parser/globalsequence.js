@@ -8,3 +8,5 @@ function MdxParserGlobalSequence(reader, index) {
     /** @member {number} */
     this.value = reader.readUint32();
 }
+
+export default MdxParserGlobalSequence;

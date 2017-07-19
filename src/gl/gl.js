@@ -1,6 +1,6 @@
-import ShaderUnit from './shader';
-import ShaderProgram from './program';
-import common from '../common';
+import ShaderUnit from "./shader";
+import ShaderProgram from "./program";
+import { hashFromString } from "../common";
 
 /**
  * @constructor
@@ -92,7 +92,7 @@ WebGL.prototype = {
      * @returns {ShaderUnit}
      */
     createShaderUnit(src, type) {
-        let hash = common.hashFromString(src),
+        let hash = hashFromString(src),
             shaderUnits = this.shaderUnits;
 
         if (!shaderUnits.has(hash)) {
@@ -116,7 +116,7 @@ WebGL.prototype = {
             shaderPrograms = this.shaderPrograms;
 
         if (vertexShader.loaded && fragmentShader.loaded) {
-            let hash = common.hashFromString(vertexSource + fragmentSource);
+            let hash = hashFromString(vertexSource + fragmentSource);
 
             if (!shaderPrograms.has(hash)) {
                 shaderPrograms.set(hash, new ShaderProgram(gl, vertexShader, fragmentShader));

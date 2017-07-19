@@ -9,3 +9,5 @@ function M3Sequence(sequence) {
     this.frequency = sequence.frequency;
     this.boundingSphere = sequence.boundingSphere;
 }
+
+export default M3Sequence;

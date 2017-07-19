@@ -1,3 +1,5 @@
+import MdxParserExtent from "./extent";
+
 /**
  * @constructor
  * @param {MdxParserBinaryReader} reader
@@ -20,3 +22,5 @@ function MdxParserSequence(reader, index) {
     /** @member {MdxParserExtent} */
     this.extent = new MdxParserExtent(reader);
 }
+
+export default MdxParserSequence;

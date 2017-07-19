@@ -12,3 +12,5 @@ function MdxParserTexture(reader, index) {
     /** @member {number} */
     this.flags = reader.readUint32();
 }
+
+export default MdxParserTexture;

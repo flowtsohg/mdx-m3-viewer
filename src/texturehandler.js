@@ -1,5 +1,5 @@
-import Handler from './handler';
-import common from './common';
+import Handler from "./handler";
+import { mix } from "./common";
 
 const TextureHandler = {
     get objectType() {
@@ -7,6 +7,6 @@ const TextureHandler = {
     }
 };
 
-common.mix(TextureHandler, Handler);
+mix(TextureHandler, Handler);
 
 export default TextureHandler;

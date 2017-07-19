@@ -5,13 +5,13 @@
 function MdxEventObjectSpn(emitter) {
     this.emitter = emitter;
     this.health = 0;
-    this.internalInstance = emitter.internalModel.addInstance();
+    this.internalInstance = emitter.modelObject.internalResource.addInstance();
 }
 
 MdxEventObjectSpn.prototype = {
     reset(emitterView) {
         let instance = this.internalInstance,
-            node = emitterView.instance.skeleton.nodes[this.emitter.node.index];
+            node = emitterView.instance.skeleton.nodes[this.emitter.modelObject.node.index];
 
         instance.setSequence(0);
         instance.setTransformation(node.worldLocation, node.worldRotation, node.worldScale);
@@ -33,3 +33,5 @@ MdxEventObjectSpn.prototype = {
         }
     }
 };
+
+export default MdxEventObjectSpn;

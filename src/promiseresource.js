@@ -1,3 +1,6 @@
+import AsyncResource from "./asyncresource";
+import { mix } from "./common";
+
 /**
  * @constructor
  * @augments AsyncResource
@@ -14,3 +17,5 @@ PromiseResource.prototype = {
 };
 
 mix(PromiseResource.prototype, AsyncResource.prototype);
+
+export default PromiseResource;

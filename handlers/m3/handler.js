@@ -1,5 +1,12 @@
-import ModelHandler from '../../src/modelhandler';
-import common from '../../src/common';
+import ModelHandler from "../../src/modelhandler";
+import M3Model from "./model";
+import TexturedModelView from "../../src/texturedmodelview";
+import M3ModelInstance from "./modelinstance";
+import M3Bucket from "./bucket";
+import Dds from "../dds/handler";
+import Tga from "../tga/handler";
+import M3Shaders from "./shaders";
+import { mix } from "../../src/common";
 
 const M3 = {
     initialize(env) {
@@ -66,6 +73,6 @@ const M3 = {
     }
 };
 
-common.mix(M3, ModelHandler);
+mix(M3, ModelHandler);
 
 export default M3;

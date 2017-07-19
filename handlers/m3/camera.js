@@ -18,3 +18,5 @@ function M3Camera(camera) {
     this.depthOfField = new AnimationReference(reader, readFloat32);
     */
 }
+
+export default M3Camera;

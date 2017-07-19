@@ -1,3 +1,5 @@
+import MdxParserSDContainer from "./sd";
+
 /**
  * @constructor
  * @param {MdxParserBinaryReader} reader
@@ -35,3 +37,5 @@ function MdxParserRibbonEmitter(reader, nodes, index) {
     /** @member {MdxParserSDContainer} */
     this.tracks = new MdxParserSDContainer(reader, this.size - this.node.size - 56);
 }
+
+export default MdxParserRibbonEmitter;

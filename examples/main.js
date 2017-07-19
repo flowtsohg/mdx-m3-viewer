@@ -6,14 +6,6 @@ canvas.height = 600;
 // Create the viewer!
 let viewer = new ModelViewer.ModelViewer(canvas);
 
-// The viewer has the update(), render(), and updateAndRender() functions.
-// Generally speaking, you will want a simple never ending loop like the one that follows, but who knows. The control is in your hands.
-(function step() {
-    requestAnimationFrame(step);
-
-    viewer.updateAndRender();
-}());
-
 // Create a new scene. Each scene has its own camera, and a list of things to render.
 let scene = new ModelViewer.Scene();
 
@@ -117,9 +109,14 @@ instance2.setParent(instance);
 let q = ModelViewer.glMatrix.quat.setAxisAngle([], ModelViewer.glMatrix.vec3.normalize([], [1, 1, 1]), Math.PI / 120);
 let q2 = ModelViewer.glMatrix.quat.setAxisAngle([], ModelViewer.glMatrix.vec3.normalize([], [1, 1, 1]), Math.PI / 30);
 
-// e.target == viewer, for the "render" event.
-// Obviously you can also put this code in the updateAndRender loop above.
-viewer.addEventListener("render", (e) => {
+// The viewer has the update(), render(), and updateAndRender() functions.
+// Generally speaking, you will want a simple never ending loop like the one that follows, but who knows. The control is in your hands.
+(function step() {
+    requestAnimationFrame(step);
+
+    // Do client sided stuff, in this case let's play with the rotatinos.
     instance.rotate(q);
     instance2.rotate(q2);
-});
+
+    viewer.updateAndRender();
+}());

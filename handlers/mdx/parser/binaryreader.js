@@ -1,3 +1,7 @@
+import BinaryReader from "../../../src/binaryreader";
+import { mix } from "../../../src/common";
+import MdxParserNode from "./node";
+
 /**
  * @constructor
  * @param {ArrayBuffer} buffer
@@ -68,3 +72,5 @@ MdxParserBinaryReader.prototype = {
 };
 
 mix(MdxParserBinaryReader.prototype, BinaryReader.prototype);
+
+export default MdxParserBinaryReader;

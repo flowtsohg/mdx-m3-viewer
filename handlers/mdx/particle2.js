@@ -1,3 +1,6 @@
+import { vec3, vec4, quat } from "gl-matrix";
+import { encodeFloat3 } from "../../src/common";
+
 /**
  * @constructor
  * @param {MdxParticle2Emitter} emitter
@@ -26,8 +29,8 @@ function MdxParticle2(emitter) {
 
 MdxParticle2.prototype = {
     reset(emitterView, isHead) {
-        let emitter = this.emitter,
-            node = emitterView.instance.skeleton.nodes[emitter.node.index],
+        let modelObject = this.emitter.modelObject,
+            node = emitterView.instance.skeleton.nodes[modelObject.node.index],
             pivot = node.pivot,
             scale = node.worldScale,
             width = emitterView.getWidth() * 0.5,
@@ -40,13 +43,13 @@ MdxParticle2.prototype = {
 
         this.instance = emitterView.instance;
         this.node = node;
-        this.health = emitter.lifespan;
+        this.health = modelObject.lifespan;
         this.head = isHead;
         this.gravity = emitterView.getGravity() * scale[2];
         this.scale = 1;
         this.index = 0;
 
-        vec4.copy(this.color, emitter.colors[0]);
+        vec4.copy(this.color, modelObject.colors[0]);
         vec3.copy(this.nodeScale, scale);
 
         // Local location
@@ -55,7 +58,7 @@ MdxParticle2.prototype = {
         location[2] = pivot[2] + Math.randomRange(-length, length);
 
         // World location
-        if (!emitter.modelSpace) {
+        if (!modelObject.modelSpace) {
             vec3.transformMat4(location, location, node.worldMatrix);
         }
 
@@ -65,7 +68,7 @@ MdxParticle2.prototype = {
         quat.rotateY(q, q, Math.randomRange(-latitude, latitude));
 
         // World rotation
-        if (!emitter.modelSpace) {
+        if (!modelObject.modelSpace) {
             quat.mul(q, node.worldRotation, q);
         }
 
@@ -79,15 +82,15 @@ MdxParticle2.prototype = {
         vec3.mul(velocity, velocity, scale);
 
         if (!isHead) {
-            var tailLength = emitter.tailLength * 0.5;
+            var tailLength = modelObject.tailLength * 0.5;
 
             vec3.scaleAndAdd(location, velocity, -tailLength);
         }
     },
 
     update(scene) {
-        let emitter = this.emitter,
-            dt = emitter.model.env.frameTime * 0.001,
+        let modelObject = this.emitter.modelObject,
+            dt = modelObject.model.env.frameTime * 0.001,
             location = this.location,
             worldLocation = this.worldLocation,
             velocity = this.velocity;
@@ -98,15 +101,15 @@ MdxParticle2.prototype = {
 
         vec3.scaleAndAdd(location, location, velocity, dt);
 
-        if (emitter.modelSpace) {
+        if (modelObject.modelSpace) {
             vec3.transformMat4(worldLocation, location, this.node.worldMatrix);
         } else {
             vec3.copy(worldLocation, location);
         }
 
-        let lifeFactor = (emitter.lifespan - this.health) / emitter.lifespan,
-            timeMiddle = emitter.timeMiddle,
-            intervals = emitter.intervals,
+        let lifeFactor = (modelObject.lifespan - this.health) / modelObject.lifespan,
+            timeMiddle = modelObject.timeMiddle,
+            intervals = modelObject.intervals,
             factor,
             firstColor,
             head = this.head,
@@ -136,8 +139,8 @@ MdxParticle2.prototype = {
 
         factor = Math.min(factor, 1);
 
-        let scaling = emitter.scaling,
-            colors = emitter.colors,
+        let scaling = modelObject.scaling,
+            colors = modelObject.colors,
             color = this.color,
             scale = Math.lerp(scaling[firstColor], scaling[firstColor + 1], factor),
             index = Math.floor(Math.lerp(interval[0], interval[1], factor));
@@ -148,7 +151,7 @@ MdxParticle2.prototype = {
             vectors;
 
         // Choose between a default rectangle or billboarded one
-        if (emitter.xYQuad) {
+        if (modelObject.xYQuad) {
             vectors = camera.vectors;
         } else {
             vectors = camera.billboardedVectors;
@@ -210,7 +213,7 @@ MdxParticle2.prototype = {
             vertices[11] = pz2 + csx[2] * scale * nodeScale[2];
         }
 
-        let columns = emitter.dimensions[0],
+        let columns = modelObject.dimensions[0],
             left = index % columns,
             top = Math.floor(index / columns),
             right = left + 1,
@@ -224,3 +227,5 @@ MdxParticle2.prototype = {
         this.rgb = encodeFloat3(color[0], color[1], color[2]);
     }
 };
+
+export default MdxParticle2;

@@ -1,11 +1,11 @@
-import glMatrix from './math/gl-matrix-addon';
+import { vec3, quat } from "gl-matrix";
 
 /**
  * @constructor
  */
 function Frustum() {
     // Left, right, top, bottom, near, far
-    this.planes = [glMatrix.quat.create(), glMatrix.quat.create(), glMatrix.quat.create(), glMatrix.quat.create(), glMatrix.quat.create(), glMatrix.quat.create()];
+    this.planes = [quat.create(), quat.create(), quat.create(), quat.create(), quat.create(), quat.create()];
 }
 
 Frustum.prototype = {
@@ -63,7 +63,7 @@ plane.classifyPoint = function (plane, point) {
             worldScale = boundingShape.worldScale,
             planes = this.planes,
             result = TEST_INSIDE,
-            v = glMatrix.vec3.heap;
+            v = vec3.heap;
 
         for (let i = 0; i < 6; i++) {
             let plane = planes[i],
@@ -75,14 +75,14 @@ plane.classifyPoint = function (plane, point) {
                
             // Positive vertex
             boundingShape.getPositiveVertex(v, plane);
-            glMatrix.vec3.mulAndAdd(v2, v, worldScale, worldLocation);
+            vec3.mulAndAdd(v2, v, worldScale, worldLocation);
             if ((a * v2[0] + b * v2[1] + c * v2[2] + d) < 0) {
                 return TEST_OUTSIDE;
             }
 
             // Negative vertex
             boundingShape.getNegativeVertex(v, plane);
-            glMatrix.vec3.mulAndAdd(v2, v, worldScale, worldLocation);
+            vec3.mulAndAdd(v2, v, worldScale, worldLocation);
             if ((a * v2[0] + b * v2[1] + c * v2[2] + d) < 0) {
                 result = TEST_INTERSECT;
             }
@@ -143,12 +143,12 @@ plane.classifyPoint = function (plane, point) {
         plane[3] = a33 - a23;
 
         /*
-        glMatrix.quat.normalize(planes[0], planes[0]);
-        glMatrix.quat.normalize(planes[1], planes[1]);
-        glMatrix.quat.normalize(planes[2], planes[2]);
-        glMatrix.quat.normalize(planes[3], planes[3]);
-        glMatrix.quat.normalize(planes[4], planes[4]);
-        glMatrix.quat.normalize(planes[5], planes[5]);
+        quat.normalize(planes[0], planes[0]);
+        quat.normalize(planes[1], planes[1]);
+        quat.normalize(planes[2], planes[2]);
+        quat.normalize(planes[3], planes[3]);
+        quat.normalize(planes[4], planes[4]);
+        quat.normalize(planes[5], planes[5]);
         */
 
         return this;

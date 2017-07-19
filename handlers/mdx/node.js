@@ -1,3 +1,6 @@
+import MdxSdContainer from "./sd";
+import { vec3, quat } from "gl-matrix";
+
 /**
  * @constructor
  * @param {MdxModel} model
@@ -61,3 +64,5 @@ MdxNode.prototype = {
         return sd.isVariant("KGTR", sequence) || sd.isVariant("KGRT", sequence) || sd.isVariant("KGSC", sequence);
     }
 };
+
+export default MdxNode;

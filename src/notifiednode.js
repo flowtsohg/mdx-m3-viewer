@@ -1,5 +1,5 @@
-import ViewerNode from './node';
-import common from './common';
+import ViewerNode from "./node";
+import { mix } from "./common";
 
 /**
  * @constructor
@@ -19,6 +19,6 @@ NotifiedNode.prototype = {
     }
 };
 
-common.mix(NotifiedNode.prototype, ViewerNode.prototype);
+mix(NotifiedNode.prototype, ViewerNode.prototype);
 
 export default NotifiedNode;

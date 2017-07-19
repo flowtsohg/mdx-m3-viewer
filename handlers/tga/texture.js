@@ -1,3 +1,6 @@
+import Texture from "../../src/texture"
+import { mix } from "../../src/common";
+
 /**
  * @constructor
  * @augments Texture
@@ -47,3 +50,5 @@ TgaTexture.prototype = {
 };
 
 mix(TgaTexture.prototype, Texture.prototype);
+
+export default TgaTexture;

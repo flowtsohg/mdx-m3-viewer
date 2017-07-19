@@ -1,3 +1,10 @@
+import BinaryReader from "../../src/binaryreader";
+
+let HASH_TABLE_KEY = 0xC3AF3770,
+    HASH_TABLE_INDEX = 0,
+    HASH_NAME_A = 1,
+    HASH_NAME_B = 2;
+
 /**
  * @constructor
  * @param {BinaryReader} reader
@@ -18,7 +25,7 @@ function MpqHashTableEntry(reader) {
 function MpqHashTable(buffer, c) {
     this.hashSize = buffer.byteLength / 16;
     this.c = c;
-    this.prepareEntries(c.decryptBlock(buffer, Mpq.HASH_TABLE_KEY));
+    this.prepareEntries(c.decryptBlock(buffer, HASH_TABLE_KEY));
 }
 
 MpqHashTable.prototype = {
@@ -35,9 +42,9 @@ MpqHashTable.prototype = {
 
     getBlockIndexOfFile(name) {
         let c = this.c,
-            name1 = c.hash(name, Mpq.HASH_NAME_A),
-            name2 = c.hash(name, Mpq.HASH_NAME_B),
-            offset = c.hash(name, Mpq.HASH_TABLE_INDEX) & (this.hashSize - 1),
+            name1 = c.hash(name, HASH_NAME_A),
+            name2 = c.hash(name, HASH_NAME_B),
+            offset = c.hash(name, HASH_TABLE_INDEX) & (this.hashSize - 1),
             entries = this.entries,
             entry;
 
@@ -54,3 +61,5 @@ MpqHashTable.prototype = {
         return -1;
     }
 };
+
+export default MpqHashTable;

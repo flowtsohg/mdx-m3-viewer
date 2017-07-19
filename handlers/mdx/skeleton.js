@@ -1,3 +1,7 @@
+import { quat } from "gl-matrix";
+import Skeleton from "../../src/skeleton";
+import { mix } from "../../src/common";
+
 /**
  * @constructor
  * @augments Skeleton
@@ -96,3 +100,5 @@ MdxSkeleton.prototype = {
 };
 
 mix(MdxSkeleton.prototype, Skeleton.prototype);
+
+export default MdxSkeleton;

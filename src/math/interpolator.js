@@ -1,3 +1,5 @@
+import { vec3, quat } from "gl-matrix";
+
 const Interpolator = {
     heap3: vec3.create(),
     heap4: quat.create(),
@@ -54,3 +56,5 @@ const Interpolator = {
         }
     }
 };
+
+export default Interpolator;

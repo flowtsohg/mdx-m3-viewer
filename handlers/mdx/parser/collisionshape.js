@@ -35,3 +35,5 @@ function MdxParserCollisionShape(reader, nodes, index) {
     /** @member {number} */
     this.size = size;
 }
+
+export default MdxParserCollisionShape;

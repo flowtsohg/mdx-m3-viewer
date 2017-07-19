@@ -51,7 +51,7 @@ function addTestResult(testResult) {
     tr.appendChild(imageB);
 }
 
-let unitTester = new UnitTester();
+let unitTester = new ModelViewer.UnitTester();
 
 unitTester.addTests(geoTests);
 unitTester.addTests(mdxTests);

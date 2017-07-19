@@ -475,3 +475,12 @@ W3xTilePoint.prototype = {
         return ((this.groundHeight - 0x2000 + (this.layerHeight - 2) * 0x0200) / 4 - cliffHeight * 128) / 128;
     }
 };
+
+export {
+    W3xUnit,
+    W3xDoodad,
+    W3xModification,
+    W3xModifiedObject,
+    W3xModificationTable,
+    W3xTilePoint
+};

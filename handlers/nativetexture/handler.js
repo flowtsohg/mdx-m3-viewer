@@ -1,5 +1,6 @@
-import TextureHandler from '../../src/texturehandler';
-import common from '../../src/common';
+import TextureHandler from "../../src/texturehandler";
+import ImageTexture from "./texture";
+import { mix } from "../../src/common";
 
 const NativeTexture = {
     get extension() {
@@ -15,6 +16,6 @@ const NativeTexture = {
     }
 };
 
-common.mix(NativeTexture, TextureHandler);
+mix(NativeTexture, TextureHandler);
 
-export default TextureHandler;
+export default NativeTexture;

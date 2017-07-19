@@ -1,3 +1,5 @@
+import ViewerNode from "./node";
+
 /**
  * @constructor
  * @param {number} nodeCount
@@ -44,3 +46,5 @@ Skeleton.prototype = {
         return this.nodes[id];
     }
 };
+
+export default Skeleton;

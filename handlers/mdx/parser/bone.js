@@ -14,3 +14,5 @@ function MdxParserBone(reader, nodes, index) {
     /** @member {number} */
     this.size = this.node.size + 8;
 }
+
+export default MdxParserBone;

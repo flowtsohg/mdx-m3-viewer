@@ -1,3 +1,5 @@
+import Mdx from "./handler";
+
 /**
  * @constructor
  */
@@ -866,3 +868,4 @@ MdxSanityTester.prototype = {
     }
 };
 
+export default MdxSanityTester;

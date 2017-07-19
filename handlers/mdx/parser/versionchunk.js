@@ -9,3 +9,5 @@ function MdxParserVersionChunk(reader, tag, size, nodes) {
     /** @member {number} */
     this.version = reader.readUint32();
 }
+
+export default MdxParserVersionChunk;

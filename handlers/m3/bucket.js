@@ -1,3 +1,6 @@
+import Bucket from "../../src/bucket";
+import { mix } from "../../src/common";
+
 /**
  * @constructor
  * @extends Bucket
@@ -139,3 +142,5 @@ M3Bucket.prototype = {
 };
 
 mix(M3Bucket.prototype, Bucket.prototype);
+
+export default M3Bucket;

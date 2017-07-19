@@ -1,5 +1,5 @@
-import Handler from './handler';
-import common from './common';
+import Handler from "./handler";
+import { mix } from "./common";
 
 const FileHandler = {
     get objectType() {
@@ -7,6 +7,6 @@ const FileHandler = {
     }
 };
 
-common.mix(FileHandler, Handler);
+mix(FileHandler, Handler);
 
 export default FileHandler;

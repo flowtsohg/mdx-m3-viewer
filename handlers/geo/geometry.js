@@ -345,3 +345,16 @@ function createFrustum(fieldOfView, aspectRatio, nearClipPlane, farClipPlane) {
         edges: new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 0, 2, 2, 4, 4, 6, 6, 0, 1, 3, 3, 5, 5, 7, 7, 1])
     };
 }
+
+export {
+    createRectangle,
+    createUnitRectangle,
+    createCube,
+    createUnitCube,
+    createSphere,
+    createUnitSphere,
+    createCylinder,
+    createUnitCylinder,
+    createHeightMap,
+    createFrustum
+};

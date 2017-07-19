@@ -12,3 +12,5 @@ function M3ParserMaterialReference(reader, version, index) {
     /** @member {number} */
     this.materialIndex = reader.readUint32();
 }
+
+export default M3ParserMaterialReference;

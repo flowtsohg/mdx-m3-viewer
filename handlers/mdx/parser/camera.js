@@ -1,3 +1,5 @@
+import MdxParserSDContainer from "./sd";
+
 /**
  * @constructor
  * @param {MdxParserBinaryReader} reader
@@ -23,3 +25,5 @@ function MdxParserCamera(reader, nodes, index) {
     /** @member {MdxParserSDContainer} */
     this.tracks = new MdxParserSDContainer(reader, this.size - 120);
 }
+
+export default MdxParserCamera;

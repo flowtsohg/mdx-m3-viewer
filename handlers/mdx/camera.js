@@ -1,3 +1,5 @@
+import MdxSdContainer from "./sd";
+
 /**
  * @constructor
  * @param {MdxModel} model
@@ -26,3 +28,5 @@ MdxCamera.prototype = {
         return this.sd.getValue("KCRL", instance, 0);
     }
 };
+
+export default MdxCamera;

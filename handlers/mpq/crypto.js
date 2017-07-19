@@ -81,3 +81,5 @@ MpqCrypto.prototype = {
         return buffer;
     }
 };
+
+export default MpqCrypto;

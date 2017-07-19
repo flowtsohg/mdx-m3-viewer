@@ -1,3 +1,91 @@
+import M3ParserMd34 from "./md34";
+import M3ParserModel from "./model";
+import M3ParserSequence from "./sequence";
+import M3ParserStc from "./stc";
+import M3ParserStg from "./stg";
+import M3ParserSts from "./sts";
+import M3ParserBone from "./bone";
+import M3ParserDivision from "./division";
+import M3ParserRegion from "./region";
+import M3ParserBatch from "./batch";
+import M3ParserMaterialReference from "./materialreference";
+import M3ParserStandardMaterial from "./standardmaterial";
+import M3ParserLayer from "./layer";
+import M3ParserEvent from "./event";
+import M3ParserBoundingSphere from "./boundingsphere";
+import M3ParserAttachmentPoint from "./attachmentpoint";
+import M3ParserCamera from "./camera";
+import M3ParserSd from "./sd";
+import M3ParserUnsupportedEntry from "./unsupportedentry";
+
+// Mapping from entry tags, to their constructors and known version->size values.
+let tagMapping = {
+    // Objects
+    MD34: [M3ParserMd34, { 11: 24 }],
+    MODL: [M3ParserModel, { 23: 784, 25: 808, 26: 820, 28: 844, 29: 856 }],
+    SEQS: [M3ParserSequence, { 1: 96, 2: 92 }],
+    STC_: [M3ParserStc, { 4: 204 }],
+    STG_: [M3ParserStg, { 0: 24 }],
+    STS_: [M3ParserSts, { 0: 28 }],
+    BONE: [M3ParserBone, { 1: 160 }],
+    DIV_: [M3ParserDivision, { 2: 52 }],
+    REGN: [M3ParserRegion, { 3: 36, 4: 40, 5: 48 }],
+    BAT_: [M3ParserBatch, { 1: 14 }],
+    MATM: [M3ParserMaterialReference, { 0: 8 }],
+    MAT_: [M3ParserStandardMaterial, { 15: 268, 16: 280, 17: 280, 18: 280, 19: 340 }],
+    LAYR: [M3ParserLayer, { 22: 356, 24: 436, 25: 468, 26: 464 }],
+    EVNT: [M3ParserEvent, { 0: 96, 1: 104, 2: 108 }],
+    BNDS: [M3ParserBoundingSphere, { 0: 28 }],
+    ATT_: [M3ParserAttachmentPoint, { 1: 20 }],
+    CAM_: [M3ParserCamera, { 3: 180, 5: 264 }],
+    SDEV: [M3ParserSd, { 0: 32 }],
+    SDU6: [M3ParserSd, { 0: 32 }],
+    SDFG: [M3ParserSd, { 0: 32 }],
+    SDS6: [M3ParserSd, { 0: 32 }],
+    SDR3: [M3ParserSd, { 0: 32 }],
+    SD2V: [M3ParserSd, { 0: 32 }],
+    SD3V: [M3ParserSd, { 0: 32 }],
+    SD4Q: [M3ParserSd, { 0: 32 }],
+    SDCC: [M3ParserSd, { 0: 32 }],
+    SDMB: [M3ParserSd, { 0: 32 }],
+    FLAG: [M3ParserSd, { 0: 32 }],
+    // Unsupported entries
+    MSEC: [M3ParserUnsupportedEntry, { 1: 72 }],
+    LITE: [M3ParserUnsupportedEntry, { 7: 212 }],
+    ATVL: [M3ParserUnsupportedEntry, { 0: 116 }],
+    PATU: [M3ParserUnsupportedEntry, { 4: 152 }],
+    TRGD: [M3ParserUnsupportedEntry, { 0: 24 }],
+    DIS_: [M3ParserUnsupportedEntry, { 4: 68 }],
+    CMS_: [M3ParserUnsupportedEntry, { 0: 24 }],
+    CMP_: [M3ParserUnsupportedEntry, { 2: 28 }],
+    TER_: [M3ParserUnsupportedEntry, { 0: 24, 1: 28 }],
+    VOL_: [M3ParserUnsupportedEntry, { 0: 84 }],
+    VON_: [M3ParserUnsupportedEntry, { 0: 268 }],
+    CREP: [M3ParserUnsupportedEntry, { 0: 24, 1: 28 }],
+    STBM: [M3ParserUnsupportedEntry, { 0: 48 }],
+    LFSB: [M3ParserUnsupportedEntry, { 2: 56 }],
+    LFLR: [M3ParserUnsupportedEntry, { 2: 80, 3: 152 }],
+    PAR_: [M3ParserUnsupportedEntry, { 12: 1316, 17: 1460, 18: 1464, 19: 1464, 21: 1464, 22: 1484, 23: 1492, 24: 1496 }],
+    PARC: [M3ParserUnsupportedEntry, { 0: 40 }],
+    PROJ: [M3ParserUnsupportedEntry, { 4: 388, 5: 382 }],
+    PHYJ: [M3ParserUnsupportedEntry, { 0: 180 }],
+    PHCC: [M3ParserUnsupportedEntry, { 0: 76 }],
+    PHAC: [M3ParserUnsupportedEntry, { 0: 32 }],
+    PHCL: [M3ParserUnsupportedEntry, { 2: 128 }],
+    FOR_: [M3ParserUnsupportedEntry, { 1: 104, 2: 104 }],
+    DMSE: [M3ParserUnsupportedEntry, { 0: 4 }],
+    PHSH: [M3ParserUnsupportedEntry, { 1: 132, 3: 300 }],
+    PHRB: [M3ParserUnsupportedEntry, { 2: 104, 4: 80 }],
+    SSGS: [M3ParserUnsupportedEntry, { 1: 108 }],
+    BBSC: [M3ParserUnsupportedEntry, { 0: 48 }],
+    SRIB: [M3ParserUnsupportedEntry, { 0: 272 }],
+    RIB_: [M3ParserUnsupportedEntry, { 6: 748, 8: 756, 9: 760 }],
+    IKJT: [M3ParserUnsupportedEntry, { 0: 32 }],
+    SHBX: [M3ParserUnsupportedEntry, { 0: 64 }],
+    WRP_: [M3ParserUnsupportedEntry, { 1: 132 }]
+};
+
+
 /**
  * @constructor
  * @param {M3ParserBinaryReader} reader
@@ -20,7 +108,7 @@ function M3ParserIndexEntry(reader, index) {
     /** @member {null|Array<?>|Uint8Array|Uint16Array|Uint32Array|Int32Array|Float32Array} */
     this.entries = null;
 
-    let mapping = M3ParserIndexEntry.tagMapping[tag],
+    let mapping = tagMapping[tag],
         readerOffset = reader.tell();
 
     reader.seek(offset);
@@ -102,69 +190,4 @@ function M3ParserIndexEntry(reader, index) {
     reader.seek(readerOffset);
 }
 
-// Mapping from entry tags, to their constructors and known version->size values.
-M3ParserIndexEntry.tagMapping = {
-    // Objects
-    MD34: [M3ParserMd34, { 11: 24 }],
-    MODL: [M3ParserModel, { 23: 784, 25: 808, 26: 820, 28: 844, 29: 856 }],
-    SEQS: [M3ParserSequence, { 1: 96, 2: 92 }],
-    STC_: [M3ParserStc, { 4: 204 }],
-    STG_: [M3ParserStg, { 0: 24 }],
-    STS_: [M3ParserSts, { 0: 28 }],
-    BONE: [M3ParserBone, { 1: 160 }],
-    DIV_: [M3ParserDivision, { 2: 52 }],
-    REGN: [M3ParserRegion, { 3: 36, 4: 40, 5: 48 }],
-    BAT_: [M3ParserBatch, { 1: 14 }],
-    MATM: [M3ParserMaterialReference, { 0: 8 }],
-    MAT_: [M3ParserStandardMaterial, { 15: 268, 16: 280, 17: 280, 18: 280, 19: 340 }],
-    LAYR: [M3ParserLayer, { 22: 356, 24: 436, 25: 468, 26: 464 }],
-    EVNT: [M3ParserEvent, { 0: 96, 1: 104, 2: 108 }],
-    BNDS: [M3ParserBoundingSphere, { 0: 28 }],
-    ATT_: [M3ParserAttachmentPoint, { 1: 20 }],
-    CAM_: [M3ParserCamera, { 3: 180, 5: 264 }],
-    SDEV: [M3ParserSd, { 0: 32 }],
-    SDU6: [M3ParserSd, { 0: 32 }],
-    SDFG: [M3ParserSd, { 0: 32 }],
-    SDS6: [M3ParserSd, { 0: 32 }],
-    SDR3: [M3ParserSd, { 0: 32 }],
-    SD2V: [M3ParserSd, { 0: 32 }],
-    SD3V: [M3ParserSd, { 0: 32 }],
-    SD4Q: [M3ParserSd, { 0: 32 }],
-    SDCC: [M3ParserSd, { 0: 32 }],
-    SDMB: [M3ParserSd, { 0: 32 }],
-    FLAG: [M3ParserSd, { 0: 32 }],
-    // Unsupported entries
-    MSEC: [M3ParserUnsupportedEntry, { 1: 72 }],
-    LITE: [M3ParserUnsupportedEntry, { 7: 212 }],
-    ATVL: [M3ParserUnsupportedEntry, { 0: 116 }],
-    PATU: [M3ParserUnsupportedEntry, { 4: 152 }],
-    TRGD: [M3ParserUnsupportedEntry, { 0: 24 }],
-    DIS_: [M3ParserUnsupportedEntry, { 4: 68 }],
-    CMS_: [M3ParserUnsupportedEntry, { 0: 24 }],
-    CMP_: [M3ParserUnsupportedEntry, { 2: 28 }],
-    TER_: [M3ParserUnsupportedEntry, { 0: 24, 1: 28 }],
-    VOL_: [M3ParserUnsupportedEntry, { 0: 84 }],
-    VON_: [M3ParserUnsupportedEntry, { 0: 268 }],
-    CREP: [M3ParserUnsupportedEntry, { 0: 24, 1: 28 }],
-    STBM: [M3ParserUnsupportedEntry, { 0: 48 }],
-    LFSB: [M3ParserUnsupportedEntry, { 2: 56 }],
-    LFLR: [M3ParserUnsupportedEntry, { 2: 80, 3: 152 }],
-    PAR_: [M3ParserUnsupportedEntry, { 12: 1316, 17: 1460, 18: 1464, 19: 1464, 21: 1464, 22: 1484, 23: 1492, 24: 1496 }],
-    PARC: [M3ParserUnsupportedEntry, { 0: 40 }],
-    PROJ: [M3ParserUnsupportedEntry, { 4: 388, 5: 382 }],
-    PHYJ: [M3ParserUnsupportedEntry, { 0: 180 }],
-    PHCC: [M3ParserUnsupportedEntry, { 0: 76 }],
-    PHAC: [M3ParserUnsupportedEntry, { 0: 32 }],
-    PHCL: [M3ParserUnsupportedEntry, { 2: 128 }],
-    FOR_: [M3ParserUnsupportedEntry, { 1: 104, 2: 104 }],
-    DMSE: [M3ParserUnsupportedEntry, { 0: 4 }],
-    PHSH: [M3ParserUnsupportedEntry, { 1: 132, 3: 300 }],
-    PHRB: [M3ParserUnsupportedEntry, { 2: 104, 4: 80 }],
-    SSGS: [M3ParserUnsupportedEntry, { 1: 108 }],
-    BBSC: [M3ParserUnsupportedEntry, { 0: 48 }],
-    SRIB: [M3ParserUnsupportedEntry, { 0: 272 }],
-    RIB_: [M3ParserUnsupportedEntry, { 6: 748, 8: 756, 9: 760 }],
-    IKJT: [M3ParserUnsupportedEntry, { 0: 32 }],
-    SHBX: [M3ParserUnsupportedEntry, { 0: 64 }],
-    WRP_: [M3ParserUnsupportedEntry, { 1: 132 }]
-};
+export default M3ParserIndexEntry;

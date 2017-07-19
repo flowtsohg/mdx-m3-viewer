@@ -169,3 +169,8 @@ MdxGeoset.prototype = {
         this.extent = { radius: Math.sqrt(dX * dX + dY * dY + dZ * dZ) / 2, min: [minX, minY, minZ], max: [maxX, maxY, maxZ] };
     }
 };
+
+export {
+    MdxShallowGeoset,
+    MdxGeoset
+};

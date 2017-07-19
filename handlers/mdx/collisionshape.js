@@ -10,3 +10,5 @@ function MdxCollisionShape(model, collisionShape) {
 MdxCollisionShape.prototype = {
     
 };
+
+export default MdxCollisionShape;

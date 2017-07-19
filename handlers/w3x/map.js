@@ -1,3 +1,10 @@
+import Scene from "../../src/scene";
+import ViewerFile from "../../src/file";
+import BinaryReader from "../../src/binaryreader";
+import { mix, createTextureAtlas } from "../../src/common";
+import MpqArchive from "../mpq/archive";
+import { W3xUnit, W3xDoodad, W3xModification, W3xModifiedObject, W3xModificationTable, W3xTilePoint } from "./objects";
+
 /**
  * @constructor
  * @augments ViewerFile
@@ -1190,3 +1197,5 @@ W3xMap.prototype = {
 };
 
 mix(W3xMap.prototype, ViewerFile.prototype);
+
+export default W3xMap;

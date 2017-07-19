@@ -1,3 +1,5 @@
+import M3ParserReference from "./reference";
+
 /**
  * @constructor
  * @param {M3ParserBinaryReader} reader
@@ -18,3 +20,5 @@ function M3ParserDivision(reader, version, index) {
     /** @member {number} */
     this.unknown0 = reader.readUint32();
 }
+
+export default M3ParserDivision;

@@ -1,3 +1,12 @@
+import ModelViewer from "./viewer";
+import Scene from "./scene";
+import { seededRandom, compareImagesFromURLs, downloadUrl } from "./common";
+import W3x from "../handlers/w3x/handler";
+import M3 from "../handlers/m3/handler";
+
+/**
+ * @constructor
+ */
 function UnitTester() {
     let canvas = document.createElement("canvas");
 
@@ -11,9 +20,6 @@ function UnitTester() {
 
     viewer.addHandler(W3x);
     viewer.addHandler(M3);
-
-    viewer.addEventListener("loadstart", (e) => console.log(e));
-    viewer.addEventListener("loadend", (e) => console.log(e));
 
     this.viewer = viewer;
     this.mathRandom = Math.random;
@@ -126,3 +132,5 @@ UnitTester.prototype = {
         }
     }
 };
+
+export default UnitTester;

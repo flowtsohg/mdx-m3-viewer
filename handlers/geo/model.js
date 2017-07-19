@@ -1,3 +1,6 @@
+import Model from "../../src/model";
+import { mix } from "../../src/common";
+
 /**
  * @constructor
  * @extends Model
@@ -218,3 +221,5 @@ GeometryModel.prototype = {
 };
 
 mix(GeometryModel.prototype, Model.prototype);
+
+export default GeometryModel;

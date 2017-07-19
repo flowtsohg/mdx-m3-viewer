@@ -1,3 +1,6 @@
+import { vec3, quat } from "gl-matrix";
+import MdxSdContainer from "./sd";
+
 /**
  * @constructor
  * @param {MdxModel} model
@@ -20,3 +23,5 @@ MdxTextureAnimation.prototype = {
         return this.sd.getValue("KTAS", instance, vec3.ONE);
     }
 };
+
+export default MdxTextureAnimation;

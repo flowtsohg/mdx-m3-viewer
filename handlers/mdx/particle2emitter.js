@@ -1,3 +1,7 @@
+import ResizeableBuffer from "../../src/gl/resizeablebuffer";
+import MdxParticle2 from "./particle2";
+import MdxParticleEmitter from "./particleemitter";
+
 /**
  * @constructor
  * @param {MdxModelParticle2Emitter} modelObject
@@ -31,11 +35,11 @@ MdxParticle2Emitter.prototype = {
     },
 
     emit(emitterView) {
-        if (this.head) {
+        if (this.modelObject.head) {
             this.emitParticle(emitterView, true);
         }
 
-        if (this.tail) {
+        if (this.modelObject.tail) {
             this.emitParticle(emitterView, false);
         }
     },
@@ -122,27 +126,27 @@ MdxParticle2Emitter.prototype = {
     },
 
     getWidth(instance) {
-        return this.modelObject.sd.getValue("KP2W", instance, this.width);
+        return this.modelObject.sd.getValue("KP2W", instance, this.modelObject.width);
     },
 
     getLength(instance) {
-        return this.modelObject.sd.getValue("KP2N", instance, this.length);
+        return this.modelObject.sd.getValue("KP2N", instance, this.modelObject.length);
     },
 
     getSpeed(instance) {
-        return this.modelObject.sd.getValue("KP2S", instance, this.speed);
+        return this.modelObject.sd.getValue("KP2S", instance, this.modelObject.speed);
     },
 
     getLatitude(instance) {
-        return this.modelObject.sd.getValue("KP2L", instance, this.latitude);
+        return this.modelObject.sd.getValue("KP2L", instance, this.modelObject.latitude);
     },
 
     getGravity(instance) {
-        return this.modelObject.sd.getValue("KP2G", instance, this.gravity);
+        return this.modelObject.sd.getValue("KP2G", instance, this.modelObject.gravity);
     },
 
     getEmissionRate(instance) {
-        return this.modelObject.sd.getValue("KP2E", instance, this.emissionRate);
+        return this.modelObject.sd.getValue("KP2E", instance, this.modelObject.emissionRate);
     },
 
     getEmissionRateKeyframe(instance) {
@@ -154,6 +158,8 @@ MdxParticle2Emitter.prototype = {
     },
 
     getVariation(instance) {
-        return this.modelObject.sd.getValue("KP2R", instance, this.variation);
+        return this.modelObject.sd.getValue("KP2R", instance, this.modelObject.variation);
     }
 };
+
+export default MdxParticle2Emitter;

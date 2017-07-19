@@ -1,6 +1,7 @@
-import EventDispatcher from './eventdispatcher';
-import WebGL from './gl/gl';
-import common from './common';
+import EventDispatcher from "./eventdispatcher";
+import WebGL from "./gl/gl";
+import PromiseResource from "./promiseresource";
+import { mix } from "./common";
 
 /**
  * @constructor
@@ -496,6 +497,6 @@ ModelViewer.prototype = {
     }
 };
 
-common.mix(ModelViewer.prototype, EventDispatcher.prototype);
+mix(ModelViewer.prototype, EventDispatcher.prototype);
 
 export default ModelViewer;

@@ -1,5 +1,5 @@
 module.exports = {
-	entry: './src/lib.js',
+	entry: "./src/exports.js",
 	output: {
 		filename: 'bundle.js',
 		library: 'ModelViewer',
@@ -18,6 +18,5 @@ module.exports = {
 				}
 			},
 		]
-	},
-
+	}
 }

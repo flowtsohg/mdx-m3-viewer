@@ -1,3 +1,4 @@
+import JpegImage from "../../external/jpg";
 
 // This is the same as JpegImage.prototype.getData, but it doesn't transform the data to 3 components.
 // It is needed for the BLP format, which stores a non-standard 4 component RGBA pixel format in a JPEG image.
@@ -64,3 +65,5 @@ JpegImage.prototype.getDataNoTransform = function (imageData, width, height) {
 
     return data;
 };
+
+export default JpegImage;

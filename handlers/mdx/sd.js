@@ -1,3 +1,5 @@
+import Interpolator from "../../src/math/interpolator";
+
 /**
  * @constructor
  * @param {MdxSd} sd
@@ -292,3 +294,5 @@ MdxSdContainer.prototype = {
         return false;
     }
 };
+
+export default MdxSdContainer;

@@ -77,3 +77,5 @@ ResizeableBuffer.prototype = {
         }
     }
 };
+
+export default ResizeableBuffer;

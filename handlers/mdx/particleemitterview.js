@@ -56,3 +56,5 @@ MdxParticleEmitterView.prototype = {
         return this.emitter.getVisibility(this.instance);
     }
 };
+
+export default MdxParticleEmitterView;

@@ -1,3 +1,6 @@
+import MdxModelParticle2Emitter from "./modelparticle2emitter";
+import { vec2 } from "gl-matrix";
+
 /**
  * @constructor
  * @param {MdxModel} model
@@ -150,3 +153,5 @@ MdxModelEventObject.prototype = {
         return out;
     }
 };
+
+export default MdxModelEventObject;

@@ -1,3 +1,6 @@
+import M3ParserReference from "./reference";
+import { M3ParserFloat32AnimationReference, M3ParserUint32AnimationReference } from "./animationreference";
+
 /**
  * @constructor
  * @param {M3ParserBinaryReader} reader
@@ -100,3 +103,5 @@ function M3ParserStandardMaterial(reader, version, index) {
         this.unknown11 = reader.read(12); // ?
     }
 }
+
+export default M3ParserStandardMaterial;

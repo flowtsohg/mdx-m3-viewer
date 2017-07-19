@@ -1,3 +1,6 @@
+import M3ParserReference from "./reference";
+import M3ParserBoundingSphere from "./boundingsphere";
+
 /**
  * @constructor
  * @param {M3ParserBinaryReader} reader
@@ -32,3 +35,5 @@ function M3ParserSequence(reader, version, index) {
 
     reader.skip(12); // ?
 }
+
+export default M3ParserSequence;

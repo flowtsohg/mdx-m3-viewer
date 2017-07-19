@@ -18,3 +18,5 @@ M3Sts.prototype = {
         return !!this.animIds[animRef.animId];
     }
 };
+
+export default M3Sts;

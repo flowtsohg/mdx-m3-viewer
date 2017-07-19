@@ -1,5 +1,5 @@
-import Model from './model';
-import common from './common';
+import Model from "./model";
+import { mix } from "./common";
 
 /**
  * @constructor
@@ -31,6 +31,6 @@ TexturedModel.prototype = {
     }
 };
 
-common.mix(TexturedModel.prototype, Model.prototype);
+mix(TexturedModel.prototype, Model.prototype);
 
 export default TexturedModel;

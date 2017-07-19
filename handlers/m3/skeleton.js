@@ -1,3 +1,7 @@
+import Skeleton from "../../src/skeleton";
+import { mix } from "../../src/common";
+import { quat, mat4 } from "gl-matrix";
+
 /**
  * @constructor
  * @extends {Skeleton}
@@ -94,3 +98,5 @@ M3Skeleton.prototype = {
 };
 
 mix(M3Skeleton.prototype, Skeleton.prototype);
+
+export default M3Skeleton;

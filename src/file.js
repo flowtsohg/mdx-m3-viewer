@@ -1,3 +1,6 @@
+import DownloadableResource from "./downloadableresource";
+import { mix } from "./common";
+
 /**
  * @constructor
  * @augments DownloadableResource
@@ -15,3 +18,5 @@ ViewerFile.prototype = {
 };
 
 mix(ViewerFile.prototype, DownloadableResource.prototype);
+
+export default ViewerFile;

@@ -10,3 +10,5 @@ function MdxParserExtent(reader) {
     /** @member {Float32Array} */
     this.max = reader.readFloat32Array(3);
 }
+
+export default MdxParserExtent;

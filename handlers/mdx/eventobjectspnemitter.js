@@ -1,3 +1,6 @@
+import MdxEventObjectSpn from "./eventobjectspn";
+import MdxParticleEmitter from "./particleemitter";
+
 /**
  * @constructor
  * @param {MdxModelEventObject} modelObject
@@ -32,3 +35,5 @@ MdxEventObjectSpnEmitter.prototype = {
     updateData: MdxParticleEmitter.prototype.updateData,
     render: MdxParticleEmitter.prototype.render
 };
+
+export default MdxEventObjectSpnEmitter;

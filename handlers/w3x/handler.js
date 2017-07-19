@@ -1,3 +1,10 @@
+import FileHandler from "../../src/texturehandler";
+import W3xMap from "./map";
+import Mpq from "../mpq/handler";
+import Mdx from "../mdx/handler";
+import Geo from "../geo/handler";
+import { mix } from "../../src/common";
+
 const W3x = {
     initialize(env) {
         env.addHandler(Mpq);
@@ -21,3 +28,5 @@ const W3x = {
 };
 
 mix(W3x, FileHandler);
+
+export default W3x;

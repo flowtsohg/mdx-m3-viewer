@@ -1,3 +1,7 @@
+import M3ParserReference from "./reference";
+import M3ParserBoundingSphere from "./boundingsphere";
+import M3ParserBoundingShape from "./boundingshape";
+
 /**
  * @constructor
  * @param {M3ParserBinaryReader} reader
@@ -148,3 +152,5 @@ function M3ParserModel(reader, version, index) {
     /** @member {M3ParserReference} */
     this.unknown28 = new M3ParserReference(reader, index); // ?
 }
+
+export default M3ParserModel;

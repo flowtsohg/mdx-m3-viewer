@@ -1,3 +1,5 @@
+import MdxParserLayer from "./layer";
+
 /**
  * @constructor
  * @param {MdxParserBinaryReader} reader
@@ -18,3 +20,5 @@ function MdxParserMaterial(reader, nodes, index) {
     /** @member {Array<MdxParserLayer>} */
     this.layers = reader.readKnownElements(reader.readUint32(), MdxParserLayer);
 }
+
+export default MdxParserMaterial;
