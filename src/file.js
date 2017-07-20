@@ -1,5 +1,5 @@
-import DownloadableResource from "./downloadableresource";
 import { mix } from "./common";
+import DownloadableResource from "./downloadableresource";
 
 /**
  * @constructor

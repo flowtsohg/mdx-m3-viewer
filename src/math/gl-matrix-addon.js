@@ -1,26 +1,14 @@
 import { vec2, vec3, vec4, quat, mat3, mat4 } from "gl-matrix";
 
-vec2.heap = vec2.create();
-
 vec3.UNIT_X = vec3.fromValues(1, 0, 0);
 vec3.UNIT_Y = vec3.fromValues(0, 1, 0);
 vec3.UNIT_Z = vec3.fromValues(0, 0, 1);
-
-vec3.heap = vec3.create();
-vec3.heap2 = vec3.create();
-vec3.heap3 = vec3.create();
-vec3.heap4 = vec3.create();
 
 vec3.ZERO = vec3.create();
 vec3.ONE = vec3.fromValues(1, 1, 1);
 
 quat.ZERO = quat.fromValues(0, 0, 0, 0);
 quat.DEFAULT = quat.create();
-quat.heap = quat.create();
-
-mat3.heap = mat3.create();
-
-mat4.heap = mat4.create();
 
 vec3.unproject = (function () {
     const heap = vec4.create();

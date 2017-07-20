@@ -1,6 +1,6 @@
-import DownloadableResource from "./downloadableresource";
-import AsyncResource from "./asyncresource";
 import { mix } from "./common";
+import AsyncResource from "./asyncresource";
+import DownloadableResource from "./downloadableresource";
 
 /**
  * @constructor

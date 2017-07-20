@@ -75,23 +75,6 @@ Bucket.prototype = {
         this.model.renderEmitters(this, scene);
     },
 
-    isVisible(instance, scene) {
-        //*
-        let ndc = vec3.heap,
-            worldProjectionMatrix = scene.camera.worldProjectionMatrix;
-
-        // This test checks whether the instance's position is visible in NDC space. In other words, that it lies in [-1, 1] on all axes
-        vec3.transformMat4(ndc, instance.worldLocation, worldProjectionMatrix);
-        if (ndc[0] >= -1 && ndc[0] <= 1 && ndc[1] >= -1 && ndc[1] <= 1 && ndc[2] >= -1 && ndc[2] <= 1) {
-            return true;
-        }
-
-        return false;
-        //*/
-
-        //return this.model.env.camera.testIntersectionAABB(instance.boundingShape) > 0;
-    },
-
     // Add a new instance to this bucket, and return the shared data object at its index
     addInstance(instance) {
         let index = this.instances.push(instance) - 1;

@@ -1,5 +1,5 @@
-import AsyncResource from "./asyncresource";
 import { get, mix } from "./common";
+import AsyncResource from "./asyncresource";
 
 /**
  * @constructor

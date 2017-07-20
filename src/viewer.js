@@ -1,7 +1,7 @@
+import { mix } from "./common";
 import EventDispatcher from "./eventdispatcher";
 import WebGL from "./gl/gl";
 import PromiseResource from "./promiseresource";
-import { mix } from "./common";
 
 /**
  * @constructor

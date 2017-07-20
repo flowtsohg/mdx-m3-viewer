@@ -1,9 +1,12 @@
 import { vec3, quat } from "gl-matrix";
 
-const Interpolator = {
-    heap3: vec3.create(),
-    heap4: quat.create(),
+// Heap allocations needed for this module.
+// NOTE: The values returned by interpolate() are not heap safe!
+//       In other words, if you call interpolate() twice with the same input-types, you will get back the same typed array!
+let vectorHeap = vec3.create(),
+    quatHeap = quat.create();
 
+const Interpolator = {
     scalar(a, b, c, d, t, type) {
         if (type === 0) {
             return a;
@@ -44,13 +47,13 @@ const Interpolator = {
         return quat.copy(out, quat.ZERO);
     },
 
-    interpolate(a, b, c, d, t, type) {
+    interpolate(a, b, c, d, t, type, out) {
         const length = a.length;
 
         if (length === 3) {
-            return this.vector(this.heap3, a, b, c, d, t, type);
+            return this.vector(vectorHeap, a, b, c, d, t, type);
         } else if (length === 4) {
-            return this.quaternion(this.heap4, a, b, c, d, t, type);
+            return this.quaternion(quatHeap, a, b, c, d, t, type);
         } else {
             return this.scalar(a, b, c, d, t, type);
         }

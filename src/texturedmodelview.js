@@ -1,5 +1,5 @@
-import ModelView from "./modelview";
 import { mix } from "./common";
+import ModelView from "./modelview";
 
 /**
  * @constructor

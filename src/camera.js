@@ -1,8 +1,12 @@
+import { vec3, vec4, quat, mat4 } from "gl-matrix";
+import { mix } from "./common";
 import Frustum from "./frustum";
 import NotifiedNode from "./notifiednode";
-import { vec3, vec4, quat, mat4 } from "gl-matrix";
 import ViewerNode from "./node";
-import { mix } from "./common";
+
+let vectorHeap = vec3.create(),
+    vectorHeap2 = vec3.create(),
+    vectorHeap3 = vec3.create();
 
 /**
  * @constructor
@@ -133,22 +137,21 @@ Camera.prototype = {
 
     // Given a vector in world space, return the vector transformed to screen space
     worldToScreen(out, v) {
-        let temp = vec3.heap,
-            viewport = this.viewport;
+        let viewport = this.viewport;
 
-        vec3.transformMat4(temp, v, this.worldProjectionMatrix);
+        vec3.transformMat4(vectorHeap, v, this.worldProjectionMatrix);
 
-        out[0] = Math.round(((temp[0] + 1) / 2) * viewport[2]);
-        out[1] = Math.round(((temp[1] + 1) / 2) * viewport[3]);
+        out[0] = Math.round(((vectorHeap[0] + 1) / 2) * viewport[2]);
+        out[1] = Math.round(((vectorHeap[1] + 1) / 2) * viewport[3]);
 
         return out;
     },
 
     // Given a vector in screen space, return the vector transformed to world space, projected on the X-Z plane
     screenToWorld(out, v) {
-        let a = vec3.heap,
-            b = vec3.heap2,
-            c = vec3.heap3,
+        let a = vectorHeap,
+            b = vectorHeap2,
+            c = vectorHeap3,
             x = v[0],
             y = v[1],
             inverseWorldProjectionMatrix = this.inverseWorldProjectionMatrix,

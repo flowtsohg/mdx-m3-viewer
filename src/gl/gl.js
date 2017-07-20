@@ -1,6 +1,6 @@
+import { hashFromString } from "../common";
 import ShaderUnit from "./shader";
 import ShaderProgram from "./program";
-import { hashFromString } from "../common";
 
 /**
  * @constructor

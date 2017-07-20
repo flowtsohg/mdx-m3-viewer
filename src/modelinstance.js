@@ -1,6 +1,6 @@
+import { mix } from "./common";
 import AsyncResource from "./asyncresource";
 import NotifiedNode from "./notifiednode";
-import { mix } from "./common";
 
 /**
  * @constructor

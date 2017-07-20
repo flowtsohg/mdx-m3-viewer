@@ -1,5 +1,9 @@
 import { vec3, quat, mat4 } from "gl-matrix"
 
+// Heap allocations needed for this module.
+let locationHeap = vec3.create(),
+    scalingHeap = vec3.create();
+
 /**
  * @constructor
  * @param {ArrayBuffer} buffer
@@ -352,7 +356,7 @@ ViewerNode.prototype = {
             } else {
                 let parentPivot = parent.pivot;
 
-                computedLocation = vec3.heap;
+                computedLocation = locationHeap;
 
                 computedLocation[0] = localLocation[0] + parentPivot[0];
                 computedLocation[1] = localLocation[1] + parentPivot[1];
@@ -373,7 +377,7 @@ ViewerNode.prototype = {
             if (this.dontInheritScaling) {
                 let parentInverseScale = parent.inverseWorldScale;
 
-                computedScaling = vec3.heap2;
+                computedScaling = scalingHeap;
 
                 computedScaling[0] = parentInverseScale[0] * localScale[0];
                 computedScaling[1] = parentInverseScale[1] * localScale[1];

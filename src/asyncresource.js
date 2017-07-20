@@ -1,5 +1,5 @@
-import EventDispatcher from "./eventdispatcher";
 import { mix } from "./common";
+import EventDispatcher from "./eventdispatcher";
 
 /**
  * @constructor

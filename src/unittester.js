@@ -1,7 +1,7 @@
 import ModelViewer from "./viewer";
 import Scene from "./scene";
-import W3x from "../handlers/w3x/handler";
-import M3 from "../handlers/m3/handler";
+import W3x from "./handlers/w3x/handler";
+import M3 from "./handlers/m3/handler";
 
 /**
  * @constructor

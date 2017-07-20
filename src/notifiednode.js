@@ -1,5 +1,5 @@
-import ViewerNode from "./node";
 import { mix } from "./common";
+import ViewerNode from "./node";
 
 /**
  * @constructor

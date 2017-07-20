@@ -1,5 +1,5 @@
-import NotifiedNode from "./notifiednode";
 import { mix } from "./common";
+import NotifiedNode from "./notifiednode";
 
 /**
  * @constructor
