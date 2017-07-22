@@ -1,6 +1,6 @@
 import { mix, UintToTag } from "../../common";
 import Texture from "../../texture";
-import { dxt1ToRgb565, dxt3ToRgba8888, dxt5ToRgba8888 } from "./dxt";
+import { decodeDxt1, decodeDxt3, decodeDxt5 } from "./dxt";
 
 /**
  * @see Largely based on https://github.com/toji/webctx-texture-utils/blob/master/texture-util/dds.js
@@ -31,7 +31,7 @@ DdsTexture.prototype = {
             return false;
         }
 
-        if (!header[20] & DDPF_FOURCC) {
+        if (!(header[20] & DDPF_FOURCC)) {
             this.onerror("UnsupportedFeature", "FourCC");
             return false;
         }
@@ -54,8 +54,6 @@ DdsTexture.prototype = {
             return false;
         }
 
-        internalFormat = null;
-
         let mipmapCount = 1;
 
         if (header[2] & DDSD_MIPMAPCOUNT) {
@@ -66,39 +64,43 @@ DdsTexture.prototype = {
             height = header[3],
             dataOffset = header[1] + 4,
             dataLength,
-            byteArray;
+            data;
 
         const id = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, id);
-        this.setParameters(gl.REPEAT, gl.REPEAT, gl.LINEAR, mipmapCount > 1 ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
-
-        if (internalFormat) {
-            for (let i = 0; i < mipmapCount; i++) {
-                dataLength = Math.max(4, width) / 4 * Math.max(4, height) / 4 * blockBytes;
-                byteArray = new Uint8Array(src, dataOffset, dataLength);
-                gl.compressedTexImage2D(gl.TEXTURE_2D, i, internalFormat, width, height, 0, byteArray);
-                dataOffset += dataLength;
-                width *= 0.5;
-                height *= 0.5;
-            }
-        } else {
-            dataLength = Math.max(4, width) / 4 * Math.max(4, height) / 4 * blockBytes;
-            byteArray = new Uint16Array(src, dataOffset);
-
-            if (fourCC === FOURCC_DXT1) {
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, width, height, 0, gl.RGB, gl.UNSIGNED_SHORT_5_6_5, dxt1ToRgb565(byteArray, width, height));
-            } else if (fourCC === FOURCC_DXT3) {
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, dxt3ToRgba8888(byteArray, width, height));
-            } else {
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, dxt5ToRgba8888(byteArray, width, height));
-            }
-
-            gl.generateMipmap(gl.TEXTURE_2D);
-        }
 
         this.width = width;
         this.height = height;
         this.webglResource = id;
+
+        gl.bindTexture(gl.TEXTURE_2D, id);
+        
+        for (let i = 0; i < mipmapCount; i++) {
+            dataLength = Math.max(4, width) / 4 * Math.max(4, height) / 4 * blockBytes;
+
+            // Let the GPU handle the compressed data if it supports it.
+            if (internalFormat) {
+                data = new Uint8Array(src, dataOffset, dataLength);
+
+                gl.compressedTexImage2D(gl.TEXTURE_2D, i, internalFormat, width, height, 0, data);
+            // Otherwise, decode the data on the client.
+            } else {
+                data = new Uint16Array(src, dataOffset, dataLength / 2);
+
+                if (fourCC === FOURCC_DXT1) {
+                    gl.texImage2D(gl.TEXTURE_2D, i, gl.RGB, width, height, 0, gl.RGB, gl.UNSIGNED_SHORT_5_6_5, decodeDxt1(data, width, height));
+                } else if (fourCC === FOURCC_DXT3) {
+                    gl.texImage2D(gl.TEXTURE_2D, i, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, decodeDxt3(data, width, height));
+                } else {
+                    gl.texImage2D(gl.TEXTURE_2D, i, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, decodeDxt5(data, width, height));
+                }
+            }
+
+            dataOffset += dataLength;
+            width *= 0.5;
+            height *= 0.5;
+        }
+
+        this.setParameters(gl.REPEAT, gl.REPEAT, gl.LINEAR, mipmapCount > 1 ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
 
         return true;
     }

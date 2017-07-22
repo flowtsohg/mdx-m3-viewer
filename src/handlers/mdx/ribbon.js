@@ -31,6 +31,8 @@ MdxRibbon.prototype = {
 
         emitterView.ribbonCount++;
 
+        this.emitterView = emitterView;
+
         this.health = emitter.lifespan;
 
         let lastEmit = emitterView.lastEmit;
@@ -41,8 +43,6 @@ MdxRibbon.prototype = {
         if (lastEmit && lastEmit.health > 0) {
             let node = emitterView.instance.skeleton.nodes[emitter.node.index],
                 pivot = node.pivot;
-
-            this.emitterView = emitterView;
 
             vec3.set(belowHeap, pivot[0], pivot[1] - emitterView.getHeightBelow(), pivot[2])
             vec3.transformMat4(belowHeap, belowHeap, node.worldMatrix);

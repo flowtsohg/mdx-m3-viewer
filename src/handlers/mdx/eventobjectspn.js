@@ -5,12 +5,12 @@
 function MdxEventObjectSpn(emitter) {
     this.emitter = emitter;
     this.health = 0;
-    this.internalInstance = emitter.modelObject.internalResource.addInstance();
+    this.internalResource = emitter.modelObject.internalResource.addInstance();
 }
 
 MdxEventObjectSpn.prototype = {
     reset(emitterView) {
-        let instance = this.internalInstance,
+        let instance = this.internalResource,
             node = emitterView.instance.skeleton.nodes[this.emitter.modelObject.node.index];
 
         instance.setSequence(0);
@@ -23,7 +23,7 @@ MdxEventObjectSpn.prototype = {
     },
 
     update() {
-        let instance = this.internalInstance;
+        let instance = this.internalResource;
 
         // Once the sequence finishes, this event object dies
         if (instance.frame >= instance.model.sequences[0].interval[1]) {

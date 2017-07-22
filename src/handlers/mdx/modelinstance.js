@@ -339,11 +339,11 @@ MdxModelInstance.prototype = {
 
                 if (batchVisibility) {
                     if (geoset.geosetAnimation) {
-                        var tempVec3 = geoset.geosetAnimation.getColor(this);
+                        var color = geoset.geosetAnimation.getColor(this);
 
-                        geosetColorArray[0] = tempVec3[0] * 255;
-                        geosetColorArray[1] = tempVec3[1] * 255;
-                        geosetColorArray[2] = tempVec3[2] * 255;
+                        geosetColorArray[0] = color[0] * 255;
+                        geosetColorArray[1] = color[1] * 255;
+                        geosetColorArray[2] = color[2] * 255;
                     }
 
                     geosetColorArray[3] = layer.getAlpha(this) * 255;

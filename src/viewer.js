@@ -13,20 +13,8 @@ function ModelViewer(canvas) {
 
     /** @member {object} */
     this.resources = {
-        models: {
-            array: [],
-            map: new Map()
-        },
-
-        textures: {
-            array: [],
-            map: new Map()
-        },
-
-        files: {
-            array: [],
-            map: new Map()
-        }
+        array: [],
+        map: new Map()
     };
 
     /** 
@@ -261,8 +249,8 @@ ModelViewer.prototype = {
 
             // Is there an handler for this file type?
             if (handler) {
-                let pair = this.pairFromType(handler.objectType),
-                    map = pair.map;
+                let resources = this.resources,
+                    map = resources.map;
                 
                 // Only construct the resource if the source was not already loaded.
                 if (!map.has(src)) {
@@ -271,8 +259,8 @@ ModelViewer.prototype = {
                     resource.Handler = handler;
 
                     // Cache the resource
+                    resources.array.push(resource);
                     map.set(src, resource);
-                    pair.array.push(resource);
 
                     // Register the standard events.
                     this.registerEvents(resource);
@@ -362,17 +350,26 @@ ModelViewer.prototype = {
      * @param {AsyncResource} resource
      */
     removeResource(resource) {
-        if (this.removeReference(resource)) {
-            // Tell the resource to detach itself
+        let resources = this.resources,
+            map = resources.map;
+
+        if (map.has(resource)) {
+            resources.array.delete(resource);
+            map.delete(resource);
+
             resource.detach();
+
+            return true;
         }
+
+        return false;
     },
 
     /**
      * Checks if a given object is a resource of the viewer.
      * This is done by checking the object's objectType field.
      * 
-     * @param {*} object The object to check.
+     * @param {?} object The object to check.
      * @returns {boolean}
      */
     isResource(object) {
@@ -406,31 +403,17 @@ ModelViewer.prototype = {
      * Update.
      */
     update() {
-        let resources = this.resources,
-            objects;
+        let resources = this.resources.array,
+            scenes = this.scenes;
 
-        // Update all of the models.
-        objects = resources.models.array;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            objects[i].update();
-        }
-
-        // Update all of the textures.
-        objects = resources.textures.array;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            objects[i].update();
-        }
-
-        // Update all of the files.
-        objects = resources.files.array;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            objects[i].update();
+        // Update all of the resources.
+        for (let i = 0, l = resources.length; i < l; i++) {
+            resources[i].update();
         }
 
         // Update all of the scenes.
-        objects = this.scenes;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            objects[i].update();
+        for (let i = 0, l = scenes.length; i < l; i++) {
+            scenes[i].update();
         }
     },
 
@@ -460,40 +443,11 @@ ModelViewer.prototype = {
         }
     },
 
-    // Removes the reference pair of this resource.
-    removeReference(resource) {
-        if (this.isResource(resource)) {
-            let objectType = resource.objectType,
-                pair = this.pairFromType(objectType);
-
-            // Find the resource in the array and splice it.
-            pair.array.delete(resource);
-
-            // Find the resource in the map and delete it.
-            pair.map.deleteValue(resource);
-
-            return true;
-        }
-
-        return false;
-    },
-
     // Register the viewer to all of the standard events of a resource.
     registerEvents(resource) {
         let listener = (e) => this.dispatchEvent(e);
 
         ["loadstart", "load", "loadend", "error", "progress"].map((e) => resource.addEventListener(e, listener));
-    },
-
-    // Used to easily get the resources object from an object type.
-    pairFromType(objectType) {
-        if (objectType === "model" || objectType === "modelhandler") {
-            return this.resources.models;
-        } else if (objectType === "texture" || objectType === "texturehandler") {
-            return this.resources.textures;
-        } else if (objectType === "file" || objectType === "filehandler") {
-            return this.resources.files;
-        }
     }
 };
 

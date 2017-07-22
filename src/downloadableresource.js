@@ -42,7 +42,14 @@ DownloadableResource.prototype = {
         } else {
             this.onload(src);
         }
-    }
+    },
+
+    // Propagate native progress events.
+    onprogress(e) {
+        if (e.target.status === 200) {
+            this.dispatchEvent({ type: "progress", loaded: e.loaded, total: e.total, lengthComputable: e.lengthComputable });
+        }
+    },
 };
 
 mix(DownloadableResource.prototype, AsyncResource.prototype);

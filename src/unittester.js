@@ -127,7 +127,7 @@ UnitTester.prototype = {
     run(callback) {
         this.start(function loop(entry, iterator, blob, tester) {
             if (!entry.done) {
-                let name = entry.value[1][0],
+                let name = entry.value[1].name,
                     url = URL.createObjectURL(blob),
                     compare = "compare/" + name + ".png";
 
@@ -148,7 +148,7 @@ UnitTester.prototype = {
     downloadTestResults() {
         this.start(function loop(entry, iterator, blob, tester) {
             if (!entry.done) {
-                tester.downloadUrl(URL.createObjectURL(blob), entry.value[1][0]);
+                tester.downloadUrl(URL.createObjectURL(blob), entry.value[1].name);
 
                 tester.next(loop, iterator);
             }
@@ -156,9 +156,22 @@ UnitTester.prototype = {
     },
 
     // Add tests
-    add(tests) {
+    add(test) {
+        if (typeof test.test === "function") {
+            this.tests.push({ fullName: test.name, test });
+        } else if (test.tests) {
+            this.addBaseName(test.tests, test.name);
+        }
+    },
+
+    addBaseName(tests, baseName) {
         for (let test of tests) {
-            this.tests.push(test);
+            if (typeof test.test === "function") {
+                this.tests.push({ name: baseName + "-" + test.name, test });
+            } else if (test.tests) {
+                this.addBaseName(test.tests, baseName + "-" + test.name);
+            }
+            
         }
     },
 
@@ -176,7 +189,8 @@ UnitTester.prototype = {
         } else {
             let viewer = this.viewer,
                 scene = new Scene(),
-                camera = scene.camera;
+                camera = scene.camera,
+                test = entry.value[1].test;
 
             // Clear the viewer
             viewer.clear();
@@ -190,15 +204,14 @@ UnitTester.prototype = {
             // Replace Math.random with a custom seeded random function
             this.replaceMathRandom();
 
-            //console.log("Running", entry.value[1][0]);
-
             // Run the test code
-            entry.value[1][1](viewer, scene, camera);
+            let data = test.load(viewer);
 
             viewer.whenAllLoaded(() => {
-                //console.log("UnitTester.whenAllLoaded");
-                // Update a couple of times to ensure everything is inserted correctly into the scene.
-                viewer.update();
+                test.test(viewer, scene, camera, data);
+
+                // Update the viewer.
+                // Do it twice to ensure all of the internal viewer state finished loading (e.g. buckets)
                 viewer.update();
                 viewer.update();
 

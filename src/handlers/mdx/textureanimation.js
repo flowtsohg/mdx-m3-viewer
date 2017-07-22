@@ -17,15 +17,15 @@ function MdxTextureAnimation(model, textureAnimation) {
 
 MdxTextureAnimation.prototype = {
     getTranslation(instance) {
-        return this.sd.getValue(translationHeap, "KTAT", instance, vec3.ZERO);
+        return this.sd.getValue3(translationHeap, "KTAT", instance, vec3.ZERO);
     },
 
     getRotation(instance) {
-        return this.sd.getValue(rotationHeap, "KTAR", instance, quat.DEFAULT);
+        return this.sd.getValue4(rotationHeap, "KTAR", instance, quat.DEFAULT);
     },
 
     getScale(instance) {
-        return this.sd.getValue(scaleHeap, "KTAS", instance, vec3.ONE);
+        return this.sd.getValue3(scaleHeap, "KTAS", instance, vec3.ONE);
     }
 };
 

@@ -31,7 +31,7 @@ AsyncResource.prototype = {
             callback(this);
         } else {
             // Self removing listener
-            let listener = () => { this.removeEventListener(listener); callback(this); };
+            let listener = () => { this.removeEventListener("loadend", listener); callback(this); };
 
             this.addEventListener("loadend", listener);
         }
@@ -49,12 +49,6 @@ AsyncResource.prototype = {
 
     load() {
         this.dispatchEvent({ type: "loadstart" });
-    },
-
-    onprogress(e) {
-        if (e.target.status === 200) {
-            this.dispatchEvent({ type: "progress", loaded: e.loaded, total: e.total, lengthComputable: e.lengthComputable });
-        }
     },
 
     onload(src) {

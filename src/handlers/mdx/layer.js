@@ -150,6 +150,7 @@ MdxLayer.prototype = {
 
     getTextureId(instance) {
         return this.sd.getValue("KMTF", instance, this.textureId);
+        // TODO: map the returned slot to a texture atlas slot if one exists.
     }
 };
 

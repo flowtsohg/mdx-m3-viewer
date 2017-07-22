@@ -310,9 +310,11 @@ MdxModel.prototype = {
                     // Finally create the atlas
                     let atlasData = createTextureAtlas(images);
 
-                    textureAtlases[hash] = { textureId: this.textures.length, columns: atlasData.columns, rows: atlasData.rows };
+                    let texture = env.load(atlasData.texture);
+
+                    textureAtlases[hash] = { textureId: this.textures.length, columns: atlasData.columns, rows: atlasData.rows, texture };
                     
-                    this.textures.push(env.load(atlasData.texture));
+                    this.textures.push(texture);
                 }
 
                 // Tell the layer to use this texture atlas, instead of its original texture
