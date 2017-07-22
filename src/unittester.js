@@ -158,7 +158,7 @@ UnitTester.prototype = {
     // Add tests
     add(test) {
         if (typeof test.test === "function") {
-            this.tests.push({ fullName: test.name, test });
+            this.tests.push({ name: test.name, test });
         } else if (test.tests) {
             this.addBaseName(test.tests, test.name);
         }

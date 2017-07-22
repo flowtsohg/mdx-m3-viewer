@@ -5,6 +5,7 @@
  * @param {number} index
  */
 function MdxParserBone(reader, nodes, index) {
+    this.index = index;
     /** @member {MdxParserNode} */
     this.node = reader.readNode(nodes, this);
     /** @member {number} */

@@ -2,7 +2,7 @@ let m3Tests = {
     name: "m3",
     tests: [
         {
-            name: "m3-base",
+            name: "base",
             load(viewer) {
                 return viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver);
             },
@@ -16,14 +16,14 @@ let m3Tests = {
         },
 
         {
-            name: "m3-sequence",
+            name: "sequence",
             load(viewer) {
                 return viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver);
             },
             test(viewer, scene, camera, model) {
                 camera.move([0, -5, -100]);
 
-                let instance = model.addInstance().uniformScale(50);
+                let instance = model.addInstance().uniformScale(50).setSequence(0);
 
                 instance.frame = 800;
 
@@ -32,7 +32,7 @@ let m3Tests = {
         },
 
         {
-            name: "m3-team-color",
+            name: "team-color",
             load(viewer) {
                 return viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver);
             },
@@ -46,7 +46,7 @@ let m3Tests = {
         },
 
         {
-            name: "m3-vertex-color",
+            name: "vertex-color",
             load(viewer) {
                 return viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver);
             },
@@ -60,7 +60,7 @@ let m3Tests = {
         },
 
         {
-            name: "m3-vertex-and-team-colors",
+            name: "vertex-and-team-colors",
             load(viewer) {
                 return viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver);
             },

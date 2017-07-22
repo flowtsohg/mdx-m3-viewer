@@ -3,7 +3,10 @@ import ViewerFile from "../../file";
 import BinaryReader from "../../binaryreader";
 import Scene from "../../scene";
 import MpqArchive from "../mpq/archive";
-import { W3xUnit, W3xDoodad, W3xModification, W3xModifiedObject, W3xModificationTable, W3xTilePoint } from "./objects";
+import W3xUnit from "./unit";
+import W3xDoodad from "./doodad";
+import W3xModificationTable from "./modificationtable";
+import W3xTilePoint from "./tilepoint";
 
 /**
  * @constructor

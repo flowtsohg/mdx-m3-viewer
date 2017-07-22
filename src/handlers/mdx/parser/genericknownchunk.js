@@ -25,7 +25,6 @@ function MdxParserGenericKnownChunk(reader, tag, size, nodes) {
 
     /** @member {Array<?>} */
     this.elements = reader.readKnownElements(size / tagInfo[1], tagInfo[0]);
-
 }
 
 export default MdxParserGenericKnownChunk;

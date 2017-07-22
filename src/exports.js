@@ -11,7 +11,7 @@ import Geo from "./handlers/geo/handler";
 import * as geometry from "./handlers/geo/geometry";
 import M3 from "./handlers/m3/handler";
 import Mdx from "./handlers/mdx/handler";
-import MdxSanityTester from "./handlers/mdx/sanitytester";
+import MdxSanityTester from "./handlers/mdx/parser/sanitytester";
 import Mpq from "./handlers/mpq/handler";
 import NativeTexture from "./handlers/nativetexture/handler";
 import Obj from "./handlers/obj/handler";

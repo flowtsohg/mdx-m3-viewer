@@ -7,7 +7,7 @@ let mdxTests = {
                 return viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([0, -55, -140]);
+                camera.move([0, -45, -140]);
                 camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
                 camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
@@ -23,7 +23,7 @@ let mdxTests = {
                 return viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([0, -55, -140]);
+                camera.move([0, -45, -140]);
                 camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
                 camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
@@ -41,7 +41,7 @@ let mdxTests = {
                 return viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([0, -55, -140]);
+                camera.move([0, -45, -140]);
                 camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
                 camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
@@ -57,7 +57,7 @@ let mdxTests = {
                 return viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([0, -55, -140]);
+                camera.move([0, -45, -140]);
                 camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
                 camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
@@ -73,7 +73,7 @@ let mdxTests = {
                 return viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([0, -55, -140]);
+                camera.move([0, -45, -140]);
                 camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
                 camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
@@ -170,22 +170,47 @@ let mdxTests = {
 
         {
             name: "particle-2-emitter",
-            load(viewer) {
-                return viewer.load("Units/Creeps/AzureDragon/AzureDragon.mdx", wc3Solver);
-            },
-            test(viewer, scene, camera, model) {
-                camera.move([0, 20, -300]);
-                camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
-                camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
+            tests: [
+                {
+                    name: "base",
+                    load(viewer) {
+                        return viewer.load("Units/Creeps/AzureDragon/AzureDragon.mdx", wc3Solver);
+                    },
+                    test(viewer, scene, camera, model) {
+                        camera.move([0, 20, -300]);
+                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
+                        camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
-                let instance = model.addInstance().setSequence(1);
+                        let instance = model.addInstance().setSequence(1);
 
-                scene.addInstance(instance);
+                        scene.addInstance(instance);
 
-                for (let i = 0; i < 90; i++) {
-                    viewer.update();
+                        for (let i = 0; i < 90; i++) {
+                            viewer.update();
+                        }
+                    }
+                },
+
+                {
+                    name: "squirt",
+                    load(viewer) {
+                        return viewer.load("Abilities/Spells/Human/Thunderclap/ThunderclapCaster.mdx", wc3Solver);
+                    },
+                    test(viewer, scene, camera, model) {
+                        camera.move([0, 0, -250]);
+                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
+
+                        let instance = model.addInstance().setSequence(1);
+
+                        scene.addInstance(instance);
+
+                        for (let i = 0; i < 4; i++) {
+                            viewer.update();
+                        }
+                    }
                 }
-            }
+            ]
+            
         },
 
         {
@@ -194,7 +219,7 @@ let mdxTests = {
                 return viewer.load("Units/Human/HeroPaladin/HeroPaladin.mdx", wc3Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([0, -65, -240]);
+                camera.move([10, -60, -200]);
                 camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
                 camera.rotate(quat.setAxisAngle([], [0, 1, 0], Math.toRad(-90)));
 
@@ -206,6 +231,68 @@ let mdxTests = {
                     viewer.update();
                 }
             }
+        },
+
+        {
+            name: "event-object",
+            tests: [
+                {
+                    name: "spn",
+                    load(viewer) {
+                        return viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver);
+                    },
+                    test(viewer, scene, camera, model) {
+                        camera.move([0, -55, -140]);
+                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
+
+                        let instance = model.addInstance().setSequence(9);
+
+                        scene.addInstance(instance);
+
+                        for (let i = 0; i < 50; i++) {
+                            viewer.update();
+                        }
+                    }
+                },
+
+                {
+                    name: "spl",
+                    load(viewer) {
+                        return viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver);
+                    },
+                    test(viewer, scene, camera, model) {
+                        camera.move([0, 0, -140]);
+                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
+
+                        let instance = model.addInstance().setSequence(9);
+
+                        scene.addInstance(instance);
+
+                        for (let i = 0; i < 200; i++) {
+                            viewer.update();
+                        }
+                    }
+                },
+
+                {
+                    name: "ubr",
+                    load(viewer) {
+                        return viewer.load("Abilities/Spells/Human/Thunderclap/ThunderclapCaster.mdx", wc3Solver);
+                    },
+                    test(viewer, scene, camera, model) {
+                        camera.move([0, 0, -500]);
+                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], Math.toRad(-90)));
+
+                        let instance = model.addInstance().setSequence(1);
+
+                        scene.addInstance(instance);
+
+                        for (let i = 0; i < 20; i++) {
+                            viewer.update();
+                        }
+                    }
+                }
+            ]
         }
     ]
 };
