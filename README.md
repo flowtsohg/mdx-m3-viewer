@@ -17,23 +17,25 @@ Built-in handlers exist for the following formats:
 * OBJ: partial support (more of an example handler).
 * BMP: partial support (more of an example handler).
 
-To get a single includeable file, run the given Ruby script in `compiler.rb`. This script gives you compilation options if you open it with a text editor, and will result in `viewer.min.js` getting generated, if you tell it to minify. Running it without changes will generate the minified version including all built-in handlers.
-In addition, the compiler supports `--gen-docs`, which creates the documentation files (assuming you have JSDoc in your system PATH variable), `--split-external`, and finally, there's `--unit-tests', which includes the unit tester and all of the unit tests.
+------------------------
+
+#### Building
+
+1. Download and install NodeJS from https://nodejs.org/en/.
+2. Open a command prompt in the viewer's directory, and run "npm install".
+3. Run the given webpack dev/prod file, this will generate `viewer.min.js`.
+4. Note that the API is given under the global object ModelViewer.
 
 ------------------------
 
 #### Getting started
 
-The examples directory has an example with partially working OBJ model and BMP texture handlers, I highly suggest looking at it first.
+The examples directory has a simple example, I highly suggest looking at it first.
 
-Probably the easiest way to get it running is by downloading Python.
-Once you have it, run its built-in HTTP server from the main viewer directory.
-
-Python 2.x: python -m SimpleHTTPServer 80
-
-Python 3.x: python -m http.server 80
-
-Next, go to your browser, and open `http://localhost/examples/`.
+In case you don't have an HTTP server:
+1. Open a command prompt, run "npm install http-server -g".
+2. Once it is done, at any time go to the viewer's folder, fire up the command prompt, and run "http-server -p 80".
+3. In your browser, open `http://localhost/examples/`.
 
 ------------------------
 
