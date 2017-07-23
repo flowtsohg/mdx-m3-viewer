@@ -3,16 +3,14 @@ import FileHandler from "../../filehandler";
 import MpqArchive from "./archive";
 
 const Mpq = {
-    get extension() {
-        return ".mpq";
+    get extensions() {
+        return [
+            [".mpq", true]
+        ];
     },
 
     get Constructor() {
         return MpqArchive;
-    },
-
-    get binaryFormat() {
-        return true;
     }
 };
 

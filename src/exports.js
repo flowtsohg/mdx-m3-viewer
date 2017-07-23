@@ -2,6 +2,7 @@ import "./math/gl-matrix-addon";
 import "./Math/math";
 import ModelViewer from "./viewer";
 import Scene from "./scene";
+import Camera from "./camera";
 import UnitTester from "./unittester";
 import glMatrix from "gl-matrix";
 import * as Blp from "./handlers/blp/handler";
@@ -22,6 +23,7 @@ import W3x from "./handlers/w3x/handler";
 export {
     ModelViewer,
     Scene,
+    Camera,
     UnitTester,
     glMatrix,
     Blp,

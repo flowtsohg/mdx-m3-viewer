@@ -6,22 +6,20 @@ import AsyncResource from "./asyncresource";
  * @augments AsyncResource
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
+ * @param {Handler} handler
+ * @param {string} extension
  */
-function DownloadableResource(env, pathSolver) {
+function DownloadableResource(env, pathSolver, handler, extension) {
     AsyncResource.call(this, env);
 
     /** @member {function(?)} */
     this.pathSolver = pathSolver;
-
+    /** @member {Handler} */
+    this.handler = handler;
+    /** @member {string} */
+    this.extension = extension;
     /** @member {string} */
     this.fetchUrl = "";
-
-    /** 
-     * Note: this is set by the viewer right after the object is constructed.
-     * 
-     * @member {Handler}
-     */
-    this.Handler = null;
 }
 
 DownloadableResource.prototype = {

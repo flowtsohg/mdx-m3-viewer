@@ -64,8 +64,10 @@ const Geo = {
         return true;
     },
 
-    get extension() {
-        return ".geo";
+    get extensions() {
+        return [
+            [".geo", false]
+        ];
     },
 
     get Constructor() {

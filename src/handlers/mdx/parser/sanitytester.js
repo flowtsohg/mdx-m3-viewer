@@ -1,4 +1,3 @@
-import Mdx from "../handler";
 import MdxParserSequence from "./sequence";
 import MdxParserGlobalSequence from "./globalsequence";
 import MdxParserTexture from "./texture";
@@ -19,6 +18,26 @@ import MdxParserEventObject from "./eventobject";
 import MdxParserCamera from "./camera";
 import MdxParserCollisionShape from "./collisionshape";
 import MdxParserNode from "./node";
+
+// Copied here to decouple the sanity tester from the handler.
+let replaceableIdToName = {
+    1: "TeamColor/TeamColor00",
+    2: "TeamGlow/TeamGlow00",
+    11: "Cliff/Cliff0",
+    21: "", // Used by all cursor models (HumanCursor, OrcCursor, UndeadCursor, NightElfCursor)
+    31: "LordaeronTree/LordaeronSummerTree",
+    32: "AshenvaleTree/AshenTree",
+    33: "BarrensTree/BarrensTree",
+    34: "NorthrendTree/NorthTree",
+    35: "Mushroom/MushroomTree",
+    36: "RuinsTree/RuinsTree",
+    37: "OutlandMushroomTree/MushroomTree"
+};
+
+// Is minVal <= x <= maxVal?
+function inRange(x, minVal, maxVal) {
+    return minVal <= x && x <= maxVal;
+}
 
 /**
  * @constructor
@@ -127,7 +146,6 @@ MdxSanityTester.prototype = {
         if (object instanceof MdxParserCamera) { return "Camera" }
         if (object instanceof MdxParserCollisionShape) { return "Collision Shape" }
         if (object instanceof MdxParserNode) { return "Node" }
-        console.log(object)
         return "";
     },
 
@@ -231,7 +249,7 @@ MdxSanityTester.prototype = {
                 objectName = this.getName(sequence);
 
             this.assertWarning(value !== 0, objectName + ": Zero length");
-            this.assertWarning(value > -1, objectName + ": Negative length " + value);
+            this.assertWarning(value > 0, objectName + ": Negative length " + value);
         }
     },
 
@@ -249,7 +267,7 @@ MdxSanityTester.prototype = {
                     objectName = this.getName(texture);
 
                 this.assertError(path === "" || path.endsWith(".blp") || path.endsWith(".tga"), objectName + ": Corrupted path \"" + path + "\"");
-                this.assertError(replaceableId === 0 || Mdx.replaceableIdToName[replaceableId] !== undefined, objectName + ": Unknown replaceable ID " + replaceableId);
+                this.assertError(replaceableId === 0 || replaceableIdToName[replaceableId] !== undefined, objectName + ": Unknown replaceable ID " + replaceableId);
                 this.assertWarning(path === "" || replaceableId === 0, objectName + ": Path \"" + path + "\" and replaceable ID " + replaceableId + " used together");
             }
         } else {
@@ -274,10 +292,12 @@ MdxSanityTester.prototype = {
     testMaterial(material) {
         let layers = material.layers;
 
-        this.assertUsage(layers.length > 0, this.getName(material) + ": No layers");
-
-        for (let i = 0, l = layers.length; i < l; i++) {
-            this.testLayer(material, layers[i])
+        if (layers.length) {
+            for (let i = 0, l = layers.length; i < l; i++) {
+                this.testLayer(material, layers[i])
+            }
+        } else {
+            this.addWarning(this.getName(material) + ": No layers");
         }
     },
 
@@ -305,24 +325,24 @@ MdxSanityTester.prototype = {
         let objectName = this.getName(material) + ": " + this.getName(layer);
 
         for (let textureId of this.getTextureIds(layer)) {
-            if (this.inRange(textureId, 0, this.textures.length - 1)) {
+            if (inRange(textureId, 0, this.textures.length - 1)) {
                 this.addReference(this.textures[textureId]);
             } else {
-                this.addError(objectName + ": Invalid texture id " + textureId);
+                this.addError(objectName + ": Invalid texture " + textureId);
             }
         }
 
         let textureAnimationId = layer.textureAnimationId;
 
         if (textureAnimationId !== -1) {
-            if (this.inRange(textureAnimationId, 0, this.textureAnimations.length - 1)) {
+            if (inRange(textureAnimationId, 0, this.textureAnimations.length - 1)) {
                 this.addReference(this.textureAnimations[textureAnimationId]);
             } else {
                 this.addWarning(objectName + " Invalid texture animation " + textureAnimationId);
             }
         }
 
-        this.assertWarning(this.inRange(layer.filterMode, 0, 6), objectName + " Invalid filter mode " + layer.filterMode);
+        this.assertWarning(inRange(layer.filterMode, 0, 6), objectName + " Invalid filter mode " + layer.filterMode);
         
         this.testSDContainer(layer, material);
     },
@@ -364,7 +384,7 @@ MdxSanityTester.prototype = {
                 this.assertWarning(references.length <= 1, objectName + ": Referenced by " + references.length + " geoset animations (" + references.join(", ") + ")");
             }
 
-            if (this.inRange(materialId, 0, this.materials.length - 1)) {
+            if (inRange(materialId, 0, this.materials.length - 1)) {
                 this.addReference(this.materials[materialId]);
             } else {
                 this.addError(objectName + ": Invalid material " + materialId);
@@ -384,7 +404,7 @@ MdxSanityTester.prototype = {
                 geosetId = geosetAnimation.geosetId,
                 objectName = this.getName(geosetAnimation);
 
-            if (this.inRange(geosetId, 0, this.geosets.length - 1)) {
+            if (inRange(geosetId, 0, this.geosets.length - 1)) {
                 this.addReference(geosetAnimation);
             } else {
                 this.addError(objectName + ": Invalid geoset " + geosetId);
@@ -408,8 +428,8 @@ MdxSanityTester.prototype = {
                     geosetAnimationId = bone.geosetAnimationId,
                     objectName = this.getName(bone);
 
-                this.assertError(geosetId === -1 || geosetId < geosets.length, objectName + ": Referencing an invalid geoset " + geosetId);
-                this.assertError(geosetAnimationId === -1 || geosetAnimationId < geosetAnimations.length, objectName + ": Referencing an invalid geoset animation " + geosetAnimationId);
+                this.assertError(geosetId === -1 || geosetId < geosets.length, objectName + ": Invalid geoset " + geosetId);
+                this.assertError(geosetAnimationId === -1 || geosetAnimationId < geosetAnimations.length, objectName + ": Invalid geoset animation " + geosetAnimationId);
                 this.testNode(bone);
             }
         } else {
@@ -452,7 +472,7 @@ MdxSanityTester.prototype = {
                 objectName = this.getName(attachment);
 
             if (path === "") {
-                this.assertWarning(this.testAttachmentName(attachment), objectName + ": Invalid attachment name \"" + attachment.node.name + "\"");
+                this.assertWarning(this.testAttachmentName(attachment), objectName + ": Invalid attachment \"" + attachment.node.name + "\"");
             } else {
                 this.assertError(path.toLowerCase().endsWith(".mdl"), objectName + ": Invalid path \"" + path + "\"");
             }
@@ -523,14 +543,14 @@ MdxSanityTester.prototype = {
                 replaceableId = emitter.replaceableId,
                 objectName = this.getName(emitter);
 
-            if (this.inRange(emitter.textureId, 0, this.textures.length - 1)) {
+            if (inRange(emitter.textureId, 0, this.textures.length - 1)) {
                 this.addReference(this.textures[emitter.textureId]);
             } else {
-                this.addError(objectName + ": Referencing invalid texture ID " + emitter.textureId);
+                this.addError(objectName + ": Invalid texture " + emitter.textureId);
             }
 
-            this.assertWarning(this.inRange(emitter.filterMode, 0, 4), objectName + ": Invalid filter mode " + emitter.filterMode);
-            this.assertError(replaceableId === 0 || Mdx.replaceableIdToName[replaceableId] !== undefined, objectName + ": Unknown replaceable ID " + replaceableId);
+            this.assertWarning(inRange(emitter.filterMode, 0, 4), objectName + ": Invalid filter mode " + emitter.filterMode);
+            this.assertError(replaceableId === 0 || replaceableIdToName[replaceableId] !== undefined, objectName + ": Invalid replaceable ID " + replaceableId);
 
             this.testSDContainer(emitter)
             this.testNode( emitter);
@@ -545,10 +565,10 @@ MdxSanityTester.prototype = {
             let emitter = emitters[i],
                 objectName = this.getName(emitter);
 
-            if (this.inRange(emitter.materialId, 0, this.materials.length - 1)) {
+            if (inRange(emitter.materialId, 0, this.materials.length - 1)) {
                 this.addReference(this.materials[emitter.materialId]);
             } else {
-                this.addError(objectName + ": Referencing invalid material ID " + emitter.materialId);
+                this.addError(objectName + ": Invalid material " + emitter.materialId);
             }
 
             this.testSDContainer(emitter)
@@ -568,21 +588,23 @@ MdxSanityTester.prototype = {
                 objectName = this.getName(eventObject);
 
             if (globalSequenceId !== -1) {
-                if (this.inRange(globalSequenceId, 0, this.globalSequences.length - 1)) {
+                if (inRange(globalSequenceId, 0, this.globalSequences.length - 1)) {
                     this.addReference(this.globalSequences[globalSequenceId]);
                 } else {
-                    this.addError(objectName + ": Referencing invalid global sequence " + globalSequenceId);
+                    this.addError(objectName + ": Invalid global sequence " + globalSequenceId);
                 }
             }
-                
-            this.assertError(tracks.length > 0, objectName + ": Zero keys");
 
-            for (let j = 0, k = tracks.length; j < k; j++) {
-                let track = tracks[j],
-                    sequenceInfo = this.getSequenceInfoFromFrame(track, globalSequenceId),
-                    sequenceId = sequenceInfo[0];
+            if (tracks.length) {
+                for (let j = 0, k = tracks.length; j < k; j++) {
+                    let track = tracks[j],
+                        sequenceInfo = this.getSequenceInfoFromFrame(track, globalSequenceId),
+                        sequenceId = sequenceInfo[0];
 
-                this.assertWarning(sequenceId !== -1, objectName + ": Track " + j + ": Frame " + track + " is not in any sequence");
+                    this.assertWarning(sequenceId !== -1, objectName + ": Track " + j + ": Frame " + track + " is not in any sequence");
+                }
+            } else {
+                this.addError(objectName + ": Zero keys");
             }
 
             this.testNode(eventObject);
@@ -618,8 +640,8 @@ MdxSanityTester.prototype = {
             parentId = node.parentId,
             objectName = this.getName(node);
 
-        this.assertError(parentId === -1 || this.hasNode(parentId), objectName + ": Invalid parent ID " + parentId);
-        this.assertError(objectId !== parentId, objectName + ": Same object ID and parent ID");
+        this.assertError(parentId === -1 || this.hasNode(parentId), objectName + ": Invalid parent " + parentId);
+        this.assertError(objectId !== parentId, objectName + ": Same object and parent");
             
         this.testSDContainer(node);
     },
@@ -651,10 +673,10 @@ MdxSanityTester.prototype = {
             globalSequenceId = sd.globalSequenceId;
 
         if (globalSequenceId !== -1) {
-            if (this.inRange(globalSequenceId, 0, this.globalSequences.length - 1)) {
+            if (inRange(globalSequenceId, 0, this.globalSequences.length - 1)) {
                 this.addReference(this.globalSequences[globalSequenceId]);
             } else {
-                this.addError(objectName + ": " + animatedType + ": Referencing invalid global sequence " + globalSequenceId);
+                this.addError(objectName + ": " + animatedType + ": Invalid global sequence " + globalSequenceId);
             }
         }
 
@@ -864,10 +886,6 @@ MdxSanityTester.prototype = {
         "rallypoint",
         "eattree"
     ]),
-
-    inRange(x, minVal, maxVal) {
-        return x >= minVal && x <= maxVal;
-    },
 
     addError(message) {
         this.output.errors.push(message);

@@ -3,16 +3,14 @@ import TextureHandler from "../../texturehandler";
 import BmpTexture from "./texture";
 
 const Bmp = {
-    get extension() {
-        return ".bmp";
+    get extensions() {
+        return [
+            [".bmp", true]
+        ];
     },
 
     get Constructor() {
         return BmpTexture;
-    },
-
-    get binaryFormat() {
-        return true;
     }
 };
 

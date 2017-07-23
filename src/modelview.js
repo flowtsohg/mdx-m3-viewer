@@ -107,7 +107,7 @@ ModelView.prototype = {
             }
         }
 
-        let bucket = new this.model.Handler.Bucket(this);
+        let bucket = new this.model.handler.Bucket(this);
 
         buckets.push(bucket);
 

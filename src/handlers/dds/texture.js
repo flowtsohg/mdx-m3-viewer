@@ -9,9 +9,11 @@ import { decodeDxt1, decodeDxt3, decodeDxt5 } from "./dxt";
  * @memberOf Dds
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
+ * @param {Handler} handler
+ * @param {string} extension
  */
-function DdsTexture(env, pathSolver) {
-    Texture.call(this, env, pathSolver);
+function DdsTexture(env, pathSolver, handler, extension) {
+    Texture.call(this, env, pathSolver, handler, extension);
 }
 
 DdsTexture.prototype = {

@@ -6,9 +6,11 @@ import DownloadableResource from "./downloadableresource";
  * @mixes DownloadableResource
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
+ * @param {Handler} handler
+ * @param {string} extension
  */
-function Texture(env, pathSolver) {
-    DownloadableResource.call(this, env, pathSolver);
+function Texture(env, pathSolver, handler, extension) {
+    DownloadableResource.call(this, env, pathSolver, handler, extension);
 }
 
 Texture.prototype = {

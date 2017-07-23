@@ -39,6 +39,10 @@ AsyncResource.prototype = {
         return this;
     },
 
+    initialize(src) {
+        throw new Error("AsyncResource.initialize must be overriden!");
+    },
+
     detach() {
 
     },

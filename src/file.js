@@ -6,9 +6,11 @@ import DownloadableResource from "./downloadableresource";
  * @augments DownloadableResource
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
+ * @param {Handler} handler
+ * @param {string} extension
  */
-function ViewerFile(env, pathSolver) {
-    DownloadableResource.call(this, env, pathSolver);
+function ViewerFile(env, pathSolver, handler, extension) {
+    DownloadableResource.call(this, env, pathSolver, handler, extension);
 }
 
 ViewerFile.prototype = {

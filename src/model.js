@@ -7,9 +7,11 @@ import DownloadableResource from "./downloadableresource";
  * @augments DownloadableResource
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
+ * @param {Handler} handler
+ * @param {string} extension
  */
-function Model(env, pathSolver) {
-    DownloadableResource.call(this, env, pathSolver);
+function Model(env, pathSolver, handler, extension) {
+    DownloadableResource.call(this, env, pathSolver, handler, extension);
 
     /** @member {Array<ModelInstance>} */
     this.instances = [];
@@ -31,7 +33,7 @@ Model.prototype = {
      */
     addInstance() {
         let views = this.views,
-            instance = new this.Handler.Instance(this);
+            instance = new this.handler.Instance(this);
 
         this.env.registerEvents(instance);
 
@@ -80,7 +82,7 @@ Model.prototype = {
     },
 
     addView() {
-        let view = new this.Handler.ModelView(this);
+        let view = new this.handler.ModelView(this);
 
         this.views.push(view);
 

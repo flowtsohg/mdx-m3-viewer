@@ -12,9 +12,11 @@ import MpqFile from "./file";
  * @memberOf Mpq
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
+ * @param {Handler} handler
+ * @param {string} extension
  */
-function MpqArchive(env, pathSolver) {
-    ViewerFile.call(this, env, pathSolver);
+function MpqArchive(env, pathSolver, handler, extension) {
+    ViewerFile.call(this, env, pathSolver, handler, extension);
 
     /** @member {?ArrayBuffer} */
     this.buffer = null;

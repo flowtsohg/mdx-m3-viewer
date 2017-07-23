@@ -3,8 +3,10 @@ import FileHandler from "../../filehandler";
 import SlkFile from "./file";
 
 const Slk = {
-    get extension() {
-        return ".slk";
+    get extensions() {
+        return [
+            [".slk", false]
+        ];
     },
 
     get Constructor() {

@@ -7,9 +7,11 @@ import ViewerFile from "../../file";
  * @memberOf Slk
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
+ * @param {Handler} handler
+ * @param {string} extension
  */
-function SlkFile(env, pathSolver) {
-    ViewerFile.call(this, env, pathSolver);
+function SlkFile(env, pathSolver, handler, extension) {
+    ViewerFile.call(this, env, pathSolver, handler, extension);
 
     this.x = 0;
     this.y = 0;

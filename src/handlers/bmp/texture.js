@@ -8,9 +8,11 @@ import BinaryReader from "../../binaryreader";
  * @memberOf Bmp
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
+ * @param {Handler} handler
+ * @param {string} extension
  */
-function BmpTexture(env, pathSolver) {
-    Texture.call(this, env, pathSolver);
+function BmpTexture(env, pathSolver, handler, extension) {
+    Texture.call(this, env, pathSolver, handler, extension);
 }
 
 BmpTexture.prototype = {

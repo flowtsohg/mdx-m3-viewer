@@ -21,9 +21,11 @@ import Mdx from "./handler";
  * @memberOf Mdx
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
+ * @param {Handler} handler
+ * @param {string} extension
  */
-function MdxModel(env, pathSolver) {
-    TexturedModel.call(this, env, pathSolver);
+function MdxModel(env, pathSolver, handler, extension) {
+    TexturedModel.call(this, env, pathSolver, handler, extension);
 
     this.sequences = [];
     this.textures = [];

@@ -62,8 +62,10 @@ const Mdx = {
         return true;
     },
 
-    get extension() {
-        return ".mdx";
+    get extensions() {
+        return [
+            [".mdx", true]
+        ];
     },
 
     get Constructor() {
@@ -80,10 +82,6 @@ const Mdx = {
 
     get Bucket() {
         return MdxBucket;
-    },
-
-    get binaryFormat() {
-        return true;
     }
 };
 

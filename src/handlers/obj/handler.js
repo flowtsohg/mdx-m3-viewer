@@ -22,8 +22,10 @@ const Obj = {
         return true;
     },
 
-    get extension() {
-        return ".obj";
+    get extensions() {
+        return [
+            [".obj", false]
+        ];
     },
 
     get Constructor() {

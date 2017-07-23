@@ -6,9 +6,11 @@ import Model from "./model";
  * @augments Model
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
+ * @param {Handler} handler
+ * @param {string} extension
  */
-function TexturedModel(env, pathSolver) {
-    Model.call(this, env, pathSolver);
+function TexturedModel(env, pathSolver, handler, extension) {
+    Model.call(this, env, pathSolver, handler, extension);
 }
 
 TexturedModel.prototype = {

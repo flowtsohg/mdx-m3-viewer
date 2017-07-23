@@ -7,9 +7,11 @@ import Model from "../../model";
  * @memberOf Geo
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
+ * @param {Handler} handler
+ * @param {string} extension
  */
-function GeometryModel(env, pathSolver) {
-    Model.call(this, env, pathSolver);
+function GeometryModel(env, pathSolver, handler, extension) {
+    Model.call(this, env, pathSolver, handler, extension);
 }
 
 GeometryModel.prototype = {

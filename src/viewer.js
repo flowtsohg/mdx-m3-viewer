@@ -111,16 +111,16 @@ ModelViewer.prototype = {
 
             if (objectType === "modelhandler" || objectType === "texturehandler" || objectType === "filehandler") {
                 let handlers = this.handlers,
-                    extensions = handler.extension.split("|");
+                    extensions = handler.extensions;
 
                 // Check to see if this handler was added already.
-                if (!handlers.has(extensions[0])) {
+                if (!handlers.has(extensions[0][0])) {
                     // Run the global initialization function of the handler.
                     // If it returns true, to signifiy everything worked correctly, add the handler to the handlers map.
                     if (handler.initialize(this)) {
                         // Add each of the handler's extensions to the handler map.
                         for (let extension of extensions) {
-                            handlers.set(extension, handler);
+                            handlers.set(extension[0], [handler, extension[1]]);
                         }
 
                         return true;
@@ -245,18 +245,18 @@ ModelViewer.prototype = {
                 [src, extension, serverFetch] = pathSolver(src);
             }
 
-            let handler = this.handlers.get(extension.toLowerCase());
+            let handlerPair = this.handlers.get(extension.toLowerCase());
 
             // Is there an handler for this file type?
-            if (handler) {
+            if (handlerPair) {
                 let resources = this.resources,
                     map = resources.map;
                 
                 // Only construct the resource if the source was not already loaded.
                 if (!map.has(src)) {
-                    let resource = new handler.Constructor(this, pathSolver);
-
-                    resource.Handler = handler;
+                    let handler = handlerPair[0],
+                        binaryFormat = handlerPair[1],
+                        resource = new handler.Constructor(this, pathSolver, handler, extension);
 
                     // Cache the resource
                     resources.array.push(resource);
@@ -266,7 +266,7 @@ ModelViewer.prototype = {
                     this.registerEvents(resource);
 
                     // Tell the resource to actually load itself
-                    resource.load(src, handler.binaryFormat, serverFetch);
+                    resource.load(src, binaryFormat, serverFetch);
                 }
 
                 // Get the resource from the cache.
@@ -280,7 +280,8 @@ ModelViewer.prototype = {
     /**
      * A fake load.
      * This is needed for resources that know they are going to load internal resources, but don't yet know what they are.
-     * So, in order to delay Viewer.whenAllLoaded() so it catches all internal resources, the resource can load fake place-holder resources.
+     * So, in order to delay Viewer.whenAllLoaded() so it catches all internal resources, the resources can load fake place-holder resources.
+     * Use promise.resolve() to resolve the promise.
      * 
      * @returns {PromiseResource}
      */

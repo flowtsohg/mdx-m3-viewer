@@ -7,10 +7,12 @@ import Model from "../../model";
  * @memberOf Obj
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
+ * @param {Handler} handler
+ * @param {string} extension
  */
-function ObjModel(env, pathSolver) {
+function ObjModel(env, pathSolver, handler, extension) {
     // Run the base Model constructor.
-    Model.call(this, env, pathSolver);
+    Model.call(this, env, pathSolver, handler, extension);
 }
 
 ObjModel.prototype = {

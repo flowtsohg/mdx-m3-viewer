@@ -3,16 +3,14 @@ import TextureHandler from "../../texturehandler";
 import DdsTexture from "./texture";
 
 const Dds = {
-    get extension() {
-        return ".dds";
+    get extensions() {
+        return [
+            [".dds", true]
+        ];
     },
 
     get Constructor() {
         return DdsTexture;
-    },
-
-    get binaryFormat() {
-        return true;
     }
 };
 

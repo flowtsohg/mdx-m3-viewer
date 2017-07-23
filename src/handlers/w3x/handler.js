@@ -14,16 +14,15 @@ const W3x = {
         return true;
     },
 
-    get extension() {
-        return ".w3x|.w3m";
+    get extensions() {
+        return [
+            [".w3x", true],
+            [".w3m", true]
+        ];
     },
 
     get Constructor() {
         return W3xMap;
-    },
-
-    get binaryFormat() {
-        return true;
     }
 };
 

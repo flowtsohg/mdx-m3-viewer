@@ -7,9 +7,11 @@ import Texture from "../../texture";
  * @memberOf NativeTexture
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
+ * @param {Handler} handler
+ * @param {string} extension
  */
-function ImageTexture(env, pathSolver) {
-    Texture.call(this, env, pathSolver);
+function ImageTexture(env, pathSolver, handler, extension) {
+    Texture.call(this, env, pathSolver, handler, extension);
 }
 
 ImageTexture.prototype = {

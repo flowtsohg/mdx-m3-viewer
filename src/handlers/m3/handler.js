@@ -48,8 +48,10 @@ const M3 = {
         }
     },
 
-    get extension() {
-        return ".m3";
+    get extensions() {
+        return [
+            [".m3", true]
+        ];
     },
 
     get Constructor() {
@@ -66,10 +68,6 @@ const M3 = {
 
     get Bucket() {
         return M3Bucket;
-    },
-
-    get binaryFormat() {
-        return true;
     }
 };
 

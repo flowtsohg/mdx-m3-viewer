@@ -9,9 +9,11 @@ import { JpegImage } from "./jpg";
  * @memberOf Blp
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
+ * @param {Handler} handler
+ * @param {string} extension
  */
-function BlpTexture(env, pathSolver) {
-    Texture.call(this, env, pathSolver);
+function BlpTexture(env, pathSolver, handler, extension) {
+    Texture.call(this, env, pathSolver, handler, extension);
 }
 
 BlpTexture.prototype = {

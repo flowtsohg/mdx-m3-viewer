@@ -18,9 +18,11 @@ import M3Region from "./region";
  * @memberOf M3
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
+ * @param {Handler} handler
+ * @param {string} extension
  */
-function M3Model(env, pathSolver) {
-    TexturedModel.call(this, env, pathSolver);
+function M3Model(env, pathSolver, handler, extension) {
+    TexturedModel.call(this, env, pathSolver, handler, extension);
 
     this.parser = null;
     this.name = "";

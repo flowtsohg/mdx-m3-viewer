@@ -3,16 +3,16 @@ import TextureHandler from "../../texturehandler";
 import ImageTexture from "./texture";
 
 const NativeTexture = {
-    get extension() {
-        return ".png|.jpg|.gif";
+    get extensions() {
+        return [
+            [".png", true],
+            [".jpg", true],
+            [".gif", true]
+        ];
     },
 
     get Constructor() {
         return ImageTexture;
-    },
-
-    get binaryFormat() {
-        return true;
     }
 };
 

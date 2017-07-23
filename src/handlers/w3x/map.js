@@ -14,9 +14,11 @@ import W3xTilePoint from "./tilepoint";
  * @memberOf W3x
  * @param {ModelViewer} env
  * @param {function(?)} pathSolver
+ * @param {Handler} handler
+ * @param {string} extension
  */
-function W3xMap(env, pathSolver) {
-    ViewerFile.call(this, env, pathSolver);
+function W3xMap(env, pathSolver, handler, extension) {
+    ViewerFile.call(this, env, pathSolver, handler, extension);
 
     this.scene = new Scene();
 }

@@ -3,8 +3,10 @@ import TextureHandler from "../../texturehandler";
 import TgaTexture from "./texture";
 
 const Tga = {
-    get extension() {
-        return ".tga";
+    get extensions() {
+        return [
+            [".tga", true]
+        ];
     },
 
     get Constructor() {
