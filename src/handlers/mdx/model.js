@@ -1,180 +1,400 @@
-Mdx.Model = function () {
+import { mix, hashFromArray, createTextureAtlas } from "../../common";
+import TexturedModel from "../../texturedmodel";
+import MdxParser from "./parser/parser";
+import MdxNode from "./node";
+import MdxTextureAnimation from "./textureanimation";
+import MdxLayer from "./layer";
+import MdxGeosetAnimation from "./geosetanimation";
+import { MdxGeoset } from "./geoset";
+import MdxBatch from "./batch";
+import MdxCamera from "./camera";
+import MdxModelParticleEmitter from "./modelparticleemitter";
+import MdxModelParticle2Emitter from "./modelparticle2emitter";
+import { MdxModelAttachment } from "./attachment";
+import MdxModelEventObject from "./modeleventobject";
+import { MdxShallowGeoset } from "./geoset";
+import Mdx from "./handler";
 
-};
+/**
+ * @constructor
+ * @augments Model
+ * @memberOf Mdx
+ * @param {ModelViewer} env
+ * @param {function(?)} pathSolver
+ * @param {Handler} handler
+ * @param {string} extension
+ */
+function MdxModel(env, pathSolver, handler, extension) {
+    TexturedModel.call(this, env, pathSolver, handler, extension);
 
-Mdx.Model.prototype = extend(BaseModel.prototype, {
-    loadstart: function (asyncModel, src, reportError, reportLoad) {
-        BaseModel.call(this, {});
+    this.sequences = [];
+    this.textures = [];
+    this.geosets = [];
+    this.cameras = [];
+    this.particleEmitters = [];
+    this.particleEmitters2 = [];
+    this.ribbonEmitters = [];
+    this.boundingShapes = [];
+    this.attachments = [];
+    this.textureAnimations = [];
+    this.geosetAnimations = [];
+    this.eventObjectEmitters = [];
+}
 
-        this.asyncModel = asyncModel;
-
-        var parser = Mdx.Parser(new BinaryReader(src));
-
-        if (parser) {
-            this.setup(parser, this.asyncModel.pathSolver, this.asyncModel.context);
-
-            reportLoad();
+MdxModel.prototype = {
+    initialize(src) {
+        var parser;
+        
+        try {
+            parser = new MdxParser(src);
+        } catch (e) {
+            this.onerror("InvalidSource", e);
+            return false;
         }
-    },
 
-    setup: function (parser, pathSolver, context) {
-        var gl = context.gl;
         var objects, i, l, j, k;
         var chunks = parser.chunks;
 
         this.parser = parser;
-        this.name = chunks.MODL.name;
-        this.sequences = [];
-        this.textures = [];
-        this.meshes = [];
-        this.cameras = [];
-        this.particleEmitters = [];
-        this.particleEmitters2 = [];
-        this.ribbonEmitters = [];
-        this.boundingShapes = [];
-        this.attachments = [];
+        this.name = chunks.get("MODL").name;
 
-        this.texturePaths = [];
+        this.replaceables = [];
 
-        if (chunks.TEXS) {
-            objects = chunks.TEXS.elements;
+        this.textureAtlases = {};
+
+        if (chunks.has("TEXS")) {
+            objects = chunks.get("TEXS").elements;
 
             for (i = 0, l = objects.length; i < l; i++) {
-                this.loadTexture(objects[i], gl, pathSolver);
+                this.loadTexture(objects[i]);
             }
         }
 
-        if (chunks.SEQS) {
-            this.sequences = chunks.SEQS.elements;
+        if (chunks.has("SEQS")) {
+            this.sequences = chunks.get("SEQS").elements;
         }
 
-        if (chunks.GLBS) {
-            this.globalSequences = chunks.GLBS.elements;
+        if (chunks.has("GLBS")) {
+            this.globalSequences = chunks.get("GLBS").elements;
         }
 
         var nodes = parser.nodes;
         var pivots;
 
-        if (chunks.PIVT) {
-            pivots = chunks.PIVT.elements;
+        if (chunks.has("PIVT")) {
+            pivots = chunks.get("PIVT").elements;
         } else {
-            pivots = [[0, 0, 0]];
+            pivots = [{ value: [0, 0, 0] }];
         }
 
         this.nodes = [];
+        this.sortedNodes = [];
 
         for (i = 0, l = nodes.length; i < l; i++) {
-            this.nodes[i] = new Mdx.Node(nodes[i], this, pivots);
+            this.nodes[i] = new MdxNode(this, nodes[i], pivots);
         }
 
         if (this.nodes.length === 0) {
-            this.nodes[0] = new Mdx.Node({ objectId: 0, parentId: 0xFFFFFFFF }, this, pivots);
+            this.nodes[0] = new MdxNode(this, { objectId: 0, parentId: -1 }, pivots);
         }
 
         // This list is used to access all the nodes in a loop while keeping the hierarchy in mind.
         this.hierarchy = this.setupHierarchy([], this.nodes, -1);
 
-        if (chunks.BONE) {
-            this.bones = chunks.BONE.elements;
+        for (i = 0, l = this.nodes.length; i < l; i++) {
+            this.sortedNodes[i] = this.nodes[this.hierarchy[i]];
+        }
+
+        // Checks what sequences are variant or not
+        this.setupVariants();
+
+        if (chunks.has("BONE")) {
+            this.bones = chunks.get("BONE").elements;
         } else {
             // If there are no bones, reference the injected root node, since the shader requires at least one bone
             this.bones = [{ node: { objectId: 0, index: 0 } }];
         }
 
-        var materials;
-        var fakeMaterials;
-        var layers;
-        var layer;
-        var geosets;
-        var geoset;
-        var groups;
-        var mesh;
+        if (chunks.has("TXAN")) {
+            let textureAnimations = chunks.get("TXAN").elements;
 
-        this.textureAnimations = this.transformElements(chunks.TXAN, Mdx.TextureAnimation);
+            for (let i = 0, l = textureAnimations.length; i < l; i++) {
+                this.textureAnimations[i] = new MdxTextureAnimation(this, textureAnimations[i]);
+            }
+        }
 
-        if (chunks.MTLS) {
-            objects = chunks.MTLS.elements;
-            materials = [];
+        if (chunks.has("MTLS")) {
+            objects = chunks.get("MTLS").elements;
+
+            var materials = [];
+
+            var layerId = 0;
 
             this.layers = [];
 
             for (i = 0, l = objects.length; i < l; i++) {
-                layers = objects[i].layers;
+                var layers = objects[i].layers;
 
                 materials[i] = [];
 
                 for (j = 0, k = layers.length; j < k; j++) {
-                    layer = new Mdx.Layer(layers[j], this, this.textureAnimations);
+                    var layer = new MdxLayer(this, layers[j], layerId, objects[i].priorityPlane);
+
+                    layerId += 1;
 
                     materials[i][j] = layer;
                     this.layers.push(layer);
+
+                    this.setupVaryingTextures(layer);
                 }
             }
 
             this.materials = materials;
+
+            this.hasTextureAnims = !!this.textureAnimations.length;
+            this.hasLayerAnims = false;
         }
 
-        this.geosetAnimations = this.transformElements(chunks.GEOA, Mdx.GeosetAnimation);
+        if (chunks.has("GEOA")) {
+            let geosetAnimations = chunks.get("GEOA").elements;
 
-        if (chunks.GEOS) {
-            geosets = chunks.GEOS.elements;
-            groups = [[], [], [], []];
+            for (let i = 0, l = geosetAnimations.length; i < l; i++) {
+                this.geosetAnimations[i] = new MdxGeosetAnimation(this, geosetAnimations[i]);
+            }
+        }
+
+        if (chunks.has("GEOS")) {
+            let geosets = chunks.get("GEOS").elements,
+                opaqueBatches = [],
+                translucentBatches = [],
+                batchId = 0;
 
             for (i = 0, l = geosets.length; i < l; i++) {
-                geoset = geosets[i];
-                layers = materials[geoset.materialId];
+                let geoset = geosets[i],
+                    layers = materials[geoset.materialId],
+                    mesh = new MdxGeoset(geoset, this.geosetAnimations);
 
-                mesh = new Mdx.Geoset(geoset, i, gl.ctx, this.geosetAnimations);
-
-                this.meshes.push(mesh);
+                this.geosets.push(mesh);
 
                 for (j = 0, k = layers.length; j < k; j++) {
                     layer = layers[j];
 
-                    groups[layer.renderOrder].push(new Mdx.Batch(layer, mesh));
+                    var batch = new MdxBatch(batchId, layer, mesh);
+
+                    if (layer.filterMode < 2) {
+                        opaqueBatches.push(batch);
+                    } else {
+                        translucentBatches.push(batch);
+                    }
+
+                    batchId += 1;
                 }
             }
 
-            // This is an array of geoset + shallow layer batches
-            this.batches = groups[0].concat(groups[1]).concat(groups[2]).concat(groups[3]);
+            translucentBatches.sort((a, b) => a.layer.priorityPlane - b.layer.priorityPlane);
 
-            this.calculateExtent();
+            this.batches = opaqueBatches.concat(translucentBatches);
+            this.opaqueBatches = opaqueBatches;
+            this.translucentBatches = translucentBatches;
+        } else {
+            this.batches = [];
         }
 
-        this.cameras = this.transformElements(chunks.CAMS, Mdx.Camera);
+        this.setupGeosets();
 
-        if (chunks.PREM) {
-            this.particleEmitters = chunks.PREM.elements;
+        if (chunks.has("CAMS")) {
+            let cameras = chunks.get("CAMS").elements;
+
+            for (let i = 0, l = cameras.length; i < l; i++) {
+                this.cameras[i] = new MdxCamera(this, cameras[i]);
+            }
         }
 
-        if (chunks.PRE2) {
-            this.particleEmitters2 = chunks.PRE2.elements;
+        if (chunks.has("PREM")) {
+            let particleEmitters = chunks.get("PREM").elements;
+
+            for (let i = 0, l = particleEmitters.length; i < l; i++) {
+                this.particleEmitters[i] = new MdxModelParticleEmitter(this, particleEmitters[i]);
+            }
         }
 
-        if (chunks.RIBB) {
-            this.ribbonEmitters = chunks.RIBB.elements;
+        if (chunks.has("PRE2")) {
+            let particleEmitters2 = chunks.get("PRE2").elements;
+
+            particleEmitters2.sort((a, b) => a.priorityPlane - b.priorityPlane);
+
+            for (let i = 0, l = particleEmitters2.length; i < l; i++) {
+                this.particleEmitters2[i] = new MdxModelParticle2Emitter(this, particleEmitters2[i]);
+            }
         }
 
-        this.boundingShapes = this.transformElements(chunks.CLID, Mdx.CollisionShape, gl);
-        this.attachments = this.transformElements(chunks.ATCH, Mdx.Attachment);
-
-        if (chunks.EVTS) {
-            this.eventObjects = chunks.EVTS.elements;
+        if (chunks.has("RIBB")) {
+            this.ribbonEmitters = chunks.get("RIBB").elements;
         }
 
-        // Avoid heap allocations in render()
-        this.modifier = vec4.create();
-        this.uvoffset = vec3.create();
+        if (chunks.has("CLID")) {
+            this.boundingShapes = chunks.get("CLID").elements;
+        }
 
-        this.setupShaders(chunks, gl);
-        this.setupTeamColors(gl, pathSolver);
+        if (chunks.has("ATCH")) {
+            let attachments = chunks.get("ATCH").elements;
+
+            for (let i = 0, l = attachments.length; i < l; i++) {
+                this.attachments[i] = new MdxModelAttachment(this, attachments[i]);
+            }
+        }
+
+        if (chunks.has("EVTS")) {
+            let eventObjects = chunks.get("EVTS").elements;
+
+            for (let i = 0, l = eventObjects.length; i < l; i++) {
+                this.eventObjectEmitters.push(new MdxModelEventObject(this, eventObjects[i]));
+            }
+        }
+
+        this.calculateExtent();
+
+        return true;
     },
 
-    setupHierarchy: function (hierarchy, nodes, parent) {
-        var node;
+    isVariant(sequence) {
+        let nodes = this.nodes;
 
-        for (var i = 0, l = nodes.length; i < l; i++) {
-            node = nodes[i];
+        for (let i = 0, l = nodes.length; i < l; i++) {
+            if (nodes[i].isVariant(sequence)) {
+                return true;
+            }
+        }
+        
+        return false;
+    },
+
+    setupVariants() {
+        let variants = [];
+
+        for (let i = 0, l = this.sequences.length; i < l; i++) {
+            variants[i] = this.isVariant(i);
+        }
+
+        this.variants = variants;
+    },
+
+    setupVaryingTextures(layer) {
+        // Get all unique texture IDs used by this layer
+        let textureIds = layer.getAllTextureIds();
+
+        if (textureIds.length > 1) {
+            let env = this.env,
+                hash = hashFromArray(textureIds),
+                textures = [];
+
+            // Grab all of the textures
+            for (let i = 0, l = textureIds.length; i < l; i++) {
+                textures[i] = this.textures[textureIds[i]];
+            }
+
+            // Promise that there is a future load that the code cannot know about yet, so Viewer.whenAllLoaded() isn't called prematurely.
+            let promise = env.makePromise();
+
+            // When all of the textures are loaded, it's time to construct a texture atlas
+            env.whenLoaded(textures, () => {
+                let textureAtlases = this.textureAtlases;
+
+                // Cache atlases
+                if (!textureAtlases[hash]) {
+                    let images = [];
+
+                    // Grab all the ImageData objects from the loaded textures
+                    for (let i = 0, l = textures.length; i < l; i++) {
+                        images[i] = textures[i].imageData;
+                    }
+
+                    // Finally create the atlas
+                    let atlasData = createTextureAtlas(images);
+
+                    let texture = env.load(atlasData.texture);
+
+                    textureAtlases[hash] = { textureId: this.textures.length, columns: atlasData.columns, rows: atlasData.rows, texture };
+                    
+                    this.textures.push(texture);
+                }
+
+                // Tell the layer to use this texture atlas, instead of its original texture
+                layer.setAtlas(textureAtlases[hash]);
+
+                this.hasLayerAnims = true;
+
+                // Resolve the promise.
+                promise.resolve();
+            });
+        }
+    },
+
+    setupGeosets() {
+        let geosets = this.geosets;
+
+        if (geosets.length > 0) {
+            let gl = this.gl,
+                shallowGeosets = [],
+                typedArrays = [],
+                totalArrayOffset = 0,
+                elementTypedArrays = [],
+                totalElementOffset = 0,
+                i, l;
+
+            for (i = 0, l = geosets.length; i < l; i++) {
+                let geoset = geosets[i],
+                    vertices = geoset.locationArray,
+                    normals = geoset.normalArray,
+                    uvSets = geoset.uvsArray,
+                    boneIndices = geoset.boneIndexArray,
+                    boneNumbers = geoset.boneNumberArray,
+                    faces = geoset.faceArray,
+                    verticesOffset = totalArrayOffset,
+                    normalsOffset = verticesOffset + vertices.byteLength,
+                    uvSetsOffset = normalsOffset + normals.byteLength,
+                    boneIndicesOffset = uvSetsOffset + uvSets.byteLength,
+                    boneNumbersOffset = boneIndicesOffset + boneIndices.byteLength;
+
+                shallowGeosets[i] = new MdxShallowGeoset(this, [verticesOffset, normalsOffset, uvSetsOffset, boneIndicesOffset, boneNumbersOffset, totalElementOffset], geoset.uvSetSize, faces.length);
+
+                typedArrays.push([verticesOffset, vertices]);
+                typedArrays.push([normalsOffset, normals]);
+                typedArrays.push([uvSetsOffset, uvSets]);
+                typedArrays.push([boneIndicesOffset, boneIndices]);
+                typedArrays.push([boneNumbersOffset, boneNumbers]);
+
+                elementTypedArrays.push([totalElementOffset, faces]);
+
+                totalArrayOffset = boneNumbersOffset + boneNumbers.byteLength;
+                totalElementOffset += faces.byteLength;
+            }
+
+            let arrayBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, totalArrayOffset, gl.STATIC_DRAW);
+
+            for (i = 0, l = typedArrays.length; i < l; i++) {
+                gl.bufferSubData(gl.ARRAY_BUFFER, typedArrays[i][0], typedArrays[i][1]);
+            }
+
+            let faceBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, totalElementOffset, gl.STATIC_DRAW);
+
+            for (i = 0, l = elementTypedArrays.length; i < l; i++) {
+                gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, elementTypedArrays[i][0], elementTypedArrays[i][1]);
+            }
+
+            this.__webglArrayBuffer = arrayBuffer;
+            this.__webglElementBuffer = faceBuffer;
+            this.shallowGeosets = shallowGeosets;
+        }
+    },
+
+    setupHierarchy(hierarchy, nodes, parent) {
+        for (let i = 0, l = nodes.length; i < l; i++) {
+            let node = nodes[i];
 
             if (node.parentId === parent) {
                 hierarchy.push(i);
@@ -186,61 +406,7 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         return hierarchy;
     },
 
-    transformElements: function (chunk, Func, gl) {
-        var output = [];
-
-        if (chunk) {
-            var elements = chunk.elements;
-            
-
-            for (var i = 0, l = elements.length; i < l; i++) {
-                output[i] = new Func(elements[i], this, gl);
-            }
-        }
-
-        return output;
-    },
-
-    setupShaders: function (chunks, gl) {
-        var psmain = SHADERS["wpsmain"];
-
-        if ((chunks.GEOS || chunks.PREM) && !gl.shaderStatus("wstandard")) {
-            gl.createShader("wstandard", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain, ["STANDARD_PASS"]);
-            gl.createShader("wuvs", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain, ["UVS_PASS"]);
-            gl.createShader("wnormals", SHADERS.vsbonetexture + SHADERS.wvsmain, psmain, ["NORMALS_PASS"]);
-            gl.createShader("wwhite", SHADERS.vsbonetexture + SHADERS.wvswhite, SHADERS.pswhite);
-        }
-
-        // Load the particle emitters type 2 shader if it is needed
-        if (chunks.PRE2 && !gl.shaderStatus("wparticles")) {
-            gl.createShader("wparticles", SHADERS.decodefloat + SHADERS.wvsparticles, SHADERS.wpsparticles);
-        }
-
-        // Load the ribbon emitters shader if it is needed
-        if (chunks.RIBB && !gl.shaderStatus("wribbons")) {
-            gl.createShader("wribbons", SHADERS.wvsribbons, psmain, ["STANDARD_PASS"]);
-        }
-
-        // Load the color shader if it is needed
-        if (!gl.shaderStatus("wcolor")) {
-            gl.createShader("wcolor", SHADERS.vsbonetexture + SHADERS.wvscolor, SHADERS.pscolor);
-        }
-    },
-
-    setupTeamColors: function (gl, pathSolver) {
-        var context = this.asyncModel.context;
-
-        for (var i = 0; i < 13; i++) {
-            var number = ((i < 10) ? "0" + i : i);
-
-            context.loadTexture(pathSolver("replaceabletextures/teamcolor/teamcolor" + number + ".blp"), ".blp");
-            context.loadTexture(pathSolver("replaceabletextures/teamglow/teamglow" + number + ".blp"), ".blp");
-        }
-    },
-
-    loadTexture: function (texture, gl, pathSolver) {
-        var context = this.asyncModel.context;
-
+    loadTexture(texture) {
         var path = texture.path;
         var replaceableId = texture.replaceableId;
 
@@ -248,20 +414,28 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
             path = "replaceabletextures/" + Mdx.replaceableIdToName[replaceableId] + ".blp";
         }
 
-        var realPath = pathSolver(path);
+        // If the path is corrupted, try to fix it.
+        if (!path.endsWith(".blp") || !path.endsWith(".tga")) {
+            // Try to search for .blp
+            var index = path.indexOf(".blp");
 
-        //this.textures.push(path);
-        this.textureMap[path] = realPath;
+            if (index === -1) {
+                // Not a .blp, try to search for .tga
+                index = path.indexOf(".tga");
+            }
 
-        var fileType = fileTypeFromPath(path);
+            if (index !== -1) {
+                // Hopefully fix the path
+                path = path.slice(0, index + 4);
+            }
+        }
 
-        this.textures.push(context.loadTexture(realPath, fileType));
-
-        this.texturePaths.push(path);
+        this.replaceables.push(replaceableId);
+        this.textures.push(this.env.load(path, this.pathSolver));
     },
 
-    calculateExtent: function () {
-        var meshes = this.meshes;
+    calculateExtent() {
+        var meshes = this.geosets;
         var mesh;
         var min, max;
         var x, y, z;
@@ -272,8 +446,10 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
 
         for (i = 0, l = meshes.length; i < l; i++) {
             mesh = meshes[i];
-            min = mesh.min;
-            max = mesh.max;
+            mesh.calculateExtent();
+
+            min = mesh.extent.min;
+            max = mesh.extent.max;
             x = min[0];
             y = min[1];
             z = min[2];
@@ -314,252 +490,206 @@ Mdx.Model.prototype = extend(BaseModel.prototype, {
         this.extent = {radius: Math.sqrt(dX * dX + dY * dY + dZ * dZ) / 2, min: [minX, minY, minZ], max: [maxX, maxY, maxZ] };
     },
 
-    render: function (instance) {
-        var context = instance.asyncInstance.context;
-        var tint = instance.asyncInstance.tint;
-        var gl = context.gl;
-        var ctx = gl.ctx;
-        var i, l, v;
-        var sequence = instance.sequence;
-        var frame = instance.frame;
-        var counter = instance.counter;
-        var shaderName = context.shaders[context.shader];
+    bind(bucket, scene) {
+        const webgl = this.env.webgl;
+        var gl = this.gl;
 
-        if (shaderName !== "uvs" && shaderName !== "normals" && shaderName !== "white") {
-            shaderName = "standard";
-        }
+        // HACK UNTIL I IMPLEMENT MULTIPLE SHADERS AGAIN
 
-        var realShaderName = "w" + shaderName
-        var shader;
-        var batches = this.batches;
-        var polygonMode = context.polygonMode;
-        var renderGeosets = (polygonMode === 1 || polygonMode === 3);
-        var renderWireframe = (polygonMode === 2 || polygonMode === 3);
+        var shader = this.env.shaderMap.get("MdxStandardShader");
+        webgl.useShaderProgram(shader);
+        this.shader = shader;
 
-        if (batches) {
-            var geoset;
-            var batch;
-            var layer;
+        const instancedArrays = gl.extensions.instancedArrays;
+        const attribs = shader.attribs;
+        const uniforms = shader.uniforms;
 
-            if (renderGeosets && gl.shaderStatus(realShaderName)) {
-                var modifier = this.modifier;
-                var uvoffset = this.uvoffset;
-                var textureId;
-                var textures = this.textures;
+        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, scene.camera.worldProjectionMatrix);
 
-                shader = gl.bindShader(realShaderName);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.__webglElementBuffer);
 
-                if (shaderName === "standard") {
-                    ctx.uniform4fv(shader.variables.u_tint, tint);
-                }
+        gl.uniform1i(uniforms.get("u_texture"), 0);
 
-                ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
-                ctx.uniform1i(shader.variables.u_texture, 0);
+        // Team colors
+        let teamColor = attribs.get("a_teamColor");
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.teamColorBuffer);
+        gl.vertexAttribPointer(teamColor, 1, gl.UNSIGNED_BYTE, false, 1, 0);
+        instancedArrays.vertexAttribDivisorANGLE(teamColor, 1);
 
-                instance.skeleton.bind(shader, ctx);
+        // Vertex colors
+        let vertexColor = attribs.get("a_vertexColor");
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.vertexColorBuffer);
+        gl.vertexAttribPointer(vertexColor, 4, gl.UNSIGNED_BYTE, true, 4, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
+        instancedArrays.vertexAttribDivisorANGLE(vertexColor, 1);
 
-                for (i = 0, l = batches.length; i < l; i++) {
-                    batch = batches[i];
-                    geoset = batch.geoset;
-                    layer = batch.layer;
+        gl.activeTexture(gl.TEXTURE15);
+        gl.bindTexture(gl.TEXTURE_2D, bucket.boneTexture);
+        gl.uniform1i(uniforms.get("u_boneMap"), 15);
+        gl.uniform1f(uniforms.get("u_vectorSize"), bucket.vectorSize);
+        gl.uniform1f(uniforms.get("u_rowSize"), bucket.rowSize);
 
-                    if (instance.meshVisibilities[geoset.index] && this.shouldRender(sequence, frame, counter, geoset, layer)) {
-                        modifier[0] = 1;
-                        modifier[1] = 1;
-                        modifier[2] = 1;
-                        modifier[3] = 1;
-
-                        uvoffset[0] = 0;
-                        uvoffset[1] = 0;
-                        uvoffset[2] = 0;
-
-                        layer.bind(shader, ctx);
-
-                        textureId = layer.getTextureId(sequence, frame, counter);
-                        this.bindTexture(this.textures[textureId], instance.textureMap[this.texturePaths[textureId]], context);
-
-                        if (geoset.geosetAnimation) {
-                            var tempVec3 = geoset.geosetAnimation.getColor(sequence, frame, counter);
-
-                            modifier[0] = tempVec3[2];
-                            modifier[1] = tempVec3[1];
-                            modifier[2] = tempVec3[0];
-                        }
-
-                        modifier[3] = layer.getAlpha(sequence, frame, counter);
-
-                        ctx.uniform4fv(shader.variables.u_modifier, modifier);
-
-                        if (layer.textureAnimation) {
-                            // What is Z used for?
-                            uvoffset = layer.textureAnimation.getTranslation(sequence, frame, counter);
-                        }
-
-                        ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
-
-                        geoset.render(layer.coordId, shader, context.polygonMode, ctx);
-
-                        layer.unbind(shader, ctx);
-                    }
-                }
-            }
-
-            if (renderWireframe && gl.shaderStatus("wwhite")) {
-                shader = gl.bindShader("wwhite");
-
-                ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
-                ctx.uniform1i(shader.variables.u_texture, 0);
-
-                instance.skeleton.bind(shader, ctx);
-
-                ctx.depthMask(1);
-                ctx.disable(ctx.BLEND);
-                ctx.enable(ctx.CULL_FACE);
-
-                for (i = 0, l = layers.length; i < l; i++) {
-                    layer = layers[i];
-
-                    if (instance.meshVisibilities[layer.geosetId] && layer.shouldRender(sequence, frame, counter) && this.shouldRenderGeoset(sequence, frame, counter, layer)) {
-                        geoset = geosets[layer.geosetId];
-
-                        geoset.renderWireframe(shader, ctx);
-                    }
-                }
-            }
-        }
-
-        if (context.emittersMode && instance.particleEmitters && gl.shaderStatus(realShaderName)) {
-            for (i = 0, l = instance.particleEmitters.length; i < l; i++) {
-                instance.particleEmitters[i].render(context);
-            }
-        }
-
-        ctx.depthMask(1);
-        ctx.disable(ctx.BLEND);
-        ctx.enable(ctx.CULL_FACE);
-        ctx.enable(ctx.DEPTH_TEST);
+        let instanceId = attribs.get("a_InstanceID");
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);
+        gl.vertexAttribPointer(instanceId, 1, gl.UNSIGNED_SHORT, false, 0, 0);
+        instancedArrays.vertexAttribDivisorANGLE(instanceId, 1);
     },
 
-    renderEmitters: function (instance) {
-        var context = instance.asyncInstance.context;
-        var gl = context.gl;
-        var ctx = gl.ctx;
-        var i, l;
-        var sequence = instance.sequence;
-        var frame = instance.frame;
-        var counter = instance.counter;
-        var shader;
+    unbind() {
+        let gl = this.gl,
+            instancedArrays = gl.extensions.instancedArrays,
+            attribs = this.shader.attribs;
 
-        if (instance.ribbonEmitters && gl.shaderStatus("wribbons")) {
-            ctx.depthMask(1);
-            ctx.disable(ctx.CULL_FACE);
+        // Reset gl values to default, to play nice with other handlers
+        gl.depthMask(1);
+        gl.disable(gl.BLEND);
+        gl.enable(gl.CULL_FACE);
+        gl.enable(gl.DEPTH_TEST);
 
-            shader = gl.bindShader("wribbons");
-            ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
-            ctx.uniform1i(shader.variables.u_texture, 0);
-
-            for (i = 0, l = instance.ribbonEmitters.length; i < l; i++) {
-                instance.ribbonEmitters[i].render(sequence, frame, counter, instance.textureMap, shader, context);
-            }
-        }
-
-        if (instance.particleEmitters2 && gl.shaderStatus("wparticles")) {
-            ctx.depthMask(0);
-            ctx.enable(ctx.BLEND);
-            ctx.disable(ctx.CULL_FACE);
-
-            shader = gl.bindShader("wparticles");
-
-            ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
-            ctx.uniform1i(shader.variables.u_texture, 0);
-
-            for (i = 0, l = instance.particleEmitters2.length; i < l; i++) {
-                instance.particleEmitters2[i].render(instance.textureMap, shader, context);
-            }
-
-            ctx.depthMask(1);
-        }
-
-        ctx.depthMask(1);
-        ctx.disable(ctx.BLEND);
-        ctx.enable(ctx.CULL_FACE);
+        // Reset the attributes to play nice with other handlers
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_teamColor"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_vertexColor"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_batchVisible"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_geosetColor"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_uvOffset"), 0);
     },
 
-    renderBoundingShapes: function (instance) {
-        var context = instance.asyncInstance.context;
-        var gl = context.gl;
-        var shader;
+    renderBatch(bucket, batch) {
+        let gl = this.gl,
+            instancedArrays = gl.extensions.instancedArrays,
+            shader = this.shader,
+            attribs = this.shader.attribs,
+            uniforms = shader.uniforms,
+            layer = batch.layer,
+            shallowGeoset = this.shallowGeosets[batch.geoset.index],
+            replaceable = this.replaceables[layer.textureId],
+            colorMode = 0;
 
-        if (this.boundingShapes && gl.shaderStatus("white")) {
-            shader = gl.bindShader("white");
+        layer.bind(shader);
 
-            for (i = 0, l = this.boundingShapes.length; i < l; i++) {
-                this.boundingShapes[i].render(instance.skeleton, shader, gl);
-            }
+        // Team color
+        if (replaceable === 1) {
+            colorMode = 1;
+        // Team glow
+        } else if (replaceable === 2) {
+            colorMode = 2;
         }
+        
+        gl.uniform1f(uniforms.get("u_colorMode"), colorMode);
+
+        let texture;
+
+        // If this is not a team color/glow, set the texture, and see if it's a texture animation.
+        if (colorMode === 0) {
+            texture = this.textures[layer.textureId];
+
+            // Does this layer use texture animations with multiple textures?
+            gl.uniform1f(uniforms.get("u_isTextureAnim"), layer.isTextureAnim);
+        }
+
+        // When this is a team color/glow, texture is undefined, so the black texture will get bound.
+        // This is better than not binding anything at all, since that can lead to WebGL errors.
+        this.bindTexture(texture, 0, bucket.modelView);
+
+        // Batch visibilities
+        let batchVisible = attribs.get("a_batchVisible");
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.batchVisibilityBuffers[batch.index]);
+        gl.vertexAttribPointer(batchVisible, 1, gl.UNSIGNED_BYTE, false, 1, 0);
+        instancedArrays.vertexAttribDivisorANGLE(batchVisible, 1);
+
+        // Geoset colors
+        let geosetColor = attribs.get("a_geosetColor");
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.geosetColorBuffers[batch.index]);
+        gl.vertexAttribPointer(geosetColor, 4, gl.UNSIGNED_BYTE, true, 4, 0);
+        instancedArrays.vertexAttribDivisorANGLE(geosetColor, 1);
+
+        // Texture coordinate animations
+        let uvOffset = attribs.get("a_uvOffset");
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.uvOffsetBuffers[layer.index]);
+        gl.vertexAttribPointer(uvOffset, 4, gl.FLOAT, false, 16, 0);
+        instancedArrays.vertexAttribDivisorANGLE(uvOffset, 1);
+
+        // Texture coordinate divisor
+        // Used for layers that use image animations, in order to scale the coordinates to match the generated texture atlas
+        gl.uniform2f(uniforms.get("u_uvScale"), 1 / layer.uvDivisor[0], 1 / layer.uvDivisor[1]);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.__webglArrayBuffer);
+        shallowGeoset.bind(shader, layer.coordId);
+
+        shallowGeoset.render(bucket.instances.length);
     },
 
-    renderColor: function (instance) {
-        var context = instance.asyncInstance.context;
-        var color = instance.asyncInstance.color;
-        var gl = context.gl;
-        var ctx = gl.ctx;
-        var i, l;
-        var sequence = instance.sequence;
-        var frame = instance.frame;
-        var counter = instance.counter;
-        var layer, geoset, texture;
-        var shader;
-        var batch;
-        var batches = this.batches;
-        var textures = this.textures;
+    renderBatches(bucket, scene, batches) {
+        if (batches && batches.length) {
+            const updateBatches = bucket.updateBatches;
 
-        if (batches && gl.shaderStatus("wcolor")) {
-            shader = gl.bindShader("wcolor");
+            this.bind(bucket, scene);
 
-            ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
-            ctx.uniform3fv(shader.variables.u_color, color);
+            for (let i = 0, l = batches.length; i < l; i++) {
+                const batch = batches[i];
 
-            instance.skeleton.bind(shader, ctx);
-
-            for (i = 0, l = batches.length; i < l; i++) {
-                batch = batches[i];
-                geoset = batch.geoset;
-                layer = batch.layer;
-
-                if (instance.meshVisibilities[geoset.index] && this.shouldRender(sequence, frame, counter, geoset, layer)) {
-                    texture = textures[layer.textureId];
-
-                    // Layers with team glows tend to be big planes that aren't parts of the actual geometry, so avoid selecting them
-                    if (!texture.source.match("teamglow")) {
-                        geoset.renderColor(shader, ctx);
-                    }
+                if (updateBatches[batch.index]) {
+                    this.renderBatch(bucket, batch);
                 }
             }
+
+            this.unbind();
         }
     },
 
-    shouldRender: function (sequence, frame, counter, geoset, layer) {
-        var i, l, geosetAnimation, geosetAnimations = this.geosetAnimations;
-
-        if (layer.getAlpha(sequence, frame, counter) < 0.75) {
-            return false;
-        }
-
-        if (geoset.geosetAnimation && geoset.geosetAnimation.getAlpha(sequence, frame, counter) < 0.75) {
-            return false;
-        }
-
-        return true;
+    renderOpaque(bucket, scene) {
+        this.renderBatches(bucket, scene, this.opaqueBatches);
     },
 
-    bindTexture: function (modelTexture, instanceTexture, context) {
-        var texture = instanceTexture || modelTexture;
+    renderTranslucent(bucket, scene) {
+        this.renderBatches(bucket, scene, this.translucentBatches);
+    },
 
-        if (!context.teamColorsMode && asyncTexture.source.endsWith("00.blp")) {
-            texture = null;
+    renderEmitters(bucket, scene) {
+        let webgl = this.env.webgl,
+            gl = this.env.gl,
+            particleEmitters2 = bucket.particleEmitters2,
+            eventObjectEmitters = bucket.eventObjectEmitters,
+            ribbonEmitters = bucket.ribbonEmitters;
+
+
+        if (particleEmitters2.length || eventObjectEmitters.length || ribbonEmitters.length) {
+            gl.depthMask(0);
+            gl.enable(gl.BLEND);
+            gl.disable(gl.CULL_FACE);
+            gl.enable(gl.DEPTH_TEST);
+
+            var shader = this.env.shaderMap.get("MdxParticleShader");
+            webgl.useShaderProgram(shader);
+
+            gl.uniformMatrix4fv(shader.uniforms.get("u_mvp"), false, scene.camera.worldProjectionMatrix);
+
+            gl.uniform1i(shader.uniforms.get("u_texture"), 0);
+
+            for (let i = 0, l = particleEmitters2.length; i < l; i++) {
+                particleEmitters2[i].render(bucket, shader);
+            }
+
+            for (let i = 0, l = eventObjectEmitters.length; i < l; i++) {
+                eventObjectEmitters[i].render(bucket, shader);
+            }
         }
 
-        context.gl.bindTexture(texture, 0);
+        if (ribbonEmitters.length) {
+            var shader = this.env.shaderMap.get("MdxRibbonShader");
+            webgl.useShaderProgram(shader);
+
+            gl.uniformMatrix4fv(shader.uniforms.get("u_mvp"), false, scene.camera.worldProjectionMatrix);
+
+            gl.uniform1i(shader.uniforms.get("u_texture"), 0);
+
+            for (let i = 0, l = ribbonEmitters.length; i < l; i++) {
+                ribbonEmitters[i].render(bucket, shader);
+            }
+        }
     }
-});
+};
+
+mix(MdxModel.prototype, TexturedModel.prototype);
+
+export default MdxModel;

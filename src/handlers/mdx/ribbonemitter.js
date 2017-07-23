@@ -1,184 +1,124 @@
-Mdx.RibbonEmitter = function (emitter, model, instance, ctx) {
-    var i, l;
-    var keys = Object.keys(emitter);
+import { vec3 } from "gl-matrix";
+import ResizeableBuffer from "../../gl/resizeablebuffer";
+import MdxSdContainer from "./sd";
+import MdxRibbon from "./ribbon";
+import MdxParticleEmitter from "./particleemitter";
+import MdxParticle2Emitter from "./particle2emitter";
 
-    for (i = keys.length; i--;) {
-        this[keys[i]] = emitter[keys[i]];
-    }
+// Heap allocations needed for this module.
+let colorHeap = vec3.create();
 
-    var ribbons = Math.ceil(this.emissionRate * this.lifespan);
+/**
+ * @constructor
+ * @param {MdxModel} model
+ * @param {MdxParserRibbonEmitter} emitter
+ */
+function MdxRibbonEmitter(model, emitter) {
+    let gl = model.gl,
+        layer = model.materials[emitter.materialId][0];
 
-    this.emitter = emitter;
     this.model = model;
-    this.textures = model.textures;
 
-    this.maxRibbons = ribbons;
-    this.lastCreation = 0;
-    this.ribbons = [];
+    this.active = [];
+    this.inactive = [];
 
-    if (!emitter.buffer) {
-        emitter.data = new Float32Array(ribbons * 10);
-        emitter.buffer = ctx.createBuffer();
+    this.buffer = new ResizeableBuffer(gl);
+    this.bytesPerEmit = 4 * 30;
 
-        ctx.bindBuffer(ctx.ARRAY_BUFFER, emitter.buffer);
-        ctx.bufferData(ctx.ARRAY_BUFFER, emitter.data, ctx.DYNAMIC_DRAW);
-    }
+    this.heightAbove = emitter.heightAbove;
+    this.heightBelow = emitter.heightBelow;
+    this.alpha = emitter.alpha;
+    this.color = emitter.color;
+    this.lifespan = emitter.lifespan;
+    this.textureSlot = emitter.textureSlot;
+    this.emissionRate = emitter.emissionRate;
+    this.gravity = emitter.gravity;
 
-    this.cellWidth = 1 / this.columns;
-    this.cellHeight = 1 / this.rows;
+    this.dimensions = [emitter.columns, emitter.rows];
+    this.cellWidth = 1 / emitter.columns;
+    this.cellHeight = 1 / emitter.rows;
 
-    var groups = [[], [], [], []];
-    var layers = model.materials[this.materialId];
+    this.node = model.nodes[emitter.node.index];
 
-    for (i = 0, l = layers.length; i < l; i++) {
-        var layer = new Mdx.ShallowLayer(layers[i]);
+    this.layer = layer;
+    this.texture = model.textures[layer.textureId];
 
-        groups[layers[i].renderOrder].push(layer);
-    }
+    this.sd = new MdxSdContainer(model, emitter.tracks);
+}
 
-    this.layers = groups[0].concat(groups[1]).concat(groups[2]).concat(groups[3]);
+MdxRibbonEmitter.prototype = {
+    emit(emitterView) {
+        this.buffer.grow((this.active.length + 1) * this.bytesPerEmit);
 
-    this.node = instance.skeleton.nodes[this.node.index];
-    this.sd = new Mdx.SDContainer(emitter.tracks, model);
+        let inactive = this.inactive,
+            object;
 
-    // Avoid heap allocations
-    this.colorVec = vec3.create();
-    this.modifierVec = vec4.create();
-    this.uvoffsetVec = vec3.create();
-    this.defaultUvoffsetVec = vec3.fromValues(0, 0, 0);
-};
-
-Mdx.RibbonEmitter.prototype = {
-    update: function (allowCreate, sequence, frame, counter, context) {
-        var i, l;
-
-        for (i = 0, l = this.ribbons.length; i < l; i++) {
-            this.ribbons[i].update(this, context);
+        if (inactive.length) {
+            object = inactive.pop();
+        } else {
+            object = new MdxRibbon(this);
         }
 
-        while (this.ribbons.length > 0 && this.ribbons[0].health <= 0) {
-            this.ribbons.shift();
-        }
+        object.reset(emitterView);
 
-        if (allowCreate && this.shouldRender(sequence, frame, counter)) {
-            this.lastCreation += 1;
-
-            var amount = this.emissionRate * context.frameTimeS * this.lastCreation;
-
-            if (amount >= 1) {
-                this.lastCreation = 0;
-
-                for (i = 0; i < amount; i++) {
-                    this.ribbons.push(new Mdx.Ribbon(this, sequence, frame, counter));
-                }
-            }
-        }
-    },
-
-    render: function (sequence, frame, counter, textureMap, shader, context) {
-        var ctx = context.gl.ctx;
-        var i, l;
-        var ribbons = Math.min(this.ribbons.length, this.maxRibbons);
-
-        if (ribbons > 2) {
-            var textureSlot = this.getTextureSlot(sequence, frame, counter);
-            //var uvOffsetX = (textureSlot % this.columns) / this.columns;
-            var uvOffsetY = Math.floor(textureSlot / this.rows) / this.rows;
-            var uvFactor = 1 / ribbons * this.cellWidth;
-            var top = uvOffsetY;
-            var bottom = uvOffsetY + this.cellHeight;
-            var data = this.emitter.data;
-            var index, ribbon, left, right, v1, v2;
-
-            for (i = 0, l = ribbons; i < l; i++) {
-                index = i * 10;
-                ribbon = this.ribbons[i];
-                left = (ribbons - i) * uvFactor;
-                right = left - uvFactor;
-                v1 = ribbon.p2;
-                v2 = ribbon.p1;
-
-                data[index + 0] = v1[0];
-                data[index + 1] = v1[1];
-                data[index + 2] = v1[2];
-                data[index + 3] = left;
-                data[index + 4] = top;
-
-                data[index + 5] = v2[0];
-                data[index + 6] = v2[1];
-                data[index + 7] = v2[2];
-                data[index + 8] = right;
-                data[index + 9] = bottom;
-            }
-
-            ctx.bindBuffer(ctx.ARRAY_BUFFER, this.emitter.buffer);
-            ctx.bufferSubData(ctx.ARRAY_BUFFER, 0, this.emitter.data);
-
-            ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, 20, 0);
-            ctx.vertexAttribPointer(shader.variables.a_uv, 2, ctx.FLOAT, false, 20, 12);
-
-            var textureId, color, uvoffset, modifier = this.modifierVec;
-            var layer, layers = this.layers;
+        this.active.push(object);
             
-            for (i = 0, l = layers.length; i < l; i++) {
-                layer = layers[i].layer;
+        return object;
+    },
 
-                layer.bind(shader, ctx);
+    update: MdxParticleEmitter.prototype.update,
+    updateData: MdxParticle2Emitter.prototype.updateData,
 
-                textureId = layer.getTextureId(sequence, frame, counter);
+    render(bucket, shader) {
+        let active = this.active.length;
 
-                this.model.bindTexture(this.textures[textureId], textureMap[this.model.texturePaths[textureId]], context);
+        if (active > 0) {
+            let model = this.model,
+                gl = model.gl;
 
-                color = this.getColor(sequence, frame, counter);
-                uvoffset = this.defaultUvoffsetVec;
+            this.layer.bind(shader);
 
-                modifier[0] = color[0];
-                modifier[1] = color[1];
-                modifier[2] = color[2];
-                modifier[3] = this.getAlpha(sequence, frame, counter);
+            gl.uniform2fv(shader.uniforms.get("u_dimensions"), this.dimensions);
 
-                ctx.uniform4fv(shader.variables.u_modifier, modifier);
+            model.bindTexture(this.texture, 0, bucket.modelView);
 
-                if (layer.textureAnimationId !== -1 && this.model.textureAnimations) {
-                    var textureAnimation = this.model.textureAnimations[layer.textureAnimationId];
-                    // What is Z used for?
-                    uvoffset = textureAnimation.getTranslation(sequence, frame, counter);
-                }
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.buffer);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.buffer.float32array.subarray(0, active * 30));
 
-                ctx.uniform3fv(shader.variables.u_uv_offset, uvoffset);
+            gl.vertexAttribPointer(shader.attribs.get("a_position"), 3, gl.FLOAT, false, 20, 0);
+            gl.vertexAttribPointer(shader.attribs.get("a_uva_rgb"), 2, gl.FLOAT, false, 20, 12);
 
-                ctx.drawArrays(ctx.TRIANGLE_STRIP, 0, ribbons * 2);
-
-                layer.unbind(shader, ctx);
-            }
+            gl.drawArrays(gl.TRIANGLES, 0, active * 6);
         }
     },
 
-    shouldRender: function (sequence, frame, counter) {
-        return this.getVisibility(sequence, frame, counter) > 0.75;
+    shouldRender(instance) {
+        return this.getVisibility(instance) > 0.75;
     },
 
-    getHeightBelow: function (sequence, frame, counter) {
-        return this.sd.getKRHB(sequence, frame, counter, this.heightBelow);
+    getHeightBelow(instance) {
+        return this.sd.getValue("KRHB", instance, this.heightBelow);
     },
 
-    getHeightAbove: function (sequence, frame, counter) {
-        return this.sd.getKRHA(sequence, frame, counter, this.heightAbove);
+    getHeightAbove(instance) {
+        return this.sd.getValue("KRHA", instance, this.heightAbove);
     },
 
-    getTextureSlot: function (sequence, frame, counter) {
-        return this.sd.getKRTX(sequence, frame, counter, 0);
+    getTextureSlot(instance) {
+        return this.sd.getValue("KRTX", instance, 0);
     },
 
-    getColor: function (sequence, frame, counter) {
-        return this.sd.getKRCO(sequence, frame, counter, this.color);
+    getColor(instance) {
+        return this.sd.getValue3(colorHeap, "KRCO", instance, this.color);
     },
 
-    getAlpha: function (sequence, frame, counter) {
-        return this.sd.getKRAL(sequence, frame, counter, this.alpha);
+    getAlpha(instance) {
+        return this.sd.getValue("KRAL", instance, this.alpha);
     },
 
-    getVisibility: function (sequence, frame, counter) {
-        return this.sd.getKRVS(sequence, frame, counter, 1);
+    getVisibility(instance) {
+        return this.sd.getValue("KRVS", instance, 1);
     }
 };
+
+export default MdxRibbonEmitter;

@@ -1,55 +1,83 @@
-Mdx.EventObjectUbr = function (emitter) {
-    var context = emitter.context;
-    var ctx = context.gl.ctx;
-    
+import { vec3, vec4 } from "gl-matrix";
+import { encodeFloat3 } from "../../common";
+
+/**
+ * @constructor
+ * @param {MdxEventObjectEmitter} emitter
+ */
+function MdxEventObjectUbr(emitter) {
     this.emitter = emitter;
+    this.health = 0;
+    this.color = new Uint8Array(4);
+    this.vertices = new Float32Array(12);
+    this.lta = 0;
+    this.lba = 0;
+    this.rta = 0;
+    this.rba = 0;
+    this.rgb = 0;
+}
 
-    if (!emitter.buffer) {
-        emitter.buffer = ctx.createBuffer();
-        emitter.data = new Float32Array(30);
+MdxEventObjectUbr.prototype = {
+    reset(emitterView) {
+        let modelObject = this.emitter.modelObject,
+            vertices = this.vertices,
+            emitterScale = modelObject.scale,
+            node = emitterView.instance.skeleton.nodes[modelObject.node.index],
+            location = node.worldLocation,
+            vertex;
 
-        ctx.bindBuffer(ctx.ARRAY_BUFFER, emitter.buffer);
-        ctx.bufferData(ctx.ARRAY_BUFFER, emitter.data, ctx.DYNAMIC_DRAW);
-    }
+        vertex = new Float32Array(vertices.buffer, 0, 3);
+        vec3.transformMat4(vertex, [-emitterScale, -emitterScale, 0], node.worldMatrix);
+        vec3.add(vertex, vertex, location);
 
-    this.time = 0;
-    this.endTime = emitter.firstIntervalTime + emitter.secondIntervalTime + emitter.thirdIntervalTime;
-    this.location = vec3.clone(emitter.node.worldLocation);
-    this.scale = vec3.clone(emitter.node.scale);
-    this.color = vec4.create();
-    this.index = 0;
-};
+        vertex = new Float32Array(vertices.buffer, 12, 3);
+        vec3.transformMat4(vertex, [-emitterScale, emitterScale, 0], node.worldMatrix);
+        vec3.add(vertex, vertex, location);
 
-Mdx.EventObjectUbr.prototype = {
-    update: function (emitter) {
-        var context = emitter.context;
-        var dt = context.frameTime / 100;
-        
-        this.time = Math.min(this.time + dt, this.endTime);
-        
-        var time = this.time;
-        var first = emitter.firstIntervalTime;
-        var second = emitter.secondIntervalTime;
-        var third = emitter.thirdIntervalTime;
-        var tempFactor;
-        var index;
-        var color = this.color;
+        vertex = new Float32Array(vertices.buffer, 24, 3);
+        vec3.transformMat4(vertex, [emitterScale, emitterScale, 0], node.worldMatrix);
+        vec3.add(vertex, vertex, location);
+
+        vertex = new Float32Array(vertices.buffer, 36, 3);
+        vec3.transformMat4(vertex, [emitterScale, -emitterScale, 0], node.worldMatrix);
+        vec3.add(vertex, vertex, location);
+
+        this.health = modelObject.lifespan;
+    },
+
+    update() {
+        let modelObject = this.emitter.modelObject,
+            intervalTimes = modelObject.intervalTimes,
+            first = intervalTimes[0],
+            second = intervalTimes[1],
+            third = intervalTimes[2],
+            colors = modelObject.colors,
+            color = this.color;
+
+        this.health -= modelObject.model.env.frameTime * 0.001;
+
+        // Inverse of health
+        let time = modelObject.lifespan - this.health;
         
         if (time < first) {
-            tempFactor = time / first;
-            
-            vec4.lerp(color, emitter.colors[0], emitter.colors[1], tempFactor);
+            vec4.lerp(color, colors[0], colors[1], time / first);
         } else if (time < first + second) {
-            vec4.copy(color, emitter.colors[1]);
+            vec4.copy(color, modelObject.colors[1]);
         } else {
-            tempFactor = (time - first - second) / third;
-            
-            vec4.lerp(color, emitter.colors[1], emitter.colors[2], tempFactor);
+            vec4.lerp(color, colors[1], colors[2], (time - first - second) / third);
         }
-    },
-    
-    updateHW: Mdx.EventObjectSpl.prototype.updateHW,    
-    render: Mdx.EventObjectSpl.prototype.render,
-    renderEmitters: Mdx.EventObjectSpl.prototype.renderEmitters,
-    ended: Mdx.EventObjectSpl.prototype.ended
+
+        // Calculate the UV rectangle.
+        let a = color[3];
+
+        // Encode the UV rectangle and color in floats.
+        // This is a shader optimization.
+        this.lta = encodeFloat3(1, 0, a);
+        this.lba = encodeFloat3(0, 0, a);
+        this.rta = encodeFloat3(1, 1, a);
+        this.rba = encodeFloat3(0, 1, a);
+        this.rgb = encodeFloat3(color[0], color[1], color[2]);
+    }
 };
+
+export default MdxEventObjectUbr;

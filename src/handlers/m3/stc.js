@@ -1,47 +1,39 @@
-M3.STC = function (stc) {
-    var i, l;
-    var animIds = stc.animIds;
+import M3SdContainer from "./sd";
 
-    this.name = stc.name;
+/**
+ * @constructor
+ * @param {M3ParserStc} stc
+ */
+function M3Stc(stc) {
+    const animIds = stc.animIds.getAll();
+
+    this.name = stc.name.getAll().join("");
     this.runsConcurrent = stc.runsConcurrent;
     this.priority = stc.priority;
     this.stsIndex = stc.stsIndex;
-    this.animIds = {};
+
+    const animRefs = new Uint16Array(stc.animRefs.getAll().buffer);
+
+    this.animRefs = [];
 
     // Allows direct checks instead of loops
-    for (i = 0, l = animIds.length; i < l; i++) {
-        this.animIds[animIds[i]] = i;
+    for (let i = 0, l = animIds.length; i < l; i++) {
+        this.animRefs[animIds[i]] = [animRefs[i * 2 + 1], animRefs[i * 2]];
     }
 
-    this.animRefs = stc.animRefs;
+    this.sd = stc.sd.map((sd) => new M3SdContainer(sd.getAll()));
+}
 
-    var sd = stc.sd;
+M3Stc.prototype = {
+    getValueUnsafe(animRef, instance) {
+        const ref = this.animRefs[animRef.animId];
 
-    this.sd = [
-        new M3.SD(sd[0]),
-        new M3.SD(sd[1]),
-        new M3.SD(sd[2]),
-        new M3.SD(sd[3]),
-        new M3.SD(sd[4]),
-        new M3.SD(sd[5]),
-        0, // Unknown M3.SD
-        new M3.SD(sd[7]),
-        new M3.SD(sd[8]),
-        0, // Unknown M3.SD
-        0, // Unknown M3.SD,
-        new M3.SD(sd[11]),
-        new M3.SD(sd[12])
-    ];
-};
-
-M3.STC.prototype = {
-    getValue: function (out, animationReference, frame) {
-        var animRef = this.animRefs[this.animIds[animationReference.animId]];
-
-        if (animRef) {
-            return this.sd[animRef[1]].getValue(out, animRef[0], animationReference, frame, this.runsConcurrent);
+        if (ref) {
+            return this.sd[ref[0]].getValueUnsafe(ref[1], animRef, instance.frame, this.runsConcurrent);
         }
 
-        return animationReference.initValue;
+        return animRef.initValue;
     }
 };
+
+export default M3Stc;

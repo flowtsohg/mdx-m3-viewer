@@ -1,60 +1,76 @@
-Mdx.Particle = function  () {
-    this.position = vec3.create();
+import { vec3, quat } from "gl-matrix";
+
+// Heap allocations needed for this module.
+let rotationHeap = quat.create(),
+    velocityHeap = vec3.create();
+
+/**
+ * @constructor
+ * @param {MdxParticleEmitter} emitter
+ */
+function MdxParticle(emitter) {
+    this.emitter = emitter;
+    this.instance = null;
+
+    this.internalInstance = emitter.modelObject.internalResource.addInstance();
     this.velocity = vec3.create();
-    this.orientation = 0;
     this.gravity = 0;
-};
+}
 
-Mdx.Particle.prototype = {
-    reset: function (emitter, sequence, frame, counter) {
-        var scale = emitter.node.scale;
-        var speed = emitter.getSpeed(sequence, frame, counter);
-        var latitude = emitter.getLatitude(sequence, frame, counter);
-        var longitude = emitter.getLongitude(sequence, frame, counter);
-        var lifespan = emitter.getLifespan(sequence, frame, counter);
-        var gravity = emitter.getGravity(sequence, frame, counter) * scale[2];
-        var position = this.position;
-        var worldMatrix = emitter.node.worldMatrix;
+MdxParticle.prototype = {
+    reset(emitterView) {
+        let instance = emitterView.instance,
+            node = instance.skeleton.nodes[this.emitter.modelObject.node.index],
+            internalInstance = this.internalInstance,
+            scale = node.worldScale,
+            latitude = emitterView.getLatitude(),
+            //longitude = emitterView.getLongitude(), // ?
+            velocity = this.velocity;
 
-        this.alive = true;
-        this.health = lifespan;
+        this.instance = instance;
+        this.node = node;
+        this.health = emitterView.getLifespan();
+        this.gravity = emitterView.getGravity() * scale[2];
 
-        vec3.transformMat4(position, emitter.node.pivot, emitter.node.worldMatrix);
+        // Local rotation
+        quat.identity(rotationHeap);
+        quat.rotateZ(rotationHeap, rotationHeap, Math.randomRange(-Math.PI, Math.PI));
+        quat.rotateY(rotationHeap, rotationHeap, Math.randomRange(-latitude, latitude));
+        vec3.transformQuat(velocity, vec3.UNIT_Z, rotationHeap);
 
-        var velocity = emitter.heapVelocity;
-        var rotation = emitter.heapMat;
-        var velocityStart = emitter.heapVel1;
-        var velocityEnd = emitter.heapVel2;
+        // World rotation
+        vec3.transformQuat(velocity, velocity, node.worldRotation);
+        
+        // Apply speed
+        vec3.scale(velocity, velocity, emitterView.getSpeed());
 
-        mat4.identity(rotation);
-        mat4.rotateZ(rotation, rotation, Math.randomRange(-Math.PI, Math.PI));
-        mat4.rotateY(rotation, rotation, Math.randomRange(-latitude, latitude));
+        // Apply the parent's scale
+        vec3.mul(velocity, velocity, scale);
 
-        vec3.transformMat4(velocity, vec3.UNIT_Z, rotation);
-        vec3.normalize(velocity, velocity);
+        instance.scene.addInstance(internalInstance);
 
-        vec3.add(velocityEnd, position, velocity);
-
-        vec3.transformMat4(velocityStart, position, worldMatrix);
-        vec3.transformMat4(velocityEnd, velocityEnd, worldMatrix);
-
-        vec3.subtract(velocity, velocityEnd, velocityStart);
-        vec3.normalize(velocity, velocity);
-        vec3.scale(velocity, velocity, speed);
-
-        vec3.multiply(this.velocity, velocity, scale);
-
-        this.orientation = Math.randomRange(0, Math.PI * 2);
-        this.gravity = gravity;
+        internalInstance.setTransformation(node.worldLocation, quat.setAxisAngle(rotationHeap, vec3.UNIT_Z, Math.randomRange(0, Math.PI * 2)), node.worldScale);
+        internalInstance.setSequence(0);
+        internalInstance.show();
     },
 
-    update: function (emitter, sequence, frame, counter, context) {
-        if (this.alive) {
-            this.health -= context.frameTimeS;
+    update() {
+        let internalInstance = this.internalInstance,
+            velocity = this.velocity,
+            frameTimeS = internalInstance.env.frameTime * 0.001;
 
-            this.velocity[2] -= this.gravity * context.frameTimeS;
+        internalInstance.paused = false;
 
-            vec3.scaleAndAdd(this.position, this.position, this.velocity, context.frameTimeS);
+        this.health -= frameTimeS;
+
+        velocity[2] -= this.gravity * frameTimeS;
+
+        internalInstance.move(vec3.scale(velocityHeap, velocity, frameTimeS));
+
+        if (this.health <= 0) {
+            this.internalInstance.hide();
         }
     }
 };
+
+export default MdxParticle;

@@ -1,26 +1,45 @@
-M3.SD = function (sd) {
-    this.sd = sd;
+import { vec3 } from "gl-matrix";
+import Interpolator from "../../math/interpolator";
 
-    // Avoid heap allocations in getInterval()
-    this.interval = [0, 0];
-};
+/**
+ * @constructor
+ * @param {M3ParserSd} sd
+ */
+function M3Sd(sd) {
+    this.keys = sd.keys.getAll();
+    this.values = sd.values.getAll();
+    this.biggestKey = sd.biggestKey;
+}
 
-M3.SD.prototype = {
-    getValue: function (out, index, animationReference, frame, runsConcurrent) {
+/**
+ * @constructor
+ * @param {Array<M3ParserSd>} sd
+ */
+function M3SdContainer(sd) {
+    this.sd = sd.map((sd) => new M3Sd(sd));
+}
+
+M3SdContainer.prototype = {
+    getValueUnsafe(index, animationReference, frame, runsConcurrent) {
         var sd = this.sd[index];
 
-        if (runsConcurrent === 1) {
+        if (runsConcurrent) {
             frame = frame % sd.biggestKey;
         }
 
-        var interval = this.interval;
         var keys = sd.keys;
         var values = sd.values;
 
-        this.getInterval(keys, frame, interval);
+        // getInterval
+        var a = keys.length;
+        var b = 0;
 
-        var a = interval[0];
-        var b = interval[1];
+        while (b !== keys.length && frame > keys[b]) {
+            a = b;
+            b++;
+        }
+        // /getInterval
+
         var length = keys.length;
 
         if (a === length) {
@@ -38,19 +57,8 @@ M3.SD.prototype = {
         var t = Math.clamp((frame - keys[a]) / (keys[b] - keys[a]), 0, 1);
 
         // M3 doesn't seem to have hermite/bezier interpolations, so just feed 0 to the in/out tangents since they are not used anyway
-        return interpolator(out, values[a], 0, 0, values[b], t, animationReference.interpolationType);
-    },
-
-    getInterval: function (keys, frame, interval) {
-        var a = keys.length;
-        var b = 0;
-
-        while (b !== keys.length && frame > keys[b]) {
-            a = b;
-            b++;
-        }
-
-        interval[0] = a;
-        interval[1] = b;
+        return Interpolator.interpolate(values[a], 0, 0, values[b], t, animationReference.interpolationType);
     }
 };
+
+export default M3SdContainer;

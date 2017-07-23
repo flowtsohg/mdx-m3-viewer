@@ -1,9 +1,87 @@
-Mdx.Batch = function (layer, geoset) {
-    this.layer = layer;
-    this.geoset = geoset;
-};
+import MdxSdContainer from "./sd";
 
-var filterModeToRenderOrder = {
+/**
+ * @constructor
+ * @param {MdxModel} model
+ * @param {MdxParserLayer} layer
+ * @param {number} layerId
+ * @param {number} priorityPlane
+ */
+function MdxLayer(model, layer, layerId, priorityPlane) {
+    let filterMode = layer.filterMode,
+        textureAnimationId = layer.textureAnimationId,
+        gl = model.gl;
+
+    this.gl = gl;
+    this.index = layerId;
+    this.priorityPlane = priorityPlane;
+    this.filterMode = filterMode;
+    this.textureId = layer.textureId;
+    this.coordId = layer.coordId;
+    this.alpha = layer.alpha;
+    this.renderOrder = MdxLayer.filterModeToRenderOrder[filterMode];
+    this.sd = new MdxSdContainer(model, layer.tracks);
+
+    var flags = layer.flags;
+
+    this.unshaded = flags & 0x1;
+    this.sphereEnvironmentMap = flags & 0x2;
+    this.twoSided = flags & 0x10;
+    this.unfogged = flags & 0x20;
+    this.noDepthTest = flags & 0x40;
+    this.noDepthSet = flags & 0x80;
+
+    if (textureAnimationId !== -1) {
+        let textureAnimation = model.textureAnimations[textureAnimationId];
+
+        if (textureAnimation) {
+            this.textureAnimation = textureAnimation;
+        }
+    }
+
+    this.depthMaskValue = (filterMode === 0 || filterMode === 1) ? 1 : 0;
+    this.alphaTestValue = (filterMode === 1) ? 1 : 0;
+
+    let blended = (filterMode > 1) ? true : false;
+
+    if (blended) {
+        let blendSrc,
+            blendDst;
+
+        switch (filterMode) {
+            case 2:
+                blendSrc = gl.SRC_ALPHA;
+                blendDst = gl.ONE_MINUS_SRC_ALPHA;
+                break;
+            case 3:
+                blendSrc = gl.ONE;
+                blendDst = gl.ONE;
+                break;
+            case 4:
+                blendSrc = gl.SRC_ALPHA;
+                blendDst = gl.ONE;
+                break;
+            case 5:
+                blendSrc = gl.ZERO;
+                blendDst = gl.SRC_COLOR;
+                break;
+            case 6:
+                blendSrc = gl.DST_COLOR;
+                blendDst = gl.SRC_COLOR;
+                break;
+        }
+
+        this.blendSrc = blendSrc;
+        this.blendDst = blendDst;
+    }
+
+    this.blended = blended;
+
+    this.uvDivisor = new Float32Array([1, 1]);
+    this.isTextureAnim = false;
+}
+
+MdxLayer.filterModeToRenderOrder = {
     0: 0, // Opaque
     1: 1, // 1bit Alpha
     2: 2, // 8bit Alpha
@@ -13,97 +91,67 @@ var filterModeToRenderOrder = {
     6: 3  // Modulate 2X
 };
 
-Mdx.Layer = function (layer, model, textureAnimations) {
-    var filterMode = Math.min(layer.filterMode, 6);
-    
-    this.filterMode = filterMode;
-    this.twoSided = layer.twoSided;
-    this.noDepthTest = layer.noDepthTest;
-    this.noDepthSet = layer.noDepthSet;
-    this.textureId = layer.textureId;
-    this.textureAnimationId = layer.textureAnimationId;
-    this.coordId = layer.coordId;
-    this.alpha = layer.alpha;
-    this.renderOrder = filterModeToRenderOrder[filterMode];
-    this.sd = new Mdx.SDContainer(layer.tracks, model);
+MdxLayer.prototype = {
+    bind(shader) {
+        let gl = this.gl;
 
-    if (layer.textureAnimationId !== -1 && textureAnimations[layer.textureAnimationId]) {
-        this.textureAnimation = textureAnimations[layer.textureAnimationId];
-    }
-};
+        gl.uniform1f(shader.uniforms.get("u_alphaTest"), this.alphaTestValue);
 
-Mdx.Layer.prototype = {
-    bind: function (shader, ctx) {
-        ctx.uniform1f(shader.variables.u_alphaTest, 0);
-
-        switch (this.filterMode) {
-            case 0:
-                ctx.depthMask(1);
-                ctx.disable(ctx.BLEND);
-                break;
-            case 1:
-                ctx.depthMask(1);
-                ctx.disable(ctx.BLEND);
-                ctx.uniform1f(shader.variables.u_alphaTest, 1);
-                break;
-            case 2:
-                ctx.depthMask(0);
-                ctx.enable(ctx.BLEND);
-                ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE_MINUS_SRC_ALPHA);
-                break;
-            case 3:
-                ctx.depthMask(0);
-                ctx.enable(ctx.BLEND);
-                ctx.blendFunc(ctx.ONE, ctx.ONE);
-                break;
-            case 4:
-                ctx.depthMask(0);
-                ctx.enable(ctx.BLEND);
-                ctx.blendFunc(ctx.SRC_ALPHA, ctx.ONE);
-                break;
-            case 5:
-                ctx.depthMask(0);
-                ctx.enable(ctx.BLEND);
-                ctx.blendFunc(ctx.ZERO, ctx.SRC_COLOR);
-                break;
-            case 6:
-                ctx.depthMask(0);
-                ctx.enable(ctx.BLEND);
-                ctx.blendFunc(ctx.DST_COLOR, ctx.SRC_COLOR);
-                break;
+        if (this.blended) {
+            gl.enable(gl.BLEND);
+            gl.blendFunc(this.blendSrc, this.blendDst);
+        } else {
+            gl.disable(gl.BLEND);
         }
-        
+
         if (this.twoSided) {
-            ctx.disable(ctx.CULL_FACE);
+            gl.disable(gl.CULL_FACE);
         } else {
-            ctx.enable(ctx.CULL_FACE);
+            gl.enable(gl.CULL_FACE);
         }
-        
+
         if (this.noDepthTest) {
-            ctx.disable(ctx.DEPTH_TEST);
+            gl.disable(gl.DEPTH_TEST);
         } else {
-            ctx.enable(ctx.DEPTH_TEST);
+            gl.enable(gl.DEPTH_TEST);
         }
-        
+
         if (this.noDepthSet) {
-            ctx.depthMask(0);
+            gl.depthMask(0);
+        } else {
+            gl.depthMask(this.depthMaskValue);
         }
     },
 
-    unbind: function (shader, ctx) {
-        ctx.uniform1f(shader.variables.u_alphaTest, 0);
-
-        ctx.depthMask(1);
-        ctx.disable(ctx.BLEND);
-        ctx.enable(ctx.CULL_FACE);
-        ctx.enable(ctx.DEPTH_TEST);
+    setAtlas(atlas) {
+        this.textureId = atlas.textureId;
+        this.uvDivisor.set([atlas.columns, atlas.rows]);
+        this.isTextureAnim = true;
     },
 
-    getAlpha: function (sequence, frame, counter) {
-        return this.sd.getKMTA(sequence, frame, counter, this.alpha);
+    getAllTextureIds() {
+        var textureIds = this.sd.getValues("KMTF");
+
+        if (textureIds.length) {
+            // Remove duplicate elements but keep the unique ones in order
+            return textureIds.unique();
+        } else {
+            return [this.textureId];
+        }
     },
 
-    getTextureId: function (sequence, frame, counter) {
-        return this.sd.getKMTF(sequence, frame, counter, this.textureId);
+    getAlpha(instance) {
+        return this.sd.getValue("KMTA", instance, this.alpha);
+    },
+
+    isAlphaVariant(sequence) {
+        return this.sd.isVariant("KMTA", sequence);
+    },
+
+    getTextureId(instance) {
+        return this.sd.getValue("KMTF", instance, this.textureId);
+        // TODO: map the returned slot to a texture atlas slot if one exists.
     }
 };
+
+export default MdxLayer;

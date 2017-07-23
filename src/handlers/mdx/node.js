@@ -1,61 +1,73 @@
-var defaultTransformations = {
-    translation: [0, 0, 0],
-    rotation: [0, 0, 0, 1],
-    scaling: [1, 1, 1]
-};
+import { vec3, quat } from "gl-matrix";
+import MdxSdContainer from "./sd";
 
-Mdx.Node = function (object, model, pivots) {
-    var pivot = pivots[object.objectId];
+// Heap allocations needed for this module.
+let translationHeap = vec3.create(),
+    rotationHeap = quat.create(),
+    scaleHeap = vec3.create();
 
-    this.name = object.name;
-    this.objectId = object.objectId;
-    this.parentId = object.parentId;
-    this.pivot = pivot ? pivot.data : [0, 0, 0];
-    this.billboarded = object.billboarded;
-    this.modelSpace = object.modelSpace;
-    this.xYQuad = object.xYQuad;
-    this.sd = new Mdx.SDContainer(object.tracks, model);
+/**
+ * @constructor
+ * @param {MdxModel} model
+ * @param {MdxParserNode} node
+ * @param {Array<MdxParserPivot>} pivots
+ */
+function MdxNode(model, node, pivots) {
+    let pivot = pivots[node.objectId],
+        flags = node.flags;
 
-    if (object.objectId === object.parentId) {
-        this.parentId = -1;
-    }
-};
-
-Mdx.Node.prototype = {
-    getTranslation: function (sequence, frame, counter) {
-        return this.sd.getKGTR(sequence, frame, counter, defaultTransformations.translation);
-    },
-
-    getRotation: function (sequence, frame, counter) {
-        return this.sd.getKGRT(sequence, frame, counter, defaultTransformations.rotation);
-    },
-
-    getScale: function (sequence, frame, counter) {
-        return this.sd.getKGSC(sequence, frame, counter, defaultTransformations.scaling);
-    }  
-};
-
-// Used by each copy of a skeleton to hold the node hierarchy
-// Keeps a reference to the actual node containing the animation data, that the model owns
-Mdx.ShallowNode = function (node) {
-    Node.call(this);
-
-    this.nodeImpl = node;
+    this.index = node.index;
+    this.name = node.name;
     this.objectId = node.objectId;
     this.parentId = node.parentId;
-    
-    vec3.copy(this.pivot, node.pivot);
-    
-    this.externalWorldMatrix = mat4.create();
+    this.pivot = pivot ? pivot.value : vec3.create();
+    this.sd = new MdxSdContainer(model, node.tracks);
+
+    this.dontInheritTranslation = flags & 0x1;
+    this.dontInheritRotation = flags & 0x2;
+    this.dontInheritScaling = flags & 0x4;
+    this.billboarded = flags & 0x8;
+    this.billboardedX = flags & 0x10;
+    this.billboardedY = flags & 0x20;
+    this.billboardedZ = flags & 0x40;
+    this.cameraAnchored = flags & 0x80;
+    this.bone = flags & 0x100;
+    this.light = flags & 0x200;
+    this.eventObject = flags & 0x400;
+    this.attachment = flags & 0x800;
+    this.particleEmitter = flags & 0x1000;
+    this.collisionShape = flags & 0x2000;
+    this.ribbonEmitter = flags & 0x4000;
+    this.emitterUsesMdlOrUnshaded = flags & 0x8000;
+    this.emitterUsesTgaOrSortPrimitivesFarZ = flags & 0x10000;
+    this.lineEmitter = flags & 0x20000;
+    this.unfogged = flags & 0x40000;
+    this.modelSpace = flags & 0x80000;
+    this.xYQuad = flags & 0x100000;
+
+    if (node.objectId === node.parentId) {
+        this.parentId = -1;
+    }
 }
 
-Mdx.ShallowNode.prototype = extend(Node.prototype, {
-    getTransformation: function () {
-        var m = this.externalWorldMatrix;
+MdxNode.prototype = {
+    getTranslation(instance) {
+        return this.sd.getValue3(translationHeap, "KGTR", instance, vec3.ZERO);
+    },
 
-        mat4.copy(m, this.worldMatrix);
-        mat4.translate(m, m, this.pivot);
+    getRotation(instance) {
+        return this.sd.getValue4(rotationHeap, "KGRT", instance, quat.DEFAULT);
+    },
 
-        return m;
+    getScale(instance) {
+        return this.sd.getValue3(scaleHeap, "KGSC", instance, vec3.ONE);
+    },
+
+    isVariant(sequence) {
+        let sd = this.sd;
+
+        return sd.isVariant("KGTR", sequence) || sd.isVariant("KGRT", sequence) || sd.isVariant("KGSC", sequence);
     }
-});
+};
+
+export default MdxNode;

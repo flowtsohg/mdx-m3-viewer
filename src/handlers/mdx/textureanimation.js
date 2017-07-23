@@ -1,20 +1,32 @@
-Mdx.TextureAnimation = function (textureAnimation, model) {
-    this.sd = new Mdx.SDContainer(textureAnimation.tracks, model);
-    this.defaultTranslation = vec3.create();
-    this.defaultRotation = quat.create();
-    this.defaultScale = vec3.fromValues(1, 1, 1);
-};
+import { vec3, quat } from "gl-matrix";
+import MdxSdContainer from "./sd";
 
-Mdx.TextureAnimation.prototype = {
-    getTranslation: function (sequence, frame, counter) {
-        return this.sd.getKTAT(sequence, frame, counter, this.defaultTranslation);
+// Heap allocations needed for this module.
+let translationHeap = vec3.create(),
+    rotationHeap = quat.create(),
+    scaleHeap = vec3.create();
+
+/**
+ * @constructor
+ * @param {MdxModel} model
+ * @param {MdxParserTextureAnimation} textureAnimation
+ */
+function MdxTextureAnimation(model, textureAnimation) {
+    this.sd = new MdxSdContainer(model, textureAnimation.tracks);
+}
+
+MdxTextureAnimation.prototype = {
+    getTranslation(instance) {
+        return this.sd.getValue3(translationHeap, "KTAT", instance, vec3.ZERO);
     },
 
-    getRotation: function (sequence, frame, counter) {
-        return this.sd.getKTAR(sequence, frame, counter, this.defaultRotation);
+    getRotation(instance) {
+        return this.sd.getValue4(rotationHeap, "KTAR", instance, quat.DEFAULT);
     },
 
-    getScale: function (sequence, frame, counter) {
-        return this.sd.getKTAS(sequence, frame, counter, this.defaultScale);
+    getScale(instance) {
+        return this.sd.getValue3(scaleHeap, "KTAS", instance, vec3.ONE);
     }
 };
+
+export default MdxTextureAnimation;

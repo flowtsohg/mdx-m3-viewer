@@ -1,8 +1,15 @@
-M3.StandardMaterial = function (model, material) {
-    this.model = model;
+import M3Layer from "./layer";
 
-    this.name = material.name;
-    this.specialFlags = material.specialFlags;
+/**
+ * @constructor
+ * @param {M3Model} model
+ * @param {M3ParserStandardMaterial} material
+ */
+function M3StandardMaterial(model, material) {
+    this.model = model;
+    this.gl = model.env.gl;
+
+    this.name = material.name.getAll().join("");
     this.flags = material.flags;
     this.blendMode = material.blendMode;
     this.priority = material.priority;
@@ -12,123 +19,127 @@ M3.StandardMaterial = function (model, material) {
     this.layerBlendType = material.layerBlendType;
     this.emisBlendType = material.emisBlendType;
     this.emisMode = material.emisMode;
+    this.doubleSided = material.flags & 0x8;
 
     this.layers = [
-        new M3.Layer(this, material.diffuseLayer, "diffuse", 2),
-        new M3.Layer(this, material.decalLayer, "decal", 2),
-        new M3.Layer(this, material.specularLayer, "specular", 2),
-        new M3.Layer(this, material.glossLayer, "gloss", 2),
-        new M3.Layer(this, material.emissiveLayer, "emissive", material.emisBlendType),
-        new M3.Layer(this, material.emissive2Layer, "emissive2", material.emisMode),
-        new M3.Layer(this, material.evioLayer, "evio", 2),
-        new M3.Layer(this, material.evioMaskLayer, "evioMask", 2),
-        new M3.Layer(this, material.alphaMaskLayer, "alphaMask", 2),
-        new M3.Layer(this, material.alphaMask2Layer, "alphaMask2", 2),
-        new M3.Layer(this, material.normalLayer, "normal", 2),
-        new M3.Layer(this, material.heightLayer, "heightMap", 2),
-        new M3.Layer(this, material.lightMapLayer, "lightMap", 2),
-        new M3.Layer(this, material.ambientOcclusionLayer, "ao", 2)
+        new M3Layer(this, material.diffuseLayer, "diffuse", 2),
+        new M3Layer(this, material.decalLayer, "decal", 2),
+        new M3Layer(this, material.specularLayer, "specular", 2),
+        new M3Layer(this, material.glossLayer, "gloss", 2),
+        new M3Layer(this, material.emissiveLayer, "emissive", material.emisBlendType),
+        new M3Layer(this, material.emissive2Layer, "emissive2", material.emisMode),
+        new M3Layer(this, material.evioLayer, "evio", 2),
+        new M3Layer(this, material.evioMaskLayer, "evioMask", 2),
+        new M3Layer(this, material.alphaMaskLayer, "alphaMask", 2),
+        new M3Layer(this, material.alphaMask2Layer, "alphaMask2", 2),
+        new M3Layer(this, material.normalLayer, "normal", 2),
+        new M3Layer(this, material.heightLayer, "heightMap", 2),
+        new M3Layer(this, material.lightMapLayer, "lightMap", 2),
+        new M3Layer(this, material.ambientOcclusionLayer, "ao", 2)
     ];
-};
+}
 
-M3.StandardMaterial.prototype = {
-    bindCommon: function (ctx) {
+M3StandardMaterial.prototype = {
+    bindCommon() {
+        const gl = this.gl;
+
         if (this.blendMode === 1) {
-            ctx.enable(ctx.BLEND);
-            ctx.blendFunc(ctx.ONE, ctx.ONE);
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.ONE, gl.ONE);
         } else if (this.blendMode === 2) {
-            ctx.enable(ctx.BLEND);
-            ctx.blendFunc(ctx.ONE, ctx.ONE);
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.ONE, gl.ONE);
         } else {
-            ctx.disable(ctx.BLEND);
+            gl.disable(gl.BLEND);
         }
 
-        if (this.flags & 0x8) {
-            ctx.disable(ctx.CULL_FACE);
+        if (this.doubleSided) {
+            gl.disable(gl.CULL_FACE);
         } else {
-            ctx.enable(ctx.CULL_FACE);
+            gl.enable(gl.CULL_FACE);
         }
+
+        // Flags somewhere?
+        // Per layer?
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthMask(1);
     },
 
-    bind: function (sequence, frame, textureMap, shader, context) {
-        var ctx = context.gl.ctx;
+    bind(bucket, shader) {
+        const gl = this.gl;
 
-        this.bindCommon(ctx);
+        this.bindCommon();
 
-        ctx.uniform1f(shader.variables.u_specularity, this.specularity);
-        ctx.uniform1f(shader.variables.u_specMult, this.specMult);
-        ctx.uniform1f(shader.variables.u_emisMult, this.emisMult);
-        ctx.uniform4fv(shader.variables.u_lightAmbient, [0.02, 0.02, 0.02, 0]);
+        gl.uniform1f(shader.uniforms.get("u_specularity"), this.specularity);
+        gl.uniform1f(shader.uniforms.get("u_specMult"), this.specMult);
+        gl.uniform1f(shader.uniforms.get("u_emisMult"), this.emisMult);
+        gl.uniform4fv(shader.uniforms.get("u_lightAmbient"), [0.02, 0.02, 0.02, 0]);
 
-        var layers = this.layers;
+        const layers = this.layers;
 
-        layers[0].bind(1, sequence, frame, textureMap, shader, context);
-        layers[1].bind(2, sequence, frame, textureMap, shader, context);
-        layers[2].bind(3, sequence, frame, textureMap, shader, context);
-        layers[4].bind(5, sequence, frame, textureMap, shader, context);
-        layers[5].bind(6, sequence, frame, textureMap, shader, context);
-        layers[10].bind(11, sequence, frame, textureMap, shader, context);
-        layers[12].bind(13, sequence, frame, textureMap, shader, context);
+        layers[0].bind(bucket, shader);
+        layers[1].bind(bucket, shader);
+        layers[2].bind(bucket, shader);
+        layers[4].bind(bucket, shader);
+        layers[5].bind(bucket, shader);
+        layers[10].bind(bucket, shader);
+        layers[12].bind(bucket, shader);
     },
 
-    unbind: function (shader, ctx) {
-        ctx.disable(ctx.BLEND);
-        ctx.enable(ctx.CULL_FACE);
+    unbind(shader) {
+        const gl = this.gl;
 
-        var layers = this.layers;
+        gl.disable(gl.BLEND);
+        gl.enable(gl.CULL_FACE);
 
-        layers[0].unbind(shader, ctx);
-        layers[1].unbind(shader, ctx);
-        layers[2].unbind(shader, ctx);
-        layers[4].unbind(shader, ctx);
-        layers[5].unbind(shader, ctx);
-        layers[10].unbind(shader, ctx);
-        layers[12].unbind(shader, ctx);
+        const layers = this.layers;
+
+        layers[0].unbind(shader);
+        layers[1].unbind(shader);
+        layers[2].unbind(shader);
+        layers[4].unbind(shader);
+        layers[5].unbind(shader);
+        layers[10].unbind(shader);
+        layers[12].unbind(shader);
     },
 
-    bindDiffuse: function (sequence, frame, textureMap, shader, context) {
-        var ctx = context.gl.ctx;
+    bindDiffuse(shader) {
+        this.bindCommon();
 
-        this.bindCommon(ctx);
-
-        this.layers[0].bind(1, sequence, frame, textureMap, shader, context);
+        this.layers[0].bind(shader);
     },
 
-    bindSpecular: function (sequence, frame, textureMap, shader, context) {
-        var ctx = context.gl.ctx;
+    bindSpecular(shader) {
+        const gl = this.gl;
 
-        this.bindCommon(ctx);
+        this.bindCommon();
 
-        ctx.uniform1f(shader.variables.u_specularity, this.specularity, context);
-        ctx.uniform1f(shader.variables.u_specMult, this.specMult, context);
+        gl.uniform1f(shader.uniforms.get("u_specularity"), this.specularity);
+        gl.uniform1f(shader.uniforms.get("u_specMult"), this.specMult);
 
-        this.layers[2].bind(3, sequence, frame, textureMap, shader, context);
+        this.layers[2].bind(shader);
     },
 
-    bindNormalMap: function (sequence, frame, textureMap, shader, context) {
-        var ctx = context.gl.ctx;
+    bindNormalMap(shader) {
+        this.bindCommon();
 
-        this.bindCommon(ctx);
-
-        this.layers[10].bind(11, sequence, frame, textureMap, shader, context);
+        this.layers[10].bind(shader);
     },
 
-    bindEmissive: function (sequence, frame, textureMap, shader, context) {
-        var ctx = context.gl.ctx;
+    bindEmissive(shader) {
+        this.bindCommon();
 
-        this.bindCommon(ctx);
+        this.gl.uniform1f(shader.uniforms.get("u_emisMult"), this.emisMult);
 
-        ctx.uniform1f(shader.variables.u_emisMult, this.emisMult);
-
-        this.layers[4].bind(5, sequence, frame, textureMap, shader, context);
-        this.layers[5].bind(6, sequence, frame, textureMap, shader, context);
+        this.layers[4].bind(shader);
+        this.layers[5].bind(shader);
     },
 
-    bindDecal: function (sequence, frame, textureMap, shader, context) {
-        var ctx = context.gl.ctx;
+    bindDecal(shader) {
+        this.bindCommon();
 
-        this.bindCommon(ctx);
-
-        this.layers[1].bind(2, sequence, frame, textureMap, shader, context);
+        this.layers[1].bind(shader);
     }
 };
+
+export default M3StandardMaterial;

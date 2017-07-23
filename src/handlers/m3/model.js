@@ -1,56 +1,85 @@
-M3.Model = function () {
-    
-};
+import { mix } from "../../common";
+import TexturedModel from "../../texturedmodel";
+import M3 from "./handler";
+import M3Parser from "./parser/parser";
+import M3StandardMaterial from "./standardmaterial";
+import M3Bone from "./bone";
+import M3Sequence from "./sequence";
+import M3Sts from "./sts";
+import M3Stc from "./stc";
+import M3Stg from "./stg";
+import M3Attachment from "./attachment";
+import M3Camera from "./camera";
+import M3Region from "./region";
 
-M3.Model.prototype = extend(BaseModel.prototype, {
-    loadstart: function (asyncModel, src, reportError, reportLoad) {
-        BaseModel.call(this, {});
+/**
+ * @constructor
+ * @augments Model
+ * @memberOf M3
+ * @param {ModelViewer} env
+ * @param {function(?)} pathSolver
+ * @param {Handler} handler
+ * @param {string} extension
+ */
+function M3Model(env, pathSolver, handler, extension) {
+    TexturedModel.call(this, env, pathSolver, handler, extension);
 
-        this.asyncModel = asyncModel;
+    this.parser = null;
+    this.name = "";
+    this.batches = [];
+    this.materials = [[], []]; // 2D array for the possibility of adding more material types in the future
+    this.materialMaps = [];
+    this.bones = [];
+    this.boneLookup = [];
+    this.sequences = [];
+    this.sts = [];
+    this.stc = [];
+    this.stg = [];
+    this.attachments = [];
+    this.cameras = [];
+}
 
-        var parser = M3.Parser(new BinaryReader(src));
+M3Model.prototype = {
+    initialize(src) {
+        var parser;
 
-        if (parser) {
-            this.setup(parser, this.asyncModel.pathSolver, this.asyncModel.context.gl);
-            this.setupShaders(parser, this.asyncModel.context.gl);
-
-            reportLoad();
-        } 
-    },
-
-    setup: function (parser, pathSolver, gl) {
-        var i, l;
-        var material;
-        var div = parser.divisions[0];
-
-        this.parser = parser;
-        this.name = fileNameFromPath(parser.name);
-
-        this.setupGeometry(parser, div, gl.ctx);
-
-        this.batches = [];
-        this.materials = [[], []]; // 2D array for the possibility of adding more material types in the future
-        this.materialMaps = parser.materialMaps;
-
-        var materialMaps = parser.materialMaps;
-        var materials = parser.materials;
-        var batches = [];
-
-        // Create concrete material objects for standard materials
-        for (i = 0, l = materials[0].length; i < l; i++) {
-            material = materials[0][i];
-
-            this.materials[1][i] = new M3.StandardMaterial(this, material);
+        try {
+            parser = new M3Parser(src);
+        } catch (e) {
+            this.onerror("InvalidSource", e);
+            return false;
         }
 
+        var i, l;
+        var model = parser.model;
+        var div = model.divisions.get();
+
+        this.parser = parser;
+        this.name = model.modelName.getAll().join("");
+
+        this.setupGeometry(model, div); 
+
+        var materialMaps = model.materialReferences.getAll();
+        var materials = model.materials[0].getAll();
+        var batches = [];
+
+        this.materialMaps = materialMaps;
+
+        // Create concrete material objects for standard materials
+        for (i = 0, l = materials.length; i < l; i++) {
+            this.materials[1][i] = new M3StandardMaterial(this, materials[i]);
+        }
+
+        const divBatches = div.batches.getAll();
+
         // Create concrete batch objects
-        for (i = 0, l = div.batches.length; i < l; i++) {
-            var batch = div.batches[i];
+        for (i = 0, l = divBatches.length; i < l; i++) {
+            var batch = divBatches[i];
             var regionId = batch.regionIndex;
             var materialMap = materialMaps[batch.materialReferenceIndex];
 
             if (materialMap.materialType === 1) {
-                batches.push({regionId: regionId, region: this.meshes[regionId], material: this.materials[1][materialMap.materialIndex]});
+                batches.push({ regionId: regionId, region: this.regions[regionId], material: this.materials[1][materialMap.materialIndex] });
             }
         }
 
@@ -97,130 +126,87 @@ M3.Model.prototype = extend(BaseModel.prototype, {
         */
 
         //this.batches = batchGroups[0].concat(batchGroups[1]).concat(batchGroups[2]).concat(batchGroups[3]).concat(batchGroups[4]).concat(batchGroups[5]);
+        
         this.batches = batches;
 
-        var sts = parser.sts;
-        var stc = parser.stc;
-        var stg = parser.stg;
+        var sts = model.sts.getAll();
+        var stc = model.stc.getAll();
+        var stg = model.stg.getAll();
 
-        this.initialReference = parser.initialReference;
-        this.bones = parser.bones;
-        this.boneLookup = parser.boneLookup;
-        this.sequences = parser.sequences;
-        this.sts = [];
-        this.stc = [];
-        this.stg = [];
+        this.initialReference = model.absoluteInverseBoneRestPositions.getAll();
+
+        let bones = model.bones.getAll();
+        for (let i = 0, l = bones.length; i < l; i++) {
+            this.bones[i] = new M3Bone(this, bones[i]);
+        }
+
+        this.boneLookup = model.boneLookup.getAll();
+
+        let sequences = model.sequences.getAll();
+        for (i = 0, l = sequences.length; i < l; i++) {
+            this.sequences[i] = new M3Sequence(sequences[i]);
+        }
 
         for (i = 0, l = sts.length; i < l; i++) {
-            this.sts[i] = new M3.STS(sts[i]);
+            this.sts[i] = new M3Sts(sts[i]);
         }
 
         for (i = 0, l = stc.length; i < l; i++) {
-            this.stc[i] = new M3.STC(stc[i]);
+            this.stc[i] = new M3Stc(stc[i]);
         }
 
         for (i = 0, l = stg.length; i < l; i++) {
-            this.stg[i] = new M3.STG(stg[i], this.sts, this.stc);
+            this.stg[i] = new M3Stg(stg[i], this.sts, this.stc);
         }
 
         this.addGlobalAnims();
 
+        /*
         if (parser.fuzzyHitTestObjects.length > 0) {
             for (i = 0, l = parser.fuzzyHitTestObjects.length; i < l; i++) {
-                this.boundingShapes[i] = new M3.BoundingShape(parser.fuzzyHitTestObjects[i], parser.bones, gl);
+                this.boundingShapes[i] = new M3BoundingShape(parser.fuzzyHitTestObjects[i], parser.bones, gl);
             }
         }
+        */
         /*
         if (parser.particleEmitters.length > 0) {
         this.particleEmitters = [];
 
         for (i = 0, l = parser.particleEmitters.length; i < l; i++) {
-        this.particleEmitters[i] = new M3.ParticleEmitter(parser.particleEmitters[i], this);
+        this.particleEmitters[i] = new M3ParticleEmitter(parser.particleEmitters[i], this);
         }
         }
         */
 
-        this.attachments = parser.attachmentPoints;
-        this.cameras = parser.cameras;
+        let attachments = model.attachmentPoints.getAll();
+        for (i = 0, l = attachments.length; i < l; i++) {
+            this.attachments[i] = new M3Attachment(attachments[i]);
+        }
+
+        let cameras = model.cameras.getAll();
+        for (i = 0, l = cameras.length; i < l; i++) {
+            this.cameras[i] = new M3Camera(cameras[i]);
+        }
+
+        return true;
     },
 
-    setupShaders: function (parser, gl) {
-        // Shader setup
-        var uvSetCount = this.uvSetCount;
-        var uvSets = "EXPLICITUV" + (uvSetCount - 1);
-        var vscommon = SHADERS.vsbonetexture + SHADERS.svscommon + "\n";
-        var vsstandard = vscommon + SHADERS.svsstandard;
-        var pscommon = SHADERS.spscommon + "\n";
-        var psstandard = pscommon + SHADERS.spsstandard;
-        var psspecialized = pscommon + SHADERS.spsspecialized;
-        var NORMALS_PASS = "NORMALS_PASS";
-        var HIGHRES_NORMALS = "HIGHRES_NORMALS";
-        var SPECULAR_PASS = "SPECULAR_PASS";
-        var UNSHADED_PASS = "UNSHADED_PASS";
+    setupGeometry(parser, div) {
+        let gl = this.gl;
 
-        // Load all the M3 shaders.
-        // All of them are based on the uv sets of this specific model.
-        if (!gl.shaderStatus("sstandard" + uvSetCount)) {
-            gl.createShader("sstandard" + uvSetCount, vsstandard, psstandard, [uvSets]);
-        }
-
-        if (!gl.shaderStatus("sdiffuse" + uvSetCount)) {
-            gl.createShader("sdiffuse" + uvSetCount, vsstandard, psspecialized, [uvSets, "DIFFUSE_PASS"]);
-        }
-
-        if (!gl.shaderStatus("snormals" + uvSetCount)) {
-            gl.createShader("snormals" + uvSetCount, vsstandard, psspecialized, [uvSets, NORMALS_PASS]);
-        }
-
-        if (!gl.shaderStatus("suvs" + uvSetCount)) {
-            gl.createShader("suvs" + uvSetCount, vsstandard, psspecialized, [uvSets, "UV_PASS"]);
-        }
-
-        if (!gl.shaderStatus("snormalmap" + uvSetCount)) {
-            gl.createShader("snormalmap" + uvSetCount, vsstandard, psspecialized, [uvSets, NORMALS_PASS, HIGHRES_NORMALS]);
-        }
-
-        if (!gl.shaderStatus("sspecular" + uvSetCount)) {
-            gl.createShader("sspecular" + uvSetCount, vsstandard, psspecialized, [uvSets, SPECULAR_PASS]);
-        }
-
-        if (!gl.shaderStatus("sspecular_normalmap" + uvSetCount)) {
-            gl.createShader("sspecular_normalmap" + uvSetCount, vsstandard, psspecialized, [uvSets, SPECULAR_PASS, HIGHRES_NORMALS]);
-        }
-
-        if (!gl.shaderStatus("semissive" + uvSetCount)) {
-            gl.createShader("semissive" + uvSetCount, vsstandard, psspecialized, [uvSets, "EMISSIVE_PASS"]);
-        }
-
-        if (!gl.shaderStatus("sunshaded" + uvSetCount)) {
-            gl.createShader("sunshaded" + uvSetCount, vsstandard, psspecialized, [uvSets, UNSHADED_PASS]);
-        }
-
-        if (!gl.shaderStatus("sunshaded_normalmap" + uvSetCount)) {
-            gl.createShader("sunshaded_normalmap" + uvSetCount, vsstandard, psspecialized, [uvSets, UNSHADED_PASS, HIGHRES_NORMALS]);
-        }
-
-        if (!gl.shaderStatus("sdecal" + uvSetCount)) {
-            gl.createShader("sdecal" + uvSetCount, vsstandard, psspecialized, [uvSets, "DECAL_PASS"]);
-        }
-
-        if (!gl.shaderStatus("swhite" + uvSetCount)) {
-            gl.createShader("swhite" + uvSetCount, vscommon + SHADERS.svswhite, SHADERS.pswhite);
-        }
-
-        if (!gl.shaderStatus("sparticles" + uvSetCount)) {
-            gl.createShader("sparticles" + uvSetCount, SHADERS.svsparticles, SHADERS.spsparticles);
-        } 
-
-        if (!gl.shaderStatus("scolor")) {
-            gl.createShader("scolor", SHADERS.vsbonetexture + SHADERS.svscolor, SHADERS.pscolor);
-        }
-    },
-
-    setupGeometry: function (parser, div, ctx) {
         var i, l;
-        var uvSetCount = parser.uvSetCount;
-        var regions = div.regions;
+        var uvSetCount = 1;
+        var vertexFlags = parser.vertexFlags;
+
+        if (vertexFlags & 0x40000) {
+            uvSetCount = 2;
+        } else if (vertexFlags & 0x80000) {
+            uvSetCount = 3;
+        } else if (vertexFlags & 0x100000) {
+            uvSetCount = 4;
+        }
+
+        var regions = div.regions.getAll();
         var totalElements = 0;
         var offsets = [];
 
@@ -230,38 +216,35 @@ M3.Model.prototype = extend(BaseModel.prototype, {
         }
 
         var elementArray = new Uint16Array(totalElements);
-        var edgeArray = new Uint16Array(totalElements * 2);
 
-        this.meshes = [];
+        this.regions = [];
+
+        const triangles = div.triangles.getAll();
 
         for (i = 0, l = regions.length; i < l; i++) {
-            this.meshes.push(new M3.Region(regions[i], div.triangles, elementArray, edgeArray, offsets[i]));
+            this.regions.push(new M3Region(this, regions[i], triangles, elementArray, offsets[i]));
         }
 
-        this.elementBuffer = ctx.createBuffer();
-        ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
-        ctx.bufferData(ctx.ELEMENT_ARRAY_BUFFER, elementArray, ctx.STATIC_DRAW);
+        this.elementBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, elementArray, gl.STATIC_DRAW);
 
-        this.edgeBuffer = ctx.createBuffer();
-        ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
-        ctx.bufferData(ctx.ELEMENT_ARRAY_BUFFER, edgeArray, ctx.STATIC_DRAW);
-
-        var arrayBuffer = ctx.createBuffer();
-        ctx.bindBuffer(ctx.ARRAY_BUFFER, arrayBuffer);
-        ctx.bufferData(ctx.ARRAY_BUFFER, parser.vertices, ctx.STATIC_DRAW);
+        var arrayBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, parser.vertices.getAll(), gl.STATIC_DRAW);
 
         this.arrayBuffer = arrayBuffer;
         this.vertexSize = (7 + uvSetCount) * 4;
         this.uvSetCount = uvSetCount;
     },
 
-    mapMaterial: function (index) {
+    mapMaterial(index) {
         var materialMap = this.materialMaps[index];
 
         return this.materials[materialMap.materialType][materialMap.materialIndex];
     },
 
-    addGlobalAnims: function () {
+    addGlobalAnims() {
     /*
     var i, l;
     var glbirth, glstand, gldeath;
@@ -298,7 +281,7 @@ M3.Model.prototype = extend(BaseModel.prototype, {
     */
     },
 
-    getValue: function (animRef, sequence, frame) {
+    getValue(animRef, sequence, frame) {
         if (sequence !== -1) {
             return this.stg[sequence].getValue(animRef, frame)
         } else {
@@ -306,140 +289,127 @@ M3.Model.prototype = extend(BaseModel.prototype, {
         }
     },
 
-    bindShared: function (shader, ctx) {
-        var vertexSize = this.vertexSize;
+    bindShared(bucket) {
+        let gl = this.gl,
+            shader = this.shader,
+            vertexSize = this.vertexSize,
+            instancedArrays = gl.extensions.instancedArrays,
+            attribs = shader.attribs,
+            uniforms = shader.uniforms;
 
-        ctx.bindBuffer(ctx.ARRAY_BUFFER, this.arrayBuffer);
+        // Team colors
+        let teamColorAttrib = attribs.get("a_teamColor");
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.teamColorBuffer);
+        gl.vertexAttribPointer(teamColorAttrib, 1, gl.UNSIGNED_BYTE, false, 1, 0);
+        instancedArrays.vertexAttribDivisorANGLE(teamColorAttrib, 1);
 
-        ctx.vertexAttribPointer(shader.variables.a_position, 3, ctx.FLOAT, false, vertexSize, 0);
-        ctx.vertexAttribPointer(shader.variables.a_weights, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 12);
-        ctx.vertexAttribPointer(shader.variables.a_bones, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 16);
+        // Vertex colors
+        let vertexColorAttrib = attribs.get("a_vertexColor");
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.vertexColorBuffer);
+        gl.vertexAttribPointer(vertexColorAttrib, 4, gl.UNSIGNED_BYTE, true, 4, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
+        instancedArrays.vertexAttribDivisorANGLE(vertexColorAttrib, 1);
+
+        let instanceIdAttrib = attribs.get("a_InstanceID");
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);
+        gl.vertexAttribPointer(instanceIdAttrib, 1, gl.UNSIGNED_SHORT, false, 2, 0);
+        instancedArrays.vertexAttribDivisorANGLE(instanceIdAttrib, 1);
+
+        gl.activeTexture(gl.TEXTURE15);
+        gl.bindTexture(gl.TEXTURE_2D, bucket.boneTexture);
+        gl.uniform1i(uniforms.get("u_boneMap"), 15);
+        gl.uniform1f(uniforms.get("u_vectorSize"), bucket.vectorSize);
+        gl.uniform1f(uniforms.get("u_rowSize"), bucket.rowSize);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
+        gl.vertexAttribPointer(attribs.get("a_position"), 3, gl.FLOAT, false, vertexSize, 0);
+        gl.vertexAttribPointer(attribs.get("a_weights"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 12);
+        gl.vertexAttribPointer(attribs.get("a_bones"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 16);
     },
 
-    bind: function (shader, ctx) {
+    bind(bucket, scene) {
+        const gl = this.gl,
+            webgl = this.env.webgl;
+
         var vertexSize = this.vertexSize;
         var uvSetCount = this.uvSetCount;
 
-        this.bindShared(shader, ctx);
+        // HACK UNTIL I IMPLEMENT MULTIPLE SHADERS AGAIN
+        var shader = this.env.shaderMap.get("M3StandardShader" + (uvSetCount - 1));
+        webgl.useShaderProgram(shader);
+        this.shader = shader;
 
-        ctx.vertexAttribPointer(shader.variables.a_normal, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 20);
+        this.bindShared(bucket);
 
-        for (var i = 0; i < uvSetCount; i++) {
-            ctx.vertexAttribPointer(shader.variables["a_uv" + i], 2, ctx.SHORT, false, vertexSize, 24 + i * 4);
+        let instancedArrays = webgl.extensions.instancedArrays,
+            attribs = shader.attribs,
+            uniforms = shader.uniforms;
+
+        gl.vertexAttribPointer(attribs.get("a_normal"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 20);
+
+        for (let i = 0; i < uvSetCount; i++) {
+            gl.vertexAttribPointer(attribs.get("a_uv" + i), 2, gl.SHORT, false, vertexSize, 24 + i * 4);
         }
 
-        ctx.vertexAttribPointer(shader.variables.a_tangent, 4, ctx.UNSIGNED_BYTE, false, vertexSize, 24 + uvSetCount * 4);
+        gl.vertexAttribPointer(attribs.get("a_tangent"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 24 + uvSetCount * 4);
 
-        ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
+
+        let camera = scene.camera;
+
+        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, camera.worldProjectionMatrix);
+        gl.uniformMatrix4fv(uniforms.get("u_mv"), false, camera.worldMatrix);
+
+        gl.uniform3fv(uniforms.get("u_eyePos"), camera.worldLocation);
+        gl.uniform3fv(uniforms.get("u_lightPos"), M3.lightPosition);
     },
     
-    bindWireframe: function (shader, ctx) {
-        this.bindShared(shader, ctx);
-        
-        ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
+    unbind() {
+        let instancedArrays = this.gl.extensions.instancedArrays,
+            shader = this.shader,
+            attribs = shader.attribs;
+
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_teamColor"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_vertexColor"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 0);
     },
 
-    bindColor: function (shader, ctx) {
-        this.bindShared(shader, ctx);
+    renderBatch(bucket, batch) {
+        let shader = this.shader,
+            region = batch.region,
+            material = batch.material;
 
-        ctx.bindBuffer(ctx.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
+        material.bind(bucket, shader);
+
+        region.render(shader, bucket.instances.length);
+
+        material.unbind(shader); // This is required to not use by mistake layers from this material that were bound and are not overwritten by the next material
     },
 
-    render: function (instance) {
-        var context = instance.asyncInstance.context;
-        var gl = context.gl;
-        var ctx = gl.ctx;
-        var i, l;
-        var sequence = instance.sequence;
-        var frame = instance.frame;
-        var tc;
-        var teamId = instance.teamColor;
-        var shaderName = context.shaders[context.shader];
-        var uvSetCount = this.uvSetCount;
-        var realShaderName = "s" + shaderName + uvSetCount;
-        // Instance-based texture overriding
-        var textureMap = instance.textureMap;
-        var shader;
-        
-        var polygonMode = context.polygonMode;
-        var renderGeosets = (polygonMode === 1 || polygonMode === 3);
-        var renderWireframe = (polygonMode === 2 || polygonMode === 3);
-        
-        if (renderGeosets && gl.shaderStatus(realShaderName)) {
-            // Use a black team color if team colors are disabled
-            if (!context.teamColorsMode) {
-                teamId = 13;
+    renderOpaque(bucket, scene) {
+        const batches = this.batches;
+
+        if (batches.length) {
+            //const updateBatches = bucket.updateBatches;
+
+            this.bind(bucket, scene);
+
+            for (let i = 0, l = batches.length; i < l; i++) {
+                const batch = batches[i];
+
+                //if (updateBatches[batch.index]) {
+                    this.renderBatch(bucket, batch);
+                //}
             }
 
-            shader = gl.bindShader(realShaderName);
-
-            instance.skeleton.bind(shader, ctx);
-
-            ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
-            ctx.uniformMatrix4fv(shader.variables.u_mv, false, gl.getViewMatrix());
-
-            ctx.uniform3fv(shader.variables.u_teamColor, context.teamColors[teamId]);
-            ctx.uniform3fv(shader.variables.u_eyePos, context.camera.location);
-            ctx.uniform3fv(shader.variables.u_lightPos, context.lightPosition);
-
-            // Bind the vertices
-            this.bind(shader, ctx);
-
-            for (i = 0, l = this.batches.length; i < l; i++) {
-                var batch = this.batches[i];
-
-                if (instance.meshVisibilities[batch.regionId]) {
-                    var region = batch.region;
-                    var material = batch.material;
-
-                    if (shaderName === "standard" || shaderName === "uvs") {
-                        material.bind(sequence, frame, textureMap, shader, context);
-                    } else if (shaderName === "diffuse") {
-                        material.bindDiffuse(sequence, frame, textureMap, shader, context);
-                    } else if (shaderName === "normalmap" || shaderName === "unshaded_normalmap") {
-                        material.bindNormalMap(sequence, frame, textureMap, shader, context);
-                    } else if (shaderName === "specular") {
-                        material.bindSpecular(sequence, frame, textureMap, shader, context);
-                    } else if (shaderName === "specular_normalmap") {
-                        material.bindSpecular(sequence, frame, textureMap, shader, context);
-                        material.bindNormalMap(sequence, frame, textureMap, shader, context);
-                    } else if (shaderName === "emissive") {
-                        material.bindEmissive(sequence, frame, textureMap, shader, context);
-                    } else if (shaderName === "decal") {
-                        material.bindDecal(sequence, frame, textureMap, shader, context);
-                    }
-
-                    region.render(shader, ctx, context.polygonMode);
-
-                    material.unbind(shader, ctx); // This is required to not use by mistake layers from this material that were bound and are not overwritten by the next material
-                }
-            }
-        }
-        
-        if (renderWireframe && gl.shaderStatus("swhite" + uvSetCount)) {
-            shader = gl.bindShader("swhite" + uvSetCount);
-
-            instance.skeleton.bind(shader, ctx);
-
-            ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
-
-            // Bind the vertices
-            this.bindWireframe(shader, ctx);
-
-            for (i = 0, l = this.batches.length; i < l; i++) {
-                var batch = this.batches[i];
-
-                if (instance.meshVisibilities[batch.regionId]) {
-                    var region = batch.region;
-                    var material = batch.material;
-
-                    region.renderWireframe(shader, ctx);
-                }
-            }
+            this.unbind();
         }
     },
 
-    renderEmitters: function (instance) {
+    renderTranslucent(bucket, scene) {
+
+    },
+
+    renderEmitters(bucket, scene) {
     /*
     if (this.particleEmitters) {
     ctx.disable(ctx.CULL_FACE);
@@ -455,60 +425,9 @@ M3.Model.prototype = extend(BaseModel.prototype, {
     ctx.enable(ctx.CULL_FACE);
     }
     */
-    },
-
-    renderBoundingShapes: function (instance) {
-        var context = instance.asyncInstance.context;
-        var gl = context.gl,
-            ctx = gl.ctx,
-            shader,
-            fuzzyHitTestObject;
-
-        if (this.boundingShapes && gl.shaderStatus("white")) {
-            ctx.depthMask(1);
-
-            shader = gl.bindShader("white");
-
-            for (i = 0, l = this.boundingShapes.length; i < l; i++) {
-                this.boundingShapes[i].render(shader, instance.skeleton.bones, gl);
-            }
-        }
-    },
-
-    renderColor: function (instance) {
-        var context = instance.asyncInstance.context;
-        var color = instance.asyncInstance.color;
-        var gl = context.gl;
-        var ctx = gl.ctx;
-        var i, l;
-        var batch, region;
-
-        if (gl.shaderStatus("scolor")) {
-            var shader = gl.bindShader("scolor");
-
-            instance.skeleton.bind(shader, ctx);
-
-            ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
-            ctx.uniform3fv(shader.variables.u_color, color);
-
-            // Bind the vertices
-            this.bindColor(shader, ctx);
-
-            for (i = 0, l = this.batches.length; i < l; i++) {
-                batch = this.batches[i];
-
-                if (instance.meshVisibilities[batch.regionId]) {
-                    region = batch.region;
-
-                    region.renderColor(shader, ctx);
-                }
-            }
-        }
-    },
-
-    bindTexture: function (texture, unit) {
-        var context = this.asyncModel.context;
-
-        context.gl.bindTexture(texture, unit);
     }
-});
+};
+
+mix(M3Model.prototype, TexturedModel.prototype);
+
+export default M3Model;

@@ -1,51 +1,45 @@
-M3.Region = function (region, triangles, elementArray, edgeArray, offset) {
-    var i, j, k;
-    var firstVertexIndex = region.firstVertexIndex;
-    var triangleIndicesCount = region.triangleIndicesCount;
-    var firstTriangleIndex = region.firstTriangleIndex;
+/**
+ * @constructor
+ * @param {M3Model} model
+ * @param {M3ParserRegion} region
+ * @param {Uint16Array} triangles
+ * @param {Uint16Array} elementArray
+ * @param {number} offset
+ */
+function M3Region(model, region, triangles, elementArray, offset) {
+    let firstVertexIndex = region.firstVertexIndex,
+        triangleIndicesCount = region.triangleIndicesCount,
+        firstTriangleIndex = region.firstTriangleIndex;
 
     // Note for implementors: the one original vertex indices array could be used with access to the base-vertex draw elements function.
     // See https://www.opengl.org/sdk/docs/man3/xhtml/glDrawElementsBaseVertex.xml
     // firstTriangleIndex is the indices offset.
     // firstVertexIndex is the base vertex.
-    for (i = 0; i < triangleIndicesCount; i++) {
+    for (let i = 0; i < triangleIndicesCount; i++) {
         elementArray[offset + i] = triangles[firstTriangleIndex + i] + firstVertexIndex;
     }
 
-    for (i = 0, k = 0; i < triangleIndicesCount; i += 3, k += 6) {
-        edgeArray[offset * 2 + k + 0] = triangles[firstTriangleIndex + i + 0] + firstVertexIndex;
-        edgeArray[offset * 2 + k + 1] = triangles[firstTriangleIndex + i + 1] + firstVertexIndex;
-        edgeArray[offset * 2 + k + 2] = triangles[firstTriangleIndex + i + 1] + firstVertexIndex;
-        edgeArray[offset * 2 + k + 3] = triangles[firstTriangleIndex + i + 2] + firstVertexIndex;
-        edgeArray[offset * 2 + k + 4] = triangles[firstTriangleIndex + i + 2] + firstVertexIndex;
-        edgeArray[offset * 2 + k + 5] = triangles[firstTriangleIndex + i + 0] + firstVertexIndex;
-    }
-
+    this.gl = model.gl;
     this.firstBoneLookupIndex = region.firstBoneLookupIndex;
+    this.boneWeightPairsCount = region.boneWeightPairsCount;
     this.offset = offset * 2;
+    this.verticesCount = region.verticesCount;
     this.elements = triangleIndicesCount;
 }
 
-M3.Region.prototype = {
-    render: function (shader, ctx) {
-        ctx.uniform1f(shader.variables.u_firstBoneLookupIndex, this.firstBoneLookupIndex);
-        
-        ctx.drawElements(ctx.TRIANGLES, this.elements, ctx.UNSIGNED_SHORT, this.offset);
+M3Region.prototype = {
+    render(shader, instances) {
+        let gl = this.gl;
+
+        gl.uniform1f(shader.uniforms.get("u_firstBoneLookupIndex"), this.firstBoneLookupIndex);
+        gl.uniform1f(shader.uniforms.get("u_boneWeightPairsCount"), this.boneWeightPairsCount);
+
+        gl.extensions.instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.offset, instances);
     },
     
-    renderWireframe: function (shader, ctx) {
-        ctx.uniform1f(shader.variables.u_firstBoneLookupIndex, this.firstBoneLookupIndex);
-        
-        ctx.drawElements(ctx.LINES, this.elements * 2, ctx.UNSIGNED_SHORT, this.offset * 2);
-    },
-
-    renderColor: function (shader, ctx) {
-        ctx.uniform1f(shader.variables.u_firstBoneLookupIndex, this.firstBoneLookupIndex);
-
-        ctx.drawElements(ctx.TRIANGLES, this.elements, ctx.UNSIGNED_SHORT, this.offset);
-    },
-    
-    getPolygonCount: function () {
+    getPolygonCount() {
         return this.elements / 3;
     }
 };
+
+export default M3Region;

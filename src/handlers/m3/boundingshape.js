@@ -1,8 +1,14 @@
-M3.BoundingShape = function (boundingshape, bones, gl) {
+/**
+ * @constructor
+ * @param {M3ParserBoundingShape} boundingshape
+ * @param {Array<M3ParserBone>} bones
+ * @param {WebGLRenderingContext} gl
+ */
+function M3BoundingShape(boundingshape, bones, gl) {
     this.bone = boundingshape.bone;
     this.matrix = boundingshape.matrix;
     this.name = bones[boundingshape.bone].name;
-
+    /*
     var size = boundingshape.size;
     var shape;
 
@@ -15,23 +21,7 @@ M3.BoundingShape = function (boundingshape, bones, gl) {
     }
 
     this.shape = shape;
-};
+    */
+}
 
-M3.BoundingShape.prototype = {
-    render: function (shader, bones, gl) {
-        var ctx = gl.ctx;
-
-        if (this.shape) {
-            gl.pushMatrix();
-
-            gl.multMat(bones[this.bone].worldMatrix);
-            gl.multMat(this.matrix);
-
-            ctx.uniformMatrix4fv(shader.variables.u_mvp, false, gl.getViewProjectionMatrix());
-
-            gl.popMatrix();
-
-            this.shape.renderLines(shader);
-        }
-    }
-};
+export default M3BoundingShape;

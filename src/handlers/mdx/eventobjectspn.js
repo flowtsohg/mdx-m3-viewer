@@ -1,36 +1,37 @@
-Mdx.EventObjectSpn = function (emitter) {
-    var context = emitter.context;
-    var pathSolver = emitter.pathSolver;
-    var instance = context.loadInternalResource(pathSolver(emitter.path), pathSolver);
+/**
+ * @constructor
+ * @param {MdxEventObjectEmitter} emitter
+ */
+function MdxEventObjectSpn(emitter) {
+    this.emitter = emitter;
+    this.health = 0;
+    this.internalResource = emitter.modelObject.internalResource.addInstance();
+}
 
-    instance.setSequence(0);
-    instance.setLocation(emitter.node.worldLocation);
-    instance.setScale(emitter.node.scale[0]); // Assuming uniform scale
-    instance.setRotationQuat(emitter.node.worldRotation);
-    
-    this.instance = instance;
-};
+MdxEventObjectSpn.prototype = {
+    reset(emitterView) {
+        let instance = this.internalResource,
+            node = emitterView.instance.skeleton.nodes[this.emitter.modelObject.node.index];
 
-Mdx.EventObjectSpn.prototype = {
-    update: function (emitter) {
-        this.instance.update();
+        instance.setSequence(0);
+        instance.setTransformation(node.worldLocation, node.worldRotation, node.worldScale);
+        instance.show();
+
+        emitterView.instance.scene.addInstance(instance);
+
+        this.health = 1;
     },
-    
-    render: function (emitter) {
-        this.instance.render();
-    },
-    
-    renderEmitters: function (emitter) {
-        this.instance.renderEmitters();
-    },
-    
-    ended: function () {
-        var instance = this.instance;
-        
-        if (instance.ready && instance.instance.frame >= instance.instance.model.sequences[0].interval[1]) {
-            return true;
+
+    update() {
+        let instance = this.internalResource;
+
+        // Once the sequence finishes, this event object dies
+        if (instance.frame >= instance.model.sequences[0].interval[1]) {
+            this.health = 0;
+
+            instance.hide();
         }
-        
-        return false;
     }
 };
+
+export default MdxEventObjectSpn;

@@ -1,23 +1,37 @@
-Mdx.Camera = function (camera, model) {
+import { vec3 } from "gl-matrix";
+import MdxSdContainer from "./sd";
+
+// Heap allocations needed for this module.
+let positionHeap = vec3.create(),
+    targetPositionHeap = vec3.create();
+
+/**
+ * @constructor
+ * @param {MdxModel} model
+ * @param {MdxParserCamera} camera
+ */
+function MdxCamera(model, camera) {
     this.name = camera.name;
     this.position = camera.position;
-    this.fov = camera.fieldOfView;
+    this.fieldOfView = camera.fieldOfView;
     this.farClippingPlane = camera.farClippingPlane;
     this.nearClippingPlane = camera.nearClippingPlane;
     this.targetPosition = camera.targetPosition;
-    this.sd = new Mdx.SDContainer(camera.tracks, model);
-};
+    this.sd = new MdxSdContainer(model, camera.tracks);
+}
 
-Mdx.Camera.prototype = {
-    getPositionTranslation: function (sequence, frame, counter) {
-        return this.sd.getKCTR(sequence, frame, counter, this.position);
+MdxCamera.prototype = {
+    getPositionTranslation(instance) {
+        return this.sd.getValue(positionHeap, "KCTR", instance, this.position);
     },
 
-    getTargetTranslation: function (sequence, frame, counter) {
-        return this.sd.getKTTR(sequence, frame, counter, this.targetPosition);
+    getTargetTranslation(instance) {
+        return this.sd.getValue(targetPositionHeap, "KTTR", instance, this.targetPosition);
     },
 
-    getRotation: function (sequence, frame, counter) {
-        return this.sd.getKCRL(sequence, frame, counter, 0);
+    getRotation(instance) {
+        return this.sd.getValue("KCRL", instance, 0);
     }
 };
+
+export default MdxCamera;

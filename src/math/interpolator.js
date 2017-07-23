@@ -1,8 +1,13 @@
-var interpolator = (function () {
-    var zeroV = vec3.create(),
-        zeroQ = quat.create();
+import { vec3, quat } from "gl-matrix";
 
-    function scalar(a, b, c, d, t, type) {
+// Heap allocations needed for this module.
+// NOTE: The values returned by interpolate() are not heap safe!
+//       In other words, if you call interpolate() twice with the same input-types, you will get back the same typed array!
+let vectorHeap = vec3.create(),
+    quatHeap = quat.create();
+
+const Interpolator = {
+    scalar(a, b, c, d, t, type) {
         if (type === 0) {
             return a;
         } else if (type === 1) {
@@ -14,9 +19,9 @@ var interpolator = (function () {
         }
 
         return 0;
-    }
+    },
 
-    function vector(out, a, b, c, d, t, type) {
+    vector(out, a, b, c, d, t, type) {
         if (type === 0) {
             return a;
         } else if (type === 1) {
@@ -27,10 +32,10 @@ var interpolator = (function () {
             return vec3.bezier(out, a, b, c, d, t);
         }
 
-        return vec3.copy(out, zeroV);
-    }
+        return vec3.copy(out, vec3.ZERO);
+    },
 
-    function quaternion(out, a, b, c, d, t, type) {
+    quaternion(out, a, b, c, d, t, type) {
         if (type === 0) {
             return a;
         } else if (type === 1) {
@@ -39,18 +44,20 @@ var interpolator = (function () {
             return quat.nquad(out, a, b, c, d, t);
         }
 
-        return quat.copy(out, zeroQ);
-    }
+        return quat.copy(out, quat.ZERO);
+    },
 
-    return function (out, a, b, c, d, t, type) {
-        var length = a.length;
+    interpolate(a, b, c, d, t, type, out) {
+        const length = a.length;
 
         if (length === 3) {
-            return vector(out, a, b, c, d, t, type);
+            return this.vector(vectorHeap, a, b, c, d, t, type);
         } else if (length === 4) {
-            return quaternion(out, a, b, c, d, t, type);
+            return this.quaternion(quatHeap, a, b, c, d, t, type);
         } else {
-            return scalar(a, b, c, d, t, type);
+            return this.scalar(a, b, c, d, t, type);
         }
-    };
-}());
+    }
+};
+
+export default Interpolator;
