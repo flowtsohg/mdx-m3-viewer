@@ -1,4 +1,4 @@
-import { mix } from "../../common";
+import { mix, resizeImageData } from "../../common";
 import Texture from "../../texture";
 import BitBuffer from "../../bitbuffer";
 import { JpegImage } from "./jpg";
@@ -35,14 +35,15 @@ BlpTexture.prototype = {
             return false;
         }
 
-        const arrayData = new Uint8Array(src),
+        let arrayData = new Uint8Array(src),
             content = header[1],
             alphaBits = header[2],
             width = header[3],
             height = header[4],
             mipmapOffset = header[7],
-            mipmapSize = header[23],
-            imageData = new ImageData(width, height);
+            mipmapSize = header[23];
+
+        let imageData = new ImageData(width, height);
 
         if (content === BLP_JPG) {
             let jpegHeaderSize = new Uint32Array(src, 39 * 4, 1)[0],
@@ -82,6 +83,18 @@ BlpTexture.prototype = {
                     imageData.data[dstI + 3] = 255;
                 }
             }
+        }
+
+        let potWidth = Math.powerOfTwo(width),
+            potHeight = Math.powerOfTwo(height);
+
+        if (width !== potWidth || height !== potHeight) {
+            console.warn("Resizing texture \"" + this.fetchUrl + "\" from [" + width + ", " + height + "] to [" + potWidth + ", " + potHeight + "]");
+
+            width = potWidth;
+            height = potHeight;
+
+            imageData = resizeImageData(imageData, potWidth, potHeight);
         }
 
         // NOTE: BGRA data, it gets sizzled in the shader.

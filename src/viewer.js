@@ -2,6 +2,7 @@ import { mix } from "./common";
 import EventDispatcher from "./eventdispatcher";
 import WebGL from "./gl/gl";
 import PromiseResource from "./promiseresource";
+import DownloadableResource from "./downloadableresource";
 
 /**
  * @constructor
@@ -94,11 +95,20 @@ function ModelViewer(canvas) {
 
     /** @member {number} */
     this.resourcesLoading = 0;
-    this.addEventListener("loadstart", (e) => { if (e.target.objectType !== "instance") { this.resourcesLoading += 1; } });
-    this.addEventListener("loadend", (e) => { if (e.target.objectType !== "instance") { this.resourcesLoading -= 1; } });
+    this.addEventListener("loadstart", () => this.resourcesLoading += 1);
+    this.addEventListener("loadend", () => this.resourcesLoading -= 1);
 }
 
 ModelViewer.prototype = {
+    /**
+     * Get the version string of the viewer - "<major>.<minor>.<commit>".
+     *
+     * @returns {string}
+     */
+    get version() {
+        return "4.0.1";
+    },
+
     /**
      * Add an handler.
      * 
@@ -166,17 +176,15 @@ ModelViewer.prototype = {
      * @returns {boolean}
      */
     removeScene(scene) {
-        if (scene && scene.objectType === "scene") {
-            let scenes = this.scenes,
-                index = scenes.indexOf(scene);
+        let scenes = this.scenes,
+            index = scenes.indexOf(scene);
 
-            if (index !== -1) {
-                scenes.splice(index, 1);
+        if (index !== -1) {
+            scenes.splice(index, 1);
 
-                scene.env = null;
+            scene.env = null;
 
-                return true;
-            }
+            return true;
         }
 
         return false;
@@ -297,31 +305,32 @@ ModelViewer.prototype = {
 
     /**
      * Calls the given callback when all of the given resources finished loading. In the case all of the resources are already loaded, the call happens immediately.
+     * Note that this only takes into consideration downloadable resources that a specific viewer instance owns.
      * 
-     * @param {Array<AsyncResource>} resources The resources to wait for.
+     * @param {Array<DownloadableResource>} what The resources to wait for.
      * @param {function(Array<AsyncResource>)} callback The callback.
      */
-    whenLoaded(resources, callback) {
-        let loaded = 0,
-            wantLoaded = resources.length;
+    whenLoaded(what, callback) {
+        let resources = this.resources.array,
+            loaded = 0,
+            wantLoaded = what.length;
 
         function gotLoaded() {
             loaded += 1;
 
             if (loaded === wantLoaded) {
-                callback(resources);
+                callback(what);
             }
         }
 
         for (let i = 0; i < wantLoaded; i++) {
-            let resource = resources[i];
+            let resource = what[i];
 
-            if (this.isResource(resource)) {
+            if (resources.indexOf(resource) !== -1) {
                 resource.whenLoaded(gotLoaded);
             } else {
                 wantLoaded -= 1;
             }
-            
         }
     },
 
@@ -361,23 +370,6 @@ ModelViewer.prototype = {
             resource.detach();
 
             return true;
-        }
-
-        return false;
-    },
-
-    /**
-     * Checks if a given object is a resource of the viewer.
-     * This is done by checking the object's objectType field.
-     * 
-     * @param {?} object The object to check.
-     * @returns {boolean}
-     */
-    isResource(object) {
-        if (object) {
-            let objectType = object.objectType;
-
-            return objectType === "instance" || objectType === "model" || objectType === "texture" || objectType === "file";
         }
 
         return false;

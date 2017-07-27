@@ -108,25 +108,28 @@ MdxRibbon.prototype = {
 
         if (this.health <= 0) {
             emitterView.ribbonCount--;
+        } else {
+            let columns = emitter.dimensions[0],
+                left = (animatedSlot % columns) + (locationInChain * chainLengthFactor),
+                top = Math.floor(animatedSlot / columns),
+                right = left + chainLengthFactor,
+                bottom = top + 1;
+
+            left = Math.floor(left * 255);
+            top = Math.floor(top * 255);
+            right = Math.floor(right * 253); // Paladin - when the UV rectangle reaches 254-255, it has a row or two of white pixels in the end for some reason.
+                                             // This happens also if the texture coordinates are clamped to [0, 1] in the shader.
+                                             // The only thing that removes it is to change the texture to being clamped rather than repeating.
+                                             // How is this possible?
+            bottom = Math.floor(bottom * 255);
+            animatedAlpha = Math.floor(animatedAlpha * 255);
+
+            this.lta = encodeFloat3(left, top, animatedAlpha);
+            this.lba = encodeFloat3(left, bottom, animatedAlpha);
+            this.rta = encodeFloat3(right, top, animatedAlpha);
+            this.rba = encodeFloat3(right, bottom, animatedAlpha);
+            this.rgb = encodeFloat3(Math.floor(animatedColor[0] * 255), Math.floor(animatedColor[1] * 255), Math.floor(animatedColor[2] * 255)); // Color even used???
         }
-
-        let columns = emitter.dimensions[0],
-            left = (animatedSlot % columns) + (locationInChain * chainLengthFactor),
-            top = Math.floor(animatedSlot / columns),
-            right = left + chainLengthFactor,
-            bottom = top + 1;
-
-        left = Math.floor(left * 255);
-        top = Math.floor(top * 255);
-        right = Math.floor(right * 253); // Paladin - when the UV rectangle reaches 254-255, it has a row or two of white pixels in the end for some reason.
-        bottom = Math.floor(bottom * 255);
-        animatedAlpha = Math.floor(animatedAlpha * 255);
-
-        this.lta = encodeFloat3(left, top, animatedAlpha);
-        this.lba = encodeFloat3(left, bottom, animatedAlpha);
-        this.rta = encodeFloat3(right, top, animatedAlpha);
-        this.rba = encodeFloat3(right, bottom, animatedAlpha);
-        this.rgb = encodeFloat3(Math.floor(animatedColor[0] * 255), Math.floor(animatedColor[1] * 255), Math.floor(animatedColor[2] * 255)); // Color even used???
     }
 };
 

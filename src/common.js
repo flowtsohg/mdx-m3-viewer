@@ -1,30 +1,48 @@
+let canvas = document.createElement("canvas"),
+    ctx = canvas.getContext("2d");
+
+let canvas2 = document.createElement("canvas"),
+    ctx2 = canvas2.getContext("2d");
+
 // Normalize file paths to lowercase, and all slashes being forward.
 function normalizePath(path) {
     return path.toLocaleLowerCase().replace(/\\/g, "/");
 }
 
+function resizeImageData(imageData, width, height) {
+    let srcWidth = imageData.width,
+        srcHeight = imageData.height;
+
+    canvas.width = srcWidth;
+    canvas.height = srcHeight;
+
+    ctx.putImageData(imageData, 0, 0);
+
+    canvas2.width = width;
+    canvas2.height = height;
+
+    ctx2.drawImage(canvas, 0, 0, width, height);
+
+    return ctx2.getImageData(0, 0, width, height);
+}
+
 // Given an array of Image objects, constructs a texture atlas.
 // The dimensions of each tile are the dimensions of the first Image object (that is, all images are assumed to have the same size!).
 // The resulting texture atlas is always square, and power of two.
-var createTextureAtlas = (function () {
-    let canvas = document.createElement("canvas"),
-        ctx = canvas.getContext("2d");
+function createTextureAtlas(src) {
+    let width = src[0].width,
+        height = src[0].height,
+        texturesPerRow = Math.powerOfTwo(Math.sqrt(src.length)),
+        pixelsPerRow = texturesPerRow * width;
 
-    return function (src) {
-        let width = src[0].width,
-            height = src[0].height,
-            texturesPerRow = Math.powerOfTwo(Math.sqrt(src.length)),
-            pixelsPerRow = texturesPerRow * width;
+    canvas.width = canvas.height = width;
 
-        canvas.width = canvas.height = width;
-
-        for (let i = 0, l = src.length; i < l; i++) {
-            ctx.putImageData(src[i], (i % texturesPerRow) * height, Math.floor(i / texturesPerRow) * height);
-        }
-
-        return { texture: ctx.getImageData(0, 0, canvas.width, canvas.height), columns: texturesPerRow, rows: texturesPerRow };
+    for (let i = 0, l = src.length; i < l; i++) {
+        ctx.putImageData(src[i], (i % texturesPerRow) * height, Math.floor(i / texturesPerRow) * height);
     }
-}());
+
+    return { texture: ctx.getImageData(0, 0, canvas.width, canvas.height), columns: texturesPerRow, rows: texturesPerRow };
+}
 
 function TagToUint(tag) {
     return (tag.charCodeAt(0) << 24) + (tag.charCodeAt(1) << 16) + (tag.charCodeAt(2) << 8) + tag.charCodeAt(3);
@@ -286,8 +304,172 @@ Array.prototype.delete = function (value) {
     return false;
 };
 
+/**
+ * Convert from degrees to radians.
+ *
+ * @param {number} degrees
+ * @returns {number} Radians.
+ */
+Math.toRad = function (degrees) {
+    return degrees * (Math.PI / 180);
+};
+
+/**
+ * Convert from radians to degrees.
+ *
+ * @param {number} radians
+ * @returns {number} Degrees.
+ */
+Math.toDeg = function (radians) {
+    return radians * (180 / Math.PI);
+};
+
+/**
+ * Gets a random number in the given range.
+ *
+ * @param {number} a
+ * @param {number} b
+ * @returns {number} A random number in [a, b].
+ */
+Math.randomRange = function (a, b) {
+    return a + Math.random() * (b - a);
+};
+
+/**
+ * Clamp a number in a range.
+ *
+ * @param {number} x
+ * @param {number} minVal
+ * @param {number} maxVal
+ * @returns {number} Clamped number.
+ */
+Math.clamp = function (x, minVal, maxVal) {
+    return Math.min(Math.max(x, minVal), maxVal);
+};
+
+/**
+ * Linear interpolation between to numbers.
+ *
+ * @param {number} a First number.
+ * @param {number} b Second number.
+ * @param {number} t Factor.
+ * @returns {number} Interpolated value.
+ */
+Math.lerp = function (a, b, t) {
+    return a + t * (b - a);
+};
+
+/**
+ * Hermite interpolation between to numbers.
+ *
+ * @param {number} a First number.
+ * @param {number} b First control point.
+ * @param {number} c Second control point.
+ * @param {number} d Second number.
+ * @param {number} t Factor.
+ * @returns {number} Interpolated value.
+ */
+Math.hermite = function (a, b, c, d, t) {
+    var factorTimes2 = t * t,
+        factor1 = factorTimes2 * (2 * t - 3) + 1,
+        factor2 = factorTimes2 * (t - 2) + t,
+        factor3 = factorTimes2 * (t - 1),
+        factor4 = factorTimes2 * (3 - 2 * t);
+
+    return (a * factor1) + (b * factor2) + (c * factor3) + (d * factor4);
+};
+
+/**
+ * Bezier interpolation between to numbers.
+ *
+ * @param {number} a First number.
+ * @param {number} b First control point.
+ * @param {number} c Second control point.
+ * @param {number} d Second number.
+ * @param {number} t Factor.
+ * @returns {number} Interpolated value.
+ */
+Math.bezier = function (a, b, c, d, t) {
+    var invt = 1 - t,
+        factorTimes2 = t * t,
+        inverseFactorTimesTwo = invt * invt,
+        factor1 = inverseFactorTimesTwo * invt,
+        factor2 = 3 * t * inverseFactorTimesTwo,
+        factor3 = 3 * factorTimes2 * invt,
+        factor4 = factorTimes2 * t;
+
+    return (a * factor1) + (b * factor2) + (c * factor3) + (d * factor4);
+};
+
+/**
+ * Gets the sign of a number.
+ *
+ * @param {number} x
+ * @returns {number} The sign.
+ */
+Math.sign = function (x) {
+    return x === 0 ? 0 : (x < 0 ? -1 : 1);
+};
+
+/**
+ * Copies the sign of one number onto another.
+ *
+ * @param {number} x Destination.
+ * @param {number} y Source.
+ * @returns {number} Returns the destination with the source's sign.
+ */
+Math.copysign = function (x, y) {
+    var signy = Math.sign(y),
+        signx;
+
+    if (signy === 0) {
+        return 0;
+    }
+
+    signx = Math.sign(x);
+
+    if (signx !== signy) {
+        return -x;
+    }
+
+    return x;
+};
+
+/**
+ * Gets the closest power of two bigger than the given number.
+ *
+ * @param {number} x
+ * @returns {number} A power of two number.
+ */
+Math.powerOfTwo = function (x) {
+    x--;
+    x |= x >> 1;
+    x |= x >> 2;
+    x |= x >> 4;
+    x |= x >> 8;
+    x |= x >> 16;
+    x++;
+
+    return x;
+};
+
+/**
+ * Is this number a power of two?
+ *
+ * @param {number} x
+ * @returns {boolean}
+ */
+Math.isPowerOfTwo = function (x) {
+    if (x === 0) {
+        return false;
+    }
+
+    return ((x & (x - 1)) === 0);
+};
+
 export {
     normalizePath,
+    resizeImageData,
     createTextureAtlas,
     TagToUint ,
     UintToTag,

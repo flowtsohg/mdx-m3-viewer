@@ -1,5 +1,5 @@
 import "./math/gl-matrix-addon";
-import "./Math/math";
+import * as common from "./common";
 import ModelViewer from "./viewer";
 import Scene from "./scene";
 import Camera from "./camera";
@@ -22,6 +22,7 @@ import W3x from "./handlers/w3x/handler";
 
 export {
     ModelViewer,
+    common,
     Scene,
     Camera,
     UnitTester,

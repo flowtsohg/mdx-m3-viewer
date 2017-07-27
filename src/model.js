@@ -35,8 +35,6 @@ Model.prototype = {
         let views = this.views,
             instance = new this.handler.Instance(this);
 
-        this.env.registerEvents(instance);
-
         instance.load(this);
 
         this.instances.push(instance);

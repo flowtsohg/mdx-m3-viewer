@@ -51,9 +51,9 @@ W3xMap.prototype = {
             path = path.toLowerCase().replace(/\\/g, "/");
 
             if (window.location.hostname.match("hiveworkshop")) {
-                path = "http://www.hiveworkshop.com/mpq-contents/?path=" + path;
+                path = "https://www.hiveworkshop.com/mpq-contents/?path=" + path;
             } else {
-                path = "resources/warcraft/" + path;
+                path = "../resources/warcraft/" + path;
             }
 
             return [path, path.substr(path.lastIndexOf(".")), true];
