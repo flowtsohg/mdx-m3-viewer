@@ -43,20 +43,12 @@ W3xMap.prototype = {
 
         //console.log(this.mpq.getFileList());
 
-        this.pathSolver = (path) => {
+        this.internalPathSolver = (path) => {
             if (this.mpq.hasFile(path)) {
                 return [this.mpq.getFile(path).buffer, true];
             }
 
-            path = path.toLowerCase().replace(/\\/g, "/");
-
-            if (window.location.hostname.match("hiveworkshop")) {
-                path = "https://www.hiveworkshop.com/mpq-contents/?path=" + path;
-            } else {
-                path = "../resources/warcraft/" + path;
-            }
-
-            return [path, path.substr(path.lastIndexOf(".")), true];
+            return this.pathSolver(path);
         };
 
         var paths = [
@@ -100,13 +92,13 @@ W3xMap.prototype = {
             let files = [];
 
             for (let i = 0, l = src.length; i < l; i++) {
-                files[i] = this.env.load(src[i], this.pathSolver);
+                files[i] = this.env.load(src[i], this.internalPathSolver);
             }
 
             return files;
         }
 
-        return this.env.load(src, this.pathSolver);
+        return this.env.load(src, this.internalPathSolver);
     },
 
     // Doodads and destructables

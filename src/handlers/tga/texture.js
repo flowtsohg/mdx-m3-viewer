@@ -1,4 +1,4 @@
-import { mix } from "../../common";
+import { mix, resizeImageData } from "../../common";
 import Texture from "../../texture";
 
 /**
@@ -35,14 +35,27 @@ TgaTexture.prototype = {
             return false;
         }
 
+        let imageData = new ImageData(new Uint8ClampedArray(src, 18, width * height * 4), width, height);
+
+        let potWidth = Math.powerOfTwo(width),
+            potHeight = Math.powerOfTwo(height);
+
+        if (width !== potWidth || height !== potHeight) {
+            console.warn("Resizing texture \"" + this.fetchUrl + "\" from [" + width + ", " + height + "] to [" + potWidth + ", " + potHeight + "]");
+
+            width = potWidth;
+            height = potHeight;
+
+            imageData = resizeImageData(imageData, potWidth, potHeight);
+        }
+
         let id = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, id);
         this.setParameters(gl.REPEAT, gl.REPEAT, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(src, 18, width * height * 4));
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
         gl.generateMipmap(gl.TEXTURE_2D);
 
+        this.imageData = imageData;
         this.width = width;
         this.height = height;
         this.webglResource = id;

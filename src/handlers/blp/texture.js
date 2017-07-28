@@ -18,7 +18,7 @@ function BlpTexture(env, pathSolver, handler, extension) {
 
 BlpTexture.prototype = {
     initialize(src) {
-        const gl = this.env.gl,
+        let gl = this.env.gl,
               BLP1_MAGIC = 0x31504c42,
               BLP_JPG = 0x0,
               BLP_PALLETE = 0x1;
@@ -28,7 +28,7 @@ BlpTexture.prototype = {
             return false;
         }
 
-        const header = new Int32Array(src, 0, 39);
+        let header = new Int32Array(src, 0, 39);
 
         if (header[0] !== BLP1_MAGIC) {
             this.onerror("InvalidSource", "WrongMagicNumber");
@@ -53,7 +53,7 @@ BlpTexture.prototype = {
             jpegData.set(jpegHeader);
             jpegData.set(arrayData.subarray(mipmapOffset, mipmapOffset + mipmapSize), jpegHeaderSize);
 
-            const jpegImage = new JpegImage();
+            let jpegImage = new JpegImage();
 
             jpegImage.parse(jpegData);
 
@@ -99,15 +99,15 @@ BlpTexture.prototype = {
 
         // NOTE: BGRA data, it gets sizzled in the shader.
         //       I feel like the noticeable slow down when sizzling once on the client side isn't worth it.
-        const id = gl.createTexture();
+        let id = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, id);
         this.setParameters(gl.REPEAT, gl.REPEAT, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
         gl.generateMipmap(gl.TEXTURE_2D);
 
+        this.imageData = imageData;
         this.width = width;
         this.height = height;
-        this.imageData = imageData;
         this.webglResource = id;
 
         return true;

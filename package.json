@@ -1,6 +1,6 @@
 {
   "name": "mdx-m3-viewer",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "mdx-m3-viewer =============",
   "main": "exports.js",
   "directories": {
