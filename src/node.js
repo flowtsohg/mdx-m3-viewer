@@ -1,5 +1,4 @@
 import { vec3, quat, mat4 } from "gl-matrix"
-import dualquat from "./math/dualquat";
 
 // Heap allocations needed for this module.
 let locationHeap = vec3.create(),
