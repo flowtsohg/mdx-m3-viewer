@@ -106,7 +106,7 @@ ModelViewer.prototype = {
      * @returns {string}
      */
     get version() {
-        return "4.0.3";
+        return "4.0.4";
     },
 
     /**

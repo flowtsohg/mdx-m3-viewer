@@ -5,7 +5,7 @@ import ModelViewer from "./viewer";
 import Scene from "./scene";
 import Camera from "./camera";
 import UnitTester from "./unittester";
-import glMatrix from "gl-matrix";
+import * as glMatrix from "gl-matrix";
 import Blp from "./handlers/blp/handler";
 import Bmp from "./handlers/bmp/handler";
 import Dds from "./handlers/dds/handler";
