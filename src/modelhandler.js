@@ -4,7 +4,7 @@ import ModelView from "./modelview";
 import ModelInstance from "./modelinstance";
 import Bucket from "./bucket";
 
-const ModelHandler = {
+let ModelHandler = {
     get objectType() {
         return "modelhandler"
     },

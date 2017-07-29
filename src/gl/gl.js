@@ -105,18 +105,18 @@ WebGL.prototype = {
     /**
      * Create a new shader program. Uses caching.
      * 
-     * @param {ShaderUnit} vertexShader The vertex shader unit.
-     * @param {ShaderUnit} fragmentShader The fragment shader unit.
+     * @param {string} vertexSrc The vertex shader source.
+     * @param {string} fragmentSrc The fragment shader source.
      * @returns {ShaderProgram}
      */
-    createShaderProgram(vertexSource, fragmentSource) {
+    createShaderProgram(vertexSrc, fragmentSrc) {
         let gl = this.gl,
-            vertexShader = this.createShaderUnit(vertexSource, gl.VERTEX_SHADER),
-            fragmentShader = this.createShaderUnit(this.floatPrecision + fragmentSource, gl.FRAGMENT_SHADER),
+            vertexShader = this.createShaderUnit(vertexSrc, gl.VERTEX_SHADER),
+            fragmentShader = this.createShaderUnit(this.floatPrecision + fragmentSrc, gl.FRAGMENT_SHADER),
             shaderPrograms = this.shaderPrograms;
 
         if (vertexShader.loaded && fragmentShader.loaded) {
-            let hash = hashFromString(vertexSource + fragmentSource);
+            let hash = hashFromString(vertexSrc + fragmentSrc);
 
             if (!shaderPrograms.has(hash)) {
                 shaderPrograms.set(hash, new ShaderProgram(gl, vertexShader, fragmentShader));

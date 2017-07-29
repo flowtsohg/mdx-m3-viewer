@@ -1,4 +1,4 @@
-import { mix } from "./common";
+import { mix, resizeImageData } from "./common";
 import DownloadableResource from "./downloadableresource";
 
 /**
@@ -11,6 +11,9 @@ import DownloadableResource from "./downloadableresource";
  */
 function Texture(env, pathSolver, handler, extension) {
     DownloadableResource.call(this, env, pathSolver, handler, extension);
+
+    this.width = 0;
+    this.height = 0;
 }
 
 Texture.prototype = {
@@ -33,6 +36,23 @@ Texture.prototype = {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter);
+    },
+
+    // Upscale the ImageData object to power-of-two if required.
+    // This is a WebGL requierment for textures that use mipmapping or a repeating wrap mode.
+    upscaleNPOT(imageData) {
+        let width = imageData.width,
+            height = imageData.height,
+            potWidth = Math.powerOfTwo(width),
+            potHeight = Math.powerOfTwo(height);
+
+        if (width !== potWidth || height !== potHeight) {
+            console.warn("Resizing texture \"" + this.fetchUrl + "\" from [" + width + ", " + height + "] to [" + potWidth + ", " + potHeight + "]");
+
+            return resizeImageData(imageData, potWidth, potHeight);
+        }
+
+        return imageData;
     }
 };
 

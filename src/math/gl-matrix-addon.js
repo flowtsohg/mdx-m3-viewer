@@ -27,22 +27,33 @@ vec3.unproject = (function () {
 }());
 
 quat.nlerp = function (out, a, b, t) {
-    const dot = quat.dot(a, b),
-        inverseFactor = 1 - t;
+    let ax = a[0], ay = a[1], az = a[2], aw = a[3],
+        bx = b[0], by = b[1], bz = b[2], bw = b[3],
+        inverseFactor = 1 - t,
+        x1 = inverseFactor * ax,
+        y1 = inverseFactor * ay,
+        z1 = inverseFactor * az,
+        w1 = inverseFactor * aw,
+        x2 = t * bx,
+        y2 = t * by,
+        z2 = t * bz,
+        w2 = t * bw;
 
-    if (dot < 0) {
-        out[0] = inverseFactor * a[0] - t * b[0];
-        out[1] = inverseFactor * a[1] - t * b[1];
-        out[2] = inverseFactor * a[2] - t * b[2];
-        out[3] = inverseFactor * a[3] - t * b[3];
+    // Dot product
+    if (ax * bx + ay * by + az * bz + aw * bw < 0) {
+        out[0] = x1 - x2;
+        out[1] = y1 - y2;
+        out[2] = z1 - z2;
+        out[3] = w1 - w2;
     } else {
-        out[0] = inverseFactor * a[0] + t * b[0];
-        out[1] = inverseFactor * a[1] + t * b[1];
-        out[2] = inverseFactor * a[2] + t * b[2];
-        out[3] = inverseFactor * a[3] + t * b[3];
+        out[0] = x1 + x2;
+        out[1] = y1 + y2;
+        out[2] = z1 + z2;
+        out[3] = w1 + w2;
     }
 
-    quat.normalize(out, out);
+    // Super slow and generally not needed.
+    //quat.normalize(out, out);
 
     return out;
 };

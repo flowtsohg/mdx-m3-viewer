@@ -1,8 +1,8 @@
 {
   "name": "mdx-m3-viewer",
-  "version": "4.0.2",
-  "description": "mdx-m3-viewer =============",
-  "main": "exports.js",
+  "version": "4.0.3",
+  "description": "A browser WebGL model viewer. Mainly focused on models of the games Warcraft 3 and Starcraft 2.",
+  "main": "src/exports.js",
   "directories": {
     "example": "examples",
     "test": "tests"
@@ -14,7 +14,7 @@
     "type": "git",
     "url": "git+https://github.com/flowtsohg/mdx-m3-viewer.git"
   },
-  "author": "",
+  "author": "Chananya Freiman",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/flowtsohg/mdx-m3-viewer/issues"

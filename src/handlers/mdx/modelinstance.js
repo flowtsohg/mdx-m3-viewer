@@ -1,7 +1,7 @@
 import { mix } from "../../common";
 import ModelInstance from "../../modelinstance";
 import TexturedModelInstance from "../../texturedmodelinstance";
-import NotifiedNode from "../../notifiednode";
+import ViewerNode from "../../node";
 import MdxSkeleton from "./skeleton";
 import { MdxAttachment } from "./attachment";
 import MdxParticleEmitterView from "./particleemitterview";
@@ -20,9 +20,13 @@ function MdxModelInstance(model) {
     
     this.attachments = [];
     this.particleEmitters = [];
-    this.particleEmitters2 = [];
+    this.particle2Emitters = [];
     this.ribbonEmitters = [];
     this.eventObjectEmitters = [];
+
+    this.hasAttachments = false;
+    this.hasEmitters = false;
+    this.hasBatches = false;
 
     this.skeleton = null;
     this.frame = 0;
@@ -52,6 +56,9 @@ MdxModelInstance.prototype = {
                 this.attachments.push(new MdxAttachment(this, attachment));
             }
         }
+
+        this.hasAttachments = this.attachments.length > 0;
+        this.hasBatches = model.batches.length > 0;
 
         //let extent = this.model.parser.chunks.MODL.extent;
         //this.boundingShape = new BoundingShape();
@@ -179,9 +186,9 @@ MdxModelInstance.prototype = {
             this.particleEmitters[i] = new MdxParticleEmitterView(this, objects[i]);
         }
 
-        objects = bucket.particleEmitters2;
+        objects = bucket.particle2Emitters;
         for (let i = 0, l = objects.length; i < l; i++) {
-            this.particleEmitters2[i] = new MdxParticle2EmitterView(this, objects[i]);
+            this.particle2Emitters[i] = new MdxParticle2EmitterView(this, objects[i]);
         }
 
         objects = bucket.ribbonEmitters;
@@ -193,6 +200,8 @@ MdxModelInstance.prototype = {
         for (let i = 0, l = objects.length; i < l; i++) {
             this.eventObjectEmitters[i] = new MdxEventObjectEmitterView(this, objects[i]);
         }
+
+        this.hasEmitters = this.particleEmitters.length > 0 || this.particle2Emitters.length > 0 || this.ribbonEmitters.length > 0 || this.eventObjectEmitters.length > 0;
     },
 
     invalidateSharedData() {
@@ -204,7 +213,7 @@ MdxModelInstance.prototype = {
         this.batchVisibilityArrays = null;
 
         this.particleEmitters = [];
-        this.particleEmitters2 = [];
+        this.particle2Emitters = [];
         this.ribbonEmitters = [];
         this.eventObjectEmitters = [];
     },
@@ -237,45 +246,6 @@ MdxModelInstance.prototype = {
         return changed;
     },
 
-    updateAttachments() {
-        let objects = this.attachments;
-
-        for (let i = 0, l = objects.length; i < l; i++) {
-            objects[i].update();
-        }
-    },
-
-    updateEmitters() {
-        if (this.allowParticleSpawn) {
-            let objects;
-
-            objects = this.attachments;
-            for (let i = 0, l = objects.length; i < l; i++) {
-                objects[i].update();
-            }
-
-            objects = this.particleEmitters;
-            for (let i = 0, l = objects.length; i < l; i++) {
-                objects[i].update();
-            }
-
-            objects = this.particleEmitters2;
-            for (let i = 0, l = objects.length; i < l; i++) {
-                objects[i].update();
-            }
-
-            objects = this.ribbonEmitters;
-            for (let i = 0, l = objects.length; i < l; i++) {
-                objects[i].update();
-            }
-
-            objects = this.eventObjectEmitters;
-            for (let i = 0, l = objects.length; i < l; i++) {
-                objects[i].update();
-            }
-        }
-    },
-
     globalUpdate() {
         if (this.sequence !== -1) {
             var sequence = this.sequenceObject,
@@ -300,96 +270,132 @@ MdxModelInstance.prototype = {
         }
     },
 
-    update() {
-        var model = this.model,
-            bucket = this.bucket;
+    updateAttachments() {
+        let objects = this.attachments;
 
-        if (this.sequence !== -1 && model.variants[this.sequence]) {
-            this.skeleton.update();
+        for (let i = 0, l = objects.length; i < l; i++) {
+            objects[i].update();
         }
-        
-        this.updateAttachments();
-        this.updateEmitters();
+    },
 
-        var batches = model.batches;
+    updateEmitters() {
+        if (this.allowParticleSpawn) {
+            let objects;
 
-        // Not every model has batches
-        if (batches.length) {
-            var layers = model.layers,
-                geosetColorArrays = this.geosetColorArrays,
-                uvOffsetArrays = this.uvOffsetArrays,
-                batchVisibilityArrays = this.batchVisibilityArrays;
-
-            // Update batch visibilities and geoset colors
-            for (var i = 0, l = batches.length; i < l; i++) {
-                let batch = batches[i],
-                    index = batch.index,
-                    geoset = batch.geoset,
-                    layer = batch.layer,
-                    geosetColorArray = geosetColorArrays[index];
-
-                //if (layer.isAlphaVariant(0) || geoset.isAlphaVariant(0) || geoset.isColorVariant(0)) {
-                    //console.log(model.name);
-                    //console.log(geoset.geosetAnimation)
-                //}
-
-                var batchVisibility = batch.shouldRender(this);
-                batchVisibilityArrays[index][0] = batchVisibility;
-                bucket.updateBatches[index] |= batchVisibility;
-
-                if (batchVisibility) {
-                    if (geoset.geosetAnimation) {
-                        var color = geoset.geosetAnimation.getColor(this);
-
-                        geosetColorArray[0] = color[0] * 255;
-                        geosetColorArray[1] = color[1] * 255;
-                        geosetColorArray[2] = color[2] * 255;
-                    }
-
-                    geosetColorArray[3] = layer.getAlpha(this) * 255;
-                }
+            objects = this.particleEmitters;
+            for (let i = 0, l = objects.length; i < l; i++) {
+                objects[i].update();
             }
 
-            var hasTextureAnims = model.hasTextureAnims,
-                hasLayerAnims = model.hasLayerAnims;
+            objects = this.particle2Emitters;
+            for (let i = 0, l = objects.length; i < l; i++) {
+                objects[i].update();
+            }
 
-            if (hasTextureAnims || hasLayerAnims) {
-                // Update texture coordinates
-                for (var i = 0, l = layers.length; i < l; i++) {
-                    var layer = layers[i],
-                        index = layer.index,
-                        textureAnimation = layer.textureAnimation,
-                        uvOffsetArray = uvOffsetArrays[index];
+            objects = this.ribbonEmitters;
+            for (let i = 0, l = objects.length; i < l; i++) {
+                objects[i].update();
+            }
 
-                    // Texture animation that works by offsetting the coordinates themselves
-                    if (textureAnimation) {
-                        // What is Z used for?
-                        var uvOffset = textureAnimation.getTranslation(this);
+            objects = this.eventObjectEmitters;
+            for (let i = 0, l = objects.length; i < l; i++) {
+                objects[i].update();
+            }
+        }
+    },
 
-                        uvOffsetArray[0] = uvOffset[0];
-                        uvOffsetArray[1] = uvOffset[1];
+    updateBatches() {
+        let model = this.model,
+            bucket = this.bucket,
+            batches = model.batches,
+            layers = model.layers,
+            geosetColorArrays = this.geosetColorArrays,
+            uvOffsetArrays = this.uvOffsetArrays,
+            batchVisibilityArrays = this.batchVisibilityArrays;
 
-                        bucket.updateUvOffsets[0] = 1;
-                    }
+        // Update batch visibilities and geoset colors
+        for (var i = 0, l = batches.length; i < l; i++) {
+            let batch = batches[i],
+                index = batch.index,
+                geoset = batch.geoset,
+                layer = batch.layer,
+                geosetColorArray = geosetColorArrays[index];
 
-                    // Texture animation that is based on a texture atlas, where the selected tile changes
-                    if (layer.isTextureAnim) {
-                        var uvDivisor = layer.uvDivisor;
-                        var textureId = layer.getTextureId(this);
+            //if (layer.isAlphaVariant(0) || geoset.isAlphaVariant(0) || geoset.isColorVariant(0)) {
+            //console.log(model.name);
+            //console.log(geoset.geosetAnimation)
+            //}
 
-                        uvOffsetArray[2] = textureId % uvDivisor[0];
-                        uvOffsetArray[3] = Math.floor(textureId / uvDivisor[1]);
+            var batchVisibility = batch.shouldRender(this);
+            batchVisibilityArrays[index][0] = batchVisibility;
+            bucket.updateBatches[index] |= batchVisibility;
 
-                        bucket.updateUvOffsets[0] = 1;
-                    }
+            if (batchVisibility) {
+                if (geoset.geosetAnimation) {
+                    var color = geoset.geosetAnimation.getColor(this);
+
+                    geosetColorArray[0] = color[0] * 255;
+                    geosetColorArray[1] = color[1] * 255;
+                    geosetColorArray[2] = color[2] * 255;
+                }
+
+                geosetColorArray[3] = layer.getAlpha(this) * 255;
+            }
+        }
+
+        if (model.hasLayerAnims) {
+            // Update texture coordinates
+            for (var i = 0, l = layers.length; i < l; i++) {
+                var layer = layers[i],
+                    index = layer.index,
+                    uvOffsetArray = uvOffsetArrays[index];
+
+                // Texture animation that works by offsetting the coordinates themselves
+                if (layer.hasUvAnim) {
+                    // What is Z used for?
+                    var uvOffset = layer.textureAnimation.getTranslation(this);
+
+                    uvOffsetArray[0] = uvOffset[0];
+                    uvOffsetArray[1] = uvOffset[1];
+
+                    bucket.updateUvOffsets[0] = 1;
+                }
+
+                // Texture animation that is based on a texture atlas, where the selected tile changes
+                if (layer.hasSlotAnim) {
+                    var uvDivisor = layer.uvDivisor;
+                    var textureId = layer.getTextureId(this);
+
+                    uvOffsetArray[2] = textureId % uvDivisor[0];
+                    uvOffsetArray[3] = Math.floor(textureId / uvDivisor[1]);
+
+                    bucket.updateUvOffsets[0] = 1;
                 }
             }
         }
     },
 
+    update() {
+        if (this.sequence !== -1 && this.model.variants[this.sequence]) {
+            this.skeleton.update();
+        }
+        
+        if (this.hasAttachments) {
+            this.updateAttachments();
+        }
+
+        if (this.hasEmitters) {
+            this.updateEmitters();
+        }
+
+        if (this.hasBatches) {
+            this.updateBatches();
+        }
+    },
+
     // This is overriden in order to update the skeleton when the parent node changes
     recalculateTransformation() {
-        NotifiedNode.prototype.recalculateTransformation.call(this);
+        ViewerNode.prototype.recalculateTransformation.call(this);
 
         if (this.bucket) {
             this.skeleton.update();

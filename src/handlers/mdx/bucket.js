@@ -95,7 +95,7 @@ function MdxBucket(modelView) {
 
     // Emitters
     this.particleEmitters = [];
-    this.particleEmitters2 = [];
+    this.particle2Emitters = [];
     this.eventObjectEmitters = [];
     this.ribbonEmitters = [];
 
@@ -104,9 +104,9 @@ function MdxBucket(modelView) {
         this.particleEmitters[i] = new MdxParticleEmitter(objects[i]);
     }
 
-    objects = model.particleEmitters2;
+    objects = model.particle2Emitters;
     for (let i = 0, l = objects.length; i < l; i++) {
-        this.particleEmitters2[i] = new MdxParticle2Emitter(objects[i]);
+        this.particle2Emitters[i] = new MdxParticle2Emitter(objects[i]);
     }
 
     objects = model.ribbonEmitters;
@@ -147,7 +147,7 @@ MdxBucket.prototype = {
             polygons += (geoset.faceArray.length / 3) * instances;
         }
 
-        objects = this.particleEmitters2;
+        objects = this.particle2Emitters;
         for (let i = 0, l = objects.length; i < l; i++) {
             let emitter = objects[i],
                 active = emitter.active.length;
@@ -202,7 +202,7 @@ MdxBucket.prototype = {
             objects[i].update();
         }
 
-        objects = this.particleEmitters2;
+        objects = this.particle2Emitters;
         for (let i = 0, l = objects.length; i < l; i++) {
             objects[i].update(scene);
         }

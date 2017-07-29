@@ -1,4 +1,4 @@
-import { mix, resizeImageData } from "../../common";
+import { mix } from "../../common";
 import Texture from "../../texture";
 import BitBuffer from "../../bitbuffer";
 import { JpegImage } from "./jpg";
@@ -85,17 +85,8 @@ BlpTexture.prototype = {
             }
         }
 
-        let potWidth = Math.powerOfTwo(width),
-            potHeight = Math.powerOfTwo(height);
-
-        if (width !== potWidth || height !== potHeight) {
-            console.warn("Resizing texture \"" + this.fetchUrl + "\" from [" + width + ", " + height + "] to [" + potWidth + ", " + potHeight + "]");
-
-            width = potWidth;
-            height = potHeight;
-
-            imageData = resizeImageData(imageData, potWidth, potHeight);
-        }
+        // Upscale to POT if the size is NPOT.
+        imageData = this.upscaleNPOT(imageData);
 
         // NOTE: BGRA data, it gets sizzled in the shader.
         //       I feel like the noticeable slow down when sizzling once on the client side isn't worth it.
@@ -106,8 +97,8 @@ BlpTexture.prototype = {
         gl.generateMipmap(gl.TEXTURE_2D);
 
         this.imageData = imageData;
-        this.width = width;
-        this.height = height;
+        this.width = imageData.width; // Note: might not be the same as 'width' and 'height' due to NPOT upscaling.
+        this.height = imageData.height;
         this.webglResource = id;
 
         return true;

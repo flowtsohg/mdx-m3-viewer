@@ -1,7 +1,7 @@
 import { mix } from "./common";
 import Handler from "./handler";
 
-const FileHandler = {
+let FileHandler = {
     get objectType() {
         return "filehandler"
     }

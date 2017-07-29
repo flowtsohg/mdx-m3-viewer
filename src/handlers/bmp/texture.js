@@ -1,4 +1,4 @@
-import { mix, resizeImageData } from "../../common";
+import { mix } from "../../common";
 import Texture from "../../texture";
 import BinaryReader from "../../binaryreader";
 
@@ -66,18 +66,8 @@ BmpTexture.prototype = {
             data[base + 3] = 255;
         }
 
-        // In case the dimensions aren't power of two, resize the image data. This is required for proper WebGL behavior.
-        let potWidth = Math.powerOfTwo(width),
-            potHeight = Math.powerOfTwo(height);
-
-        if (width !== potWidth || height !== potHeight) {
-            console.warn("Resizing texture \"" + this.fetchUrl + "\" from [" + width + ", " + height + "] to [" + potWidth + ", " + potHeight + "]");
-
-            width = potWidth;
-            height = potHeight;
-
-            imageData = resizeImageData(imageData, potWidth, potHeight);
-        }
+        // Upscale to POT if the size is NPOT.
+        imageData = this.upscaleNPOT(imageData);
 
         // Finally, create the actual WebGL texture.
         let gl = this.gl;
@@ -88,8 +78,8 @@ BmpTexture.prototype = {
         gl.generateMipmap(gl.TEXTURE_2D);
 
         this.imageData = imageData;
-        this.width = width;
-        this.height = height;
+        this.width = imageData.width; // Note: might not be the same as 'width' and 'height' due to NPOT upscaling.
+        this.height = imageData.height;
         this.webglResource = id; // If webglResource isn't set, this texture won't be bound to a texture unit
 
         // Report that this texture was loaded properly

@@ -1,4 +1,4 @@
-const Handler = {
+let Handler = {
     // Will be called when adding the handler to the viewer, with env being the viewer itself
     initialize(env) {
         return true;

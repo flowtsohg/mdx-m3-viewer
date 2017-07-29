@@ -1,4 +1,5 @@
 import { vec3, quat, mat4 } from "gl-matrix"
+import dualquat from "./math/dualquat";
 
 // Heap allocations needed for this module.
 let locationHeap = vec3.create(),
@@ -270,28 +271,61 @@ ViewerNode.prototype = {
 
         return this;
     },
+    /*
+    orthoNormalize(vectors) {
+        for (let i = 0; i < vectors.length; i++) {
+            let accum = vec3.create(),
+                p = vec3.create();
 
-    lookAt(target) {
-        let l = [
-            -this.worldLocation[0],
-            -this.worldLocation[1],
-            -this.worldLocation[2]
-        ];
+            for (let j = 0; j < i; j++) {
+                vec3.add(accum, accum, this.project(p, vectors[i], vectors[j]));
+            }
 
-        let t = [
-            -target[0],
-            -target[1],
-            -target[2]
-        ];
+            vec3.sub(vectors[i], vectors[i], accum);
+            vec3.normalize(vectors[i], vectors[i]);
+        }
+    },
 
-        let rotation = mat4.getRotation(this.localRotation, mat4.lookAt(mat4.heap, l, t, vec3.UNIT_Y));
+    project(out, u, v) {
+        let d = vec3.dot(u, v),
+            d_div = d / vec3.sqrLen(u);
 
-        quat.normalize(rotation, rotation)
-        //quat.invert(rotation, rotation);
+        return vec3.scale(out, v, d_div);
+    },
+    
+    lookAt(target, upDirection) {
+
+        let lookAt = vec3.create();
+
+        vec3.sub(lookAt, target, this.worldLocation);
+
+        let forward = vec3.clone(lookAt);
+        let up = vec3.clone(upDirection);
+
+        this.orthoNormalize([forward, up]);
+
+        let right = vec3.create();
+        vec3.cross(right, forward, up);
+
+        //vec3.normalize(forward, forward);
+        //vec3.normalize(up, up);
+        //vec3.normalize(right, right);
+
+        quat.setAxes(this.localRotation, forward, right, up);
+        quat.conjugate(this.localRotation, this.localRotation);
 
         this.recalculateTransformation();
 
         return this;
+    },
+    */
+    lookAt(target) {
+        let v1 = target,
+            v2 = this.worldLocation;
+
+        let angle = Math.atan2(v2[2], v2[0]) - Math.atan2(v1[2], v1[0]);
+
+        //console.log(Math.toDeg(angle))
     },
 
     /**
@@ -321,7 +355,7 @@ ViewerNode.prototype = {
      * Override this if you want special behavior.
      * Note that ModelInstance overrides this.
      */
-    notify() {
+    parentRecalculated() {
 
     },
 
@@ -404,6 +438,9 @@ ViewerNode.prototype = {
 
             mat4.mul(worldMatrix, parent.worldMatrix, localMatrix);
 
+            //dualquat.fromRotationTranslationOrigin(this.localDual, localRotation, computedLocation, pivot);
+            //dualquat.mul(this.worldDual, parent.worldDual, this.localDual);
+
             /// TODO: what happens when dontInheritRotation is true?
 
             // World rotation and inverse world rotation
@@ -478,7 +515,7 @@ ViewerNode.prototype = {
 
         // Notify the children
         for (let i = 0, l = children.length; i < l; i++) {
-            children[i].notify();
+            children[i].parentRecalculated();
         }
 
         return this;

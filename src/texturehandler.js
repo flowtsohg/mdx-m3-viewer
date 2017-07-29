@@ -1,7 +1,7 @@
 import { mix } from "./common";
 import Handler from "./handler";
 
-const TextureHandler = {
+let TextureHandler = {
     get objectType() {
         return "texturehandler"
     }

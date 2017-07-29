@@ -1,4 +1,4 @@
-import { mix, hashFromArray, createTextureAtlas } from "../../common";
+import { mix } from "../../common";
 import TexturedModel from "../../texturedmodel";
 import MdxParser from "./parser/parser";
 import MdxNode from "./node";
@@ -27,18 +27,26 @@ import Mdx from "./handler";
 function MdxModel(env, pathSolver, handler, extension) {
     TexturedModel.call(this, env, pathSolver, handler, extension);
 
+    this.parser = null;
+    this.name = "";
+    this.replaceables = [];
+    this.textureAtlases = {};
+    this.nodes = [];
+    this.sortedNodes = [];
     this.sequences = [];
     this.textures = [];
     this.geosets = [];
     this.cameras = [];
     this.particleEmitters = [];
-    this.particleEmitters2 = [];
+    this.particle2Emitters = [];
     this.ribbonEmitters = [];
     this.boundingShapes = [];
     this.attachments = [];
     this.textureAnimations = [];
     this.geosetAnimations = [];
     this.eventObjectEmitters = [];
+
+    this.hasLayerAnims = false;
 }
 
 MdxModel.prototype = {
@@ -57,10 +65,6 @@ MdxModel.prototype = {
 
         this.parser = parser;
         this.name = chunks.get("MODL").name;
-
-        this.replaceables = [];
-
-        this.textureAtlases = {};
 
         if (chunks.has("TEXS")) {
             objects = chunks.get("TEXS").elements;
@@ -86,9 +90,6 @@ MdxModel.prototype = {
         } else {
             pivots = [{ value: [0, 0, 0] }];
         }
-
-        this.nodes = [];
-        this.sortedNodes = [];
 
         for (i = 0, l = nodes.length; i < l; i++) {
             this.nodes[i] = new MdxNode(this, nodes[i], pivots);
@@ -145,14 +146,13 @@ MdxModel.prototype = {
                     materials[i][j] = layer;
                     this.layers.push(layer);
 
-                    this.setupVaryingTextures(layer);
+                    if (layer.hasAnim) {
+                        this.hasLayerAnims = true;
+                    }
                 }
             }
 
             this.materials = materials;
-
-            this.hasTextureAnims = !!this.textureAnimations.length;
-            this.hasLayerAnims = false;
         }
 
         if (chunks.has("GEOA")) {
@@ -219,12 +219,12 @@ MdxModel.prototype = {
         }
 
         if (chunks.has("PRE2")) {
-            let particleEmitters2 = chunks.get("PRE2").elements;
+            let particle2Emitters = chunks.get("PRE2").elements;
 
-            particleEmitters2.sort((a, b) => a.priorityPlane - b.priorityPlane);
+            particle2Emitters.sort((a, b) => a.priorityPlane - b.priorityPlane);
 
-            for (let i = 0, l = particleEmitters2.length; i < l; i++) {
-                this.particleEmitters2[i] = new MdxModelParticle2Emitter(this, particleEmitters2[i]);
+            for (let i = 0, l = particle2Emitters.length; i < l; i++) {
+                this.particle2Emitters[i] = new MdxModelParticle2Emitter(this, particle2Emitters[i]);
             }
         }
 
@@ -277,57 +277,6 @@ MdxModel.prototype = {
         }
 
         this.variants = variants;
-    },
-
-    setupVaryingTextures(layer) {
-        // Get all unique texture IDs used by this layer
-        let textureIds = layer.getAllTextureIds();
-
-        if (textureIds.length > 1) {
-            let env = this.env,
-                hash = hashFromArray(textureIds),
-                textures = [];
-
-            // Grab all of the textures
-            for (let i = 0, l = textureIds.length; i < l; i++) {
-                textures[i] = this.textures[textureIds[i]];
-            }
-
-            // Promise that there is a future load that the code cannot know about yet, so Viewer.whenAllLoaded() isn't called prematurely.
-            let promise = env.makePromise();
-
-            // When all of the textures are loaded, it's time to construct a texture atlas
-            env.whenLoaded(textures, () => {
-                let textureAtlases = this.textureAtlases;
-
-                // Cache atlases
-                if (!textureAtlases[hash]) {
-                    let images = [];
-
-                    // Grab all the ImageData objects from the loaded textures
-                    for (let i = 0, l = textures.length; i < l; i++) {
-                        images[i] = textures[i].imageData;
-                    }
-
-                    // Finally create the atlas
-                    let atlasData = createTextureAtlas(images);
-
-                    let texture = env.load(atlasData.texture);
-
-                    textureAtlases[hash] = { textureId: this.textures.length, columns: atlasData.columns, rows: atlasData.rows, texture };
-                    
-                    this.textures.push(texture);
-                }
-
-                // Tell the layer to use this texture atlas, instead of its original texture
-                layer.setAtlas(textureAtlases[hash]);
-
-                this.hasLayerAnims = true;
-
-                // Resolve the promise.
-                promise.resolve();
-            });
-        }
     },
 
     setupGeosets() {
@@ -579,12 +528,12 @@ MdxModel.prototype = {
 
         let texture;
 
-        // If this is not a team color/glow, set the texture, and see if it's a texture animation.
+        // If this is not a team color/glow, set the texture.
         if (colorMode === 0) {
             texture = this.textures[layer.textureId];
 
-            // Does this layer use texture animations with multiple textures?
-            gl.uniform1f(uniforms.get("u_isTextureAnim"), layer.isTextureAnim);
+            // Is this layer animated?
+            gl.uniform1f(uniforms.get("u_hasLayerAnim"), layer.hasAnim);
         }
 
         // When this is a team color/glow, texture is undefined, so the black texture will get bound.
@@ -648,12 +597,12 @@ MdxModel.prototype = {
     renderEmitters(bucket, scene) {
         let webgl = this.env.webgl,
             gl = this.env.gl,
-            particleEmitters2 = bucket.particleEmitters2,
+            particle2Emitters = bucket.particle2Emitters,
             eventObjectEmitters = bucket.eventObjectEmitters,
             ribbonEmitters = bucket.ribbonEmitters;
 
 
-        if (particleEmitters2.length || eventObjectEmitters.length || ribbonEmitters.length) {
+        if (particle2Emitters.length || eventObjectEmitters.length || ribbonEmitters.length) {
             gl.depthMask(0);
             gl.enable(gl.BLEND);
             gl.disable(gl.CULL_FACE);
@@ -666,8 +615,8 @@ MdxModel.prototype = {
 
             gl.uniform1i(shader.uniforms.get("u_texture"), 0);
 
-            for (let i = 0, l = particleEmitters2.length; i < l; i++) {
-                particleEmitters2[i].render(bucket, shader);
+            for (let i = 0, l = particle2Emitters.length; i < l; i++) {
+                particle2Emitters[i].render(bucket, shader);
             }
 
             for (let i = 0, l = eventObjectEmitters.length; i < l; i++) {

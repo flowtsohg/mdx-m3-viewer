@@ -6,7 +6,7 @@ import { vec3, quat } from "gl-matrix";
 let vectorHeap = vec3.create(),
     quatHeap = quat.create();
 
-const Interpolator = {
+let Interpolator = {
     scalar(a, b, c, d, t, type) {
         if (type === 0) {
             return a;

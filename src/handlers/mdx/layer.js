@@ -1,3 +1,4 @@
+import { hashFromString, createTextureAtlas } from "../../common";
 import MdxSdContainer from "./sd";
 
 /**
@@ -31,11 +32,18 @@ function MdxLayer(model, layer, layerId, priorityPlane) {
     this.noDepthTest = flags & 0x40;
     this.noDepthSet = flags & 0x80;
 
+    this.hasAnim = false;
+    this.hasUvAnim = false;
+    this.hasSlotAnim = false;
+
     if (textureAnimationId !== -1) {
         let textureAnimation = model.textureAnimations[textureAnimationId];
 
         if (textureAnimation) {
             this.textureAnimation = textureAnimation;
+
+            this.hasAnim = true;
+            this.hasUvAnim = true;
         }
     }
 
@@ -78,7 +86,8 @@ function MdxLayer(model, layer, layerId, priorityPlane) {
     this.blended = blended;
 
     this.uvDivisor = new Float32Array([1, 1]);
-    this.isTextureAnim = false;
+
+    this.setupVaryingTextures(model);
 }
 
 MdxLayer.filterModeToRenderOrder = {
@@ -123,20 +132,58 @@ MdxLayer.prototype = {
         }
     },
 
-    setAtlas(atlas) {
-        this.textureId = atlas.textureId;
-        this.uvDivisor.set([atlas.columns, atlas.rows]);
-        this.isTextureAnim = true;
-    },
+    setupVaryingTextures(model) {
+        // Get all unique texture IDs used by this layer
+        var textureIds = this.sd.getValues("KMTF").unique();
 
-    getAllTextureIds() {
-        var textureIds = this.sd.getValues("KMTF");
+        if (textureIds.length > 1) {
+            let env = model.env,
+                hash = hashFromString(textureIds.join("")),
+                textures = [];
 
-        if (textureIds.length) {
-            // Remove duplicate elements but keep the unique ones in order
-            return textureIds.unique();
-        } else {
-            return [this.textureId];
+            this.hasAnim = true;
+
+            // Grab all of the textures
+            for (let i = 0, l = textureIds.length; i < l; i++) {
+                textures[i] = model.textures[textureIds[i]];
+            }
+
+            // Promise that there is a future load that the code cannot know about yet, so Viewer.whenAllLoaded() isn't called prematurely.
+            let promise = env.makePromise();
+
+            // When all of the textures are loaded, it's time to construct a texture atlas
+            env.whenLoaded(textures, () => {
+                let textureAtlases = model.textureAtlases;
+
+                // Cache atlases
+                if (!textureAtlases[hash]) {
+                    let images = [];
+
+                    // Grab all the ImageData objects from the loaded textures
+                    for (let i = 0, l = textures.length; i < l; i++) {
+                        images[i] = textures[i].imageData;
+                    }
+
+                    // Finally create the atlas
+                    let atlasData = createTextureAtlas(images);
+
+                    let texture = env.load(atlasData.texture);
+
+                    textureAtlases[hash] = { textureId: model.textures.length, columns: atlasData.columns, rows: atlasData.rows, texture };
+                    
+                    model.textures.push(texture);
+                }
+
+                // Tell the layer to use this texture atlas, instead of its original texture
+                let atlas = textureAtlases[hash];
+
+                this.textureId = atlas.textureId;
+                this.uvDivisor.set([atlas.columns, atlas.rows]);
+                this.hasSlotAnim = true;
+
+                // Resolve the promise.
+                promise.resolve();
+            });
         }
     },
 

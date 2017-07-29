@@ -1,11 +1,12 @@
 import "./math/gl-matrix-addon";
+
 import * as common from "./common";
 import ModelViewer from "./viewer";
 import Scene from "./scene";
 import Camera from "./camera";
 import UnitTester from "./unittester";
 import glMatrix from "gl-matrix";
-import * as Blp from "./handlers/blp/handler";
+import Blp from "./handlers/blp/handler";
 import Bmp from "./handlers/bmp/handler";
 import Dds from "./handlers/dds/handler";
 import Geo from "./handlers/geo/handler";

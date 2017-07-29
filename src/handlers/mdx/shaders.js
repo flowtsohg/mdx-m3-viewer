@@ -3,7 +3,7 @@ const MdxShaders = {
         uniform mat4 u_mvp;
         uniform vec2 u_uvScale;
         uniform vec3 u_teamColors[14];
-        uniform bool u_isTextureAnim;
+        uniform bool u_hasLayerAnim;
 
         attribute vec3 a_position;
         attribute vec3 a_normal;
@@ -41,7 +41,7 @@ const MdxShaders = {
             
             transform(position, normal, a_boneNumber, a_bones);
 
-            if (u_isTextureAnim) {
+            if (u_hasLayerAnim) {
                 v_uv = (fract(a_uv + a_uvOffset.xy) + a_uvOffset.zw) * u_uvScale;
             } else {
                 v_uv = a_uv;

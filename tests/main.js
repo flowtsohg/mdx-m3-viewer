@@ -53,16 +53,24 @@ function addTestResult(testResult) {
 
 let unitTester = new ModelViewer.UnitTester();
 
+console.log("Viewer version", unitTester.viewer.version);
+
 unitTester.add(geoTests);
 unitTester.add(mdxTests);
 unitTester.add(m3Tests);
 unitTester.add(baseTests);
 
-unitTester.run((testResult) => {
-    if (!testResult.done) {
-        addTestResult(testResult.value)
-    } else {
-        resultElement.innerText = testsPassed + "/" + testsCount + " tests passed";
-        resultElement.className = (testsPassed === testsCount) ? "success" : "failure";
-    }
+document.getElementById("run").addEventListener("click", () => {
+    unitTester.run((testResult) => {
+        if (!testResult.done) {
+            addTestResult(testResult.value)
+        } else {
+            resultElement.innerText = testsPassed + "/" + testsCount + " tests passed";
+            resultElement.className = (testsPassed === testsCount) ? "success" : "failure";
+        }
+    });
+});
+
+document.getElementById("download").addEventListener("click", () => {
+    unitTester.downloadTestResults();
 });

@@ -9,21 +9,33 @@ function normalizePath(path) {
     return path.toLocaleLowerCase().replace(/\\/g, "/");
 }
 
+// Resize an Image or ImageData object to the given dimensions.
 function resizeImageData(imageData, width, height) {
     let srcWidth = imageData.width,
         srcHeight = imageData.height;
 
-    canvas.width = srcWidth;
-    canvas.height = srcHeight;
+    // ImageData
+    if (imageData instanceof ImageData) {
+        canvas.width = srcWidth;
+        canvas.height = srcHeight;
 
-    ctx.putImageData(imageData, 0, 0);
+        ctx.putImageData(imageData, 0, 0);
 
-    canvas2.width = width;
-    canvas2.height = height;
+        canvas2.width = width;
+        canvas2.height = height;
 
-    ctx2.drawImage(canvas, 0, 0, width, height);
+        ctx2.drawImage(canvas, 0, 0, width, height);
 
-    return ctx2.getImageData(0, 0, width, height);
+        return ctx2.getImageData(0, 0, width, height);
+    // Assumed to be Image
+    } else {
+        canvas.width = width;
+        canvas.height = height;
+
+        ctx.drawImage(image, 0, 0, width, height);
+
+        return ctx.getImageData(0, 0, width, height);
+    }
 }
 
 // Given an array of Image objects, constructs a texture atlas.
@@ -173,30 +185,6 @@ function hashFromString(s) {
 
     for (var i = 0, l = s.length; i < l; i++) {
         hash = hash * 31 + s.charCodeAt(i);
-        hash = hash & hash;
-    }
-
-    return hash;
-}
-
-/**
- * A very simple array-of-numbers hashing algorithm.
- *
- * @param {Array<number>} a An array fo numbers to hash.
- * @returns {number} The hash.
- */
-function hashFromArray(a) {
-    var hash = 0;
-
-    for (var i = 0, l = a.length; i < l; i++) {
-        var n = a[i];
-
-        // Zeroes should affect the hash too!
-        if (n === 0) {
-            n = 1;
-        }
-
-        hash = hash * 31 + n;
         hash = hash & hash;
     }
 
@@ -399,16 +387,6 @@ Math.bezier = function (a, b, c, d, t) {
         factor4 = factorTimes2 * t;
 
     return (a * factor1) + (b * factor2) + (c * factor3) + (d * factor4);
-};
-
-/**
- * Gets the sign of a number.
- *
- * @param {number} x
- * @returns {number} The sign.
- */
-Math.sign = function (x) {
-    return x === 0 ? 0 : (x < 0 ? -1 : 1);
 };
 
 /**

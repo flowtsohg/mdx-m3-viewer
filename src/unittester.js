@@ -24,7 +24,7 @@ function UnitTester() {
     this.viewer = viewer;
     this.mathRandom = Math.random;
     this.tests = [];
-};
+}
 
 UnitTester.prototype = {
     // Replace Math.random with a custom seeded random generator.

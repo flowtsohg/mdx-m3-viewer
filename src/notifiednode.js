@@ -14,7 +14,7 @@ NotifiedNode.prototype = {
      * This override allows to selectively only allow some nodes to get automatically recalculated by their parents.
      * Recalculating automatically all nodes is a big no-no, since for skeletal hierarchies that get updated itratively, this will cause huge useless recursions.
      */
-    notify() {
+    parentRecalculated() {
         this.recalculateTransformation();
     }
 };

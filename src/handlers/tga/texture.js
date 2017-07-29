@@ -1,4 +1,4 @@
-import { mix, resizeImageData } from "../../common";
+import { mix } from "../../common";
 import Texture from "../../texture";
 
 /**
@@ -35,19 +35,8 @@ TgaTexture.prototype = {
             return false;
         }
 
-        let imageData = new ImageData(new Uint8ClampedArray(src, 18, width * height * 4), width, height);
-
-        let potWidth = Math.powerOfTwo(width),
-            potHeight = Math.powerOfTwo(height);
-
-        if (width !== potWidth || height !== potHeight) {
-            console.warn("Resizing texture \"" + this.fetchUrl + "\" from [" + width + ", " + height + "] to [" + potWidth + ", " + potHeight + "]");
-
-            width = potWidth;
-            height = potHeight;
-
-            imageData = resizeImageData(imageData, potWidth, potHeight);
-        }
+        // Upscale to POT if the size is NPOT.
+        let imageData = this.upscaleNPOT(new ImageData(new Uint8ClampedArray(src, 18, width * height * 4), width, height));
 
         let id = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, id);
@@ -56,8 +45,8 @@ TgaTexture.prototype = {
         gl.generateMipmap(gl.TEXTURE_2D);
 
         this.imageData = imageData;
-        this.width = width;
-        this.height = height;
+        this.width = imageData.width; // Note: might not be the same as 'width' and 'height' due to NPOT upscaling.
+        this.height = imageData.height;
         this.webglResource = id;
 
         return true;

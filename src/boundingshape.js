@@ -14,12 +14,6 @@ function BoundingShape() {
 }
 
 BoundingShape.prototype = {
-    /// TODO: duplicated with Mdx.ModelInstance and M3.ModelInstance, can I do something nice about this? (e.g. parent class)
-    // This will be called if this instance is parented to some node, and the node changed
-    notify() {
-        this.recalculateTransformation();
-    },
-
     fromBounds(min, max) {
         this.min.set(min);
         this.max.set(max);
