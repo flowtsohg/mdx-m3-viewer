@@ -76,11 +76,22 @@ function W3xDroppedItem(reader) {
  * @param {BinaryReader} reader
  */
 function W3xDroppedItemSet(reader) {
-    this.items = [];
+    let items = [];
 
     for (var i = 0, l = reader.readInt32() ; i < l; i++) {
-        this.items[i] = new W3xDroppedItem(reader);
+        items[i] = new W3xDroppedItem(reader);
     }
+
+    this.items = items;
+}
+
+/**
+ * @constructor
+ * @param {BinaryReader} reader
+ */
+function W3xInventoryItem(reader) {
+    this.slot = reader.readInt32();
+    this.id = reader.read(4);
 }
 
 /**
@@ -97,18 +108,9 @@ function W3xModifiedAbility(reader) {
  * @constructor
  * @param {BinaryReader} reader
  */
-function W3xInventoryItem(reader) {
-    this.slot = reader.readInt32();
-    this.id = reader.read(4);
-}
-
-/**
- * @constructor
- * @param {BinaryReader} reader
- */
 function W3xRandomUnit(reader) {
     this.id = reader.read(4);
-    this.chance = reader.readUint32();
+    this.chance = reader.readInt32();
 }
 
 /**
@@ -133,11 +135,14 @@ function W3xUnit(reader, version, map) {
 
     if (version > 7) {
         var droppedItemTable = reader.readInt32();
+
+        if (droppedItemTable !== -1) {
+            console.warn("Dropped item table, must not read dropped item sets");
+        }
     }
 
-    var droppedItemSetsCount = reader.readInt32();
     var droppedItemSets = [];
-    for (var i = 0; i < droppedItemSetsCount; i++) {
+    for (var i = 0, l = reader.readInt32(); i < l; i++) {
         droppedItemSets[i] = new W3xDroppedItemSet(reader);
     }
 
@@ -151,29 +156,27 @@ function W3xUnit(reader, version, map) {
         var heroIntelligence = reader.readInt32();
     }
 
-    var itemsInInventoryCount = reader.readInt32();
     var itemsInInventory = [];
-    for (var i = 0; i < itemsInInventoryCount; i++) {
+    for (var i = 0, l = reader.readInt32(); i < l; i++) {
         itemsInInventory[i] = new W3xInventoryItem(reader);
     }
 
-    var modifiedAbilitiesCount = reader.readInt32();
     var modifiedAbilities = [];
-    for (var i = 0; i < modifiedAbilitiesCount; i++) {
+    for (var i = 0, l = reader.readInt32(); i < l; i++) {
         modifiedAbilities[i] = new W3xModifiedAbility(reader);
     }
 
     var randomUnitTable = [];
     var randomFlag = reader.readInt32();
+    
     if (randomFlag === 0) {
         var level = reader.read(3); // 24bit number
         var itemClass = reader.readUint8();
     } else if (randomFlag === 1) {
-        var unitGroup = reader.readUint8();
-        var positionInGroup = reader.readUint8();
+        var unitGroup = reader.readUint32();
+        var positionInGroup = reader.readUint32();
     } else if (randomFlag === 2) {
-        var randomUnits = reader.readInt32();
-        for (let i = 0; i < randomUnits; i++) {
+        for (let i = 0, l = reader.readInt32(); i < l; i++) {
             randomUnitTable[i] = new W3xRandomUnit(reader);
         }
 
@@ -207,8 +210,6 @@ function W3xUnit(reader, version, map) {
                 return;
             }
 
-            
-
             path = row.file + ".mdx";
 
             vec3.scale(this.scale, this.scale, row.modelScale);
@@ -224,7 +225,7 @@ function W3xUnit(reader, version, map) {
     if (this.path) {
         this.addInstance();
     } else {
-        console.log("Unknown unit/item ID", id, randomUnitTable)
+        console.log("Unknown unit/item ID", id)
     }
 }
 

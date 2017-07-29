@@ -8,8 +8,9 @@ let Handler = {
         throw new Error("Handler.objectType must be overriden!");
     },
 
-    // The file extension as a string, e.g. ".png", or if it handles multiple extensions - ".png|.jpg"
-    get extension() {
+    // The file extensions as an array of [extension, isBinary] arrays.
+    // E.g.: [[".ext", true]].
+    get extensions() {
         throw new Error("Handler.extension must be overriden!");
     },
 
@@ -17,10 +18,6 @@ let Handler = {
     // E.g. the model constructor for a model handler.
     get Constructor() {
         throw new Error("Handler.Constructor must be overriden!");
-    },
-
-    get binaryFormat() {
-        return false;
     }
 };
 

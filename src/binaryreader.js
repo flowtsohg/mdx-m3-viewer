@@ -118,7 +118,6 @@ BinaryReader.prototype = {
     /**
      * Peeks a string until finding a null byte
      * 
-     * @param {number} size
      * @returns {string}
      */
     peekUntilNull() {
@@ -131,8 +130,8 @@ BinaryReader.prototype = {
         while (b !== 0) {
             data += String.fromCharCode(b);
 
-            b = byteArray[index + i]
             i += 1;
+            b = byteArray[index + i]
         }
 
         return data;

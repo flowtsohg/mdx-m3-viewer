@@ -298,8 +298,11 @@ W3xMap.prototype = {
             for (var i = 0, l = cliffTilesets.length; i < l; i++) {
                 var row = cliffSlk.getRow(cliffTilesets[i]);
                 
-                this.cliffs.push(row);
-                this.cliffTextures.push(this.loadFiles("ReplaceableTextures/Cliff/" + cliffPath + row.texFile + ".blp"));
+                // Tileset CLno - yet another TFT thing that is nowhere to be found?
+                if (row) {
+                    this.cliffs.push(row);
+                    this.cliffTextures.push(this.loadFiles("ReplaceableTextures/Cliff/" + cliffPath + row.texFile + ".blp"));
+                }
   
             }
 
@@ -1133,8 +1136,8 @@ W3xMap.prototype = {
         this.loadModificationFile("u", false, slkFiles.unitdata, slkFiles.unitmetadata);
     },
 
-    loadModificationFile(file, useOptionalInts, dataTable, metadataTable) {
-        file = this.mpq.getFile("war3map.w3" + file);
+    loadModificationFile(which, useOptionalInts, dataTable, metadataTable) {
+        let file = this.mpq.getFile("war3map.w3" + which);
 
         if (file) {
             var reader = new BinaryReader(file.buffer);

@@ -36,7 +36,6 @@ function W3xModifiedObject(reader, useOptionalInts) {
 
     for (var i = 0, l = reader.readInt32() ; i < l; i++) {
         this.modifications[i] = new W3xModification(reader, useOptionalInts);
-
     }
 }
 
