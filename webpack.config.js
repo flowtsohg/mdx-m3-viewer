@@ -1,9 +1,9 @@
 module.exports = {
     entry: "./src/exports.js",
     output: {
-        filename: 'bundle.js',
-        library: 'ModelViewer',
-        libraryTarget: 'var'
+        filename: "viewer.min.js",
+        library: "ModelViewer",
+        libraryTarget: "var"
     },
     module: {
         rules: [
@@ -11,13 +11,14 @@ module.exports = {
                 test: /\.js$/,
                 exclude: function(modulePath)
                 {
-                    return /node_modules/.test(modulePath) &&
-                    !/node_modules\/gl-matrix/.test(modulePath);
+                    // glMatrix changed to ES6 imports, need to transpile it too.
+                    // [\/\\] used to support both UNIX and Windows paths.
+                    return /node_modules/.test(modulePath) && !/node_modules[\/\\]gl-matrix/.test(modulePath);
                 },
                 use: {
-                    loader: 'babel-loader',
+                    loader: "babel-loader",
                     options: {
-                        presets: ['babel-preset-es2015-script'],
+                        presets: ["babel-preset-es2015-script"],
                     }
                 }
             },
