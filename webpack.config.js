@@ -9,7 +9,11 @@ module.exports = {
         rules: [
             {
                 test: /\.js$/,
-                exclude: /(node_modules)/,
+                exclude: function(modulePath)
+                {
+                    return /node_modules/.test(modulePath) &&
+                    !/node_modules\/gl-matrix/.test(modulePath);
+                },
                 use: {
                     loader: 'babel-loader',
                     options: {
