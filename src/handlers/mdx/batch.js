@@ -10,10 +10,4 @@ function MdxBatch(index, layer, geoset) {
     this.geoset = geoset;
 }
 
-MdxBatch.prototype = {
-    shouldRender(instance) {
-        return this.geoset.getAlpha(instance) >= 0.75;
-    }
-};
-
 export default MdxBatch;

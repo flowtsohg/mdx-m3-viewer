@@ -53,6 +53,8 @@ function addTestResult(testResult) {
 
 let unitTester = new ModelViewer.UnitTester();
 
+document.getElementById("version").textContent = "Viewer version " + unitTester.viewer.version;
+
 console.log("Viewer version", unitTester.viewer.version);
 
 unitTester.add(geoTests);
@@ -60,17 +62,41 @@ unitTester.add(mdxTests);
 unitTester.add(m3Tests);
 unitTester.add(baseTests);
 
-document.getElementById("run").addEventListener("click", () => {
-    unitTester.run((testResult) => {
-        if (!testResult.done) {
-            addTestResult(testResult.value)
+let runElement = document.getElementById("run"),
+    downloadElement = document.getElementById("download");
+
+function enableButtons() {
+    runElement.disabled = false;
+    downloadElement.disabled = false;
+}
+
+function disableButtons() {
+    runElement.disabled = true;
+    downloadElement.disabled = true;
+}
+
+
+runElement.addEventListener("click", () => {
+    disableButtons();
+
+    unitTester.run((entry) => {
+        if (!entry.done) {
+            addTestResult(entry.value);
         } else {
-            resultElement.innerText = testsPassed + "/" + testsCount + " tests passed";
+            resultElement.textContent = testsPassed + "/" + testsCount + " tests passed";
             resultElement.className = (testsPassed === testsCount) ? "success" : "failure";
+
+            enableButtons();
         }
     });
 });
 
-document.getElementById("download").addEventListener("click", () => {
-    unitTester.downloadTestResults();
+downloadElement.addEventListener("click", () => {
+    disableButtons();
+
+    unitTester.downloadTestResults((entry) => {
+        if (entry.done) {
+            enableButtons();
+        }
+    });
 });

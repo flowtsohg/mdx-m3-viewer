@@ -5,7 +5,6 @@ import MdxSdContainer from "./sd";
  * @constructor
  * @param {MdxModel} model
  * @param {MdxParserLayer} layer
- * @param {number} layerId
  * @param {number} priorityPlane
  */
 function MdxLayer(model, layer, layerId, priorityPlane) {
@@ -31,21 +30,6 @@ function MdxLayer(model, layer, layerId, priorityPlane) {
     this.unfogged = flags & 0x20;
     this.noDepthTest = flags & 0x40;
     this.noDepthSet = flags & 0x80;
-
-    this.hasAnim = false;
-    this.hasUvAnim = false;
-    this.hasSlotAnim = false;
-
-    if (textureAnimationId !== -1) {
-        let textureAnimation = model.textureAnimations[textureAnimationId];
-
-        if (textureAnimation) {
-            this.textureAnimation = textureAnimation;
-
-            this.hasAnim = true;
-            this.hasUvAnim = true;
-        }
-    }
 
     this.depthMaskValue = (filterMode === 0 || filterMode === 1) ? 1 : 0;
     this.alphaTestValue = (filterMode === 1) ? 1 : 0;
@@ -86,6 +70,51 @@ function MdxLayer(model, layer, layerId, priorityPlane) {
     this.blended = blended;
 
     this.uvDivisor = new Float32Array([1, 1]);
+
+    if (textureAnimationId !== -1) {
+        let textureAnimation = model.textureAnimations[textureAnimationId];
+
+        if (textureAnimation) {
+            this.textureAnimation = textureAnimation;
+        }
+    }
+
+    let variants = {
+        alpha: [],
+        uv: [],
+        slot: []
+    };
+
+    let hasAnim = false,
+        hasSlotAnim = false,
+        hasUvAnim = false;
+
+    for (let i = 0, l = model.sequences.length; i < l; i++) {
+        let alpha = this.isAlphaVariant(i),
+            slot = this.isTextureIdVariant(i),
+            uv = this.isTranslationVariant(i);
+
+        if (alpha || slot || uv) {
+            hasAnim = true;
+        }
+
+        if (slot) {
+            hasSlotAnim = true;
+        }
+
+        if (uv) {
+            hasUvAnim = true;
+        }
+
+        variants.alpha[i] = alpha;
+        variants.slot[i] = slot;
+        variants.uv[i] = uv;
+    }
+
+    this.variants = variants;
+    this.hasAnim = hasAnim;
+    this.hasSlotAnim = hasSlotAnim;
+    this.hasUvAnim = hasUvAnim;
 
     this.setupVaryingTextures(model);
 }
@@ -141,8 +170,6 @@ MdxLayer.prototype = {
                 hash = hashFromString(textureIds.join("")),
                 textures = [];
 
-            this.hasAnim = true;
-
             // Grab all of the textures
             for (let i = 0, l = textureIds.length; i < l; i++) {
                 textures[i] = model.textures[textureIds[i]];
@@ -179,7 +206,6 @@ MdxLayer.prototype = {
 
                 this.textureId = atlas.textureId;
                 this.uvDivisor.set([atlas.columns, atlas.rows]);
-                this.hasSlotAnim = true;
 
                 // Resolve the promise.
                 promise.resolve();
@@ -198,6 +224,20 @@ MdxLayer.prototype = {
     getTextureId(instance) {
         return this.sd.getValue("KMTF", instance, this.textureId);
         // TODO: map the returned slot to a texture atlas slot if one exists.
+    },
+
+    isTextureIdVariant(sequence) {
+        return this.sd.isVariant("KMTF", sequence);
+    },
+
+    isTranslationVariant(sequence) {
+        let textureAnimation = this.textureAnimation;
+
+        if (textureAnimation) {
+            return textureAnimation.isTranslationVariant(sequence);
+        } else {
+            return false;
+        }
     }
 };
 

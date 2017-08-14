@@ -34,10 +34,10 @@ MdxShallowGeoset.prototype = {
 
 /**
  * @constructor
+ * @param {MdxModel} model
  * @param {MdxParserGeoset} geoset
- * @param {Array<MdxGeosetAnimation>} geosetAnimations
  */
-function MdxGeoset(geoset, geosetAnimations) {
+function MdxGeoset(model, geoset) {
     let positions = geoset.vertices,
         normals = geoset.normals,
         textureCoordinateSets = geoset.textureCoordinateSets,
@@ -96,14 +96,46 @@ function MdxGeoset(geoset, geosetAnimations) {
     this.faceArray = geoset.faces;
     this.uvSetSize = uvsetSize * 4;
 
+    let geosetAnimations = model.geosetAnimations;
+
     for (i = 0, l = geosetAnimations.length; i < l; i++) {
         if (geosetAnimations[i].geosetId === geoset.index) {
             this.geosetAnimation = geosetAnimations[i];
         }
     }
+
+    this.hasAnim = false;
+    this.hasAlphaAnim = false;
+    this.hasColorAnim = false;
+
+    let variants = {
+        alpha: [],
+        color: []
+    };
+
+    let hasAnim = false;
+
+    for (let i = 0, l = model.sequences.length; i < l; i++) {
+        let alpha = this.isAlphaVariant(i),
+            color = this.isColorVariant(i);
+
+        if (alpha || color) {
+            hasAnim = true;
+        }
+
+        variants.alpha[i] = alpha;
+        variants.color[i] = color;
+    }
+
+    this.variants = variants;
+    this.hasAnim = hasAnim;
 }
 
 MdxGeoset.prototype = {
+    shouldRender(instance) {
+        return this.getAlpha(instance) >= 0.75;
+    },
+
     getAlpha(instance) {
         let geosetAnimation = this.geosetAnimation;
 

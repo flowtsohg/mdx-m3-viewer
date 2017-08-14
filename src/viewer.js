@@ -106,7 +106,7 @@ ModelViewer.prototype = {
      * @returns {string}
      */
     get version() {
-        return "4.0.7";
+        return "4.0.8";
     },
 
     /**
@@ -286,10 +286,11 @@ ModelViewer.prototype = {
     },
 
     /**
-     * A fake load.
-     * This is needed for resources that know they are going to load internal resources, but don't yet know what they are.
-     * So, in order to delay Viewer.whenAllLoaded() so it catches all internal resources, the resources can load fake place-holder resources.
+     * A load promise.
+     * This is needed for resources that are going to load internal resources, but don't yet know what they are due to asyncronous reasons.
+     * A promise can be used to delay Viewer.whenAllLoaded() so it catches all internal resources.
      * Use promise.resolve() to resolve the promise.
+     * Note that promise resources don't need to be removed - the viewer keeps no references of them.
      * 
      * @returns {PromiseResource}
      */
@@ -355,7 +356,7 @@ ModelViewer.prototype = {
      * Remove a resource from the viewer.
      * Note that this only removes references to this resource, so your code should do the same, to allow GC to work.
      * This also means that if a resource is referenced by another resource, it is not going to be GC'd.
-     * For example, deleting a texture that is being used by a model will not actually let the GC to collect it, until the model is deleted too, and loses all references.
+     * For example, removing  a texture that is being used by a model will not actually let GC collect it, until the model is deleted too, and loses all references.
      * 
      * @param {AsyncResource} resource
      */
@@ -423,20 +424,23 @@ ModelViewer.prototype = {
         gl.depthMask(1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+        // Render opaque geometry.
         for (i = 0; i < l; i++) {
             scenes[i].renderOpaque();
         }
 
+        // Render translucent geometry.
         for (i = 0; i < l; i++) {
             scenes[i].renderTranslucent();
         }
 
+        // Render all types of emitters.
         for (i = 0; i < l; i++) {
             scenes[i].renderEmitters();
         }
     },
 
-    // Register the viewer to all of the standard events of a resource.
+    // Propagate the standard events.
     registerEvents(resource) {
         let listener = (e) => this.dispatchEvent(e);
 

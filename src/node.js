@@ -381,7 +381,6 @@ ViewerNode.prototype = {
         // Model space -> World space
         if (parent) {
             let computedLocation,
-                computedRotation,
                 computedScaling;
             
             if (this.isSkeletal) {
@@ -398,20 +397,19 @@ ViewerNode.prototype = {
             }
 
             // If this node shouldn't inherit the parent's rotation, rotate it by the inverse.
-            if (this.dontInheritRotation) {
+            //if (this.dontInheritRotation) {
                 //mat4.rotateQ(worldMatrix, worldMatrix, parent.inverseWorldRotation);
-            }
+            //}
 
             // If this node shouldn't inherit the parent's translation, translate it by the inverse.
-            if (this.dontInheritTranslation) {
+            //if (this.dontInheritTranslation) {
                 //mat4.translate(worldMatrix, worldMatrix, parent.inverseWorldLocation);
-            }
+            //}
 
             if (this.dontInheritScaling) {
-                let parentInverseScale = parent.inverseWorldScale;
-
                 computedScaling = scalingHeap;
 
+                let parentInverseScale = parent.inverseWorldScale;
                 computedScaling[0] = parentInverseScale[0] * localScale[0];
                 computedScaling[1] = parentInverseScale[1] * localScale[1];
                 computedScaling[2] = parentInverseScale[2] * localScale[2];
@@ -431,30 +429,16 @@ ViewerNode.prototype = {
                 //vec3.mul(worldScale, parentScale, localScale);
             }
 
-            // Local matrix
-            // Model space
             mat4.fromRotationTranslationScaleOrigin(localMatrix, localRotation, computedLocation, computedScaling, pivot);
 
             mat4.mul(worldMatrix, parent.worldMatrix, localMatrix);
 
-            //dualquat.fromRotationTranslationOrigin(this.localDual, localRotation, computedLocation, pivot);
-            //dualquat.mul(this.worldDual, parent.worldDual, this.localDual);
-
-            /// TODO: what happens when dontInheritRotation is true?
-
-            // World rotation and inverse world rotation
             quat.mul(worldRotation, parent.worldRotation, localRotation);
-
-            inverseWorldRotation[0] = -worldRotation[0];
-            inverseWorldRotation[1] = -worldRotation[1];
-            inverseWorldRotation[2] = -worldRotation[2];
-            inverseWorldRotation[3] = worldRotation[3];
-            //quat.conjugate(inverseWorldRotation, worldRotation);
         } else {
             // Local matrix
-            // Model space
             mat4.fromRotationTranslationScaleOrigin(localMatrix, localRotation, localLocation, localScale, pivot);
 
+            // World matrix
             worldMatrix[0] = localMatrix[0];
             worldMatrix[1] = localMatrix[1];
             worldMatrix[2] = localMatrix[2];
@@ -473,40 +457,38 @@ ViewerNode.prototype = {
             worldMatrix[15] = localMatrix[15];
             //mat4.copy(worldMatrix, localMatrix);
 
+            // World rotation
             worldRotation[0] = localRotation[0];
             worldRotation[1] = localRotation[1];
             worldRotation[2] = localRotation[2];
             worldRotation[3] = localRotation[3];
             //quat.copy(worldRotation, localRotation);
 
-            inverseWorldRotation[0] = -localRotation[0];
-            inverseWorldRotation[1] = -localRotation[1];
-            inverseWorldRotation[2] = -localRotation[2];
-            inverseWorldRotation[3] = localRotation[3];
-            //quat.conjugate(inverseWorldRotation, localRotation);
-
+            // World scale
             worldScale[0] = localScale[0];
             worldScale[1] = localScale[1];
             worldScale[2] = localScale[2];
             //vec3.copy(worldScale, localScale);
         }
 
+        // Inverse world rotation
+        inverseWorldRotation[0] = -worldRotation[0];
+        inverseWorldRotation[1] = -worldRotation[1];
+        inverseWorldRotation[2] = -worldRotation[2];
+        inverseWorldRotation[3] = worldRotation[3];
+        //quat.conjugate(inverseWorldRotation, worldRotation);
+
+        // Inverse world scale
         inverseWorldScale[0] = 1 / worldScale[0];
         inverseWorldScale[1] = 1 / worldScale[1];
         inverseWorldScale[2] = 1 / worldScale[2];
         //vec3.inverse(this.inverseWorldScale, worldScale);
 
-        /// TODO: what happens when dontInheritTranslation is true?
 
-        // World location and inverse world location
+        // World location
+        vec3.transformMat4(worldLocation, pivot, worldMatrix);
 
-        worldLocation[0] = pivot[0];
-        worldLocation[1] = pivot[1];
-        worldLocation[2] = pivot[2];
-        //vec3.copy(worldLocation, pivot);
-
-        vec3.transformMat4(worldLocation, worldLocation, worldMatrix);
-
+        // Inverse world location
         inverseWorldLocation[0] = -worldLocation[0];
         inverseWorldLocation[1] = -worldLocation[1];
         inverseWorldLocation[2] = -worldLocation[2];

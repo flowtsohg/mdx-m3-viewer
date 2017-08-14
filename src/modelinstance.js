@@ -114,7 +114,7 @@ ModelInstance.prototype = {
         return false;
     },
 
-    globalUpdate() {
+    updateTimers() {
 
     },
 

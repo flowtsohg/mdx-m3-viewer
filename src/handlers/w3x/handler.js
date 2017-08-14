@@ -1,5 +1,5 @@
 import { mix } from "../../common";
-import FileHandler from "../../texturehandler";
+import FileHandler from "../../filehandler";
 import Mpq from "../mpq/handler";
 import Mdx from "../mdx/handler";
 import Geo from "../geo/handler";

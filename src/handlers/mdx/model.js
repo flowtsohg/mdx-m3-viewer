@@ -46,6 +46,7 @@ function MdxModel(env, pathSolver, handler, extension) {
     this.geosetAnimations = [];
     this.eventObjectEmitters = [];
 
+    this.hasGeosetAnims = false;
     this.hasLayerAnims = false;
 }
 
@@ -96,7 +97,7 @@ MdxModel.prototype = {
         }
 
         if (this.nodes.length === 0) {
-            this.nodes[0] = new MdxNode(this, { objectId: 0, parentId: -1 }, pivots);
+            this.nodes[0] = new MdxNode(this, { objectId: 0, parentId: -1, tracks: { elements: [] } }, pivots);
         }
 
         // This list is used to access all the nodes in a loop while keeping the hierarchy in mind.
@@ -172,14 +173,18 @@ MdxModel.prototype = {
             for (i = 0, l = geosets.length; i < l; i++) {
                 let geoset = geosets[i],
                     layers = materials[geoset.materialId],
-                    mesh = new MdxGeoset(geoset, this.geosetAnimations);
+                    geo = new MdxGeoset(this, geoset);
 
-                this.geosets.push(mesh);
+                if (geo.hasAnim) {
+                    this.hasGeosetAnims = true;
+                }
+
+                this.geosets.push(geo);
 
                 for (j = 0, k = layers.length; j < k; j++) {
                     layer = layers[j];
 
-                    var batch = new MdxBatch(batchId, layer, mesh);
+                    var batch = new MdxBatch(batchId, layer, geo);
 
                     if (layer.filterMode < 2) {
                         opaqueBatches.push(batch);
@@ -500,6 +505,7 @@ MdxModel.prototype = {
         instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_batchVisible"), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_geosetColor"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_layerAlpha"), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_uvOffset"), 0);
     },
 
@@ -509,6 +515,7 @@ MdxModel.prototype = {
             shader = this.shader,
             attribs = this.shader.attribs,
             uniforms = shader.uniforms,
+            geoset = batch.geoset,
             layer = batch.layer,
             shallowGeoset = this.shallowGeosets[batch.geoset.index],
             replaceable = this.replaceables[layer.textureId],
@@ -533,7 +540,7 @@ MdxModel.prototype = {
             texture = this.textures[layer.textureId];
 
             // Is this layer animated?
-            gl.uniform1f(uniforms.get("u_hasLayerAnim"), layer.hasAnim);
+            gl.uniform1f(uniforms.get("u_hasLayerAnim"), layer.hasSlotAnim || layer.hasUvAnim);
         }
 
         // When this is a team color/glow, texture is undefined, so the black texture will get bound.
@@ -541,16 +548,22 @@ MdxModel.prototype = {
         this.bindTexture(texture, 0, bucket.modelView);
 
         // Batch visibilities
-        let batchVisible = attribs.get("a_batchVisible");
-        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.batchVisibilityBuffers[batch.index]);
-        gl.vertexAttribPointer(batchVisible, 1, gl.UNSIGNED_BYTE, false, 1, 0);
-        instancedArrays.vertexAttribDivisorANGLE(batchVisible, 1);
+        let geosetVisible = attribs.get("a_geosetVisible");
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.geosetVisibilityBuffers[geoset.index]);
+        gl.vertexAttribPointer(geosetVisible, 1, gl.UNSIGNED_BYTE, false, 1, 0);
+        instancedArrays.vertexAttribDivisorANGLE(geosetVisible, 1);
 
         // Geoset colors
         let geosetColor = attribs.get("a_geosetColor");
-        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.geosetColorBuffers[batch.index]);
-        gl.vertexAttribPointer(geosetColor, 4, gl.UNSIGNED_BYTE, true, 4, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.geosetColorBuffers[geoset.index]);
+        gl.vertexAttribPointer(geosetColor, 3, gl.UNSIGNED_BYTE, true, 3, 0);
         instancedArrays.vertexAttribDivisorANGLE(geosetColor, 1);
+
+        // Layer alphas
+        let layerAlpha = attribs.get("a_layerAlpha");
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.layerAlphaBuffers[layer.index]);
+        gl.vertexAttribPointer(layerAlpha, 1, gl.UNSIGNED_BYTE, true, 1, 0);
+        instancedArrays.vertexAttribDivisorANGLE(layerAlpha, 1);
 
         // Texture coordinate animations
         let uvOffset = attribs.get("a_uvOffset");
@@ -570,16 +583,10 @@ MdxModel.prototype = {
 
     renderBatches(bucket, scene, batches) {
         if (batches && batches.length) {
-            const updateBatches = bucket.updateBatches;
-
             this.bind(bucket, scene);
 
             for (let i = 0, l = batches.length; i < l; i++) {
-                const batch = batches[i];
-
-                if (updateBatches[batch.index]) {
-                    this.renderBatch(bucket, batch);
-                }
+                this.renderBatch(bucket, batches[i]);
             }
 
             this.unbind();
@@ -615,6 +622,8 @@ MdxModel.prototype = {
 
             gl.uniform1i(shader.uniforms.get("u_texture"), 0);
 
+            gl.uniform1f(shader.uniforms.get("u_isRibbonEmitter"), false);
+
             for (let i = 0, l = particle2Emitters.length; i < l; i++) {
                 particle2Emitters[i].render(bucket, shader);
             }
@@ -622,15 +631,8 @@ MdxModel.prototype = {
             for (let i = 0, l = eventObjectEmitters.length; i < l; i++) {
                 eventObjectEmitters[i].render(bucket, shader);
             }
-        }
 
-        if (ribbonEmitters.length) {
-            var shader = this.env.shaderMap.get("MdxRibbonShader");
-            webgl.useShaderProgram(shader);
-
-            gl.uniformMatrix4fv(shader.uniforms.get("u_mvp"), false, scene.camera.worldProjectionMatrix);
-
-            gl.uniform1i(shader.uniforms.get("u_texture"), 0);
+            gl.uniform1f(shader.uniforms.get("u_isRibbonEmitter"), true);
 
             for (let i = 0, l = ribbonEmitters.length; i < l; i++) {
                 ribbonEmitters[i].render(bucket, shader);

@@ -108,6 +108,8 @@ M3Skeleton.prototype = {
                 boneArray[base + 15] = finalMatrix[15];
                 //boneArray.set(finalMatrix, i * 16);
             }
+
+            instance.bucket.updateBoneTexture[0] = 1;
         }
     },
 

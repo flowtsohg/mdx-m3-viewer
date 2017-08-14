@@ -22,11 +22,11 @@ function MdxCamera(model, camera) {
 
 MdxCamera.prototype = {
     getPositionTranslation(instance) {
-        return this.sd.getValue(positionHeap, "KCTR", instance, this.position);
+        return this.sd.getValue3(positionHeap, "KCTR", instance, this.position);
     },
 
     getTargetTranslation(instance) {
-        return this.sd.getValue(targetPositionHeap, "KTTR", instance, this.targetPosition);
+        return this.sd.getValue3(targetPositionHeap, "KTTR", instance, this.targetPosition);
     },
 
     getRotation(instance) {

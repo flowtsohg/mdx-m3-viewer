@@ -5,38 +5,7 @@ import MdxParserModelChunk from "./modelchunk";
 import MdxParserGenericKnownChunk from "./genericknownchunk";
 import MdxParserGenericUnknownChunk from "./genericunknownchunk";
 
-/**
- * @constructor
- * @param {ArrayBuffer} src
- */
-function MdxParser(src) {
-    let reader = new MdxParserBinaryReader(src);
-
-    /** @member {Map<string, ?>} */
-    this.chunks = new Map();
-    /** @member {Array<MdxParserNode>} */
-    this.nodes = [];
-
-    if (reader.read(4) === "MDLX") {
-        while (reader.remaining() > 0) {
-            let tag = reader.read(4),
-                size = reader.readUint32(),
-                constructor = MdxParser.tagToFunc[tag];
-
-            if (constructor) {
-                this.chunks.set(tag, new constructor(reader, tag, size, this.nodes));
-            } else {
-                console.warn("MdxParser: Unsupported tag - " + tag);
-                this.chunks.set(tag, new MdxParserUnsupportedChunk(reader.subreader(size), tag, size, this.nodes));
-                reader.skip(size);
-            }
-        }
-    } else {
-        throw new Error("WrongMagicNumber");
-    }
-}
-
-MdxParser.tagToFunc = {
+let tagToFunc = {
     VERS: MdxParserVersionChunk,
     MODL: MdxParserModelChunk,
     SEQS: MdxParserGenericKnownChunk,
@@ -59,5 +28,36 @@ MdxParser.tagToFunc = {
     CAMS: MdxParserGenericUnknownChunk,
     CLID: MdxParserGenericUnknownChunk
 };
+
+/**
+ * @constructor
+ * @param {ArrayBuffer} src
+ */
+function MdxParser(src) {
+    let reader = new MdxParserBinaryReader(src);
+
+    /** @member {Map<string, ?>} */
+    this.chunks = new Map();
+    /** @member {Array<MdxParserNode>} */
+    this.nodes = [];
+
+    if (reader.read(4) === "MDLX") {
+        while (reader.remaining() > 0) {
+            let tag = reader.read(4),
+                size = reader.readUint32(),
+                constructor = tagToFunc[tag];
+
+            if (constructor) {
+                this.chunks.set(tag, new constructor(reader, tag, size, this.nodes));
+            } else {
+                console.warn("MdxParser: Unsupported tag - " + tag);
+                this.chunks.set(tag, new MdxParserUnsupportedChunk(reader.subreader(size), tag, size, this.nodes));
+                reader.skip(size);
+            }
+        }
+    } else {
+        throw new Error("WrongMagicNumber");
+    }
+}
 
 export default MdxParser;

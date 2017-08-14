@@ -20,6 +20,10 @@ MdxTextureAnimation.prototype = {
         return this.sd.getValue3(translationHeap, "KTAT", instance, vec3.ZERO);
     },
 
+    isTranslationVariant(sequence) {
+        return this.sd.isVariant("KTAT", sequence);
+    },
+
     getRotation(instance) {
         return this.sd.getValue4(rotationHeap, "KTAR", instance, quat.DEFAULT);
     },

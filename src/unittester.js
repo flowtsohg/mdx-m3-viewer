@@ -145,12 +145,16 @@ UnitTester.prototype = {
     // Download all of the test results as PNG images.
     // Behavior depends on the browser - on Chrome (at least on Windows), the images will be downloaded automatically to the default download location, each having the name of the test.
     // E.g. "mdx-load" -> "mdx-load.png".
-    downloadTestResults() {
+    downloadTestResults(callback) {
         this.start(function loop(entry, iterator, blob, tester) {
             if (!entry.done) {
                 tester.downloadUrl(URL.createObjectURL(blob), entry.value[1].name);
 
+                callback(entry);
+
                 tester.next(loop, iterator);
+            } else {
+                callback(entry);
             }
         });
     },

@@ -12,8 +12,9 @@ const MdxShaders = {
         attribute float a_boneNumber;
         attribute float a_teamColor;
         attribute vec4 a_vertexColor;
-        attribute float a_batchVisible;
-        attribute vec4 a_geosetColor;
+        attribute float a_geosetVisible;
+        attribute vec3 a_geosetColor;
+        attribute float a_layerAlpha;
         attribute vec4 a_uvOffset;
 
         varying vec3 v_normal;
@@ -50,9 +51,9 @@ const MdxShaders = {
             v_normal = normal;
 	        v_teamColor = u_teamColors[int(a_teamColor)];
 	        v_vertexColor = a_vertexColor;
-	        v_geosetColor = a_geosetColor;
+	        v_geosetColor = vec4(a_geosetColor, a_layerAlpha);
 
-	        if (a_batchVisible == 0.0) {
+	        if (a_geosetVisible == 0.0) {
 		        gl_Position = vec4(0.0);
             } else {
 		        gl_Position = u_mvp * vec4(position, 1);
@@ -117,6 +118,7 @@ const MdxShaders = {
     "vs_particles": `
         uniform mat4 u_mvp;
         uniform vec2 u_dimensions;
+        uniform bool u_isRibbonEmitter;
 
         attribute vec3 a_position;
         attribute vec2 a_uva_rgb;
@@ -127,8 +129,13 @@ const MdxShaders = {
         void main() {
             vec3 uva = decodeFloat3(a_uva_rgb[0]);
             vec3 rgb = decodeFloat3(a_uva_rgb[1]);
+            vec2 uv = uva.xy;
 
-            v_uv = uva.xy / u_dimensions;
+            if (u_isRibbonEmitter) {
+                uv /= 255.0;
+            }
+
+            v_uv = uv / u_dimensions;
             v_color = vec4(rgb, uva.z) / 255.0;
 
             gl_Position = u_mvp * vec4(a_position, 1);
@@ -137,55 +144,23 @@ const MdxShaders = {
 
     "ps_particles": `
         uniform sampler2D u_texture;
-
-        varying vec2 v_uv;
-        varying vec4 v_color;
-
-        void main() {
-            gl_FragColor = texture2D(u_texture, v_uv).bgra * v_color;
-        }
-    `,
-
-    "vs_ribbons": `
-        uniform mat4 u_mvp;
-        uniform vec2 u_dimensions;
-
-        attribute vec3 a_position;
-        attribute vec2 a_uva_rgb;
-
-        varying vec2 v_uv;
-        varying vec4 v_color;
-
-        void main() {
-            vec3 uva = decodeFloat3(a_uva_rgb[0]);
-            vec3 rgb = decodeFloat3(a_uva_rgb[1]);
-
-            v_uv = (uva.xy / 255.0) / u_dimensions;
-            v_color = vec4(rgb, uva.z) / 255.0;
-
-            gl_Position = u_mvp * vec4(a_position, 1);
-    }
-    `,
-
-    "ps_ribbons": `
-        uniform sampler2D u_texture;
-
         uniform bool u_alphaTest;
+        uniform bool u_isRibbonEmitter;
 
         varying vec2 v_uv;
         varying vec4 v_color;
 
         void main() {
-	        vec4 texel = texture2D(u_texture, v_uv).bgra;
+            vec4 texel = texture2D(u_texture, v_uv).bgra;
 
-            // 1bit Alpha
-            if (u_alphaTest && texel.a < 0.75) {
+            // 1bit Alpha, used by ribbon emitters
+            if (u_isRibbonEmitter && u_alphaTest && texel.a < 0.75) {
                 discard;
             }
 
-	        gl_FragColor = texel * v_color.rgba;
+            gl_FragColor = texel * v_color;
         }
-    `,
+    `
 };
 
 export default MdxShaders;

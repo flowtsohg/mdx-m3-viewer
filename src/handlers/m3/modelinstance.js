@@ -54,19 +54,18 @@ M3ModelInstance.prototype = {
         this.vertexColorArray = null;
     },
 
-    globalUpdate() {
+    updateTimers() {
         var sequenceId = this.sequence;
 
         if (sequenceId !== -1) {
-            var sequence = this.model.sequences[sequenceId];
-
-            var interval = sequence.interval;
+            var sequence = this.model.sequences[sequenceId],
+                interval = sequence.interval;
 
             this.frame += this.env.frameTime;
 
             if (this.frame > interval[1]) {
                 if ((this.sequenceLoopMode === 0 && !(sequence.flags & 0x1)) || this.sequenceLoopMode === 2) {
-                    this.frame = 0;
+                    this.frame = interval[0];
                 } else {
                     this.frame = interval[1];
                 }
@@ -83,23 +82,15 @@ M3ModelInstance.prototype = {
             this.skeleton.update();
             this.bucket.updateBoneTexture[0] = 1;
         }
-
-        /*
-        if (this.particleEmitters) {
-        for (i = 0, l = this.particleEmitters.length; i < l; i++) {
-        this.particleEmitters[i].update(allowCreate, sequenceId, this.frame);
-        }
-        }
-        */
     },
 
     // This is overriden in order to update the skeleton when the parent node changes
     recalculateTransformation() {
         ViewerNode.prototype.recalculateTransformation.call(this);
 
-        if (this.bucket) {
+        // If the instance is moved before it is loaded, the skeleton doesn't exist yet.
+        if (this.skeleton) {
             this.skeleton.update();
-            this.bucket.updateBoneTexture[0] = 1;
         }
     },
 

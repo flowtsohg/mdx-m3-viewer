@@ -163,7 +163,7 @@ Scene.prototype = {
 
             if (instance.loaded && !instance.paused) {
                 // Update animation timers and other lightweight things
-                instance.globalUpdate();
+                instance.updateTimers();
 
                 if (instance.shown()) {
                     // Update the data

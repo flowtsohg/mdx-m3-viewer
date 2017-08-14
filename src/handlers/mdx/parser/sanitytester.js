@@ -1,3 +1,4 @@
+import MdxParserModelChunk from "./modelchunk";
 import MdxParserSequence from "./sequence";
 import MdxParserGlobalSequence from "./globalsequence";
 import MdxParserTexture from "./texture";
@@ -126,6 +127,7 @@ MdxSanityTester.prototype = {
     },
 
     getConstructorName(object) {
+        if (object instanceof MdxParserModelChunk) { return "Model Chunk" }
         if (object instanceof MdxParserSequence) { return "Sequence" }
         if (object instanceof MdxParserGlobalSequence) { return "Global Sequence" }
         if (object instanceof MdxParserTexture) { return "Texture" }
@@ -175,6 +177,34 @@ MdxSanityTester.prototype = {
         return [];
     },
 
+    isExtentValid(extent) {
+        let min = extent.min,
+            max = extent.max;
+
+        return (extent.radius > 0) && (max[0] - min[0] > 0) && (max[1] - min[1] > 0) && (max[2] - min[2] > 0);
+    },
+
+    testExtents(object) {
+        let extent = object.extent,
+        objectName = this.getName(object);
+
+        // ModelChunk, Sequence, Geoset
+        if (extent) {
+            this.assertWarning(this.isExtentValid(extent), objectName + ": Extent: radius=" + extent.radius +" min=[" + extent.min.join(",") + "] max=[" + extent.max.join(",") + "]");
+        }
+
+        let extents = object.extents;
+
+        // Geoset
+        if (extents) {
+            for (let i = 0, l = extents.length; i < l; i++) {
+                let extent = extents[i];
+
+                this.assertWarning(this.isExtentValid(extent), objectName + ": Extent " + i + ": radius=" + extent.radius +" min=[" + extent.min.join(",") + "] max=[" + extent.max.join(",") + "]");
+            }
+        }
+    },
+
     // Warning: Unknown version.
     testVersion() {
         let versionChunk = this.versionChunk;
@@ -184,7 +214,9 @@ MdxSanityTester.prototype = {
 
     // ?
     testModel() {
+        let modelChunk = this.modelChunk;
 
+        this.testExtents(modelChunk);
     },
 
     // Warning: No sequences (?).
@@ -229,6 +261,8 @@ MdxSanityTester.prototype = {
 
                 this.assertWarning(length !== 0, objectName + ": Zero length");
                 this.assertWarning(length > -1, objectName + ": Negative length " + length);
+
+                this.testExtents(sequence);
             }
 
             this.assertWarning(foundStand, "Missing \"Stand\" sequence");
@@ -389,6 +423,8 @@ MdxSanityTester.prototype = {
             } else {
                 this.addError(objectName + ": Invalid material " + materialId);
             }
+
+            this.testExtents(geoset);
         }
     },
 

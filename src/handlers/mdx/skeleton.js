@@ -111,7 +111,7 @@ MdxSkeleton.prototype = {
                 //boneArray.set(bones[i].worldMatrix, i * 16 + 16);
             }
 
-            this.instance.bucket.updateBoneTexture[0] = 1;
+            instance.bucket.updateBoneTexture = true;
         }
     }
 };

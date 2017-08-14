@@ -117,10 +117,11 @@ MdxRibbon.prototype = {
 
             left = Math.floor(left * 255);
             top = Math.floor(top * 255);
-            right = Math.floor(right * 253); // Paladin - when the UV rectangle reaches 254-255, it has a row or two of white pixels in the end for some reason.
-                                             // This happens also if the texture coordinates are clamped to [0, 1] in the shader.
-                                             // The only thing that removes it is to change the texture to being clamped rather than repeating.
-                                             // How is this possible?
+            // Paladin - when the UV rectangle reaches 254-255 on the X axis, it has a row or two of white pixels in the end for some reason.
+            // This happens also if the texture coordinates are clamped to [0, 1] in the shader.
+            // The only thing that removes it is to change the texture to being clamped rather than repeating.
+            // How is this possible?
+            right = Math.floor(right * 255); 
             bottom = Math.floor(bottom * 255);
             animatedAlpha = Math.floor(animatedAlpha * 255);
 
