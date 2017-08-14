@@ -302,7 +302,7 @@ MdxModelInstance.prototype = {
     update(forced) {
         // Update the skeleton
         if (forced || (this.sequence !== -1 && this.model.variants[this.sequence])) {
-            this.skeleton.update();
+            this.skeleton.update(forced);
         }
 
         // Update the geometry

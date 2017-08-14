@@ -266,7 +266,7 @@ MdxModel.prototype = {
         let nodes = this.nodes;
 
         for (let i = 0, l = nodes.length; i < l; i++) {
-            if (nodes[i].isVariant(sequence)) {
+            if (nodes[i].variants.any[sequence]) {
                 return true;
             }
         }

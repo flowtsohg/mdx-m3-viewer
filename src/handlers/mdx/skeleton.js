@@ -52,7 +52,7 @@ function MdxSkeleton(instance) {
 }
 
 MdxSkeleton.prototype = {
-    update() {
+    update(forced) {
         let instance = this.instance;
 
         // If this skeleton has no bone array, it means the owning instance is not visible.
@@ -61,16 +61,40 @@ MdxSkeleton.prototype = {
             let nodes = this.sortedNodes,
                 modelNodes = this.modelNodes,
                 bones = this.bones,
-                boneArray = this.instance.boneArray;
+                boneArray = this.instance.boneArray,
+                sequence = instance.sequence;
 
             // Update the nodes
             for (let i = 0, l = nodes.length; i < l; i++) {
                 let node = nodes[i],
                     modelNode = modelNodes[i],
-                    translation = modelNode.getTranslation(instance),
-                    rotation = modelNode.getRotation(instance),
-                    scale = modelNode.getScale(instance);
+                    variants = modelNode.variants,
+                    translation,
+                    rotation,
+                    scale;
 
+                // Translation
+                if (forced || variants.translation[sequence]) {
+                    translation = modelNode.getTranslation(instance);
+                } else {
+                    translation = node.localLocation;
+                }
+
+                // Rotation
+                if (forced || variants.rotation[sequence]) {
+                    rotation = modelNode.getRotation(instance);
+                } else {
+                    rotation = node.localRotation;
+                }
+
+                // Scale
+                if (forced || variants.scale[sequence]) {
+                    scale = modelNode.getScale(instance);
+                } else {
+                    scale = node.localScale;
+                }
+
+                // Billboarding
                 if (modelNode.billboarded) {
                     // Cancel the parent's rotation.
                     quat.copy(rotation, node.parent.inverseWorldRotation);
@@ -84,6 +108,7 @@ MdxSkeleton.prototype = {
                     quat.rotateY(rotation, rotation, -Math.PI / 2);
                 }
 
+                // Update the node
                 node.setTransformation(translation, rotation, scale);
             }
 

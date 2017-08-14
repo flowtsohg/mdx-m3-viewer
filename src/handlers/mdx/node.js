@@ -48,6 +48,27 @@ function MdxNode(model, node, pivots) {
     if (node.objectId === node.parentId) {
         this.parentId = -1;
     }
+
+    let variants = {
+        translation: [],
+        rotation: [],
+        scale: [],
+        any: []
+    };
+
+    for (let i = 0, l = model.sequences.length; i < l; i++) {
+        let translation = this.isTranslationVariant(i),
+            rotation = this.isRotationVariant(i),
+            scale = this.isScaleVariant(i),
+            any = translation || rotation || scale;
+
+        variants.translation[i] = translation;
+        variants.rotation[i] = rotation;
+        variants.scale[i] = scale;
+        variants.any[i] = any;
+    }
+
+    this.variants = variants;
 }
 
 MdxNode.prototype = {
@@ -63,10 +84,16 @@ MdxNode.prototype = {
         return this.sd.getValue3(scaleHeap, "KGSC", instance, vec3.ONE);
     },
 
-    isVariant(sequence) {
-        let sd = this.sd;
+    isTranslationVariant(sequence) {
+        return this.sd.isVariant("KGTR", sequence);
+    },
 
-        return sd.isVariant("KGTR", sequence) || sd.isVariant("KGRT", sequence) || sd.isVariant("KGSC", sequence);
+    isRotationVariant(sequence) {
+        return this.sd.isVariant("KGRT", sequence);
+    },
+
+    isScaleVariant(sequence) {
+        return this.sd.isVariant("KGSC", sequence);
     }
 };
 
