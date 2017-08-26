@@ -1,4 +1,4 @@
-import { mix } from "./common";
+import mix from "./mix";
 import Handler from "./handler";
 import ModelView from "./modelview";
 import ModelInstance from "./modelinstance";

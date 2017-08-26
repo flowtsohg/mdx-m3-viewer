@@ -1,5 +1,5 @@
 import { mat4 } from "gl-matrix";
-import { mix } from "../../common";
+import mix from "../../mix";
 import ModelInstance from "../../modelinstance";
 import BoundingShape from "../../boundingshape";
 

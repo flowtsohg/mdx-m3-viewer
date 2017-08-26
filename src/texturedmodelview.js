@@ -1,4 +1,4 @@
-import { mix } from "./common";
+import mix from "./mix";
 import ModelView from "./modelview";
 
 /**

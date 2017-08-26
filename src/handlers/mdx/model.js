@@ -1,4 +1,4 @@
-import { mix } from "../../common";
+import mix from "../../mix";
 import TexturedModel from "../../texturedmodel";
 import MdxParser from "./parser/parser";
 import MdxNode from "./node";

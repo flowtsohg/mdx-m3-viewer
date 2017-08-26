@@ -20,21 +20,6 @@ import MdxParserCamera from "./camera";
 import MdxParserCollisionShape from "./collisionshape";
 import MdxParserNode from "./node";
 
-// Copied here to decouple the sanity tester from the handler.
-let replaceableIdToName = {
-    1: "TeamColor/TeamColor00",
-    2: "TeamGlow/TeamGlow00",
-    11: "Cliff/Cliff0",
-    21: "", // Used by all cursor models (HumanCursor, OrcCursor, UndeadCursor, NightElfCursor)
-    31: "LordaeronTree/LordaeronSummerTree",
-    32: "AshenvaleTree/AshenTree",
-    33: "BarrensTree/BarrensTree",
-    34: "NorthrendTree/NorthTree",
-    35: "Mushroom/MushroomTree",
-    36: "RuinsTree/RuinsTree",
-    37: "OutlandMushroomTree/MushroomTree"
-};
-
 // Is minVal <= x <= maxVal?
 function inRange(x, minVal, maxVal) {
     return minVal <= x && x <= maxVal;
@@ -301,7 +286,7 @@ MdxSanityTester.prototype = {
                     objectName = this.getName(texture);
 
                 this.assertError(path === "" || path.endsWith(".blp") || path.endsWith(".tga"), objectName + ": Corrupted path \"" + path + "\"");
-                this.assertError(replaceableId === 0 || replaceableIdToName[replaceableId] !== undefined, objectName + ": Unknown replaceable ID " + replaceableId);
+                this.assertError(replaceableId === 0 || this.replaceableIds.has(replaceableId), objectName + ": Unknown replaceable ID " + replaceableId);
                 this.assertWarning(path === "" || replaceableId === 0, objectName + ": Path \"" + path + "\" and replaceable ID " + replaceableId + " used together");
             }
         } else {
@@ -586,7 +571,7 @@ MdxSanityTester.prototype = {
             }
 
             this.assertWarning(inRange(emitter.filterMode, 0, 4), objectName + ": Invalid filter mode " + emitter.filterMode);
-            this.assertError(replaceableId === 0 || replaceableIdToName[replaceableId] !== undefined, objectName + ": Invalid replaceable ID " + replaceableId);
+            this.assertError(replaceableId === 0 || this.replaceableIds.has(replaceableId), objectName + ": Invalid replaceable ID " + replaceableId);
 
             this.testSDContainer(emitter)
             this.testNode( emitter);
@@ -921,6 +906,20 @@ MdxSanityTester.prototype = {
         "gold",
         "rallypoint",
         "eattree"
+    ]),
+
+    replaceableIds: new Set([
+        1,
+        2,
+        11,
+        21,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37
     ]),
 
     addError(message) {

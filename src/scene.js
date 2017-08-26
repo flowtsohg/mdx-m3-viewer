@@ -1,6 +1,9 @@
 import { vec3 } from "gl-matrix";
 import Camera from "./camera";
 
+// Heap allocations needed for this module.
+let ndcHeap = new Float32Array(3);
+
 /**
  * @constructor
  */
@@ -147,27 +150,26 @@ Scene.prototype = {
 
         for (var i = 0, l = instances.length; i < l; i++) {
             var instance = instances[i];
-            /*
-                isVisible = this.isVisible(instance) || instance.noCulling,
-                isCulled = instance.culled;
 
-            // Handle culling
-            if (isVisible && isCulled) {
-                instance.culled = false;
-                instance.show();
-            } else if (!isVisible && !isCulled) {
-                instance.culled = true;
-                instance.hide();
-            }
-            */
+            if (instance.loaded) {
+                var isVisible = this.isVisible(instance) || instance.noCulling,
+                    isCulled = instance.culled;
 
-            if (instance.loaded && !instance.paused) {
-                // Update animation timers and other lightweight things
-                instance.updateTimers();
+                // Handle culling
+                if (isVisible && isCulled) {
+                    instance.uncull();
+                } else if (!isVisible && !isCulled) {
+                    instance.cull();
+                }
 
-                if (instance.shown()) {
-                    // Update the data
-                    instance.update();
+                if (!instance.paused) {
+                    // Update animation timers and other lightweight things
+                    instance.updateTimers();
+
+                    if (instance.shown()) {
+                        // Update the data
+                        instance.update();
+                    }
                 }
             }
         }
@@ -213,12 +215,11 @@ Scene.prototype = {
 
     isVisible(instance) {
         //*
-        let ndc = vec3.heap,
-            worldProjectionMatrix = this.camera.worldProjectionMatrix;
+        let worldProjectionMatrix = this.camera.worldProjectionMatrix;
 
         // This test checks whether the instance's position is visible in NDC space. In other words, that it lies in [-1, 1] on all axes
-        vec3.transformMat4(ndc, instance.worldLocation, worldProjectionMatrix);
-        if (ndc[0] >= -1 && ndc[0] <= 1 && ndc[1] >= -1 && ndc[1] <= 1 && ndc[2] >= -1 && ndc[2] <= 1) {
+        vec3.transformMat4(ndcHeap, instance.worldLocation, worldProjectionMatrix);
+        if (ndcHeap[0] >= -1 && ndcHeap[0] <= 1 && ndcHeap[1] >= -1 && ndcHeap[1] <= 1 && ndcHeap[2] >= -1 && ndcHeap[2] <= 1) {
             return true;
         }
 

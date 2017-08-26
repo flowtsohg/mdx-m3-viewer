@@ -1,4 +1,4 @@
-import { mix } from "../../common";
+import mix from "../../mix";
 import ViewerFile from "../../file";
 import BinaryReader from "../../binaryreader";
 import MpqCrypto from "./crypto";

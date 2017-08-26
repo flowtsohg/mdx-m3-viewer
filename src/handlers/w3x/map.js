@@ -1,4 +1,5 @@
-import { mix, createTextureAtlas } from "../../common";
+import mix from "../../mix";
+import { createTextureAtlas } from "../../common";
 import ViewerFile from "../../file";
 import BinaryReader from "../../binaryreader";
 import Scene from "../../scene";
@@ -44,8 +45,11 @@ W3xMap.prototype = {
         //console.log(this.mpq.getFileList());
 
         this.internalPathSolver = (path) => {
-            if (this.mpq.hasFile(path)) {
-                return [this.mpq.getFile(path).buffer, true];
+            // MPQ paths have backwards slashes...always? Don't know.
+            let mpqPath = path.replace(/\//g, "\\");
+
+            if (this.mpq.hasFile(mpqPath)) {
+                return [this.mpq.getFile(mpqPath).buffer, path.substr(path.lastIndexOf(".")), false];
             }
 
             return this.pathSolver(path);
@@ -239,7 +243,12 @@ W3xMap.prototype = {
             for (var i = 0, l = groundTilesets.length; i < l; i++) {
                 var row = slk.getRow(groundTilesets[i]) ;
 
-                this.tilesetTextures.push(this.loadFiles(row.dir + "\\" + row.file + ".blp"));
+                if (row) {
+                    this.tilesetTextures.push(this.loadFiles(row.dir + "\\" + row.file + ".blp"));
+                } else {
+                    this.tilesetTextures.push(null);
+                    console.warn("W3X: Failed to load a tileset texture, tileset: \"" + groundTilesets[i] + "\"");
+                }
             }
 
             var tilesetToBlight = {
@@ -248,7 +257,7 @@ W3xMap.prototype = {
                 C: "Felwood",
                 D: "Dungeon",
                 F: "Lordf",
-                G: "G", // Underground is what?
+                G: "G",
                 I: "Ice",
                 J: "DRuins",
                 K: "Citadel",
@@ -260,7 +269,7 @@ W3xMap.prototype = {
                 W: "Lordw",
                 X: "Lords", // Dalaran is what?
                 Y: "Lords", // Cityscape is what?
-                Z: "Lords", // Sunken ruins
+                Z: "Ruins"
             };
 
             this.tilesetTextures.push(this.loadFiles("TerrainArt\\Blight\\" + tilesetToBlight[tileset] + "_Blight.blp"));

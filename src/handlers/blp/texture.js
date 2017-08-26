@@ -1,4 +1,4 @@
-import { mix } from "../../common";
+import mix from "../../mix";
 import Texture from "../../texture";
 import BitBuffer from "../../bitbuffer";
 import { JpegImage } from "./jpg";

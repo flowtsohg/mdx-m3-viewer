@@ -13,6 +13,7 @@ import Geo from "./handlers/geo/handler";
 import * as geometry from "./handlers/geo/geometry";
 import M3 from "./handlers/m3/handler";
 import Mdx from "./handlers/mdx/handler";
+import MdxParser from "./handlers/mdx/parser/parser";
 import MdxSanityTester from "./handlers/mdx/parser/sanitytester";
 import Mpq from "./handlers/mpq/handler";
 import NativeTexture from "./handlers/nativetexture/handler";
@@ -35,6 +36,7 @@ export {
     geometry,
     M3,
     Mdx,
+    MdxParser,
     MdxSanityTester,
     Mpq,
     NativeTexture,

@@ -1,4 +1,5 @@
-import { mix, resizeImageData } from "./common";
+import mix from "./mix";
+import { resizeImageData } from "./common";
 import DownloadableResource from "./downloadableresource";
 
 /**

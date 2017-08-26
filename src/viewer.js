@@ -1,4 +1,4 @@
-import { mix } from "./common";
+import mix from "./mix";
 import EventDispatcher from "./eventdispatcher";
 import WebGL from "./gl/gl";
 import PromiseResource from "./promiseresource";
@@ -106,7 +106,7 @@ ModelViewer.prototype = {
      * @returns {string}
      */
     get version() {
-        return "4.0.9";
+        return "4.0.10";
     },
 
     /**

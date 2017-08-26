@@ -1,4 +1,4 @@
-import { mix } from "./common";
+import mix from "./mix";
 import AsyncResource from "./asyncresource";
 import NotifiedNode from "./notifiednode";
 
@@ -81,6 +81,25 @@ ModelInstance.prototype = {
         }
 
         return false;
+    },
+
+    // Cull the instance.
+    cull() {
+        this.culled = true;
+
+        if (this.bucket) {
+            this.modelView.setVisibility(this, false);
+        }
+    },
+
+    // Stop culling the instance.
+    uncull() {
+        this.culled = false;
+
+        // Only show the instance if the client didn't hide it.
+        if (this.shouldRender && this.scene && !this.bucket) {
+            this.modelView.setVisibility(this, true);
+        }
     },
 
     /**

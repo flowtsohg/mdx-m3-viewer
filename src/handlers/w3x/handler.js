@@ -1,4 +1,4 @@
-import { mix } from "../../common";
+import mix from "../../mix";
 import FileHandler from "../../filehandler";
 import Mpq from "../mpq/handler";
 import Mdx from "../mdx/handler";

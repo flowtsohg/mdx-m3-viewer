@@ -51,12 +51,15 @@ function W3xDoodad(reader, version, map) {
             }
 
             if (row.numVar > 1) {
-                path += Math.floor((row.numVar - 1) * Math.random());
+                // Was there any reason for this random variation rather than using the one in this doodad? I don't remember, but it doesn't seem correct.
+                //path += Math.floor((row.numVar - 1) * Math.random());
+
+                path += variation;
             }
 
             path += ".mdx";
         }
-        
+
         this.path = path;
     }
 
@@ -80,7 +83,7 @@ W3xDoodad.prototype = {
 
         // This is used by trees and other doodads that share a model, but override the texture
         if (this.texFile) {
-            instance.setTexture(0, this.texFile);
+            this.model.whenLoaded((model) => instance.setTexture(model.textures[0], this.texFile));
         }
 
         instance.setLocation(this.location);

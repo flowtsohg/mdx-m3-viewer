@@ -64,26 +64,6 @@ function UintToTag(uint) {
     return String.fromCharCode((uint >> 24) & 0xff, (uint >> 16) & 0xff, (uint >> 8) & 0xff, uint & 0xff);
 }
 
-function mix(dst, ...args) {
-    for (let arg of args) {
-        // Reflect not supported on Babel for now
-        //const keys = Reflect.ownKeys(arg);
-        const keys = Object.getOwnPropertyNames(arg).concat(Object.getOwnPropertySymbols(arg))
-
-        for (let i = 0, l = keys.length; i < l; i++) {
-            const key = keys[i];
-            
-            //if (!Reflect.has(dst, key)) {
-            if (!(key in dst)) {
-                //Reflect.defineProperty(dst, key, Reflect.getOwnPropertyDescriptor(arg, key))
-                Object.defineProperty(dst, key, Object.getOwnPropertyDescriptor(arg, key))
-            }
-        }
-    }
-
-    return dst;
-}
-
 /**
  * Encodes two 0-255 numbers into one.
  *
@@ -451,7 +431,6 @@ export {
     createTextureAtlas,
     TagToUint ,
     UintToTag,
-    mix,
     encodeFloat2,
     decodeFloat2,
     encodeFloat3,

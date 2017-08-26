@@ -1,5 +1,5 @@
 import { vec3, vec4, quat, mat4 } from "gl-matrix";
-import { mix } from "./common";
+import mix from "./mix";
 import Frustum from "./frustum";
 import NotifiedNode from "./notifiednode";
 import ViewerNode from "./node";

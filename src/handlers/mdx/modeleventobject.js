@@ -75,36 +75,21 @@ MdxModelEventObject.prototype = {
 
             if (type === "SPN") {
                 this.internalResource = model.env.load(row.Model.replace(".mdl", ".mdx"), model.pathSolver);
-            } else if (type === "SPL") {
-                this.intervals = [
-                [row.UVLifespanStart, row.UVLifespanEnd, row.LifespanRepeat],
-                [row.UVDecayStart, row.UVDecayEnd, row.DecayRepeat]
-                ];
-
+            } else if (type === "SPL" || type === "UBR") {
                 this.internalResource = model.env.load("replaceabletextures/splats/" + row.file + ".blp", model.pathSolver);
-                this.dimensions = [row.Columns, row.Rows];
-
-                this.scale = row.Scale;
                 this.colors = [[row.StartR, row.StartG, row.StartB, row.StartA], [row.MiddleR, row.MiddleG, row.MiddleB, row.MiddleA], [row.EndR, row.EndG, row.EndB, row.EndA]];
-
-                this.intervalTimes = [row.Lifespan, row.Decay];
-                this.lifespan = row.Lifespan + row.Decay;
-
-                this.selectFilterMode(row.BlendMode);
-            } else if (type === "UBR") {
-                this.internalResource = model.env.load("replaceabletextures/splats/" + row.file + ".blp", model.pathSolver);
-                this.dimensions = [1, 1];
-
                 this.scale = row.Scale;
-                this.colors = [[row.StartR, row.StartG, row.StartB, row.StartA], [row.MiddleR, row.MiddleG, row.MiddleB, row.MiddleA], [row.EndR, row.EndG, row.EndB, row.EndA]];
 
-                this.intervalTimes = [
-                        row.BirthTime,
-                        row.PauseTime,
-                        row.Decay
-                ];
-
-                this.lifespan = row.BirthTime + row.PauseTime + row.Decay;
+                if (type === "SPL") {
+                    this.dimensions = [row.Columns, row.Rows];
+                    this.intervals = [[row.UVLifespanStart, row.UVLifespanEnd, row.LifespanRepeat], [row.UVDecayStart, row.UVDecayEnd, row.DecayRepeat]];
+                    this.intervalTimes = [row.Lifespan, row.Decay];
+                    this.lifespan = row.Lifespan + row.Decay;
+                } else {
+                    this.dimensions = [1, 1];
+                    this.intervalTimes = [row.BirthTime, row.PauseTime, row.Decay];
+                    this.lifespan = row.BirthTime + row.PauseTime + row.Decay;
+                }
 
                 this.selectFilterMode(row.BlendMode);
             }

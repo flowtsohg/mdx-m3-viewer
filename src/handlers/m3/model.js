@@ -1,4 +1,4 @@
-import { mix } from "../../common";
+import mix from "../../mix";
 import TexturedModel from "../../texturedmodel";
 import M3 from "./handler";
 import M3Parser from "./parser/parser";

@@ -1,4 +1,4 @@
-import { mix } from "../../common";
+import mix from "../../mix";
 import TexturedModelInstance from "../../texturedmodelinstance";
 import ViewerNode from "../../node";
 import M3Skeleton from "./skeleton";

@@ -1,4 +1,4 @@
-import { mix } from "../../common";
+import mix from "../../mix";
 import ModelHandler from "../../modelhandler";
 import ObjModel from "./model";
 import ObjModelInstance from "./modelinstance";

@@ -1,4 +1,4 @@
-import { mix } from "../../common";
+import mix from "../../mix";
 import ModelHandler from "../../modelhandler";
 import TexturedModelView from "../../texturedmodelview";
 import Blp from "../blp/handler";

@@ -1,4 +1,5 @@
-import { get, mix } from "./common";
+import mix from "./mix";
+import { get } from "./common";
 import AsyncResource from "./asyncresource";
 
 /**

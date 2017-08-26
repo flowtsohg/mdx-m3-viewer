@@ -1,4 +1,4 @@
-import { mix } from "./common";
+import mix from "./mix";
 import ViewerNode from "./node";
 
 /**

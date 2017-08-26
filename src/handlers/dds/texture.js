@@ -1,4 +1,5 @@
-import { mix, UintToTag } from "../../common";
+import mix from "../../mix";
+import { UintToTag } from "../../common";
 import Texture from "../../texture";
 import { decodeDxt1, decodeDxt3, decodeDxt5 } from "./dxt";
 
