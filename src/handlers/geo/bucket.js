@@ -10,11 +10,10 @@ import Bucket from "../../bucket";
 function GeometryBucket(modelView) {
     Bucket.call(this, modelView);
 
-    const env = this.model.env;
-    const gl = env.gl;
+    const gl = this.model.env.gl;
     const numberOfBones = 1;
 
-    this.env = env;
+    this.gl = gl;
 
     this.boneArrayInstanceSize = numberOfBones * 16;
 
@@ -43,7 +42,7 @@ function GeometryBucket(modelView) {
 
     // Edge color (per instance)
     this.updateEdgeColors = new Uint8Array(1);
-    this.edgeColorArray = new Uint8Array(3 * this.size);
+    this.edgeColorArray = new Uint8Array(4 * this.size);
     this.edgeColorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.edgeColorBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, this.edgeColorArray, gl.DYNAMIC_DRAW);
@@ -72,7 +71,7 @@ GeometryBucket.prototype = {
     },
 
     update(scene) {
-        let gl = this.env.gl,
+        let gl = this.gl,
             size = this.instances.length;
 
         gl.activeTexture(gl.TEXTURE15);

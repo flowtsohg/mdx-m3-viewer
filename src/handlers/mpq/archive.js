@@ -52,7 +52,7 @@ MpqArchive.prototype = {
 
             this.blockTable = new MpqBlockTable(this.buffer.slice(this.blockPos, this.blockPos + this.blockSize * 16), this.c);
 
-            this.files = new Map();
+            this.fileCache = new Map();
             //}
         }
 
@@ -103,20 +103,20 @@ MpqArchive.prototype = {
      * @returns {MpqFile}
      */
     getFile(name) {
-        let files = this.files;
+        let fileCache = this.fileCache;
 
-        if (!files.has(name)) {
+        if (!fileCache.has(name)) {
             let blockIndex = this.hashTable.getBlockIndexOfFile(name);
 
             if (blockIndex !== -1) {
                 let blockEntry = this.blockTable.entries[blockIndex],
                     file = new MpqFile(this, blockEntry, name);
 
-                files.set(name, file);
+                fileCache.set(name, file);
             }
         }
         
-        return files.get(name);
+        return fileCache.get(name);
     },
 
     /**

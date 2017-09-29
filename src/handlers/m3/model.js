@@ -192,7 +192,7 @@ M3Model.prototype = {
     },
 
     setupGeometry(parser, div) {
-        let gl = this.gl;
+        let gl = this.env.gl;
 
         var i, l;
         var uvSetCount = 1;
@@ -290,7 +290,7 @@ M3Model.prototype = {
     },
 
     bindShared(bucket) {
-        let gl = this.gl,
+        let gl = this.env.gl,
             shader = this.shader,
             vertexSize = this.vertexSize,
             instancedArrays = gl.extensions.instancedArrays,
@@ -327,7 +327,7 @@ M3Model.prototype = {
     },
 
     bind(bucket, scene) {
-        const gl = this.gl,
+        const gl = this.env.gl,
             webgl = this.env.webgl;
 
         var vertexSize = this.vertexSize;
@@ -364,7 +364,7 @@ M3Model.prototype = {
     },
     
     unbind() {
-        let instancedArrays = this.gl.extensions.instancedArrays,
+        let instancedArrays = this.env.gl.extensions.instancedArrays,
             shader = this.shader,
             attribs = shader.attribs;
 

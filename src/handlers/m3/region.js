@@ -19,7 +19,7 @@ function M3Region(model, region, triangles, elementArray, offset) {
         elementArray[offset + i] = triangles[firstTriangleIndex + i] + firstVertexIndex;
     }
 
-    this.gl = model.gl;
+    this.gl = model.env.gl;
     this.firstBoneLookupIndex = region.firstBoneLookupIndex;
     this.boneWeightPairsCount = region.boneWeightPairsCount;
     this.offset = offset * 2;

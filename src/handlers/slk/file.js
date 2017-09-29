@@ -116,12 +116,12 @@ SlkFile.prototype = {
         for (var i = 0, l = mappedRows.length; i < l; i++) {
             mappedRow = mappedRows[i];
 
-            map[mappedRow.ID] = mappedRow;
+            map[mappedRow.ID.toLowerCase()] = mappedRow;
         }
     },
 
     getRow(key) {
-        return this.map[key];
+        return this.map[key.toLowerCase()];
     }
 };
 

@@ -155,19 +155,20 @@ Scene.prototype = {
                 var isVisible = this.isVisible(instance) || instance.noCulling,
                     isCulled = instance.culled;
 
-                // Handle culling
-                if (isVisible && isCulled) {
-                    instance.uncull();
-                } else if (!isVisible && !isCulled) {
-                    instance.cull();
-                }
+                // Handle culling.
+                //if (isVisible && isCulled) {
+                //    instance.uncull();
+                //} else if (!isVisible && !isCulled) {
+                //    instance.cull();
+                //}
 
                 if (!instance.paused) {
-                    // Update animation timers and other lightweight things
+                    // Update animation timers.
                     instance.updateTimers();
 
-                    if (instance.shown()) {
-                        // Update the data
+                    // If the instance is actually shown, do the full update.
+                    //if (instance.shown()) {
+                    if (isVisible) {
                         instance.update();
                     }
                 }

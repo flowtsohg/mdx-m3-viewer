@@ -106,7 +106,7 @@ ModelViewer.prototype = {
      * @returns {string}
      */
     get version() {
-        return "4.0.10";
+        return "4.0.11";
     },
 
     /**
@@ -308,29 +308,26 @@ ModelViewer.prototype = {
      * Calls the given callback when all of the given resources finished loading. In the case all of the resources are already loaded, the call happens immediately.
      * Note that this only takes into consideration downloadable resources that a specific viewer instance owns.
      * 
-     * @param {Array<DownloadableResource>} what The resources to wait for.
+     * @param {Iterable<DownloadableResource>} resources The resources to wait for.
      * @param {function(Array<AsyncResource>)} callback The callback.
      */
-    whenLoaded(what, callback) {
-        let resources = this.resources.array,
+    whenLoaded(resources, callback) {
+        let resourceMap = this.resources.array,
             loaded = 0,
-            wantLoaded = what.length;
+            wantLoaded = 0;
 
         function gotLoaded() {
             loaded += 1;
 
             if (loaded === wantLoaded) {
-                callback(what);
+                callback(resources);
             }
         }
 
-        for (let i = 0; i < wantLoaded; i++) {
-            let resource = what[i];
-
-            if (resources.indexOf(resource) !== -1) {
+        for (let resource of resources) {
+            if (resourceMap.indexOf(resource) !== -1) {
+                wantLoaded += 1;
                 resource.whenLoaded(gotLoaded);
-            } else {
-                wantLoaded -= 1;
             }
         }
     },

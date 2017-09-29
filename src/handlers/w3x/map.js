@@ -1,13 +1,15 @@
 import mix from "../../mix";
 import { createTextureAtlas } from "../../common";
 import ViewerFile from "../../file";
-import BinaryReader from "../../binaryreader";
 import Scene from "../../scene";
 import MpqArchive from "../mpq/archive";
 import W3xUnit from "./unit";
 import W3xDoodad from "./doodad";
 import W3xModificationTable from "./modificationtable";
 import W3xTilePoint from "./tilepoint";
+import W3xParser from "./parser/parser";
+
+import * as geometry from "../geo/geometry";
 
 /**
  * @constructor
@@ -26,36 +28,44 @@ function W3xMap(env, pathSolver, handler, extension) {
 
 W3xMap.prototype = {
     initialize(src) {
-        var reader = new BinaryReader(src);
+        let parser = new W3xParser(src);
+        
+        this.parser = parser;
+        this.name = parser.name;
+        this.mpq = parser.mpq;
 
-        if (reader.read(4) !== "HM3W") {
-            this.onerror("InvalidSource", "WrongMagicNumber");
-            return false;
-        }
+        this.doodads = [];
+        this.units = [];
 
-        reader.skip(4);
+        console.log(this.mpq.getFileList());
 
-        this.name = reader.readUntilNull();
-        this.flags = reader.readInt32();
-        this.maxPlayers = reader.readInt32();
+        let env = this.env;
+        let internalPathSolver = this.internalPathSolver;
+        let fileCache = new Map();
 
-        this.mpq = new MpqArchive(this.env);
-        this.mpq.initialize(src);
+        this.fileCache = fileCache;
 
-        //console.log(this.mpq.getFileList());
-
-        this.internalPathSolver = (path) => {
+        // Loads files either from the map MPQ, or the game MPQs.
+        // This is used for the tileset MPQ and all of the SLKs, since they can be overriden in the map.
+        let mpqPathSolver = (path) => {
             // MPQ paths have backwards slashes...always? Don't know.
             let mpqPath = path.replace(/\//g, "\\");
 
+            // If the file is in the map MPQ, return it.
             if (this.mpq.hasFile(mpqPath)) {
                 return [this.mpq.getFile(mpqPath).buffer, path.substr(path.lastIndexOf(".")), false];
             }
 
+            // Finally, try to get the file from the main MPQs.
             return this.pathSolver(path);
         };
 
-        var paths = [
+        this.tileset = parser.environment.tileset;
+        this.tilesetMpq = env.load(this.tileset + ".mpq", mpqPathSolver)
+
+        fileCache.set("tileset", this.tilesetMpq);
+        
+        let paths = [
             "Doodads/Doodads.slk",
             "Doodads/DoodadMetaData.slk",
             "Units/DestructableData.slk",
@@ -67,22 +77,42 @@ W3xMap.prototype = {
             "TerrainArt/Terrain.slk",
             "TerrainArt/CliffTypes.slk"];
 
-        var files = this.loadFiles(paths);
+        for (let path of paths) {
+            let index1 = path.lastIndexOf("/") + 1,
+                index2 = path.indexOf(".", index1),
+                name = path.substring(index1, index2).toLowerCase();
 
-        this.slkFiles = {};
-
-        for (var i = 0, l = files.length; i < l; i++) {
-            this.slkFiles[paths[i].substr(paths[i].lastIndexOf("/") + 1).toLowerCase().split(".")[0]] = files[i];
+            fileCache.set(name, env.load(path, mpqPathSolver));
         }
+
+        // Loads files either from the map MPQ, the tilset MPQ, or the game MPQs.
+        // This is used for of the map interal resources, such as models and textures.
+        this.internalPathSolver = (path) => {
+            // MPQ paths have backwards slashes...always? Don't know.
+            let mpqPath = path.replace(/\//g, "\\");
+
+            // If the file is in the map MPQ, return it.
+            if (this.mpq.hasFile(mpqPath)) {
+                return [this.mpq.getFile(mpqPath).buffer, path.substr(path.lastIndexOf(".")), false];
+            }
+
+            // If the file is in the tileset-specific MPQ, return it.
+            if (this.tilesetMpq.hasFile(mpqPath)) {
+                return [this.tilesetMpq.getFile(mpqPath).buffer, path.substr(path.lastIndexOf(".")), false];
+            }
+
+            // Finally, try to get the file from the main MPQs.
+            return this.pathSolver(path);
+        };
 
         // Promise that there is a future load that the code cannot know about yet, so Viewer.whenAllLoaded() isn't called prematurely.
         let promise = this.env.makePromise();
 
-        this.env.whenLoaded(files, () => {
-            this.loadTerrain();
-            this.loadModifications();
-            this.loadDoodads();
-            this.loadUnits();
+        this.env.whenLoaded(fileCache.values(), () => {
+            this.loadModifications(parser.modifications);
+            this.loadTerrain(parser.environment);
+            this.loadDoodads(parser.doodads);
+            this.loadUnits(parser.units);
 
             // Resolve the promise
             promise.resolve();
@@ -91,63 +121,21 @@ W3xMap.prototype = {
         return true;
     },
 
-    loadFiles(src) {
-        if (Array.isArray(src)) {
-            let files = [];
-
-            for (let i = 0, l = src.length; i < l; i++) {
-                files[i] = this.env.load(src[i], this.internalPathSolver);
-            }
-
-            return files;
-        }
-
+    loadFile(src) {
         return this.env.load(src, this.internalPathSolver);
     },
 
     // Doodads and destructables
-    loadDoodads() {
-        var file = this.mpq.getFile("war3map.doo");
-
-        if (file) {
-            var reader = new BinaryReader(file.buffer);
-
-            var id = reader.read(4);
-            var version = reader.readInt32();
-            var something = reader.readInt32(); // sub version?
-            var objects = reader.readInt32();
-
-            for (var i = 0; i < objects; i++) {
-                new W3xDoodad(reader, version, this)
-            }
-
-            //*
-            //skip(reader, 4);
-    
-            //var specialObjects = readInt32(reader);
-    
-            //for (var i = 0; i < specialObjects; i++) {
-            //    new W3xSpecialDoodad(reader, version, this)
-            //}
-            //*/
+    loadDoodads(doodadChunk) {
+        for (let doodad of doodadChunk.doodads) {
+            this.doodads.push(new W3xDoodad(this, doodad));
         }
     },
 
     // Units and items
-    loadUnits() {
-        var file = this.mpq.getFile("war3mapUnits.doo");
-
-        if (file) {
-            var reader = new BinaryReader(file.buffer);
-
-            var id = reader.read(4);
-            var version = reader.readInt32();
-            var something = reader.readInt32(); // sub version?
-            var objects = reader.readInt32();
-
-            for (var i = 0; i < objects; i++) {
-                new W3xUnit(reader, version, this);
-            }
+    loadUnits(unitsChunk) {
+        for (let unit of unitsChunk.units) {
+            this.units.push(new W3xUnit(this, unit));
         }
     },
 
@@ -185,153 +173,107 @@ W3xMap.prototype = {
         return 0;
     },
 
-    loadTerrain() {
-        var file = this.mpq.getFile("war3map.w3e");
+    loadTerrain(environment) {
+        let mapSize = environment.mapSize;
+        let centerOffset = environment.centerOffset;
+        let tilepoints = environment.tilepoints;
+        let tileset = environment.tileset;
 
-        if (file) {
-            var reader = new BinaryReader(file.buffer);
+        this.mapSize = mapSize;
+        this.offset = [-centerOffset[0] / 128, -centerOffset[1] / 128];
+        this.tilepoints = [];
 
-            var id = reader.read(4);
-            var version = reader.readInt32();
-            var tileset = reader.read(1);
+        for (let y = 0; y < mapSize[1]; y++) {
+            this.tilepoints[y] = [];
 
-            this.tileset = tileset;
-
-            var haveCustomTileset = reader.readInt32();
-            var groundTilesetCount = reader.readInt32();
-            var groundTilesets = [];
-
-            for (var i = 0; i < groundTilesetCount; i++) {
-                groundTilesets[i] = reader.read(4);
+            for (let x = 0; x < mapSize[0]; x++) {
+                this.tilepoints[y][x] = new W3xTilePoint(tilepoints[y][x]);
             }
-
-            
-            var cliffTilesetCount = reader.readInt32();
-            var cliffTilesets = [];
-
-            for (var i = 0; i < cliffTilesetCount; i++) {
-                cliffTilesets[i] = reader.read(4);
-            }
-
-            var mapSize = reader.readInt32Array(2);
-            var centerOffset = reader.readFloat32Array(2);
-
-            var tilepoints = [];
-            var heightMap = [];
-
-            for (var y = 0; y < mapSize[1]; y++) {
-                tilepoints[y] = [];
-                heightMap[y] = [];
-
-                for (var x = 0; x < mapSize[0]; x++) {
-                    tilepoints[y][x] = new W3xTilePoint(reader);
-                    heightMap[y][x] = tilepoints[y][x].getHeight();
-                }
-            }
-
-            this.mapSize = mapSize;
-            this.offset = [-centerOffset[0] / 128, -centerOffset[1] / 128];
-            this.tilepoints = tilepoints;
-            this.heightMap = heightMap;
-
-            var slk = this.slkFiles.terrain;
-
-            this.tilesetTextures = [];
-
-            var gl = this.env.gl;
-
-            for (var i = 0, l = groundTilesets.length; i < l; i++) {
-                var row = slk.getRow(groundTilesets[i]) ;
-
-                if (row) {
-                    this.tilesetTextures.push(this.loadFiles(row.dir + "\\" + row.file + ".blp"));
-                } else {
-                    this.tilesetTextures.push(null);
-                    console.warn("W3X: Failed to load a tileset texture, tileset: \"" + groundTilesets[i] + "\"");
-                }
-            }
-
-            var tilesetToBlight = {
-                A: "Ashen",
-                B: "Barrens",
-                C: "Felwood",
-                D: "Dungeon",
-                F: "Lordf",
-                G: "G",
-                I: "Ice",
-                J: "DRuins",
-                K: "Citadel",
-                L: "Lords",
-                N: "North",
-                O: "Outland",
-                Q: "VillageFall",
-                V: "Village",
-                W: "Lordw",
-                X: "Lords", // Dalaran is what?
-                Y: "Lords", // Cityscape is what?
-                Z: "Ruins"
-            };
-
-            this.tilesetTextures.push(this.loadFiles("TerrainArt\\Blight\\" + tilesetToBlight[tileset] + "_Blight.blp"));
-
-            this.blightTextureIndex = groundTilesetCount;
-
-            let cliffSlk = this.slkFiles.clifftypes;
-
-            this.cliffs = [];
-            this.cliffTextures = [];
-
-            var tilesetToCliff = {
-                A: "A_", // Ashenvale
-                B: "B_", // Barrens
-                C: "C_", // Felwood
-                D: "D_", // Dungeon
-                F: "F_", // Lordaeron Fall
-                G: "G_", // Underground
-                I: "", // Icecrown Glacier - UNKNOWN TEXTURE
-                J: "", // Dalaran Ruins - UNKNOWN TEXTURE
-                K: "", // Black Citadel - UNKNOWN TEXTURE
-                L: "", // Lordaeron Summer
-                N: "N_", // Northrend
-                O: "", // Outland - UNKNOWN TEXTURE
-                Q: "Q_", // Village Fall
-                V: "V_", // Village
-                W: "W_", // Lordaeron Winter
-                X: "X_", // Dalaran
-                Y: "Y_", // Cityscape
-                Z: "" // Sunken Ruins - UNKNOWN TEXTURE
-            };
-
-            var cliffPath = tilesetToCliff[this.tileset];
-
-            for (var i = 0, l = cliffTilesets.length; i < l; i++) {
-                var row = cliffSlk.getRow(cliffTilesets[i]);
-                
-                // Tileset CLno - yet another TFT thing that is nowhere to be found?
-                if (row) {
-                    this.cliffs.push(row);
-                    this.cliffTextures.push(this.loadFiles("ReplaceableTextures/Cliff/" + cliffPath + row.texFile + ".blp"));
-                }
-  
-            }
-
-            this.cliffTexturesOffset = groundTilesetCount + 1;
-
-            this.env.whenLoaded(this.tilesetTextures, () => {
-                for (let texture of this.tilesetTextures) {
-                    // To avoid WebGL errors if a texture failed to load
-                    if (texture.loaded) {
-                        gl.bindTexture(gl.TEXTURE_2D, texture.webglResource);
-                        texture.setParameters(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR);
-                    }
-                }
-
-                //this.loadSky();
-                this.loadWater();
-                this.loadTerrainCliffs();
-                this.loadTerrainGeometry();
-            });
         }
+
+        var slk = this.fileCache.get("terrain");
+
+        this.tilesetTextures = [];
+
+        var gl = this.env.gl;
+
+        for (let groundTileset of environment.groundTilesets) {
+            var row = slk.getRow(groundTileset) ;
+
+            if (row) {
+                this.tilesetTextures.push(this.loadFile(row.dir + "\\" + row.file + ".blp"));
+            } else {
+                this.tilesetTextures.push(null);
+                console.warn("W3X: Failed to load a ground tileset texture, tileset: \"" + groundTileset + "\"");
+            }
+        }
+
+        var tilesetToBlight = {
+            A: "Ashen",
+            B: "Barrens",
+            C: "Felwood",
+            D: "Dungeon",
+            F: "Lordf",
+            G: "G",
+            I: "Ice",
+            J: "DRuins",
+            K: "Citadel",
+            L: "Lords",
+            N: "North",
+            O: "Outland",
+            Q: "VillageFall",
+            V: "Village",
+            W: "Lordw",
+            X: "Lords", // Dalaran is what?
+            Y: "Lords", // Cityscape is what?
+            Z: "Ruins"
+        };
+
+        this.tilesetTextures.push(this.loadFile("TerrainArt\\Blight\\" + tilesetToBlight[tileset] + "_Blight.blp"));
+
+        this.blightTextureIndex = environment.groundTilesets.length;
+
+        let cliffSlk = this.fileCache.get("clifftypes");
+
+        this.cliffs = [];
+        this.cliffTextures = [];
+
+        let fileNameStart = "";
+
+        if (this.tileset !== "L") {
+            fileNameStart = this.tileset + "_";
+        }
+
+        for (let cliffTileset of environment.cliffTilesets) {
+            var row = cliffSlk.getRow(cliffTileset);
+                
+            // Tileset CLno - yet another TFT thing that is nowhere to be found?
+            if (row) {
+                this.cliffs.push(row);
+                this.cliffTextures.push(this.loadFile("ReplaceableTextures/Cliff/" + fileNameStart + row.texFile + ".blp"));
+            } else {
+                this.cliffTextures.push(null);
+                console.warn("W3X: Failed to load a cliff tileset texture, tileset: \"" + cliffTileset + "\"");
+            }
+  
+        }
+
+        this.cliffTexturesOffset = this.blightTextureIndex + 1;
+
+        this.env.whenLoaded(this.tilesetTextures, () => {
+            for (let texture of this.tilesetTextures) {
+                // To avoid WebGL errors if a texture failed to load
+                if (texture.loaded) {
+                    gl.bindTexture(gl.TEXTURE_2D, texture.webglResource);
+                    texture.setParameters(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR);
+                }
+            }
+
+            //this.loadSky();
+            this.loadWater();
+            this.loadTerrainCliffs();
+            this.loadTerrainGeometry();
+        });
     },
 
     heightsToCliffTag(a, b, c, d) {
@@ -537,9 +479,9 @@ W3xMap.prototype = {
         for (let i = 0; i < 45; i++) {
             n = (i < 10) ? "0" + i : "" + i;
 
-            textures[i] = this.loadFiles("Textures/Water" + n + "-0.blp");
-            //textures[i] = this.loadFiles("Textures/Water" + n + ".blp");
-            //textures[i] = this.loadFiles("ReplaceableTextures/Water/N_Water" + n + ".blp");
+            textures[i] = this.loadFile("Textures/Water" + n + "-0.blp");
+            //textures[i] = this.loadFile("Textures/Water" + n + ".blp");
+            //textures[i] = this.loadFile("ReplaceableTextures/Water/N_Water" + n + ".blp");
         }
 
         this.env.whenLoaded(textures, () => {
@@ -577,7 +519,7 @@ W3xMap.prototype = {
     },
 
     loadSky() {
-        let model = this.loadFiles("Environment/Sky/LordaeronSummerSky/LordaeronSummerSky.mdx"),
+        let model = this.loadFile("Environment/Sky/LordaeronSummerSky/LordaeronSummerSky.mdx"),
             instance = model.addInstance().uniformScale(3);
 
         instance.noCulling = true;
@@ -593,11 +535,13 @@ W3xMap.prototype = {
     loadTerrainCliffs() {
         this.prepareTilePoints();
 
+        var cliffs = this.cliffs;
         var mapSize = this.mapSize;
         var tilepoints = this.tilepoints;
+        
         /*
         var unitCube = this.env.load({
-            geometry: createUnitCube(),
+            geometry: geometry.createUnitCube(),
             material: { renderMode: 0, color: [1, 1, 1], twoSided: true }
         }, src =>[src, ".geo", false]);
         //*/
@@ -646,7 +590,13 @@ W3xMap.prototype = {
 
                     let cliffTextureType = tile.cliffTextureType;
                     let texture = this.cliffTextures[cliffTextureType];
-                    let cliff = this.cliffs[cliffTextureType];
+
+                    if (cliffTextureType > cliffs.length - 1) {
+                        console.warn("W3x: Unknown cliff texture type: Number of cliff types is", cliffs.length, "given", cliffTextureType);
+                        cliffTextureType = 0;
+                    }
+
+                    let cliff = cliffs[cliffTextureType];
                     let dir = cliff.cliffModelDir;
 
                     if (ltMask) {
@@ -704,12 +654,17 @@ W3xMap.prototype = {
                         }
 
                         if (supportedMask) {
-                            let model = this.loadFiles("Doodads/Terrain/" + dir + "/" + dir + tag + cliffVariation + ".mdx"),
+                            let model = this.loadFile("Doodads/Terrain/" + dir + "/" + dir + tag + cliffVariation + ".mdx"),
                                 instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
 
                             model.whenLoaded(() => model.textures[0] = texture);
 
                             this.scene.addInstance(instance);
+                        } else {
+                            //let instance = unitCube.addInstance().setVertexColor([255, 0, 0, 255]).setLocation([tile.x, tile.y, tile.z]).setScale([10, 10, 300]);
+                            //this.scene.addInstance(instance);
+
+                            //console.warn("W3x: Unsupported LT cliff mask", ltMask);
                         }
                     }
                     
@@ -781,12 +736,14 @@ W3xMap.prototype = {
                         }
 
                         if (supportedMask) {
-                            let model = this.loadFiles("Doodads/Terrain/" + dir + "/" + dir + tag + cliffVariation + ".mdx"),
+                            let model = this.loadFile("Doodads/Terrain/" + dir + "/" + dir + tag + cliffVariation + ".mdx"),
                                 instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
 
                             model.whenLoaded(() => model.textures[0] = texture);
                             
                             this.scene.addInstance(instance);
+                        } else {
+                            //console.warn("W3x: Unsupported RT cliff mask", rtMask);
                         }
                     }
                     
@@ -819,12 +776,14 @@ W3xMap.prototype = {
                         }
 
                         if (supportedMask) {
-                            let model = this.loadFiles("Doodads/Terrain/" + dir + "/" + dir + tag + cliffVariation + ".mdx"),
+                            let model = this.loadFile("Doodads/Terrain/" + dir + "/" + dir + tag + cliffVariation + ".mdx"),
                                 instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
 
                             model.whenLoaded(() => model.textures[0] = texture);
 
                             this.scene.addInstance(instance);
+                        } else {
+                            //console.warn("W3x: Unsupported RB cliff mask", rbMask);
                         }
                     }
 
@@ -882,12 +841,14 @@ W3xMap.prototype = {
                         }
 
                         if (supportedMask) {
-                            let model = this.loadFiles("Doodads/Terrain/" + dir + "/" + dir + tag + cliffVariation + ".mdx"),
+                            let model = this.loadFile("Doodads/Terrain/" + dir + "/" + dir + tag + cliffVariation + ".mdx"),
                                 instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
 
                             model.whenLoaded(() => model.textures[0] = texture);
 
                             this.scene.addInstance(instance);
+                        } else {
+                            //console.warn("W3x: Unsupported LB cliff mask", lbMask);
                         }
                     }
                 }
@@ -1128,39 +1089,30 @@ W3xMap.prototype = {
         }
     },
 
-    loadModifications() {
-        // useOptionalInts:
-        //      w3u: no (units)
-        //      w3t: no (items)
-        //      w3b: no (destructables)
-        //      w3d: yes (doodads)
-        //      w3a: yes (abilities)
-        //      w3h: no (buffs)
-        //      w3q: yes (upgrades)
+    loadModifications(modifications) {
+        let fileCache = this.fileCache,
+            modification;
 
-        var slkFiles = this.slkFiles;
 
-        this.loadModificationFile("b", false, slkFiles.destructabledata, slkFiles.destructablemetadata);
-        this.loadModificationFile("d", true, slkFiles.doodads, slkFiles.doodadmetadata);
-        this.loadModificationFile("u", false, slkFiles.unitdata, slkFiles.unitmetadata);
+        if (modifications.has("doodads")) {
+            this.loadModification(modifications.get("doodads"), fileCache.get("doodads"), fileCache.get("doodadmetadata"));
+        }
+
+        if (modifications.has("destructables")) {
+            this.loadModification(modifications.get("destructables"), fileCache.get("destructabledata"), fileCache.get("destructablemetadata"));
+        }
+
+        if (modifications.has("units")) {
+            this.loadModification(modifications.get("units"), fileCache.get("unitdata"), fileCache.get("unitmetadata"));
+        }
     },
 
-    loadModificationFile(which, useOptionalInts, dataTable, metadataTable) {
-        let file = this.mpq.getFile("war3map.w3" + which);
+    loadModification(modification, dataTable, metadataTable) {
+        // Modifications to built-in objects
+        this.applyModificationTable(modification.originalTable, dataTable, metadataTable);
 
-        if (file) {
-            var reader = new BinaryReader(file.buffer);
-
-            var version = reader.readInt32();
-
-            // Modifications to built-in objects
-            var originalTable = new W3xModificationTable(reader, useOptionalInts);
-            this.applyModificationTable(originalTable, dataTable, metadataTable);
-
-            // Declarations of user-defined objects
-            var customTable = new W3xModificationTable(reader, useOptionalInts);
-            this.applyModificationTable(customTable, dataTable, metadataTable);
-        }
+        // Declarations of user-defined objects
+        this.applyModificationTable(modification.customTable, dataTable, metadataTable);
     },
 
     applyModificationTable(modificationTable, dataTable, metadataTable) {
@@ -1172,25 +1124,27 @@ W3xMap.prototype = {
     },
 
     applyModificationObject(modification, dataTable, metadataTable) {
-        var row;
-
-        if (modification.newID !== "") {
-            if (dataTable.map[modification.oldID]) {
-                row = dataTable.map[modification.newID] = Object.copy(dataTable.map[modification.oldID]);
-                row.ID = modification.newID;
-            }
-        } else {
-            row = dataTable.map[modification.oldID];
-        }
-
-        var modifications = modification.modifications
+        var row = dataTable.getRow(modification.oldID);
 
         if (row) {
+            if (modification.newID !== "") {
+                if (dataTable.map[modification.oldID]) {
+                    let newRow = Object.copy(row);
+
+                    newRow.customRow = true;
+
+                    row = dataTable.map[modification.newID.toLowerCase()] = newRow;
+                    row.ID = modification.newID;
+                }
+            }
+
+            var modifications = modification.modifications
+
             for (var i = 0, l = modifications.length; i < l; i++) {
                 this.applyModification(modifications[i], row, metadataTable);
             }
         } else {
-            console.warn("[W3xMap:applyModificationObject] Undefined row for modification", modification);
+            console.warn("W3xMap: Undefined row for modification", modification);
         }
     },
 

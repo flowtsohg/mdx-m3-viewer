@@ -10,9 +10,9 @@ import MdxSdContainer from "./sd";
 function MdxLayer(model, layer, layerId, priorityPlane) {
     let filterMode = layer.filterMode,
         textureAnimationId = layer.textureAnimationId,
-        gl = model.gl;
+        gl = model.env.gl;
 
-    this.gl = gl;
+    this.model = model;
     this.index = layerId;
     this.priorityPlane = priorityPlane;
     this.filterMode = filterMode;
@@ -131,7 +131,7 @@ MdxLayer.filterModeToRenderOrder = {
 
 MdxLayer.prototype = {
     bind(shader) {
-        let gl = this.gl;
+        let gl = this.model.env.gl;
 
         gl.uniform1f(shader.uniforms.get("u_alphaTest"), this.alphaTestValue);
 

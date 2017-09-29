@@ -93,9 +93,200 @@ function MdxSdSequence(sd, start, end, keyframes, isGlobalSequence) {
 
             break;
     }
+
+    this.keyframeInterval = new Uint32Array(2);
 }
 
 MdxSdSequence.prototype = {
+    cacheValue(frame) {
+        if (this.constant) {
+            this.cachedIndex = 0;
+
+            return this.value;
+        } else {
+            var keyframes = this.keyframes,
+                l = keyframes.length;
+
+            if (frame <= this.start) {
+                this.cachedIndex = 0;
+
+                return keyframes[0].value;
+            } else if (frame >= this.end) {
+                this.cachedIndex = l - 1;
+
+                return keyframes[l - 1].value;
+            } else {
+                for (var i = 1; i < l; i++) {
+                    var keyframe = keyframes[i];
+
+                    if (keyframe.frame > frame) {
+                        var lastKeyframe = keyframes[i - 1];
+
+                        var t = Math.clamp((frame - lastKeyframe.frame) / (keyframe.frame - lastKeyframe.frame), 0, 1);
+
+                        this.cachedIndex = i;
+
+                        return Interpolator.interpolate(lastKeyframe.value, lastKeyframe.outTan, keyframe.inTan, keyframe.value, t, this.sd.interpolationType);
+                    }
+                }
+            }
+        }
+    },
+
+    getValue1V2(out, frame) {
+        let value = this.cacheValue(frame);
+
+        out[0] = value[0];
+
+        return this.cachedIndex;
+    },
+
+    getValue3V2(out, frame) {
+        let value = this.cacheValue(frame);
+
+        out[0] = value[0];
+        out[1] = value[1];
+        out[2] = value[2];
+
+        return this.cachedIndex;
+    },
+
+    getValue4V2(out, frame) {
+        let value = this.cacheValue(frame);
+
+        out[0] = value[0];
+        out[1] = value[1];
+        out[2] = value[2];
+        out[3] = value[3];
+
+        return this.cachedIndex;
+    },
+
+    getValue1(out, frame) {
+        let value,
+            index;
+
+        if (this.constant) {
+            value = this.value;
+            index = 0;
+        } else {
+            var keyframes = this.keyframes,
+                l = keyframes.length;
+
+            if (frame <= this.start) {
+                value = keyframes[0].value;
+                index = 0;
+            } else if (frame >= this.end) {
+                value = keyframes[l - 1].value;
+                index = l - 1;
+            } else {
+                for (var i = 1; i < l; i++) {
+                    var keyframe = keyframes[i];
+
+                    if (keyframe.frame > frame) {
+                        var lastKeyframe = keyframes[i - 1];
+
+                        var t = Math.clamp((frame - lastKeyframe.frame) / (keyframe.frame - lastKeyframe.frame), 0, 1);
+
+                        value = Interpolator.vector(lastKeyframe.value, lastKeyframe.outTan, keyframe.inTan, keyframe.value, t, this.sd.interpolationType);
+                        index = i;
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        out[0] = value[0];
+
+        return index;
+    },
+
+    getValue3(out, frame) {
+        let value,
+            index;
+
+        if (this.constant) {
+            value = this.value;
+            index = 0;
+        } else {
+            var keyframes = this.keyframes,
+                l = keyframes.length;
+
+            if (frame <= this.start) {
+                value = keyframes[0].value;
+                index = 0;
+            } else if (frame >= this.end) {
+                value = keyframes[l - 1].value;
+                index = l - 1;
+            } else {
+                for (var i = 1; i < l; i++) {
+                    var keyframe = keyframes[i];
+
+                    if (keyframe.frame > frame) {
+                        var lastKeyframe = keyframes[i - 1];
+
+                        var t = Math.clamp((frame - lastKeyframe.frame) / (keyframe.frame - lastKeyframe.frame), 0, 1);
+
+                        value = Interpolator.vector(lastKeyframe.value, lastKeyframe.outTan, keyframe.inTan, keyframe.value, t, this.sd.interpolationType);
+                        index = i;
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        out[0] = value[0];
+        out[1] = value[1];
+        out[2] = value[2];
+
+        return index;
+    },
+
+    getValue4(out, frame) {
+        let value,
+            index;
+
+        if (this.constant) {
+            value = this.value;
+            index = 0;
+        } else {
+            var keyframes = this.keyframes,
+                l = keyframes.length;
+
+            if (frame <= this.start) {
+                value = keyframes[0].value;
+                index = 0;
+            } else if (frame >= this.end) {
+                value = keyframes[l - 1].value;
+                index = l - 1;
+            } else {
+                for (var i = 1; i < l; i++) {
+                    var keyframe = keyframes[i];
+
+                    if (keyframe.frame > frame) {
+                        var lastKeyframe = keyframes[i - 1];
+
+                        var t = Math.clamp((frame - lastKeyframe.frame) / (keyframe.frame - lastKeyframe.frame), 0, 1);
+
+                        value = Interpolator.quaternion(lastKeyframe.value, lastKeyframe.outTan, keyframe.inTan, keyframe.value, t, this.sd.interpolationType);
+                        index = i;
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        out[0] = value[0];
+        out[1] = value[1];
+        out[2] = value[2];
+        out[3] = value[3];
+
+        return index;
+    },
+
     getValueUnsafe(frame) {
         if (this.constant) {
             return this.value;
@@ -147,6 +338,14 @@ MdxSdSequence.prototype = {
     }
 };
 
+var forcedInterpMap = {
+    KLAV: 0,
+    KATV: 0,
+    KPEV: 0,
+    KP2V: 0,
+    KRVS: 0
+};
+
 /**
  * @constructor
  * @param {MdxModel} model
@@ -156,7 +355,7 @@ function MdxSd(model, sd) {
     var globalSequenceId = sd.globalSequenceId,
         globalSequences = model.globalSequences,
         tracks = sd.tracks,
-        forcedInterp = MdxSd.forcedInterp[sd.tag];
+        forcedInterp = forcedInterpMap[sd.tag];
 
     this.tag = sd.tag;
     this.model = model;
@@ -183,15 +382,60 @@ function MdxSd(model, sd) {
     }
 }
 
-MdxSd.forcedInterp = {
-    KLAV: 0,
-    KATV: 0,
-    KPEV: 0,
-    KP2V: 0,
-    KRVS: 0
-};
-
 MdxSd.prototype = {
+    getValue1(out, instance) {
+        if (this.globalSequence) {
+            var globalSequence = this.globalSequence;
+
+            return globalSequence.getValue1(out, instance.counter % globalSequence.end);
+        } else if (instance.sequence !== -1) {
+            return this.sequences[instance.sequence].getValue1(out, instance.frame);
+        } else {
+            let defval = this.defval;
+
+            out[0] = defval[0];
+
+            return 0;
+        }
+    },
+
+    getValue3(out, instance) {
+        if (this.globalSequence) {
+            var globalSequence = this.globalSequence;
+
+            return globalSequence.getValue3(out, instance.counter % globalSequence.end);
+        } else if (instance.sequence !== -1) {
+            return this.sequences[instance.sequence].getValue3(out, instance.frame);
+        } else {
+            let defval = this.defval;
+
+            out[0] = defval[0];
+            out[1] = defval[1];
+            out[2] = defval[2];
+
+            return 0;
+        }
+    },
+
+    getValue4(out, instance) {
+        if (this.globalSequence) {
+            var globalSequence = this.globalSequence;
+
+            return globalSequence.getValue4(out, instance.counter % globalSequence.end);
+        } else if (instance.sequence !== -1) {
+            return this.sequences[instance.sequence].getValue4(out, instance.frame);
+        } else {
+            let defval = this.defval;
+
+            out[0] = defval[0];
+            out[1] = defval[1];
+            out[2] = defval[2];
+            out[3] = defval[3];
+
+            return 0;
+        }
+    },
+
     getValueUnsafe(instance) {
         if (this.globalSequence) {
             var globalSequence = this.globalSequence;
@@ -268,6 +512,47 @@ MdxSdContainer.prototype = {
         }
 
         return [];
+    },
+
+    getValue1V2(out, tag, instance, defval) {
+        var sd = this.sd[tag];
+
+        if (sd) {
+            return sd.getValue1(out, instance);
+        }
+
+        out[0] = defval;
+
+        return 0;
+    },
+
+    getValue3V2(out, tag, instance, defval) {
+        var sd = this.sd[tag];
+
+        if (sd) {
+            return sd.getValue3(out, instance);
+        }
+
+        out[0] = defval[0];
+        out[1] = defval[1];
+        out[2] = defval[2];
+
+        return 0;
+    },
+
+    getValue4V2(out, tag, instance, defval) {
+        var sd = this.sd[tag];
+
+        if (sd) {
+            return sd.getValue4(out, instance);
+        }
+
+        out[0] = defval[0];
+        out[1] = defval[1];
+        out[2] = defval[2];
+        out[3] = defval[3];
+
+        return 0;
     },
 
     getValueUnsafe(tag, instance, defval) {

@@ -67,7 +67,7 @@ function MdxModelParticle2Emitter(model, emitter) {
 
 MdxModelParticle2Emitter.prototype = {
     selectFilterMode(filterMode) {
-        let gl = this.model.gl,
+        let gl = this.model.env.gl,
             blendSrc,
             blendDst;
 

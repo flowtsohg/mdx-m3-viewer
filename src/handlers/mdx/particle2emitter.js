@@ -13,7 +13,7 @@ function MdxParticle2Emitter(modelObject) {
     this.inactive = [];
 
     this.bytesPerEmit = ((modelObject.headOrTail === 2) ? 2 : 1) * 4 * 30;
-    this.buffer = new ResizeableBuffer(modelObject.model.gl);
+    this.buffer = new ResizeableBuffer(modelObject.model.env.gl);
 }
 
 MdxParticle2Emitter.prototype = {
@@ -103,7 +103,7 @@ MdxParticle2Emitter.prototype = {
 
         if (modelObject.internalResource && active > 0) {
             let model = modelObject.model,
-                gl = model.gl;
+                gl = model.env.gl;
 
             gl.blendFunc(modelObject.blendSrc, modelObject.blendDst);
 

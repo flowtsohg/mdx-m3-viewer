@@ -21,39 +21,39 @@ let Interpolator = {
         return 0;
     },
 
-    vector(out, a, b, c, d, t, type) {
+    vector(a, b, c, d, t, type) {
         if (type === 0) {
             return a;
         } else if (type === 1) {
-            return vec3.lerp(out, a, d, t);
+            return vec3.lerp(vectorHeap, a, d, t);
         } else if (type === 2) {
-            return vec3.hermite(out, a, b, c, d, t);
+            return vec3.hermite(vectorHeap, a, b, c, d, t);
         } else if (type === 3) {
-            return vec3.bezier(out, a, b, c, d, t);
+            return vec3.bezier(vectorHeap, a, b, c, d, t);
         }
 
-        return vec3.copy(out, vec3.ZERO);
+        return vec3.copy(vectorHeap, vec3.ZERO);
     },
 
-    quaternion(out, a, b, c, d, t, type) {
+    quaternion(a, b, c, d, t, type) {
         if (type === 0) {
             return a;
         } else if (type === 1) {
-            return quat.nlerp(out, a, d, t);
+            return quat.nlerp(quatHeap, a, d, t);
         } else if (type === 2 || type === 3) {
-            return quat.nquad(out, a, b, c, d, t);
+            return quat.nquad(quatHeap, a, b, c, d, t);
         }
 
-        return quat.copy(out, quat.ZERO);
+        return quat.copy(quatHeap, quat.ZERO);
     },
 
-    interpolate(a, b, c, d, t, type, out) {
+    interpolate(a, b, c, d, t, type) {
         const length = a.length;
 
         if (length === 3) {
-            return this.vector(vectorHeap, a, b, c, d, t, type);
+            return this.vector(a, b, c, d, t, type);
         } else if (length === 4) {
-            return this.quaternion(quatHeap, a, b, c, d, t, type);
+            return this.quaternion(a, b, c, d, t, type);
         } else {
             return this.scalar(a, b, c, d, t, type);
         }

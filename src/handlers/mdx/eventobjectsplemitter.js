@@ -14,7 +14,7 @@ function MdxEventObjectSplEmitter(modelObject) {
     this.active = [];
     this.inactive = [];
 
-    this.buffer = new ResizeableBuffer(modelObject.model.gl);
+    this.buffer = new ResizeableBuffer(modelObject.model.env.gl);
     this.bytesPerEmit = 4 * 30;
 }
 

@@ -47,7 +47,7 @@ ObjModel.prototype = {
         }
 
         // gl is the WebGLRenderingContext object used by the viewer.
-        const gl = this.gl,
+        const gl = this.env.gl,
             vertexArray = new Float32Array(vertices),
             faceArray = new Uint16Array(faces);
 

@@ -11,7 +11,7 @@ function M3Bucket(modelView) {
     Bucket.call(this, modelView);
 
     const model = this.model;
-    const gl = model.gl;
+    const gl = model.env.gl;
 
     this.gl = gl;
 

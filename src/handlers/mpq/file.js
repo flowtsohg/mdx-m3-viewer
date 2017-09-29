@@ -155,20 +155,16 @@ MpqFile.prototype = {
 
                 // ZLib
                 case 2:
-                    //var inflate = new Zlib.Inflate(new Uint8Array(buffer.buffer, 1));
-
-                    //return inflate.decompress();
-
                     return inflate(new Uint8Array(buffer.buffer, 1));
 
-                    // PKWare DCL Explode
-                    //case 8:
-                    //    return Explode(new Uint8Array(buffer.buffer, 1));
+                // PKWare DCL Explode
+                //case 8:
+                //    return Explode(new Uint8Array(buffer.buffer, 1));
 
-                    // Unsupported
-                    //default:
-                    //console.warn("[MPQ.File:" + this.name + "] compression type " + buffer[0] + " not supported");
-                    //return;
+                // Unsupported
+                default:
+                    console.warn("[MPQ.File:" + this.name + "] compression type " + buffer[0] + " not supported");
+                    return;
             }
         }
     }

@@ -14,7 +14,7 @@ let colorHeap = vec3.create();
  * @param {MdxParserRibbonEmitter} emitter
  */
 function MdxRibbonEmitter(model, emitter) {
-    let gl = model.gl,
+    let gl = model.env.gl,
         layer = model.materials[emitter.materialId][0];
 
     this.model = model;
@@ -74,7 +74,7 @@ MdxRibbonEmitter.prototype = {
 
         if (active > 0) {
             let model = this.model,
-                gl = model.gl;
+                gl = model.env.gl;
 
             this.layer.bind(shader);
 

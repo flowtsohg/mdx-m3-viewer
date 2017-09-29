@@ -1,28 +1,22 @@
 import { vec3, quat } from "gl-matrix";
+import standSequence from "./standsequence";
 
 /**
  * @constructor
- * @param {BinaryReader} reader
- * @param {number} version
  * @param {W3xMap} map
+ * @param {W3xParserDoodad} doodad
  */
-function W3xDoodad(reader, version, map) {
+function W3xDoodad(map, doodad) {
     this.map = map;
 
-    var id = reader.read(4);
-    var variation = reader.readInt32();
-    this.location = reader.readFloat32Array(3);
-    this.angle = reader.readFloat32();
-    this.scale = reader.readFloat32Array(3);
-    var flags = reader.readUint8();
-    var life = reader.readUint8();
-    var editorId = reader.readInt32();
+    let id = doodad.id;
+    let variation = doodad.variation;
 
-    if (version > 7) {
-        reader.read(8); // ?
-    }
+    this.location = doodad.location;
+    this.angle = doodad.angle;
+    this.scale = doodad.scale;
 
-    var row = map.slkFiles.doodads.map[id] || map.slkFiles.destructabledata.map[id];
+    var row = map.fileCache.get("doodads").getRow(id) || map.fileCache.get("destructabledata").getRow(id);
     if (row) {
         // What does it mean when texFile is underscore?
         if (row.texFile && row.texFile !== "_") {
@@ -32,7 +26,7 @@ function W3xDoodad(reader, version, map) {
                 texFile += ".blp";
             }
 
-            this.texFile = map.loadFiles(texFile);
+            this.texFile = map.loadFile(texFile);
         }
 
         var path;
@@ -74,7 +68,7 @@ function W3xDoodad(reader, version, map) {
 W3xDoodad.prototype = {
     addInstance() {
         if (!this.model) {
-            this.model = this.map.loadFiles(this.path);
+            this.model = this.map.loadFile(this.path);
         }
 
         let instance = this.model.addInstance();
@@ -89,7 +83,7 @@ W3xDoodad.prototype = {
         instance.setLocation(this.location);
         instance.setRotation(quat.setAxisAngle(quat.create(), vec3.UNIT_Z, this.angle));
         instance.setScale(this.scale);
-        instance.setSequence(0);
+        instance.whenLoaded(standSequence);
 
         this.instance = instance;
     }

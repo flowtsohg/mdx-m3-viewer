@@ -1,198 +1,29 @@
 import { vec3, quat } from "gl-matrix";
-
-function sequenceSorter(a, b) {
-    return a.rarity < b.rarity;
-}
-
-function filterSequences(type, sequences) {
-    var filtered = [];
-
-    for (var i = 0, l = sequences.length; i < l; i++) {
-        var sequence = sequences[i],
-            name = sequence.name.split("-")[0].replace(/\d/g, "").trim().toLowerCase();
-
-        if (name === type) {
-            filtered.push(sequence);
-        }
-    }
-
-    return filtered;
-}
-
-function selectSequence(type, sequences) {
-    sequences = filterSequences(type, sequences);
-
-    sequences.sort(sequenceSorter);
-
-    for (var i = 0, l = sequences.length; i < l; i++) {
-        var sequence = sequences[i];
-        var rarity = sequence.rarity;
-
-        if (rarity === 0) {
-            break;
-        }
-
-        if (Math.random() * 10 > rarity) {
-            return sequence;
-        }
-    }
-
-    var sequencesLeft = sequences.length - i;
-    var random = i + Math.floor(Math.random() * sequencesLeft);
-    var sequence = sequences[random]
-
-    return sequence;
-}
-
-function standSequence(target) {
-    // This function is registered both with whenLoaded, and with addEventListener.
-    // The former sends the object directly, while the latter passes an event object, so take care of this difference here.
-    if (target.target) {
-        target = target.target;
-    }
-
-    if (target.model.sequences) {
-        var sequences = target.model.sequences;
-        var standSequence = selectSequence("stand", sequences);
-
-        if (standSequence) {
-            target.setSequence(standSequence.index);
-        }
-    }
-}
-
+import standSequence from "./standsequence";
 
 /**
  * @constructor
- * @param {BinaryReader} reader
- */
-function W3xDroppedItem(reader) {
-    this.id = reader.read(4);
-    this.chance = reader.readInt32();
-}
-
-/**
- * @constructor
- * @param {BinaryReader} reader
- */
-function W3xDroppedItemSet(reader) {
-    let items = [];
-
-    for (var i = 0, l = reader.readInt32() ; i < l; i++) {
-        items[i] = new W3xDroppedItem(reader);
-    }
-
-    this.items = items;
-}
-
-/**
- * @constructor
- * @param {BinaryReader} reader
- */
-function W3xInventoryItem(reader) {
-    this.slot = reader.readInt32();
-    this.id = reader.read(4);
-}
-
-/**
- * @constructor
- * @param {BinaryReader} reader
- */
-function W3xModifiedAbility(reader) {
-    this.id = reader.read(4);
-    this.activeForAutocast = reader.readInt32();
-    this.heroLevel = reader.readInt32();
-}
-
-/**
- * @constructor
- * @param {BinaryReader} reader
- */
-function W3xRandomUnit(reader) {
-    this.id = reader.read(4);
-    this.chance = reader.readInt32();
-}
-
-/**
- * @constructor
- * @param {BinaryReader} reader
- * @param {number} version
  * @param {W3xMap} map
+ * @param {W3xParserUnit} unit
  */
-function W3xUnit(reader, version, map) {
+function W3xUnit(map, unit) {
     this.map = map;
 
-    var id = reader.read(4);
-    var variation = reader.readInt32();
-    this.location = reader.readFloat32Array(3);
-    this.angle = reader.readFloat32();
-    this.scale = reader.readFloat32Array(3);
-    var flags = reader.readUint8();
-    this.player = reader.readInt32();
-    reader.skip(2); // ?
-    var hitpoints = reader.readInt32();
-    var mana = reader.readInt32();
+    var id = unit.id;
+    var variation = unit.variation;
 
-    if (version > 7) {
-        var droppedItemTable = reader.readInt32();
+    this.location = unit.location;
+    this.angle = unit.angle;
+    this.scale = unit.scale;
+    this.player = unit.player;
 
-        if (droppedItemTable !== -1) {
-            console.warn("Dropped item table, must not read dropped item sets");
-        }
-    }
-
-    var droppedItemSets = [];
-    for (var i = 0, l = reader.readInt32(); i < l; i++) {
-        droppedItemSets[i] = new W3xDroppedItemSet(reader);
-    }
-
-    var goldAmount = reader.readInt32();
-    var targetAcquisition = reader.readFloat32();
-    var heroLevel = reader.readInt32();
-
-    if (version > 7) {
-        var heroStrength = reader.readInt32();
-        var heroAgility = reader.readInt32();
-        var heroIntelligence = reader.readInt32();
-    }
-
-    var itemsInInventory = [];
-    for (var i = 0, l = reader.readInt32(); i < l; i++) {
-        itemsInInventory[i] = new W3xInventoryItem(reader);
-    }
-
-    var modifiedAbilities = [];
-    for (var i = 0, l = reader.readInt32(); i < l; i++) {
-        modifiedAbilities[i] = new W3xModifiedAbility(reader);
-    }
-
-    var randomUnitTable = [];
-    var randomFlag = reader.readInt32();
     
-    if (randomFlag === 0) {
-        var level = reader.read(3); // 24bit number
-        var itemClass = reader.readUint8();
-    } else if (randomFlag === 1) {
-        var unitGroup = reader.readUint32();
-        var positionInGroup = reader.readUint32();
-    } else if (randomFlag === 2) {
-        for (let i = 0, l = reader.readInt32(); i < l; i++) {
-            randomUnitTable[i] = new W3xRandomUnit(reader);
-        }
-
-        console.log(randomUnitTable)
-        /// TODO: implement random selection
-        id = randomUnitTable[0].id;
-    }
-
-    var customTeamColor = reader.readInt32();
-    var waygate = reader.readInt32();
-    var creationNumber = reader.readInt32();
-
-    var row = map.slkFiles.unitdata.map[id] || map.slkFiles.itemdata.map[id];
+    var row = map.fileCache.get("unitdata").getRow(id) || map.fileCache.get("itemdata").getRow(id);
     if (row) {
         var path;
-
+        if (id === "nC15") {
+            console.log(row)
+        }
         // Items have a file field, units don't...
         if (row.file) {
             path = row.file.replace(".mdl", ".mdx");
@@ -203,11 +34,13 @@ function W3xUnit(reader, version, map) {
         } else {
             this.location[2] += row.moveHeight;
 
-            row = map.slkFiles.unitui.map[id];
+            if (!row.customRow) {
+                row = map.fileCache.get("unitui").map[id];
 
-            if (!row) {
-                console.log("Unknown unit ID", id);
-                return;
+                if (!row) {
+                    console.log("Unknown unit ID", id);
+                    return;
+                }
             }
 
             path = row.file + ".mdx";
@@ -232,7 +65,7 @@ function W3xUnit(reader, version, map) {
 W3xUnit.prototype = {
     addInstance() {
         if (!this.model) {
-            this.model = this.map.loadFiles(this.path);
+            this.model = this.map.loadFile(this.path);
         }
 
         let instance = this.model.addInstance();

@@ -70,7 +70,7 @@ BmpTexture.prototype = {
         imageData = this.upscaleNPOT(imageData);
 
         // Finally, create the actual WebGL texture.
-        let gl = this.gl;
+        let gl = this.env.gl;
         let id = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, id);
         this.setParameters(gl.REPEAT, gl.REPEAT, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);

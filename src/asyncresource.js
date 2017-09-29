@@ -11,8 +11,6 @@ function AsyncResource(env) {
 
     /** @member {ModelViewer} */
     this.env = env;
-    /** @member {WebGLRenderingContext} */
-    this.gl = env.gl;
     /** @member {boolean} */
     this.loaded = false;
     /** @member {boolean} */

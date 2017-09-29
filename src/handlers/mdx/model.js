@@ -288,7 +288,7 @@ MdxModel.prototype = {
         let geosets = this.geosets;
 
         if (geosets.length > 0) {
-            let gl = this.gl,
+            let gl = this.env.gl,
                 shallowGeosets = [],
                 typedArrays = [],
                 totalArrayOffset = 0,
@@ -446,7 +446,7 @@ MdxModel.prototype = {
 
     bind(bucket, scene) {
         const webgl = this.env.webgl;
-        var gl = this.gl;
+        var gl = this.env.gl;
 
         // HACK UNTIL I IMPLEMENT MULTIPLE SHADERS AGAIN
 
@@ -489,7 +489,7 @@ MdxModel.prototype = {
     },
 
     unbind() {
-        let gl = this.gl,
+        let gl = this.env.gl,
             instancedArrays = gl.extensions.instancedArrays,
             attribs = this.shader.attribs;
 
@@ -510,7 +510,7 @@ MdxModel.prototype = {
     },
 
     renderBatch(bucket, batch) {
-        let gl = this.gl,
+        let gl = this.env.gl,
             instancedArrays = gl.extensions.instancedArrays,
             shader = this.shader,
             attribs = this.shader.attribs,
