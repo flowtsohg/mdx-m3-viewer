@@ -1,4 +1,4 @@
-import BinaryReader from "../../binaryreader";
+import BinaryReader from "../../../binaryreader";
 
 let BLOCK_TABLE_KEY = 0xEC83B3A3;
 
@@ -6,7 +6,7 @@ let BLOCK_TABLE_KEY = 0xEC83B3A3;
  * @constructor
  * @param {BinaryReader} reader
  */
-function MpqBlockTableEntry(reader) {
+function MpqParserBlockTableEntry(reader) {
     /** @param {number} */
     this.filePos = reader.readUint32();
     /** @param {number} */
@@ -20,23 +20,23 @@ function MpqBlockTableEntry(reader) {
 /**
  * @constructor
  * @param {ArrayBuffer} buffer
- * @param {MpqCrypto} c
+ * @param {MpqParserCrypto} c
  */
-function MpqBlockTable(buffer, c) {
+function MpqParserBlockTable(buffer, c) {
     let entries = [],
         reader = new BinaryReader(c.decryptBlock(buffer, BLOCK_TABLE_KEY)),
         hashSize = buffer.byteLength / 16;
 
     for (let i = 0, l = hashSize; i < l; i++) {
-        entries.push(new MpqBlockTableEntry(reader));
+        entries.push(new MpqParserBlockTableEntry(reader));
     }
 
     /** @param {number} */
     this.hashSize = hashSize;
-    /** @param {MpqCrypto} */
+    /** @param {MpqParserCrypto} */
     this.c = c;
-    /** @param {Array<MpqBlockTableEntry>} */
+    /** @param {Array<MpqParserBlockTableEntry>} */
     this.entries = entries;
 }
 
-export default MpqBlockTable;
+export default MpqParserBlockTable;

@@ -546,6 +546,155 @@ W3xMap.prototype = {
         }, src =>[src, ".geo", false]);
         //*/
 
+        let cliffVariationMap = {
+            AAAB: 1,
+            AAAC: 1,
+            AABA: 1,
+            AABB: 2,
+            AABC: 0,
+            AACA: 1,
+            AACB: 0,
+            AACC: 1,
+            ABAA: 1,
+            ABAB: 1,
+            ABAC: 0,
+            ABBA: 2,
+            ABBB: 1,
+            ABBC: 0,
+            ABCA: 0,
+            ABCB: 0,
+            ABCC: 0,
+            ACAA: 1,
+            ACAB: 0,
+            ACAC: 1,
+            ACBA: 0,
+            ACBB: 0,
+            ACBC: 0,
+            ACCA: 1,
+            ACCB: 0,
+            ACCC: 1,
+            BAAA: 1,
+            BAAB: 1,
+            BAAC: 0,
+            BABA: 1,
+            BABB: 1,
+            BABC: 0,
+            BACA: 0,
+            BACB: 0,
+            BACC: 0,
+            BBAA: 1,
+            BBAB: 1,
+            BBAC: 0,
+            BBBA: 1,
+            BBCA: 0,
+            BCAA: 0,
+            BCAB: 0,
+            BCAC: 0,
+            BCBA: 0,
+            BCCA: 0,
+            CAAA: 1,
+            CAAB: 0,
+            CAAC: 1,
+            CABA: 0,
+            CABB: 0,
+            CABC: 0,
+            CACA: 1,
+            CACB: 0,
+            CACC: 1,
+            CBAA: 0,
+            CBAB: 0,
+            CBAC: 0,
+            CBBA: 0,
+            CBCA: 0,
+            CCAA: 1,
+            CCAB: 0,
+            CCAC: 1,
+            CCBA: 0,
+            CCCA: 1
+        };
+
+        let cityCliffVariationMap = {
+            AAAB: 2,
+            AAAC: 1,
+            AABA: 1,
+            AABB: 3,
+            AABC: 0,
+            AACA: 1,
+            AACB: 0,
+            AACC: 3,
+            ABAA: 1,
+            ABAB: 2,
+            ABAC: 0,
+            ABBA: 3,
+            ABBB: 0,
+            ABBC: 0,
+            ABCA: 0,
+            ABCB: 0,
+            ABCC: 0,
+            ACAA: 1,
+            ACAB: 0,
+            ACAC: 2,
+            ACBA: 0,
+            ACBB: 0,
+            ACBC: 0,
+            ACCA: 3,
+            ACCB: 0,
+            ACCC: 1,
+            BAAA: 1,
+            BAAB: 3,
+            BAAC: 0,
+            BABA: 2,
+            BABB: 0,
+            BABC: 0,
+            BACA: 0,
+            BACB: 0,
+            BACC: 0,
+            BBAA: 3,
+            BBAB: 1,
+            BBAC: 0,
+            BBBA: 1,
+            BBCA: 0,
+            BCAA: 0,
+            BCAB: 0,
+            BCAC: 0,
+            BCBA: 0,
+            BCCA: 0,
+            CAAA: 1,
+            CAAB: 0,
+            CAAC: 3,
+            CABA: 0,
+            CABB: 0,
+            CABC: 0,
+            CACA: 2,
+            CACB: 0,
+            CACC: 1,
+            CBAA: 0,
+            CBAB: 0,
+            CBAC: 0,
+            CBBA: 0,
+            CBCA: 0,
+            CCAA: 3,
+            CCAB: 0,
+            CCAC: 1,
+            CCBA: 0,
+            CCCA: 1
+        };
+
+        function tryVariation(dir, tag, variation) {
+            let maxVariation = -1;
+
+            if (dir === "Cliffs") {
+                maxVariation = cliffVariationMap[tag];
+            } else {
+                maxVariation = cityCliffVariationMap[tag];
+            }
+
+            if (variation > maxVariation) {
+                return 0;
+            }
+
+            return variation;
+        }
 
         for (var y = 0; y < mapSize[1]; y++) {
             for (var x = 0; x < mapSize[0]; x++) {
@@ -581,6 +730,8 @@ W3xMap.prototype = {
                 if (tile.cliff) {
                     let cliffVariation = 0;
                     let variation = tile.variation;
+
+                    cliffVariation = tile.whatIsThis;
 
                     let ltMask = tile.ltMask;
                     let rtMask = tile.rtMask;
@@ -654,7 +805,7 @@ W3xMap.prototype = {
                         }
 
                         if (supportedMask) {
-                            let model = this.loadFile("Doodads/Terrain/" + dir + "/" + dir + tag + cliffVariation + ".mdx"),
+                            let model = this.loadFile("Doodads/Terrain/" + dir + "/" + dir + tag + tryVariation(dir, tag, cliffVariation) + ".mdx"),
                                 instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
 
                             model.whenLoaded(() => model.textures[0] = texture);
@@ -736,7 +887,7 @@ W3xMap.prototype = {
                         }
 
                         if (supportedMask) {
-                            let model = this.loadFile("Doodads/Terrain/" + dir + "/" + dir + tag + cliffVariation + ".mdx"),
+                            let model = this.loadFile("Doodads/Terrain/" + dir + "/" + dir + tag + tryVariation(dir, tag, cliffVariation) + ".mdx"),
                                 instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
 
                             model.whenLoaded(() => model.textures[0] = texture);
@@ -776,7 +927,7 @@ W3xMap.prototype = {
                         }
 
                         if (supportedMask) {
-                            let model = this.loadFile("Doodads/Terrain/" + dir + "/" + dir + tag + cliffVariation + ".mdx"),
+                            let model = this.loadFile("Doodads/Terrain/" + dir + "/" + dir + tag + tryVariation(dir, tag, cliffVariation) + ".mdx"),
                                 instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
 
                             model.whenLoaded(() => model.textures[0] = texture);
@@ -841,7 +992,7 @@ W3xMap.prototype = {
                         }
 
                         if (supportedMask) {
-                            let model = this.loadFile("Doodads/Terrain/" + dir + "/" + dir + tag + cliffVariation + ".mdx"),
+                            let model = this.loadFile("Doodads/Terrain/" + dir + "/" + dir + tag + tryVariation(dir, tag, cliffVariation) + ".mdx"),
                                 instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
 
                             model.whenLoaded(() => model.textures[0] = texture);
@@ -912,7 +1063,7 @@ W3xMap.prototype = {
                     texture3 = tile3.blight ? blightTextureIndex : tile3.groundTextureType,
                     texture4 = tile4.blight ? blightTextureIndex : tile4.groundTextureType;
 
-                if (tile1.cliff || tile2.cliff || tile3.cliff || tile4.cliff) continue;
+                //if (tile1.cliff || tile2.cliff || tile3.cliff || tile4.cliff) continue;
 
                 var textures = [texture1, texture2, texture3, texture4].unique();
 
@@ -1129,12 +1280,12 @@ W3xMap.prototype = {
         if (row) {
             if (modification.newID !== "") {
                 if (dataTable.map[modification.oldID]) {
-                    let newRow = Object.copy(row);
+                    let newRow = Object.assign({}, row);
 
                     newRow.customRow = true;
+                    newRow.customID = modification.newID;
 
                     row = dataTable.map[modification.newID.toLowerCase()] = newRow;
-                    row.ID = modification.newID;
                 }
             }
 

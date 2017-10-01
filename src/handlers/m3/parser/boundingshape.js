@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @param {M3ParserBinaryReader} reader
+ * @param {BinaryReader} reader
  */
 function M3ParserBoundingShape(reader) {
     /** @member {number} */

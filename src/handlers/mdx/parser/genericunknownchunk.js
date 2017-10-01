@@ -1,3 +1,4 @@
+import { readUnknownElements } from "./common";
 import MdxParserMaterial from "./material";
 import MdxParserTextureAnimation from "./textureanimation";
 import MdxParserGeoset from "./geoset";
@@ -32,14 +33,14 @@ let tagToChunk = {
 
 /**
  * @constructor
- * @param {MdxParserBinaryReader} reader
+ * @param BinaryReader} reader
  * @param {string} tag
  * @param {number} size
  * @param {Array<MdxParserNode>} nodes
  */
 function MdxParserGenericUnknownChunk(reader, tag, size, nodes) {
     /** @member {Array<?>} */
-    this.elements = reader.readUnknownElements(size, tagToChunk[tag], nodes);
+    this.elements = readUnknownElements(reader, size, tagToChunk[tag], nodes);
 }
 
 export default MdxParserGenericUnknownChunk;

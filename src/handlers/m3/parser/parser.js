@@ -1,4 +1,4 @@
-import M3ParserBinaryReader from "./binaryreader";
+import BinaryReader from "../../../binaryreader";
 import M3ParserMd34 from "./md34";
 import M3ParserIndexEntry from "./indexentry";
 
@@ -7,7 +7,7 @@ import M3ParserIndexEntry from "./indexentry";
  * @param {ArrayBuffer} src
  */
 function M3Parser(src) {
-    let reader = new M3ParserBinaryReader(src),
+    let reader = new BinaryReader(src),
         header = new M3ParserMd34(reader);
 
     /** @member {Array<M3ParserIndexEntry>} */

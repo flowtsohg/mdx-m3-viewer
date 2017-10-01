@@ -4,7 +4,7 @@ import M3ParserBoundingShape from "./boundingshape";
 
 /**
  * @constructor
- * @param {M3ParserBinaryReader} reader
+ * @param {BinaryReader} reader
  * @param {number} version
  * @param {Array<M3ParserIndexEntry>} index
  */

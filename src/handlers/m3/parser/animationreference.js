@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @param {M3ParserBinaryReader} reader
+ * @param {BinaryReader} reader
  */
 function M3ParserPixelAnimationReference(reader) {
     /** @member {number} */
@@ -19,7 +19,7 @@ function M3ParserPixelAnimationReference(reader) {
 
 /**
  * @constructor
- * @param {M3ParserBinaryReader} reader
+ * @param {BinaryReader} reader
  */
 function M3ParserUint16AnimationReference(reader) {
     /** @member {number} */
@@ -38,7 +38,7 @@ function M3ParserUint16AnimationReference(reader) {
 
 /**
  * @constructor
- * @param {M3ParserBinaryReader} reader
+ * @param {BinaryReader} reader
  */
 function M3ParserUint32AnimationReference(reader) {
     /** @member {number} */
@@ -57,7 +57,7 @@ function M3ParserUint32AnimationReference(reader) {
 
 /**
  * @constructor
- * @param {M3ParserBinaryReader} reader
+ * @param {BinaryReader} reader
  */
 function M3ParserFloat32AnimationReference(reader) {
     /** @member {number} */
@@ -76,7 +76,7 @@ function M3ParserFloat32AnimationReference(reader) {
 
 /**
  * @constructor
- * @param {M3ParserBinaryReader} reader
+ * @param {BinaryReader} reader
  */
 function M3ParserVector2AnimationReference(reader) {
     /** @member {number} */
@@ -95,7 +95,7 @@ function M3ParserVector2AnimationReference(reader) {
 
 /**
  * @constructor
- * @param {M3ParserBinaryReader} reader
+ * @param {BinaryReader} reader
  */
 function M3ParserVector3AnimationReference(reader) {
     /** @member {number} */
@@ -114,7 +114,7 @@ function M3ParserVector3AnimationReference(reader) {
 
 /**
  * @constructor
- * @param {M3ParserBinaryReader} reader
+ * @param {BinaryReader} reader
  */
 function M3ParserVector4AnimationReference(reader) {
     /** @member {number} */

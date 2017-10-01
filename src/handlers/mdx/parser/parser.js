@@ -1,4 +1,4 @@
-import MdxParserBinaryReader from "./binaryreader";
+import BinaryReader from "../../../binaryreader";
 import MdxParserUnsupportedChunk from "./unsupportedchunk";
 import MdxParserVersionChunk from "./versionchunk";
 import MdxParserModelChunk from "./modelchunk";
@@ -34,7 +34,7 @@ let tagToFunc = {
  * @param {ArrayBuffer} src
  */
 function MdxParser(src) {
-    let reader = new MdxParserBinaryReader(src);
+    let reader = new BinaryReader(src);
 
     /** @member {Map<string, ?>} */
     this.chunks = new Map();

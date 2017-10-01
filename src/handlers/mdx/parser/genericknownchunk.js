@@ -1,3 +1,4 @@
+import { readKnownElements } from "./common";
 import MdxParserSequence from "./sequence";
 import MdxParserGlobalSequence from "./globalsequence";
 import MdxParserTexture from "./texture";
@@ -15,7 +16,7 @@ let tagToChunk = {
 
 /**
  * @constructor
- * @param {MdxParserBinaryReader} reader
+ * @param {BinaryReader} reader
  * @param {string} tag
  * @param {number} size
  * @param {Array<MdxParserNode>} nodes
@@ -24,7 +25,7 @@ function MdxParserGenericKnownChunk(reader, tag, size, nodes) {
     var tagInfo = tagToChunk[tag];
 
     /** @member {Array<?>} */
-    this.elements = reader.readKnownElements(size / tagInfo[1], tagInfo[0]);
+    this.elements = readKnownElements(reader, size / tagInfo[1], tagInfo[0]);
 }
 
 export default MdxParserGenericKnownChunk;

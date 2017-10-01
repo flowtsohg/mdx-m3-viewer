@@ -2,7 +2,7 @@ import M3ParserReference from "./reference";
 
 /**
  * @constructor
- * @param {M3ParserBinaryReader} reader
+ * @param {BinaryReader} reader
  * @param {number} version
  * @param {Array<M3ParserIndexEntry>} index
  */

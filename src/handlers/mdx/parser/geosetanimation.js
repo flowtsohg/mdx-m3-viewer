@@ -2,7 +2,7 @@ import MdxParserSDContainer from "./sd";
 
 /**
  * @constructor
- * @param {MdxParserBinaryReader} reader
+ * @param {BinaryReader} reader
  * @param {Array<MdxParserNode>} nodes
  * @param {number} index
  */

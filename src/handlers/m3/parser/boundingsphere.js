@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @param {M3ParserBinaryReader} reader
+ * @param {BinaryReader} reader
  */
 function M3ParserBoundingSphere(reader) {
     /** @member {Float32Array} */

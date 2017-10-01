@@ -156,11 +156,11 @@ Scene.prototype = {
                     isCulled = instance.culled;
 
                 // Handle culling.
-                //if (isVisible && isCulled) {
-                //    instance.uncull();
-                //} else if (!isVisible && !isCulled) {
-                //    instance.cull();
-                //}
+                if (isVisible && isCulled) {
+                    instance.uncull();
+                } else if (!isVisible && !isCulled) {
+                    instance.cull();
+                }
 
                 if (!instance.paused) {
                     // Update animation timers.

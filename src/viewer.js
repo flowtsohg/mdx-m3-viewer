@@ -101,7 +101,7 @@ function ModelViewer(canvas) {
 
 ModelViewer.prototype = {
     /**
-     * Get the version string of the viewer - "<major>.<minor>.<commit>".
+     * Get the version string of the viewer - "<major>.<minor>.<patch>".
      *
      * @returns {string}
      */

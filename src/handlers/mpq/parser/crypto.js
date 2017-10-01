@@ -1,7 +1,7 @@
 /**
  * @constructor
  */
-function MpqCrypto() {
+function MpqParserCrypto() {
     let cryptTable = new Uint32Array(0x500),
             seed = 0x00100001,
             temp1,
@@ -23,7 +23,7 @@ function MpqCrypto() {
     this.cryptTable = cryptTable;
 }
 
-MpqCrypto.prototype = {
+MpqParserCrypto.prototype = {
     hash(name, hashType) {
         let cryptTable = this.cryptTable,
             seed1 = 0x7FED7FED,
@@ -82,4 +82,4 @@ MpqCrypto.prototype = {
     }
 };
 
-export default MpqCrypto;
+export default MpqParserCrypto;

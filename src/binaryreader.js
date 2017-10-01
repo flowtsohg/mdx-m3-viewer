@@ -152,6 +152,41 @@ BinaryReader.prototype = {
     },
 
     /**
+     * Peek a character array.
+     * 
+     * @param {number} size
+     * @returns {Array<string>}
+     */
+    peekCharArray(size) {
+        let uint8array = this.byteArray,
+            index = this.index,
+            data = [];
+
+        for (let i = 0; i < size; i++) {
+            data[i] = String.fromCharCode(uint8array[index + i]);
+        }
+
+        return data;
+    },
+
+    /**
+     * Read a character array.
+     * 
+     * @param {number} size
+     * @returns {Array<string>}
+     */
+    readCharArray(size) {
+        // If the size isn't specified, default to everything
+        size = size || (this.byteLength - this.index);
+
+        let data = this.peekCharArray(size);
+
+        this.index += size;
+
+        return data;
+    },
+
+    /**
      * Read a 8 bit signed integer
      * 
      * @returns {number}

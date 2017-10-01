@@ -1,3 +1,4 @@
+import { readUnknownElements } from "./common";
 import { MdxParserUintTrack, MdxParserFloatTrack, MdxParserVector3Track, MdxParserVector4Track } from "./track";
 
 // Mapping from track tags to their type and default value
@@ -58,7 +59,7 @@ let tagToTrack = {
 
 /**
  * @constructor
- * @param {MdxParserBinaryReader} reader
+ * @param {BinaryReader} reader
  */
 function MdxParserSD(reader) {
     var tag = reader.read(4),
@@ -91,12 +92,12 @@ function MdxParserSD(reader) {
 
 /**
  * @constructor
- * @param {MdxParserBinaryReader} reader
+ * @param {BinaryReader} reader
  * @param {number} size
  */
 function MdxParserSDContainer(reader, size) {
     /** @member {Array<MdxParserSD>} */
-    this.elements = reader.readUnknownElements(size, MdxParserSD);
+    this.elements = readUnknownElements(reader, size, MdxParserSD);
 }
 
 export default MdxParserSDContainer;

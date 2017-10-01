@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @param {MdxParserBinaryReader} reader
+ * @param {BinaryReader} reader
  */
 function MdxParserExtent(reader) {
     /** @member {number} */

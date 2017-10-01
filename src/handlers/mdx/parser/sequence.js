@@ -2,7 +2,7 @@ import MdxParserExtent from "./extent";
 
 /**
  * @constructor
- * @param {MdxParserBinaryReader} reader
+ * @param {BinaryReader} reader
  * @param {number} index
  */
 function MdxParserSequence(reader, index) {

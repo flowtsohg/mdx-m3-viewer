@@ -1,8 +1,9 @@
+import { readNode } from "./common";
 import MdxParserSDContainer from "./sd";
 
 /**
  * @constructor
- * @param {MdxParserBinaryReader} reader
+ * @param {BinaryReader} reader
  * @param {Array<MdxParserNode>} nodes
  * @param {number} index
  */
@@ -11,7 +12,7 @@ function MdxParserLight(reader, nodes, index) {
     /** @member {number} */
     this.size = reader.readUint32();
     /** @member {MdxParserNode} */
-    this.node = reader.readNode(nodes, this);
+    this.node = readNode(reader, nodes, this);
     /** @member {number} */
     this.type = reader.readUint32();
     /** @member {Float32Array} */

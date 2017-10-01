@@ -1,5 +1,5 @@
 import { inflate } from "pako";
-import BinaryReader from "../../binaryreader";
+import BinaryReader from "../../../binaryreader";
 
 let HASH_FILE_KEY = 3,
     FILE_COMPRESSED = 0x00000200,
@@ -11,21 +11,20 @@ let HASH_FILE_KEY = 3,
 
 /**
  * @constructor
- * @memberOf Mpq
- * @param {MpqArchive} archive The archive that owns this file
- * @param {MpqBlockTableEntry} block This file's block
+ * @param {MpqParserArchive} archive The archive that owns this file
+ * @param {MpqParserBlockTableEntry} block This file's block
  * @param {string} name This file's name
  */
-function MpqFile(archive, block, name) {
-    /** @member {MpqArchive} */
+function MpqParserFile(archive, block, name) {
+    /** @member {MpqParserArchive} */
     this.archive = archive;
-    /** @member {MpqBlockTableEntry} */
+    /** @member {MpqParserBlockTableEntry} */
     this.block = block;
     /** @member {string} */
     this.name = name;
     /** @member {number} */
     this.sectorCount = Math.ceil(block.normalSize / archive.sectorSize);
-    /** @member {MpqCrypto} */
+    /** @member {MpqParserCrypto} */
     this.c = archive.c;
     /** @member {number} */
     this.encryptionKey = 0;
@@ -49,7 +48,7 @@ function MpqFile(archive, block, name) {
     this.decode();
 }
 
-MpqFile.prototype = {
+MpqParserFile.prototype = {
     decode() {
         let archive = this.archive,
             block = this.block,
@@ -170,4 +169,4 @@ MpqFile.prototype = {
     }
 };
 
-export default MpqFile;
+export default MpqParserFile;

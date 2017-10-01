@@ -2,7 +2,7 @@ import MdxParserExtent from "./extent";
 
 /**
  * @constructor
- * @param {MdxParserBinaryReader} reader
+ * @param {BinaryReader} reader
  * @param {string} tag
  * @param {number} size
  * @param {Array<MdxParserNode>} nodes

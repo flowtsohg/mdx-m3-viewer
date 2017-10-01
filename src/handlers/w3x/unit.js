@@ -12,6 +12,9 @@ function W3xUnit(map, unit) {
     var id = unit.id;
     var variation = unit.variation;
 
+    this.id = id;
+    this.customId = "";
+    this.variation = variation;
     this.location = unit.location;
     this.angle = unit.angle;
     this.scale = unit.scale;
@@ -21,9 +24,7 @@ function W3xUnit(map, unit) {
     var row = map.fileCache.get("unitdata").getRow(id) || map.fileCache.get("itemdata").getRow(id);
     if (row) {
         var path;
-        if (id === "nC15") {
-            console.log(row)
-        }
+
         // Items have a file field, units don't...
         if (row.file) {
             path = row.file.replace(".mdl", ".mdx");
@@ -34,18 +35,23 @@ function W3xUnit(map, unit) {
         } else {
             this.location[2] += row.moveHeight;
 
-            if (!row.customRow) {
-                row = map.fileCache.get("unitui").map[id];
+            let uiRow;
 
-                if (!row) {
-                    console.log("Unknown unit ID", id);
-                    return;
-                }
+            if (row.customRow) {
+                uiRow = map.fileCache.get("unitui").getRow(row.ID);
+            } else {
+                uiRow = map.fileCache.get("unitui").getRow(id);
+            }
+            
+
+            if (!uiRow) {
+                console.log("Unknown unit ID", id);
+                return;
             }
 
-            path = row.file + ".mdx";
+            path = uiRow.file + ".mdx";
 
-            vec3.scale(this.scale, this.scale, row.modelScale);
+            vec3.scale(this.scale, this.scale, uiRow.modelScale);
         }
 
         this.path = path;

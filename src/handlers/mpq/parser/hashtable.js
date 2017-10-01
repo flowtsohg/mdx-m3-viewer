@@ -1,4 +1,4 @@
-import BinaryReader from "../../binaryreader";
+import BinaryReader from "../../../binaryreader";
 
 let HASH_TABLE_KEY = 0xC3AF3770,
     HASH_TABLE_INDEX = 0,
@@ -9,7 +9,7 @@ let HASH_TABLE_KEY = 0xC3AF3770,
  * @constructor
  * @param {BinaryReader} reader
  */
-function MpqHashTableEntry(reader) {
+function MpqParserHashTableEntry(reader) {
     this.name1 = reader.readUint32();
     this.name2 = reader.readUint32();
     this.locale = reader.readUint16();
@@ -20,21 +20,21 @@ function MpqHashTableEntry(reader) {
 /**
  * @constructor
  * @param {ArrayBuffer} buffer
- * @param {MpqCrypto} c
+ * @param {MpqParserCrypto} c
  */
-function MpqHashTable(buffer, c) {
+function MpqParserHashTable(buffer, c) {
     this.hashSize = buffer.byteLength / 16;
     this.c = c;
     this.prepareEntries(c.decryptBlock(buffer, HASH_TABLE_KEY));
 }
 
-MpqHashTable.prototype = {
+MpqParserHashTable.prototype = {
     prepareEntries(buffer) {
         let entries = [],
             reader = new BinaryReader(buffer);
 
         for (let i = 0, l = this.hashSize; i < l; i++) {
-            entries.push(new MpqHashTableEntry(reader));
+            entries.push(new MpqParserHashTableEntry(reader));
         }
 
         this.entries = entries;
@@ -62,4 +62,4 @@ MpqHashTable.prototype = {
     }
 };
 
-export default MpqHashTable;
+export default MpqParserHashTable;

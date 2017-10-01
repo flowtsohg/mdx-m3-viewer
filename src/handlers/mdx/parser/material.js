@@ -1,8 +1,9 @@
+import { readKnownElements } from "./common";
 import MdxParserLayer from "./layer";
 
 /**
  * @constructor
- * @param {MdxParserBinaryReader} reader
+ * @param {BinaryReader} reader
  * @param {Array<MdxParserNode>} nodes
  * @param {number} index
  */
@@ -18,7 +19,7 @@ function MdxParserMaterial(reader, nodes, index) {
     reader.skip(4); // LAYS
 
     /** @member {Array<MdxParserLayer>} */
-    this.layers = reader.readKnownElements(reader.readUint32(), MdxParserLayer);
+    this.layers = readKnownElements(reader, reader.readUint32(), MdxParserLayer);
 }
 
 export default MdxParserMaterial;

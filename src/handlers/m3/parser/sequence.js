@@ -3,7 +3,7 @@ import M3ParserBoundingSphere from "./boundingsphere";
 
 /**
  * @constructor
- * @param {M3ParserBinaryReader} reader
+ * @param {BinaryReader} reader
  * @param {number} version
  * @param {Array<M3ParserIndexEntry>} index
  */

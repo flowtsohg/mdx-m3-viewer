@@ -1,5 +1,5 @@
 import BinaryReader from "../../../binaryreader";
-import MpqArchive from "../../mpq/archive";
+import MpqParserArchive from "../../mpq/parser/archive";
 import W3xParserEnvironment from "./environment";
 import W3xParserDoodads from "./doodads";
 import W3xParserUnits from "./units";
@@ -13,8 +13,7 @@ function W3xParser(src) {
     var reader = new BinaryReader(src);
 
     if (reader.read(4) !== "HM3W") {
-        this.onerror("InvalidSource", "WrongMagicNumber");
-        return false;
+        throw new Error("WrongMagicNumber");
     }
 
     reader.skip(4);
@@ -23,10 +22,7 @@ function W3xParser(src) {
     this.flags = reader.readInt32();
     this.maxPlayers = reader.readInt32();
 
-    let mpq = new MpqArchive();
-    mpq.initialize(src);
-
-    this.mpq = mpq;
+    this.mpq = new MpqParserArchive(src);
 
     this.modifications = new Map();
 

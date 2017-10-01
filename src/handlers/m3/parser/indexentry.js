@@ -88,7 +88,7 @@ let tagMapping = {
 
 /**
  * @constructor
- * @param {M3ParserBinaryReader} reader
+ * @param {BinaryReader} reader
  * @param {Array<M3ParserIndexEntry>} index
  */
 function M3ParserIndexEntry(reader, index) {

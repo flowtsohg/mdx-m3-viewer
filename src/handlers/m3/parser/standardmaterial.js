@@ -3,7 +3,7 @@ import { M3ParserFloat32AnimationReference, M3ParserUint32AnimationReference } f
 
 /**
  * @constructor
- * @param {M3ParserBinaryReader} reader
+ * @param {BinaryReader} reader
  * @param {number} version
  * @param {Array<M3ParserIndexEntry>} index
  */

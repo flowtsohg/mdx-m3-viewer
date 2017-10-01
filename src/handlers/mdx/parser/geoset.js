@@ -1,8 +1,9 @@
+import { readKnownElements } from "./common";
 import MdxParserExtent from "./extent";
 
 /**
  * @constructor
- * @param {MdxParserBinaryReader} reader
+ * @param {BinaryReader} reader
  * @param {Array<MdxParserNode>} nodes
  * @param {number} index
  */
@@ -60,7 +61,7 @@ function MdxParserGeoset(reader, nodes, index) {
     /** @member {MdxParserExtent} */
     this.extent = new MdxParserExtent(reader);
     /** @member {Array<MdxParserExtent>} */
-    this.extents = reader.readKnownElements(reader.readUint32(), MdxParserExtent);
+    this.extents = readKnownElements(reader, reader.readUint32(), MdxParserExtent);
 
     reader.skip(4); // UVAS
 

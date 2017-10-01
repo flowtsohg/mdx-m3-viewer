@@ -1,13 +1,15 @@
+import { readNode } from "./common";
+
 /**
  * @constructor
- * @param {MdxParserBinaryReader} reader
+ * @param {BinaryReader} reader
  * @param {Array<MdxParserNode>} nodes
  * @param {number} index
  */
 function MdxParserEventObject(reader, nodes, index) {
     this.index = index;
     /** @member {MdxParserNode} */
-    this.node = reader.readNode(nodes, this);
+    this.node = readNode(reader, nodes, this);
 
     reader.skip(4); // KEVT
 

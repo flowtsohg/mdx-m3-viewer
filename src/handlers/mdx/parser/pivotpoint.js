@@ -1,6 +1,6 @@
 /**
  * @constructor
- * @param {MdxParserBinaryReader} reader
+ * @param {BinaryReader} reader
  * @param {number} index
  */
 function MdxParserPivotPoint(reader, index) {
