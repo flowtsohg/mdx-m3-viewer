@@ -1,5 +1,5 @@
-import { readNode } from "./common";
-import MdxParserSDContainer from "./sd";
+import { readNode } from './common';
+import MdxParserSDContainer from './sd';
 
 /**
  * @constructor

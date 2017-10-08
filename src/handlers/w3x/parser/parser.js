@@ -1,9 +1,9 @@
-import BinaryReader from "../../../binaryreader";
-import MpqParserArchive from "../../mpq/parser/archive";
-import W3xParserEnvironment from "./environment";
-import W3xParserDoodads from "./doodads";
-import W3xParserUnits from "./units";
-import W3xParserModificationTables from "./modificationtables";
+import BinaryReader from '../../../binaryreader';
+import MpqArchive from '../../mpq/parser/archive';
+import W3xParserEnvironment from './environment';
+import W3xParserDoodads from './doodads';
+import W3xParserUnits from './units';
+import W3xParserModificationTables from './modificationtables';
 
 /**
  * @constructor
@@ -12,8 +12,8 @@ import W3xParserModificationTables from "./modificationtables";
 function W3xParser(src) {
     var reader = new BinaryReader(src);
 
-    if (reader.read(4) !== "HM3W") {
-        throw new Error("WrongMagicNumber");
+    if (reader.read(4) !== 'HM3W') {
+        throw new Error('WrongMagicNumber');
     }
 
     reader.skip(4);
@@ -22,7 +22,7 @@ function W3xParser(src) {
     this.flags = reader.readInt32();
     this.maxPlayers = reader.readInt32();
 
-    this.mpq = new MpqParserArchive(src);
+    this.mpq = new MpqArchive(src, true);
 
     this.modifications = new Map();
 
@@ -36,26 +36,26 @@ function W3xParser(src) {
 
 W3xParser.prototype = {
     readTerrain() {
-        let file = this.mpq.getFile("war3map.w3e");
+        let file = this.mpq.get('war3map.w3e');
 
         if (file) {
-            this.environment = new W3xParserEnvironment(new BinaryReader(file.buffer));
+            this.environment = new W3xParserEnvironment(new BinaryReader(file.arrayBuffer()));
         }
     },
 
     readDoodads() {
-        let file = this.mpq.getFile("war3map.doo");
+        let file = this.mpq.get('war3map.doo');
 
         if (file) {
-            this.doodads = new W3xParserDoodads(new BinaryReader(file.buffer));
+            this.doodads = new W3xParserDoodads(new BinaryReader(file.arrayBuffer()));
         }
     },
 
     readUnits() {
-        let file = this.mpq.getFile("war3mapUnits.doo");
+        let file = this.mpq.get('war3mapUnits.doo');
 
         if (file) {
-            this.units = new W3xParserUnits(new BinaryReader(file.buffer));
+            this.units = new W3xParserUnits(new BinaryReader(file.arrayBuffer()));
         }
     },
 
@@ -68,20 +68,20 @@ W3xParser.prototype = {
         //      w3a: yes (abilities)
         //      w3h: no (buffs)
         //      w3q: yes (upgrades)
-        this.readModificationTable("units", "war3map.w3u", false);
-        this.readModificationTable("items", "war3map.w3t", false);
-        this.readModificationTable("destructables", "war3map.w3b", false);
-        this.readModificationTable("doodads", "war3map.w3d", true);
-        this.readModificationTable("abilities", "war3map.w3a", true);
-        this.readModificationTable("buffs", "war3map.w3h", false);
-        this.readModificationTable("upgrades", "war3map.w3q", true);
+        this.readModificationTable('units', 'war3map.w3u', false);
+        this.readModificationTable('items', 'war3map.w3t', false);
+        this.readModificationTable('destructables', 'war3map.w3b', false);
+        this.readModificationTable('doodads', 'war3map.w3d', true);
+        this.readModificationTable('abilities', 'war3map.w3a', true);
+        this.readModificationTable('buffs', 'war3map.w3h', false);
+        this.readModificationTable('upgrades', 'war3map.w3q', true);
     },
 
     readModificationTable(type, path, useOptionalInts) {
-        let file = this.mpq.getFile(path);
+        let file = this.mpq.get(path);
 
         if (file) {
-            this.modifications.set(type, new W3xParserModificationTables(new BinaryReader(file.buffer), useOptionalInts));
+            this.modifications.set(type, new W3xParserModificationTables(new BinaryReader(file.arrayBuffer()), useOptionalInts));
         }
     }
 };

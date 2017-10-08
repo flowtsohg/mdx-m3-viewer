@@ -1,4 +1,4 @@
-import W3xParserTilePoint from "./tilepoint";
+import W3xParserTilePoint from './tilepoint';
 
 /**
  * @constructor

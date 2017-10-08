@@ -1,5 +1,5 @@
-import mix from "./mix";
-import ViewerNode from "./node";
+import mix from './mix';
+import ViewerNode from './node';
 
 /**
  * @constructor

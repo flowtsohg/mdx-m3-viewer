@@ -1,12 +1,12 @@
-import MdxEventObjectSpn from "./eventobjectspn";
-import MdxParticleEmitter from "./particleemitter";
+import MdxEventObjectSpn from './eventobjectspn';
+import MdxParticleEmitter from './particleemitter';
 
 /**
  * @constructor
  * @param {MdxModelEventObject} modelObject
  */
 function MdxEventObjectSpnEmitter(modelObject) {
-    this.type = "SPN";
+    this.type = 'SPN';
     this.modelObject = modelObject;
 
     this.active = [];

@@ -1,6 +1,6 @@
-import mix from "./mix";
-import AsyncResource from "./asyncresource";
-import NotifiedNode from "./notifiednode";
+import mix from './mix';
+import AsyncResource from './asyncresource';
+import NotifiedNode from './notifiednode';
 
 /**
  * @constructor
@@ -40,7 +40,7 @@ function ModelInstance(model) {
 
 ModelInstance.prototype = {
     get objectType() {
-        return "instance";
+        return 'instance';
     },
 
     /**
@@ -147,13 +147,13 @@ ModelInstance.prototype = {
                 this.modelView.setVisibility(this, true);
             }
 
-            this.dispatchEvent({ type: "load" });
-            this.dispatchEvent({ type: "loadend" });
+            this.dispatchEvent({ type: 'load' });
+            this.dispatchEvent({ type: 'loadend' });
         } else {
             this.error = true;
 
-            this.dispatchEvent({ type: "error", error: "InvalidModel" });
-            this.dispatchEvent({ type: "loadend" });
+            this.dispatchEvent({ type: 'error', error: 'InvalidModel' });
+            this.dispatchEvent({ type: 'loadend' });
         }
     },
 

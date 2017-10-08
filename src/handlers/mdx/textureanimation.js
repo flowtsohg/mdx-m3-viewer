@@ -1,5 +1,5 @@
-import { vec3, quat } from "gl-matrix";
-import MdxSdContainer from "./sd";
+import { vec3, quat } from 'gl-matrix';
+import MdxSdContainer from './sd';
 
 // Heap allocations needed for this module.
 let translationHeap = vec3.create(),
@@ -17,19 +17,19 @@ function MdxTextureAnimation(model, textureAnimation) {
 
 MdxTextureAnimation.prototype = {
     getTranslation(instance) {
-        return this.sd.getValue3(translationHeap, "KTAT", instance, vec3.ZERO);
+        return this.sd.getValue3(translationHeap, 'KTAT', instance, vec3.ZERO);
     },
 
     isTranslationVariant(sequence) {
-        return this.sd.isVariant("KTAT", sequence);
+        return this.sd.isVariant('KTAT', sequence);
     },
 
     getRotation(instance) {
-        return this.sd.getValue4(rotationHeap, "KTAR", instance, quat.DEFAULT);
+        return this.sd.getValue4(rotationHeap, 'KTAR', instance, quat.DEFAULT);
     },
 
     getScale(instance) {
-        return this.sd.getValue3(scaleHeap, "KTAS", instance, vec3.ONE);
+        return this.sd.getValue3(scaleHeap, 'KTAS', instance, vec3.ONE);
     }
 };
 

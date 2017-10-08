@@ -1,11 +1,11 @@
-import mix from "../../mix";
-import TextureHandler from "../../texturehandler";
-import BlpTexture from "./texture";
+import mix from '../../mix';
+import TextureHandler from '../../texturehandler';
+import BlpTexture from './texture';
 
 const Blp = {
     get extensions() {
         return [
-            [".blp", true]
+            ['.blp', true]
         ];
     },
 

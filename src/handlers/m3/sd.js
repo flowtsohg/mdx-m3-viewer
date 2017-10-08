@@ -1,5 +1,5 @@
-import { vec3 } from "gl-matrix";
-import Interpolator from "../../math/interpolator";
+import { vec3 } from 'gl-matrix';
+import Interpolator from '../../math/interpolator';
 
 /**
  * @constructor

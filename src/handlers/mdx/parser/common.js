@@ -1,4 +1,4 @@
-import MdxParserNode from "./node";
+import MdxParserNode from './node';
 
 /**
  * Read an array of elements using the given constructor.

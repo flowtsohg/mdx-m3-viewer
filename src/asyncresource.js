@@ -1,5 +1,5 @@
-import mix from "./mix";
-import EventDispatcher from "./eventdispatcher";
+import mix from './mix';
+import EventDispatcher from './eventdispatcher';
 
 /**
  * @constructor
@@ -19,7 +19,7 @@ function AsyncResource(env) {
 
 AsyncResource.prototype = {
     /**
-     * Similar to attaching an event listener to the "loadend" event, but handles the case where the resource already loaded, and the callback should still be called.
+     * Similar to attaching an event listener to the 'loadend' event, but handles the case where the resource already loaded, and the callback should still be called.
      * 
      * @param {function(AsyncResource)} callback The function to call.
      * @returns this
@@ -28,17 +28,14 @@ AsyncResource.prototype = {
         if (this.loaded || this.error) {
             callback(this);
         } else {
-            // Self removing listener
-            let listener = () => { this.removeEventListener("loadend", listener); callback(this); };
-
-            this.addEventListener("loadend", listener);
+            this.once('loadend', () => callback(this));
         }
 
         return this;
     },
 
     initialize(src) {
-        throw new Error("AsyncResource.initialize must be overriden!");
+        throw new Error('AsyncResource.initialize must be overriden!');
     },
 
     detach() {
@@ -50,7 +47,7 @@ AsyncResource.prototype = {
     },
 
     load() {
-        this.dispatchEvent({ type: "loadstart" });
+        this.dispatchEvent({ type: 'loadstart' });
     },
 
     onload(src) {
@@ -63,15 +60,15 @@ AsyncResource.prototype = {
     finalizeLoad() {
         this.loaded = true;
 
-        this.dispatchEvent({ type: "load" });
-        this.dispatchEvent({ type: "loadend" });
+        this.dispatchEvent({ type: 'load' });
+        this.dispatchEvent({ type: 'loadend' });
     },
 
-    onerror(error, extra) {
+    onerror(error, reason) {
         this.error = true;
 
-        this.dispatchEvent({ type: "error", error: error, extra: extra });
-        this.dispatchEvent({ type: "loadend" });
+        this.dispatchEvent({ type: 'error', error, reason });
+        this.dispatchEvent({ type: 'loadend' });
     }
 };
 

@@ -1,5 +1,5 @@
 module.exports = {
-    entry: "./src/exports.js",
+    entry: "./src/index.js",
     output: {
         filename: "viewer.min.js",
         library: "ModelViewer",

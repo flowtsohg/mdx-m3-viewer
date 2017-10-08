@@ -1,5 +1,5 @@
-import mix from "./mix";
-import ModelInstance from "./modelinstance";
+import mix from './mix';
+import ModelInstance from './modelinstance';
 
 /**
  * @constructor

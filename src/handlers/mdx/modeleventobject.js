@@ -1,5 +1,5 @@
-import { vec2 } from "gl-matrix";
-import MdxModelParticle2Emitter from "./modelparticle2emitter";
+import { vec2 } from 'gl-matrix';
+import MdxModelParticle2Emitter from './modelparticle2emitter';
 
 // Heap allocations needed for this module.
 let valueHeap = vec2.create();
@@ -17,8 +17,8 @@ function MdxModelEventObject(model, emitter) {
         id = name.substring(4);
 
     // Same thing
-    if (type === "FPT") {
-        type = "SPL";
+    if (type === 'FPT') {
+        type = 'SPL';
     }
 
     this.ready = false;
@@ -63,9 +63,9 @@ function MdxModelEventObject(model, emitter) {
 
 MdxModelEventObject.prototype = {
     typeToSlk: {
-        "SPN": "Splats/SpawnData.slk",
-        "SPL": "Splats/SplatData.slk",
-        "UBR": "Splats/UberSplatData.slk"
+        'SPN': 'Splats/SpawnData.slk',
+        'SPL': 'Splats/SplatData.slk',
+        'UBR': 'Splats/UberSplatData.slk'
     },
 
     initialize(row) {
@@ -73,14 +73,14 @@ MdxModelEventObject.prototype = {
             let type = this.type,
                 model = this.model;
 
-            if (type === "SPN") {
-                this.internalResource = model.env.load(row.Model.replace(".mdl", ".mdx"), model.pathSolver);
-            } else if (type === "SPL" || type === "UBR") {
-                this.internalResource = model.env.load("replaceabletextures/splats/" + row.file + ".blp", model.pathSolver);
+            if (type === 'SPN') {
+                this.internalResource = model.env.load(row.Model.replace('.mdl', '.mdx'), model.pathSolver);
+            } else if (type === 'SPL' || type === 'UBR') {
+                this.internalResource = model.env.load('replaceabletextures/splats/' + row.file + '.blp', model.pathSolver);
                 this.colors = [[row.StartR, row.StartG, row.StartB, row.StartA], [row.MiddleR, row.MiddleG, row.MiddleB, row.MiddleA], [row.EndR, row.EndG, row.EndB, row.EndA]];
                 this.scale = row.Scale;
 
-                if (type === "SPL") {
+                if (type === 'SPL') {
                     this.dimensions = [row.Columns, row.Rows];
                     this.intervals = [[row.UVLifespanStart, row.UVLifespanEnd, row.LifespanRepeat], [row.UVDecayStart, row.UVDecayEnd, row.DecayRepeat]];
                     this.intervalTimes = [row.Lifespan, row.Decay];

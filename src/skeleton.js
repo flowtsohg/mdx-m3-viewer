@@ -1,4 +1,4 @@
-import ViewerNode from "./node";
+import ViewerNode from './node';
 
 /**
  * @constructor

@@ -1,5 +1,5 @@
-import mix from "../../mix";
-import Model from "../../model";
+import mix from '../../mix';
+import Model from '../../model';
 
 /**
  * @constructor
@@ -19,16 +19,16 @@ ObjModel.prototype = {
     // Called when the model finishes loading.
     // src is either a string, or an ArrayBuffer, depending on the handler's binaryFormat getter (default to false, where src is a string).
     initialize(src) {
-        const lines = src.split("\n"),
+        const lines = src.split('\n'),
             vertices = [],
             faces = [];
 
         for (let i = 0, l = lines.length; i < l; i++) {
             // Strip comments
-            let line = lines[i].split("#")[0];
+            let line = lines[i].split('#')[0];
 
             // Skip empty lines
-            if (line !== "") {
+            if (line !== '') {
                 // Try to match a vertex: v <real> <real> <real>
                 let match = line.match(/v\s+([\d.\-+]+)\s+([\d.\-+]+)\s+([\d.\-+]+)/);
 
@@ -72,7 +72,7 @@ ObjModel.prototype = {
         let webgl = this.env.webgl,
             gl = this.env.gl,
             instancedArrays = webgl.extensions.instancedArrays,
-            shader = this.env.shaderMap.get("ObjShader"),
+            shader = this.env.shaderMap.get('ObjShader'),
             uniforms = shader.uniforms,
             attribs = shader.attribs,
             instances = bucket.instances;
@@ -80,20 +80,20 @@ ObjModel.prototype = {
 
         webgl.useShaderProgram(shader);
 
-        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, scene.camera.worldProjectionMatrix);
+        gl.uniformMatrix4fv(uniforms.get('u_mvp'), false, scene.camera.worldProjectionMatrix);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.vertexAttribPointer(attribs.get("a_position"), 3, gl.FLOAT, false, 12, 0);
+        gl.vertexAttribPointer(attribs.get('a_position'), 3, gl.FLOAT, false, 12, 0);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.faceBuffer);
 
         // Now let's render each instance.
         for (let i = 0, l = instances.length; i < l; i++) {
             // Use the color!
-            gl.uniform3fv(uniforms.get("u_color"), instances[i].color);
+            gl.uniform3fv(uniforms.get('u_color'), instances[i].color);
 
             // And send the instance's world matrix, so it can be moved
-            gl.uniformMatrix4fv(uniforms.get("u_transform"), false, instances[i].worldMatrix);
+            gl.uniformMatrix4fv(uniforms.get('u_transform'), false, instances[i].worldMatrix);
 
             gl.drawElements(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, 0);
         }

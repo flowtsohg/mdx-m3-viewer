@@ -1,5 +1,5 @@
-import mix from "../../mix";
-import Texture from "../../texture";
+import mix from '../../mix';
+import Texture from '../../texture';
 
 /**
  * @constructor

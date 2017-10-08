@@ -1,5 +1,5 @@
-import { vec3, quat } from "gl-matrix";
-import MdxSdContainer from "./sd";
+import { vec3, quat } from 'gl-matrix';
+import MdxSdContainer from './sd';
 
 // Heap allocations needed for this module.
 let translationHeap = vec3.create(),
@@ -73,27 +73,27 @@ function MdxNode(model, node, pivots) {
 
 MdxNode.prototype = {
     getTranslation(instance) {
-        return this.sd.getValue3(translationHeap, "KGTR", instance, vec3.ZERO);
+        return this.sd.getValue3(translationHeap, 'KGTR', instance, vec3.ZERO);
     },
 
     getRotation(instance) {
-        return this.sd.getValue4(rotationHeap, "KGRT", instance, quat.DEFAULT);
+        return this.sd.getValue4(rotationHeap, 'KGRT', instance, quat.DEFAULT);
     },
 
     getScale(instance) {
-        return this.sd.getValue3(scaleHeap, "KGSC", instance, vec3.ONE);
+        return this.sd.getValue3(scaleHeap, 'KGSC', instance, vec3.ONE);
     },
 
     isTranslationVariant(sequence) {
-        return this.sd.isVariant("KGTR", sequence);
+        return this.sd.isVariant('KGTR', sequence);
     },
 
     isRotationVariant(sequence) {
-        return this.sd.isVariant("KGRT", sequence);
+        return this.sd.isVariant('KGRT', sequence);
     },
 
     isScaleVariant(sequence) {
-        return this.sd.isVariant("KGSC", sequence);
+        return this.sd.isVariant('KGSC', sequence);
     }
 };
 

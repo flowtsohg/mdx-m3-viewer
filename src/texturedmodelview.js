@@ -1,5 +1,5 @@
-import mix from "./mix";
-import ModelView from "./modelview";
+import mix from './mix';
+import ModelView from './modelview';
 
 /**
  * @constructor

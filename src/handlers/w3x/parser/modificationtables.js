@@ -1,4 +1,4 @@
-import W3xParserModificationTable from "./modificationtable";
+import W3xParserModificationTable from './modificationtable';
 
 /**
  * @constructor

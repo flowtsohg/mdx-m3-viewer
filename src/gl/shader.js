@@ -23,9 +23,9 @@ function ShaderUnit(gl, src, type) {
         this.loaded = true;
     } else {
         let error = gl.getShaderInfoLog(id),
-            lines = src.split("\n");
+            lines = src.split('\n');
 
-        console.error("Shader unit failed to compile!");
+        console.error('Shader unit failed to compile!');
         console.error(error);
 
         let regex = /:(\d+):/g,
@@ -34,7 +34,7 @@ function ShaderUnit(gl, src, type) {
         while (lineNumber) {
             let integer = parseInt(lineNumber[1]);
 
-            console.error(integer + ": " + lines[integer - 1]);
+            console.error(integer + ': ' + lines[integer - 1]);
 
             lineNumber = regex.exec(error);
         }

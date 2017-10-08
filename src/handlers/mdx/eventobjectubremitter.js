@@ -1,14 +1,14 @@
-import ResizeableBuffer from "../../gl/resizeablebuffer";
-import MdxEventObjectUbr from "./eventobjectubr";
-import MdxParticleEmitter from "./particleemitter";
-import MdxParticle2Emitter from "./particle2emitter";
+import ResizeableBuffer from '../../gl/resizeablebuffer';
+import MdxEventObjectUbr from './eventobjectubr';
+import MdxParticleEmitter from './particleemitter';
+import MdxParticle2Emitter from './particle2emitter';
 
 /**
  * @constructor
  * @param {MdxModelEventObject} modelObject
  */
 function MdxEventObjectUbrEmitter(modelObject) {
-    this.type = "UBR";
+    this.type = 'UBR';
     this.modelObject = modelObject;
 
     this.active = [];

@@ -1,9 +1,9 @@
-import mix from "./mix";
-import Handler from "./handler";
+import mix from './mix';
+import Handler from './handler';
 
 let FileHandler = {
     get objectType() {
-        return "filehandler"
+        return 'filehandler'
     }
 };
 

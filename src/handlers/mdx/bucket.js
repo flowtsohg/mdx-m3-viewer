@@ -1,11 +1,11 @@
-import mix from "../../mix";
-import Bucket from "../../bucket";
-import MdxParticleEmitter from "./particleemitter";
-import MdxParticle2Emitter from "./particle2emitter";
-import MdxRibbonEmitter from "./ribbonemitter";
-import MdxEventObjectSpnEmitter from "./eventobjectspnemitter";
-import MdxEventObjectSplEmitter from "./eventobjectsplemitter";
-import MdxEventObjectUbrEmitter from "./eventobjectubremitter";
+import mix from '../../mix';
+import Bucket from '../../bucket';
+import MdxParticleEmitter from './particleemitter';
+import MdxParticle2Emitter from './particle2emitter';
+import MdxRibbonEmitter from './ribbonemitter';
+import MdxEventObjectSpnEmitter from './eventobjectspnemitter';
+import MdxEventObjectSplEmitter from './eventobjectsplemitter';
+import MdxEventObjectUbrEmitter from './eventobjectubremitter';
 
 /**
  * @constructor
@@ -126,11 +126,11 @@ function MdxBucket(modelView) {
         let object = objects[i],
             type = object.type;
 
-        if (type === "SPN") {
+        if (type === 'SPN') {
             this.eventObjectEmitters.push(new MdxEventObjectSpnEmitter(object));
-        } else if (type === "SPL") {
+        } else if (type === 'SPL') {
             this.eventObjectEmitters.push(new MdxEventObjectSplEmitter(object));
-        } else if (type === "UBR") {
+        } else if (type === 'UBR') {
             this.eventObjectEmitters.push(new MdxEventObjectUbrEmitter(object));
         }
     }
@@ -186,7 +186,7 @@ MdxBucket.prototype = {
             if (active > 0) {
                 let type = emitter.type;
 
-                if (type === "SPL" || type === "UBR") {
+                if (type === 'SPL' || type === 'UBR') {
                     calls += 1;
                     vertices += active * 6;
                     polygons += active * 2;

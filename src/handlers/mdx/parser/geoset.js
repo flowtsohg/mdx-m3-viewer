@@ -1,5 +1,5 @@
-import { readKnownElements } from "./common";
-import MdxParserExtent from "./extent";
+import { readKnownElements } from './common';
+import MdxParserExtent from './extent';
 
 /**
  * @constructor

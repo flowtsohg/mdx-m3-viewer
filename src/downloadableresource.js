@@ -1,6 +1,6 @@
-import mix from "./mix";
-import { get } from "./common";
-import AsyncResource from "./asyncresource";
+import mix from './mix';
+import { get } from './common';
+import AsyncResource from './asyncresource';
 
 /**
  * @constructor
@@ -20,7 +20,7 @@ function DownloadableResource(env, pathSolver, handler, extension) {
     /** @member {string} */
     this.extension = extension;
     /** @member {string} */
-    this.fetchUrl = "";
+    this.fetchUrl = '';
 }
 
 DownloadableResource.prototype = {
@@ -37,7 +37,7 @@ DownloadableResource.prototype = {
         AsyncResource.prototype.load.call(this);
 
         if (serverFetch) {
-            get(src, isBinary, (xhr) => this.onprogress(xhr)).then((xhr) => this.onload(xhr.response), (xhr) => this.onerror("HttpError", xhr));
+            get(src, isBinary, (xhr) => this.onprogress(xhr)).then((xhr) => this.onload(xhr.response), (xhr) => this.onerror('HttpError', xhr));
         } else {
             this.onload(src);
         }
@@ -46,7 +46,7 @@ DownloadableResource.prototype = {
     // Propagate native progress events.
     onprogress(e) {
         if (e.target.status === 200) {
-            this.dispatchEvent({ type: "progress", loaded: e.loaded, total: e.total, lengthComputable: e.lengthComputable });
+            this.dispatchEvent({ type: 'progress', loaded: e.loaded, total: e.total, lengthComputable: e.lengthComputable });
         }
     },
 };

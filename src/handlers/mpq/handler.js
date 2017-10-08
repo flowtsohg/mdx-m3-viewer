@@ -1,11 +1,11 @@
-import mix from "../../mix";
-import FileHandler from "../../filehandler";
-import MpqArchive from "./archive";
+import mix from '../../mix';
+import FileHandler from '../../filehandler';
+import MpqArchive from './archive';
 
 const Mpq = {
     get extensions() {
         return [
-            [".mpq", true]
+            ['.mpq', true]
         ];
     },
 

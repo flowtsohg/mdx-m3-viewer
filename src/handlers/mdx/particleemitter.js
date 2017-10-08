@@ -1,4 +1,4 @@
-import MdxParticle from "./particle";
+import MdxParticle from './particle';
 
 /**
  * @constructor
@@ -70,31 +70,31 @@ MdxParticleEmitter.prototype = {
     },
 
     getSpeed(instance) {
-        return this.modelObject.sd.getValue("KPES", instance, this.modelObject.speed);
+        return this.modelObject.sd.getValue('KPES', instance, this.modelObject.speed);
     },
 
     getLatitude(instance) {
-        return this.modelObject.sd.getValue("KPLTV", instance, this.modelObject.latitude);
+        return this.modelObject.sd.getValue('KPLTV', instance, this.modelObject.latitude);
     },
 
     getLongitude(instance) {
-        return this.modelObject.sd.getValue("KPLN", instance, this.modelObject.longitude);
+        return this.modelObject.sd.getValue('KPLN', instance, this.modelObject.longitude);
     },
 
     getLifespan(instance) {
-        return this.modelObject.sd.getValue("KPEL", instance, this.modelObject.lifespan);
+        return this.modelObject.sd.getValue('KPEL', instance, this.modelObject.lifespan);
     },
 
     getGravity(instance) {
-        return this.modelObject.sd.getValue("KPEG", instance, this.modelObject.gravity);
+        return this.modelObject.sd.getValue('KPEG', instance, this.modelObject.gravity);
     },
 
     getEmissionRate(instance) {
-        return this.modelObject.sd.getValue("KPEE", instance, this.modelObject.emissionRate);
+        return this.modelObject.sd.getValue('KPEE', instance, this.modelObject.emissionRate);
     },
 
     getVisibility(instance) {
-        return this.modelObject.sd.getValue("KPEV", instance, 1);
+        return this.modelObject.sd.getValue('KPEV', instance, 1);
     }
 };
 

@@ -1,4 +1,4 @@
-import { vec3, quat } from "gl-matrix";
+import { vec3, quat } from 'gl-matrix';
 
 /**
  * @constructor

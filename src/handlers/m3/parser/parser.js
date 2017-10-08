@@ -1,6 +1,6 @@
-import BinaryReader from "../../../binaryreader";
-import M3ParserMd34 from "./md34";
-import M3ParserIndexEntry from "./indexentry";
+import BinaryReader from '../../../binaryreader';
+import M3ParserMd34 from './md34';
+import M3ParserIndexEntry from './indexentry';
 
 /**
  * @constructor
@@ -15,7 +15,7 @@ function M3Parser(src) {
     /** @member {?M3ParserModel} */
     this.model = null;
 
-    if (header.tag === "MD34") {
+    if (header.tag === 'MD34') {
         reader.seek(header.offset);
 
         // Read the index entries
@@ -25,7 +25,7 @@ function M3Parser(src) {
 
         this.model = this.entries[header.model.id].entries[0];
     } else {
-        throw new Error("WrongMagicNumber");
+        throw new Error('WrongMagicNumber');
     }
 }
 

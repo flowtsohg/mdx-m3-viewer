@@ -1,4 +1,4 @@
-import MdxParserExtent from "./extent";
+import MdxParserExtent from './extent';
 
 /**
  * @constructor

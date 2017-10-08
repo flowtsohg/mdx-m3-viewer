@@ -6,7 +6,7 @@
  */
 function BinaryReader(buffer, byteOffset, byteLength) {
     if (!(buffer instanceof ArrayBuffer)) {
-        throw new TypeError("BinaryReader: expected ArrayBuffer, got " + buffer);
+        throw new TypeError(`BinaryReader: expected ArrayBuffer, got ${buffer}`);
     }
 
     // Note: These four lines exist just for Firefox, since, at the time of writing, its implementation fails ECMAScript 2015 section 22.2.1.5 step 13.
@@ -84,7 +84,7 @@ BinaryReader.prototype = {
     peek(size) {
         let uint8array = this.byteArray,
             index = this.index,
-            data = "";
+            data = '';
 
         for (let i = 0; i < size; i++) {
             let b = uint8array[index + i];
@@ -123,7 +123,7 @@ BinaryReader.prototype = {
     peekUntilNull() {
         let byteArray = this.byteArray,
             index = this.index,
-            data = "",
+            data = '',
             b = byteArray[index],
             i = 0;
 
@@ -176,9 +176,6 @@ BinaryReader.prototype = {
      * @returns {Array<string>}
      */
     readCharArray(size) {
-        // If the size isn't specified, default to everything
-        size = size || (this.byteLength - this.index);
-
         let data = this.peekCharArray(size);
 
         this.index += size;

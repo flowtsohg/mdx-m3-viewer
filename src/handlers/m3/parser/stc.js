@@ -1,4 +1,4 @@
-import M3ParserReference from "./reference";
+import M3ParserReference from './reference';
 
 /**
  * @constructor

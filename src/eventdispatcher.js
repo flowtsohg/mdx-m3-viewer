@@ -25,7 +25,7 @@ EventDispatcher.prototype = {
 
         return this;
     },
-    
+
     /**
      * Remove an existing event listener.
      * 
@@ -47,6 +47,21 @@ EventDispatcher.prototype = {
         return this;
     },
     
+    /**
+     * Add a new event listener that removes itself before running.
+     * 
+     * @param {string} type The event type.
+     * @param {function(Event)} listener The event listener to add.
+     * @returns this
+     */
+    once(type, listener) {
+        let wrapper = (event) => { this.removeEventListener(type, wrapper); listener.call(this, event); };
+
+        this.addEventListener(type, wrapper);
+
+        return this;
+    },
+
     /**
      * Dispatch an event.
      * 
@@ -74,5 +89,20 @@ EventDispatcher.prototype = {
         return this;
     }
 };
+
+/**
+ * @alias EventDispatcher.prototype.addEventListener
+ */
+EventDispatcher.prototype.on = EventDispatcher.prototype.addEventListener;
+
+/**
+ * @alias EventDispatcher.prototype.removeEventListener
+ */
+EventDispatcher.prototype.off = EventDispatcher.prototype.removeEventListener;
+
+/**
+ * @alias EventDispatcher.prototype.dispatchEvent
+ */
+EventDispatcher.prototype.emit = EventDispatcher.prototype.dispatchEvent;
 
 export default EventDispatcher;

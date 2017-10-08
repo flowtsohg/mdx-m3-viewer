@@ -6,7 +6,7 @@
  */
 function BitBuffer(buffer, byteOffset, byteLength) {
     if (!(buffer instanceof ArrayBuffer)) {
-        throw new TypeError("BitBuffer: expected ArrayBuffer, got " + buffer);
+        throw new TypeError('BitBuffer: expected ArrayBuffer, got ' + buffer);
     }
 
     // Note: These four lines exist just for Firefox, since, at the time of writing, its implementation fails ECMAScript 2015 section 22.2.1.5 step 13.

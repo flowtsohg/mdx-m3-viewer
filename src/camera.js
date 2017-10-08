@@ -1,8 +1,8 @@
-import { vec3, vec4, quat, mat4 } from "gl-matrix";
-import mix from "./mix";
-import Frustum from "./frustum";
-import NotifiedNode from "./notifiednode";
-import ViewerNode from "./node";
+import { vec3, vec4, quat, mat4 } from 'gl-matrix';
+import mix from './mix';
+import Frustum from './frustum';
+import NotifiedNode from './notifiednode';
+import ViewerNode from './node';
 
 let vectorHeap = vec3.create(),
     vectorHeap2 = vec3.create(),

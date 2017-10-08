@@ -1,5 +1,5 @@
-import { hashFromString, createTextureAtlas } from "../../common";
-import MdxSdContainer from "./sd";
+import { hashFromString, createTextureAtlas } from '../../common';
+import MdxSdContainer from './sd';
 
 /**
  * @constructor
@@ -133,7 +133,7 @@ MdxLayer.prototype = {
     bind(shader) {
         let gl = this.model.env.gl;
 
-        gl.uniform1f(shader.uniforms.get("u_alphaTest"), this.alphaTestValue);
+        gl.uniform1f(shader.uniforms.get('u_alphaTest'), this.alphaTestValue);
 
         if (this.blended) {
             gl.enable(gl.BLEND);
@@ -163,11 +163,11 @@ MdxLayer.prototype = {
 
     setupVaryingTextures(model) {
         // Get all unique texture IDs used by this layer
-        var textureIds = this.sd.getValues("KMTF").unique();
+        var textureIds = this.sd.getValues('KMTF').unique();
 
         if (textureIds.length > 1) {
             let env = model.env,
-                hash = hashFromString(textureIds.join("")),
+                hash = hashFromString(textureIds.join('')),
                 textures = [];
 
             // Grab all of the textures
@@ -214,20 +214,20 @@ MdxLayer.prototype = {
     },
 
     getAlpha(instance) {
-        return this.sd.getValue("KMTA", instance, this.alpha);
+        return this.sd.getValue('KMTA', instance, this.alpha);
     },
 
     isAlphaVariant(sequence) {
-        return this.sd.isVariant("KMTA", sequence);
+        return this.sd.isVariant('KMTA', sequence);
     },
 
     getTextureId(instance) {
-        return this.sd.getValue("KMTF", instance, this.textureId);
+        return this.sd.getValue('KMTF', instance, this.textureId);
         // TODO: map the returned slot to a texture atlas slot if one exists.
     },
 
     isTextureIdVariant(sequence) {
-        return this.sd.isVariant("KMTF", sequence);
+        return this.sd.isVariant('KMTF', sequence);
     },
 
     isTranslationVariant(sequence) {

@@ -1,5 +1,5 @@
-import { vec3 } from "gl-matrix";
-import MdxSdContainer from "./sd";
+import { vec3 } from 'gl-matrix';
+import MdxSdContainer from './sd';
 
 // Heap allocations needed for this module.
 let positionHeap = vec3.create(),
@@ -22,15 +22,15 @@ function MdxCamera(model, camera) {
 
 MdxCamera.prototype = {
     getPositionTranslation(instance) {
-        return this.sd.getValue3(positionHeap, "KCTR", instance, this.position);
+        return this.sd.getValue3(positionHeap, 'KCTR', instance, this.position);
     },
 
     getTargetTranslation(instance) {
-        return this.sd.getValue3(targetPositionHeap, "KTTR", instance, this.targetPosition);
+        return this.sd.getValue3(targetPositionHeap, 'KTTR', instance, this.targetPosition);
     },
 
     getRotation(instance) {
-        return this.sd.getValue("KCRL", instance, 0);
+        return this.sd.getValue('KCRL', instance, 0);
     }
 };
 

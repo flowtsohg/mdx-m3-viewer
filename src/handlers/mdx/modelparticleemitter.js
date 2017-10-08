@@ -1,4 +1,4 @@
-import MdxSdContainer from "./sd";
+import MdxSdContainer from './sd';
 
 /**
  * @constructor
@@ -8,7 +8,7 @@ import MdxSdContainer from "./sd";
 function MdxModelParticleEmitter(model, emitter) {
     this.model = model;
     this.emitter = emitter;
-    this.internalResource = model.env.load(emitter.path.replace(/\\/g, "/").toLowerCase().replace(".mdl", ".mdx"), model.pathSolver);
+    this.internalResource = model.env.load(emitter.path.replace(/\\/g, '/').toLowerCase().replace('.mdl', '.mdx'), model.pathSolver);
     this.node = model.nodes[emitter.node.index];
     this.sd = new MdxSdContainer(model, emitter.tracks);
     this.speed = emitter.speed;

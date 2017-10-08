@@ -1,4 +1,4 @@
-import M3Layer from "./layer";
+import M3Layer from './layer';
 
 /**
  * @constructor
@@ -9,7 +9,7 @@ function M3StandardMaterial(model, material) {
     this.model = model;
     this.gl = model.env.gl;
 
-    this.name = material.name.getAll().join("");
+    this.name = material.name.getAll().join('');
     this.flags = material.flags;
     this.blendMode = material.blendMode;
     this.priority = material.priority;
@@ -22,20 +22,20 @@ function M3StandardMaterial(model, material) {
     this.doubleSided = material.flags & 0x8;
 
     this.layers = [
-        new M3Layer(this, material.diffuseLayer, "diffuse", 2),
-        new M3Layer(this, material.decalLayer, "decal", 2),
-        new M3Layer(this, material.specularLayer, "specular", 2),
-        new M3Layer(this, material.glossLayer, "gloss", 2),
-        new M3Layer(this, material.emissiveLayer, "emissive", material.emisBlendType),
-        new M3Layer(this, material.emissive2Layer, "emissive2", material.emisMode),
-        new M3Layer(this, material.evioLayer, "evio", 2),
-        new M3Layer(this, material.evioMaskLayer, "evioMask", 2),
-        new M3Layer(this, material.alphaMaskLayer, "alphaMask", 2),
-        new M3Layer(this, material.alphaMask2Layer, "alphaMask2", 2),
-        new M3Layer(this, material.normalLayer, "normal", 2),
-        new M3Layer(this, material.heightLayer, "heightMap", 2),
-        new M3Layer(this, material.lightMapLayer, "lightMap", 2),
-        new M3Layer(this, material.ambientOcclusionLayer, "ao", 2)
+        new M3Layer(this, material.diffuseLayer, 'diffuse', 2),
+        new M3Layer(this, material.decalLayer, 'decal', 2),
+        new M3Layer(this, material.specularLayer, 'specular', 2),
+        new M3Layer(this, material.glossLayer, 'gloss', 2),
+        new M3Layer(this, material.emissiveLayer, 'emissive', material.emisBlendType),
+        new M3Layer(this, material.emissive2Layer, 'emissive2', material.emisMode),
+        new M3Layer(this, material.evioLayer, 'evio', 2),
+        new M3Layer(this, material.evioMaskLayer, 'evioMask', 2),
+        new M3Layer(this, material.alphaMaskLayer, 'alphaMask', 2),
+        new M3Layer(this, material.alphaMask2Layer, 'alphaMask2', 2),
+        new M3Layer(this, material.normalLayer, 'normal', 2),
+        new M3Layer(this, material.heightLayer, 'heightMap', 2),
+        new M3Layer(this, material.lightMapLayer, 'lightMap', 2),
+        new M3Layer(this, material.ambientOcclusionLayer, 'ao', 2)
     ];
 }
 
@@ -70,10 +70,10 @@ M3StandardMaterial.prototype = {
 
         this.bindCommon();
 
-        gl.uniform1f(shader.uniforms.get("u_specularity"), this.specularity);
-        gl.uniform1f(shader.uniforms.get("u_specMult"), this.specMult);
-        gl.uniform1f(shader.uniforms.get("u_emisMult"), this.emisMult);
-        gl.uniform4fv(shader.uniforms.get("u_lightAmbient"), [0.02, 0.02, 0.02, 0]);
+        gl.uniform1f(shader.uniforms.get('u_specularity'), this.specularity);
+        gl.uniform1f(shader.uniforms.get('u_specMult'), this.specMult);
+        gl.uniform1f(shader.uniforms.get('u_emisMult'), this.emisMult);
+        gl.uniform4fv(shader.uniforms.get('u_lightAmbient'), [0.02, 0.02, 0.02, 0]);
 
         const layers = this.layers;
 
@@ -114,8 +114,8 @@ M3StandardMaterial.prototype = {
 
         this.bindCommon();
 
-        gl.uniform1f(shader.uniforms.get("u_specularity"), this.specularity);
-        gl.uniform1f(shader.uniforms.get("u_specMult"), this.specMult);
+        gl.uniform1f(shader.uniforms.get('u_specularity'), this.specularity);
+        gl.uniform1f(shader.uniforms.get('u_specMult'), this.specMult);
 
         this.layers[2].bind(shader);
     },
@@ -129,7 +129,7 @@ M3StandardMaterial.prototype = {
     bindEmissive(shader) {
         this.bindCommon();
 
-        this.gl.uniform1f(shader.uniforms.get("u_emisMult"), this.emisMult);
+        this.gl.uniform1f(shader.uniforms.get('u_emisMult'), this.emisMult);
 
         this.layers[4].bind(shader);
         this.layers[5].bind(shader);

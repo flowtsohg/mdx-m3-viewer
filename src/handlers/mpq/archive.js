@@ -1,6 +1,6 @@
-import mix from "../../mix";
-import ViewerFile from "../../file";
-import MpqParserArchive from "./parser/archive";
+import mix from '../../mix';
+import ViewerFile from '../../file';
+import MpqParserArchive from './parser/archive';
 
 /**
  * @constructor
@@ -21,9 +21,9 @@ function MpqArchive(env, pathSolver, handler, extension) {
 MpqArchive.prototype = {
     initialize(src) {
         try {
-            this.archive = new MpqParserArchive(src);
+            this.archive = new MpqParserArchive(src, true);
         } catch (e) {
-            this.onerror("InvalidSource", e);
+            this.onerror('InvalidSource', e);
             return false;
         }
 
@@ -36,8 +36,8 @@ MpqArchive.prototype = {
      * @param {string} name The file name to check
      * @returns {boolean}
      */
-    hasFile(name) {
-        return this.archive.hasFile(name);
+    has(name) {
+        return this.archive.has(name);
     },
 
     /**
@@ -48,19 +48,8 @@ MpqArchive.prototype = {
      * @param {string} name The file name to get
      * @returns {MpqFile}
      */
-    getFile(name) {
-        return this.archive.getFile(name);
-    },
-
-    /**
-     * Get an array of strings, populated by all of the file names in this archive.
-     * This is done by checking the archive's listfile, which does not always exist.
-     * If there is no listfile, an empty array will be returned.
-     * 
-     * @returns {Array<string>}
-     */
-    getFileList() {
-        return this.archive.getFileList();
+    get(name) {
+        return this.archive.get(name);
     }
 };
 

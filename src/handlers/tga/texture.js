@@ -1,5 +1,5 @@
-import mix from "../../mix";
-import Texture from "../../texture";
+import mix from '../../mix';
+import Texture from '../../texture';
 
 /**
  * @constructor
@@ -21,7 +21,7 @@ TgaTexture.prototype = {
             imageType = dataView.getUint8(2);
 
         if (imageType !== 2) {
-            this.onerror("UnsupportedFeature", "ImageType");
+            this.onerror('UnsupportedFeature', 'ImageType');
             return false;
         }
 
@@ -31,7 +31,7 @@ TgaTexture.prototype = {
             imageDescriptor = dataView.getUint8(17);
 
         if (pixelDepth !== 32) {
-            this.onerror("UnsupportedFeature", "BPP");
+            this.onerror('UnsupportedFeature', 'BPP');
             return false;
         }
 

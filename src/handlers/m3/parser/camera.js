@@ -1,5 +1,5 @@
-import M3ParserReference from "./reference";
-import { M3ParserFloat32AnimationReference } from "./animationreference";
+import M3ParserReference from './reference';
+import { M3ParserFloat32AnimationReference } from './animationreference';
 
 /**
  * @constructor

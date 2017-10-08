@@ -1,5 +1,5 @@
 const MdxShaders = {
-    "vs_main": `
+    'vs_main': `
         uniform mat4 u_mvp;
         uniform vec2 u_uvScale;
         uniform vec3 u_teamColors[14];
@@ -61,7 +61,7 @@ const MdxShaders = {
         }
     `,
 
-    "ps_main": `
+    'ps_main': `
         uniform sampler2D u_texture;
         uniform bool u_alphaTest;
         uniform float u_colorMode;
@@ -115,7 +115,7 @@ const MdxShaders = {
         }
     `,
 
-    "vs_particles": `
+    'vs_particles': `
         uniform mat4 u_mvp;
         uniform vec2 u_dimensions;
         uniform bool u_isRibbonEmitter;
@@ -142,7 +142,7 @@ const MdxShaders = {
         }
     `,
 
-    "ps_particles": `
+    'ps_particles': `
         uniform sampler2D u_texture;
         uniform bool u_alphaTest;
         uniform bool u_isRibbonEmitter;

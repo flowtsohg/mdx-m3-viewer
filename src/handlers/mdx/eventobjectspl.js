@@ -1,5 +1,5 @@
-import { vec3, vec4 } from "gl-matrix";
-import { encodeFloat3 } from "../../common";
+import { vec3, vec4 } from 'gl-matrix';
+import { encodeFloat3 } from '../../common';
 
 /**
  * @constructor

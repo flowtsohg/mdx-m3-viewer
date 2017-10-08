@@ -7,7 +7,7 @@ function filterSequences(type, sequences) {
 
     for (var i = 0, l = sequences.length; i < l; i++) {
         var sequence = sequences[i],
-            name = sequence.name.split("-")[0].replace(/\d/g, "").trim().toLowerCase();
+            name = sequence.name.split('-')[0].replace(/\d/g, '').trim().toLowerCase();
 
         if (name === type) {
             filtered.push(sequence);
@@ -51,7 +51,7 @@ function standSequence(target) {
 
     if (target.model.sequences) {
         var sequences = target.model.sequences;
-        var standSequence = selectSequence("stand", sequences);
+        var standSequence = selectSequence('stand', sequences);
 
         if (standSequence) {
             target.setSequence(standSequence.index);

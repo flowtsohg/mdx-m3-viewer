@@ -1,5 +1,5 @@
-import { vec3 } from "gl-matrix";
-import MdxSdContainer from "./sd";
+import { vec3 } from 'gl-matrix';
+import MdxSdContainer from './sd';
 
 // Heap allocations needed for this module.
 let colorHeap = vec3.create();
@@ -19,15 +19,15 @@ function MdxGeosetAnimation(model, geosetAnimation) {
 MdxGeosetAnimation.prototype = {
     getAlpha(instance) {
         // The alpha variable doesn't seem to actually be used by the game?
-        return this.sd.getValue("KGAO", instance, 1);
+        return this.sd.getValue('KGAO', instance, 1);
     },
 
     isAlphaVariant(sequence) {
-        return this.sd.isVariant("KGAO", sequence);
+        return this.sd.isVariant('KGAO', sequence);
     },
 
     getColor(instance) {
-        let color = this.sd.getValue3(colorHeap, "KGAC", instance, this.color);
+        let color = this.sd.getValue3(colorHeap, 'KGAC', instance, this.color);
 
         // Some Blizzard models have values greater than 1, which messes things up.
         // Geoset animations are supposed to modulate colors, not intensify them.
@@ -39,7 +39,7 @@ MdxGeosetAnimation.prototype = {
     },
 
     isColorVariant(sequence) {
-        return this.sd.isVariant("KGAC", sequence);
+        return this.sd.isVariant('KGAC', sequence);
     }
 };
 

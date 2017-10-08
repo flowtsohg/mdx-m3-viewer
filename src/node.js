@@ -1,4 +1,4 @@
-import { vec3, quat, mat4 } from "gl-matrix"
+import { vec3, quat, mat4 } from 'gl-matrix'
 
 // Heap allocations needed for this module.
 let locationHeap = vec3.create(),
@@ -11,7 +11,7 @@ let locationHeap = vec3.create(),
  */
 function ViewerNode(buffer, offset) {
     if (!(buffer instanceof ArrayBuffer)) {
-        throw new TypeError("Node: expected ArrayBuffer, got " + buffer);
+        throw new TypeError('Node: expected ArrayBuffer, got ' + buffer);
     }
 
     /** @member {vec3} */

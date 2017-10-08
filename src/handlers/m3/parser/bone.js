@@ -1,5 +1,5 @@
-import M3ParserReference from "./reference";
-import { M3ParserUint32AnimationReference, M3ParserVector3AnimationReference, M3ParserVector4AnimationReference } from "./animationreference";
+import M3ParserReference from './reference';
+import { M3ParserUint32AnimationReference, M3ParserVector3AnimationReference, M3ParserVector4AnimationReference } from './animationreference';
 
 /**
  * @constructor

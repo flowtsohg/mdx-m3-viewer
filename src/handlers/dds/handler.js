@@ -1,11 +1,11 @@
-import mix from "../../mix";
-import TextureHandler from "../../texturehandler";
-import DdsTexture from "./texture";
+import mix from '../../mix';
+import TextureHandler from '../../texturehandler';
+import DdsTexture from './texture';
 
 const Dds = {
     get extensions() {
         return [
-            [".dds", true]
+            ['.dds', true]
         ];
     },
 

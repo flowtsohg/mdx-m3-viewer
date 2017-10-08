@@ -1,9 +1,9 @@
-import mix from "../../mix";
-import ModelHandler from "../../modelhandler";
-import GeometryModel from "./model";
-import GeometryModelView from "./modelview";
-import GeometryModelInstance from "./modelinstance";
-import GeometryBucket from "./bucket";
+import mix from '../../mix';
+import ModelHandler from '../../modelhandler';
+import GeometryModel from './model';
+import GeometryModelView from './modelview';
+import GeometryModelInstance from './modelinstance';
+import GeometryBucket from './bucket';
 
 const Geo = {
     initialize(env) {
@@ -59,14 +59,14 @@ const Geo = {
             return false;
         }
 
-        env.shaderMap.set("GeoStandardShader", shader);
+        env.shaderMap.set('GeoStandardShader', shader);
 
         return true;
     },
 
     get extensions() {
         return [
-            [".geo", false]
+            ['.geo', false]
         ];
     },
 
@@ -87,7 +87,7 @@ const Geo = {
     },
 
     pathSolver(src) {
-        return [src, ".geo", false];
+        return [src, '.geo', false];
     }
 };
 

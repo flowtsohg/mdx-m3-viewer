@@ -1,11 +1,11 @@
-import mix from "../../mix";
-import FileHandler from "../../filehandler";
-import SlkFile from "./file";
+import mix from '../../mix';
+import FileHandler from '../../filehandler';
+import SlkFile from './file';
 
 const Slk = {
     get extensions() {
         return [
-            [".slk", false]
+            ['.slk', false]
         ];
     },
 

@@ -1,16 +1,16 @@
-import mix from "../../mix";
-import TexturedModel from "../../texturedmodel";
-import M3 from "./handler";
-import M3Parser from "./parser/parser";
-import M3StandardMaterial from "./standardmaterial";
-import M3Bone from "./bone";
-import M3Sequence from "./sequence";
-import M3Sts from "./sts";
-import M3Stc from "./stc";
-import M3Stg from "./stg";
-import M3Attachment from "./attachment";
-import M3Camera from "./camera";
-import M3Region from "./region";
+import mix from '../../mix';
+import TexturedModel from '../../texturedmodel';
+import M3 from './handler';
+import M3Parser from './parser/parser';
+import M3StandardMaterial from './standardmaterial';
+import M3Bone from './bone';
+import M3Sequence from './sequence';
+import M3Sts from './sts';
+import M3Stc from './stc';
+import M3Stg from './stg';
+import M3Attachment from './attachment';
+import M3Camera from './camera';
+import M3Region from './region';
 
 /**
  * @constructor
@@ -25,7 +25,7 @@ function M3Model(env, pathSolver, handler, extension) {
     TexturedModel.call(this, env, pathSolver, handler, extension);
 
     this.parser = null;
-    this.name = "";
+    this.name = '';
     this.batches = [];
     this.materials = [[], []]; // 2D array for the possibility of adding more material types in the future
     this.materialMaps = [];
@@ -46,7 +46,7 @@ M3Model.prototype = {
         try {
             parser = new M3Parser(src);
         } catch (e) {
-            this.onerror("InvalidSource", e);
+            this.onerror('InvalidSource', e);
             return false;
         }
 
@@ -55,7 +55,7 @@ M3Model.prototype = {
         var div = model.divisions.get();
 
         this.parser = parser;
-        this.name = model.modelName.getAll().join("");
+        this.name = model.modelName.getAll().join('');
 
         this.setupGeometry(model, div); 
 
@@ -255,11 +255,11 @@ M3Model.prototype = {
     stg = stgs[i];
     name = stg.name.toLowerCase(); // Because obviously there will be a wrong case in some model...
 
-    if (name === "glbirth") {
+    if (name === 'glbirth') {
     glbirth = stg;
-    } else if (name === "glstand") {
+    } else if (name === 'glstand') {
     glstand = stg;
-    } else if (name === "gldeath") {
+    } else if (name === 'gldeath') {
     gldeath = stg;
     }
     }
@@ -268,10 +268,10 @@ M3Model.prototype = {
     stg = stgs[i];
     name = stg.name.toLowerCase(); // Because obviously there will be a wrong case in some model...
 
-    if (name !== "glbirth" && name !== "glstand" && name !== "gldeath") {
-    if (name.indexOf("birth") !== -1 && glbirth) {
+    if (name !== 'glbirth' && name !== 'glstand' && name !== 'gldeath') {
+    if (name.indexOf('birth') !== -1 && glbirth) {
     stg.stcIndices = stg.stcIndices.concat(glbirth.stcIndices);
-    } else  if (name.indexOf("death") !== -1 && gldeath) {
+    } else  if (name.indexOf('death') !== -1 && gldeath) {
     stg.stcIndices = stg.stcIndices.concat(gldeath.stcIndices);
     } else if (glstand) {
     stg.stcIndices = stg.stcIndices.concat(glstand.stcIndices);
@@ -298,32 +298,32 @@ M3Model.prototype = {
             uniforms = shader.uniforms;
 
         // Team colors
-        let teamColorAttrib = attribs.get("a_teamColor");
+        let teamColorAttrib = attribs.get('a_teamColor');
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.teamColorBuffer);
         gl.vertexAttribPointer(teamColorAttrib, 1, gl.UNSIGNED_BYTE, false, 1, 0);
         instancedArrays.vertexAttribDivisorANGLE(teamColorAttrib, 1);
 
         // Vertex colors
-        let vertexColorAttrib = attribs.get("a_vertexColor");
+        let vertexColorAttrib = attribs.get('a_vertexColor');
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.vertexColorBuffer);
         gl.vertexAttribPointer(vertexColorAttrib, 4, gl.UNSIGNED_BYTE, true, 4, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
         instancedArrays.vertexAttribDivisorANGLE(vertexColorAttrib, 1);
 
-        let instanceIdAttrib = attribs.get("a_InstanceID");
+        let instanceIdAttrib = attribs.get('a_InstanceID');
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);
         gl.vertexAttribPointer(instanceIdAttrib, 1, gl.UNSIGNED_SHORT, false, 2, 0);
         instancedArrays.vertexAttribDivisorANGLE(instanceIdAttrib, 1);
 
         gl.activeTexture(gl.TEXTURE15);
         gl.bindTexture(gl.TEXTURE_2D, bucket.boneTexture);
-        gl.uniform1i(uniforms.get("u_boneMap"), 15);
-        gl.uniform1f(uniforms.get("u_vectorSize"), bucket.vectorSize);
-        gl.uniform1f(uniforms.get("u_rowSize"), bucket.rowSize);
+        gl.uniform1i(uniforms.get('u_boneMap'), 15);
+        gl.uniform1f(uniforms.get('u_vectorSize'), bucket.vectorSize);
+        gl.uniform1f(uniforms.get('u_rowSize'), bucket.rowSize);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
-        gl.vertexAttribPointer(attribs.get("a_position"), 3, gl.FLOAT, false, vertexSize, 0);
-        gl.vertexAttribPointer(attribs.get("a_weights"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 12);
-        gl.vertexAttribPointer(attribs.get("a_bones"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 16);
+        gl.vertexAttribPointer(attribs.get('a_position'), 3, gl.FLOAT, false, vertexSize, 0);
+        gl.vertexAttribPointer(attribs.get('a_weights'), 4, gl.UNSIGNED_BYTE, false, vertexSize, 12);
+        gl.vertexAttribPointer(attribs.get('a_bones'), 4, gl.UNSIGNED_BYTE, false, vertexSize, 16);
     },
 
     bind(bucket, scene) {
@@ -334,7 +334,7 @@ M3Model.prototype = {
         var uvSetCount = this.uvSetCount;
 
         // HACK UNTIL I IMPLEMENT MULTIPLE SHADERS AGAIN
-        var shader = this.env.shaderMap.get("M3StandardShader" + (uvSetCount - 1));
+        var shader = this.env.shaderMap.get('M3StandardShader' + (uvSetCount - 1));
         webgl.useShaderProgram(shader);
         this.shader = shader;
 
@@ -344,23 +344,23 @@ M3Model.prototype = {
             attribs = shader.attribs,
             uniforms = shader.uniforms;
 
-        gl.vertexAttribPointer(attribs.get("a_normal"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 20);
+        gl.vertexAttribPointer(attribs.get('a_normal'), 4, gl.UNSIGNED_BYTE, false, vertexSize, 20);
 
         for (let i = 0; i < uvSetCount; i++) {
-            gl.vertexAttribPointer(attribs.get("a_uv" + i), 2, gl.SHORT, false, vertexSize, 24 + i * 4);
+            gl.vertexAttribPointer(attribs.get('a_uv' + i), 2, gl.SHORT, false, vertexSize, 24 + i * 4);
         }
 
-        gl.vertexAttribPointer(attribs.get("a_tangent"), 4, gl.UNSIGNED_BYTE, false, vertexSize, 24 + uvSetCount * 4);
+        gl.vertexAttribPointer(attribs.get('a_tangent'), 4, gl.UNSIGNED_BYTE, false, vertexSize, 24 + uvSetCount * 4);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
 
         let camera = scene.camera;
 
-        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, camera.worldProjectionMatrix);
-        gl.uniformMatrix4fv(uniforms.get("u_mv"), false, camera.worldMatrix);
+        gl.uniformMatrix4fv(uniforms.get('u_mvp'), false, camera.worldProjectionMatrix);
+        gl.uniformMatrix4fv(uniforms.get('u_mv'), false, camera.worldMatrix);
 
-        gl.uniform3fv(uniforms.get("u_eyePos"), camera.worldLocation);
-        gl.uniform3fv(uniforms.get("u_lightPos"), M3.lightPosition);
+        gl.uniform3fv(uniforms.get('u_eyePos'), camera.worldLocation);
+        gl.uniform3fv(uniforms.get('u_lightPos'), M3.lightPosition);
     },
     
     unbind() {
@@ -368,9 +368,9 @@ M3Model.prototype = {
             shader = this.shader,
             attribs = shader.attribs;
 
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_teamColor"), 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_vertexColor"), 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_teamColor'), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_vertexColor'), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_InstanceID'), 0);
     },
 
     renderBatch(bucket, batch) {
@@ -415,9 +415,9 @@ M3Model.prototype = {
     ctx.disable(ctx.CULL_FACE);
 
     for (i = 0, l = this.particleEmitters.length; i < l; i++) {
-    gl.bindShader("particles");
+    gl.bindShader('particles');
 
-    gl.bindMVP("u_mvp");
+    gl.bindMVP('u_mvp');
 
     this.particleEmitters[i].render();
     }

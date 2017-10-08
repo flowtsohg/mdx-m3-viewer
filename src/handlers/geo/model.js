@@ -1,5 +1,5 @@
-import mix from "../../mix";
-import Model from "../../model";
+import mix from '../../mix';
+import Model from '../../model';
 
 /**
  * @constructor
@@ -102,7 +102,7 @@ GeometryModel.prototype = {
         let webgl = this.env.webgl,
             gl = this.env.gl,
             instancedArrays = webgl.extensions.instancedArrays,
-            shader = this.env.shaderMap.get("GeoStandardShader"),
+            shader = this.env.shaderMap.get('GeoStandardShader'),
             uniforms = shader.uniforms,
             attribs = shader.attribs,
             instances = bucket.instances,
@@ -110,28 +110,28 @@ GeometryModel.prototype = {
 
         webgl.useShaderProgram(shader);
 
-        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, scene.camera.worldProjectionMatrix);
+        gl.uniformMatrix4fv(uniforms.get('u_mvp'), false, scene.camera.worldProjectionMatrix);
 
         // Bone texture
         gl.activeTexture(gl.TEXTURE15);
         gl.bindTexture(gl.TEXTURE_2D, bucket.boneTexture);
-        gl.uniform1i(uniforms.get("u_boneMap"), 15);
-        gl.uniform1f(uniforms.get("u_vectorSize"), bucket.vectorSize);
-        gl.uniform1f(uniforms.get("u_rowSize"), bucket.rowSize);
+        gl.uniform1i(uniforms.get('u_boneMap'), 15);
+        gl.uniform1f(uniforms.get('u_vectorSize'), bucket.vectorSize);
+        gl.uniform1f(uniforms.get('u_rowSize'), bucket.rowSize);
 
         // Instanced IDs
-        let instanceIdAttrib = attribs.get("a_InstanceID");
+        let instanceIdAttrib = attribs.get('a_InstanceID');
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);
         gl.vertexAttribPointer(instanceIdAttrib, 1, gl.UNSIGNED_SHORT, false, 2, 0);
         instancedArrays.vertexAttribDivisorANGLE(instanceIdAttrib, 1);
 
         // Vertices
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.vertexAttribPointer(attribs.get("a_position"), 3, gl.FLOAT, false, 12, 0);
+        gl.vertexAttribPointer(attribs.get('a_position'), 3, gl.FLOAT, false, 12, 0);
 
         // UVs
         gl.bindBuffer(gl.ARRAY_BUFFER, this.uvBuffer);
-        gl.vertexAttribPointer(attribs.get("a_uv"), 2, gl.FLOAT, false, 8, 0);
+        gl.vertexAttribPointer(attribs.get('a_uv'), 2, gl.FLOAT, false, 8, 0);
 
         if (this.twoSided) {
             gl.disable(gl.CULL_FACE);
@@ -158,9 +158,9 @@ GeometryModel.prototype = {
             gl.disable(gl.BLEND);
         }
 
-        gl.uniform1i(uniforms.get("u_texture"), 0);
+        gl.uniform1i(uniforms.get('u_texture'), 0);
 
-        let colorAttrib = attribs.get("a_color");
+        let colorAttrib = attribs.get('a_color');
         instancedArrays.vertexAttribDivisorANGLE(colorAttrib, 1);
 
         if (this.renderMode === 0 || this.renderMode === 2) {
@@ -168,18 +168,18 @@ GeometryModel.prototype = {
 
             webgl.bindTexture(modelView.texture || this.texture, 0);
 
-            let hasTexture = uniforms.get("u_hasTexture");
+            let hasTexture = uniforms.get('u_hasTexture');
             if (texture) {
                 gl.uniform1f(hasTexture, 1);
             } else {
                 gl.uniform1f(hasTexture, 0);
             }
 
-            gl.uniform1f(uniforms.get("u_isEdge"), 0);
-            gl.uniform2fv(uniforms.get("u_uvScale"), this.uvScale);
-            gl.uniform2fv(uniforms.get("u_uvOffset"), this.uvOffset);
-            gl.uniform1f(uniforms.get("u_isBGR"), this.isBGR);
-            gl.uniform1f(uniforms.get("u_alphaMod"), this.alpha)
+            gl.uniform1f(uniforms.get('u_isEdge'), 0);
+            gl.uniform2fv(uniforms.get('u_uvScale'), this.uvScale);
+            gl.uniform2fv(uniforms.get('u_uvOffset'), this.uvOffset);
+            gl.uniform1f(uniforms.get('u_isBGR'), this.isBGR);
+            gl.uniform1f(uniforms.get('u_alphaMod'), this.alpha)
 
             // Colors
             gl.bindBuffer(gl.ARRAY_BUFFER, bucket.vertexColorBuffer);
@@ -190,7 +190,7 @@ GeometryModel.prototype = {
         }
 
         if (this.renderMode === 1 || this.renderMode === 2) {
-            gl.uniform1f(uniforms.get("u_isEdge"), 1);
+            gl.uniform1f(uniforms.get('u_isEdge'), 1);
 
             // Edge colors
             gl.bindBuffer(gl.ARRAY_BUFFER, bucket.edgeColorBuffer);

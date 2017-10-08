@@ -1,6 +1,6 @@
-import { vec3, quat } from "gl-matrix";
-import mix from "../../mix";
-import Skeleton from "../../skeleton";
+import { vec3, quat } from 'gl-matrix';
+import mix from '../../mix';
+import Skeleton from '../../skeleton';
 
 /**
  * @constructor

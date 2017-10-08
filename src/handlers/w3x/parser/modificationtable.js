@@ -20,7 +20,7 @@ function W3xParserModification(reader, useOptionalInts) {
     } else if (variableType === 3) {
         this.value = reader.readUntilNull();
     } else {
-        console.log("W3xParserModification: unknown variable type", variableType);
+        console.log('W3xParserModification: unknown variable type', variableType);
     }
 
     var endModification = reader.read(4);

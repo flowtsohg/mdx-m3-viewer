@@ -1,13 +1,13 @@
-import ModelViewer from "./viewer";
-import Scene from "./scene";
-import W3x from "./handlers/w3x/handler";
-import M3 from "./handlers/m3/handler";
+import ModelViewer from './viewer';
+import Scene from './scene';
+import W3x from './handlers/w3x/handler';
+import M3 from './handlers/m3/handler';
 
 /**
  * @constructor
  */
 function UnitTester() {
-    let canvas = document.createElement("canvas");
+    let canvas = document.createElement('canvas');
 
     canvas.width = canvas.height = 256;
 
@@ -15,7 +15,7 @@ function UnitTester() {
 
     viewer.gl.clearColor(0.1, 0.1, 0.1, 1);
 
-    viewer.addEventListener("error", (e) => console.log(e));
+    viewer.addEventListener('error', (e) => console.log(e));
 
     viewer.addHandler(W3x);
     viewer.addHandler(M3);
@@ -42,12 +42,12 @@ UnitTester.prototype = {
     // Download an url to a file with the given name.
     // The name doesn't seem to work in Firefox (only tested in Firefox and Chrome on Windows).
     downloadUrl(url, name) {
-        let a = document.createElement("a");
+        let a = document.createElement('a');
 
         a.href = url;
         a.download = name;
 
-        a.dispatchEvent(new MouseEvent("click"));
+        a.dispatchEvent(new MouseEvent('click'));
     },
 
     // Return a function that works in the same exact way as Math.random(), but with a seed.
@@ -61,8 +61,8 @@ UnitTester.prototype = {
     },
 
     getImageDataFromImage(image) {
-        let canvas = document.createElement("canvas"),
-            context = canvas.getContext("2d"),
+        let canvas = document.createElement('canvas'),
+            context = canvas.getContext('2d'),
             w = image.width,
             h = image.height;
 
@@ -129,7 +129,7 @@ UnitTester.prototype = {
             if (!entry.done) {
                 let name = entry.value[1].name,
                     url = URL.createObjectURL(blob),
-                    compare = "compare/" + name + ".png";
+                    compare = 'compare/' + name + '.png';
 
                 tester.compareImagesFromURLs(url, compare, function (imgA, imgB, result) {
                     callback({ value: [name, { a: imgA, b: imgB, result }], done: entry.done });
@@ -144,7 +144,7 @@ UnitTester.prototype = {
 
     // Download all of the test results as PNG images.
     // Behavior depends on the browser - on Chrome (at least on Windows), the images will be downloaded automatically to the default download location, each having the name of the test.
-    // E.g. "mdx-load" -> "mdx-load.png".
+    // E.g. 'mdx-load' -> 'mdx-load.png'.
     downloadTestResults(callback) {
         this.start(function loop(entry, iterator, blob, tester) {
             if (!entry.done) {
@@ -161,7 +161,7 @@ UnitTester.prototype = {
 
     // Add tests
     add(test) {
-        if (typeof test.test === "function") {
+        if (typeof test.test === 'function') {
             this.tests.push({ name: test.name, test });
         } else if (test.tests) {
             this.addBaseName(test.tests, test.name);
@@ -170,10 +170,10 @@ UnitTester.prototype = {
 
     addBaseName(tests, baseName) {
         for (let test of tests) {
-            if (typeof test.test === "function") {
-                this.tests.push({ name: baseName + "-" + test.name, test });
+            if (typeof test.test === 'function') {
+                this.tests.push({ name: baseName + '-' + test.name, test });
             } else if (test.tests) {
-                this.addBaseName(test.tests, baseName + "-" + test.name);
+                this.addBaseName(test.tests, baseName + '-' + test.name);
             }
             
         }
@@ -210,7 +210,7 @@ UnitTester.prototype = {
 
             // Run the test code
             let data = test.load(viewer);
-
+            
             viewer.whenAllLoaded(() => {
                 test.test(viewer, scene, camera, data);
 

@@ -1,13 +1,13 @@
-import mix from "../../mix";
-import ModelInstance from "../../modelinstance";
-import TexturedModelInstance from "../../texturedmodelinstance";
-import ViewerNode from "../../node";
-import MdxSkeleton from "./skeleton";
-import { MdxAttachment } from "./attachment";
-import MdxParticleEmitterView from "./particleemitterview";
-import MdxParticle2EmitterView from "./particle2emitterview";
-import MdxRibbonEmitterView from "./ribbonemitterview";
-import MdxEventObjectEmitterView from "./eventobjectemitterview";
+import mix from '../../mix';
+import ModelInstance from '../../modelinstance';
+import TexturedModelInstance from '../../texturedmodelinstance';
+import ViewerNode from '../../node';
+import MdxSkeleton from './skeleton';
+import { MdxAttachment } from './attachment';
+import MdxParticleEmitterView from './particleemitterview';
+import MdxParticle2EmitterView from './particle2emitterview';
+import MdxRibbonEmitterView from './ribbonemitterview';
+import MdxEventObjectEmitterView from './eventobjectemitterview';
 
 /**
  * @constructor
@@ -179,7 +179,7 @@ MdxModelInstance.prototype = {
                     this.allowParticleSpawn = false;
                 }
 
-                this.dispatchEvent({ type: "seqend" });
+                this.dispatchEvent({ type: 'seqend' });
             }
         }
     },

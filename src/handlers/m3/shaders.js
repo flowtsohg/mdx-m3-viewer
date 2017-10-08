@@ -1,5 +1,5 @@
 const M3Shaders = {
-    "vs_common": `
+    'vs_common': `
         vec3 TBN(vec3 vector, vec3 tangent, vec3 binormal, vec3 normal) {
             return vec3(dot(vector, tangent), dot(vector, binormal), dot(vector, normal));
         }
@@ -9,7 +9,7 @@ const M3Shaders = {
         }
     `,
 
-    "vs_main": `
+    'vs_main': `
         uniform mat4 u_mvp;
         uniform mat4 u_mv;
         uniform vec3 u_eyePos;
@@ -121,7 +121,7 @@ const M3Shaders = {
         }
     `,
 
-    "ps_common": `
+    'ps_common': `
         varying vec3 v_normal;
         varying vec4 v_uv[2];
         varying vec3 v_lightDir;
@@ -357,7 +357,7 @@ const M3Shaders = {
         }
     `,
 
-    "ps_main": `
+    'ps_main': `
         uniform float u_specularity;
         uniform float u_specMult;
         uniform float u_emisMult;

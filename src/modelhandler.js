@@ -1,12 +1,12 @@
-import mix from "./mix";
-import Handler from "./handler";
-import ModelView from "./modelview";
-import ModelInstance from "./modelinstance";
-import Bucket from "./bucket";
+import mix from './mix';
+import Handler from './handler';
+import ModelView from './modelview';
+import ModelInstance from './modelinstance';
+import Bucket from './bucket';
 
 let ModelHandler = {
     get objectType() {
-        return "modelhandler"
+        return 'modelhandler'
     },
 
     get ModelView() {

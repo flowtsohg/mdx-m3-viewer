@@ -1,4 +1,4 @@
-import W3xParserUnit from "./unit";
+import W3xParserUnit from './unit';
 
 /**
  * @constructor

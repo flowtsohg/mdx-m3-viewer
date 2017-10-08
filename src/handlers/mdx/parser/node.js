@@ -1,4 +1,4 @@
-import MdxParserSDContainer from "./sd";
+import MdxParserSDContainer from './sd';
 
 /**
  * @constructor

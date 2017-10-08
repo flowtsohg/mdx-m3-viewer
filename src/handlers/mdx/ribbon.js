@@ -1,5 +1,5 @@
-import { vec3} from "gl-matrix";
-import { encodeFloat3 } from "../../common";
+import { vec3} from 'gl-matrix';
+import { encodeFloat3 } from '../../common';
 
 // Heap allocations needed for this module.
 let belowHeap = vec3.create(),

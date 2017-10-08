@@ -16,7 +16,7 @@ function ModelView(model) {
 ModelView.prototype = {
     /** @member {string} */
     get objectType() {
-        return "modelview";
+        return 'modelview';
     },
 
     // Get a shallow copy of this view

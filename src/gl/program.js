@@ -34,7 +34,7 @@ function ShaderProgram(gl, vertexShader, fragmentShader) {
                 let base = object.name.substr(0, object.name.length - 3);
 
                 for (let index = 0; index < object.size; index++) {
-                    let name = base + "[" + index + "]";
+                    let name = base + '[' + index + ']';
 
                     uniforms.set(name, gl.getUniformLocation(id, name));
                 }
@@ -50,7 +50,7 @@ function ShaderProgram(gl, vertexShader, fragmentShader) {
                 let base = object.name.substr(0, object.name.length - 3);
 
                 for (let index = 0; index < object.size; index++) {
-                    let name = base + "[" + index + "]";
+                    let name = base + '[' + index + ']';
 
                     attribs.set(name, gl.getAttribLocation(id, name));
                 }
@@ -59,7 +59,7 @@ function ShaderProgram(gl, vertexShader, fragmentShader) {
            
         this.loaded = true;
     } else {
-        console.error("Shader program failed to link!");
+        console.error('Shader program failed to link!');
         console.error(gl.getProgramInfoLog(id));
     }
 }

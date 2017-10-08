@@ -1,9 +1,9 @@
-import { readKnownElements } from "./common";
-import MdxParserSequence from "./sequence";
-import MdxParserGlobalSequence from "./globalsequence";
-import MdxParserTexture from "./texture";
-import MdxParserSoundTrack from "./soundtrack";
-import MdxParserPivotPoint from "./pivotpoint";
+import { readKnownElements } from './common';
+import MdxParserSequence from './sequence';
+import MdxParserGlobalSequence from './globalsequence';
+import MdxParserTexture from './texture';
+import MdxParserSoundTrack from './soundtrack';
+import MdxParserPivotPoint from './pivotpoint';
 
 
 let tagToChunk = {

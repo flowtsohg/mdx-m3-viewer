@@ -1,12 +1,12 @@
-let canvas = document.createElement("canvas"),
-    ctx = canvas.getContext("2d");
+let canvas = document.createElement('canvas'),
+    ctx = canvas.getContext('2d');
 
-let canvas2 = document.createElement("canvas"),
-    ctx2 = canvas2.getContext("2d");
+let canvas2 = document.createElement('canvas'),
+    ctx2 = canvas2.getContext('2d');
 
 // Normalize file paths to lowercase, and all slashes being forward.
 function normalizePath(path) {
-    return path.toLocaleLowerCase().replace(/\\/g, "/");
+    return path.toLocaleLowerCase().replace(/\\/g, '/');
 }
 
 // Resize an Image or ImageData object to the given dimensions.
@@ -128,7 +128,7 @@ function get(path, binary, onprogress) {
     let xhr = new XMLHttpRequest();
 
     return new Promise(function (resolve, reject) {
-        xhr.addEventListener("load", function () {
+        xhr.addEventListener('load', function () {
             if (xhr.status >= 200 && xhr.status < 300) {
                 resolve(xhr);
             } else {
@@ -136,18 +136,18 @@ function get(path, binary, onprogress) {
             }
         });
 
-        xhr.addEventListener("error", function () {
+        xhr.addEventListener('error', function () {
             reject(xhr);
         });
 
         if (onprogress) {
-            xhr.addEventListener("progress", onprogress);
+            xhr.addEventListener('progress', onprogress);
         }
 
-        xhr.open("GET", path, true);
+        xhr.open('GET', path, true);
 
         if (binary) {
-            xhr.responseType = "arraybuffer";
+            xhr.responseType = 'arraybuffer';
         }
 
         xhr.send();
@@ -184,7 +184,7 @@ Object.copy = function (object) {
     for (var i = 0, l = keys.length; i < l; i++) {
         var key = keys[i];
 
-        if (typeof key === "object") {
+        if (typeof key === 'object') {
             newObj[key] = Object.copy(object[key]);
         } else {
             newObj[key] = object[key];
@@ -237,7 +237,7 @@ Array.prototype.unique = function () {
  * @returns {array}.
  */
 String.prototype.reverse = function () {
-    return [...this].reverse().join("");
+    return [...this].reverse().join('');
 };
 
 Map.prototype.findKey = function (value) {

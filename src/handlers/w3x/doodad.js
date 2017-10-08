@@ -1,5 +1,5 @@
-import { vec3, quat } from "gl-matrix";
-import standSequence from "./standsequence";
+import { vec3, quat } from 'gl-matrix';
+import standSequence from './standsequence';
 
 /**
  * @constructor
@@ -16,14 +16,14 @@ function W3xDoodad(map, doodad) {
     this.angle = doodad.angle;
     this.scale = doodad.scale;
 
-    var row = map.fileCache.get("doodads").getRow(id) || map.fileCache.get("destructabledata").getRow(id);
+    var row = map.fileCache.get('doodads').getRow(id) || map.fileCache.get('destructabledata').getRow(id);
     if (row) {
         // What does it mean when texFile is underscore?
-        if (row.texFile && row.texFile !== "_") {
-            var texFile = row.texFile.replace(".tga", ".blp");
+        if (row.texFile && row.texFile !== '_') {
+            var texFile = row.texFile.replace('.tga', '.blp');
 
-            if (!texFile.endsWith(".blp")) {
-                texFile += ".blp";
+            if (!texFile.endsWith('.blp')) {
+                texFile += '.blp';
             }
 
             this.texFile = map.loadFile(texFile);
@@ -33,15 +33,15 @@ function W3xDoodad(map, doodad) {
         var file = row.file;
 
         // Imported, keep the path but change the extension back to mdx
-        if (file.endsWith(".mdl")) {
-            path = file.replace(".mdl", ".mdx");
+        if (file.endsWith('.mdl')) {
+            path = file.replace('.mdl', '.mdx');
         // MPQ file, create the full path using the variation
         } else {
-            // The SLK has two versions, one with "dir" and "file", the other just "file", both behave differently
+            // The SLK has two versions, one with 'dir' and 'file', the other just 'file', both behave differently
             if (row.dir) {
-                path = row.dir.replace(/\\/g, "/") + "/" + row.file + "/" + row.file;
+                path = row.dir.replace(/\\/g, '/') + '/' + row.file + '/' + row.file;
             } else {
-                path = row.file.replace(/\\/g, "/");
+                path = row.file.replace(/\\/g, '/');
             }
 
             if (row.numVar > 1) {
@@ -51,7 +51,7 @@ function W3xDoodad(map, doodad) {
                 path += variation;
             }
 
-            path += ".mdx";
+            path += '.mdx';
         }
 
         this.path = path;
@@ -60,7 +60,7 @@ function W3xDoodad(map, doodad) {
     if (this.path) {
         this.addInstance();
     } else {
-        console.log("Unknown doodad/destructable ID", id)
+        console.log('Unknown doodad/destructable ID', id)
     }
 
 }

@@ -1,7 +1,7 @@
-import mix from "../../mix";
-import { UintToTag } from "../../common";
-import Texture from "../../texture";
-import { decodeDxt1, decodeDxt3, decodeDxt5 } from "./dxt";
+import mix from '../../mix';
+import { UintToTag } from '../../common';
+import Texture from '../../texture';
+import { decodeDxt1, decodeDxt3, decodeDxt5 } from './dxt';
 
 /**
  * @see Largely based on https://github.com/toji/webctx-texture-utils/blob/master/texture-util/dds.js
@@ -30,12 +30,12 @@ DdsTexture.prototype = {
             header = new Int32Array(src, 0, 31);
 
         if (header[0] !== DDS_MAGIC) {
-            this.onerror("InvalidSource", "WrongMagicNumber");
+            this.onerror('InvalidSource', 'WrongMagicNumber');
             return false;
         }
 
         if (!(header[20] & DDPF_FOURCC)) {
-            this.onerror("UnsupportedFeature", "FourCC");
+            this.onerror('UnsupportedFeature', 'FourCC');
             return false;
         }
 

@@ -1,7 +1,7 @@
-import mix from "../../mix";
-import TexturedModelInstance from "../../texturedmodelinstance";
-import ViewerNode from "../../node";
-import M3Skeleton from "./skeleton";
+import mix from '../../mix';
+import TexturedModelInstance from '../../texturedmodelinstance';
+import ViewerNode from '../../node';
+import M3Skeleton from './skeleton';
 
 /**
  * @constructor
@@ -70,7 +70,7 @@ M3ModelInstance.prototype = {
                     this.frame = interval[1];
                 }
 
-                this.dispatchEvent({ type: "seqend" });
+                this.dispatchEvent({ type: 'seqend' });
             }
         }
     },

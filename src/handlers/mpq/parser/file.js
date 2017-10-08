@@ -1,123 +1,153 @@
-import { inflate } from "pako";
-import BinaryReader from "../../../binaryreader";
-
-let HASH_FILE_KEY = 3,
-    FILE_COMPRESSED = 0x00000200,
-    FILE_ENCRYPTED = 0x00010000,
-    FILE_SINGLEUNIT = 0x0100000,
-    FILE_ADJUSTED_ENCRYPTED = 0x00020000,
-    FILE_EXISTS = 0x80000000,
-    FILE_DELETED = 0x02000000;
+import { inflate, deflate } from 'pako';
+import BinaryReader from '../../../binaryreader';
+import { FILE_COMPRESSED, FILE_ENCRYPTED, FILE_FIX_KEY, FILE_SINGLE_UNIT, FILE_EXISTS } from './constants';
 
 /**
  * @constructor
- * @param {MpqParserArchive} archive The archive that owns this file
- * @param {MpqParserBlockTableEntry} block This file's block
- * @param {string} name This file's name
+ * @param {MpqArchive} archive The archive that owns this file
  */
-function MpqParserFile(archive, block, name) {
-    /** @member {MpqParserArchive} */
+function MpqFile(archive) {
+    /** @member {MpqArchive} */
     this.archive = archive;
-    /** @member {MpqParserBlockTableEntry} */
-    this.block = block;
-    /** @member {string} */
-    this.name = name;
-    /** @member {number} */
-    this.sectorCount = Math.ceil(block.normalSize / archive.sectorSize);
-    /** @member {MpqParserCrypto} */
+    /** @member {MpqCrypto} */
     this.c = archive.c;
-    /** @member {number} */
-    this.encryptionKey = 0;
-    /** @member {?ArrayBuffer} */
+    /** @member {string} */
+    this.name = '';
+    /** @member {MpqHash|null} */
+    this.hash = null;
+    /** @member {MpqBlock|null} */
+    this.block = null;
+    /** @member {ArrayBuffer|null} */
+    this.rawBuffer = null;
+    /** @member {ArrayBuffer|null} */
     this.buffer = null;
-    /** @member {boolean} */
-    this.isEncrypted = false;
-
-    if (block.flags & FILE_ENCRYPTED) {
-        let sepIndex = name.lastIndexOf("\\"),
-            pathlessName = name.substring(sepIndex + 1);
-
-        this.isEncrypted = true;
-        this.encryptionKey = this.c.hash(pathlessName, HASH_FILE_KEY);
-
-        if (block.flags & FILE_ADJUSTED_ENCRYPTED) {
-            this.encryptionKey = (this.encryptionKey + block.filePos) ^ block.normalSize;
-        }
-    }
-
-    this.decode();
 }
 
-MpqParserFile.prototype = {
+MpqFile.prototype = {
+    arrayBuffer() {
+        // Decode if needed
+        if (this.buffer === null) {
+            this.decode();
+        }
+
+        return this.buffer;
+    },
+
+    text() {
+        let buffer = this.arrayBuffer();
+        
+        if (buffer) {
+            return (new BinaryReader(this.buffer)).read();
+        }
+
+        return null;
+    },
+
+    load(hash, block, buffer) {
+        this.hash = hash;
+        this.block = block;
+        this.rawBuffer = buffer.slice(block.offset, block.offset + block.compressedSize);
+    },
+
+    save(writer) {
+        writer.writeUint8Array(new Uint8Array(this.rawBuffer));
+    },
+
+    set(buffer) {
+        // Reset the hash.
+        let hash = this.hash;
+
+        hash.locale = 0;
+        hash.platform = 0;
+
+        // Reset the block.
+        let block = this.block;
+
+        block.compressedSize = 0;
+        block.normalSize = buffer.byteLength;
+
+        this.buffer = buffer;
+        this.rawBuffer = null;
+    },
+
     decode() {
         let archive = this.archive,
             block = this.block,
-            flags = block.flags,
-            sectorCount = this.sectorCount,
-            isEncrypted = this.isEncrypted,
-            c = this.c,
-            encryptionKey = this.encryptionKey,
-            reader = new BinaryReader(archive.buffer);
+            c = archive.c,
+            encryptionKey = c.computeFileKey(this.name, block),
+            reader = new BinaryReader(this.rawBuffer),
+            flags = block.flags;
 
-        // Go to the position of this block
-        reader.seek(block.filePos);
+        // One buffer of raw data.
+        // I don't know why having no flags means it's a chunk of memory rather than sectors.
+        // After all, there is no flag to say there are indeed sectors.
+        if (flags === FILE_EXISTS) {
+            let sector = reader.readUint8Array(block.normalSize);
 
-        if (flags & FILE_SINGLEUNIT) {
-            console.warn("[MPQFile::parse] Single unit (add support!)")
-            console.log(this);
-            /*
-            if (flags & Mpq.FILE_COMPRESSED) {
+            this.buffer = sector.buffer;
+        // One buffer of possibly encrypted and/or compressed data.
+        } else if (flags & FILE_SINGLE_UNIT) {
+            // Read the sector
+            let sector = reader.readUint8Array(block.compressedSize);
 
-            } else {
-
+            // If this block is encrypted, decrypt the sector
+            if (flags & FILE_ENCRYPTED) {
+                c.decryptBlock(sector.buffer, encryptionKey);
             }
-            */
-        }
 
-        if (flags & FILE_COMPRESSED) {
+            if (flags & FILE_COMPRESSED) {
+                sector = this.decompressSector(sector, block.normalSize);
+            }
+
+            this.buffer = sector.buffer;
+        // One or more sectors of possibly encrypted and/or compressed data.
+        } else {
+            let sectorCount = Math.ceil(block.normalSize / archive.sectorSize);
+
             // Alocate a buffer for the uncompressed block size
             let buffer = new Uint8Array(block.normalSize)
-
+            
             // Get the sector offsets
             let sectorOffsets = reader.readUint32Array(sectorCount + 1);
 
             // If this block is encrypted, decrypt the sector offsets
-            if (isEncrypted) {
+            if (flags & FILE_ENCRYPTED) {
                 c.decryptBlock(sectorOffsets.buffer, encryptionKey - 1);
             }
 
             let start = sectorOffsets[0],
                 end = sectorOffsets[1],
-                finalSize = 0;
+                offset = 0;
 
             for (let i = 0; i < sectorCount; i++) {
                 // Go to the position of this sector
-                reader.seek(block.filePos + start);
+                reader.seek(start);
 
                 // Read the sector
                 let sector = reader.readUint8Array(end - start);
 
                 // If this block is encrypted, decrypt the sector
-                if (isEncrypted) {
+                if (flags & FILE_ENCRYPTED) {
                     c.decryptBlock(sector.buffer, encryptionKey + i);
                 }
 
                 // Decompress the sector
-                if (block.normalSize - finalSize <= archive.sectorSize) {
-                    sector = this.decompressSector(sector, block.normalSize - finalSize);
-                } else {
-                    sector = this.decompressSector(sector, archive.sectorSize);
+                if (flags & FILE_COMPRESSED) {
+                    if (this.normalSize - offset <= archive.sectorSize) {
+                        sector = this.decompressSector(sector, this.normalSize - offset);
+                    } else {
+                        sector = this.decompressSector(sector, archive.sectorSize);
+                    }
                 }
 
-                // If failed to decompress the sector, stop
+                // If failed to decompress the sector, stop.
                 if (!sector) {
-                    //console.warn("[MPQFile::parseBlock:" + this.name + "]", "Failed to decompress");
-                    return;
+                    return false;
                 }
 
                 // Add the sector bytes to the buffer
-                buffer.set(sector, finalSize);
-                finalSize += sector.byteLength;
+                buffer.set(sector, offset);
+                offset += sector.byteLength;
 
                 // Prepare for the next sector
                 if (i < sectorCount) {
@@ -127,17 +157,14 @@ MpqParserFile.prototype = {
             }
 
             this.buffer = buffer.buffer;
-        } else {
-            // Read the sector
-            let sector = reader.readUint8Array(block.normalSize);
-
-            // If this block is encrypted, decrypt the sector
-            if (isEncrypted) {
-                c.decryptBlock(sector.buffer, encryptionKey);
-            }
-
-            this.buffer = sector.buffer;
         }
+
+        // If the archive is in read-only mode, the raw buffer isn't needed anymore, so free the memory.
+        if (archive.readonly) {
+            this.rawBuffer = null;
+        }
+
+        return true;
     },
 
     decompressSector(buffer, uncompressedSize) {
@@ -162,11 +189,73 @@ MpqParserFile.prototype = {
 
                 // Unsupported
                 default:
-                    console.warn("[MPQ.File:" + this.name + "] compression type " + buffer[0] + " not supported");
+                    console.warn(`File ${this.name}, compression type ${buffer[0]} not supported`);
                     return;
             }
         }
+    },
+
+    // For now hardcoded to zlib single unit.
+    encode() {
+        if (this.buffer !== null && this.rawBuffer === null) {
+            let compressedBuffer = deflate(new Uint8Array(this.buffer));
+
+            // Compression can only occur if the compressed data is smaller than the uncompressed data.
+            // Doing otherwise is an error and will result in a broken file.
+            if (compressedBuffer.byteLength + 1 < this.buffer.byteLength) {
+                let rawBuffer = new Uint8Array(compressedBuffer.byteLength + 1);
+                
+                rawBuffer[0] = 2; // zlib
+                rawBuffer.set(compressedBuffer, 1);
+
+                this.rawBuffer = rawBuffer.buffer;
+                this.block.compressedSize = rawBuffer.byteLength;
+                this.block.flags = (FILE_COMPRESSED | FILE_SINGLE_UNIT | FILE_EXISTS) >>> 0; // Cast to an unsigned int
+            } else {
+                this.rawBuffer = this.buffer;
+                this.block.compressedSize = this.buffer.byteLength;
+                this.block.flags = (FILE_EXISTS) >>> 0;
+            }
+
+                    /*
+            let sectorSize = this.sectorSize - 1, // -1 for the first compression mask byte
+                sectorCount = Math.ceil(buffer.byteLength / sectorSize);
+
+            console.log('Setting file', name);
+            console.log('Size', buffer.byteLength)
+            console.log('Sectors', sectorCount);
+
+            let sectors = [];
+
+            let view = new Uint8Array(buffer);
+
+            for (let i = 0; i < sectorCount; i++) {
+                let data = view.slice(sectorSize * i, sectorSize * (i + 1));
+
+                //let compressedData = deflate(data);
+
+                let sector = new Uint8Array(1 + data.byteLength);
+
+                sector[0] = 2; // zlib
+                sector.set(data, 1);
+
+                sectors[i] = sector;
+            }
+
+            console.log(sectors)
+            */
+        }
+    },
+
+    offsetChanged(offset) {
+        let block = this.block;
+        
+        if (block.offset !== offset && block.flags & FILE_FIX_KEY) {
+            throw new Error(`File ${this.name} will get corrupted due to the encryption key changing`);
+        }
+
+        block.offset = offset;
     }
 };
 
-export default MpqParserFile;
+export default MpqFile;

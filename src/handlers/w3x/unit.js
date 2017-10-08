@@ -1,5 +1,5 @@
-import { vec3, quat } from "gl-matrix";
-import standSequence from "./standsequence";
+import { vec3, quat } from 'gl-matrix';
+import standSequence from './standsequence';
 
 /**
  * @constructor
@@ -13,7 +13,7 @@ function W3xUnit(map, unit) {
     var variation = unit.variation;
 
     this.id = id;
-    this.customId = "";
+    this.customId = '';
     this.variation = variation;
     this.location = unit.location;
     this.angle = unit.angle;
@@ -21,16 +21,16 @@ function W3xUnit(map, unit) {
     this.player = unit.player;
 
     
-    var row = map.fileCache.get("unitdata").getRow(id) || map.fileCache.get("itemdata").getRow(id);
+    var row = map.fileCache.get('unitdata').getRow(id) || map.fileCache.get('itemdata').getRow(id);
     if (row) {
         var path;
 
         // Items have a file field, units don't...
         if (row.file) {
-            path = row.file.replace(".mdl", ".mdx");
+            path = row.file.replace('.mdl', '.mdx');
 
-            if (!path.endsWith(".mdx")) {
-                path += ".mdx";
+            if (!path.endsWith('.mdx')) {
+                path += '.mdx';
             }
         } else {
             this.location[2] += row.moveHeight;
@@ -38,33 +38,33 @@ function W3xUnit(map, unit) {
             let uiRow;
 
             if (row.customRow) {
-                uiRow = map.fileCache.get("unitui").getRow(row.ID);
+                uiRow = map.fileCache.get('unitui').getRow(row.ID);
             } else {
-                uiRow = map.fileCache.get("unitui").getRow(id);
+                uiRow = map.fileCache.get('unitui').getRow(id);
             }
             
 
             if (!uiRow) {
-                console.log("Unknown unit ID", id);
+                console.log('Unknown unit ID', id);
                 return;
             }
 
-            path = uiRow.file + ".mdx";
+            path = uiRow.file + '.mdx';
 
             vec3.scale(this.scale, this.scale, uiRow.modelScale);
         }
 
         this.path = path;
     } else {
-        if (id === "sloc") {
-            this.path = "Objects/StartLocation/StartLocation.mdx";
+        if (id === 'sloc') {
+            this.path = 'Objects/StartLocation/StartLocation.mdx';
         } 
     }
 
     if (this.path) {
         this.addInstance();
     } else {
-        console.log("Unknown unit/item ID", id)
+        console.log('Unknown unit/item ID', id)
     }
 }
 
@@ -87,7 +87,7 @@ W3xUnit.prototype = {
         instance.whenLoaded(standSequence);
 
         // And select a random stand sequence every time a sequence ends
-        instance.addEventListener("seqend", standSequence);
+        instance.addEventListener('seqend', standSequence);
 
         this.instance = instance;
     }

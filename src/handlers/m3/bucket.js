@@ -1,5 +1,5 @@
-import mix from "../../mix";
-import Bucket from "../../bucket";
+import mix from '../../mix';
+import Bucket from '../../bucket';
 
 /**
  * @constructor

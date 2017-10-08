@@ -1,5 +1,5 @@
-import { vec3 } from "gl-matrix";
-import Camera from "./camera";
+import { vec3 } from 'gl-matrix';
+import Camera from './camera';
 
 // Heap allocations needed for this module.
 let ndcHeap = new Float32Array(3);
@@ -28,7 +28,7 @@ function Scene() {
 Scene.prototype = {
     /** @member {string} */
     get objectType() {
-        return "scene";
+        return 'scene';
     },
 
     /**
@@ -66,7 +66,7 @@ Scene.prototype = {
      * @param {ModelInstance} instance The instance to add.
      */
     addInstance(instance) {
-        if (instance && instance.objectType === "instance") {
+        if (instance && instance.objectType === 'instance') {
             let instanceSet = this.instanceSet;
 
             if (!instanceSet.has(instance)) {
@@ -89,7 +89,7 @@ Scene.prototype = {
      * @param {ModelInstance} instance The instance to remove.
      */
     removeInstance(instance) {
-        if (instance && instance.objectType === "instance") {
+        if (instance && instance.objectType === 'instance') {
             let instanceSet = this.instanceSet;
 
             if (instanceSet.has(instance)) {

@@ -1,11 +1,11 @@
-import mix from "../../mix";
-import TextureHandler from "../../texturehandler";
-import BmpTexture from "./texture";
+import mix from '../../mix';
+import TextureHandler from '../../texturehandler';
+import BmpTexture from './texture';
 
 const Bmp = {
     get extensions() {
         return [
-            [".bmp", true]
+            ['.bmp', true]
         ];
     },
 

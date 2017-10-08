@@ -28,7 +28,7 @@ function Bucket(modelView) {
 
 Bucket.prototype = {
     get objectType() {
-        return "bucket";
+        return 'bucket';
     },
 
     // The capacity of this bucket, override at will
@@ -48,7 +48,7 @@ Bucket.prototype = {
      *     polygons
      */
     getRenderStats() {
-        throw new Error("Bucket.getRenderStats must be overriden");
+        throw new Error('Bucket.getRenderStats must be overriden');
     },
 
     getSharedData(index) {

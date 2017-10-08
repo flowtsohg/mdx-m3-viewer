@@ -1,6 +1,6 @@
-import mix from "./mix";
-import AsyncResource from "./asyncresource";
-import DownloadableResource from "./downloadableresource";
+import mix from './mix';
+import AsyncResource from './asyncresource';
+import DownloadableResource from './downloadableresource';
 
 /**
  * @constructor
@@ -23,7 +23,7 @@ function Model(env, pathSolver, handler, extension) {
 
 Model.prototype = {
     get objectType() {
-        return "model";
+        return 'model';
     },
 
     /**

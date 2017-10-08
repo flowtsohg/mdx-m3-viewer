@@ -1,7 +1,7 @@
-import mix from "../../mix";
-import Texture from "../../texture";
-import BitBuffer from "../../bitbuffer";
-import { JpegImage } from "./jpg";
+import mix from '../../mix';
+import Texture from '../../texture';
+import BitBuffer from '../../bitbuffer';
+import { JpegImage } from './jpg';
 
 /**
  * @constructor
@@ -24,14 +24,14 @@ BlpTexture.prototype = {
               BLP_PALLETE = 0x1;
 
         if (src.byteLength < 40) {
-            this.onerror("InvalidSource", "FileTooSmall");
+            this.onerror('InvalidSource', 'FileTooSmall');
             return false;
         }
 
         let header = new Int32Array(src, 0, 39);
 
         if (header[0] !== BLP1_MAGIC) {
-            this.onerror("InvalidSource", "WrongMagicNumber");
+            this.onerror('InvalidSource', 'WrongMagicNumber');
             return false;
         }
 

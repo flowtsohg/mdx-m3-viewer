@@ -1,6 +1,6 @@
-import mix from "./mix";
-import { resizeImageData } from "./common";
-import DownloadableResource from "./downloadableresource";
+import mix from './mix';
+import { resizeImageData } from './common';
+import DownloadableResource from './downloadableresource';
 
 /**
  * @constructor
@@ -19,7 +19,7 @@ function Texture(env, pathSolver, handler, extension) {
 
 Texture.prototype = {
     get objectType() {
-        return "texture";
+        return 'texture';
     },
 
     /**
@@ -48,7 +48,7 @@ Texture.prototype = {
             potHeight = Math.powerOfTwo(height);
 
         if (width !== potWidth || height !== potHeight) {
-            console.warn("Resizing texture \"" + this.fetchUrl + "\" from [" + width + ", " + height + "] to [" + potWidth + ", " + potHeight + "]");
+            console.warn('Resizing texture \'' + this.fetchUrl + '\' from [' + width + ', ' + height + '] to [' + potWidth + ', ' + potHeight + ']');
 
             return resizeImageData(imageData, potWidth, potHeight);
         }

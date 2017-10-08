@@ -70,7 +70,7 @@ function W3xParserUnit(reader, version) {
         var droppedItemTable = reader.readInt32();
 
         if (droppedItemTable !== -1) {
-            console.warn("Dropped item table, must not read dropped item sets");
+            console.warn('Dropped item table, must not read dropped item sets');
         }
     }
 

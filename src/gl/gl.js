@@ -1,24 +1,24 @@
-import { hashFromString } from "../common";
-import ShaderUnit from "./shader";
-import ShaderProgram from "./program";
+import { hashFromString } from '../common';
+import ShaderUnit from './shader';
+import ShaderProgram from './program';
 
 /**
  * @constructor
  * @param {HTMLCanvasElement} canvas
  */
 function WebGL(canvas) {
-    let gl = canvas.getContext("webgl", { alpha: false });
+    let gl = canvas.getContext('webgl', { alpha: false });
 
     if (!gl) {
-        gl = canvas.getContext("experimental-webgl", { alpha: false });
+        gl = canvas.getContext('experimental-webgl', { alpha: false });
     }
 
     if (!gl) {
-        throw new Error("WebGL: Failed to create a WebGL context!");
+        throw new Error('WebGL: Failed to create a WebGL context!');
     }
 
     function extensionToCamelCase(ext) {
-        let tokens = ext.split("_"),
+        let tokens = ext.split('_'),
             result = tokens[1];
 
         for (let i = 2, l = tokens.length; i < l; i++) {
@@ -31,25 +31,25 @@ function WebGL(canvas) {
     let extensions = {};
     for (let extension of gl.getSupportedExtensions()) {
         // Firefox keeps spamming errors about MOZ_ prefixed extension strings being deprecated.
-        if (!extension.startsWith("MOZ_")) {
+        if (!extension.startsWith('MOZ_')) {
             extensions[extensionToCamelCase(extension)] = gl.getExtension(extension);
         }
     }
 
     if (!gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS)) {
-        throw new Error("WebGL: No vertex shader texture support!");
+        throw new Error('WebGL: No vertex shader texture support!');
     }
 
     if (!extensions.textureFloat) {
-        throw new Error("WebGL: No floating point texture support!");
+        throw new Error('WebGL: No floating point texture support!');
     }
 
     if (!extensions.instancedArrays) {
-        throw new Error("WebGL: No instanced rendering support!");
+        throw new Error('WebGL: No instanced rendering support!');
     }
 
     if (!extensions.compressedTextureS3tc) {
-        console.warn("WebGL: No compressed textures support! This might reduce performance.");
+        console.warn('WebGL: No compressed textures support! This might reduce performance.');
     }
 
     gl.extensions = extensions;
@@ -69,7 +69,7 @@ function WebGL(canvas) {
     /** @member {?ShaderProgram} */
     this.currentShaderProgram = null;
     /** @member {string} */
-    this.floatPrecision = "precision mediump float;\n";
+    this.floatPrecision = 'precision mediump float;\n';
 
     // An empty 2x2 texture that is used automatically when binding an invalid texture
     let emptyTexture = gl.createTexture();

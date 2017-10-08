@@ -1,4 +1,4 @@
-import MdxSdContainer from "./sd";
+import MdxSdContainer from './sd';
 
 /**
  * @constructor
@@ -47,7 +47,7 @@ MdxAttachment.prototype = {
  * @param {MdxParserAttachment} attachment
  */
 function MdxModelAttachment(model, attachment) {
-    let path = attachment.path.replace(/\\/g, "/").toLowerCase().replace(".mdl", ".mdx");
+    let path = attachment.path.replace(/\\/g, '/').toLowerCase().replace('.mdl', '.mdx');
 
     this.node = model.nodes[attachment.node.index];
     this.path = path;
@@ -55,14 +55,14 @@ function MdxModelAttachment(model, attachment) {
     this.sd = new MdxSdContainer(model, attachment.tracks);
 
     // Second condition is against custom resources using arbitrary paths...
-    if (path !== "" && path.indexOf(".mdx") != -1) {
+    if (path !== '' && path.indexOf('.mdx') != -1) {
         this.internalModel = model.env.load(path, model.pathSolver);
     }
 }
 
 MdxModelAttachment.prototype = {
     getVisibility(instance) {
-        return this.sd.getValue("KATV", instance, 1);
+        return this.sd.getValue('KATV', instance, 1);
     }
 };
 

@@ -1,22 +1,22 @@
-import M3ParserMd34 from "./md34";
-import M3ParserModel from "./model";
-import M3ParserSequence from "./sequence";
-import M3ParserStc from "./stc";
-import M3ParserStg from "./stg";
-import M3ParserSts from "./sts";
-import M3ParserBone from "./bone";
-import M3ParserDivision from "./division";
-import M3ParserRegion from "./region";
-import M3ParserBatch from "./batch";
-import M3ParserMaterialReference from "./materialreference";
-import M3ParserStandardMaterial from "./standardmaterial";
-import M3ParserLayer from "./layer";
-import M3ParserEvent from "./event";
-import M3ParserBoundingSphere from "./boundingsphere";
-import M3ParserAttachmentPoint from "./attachmentpoint";
-import M3ParserCamera from "./camera";
-import M3ParserSd from "./sd";
-import M3ParserUnsupportedEntry from "./unsupportedentry";
+import M3ParserMd34 from './md34';
+import M3ParserModel from './model';
+import M3ParserSequence from './sequence';
+import M3ParserStc from './stc';
+import M3ParserStg from './stg';
+import M3ParserSts from './sts';
+import M3ParserBone from './bone';
+import M3ParserDivision from './division';
+import M3ParserRegion from './region';
+import M3ParserBatch from './batch';
+import M3ParserMaterialReference from './materialreference';
+import M3ParserStandardMaterial from './standardmaterial';
+import M3ParserLayer from './layer';
+import M3ParserEvent from './event';
+import M3ParserBoundingSphere from './boundingsphere';
+import M3ParserAttachmentPoint from './attachmentpoint';
+import M3ParserCamera from './camera';
+import M3ParserSd from './sd';
+import M3ParserUnsupportedEntry from './unsupportedentry';
 
 // Mapping from entry tags, to their constructors and known version->size values.
 let tagMapping = {
@@ -120,7 +120,7 @@ function M3ParserIndexEntry(reader, index) {
 
         if (!entrySize) {
             // Yey found a new version!
-            throw new Error("M3Parser: Unsupported object version - tag " + tag + " and version " + version);
+            throw new Error('M3Parser: Unsupported object version - tag ' + tag + ' and version ' + version);
         }
 
         this.entries = [];
@@ -138,52 +138,52 @@ function M3ParserIndexEntry(reader, index) {
     // This is maybe a typed array?
     } else {
         switch (tag) {
-            case "CHAR":
-            case "SCHR":
+            case 'CHAR':
+            case 'SCHR':
                 this.entries = reader.readCharArray(entriesCount);
                 break;
 
-            case "U8__":
+            case 'U8__':
                 this.entries = reader.readUint8Array(entriesCount);
                 break;
 
-            case "U16_":
+            case 'U16_':
                 this.entries = reader.readUint16Array(entriesCount);
                 break;
 
-            case "U32_":
+            case 'U32_':
                 this.entries = reader.readUint32Array(entriesCount);
                 break;
 
-            case "I32_":
+            case 'I32_':
                 this.entries = reader.readInt32Array(entriesCount);
                 break;
 
-            case "REAL":
+            case 'REAL':
                 this.entries = reader.readFloat32Array(entriesCount);
                 break;
 
-            case "VEC2":
+            case 'VEC2':
                 this.entries = reader.readFloat32Matrix(entriesCount, 2);
                 break;
 
-            case "VEC3":
-            case "SVC3":
+            case 'VEC3':
+            case 'SVC3':
                 this.entries = reader.readFloat32Matrix(entriesCount, 3);
                 break;
 
-            case "VEC4":
-            case "QUAT":
+            case 'VEC4':
+            case 'QUAT':
                 this.entries = reader.readFloat32Matrix(entriesCount, 4);
                 break;
 
-            case "IREF":
+            case 'IREF':
                 this.entries = reader.readFloat32Matrix(entriesCount, 16);
                 break;
 
             // Yey found a new tag!
             default:
-                throw new Error("M3Parser: Unsupported object tag - tag " + tag + " and version " + version);
+                throw new Error('M3Parser: Unsupported object tag - tag ' + tag + ' and version ' + version);
         }
     }
 

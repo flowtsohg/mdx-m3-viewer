@@ -1,42 +1,55 @@
-import BinaryReader from "../../../binaryreader";
-
-let BLOCK_TABLE_KEY = 0xEC83B3A3;
-
-/**
- * @constructor
- * @param {BinaryReader} reader
- */
-function MpqParserBlockTableEntry(reader) {
-    /** @param {number} */
-    this.filePos = reader.readUint32();
-    /** @param {number} */
-    this.compressedSize = reader.readUint32();
-    /** @param {number} */
-    this.normalSize = reader.readUint32();
-    /** @param {number} */
-    this.flags = reader.readUint32();
-}
+import BinaryReader from '../../../binaryreader';
+import BinaryWriter from '../../../binarywriter';
+import MpqBlock from './block';
+import { BLOCK_TABLE_KEY, FILE_COMPRESSED, FILE_SINGLE_UNIT, FILE_EXISTS } from './constants';
 
 /**
  * @constructor
- * @param {ArrayBuffer} buffer
- * @param {MpqParserCrypto} c
+ * @param {MpqCrypto} c
  */
-function MpqParserBlockTable(buffer, c) {
-    let entries = [],
-        reader = new BinaryReader(c.decryptBlock(buffer, BLOCK_TABLE_KEY)),
-        hashSize = buffer.byteLength / 16;
-
-    for (let i = 0, l = hashSize; i < l; i++) {
-        entries.push(new MpqParserBlockTableEntry(reader));
-    }
-
-    /** @param {number} */
-    this.hashSize = hashSize;
-    /** @param {MpqParserCrypto} */
+function MpqBlockTable(c) {
+    /** @param {MpqCrypto} */
     this.c = c;
-    /** @param {Array<MpqParserBlockTableEntry>} */
-    this.entries = entries;
+    /** @param {Array<MpqBlock>} */
+    this.entries = [];
 }
 
-export default MpqParserBlockTable;
+MpqBlockTable.prototype = {
+    add(buffer) {
+        let block = new MpqBlock();
+
+        block.compressedSize = buffer.byteLength;
+        block.normalSize = buffer.byteLength;
+        block.flags = (FILE_COMPRESSED | FILE_SINGLE_UNIT | FILE_EXISTS) >>> 0;
+
+        this.entries.push(block);
+
+        return block;
+    },
+
+    load(buffer) {
+        let reader = new BinaryReader(this.c.decryptBlock(buffer, BLOCK_TABLE_KEY));
+
+        for (let i = 0, l = buffer.byteLength / 16; i < l; i++) {
+            let block = new MpqBlock();
+
+            block.load(reader);
+
+            this.entries.push(block);
+        }
+    },
+
+    save(writer) {
+        let entries = this.entries,
+            buffer = new ArrayBuffer(entries.length * 16),
+            localwriter = new BinaryWriter(buffer);
+
+        for (let block of entries) {
+            block.save(localwriter);
+        }
+
+        writer.writeUint8Array(new Uint8Array(this.c.encryptBlock(buffer, BLOCK_TABLE_KEY)));
+    }
+};
+
+export default MpqBlockTable;

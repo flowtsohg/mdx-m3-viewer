@@ -1,5 +1,5 @@
-import M3ParserReference from "./reference";
-import M3ParserBoundingSphere from "./boundingsphere";
+import M3ParserReference from './reference';
+import M3ParserBoundingSphere from './boundingsphere';
 
 /**
  * @constructor

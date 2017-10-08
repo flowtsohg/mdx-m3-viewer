@@ -1,5 +1,5 @@
-import mix from "./mix";
-import DownloadableResource from "./downloadableresource";
+import mix from './mix';
+import DownloadableResource from './downloadableresource';
 
 /**
  * @constructor
@@ -15,7 +15,7 @@ function ViewerFile(env, pathSolver, handler, extension) {
 
 ViewerFile.prototype = {
     get objectType() {
-        return "file";
+        return 'file';
     }
 };
 

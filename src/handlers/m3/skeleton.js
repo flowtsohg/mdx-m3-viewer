@@ -1,6 +1,6 @@
-import { vec3, quat, mat4 } from "gl-matrix";
-import mix from "../../mix";
-import Skeleton from "../../skeleton";
+import { vec3, quat, mat4 } from 'gl-matrix';
+import mix from '../../mix';
+import Skeleton from '../../skeleton';
 
 // Heap allocations needed for this module.
 let locationHeap = vec3.create(),

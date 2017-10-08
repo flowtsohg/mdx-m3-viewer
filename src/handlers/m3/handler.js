@@ -1,12 +1,12 @@
-import mix from "../../mix";
-import ModelHandler from "../../modelhandler";
-import TexturedModelView from "../../texturedmodelview";
-import Dds from "../dds/handler";
-import Tga from "../tga/handler";
-import M3Model from "./model";
-import M3ModelInstance from "./modelinstance";
-import M3Bucket from "./bucket";
-import M3Shaders from "./shaders";
+import mix from '../../mix';
+import ModelHandler from '../../modelhandler';
+import TexturedModelView from '../../texturedmodelview';
+import Dds from '../dds/handler';
+import Tga from '../tga/handler';
+import M3Model from './model';
+import M3ModelInstance from './modelinstance';
+import M3Bucket from './bucket';
+import M3Shaders from './shaders';
 
 const M3 = {
     initialize(env) {
@@ -19,7 +19,7 @@ const M3 = {
         this.lightPosition = [0, 0, 10000];
 
         for (let i = 0; i < 4; i++) {
-            let shader = env.webgl.createShaderProgram("#define EXPLICITUV" + i + "\n" + env.sharedShaders.instanceId + env.sharedShaders.boneTexture + M3Shaders.vs_common + M3Shaders.vs_main, "#define STANDARD_PASS\n" + M3Shaders.ps_common + M3Shaders.ps_main);
+            let shader = env.webgl.createShaderProgram('#define EXPLICITUV' + i + '\n' + env.sharedShaders.instanceId + env.sharedShaders.boneTexture + M3Shaders.vs_common + M3Shaders.vs_main, '#define STANDARD_PASS\n' + M3Shaders.ps_common + M3Shaders.ps_main);
 
             // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
             if (!shader.loaded) {
@@ -28,7 +28,7 @@ const M3 = {
 
             this.initializeTeamColors(env, shader);
 
-            env.shaderMap.set("M3StandardShader" + i, shader);
+            env.shaderMap.set('M3StandardShader' + i, shader);
         }
 
         return true;
@@ -44,13 +44,13 @@ const M3 = {
         for (let i = 0; i < 14; i++) {
             let color = teamColors[i];
 
-            gl.uniform3fv(shader.uniforms.get("u_teamColors[" + i + "]"), [color[0] / 255, color[1] / 255, color[2] / 255]);
+            gl.uniform3fv(shader.uniforms.get('u_teamColors[' + i + ']'), [color[0] / 255, color[1] / 255, color[2] / 255]);
         }
     },
 
     get extensions() {
         return [
-            [".m3", true]
+            ['.m3', true]
         ];
     },
 

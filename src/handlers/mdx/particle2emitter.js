@@ -1,6 +1,6 @@
-import ResizeableBuffer from "../../gl/resizeablebuffer";
-import MdxParticle2 from "./particle2";
-import MdxParticleEmitter from "./particleemitter";
+import ResizeableBuffer from '../../gl/resizeablebuffer';
+import MdxParticle2 from './particle2';
+import MdxParticleEmitter from './particleemitter';
 
 /**
  * @constructor
@@ -107,15 +107,15 @@ MdxParticle2Emitter.prototype = {
 
             gl.blendFunc(modelObject.blendSrc, modelObject.blendDst);
 
-            gl.uniform2fv(shader.uniforms.get("u_dimensions"), modelObject.dimensions);
+            gl.uniform2fv(shader.uniforms.get('u_dimensions'), modelObject.dimensions);
 
             model.bindTexture(modelObject.internalResource, 0, bucket.modelView);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.buffer);
             gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.buffer.float32array.subarray(0, active * 30));
 
-            gl.vertexAttribPointer(shader.attribs.get("a_position"), 3, gl.FLOAT, false, 20, 0);
-            gl.vertexAttribPointer(shader.attribs.get("a_uva_rgb"), 2, gl.FLOAT, false, 20, 12);
+            gl.vertexAttribPointer(shader.attribs.get('a_position'), 3, gl.FLOAT, false, 20, 0);
+            gl.vertexAttribPointer(shader.attribs.get('a_uva_rgb'), 2, gl.FLOAT, false, 20, 12);
 
             gl.drawArrays(gl.TRIANGLES, 0, active * 6);
         }
@@ -126,39 +126,39 @@ MdxParticle2Emitter.prototype = {
     },
 
     getWidth(instance) {
-        return this.modelObject.sd.getValue("KP2W", instance, this.modelObject.width);
+        return this.modelObject.sd.getValue('KP2W', instance, this.modelObject.width);
     },
 
     getLength(instance) {
-        return this.modelObject.sd.getValue("KP2N", instance, this.modelObject.length);
+        return this.modelObject.sd.getValue('KP2N', instance, this.modelObject.length);
     },
 
     getSpeed(instance) {
-        return this.modelObject.sd.getValue("KP2S", instance, this.modelObject.speed);
+        return this.modelObject.sd.getValue('KP2S', instance, this.modelObject.speed);
     },
 
     getLatitude(instance) {
-        return this.modelObject.sd.getValue("KP2L", instance, this.modelObject.latitude);
+        return this.modelObject.sd.getValue('KP2L', instance, this.modelObject.latitude);
     },
 
     getGravity(instance) {
-        return this.modelObject.sd.getValue("KP2G", instance, this.modelObject.gravity);
+        return this.modelObject.sd.getValue('KP2G', instance, this.modelObject.gravity);
     },
 
     getEmissionRate(instance) {
-        return this.modelObject.sd.getValue("KP2E", instance, this.modelObject.emissionRate);
+        return this.modelObject.sd.getValue('KP2E', instance, this.modelObject.emissionRate);
     },
 
     getEmissionRateKeyframe(instance) {
-        return this.modelObject.sd.getKeyframe("KP2E", instance);
+        return this.modelObject.sd.getKeyframe('KP2E', instance);
     },
 
     getVisibility(instance) {
-        return this.modelObject.sd.getValue("KP2V", instance, 1);
+        return this.modelObject.sd.getValue('KP2V', instance, 1);
     },
 
     getVariation(instance) {
-        return this.modelObject.sd.getValue("KP2R", instance, this.modelObject.variation);
+        return this.modelObject.sd.getValue('KP2R', instance, this.modelObject.variation);
     }
 };
 

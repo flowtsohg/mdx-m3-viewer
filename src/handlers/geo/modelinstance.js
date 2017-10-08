@@ -1,7 +1,7 @@
-import { mat4 } from "gl-matrix";
-import mix from "../../mix";
-import ModelInstance from "../../modelinstance";
-import BoundingShape from "../../boundingshape";
+import { mat4 } from 'gl-matrix';
+import mix from '../../mix';
+import ModelInstance from '../../modelinstance';
+import BoundingShape from '../../boundingshape';
 
 /**
  * @constructor

@@ -1,13 +1,13 @@
-import mix from "../../mix";
-import TextureHandler from "../../texturehandler";
-import ImageTexture from "./texture";
+import mix from '../../mix';
+import TextureHandler from '../../texturehandler';
+import ImageTexture from './texture';
 
 const NativeTexture = {
     get extensions() {
         return [
-            [".png", true],
-            [".jpg", true],
-            [".gif", true]
+            ['.png', true],
+            ['.jpg', true],
+            ['.gif', true]
         ];
     },
 

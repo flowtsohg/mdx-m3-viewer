@@ -1,9 +1,9 @@
-import BinaryReader from "../../../binaryreader";
-import MdxParserUnsupportedChunk from "./unsupportedchunk";
-import MdxParserVersionChunk from "./versionchunk";
-import MdxParserModelChunk from "./modelchunk";
-import MdxParserGenericKnownChunk from "./genericknownchunk";
-import MdxParserGenericUnknownChunk from "./genericunknownchunk";
+import BinaryReader from '../../../binaryreader';
+import MdxParserUnsupportedChunk from './unsupportedchunk';
+import MdxParserVersionChunk from './versionchunk';
+import MdxParserModelChunk from './modelchunk';
+import MdxParserGenericKnownChunk from './genericknownchunk';
+import MdxParserGenericUnknownChunk from './genericunknownchunk';
 
 let tagToFunc = {
     VERS: MdxParserVersionChunk,
@@ -41,7 +41,7 @@ function MdxParser(src) {
     /** @member {Array<MdxParserNode>} */
     this.nodes = [];
 
-    if (reader.read(4) === "MDLX") {
+    if (reader.read(4) === 'MDLX') {
         while (reader.remaining() > 0) {
             let tag = reader.read(4),
                 size = reader.readUint32(),
@@ -50,13 +50,13 @@ function MdxParser(src) {
             if (constructor) {
                 this.chunks.set(tag, new constructor(reader, tag, size, this.nodes));
             } else {
-                console.warn("MdxParser: Unsupported tag - " + tag);
+                console.warn('MdxParser: Unsupported tag - ' + tag);
                 this.chunks.set(tag, new MdxParserUnsupportedChunk(reader.subreader(size), tag, size, this.nodes));
                 reader.skip(size);
             }
         }
     } else {
-        throw new Error("WrongMagicNumber");
+        throw new Error('WrongMagicNumber');
     }
 }
 

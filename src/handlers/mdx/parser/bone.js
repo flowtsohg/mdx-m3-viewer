@@ -1,4 +1,4 @@
-import { readNode } from "./common";
+import { readNode } from './common';
 
 /**
  * @constructor

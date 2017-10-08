@@ -1,5 +1,5 @@
-import { readKnownElements } from "./common";
-import MdxParserLayer from "./layer";
+import { readKnownElements } from './common';
+import MdxParserLayer from './layer';
 
 /**
  * @constructor

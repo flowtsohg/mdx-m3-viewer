@@ -1,4 +1,4 @@
-import M3SdContainer from "./sd";
+import M3SdContainer from './sd';
 
 /**
  * @constructor
@@ -7,7 +7,7 @@ import M3SdContainer from "./sd";
 function M3Stc(stc) {
     const animIds = stc.animIds.getAll();
 
-    this.name = stc.name.getAll().join("");
+    this.name = stc.name.getAll().join('');
     this.runsConcurrent = stc.runsConcurrent;
     this.priority = stc.priority;
     this.stsIndex = stc.stsIndex;

@@ -1,19 +1,19 @@
-import mix from "../../mix";
-import TexturedModel from "../../texturedmodel";
-import MdxParser from "./parser/parser";
-import MdxNode from "./node";
-import MdxTextureAnimation from "./textureanimation";
-import MdxLayer from "./layer";
-import MdxGeosetAnimation from "./geosetanimation";
-import { MdxGeoset } from "./geoset";
-import MdxBatch from "./batch";
-import MdxCamera from "./camera";
-import MdxModelParticleEmitter from "./modelparticleemitter";
-import MdxModelParticle2Emitter from "./modelparticle2emitter";
-import { MdxModelAttachment } from "./attachment";
-import MdxModelEventObject from "./modeleventobject";
-import { MdxShallowGeoset } from "./geoset";
-import Mdx from "./handler";
+import mix from '../../mix';
+import TexturedModel from '../../texturedmodel';
+import MdxParser from './parser/parser';
+import MdxNode from './node';
+import MdxTextureAnimation from './textureanimation';
+import MdxLayer from './layer';
+import MdxGeosetAnimation from './geosetanimation';
+import { MdxGeoset } from './geoset';
+import MdxBatch from './batch';
+import MdxCamera from './camera';
+import MdxModelParticleEmitter from './modelparticleemitter';
+import MdxModelParticle2Emitter from './modelparticle2emitter';
+import { MdxModelAttachment } from './attachment';
+import MdxModelEventObject from './modeleventobject';
+import { MdxShallowGeoset } from './geoset';
+import Mdx from './handler';
 
 /**
  * @constructor
@@ -28,7 +28,7 @@ function MdxModel(env, pathSolver, handler, extension) {
     TexturedModel.call(this, env, pathSolver, handler, extension);
 
     this.parser = null;
-    this.name = "";
+    this.name = '';
     this.replaceables = [];
     this.textureAtlases = {};
     this.nodes = [];
@@ -57,7 +57,7 @@ MdxModel.prototype = {
         try {
             parser = new MdxParser(src);
         } catch (e) {
-            this.onerror("InvalidSource", e);
+            this.onerror('InvalidSource', e);
             return false;
         }
 
@@ -65,29 +65,29 @@ MdxModel.prototype = {
         var chunks = parser.chunks;
 
         this.parser = parser;
-        this.name = chunks.get("MODL").name;
+        this.name = chunks.get('MODL').name;
 
-        if (chunks.has("TEXS")) {
-            objects = chunks.get("TEXS").elements;
+        if (chunks.has('TEXS')) {
+            objects = chunks.get('TEXS').elements;
 
             for (i = 0, l = objects.length; i < l; i++) {
                 this.loadTexture(objects[i]);
             }
         }
 
-        if (chunks.has("SEQS")) {
-            this.sequences = chunks.get("SEQS").elements;
+        if (chunks.has('SEQS')) {
+            this.sequences = chunks.get('SEQS').elements;
         }
 
-        if (chunks.has("GLBS")) {
-            this.globalSequences = chunks.get("GLBS").elements;
+        if (chunks.has('GLBS')) {
+            this.globalSequences = chunks.get('GLBS').elements;
         }
 
         var nodes = parser.nodes;
         var pivots;
 
-        if (chunks.has("PIVT")) {
-            pivots = chunks.get("PIVT").elements;
+        if (chunks.has('PIVT')) {
+            pivots = chunks.get('PIVT').elements;
         } else {
             pivots = [{ value: [0, 0, 0] }];
         }
@@ -110,23 +110,23 @@ MdxModel.prototype = {
         // Checks what sequences are variant or not
         this.setupVariants();
 
-        if (chunks.has("BONE")) {
-            this.bones = chunks.get("BONE").elements;
+        if (chunks.has('BONE')) {
+            this.bones = chunks.get('BONE').elements;
         } else {
             // If there are no bones, reference the injected root node, since the shader requires at least one bone
             this.bones = [{ node: { objectId: 0, index: 0 } }];
         }
 
-        if (chunks.has("TXAN")) {
-            let textureAnimations = chunks.get("TXAN").elements;
+        if (chunks.has('TXAN')) {
+            let textureAnimations = chunks.get('TXAN').elements;
 
             for (let i = 0, l = textureAnimations.length; i < l; i++) {
                 this.textureAnimations[i] = new MdxTextureAnimation(this, textureAnimations[i]);
             }
         }
 
-        if (chunks.has("MTLS")) {
-            objects = chunks.get("MTLS").elements;
+        if (chunks.has('MTLS')) {
+            objects = chunks.get('MTLS').elements;
 
             var materials = [];
 
@@ -156,16 +156,16 @@ MdxModel.prototype = {
             this.materials = materials;
         }
 
-        if (chunks.has("GEOA")) {
-            let geosetAnimations = chunks.get("GEOA").elements;
+        if (chunks.has('GEOA')) {
+            let geosetAnimations = chunks.get('GEOA').elements;
 
             for (let i = 0, l = geosetAnimations.length; i < l; i++) {
                 this.geosetAnimations[i] = new MdxGeosetAnimation(this, geosetAnimations[i]);
             }
         }
 
-        if (chunks.has("GEOS")) {
-            let geosets = chunks.get("GEOS").elements,
+        if (chunks.has('GEOS')) {
+            let geosets = chunks.get('GEOS').elements,
                 opaqueBatches = [],
                 translucentBatches = [],
                 batchId = 0;
@@ -207,24 +207,24 @@ MdxModel.prototype = {
 
         this.setupGeosets();
 
-        if (chunks.has("CAMS")) {
-            let cameras = chunks.get("CAMS").elements;
+        if (chunks.has('CAMS')) {
+            let cameras = chunks.get('CAMS').elements;
 
             for (let i = 0, l = cameras.length; i < l; i++) {
                 this.cameras[i] = new MdxCamera(this, cameras[i]);
             }
         }
 
-        if (chunks.has("PREM")) {
-            let particleEmitters = chunks.get("PREM").elements;
+        if (chunks.has('PREM')) {
+            let particleEmitters = chunks.get('PREM').elements;
 
             for (let i = 0, l = particleEmitters.length; i < l; i++) {
                 this.particleEmitters[i] = new MdxModelParticleEmitter(this, particleEmitters[i]);
             }
         }
 
-        if (chunks.has("PRE2")) {
-            let particle2Emitters = chunks.get("PRE2").elements;
+        if (chunks.has('PRE2')) {
+            let particle2Emitters = chunks.get('PRE2').elements;
 
             particle2Emitters.sort((a, b) => a.priorityPlane - b.priorityPlane);
 
@@ -233,24 +233,24 @@ MdxModel.prototype = {
             }
         }
 
-        if (chunks.has("RIBB")) {
-            this.ribbonEmitters = chunks.get("RIBB").elements;
+        if (chunks.has('RIBB')) {
+            this.ribbonEmitters = chunks.get('RIBB').elements;
         }
 
-        if (chunks.has("CLID")) {
-            this.boundingShapes = chunks.get("CLID").elements;
+        if (chunks.has('CLID')) {
+            this.boundingShapes = chunks.get('CLID').elements;
         }
 
-        if (chunks.has("ATCH")) {
-            let attachments = chunks.get("ATCH").elements;
+        if (chunks.has('ATCH')) {
+            let attachments = chunks.get('ATCH').elements;
 
             for (let i = 0, l = attachments.length; i < l; i++) {
                 this.attachments[i] = new MdxModelAttachment(this, attachments[i]);
             }
         }
 
-        if (chunks.has("EVTS")) {
-            let eventObjects = chunks.get("EVTS").elements;
+        if (chunks.has('EVTS')) {
+            let eventObjects = chunks.get('EVTS').elements;
 
             for (let i = 0, l = eventObjects.length; i < l; i++) {
                 this.eventObjectEmitters.push(new MdxModelEventObject(this, eventObjects[i]));
@@ -365,17 +365,17 @@ MdxModel.prototype = {
         var replaceableId = texture.replaceableId;
 
         if (replaceableId !== 0) {
-            path = "replaceabletextures/" + Mdx.replaceableIdToName[replaceableId] + ".blp";
+            path = 'replaceabletextures/' + Mdx.replaceableIdToName[replaceableId] + '.blp';
         }
 
         // If the path is corrupted, try to fix it.
-        if (!path.endsWith(".blp") || !path.endsWith(".tga")) {
+        if (!path.endsWith('.blp') || !path.endsWith('.tga')) {
             // Try to search for .blp
-            var index = path.indexOf(".blp");
+            var index = path.indexOf('.blp');
 
             if (index === -1) {
                 // Not a .blp, try to search for .tga
-                index = path.indexOf(".tga");
+                index = path.indexOf('.tga');
             }
 
             if (index !== -1) {
@@ -450,7 +450,7 @@ MdxModel.prototype = {
 
         // HACK UNTIL I IMPLEMENT MULTIPLE SHADERS AGAIN
 
-        var shader = this.env.shaderMap.get("MdxStandardShader");
+        var shader = this.env.shaderMap.get('MdxStandardShader');
         webgl.useShaderProgram(shader);
         this.shader = shader;
 
@@ -458,31 +458,31 @@ MdxModel.prototype = {
         const attribs = shader.attribs;
         const uniforms = shader.uniforms;
 
-        gl.uniformMatrix4fv(uniforms.get("u_mvp"), false, scene.camera.worldProjectionMatrix);
+        gl.uniformMatrix4fv(uniforms.get('u_mvp'), false, scene.camera.worldProjectionMatrix);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.__webglElementBuffer);
 
-        gl.uniform1i(uniforms.get("u_texture"), 0);
+        gl.uniform1i(uniforms.get('u_texture'), 0);
 
         // Team colors
-        let teamColor = attribs.get("a_teamColor");
+        let teamColor = attribs.get('a_teamColor');
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.teamColorBuffer);
         gl.vertexAttribPointer(teamColor, 1, gl.UNSIGNED_BYTE, false, 1, 0);
         instancedArrays.vertexAttribDivisorANGLE(teamColor, 1);
 
         // Vertex colors
-        let vertexColor = attribs.get("a_vertexColor");
+        let vertexColor = attribs.get('a_vertexColor');
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.vertexColorBuffer);
         gl.vertexAttribPointer(vertexColor, 4, gl.UNSIGNED_BYTE, true, 4, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
         instancedArrays.vertexAttribDivisorANGLE(vertexColor, 1);
 
         gl.activeTexture(gl.TEXTURE15);
         gl.bindTexture(gl.TEXTURE_2D, bucket.boneTexture);
-        gl.uniform1i(uniforms.get("u_boneMap"), 15);
-        gl.uniform1f(uniforms.get("u_vectorSize"), bucket.vectorSize);
-        gl.uniform1f(uniforms.get("u_rowSize"), bucket.rowSize);
+        gl.uniform1i(uniforms.get('u_boneMap'), 15);
+        gl.uniform1f(uniforms.get('u_vectorSize'), bucket.vectorSize);
+        gl.uniform1f(uniforms.get('u_rowSize'), bucket.rowSize);
 
-        let instanceId = attribs.get("a_InstanceID");
+        let instanceId = attribs.get('a_InstanceID');
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);
         gl.vertexAttribPointer(instanceId, 1, gl.UNSIGNED_SHORT, false, 0, 0);
         instancedArrays.vertexAttribDivisorANGLE(instanceId, 1);
@@ -500,13 +500,13 @@ MdxModel.prototype = {
         gl.enable(gl.DEPTH_TEST);
 
         // Reset the attributes to play nice with other handlers
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_teamColor"), 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_vertexColor"), 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_InstanceID"), 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_batchVisible"), 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_geosetColor"), 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_layerAlpha"), 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get("a_uvOffset"), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_teamColor'), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_vertexColor'), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_InstanceID'), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_batchVisible'), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_geosetColor'), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_layerAlpha'), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_uvOffset'), 0);
     },
 
     renderBatch(bucket, batch) {
@@ -531,7 +531,7 @@ MdxModel.prototype = {
             colorMode = 2;
         }
         
-        gl.uniform1f(uniforms.get("u_colorMode"), colorMode);
+        gl.uniform1f(uniforms.get('u_colorMode'), colorMode);
 
         let texture;
 
@@ -540,7 +540,7 @@ MdxModel.prototype = {
             texture = this.textures[layer.textureId];
 
             // Is this layer animated?
-            gl.uniform1f(uniforms.get("u_hasLayerAnim"), layer.hasSlotAnim || layer.hasUvAnim);
+            gl.uniform1f(uniforms.get('u_hasLayerAnim'), layer.hasSlotAnim || layer.hasUvAnim);
         }
 
         // When this is a team color/glow, texture is undefined, so the black texture will get bound.
@@ -548,32 +548,32 @@ MdxModel.prototype = {
         this.bindTexture(texture, 0, bucket.modelView);
 
         // Batch visibilities
-        let geosetVisible = attribs.get("a_geosetVisible");
+        let geosetVisible = attribs.get('a_geosetVisible');
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.geosetVisibilityBuffers[geoset.index]);
         gl.vertexAttribPointer(geosetVisible, 1, gl.UNSIGNED_BYTE, false, 1, 0);
         instancedArrays.vertexAttribDivisorANGLE(geosetVisible, 1);
 
         // Geoset colors
-        let geosetColor = attribs.get("a_geosetColor");
+        let geosetColor = attribs.get('a_geosetColor');
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.geosetColorBuffers[geoset.index]);
         gl.vertexAttribPointer(geosetColor, 3, gl.UNSIGNED_BYTE, true, 3, 0);
         instancedArrays.vertexAttribDivisorANGLE(geosetColor, 1);
 
         // Layer alphas
-        let layerAlpha = attribs.get("a_layerAlpha");
+        let layerAlpha = attribs.get('a_layerAlpha');
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.layerAlphaBuffers[layer.index]);
         gl.vertexAttribPointer(layerAlpha, 1, gl.UNSIGNED_BYTE, true, 1, 0);
         instancedArrays.vertexAttribDivisorANGLE(layerAlpha, 1);
 
         // Texture coordinate animations
-        let uvOffset = attribs.get("a_uvOffset");
+        let uvOffset = attribs.get('a_uvOffset');
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.uvOffsetBuffers[layer.index]);
         gl.vertexAttribPointer(uvOffset, 4, gl.FLOAT, false, 16, 0);
         instancedArrays.vertexAttribDivisorANGLE(uvOffset, 1);
 
         // Texture coordinate divisor
         // Used for layers that use image animations, in order to scale the coordinates to match the generated texture atlas
-        gl.uniform2f(uniforms.get("u_uvScale"), 1 / layer.uvDivisor[0], 1 / layer.uvDivisor[1]);
+        gl.uniform2f(uniforms.get('u_uvScale'), 1 / layer.uvDivisor[0], 1 / layer.uvDivisor[1]);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.__webglArrayBuffer);
         shallowGeoset.bind(shader, layer.coordId);
@@ -615,14 +615,14 @@ MdxModel.prototype = {
             gl.disable(gl.CULL_FACE);
             gl.enable(gl.DEPTH_TEST);
 
-            var shader = this.env.shaderMap.get("MdxParticleShader");
+            var shader = this.env.shaderMap.get('MdxParticleShader');
             webgl.useShaderProgram(shader);
 
-            gl.uniformMatrix4fv(shader.uniforms.get("u_mvp"), false, scene.camera.worldProjectionMatrix);
+            gl.uniformMatrix4fv(shader.uniforms.get('u_mvp'), false, scene.camera.worldProjectionMatrix);
 
-            gl.uniform1i(shader.uniforms.get("u_texture"), 0);
+            gl.uniform1i(shader.uniforms.get('u_texture'), 0);
 
-            gl.uniform1f(shader.uniforms.get("u_isRibbonEmitter"), false);
+            gl.uniform1f(shader.uniforms.get('u_isRibbonEmitter'), false);
 
             for (let i = 0, l = particle2Emitters.length; i < l; i++) {
                 particle2Emitters[i].render(bucket, shader);
@@ -632,7 +632,7 @@ MdxModel.prototype = {
                 eventObjectEmitters[i].render(bucket, shader);
             }
 
-            gl.uniform1f(shader.uniforms.get("u_isRibbonEmitter"), true);
+            gl.uniform1f(shader.uniforms.get('u_isRibbonEmitter'), true);
 
             for (let i = 0, l = ribbonEmitters.length; i < l; i++) {
                 ribbonEmitters[i].render(bucket, shader);

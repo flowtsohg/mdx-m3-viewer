@@ -1,5 +1,5 @@
-import W3xParserDoodad from "./doodad";
-import W3xParserSpecialDoodad from "./specialdoodad";
+import W3xParserDoodad from './doodad';
+import W3xParserSpecialDoodad from './specialdoodad';
 
 /**
  * @constructor

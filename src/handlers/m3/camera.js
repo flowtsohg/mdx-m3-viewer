@@ -4,7 +4,7 @@
  */
 function M3Camera(camera) {
     this.bone = camera.bone;
-    this.name = camera.name.getAll().join("");
+    this.name = camera.name.getAll().join('');
 
     /// TODO: Add animated getters, much like the Mdx structures.
     /*

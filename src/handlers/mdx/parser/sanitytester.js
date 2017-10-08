@@ -1,24 +1,24 @@
-import MdxParserModelChunk from "./modelchunk";
-import MdxParserSequence from "./sequence";
-import MdxParserGlobalSequence from "./globalsequence";
-import MdxParserTexture from "./texture";
-import MdxParserPivotPoint from "./pivotpoint";
-import MdxParserMaterial from "./material";
-import MdxParserLayer from "./layer";
-import MdxParserTextureAnimation from "./textureanimation";
-import MdxParserGeoset from "./geoset";
-import MdxParserGeosetAnimation from "./geosetanimation";
-import MdxParserBone from "./bone";
-import MdxParserLight from "./light";
-import MdxParserHelper from "./helper";
-import MdxParserAttachment from "./attachment";
-import MdxParserParticleEmitter from "./particleemitter";
-import MdxParserParticle2Emitter from "./particle2emitter";
-import MdxParserRibbonEmitter from "./ribbonemitter";
-import MdxParserEventObject from "./eventobject";
-import MdxParserCamera from "./camera";
-import MdxParserCollisionShape from "./collisionshape";
-import MdxParserNode from "./node";
+import MdxParserModelChunk from './modelchunk';
+import MdxParserSequence from './sequence';
+import MdxParserGlobalSequence from './globalsequence';
+import MdxParserTexture from './texture';
+import MdxParserPivotPoint from './pivotpoint';
+import MdxParserMaterial from './material';
+import MdxParserLayer from './layer';
+import MdxParserTextureAnimation from './textureanimation';
+import MdxParserGeoset from './geoset';
+import MdxParserGeosetAnimation from './geosetanimation';
+import MdxParserBone from './bone';
+import MdxParserLight from './light';
+import MdxParserHelper from './helper';
+import MdxParserAttachment from './attachment';
+import MdxParserParticleEmitter from './particleemitter';
+import MdxParserParticle2Emitter from './particle2emitter';
+import MdxParserRibbonEmitter from './ribbonemitter';
+import MdxParserEventObject from './eventobject';
+import MdxParserCamera from './camera';
+import MdxParserCollisionShape from './collisionshape';
+import MdxParserNode from './node';
 
 // Is minVal <= x <= maxVal?
 function inRange(x, minVal, maxVal) {
@@ -39,26 +39,26 @@ MdxSanityTester.prototype = {
         this.output = { errors: [], warnings: [], usage: [] };
 
         this.nodes = parser.nodes;
-        this.versionChunk = chunks.get("VERS");
-        this.modelChunk = chunks.get("MODL");
-        this.sequences = this.getElements(chunks.get("SEQS"));
-        this.globalSequences = this.getElements(chunks.get("GLBS")),
-        this.textures = this.getElements(chunks.get("TEXS")),
-        this.textureAnimations = this.getElements(chunks.get("TXAN")),
-        this.materials = this.getElements(chunks.get("MTLS")),
-        this.geosets = this.getElements(chunks.get("GEOS")),
-        this.geosetAnimations = this.getElements(chunks.get("GEOA")),
-        this.bones = this.getElements(chunks.get("BONE")),
-        this.lights = this.getElements(chunks.get("LITE")),
-        this.helpers = this.getElements(chunks.get("HELP")),
-        this.attachments = this.getElements(chunks.get("ATCH")),
-        this.pivotPoints = this.getElements(chunks.get("PIVT")),
-        this.particleEmitters = this.getElements(chunks.get("PREM")),
-        this.particle2Emitters = this.getElements(chunks.get("PRE2")),
-        this.ribbonEmitters = this.getElements(chunks.get("RIBB")),
-        this.eventObjects = this.getElements(chunks.get("EVTS")),
-        this.cameras = this.getElements(chunks.get("CAMS")),
-        this.collisionShapes = this.getElements(chunks.get("CLID"));
+        this.versionChunk = chunks.get('VERS');
+        this.modelChunk = chunks.get('MODL');
+        this.sequences = this.getElements(chunks.get('SEQS'));
+        this.globalSequences = this.getElements(chunks.get('GLBS')),
+        this.textures = this.getElements(chunks.get('TEXS')),
+        this.textureAnimations = this.getElements(chunks.get('TXAN')),
+        this.materials = this.getElements(chunks.get('MTLS')),
+        this.geosets = this.getElements(chunks.get('GEOS')),
+        this.geosetAnimations = this.getElements(chunks.get('GEOA')),
+        this.bones = this.getElements(chunks.get('BONE')),
+        this.lights = this.getElements(chunks.get('LITE')),
+        this.helpers = this.getElements(chunks.get('HELP')),
+        this.attachments = this.getElements(chunks.get('ATCH')),
+        this.pivotPoints = this.getElements(chunks.get('PIVT')),
+        this.particleEmitters = this.getElements(chunks.get('PREM')),
+        this.particle2Emitters = this.getElements(chunks.get('PRE2')),
+        this.ribbonEmitters = this.getElements(chunks.get('RIBB')),
+        this.eventObjects = this.getElements(chunks.get('EVTS')),
+        this.cameras = this.getElements(chunks.get('CAMS')),
+        this.collisionShapes = this.getElements(chunks.get('CLID'));
         
         this.referenceMap = new Map();
 
@@ -112,43 +112,43 @@ MdxSanityTester.prototype = {
     },
 
     getConstructorName(object) {
-        if (object instanceof MdxParserModelChunk) { return "Model Chunk" }
-        if (object instanceof MdxParserSequence) { return "Sequence" }
-        if (object instanceof MdxParserGlobalSequence) { return "Global Sequence" }
-        if (object instanceof MdxParserTexture) { return "Texture" }
-        if (object instanceof MdxParserPivotPoint) { return "Pivot Point" }
-        if (object instanceof MdxParserMaterial) { return "Material" }
-        if (object instanceof MdxParserLayer) { return "Layer" }
-        if (object instanceof MdxParserTextureAnimation) { return "Texture Animation" }
-        if (object instanceof MdxParserGeoset) { return "Geoset" }
-        if (object instanceof MdxParserGeosetAnimation) { return "Geoset Animation" }
-        if (object instanceof MdxParserBone) { return "Bone" }
-        if (object instanceof MdxParserLight) { return "Light" }
-        if (object instanceof MdxParserHelper) { return "Helper" }
-        if (object instanceof MdxParserAttachment) { return "Attachment" }
-        if (object instanceof MdxParserParticleEmitter) { return "Particle Emitter" }
-        if (object instanceof MdxParserParticle2Emitter) { return "Particle 2 Emitter" }
-        if (object instanceof MdxParserRibbonEmitter) { return "Ribbon Emitter" }
-        if (object instanceof MdxParserEventObject) { return "Event Object" }
-        if (object instanceof MdxParserCamera) { return "Camera" }
-        if (object instanceof MdxParserCollisionShape) { return "Collision Shape" }
-        if (object instanceof MdxParserNode) { return "Node" }
-        return "";
+        if (object instanceof MdxParserModelChunk) { return 'Model Chunk' }
+        if (object instanceof MdxParserSequence) { return 'Sequence' }
+        if (object instanceof MdxParserGlobalSequence) { return 'Global Sequence' }
+        if (object instanceof MdxParserTexture) { return 'Texture' }
+        if (object instanceof MdxParserPivotPoint) { return 'Pivot Point' }
+        if (object instanceof MdxParserMaterial) { return 'Material' }
+        if (object instanceof MdxParserLayer) { return 'Layer' }
+        if (object instanceof MdxParserTextureAnimation) { return 'Texture Animation' }
+        if (object instanceof MdxParserGeoset) { return 'Geoset' }
+        if (object instanceof MdxParserGeosetAnimation) { return 'Geoset Animation' }
+        if (object instanceof MdxParserBone) { return 'Bone' }
+        if (object instanceof MdxParserLight) { return 'Light' }
+        if (object instanceof MdxParserHelper) { return 'Helper' }
+        if (object instanceof MdxParserAttachment) { return 'Attachment' }
+        if (object instanceof MdxParserParticleEmitter) { return 'Particle Emitter' }
+        if (object instanceof MdxParserParticle2Emitter) { return 'Particle 2 Emitter' }
+        if (object instanceof MdxParserRibbonEmitter) { return 'Ribbon Emitter' }
+        if (object instanceof MdxParserEventObject) { return 'Event Object' }
+        if (object instanceof MdxParserCamera) { return 'Camera' }
+        if (object instanceof MdxParserCollisionShape) { return 'Collision Shape' }
+        if (object instanceof MdxParserNode) { return 'Node' }
+        return '';
     },
 
     getName(object) {
         let name = this.getConstructorName(object);
 
-        if (typeof object.index === "number") {
-            name += " " + object.index;
+        if (typeof object.index === 'number') {
+            name += ' ' + object.index;
         }
 
-        if (typeof object.name === "string") {
-            name += " \"" + object.name + "\"";
+        if (typeof object.name === 'string') {
+            name += ' \'' + object.name + '\'';
         }
 
         if (object.node) {
-            name += " \"" + object.node.name + "\"";
+            name += ' \'' + object.node.name + '\'';
         }
 
         return name;
@@ -175,7 +175,7 @@ MdxSanityTester.prototype = {
 
         // ModelChunk, Sequence, Geoset
         if (extent) {
-            this.assertWarning(this.isExtentValid(extent), objectName + ": Extent: radius=" + extent.radius +" min=[" + extent.min.join(",") + "] max=[" + extent.max.join(",") + "]");
+            this.assertWarning(this.isExtentValid(extent), objectName + ': Extent: radius=' + extent.radius +' min=[' + extent.min.join(',') + '] max=[' + extent.max.join(',') + ']');
         }
 
         let extents = object.extents;
@@ -185,7 +185,7 @@ MdxSanityTester.prototype = {
             for (let i = 0, l = extents.length; i < l; i++) {
                 let extent = extents[i];
 
-                this.assertWarning(this.isExtentValid(extent), objectName + ": Extent " + i + ": radius=" + extent.radius +" min=[" + extent.min.join(",") + "] max=[" + extent.max.join(",") + "]");
+                this.assertWarning(this.isExtentValid(extent), objectName + ': Extent ' + i + ': radius=' + extent.radius +' min=[' + extent.min.join(',') + '] max=[' + extent.max.join(',') + ']');
             }
         }
     },
@@ -194,7 +194,7 @@ MdxSanityTester.prototype = {
     testVersion() {
         let versionChunk = this.versionChunk;
 
-        this.assertWarning(versionChunk.version === 800, "Unknown version " + versionChunk.version);
+        this.assertWarning(versionChunk.version === 800, 'Unknown version ' + versionChunk.version);
     },
 
     // ?
@@ -220,40 +220,40 @@ MdxSanityTester.prototype = {
             for (let i = 0, l = sequences.length; i < l; i++) {
                 let sequence = sequences[i],
                     name = sequence.name,
-                    tokens = name.toLowerCase().trim().split("-")[0].split(/\s+/),
+                    tokens = name.toLowerCase().trim().split('-')[0].split(/\s+/),
                     token = tokens[0],
                     interval = sequence.interval,
                     length = interval[1] - interval[0],
                     objectName = this.getName(sequence);
 
-                if (token === "alternate") {
+                if (token === 'alternate') {
                     token = tokens[1];
                 }
 
-                if (token === "stand") {
+                if (token === 'stand') {
                     foundStand = true;
                 }
 
-                if (token === "death") {
+                if (token === 'death') {
                     foundDeath = true;
                 }
 
                 if (this.sequenceNames.has(token)) {
                     this.addReference(sequence);
                 } else {
-                    this.addWarning(objectName + ": Not used due to an invalid name: \"" + token + "\"");
+                    this.addWarning(objectName + ': Not used due to an invalid name: \'' + token + '\'');
                 }
 
-                this.assertWarning(length !== 0, objectName + ": Zero length");
-                this.assertWarning(length > -1, objectName + ": Negative length " + length);
+                this.assertWarning(length !== 0, objectName + ': Zero length');
+                this.assertWarning(length > -1, objectName + ': Negative length ' + length);
 
                 this.testExtents(sequence);
             }
 
-            this.assertWarning(foundStand, "Missing \"Stand\" sequence");
-            this.assertWarning(foundDeath, "Missing \"Death\" sequence");
+            this.assertWarning(foundStand, 'Missing \'Stand\' sequence');
+            this.assertWarning(foundDeath, 'Missing \'Death\' sequence');
         } else {
-            this.addWarning("No sequences");
+            this.addWarning('No sequences');
         }
     },
 
@@ -267,8 +267,8 @@ MdxSanityTester.prototype = {
                 value = sequence.value,
                 objectName = this.getName(sequence);
 
-            this.assertWarning(value !== 0, objectName + ": Zero length");
-            this.assertWarning(value > 0, objectName + ": Negative length " + value);
+            this.assertWarning(value !== 0, objectName + ': Zero length');
+            this.assertWarning(value > 0, objectName + ': Negative length ' + value);
         }
     },
 
@@ -285,12 +285,12 @@ MdxSanityTester.prototype = {
                     path = texture.path.toLowerCase(),
                     objectName = this.getName(texture);
 
-                this.assertError(path === "" || path.endsWith(".blp") || path.endsWith(".tga"), objectName + ": Corrupted path \"" + path + "\"");
-                this.assertError(replaceableId === 0 || this.replaceableIds.has(replaceableId), objectName + ": Unknown replaceable ID " + replaceableId);
-                this.assertWarning(path === "" || replaceableId === 0, objectName + ": Path \"" + path + "\" and replaceable ID " + replaceableId + " used together");
+                this.assertError(path === '' || path.endsWith('.blp') || path.endsWith('.tga'), objectName + ': Corrupted path \'' + path + '\'');
+                this.assertError(replaceableId === 0 || this.replaceableIds.has(replaceableId), objectName + ': Unknown replaceable ID ' + replaceableId);
+                this.assertWarning(path === '' || replaceableId === 0, objectName + ': Path \'' + path + '\' and replaceable ID ' + replaceableId + ' used together');
             }
         } else {
-            this.addWarning("No textures");
+            this.addWarning('No textures');
         }
     },
 
@@ -303,7 +303,7 @@ MdxSanityTester.prototype = {
                 this.testMaterial(materials[i]);
             }
         } else {
-            this.addWarning("No materials");
+            this.addWarning('No materials');
         }
     },
 
@@ -316,7 +316,7 @@ MdxSanityTester.prototype = {
                 this.testLayer(material, layers[i])
             }
         } else {
-            this.addWarning(this.getName(material) + ": No layers");
+            this.addWarning(this.getName(material) + ': No layers');
         }
     },
 
@@ -324,7 +324,7 @@ MdxSanityTester.prototype = {
         let textureIds = [];
 
         for (let sd of layer.tracks.elements) {
-            if (sd.tag === "KMTF") {
+            if (sd.tag === 'KMTF') {
                 let values = [];
 
                 for (let track of sd.tracks) {
@@ -341,13 +341,13 @@ MdxSanityTester.prototype = {
     // Warning: Invalid filter mode (?).
     // Warning: Invalid texture id (?)
     testLayer(material, layer) {
-        let objectName = this.getName(material) + ": " + this.getName(layer);
+        let objectName = this.getName(material) + ': ' + this.getName(layer);
 
         for (let textureId of this.getTextureIds(layer)) {
             if (inRange(textureId, 0, this.textures.length - 1)) {
                 this.addReference(this.textures[textureId]);
             } else {
-                this.addError(objectName + ": Invalid texture " + textureId);
+                this.addError(objectName + ': Invalid texture ' + textureId);
             }
         }
 
@@ -357,11 +357,11 @@ MdxSanityTester.prototype = {
             if (inRange(textureAnimationId, 0, this.textureAnimations.length - 1)) {
                 this.addReference(this.textureAnimations[textureAnimationId]);
             } else {
-                this.addWarning(objectName + " Invalid texture animation " + textureAnimationId);
+                this.addWarning(objectName + ' Invalid texture animation ' + textureAnimationId);
             }
         }
 
-        this.assertWarning(inRange(layer.filterMode, 0, 6), objectName + " Invalid filter mode " + layer.filterMode);
+        this.assertWarning(inRange(layer.filterMode, 0, 6), objectName + ' Invalid filter mode ' + layer.filterMode);
         
         this.testSDContainer(layer, material);
     },
@@ -388,7 +388,7 @@ MdxSanityTester.prototype = {
                 objectName = this.getName(geoset);
 
             for (let j = 0, k = matrixGroups.length; j < k; j++) {
-                this.assertWarning(matrixGroups[j] > 0, objectName + ": Vertex " + j + ": Not attached to any bones");
+                this.assertWarning(matrixGroups[j] > 0, objectName + ': Vertex ' + j + ': Not attached to any bones');
             }
 
             if (geosetAnimations.length) {
@@ -400,13 +400,13 @@ MdxSanityTester.prototype = {
                     }
                 }
 
-                this.assertWarning(references.length <= 1, objectName + ": Referenced by " + references.length + " geoset animations (" + references.join(", ") + ")");
+                this.assertWarning(references.length <= 1, objectName + ': Referenced by ' + references.length + ' geoset animations (' + references.join(', ') + ')');
             }
 
             if (inRange(materialId, 0, this.materials.length - 1)) {
                 this.addReference(this.materials[materialId]);
             } else {
-                this.addError(objectName + ": Invalid material " + materialId);
+                this.addError(objectName + ': Invalid material ' + materialId);
             }
 
             this.testExtents(geoset);
@@ -428,7 +428,7 @@ MdxSanityTester.prototype = {
             if (inRange(geosetId, 0, this.geosets.length - 1)) {
                 this.addReference(geosetAnimation);
             } else {
-                this.addError(objectName + ": Invalid geoset " + geosetId);
+                this.addError(objectName + ': Invalid geoset ' + geosetId);
             }
 
             this.testSDContainer(geosetAnimations[i]);
@@ -449,12 +449,12 @@ MdxSanityTester.prototype = {
                     geosetAnimationId = bone.geosetAnimationId,
                     objectName = this.getName(bone);
 
-                this.assertError(geosetId === -1 || geosetId < geosets.length, objectName + ": Invalid geoset " + geosetId);
-                this.assertError(geosetAnimationId === -1 || geosetAnimationId < geosetAnimations.length, objectName + ": Invalid geoset animation " + geosetAnimationId);
+                this.assertError(geosetId === -1 || geosetId < geosets.length, objectName + ': Invalid geoset ' + geosetId);
+                this.assertError(geosetAnimationId === -1 || geosetAnimationId < geosetAnimations.length, objectName + ': Invalid geoset animation ' + geosetAnimationId);
                 this.testNode(bone);
             }
         } else {
-            this.addWarning("No bones");
+            this.addWarning('No bones');
         }
     },
 
@@ -467,7 +467,7 @@ MdxSanityTester.prototype = {
                 attenuation = light.attenuation,
                 objectName = this.getName(light);
 
-            this.assertWarning(attenuation[0] >= 80 && attenuation[1] <= 200 && attenuation[1] - attenuation[0] > 0, objectName + ": Attenuation min=" + attenuation[0] + " max=" + attenuation[1]);
+            this.assertWarning(attenuation[0] >= 80 && attenuation[1] <= 200 && attenuation[1] - attenuation[0] > 0, objectName + ': Attenuation min=' + attenuation[0] + ' max=' + attenuation[1]);
 
             this.testSDContainer(light)
             this.testNode(light);
@@ -483,7 +483,7 @@ MdxSanityTester.prototype = {
         }
     },
 
-    // Error: Attachment path that doesn't end with ".mdl".
+    // Error: Attachment path that doesn't end with '.mdl'.
     testAttachments() {
         let attachments = this.attachments;
 
@@ -492,10 +492,10 @@ MdxSanityTester.prototype = {
                 path = attachment.path,
                 objectName = this.getName(attachment);
 
-            if (path === "") {
-                this.assertWarning(this.testAttachmentName(attachment), objectName + ": Invalid attachment \"" + attachment.node.name + "\"");
+            if (path === '') {
+                this.assertWarning(this.testAttachmentName(attachment), objectName + ': Invalid attachment \'' + attachment.node.name + '\'');
             } else {
-                this.assertError(path.toLowerCase().endsWith(".mdl"), objectName + ": Invalid path \"" + path + "\"");
+                this.assertError(path.toLowerCase().endsWith('.mdl'), objectName + ': Invalid path \'' + path + '\'');
             }
 
             this.testSDContainer(attachment)
@@ -512,7 +512,7 @@ MdxSanityTester.prototype = {
                 firstToken = tokens[0],
                 lastToken = tokens[tokens.length - 1];
 
-            if (!names.has(tokens[0]) || lastToken !== "ref") {
+            if (!names.has(tokens[0]) || lastToken !== 'ref') {
                 valid = false;
             }
 
@@ -537,7 +537,7 @@ MdxSanityTester.prototype = {
         let pivotPoints = this.pivotPoints,
             nodes = this.nodes;
 
-        this.assertWarning(pivotPoints.length === nodes.length, "Expected " + nodes.length + " pivot points, got " + pivotPoints.length);
+        this.assertWarning(pivotPoints.length === nodes.length, 'Expected ' + nodes.length + ' pivot points, got ' + pivotPoints.length);
     },
 
     // Error: Corrupted path (?).
@@ -548,7 +548,7 @@ MdxSanityTester.prototype = {
             let emitter = emitters[i],
                 objectName = this.getName(emitter);
 
-            this.assertError(emitter.path.toLowerCase().endsWith(".mdl"), objectName + ": Invalid path \"" + emitter.path + "\"");
+            this.assertError(emitter.path.toLowerCase().endsWith('.mdl'), objectName + ': Invalid path \'' + emitter.path + '\'');
 
             this.testSDContainer(emitter)
             this.testNode(emitter);
@@ -567,11 +567,11 @@ MdxSanityTester.prototype = {
             if (inRange(emitter.textureId, 0, this.textures.length - 1)) {
                 this.addReference(this.textures[emitter.textureId]);
             } else {
-                this.addError(objectName + ": Invalid texture " + emitter.textureId);
+                this.addError(objectName + ': Invalid texture ' + emitter.textureId);
             }
 
-            this.assertWarning(inRange(emitter.filterMode, 0, 4), objectName + ": Invalid filter mode " + emitter.filterMode);
-            this.assertError(replaceableId === 0 || this.replaceableIds.has(replaceableId), objectName + ": Invalid replaceable ID " + replaceableId);
+            this.assertWarning(inRange(emitter.filterMode, 0, 4), objectName + ': Invalid filter mode ' + emitter.filterMode);
+            this.assertError(replaceableId === 0 || this.replaceableIds.has(replaceableId), objectName + ': Invalid replaceable ID ' + replaceableId);
 
             this.testSDContainer(emitter)
             this.testNode( emitter);
@@ -589,7 +589,7 @@ MdxSanityTester.prototype = {
             if (inRange(emitter.materialId, 0, this.materials.length - 1)) {
                 this.addReference(this.materials[emitter.materialId]);
             } else {
-                this.addError(objectName + ": Invalid material " + emitter.materialId);
+                this.addError(objectName + ': Invalid material ' + emitter.materialId);
             }
 
             this.testSDContainer(emitter)
@@ -612,7 +612,7 @@ MdxSanityTester.prototype = {
                 if (inRange(globalSequenceId, 0, this.globalSequences.length - 1)) {
                     this.addReference(this.globalSequences[globalSequenceId]);
                 } else {
-                    this.addError(objectName + ": Invalid global sequence " + globalSequenceId);
+                    this.addError(objectName + ': Invalid global sequence ' + globalSequenceId);
                 }
             }
 
@@ -622,10 +622,10 @@ MdxSanityTester.prototype = {
                         sequenceInfo = this.getSequenceInfoFromFrame(track, globalSequenceId),
                         sequenceId = sequenceInfo[0];
 
-                    this.assertWarning(sequenceId !== -1, objectName + ": Track " + j + ": Frame " + track + " is not in any sequence");
+                    this.assertWarning(sequenceId !== -1, objectName + ': Track ' + j + ': Frame ' + track + ' is not in any sequence');
                 }
             } else {
-                this.addError(objectName + ": Zero keys");
+                this.addError(objectName + ': Zero keys');
             }
 
             this.testNode(eventObject);
@@ -661,8 +661,8 @@ MdxSanityTester.prototype = {
             parentId = node.parentId,
             objectName = this.getName(node);
 
-        this.assertError(parentId === -1 || this.hasNode(parentId), objectName + ": Invalid parent " + parentId);
-        this.assertError(objectId !== parentId, objectName + ": Same object and parent");
+        this.assertError(parentId === -1 || this.hasNode(parentId), objectName + ': Invalid parent ' + parentId);
+        this.assertError(objectId !== parentId, objectName + ': Same object and parent');
             
         this.testSDContainer(node);
     },
@@ -697,7 +697,7 @@ MdxSanityTester.prototype = {
             if (inRange(globalSequenceId, 0, this.globalSequences.length - 1)) {
                 this.addReference(this.globalSequences[globalSequenceId]);
             } else {
-                this.addError(objectName + ": " + animatedType + ": Invalid global sequence " + globalSequenceId);
+                this.addError(objectName + ': ' + animatedType + ': Invalid global sequence ' + globalSequenceId);
             }
         }
 
@@ -715,8 +715,8 @@ MdxSanityTester.prototype = {
         let sequences = this.sequences,
             usageMap = {};
 
-        this.assertWarning(tracks.length, objectName + ": " + animatedTypeName + ": Zero tracks");
-        this.assertWarning(globalSequenceId !== -1 || tracks.length === 0 || sequences.length !== 0, objectName + ": " + animatedTypeName + ": Tracks used without sequences")
+        this.assertWarning(tracks.length, objectName + ': ' + animatedTypeName + ': Zero tracks');
+        this.assertWarning(globalSequenceId !== -1 || tracks.length === 0 || sequences.length !== 0, objectName + ': ' + animatedTypeName + ': Tracks used without sequences')
 
         for (let i = 0, l = tracks.length; i < l; i++) {
             let track = tracks[i],
@@ -725,8 +725,8 @@ MdxSanityTester.prototype = {
                 isBeginning = sequenceInfo[1],
                 isEnding = sequenceInfo[2];
 
-            this.assertWarning(tracks.length === 1 || sequenceId !== -1 || track.frame === 0, objectName + ": " + animatedTypeName + ": Track " + i + ": Frame " + track.frame + " is not in any sequence");
-            this.assertWarning(track.frame >= 0, objectName + ": " + animatedTypeName + ": Track " + i + ": Negative frame");
+            this.assertWarning(tracks.length === 1 || sequenceId !== -1 || track.frame === 0, objectName + ': ' + animatedTypeName + ': Track ' + i + ': Frame ' + track.frame + ' is not in any sequence');
+            this.assertWarning(track.frame >= 0, objectName + ': ' + animatedTypeName + ': Track ' + i + ': Negative frame');
 
             if (sequenceId !== -1) {
                 if (!usageMap[sequenceId]) {
@@ -761,15 +761,15 @@ MdxSanityTester.prototype = {
 
             sequenceName = this.getName(sequence);
 
-            this.assertWarning(sequenceInfo[0] || sequenceInfo[2] === 1, objectName + ": " + animatedTypeName + ": No opening track for " + sequenceName);
-            this.assertWarning(sequenceInfo[1] || sequenceInfo[2] === 1, objectName + ": " + animatedTypeName + ": No closing track for " + sequenceName);
+            this.assertWarning(sequenceInfo[0] || sequenceInfo[2] === 1, objectName + ': ' + animatedTypeName + ': No opening track for ' + sequenceName);
+            this.assertWarning(sequenceInfo[1] || sequenceInfo[2] === 1, objectName + ': ' + animatedTypeName + ': No closing track for ' + sequenceName);
         }
     },
 
     // Warning: Interpolation used for visibility keyframes that is not None.
     testInterpolationType(objectName, animatedTypeName, interpolationType) {
-        if (animatedTypeName === "Visibility") {
-            this.assertWarning(interpolationType === 0, objectName + ": " + animatedTypeName + ": Interpolation type not set to None");
+        if (animatedTypeName === 'Visibility') {
+            this.assertWarning(interpolationType === 0, objectName + ': ' + animatedTypeName + ': Interpolation type not set to None');
         }
     },
 
@@ -816,96 +816,96 @@ MdxSanityTester.prototype = {
     },
 
     animatedTypeNames: new Map ([
-        ["KMTF", "Texture ID"],
-        ["KMTA", "Alpha"],
-        ["KTAT", "Translation"],
-        ["KTAR", "Rotation"],
-        ["KTAS", "Scaling"],
-        ["KGAO", "Alpha"],
-        ["KGAC", "Color"],
-        ["KLAS", "Attenuation Start"],
-        ["KLAE", "Attenuation End"],
-        ["KLAC", "Color"],
-        ["KLAI", "Intensity"],
-        ["KLBI", "Ambient Intensity"],
-        ["KLBC", "Ambient Color"],
-        ["KLAV", "Visibility"],
-        ["KATV", "Visibility"],
-        ["KPEE", "Emission Rate"],
-        ["KPEG", "Gravity"],
-        ["KPLN", "Longitude"],
-        ["KPLT", "Latitude"],
-        ["KPEL", "Lifespan"],
-        ["KPES", "Speed"],
-        ["KPEV", "Visibility"],
-        ["KP2E", "Emission Rate"],
-        ["KP2G", "Gravity"],
-        ["KP2L", "Latitude"],
-        ["KP2R", "Variation"],
-        ["KP2N", "Length"],
-        ["KP2W", "Width"],
-        ["KP2S", "Speed"],
-        ["KP2V", "Visibility"],
-        ["KRHA", "Height Above"],
-        ["KRHB", "Height Below"],
-        ["KRAL", "Alpha"],
-        ["KRCO", "Color"],
-        ["KRTX", "Texture Slot"],
-        ["KRVS", "Visibility"],
-        ["KCTR", "Translation"],
-        ["KTTR", "Rotation"],
-        ["KCRL", "Target Translation"],
-        ["KGTR", "Translation"],
-        ["KGRT", "Rotation"],
-        ["KGSC", "Scaling"]
+        ['KMTF', 'Texture ID'],
+        ['KMTA', 'Alpha'],
+        ['KTAT', 'Translation'],
+        ['KTAR', 'Rotation'],
+        ['KTAS', 'Scaling'],
+        ['KGAO', 'Alpha'],
+        ['KGAC', 'Color'],
+        ['KLAS', 'Attenuation Start'],
+        ['KLAE', 'Attenuation End'],
+        ['KLAC', 'Color'],
+        ['KLAI', 'Intensity'],
+        ['KLBI', 'Ambient Intensity'],
+        ['KLBC', 'Ambient Color'],
+        ['KLAV', 'Visibility'],
+        ['KATV', 'Visibility'],
+        ['KPEE', 'Emission Rate'],
+        ['KPEG', 'Gravity'],
+        ['KPLN', 'Longitude'],
+        ['KPLT', 'Latitude'],
+        ['KPEL', 'Lifespan'],
+        ['KPES', 'Speed'],
+        ['KPEV', 'Visibility'],
+        ['KP2E', 'Emission Rate'],
+        ['KP2G', 'Gravity'],
+        ['KP2L', 'Latitude'],
+        ['KP2R', 'Variation'],
+        ['KP2N', 'Length'],
+        ['KP2W', 'Width'],
+        ['KP2S', 'Speed'],
+        ['KP2V', 'Visibility'],
+        ['KRHA', 'Height Above'],
+        ['KRHB', 'Height Below'],
+        ['KRAL', 'Alpha'],
+        ['KRCO', 'Color'],
+        ['KRTX', 'Texture Slot'],
+        ['KRVS', 'Visibility'],
+        ['KCTR', 'Translation'],
+        ['KTTR', 'Rotation'],
+        ['KCRL', 'Target Translation'],
+        ['KGTR', 'Translation'],
+        ['KGRT', 'Rotation'],
+        ['KGSC', 'Scaling']
     ]),
 
     sequenceNames: new Set([
-        "attack",
-        "birth",
-        "cinematic",
-        "death",
-        "decay",
-        "dissipate",
-        "morph",
-        "portrait",
-        "sleep",
-        "spell",
-        "stand",
-        "walk"
+        'attack',
+        'birth',
+        'cinematic',
+        'death',
+        'decay',
+        'dissipate',
+        'morph',
+        'portrait',
+        'sleep',
+        'spell',
+        'stand',
+        'walk'
     ]),
 
     attachmentNames: new Set([
-        "chest",
-        "feet",
-        "foot",
-        "hand",
-        "head",
-        "origin",
-        "overhead",
-        "sprite",
-        "weapon"
+        'chest',
+        'feet',
+        'foot',
+        'hand',
+        'head',
+        'origin',
+        'overhead',
+        'sprite',
+        'weapon'
     ]),
 
     attachmentQualifiers: new Set([
-        "alternate",
-        "left",
-        "mount",
-        "right",
-        "rear",
-        "smart",
-        "first",
-        "second",
-        "third",
-        "fourth",
-        "fifth",
-        "sixth",
-        "small",
-        "medium",
-        "large",
-        "gold",
-        "rallypoint",
-        "eattree"
+        'alternate',
+        'left',
+        'mount',
+        'right',
+        'rear',
+        'smart',
+        'first',
+        'second',
+        'third',
+        'fourth',
+        'fifth',
+        'sixth',
+        'small',
+        'medium',
+        'large',
+        'gold',
+        'rallypoint',
+        'eattree'
     ]),
 
     replaceableIds: new Set([

@@ -1,6 +1,6 @@
-import mix from "../../mix";
-import Texture from "../../texture";
-import BinaryReader from "../../binaryreader";
+import mix from '../../mix';
+import Texture from '../../texture';
+import BinaryReader from '../../binaryreader';
 
 /**
  * @constructor
@@ -21,8 +21,8 @@ BmpTexture.prototype = {
         let reader = new BinaryReader(src);
 
         // BMP magic identifier
-        if (reader.read(2) !== "BM") {
-            this.onerror("InvalidSource", "WrongMagicNumber");
+        if (reader.read(2) !== 'BM') {
+            this.onerror('InvalidSource', 'WrongMagicNumber');
             return false;
         }
 
@@ -40,14 +40,14 @@ BmpTexture.prototype = {
         let bpp = reader.readUint16();
 
         if (bpp !== 24) {
-            this.onerror("UnsupportedFeature", "BPP");
+            this.onerror('UnsupportedFeature', 'BPP');
             return false;
         }
 
         let compression = reader.readUint32();
 
         if (compression !== 0) {
-            this.onerror("UnsupportedFeature", "Compression");
+            this.onerror('UnsupportedFeature', 'Compression');
             return false;
         }
 

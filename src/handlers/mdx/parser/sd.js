@@ -1,5 +1,5 @@
-import { readUnknownElements } from "./common";
-import { MdxParserUintTrack, MdxParserFloatTrack, MdxParserVector3Track, MdxParserVector4Track } from "./track";
+import { readUnknownElements } from './common';
+import { MdxParserUintTrack, MdxParserFloatTrack, MdxParserVector3Track, MdxParserVector4Track } from './track';
 
 // Mapping from track tags to their type and default value
 let tagToTrack = {

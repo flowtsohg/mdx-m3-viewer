@@ -1,5 +1,5 @@
-import mix from "../../mix";
-import ViewerFile from "../../file";
+import mix from '../../mix';
+import ViewerFile from '../../file';
 
 /**
  * @constructor
@@ -22,8 +22,8 @@ function SlkFile(env, pathSolver, handler, extension) {
 
 SlkFile.prototype = {
     initialize(src) {
-        if (!src.startsWith("ID")) {
-            this.onerror("InvalidSource", "WrongMagicNumber");
+        if (!src.startsWith('ID')) {
+            this.onerror('InvalidSource', 'WrongMagicNumber');
             return false;
         }
 
@@ -35,7 +35,7 @@ SlkFile.prototype = {
     },
 
     parseRows(src) {
-        let lines = src.split("\n");
+        let lines = src.split('\n');
 
         for (let i = 0, l = lines.length; i < l; i++) {
             this.parseRow(lines[i]);
@@ -46,8 +46,8 @@ SlkFile.prototype = {
     parseRow(line) {
         // The B command is supposed to define the total number of columns and rows, however in UbetSplatData.slk it gives wrong information
         // Therefore, just ignore it, since JavaScript arrays grow as they want either way
-        if (line[0] !== "B") {
-            let tokens = line.split(";"),
+        if (line[0] !== 'B') {
+            let tokens = line.split(';'),
                 rows = this.rows;
 
             for (let i = 1, l = tokens.length; i < l; i++) {
@@ -55,20 +55,20 @@ SlkFile.prototype = {
                     value = token.substring(1);
 
                 switch (token[0]) {
-                    case "X":
+                    case 'X':
                         this.x = parseInt(value, 10) - 1;
                         break;
 
-                    case "Y":
+                    case 'Y':
                         this.y = parseInt(value, 10) - 1;
                         break;
 
-                    case "K":
+                    case 'K':
                         if (!rows[this.y]) {
                             rows[this.y] = [];
                         }
 
-                        if (value[0] === "\"") {
+                        if (value[0] === '\"') {
                             rows[this.y][this.x] = value.trim().substring(1, value.length - 2);
                         } else {
                             rows[this.y][this.x] = parseFloat(value);
@@ -88,7 +88,7 @@ SlkFile.prototype = {
             mappedRow;
 
         // Hack to unify all the different ID strings
-        header[0] = "ID";
+        header[0] = 'ID';
 
         for (var i = 1, l = rows.length; i < l; i++) {
             mappedRows[i - 1] = this.mapRow(header, rows[i]);

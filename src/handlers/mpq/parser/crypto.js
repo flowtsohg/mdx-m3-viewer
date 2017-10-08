@@ -1,7 +1,9 @@
+import { HASH_FILE_KEY, FILE_FIX_KEY } from './constants';
+
 /**
  * @constructor
  */
-function MpqParserCrypto() {
+function MpqCrypto() {
     let cryptTable = new Uint32Array(0x500),
             seed = 0x00100001,
             temp1,
@@ -23,19 +25,18 @@ function MpqParserCrypto() {
     this.cryptTable = cryptTable;
 }
 
-MpqParserCrypto.prototype = {
-    hash(name, hashType) {
+MpqCrypto.prototype = {
+    hash(name, key) {
         let cryptTable = this.cryptTable,
             seed1 = 0x7FED7FED,
-            seed2 = 0xEEEEEEEE,
-            ch;
+            seed2 = 0xEEEEEEEE;
 
         name = name.toUpperCase();
 
         for (let i = 0; i < name.length ; i++) {
-            ch = name.charCodeAt(i);
+            let ch = name.charCodeAt(i);
 
-            seed1 = cryptTable[(hashType << 8) + ch] ^ (seed1 + seed2);
+            seed1 = cryptTable[(key << 8) + ch] ^ (seed1 + seed2);
             seed2 = ch + seed1 + seed2 + (seed2 << 5) + 3;
         }
 
@@ -46,12 +47,12 @@ MpqParserCrypto.prototype = {
     decryptBlock(buffer, key) {
         let cryptTable = this.cryptTable,
             seed = 0xEEEEEEEE,
-            ch,
             view = new Uint32Array(buffer, 0, buffer.byteLength >>> 2);
 
         for (let i = 0, l = view.length; i < l; i++) {
             seed += cryptTable[0x400 + (key & 0xFF)];
-            ch = view[i] ^ (key + seed);
+            
+            let ch = view[i] ^ (key + seed);
 
             key = ((~key << 0x15) + 0x11111111) | (key >>> 0x0B);
             seed = ch + seed + (seed << 5) + 3;
@@ -65,12 +66,12 @@ MpqParserCrypto.prototype = {
     encryptBlock(buffer, key) {
         let cryptTable = this.cryptTable,
             seed = 0xEEEEEEEE,
-            ch,
             view = new Uint32Array(buffer, 0, buffer.byteLength >>> 2);
 
         for (let i = 0, l = view.length; i < l; i++) {
             seed += cryptTable[0x400 + (key & 0xFF)];
-            ch = view[i] ^ (key + seed);
+            
+            let ch = view[i] ^ (key + seed);
 
             key = ((~key << 0x15) + 0x11111111) | (key >>> 0x0B);
             seed = view[i] + seed + (seed << 5) + 3;
@@ -79,7 +80,19 @@ MpqParserCrypto.prototype = {
         }
 
         return buffer;
+    },
+
+    computeFileKey(name, block) {
+        let sepIndex = name.lastIndexOf('\\'),
+            pathlessName = name.substring(sepIndex + 1),
+            encryptionKey = this.hash(pathlessName, HASH_FILE_KEY);
+
+        if (block.flags & FILE_FIX_KEY) {
+            encryptionKey = (encryptionKey + block.offset) ^ block.normalSize;
+        }
+
+        return encryptionKey;
     }
 };
 
-export default MpqParserCrypto;
+export default MpqCrypto;

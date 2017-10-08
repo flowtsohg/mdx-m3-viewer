@@ -1,4 +1,4 @@
-import { vec3, quat } from "gl-matrix";
+import { vec3, quat } from 'gl-matrix';
 
 // Heap allocations needed for this module.
 let rotationHeap = quat.create(),

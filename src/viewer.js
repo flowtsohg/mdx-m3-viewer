@@ -1,8 +1,8 @@
-import mix from "./mix";
-import EventDispatcher from "./eventdispatcher";
-import WebGL from "./gl/gl";
-import PromiseResource from "./promiseresource";
-import DownloadableResource from "./downloadableresource";
+import mix from './mix';
+import EventDispatcher from './eventdispatcher';
+import WebGL from './gl/gl';
+import PromiseResource from './promiseresource';
+import DownloadableResource from './downloadableresource';
 
 /**
  * @constructor
@@ -37,11 +37,11 @@ function ModelViewer(canvas) {
     /** @member {Object<string, string>} */
     this.sharedShaders = {
         // Shared shader code to mimic gl_InstanceID
-        "instanceId": `
+        'instanceId': `
             attribute float a_InstanceID;
         `,
         // Shared shader code to handle bone textures
-        "boneTexture": `
+        'boneTexture': `
             uniform sampler2D u_boneMap;
             uniform float u_vectorSize;
             uniform float u_rowSize;
@@ -62,7 +62,7 @@ function ModelViewer(canvas) {
             }
             `,
         // Shared shader code to handle decoding multiple bytes stored in floats
-        "decodeFloat": `
+        'decodeFloat': `
             vec2 decodeFloat2(float f) {
                 vec2 v;
 
@@ -93,20 +93,33 @@ function ModelViewer(canvas) {
     /** @member {Array<Scene>} */
     this.scenes = [];
 
-    /** @member {number} */
-    this.resourcesLoading = 0;
-    this.addEventListener("loadstart", () => this.resourcesLoading += 1);
-    this.addEventListener("loadend", () => this.resourcesLoading -= 1);
+    /** @member {Set} */
+    this.resourcesLoading = new Set();
+
+    // Track when resources start loading.
+    this.addEventListener('loadstart', (e) => {
+        this.resourcesLoading.add(e.target);
+    });
+
+    // Track when resources end loading.
+    this.addEventListener('loadend', (e) => { 
+        this.resourcesLoading.delete(e.target); 
+
+        // If there are currently no resources loading, dispatch the 'loadendall' event.
+        if (this.resourcesLoading.size === 0) {
+            this.dispatchEvent({ type: 'loadendall' });
+        }
+    });
 }
 
 ModelViewer.prototype = {
     /**
-     * Get the version string of the viewer - "<major>.<minor>.<patch>".
+     * Get the version string of the viewer - '<major>.<minor>.<patch>'.
      *
      * @returns {string}
      */
     get version() {
-        return "4.0.11";
+        return '4.0.12';
     },
 
     /**
@@ -119,7 +132,7 @@ ModelViewer.prototype = {
         if (handler) {
             let objectType = handler.objectType;
 
-            if (objectType === "modelhandler" || objectType === "texturehandler" || objectType === "filehandler") {
+            if (objectType === 'modelhandler' || objectType === 'texturehandler' || objectType === 'filehandler') {
                 let handlers = this.handlers,
                     extensions = handler.extensions;
 
@@ -135,11 +148,11 @@ ModelViewer.prototype = {
 
                         return true;
                     } else {
-                        this.dispatchEvent({ type: "error", error: "InvalidHandler", extra: "FailedToInitalize" });
+                        this.dispatchEvent({ type: 'error', error: 'InvalidHandler', reason: 'FailedToInitalize' });
                     }
                 }
             } else {
-                this.dispatchEvent({ type: "error", error: "InvalidHandler", extra: "UnknownHandlerType" });
+                this.dispatchEvent({ type: 'error', error: 'InvalidHandler', reason: 'UnknownHandlerType' });
             }
         }
 
@@ -153,7 +166,7 @@ ModelViewer.prototype = {
      * @returns {boolean}
      */
     addScene(scene) {
-        if (scene && scene.objectType === "scene") {
+        if (scene && scene.objectType === 'scene') {
             let scenes = this.scenes,
                 index = scenes.indexOf(scene);
 
@@ -247,7 +260,7 @@ ModelViewer.prototype = {
 
             // Built-in texture source
             if (src instanceof HTMLImageElement || src instanceof HTMLVideoElement || src instanceof HTMLCanvasElement || src instanceof ImageData || src instanceof WebGLTexture) {
-                extension = ".png";
+                extension = '.png';
                 serverFetch = false;
             } else {
                 [src, extension, serverFetch] = pathSolver(src);
@@ -280,7 +293,7 @@ ModelViewer.prototype = {
                 // Get the resource from the cache.
                 return map.get(src);
             } else {
-                this.dispatchEvent({ type: "error", error: "MissingHandler", extra: [src, extension, serverFetch] });
+                this.dispatchEvent({ type: 'error', error: 'MissingHandler', reason: [src, extension, serverFetch] });
             }
         }
     },
@@ -339,13 +352,10 @@ ModelViewer.prototype = {
      * @param {function(ModelViewer)} callback The callback.
      */
     whenAllLoaded(callback) {
-        if (this.resourcesLoading === 0) {
+        if (this.resourcesLoading.size === 0) {
             callback(this);
         } else {
-            // Self removing listener
-            let listener = () => { if (this.resourcesLoading === 0) { this.removeEventListener("loadend", listener); callback(this); } };
-
-            this.addEventListener("loadend", listener);
+            this.once('loadendall', () => callback(this));
         }
     },
 
@@ -441,7 +451,7 @@ ModelViewer.prototype = {
     registerEvents(resource) {
         let listener = (e) => this.dispatchEvent(e);
 
-        ["loadstart", "load", "loadend", "error", "progress"].map((e) => resource.addEventListener(e, listener));
+        ['loadstart', 'load', 'loadend', 'error', 'progress'].map((e) => resource.addEventListener(e, listener));
     }
 };
 

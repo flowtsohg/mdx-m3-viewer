@@ -1,9 +1,9 @@
-import mix from "../../mix";
-import FileHandler from "../../filehandler";
-import Mpq from "../mpq/handler";
-import Mdx from "../mdx/handler";
-import Geo from "../geo/handler";
-import W3xMap from "./map";
+import mix from '../../mix';
+import FileHandler from '../../filehandler';
+import Mpq from '../mpq/handler';
+import Mdx from '../mdx/handler';
+import Geo from '../geo/handler';
+import W3xMap from './map';
 
 const W3x = {
     initialize(env) {
@@ -16,8 +16,8 @@ const W3x = {
 
     get extensions() {
         return [
-            [".w3x", true],
-            [".w3m", true]
+            ['.w3x', true],
+            ['.w3m', true]
         ];
     },
 

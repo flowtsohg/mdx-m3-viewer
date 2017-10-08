@@ -1,18 +1,18 @@
-import { readUnknownElements } from "./common";
-import MdxParserMaterial from "./material";
-import MdxParserTextureAnimation from "./textureanimation";
-import MdxParserGeoset from "./geoset";
-import MdxParserGeosetAnimation from "./geosetanimation";
-import MdxParserBone from "./bone";
-import MdxParserLight from "./light";
-import MdxParserHelper from "./helper";
-import MdxParserAttachment from "./attachment";
-import MdxParserParticleEmitter from "./particleemitter";
-import MdxParserParticle2Emitter from "./particle2emitter";
-import MdxParserRibbonEmitter from "./ribbonemitter";
-import MdxParserEventObject from "./eventobject";
-import MdxParserCamera from "./camera";
-import MdxParserCollisionShape from "./collisionshape";
+import { readUnknownElements } from './common';
+import MdxParserMaterial from './material';
+import MdxParserTextureAnimation from './textureanimation';
+import MdxParserGeoset from './geoset';
+import MdxParserGeosetAnimation from './geosetanimation';
+import MdxParserBone from './bone';
+import MdxParserLight from './light';
+import MdxParserHelper from './helper';
+import MdxParserAttachment from './attachment';
+import MdxParserParticleEmitter from './particleemitter';
+import MdxParserParticle2Emitter from './particle2emitter';
+import MdxParserRibbonEmitter from './ribbonemitter';
+import MdxParserEventObject from './eventobject';
+import MdxParserCamera from './camera';
+import MdxParserCollisionShape from './collisionshape';
 
 let tagToChunk = {
     MTLS: MdxParserMaterial,
