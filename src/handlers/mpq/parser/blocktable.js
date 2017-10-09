@@ -17,17 +17,22 @@ function MpqBlockTable(c) {
 MpqBlockTable.prototype = {
     add(buffer) {
         let block = new MpqBlock();
-
-        block.compressedSize = buffer.byteLength;
+        
         block.normalSize = buffer.byteLength;
-        block.flags = (FILE_COMPRESSED | FILE_SINGLE_UNIT | FILE_EXISTS) >>> 0;
 
         this.entries.push(block);
 
         return block;
     },
 
+    clear() {
+        this.entries.length = 0;
+    },
+
     load(buffer) {
+        // Clear all of the entries.
+        this.clear();
+        
         let reader = new BinaryReader(this.c.decryptBlock(buffer, BLOCK_TABLE_KEY));
 
         for (let i = 0, l = buffer.byteLength / 16; i < l; i++) {

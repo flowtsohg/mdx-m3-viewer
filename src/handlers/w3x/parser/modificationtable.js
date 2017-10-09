@@ -3,7 +3,7 @@
  * @param {BinaryReader} reader
  * @param {boolean} useOptionalInts
  */
-function W3xParserModification(reader, useOptionalInts) {
+function W3xModification(reader, useOptionalInts) {
     this.id = reader.read(4);
 
     var variableType = reader.readInt32();
@@ -31,14 +31,14 @@ function W3xParserModification(reader, useOptionalInts) {
  * @param {BinaryReader} reader
  * @param {boolean} useOptionalInts
  */
-function W3xParserModifiedObject(reader, useOptionalInts) {
+function W3xModifiedObject(reader, useOptionalInts) {
     this.oldID = reader.read(4);
     this.newID = reader.read(4);
 
     this.modifications = [];
 
     for (var i = 0, l = reader.readInt32() ; i < l; i++) {
-        this.modifications[i] = new W3xParserModification(reader, useOptionalInts);
+        this.modifications[i] = new W3xModification(reader, useOptionalInts);
     }
 }
 
@@ -47,12 +47,12 @@ function W3xParserModifiedObject(reader, useOptionalInts) {
  * @param {BinaryReader} reader
  * @param {boolean} useOptionalInts
  */
-function W3xParserModificationTable(reader, useOptionalInts) {
+function W3xModificationTable(reader, useOptionalInts) {
     this.objects = [];
 
     for (var i = 0, l = reader.readInt32(); i < l; i++) {
-        this.objects[i] = new W3xParserModifiedObject(reader, useOptionalInts);
+        this.objects[i] = new W3xModifiedObject(reader, useOptionalInts);
     }
 }
 
-export default W3xParserModificationTable;
+export default W3xModificationTable;

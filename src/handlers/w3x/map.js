@@ -7,7 +7,7 @@ import W3xUnit from './unit';
 import W3xDoodad from './doodad';
 import W3xModificationTable from './modificationtable';
 import W3xTilePoint from './tilepoint';
-import W3xParser from './parser/parser';
+import W3xParser from './parser/map';
 
 import * as geometry from '../geo/geometry';
 
@@ -32,7 +32,7 @@ W3xMap.prototype = {
         
         this.parser = parser;
         this.name = parser.name;
-        this.mpq = parser.mpq;
+        this.mpq = parser.archive;
 
         this.doodads = [];
         this.units = [];
@@ -719,10 +719,8 @@ W3xMap.prototype = {
                 //}
 
                 if (tile.cliff) {
-                    let cliffVariation = 0;
                     let variation = tile.variation;
-
-                    cliffVariation = tile.whatIsThis;
+                    let cliffVariation = tile.cliffVariation;
 
                     let ltMask = tile.ltMask;
                     let rtMask = tile.rtMask;

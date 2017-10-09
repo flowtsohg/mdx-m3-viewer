@@ -1,10 +1,10 @@
-import W3xParserUnit from './unit';
+import W3xUnit from './unit';
 
 /**
  * @constructor
  * @param {BinaryReader} reader
  */
-function W3xParserUnits(reader) {
+function W3xUnits(reader) {
     this.id = reader.read(4);
     this.version = reader.readInt32();
 
@@ -13,8 +13,8 @@ function W3xParserUnits(reader) {
     this.units = [];
 
     for (let i = 0, l = reader.readInt32(); i < l; i++) {
-        this.units[i] = new W3xParserUnit(reader, this.version);
+        this.units[i] = new W3xUnit(reader, this.version);
     }
 }
 
-export default W3xParserUnits;
+export default W3xUnits;

@@ -10,10 +10,9 @@ function W3xTilePoint(tilepoint) {
     this.blight = tilepoint.blight;
     this.water = tilepoint.water;
     this.variation = tilepoint.variation;
+    this.cliffVariation = tilepoint.cliffVariation;
     this.cliffTextureType = tilepoint.cliffTextureType;
     this.layerHeight = tilepoint.layerHeight;
-
-    this.whatIsThis = tilepoint.whatIsThis;
 }
 
 W3xTilePoint.prototype = {

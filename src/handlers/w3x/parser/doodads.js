@@ -1,11 +1,11 @@
-import W3xParserDoodad from './doodad';
-import W3xParserSpecialDoodad from './specialdoodad';
+import W3xDoodad from './doodad';
+import W3xSpecialDoodad from './specialdoodad';
 
 /**
  * @constructor
  * @param {BinaryReader} reader
  */
-function W3xParserDoodads(reader) {
+function W3xDoodads(reader) {
     this.id = reader.read(4);
     this.version = reader.readInt32();
 
@@ -14,7 +14,7 @@ function W3xParserDoodads(reader) {
     this.doodads = [];
 
     for (let i = 0, l = reader.readInt32(); i < l; i++) {
-        this.doodads[i] = new W3xParserDoodad(reader, this.version)
+        this.doodads[i] = new W3xDoodad(reader, this.version)
     }
 
     reader.skip(4); // ?
@@ -22,9 +22,9 @@ function W3xParserDoodads(reader) {
     this.specialDoodads = [];
 
     for (let i = 0, l = reader.readInt32(); i < l; i++) {
-        this.specialDoodads[i] = new W3xParserSpecialDoodad(reader, this.version)
+        this.specialDoodads[i] = new W3xSpecialDoodad(reader, this.version)
     }
 
 }
 
-export default W3xParserDoodads;
+export default W3xDoodads;

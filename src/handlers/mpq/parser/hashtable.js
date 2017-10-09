@@ -65,7 +65,7 @@ MpqHashTable.prototype = {
         let reader = new BinaryReader(this.c.decryptBlock(buffer, HASH_TABLE_KEY)),
             entriesCount = buffer.byteLength / 16;
 
-        // Clear the table and add the need empties.
+        // Clear the table and add the needed empties.
         this.clear();
         this.addEmpties(entriesCount);
 

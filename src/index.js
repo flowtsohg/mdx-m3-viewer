@@ -22,7 +22,8 @@ import Slk from './handlers/slk/handler';
 import Tga from './handlers/tga/handler';
 import W3x from './handlers/w3x/handler';
 import MpqArchive from './handlers/mpq/parser/archive';
-import W3xParser from './handlers/w3x/parser/parser';
+import W3xMap from './handlers/w3x/parser/map';
+import stringToBuffer from './common/stringtobuffer';
 
 export {
     ModelViewer,
@@ -47,5 +48,6 @@ export {
     Tga,
     W3x,
     MpqArchive,
-    W3xParser
+    W3xMap,
+    stringToBuffer
 };

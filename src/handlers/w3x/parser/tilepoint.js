@@ -2,7 +2,7 @@
  * @constructor
  * @param {BinaryReader} reader
  */
-function W3xParserTilePoint(reader) {
+function W3xTilePoint(reader) {
     this.groundHeight = reader.readInt16();
 
     var short = reader.readInt16();
@@ -23,14 +23,12 @@ function W3xParserTilePoint(reader) {
     byte = reader.readInt8();
 
     this.variation = byte & 31;
-
-    // Values seen are 0, 1, and 2. What is this?
-    this.whatIsThis = (byte & 224) >> 5;
+    this.cliffVariation = (byte & 224) >> 5;
 
     byte = reader.readInt8();
-
+    
     this.cliffTextureType = (byte & 0xF0) >> 4;
     this.layerHeight = byte & 0x0F;
 }
 
-export default W3xParserTilePoint;
+export default W3xTilePoint;

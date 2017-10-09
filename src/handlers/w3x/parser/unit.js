@@ -54,7 +54,7 @@ function W3xRandomUnit(reader) {
  * @param {BinaryReader} reader
  * @param {number} version
  */
-function W3xParserUnit(reader, version) {
+function W3xUnit(reader, version) {
     this.id = reader.read(4);
     this.variation = reader.readInt32();
     this.location = reader.readFloat32Array(3);
@@ -119,4 +119,4 @@ function W3xParserUnit(reader, version) {
     this.creationNumber = reader.readInt32();
 }
 
-export default W3xParserUnit;
+export default W3xUnit;

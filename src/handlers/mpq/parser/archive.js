@@ -9,6 +9,13 @@ import MpqHash from './hash';
 import MpqFile from './file';
 
 /**
+ * A MoPaQ archive.
+ * Only version 0 is supported.
+ * If given a buffer, it will be loaded. Otherwise, call load() whenever you want.
+ * If readonly is true...
+ *     1) Some operations will not work (resizeHashtable, save, set, delete).
+ *     2) File raw buffers (which might be compressed and/or encrypted) will be discarded if the files are decoded.
+ * 
  * @constructor
  * @param {?ArrayBuffer} buffer
  * @param {?boolean} readonly
@@ -25,7 +32,7 @@ function MpqArchive(buffer, readonly) {
     /** @member {Array<MpqFile>} */
     this.files = [];
     /** @member {boolean} */
-    this.readonly = readonly || false;
+    this.readonly = !!readonly;
 
     if (buffer instanceof ArrayBuffer) {
         this.load(buffer);
@@ -35,9 +42,10 @@ function MpqArchive(buffer, readonly) {
 MpqArchive.prototype = {
     /**
      * Resizes the hashtable to the nearest power of two equal or bigger than the given size.
+     * Generally speaking, the bigger the hashtable is, the quicker insertions/searches are, at the cost of added memory.
      * Will not work in case...
      *     1) The archive is in readonly mode.
-     *     2) The size is smaller than the amount of files in the archive.
+     *     2) The calculated size is smaller than the amount of files in the archive.
      *     3) Not all of  the file names in the archive are known.
      * 
      * @param {number} size
@@ -90,6 +98,7 @@ MpqArchive.prototype = {
 
     /**
      * Load an existing archive.
+     * Note that this clears the archive from whatever it had in it before.
      * 
      * @param {ArrayBuffer} buffer
      * @returns {boolean}
@@ -124,10 +133,15 @@ MpqArchive.prototype = {
         //}
 
         // Read the hash table.
+        // Also clears any existing entries.
         this.hashTable.load(buffer.slice(hashPos, hashPos + hashSize * 16));
 
         // Read the block table.
+        // Also clears any existing entries.
         this.blockTable.load(buffer.slice(blockPos, blockPos + blockSize * 16));
+
+        // Clear any existing files.
+        this.files.length = 0;
 
         // Read the files.
         for (let hash of this.hashTable.entries) {
@@ -255,7 +269,7 @@ MpqArchive.prototype = {
 
     /**
      * Adds a file to this archive.
-     * If the file already exists, it will only be overwritten if overwriteIfExists is true-like.
+     * If the file already exists, it will only be overwritten if overwriteIfExists is true.
      * 
      * @param {string} name
      * @param {ArrayBuffer} buffer
@@ -296,9 +310,7 @@ MpqArchive.prototype = {
      * If the file doesn't exist, null is returned.
      * 
      * @param {string} name
-     * @param {ArrayBuffer} buffer
-     * @param {boolean} overwriteIfExists
-     * @returns {boolean}
+     * @returns {?MpqFile}
      */
     get(name) {
         let hash = this.hashTable.get(name);
@@ -320,8 +332,6 @@ MpqArchive.prototype = {
      * Prefer to use get().
      * 
      * @param {string} name
-     * @param {ArrayBuffer} buffer
-     * @param {boolean} overwriteIfExists
      * @returns {boolean}
      */
     has(name) {

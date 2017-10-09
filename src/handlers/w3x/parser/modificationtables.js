@@ -1,18 +1,18 @@
-import W3xParserModificationTable from './modificationtable';
+import W3xModificationTable from './modificationtable';
 
 /**
  * @constructor
  * @param {BinaryReader} reader
  */
-function W3xParserModificationTables(reader, useOptionalInts) {
+function W3xModificationTables(reader, useOptionalInts) {
     this.version = reader.readInt32();
 
     // Modifications to built-in objects
-    this.originalTable = new W3xParserModificationTable(reader, useOptionalInts);
+    this.originalTable = new W3xModificationTable(reader, useOptionalInts);
 
     // Declarations of user-defined objects
-    this.customTable = new W3xParserModificationTable(reader, useOptionalInts);
+    this.customTable = new W3xModificationTable(reader, useOptionalInts);
 
 }
 
-export default W3xParserModificationTables;
+export default W3xModificationTables;

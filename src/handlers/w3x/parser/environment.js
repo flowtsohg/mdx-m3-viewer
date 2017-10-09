@@ -1,10 +1,10 @@
-import W3xParserTilePoint from './tilepoint';
+import W3xTilePoint from './tilepoint';
 
 /**
  * @constructor
  * @param {BinaryReader} reader
  */
-function W3xParserEnvironment(reader) {
+function W3xEnvironment(reader) {
     this.id = reader.read(4);
     this.version = reader.readInt32();
     this.tileset = reader.read(1);
@@ -31,9 +31,9 @@ function W3xParserEnvironment(reader) {
         this.tilepoints[y] = [];
 
         for (let x = 0; x < this.mapSize[0]; x++) {
-            this.tilepoints[y][x] = new W3xParserTilePoint(reader);
+            this.tilepoints[y][x] = new W3xTilePoint(reader);
         }
     }
 }
 
-export default W3xParserEnvironment;
+export default W3xEnvironment;
