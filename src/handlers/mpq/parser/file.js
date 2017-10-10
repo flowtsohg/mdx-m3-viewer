@@ -1,5 +1,6 @@
 import { inflate, deflate } from 'pako';
 import BinaryReader from '../../../binaryreader';
+import BinaryWriter from '../../../binarywriter';
 import { FILE_COMPRESSED, FILE_ENCRYPTED, FILE_FIX_KEY, FILE_SINGLE_UNIT, FILE_EXISTS } from './constants';
 
 /**
@@ -13,6 +14,8 @@ function MpqFile(archive) {
     this.c = archive.c;
     /** @member {string} */
     this.name = '';
+    /** @member {boolean} */
+    this.nameResolved = false;
     /** @member {MpqHash|null} */
     this.hash = null;
     /** @member {MpqBlock|null} */
@@ -44,6 +47,7 @@ MpqFile.prototype = {
     },
 
     load(hash, block, buffer) {
+        this.name = `File${`${hash.blockIndex}`.padStart(8, '0')}`;
         this.hash = hash;
         this.block = block;
         this.rawBuffer = buffer.slice(block.offset, block.offset + block.compressedSize);
@@ -62,10 +66,10 @@ MpqFile.prototype = {
 
         // Reset the block.
         let block = this.block;
-
         block.compressedSize = 0;
         block.normalSize = buffer.byteLength;
-
+        block.flags = 0;
+        
         this.buffer = buffer;
         this.rawBuffer = null;
     },
@@ -92,7 +96,7 @@ MpqFile.prototype = {
 
             // If this block is encrypted, decrypt the sector
             if (flags & FILE_ENCRYPTED) {
-                c.decryptBlock(sector.buffer, encryptionKey);
+                c.decryptBlock(sector, encryptionKey);
             }
 
             if (flags & FILE_COMPRESSED) {
@@ -112,7 +116,7 @@ MpqFile.prototype = {
 
             // If this block is encrypted, decrypt the sector offsets
             if (flags & FILE_ENCRYPTED) {
-                c.decryptBlock(sectorOffsets.buffer, encryptionKey - 1);
+                c.decryptBlock(sectorOffsets, encryptionKey - 1);
             }
 
             let start = sectorOffsets[0],
@@ -128,16 +132,21 @@ MpqFile.prototype = {
 
                 // If this block is encrypted, decrypt the sector
                 if (flags & FILE_ENCRYPTED) {
-                    c.decryptBlock(sector.buffer, encryptionKey + i);
+                    c.decryptBlock(sector, encryptionKey + i);
                 }
 
                 // Decompress the sector
                 if (flags & FILE_COMPRESSED) {
+                    let uncompressedSize;
+
+                    // If this is the last sector, its uncompressed size might not be the size of a sector.
                     if (this.normalSize - offset <= archive.sectorSize) {
-                        sector = this.decompressSector(sector, this.normalSize - offset);
+                        uncompressedSize = this.normalSize - offset;
                     } else {
-                        sector = this.decompressSector(sector, archive.sectorSize);
+                        uncompressedSize = archive.sectorSize;
                     }
+
+                    sector = this.decompressSector(sector, uncompressedSize);
                 }
 
                 // If failed to decompress the sector, stop.
@@ -198,52 +207,108 @@ MpqFile.prototype = {
     // For now hardcoded to zlib single unit.
     encode() {
         if (this.buffer !== null && this.rawBuffer === null) {
-            let compressedBuffer = deflate(new Uint8Array(this.buffer));
+            let sectorSize = this.archive.sectorSize;
 
-            // Compression can only occur if the compressed data is smaller than the uncompressed data.
-            // Doing otherwise is an error and will result in a broken file.
-            if (compressedBuffer.byteLength + 1 < this.buffer.byteLength) {
-                let rawBuffer = new Uint8Array(compressedBuffer.byteLength + 1);
-                
-                rawBuffer[0] = 2; // zlib
-                rawBuffer.set(compressedBuffer, 1);
+            let buffer = new Uint8Array(this.buffer),
+                sectorCount = Math.ceil(buffer.byteLength / sectorSize),
+                offsets = new Uint32Array(sectorCount + 1),
+                offset = offsets.byteLength,
+                chunks = [];
 
-                this.rawBuffer = rawBuffer.buffer;
-                this.block.compressedSize = rawBuffer.byteLength;
-                this.block.flags = (FILE_COMPRESSED | FILE_SINGLE_UNIT | FILE_EXISTS) >>> 0; // Cast to an unsigned int
-            } else {
-                this.rawBuffer = this.buffer;
-                this.block.compressedSize = this.buffer.byteLength;
-                this.block.flags = (FILE_EXISTS) >>> 0;
-            }
-
-                    /*
-            let sectorSize = this.sectorSize - 1, // -1 for the first compression mask byte
-                sectorCount = Math.ceil(buffer.byteLength / sectorSize);
-
-            console.log('Setting file', name);
-            console.log('Size', buffer.byteLength)
-            console.log('Sectors', sectorCount);
-
-            let sectors = [];
-
-            let view = new Uint8Array(buffer);
+            // First offset is right after the offsets list.
+            offsets[0] = offsets.byteLength;
 
             for (let i = 0; i < sectorCount; i++) {
-                let data = view.slice(sectorSize * i, sectorSize * (i + 1));
+                let sectorOffset = i * sectorSize,
+                    uncompressed = buffer.subarray(sectorOffset, sectorOffset + sectorSize),
+                    chunk = deflate(uncompressed),
+                    compressedSectorSize = chunk.byteLength + 1;
 
-                //let compressedData = deflate(data);
+                // If the sector is going to take more than the archive's sector size, don't compress it.
+                if (compressedSectorSize > sectorSize) {
+                    chunk = uncompressed;
+                }
 
-                let sector = new Uint8Array(1 + data.byteLength);
+                offset += compressedSectorSize;
 
-                sector[0] = 2; // zlib
-                sector.set(data, 1);
+                offsets[i + 1] = offset;
 
-                sectors[i] = sector;
+                chunks[i] = chunk;
             }
 
-            console.log(sectors)
-            */
+            let compressedSize = offsets[offsets.length - 1],
+                rawBuffer = new ArrayBuffer(compressedSize),
+                writer = new BinaryWriter(rawBuffer);
+
+            // Write the offsets list.
+            writer.writeUint32Array(offsets);
+
+            for (let chunk of chunks) {
+                // If the chunk size is smaller than the archive's sector size, it means it was compressed.
+                if (chunk.byteLength < sectorSize) {
+                    writer.writeUint8(2); // zlib
+                }
+
+                // Write the chunk.
+                writer.writeUint8Array(chunk);
+            }
+
+            this.rawBuffer = rawBuffer;
+            this.block.compressedSize = rawBuffer.byteLength;
+            this.block.flags = (FILE_EXISTS | FILE_COMPRESSED) >>> 0;
+        }
+    },
+
+    reEncrypt(offset) {
+        let archive = this.archive,
+            block = this.block,
+            c = archive.c,
+            data = new Uint8Array(this.rawBuffer),
+            flags = block.flags,
+            encryptionKey = c.computeFileKey(this.name, block);
+
+        block.offset = offset;
+
+        let newEncryptionKey = c.computeFileKey(this.name, block);
+
+        // One chunk.
+        if (flags & FILE_SINGLE_UNIT) {
+            // Decrypt the chunk with the old key.
+            c.decryptBlock(data, encryptionKey);
+
+            // Encrypt the chunk with the new key.
+            c.encryptBlock(data, newEncryptionKey);
+        // One or more sectors.
+        } else {
+            let sectorCount = Math.ceil(block.normalSize / archive.sectorSize);
+
+            // Get the sector offsets
+            let sectorOffsets = new Uint32Array(data.buffer, 0, sectorCount + 1);
+
+            // Decrypt the sector offsets with the old key.
+            c.decryptBlock(sectorOffsets, encryptionKey - 1);
+
+            let start = sectorOffsets[0],
+                end = sectorOffsets[1];
+
+            for (let i = 0; i < sectorCount; i++) {
+                let sector = data.subarray(start, end);
+
+                // Decrypt the chunk with the old key.
+                c.decryptBlock(sector, encryptionKey + i);
+
+                // Encrypt the chunk with the new key.
+                c.encryptBlock(sector, newEncryptionKey + i);
+
+                // Prepare for the next sector
+                if (i < sectorCount) {
+                    start = end;
+                    end = sectorOffsets[i + 2];
+                }
+            }
+
+            // Encrypt the sector offsets with the new key.
+            c.encryptBlock(sectorOffsets, newEncryptionKey - 1);
         }
     },
 
@@ -251,10 +316,16 @@ MpqFile.prototype = {
         let block = this.block;
         
         if (block.offset !== offset && block.flags & FILE_FIX_KEY) {
-            throw new Error(`File ${this.name} will get corrupted due to the encryption key changing`);
+            if (this.nameResolved) {
+                this.reEncrypt(offset);
+                return true;
+            }
+            
+            return false;
         }
 
         block.offset = offset;
+        return true;
     }
 };
 

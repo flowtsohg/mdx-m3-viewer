@@ -68,7 +68,7 @@ MpqArchive.prototype = {
         // If not all file names are known, don't resize.
         // The insertion algorithm depends on the names.
         for (let file of files) {
-            if (file.name === '') {
+            if (!file.nameResolved) {
                 return false;
             }
         }
@@ -178,7 +178,9 @@ MpqArchive.prototype = {
 
     /**
      * Save this archive.
-     * If the archive is in readonly mode, returns null.
+     * Returns null when...
+     *     1) The archive is in readonly mode.
+     *     2) A the offset of a file encrypted with FILE_FIX_KEY changed, and the file name is unknown.
      * 
      * @returns {?ArrayBuffer}
      */
@@ -198,7 +200,9 @@ MpqArchive.prototype = {
         for (let file of this.files) {
             // If the file's position changed, and it is encrypted with a key that depends on its position,
             // it needs to be decryped with it's current encryption key, and encryped with the new key.
-            file.offsetChanged(offset);
+            if (!file.offsetChanged(offset)) {
+                return null;
+            }
             
             // If the file needs to be encoded, do it.
             file.encode();
@@ -244,6 +248,24 @@ MpqArchive.prototype = {
     },
 
     /**
+     * Gets a list of the file names in the archive.
+     * Note that files loaded from an existing archive, without known names, will be named FileXXXXXXXX.
+     * 
+     * @returns {Array<string>}
+     */
+    getFileNames() {
+        let list = [];
+        
+        for (let file of this.files) {
+            if (file.name !== '') {
+                list.push(file.name);
+            }
+        }
+
+        return list;
+    },
+
+    /**
      * Sets the list file with all of the known file names.
      * Does nothing if the archive is in readonly mode.
      * 
@@ -254,17 +276,8 @@ MpqArchive.prototype = {
             return false;
         }
 
-        // Get all of the known file names.
-        let list = [];
-        
-        for (let file of this.files) {
-            if (file.name !== '') {
-                list.push(file.name);
-            }
-        }
-
         // Add the listfile, possibly overriding an existing one.
-        return this.set('(listfile)', stringToBuffer(list.join('\r\n')), true);
+        return this.set('(listfile)', stringToBuffer(this.getFileNames().join('\r\n')), true);
     },
 
     /**
@@ -289,6 +302,7 @@ MpqArchive.prototype = {
             file = new MpqFile(this);
 
             file.name = name;
+            file.nameResolved = true;
             file.hash = this.hashTable.add(name, blockIndex);
             file.block = this.blockTable.add(buffer);
             file.buffer = buffer;
@@ -319,7 +333,8 @@ MpqArchive.prototype = {
             let file = this.files[hash.blockIndex];
 
             // Save the name in case it wasn't saved previously.
-            file.name = name;
+            file.name = name.toLowerCase();
+            file.nameResolved = true;
 
             return file;
         }

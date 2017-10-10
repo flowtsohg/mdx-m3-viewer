@@ -26,6 +26,11 @@ function MpqCrypto() {
 }
 
 MpqCrypto.prototype = {
+    /**
+     * @param {string} name
+     * @param {number} key
+     * @returns {number}
+     */
     hash(name, key) {
         let cryptTable = this.cryptTable,
             seed1 = 0x7FED7FED,
@@ -44,10 +49,21 @@ MpqCrypto.prototype = {
         return seed1 >>> 0;
     },
 
-    decryptBlock(buffer, key) {
+    /**
+     * @param {ArrayBuffer|TypedArray} data
+     * @param {number} key
+     * @returns {ArrayBuffer|TypedArray}
+     */
+    decryptBlock(data, key) {
         let cryptTable = this.cryptTable,
             seed = 0xEEEEEEEE,
-            view = new Uint32Array(buffer, 0, buffer.byteLength >>> 2);
+            view;
+
+        if (data instanceof ArrayBuffer) {
+            view = new Uint32Array(data, 0, data.byteLength >>> 2);
+        } else {
+            view = new Uint32Array(data.buffer, data.byteOffset, (data.length * data.BYTES_PER_ELEMENT) >>> 2);
+        }
 
         for (let i = 0, l = view.length; i < l; i++) {
             seed += cryptTable[0x400 + (key & 0xFF)];
@@ -60,13 +76,24 @@ MpqCrypto.prototype = {
             view[i] = ch;
         }
 
-        return buffer;
+        return data;
     },
 
-    encryptBlock(buffer, key) {
+    /**
+     * @param {ArrayBuffer|TypedArray} data
+     * @param {number} key
+     * @returns {ArrayBuffer|TypedArray}
+     */
+    encryptBlock(data, key) {
         let cryptTable = this.cryptTable,
             seed = 0xEEEEEEEE,
-            view = new Uint32Array(buffer, 0, buffer.byteLength >>> 2);
+            view;
+
+        if (data instanceof ArrayBuffer) {
+            view = new Uint32Array(data, 0, data.byteLength >>> 2);
+        } else {
+            view = new Uint32Array(data.buffer, data.byteOffset, (data.length * data.BYTES_PER_ELEMENT) >>> 2);
+        }
 
         for (let i = 0, l = view.length; i < l; i++) {
             seed += cryptTable[0x400 + (key & 0xFF)];
@@ -79,9 +106,14 @@ MpqCrypto.prototype = {
             view[i] = ch;
         }
 
-        return buffer;
+        return data;
     },
 
+    /**
+     * @param {string} name
+     * @param {MpqBlock} block
+     * @returns {number}
+     */
     computeFileKey(name, block) {
         let sepIndex = name.lastIndexOf('\\'),
             pathlessName = name.substring(sepIndex + 1),

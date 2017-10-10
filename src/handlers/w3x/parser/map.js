@@ -27,8 +27,8 @@ function W3xMap(buffer, readonly) {
     this.flags = 0;
     /** @member {number} */
     this.maxPlayers = 0;
-    /** @member {?MpqArchive} */
-    this.archive = null;
+    /** @member {MpqArchive} */
+    this.archive = new MpqArchive(null, readonly);
     /** @member {Map<string, W3xModificationTables>} */
     this.modifications = new Map();
     /** @member {?W3xEnvironment} */
@@ -64,7 +64,7 @@ W3xMap.prototype = {
         this.name = reader.readUntilNull();
         this.flags = reader.readUint32();
         this.maxPlayers = reader.readUint32();
-        this.archive = new MpqArchive(buffer, this.readonly);
+        this.archive.load(buffer);
     
         // Clear stuff that needs clearing.
         this.modifications.clear();

@@ -3,7 +3,7 @@
  * @param {BinaryReader} reader
  * @param {number} version
  */
-function W3xParserDoodad(reader, version) {
+function W3xDoodad(reader, version) {
     this.id = reader.read(4);
     this.variation = reader.readInt32();
     this.location = reader.readFloat32Array(3);
@@ -19,4 +19,4 @@ function W3xParserDoodad(reader, version) {
 
 }
 
-export default W3xParserDoodad;
+export default W3xDoodad;
