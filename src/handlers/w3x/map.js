@@ -28,8 +28,13 @@ function W3xMap(env, pathSolver, handler, extension) {
 
 W3xMap.prototype = {
     initialize(src) {
-        let parser = new W3xParser(src, true); // Use readonly mode to reduce a bit memory usage.
+        let parser = new W3xParser(src, true); // Use readonly mode to reduce memory usage.
         
+        parser.readTerrain();
+        parser.readDoodads();
+        parser.readUnits()
+        parser.readModifications();
+
         this.parser = parser;
         this.name = parser.name;
         this.mpq = parser.archive;

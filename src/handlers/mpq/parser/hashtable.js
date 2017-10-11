@@ -1,6 +1,4 @@
 import { powerOfTwo } from '../../../common/math';
-import BinaryReader from '../../../binaryreader';
-import BinaryWriter from '../../../binarywriter';
 import MpqHash from './hash';
 import { HASH_TABLE_KEY, HASH_TABLE_INDEX, HASH_NAME_A, HASH_NAME_B } from './constants';
 
@@ -61,29 +59,40 @@ MpqHashTable.prototype = {
         }
     },
 
-    load(buffer) {
-        let reader = new BinaryReader(this.c.decryptBlock(buffer, HASH_TABLE_KEY)),
-            entriesCount = buffer.byteLength / 16;
+    load(typedArray) {
+        let entriesCount = typedArray.byteLength / 16,
+            uint32array = new Uint32Array(this.c.decryptBlock(typedArray, HASH_TABLE_KEY).buffer),
+            offset = 0;
 
         // Clear the table and add the needed empties.
         this.clear();
         this.addEmpties(entriesCount);
 
         for (let hash of this.entries) {
-            hash.load(reader);
+            hash.load(uint32array.subarray(offset, offset + 4));
+
+            offset += 4;
         }
     },
 
-    save(writer) {
-        let entries = this.entries,
-            buffer = new ArrayBuffer(entries.length * 16),
-            localwriter = new BinaryWriter(buffer);
+    /**
+     * @param {Uint8Array} typedArray 
+     */
+    save(typedArray) {
+        let uint32array = new Uint32Array(this.entries.length * 4),
+            offset = 0;
 
-        for (let hash of entries) {
-            hash.save(localwriter);
+        for (let hash of this.entries) {
+            hash.save(uint32array.subarray(offset, offset + 4));
+
+            offset += 4;
         }
 
-        writer.writeUint8Array(new Uint8Array(this.c.encryptBlock(buffer, HASH_TABLE_KEY)));
+        let uint8array = new Uint8Array(uint32array.buffer);
+
+        this.c.encryptBlock(uint8array, HASH_TABLE_KEY);
+
+        typedArray.set(uint8array);
     },
 
     get(name) {

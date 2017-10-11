@@ -1,5 +1,9 @@
 import { HASH_FILE_KEY, FILE_FIX_KEY } from './constants';
 
+// Global variables for this module.
+let bytes = new Uint8Array(4),
+    long = new Uint32Array(bytes.buffer);
+
 /**
  * @constructor
  */
@@ -60,20 +64,33 @@ MpqCrypto.prototype = {
             view;
 
         if (data instanceof ArrayBuffer) {
-            view = new Uint32Array(data, 0, data.byteLength >>> 2);
+            view = new Uint8Array(data);
         } else {
-            view = new Uint32Array(data.buffer, data.byteOffset, (data.length * data.BYTES_PER_ELEMENT) >>> 2);
+            view = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
         }
 
-        for (let i = 0, l = view.length; i < l; i++) {
+        for (let i = 0, l = data.byteLength >>> 2; i < l; i++) {
+            // Update the seed.
             seed += cryptTable[0x400 + (key & 0xFF)];
-            
-            let ch = view[i] ^ (key + seed);
 
+            // Get 4 encrypted bytes.
+            bytes[0] = view[i * 4];
+            bytes[1] = view[i * 4 + 1];
+            bytes[2] = view[i * 4 + 2];
+            bytes[3] = view[i * 4 + 3];
+
+            // Decrypted 32bit integer.
+            long[0] ^= (key + seed);
+
+            // Update the seed.
             key = ((~key << 0x15) + 0x11111111) | (key >>> 0x0B);
-            seed = ch + seed + (seed << 5) + 3;
+            seed = long[0] + seed + (seed << 5) + 3;
 
-            view[i] = ch;
+            // Set 4 decryped bytes.
+            view[i * 4] = bytes[0];
+            view[i * 4 + 1] = bytes[1];
+            view[i * 4 + 2] = bytes[2];
+            view[i * 4 + 3] = bytes[3];
         }
 
         return data;
@@ -88,22 +105,38 @@ MpqCrypto.prototype = {
         let cryptTable = this.cryptTable,
             seed = 0xEEEEEEEE,
             view;
-
+            
         if (data instanceof ArrayBuffer) {
-            view = new Uint32Array(data, 0, data.byteLength >>> 2);
+            view = new Uint8Array(data);
         } else {
-            view = new Uint32Array(data.buffer, data.byteOffset, (data.length * data.BYTES_PER_ELEMENT) >>> 2);
+            view = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
         }
 
-        for (let i = 0, l = view.length; i < l; i++) {
+        for (let i = 0, l = data.byteLength >>> 2; i < l; i++) {
+            // Update the seed.
             seed += cryptTable[0x400 + (key & 0xFF)];
             
-            let ch = view[i] ^ (key + seed);
+            // Get 4 decrypted bytes.
+            bytes[0] = view[i * 4];
+            bytes[1] = view[i * 4 + 1];
+            bytes[2] = view[i * 4 + 2];
+            bytes[3] = view[i * 4 + 3];
 
+            // Decrypted 32bit integer.
+            let decrypted = long[0];
+
+            // Encrypted 32bit integer.
+            long[0] ^= (key + seed);
+
+            // Update the seed.
             key = ((~key << 0x15) + 0x11111111) | (key >>> 0x0B);
-            seed = view[i] + seed + (seed << 5) + 3;
+            seed = decrypted + seed + (seed << 5) + 3;
 
-            view[i] = ch;
+            // Set 4 encrypted bytes.
+            view[i * 4] = bytes[0];
+            view[i * 4 + 1] = bytes[1];
+            view[i * 4 + 2] = bytes[2];
+            view[i * 4 + 3] = bytes[3];
         }
 
         return data;

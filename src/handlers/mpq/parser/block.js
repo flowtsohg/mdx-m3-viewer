@@ -13,18 +13,18 @@ function MpqBlock() {
 }
 
 MpqBlock.prototype = {
-    load(reader) {
-        this.offset = reader.readUint32();
-        this.compressedSize = reader.readUint32();
-        this.normalSize = reader.readUint32();
-        this.flags = reader.readUint32();
+    load(typedArray) {
+        this.offset = typedArray[0];
+        this.compressedSize = typedArray[1];
+        this.normalSize = typedArray[2];
+        this.flags = typedArray[3];
     },
 
-    save(writer) {
-        writer.writeUint32(this.offset);
-        writer.writeUint32(this.compressedSize);
-        writer.writeUint32(this.normalSize);
-        writer.writeUint32(this.flags);
+    save(typedArray) {
+        typedArray[0] = this.offset;
+        typedArray[1] = this.compressedSize;
+        typedArray[2] = this.normalSize;
+        typedArray[3] = this.flags;
     }
 };
 

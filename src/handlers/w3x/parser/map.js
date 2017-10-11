@@ -60,10 +60,13 @@ W3xMap.prototype = {
             throw new Error('WrongMagicNumber');
         }
     
+        // Read the header.
         this.unknown = reader.readUint32(); // ?
         this.name = reader.readUntilNull();
         this.flags = reader.readUint32();
         this.maxPlayers = reader.readUint32();
+
+        // Read the archive.
         this.archive.load(buffer);
     
         // Clear stuff that needs clearing.
@@ -71,16 +74,7 @@ W3xMap.prototype = {
         this.environment = null;
         this.doodads = null;
         this.units = null;
-
-        // Parsing some files.
-        // Might want to move this out of load and into a different function.
-        // I do want it to be a part of the parser, rather than the viewer handler.
-        // At the same time, I don't know if the client wants these files and thus wants to process them.
-        this.readTerrain();
-        this.readDoodads();
-        this.readUnits()
-        this.readModifications();
-
+        
         return true;
     },
 
@@ -98,18 +92,18 @@ W3xMap.prototype = {
         let headerSize = 512,
             archiveBuffer = this.archive.save(),
             buffer = new ArrayBuffer(headerSize + archiveBuffer.byteLength),
+            typedArray = new Uint8Array(buffer),
             writer = new BinaryWriter(buffer);
 
+        // Write the header.
         writer.write('HM3W');
         writer.writeUint32(this.unknown);
         writer.write(`${this.name}\0`);
         writer.writeUint32(this.flags);
         writer.writeUint32(this.maxPlayers);
 
-        // Skip to 512 where the archive will be.
-        writer.seek(512);
-
-        writer.writeUint8Array(new Uint8Array(archiveBuffer));
+        // Writer the archive.
+        typedArray.set(new Uint8Array(archiveBuffer), 512)
 
         return buffer;
     },

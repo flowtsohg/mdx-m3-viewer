@@ -24,6 +24,8 @@ import W3x from './handlers/w3x/handler';
 import MpqArchive from './handlers/mpq/parser/archive';
 import W3xMap from './handlers/w3x/parser/map';
 import stringToBuffer from './common/stringtobuffer';
+import BinaryReader from './binaryreader';
+import BinaryWriter from './binarywriter';
 
 export {
     ModelViewer,
@@ -49,5 +51,7 @@ export {
     W3x,
     MpqArchive,
     W3xMap,
-    stringToBuffer
+    stringToBuffer,
+    BinaryReader,
+    BinaryWriter
 };

@@ -1,5 +1,3 @@
-import BinaryReader from '../../../binaryreader';
-import BinaryWriter from '../../../binarywriter';
 import MpqBlock from './block';
 import { BLOCK_TABLE_KEY, FILE_COMPRESSED, FILE_SINGLE_UNIT, FILE_EXISTS } from './constants';
 
@@ -29,32 +27,47 @@ MpqBlockTable.prototype = {
         this.entries.length = 0;
     },
 
-    load(buffer) {
-        // Clear all of the entries.
-        this.clear();
-        
-        let reader = new BinaryReader(this.c.decryptBlock(buffer, BLOCK_TABLE_KEY));
-
-        for (let i = 0, l = buffer.byteLength / 16; i < l; i++) {
-            let block = new MpqBlock();
-
-            block.load(reader);
-
-            this.entries.push(block);
+    addEmpties(howMany) {
+        for (let i = 0; i < howMany; i++) {
+            this.entries.push(new MpqBlock());
         }
     },
 
-    save(writer) {
-        let entries = this.entries,
-            buffer = new ArrayBuffer(entries.length * 16),
-            localwriter = new BinaryWriter(buffer);
+    load(typedArray) {
+        let entriesCount = typedArray.byteLength / 16,
+            uint32array = new Uint32Array(this.c.decryptBlock(typedArray, BLOCK_TABLE_KEY).buffer),
+            offset = 0;
 
-        for (let block of entries) {
-            block.save(localwriter);
+        // Clear the table and add the needed empties.
+        this.clear();
+        this.addEmpties(entriesCount);
+
+        for (let block of this.entries) {
+            block.load(uint32array.subarray(offset, offset + 4));
+
+            offset += 4;
+        }
+    },
+
+    /**
+     * @param {Uint8Array} typedArray 
+     */
+    save(typedArray) {
+        let uint32array = new Uint32Array(this.entries.length * 4),
+            offset = 0;
+
+        for (let block of this.entries) {
+            block.save(uint32array.subarray(offset, offset + 4));
+
+            offset += 4;
         }
 
-        writer.writeUint8Array(new Uint8Array(this.c.encryptBlock(buffer, BLOCK_TABLE_KEY)));
-    }
+        let uint8array = new Uint8Array(uint32array.buffer);
+
+        this.c.encryptBlock(uint8array, BLOCK_TABLE_KEY);
+
+        typedArray.set(uint8array);
+    },
 };
 
 export default MpqBlockTable;

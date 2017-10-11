@@ -15,12 +15,14 @@ function MpqHash() {
 }
 
 MpqHash.prototype = {
-    load(reader) {
-        this.nameA = reader.readUint32();
-        this.nameB = reader.readUint32();
-        this.locale = reader.readUint16();
-        this.platform = reader.readUint16();
-        this.blockIndex = reader.readUint32();
+    load(typedArray) {
+        let localePlatform = typedArray[2];
+
+        this.nameA = typedArray[0];
+        this.nameB = typedArray[1];
+        this.locale = localePlatform & 0x0000FFFF;
+        this.platform = localePlatform >>> 16;
+        this.blockIndex = typedArray[3];
     },
 
     copy(hash) {
@@ -31,12 +33,11 @@ MpqHash.prototype = {
         this.blockIndex = hash.blockIndex;
     },
 
-    save(writer) {
-        writer.writeUint32(this.nameA);
-        writer.writeUint32(this.nameB);
-        writer.writeUint16(this.locale);
-        writer.writeUint16(this.platform);
-        writer.writeUint32(this.blockIndex);
+    save(typedArray) {
+        typedArray[0] = this.nameA;
+        typedArray[1] = this.nameB;
+        typedArray[2] = (this.locale << 16) | this.platform;
+        typedArray[3] = this.blockIndex;
     }
 };
 

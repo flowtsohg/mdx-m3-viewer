@@ -1,12 +1,11 @@
 import { powerOfTwo } from '../../../common/math';
 import stringToBuffer from '../../../common/stringtobuffer';
-import BinaryReader from '../../../binaryreader';
-import BinaryWriter from '../../../binarywriter';
 import MpqCrypto from './crypto';
 import MpqHashTable from './hashtable';
 import MpqBlockTable from './blocktable';
 import MpqHash from './hash';
 import MpqFile from './file';
+import { MAGIC } from './constants';
 
 /**
  * A MoPaQ archive.
@@ -104,41 +103,42 @@ MpqArchive.prototype = {
      * @returns {boolean}
      */
     load(buffer) {
-        let reader = new BinaryReader(buffer),
-            headerOffset = this.searchHeader(reader);
+        let typedArray = new Uint8Array(buffer),
+            headerOffset = this.searchHeader(typedArray);
         
         if (headerOffset === -1) {
             return false;
         }
 
-        buffer = buffer.slice(headerOffset);
-
-        reader.skip(4); // MPQ\x1A
+        if (headerOffset !== 0) {
+            typedArray = typedArray.subarray(headerOffset);
+        }
 
         // Read the header.
-        let headerSize = reader.readUint32(),
-            archiveSize = reader.readUint32(),
-            formatVersion = reader.readUint16(),
-            sectorSize = 512 * (1 << reader.readUint16()), // Always 4096?
-            hashPos = reader.readUint32(),
-            blockPos = reader.readUint32(),
-            hashSize = reader.readUint32(),
-            blockSize = reader.readUint32();
+        let uint32array = new Uint32Array(buffer, headerOffset, 8),
+            headerSize = uint32array[1],
+            archiveSize = uint32array[2],
+            formatVersionSectorSize = uint32array[3],
+            formatVersion = formatVersionSectorSize & 0x0000FFFF,
+            sectorSize = 512 * (1 << (formatVersionSectorSize >>> 16)), // 4096
+            hashPos = uint32array[4],
+            blockPos = uint32array[5],
+            hashSize = uint32array[6],
+            blockSize = uint32array[7];
 
-        // Technically only version 0 is supported.
-        // Some people used the fact that Warcraft 3 doesn't actually check the version (there was only one version back then), to trick MPQ loaders.
-        // Therefore, assume that a valid Warcraft 3 MPQ was loaded.
-        //if (formatVersion !== 0) {
-        //    return false;
-        //}
+        if (formatVersion !== 0) {
+            return false;
+        }
 
         // Read the hash table.
         // Also clears any existing entries.
-        this.hashTable.load(buffer.slice(hashPos, hashPos + hashSize * 16));
+        // Have to copy the data, because hashPos is not guaranteed to be a multiple of 4.
+        this.hashTable.load(typedArray.slice(hashPos, hashPos + hashSize * 16));
 
         // Read the block table.
         // Also clears any existing entries.
-        this.blockTable.load(buffer.slice(blockPos, blockPos + blockSize * 16));
+        // Have to copy the data, because blockPos is not guaranteed to be a multiple of 4.
+        this.blockTable.load(typedArray.slice(blockPos, blockPos + blockSize * 16));
 
         // Clear any existing files.
         this.files.length = 0;
@@ -150,23 +150,24 @@ MpqArchive.prototype = {
             // If the file wasn't deleted, load it.
             if (blockIndex < 0xFFFFFFFE) {
                 let file = new MpqFile(this);
-
-                file.load(hash, this.blockTable.entries[blockIndex], buffer);
+                
+                file.load(hash, this.blockTable.entries[blockIndex], typedArray);
 
                 this.files[blockIndex] = file;
             }
         }
 
-        // Get both internal files to fill the file names.
+        // Get internal files to fill the file names.
         let listfile = this.get('(listfile)'),
-            attributes = this.get('(attributes)');
+            attributes = this.get('(attributes)'),
+            signature = this.get('(signature)');
 
         // If there is a listfile, use all of the file names in it.
         if (listfile) {
-            let s = listfile.text();
+            let list = listfile.text();
 
-            if (s !== null) {
-                for (let name of s.split('\r\n')) {
+            if (list !== null) {
+                for (let name of list.split('\r\n')) {
                     // get() internally also sets the file's name to the given one.
                     this.get(name);
                 }
@@ -180,7 +181,7 @@ MpqArchive.prototype = {
      * Save this archive.
      * Returns null when...
      *     1) The archive is in readonly mode.
-     *     2) A the offset of a file encrypted with FILE_FIX_KEY changed, and the file name is unknown.
+     *     2) The offset of a file encrypted with FILE_FIX_KEY changed, and the file name is unknown.
      * 
      * @returns {?ArrayBuffer}
      */
@@ -191,8 +192,10 @@ MpqArchive.prototype = {
 
         let headerSize = 32;
 
+        this.saveMemory();
+
         // Set the listfile.
-        this.setListfile();
+        this.setListFile();
 
         // Reset the file positions.
         let offset = headerSize;
@@ -219,32 +222,75 @@ MpqArchive.prototype = {
         let archiveSize = headerSize + filesSize + hashes * 16 + blocks * 16,
             hashPos = headerSize + filesSize,
             blockPos = hashPos + hashes * 16,
-            buffer = new ArrayBuffer(archiveSize),
-            writer = new BinaryWriter(buffer);
+            typedArray = new Uint8Array(archiveSize),
+            uint32array = new Uint32Array(typedArray.buffer, 0, 8);
         
         // Write the header.
-        writer.write('MPQ\x1A'); // Magic
-        writer.writeUint32(headerSize);
-        writer.writeUint32(archiveSize);
-        writer.writeUint16(0); // Version
-        writer.writeUint16(Math.log2(this.sectorSize / 512));
-        writer.writeUint32(hashPos);
-        writer.writeUint32(blockPos);
-        writer.writeUint32(hashes); // Hash size
-        writer.writeUint32(blocks); // Block size
+        uint32array[0] = MAGIC;
+        uint32array[1] = headerSize;
+        uint32array[2] = archiveSize;
+        uint32array[3] = Math.log2(this.sectorSize / 512) << 16; // The version is always 0, so ignore it.
+        uint32array[4] = hashPos;
+        uint32array[5] = blockPos;
+        uint32array[6] = hashes;
+        uint32array[7] = blocks;
+
+        offset = headerSize;
 
         // Write the files.
         for (let file of this.files) {
-            file.save(writer);
+            file.save(typedArray.subarray(offset, offset + file.block.compressedSize));
+
+            offset += file.block.compressedSize;
         }
         
         // Write the hash table.
-        hashTable.save(writer);
+        hashTable.save(typedArray.subarray(offset, offset + hashTable.entries.length * 16));
+        offset += hashTable.entries.length * 16;
 
         // Write the block table.
-        blockTable.save(writer);
+        blockTable.save(typedArray.subarray(offset, offset + blockTable.entries.length * 16));
 
-        return buffer;
+        return typedArray.buffer;
+    },
+
+    /**
+     * Some MPQs have empty memory chunks in them, left over from files that were deleted.
+     * This function searches for such chunks, and removes them.
+     * Note that it is called automatically by save().
+     * Does nothing if the archive is in readonly mode.
+     * 
+     * @returns {number} Bytes saved
+     */
+    saveMemory() {
+        if (this.readonly) {
+            return 0;
+        }
+
+        let blocks = this.blockTable.entries,
+            hashes = this.hashTable.entries,
+            files = this.files,
+            i = blocks.length,
+            saved = 0;
+
+        while (i--) {
+            let block = blocks[i];
+
+            if (block.normalSize === 0) {
+                for (let hash of hashes) {
+                    if (hash.blockIndex < 0xFFFFFFFE && hash.blockIndex > i) {
+                        hash.blockIndex -= 1;
+                    }
+                }
+
+                blocks.splice(i, 1);
+                files.splice(i, 1);
+
+                saved += block.compressedSize;
+            }
+        }
+
+        return saved;
     },
 
     /**
@@ -257,7 +303,7 @@ MpqArchive.prototype = {
         let list = [];
         
         for (let file of this.files) {
-            if (file.name !== '') {
+            if (file && file.name !== '') {
                 list.push(file.name);
             }
         }
@@ -271,7 +317,7 @@ MpqArchive.prototype = {
      * 
      * @returns {boolean}
      */
-    setListfile() {
+    setListFile() {
         if (this.readonly) {
             return false;
         }
@@ -283,6 +329,7 @@ MpqArchive.prototype = {
     /**
      * Adds a file to this archive.
      * If the file already exists, it will only be overwritten if overwriteIfExists is true.
+     * Does nothing if the archive is in readonly mode.
      * 
      * @param {string} name
      * @param {ArrayBuffer} buffer
@@ -330,13 +377,18 @@ MpqArchive.prototype = {
         let hash = this.hashTable.get(name);
 
         if (hash) {
-            let file = this.files[hash.blockIndex];
+            let block = this.blockTable.entries[hash.blockIndex];
+            
+            // Check that the file wasn't deleted.
+            if (block.flags !== 0xFFFFFFFE) {
+                let file = this.files[hash.blockIndex];
 
-            // Save the name in case it wasn't saved previously.
-            file.name = name.toLowerCase();
-            file.nameResolved = true;
+                // Save the name in case it wasn't saved previously.
+                file.name = name.toLowerCase();
+                file.nameResolved = true;
 
-            return file;
+                return file;
+            }
         }
 
         return null;
@@ -392,12 +444,13 @@ MpqArchive.prototype = {
         return false;
     },
 
-    searchHeader(reader) {
-        for (let i = 0, l = Math.ceil(reader.byteLength / 512) ; i < l; i++) {
-            reader.seek(i * 512)
+    searchHeader(typedArray) {
+        for (let i = 0, l = Math.ceil(typedArray.byteLength / 512) ; i < l; i++) {
+            let offset = i * 512;
 
-            if (reader.peek(4) === 'MPQ\x1A') {
-                return reader.tell();
+            // Test 'MPQ\x1A'.
+            if (typedArray[offset] === 77 && typedArray[offset + 1] === 80 && typedArray[offset + 2] === 81 && typedArray[offset + 3] === 26) {
+                return offset;
             }
         }
 
