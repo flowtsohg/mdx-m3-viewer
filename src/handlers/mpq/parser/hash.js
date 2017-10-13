@@ -1,3 +1,5 @@
+import {HASH_ENTRY_DELETED, HASH_ENTRY_EMPTY } from './constants';
+
 /**
  * @constructor
  */
@@ -11,7 +13,7 @@ function MpqHash() {
     /** @param {number} */
     this.platform = 0xFFFF;
     /** @param {number} */
-    this.blockIndex = 0xFFFFFFFF;
+    this.blockIndex = HASH_ENTRY_EMPTY;
 }
 
 MpqHash.prototype = {
@@ -38,6 +40,14 @@ MpqHash.prototype = {
         typedArray[1] = this.nameB;
         typedArray[2] = (this.locale << 16) | this.platform;
         typedArray[3] = this.blockIndex;
+    },
+
+    delete() {
+        this.nameA = 0xFFFFFFFF;
+        this.nameB = 0xFFFFFFFF;
+        this.locale = 0xFFFF;
+        this.platform = 0xFFFF;
+        this.blockIndex = HASH_ENTRY_DELETED;
     }
 };
 

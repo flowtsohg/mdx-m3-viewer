@@ -23,7 +23,7 @@ import Tga from './handlers/tga/handler';
 import W3x from './handlers/w3x/handler';
 import MpqArchive from './handlers/mpq/parser/archive';
 import W3xMap from './handlers/w3x/parser/map';
-import stringToBuffer from './common/stringtobuffer';
+import { stringToBuffer, bufferToString } from './common/stringtobuffer';
 import BinaryReader from './binaryreader';
 import BinaryWriter from './binarywriter';
 
@@ -52,6 +52,7 @@ export {
     MpqArchive,
     W3xMap,
     stringToBuffer,
+    bufferToString,
     BinaryReader,
     BinaryWriter
 };

@@ -107,7 +107,7 @@ MpqHashTable.prototype = {
 
             if (nameA === hash.nameA && nameB === hash.nameB) {
                 return hash;
-            } else if (hash.platform === 0xFFFF) {
+            } else if (hash.blockIndex === 0xFFFFFFFF) {
                 return null;
             }
         }

@@ -7,16 +7,11 @@ import W3xUnits from './units';
 import W3xModificationTables from './modificationtables';
 
 /**
- * A Warcraft 3 map.
- * Implements both w3m and w3x.
- * If given a buffer, it will be loaded. Otherwise, call load() whenever you want.
- * If readonly is true...
- *     1) Some operations will not work (save).
- *     2) The internal archive will also use readonly mode.
+ * Warcraft 3 map (W3X and W3M).
  * 
  * @constructor
- * @param {?ArrayBuffer} buffer
- * @param {?boolean} readonly
+ * @param {?ArrayBuffer} buffer If given an ArrayBuffer, load() will be called immediately
+ * @param {?boolean} readonly If true, disables editing and saving the map (and the internal archive), allowing to optimize other things
  */
 function W3xMap(buffer, readonly) {
     /** @member {?} */
@@ -29,8 +24,8 @@ function W3xMap(buffer, readonly) {
     this.maxPlayers = 0;
     /** @member {MpqArchive} */
     this.archive = new MpqArchive(null, readonly);
-    /** @member {Map<string, W3xModificationTables>} */
-    this.modifications = new Map();
+    /** @member {?Map<string, W3xModificationTables>} */
+    this.modifications = null;
     /** @member {?W3xEnvironment} */
     this.environment = null;
     /** @member {?W3xDoodads} */
@@ -70,7 +65,7 @@ W3xMap.prototype = {
         this.archive.load(buffer);
     
         // Clear stuff that needs clearing.
-        this.modifications.clear();
+        this.modifications = null;
         this.environment = null;
         this.doodads = null;
         this.units = null;
@@ -145,6 +140,8 @@ W3xMap.prototype = {
      * Read and parse all of the modification tables.
      */
     readModifications() {
+        this.modifications = new Map();
+
         // useOptionalInts:
         //      w3u: no (units)
         //      w3t: no (items)

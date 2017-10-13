@@ -1,23 +1,18 @@
 import { powerOfTwo } from '../../../common/math';
-import stringToBuffer from '../../../common/stringtobuffer';
+import { stringToBuffer } from '../../../common/stringtobuffer';
 import MpqCrypto from './crypto';
 import MpqHashTable from './hashtable';
 import MpqBlockTable from './blocktable';
 import MpqHash from './hash';
 import MpqFile from './file';
-import { MAGIC } from './constants';
+import { MAGIC, HASH_ENTRY_DELETED, HASH_ENTRY_EMPTY, FILE_EXISTS } from './constants';
 
 /**
- * A MoPaQ archive.
- * Only version 0 is supported.
- * If given a buffer, it will be loaded. Otherwise, call load() whenever you want.
- * If readonly is true...
- *     1) Some operations will not work (resizeHashtable, save, set, delete).
- *     2) File raw buffers (which might be compressed and/or encrypted) will be discarded if the files are decoded.
+ * MoPaQ archive (MPQ) version 0.
  * 
  * @constructor
- * @param {?ArrayBuffer} buffer
- * @param {?boolean} readonly
+ * @param {?ArrayBuffer} buffer If given an ArrayBuffer, load() will be called immediately
+ * @param {?boolean} readonly If true, disables editing and saving the archive, allowing to optimize other things
  */
 function MpqArchive(buffer, readonly) {
     /** @member {number} */
@@ -40,62 +35,6 @@ function MpqArchive(buffer, readonly) {
 
 MpqArchive.prototype = {
     /**
-     * Resizes the hashtable to the nearest power of two equal or bigger than the given size.
-     * Generally speaking, the bigger the hashtable is, the quicker insertions/searches are, at the cost of added memory.
-     * Will not work in case...
-     *     1) The archive is in readonly mode.
-     *     2) The calculated size is smaller than the amount of files in the archive.
-     *     3) Not all of  the file names in the archive are known.
-     * 
-     * @param {number} size
-     * @returns {boolean}
-     */
-    resizeHashtable(size) {
-        if (this.readonly) {
-            return false;
-        }
-
-        size = Math.max(4, powerOfTwo(size));
-
-        let files = this.files;
-        
-        // Can't resize to a size smaller than the existing files.
-        if (files.length > size) {
-            return false;
-        }
-
-        // If not all file names are known, don't resize.
-        // The insertion algorithm depends on the names.
-        for (let file of files) {
-            if (!file.nameResolved) {
-                return false;
-            }
-        }
-
-        let hashTable = this.hashTable,
-            entries = hashTable.entries,
-            oldEntries = entries.slice();
-
-        // Clear the entries.
-        hashTable.clear();
-
-        // Add empty entries.
-        hashTable.addEmpties(size);
-
-        // Go over all of the old entries, and copy them into the new entries.
-        for (let hash of oldEntries) {
-            if (hash.blockIndex !== 0xFFFFFFFF) {
-                let file = files[hash.blockIndex],
-                    insertionIndex = hashTable.getInsertionIndex(file.name);
-
-                entries[insertionIndex].copy(hash);
-            }
-        }
-
-        return true;
-    },
-
-    /**
      * Load an existing archive.
      * Note that this clears the archive from whatever it had in it before.
      * 
@@ -107,9 +46,10 @@ MpqArchive.prototype = {
             headerOffset = this.searchHeader(typedArray);
         
         if (headerOffset === -1) {
-            return false;
+            throw new Error('NoMPQHeader');
         }
 
+        // If the header isn't at the beginning, make a new view starting where it is.
         if (headerOffset !== 0) {
             typedArray = typedArray.subarray(headerOffset);
         }
@@ -148,7 +88,7 @@ MpqArchive.prototype = {
             let blockIndex = hash.blockIndex;
 
             // If the file wasn't deleted, load it.
-            if (blockIndex < 0xFFFFFFFE) {
+            if (blockIndex < HASH_ENTRY_DELETED) {
                 let file = new MpqFile(this);
                 
                 file.load(hash, this.blockTable.entries[blockIndex], typedArray);
@@ -181,7 +121,7 @@ MpqArchive.prototype = {
      * Save this archive.
      * Returns null when...
      *     1) The archive is in readonly mode.
-     *     2) The offset of a file encrypted with FILE_FIX_KEY changed, and the file name is unknown.
+     *     2) The offset of a file encrypted with FILE_OFFSET_ADJUSTED_KEY changed, and the file name is unknown.
      * 
      * @returns {?ArrayBuffer}
      */
@@ -197,12 +137,12 @@ MpqArchive.prototype = {
         // Set the listfile.
         this.setListFile();
 
-        // Reset the file positions.
+        // Reset the file offsets.
         let offset = headerSize;
         
         for (let file of this.files) {
-            // If the file's position changed, and it is encrypted with a key that depends on its position,
-            // it needs to be decryped with it's current encryption key, and encryped with the new key.
+            // If the file's offset changed, and it is encrypted with a key that depends on its offset,
+            // it needs to be decryped with it's current key, and encryped with the new key.
             if (!file.offsetChanged(offset)) {
                 return null;
             }
@@ -278,7 +218,7 @@ MpqArchive.prototype = {
 
             if (block.normalSize === 0) {
                 for (let hash of hashes) {
-                    if (hash.blockIndex < 0xFFFFFFFE && hash.blockIndex > i) {
+                    if (hash.blockIndex < HASH_ENTRY_DELETED && hash.blockIndex > i) {
                         hash.blockIndex -= 1;
                     }
                 }
@@ -295,7 +235,7 @@ MpqArchive.prototype = {
 
     /**
      * Gets a list of the file names in the archive.
-     * Note that files loaded from an existing archive, without known names, will be named FileXXXXXXXX.
+     * Note that files loaded from an existing archive, without resolved names, will be named FileXXXXXXXX.
      * 
      * @returns {Array<string>}
      */
@@ -312,7 +252,7 @@ MpqArchive.prototype = {
     },
 
     /**
-     * Sets the list file with all of the known file names.
+     * Sets the list file with all of the resolved file names.
      * Does nothing if the archive is in readonly mode.
      * 
      * @returns {boolean}
@@ -328,42 +268,66 @@ MpqArchive.prototype = {
 
     /**
      * Adds a file to this archive.
-     * If the file already exists, it will only be overwritten if overwriteIfExists is true.
-     * Does nothing if the archive is in readonly mode.
+     * Does nothing if...
+     *     1) The archive is in readonly mode.
+     *     2) The file already exists (use edit).
      * 
      * @param {string} name
      * @param {ArrayBuffer} buffer
-     * @param {boolean} overwriteIfExists
      * @returns {boolean}
      */
-    set(name, buffer, overwriteIfExists) {
+    set(name, buffer) {
         if (this.readonly) {
             return false;
         }
 
         let file = this.get(name);
 
-        if (!file) {
-            let blockIndex = this.blockTable.entries.length;
-            
-            file = new MpqFile(this);
-
-            file.name = name;
-            file.nameResolved = true;
-            file.hash = this.hashTable.add(name, blockIndex);
-            file.block = this.blockTable.add(buffer);
-            file.buffer = buffer;
-            
-            this.files[blockIndex] = file;
-
-            return true;
-        } else if (overwriteIfExists) {
-            file.set(buffer);
-
-            return true;
+        // If the file already exists, do nothing.
+        if (file) {
+            return false;
         }
 
-        return false;
+        let blockIndex = this.blockTable.entries.length;
+        
+        file = new MpqFile(this);
+
+        file.name = name;
+        file.nameResolved = true;
+        file.hash = this.hashTable.add(name, blockIndex);
+        file.block = this.blockTable.add(buffer);
+        file.buffer = buffer;
+        
+        this.files[blockIndex] = file;
+
+        return true;
+    },
+
+    /**
+     * Changes the buffer of a file in this archive.
+     * Does nothing if...
+     *     1) The archive is in readonly mode.
+     *     2) The file doesn't exist.
+     * 
+     * @param {string} name
+     * @param {ArrayBuffer} buffer
+     * @returns {boolean}
+     */
+    edit(name, buffer) {
+        if (this.readonly) {
+            return false;
+        }
+
+        let file = this.get(name);
+
+        // If the file doesn't exist, do nothing.
+        if (!file) {
+            return false;
+        }
+
+        file.set(buffer);
+        
+        return true;
     },
 
     /**
@@ -377,17 +341,22 @@ MpqArchive.prototype = {
         let hash = this.hashTable.get(name);
 
         if (hash) {
-            let block = this.blockTable.entries[hash.blockIndex];
-            
-            // Check that the file wasn't deleted.
-            if (block.flags !== 0xFFFFFFFE) {
-                let file = this.files[hash.blockIndex];
+            let blockIndex = hash.blockIndex;
 
-                // Save the name in case it wasn't saved previously.
-                file.name = name.toLowerCase();
-                file.nameResolved = true;
+            // Check if the block exists.
+            if (blockIndex < HASH_ENTRY_DELETED) {
+                let block = this.blockTable.entries[blockIndex];
+                
+                // Check if the file exists.
+                if (block.flags & FILE_EXISTS) {
+                    let file = this.files[hash.blockIndex];
 
-                return file;
+                    // Save the name in case it wasn't already resolved.
+                    file.name = name.toLowerCase();
+                    file.nameResolved = true;
+
+                    return file;
+                }
             }
         }
 
@@ -396,7 +365,7 @@ MpqArchive.prototype = {
 
     /**
      * Checks if a file exists.
-     * Prefer to use get().
+     * Prefer to use get() if you are going to use get() afterwards anyway.
      * 
      * @param {string} name
      * @returns {boolean}
@@ -407,7 +376,9 @@ MpqArchive.prototype = {
 
     /**
      * Deletes a file from this archive.
-     * Does nothing if the archive is in readonly mode.
+     * Does nothing if...
+     *     1) The archive is in readonly mode.
+     *     2) The file doesn't exist.
      * 
      * @param {string} name
      * @returns {boolean}
@@ -419,31 +390,123 @@ MpqArchive.prototype = {
 
         let file = this.get(name);
 
-        if (file) {
-            let hash = file.hash,
-                blockIndex = hash.blockIndex;
-
-            hash.nameA = 0xFFFFFFFF;
-            hash.nameB = 0xFFFFFFFF;
-            hash.locale = 0XFFFF;
-            hash.platform = 0xFFFF;
-            hash.blockIndex = 0xFFFFFFFE; // Deleted
-
-            for (let hash of this.hashTable.entries) {
-                if (hash.blockIndex < 0xFFFFFFFE && hash.blockIndex > blockIndex) {
-                    hash.blockIndex -= 1;
-                }
-            }
-
-            this.blockTable.entries.splice(blockIndex, 1);
-            this.files.splice(blockIndex, 1);
-
-            return true;
+        if (!file) {
+            return false;
         }
 
-        return false;
+        let hash = file.hash,
+            blockIndex = hash.blockIndex;
+
+        hash.delete();
+
+        for (let hash of this.hashTable.entries) {
+            if (hash.blockIndex < 0xFFFFFFFE && hash.blockIndex > blockIndex) {
+                hash.blockIndex -= 1;
+            }
+        }
+
+        this.blockTable.entries.splice(blockIndex, 1);
+        this.files.splice(blockIndex, 1);
+
+        return true;
     },
 
+    /**
+     * Renames a file.
+     * Note that this sets the current file's hash's status to being deleted, rather than removing it.
+     * This is due to the way the search algorithm works.
+     * Does nothing if...
+     *     1) The archive is in readonly mode.
+     *     2) The file doesn't exist.
+     * 
+     * @param {string} name 
+     * @param {string} newName 
+     * @returns {boolean}
+     */
+    rename(name, newName) {
+        if (this.readonly) {
+            return false;
+        }
+
+        let file = this.get(name);
+
+        if (!file) {
+            return false;
+        }
+
+        let hash = file.hash,
+            newHash = this.hashTable.add(newName, hash.blockIndex);
+
+        newHash.locale = hash.locale;
+        newHash.platform = hash.platform;
+
+        file.name = newName;
+        file.nameResolved = true;
+        file.hash = newHash;
+
+        hash.delete();
+
+        return true;
+    },
+
+    /**
+     * Resizes the hashtable to the nearest power of two equal to or bigger than the given size.
+     * Generally speaking, the bigger the hashtable is, the quicker insertions/searches are, at the cost of added memory.
+     * Does nothing if...
+     *     1) The archive is in readonly mode.
+     *     2) The calculated size is smaller than the amount of files in the archive.
+     *     3) Not all of the file names in the archive are resolved.
+     * 
+     * @param {number} size
+     * @returns {boolean}
+     */
+    resizeHashtable(size) {
+        if (this.readonly) {
+            return false;
+        }
+
+        size = Math.max(4, powerOfTwo(size));
+
+        let files = this.files;
+        
+        // Can't resize to a size smaller than the existing files.
+        if (files.length > size) {
+            return false;
+        }
+
+        // If not all file names are known, don't resize.
+        // The insertion algorithm depends on the names.
+        for (let file of files) {
+            if (!file.nameResolved) {
+                return false;
+            }
+        }
+
+        let hashTable = this.hashTable,
+            entries = hashTable.entries,
+            oldEntries = entries.slice();
+
+        // Clear the entries.
+        hashTable.clear();
+
+        // Add empty entries.
+        hashTable.addEmpties(size);
+
+        // Go over all of the old entries, and copy them into the new entries.
+        for (let hash of oldEntries) {
+            if (hash.blockIndex !== HASH_ENTRY_EMPTY) {
+                let file = files[hash.blockIndex],
+                    insertionIndex = hashTable.getInsertionIndex(file.name);
+
+                entries[insertionIndex].copy(hash);
+            }
+        }
+
+        return true;
+    },
+
+    // Search for the MPQ header - MPQ\x1A.
+    // The header can be on any 512 bytes boundry offset.
     searchHeader(typedArray) {
         for (let i = 0, l = Math.ceil(typedArray.byteLength / 512) ; i < l; i++) {
             let offset = i * 512;

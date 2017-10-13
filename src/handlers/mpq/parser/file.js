@@ -1,5 +1,6 @@
 import { inflate, deflate } from 'pako';
-import { FILE_COMPRESSED, FILE_ENCRYPTED, FILE_FIX_KEY, FILE_SINGLE_UNIT, FILE_EXISTS, COMPRESSION_HUFFMAN, COMPRESSION_DEFLATE, COMPRESSION_IMPLODE, COMPRESSION_BZIP2, COMPRESSION_ADPCM_MONO, COMPRESSION_ADPCM_STEREO } from './constants';
+import { bufferToString } from '../../../common/stringtobuffer';
+import { FILE_COMPRESSED, FILE_ENCRYPTED, FILE_OFFSET_ADJUSTED_KEY, FILE_SINGLE_UNIT, FILE_EXISTS, COMPRESSION_HUFFMAN, COMPRESSION_DEFLATE, COMPRESSION_IMPLODE, COMPRESSION_BZIP2, COMPRESSION_ADPCM_MONO, COMPRESSION_ADPCM_STEREO } from './constants';
 
 /**
  * @constructor
@@ -309,7 +310,7 @@ MpqFile.prototype = {
     },
 
     // Decrypt this file and encrypt it back, with a new offset in the archive.
-    // This is used for files that use FILE_FIX_KEY, which are encrypted with a key that depends on their offset.
+    // This is used for files that use FILE_OFFSET_ADJUSTED_KEY, which are encrypted with a key that depends on their offset.
     reEncrypt(offset) {
         let archive = this.archive,
             block = this.block,
@@ -364,11 +365,11 @@ MpqFile.prototype = {
     },
 
     // The offset of the file this block points to has been recalculated
-    // If the offset is different, and this file uses FILE_FIX_KEY encryption, it must be re-encrypted with the new offset.
+    // If the offset is different, and this file uses FILE_OFFSET_ADJUSTED_KEY encryption, it must be re-encrypted with the new offset.
     offsetChanged(offset) {
         let block = this.block;
         
-        if (block.offset !== offset && block.flags & FILE_FIX_KEY) {
+        if (block.offset !== offset && block.flags & FILE_OFFSET_ADJUSTED_KEY) {
             if (this.nameResolved) {
                 this.reEncrypt(offset);
 

@@ -1,4 +1,4 @@
-import { HASH_FILE_KEY, FILE_FIX_KEY } from './constants';
+import { HASH_FILE_KEY, FILE_OFFSET_ADJUSTED_KEY } from './constants';
 
 // Global variables for this module.
 let bytes = new Uint8Array(4),
@@ -152,7 +152,7 @@ MpqCrypto.prototype = {
             pathlessName = name.substring(sepIndex + 1),
             encryptionKey = this.hash(pathlessName, HASH_FILE_KEY);
 
-        if (block.flags & FILE_FIX_KEY) {
+        if (block.flags & FILE_OFFSET_ADJUSTED_KEY) {
             encryptionKey = (encryptionKey + block.offset) ^ block.normalSize;
         }
 
