@@ -1,1 +1,1 @@
-.\node_modules\.bin\webpack.cmd -w -p
+.\node_modules\.bin\webpack.cmd -p

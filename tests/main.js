@@ -51,7 +51,7 @@ function addTestResult(testResult) {
     tr.appendChild(imageB);
 }
 
-let unitTester = new ModelViewer.UnitTester();
+let unitTester = new UnitTester();
 
 document.getElementById("version").textContent = "Viewer version " + unitTester.viewer.version;
 

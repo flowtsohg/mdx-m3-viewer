@@ -1,5 +1,3 @@
-let geometry = ModelViewer.geometry;
-
 function geoSolver(src) {
     return [src, ".geo", false];
 }
@@ -12,10 +10,15 @@ function sc2Solver(path) {
     return ["../resources/starcraft2/" + path, path.substr(path.lastIndexOf(".")), true];
 }
 
-let glMatrix = ModelViewer.glMatrix,
+ModelViewer = ModelViewer.default;
+
+let glMatrix = ModelViewer.common.glMatrix,
     vec2 = glMatrix.vec2,
     vec3 = glMatrix.vec3,
     vec4 = glMatrix.vec4,
     quat = glMatrix.quat,
     mat3 = glMatrix.mat3,
-    mat4 = glMatrix.mat4;
+    mat4 = glMatrix.mat4,
+    UnitTester = ModelViewer.Viewer.UnitTester,
+    geometry = ModelViewer.Viewer.Handlers.Geo.geometry,
+    math = ModelViewer.common.math;

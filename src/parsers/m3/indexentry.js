@@ -1,0 +1,194 @@
+import reverse from '../../common/stringreverse';
+import Md34 from './md34';
+import ModelHeader from './modelheader';
+import Sequence from './sequence';
+import Stc from './stc';
+import Stg from './stg';
+import Sts from './sts';
+import Bone from './bone';
+import Division from './division';
+import Region from './region';
+import Batch from './batch';
+import MaterialReference from './materialreference';
+import StandardMaterial from './standardmaterial';
+import Layer from './layer';
+import Event from './event';
+import BoundingSphere from './boundingsphere';
+import AttachmentPoint from './attachmentpoint';
+import Camera from './camera';
+import Sd from './sd';
+import UnsupportedEntry from './unsupportedentry';
+
+// Mapping from entry tags, to their constructors and known version->size values.
+let tagMapping = {
+    // Objects
+    MD34: [Md34, { 11: 24 }],
+    MODL: [ModelHeader, { 23: 784, 25: 808, 26: 820, 28: 844, 29: 856 }],
+    SEQS: [Sequence, { 1: 96, 2: 92 }],
+    STC_: [Stc, { 4: 204 }],
+    STG_: [Stg, { 0: 24 }],
+    STS_: [Sts, { 0: 28 }],
+    BONE: [Bone, { 1: 160 }],
+    DIV_: [Division, { 2: 52 }],
+    REGN: [Region, { 3: 36, 4: 40, 5: 48 }],
+    BAT_: [Batch, { 1: 14 }],
+    MATM: [MaterialReference, { 0: 8 }],
+    MAT_: [StandardMaterial, { 15: 268, 16: 280, 17: 280, 18: 280, 19: 340 }],
+    LAYR: [Layer, { 22: 356, 24: 436, 25: 468, 26: 464 }],
+    EVNT: [Event, { 0: 96, 1: 104, 2: 108 }],
+    BNDS: [BoundingSphere, { 0: 28 }],
+    ATT_: [AttachmentPoint, { 1: 20 }],
+    CAM_: [Camera, { 3: 180, 5: 264 }],
+    SDEV: [Sd, { 0: 32 }],
+    SDU6: [Sd, { 0: 32 }],
+    SDFG: [Sd, { 0: 32 }],
+    SDS6: [Sd, { 0: 32 }],
+    SDR3: [Sd, { 0: 32 }],
+    SD2V: [Sd, { 0: 32 }],
+    SD3V: [Sd, { 0: 32 }],
+    SD4Q: [Sd, { 0: 32 }],
+    SDCC: [Sd, { 0: 32 }],
+    SDMB: [Sd, { 0: 32 }],
+    FLAG: [Sd, { 0: 32 }],
+    // Unsupported entries
+    MSEC: [UnsupportedEntry, { 1: 72 }],
+    LITE: [UnsupportedEntry, { 7: 212 }],
+    ATVL: [UnsupportedEntry, { 0: 116 }],
+    PATU: [UnsupportedEntry, { 4: 152 }],
+    TRGD: [UnsupportedEntry, { 0: 24 }],
+    DIS_: [UnsupportedEntry, { 4: 68 }],
+    CMS_: [UnsupportedEntry, { 0: 24 }],
+    CMP_: [UnsupportedEntry, { 2: 28 }],
+    TER_: [UnsupportedEntry, { 0: 24, 1: 28 }],
+    VOL_: [UnsupportedEntry, { 0: 84 }],
+    VON_: [UnsupportedEntry, { 0: 268 }],
+    CREP: [UnsupportedEntry, { 0: 24, 1: 28 }],
+    STBM: [UnsupportedEntry, { 0: 48 }],
+    LFSB: [UnsupportedEntry, { 2: 56 }],
+    LFLR: [UnsupportedEntry, { 2: 80, 3: 152 }],
+    PAR_: [UnsupportedEntry, { 12: 1316, 17: 1460, 18: 1464, 19: 1464, 21: 1464, 22: 1484, 23: 1492, 24: 1496 }],
+    PARC: [UnsupportedEntry, { 0: 40 }],
+    PROJ: [UnsupportedEntry, { 4: 388, 5: 382 }],
+    PHYJ: [UnsupportedEntry, { 0: 180 }],
+    PHCC: [UnsupportedEntry, { 0: 76 }],
+    PHAC: [UnsupportedEntry, { 0: 32 }],
+    PHCL: [UnsupportedEntry, { 2: 128 }],
+    FOR_: [UnsupportedEntry, { 1: 104, 2: 104 }],
+    DMSE: [UnsupportedEntry, { 0: 4 }],
+    PHSH: [UnsupportedEntry, { 1: 132, 3: 300 }],
+    PHRB: [UnsupportedEntry, { 2: 104, 4: 80 }],
+    SSGS: [UnsupportedEntry, { 1: 108 }],
+    BBSC: [UnsupportedEntry, { 0: 48 }],
+    SRIB: [UnsupportedEntry, { 0: 272 }],
+    RIB_: [UnsupportedEntry, { 6: 748, 8: 756, 9: 760 }],
+    IKJT: [UnsupportedEntry, { 0: 32 }],
+    SHBX: [UnsupportedEntry, { 0: 64 }],
+    WRP_: [UnsupportedEntry, { 1: 132 }]
+};
+
+
+/**
+ * @constructor
+ * @param {BinaryReader} reader
+ * @param {Array<IndexEntry>} index
+ */
+function IndexEntry(reader, index) {
+    let tag = reverse(reader.read(4)),
+        offset = reader.readUint32(),
+        entriesCount = reader.readUint32(),
+        version = reader.readUint32();
+
+    /** @member {Array<IndexEntry>} */
+    this.index = index;
+    /** @member {string} */
+    this.tag = tag;
+    /** @member {number} */
+    this.offset = offset;
+    /** @member {number} */
+    this.version = version;
+    /** @member {null|Array<?>|Uint8Array|Uint16Array|Uint32Array|Int32Array|Float32Array} */
+    this.entries = null;
+
+    let mapping = tagMapping[tag],
+        readerOffset = reader.tell();
+
+    reader.seek(offset);
+
+    // This is an object
+    if (mapping) {
+        let constructor = mapping[0],
+            entrySize = mapping[1][version];
+
+        if (!entrySize) {
+            // Yey found a new version!
+            throw new Error(': Unsupported object version - tag ' + tag + ' and version ' + version);
+        }
+
+        this.entries = [];
+
+        for (let i = 0, l = entriesCount; i < l; i++) {
+            // A sub stream is given for each object constructor.
+            // This allows for parsing to work consistently, even if we don't quite know exactly how the structures look.
+            // If some bytes aren't read, the error will not carry to the next object.
+            // Since new versions of objects usually add data to the end, this allows the parser to work, even if trying to load newer versions.
+            // Of course, the new version size needs to be added to IndexEntry.tagMapping, when finding one.
+            this.entries[i] = new constructor(reader.substream(entrySize), version, index);
+
+            reader.skip(entrySize);
+        }
+    // This is maybe a typed array?
+    } else {
+        switch (tag) {
+            case 'CHAR':
+            case 'SCHR':
+                this.entries = reader.readCharArray(entriesCount);
+                break;
+
+            case 'U8__':
+                this.entries = reader.readUint8Array(entriesCount);
+                break;
+
+            case 'U16_':
+                this.entries = reader.readUint16Array(entriesCount);
+                break;
+
+            case 'U32_':
+                this.entries = reader.readUint32Array(entriesCount);
+                break;
+
+            case 'I32_':
+                this.entries = reader.readInt32Array(entriesCount);
+                break;
+
+            case 'REAL':
+                this.entries = reader.readFloat32Array(entriesCount);
+                break;
+
+            case 'VEC2':
+                this.entries = reader.readFloat32Matrix(entriesCount, 2);
+                break;
+
+            case 'VEC3':
+            case 'SVC3':
+                this.entries = reader.readFloat32Matrix(entriesCount, 3);
+                break;
+
+            case 'VEC4':
+            case 'QUAT':
+                this.entries = reader.readFloat32Matrix(entriesCount, 4);
+                break;
+
+            case 'IREF':
+                this.entries = reader.readFloat32Matrix(entriesCount, 16);
+                break;
+
+            // Yey found a new tag!
+            default:
+                throw new Error(': Unsupported object tag - tag ' + tag + ' and version ' + version);
+        }
+    }
+
+    reader.seek(readerOffset);
+}
+
+export default IndexEntry;

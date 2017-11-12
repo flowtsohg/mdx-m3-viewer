@@ -1,2 +1,2 @@
 #!/bin/sh
-./node_modules/.bin/webpack -w -p
+./node_modules/.bin/webpack -p

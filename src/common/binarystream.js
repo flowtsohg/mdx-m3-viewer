@@ -1,0 +1,1024 @@
+import { uint8ToInt8, uint8ToInt16, uint8ToInt32, uint8ToUint16, uint8ToUint32, uint8ToFloat32, uint8ToFloat64, int8ToUint8, int16ToUint8, int32ToUint8, uint16ToUint8, uint32ToUint8, float32ToUint8, float64ToUint8 } from './typecast';
+
+// Memory for all of the xxxToUint type casts.
+let uint8 = new Uint8Array(8);
+
+/**
+ * @constructor
+ * @param {ArrayBuffer|TypedArray} buffer
+ * @param {number=} byteOffset
+ * @param {number=} byteLength
+ */
+function BinaryStream(buffer, byteOffset, byteLength) {
+    // If given a view, use its properties.
+    if (ArrayBuffer.isView(buffer)) {
+        buffer = buffer.buffer;
+        byteOffset = buffer.byteOffset;
+        byteLength = buffer.byteLength;
+    }
+
+    if (!(buffer instanceof ArrayBuffer)) {
+        throw new TypeError(`BinaryStream: expected ArrayBuffer or TypedArray, got ${buffer}`);
+    }
+
+    /** @member {ArrayBuffer} */
+    this.buffer = buffer;
+    /** @member {Uint8Array} */
+    this.uint8array = new Uint8Array(buffer, byteOffset, byteLength);
+    /** @member {number} */
+    this.index = 0;
+    /** @member {number} */
+    this.byteLength = buffer.byteLength;
+}
+
+BinaryStream.prototype = {
+    /**
+     * Create a subreader of this reader, at its position, with the given byte length
+     * 
+     * @returns {BinaryStream}
+     */
+    substream(byteLength) {
+        return new BinaryStream(this.buffer, this.index, byteLength);
+    },
+
+    /**
+     * Get the remaining bytes
+     * 
+     * @returns {number}
+     */
+    remaining() {
+        return this.byteLength - this.index;
+    },
+
+    /**
+     * Skip a number of bytes
+     * 
+     * @param {number} bytes
+     */
+    skip(bytes) {
+        this.index += bytes;
+    },
+
+    /**
+     * Set the reader's index
+     * 
+     * @param {number} index
+     */
+    seek(index) {
+        this.index = index;
+    },
+
+    /**
+     * Get the reader's index
+     * 
+     * @returns {number}
+     */
+    tell() {
+        return this.index;
+    },
+
+    /**
+     * Peek a string
+     * 
+     * @param {number} size
+     * @returns {string}
+     */
+    peek(size) {
+        let uint8array = this.uint8array,
+            index = this.index,
+            data = '';
+
+        for (let i = 0; i < size; i++) {
+            let b = uint8array[index + i];
+
+            // Avoid \0
+            if (b > 0) {
+                data += String.fromCharCode(b);
+            }
+        }
+
+        return data;
+    },
+
+    /**
+     * Read a string
+     * 
+     * @param {number} size
+     * @returns {string}
+     */
+    read(size) {
+        // If the size isn't specified, default to everything
+        size = size || this.remaining();
+
+        let data = this.peek(size);
+
+        this.index += size;
+
+        return data;
+    },
+
+    /**
+     * Peeks a string until finding a null byte
+     * 
+     * @returns {string}
+     */
+    peekUntilNull() {
+        let uint8array = this.uint8array,
+            index = this.index,
+            data = '',
+            b = uint8array[index],
+            i = 0;
+
+        while (b !== 0) {
+            data += String.fromCharCode(b);
+
+            i += 1;
+            b = uint8array[index + i]
+        }
+
+        return data;
+    },
+
+    /**
+     * Read a string until finding a null byte
+     * 
+     * @param {number} size
+     * @returns {string}
+     */
+    readUntilNull() {
+        let data = this.peekUntilNull();
+
+        this.index += data.length + 1; // +1 for the \0 itself
+
+        return data;
+    },
+
+    /**
+     * Peek a character array.
+     * 
+     * @param {number} size
+     * @returns {Array<string>}
+     */
+    peekCharArray(size) {
+        let uint8array = this.uint8array,
+            index = this.index,
+            data = [];
+
+        for (let i = 0; i < size; i++) {
+            data[i] = String.fromCharCode(uint8array[index + i]);
+        }
+
+        return data;
+    },
+
+    /**
+     * Read a character array.
+     * 
+     * @param {number} size
+     * @returns {Array<string>}
+     */
+    readCharArray(size) {
+        let data = this.peekCharArray(size);
+
+        this.index += size;
+
+        return data;
+    },
+
+    /**
+     * Read a 8 bit signed integer
+     * 
+     * @returns {number}
+     */
+    readInt8() {
+        let index = this.index,
+            uint8array = this.uint8array,
+            data = uint8ToInt8(uint8array[index]);
+
+        this.index += 1;
+
+        return data;
+    },
+
+    /**
+     * Read a 16 bit signed integer
+     * 
+     * @returns {number}
+     */
+    readInt16() {
+        let index = this.index,
+            uint8array = this.uint8array,
+            data = uint8ToInt16(uint8array[index], uint8array[index + 1]);
+
+        this.index += 2;
+
+        return data;
+    },
+
+    /**
+     * Read a 32 bit signed integer
+     * 
+     * @returns {number}
+     */
+    readInt32() {
+        let index = this.index,
+            uint8array = this.uint8array,
+            data = uint8ToInt32(uint8array[index], uint8array[index + 1], uint8array[index + 2], uint8array[index + 3]);
+
+        this.index += 4;
+
+        return data;
+    },
+
+    /**
+     * Read a 8 bit unsigned integer
+     * 
+     * @returns {number}
+     */
+    readUint8() {
+        let data = this.uint8array[this.index];
+
+        this.index += 1;
+
+        return data;
+    },
+
+    /**
+     * Read a 16 bit unsigned integer
+     * 
+     * @returns {number}
+     */
+    readUint16() {
+        let index = this.index,
+            uint8array = this.uint8array,
+            data = uint8ToUint16(uint8array[index], uint8array[index + 1]);
+
+        this.index += 2;
+
+        return data;
+    },
+
+    /**
+     * Read a 32 bit unsigned integer
+     * 
+     * @returns {number}
+     */
+    readUint32() {
+        let index = this.index,
+            uint8array = this.uint8array,
+            data = uint8ToUint32(uint8array[index], uint8array[index + 1], uint8array[index + 2], uint8array[index + 3]);
+
+        this.index += 4;
+
+        return data;
+    },
+
+    /**
+     * Read a 32 bit float
+     * 
+     * @returns {number}
+     */
+    readFloat32() {
+        let index = this.index,
+            uint8array = this.uint8array,
+            data = uint8ToFloat32(uint8array[index], uint8array[index + 1], uint8array[index + 2], uint8array[index + 3]);
+
+        this.index += 4;
+
+        return data;
+    },
+
+    /**
+     * Read a 64 bit float
+     * 
+     * @returns {number}
+     */
+    readFloat64() {
+        let index = this.index,
+            uint8array = this.uint8array,
+            data = uint8ToFloat64(uint8array[index], uint8array[index + 1], uint8array[index + 2], uint8array[index + 3], uint8array[index + 4], uint8array[index + 5], uint8array[index + 6], uint8array[index + 7]);
+
+        this.index += 8;
+
+        return data;
+    },
+
+    /**
+     * Read an array of 8 bit signed integers
+     * 
+     * @param {number} count
+     * @returns {Int8Array}
+     */
+    readInt8Array(count) {
+        let index = this.index,
+            uint8array = this.uint8array,
+            data = new Int8Array(count);
+
+        for (let i = 0; i < count; i++) {
+            data[i] = uint8ToInt8(uint8array[index + i]);
+        }
+
+        this.index += data.byteLength;
+
+        return data;
+    },
+
+    /**
+     * Read an array of 16 bit signed integers
+     * 
+     * @param {number} count
+     * @returns {Int16Array}
+     */
+    readInt16Array(count) {
+        let index = this.index,
+            uint8array = this.uint8array,
+            data = new Int16Array(count);
+
+        for (let i = 0; i < count; i++) {
+            let offset = index + i * 2;
+
+            data[i] = uint8ToInt16(uint8array[offset], uint8array[offset + 1]);
+        }
+
+        this.index += data.byteLength;
+
+        return data;
+    },
+
+    /**
+     * Read an array of 32 bit signed integers
+     * 
+     * @param {number} count
+     * @returns {Int32Array}
+     */
+    readInt32Array(count) {
+        let index = this.index,
+            uint8array = this.uint8array,
+            data = new Int32Array(count);
+
+        for (let i = 0; i < count; i++) {
+            let offset = index + i * 4;
+            
+            data[i] = uint8ToInt16(uint8array[offset], uint8array[offset + 1], uint8array[offset + 2], uint8array[offset + 3]);
+        }
+
+        this.index += data.byteLength;
+
+        return data;
+    },
+
+    /**
+     * Read an array of 8 bit unsigned integers
+     * 
+     * @param {number} count
+     * @returns {Uint8Array}
+     */
+    readUint8Array(count) {
+        let index = this.index,
+            uint8array = this.uint8array,
+            data = new Uint8Array(count);
+
+        for (let i = 0; i < count; i++) {
+            data[i] = uint8array[index + i];
+        }
+
+        this.index += data.byteLength;
+
+        return data;
+    },
+
+    /**
+     * Read an array of 16 bit unsigned integers
+     * 
+     * @param {number} count
+     * @returns {Uint16Array}
+     */
+    readUint16Array(count) {
+        let index = this.index,
+            uint8array = this.uint8array,
+            data = new Uint16Array(count);
+
+        for (let i = 0; i < count; i++) {
+            let offset = index + i * 2;
+            
+            data[i] = uint8ToUint16(uint8array[offset], uint8array[offset + 1]);
+        }
+
+        this.index += data.byteLength;
+
+        return data;
+    },
+
+    /**
+     * Read an array of 32 bit unsigned integers
+     * 
+     * @param {number} count
+     * @returns {Uint32Array}
+     */
+    readUint32Array(count) {
+        let index = this.index,
+            uint8array = this.uint8array,
+            data = new Uint32Array(count);
+
+        for (let i = 0; i < count; i++) {
+            let offset = index + i * 4;
+            
+            data[i] = uint8ToUint32(uint8array[offset], uint8array[offset + 1], uint8array[offset + 2], uint8array[offset + 3]);
+        }
+
+        this.index += data.byteLength;
+
+        return data;
+    },
+
+    /**
+     * Read an array of 32 bit floats
+     * 
+     * @param {number} count
+     * @returns {Float32Array}
+     */
+    readFloat32Array(count) {
+        let index = this.index,
+            uint8array = this.uint8array,
+            data = new Float32Array(count);
+
+        for (let i = 0; i < count; i++) {
+            let offset = index + i * 4;
+            
+            data[i] = uint8ToFloat32(uint8array[offset], uint8array[offset + 1], uint8array[offset + 2], uint8array[offset + 3]);
+        }
+
+        this.index += data.byteLength;
+
+        return data;
+    },
+
+    /**
+     * Read an array of 64 bit floats
+     * 
+     * @param {number} count
+     * @returns {Float64Array}
+     */
+    readFloat64Array(count) {
+        let index = this.index,
+            uint8array = this.uint8array,
+            data = new Float64Array(count);
+
+        for (let i = 0; i < count; i++) {
+            let offset = index + i * 8;
+            
+            data[i] = uint8ToFloat64(uint8array[offset], uint8array[offset + 1], uint8array[offset + 2], uint8array[offset + 3], uint8array[offset + 4], uint8array[offset + 5], uint8array[offset + 6], uint8array[offset + 7]);
+        }
+
+        this.index += data.byteLength;
+
+        return data;
+    },
+
+    /**
+     * Read an array of arrays of 8 bit signed integers
+     * 
+     * @param {number} rows
+     * @param {number} columns
+     * @returns {Array<Int8Array>}
+     */
+    readInt8Matrix(rows, columns) {
+        let data = [];
+
+        for (let i = 0; i < rows; i++) {
+            data[i] = this.readInt8Array(columns);
+        }
+
+        return data;
+    },
+
+    /**
+     * Read an array of arrays of 16 bit signed integers
+     * 
+     * @param {number} rows
+     * @param {number} columns
+     * @returns {Array<Int16Array>}
+     */
+    readInt16Matrix(rows, columns) {
+        let data = [];
+
+        for (let i = 0; i < rows; i++) {
+            data[i] = this.readInt16Array(columns);
+        }
+
+        return data;
+    },
+
+    /**
+     * Read an array of arrays of 32 bit signed integers
+     * 
+     * @param {number} rows
+     * @param {number} columns
+     * @returns {Array<Int32Array>}
+     */
+    readInt32Matrix(rows, columns) {
+        let data = [];
+
+        for (let i = 0; i < rows; i++) {
+            data[i] = this.readInt32Array(columns);
+        }
+
+        return data;
+    },
+
+    /**
+     * Read an array of arrays of 8 bit unsigned integers
+     * 
+     * @param {number} rows
+     * @param {number} columns
+     * @returns {Array<Uint8Array>}
+     */
+    readUint8Matrix(rows, columns) {
+        let data = [];
+
+        for (let i = 0; i < rows; i++) {
+            data[i] = this.readUint8Array(columns);
+        }
+
+        return data;
+    },
+
+    /**
+     * Read an array of arrays of 16 bit unsigned integers
+     * 
+     * @param {number} rows
+     * @param {number} columns
+     * @returns {Array<Uint16Array>}
+     */
+    readUint16Matrix(rows, columns) {
+        let data = [];
+
+        for (let i = 0; i < rows; i++) {
+            data[i] = this.readUint16Array(columns);
+        }
+
+        return data;
+    },
+
+    /**
+     * Read an array of arrays of 32 bit unsigned integers
+     * 
+     * @param {number} rows
+     * @param {number} columns
+     * @returns {Array<Uint32Array>}
+     */
+    readUint32Matrix(rows, columns) {
+        let data = [];
+
+        for (let i = 0; i < rows; i++) {
+            data[i] = this.readUint32Array(columns);
+        }
+
+        return data;
+    },
+
+    /**
+     * Read an array of arrays of 32 bit floats
+     * 
+     * @param {number} rows
+     * @param {number} columns
+     * @returns {Array<Float32Array>}
+     */
+    readFloat32Matrix(rows, columns) {
+        let data = [];
+
+        for (let i = 0; i < rows; i++) {
+            data[i] = this.readFloat32Array(columns);
+        }
+
+        return data;
+    },
+
+    /**
+     * Read an array of arrays of 64 bit floats
+     * 
+     * @param {number} rows
+     * @param {number} columns
+     * @returns {Array<Float64Array>}
+     */
+    readFloat64Matrix(rows, columns) {
+        let data = [];
+
+        for (let i = 0; i < rows; i++) {
+            data[i] = this.readFloat64Array(columns);
+        }
+
+        return data;
+    },
+
+    /**
+     * Write a string
+     * 
+     * @param {string} value
+     */
+    write(value) {
+        let index = this.index,
+            uint8array = this.uint8array,
+            count = value.length;
+
+        for (let i = 0; i < count; i++) {
+            uint8array[index + i] = value.charCodeAt(i)
+        }
+
+        this.index += count;
+    },
+
+    /**
+     * Write a 8 bit signed integer
+     * 
+     * @param {number} value
+     */
+    writeInt8(value) {
+        this.uint8array[this.index] = int8ToUint8(value);
+        this.index += 1;
+    },
+
+    /**
+     * Write a 16 bit signed integer
+     * 
+     * @param {number} value
+     */
+    writeInt16(value) {
+        let index = this.index,
+            uint8array = this.uint8array;
+        
+        int16ToUint8(uint8, value);
+
+        uint8array[index] = uint8[0];
+        uint8array[index + 1] = uint8[1];
+
+        this.index += 2;
+    },
+
+    /**
+     * Write a 32 bit signed integer
+     * 
+     * @param {number} value
+     */
+    writeInt32(value) {
+        let index = this.index,
+            uint8array = this.uint8array;
+        
+        int32ToUint8(uint8, value);
+
+        uint8array[index] = uint8[0];
+        uint8array[index + 1] = uint8[1];
+        uint8array[index + 2] = uint8[2];
+        uint8array[index + 3] = uint8[3];
+        
+        this.index += 4;
+    },
+
+    /**
+     * Write a 8 bit unsigned integer
+     * 
+     * @param {number} value
+     */
+    writeUint8(value) {
+        this.uint8array[this.index] = value;
+        this.index += 1;
+    },
+
+    /**
+     * Write a 16 bit unsigned integer
+     * 
+     * @param {number} value
+     */
+    writeUint16(value) {
+        let index = this.index,
+            uint8array = this.uint8array;
+        
+        uint16ToUint8(uint8, value);
+
+        uint8array[index] = uint8[0];
+        uint8array[index + 1] = uint8[1];
+        
+        this.index += 2;
+    },
+
+    /**
+     * Write a 32 bit unsigned integer
+     * 
+     * @param {number} value
+     */
+    writeUint32(value) {
+        let index = this.index,
+            uint8array = this.uint8array;
+        
+        uint32ToUint8(uint8, value);
+
+        uint8array[index] = uint8[0];
+        uint8array[index + 1] = uint8[1];
+        uint8array[index + 2] = uint8[2];
+        uint8array[index + 3] = uint8[3];
+        
+        this.index += 4;
+    },
+
+    /**
+     * Write a 32 bit float
+     * 
+     * @param {number} value
+     */
+    writeFloat32(value) {
+        let index = this.index,
+            uint8array = this.uint8array;
+        
+        float32ToUint8(uint8, value);
+
+        uint8array[index] = uint8[0];
+        uint8array[index + 1] = uint8[1];
+        uint8array[index + 2] = uint8[2];
+        uint8array[index + 3] = uint8[3];
+        
+        this.index += 4;
+    },
+
+    /**
+     * Write a 64 bit float
+     * 
+     * @param {number} value
+     */
+    writeFloat64(value) {
+        let index = this.index,
+            uint8array = this.uint8array;
+    
+        float64ToUint8(uint8, value);
+
+        uint8array[index] = uint8[0];
+        uint8array[index + 1] = uint8[1];
+        uint8array[index + 2] = uint8[2];
+        uint8array[index + 3] = uint8[3];
+        uint8array[index + 4] = uint8[4];
+        uint8array[index + 5] = uint8[5];
+        uint8array[index + 6] = uint8[6];
+        uint8array[index + 7] = uint8[7];
+        
+        this.index += 8;
+    },
+
+    /**
+     * Write an array of 8 bit signed integers
+     * 
+     * @param {Int8Array} data
+     */
+    writeInt8Array(data) {
+        let index = this.index,
+            uint8array = this.uint8array;
+        
+        for (let i = 0, l = data.length; i < l; i++) {
+            uint8array[index + i] = int8ToUint8(data[i]);
+        }
+
+        this.index += data.byteLength;
+    },
+
+    /**
+     * Write an array of 16 bit signed integers
+     * 
+     * @param {Int16Array} data
+     */
+    writeInt16Array(data) {
+        let index = this.index,
+            uint8array = this.uint8array;
+
+        for (let i = 0, l = data.length; i < l; i++) {
+            let offset = index + i * 2;
+
+            int16ToUint8(uint8, data[i]);
+
+            uint8array[offset] = uint8[0];
+            uint8array[offset + 1] = uint8[1];
+        }
+
+        this.index += data.byteLength;
+    },
+
+    /**
+     * Write an array of 32 bit signed integers
+     * 
+     * @param {Int32Array} data
+     */
+    writeInt32Array(data) {
+        let index = this.index,
+            uint8array = this.uint8array;
+
+        for (let i = 0, l = data.length; i < l; i++) {
+            let offset = index + i * 4;
+
+            int32ToUint8(uint8, data[i]);
+
+            uint8array[offset] = uint8[0];
+            uint8array[offset + 1] = uint8[1];
+            uint8array[offset + 2] = uint8[2];
+            uint8array[offset + 3] = uint8[3];
+        }
+
+        this.index += data.byteLength;
+    },
+
+    /**
+     * Write an array of 8 bit unsigned integers
+     * 
+     * @param {Uint8Array} data
+     */
+    writeUint8Array(data) {
+        let index = this.index,
+            uint8array = this.uint8array;
+        
+        for (let i = 0, l = data.length; i < l; i++) {
+            uint8array[index + i] = data[i];
+        }
+
+        this.index += data.byteLength;
+    },
+
+    /**
+     * Write an array of 16 bit unsigned integers
+     * 
+     * @param {Uint16Array} data
+     */
+    writeUint16Array(data) {
+        let index = this.index,
+            uint8array = this.uint8array;
+
+        for (let i = 0, l = data.length; i < l; i++) {
+            let offset = index + i * 2;
+
+            uint16ToUint8(uint8, data[i]);
+
+            uint8array[offset] = uint8[0];
+            uint8array[offset + 1] = uint8[1];
+        }
+
+        this.index += data.byteLength;
+    },
+
+    /**
+     * Write an array of 32 bit unsigned integers
+     * 
+     * @param {Uint32Array} data
+     */
+    writeUint32Array(data) {
+        let index = this.index,
+            uint8array = this.uint8array;
+
+        for (let i = 0, l = data.length; i < l; i++) {
+            let offset = index + i * 4;
+
+            uint32ToUint8(uint8, data[i]);
+
+            uint8array[offset] = uint8[0];
+            uint8array[offset + 1] = uint8[1];
+            uint8array[offset + 2] = uint8[2];
+            uint8array[offset + 3] = uint8[3];
+        }
+
+        this.index += data.byteLength;
+    },
+
+    /**
+     * Write an array of 32 bit floats
+     * 
+     * @param {Float32Array} data
+     */
+    writeFloat32Array(data) {
+        let index = this.index,
+            uint8array = this.uint8array;
+
+        for (let i = 0, l = data.length; i < l; i++) {
+            let offset = index + i * 4;
+
+            float32ToUint8(uint8, data[i]);
+
+            uint8array[offset] = uint8[0];
+            uint8array[offset + 1] = uint8[1];
+            uint8array[offset + 2] = uint8[2];
+            uint8array[offset + 3] = uint8[3];
+        }
+
+        this.index += data.byteLength;
+    },
+
+    /**
+     * Write an array of 64 bit floats
+     * 
+     * @param {Float64Array} data
+     */
+    writeFloat64Array(data) {
+        let index = this.index,
+            uint8array = this.uint8array;
+
+        for (let i = 0, l = data.length; i < l; i++) {
+            let offset = index + i * 8;
+
+            float64ToUint8(uint8, data[i]);
+
+            uint8array[offset] = uint8[0];
+            uint8array[offset + 1] = uint8[1];
+            uint8array[offset + 2] = uint8[2];
+            uint8array[offset + 3] = uint8[3];
+            uint8array[offset + 4] = uint8[4];
+            uint8array[offset + 5] = uint8[5];
+            uint8array[offset + 6] = uint8[6];
+            uint8array[offset + 7] = uint8[7];
+        }
+
+        this.index += data.byteLength;
+    },
+
+    /**
+     * Write an array of arrays of 8 bit signed integers
+     * 
+     * @param {Array<Int8Array>} data
+     */
+    writeInt8Matrix(data) {
+        for (let i = 0, l = data.length; i < l; i++) {
+            this.writeInt8Array(data[i]);
+        }
+    },
+
+    /**
+     * Write an array of arrays of 16 bit signed integers
+     * 
+     * @param {Array<Int16Array>} data
+     */
+    writeInt16Matrix(data) {
+        for (let i = 0, l = data.length; i < l; i++) {
+            this.writeInt16Array(data[i]);
+        }
+    },
+
+    /**
+     * Write an array of arrays of 32 bit signed integers
+     * 
+     * @param {Array<Int32Array>} data
+     */
+    writeInt32Matrix(data) {
+        for (let i = 0, l = data.length; i < l; i++) {
+            this.writeInt32Array(data[i]);
+        }
+    },
+
+    /**
+     * Write an array of arrays of 8 bit unsigned integers
+     * 
+     * @param {Array<Uint8Array>} data
+     */
+    writeUint8Matrix(data) {
+        for (let i = 0, l = data.length; i < l; i++) {
+            this.writeUint8Array(data[i]);
+        }
+    },
+
+    /**
+     * Write an array of arrays of 16 bit unsigned integers
+     * 
+     * @param {Array<Uint16Array>} data
+     */
+    writeUint16Matrix(data) {
+        for (let i = 0, l = data.length; i < l; i++) {
+            this.writeUint16Array(data[i]);
+        }
+    },
+
+    /**
+     * Write an array of arrays of 32 bit unsigned integers
+     * 
+     * @param {Array<Uint32Array>} data
+     */
+    writeUint32Matrix(data) {
+        for (let i = 0, l = data.length; i < l; i++) {
+            this.writeUint32Array(data[i]);
+        }
+    },
+
+    /**
+     * Write an array of arrays of 32 bit floats
+     * 
+     * @param {Array<Float32Array>} data
+     */
+    writeFloat32Matrix(data) {
+        for (let i = 0, l = data.length; i < l; i++) {
+            this.writeFloat32Array(data[i]);
+        }
+    },
+
+    /**
+     * Write an array of arrays of 64 bit floats
+     * 
+     * @param {Array<Float64Array>} data
+     */
+    writeFloat64Matrix(data) {
+        for (let i = 0, l = data.length; i < l; i++) {
+            this.writeFloat64Array(data[i]);
+        }
+    }
+};
+
+export default BinaryStream;
