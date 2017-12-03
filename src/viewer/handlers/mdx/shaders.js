@@ -12,7 +12,7 @@ const MdxShaders = {
         attribute float a_boneNumber;
         attribute float a_teamColor;
         attribute vec4 a_vertexColor;
-        attribute float a_geosetVisible;
+        attribute float a_geosetAlpha;
         attribute vec3 a_geosetColor;
         attribute float a_layerAlpha;
         attribute vec4 a_uvOffset;
@@ -43,17 +43,22 @@ const MdxShaders = {
             transform(position, normal, a_boneNumber, a_bones);
 
             if (u_hasLayerAnim) {
-                v_uv = (fract(a_uv + a_uvOffset.xy) + a_uvOffset.zw) * u_uvScale;
+                /// TODO: This handles both texture animations (animated texture coordinates), and sprite animations.
+                ///       It is kinda bugged.
+                ///       In addition to being bugged, it should either be calculated in the fragment shader, or be used with texture arrays (WebGL2).
+                v_uv = (a_uv + a_uvOffset.xy + a_uvOffset.zw) * u_uvScale;
             } else {
                 v_uv = a_uv;
             }
 
             v_normal = normal;
 	        v_teamColor = u_teamColors[int(a_teamColor)];
-	        v_vertexColor = a_vertexColor;
-	        v_geosetColor = vec4(a_geosetColor, a_layerAlpha);
-
-	        if (a_geosetVisible == 0.0) {
+            v_vertexColor = a_vertexColor;
+            
+            /// Is the alpha here even correct?
+            v_geosetColor = vec4(a_geosetColor, a_layerAlpha);
+            
+	        if (a_geosetAlpha < 0.75 || a_layerAlpha < 0.1) {
 		        gl_Position = vec4(0.0);
             } else {
 		        gl_Position = u_mvp * vec4(position, 1);
@@ -98,7 +103,7 @@ const MdxShaders = {
                 discard;
             }
 
-	        gl_FragColor = texel * v_geosetColor.bgra * v_vertexColor;
+            gl_FragColor = texel * v_geosetColor.bgra * v_vertexColor;
             #endif
 
             #ifdef UVS_PASS

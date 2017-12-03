@@ -82,6 +82,11 @@ MdxRibbonEmitter.prototype = {
 
             model.bindTexture(this.texture, 0, bucket.modelView);
 
+            /// TODO: Needed to avoid bleeding from the other side of the texture.
+            ///       Any better way to handle this?
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
             gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.buffer);
             gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.buffer.float32array.subarray(0, active * 30));
 

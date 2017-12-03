@@ -1,6 +1,4 @@
 import BinaryStream from '../../../common/binarystream';
-// NOTE: Requires HTMLCanvasElement, and thuse a browser environment. Can anything be done to make this work in Node?
-import { resizeImageData } from '../../../common/canvas';
 import TilePoint from './tilepoint';
 
 /**
@@ -92,24 +90,6 @@ War3MapW3e.prototype = {
 
     calcSize() {
         return 37 + (this.groundTilesets.length * 4) + (this.cliffTilesets.length * 4) + (this.mapSize[0] * this.mapSize[1] * 7);
-    },
-
-    applyHeightMap(imageData, scale) {
-        let mapSize = this.mapSize,
-            columns = mapSize[0],
-            rows = mapSize[1];
-        
-        imageData = resizeImageData(imageData, columns, rows);
-
-        let tilepoints = this.tilepoints,
-            data = imageData.data;
-
-        for (let row = 0; row < rows; row++) {
-            for (let column = 0; column < columns; column++) {
-                // 0x2000 is the 0 height of Warcraft 3.
-                tilepoints[row][column].groundHeight = 0x2000 + Math.floor(data[row * columns * 4 + column * 4] * scale);
-            }
-        }
     }
 };
 

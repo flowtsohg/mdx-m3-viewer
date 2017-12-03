@@ -122,10 +122,6 @@ function MdxGeoset(model, geoset) {
 }
 
 MdxGeoset.prototype = {
-    shouldRender(instance) {
-        return this.getAlpha(instance) >= 0.75;
-    },
-
     getAlpha(instance) {
         let geosetAnimation = this.geosetAnimation;
 

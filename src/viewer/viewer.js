@@ -119,7 +119,7 @@ ModelViewer.prototype = {
      * @returns {string}
      */
     get version() {
-        return '4.0.17';
+        return '4.0.18';
     },
 
     /**

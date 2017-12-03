@@ -54,17 +54,17 @@ War3Map.prototype = {
      * @returns {boolean}
      */
     load(buffer) {
-        let reader = new BinaryStream(buffer);
+        let stream = new BinaryStream(buffer);
     
-        if (reader.read(4) !== 'HM3W') {
+        if (stream.read(4) !== 'HM3W') {
             return false;
         }
 
         // Read the header.
-        this.u1 = reader.readUint32();
-        this.name = reader.readUntilNull();
-        this.flags = reader.readUint32();
-        this.maxPlayers = reader.readUint32();
+        this.u1 = stream.readUint32();
+        this.name = stream.readUntilNull();
+        this.flags = stream.readUint32();
+        this.maxPlayers = stream.readUint32();
 
         // Read the archive.
         // If it failed to be read, abort.

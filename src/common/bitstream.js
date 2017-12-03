@@ -4,28 +4,33 @@
  * @param {number=} byteOffset
  * @param {number=} byteLength
  */
-function BitBuffer(buffer, byteOffset, byteLength) {
+function BitStream(buffer, byteOffset, byteLength) {
+    // If given a view, use its properties.
+    if (ArrayBuffer.isView(buffer)) {
+        buffer = buffer.buffer;
+        byteOffset = buffer.byteOffset;
+        byteLength = buffer.byteLength;
+    }
+
     if (!(buffer instanceof ArrayBuffer)) {
-        throw new TypeError('BitBuffer: expected ArrayBuffer, got ' + buffer);
+        throw new TypeError(`BitStream: expected ArrayBuffer or TypedArray, got ${buffer}`);
     }
 
-    // Note: These four lines exist just for Firefox, since, at the time of writing, its implementation fails ECMAScript 2015 section 22.2.1.5 step 13.
-    //       In other words, if you create a typed array with byteLength of undefined, the typed array will have zero length, instead of buffer.byteLength - byteOffset.
-    //       See bug report at https://bugzilla.mozilla.org/show_bug.cgi?id=1040402
-    byteOffset = byteOffset || 0;
-    if (byteLength === undefined) {
-        byteLength = buffer.byteLength - byteOffset;
-    }
-
+    /** @member {ArrayBuffer} */
     this.buffer = buffer;
-    this.byteArray = new Uint8Array(buffer, byteOffset, byteLength);
+    /** @member {Uint8Array} */
+    this.uint8array = new Uint8Array(buffer, byteOffset, byteLength);
+    /** @member {number} */
     this.index = 0;
+    /** @member {number} */
     this.byteLength = buffer.byteLength;
+    /** @member {number} */
     this.bitBuffer = 0;
+    /** @member {number} */
     this.bits = 0;
 }
 
-BitBuffer.prototype = {
+BitStream.prototype = {
     /**
      * Peek a number of bits
      * 
@@ -35,7 +40,7 @@ BitBuffer.prototype = {
     peekBits(bits) {
         this.loadBits(bits);
 
-        return (this.bitBuffer & (1 << bits));
+        return this.bitBuffer & ((1 << bits) - 1);
     },
 
     /**
@@ -69,11 +74,11 @@ BitBuffer.prototype = {
     // Load more bits into the buffer
     loadBits(bits) {
         while (this.bits < bits) {
-            this.bitBuffer += this.byteArray[this.index] << this.bits;
+            this.bitBuffer += this.uint8array[this.index] << this.bits;
             this.bits += 8;
             this.index += 1;
         }
     }
 };
 
-export default BitBuffer;
+export default BitStream;

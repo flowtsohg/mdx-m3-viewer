@@ -54,9 +54,9 @@ function MdxBucket(modelView) {
     gl.bufferData(gl.ARRAY_BUFFER, this.vertexColorArray, gl.DYNAMIC_DRAW);
 
     // Batch visibility (per instance per batch)
-    this.updateGeosetVisibilities = false;
-    this.geosetVisibilityArrays = [];
-    this.geosetVisibilityBuffers = [];
+    this.updateGeosetAlphas = false;
+    this.geosetAlphaArrays = [];
+    this.geosetAlphaBuffers = [];
 
     // Geoset colors (per instance per geoset)
     this.updateGeosetColors = false;
@@ -76,10 +76,10 @@ function MdxBucket(modelView) {
     // Batches
     if (model.batches.length) {
         for (var i = 0, l = model.geosets.length; i < l; i++) {
-            this.geosetVisibilityArrays[i] = new Uint8Array(this.size);
-            this.geosetVisibilityBuffers[i] = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetVisibilityBuffers[i]);
-            gl.bufferData(gl.ARRAY_BUFFER, this.geosetVisibilityArrays[i], gl.DYNAMIC_DRAW);
+            this.geosetAlphaArrays[i] = new Uint8Array(this.size).fill(255);
+            this.geosetAlphaBuffers[i] = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetAlphaBuffers[i]);
+            gl.bufferData(gl.ARRAY_BUFFER, this.geosetAlphaArrays[i], gl.DYNAMIC_DRAW);
 
             this.geosetColorArrays[i] = new Uint8Array(3 * this.size).fill(255); // Geoset colors are initialized to white
             this.geosetColorBuffers[i] = gl.createBuffer();
@@ -239,12 +239,12 @@ MdxBucket.prototype = {
             gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertexColorArray.subarray(0, 4 * size));
         }
 
-        if (this.updateGeosetVisibilities) {
-            this.updateGeosetVisibilities = false;
+        if (this.updateGeosetAlphas) {
+            this.updateGeosetAlphas = false;
 
-            for (var i = 0, l = this.geosetVisibilityArrays.length; i < l; i++) {
-                gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetVisibilityBuffers[i]);
-                gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.geosetVisibilityArrays[i].subarray(0, size));
+            for (var i = 0, l = this.geosetAlphaArrays.length; i < l; i++) {
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetAlphaBuffers[i]);
+                gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.geosetAlphaArrays[i].subarray(0, size));
             }
         }
 
@@ -281,14 +281,14 @@ MdxBucket.prototype = {
             boneArray: new Float32Array(this.boneArray.buffer, this.boneArrayInstanceSize * 4 * index, this.boneArrayInstanceSize),
             teamColorArray: new Uint8Array(this.teamColorArray.buffer, index, 1),
             vertexColorArray: new Uint8Array(this.vertexColorArray.buffer, 4 * index, 4),
-            geosetVisibilityArrays: [],
+            geosetAlphaArrays: [],
             geosetColorArrays: [],
             uvOffsetArrays: [],
             layerAlphaArrays: []
         };
 
-        for (var i = 0, l = this.geosetVisibilityArrays.length; i < l; i++) {
-            data.geosetVisibilityArrays[i] = new Uint8Array(this.geosetVisibilityArrays[i].buffer, index, 1);
+        for (var i = 0, l = this.geosetAlphaArrays.length; i < l; i++) {
+            data.geosetAlphaArrays[i] = new Uint8Array(this.geosetAlphaArrays[i].buffer, index, 1);
             data.geosetColorArrays[i] = new Uint8Array(this.geosetColorArrays[i].buffer, 3 * index, 3);
         }
 

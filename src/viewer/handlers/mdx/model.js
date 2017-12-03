@@ -186,7 +186,7 @@ MdxModel.prototype = {
 
                     var batch = new MdxBatch(batchId, layer, geo);
 
-                    if (layer.filterMode < 2) {
+                    if (layer.filterMode < 1) {
                         opaqueBatches.push(batch);
                     } else {
                         translucentBatches.push(batch);
@@ -503,7 +503,7 @@ MdxModel.prototype = {
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_teamColor'), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_vertexColor'), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_InstanceID'), 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_batchVisible'), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_geosetAlpha'), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_geosetColor'), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_layerAlpha'), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_uvOffset'), 0);
@@ -547,11 +547,11 @@ MdxModel.prototype = {
         // This is better than not binding anything at all, since that can lead to WebGL errors.
         this.bindTexture(texture, 0, bucket.modelView);
 
-        // Batch visibilities
-        let geosetVisible = attribs.get('a_geosetVisible');
-        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.geosetVisibilityBuffers[geoset.index]);
-        gl.vertexAttribPointer(geosetVisible, 1, gl.UNSIGNED_BYTE, false, 1, 0);
-        instancedArrays.vertexAttribDivisorANGLE(geosetVisible, 1);
+        // Geoset alphas
+        let geosetAlpha = attribs.get('a_geosetAlpha');
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.geosetAlphaBuffers[geoset.index]);
+        gl.vertexAttribPointer(geosetAlpha, 1, gl.UNSIGNED_BYTE, true, 1, 0);
+        instancedArrays.vertexAttribDivisorANGLE(geosetAlpha, 1);
 
         // Geoset colors
         let geosetColor = attribs.get('a_geosetColor');

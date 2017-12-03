@@ -15,7 +15,9 @@ function IniFile(src) {
 
 IniFile.prototype = {
     load(src) {
-        let section;
+        // All properties added until a section is reached are added to the properties map.
+        // Once a section is reached, any further properties will be added to it until matching another section, etc.
+        let section = this.properties;
 
         for (let line of src.split('\r\n')) {
             line = line.trim();
@@ -26,9 +28,9 @@ IniFile.prototype = {
             // Therefore, ignore any line matching any of these conditions.
             if (line.length && !line.startsWith('//') && !line.startsWith(';')) {
                 let match = line.match(/^\[(.+?)\]/);
-
-                // If this line starts a new section, add it.
+                
                 if (match) {
+                    // If this line starts a new section, use it.
                     section = new Map();
 
                     this.sections.set(match[1].trim(), section);
@@ -36,17 +38,7 @@ IniFile.prototype = {
                     match = line.match(/^(.+?)=(.*?)$/);
 
                     if (match) {
-                        let key = match[1].trim(),
-                            value = match[2].trim();
-
-                        // Properties can be defined also without a section.
-                        // Therefore, handle both cases.
-                        // Note that sections don't have any explicit ending other than another section starting, or the end of the data is reached.
-                        if (section) {
-                            section.set(key, value);
-                        } else {
-                            this.properties.set(key, value)
-                        }
+                        section.set(match[1].trim(), match[2].trim());
                     }
                 }
             }

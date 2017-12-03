@@ -78,7 +78,7 @@ MdxModelInstance.prototype = {
         this.teamColorArray = sharedData.teamColorArray;
         this.vertexColorArray = sharedData.vertexColorArray;
 
-        this.geosetVisibilityArrays = sharedData.geosetVisibilityArrays;
+        this.geosetAlphaArrays = sharedData.geosetAlphaArrays;
 
         this.teamColorArray[0] = this.teamColor;
         this.bucket.updateTeamColors = true;
@@ -121,7 +121,7 @@ MdxModelInstance.prototype = {
         this.uvOffsetArrays = null;
         this.teamColorArray = null;
         this.vertexColorArray = null;
-        this.geosetVisibilityArrays = null;
+        this.geosetAlphaArrays = null;
         this.layerAlphaArrays = null;
 
         this.particleEmitters = [];
@@ -224,7 +224,7 @@ MdxModelInstance.prototype = {
         // Update geosets
         if (forced || model.hasGeosetAnims) {
             let geosets = model.geosets,
-                geosetVisibilityArrays = this.geosetVisibilityArrays,
+                geosetAlphaArrays = this.geosetAlphaArrays,
                 geosetColorArrays = this.geosetColorArrays;
 
             for (var i = 0, l = geosets.length; i < l; i++) {
@@ -233,11 +233,8 @@ MdxModelInstance.prototype = {
 
                 // Update geoset visibility
                 if (forced || geoset.variants.alpha[sequence]) {
-                    var visibility = geoset.shouldRender(this);
-
-                    geosetVisibilityArrays[index][0] = visibility;
-                    
-                    bucket.updateGeosetVisibilities = true;
+                    geosetAlphaArrays[index][0] = geoset.getAlpha(this) * 255;
+                    bucket.updateGeosetAlphas = true;
                 }
 
                 // Update geoset colors
@@ -275,7 +272,7 @@ MdxModelInstance.prototype = {
                 if (layer.hasUvAnim && (forced || layer.variants.uv[sequence])) {
                     // What is Z used for?
                     var uvOffset = layer.textureAnimation.getTranslation(this);
-
+                    
                     uvOffsetArray[0] = uvOffset[0];
                     uvOffsetArray[1] = uvOffset[1];
 

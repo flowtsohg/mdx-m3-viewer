@@ -1,5 +1,5 @@
 import mix from '../../../common/mix';
-import BitBuffer from '../../../common/bitbuffer';
+import BitStream from '../../../common/bitstream';
 import Texture from '../../texture';
 import { JpegImage } from './jpg';
 
@@ -66,7 +66,7 @@ BlpTexture.prototype = {
                 bitsToByte = 1 / alphaBits * 255
 
             if (alphaBits > 0) {
-                bitBuffer = new BitBuffer(arrayData.buffer, mipmapAlphaOffset, Math.ceil((size * alphaBits) / 8));
+                bitBuffer = new BitStream(arrayData.buffer, mipmapAlphaOffset, Math.ceil((size * alphaBits) / 8));
             }
 
             for (let index = 0; index < size; index++) {

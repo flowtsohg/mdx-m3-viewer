@@ -2,13 +2,13 @@
  * @constructor
  */
 function MpqBlock() {
-    /** @param {number} */
+    /** @member {number} */
     this.offset = 0;
-    /** @param {number} */
+    /** @member {number} */
     this.compressedSize = 0;
-    /** @param {number} */
+    /** @member {number} */
     this.normalSize = 0;
-    /** @param {number} */
+    /** @member {number} */
     this.flags = 0;
 }
 
