@@ -63,7 +63,7 @@ BlpTexture.prototype = {
                 size = width * height,
                 mipmapAlphaOffset = mipmapOffset + size,
                 bitBuffer,
-                bitsToByte = 1 / alphaBits * 255
+                bitsToByte = 255 / ((1 << alphaBits) - 1); // Assuming alphaBits>8 is invalid.
 
             if (alphaBits > 0) {
                 bitBuffer = new BitStream(arrayData.buffer, mipmapAlphaOffset, Math.ceil((size * alphaBits) / 8));

@@ -21,7 +21,6 @@ function MdxLayer(model, layer, layerId, priorityPlane) {
     this.textureId = layer.textureId;
     this.coordId = layer.coordId;
     this.alpha = layer.alpha;
-    this.renderOrder = MdxLayer.filterModeToRenderOrder[filterMode];
     this.sd = new MdxSdContainer(model, layer.tracks);
 
     var flags = layer.flags;
@@ -37,28 +36,33 @@ function MdxLayer(model, layer, layerId, priorityPlane) {
     this.alphaTestValue = (filterMode === 1) ? 1 : 0;
 
     let blended = (filterMode > 1) ? true : false;
-
+    
     if (blended) {
         let blendSrc,
             blendDst;
 
         switch (filterMode) {
+            // Blended
             case 2:
                 blendSrc = gl.SRC_ALPHA;
                 blendDst = gl.ONE_MINUS_SRC_ALPHA;
                 break;
+            // Additive
             case 3:
                 blendSrc = gl.ONE;
                 blendDst = gl.ONE;
                 break;
+            // Add Alpha (?)
             case 4:
                 blendSrc = gl.SRC_ALPHA;
                 blendDst = gl.ONE;
                 break;
+            // Modulate
             case 5:
                 blendSrc = gl.ZERO;
                 blendDst = gl.SRC_COLOR;
                 break;
+            // Modulate 2X
             case 6:
                 blendSrc = gl.DST_COLOR;
                 blendDst = gl.SRC_COLOR;
@@ -120,16 +124,6 @@ function MdxLayer(model, layer, layerId, priorityPlane) {
 
     this.setupVaryingTextures(model);
 }
-
-MdxLayer.filterModeToRenderOrder = {
-    0: 0, // Opaque
-    1: 1, // 1bit Alpha
-    2: 2, // 8bit Alpha
-    3: 3, // Additive
-    4: 3, // Add Alpha (according to Magos)
-    5: 3, // Modulate
-    6: 3  // Modulate 2X
-};
 
 MdxLayer.prototype = {
     bind(shader) {
