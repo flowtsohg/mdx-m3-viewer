@@ -152,7 +152,7 @@ Scene.prototype = {
             var instance = instances[i];
 
             if (instance.loaded) {
-                var isVisible = this.isVisible(instance) || instance.noCulling,
+                var isVisible = this.isVisible(instance) || instance.noCulling || this.env.noCulling,
                     isCulled = instance.culled;
 
                 // Handle culling.

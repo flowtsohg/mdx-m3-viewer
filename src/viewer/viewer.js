@@ -110,6 +110,8 @@ function ModelViewer(canvas) {
             this.dispatchEvent({ type: 'loadendall' });
         }
     });
+
+    this.noCulling = false; // Set to true to disable culling viewer-wide.
 }
 
 ModelViewer.prototype = {
@@ -119,7 +121,7 @@ ModelViewer.prototype = {
      * @returns {string}
      */
     get version() {
-        return '4.0.19';
+        return '4.0.20';
     },
 
     /**
