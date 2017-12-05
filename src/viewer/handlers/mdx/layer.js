@@ -1,5 +1,4 @@
 import stringHash from '../../../common/stringhash';
-import { createTextureAtlas } from '../../../common/canvas';
 import unique from '../../../common/arrayunique';
 import MdxSdContainer from './sd';
 
@@ -171,40 +170,12 @@ MdxLayer.prototype = {
                 textures[i] = model.textures[textureIds[i]];
             }
 
-            // Promise that there is a future load that the code cannot know about yet, so Viewer.whenAllLoaded() isn't called prematurely.
-            let promise = env.makePromise();
+            // Load ther atlas, and use the hash to cache it.
+            model.handler.loadTextureAtlas(hash, textures, (atlas) => {
+                model.textures.push(atlas.texture);
 
-            // When all of the textures are loaded, it's time to construct a texture atlas
-            env.whenLoaded(textures, () => {
-                let textureAtlases = model.textureAtlases;
-
-                // Cache atlases
-                if (!textureAtlases[hash]) {
-                    let images = [];
-
-                    // Grab all the ImageData objects from the loaded textures
-                    for (let i = 0, l = textures.length; i < l; i++) {
-                        images[i] = textures[i].imageData;
-                    }
-
-                    // Finally create the atlas
-                    let atlasData = createTextureAtlas(images);
-
-                    let texture = env.load(atlasData.texture);
-
-                    textureAtlases[hash] = { textureId: model.textures.length, columns: atlasData.columns, rows: atlasData.rows, texture };
-                    
-                    model.textures.push(texture);
-                }
-
-                // Tell the layer to use this texture atlas, instead of its original texture
-                let atlas = textureAtlases[hash];
-
-                this.textureId = atlas.textureId;
+                this.textureId = model.textures.length - 1;
                 this.uvDivisor.set([atlas.columns, atlas.rows]);
-
-                // Resolve the promise.
-                promise.resolve();
             });
         }
     },

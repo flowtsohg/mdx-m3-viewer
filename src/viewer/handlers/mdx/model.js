@@ -13,7 +13,7 @@ import MdxModelParticle2Emitter from './modelparticle2emitter';
 import { MdxModelAttachment } from './attachment';
 import MdxModelEventObject from './modeleventobject';
 import { MdxShallowGeoset } from './geoset';
-import Mdx from './handler';
+import replaceableIds from './replaceableids';
 
 /**
  * @constructor
@@ -48,9 +48,26 @@ function MdxModel(env, pathSolver, handler, extension) {
 
     this.hasGeosetAnims = false;
     this.hasLayerAnims = false;
+
+    this.loadTeamTextures();
 }
 
 MdxModel.prototype = {
+    loadTeamTextures() {
+        let teamColors = [],
+            teamGlows = [];
+
+        for (let i = 0; i < 14; i++) {
+            let id = ('' + i).padStart(2, '0');
+
+            teamColors[i] = this.env.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}.blp`, this.pathSolver);
+            teamGlows[i] = this.env.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}.blp`, this.pathSolver);
+        }
+
+        this.handler.loadTextureAtlas('teamColors', teamColors, (atlas) => {});
+        this.handler.loadTextureAtlas('teamGlows', teamGlows, (atlas) => {});
+    },
+
     initialize(src) {
         var parser;
         
@@ -365,7 +382,7 @@ MdxModel.prototype = {
         var replaceableId = texture.replaceableId;
 
         if (replaceableId !== 0) {
-            path = 'ReplaceableTextures\\' + Mdx.replaceableIdToName[replaceableId] + '.blp';
+            path = 'ReplaceableTextures\\' + replaceableIds[replaceableId] + '.blp';
         }
 
         // If the path is corrupted, try to fix it.
@@ -518,33 +535,26 @@ MdxModel.prototype = {
             geoset = batch.geoset,
             layer = batch.layer,
             shallowGeoset = this.shallowGeosets[batch.geoset.index],
-            replaceable = this.replaceables[layer.textureId],
-            colorMode = 0;
+            replaceable = this.replaceables[layer.textureId];
 
         layer.bind(shader);
 
-        // Team color
+        let texture,
+            isTeamColor = false;;
+
         if (replaceable === 1) {
-            colorMode = 1;
-        // Team glow
+            texture = this.handler.textureAtlases.teamColors.texture;
+            isTeamColor = true;
         } else if (replaceable === 2) {
-            colorMode = 2;
+            texture = this.handler.textureAtlases.teamGlows.texture;
+            isTeamColor = true;
+        } else {
+            texture = this.textures[layer.textureId];
         }
         
-        gl.uniform1f(uniforms.get('u_colorMode'), colorMode);
+        gl.uniform1f(uniforms.get('u_isTeamColor'), isTeamColor);
+        gl.uniform1f(uniforms.get('u_hasLayerAnim'), layer.hasSlotAnim || layer.hasUvAnim);
 
-        let texture;
-
-        // If this is not a team color/glow, set the texture.
-        if (colorMode === 0) {
-            texture = this.textures[layer.textureId];
-
-            // Is this layer animated?
-            gl.uniform1f(uniforms.get('u_hasLayerAnim'), layer.hasSlotAnim || layer.hasUvAnim);
-        }
-
-        // When this is a team color/glow, texture is undefined, so the black texture will get bound.
-        // This is better than not binding anything at all, since that can lead to WebGL errors.
         this.bindTexture(texture, 0, bucket.modelView);
 
         // Geoset alphas

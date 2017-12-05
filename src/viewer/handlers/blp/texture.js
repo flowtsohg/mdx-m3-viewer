@@ -1,5 +1,6 @@
 import mix from '../../../common/mix';
 import BitStream from '../../../common/bitstream';
+import convertBitRange from '../../../common/convertbitrange';
 import Texture from '../../texture';
 import { JpegImage } from './jpg';
 
@@ -63,10 +64,11 @@ BlpTexture.prototype = {
                 size = width * height,
                 mipmapAlphaOffset = mipmapOffset + size,
                 bitBuffer,
-                bitsToByte = 255 / ((1 << alphaBits) - 1); // Assuming alphaBits>8 is invalid.
+                bitsToByte;
 
             if (alphaBits > 0) {
                 bitBuffer = new BitStream(arrayData.buffer, mipmapAlphaOffset, Math.ceil((size * alphaBits) / 8));
+                bitsToByte = convertBitRange(alphaBits, 8);
             }
 
             for (let index = 0; index < size; index++) {

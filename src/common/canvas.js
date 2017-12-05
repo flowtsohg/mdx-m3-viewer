@@ -56,11 +56,11 @@ export function createTextureAtlas(src) {
         texturesPerRow = powerOfTwo(Math.sqrt(src.length)),
         pixelsPerRow = texturesPerRow * width;
 
-    canvas.width = canvas.height = width;
+    canvas.width = canvas.height = width * texturesPerRow;
 
     for (let i = 0, l = src.length; i < l; i++) {
         ctx.putImageData(src[i], (i % texturesPerRow) * height, Math.floor(i / texturesPerRow) * height);
     }
 
-    return { texture: ctx.getImageData(0, 0, canvas.width, canvas.height), columns: texturesPerRow, rows: texturesPerRow };
+    return { imageData: ctx.getImageData(0, 0, canvas.width, canvas.height), columns: texturesPerRow, rows: texturesPerRow };
 };

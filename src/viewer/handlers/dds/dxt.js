@@ -1,8 +1,9 @@
 // Note: This file is largely based on https://github.com/toji/webctx-texture-utils/blob/master/texture-util/dds.js
+import convertBitRange from '../../../common/convertbitrange';
 
-var dxt4to8 = 255 / 15;
-var dxt5to8 = 255 / 31;
-var dxt6to8 = 255 / 63;
+let dxt4to8 = convertBitRange(4, 8),
+    dxt5to8 = convertBitRange(5, 8),
+    dxt6to8 = convertBitRange(6, 8);
 
 // 4 bit alpha
 function setRgba8888Dxt3(dst, i, int565, a) {

@@ -1,4 +1,5 @@
 import mix from '../../../common/mix';
+import { createTextureAtlas } from '../../../common/canvas';
 import ModelHandler from '../../modelhandler';
 import TexturedModelView from '../../texturedmodelview';
 import Blp from '../blp/handler';
@@ -28,36 +29,43 @@ const Mdx = {
         env.shaderMap.set('MdxStandardShader', standardShader);
         env.shaderMap.set('MdxParticleShader', particleShader);
 
-        let teamColors = [[255, 3, 3], [0, 66, 255], [28, 230, 185], [84, 0, 129], [255, 252, 1], [254, 138, 14], [32, 192, 0], [229, 91, 176], [149, 150, 151], [126, 191, 241], [16, 98, 70], [78, 42, 4], [40, 40, 40], [0, 0, 0]];
-        
-        this.teamColors = 14;
-
-        let webgl = env.webgl,
-            gl = env.gl;
-
-        webgl.useShaderProgram(standardShader);
-
-        for (let i = 0; i < 14; i++) {
-            let color = teamColors[i];
-
-            gl.uniform3fv(standardShader.uniforms.get('u_teamColors[' + i + ']'), [color[0] / 255, color[1] / 255, color[2] / 255]);
-        }
-
-        this.replaceableIdToName = {
-            1: 'TeamColor/TeamColor00',
-            2: 'TeamGlow/TeamGlow00',
-            11: 'Cliff/Cliff0',
-            21: '', // Used by all cursor models (HumanCursor, OrcCursor, UndeadCursor, NightElfCursor)
-            31: 'LordaeronTree/LordaeronSummerTree',
-            32: 'AshenvaleTree/AshenTree',
-            33: 'BarrensTree/BarrensTree',
-            34: 'NorthrendTree/NorthTree',
-            35: 'Mushroom/MushroomTree',
-            36: 'RuinsTree/RuinsTree',
-            37: 'OutlandMushroomTree/MushroomTree'
-        };
+        this.env = env;
+        this.textureAtlases = {};
 
         return true;
+    },
+
+    loadTextureAtlas(name, textures, callback) {
+        let env = this.env,
+            textureAtlases = this.textureAtlases,
+            atlas = textureAtlases[name];
+        
+        if (atlas) {
+            callback(atlas);
+        } else {
+            // Promise that there is a future load that the code cannot know about yet, so Viewer.whenAllLoaded() isn't called prematurely.
+            let promise = env.makePromise();
+
+            // When all of the textures are loaded, it's time to construct a texture atlas
+            env.whenLoaded(textures, () => {
+                atlas = textureAtlases[name];
+
+                // In case multiple models are loaded quickly, and this is called before the textures finished loading, this will stop multiple atlases from being created.
+                if (atlas) {
+                    callback(atlas);
+                } else {
+                    let atlasData = createTextureAtlas(textures.map((texture) => texture.imageData)),
+                        atlas = { texture: env.load(atlasData.imageData), columns: atlasData.columns, rows: atlasData.rows };
+                    
+                    textureAtlases[name] = atlas;
+
+                    callback(atlas);
+                }
+
+                // Resolve the promise.
+                promise.resolve();
+            });
+        }
     },
 
     get extensions() {

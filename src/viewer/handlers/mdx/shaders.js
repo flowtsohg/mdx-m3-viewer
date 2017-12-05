@@ -1,9 +1,6 @@
 const MdxShaders = {
     'vs_main': `
         uniform mat4 u_mvp;
-        uniform vec2 u_uvScale;
-        uniform vec3 u_teamColors[14];
-        uniform bool u_hasLayerAnim;
 
         attribute vec3 a_position;
         attribute vec3 a_normal;
@@ -19,9 +16,10 @@ const MdxShaders = {
 
         varying vec3 v_normal;
         varying vec2 v_uv;
-        varying vec3 v_teamColor;
+        varying float v_teamColor;
         varying vec4 v_vertexColor;
         varying vec4 v_geosetColor;
+        varying vec4 v_uvOffset;
 
         void transform(inout vec3 position, inout vec3 normal, float boneNumber, vec4 bones) {
             mat4 b0 = fetchMatrix(bones[0], a_InstanceID);
@@ -37,22 +35,15 @@ const MdxShaders = {
 
         void main() {
             vec2 uv = a_uv;
-            vec3 position = a_position,
-                 normal = a_normal;
+            vec3 position = a_position;
+            vec3 normal = a_normal;
             
             transform(position, normal, a_boneNumber, a_bones);
 
-            if (u_hasLayerAnim) {
-                /// TODO: This handles both texture animations (animated texture coordinates), and sprite animations.
-                ///       It is kinda bugged.
-                ///       In addition to being bugged, it should either be calculated in the fragment shader, or be used with texture arrays (WebGL2).
-                v_uv = (a_uv + a_uvOffset.xy + a_uvOffset.zw) * u_uvScale;
-            } else {
-                v_uv = a_uv;
-            }
-
+            v_uv = a_uv;
+            v_uvOffset = a_uvOffset;
             v_normal = normal;
-	        v_teamColor = u_teamColors[int(a_teamColor)];
+            v_teamColor = a_teamColor;
             v_vertexColor = a_vertexColor;
             
             /// Is the alpha here even correct?
@@ -69,34 +60,41 @@ const MdxShaders = {
     'ps_main': `
         uniform sampler2D u_texture;
         uniform bool u_alphaTest;
-        uniform float u_colorMode;
+        uniform bool u_isTeamColor;
+        uniform vec2 u_uvScale;
+        uniform bool u_hasLayerAnim;
 
         varying vec3 v_normal;
         varying vec2 v_uv;
-        varying vec3 v_teamColor;
+        varying float v_teamColor;
         varying vec4 v_vertexColor;
         varying vec4 v_geosetColor;
+        varying vec4 v_uvOffset;
 
         void main() {
             #ifdef STANDARD_PASS
-	        vec4 texel;
+            vec2 uv;
 
-	        if (u_colorMode == 1.0) {
-		        texel = vec4(v_teamColor, 1.0);
-            } else if (u_colorMode == 2.0) {
-		        // Change the coordinate from [0, 1] to [-1, 1]
-		        vec2 coord = (v_uv -0.5) * 2.0;
+	        if (u_isTeamColor) {
+                // 4 is the amount of columns and rows in the team colors/glows texture.
+                uv = (vec2(mod(v_teamColor, 4.0), floor(v_teamColor / 4.0)) + v_uv) / 4.0;
+            } else if (u_hasLayerAnim) {
+                vec2 relativePos = fract(v_uv + v_uvOffset.xy);
 
-		        // Distance of the coordinate from the center
-		        float dist = sqrt(dot(coord, coord));
+                if (relativePos.x < 0.0) {
+                    relativePos.x = 1.0 - relativePos.x;
+                }
 
-		        // An estimation of the equation that created the team glow textures used by Warcraft 3
-		        float factor = max(0.55 -dist, 0.0);
+                if (relativePos.y < 0.0) {
+                    relativePos.y = 1.0 - relativePos.y;
+                }
 
-		        texel = vec4(factor * v_teamColor, 1.0);
+                uv = (v_uvOffset.zw + relativePos) * u_uvScale;
             } else {
-		        texel = texture2D(u_texture, v_uv).bgra;
+                uv = v_uv;
             }
+
+            vec4 texel = texture2D(u_texture, uv).bgra;
 
             // 1bit Alpha
             if (u_alphaTest && texel.a < 0.75) {
