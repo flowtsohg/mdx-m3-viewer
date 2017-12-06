@@ -124,7 +124,7 @@ ModelViewer.prototype = {
      * @returns {string}
      */
     get version() {
-        return '4.0.22';
+        return '4.0.23';
     },
 
     /**
@@ -324,10 +324,6 @@ ModelViewer.prototype = {
                 } else {
                     let atlasData = createTextureAtlas(textures.map((texture) => texture.imageData)),
                         atlas = { texture: this.load(atlasData.imageData), columns: atlasData.columns, rows: atlasData.rows };
-
-                    // No interpolation for texture atlases.
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
                     textureAtlases[name] = atlas;
 

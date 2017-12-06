@@ -405,7 +405,7 @@ MdxModel.prototype = {
 
         this.replaceables.push(replaceableId);
         this.textures.push(this.env.load(path, this.pathSolver));
-        this.textureOptions.push({ repeatS: flags & 0x1, repeatT: flags & 0x2 });
+        this.textureOptions.push({ repeatS: !!(flags & 0x1), repeatT: !!(flags & 0x2) });
     },
 
     calculateExtent() {

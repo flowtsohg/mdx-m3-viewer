@@ -171,8 +171,9 @@ MdxLayer.prototype = {
             }
 
             // Load ther atlas, and use the hash to cache it.
-            model.handler.loadTextureAtlas(hash, textures, (atlas) => {
+            model.env.loadTextureAtlas(hash, textures, (atlas) => {
                 model.textures.push(atlas.texture);
+                model.textureOptions.push({ repeatS: true, repeatT: true });
 
                 this.textureId = model.textures.length - 1;
                 this.uvDivisor.set([atlas.columns, atlas.rows]);
