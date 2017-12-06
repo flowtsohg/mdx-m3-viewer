@@ -35,6 +35,7 @@ function MdxModel(env, pathSolver, handler, extension) {
     this.sortedNodes = [];
     this.sequences = [];
     this.textures = [];
+    this.textureOptions = [];
     this.geosets = [];
     this.cameras = [];
     this.particleEmitters = [];
@@ -64,8 +65,8 @@ MdxModel.prototype = {
             teamGlows[i] = this.env.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}.blp`, this.pathSolver);
         }
 
-        this.handler.loadTextureAtlas('teamColors', teamColors, (atlas) => {});
-        this.handler.loadTextureAtlas('teamGlows', teamGlows, (atlas) => {});
+        this.env.loadTextureAtlas('teamColors', teamColors, (atlas) => {});
+        this.env.loadTextureAtlas('teamGlows', teamGlows, (atlas) => {});
     },
 
     initialize(src) {
@@ -380,6 +381,7 @@ MdxModel.prototype = {
     loadTexture(texture) {
         var path = texture.path;
         var replaceableId = texture.replaceableId;
+        var flags = texture.flags;
 
         if (replaceableId !== 0) {
             path = 'ReplaceableTextures\\' + replaceableIds[replaceableId] + '.blp';
@@ -403,6 +405,7 @@ MdxModel.prototype = {
 
         this.replaceables.push(replaceableId);
         this.textures.push(this.env.load(path, this.pathSolver));
+        this.textureOptions.push({ repeatS: flags & 0x1, repeatT: flags & 0x2 });
     },
 
     calculateExtent() {
@@ -543,10 +546,10 @@ MdxModel.prototype = {
             isTeamColor = false;;
 
         if (replaceable === 1) {
-            texture = this.handler.textureAtlases.teamColors.texture;
+            texture = this.env.textureAtlases.teamColors.texture;
             isTeamColor = true;
         } else if (replaceable === 2) {
-            texture = this.handler.textureAtlases.teamGlows.texture;
+            texture = this.env.textureAtlases.teamGlows.texture;
             isTeamColor = true;
         } else {
             texture = this.textures[layer.textureId];
@@ -556,6 +559,21 @@ MdxModel.prototype = {
         gl.uniform1f(uniforms.get('u_hasLayerAnim'), layer.hasSlotAnim || layer.hasUvAnim);
 
         this.bindTexture(texture, 0, bucket.modelView);
+
+        let textureOptions = this.textureOptions[layer.textureId],
+            wrapS = gl.CLAMP_TO_EDGE,
+            wrapT = gl.CLAMP_TO_EDGE;
+
+        if (textureOptions.repeatS) {
+            wrapS = gl.REPEAT;
+        }
+
+        if (textureOptions.repeatT) {
+            wrapT = gl.REPEAT;
+        }
+        
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT);
 
         // Geoset alphas
         let geosetAlpha = attribs.get('a_geosetAlpha');

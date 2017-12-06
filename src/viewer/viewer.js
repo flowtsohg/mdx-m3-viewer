@@ -1,4 +1,5 @@
 import mix from '../common/mix';
+import { createTextureAtlas } from '../common/canvas';
 import EventDispatcher from './eventdispatcher';
 import WebGL from './gl/gl';
 import PromiseResource from './promiseresource';
@@ -112,6 +113,8 @@ function ModelViewer(canvas) {
     });
 
     this.noCulling = false; // Set to true to disable culling viewer-wide.
+
+    this.textureAtlases = {};
 }
 
 ModelViewer.prototype = {
@@ -121,7 +124,7 @@ ModelViewer.prototype = {
      * @returns {string}
      */
     get version() {
-        return '4.0.21';
+        return '4.0.22';
     },
 
     /**
@@ -300,6 +303,43 @@ ModelViewer.prototype = {
         }
     },
 
+    loadTextureAtlas(name, textures, callback) {
+        let gl = this.gl,
+            textureAtlases = this.textureAtlases,
+            atlas = textureAtlases[name];
+        
+        if (atlas) {
+            callback(atlas);
+        } else {
+            // Promise that there is a future load that the code cannot know about yet, so Viewer.whenAllLoaded() isn't called prematurely.
+            let promise = this.makePromise();
+
+            // When all of the textures are loaded, it's time to construct a texture atlas
+            this.whenLoaded(textures, () => {
+                atlas = textureAtlases[name];
+
+                // In case multiple models are loaded quickly, and this is called before the textures finished loading, this will stop multiple atlases from being created.
+                if (atlas) {
+                    callback(atlas);
+                } else {
+                    let atlasData = createTextureAtlas(textures.map((texture) => texture.imageData)),
+                        atlas = { texture: this.load(atlasData.imageData), columns: atlasData.columns, rows: atlasData.rows };
+
+                    // No interpolation for texture atlases.
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+
+                    textureAtlases[name] = atlas;
+
+                    callback(atlas);
+                }
+
+                // Resolve the promise.
+                promise.resolve();
+            });
+        }
+    },
+    
     /**
      * A load promise.
      * This is needed for resources that are going to load internal resources, but don't yet know what they are due to asyncronous reasons.

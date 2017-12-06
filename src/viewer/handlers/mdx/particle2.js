@@ -117,7 +117,7 @@ MdxParticle2.prototype = {
             firstColor,
             head = this.head,
             interval;
-
+        
         if (lifeFactor < timeMiddle) {
             factor = lifeFactor / timeMiddle;
 
