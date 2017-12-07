@@ -57,7 +57,8 @@ function MdxModelParticle2Emitter(model, emitter) {
 
     this.xYQuad = node.xYQuad;
     this.modelSpace = node.modelSpace;
-
+    this.lineEmitter = node.lineEmitter;
+    
     this.sd = new MdxSdContainer(model, emitter.tracks);
 
     this.dimensions = [emitter.columns, emitter.rows];

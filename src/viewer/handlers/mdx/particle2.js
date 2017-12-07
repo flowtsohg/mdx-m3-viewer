@@ -56,9 +56,9 @@ MdxParticle2.prototype = {
         vec3.copy(this.nodeScale, scale);
 
         // Local location
-        location[0] = pivot[0] + randomRange(-width, width);
-        location[1] = pivot[1];
-        location[2] = pivot[2] + randomRange(-length, length);
+        location[0] = pivot[0] + randomRange(-width, width) * 0.5;
+        location[1] = pivot[1] + randomRange(-length, length) * 0.5;
+        location[2] = pivot[2];
 
         // World location
         if (!modelObject.modelSpace) {
@@ -69,6 +69,11 @@ MdxParticle2.prototype = {
         quat.identity(rotationHeap);
         quat.rotateZ(rotationHeap, rotationHeap, Math.PI / 2);
         quat.rotateY(rotationHeap, rotationHeap, randomRange(-latitude, latitude));
+
+        // If this is not a line emitter, emit in a sphere rather than a circle.
+        if (!modelObject.lineEmitter) {
+            quat.rotateX(rotationHeap, rotationHeap, randomRange(-latitude, latitude));
+        }
 
         // World rotation
         if (!modelObject.modelSpace) {
@@ -87,7 +92,7 @@ MdxParticle2.prototype = {
         if (!isHead) {
             var tailLength = modelObject.tailLength * 0.5;
 
-            vec3.scaleAndAdd(location, velocity, -tailLength);
+            vec3.scaleAndAdd(location, location, velocity, -tailLength);
         }
     },
 
@@ -142,12 +147,21 @@ MdxParticle2.prototype = {
 
         factor = Math.min(factor, 1);
 
+        let spriteCount = interval[1] - interval[0];// * interval[2];
+
         let scaling = modelObject.scaling,
             colors = modelObject.colors,
             color = this.color,
             scale = lerp(scaling[firstColor], scaling[firstColor + 1], factor),
-            index = Math.floor(lerp(interval[0], interval[1], factor));
-
+            index;
+    
+        if (spriteCount) {
+            // modulus 0 = NaN
+            index = interval[1] + (Math.floor(lerp(0, spriteCount * interval[2], factor)) % spriteCount);
+        } else {
+            index = 0;
+        }
+        
         vec4.lerp(color, colors[firstColor], colors[firstColor + 1], factor);
 
         let camera = scene.camera,
@@ -189,11 +203,14 @@ MdxParticle2.prototype = {
                 csy = vectors[5],
                 csz = vectors[6];
 
-            var tailLength = this.tailLength;
-            var offsetx = tailLength * velocity[0];
-            var offsety = tailLength * velocity[1];
-            var offsetz = tailLength * velocity[2];
+            let cameraScaleX = csx[0] * 0.5,
+                cameraScaleY = csx[1] * 0.5,
+                cameraScaleZ = csx[2] * 0.5;
 
+            var tailLength = modelObject.tailLength * 0.5;
+            var offsetx = tailLength * velocity[0] * 0.5;
+            var offsety = tailLength * velocity[1] * 0.5;
+            var offsetz = tailLength * velocity[2] * 0.5;
             var px2 = px + offsetx;
             var py2 = py + offsety;
             var pz2 = pz + offsetz;
@@ -202,18 +219,18 @@ MdxParticle2.prototype = {
             py -= offsety;
             pz -= offsetz;
 
-            vertices[0] = px2 - csx[0] * scale * nodeScale[0];
-            vertices[1] = py2 - csx[1] * scale * nodeScale[1];
-            vertices[2] = pz2 - csx[2] * scale * nodeScale[2];
-            vertices[3] = px - csx[0] * scale * nodeScale[0];
-            vertices[4] = py - csx[1] * scale * nodeScale[1];
-            vertices[5] = pz - csx[2] * scale * nodeScale[2];
-            vertices[6] = px + csx[0] * scale * nodeScale[0];
-            vertices[7] = py + csx[1] * scale * nodeScale[1];
-            vertices[8] = pz + csx[2] * scale * nodeScale[2];
-            vertices[9] = px2 + csx[0] * scale * nodeScale[0];
-            vertices[10] = py2 + csx[1] * scale * nodeScale[1];
-            vertices[11] = pz2 + csx[2] * scale * nodeScale[2];
+            vertices[0] = px - cameraScaleX * scale * nodeScale[0];
+            vertices[1] = py - cameraScaleY * scale * nodeScale[1];
+            vertices[2] = pz - cameraScaleZ * scale * nodeScale[2];
+            vertices[6] = px2 + cameraScaleX * scale * nodeScale[0];
+            vertices[7] = py2 + cameraScaleY * scale * nodeScale[1];
+            vertices[8] = pz2 + cameraScaleZ * scale * nodeScale[2];
+            vertices[3] = px2 - cameraScaleX * scale * nodeScale[0];
+            vertices[4] = py2 - cameraScaleY * scale * nodeScale[1];
+            vertices[5] = pz2 - cameraScaleZ * scale * nodeScale[2];
+            vertices[9] = px + cameraScaleX * scale * nodeScale[0];
+            vertices[10] = py + cameraScaleY * scale * nodeScale[1];
+            vertices[11] = pz + cameraScaleZ * scale * nodeScale[2];
         }
 
         let columns = modelObject.dimensions[0],
