@@ -147,7 +147,9 @@ MdxParticle2.prototype = {
 
         factor = Math.min(factor, 1);
 
-        let spriteCount = interval[1] - interval[0];// * interval[2];
+        let start = interval[0],
+            end = interval[1],
+            repeat = interval[2];
 
         let scaling = modelObject.scaling,
             colors = modelObject.colors,
@@ -155,9 +157,11 @@ MdxParticle2.prototype = {
             scale = lerp(scaling[firstColor], scaling[firstColor + 1], factor),
             index;
     
+        let spriteCount = end - start;
+
         if (spriteCount) {
             // modulus 0 = NaN
-            index = interval[1] + (Math.floor(lerp(0, spriteCount * interval[2], factor)) % spriteCount);
+            index = start + Math.floor(spriteCount * repeat * factor) % spriteCount;
         } else {
             index = 0;
         }
@@ -207,13 +211,13 @@ MdxParticle2.prototype = {
                 cameraScaleY = csx[1] * 0.5,
                 cameraScaleZ = csx[2] * 0.5;
 
-            var tailLength = modelObject.tailLength * 0.5;
+            var tailLength = modelObject.tailLength;
             var offsetx = tailLength * velocity[0] * 0.5;
             var offsety = tailLength * velocity[1] * 0.5;
             var offsetz = tailLength * velocity[2] * 0.5;
-            var px2 = px + offsetx;
-            var py2 = py + offsety;
-            var pz2 = pz + offsetz;
+            var px2 = px;
+            var py2 = py;
+            var pz2 = pz;
 
             px -= offsetx;
             py -= offsety;
