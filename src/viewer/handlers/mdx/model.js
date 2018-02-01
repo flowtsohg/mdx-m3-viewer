@@ -546,10 +546,10 @@ MdxModel.prototype = {
             isTeamColor = false;;
 
         if (replaceable === 1) {
-            texture = this.env.textureAtlases.teamColors.texture;
+            texture = this.env.getTextureAtlas('teamColors');
             isTeamColor = true;
         } else if (replaceable === 2) {
-            texture = this.env.textureAtlases.teamGlows.texture;
+            texture = this.env.getTextureAtlas('teamGlows');
             isTeamColor = true;
         } else {
             texture = this.textures[layer.textureId];

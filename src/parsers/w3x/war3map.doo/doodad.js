@@ -1,3 +1,5 @@
+import RandomItemSet from './randomitemset';
+
 function Doodad(stream, version) {
     this.id = '\0\0\0\0';
     this.variation = 0;
@@ -6,6 +8,8 @@ function Doodad(stream, version) {
     this.scale = new Float32Array(3);
     this.flags = 0;
     this.life = 0;
+    this.itemTable = -1;
+    this.itemSets = [];
     this.editorId = 0;
     this.u1 = new Uint8Array(8);
 
@@ -23,11 +27,16 @@ Doodad.prototype = {
         this.scale = stream.readFloat32Array(3);
         this.flags = stream.readUint8();
         this.life = stream.readUint8();
-        this.editorId = stream.readInt32();
-    
+
         if (version  > 7) {
-            this.u1 = stream.readUint8Array(8);
+            this.itemTable = stream.readUint32();
+
+            for (let i = 0, l = stream.readUint32(); i < l; i++) {
+                this.itemSets[i] = new RandomItemSet(stream);
+            }
         }
+
+        this.editorId = stream.readInt32();
     },
 
     save(stream, version) {
@@ -38,11 +47,17 @@ Doodad.prototype = {
         stream.writeFloat32Array(this.scale);
         stream.writeUint8(this.flags);
         stream.writeUint8(this.life);
-        stream.writeUint32(this.editorId);
 
         if (version > 7) {
-            stream.writeUint8Array(this.u1);
+            stream.writeUint32(this.itemTable);
+            stream.writeUint32(this.itemSets.length);
+
+            for (let itemSet of this.itemSets) {
+                itemSet.save(stream);
+            }
         }
+
+        stream.writeUint32(this.editorId);
     }
 };
 

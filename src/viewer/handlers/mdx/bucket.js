@@ -72,9 +72,73 @@ function MdxBucket(modelView) {
     this.updateUvOffsets = false;
     this.uvOffsetArrays = [];
     this.uvOffsetBuffers = [];
+    
+    let batchesCount = model.batches.length;
 
     // Batches
-    if (model.batches.length) {
+    if (batchesCount) {
+        /* Data texture, every slot needs:
+            struct Batch {
+                float TeamColor
+                vec4 vertexColor
+                float layerAlpha
+                vec3 geosetColor
+                vec2 textureAnimation
+                vec2 spriteAnimation
+            }
+
+            struct Batch {
+                byte TeamColor
+                byte[4] vertexColor
+                byte[2] spriteAnimation
+                byte[4] geosetColor
+                float layerAlpha
+                vec2 textureAnimation
+            }
+        */
+
+        /*
+function render() {
+    let currentIndex = 0;
+
+    for (let batch of batches) {
+        for (let instance of instances) {
+            if (instance.visible) {
+                setBatchData(currentIndex++, instance);
+            }
+        }
+
+        updateBuffer(); // glBindBuffer + glBufferSubData
+        renderBatch();
+    }
+}
+
+function setBatchData(index, instance) {
+	// Effectively pointers into one main memory buffer
+	this.teamColors[index] = instance.teamColor;
+	this.vertexColors[index] = instance.vertexColor;
+    ....
+}
+
+        */
+        let dataInstanceSize = 12 * batchesCount,
+            dataArray = new Float32Array(dataInstanceSize * this.size),
+            dataTexture = gl.createTexture();
+
+        gl.activeTexture(gl.TEXTURE15);
+        gl.bindTexture(gl.TEXTURE_2D, dataTexture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 3 * batchesCount, this.size, 0, gl.RGBA, gl.FLOAT, dataArray);
+        
+        this.batchesCount = batchesCount;
+        this.dataInstanceSize = dataInstanceSize;
+        this.dataArray = dataArray;
+        this.dataTexture = dataTexture;
+        this.dataPixelSize = new Float32Array([1 / (3 * batchesCount), 1 / this.size]);
+
         for (var i = 0, l = model.geosets.length; i < l; i++) {
             this.geosetAlphaArrays[i] = new Uint8Array(this.size).fill(255);
             this.geosetAlphaBuffers[i] = gl.createBuffer();
@@ -99,6 +163,10 @@ function MdxBucket(modelView) {
             gl.bufferData(gl.ARRAY_BUFFER, this.layerAlphaArrays[i], gl.DYNAMIC_DRAW);
         }
     }
+
+    // Instantiate all of the pointers to all of the structures that were just made.
+    this.sharedData = [];
+    this.prefetchSharedData();
 
     // Emitters
     this.particleEmitters = [];
@@ -138,6 +206,8 @@ MdxBucket.prototype = {
             instances = this.instances.length,
             vertices = 0,
             polygons = 0,
+            dynamicVertices = 0,
+            dynamicPolygons = 0,
             objects;
 
         objects = model.batches;
@@ -156,8 +226,8 @@ MdxBucket.prototype = {
 
             if (active > 0) {
                 calls += 1;
-                vertices += active * 6;
-                polygons += active * 2;
+                dynamicVertices += active * 6;
+                dynamicPolygons += active * 2;
             }
         }
 
@@ -168,8 +238,8 @@ MdxBucket.prototype = {
 
             if (active > 0) {
                 calls += 1;
-                vertices += active * 6;
-                polygons += active * 2;
+                dynamicVertices += active * 6;
+                dynamicPolygons += active * 2;
             }
         }
 
@@ -183,13 +253,13 @@ MdxBucket.prototype = {
 
                 if (type === 'SPL' || type === 'UBR') {
                     calls += 1;
-                    vertices += active * 6;
-                    polygons += active * 2;
+                    dynamicVertices += active * 6;
+                    dynamicPolygons += active * 2;
                 }
             }
         }
       
-        return { calls, instances, vertices, polygons };
+        return { calls, instances, vertices, polygons, dynamicVertices, dynamicPolygons };
     },
 
     update(scene) {
@@ -276,28 +346,57 @@ MdxBucket.prototype = {
         }
     },
 
-    getSharedData(index) {
-        var data = {
+    prefetchSharedData() {
+        for (let i = 0, l = this.size; i < l; i++) {
+            this.sharedData[i] = this.prefetchSharedDataInstance(i);
+        }
+    },
+
+    prefetchSharedDataInstance(index) {
+        let data = {
             boneArray: new Float32Array(this.boneArray.buffer, this.boneArrayInstanceSize * 4 * index, this.boneArrayInstanceSize),
             teamColorArray: new Uint8Array(this.teamColorArray.buffer, index, 1),
             vertexColorArray: new Uint8Array(this.vertexColorArray.buffer, 4 * index, 4),
+            batches: [],
             geosetAlphaArrays: [],
             geosetColorArrays: [],
             uvOffsetArrays: [],
             layerAlphaArrays: []
         };
+        
+        if (this.batchesCount) {
+            let buffer = this.dataArray.buffer,
+                base = this.dataInstanceSize * index;
 
-        for (var i = 0, l = this.geosetAlphaArrays.length; i < l; i++) {
+            for (let i = 0, l = this.batchesCount; i < l; i++) {
+                let batchBase = base + 4 * 12 * i;
+
+                data.batches[i] = {
+                    teamColor: new Float32Array(buffer, batchBase, 1),
+                    vertexColor: new Float32Array(buffer, batchBase + 4, 3),
+                    layerAlpha: new Float32Array(buffer, batchBase + 16, 1),
+                    geosetColor: new Float32Array(buffer, batchBase + 20, 3),
+                    textureAnimation: new Float32Array(buffer, batchBase + 32, 2),
+                    spriteAnimation: new Float32Array(buffer, batchBase + 40, 2),
+                };
+            }
+        }
+
+        for (let i = 0, l = this.geosetAlphaArrays.length; i < l; i++) {
             data.geosetAlphaArrays[i] = new Uint8Array(this.geosetAlphaArrays[i].buffer, index, 1);
             data.geosetColorArrays[i] = new Uint8Array(this.geosetColorArrays[i].buffer, 3 * index, 3);
         }
 
-        for (var i = 0, l = this.uvOffsetArrays.length; i < l; i++) {
+        for (let i = 0, l = this.uvOffsetArrays.length; i < l; i++) {
             data.uvOffsetArrays[i] = new Float32Array(this.uvOffsetArrays[i].buffer, 4 * 4 * index, 4);
             data.layerAlphaArrays[i] = new Uint8Array(this.layerAlphaArrays[i].buffer, index, 1);
         }
 
         return data;
+    },
+
+    getSharedData(index) {
+        return this.sharedData[index];
     }
 };
 

@@ -62,7 +62,6 @@ function W3xDoodad(map, doodad) {
     } else {
         console.log('Unknown doodad/destructable ID', id)
     }
-
 }
 
 W3xDoodad.prototype = {

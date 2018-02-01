@@ -26,9 +26,9 @@ function MdxParserParticle2Emitter(reader, nodes, index) {
     /** @member {number} */
     this.emissionRate = reader.readFloat32();
     /** @member {number} */
-    this.width = reader.readFloat32();
-    /** @member {number} */
     this.length = reader.readFloat32();
+    /** @member {number} */
+    this.width = reader.readFloat32();
     /** @member {number} */
     this.filterMode = reader.readUint32();
     /** @member {number} */

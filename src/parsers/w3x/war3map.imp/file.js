@@ -26,7 +26,11 @@ War3MapImp.prototype = {
         for (let i = 0, l = stream.readUint32(); i < l; i++) {
             let entry = new Import(stream);
 
-            this.entries.set(entry.path, entry);
+            if (entry.isCustom) {
+                this.entries.set(entry.name, entry);
+            } else {
+                this.entries.set(`war3mapimported\\${entry.name}`, entry);
+            }
         }
     },
 

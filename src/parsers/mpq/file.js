@@ -60,10 +60,12 @@ MpqFile.prototype = {
     },
 
     load(hash, block, typedArray) {
+        let headerOffset = this.archive.headerOffset;
+
         this.name = `File${`${hash.blockIndex}`.padStart(8, '0')}`;
         this.hash = hash;
         this.block = block;
-        this.rawBuffer = typedArray.slice(block.offset, block.offset + block.compressedSize).buffer;
+        this.rawBuffer = typedArray.slice(headerOffset + block.offset, headerOffset + block.offset + block.compressedSize).buffer;
     },
 
     /**
@@ -180,7 +182,7 @@ MpqFile.prototype = {
             encryptionKey = c.computeFileKey(this.name, block),
             data = new Uint8Array(this.rawBuffer),
             flags = block.flags;
-
+        
         // One buffer of raw data.
         // I don't know why having no flags means it's a chunk of memory rather than sectors.
         // After all, there is no flag to say there are indeed sectors.
@@ -383,7 +385,6 @@ MpqFile.prototype = {
                 this.rawBuffer = rawBuffer.buffer;
                 this.block.compressedSize = rawBuffer.byteLength;
                 this.block.flags = (FILE_EXISTS | FILE_COMPRESSED) >>> 0;
-                
             } else {
                 this.rawBuffer = this.buffer;
                 this.block.compressedSize = this.buffer.byteLength;

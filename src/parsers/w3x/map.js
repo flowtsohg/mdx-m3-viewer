@@ -15,6 +15,7 @@ import War3MapW3u from './war3map.w3u/file';
 import War3MapWct from './war3map.wct/file';
 import War3MapWpm from './war3map.wpm/file';
 import War3MapWtg from './war3map.wtg/file';
+import War3MapWts from './war3map.wts/file';
 import War3MapUnitsDoo from './war3mapUnits.doo/file';
 
 /**
@@ -106,7 +107,7 @@ War3Map.prototype = {
         writer.writeUint32(this.maxPlayers);
 
         // Writer the archive.
-        typedArray.set(new Uint8Array(archiveBuffer), 512)
+        typedArray.set(new Uint8Array(archiveBuffer), headerSize)
 
         return buffer;
     },
@@ -198,6 +199,17 @@ War3Map.prototype = {
      */
     get(name) {
         return this.archive.get(name);
+    },
+
+    /**
+     * Get the map's script file.
+     * 
+     * @returns {?MpqFile}
+     */
+    getScript() {
+        let file = this.get('war3map.j') || this.get('scripts\\war3map.j');
+
+        return file.text();
     },
 
     /**
@@ -304,6 +316,14 @@ War3Map.prototype = {
         }
     },
 
+    readStringTable() {
+        let file = this.archive.get('war3map.wts');
+        
+        if (file) {
+            return new War3MapWts(file.text());
+        }
+    },
+
     /**
      * Read and parse all of the modification tables.
      */
@@ -318,27 +338,28 @@ War3Map.prototype = {
         //      w3a: yes (abilities)
         //      w3h: no (buffs)
         //      w3q: yes (upgrades)
-        this.readModificationTable(modifications, 'units', 'war3map.w3u', false);
-        this.readModificationTable(modifications, 'items', 'war3map.w3t', false);
-        this.readModificationTable(modifications, 'destructables', 'war3map.w3b', false);
-        this.readModificationTable(modifications, 'doodads', 'war3map.w3d', true);
-        this.readModificationTable(modifications, 'abilities', 'war3map.w3a', true);
-        this.readModificationTable(modifications, 'buffs', 'war3map.w3h', false);
-        this.readModificationTable(modifications, 'upgrades', 'war3map.w3q', true);
+        let keyNames = ['units', 'items', 'destructables', 'doodads', 'abilities', 'buffs', 'upgrades'];
+        let fileNames = ['war3map.w3u', 'war3map.w3t', 'war3map.w3b', 'war3map.w3d', 'war3map.w3a', 'war3map.w3h', 'war3map.w3q'];
+        let useOptionalInts = [false, false, false, true, true, false, true];
 
-        return modifications;
-    },
+        for (let i = 0, l = keyNames.length; i < l; i++) {
+            let file = this.archive.get(fileNames[i]);
 
-    readModificationTable(modifications, type, path, useOptionalInts) {
-        let file = this.archive.get(path);
+            if (file) {
+                let buffer = file.arrayBuffer(),
+                    modification;
 
-        if (file) {
-            if (useOptionalInts) {
-                modifications.set(type, new War3MapW3d(file.arrayBuffer()));
-            } else {
-                modifications.set(type, new War3MapW3u(file.arrayBuffer()));
+                if (useOptionalInts[i]) {
+                    modification = new War3MapW3d(buffer);
+                } else {
+                    modification = new War3MapW3u(buffer);
+                }
+
+                modifications.set(fileNames[i], modification);
             }
         }
+
+        return modifications;
     },
 
     addTriggerDataSection(map, section, hasReturn) {
@@ -376,39 +397,8 @@ War3Map.prototype = {
         return map;
     },
 
-    rebuild() {
-        // war3map.j - Map script.
-        //if (this.rename('scripts\\war3map.j', 'war3map.j')) {
-        //    console.log('Renamed scripts\\war3map.j to war3map.j');
-        //}
-
-        // war3map.w3i
-        console.log('');
-
-        // war3map.wtg - Triggers.
-        if (!this.has('war3map.wtg')) {
-            console.log('Need to rebuild war3map.wtg');
-        }
-
-        // war3map.w3c - Camera settings.
-        if (!this.has('war3map.w3c')) {
-            console.log('Need to rebuild war3map.w3c');
-        }
-
-        // war3map.w3s - World Editor sounds.
-        if (!this.has('war3map.w3s')) {
-            console.log('Need to rebuild war3map.w3s');
-        }
-
-        // war3map.w3r - Regions.
-        if (!this.has('war3map.w3r')) {
-            console.log('Need to rebuild war3map.w3r');
-        }
-
-        // war3mapUnits.doo - Units and items.
-        if (!this.has('war3mapUnits.doo')) {
-            console.log('Need to rebuild war3mapUnits.doo');
-        }
+    addTriggerData(triggerData) {
+        this.argumentMap = this.readTriggerData(triggerData);
     }
 };
 

@@ -57,12 +57,16 @@ War3MapUnitsDoo.prototype = {
         return size;
     },
 
-    add() {
+    createUnit() {
         let unit = new Unit();
 
         this.units.push(unit);
 
         return unit;
+    },
+
+    addUnit(unit) {
+        this.units.push(unit);
     }
 };
 

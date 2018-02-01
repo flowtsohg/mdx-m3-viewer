@@ -21,6 +21,10 @@ function MdxSkeleton(instance) {
     // Not defined before the Skeleton constructor
     nodes = this.nodes;
 
+    //let variants = {
+    //    any: []
+    //};
+
     for (let i = 0, l = modelNodes.length; i < l; i++) {
         let node = nodes[i],
             modelNode = modelNodes[i];
@@ -38,7 +42,17 @@ function MdxSkeleton(instance) {
 
         // The sorted version of the nodes, for straight iteration in update()
         sortedNodes[i] = nodes[hierarchy[i]];
+
+        //for (let j = 0, k = model.sequences.length; j < k; j++) {
+        //    variants.any[j] |= modelNode.variants.any[j];
+        //}
+        //node.justUpdated = true;
     }
+
+    //this.variants = variants;
+    //console.log(model.name, this.variants)
+
+    //instance.justUpdated = false;
 
     // The sorted version of the bone references in the model, for straight iteration in updateHW()
     for (let i = 0, l = modelBones.length; i < l; i++) {
@@ -73,43 +87,49 @@ MdxSkeleton.prototype = {
                     rotation,
                     scale;
 
-                // Translation
-                if (forced || variants.translation[sequence]) {
-                    translation = modelNode.getTranslation(instance);
-                } else {
-                    translation = node.localLocation;
-                }
+                //if (forced || variants.any[sequence] || node.parent.justUpdated) {
+                //    node.justUpdated = true;
 
-                // Rotation
-                if (forced || variants.rotation[sequence]) {
-                    rotation = modelNode.getRotation(instance);
-                } else {
-                    rotation = node.localRotation;
-                }
+                    // Translation
+                    if (forced || variants.translation[sequence]) {
+                        translation = modelNode.getTranslation(instance);
+                    } else {
+                        translation = node.localLocation;
+                    }
 
-                // Scale
-                if (forced || variants.scale[sequence]) {
-                    scale = modelNode.getScale(instance);
-                } else {
-                    scale = node.localScale;
-                }
+                    // Rotation
+                    if (forced || variants.rotation[sequence]) {
+                        rotation = modelNode.getRotation(instance);
+                    } else {
+                        rotation = node.localRotation;
+                    }
 
-                // Billboarding
-                if (modelNode.billboarded) {
-                    // Cancel the parent's rotation.
-                    quat.copy(rotation, node.parent.inverseWorldRotation);
+                    // Scale
+                    if (forced || variants.scale[sequence]) {
+                        scale = modelNode.getScale(instance);
+                    } else {
+                        scale = node.localScale;
+                    }
 
-                    // Rotate inversly to the camera, so as to always face it.
-                    quat.mul(rotation, rotation, instance.scene.camera.inverseWorldRotation);
+                    // Billboarding
+                    if (modelNode.billboarded) {
+                        // Cancel the parent's rotation.
+                        quat.copy(rotation, node.parent.inverseWorldRotation);
 
-                    // The coordinate systems are different between the handler and the viewer.
-                    // Therefore, get to the viewer's coordinate system.
-                    quat.rotateZ(rotation, rotation, Math.PI / 2);
-                    quat.rotateY(rotation, rotation, -Math.PI / 2);
-                }
+                        // Rotate inversly to the camera, so as to always face it.
+                        quat.mul(rotation, rotation, instance.scene.camera.inverseWorldRotation);
 
-                // Update the node
-                node.setTransformation(translation, rotation, scale);
+                        // The coordinate systems are different between the handler and the viewer.
+                        // Therefore, get to the viewer's coordinate system.
+                        quat.rotateZ(rotation, rotation, Math.PI / 2);
+                        quat.rotateY(rotation, rotation, -Math.PI / 2);
+                    }
+
+                    // Update the node
+                    node.setTransformation(translation, rotation, scale);
+                //} else {
+                //    node.justUpdated = false;
+                //}
             }
 
             // Update the bone texture.

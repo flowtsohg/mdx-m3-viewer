@@ -29,7 +29,7 @@ function inRange(x, minVal, maxVal) {
 function initializeReferences(state) {
     let map = state.referenceMap;
 
-    for (let collection of [state.sequences, state.globalSequences, state.textures, state.textureAnimations, state.materials, state.geosetAnimations]) {
+    for (let collection of [state.sequences, state.globalSequences, state.textures, state.textureAnimations, state.materials, state.geosets, state.geosetAnimations]) {
         for (let object of collection) {
             map.set(object, 0);
         }
@@ -71,15 +71,15 @@ function getName(object) {
     let name = getConstructorName(object);
 
     if (typeof object.index === 'number') {
-        name += ' ' + object.index;
+        name += ` ${object.index}`;
     }
 
     if (typeof object.name === 'string') {
-        name += ' "' + object.name + '"';
+        name += ` "${object.name}"`;
     }
 
     if (object.node) {
-        name += ' "' + object.node.name + '"';
+        name += ` "${object.node.name}"`;
     }
 
     return name;
@@ -101,12 +101,13 @@ function isExtentValid(extent) {
 }
 
 function testExtents(state, object) {
+    /*
     let extent = object.extent,
         objectName = getName(object);
 
     // ModelChunk, Sequence, Geoset
     if (extent) {
-        assertWarning(state, isExtentValid(extent), objectName + ': Extent: radius=' + extent.radius +' min=[' + extent.min.join(',') + '] max=[' + extent.max.join(',') + ']');
+        assertWarning(state, isExtentValid(extent), `${objectName}: Extent: radius=${extent.radius} min=[${extent.min.join(',')}] max=[${extent.max.join(',')}]`);
     }
 
     let extents = object.extents;
@@ -119,28 +120,21 @@ function testExtents(state, object) {
             assertWarning(state, isExtentValid(extent), objectName + ': Extent ' + i + ': radius=' + extent.radius +' min=[' + extent.min.join(',') + '] max=[' + extent.max.join(',') + ']');
         }
     }
+    */
 }
 
-// Warning: Unknown version.
 function testVersion(state) {
     let version = state.version;
 
-    assertWarning(state, version.version === 800, 'Unknown version ' + version.version);
+    assertWarning(state, version.version === 800, `Unknown version ${version.version}`);
 }
 
-// ?
 function testModel(state) {
     let model = state.model;
 
     testExtents(state, model);
 }
 
-// Warning: No sequences (?).
-// Warning: An invalid sequence name (does nothing).
-// Warning: No stand sequence (can bother some use cases of models).
-// Warning: No death sequence (can bother some use cases of models).
-// Warning: A zero length sequence (the sequence does nothing).
-// Warning: A negative length sequence (can mess with community tools that think frames are unsigned).
 function testSequences(state) {
     let sequences = state.sequences;
 
@@ -148,9 +142,8 @@ function testSequences(state) {
         let foundStand = false,
             foundDeath = false;
 
-        for (let i = 0, l = sequences.length; i < l; i++) {
-            let sequence = sequences[i],
-                name = sequence.name,
+        for (let sequence of sequences) {
+            let name = sequence.name,
                 tokens = name.toLowerCase().trim().split('-')[0].split(/\s+/),
                 token = tokens[0],
                 interval = sequence.interval,
@@ -172,11 +165,11 @@ function testSequences(state) {
             if (sequenceNames.has(token)) {
                 addReference(state, sequence);
             } else {
-                addWarning(state, objectName + ': Not used due to an invalid name: "' + token + '"');
+                addWarning(state, `${objectName}: Not used due to an invalid name: "${token}"`);
             }
 
-            assertWarning(state, length !== 0, objectName + ': Zero length');
-            assertWarning(state, length > -1, objectName + ': Negative length ' + length);
+            assertWarning(state, length !== 0, `${objectName}: Zero length`);
+            assertWarning(state, length > -1, `${objectName}: Negative length ${length}`);
 
             testExtents(state, sequence);
         }
@@ -188,66 +181,55 @@ function testSequences(state) {
     }
 }
 
-// Warning: A global sequence with zero length (the first track is selected, regardless of its frame).
-// Warning: A global sequence with negative length (?).
 function testGlobalSequences(state) {
-    let sequences = state.globalSequences;
-
-    for (let i = 0, l = sequences.length; i < l; i++) {
-        let sequence = sequences[i],
-            value = sequence.value,
+    for (let sequence of state.globalSequences) {
+        let value = sequence.value,
             objectName = getName(sequence);
 
-        assertWarning(state, value !== 0, objectName + ': Zero length');
-        assertWarning(state, value > 0, objectName + ': Negative length ' + value);
+        assertWarning(state, value !== 0, `${objectName}: Zero length`);
+        assertWarning(state, value > 0, `${objectName}: Negative length ${value}`);
     }
 }
 
-// Error: A corrupted path (can't be loaded).
-// Error: An unknown replaceable ID (?).
-// Warning: A path and replaceable ID are used together (the path is ignored).
 function testTextures(state) {
     let textures = state.textures;
 
     if (textures.length) {
-        for (let i = 0, l = textures.length; i < l; i++) {
-            let texture = textures[i],
-                replaceableId = texture.replaceableId,
+        for (let texture of textures) {
+            let replaceableId = texture.replaceableId,
                 path = texture.path.toLowerCase(),
                 objectName = getName(texture);
 
-            assertError(state, path === '' || path.endsWith('.blp') || path.endsWith('.tga'), objectName + ': Corrupted path "' + path + '"');
-            assertError(state, replaceableId === 0 || replaceableIds.has(replaceableId), objectName + ': Unknown replaceable ID ' + replaceableId);
-            assertWarning(state, path === '' || replaceableId === 0, objectName + ': Path "' + path + '" and replaceable ID ' + replaceableId + ' used together');
+            assertError(state, path === '' || path.endsWith('.blp') || path.endsWith('.tga'), `${objectName}: Corrupted path "${path}"`);
+            assertError(state, replaceableId === 0 || replaceableIds.has(replaceableId), `${objectName}: Unknown replaceable ID ${replaceableId}`);
+            assertWarning(state, path === '' || replaceableId === 0, `${objectName}: Path "${path}" and replaceable ID ${replaceableId} used together`);
         }
     } else {
         addWarning(state, 'No textures');
     }
 }
 
-// ?
 function testMaterials(state) {
     let materials = state.materials;
 
     if (materials.length) {
-        for (let i = 0, l = materials.length; i < l; i++) {
-            testMaterial(state, materials[i]);
+        for (let material of materials) {
+            testMaterial(state, material);
         }
     } else {
         addWarning(state, 'No materials');
     }
 }
 
-// Warning: No layers (?).
 function testMaterial(state, material) {
     let layers = material.layers;
 
     if (layers.length) {
-        for (let i = 0, l = layers.length; i < l; i++) {
-            testLayer(state, material, layers[i])
+        for (let layer of layers) {
+            testLayer(state, material, layer)
         }
     } else {
-        addWarning(state, getName(material) + ': No layers');
+        addWarning(state, `${getName(material)}: No layers`);
     }
 }
 
@@ -269,8 +251,6 @@ function getTextureIds(layer) {
     return [layer.textureId];
 }
 
-// Warning: Invalid filter mode (?).
-// Warning: Invalid texture id (?)
 function testLayer(state, material, layer) {
     let objectName = getName(material) + ': ' + getName(layer);
 
@@ -278,7 +258,7 @@ function testLayer(state, material, layer) {
         if (inRange(textureId, 0, state.textures.length - 1)) {
             addReference(state, state.textures[textureId]);
         } else {
-            addError(state, objectName + ': Invalid texture ' + textureId);
+            addError(state, `${objectName}: Invalid texture ${textureId}`);
         }
     }
 
@@ -288,39 +268,65 @@ function testLayer(state, material, layer) {
         if (inRange(textureAnimationId, 0, state.textureAnimations.length - 1)) {
             addReference(state, state.textureAnimations[textureAnimationId]);
         } else {
-            addWarning(state, objectName + ' Invalid texture animation ' + textureAnimationId);
+            addWarning(state, `${objectName}: Invalid texture animation ${textureAnimationId}`);
         }
     }
 
-    assertWarning(state, inRange(layer.filterMode, 0, 6), objectName + ' Invalid filter mode ' + layer.filterMode);
+    assertWarning(state, inRange(layer.filterMode, 0, 6), `${objectName}: Invalid filter mode ${layer.filterMode}`);
     
     testSDContainer(state, layer, material);
 }
 
-// ?
 function testTextureAnimations(state) {
-    let textureAnimations = state.textureAnimations;
-
-    for (let i = 0, l = textureAnimations.length; i < l; i++) {
-        testSDContainer(state, textureAnimations[i]);
+    for (let textureAnimation of state.textureAnimations) {
+        testSDContainer(state, textureAnimation);
     }
 }
 
-// Warning: A vertex not attached to any bone (gets attached to a map's center instead).
-// Warning: A geoset is referenced by multiple geoset animations (?).
+function testGeosetSkinning(state, geoset) {
+    let nodes = state.nodes,
+        vertexGroups = geoset.vertexGroups,
+        matrixGroups = geoset.matrixGroups,
+        matrixIndices = geoset.matrixIndices,
+        slices = [],
+        objectName = getName(geoset);
+        
+    for (let i = 0, l = matrixGroups.length, k = 0; i < l; i++) {
+        slices.push(matrixIndices.subarray(k, k + matrixGroups[i]));
+        k += matrixGroups[i];
+    }
+
+    for (let i = 0, l = vertexGroups.length; i < l; i++) {
+        let slice = slices[vertexGroups[i]];
+
+        if (slice) {
+            for (let bone of slice) {
+                let node = nodes[bone];
+
+                if (node) {
+                    assertWarning(state, (node.flags & 0x100) === 0x100, `${objectName}: Vertex ${i}: Attached to ${getName(node)} which is not a bone`);
+                } else {
+                    addError(state, `${objectName}: Vertex ${i}: Attached to node ${bone} which does not exist`);
+                }
+            }
+        } else {
+            addWarning(state, `${objectName}: Vertex ${i}: Attached to vertex group ${i} which does not exist`);
+        }
+    }
+}
+
 function testGeosets(state) {
     let geosets = state.geosets,
         geosetAnimations = state.geosetAnimations;
 
     for (let i = 0, l = geosets.length; i < l; i++) {
         let geoset = geosets[i],
-            matrixGroups = geoset.matrixGroups,
             materialId = geoset.materialId,
             objectName = getName(geoset);
 
-        for (let j = 0, k = matrixGroups.length; j < k; j++) {
-            assertWarning(state, matrixGroups[j] > 0, objectName + ': Vertex ' + j + ': Not attached to any bones');
-        }
+        testGeosetSkinning(state, geoset);
+        /// TODO: ADD THIS
+        ///testGeosetNormals(state, geoset);
 
         if (geosetAnimations.length) {
             let references = [];
@@ -331,57 +337,56 @@ function testGeosets(state) {
                 }
             }
 
-            assertWarning(state, references.length <= 1, objectName + ': Referenced by ' + references.length + ' geoset animations (' + references.join(', ') + ')');
+            assertWarning(state, references.length <= 1, `${objectName}: Referenced by ${references.length} geoset animations (${references.join(', ')})`);
         }
 
         if (inRange(materialId, 0, state.materials.length - 1)) {
             addReference(state, state.materials[materialId]);
         } else {
-            addError(state, objectName + ': Invalid material ' + materialId);
+            addError(state, `${objectName}: Invalid material ${materialId}`);
+        }
+
+        if (geoset.faces.length) {
+            addReference(state, geoset);
+        } else {
+            // The game and my code have no issue with geosets containing no faces, but Magos crashes, so add a warning in addition to it being useless.
+            addWarning(state, `${objectName}: Zero faces`);
         }
 
         testExtents(state, geoset);
     }
 }
 
-// Error: Referencing an invalid geoset (?).
-// Warning: Referencing no geoset (the geoset animation does nothing).
-// Warning: There are geoset animations, but no geosets.
 function testGeosetAnimations(state) {
-    let geosets = state.geosets,
-        geosetAnimations = state.geosetAnimations;
+    let geosets = state.geosets;
 
-    for (let i = 0, l = geosetAnimations.length; i < l; i++) {
-        let geosetAnimation = geosetAnimations[i],
-            geosetId = geosetAnimation.geosetId,
+    for (let geosetAnimation of state.geosetAnimations) {
+        let geosetId = geosetAnimation.geosetId,
             objectName = getName(geosetAnimation);
 
         if (inRange(geosetId, 0, state.geosets.length - 1)) {
             addReference(state, geosetAnimation);
         } else {
-            addError(state, objectName + ': Invalid geoset ' + geosetId);
+            addError(state, `${objectName}: Invalid geoset ${geosetId}`);
         }
 
-        testSDContainer(state, geosetAnimations[i]);
+        testSDContainer(state, geosetAnimation);
     }
 }
 
-// Error: Referencing an invalid geoset (?).
-// Error: Referencing an invalid geoset animation (?).
 function testBones(state) {
     let bones = state.bones,
         geosets = state.geosets,
         geosetAnimations = state.geosetAnimations;
 
     if (bones.length) {
-        for (let i = 0, l = bones.length; i < l; i++) {
-            let bone = bones[i],
-                geosetId = bone.geosetId,
+        for (let bone of bones) {
+            let geosetId = bone.geosetId,
                 geosetAnimationId = bone.geosetAnimationId,
                 objectName = getName(bone);
 
-            assertError(state, geosetId === -1 || geosetId < geosets.length, objectName + ': Invalid geoset ' + geosetId);
-            assertError(state, geosetAnimationId === -1 || geosetAnimationId < geosetAnimations.length, objectName + ': Invalid geoset animation ' + geosetAnimationId);
+            assertError(state, geosetId === -1 || geosetId < geosets.length, `${objectName}: Invalid geoset ${geosetId}`);
+            assertError(state, geosetAnimationId === -1 || geosetAnimationId < geosetAnimations.length, `${objectName}: Invalid geoset animation ${geosetAnimationId}`);
             testNode(state, bone);
         }
     } else {
@@ -389,45 +394,39 @@ function testBones(state) {
     }
 }
 
-// Warning: Attenuation outside of the range min=80 max=200 (can mess with lighting).
 function testLights(state) {
-    let lights = state.lights;
-
-    for (let i = 0, l = lights.length; i < l; i++) {
-        let light = lights[i],
-            attenuation = light.attenuation,
+    for (let light of state.lights) {
+        let attenuation = light.attenuation,
             objectName = getName(light);
 
-        assertWarning(state, attenuation[0] >= 80 && attenuation[1] <= 200 && attenuation[1] - attenuation[0] > 0, objectName + ': Attenuation min=' + attenuation[0] + ' max=' + attenuation[1]);
+        assertWarning(state, attenuation[0] >= 80 && attenuation[1] <= 200 && attenuation[1] - attenuation[0] > 0, `${objectName}: Attenuation min=${attenuation[0]} max=${attenuation[1]}`);
 
         testSDContainer(state, light)
         testNode(state, light);
     }
 }
 
-// ?
 function testHelpers(state) {
-    let helpers = state.helpers;
-
-    for (let i = 0, l = helpers.length; i < l; i++) {
-        testNode(state, helpers[i]);
+    for (let helper of state.helpers) {
+        testNode(state, helper);
     }
 }
 
-// Error: Attachment path that doesn't end with '.mdl'.
 function testAttachments(state) {
-    let attachments = state.attachments;
-
-    for (let i = 0, l = attachments.length; i < l; i++) {
-        let attachment = attachments[i],
-            path = attachment.path,
+    for (let attachment of state.attachments) {
+        let path = attachment.path,
             objectName = getName(attachment);
 
+        // NOTE: I can't figure out what exactly the rules for attachment names even are.
+        /*
         if (path === '') {
-            assertWarning(state, testAttachmentName(attachment), objectName + ': Invalid attachment "' + attachment.node.name + '"');
+            assertWarning(state, testAttachmentName(attachment), `${objectName}: Invalid attachment "${attachment.node.name}"`);
         } else {
-            assertError(state, path.toLowerCase().endsWith('.mdl'), objectName + ': Invalid path "' + path + '"');
+            let lowerCase = path.toLowerCase();
+
+            assertError(state, lowerCase.endsWith('.mdl') || lowerCase.endsWith('.mdx'), `${objectName}: Invalid path "${path}"`);
         }
+        */
 
         testSDContainer(state, attachment)
         testNode(state, attachment);
@@ -463,64 +462,51 @@ function testAttachmentName(attachment) {
     return valid;
 }
 
-// Warning: No pivot points (default one created at the origin?).
 function testPivotPoints(state) {
     let pivotPoints = state.pivotPoints,
         nodes = state.nodes;
 
-    assertWarning(state, pivotPoints.length === nodes.length, 'Expected ' + nodes.length + ' pivot points, got ' + pivotPoints.length);
+    assertWarning(state, pivotPoints.length === nodes.length, `Expected ${nodes.length} pivot points, got ${pivotPoints.length}`);
 }
 
-// Error: Corrupted path (?).
 function testParticleEmitters(state) {
-    let emitters = state.particleEmitters;
+    for (let emitter of state.particleEmitters) {
+        let objectName = getName(emitter);
 
-    for (let i = 0, l = emitters.length; i < l; i++) {
-        let emitter = emitters[i],
-            objectName = getName(emitter);
-
-        assertError(state, emitter.path.toLowerCase().endsWith('.mdl'), objectName + ': Invalid path "' + emitter.path + '"');
+        assertError(state, emitter.path.toLowerCase().endsWith('.mdl'), `${objectName}: Invalid path "${emitter.path}"`);
 
         testSDContainer(state, emitter)
         testNode(state, emitter);
     }
 }
 
-// Warning: Invalid filter mode (?).
 function testParticleEmitters2(state) {
-    let emitters = state.particle2Emitters;
-
-    for (let i = 0, l = emitters.length; i < l; i++) {
-        let emitter = emitters[i],
-            replaceableId = emitter.replaceableId,
+    for (let emitter of state.particle2Emitters) {
+        let replaceableId = emitter.replaceableId,
             objectName = getName(emitter);
 
         if (inRange(emitter.textureId, 0, state.textures.length - 1)) {
             addReference(state, state.textures[emitter.textureId]);
         } else {
-            addError(state, objectName + ': Invalid texture ' + emitter.textureId);
+            addError(state, `${objectName}: Invalid texture ${emitter.textureId}`);
         }
 
-        assertWarning(state, inRange(emitter.filterMode, 0, 4), objectName + ': Invalid filter mode ' + emitter.filterMode);
-        assertError(state, replaceableId === 0 || replaceableIds.has(replaceableId), objectName + ': Invalid replaceable ID ' + replaceableId);
+        assertWarning(state, inRange(emitter.filterMode, 0, 4), `${objectName}: Invalid filter mode ${emitter.filterMode}`);
+        assertError(state, replaceableId === 0 || replaceableIds.has(replaceableId), `${objectName}: Invalid replaceable ID ${replaceableId}`);
 
         testSDContainer(state, emitter)
         testNode(state, emitter);
     }
 }
 
-// Error: Referencing an invalid material ID (?).
 function testRibbonEmitters(state) {
-    let emitters = state.ribbonEmitters;
-
-    for (let i = 0, l = emitters.length; i < l; i++) {
-        let emitter = emitters[i],
-            objectName = getName(emitter);
+    for (let emitter of state.ribbonEmitters) {
+        let objectName = getName(emitter);
 
         if (inRange(emitter.materialId, 0, state.materials.length - 1)) {
             addReference(state, state.materials[emitter.materialId]);
         } else {
-            addError(state, objectName + ': Invalid material ' + emitter.materialId);
+            addError(state, `${objectName}: Invalid material ${emitter.materialId}`);
         }
 
         testSDContainer(state, emitter)
@@ -528,14 +514,9 @@ function testRibbonEmitters(state) {
     }
 }
 
-// Error: Referencing an invalid global sequence (?).
-// Error: Zero keys (can't be loaded).
 function testEventObjects(state) {
-    let eventObjects = state.eventObjects;
-
-    for (let i = 0, l = eventObjects.length; i < l; i++) {
-        let eventObject = eventObjects[i],
-            tracks = eventObject.tracks,
+    for (let eventObject of state.eventObjects) {
+        let tracks = eventObject.tracks,
             globalSequenceId = eventObject.globalSequenceId,
             objectName = getName(eventObject);
 
@@ -543,7 +524,7 @@ function testEventObjects(state) {
             if (inRange(globalSequenceId, 0, state.globalSequences.length - 1)) {
                 addReference(state, state.globalSequences[globalSequenceId]);
             } else {
-                addError(state, objectName + ': Invalid global sequence ' + globalSequenceId);
+                addError(state, `${objectName}: Invalid global sequence ${globalSequenceId}`);
             }
         }
 
@@ -553,37 +534,28 @@ function testEventObjects(state) {
                     sequenceInfo = getSequenceInfoFromFrame(state, track, globalSequenceId),
                     sequenceId = sequenceInfo[0];
 
-                assertWarning(state, sequenceId !== -1, objectName + ': Track ' + j + ': Frame ' + track + ' is not in any sequence');
+                assertWarning(state, sequenceId !== -1, `${objectName}: Track ${j}: Frame ${track} is not in any sequence`);
             }
         } else {
-            addError(state, objectName + ': Zero keys');
+            addError(state, `${objectName}: Zero keys`);
         }
 
         testNode(state, eventObject);
     }
 }
 
-// ?
 function testCameras(state) {
-    let cameras = state.cameras;
-
-    for (let i = 0, l = cameras.length; i < l; i++) {
-        testSDContainer(state, cameras[i]);
+    for (let camera of state.cameras) {
+        testSDContainer(state, camera);
     }
 }
 
-// ?
 function testCollisionShapes(state) {
-    let collisionShapes = state.collisionShapes;
-
-    for (let i = 0, l = collisionShapes.length; i < l; i++) {
-        testNode(state, collisionShapes[i]);
+    for (let collisionShape of state.collisionShapes) {
+        testNode(state, collisionShape);
     }
 }
 
-// Error: Invalid object ID (?).
-// Error: Invalid parent ID (?).
-// Error: Same object ID and parent ID (?).
 function testNode(state, object) {
     let node = object.node,
         name = node.name,
@@ -591,17 +563,15 @@ function testNode(state, object) {
         parentId = node.parentId,
         objectName = getName(node);
 
-    assertError(state, parentId === -1 || hasNode(state, parentId), objectName + ': Invalid parent ' + parentId);
-    assertError(state, objectId !== parentId, objectName + ': Same object and parent');
+    assertError(state, parentId === -1 || hasNode(state, parentId), `#{objectName}: Invalid parent ${parentId}`);
+    assertError(state, objectId !== parentId, `${objectName}: Same object and parent`);
         
     testSDContainer(state, node);
 }
 
 function hasNode(state, id) {
-    let nodes = state.nodes;
-
-    for (let i = 0, l = nodes.length; i < l; i++) {
-        if (nodes[i].objectId === id) {
+    for (let node of state.nodes) {
+        if (node.objectId === id) {
             return true;
         }
     }
@@ -610,21 +580,18 @@ function hasNode(state, id) {
 }
 
 function testSDContainer(state, object, parent) {
-    let elements = object.tracks.elements;
-
-    for (let i = 0, l = elements.length; i < l; i++) {
-        testSD(state, object, elements[i], parent);
+    for (let element of object.tracks.elements) {
+        testSD(state, object, element, parent);
     }
 }
 
-// Error: Referencing an invalid global sequence (?).
 function testSD(state, object, sd, parent) {
     let objectName,
         animatedTypeName = animatedTypeNames.get(sd.tag),
         globalSequenceId = sd.globalSequenceId;
 
     if (parent) {
-        objectName = getName(parent) + ': ' + getName(object);
+        objectName = `${getName(parent)}: ${getName(object)}`;
     } else {
         objectName = getName(object);
     }
@@ -633,7 +600,7 @@ function testSD(state, object, sd, parent) {
         if (inRange(globalSequenceId, 0, state.globalSequences.length - 1)) {
             addReference(state, state.globalSequences[globalSequenceId]);
         } else {
-            addError(state, objectName + ': ' + animatedType + ': Invalid global sequence ' + globalSequenceId);
+            addError(state, `${objectName}: ${animatedType}: Invalid global sequence ${globalSequenceId}`);
         }
     }
 
@@ -641,18 +608,12 @@ function testSD(state, object, sd, parent) {
     testTracks(state, objectName, animatedTypeName, sd.tracks, globalSequenceId);
 }
 
-// Warning: Zero tracks (?).
-// Warning: Tracks used without sequences (?).
-// Warning: Track outside of any sequence (?). Ignores frame 0.
-// Warning: Negative frame (?).
-// Warning: No opening frame for a sequence (can cause weird animations).
-// Warning: No closing frame for a sequence (can cause weird animations).
 function testTracks(state, objectName, animatedTypeName, tracks, globalSequenceId) {
     let sequences = state.sequences,
         usageMap = {};
 
-    assertWarning(state, tracks.length, objectName + ': ' + animatedTypeName + ': Zero tracks');
-    assertWarning(state, globalSequenceId !== -1 || tracks.length === 0 || sequences.length !== 0, objectName + ': ' + animatedTypeName + ': Tracks used without sequences')
+    assertWarning(state, tracks.length, `${objectName}: ${animatedTypeName}: Zero tracks`);
+    assertWarning(state, globalSequenceId !== -1 || tracks.length === 0 || sequences.length !== 0, `${objectName}: ${animatedTypeName}: Tracks used without sequences`);
 
     for (let i = 0, l = tracks.length; i < l; i++) {
         let track = tracks[i],
@@ -661,8 +622,8 @@ function testTracks(state, objectName, animatedTypeName, tracks, globalSequenceI
             isBeginning = sequenceInfo[1],
             isEnding = sequenceInfo[2];
 
-        assertWarning(state, tracks.length === 1 || sequenceId !== -1 || track.frame === 0, objectName + ': ' + animatedTypeName + ': Track ' + i + ': Frame ' + track.frame + ' is not in any sequence');
-        assertWarning(state, track.frame >= 0, objectName + ': ' + animatedTypeName + ': Track ' + i + ': Negative frame');
+        assertWarning(state, tracks.length === 1 || sequenceId !== -1 || track.frame === 0, `${objectName}: ${animatedTypeName}: Track ${i}: Frame ${track.frame} is not in any sequence`);
+        assertWarning(state, track.frame >= 0, `${objectName}: ${animatedTypeName}: Track ${i}: Negative frame`);
 
         if (sequenceId !== -1) {
             if (!usageMap[sequenceId]) {
@@ -681,13 +642,9 @@ function testTracks(state, objectName, animatedTypeName, tracks, globalSequenceI
         }
     }
 
-    let keys = Object.keys(usageMap);
-
-    for (let i = 0, l = keys.length; i < l; i++) {
-        let sequenceId = keys[i],
-            sequenceInfo = usageMap[sequenceId],
-            sequence,
-            sequenceName;
+    for (let sequenceId of Object.keys(usageMap)) {
+        let sequenceInfo = usageMap[sequenceId],
+            sequence;
 
         if (globalSequenceId === -1) {
             sequence = sequences[sequenceId];
@@ -695,24 +652,19 @@ function testTracks(state, objectName, animatedTypeName, tracks, globalSequenceI
             sequence = state.globalSequences[sequenceId];
         }
 
-        sequenceName = getName(sequence);
+        let sequenceName = getName(sequence);
 
-        assertWarning(state, sequenceInfo[0] || sequenceInfo[2] === 1, objectName + ': ' + animatedTypeName + ': No opening track for ' + sequenceName);
-        assertWarning(state, sequenceInfo[1] || sequenceInfo[2] === 1, objectName + ': ' + animatedTypeName + ': No closing track for ' + sequenceName);
+        assertWarning(state, sequenceInfo[0] || sequenceInfo[2] === 1, `${objectName}: ${animatedTypeName}: No opening track for ${sequenceName}`);
+        assertWarning(state, sequenceInfo[1] || sequenceInfo[2] === 1, `${objectName}: ${animatedTypeName}: No closing track for ${sequenceName}`);
     }
 }
 
-// Warning: Interpolation used for visibility keyframes that is not None.
 function testInterpolationType(state, objectName, animatedTypeName, interpolationType) {
     if (animatedTypeName === 'Visibility') {
-        assertWarning(state, interpolationType === 0, objectName + ': ' + animatedTypeName + ': Interpolation type not set to None');
+        assertWarning(state, interpolationType === 0, `${objectName}: ${animatedTypeName}: Interpolation type not set to None`);
     }
 }
 
-// Given a frame, and possibly a global sequence ID, get the following information:
-// 1) What is the index (if any) of the sequence (or global sequence) that this frame is in.
-// 2) Is this frame the beginning frame of this sequence.
-// 3) Is this frame the ending frame of this sequence.
 function getSequenceInfoFromFrame(state, frame, globalSequenceId) {
     let index = -1,
         isBeginning = false,

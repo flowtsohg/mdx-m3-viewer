@@ -67,7 +67,7 @@ GeometryBucket.prototype = {
             polygons += (model.edgeArray.length / 2) * instances;
         }
 
-        return { calls, instances, vertices, polygons };
+        return { calls, instances, vertices, polygons, dynamicVertices: 0, dynamicPolygons: 0 };
     },
 
     update(scene) {

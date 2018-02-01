@@ -1,5 +1,5 @@
 import { vec3, quat } from 'gl-matrix';
-import { randomRange } from '../../../common/math';
+import { randomInRange } from '../../../common/math';
 
 // Heap allocations needed for this module.
 let rotationHeap = quat.create(),
@@ -35,8 +35,8 @@ MdxParticle.prototype = {
 
         // Local rotation
         quat.identity(rotationHeap);
-        quat.rotateZ(rotationHeap, rotationHeap, randomRange(-Math.PI, Math.PI));
-        quat.rotateY(rotationHeap, rotationHeap, randomRange(-latitude, latitude));
+        quat.rotateZ(rotationHeap, rotationHeap, randomInRange(-Math.PI, Math.PI));
+        quat.rotateY(rotationHeap, rotationHeap, randomInRange(-latitude, latitude));
         vec3.transformQuat(velocity, vec3.UNIT_Z, rotationHeap);
 
         // World rotation
@@ -50,7 +50,7 @@ MdxParticle.prototype = {
 
         instance.scene.addInstance(internalInstance);
 
-        internalInstance.setTransformation(node.worldLocation, quat.setAxisAngle(rotationHeap, vec3.UNIT_Z, randomRange(0, Math.PI * 2)), node.worldScale);
+        internalInstance.setTransformation(node.worldLocation, quat.setAxisAngle(rotationHeap, vec3.UNIT_Z, randomInRange(0, Math.PI * 2)), node.worldScale);
         internalInstance.setSequence(0);
         internalInstance.show();
     },

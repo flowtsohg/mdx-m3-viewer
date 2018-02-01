@@ -1,5 +1,5 @@
 import { vec3, vec4, quat } from 'gl-matrix';
-import { toRad, randomRange, lerp } from '../../../common/math';
+import { degToRad, randomInRange, lerp } from '../../../common/math';
 import { uint8ToUint24 } from '../../../common/typecast';
 
 // Heap allocations needed for this module.
@@ -39,7 +39,7 @@ MdxParticle2.prototype = {
             scale = node.worldScale,
             width = emitterView.getWidth() * 0.5,
             length = emitterView.getLength() * 0.5,
-            latitude = toRad(emitterView.getLatitude()),
+            latitude = degToRad(emitterView.getLatitude()),
             variation = emitterView.getVariation(),
             location = this.location,
             velocity = this.velocity;
@@ -56,8 +56,8 @@ MdxParticle2.prototype = {
         vec3.copy(this.nodeScale, scale);
 
         // Local location
-        location[0] = pivot[0] + randomRange(-width, width) * 0.5;
-        location[1] = pivot[1] + randomRange(-length, length) * 0.5;
+        location[0] = pivot[0] + randomInRange(-width, width) * 0.5;
+        location[1] = pivot[1] + randomInRange(-length, length) * 0.5;
         location[2] = pivot[2];
 
         // World location
@@ -68,11 +68,11 @@ MdxParticle2.prototype = {
         // Local rotation
         quat.identity(rotationHeap);
         quat.rotateZ(rotationHeap, rotationHeap, Math.PI / 2);
-        quat.rotateY(rotationHeap, rotationHeap, randomRange(-latitude, latitude));
+        quat.rotateY(rotationHeap, rotationHeap, randomInRange(-latitude, latitude));
 
         // If this is not a line emitter, emit in a sphere rather than a circle.
         if (!modelObject.lineEmitter) {
-            quat.rotateX(rotationHeap, rotationHeap, randomRange(-latitude, latitude));
+            quat.rotateX(rotationHeap, rotationHeap, randomInRange(-latitude, latitude));
         }
 
         // World rotation
@@ -84,7 +84,7 @@ MdxParticle2.prototype = {
         vec3.transformQuat(velocity, vec3.UNIT_Z, rotationHeap);
 
         // Apply speed
-        vec3.scale(velocity, velocity, emitterView.getSpeed() + randomRange(-variation, variation));
+        vec3.scale(velocity, velocity, emitterView.getSpeed() + randomInRange(-variation, variation));
 
         // Apply the parent's scale
         vec3.mul(velocity, velocity, scale);

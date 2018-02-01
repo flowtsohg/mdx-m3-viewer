@@ -1,5 +1,6 @@
 import { vec3 } from 'gl-matrix';
 import Camera from './camera';
+import NotifiedNode from './notifiednode';
 
 // Heap allocations needed for this module.
 let ndcHeap = new Float32Array(3);
@@ -20,6 +21,8 @@ function Scene() {
     this.buckets = [];
     /** @member {Set<Bucket>} */
     this.bucketSet = new Set();
+    /** @member {NotifiedNode} */
+    this.root = new NotifiedNode();
 
     this.bucketsToAdd = [];
     this.bucketsToRemove = [];
@@ -39,6 +42,8 @@ Scene.prototype = {
      *     instances
      *     vertices
      *     polygons
+     *     dynamicVertices
+     *     dynamicPolygons
      */
     getRenderStats() {
         let objects = this.buckets,
@@ -46,7 +51,9 @@ Scene.prototype = {
             calls = 0,
             instances = 0,
             vertices = 0,
-            polygons = 0;
+            polygons = 0,
+            dynamicVertices = 0,
+            dynamicPolygons = 0;
 
         for (let i = 0; i < buckets; i++) {
             let stats = objects[i].getRenderStats();
@@ -55,9 +62,11 @@ Scene.prototype = {
             instances += stats.instances;
             vertices += stats.vertices;
             polygons += stats.polygons;
+            dynamicVertices += stats.dynamicVertices;
+            dynamicPolygons += stats.dynamicPolygons;
         }
 
-        return { buckets, calls, instances, vertices, polygons };
+        return { buckets, calls, instances, vertices, polygons, dynamicVertices, dynamicPolygons };
     },
 
     /**
@@ -75,6 +84,10 @@ Scene.prototype = {
                 this.instances.push(instance);
 
                 instance.modelView.sceneChanged(instance, this);
+
+                if (instance.parent === null) {
+                    instance.setParent(this.root);
+                }
 
                 return true;
             }

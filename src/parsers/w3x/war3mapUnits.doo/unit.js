@@ -12,8 +12,8 @@ function Unit(stream, version) {
     this.flags = 0;
     this.player = 0;
     this.unknown = 0;
-    this.hitpoints = 0;
-    this.mana = 0;
+    this.hitpoints = -1;
+    this.mana = -1;
     this.droppedItemTable = 0; // VERSION 8
     this.droppedItemSets = [];
     this.goldAmount = 0;

@@ -1,3 +1,5 @@
+import seededRandom from '../common/seededrandom';
+import { getImageData } from '../common/canvas';
 import ModelViewer from './viewer';
 import Scene from './scene';
 import W3x from './handlers/w3x/handler';
@@ -13,12 +15,14 @@ function UnitTester() {
 
     let viewer = new ModelViewer(canvas);
 
-    viewer.gl.clearColor(0.1, 0.1, 0.1, 1);
+    viewer.gl.clearColor(0, 0, 0, 1);
 
     viewer.addEventListener('error', (e) => console.log(e));
 
     viewer.addHandler(W3x);
     viewer.addHandler(M3);
+
+    viewer.noCulling = true;
 
     this.canvas = canvas;
     this.viewer = viewer;
@@ -31,7 +35,7 @@ UnitTester.prototype = {
     // This allows to run the viewer in a deterministic environment for tests.
     // For example, particles have some randomized data, which can make tests mismatch.
     replaceMathRandom() {
-        Math.random = this.seededRandom(6);
+        Math.random = seededRandom(6);
     },
 
     // Reset Math.random to the original function
@@ -43,35 +47,11 @@ UnitTester.prototype = {
     // The name doesn't seem to work in Firefox (only tested in Firefox and Chrome on Windows).
     downloadUrl(url, name) {
         let a = document.createElement('a');
-
+        
         a.href = url;
-        a.download = name;
+        a.download = `${name}.png`;
 
         a.dispatchEvent(new MouseEvent('click'));
-    },
-
-    // Return a function that works in the same exact way as Math.random(), but with a seed.
-    // See http://indiegamr.com/generate-repeatable-random-numbers-in-js/
-    seededRandom(seed) {
-        return function () {
-            seed = (seed * 9301 + 49297) % 233280;
-
-            return seed / 233280;
-        };    
-    },
-
-    getImageDataFromImage(image) {
-        let canvas = document.createElement('canvas'),
-            context = canvas.getContext('2d'),
-            w = image.width,
-            h = image.height;
-
-        canvas.width = w;
-        canvas.height = h;
-
-        context.drawImage(image, 0, 0);
-
-        return context.getImageData(0, 0, w, h);
     },
 
     compareImagesFromURLs(a, b, callback) {
@@ -86,8 +66,8 @@ UnitTester.prototype = {
                 return;
             }
 
-            let dataA = this.getImageDataFromImage(imageA).data,
-                dataB = this.getImageDataFromImage(imageB).data;
+            let dataA = getImageData(imageA).data,
+                dataB = getImageData(imageB).data;
 
             for (let i = 0, l = dataA.length; i < l; i++) {
                 if (dataA[i] !== dataB[i]) {

@@ -1,6 +1,6 @@
 function RandomItem(stream) {
     this.chance = 0;
-    this.ids = [];
+    this.id = '\0\0\0\0';
 
     if (stream) {
         this.load(stream, positions);

@@ -1,4 +1,5 @@
 import Parameter from './parameter';
+import fixWeu from './weu';
 
 function SubParameters(stream, version, argumentMap) {
     this.type = 0;
@@ -17,10 +18,14 @@ SubParameters.prototype = {
         this.beginParameters = stream.readInt32();
 
         if (this.beginParameters) {
-            let argumentsCount = argumentMap.get(this.name);
-
+            let argumentsCount = argumentMap.get(this.name.toLowerCase());
+        
             if (isNaN(argumentsCount)) {
-                throw new Error(`Unknown ECA '${this.name}'`);
+                argumentsCount = fixWeu(this.name);
+
+                if (isNaN(argumentsCount)) {
+                    throw new Error(`Unknown ECA '${this.name}'`);
+                }
             }
 
             for (let i = 0; i < argumentsCount; i++) {

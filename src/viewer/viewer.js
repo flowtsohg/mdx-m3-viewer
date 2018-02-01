@@ -124,7 +124,7 @@ ModelViewer.prototype = {
      * @returns {string}
      */
     get version() {
-        return '4.0.25';
+        return '4.0.26';
     },
 
     /**
@@ -236,7 +236,9 @@ ModelViewer.prototype = {
             calls = 0,
             instances = 0,
             vertices = 0,
-            polygons = 0;
+            polygons = 0,
+            dynamicVertices = 0,
+            dynamicPolygons = 0;
 
         for (let i = 0; i < scenes; i++) {
             let stats = objects[i].getRenderStats();
@@ -246,9 +248,11 @@ ModelViewer.prototype = {
             instances += stats.instances;
             vertices += stats.vertices;
             polygons += stats.polygons;
+            dynamicVertices += stats.dynamicVertices;
+            dynamicPolygons += stats.dynamicPolygons;
         }
 
-        return { scenes, buckets, calls, instances, vertices, polygons };
+        return { scenes, buckets, calls, instances, vertices, polygons, dynamicVertices, dynamicPolygons };
     },
 
     /**
@@ -291,8 +295,18 @@ ModelViewer.prototype = {
                     // Register the standard events.
                     this.registerEvents(resource);
 
-                    // Tell the resource to actually load itself
-                    resource.load(src, binaryFormat, serverFetch);
+                    // Sends the loadstart event
+                    resource.load();
+
+                    if (serverFetch) {
+                        this.fetch(src, binaryFormat ? 'arrayBuffer' : 'text')
+                            .then((data) => {
+                                resource.fetchUrl = src;
+                                resource.onload(data);
+                            })
+                    } else {
+                        resource.onload(src);
+                    }
                 }
 
                 // Get the resource from the cache.
@@ -300,6 +314,38 @@ ModelViewer.prototype = {
             } else {
                 this.dispatchEvent({ type: 'error', error: 'MissingHandler', reason: [src, extension, serverFetch] });
             }
+        }
+    },
+
+    async fetch(path, dataType) {
+        let response;
+        
+        try {
+            response = await fetch(path);
+        } catch (e) {
+            this.dispatchEvent({ type: 'error', error: 'NetworkError', reason: e });
+            return;
+        }
+
+        if (response.ok) {
+            let data;
+
+            try {
+                if (dataType === 'text') {
+                    data = await response.text();
+                } else if (dataType === 'arrayBuffer') {
+                    data = await response.arrayBuffer();
+                } else if (dataType === 'blob') {
+                    data = await response.blob();
+                }
+            } catch (e) {
+                this.dispatchEvent({ type: 'error', error: 'DataError', reason: e });
+                return;
+            }
+
+            return data;
+        } else {
+            this.dispatchEvent({ type: 'error', error: 'HttpError', reason: response });
         }
     },
 
@@ -334,6 +380,16 @@ ModelViewer.prototype = {
                 promise.resolve();
             });
         }
+    },
+
+    getTextureAtlas(name) {
+        let atlas = this.textureAtlases[name];
+
+        if (atlas) {
+            return atlas.texture;
+        }
+
+        return null;
     },
     
     /**

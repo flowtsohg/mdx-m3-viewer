@@ -30,7 +30,7 @@ Trigger.prototype = {
         this.isInitiallyOff = stream.readInt32();
         this.runOnInitialization = stream.readInt32();
         this.triggerCategory = stream.readInt32();
-
+        
         for (let i = 0, l = stream.readUint32(); i < l; i++) {
             this.ecas[i] = new ECA(stream, version, false, argumentMap);
         }

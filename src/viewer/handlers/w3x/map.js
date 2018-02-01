@@ -40,7 +40,6 @@ W3xMap.prototype = {
             units = parser.readUnits(),
             modifications = parser.readModifications();
         
-            console.log(modifications)
         this.parser = parser;
         this.name = parser.name;
         this.mpq = parser.archive;
@@ -1258,7 +1257,6 @@ W3xMap.prototype = {
     loadModifications(modifications) {
         let fileCache = this.fileCache,
             modification;
-
 
         if (modifications.has('doodads')) {
             this.loadModification(modifications.get('doodads'), fileCache.get('doodads'), fileCache.get('doodadmetadata'));

@@ -1,4 +1,5 @@
 import { vec3, vec4 } from 'gl-matrix';
+import { lerp } from '../../../common/math';
 import { uint8ToUint24 } from '../../../common/typecast';
 
 /**
@@ -78,7 +79,7 @@ MdxEventObjectSpl.prototype = {
         vec4.lerp(color, colors[firstColor], colors[firstColor + 1], factor);
         
         // The texture portion to index
-        index = Math.floor(Math.lerp(interval[0], interval[1], factor));
+        index = Math.floor(lerp(interval[0], interval[1], factor));
 
         // Calculate the UV rectangle.
         let left = index % columns,

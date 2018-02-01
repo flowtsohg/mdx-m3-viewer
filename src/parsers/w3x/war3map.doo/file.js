@@ -1,6 +1,6 @@
 import BinaryStream from '../../../common/binarystream';
 import Doodad from './doodad';
-import SpecialDoodad from './specialdoodad';
+import TerrainDoodad from './terraindoodad';
 
 /**
  * @constructor
@@ -11,7 +11,7 @@ function War3MapDoo(buffer) {
     this.u1 = new Uint8Array(4);
     this.doodads = [];
     this.u2 = new Uint8Array(4);
-    this.specialDoodads = [];
+    this.terrainDoodads = [];
 
     if (buffer) {
         this.load(buffer);
@@ -36,7 +36,7 @@ War3MapDoo.prototype = {
         this.u2 = stream.readUint8Array(4);
     
         for (let i = 0, l = stream.readInt32(); i < l; i++) {
-            this.specialDoodads[i] = new SpecialDoodad(stream, this.version)
+            this.terrainDoodads[i] = new TerrainDoodad(stream, this.version)
         }
     },
 
@@ -54,9 +54,9 @@ War3MapDoo.prototype = {
         }
 
         stream.writeUint8Array(this.u2);
-        stream.writeUint32(this.specialDoodads.length);
+        stream.writeUint32(this.terrainDoodads.length);
 
-        for (let doodad of this.specialDoodads) {
+        for (let doodad of this.terrainDoodads) {
             doodad.save(stream);
         }
 
@@ -64,7 +64,7 @@ War3MapDoo.prototype = {
     },
 
     calcSize() {
-        return 24 + (this.doodads.length * (this.version > 7 ? 50 : 42)) + (this.specialDoodads.length * 16);
+        return 24 + (this.doodads.length * (this.version > 7 ? 50 : 42)) + (this.terrainDoodads.length * 16);
     }
 };
 

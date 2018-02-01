@@ -79,7 +79,7 @@ M3Bucket.prototype = {
             polygons += region.elements / 3;
         }
 
-        return { calls, instances, vertices, polygons };
+        return { calls, instances, vertices, polygons, dynamicVertices: 0, dynamicPolygons: 0 };
     },
 
     update(scene) {

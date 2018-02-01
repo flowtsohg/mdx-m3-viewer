@@ -25,7 +25,7 @@ export function uintToTag(uint) {
  * @param {number} degrees
  * @returns {number} Radians.
  */
-export function toRad (degrees) {
+export function degToRad(degrees) {
     return degrees * (Math.PI / 180);
 };
 
@@ -35,7 +35,7 @@ export function toRad (degrees) {
  * @param {number} radians
  * @returns {number} Degrees.
  */
-export function toDeg(radians) {
+export function radToDeg(radians) {
     return radians * (180 / Math.PI);
 };
 
@@ -46,7 +46,7 @@ export function toDeg(radians) {
  * @param {number} b
  * @returns {number} A random number in [a, b].
  */
-export function randomRange(a, b) {
+export function randomInRange(a, b) {
     return a + Math.random() * (b - a);
 };
 

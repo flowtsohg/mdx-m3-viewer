@@ -1,9 +1,9 @@
 import Doodad from './doodad';
-import SpecialDoodad from './specialdoodad';
+import TerrainDoodad from './terraindoodad';
 import War3MapDoo from './file';
 
 export default {
     Doodad,
-    SpecialDoodad,
+    TerrainDoodad,
     War3MapDoo
 };

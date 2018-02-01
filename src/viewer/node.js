@@ -270,7 +270,7 @@ ViewerNode.prototype = {
 
         return this;
     },
-    /*
+    //*
     orthoNormalize(vectors) {
         for (let i = 0; i < vectors.length; i++) {
             let accum = vec3.create(),
@@ -317,7 +317,8 @@ ViewerNode.prototype = {
 
         return this;
     },
-    */
+    //*/
+    /*
     lookAt(target) {
         let v1 = target,
             v2 = this.worldLocation;
@@ -326,6 +327,7 @@ ViewerNode.prototype = {
 
         //console.log(Math.toDeg(angle))
     },
+    */
 
     /**
      * Sets the node's parent.

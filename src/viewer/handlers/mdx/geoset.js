@@ -46,6 +46,7 @@ function MdxGeoset(model, geoset) {
         uvs,
         boneIndices = new Uint8Array(vertices * 4),
         boneNumbers = new Uint32Array(vertices),
+        vertexGroups = geoset.vertexGroups,
         matrixGroups = geoset.matrixGroups,
         matrixIndices = geoset.matrixIndices,
         slices = [];
@@ -69,15 +70,21 @@ function MdxGeoset(model, geoset) {
 
     // Construct the final bone arrays
     for (let i = 0; i < vertices; i++) {
-        let bones = slices[geoset.vertexGroups[i]],
-            boneCount = Math.min(bones.length, 4); // The viewer supports up to 4 bones per vertex, the game handles any(?) amount.
-        
-        for (let j = 0; j < boneCount; j++) {
-            // 1 is added to every index for shader optimization (index 0 is a zero matrix)
-            boneIndices[i * 4 + j] = bones[j] + 1;
-        }
+        let slice = slices[vertexGroups[i]];
 
-        boneNumbers[i] = boneCount;
+        // Somehow in some bad models a vertex group index refers to an invalid matrix group.
+        // Such models are still loaded by the game.
+        if (slice) {
+            let bones = slices[vertexGroups[i]],
+                boneCount = Math.min(bones.length, 4); // The viewer supports up to 4 bones per vertex, the game handles any(?) amount.
+            
+            for (let j = 0; j < boneCount; j++) {
+                // 1 is added to every index for shader optimization (index 0 is a zero matrix)
+                boneIndices[i * 4 + j] = bones[j] + 1;
+            }
+
+            boneNumbers[i] = boneCount;
+        }
     }
 
     this.index = geoset.index;

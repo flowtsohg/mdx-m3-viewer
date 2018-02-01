@@ -1,4 +1,5 @@
 import Parameter from './parameter';
+import fixWeu from './weu';
 
 function ECA(stream, version, isChildECA, argumentMap) {
     this.type = 0;
@@ -24,10 +25,14 @@ ECA.prototype = {
         this.name = stream.readUntilNull();
         this.isEnabled = stream.readInt32();
 
-        let argumentsCount = argumentMap.get(this.name);
+        let argumentsCount = argumentMap.get(this.name.toLowerCase());
         
         if (isNaN(argumentsCount)) {
-            throw new Error(`Unknown ECA '${this.name}'`);
+            argumentsCount = fixWeu(this.name);
+
+            if (isNaN(argumentsCount)) {
+                throw new Error(`Unknown ECA '${this.name}'`);
+            }
         }
 
         for (let i = 0; i < argumentsCount; i++) {

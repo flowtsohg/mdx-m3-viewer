@@ -57,9 +57,9 @@ document.getElementById("version").textContent = "Viewer version " + unitTester.
 
 console.log("Viewer version", unitTester.viewer.version);
 
-unitTester.add(geoTests);
 unitTester.add(mdxTests);
 unitTester.add(m3Tests);
+unitTester.add(geoTests);
 unitTester.add(baseTests);
 
 let runElement = document.getElementById("run"),

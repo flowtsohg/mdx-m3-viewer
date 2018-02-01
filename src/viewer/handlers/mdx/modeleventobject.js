@@ -4,6 +4,12 @@ import MdxModelParticle2Emitter from './modelparticle2emitter';
 // Heap allocations needed for this module.
 let valueHeap = vec2.create();
 
+let typeToSlk = {
+    'SPN': 'Splats/SpawnData.slk',
+    'SPL': 'Splats/SplatData.slk',
+    'UBR': 'Splats/UberSplatData.slk'
+};
+
 /**
  * @constructor
  * @param {MdxModel} model
@@ -40,19 +46,19 @@ function MdxModelEventObject(model, emitter) {
         this.globalSequence = model.globalSequences[globalSequenceId];
     }
 
-    let path = this.typeToSlk[type];
+    let path = typeToSlk[type];
 
     if (path) {
         let slk = env.load(path, model.pathSolver);
 
         if (slk.loaded) {
-            this.initialize(slk.map[id]);
+            this.initialize(slk.getRow(id));
         } else {
             // Promise that there is a future load that the code cannot know about yet, so Viewer.whenAllLoaded() isn't called prematurely.
             let promise = env.makePromise();
 
             slk.whenLoaded(() => {
-                this.initialize(slk.map[id]);
+                this.initialize(slk.getRow(id));
 
                 // Resolve the promise.
                 promise.resolve();
@@ -62,12 +68,6 @@ function MdxModelEventObject(model, emitter) {
 }
 
 MdxModelEventObject.prototype = {
-    typeToSlk: {
-        'SPN': 'Splats/SpawnData.slk',
-        'SPL': 'Splats/SplatData.slk',
-        'UBR': 'Splats/UberSplatData.slk'
-    },
-
     initialize(row) {
         if (row) {
             let type = this.type,

@@ -30,15 +30,22 @@ IniFile.prototype = {
                 let match = line.match(/^\[(.+?)\]/);
                 
                 if (match) {
-                    // If this line starts a new section, use it.
-                    section = new Map();
+                    let name = match[1].trim().toLowerCase();
 
-                    this.sections.set(match[1].trim(), section);
+                    // For now, ignore sections with names that already exist.
+                    if (this.sections.has(name)) {
+                        section = null;
+                    } else {
+                        // If this line starts a new section, use it.
+                        section = new Map();
+
+                        this.sections.set(name, section);
+                    }
                 } else {
                     match = line.match(/^(.+?)=(.*?)$/);
 
-                    if (match) {
-                        section.set(match[1].trim(), match[2].trim());
+                    if (match && section) {
+                        section.set(match[1].trim().toLowerCase(), match[2].trim());
                     }
                 }
             }
@@ -46,7 +53,7 @@ IniFile.prototype = {
     },
 
     getSection(name) {
-        return this.sections.get(name);
+        return this.sections.get(name.toLowerCase());
     },
 
     saveProperties(lines, section) {

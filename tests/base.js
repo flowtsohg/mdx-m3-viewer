@@ -14,8 +14,8 @@ let baseTests = {
                     baneling = models[1];
 
                 camera.move([0, -150, -400]);
-                camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.toRad(-90)));
-                camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.toRad(-90)));
+                camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
+                camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-90)));
 
                 var instance1 = mountainKing.addInstance().setSequence(1);
                 var instance3 = mountainKing.addInstance().setSequence(1);

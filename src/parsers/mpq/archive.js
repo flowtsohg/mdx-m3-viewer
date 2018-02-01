@@ -1,5 +1,6 @@
 import { powerOfTwo } from '../../common/math';
 import { stringToBuffer } from '../../common/stringtobuffer';
+import { numberToUint32 } from '../../common/typecast';
 import MpqCrypto from './crypto';
 import MpqHashTable from './hashtable';
 import MpqBlockTable from './blocktable';
@@ -15,6 +16,8 @@ import { MAGIC, HASH_ENTRY_DELETED, HASH_ENTRY_EMPTY, FILE_EXISTS } from './cons
  * @param {?boolean} readonly If true, disables editing and saving the archive, allowing to optimize other things
  */
 function MpqArchive(buffer, readonly) {
+    /** @member {number} */
+    this.headerOffset = 0;
     /** @member {number} */
     this.sectorSize = 4096;
     /** @member {MpqCrypto} */
@@ -42,16 +45,12 @@ MpqArchive.prototype = {
      * @returns {boolean}
      */
     load(buffer) {
-        let typedArray = new Uint8Array(buffer),
+        let fileSize = buffer.byteLength,
+            typedArray = new Uint8Array(buffer),
             headerOffset = this.searchHeader(typedArray);
-        
+
         if (headerOffset === -1) {
             return false;
-        }
-
-        // If the header isn't at the beginning, make a new view starting where it is.
-        if (headerOffset !== 0) {
-            typedArray = typedArray.subarray(headerOffset);
         }
 
         // Read the header.
@@ -60,19 +59,19 @@ MpqArchive.prototype = {
             archiveSize = uint32array[2],
             formatVersionSectorSize = uint32array[3],
             formatVersion = formatVersionSectorSize & 0x0000FFFF,
-            sectorSize = 512 * (1 << (formatVersionSectorSize >>> 16)), // 4096
-            hashPos = uint32array[4],
-            blockPos = uint32array[5],
+            hashPos = numberToUint32(uint32array[4] + headerOffset), // Whoever thought of MoonLight, clever!
+            blockPos = numberToUint32(uint32array[5] + headerOffset),
             hashSize = uint32array[6],
             blockSize = uint32array[7];
 
-        if (formatVersion !== 0) {
-            console.warn(`The loaded archive's version is ${formatVersion}, but only version 0 is supported. Loading will continue, assuming this is a Warcraft 3 archive.`);
+        // There can only be as many or less blocks as there are hashes.
+        // Therefore, if the file is reporting too many blocks, cap the actual blocks read to the amount of hashes.
+        if (blockSize > hashSize) {
+            blockSize = hashSize;
         }
-
-        if (headerSize !== 32) {
-            console.warn(`Corrupted header size: expected 32, but got ${headerSize}. It will be saved as 32.`);
-        }
+        
+        this.headerOffset = headerOffset;
+        this.sectorSize = 512 * (1 << (formatVersionSectorSize >>> 16)); // Generally 4096
 
         // Read the hash table.
         // Also clears any existing entries.
@@ -204,6 +203,7 @@ MpqArchive.prototype = {
         
         // Write the hash table.
         hashTable.save(typedArray.subarray(offset, offset + hashTable.entries.length * 16));
+        
         offset += hashTable.entries.length * 16;
 
         // Write the block table.
@@ -234,21 +234,41 @@ MpqArchive.prototype = {
         while (i--) {
             let block = blocks[i];
 
+            // Remove blocks with no data.
             if (block.normalSize === 0) {
+                this.removeBlock(i)
+
+                saved += block.compressedSize;
+            } else {
+                let used = false;
+
                 for (let hash of hashes) {
-                    if (hash.blockIndex < HASH_ENTRY_DELETED && hash.blockIndex > i) {
-                        hash.blockIndex -= 1;
+                    if (hash.blockIndex === i) {
+                        used = true;
                     }
                 }
 
-                blocks.splice(i, 1);
-                files.splice(i, 1);
-
-                saved += block.compressedSize;
+                // Remove blocks that are not used.
+                if (!used) {
+                    this.removeBlock(i)
+    
+                    saved += block.compressedSize;
+                }
             }
         }
 
         return saved;
+    },
+
+    removeBlock(blockIndex) {
+        for (let hash of this.hashTable.entries) {
+            if (hash.blockIndex < HASH_ENTRY_DELETED && hash.blockIndex > blockIndex) {
+                hash.blockIndex -= 1;
+            }
+        }
+
+        this.blockTable.entries.splice(blockIndex, 1);
+        this.hashTable.entries.splice(blockIndex, 1);
     },
 
     /**
@@ -335,12 +355,9 @@ MpqArchive.prototype = {
 
             // Check if the block exists.
             if (blockIndex < HASH_ENTRY_DELETED) {
-                let block = this.blockTable.entries[blockIndex];
-                
-                // Check if the file exists.
-                if (block.flags & FILE_EXISTS) {
-                    let file = this.files[hash.blockIndex];
+                let file = this.files[blockIndex];
 
+                if (file) {
                     // Save the name in case it wasn't already resolved.
                     file.name = name.toLowerCase();
                     file.nameResolved = true;
@@ -476,16 +493,18 @@ MpqArchive.prototype = {
     // Search for the MPQ header - MPQ\x1A.
     // The header can be on any 512 bytes boundry offset.
     searchHeader(typedArray) {
+        let offset = -1;
+
         for (let i = 0, l = Math.ceil(typedArray.byteLength / 512) ; i < l; i++) {
-            let offset = i * 512;
+            let base = i * 512;
 
             // Test 'MPQ\x1A'.
-            if (typedArray[offset] === 77 && typedArray[offset + 1] === 80 && typedArray[offset + 2] === 81 && typedArray[offset + 3] === 26) {
-                return offset;
+            if (typedArray[base] === 77 && typedArray[base + 1] === 80 && typedArray[base + 2] === 81 && typedArray[base + 3] === 26) {
+                offset = base;;
             }
         }
 
-        return -1;
+        return offset;
     }
 };
 

@@ -111,6 +111,10 @@ MdxModelInstance.prototype = {
 
         this.hasEmitters = this.particleEmitters.length > 0 || this.particle2Emitters.length > 0 || this.ribbonEmitters.length > 0 || this.eventObjectEmitters.length > 0;
 
+        let batches = sharedData.batches;
+        this.batches = batches;
+
+
         // Do a forced update, so non-animated data can be skipped in future updates
         this.update(true);
     },

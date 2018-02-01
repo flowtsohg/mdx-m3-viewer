@@ -14,7 +14,9 @@ import War3MapW3u from './war3map.w3u';
 import War3MapWct from './war3map.wct';
 import War3MapWpm from './war3map.wpm';
 import War3MapWtg from './war3map.wtg';
+import War3MapWts from './war3map.wts';
 import War3MapUnitsDoo from './war3mapUnits.doo';
+import Jass2 from './jass2';
 
 export default {
     War3Map,
@@ -33,5 +35,7 @@ export default {
     War3MapWct,
     War3MapWpm,
     War3MapWtg,
-    War3MapUnitsDoo
+    War3MapWts,
+    War3MapUnitsDoo,
+    Jass2
 };

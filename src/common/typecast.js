@@ -306,3 +306,17 @@ export function float64ToUint8(out, a) {
 
     return out;
 };
+
+/**
+ * Type cast a normal JavaScript number to a 32 bits unsigned integer.
+ * The result is stored in out.
+ * 
+ * @param {Uint8Array} out 
+ * @param {number} a
+ * @returns {Uint8Array}
+ */
+export function numberToUint32(number) {
+    uint32[0] = number;
+
+    return uint32[0];
+};
