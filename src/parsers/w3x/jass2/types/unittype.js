@@ -4,11 +4,11 @@ export default class JassUnitType extends JassHandle {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 0: return 'UNIT_TYPE_HERO';
             case 1: return 'UNIT_TYPE_DEAD';
             case 2: return 'UNIT_TYPE_STRUCTURE';

@@ -4,10 +4,10 @@ export default class JassMapVisibility extends JassHandle {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        return `mapvisibility(${this.value}})`;
+        return `mapvisibility(${this.handleId}})`;
     }
 };

@@ -4,11 +4,11 @@ export default class JassGameType extends JassHandle {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 1: return 'GAME_TYPE_MELEE';
             case 2: return 'GAME_TYPE_FFA';
             case 4: return 'GAME_TYPE_USE_MAP_SETTINGS';

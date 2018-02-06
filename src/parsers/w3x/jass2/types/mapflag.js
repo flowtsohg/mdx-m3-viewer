@@ -4,11 +4,11 @@ export default class JassMapFlag extends JassHandle {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 1: return 'MAP_FOG_HIDE_TERRAIN';
             case 2: return 'MAP_FOG_MAP_EXPLORED';
             case 4: return 'MAP_FOG_ALWAYS_VISIBLE';

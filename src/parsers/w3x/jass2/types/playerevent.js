@@ -4,11 +4,11 @@ export default class JassPlayerEvent extends JassEventId {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 11: return 'EVENT_PLAYER_STATE_LIMIT';
             case 12: return 'EVENT_PLAYER_ALLIANCE_CHANGED';
             case 13: return 'EVENT_PLAYER_DEFEAT';

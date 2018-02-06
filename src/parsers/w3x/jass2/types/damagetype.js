@@ -4,11 +4,11 @@ export default class JassDamageType extends JassHandle {
 	constructor(jassContext, value) {
         super(jassContext);
 
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 0: return 'DAMAGE_TYPE_UNKNOWN';
             case 4: return 'DAMAGE_TYPE_NORMAL';
             case 5: return 'DAMAGE_TYPE_ENHANCED';

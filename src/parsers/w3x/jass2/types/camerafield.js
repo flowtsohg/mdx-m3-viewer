@@ -4,11 +4,11 @@ export default class JassCameraField extends JassHandle {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 0: return 'CAMERA_FIELD_TARGET_DISTANCE';
             case 1: return 'CAMERA_FIELD_FARZ';
             case 2: return 'CAMERA_FIELD_ANGLE_OF_ATTACK';

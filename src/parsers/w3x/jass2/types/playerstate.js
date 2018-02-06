@@ -4,11 +4,11 @@ export default class JassPlayerState extends JassHandle {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 0: return 'PLAYER_STATE_GAME_RESULT';
             case 1: return 'PLAYER_STATE_RESOURCE_GOLD';
             case 2: return 'PLAYER_STATE_RESOURCE_LUMBER';

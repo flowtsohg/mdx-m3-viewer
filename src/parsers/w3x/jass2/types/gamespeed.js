@@ -4,11 +4,11 @@ export default class JassGameSpeed extends JassHandle {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 0: return 'MAP_SPEED_SLOWEST';
             case 1: return 'MAP_SPEED_SLOW';
             case 2: return 'MAP_SPEED_NORMAL';

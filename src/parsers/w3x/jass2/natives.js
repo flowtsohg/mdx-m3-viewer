@@ -95,222 +95,222 @@ import JassPathingType from './types/pathingtype';
 
 // constant native ConvertRace takes integer i returns race
 export function ConvertRace(jassContext, i) {
-    return jassContext.addHandle(new JassRace(jassContext, i));
+    return jassContext.constantHandles.races[i];
 }
 
 // constant native ConvertAllianceType takes integer i returns alliancetype
 export function ConvertAllianceType(jassContext, i) {
-    return jassContext.addHandle(new JassAllianceType(jassContext, i));
+    return jassContext.constantHandles.allianceTypes[i];
 }
 
 // constant native ConvertRacePref takes integer i returns racepreference
 export function ConvertRacePref(jassContext, i) {
-    return jassContext.addHandle(new JassRacePreference(jassContext, i));
+    return jassContext.constantHandles.racePreferences[i];
 }
 
 // constant native ConvertIGameState takes integer i returns igamestate
 export function ConvertIGameState(jassContext, i) {
-    return jassContext.addHandle(new JassIGameState(jassContext, i));
+    return jassContext.constantHandles.iGameStates[i];
 }
 
 // constant native ConvertFGameState takes integer i returns fgamestate
 export function ConvertFGameState(jassContext, i) {
-    return jassContext.addHandle(new JassFGameState(jassContext, i));
+    return jassContext.constantHandles.fGameStates[i];
 }
 
 // constant native ConvertPlayerState takes integer i returns playerstate
 export function ConvertPlayerState(jassContext, i) {
-    return jassContext.addHandle(new JassPlayerState(jassContext, i));
+    return jassContext.constantHandles.playerStates[i];
 }
 
 // constant native ConvertPlayerScore takes integer i returns playerscore
 export function ConvertPlayerScore(jassContext, i) {
-    return jassContext.addHandle(new JassPlayerScore(jassContext, i));
+    return jassContext.constantHandles.playerScores[i];
 }
 
 // constant native ConvertPlayerGameResult takes integer i returns playergameresult
 export function ConvertPlayerGameResult(jassContext, i) {
-    return jassContext.addHandle(new JassPlayerGameResult(jassContext, i));
+    return jassContext.constantHandles.playerGameResults[i];
 }
 
 // constant native ConvertUnitState takes integer i returns unitstate
 export function ConvertUnitState(jassContext, i) {
-    return jassContext.addHandle(new JassUnitState(jassContext, i));
+    return jassContext.constantHandles.unitStates[i];
 }
 
 // constant native ConvertAIDifficulty takes integer i returns aidifficulty
 export function ConvertAIDifficulty(jassContext, i) {
-    return jassContext.addHandle(new JassAiDifficulty(jassContext, i));
+    return jassContext.constantHandles.aiDifficulties[i];
 }
 
 // constant native ConvertGameEvent takes integer i returns gameevent
 export function ConvertGameEvent(jassContext, i) {
-    return jassContext.addHandle(new JassGameEvent(jassContext, i));
+    return jassContext.constantHandles.events[i];
 }
 
 // constant native ConvertPlayerEvent takes integer i returns playerevent
 export function ConvertPlayerEvent(jassContext, i) {
-    return jassContext.addHandle(new JassPlayerEvent(jassContext, i));
+    return jassContext.constantHandles.events[i];
 }
 
 // constant native ConvertPlayerUnitEvent takes integer i returns playerunitevent
 export function ConvertPlayerUnitEvent(jassContext, i) {
-    return jassContext.addHandle(new JassPlayerUnitEvent(jassContext, i));
+    return jassContext.constantHandles.events[i];
 }
 
 // constant native ConvertWidgetEvent takes integer i returns widgetevent
 export function ConvertWidgetEvent(jassContext, i) {
-    return jassContext.addHandle(new JassWidgetEvent(jassContext, i));
+    return jassContext.constantHandles.events[i];
 }
 
 // constant native ConvertDialogEvent takes integer i returns dialogevent
 export function ConvertDialogEvent(jassContext, i) {
-    return jassContext.addHandle(new JassDialogEvent(jassContext, i));
+    return jassContext.constantHandles.events[i];
 }
 
 // constant native ConvertUnitEvent takes integer i returns unitevent
 export function ConvertUnitEvent(jassContext, i) {
-    return jassContext.addHandle(new JassUnitEvent(jassContext, i));
+    return jassContext.constantHandles.events[i];
 }
 
 // constant native ConvertLimitOp takes integer i returns limitop
 export function ConvertLimitOp(jassContext, i) {
-    return jassContext.addHandle(new JassLimitOp(jassContext, i));
+    return jassContext.constantHandles.limitOps[i];
 }
 
 // constant native ConvertUnitType takes integer i returns unittype
 export function ConvertUnitType(jassContext, i) {
-    return jassContext.addHandle(new JassUnitType(jassContext, i));
+    return jassContext.constantHandles.unitTypes[i];
 }
 
 // constant native ConvertGameSpeed takes integer i returns gamespeed
 export function ConvertGameSpeed(jassContext, i) {
-    return jassContext.addHandle(new JassGameSpeed(jassContext, i));
+    return jassContext.constantHandles.gameSpeeds[i];
 }
 
 // constant native ConvertPlacement takes integer i returns placement
 export function ConvertPlacement(jassContext, i) {
-    return jassContext.addHandle(new JassPlacement(jassContext, i));
+    return jassContext.constantHandles.placements[i];
 }
 
 // constant native ConvertStartLocPrio takes integer i returns startlocprio
 export function ConvertStartLocPrio(jassContext, i) {
-    return jassContext.addHandle(new JassStartLocPrio(jassContext, i));
+    return jassContext.constantHandles.startLocPrios[i];
 }
 
 // constant native ConvertGameDifficulty takes integer i returns gamedifficulty
 export function ConvertGameDifficulty(jassContext, i) {
-    return jassContext.addHandle(new JassGameDifficulty(jassContext, i));
+    return jassContext.constantHandles.gameDifficulties[i];
 }
 
 // constant native ConvertGameType takes integer i returns gametype
 export function ConvertGameType(jassContext, i) {
-    return jassContext.addHandle(new JassGameType(jassContext, i));
+    return jassContext.constantHandles.gameTypes[i];
 }
 
 // constant native ConvertMapFlag takes integer i returns mapflag
 export function ConvertMapFlag(jassContext, i) {
-    return jassContext.addHandle(new JassMapFlag(jassContext, i));
+    return jassContext.constantHandles.mapFlags[i];
 }
 
 // constant native ConvertMapVisibility takes integer i returns mapvisibility
 export function ConvertMapVisibility(jassContext, i) {
-    return jassContext.addHandle(new JassMapVisibility(jassContext, i));
+    return jassContext.constantHandles.mapVisibilities[i];
 }
 
 // constant native ConvertMapSetting takes integer i returns mapsetting
 export function ConvertMapSetting(jassContext, i) {
-    return jassContext.addHandle(new JassMapSetting(jassContext, i));
+    return jassContext.constantHandles.mapSettings[i];
 }
 
 // constant native ConvertMapDensity takes integer i returns mapdensity
 export function ConvertMapDensity(jassContext, i) {
-    return jassContext.addHandle(new JassMapDensity(jassContext, i));
+    return jassContext.constantHandles.mapDensities[i];
 }
 
 // constant native ConvertMapControl takes integer i returns mapcontrol
 export function ConvertMapControl(jassContext, i) {
-    return jassContext.addHandle(new JassMapControl(jassContext, i));
+    return jassContext.constantHandles.mapControls[i];
 }
 
 // constant native ConvertPlayerColor takes integer i returns playercolor
 export function ConvertPlayerColor(jassContext, i) {
-    return jassContext.addHandle(new JassPlayerColor(jassContext, i));
+    return jassContext.constantHandles.playerColors[i];
 }
 
 // constant native ConvertPlayerSlotState takes integer i returns playerslotstate
 export function ConvertPlayerSlotState(jassContext, i) {
-    return jassContext.addHandle(new JassPlayerSlotState(jassContext, i));
+    return jassContext.constantHandles.playerSlotStates[i];
 }
 
 // constant native ConvertVolumeGroup takes integer i returns volumegroup
 export function ConvertVolumeGroup(jassContext, i) {
-    return jassContext.addHandle(new JassVolumeGroup(jassContext, i));
+    return jassContext.constantHandles.volumeGroups[i];
 }
 
 // constant native ConvertCameraField takes integer i returns camerafield
 export function ConvertCameraField(jassContext, i) {
-    return jassContext.addHandle(new JassCameraField(jassContext, i));
+    return jassContext.constantHandles.cameraFields[i];
 }
 
 // constant native ConvertBlendMode takes integer i returns blendmode
 export function ConvertBlendMode(jassContext, i) {
-    return jassContext.addHandle(new JassBlendMode(jassContext, i));
+    return jassContext.constantHandles.blendModes[i];
 }
 
 // constant native ConvertRarityControl takes integer i returns raritycontrol
 export function ConvertRarityControl(jassContext, i) {
-    return jassContext.addHandle(new JassRarityControl(jassContext, i));
+    return jassContext.constantHandles.rarityControls[i];
 }
 
 // constant native ConvertTexMapFlags takes integer i returns texmapflags
 export function ConvertTexMapFlags(jassContext, i) {
-    return jassContext.addHandle(new JassTexMapFlags(jassContext, i));
+    return jassContext.constantHandles.texMapFlags[i];
 }
 
 // constant native ConvertFogState takes integer i returns fogstate
 export function ConvertFogState(jassContext, i) {
-    return jassContext.addHandle(new JassFogState(jassContext, i));
+    return jassContext.constantHandles.fogStates[i];
 }
 
 // constant native ConvertEffectType takes integer i returns effecttype
 export function ConvertEffectType(jassContext, i) {
-    return jassContext.addHandle(new JassEffectType(jassContext, i));
+    return jassContext.constantHandles.effectTypes[i];
 }
 
 // constant native ConvertVersion takes integer i returns version
 export function ConvertVersion(jassContext, i) {
-    return jassContext.addHandle(new JassVersion(jassContext, i));
+    return jassContext.constantHandles.versions[i];
 }
 
 // constant native ConvertItemType takes integer i returns itemtype
 export function ConvertItemType(jassContext, i) {
-    return jassContext.addHandle(new JassItemType(jassContext, i));
+    return jassContext.constantHandles.itemTypes[i];
 }
 
 // constant native ConvertAttackType takes integer i returns attacktype
 export function ConvertAttackType(jassContext, i) {
-    return jassContext.addHandle(new JassAttackType(jassContext, i));
+    return jassContext.constantHandles.attackTypes[i];
 }
 
 // constant native ConvertDamageType takes integer i returns damagetype
 export function ConvertDamageType(jassContext, i) {
-    return jassContext.addHandle(new JassDamageType(jassContext, i));
+    return jassContext.constantHandles.damageTypes[i];
 }
 
 // constant native ConvertWeaponType takes integer i returns weapontype
 export function ConvertWeaponType(jassContext, i) {
-    return jassContext.addHandle(new JassWeaponType(jassContext, i));
+    return jassContext.constantHandles.weaponTypes[i];
 }
 
 // constant native ConvertSoundType takes integer i returns soundtype
 export function ConvertSoundType(jassContext, i) {
-    return jassContext.addHandle(new JassSoundType(jassContext, i));
+    return jassContext.constantHandles.soundTypes[i];
 }
 
 // constant native ConvertPathingType takes integer i returns pathingtype
 export function ConvertPathingType(jassContext, i) {
-    return jassContext.addHandle(new JassPathingType(jassContext, i));
+    return jassContext.constantHandles.pathingTypes[i];
 }
 
 // // constant native OrderId takes string orderIdString returns integer
@@ -2661,11 +2661,11 @@ export function GetUnitState(jassContext, whichUnit, whichUnitState) {
     if (whichUnitState.value === 0) {
         return whichUnit.health;
     } else if (whichUnitState.value === 1) {
-        return whichUnit.balanceRow.realHP;
+        return whichUnit.maxHealth
     } else if (whichUnitState.value === 2) {
         return whichUnit.mana;
     } else if (whichUnitState.value === 3) {
-        return parseFloat(whichUnit.balanceRow.realM) || 0;
+        return whichUnit.maxMana;
     }
 }
 

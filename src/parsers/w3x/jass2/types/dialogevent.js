@@ -4,11 +4,11 @@ export default class JassDialogEvent extends JassEventId {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 90: return 'EVENT_DIALOG_BUTTON_CLICK';
             case 91: return 'EVENT_DIALOG_CLICK';
         }

@@ -4,11 +4,11 @@ export default class JassGameDifficulty extends JassHandle {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 0: return 'MAP_DIFFICULTY_EASY';
             case 1: return 'MAP_DIFFICULTY_NORMAL';
             case 2: return 'MAP_DIFFICULTY_HARD';

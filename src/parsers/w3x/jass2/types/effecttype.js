@@ -4,11 +4,11 @@ export default class JassEffectType extends JassHandle {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 0: return 'EFFECT_TYPE_EFFECT';
             case 1: return 'EFFECT_TYPE_TARGET';
             case 2: return 'EFFECT_TYPE_CASTER';

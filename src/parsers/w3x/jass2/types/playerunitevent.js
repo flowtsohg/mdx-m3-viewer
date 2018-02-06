@@ -4,11 +4,11 @@ export default class JassPlayerUnitEvent extends JassEventId {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 18: return 'EVENT_PLAYER_UNIT_ATTACKED';
             case 19: return 'EVENT_PLAYER_UNIT_RESCUED';
             case 20: return 'EVENT_PLAYER_UNIT_DEATH';

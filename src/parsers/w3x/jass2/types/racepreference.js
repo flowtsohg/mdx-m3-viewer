@@ -4,11 +4,11 @@ export default class JassRacePreference extends JassHandle {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 1: return 'RACE_PREF_HUMAN';
             case 2: return 'RACE_PREF_ORC';
             case 4: return 'RACE_PREF_NIGHTELF';

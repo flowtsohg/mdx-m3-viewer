@@ -4,11 +4,11 @@ export default class JassAttackType extends JassHandle {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 0: return 'ATTACK_TYPE_NORMAL';
             case 1: return 'ATTACK_TYPE_MELEE';
             case 2: return 'ATTACK_TYPE_PIERCE';

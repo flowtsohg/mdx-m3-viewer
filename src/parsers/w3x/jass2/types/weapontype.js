@@ -1,10 +1,14 @@
-export default class JassWeaponType {
+import JassHandle from './handle';
+
+export default class JassWeaponType extends JassHandle {
 	constructor(jassContext, value) {
-        this.value = value;
+        super(jassContext)
+
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 0: return 'WEAPON_TYPE_WHOKNOWS';
             case 1: return 'WEAPON_TYPE_METAL_LIGHT_CHOP';
             case 2: return 'WEAPON_TYPE_METAL_MEDIUM_CHOP';

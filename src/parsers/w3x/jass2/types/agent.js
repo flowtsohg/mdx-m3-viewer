@@ -4,14 +4,14 @@ export default class JassAgent extends JassHandle {
 	constructor(jassContext) {
         super(jassContext);
 
-		this.references = 0;
+		this.references = new Set();
 	}
 
-    addReference(name) {
-        this.references += 1;
+    addReference(reference) {
+        this.references.add(reference);
     }
 
-    removeReference() {
-        this.references -= 1;
+    removeReference(reference) {
+        this.references.delete(reference);
     }
 };

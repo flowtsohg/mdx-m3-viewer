@@ -4,11 +4,11 @@ export default class JassPathingType extends JassHandle {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 0: return 'PATHING_TYPE_ANY';
             case 1: return 'PATHING_TYPE_WALKABILITY';
             case 2: return 'PATHING_TYPE_FLYABILITY';

@@ -4,11 +4,11 @@ export default class JassItemType extends JassHandle {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 0: return 'ITEM_TYPE_PERMANENT';
             case 1: return 'ITEM_TYPE_CHARGED';
             case 2: return 'ITEM_TYPE_POWERUP';

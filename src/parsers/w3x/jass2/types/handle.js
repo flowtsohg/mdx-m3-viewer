@@ -1,7 +1,7 @@
 export default class JassHandle {
 	constructor(jassContext) {
         this.jassContext = jassContext;
-		this.handleId = jassContext.getAvailableHandle(this);
+		this.handleId = -1;
         this.handleNames = [];
 	}
 

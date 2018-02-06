@@ -13,6 +13,7 @@ function W3xTilePoint(tilepoint) {
     this.cliffVariation = tilepoint.cliffVariation;
     this.cliffTextureType = tilepoint.cliffTextureType;
     this.layerHeight = tilepoint.layerHeight;
+    this.flags = tilepoint.flags;
 }
 
 W3xTilePoint.prototype = {

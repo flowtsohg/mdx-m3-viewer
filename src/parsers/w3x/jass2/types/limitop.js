@@ -4,11 +4,11 @@ export default class JassLimitOp extends JassEventId {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 0: return 'LESS_THAN';
             case 1: return 'LESS_THAN_OR_EQUAL';
             case 2: return 'EQUAL';

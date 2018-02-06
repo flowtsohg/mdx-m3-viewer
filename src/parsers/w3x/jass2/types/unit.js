@@ -19,7 +19,9 @@ export default class JassUnit extends JassWidget {
         this.location = new JassLocation(jassContext, x, y);
         this.face = face;
         this.health = balanceRow.realHP;
+        this.maxHealth = this.health;
         this.mana = parseFloat(balanceRow.realM) || 0;
+        this.maxMana = this.mana;
         this.acquireRange = 500;
 	}
 

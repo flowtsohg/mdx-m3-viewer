@@ -4,11 +4,11 @@ export default class JassWidgetEvent extends JassEventId {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 89: return 'EVENT_WIDGET_DEATH';
         }
     }

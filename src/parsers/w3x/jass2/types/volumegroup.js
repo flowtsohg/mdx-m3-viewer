@@ -1,10 +1,14 @@
-export default class JassVolumeGroup {
+import JassHandle from './handle';
+
+export default class JassVolumeGroup extends JassHandle {
 	constructor(jassContext, value) {
-        this.value = value;
+        super(jassContext);
+        
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 0: return 'SOUND_VOLUMEGROUP_UNITMOVEMENT';
             case 1: return 'SOUND_VOLUMEGROUP_UNITSOUNDS';
             case 2: return 'SOUND_VOLUMEGROUP_COMBAT';

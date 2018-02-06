@@ -4,11 +4,11 @@ export default class JassIGameState extends JassGameState {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 0: return 'GAME_STATE_DIVINE_INTERVENTION';
             case 1: return 'GAME_STATE_DISCONNECTED';
         }

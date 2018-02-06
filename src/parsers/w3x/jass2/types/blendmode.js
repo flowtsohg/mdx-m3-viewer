@@ -4,11 +4,11 @@ export default class JassBlendMode extends JassHandle {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 0: return 'BLEND_MODE_NONE';
             case 0: return 'BLEND_MODE_DONT_CARE';
             case 1: return 'BLEND_MODE_KEYALPHA';

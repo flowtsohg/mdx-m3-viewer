@@ -4,11 +4,11 @@ export default class JassTexMapFlags extends JassHandle {
 	constructor(jassContext, value) {
         super(jassContext);
         
-        this.value = value;
+        this.handleId = value;
 	}
 
     toString() {
-        switch (this.value) {
+        switch (this.handleId) {
             case 0: return 'TEXMAP_FLAG_NONE';
             case 1: return 'TEXMAP_FLAG_WRAP_U';
             case 2: return 'TEXMAP_FLAG_WRAP_V';
