@@ -15,6 +15,11 @@ export default class JassHandle {
     }
 
     toString() {
-        return `handle(${this.handleId}) ${this.handleNames.join('_')}`;
+        // This automatically handles all of the constant global handles.
+        if (this.handleNames.length) {
+            return this.handleNames[0];
+        }
+
+        return `HANDLE_${this.handleId}`;
     }
 };

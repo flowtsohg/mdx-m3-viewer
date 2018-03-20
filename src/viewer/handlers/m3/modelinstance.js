@@ -1,26 +1,22 @@
-import mix from '../../../common/mix';
 import TexturedModelInstance from '../../texturedmodelinstance';
-import ViewerNode from '../../node';
 import M3Skeleton from './skeleton';
 
-/**
- * @constructor
- * @extends {TexturedModelInstance}
- * @memberOf M3
- * @param {M3Model} model
- */
-function M3ModelInstance(model) {
-    TexturedModelInstance.call(this, model);
+export default class M3ModelInstance extends TexturedModelInstance {
+    /**
+     * @extends {TexturedModelInstance}
+     * @param {M3Model} model
+     */
+    constructor(model) {
+        super(model);
 
-    this.skeleton = null;
-    this.teamColor = 0;
-    this.vertexColor = new Uint8Array([255, 255, 255, 255]);
-    this.sequence = -1;
-    this.frame = 0;
-    this.sequenceLoopMode = 0;
-}
+        this.skeleton = null;
+        this.teamColor = 0;
+        this.vertexColor = new Uint8Array([255, 255, 255, 255]);
+        this.sequence = -1;
+        this.frame = 0;
+        this.sequenceLoopMode = 0;
+    }
 
-M3ModelInstance.prototype = {
     initialize() {
         this.skeleton = new M3Skeleton(this);
 
@@ -30,7 +26,7 @@ M3ModelInstance.prototype = {
         if (this.sequence !== -1) {
             this.setSequence(this.sequence);
         }
-    },
+    }
 
     setSharedData(sharedData) {
         this.boneArray = sharedData.boneArray;
@@ -46,13 +42,13 @@ M3ModelInstance.prototype = {
 
         this.vertexColorArray.set(this.vertexColor);
         this.bucket.updateVertexColors[0] = 1;
-    },
+    }
 
     invalidateSharedData() {
         this.skeleton.boneArray = null;
         this.teamColorArray = null;
         this.vertexColorArray = null;
-    },
+    }
 
     updateTimers() {
         var sequenceId = this.sequence;
@@ -73,7 +69,7 @@ M3ModelInstance.prototype = {
                 this.dispatchEvent({ type: 'seqend' });
             }
         }
-    },
+    }
 
     update() {
         var sequenceId = this.sequence;
@@ -82,17 +78,17 @@ M3ModelInstance.prototype = {
             this.skeleton.update();
             this.bucket.updateBoneTexture[0] = 1;
         }
-    },
+    }
 
     // This is overriden in order to update the skeleton when the parent node changes
     recalculateTransformation() {
-        ViewerNode.prototype.recalculateTransformation.call(this);
+        super.recalculateTransformation();
 
         // If the instance is moved before it is loaded, the skeleton doesn't exist yet.
         if (this.skeleton) {
             this.skeleton.update();
         }
-    },
+    }
 
     setTeamColor(id) {
         this.teamColor = id;
@@ -103,7 +99,7 @@ M3ModelInstance.prototype = {
         }
 
         return this;
-    },
+    }
 
     setVertexColor(color) {
         this.vertexColor.set(color);
@@ -114,7 +110,7 @@ M3ModelInstance.prototype = {
         }
 
         return this;
-    },
+    }
 
     setSequence(id) {
         this.sequence = id;
@@ -136,14 +132,14 @@ M3ModelInstance.prototype = {
         }
 
         return this;
-    },
+    }
 
     setSequenceLoopMode(mode) {
         this.sequenceLoopMode = mode;
 
         return this;
 
-    },
+    }
 
     getAttachment(id) {
         var attachment = this.model.attachments[id];
@@ -151,11 +147,7 @@ M3ModelInstance.prototype = {
         if (attachment) {
             return this.skeleton.nodes[attachment.bone];
         } else {
-            return this.skeleton.root;
+            return this.skeleton.parent;
         }
     }
 };
-
-mix(M3ModelInstance.prototype, TexturedModelInstance.prototype);
-
-export default M3ModelInstance;

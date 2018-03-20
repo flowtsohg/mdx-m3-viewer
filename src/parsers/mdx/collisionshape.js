@@ -4,10 +4,8 @@ import { readNode } from './common';
  * @constructor
  * @param {BinaryReader} reader
  * @param {Array<MdxParserNode>} nodes
- * @param {number} index
  */
-function MdxParserCollisionShape(reader, nodes, index) {
-    this.index = index;
+function MdxParserCollisionShape(reader, nodes) {
     /** @member {MdxParserNode} */
     this.node = readNode(reader, nodes, this);
     /** @member {number} */

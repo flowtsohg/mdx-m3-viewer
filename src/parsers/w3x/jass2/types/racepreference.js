@@ -1,21 +1,3 @@
-import JassHandle from './handle';
+import JassEnum from './enum';
 
-export default class JassRacePreference extends JassHandle {
-	constructor(jassContext, value) {
-        super(jassContext);
-        
-        this.handleId = value;
-	}
-
-    toString() {
-        switch (this.handleId) {
-            case 1: return 'RACE_PREF_HUMAN';
-            case 2: return 'RACE_PREF_ORC';
-            case 4: return 'RACE_PREF_NIGHTELF';
-            case 8: return 'RACE_PREF_UNDEAD';
-            case 16: return 'RACE_PREF_DEMON';
-            case 32: return 'RACE_PREF_RANDOM';
-            case 64: return 'RACE_PREF_USER_SELECTABLE';
-        }
-    }
-};
+export default class JassRacePreference extends JassEnum {};

@@ -16,7 +16,7 @@ function readUnknownElements(reader, size, constructor, nodes) {
         element;
     
     while (totalSize !== size) {
-        element = new constructor(reader, nodes, elements.length);
+        element = new constructor(reader, nodes);
 
         totalSize += element.size;
 
@@ -38,7 +38,7 @@ function readKnownElements(reader, count, constructor) {
     var elements = [];
 
     for (var i = 0; i < count; i++) {
-        elements[i] = new constructor(reader, i);
+        elements[i] = new constructor(reader);
     }
 
     return elements;

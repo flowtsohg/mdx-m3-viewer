@@ -1,22 +1,19 @@
-/**
- * @constructor
- * @param {M3ParserSts} sts
- */
-function M3Sts(sts) {
-    const animIds = sts.animIds.getAll();
+export default class M3Sts {
+    /**
+     * @param {M3ParserSts} sts
+     */
+    constructor(sts) {
+        const animIds = sts.animIds.getAll();
 
-    this.animIds = {};
+        this.animIds = {};
 
-    // Allows direct checks instead of loops
-    for (let i = 0, l = animIds.length; i < l; i++) {
-        this.animIds[animIds[i]] = i;
+        // Allows direct checks instead of loops
+        for (let i = 0, l = animIds.length; i < l; i++) {
+            this.animIds[animIds[i]] = i;
+        }
     }
-}
 
-M3Sts.prototype = {
     hasData(animRef) {
         return !!this.animIds[animRef.animId];
     }
 };
-
-export default M3Sts;

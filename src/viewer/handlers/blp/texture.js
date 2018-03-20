@@ -1,23 +1,9 @@
-import mix from '../../../common/mix';
+import Texture from '../../texture';
 import BitStream from '../../../common/bitstream';
 import convertBitRange from '../../../common/convertbitrange';
-import Texture from '../../texture';
 import { JpegImage } from './jpg';
 
-/**
- * @constructor
- * @extends Texture
- * @memberOf Blp
- * @param {ModelViewer} env
- * @param {function(?)} pathSolver
- * @param {Handler} handler
- * @param {string} extension
- */
-function BlpTexture(env, pathSolver, handler, extension) {
-    Texture.call(this, env, pathSolver, handler, extension);
-}
-
-BlpTexture.prototype = {
+export default class BlpTexture extends Texture {
     initialize(src) {
         let gl = this.env.gl,
               BLP1_MAGIC = 0x31504c42,
@@ -106,7 +92,3 @@ BlpTexture.prototype = {
         return true;
     }
 };
-
-mix(BlpTexture.prototype, Texture.prototype);
-
-export default BlpTexture;

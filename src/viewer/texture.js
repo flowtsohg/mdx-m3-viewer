@@ -1,27 +1,24 @@
-import mix from '../common/mix';
+import DownloadableResource from './downloadableresource';
 import { powerOfTwo } from '../common/math';
 import { resizeImageData } from '../common/canvas';
-import DownloadableResource from './downloadableresource';
 
-/**
- * @constructor
- * @mixes DownloadableResource
- * @param {ModelViewer} env
- * @param {function(?)} pathSolver
- * @param {Handler} handler
- * @param {string} extension
- */
-function Texture(env, pathSolver, handler, extension) {
-    DownloadableResource.call(this, env, pathSolver, handler, extension);
+export default class Texture extends DownloadableResource {
+    /**
+     * @param {ModelViewer} env
+     * @param {function(?)} pathSolver
+     * @param {Handler} handler
+     * @param {string} extension
+     */
+    constructor(env, pathSolver, handler, extension) {
+        super(env, pathSolver, handler, extension);
 
-    this.width = 0;
-    this.height = 0;
-}
+        this.width = 0;
+        this.height = 0;
+    }
 
-Texture.prototype = {
     get objectType() {
         return 'texture';
-    },
+    }
 
     /**
      * Set the WebGL wrap and filter values.
@@ -38,7 +35,7 @@ Texture.prototype = {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter);
-    },
+    }
 
     // Upscale the ImageData object to power-of-two if required.
     // This is a WebGL requierment for textures that use mipmapping or a repeating wrap mode.
@@ -57,7 +54,3 @@ Texture.prototype = {
         return imageData;
     }
 };
-
-mix(Texture.prototype, DownloadableResource.prototype);
-
-export default Texture;

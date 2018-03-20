@@ -2,25 +2,25 @@ import { vec3 } from 'gl-matrix';
 import { clamp } from '../../../common/math';
 import Interpolator from '../../../common/interpolator';
 
-/**
- * @constructor
- * @param {M3ParserSd} sd
- */
-function M3Sd(sd) {
-    this.keys = sd.keys.getAll();
-    this.values = sd.values.getAll();
-    this.biggestKey = sd.biggestKey;
+class M3Sd {
+    /**
+     * @param {M3ParserSd} sd
+     */
+    constructor(sd) {
+        this.keys = sd.keys.getAll();
+        this.values = sd.values.getAll();
+        this.biggestKey = sd.biggestKey;
+    }
 }
 
-/**
- * @constructor
- * @param {Array<M3ParserSd>} sd
- */
-function M3SdContainer(sd) {
-    this.sd = sd.map((sd) => new M3Sd(sd));
-}
+export default class M3SdContainer {
+    /**
+     * @param {Array<M3ParserSd>} sd
+     */
+    constructor(sd) {
+        this.sd = sd.map((sd) => new M3Sd(sd));
+    }
 
-M3SdContainer.prototype = {
     getValueUnsafe(index, animationReference, frame, runsConcurrent) {
         var sd = this.sd[index];
 
@@ -61,5 +61,3 @@ M3SdContainer.prototype = {
         return Interpolator.interpolate(values[a], 0, 0, values[b], t, animationReference.interpolationType);
     }
 };
-
-export default M3SdContainer;

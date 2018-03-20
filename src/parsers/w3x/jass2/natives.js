@@ -1,4 +1,5 @@
-import { degToRad, radToDeg, uintToTag, randomInRange } from '../../../common/math';
+import { degToRad, radToDeg, randomInRange } from '../../../common/math';
+import { base256ToString } from '../../../common/typecast';
 
 import JassHandle from './types/handle';
 import JassAgent from './types/agent';
@@ -81,7 +82,7 @@ import JassFogState from './types/fogstate';
 // import JassTrackable from './types/trackable';
 // import JassGameCache from './types/gamecache';
 import JassVersion from './types/version';
-import JassItemType from './types/itemType';
+import JassItemType from './types/itemtype';
 // import JassTextTag from './types/texttag';
 import JassAttackType from './types/attacktype';
 import JassDamageType from './types/damagetype';
@@ -2162,7 +2163,7 @@ export function ExecuteFunc(jassContext, funcName) {
 
 // native CreateUnit takes player id, integer unitid, real x, real y, real face returns unit
 export function CreateUnit(jassContext, id, unitid, x, y, face) {
-    return jassContext.addHandle(new JassUnit(jassContext, id, uintToTag(unitid), x, y, face));
+    return jassContext.addHandle(new JassUnit(jassContext, id, base256ToString(unitid), x, y, face));
 }
 
 // // native CreateUnitByName takes player whichPlayer, string unitname, real x, real y, real face returns unit
@@ -5598,7 +5599,7 @@ export function CameraSetupGetDestPositionY(jassContext, whichSetup) {
 
 // native AddWeatherEffect takes rect where, integer effectID returns weathereffect
 export function AddWeatherEffect(jassContext, where, effectID) {
-    return jassContext.addHandle(new JassWeatherEffect(jassContext, where, uintToTag(effectID)));
+    return jassContext.addHandle(new JassWeatherEffect(jassContext, where, base256ToString(effectID)));
 }
 
 // native RemoveWeatherEffect takes weathereffect whichEffect returns nothing

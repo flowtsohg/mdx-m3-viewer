@@ -1,52 +1,53 @@
 import { vec3 } from 'gl-matrix';
 import ResizeableBuffer from '../../gl/resizeablebuffer';
+import MdxSharedGeometryEmitter from './sharedgeometryemitter';
 import MdxSdContainer from './sd';
 import MdxRibbon from './ribbon';
-import MdxParticleEmitter from './particleemitter';
-import MdxParticle2Emitter from './particle2emitter';
 
 // Heap allocations needed for this module.
 let colorHeap = vec3.create();
 
-/**
- * @constructor
- * @param {MdxModel} model
- * @param {MdxParserRibbonEmitter} emitter
- */
-function MdxRibbonEmitter(model, emitter) {
-    let gl = model.env.gl,
-        layer = model.materials[emitter.materialId][0];
+export default class MdxRibbonEmitter extends MdxSharedGeometryEmitter {
+    /**
+     * @param {MdxModel} model
+     * @param {MdxParserRibbonEmitter} emitter
+     */
+    constructor(model, emitter) {
+        /// TODO: ???
+        super({});
 
-    this.model = model;
+        let gl = model.env.gl,
+            layer = model.materials[emitter.materialId][0];
 
-    this.active = [];
-    this.inactive = [];
+        this.model = model;
 
-    this.buffer = new ResizeableBuffer(gl);
-    this.bytesPerEmit = 4 * 30;
+        this.active = [];
+        this.inactive = [];
 
-    this.heightAbove = emitter.heightAbove;
-    this.heightBelow = emitter.heightBelow;
-    this.alpha = emitter.alpha;
-    this.color = emitter.color;
-    this.lifespan = emitter.lifespan;
-    this.textureSlot = emitter.textureSlot;
-    this.emissionRate = emitter.emissionRate;
-    this.gravity = emitter.gravity;
+        this.buffer = new ResizeableBuffer(gl);
+        this.bytesPerEmit = 4 * 30;
 
-    this.dimensions = [emitter.columns, emitter.rows];
-    this.cellWidth = 1 / emitter.columns;
-    this.cellHeight = 1 / emitter.rows;
+        this.heightAbove = emitter.heightAbove;
+        this.heightBelow = emitter.heightBelow;
+        this.alpha = emitter.alpha;
+        this.color = emitter.color;
+        this.lifespan = emitter.lifespan;
+        this.textureSlot = emitter.textureSlot;
+        this.emissionRate = emitter.emissionRate;
+        this.gravity = emitter.gravity;
 
-    this.node = model.nodes[emitter.node.index];
+        this.dimensions = [emitter.columns, emitter.rows];
+        this.cellWidth = 1 / emitter.columns;
+        this.cellHeight = 1 / emitter.rows;
 
-    this.layer = layer;
-    this.texture = model.textures[layer.textureId];
+        this.node = model.nodes[emitter.node.index];
 
-    this.sd = new MdxSdContainer(model, emitter.tracks);
-}
+        this.layer = layer;
+        this.texture = model.textures[layer.textureId];
 
-MdxRibbonEmitter.prototype = {
+        this.sd = new MdxSdContainer(model, emitter.tracks);
+    }
+
     emit(emitterView) {
         this.buffer.grow((this.active.length + 1) * this.bytesPerEmit);
 
@@ -64,10 +65,7 @@ MdxRibbonEmitter.prototype = {
         this.active.push(object);
             
         return object;
-    },
-
-    update: MdxParticleEmitter.prototype.update,
-    updateData: MdxParticle2Emitter.prototype.updateData,
+    }
 
     render(bucket, shader) {
         let active = this.active.length;
@@ -95,35 +93,33 @@ MdxRibbonEmitter.prototype = {
 
             gl.drawArrays(gl.TRIANGLES, 0, active * 6);
         }
-    },
+    }
 
     shouldRender(instance) {
         return this.getVisibility(instance) > 0.75;
-    },
+    }
 
     getHeightBelow(instance) {
         return this.sd.getValue('KRHB', instance, this.heightBelow);
-    },
+    }
 
     getHeightAbove(instance) {
         return this.sd.getValue('KRHA', instance, this.heightAbove);
-    },
+    }
 
     getTextureSlot(instance) {
         return this.sd.getValue('KRTX', instance, 0);
-    },
+    }
 
     getColor(instance) {
         return this.sd.getValue3(colorHeap, 'KRCO', instance, this.color);
-    },
+    }
 
     getAlpha(instance) {
         return this.sd.getValue('KRAL', instance, this.alpha);
-    },
+    }
 
     getVisibility(instance) {
         return this.sd.getValue('KRVS', instance, 1);
     }
 };
-
-export default MdxRibbonEmitter;

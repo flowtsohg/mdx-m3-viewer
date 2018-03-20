@@ -1,18 +1,17 @@
-/**
- * @constructor
- * @param {MdxModel} model
- * @param {Array<number>} offsets
- * @param {number} uvSetSize
- * @param {Uint16Array} elements
- */
-function MdxShallowGeoset(model, offsets, uvSetSize, elements) {
-    this.model = model;
-    this.offsets = offsets;
-    this.uvSetSize = uvSetSize;
-    this.elements = elements;
-}
+export class MdxShallowGeoset {
+    /**
+     * @param {MdxModel} model
+     * @param {Array<number>} offsets
+     * @param {number} uvSetSize
+     * @param {Uint16Array} elements
+     */
+    constructor(model, offsets, uvSetSize, elements) {
+        this.model = model;
+        this.offsets = offsets;
+        this.uvSetSize = uvSetSize;
+        this.elements = elements;
+    }
 
-MdxShallowGeoset.prototype = {
     bind(shader, coordId) {
         let gl = this.model.env.gl,
             offsets = this.offsets,
@@ -23,7 +22,7 @@ MdxShallowGeoset.prototype = {
         gl.vertexAttribPointer(attribs.get('a_uv'), 2, gl.FLOAT, false, 8, offsets[2] + coordId * this.uvSetSize);
         gl.vertexAttribPointer(attribs.get('a_bones'), 4, gl.UNSIGNED_BYTE, false, 4, offsets[3]);
         gl.vertexAttribPointer(attribs.get('a_boneNumber'), 4, gl.UNSIGNED_BYTE, false, 4, offsets[4]);
-    },
+    }
 
     render(instances) {
         let gl = this.model.env.gl;
@@ -32,103 +31,102 @@ MdxShallowGeoset.prototype = {
     }
 };
 
-/**
- * @constructor
- * @param {MdxModel} model
- * @param {MdxParserGeoset} geoset
- */
-function MdxGeoset(model, geoset) {
-    let positions = geoset.vertices,
-        normals = geoset.normals,
-        textureCoordinateSets = geoset.textureCoordinateSets,
-        uvsetSize = textureCoordinateSets[0].length,
-        vertices = positions.length / 3,
-        uvs,
-        boneIndices = new Uint8Array(vertices * 4),
-        boneNumbers = new Uint32Array(vertices),
-        vertexGroups = geoset.vertexGroups,
-        matrixGroups = geoset.matrixGroups,
-        matrixIndices = geoset.matrixIndices,
-        slices = [];
+export class MdxGeoset {
+    /**
+     * @param {MdxModel} model
+     * @param {MdxParserGeoset} geoset
+     */
+    constructor(model, geoset, index) {
+        let positions = geoset.vertices,
+            normals = geoset.normals,
+            textureCoordinateSets = geoset.textureCoordinateSets,
+            uvsetSize = textureCoordinateSets[0].length,
+            vertices = positions.length / 3,
+            uvs,
+            boneIndices = new Uint8Array(vertices * 4),
+            boneNumbers = new Uint32Array(vertices),
+            vertexGroups = geoset.vertexGroups,
+            matrixGroups = geoset.matrixGroups,
+            matrixIndices = geoset.matrixIndices,
+            slices = [];
 
-    // Make one typed array for the texture coordinates, in case there are multiple ones
-    if (textureCoordinateSets.length > 1) {
-        uvs = new Float32Array(textureCoordinateSets.length * uvsetSize);
+        // Make one typed array for the texture coordinates, in case there are multiple ones
+        if (textureCoordinateSets.length > 1) {
+            uvs = new Float32Array(textureCoordinateSets.length * uvsetSize);
 
-        for (let i = 0, l = textureCoordinateSets.length; i < l; i++) {
-            uvs.set(textureCoordinateSets[i], i * uvsetSize);
+            for (let i = 0, l = textureCoordinateSets.length; i < l; i++) {
+                uvs.set(textureCoordinateSets[i], i * uvsetSize);
+            }
+        } else {
+            uvs = textureCoordinateSets[0];
         }
-    } else {
-        uvs = textureCoordinateSets[0];
-    }
 
-    // Parse the bone indices by slicing the matrix groups
-    for (let i = 0, l = matrixGroups.length, k = 0; i < l; i++) {
-        slices.push(matrixIndices.subarray(k, k + matrixGroups[i]));
-        k += matrixGroups[i];
-    }
+        // Parse the bone indices by slicing the matrix groups
+        for (let i = 0, l = matrixGroups.length, k = 0; i < l; i++) {
+            slices.push(matrixIndices.subarray(k, k + matrixGroups[i]));
+            k += matrixGroups[i];
+        }
 
-    // Construct the final bone arrays
-    for (let i = 0; i < vertices; i++) {
-        let slice = slices[vertexGroups[i]];
+        // Construct the final bone arrays
+        for (let i = 0; i < vertices; i++) {
+            let slice = slices[vertexGroups[i]];
 
-        // Somehow in some bad models a vertex group index refers to an invalid matrix group.
-        // Such models are still loaded by the game.
-        if (slice) {
-            let bones = slices[vertexGroups[i]],
-                boneCount = Math.min(bones.length, 4); // The viewer supports up to 4 bones per vertex, the game handles any(?) amount.
-            
-            for (let j = 0; j < boneCount; j++) {
-                // 1 is added to every index for shader optimization (index 0 is a zero matrix)
-                boneIndices[i * 4 + j] = bones[j] + 1;
+            // Somehow in some bad models a vertex group index refers to an invalid matrix group.
+            // Such models are still loaded by the game.
+            if (slice) {
+                let bones = slices[vertexGroups[i]],
+                    boneCount = Math.min(bones.length, 4); // The viewer supports up to 4 bones per vertex, the game handles any(?) amount.
+                
+                for (let j = 0; j < boneCount; j++) {
+                    // 1 is added to every index for shader optimization (index 0 is a zero matrix)
+                    boneIndices[i * 4 + j] = bones[j] + 1;
+                }
+
+                boneNumbers[i] = boneCount;
+            }
+        }
+
+        this.index = index;
+        this.materialId = geoset.materialId;
+        this.locationArray = positions;
+        this.normalArray = normals;
+        this.uvsArray = uvs;
+        this.boneIndexArray = boneIndices;
+        this.boneNumberArray = boneNumbers;
+        this.faceArray = geoset.faces;
+        this.uvSetSize = uvsetSize * 4;
+
+        let geosetAnimations = model.geosetAnimations;
+
+        for (let i = 0, l = geosetAnimations.length; i < l; i++) {
+            if (geosetAnimations[i].geosetId === index) {
+                this.geosetAnimation = geosetAnimations[i];
+            }
+        }
+
+        let variants = {
+            alpha: [],
+            color: []
+        };
+
+        let hasAnim = false;
+
+        for (let i = 0, l = model.sequences.length; i < l; i++) {
+            let alpha = this.isAlphaVariant(i),
+                color = this.isColorVariant(i);
+
+            if (alpha || color) {
+                hasAnim = true;
             }
 
-            boneNumbers[i] = boneCount;
-        }
-    }
-
-    this.index = geoset.index;
-    this.materialId = geoset.materialId;
-    this.locationArray = positions;
-    this.normalArray = normals;
-    this.uvsArray = uvs;
-    this.boneIndexArray = boneIndices;
-    this.boneNumberArray = boneNumbers;
-    this.faceArray = geoset.faces;
-    this.uvSetSize = uvsetSize * 4;
-
-    let geosetAnimations = model.geosetAnimations;
-
-    for (let i = 0, l = geosetAnimations.length; i < l; i++) {
-        if (geosetAnimations[i].geosetId === geoset.index) {
-            this.geosetAnimation = geosetAnimations[i];
-        }
-    }
-
-    let variants = {
-        alpha: [],
-        color: []
-    };
-
-    let hasAnim = false;
-
-    for (let i = 0, l = model.sequences.length; i < l; i++) {
-        let alpha = this.isAlphaVariant(i),
-            color = this.isColorVariant(i);
-
-        if (alpha || color) {
-            hasAnim = true;
+            variants.alpha[i] = alpha;
+            variants.color[i] = color;
         }
 
-        variants.alpha[i] = alpha;
-        variants.color[i] = color;
+        this.variants = variants;
+        this.hasAnim = hasAnim;
     }
 
-    this.variants = variants;
-    this.hasAnim = hasAnim;
-}
-
-MdxGeoset.prototype = {
     getAlpha(instance) {
         let geosetAnimation = this.geosetAnimation;
 
@@ -137,7 +135,7 @@ MdxGeoset.prototype = {
         }
 
         return 1;
-    },
+    }
 
     isAlphaVariant(sequence) {
         let geosetAnimation = this.geosetAnimation;
@@ -147,7 +145,7 @@ MdxGeoset.prototype = {
         }
 
         return false;
-    },
+    }
 
     isColorVariant(sequence) {
         let geosetAnimation = this.geosetAnimation;
@@ -157,7 +155,7 @@ MdxGeoset.prototype = {
         }
 
         return false;
-    },
+    }
 
     calculateExtent() {
         const positions = this.locationArray;
@@ -193,9 +191,4 @@ MdxGeoset.prototype = {
 
         this.extent = { radius: Math.sqrt(dX * dX + dY * dY + dZ * dZ) / 2, min: [minX, minY, minZ], max: [maxX, maxY, maxZ] };
     }
-};
-
-export {
-    MdxShallowGeoset,
-    MdxGeoset
 };

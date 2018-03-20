@@ -5,6 +5,7 @@ import Trigger from './trigger';
 import TriggerCategory from './triggercategory';
 import Variable from './variable';
 import War3MapWtg from './file';
+import * as weu from './weu';
 
 export default {
     ECA,
@@ -13,5 +14,6 @@ export default {
     Trigger,
     TriggerCategory,
     Variable,
-    War3MapWtg
+    War3MapWtg,
+    weu
 };

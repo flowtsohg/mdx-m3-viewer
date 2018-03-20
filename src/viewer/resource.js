@@ -1,27 +1,24 @@
-import mix from '../common/mix';
 import EventDispatcher from './eventdispatcher';
 
-/**
- * @constructor
- * @augments EventDispatcher
- * @param {ModelViewer} env
- */
-function AsyncResource(env) {
-    EventDispatcher.call(this);
+export default class Resource extends EventDispatcher {
+    /**
+     * @param {ModelViewer} env
+     */
+    constructor(env) {
+        super();
 
-    /** @member {ModelViewer} */
-    this.env = env;
-    /** @member {boolean} */
-    this.loaded = false;
-    /** @member {boolean} */
-    this.error = false;
-}
+        /** @member {ModelViewer} */
+        this.env = env;
+        /** @member {boolean} */
+        this.loaded = false;
+        /** @member {boolean} */
+        this.error = false;
+    }
 
-AsyncResource.prototype = {
     /**
      * Similar to attaching an event listener to the 'loadend' event, but handles the case where the resource already loaded, and the callback should still be called.
      * 
-     * @param {function(AsyncResource)} callback The function to call.
+     * @param {function(Resource)} callback The function to call.
      * @returns this
      */
     whenLoaded(callback) {
@@ -32,37 +29,37 @@ AsyncResource.prototype = {
         }
 
         return this;
-    },
+    }
 
     initialize(src) {
-        throw new Error('AsyncResource.initialize must be overriden!');
-    },
+        throw new Error('Resource.initialize must be overriden!');
+    }
 
     detach() {
 
-    },
+    }
 
     update() {
 
-    },
+    }
 
     load() {
         this.dispatchEvent({ type: 'loadstart' });
-    },
+    }
 
     onload(src) {
-        // This check allows an handler to postpone load finalization, either for asynchronious reasons (e.g. PngTexture), or because an internal error occured
+        // This check allows an handler to postpone load finalization, either for asynchronious reasons (e.g. NativeTexture), or because an internal error occured
         if (this.initialize(src)) {
             this.finalizeLoad();
         }
-    },
+    }
 
     finalizeLoad() {
         this.loaded = true;
 
         this.dispatchEvent({ type: 'load' });
         this.dispatchEvent({ type: 'loadend' });
-    },
+    }
 
     onerror(error, reason) {
         this.error = true;
@@ -71,7 +68,3 @@ AsyncResource.prototype = {
         this.dispatchEvent({ type: 'loadend' });
     }
 };
-
-mix(AsyncResource.prototype, EventDispatcher.prototype);
-
-export default AsyncResource;

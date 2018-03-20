@@ -1,7 +1,5 @@
-import mix from '../../../common/mix';
 import ModelInstance from '../../modelinstance';
 import TexturedModelInstance from '../../texturedmodelinstance';
-import ViewerNode from '../../node';
 import MdxSkeleton from './skeleton';
 import { MdxAttachment } from './attachment';
 import MdxParticleEmitterView from './particleemitterview';
@@ -9,39 +7,36 @@ import MdxParticle2EmitterView from './particle2emitterview';
 import MdxRibbonEmitterView from './ribbonemitterview';
 import MdxEventObjectEmitterView from './eventobjectemitterview';
 
-/**
- * @constructor
- * @augments ModelInstance
- * @memberOf Mdx
- * @param {MdxModel} model
- */
-function MdxModelInstance(model) {
-    TexturedModelInstance.call(this, model);
-    
-    this.attachments = [];
-    this.particleEmitters = [];
-    this.particle2Emitters = [];
-    this.ribbonEmitters = [];
-    this.eventObjectEmitters = [];
+export default class MdxModelInstance extends ModelInstance {
+    /**
+     * @param {MdxModel} model
+     */
+    constructor(model) {
+        super(model);
+        
+        this.attachments = [];
+        this.particleEmitters = [];
+        this.particle2Emitters = [];
+        this.ribbonEmitters = [];
+        this.eventObjectEmitters = [];
 
-    this.hasAttachments = false;
-    this.hasEmitters = false;
-    this.hasBatches = false;
+        this.hasAttachments = false;
+        this.hasEmitters = false;
+        this.hasBatches = false;
 
-    this.skeleton = null;
-    this.frame = 0;
-    this.counter = 0; // Global sequences
-    this.sequence = -1;
-    this.sequenceObject = null;
-    this.sequenceLoopMode = 0;
+        this.skeleton = null;
+        this.frame = 0;
+        this.counter = 0; // Global sequences
+        this.sequence = -1;
+        this.sequenceObject = null;
+        this.sequenceLoopMode = 0;
 
-    this.teamColor = 0;
-    this.vertexColor = new Uint8Array([255, 255, 255, 255]);
+        this.teamColor = 0;
+        this.vertexColor = new Uint8Array([255, 255, 255, 255]);
 
-    this.allowParticleSpawn = false;
-}
+        this.allowParticleSpawn = false;
+    }
 
-MdxModelInstance.prototype = {
     initialize() {
         let model = this.model;
 
@@ -66,11 +61,11 @@ MdxModelInstance.prototype = {
         if (this.sequence !== -1) {
             this.setSequence(this.sequence);
         }
-    },
+    }
 
     setSharedData(sharedData) {
         this.boneArray = sharedData.boneArray;
-
+        
         this.geosetColorArrays = sharedData.geosetColorArrays;
         this.uvOffsetArrays = sharedData.uvOffsetArrays;
         this.layerAlphaArrays = sharedData.layerAlphaArrays;
@@ -111,13 +106,9 @@ MdxModelInstance.prototype = {
 
         this.hasEmitters = this.particleEmitters.length > 0 || this.particle2Emitters.length > 0 || this.ribbonEmitters.length > 0 || this.eventObjectEmitters.length > 0;
 
-        let batches = sharedData.batches;
-        this.batches = batches;
-
-
         // Do a forced update, so non-animated data can be skipped in future updates
         this.update(true);
-    },
+    }
 
     invalidateSharedData() {
         this.boneArray = null;
@@ -132,7 +123,7 @@ MdxModelInstance.prototype = {
         this.particle2Emitters = [];
         this.ribbonEmitters = [];
         this.eventObjectEmitters = [];
-    },
+    }
 
     // Overriden to handle the interal attachments.
     hide() {
@@ -147,7 +138,7 @@ MdxModelInstance.prototype = {
         }
 
         return changed;
-    },
+    }
 
     // Overriden to handle the interal attachments.
     show() {
@@ -162,7 +153,7 @@ MdxModelInstance.prototype = {
         }
 
         return changed;
-    },
+    }
 
     updateTimers() {
         if (this.sequence !== -1) {
@@ -186,7 +177,7 @@ MdxModelInstance.prototype = {
                 this.dispatchEvent({ type: 'seqend' });
             }
         }
-    },
+    }
 
     updateAttachments() {
         let objects = this.attachments;
@@ -194,7 +185,7 @@ MdxModelInstance.prototype = {
         for (let i = 0, l = objects.length; i < l; i++) {
             objects[i].update();
         }
-    },
+    }
 
     updateEmitters() {
         let objects;
@@ -218,7 +209,7 @@ MdxModelInstance.prototype = {
         for (let i = 0, l = objects.length; i < l; i++) {
             objects[i].update();
         }
-    },
+    }
 
     updateBatches(forced) {
         let model = this.model,
@@ -295,7 +286,7 @@ MdxModelInstance.prototype = {
                 }
             }
         }
-    },
+    }
 
     // If forced is true-ish, the skeleton and geometry will be updated regadless of variancy.
     // This allows to do a forced update once when setting the sequence or the bucket.
@@ -322,17 +313,17 @@ MdxModelInstance.prototype = {
                 this.updateEmitters();
             }
         }
-    },
+    }
 
     // This is overriden in order to update the skeleton when the parent node changes
     recalculateTransformation() {
-        ViewerNode.prototype.recalculateTransformation.call(this);
+        super.recalculateTransformation();
 
         // If the instance is moved before it is loaded, the skeleton doesn't exist yet.
         if (this.skeleton) {
             this.skeleton.update();
         }
-    },
+    }
 
     setTeamColor(id) {
         this.teamColor = id;
@@ -343,7 +334,7 @@ MdxModelInstance.prototype = {
         }
 
         return this;
-    },
+    }
 
     setVertexColor(color) {
         this.vertexColor.set(color);
@@ -354,7 +345,7 @@ MdxModelInstance.prototype = {
         }
 
         return this;
-    },
+    }
 
     setSequence(id) {
         this.sequence = id;
@@ -390,13 +381,13 @@ MdxModelInstance.prototype = {
         }
 
         return this;
-    },
+    }
 
     setSequenceLoopMode(mode) {
         this.sequenceLoopMode = mode;
 
         return this;
-    },
+    }
 
     getAttachment(id) {
         if (this.model.loaded) {
@@ -410,7 +401,3 @@ MdxModelInstance.prototype = {
         }
     }
 };
-
-mix(MdxModelInstance.prototype, TexturedModelInstance.prototype);
-
-export default MdxModelInstance;

@@ -1,5 +1,5 @@
 import { vec2 } from 'gl-matrix';
-import MdxModelParticle2Emitter from './modelparticle2emitter';
+import emitterFilterMode from './emitterfiltermode';
 
 // Heap allocations needed for this module.
 let valueHeap = vec2.create();
@@ -10,64 +10,63 @@ let typeToSlk = {
     'UBR': 'Splats/UberSplatData.slk'
 };
 
-/**
- * @constructor
- * @param {MdxModel} model
- * @param {MdxParserEventObjectEmitter} emitter
- */
-function MdxModelEventObject(model, emitter) {
-    let env = model.env,
-        node = model.nodes[emitter.node.index],
-        name = node.name,
-        type = name.substring(0, 3),
-        id = name.substring(4);
+export default class MdxModelEventObject {
+    /**
+     * @param {MdxModel} model
+     * @param {MdxParserEventObjectEmitter} emitter
+     */
+    constructor(model, emitter) {
+        let env = model.env,
+            node = model.nodes[emitter.node.index],
+            name = node.name,
+            type = name.substring(0, 3),
+            id = name.substring(4);
 
-    // Same thing
-    if (type === 'FPT') {
-        type = 'SPL';
-    }
+        // Same thing
+        if (type === 'FPT') {
+            type = 'SPL';
+        }
 
-    this.ready = false;
-    this.model = model;
-    this.emitter = emitter;
-    this.node = node;
-    this.type = type;
-    this.id = id;
+        this.ready = false;
+        this.model = model;
+        this.emitter = emitter;
+        this.node = node;
+        this.type = type;
+        this.id = id;
 
-    this.internalResource = null;
+        this.internalResource = null;
 
-    this.tracks = emitter.tracks;
-    this.ready = false;
-    this.globalSequence = null;
-    this.defval = vec2.create();
+        this.tracks = emitter.tracks;
+        this.ready = false;
+        this.globalSequence = null;
+        this.defval = vec2.create();
 
-    let globalSequenceId = emitter.globalSequenceId;
-    if (globalSequenceId !== -1) {
-        this.globalSequence = model.globalSequences[globalSequenceId];
-    }
+        let globalSequenceId = emitter.globalSequenceId;
+        if (globalSequenceId !== -1) {
+            this.globalSequence = model.globalSequences[globalSequenceId];
+        }
 
-    let path = typeToSlk[type];
+        let path = typeToSlk[type];
 
-    if (path) {
-        let slk = env.load(path, model.pathSolver);
+        if (path) {
+            let slk = env.load(path, model.pathSolver);
 
-        if (slk.loaded) {
-            this.initialize(slk.getRow(id));
-        } else {
-            // Promise that there is a future load that the code cannot know about yet, so Viewer.whenAllLoaded() isn't called prematurely.
-            let promise = env.makePromise();
-
-            slk.whenLoaded(() => {
+            if (slk.loaded) {
                 this.initialize(slk.getRow(id));
+            } else {
+                // Promise that there is a future load that the code cannot know about yet, so Viewer.whenAllLoaded() isn't called prematurely.
+                let promise = env.makePromise();
 
-                // Resolve the promise.
-                promise.resolve();
-            });
+                slk.whenLoaded(() => {
+                    this.initialize(slk.getRow(id));
+
+                    // Resolve the promise.
+                    promise.resolve();
+                });
+            }
         }
     }
-}
 
-MdxModelEventObject.prototype = {
     initialize(row) {
         if (row) {
             let type = this.type,
@@ -91,14 +90,12 @@ MdxModelEventObject.prototype = {
                     this.lifespan = row.BirthTime + row.PauseTime + row.Decay;
                 }
 
-                this.selectFilterMode(row.BlendMode);
+                [this.blendSrc, this.blendtDst] = emitterFilterMode(row.BlendMode, this.model.env.gl);
             }
 
             this.ready = true;
         }
-    },
-
-    selectFilterMode: MdxModelParticle2Emitter.prototype.selectFilterMode,
+    }
 
     getValue(instance) {
         if (this.globalSequence) {
@@ -112,7 +109,7 @@ MdxModelEventObject.prototype = {
         } else {
             return this.defval;
         }
-    },
+    }
 
     getValueAtTime(frame, start, end) {
         var out = valueHeap,
@@ -141,5 +138,3 @@ MdxModelEventObject.prototype = {
         return out;
     }
 };
-
-export default MdxModelEventObject;

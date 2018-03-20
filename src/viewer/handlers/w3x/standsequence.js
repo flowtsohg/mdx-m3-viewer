@@ -1,5 +1,5 @@
 function sequenceSorter(a, b) {
-    return a.rarity < b.rarity;
+    return a.sequence.rarity < b.sequence.rarity;
 }
 
 function filterSequences(type, sequences) {
@@ -10,7 +10,7 @@ function filterSequences(type, sequences) {
             name = sequence.name.split('-')[0].replace(/\d/g, '').trim().toLowerCase();
 
         if (name === type) {
-            filtered.push(sequence);
+            filtered.push({ sequence, index: i });
         }
     }
 
@@ -23,7 +23,7 @@ function selectSequence(type, sequences) {
     sequences.sort(sequenceSorter);
 
     for (var i = 0, l = sequences.length; i < l; i++) {
-        var sequence = sequences[i];
+        var sequence = sequences[i].sequence;
         var rarity = sequence.rarity;
 
         if (rarity === 0) {
@@ -31,7 +31,7 @@ function selectSequence(type, sequences) {
         }
 
         if (Math.random() * 10 > rarity) {
-            return sequence;
+            return sequences[i];
         }
     }
 

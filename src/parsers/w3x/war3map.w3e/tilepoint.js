@@ -1,19 +1,26 @@
-function TilePoint(stream) {
-    this.groundHeight = 0;
-    this.waterLevel = 0;
-    this.flags = 0;
-    this.groundTextureType = 0;
-    this.cliffVariation = 0;
-    this.variation = 0;
-    this.cliffTextureType = 0;
-    this.layerHeight = 0;
-
-    if (stream) {
-        this.load(stream);
+export default class TilePoint {
+    constructor() {
+        /** @member {number} */
+        this.groundHeight = 0;
+        /** @member {number} */
+        this.waterLevel = 0;
+        /** @member {number} */
+        this.flags = 0;
+        /** @member {number} */
+        this.groundTextureType = 0;
+        /** @member {number} */
+        this.cliffVariation = 0;
+        /** @member {number} */
+        this.variation = 0;
+        /** @member {number} */
+        this.cliffTextureType = 0;
+        /** @member {number} */
+        this.layerHeight = 0;
     }
-}
 
-TilePoint.prototype = {
+    /**
+     * @param {BinaryStream} stream 
+     */
     load(stream) {
         let value;
 
@@ -37,8 +44,11 @@ TilePoint.prototype = {
 
         this.cliffTextureType = value >>> 4;
         this.layerHeight = value & 0xF;
-    },
+    }
 
+    /**
+     * @param {BinaryStream} stream 
+     */
     save(stream) {
         stream.writeInt16(this.groundHeight);
         stream.writeInt16(this.waterLevel);
@@ -47,5 +57,3 @@ TilePoint.prototype = {
         stream.writeUint8((this.cliffTextureType << 4) | this.layerHeight);
     }
 };
-
-export default TilePoint;

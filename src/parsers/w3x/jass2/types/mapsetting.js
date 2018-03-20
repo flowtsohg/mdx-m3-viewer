@@ -1,13 +1,3 @@
-import JassHandle from './handle';
+import JassEnum from './enum';
 
-export default class JassMapSetting extends JassHandle {
-	constructor(jassContext, value) {
-        super(jassContext);
-        
-        this.value = value;
-	}
-
-    toString() {
-        return `mapsetting(${this.value}})`;
-    }
-};
+export default class JassMapFlag extends JassEnum {};

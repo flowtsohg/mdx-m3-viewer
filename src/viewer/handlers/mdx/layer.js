@@ -2,129 +2,128 @@ import stringHash from '../../../common/stringhash';
 import unique from '../../../common/arrayunique';
 import MdxSdContainer from './sd';
 
-/**
- * @constructor
- * @param {MdxModel} model
- * @param {MdxParserLayer} layer
- * @param {number} priorityPlane
- */
-function MdxLayer(model, layer, layerId, priorityPlane) {
-    let filterMode = layer.filterMode,
-        textureAnimationId = layer.textureAnimationId,
-        gl = model.env.gl;
+export default class MdxLayer {
+    /**
+     * @param {MdxModel} model
+     * @param {MdxParserLayer} layer
+     * @param {number} priorityPlane
+     */
+    constructor(model, layer, layerId, priorityPlane) {
+        let filterMode = layer.filterMode,
+            textureAnimationId = layer.textureAnimationId,
+            gl = model.env.gl;
 
-    this.model = model;
-    this.index = layerId;
-    this.priorityPlane = priorityPlane;
-    this.filterMode = filterMode;
-    this.textureId = layer.textureId;
-    this.coordId = layer.coordId;
-    this.alpha = layer.alpha;
-    this.sd = new MdxSdContainer(model, layer.tracks);
+        this.model = model;
+        this.index = layerId;
+        this.priorityPlane = priorityPlane;
+        this.filterMode = filterMode;
+        this.textureId = layer.textureId;
+        this.coordId = layer.coordId;
+        this.alpha = layer.alpha;
+        this.sd = new MdxSdContainer(model, layer.tracks);
 
-    var flags = layer.flags;
+        var flags = layer.flags;
 
-    this.unshaded = flags & 0x1;
-    this.sphereEnvironmentMap = flags & 0x2;
-    this.twoSided = flags & 0x10;
-    this.unfogged = flags & 0x20;
-    this.noDepthTest = flags & 0x40;
-    this.noDepthSet = flags & 0x80;
+        this.unshaded = flags & 0x1;
+        this.sphereEnvironmentMap = flags & 0x2;
+        this.twoSided = flags & 0x10;
+        this.unfogged = flags & 0x20;
+        this.noDepthTest = flags & 0x40;
+        this.noDepthSet = flags & 0x80;
 
-    this.depthMaskValue = (filterMode === 0 || filterMode === 1) ? 1 : 0;
-    this.alphaTestValue = (filterMode === 1) ? 1 : 0;
+        this.depthMaskValue = (filterMode === 0 || filterMode === 1) ? 1 : 0;
+        this.alphaTestValue = (filterMode === 1) ? 1 : 0;
 
-    let blended = (filterMode > 1) ? true : false;
-    
-    if (blended) {
-        let blendSrc,
-            blendDst;
+        let blended = (filterMode > 1) ? true : false;
+        
+        if (blended) {
+            let blendSrc,
+                blendDst;
 
-        switch (filterMode) {
-            // Blended
-            case 2:
-                blendSrc = gl.SRC_ALPHA;
-                blendDst = gl.ONE_MINUS_SRC_ALPHA;
-                break;
-            // Additive
-            case 3:
-                blendSrc = gl.ONE;
-                blendDst = gl.ONE;
-                break;
-            // Add Alpha (?)
-            case 4:
-                blendSrc = gl.SRC_ALPHA;
-                blendDst = gl.ONE;
-                break;
-            // Modulate
-            case 5:
-                blendSrc = gl.ZERO;
-                blendDst = gl.SRC_COLOR;
-                break;
-            // Modulate 2X
-            case 6:
-                blendSrc = gl.DST_COLOR;
-                blendDst = gl.SRC_COLOR;
-                break;
+            switch (filterMode) {
+                // Blended
+                case 2:
+                    blendSrc = gl.SRC_ALPHA;
+                    blendDst = gl.ONE_MINUS_SRC_ALPHA;
+                    break;
+                // Additive
+                case 3:
+                    blendSrc = gl.ONE;
+                    blendDst = gl.ONE;
+                    break;
+                // Add Alpha (?)
+                case 4:
+                    blendSrc = gl.SRC_ALPHA;
+                    blendDst = gl.ONE;
+                    break;
+                // Modulate
+                case 5:
+                    blendSrc = gl.ZERO;
+                    blendDst = gl.SRC_COLOR;
+                    break;
+                // Modulate 2X
+                case 6:
+                    blendSrc = gl.DST_COLOR;
+                    blendDst = gl.SRC_COLOR;
+                    break;
+            }
+
+            this.blendSrc = blendSrc;
+            this.blendDst = blendDst;
         }
 
-        this.blendSrc = blendSrc;
-        this.blendDst = blendDst;
+        this.blended = blended;
+
+        this.uvDivisor = new Float32Array([1, 1]);
+
+        if (textureAnimationId !== -1) {
+            let textureAnimation = model.textureAnimations[textureAnimationId];
+
+            if (textureAnimation) {
+                this.textureAnimation = textureAnimation;
+            }
+        }
+
+        let variants = {
+            alpha: [],
+            uv: [],
+            slot: []
+        };
+
+        let hasAnim = false,
+            hasSlotAnim = false,
+            hasUvAnim = false;
+
+        for (let i = 0, l = model.sequences.length; i < l; i++) {
+            let alpha = this.isAlphaVariant(i),
+                slot = this.isTextureIdVariant(i),
+                uv = this.isTranslationVariant(i);
+
+            if (alpha || slot || uv) {
+                hasAnim = true;
+            }
+
+            if (slot) {
+                hasSlotAnim = true;
+            }
+
+            if (uv) {
+                hasUvAnim = true;
+            }
+
+            variants.alpha[i] = alpha;
+            variants.slot[i] = slot;
+            variants.uv[i] = uv;
+        }
+
+        this.variants = variants;
+        this.hasAnim = hasAnim;
+        this.hasSlotAnim = hasSlotAnim;
+        this.hasUvAnim = hasUvAnim;
+
+        this.setupVaryingTextures(model);
     }
 
-    this.blended = blended;
-
-    this.uvDivisor = new Float32Array([1, 1]);
-
-    if (textureAnimationId !== -1) {
-        let textureAnimation = model.textureAnimations[textureAnimationId];
-
-        if (textureAnimation) {
-            this.textureAnimation = textureAnimation;
-        }
-    }
-
-    let variants = {
-        alpha: [],
-        uv: [],
-        slot: []
-    };
-
-    let hasAnim = false,
-        hasSlotAnim = false,
-        hasUvAnim = false;
-
-    for (let i = 0, l = model.sequences.length; i < l; i++) {
-        let alpha = this.isAlphaVariant(i),
-            slot = this.isTextureIdVariant(i),
-            uv = this.isTranslationVariant(i);
-
-        if (alpha || slot || uv) {
-            hasAnim = true;
-        }
-
-        if (slot) {
-            hasSlotAnim = true;
-        }
-
-        if (uv) {
-            hasUvAnim = true;
-        }
-
-        variants.alpha[i] = alpha;
-        variants.slot[i] = slot;
-        variants.uv[i] = uv;
-    }
-
-    this.variants = variants;
-    this.hasAnim = hasAnim;
-    this.hasSlotAnim = hasSlotAnim;
-    this.hasUvAnim = hasUvAnim;
-
-    this.setupVaryingTextures(model);
-}
-
-MdxLayer.prototype = {
     bind(shader) {
         let gl = this.model.env.gl;
 
@@ -154,7 +153,7 @@ MdxLayer.prototype = {
         } else {
             gl.depthMask(this.depthMaskValue);
         }
-    },
+    }
 
     setupVaryingTextures(model) {
         // Get all unique texture IDs used by this layer
@@ -179,24 +178,24 @@ MdxLayer.prototype = {
                 this.uvDivisor.set([atlas.columns, atlas.rows]);
             });
         }
-    },
+    }
 
     getAlpha(instance) {
         return this.sd.getValue('KMTA', instance, this.alpha);
-    },
+    }
 
     isAlphaVariant(sequence) {
         return this.sd.isVariant('KMTA', sequence);
-    },
+    }
 
     getTextureId(instance) {
         return this.sd.getValue('KMTF', instance, this.textureId);
         // TODO: map the returned slot to a texture atlas slot if one exists.
-    },
+    }
 
     isTextureIdVariant(sequence) {
         return this.sd.isVariant('KMTF', sequence);
-    },
+    }
 
     isTranslationVariant(sequence) {
         let textureAnimation = this.textureAnimation;
@@ -208,5 +207,3 @@ MdxLayer.prototype = {
         }
     }
 };
-
-export default MdxLayer;

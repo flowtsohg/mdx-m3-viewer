@@ -4,8 +4,4 @@ export default class JassWeatherEffect {
         this.effectId = effectId;
         this.enabled = false;
 	}
-
-    toString() {
-        return `weathereffect(${this.effectId}, ${this.enabled})`;
-    }
 };

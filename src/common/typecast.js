@@ -309,14 +309,45 @@ export function float64ToUint8(out, a) {
 
 /**
  * Type cast a normal JavaScript number to a 32 bits unsigned integer.
- * The result is stored in out.
  * 
- * @param {Uint8Array} out 
- * @param {number} a
- * @returns {Uint8Array}
+ * @param {number} number
+ * @returns {number}
  */
 export function numberToUint32(number) {
     uint32[0] = number;
 
     return uint32[0];
 };
+
+/**
+ * Interperts a string as a base 256 number.
+ * 
+ * @param {string} string
+ * @returns {number}
+ */
+export function stringToBase256(string) {
+    let number = 0;
+
+    for (let c of string) {
+        number = number * 256 + c.charCodeAt(0);
+    }
+
+    return number;
+};
+
+/**
+ * Interperts a number as a base 256 string.
+ * 
+ * @param {number} number
+ * @returns {string}
+ */
+export function base256ToString(number) {
+    let array = [];
+
+    while (number > 0) {
+        array.push(String.fromCharCode(number % 256));
+        number = Math.floor(number / 256);
+    }
+
+    return array.reverse().join('');
+}

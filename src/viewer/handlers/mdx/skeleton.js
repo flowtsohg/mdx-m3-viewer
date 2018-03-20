@@ -1,71 +1,68 @@
 import { vec3, quat } from 'gl-matrix';
-import mix from '../../../common/mix';
 import Skeleton from '../../skeleton';
 
-/**
- * @constructor
- * @augments Skeleton
- * @param {MdxModelInstance} instance
- */
-function MdxSkeleton(instance) {
-    let model = instance.model,
-        modelNodes = model.nodes,
-        modelBones = model.bones,
-        hierarchy = model.hierarchy,
-        nodes,
-        sortedNodes = [],
-        bones = [];
+export default class MdxSkeleton extends Skeleton {
+    /**
+     * @param {MdxModelInstance} instance
+     */
+    constructor(instance) {
+        let model = instance.model,
+            modelNodes = model.nodes,
+            modelBones = model.bones,
+            hierarchy = model.hierarchy,
+            nodes,
+            sortedNodes = [],
+            bones = [];
 
-    Skeleton.call(this, modelNodes.length, instance);
+        super(modelNodes.length, instance);
 
-    // Not defined before the Skeleton constructor
-    nodes = this.nodes;
+        // Not defined before the Skeleton constructor
+        nodes = this.nodes;
 
-    //let variants = {
-    //    any: []
-    //};
+        //let variants = {
+        //    any: []
+        //};
 
-    for (let i = 0, l = modelNodes.length; i < l; i++) {
-        let node = nodes[i],
-            modelNode = modelNodes[i];
+        for (let i = 0, l = modelNodes.length; i < l; i++) {
+            let node = nodes[i],
+                modelNode = modelNodes[i];
 
-        // Set the node pivots
-        node.setPivot(modelNode.pivot);
+            // Set the node pivots
+            node.setPivot(modelNode.pivot);
 
-        // Set the node parent references
-        node.setParent(this.getNode(modelNode.parentId));
+            // Set the node parent references
+            node.setParent(this.getNode(modelNode.parentId));
 
-        // Node flags
-        //node.dontInheritTranslation = modelNode.dontInheritTranslation;
-        //node.dontInheritRotation = modelNode.dontInheritRotation;
-        //node.dontInheritScaling = modelNode.dontInheritScaling;
+            // Node flags
+            //node.dontInheritTranslation = modelNode.dontInheritTranslation;
+            //node.dontInheritRotation = modelNode.dontInheritRotation;
+            //node.dontInheritScaling = modelNode.dontInheritScaling;
 
-        // The sorted version of the nodes, for straight iteration in update()
-        sortedNodes[i] = nodes[hierarchy[i]];
+            // The sorted version of the nodes, for straight iteration in update()
+            sortedNodes[i] = nodes[hierarchy[i]];
 
-        //for (let j = 0, k = model.sequences.length; j < k; j++) {
-        //    variants.any[j] |= modelNode.variants.any[j];
-        //}
-        //node.justUpdated = true;
+            //for (let j = 0, k = model.sequences.length; j < k; j++) {
+            //    variants.any[j] |= modelNode.variants.any[j];
+            //}
+            //node.justUpdated = true;
+        }
+
+        //this.variants = variants;
+        //console.log(model.name, this.variants)
+
+        //instance.justUpdated = false;
+
+        // The sorted version of the bone references in the model, for straight iteration in updateHW()
+        for (let i = 0, l = modelBones.length; i < l; i++) {
+            bones[i] = nodes[modelBones[i].node.index];
+        }
+
+        this.modelNodes = model.sortedNodes;
+        this.sortedNodes = sortedNodes;
+        this.bones = bones;
+        this.instance = instance;
     }
 
-    //this.variants = variants;
-    //console.log(model.name, this.variants)
-
-    //instance.justUpdated = false;
-
-    // The sorted version of the bone references in the model, for straight iteration in updateHW()
-    for (let i = 0, l = modelBones.length; i < l; i++) {
-        bones[i] = nodes[modelBones[i].node.index];
-    }
-
-    this.modelNodes = model.sortedNodes;
-    this.sortedNodes = sortedNodes;
-    this.bones = bones;
-    this.instance = instance;
-}
-
-MdxSkeleton.prototype = {
     update(forced) {
         let instance = this.instance;
 
@@ -132,35 +129,33 @@ MdxSkeleton.prototype = {
                 //}
             }
 
-            // Update the bone texture.
-            for (let i = 0, l = bones.length; i < l; i++) {
-                let matrix = bones[i].worldMatrix,
-                    base = 16 + i * 16;
+            if (!window.BETA) {
+                // Update the bone texture.
+                for (let i = 0, l = bones.length; i < l; i++) {
+                    let matrix = bones[i].worldMatrix,
+                        base = 16 + i * 16;
 
-                boneArray[base] = matrix[0];
-                boneArray[base + 1] = matrix[1];
-                boneArray[base + 2] = matrix[2];
-                boneArray[base + 3] = matrix[3];
-                boneArray[base + 4] = matrix[4];
-                boneArray[base + 5] = matrix[5];
-                boneArray[base + 6] = matrix[6];
-                boneArray[base + 7] = matrix[7];
-                boneArray[base + 8] = matrix[8];
-                boneArray[base + 9] = matrix[9];
-                boneArray[base + 10] = matrix[10];
-                boneArray[base + 11] = matrix[11];
-                boneArray[base + 12] = matrix[12];
-                boneArray[base + 13] = matrix[13];
-                boneArray[base + 14] = matrix[14];
-                boneArray[base + 15] = matrix[15];
-                //boneArray.set(bones[i].worldMatrix, i * 16 + 16);
+                    boneArray[base] = matrix[0];
+                    boneArray[base + 1] = matrix[1];
+                    boneArray[base + 2] = matrix[2];
+                    boneArray[base + 3] = matrix[3];
+                    boneArray[base + 4] = matrix[4];
+                    boneArray[base + 5] = matrix[5];
+                    boneArray[base + 6] = matrix[6];
+                    boneArray[base + 7] = matrix[7];
+                    boneArray[base + 8] = matrix[8];
+                    boneArray[base + 9] = matrix[9];
+                    boneArray[base + 10] = matrix[10];
+                    boneArray[base + 11] = matrix[11];
+                    boneArray[base + 12] = matrix[12];
+                    boneArray[base + 13] = matrix[13];
+                    boneArray[base + 14] = matrix[14];
+                    boneArray[base + 15] = matrix[15];
+                    //boneArray.set(bones[i].worldMatrix, i * 16 + 16);
+                }
+
+                instance.bucket.updateBoneTexture = true;
             }
-
-            instance.bucket.updateBoneTexture = true;
         }
     }
 };
-
-mix(MdxSkeleton.prototype, Skeleton.prototype);
-
-export default MdxSkeleton;

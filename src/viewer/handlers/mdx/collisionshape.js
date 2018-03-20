@@ -1,14 +1,9 @@
-/**
- * @constructor
- * @param {MdxModel} model
- * @param {MdxParserCollisionShape} collisionShape
- */
-function MdxCollisionShape(model, collisionShape) {
-    
-}
+export default class MdxCollisionShape {
+    /**
+     * @param {MdxModel} model
+     * @param {MdxParserCollisionShape} collisionShape
+     */
+    constructor(model, collisionShape) {
 
-MdxCollisionShape.prototype = {
-    
+    }
 };
-
-export default MdxCollisionShape;

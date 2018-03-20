@@ -1,29 +1,18 @@
-import BinaryStream from '../../../common/binarystream';
-
 let stringRegex = /STRING\s+(\d+)\s*{\s*([\s\S]+?)\s*}/g,
     newLineRegex = /\r\n/g,
     newLineLiteralRegex = /\\n/g;
 
-/**
- * @constructor
- * @param {?string} buffer 
- */
-function War3MapWts(buffer) {
-    this.stringMap = new Map();
+export default class War3MapWts {
+    /**
+     * @param {?string} buffer 
+     */
+    constructor(buffer) {
+        this.stringMap = new Map();
 
-    if (buffer) {
-        this.load(buffer);
+        if (buffer) {
+            this.load(buffer);
+        }
     }
-}
-
-War3MapWts.prototype = {
-    set(key, value) {
-        this.stringMap.set(key, value);
-    },
-
-    get(key) {
-        return this.stringMap.get(key);
-    },
 
     load(buffer) {
         buffer = buffer.substring(3); // ???
@@ -34,7 +23,7 @@ War3MapWts.prototype = {
             // praseInt to consistently support numbers such as 1 and 001.
             this.stringMap.set(parseInt(match[1]), match[2].replace(newLineRegex, '\\n'));
         }
-    },
+    }
 
     save() {
         let buffer = 'ï»¿'; // ???
@@ -45,6 +34,12 @@ War3MapWts.prototype = {
 
         return buffer;
     }
-};
 
-export default War3MapWts;
+    set(key, value) {
+        this.stringMap.set(key, value);
+    }
+
+    get(key) {
+        return this.stringMap.get(key);
+    }
+};

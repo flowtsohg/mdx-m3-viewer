@@ -1,22 +1,18 @@
 import { mat4 } from 'gl-matrix';
-import mix from '../../../common/mix';
 import ModelInstance from '../../modelinstance';
 import BoundingShape from '../../boundingshape';
 
-/**
- * @constructor
- * @extends ModelInstance
- * @memberOf Geo
- * @param {GeometryModel} model
- */
-function GeometryModelInstance(model) {
-    ModelInstance.call(this, model);
+export default class GeometryModelInstance extends ModelInstance {
+    /**
+     * @param {GeometryModel} model
+     */
+    constructor(model) {
+        super(model);
 
-    this.vertexColor = new Uint8Array(4);
-    this.edgeColor = new Uint8Array(4);
-}
+        this.vertexColor = new Uint8Array(4);
+        this.edgeColor = new Uint8Array(4);
+    }
 
-GeometryModelInstance.prototype = {
     initialize() {
         this.boundingShape = new BoundingShape();
         this.boundingShape.fromVertices(this.model.vertexArray);
@@ -25,7 +21,7 @@ GeometryModelInstance.prototype = {
         // Initialize to the model's material color
         this.setVertexColor(this.model.vertexColor);
         this.setEdgeColor(this.model.edgeColor);
-    },
+    }
 
     setSharedData(sharedData) {
         this.boneArray = sharedData.boneArray;
@@ -37,17 +33,17 @@ GeometryModelInstance.prototype = {
 
         this.edgeColorArray.set(this.edgeColor);
         this.bucket.updateEdgeColors[0] = 1;
-    },
+    }
 
     invalidateSharedData() {
         this.boneArray = null;
         this.vertexColorArray = null;
         this.edgeColorArray = null;
-    },
+    }
 
     update() {
         mat4.copy(this.boneArray, this.worldMatrix);
-    },
+    }
 
     setVertexColor(color) {
         this.vertexColor.set(color);
@@ -58,7 +54,7 @@ GeometryModelInstance.prototype = {
         }
 
         return this;
-    },
+    }
 
     setEdgeColor(color) {
         this.edgeColor.set(color);
@@ -71,7 +67,3 @@ GeometryModelInstance.prototype = {
         return this;
     }
 };
-
-mix(GeometryModelInstance.prototype, ModelInstance.prototype);
-
-export default GeometryModelInstance;

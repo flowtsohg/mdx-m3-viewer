@@ -283,6 +283,20 @@ function testTextureAnimations(state) {
     }
 }
 
+// Originally I tested for the bone flag in nodes.
+// This model however https://www.hiveworkshop.com/threads/herald-of-the-deep-mother.295047/#resource-73544 has bone nodes without the bone flag.
+// Either the flag is incorrect, or it's not required.
+// Therefore, check if the node is the node owned by one of the bones.
+function isBone(state, node) {
+    for (let bone of state.bones) {
+        if (bone.node === node) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function testGeosetSkinning(state, geoset) {
     let nodes = state.nodes,
         vertexGroups = geoset.vertexGroups,
@@ -304,7 +318,7 @@ function testGeosetSkinning(state, geoset) {
                 let node = nodes[bone];
 
                 if (node) {
-                    assertWarning(state, (node.flags & 0x100) === 0x100, `${objectName}: Vertex ${i}: Attached to ${getName(node)} which is not a bone`);
+                    assertWarning(state, isBone(state, node), `${objectName}: Vertex ${i}: Attached to ${getName(node)} which is not a bone`);
                 } else {
                     addError(state, `${objectName}: Vertex ${i}: Attached to node ${bone} which does not exist`);
                 }
@@ -351,6 +365,11 @@ function testGeosets(state) {
         } else {
             // The game and my code have no issue with geosets containing no faces, but Magos crashes, so add a warning in addition to it being useless.
             addWarning(state, `${objectName}: Zero faces`);
+        }
+
+        // The game and my code have no issue with geosets having any number of sequence extents, but Magos fails to parse, so add a warning.
+        if (geoset.extents.length !== state.sequences.length) {
+            addWarning(state, `${objectName}: Number of sequence extents (${geoset.extents.length}) does not match the number of sequences (${state.sequences.length})`);
         }
 
         testExtents(state, geoset);

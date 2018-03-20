@@ -1,24 +1,35 @@
 import RandomItemSet from './randomitemset';
 
-function Doodad(stream, version) {
-    this.id = '\0\0\0\0';
-    this.variation = 0;
-    this.location = new Float32Array(3);
-    this.angle = 0;
-    this.scale = new Float32Array(3);
-    this.flags = 0;
-    this.life = 0;
-    this.itemTable = -1;
-    this.itemSets = [];
-    this.editorId = 0;
-    this.u1 = new Uint8Array(8);
-
-    if (stream) {
-        this.load(stream, version);
+export default class Doodad {
+    constructor() {
+        /** @member {string} */
+        this.id = '\0\0\0\0';
+        /** @member {number} */
+        this.variation = 0;
+        /** @member {Float32Array} */
+        this.location = new Float32Array(3);
+        /** @member {number} */
+        this.angle = 0;
+        /** @member {Float32Array} */
+        this.scale = new Float32Array(3);
+        /** @member {number} */
+        this.flags = 0;
+        /** @member {number} */
+        this.life = 0;
+        /** @member {number} */
+        this.itemTable = -1;
+        /** @member {Array<RandomItemSet>} */
+        this.itemSets = [];
+        /** @member {number} */
+        this.editorId = 0;
+        /** @member {Uint8Array} */
+        this.u1 = new Uint8Array(8);
     }
-}
 
-Doodad.prototype = {
+    /**
+     * @param {BinaryStream} stream 
+     * @param {number} version 
+     */
     load(stream, version) {
         this.id = stream.read(4);
         this.variation = stream.readInt32();
@@ -32,13 +43,21 @@ Doodad.prototype = {
             this.itemTable = stream.readUint32();
 
             for (let i = 0, l = stream.readUint32(); i < l; i++) {
-                this.itemSets[i] = new RandomItemSet(stream);
+                let itemSet = new RandomItemSet();
+
+                itemSet.load(stream);
+
+                this.itemSets.push(itemSet);
             }
         }
 
         this.editorId = stream.readInt32();
-    },
+    }
 
+    /**
+     * @param {BinaryStream} stream 
+     * @param {number} version 
+     */
     save(stream, version) {
         stream.write(this.id);
         stream.writeInt32(this.variation);
@@ -59,6 +78,22 @@ Doodad.prototype = {
 
         stream.writeUint32(this.editorId);
     }
-};
 
-export default Doodad;
+    /**
+     * @param {number} version 
+     * @returns {number} 
+     */
+    getByteLength(version) {
+        let size = 38;
+
+        if (version > 7) {
+            size += 8;
+
+            for (let itemSet of this.itemSets) {
+                size += itemSet.getByteLength();
+            }
+        }
+
+        return size;
+    }
+};

@@ -1,54 +1,50 @@
-import mix from '../../../common/mix';
 import Bucket from '../../bucket';
 
-/**
- * @constructor
- * @extends Bucket
- * @memberOf Geo
- * @param {GeometryModelView} modelView
- */
-function GeometryBucket(modelView) {
-    Bucket.call(this, modelView);
+export default class GeometryBucket extends Bucket {
+    /**
+     * @param {GeometryModelView} modelView
+     */
+    constructor(modelView) {
+        super(modelView);
 
-    const gl = this.model.env.gl;
-    const numberOfBones = 1;
+        const gl = this.model.env.gl;
+        const numberOfBones = 1;
 
-    this.gl = gl;
+        this.gl = gl;
 
-    this.boneArrayInstanceSize = numberOfBones * 16;
+        this.boneArrayInstanceSize = numberOfBones * 16;
 
-    this.boneArray = new Float32Array(this.boneArrayInstanceSize * this.size);
+        this.boneArray = new Float32Array(this.boneArrayInstanceSize * this.size);
 
-    this.boneTexture = gl.createTexture();
-    this.boneTextureWidth = numberOfBones * 4;
-    this.boneTextureHeight = this.size;
-    this.vectorSize = 1 / this.boneTextureWidth;
-    this.rowSize = 1 / this.boneTextureHeight;
+        this.boneTexture = gl.createTexture();
+        this.boneTextureWidth = numberOfBones * 4;
+        this.boneTextureHeight = this.size;
+        this.vectorSize = 1 / this.boneTextureWidth;
+        this.rowSize = 1 / this.boneTextureHeight;
 
-    gl.activeTexture(gl.TEXTURE15);
-    gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.boneTextureWidth, this.boneTextureHeight, 0, gl.RGBA, gl.FLOAT, this.boneArray);
+        gl.activeTexture(gl.TEXTURE15);
+        gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.boneTextureWidth, this.boneTextureHeight, 0, gl.RGBA, gl.FLOAT, this.boneArray);
 
-    // Color (per instance)
-    this.updateVertexColors = new Uint8Array(1);
-    this.vertexColorArray = new Uint8Array(4 * this.size);
-    this.vertexColorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this.vertexColorArray, gl.DYNAMIC_DRAW);
+        // Color (per instance)
+        this.updateVertexColors = new Uint8Array(1);
+        this.vertexColorArray = new Uint8Array(4 * this.size);
+        this.vertexColorBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertexColorArray, gl.DYNAMIC_DRAW);
 
-    // Edge color (per instance)
-    this.updateEdgeColors = new Uint8Array(1);
-    this.edgeColorArray = new Uint8Array(4 * this.size);
-    this.edgeColorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.edgeColorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this.edgeColorArray, gl.DYNAMIC_DRAW);
-}
+        // Edge color (per instance)
+        this.updateEdgeColors = new Uint8Array(1);
+        this.edgeColorArray = new Uint8Array(4 * this.size);
+        this.edgeColorBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.edgeColorBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.edgeColorArray, gl.DYNAMIC_DRAW);
+    }
 
-GeometryBucket.prototype = {
     getRenderStats() {
         let model = this.model,
             renderMode = model.renderMode,
@@ -68,7 +64,7 @@ GeometryBucket.prototype = {
         }
 
         return { calls, instances, vertices, polygons, dynamicVertices: 0, dynamicPolygons: 0 };
-    },
+    }
 
     update(scene) {
         let gl = this.gl,
@@ -91,7 +87,7 @@ GeometryBucket.prototype = {
 
             this.updateEdgeColors[0] = 0;
         }
-    },
+    }
 
     getSharedData(index) {
         return {
@@ -101,7 +97,3 @@ GeometryBucket.prototype = {
         };
     }
 };
-
-mix(GeometryBucket.prototype, Bucket.prototype);
-
-export default GeometryBucket;

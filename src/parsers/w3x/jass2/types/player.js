@@ -1,7 +1,7 @@
 import JassAgent from './agent';
 
 export default class JassPlayer extends JassAgent {
-	constructor(jassContext, index) {
+constructor(jassContext, index) {
         super(jassContext);
 
         this.index = index;
@@ -14,8 +14,8 @@ export default class JassPlayer extends JassAgent {
         this.raceSelectable = false;
         this.controller = null;
         this.alliances = new Map();
-	}
-
+    }
+    
     toString() {
         return `Player(${this.index})`;
     }

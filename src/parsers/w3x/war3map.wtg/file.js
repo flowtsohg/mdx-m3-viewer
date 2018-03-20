@@ -3,22 +3,19 @@ import TriggerCategory from './triggercategory';
 import Variable from './variable';
 import Trigger from './trigger';
 
-/**
- * @constructor
- */
-function War3MapWtg(buffer, argumentMap) {
-    this.version = 0;
-    this.triggerCategories = [];
-    this.u1 = 0;
-    this.variables = [];
-    this.triggers = [];
-    
-    if (buffer) {
-        this.load(buffer, argumentMap);
+export default class War3MapWtg {
+    constructor(buffer, argumentMap) {
+        this.version = 0;
+        this.triggerCategories = [];
+        this.u1 = 0;
+        this.variables = [];
+        this.triggers = [];
+        
+        if (buffer) {
+            this.load(buffer, argumentMap);
+        }
     }
-}
 
-War3MapWtg.prototype = {
     load(buffer, argumentMap) {
         let stream = new BinaryStream(buffer);
 
@@ -29,22 +26,34 @@ War3MapWtg.prototype = {
         this.version = stream.readInt32();
 
         for (let i = 0, l = stream.readUint32(); i < l; i++) {
-            this.triggerCategories[i] = new TriggerCategory(stream, this.version);
+            let triggerCategory = new TriggerCategory();
+
+            triggerCategory.load(stream, this.version);
+
+            this.triggerCategories[i] = triggerCategory;
         }
 
         this.u1 = stream.readInt32();
 
         for (let i = 0, l = stream.readUint32(); i < l; i++) {
-            this.variables[i] = new Variable(stream, this.version);
+            let variable = new Variable();
+
+            variable.load(stream, this.version);
+
+            this.variables[i] = variable;
         }
 
         for (let i = 0, l = stream.readUint32(); i < l; i++) {
-            this.triggers[i] = new Trigger(stream, this.version, argumentMap);
+            let trigger = new Trigger();
+
+            trigger.load(stream, this.version, argumentMap);
+
+            this.triggers[i] = trigger;
         }
-    },
+    }
 
     save() {
-        let buffer = new ArrayBuffer(this.calcSize()),
+        let buffer = new ArrayBuffer(this.getByteLength()),
             stream = new BinaryStream(buffer);
 
         stream.write('WTG!');
@@ -69,25 +78,26 @@ War3MapWtg.prototype = {
         }
 
         return buffer;
-    },
+    }
 
-    calcSize() {
+    /**
+     * @returns {number} 
+     */
+    getByteLength() {
         let size = 24;
 
         for (let triggerCategory of this.triggerCategories) {
-            size += triggerCategory.calcSize(this.version);
+            size += triggerCategory.getByteLength(this.version);
         }
 
         for (let variable of this.variables) {
-            size += variable.calcSize(this.version);
+            size += variable.getByteLength(this.version);
         }
 
         for (let trigger of this.triggers) {
-            size += trigger.calcSize(this.version);
+            size += trigger.getByteLength(this.version);
         }
 
         return size;
     }
 };
-
-export default War3MapWtg;

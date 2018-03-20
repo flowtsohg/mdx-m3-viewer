@@ -1,42 +1,38 @@
-import ViewerNode from './node';
+import { SceneNode } from './node';
 
-/**
- * @constructor
- * @param {number} nodeCount
- * @param {?ViewerNode} parent
- */
-function Skeleton(nodeCount, parent) {
-    let buffer = new ArrayBuffer(nodeCount * ViewerNode.BYTES_PER_ELEMENT),
-        nodes = [];
+export default class Skeleton {
+    /**
+     * @param {number} nodeCount
+     * @param {?SceneNode} parent
+     */
+    constructor(nodeCount, parent) {
+        let nodes = [];
 
-    for (let i = 0; i < nodeCount; i++) {
-        let node = new ViewerNode(buffer, i * ViewerNode.BYTES_PER_ELEMENT);
+        for (let i = 0; i < nodeCount; i++) {
+            let node = new SceneNode();
 
-        // Signal that this is a node in a skeleton.
-        // See Skeleton.
-        node.isSkeletal = true;
+            // Signal that this is a node in a skeleton.
+            // See Node.
+            node.isSkeletal = true;
 
-        nodes[i] = node;
+            nodes[i] = node;
+        }
+
+        /** @member {SceneNode} */
+        this.parent = parent
+        /** @member {Array<SceneNode>} */
+        this.nodes = nodes;
+
+        //for (let i = 0; i < nodeCount; i++) {
+        //    nodes[i].setParent(skeleton.getNode(hierarchy[i]));
+        //}
     }
 
-    /** @member {ViewerNode} */
-    this.parent = parent
-    /** @member {ArrayBuffer} */
-    this.buffer = buffer;
-    /** @member {Array<ViewerNode>} */
-    this.nodes = nodes;
-
-    //for (let i = 0; i < nodeCount; i++) {
-    //    nodes[i].setParent(skeleton.getNode(hierarchy[i]));
-    //}
-}
-
-Skeleton.prototype = {
     /**
      * Get the id'th node. If the given id is -1, return the parent instead.
      * 
      * @param {number} id The index of the node.
-     * @returns {ViewerNode}
+     * @returns {SceneNode}
      */
     getNode(id) {
         if (id === -1) {
@@ -46,5 +42,3 @@ Skeleton.prototype = {
         return this.nodes[id];
     }
 };
-
-export default Skeleton;

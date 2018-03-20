@@ -1,19 +1,16 @@
+import MdxSharedEmitter from './sharedemitter';
 import MdxEventObjectSpn from './eventobjectspn';
-import MdxParticleEmitter from './particleemitter';
 
-/**
- * @constructor
- * @param {MdxModelEventObject} modelObject
- */
-function MdxEventObjectSpnEmitter(modelObject) {
-    this.type = 'SPN';
-    this.modelObject = modelObject;
+export default class MdxEventObjectSpnEmitter extends MdxSharedEmitter {
+    /**
+     * @param {MdxModelEventObject} modelObject
+     */
+    constructor(modelObject) {
+        super(modelObject);
+        
+        this.type = 'SPN';
+    }
 
-    this.active = [];
-    this.inactive = [];
-}
-
-MdxEventObjectSpnEmitter.prototype = {
     emit(emitterView) {
         if (this.modelObject.ready) {
             let inactive = this.inactive,
@@ -29,11 +26,5 @@ MdxEventObjectSpnEmitter.prototype = {
 
             this.active.push(object);
         }
-    },
-
-    update: MdxParticleEmitter.prototype.update,
-    updateData: MdxParticleEmitter.prototype.updateData,
-    render: MdxParticleEmitter.prototype.render
+    }
 };
-
-export default MdxEventObjectSpnEmitter;

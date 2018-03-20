@@ -1,39 +1,31 @@
-import mix from '../../../common/mix';
 import ViewerFile from '../../file';
-import SlkFile from '../../../parsers/slk/file';
+import SlkParser from '../../../parsers/slk/file';
 
-/**
- * @constructor
- * @augments ViewerFile
- * @memberOf Slk
- * @param {ModelViewer} env
- * @param {function(?)} pathSolver
- * @param {Handler} handler
- * @param {string} extension
- */
-function File(env, pathSolver, handler, extension) {
-    ViewerFile.call(this, env, pathSolver, handler, extension);
+export default class SlkFile extends ViewerFile {
+    /**
+     * @param {ModelViewer} env
+     * @param {function(?)} pathSolver
+     * @param {Handler} handler
+     * @param {string} extension
+     */
+    constructor(env, pathSolver, handler, extension) {
+        super(env, pathSolver, handler, extension);
 
-    this.file = null;
-}
+        this.file = null;
+    }
 
-File.prototype = {
     initialize(src) {
         try {
-            this.file = new SlkFile(src);
+            this.file = new SlkParser(src);
         } catch (e) {
             this.onerror('InvalidSource', 'WrongMagicNumber');
             return false;
         }
 
         return true;
-    },
+    }
 
     getRow(key) {
         return this.file.getRowByKey(key);
     }
 };
-
-mix(File.prototype, ViewerFile.prototype);
-
-export default File;

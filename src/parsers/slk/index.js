@@ -1,5 +1,5 @@
-import File from './file';
+import SlkFile from './file';
 
 export default {
-    File
+    SlkFile
 };

@@ -1,21 +1,7 @@
-import mix from '../common/mix';
-import AsyncResource from './asyncresource';
+import Resource from './resource';
 
-/**
- * @constructor
- * @augments AsyncResource
- * @param {ModelViewer} env
- */
-function PromiseResource(env) {
-    AsyncResource.call(this, env);
-}
-
-PromiseResource.prototype = {
+export default class PromiseResource extends Resource {
     resolve() {
         this.finalizeLoad();
     }
 };
-
-mix(PromiseResource.prototype, AsyncResource.prototype);
-
-export default PromiseResource;

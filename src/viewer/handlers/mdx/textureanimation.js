@@ -6,31 +6,28 @@ let translationHeap = vec3.create(),
     rotationHeap = quat.create(),
     scaleHeap = vec3.create();
 
-/**
- * @constructor
- * @param {MdxModel} model
- * @param {MdxParserTextureAnimation} textureAnimation
- */
-function MdxTextureAnimation(model, textureAnimation) {
-    this.sd = new MdxSdContainer(model, textureAnimation.tracks);
-}
+export default class MdxTextureAnimation {
+    /**
+     * @param {MdxModel} model
+     * @param {MdxParserTextureAnimation} textureAnimation
+     */
+    constructor(model, textureAnimation) {
+        this.sd = new MdxSdContainer(model, textureAnimation.tracks);
+    }
 
-MdxTextureAnimation.prototype = {
     getTranslation(instance) {
         return this.sd.getValue3(translationHeap, 'KTAT', instance, vec3.ZERO);
-    },
+    }
 
     isTranslationVariant(sequence) {
         return this.sd.isVariant('KTAT', sequence);
-    },
+    }
 
     getRotation(instance) {
         return this.sd.getValue4(rotationHeap, 'KTAR', instance, quat.DEFAULT);
-    },
+    }
 
     getScale(instance) {
         return this.sd.getValue3(scaleHeap, 'KTAS', instance, vec3.ONE);
     }
 };
-
-export default MdxTextureAnimation;

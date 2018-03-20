@@ -1,5 +1,4 @@
 import { vec3, quat, mat4 } from 'gl-matrix';
-import mix from '../../../common/mix';
 import Skeleton from '../../skeleton';
 
 // Heap allocations needed for this module.
@@ -8,33 +7,32 @@ let locationHeap = vec3.create(),
     scaleHeap = vec3.create(),
     matrixHeap = mat4.create();
 
-/**
- * @constructor
- * @extends {Skeleton}
- * @param {M3ModelInstance} instance
- */
-function M3Skeleton(instance) {
-    let model = instance.model,
-        bones = model.bones,
-        boneLookup = model.boneLookup;
+export default class M3Skeleton extends Skeleton {
+    /**
+     * @extends {Skeleton}
+     * @param {M3ModelInstance} instance
+     */
+    constructor(instance) {
+        let model = instance.model,
+            bones = model.bones,
+            boneLookup = model.boneLookup;
 
-    Skeleton.call(this, bones.length, instance);
+        super(bones.length, instance);
 
-    this.instance = instance;
-    this.modelNodes = bones;
-    this.initialReference = model.initialReference;
-    this.sts = model.sts;
-    this.stc = model.stc;
-    this.stg = model.stg;
-    this.boneLookup = boneLookup;
-    
-    // Set the bone parent references
-    for (let i = 0, l = bones.length; i < l; i++) {
-        this.nodes[i].setParent(this.getNode(bones[i].parent));
+        this.instance = instance;
+        this.modelNodes = bones;
+        this.initialReference = model.initialReference;
+        this.sts = model.sts;
+        this.stc = model.stc;
+        this.stg = model.stg;
+        this.boneLookup = boneLookup;
+        
+        // Set the bone parent references
+        for (let i = 0, l = bones.length; i < l; i++) {
+            this.nodes[i].setParent(this.getNode(bones[i].parent));
+        }
     }
-}
 
-M3Skeleton.prototype = {
     update() {
         let instance = this.instance;
 
@@ -111,7 +109,7 @@ M3Skeleton.prototype = {
 
             instance.bucket.updateBoneTexture[0] = 1;
         }
-    },
+    }
 
     getValueUnsafe(animRef, instance) {
         let sequence = instance.sequence;
@@ -121,11 +119,11 @@ M3Skeleton.prototype = {
         }
 
         return animRef.initValue;
-    },
+    }
 
     getValue(animRef, instance) {
         return this.getValueUnsafe(animRef, instance);
-    },
+    }
 
     getValue2(out, animRef, instance) {
         let unsafeHeap = this.getValueUnsafe(animRef, instance);
@@ -134,7 +132,7 @@ M3Skeleton.prototype = {
         out[1] = unsafeHeap[1];
 
         return out;
-    },
+    }
 
     getValue3(out, animRef, instance) {
         let unsafeHeap = this.getValueUnsafe(animRef, instance);
@@ -144,7 +142,7 @@ M3Skeleton.prototype = {
         out[2] = unsafeHeap[2];
 
         return out;
-    },
+    }
 
     getValue4(out, animRef, instance) {
         let unsafeHeap = this.getValueUnsafe(animRef, instance);
@@ -157,7 +155,3 @@ M3Skeleton.prototype = {
         return out;
     }
 };
-
-mix(M3Skeleton.prototype, Skeleton.prototype);
-
-export default M3Skeleton;

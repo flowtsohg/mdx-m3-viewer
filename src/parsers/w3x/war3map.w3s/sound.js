@@ -1,31 +1,50 @@
-function Sound(stream) {
-    this.name = '';
-    this.file = '';
-    this.eaxEffect = '';
-    this.flags = 0;
-    this.fadeInRate = 0;
-    this.fadeOutRate = 0;
-    this.volume = 0;
-    this.pitch = 0;
-    this.u1 = 0;
-    this.u2 = 0;
-    this.channel = 0;
-    this.minDistance = 0;
-    this.maxDistance = 0;
-    this.distanceCutoff = 0;
-    this.u3 = 0;
-    this.u4 = 0;
-    this.u5 = 0;
-    this.u6 = 0;
-    this.u7 = 0;
-    this.u8 = 0;
-
-    if (stream) {
-        this.load(stream);
+export default class Sound {
+    constructor() {
+        /** @member {string} */
+        this.name = '';
+        /** @member {string} */
+        this.file = '';
+        /** @member {string} */
+        this.eaxEffect = '';
+        /** @member {number} */
+        this.flags = 0;
+        /** @member {number} */
+        this.fadeInRate = 0;
+        /** @member {number} */
+        this.fadeOutRate = 0;
+        /** @member {number} */
+        this.volume = 0;
+        /** @member {number} */
+        this.pitch = 0;
+        /** @member {number} */
+        this.u1 = 0;
+        /** @member {number} */
+        this.u2 = 0;
+        /** @member {number} */
+        this.channel = 0;
+        /** @member {number} */
+        this.minDistance = 0;
+        /** @member {number} */
+        this.maxDistance = 0;
+        /** @member {number} */
+        this.distanceCutoff = 0;
+        /** @member {number} */
+        this.u3 = 0;
+        /** @member {number} */
+        this.u4 = 0;
+        /** @member {number} */
+        this.u5 = 0;
+        /** @member {number} */
+        this.u6 = 0;
+        /** @member {number} */
+        this.u7 = 0;
+        /** @member {number} */
+        this.u8 = 0;
     }
-}
 
-Sound.prototype = {
+    /**
+     * @returns {ArrayBuffer} 
+     */
     load(stream) {
         this.name = stream.readUntilNull();
         this.file = stream.readUntilNull();
@@ -47,8 +66,11 @@ Sound.prototype = {
         this.u6 = stream.readFloat32();
         this.u7 = stream.readFloat32();
         this.u8 = stream.readFloat32();
-    },
+    }
 
+    /**
+     * @returns {ArrayBuffer} 
+     */
     save(stream) {
         stream.write(`${this.name}\0`);
         stream.write(`${this.file}\0`);
@@ -70,11 +92,12 @@ Sound.prototype = {
         stream.writeFloat32(this.u6);
         stream.writeFloat32(this.u7);
         stream.writeFloat32(this.u8);
-    },
+    }
 
-    calcSize() {
+    /**
+     * @returns {number} 
+     */
+    getByteLength() {
         return 71 + this.name.length + this.file.length + this.eaxEffect.length;
     }
 };
-
-export default Sound;

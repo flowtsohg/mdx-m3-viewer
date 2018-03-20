@@ -1,26 +1,36 @@
 import BinaryStream from '../../../common/binarystream';
 import TilePoint from './tilepoint';
 
-/**
- * @constructor
- * @param {ArrayBuffer} buffer
- */
-function War3MapW3e(buffer) {
-    this.version = 0;
-    this.tileset = '';
-    this.haveCustomTileset = 0;
-    this.groundTilesets = [];
-    this.cliffTilesets = [];
-    this.mapSize = new Int32Array(2);
-    this.centerOffset = new Float32Array(2);
-    this.tilepoints = [];
+export default class War3MapW3e {
+    /**
+     * @param {?ArrayBuffer} buffer
+     */
+    constructor(buffer) {
+        /** @member {number} */
+        this.version = 0;
+        /** @member {string} */
+        this.tileset = '';
+        /** @member {number} */
+        this.haveCustomTileset = 0;
+        /** @member {Array<string>} */
+        this.groundTilesets = [];
+        /** @member {Array<string>} */
+        this.cliffTilesets = [];
+        /** @member {Int32Array} */
+        this.mapSize = new Int32Array(2);
+        /** @member {Float32Array} */
+        this.centerOffset = new Float32Array(2);
+        /** @member {Array<Array<TilePoint>>} */
+        this.tilepoints = [];
 
-    if (buffer instanceof ArrayBuffer) {
-        this.load(buffer);
+        if (buffer instanceof ArrayBuffer) {
+            this.load(buffer);
+        }
     }
-}
 
-War3MapW3e.prototype = {
+    /**
+     * @param {ArrayBuffer} buffer
+     */
     load(buffer) {
         let stream = new BinaryStream(buffer);
 
@@ -51,13 +61,20 @@ War3MapW3e.prototype = {
             this.tilepoints[row] = [];
     
             for (let column = 0; column < columns; column++) {
-                this.tilepoints[row][column] = new TilePoint(stream);
+                let tilepoint = new TilePoint();
+
+                tilepoint.load(stream);
+
+                this.tilepoints[row][column] = tilepoint;
             }
         }
-    },
+    }
 
+    /**
+     * @returns {ArrayBuffer} 
+     */
     save() {
-        let buffer = new ArrayBuffer(this.calcSize()),
+        let buffer = new ArrayBuffer(this.getByteLength()),
             stream = new BinaryStream(buffer);
 
         stream.write('W3E!');
@@ -86,11 +103,12 @@ War3MapW3e.prototype = {
         }
 
         return buffer;
-    },
+    }
 
-    calcSize() {
+    /**
+     * @returns {number} 
+     */
+    getByteLength() {
         return 37 + (this.groundTilesets.length * 4) + (this.cliffTilesets.length * 4) + (this.mapSize[0] * this.mapSize[1] * 7);
     }
 };
-
-export default War3MapW3e;

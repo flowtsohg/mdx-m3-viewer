@@ -1,22 +1,18 @@
 import ECA from './eca';
 
-function Trigger(stream, version, argumentMap) {
-    this.name = '';
-    this.description = '';
-    this.isComment = 0;
-    this.isEnabled = 0;
-    this.isCustom = 0;
-    this.isInitiallyOff = 0;
-    this.runOnInitialization = 0;
-    this.triggerCategory = 0;
-    this.ecas = [];
-
-    if (stream) {
-        this.load(stream, version, argumentMap);
+export default class Trigger {
+    constructor() {
+        this.name = '';
+        this.description = '';
+        this.isComment = 0;
+        this.isEnabled = 0;
+        this.isCustom = 0;
+        this.isInitiallyOff = 0;
+        this.runOnInitialization = 0;
+        this.triggerCategory = 0;
+        this.ecas = [];
     }
-}
-
-Trigger.prototype = {
+    
     load(stream, version, argumentMap) {
         this.name = stream.readUntilNull();
         this.description = stream.readUntilNull();
@@ -32,9 +28,13 @@ Trigger.prototype = {
         this.triggerCategory = stream.readInt32();
         
         for (let i = 0, l = stream.readUint32(); i < l; i++) {
-            this.ecas[i] = new ECA(stream, version, false, argumentMap);
+            let eca = new ECA();
+
+            eca.load(stream, version, false, argumentMap);
+
+            this.ecas[i] = eca;
         }
-    },
+    }
 
     save(stream, version) {
         stream.write(`${this.name}\0`);
@@ -54,9 +54,13 @@ Trigger.prototype = {
         for (let eca of this.ecas) {
             eca.save(stream, version);
         }
-    },
+    }
 
-    calcSize(version) {
+    /**
+     * @param {number} version 
+     * @returns {number} 
+     */
+    getByteLength(version) {
         let size = 26 + this.name.length + this.description.length;
 
         if (version === 7) {
@@ -64,11 +68,9 @@ Trigger.prototype = {
         }
 
         for (let eca of this.ecas) {
-            size += eca.calcSize(version);
+            size += eca.getByteLength(version);
         }
         
         return size;
     }
 };
-
-export default Trigger;

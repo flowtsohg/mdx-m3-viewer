@@ -1,17 +1,23 @@
-function Modification(stream, useOptionalInts) {
-    this.id = '\0\0\0\0';
-    this.variableType = 0;
-    this.levelOrVariation = 0;
-    this.dataPointer = 0;
-    this.value = 0;
-    this.u1 = 0;
-
-    if (stream) {
-        this.load(stream, useOptionalInts);
+export default class Modification {
+    constructor() {
+        /** @member {string} */
+        this.id = '\0\0\0\0';
+        /** @member {number} */
+        this.variableType = 0;
+        /** @member {number} */
+        this.levelOrVariation = 0;
+        /** @member {number} */
+        this.dataPointer = 0;
+        /** @member {number} */
+        this.value = 0;
+        /** @member {number} */
+        this.u1 = 0;
     }
-}
 
-Modification.prototype = {
+    /**
+     * @param {BinaryStream} stream 
+     * @param {number} useOptionalInts 
+     */
     load(stream, useOptionalInts) {
         this.id = stream.read(4);
         this.variableType = stream.readInt32();
@@ -32,8 +38,11 @@ Modification.prototype = {
         }
     
         this.u1 = stream.readInt32();
-    },
+    }
 
+    /**
+     * @param {BinaryStream} stream 
+     */
     save(stream, useOptionalInts) {
         stream.write(this.id);
         stream.writeInt32(this.variableType);
@@ -54,9 +63,13 @@ Modification.prototype = {
         }
 
         stream.writeInt32(this.u1);
-    },
+    }
 
-    calcSize(useOptionalInts) {
+    /**
+     * @param {number} useOptionalInts 
+     * @returns {number} 
+     */
+    getByteLength(useOptionalInts) {
         let size = 12;
 
         if (useOptionalInts) {
@@ -72,5 +85,3 @@ Modification.prototype = {
         return size;
     }
 };
-
-export default Modification;

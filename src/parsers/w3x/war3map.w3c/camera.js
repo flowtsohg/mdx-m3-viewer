@@ -1,26 +1,27 @@
-/**
- * @constructor
- * @param {?BinaryStream} stream 
- */
-function Camera(stream) {
-    this.targetLocation = new Float32Array(3);
-    this.rotation = 0;
-    this.angleOfAttack = 0;
-    this.distance = 0;
-    this.roll = 0;
-    this.fieldOfView = 0;
-    this.farClippingPlane = 0;
-    this.nearClippingPlane = 0;
-    this.cinematicName = '';
-
-    if (stream) {
-        this.load(stream);
+export default class Camera {
+    constructor() {
+        /** @member {Float32Array} */
+        this.targetLocation = new Float32Array(3);
+        /** @member {number} */
+        this.rotation = 0;
+        /** @member {number} */
+        this.angleOfAttack = 0;
+        /** @member {number} */
+        this.distance = 0;
+        /** @member {number} */
+        this.roll = 0;
+        /** @member {number} */
+        this.fieldOfView = 0;
+        /** @member {number} */
+        this.farClippingPlane = 0;
+        /** @member {number} */
+        this.nearClippingPlane = 0;
+        /** @member {string} */
+        this.cinematicName = '';
     }
-}
 
-Camera.prototype = {
     /**
-     * @param {?BinaryStream} stream 
+     * @param {BinaryStream} stream 
      */
     load(stream) {
         this.targetLocation = stream.readFloat32Array(3);
@@ -32,10 +33,10 @@ Camera.prototype = {
         this.farClippingPlane = stream.readFloat32();
         this.nearClippingPlane = stream.readFloat32(); // probably near clipping plane
         this.cinematicName = stream.readUntilNull();
-    },
+    }
 
     /**
-     * 
+     * @param {BinaryStream} stream 
      */
     save(stream) {
         stream.writeFloat32Array(this.targetLocation);
@@ -47,14 +48,12 @@ Camera.prototype = {
         stream.writeFloat32(this.farClippingPlane);
         stream.writeFloat32(this.nearClippingPlane);
         stream.write(`${this.cinematicName}\0`);
-    },
+    }
 
     /**
      * @returns {number}
      */
-    calcSize() {
+    getByteLength() {
         return 41 + this.cinematicName.length;
     }
 };
-
-export default Camera;

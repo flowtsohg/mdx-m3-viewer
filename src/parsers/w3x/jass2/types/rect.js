@@ -8,8 +8,4 @@ export default class JassRect extends JassAgent {
         this.min = new Float32Array([minx, miny]);
         this.max = new Float32Array([maxx, maxy]);
 	}
-
-    toString() {
-        return `rect(${this.min}, ${this.max})`;
-    }
 };

@@ -8,8 +8,4 @@ export default class JassLocation extends JassAgent {
         this.y = y;
         this.z = 0;
 	}
-
-    toString() {
-        return `location(${this.x}, ${this.y}, ${this.z})`;
-    }
 };

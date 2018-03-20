@@ -111,6 +111,12 @@ export default class Context {
     onGlobalDefinition(name, value) {
         //console.log('onGlobalDefinition', name, value);
 
+        // Store the names global handles are assigned to.
+        // It can be nice to get e.g. enum names of types.
+        if (value instanceof JassHandle) {
+            value.addName(name);
+        }
+
         // If the value is an agent, return a reference instead.
         if (value instanceof JassAgent) {
             return this.addReference(name, value);

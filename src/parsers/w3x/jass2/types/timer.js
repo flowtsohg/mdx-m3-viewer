@@ -9,8 +9,4 @@ export default class JassTimer extends JassAgent {
         this.periodic = false;
         this.handlerFunc = null;
 	}
-
-    toString() {
-        return `timer(${this.elapsed}, ${this.timeout}, ${this.periodic})`;
-    }
 };

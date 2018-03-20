@@ -2,30 +2,29 @@ import { inflate, deflate } from 'pako';
 import { bufferToString } from '../../common/stringtobuffer';
 import { HASH_ENTRY_DELETED, FILE_COMPRESSED, FILE_ENCRYPTED, FILE_OFFSET_ADJUSTED_KEY, FILE_SINGLE_UNIT, FILE_EXISTS, COMPRESSION_HUFFMAN, COMPRESSION_DEFLATE, COMPRESSION_IMPLODE, COMPRESSION_BZIP2, COMPRESSION_ADPCM_MONO, COMPRESSION_ADPCM_STEREO } from './constants';
 
-/**
- * @constructor
- * @param {MpqArchive} archive The archive that owns this file
- */
-function MpqFile(archive) {
-    /** @member {MpqArchive} */
-    this.archive = archive;
-    /** @member {MpqCrypto} */
-    this.c = archive.c;
-    /** @member {string} */
-    this.name = '';
-    /** @member {boolean} */
-    this.nameResolved = false;
-    /** @member {MpqHash|null} */
-    this.hash = null;
-    /** @member {MpqBlock|null} */
-    this.block = null;
-    /** @member {ArrayBuffer|null} */
-    this.rawBuffer = null;
-    /** @member {ArrayBuffer|null} */
-    this.buffer = null;
-}
+export default class MpqFile {
+    /**
+     * @param {MpqArchive} archive The archive that owns this file
+     */
+    constructor(archive) {
+        /** @member {MpqArchive} */
+        this.archive = archive;
+        /** @member {MpqCrypto} */
+        this.c = archive.c;
+        /** @member {string} */
+        this.name = '';
+        /** @member {boolean} */
+        this.nameResolved = false;
+        /** @member {MpqHash|null} */
+        this.hash = null;
+        /** @member {MpqBlock|null} */
+        this.block = null;
+        /** @member {ArrayBuffer|null} */
+        this.rawBuffer = null;
+        /** @member {ArrayBuffer|null} */
+        this.buffer = null;
+    }
 
-MpqFile.prototype = {
     /**
      * Gets this file's data as an ArrayBuffer.
      * Decodes the file if needed.
@@ -40,7 +39,7 @@ MpqFile.prototype = {
         }
 
         return this.buffer;
-    },
+    }
 
     /**
      * Gets this file's data as a string.
@@ -57,7 +56,7 @@ MpqFile.prototype = {
         }
 
         return null;
-    },
+    }
 
     load(hash, block, typedArray) {
         let headerOffset = this.archive.headerOffset;
@@ -66,14 +65,14 @@ MpqFile.prototype = {
         this.hash = hash;
         this.block = block;
         this.rawBuffer = typedArray.slice(headerOffset + block.offset, headerOffset + block.offset + block.compressedSize).buffer;
-    },
+    }
 
     /**
      * @param {Uint8Array} typedArray 
      */
     save(typedArray) {
         typedArray.set(new Uint8Array(this.rawBuffer));
-    },
+    }
 
     /**
      * Changes the buffer of this file.
@@ -103,7 +102,7 @@ MpqFile.prototype = {
         this.rawBuffer = null;
 
         return true;
-    },
+    }
 
     /**
      * Deletes this file.
@@ -133,7 +132,7 @@ MpqFile.prototype = {
         archive.files.splice(blockIndex, 1);
 
         return true;
-    },
+    }
 
     /**
      * Renames this file.
@@ -168,7 +167,7 @@ MpqFile.prototype = {
         this.hash = newHash;
 
         return true;
-    },
+    }
 
     /**
      * Decode this file.
@@ -276,7 +275,7 @@ MpqFile.prototype = {
         }
 
         return true;
-    },
+    }
 
     decompressSector(typedArray, decompressedSize) {
         // If the size of the data is the same as its decompressed size, it's not compressed.
@@ -321,7 +320,7 @@ MpqFile.prototype = {
 
             return typedArray;
         }
-    },
+    }
 
     /**
      * Encode this file.
@@ -391,7 +390,7 @@ MpqFile.prototype = {
                 this.block.flags = FILE_EXISTS;
             }
         }
-    },
+    }
 
     // Decrypt this file and encrypt it back, with a new offset in the archive.
     // This is used for files that use FILE_OFFSET_ADJUSTED_KEY, which are encrypted with a key that depends on their offset.
@@ -446,7 +445,7 @@ MpqFile.prototype = {
             // Encrypt the sector offsets with the new key.
             c.encryptBlock(sectorOffsets, newEncryptionKey - 1);
         }
-    },
+    }
 
     // The offset of the file has been recalculated.
     // If the offset is different, and this file uses FILE_OFFSET_ADJUSTED_KEY encryption, it must be re-encrypted with the new offset.
@@ -468,5 +467,3 @@ MpqFile.prototype = {
         return true;
     }
 };
-
-export default MpqFile;

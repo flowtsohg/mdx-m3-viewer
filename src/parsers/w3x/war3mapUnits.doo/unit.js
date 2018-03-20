@@ -3,43 +3,68 @@ import InventoryItem from './inventoryitem';
 import ModifiedAbility from './modifiedability';
 import RandomUnit from './randomunit';
 
-function Unit(stream, version) {
-    this.id = '\0\0\0\0';
-    this.variation = 0;
-    this.location = new Float32Array(3);
-    this.angle = 0;
-    this.scale = new Float32Array(3);
-    this.flags = 0;
-    this.player = 0;
-    this.unknown = 0;
-    this.hitpoints = -1;
-    this.mana = -1;
-    this.droppedItemTable = 0; // VERSION 8
-    this.droppedItemSets = [];
-    this.goldAmount = 0;
-    this.targetAcquisition = 0;
-    this.heroLevel = 0;
-    this.heroStrength = 0; // VERSION 8
-    this.heroAgility = 0; // VERSION 8
-    this.heroIntelligence = 0; // VERSION 8
-    this.itemsInInventory = [];
-    this.modifiedAbilities = [];
-    this.randomFlag = 0;
-    this.level = new Uint8Array(3);
-    this.itemClass = 0;
-    this.unitGroup = 0;
-    this.positionInGroup = 0;
-    this.randomUnitTables = [];
-    this.customTeamColor = 0;
-    this.waygate = 0;
-    this.creationNumber = 0;
-
-    if (stream) {
-        this.load(stream, version);
+export default class Unit {
+    constructor() {
+        /** @member {string} */
+        this.id = '\0\0\0\0';
+        /** @member {number} */
+        this.variation = 0;
+        /** @member {Float32Array} */
+        this.location = new Float32Array(3);
+        /** @member {number} */
+        this.angle = 0;
+        /** @member {Float32Array} */
+        this.scale = new Float32Array(3);
+        /** @member {number} */
+        this.flags = 0;
+        /** @member {number} */
+        this.player = 0;
+        /** @member {number} */
+        this.unknown = 0;
+        /** @member {number} */
+        this.hitpoints = -1;
+        /** @member {number} */
+        this.mana = -1;
+        /** @member {number} */
+        this.droppedItemTable = 0; // VERSION 8
+        /** @member {Array<DroppedItemSet>} */
+        this.droppedItemSets = [];
+        /** @member {number} */
+        this.goldAmount = 0;
+        /** @member {number} */
+        this.targetAcquisition = 0;
+        /** @member {number} */
+        this.heroLevel = 0;
+        /** @member {number} */
+        this.heroStrength = 0; // VERSION 8
+        /** @member {number} */
+        this.heroAgility = 0; // VERSION 8
+        /** @member {number} */
+        this.heroIntelligence = 0; // VERSION 8
+        /** @member {Array<InventoryItem>} */
+        this.itemsInInventory = [];
+        /** @member {Array<ModifiedAbility>} */
+        this.modifiedAbilities = [];
+        /** @member {number} */
+        this.randomFlag = 0;
+        /** @member {Uint8Array} */
+        this.level = new Uint8Array(3);
+        /** @member {number} */
+        this.itemClass = 0;
+        /** @member {number} */
+        this.unitGroup = 0;
+        /** @member {number} */
+        this.positionInGroup = 0;
+        /** @member {Array<RandomUnit>} */
+        this.randomUnitTables = [];
+        /** @member {number} */
+        this.customTeamColor = 0;
+        /** @member {number} */
+        this.waygate = 0;
+        /** @member {number} */
+        this.creationNumber = 0;
     }
-}
 
-Unit.prototype = {
     load(stream, version) {
         this.id = stream.read(4);
         this.variation = stream.readInt32();
@@ -57,7 +82,11 @@ Unit.prototype = {
         }
 
         for (var i = 0, l = stream.readInt32(); i < l; i++) {
-            this.droppedItemSets[i] = new DroppedItemSet(stream);
+            let set = new DroppedItemSet();
+
+            set.load(stream);
+
+            this.droppedItemSets[i] = set;
         }
 
         this.goldAmount = stream.readInt32();
@@ -71,11 +100,19 @@ Unit.prototype = {
         }
 
         for (let i = 0, l = stream.readInt32(); i < l; i++) {
-            this.itemsInInventory[i] = new InventoryItem(stream);
+            let item = new InventoryItem();
+
+            item.load(stream);
+
+            this.itemsInInventory[i] = item;
         }
 
         for (let i = 0, l = stream.readInt32(); i < l; i++) {
-            this.modifiedAbilities[i] = new ModifiedAbility(stream);
+            let modifiedAbility = new ModifiedAbility();
+
+            modifiedAbility.load(stream);
+
+            this.modifiedAbilities[i] = modifiedAbility;
         }
 
         this.randomFlag = stream.readInt32();
@@ -88,14 +125,18 @@ Unit.prototype = {
             this.positionInGroup = stream.readUint32();
         } else if (this.randomFlag === 2) {
             for (let i = 0, l = stream.readInt32(); i < l; i++) {
-                this.randomUnitTables[i] = new RandomUnit(stream);
+                let randomUnit = new RandomUnit();
+
+                randomUnit.load(stream);
+
+                this.randomUnitTables[i] = randomUnit;
             }
         }
 
         this.customTeamColor = stream.readInt32();
         this.waygate = stream.readInt32();
         this.creationNumber = stream.readInt32();
-    },
+    }
 
     save(stream, version) {
         stream.write(this.id);
@@ -160,9 +201,13 @@ Unit.prototype = {
         stream.writeInt32(this.customTeamColor);
         stream.writeInt32(this.waygate);
         stream.writeInt32(this.creationNumber);
-    },
+    }
 
-    calcSize(version) {
+    /**
+     * @param {number} version 
+     * @returns {number} 
+     */
+    getByteLength(version) {
         let size = 91;
 
         if (version > 7) {
@@ -170,7 +215,7 @@ Unit.prototype = {
         }
 
         for (let droppedItemSet of this.droppedItemSets) {
-            size += droppedItemSet.calcSize();
+            size += droppedItemSet.getByteLength();
         }
 
         size += this.itemsInInventory.length * 8;
@@ -188,5 +233,3 @@ Unit.prototype = {
         return size;
     }
 };
-
-export default Unit;

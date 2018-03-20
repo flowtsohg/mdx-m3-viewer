@@ -1,25 +1,24 @@
 import MdxSdContainer from './sd';
 
-/**
- * @constructor
- * @param {MdxInstance} instance
- * @param {MdxAttachment} attachment
- */
-function MdxAttachment(instance, attachment) {
-    let internalInstance = attachment.internalModel.addInstance();
+export class MdxAttachment {
+    /**
+     * @param {MdxInstance} instance
+     * @param {MdxAttachment} attachment
+     */
+    constructor(instance, attachment) {
+        let internalInstance = attachment.internalModel.addInstance();
 
-    internalInstance.setSequenceLoopMode(2);
-    internalInstance.dontInheritScale = false;
-    internalInstance.hide();
+        internalInstance.setSequenceLoopMode(2);
+        internalInstance.dontInheritScale = false;
+        internalInstance.hide();
 
-    instance.whenLoaded(() => internalInstance.setParent(instance.skeleton.nodes[attachment.node.objectId]));
+        instance.whenLoaded(() => internalInstance.setParent(instance.skeleton.nodes[attachment.node.objectId]));
 
-    this.instance = instance;
-    this.attachment = attachment;
-    this.internalInstance = internalInstance;
-}
+        this.instance = instance;
+        this.attachment = attachment;
+        this.internalInstance = internalInstance;
+    }
 
-MdxAttachment.prototype = {
     update() {
         let internalInstance = this.internalInstance;
 
@@ -41,32 +40,26 @@ MdxAttachment.prototype = {
     }
 };
 
-/**
- * @constructor
- * @param {MdxModel} model
- * @param {MdxParserAttachment} attachment
- */
-function MdxModelAttachment(model, attachment) {
-    let path = attachment.path.replace(/\\/g, '/').toLowerCase().replace('.mdl', '.mdx');
+export class MdxModelAttachment {
+    /**
+     * @param {MdxModel} model
+     * @param {MdxParserAttachment} attachment
+     */
+    constructor(model, attachment) {
+        let path = attachment.path.replace(/\\/g, '/').toLowerCase().replace('.mdl', '.mdx');
 
-    this.node = model.nodes[attachment.node.index];
-    this.path = path;
-    this.attachmentId = attachment.attachmentId;
-    this.sd = new MdxSdContainer(model, attachment.tracks);
+        this.node = model.nodes[attachment.node.index];
+        this.path = path;
+        this.attachmentId = attachment.attachmentId;
+        this.sd = new MdxSdContainer(model, attachment.tracks);
 
-    // Second condition is against custom resources using arbitrary paths...
-    if (path !== '' && path.indexOf('.mdx') != -1) {
-        this.internalModel = model.env.load(path, model.pathSolver);
+        // Second condition is against custom resources using arbitrary paths...
+        if (path !== '' && path.indexOf('.mdx') != -1) {
+            this.internalModel = model.env.load(path, model.pathSolver);
+        }
     }
-}
 
-MdxModelAttachment.prototype = {
     getVisibility(instance) {
         return this.sd.getValue('KATV', instance, 1);
     }
-};
-
-export {
-    MdxAttachment,
-    MdxModelAttachment
 };

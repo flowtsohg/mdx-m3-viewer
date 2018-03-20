@@ -1,27 +1,32 @@
 import BinaryStream from '../../../common/binarystream';
 import ModificationTable from '../war3map.w3u/modificationtable';
 
-/**
- * @constructor
- * @param {?ArrayBuffer} buffer 
- */
-function War3MapW3d(buffer) {
-    this.version = 0;
-    this.originalTable = new ModificationTable();
-    this.customTable = new ModificationTable();
-}
+export default class War3MapW3d {
+    constructor() {
+        /** @member {number} */
+        this.version = 0;
+        /** @member {ModificationTable} */
+        this.originalTable = new ModificationTable();
+        /** @member {ModificationTable} */
+        this.customTable = new ModificationTable();
+    }
 
-War3MapW3d.prototype = {
+    /**
+     * @param {ArrayBuffer} buffer 
+     */
     load(buffer) {
         let stream = new BinaryStream(buffer);
 
         this.version = stream.readInt32();
         this.originalTable.load(stream, true);
         this.customTable.load(stream, true);
-    },
+    }
 
+    /**
+     * @returns {ArrayBuffer}  
+     */
     save() {
-        let buffer = new ArrayBuffer(this.calcSize()),
+        let buffer = new ArrayBuffer(this.getByteLength()),
             stream = new BinaryStream(buffer);
 
         stream.writeInt32(this.version);
@@ -29,11 +34,12 @@ War3MapW3d.prototype = {
         this.customTable.save(stream, true);
 
         return buffer;
-    },
+    }
 
-    calcSize() {
-        return 4 + this.originalTable.calcSize(true) + this.customTable.calcSize(true);
+    /**
+     * @returns {number}  
+     */
+    getByteLength() {
+        return 4 + this.originalTable.getByteLength(true) + this.customTable.getByteLength(true);
     }
 };
-
-export default War3MapW3d;

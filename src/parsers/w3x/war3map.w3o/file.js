@@ -2,26 +2,36 @@ import BinaryStream from '../../../common/binarystream';
 import War3MapW3u from '../war3map.w3u/file';
 import War3MapW3d from '../war3map.w3d/file';
 
-/**
- * @constructor
- * @param {?ArrayBuffer} buffer 
- */
-function War3MapW3o(buffer) {
-    this.version = 0;
-    this.units = null;
-    this.items = null;
-    this.destructables = null;
-    this.doodads = null;
-    this.abilities = null;
-    this.buffs = null;
-    this.upgrades = null;
+export default class War3MapW3o {
+    /**
+     * @param {?ArrayBuffer} buffer 
+     */
+    constructor(buffer) {
+        /** @member {number} */
+        this.version = 0;
+        /** @member {?War3MapW3u} */
+        this.units = null;
+        /** @member {?War3MapW3u} */
+        this.items = null;
+        /** @member {?War3MapW3u} */
+        this.destructables = null;
+        /** @member {?War3MapW3d} */
+        this.doodads = null;
+        /** @member {?War3MapW3d} */
+        this.abilities = null;
+        /** @member {?War3MapW3u} */
+        this.buffs = null;
+        /** @member {?War3MapW3d} */
+        this.upgrades = null;
 
-    if (buffer) {
-        this.load(buffer);
+        if (buffer) {
+            this.load(buffer);
+        }
     }
-}
 
-War3MapW3o.prototype = {
+    /**
+     * @param {ArrayBuffer} buffer 
+     */
     load(buffer) {
         let stream = new BinaryStream(buffer);
 
@@ -54,10 +64,13 @@ War3MapW3o.prototype = {
         if (stream.readInt32()) {
             this.upgrades = new War3MapW3d(stream);
         }
-    },
+    }
 
+    /**
+     * @returns {ArrayBuffer} 
+     */
     save() {
-        let buffer = new ArrayBuffer(this.calcSize()),
+        let buffer = new ArrayBuffer(this.getByteLength()),
             stream = new BinaryStream(buffer);
 
         stream.writeInt32(this.version);
@@ -112,41 +125,42 @@ War3MapW3o.prototype = {
         }
 
         return buffer;
-    },
+    }
 
-    calcSize() {
+    /**
+     * @returns {number} 
+     */
+    getByteLength() {
         let size = 32;
 
         if (this.units) {
-            size += this.units.calcSize();
+            size += this.units.getByteLength();
         }
 
         if (this.items) {
-            size += this.items.calcSize();
+            size += this.items.getByteLength();
         }
         
         if (this.destructables) {
-            size += this.destructables.calcSize();
+            size += this.destructables.getByteLength();
         }
 
         if (this.doodads) {
-            size += this.doodads.calcSize();
+            size += this.doodads.getByteLength();
         }
 
         if (this.abilities) {
-            size += this.abilities.calcSize();
+            size += this.abilities.getByteLength();
         }
 
         if (this.buffs) {
-            size += this.buffs.calcSize();
+            size += this.buffs.getByteLength();
         }
 
         if (this.upgrades) {
-            size += this.upgrades.calcSize();
+            size += this.upgrades.getByteLength();
         }
 
         return size;
     }
 };
-
-export default War3MapW3o;

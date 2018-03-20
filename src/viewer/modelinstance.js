@@ -1,6 +1,5 @@
-import mix from '../common/mix';
-import AsyncResource from './asyncresource';
-import NotifiedNode from './notifiednode';
+import Resource from './resource';
+import { NotifiedNodeMixin } from './node';
 
 /**
  * @constructor
@@ -8,40 +7,41 @@ import NotifiedNode from './notifiednode';
  * @augments NotifiedNode
  * @param {Model} model
  */
-function ModelInstance(model) {
-    AsyncResource.call(this, model.env);
+export default class ModelInstance extends NotifiedNodeMixin(Resource) {
+    constructor(model) {
+        super(model.env);
 
-    NotifiedNode.call(this);
-    this.dontInheritScaling = true;
+        this.dontInheritScaling = true;
 
-    /** @member {?ModelView} */
-    this.modelView = null;
-    /** @member {?Bucket} */
-    this.bucket = null;
-    /** @member {Model} */
-    this.model = model;
-    /** @member {boolean} */
-    this.paused = false;
-    /** 
-     * @see Note: do not set this member directly, instead use show() and hide().
-     * 
-     * @member {boolean}
-     */
-    this.shouldRender = true;
-    /** 
-     * @see Note: do not set this member.
-     * 
-     * @member {boolean}
-     */
-    this.culled = false;
+        /** @member {?ModelView} */
+        this.modelView = null;
+        /** @member {?Bucket} */
+        this.bucket = null;
+        /** @member {Model} */
+        this.model = model;
+        /** @member {boolean} */
+        this.paused = false;
+        /** 
+         * @see Note: do not set this member directly, instead use show() and hide().
+         * 
+         * @member {boolean}
+         */
+        this.shouldRender = true;
+        /** 
+         * @see Note: do not set this member.
+         * 
+         * @member {boolean}
+         */
+        this.culled = false;
 
-    this.noCulling = false; // Set to true if the model should always be rendered
-}
+        this.noCulling = false; // Set to true if the model should always be rendered
 
-ModelInstance.prototype = {
+        this.isVisible = false;
+    }
+
     get objectType() {
         return 'instance';
-    },
+    }
 
     /**
      * Hides this instance.
@@ -61,7 +61,7 @@ ModelInstance.prototype = {
         }
 
         return false;
-    },
+    }
 
     /**
      * Shows this instance.
@@ -81,7 +81,7 @@ ModelInstance.prototype = {
         }
 
         return false;
-    },
+    }
 
     // Cull the instance.
     cull() {
@@ -90,7 +90,7 @@ ModelInstance.prototype = {
         if (this.bucket) {
             this.modelView.setVisibility(this, false);
         }
-    },
+    }
 
     // Stop culling the instance.
     uncull() {
@@ -100,7 +100,7 @@ ModelInstance.prototype = {
         if (this.shouldRender && this.scene && !this.bucket) {
             this.modelView.setVisibility(this, true);
         }
-    },
+    }
 
     /**
      * Is this instance shown?
@@ -109,7 +109,7 @@ ModelInstance.prototype = {
      */
     shown() {
         return this.bucket !== null;
-    },
+    }
 
     /**
      * Is this instance hidden?
@@ -118,7 +118,7 @@ ModelInstance.prototype = {
      */
     hidden() {
         return this.bucket === null;
-    },
+    }
 
     /**
      * Detach this instance from the scene it's in.
@@ -131,11 +131,11 @@ ModelInstance.prototype = {
         }
 
         return false;
-    },
+    }
 
     updateTimers() {
 
-    },
+    }
 
     modelReady() {
         if (this.model.loaded) {
@@ -155,17 +155,13 @@ ModelInstance.prototype = {
             this.dispatchEvent({ type: 'error', error: 'InvalidModel' });
             this.dispatchEvent({ type: 'loadend' });
         }
-    },
+    }
 
     setSharedData(sharedData) {
 
-    },
+    }
 
     invalidateSharedData() {
 
     }
 };
-
-mix(ModelInstance.prototype, AsyncResource.prototype, NotifiedNode.prototype);
-
-export default ModelInstance;

@@ -14,8 +14,4 @@ export default class JassCameraSetup extends JassHandle {
         this.zOffset = 0;
         this.destPosition = new JassLocation(jassContext, 0, 0);
 	}
-
-    toString() {
-        return `camerasetup()`;
-    }
 };

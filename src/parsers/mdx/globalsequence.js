@@ -1,10 +1,8 @@
 /**
  * @constructor
  * @param {BinaryReader} reader
- * @param {number} index
  */
-function MdxParserGlobalSequence(reader, index) {
-    this.index = index;
+function MdxParserGlobalSequence(reader) {
     /** @member {number} */
     this.value = reader.readUint32();
 }

@@ -6,8 +6,4 @@ export default class JassTrigger extends JassAgent {
         
         this.enabled = true;
 	}
-
-    toString() {
-        return `trigger(${this.enabled})`;
-    }
 };

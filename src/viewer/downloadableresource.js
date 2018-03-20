@@ -1,27 +1,22 @@
-import mix from '../common/mix';
-import AsyncResource from './asyncresource';
+import Resource from './resource';
 
-/**
- * @constructor
- * @augments AsyncResource
- * @param {ModelViewer} env
- * @param {function(?)} pathSolver
- * @param {Handler} handler
- * @param {string} extension
- */
-function DownloadableResource(env, pathSolver, handler, extension) {
-    AsyncResource.call(this, env);
+export default class DownloadableResource extends Resource {
+    /**
+     * @param {ModelViewer} env
+     * @param {function(?)} pathSolver
+     * @param {Handler} handler
+     * @param {string} extension
+     */
+    constructor(env, pathSolver, handler, extension) {
+        super(env);
 
-    /** @member {function(?)} */
-    this.pathSolver = pathSolver;
-    /** @member {Handler} */
-    this.handler = handler;
-    /** @member {string} */
-    this.extension = extension;
-    /** @member {string} */
-    this.fetchUrl = '';
-}
-
-mix(DownloadableResource.prototype, AsyncResource.prototype);
-
-export default DownloadableResource;
+        /** @member {function(?)} */
+        this.pathSolver = pathSolver;
+        /** @member {Handler} */
+        this.handler = handler;
+        /** @member {string} */
+        this.extension = extension;
+        /** @member {string} */
+        this.fetchUrl = '';
+    }
+};

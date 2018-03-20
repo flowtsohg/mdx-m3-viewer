@@ -1,11 +1,9 @@
-import mix from '../../../common/mix';
-import ModelHandler from '../../modelhandler';
 import GeometryModel from './model';
 import GeometryModelView from './modelview';
-import GeometryModelInstance from './modelinstance';
 import GeometryBucket from './bucket';
+import GeometryModelInstance from './modelinstance';
 
-const Geo = {
+export default {
     initialize(env) {
         let shader = env.webgl.createShaderProgram(
             env.sharedShaders.boneTexture + env.sharedShaders.instanceId + `
@@ -64,33 +62,9 @@ const Geo = {
         return true;
     },
 
-    get extensions() {
-        return [
-            ['.geo', false]
-        ];
-    },
-
-    get Constructor() {
-        return GeometryModel;
-    },
-
-    get ModelView() {
-        return GeometryModelView;
-    },
-
-    get Instance() {
-        return GeometryModelInstance;
-    },
-
-    get Bucket() {
-        return GeometryBucket;
-    },
-
-    pathSolver(src) {
-        return [src, '.geo', false];
-    }
+    extensions: [['.geo', 'json']],
+    constructor: GeometryModel,
+    view: GeometryModelView,
+    bucket: GeometryBucket,
+    instance: GeometryModelInstance,
 };
-
-mix(Geo, ModelHandler);
-
-export default Geo;

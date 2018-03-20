@@ -1,18 +1,14 @@
-function Variable(stream, version) {
-    this.name = '';
-    this.type = '';
-    this.u1 = 0;
-    this.isArray = 0;
-    this.arraySize = 0;
-    this.isInitialized = 0;
-    this.initialValue = '';
-
-    if (stream) {
-        this.load(stream, version);
+export default class Variable {
+    constructor() {
+        this.name = '';
+        this.type = '';
+        this.u1 = 0;
+        this.isArray = 0;
+        this.arraySize = 0;
+        this.isInitialized = 0;
+        this.initialValue = '';
     }
-}
 
-Variable.prototype = {
     load(stream, version) {
         this.name = stream.readUntilNull();
         this.type = stream.readUntilNull();
@@ -25,7 +21,7 @@ Variable.prototype = {
 
         this.isInitialized = stream.readInt32();
         this.initialValue = stream.readUntilNull();
-    },
+    }
 
     save(stream, version) {
         stream.write(`${this.name}\0`);
@@ -39,9 +35,13 @@ Variable.prototype = {
 
         stream.writeInt32(this.isInitialized);
         stream.write(`${this.initialValue}\0`);
-    },
+    }
 
-    calcSize(version) {
+    /**
+     * @param {number} version 
+     * @returns {number} 
+     */
+    getByteLength(version) {
         let size = 15 + this.name.length + this.type.length + this.initialValue.length;
         
         if (version === 7) {
@@ -51,5 +51,3 @@ Variable.prototype = {
         return size;
     }
 };
-
-export default Variable;

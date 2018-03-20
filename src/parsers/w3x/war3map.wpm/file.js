@@ -1,20 +1,25 @@
 import BinaryStream from '../../../common/binarystream';
 
-/**
- * @constructor
- * @param {?ArrayBuffer} buffer 
- */
-function War3MapWpm(buffer) {
-    this.version = 0;
-    this.size = new Int32Array(2);
-    this.pathing = [];
+export default class War3MapWpm {
+    /**
+     * @param {?ArrayBuffer} buffer 
+     */
+    constructor(buffer) {
+        /** @member {number} */
+        this.version = 0;
+        /** @member {number} */
+        this.size = new Int32Array(2);
+        /** @member {Uint8Array} */
+        this.pathing = new Uint8Array(1);
 
-    if (buffer) {
-        this.load(buffer);
+        if (buffer) {
+            this.load(buffer);
+        }
     }
-}
 
-War3MapWpm.prototype = {
+    /**
+     * @param {ArrayBuffer} buffer 
+     */
     load(buffer) {
         let stream = new BinaryStream(buffer);
 
@@ -24,36 +29,28 @@ War3MapWpm.prototype = {
 
         this.version = stream.readInt32();
         this.size = stream.readInt32Array(2);
+        this.pathing = stream.readUint8Array(this.size[0] * this.size[1]);
+    }
 
-        for (let row = 0, rows = this.size[1]; row < rows; row++) {
-            this.pathing[row] = [];
-
-            for (let column = 0, columns = this.size[0]; column < columns; column++) {
-                this.pathing[row][column] = stream.readUint8()
-            }
-        }
-    },
-
+    /**
+     * @returns {ArrayBuffer} 
+     */
     save() {
-        let buffer = new ArrayBuffer(this.calcSize()),
+        let buffer = new ArrayBuffer(this.getByteLength()),
             stream = new BinaryStream(buffer);
 
         stream.write('MP3W');
         stream.writeInt32(this.version);
         stream.writeInt32Array(this.size);
-
-        for (let row of this.pathing) {
-            for (let value of row) {
-                stream.writeUint8(value);
-            }
-        }
+        stream.writeUint8Array(this.pathing);
 
         return buffer;
-    },
+    }
 
-    calcSize() {
+    /**
+     * @returns {number} 
+     */
+    getByteLength() {
         return 16 + (this.size[0] * this.size[1]);
     }
 };
-
-export default War3MapWpm;

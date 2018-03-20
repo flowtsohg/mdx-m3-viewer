@@ -3,10 +3,8 @@ import MdxParserSDContainer from './sd';
 /**
  * @constructor
  * @param {BinaryReader} reader
- * @param {number} index
  */
-function MdxParserLayer(reader, index) {
-    this.index = index;
+function MdxParserLayer(reader) {
     /** @member {number} */
     this.size = reader.readUint32();
     /** @member {number} */

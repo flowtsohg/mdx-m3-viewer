@@ -1,17 +1,16 @@
-/**
- * @constructor
- * @param {M3ParserStg} stg
- * @param {Array<M3Sts>} sts
- * @param {Array<M3Stc>} stc
- */
-function M3Stg(stg, sts, stc) {
-    this.name = stg.name.getAll().join('');
-    this.stcIndices = stg.stcIndices.getAll();
-    this.sts = sts;
-    this.stc = stc;
-}
+export default class M3Stg {
+    /**
+     * @param {M3ParserStg} stg
+     * @param {Array<M3Sts>} sts
+     * @param {Array<M3Stc>} stc
+     */
+    constructor(stg, sts, stc) {
+        this.name = stg.name.getAll().join('');
+        this.stcIndices = stg.stcIndices.getAll();
+        this.sts = sts;
+        this.stc = stc;
+    }
 
-M3Stg.prototype = {
     getValueUnsafe(animRef, instance) {
         let stcIndices = this.stcIndices,
             stcs = this.stc,
@@ -32,5 +31,3 @@ M3Stg.prototype = {
         return animRef.initValue;
     }
 };
-
-export default M3Stg;

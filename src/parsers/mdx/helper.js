@@ -4,10 +4,8 @@ import { readNode } from './common';
  * @constructor
  * @param {BinaryReader} reader
  * @param {Array<MdxNode>} nodes
- * @param {number} index
  */
-function MdxParserHelper(reader, nodes, index) {
-    this.index = index;
+function MdxParserHelper(reader, nodes) {
     /** @member {MdxParserNode} */
     this.node = readNode(reader, nodes, this);
     /** @member {number} */

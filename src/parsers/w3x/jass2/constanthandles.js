@@ -32,7 +32,7 @@ import JassWidgetEvent from './types/widgetevent';
 import JassDialogEvent from './types/dialogevent';
 import JassLimitOp from './types/limitop';
 import JassUnitType from './types/unittype';
-import JassItemType from './types/itemType';
+import JassItemType from './types/itemtype';
 import JassCameraField from './types/camerafield';
 import JassBlendMode from './types/blendmode';
 import JassRarityControl from './types/raritycontrol';

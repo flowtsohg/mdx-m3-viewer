@@ -1,22 +1,23 @@
 import BinaryStream from '../../../common/binarystream';
 import Camera from './camera';
 
-/**
- * @constructor
- * @param {?ArrayBuffer} buffer 
- */
-function War3MapW3c(buffer) {
-    this.version = 0;
-    this.cameras = [];
-
-    if (buffer) {
-        this.load(buffer);
-    }
-}
-
-War3MapW3c.prototype = {
+export default class War3MapW3c {
     /**
      * @param {?ArrayBuffer} buffer 
+     */
+    constructor(buffer) {
+        /** @member {number} */
+        this.version = 0;
+        /** @member {Array<Camera>} */
+        this.cameras = [];
+
+        if (buffer) {
+            this.load(buffer);
+        }
+    }
+
+    /**
+     * @param {ArrayBuffer} buffer 
      */
     load(buffer) {
         let stream = new BinaryStream(buffer);
@@ -24,15 +25,19 @@ War3MapW3c.prototype = {
         this.version = stream.readInt32();
 
         for (let i = 0, l = stream.readUint32(); i < l; i++) {
-            this.cameras[i] = new Camera(stream);
+            let camera = new Camera();
+
+            camera.load(stream);
+
+            this.cameras[i] = camera;
         }
-    },
+    }
 
     /**
-     * 
+     * @returns {ArrayBuffer} 
      */
     save() {
-        let buffer = new ArrayBuffer(this.calcSize()),
+        let buffer = new ArrayBuffer(this.getByteLength()),
             stream = new BinaryStream(buffer);
 
         stream.writeInt32(this.version);
@@ -43,20 +48,18 @@ War3MapW3c.prototype = {
         }
 
         return buffer;
-    },
+    }
 
     /**
      * @returns {number}
      */
-    calcSize() {
+    getByteLength() {
         let size = 8;
 
         for (let camera of this.cameras) {
-            size += camera.calcSize();
+            size += camera.getByteLength();
         }
 
         return size;
     }
 };
-
-export default War3MapW3c;

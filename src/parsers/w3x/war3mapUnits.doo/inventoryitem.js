@@ -1,22 +1,24 @@
-function InventoryItem(stream) {
-    this.slot = 0;
-    this.id = '\0\0\0\0';
-
-    if (stream) {
-        this.load(stream);
+export default class InventoryItem {
+    constructor() {
+        /** @member {number} */
+        this.slot = 0;
+        /** @member {string} */
+        this.id = '\0\0\0\0';
     }
-}
 
-InventoryItem.prototype = {
+    /**
+     * @param {BinaryStream} stream 
+     */
     load(stream) {
         this.slot = stream.readInt32();
         this.id = stream.read(4);
-    },
+    }
 
+    /**
+     * @param {BinaryStream} stream 
+     */
     save(stream) {
         stream.writeInt32(this.slot);
         stream.write(this.id);
     }
 };
-
-export default InventoryItem;

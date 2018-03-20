@@ -1,32 +1,27 @@
-import mix from '../../../common/mix';
 import { createTextureAtlas } from '../../../common/canvas';
 import unique from '../../../common/arrayunique';
 import MpqArchive from '../../../parsers/mpq/archive';
 import W3xParser from '../../../parsers/w3x/map';
 import ViewerFile from '../../file';
 import Scene from '../../scene';
+import * as geometry from '../geo/geometry';
 import W3xUnit from './unit';
 import W3xDoodad from './doodad';
-import W3xModificationTable from './modificationtable';
 import W3xTilePoint from './tilepoint';
-import * as geometry from '../geo/geometry';
 
-/**
- * @constructor
- * @augments ViewerFile
- * @memberOf W3x
- * @param {ModelViewer} env
- * @param {function(?)} pathSolver
- * @param {Handler} handler
- * @param {string} extension
- */
-function W3xMap(env, pathSolver, handler, extension) {
-    ViewerFile.call(this, env, pathSolver, handler, extension);
+export default class W3xMap extends ViewerFile {
+    /**
+     * @param {ModelViewer} env
+     * @param {function(?)} pathSolver
+     * @param {Handler} handler
+     * @param {string} extension
+     */
+    constructor(env, pathSolver, handler, extension) {
+        super(env, pathSolver, handler, extension);
 
-    this.scene = new Scene();
-}
+        this.scene = new Scene();
+    }
 
-W3xMap.prototype = {
     initialize(src) {
         let parser = new W3xParser(null, true); // Use readonly mode to reduce memory usage.
         
@@ -140,25 +135,25 @@ W3xMap.prototype = {
         });
 
         return true;
-    },
+    }
 
     loadFile(src) {
         return this.env.load(src, this.internalPathSolver);
-    },
+    }
 
     // Doodads and destructables
     loadDoodads(doodadChunk) {
         for (let doodad of doodadChunk.doodads) {
             this.doodads.push(new W3xDoodad(this, doodad));
         }
-    },
+    }
 
     // Units and items
     loadUnits(unitsChunk) {
         for (let unit of unitsChunk.units) {
             this.units.push(new W3xUnit(this, unit));
         }
-    },
+    }
 
     heightAt(location) {
         var heightMap = this.heightMap,
@@ -192,7 +187,7 @@ W3xMap.prototype = {
         }
 
         return 0;
-    },
+    }
 
     loadTerrain(environment) {
         let mapSize = environment.mapSize;
@@ -284,11 +279,11 @@ W3xMap.prototype = {
             }
 
             //this.loadSky();
-            this.loadWater();
+            //this.loadWater();
             this.loadTerrainCliffs();
             this.loadTerrainGeometry();
         });
-    },
+    }
 
     heightsToCliffTag(a, b, c, d) {
         const map = {
@@ -298,7 +293,7 @@ W3xMap.prototype = {
         };
 
         return map[a] + map[b] + map[c] + map[d];
-    },
+    }
 
     prepareTilePoints() {
         var mapSize = this.mapSize;
@@ -424,7 +419,7 @@ W3xMap.prototype = {
                 }
             }
         }
-    },
+    }
 
     update() {
         /*
@@ -450,7 +445,7 @@ W3xMap.prototype = {
             uvOffset[1] = y / 8;
         }
         */
-    },
+    }
 
     loadWater() {
         this.BLAAA = 0;
@@ -530,7 +525,7 @@ W3xMap.prototype = {
             this.waterCounter = 0;
             this.BLAAA = 0;
         });
-    },
+    }
 
     loadSky() {
         let model = this.loadFile('Environment/Sky/LordaeronSummerSky/LordaeronSummerSky.mdx'),
@@ -544,7 +539,7 @@ W3xMap.prototype = {
             instance.bucket.priority = 200;
             this.scene.sortBuckets();
         });
-    },
+    }
 
     loadTerrainCliffs() {
         this.prepareTilePoints();
@@ -1017,7 +1012,7 @@ W3xMap.prototype = {
                 }
             }
         }
-    },
+    }
 
     getTileVariation(variation, isExtended) {
         if (isExtended) {
@@ -1049,7 +1044,7 @@ W3xMap.prototype = {
                 return [0, 0];
             }
         }
-    },
+    }
 
     loadTerrainGeometry() {
         var tilesetTextures = this.tilesetTextures;
@@ -1252,7 +1247,7 @@ W3xMap.prototype = {
                 });
             }
         }
-    },
+    }
 
     loadModifications(modifications) {
         let fileCache = this.fileCache,
@@ -1269,7 +1264,7 @@ W3xMap.prototype = {
         if (modifications.has('units')) {
             this.loadModification(modifications.get('units'), fileCache.get('unitdata'), fileCache.get('unitmetadata'));
         }
-    },
+    }
 
     loadModification(modification, dataTable, metadataTable) {
         // Modifications to built-in objects
@@ -1277,7 +1272,7 @@ W3xMap.prototype = {
 
         // Declarations of user-defined objects
         this.applyModificationTable(modification.customTable, dataTable, metadataTable);
-    },
+    }
 
     applyModificationTable(modificationTable, dataTable, metadataTable) {
         var modifications = modificationTable.objects;
@@ -1285,7 +1280,7 @@ W3xMap.prototype = {
         for (var i = 0, l = modifications.length; i < l; i++) {
             this.applyModificationObject(modifications[i], dataTable, metadataTable);
         }
-    },
+    }
 
     applyModificationObject(modification, dataTable, metadataTable) {
         var row = dataTable.getRow(modification.oldID);
@@ -1310,7 +1305,7 @@ W3xMap.prototype = {
         } else {
             console.warn('W3xMap: Undefined row for modification', modification);
         }
-    },
+    }
 
     applyModification(modification, row, metadataTable) {
         var metadata = metadataTable.map[modification.id];
@@ -1322,7 +1317,3 @@ W3xMap.prototype = {
         }
     }
 };
-
-mix(W3xMap.prototype, ViewerFile.prototype);
-
-export default W3xMap;

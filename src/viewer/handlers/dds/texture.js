@@ -1,23 +1,11 @@
-import mix from '../../../common/mix';
-import { uintToTag } from '../../../common/math';
+import { base256ToString } from '../../../common/typecast';
 import Texture from '../../texture';
 import { decodeDxt1, decodeDxt3, decodeDxt5 } from './dxt';
 
 /**
- * @see Largely based on https://github.com/toji/webctx-texture-utils/blob/master/texture-util/dds.js
- * @constructor
- * @extends Texture
- * @memberOf Dds
- * @param {ModelViewer} env
- * @param {function(?)} pathSolver
- * @param {Handler} handler
- * @param {string} extension
+ * Largely based on https://github.com/toji/webctx-texture-utils/blob/master/texture-util/dds.js
  */
-function DdsTexture(env, pathSolver, handler, extension) {
-    Texture.call(this, env, pathSolver, handler, extension);
-}
-
-DdsTexture.prototype = {
+export default class DdsTexture extends Texture {
     initialize(src) {
         let gl = this.env.gl,
             compressedTextures = this.env.webgl.extensions.compressedTextureS3tc,
@@ -53,7 +41,7 @@ DdsTexture.prototype = {
             blockBytes = 16;
             internalFormat = compressedTextures ? compressedTextures.COMPRESSED_RGBA_S3TC_DXT5_EXT : null;
         } else {
-            this.onerror(UintToTag(fourCC))
+            this.onerror(base256ToString(fourCC))
             return false;
         }
 
@@ -108,7 +96,3 @@ DdsTexture.prototype = {
         return true;
     }
 };
-
-mix(DdsTexture.prototype, Texture.prototype);
-
-export default DdsTexture;

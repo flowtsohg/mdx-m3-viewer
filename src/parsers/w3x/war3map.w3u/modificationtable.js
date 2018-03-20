@@ -1,37 +1,48 @@
 import ModifiedObject from './modifiedobject';
 
-function ModificationTable(stream, useOptionalInts) {
-    this.objects = [];
-
-    if (stream) {
-        this.load(stream, useOptionalInts);
+export default class ModificationTable {
+    constructor() {
+        /** @member {Array<ModifiedObject>} */
+        this.objects = [];
     }
-}
 
-ModificationTable.prototype = {
+    /**
+     * @param {BinaryStream} stream 
+     * @param {number} useOptionalInts 
+     */
     load(stream, useOptionalInts) {
         for (let i = 0, l = stream.readUint32() ; i < l; i++) {
-            this.objects[i] = new ModifiedObject(stream, useOptionalInts);
-        }
-    },
+            let object = new ModifiedObject();
 
+            object.load(stream, useOptionalInts);
+
+            this.objects[i] = object;
+        }
+    }
+
+    /**
+     * @param {BinaryStream} stream 
+     * @param {number} useOptionalInts 
+     */
     save(stream, useOptionalInts) {
         stream.writeUint32(this.objects.length);
 
         for (let object of this.objects) {
             object.save(stream, useOptionalInts);
         }
-    },
+    }
 
-    calcSize(useOptionalInts) {
+    /**
+     * @param {number} useOptionalInts 
+     * @returns {number} 
+     */
+    getByteLength(useOptionalInts) {
         let size = 4;
         
         for (let object of this.objects) {
-            size += object.calcSize(useOptionalInts);
+            size += object.getByteLength(useOptionalInts);
         }
 
         return size;
     }
 };
-
-export default ModificationTable;

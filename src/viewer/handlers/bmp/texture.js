@@ -1,21 +1,7 @@
-import mix from '../../../common/mix';
 import BinaryStream from '../../../common/binarystream';
 import Texture from '../../texture';
 
-/**
- * @constructor
- * @extends Texture
- * @memberOf Bmp
- * @param {ModelViewer} env
- * @param {function(?)} pathSolver
- * @param {Handler} handler
- * @param {string} extension
- */
-function BmpTexture(env, pathSolver, handler, extension) {
-    Texture.call(this, env, pathSolver, handler, extension);
-}
-
-BmpTexture.prototype = {
+export default class BmpTexture extends Texture {
     initialize(src) {
         // Simple binary stream implementation, see src/common/binarystream.
         let reader = new BinaryStream(src);
@@ -86,7 +72,3 @@ BmpTexture.prototype = {
         return true;
     }
 };
-
-mix(BmpTexture.prototype, Texture.prototype);
-
-export default BmpTexture;

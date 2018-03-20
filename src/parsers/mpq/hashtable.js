@@ -2,30 +2,29 @@ import { powerOfTwo } from '../../common/math';
 import MpqHash from './hash';
 import { HASH_TABLE_KEY, HASH_TABLE_INDEX, HASH_NAME_A, HASH_NAME_B } from './constants';
 
-/**
- * @constructor
- * @param {MpqCrypto} c
- */
-function MpqHashTable(c) {
-    /** @param {MpqCrypto} */
-    this.c = c;
-    /** @param {Array<MpqHash>} */
-    this.entries = [];
+export default class MpqHashTable {
+    /**
+     * @param {MpqCrypto} c
+     */
+    constructor(c) {
+        /** @param {MpqCrypto} */
+        this.c = c;
+        /** @param {Array<MpqHash>} */
+        this.entries = [];
 
-    // Minimum size
-    this.addEmpties(4);
-}
+        // Minimum size
+        this.addEmpties(4);
+    }
 
-MpqHashTable.prototype = {
     clear() {
         this.entries.length = 0;
-    },
+    }
 
     addEmpties(howMany) {
         for (let i = 0; i < howMany; i++) {
             this.entries.push(new MpqHash());
         }
-    },
+    }
 
     getInsertionIndex(name) {
         let entries = this.entries,
@@ -41,7 +40,7 @@ MpqHashTable.prototype = {
         }
 
         return -1;
-    },
+    }
 
     add(name, blockIndex) {
         let insertionIndex = this.getInsertionIndex(name);
@@ -57,7 +56,7 @@ MpqHashTable.prototype = {
             
             return hash;
         }
-    },
+    }
 
     load(typedArray) {
         let entriesCount = typedArray.byteLength / 16,
@@ -73,7 +72,7 @@ MpqHashTable.prototype = {
 
             offset += 4;
         }
-    },
+    }
 
     /**
      * @param {Uint8Array} typedArray 
@@ -93,7 +92,7 @@ MpqHashTable.prototype = {
         this.c.encryptBlock(uint8array, HASH_TABLE_KEY);
 
         typedArray.set(uint8array);
-    },
+    }
 
     get(name) {
         let c = this.c,
@@ -115,5 +114,3 @@ MpqHashTable.prototype = {
         return null;
     }
 };
-
-export default MpqHashTable;

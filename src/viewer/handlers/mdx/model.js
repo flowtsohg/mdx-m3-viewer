@@ -1,4 +1,3 @@
-import mix from '../../../common/mix';
 import MdxParser from '../../../parsers/mdx/model';
 import TexturedModel from '../../texturedmodel';
 import MdxNode from './node';
@@ -15,45 +14,46 @@ import MdxModelEventObject from './modeleventobject';
 import { MdxShallowGeoset } from './geoset';
 import replaceableIds from './replaceableids';
 
-/**
- * @constructor
- * @augments Model
- * @memberOf Mdx
- * @param {ModelViewer} env
- * @param {function(?)} pathSolver
- * @param {Handler} handler
- * @param {string} extension
- */
-function MdxModel(env, pathSolver, handler, extension) {
-    TexturedModel.call(this, env, pathSolver, handler, extension);
+export default class MdxModel extends TexturedModel {
+    /**
+     * @param {ModelViewer} env
+     * @param {function(?)} pathSolver
+     * @param {Handler} handler
+     * @param {string} extension
+     */
+    constructor(env, pathSolver, handler, extension) {
+        super(env, pathSolver, handler, extension);
 
-    this.parser = null;
-    this.name = '';
-    this.replaceables = [];
-    this.textureAtlases = {};
-    this.nodes = [];
-    this.sortedNodes = [];
-    this.sequences = [];
-    this.textures = [];
-    this.textureOptions = [];
-    this.geosets = [];
-    this.cameras = [];
-    this.particleEmitters = [];
-    this.particle2Emitters = [];
-    this.ribbonEmitters = [];
-    this.boundingShapes = [];
-    this.attachments = [];
-    this.textureAnimations = [];
-    this.geosetAnimations = [];
-    this.eventObjectEmitters = [];
+        this.parser = null;
+        this.name = '';
+        this.replaceables = [];
+        this.textureAtlases = {};
+        this.nodes = [];
+        this.sortedNodes = [];
+        this.sequences = [];
+        this.textures = [];
+        this.textureOptions = [];
+        this.geosets = [];
+        this.cameras = [];
+        this.particleEmitters = [];
+        this.particle2Emitters = [];
+        this.ribbonEmitters = [];
+        this.boundingShapes = [];
+        this.attachments = [];
+        this.textureAnimations = [];
+        this.geosetAnimations = [];
+        this.eventObjectEmitters = [];
 
-    this.hasGeosetAnims = false;
-    this.hasLayerAnims = false;
+        this.opaqueBatches = [];
+        this.translucentBatches = [];
+        this.batches = [];
 
-    this.loadTeamTextures();
-}
+        this.hasGeosetAnims = false;
+        this.hasLayerAnims = false;
 
-MdxModel.prototype = {
+        this.loadTeamTextures();
+    }
+
     loadTeamTextures() {
         let teamColors = [],
             teamGlows = [];
@@ -67,11 +67,11 @@ MdxModel.prototype = {
 
         this.env.loadTextureAtlas('teamColors', teamColors, (atlas) => {});
         this.env.loadTextureAtlas('teamGlows', teamGlows, (atlas) => {});
-    },
+    }
 
     initialize(src) {
         var parser;
-        
+
         try {
             parser = new MdxParser(src);
         } catch (e) {
@@ -191,7 +191,7 @@ MdxModel.prototype = {
             for (i = 0, l = geosets.length; i < l; i++) {
                 let geoset = geosets[i],
                     layers = materials[geoset.materialId],
-                    geo = new MdxGeoset(this, geoset);
+                    geo = new MdxGeoset(this, geoset, i);
 
                 if (geo.hasAnim) {
                     this.hasGeosetAnims = true;
@@ -278,7 +278,7 @@ MdxModel.prototype = {
         this.calculateExtent();
 
         return true;
-    },
+    }
 
     isVariant(sequence) {
         let nodes = this.nodes;
@@ -290,7 +290,7 @@ MdxModel.prototype = {
         }
         
         return false;
-    },
+    }
 
     setupVariants() {
         let variants = [];
@@ -300,7 +300,7 @@ MdxModel.prototype = {
         }
 
         this.variants = variants;
-    },
+    }
 
     setupGeosets() {
         let geosets = this.geosets;
@@ -362,7 +362,7 @@ MdxModel.prototype = {
             this.__webglElementBuffer = faceBuffer;
             this.shallowGeosets = shallowGeosets;
         }
-    },
+    }
 
     setupHierarchy(hierarchy, nodes, parent) {
         for (let i = 0, l = nodes.length; i < l; i++) {
@@ -376,7 +376,7 @@ MdxModel.prototype = {
         }
 
         return hierarchy;
-    },
+    }
 
     loadTexture(texture) {
         var path = texture.path;
@@ -406,7 +406,7 @@ MdxModel.prototype = {
         this.replaceables.push(replaceableId);
         this.textures.push(this.env.load(path, this.pathSolver));
         this.textureOptions.push({ repeatS: !!(flags & 0x1), repeatT: !!(flags & 0x2) });
-    },
+    }
 
     calculateExtent() {
         var meshes = this.geosets;
@@ -462,7 +462,7 @@ MdxModel.prototype = {
         dZ = maxZ - minZ;
 
         this.extent = {radius: Math.sqrt(dX * dX + dY * dY + dZ * dZ) / 2, min: [minX, minY, minZ], max: [maxX, maxY, maxZ] };
-    },
+    }
 
     bind(bucket, scene) {
         const webgl = this.env.webgl;
@@ -506,7 +506,7 @@ MdxModel.prototype = {
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);
         gl.vertexAttribPointer(instanceId, 1, gl.UNSIGNED_SHORT, false, 0, 0);
         instancedArrays.vertexAttribDivisorANGLE(instanceId, 1);
-    },
+    }
 
     unbind() {
         let gl = this.env.gl,
@@ -527,7 +527,7 @@ MdxModel.prototype = {
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_geosetColor'), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_layerAlpha'), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_uvOffset'), 0);
-    },
+    }
 
     renderBatch(bucket, batch) {
         let gl = this.env.gl,
@@ -607,7 +607,7 @@ MdxModel.prototype = {
         shallowGeoset.bind(shader, layer.coordId);
 
         shallowGeoset.render(bucket.instances.length);
-    },
+    }
 
     renderBatches(bucket, scene, batches) {
         if (batches && batches.length) {
@@ -619,15 +619,15 @@ MdxModel.prototype = {
 
             this.unbind();
         }
-    },
+    }
 
     renderOpaque(bucket, scene) {
         this.renderBatches(bucket, scene, this.opaqueBatches);
-    },
+    }
 
     renderTranslucent(bucket, scene) {
         this.renderBatches(bucket, scene, this.translucentBatches);
-    },
+    }
 
     renderEmitters(bucket, scene) {
         let webgl = this.env.webgl,
@@ -668,7 +668,3 @@ MdxModel.prototype = {
         }
     }
 };
-
-mix(MdxModel.prototype, TexturedModel.prototype);
-
-export default MdxModel;

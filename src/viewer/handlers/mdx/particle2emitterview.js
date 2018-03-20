@@ -1,16 +1,15 @@
-/**
- * @constructor
- * @param {MdxModelInstance} instance
- * @param {MdxParticle2Emitter} emitter
- */
-function MdxParticle2EmitterView(instance, emitter) {
-    this.instance = instance;
-    this.emitter = emitter;
-    this.currentEmission = 0;
-    this.lastEmissionKey = -1;
-}
+export default class MdxParticle2EmitterView {
+    /**
+     * @param {MdxModelInstance} instance
+     * @param {MdxParticle2Emitter} emitter
+     */
+    constructor(instance, emitter) {
+        this.instance = instance;
+        this.emitter = emitter;
+        this.currentEmission = 0;
+        this.lastEmissionKey = -1;
+    }
 
-MdxParticle2EmitterView.prototype = {
     update() {
         if (this.shouldRender()) {
             let emitter = this.emitter;
@@ -33,47 +32,45 @@ MdxParticle2EmitterView.prototype = {
                 }
             }
         }
-    },
+    }
 
     shouldRender() {
         return this.emitter.shouldRender(this.instance);
-    },
+    }
 
     getWidth() {
         return this.emitter.getWidth(this.instance);
-    },
+    }
 
     getLength() {
         return this.emitter.getLength(this.instance);
-    },
+    }
 
     getSpeed() {
         return this.emitter.getSpeed(this.instance);
-    },
+    }
 
     getLatitude() {
         return this.emitter.getLatitude(this.instance);
-    },
+    }
 
     getGravity() {
         return this.emitter.getGravity(this.instance);
-    },
+    }
 
     getEmissionRate() {
         return this.emitter.getEmissionRate(this.instance);
-    },
+    }
 
     getEmissionRateKeyframe() {
         return this.emitter.getEmissionRateKeyframe(this.instance);
-    },
+    }
 
     getVisibility() {
         return this.emitter.getVisibility(this.instance);
-    },
+    }
 
     getVariation(sequence, frame, counter) {
         return this.emitter.getVariation(this.instance);
     }
 };
-
-export default MdxParticle2EmitterView;

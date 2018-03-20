@@ -1,19 +1,6 @@
-import mix from '../common/mix';
 import Model from './model';
 
-/**
- * @constructor
- * @augments Model
- * @param {ModelViewer} env
- * @param {function(?)} pathSolver
- * @param {Handler} handler
- * @param {string} extension
- */
-function TexturedModel(env, pathSolver, handler, extension) {
-    Model.call(this, env, pathSolver, handler, extension);
-}
-
-TexturedModel.prototype = {
+export default class TexturedModel extends Model {
     /*
      * Bind a texture to some texture unit.
      * Checks the model view for an override.
@@ -32,7 +19,3 @@ TexturedModel.prototype = {
         this.env.webgl.bindTexture(texture, unit);
     }
 };
-
-mix(TexturedModel.prototype, Model.prototype);
-
-export default TexturedModel;

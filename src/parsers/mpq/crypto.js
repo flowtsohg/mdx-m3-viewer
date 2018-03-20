@@ -4,32 +4,29 @@ import { HASH_FILE_KEY, FILE_OFFSET_ADJUSTED_KEY } from './constants';
 let bytes = new Uint8Array(4),
     long = new Uint32Array(bytes.buffer);
 
-/**
- * @constructor
- */
-function MpqCrypto() {
-    let cryptTable = new Uint32Array(0x500),
-            seed = 0x00100001,
-            temp1,
-            temp2;
+export default class MpqCrypto {
+    constructor() {
+        let cryptTable = new Uint32Array(0x500),
+                seed = 0x00100001,
+                temp1,
+                temp2;
 
-    for (let index1 = 0; index1 < 0x100; index1++) {
-        for (let index2 = index1, i = 0; i < 5; i++, index2 += 0x100) {
-            seed = (seed * 125 + 3) % 0x2AAAAB;
-            temp1 = (seed & 0xFFFF) << 0x10;
+        for (let index1 = 0; index1 < 0x100; index1++) {
+            for (let index2 = index1, i = 0; i < 5; i++, index2 += 0x100) {
+                seed = (seed * 125 + 3) % 0x2AAAAB;
+                temp1 = (seed & 0xFFFF) << 0x10;
 
-            seed = (seed * 125 + 3) % 0x2AAAAB;
-            temp2 = (seed & 0xFFFF);
+                seed = (seed * 125 + 3) % 0x2AAAAB;
+                temp2 = (seed & 0xFFFF);
 
-            cryptTable[index2] = temp1 | temp2;
+                cryptTable[index2] = temp1 | temp2;
+            }
         }
+
+        /** @member {Uint32Array} */
+        this.cryptTable = cryptTable;
     }
 
-    /** @member {Uint32Array} */
-    this.cryptTable = cryptTable;
-}
-
-MpqCrypto.prototype = {
     /**
      * @param {string} name
      * @param {number} key
@@ -51,7 +48,7 @@ MpqCrypto.prototype = {
 
         // Convert the seed to an unsigned integer
         return seed1 >>> 0;
-    },
+    }
 
     /**
      * @param {ArrayBuffer|TypedArray} data
@@ -94,7 +91,7 @@ MpqCrypto.prototype = {
         }
 
         return data;
-    },
+    }
 
     /**
      * @param {ArrayBuffer|TypedArray} data
@@ -140,7 +137,7 @@ MpqCrypto.prototype = {
         }
 
         return data;
-    },
+    }
 
     /**
      * @param {string} name
@@ -159,5 +156,3 @@ MpqCrypto.prototype = {
         return encryptionKey;
     }
 };
-
-export default MpqCrypto;

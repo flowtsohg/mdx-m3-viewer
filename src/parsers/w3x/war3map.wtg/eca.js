@@ -1,20 +1,16 @@
 import Parameter from './parameter';
-import fixWeu from './weu';
+import { weuParamCount } from './weu';
 
-function ECA(stream, version, isChildECA, argumentMap) {
-    this.type = 0;
-    this.group = -1;
-    this.name = '';
-    this.isEnabled = 0;
-    this.parameters = [];
-    this.ecas = [];
-
-    if (stream) {
-        this.load(stream, version, isChildECA, argumentMap);
+export default class ECA {
+    constructor() {
+        this.type = 0;
+        this.group = -1;
+        this.name = '';
+        this.isEnabled = 0;
+        this.parameters = [];
+        this.ecas = [];
     }
-}
 
-ECA.prototype = {
     load(stream, version, isChildECA, argumentMap) {
         this.type = stream.readInt32();
 
@@ -28,7 +24,7 @@ ECA.prototype = {
         let argumentsCount = argumentMap.get(this.name.toLowerCase());
         
         if (isNaN(argumentsCount)) {
-            argumentsCount = fixWeu(this.name);
+            argumentsCount = weuParamCount(this.name);
 
             if (isNaN(argumentsCount)) {
                 throw new Error(`Unknown ECA '${this.name}'`);
@@ -36,15 +32,23 @@ ECA.prototype = {
         }
 
         for (let i = 0; i < argumentsCount; i++) {
-            this.parameters[i] = new Parameter(stream, version, argumentMap);
+            let parameter = new Parameter();
+
+            parameter.load(stream, version, argumentMap);
+
+            this.parameters[i] = parameter;
         }
 
         if (version === 7) {
             for (let i = 0, l = stream.readUint32(); i < l; i++) {
-                this.ecas[i] = new ECA(stream, version, true, argumentMap);
+                let eca = new ECA();
+
+                eca.load(stream, version, true, argumentMap);
+
+                this.ecas[i] = eca;
             }
         }
-    },
+    }
 
     save(stream, version) {
         stream.writeInt32(this.type);
@@ -61,15 +65,19 @@ ECA.prototype = {
         }
 
         if (version === 7) {
-            stream.writeUint32(this.eca.length);
+            stream.writeUint32(this.ecas.length);
 
             for (let eca of this.ecas) {
                 eca.save(stream, version);
             }
         }
-    },
+    }
 
-    calcSize(version) {
+    /**
+     * @param {number} version 
+     * @returns {number} 
+     */
+    getByteLength(version) {
         let size = 9 + this.name.length;
 
         if (this.group !== -1) {
@@ -77,19 +85,36 @@ ECA.prototype = {
         }
 
         for (let parameter of this.parameters) {
-            size += parameter.calcSize(version);
+            size += parameter.getByteLength(version);
         }
 
         if (version === 7) {
             size += 4;
 
             for (let eca of this.ecas) {
-                size += eca.calcSize(version);
+                size += eca.getByteLength(version);
             }
         }
 
         return size;
     }
-};
 
-export default ECA;
+    fromCustomScriptCode(code) {
+        this.name = 'CustomScriptCode';
+
+        // Remove any existing parameters and ECAs.
+        this.parameters.length = 0;
+        this.ecas.length = 0;
+
+        let parameter = new Parameter();
+
+        parameter.type = 3; // String
+        parameter.value = code; // Jass code
+
+        this.parameters[0] = parameter;
+    }
+
+    toCustomScriptCode() {
+        return `call ${this.name}(${this.parameters.map((value) => value.toCustomScriptCode()).join(', ')})`;
+    }
+};

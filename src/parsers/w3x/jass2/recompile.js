@@ -127,4 +127,4 @@ function recompileNode(node, data, functionDef) {
 
 export default function recompile(jassCode, data) {
     return recompileNode(parse(jassCode), data);
-}
+};

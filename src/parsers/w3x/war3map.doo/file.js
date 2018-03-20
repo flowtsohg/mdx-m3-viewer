@@ -2,23 +2,30 @@ import BinaryStream from '../../../common/binarystream';
 import Doodad from './doodad';
 import TerrainDoodad from './terraindoodad';
 
-/**
- * @constructor
- * @param {?ArrayBuffer} buffer
- */
-function War3MapDoo(buffer) {
-    this.version = 0;
-    this.u1 = new Uint8Array(4);
-    this.doodads = [];
-    this.u2 = new Uint8Array(4);
-    this.terrainDoodads = [];
+export default class War3MapDoo {
+    /**
+     * @param {?ArrayBuffer} buffer
+     */
+    constructor(buffer) {
+        /** @member {number} */
+        this.version = 0;
+        /** @member {Uint8Array} */
+        this.u1 = new Uint8Array(4);
+        /** @member {Array<Doodad>} */
+        this.doodads = [];
+        /** @member {Uint8Array} */
+        this.u2 = new Uint8Array(4);
+        /** @member {Array<TerrainDoodad>} */
+        this.terrainDoodads = [];
 
-    if (buffer) {
-        this.load(buffer);
+        if (buffer) {
+            this.load(buffer);
+        }
     }
-}
 
-War3MapDoo.prototype = {
+    /**
+     * @param {ArrayBuffer} buffer
+     */
     load(buffer) {
         let stream = new BinaryStream(buffer);
 
@@ -30,18 +37,29 @@ War3MapDoo.prototype = {
         this.u1 = stream.readUint8Array(4);
     
         for (let i = 0, l = stream.readInt32(); i < l; i++) {
-            this.doodads[i] = new Doodad(stream, this.version)
+            let doodad = new Doodad();
+
+            doodad.load(stream, this.version);
+
+            this.doodads.push(doodad);
         }
     
         this.u2 = stream.readUint8Array(4);
     
         for (let i = 0, l = stream.readInt32(); i < l; i++) {
-            this.terrainDoodads[i] = new TerrainDoodad(stream, this.version)
-        }
-    },
+            let terrainDoodad = new TerrainDoodad();
 
+            terrainDoodad.load(stream, this.version);
+
+            this.terrainDoodads.push(terrainDoodad);
+        }
+    }
+
+    /**
+     * @returns {ArrayBuffer} 
+     */
     save() {
-        let buffer = new ArrayBuffer(this.calcSize()),
+        let buffer = new ArrayBuffer(this.getByteLength()),
             stream = new BinaryStream(buffer);
 
         stream.write('W3do');
@@ -56,16 +74,23 @@ War3MapDoo.prototype = {
         stream.writeUint8Array(this.u2);
         stream.writeUint32(this.terrainDoodads.length);
 
-        for (let doodad of this.terrainDoodads) {
-            doodad.save(stream);
+        for (let terrainDoodad of this.terrainDoodads) {
+            terrainDoodad.save(stream);
         }
 
         return buffer;
-    },
+    }
 
-    calcSize() {
-        return 24 + (this.doodads.length * (this.version > 7 ? 50 : 42)) + (this.terrainDoodads.length * 16);
+    /**
+     * @returns {number} 
+     */
+    getByteLength() {
+        let size = 24 + this.terrainDoodads.length * 16;
+
+        for (let doodad of this.doodads) {
+            size += doodad.getByteLength(this.version);
+        }
+
+        return size;
     }
 };
-
-export default War3MapDoo;

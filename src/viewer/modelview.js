@@ -1,38 +1,37 @@
-/**
- * @constructor
- * @param {Model} model.
- */
-function ModelView(model) {
-    /** @member {Model} */
-    this.model = model;
-    /** @member {Array<ModelInstance>} */
-    this.instances = [];
-    /** @member {Array<Bucket>} */
-    this.buckets = [];
-    /** @member {Map<Scene, Array<Bucket>>} */
-    this.sceneToBucket = new Map();
-}
+export default class ModelView {
+    /**
+     * @param {Model} model.
+     */
+    constructor(model) {
+        /** @member {Model} */
+        this.model = model;
+        /** @member {Array<ModelInstance>} */
+        this.instances = [];
+        /** @member {Array<Bucket>} */
+        this.buckets = [];
+        /** @member {Map<Scene, Array<Bucket>>} */
+        this.sceneToBucket = new Map();
+    }
 
-ModelView.prototype = {
     /** @member {string} */
     get objectType() {
         return 'modelview';
-    },
+    }
 
     // Get a shallow copy of this view
     getShallowCopy() {
 
-    },
+    }
 
     // Given a shallow copy, copy its contents to this view
     applyShallowCopy(view) {
 
-    },
+    }
 
     // Given another view or shallow view, determine whether they have equal values or not
     equals(view) {
         return true;
-    },
+    }
 
     addInstance(instance) {
         // If the instance is already in another view, remove it first.
@@ -50,7 +49,7 @@ ModelView.prototype = {
         if (instance.shouldRender && instance.scene && instance.loaded) {
             this.setVisibility(instance, true);
         }
-    },
+    }
 
     removeInstance(instance) {
         // If the instance has a bucket, remove it from it.
@@ -68,7 +67,7 @@ ModelView.prototype = {
         if (instances.length === 0) {
             this.model.removeView(this);
         }
-    },
+    }
 
     clear() {
         let instances = this.instances;
@@ -76,7 +75,7 @@ ModelView.prototype = {
         for (let i = 0, l = instances.length; i < l; i++) {
             this.removeInstance(instances[i]);
         }
-    },
+    }
 
     detach() {
         if (this.model) {
@@ -87,7 +86,7 @@ ModelView.prototype = {
         }
 
         return false;
-    },
+    }
 
     // Find a bucket that isn't full. If no bucket is found, add a new bucket and return it.
     getAvailableBucket(scene) {
@@ -107,14 +106,14 @@ ModelView.prototype = {
             }
         }
 
-        let bucket = new this.model.handler.Bucket(this);
+        let bucket = new this.model.handler.bucket(this);
 
         buckets.push(bucket);
 
         this.buckets.push(bucket);
 
         return bucket;
-    },
+    }
 
     sceneChanged(instance, scene) {
         if (instance.scene !== scene) {
@@ -133,7 +132,7 @@ ModelView.prototype = {
                 this.setVisibility(instance, true);
             }
         }
-    },
+    }
 
     // Note: this should only be called if the instance has a bucket and a scene
     setVisibility(instance, shouldRender) {
@@ -164,5 +163,3 @@ ModelView.prototype = {
         } 
     }
 };
-
-export default ModelView;

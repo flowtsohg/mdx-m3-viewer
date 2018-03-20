@@ -1,20 +1,6 @@
-import mix from '../../../common/mix';
 import Texture from '../../texture';
 
-/**
- * @constructor
- * @augments Texture
- * @memberOf NativeTexture
- * @param {ModelViewer} env
- * @param {function(?)} pathSolver
- * @param {Handler} handler
- * @param {string} extension
- */
-function ImageTexture(env, pathSolver, handler, extension) {
-    Texture.call(this, env, pathSolver, handler, extension);
-}
-
-ImageTexture.prototype = {
+export default class ImageTexture extends Texture {
     initialize(src) {
         // src can either be an Image, or an ArrayBuffer, depending on the way it was loaded
         if (src instanceof HTMLImageElement || src instanceof HTMLVideoElement || src instanceof HTMLCanvasElement || src instanceof ImageData) {
@@ -26,8 +12,7 @@ ImageTexture.prototype = {
 
             return true;
         } else {
-            let blob = new Blob([src]),
-                url = URL.createObjectURL(blob),
+            let url = URL.createObjectURL(src),
                 image = new Image();
 
             image.onload = () => {
@@ -40,7 +25,7 @@ ImageTexture.prototype = {
 
             image.src = url;
         }
-    },
+    }
 
     loadFromImage(image) {
         let gl = this.env.gl;
@@ -60,7 +45,3 @@ ImageTexture.prototype = {
         this.webglResource = id;
     }
 };
-
-mix(ImageTexture.prototype, Texture.prototype);
-
-export default ImageTexture;

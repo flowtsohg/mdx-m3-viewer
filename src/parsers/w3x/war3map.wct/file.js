@@ -1,22 +1,28 @@
 import BinaryStream from '../../../common/binarystream';
 import CustomTextTrigger from './customtexttrigger';
 
-/**
- * @constructor
- * @param {?ArrayBuffer} buffer 
- */
-function War3MapWct(buffer) {
-    this.version = 0;
-    this.comment = '';
-    this.trigger = null;
-    this.triggers = [];
+export default class War3MapWct {
+    /**
+     * @param {?ArrayBuffer} buffer 
+     */
+    constructor(buffer) {
+        /** @member {number} */
+        this.version = 0;
+        /** @member {string} */
+        this.comment = '';
+        /** @member {?CustomTextTrigger} */
+        this.trigger = null;
+        /** @member {Array<CustomTextTrigger>} */
+        this.triggers = [];
 
-    if (buffer) {
-        this.load(buffer);
+        if (buffer) {
+            this.load(buffer);
+        }
     }
-}
 
-War3MapWct.prototype = {
+    /**
+     * @param {ArrayBuffer} buffer 
+     */
     load(buffer) {
         let stream = new BinaryStream(buffer);
 
@@ -30,10 +36,13 @@ War3MapWct.prototype = {
         for (let i = 0, l = stream.readUint32(); i < l; i++) {
             this.triggers[i] = new CustomTextTrigger(stream);
         }
-    },
+    }
 
+    /**
+     * @returns {ArrayBuffer} 
+     */
     save() {
-        let buffer = new ArrayBuffer(this.calcSize()),
+        let buffer = new ArrayBuffer(this.getByteLength()),
             stream = new BinaryStream(buffer);
 
         stream.writeInt32(this.version);
@@ -50,21 +59,22 @@ War3MapWct.prototype = {
         }
 
         return buffer;
-    },
+    }
 
-    calcSize() {
+    /**
+     * @returns {number} 
+     */
+    getByteLength() {
         let size = 8;
 
         if (this.version === 1) {
-            size += this.comment.length + 1 + this.trigger.calcSize();
+            size += this.comment.length + 1 + this.trigger.getByteLength();
         }
 
         for (let trigger of this.triggers) {
-            size += trigger.calcSize();
+            size += trigger.getByteLength();
         }
 
         return size;
     }
 };
-
-export default War3MapWct;

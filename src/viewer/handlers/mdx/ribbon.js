@@ -5,24 +5,23 @@ import { uint8ToUint24 } from '../../../common/typecast';
 let belowHeap = vec3.create(),
     aboveHeap = vec3.create();
 
-/**
- * @constructor
- * @param {MdxRibbonEmitter} emitter
- */
-function MdxRibbon(emitter) {
-    this.emitter = emitter;
-    this.health = 0;
-    this.emitterView = null;
+export default class MdxRibbon {
+    /**
+     * @param {MdxRibbonEmitter} emitter
+     */
+    constructor(emitter) {
+        this.emitter = emitter;
+        this.health = 0;
+        this.emitterView = null;
 
-    this.vertices = new Float32Array(12);
-    this.lta = 0;
-    this.lba = 0;
-    this.rta = 0;
-    this.rba = 0;
-    this.rgb = 0;
-}
+        this.vertices = new Float32Array(12);
+        this.lta = 0;
+        this.lba = 0;
+        this.rta = 0;
+        this.rba = 0;
+        this.rgb = 0;
+    }
 
-MdxRibbon.prototype = {
     reset(emitterView) {
         let emitter = this.emitter,
             vertices = this.vertices;
@@ -85,7 +84,7 @@ MdxRibbon.prototype = {
             vertices[10] = 0;
             vertices[11] = 0;
         }
-    },
+    }
 
     update() {
         let emitter = this.emitter,
@@ -133,5 +132,3 @@ MdxRibbon.prototype = {
         }
     }
 };
-
-export default MdxRibbon;

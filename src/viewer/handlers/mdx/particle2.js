@@ -5,33 +5,32 @@ import { uint8ToUint24 } from '../../../common/typecast';
 // Heap allocations needed for this module.
 let rotationHeap = quat.create();
 
-/**
- * @constructor
- * @param {MdxParticle2Emitter} emitter
- */
-function MdxParticle2(emitter) {
-    this.emitter = emitter;
-    this.instance = null;
-    this.health = 0;
-    this.head = true;
-    this.location = vec3.create();
-    this.worldLocation = vec3.create();
-    this.velocity = vec3.create();
-    this.gravity = 0;
-    this.scale = 1;
-    this.index = 0;
-    this.nodeScale = vec3.create();
+export default class MdxParticle2 {
+    /**
+     * @param {MdxParticle2Emitter} emitter
+     */
+    constructor(emitter) {
+        this.emitter = emitter;
+        this.instance = null;
+        this.health = 0;
+        this.head = true;
+        this.location = vec3.create();
+        this.worldLocation = vec3.create();
+        this.velocity = vec3.create();
+        this.gravity = 0;
+        this.scale = 1;
+        this.index = 0;
+        this.nodeScale = vec3.create();
 
-    this.color = new Uint8Array(4);
-    this.vertices = new Float32Array(12);
-    this.lta = 0;
-    this.lba = 0;
-    this.rta = 0;
-    this.rba = 0;
-    this.rgb = 0;
-}
+        this.color = new Uint8Array(4);
+        this.vertices = new Float32Array(12);
+        this.lta = 0;
+        this.lba = 0;
+        this.rta = 0;
+        this.rba = 0;
+        this.rgb = 0;
+    }
 
-MdxParticle2.prototype = {
     reset(emitterView, isHead) {
         let modelObject = this.emitter.modelObject,
             node = emitterView.instance.skeleton.nodes[modelObject.node.index],
@@ -94,7 +93,7 @@ MdxParticle2.prototype = {
 
             vec3.scaleAndAdd(location, location, velocity, -tailLength);
         }
-    },
+    }
 
     update(scene) {
         let modelObject = this.emitter.modelObject,
@@ -251,5 +250,3 @@ MdxParticle2.prototype = {
         this.rgb = uint8ToUint24(color[0], color[1], color[2]);
     }
 };
-
-export default MdxParticle2;

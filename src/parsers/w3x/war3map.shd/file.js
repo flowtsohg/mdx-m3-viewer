@@ -1,18 +1,18 @@
 import BinaryStream from '../../../common/binarystream';
 
-/**
- * @constructor
- * @param {?ArrayBuffer} buffer 
- */
-function War3MapShd(buffer, mapSize) {
-    this.shadows = [];
+export default class War3MapShd {
+    /**
+     * @param {?ArrayBuffer} buffer 
+     */
+    constructor(buffer, mapSize) {
+        /** @member {Array<Array<number>>} */
+        this.shadows = [];
 
-    if (buffer) {
-        this.load(buffer, mapSize);
+        if (buffer) {
+            this.load(buffer, mapSize);
+        }
     }
-}
-
-War3MapShd.prototype = {
+    
     load(buffer, mapSize) {
         let stream = new BinaryStream(buffer);
 
@@ -23,10 +23,10 @@ War3MapShd.prototype = {
                 this.shadows[row][column] = stream.readUint8()
             }
         }
-    },
+    }
 
     save() {
-        let buffer = new ArrayBuffer(this.calcSize()),
+        let buffer = new ArrayBuffer(this.getByteLength()),
             stream = new BinaryStream(buffer);
 
         for (let row of this.shadows) {
@@ -36,11 +36,9 @@ War3MapShd.prototype = {
         }
 
         return buffer;
-    },
+    }
 
-    calcSize() {
-        return (this.shadows.length * this.shadows[0].length);
+    getByteLength() {
+        return this.shadows.length * this.shadows[0].length;
     }
 };
-
-export default War3MapShd;

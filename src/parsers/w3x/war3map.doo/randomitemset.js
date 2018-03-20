@@ -1,31 +1,39 @@
 import RandomItem from './randomitem';
 
-function RandomItemSet(stream) {
-    this.items = [];
-
-    if (stream) {
-        this.load(stream);
+export default class RandomItemSet {
+    constructor() {
+        /** @member {Array<RandomItem>} */
+        this.items = [];
     }
-}
 
-RandomItemSet.prototype = {
+    /**
+     * @param {BinaryStream} stream 
+     */
     load(stream) {
         for (let i = 0, l = stream.readUint32(); i < l; i++) {
-            this.items[i] = new RandomItem(stream);
-        }
-    },
+            let item = new RandomItem();
 
+            item.load(stream);
+
+            this.items.push(item);
+        }
+    }
+
+    /**
+     * @param {BinaryStream} stream 
+     */
     save(stream) {
         stream.writeUint32(this.items.length);
 
         for (let item of this.items) {
             item.save(stream);
         }
-    },
+    }
 
-    calcSize() {
+    /**
+     * @returns {number} 
+     */
+    getByteLength() {
         return 4 + this.items.length * 8;
     }
 };
-
-export default RandomItemSet;

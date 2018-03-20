@@ -1,19 +1,13 @@
-import mix from '../../../common/mix';
 import ModelView from '../../modelview';
 
-/**
- * @constructor
- * @extends ModelView
- * @memberOf Geo
- * @param {GeometryModel} model
- */
-function GeometryModelView(model) {
-    ModelView.call(this, model);
+export default class GeometryModelView extends ModelView {
+    /**
+     * @param {GeometryModel} model
+     */
+    constructor(model) {
+        super(model);
 
-    /** @member {?Texture} */
-    this.texture = null;
-}
-
-mix(GeometryModelView.prototype, ModelView.prototype);
-
-export default GeometryModelView;
+        /** @member {?Texture} */
+        this.texture = null;
+    }
+};

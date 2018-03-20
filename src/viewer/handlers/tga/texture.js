@@ -1,20 +1,6 @@
-import mix from '../../../common/mix';
 import Texture from '../../texture';
 
-/**
- * @constructor
- * @augments Texture
- * @memberOf Tga
- * @param {ModelViewer} env
- * @param {function(?)} pathSolver
- * @param {Handler} handler
- * @param {string} extension
- */
-function TgaTexture(env, pathSolver, handler, extension) {
-    Texture.call(this, env, pathSolver, handler, extension);
-}
-
-TgaTexture.prototype = {
+export default class TgaTexture extends Texture {
     initialize(src) {
         let gl = this.env.gl,
             dataView = new DataView(src),
@@ -52,7 +38,3 @@ TgaTexture.prototype = {
         return true;
     }
 };
-
-mix(TgaTexture.prototype, Texture.prototype);
-
-export default TgaTexture;

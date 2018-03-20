@@ -1,22 +1,19 @@
-import mix from '../common/mix';
 import ModelView from './modelview';
 
-/**
- * @constructor
- * @augments ModelView
- * @param {Model} model
- */
-function TexturedModelView(model) {
-    ModelView.call(this, model);
+export default class TexturedModelView extends ModelView {
+    /**
+     * @param {Model} model
+     */
+    constructor(model) {
+        super(model);
 
-    /** @member {Map<Texture, Texture>} */
-    this.textures = new Map();
-}
+        /** @member {Map<Texture, Texture>} */
+        this.textures = new Map();
+    }
 
-TexturedModelView.prototype = {
     getShallowCopy() {
         return { textures: new Map(this.textures) };
-    },
+    }
 
     applyShallowCopy(view) {
         let textures = this.textures,
@@ -25,7 +22,7 @@ TexturedModelView.prototype = {
         for (let [src, dst] of dstTextures) {
             textures.set(src, dst)
         }
-    },
+    }
 
     equals(view) {
         let textures = this.textures,
@@ -44,7 +41,3 @@ TexturedModelView.prototype = {
         return true;
     }
 };
-
-mix(TexturedModelView.prototype, ModelView.prototype);
-
-export default TexturedModelView;

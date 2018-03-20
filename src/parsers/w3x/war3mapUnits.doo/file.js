@@ -1,21 +1,26 @@
 import BinaryStream from '../../../common/binarystream';
 import Unit from './unit';
 
-/**
- * @constructor
- * @param {?ArrayBuffer} buffer
- */
-function War3MapUnitsDoo(buffer) {
-    this.version = 8;
-    this.unknown = 11;
-    this.units = [];
+export default class War3MapUnitsDoo {
+    /**
+     * @param {?ArrayBuffer} buffer
+     */
+    constructor(buffer) {
+        /** @member {number} */
+        this.version = 8;
+        /** @member {number} */
+        this.unknown = 11;
+        /** @member {Array<Unit>} */
+        this.units = [];
 
-    if (buffer) {
-        this.load(buffer);
+        if (buffer) {
+            this.load(buffer);
+        }
     }
-}
 
-War3MapUnitsDoo.prototype = {
+    /**
+     * @param {ArrayBuffer} buffer
+     */
     load(buffer) {
         let stream = new BinaryStream(buffer);
 
@@ -27,10 +32,17 @@ War3MapUnitsDoo.prototype = {
         this.unknown = stream.readUint32();
 
         for (let i = 0, l = stream.readInt32(); i < l; i++) {
-            this.units[i] = new Unit(stream, this.version);
-        }
-    },
+            let unit = new Unit();
 
+            unit.load(stream, this.version);
+
+            this.units[i] = unit;
+        }
+    }
+
+    /**
+     * @returns {ArrayBuffer} 
+     */
     save() {
         let buffer = new ArrayBuffer(this.calcSize()),
             stream = new BinaryStream(buffer);
@@ -45,17 +57,20 @@ War3MapUnitsDoo.prototype = {
         }
 
         return buffer;
-    },
+    }
 
-    calcSize() {
+    /**
+     * @returns {number} 
+     */
+    getByteLength() {
         let size = 16;
         
         for (let unit of this.units) {
-            size += unit.calcSize(this.version);
+            size += unit.getByteLength(this.version);
         }
         
         return size;
-    },
+    }
 
     createUnit() {
         let unit = new Unit();
@@ -63,11 +78,9 @@ War3MapUnitsDoo.prototype = {
         this.units.push(unit);
 
         return unit;
-    },
+    }
 
     addUnit(unit) {
         this.units.push(unit);
     }
 };
-
-export default War3MapUnitsDoo;

@@ -5,10 +5,8 @@ import MdxParserLayer from './layer';
  * @constructor
  * @param {BinaryReader} reader
  * @param {Array<MdxParserNode>} nodes
- * @param {number} index
  */
-function MdxParserMaterial(reader, nodes, index) {
-    this.index = index;
+function MdxParserMaterial(reader, nodes) {
     /** @member {number} */
     this.size = reader.readUint32();
     /** @member {number} */

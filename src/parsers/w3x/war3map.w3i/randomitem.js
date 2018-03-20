@@ -1,22 +1,24 @@
-function RandomItem(stream) {
-    this.chance = 0;
-    this.id = '\0\0\0\0';
-
-    if (stream) {
-        this.load(stream, positions);
+export default class RandomItem {
+    constructor() {
+        /** @member {number} */
+        this.chance = 0;
+        /** @member {string} */
+        this.id = '\0\0\0\0';
     }
-}
 
-RandomItem.prototype = {
+    /**
+     * @param {BinaryStream} stream 
+     */
     load(stream) {
         this.chance = stream.readInt32();
         this.id = stream.read(4);
-    },
+    }
 
+    /**
+     * @param {BinaryStream} stream 
+     */
     save(stream) {
         stream.writeInt32(this.chance);
         stream.write(this.id);
     }
 };
-
-export default RandomItem;

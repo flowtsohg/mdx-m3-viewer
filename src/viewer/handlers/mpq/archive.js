@@ -1,24 +1,20 @@
-import mix from '../../../common/mix';
 import MpqParserArchive from '../../../parsers/mpq/archive';
 import ViewerFile from '../../file';
 
-/**
- * @constructor
- * @augments ViewerFile
- * @memberOf Mpq
- * @param {ModelViewer} env
- * @param {function(?)} pathSolver
- * @param {Handler} handler
- * @param {string} extension
- */
-function MpqArchive(env, pathSolver, handler, extension) {
-    ViewerFile.call(this, env, pathSolver, handler, extension);
+export default class MpqArchive extends ViewerFile {
+    /**
+     * @param {ModelViewer} env
+     * @param {function(?)} pathSolver
+     * @param {Handler} handler
+     * @param {string} extension
+     */
+    constructor(env, pathSolver, handler, extension) {
+        super(env, pathSolver, handler, extension);
 
-    /** @member {?MpqParserArchive} */
-    this.archive = null;
-}
+        /** @member {?MpqParserArchive} */
+        this.archive = null;
+    }
 
-MpqArchive.prototype = {
     initialize(src) {
         let archive = new MpqParserArchive(null, true);
 
@@ -30,7 +26,7 @@ MpqArchive.prototype = {
         this.archive = archive;
 
         return true;
-    },
+    }
 
     /**
      * Checks if a file exists in this archive.
@@ -40,7 +36,7 @@ MpqArchive.prototype = {
      */
     has(name) {
         return this.archive.has(name);
-    },
+    }
 
     /**
      * Extract a file from this archive.
@@ -54,7 +50,3 @@ MpqArchive.prototype = {
         return this.archive.get(name);
     }
 };
-
-mix(MpqArchive.prototype, ViewerFile.prototype);
-
-export default MpqArchive;

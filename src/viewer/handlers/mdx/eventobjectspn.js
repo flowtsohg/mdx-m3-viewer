@@ -1,14 +1,13 @@
-/**
- * @constructor
- * @param {MdxEventObjectEmitter} emitter
- */
-function MdxEventObjectSpn(emitter) {
-    this.emitter = emitter;
-    this.health = 0;
-    this.internalResource = emitter.modelObject.internalResource.addInstance();
-}
+export default class MdxEventObjectSpn {
+    /**
+     * @param {MdxEventObjectEmitter} emitter
+     */
+    constructor(emitter) {
+        this.emitter = emitter;
+        this.health = 0;
+        this.internalResource = emitter.modelObject.internalResource.addInstance();
+    }
 
-MdxEventObjectSpn.prototype = {
     reset(emitterView) {
         let instance = this.internalResource,
             node = emitterView.instance.skeleton.nodes[this.emitter.modelObject.node.index];
@@ -20,7 +19,7 @@ MdxEventObjectSpn.prototype = {
         emitterView.instance.scene.addInstance(instance);
 
         this.health = 1;
-    },
+    }
 
     update() {
         let instance = this.internalResource;
@@ -33,5 +32,3 @@ MdxEventObjectSpn.prototype = {
         }
     }
 };
-
-export default MdxEventObjectSpn;

@@ -1,25 +1,4 @@
 /**
- * Converts between a 4 character ASCII tag and it's unsigned integer representation.
- *
- * @param {string} tag
- * @returns {number}
- */
-export function tagToUint(tag) {
-    return (tag.charCodeAt(0) << 24) + (tag.charCodeAt(1) << 16) + (tag.charCodeAt(2) << 8) + tag.charCodeAt(3);
-};
-
-
-/**
- * Converts between an unsigned integer and it's ASCII representation.
- *
- * @param {number} uint
- * @returns {string}
- */
-export function uintToTag(uint) {
-    return String.fromCharCode((uint >> 24) & 0xff, (uint >> 16) & 0xff, (uint >> 8) & 0xff, uint & 0xff);
-};
-
-/**
  * Convert from degrees to radians.
  *
  * @param {number} degrees

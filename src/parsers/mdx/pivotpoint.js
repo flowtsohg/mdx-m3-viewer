@@ -1,10 +1,8 @@
 /**
  * @constructor
  * @param {BinaryReader} reader
- * @param {number} index
  */
-function MdxParserPivotPoint(reader, index) {
-    this.index = index;
+function MdxParserPivotPoint(reader) {
     /** @member {Float32Array} */
     this.value = reader.readFloat32Array(3);
 }

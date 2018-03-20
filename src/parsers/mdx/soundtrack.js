@@ -2,10 +2,8 @@
  * @constructor
  * @see This chunk was reverse engineered from the game executable itself, but was never seen in any resource
  * @param {BinaryReader} reader
- * @param {number} index
  */
-function MdxParserSoundTrack(reader, index) {
-    this.index = index;
+function MdxParserSoundTrack(reader) {
     /** @member {string} */
     this.path = reader.read(260);
     /** @member {number} */

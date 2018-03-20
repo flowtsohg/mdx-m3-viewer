@@ -1,38 +1,35 @@
 import { vec3 } from 'gl-matrix';
 import Camera from './camera';
-import NotifiedNode from './notifiednode';
+import { NotifiedSceneNode } from './node';
 
 // Heap allocations needed for this module.
 let ndcHeap = new Float32Array(3);
 
-/**
- * @constructor
- */
-function Scene() {
-    /** @member {ModelViewer} */
-    this.env = null;
-    /** @member {Camera} */
-    this.camera = new Camera();
-    /** @member {Array<ModelInstance>} */
-    this.instances = [];
-    /** @member {Set<ModelInstance>} */
-    this.instanceSet = new Set();
-    /** @member {Array<Bucket>} */
-    this.buckets = [];
-    /** @member {Set<Bucket>} */
-    this.bucketSet = new Set();
-    /** @member {NotifiedNode} */
-    this.root = new NotifiedNode();
+export default class Scene {
+    constructor() {
+        /** @member {ModelViewer} */
+        this.env = null;
+        /** @member {Camera} */
+        this.camera = new Camera();
+        /** @member {Array<ModelInstance>} */
+        this.instances = [];
+        /** @member {Set<ModelInstance>} */
+        this.instanceSet = new Set();
+        /** @member {Array<Bucket>} */
+        this.buckets = [];
+        /** @member {Set<Bucket>} */
+        this.bucketSet = new Set();
+        /** @member {NotifiedSceneNode} */
+        this.root = new NotifiedSceneNode();
 
-    this.bucketsToAdd = [];
-    this.bucketsToRemove = [];
-}
+        this.bucketsToAdd = [];
+        this.bucketsToRemove = [];
+    }
 
-Scene.prototype = {
     /** @member {string} */
     get objectType() {
         return 'scene';
-    },
+    }
 
     /**
      * Get the rendering statistics of this scene.
@@ -67,7 +64,7 @@ Scene.prototype = {
         }
 
         return { buckets, calls, instances, vertices, polygons, dynamicVertices, dynamicPolygons };
-    },
+    }
 
     /**
      * Add an instance to this scene.
@@ -94,7 +91,7 @@ Scene.prototype = {
         }
 
         return false;
-    },
+    }
 
     /**
      * Remove an instance from this scene.
@@ -119,7 +116,7 @@ Scene.prototype = {
         }
 
         return false;
-    },
+    }
 
     /**
      * Removes all of the buckets in this scene.
@@ -128,7 +125,7 @@ Scene.prototype = {
         this.buckets.length = 0;
         this.instanceSet.clear();
         this.instances.length = 0;
-    },
+    }
 
     /**
      * Detach this scene from the viewer.
@@ -139,23 +136,23 @@ Scene.prototype = {
         }
 
         return false;
-    },
+    }
 
     // Note: the bucket will actually be added at the next update call.
     addBucket(bucket) {
         this.bucketsToAdd.push(bucket);
-    },
+    }
 
     // Note: the bucket will actually be removed at the next update call.
     removeBucket(bucket) {
         this.bucketsToRemove.push(bucket);
-    },
+    }
 
     // Sort the buckets based on priority.
     // Note that this is never called by the library so far, and is manually used by the W3x handler.
     sortBuckets() {
         this.buckets.sort((a, b) => b.priority - a.priority);
-    },
+    }
 
     update() {
         // First update all of the instances.
@@ -179,8 +176,9 @@ Scene.prototype = {
                     // Update animation timers.
                     instance.updateTimers();
 
+                    instance.isVisible = isVisible && !isCulled;
+
                     // If the instance is actually shown, do the full update.
-                    //if (instance.shown()) {
                     if (isVisible) {
                         instance.update();
                     }
@@ -225,7 +223,7 @@ Scene.prototype = {
         // Reset the arrays.
         bucketsToAdd.length = 0;
         bucketsToRemove.length = 0;
-    },
+    }
 
     isVisible(instance) {
         //*
@@ -241,7 +239,7 @@ Scene.prototype = {
         //*/
 
         //return this.model.env.camera.testIntersectionAABB(instance.boundingShape) > 0;
-    },
+    }
 
     renderOpaque() {
         let buckets = this.buckets;
@@ -251,7 +249,7 @@ Scene.prototype = {
         for (let i = 0, l = buckets.length; i < l; i++) {
             buckets[i].renderOpaque(this);
         }
-    },
+    }
 
     renderTranslucent() {
         let buckets = this.buckets;
@@ -261,7 +259,7 @@ Scene.prototype = {
         for (let i = 0, l = buckets.length; i < l; i++) {
             buckets[i].renderTranslucent(this);
         }
-    },
+    }
 
     renderEmitters() {
         let buckets = this.buckets;
@@ -271,7 +269,7 @@ Scene.prototype = {
         for (let i = 0, l = buckets.length; i < l; i++) {
             buckets[i].renderEmitters(this);
         }
-    },
+    }
 
     setViewport() {
         let viewport = this.camera.viewport;
@@ -279,5 +277,3 @@ Scene.prototype = {
         this.env.gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
     }
 };
-
-export default Scene;

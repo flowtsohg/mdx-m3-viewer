@@ -3,10 +3,8 @@ import MdxParserExtent from './extent';
 /**
  * @constructor
  * @param {BinaryReader} reader
- * @param {number} index
  */
-function MdxParserSequence(reader, index) {
-    this.index = index;
+function MdxParserSequence(reader) {
     /** @member {string} */
     this.name = reader.read(80);
     /** @member {Uint32Array} */

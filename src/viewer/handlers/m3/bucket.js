@@ -1,68 +1,64 @@
-import mix from '../../../common/mix';
 import Bucket from '../../bucket';
 
-/**
- * @constructor
- * @extends Bucket
- * @memberOf M3
- * @param {TexturedModelView} modelView
- */
-function M3Bucket(modelView) {
-    Bucket.call(this, modelView);
+export default class M3Bucket extends Bucket {
+    /**
+     * @param {TexturedModelView} modelView
+     */
+    constructor(modelView) {
+        super(modelView);
 
-    const model = this.model;
-    const gl = model.env.gl;
+        const model = this.model;
+        const gl = model.env.gl;
 
-    this.gl = gl;
+        this.gl = gl;
 
-    var numberOfBones = model.initialReference.length;
-    
-    this.boneArrayInstanceSize = numberOfBones * 16;
-    this.boneArray = new Float32Array(this.boneArrayInstanceSize * this.size);
+        var numberOfBones = model.initialReference.length;
+        
+        this.boneArrayInstanceSize = numberOfBones * 16;
+        this.boneArray = new Float32Array(this.boneArrayInstanceSize * this.size);
 
-    this.updateBoneTexture = new Uint8Array([1]);
-    this.boneTexture = gl.createTexture();
-    this.boneTextureWidth = numberOfBones * 4;
-    this.boneTextureHeight = this.size;
-    this.vectorSize = 1 / this.boneTextureWidth;
-    this.rowSize = 1 / this.boneTextureHeight;
+        this.updateBoneTexture = new Uint8Array([1]);
+        this.boneTexture = gl.createTexture();
+        this.boneTextureWidth = numberOfBones * 4;
+        this.boneTextureHeight = this.size;
+        this.vectorSize = 1 / this.boneTextureWidth;
+        this.rowSize = 1 / this.boneTextureHeight;
 
-    gl.activeTexture(gl.TEXTURE15);
-    gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.boneTextureWidth, this.boneTextureHeight, 0, gl.RGBA, gl.FLOAT, this.boneArray);
+        gl.activeTexture(gl.TEXTURE15);
+        gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.boneTextureWidth, this.boneTextureHeight, 0, gl.RGBA, gl.FLOAT, this.boneArray);
 
-    // Team colors (per instance)
-    this.updateTeamColors = new Uint8Array(1);
-    this.teamColorArray = new Uint8Array(this.size);
-    this.teamColorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this.teamColorArray, gl.DYNAMIC_DRAW);
+        // Team colors (per instance)
+        this.updateTeamColors = new Uint8Array(1);
+        this.teamColorArray = new Uint8Array(this.size);
+        this.teamColorBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.teamColorArray, gl.DYNAMIC_DRAW);
 
-    // Vertex color (per instance)
-    this.updateVertexColors = new Uint8Array(1);
-    this.vertexColorArray = new Uint8Array(4 * this.size).fill(255); // Vertex color initialized to white
-    this.vertexColorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this.vertexColorArray, gl.DYNAMIC_DRAW);
+        // Vertex color (per instance)
+        this.updateVertexColors = new Uint8Array(1);
+        this.vertexColorArray = new Uint8Array(4 * this.size).fill(255); // Vertex color initialized to white
+        this.vertexColorBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertexColorArray, gl.DYNAMIC_DRAW);
 
-    // Batch visibility (per instance per batch)
-    this.updateBatches = new Uint8Array(model.batches.length);
-    this.batchVisibilityArrays = [];
-    this.batchVisibilityBuffers = [];
+        // Batch visibility (per instance per batch)
+        this.updateBatches = new Uint8Array(model.batches.length);
+        this.batchVisibilityArrays = [];
+        this.batchVisibilityBuffers = [];
 
-    for (var i = 0, l = model.batches.length; i < l; i++) {
-        this.batchVisibilityArrays[i] = new Uint8Array(this.size);
-        this.batchVisibilityBuffers[i] = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.batchVisibilityBuffers[i]);
-        gl.bufferData(gl.ARRAY_BUFFER, this.batchVisibilityArrays[i], gl.DYNAMIC_DRAW);
+        for (var i = 0, l = model.batches.length; i < l; i++) {
+            this.batchVisibilityArrays[i] = new Uint8Array(this.size);
+            this.batchVisibilityBuffers[i] = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.batchVisibilityBuffers[i]);
+            gl.bufferData(gl.ARRAY_BUFFER, this.batchVisibilityArrays[i], gl.DYNAMIC_DRAW);
+        }
     }
-}
 
-M3Bucket.prototype = {
     getRenderStats() {
         let model = this.model,
             calls = 0,
@@ -80,7 +76,7 @@ M3Bucket.prototype = {
         }
 
         return { calls, instances, vertices, polygons, dynamicVertices: 0, dynamicPolygons: 0 };
-    },
+    }
 
     update(scene) {
         let gl = this.gl,
@@ -121,7 +117,7 @@ M3Bucket.prototype = {
             }
         }
         */
-    },
+    }
 
     getSharedData(index) {
         var data = {
@@ -138,7 +134,3 @@ M3Bucket.prototype = {
         return data;
     }
 };
-
-mix(M3Bucket.prototype, Bucket.prototype);
-
-export default M3Bucket;

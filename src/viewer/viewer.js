@@ -1,131 +1,128 @@
-import mix from '../common/mix';
 import { createTextureAtlas } from '../common/canvas';
 import EventDispatcher from './eventdispatcher';
 import WebGL from './gl/gl';
 import PromiseResource from './promiseresource';
 import DownloadableResource from './downloadableresource';
 
-/**
- * @constructor
- * @augments EventDispatcher
- * @param {HTMLCanvasElement} canvas
- */
-function ModelViewer(canvas) {
-    EventDispatcher.call(this);
-
-    /** @member {object} */
-    this.resources = {
-        array: [],
-        map: new Map()
-    };
-
-    /** 
-     * The speed of animation. Note that this is not the time of a frame in milliseconds, but rather the amount of animation frames to advance each update.
-     * 
-     * @member {number} 
+export default class ModelViewer extends EventDispatcher {
+    /**
+     * @param {HTMLCanvasElement} canvas
      */
-    this.frameTime = 1000 / 60;
+    constructor(canvas) {
+        super();
 
-    /** @member {HTMLCanvasElement} */
-    this.canvas = canvas;
+        /** @member {object} */
+        this.resources = {
+            array: [],
+            map: new Map()
+        };
 
-    /** @member {WebGL} */
-    this.webgl = new WebGL(canvas);
+        /** 
+         * The speed of animation. Note that this is not the time of a frame in milliseconds, but rather the amount of animation frames to advance each update.
+         * 
+         * @member {number} 
+         */
+        this.frameTime = 1000 / 60;
 
-    /** @member {WebGLRenderingContext} */
-    this.gl = this.webgl.gl;
+        /** @member {HTMLCanvasElement} */
+        this.canvas = canvas;
 
-    /** @member {Object<string, string>} */
-    this.sharedShaders = {
-        // Shared shader code to mimic gl_InstanceID
-        'instanceId': `
-            attribute float a_InstanceID;
-        `,
-        // Shared shader code to handle bone textures
-        'boneTexture': `
-            uniform sampler2D u_boneMap;
-            uniform float u_vectorSize;
-            uniform float u_rowSize;
+        /** @member {WebGL} */
+        this.webgl = new WebGL(canvas);
 
-            mat4 fetchMatrix(float column, float row) {
-                column *= u_vectorSize * 4.0;
-                row *= u_rowSize;
-                // Add in half texel to sample in the middle of the texel.
-                // Otherwise, since the sample is directly on the boundry, small floating point errors can cause the sample to get the wrong pixel.
-                // This is mostly noticable with NPOT textures, which the bone maps are.
-                column += 0.5 * u_vectorSize;
-                row += 0.5 * u_rowSize;
+        /** @member {WebGLRenderingContext} */
+        this.gl = this.webgl.gl;
 
-                return mat4(texture2D(u_boneMap, vec2(column, row)),
-                            texture2D(u_boneMap, vec2(column + u_vectorSize, row)),
-                            texture2D(u_boneMap, vec2(column + u_vectorSize * 2.0, row)),
-                            texture2D(u_boneMap, vec2(column + u_vectorSize * 3.0, row)));
-            }
+        /** @member {Object<string, string>} */
+        this.sharedShaders = {
+            // Shared shader code to mimic gl_InstanceID
+            'instanceId': `
+                attribute float a_InstanceID;
             `,
-        // Shared shader code to handle decoding multiple bytes stored in floats
-        'decodeFloat': `
-            vec2 decodeFloat2(float f) {
-                vec2 v;
+            // Shared shader code to handle bone textures
+            'boneTexture': `
+                uniform sampler2D u_boneMap;
+                uniform float u_vectorSize;
+                uniform float u_rowSize;
 
-                v[1] = floor(f / 256.0);
-                v[0] = floor(f - v[1] * 256.0);
+                mat4 fetchMatrix(float column, float row) {
+                    column *= u_vectorSize * 4.0;
+                    row *= u_rowSize;
+                    // Add in half texel to sample in the middle of the texel.
+                    // Otherwise, since the sample is directly on the boundry, small floating point errors can cause the sample to get the wrong pixel.
+                    // This is mostly noticable with NPOT textures, which the bone maps are.
+                    column += 0.5 * u_vectorSize;
+                    row += 0.5 * u_rowSize;
 
-                return v;
+                    return mat4(texture2D(u_boneMap, vec2(column, row)),
+                                texture2D(u_boneMap, vec2(column + u_vectorSize, row)),
+                                texture2D(u_boneMap, vec2(column + u_vectorSize * 2.0, row)),
+                                texture2D(u_boneMap, vec2(column + u_vectorSize * 3.0, row)));
+                }
+                `,
+            // Shared shader code to handle decoding multiple bytes stored in floats
+            'decodeFloat': `
+                vec2 decodeFloat2(float f) {
+                    vec2 v;
+
+                    v[1] = floor(f / 256.0);
+                    v[0] = floor(f - v[1] * 256.0);
+
+                    return v;
+                }
+
+                vec3 decodeFloat3(float f) {
+                    vec3 v;
+
+                    v[2] = floor(f / 65536.0);
+                    v[1] = floor((f - v[2] * 65536.0) / 256.0);
+                    v[0] = floor(f - v[2] * 65536.0 - v[1] * 256.0);
+
+                    return v;
+                }
+            `
+        };
+
+        /** @member {Map<string, ShaderProgram>} */
+        this.shaderMap = new Map();
+
+        /** @member {Set<Object>} */
+        this.handlers = new Set();
+
+        /** @member {Array<Scene>} */
+        this.scenes = [];
+
+        /** @member {Set} */
+        this.resourcesLoading = new Set();
+
+        // Track when resources start loading.
+        this.addEventListener('loadstart', (e) => {
+            this.resourcesLoading.add(e.target);
+        });
+
+        // Track when resources end loading.
+        this.addEventListener('loadend', (e) => { 
+            this.resourcesLoading.delete(e.target); 
+
+            // If there are currently no resources loading, dispatch the 'loadendall' event.
+            if (this.resourcesLoading.size === 0) {
+                this.dispatchEvent({ type: 'loadendall' });
             }
+        });
 
-            vec3 decodeFloat3(float f) {
-                vec3 v;
+        this.noCulling = false; // Set to true to disable culling viewer-wide.
 
-                v[2] = floor(f / 65536.0);
-                v[1] = floor((f - v[2] * 65536.0) / 256.0);
-                v[0] = floor(f - v[2] * 65536.0 - v[1] * 256.0);
+        this.textureAtlases = {};
+    }
 
-                return v;
-            }
-        `
-    };
-
-    /** @member {Map<string, ShaderProgram>} */
-    this.shaderMap = new Map();
-
-    /** @member {Map<string, Handler>} */
-    this.handlers = new Map(); // Map from a file extension to an handler
-
-    /** @member {Array<Scene>} */
-    this.scenes = [];
-
-    /** @member {Set} */
-    this.resourcesLoading = new Set();
-
-    // Track when resources start loading.
-    this.addEventListener('loadstart', (e) => {
-        this.resourcesLoading.add(e.target);
-    });
-
-    // Track when resources end loading.
-    this.addEventListener('loadend', (e) => { 
-        this.resourcesLoading.delete(e.target); 
-
-        // If there are currently no resources loading, dispatch the 'loadendall' event.
-        if (this.resourcesLoading.size === 0) {
-            this.dispatchEvent({ type: 'loadendall' });
-        }
-    });
-
-    this.noCulling = false; // Set to true to disable culling viewer-wide.
-
-    this.textureAtlases = {};
-}
-
-ModelViewer.prototype = {
     /**
      * Get the version string of the viewer - '<major>.<minor>.<patch>'.
      *
      * @returns {string}
      */
     get version() {
-        return '4.0.27';
-    },
+        return '4.1.0';
+    }
 
     /**
      * Add an handler.
@@ -134,35 +131,22 @@ ModelViewer.prototype = {
      * @returns {boolean}
      */
     addHandler(handler) {
-        if (handler) {
-            let objectType = handler.objectType;
+        let handlers = this.handlers,
+            extensions = handler.extensions;
 
-            if (objectType === 'modelhandler' || objectType === 'texturehandler' || objectType === 'filehandler') {
-                let handlers = this.handlers,
-                    extensions = handler.extensions;
-
-                // Check to see if this handler was added already.
-                if (!handlers.has(extensions[0][0])) {
-                    // Run the global initialization function of the handler.
-                    // If it returns true, to signifiy everything worked correctly, add the handler to the handlers map.
-                    if (handler.initialize(this)) {
-                        // Add each of the handler's extensions to the handler map.
-                        for (let extension of extensions) {
-                            handlers.set(extension[0], [handler, extension[1]]);
-                        }
-
-                        return true;
-                    } else {
-                        this.dispatchEvent({ type: 'error', error: 'InvalidHandler', reason: 'FailedToInitalize' });
-                    }
-                }
-            } else {
-                this.dispatchEvent({ type: 'error', error: 'InvalidHandler', reason: 'UnknownHandlerType' });
+        // Check to see if this handler was added already.
+        if (!handlers.has(handler)) {
+            if (handler.initialize && !handler.initialize(this)) {
+                this.dispatchEvent({ type: 'error', error: 'InvalidHandler', reason: 'FailedToInitalize' });
+                return false;
             }
+
+            handlers.add(handler);
+            return true;
         }
 
         return false;
-    },
+    }
 
     /**
      * Add a scene.
@@ -185,7 +169,7 @@ ModelViewer.prototype = {
         }
 
         return false;
-    },
+    }
 
     /**
      * Remove a scene.
@@ -206,7 +190,7 @@ ModelViewer.prototype = {
         }
 
         return false;
-    },
+    }
 
     /**
      * Removes all of the scenes in the viewer.
@@ -217,7 +201,7 @@ ModelViewer.prototype = {
         for (let i = scenes.length; i--;) {
             this.removeScene(scenes[i]);
         }
-    },
+    }
 
     /**
      * Get the rendering statistics of the viewer.
@@ -228,6 +212,8 @@ ModelViewer.prototype = {
      *     instances
      *     vertices
      *     polygons
+     *     dynamicVertices
+     *     dynamicPolygons
      */
     getRenderStats() {
         let objects = this.scenes,
@@ -253,7 +239,17 @@ ModelViewer.prototype = {
         }
 
         return { scenes, buckets, calls, instances, vertices, polygons, dynamicVertices, dynamicPolygons };
-    },
+    }
+
+    findHandler(ext) {
+        for (let handler of this.handlers) {
+            for (let extention of handler.extensions) {
+                if (ext === extention[0]) {
+                    return [handler, extention[1]];
+                }
+            }
+        }
+    }
 
     /**
      * Load something. The meat of this whole project.
@@ -275,18 +271,16 @@ ModelViewer.prototype = {
                 [src, extension, serverFetch] = pathSolver(src);
             }
 
-            let handlerPair = this.handlers.get(extension.toLowerCase());
+            let [handler, dataType] = this.findHandler(extension.toLowerCase());
 
             // Is there an handler for this file type?
-            if (handlerPair) {
+            if (handler) {
                 let resources = this.resources,
                     map = resources.map;
                 
                 // Only construct the resource if the source was not already loaded.
                 if (!map.has(src)) {
-                    let handler = handlerPair[0],
-                        binaryFormat = handlerPair[1],
-                        resource = new handler.Constructor(this, pathSolver, handler, extension);
+                    let resource = new handler.constructor(this, pathSolver, handler, extension);
 
                     // Cache the resource
                     resources.array.push(resource);
@@ -299,10 +293,14 @@ ModelViewer.prototype = {
                     resource.load();
 
                     if (serverFetch) {
-                        this.fetch(src, binaryFormat ? 'arrayBuffer' : 'text')
+                        this.fetch(src, dataType)
                             .then((data) => {
-                                resource.fetchUrl = src;
-                                resource.onload(data);
+                                if (data) {
+                                    resource.fetchUrl = src;
+                                    resource.onload(data);
+                                } else {
+                                    this.dispatchEvent({ type: 'error', error: 'Fetch' });
+                                }
                             })
                     } else {
                         resource.onload(src);
@@ -315,7 +313,7 @@ ModelViewer.prototype = {
                 this.dispatchEvent({ type: 'error', error: 'MissingHandler', reason: [src, extension, serverFetch] });
             }
         }
-    },
+    }
 
     async fetch(path, dataType) {
         let response;
@@ -327,27 +325,28 @@ ModelViewer.prototype = {
             return;
         }
 
-        if (response.ok) {
-            let data;
-
-            try {
-                if (dataType === 'text') {
-                    data = await response.text();
-                } else if (dataType === 'arrayBuffer') {
-                    data = await response.arrayBuffer();
-                } else if (dataType === 'blob') {
-                    data = await response.blob();
-                }
-            } catch (e) {
-                this.dispatchEvent({ type: 'error', error: 'DataError', reason: e });
-                return;
-            }
-
-            return data;
-        } else {
+        if (!response.ok) {
             this.dispatchEvent({ type: 'error', error: 'HttpError', reason: response });
+            return;
         }
-    },
+        
+        let data;
+
+        try {
+            if (dataType === 'text') {
+                data = await response.text();
+            } else if (dataType === 'arrayBuffer') {
+                data = await response.arrayBuffer();
+            } else if (dataType === 'blob') {
+                data = await response.blob();
+            }
+        } catch (e) {
+            this.dispatchEvent({ type: 'error', error: 'DataError', reason: e });
+            return;
+        }
+
+        return data;
+    }
 
     loadTextureAtlas(name, textures, callback) {
         let gl = this.gl,
@@ -380,7 +379,7 @@ ModelViewer.prototype = {
                 promise.resolve();
             });
         }
-    },
+    }
 
     getTextureAtlas(name) {
         let atlas = this.textureAtlases[name];
@@ -390,7 +389,7 @@ ModelViewer.prototype = {
         }
 
         return null;
-    },
+    }
     
     /**
      * A load promise.
@@ -409,7 +408,7 @@ ModelViewer.prototype = {
         resource.load();
 
         return resource;
-    },
+    }
 
     /**
      * Calls the given callback when all of the given resources finished loading. In the case all of the resources are already loaded, the call happens immediately.
@@ -437,7 +436,7 @@ ModelViewer.prototype = {
                 resource.whenLoaded(gotLoaded);
             }
         }
-    },
+    }
 
     /**
      * Calls the given callback when all of the viewer resources finished loading. In the case all of the resources are already loaded, the call happens immediately.
@@ -451,7 +450,7 @@ ModelViewer.prototype = {
         } else {
             this.once('loadendall', () => callback(this));
         }
-    },
+    }
 
     /**
      * Remove a resource from the viewer.
@@ -475,7 +474,7 @@ ModelViewer.prototype = {
         }
 
         return false;
-    },
+    }
 
     /**
      * Gets a Blob object representing the canvas, and calls the callback with it.
@@ -484,7 +483,7 @@ ModelViewer.prototype = {
      */
     toBlob(callback) {
         this.canvas.toBlob((blob) => callback(blob));
-    },
+    }
 
     /**
      * Update and render a frame.
@@ -492,7 +491,7 @@ ModelViewer.prototype = {
     updateAndRender() {
         this.update();
         this.render();
-    },
+    }
 
     /**
      * Update.
@@ -510,7 +509,7 @@ ModelViewer.prototype = {
         for (let i = 0, l = scenes.length; i < l; i++) {
             scenes[i].update();
         }
-    },
+    }
 
     /**
      * Render.
@@ -539,7 +538,7 @@ ModelViewer.prototype = {
         for (i = 0; i < l; i++) {
             scenes[i].renderEmitters();
         }
-    },
+    }
 
     // Propagate the standard events.
     registerEvents(resource) {
@@ -548,7 +547,3 @@ ModelViewer.prototype = {
         ['loadstart', 'load', 'loadend', 'error', 'progress'].map((e) => resource.addEventListener(e, listener));
     }
 };
-
-mix(ModelViewer.prototype, EventDispatcher.prototype);
-
-export default ModelViewer;

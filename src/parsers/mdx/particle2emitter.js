@@ -5,10 +5,8 @@ import MdxParserSDContainer from './sd';
  * @constructor
  * @param {BinaryReader} reader
  * @param {Array<MdxParserNode>} nodes
- * @param {number} index
  */
-function MdxParserParticle2Emitter(reader, nodes, index) {
-    this.index = index;
+function MdxParserParticle2Emitter(reader, nodes) {
     /** @member {number} */
     this.size = reader.readUint32();
     /** @member {MdxParserNode} */
@@ -42,7 +40,7 @@ function MdxParserParticle2Emitter(reader, nodes, index) {
     /** @member {number} */
     this.timeMiddle = reader.readFloat32();
     /** @member {Array<Float32Array>} */
-    this.segmentColors = reader.readFloat32Matrix(3, 3);
+    this.segmentColors = reader.readFloat32Array(9);
     /** @member {Uint8Array} */
     this.segmentAlpha = reader.readUint8Array(3);
     /** @member {Float32Array} */

@@ -1,16 +1,6 @@
-import mix from '../common/mix';
 import ModelInstance from './modelinstance';
 
-/**
- * @constructor
- * @augments ModelInstance
- * @param {Model} model
- */
-function TexturedModelInstance(model) {
-    ModelInstance.call(this, model);
-}
-
-TexturedModelInstance.prototype = {
+export default class TexturedModelInstance extends ModelInstance {
     /*
      * Overrides a texture with another one.
      * 
@@ -25,7 +15,3 @@ TexturedModelInstance.prototype = {
         this.model.viewChanged(this, view);
     }
 };
-
-mix(TexturedModelInstance.prototype, ModelInstance.prototype);
-
-export default TexturedModelInstance;

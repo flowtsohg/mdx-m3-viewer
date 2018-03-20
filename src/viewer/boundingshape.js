@@ -1,19 +1,14 @@
-import mix from '../common/mix';
-import NotifiedNode from './notifiednode';
+import { NotifiedSceneNode } from './node';
 
-/**
- * @constructor
- * @augments NotifiedNode
- */
-function BoundingShape() {
-    NotifiedNode.call(this);
+export default class BoundingShape extends NotifiedSceneNode {
+    constructor() {
+        super();
 
-    this.min = new Float32Array([-1, -1, -1]);
-    this.max = new Float32Array([1, 1, 1]);
-    this.radius = Math.sqrt(2);
-}
+        this.min = new Float32Array([-1, -1, -1]);
+        this.max = new Float32Array([1, 1, 1]);
+        this.radius = Math.sqrt(2);
+    }
 
-BoundingShape.prototype = {
     fromBounds(min, max) {
         this.min.set(min);
         this.max.set(max);
@@ -23,7 +18,7 @@ BoundingShape.prototype = {
             dZ = max[2] - min[2];
 
         this.radius = Math.sqrt(dX * dX + dY * dY + dZ * dZ) / 2
-    },
+    }
 
     fromRadius(r) {
         let s = r * Math.cos(r),
@@ -34,7 +29,7 @@ BoundingShape.prototype = {
         max[0] = max[1] = max[2] = -s;
 
         this.radius = r;
-    },
+    }
 
     fromVertices(vertices) {
         let min = [1E9, 1E9, 1E9],
@@ -73,7 +68,7 @@ BoundingShape.prototype = {
         //this.fromRadius();
 
         this.fromBounds(min, max);
-    },
+    }
 
     getPositiveVertex(out, normal) {
         let min = this.min,
@@ -99,7 +94,7 @@ BoundingShape.prototype = {
 
         return out;
         //return vec3.mulAndAdd(out, out, this.worldScale, this.worldLocation);
-    },
+    }
 
     getNegativeVertex(out, normal) {
         let min = this.min,
@@ -127,7 +122,3 @@ BoundingShape.prototype = {
         //return vec3.mulAndAdd(out, out, this.worldScale, this.worldLocation);
     }
 };
-
-mix(BoundingShape.prototype, NotifiedNode.prototype);
-
-export default BoundingShape;

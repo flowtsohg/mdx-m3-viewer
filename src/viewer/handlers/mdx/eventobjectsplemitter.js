@@ -1,24 +1,19 @@
 import ResizeableBuffer from '../../gl/resizeablebuffer';
+import MdxSharedGeometryEmitter from './sharedgeometryemitter';
 import MdxEventObjectSpl from './eventobjectspl';
-import MdxParticleEmitter from './particleemitter';
-import MdxParticle2Emitter from './particle2emitter';
 
-/**
- * @constructor
- * @param {MdxModelEventObject} modelObject
- */
-function MdxEventObjectSplEmitter(modelObject) {
-    this.type = 'SPL';
-    this.modelObject = modelObject;
+export default class MdxEventObjectSplEmitter extends MdxSharedGeometryEmitter {
+    /**
+     * @param {MdxModelEventObject} modelObject
+     */
+    constructor(modelObject) {
+        super(modelObject);
+        
+        this.type = 'SPL';
+        this.buffer = new ResizeableBuffer(modelObject.model.env.gl);
+        this.bytesPerEmit = 4 * 30;
+    }
 
-    this.active = [];
-    this.inactive = [];
-
-    this.buffer = new ResizeableBuffer(modelObject.model.env.gl);
-    this.bytesPerEmit = 4 * 30;
-}
-
-MdxEventObjectSplEmitter.prototype = {
     emit(emitterView) {
         if (this.modelObject.ready) {
             let inactive = this.inactive,
@@ -35,11 +30,5 @@ MdxEventObjectSplEmitter.prototype = {
 
             this.active.push(object);
         }
-    },
-    
-    update: MdxParticleEmitter.prototype.update,
-    updateData: MdxParticle2Emitter.prototype.updateData,
-    render: MdxParticle2Emitter.prototype.render
+    }
 };
-
-export default MdxEventObjectSplEmitter;

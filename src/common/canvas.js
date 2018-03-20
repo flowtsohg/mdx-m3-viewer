@@ -19,16 +19,16 @@ export function getImageData(image) {
 };
 
 // Resize an Image or ImageData object to the given dimensions.
-export function resizeImageData(imageData, width, height) {
-    let srcWidth = imageData.width,
-        srcHeight = imageData.height;
+export function resizeImageData(data, width, height) {
+    let srcWidth = data.width,
+        srcHeight = data.height;
 
     // ImageData
-    if (imageData instanceof ImageData) {
+    if (data instanceof ImageData) {
         canvas.width = srcWidth;
         canvas.height = srcHeight;
 
-        ctx.putImageData(imageData, 0, 0);
+        ctx.putImageData(data, 0, 0);
 
         canvas2.width = width;
         canvas2.height = height;
@@ -41,7 +41,7 @@ export function resizeImageData(imageData, width, height) {
         canvas.width = width;
         canvas.height = height;
 
-        ctx.drawImage(image, 0, 0, width, height);
+        ctx.drawImage(data, 0, 0, width, height);
 
         return ctx.getImageData(0, 0, width, height);
     }

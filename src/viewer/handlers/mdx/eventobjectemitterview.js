@@ -1,15 +1,14 @@
-/**
- * @constructor
- * @param {MdxModelInstance} instance
- * @param {MdxEventObjectEmitter} emitter
- */
-function MdxEventObjectEmitterView(instance, emitter) {
-    this.instance = instance;
-    this.emitter = emitter;
-    this.lastTrack = [0, 0];
-}
+export default class MdxEventObjectEmitterView {
+    /**
+     * @param {MdxModelInstance} instance
+     * @param {MdxEventObjectEmitter} emitter
+     */
+    constructor(instance, emitter) {
+        this.instance = instance;
+        this.emitter = emitter;
+        this.lastTrack = [0, 0];
+    }
 
-MdxEventObjectEmitterView.prototype = {
     update() {
         let emitter = this.emitter,
             track = emitter.modelObject.getValue(this.instance),
@@ -24,5 +23,3 @@ MdxEventObjectEmitterView.prototype = {
         //vec2.copy(lastTrack, track);
     }
 };
-
-export default MdxEventObjectEmitterView;

@@ -1,25 +1,25 @@
 import SubParameters from './subparameters';
 
-function Parameter(stream, version, argumentMap) {
-    this.type = 0;
-    this.value = '';
-    this.subParameters = null;
-    this.u1 = 0;
-    this.isArray = 0;
-    this.arrayIndex = null;
-
-    if (stream) {
-        this.load(stream, version, argumentMap);
+export default class Parameter {
+    constructor() {
+        this.type = 0;
+        this.value = '';
+        this.subParameters = null;
+        this.u1 = 0;
+        this.isArray = 0;
+        this.arrayIndex = null;
     }
-}
 
-Parameter.prototype = {
     load(stream, version, argumentMap) {
         this.type = stream.readInt32();
         this.value = stream.readUntilNull();
 
         if (stream.readInt32()) {
-            this.subParameters = new SubParameters(stream, version, argumentMap);
+            let subParameters = new SubParameters();
+
+            subParameters.load(stream, version, argumentMap);
+
+            this.subParameters = subParameters;
         }
 
         if ((version === 4 && this.type === 2) || (version === 7 && this.subParameters)) {
@@ -31,9 +31,13 @@ Parameter.prototype = {
         }
 
         if (this.isArray) {
-            this.arrayIndex = new Parameter(stream, version, argumentMap);
+            let arrayIndex = new Parameter();
+
+            arrayIndex.load(stream, version, argumentMap);
+
+            this.arrayIndex = arrayIndex;
         }
-    },
+    }
 
     save(stream, version) {
         stream.writeInt32(this.type);
@@ -57,13 +61,17 @@ Parameter.prototype = {
         if (this.isArray) {
             this.arrayIndex.save(stream, version);
         }
-    },
+    }
 
-    calcSize(version) {
+    /**
+     * @param {number} version 
+     * @returns {number} 
+     */
+    getByteLength(version) {
         let size = 9 + this.value.length;
 
         if (this.subParameters) {
-            size += this.subParameters.calcSize(version);
+            size += this.subParameters.getByteLength(version);
         }
 
         if ((version === 4 && this.type === 2) || (version === 7 && this.subParameters)) {
@@ -75,11 +83,28 @@ Parameter.prototype = {
         }
 
         if (this.isArray) {
-            size += this.arrayIndex.calcSize(version);
+            size += this.arrayIndex.getByteLength(version);
         }
 
         return size;
     }
-};
 
-export default Parameter;
+    toCustomScriptCode() {
+        // (0 = PRESET, 1 = VARIABLE, 2 = FUNCTION, 3 = STRING, -1 = INVALID)
+        if (this.type === 0) {
+            if (this.value === 'PermanentPerm') {
+                return true;
+            }
+
+            throw new Error(`Unknown preset parameter: ${this.value}`);
+        } else if (this.type === 1) {
+            return `udg_${this.value}`;
+        } else if (this.type === 2) {
+            return this.subParameters.toCustomScriptCode();
+        } else if (this.type === 3) {
+            return this.value;
+        } else {
+            throw new Error(`Unknown parameter type: ${this.type}`);
+        }
+    }
+};

@@ -1,14 +1,11 @@
 import { vec3, quat } from 'gl-matrix';
 
-/**
- * @constructor
- */
-function Frustum() {
-    // Left, right, top, bottom, near, far
-    this.planes = [quat.create(), quat.create(), quat.create(), quat.create(), quat.create(), quat.create()];
-}
+export default class Frustum {
+    constructor() {
+        // Left, right, top, bottom, near, far
+        this.planes = [quat.create(), quat.create(), quat.create(), quat.create(), quat.create(), quat.create()];
+    }
 
-Frustum.prototype = {
     /*
 plane.distanceToPoint = function (p, v) {
     return p[0] * v[0] + p[1] * v[1] + p[2] * v[2] + p[3];
@@ -52,7 +49,7 @@ plane.classifyPoint = function (plane, point) {
         }
 
         return TEST_INSIDE;
-    },
+    }
 
     testIntersectionAABB(boundingShape) {
         const TEST_INSIDE = 2,
@@ -90,7 +87,7 @@ plane.classifyPoint = function (plane, point) {
         }
 
         return result;
-    },
+    }
 
     recalculatePlanes(m) {
         let a00 = m[0], a01 = m[4], a02 = m[8], a03 = m[12],
@@ -154,5 +151,3 @@ plane.classifyPoint = function (plane, point) {
         return this;
     }
 };
-
-export default Frustum;

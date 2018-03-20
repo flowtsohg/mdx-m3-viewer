@@ -2,23 +2,22 @@ import { vec3, vec4 } from 'gl-matrix';
 import { lerp } from '../../../common/math';
 import { uint8ToUint24 } from '../../../common/typecast';
 
-/**
- * @constructor
- * @param {MdxEventObjectEmitter} emitter
- */
-function MdxEventObjectSpl(emitter) {
-    this.emitter = emitter;
-    this.health = 0;
-    this.color = new Uint8Array(4);
-    this.vertices = new Float32Array(12);
-    this.lta = 0;
-    this.lba = 0;
-    this.rta = 0;
-    this.rba = 0;
-    this.rgb = 0;
-}
+export default class MdxEventObjectSpl {
+    /**
+     * @param {MdxEventObjectEmitter} emitter
+     */
+    constructor(emitter) {
+        this.emitter = emitter;
+        this.health = 0;
+        this.color = new Uint8Array(4);
+        this.vertices = new Float32Array(12);
+        this.lta = 0;
+        this.lba = 0;
+        this.rta = 0;
+        this.rba = 0;
+        this.rgb = 0;
+    }
 
-MdxEventObjectSpl.prototype = {
     reset(emitterView) {
         let modelObject = this.emitter.modelObject,
             vertices = this.vertices,
@@ -44,7 +43,7 @@ MdxEventObjectSpl.prototype = {
         vec3.add(vertex, vertex, location);
 
         this.health = modelObject.lifespan;
-    },
+    }
 
     update() {
         let modelObject = this.emitter.modelObject,
@@ -97,5 +96,3 @@ MdxEventObjectSpl.prototype = {
         this.rgb = uint8ToUint24(color[0], color[1], color[2]);
     }
 };
-
-export default MdxEventObjectSpl;

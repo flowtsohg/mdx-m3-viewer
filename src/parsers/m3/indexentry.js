@@ -86,109 +86,119 @@ let tagMapping = {
     WRP_: [UnsupportedEntry, { 1: 132 }]
 };
 
+export default class IndexEntry {
+    /**
+     * @param {BinaryReader} reader
+     * @param {Array<IndexEntry>} index
+     */
+    constructor(reader, index) {
+        let tag = reverse(reader.read(4)),
+            offset = reader.readUint32(),
+            entriesCount = reader.readUint32(),
+            version = reader.readUint32();
 
-/**
- * @constructor
- * @param {BinaryReader} reader
- * @param {Array<IndexEntry>} index
- */
-function IndexEntry(reader, index) {
-    let tag = reverse(reader.read(4)),
-        offset = reader.readUint32(),
-        entriesCount = reader.readUint32(),
-        version = reader.readUint32();
+        /** @member {Array<IndexEntry>} */
+        this.index = index;
+        /** @member {string} */
+        this.tag = tag;
+        /** @member {number} */
+        this.offset = offset;
+        /** @member {number} */
+        this.version = version;
+        /** @member {null|Array<?>|Uint8Array|Uint16Array|Uint32Array|Int32Array|Float32Array} */
+        this.entries = null;
 
-    /** @member {Array<IndexEntry>} */
-    this.index = index;
-    /** @member {string} */
-    this.tag = tag;
-    /** @member {number} */
-    this.offset = offset;
-    /** @member {number} */
-    this.version = version;
-    /** @member {null|Array<?>|Uint8Array|Uint16Array|Uint32Array|Int32Array|Float32Array} */
-    this.entries = null;
+        let mapping = tagMapping[tag],
+            readerOffset = reader.tell();
 
-    let mapping = tagMapping[tag],
-        readerOffset = reader.tell();
+        reader.seek(offset);
 
-    reader.seek(offset);
+        // This is an object
+        if (mapping) {
+            let constructor = mapping[0],
+                entrySize = mapping[1][version];
 
-    // This is an object
-    if (mapping) {
-        let constructor = mapping[0],
-            entrySize = mapping[1][version];
+            if (!entrySize) {
+                // Yey found a new version!
+                throw new Error(': Unsupported object version - tag ' + tag + ' and version ' + version);
+            }
 
-        if (!entrySize) {
-            // Yey found a new version!
-            throw new Error(': Unsupported object version - tag ' + tag + ' and version ' + version);
+            this.entries = [];
+
+            for (let i = 0, l = entriesCount; i < l; i++) {
+                // A sub stream is given for each object constructor.
+                // This allows for parsing to work consistently, even if we don't quite know exactly how the structures look.
+                // If some bytes aren't read, the error will not carry to the next object.
+                // Since new versions of objects usually add data to the end, this allows the parser to work, even if trying to load newer versions.
+                // Of course, the new version size needs to be added to IndexEntry.tagMapping, when finding one.
+                this.entries[i] = new constructor(reader.substream(entrySize), version, index);
+
+                reader.skip(entrySize);
+            }
+        // This is maybe a typed array?
+        } else {
+            switch (tag) {
+                case 'CHAR':
+                case 'SCHR':
+                    this.entries = reader.readCharArray(entriesCount);
+                    break;
+
+                case 'U8__':
+                    this.entries = reader.readUint8Array(entriesCount);
+                    break;
+
+                case 'U16_':
+                    this.entries = reader.readUint16Array(entriesCount);
+                    break;
+
+                case 'U32_':
+                    this.entries = reader.readUint32Array(entriesCount);
+                    break;
+
+                case 'I32_':
+                    this.entries = reader.readInt32Array(entriesCount);
+                    break;
+
+                case 'REAL':
+                    this.entries = reader.readFloat32Array(entriesCount);
+                    break;
+
+                case 'VEC2':
+                    this.entries = [];
+                    for (let i = 0; i < entriesCount; i++) {
+                        this.entries[i] = reader.readFloat32Array(2);
+                    }
+                    break;
+
+                case 'VEC3':
+                case 'SVC3':
+                    this.entries = [];
+                    for (let i = 0; i < entriesCount; i++) {
+                        this.entries[i] = reader.readFloat32Array(3);
+                    }
+                    break;
+
+                case 'VEC4':
+                case 'QUAT':
+                    this.entries = [];
+                    for (let i = 0; i < entriesCount; i++) {
+                        this.entries[i] = reader.readFloat32Array(4);
+                    }
+                    break;
+
+                case 'IREF':
+                    this.entries = [];
+                    for (let i = 0; i < entriesCount; i++) {
+                        this.entries[i] = reader.readFloat32Array(16);
+                    }
+                    break;
+
+                // Yey found a new tag!
+                default:
+                    throw new Error(': Unsupported object tag - tag ' + tag + ' and version ' + version);
+            }
         }
 
-        this.entries = [];
-
-        for (let i = 0, l = entriesCount; i < l; i++) {
-            // A sub stream is given for each object constructor.
-            // This allows for parsing to work consistently, even if we don't quite know exactly how the structures look.
-            // If some bytes aren't read, the error will not carry to the next object.
-            // Since new versions of objects usually add data to the end, this allows the parser to work, even if trying to load newer versions.
-            // Of course, the new version size needs to be added to IndexEntry.tagMapping, when finding one.
-            this.entries[i] = new constructor(reader.substream(entrySize), version, index);
-
-            reader.skip(entrySize);
-        }
-    // This is maybe a typed array?
-    } else {
-        switch (tag) {
-            case 'CHAR':
-            case 'SCHR':
-                this.entries = reader.readCharArray(entriesCount);
-                break;
-
-            case 'U8__':
-                this.entries = reader.readUint8Array(entriesCount);
-                break;
-
-            case 'U16_':
-                this.entries = reader.readUint16Array(entriesCount);
-                break;
-
-            case 'U32_':
-                this.entries = reader.readUint32Array(entriesCount);
-                break;
-
-            case 'I32_':
-                this.entries = reader.readInt32Array(entriesCount);
-                break;
-
-            case 'REAL':
-                this.entries = reader.readFloat32Array(entriesCount);
-                break;
-
-            case 'VEC2':
-                this.entries = reader.readFloat32Matrix(entriesCount, 2);
-                break;
-
-            case 'VEC3':
-            case 'SVC3':
-                this.entries = reader.readFloat32Matrix(entriesCount, 3);
-                break;
-
-            case 'VEC4':
-            case 'QUAT':
-                this.entries = reader.readFloat32Matrix(entriesCount, 4);
-                break;
-
-            case 'IREF':
-                this.entries = reader.readFloat32Matrix(entriesCount, 16);
-                break;
-
-            // Yey found a new tag!
-            default:
-                throw new Error(': Unsupported object tag - tag ' + tag + ' and version ' + version);
-        }
+        reader.seek(readerOffset);
     }
-
-    reader.seek(readerOffset);
-}
-
-export default IndexEntry;
+};

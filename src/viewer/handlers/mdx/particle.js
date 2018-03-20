@@ -5,20 +5,19 @@ import { randomInRange } from '../../../common/math';
 let rotationHeap = quat.create(),
     velocityHeap = vec3.create();
 
-/**
- * @constructor
- * @param {MdxParticleEmitter} emitter
- */
-function MdxParticle(emitter) {
-    this.emitter = emitter;
-    this.instance = null;
+export default class MdxParticle {
+    /**
+     * @param {MdxParticleEmitter} emitter
+     */
+    constructor(emitter) {
+        this.emitter = emitter;
+        this.instance = null;
 
-    this.internalInstance = emitter.modelObject.internalResource.addInstance();
-    this.velocity = vec3.create();
-    this.gravity = 0;
-}
+        this.internalInstance = emitter.modelObject.internalResource.addInstance();
+        this.velocity = vec3.create();
+        this.gravity = 0;
+    }
 
-MdxParticle.prototype = {
     reset(emitterView) {
         let instance = emitterView.instance,
             node = instance.skeleton.nodes[this.emitter.modelObject.node.index],
@@ -53,7 +52,7 @@ MdxParticle.prototype = {
         internalInstance.setTransformation(node.worldLocation, quat.setAxisAngle(rotationHeap, vec3.UNIT_Z, randomInRange(0, Math.PI * 2)), node.worldScale);
         internalInstance.setSequence(0);
         internalInstance.show();
-    },
+    }
 
     update() {
         let internalInstance = this.internalInstance,
@@ -73,5 +72,3 @@ MdxParticle.prototype = {
         }
     }
 };
-
-export default MdxParticle;

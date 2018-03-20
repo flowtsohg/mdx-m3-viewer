@@ -24,8 +24,4 @@ export default class JassUnit extends JassWidget {
         this.maxMana = this.mana;
         this.acquireRange = 500;
 	}
-
-    toString() {
-        return `unit(${this.player}, ${this.balanceRow.unitBalanceID})`;
-    }
 };

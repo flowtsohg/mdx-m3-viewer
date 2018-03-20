@@ -6,8 +6,4 @@ export default class JassRegion extends JassAgent {
         
         this.rects = new Set();
 	}
-
-    toString() {
-        return `region()`;
-    }
 };

@@ -4,69 +4,53 @@ import { vec3, quat, mat4 } from 'gl-matrix'
 let locationHeap = vec3.create(),
     scalingHeap = vec3.create();
 
-/**
- * @constructor
- * @param {ArrayBuffer} buffer
- * @param {number} offset
- */
-function ViewerNode(buffer, offset) {
-    if (!(buffer instanceof ArrayBuffer)) {
-        throw new TypeError('Node: expected ArrayBuffer, got ' + buffer);
+let NodeMixin = (superclass) => class extends superclass {
+    constructor(...args) {
+        super(...args);
+
+        /** @member {vec3} */
+        this.pivot = vec3.create();
+        /** @member {vec3} */
+        this.localLocation = vec3.create();
+        /** @member {quat} */
+        this.localRotation = quat.create();
+        /** @member {vec3} */
+        this.localScale = vec3.fromValues(1, 1, 1);
+        /** @member {vec3} */
+        this.worldLocation = vec3.create();
+        /** @member {quat} */
+        this.worldRotation = quat.create();
+        /** @member {vec3} */
+        this.worldScale = vec3.fromValues(1, 1, 1);
+        /** @member {vec3} */
+        this.inverseWorldLocation = vec3.create();
+        /** @member {vec4} */
+        this.inverseWorldRotation = quat.create();
+        /** @member {vec3} */
+        this.inverseWorldScale = vec3.fromValues(1, 1, 1);
+        /** @member {mat4} */
+        this.localMatrix = mat4.create();
+        /** @member {mat4} */
+        this.worldMatrix = mat4.create();
+        /** @member {?SceneNode} */
+        this.parent = null;
+        /** @member {Array<SceneNode>} */
+        this.children = [];
+        /** @member {boolean} */
+        this.dontInheritTranslation = false;
+        /** @member {boolean} */
+        this.dontInheritRotation = false;
+        /** @member {boolean} */
+        this.dontInheritScaling = false;
+        /** 
+         * When a node is a part of a skeleton, it doesn't need the parent's pivot applied to its local matrix.
+         * The Skeleton constructor sets this to true for all of its nodes automatically.
+         * 
+         * @member {boolean}
+         */
+        this.isSkeletal = false;
     }
 
-    /** @member {vec3} */
-    this.pivot = new Float32Array(buffer, offset + 0, 3);
-    /** @member {vec3} */
-    this.localLocation = new Float32Array(buffer, offset + 12, 3);
-    /** @member {quat} */
-    this.localRotation = new Float32Array(buffer, offset + 24, 4);
-    /** @member {vec3} */
-    this.localScale = new Float32Array(buffer, offset + 40, 3);
-    /** @member {vec3} */
-    this.worldLocation = new Float32Array(buffer, offset + 52, 3);
-    /** @member {quat} */
-    this.worldRotation = new Float32Array(buffer, offset + 64, 4);
-    /** @member {vec3} */
-    this.worldScale = new Float32Array(buffer, offset + 80, 3);
-    /** @member {vec3} */
-    this.inverseWorldLocation = new Float32Array(buffer, offset + 92, 3);
-    /** @member {vec4} */
-    this.inverseWorldRotation = new Float32Array(buffer, offset + 104, 4);
-    /** @member {vec3} */
-    this.inverseWorldScale = new Float32Array(buffer, offset + 120, 3);
-    /** @member {mat4} */
-    this.localMatrix = new Float32Array(buffer, offset + 132, 16);
-    /** @member {mat4} */
-    this.worldMatrix = new Float32Array(buffer, offset + 196, 16);
-    /** @member {?ViewerNode} */
-    this.parent = null;
-    /** @member {Array<ViewerNode>} */
-    this.children = [];
-    /** @member {boolean} */
-    this.dontInheritTranslation = false;
-    /** @member {boolean} */
-    this.dontInheritRotation = false;
-    /** @member {boolean} */
-    this.dontInheritScaling = false;
-    /** 
-     * When a node is a part of a skeleton, it doesn't need the parent's pivot applied to its local matrix.
-     * The Skeleton constructor sets this to true for all of its nodes automatically.
-     * 
-     * @member {boolean}
-     */
-    this.isSkeletal = false;
-
-    this.localRotation[3] = 1;
-    this.localScale.fill(1);
-
-    this.recalculateTransformation();
-}
-
-// Used in the constructor above, and in the Skeleton constructor.
-// Chances are I'll forget updating one of them when I change stuff, so do it in one place.
-ViewerNode.BYTES_PER_ELEMENT = 65 * 4;
-
-ViewerNode.prototype = {
     /**
      * Sets the node's pivot.
      * 
@@ -79,7 +63,7 @@ ViewerNode.prototype = {
         this.recalculateTransformation();
 
         return this;
-    },
+    }
 
     /**
      * Sets the node's local location.
@@ -93,7 +77,7 @@ ViewerNode.prototype = {
         this.recalculateTransformation();
 
         return this;
-    },
+    }
 
     /**
      * Sets the node's local rotation.
@@ -107,7 +91,7 @@ ViewerNode.prototype = {
         this.recalculateTransformation();
 
         return this;
-    },
+    }
 
     /**
      * Sets the node's local scale.
@@ -121,7 +105,7 @@ ViewerNode.prototype = {
         this.recalculateTransformation();
 
         return this;
-    },
+    }
 
     /**
      * Sets the node's local scale uniformly.
@@ -135,7 +119,7 @@ ViewerNode.prototype = {
         this.recalculateTransformation();
 
         return this;
-    },
+    }
 
     /**
      * Sets the node's local location, rotation, and scale.
@@ -169,7 +153,7 @@ ViewerNode.prototype = {
         this.recalculateTransformation();
 
         return this;
-    },
+    }
 
     /**
      * Resets the node's local location, pivot, rotation, and scale, to the default values.
@@ -185,7 +169,7 @@ ViewerNode.prototype = {
         this.recalculateTransformation();
 
         return this;
-    },
+    }
 
     /**
      * Moves the node's pivot.
@@ -199,7 +183,7 @@ ViewerNode.prototype = {
         this.recalculateTransformation();
 
         return this;
-    },
+    }
 
     /**
      * Moves the node's local location.
@@ -213,7 +197,7 @@ ViewerNode.prototype = {
         this.recalculateTransformation();
 
         return this;
-    },
+    }
 
     /**
      * Rotates the node's local rotation in world space.
@@ -227,7 +211,7 @@ ViewerNode.prototype = {
         this.recalculateTransformation();
 
         return this;
-    },
+    }
 
     /**
      * Rotates the node's local rotation in local space.
@@ -241,7 +225,7 @@ ViewerNode.prototype = {
         this.recalculateTransformation();
 
         return this;
-    },
+    }
 
     /**
      * Scales the node.
@@ -255,7 +239,7 @@ ViewerNode.prototype = {
         this.recalculateTransformation();
 
         return this;
-    },
+    }
 
     /**
      * Scales the node uniformly.
@@ -269,7 +253,7 @@ ViewerNode.prototype = {
         this.recalculateTransformation();
 
         return this;
-    },
+    }
     //*
     orthoNormalize(vectors) {
         for (let i = 0; i < vectors.length; i++) {
@@ -283,14 +267,14 @@ ViewerNode.prototype = {
             vec3.sub(vectors[i], vectors[i], accum);
             vec3.normalize(vectors[i], vectors[i]);
         }
-    },
+    }
 
     project(out, u, v) {
         let d = vec3.dot(u, v),
             d_div = d / vec3.sqrLen(u);
 
         return vec3.scale(out, v, d_div);
-    },
+    }
     
     lookAt(target, upDirection) {
 
@@ -316,7 +300,7 @@ ViewerNode.prototype = {
         this.recalculateTransformation();
 
         return this;
-    },
+    }
     //*/
     /*
     lookAt(target) {
@@ -349,7 +333,7 @@ ViewerNode.prototype = {
         this.recalculateTransformation();
 
         return this;
-    },
+    }
 
     /**
      * Called by this node's parent, when the parent is recalculated.
@@ -358,7 +342,7 @@ ViewerNode.prototype = {
      */
     parentRecalculated() {
 
-    },
+    }
 
     /**
      * Recalculate this node's transformation data.
@@ -378,9 +362,7 @@ ViewerNode.prototype = {
             inverseWorldScale = this.inverseWorldScale,
             parent = this.parent,
             children = this.children;
-
-        // World matrix
-        // Model space -> World space
+        
         if (parent) {
             let computedLocation,
                 computedScaling;
@@ -502,11 +484,11 @@ ViewerNode.prototype = {
         }
 
         return this;
-    },
+    }
 
     addChild(child) {
         this.children.push(child);
-    },
+    }
 
     removeChild(child) {
         let children = this.children,
@@ -518,4 +500,27 @@ ViewerNode.prototype = {
     }
 };
 
-export default ViewerNode;
+let NotifiedNodeMixin = (superclass) => class extends NodeMixin(superclass) {
+    /**
+     * This override allows to selectively only allow some nodes to get automatically recalculated by their parents.
+     * Recalculating automatically all nodes is a big no-no, since for skeletal hierarchies that get updated itratively, this will cause huge useless recursions.
+     */
+    parentRecalculated() {
+        this.recalculateTransformation();
+    }
+};
+
+class SceneNode extends NodeMixin(Object) {
+
+}
+
+class NotifiedSceneNode extends NotifiedNodeMixin(Object) {
+
+}
+
+export {
+    NodeMixin,
+    NotifiedNodeMixin,
+    SceneNode,
+    NotifiedSceneNode
+};

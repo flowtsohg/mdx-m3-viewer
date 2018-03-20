@@ -1,74 +1,73 @@
 import { vec3, quat } from 'gl-matrix';
 import standSequence from './standsequence';
 
-/**
- * @constructor
- * @param {W3xMap} map
- * @param {W3xParserUnit} unit
- */
-function W3xUnit(map, unit) {
-    this.map = map;
+export default class W3xUnit {
+    /**
+     * @param {W3xMap} map
+     * @param {W3xParserUnit} unit
+     */
+    constructor(map, unit) {
+        this.map = map;
 
-    var id = unit.id;
-    var variation = unit.variation;
+        var id = unit.id;
+        var variation = unit.variation;
 
-    this.id = id;
-    this.customId = '';
-    this.variation = variation;
-    this.location = unit.location;
-    this.angle = unit.angle;
-    this.scale = unit.scale;
-    this.player = unit.player;
+        this.id = id;
+        this.customId = '';
+        this.variation = variation;
+        this.location = unit.location;
+        this.angle = unit.angle;
+        this.scale = unit.scale;
+        this.player = unit.player;
 
-    
-    var row = map.fileCache.get('unitdata').getRow(id) || map.fileCache.get('itemdata').getRow(id);
-    if (row) {
-        var path;
+        
+        var row = map.fileCache.get('unitdata').getRow(id) || map.fileCache.get('itemdata').getRow(id);
+        if (row) {
+            var path;
 
-        // Items have a file field, units don't...
-        if (row.file) {
-            path = row.file.replace('.mdl', '.mdx');
+            // Items have a file field, units don't...
+            if (row.file) {
+                path = row.file.replace('.mdl', '.mdx');
 
-            if (!path.endsWith('.mdx')) {
-                path += '.mdx';
-            }
-        } else {
-            this.location[2] += row.moveHeight;
-
-            let uiRow;
-
-            if (row.customRow) {
-                uiRow = map.fileCache.get('unitui').getRow(row.ID);
+                if (!path.endsWith('.mdx')) {
+                    path += '.mdx';
+                }
             } else {
-                uiRow = map.fileCache.get('unitui').getRow(id);
+                this.location[2] += row.moveHeight;
+
+                let uiRow;
+
+                if (row.customRow) {
+                    uiRow = map.fileCache.get('unitui').getRow(row.ID);
+                } else {
+                    uiRow = map.fileCache.get('unitui').getRow(id);
+                }
+                
+
+                if (!uiRow) {
+                    console.log('Unknown unit ID', id);
+                    return;
+                }
+
+                path = uiRow.file + '.mdx';
+
+                vec3.scale(this.scale, this.scale, uiRow.modelScale);
             }
-            
 
-            if (!uiRow) {
-                console.log('Unknown unit ID', id);
-                return;
-            }
-
-            path = uiRow.file + '.mdx';
-
-            vec3.scale(this.scale, this.scale, uiRow.modelScale);
+            this.path = path;
+        } else {
+            if (id === 'sloc') {
+                this.path = 'Objects/StartLocation/StartLocation.mdx';
+            } 
         }
 
-        this.path = path;
-    } else {
-        if (id === 'sloc') {
-            this.path = 'Objects/StartLocation/StartLocation.mdx';
-        } 
+        if (this.path) {
+            this.addInstance();
+        } else {
+            console.log('Unknown unit/item ID', id)
+        }
     }
 
-    if (this.path) {
-        this.addInstance();
-    } else {
-        console.log('Unknown unit/item ID', id)
-    }
-}
-
-W3xUnit.prototype = {
     addInstance() {
         if (!this.model) {
             this.model = this.map.loadFile(this.path);
@@ -92,5 +91,3 @@ W3xUnit.prototype = {
         this.instance = instance;
     }
 };
-
-export default W3xUnit;

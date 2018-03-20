@@ -1,7 +1,5 @@
-import mix from '../../../common/mix';
 import M3Parser from '../../../parsers/m3/model';
 import TexturedModel from '../../texturedmodel';
-import M3 from './handler';
 import M3StandardMaterial from './standardmaterial';
 import M3Bone from './bone';
 import M3Sequence from './sequence';
@@ -12,34 +10,31 @@ import M3Attachment from './attachment';
 import M3Camera from './camera';
 import M3Region from './region';
 
-/**
- * @constructor
- * @augments Model
- * @memberOf M3
- * @param {ModelViewer} env
- * @param {function(?)} pathSolver
- * @param {Handler} handler
- * @param {string} extension
- */
-function M3Model(env, pathSolver, handler, extension) {
-    TexturedModel.call(this, env, pathSolver, handler, extension);
+export default class M3Model extends TexturedModel {
+    /**
+     * @param {ModelViewer} env
+     * @param {function(?)} pathSolver
+     * @param {Handler} handler
+     * @param {string} extension
+     */
+    constructor(env, pathSolver, handler, extension) {
+        super(env, pathSolver, handler, extension);
 
-    this.parser = null;
-    this.name = '';
-    this.batches = [];
-    this.materials = [[], []]; // 2D array for the possibility of adding more material types in the future
-    this.materialMaps = [];
-    this.bones = [];
-    this.boneLookup = [];
-    this.sequences = [];
-    this.sts = [];
-    this.stc = [];
-    this.stg = [];
-    this.attachments = [];
-    this.cameras = [];
-}
+        this.parser = null;
+        this.name = '';
+        this.batches = [];
+        this.materials = [[], []]; // 2D array for the possibility of adding more material types in the future
+        this.materialMaps = [];
+        this.bones = [];
+        this.boneLookup = [];
+        this.sequences = [];
+        this.sts = [];
+        this.stc = [];
+        this.stg = [];
+        this.attachments = [];
+        this.cameras = [];
+    }
 
-M3Model.prototype = {
     initialize(src) {
         var parser;
 
@@ -189,7 +184,7 @@ M3Model.prototype = {
         }
 
         return true;
-    },
+    }
 
     setupGeometry(parser, div) {
         let gl = this.env.gl;
@@ -236,13 +231,13 @@ M3Model.prototype = {
         this.arrayBuffer = arrayBuffer;
         this.vertexSize = (7 + uvSetCount) * 4;
         this.uvSetCount = uvSetCount;
-    },
+    }
 
     mapMaterial(index) {
         var materialMap = this.materialMaps[index];
 
         return this.materials[materialMap.materialType][materialMap.materialIndex];
-    },
+    }
 
     addGlobalAnims() {
     /*
@@ -279,7 +274,7 @@ M3Model.prototype = {
     }
     }
     */
-    },
+    }
 
     getValue(animRef, sequence, frame) {
         if (sequence !== -1) {
@@ -287,7 +282,7 @@ M3Model.prototype = {
         } else {
             return animRef.initValue;
         }
-    },
+    }
 
     bindShared(bucket) {
         let gl = this.env.gl,
@@ -324,7 +319,7 @@ M3Model.prototype = {
         gl.vertexAttribPointer(attribs.get('a_position'), 3, gl.FLOAT, false, vertexSize, 0);
         gl.vertexAttribPointer(attribs.get('a_weights'), 4, gl.UNSIGNED_BYTE, false, vertexSize, 12);
         gl.vertexAttribPointer(attribs.get('a_bones'), 4, gl.UNSIGNED_BYTE, false, vertexSize, 16);
-    },
+    }
 
     bind(bucket, scene) {
         const gl = this.env.gl,
@@ -360,8 +355,8 @@ M3Model.prototype = {
         gl.uniformMatrix4fv(uniforms.get('u_mv'), false, camera.worldMatrix);
 
         gl.uniform3fv(uniforms.get('u_eyePos'), camera.worldLocation);
-        gl.uniform3fv(uniforms.get('u_lightPos'), M3.lightPosition);
-    },
+        gl.uniform3fv(uniforms.get('u_lightPos'), this.handler.lightPosition);
+    }
     
     unbind() {
         let instancedArrays = this.env.gl.extensions.instancedArrays,
@@ -371,7 +366,7 @@ M3Model.prototype = {
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_teamColor'), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_vertexColor'), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_InstanceID'), 0);
-    },
+    }
 
     renderBatch(bucket, batch) {
         let shader = this.shader,
@@ -383,7 +378,7 @@ M3Model.prototype = {
         region.render(shader, bucket.instances.length);
 
         material.unbind(shader); // This is required to not use by mistake layers from this material that were bound and are not overwritten by the next material
-    },
+    }
 
     renderOpaque(bucket, scene) {
         const batches = this.batches;
@@ -403,11 +398,11 @@ M3Model.prototype = {
 
             this.unbind();
         }
-    },
+    }
 
     renderTranslucent(bucket, scene) {
 
-    },
+    }
 
     renderEmitters(bucket, scene) {
     /*
@@ -427,7 +422,3 @@ M3Model.prototype = {
     */
     }
 };
-
-mix(M3Model.prototype, TexturedModel.prototype);
-
-export default M3Model;

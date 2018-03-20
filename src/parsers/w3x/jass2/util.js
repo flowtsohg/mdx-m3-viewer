@@ -1,29 +1,29 @@
-function capitaliseFirstLetter(s) {
+export function capitaliseFirstLetter(s) {
 	return s.charAt(0).toUpperCase() + s.slice(1);
-}
+};
 
-function htmlEntityDecode(s) {
+export function htmlEntityDecode(s) {
 	return s.replace(/&quot;/g, '"').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&amp;/g, '&');
-}
+};
 
-function htmlEntityEncode(s) {
+export function htmlEntityEncode(s) {
 	return s.replace(/"/g, '&quot;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/&/g, '&amp;');
-}
+};
 
-function typeName(o) {
+export function typeName(o) {
 	try {
 		return o.constructor.name;
 	} catch (e) {
 		return typeof o;
 	}
-}
+};
 
-function basename(path) {
+export function basename(path) {
 	return path.replace(/\\/g, '/').replace( /.*\//, '' );
-}
+};
 
 
-function unpack(str) {
+export function unpack(str) {
     var bytes = [];
     for(var i = 0; i < str.length; i++) {
         var char = str.charCodeAt(i);
@@ -31,9 +31,9 @@ function unpack(str) {
         bytes.push(char & 0xFF);
     }
     return bytes;
-}
+};
 
-function literalValue(value) {
+export function literalValue(value) {
 	let	result = null,
 		type = null;
 	
@@ -76,13 +76,4 @@ function literalValue(value) {
 		value: result,
 		type: type
 	};
-}
-
-module.exports = {
-	capitaliseFirstLetter,
-	htmlEntityDecode,
-	htmlEntityEncode,
-	typeName,
-	basename,
-	literalValue
 };

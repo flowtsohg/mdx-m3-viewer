@@ -1,11 +1,9 @@
-import mix from '../../../common/mix';
-import FileHandler from '../../filehandler';
 import Mpq from '../mpq/handler';
 import Mdx from '../mdx/handler';
 import Geo from '../geo/handler';
 import W3xMap from './map';
 
-const W3x = {
+export default {
     initialize(env) {
         env.addHandler(Mpq);
         env.addHandler(Mdx);
@@ -14,18 +12,6 @@ const W3x = {
         return true;
     },
 
-    get extensions() {
-        return [
-            ['.w3x', true],
-            ['.w3m', true]
-        ];
-    },
-
-    get Constructor() {
-        return W3xMap;
-    }
+    extensions: [['.w3m', 'arrayBuffer'], ['.w3x', 'arrayBuffer']],
+    constructor: W3xMap
 };
-
-mix(W3x, FileHandler);
-
-export default W3x;

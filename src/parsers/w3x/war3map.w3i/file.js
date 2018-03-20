@@ -6,54 +6,56 @@ import TechAvailabilityChange from './techavailabilitychange';
 import RandomUnitTable from './randomunittable';
 import RandomItemTable from './randomitemtable';
 
-/**
- * @constructor
- * @param {?ArrayBuffer} buffer 
- */
-function War3MapW3i(buffer) {
-    this.version = 0;
-    this.saves = 0;
-    this.editorVersion = 0;
-    this.name = '';
-    this.author = '';
-    this.description = '';
-    this.recommendedPlayers = '';
-    this.cameraBounds = new Float32Array(8);
-    this.cameraBoundsComplements = new Int32Array(4);
-    this.playableSize = new Int32Array(2);
-    this.flags = 0;
-    this.tileset = '\0';
-    this.campaignBackground = 0;
-    this.loadingScreenModel = '';
-    this.loadingScreenText = '';
-    this.loadingScreenTitle = '';
-    this.loadingScreenSubtitle = '';
-    this.loadingScreen = 0;
-    this.prologueScreenModel = '';
-    this.prologueScreenText = '';
-    this.prologueScreenTitle = '';
-    this.prologueScreenSubtitle = '';
-    this.useTerrainFog = 0;
-    this.fogHeight = new Float32Array(2);
-    this.fogDensity = 0;
-    this.fogColor = new Uint8Array(4);
-    this.globalWeather = 0;
-    this.soundEnvironment = '';
-    this.lightEnvironmentTileset = '\0';
-    this.waterVertexColor = new Uint8Array(4);
-    this.players = [];
-    this.forces = [];
-    this.upgradeAvailabilityChanges = [];
-    this.techAvailabilityChanges = [];
-    this.randomUnitTables = [];
-    this.randomItemTables = [];
+export default class War3MapW3i {
+    /**
+     * @param {?ArrayBuffer} buffer 
+     */
+    constructor(buffer) {
+        this.version = 0;
+        this.saves = 0;
+        this.editorVersion = 0;
+        this.name = '';
+        this.author = '';
+        this.description = '';
+        this.recommendedPlayers = '';
+        this.cameraBounds = new Float32Array(8);
+        this.cameraBoundsComplements = new Int32Array(4);
+        this.playableSize = new Int32Array(2);
+        this.flags = 0;
+        this.tileset = '\0';
+        this.campaignBackground = 0;
+        this.loadingScreenModel = '';
+        this.loadingScreenText = '';
+        this.loadingScreenTitle = '';
+        this.loadingScreenSubtitle = '';
+        this.loadingScreen = 0;
+        this.prologueScreenModel = '';
+        this.prologueScreenText = '';
+        this.prologueScreenTitle = '';
+        this.prologueScreenSubtitle = '';
+        this.useTerrainFog = 0;
+        this.fogHeight = new Float32Array(2);
+        this.fogDensity = 0;
+        this.fogColor = new Uint8Array(4);
+        this.globalWeather = 0;
+        this.soundEnvironment = '';
+        this.lightEnvironmentTileset = '\0';
+        this.waterVertexColor = new Uint8Array(4);
+        this.players = [];
+        this.forces = [];
+        this.upgradeAvailabilityChanges = [];
+        this.techAvailabilityChanges = [];
+        this.randomUnitTables = [];
+        this.randomItemTables = [];
 
-    if (buffer) {
-        this.load(buffer);
+        if (buffer) {
+            this.load(buffer);
+        }
     }
-}
 
-War3MapW3i.prototype = {
+    /**
+     * @param {ArrayBuffer} buffer 
+     */
     load(buffer) {
         let stream = new BinaryStream(buffer);
 
@@ -70,7 +72,7 @@ War3MapW3i.prototype = {
         this.flags = stream.readUint32();
         this.tileset = stream.read(1);
         this.campaignBackground = stream.readInt32();
-
+        
         if (this.version > 24) {
             this.loadingScreenModel = stream.readUntilNull();
         }
@@ -87,7 +89,7 @@ War3MapW3i.prototype = {
         this.prologueScreenText = stream.readUntilNull();
         this.prologueScreenTitle = stream.readUntilNull();
         this.prologueScreenSubtitle = stream.readUntilNull();
-
+        
         if (this.version > 24) {
             this.useTerrainFog = stream.readInt32();
             this.fogHeight = stream.readFloat32Array(2);
@@ -95,39 +97,66 @@ War3MapW3i.prototype = {
             this.fogColor = stream.readUint8Array(4);
             this.globalWeather = stream.readInt32();
             this.soundEnvironment = stream.readUntilNull();
-            this.lightEnvironmentTileset = stream.read(1);
+            this.lightEnvironmentTileset = stream.read(1, true);
             this.waterVertexColor = stream.readUint8Array(4);
         }
 
         for (let i = 0, l = stream.readInt32(); i < l; i++) {
-            this.players[i] = new Player(stream);
+            let player = new Player();
+
+            player.load(stream);
+
+            this.players[i] = player;
         }
 
         for (let i = 0, l = stream.readInt32(); i < l; i++) {
-            this.forces[i] = new Force(stream);
+            let force = new Force();
+
+            force.load(stream);
+
+            this.forces[i] = force;
         }
 
         for (let i = 0, l = stream.readInt32(); i < l; i++) {
-            this.upgradeAvailabilityChanges[i] = new UpgradeAvailabilityChange(stream);
+            let upgradeAvailabilityChange = new UpgradeAvailabilityChange();
+
+            upgradeAvailabilityChange.load(stream);
+
+            this.upgradeAvailabilityChanges[i] = upgradeAvailabilityChange;
         }
 
         for (let i = 0, l = stream.readInt32(); i < l; i++) {
-            this.techAvailabilityChanges[i] = new TechAvailabilityChange(stream);
+            let techAvailabilityChange = new TechAvailabilityChange();
+
+            techAvailabilityChange.load(stream);
+
+            this.techAvailabilityChanges[i] = techAvailabilityChange;
         }
 
         for (let i = 0, l = stream.readInt32(); i < l; i++) {
-            this.randomUnitTables[i] = new RandomUnitTable(stream);
+            let randomUnitTable = new RandomUnitTable();
+
+            randomUnitTable.load(stream);
+
+            this.randomUnitTables[i] = randomUnitTable;
         }
 
         if (this.version > 24) {
             for (let i = 0, l = stream.readInt32(); i < l; i++) {
-                this.randomItemTables[i] = new RandomItemTable(stream);
+                let randomItemTable = new RandomItemTable();
+
+                randomItemTable.load(stream);
+
+                this.randomItemTables[i] = randomItemTable;
             }
         }
-    },
+    }
 
+    /**
+     * @returns {ArrayBuffer} 
+     */
     save() {
-        let buffer = new ArrayBuffer(this.calcSize()),
+        let buffer = new ArrayBuffer(this.getByteLength()),
             stream = new BinaryStream(buffer);
 
         stream.writeInt32(this.version);
@@ -143,7 +172,7 @@ War3MapW3i.prototype = {
         stream.writeUint32(this.flags);
         stream.write(this.tileset);
         stream.writeInt32(this.campaignBackground);
-
+        
         if (this.version > 24) {
             stream.write(`${this.loadingScreenModel}\0`);
         }
@@ -156,7 +185,7 @@ War3MapW3i.prototype = {
         if (this.version > 24) {
             stream.write(`${this.prologueScreenModel}\0`);
         }
-
+        
         stream.write(`${this.prologueScreenText}\0`);
         stream.write(`${this.prologueScreenTitle}\0`);
         stream.write(`${this.prologueScreenSubtitle}\0`);
@@ -211,41 +240,38 @@ War3MapW3i.prototype = {
         }
 
         return buffer;
-    },
+    }
 
-    calcSize() {
+    /**
+     * @returns {number} 
+     */
+    getByteLength() {
         let size = 111 + this.name.length + this.author.length + this.description.length + this.recommendedPlayers.length + this.loadingScreenText.length + this.loadingScreenTitle.length + this.loadingScreenSubtitle.length + this.prologueScreenText.length + this.prologueScreenTitle.length + this.prologueScreenSubtitle.length;
 
         for (let player of this.players) {
-            size += player.calcSize();
+            size += player.getByteLength();
         }
 
         for (let force of this.forces) {
-            size += force.calcSize();
+            size += force.getByteLength();
         }
+        
+        size += this.upgradeAvailabilityChanges.length * 16;
 
-        for (let change of this.upgradeAvailabilityChanges) {
-            size += change.calcSize();
-        }
-
-        for (let change of this.techAvailabilityChanges) {
-            size += change.calcSize();
-        }
+        size += this.techAvailabilityChanges.length * 8;
 
         for (let table of this.randomUnitTables) {
-            size += table.calcSize();
+            size += table.getByteLength();
         }
 
         if (this.version > 24) {
             size += 36 + this.loadingScreenModel.length + this.prologueScreenModel.length + this.soundEnvironment.length;
 
             for (let table of this.randomItemTables) {
-                size += table.calcSize();
+                size += table.getByteLength();
             }
         }
 
         return size;
     }
 };
-
-export default War3MapW3i;

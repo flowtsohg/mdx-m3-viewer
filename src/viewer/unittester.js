@@ -5,32 +5,29 @@ import Scene from './scene';
 import W3x from './handlers/w3x/handler';
 import M3 from './handlers/m3/handler';
 
-/**
- * @constructor
- */
-function UnitTester() {
-    let canvas = document.createElement('canvas');
+export default class UnitTester {
+    constructor() {
+        let canvas = document.createElement('canvas');
 
-    canvas.width = canvas.height = 256;
+        canvas.width = canvas.height = 256;
 
-    let viewer = new ModelViewer(canvas);
+        let viewer = new ModelViewer(canvas);
 
-    viewer.gl.clearColor(0, 0, 0, 1);
+        viewer.gl.clearColor(0, 0, 0, 1);
 
-    viewer.addEventListener('error', (e) => console.log(e));
+        viewer.addEventListener('error', (e) => console.log(e));
 
-    viewer.addHandler(W3x);
-    viewer.addHandler(M3);
+        viewer.addHandler(W3x);
+        viewer.addHandler(M3);
 
-    viewer.noCulling = true;
+        viewer.noCulling = true;
 
-    this.canvas = canvas;
-    this.viewer = viewer;
-    this.mathRandom = Math.random;
-    this.tests = [];
-}
+        this.canvas = canvas;
+        this.viewer = viewer;
+        this.mathRandom = Math.random;
+        this.tests = [];
+    }
 
-UnitTester.prototype = {
     // Download an url to a file with the given name.
     // The name doesn't seem to work in Firefox (only tested in Firefox and Chrome on Windows).
     downloadUrl(url, name) {
@@ -40,7 +37,7 @@ UnitTester.prototype = {
         a.download = `${name}.png`;
 
         a.dispatchEvent(new MouseEvent('click'));
-    },
+    }
 
     comparePixels(a, b, callback) {
         let imageA = new Image(),
@@ -88,7 +85,7 @@ UnitTester.prototype = {
 
         imageA.src = a;
         imageB.src = b;
-    },
+    }
 
     // Run the tests and compare the results against the (hopefully) correct images located on the server.
     // The given callback gets called after each comparison, with the result data.
@@ -108,7 +105,7 @@ UnitTester.prototype = {
                 callback(entry);
             }
         });
-    },
+    }
 
     // Download all of the test results as PNG images.
     // Behavior depends on the browser - on Chrome (at least on Windows), the images will be downloaded automatically to the default download location, each having the name of the test.
@@ -125,7 +122,7 @@ UnitTester.prototype = {
                 callback(entry);
             }
         });
-    },
+    }
 
     // Add tests
     add(test) {
@@ -134,7 +131,7 @@ UnitTester.prototype = {
         } else if (test.tests) {
             this.addBaseName(test.tests, test.name);
         }
-    },
+    }
 
     addBaseName(tests, baseName) {
         for (let test of tests) {
@@ -145,12 +142,12 @@ UnitTester.prototype = {
             }
             
         }
-    },
+    }
 
     // Start running tests
     start(callback) {
         this.next(callback, this.tests.entries());
-    },
+    }
 
     // Run the next test
     next(callback, iterator) {
@@ -204,5 +201,3 @@ UnitTester.prototype = {
         }
     }
 };
-
-export default UnitTester;

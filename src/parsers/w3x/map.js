@@ -20,33 +20,33 @@ import War3MapUnitsDoo from './war3mapUnits.doo/file';
 
 /**
  * Warcraft 3 map (W3X and W3M).
- * 
- * @constructor
- * @param {?ArrayBuffer} buffer If given an ArrayBuffer, load() will be called immediately
- * @param {?boolean} readonly If true, disables editing and saving the map (and the internal archive), allowing to optimize other things
  */
-function War3Map(buffer, readonly) {
-    /** @member {number} */
-    this.unknown = 0;
-    /** @member {string} */
-    this.name = '';
-    /** @member {number} */
-    this.flags = 0;
-    /** @member {number} */
-    this.maxPlayers = 0;
-    /** @member {MpqArchive} */
-    this.archive = new MpqArchive(null, readonly);
-    /** @member {War3MapImp} */
-    this.imports = new War3MapImp();
-    /** @member {boolean} */
-    this.readonly = !!readonly;
+export default class War3Map {
+    /**
+     * @param {?ArrayBuffer} buffer If given an ArrayBuffer, load() will be called immediately
+     * @param {?boolean} readonly If true, disables editing and saving the map (and the internal archive), allowing to optimize other things
+     */
+    constructor(buffer, readonly) {
+        /** @member {number} */
+        this.unknown = 0;
+        /** @member {string} */
+        this.name = '';
+        /** @member {number} */
+        this.flags = 0;
+        /** @member {number} */
+        this.maxPlayers = 0;
+        /** @member {MpqArchive} */
+        this.archive = new MpqArchive(null, readonly);
+        /** @member {War3MapImp} */
+        this.imports = new War3MapImp();
+        /** @member {boolean} */
+        this.readonly = !!readonly;
 
-    if (buffer) {
-        this.load(buffer);
+        if (buffer) {
+            this.load(buffer);
+        }
     }
-}
 
-War3Map.prototype = {
     /**
      * Load an existing map.
      * Note that this clears the map from whatever it had in it before.
@@ -77,7 +77,7 @@ War3Map.prototype = {
         this.readImports();
         
         return true;
-    },
+    }
 
     /**
      * Save this map.
@@ -110,7 +110,7 @@ War3Map.prototype = {
         typedArray.set(new Uint8Array(archiveBuffer), headerSize)
 
         return buffer;
-    },
+    }
 
     /**
      * A shortcut to the internal archive function.
@@ -119,7 +119,7 @@ War3Map.prototype = {
      */
     getFileNames() {
         return this.archive.getFileNames();
-    },
+    }
 
     /**
      * Gets a list of the file names imported in this map.
@@ -134,7 +134,7 @@ War3Map.prototype = {
         }
 
         return names;
-    },
+    }
 
     /**
      * Sets the imports file with all of the imports.
@@ -152,7 +152,7 @@ War3Map.prototype = {
         }
 
         return false;
-    },
+    }
 
     /**
      * Imports a file to this archive.
@@ -177,7 +177,7 @@ War3Map.prototype = {
         }
         
         return false;
-    },
+    }
 
     /**
      * A shortcut to the internal archive function.
@@ -190,7 +190,7 @@ War3Map.prototype = {
         }
 
         return this.archive.set(name, buffer);
-    },
+    }
 
     /**
      * A shortcut to the internal archive function.
@@ -199,7 +199,7 @@ War3Map.prototype = {
      */
     get(name) {
         return this.archive.get(name);
-    },
+    }
 
     /**
      * Get the map's script file.
@@ -210,7 +210,7 @@ War3Map.prototype = {
         let file = this.get('war3map.j') || this.get('scripts\\war3map.j');
 
         return file.text();
-    },
+    }
 
     /**
      * A shortcut to the internal archive function.
@@ -219,7 +219,7 @@ War3Map.prototype = {
      */
     has(name) {
         return this.archive.has(name);
-    },
+    }
 
     /**
      * Deletes a file from the internal archive.
@@ -238,7 +238,7 @@ War3Map.prototype = {
         this.imports.delete(name);
 
         return this.archive.delete(name);
-    },
+    }
 
     /**
      * A shortcut to the internal archive function.
@@ -258,7 +258,7 @@ War3Map.prototype = {
         }
 
         return false;
-    },
+    }
 
     /**
      * Read the imports file.
@@ -273,7 +273,7 @@ War3Map.prototype = {
                 this.imports.load(buffer);
             }
         }
-    },
+    }
 
     /**
      * Read the environment file.
@@ -284,7 +284,7 @@ War3Map.prototype = {
         if (file) {
             return new War3MapW3e(file.arrayBuffer());
         }
-    },
+    }
 
     /**
      * Read and parse the doodads file.
@@ -295,7 +295,7 @@ War3Map.prototype = {
         if (file) {
             return new War3MapDoo(file.arrayBuffer());
         }
-    },
+    }
 
     /**
      * Read and parse the units file.
@@ -306,7 +306,7 @@ War3Map.prototype = {
         if (file) {
             return new War3MapUnitsDoo(file.arrayBuffer());
         }
-    },
+    }
 
     readTriggers() {
         let file = this.archive.get('war3map.wtg');
@@ -314,7 +314,7 @@ War3Map.prototype = {
         if (file) {
             return new War3MapWtg(file.arrayBuffer(), this.argumentMap);
         }
-    },
+    }
 
     readStringTable() {
         let file = this.archive.get('war3map.wts');
@@ -322,7 +322,7 @@ War3Map.prototype = {
         if (file) {
             return new War3MapWts(file.text());
         }
-    },
+    }
 
     /**
      * Read and parse all of the modification tables.
@@ -360,7 +360,7 @@ War3Map.prototype = {
         }
 
         return modifications;
-    },
+    }
 
     addTriggerDataSection(map, section, hasReturn) {
         for (let [key, value] of section) {
@@ -384,7 +384,7 @@ War3Map.prototype = {
                 map.set(key, count);
             }
         }
-    },
+    }
 
     readTriggerData(triggerData) {
         let map = new Map();
@@ -395,11 +395,9 @@ War3Map.prototype = {
         this.addTriggerDataSection(map, triggerData.getSection('TriggerCalls'), true);
 
         return map;
-    },
+    }
 
     addTriggerData(triggerData) {
         this.argumentMap = this.readTriggerData(triggerData);
     }
 };
-
-export default War3Map;

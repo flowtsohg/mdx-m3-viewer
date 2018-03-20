@@ -1,104 +1,103 @@
 import { clamp } from '../../../common/math';
 import Interpolator from '../../../common/interpolator';
 
-/**
- * @constructor
- * @param {MdxSd} sd
- * @param {number} start
- * @param {number} end
- * @param {Array<MdxParserTrack>} keyframes
- * @param {boolean} isGlobalSequence
- */
-function MdxSdSequence(sd, start, end, keyframes, isGlobalSequence) {
-    var defval = sd.defval;
+class MdxSdSequence {
+    /**
+     * @param {MdxSd} sd
+     * @param {number} start
+     * @param {number} end
+     * @param {Array<MdxParserTrack>} keyframes
+     * @param {boolean} isGlobalSequence
+     */
+    constructor(sd, start, end, keyframes, isGlobalSequence) {
+        var defval = sd.defval;
 
-    this.sd = sd;
-    this.start = start;
-    this.end = end;
-    this.keyframes = [];
+        this.sd = sd;
+        this.start = start;
+        this.end = end;
+        this.keyframes = [];
 
-    // When using a global sequence, where the first key is outside of the sequence's length, it becomes its constant value.
-    // When having one key in the sequence's range, and one key outside of it, results seem to be non-deterministic.
-    // Sometimes the second key is used too, sometimes not.
-    // It also differs depending where the model is viewed - the WE previewer, the WE itself, or the game.
-    // All three show different results, none of them make sense.
-    // Therefore, only handle the case where the first key is outside.
-    // This fixes problems spread over many models, e.g. HeroMountainKing (compare in WE and in Magos).
-    if (isGlobalSequence && keyframes[0].frame > end) {
-        this.keyframes.push(keyframes[0]);
-    }
-
-    // Go over the keyframes, and add all of the ones that are in this sequence (start <= frame <= end).
-    for (var i = 0, l = keyframes.length; i < l; i++) {
-        var keyframe = keyframes[i],
-            frame = keyframe.frame;
-
-        if (frame >= start && frame <= end) {
-            this.keyframes.push(keyframe);
+        // When using a global sequence, where the first key is outside of the sequence's length, it becomes its constant value.
+        // When having one key in the sequence's range, and one key outside of it, results seem to be non-deterministic.
+        // Sometimes the second key is used too, sometimes not.
+        // It also differs depending where the model is viewed - the WE previewer, the WE itself, or the game.
+        // All three show different results, none of them make sense.
+        // Therefore, only handle the case where the first key is outside.
+        // This fixes problems spread over many models, e.g. HeroMountainKing (compare in WE and in Magos).
+        if (isGlobalSequence && keyframes[0].frame > end) {
+            this.keyframes.push(keyframes[0]);
         }
-    }
 
-    switch (this.keyframes.length) {
-        // If there are no keys, use the default value directly.
-        case 0:
-            this.constant = true;
-            this.value = defval;
-            break;
+        // Go over the keyframes, and add all of the ones that are in this sequence (start <= frame <= end).
+        for (var i = 0, l = keyframes.length; i < l; i++) {
+            var keyframe = keyframes[i],
+                frame = keyframe.frame;
 
-        // If there's only one key, use it directly.
-        case 1:
-            this.constant = true;
-            this.value = this.keyframes[0].value;
-            break;
+            if (frame >= start && frame <= end) {
+                this.keyframes.push(keyframe);
+            }
+        }
 
-        default:
-            // If all of the values in this sequence are the same, might as well make it constant.
-            var constant = true,
-                firstValue = this.keyframes[0].value;
+        switch (this.keyframes.length) {
+            // If there are no keys, use the default value directly.
+            case 0:
+                this.constant = true;
+                this.value = defval;
+                break;
 
-            for (var i = 1, l = this.keyframes.length; i < l; i++) {
-                var keyframe = this.keyframes[i],
-                    value = keyframe.value;
+            // If there's only one key, use it directly.
+            case 1:
+                this.constant = true;
+                this.value = this.keyframes[0].value;
+                break;
 
-                if (value.length > 0) {
-                    for (var j = 0, k = value.length; j < k; j++) {
-                        if (firstValue[j] !== value[j]) {
+            default:
+                // If all of the values in this sequence are the same, might as well make it constant.
+                var constant = true,
+                    firstValue = this.keyframes[0].value;
+
+                for (var i = 1, l = this.keyframes.length; i < l; i++) {
+                    var keyframe = this.keyframes[i],
+                        value = keyframe.value;
+
+                    if (value.length > 0) {
+                        for (var j = 0, k = value.length; j < k; j++) {
+                            if (firstValue[j] !== value[j]) {
+                                constant = false;
+                                break;
+                            }
+                        }
+                    } else {
+                        if (value !== firstValue) {
                             constant = false;
                             break;
                         }
                     }
+                }
+
+                if (constant) {
+                    this.constant = true;
+                    this.value = firstValue;
                 } else {
-                    if (value !== firstValue) {
-                        constant = false;
-                        break;
+                    this.constant = false;
+
+                    // If there is no opening keyframe for this sequence, inject one with the default value.
+                    if (this.keyframes[0].frame !== start) {
+                        this.keyframes.splice(0, 0, { frame: start, value: defval, inTan: defval, outTan: defval });
+                    }
+
+                    // If there is no closing keyframe for this sequence, inject one with the default value.
+                    if (this.keyframes[this.keyframes.length - 1].frame !== end) {
+                        this.keyframes.splice(this.keyframes.length, 0, { frame: end, value: this.keyframes[0].value, inTan: this.keyframes[0].outTan, outTan: this.keyframes[0].inTan });
                     }
                 }
-            }
 
-            if (constant) {
-                this.constant = true;
-                this.value = firstValue;
-            } else {
-                this.constant = false;
+                break;
+        }
 
-                // If there is no opening keyframe for this sequence, inject one with the default value.
-                if (this.keyframes[0].frame !== start) {
-                    this.keyframes.splice(0, 0, { frame: start, value: defval, inTan: defval, outTan: defval });
-                }
-
-                // If there is no closing keyframe for this sequence, inject one with the default value.
-                if (this.keyframes[this.keyframes.length - 1].frame !== end) {
-                    this.keyframes.splice(this.keyframes.length, 0, { frame: end, value: this.keyframes[0].value, inTan: this.keyframes[0].outTan, outTan: this.keyframes[0].inTan });
-                }
-            }
-
-            break;
+        this.keyframeInterval = new Uint32Array(2);
     }
 
-    this.keyframeInterval = new Uint32Array(2);
-}
-
-MdxSdSequence.prototype = {
     getValueUnsafe(frame) {
         if (this.constant) {
             return this.value;
@@ -124,7 +123,7 @@ MdxSdSequence.prototype = {
                 }
             }
         }
-    },
+    }
 
     getKeyframe(frame) {
         if (this.constant) {
@@ -148,9 +147,9 @@ MdxSdSequence.prototype = {
             }
         }
     }
-};
+}
 
-var forcedInterpMap = {
+let forcedInterpMap = {
     KLAV: 0,
     KATV: 0,
     KPEV: 0,
@@ -158,43 +157,42 @@ var forcedInterpMap = {
     KRVS: 0
 };
 
-/**
- * @constructor
- * @param {MdxModel} model
- * @param {MdxParserSd} sd
- */
-function MdxSd(model, sd) {
-    var globalSequenceId = sd.globalSequenceId,
-        globalSequences = model.globalSequences,
-        tracks = sd.tracks,
-        forcedInterp = forcedInterpMap[sd.tag];
+class MdxSd {
+    /**
+     * @param {MdxModel} model
+     * @param {MdxParserSd} sd
+     */
+    constructor(model, sd) {
+        var globalSequenceId = sd.globalSequenceId,
+            globalSequences = model.globalSequences,
+            tracks = sd.tracks,
+            forcedInterp = forcedInterpMap[sd.tag];
 
-    this.tag = sd.tag;
-    this.model = model;
-    this.keyframes = tracks;
-    this.defval = sd.defval;
+        this.tag = sd.tag;
+        this.model = model;
+        this.keyframes = tracks;
+        this.defval = sd.defval;
 
-    // Allow to force an interpolation type.
-    // The game seems to do this with visibility tracks, where the type is forced to None.
-    // It came up as a bug report by a user who used the wrong interpolation type.
-    this.interpolationType = forcedInterp !== undefined ? forcedInterp : sd.interpolationType;
+        // Allow to force an interpolation type.
+        // The game seems to do this with visibility tracks, where the type is forced to None.
+        // It came up as a bug report by a user who used the wrong interpolation type.
+        this.interpolationType = forcedInterp !== undefined ? forcedInterp : sd.interpolationType;
 
-    if (globalSequenceId !== -1 && globalSequences) {
-        this.globalSequence = new MdxSdSequence(this, 0, globalSequences[globalSequenceId].value, tracks, true);
-    } else {
-        var sequences = model.sequences;
+        if (globalSequenceId !== -1 && globalSequences) {
+            this.globalSequence = new MdxSdSequence(this, 0, globalSequences[globalSequenceId].value, tracks, true);
+        } else {
+            var sequences = model.sequences;
 
-        this.sequences = [];
+            this.sequences = [];
 
-        for (var i = 0, l = sequences.length; i < l; i++) {
-            var interval = sequences[i].interval;
+            for (var i = 0, l = sequences.length; i < l; i++) {
+                var interval = sequences[i].interval;
 
-            this.sequences[i] = new MdxSdSequence(this, interval[0], interval[1], tracks, false);
+                this.sequences[i] = new MdxSdSequence(this, interval[0], interval[1], tracks, false);
+            }
         }
     }
-}
 
-MdxSd.prototype = {
     getValueUnsafe(instance) {
         if (this.globalSequence) {
             var globalSequence = this.globalSequence;
@@ -205,7 +203,7 @@ MdxSd.prototype = {
         } else {
             return this.defval;
         }
-    },
+    }
 
     getKeyframe(instance) {
         if (this.globalSequence) {
@@ -217,7 +215,7 @@ MdxSd.prototype = {
         } else {
             return 0;
         }
-    },
+    }
 
     isVariant(sequence) {
         if (this.globalSequence) {
@@ -225,7 +223,7 @@ MdxSd.prototype = {
         } else {
             return !this.sequences[sequence].constant;
         }
-    },
+    }
 
     getValues() {
         if (this.globalSequence) {
@@ -242,27 +240,26 @@ MdxSd.prototype = {
             return [];
         }
     }
-};
-
-/**
- * @constructor
- * @param {MdxModel} model
- * @param {MdxParserSdContainer} container
- */
-function MdxSdContainer(model, container) {
-    let sd = {},
-		elements = container.elements;
-
-	for (let i = 0, l = elements.length; i < l; i++) {
-		let element = elements[i];
-
-		sd[element.tag] = new MdxSd(model, element);
-	}
-
-    this.sd = sd;
 }
 
-MdxSdContainer.prototype = {
+export default class MdxSdContainer {
+    /**
+     * @param {MdxModel} model
+     * @param {MdxParserSdContainer} container
+     */
+    constructor(model, container) {
+        let sd = {},
+            elements = container.elements;
+
+        for (let i = 0, l = elements.length; i < l; i++) {
+            let element = elements[i];
+
+            sd[element.tag] = new MdxSd(model, element);
+        }
+
+        this.sd = sd;
+    }
+
     getValues(tag) {
         var sd = this.sd[tag];
 
@@ -271,7 +268,7 @@ MdxSdContainer.prototype = {
         }
 
         return [];
-    },
+    }
 
     getValueUnsafe(tag, instance, defval) {
         var sd = this.sd[tag];
@@ -281,11 +278,11 @@ MdxSdContainer.prototype = {
         }
 
         return defval;
-    },
+    }
 
     getValue(tag, instance, defval) {
         return this.getValueUnsafe(tag, instance, defval);
-    },
+    }
 
     getValue3(out, tag, instance, defval) {
         let unsafeHeap = this.getValueUnsafe(tag, instance, defval);
@@ -295,7 +292,7 @@ MdxSdContainer.prototype = {
         out[2] = unsafeHeap[2];
 
         return out;
-    },
+    }
 
     getValue4(out, tag, instance, defval) {
         let unsafeHeap = this.getValueUnsafe(tag, instance, defval);
@@ -306,7 +303,7 @@ MdxSdContainer.prototype = {
         out[3] = unsafeHeap[3];
 
         return out;
-    },
+    }
 
     getKeyframe(tag, instance) {
         var sd = this.sd[tag];
@@ -316,7 +313,7 @@ MdxSdContainer.prototype = {
         }
 
         return 0;
-    },
+    }
 
     isVariant(tag, sequence) {
         var sd = this.sd[tag];
@@ -328,5 +325,3 @@ MdxSdContainer.prototype = {
         return false;
     }
 };
-
-export default MdxSdContainer;

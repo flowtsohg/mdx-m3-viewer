@@ -1,10 +1,8 @@
 /**
  * @constructor
  * @param {BinaryReader} reader
- * @param {number} index
  */
-function MdxParserTexture(reader, index) {
-    this.index = index;
+function MdxParserTexture(reader) {
     /** @member {number} */
     this.replaceableId = reader.readUint32();
     /** @member {string} */

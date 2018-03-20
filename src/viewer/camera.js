@@ -1,51 +1,42 @@
 import { vec3, vec4, quat, mat4 } from 'gl-matrix';
-import mix from '../common/mix';
 import Frustum from './frustum';
-import NotifiedNode from './notifiednode';
-import ViewerNode from './node';
+import { NotifiedNodeMixin } from './node';
 
 let vectorHeap = vec3.create(),
     vectorHeap2 = vec3.create(),
     vectorHeap3 = vec3.create();
 
-/**
- * @constructor
- * @augments Frustum
- * @augments ViewerNode
- */
-function Camera() {
-    Frustum.call(this);
+export default class Camera extends NotifiedNodeMixin(Frustum) {
+    constructor() {
+        super();
+        
+        this.perspective = true;
+        this.ortho = false;
+        this.fieldOfView = 0;
+        this.aspectRatio = 0;
+        this.nearClipPlane = 0;
+        this.farClipPlane = 0;
+        this.leftClipPlane = 0;
+        this.rightClipPlane = 0;
+        this.bottomClipPlane = 0;
+        this.topClipPlane = 0;
+        this.viewport = vec4.create();
+        this.projectionMatrix = mat4.create();
+        this.worldProjectionMatrix = mat4.create();
+        this.inverseWorldMatrix = mat4.create();
+        this.inverseRotation = quat.create();
+        this.inverseRotationMatrix = mat4.create();
+        this.inverseWorldProjectionMatrix = mat4.create();
 
-    this.perspective = true;
-    this.ortho = false;
-    this.fieldOfView = 0;
-    this.aspectRatio = 0;
-    this.nearClipPlane = 0;
-    this.farClipPlane = 0;
-    this.leftClipPlane = 0;
-    this.rightClipPlane = 0;
-    this.bottomClipPlane = 0;
-    this.topClipPlane = 0;
-    this.viewport = vec4.create();
-    this.projectionMatrix = mat4.create();
-    this.worldProjectionMatrix = mat4.create();
-    this.inverseWorldMatrix = mat4.create();
-    this.inverseRotation = quat.create();
-    this.inverseRotationMatrix = mat4.create();
-    this.inverseWorldProjectionMatrix = mat4.create();
+        // First four vectors are the corners of a 2x2 rectangle, the last three vectors are the unit axes
+        this.vectors = [vec3.fromValues(-1, -1, 0), vec3.fromValues(-1, 1, 0), vec3.fromValues(1, 1, 0), vec3.fromValues(1, -1, 0), vec3.fromValues(1, 0, 0), vec3.fromValues(0, 1, 0), vec3.fromValues(0, 0, 1)];
 
-    // First four vectors are the corners of a 2x2 rectangle, the last three vectors are the unit axes
-    this.vectors = [vec3.fromValues(-1, -1, 0), vec3.fromValues(-1, 1, 0), vec3.fromValues(1, 1, 0), vec3.fromValues(1, -1, 0), vec3.fromValues(1, 0, 0), vec3.fromValues(0, 1, 0), vec3.fromValues(0, 0, 1)];
+        // First four vectors are the corners of a 2x2 rectangle billboarded to the camera, the last three vectors are the unit axes billboarded
+        this.billboardedVectors = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
 
-    // First four vectors are the corners of a 2x2 rectangle billboarded to the camera, the last three vectors are the unit axes billboarded
-    this.billboardedVectors = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
+        this.dontInheritScaling = true;
+    }
 
-    NotifiedNode.call(this);
-
-    this.dontInheritScaling = true;
-}
-
-Camera.prototype = {
     setPerspective(fieldOfView, aspectRatio, nearClipPlane, farClipPlane) {
         this.perspective = true;
         this.ortho = false;
@@ -55,7 +46,7 @@ Camera.prototype = {
         this.farClipPlane = farClipPlane;
 
         this.recalculateTransformation();
-    },
+    }
 
     setOrtho(left, right, bottom, top, near, far) {
         this.perspective = false;
@@ -68,7 +59,7 @@ Camera.prototype = {
         this.farClipPlane = far;
 
         this.recalculateTransformation();
-    },
+    }
 
     setViewport(viewport) {
         vec4.copy(this.viewport, viewport);
@@ -76,7 +67,7 @@ Camera.prototype = {
         this.aspectRatio = viewport[2] / viewport[3];
         
         return this.recalculateTransformation();
-    },
+    }
 
     recalculateTransformation() {
         let worldMatrix = this.worldMatrix,
@@ -87,7 +78,7 @@ Camera.prototype = {
             billboardedVectors = this.billboardedVectors;
 
         // Recalculate the node part
-        ViewerNode.prototype.recalculateTransformation.call(this);
+        super.recalculateTransformation();
 
         // Projection matrix
         // Camera space -> NDC space
@@ -118,7 +109,7 @@ Camera.prototype = {
         this.recalculatePlanes(worldProjectionMatrix);
 
         return this;
-    },
+    }
 
     // Given a vector in camera space, return the vector transformed to world space
     cameraToWorld(out, v) {
@@ -126,14 +117,14 @@ Camera.prototype = {
         //vec3.transformMat4(out, out, this.inverseWorldMatrix);
 
         //return out;
-    },
+    }
 
     // Given a vector in world space, return the vector transformed to camera space
     worldToCamera(out, v) {
         //vec3.transformQuat(out, v, this.inverseWorldRotation);
 
         //return out;
-    },
+    }
 
     // Given a vector in world space, return the vector transformed to screen space
     worldToScreen(out, v) {
@@ -145,7 +136,7 @@ Camera.prototype = {
         out[1] = Math.round(((vectorHeap[1] + 1) / 2) * viewport[3]);
 
         return out;
-    },
+    }
 
     // Given a vector in screen space, return the vector transformed to world space, projected on the X-Z plane
     screenToWorld(out, v) {
@@ -172,7 +163,3 @@ Camera.prototype = {
         return out;
     }
 };
-
-mix(Camera.prototype, NotifiedNode.prototype, Frustum.prototype);
-
-export default Camera;

@@ -1,4 +1,4 @@
-const MdxShaders = {
+export default {
     'vs_main': `
         uniform mat4 u_mvp;
 
@@ -165,5 +165,3 @@ const MdxShaders = {
         }
     `
 };
-
-export default MdxShaders;

@@ -1,18 +1,17 @@
 import MpqBlock from './block';
 import { BLOCK_TABLE_KEY, FILE_COMPRESSED, FILE_SINGLE_UNIT, FILE_EXISTS } from './constants';
 
-/**
- * @constructor
- * @param {MpqCrypto} c
- */
-function MpqBlockTable(c) {
-    /** @param {MpqCrypto} */
-    this.c = c;
-    /** @param {Array<MpqBlock>} */
-    this.entries = [];
-}
+export default class MpqBlockTable {
+    /**
+     * @param {MpqCrypto} c
+     */
+    constructor(c) {
+        /** @param {MpqCrypto} */
+        this.c = c;
+        /** @param {Array<MpqBlock>} */
+        this.entries = [];
+    }
 
-MpqBlockTable.prototype = {
     add(buffer) {
         let block = new MpqBlock();
         
@@ -21,17 +20,17 @@ MpqBlockTable.prototype = {
         this.entries.push(block);
 
         return block;
-    },
+    }
 
     clear() {
         this.entries.length = 0;
-    },
+    }
 
     addEmpties(howMany) {
         for (let i = 0; i < howMany; i++) {
             this.entries.push(new MpqBlock());
         }
-    },
+    }
 
     load(typedArray) {
         let entriesCount = typedArray.byteLength / 16,
@@ -47,7 +46,7 @@ MpqBlockTable.prototype = {
 
             offset += 4;
         }
-    },
+    }
 
     /**
      * @param {Uint8Array} typedArray 
@@ -67,7 +66,5 @@ MpqBlockTable.prototype = {
         this.c.encryptBlock(uint8array, BLOCK_TABLE_KEY);
 
         typedArray.set(uint8array);
-    },
+    }
 };
-
-export default MpqBlockTable;

@@ -1,12 +1,12 @@
-function CustomTextTrigger(stream) {
-    this.text = '';
-
-    if (stream) {
-        this.load(stream);
+export default class CustomTextTrigger {
+    constructor() {
+        /** @member {string} */
+        this.text = '';
     }
-}
 
-CustomTextTrigger.prototype = {
+    /**
+     * @param {BinaryStream} stream 
+     */
     load(stream) {
         let textLength = stream.readInt32();
         
@@ -14,8 +14,11 @@ CustomTextTrigger.prototype = {
             this.text = stream.read(textLength - 1);
             stream.skip(1);
         }
-    },
+    }
 
+    /**
+     * @param {BinaryStream} stream 
+     */
     save(stream) {
         let text = this.text;
 
@@ -25,18 +28,18 @@ CustomTextTrigger.prototype = {
         } else {
             stream.writeInt32(0);
         }
-    },
+    }
 
-    calcSize() {
-        let size = 4,
-            textLength = this.text.length;
+    /**
+     * @returns {number} 
+     */
+    getByteLength() {
+        let size = 4;
 
-        if (textLength) {
-            size += textLength + 1;
+        if (this.text.length) {
+            size += this.text.length + 1;
         }
 
         return size;
     }
 };
-
-export default CustomTextTrigger;

@@ -10,33 +10,33 @@ import { MAGIC, HASH_ENTRY_DELETED, HASH_ENTRY_EMPTY, FILE_EXISTS } from './cons
 
 /**
  * MoPaQ archive (MPQ) version 0.
- * 
- * @constructor
- * @param {?ArrayBuffer} buffer If given an ArrayBuffer, load() will be called immediately
- * @param {?boolean} readonly If true, disables editing and saving the archive, allowing to optimize other things
  */
-function MpqArchive(buffer, readonly) {
-    /** @member {number} */
-    this.headerOffset = 0;
-    /** @member {number} */
-    this.sectorSize = 4096;
-    /** @member {MpqCrypto} */
-    this.c = new MpqCrypto();
-    /** @member {MpqHashTable} */
-    this.hashTable = new MpqHashTable(this.c);
-    /** @member {MpqBlockTable} */
-    this.blockTable = new MpqBlockTable(this.c);
-    /** @member {Array<MpqFile>} */
-    this.files = [];
-    /** @member {boolean} */
-    this.readonly = !!readonly;
+export default class MpqArchive {
+    /**
+     * @param {?ArrayBuffer} buffer If given an ArrayBuffer, load() will be called immediately
+     * @param {?boolean} readonly If true, disables editing and saving the archive, allowing to optimize other things
+     */
+    constructor(buffer, readonly) {
+        /** @member {number} */
+        this.headerOffset = 0;
+        /** @member {number} */
+        this.sectorSize = 4096;
+        /** @member {MpqCrypto} */
+        this.c = new MpqCrypto();
+        /** @member {MpqHashTable} */
+        this.hashTable = new MpqHashTable(this.c);
+        /** @member {MpqBlockTable} */
+        this.blockTable = new MpqBlockTable(this.c);
+        /** @member {Array<MpqFile>} */
+        this.files = [];
+        /** @member {boolean} */
+        this.readonly = !!readonly;
 
-    if (buffer instanceof ArrayBuffer) {
-        this.load(buffer);
+        if (buffer instanceof ArrayBuffer) {
+            this.load(buffer);
+        }
     }
-}
 
-MpqArchive.prototype = {
     /**
      * Load an existing archive.
      * Note that this clears the archive from whatever it had in it before.
@@ -118,7 +118,7 @@ MpqArchive.prototype = {
         }
 
         return true;
-    },
+    }
 
     /**
      * Save this archive.
@@ -210,7 +210,7 @@ MpqArchive.prototype = {
         blockTable.save(typedArray.subarray(offset, offset + blockTable.entries.length * 16));
 
         return typedArray.buffer;
-    },
+    }
 
     /**
      * Some MPQs have empty memory chunks in them, left over from files that were deleted.
@@ -258,7 +258,7 @@ MpqArchive.prototype = {
         }
 
         return saved;
-    },
+    }
 
     removeBlock(blockIndex) {
         for (let hash of this.hashTable.entries) {
@@ -269,7 +269,7 @@ MpqArchive.prototype = {
 
         this.blockTable.entries.splice(blockIndex, 1);
         this.hashTable.entries.splice(blockIndex, 1);
-    },
+    }
 
     /**
      * Gets a list of the file names in the archive.
@@ -287,7 +287,7 @@ MpqArchive.prototype = {
         }
 
         return names;
-    },
+    }
 
     /**
      * Sets the list file with all of the resolved file names.
@@ -302,7 +302,7 @@ MpqArchive.prototype = {
 
         // Add the listfile, possibly overriding an existing one.
         return this.set('(listfile)', stringToBuffer(this.getFileNames().join('\r\n')));
-    },
+    }
 
     /**
      * Adds a file to this archive.
@@ -338,7 +338,7 @@ MpqArchive.prototype = {
         }
 
         return true;
-    },
+    }
 
     /**
      * Gets a file from this archive.
@@ -368,7 +368,7 @@ MpqArchive.prototype = {
         }
 
         return null;
-    },
+    }
 
     /**
      * Checks if a file exists.
@@ -379,7 +379,7 @@ MpqArchive.prototype = {
      */
     has(name) {
         return !!this.get(name);
-    },
+    }
 
     /**
      * Deletes a file from this archive.
@@ -404,7 +404,7 @@ MpqArchive.prototype = {
         file.delete();
 
         return true;
-    },
+    }
 
     /**
      * Renames a file.
@@ -432,7 +432,7 @@ MpqArchive.prototype = {
         file.rename(newName);
 
         return true;
-    },
+    }
 
     /**
      * Resizes the hashtable to the nearest power of two equal to or bigger than the given size.
@@ -488,7 +488,7 @@ MpqArchive.prototype = {
         }
 
         return true;
-    },
+    }
 
     // Search for the MPQ header - MPQ\x1A.
     // The header can be on any 512 bytes boundry offset.
@@ -507,5 +507,3 @@ MpqArchive.prototype = {
         return offset;
     }
 };
-
-export default MpqArchive;

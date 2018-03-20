@@ -1,30 +1,25 @@
-import mix from '../common/mix';
-import AsyncResource from './asyncresource';
 import DownloadableResource from './downloadableresource';
 
-/**
- * @constructor
- * @augments DownloadableResource
- * @param {ModelViewer} env
- * @param {function(?)} pathSolver
- * @param {Handler} handler
- * @param {string} extension
- */
-function Model(env, pathSolver, handler, extension) {
-    DownloadableResource.call(this, env, pathSolver, handler, extension);
+export default class Model extends DownloadableResource {
+    /**
+     * @param {ModelViewer} env
+     * @param {function(?)} pathSolver
+     * @param {Handler} handler
+     * @param {string} extension
+     */
+    constructor(env, pathSolver, handler, extension) {
+        super(env, pathSolver, handler, extension);
 
-    /** @member {Array<ModelInstance>} */
-    this.instances = [];
+        /** @member {Array<ModelInstance>} */
+        this.instances = [];
 
-    /** @member {Array<ModelView>} */
-    this.views = [];
-}
+        /** @member {Array<ModelView>} */
+        this.views = [];
+    }
 
-
-Model.prototype = {
     get objectType() {
         return 'model';
-    },
+    }
 
     /**
      * Adds a new instance to this model, and returns it.
@@ -33,7 +28,7 @@ Model.prototype = {
      */
     addInstance() {
         let views = this.views,
-            instance = new this.handler.Instance(this);
+            instance = new this.handler.instance(this);
 
         instance.load(this);
 
@@ -50,7 +45,7 @@ Model.prototype = {
         }
 
         return instance;
-    },
+    }
 
     /**
      * Detach this model from the viewer. This removes references to it from the viewer, and also detaches all of the model views it owns.
@@ -65,33 +60,33 @@ Model.prototype = {
 
         // Remove references from the viewer
         this.env.removeReference(this);
-    },
+    }
 
     renderOpaque(bucket) {
 
-    },
+    }
 
     renderTranslucent(bucket) {
 
-    },
+    }
 
     renderEmitters(bucket) {
 
-    },
+    }
 
     addView() {
-        let view = new this.handler.ModelView(this);
+        let view = new this.handler.view(this);
 
         this.views.push(view);
 
         return view;
-    },
+    }
 
     removeView(modelView) {
         let views = this.views;
 
         views.splice(views.indexOf(modelView), 1);
-    },
+    }
 
     viewChanged(instance, shallowView) {
         // Check if there's another view that matches the instance
@@ -111,11 +106,11 @@ Model.prototype = {
 
         view.applyShallowCopy(shallowView);
         view.addInstance(instance);
-    },
+    }
 
     // This allows setting up preloaded instances without event listeners.
     finalizeLoad() {
-        AsyncResource.prototype.finalizeLoad.call(this);
+        super.finalizeLoad();
 
         let instances = this.instances;
 
@@ -124,7 +119,3 @@ Model.prototype = {
         }
     }
 };
-
-mix(Model.prototype, DownloadableResource.prototype);
-
-export default Model;

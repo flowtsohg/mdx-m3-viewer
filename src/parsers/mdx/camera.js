@@ -4,10 +4,8 @@ import MdxParserSDContainer from './sd';
  * @constructor
  * @param {BinaryReader} reader
  * @param {Array<MdxParserNode>} nodes
- * @param {number} index
  */
-function MdxParserCamera(reader, nodes, index) {
-    this.index = index;
+function MdxParserCamera(reader, nodes) {
     /** @member {number} */
     this.size = reader.readUint32();
     /** @member {string} */

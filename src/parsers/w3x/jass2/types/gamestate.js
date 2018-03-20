@@ -1,7 +1,3 @@
-import JassHandle from './handle';
+import JassEnum from './enum';
 
-export default class JassGameState extends JassHandle {
-	constructor(jassContext) {
-		super(jassContext);
-	}
-};
+export default class JassGameState extends JassEnum {};

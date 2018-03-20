@@ -1,32 +1,43 @@
 import BinaryStream from '../../../common/binarystream';
 import MinimapIcon from './minimapicon';
 
-/**
- * @constructor
- * @param {?ArrayBuffer} buffer 
- */
-function War3MapMmp(buffer) {
-    this.u1 = 0;
-    this.icons = [];
+export default class War3MapMmp {
+    /**
+     * @param {?ArrayBuffer} buffer 
+     */
+    constructor(buffer) {
+        /** @member {number} */
+        this.u1 = 0;
+        /** @member {Array<MinimapIcon>} */
+        this.icons = [];
 
-    if (buffer) {
-        this.load(buffer);
+        if (buffer) {
+            this.load(buffer);
+        }
     }
-}
 
-War3MapMmp.prototype = {
+    /**
+     * @param {ArrayBuffer} buffer 
+     */
     load(buffer) {
         let stream = new BinaryStream(buffer);
 
         this.u1 = stream.readInt32();
 
         for (let i = 0, l = stream.readInt32(); i < l; i++) {
-            this.icons[i] = new MinimapIcon(stream);
-        }
-    },
+            let icon = new MinimapIcon();
 
+            icon.load(stream);
+
+            this.icons[i] = icon;
+        }
+    }
+
+    /**
+     * @returns {ArrayBuffer}  
+     */
     save() {
-        let buffer = new ArrayBuffer(this.calcSize()),
+        let buffer = new ArrayBuffer(this.getByteLength()),
             stream = new BinaryStream(buffer);
 
         stream.writeInt32(this.u1);
@@ -37,11 +48,12 @@ War3MapMmp.prototype = {
         }
 
         return buffer;
-    },
+    }
 
-    calcSize() {
+    /**
+     * @returns {number}  
+     */
+    getByteLength() {
         return 8 + this.icons.length * 16;
     }
 };
-
-export default War3MapMmp;

@@ -1,12 +1,9 @@
-/**
- * @constructor
- */
-function EventDispatcher() {
-    /** @member {Map<string, function(Event)>} */
-    this.listeners = new Map();
-}
- 
-EventDispatcher.prototype = {
+export default class EventDispatcher {
+    constructor() {
+        /** @member {Map<string, function(Event)>} */
+        this.listeners = new Map();
+    }
+
     /**
      * Add a new event listener.
      * 
@@ -24,7 +21,7 @@ EventDispatcher.prototype = {
         listeners.get(type).push(listener);
 
         return this;
-    },
+    }
 
     /**
      * Remove an existing event listener.
@@ -45,7 +42,7 @@ EventDispatcher.prototype = {
         }
 
         return this;
-    },
+    }
     
     /**
      * Add a new event listener that removes itself before running.
@@ -60,7 +57,7 @@ EventDispatcher.prototype = {
         this.addEventListener(type, wrapper);
 
         return this;
-    },
+    }
 
     /**
      * Dispatch an event.
@@ -89,20 +86,3 @@ EventDispatcher.prototype = {
         return this;
     }
 };
-
-/**
- * @alias EventDispatcher.prototype.addEventListener
- */
-EventDispatcher.prototype.on = EventDispatcher.prototype.addEventListener;
-
-/**
- * @alias EventDispatcher.prototype.removeEventListener
- */
-EventDispatcher.prototype.off = EventDispatcher.prototype.removeEventListener;
-
-/**
- * @alias EventDispatcher.prototype.dispatchEvent
- */
-EventDispatcher.prototype.emit = EventDispatcher.prototype.dispatchEvent;
-
-export default EventDispatcher;

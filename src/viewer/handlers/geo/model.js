@@ -1,20 +1,6 @@
-import mix from '../../../common/mix';
 import Model from '../../model';
 
-/**
- * @constructor
- * @extends Model
- * @memberOf Geo
- * @param {ModelViewer} env
- * @param {function(?)} pathSolver
- * @param {Handler} handler
- * @param {string} extension
- */
-function GeometryModel(env, pathSolver, handler, extension) {
-    Model.call(this, env, pathSolver, handler, extension);
-}
-
-GeometryModel.prototype = {
+export default class GeometryModel extends Model {
     initialize(src) {
         const gl = this.env.gl;
 
@@ -96,7 +82,7 @@ GeometryModel.prototype = {
         }
 
         return true;
-    },
+    }
 
     render(bucket, scene) {
         let webgl = this.env.webgl,
@@ -203,25 +189,21 @@ GeometryModel.prototype = {
         /// Reset the attributes to play nice with other handlers
         instancedArrays.vertexAttribDivisorANGLE(instanceIdAttrib, 0);
         instancedArrays.vertexAttribDivisorANGLE(colorAttrib, 0);
-    },
+    }
 
     renderOpaque(bucket, scene) {
         if (this.opaque) {
             this.render(bucket, scene);
         }
-    },
+    }
 
     renderTranslucent(bucket, scene) {
         if (this.translucent) {
             this.render(bucket, scene);
         }
-    },
+    }
 
     renderEmitters(bucket, scene) {
 
     }
 };
-
-mix(GeometryModel.prototype, Model.prototype);
-
-export default GeometryModel;

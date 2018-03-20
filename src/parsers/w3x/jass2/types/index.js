@@ -79,7 +79,7 @@ import JassFogState from './fogstate';
 // import JassTrackable from './trackable';
 // import JassGameCache from './gamecache';
 import JassVersion from './version';
-import JassItemType from './itemType';
+import JassItemType from './itemtype';
 // import JassTextTag from './texttag';
 import JassAttackType from './attacktype';
 import JassDamageType from './damagetype';
@@ -184,4 +184,4 @@ export {
     // JassImage,
     // JassUbersplat,
     // JassHashtable
-}
+};

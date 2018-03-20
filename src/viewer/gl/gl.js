@@ -2,89 +2,88 @@ import stringHash from '../../common/stringhash';
 import ShaderUnit from './shader';
 import ShaderProgram from './program';
 
-/**
- * @constructor
- * @param {HTMLCanvasElement} canvas
- */
-function WebGL(canvas) {
-    let gl = canvas.getContext('webgl', { alpha: false });
+function extensionToCamelCase(ext) {
+    let tokens = ext.split('_'),
+        result = tokens[1];
 
-    if (!gl) {
-        gl = canvas.getContext('experimental-webgl', { alpha: false });
+    for (let i = 2, l = tokens.length; i < l; i++) {
+        result += tokens[i][0].toUpperCase() + tokens[i].substr(1);
     }
 
-    if (!gl) {
-        throw new Error('WebGL: Failed to create a WebGL context!');
-    }
-
-    function extensionToCamelCase(ext) {
-        let tokens = ext.split('_'),
-            result = tokens[1];
-
-        for (let i = 2, l = tokens.length; i < l; i++) {
-            result += tokens[i][0].toUpperCase() + tokens[i].substr(1);
-        }
-
-        return result;
-    }
-
-    let extensions = {};
-    for (let extension of gl.getSupportedExtensions()) {
-        // Firefox keeps spamming errors about MOZ_ prefixed extension strings being deprecated.
-        if (!extension.startsWith('MOZ_')) {
-            extensions[extensionToCamelCase(extension)] = gl.getExtension(extension);
-        }
-    }
-
-    if (!gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS)) {
-        throw new Error('WebGL: No vertex shader texture support!');
-    }
-
-    if (!extensions.textureFloat) {
-        throw new Error('WebGL: No floating point texture support!');
-    }
-
-    if (!extensions.instancedArrays) {
-        throw new Error('WebGL: No instanced rendering support!');
-    }
-
-    if (!extensions.compressedTextureS3tc) {
-        console.warn('WebGL: No compressed textures support! This might reduce performance.');
-    }
-
-    gl.extensions = extensions;
-
-    // The only initial setup required, the rest should be handled by the handelrs
-    gl.depthFunc(gl.LEQUAL);
-    gl.enable(gl.DEPTH_TEST);
-
-    /** @member {WebGLRenderingContext} */
-    this.gl = gl;
-    /** @member {array} */
-    this.extensions = extensions;
-    /** @member {Map<number, ShaderUnit>} */
-    this.shaderUnits = new Map();
-    /** @member {Map<number, ShaderProgram>} */
-    this.shaderPrograms = new Map();
-    /** @member {?ShaderProgram} */
-    this.currentShaderProgram = null;
-    /** @member {string} */
-    this.floatPrecision = 'precision mediump float;\n';
-
-    // An empty 2x2 texture that is used automatically when binding an invalid texture
-    let emptyTexture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, emptyTexture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, new ImageData(2, 2));
-
-    /** @member {WebGLTexture} */
-    this.emptyTexture = emptyTexture;
+    return result;
 }
 
-WebGL.prototype = {
+export default class WebGL {
+    /**
+     * @param {HTMLCanvasElement} canvas
+     */
+    constructor(canvas) {
+        let gl = canvas.getContext('webgl', { alpha: false });
+
+        if (!gl) {
+            gl = canvas.getContext('experimental-webgl', { alpha: false });
+        }
+
+        if (!gl) {
+            throw new Error('WebGL: Failed to create a WebGL context!');
+        }
+
+        let extensions = {};
+        for (let extension of gl.getSupportedExtensions()) {
+            // Firefox keeps spamming errors about MOZ_ prefixed extension strings being deprecated.
+            if (!extension.startsWith('MOZ_')) {
+                extensions[extensionToCamelCase(extension)] = gl.getExtension(extension);
+            }
+        }
+
+        if (!gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS)) {
+            throw new Error('WebGL: No vertex shader texture support!');
+        }
+
+        if (!extensions.textureFloat) {
+            throw new Error('WebGL: No floating point texture support!');
+        }
+
+        if (!extensions.instancedArrays) {
+            throw new Error('WebGL: No instanced rendering support!');
+        }
+
+        if (!extensions.compressedTextureS3tc) {
+            console.warn('WebGL: No compressed textures support! This might reduce performance.');
+        }
+
+        gl.extensions = extensions;
+
+        // The only initial setup required, the rest should be handled by the handelrs
+        gl.depthFunc(gl.LEQUAL);
+        gl.enable(gl.DEPTH_TEST);
+
+        /** @member {WebGLRenderingContext} */
+        this.gl = gl;
+        /** @member {array} */
+        this.extensions = extensions;
+        /** @member {Map<number, ShaderUnit>} */
+        this.shaderUnits = new Map();
+        /** @member {Map<number, ShaderProgram>} */
+        this.shaderPrograms = new Map();
+        /** @member {?ShaderProgram} */
+        this.currentShaderProgram = null;
+        /** @member {string} */
+        this.floatPrecision = 'precision mediump float;\n';
+
+        // An empty 2x2 texture that is used automatically when binding an invalid texture
+        let emptyTexture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, emptyTexture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, new ImageData(2, 2));
+
+        /** @member {WebGLTexture} */
+        this.emptyTexture = emptyTexture;
+    }
+
     /**
      * Create a new shader unit. Uses caching.
      * 
@@ -101,7 +100,7 @@ WebGL.prototype = {
         }
 
         return shaderUnits.get(hash);
-    },
+    }
 
     /**
      * Create a new shader program. Uses caching.
@@ -129,7 +128,7 @@ WebGL.prototype = {
                 return shaderProgram;
             }
         }
-    },
+    }
 
     enableVertexAttribs(start, end) {
         let gl = this.gl;
@@ -137,7 +136,7 @@ WebGL.prototype = {
         for (let i = start; i < end; i++) {
             gl.enableVertexAttribArray(i);
         }
-    },
+    }
 
     disableVertexAttribs(start, end) {
         let gl = this.gl;
@@ -145,7 +144,7 @@ WebGL.prototype = {
         for (let i = start; i < end; i++) {
             gl.disableVertexAttribArray(i);
         }
-    },
+    }
 
     /**
      * Use a shader program.
@@ -173,7 +172,7 @@ WebGL.prototype = {
 
             this.currentShaderProgram = shaderProgram;
         }
-    },
+    }
 
     /**
      * Bind a texture.
@@ -195,5 +194,3 @@ WebGL.prototype = {
         }
     }
 };
-
-export default WebGL;

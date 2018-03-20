@@ -1,20 +1,28 @@
-function Region(stream) {
-    this.left = 0;
-    this.right = 0;
-    this.bottom = 0;
-    this.top = 0;
-    this.name = '';
-    this.creationNumber = 0;
-    this.weatherEffectId = '\0\0\0\0';
-    this.ambientSound = '';
-    this.color = new Uint8Array(4);
-
-    if (stream) {
-        this.load(stream);
+export default class Region {
+    constructor() {
+        /** @member {number} */
+        this.left = 0;
+        /** @member {number} */
+        this.right = 0;
+        /** @member {number} */
+        this.bottom = 0;
+        /** @member {number} */
+        this.top = 0;
+        /** @member {string} */
+        this.name = '';
+        /** @member {number} */
+        this.creationNumber = 0;
+        /** @member {string} */
+        this.weatherEffectId = '\0\0\0\0';
+        /** @member {string} */
+        this.ambientSound = '';
+        /** @member {Uint8Array} */
+        this.color = new Uint8Array(4);
     }
-}
 
-Region.prototype = {
+    /**
+     * @param {BinaryStream} stream 
+     */
     load(stream) {
         this.left = stream.readFloat32();
         this.right = stream.readFloat32();
@@ -25,8 +33,11 @@ Region.prototype = {
         this.weatherEffectId = stream.read(4);
         this.ambientSound = stream.readUntilNull();
         this.color = stream.readUint8Array(4);
-    },
+    }
 
+    /**
+     * @param {BinaryStream} stream 
+     */
     save(stream) {
         stream.writeFloat32(this.left);
         stream.writeFloat32(this.right);
@@ -43,11 +54,12 @@ Region.prototype = {
         
         stream.write(`${this.ambientSound}\0`);
         stream.writeUint8Array(this.color);
-    },
+    }
 
-    calcSize() {
+    /**
+     * @returns {number} 
+     */
+    getByteLength() {
         return 30 + this.name.length + this.ambientSound.length;
     }
 };
-
-export default Region;

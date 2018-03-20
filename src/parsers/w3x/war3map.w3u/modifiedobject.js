@@ -1,25 +1,36 @@
 import Modification from './modification';
 
-function ModifiedObject(stream, useOptionalInts) {
-    this.oldId = '\0\0\0\0';
-    this.newId = '\0\0\0\0';
-    this.modifications = [];
-
-    if (stream) {
-        this.load(stream, useOptionalInts);
+export default class ModifiedObject {
+    constructor(stream, useOptionalInts) {
+        /** @member {string} */
+        this.oldId = '\0\0\0\0';
+        /** @member {string} */
+        this.newId = '\0\0\0\0';
+        /** @member {Array<Modification>} */
+        this.modifications = [];
     }
-}
 
-ModifiedObject.prototype = {
+    /**
+     * @param {BinaryStream} stream 
+     * @param {number} useOptionalInts 
+     */
     load(stream, useOptionalInts) {
         this.oldId = stream.read(4);
         this.newId = stream.read(4);
     
         for (let i = 0, l = stream.readUint32() ; i < l; i++) {
-            this.modifications[i] = new Modification(stream, useOptionalInts);
-        }
-    },
+            let modification = new Modification();
 
+            modification.load(stream, useOptionalInts);
+
+            this.modifications[i] = modification;
+        }
+    }
+
+    /**
+     * @param {BinaryStream} stream 
+     * @param {number} useOptionalInts 
+     */
     save(stream, useOptionalInts) {
         if (this.oldId) {
             stream.write(this.oldId);
@@ -38,17 +49,19 @@ ModifiedObject.prototype = {
         for (let modification of this.modifications) {
             modification.save(stream, useOptionalInts);
         }
-    },
+    }
 
-    calcSize(useOptionalInts) {
+    /**
+     * @param {number} useOptionalInts 
+     * @returns {number} 
+     */
+    getByteLength(useOptionalInts) {
         let size = 12;
 
         for (let modification of this.modifications) {
-            size += modification.calcSize(useOptionalInts);
+            size += modification.getByteLength(useOptionalInts);
         }
 
         return size;
     }
 };
-
-export default ModifiedObject;

@@ -1,13 +1,3 @@
-import JassHandle from './handle';
+import JassEnum from './enum';
 
-export default class JassMapVisibility extends JassHandle {
-	constructor(jassContext, value) {
-        super(jassContext);
-        
-        this.handleId = value;
-	}
-
-    toString() {
-        return `mapvisibility(${this.handleId}})`;
-    }
-};
+export default class JassMapVisibility extends JassEnum {};

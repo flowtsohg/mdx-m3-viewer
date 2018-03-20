@@ -1,22 +1,24 @@
-function RandomUnit(stream) {
-    this.id = '\0\0\0\0'
-    this.chance = 0;
- 
-    if (stream) {
-        this.load(stream);
+export default class RandomUnit {
+    constructor() {
+        /** @member {string} */
+        this.id = '\0\0\0\0'
+        /** @member {number} */
+        this.chance = 0;
     }
- }
- 
- RandomUnit.prototype = {
-     load(stream) {
-         this.id = stream.read(4);
-         this.chance = stream.readInt32();
-     },
- 
-     save(stream) {
-         stream.write(this.id);
-         stream.writeInt32(this.chance);
-     }
- };
 
-export default RandomUnit;
+    /**
+     * @param {BinaryStream} stream 
+     */
+    load(stream) {
+        this.id = stream.read(4);
+        this.chance = stream.readInt32();
+    }
+
+    /**
+     * @param {BinaryStream} stream 
+     */
+    save(stream) {
+        stream.write(this.id);
+        stream.writeInt32(this.chance);
+    }
+};

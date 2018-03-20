@@ -6,8 +6,4 @@ export default class JassForce extends JassAgent {
         
         this.players = new Set();
 	}
-
-    toString() {
-        return `[type=force handle=${this.handleId}]`;
-    }
 };

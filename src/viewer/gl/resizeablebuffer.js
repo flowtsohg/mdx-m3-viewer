@@ -1,33 +1,32 @@
 import { powerOfTwo } from '../../common/math';
 
-/**
- * @constructor
- * @param {WebGLRenderingContext} gl
- * @param {number=} size
- */
-function ResizeableBuffer(gl, size) {
-    let buffer = new ArrayBuffer(size || 32); // Arbitrary default size
+export default class ResizeableBuffer {
+    /**
+     * @param {WebGLRenderingContext} gl
+     * @param {number=} size
+     */
+    constructor(gl, size) {
+        let buffer = new ArrayBuffer(size || 32); // Arbitrary default size
 
-    /** @member {WebGLRenderingContext} */
-    this.gl = gl;
-    /** @member {Uint8Array} */
-    this.uint8array = new Uint8Array(buffer);
-    /** @member {Float32Array} */
-    this.float32array = new Float32Array(buffer);
-    /** @member {WebGLBuffer} */
-    this.buffer = gl.createBuffer();
-    
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this.uint8array, gl.DYNAMIC_DRAW);
-}
+        /** @member {WebGLRenderingContext} */
+        this.gl = gl;
+        /** @member {Uint8Array} */
+        this.uint8array = new Uint8Array(buffer);
+        /** @member {Float32Array} */
+        this.float32array = new Float32Array(buffer);
+        /** @member {WebGLBuffer} */
+        this.buffer = gl.createBuffer();
+        
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this.uint8array, gl.DYNAMIC_DRAW);
+    }
 
-ResizeableBuffer.prototype = {
     /**
      * Get the byte length of this buffer.
      */
     get byteLength() {
         return this.uint8array.length;
-    },
+    }
 
     /**
      * Binds this buffer to the array buffer target.
@@ -38,7 +37,7 @@ ResizeableBuffer.prototype = {
         let gl = this.gl;
 
         gl.bindBuffer(target || gl.ARRAY_BUFFER, this.buffer);
-    },
+    }
 
     /**
      * Resizes the internal buffer.
@@ -66,7 +65,7 @@ ResizeableBuffer.prototype = {
             this.uint8array = array;
             this.float32array = new Float32Array(array.buffer);
         }
-    },
+    }
 
     /**
      * If size is bigger than the current buffer size, resize.
@@ -79,5 +78,3 @@ ResizeableBuffer.prototype = {
         }
     }
 };
-
-export default ResizeableBuffer;

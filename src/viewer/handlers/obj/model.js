@@ -1,21 +1,6 @@
-import mix from '../../../common/mix';
 import Model from '../../model';
 
-/**
- * @constructor
- * @augments Model
- * @memberOf Obj
- * @param {ModelViewer} env
- * @param {function(?)} pathSolver
- * @param {Handler} handler
- * @param {string} extension
- */
-function ObjModel(env, pathSolver, handler, extension) {
-    // Run the base Model constructor.
-    Model.call(this, env, pathSolver, handler, extension);
-}
-
-ObjModel.prototype = {
+export default class ObjModel extends Model {
     // Called when the model finishes loading.
     // src is either a string, or an ArrayBuffer, depending on the handler's binaryFormat getter (default to false, where src is a string).
     initialize(src) {
@@ -65,7 +50,7 @@ ObjModel.prototype = {
 
         // Report that this model was loaded properly.
         return true;
-    },
+    }
 
     // Called every frame, render opaque stuff here.
     renderOpaque(bucket, scene) {
@@ -97,20 +82,15 @@ ObjModel.prototype = {
 
             gl.drawElements(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, 0);
         }
-    },
+    }
 
     // Called every frame, render stuff with alpha translucency here.
     renderTranslucent(bucket, scene) {
 
-    },
+    }
 
     // Called every frame, render any kind of particle emitter here.
     renderEmitters(bucket, scene) {
 
     }
 };
-
-// Inherit from Model.
-mix(ObjModel.prototype, Model.prototype);
-
-export default ObjModel;
