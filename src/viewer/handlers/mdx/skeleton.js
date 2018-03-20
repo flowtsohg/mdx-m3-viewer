@@ -129,33 +129,31 @@ export default class MdxSkeleton extends Skeleton {
                 //}
             }
 
-            if (!window.BETA) {
-                // Update the bone texture.
-                for (let i = 0, l = bones.length; i < l; i++) {
-                    let matrix = bones[i].worldMatrix,
-                        base = 16 + i * 16;
+            // Update the bone texture.
+            for (let i = 0, l = bones.length; i < l; i++) {
+                let matrix = bones[i].worldMatrix,
+                    base = 16 + i * 16;
 
-                    boneArray[base] = matrix[0];
-                    boneArray[base + 1] = matrix[1];
-                    boneArray[base + 2] = matrix[2];
-                    boneArray[base + 3] = matrix[3];
-                    boneArray[base + 4] = matrix[4];
-                    boneArray[base + 5] = matrix[5];
-                    boneArray[base + 6] = matrix[6];
-                    boneArray[base + 7] = matrix[7];
-                    boneArray[base + 8] = matrix[8];
-                    boneArray[base + 9] = matrix[9];
-                    boneArray[base + 10] = matrix[10];
-                    boneArray[base + 11] = matrix[11];
-                    boneArray[base + 12] = matrix[12];
-                    boneArray[base + 13] = matrix[13];
-                    boneArray[base + 14] = matrix[14];
-                    boneArray[base + 15] = matrix[15];
-                    //boneArray.set(bones[i].worldMatrix, i * 16 + 16);
-                }
-
-                instance.bucket.updateBoneTexture = true;
+                boneArray[base] = matrix[0];
+                boneArray[base + 1] = matrix[1];
+                boneArray[base + 2] = matrix[2];
+                boneArray[base + 3] = matrix[3];
+                boneArray[base + 4] = matrix[4];
+                boneArray[base + 5] = matrix[5];
+                boneArray[base + 6] = matrix[6];
+                boneArray[base + 7] = matrix[7];
+                boneArray[base + 8] = matrix[8];
+                boneArray[base + 9] = matrix[9];
+                boneArray[base + 10] = matrix[10];
+                boneArray[base + 11] = matrix[11];
+                boneArray[base + 12] = matrix[12];
+                boneArray[base + 13] = matrix[13];
+                boneArray[base + 14] = matrix[14];
+                boneArray[base + 15] = matrix[15];
+                //boneArray.set(bones[i].worldMatrix, i * 16 + 16);
             }
+
+            instance.bucket.updateBoneTexture = true;
         }
     }
 };

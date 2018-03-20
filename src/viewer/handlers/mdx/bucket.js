@@ -201,55 +201,6 @@ export default class MdxBucket extends Bucket {
             size = this.instances.length,
             objects;
 
-        if (window.BETA) {
-            let boneArray = this.boneArray;
-            let offset = 0;
-
-            for (let instance of this.instances) {
-                if (instance.isVisible) {
-                    let bones = instance.skeleton.bones;
-
-                    // The first matrix of each instance is a zero matrix, for shader optimizations.
-                    offset += 16;
-
-                    for (let bone of bones) {
-                        let matrix = bone.worldMatrix;
-
-                        boneArray[offset] = matrix[0];
-                        boneArray[offset + 1] = matrix[1];
-                        boneArray[offset + 2] = matrix[2];
-                        boneArray[offset + 3] = matrix[3];
-                        boneArray[offset + 4] = matrix[4];
-                        boneArray[offset + 5] = matrix[5];
-                        boneArray[offset + 6] = matrix[6];
-                        boneArray[offset + 7] = matrix[7];
-                        boneArray[offset + 8] = matrix[8];
-                        boneArray[offset + 9] = matrix[9];
-                        boneArray[offset + 10] = matrix[10];
-                        boneArray[offset + 11] = matrix[11];
-                        boneArray[offset + 12] = matrix[12];
-                        boneArray[offset + 13] = matrix[13];
-                        boneArray[offset + 14] = matrix[14];
-                        boneArray[offset + 15] = matrix[15];
-
-                        offset += 16;
-                    }
-                }
-            }
-
-            gl.activeTexture(gl.TEXTURE15);
-            gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
-            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, size, gl.RGBA, gl.FLOAT, this.boneArray);
-        } else {
-            if (this.updateBoneTexture) {
-                this.updateBoneTexture = false;
-            
-                gl.activeTexture(gl.TEXTURE15);
-                gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
-                gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, size, gl.RGBA, gl.FLOAT, this.boneArray);
-            }
-        }
-
         objects = this.particleEmitters;
         for (let i = 0, l = objects.length; i < l; i++) {
             objects[i].update();
@@ -268,6 +219,14 @@ export default class MdxBucket extends Bucket {
         objects = this.eventObjectEmitters;
         for (let i = 0, l = objects.length; i < l; i++) {
             objects[i].update(scene);
+        }
+
+        if (this.updateBoneTexture) {
+            this.updateBoneTexture = false;
+        
+            gl.activeTexture(gl.TEXTURE15);
+            gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
+            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, size, gl.RGBA, gl.FLOAT, this.boneArray);
         }
 
         if (this.updateTeamColors) {
