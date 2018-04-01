@@ -41,7 +41,7 @@ function recompileNode(node, data, functionDef) {
     } else if (node instanceof ast.FunctionArgument) {
         // Can only happen in a function definition.
         functionDef.arguments.push(node.name);
-        
+
         result += node.name;
     } else if (node instanceof ast.IfThenElse) {
         result += `if (${recompileNode(node.condition, data, functionDef)}) {\n${node.thenActions.map((action) => recompileNode(action, data, functionDef)).join('\n')}\n}`;
@@ -95,7 +95,7 @@ function recompileNode(node, data, functionDef) {
         // Is this a local variable?
         if (node.isLocal) {
             result += `let ${node.name} = jassContext.onLocalDefinition("${node.name}", ${value})`;
-            
+
             // If so, also add it to the function data.
             functionDef.locals.push(node.name);
         } else {
@@ -109,7 +109,7 @@ function recompileNode(node, data, functionDef) {
         result += `jassContext.call(${[`"${node.name}"`].concat(node.args.map((arg) => recompileNode(arg, data, functionDef))).join(', ')})`;
     } else if (node instanceof ast.FunctionReference) {
         result += `globals.${node.name}`;
-    
+
     } else if (node instanceof ast.Unary) {
         result += `${recompileOperator(node.operator)}${recompileNode(node.value, data, functionDef)}`;
     } else if (node instanceof ast.Type) {

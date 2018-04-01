@@ -1,4 +1,4 @@
-export default class MdxParticle2EmitterView {
+export default class MdxParticleEmitter2View {
     /**
      * @param {MdxModelInstance} instance
      * @param {MdxParticle2Emitter} emitter
@@ -27,7 +27,7 @@ export default class MdxParticle2EmitterView {
             }
 
             if (this.currentEmission >= 1) {
-                for (let i = 0, l = Math.floor(this.currentEmission) ; i < l; i++, this.currentEmission--) {
+                for (let i = 0, l = Math.floor(this.currentEmission); i < l; i++ , this.currentEmission--) {
                     emitter.emit(this);
                 }
             }

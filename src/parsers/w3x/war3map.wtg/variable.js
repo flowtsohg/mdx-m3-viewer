@@ -43,7 +43,7 @@ export default class Variable {
      */
     getByteLength(version) {
         let size = 15 + this.name.length + this.type.length + this.initialValue.length;
-        
+
         if (version === 7) {
             size += 4;
         }

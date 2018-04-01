@@ -21,7 +21,7 @@ export default class MdxEventObjectUbr {
         let modelObject = this.emitter.modelObject,
             vertices = this.vertices,
             emitterScale = modelObject.scale,
-            node = emitterView.instance.skeleton.nodes[modelObject.node.index],
+            node = emitterView.instance.skeleton.nodes[modelObject.index],
             location = node.worldLocation,
             vertex;
 
@@ -57,7 +57,7 @@ export default class MdxEventObjectUbr {
 
         // Inverse of health
         let time = modelObject.lifespan - this.health;
-        
+
         if (time < first) {
             vec4.lerp(color, colors[0], colors[1], time / first);
         } else if (time < first + second) {

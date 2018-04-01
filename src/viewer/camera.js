@@ -9,7 +9,7 @@ let vectorHeap = vec3.create(),
 export default class Camera extends NotifiedNodeMixin(Frustum) {
     constructor() {
         super();
-        
+
         this.perspective = true;
         this.ortho = false;
         this.fieldOfView = 0;
@@ -63,9 +63,9 @@ export default class Camera extends NotifiedNodeMixin(Frustum) {
 
     setViewport(viewport) {
         vec4.copy(this.viewport, viewport);
-        
+
         this.aspectRatio = viewport[2] / viewport[3];
-        
+
         return this.recalculateTransformation();
     }
 

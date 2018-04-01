@@ -10,7 +10,7 @@ export default class War3MapW3s {
         this.version = 0;
         /** @member {Array<Sound>} */
         this.sounds = [];
-        
+
         if (buffer) {
             this.load(buffer);
         }

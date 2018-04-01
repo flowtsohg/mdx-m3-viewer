@@ -39,7 +39,7 @@ export default class Doodad {
         this.flags = stream.readUint8();
         this.life = stream.readUint8();
 
-        if (version  > 7) {
+        if (version > 7) {
             this.itemTable = stream.readUint32();
 
             for (let i = 0, l = stream.readUint32(); i < l; i++) {

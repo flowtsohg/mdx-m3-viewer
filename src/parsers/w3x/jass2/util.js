@@ -1,31 +1,31 @@
 export function capitaliseFirstLetter(s) {
-	return s.charAt(0).toUpperCase() + s.slice(1);
+    return s.charAt(0).toUpperCase() + s.slice(1);
 };
 
 export function htmlEntityDecode(s) {
-	return s.replace(/&quot;/g, '"').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&amp;/g, '&');
+    return s.replace(/&quot;/g, '"').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&amp;/g, '&');
 };
 
 export function htmlEntityEncode(s) {
-	return s.replace(/"/g, '&quot;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/&/g, '&amp;');
+    return s.replace(/"/g, '&quot;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/&/g, '&amp;');
 };
 
 export function typeName(o) {
-	try {
-		return o.constructor.name;
-	} catch (e) {
-		return typeof o;
-	}
+    try {
+        return o.constructor.name;
+    } catch (e) {
+        return typeof o;
+    }
 };
 
 export function basename(path) {
-	return path.replace(/\\/g, '/').replace( /.*\//, '' );
+    return path.replace(/\\/g, '/').replace(/.*\//, '');
 };
 
 
 export function unpack(str) {
     var bytes = [];
-    for(var i = 0; i < str.length; i++) {
+    for (var i = 0; i < str.length; i++) {
         var char = str.charCodeAt(i);
         bytes.push(char >>> 8);
         bytes.push(char & 0xFF);
@@ -34,46 +34,46 @@ export function unpack(str) {
 };
 
 export function literalValue(value) {
-	let	result = null,
-		type = null;
-	
-	if (value.length >= 2 && value[0] === '"' && value[value.length - 1] === '"') {
-		result = value.substring(1, value.length - 1).replace(/\n/g, '\\n');
-		type = 'string';
-	} else if (value.length === 6 && value[0] === '\'' && value[5] === '\'') {
-		let id = value.substring(1, 5),
-			v0 = id.charCodeAt(0) * Math.pow(256, 3),
-			v1 = id.charCodeAt(1) * Math.pow(256, 2),
-			v2 = id.charCodeAt(2) * Math.pow(256, 1),
-			v3 = id.charCodeAt(3) * Math.pow(256, 0);
+    let result = null,
+        type = null;
 
-		result = v0 + v1 + v2 + v3;
-		type = 'integer';
-	} else if (value.length >= 1 && value[0] === '$') {
-		result = parseInt('0x' + value.substring(1));
-		type = 'integer';
-	} else if (value.length >= 2 && value.substring(0, 2) === '0x') {
-		result = parseInt(value);
-		type = 'integer';
-	} else if (value === 'false') {
-		result = false;
-		type = 'boolean';
-	} else if (value === 'true') {
-		result = true;
-		type = 'boolean';
-	} else if (value === 'null') {
-		result = null;
-		type = 'nullType';
-	} else if (value.indexOf(".") !== -1) {
-		result = parseFloat(value);
-		type = "real";
-	} else {
-		result = parseInt(value);
-		type = 'integer';
-	}
+    if (value.length >= 2 && value[0] === '"' && value[value.length - 1] === '"') {
+        result = value.substring(1, value.length - 1).replace(/\n/g, '\\n');
+        type = 'string';
+    } else if (value.length === 6 && value[0] === '\'' && value[5] === '\'') {
+        let id = value.substring(1, 5),
+            v0 = id.charCodeAt(0) * Math.pow(256, 3),
+            v1 = id.charCodeAt(1) * Math.pow(256, 2),
+            v2 = id.charCodeAt(2) * Math.pow(256, 1),
+            v3 = id.charCodeAt(3) * Math.pow(256, 0);
 
-	return {
-		value: result,
-		type: type
-	};
+        result = v0 + v1 + v2 + v3;
+        type = 'integer';
+    } else if (value.length >= 1 && value[0] === '$') {
+        result = parseInt('0x' + value.substring(1));
+        type = 'integer';
+    } else if (value.length >= 2 && value.substring(0, 2) === '0x') {
+        result = parseInt(value);
+        type = 'integer';
+    } else if (value === 'false') {
+        result = false;
+        type = 'boolean';
+    } else if (value === 'true') {
+        result = true;
+        type = 'boolean';
+    } else if (value === 'null') {
+        result = null;
+        type = 'nullType';
+    } else if (value.indexOf(".") !== -1) {
+        result = parseFloat(value);
+        type = "real";
+    } else {
+        result = parseInt(value);
+        type = 'integer';
+    }
+
+    return {
+        value: result,
+        type: type
+    };
 };

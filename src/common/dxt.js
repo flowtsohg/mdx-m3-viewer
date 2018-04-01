@@ -1,5 +1,5 @@
 // Note: This file is largely based on https://github.com/toji/webctx-texture-utils/blob/master/texture-util/dds.js
-import convertBitRange from '../../../common/convertbitrange';
+import convertBitRange from './convertbitrange';
 
 let dxt4to8 = convertBitRange(4, 8),
     dxt5to8 = convertBitRange(5, 8),
@@ -7,17 +7,17 @@ let dxt4to8 = convertBitRange(4, 8),
 
 // 4 bit alpha
 function setRgba8888Dxt3(dst, i, int565, a) {
-    dst[i] = (((int565 >> 11) & 31) * dxt5to8)|0;
-    dst[i + 1] = (((int565 >> 5) & 63) * dxt6to8)|0;
-    dst[i + 2] = ((int565 & 31) * dxt5to8)|0;
+    dst[i] = (((int565 >> 11) & 31) * dxt5to8) | 0;
+    dst[i + 1] = (((int565 >> 5) & 63) * dxt6to8) | 0;
+    dst[i + 2] = ((int565 & 31) * dxt5to8) | 0;
     dst[i + 3] = a * dxt4to8;
 }
 
 // 8 bit alpha
 function setRgba8888Dxt5(dst, i, int565, a) {
-    dst[i] = (((int565 >> 11) & 31) * dxt5to8)|0;
-    dst[i + 1] = (((int565 >> 5) & 63) * dxt6to8)|0;
-    dst[i + 2] = ((int565 & 31) * dxt5to8)|0;
+    dst[i] = (((int565 >> 11) & 31) * dxt5to8) | 0;
+    dst[i + 1] = (((int565 >> 5) & 63) * dxt6to8) | 0;
+    dst[i + 2] = ((int565 & 31) * dxt5to8) | 0;
     dst[i + 3] = a;
 }
 
@@ -29,7 +29,7 @@ function setRgba8888Dxt5(dst, i, int565, a) {
  * @param {number} height The height of the data.
  * @returns {Uint16Array}
  */
-function decodeDxt1(src, width, height) {
+export function decodeDxt1(src, width, height) {
     let c = new Uint16Array(4),
         dst = new Uint16Array(width * height),
         m,
@@ -83,7 +83,7 @@ function decodeDxt1(src, width, height) {
     }
 
     return dst;
-}
+};
 
 /**
  * Decodes DXT3 data to a Uint8Array typed array with 8-8-8-8 RGBA bits.
@@ -93,7 +93,7 @@ function decodeDxt1(src, width, height) {
  * @param {number} height The height of the data.
  * @returns {Uint8Array}
  */
-function decodeDxt3(src, width, height) {
+export function decodeDxt3(src, width, height) {
     let c = new Uint16Array(4),
         dst = new Uint8Array(width * height * 4),
         m,
@@ -147,7 +147,7 @@ function decodeDxt3(src, width, height) {
     }
 
     return dst;
-}
+};
 
 /**
  * Decodes DXT5 data to a Uint8Array typed array with 8-8-8-8 RGBA bits.
@@ -157,7 +157,7 @@ function decodeDxt3(src, width, height) {
  * @param {number} height The height of the data.
  * @returns {Uint8Array}
  */
-function decodeDxt5(src, width, height) {
+export function decodeDxt5(src, width, height) {
     let c = new Uint16Array(4),
         a = new Uint8Array(8),
         alphaBits,
@@ -245,10 +245,4 @@ function decodeDxt5(src, width, height) {
     }
 
     return dst;
-}
-
-export {
-    decodeDxt1,
-    decodeDxt3,
-    decodeDxt5
 };

@@ -335,7 +335,7 @@ export default class TokenStream {
         } else {
             this.writeLine('{');
         }
-        
+
         this.ident += 1;
     }
 

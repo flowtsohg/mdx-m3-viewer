@@ -2,7 +2,7 @@ import GenericObject from './genericobject';
 
 export default class RibbonEmitter extends GenericObject {
     constructor() {
-        super();
+        super(0x4000);
 
         /** @member {number} */
         this.heightAbove = 0;

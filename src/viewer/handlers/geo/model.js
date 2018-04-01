@@ -143,7 +143,7 @@ export default class GeometryModel extends Model {
         } else {
             gl.disable(gl.BLEND);
         }
-        
+
         gl.uniform1i(uniforms.get('u_texture'), 0);
 
         let colorAttrib = attribs.get('a_color');

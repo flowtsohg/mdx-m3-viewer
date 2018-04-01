@@ -64,11 +64,11 @@ export default class War3MapUnitsDoo {
      */
     getByteLength() {
         let size = 16;
-        
+
         for (let unit of this.units) {
             size += unit.getByteLength(this.version);
         }
-        
+
         return size;
     }
 

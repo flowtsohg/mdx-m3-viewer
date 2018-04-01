@@ -1,8 +1,10 @@
 import stringHash from '../../../common/stringhash';
 import unique from '../../../common/arrayunique';
+import AnimatedObject from './animatedobject';
+
 import MdxSdContainer from './sd';
 
-export default class MdxLayer {
+export default class MdxLayer extends AnimatedObject {
     /**
      * @param {MdxModel} model
      * @param {MdxParserLayer} layer
@@ -13,14 +15,14 @@ export default class MdxLayer {
             textureAnimationId = layer.textureAnimationId,
             gl = model.env.gl;
 
-        this.model = model;
+        super(model, layer);
+
         this.index = layerId;
         this.priorityPlane = priorityPlane;
         this.filterMode = filterMode;
         this.textureId = layer.textureId;
         this.coordId = layer.coordId;
         this.alpha = layer.alpha;
-        this.sd = new MdxSdContainer(model, layer.tracks);
 
         var flags = layer.flags;
 
@@ -35,7 +37,7 @@ export default class MdxLayer {
         this.alphaTestValue = (filterMode === 1) ? 1 : 0;
 
         let blended = (filterMode > 1) ? true : false;
-        
+
         if (blended) {
             let blendSrc,
                 blendDst;
@@ -121,7 +123,9 @@ export default class MdxLayer {
         this.hasSlotAnim = hasSlotAnim;
         this.hasUvAnim = hasUvAnim;
 
-        this.setupVaryingTextures(model);
+        if (hasSlotAnim) {
+            this.setupVaryingTextures(model);
+        }
     }
 
     bind(shader) {
@@ -157,8 +161,8 @@ export default class MdxLayer {
 
     setupVaryingTextures(model) {
         // Get all unique texture IDs used by this layer
-        var textureIds = unique(this.sd.getValues('KMTF'));
-
+        var textureIds = unique(this.animations.KMTF.getValues());
+        
         if (textureIds.length > 1) {
             let env = model.env,
                 hash = stringHash(textureIds.join('')),
@@ -181,20 +185,20 @@ export default class MdxLayer {
     }
 
     getAlpha(instance) {
-        return this.sd.getValue('KMTA', instance, this.alpha);
+        return this.getValue('KMTA', instance, this.alpha);
     }
 
     isAlphaVariant(sequence) {
-        return this.sd.isVariant('KMTA', sequence);
+        return this.isVariant('KMTA', sequence);
     }
 
     getTextureId(instance) {
-        return this.sd.getValue('KMTF', instance, this.textureId);
-        // TODO: map the returned slot to a texture atlas slot if one exists.
+        return this.getValue('KMTF', instance, this.textureId);
+        /// TODO: map the returned slot to a texture atlas slot if one exists.
     }
 
     isTextureIdVariant(sequence) {
-        return this.sd.isVariant('KMTF', sequence);
+        return this.isVariant('KMTF', sequence);
     }
 
     isTranslationVariant(sequence) {

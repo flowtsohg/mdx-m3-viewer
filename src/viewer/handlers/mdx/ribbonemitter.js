@@ -12,40 +12,11 @@ export default class MdxRibbonEmitter extends MdxSharedGeometryEmitter {
      * @param {MdxModel} model
      * @param {MdxParserRibbonEmitter} emitter
      */
-    constructor(model, emitter) {
-        /// TODO: ???
-        super({});
+    constructor(modelObject) {
+        super(modelObject);
 
-        let gl = model.env.gl,
-            layer = model.materials[emitter.materialId][0];
-
-        this.model = model;
-
-        this.active = [];
-        this.inactive = [];
-
-        this.buffer = new ResizeableBuffer(gl);
         this.bytesPerEmit = 4 * 30;
-
-        this.heightAbove = emitter.heightAbove;
-        this.heightBelow = emitter.heightBelow;
-        this.alpha = emitter.alpha;
-        this.color = emitter.color;
-        this.lifespan = emitter.lifespan;
-        this.textureSlot = emitter.textureSlot;
-        this.emissionRate = emitter.emissionRate;
-        this.gravity = emitter.gravity;
-
-        this.dimensions = [emitter.columns, emitter.rows];
-        this.cellWidth = 1 / emitter.columns;
-        this.cellHeight = 1 / emitter.rows;
-
-        this.node = model.nodes[emitter.node.index];
-
-        this.layer = layer;
-        this.texture = model.textures[layer.textureId];
-
-        this.sd = new MdxSdContainer(model, emitter.tracks);
+        this.buffer = new ResizeableBuffer(modelObject.model.env.gl);
     }
 
     emit(emitterView) {
@@ -63,7 +34,7 @@ export default class MdxRibbonEmitter extends MdxSharedGeometryEmitter {
         object.reset(emitterView);
 
         this.active.push(object);
-            
+
         return object;
     }
 
@@ -71,14 +42,14 @@ export default class MdxRibbonEmitter extends MdxSharedGeometryEmitter {
         let active = this.active.length;
 
         if (active > 0) {
-            let model = this.model,
+            let model = this.modelObject.model,
                 gl = model.env.gl;
 
-            this.layer.bind(shader);
+            this.modelObject.layer.bind(shader);
 
-            gl.uniform2fv(shader.uniforms.get('u_dimensions'), this.dimensions);
+            gl.uniform2fv(shader.uniforms.get('u_dimensions'), this.modelObject.dimensions);
 
-            model.bindTexture(this.texture, 0, bucket.modelView);
+            model.bindTexture(this.modelObject.texture, 0, bucket.modelView);
 
             /// TODO: Needed to avoid bleeding from the other side of the texture.
             ///       Any better way to handle this?
@@ -100,26 +71,26 @@ export default class MdxRibbonEmitter extends MdxSharedGeometryEmitter {
     }
 
     getHeightBelow(instance) {
-        return this.sd.getValue('KRHB', instance, this.heightBelow);
+        return this.modelObject.getValue('KRHB', instance, this.modelObject.heightBelow);
     }
 
     getHeightAbove(instance) {
-        return this.sd.getValue('KRHA', instance, this.heightAbove);
+        return this.modelObject.getValue('KRHA', instance, this.modelObject.heightAbove);
     }
 
     getTextureSlot(instance) {
-        return this.sd.getValue('KRTX', instance, 0);
+        return this.modelObject.getValue('KRTX', instance, 0);
     }
 
     getColor(instance) {
-        return this.sd.getValue3(colorHeap, 'KRCO', instance, this.color);
+        return this.modelObject.getValue3(colorHeap, 'KRCO', instance, this.modelObject.color);
     }
 
     getAlpha(instance) {
-        return this.sd.getValue('KRAL', instance, this.alpha);
+        return this.modelObject.getValue('KRAL', instance, this.modelObject.alpha);
     }
 
     getVisibility(instance) {
-        return this.sd.getValue('KRVS', instance, 1);
+        return this.modelObject.getValue('KRVS', instance, 1);
     }
 };

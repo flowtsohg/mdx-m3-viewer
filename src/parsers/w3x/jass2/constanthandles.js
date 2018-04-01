@@ -179,7 +179,7 @@ export default function constantHandles(jassContext) {
     for (let i = 0; i < 4; i++) {
         handles.unitStates[i] = new JassUnitState(jassContext, i);
     }
-    
+
     for (let i = 0; i < 3; i++) {
         handles.aiDifficulties[i] = new JassAiDifficulty(jassContext, i);
     }
@@ -223,7 +223,7 @@ export default function constantHandles(jassContext) {
     for (let i = 261; i < 269; i++) {
         handles.events[i] = new JassPlayerEvent(jassContext, i);
     }
-    
+
     for (let i = 269; i < 278; i++) {
         handles.events[i] = new JassPlayerUnitEvent(jassContext, i);
     }
@@ -235,7 +235,7 @@ export default function constantHandles(jassContext) {
     for (let i = 0; i < 6; i++) {
         handles.limitOps[i] = new JassLimitOp(jassContext, i);
     }
-    
+
     for (let i = 0; i < 27; i++) {
         handles.unitTypes[i] = new JassUnitType(jassContext, i);
     }

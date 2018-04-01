@@ -1,3 +1,3 @@
 import JassEnum from './enum';
 
-export default class JassRarityControl extends JassEnum {};
+export default class JassRarityControl extends JassEnum { };

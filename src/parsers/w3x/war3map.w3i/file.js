@@ -72,7 +72,7 @@ export default class War3MapW3i {
         this.flags = stream.readUint32();
         this.tileset = stream.read(1);
         this.campaignBackground = stream.readInt32();
-        
+
         if (this.version > 24) {
             this.loadingScreenModel = stream.readUntilNull();
         }
@@ -89,7 +89,7 @@ export default class War3MapW3i {
         this.prologueScreenText = stream.readUntilNull();
         this.prologueScreenTitle = stream.readUntilNull();
         this.prologueScreenSubtitle = stream.readUntilNull();
-        
+
         if (this.version > 24) {
             this.useTerrainFog = stream.readInt32();
             this.fogHeight = stream.readFloat32Array(2);
@@ -172,24 +172,24 @@ export default class War3MapW3i {
         stream.writeUint32(this.flags);
         stream.write(this.tileset);
         stream.writeInt32(this.campaignBackground);
-        
+
         if (this.version > 24) {
             stream.write(`${this.loadingScreenModel}\0`);
         }
-        
+
         stream.write(`${this.loadingScreenText}\0`);
         stream.write(`${this.loadingScreenTitle}\0`);
         stream.write(`${this.loadingScreenSubtitle}\0`);
         stream.writeInt32(this.loadingScreen);
-        
+
         if (this.version > 24) {
             stream.write(`${this.prologueScreenModel}\0`);
         }
-        
+
         stream.write(`${this.prologueScreenText}\0`);
         stream.write(`${this.prologueScreenTitle}\0`);
         stream.write(`${this.prologueScreenSubtitle}\0`);
-        
+
         if (this.version > 24) {
             stream.writeInt32(this.useTerrainFog);
             stream.writeFloat32Array(this.fogHeight);
@@ -255,7 +255,7 @@ export default class War3MapW3i {
         for (let force of this.forces) {
             size += force.getByteLength();
         }
-        
+
         size += this.upgradeAvailabilityChanges.length * 16;
 
         size += this.techAvailabilityChanges.length * 8;

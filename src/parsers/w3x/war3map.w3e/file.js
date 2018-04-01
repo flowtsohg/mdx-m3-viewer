@@ -41,25 +41,25 @@ export default class War3MapW3e {
         this.version = stream.readInt32();
         this.tileset = stream.read(1);
         this.haveCustomTileset = stream.readInt32();
-    
+
         for (let i = 0, l = stream.readInt32(); i < l; i++) {
             this.groundTilesets[i] = stream.read(4);
         }
-    
+
         for (let i = 0, l = stream.readInt32(); i < l; i++) {
             this.cliffTilesets[i] = stream.read(4);
         }
-    
+
         this.mapSize = stream.readInt32Array(2);
         this.centerOffset = stream.readFloat32Array(2);
-    
+
         let mapSize = this.mapSize,
             columns = mapSize[0],
             rows = mapSize[1];
 
         for (let row = 0; row < rows; row++) {
             this.tilepoints[row] = [];
-    
+
             for (let column = 0; column < columns; column++) {
                 let tilepoint = new TilePoint();
 
@@ -88,7 +88,7 @@ export default class War3MapW3e {
         }
 
         stream.writeUint32(this.cliffTilesets.length);
-        
+
         for (let cliffTileset of this.cliffTilesets) {
             stream.write(cliffTileset);
         }

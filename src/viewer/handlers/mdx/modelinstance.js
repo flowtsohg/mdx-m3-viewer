@@ -1,9 +1,9 @@
 import ModelInstance from '../../modelinstance';
 import TexturedModelInstance from '../../texturedmodelinstance';
 import MdxSkeleton from './skeleton';
-import { MdxAttachment } from './attachment';
+import AttachmentInstance from './attachmentinstance';
 import MdxParticleEmitterView from './particleemitterview';
-import MdxParticle2EmitterView from './particle2emitterview';
+import MdxParticleEmitter2View from './particleemitter2view';
 import MdxRibbonEmitterView from './ribbonemitterview';
 import MdxEventObjectEmitterView from './eventobjectemitterview';
 
@@ -13,7 +13,7 @@ export default class MdxModelInstance extends ModelInstance {
      */
     constructor(model) {
         super(model);
-        
+
         this.attachments = [];
         this.particleEmitters = [];
         this.particle2Emitters = [];
@@ -47,7 +47,7 @@ export default class MdxModelInstance extends ModelInstance {
             let attachment = attachments[i];
 
             if (attachment.internalModel) {
-                this.attachments.push(new MdxAttachment(this, attachment));
+                this.attachments.push(new AttachmentInstance(this, attachment));
             }
         }
 
@@ -65,7 +65,7 @@ export default class MdxModelInstance extends ModelInstance {
 
     setSharedData(sharedData) {
         this.boneArray = sharedData.boneArray;
-        
+
         this.geosetColorArrays = sharedData.geosetColorArrays;
         this.uvOffsetArrays = sharedData.uvOffsetArrays;
         this.layerAlphaArrays = sharedData.layerAlphaArrays;
@@ -91,7 +91,7 @@ export default class MdxModelInstance extends ModelInstance {
 
         objects = bucket.particle2Emitters;
         for (let i = 0, l = objects.length; i < l; i++) {
-            this.particle2Emitters[i] = new MdxParticle2EmitterView(this, objects[i]);
+            this.particle2Emitters[i] = new MdxParticleEmitter2View(this, objects[i]);
         }
 
         objects = bucket.ribbonEmitters;
@@ -256,7 +256,7 @@ export default class MdxModelInstance extends ModelInstance {
                 var layer = layers[i],
                     index = layer.index,
                     uvOffsetArray = uvOffsetArrays[index];
-                
+
                 // Update layer alphas
                 if (forced || layer.variants.alpha[sequence]) {
                     layerAlphaArrays[index][0] = layer.getAlpha(this) * 255;
@@ -267,7 +267,7 @@ export default class MdxModelInstance extends ModelInstance {
                 if (layer.hasUvAnim && (forced || layer.variants.uv[sequence])) {
                     // What is Z used for?
                     var uvOffset = layer.textureAnimation.getTranslation(this);
-                    
+
                     uvOffsetArray[0] = uvOffset[0];
                     uvOffsetArray[1] = uvOffset[1];
 
@@ -394,7 +394,7 @@ export default class MdxModelInstance extends ModelInstance {
             var attachment = this.model.attachments[id];
 
             if (attachment) {
-                return this.skeleton.nodes[attachment.node.index];
+                return this.skeleton.nodes[attachment.index];
             } else {
                 return this.skeleton.nodes[0];
             }

@@ -123,7 +123,7 @@ export default class ParticleEmitter2 extends GenericObject {
 
         this.writeNonGenericAnimationChunks(stream);
     }
-    
+
     readMdl(stream) {
         for (let token of super.readMdl(stream)) {
             if (token === 'SortPrimsFarZ') {
@@ -178,8 +178,7 @@ export default class ParticleEmitter2 extends GenericObject {
                 this.filterMode = 1;
             } else if (token === 'Modulate') {
                 this.filterMode = 2;
-            } else if (token === 'Modulate2x') { // Does this exist in any model?
-                console.log('MODULATE X2');
+            } else if (token === 'Modulate2x') {
                 this.filterMode = 3;
             } else if (token === 'AlphaKey') {
                 this.filterMode = 4;
@@ -279,7 +278,7 @@ export default class ParticleEmitter2 extends GenericObject {
         if (this.squirt) {
             stream.writeFlag('Squirt');
         }
-        
+
         stream.writeAttrib('LifeSpan', this.lifeSpan);
 
         if (!this.writeAnimation(stream, 'KP2E')) {

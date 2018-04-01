@@ -140,7 +140,7 @@ export default class War3MapW3o {
         if (this.items) {
             size += this.items.getByteLength();
         }
-        
+
         if (this.destructables) {
             size += this.destructables.getByteLength();
         }

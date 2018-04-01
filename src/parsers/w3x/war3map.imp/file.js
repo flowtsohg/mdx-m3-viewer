@@ -23,7 +23,7 @@ export default class War3MapImp {
         let stream = new BinaryStream(buffer);
 
         this.version = stream.readUint32();
-        
+
         for (let i = 0, l = stream.readUint32(); i < l; i++) {
             let entry = new Import();
 
@@ -44,8 +44,8 @@ export default class War3MapImp {
         let buffer = new ArrayBuffer(this.getByteLength()),
             stream = new BinaryStream(buffer);
 
-            stream.writeUint32(this.version);
-            stream.writeUint32(this.entries.size);
+        stream.writeUint32(this.version);
+        stream.writeUint32(this.entries.size);
 
         for (let entry of this.entries.values()) {
             entry.save(stream);
@@ -66,7 +66,7 @@ export default class War3MapImp {
 
         return size;
     }
-    
+
     set(name) {
         if (!this.entries.has(name)) {
             let entry = new Import();

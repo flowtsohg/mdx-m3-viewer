@@ -1,9 +1,3 @@
-export default class MdxCollisionShape {
-    /**
-     * @param {MdxModel} model
-     * @param {MdxParserCollisionShape} collisionShape
-     */
-    constructor(model, collisionShape) {
+import GenericObject from './genericobject';
 
-    }
-};
+export default class CollisionShape extends GenericObject { };

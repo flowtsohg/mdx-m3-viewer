@@ -2,7 +2,7 @@ import GenericObject from './genericobject';
 
 export default class CollisionShape extends GenericObject {
     constructor() {
-        super();
+        super(0x2000);
 
         /** @member {number} */
         this.type = -1;
@@ -22,7 +22,7 @@ export default class CollisionShape extends GenericObject {
         if (this.type !== 2) {
             stream.readFloat32Array(this.vertices[1]);
         }
-    
+
         if (this.type === 2 || this.type === 3) {
             this.boundsRadius = stream.readFloat32();
         }
@@ -45,10 +45,14 @@ export default class CollisionShape extends GenericObject {
 
     readMdl(stream) {
         for (let token of super.readMdl(stream)) {
-            if (token === 'Box') {
+            if (token === 'Plane') {
+                this.type = 0;
+            } else if (token === 'Box') {
                 this.type = 1;
             } else if (token === 'Sphere') {
                 this.type = 2;
+            } else if (token === 'Cylinder') {
+                this.type = 3;
             } else if (token === 'Vertices') {
                 let count = stream.readInt();
 
@@ -70,20 +74,37 @@ export default class CollisionShape extends GenericObject {
     }
 
     writeMdl(stream) {
-        stream.startObjectBlock('EventObject', this.name);
+        stream.startObjectBlock('CollisionShape', this.name);
         this.writeGenericHeader(stream);
 
-        if (this.type === 1) {
-            stream.writeFlag('Box');
-            stream.startBlock('Vertices', 2);
-            stream.writeArray(this.vertices[0]);
-            stream.writeArray(this.vertices[1]);
-            stream.endBlock();
+        let type,
+            vertices = 2,
+            boundsRadius = false;
+
+        if (this.type === 0) {
+            type = 'Plane';
+        } else if (this.type === 1) {
+            type = 'Box';
         } else if (this.type === 2) {
-            stream.writeFlag('Sphere');
-            stream.startBlock('Vertices', 1);
-            stream.writeArray(this.vertices[0]);
-            stream.endBlock();
+            type = 'Sphere';
+            vertices = 1;
+            boundsRadius = true;
+        } else if (this.type === 3) {
+            type = 'Cylinder';
+            boundsRadius = true;
+        }
+
+        stream.writeFlag(type);
+        stream.startBlock('Vertices', vertices);
+        stream.writeArray(this.vertices[0]);
+
+        if (vertices === 2) {
+            stream.writeArray(this.vertices[1]);
+        }
+
+        stream.endBlock();
+
+        if (boundsRadius) {
             stream.writeAttrib('BoundsRadius', this.boundsRadius);
         }
 

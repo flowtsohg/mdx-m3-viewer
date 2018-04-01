@@ -2,16 +2,6 @@ import MdxSharedEmitter from './sharedemitter';
 import MdxParticle from './particle';
 
 export default class MdxParticleEmitter extends MdxSharedEmitter {
-    /**
-     * @param {MdxModelParticleEmitter} modelObject
-     */
-    constructor(modelObject) {
-        super(modelObject);
-        
-        this.active = [];
-        this.inactive = [];
-    }
-
     emit(emitterView) {
         let inactive = this.inactive,
             object;
@@ -26,36 +16,36 @@ export default class MdxParticleEmitter extends MdxSharedEmitter {
 
         this.active.push(object);
     }
-    
+
     shouldRender(instance) {
         return this.getVisibility(instance) > 0.75;
     }
 
     getSpeed(instance) {
-        return this.modelObject.sd.getValue('KPES', instance, this.modelObject.speed);
+        return this.modelObject.getValue('KPES', instance, this.modelObject.speed);
     }
 
     getLatitude(instance) {
-        return this.modelObject.sd.getValue('KPLTV', instance, this.modelObject.latitude);
+        return this.modelObject.getValue('KPLTV', instance, this.modelObject.latitude);
     }
 
     getLongitude(instance) {
-        return this.modelObject.sd.getValue('KPLN', instance, this.modelObject.longitude);
+        return this.modelObject.getValue('KPLN', instance, this.modelObject.longitude);
     }
 
-    getLifespan(instance) {
-        return this.modelObject.sd.getValue('KPEL', instance, this.modelObject.lifespan);
+    getLifeSpan(instance) {
+        return this.modelObject.getValue('KPEL', instance, this.modelObject.lifeSpan);
     }
 
     getGravity(instance) {
-        return this.modelObject.sd.getValue('KPEG', instance, this.modelObject.gravity);
+        return this.modelObject.getValue('KPEG', instance, this.modelObject.gravity);
     }
 
     getEmissionRate(instance) {
-        return this.modelObject.sd.getValue('KPEE', instance, this.modelObject.emissionRate);
+        return this.modelObject.getValue('KPEE', instance, this.modelObject.emissionRate);
     }
 
     getVisibility(instance) {
-        return this.modelObject.sd.getValue('KPEV', instance, 1);
+        return this.modelObject.getValue('KPEV', instance, 1);
     }
 };

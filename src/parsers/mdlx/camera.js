@@ -9,7 +9,7 @@ export default class Camera extends AnimatedObject {
         /** @member {Float32Array} */
         this.position = new Float32Array(3);
         /** @member {number} */
-        this.fieldOfView =0;
+        this.fieldOfView = 0;
         /** @member {number} */
         this.farClippingPlane = 0;
         /** @member {number} */

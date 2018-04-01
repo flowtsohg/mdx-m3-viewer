@@ -1,3 +1,3 @@
 import JassEventId from './eventid';
 
-export default class JassDialogEvent extends JassEventId {};
+export default class JassDialogEvent extends JassEventId { };

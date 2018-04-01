@@ -2,7 +2,7 @@ import GenericObject from './genericobject';
 
 export default class Attachment extends GenericObject {
     constructor() {
-        super();
+        super(0x800);
 
         /** @member {string} */
         this.path = '';
@@ -58,7 +58,7 @@ export default class Attachment extends GenericObject {
         }
 
         this.writeAnimation(stream, 'KATV');
-        
+
         this.writeGenericAnimations(stream);
         stream.endBlock();
     }

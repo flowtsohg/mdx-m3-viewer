@@ -31,8 +31,9 @@ export default class UnitTester {
     // Download an url to a file with the given name.
     // The name doesn't seem to work in Firefox (only tested in Firefox and Chrome on Windows).
     downloadUrl(url, name) {
+        console.log('downloading', name)
         let a = document.createElement('a');
-        
+
         a.href = url;
         a.download = `${name}.png`;
 
@@ -96,7 +97,7 @@ export default class UnitTester {
                     url = URL.createObjectURL(blob),
                     compare = 'compare/' + name + '.png';
 
-                tester.comparePixels(url, compare, function (imgA, imgB, result) {
+                tester.comparePixels(url, compare, (imgA, imgB, result) => {
                     callback({ value: [name, { a: imgA, b: imgB, result }], done: entry.done });
 
                     tester.next(loop, iterator);
@@ -117,7 +118,9 @@ export default class UnitTester {
 
                 callback(entry);
 
-                tester.next(loop, iterator);
+                // Chrome suddenly decided it doesn't like to download lots of files fast.
+                // Adding an arbitrary timeout of 100ms seems to be enough to solve this.
+                setTimeout(() => tester.next(loop, iterator), 100);
             } else {
                 callback(entry);
             }
@@ -140,7 +143,7 @@ export default class UnitTester {
             } else if (test.tests) {
                 this.addBaseName(test.tests, baseName + '-' + test.name);
             }
-            
+
         }
     }
 
@@ -164,7 +167,7 @@ export default class UnitTester {
             // Clear the viewer
             viewer.clear();
             viewer.addScene(scene);
-            
+
             // Setup the camera
             camera.setViewport([0, 0, viewer.canvas.width, viewer.canvas.height]);
             camera.setPerspective(Math.PI / 4, 1, 8, 100000);
@@ -172,7 +175,7 @@ export default class UnitTester {
 
             // Start loading the test.
             let data = test.load(viewer);
-            
+
             // Wait until everything loaded.
             viewer.whenAllLoaded(() => {
                 // Replace Math.random with a custom seeded random generator.
@@ -194,9 +197,10 @@ export default class UnitTester {
                 // Put back Math.random in its place.
                 Math.random = this.mathRandom;
 
-                viewer.toBlob((blob) => {
-                    callback(entry, iterator, blob, this);
-                });
+                viewer.toBlob()
+                    .then((blob) => {
+                        callback(entry, iterator, blob, this);
+                    });
             });
         }
     }

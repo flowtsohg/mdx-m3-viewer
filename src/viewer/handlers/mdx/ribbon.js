@@ -1,4 +1,4 @@
-import { vec3} from 'gl-matrix';
+import { vec3 } from 'gl-matrix';
 import { uint8ToUint24 } from '../../../common/typecast';
 
 // Heap allocations needed for this module.
@@ -32,15 +32,15 @@ export default class MdxRibbon {
 
         this.emitterView = emitterView;
 
-        this.health = emitter.lifespan;
+        this.health = emitter.modelObject.lifeSpan;
 
         let lastEmit = emitterView.lastEmit;
-        
+
         // If this isn't the first ribbon, construct a quad.
         // Otherwise, the vertices will be filled with zeroes, and the ribbon will not render.
         // This allows the emitter to always work with quads, and therefore it can work with many views, because the ribbon chains are implicit.
         if (lastEmit && lastEmit.health > 0) {
-            let node = emitterView.instance.skeleton.nodes[emitter.node.index],
+            let node = emitterView.instance.skeleton.nodes[emitter.modelObject.index],
                 pivot = node.pivot;
 
             vec3.set(belowHeap, pivot[0], pivot[1] - emitterView.getHeightBelow(), pivot[2])
@@ -87,10 +87,10 @@ export default class MdxRibbon {
     }
 
     update() {
-        let emitter = this.emitter,
+        let modelObject = this.emitter.modelObject,
+            dt = modelObject.model.env.frameTime * 0.001,
             emitterView = this.emitterView,
-            dt = emitter.model.env.frameTime * 0.001,
-            gravity = emitter.gravity * dt * dt,
+            gravity = modelObject.gravity * dt * dt,
             vertices = this.vertices,
             animatedColor = emitterView.getColor(),
             animatedAlpha = emitterView.getAlpha(),
@@ -108,7 +108,7 @@ export default class MdxRibbon {
         if (this.health <= 0) {
             emitterView.ribbonCount--;
         } else {
-            let columns = emitter.dimensions[0],
+            let columns = modelObject.dimensions[0],
                 left = (animatedSlot % columns) + (locationInChain * chainLengthFactor),
                 top = Math.floor(animatedSlot / columns),
                 right = left + chainLengthFactor,
@@ -120,7 +120,7 @@ export default class MdxRibbon {
             // This happens also if the texture coordinates are clamped to [0, 1] in the shader.
             // The only thing that removes it is to change the texture to being clamped rather than repeating.
             // How is this possible?
-            right = Math.floor(right * 255); 
+            right = Math.floor(right * 255);
             bottom = Math.floor(bottom * 255);
             animatedAlpha = Math.floor(animatedAlpha * 255);
 

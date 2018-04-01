@@ -1,4 +1,4 @@
-import {HASH_ENTRY_DELETED, HASH_ENTRY_EMPTY } from './constants';
+import { HASH_ENTRY_DELETED, HASH_ENTRY_EMPTY } from './constants';
 
 export default class MpqHash {
     constructor() {

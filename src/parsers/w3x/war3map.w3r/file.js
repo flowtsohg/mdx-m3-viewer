@@ -32,30 +32,30 @@ export default class War3MapW3r {
     /**
      * @returns {ArrayBuffer} 
      */
-   save() {
-       let buffer = new ArrayBuffer(this.getByteLength()),
-           stream = new BinaryStream(buffer);
+    save() {
+        let buffer = new ArrayBuffer(this.getByteLength()),
+            stream = new BinaryStream(buffer);
 
-       stream.writeInt32(this.version);
-       stream.writeUint32(this.regions.length);
+        stream.writeInt32(this.version);
+        stream.writeUint32(this.regions.length);
 
-       for (let region of this.regions) {
-           region.save(stream);
-       }
+        for (let region of this.regions) {
+            region.save(stream);
+        }
 
-       return buffer;
-   }
+        return buffer;
+    }
 
-   /**
-     * @returns {number} 
-     */
+    /**
+      * @returns {number} 
+      */
     getByteLength() {
-       let size = 8;
+        let size = 8;
 
-       for (let regions of this.regions) {
-           size += regions.calcSize();
-       }
+        for (let regions of this.regions) {
+            size += regions.calcSize();
+        }
 
-       return size;
-   }
+        return size;
+    }
 };

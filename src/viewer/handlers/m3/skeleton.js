@@ -26,7 +26,7 @@ export default class M3Skeleton extends Skeleton {
         this.stc = model.stc;
         this.stg = model.stg;
         this.boneLookup = boneLookup;
-        
+
         // Set the bone parent references
         for (let i = 0, l = bones.length; i < l; i++) {
             this.nodes[i].setParent(this.getNode(bones[i].parent));

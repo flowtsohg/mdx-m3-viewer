@@ -5,7 +5,7 @@ import AnimatedObject from './animatedobject';
  * This includes bones, particle emitters, and many other things.
  */
 export default class GenericObject extends AnimatedObject {
-    constructor() {
+    constructor(flags) {
         super();
 
         /** @member {string} */
@@ -15,7 +15,7 @@ export default class GenericObject extends AnimatedObject {
         /** @member {number} */
         this.parentId = -1;
         /** @member {number} */
-        this.flags = 0;
+        this.flags = flags || 0;
     }
 
     readMdx(stream) {
@@ -140,7 +140,7 @@ export default class GenericObject extends AnimatedObject {
             let name = animation.name,
                 isGeneric = (name === 'KGTR' || name === 'KGRT' || name === 'KGSC');
 
-            if ((wantGeneric && !isGeneric) || (!wantGeneric && isGeneric)) {
+            if ((wantGeneric && isGeneric) || (!wantGeneric && !isGeneric)) {
                 yield animation;
             }
         }

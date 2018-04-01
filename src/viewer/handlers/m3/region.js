@@ -35,7 +35,7 @@ export default class M3Region {
 
         gl.extensions.instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.offset, instances);
     }
-    
+
     getPolygonCount() {
         return this.elements / 3;
     }

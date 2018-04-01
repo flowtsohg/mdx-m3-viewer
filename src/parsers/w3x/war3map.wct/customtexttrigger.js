@@ -9,7 +9,7 @@ export default class CustomTextTrigger {
      */
     load(stream) {
         let textLength = stream.readInt32();
-        
+
         if (textLength) {
             this.text = stream.read(textLength - 1);
             stream.skip(1);

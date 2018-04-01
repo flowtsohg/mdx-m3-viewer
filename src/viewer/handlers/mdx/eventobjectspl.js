@@ -22,7 +22,7 @@ export default class MdxEventObjectSpl {
         let modelObject = this.emitter.modelObject,
             vertices = this.vertices,
             emitterScale = modelObject.scale,
-            node = emitterView.instance.skeleton.nodes[modelObject.node.index],
+            node = emitterView.instance.skeleton.nodes[modelObject.index],
             location = node.worldLocation,
             vertex;
 
@@ -63,7 +63,7 @@ export default class MdxEventObjectSpl {
 
         // Inverse of health
         let time = modelObject.lifespan - this.health;
-        
+
         if (time < first) {
             factor = time / first;
             interval = intervals[0];
@@ -76,7 +76,7 @@ export default class MdxEventObjectSpl {
 
         // Interpolated color
         vec4.lerp(color, colors[firstColor], colors[firstColor + 1], factor);
-        
+
         // The texture portion to index
         index = Math.floor(lerp(interval[0], interval[1], factor));
 

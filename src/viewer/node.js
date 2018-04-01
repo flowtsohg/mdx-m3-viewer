@@ -49,6 +49,8 @@ let NodeMixin = (superclass) => class extends superclass {
          * @member {boolean}
          */
         this.isSkeletal = false;
+
+        this.visible = true;
     }
 
     /**
@@ -275,7 +277,7 @@ let NodeMixin = (superclass) => class extends superclass {
 
         return vec3.scale(out, v, d_div);
     }
-    
+
     lookAt(target, upDirection) {
 
         let lookAt = vec3.create();
@@ -362,11 +364,11 @@ let NodeMixin = (superclass) => class extends superclass {
             inverseWorldScale = this.inverseWorldScale,
             parent = this.parent,
             children = this.children;
-        
+
         if (parent) {
             let computedLocation,
                 computedScaling;
-            
+
             if (this.isSkeletal) {
                 computedLocation = localLocation;
             } else {
@@ -382,12 +384,12 @@ let NodeMixin = (superclass) => class extends superclass {
 
             // If this node shouldn't inherit the parent's rotation, rotate it by the inverse.
             //if (this.dontInheritRotation) {
-                //mat4.rotateQ(worldMatrix, worldMatrix, parent.inverseWorldRotation);
+            //mat4.rotateQ(worldMatrix, worldMatrix, parent.inverseWorldRotation);
             //}
 
             // If this node shouldn't inherit the parent's translation, translate it by the inverse.
             //if (this.dontInheritTranslation) {
-                //mat4.translate(worldMatrix, worldMatrix, parent.inverseWorldLocation);
+            //mat4.translate(worldMatrix, worldMatrix, parent.inverseWorldLocation);
             //}
 
             if (this.dontInheritScaling) {

@@ -1,3 +1,3 @@
 import JassEnum from './enum';
 
-export default class JassMapVisibility extends JassEnum {};
+export default class JassMapVisibility extends JassEnum { };

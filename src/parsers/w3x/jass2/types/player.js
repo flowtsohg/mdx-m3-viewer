@@ -1,7 +1,7 @@
 import JassAgent from './agent';
 
 export default class JassPlayer extends JassAgent {
-constructor(jassContext, index) {
+    constructor(jassContext, index) {
         super(jassContext);
 
         this.index = index;
@@ -15,7 +15,7 @@ constructor(jassContext, index) {
         this.controller = null;
         this.alliances = new Map();
     }
-    
+
     toString() {
         return `Player(${this.index})`;
     }

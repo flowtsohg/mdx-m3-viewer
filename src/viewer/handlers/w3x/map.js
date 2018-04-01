@@ -1,10 +1,10 @@
 import { createTextureAtlas } from '../../../common/canvas';
 import unique from '../../../common/arrayunique';
+import * as geometry from '../../../common/geometry';
 import MpqArchive from '../../../parsers/mpq/archive';
 import W3xParser from '../../../parsers/w3x/map';
 import ViewerFile from '../../file';
 import Scene from '../../scene';
-import * as geometry from '../geo/geometry';
 import W3xUnit from './unit';
 import W3xDoodad from './doodad';
 import W3xTilePoint from './tilepoint';
@@ -24,7 +24,7 @@ export default class W3xMap extends ViewerFile {
 
     initialize(src) {
         let parser = new W3xParser(null, true); // Use readonly mode to reduce memory usage.
-        
+
         if (!parser.load(src)) {
             this.onerror('InvalidSource');
             return false;
@@ -34,7 +34,7 @@ export default class W3xMap extends ViewerFile {
             doodads = parser.readDoodads(),
             units = parser.readUnits(),
             modifications = parser.readModifications();
-        
+
         this.parser = parser;
         this.name = parser.name;
         this.mpq = parser.archive;
@@ -72,12 +72,12 @@ export default class W3xMap extends ViewerFile {
             // Finally, try to get the file from the game archives.
             return this.pathSolver(path);
         };
-        
+
         this.tileset = environment.tileset;
         this.tilesetMpq = env.load(environment.tileset + '.mpq', mpqPathSolver)
 
         fileCache.set('tileset', this.tilesetMpq);
-        
+
         let paths = [
             'Doodads/Doodads.slk',
             'Doodads/DoodadMetaData.slk',
@@ -119,11 +119,11 @@ export default class W3xMap extends ViewerFile {
             // Finally, try to get the file from the game archives.
             return this.pathSolver(path);
         };
-        
+
         // Promise that there is a future load that the code cannot know about yet, so Viewer.whenAllLoaded() isn't called prematurely.
         let promise = this.env.makePromise();
 
-        
+
         this.env.whenLoaded(fileCache.values(), () => {
             this.loadModifications(modifications);
             this.loadTerrain(environment);
@@ -214,7 +214,7 @@ export default class W3xMap extends ViewerFile {
         var gl = this.env.gl;
 
         for (let groundTileset of environment.groundTilesets) {
-            var row = slk.getRow(groundTileset) ;
+            var row = slk.getRow(groundTileset);
 
             if (row) {
                 this.tilesetTextures.push(this.loadFile(row.dir + '\\' + row.file + '.blp'));
@@ -256,7 +256,7 @@ export default class W3xMap extends ViewerFile {
 
         for (let cliffTileset of environment.cliffTilesets) {
             var row = cliffSlk.getRow(cliffTileset);
-            
+
             if (row) {
                 this.cliffs.push(row);
                 this.cliffTextures.push(this.loadFile('ReplaceableTextures/Cliff/' + row.texFile + '.blp'));
@@ -264,7 +264,7 @@ export default class W3xMap extends ViewerFile {
                 this.cliffTextures.push(null);
                 console.warn('W3X: Failed to load a cliff tileset texture, tileset: \'' + cliffTileset + '\'');
             }
-  
+
         }
 
         this.cliffTexturesOffset = this.blightTextureIndex + 1;
@@ -379,7 +379,7 @@ export default class W3xMap extends ViewerFile {
                     }
                 }
 
-                if (x> 0 && y < mapSize[1] - 1) {
+                if (x > 0 && y < mapSize[1] - 1) {
                     tile.lt = tilepoints[y + 1][x - 1];
                     tile.dlt = tile.layerHeight - tile.lt.layerHeight;
 
@@ -453,7 +453,7 @@ export default class W3xMap extends ViewerFile {
         var mapSize = this.mapSize;
         var tilepoints = this.tilepoints;
         var centerOffset = this.offset;
-        
+
         let vertices = [],
             uvs = [],
             edges = [],
@@ -511,7 +511,7 @@ export default class W3xMap extends ViewerFile {
             var model = this.env.load({
                 geometry: { vertices: new Float32Array(vertices), uvs: new Float32Array(uvs), faces: new Uint16Array(faces), edges: new Float32Array(edges) },
                 material: { renderMode: 0, twoSided: true, alpha: 0.5, texture: texture, isBGR: true, isBlended: true }
-            }, src =>[src, '.geo', false]);
+            }, src => [src, '.geo', false]);
             var instance = model.addInstance();
             instance.setUniformScale(128).setLocation([-centerOffset[0] * 128, -centerOffset[1] * 128, 0]);
             instance.noCulling = true;
@@ -547,7 +547,7 @@ export default class W3xMap extends ViewerFile {
         var cliffs = this.cliffs;
         var mapSize = this.mapSize;
         var tilepoints = this.tilepoints;
-        
+
         /*
         var unitCube = this.env.load({
             geometry: geometry.createUnitCube(),
@@ -726,14 +726,14 @@ export default class W3xMap extends ViewerFile {
                 }
                 */
                 //if (!tile.cliff) {
-                    //unitCube.addInstance().setColor([1, 0, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(16);
+                //unitCube.addInstance().setColor([1, 0, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(16);
                 //} else {
-                    //unitCube.addInstance().setColor([0, 1, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(16);
+                //unitCube.addInstance().setColor([0, 1, 0]).setLocation([tile.x, tile.y, tile.z + 128]).uniformScale(16);
                 //}
 
                 //if (x === 13 && y === 12) {
-                    //unitCube.addInstance().setColor([0, 0, 1]).setLocation([tile.x, tile.y, tile.z]).uniformScale(32);
-                    //console.log(tile)
+                //unitCube.addInstance().setColor([0, 0, 1]).setLocation([tile.x, tile.y, tile.z]).uniformScale(32);
+                //console.log(tile)
                 //}
 
                 if (tile.cliff) {
@@ -769,16 +769,16 @@ export default class W3xMap extends ViewerFile {
                                 tag = this.heightsToCliffTag(0, 0, tile.dlt, tile.dlt);
                                 break;
 
-                                // ???
-                                // T 0
-                                // T C
+                            // ???
+                            // T 0
+                            // T C
                             case 4:
                                 tag = this.heightsToCliffTag(1, 1, 0, 1);
                                 break;
 
-                                // Diagonal connection
-                                // T 0
-                                // 0 C
+                            // Diagonal connection
+                            // T 0
+                            // 0 C
                             case 5:
                                 tag = this.heightsToCliffTag(0, 1, 0, 1);
                                 break;
@@ -789,9 +789,9 @@ export default class W3xMap extends ViewerFile {
                                 tag = this.heightsToCliffTag(0, 2, 2, 2);
                                 break;
 
-                                // Left-top corner
-                                // 0 0
-                                // 0 C
+                            // Left-top corner
+                            // 0 0
+                            // 0 C
                             case 7: // Low
                             case 56: // High
                                 tag = this.heightsToCliffTag(0, 0, 0, tile.dlt);
@@ -825,7 +825,7 @@ export default class W3xMap extends ViewerFile {
                             //console.warn('W3x: Unsupported LT cliff mask', ltMask);
                         }
                     }
-                    
+
                     if (rtMask) {
                         supportedMask = true;
 
@@ -837,9 +837,9 @@ export default class W3xMap extends ViewerFile {
                                 tag = this.heightsToCliffTag(1, 0, 1, 1);
                                 break;
 
-                                // Top wall
-                                // 0 0
-                                // C T
+                            // Top wall
+                            // 0 0
+                            // C T
                             case 3:
                             case 24:
                                 tag = this.heightsToCliffTag(tile.drt, 0, 0, tile.drt);
@@ -851,9 +851,9 @@ export default class W3xMap extends ViewerFile {
                                 tag = this.heightsToCliffTag(2, 0, 2, 2);
                                 break;
 
-                                // Diagonal connection
-                                // 0 T
-                                // C 0
+                            // Diagonal connection
+                            // 0 T
+                            // C 0
                             case 5:
                                 tag = this.heightsToCliffTag(1, 0, 1, 0);
                                 break;
@@ -862,22 +862,22 @@ export default class W3xMap extends ViewerFile {
                                 tag = this.heightsToCliffTag(2, 0, 2, 0);
                                 break;
 
-                                // Diagonal 2 to 1
+                            // Diagonal 2 to 1
                             case 42:
                                 tag = this.heightsToCliffTag(2, 0, 1, 0);
                                 break;
 
-                                // Right-top corner
-                                // 0 0
-                                // 0 C
+                            // Right-top corner
+                            // 0 0
+                            // 0 C
                             case 7:
                             case 56:
                                 tag = this.heightsToCliffTag(tile.drt, 0, 0, 0);
                                 break;
 
-                                // Right wall
-                                // T 0
-                                // C 0
+                            // Right wall
+                            // T 0
+                            // C 0
                             case 6:
                                 tag = this.heightsToCliffTag(1, 1, 0, 0);
                                 break;
@@ -898,13 +898,13 @@ export default class W3xMap extends ViewerFile {
                                 instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
 
                             model.whenLoaded(() => model.textures[0] = texture);
-                            
+
                             this.scene.addInstance(instance);
                         } else {
                             //console.warn('W3x: Unsupported RT cliff mask', rtMask);
                         }
                     }
-                    
+
                     if (rbMask) {
                         supportedMask = true;
 
@@ -963,22 +963,22 @@ export default class W3xMap extends ViewerFile {
                                 tag = this.heightsToCliffTag(2, 2, 2, 0);
                                 break;
 
-                                // Bottom-wall
-                                // T C
-                                // 0 0
+                            // Bottom-wall
+                            // T C
+                            // 0 0
                             case 3:
                                 tag = this.heightsToCliffTag(0, 1, 1, 0);
                                 break;
 
-                                // Bottom-wall high
+                            // Bottom-wall high
                             case 24:
                                 tag = this.heightsToCliffTag(0, 2, 2, 0);
                                 break;
 
 
-                                // Left-bottom corner
-                                // 0 C
-                                // 0 0
+                            // Left-bottom corner
+                            // 0 C
+                            // 0 0
                             case 7:
                             case 56:
                                 tag = this.heightsToCliffTag(0, 0, tile.dlb, 0);
@@ -1056,7 +1056,7 @@ export default class W3xMap extends ViewerFile {
         var uvs = {};
         var faces = {};
         var edges = {};
-        
+
         var blightTextureIndex = this.blightTextureIndex;
 
         for (var y = 0; y < mapSize[1] - 1; y++) {
@@ -1104,102 +1104,102 @@ export default class W3xMap extends ViewerFile {
                     // 1 1
                     if (t === texture1 && t === texture2 && t === texture3 && t === texture4) {
                         let variation = this.getTileVariation(tile1.variation, extended)
-                        
+
                         offsetX = variation[0];
                         offsetY = variation[1];
-                    // 1 1
-                    // 1 0
+                        // 1 1
+                        // 1 0
                     } else if (t === texture1 && t === texture2 && t === texture3) {
                         if (t > texture4) {
                             offsetX = 2;
                             offsetY = 3;
                         }
-                    // 1 1
-                    // 0 1
+                        // 1 1
+                        // 0 1
                     } else if (t === texture2 && t === texture3 && t === texture4) {
                         if (t > texture1) {
                             offsetX = 1;
                             offsetY = 3;
                         }
-                    // 0 1
-                    // 1 1
+                        // 0 1
+                        // 1 1
                     } else if (t === texture3 && t === texture4 && t === texture1) {
                         if (t > texture2) {
                             offsetX = 3;
                             offsetY = 1;
                         }
-                    // 1 0
-                    // 1 1
+                        // 1 0
+                        // 1 1
                     } else if (t === texture4 && t === texture1 && t === texture2) {
                         if (t > texture3) {
                             offsetX = 3;
                             offsetY = 2;
                         }
-                    // 1 0
-                    // 1 0
+                        // 1 0
+                        // 1 0
                     } else if (t === texture1 && t === texture2) {
                         if (t > texture3 || t > texture4) {
                             offsetX = 2;
                             offsetY = 2;
                         }
-                    // 1 1
-                    // 0 0
+                        // 1 1
+                        // 0 0
                     } else if (t === texture2 && t === texture3) {
                         if (t > texture1 || t > texture4) {
                             offsetX = 0;
                             offsetY = 3;
                         }
-                    // 0 1
-                    // 0 1
+                        // 0 1
+                        // 0 1
                     } else if (t === texture3 && t === texture4) {
                         if (t > texture1 || t > texture2) {
                             offsetX = 1;
                             offsetY = 1;
                         }
-                    // 0 0
-                    // 1 1
+                        // 0 0
+                        // 1 1
                     } else if (t === texture4 && t === texture1) {
                         if (t > texture2 || t > texture3) {
                             offsetX = 3;
                             offsetY = 0;
                         }
-                    // 0 1
-                    // 1 0
+                        // 0 1
+                        // 1 0
                     } else if (t === texture1 && t === texture3) {
                         if (t > texture2 || t > texture4) {
                             offsetX = 2;
                             offsetY = 1;
                         }
-                    // 1 0
-                    // 0 1
+                        // 1 0
+                        // 0 1
                     } else if (t === texture2 && t === texture4) {
                         if (t > texture1 || t > texture3) {
                             offsetX = 1;
                             offsetY = 2;
                         }
-                    // 0 0
-                    // 1 0
+                        // 0 0
+                        // 1 0
                     } else if (t === texture1) {
                         if (t > texture2 || t > texture3 || t > texture4) {
                             offsetX = 2;
                             offsetY = 0;
                         }
-                    // 1 0
-                    // 0 0
+                        // 1 0
+                        // 0 0
                     } else if (t === texture2) {
                         if (t > texture1 || t > texture3 || t > texture4) {
                             offsetX = 0;
                             offsetY = 2;
                         }
-                    // 0 1
-                    // 0 0
+                        // 0 1
+                        // 0 0
                     } else if (t === texture3) {
                         if (t > texture1 || t > texture2 || t > texture4) {
                             offsetX = 0;
                             offsetY = 1;
                         }
-                    // 0 0
-                    // 0 1
+                        // 0 0
+                        // 0 1
                     } else if (t === texture4) {
                         if (t > texture1 || t > texture2 || t > texture3) {
                             offsetX = 1;
@@ -1230,11 +1230,11 @@ export default class W3xMap extends ViewerFile {
                     f = new Uint32Array(faces[i]),
                     e = new Uint32Array(edges[i]),
                     t = tilesetTextures[i];
-                
+
                 var terrainModel = this.env.load({
                     geometry: { vertices: v, uvs: u, faces: f, edges: e },
                     material: { renderMode: 0, twoSided: true, texture: t, isBGR: true, isBlended: true }
-                }, src =>[src, '.geo', false]);
+                }, src => [src, '.geo', false]);
                 var instance = terrainModel.addInstance();
                 instance.setUniformScale(128).setLocation([-centerOffset[0] * 128, -centerOffset[1] * 128, 0]);
                 instance.noCulling = true;

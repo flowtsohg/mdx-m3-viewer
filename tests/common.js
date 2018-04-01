@@ -20,5 +20,5 @@ let glMatrix = ModelViewer.common.glMatrix,
     mat3 = glMatrix.mat3,
     mat4 = glMatrix.mat4,
     UnitTester = ModelViewer.Viewer.UnitTester,
-    geometry = ModelViewer.Viewer.Handlers.Geo.geometry,
+    geometry = ModelViewer.common.geometry,
     math = ModelViewer.common.math;

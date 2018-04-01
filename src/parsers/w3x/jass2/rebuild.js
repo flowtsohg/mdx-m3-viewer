@@ -2,7 +2,7 @@ import JassContext from './context';
 
 export default function rebuild(map, commonj, blizzardj, unitbalanceslk) {
     let jassContext = new JassContext(map, commonj, blizzardj, unitbalanceslk);
-    
+
     jassContext.debugMode = true;
 
     console.log('Parsing and running the global scope...');

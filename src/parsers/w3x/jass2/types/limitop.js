@@ -1,3 +1,3 @@
 import JassEventId from './eventid';
 
-export default class JassLimitOp extends JassEventId {};
+export default class JassLimitOp extends JassEventId { };

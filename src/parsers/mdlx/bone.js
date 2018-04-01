@@ -2,7 +2,7 @@ import GenericObject from './genericobject';
 
 export default class Bone extends GenericObject {
     constructor() {
-        super();
+        super(0x100);
 
         /** @member {number} */
         this.geosetId = -1;

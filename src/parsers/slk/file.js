@@ -19,7 +19,7 @@ export default class SlkFile {
         let rows = this.rows,
             x = 0,
             y = 0;
-        
+
         for (let line of src.split('\n')) {
             // The B command is supposed to define the total number of columns and rows, however in UbetSplatData.slk it gives wrong information
             // Therefore, just ignore it, since JavaScript arrays grow as they want either way
@@ -47,7 +47,7 @@ export default class SlkFile {
                         } else {
                             value = parseFloat(valueString);
                         }
-                        
+
                         rows[y][x] = value;
                     }
                 }
@@ -56,7 +56,7 @@ export default class SlkFile {
 
         let header = rows[0],
             map = this.map;
-            
+
         for (let i = 1, l = rows.length; i < l; i++) {
             let row = rows[i],
                 mapped = {};

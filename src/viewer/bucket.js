@@ -1,7 +1,7 @@
 export default class Bucket {
-     /**
-     * @param {ModelView} modelView
-     */
+    /**
+    * @param {ModelView} modelView
+    */
     constructor(modelView) {
         let model = modelView.model,
             gl = model.env.gl;
@@ -51,7 +51,7 @@ export default class Bucket {
     }
 
     getSharedData(index) {
-        
+
     }
 
     isFull() {
@@ -59,7 +59,7 @@ export default class Bucket {
     }
 
     update(scene) {
-        
+
     }
 
     renderOpaque(scene) {

@@ -35,7 +35,7 @@ export default class W3xDoodad {
             // Imported, keep the path but change the extension back to mdx
             if (file.endsWith('.mdl')) {
                 path = file.replace('.mdl', '.mdx');
-            // MPQ file, create the full path using the variation
+                // MPQ file, create the full path using the variation
             } else {
                 // The SLK has two versions, one with 'dir' and 'file', the other just 'file', both behave differently
                 if (row.dir) {

@@ -24,7 +24,7 @@ export default class IniFile {
             // Therefore, ignore any line matching any of these conditions.
             if (line.length && !line.startsWith('//') && !line.startsWith(';')) {
                 let match = line.match(/^\[(.+?)\]/);
-                
+
                 if (match) {
                     let name = match[1].trim().toLowerCase();
 
@@ -60,14 +60,14 @@ export default class IniFile {
 
     save() {
         let lines = [];
-        
+
         this.saveProperties(lines, this.properties);
 
         for (let [name, section] of this.sections) {
             lines.push(`[${name}]`);
-            
+
             this.saveProperties(lines, section);
-            
+
         }
 
         return lines.join('\r\n');

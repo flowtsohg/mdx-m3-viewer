@@ -1,6 +1,6 @@
 import Bucket from '../../bucket';
 import MdxParticleEmitter from './particleemitter';
-import MdxParticle2Emitter from './particle2emitter';
+import MdxParticleEmitter2 from './particleemitter2';
 import MdxRibbonEmitter from './ribbonemitter';
 import MdxEventObjectSpnEmitter from './eventobjectspnemitter';
 import MdxEventObjectSplEmitter from './eventobjectsplemitter';
@@ -17,7 +17,7 @@ export default class MdxBucket extends Bucket {
             gl = model.env.gl,
             numberOfBones = model.bones.length + 1,
             objects;
-        
+
         this.boneArrayInstanceSize = numberOfBones * 16;
         this.boneArray = new Float32Array(this.boneArrayInstanceSize * this.size);
 
@@ -69,7 +69,7 @@ export default class MdxBucket extends Bucket {
         this.updateUvOffsets = false;
         this.uvOffsetArrays = [];
         this.uvOffsetBuffers = [];
-        
+
         let batchesCount = model.batches.length;
 
         // Batches
@@ -113,15 +113,15 @@ export default class MdxBucket extends Bucket {
             this.particleEmitters.push(new MdxParticleEmitter(emitter));
         }
 
-        for (let emitter of model.particle2Emitters) {
-            this.particle2Emitters.push(new MdxParticle2Emitter(emitter));
+        for (let emitter of model.particleEmitters2) {
+            this.particle2Emitters.push(new MdxParticleEmitter2(emitter));
         }
 
         for (let emitter of model.ribbonEmitters) {
-            this.ribbonEmitters.push(new MdxRibbonEmitter(model, emitter));
+            this.ribbonEmitters.push(new MdxRibbonEmitter(emitter));
         }
-        
-        for (let emitter of model.eventObjectEmitters) {
+
+        for (let emitter of model.eventObjects) {
             let type = emitter.type;
 
             if (type === 'SPN') {
@@ -192,7 +192,7 @@ export default class MdxBucket extends Bucket {
                 }
             }
         }
-      
+
         return { calls, instances, vertices, polygons, dynamicVertices, dynamicPolygons };
     }
 
@@ -200,6 +200,73 @@ export default class MdxBucket extends Bucket {
         let gl = this.model.env.gl,
             size = this.instances.length,
             objects;
+
+        if (window.BETA) {
+            let instances = this.instances;
+            let boneArray = this.boneArray;
+            let teamColorArray = this.teamColorArray;
+            let vertexColorArray = this.vertexColorArray;
+
+            for (let i = 0, l = instances.length; i < l; i++) {
+                let instance = instances[i];
+
+                if (instance.isVisible) {
+                    let bones = instance.skeleton.bones;
+                    let vertexColor = instance.vertexColor;
+                    let boneMatrices = instance.skeleton.boneMatrices;
+                    let base = 16 + i * (16 + boneMatrices.length);
+
+                    for (let j = 0, k = boneMatrices.length / 4; j < k; j += 4) {
+                        let b = base + j;
+
+                        boneArray[b] = boneMatrices[j];
+                        boneArray[b + 1] = boneMatrices[j + 1];
+                        boneArray[b + 2] = boneMatrices[j + 2];
+                        boneArray[b + 3] = boneMatrices[j + 3];
+                    }
+                    //boneArray.set(instance.skeleton.boneMatrices, 16 + i * (16 + instance.skeleton.boneMatrices.length));
+
+                    teamColorArray[i] = instance.teamColor;
+
+                    vertexColorArray[i * 4 + 0] = vertexColor[0];
+                    vertexColorArray[i * 4 + 1] = vertexColor[1];
+                    vertexColorArray[i * 4 + 2] = vertexColor[2];
+                    vertexColorArray[i * 4 + 3] = vertexColor[3];
+                }
+            }
+
+            gl.activeTexture(gl.TEXTURE15);
+            gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
+            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, size, gl.RGBA, gl.FLOAT, boneArray);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.teamColorArray);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertexColorArray);
+        } else {
+            if (this.updateBoneTexture) {
+                this.updateBoneTexture = false;
+
+                gl.activeTexture(gl.TEXTURE15);
+                gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
+                gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, size, gl.RGBA, gl.FLOAT, this.boneArray);
+            }
+
+            if (this.updateTeamColors) {
+                this.updateTeamColors = false;
+
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
+                gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.teamColorArray.subarray(0, size));
+            }
+
+            if (this.updateVertexColors) {
+                this.updateVertexColors = false;
+
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
+                gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertexColorArray.subarray(0, 4 * size));
+            }
+        }
 
         objects = this.particleEmitters;
         for (let i = 0, l = objects.length; i < l; i++) {
@@ -219,28 +286,6 @@ export default class MdxBucket extends Bucket {
         objects = this.eventObjectEmitters;
         for (let i = 0, l = objects.length; i < l; i++) {
             objects[i].update(scene);
-        }
-
-        if (this.updateBoneTexture) {
-            this.updateBoneTexture = false;
-        
-            gl.activeTexture(gl.TEXTURE15);
-            gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
-            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, size, gl.RGBA, gl.FLOAT, this.boneArray);
-        }
-
-        if (this.updateTeamColors) {
-            this.updateTeamColors = false;
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
-            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.teamColorArray.subarray(0, size));
-        }
-
-        if (this.updateVertexColors) {
-            this.updateVertexColors = false;
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
-            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertexColorArray.subarray(0, 4 * size));
         }
 
         if (this.updateGeosetAlphas) {
@@ -297,7 +342,7 @@ export default class MdxBucket extends Bucket {
             uvOffsetArrays: [],
             layerAlphaArrays: []
         };
-        
+
         if (this.batchesCount) {
             let buffer = this.dataArray.buffer,
                 base = this.dataInstanceSize * index;

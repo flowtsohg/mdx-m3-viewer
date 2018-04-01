@@ -47,7 +47,7 @@ export default class Layer extends AnimatedObject {
         this.textureAnimationId = stream.readInt32();
         this.coordId = stream.readUint32();
         this.alpha = stream.readFloat32();
-        
+
         this.readAnimations(stream, size - 28);
     }
 

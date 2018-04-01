@@ -104,7 +104,7 @@ export default class M3Layer {
         if (active) {
             gl.uniform1i(uniforms.get(uniformMap.map), this.textureUnit);
             this.model.bindTexture(this.texture, this.textureUnit, bucket.modelView);
-            
+
             gl.uniform1f(uniforms.get(uniformMap.op), this.op);
             gl.uniform1f(uniforms.get(uniformMap.channels), this.colorChannels);
             gl.uniform1f(uniforms.get(uniformMap.teamColorMode), this.teamColorMode);

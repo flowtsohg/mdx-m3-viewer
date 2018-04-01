@@ -135,7 +135,7 @@ export default class IndexEntry {
 
                 reader.skip(entrySize);
             }
-        // This is maybe a typed array?
+            // This is maybe a typed array?
         } else {
             switch (tag) {
                 case 'CHAR':

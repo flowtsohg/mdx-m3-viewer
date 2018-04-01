@@ -157,7 +157,62 @@ let forcedInterpMap = {
     KRVS: 0
 };
 
-class MdxSd {
+let defVals = {
+    // LAYS
+    KMTF: 0,
+    KMTA: 1,
+    // TXAN
+    KTAT: new Float32Array([0, 0, 0]),
+    KTAR: new Float32Array([0, 0, 0, 1]),
+    KTAS: new Float32Array([1, 1, 1]),
+    // GEOA
+    KGAO: 1,
+    KGAC: new Float32Array([0, 0, 0]),
+    // LITE
+    KLAS: 0,
+    KLAE: 0,
+    KLAC: new Float32Array([0, 0, 0]),
+    KLAI: 0,
+    KLBI: 0,
+    KLBC: new Float32Array([0, 0, 0]),
+    KLAV: 1,
+    // ATCH
+    KATV: 1,
+    // PREM
+    KPEE: 0,
+    KPEG: 0,
+    KPLN: 0,
+    KPLT: 0,
+    KPEL: 0,
+    KPES: 0,
+    KPEV: 1,
+    // PRE2
+    KP2S: 0,
+    KP2R: 0,
+    KP2L: 0,
+    KP2G: 0,
+    KP2E: 0,
+    KP2N: 0,
+    KP2W: 0,
+    KP2V: 1,
+    // RIBB
+    KRHA: 0,
+    KRHB: 0,
+    KRAL: 1,
+    KRCO: new Float32Array([0, 0, 0]),
+    KRTX: 0,
+    KRVS: 1,
+    // CAMS
+    KCTR: new Float32Array([0, 0, 0]),
+    KTTR: new Float32Array([0, 0, 0]),
+    KCRL: 0,
+    // NODE
+    KGTR: new Float32Array([0, 0, 0]),
+    KGRT: new Float32Array([0, 0, 0, 1]),
+    KGSC: new Float32Array([1, 1, 1])
+};
+
+export default class MdxSd {
     /**
      * @param {MdxModel} model
      * @param {MdxParserSd} sd
@@ -166,12 +221,12 @@ class MdxSd {
         var globalSequenceId = sd.globalSequenceId,
             globalSequences = model.globalSequences,
             tracks = sd.tracks,
-            forcedInterp = forcedInterpMap[sd.tag];
+            forcedInterp = forcedInterpMap[sd.name];
 
-        this.tag = sd.tag;
+        this.name = sd.name;
         this.model = model;
         this.keyframes = tracks;
-        this.defval = sd.defval;
+        this.defval = defVals[sd.name];
 
         // Allow to force an interpolation type.
         // The game seems to do this with visibility tracks, where the type is forced to None.
@@ -179,7 +234,7 @@ class MdxSd {
         this.interpolationType = forcedInterp !== undefined ? forcedInterp : sd.interpolationType;
 
         if (globalSequenceId !== -1 && globalSequences) {
-            this.globalSequence = new MdxSdSequence(this, 0, globalSequences[globalSequenceId].value, tracks, true);
+            this.globalSequence = new MdxSdSequence(this, 0, globalSequences[globalSequenceId], tracks, true);
         } else {
             var sequences = model.sequences;
 
@@ -239,89 +294,5 @@ class MdxSd {
             console.warn('[MdxSD::getValues] Called on an SD that does not use a global sequence')
             return [];
         }
-    }
-}
-
-export default class MdxSdContainer {
-    /**
-     * @param {MdxModel} model
-     * @param {MdxParserSdContainer} container
-     */
-    constructor(model, container) {
-        let sd = {},
-            elements = container.elements;
-
-        for (let i = 0, l = elements.length; i < l; i++) {
-            let element = elements[i];
-
-            sd[element.tag] = new MdxSd(model, element);
-        }
-
-        this.sd = sd;
-    }
-
-    getValues(tag) {
-        var sd = this.sd[tag];
-
-        if (sd) {
-            return sd.getValues();
-        }
-
-        return [];
-    }
-
-    getValueUnsafe(tag, instance, defval) {
-        var sd = this.sd[tag];
-
-        if (sd) {
-            return sd.getValueUnsafe(instance);
-        }
-
-        return defval;
-    }
-
-    getValue(tag, instance, defval) {
-        return this.getValueUnsafe(tag, instance, defval);
-    }
-
-    getValue3(out, tag, instance, defval) {
-        let unsafeHeap = this.getValueUnsafe(tag, instance, defval);
-
-        out[0] = unsafeHeap[0];
-        out[1] = unsafeHeap[1];
-        out[2] = unsafeHeap[2];
-
-        return out;
-    }
-
-    getValue4(out, tag, instance, defval) {
-        let unsafeHeap = this.getValueUnsafe(tag, instance, defval);
-
-        out[0] = unsafeHeap[0];
-        out[1] = unsafeHeap[1];
-        out[2] = unsafeHeap[2];
-        out[3] = unsafeHeap[3];
-
-        return out;
-    }
-
-    getKeyframe(tag, instance) {
-        var sd = this.sd[tag];
-
-        if (sd) {
-            return sd.getKeyframe(instance);
-        }
-
-        return 0;
-    }
-
-    isVariant(tag, sequence) {
-        var sd = this.sd[tag];
-
-        if (sd) {
-            return sd.isVariant(sequence);
-        }
-
-        return false;
     }
 };

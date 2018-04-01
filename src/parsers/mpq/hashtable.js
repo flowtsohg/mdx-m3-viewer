@@ -33,7 +33,7 @@ export default class MpqHashTable {
         for (let i = 0, l = entries.length; i < l; i++) {
             let index = (i + offset) % l,
                 hash = entries[index];
-            
+
             if (hash.platform === 0xFFFF) {
                 return index;
             }
@@ -53,7 +53,7 @@ export default class MpqHashTable {
             hash.locale = 0;
             hash.platform = 0;
             hash.blockIndex = blockIndex;
-            
+
             return hash;
         }
     }

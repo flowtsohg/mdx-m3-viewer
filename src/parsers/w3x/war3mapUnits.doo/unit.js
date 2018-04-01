@@ -116,7 +116,7 @@ export default class Unit {
         }
 
         this.randomFlag = stream.readInt32();
-        
+
         if (this.randomFlag === 0) {
             this.level = stream.readUint8Array(3); // 24bit number
             this.itemClass = stream.readUint8();
@@ -192,7 +192,7 @@ export default class Unit {
             stream.writeUint32(this.positionInGroup);
         } else if (this.randomFlag === 2) {
             stream.writeInt32(this.randomUnitTables.length);
-            
+
             for (let randomUnitTable of this.randomUnitTables) {
                 randomUnitTable.save(stream);
             }
@@ -221,7 +221,7 @@ export default class Unit {
         size += this.itemsInInventory.length * 8;
 
         size += this.modifiedAbilities.length * 12;
-        
+
         if (this.randomFlag === 0) {
             size += 4;
         } else if (this.randomFlag === 1) {

@@ -1,6 +1,6 @@
 import { base256ToString } from '../../../common/typecast';
 import Texture from '../../texture';
-import { decodeDxt1, decodeDxt3, decodeDxt5 } from './dxt';
+import { decodeDxt1, decodeDxt3, decodeDxt5 } from '../../../common/dxt';
 
 /**
  * Largely based on https://github.com/toji/webctx-texture-utils/blob/master/texture-util/dds.js
@@ -64,7 +64,7 @@ export default class DdsTexture extends Texture {
         this.webglResource = id;
 
         gl.bindTexture(gl.TEXTURE_2D, id);
-        
+
         for (let i = 0; i < mipmapCount; i++) {
             dataLength = Math.max(4, width) / 4 * Math.max(4, height) / 4 * blockBytes;
 
@@ -73,7 +73,7 @@ export default class DdsTexture extends Texture {
                 data = new Uint8Array(src, dataOffset, dataLength);
 
                 gl.compressedTexImage2D(gl.TEXTURE_2D, i, internalFormat, width, height, 0, data);
-            // Otherwise, decode the data on the client.
+                // Otherwise, decode the data on the client.
             } else {
                 data = new Uint16Array(src, dataOffset, dataLength / 2);
 

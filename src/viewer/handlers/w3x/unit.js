@@ -20,7 +20,7 @@ export default class W3xUnit {
         this.scale = unit.scale;
         this.player = unit.player;
 
-        
+
         var row = map.fileCache.get('unitdata').getRow(id) || map.fileCache.get('itemdata').getRow(id);
         if (row) {
             var path;
@@ -42,7 +42,7 @@ export default class W3xUnit {
                 } else {
                     uiRow = map.fileCache.get('unitui').getRow(id);
                 }
-                
+
 
                 if (!uiRow) {
                     console.log('Unknown unit ID', id);
@@ -58,7 +58,7 @@ export default class W3xUnit {
         } else {
             if (id === 'sloc') {
                 this.path = 'Objects/StartLocation/StartLocation.mdx';
-            } 
+            }
         }
 
         if (this.path) {

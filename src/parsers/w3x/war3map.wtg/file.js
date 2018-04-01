@@ -10,7 +10,7 @@ export default class War3MapWtg {
         this.u1 = 0;
         this.variables = [];
         this.triggers = [];
-        
+
         if (buffer) {
             this.load(buffer, argumentMap);
         }
@@ -72,7 +72,7 @@ export default class War3MapWtg {
         }
 
         stream.writeUint32(this.triggers.length);
-        
+
         for (let trigger of this.triggers) {
             trigger.save(stream, this.version);
         }

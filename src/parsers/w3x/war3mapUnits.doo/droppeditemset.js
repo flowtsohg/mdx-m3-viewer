@@ -10,7 +10,7 @@ export default class DroppedItemSet {
      * @param {BinaryStream} stream 
      */
     load(stream) {
-        for (let i = 0, l = stream.readInt32() ; i < l; i++) {
+        for (let i = 0, l = stream.readInt32(); i < l; i++) {
             let item = new DroppedItem();
 
             item.load(stream);

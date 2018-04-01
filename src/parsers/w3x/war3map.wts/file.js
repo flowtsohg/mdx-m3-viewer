@@ -27,7 +27,7 @@ export default class War3MapWts {
 
     save() {
         let buffer = 'ï»¿'; // ???
-        
+
         for (let [key, value] in this.stringMap) {
             buffer += `STRING ${key}\n{\n${value.replace(newLineLiteralRegex, '\n')}\n}\n`
         }

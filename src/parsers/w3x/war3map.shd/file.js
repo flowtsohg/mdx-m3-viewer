@@ -12,7 +12,7 @@ export default class War3MapShd {
             this.load(buffer, mapSize);
         }
     }
-    
+
     load(buffer, mapSize) {
         let stream = new BinaryStream(buffer);
 

@@ -12,7 +12,7 @@ export default class Trigger {
         this.triggerCategory = 0;
         this.ecas = [];
     }
-    
+
     load(stream, version, argumentMap) {
         this.name = stream.readUntilNull();
         this.description = stream.readUntilNull();
@@ -26,7 +26,7 @@ export default class Trigger {
         this.isInitiallyOff = stream.readInt32();
         this.runOnInitialization = stream.readInt32();
         this.triggerCategory = stream.readInt32();
-        
+
         for (let i = 0, l = stream.readUint32(); i < l; i++) {
             let eca = new ECA();
 
@@ -70,7 +70,7 @@ export default class Trigger {
         for (let eca of this.ecas) {
             size += eca.getByteLength(version);
         }
-        
+
         return size;
     }
 };

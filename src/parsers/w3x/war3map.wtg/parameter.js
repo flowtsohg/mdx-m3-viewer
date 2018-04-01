@@ -49,15 +49,15 @@ export default class Parameter {
         } else {
             stream.writeInt32(0);
         }
-        
+
         if ((version === 4 && this.type === 2) || (version === 7 && this.subParameters)) {
             stream.writeInt32(this.u1);
         }
-        
+
         if ((version === 4 && this.type !== 2) || version === 7) {
             stream.writeInt32(this.isArray);
         }
-        
+
         if (this.isArray) {
             this.arrayIndex.save(stream, version);
         }
@@ -77,7 +77,7 @@ export default class Parameter {
         if ((version === 4 && this.type === 2) || (version === 7 && this.subParameters)) {
             size += 4;
         }
-        
+
         if ((version === 4 && this.type !== 2) || version === 7) {
             size += 4;
         }

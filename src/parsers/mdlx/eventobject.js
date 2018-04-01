@@ -2,7 +2,7 @@ import GenericObject from './genericobject';
 
 export default class EventObject extends GenericObject {
     constructor() {
-        super();
+        super(0x400);
 
         /** @member {number} */
         this.globalSequenceId = -1;
@@ -42,7 +42,7 @@ export default class EventObject extends GenericObject {
     writeMdl(stream) {
         stream.startObjectBlock('EventObject', this.name);
         this.writeGenericHeader(stream);
-        
+
         stream.startBlock('EventTrack', this.tracks.length);
 
         for (let track of this.tracks) {

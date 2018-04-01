@@ -22,7 +22,7 @@ export default class Material {
             let layer = new Layer();
 
             layer.readMdx(stream);
-            
+
             this.layers.push(layer);
         }
     }

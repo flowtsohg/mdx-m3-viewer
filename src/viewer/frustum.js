@@ -69,7 +69,7 @@ plane.classifyPoint = function (plane, point) {
                 c = plane[2],
                 d = plane[3],
                 v2 = [];
-               
+
             // Positive vertex
             boundingShape.getPositiveVertex(v, plane);
             vec3.mulAndAdd(v2, v, worldScale, worldLocation);

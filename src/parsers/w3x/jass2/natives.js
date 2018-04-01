@@ -827,7 +827,7 @@ export function ResumeTimer(jassContext, whichTimer) {
 
 // // native GetExpiredTimer takes nothing returns timer
 // export function GetExpiredTimer(jassContext) {
-    
+
 // }
 
 // native CreateGroup takes nothing returns group
@@ -1288,7 +1288,7 @@ export function ExecuteFunc(jassContext, funcName) {
 
 // // native And takes boolexpr operandA, boolexpr operandB returns boolexpr
 // export function And(jassContext, operandA, operandB) {
-    
+
 // }
 
 // // native Or takes boolexpr operandA, boolexpr operandB returns boolexpr

@@ -56,7 +56,7 @@ export default class War3Map {
      */
     load(buffer) {
         let stream = new BinaryStream(buffer);
-    
+
         if (stream.read(4) !== 'HM3W') {
             return false;
         }
@@ -72,10 +72,10 @@ export default class War3Map {
         if (!this.archive.load(buffer)) {
             return false;
         }
-    
+
         // Read in the imports file if there is one.
         this.readImports();
-        
+
         return true;
     }
 
@@ -128,7 +128,7 @@ export default class War3Map {
      */
     getImportNames() {
         let names = [];
-        
+
         for (let entry of this.imports.entries.values()) {
             names.push(entry.path);
         }
@@ -175,7 +175,7 @@ export default class War3Map {
 
             return true;
         }
-        
+
         return false;
     }
 
@@ -310,7 +310,7 @@ export default class War3Map {
 
     readTriggers() {
         let file = this.archive.get('war3map.wtg');
-        
+
         if (file) {
             return new War3MapWtg(file.arrayBuffer(), this.argumentMap);
         }
@@ -318,7 +318,7 @@ export default class War3Map {
 
     readStringTable() {
         let file = this.archive.get('war3map.wts');
-        
+
         if (file) {
             return new War3MapWts(file.text());
         }

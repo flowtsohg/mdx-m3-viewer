@@ -2,7 +2,7 @@ import GenericObject from './genericobject';
 
 export default class Light extends GenericObject {
     constructor() {
-        super();
+        super(0x200);
 
         /** @member {number} */
         this.type = -1;
@@ -47,7 +47,7 @@ export default class Light extends GenericObject {
 
         this.writeNonGenericAnimationChunks(stream);
     }
-    
+
     readMdl(stream) {
         for (let token of super.readMdl(stream)) {
             if (token === 'Omnidirectional') {
@@ -134,4 +134,4 @@ export default class Light extends GenericObject {
         return 48 + super.getByteLength();
     }
 };
-    
+

@@ -2,7 +2,7 @@ import GenericObject from './genericobject';
 
 export default class ParticleEmitter extends GenericObject {
     constructor() {
-        super();
+        super(0x1000);
 
         /** @member {number} */
         this.emissionRate = 0;
@@ -52,7 +52,7 @@ export default class ParticleEmitter extends GenericObject {
 
         this.writeNonGenericAnimationChunks(stream);
     }
-    
+
     readMdl(stream) {
         for (let token of super.readMdl(stream)) {
             if (token === 'EmitterUsesMDL') {

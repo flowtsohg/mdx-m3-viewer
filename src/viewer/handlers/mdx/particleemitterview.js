@@ -16,7 +16,7 @@ export default class MdxParticleEmitterView {
             this.currentEmission += this.getEmissionRate() * this.instance.env.frameTime * 0.001;
 
             if (this.currentEmission >= 1) {
-                for (let i = 0, l = Math.floor(this.currentEmission) ; i < l; i++, this.currentEmission--) {
+                for (let i = 0, l = Math.floor(this.currentEmission); i < l; i++ , this.currentEmission--) {
                     emitter.emit(this);
                 }
             }
@@ -39,8 +39,8 @@ export default class MdxParticleEmitterView {
         return this.emitter.getLongitude(this.instance);
     }
 
-    getLifespan() {
-        return this.emitter.getLifespan(this.instance);
+    getLifeSpan() {
+        return this.emitter.getLifeSpan(this.instance);
     }
 
     getGravity() {

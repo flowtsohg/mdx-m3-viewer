@@ -52,7 +52,7 @@ export default class M3Model extends TexturedModel {
         this.parser = parser;
         this.name = model.modelName.getAll().join('');
 
-        this.setupGeometry(model, div); 
+        this.setupGeometry(model, div);
 
         var materialMaps = model.materialReferences.getAll();
         var materials = model.materials[0].getAll();
@@ -121,7 +121,7 @@ export default class M3Model extends TexturedModel {
         */
 
         //this.batches = batchGroups[0].concat(batchGroups[1]).concat(batchGroups[2]).concat(batchGroups[3]).concat(batchGroups[4]).concat(batchGroups[5]);
-        
+
         this.batches = batches;
 
         var sts = model.sts.getAll();
@@ -240,40 +240,40 @@ export default class M3Model extends TexturedModel {
     }
 
     addGlobalAnims() {
-    /*
-    var i, l;
-    var glbirth, glstand, gldeath;
-    var stgs = this.stg;
-    var stg, name;
-
-    for (i = 0, l = stgs.length; i < l; i++) {
-    stg = stgs[i];
-    name = stg.name.toLowerCase(); // Because obviously there will be a wrong case in some model...
-
-    if (name === 'glbirth') {
-    glbirth = stg;
-    } else if (name === 'glstand') {
-    glstand = stg;
-    } else if (name === 'gldeath') {
-    gldeath = stg;
-    }
-    }
-
-    for (i = 0, l = stgs.length; i < l; i++) {
-    stg = stgs[i];
-    name = stg.name.toLowerCase(); // Because obviously there will be a wrong case in some model...
-
-    if (name !== 'glbirth' && name !== 'glstand' && name !== 'gldeath') {
-    if (name.indexOf('birth') !== -1 && glbirth) {
-    stg.stcIndices = stg.stcIndices.concat(glbirth.stcIndices);
-    } else  if (name.indexOf('death') !== -1 && gldeath) {
-    stg.stcIndices = stg.stcIndices.concat(gldeath.stcIndices);
-    } else if (glstand) {
-    stg.stcIndices = stg.stcIndices.concat(glstand.stcIndices);
-    }
-    }
-    }
-    */
+        /*
+        var i, l;
+        var glbirth, glstand, gldeath;
+        var stgs = this.stg;
+        var stg, name;
+    
+        for (i = 0, l = stgs.length; i < l; i++) {
+        stg = stgs[i];
+        name = stg.name.toLowerCase(); // Because obviously there will be a wrong case in some model...
+    
+        if (name === 'glbirth') {
+        glbirth = stg;
+        } else if (name === 'glstand') {
+        glstand = stg;
+        } else if (name === 'gldeath') {
+        gldeath = stg;
+        }
+        }
+    
+        for (i = 0, l = stgs.length; i < l; i++) {
+        stg = stgs[i];
+        name = stg.name.toLowerCase(); // Because obviously there will be a wrong case in some model...
+    
+        if (name !== 'glbirth' && name !== 'glstand' && name !== 'gldeath') {
+        if (name.indexOf('birth') !== -1 && glbirth) {
+        stg.stcIndices = stg.stcIndices.concat(glbirth.stcIndices);
+        } else  if (name.indexOf('death') !== -1 && gldeath) {
+        stg.stcIndices = stg.stcIndices.concat(gldeath.stcIndices);
+        } else if (glstand) {
+        stg.stcIndices = stg.stcIndices.concat(glstand.stcIndices);
+        }
+        }
+        }
+        */
     }
 
     getValue(animRef, sequence, frame) {
@@ -357,7 +357,7 @@ export default class M3Model extends TexturedModel {
         gl.uniform3fv(uniforms.get('u_eyePos'), camera.worldLocation);
         gl.uniform3fv(uniforms.get('u_lightPos'), this.handler.lightPosition);
     }
-    
+
     unbind() {
         let instancedArrays = this.env.gl.extensions.instancedArrays,
             shader = this.shader,
@@ -392,7 +392,7 @@ export default class M3Model extends TexturedModel {
                 const batch = batches[i];
 
                 //if (updateBatches[batch.index]) {
-                    this.renderBatch(bucket, batch);
+                this.renderBatch(bucket, batch);
                 //}
             }
 
@@ -405,20 +405,20 @@ export default class M3Model extends TexturedModel {
     }
 
     renderEmitters(bucket, scene) {
-    /*
-    if (this.particleEmitters) {
-    ctx.disable(ctx.CULL_FACE);
-
-    for (i = 0, l = this.particleEmitters.length; i < l; i++) {
-    gl.bindShader('particles');
-
-    gl.bindMVP('u_mvp');
-
-    this.particleEmitters[i].render();
-    }
-
-    ctx.enable(ctx.CULL_FACE);
-    }
-    */
+        /*
+        if (this.particleEmitters) {
+        ctx.disable(ctx.CULL_FACE);
+    
+        for (i = 0, l = this.particleEmitters.length; i < l; i++) {
+        gl.bindShader('particles');
+    
+        gl.bindMVP('u_mvp');
+    
+        this.particleEmitters[i].render();
+        }
+    
+        ctx.enable(ctx.CULL_FACE);
+        }
+        */
     }
 };

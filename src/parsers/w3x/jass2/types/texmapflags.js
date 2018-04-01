@@ -1,3 +1,3 @@
 import JassEnum from './enum';
 
-export default class JassTexMapFlags extends JassEnum {};
+export default class JassTexMapFlags extends JassEnum { };

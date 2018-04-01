@@ -1,33 +1,25 @@
 import { vec3, quat } from 'gl-matrix';
-import MdxSdContainer from './sd';
+import AnimatedObject from './animatedobject';
 
 // Heap allocations needed for this module.
 let translationHeap = vec3.create(),
     rotationHeap = quat.create(),
     scaleHeap = vec3.create();
 
-export default class MdxTextureAnimation {
-    /**
-     * @param {MdxModel} model
-     * @param {MdxParserTextureAnimation} textureAnimation
-     */
-    constructor(model, textureAnimation) {
-        this.sd = new MdxSdContainer(model, textureAnimation.tracks);
-    }
-
+export default class TextureAnimation extends AnimatedObject {
     getTranslation(instance) {
-        return this.sd.getValue3(translationHeap, 'KTAT', instance, vec3.ZERO);
+        return this.getValue3(translationHeap, 'KTAT', instance, vec3.ZERO);
     }
 
     isTranslationVariant(sequence) {
-        return this.sd.isVariant('KTAT', sequence);
+        return this.isVariant('KTAT', sequence);
     }
 
     getRotation(instance) {
-        return this.sd.getValue4(rotationHeap, 'KTAR', instance, quat.DEFAULT);
+        return this.getValue4(rotationHeap, 'KTAR', instance, quat.DEFAULT);
     }
 
     getScale(instance) {
-        return this.sd.getValue3(scaleHeap, 'KTAS', instance, vec3.ONE);
+        return this.getValue3(scaleHeap, 'KTAS', instance, vec3.ONE);
     }
 };

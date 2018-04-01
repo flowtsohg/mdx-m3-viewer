@@ -11,7 +11,7 @@ export default class ModificationTable {
      * @param {number} useOptionalInts 
      */
     load(stream, useOptionalInts) {
-        for (let i = 0, l = stream.readUint32() ; i < l; i++) {
+        for (let i = 0, l = stream.readUint32(); i < l; i++) {
             let object = new ModifiedObject();
 
             object.load(stream, useOptionalInts);
@@ -38,7 +38,7 @@ export default class ModificationTable {
      */
     getByteLength(useOptionalInts) {
         let size = 4;
-        
+
         for (let object of this.objects) {
             size += object.getByteLength(useOptionalInts);
         }

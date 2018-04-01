@@ -25,7 +25,7 @@ export default class ShaderProgram {
         gl.linkProgram(id);
 
         if (gl.getProgramParameter(id, gl.LINK_STATUS)) {
-            for (let i = 0, l = gl.getProgramParameter(id, gl.ACTIVE_UNIFORMS) ; i < l; i++) {
+            for (let i = 0, l = gl.getProgramParameter(id, gl.ACTIVE_UNIFORMS); i < l; i++) {
                 let object = gl.getActiveUniform(id, i);
 
                 if (object.size === 1) {
@@ -41,7 +41,7 @@ export default class ShaderProgram {
                 }
             }
 
-            for (let i = 0, l = gl.getProgramParameter(id, gl.ACTIVE_ATTRIBUTES) ; i < l; i++) {
+            for (let i = 0, l = gl.getProgramParameter(id, gl.ACTIVE_ATTRIBUTES); i < l; i++) {
                 let object = gl.getActiveAttrib(id, i);
 
                 if (object.size === 1) {
@@ -56,7 +56,7 @@ export default class ShaderProgram {
                     }
                 }
             }
-            
+
             this.loaded = true;
         } else {
             console.error('Shader program failed to link!');

@@ -7,7 +7,7 @@ export default class MdxSkeleton extends Skeleton {
      */
     constructor(instance) {
         let model = instance.model,
-            modelNodes = model.nodes,
+            modelNodes = model.objects,
             modelBones = model.bones,
             hierarchy = model.hierarchy,
             nodes,
@@ -19,9 +19,10 @@ export default class MdxSkeleton extends Skeleton {
         // Not defined before the Skeleton constructor
         nodes = this.nodes;
 
-        //let variants = {
-        //    any: []
-        //};
+        /// TODO: HACK
+        this.boneMatrices = new Float32Array(modelBones.length * 16);
+
+        let boneIndex = 0;
 
         for (let i = 0, l = modelNodes.length; i < l; i++) {
             let node = nodes[i],
@@ -33,6 +34,8 @@ export default class MdxSkeleton extends Skeleton {
             // Set the node parent references
             node.setParent(this.getNode(modelNode.parentId));
 
+            node.object = modelNode;
+
             // Node flags
             //node.dontInheritTranslation = modelNode.dontInheritTranslation;
             //node.dontInheritRotation = modelNode.dontInheritRotation;
@@ -41,23 +44,14 @@ export default class MdxSkeleton extends Skeleton {
             // The sorted version of the nodes, for straight iteration in update()
             sortedNodes[i] = nodes[hierarchy[i]];
 
-            //for (let j = 0, k = model.sequences.length; j < k; j++) {
-            //    variants.any[j] |= modelNode.variants.any[j];
-            //}
-            //node.justUpdated = true;
+            if (modelBones.includes(modelNode)) {
+                /// TODO: HACK
+                node.worldMatrix = this.boneMatrices.subarray(boneIndex * 16, boneIndex * 16 + 16);
+
+                bones[boneIndex++] = node;
+            }
         }
 
-        //this.variants = variants;
-        //console.log(model.name, this.variants)
-
-        //instance.justUpdated = false;
-
-        // The sorted version of the bone references in the model, for straight iteration in updateHW()
-        for (let i = 0, l = modelBones.length; i < l; i++) {
-            bones[i] = nodes[modelBones[i].node.index];
-        }
-
-        this.modelNodes = model.sortedNodes;
         this.sortedNodes = sortedNodes;
         this.bones = bones;
         this.instance = instance;
@@ -70,22 +64,20 @@ export default class MdxSkeleton extends Skeleton {
         // Therefore, there is no point to update the nodes.
         if (instance.bucket) {
             let nodes = this.sortedNodes,
-                modelNodes = this.modelNodes,
-                bones = this.bones,
-                boneArray = this.instance.boneArray,
                 sequence = instance.sequence;
 
             // Update the nodes
             for (let i = 0, l = nodes.length; i < l; i++) {
                 let node = nodes[i],
-                    modelNode = modelNodes[i],
+                    modelNode = node.object,
                     variants = modelNode.variants,
                     translation,
                     rotation,
                     scale;
 
-                //if (forced || variants.any[sequence] || node.parent.justUpdated) {
-                //    node.justUpdated = true;
+                if (!(modelNode.attachment && node.children.length === 0)) {
+                    //if (forced || variants.any[sequence] || node.parent.justUpdated) {
+                    //    node.justUpdated = true;
 
                     // Translation
                     if (forced || variants.translation[sequence]) {
@@ -124,36 +116,23 @@ export default class MdxSkeleton extends Skeleton {
 
                     // Update the node
                     node.setTransformation(translation, rotation, scale);
-                //} else {
-                //    node.justUpdated = false;
-                //}
+                    //} else {
+                    //    node.justUpdated = false;
+                }
             }
 
-            // Update the bone texture.
-            for (let i = 0, l = bones.length; i < l; i++) {
-                let matrix = bones[i].worldMatrix,
-                    base = 16 + i * 16;
+            if (!window.BETA) {
+                let boneMatrices = this.boneMatrices,
+                    boneArray = this.instance.boneArray;
 
-                boneArray[base] = matrix[0];
-                boneArray[base + 1] = matrix[1];
-                boneArray[base + 2] = matrix[2];
-                boneArray[base + 3] = matrix[3];
-                boneArray[base + 4] = matrix[4];
-                boneArray[base + 5] = matrix[5];
-                boneArray[base + 6] = matrix[6];
-                boneArray[base + 7] = matrix[7];
-                boneArray[base + 8] = matrix[8];
-                boneArray[base + 9] = matrix[9];
-                boneArray[base + 10] = matrix[10];
-                boneArray[base + 11] = matrix[11];
-                boneArray[base + 12] = matrix[12];
-                boneArray[base + 13] = matrix[13];
-                boneArray[base + 14] = matrix[14];
-                boneArray[base + 15] = matrix[15];
-                //boneArray.set(bones[i].worldMatrix, i * 16 + 16);
+                for (let i = 0, j = boneMatrices.length; i < j; i++) {
+                    boneArray[16 + i] = boneMatrices[i];
+                }
+
+                //boneArray.set(this.boneMatrices, 16);
+
+                instance.bucket.updateBoneTexture = true;
             }
-
-            instance.bucket.updateBoneTexture = true;
         }
     }
 };

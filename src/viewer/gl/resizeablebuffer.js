@@ -16,7 +16,7 @@ export default class ResizeableBuffer {
         this.float32array = new Float32Array(buffer);
         /** @member {WebGLBuffer} */
         this.buffer = gl.createBuffer();
-        
+
         gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.uint8array, gl.DYNAMIC_DRAW);
     }

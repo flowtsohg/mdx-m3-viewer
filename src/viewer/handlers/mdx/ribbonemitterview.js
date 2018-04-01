@@ -16,10 +16,10 @@ export default class MdxRibbonEmitterView {
         if (this.shouldRender()) {
             let emitter = this.emitter;
 
-            this.currentEmission += emitter.emissionRate * this.instance.env.frameTime * 0.001;
-            
+            this.currentEmission += emitter.modelObject.emissionRate * this.instance.env.frameTime * 0.001;
+
             if (this.currentEmission >= 1) {
-                for (let i = 0, l = Math.floor(this.currentEmission) ; i < l; i++, this.currentEmission--) {
+                for (let i = 0, l = Math.floor(this.currentEmission); i < l; i++ , this.currentEmission--) {
                     this.lastEmit = emitter.emit(this);
                 }
             }

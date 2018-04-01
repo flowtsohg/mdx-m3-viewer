@@ -160,6 +160,6 @@ export default class ModelView {
             instance.scene.removeBucket(bucket);
 
             return false;
-        } 
+        }
     }
 };

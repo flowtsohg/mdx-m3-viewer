@@ -33,7 +33,7 @@ export default class MdxParticle2 {
 
     reset(emitterView, isHead) {
         let modelObject = this.emitter.modelObject,
-            node = emitterView.instance.skeleton.nodes[modelObject.node.index],
+            node = emitterView.instance.skeleton.nodes[modelObject.index],
             pivot = node.pivot,
             scale = node.worldScale,
             width = emitterView.getWidth() * 0.5,
@@ -45,7 +45,7 @@ export default class MdxParticle2 {
 
         this.instance = emitterView.instance;
         this.node = node;
-        this.health = modelObject.lifespan;
+        this.health = modelObject.lifeSpan;
         this.head = isHead;
         this.gravity = emitterView.getGravity() * scale[2];
         this.scale = 1;
@@ -114,14 +114,14 @@ export default class MdxParticle2 {
             vec3.copy(worldLocation, location);
         }
 
-        let lifeFactor = (modelObject.lifespan - this.health) / modelObject.lifespan,
+        let lifeFactor = (modelObject.lifeSpan - this.health) / modelObject.lifeSpan,
             timeMiddle = modelObject.timeMiddle,
             intervals = modelObject.intervals,
             factor,
             firstColor,
             head = this.head,
             interval;
-        
+
         if (lifeFactor < timeMiddle) {
             factor = lifeFactor / timeMiddle;
 
@@ -130,7 +130,7 @@ export default class MdxParticle2 {
             if (head) {
                 interval = intervals[0];
             } else {
-                interval = intervals[1];
+                interval = intervals[2];
             }
         } else {
             factor = (lifeFactor - timeMiddle) / (1 - timeMiddle);
@@ -138,7 +138,7 @@ export default class MdxParticle2 {
             firstColor = 1;
 
             if (head) {
-                interval = intervals[2];
+                interval = intervals[1];
             } else {
                 interval = intervals[3];
             }
@@ -155,7 +155,7 @@ export default class MdxParticle2 {
             color = this.color,
             scale = lerp(scaling[firstColor], scaling[firstColor + 1], factor),
             index;
-    
+
         let spriteCount = end - start;
 
         if (spriteCount) {
@@ -164,7 +164,7 @@ export default class MdxParticle2 {
         } else {
             index = 0;
         }
-        
+
         vec4.lerp(color, colors[firstColor], colors[firstColor + 1], factor);
 
         let camera = scene.camera,

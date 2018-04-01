@@ -263,7 +263,7 @@ export default class Scene {
 
     renderEmitters() {
         let buckets = this.buckets;
-            
+
         this.setViewport();
 
         for (let i = 0, l = buckets.length; i < l; i++) {

@@ -1,57 +1,17 @@
-import MdxSdContainer from './sd';
+import GenericObject from './genericobject';
 
-export class MdxAttachment {
-    /**
-     * @param {MdxInstance} instance
-     * @param {MdxAttachment} attachment
-     */
-    constructor(instance, attachment) {
-        let internalInstance = attachment.internalModel.addInstance();
-
-        internalInstance.setSequenceLoopMode(2);
-        internalInstance.dontInheritScale = false;
-        internalInstance.hide();
-
-        instance.whenLoaded(() => internalInstance.setParent(instance.skeleton.nodes[attachment.node.objectId]));
-
-        this.instance = instance;
-        this.attachment = attachment;
-        this.internalInstance = internalInstance;
-    }
-
-    update() {
-        let internalInstance = this.internalInstance;
-
-        if (this.attachment.getVisibility(this.instance) > 0.1) {
-            // The parent instance might not actually be in a scene.
-            // This happens if loading a local model, where loading is instant and adding to a scene always comes afterwards.
-            // Therefore, do it here dynamically.
-            this.instance.scene.addInstance(internalInstance);
-
-            if (internalInstance.hidden()) {
-                internalInstance.show();
-
-                // Every time the attachment becomes visible again, restart its first sequence.
-                internalInstance.setSequence(0);
-            }
-        } else {
-            internalInstance.hide();
-        }
-    }
-};
-
-export class MdxModelAttachment {
+export default class Attachment extends GenericObject {
     /**
      * @param {MdxModel} model
      * @param {MdxParserAttachment} attachment
      */
-    constructor(model, attachment) {
+    constructor(model, attachment, pivotPoints, index) {
+        super(model, attachment, pivotPoints, index);
+
         let path = attachment.path.replace(/\\/g, '/').toLowerCase().replace('.mdl', '.mdx');
 
-        this.node = model.nodes[attachment.node.index];
         this.path = path;
         this.attachmentId = attachment.attachmentId;
-        this.sd = new MdxSdContainer(model, attachment.tracks);
 
         // Second condition is against custom resources using arbitrary paths...
         if (path !== '' && path.indexOf('.mdx') != -1) {
@@ -60,6 +20,6 @@ export class MdxModelAttachment {
     }
 
     getVisibility(instance) {
-        return this.sd.getValue('KATV', instance, 1);
+        return this.getValue('KATV', instance, 1);
     }
 };

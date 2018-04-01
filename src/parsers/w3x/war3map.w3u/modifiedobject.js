@@ -17,8 +17,8 @@ export default class ModifiedObject {
     load(stream, useOptionalInts) {
         this.oldId = stream.read(4);
         this.newId = stream.read(4);
-    
-        for (let i = 0, l = stream.readUint32() ; i < l; i++) {
+
+        for (let i = 0, l = stream.readUint32(); i < l; i++) {
             let modification = new Modification();
 
             modification.load(stream, useOptionalInts);

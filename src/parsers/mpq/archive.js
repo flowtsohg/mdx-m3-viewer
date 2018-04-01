@@ -69,7 +69,7 @@ export default class MpqArchive {
         if (blockSize > hashSize) {
             blockSize = hashSize;
         }
-        
+
         this.headerOffset = headerOffset;
         this.sectorSize = 512 * (1 << (formatVersionSectorSize >>> 16)); // Generally 4096
 
@@ -93,7 +93,7 @@ export default class MpqArchive {
             // If the file wasn't deleted, load it.
             if (blockIndex < HASH_ENTRY_DELETED) {
                 let file = new MpqFile(this);
-                
+
                 file.load(hash, this.blockTable.entries[blockIndex], typedArray);
 
                 this.files[blockIndex] = file;
@@ -156,14 +156,14 @@ export default class MpqArchive {
 
         // Reset the file offsets.
         let offset = headerSize;
-        
+
         for (let file of this.files) {
             // If the file's offset changed, and it is encrypted with a key that depends on its offset,
             // it needs to be decryped with it's current key, and encryped with the new key.
             if (!file.offsetChanged(offset)) {
                 return null;
             }
-            
+
             // If the file needs to be encoded, do it.
             file.encode();
 
@@ -175,13 +175,13 @@ export default class MpqArchive {
             hashes = hashTable.entries.length,
             blocks = blockTable.entries.length,
             filesSize = offset - headerSize;
-        
+
         let archiveSize = headerSize + filesSize + hashes * 16 + blocks * 16,
             hashPos = headerSize + filesSize,
             blockPos = hashPos + hashes * 16,
             typedArray = new Uint8Array(archiveSize),
             uint32array = new Uint32Array(typedArray.buffer, 0, 8);
-        
+
         // Write the header.
         uint32array[0] = MAGIC;
         uint32array[1] = headerSize;
@@ -200,10 +200,10 @@ export default class MpqArchive {
 
             offset += file.block.compressedSize;
         }
-        
+
         // Write the hash table.
         hashTable.save(typedArray.subarray(offset, offset + hashTable.entries.length * 16));
-        
+
         offset += hashTable.entries.length * 16;
 
         // Write the block table.
@@ -251,7 +251,7 @@ export default class MpqArchive {
                 // Remove blocks that are not used.
                 if (!used) {
                     this.removeBlock(i)
-    
+
                     saved += block.compressedSize;
                 }
             }
@@ -279,7 +279,7 @@ export default class MpqArchive {
      */
     getFileNames() {
         let names = [];
-        
+
         for (let file of this.files) {
             if (file && file.name !== '') {
                 names.push(file.name);
@@ -325,15 +325,15 @@ export default class MpqArchive {
             file.set(buffer);
         } else {
             let blockIndex = this.blockTable.entries.length;
-            
+
             file = new MpqFile(this);
-    
+
             file.name = name;
             file.nameResolved = true;
             file.hash = this.hashTable.add(name, blockIndex);
             file.block = this.blockTable.add(buffer);
             file.buffer = buffer;
-            
+
             this.files[blockIndex] = file;
         }
 
@@ -349,7 +349,7 @@ export default class MpqArchive {
      */
     get(name) {
         let hash = this.hashTable.get(name);
-        
+
         if (hash) {
             let blockIndex = hash.blockIndex;
 
@@ -453,7 +453,7 @@ export default class MpqArchive {
         size = Math.max(4, powerOfTwo(size));
 
         let files = this.files;
-        
+
         // Can't resize to a size smaller than the existing files.
         if (files.length > size) {
             return false;
@@ -495,7 +495,7 @@ export default class MpqArchive {
     searchHeader(typedArray) {
         let offset = -1;
 
-        for (let i = 0, l = Math.ceil(typedArray.byteLength / 512) ; i < l; i++) {
+        for (let i = 0, l = Math.ceil(typedArray.byteLength / 512); i < l; i++) {
             let base = i * 512;
 
             // Test 'MPQ\x1A'.

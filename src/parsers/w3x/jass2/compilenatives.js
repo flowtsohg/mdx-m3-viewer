@@ -32,7 +32,7 @@ function compileNode(node) {
         jassComment += `native ${node.name} takes ${compileJassArgs(node.args)} returns ${node.returnType}`;
 
         let js = `export function ${node.name}(${compileJsArgs(node.args)}) {\n\n}\n`;
-        
+
         result += `${jassComment}\n${js}`;
     }
 

@@ -6,6 +6,52 @@ let canvas = document.createElement('canvas'),
 let canvas2 = document.createElement('canvas'),
     ctx2 = canvas2.getContext('2d');
 
+export function blobToImageData(blob) {
+    return new Promise((resolve, reject) => {
+        let url = URL.createObjectURL(blob),
+            image = new Image();
+
+        image.onload = () => {
+            URL.revokeObjectURL(url);
+
+            canvas.width = image.width;
+            canvas.height = image.height;
+
+            ctx.drawImage(image, 0, 0);
+
+            resolve(ctx.getImageData(0, 0, image.width, image.height));
+        };
+
+        image.onerror = (e) => {
+            reject(e);
+        };
+
+        image.src = url;
+    });
+};
+
+export function imageDataToBlob(imageData) {
+    return new Promise((resolve, reject) => {
+        canvas.width = imageData.width;
+        canvas.height = imageData.height;
+
+        ctx.putImageData(imageData, 0, 0);
+
+        canvas.toBlob((blob) => {
+            resolve(blob);
+        });
+    });
+};
+
+export function imageDataToDataUrl(imageData) {
+    canvas.width = imageData.width;
+    canvas.height = imageData.height;
+
+    ctx.putImageData(imageData, 0, 0);
+
+    return canvas.toDataURL();
+};
+
 export function getImageData(image) {
     let width = image.width,
         height = image.height;
@@ -36,7 +82,7 @@ export function resizeImageData(data, width, height) {
         ctx2.drawImage(canvas, 0, 0, width, height);
 
         return ctx2.getImageData(0, 0, width, height);
-    // Assumed to be Image
+        // Assumed to be Image
     } else {
         canvas.width = width;
         canvas.height = height;
@@ -46,6 +92,15 @@ export function resizeImageData(data, width, height) {
         return ctx.getImageData(0, 0, width, height);
     }
 };
+
+export function drawImageData(dCanvas, imageData) {
+    canvas.width = imageData.width;
+    canvas.height = imageData.height;
+
+    ctx.putImageData(imageData, 0, 0);
+
+    dCanvas.getContext('2d').drawImage(canvas, 0, 0, dCanvas.width, dCanvas.height);
+}
 
 // Given an array of Image objects, constructs a texture atlas.
 // The dimensions of each tile are the dimensions of the first Image object (that is, all images are assumed to have the same size!).

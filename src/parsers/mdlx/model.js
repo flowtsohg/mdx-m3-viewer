@@ -71,7 +71,7 @@ export default class Model {
         /** @member {Array<ParticleEmitter>} */
         this.particleEmitters = [];
         /** @member {Array<ParticleEmitter2>} */
-        this.particleEmitter2s = [];
+        this.particleEmitters2 = [];
         /** @member {Array<RibbonEmitter>} */
         this.ribbonEmitters = [];
         /** @member {Array<Camera>} */
@@ -83,7 +83,7 @@ export default class Model {
         /** 
          * The MDX format is chunk based, and Warcraft 3 does not mind there being unknown chunks in there.
          * Some 3rd party tools use this to attach metadata to models.
-         * Whenver an unknown chunk is encountered, it will be added here.
+         * When an unknown chunk is encountered, it will be added here.
          * These chunks will be saved when saving as MDX.
          * 
          * @member {Array<UnknownChunk}
@@ -102,7 +102,7 @@ export default class Model {
         if (stream.read(4) !== 'MDLX') {
             throw new Error('WrongMagicNumber');
         }
-            
+
         while (stream.remaining() > 0) {
             let tag = stream.read(4),
                 size = stream.readUint32();
@@ -138,7 +138,7 @@ export default class Model {
             } else if (tag === 'PREM') {
                 this.loadDynamicObjects(this.particleEmitters, ParticleEmitter, stream, size);
             } else if (tag === 'PRE2') {
-                this.loadDynamicObjects(this.particleEmitter2s, ParticleEmitter2, stream, size);
+                this.loadDynamicObjects(this.particleEmitters2, ParticleEmitter2, stream, size);
             } else if (tag === 'RIBB') {
                 this.loadDynamicObjects(this.ribbonEmitters, RibbonEmitter, stream, size);
             } else if (tag === 'CAMS') {
@@ -182,7 +182,7 @@ export default class Model {
 
     loadDynamicObjects(out, constructor, stream, size) {
         let totalSize = 0;
-        
+
         while (totalSize !== size) {
             let object = new constructor();
 
@@ -225,7 +225,7 @@ export default class Model {
         this.saveDynamicObjectChunk(stream, 'ATCH', this.attachments);
         this.savePivotPointChunk(stream);
         this.saveDynamicObjectChunk(stream, 'PREM', this.particleEmitters);
-        this.saveDynamicObjectChunk(stream, 'PRE2', this.particleEmitter2s);
+        this.saveDynamicObjectChunk(stream, 'PRE2', this.particleEmitters2);
         this.saveDynamicObjectChunk(stream, 'RIBB', this.ribbonEmitters);
         this.saveDynamicObjectChunk(stream, 'CAMS', this.cameras);
         this.saveDynamicObjectChunk(stream, 'EVTS', this.eventObjects);
@@ -336,7 +336,7 @@ export default class Model {
             } else if (token === 'ParticleEmitter') {
                 this.loadObject(this.particleEmitters, ParticleEmitter, stream);
             } else if (token === 'ParticleEmitter2') {
-                this.loadObject(this.particleEmitter2s, ParticleEmitter2, stream);
+                this.loadObject(this.particleEmitters2, ParticleEmitter2, stream);
             } else if (token === 'RibbonEmitter') {
                 this.loadObject(this.ribbonEmitters, RibbonEmitter, stream);
             } else if (token === 'Camera') {
@@ -379,7 +379,7 @@ export default class Model {
                 //      NumParticleEmitters2
                 //      NumRibbonEmitters
                 //      NumEvents
-                stream.readInt();
+                stream.read();
             } else if (token === 'BlendTime') {
                 this.blendTime = stream.readInt();
             } else if (token === 'MinimumExtent') {
@@ -426,7 +426,7 @@ export default class Model {
         let object = new constructor();
 
         object.readMdl(stream);
-        
+
         out.push(object);
     }
 
@@ -465,7 +465,7 @@ export default class Model {
         this.saveObjects(stream, this.attachments);
         this.savePivotPointBlock(stream);
         this.saveObjects(stream, this.particleEmitters);
-        this.saveObjects(stream, this.particleEmitter2s);
+        this.saveObjects(stream, this.particleEmitters2);
         this.saveObjects(stream, this.ribbonEmitters);
         this.saveObjects(stream, this.cameras);
         this.saveObjects(stream, this.eventObjects);
@@ -481,8 +481,8 @@ export default class Model {
     }
 
     saveModelBlock(stream) {
-        stream.startObjectBlock('Model', this.name)
-        stream.writeAttrib('BlendTime', this.blendTime)
+        stream.startObjectBlock('Model', this.name);
+        stream.writeAttrib('BlendTime', this.blendTime);
         this.extent.writeMdl(stream);
         stream.endBlock();
     }
@@ -536,7 +536,7 @@ export default class Model {
      */
     getByteLength() {
         let size = 396;
-        
+
         size += this.getStaticObjectsChunkByteLength(this.sequences, 132);
         size += this.getStaticObjectsChunkByteLength(this.globalSequences, 4);
         size += this.getDynamicObjectsChunkByteLength(this.materials);
@@ -550,7 +550,7 @@ export default class Model {
         size += this.getDynamicObjectsChunkByteLength(this.attachments);
         size += this.getStaticObjectsChunkByteLength(this.pivotPoints, 12);
         size += this.getDynamicObjectsChunkByteLength(this.particleEmitters);
-        size += this.getDynamicObjectsChunkByteLength(this.particleEmitter2s);
+        size += this.getDynamicObjectsChunkByteLength(this.particleEmitters2);
         size += this.getDynamicObjectsChunkByteLength(this.ribbonEmitters);
         size += this.getDynamicObjectsChunkByteLength(this.cameras);
         size += this.getDynamicObjectsChunkByteLength(this.eventObjects);

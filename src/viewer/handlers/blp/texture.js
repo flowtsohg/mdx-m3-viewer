@@ -6,9 +6,9 @@ import { JpegImage } from './jpg';
 export default class BlpTexture extends Texture {
     initialize(src) {
         let gl = this.env.gl,
-              BLP1_MAGIC = 0x31504c42,
-              BLP_JPG = 0x0,
-              BLP_PALLETE = 0x1;
+            BLP1_MAGIC = 0x31504c42,
+            BLP_JPG = 0x0,
+            BLP_PALLETE = 0x1;
 
         if (src.byteLength < 40) {
             this.onerror('InvalidSource', 'FileTooSmall');

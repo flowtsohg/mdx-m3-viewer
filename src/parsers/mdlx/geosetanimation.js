@@ -26,17 +26,17 @@ export default class GeosetAnimation extends AnimatedObject {
 
         this.readAnimations(stream, size - 28);
     }
-    
+
     writeMdx(stream) {
         stream.writeUint32(this.getByteLength());
         stream.writeFloat32(this.alpha);
         stream.writeUint32(this.flags);
         stream.writeFloat32Array(this.color);
         stream.writeInt32(this.geosetId);
-        
+
         this.writeAnimations(stream);
     }
-    
+
     readMdl(stream) {
         for (let token of this.readAnimatedBlock(stream)) {
             if (token === 'DropShadow') {

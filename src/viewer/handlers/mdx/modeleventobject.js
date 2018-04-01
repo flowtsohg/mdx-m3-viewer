@@ -1,4 +1,5 @@
 import { vec2 } from 'gl-matrix';
+import GenericObject from './genericobject';
 import emitterFilterMode from './emitterfiltermode';
 
 // Heap allocations needed for this module.
@@ -10,15 +11,16 @@ let typeToSlk = {
     'UBR': 'Splats/UberSplatData.slk'
 };
 
-export default class MdxModelEventObject {
+export default class EventObject extends GenericObject {
     /**
      * @param {MdxModel} model
      * @param {MdxParserEventObjectEmitter} emitter
      */
-    constructor(model, emitter) {
+    constructor(model, eventObject, pivotPoints, index) {
+        super(model, eventObject, pivotPoints, index);
+
         let env = model.env,
-            node = model.nodes[emitter.node.index],
-            name = node.name,
+            name = eventObject.name,
             type = name.substring(0, 3),
             id = name.substring(4);
 
@@ -26,22 +28,19 @@ export default class MdxModelEventObject {
         if (type === 'FPT') {
             type = 'SPL';
         }
-
+        
         this.ready = false;
-        this.model = model;
-        this.emitter = emitter;
-        this.node = node;
         this.type = type;
         this.id = id;
 
         this.internalResource = null;
 
-        this.tracks = emitter.tracks;
+        this.tracks = eventObject.tracks;
         this.ready = false;
         this.globalSequence = null;
         this.defval = vec2.create();
 
-        let globalSequenceId = emitter.globalSequenceId;
+        let globalSequenceId = eventObject.globalSequenceId;
         if (globalSequenceId !== -1) {
             this.globalSequence = model.globalSequences[globalSequenceId];
         }
@@ -90,7 +89,7 @@ export default class MdxModelEventObject {
                     this.lifespan = row.BirthTime + row.PauseTime + row.Decay;
                 }
 
-                [this.blendSrc, this.blendtDst] = emitterFilterMode(row.BlendMode, this.model.env.gl);
+                [this.blendSrc, this.blendDst] = emitterFilterMode(row.BlendMode, this.model.env.gl);
             }
 
             this.ready = true;

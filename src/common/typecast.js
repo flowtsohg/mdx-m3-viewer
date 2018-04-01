@@ -167,7 +167,7 @@ export function int8ToUint8(a) {
  */
 export function int16ToUint8(out, a) {
     int16[0] = a;
-    
+
     out[0] = uint8[0];
     out[1] = uint8[1];
 
@@ -184,7 +184,7 @@ export function int16ToUint8(out, a) {
  */
 export function int24ToUint8(out, a) {
     int32[0] = a;
-    
+
     out[0] = uint8[0];
     out[1] = uint8[1];
     out[2] = uint8[2];
@@ -202,7 +202,7 @@ export function int24ToUint8(out, a) {
  */
 export function int32ToUint8(out, a) {
     int32[0] = a;
-    
+
     out[0] = uint8[0];
     out[1] = uint8[1];
     out[2] = uint8[2];
@@ -221,7 +221,7 @@ export function int32ToUint8(out, a) {
  */
 export function uint16ToUint8(out, a) {
     uint16[0] = a;
-    
+
     out[0] = uint8[0];
     out[1] = uint8[1];
 
@@ -238,7 +238,7 @@ export function uint16ToUint8(out, a) {
  */
 export function uint24ToUint8(out, a) {
     uint32[0] = a;
-    
+
     out[0] = uint8[0];
     out[1] = uint8[1];
     out[2] = uint8[2];
@@ -256,7 +256,7 @@ export function uint24ToUint8(out, a) {
  */
 export function uint32ToUint8(out, a) {
     uint32[0] = a;
-    
+
     out[0] = uint8[0];
     out[1] = uint8[1];
     out[2] = uint8[2];
@@ -275,7 +275,7 @@ export function uint32ToUint8(out, a) {
  */
 export function float32ToUint8(out, a) {
     float32[0] = a;
-    
+
     out[0] = uint8[0];
     out[1] = uint8[1];
     out[2] = uint8[2];
@@ -294,7 +294,7 @@ export function float32ToUint8(out, a) {
  */
 export function float64ToUint8(out, a) {
     float64[0] = a;
-    
+
     out[0] = uint8[0];
     out[1] = uint8[1];
     out[2] = uint8[2];

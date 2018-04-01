@@ -7,12 +7,12 @@ let bytes = new Uint8Array(4),
 export default class MpqCrypto {
     constructor() {
         let cryptTable = new Uint32Array(0x500),
-                seed = 0x00100001,
-                temp1,
-                temp2;
+            seed = 0x00100001,
+            temp1,
+            temp2;
 
         for (let index1 = 0; index1 < 0x100; index1++) {
-            for (let index2 = index1, i = 0; i < 5; i++, index2 += 0x100) {
+            for (let index2 = index1, i = 0; i < 5; i++ , index2 += 0x100) {
                 seed = (seed * 125 + 3) % 0x2AAAAB;
                 temp1 = (seed & 0xFFFF) << 0x10;
 
@@ -39,7 +39,7 @@ export default class MpqCrypto {
 
         name = name.toUpperCase();
 
-        for (let i = 0; i < name.length ; i++) {
+        for (let i = 0; i < name.length; i++) {
             let ch = name.charCodeAt(i);
 
             seed1 = cryptTable[(key << 8) + ch] ^ (seed1 + seed2);
@@ -102,7 +102,7 @@ export default class MpqCrypto {
         let cryptTable = this.cryptTable,
             seed = 0xEEEEEEEE,
             view;
-            
+
         if (data instanceof ArrayBuffer) {
             view = new Uint8Array(data);
         } else {
@@ -112,7 +112,7 @@ export default class MpqCrypto {
         for (let i = 0, l = data.byteLength >>> 2; i < l; i++) {
             // Update the seed.
             seed += cryptTable[0x400 + (key & 0xFF)];
-            
+
             // Get 4 decrypted bytes.
             bytes[0] = view[i * 4];
             bytes[1] = view[i * 4 + 1];

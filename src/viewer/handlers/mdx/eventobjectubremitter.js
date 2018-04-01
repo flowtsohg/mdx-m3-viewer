@@ -8,7 +8,7 @@ export default class MdxEventObjectUbrEmitter extends MdxSharedGeometryEmitter {
      */
     constructor(modelObject) {
         super(modelObject);
-        
+
         this.type = 'UBR';
         this.buffer = new ResizeableBuffer(modelObject.model.env.gl);
         this.bytesPerEmit = 4 * 30;

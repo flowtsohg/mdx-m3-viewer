@@ -30,7 +30,7 @@ function handleArgs(args, stringTable) {
             if (match) {
                 return stringTable.get(parseInt(match[1]));
             }
-        // If this argument is a reference, pass in its object instead.
+            // If this argument is a reference, pass in its object instead.
         } else if (value instanceof JassReference) {
             return value.object;
         }

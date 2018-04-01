@@ -20,7 +20,7 @@ export default class MdxParticle {
 
     reset(emitterView) {
         let instance = emitterView.instance,
-            node = instance.skeleton.nodes[this.emitter.modelObject.node.index],
+            node = instance.skeleton.nodes[this.emitter.modelObject.index],
             internalInstance = this.internalInstance,
             scale = node.worldScale,
             latitude = emitterView.getLatitude(),
@@ -29,7 +29,7 @@ export default class MdxParticle {
 
         this.instance = instance;
         this.node = node;
-        this.health = emitterView.getLifespan();
+        this.health = emitterView.getLifeSpan();
         this.gravity = emitterView.getGravity() * scale[2];
 
         // Local rotation
@@ -40,7 +40,7 @@ export default class MdxParticle {
 
         // World rotation
         vec3.transformQuat(velocity, velocity, node.worldRotation);
-        
+
         // Apply speed
         vec3.scale(velocity, velocity, emitterView.getSpeed());
 

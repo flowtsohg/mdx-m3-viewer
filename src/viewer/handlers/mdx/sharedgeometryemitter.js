@@ -5,7 +5,7 @@ export default class MdxSharedGeometryEmitter extends MdxSharedEmitter {
         let active = this.active,
             data = this.buffer.float32array;
 
-        for (let i = 0, l = active.length, offset = 0; i < l; i++, offset += 30) {
+        for (let i = 0, l = active.length, offset = 0; i < l; i++ , offset += 30) {
             let object = active[i],
                 vertices = object.vertices,
                 lta = object.lta,

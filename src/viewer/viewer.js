@@ -7,8 +7,9 @@ import DownloadableResource from './downloadableresource';
 export default class ModelViewer extends EventDispatcher {
     /**
      * @param {HTMLCanvasElement} canvas
+     * @param {?Object} options
      */
-    constructor(canvas) {
+    constructor(canvas, options) {
         super();
 
         /** @member {object} */
@@ -28,7 +29,7 @@ export default class ModelViewer extends EventDispatcher {
         this.canvas = canvas;
 
         /** @member {WebGL} */
-        this.webgl = new WebGL(canvas);
+        this.webgl = new WebGL(canvas, options);
 
         /** @member {WebGLRenderingContext} */
         this.gl = this.webgl.gl;
@@ -101,12 +102,14 @@ export default class ModelViewer extends EventDispatcher {
         });
 
         // Track when resources end loading.
-        this.addEventListener('loadend', (e) => { 
-            this.resourcesLoading.delete(e.target); 
+        this.addEventListener('loadend', (e) => {
+            this.resourcesLoading.delete(e.target);
 
             // If there are currently no resources loading, dispatch the 'loadendall' event.
             if (this.resourcesLoading.size === 0) {
-                this.dispatchEvent({ type: 'loadendall' });
+                // A timeout is used so that this event will arrive after the loadend event being processed.
+                // Any nicer solution?
+                setTimeout(() => this.dispatchEvent({ type: 'loadendall' }), 0);
             }
         });
 
@@ -121,7 +124,7 @@ export default class ModelViewer extends EventDispatcher {
      * @returns {string}
      */
     get version() {
-        return '4.1.0';
+        return '4.1.2';
     }
 
     /**
@@ -277,7 +280,7 @@ export default class ModelViewer extends EventDispatcher {
             if (handler) {
                 let resources = this.resources,
                     map = resources.map;
-                
+
                 // Only construct the resource if the source was not already loaded.
                 if (!map.has(src)) {
                     let resource = new handler.constructor(this, pathSolver, handler, extension);
@@ -293,10 +296,11 @@ export default class ModelViewer extends EventDispatcher {
                     resource.load();
 
                     if (serverFetch) {
+                        resource.fetchUrl = src;
+
                         this.fetch(src, dataType)
                             .then((data) => {
                                 if (data) {
-                                    resource.fetchUrl = src;
                                     resource.onload(data);
                                 } else {
                                     this.dispatchEvent({ type: 'error', error: 'Fetch' });
@@ -317,7 +321,7 @@ export default class ModelViewer extends EventDispatcher {
 
     async fetch(path, dataType) {
         let response;
-        
+
         try {
             response = await fetch(path);
         } catch (e) {
@@ -329,7 +333,7 @@ export default class ModelViewer extends EventDispatcher {
             this.dispatchEvent({ type: 'error', error: 'HttpError', reason: response });
             return;
         }
-        
+
         let data;
 
         try {
@@ -352,7 +356,7 @@ export default class ModelViewer extends EventDispatcher {
         let gl = this.gl,
             textureAtlases = this.textureAtlases,
             atlas = textureAtlases[name];
-        
+
         if (atlas) {
             callback(atlas);
         } else {
@@ -390,7 +394,7 @@ export default class ModelViewer extends EventDispatcher {
 
         return null;
     }
-    
+
     /**
      * A load promise.
      * This is needed for resources that are going to load internal resources, but don't yet know what they are due to asyncronous reasons.
@@ -477,12 +481,12 @@ export default class ModelViewer extends EventDispatcher {
     }
 
     /**
-     * Gets a Blob object representing the canvas, and calls the callback with it.
+     * Returns a promise that will be resolved with the canvas blob.
      * 
-     * @param {function(Blob)} callback The callback to call.
+     * @returns {Promise} 
      */
-    toBlob(callback) {
-        this.canvas.toBlob((blob) => callback(blob));
+    toBlob() {
+        return new Promise((resolve) => this.canvas.toBlob((blob) => resolve(blob)));
     }
 
     /**
@@ -505,10 +509,17 @@ export default class ModelViewer extends EventDispatcher {
             //resources[i].update();
         }
 
+        window.NODES = 0;
+        window.TOTAL_NODES = 0
+
         // Update all of the scenes.
         for (let i = 0, l = scenes.length; i < l; i++) {
             scenes[i].update();
         }
+
+        // 26368
+        // 23808
+        //console.log(window.NODES, window.TOTAL_NODES, window.NODES / window.TOTAL_NODES);
     }
 
     /**

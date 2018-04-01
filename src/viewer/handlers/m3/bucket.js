@@ -13,7 +13,7 @@ export default class M3Bucket extends Bucket {
         this.gl = gl;
 
         var numberOfBones = model.initialReference.length;
-        
+
         this.boneArrayInstanceSize = numberOfBones * 16;
         this.boneArray = new Float32Array(this.boneArrayInstanceSize * this.size);
 
@@ -85,12 +85,12 @@ export default class M3Bucket extends Bucket {
         //this.updateBatches.fill(0);
 
         //if (this.updateBoneTexture[0]) {
-            gl.activeTexture(gl.TEXTURE15);
-            gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
-            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, size, gl.RGBA, gl.FLOAT, this.boneArray);
-            //console.log(this.boneTextureWidth, size)
+        gl.activeTexture(gl.TEXTURE15);
+        gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, size, gl.RGBA, gl.FLOAT, this.boneArray);
+        //console.log(this.boneTextureWidth, size)
 
-            //this.updateBoneTexture[0] = 0;
+        //this.updateBoneTexture[0] = 0;
         //}
 
         if (this.updateTeamColors[0]) {

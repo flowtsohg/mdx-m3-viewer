@@ -26,7 +26,7 @@ export default class TilePoint {
 
         this.groundHeight = stream.readInt16();
         this.waterLevel = stream.readInt16();
-    
+
         // bits: 4 4
         value = stream.readUint8();
 
@@ -38,7 +38,7 @@ export default class TilePoint {
 
         this.cliffVariation = value >>> 5;
         this.variation = value & 0x1F;
-    
+
         // bits: 4 4
         value = stream.readUint8();
 

@@ -8,7 +8,7 @@ export default class MdxEventObjectSplEmitter extends MdxSharedGeometryEmitter {
      */
     constructor(modelObject) {
         super(modelObject);
-        
+
         this.type = 'SPL';
         this.buffer = new ResizeableBuffer(modelObject.model.env.gl);
         this.bytesPerEmit = 4 * 30;

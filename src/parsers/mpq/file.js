@@ -50,7 +50,7 @@ export default class MpqFile {
      */
     text() {
         let buffer = this.arrayBuffer();
-        
+
         if (buffer) {
             return bufferToString(buffer);
         }
@@ -97,7 +97,7 @@ export default class MpqFile {
         block.compressedSize = 0;
         block.normalSize = buffer.byteLength;
         block.flags = 0;
-        
+
         this.buffer = buffer;
         this.rawBuffer = null;
 
@@ -181,13 +181,13 @@ export default class MpqFile {
             encryptionKey = c.computeFileKey(this.name, block),
             data = new Uint8Array(this.rawBuffer),
             flags = block.flags;
-        
+
         // One buffer of raw data.
         // I don't know why having no flags means it's a chunk of memory rather than sectors.
         // After all, there is no flag to say there are indeed sectors.
         if (flags === FILE_EXISTS) {
             this.buffer = data.slice(0, block.normalSize).buffer;
-        // One buffer of possibly encrypted and/or compressed data.
+            // One buffer of possibly encrypted and/or compressed data.
         } else if (flags & FILE_SINGLE_UNIT) {
             // Read the sector
             let sector;
@@ -208,13 +208,13 @@ export default class MpqFile {
             }
 
             this.buffer = sector.buffer;
-        // One or more sectors of possibly encrypted and/or compressed data.
+            // One or more sectors of possibly encrypted and/or compressed data.
         } else {
             let sectorCount = Math.ceil(block.normalSize / archive.sectorSize);
 
             // Alocate a buffer for the uncompressed block size
             let buffer = new Uint8Array(block.normalSize)
-            
+
             // Get the sector offsets
             let sectorOffsets = new Uint32Array(data.buffer, 0, sectorCount + 1);
 
@@ -302,7 +302,7 @@ export default class MpqFile {
                     return null;
                 }
             }
-            
+
             if (compressionMask & COMPRESSION_HUFFMAN) {
                 console.warn(`File ${this.name}, compression type 'huffman' not supported`);
                 return null;
@@ -405,7 +405,7 @@ export default class MpqFile {
         block.offset = offset;
 
         let newEncryptionKey = c.computeFileKey(this.name, block);
-        
+
         // One chunk.
         if (flags & FILE_SINGLE_UNIT) {
             // Decrypt the chunk with the old key.
@@ -413,7 +413,7 @@ export default class MpqFile {
 
             // Encrypt the chunk with the new key.
             c.encryptBlock(typedArray, newEncryptionKey);
-        // One or more sectors.
+            // One or more sectors.
         } else {
             let sectorCount = Math.ceil(block.normalSize / archive.sectorSize);
 
@@ -451,14 +451,14 @@ export default class MpqFile {
     // If the offset is different, and this file uses FILE_OFFSET_ADJUSTED_KEY encryption, it must be re-encrypted with the new offset.
     offsetChanged(offset) {
         let block = this.block;
-        
+
         if (block.offset !== offset && block.flags & FILE_OFFSET_ADJUSTED_KEY) {
             if (this.nameResolved) {
                 this.reEncrypt(offset);
 
                 return true;
             }
-            
+
             return false;
         }
 

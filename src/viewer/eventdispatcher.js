@@ -43,7 +43,7 @@ export default class EventDispatcher {
 
         return this;
     }
-    
+
     /**
      * Add a new event listener that removes itself before running.
      * 

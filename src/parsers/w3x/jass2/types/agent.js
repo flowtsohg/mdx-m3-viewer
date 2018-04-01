@@ -1,11 +1,11 @@
 import JassHandle from './handle';
 
 export default class JassAgent extends JassHandle {
-	constructor(jassContext) {
+    constructor(jassContext) {
         super(jassContext);
 
-		this.references = new Set();
-	}
+        this.references = new Set();
+    }
 
     addReference(reference) {
         this.references.add(reference);

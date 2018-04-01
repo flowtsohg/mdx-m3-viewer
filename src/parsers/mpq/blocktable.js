@@ -14,7 +14,7 @@ export default class MpqBlockTable {
 
     add(buffer) {
         let block = new MpqBlock();
-        
+
         block.normalSize = buffer.byteLength;
 
         this.entries.push(block);

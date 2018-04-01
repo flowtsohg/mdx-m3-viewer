@@ -51,7 +51,7 @@ export default class Region {
         } else {
             stream.writeUint32(0);
         }
-        
+
         stream.write(`${this.ambientSound}\0`);
         stream.writeUint8Array(this.color);
     }

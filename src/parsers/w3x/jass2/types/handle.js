@@ -1,9 +1,9 @@
 export default class JassHandle {
-	constructor(jassContext) {
+    constructor(jassContext) {
         this.jassContext = jassContext;
-		this.handleId = -1;
+        this.handleId = -1;
         this.handleNames = [];
-	}
+    }
 
     addName(name) {
         this.handleNames.push(name);

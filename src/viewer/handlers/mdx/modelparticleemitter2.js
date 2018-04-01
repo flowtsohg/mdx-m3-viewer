@@ -1,13 +1,13 @@
-import MdxSdContainer from './sd';
+import GenericObject from './genericobject';
 import emitterFilterMode from './emitterfiltermode';
 
-export default class MdxModelParticle2Emitter {
+export default class ParticleEmitter2 extends GenericObject {
     /**
      * @param {MdxModel} model
-     * @param {MdxParserParticle2Emitter} emitter
+     * @param {MdxParserParticleEmitter2} emitter
      */
-    constructor(model, emitter) {
-        this.model = model;
+    constructor(model, emitter, pivotPoints, index) {
+        super(model, emitter, pivotPoints, index);
 
         this.width = emitter.width;
         this.length = emitter.length;
@@ -17,7 +17,7 @@ export default class MdxModelParticle2Emitter {
         this.emissionRate = emitter.emissionRate;
         this.squirt = emitter.squirt;
 
-        this.lifespan = emitter.lifespan;
+        this.lifeSpan = emitter.lifeSpan;
         this.modelSpace = emitter.modelSpace;
         this.variation = emitter.variation;
         this.tailLength = emitter.tailLength;
@@ -35,30 +35,19 @@ export default class MdxModelParticle2Emitter {
         this.colors = [];
 
         let colors = emitter.segmentColors,
-            alpha = emitter.segmentAlpha;
-
+            alpha = emitter.segmentAlphas;
+            
         for (let i = 0; i < 3; i++) {
-            this.colors[i] = new Uint8Array([Math.min(colors[i * 3], 1) * 255, Math.min(colors[i * 3 + 1], 1) * 255, Math.min(colors[i * 3 + 2], 1) * 255, alpha[i]]);
+            this.colors[i] = new Uint8Array([Math.min(colors[i][0], 1) * 255, Math.min(colors[i][1], 1) * 255, Math.min(colors[i][2], 1) * 255, alpha[i]]);
         }
 
         this.scaling = emitter.segmentScaling;
 
-        this.intervals = [
-            emitter.headInterval,
-            emitter.tailInterval,
-            emitter.headDecayInterval,
-            emitter.tailDecayInterval
-        ];
+        this.intervals = [...emitter.headIntervals, ...emitter.tailIntervals];
 
-        let node = model.nodes[emitter.node.index];
-
-        this.node = node;
-
-        this.xYQuad = node.xYQuad;
-        this.modelSpace = node.modelSpace;
-        this.lineEmitter = node.lineEmitter;
-        
-        this.sd = new MdxSdContainer(model, emitter.tracks);
+        this.lineEmitter = emitter.flags & 0x20000;
+        this.modelSpace = emitter.flags & 0x80000;
+        this.xYQuad = emitter.flags & 0x100000;
 
         this.dimensions = [emitter.columns, emitter.rows];
 

@@ -366,7 +366,7 @@ export default class BinaryStream {
 
         for (let i = 0, l = view.length; i < l; i++) {
             let offset = index + i * 4;
-            
+
             view[i] = uint8ToInt16(uint8array[offset], uint8array[offset + 1], uint8array[offset + 2], uint8array[offset + 3]);
         }
 
@@ -414,7 +414,7 @@ export default class BinaryStream {
 
         for (let i = 0, l = view.length; i < l; i++) {
             let offset = index + i * 2;
-            
+
             view[i] = uint8ToUint16(uint8array[offset], uint8array[offset + 1]);
         }
 
@@ -439,7 +439,7 @@ export default class BinaryStream {
 
         for (let i = 0, l = view.length; i < l; i++) {
             let offset = index + i * 4;
-            
+
             view[i] = uint8ToUint32(uint8array[offset], uint8array[offset + 1], uint8array[offset + 2], uint8array[offset + 3]);
         }
 
@@ -464,7 +464,7 @@ export default class BinaryStream {
 
         for (let i = 0, l = view.length; i < l; i++) {
             let offset = index + i * 4;
-            
+
             view[i] = uint8ToFloat32(uint8array[offset], uint8array[offset + 1], uint8array[offset + 2], uint8array[offset + 3]);
         }
 
@@ -489,7 +489,7 @@ export default class BinaryStream {
 
         for (let i = 0, l = view.length; i < l; i++) {
             let offset = index + i * 8;
-            
+
             view[i] = uint8ToFloat64(uint8array[offset], uint8array[offset + 1], uint8array[offset + 2], uint8array[offset + 3], uint8array[offset + 4], uint8array[offset + 5], uint8array[offset + 6], uint8array[offset + 7]);
         }
 
@@ -533,7 +533,7 @@ export default class BinaryStream {
     writeInt16(value) {
         let index = this.index,
             uint8array = this.uint8array;
-        
+
         int16ToUint8(uint8, value);
 
         uint8array[index] = uint8[0];
@@ -550,14 +550,14 @@ export default class BinaryStream {
     writeInt32(value) {
         let index = this.index,
             uint8array = this.uint8array;
-        
+
         int32ToUint8(uint8, value);
 
         uint8array[index] = uint8[0];
         uint8array[index + 1] = uint8[1];
         uint8array[index + 2] = uint8[2];
         uint8array[index + 3] = uint8[3];
-        
+
         this.index += 4;
     }
 
@@ -579,12 +579,12 @@ export default class BinaryStream {
     writeUint16(value) {
         let index = this.index,
             uint8array = this.uint8array;
-        
+
         uint16ToUint8(uint8, value);
 
         uint8array[index] = uint8[0];
         uint8array[index + 1] = uint8[1];
-        
+
         this.index += 2;
     }
 
@@ -596,14 +596,14 @@ export default class BinaryStream {
     writeUint32(value) {
         let index = this.index,
             uint8array = this.uint8array;
-        
+
         uint32ToUint8(uint8, value);
 
         uint8array[index] = uint8[0];
         uint8array[index + 1] = uint8[1];
         uint8array[index + 2] = uint8[2];
         uint8array[index + 3] = uint8[3];
-        
+
         this.index += 4;
     }
 
@@ -615,14 +615,14 @@ export default class BinaryStream {
     writeFloat32(value) {
         let index = this.index,
             uint8array = this.uint8array;
-        
+
         float32ToUint8(uint8, value);
 
         uint8array[index] = uint8[0];
         uint8array[index + 1] = uint8[1];
         uint8array[index + 2] = uint8[2];
         uint8array[index + 3] = uint8[3];
-        
+
         this.index += 4;
     }
 
@@ -634,7 +634,7 @@ export default class BinaryStream {
     writeFloat64(value) {
         let index = this.index,
             uint8array = this.uint8array;
-    
+
         float64ToUint8(uint8, value);
 
         uint8array[index] = uint8[0];
@@ -645,7 +645,7 @@ export default class BinaryStream {
         uint8array[index + 5] = uint8[5];
         uint8array[index + 6] = uint8[6];
         uint8array[index + 7] = uint8[7];
-        
+
         this.index += 8;
     }
 
@@ -657,7 +657,7 @@ export default class BinaryStream {
     writeInt8Array(view) {
         let index = this.index,
             uint8array = this.uint8array;
-        
+
         for (let i = 0, l = view.length; i < l; i++) {
             uint8array[index + i] = int8ToUint8(view[i]);
         }
@@ -717,7 +717,7 @@ export default class BinaryStream {
     writeUint8Array(view) {
         let index = this.index,
             uint8array = this.uint8array;
-        
+
         for (let i = 0, l = view.length; i < l; i++) {
             uint8array[index + i] = view[i];
         }

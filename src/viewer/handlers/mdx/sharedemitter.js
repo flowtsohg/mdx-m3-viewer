@@ -43,6 +43,6 @@ export default class MdxSharedEmitter {
     }
 
     render(bucket, shader) {
-        
+
     }
 };

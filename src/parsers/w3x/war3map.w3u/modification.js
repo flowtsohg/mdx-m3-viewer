@@ -26,7 +26,7 @@ export default class Modification {
             this.levelOrVariation = stream.readInt32();
             this.dataPointer = stream.readInt32();
         }
-        
+
         if (this.variableType === 0) {
             this.value = stream.readInt32();
         } else if (this.variableType === 1 || this.variableType === 2) {
@@ -36,7 +36,7 @@ export default class Modification {
         } else {
             throw new Error(`Modification: unknown variable type ${variableType}`);
         }
-    
+
         this.u1 = stream.readInt32();
     }
 

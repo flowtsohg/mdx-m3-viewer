@@ -33,7 +33,7 @@ export function createUnitRectangle() {
  * @returns {object} The geometry object.
  */
 export function createCube(w, d, h) {
-    return { 
+    return {
         vertices: new Float32Array([-w, -d, -h, -w, -d, h, -w, d, -h, -w, d, h, w, d, -h, w, d, h, w, -d, -h, w, -d, h]),
         uvs: new Float32Array([0, 0, 0, 1, 0.25, 0, 0.25, 1, 0.5, 0, 0.5, 1, 0.75, 0, 0.75, 1]),
         faces: new Uint8Array([0, 1, 2, 1, 3, 2, 2, 3, 4, 3, 5, 4, 4, 5, 6, 5, 7, 6, 6, 7, 0, 7, 1, 0, 0, 2, 4, 0, 4, 6, 1, 5, 3, 1, 7, 5]),
@@ -82,7 +82,7 @@ export function createSphere(radius, stacks, slices) {
             sinTheta = Math.sin(theta),
             cosTheta = Math.cos(theta);
 
-        for (let slice = 0; slice <= slices; slice++, vOffset += 3, uOffset += 2) {
+        for (let slice = 0; slice <= slices; slice++ , vOffset += 3, uOffset += 2) {
             let phi = slice * 2 * Math.PI / slices,
                 sinPhi = Math.sin(phi),
                 cosPhi = Math.cos(phi);
@@ -90,14 +90,14 @@ export function createSphere(radius, stacks, slices) {
             vertices[vOffset + 0] = cosPhi * sinTheta * radius;
             vertices[vOffset + 1] = sinPhi * sinTheta * radius;
             vertices[vOffset + 2] = cosTheta * radius;
-            
+
             uvs[uOffset + 0] = slice / slices;
             uvs[uOffset + 1] = 1 - (stack / stacks);
         }
     }
 
     for (let stack = 0, fOffset = 0; stack < stacks; stack++) {
-        for (let slice = 0; slice < slices; slice++, fOffset += 6) {
+        for (let slice = 0; slice < slices; slice++ , fOffset += 6) {
             let first = (stack * (slices + 1)) + slice,
                 second = first + slices + 1;
 
@@ -162,7 +162,7 @@ export function createCylinder(radius, height, slices) {
         vOffset = 0,
         uOffset = 0;
 
-    for (let slice = 0; slice < slices + 1; slice++, vOffset += 6, uOffset += 4) {
+    for (let slice = 0; slice < slices + 1; slice++ , vOffset += 6, uOffset += 4) {
         let x = Math.cos(step * slice) * radius,
             y = Math.sin(step * slice) * radius,
             u = slice / slices;
@@ -195,7 +195,7 @@ export function createCylinder(radius, height, slices) {
     uvs[uOffset + 2] = 0;
     uvs[uOffset + 3] = 0;
 
-    for (let slice = 0, fOffset = 0, eOffset = 0; slice < slices; slice++, fOffset += 12, eOffset += 10) {
+    for (let slice = 0, fOffset = 0, eOffset = 0; slice < slices; slice++ , fOffset += 12, eOffset += 10) {
         let first = slice * 2;
 
         // Faces
@@ -272,7 +272,7 @@ export function createHeightMap(heightmap) {
         eOffset = 0;
 
     for (let y = 0; y < rows; y++) {
-        for (let x = 0; x < columns; x++, vOffset += 3, uOffset += 2) {
+        for (let x = 0; x < columns; x++ , vOffset += 3, uOffset += 2) {
             vertices[vOffset + 0] = x;
             vertices[vOffset + 1] = y;
             vertices[vOffset + 2] = heightmap[y][x];
@@ -285,7 +285,7 @@ export function createHeightMap(heightmap) {
     for (let y = 0; y < rows - 1; y++) {
         let base = y * columns;
 
-        for (let x = 0; x < columns - 1; x++, fOffset += 6, eOffset += 4) {
+        for (let x = 0; x < columns - 1; x++ , fOffset += 6, eOffset += 4) {
 
             faces[fOffset + 0] = base + x;
             faces[fOffset + 1] = base + x + columns;
@@ -304,13 +304,13 @@ export function createHeightMap(heightmap) {
     }
 
     // Last row
-    for (let x = 0; x < columns - 1; x++, eOffset += 2) {
+    for (let x = 0; x < columns - 1; x++ , eOffset += 2) {
         edges[eOffset + 0] = columns * (rows - 1) + x;
         edges[eOffset + 1] = columns * (rows - 1) + x + 1
     }
 
     // Last column
-    for (let y = 0; y < rows - 1; y++, eOffset += 2) {
+    for (let y = 0; y < rows - 1; y++ , eOffset += 2) {
         edges[eOffset + 0] = (columns) * y + columns - 1;
         edges[eOffset + 1] = (columns) * (y + 1) + columns - 1;
     }

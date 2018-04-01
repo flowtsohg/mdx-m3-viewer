@@ -2,7 +2,7 @@ import JassWidget from './widget';
 import JassLocation from './location';
 
 export default class JassUnit extends JassWidget {
-	constructor(jassContext, player, unitId, x, y, face) {
+    constructor(jassContext, player, unitId, x, y, face) {
         super(jassContext);
 
         let balanceRow = jassContext.tables.UnitBalance.getRowByKey(unitId);
@@ -23,5 +23,5 @@ export default class JassUnit extends JassWidget {
         this.mana = parseFloat(balanceRow.realM) || 0;
         this.maxMana = this.mana;
         this.acquireRange = 500;
-	}
+    }
 };

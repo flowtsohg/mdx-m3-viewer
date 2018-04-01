@@ -1,18 +1,26 @@
-import MdxParser from '../../../parsers/mdx/model';
 import TexturedModel from '../../texturedmodel';
-import MdxNode from './node';
-import MdxTextureAnimation from './textureanimation';
+import MdxGenericObject from './genericobject';
+import TextureAnimation from './textureanimation';
 import MdxLayer from './layer';
-import MdxGeosetAnimation from './geosetanimation';
+import GeosetAnimation from './geosetanimation';
 import { MdxGeoset } from './geoset';
 import MdxBatch from './batch';
-import MdxCamera from './camera';
-import MdxModelParticleEmitter from './modelparticleemitter';
-import MdxModelParticle2Emitter from './modelparticle2emitter';
-import { MdxModelAttachment } from './attachment';
-import MdxModelEventObject from './modeleventobject';
+
 import { MdxShallowGeoset } from './geoset';
 import replaceableIds from './replaceableids';
+
+import Model from '../../../parsers/mdlx/model';
+
+import Bone from './bone';
+import Light from './light';
+import Helper from './helper';
+import Attachment from './attachment';
+import ParticleEmitter from './modelparticleemitter';
+import ParticleEmitter2 from './modelparticleemitter2';
+import RibbonEmitter from './modelribbonemitter';
+import Camera from './camera';
+import EventObject from './modeleventobject';
+import CollisionShape from './collisionshape';
 
 export default class MdxModel extends TexturedModel {
     /**
@@ -24,32 +32,41 @@ export default class MdxModel extends TexturedModel {
     constructor(env, pathSolver, handler, extension) {
         super(env, pathSolver, handler, extension);
 
-        this.parser = null;
+        this.model = null;
         this.name = '';
-        this.replaceables = [];
-        this.textureAtlases = {};
-        this.nodes = [];
-        this.sortedNodes = [];
+        this.extent = null;
         this.sequences = [];
+        this.globalSequences = [];
+        this.materials = [];
+        this.layers = [];
         this.textures = [];
-        this.textureOptions = [];
-        this.geosets = [];
-        this.cameras = [];
-        this.particleEmitters = [];
-        this.particle2Emitters = [];
-        this.ribbonEmitters = [];
-        this.boundingShapes = [];
-        this.attachments = [];
         this.textureAnimations = [];
+        this.geosets = [];
         this.geosetAnimations = [];
-        this.eventObjectEmitters = [];
+        this.bones = [];
+        this.lights = [];
+        this.helpers = [];
+        this.attachments = [];
+        this.pivotPoints = [];
+        this.particleEmitters = [];
+        this.particleEmitters2 = [];
+        this.ribbonEmitters = [];
+        this.cameras = [];
+        this.eventObjects = [];
+        this.collisionShapes = [];
 
+        this.hasLayerAnims = false;
+        this.hasGeosetAnims = false;
+        this.batches = [];
         this.opaqueBatches = [];
         this.translucentBatches = [];
-        this.batches = [];
 
-        this.hasGeosetAnims = false;
-        this.hasLayerAnims = false;
+        this.objects = [];
+        this.hierarchy = [];
+        this.replaceables = [];
+        this.textureOptions = [];
+
+
 
         this.loadTeamTextures();
     }
@@ -65,230 +82,185 @@ export default class MdxModel extends TexturedModel {
             teamGlows[i] = this.env.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}.blp`, this.pathSolver);
         }
 
-        this.env.loadTextureAtlas('teamColors', teamColors, (atlas) => {});
-        this.env.loadTextureAtlas('teamGlows', teamGlows, (atlas) => {});
+        this.env.loadTextureAtlas('teamColors', teamColors, (atlas) => { });
+        this.env.loadTextureAtlas('teamGlows', teamGlows, (atlas) => { });
     }
 
     initialize(src) {
-        var parser;
+        // Parsing
+        let model = new Model();
 
-        try {
-            parser = new MdxParser(src);
-        } catch (e) {
-            this.onerror('InvalidSource', e);
-            return false;
-        }
-
-        var objects, i, l, j, k;
-        var chunks = parser.chunks;
-
-        this.parser = parser;
-        this.name = chunks.get('MODL').name;
-
-        if (chunks.has('TEXS')) {
-            objects = chunks.get('TEXS').elements;
-
-            for (i = 0, l = objects.length; i < l; i++) {
-                this.loadTexture(objects[i]);
-            }
-        }
-
-        if (chunks.has('SEQS')) {
-            this.sequences = chunks.get('SEQS').elements;
-        }
-
-        if (chunks.has('GLBS')) {
-            this.globalSequences = chunks.get('GLBS').elements;
-        }
-
-        var nodes = parser.nodes;
-        var pivots;
-
-        if (chunks.has('PIVT')) {
-            pivots = chunks.get('PIVT').elements;
+        if (this.extension === '.mdx') {
+            model.loadMdx(src);
         } else {
-            pivots = [{ value: [0, 0, 0] }];
+            model.loadMdl(src);
         }
 
-        for (i = 0, l = nodes.length; i < l; i++) {
-            this.nodes[i] = new MdxNode(this, nodes[i], pivots);
+        this.model = model;
+
+        // Model
+        this.name = model.name;
+        this.extent = model.extent;
+
+        // Sequences
+        for (let sequence of model.sequences) {
+            this.sequences.push(sequence);
         }
 
-        if (this.nodes.length === 0) {
-            this.nodes[0] = new MdxNode(this, { objectId: 0, parentId: -1, tracks: { elements: [] } }, pivots);
+        // Global sequences
+        for (let globalSequence of model.globalSequences) {
+            this.globalSequences.push(globalSequence);
         }
 
-        // This list is used to access all the nodes in a loop while keeping the hierarchy in mind.
-        this.hierarchy = this.setupHierarchy([], this.nodes, -1);
-
-        for (i = 0, l = this.nodes.length; i < l; i++) {
-            this.sortedNodes[i] = this.nodes[this.hierarchy[i]];
+        // Textures
+        for (let texture of model.textures) {
+            this.loadTexture(texture);
         }
 
-        // Checks what sequences are variant or not
-        this.setupVariants();
-
-        if (chunks.has('BONE')) {
-            this.bones = chunks.get('BONE').elements;
-        } else {
-            // If there are no bones, reference the injected root node, since the shader requires at least one bone
-            this.bones = [{ node: { objectId: 0, index: 0 } }];
+        // Texture animations
+        for (let textureAnimation of model.textureAnimations) {
+            this.textureAnimations.push(new TextureAnimation(this, textureAnimation));
         }
 
-        if (chunks.has('TXAN')) {
-            let textureAnimations = chunks.get('TXAN').elements;
+        // Materials
+        let layerId = 0;
+        for (let material of model.materials) {
+            let vMaterial = [];
 
-            for (let i = 0, l = textureAnimations.length; i < l; i++) {
-                this.textureAnimations[i] = new MdxTextureAnimation(this, textureAnimations[i]);
-            }
-        }
+            for (let layer of material.layers) {
+                let vLayer = new MdxLayer(this, layer, layerId++, material.priorityPlane);
 
-        if (chunks.has('MTLS')) {
-            objects = chunks.get('MTLS').elements;
+                vMaterial.push(vLayer);
+                this.layers.push(vLayer);
 
-            var materials = [];
-
-            var layerId = 0;
-
-            this.layers = [];
-
-            for (i = 0, l = objects.length; i < l; i++) {
-                var layers = objects[i].layers;
-
-                materials[i] = [];
-
-                for (j = 0, k = layers.length; j < k; j++) {
-                    var layer = new MdxLayer(this, layers[j], layerId, objects[i].priorityPlane);
-
-                    layerId += 1;
-
-                    materials[i][j] = layer;
-                    this.layers.push(layer);
-
-                    if (layer.hasAnim) {
-                        this.hasLayerAnims = true;
-                    }
+                if (vLayer.hasAnim) {
+                    this.hasLayerAnims = true;
                 }
             }
 
-            this.materials = materials;
+            this.materials.push(vMaterial);
         }
 
-        if (chunks.has('GEOA')) {
-            let geosetAnimations = chunks.get('GEOA').elements;
-
-            for (let i = 0, l = geosetAnimations.length; i < l; i++) {
-                this.geosetAnimations[i] = new MdxGeosetAnimation(this, geosetAnimations[i]);
-            }
+        // Geoset animations
+        for (let geosetAnimation of model.geosetAnimations) {
+            this.geosetAnimations.push(new GeosetAnimation(this, geosetAnimation));
         }
 
-        if (chunks.has('GEOS')) {
-            let geosets = chunks.get('GEOS').elements,
+        // Geosets
+        if (model.geosets.length) {
+            let geosetId = 0,
+                batchId = 0,
                 opaqueBatches = [],
-                translucentBatches = [],
-                batchId = 0;
+                translucentBatches = [];
 
-            for (i = 0, l = geosets.length; i < l; i++) {
-                let geoset = geosets[i],
-                    layers = materials[geoset.materialId],
-                    geo = new MdxGeoset(this, geoset, i);
+            for (let geoset of model.geosets) {
+                let vGeoset = new MdxGeoset(this, geoset, geosetId++);
 
-                if (geo.hasAnim) {
+                if (vGeoset.hasAnim) {
                     this.hasGeosetAnims = true;
                 }
 
-                this.geosets.push(geo);
+                this.geosets.push(vGeoset);
 
-                for (j = 0, k = layers.length; j < k; j++) {
-                    layer = layers[j];
+                // Batches
+                for (let vLayer of this.materials[geoset.materialId]) {
+                    let batch = new MdxBatch(batchId++, vLayer, vGeoset);
 
-                    var batch = new MdxBatch(batchId, layer, geo);
-
-                    if (layer.filterMode < 1) {
+                    if (vLayer.filterMode < 1) {
                         opaqueBatches.push(batch);
                     } else {
                         translucentBatches.push(batch);
                     }
-
-                    batchId += 1;
                 }
             }
 
+            /// TODO: I don't remember if this is actually needed, are the layers ever not sorted?
             translucentBatches.sort((a, b) => a.layer.priorityPlane - b.layer.priorityPlane);
 
-            this.batches = opaqueBatches.concat(translucentBatches);
-            this.opaqueBatches = opaqueBatches;
-            this.translucentBatches = translucentBatches;
-        } else {
-            this.batches = [];
+            this.opaqueBatches.push(...opaqueBatches);
+            this.translucentBatches.push(...translucentBatches);
+            this.batches.push(...opaqueBatches, ...translucentBatches);
+
+            this.setupGeosets();
         }
 
-        this.setupGeosets();
+        // Tracks the IDs of all generic objects.
+        let objectId = 0,
+            pivotPoints = model.pivotPoints;
 
-        if (chunks.has('CAMS')) {
-            let cameras = chunks.get('CAMS').elements;
-
-            for (let i = 0, l = cameras.length; i < l; i++) {
-                this.cameras[i] = new MdxCamera(this, cameras[i]);
-            }
+        // Bones
+        for (let bone of model.bones) {
+            this.bones.push(new Bone(this, bone, pivotPoints, objectId++));
         }
 
-        if (chunks.has('PREM')) {
-            let particleEmitters = chunks.get('PREM').elements;
-
-            for (let i = 0, l = particleEmitters.length; i < l; i++) {
-                this.particleEmitters[i] = new MdxModelParticleEmitter(this, particleEmitters[i]);
-            }
+        // Lights
+        for (let light of model.lights) {
+            this.lights.push(new Light(this, light, pivotPoints, objectId++));
         }
 
-        if (chunks.has('PRE2')) {
-            let particle2Emitters = chunks.get('PRE2').elements;
-
-            particle2Emitters.sort((a, b) => a.priorityPlane - b.priorityPlane);
-
-            for (let i = 0, l = particle2Emitters.length; i < l; i++) {
-                this.particle2Emitters[i] = new MdxModelParticle2Emitter(this, particle2Emitters[i]);
-            }
+        // Helpers
+        for (let helper of model.helpers) {
+            this.helpers.push(new Helper(this, helper, pivotPoints, objectId++));
         }
 
-        if (chunks.has('RIBB')) {
-            this.ribbonEmitters = chunks.get('RIBB').elements;
+        // Attachments
+        for (let attachment of model.attachments) {
+            this.attachments.push(new Attachment(this, attachment, pivotPoints, objectId++));
         }
 
-        if (chunks.has('CLID')) {
-            this.boundingShapes = chunks.get('CLID').elements;
+        // Particle emitters
+        for (let particleEmitter of model.particleEmitters) {
+            this.particleEmitters.push(new ParticleEmitter(this, particleEmitter, pivotPoints, objectId++));
         }
 
-        if (chunks.has('ATCH')) {
-            let attachments = chunks.get('ATCH').elements;
-
-            for (let i = 0, l = attachments.length; i < l; i++) {
-                this.attachments[i] = new MdxModelAttachment(this, attachments[i]);
-            }
+        // Particle emitters 2
+        for (let particleEmitter2 of model.particleEmitters2) {
+            this.particleEmitters2.push(new ParticleEmitter2(this, particleEmitter2, pivotPoints, objectId++));
         }
 
-        if (chunks.has('EVTS')) {
-            let eventObjects = chunks.get('EVTS').elements;
-
-            for (let i = 0, l = eventObjects.length; i < l; i++) {
-                this.eventObjectEmitters.push(new MdxModelEventObject(this, eventObjects[i]));
-            }
+        // Ribbon emitters
+        for (let ribbonEmitter of model.ribbonEmitters) {
+            this.ribbonEmitters.push(new RibbonEmitter(this, ribbonEmitter, pivotPoints, objectId++));
         }
 
-        this.calculateExtent();
+        // Cameras
+        for (let camera of model.cameras) {
+            this.cameras.push(new Camera(this, camera, pivotPoints, objectId++));
+        }
+
+        // Event objects
+        for (let eventObject of model.eventObjects) {
+            this.eventObjects.push(new EventObject(this, eventObject, pivotPoints, objectId++));
+        }
+
+        // Collision shapes
+        for (let collisionShape of model.collisionShapes) {
+            this.collisionShapes.push(new CollisionShape(this, collisionShape, pivotPoints, objectId++));
+        }
+
+        // One array for all generic objects.
+        this.objects.push(...this.bones, ...this.lights, ...this.helpers, ...this.attachments, ...this.particleEmitters, ...this.particleEmitters2, ...this.ribbonEmitters, ...this.cameras, ...this.eventObjects, ...this.collisionShapes);
+
+        // Creates the sorted indices array of the generic objects.
+        this.setupHierarchy(-1);
+
+        // Checks what sequences are variant or not.
+        this.setupVariants();
+
+        //this.calculateExtent();
 
         return true;
     }
 
     isVariant(sequence) {
-        let nodes = this.nodes;
+        let objects = this.objects;
 
-        for (let i = 0, l = nodes.length; i < l; i++) {
-            if (nodes[i].variants.any[sequence]) {
+        for (let i = 0, l = objects.length; i < l; i++) {
+            if (objects[i].variants.generic[sequence]) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -364,18 +336,16 @@ export default class MdxModel extends TexturedModel {
         }
     }
 
-    setupHierarchy(hierarchy, nodes, parent) {
-        for (let i = 0, l = nodes.length; i < l; i++) {
-            let node = nodes[i];
+    setupHierarchy(parent) {
+        for (let i = 0, l = this.objects.length; i < l; i++) {
+            let object = this.objects[i];
 
-            if (node.parentId === parent) {
-                hierarchy.push(i);
+            if (object.parentId === parent) {
+                this.hierarchy.push(i);
 
-                this.setupHierarchy(hierarchy, nodes, node.objectId);
+                this.setupHierarchy(object.objectId);
             }
         }
-
-        return hierarchy;
     }
 
     loadTexture(texture) {
@@ -461,7 +431,7 @@ export default class MdxModel extends TexturedModel {
         dY = maxY - minY;
         dZ = maxZ - minZ;
 
-        this.extent = {radius: Math.sqrt(dX * dX + dY * dY + dZ * dZ) / 2, min: [minX, minY, minZ], max: [maxX, maxY, maxZ] };
+        this.extent = { radius: Math.sqrt(dX * dX + dY * dY + dZ * dZ) / 2, min: [minX, minY, minZ], max: [maxX, maxY, maxZ] };
     }
 
     bind(bucket, scene) {
@@ -554,7 +524,7 @@ export default class MdxModel extends TexturedModel {
         } else {
             texture = this.textures[layer.textureId];
         }
-        
+
         gl.uniform1f(uniforms.get('u_isTeamColor'), isTeamColor);
         gl.uniform1f(uniforms.get('u_hasLayerAnim'), layer.hasSlotAnim || layer.hasUvAnim);
 
@@ -571,7 +541,7 @@ export default class MdxModel extends TexturedModel {
         if (textureOptions.repeatT) {
             wrapT = gl.REPEAT;
         }
-        
+
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT);
 

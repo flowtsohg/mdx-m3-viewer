@@ -22,7 +22,7 @@ export default class ECA {
         this.isEnabled = stream.readInt32();
 
         let argumentsCount = argumentMap.get(this.name.toLowerCase());
-        
+
         if (isNaN(argumentsCount)) {
             argumentsCount = weuParamCount(this.name);
 

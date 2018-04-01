@@ -7,7 +7,7 @@ export default class MdxEventObjectSpnEmitter extends MdxSharedEmitter {
      */
     constructor(modelObject) {
         super(modelObject);
-        
+
         this.type = 'SPN';
     }
 

@@ -65,7 +65,7 @@ export default class Geoset {
 
         stream.skip(4); // UVAS
 
-        for (let i = 0, l = stream.readUint32() ; i < l; i++) {
+        for (let i = 0, l = stream.readUint32(); i < l; i++) {
             stream.skip(4); // UVBS
             this.textureCoordinateSets.push(stream.readFloat32Array(stream.readUint32() * 2));
         }
@@ -179,12 +179,12 @@ export default class Geoset {
             } else if (token === 'Anim') {
                 let extent = new Extent();
 
-                for (let innerToken of stream.readBlock()) {
-                    if (innerToken === 'MinimumExtent') {
+                for (token of stream.readBlock()) {
+                    if (token === 'MinimumExtent') {
                         stream.readFloatArray(extent.min);
-                    } else if (innerToken === 'MaximumExtent') {
+                    } else if (token === 'MaximumExtent') {
                         stream.readFloatArray(extent.max);
-                    } else if (innerToken === 'BoundsRadius') {
+                    } else if (token === 'BoundsRadius') {
                         extent.boundsRadius = stream.readFloat();
                     }
                 }
@@ -213,7 +213,7 @@ export default class Geoset {
         }
 
         stream.startBlock('VertexGroup');
-        for (let i = 0, l = this.vertexGroups.length; i < l; i ++) {
+        for (let i = 0, l = this.vertexGroups.length; i < l; i++) {
             stream.writeLine(`${this.vertexGroups[i]},`);
         }
         stream.endBlock();
@@ -247,7 +247,7 @@ export default class Geoset {
         if (this.selectionFlags === 4) {
             stream.writeFlag('Unselectable');
         }
-        
+
         stream.endBlock();
     }
 

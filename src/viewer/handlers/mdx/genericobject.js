@@ -1,27 +1,27 @@
 import { vec3, quat } from 'gl-matrix';
-import MdxSdContainer from './sd';
+import AnimatedObject from './animatedobject';
 
 // Heap allocations needed for this module.
 let translationHeap = vec3.create(),
     rotationHeap = quat.create(),
     scaleHeap = vec3.create();
 
-export default class MdxNode {
+export default class GenericObject extends AnimatedObject {
     /**
      * @param {MdxModel} model
      * @param {MdxParserNode} node
      * @param {Array<MdxParserPivot>} pivots
      */
-    constructor(model, node, pivots) {
-        let pivot = pivots[node.objectId],
-            flags = node.flags;
+    constructor(model, object, pivotPoints, index) {
+        super(model, object);
 
-        this.index = node.index;
-        this.name = node.name;
-        this.objectId = node.objectId;
-        this.parentId = node.parentId;
-        this.pivot = pivot ? pivot.value : vec3.create();
-        this.sd = new MdxSdContainer(model, node.tracks);
+        this.index = index;
+        this.name = object.name;
+        this.objectId = object.objectId;
+        this.parentId = object.parentId;
+        this.pivot = pivotPoints[object.objectId] || vec3.create();
+
+        let flags = object.flags;
 
         this.dontInheritTranslation = flags & 0x1;
         this.dontInheritRotation = flags & 0x2;
@@ -45,7 +45,7 @@ export default class MdxNode {
         this.modelSpace = flags & 0x80000;
         this.xYQuad = flags & 0x100000;
 
-        if (node.objectId === node.parentId) {
+        if (object.objectId === object.parentId) {
             this.parentId = -1;
         }
 
@@ -53,45 +53,45 @@ export default class MdxNode {
             translation: [],
             rotation: [],
             scale: [],
-            any: []
+            generic: []
         };
 
         for (let i = 0, l = model.sequences.length; i < l; i++) {
             let translation = this.isTranslationVariant(i),
                 rotation = this.isRotationVariant(i),
                 scale = this.isScaleVariant(i),
-                any = translation || rotation || scale;
+                generic = translation || rotation || scale;
 
             variants.translation[i] = translation;
             variants.rotation[i] = rotation;
             variants.scale[i] = scale;
-            variants.any[i] = any;
+            variants.generic[i] = generic;
         }
 
         this.variants = variants;
     }
 
     getTranslation(instance) {
-        return this.sd.getValue3(translationHeap, 'KGTR', instance, vec3.ZERO);
+        return this.getValue3(translationHeap, 'KGTR', instance, vec3.ZERO);
     }
 
     getRotation(instance) {
-        return this.sd.getValue4(rotationHeap, 'KGRT', instance, quat.DEFAULT);
+        return this.getValue4(rotationHeap, 'KGRT', instance, quat.DEFAULT);
     }
 
     getScale(instance) {
-        return this.sd.getValue3(scaleHeap, 'KGSC', instance, vec3.ONE);
+        return this.getValue3(scaleHeap, 'KGSC', instance, vec3.ONE);
     }
 
     isTranslationVariant(sequence) {
-        return this.sd.isVariant('KGTR', sequence);
+        return this.isVariant('KGTR', sequence);
     }
 
     isRotationVariant(sequence) {
-        return this.sd.isVariant('KGRT', sequence);
+        return this.isVariant('KGRT', sequence);
     }
 
     isScaleVariant(sequence) {
-        return this.sd.isVariant('KGSC', sequence);
+        return this.isVariant('KGSC', sequence);
     }
 };

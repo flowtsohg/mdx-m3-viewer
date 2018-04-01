@@ -16,12 +16,13 @@ function extensionToCamelCase(ext) {
 export default class WebGL {
     /**
      * @param {HTMLCanvasElement} canvas
+     * @param {?Object} options
      */
-    constructor(canvas) {
-        let gl = canvas.getContext('webgl', { alpha: false });
+    constructor(canvas, options) {
+        let gl = canvas.getContext('webgl', options || { alpha: false} );
 
         if (!gl) {
-            gl = canvas.getContext('experimental-webgl', { alpha: false });
+            gl = canvas.getContext('experimental-webgl', options || { alpha: false});
         }
 
         if (!gl) {

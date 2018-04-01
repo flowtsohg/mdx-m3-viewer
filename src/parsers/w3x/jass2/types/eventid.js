@@ -1,3 +1,3 @@
 import JassEnum from './enum';
 
-export default class JassEventId extends JassEnum {};
+export default class JassEventId extends JassEnum { };

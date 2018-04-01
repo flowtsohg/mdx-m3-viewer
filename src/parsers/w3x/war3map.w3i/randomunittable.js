@@ -41,7 +41,7 @@ export default class RandomUnitTable {
         stream.writeInt32(this.positions);
         stream.writeInt32Array(this.columnTypes);
         stream.writeUint32(this.units.length);
-        
+
         for (let unit of this.units) {
             unit.save(stream);
         }

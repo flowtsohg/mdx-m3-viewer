@@ -12,16 +12,16 @@ quat.DEFAULT = quat.create();
 
 vec3.unproject = (function () {
     const heap = vec4.create();
-    
+
     return function (out, v, inverseMatrix, viewport) {
         const x = 2 * (v[0] - viewport[0]) / viewport[2] - 1,
             y = 1 - 2 * (v[1] - viewport[1]) / viewport[3],
             z = 2 * v[2] - 1;
-        
+
         vec4.set(heap, x, y, z, 1);
         vec4.transformMat4(heap, heap, inverseMatrix);
         vec3.set(out, heap[0] / heap[3], heap[1] / heap[3], heap[2] / heap[3]);
-        
+
         return out;
     };
 }());
@@ -61,7 +61,7 @@ quat.nlerp = function (out, a, b, t) {
 quat.nquad = (function () {
     const temp1 = quat.create(),
         temp2 = quat.create();
-  
+
     return function (out, a, b, c, d, t) {
         quat.nlerp(temp1, a, d, t);
         quat.nlerp(temp2, b, c, t);

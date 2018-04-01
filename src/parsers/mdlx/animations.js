@@ -218,7 +218,7 @@ export function* eachAnimation(stream, size) {
         animation.readMdx(stream, name);
 
         size -= animation.getByteLength();
-        
+
         yield animation;
     }
 };

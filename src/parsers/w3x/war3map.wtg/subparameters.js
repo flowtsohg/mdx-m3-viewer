@@ -15,7 +15,7 @@ export default class SubParameters {
 
         if (this.beginParameters) {
             let argumentsCount = argumentMap.get(this.name.toLowerCase());
-        
+
             if (isNaN(argumentsCount)) {
                 argumentsCount = weuParamCount(this.name);
 
@@ -38,7 +38,7 @@ export default class SubParameters {
         stream.writeInt32(this.type);
         stream.write(`${this.name}\0`);
         stream.writeInt32(this.beginParameters);
-        
+
         for (let parameter of this.parameters) {
             parameter.save(stream, version);
         }

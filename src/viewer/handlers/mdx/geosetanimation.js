@@ -1,32 +1,33 @@
 import { vec3 } from 'gl-matrix';
-import MdxSdContainer from './sd';
+import AnimatedObject from './animatedobject';
 
 // Heap allocations needed for this module.
 let colorHeap = vec3.create();
 
-export default class MdxGeosetAnimation {
+export default class GeosetAnimation extends AnimatedObject {
     /**
      * @param {MdxModel} model
      * @param {MdxParserGeosetAnimation} geosetAnimation
      */
     constructor(model, geosetAnimation) {
+        super(model, geosetAnimation);
+
         this.alpha = geosetAnimation.alpha;
         this.color = [...geosetAnimation.color].reverse(); // Stored as RGB, but animated colors are stored as BGR, so sizzle.
         this.geosetId = geosetAnimation.geosetId;
-        this.sd = new MdxSdContainer(model, geosetAnimation.tracks);
     }
 
     getAlpha(instance) {
         // The alpha variable doesn't seem to actually be used by the game?
-        return this.sd.getValue('KGAO', instance, 1);
+        return this.getValue('KGAO', instance, 1);
     }
 
     isAlphaVariant(sequence) {
-        return this.sd.isVariant('KGAO', sequence);
+        return this.isVariant('KGAO', sequence);
     }
 
     getColor(instance) {
-        let color = this.sd.getValue3(colorHeap, 'KGAC', instance, this.color);
+        let color = this.getValue3(colorHeap, 'KGAC', instance, this.color);
 
         // Some Blizzard models have values greater than 1, which messes things up.
         // Geoset animations are supposed to modulate colors, not intensify them.
@@ -38,6 +39,6 @@ export default class MdxGeosetAnimation {
     }
 
     isColorVariant(sequence) {
-        return this.sd.isVariant('KGAC', sequence);
+        return this.isVariant('KGAC', sequence);
     }
 };
