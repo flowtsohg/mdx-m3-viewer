@@ -6,7 +6,7 @@ import ModelViewer from './viewer';
 import Scene from './scene';
 import Camera from './camera';
 import UnitTester from './unittester';
-import Handlers from './handlers';
+import handlers from './handlers';
 
 export default {
     glMatrix,
@@ -14,5 +14,5 @@ export default {
     Scene,
     Camera,
     UnitTester,
-    Handlers
+    handlers
 };

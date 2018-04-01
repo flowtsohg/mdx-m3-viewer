@@ -228,6 +228,10 @@ export default class MdxModelInstance extends ModelInstance {
 
                 // Update geoset visibility
                 if (forced || geoset.variants.alpha[sequence]) {
+                    if (!geosetAlphaArrays) {
+                    console.log(index, this.model)
+                    this.model.env.clear();
+                    }
                     geosetAlphaArrays[index][0] = geoset.getAlpha(this) * 255;
                     bucket.updateGeosetAlphas = true;
                 }
@@ -298,7 +302,7 @@ export default class MdxModelInstance extends ModelInstance {
         }
 
         // Update the geometry
-        if (this.hasBatches) {
+        if (this.hasBatches && this.bucket) {
             this.updateBatches(forced);
         }
 

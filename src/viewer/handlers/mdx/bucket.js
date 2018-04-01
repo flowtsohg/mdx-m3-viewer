@@ -70,10 +70,10 @@ export default class MdxBucket extends Bucket {
         this.uvOffsetArrays = [];
         this.uvOffsetBuffers = [];
 
-        let batchesCount = model.batches.length;
+        this.hasBatches = model.batches.length > 0;
 
         // Batches
-        if (batchesCount) {
+        if (this.hasBatches) {
             for (var i = 0, l = model.geosets.length; i < l; i++) {
                 this.geosetAlphaArrays[i] = new Uint8Array(this.size).fill(255);
                 this.geosetAlphaBuffers[i] = gl.createBuffer();
@@ -361,14 +361,16 @@ export default class MdxBucket extends Bucket {
             }
         }
 
-        for (let i = 0, l = this.geosetAlphaArrays.length; i < l; i++) {
-            data.geosetAlphaArrays[i] = new Uint8Array(this.geosetAlphaArrays[i].buffer, index, 1);
-            data.geosetColorArrays[i] = new Uint8Array(this.geosetColorArrays[i].buffer, 3 * index, 3);
-        }
+        if (this.hasBatches) {
+            for (let i = 0, l = this.geosetAlphaArrays.length; i < l; i++) {
+                data.geosetAlphaArrays[i] = new Uint8Array(this.geosetAlphaArrays[i].buffer, index, 1);
+                data.geosetColorArrays[i] = new Uint8Array(this.geosetColorArrays[i].buffer, 3 * index, 3);
+            }
 
-        for (let i = 0, l = this.uvOffsetArrays.length; i < l; i++) {
-            data.uvOffsetArrays[i] = new Float32Array(this.uvOffsetArrays[i].buffer, 4 * 4 * index, 4);
-            data.layerAlphaArrays[i] = new Uint8Array(this.layerAlphaArrays[i].buffer, index, 1);
+            for (let i = 0, l = this.uvOffsetArrays.length; i < l; i++) {
+                data.uvOffsetArrays[i] = new Float32Array(this.uvOffsetArrays[i].buffer, 4 * 4 * index, 4);
+                data.layerAlphaArrays[i] = new Uint8Array(this.layerAlphaArrays[i].buffer, index, 1);
+            }
         }
 
         return data;

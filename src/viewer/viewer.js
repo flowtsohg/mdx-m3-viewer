@@ -124,7 +124,7 @@ export default class ModelViewer extends EventDispatcher {
      * @returns {string}
      */
     get version() {
-        return '4.1.2';
+        return '4.1.3';
     }
 
     /**

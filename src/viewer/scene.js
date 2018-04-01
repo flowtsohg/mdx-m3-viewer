@@ -179,7 +179,7 @@ export default class Scene {
                     instance.isVisible = isVisible && !isCulled;
 
                     // If the instance is actually shown, do the full update.
-                    if (isVisible) {
+                    if (instance.isVisible) {
                         instance.update();
                     }
                 }

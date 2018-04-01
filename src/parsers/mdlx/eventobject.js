@@ -17,7 +17,7 @@ export default class EventObject extends GenericObject {
 
         let count = stream.readUint32();
 
-        this.globalSequenceId = stream.readUint32();
+        this.globalSequenceId = stream.readInt32();
         this.tracks = stream.readUint32Array(count);
     }
 
@@ -25,7 +25,7 @@ export default class EventObject extends GenericObject {
         super.writeMdx(stream);
         stream.write('KEVT');
         stream.writeUint32(this.tracks.length);
-        stream.writeUint32(this.globalSequenceId);
+        stream.writeInt32(this.globalSequenceId);
         stream.writeUint32Array(this.tracks);
     }
 
