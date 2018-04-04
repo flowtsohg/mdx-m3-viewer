@@ -66,24 +66,27 @@ export default class MdxModel extends TexturedModel {
         this.replaceables = [];
         this.textureOptions = [];
 
-
-
         this.loadTeamTextures();
     }
 
     loadTeamTextures() {
-        let teamColors = [],
-            teamGlows = [];
+        let viewer = this.env;
+        
+        if (!viewer.getTextureAtlas('teamColors')) {
+            let pathSolver = this.pathSolver,
+                teamColors = [],
+                teamGlows = [];
 
-        for (let i = 0; i < 14; i++) {
-            let id = ('' + i).padStart(2, '0');
+            for (let i = 0; i < 14; i++) {
+                let id = ('' + i).padStart(2, '0');
 
-            teamColors[i] = this.env.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}.blp`, this.pathSolver);
-            teamGlows[i] = this.env.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}.blp`, this.pathSolver);
+                teamColors[i] = viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}.blp`, pathSolver);
+                teamGlows[i] = viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}.blp`, pathSolver);
+            }
+            
+            viewer.loadTextureAtlas('teamColors', teamColors);
+            viewer.loadTextureAtlas('teamGlows', teamGlows);
         }
-
-        this.env.loadTextureAtlas('teamColors', teamColors, (atlas) => { });
-        this.env.loadTextureAtlas('teamGlows', teamGlows, (atlas) => { });
     }
 
     initialize(src) {

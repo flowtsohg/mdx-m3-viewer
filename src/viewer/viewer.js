@@ -1,7 +1,7 @@
 import { createTextureAtlas } from '../common/canvas';
 import EventDispatcher from './eventdispatcher';
 import WebGL from './gl/gl';
-import PromiseResource from './promiseresource';
+import Resource from './resource';
 import DownloadableResource from './downloadableresource';
 
 export default class ModelViewer extends EventDispatcher {
@@ -11,6 +11,13 @@ export default class ModelViewer extends EventDispatcher {
      */
     constructor(canvas, options) {
         super();
+
+        /**
+         * The version string of the viewer - <major>.<minor>.<patch>.
+         *
+         * @member {string}
+         */
+        this.version = '4.2.0';
 
         /** @member {object} */
         this.resources = {
@@ -105,11 +112,11 @@ export default class ModelViewer extends EventDispatcher {
         this.addEventListener('loadend', (e) => {
             this.resourcesLoading.delete(e.target);
 
-            // If there are currently no resources loading, dispatch the 'loadendall' event.
+            // If there are currently no resources loading, dispatch the 'idle' event.
             if (this.resourcesLoading.size === 0) {
                 // A timeout is used so that this event will arrive after the loadend event being processed.
                 // Any nicer solution?
-                setTimeout(() => this.dispatchEvent({ type: 'loadendall' }), 0);
+                setTimeout(() => this.dispatchEvent({ type: 'idle' }), 0);
             }
         });
 
@@ -119,18 +126,9 @@ export default class ModelViewer extends EventDispatcher {
     }
 
     /**
-     * Get the version string of the viewer - '<major>.<minor>.<patch>'.
-     *
-     * @returns {string}
-     */
-    get version() {
-        return '4.1.3';
-    }
-
-    /**
      * Add an handler.
      * 
-     * @param {Handler} handler The handler to add.
+     * @param {Object} handler
      * @returns {boolean}
      */
     addHandler(handler) {
@@ -145,6 +143,7 @@ export default class ModelViewer extends EventDispatcher {
             }
 
             handlers.add(handler);
+            
             return true;
         }
 
@@ -259,7 +258,7 @@ export default class ModelViewer extends EventDispatcher {
      * 
      * @param {?} src The source used for the load.
      * @param {function(?)} pathSolver The path solver used by this load, and any subsequent loads that are caused by it (for example, a model that loads its textures).
-     * @returns {AsyncResource}
+     * @returns {Resource}
      */
     load(src, pathSolver) {
         if (src) {
@@ -274,11 +273,13 @@ export default class ModelViewer extends EventDispatcher {
                 [src, extension, serverFetch] = pathSolver(src);
             }
 
-            let [handler, dataType] = this.findHandler(extension.toLowerCase());
+            let handlerAndDataType = this.findHandler(extension.toLowerCase());
 
             // Is there an handler for this file type?
-            if (handler) {
-                let resources = this.resources,
+            if (handlerAndDataType) {
+                let handler = handlerAndDataType[0],
+                    dataType = handlerAndDataType[1],
+                    resources = this.resources,
                     map = resources.map;
 
                 // Only construct the resource if the source was not already loaded.
@@ -352,37 +353,51 @@ export default class ModelViewer extends EventDispatcher {
         return data;
     }
 
-    loadTextureAtlas(name, textures, callback) {
-        let gl = this.gl,
-            textureAtlases = this.textureAtlases,
-            atlas = textureAtlases[name];
+    loadShader(name, vertex, fragment) {
+        let shader = this.webgl.createShaderProgram(vertex, fragment);
 
-        if (atlas) {
-            callback(atlas);
-        } else {
-            // Promise that there is a future load that the code cannot know about yet, so Viewer.whenAllLoaded() isn't called prematurely.
-            let promise = this.makePromise();
+        this.shaderMap.set(name, shader);
 
-            // When all of the textures are loaded, it's time to construct a texture atlas
-            this.whenLoaded(textures, () => {
+        return shader;
+    }
+
+    loadTextureAtlas(name, textures) {
+        return new Promise((resolve, reject) => {
+            let gl = this.gl,
+                textureAtlases = this.textureAtlases,
                 atlas = textureAtlases[name];
 
-                // In case multiple models are loaded quickly, and this is called before the textures finished loading, this will stop multiple atlases from being created.
-                if (atlas) {
-                    callback(atlas);
-                } else {
-                    let atlasData = createTextureAtlas(textures.map((texture) => texture.imageData)),
-                        atlas = { texture: this.load(atlasData.imageData), columns: atlasData.columns, rows: atlasData.rows };
+            if (atlas) {
+                resolve(atlas);
+            } else {
+                // Promise that there is a future load that the code cannot know about yet, so whenAllLoaded() isn't called prematurely.
+                let promise = this.makePromise();
 
-                    textureAtlases[name] = atlas;
+                // When all of the textures are loaded, it's time to construct a texture atlas
+                this.whenLoaded(textures)
+                    .then((textures) => {
+                        atlas = textureAtlases[name];
 
-                    callback(atlas);
-                }
+                        // In case multiple models are loaded quickly, and this is called before the textures finished loading, this will stop multiple atlases from being created.
+                        if (atlas) {
+                            // Resolve the promise.
+                            promise.resolve();
 
-                // Resolve the promise.
-                promise.resolve();
-            });
-        }
+                            resolve(atlas);
+                        } else {
+                            let atlasData = createTextureAtlas(textures.map((texture) => texture.imageData)),
+                                atlas = { texture: this.load(atlasData.imageData), columns: atlasData.columns, rows: atlasData.rows };
+
+                            textureAtlases[name] = atlas;
+
+                            // Resolve the promise.
+                            promise.resolve();
+
+                            resolve(atlas);
+                        }
+                    });
+            }
+        });
     }
 
     getTextureAtlas(name) {
@@ -396,17 +411,16 @@ export default class ModelViewer extends EventDispatcher {
     }
 
     /**
-     * A load promise.
-     * This is needed for resources that are going to load internal resources, but don't yet know what they are due to asyncronous reasons.
-     * A promise can be used to delay Viewer.whenAllLoaded() so it catches all internal resources.
-     * Use promise.resolve() to resolve the promise.
-     * Note that promise resources don't need to be removed - the viewer keeps no references of them.
+     * Starts loading a new empty resource.
+     * The function that returns will finish its loading once it is called.
+     * This is used when a resource might get loaded in the future, but it is not known what it is yet.
+     * Without a promise, the viewer will send the idle event prematurely, because the future resource didn't start loading yet.
      * 
-     * @returns {PromiseResource}
+     * @returns {Resource}
      */
     makePromise() {
-        let resource = new PromiseResource(this);
-
+        let resource = new Resource(this);
+        
         this.registerEvents(resource);
 
         resource.load();
@@ -415,45 +429,44 @@ export default class ModelViewer extends EventDispatcher {
     }
 
     /**
-     * Calls the given callback when all of the given resources finished loading. In the case all of the resources are already loaded, the call happens immediately.
-     * Note that this only takes into consideration downloadable resources that a specific viewer instance owns.
+     * Returns a promise that will be resolved once all of the given resources get loaded.
+     * The promise will resolve instantly if they are already loaded.
      * 
      * @param {Iterable<DownloadableResource>} resources The resources to wait for.
-     * @param {function(Array<AsyncResource>)} callback The callback.
+     * @returns {Promise}
      */
-    whenLoaded(resources, callback) {
-        let resourceMap = this.resources.array,
-            loaded = 0,
-            wantLoaded = 0;
+    whenLoaded(resources) {
+        return new Promise((resolve, reject) => {
+            let array = this.resources.array,
+                promises = [];
 
-        function gotLoaded() {
-            loaded += 1;
-
-            if (loaded === wantLoaded) {
-                callback(resources);
+                
+            for (let resource of resources) {
+                
+                if (array.includes(resource)) {
+                    promises.push(resource.whenLoaded());
+                }
             }
-        }
 
-        for (let resource of resources) {
-            if (resourceMap.indexOf(resource) !== -1) {
-                wantLoaded += 1;
-                resource.whenLoaded(gotLoaded);
-            }
-        }
+            Promise.all(promises)
+                .then((results) => resolve(results));
+        });
     }
 
     /**
-     * Calls the given callback when all of the viewer resources finished loading. In the case all of the resources are already loaded, the call happens immediately.
-     * Note that instances are also counted.
+     * Returns a promise that will be resolved once all of the currently loading resources get loaded.
+     * The promise will resolve instantly if nothing is being loaded.
      * 
-     * @param {function(ModelViewer)} callback The callback.
+     * @returns {Promise}
      */
     whenAllLoaded(callback) {
-        if (this.resourcesLoading.size === 0) {
-            callback(this);
-        } else {
-            this.once('loadendall', () => callback(this));
-        }
+        return new Promise((resolve, reject) => {
+            if (this.resourcesLoading.size === 0) {
+                resolve(this);
+            } else {
+                this.once('idle', () => resolve(this));
+            }
+        });
     }
 
     /**
@@ -505,21 +518,14 @@ export default class ModelViewer extends EventDispatcher {
             scenes = this.scenes;
 
         // Update all of the resources.
-        for (let i = 0, l = resources.length; i < l; i++) {
+        //for (let i = 0, l = resources.length; i < l; i++) {
             //resources[i].update();
-        }
-
-        window.NODES = 0;
-        window.TOTAL_NODES = 0
+        //}
 
         // Update all of the scenes.
         for (let i = 0, l = scenes.length; i < l; i++) {
             scenes[i].update();
         }
-
-        // 26368
-        // 23808
-        //console.log(window.NODES, window.TOTAL_NODES, window.NODES / window.TOTAL_NODES);
     }
 
     /**

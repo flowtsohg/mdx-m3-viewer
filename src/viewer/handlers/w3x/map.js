@@ -1,4 +1,3 @@
-import { createTextureAtlas } from '../../../common/canvas';
 import unique from '../../../common/arrayunique';
 import * as geometry from '../../../common/geometry';
 import MpqArchive from '../../../parsers/mpq/archive';
@@ -123,16 +122,16 @@ export default class W3xMap extends ViewerFile {
         // Promise that there is a future load that the code cannot know about yet, so Viewer.whenAllLoaded() isn't called prematurely.
         let promise = this.env.makePromise();
 
+        this.env.whenLoaded(fileCache.values())
+            .then(() => {
+                this.loadModifications(modifications);
+                this.loadTerrain(environment);
+                this.loadDoodads(doodads);
+                this.loadUnits(units);
 
-        this.env.whenLoaded(fileCache.values(), () => {
-            this.loadModifications(modifications);
-            this.loadTerrain(environment);
-            this.loadDoodads(doodads);
-            this.loadUnits(units);
-
-            // Resolve the promise
-            promise.resolve();
-        });
+                // Resolve the promise
+                promise.resolve();
+            });
 
         return true;
     }
@@ -269,20 +268,21 @@ export default class W3xMap extends ViewerFile {
 
         this.cliffTexturesOffset = this.blightTextureIndex + 1;
 
-        this.env.whenLoaded(this.tilesetTextures, () => {
-            for (let texture of this.tilesetTextures) {
-                // To avoid WebGL errors if a texture failed to load
-                if (texture.loaded) {
-                    gl.bindTexture(gl.TEXTURE_2D, texture.webglResource);
-                    texture.setParameters(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR);
+        this.env.whenLoaded(this.tilesetTextures)
+            .then(() => {
+                for (let texture of this.tilesetTextures) {
+                    // To avoid WebGL errors if a texture failed to load
+                    if (texture.loaded) {
+                        gl.bindTexture(gl.TEXTURE_2D, texture.webglResource);
+                        texture.setParameters(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR);
+                    }
                 }
-            }
 
-            //this.loadSky();
-            //this.loadWater();
-            this.loadTerrainCliffs();
-            this.loadTerrainGeometry();
-        });
+                //this.loadSky();
+                //this.loadWater();
+                this.loadTerrainCliffs();
+                this.loadTerrainGeometry();
+            });
     }
 
     heightsToCliffTag(a, b, c, d) {
@@ -493,38 +493,31 @@ export default class W3xMap extends ViewerFile {
             //textures[i] = this.loadFile('ReplaceableTextures/Water/N_Water' + n + '.blp');
         }
 
-        this.env.whenLoaded(textures, () => {
-            var images = [];
+        this.env.loadTextureAtlas('mapWater', textures)
+            .then((atlas) => {
+                var texture = this.env.load(atlas.texture);
 
-            for (var i = 0, l = textures.length; i < l; i++) {
-                images[i] = textures[i].imageData;
-            }
+                var gl = this.env.gl;
+                gl.bindTexture(gl.TEXTURE_2D, texture.webglResource);
+                texture.setParameters(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR);
 
-            var atlasData = createTextureAtlas(images);
+                var model = this.env.load({
+                    geometry: { vertices: new Float32Array(vertices), uvs: new Float32Array(uvs), faces: new Uint16Array(faces), edges: new Float32Array(edges) },
+                    material: { renderMode: 0, twoSided: true, alpha: 0.5, texture: texture, isBGR: true, isBlended: true }
+                }, src => [src, '.geo', false]);
+                var instance = model.addInstance();
+                instance.setUniformScale(128).setLocation([-centerOffset[0] * 128, -centerOffset[1] * 128, 0]);
+                instance.noCulling = true;
 
-            var texture = this.env.load(atlasData.texture);
+                this.waterInstance = instance;
 
-            var gl = this.env.gl;
-            gl.bindTexture(gl.TEXTURE_2D, texture.webglResource);
-            texture.setParameters(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR);
+                this.scene.addInstance(instance);
 
-            var model = this.env.load({
-                geometry: { vertices: new Float32Array(vertices), uvs: new Float32Array(uvs), faces: new Uint16Array(faces), edges: new Float32Array(edges) },
-                material: { renderMode: 0, twoSided: true, alpha: 0.5, texture: texture, isBGR: true, isBlended: true }
-            }, src => [src, '.geo', false]);
-            var instance = model.addInstance();
-            instance.setUniformScale(128).setLocation([-centerOffset[0] * 128, -centerOffset[1] * 128, 0]);
-            instance.noCulling = true;
+                model.uvScale[0] = model.uvScale[1] = 1 / 8;
 
-            this.waterInstance = instance;
-
-            this.scene.addInstance(instance);
-
-            model.uvScale[0] = model.uvScale[1] = 1 / 8;
-
-            this.waterCounter = 0;
-            this.BLAAA = 0;
-        });
+                this.waterCounter = 0;
+                this.BLAAA = 0;
+            });
     }
 
     loadSky() {
@@ -535,10 +528,11 @@ export default class W3xMap extends ViewerFile {
 
         this.scene.addInstance(instance);
 
-        instance.whenLoaded(() => {
-            instance.bucket.priority = 200;
-            this.scene.sortBuckets();
-        });
+        instance.whenLoaded()
+            .then(() => {
+                instance.bucket.priority = 200;
+                this.scene.sortBuckets();
+            });
     }
 
     loadTerrainCliffs() {
@@ -815,7 +809,7 @@ export default class W3xMap extends ViewerFile {
                             let model = this.loadFile('Doodads/Terrain/' + dir + '/' + dir + tag + tryVariation(dir, tag, cliffVariation) + '.mdx'),
                                 instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
 
-                            model.whenLoaded(() => model.textures[0] = texture);
+                            model.whenLoaded().then(() => model.textures[0] = texture);
 
                             this.scene.addInstance(instance);
                         } else {
@@ -897,7 +891,7 @@ export default class W3xMap extends ViewerFile {
                             let model = this.loadFile('Doodads/Terrain/' + dir + '/' + dir + tag + tryVariation(dir, tag, cliffVariation) + '.mdx'),
                                 instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
 
-                            model.whenLoaded(() => model.textures[0] = texture);
+                            model.whenLoaded().then(() => model.textures[0] = texture);
 
                             this.scene.addInstance(instance);
                         } else {
@@ -937,7 +931,7 @@ export default class W3xMap extends ViewerFile {
                             let model = this.loadFile('Doodads/Terrain/' + dir + '/' + dir + tag + tryVariation(dir, tag, cliffVariation) + '.mdx'),
                                 instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
 
-                            model.whenLoaded(() => model.textures[0] = texture);
+                            model.whenLoaded().then(() => model.textures[0] = texture);
 
                             this.scene.addInstance(instance);
                         } else {
@@ -1002,7 +996,7 @@ export default class W3xMap extends ViewerFile {
                             let model = this.loadFile('Doodads/Terrain/' + dir + '/' + dir + tag + tryVariation(dir, tag, cliffVariation) + '.mdx'),
                                 instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
 
-                            model.whenLoaded(() => model.textures[0] = texture);
+                            model.whenLoaded().then(() => model.textures[0] = texture);
 
                             this.scene.addInstance(instance);
                         } else {
@@ -1241,10 +1235,11 @@ export default class W3xMap extends ViewerFile {
 
                 this.scene.addInstance(instance);
 
-                instance.whenLoaded(() => {
-                    instance.bucket.priority = 100 - i;
-                    this.scene.sortBuckets();
-                });
+                instance.whenLoaded()
+                    .then(() => {
+                        instance.bucket.priority = 100 - i;
+                        this.scene.sortBuckets();
+                    });
             }
         }
     }

@@ -1,2 +1,2 @@
 #!/bin/sh
-./node_modules/.bin/webpack -w -d
+./node_modules/.bin/webpack -w --mode=development

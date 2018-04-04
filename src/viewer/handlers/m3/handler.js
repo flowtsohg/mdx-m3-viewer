@@ -6,9 +6,9 @@ import M3Bucket from './bucket';
 import M3ModelInstance from './modelinstance';
 import M3Shaders from './shaders';
 
-function initializeTeamColors(env, shader) {
-    let webgl = env.webgl,
-        gl = env.gl,
+function initializeTeamColors(viewer, shader) {
+    let webgl = viewer.webgl,
+        gl = viewer.gl,
         teamColors = [[255, 3, 3], [0, 66, 255], [28, 230, 185], [84, 0, 129], [255, 252, 1], [254, 138, 14], [32, 192, 0], [229, 91, 176], [149, 150, 151], [126, 191, 241], [16, 98, 70], [78, 42, 4], [40, 40, 40], [0, 0, 0]];
 
     webgl.useShaderProgram(shader);
@@ -21,21 +21,23 @@ function initializeTeamColors(env, shader) {
 }
 
 export default {
-    initialize(env) {
-        env.addHandler(Dds);
-        env.addHandler(Tga);
+    initialize(viewer) {
+        viewer.addHandler(Dds);
+        viewer.addHandler(Tga);
+
+        let shared = viewer.sharedShaders;
 
         for (let i = 0; i < 4; i++) {
-            let shader = env.webgl.createShaderProgram('#define EXPLICITUV' + i + '\n' + env.sharedShaders.instanceId + env.sharedShaders.boneTexture + M3Shaders.vs_common + M3Shaders.vs_main, '#define STANDARD_PASS\n' + M3Shaders.ps_common + M3Shaders.ps_main);
+            let shader = viewer.loadShader('M3StandardShader' + i,
+                '#define EXPLICITUV' + i + '\n' + shared.instanceId + shared.boneTexture + M3Shaders.vs_common + M3Shaders.vs_main,
+                '#define STANDARD_PASS\n' + M3Shaders.ps_common + M3Shaders.ps_main);
 
             // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
             if (!shader.loaded) {
                 return false;
             }
 
-            initializeTeamColors(env, shader);
-
-            env.shaderMap.set('M3StandardShader' + i, shader);
+            initializeTeamColors(viewer, shader);
         }
 
         return true;

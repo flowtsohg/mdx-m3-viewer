@@ -83,7 +83,7 @@ export default class W3xUnit {
         instance.setTeamColor(this.player);
 
         // Select a random stand sequence when the instance is loaded
-        instance.whenLoaded(standSequence);
+        instance.whenLoaded().then(standSequence);
 
         // And select a random stand sequence every time a sequence ends
         instance.addEventListener('seqend', standSequence);

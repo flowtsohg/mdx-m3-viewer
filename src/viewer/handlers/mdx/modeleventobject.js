@@ -1,9 +1,6 @@
 import { vec2 } from 'gl-matrix';
 import GenericObject from './genericobject';
-import emitterFilterMode from './emitterfiltermode';
-
-// Heap allocations needed for this module.
-let valueHeap = vec2.create();
+import { emitterFilterMode } from './filtermode';
 
 let typeToSlk = {
     'SPN': 'Splats/SpawnData.slk',
@@ -56,12 +53,13 @@ export default class EventObject extends GenericObject {
                 // Promise that there is a future load that the code cannot know about yet, so Viewer.whenAllLoaded() isn't called prematurely.
                 let promise = env.makePromise();
 
-                slk.whenLoaded(() => {
-                    this.initialize(slk.getRow(id));
+                slk.whenLoaded()
+                    .then(() => {
+                        this.initialize(slk.getRow(id));
 
-                    // Resolve the promise.
-                    promise.resolve();
-                });
+                        // Resolve the promise.
+                        promise.resolve();
+                    });
             }
         }
     }
@@ -96,23 +94,27 @@ export default class EventObject extends GenericObject {
         }
     }
 
-    getValue(instance) {
+    getValue(out, instance) {
         if (this.globalSequence) {
             var globalSequence = this.globalSequence;
 
-            return this.getValueAtTime(instance.counter % globalSequence, 0, globalSequence);
+            return this.getValueAtTime(out, instance.counter % globalSequence, 0, globalSequence);
         } else if (instance.sequence !== -1) {
             var interval = this.model.sequences[instance.sequence].interval;
 
-            return this.getValueAtTime(instance.frame, interval[0], interval[1]);
+            return this.getValueAtTime(out, instance.frame, interval[0], interval[1]);
         } else {
-            return this.defval;
+            let defval = this.defval;
+
+            out[0] = defval[0];
+            out[1] = defval[1];
+
+            return out;
         }
     }
 
-    getValueAtTime(frame, start, end) {
-        var out = valueHeap,
-            tracks = this.tracks;
+    getValueAtTime(out, frame, start, end) {
+        var tracks = this.tracks;
 
         if (frame < start || frame > end) {
             out[0] = 0;

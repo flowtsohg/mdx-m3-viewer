@@ -20,7 +20,7 @@ export default class ImageTexture extends Texture {
 
                 URL.revokeObjectURL(url);
 
-                this.finalizeLoad();
+                this.resolve();
             };
 
             image.src = url;

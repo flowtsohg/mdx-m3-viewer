@@ -1,5 +1,6 @@
 import seededRandom from '../common/seededrandom';
 import { getImageData } from '../common/canvas';
+import { downloadBlob } from '../common/download';
 import ModelViewer from './viewer';
 import Scene from './scene';
 import W3x from './handlers/w3x/handler';
@@ -26,18 +27,6 @@ export default class UnitTester {
         this.viewer = viewer;
         this.mathRandom = Math.random;
         this.tests = [];
-    }
-
-    // Download an url to a file with the given name.
-    // The name doesn't seem to work in Firefox (only tested in Firefox and Chrome on Windows).
-    downloadUrl(url, name) {
-        console.log('downloading', name)
-        let a = document.createElement('a');
-
-        a.href = url;
-        a.download = `${name}.png`;
-
-        a.dispatchEvent(new MouseEvent('click'));
     }
 
     comparePixels(a, b, callback) {
@@ -114,7 +103,7 @@ export default class UnitTester {
     downloadTestResults(callback) {
         this.start(function loop(entry, iterator, blob, tester) {
             if (!entry.done) {
-                tester.downloadUrl(URL.createObjectURL(blob), entry.value[1].name);
+                downloadBlob(blob, `${entry.value[1].name}.png`);
 
                 callback(entry);
 
@@ -153,7 +142,7 @@ export default class UnitTester {
     }
 
     // Run the next test
-    next(callback, iterator) {
+    async next(callback, iterator) {
         let entry = iterator.next();
 
         if (entry.done) {
@@ -177,31 +166,28 @@ export default class UnitTester {
             let data = test.load(viewer);
 
             // Wait until everything loaded.
-            viewer.whenAllLoaded(() => {
-                // Replace Math.random with a custom seeded random generator.
-                // This allows to run the viewer in a deterministic environment for tests.
-                // For example, particles have some randomized data, which can make tests mismatch.
-                Math.random = seededRandom(6);
+            await viewer.whenAllLoaded();
 
-                // Run the test.
-                test.test(viewer, scene, camera, data);
+            // Replace Math.random with a custom seeded random generator.
+            // This allows to run the viewer in a deterministic environment for tests.
+            // For example, particles have some randomized data, which can make tests mismatch.
+            Math.random = seededRandom(6);
 
-                // Update the viewer.
-                // Do it twice to ensure all of the internal viewer state finished loading (e.g. buckets)
-                viewer.update();
-                viewer.update();
+            // Run the test.
+            test.test(viewer, scene, camera, data);
 
-                // Render the viewer
-                viewer.render();
+            // Update the viewer.
+            // Do it twice to ensure all of the internal viewer state finished loading (e.g. buckets)
+            viewer.update();
+            viewer.update();
 
-                // Put back Math.random in its place.
-                Math.random = this.mathRandom;
+            // Render the viewer
+            viewer.render();
 
-                viewer.toBlob()
-                    .then((blob) => {
-                        callback(entry, iterator, blob, this);
-                    });
-            });
+            // Put back Math.random in its place.
+            Math.random = this.mathRandom;
+            
+            callback(entry, iterator, await viewer.toBlob(), this);
         }
     }
 };

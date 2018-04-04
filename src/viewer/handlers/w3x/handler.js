@@ -4,10 +4,10 @@ import Geo from '../geo/handler';
 import W3xMap from './map';
 
 export default {
-    initialize(env) {
-        env.addHandler(Mpq);
-        env.addHandler(Mdx);
-        env.addHandler(Geo);
+    initialize(viewer) {
+        viewer.addHandler(Mpq);
+        viewer.addHandler(Mdx);
+        viewer.addHandler(Geo);
 
         return true;
     },

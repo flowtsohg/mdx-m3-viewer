@@ -109,8 +109,8 @@ export default class Model extends DownloadableResource {
     }
 
     // This allows setting up preloaded instances without event listeners.
-    finalizeLoad() {
-        super.finalizeLoad();
+    resolve() {
+        super.resolve();
 
         let instances = this.instances;
 

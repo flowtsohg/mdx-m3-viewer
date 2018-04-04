@@ -4,9 +4,9 @@ import GeometryBucket from './bucket';
 import GeometryModelInstance from './modelinstance';
 
 export default {
-    initialize(env) {
-        let shader = env.webgl.createShaderProgram(
-            env.sharedShaders.boneTexture + env.sharedShaders.instanceId + `
+    initialize(viewer) {
+        let shader = viewer.loadShader('GeoStandardShader',
+            viewer.sharedShaders.boneTexture + viewer.sharedShaders.instanceId + `
                 uniform mat4 u_mvp;
                 uniform vec2 u_uvOffset;
                 uniform vec2 u_uvScale;
@@ -53,13 +53,7 @@ export default {
         );
 
         // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
-        if (!shader.loaded) {
-            return false;
-        }
-
-        env.shaderMap.set('GeoStandardShader', shader);
-
-        return true;
+        return shader.loaded;
     },
 
     extensions: [['.geo', 'json']],

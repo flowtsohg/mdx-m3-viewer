@@ -18,17 +18,16 @@ export default class Resource extends EventDispatcher {
     /**
      * Similar to attaching an event listener to the 'loadend' event, but handles the case where the resource already loaded, and the callback should still be called.
      * 
-     * @param {function(Resource)} callback The function to call.
-     * @returns this
+     * @returns {Promise}
      */
-    whenLoaded(callback) {
-        if (this.loaded || this.error) {
-            callback(this);
-        } else {
-            this.once('loadend', () => callback(this));
-        }
-
-        return this;
+    whenLoaded() {
+        return new Promise((resolve, reject) => {
+            if (this.loaded || this.error) {
+                resolve(this);
+            } else {
+                this.once('loadend', () => resolve(this));
+            }
+        });
     }
 
     initialize(src) {
@@ -50,11 +49,11 @@ export default class Resource extends EventDispatcher {
     onload(src) {
         // This check allows an handler to postpone load finalization, either for asynchronious reasons (e.g. NativeTexture), or because an internal error occured
         if (this.initialize(src)) {
-            this.finalizeLoad();
+            this.resolve(this);
         }
     }
 
-    finalizeLoad() {
+    resolve() {
         this.loaded = true;
 
         this.dispatchEvent({ type: 'load' });

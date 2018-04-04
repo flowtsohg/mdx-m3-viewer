@@ -1,13 +1,12 @@
 import stringHash from '../../../common/stringhash';
 import unique from '../../../common/arrayunique';
 import AnimatedObject from './animatedobject';
+import { layerFilterMode } from './filtermode';
 
-import MdxSdContainer from './sd';
-
-export default class MdxLayer extends AnimatedObject {
+export default class Layer extends AnimatedObject {
     /**
-     * @param {MdxModel} model
-     * @param {MdxParserLayer} layer
+     * @param {ModelViewer.viewer.mdx.Model} model
+     * @param {ModelViewer.parser.mdlx.Layer} layer
      * @param {number} priorityPlane
      */
     constructor(model, layer, layerId, priorityPlane) {
@@ -36,45 +35,13 @@ export default class MdxLayer extends AnimatedObject {
         this.depthMaskValue = (filterMode === 0 || filterMode === 1) ? 1 : 0;
         this.alphaTestValue = (filterMode === 1) ? 1 : 0;
 
-        let blended = (filterMode > 1) ? true : false;
+        this.blendSrc = 0;
+        this.blendDst = 0;
+        this.blended = (filterMode > 1) ? true : false;
 
-        if (blended) {
-            let blendSrc,
-                blendDst;
-
-            switch (filterMode) {
-                // Blended
-                case 2:
-                    blendSrc = gl.SRC_ALPHA;
-                    blendDst = gl.ONE_MINUS_SRC_ALPHA;
-                    break;
-                // Additive
-                case 3:
-                    blendSrc = gl.ONE;
-                    blendDst = gl.ONE;
-                    break;
-                // Add Alpha (?)
-                case 4:
-                    blendSrc = gl.SRC_ALPHA;
-                    blendDst = gl.ONE;
-                    break;
-                // Modulate
-                case 5:
-                    blendSrc = gl.ZERO;
-                    blendDst = gl.SRC_COLOR;
-                    break;
-                // Modulate 2X
-                case 6:
-                    blendSrc = gl.DST_COLOR;
-                    blendDst = gl.SRC_COLOR;
-                    break;
-            }
-
-            this.blendSrc = blendSrc;
-            this.blendDst = blendDst;
+        if (this.blended) {
+           [this.blendSrc, this.blendDst] = layerFilterMode(filterMode, gl);
         }
-
-        this.blended = blended;
 
         this.uvDivisor = new Float32Array([1, 1]);
 
@@ -173,14 +140,15 @@ export default class MdxLayer extends AnimatedObject {
                 textures[i] = model.textures[textureIds[i]];
             }
 
-            // Load ther atlas, and use the hash to cache it.
-            model.env.loadTextureAtlas(hash, textures, (atlas) => {
-                model.textures.push(atlas.texture);
-                model.textureOptions.push({ repeatS: true, repeatT: true });
+            // Load the atlas, and use the hash to cache it.
+            model.env.loadTextureAtlas(hash, textures)
+                .then((atlas) => {
+                    model.textures.push(atlas.texture);
+                    model.textureOptions.push({ repeatS: true, repeatT: true });
 
-                this.textureId = model.textures.length - 1;
-                this.uvDivisor.set([atlas.columns, atlas.rows]);
-            });
+                    this.textureId = model.textures.length - 1;
+                    this.uvDivisor.set([atlas.columns, atlas.rows]);
+                });
         }
     }
 

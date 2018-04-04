@@ -9,24 +9,18 @@ import MdxModelInstance from './modelinstance';
 import MdxShaders from './shaders';
 
 export default {
-    initialize(env) {
-        env.addHandler(Blp);
-        env.addHandler(Tga);
-        env.addHandler(Slk);
-        env.addHandler(NativeTexture); // Needed for texture atlases
+    initialize(viewer) {
+        viewer.addHandler(Blp);
+        viewer.addHandler(Tga);
+        viewer.addHandler(Slk);
+        viewer.addHandler(NativeTexture);
 
-        let standardShader = env.webgl.createShaderProgram(env.sharedShaders.instanceId + env.sharedShaders.boneTexture + MdxShaders.vs_main, '#define STANDARD_PASS\n' + MdxShaders.ps_main);
-        let particleShader = env.webgl.createShaderProgram(env.sharedShaders.decodeFloat + MdxShaders.vs_particles, MdxShaders.ps_particles);
+        let shared = viewer.sharedShaders,
+            standardShader = viewer.loadShader('MdxStandardShader', shared.instanceId + shared.boneTexture + MdxShaders.vs_main, '#define STANDARD_PASS\n' + MdxShaders.ps_main),
+            particleShader = viewer.loadShader('MdxParticleShader', shared.decodeFloat + MdxShaders.vs_particles, MdxShaders.ps_particles);
 
         // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
-        if (!standardShader.loaded || !particleShader.loaded) {
-            return false;
-        }
-
-        env.shaderMap.set('MdxStandardShader', standardShader);
-        env.shaderMap.set('MdxParticleShader', particleShader);
-
-        return true;
+        return standardShader.loaded && particleShader.loaded;
     },
 
     extensions: [['.mdx', 'arrayBuffer'], ['.mdl', 'text']],

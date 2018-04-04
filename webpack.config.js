@@ -1,23 +1,11 @@
-var fs = require('fs');
-var webpack = require('webpack');
-// webpack internally uses an older version of the plugin until webpack 4.x.
-// The newer version is needed for ES6, so use it directly for now.
-var UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+let fs = require('fs');
+let webpack = require('webpack');
 
-let data = {
-    entry: './src/index.js',
+module.exports = {
     output: {
         filename: 'viewer.min.js',
-        library: 'ModelViewer',
-        libraryTarget: 'var'
+        library: 'ModelViewer'
     },
-    plugins: [new webpack.BannerPlugin(fs.readFileSync('LICENSE', 'utf8'))]
+    plugins: [new webpack.BannerPlugin(fs.readFileSync('LICENSE', 'utf8'))],
+    performance: { hints: false }
 };
-
-if (process.env.NODE_ENV === 'production') {
-    data.plugins.push(new UglifyJsPlugin()); // Minification.
-} else {
-    data.devtool = '#cheap-module-eval-source-map'; // For debugging in devtools.
-}
-
-module.exports = data;

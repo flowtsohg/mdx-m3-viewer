@@ -81,7 +81,7 @@ export default class W3xDoodad {
         instance.setLocation(this.location);
         instance.setRotation(quat.setAxisAngle(quat.create(), vec3.UNIT_Z, this.angle));
         instance.setScale(this.scale);
-        instance.whenLoaded(standSequence);
+        instance.whenLoaded().then(standSequence);
 
         this.instance = instance;
     }

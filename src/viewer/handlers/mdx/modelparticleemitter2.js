@@ -1,5 +1,5 @@
 import GenericObject from './genericobject';
-import emitterFilterMode from './emitterfiltermode';
+import { emitterFilterMode } from './filtermode';
 
 export default class ParticleEmitter2 extends GenericObject {
     /**

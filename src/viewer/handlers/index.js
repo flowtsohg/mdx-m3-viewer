@@ -1,27 +1,27 @@
-import Blp from './blp';
-import Bmp from './bmp';
-import Dds from './dds';
-import Geo from './geo';
-import M3 from './m3';
-import Mdx from './mdx';
-import Mpq from './mpq';
-import NativeTexture from './nativetexture';
-import Obj from './obj';
-import Slk from './slk';
-import Tga from './tga';
-import W3x from './w3x';
+import blp from './blp';
+import bmp from './bmp';
+import dds from './dds';
+import geo from './geo';
+import m3 from './m3';
+import mdx from './mdx';
+import mpq from './mpq';
+import nativetexture from './nativetexture';
+import obj from './obj';
+import slk from './slk';
+import tga from './tga';
+import w3x from './w3x';
 
 export default {
-    Blp,
-    Bmp,
-    Dds,
-    Geo,
-    M3,
-    Mdx,
-    Mpq,
-    NativeTexture,
-    Obj,
-    Slk,
-    Tga,
-    W3x
+    blp,
+    bmp,
+    dds,
+    geo,
+    m3,
+    mdx,
+    mpq,
+    nativetexture,
+    obj,
+    slk,
+    tga,
+    w3x
 };

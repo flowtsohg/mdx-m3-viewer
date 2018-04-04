@@ -1,6 +1,8 @@
-let glMatrix = ModelViewer.default.common.glMatrix,
-    Viewer = ModelViewer.default.Viewer,
-    Handlers = Viewer.Handlers;
+// How it's exported by WebPack.
+ModelViewer = ModelViewer.default;
+
+let glMatrix = ModelViewer.common.glMatrix,
+    handlers = ModelViewer.viewer.handlers;
 
 let canvas = document.getElementById("canvas");
 
@@ -8,10 +10,10 @@ canvas.width = 800;
 canvas.height = 600;
 
 // Create the viewer!
-let viewer = new Viewer.ModelViewer(canvas);
+let viewer = new ModelViewer.viewer.ModelViewer(canvas);
 
 // Create a new scene. Each scene has its own camera, and a list of things to render.
-let scene = new Viewer.Scene();
+let scene = new ModelViewer.viewer.Scene();
 
 // Add the scene to the viewer.
 viewer.addScene(scene);
@@ -32,7 +34,6 @@ camera.move([0, 0, -1000]);
 viewer.addEventListener("loadstart", (e) => console.log(e));
 viewer.addEventListener("load", (e) => console.log(e));
 viewer.addEventListener("loadend", (e) => console.log(e));
-viewer.addEventListener("progress", (e) => console.log(e));
 viewer.addEventListener("error", (e) => console.log(e));
 
 // A handler is an object that describes the neccassary properties to handle some resource.
@@ -42,7 +43,7 @@ viewer.addEventListener("error", (e) => console.log(e));
 // In this case, Bmp.extension is a getter that returns ".bmp".
 // If one handler handles multiple extensions, they can be added with pipe characters inbetween, like the Png handler's extension - ".png|.jpg|.gif".
 // Finally, the Bmp handler defines the binaryFormat getter to true, which means that any HTTP requests made for it will return an ArrayBuffer, instead of a string.
-viewer.addHandler(Handlers.Bmp.Handler);
+viewer.addHandler(handlers.bmp.Handler);
 
 // Same deal as the above, but Obj is a model handler.
 // Model handlers are slightly more complicated.
@@ -52,7 +53,7 @@ viewer.addHandler(Handlers.Bmp.Handler);
 // 3) ModelInstance (optional) - The model instance implementation (e.g. ObjModelInstance).
 // 4) Bucket (optional) - The model's bucket implementation (e.g. Bucket).
 // Note that ModelView, ModelInstance, and Bucket, default to the base implementation - you are not required to define your own implementations if you don't need to.
-viewer.addHandler(Handlers.Obj.Handler);
+viewer.addHandler(handlers.obj.Handler);
 
 // A path solver is used for every load call.
 // The purpose of a path solver is to transform local paths to either of 1) A server fetch, or 2) A local load.
@@ -78,14 +79,16 @@ let texture = viewer.load("texture.bmp", pathSolver);
 // ModelViewer.whenLoaded works the same way, but takes an array of resources instead, for cases where you want to wait for multiple resources to load before doing something.
 // In this case, let's print that the texture was loaded, whenever it's actually loaded, and the time that passed.
 let initTime = new Date();
-texture.whenLoaded(() => console.log("texture.bmp loaded, it took " + (new Date() - initTime) + " miliseconds!"));
+texture.whenLoaded()
+    .then(() => console.log("texture.bmp loaded, it took " + (new Date() - initTime) + " miliseconds!"));
 
 // Load our OBJ model!
 // Note that because of the path solver used, the final path is correctly "resources/cube.obj".
 let model = viewer.load("cube.obj", pathSolver);
 
 // Let's see that viewer.whenALoaded in action!
-viewer.whenLoaded([texture, model], (e) => console.log("The texture and model finished loading!"));
+viewer.whenLoaded([texture, model])
+    .then((resources) => console.log("The texture and model finished loading!"));
 
 // Create an instance of this model.
 let instance = model.addInstance();
@@ -104,7 +107,8 @@ scene.addInstance(instance2);
 
 // Calls the callback when the viewer finishes loading all currently loading resources, or immediately if no resources are being loaded.
 // Note that this includes instances!
-viewer.whenAllLoaded((e) => console.log("Everything loaded (including instance and instance2)"));
+viewer.whenAllLoaded()
+    .then((viewer) => console.log("Everything loaded (including instance and instance2)"));
 
 // Finally, let's mess around with nodes.
 instance2.setParent(instance);
