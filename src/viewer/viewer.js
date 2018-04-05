@@ -17,7 +17,7 @@ export default class ModelViewer extends EventDispatcher {
          *
          * @member {string}
          */
-        this.version = '4.2.0';
+        this.version = '4.2.1';
 
         /** @member {object} */
         this.resources = {
@@ -354,11 +354,13 @@ export default class ModelViewer extends EventDispatcher {
     }
 
     loadShader(name, vertex, fragment) {
-        let shader = this.webgl.createShaderProgram(vertex, fragment);
+        let map = this.shaderMap;
 
-        this.shaderMap.set(name, shader);
+        if (!map.has(name)) {
+            map.set(name, this.webgl.createShaderProgram(vertex, fragment));
+        }
 
-        return shader;
+        return map.get(name);
     }
 
     loadTextureAtlas(name, textures) {
@@ -411,10 +413,9 @@ export default class ModelViewer extends EventDispatcher {
     }
 
     /**
-     * Starts loading a new empty resource.
-     * The function that returns will finish its loading once it is called.
+     * Starts loading a new empty resource, and returns it.
+     * This empty resource will block the "idle" event (and thus whenAllLoaded) until it's resolved.
      * This is used when a resource might get loaded in the future, but it is not known what it is yet.
-     * Without a promise, the viewer will send the idle event prematurely, because the future resource didn't start loading yet.
      * 
      * @returns {Resource}
      */

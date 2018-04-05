@@ -1,84 +1,15 @@
 import unique from '../../common/arrayunique';
-import Sequence from './sequence';
-import Texture from './texture';
-import Material from './material';
-import Layer from './layer';
-import TextureAnimation from './textureanimation';
-import Geoset from './geoset';
-import GeosetAnimation from './geosetanimation';
 import Bone from './bone';
-import Light from './light';
-import Helper from './helper';
-import Attachment from './attachment';
-import ParticleEmitter from './particleemitter';
-import ParticleEmitter2 from './particleemitter2';
-import RibbonEmitter from './ribbonemitter';
-import EventObject from './eventobject';
-import Camera from './camera';
-import CollisionShape from './collisionshape';
-
-function getConstructorName(object) {
-    if (object instanceof Sequence) { return 'Sequence' }
-    if (!isNaN(object)) { return 'Global sequence' } // Global sequences are stored directly as numbers.
-    if (object instanceof Texture) { return 'Texture' }
-    if (object instanceof Material) { return 'Material' }
-    if (object instanceof Layer) { return 'Layer' }
-    if (object instanceof TextureAnimation) { return 'Texture animation' }
-    if (object instanceof Geoset) { return 'Geoset' }
-    if (object instanceof GeosetAnimation) { return 'Geoset animation' }
-    if (object instanceof Bone) { return 'Bone' }
-    if (object instanceof Light) { return 'Light' }
-    if (object instanceof Helper) { return 'Helper' }
-    if (object instanceof Attachment) { return 'Attachment' }
-    if (object instanceof ParticleEmitter) { return 'Particle emitter' }
-    if (object instanceof ParticleEmitter2) { return 'Particle emitter 2' }
-    if (object instanceof RibbonEmitter) { return 'Ribbon emitter' }
-    if (object instanceof EventObject) { return 'Event object' }
-    if (object instanceof Camera) { return 'Camera' }
-    if (object instanceof CollisionShape) { return 'Collision shape' }
-    return '';
-}
-
-function getName(object, index) {
-    let name = getConstructorName(object);
-
-    if (typeof index === 'number') {
-        name += ` ${index}`;
-    }
-
-    if (typeof object.name === 'string') {
-        name += ` "${object.name}"`;
-    }
-
-    return name;
-}
 
 // Is minVal <= x <= maxVal?
 function inRange(x, minVal, maxVal) {
     return minVal <= x && x <= maxVal;
 }
 
-function initializeReferences(state) {
-    let model = state.model,
-        map = state.referenceMap;
-
-    for (let collection of [model.sequences, model.globalSequences, model.textures, model.textureAnimations, model.materials, model.geosets, model.geosetAnimations]) {
-        for (let object of collection) {
-            map.set(object, 0);
-        }
-    }
-}
-
-function addReference(state, object) {
-    let map = state.referenceMap;
-
-    map.set(object, map.get(object) + 1);
-}
-
 function testVersion(state) {
     let version = state.model.version;
 
-    assertWarning(state, version === 800, `Unknown version ${version}`);
+    state.assertWarning(version === 800, `Unknown version ${version}`);
 }
 
 function testSequences(state) {
@@ -89,12 +20,13 @@ function testSequences(state) {
             foundDeath = false;
 
         for (let [index, sequence] of sequences.entries()) {
+            state.push('Sequence', index);
+
             let name = sequence.name,
                 tokens = name.toLowerCase().trim().split('-')[0].split(/\s+/),
                 token = tokens[0],
                 interval = sequence.interval,
-                length = interval[1] - interval[0],
-                objectName = `Sequence ${index} "${name}"`;
+                length = interval[1] - interval[0];
 
             if (token === 'alternate') {
                 token = tokens[1];
@@ -109,28 +41,32 @@ function testSequences(state) {
             }
 
             if (sequenceNames.has(token)) {
-                addReference(state, sequence);
+                state.addReference();
             } else {
-                addWarning(state, `${objectName}: Not used due to an invalid name: "${token}"`);
+                state.addWarning(`Not used due to an invalid name: "${token}"`);
             }
 
-            assertWarning(state, length !== 0, `${objectName}: Zero length`);
-            assertWarning(state, length > -1, `${objectName}: Negative length ${length}`);
+            state.assertWarning(length !== 0, 'Zero length');
+            state.assertWarning(length > -1, `Negative length ${length}`);
+
+            state.pop();
         }
 
-        assertWarning(state, foundStand, 'Missing "Stand" sequence');
-        assertWarning(state, foundDeath, 'Missing "Death" sequence');
+        state.assertWarning(foundStand, 'Missing "Stand" sequence');
+        state.assertWarning(foundDeath, 'Missing "Death" sequence');
     } else {
-        addWarning(state, 'No sequences');
+        state.addWarning('No sequences');
     }
 }
 
 function testGlobalSequences(state) {
     for (let [index, sequence] of state.model.globalSequences.entries()) {
-        let objectName = `Global sequence ${index}`;
+        state.push('GlobalSequence', index);
 
-        assertWarning(state, sequence !== 0, `${objectName} ${index}: Zero length`);
-        assertWarning(state, sequence > 0, `${objectName} ${index}: Negative length ${sequence}`);
+        state.assertWarning(sequence !== 0, 'Zero length');
+        state.assertWarning(sequence > 0, `Negative length ${sequence}`);
+
+        state.pop();
     }
 }
 
@@ -139,16 +75,19 @@ function testTextures(state) {
 
     if (textures.length) {
         for (let [index, texture] of textures.entries()) {
-            let replaceableId = texture.replaceableId,
-                path = texture.path.toLowerCase(),
-                objectName = `Texture ${index} "${path.substr(path.lastIndexOf('\\') + 1)}"`;
+            state.push('Texture', index);
 
-            assertError(state, path === '' || path.endsWith('.blp') || path.endsWith('.tga'), `${objectName}: Corrupted path "${path}"`);
-            assertError(state, replaceableId === 0 || replaceableIds.has(replaceableId), `${objectName}: Unknown replaceable ID ${replaceableId}`);
-            assertWarning(state, path === '' || replaceableId === 0, `${objectName}: Path "${path}" and replaceable ID ${replaceableId} used together`);
+            let replaceableId = texture.replaceableId,
+                path = texture.path.toLowerCase();
+
+            state.assertError(path === '' || path.endsWith('.blp') || path.endsWith('.tga'), `Corrupted path "${path}"`);
+            state.assertError(replaceableId === 0 || replaceableIds.has(replaceableId), `Unknown replaceable ID ${replaceableId}`);
+            state.assertWarning(path === '' || replaceableId === 0, `Path "${path}" and replaceable ID ${replaceableId} used together`);
+
+            state.pop();
         }
     } else {
-        addWarning(state, 'No textures');
+        state.addWarning('No textures');
     }
 }
 
@@ -157,22 +96,30 @@ function testMaterials(state) {
 
     if (materials.length) {
         for (let [index, material] of materials.entries()) {
-            testMaterial(state, `Material ${index}`, material);
+            state.push('Material', index);
+
+            testMaterial(state, material);
+
+            state.pop();
         }
     } else {
-        addWarning(state, 'No materials');
+        state.addWarning('No materials');
     }
 }
 
-function testMaterial(state, objectName, material) {
+function testMaterial(state, material) {
     let layers = material.layers;
 
     if (layers.length) {
         for (let [index, layer] of layers.entries()) {
-            testLayer(state, `${objectName} Layer ${index}`, layer)
+            state.push('Layer', index);
+
+            testLayer(state, layer);
+
+            state.pop();
         }
     } else {
-        addWarning(state, `${objectName}: No layers`);
+        state.addWarning('No layers');
     }
 }
 
@@ -194,15 +141,15 @@ function getTextureIds(layer) {
     return [layer.textureId];
 }
 
-function testLayer(state, objectName, layer) {
+function testLayer(state, layer) {
     let textures = state.model.textures,
-        textureAnimations = state.model.textureAnimations; 
+        textureAnimations = state.model.textureAnimations;
 
     for (let textureId of getTextureIds(layer)) {
         if (inRange(textureId, 0, textures.length - 1)) {
-            addReference(state, textures[textureId]);
+            state.addReference('Texture', textureId);
         } else {
-            addError(state, `${objectName}: Invalid texture ${textureId}`);
+            state.addError(`Invalid texture ${textureId}`);
         }
     }
 
@@ -210,24 +157,28 @@ function testLayer(state, objectName, layer) {
 
     if (textureAnimationId !== -1) {
         if (inRange(textureAnimationId, 0, textureAnimations.length - 1)) {
-            addReference(state, textureAnimations[textureAnimationId]);
+            state.addReference('TextureAnimation', textureAnimationId);
         } else {
-            addWarning(state, `${objectName}: Invalid texture animation ${textureAnimationId}`);
+            state.addWarning(`Invalid texture animation ${textureAnimationId}`);
         }
     }
 
-    assertWarning(state, inRange(layer.filterMode, 0, 6), `${objectName}: Invalid filter mode ${layer.filterMode}`);
+    state.assertWarning(inRange(layer.filterMode, 0, 6), `Invalid filter mode ${layer.filterMode}`);
 
-    testAnimations(state, objectName, layer);
+    testAnimations(state, layer);
 }
 
 function testTextureAnimations(state) {
     for (let [index, textureAnimation] of state.model.textureAnimations.entries()) {
-        testAnimations(state, `Texture animation ${index}`, textureAnimation);
+        state.push('TextureAnimation', index);
+
+        testAnimations(state, textureAnimation);
+
+        state.pop();
     }
 }
 
-function testGeosetSkinning(state, objectName, geoset) {
+function testGeosetSkinning(state, geoset) {
     let objects = state.objects,
         vertexGroups = geoset.vertexGroups,
         matrixGroups = geoset.matrixGroups,
@@ -247,13 +198,13 @@ function testGeosetSkinning(state, objectName, geoset) {
                 let object = objects[bone];
 
                 if (object) {
-                    assertWarning(state, object instanceof Bone, `${objectName}: Vertex ${i}: Attached to "${object.name}" which is not a bone`);
+                    state.assertWarning(object instanceof Bone, `Vertex ${i}: Attached to generic object "${object.name}" which is not a bone`);
                 } else {
-                    addError(state, `${objectName}: Vertex ${i}: Attached to generic object ${bone} which does not exist`);
+                    state.addError(`Vertex ${i}: Attached to generic object ${bone} which does not exist`);
                 }
             }
         } else {
-            addWarning(state, `${objectName}: Vertex ${i}: Attached to vertex group ${i} which does not exist`);
+            state.addWarning(`Vertex ${i}: Attached to vertex group ${i} which does not exist`);
         }
     }
 }
@@ -263,11 +214,12 @@ function testGeosets(state) {
         geosetAnimations = state.model.geosetAnimations;
 
     for (let i = 0, l = geosets.length; i < l; i++) {
-        let geoset = geosets[i],
-            materialId = geoset.materialId,
-            objectName = `Geoset ${i}`;
+        state.push('Geoset', i);
 
-        testGeosetSkinning(state, objectName, geoset);
+        let geoset = geosets[i],
+            materialId = geoset.materialId;
+
+        testGeosetSkinning(state, geoset);
         /// TODO: ADD THIS
         ///testGeosetNormals(state, geoset);
 
@@ -280,26 +232,28 @@ function testGeosets(state) {
                 }
             }
 
-            assertWarning(state, references.length <= 1, `${objectName}: Referenced by ${references.length} geoset animations (${references.join(', ')})`);
+            state.assertWarning(references.length <= 1, `Referenced by ${references.length} geoset animations (${references.join(', ')})`);
         }
 
         if (inRange(materialId, 0, state.model.materials.length - 1)) {
-            addReference(state, state.model.materials[materialId]);
+            state.addReference('Material', materialId);
         } else {
-            addError(state, `${objectName}: Invalid material ${materialId}`);
+            state.addError(`Invalid material ${materialId}`);
         }
 
         if (geoset.faces.length) {
-            addReference(state, geoset);
+            state.addReference();
         } else {
             // The game and my code have no issue with geosets containing no faces, but Magos crashes, so add a warning in addition to it being useless.
-            addWarning(state, `${objectName}: Zero faces`);
+            state.addWarning('Zero faces');
         }
 
         // The game and my code have no issue with geosets having any number of sequence extents, but Magos fails to parse, so add a warning.
         if (geoset.sequenceExtents.length !== state.model.sequences.length) {
-            addWarning(state, `${objectName}: Number of sequence extents (${geoset.sequenceExtents.length}) does not match the number of sequences (${state.model.sequences.length})`);
+            state.addWarning(`Number of sequence extents (${geoset.sequenceExtents.length}) does not match the number of sequences (${state.model.sequences.length})`);
         }
+
+        state.pop();
     }
 }
 
@@ -307,16 +261,19 @@ function testGeosetAnimations(state) {
     let geosets = state.model.geosets;
 
     for (let [index, geosetAnimation] of state.model.geosetAnimations.entries()) {
-        let geosetId = geosetAnimation.geosetId,
-            objectName = `Geoset animation ${index}`;
+        state.push('GeosetAnimation', index);
+
+        let geosetId = geosetAnimation.geosetId;
 
         if (inRange(geosetId, 0, geosets.length - 1)) {
-            addReference(state, geosetAnimation);
+            state.addReference();
         } else {
-            addError(state, `${objectName}: Invalid geoset ${geosetId}`);
+            state.addError(`Invalid geoset ${geosetId}`);
         }
 
-        testAnimations(state, objectName, geosetAnimation);
+        testAnimations(state, geosetAnimation);
+
+        state.pop();
     }
 }
 
@@ -327,44 +284,55 @@ function testBones(state) {
 
     if (bones.length) {
         for (let [index, bone] of bones.entries()) {
-            let geosetId = bone.geosetId,
-                geosetAnimationId = bone.geosetAnimationId,
-                objectName = `Bone ${index} "${bone.name}"`;
+            state.push('Bone', index);
 
-            assertError(state, geosetId === -1 || geosetId < geosets.length, `${objectName}: Invalid geoset ${geosetId}`);
-            assertError(state, geosetAnimationId === -1 || geosetAnimationId < geosetAnimations.length, `${objectName}: Invalid geoset animation ${geosetAnimationId}`);
-            
-            testGenericObject(state, objectName, bone);
+            let geosetId = bone.geosetId,
+                geosetAnimationId = bone.geosetAnimationId;
+
+            state.assertError(geosetId === -1 || geosetId < geosets.length, `Invalid geoset ${geosetId}`);
+            state.assertError(geosetAnimationId === -1 || geosetAnimationId < geosetAnimations.length, `Invalid geoset animation ${geosetAnimationId}`);
+
+            testGenericObject(state, bone);
+
+            state.pop();
         }
     } else {
-        addWarning(state, 'No bones');
+        state.addWarning('No bones');
     }
 }
 
 function testLights(state) {
     for (let [index, light] of state.model.lights.entries()) {
-        let attenuation = light.attenuation,
-            objectName = `Light ${index} "${light.name}"`;
+        state.push('Light', index);
 
-        assertWarning(state, attenuation[0] >= 80 && attenuation[1] <= 200 && attenuation[1] - attenuation[0] > 0, `${objectName}: Attenuation min=${attenuation[0]} max=${attenuation[1]}`);
+        let attenuation = light.attenuation;
 
-        testGenericObject(state, objectName, light);
+        state.assertWarning(attenuation[0] >= 80 && attenuation[1] <= 200 && attenuation[1] - attenuation[0] > 0, `Attenuation min=${attenuation[0]} max=${attenuation[1]}`);
+
+        testGenericObject(state, light);
+
+        state.pop();
     }
 }
 
 function testHelpers(state) {
     for (let [index, helper] of state.model.helpers.entries()) {
-        testGenericObject(state, `Helper ${index} "${helper.name}"`, helper);
+        state.push('Helper', index);
+
+        testGenericObject(state, helper);
+
+        state.pop();
     }
 }
 
 function testAttachments(state) {
     for (let [index, attachment] of state.model.attachments.entries()) {
-        let path = attachment.path,
-            objectName = `Attachment ${index} "${attachment.name}"`;
+        state.push('Attachment', index);
 
         // NOTE: I can't figure out what exactly the rules for attachment names even are.
         /*
+        let path = attachment.path;
+
         if (path === '') {
             assertWarning(state, testAttachmentName(attachment), `${objectName}: Invalid attachment "${attachment.node.name}"`);
         } else {
@@ -374,7 +342,9 @@ function testAttachments(state) {
         }
         */
 
-        testGenericObject(state, objectName, attachment);
+        testGenericObject(state, attachment);
+
+        state.pop();
     }
 }
 /*
@@ -409,103 +379,119 @@ function testAttachmentName(attachment) {
 */
 function testPivotPoints(state) {
     let pivotPoints = state.model.pivotPoints,
-    objects = state.objects;
+        objects = state.objects;
 
-    assertWarning(state, pivotPoints.length === objects.length, `Expected ${objects.length} pivot points, got ${pivotPoints.length}`);
+    state.assertWarning(pivotPoints.length === objects.length, `Expected ${objects.length} pivot points, got ${pivotPoints.length}`);
 }
 
 function testParticleEmitters(state) {
     for (let [index, emitter] of state.model.particleEmitters.entries()) {
-        let objectName = `Particle emitter ${index} "${emitter.name}"`;
+        state.push('ParticleEmitter', index);
 
-        assertError(state, emitter.path.toLowerCase().endsWith('.mdl'), `${objectName}: Invalid path "${emitter.path}"`);
+        state.assertError(emitter.path.toLowerCase().endsWith('.mdl'), 'Invalid path');
 
-        testGenericObject(state, objectName, emitter);
+        testGenericObject(state, emitter);
+
+        state.pop();
     }
 }
 
 function testParticleEmitters2(state) {
     for (let [index, emitter] of state.model.particleEmitters2.entries()) {
-        let replaceableId = emitter.replaceableId,
-            objectName = `Particle emitter 2 ${index} "${emitter.name}"`;
+        state.push('ParticleEmitter2', index);
+
+        let replaceableId = emitter.replaceableId;
 
         if (inRange(emitter.textureId, 0, state.model.textures.length - 1)) {
-            addReference(state, state.model.textures[emitter.textureId]);
+            state.addReference('Texture', emitter.textureId);
         } else {
-            addError(state, `${objectName}: Invalid texture ${emitter.textureId}`);
+            state.addError(`Invalid texture ${emitter.textureId}`);
         }
 
-        assertWarning(state, inRange(emitter.filterMode, 0, 4), `${objectName}: Invalid filter mode ${emitter.filterMode}`);
-        assertError(state, replaceableId === 0 || replaceableIds.has(replaceableId), `${objectName}: Invalid replaceable ID ${replaceableId}`);
+        state.assertWarning(inRange(emitter.filterMode, 0, 4), `Invalid filter mode ${emitter.filterMode}`);
+        state.assertError(replaceableId === 0 || replaceableIds.has(replaceableId), `Invalid replaceable ID ${replaceableId}`);
 
-        testGenericObject(state, objectName, emitter);
+        testGenericObject(state, emitter);
+
+        state.pop();
     }
 }
 
 function testRibbonEmitters(state) {
     for (let [index, emitter] of state.model.ribbonEmitters.entries()) {
-        let objectName = `Ribbon emitter ${index} "${emitter.name}"`;
+        state.push('RibbonEmitter', index);
 
         if (inRange(emitter.materialId, 0, state.model.materials.length - 1)) {
-            addReference(state, state.model.materials[emitter.materialId]);
+            state.addReference('Material', emitter.materialId);
         } else {
-            addError(state, `${objectName}: Invalid material ${emitter.materialId}`);
+            state.addError(`Invalid material ${emitter.materialId}`);
         }
 
-        testGenericObject(state, objectName, emitter);
+        testGenericObject(state, emitter);
+
+        state.pop();
     }
 }
 
 function testEventObjects(state) {
     for (let [index, eventObject] of state.model.eventObjects.entries()) {
+        state.push('EventObject', index);
+
         let tracks = eventObject.tracks,
-            globalSequenceId = eventObject.globalSequenceId,
-            objectName = `Event object ${index} "${eventObject.name}"`;
+            globalSequenceId = eventObject.globalSequenceId;
 
         if (globalSequenceId !== -1) {
             if (inRange(globalSequenceId, 0, state.model.globalSequences.length - 1)) {
-                addReference(state, state.model.globalSequences[globalSequenceId]);
+                state.addReference('GlobalSequence', globalSequenceId);
             } else {
-                addError(state, `${objectName}: Invalid global sequence ${globalSequenceId}`);
+                state.addError(`Invalid global sequence ${globalSequenceId}`);
             }
         }
 
         if (tracks.length) {
             for (let j = 0, k = tracks.length; j < k; j++) {
-                let track = tracks[j],
-                    sequenceInfo = getSequenceInfoFromFrame(state, track, globalSequenceId),
-                    sequenceId = sequenceInfo[0];
+                let track = tracks[j];
 
-                assertWarning(state, sequenceId !== -1, `${objectName}: Track ${j}: Frame ${track} is not in any sequence`);
+                state.assertWarning(getSequenceInfoFromFrame(state, track, globalSequenceId)[0] !== -1, `Track ${j}: Frame ${track} is not in any sequence`);
             }
         } else {
-            addError(state, `${objectName}: Zero keys`);
+            state.addError('Zero keys');
         }
 
-        testGenericObject(state, objectName, eventObject);
+        testGenericObject(state, eventObject);
+
+        state.pop();
     }
 }
 
 function testCameras(state) {
     for (let [index, camera] of state.model.cameras.entries()) {
-        testAnimations(state, `Camera ${index} "${camera.name}"`, camera);
+        state.push('Camera', index);
+
+        testAnimations(state, camera);
+
+        state.pop();
     }
 }
 
 function testCollisionShapes(state) {
     for (let [index, collisionShape] of state.model.collisionShapes.entries()) {
-        testGenericObject(state, `Collision shape ${index} "${collisionShape.name}"`, collisionShape);
+        state.push('CollisionShape', index);
+
+        testGenericObject(state, collisionShape);
+
+        state.pop();
     }
 }
 
-function testGenericObject(state, objectName, object) {
+function testGenericObject(state, object) {
     let objectId = object.objectId,
         parentId = object.parentId;
 
-    assertError(state, parentId === -1 || hasGenericObject(state, parentId), `${objectName}: Invalid parent ${parentId}`);
-    assertError(state, objectId !== parentId, `${objectName}: Same object and parent`);
+    state.assertError(parentId === -1 || hasGenericObject(state, parentId), `Invalid parent ${parentId}`);
+    state.assertError(objectId !== parentId, 'Same object and parent');
 
-    testAnimations(state, objectName, object);
+    testAnimations(state, object);
 }
 
 function hasGenericObject(state, id) {
@@ -518,34 +504,39 @@ function hasGenericObject(state, id) {
     return false;
 }
 
-function testAnimations(state, objectName, object) {
+function testAnimations(state, object) {
+    let i = 0;
+
     for (let animation of object.animations) {
-        testAnimation(state, objectName, object, animation);
+        state.push(animatedTypeNames.get(animation.name));
+
+        testAnimation(state, object, animation);
+
+        state.pop();
     }
 }
 
-function testAnimation(state, objectName, object, animation) {
-    let animatedTypeName = animatedTypeNames.get(animation.name),
-        globalSequenceId = animation.globalSequenceId;
+function testAnimation(state, object, animation) {
+    let globalSequenceId = animation.globalSequenceId;
 
     if (globalSequenceId !== -1) {
         if (inRange(globalSequenceId, 0, state.model.globalSequences.length - 1)) {
-            addReference(state, state.model.globalSequences[globalSequenceId]);
+            state.addReference('GlobalSequence', globalSequenceId);
         } else {
-            addError(state, `${objectName}: ${animatedType}: Invalid global sequence ${globalSequenceId}`);
+            state.addError(`Invalid global sequence ${globalSequenceId}`);
         }
     }
 
-    testInterpolationType(state, objectName, animatedTypeName, animation.interpolationType);
-    testTracks(state, objectName, animatedTypeName, animation.tracks, globalSequenceId);
+    testInterpolationType(state, animation);
+    testTracks(state, animation.tracks, globalSequenceId);
 }
 
-function testTracks(state, objectName, animatedTypeName, tracks, globalSequenceId) {
+function testTracks(state, tracks, globalSequenceId) {
     let sequences = state.model.sequences,
         usageMap = {};
 
-    assertWarning(state, tracks.length, `${objectName}: ${animatedTypeName}: Zero tracks`);
-    assertWarning(state, globalSequenceId !== -1 || tracks.length === 0 || sequences.length !== 0, `${objectName}: ${animatedTypeName}: Tracks used without sequences`);
+    state.assertWarning(tracks.length, 'Zero tracks');
+    state.assertWarning(globalSequenceId !== -1 || tracks.length === 0 || sequences.length !== 0, 'Tracks used without sequences');
 
     for (let i = 0, l = tracks.length; i < l; i++) {
         let track = tracks[i],
@@ -554,8 +545,8 @@ function testTracks(state, objectName, animatedTypeName, tracks, globalSequenceI
             isBeginning = sequenceInfo[1],
             isEnding = sequenceInfo[2];
 
-        assertWarning(state, tracks.length === 1 || sequenceId !== -1 || track.frame === 0, `${objectName}: ${animatedTypeName}: Track ${i}: Frame ${track.frame} is not in any sequence`);
-        assertWarning(state, track.frame >= 0, `${objectName}: ${animatedTypeName}: Track ${i}: Negative frame`);
+        state.assertWarning(tracks.length === 1 || sequenceId !== -1 || track.frame === 0, `Track ${i}: Frame ${track.frame} is not in any sequence`);
+        state.assertWarning(track.frame >= 0, `Track ${i}: Negative frame`);
 
         if (sequenceId !== -1) {
             if (!usageMap[sequenceId]) {
@@ -575,23 +566,20 @@ function testTracks(state, objectName, animatedTypeName, tracks, globalSequenceI
     }
 
     for (let sequenceId of Object.keys(usageMap)) {
-        let sequenceInfo = usageMap[sequenceId],
-            sequence;
+        let sequenceInfo = usageMap[sequenceId];
 
         if (globalSequenceId === -1) {
-            sequence = sequences[sequenceId];
-        } else {
-            sequence = state.model.globalSequences[sequenceId];
-        }
+            let sequence = sequences[sequenceId];
 
-        assertWarning(state, sequenceInfo[0] || sequenceInfo[2] === 1, `${objectName}: ${animatedTypeName}: No opening track for "${sequence.name}"`);
-        assertWarning(state, sequenceInfo[1] || sequenceInfo[2] === 1, `${objectName}: ${animatedTypeName}: No closing track for "${sequence.name}"`);
+            state.assertWarning(sequenceInfo[0] || sequenceInfo[2] === 1, `No opening track for "${sequence.name}" at frame ${sequence.interval[0]}`);
+            state.assertWarning(sequenceInfo[1] || sequenceInfo[2] === 1, `No closing track for "${sequence.name}" at frame ${sequence.interval[1]}`);
+        }
     }
 }
 
-function testInterpolationType(state, objectName, animatedTypeName, interpolationType) {
-    if (animatedTypeName === 'Visibility') {
-        assertWarning(state, interpolationType === 0, `${objectName}: ${animatedTypeName}: Interpolation type not set to None`);
+function testInterpolationType(state, animation) {
+    if (animatedTypeNames.get(animation.name) === 'Visibility' && animation.interpolationType !== 0) {
+        state.addWarning('Interpolation type not set to None');
     }
 }
 
@@ -620,7 +608,7 @@ function getSequenceInfoFromFrame(state, frame, globalSequenceId) {
         }
     } else {
         let globalSequence = state.model.globalSequences[globalSequenceId];
-        
+
         index = globalSequenceId;
 
         if (frame === 0) {
@@ -740,40 +728,129 @@ let replaceableIds = new Set([
     37
 ]);
 
-function addError(state, message) {
-    state.output.errors.push(message);
-}
+class State {
+    constructor(model) {
+        this.model = model;
+        this.objects = [];
+        this.current = { children: [] };
+        this.stack = [this.current];
+        this.map = {};
 
-function addWarning(state, message) {
-    state.output.warnings.push(message);
-}
-
-function addUnused(state, message) {
-    state.output.unused.push(message);
-}
-
-function assertError(state, condition, message) {
-    if (!condition) {
-        addError(state, message);
+        this.addObjects(model.sequences, 'Sequence', );
+        this.addObjects(model.globalSequences, 'GlobalSequence');
+        this.addObjects(model.textures, 'Texture');
+        this.addObjects(model.materials, 'Material');
+        this.addObjects(model.textureAnimations, 'TextureAnimation');
+        this.addObjects(model.geosets, 'Geoset');
+        this.addObjects(model.geosetAnimations, 'GeosetAnimation');
+        this.addObjects(model.bones, 'Bone', true);
+        this.addObjects(model.lights, 'Light', true);
+        this.addObjects(model.helpers, 'Helper', true);
+        this.addObjects(model.attachments, 'Attachment', true);
+        this.addObjects(model.particleEmitters, 'ParticleEmitter', true);
+        this.addObjects(model.particleEmitters2, 'ParticleEmitter2', true);
+        this.addObjects(model.ribbonEmitters, 'RibbonEmitter', true);
+        this.addObjects(model.cameras, 'Camera');
+        this.addObjects(model.eventObjects, 'EventObject', true);
+        this.addObjects(model.collisionShapes, 'CollisionShape', true);
     }
-}
 
-function assertWarning(state, condition, message) {
-    if (!condition) {
-        addWarning(state, message);
+    addObjects(objects, objectType, areGeneric) {
+        let array = [];
+
+        for (let [index, object] of objects.entries()) {
+            let name = object.name || object.path,
+                data = { objectType, index, warnings: 0, errors: 0, children: [] };
+
+            if (name) {
+                data.name = name;
+            }
+
+            if (!areGeneric) {
+                data.uses = 0;
+            }
+
+            array.push(data);
+        }
+
+        this.map[objectType] = array;
+
+        if (areGeneric) {
+            this.objects.push(...objects);
+        }
+    }
+
+    push(objectType, index) {
+        let nodes = this.map[objectType],
+            node;
+
+        // Internal objects like material layers are not added at initialization, but rather added as internal nodes here when needed.
+        if (nodes) {
+            node = nodes[index];
+        } else {
+            node = { objectType, warnings: 0, errors: 0, children: [] };
+
+            // Animations don't need the index.
+            if (typeof index === 'number') {
+                node.index = index;
+            }
+        }
+
+        this.current.children.push(node);
+
+        this.current = node;
+
+        this.stack.unshift(node);
+    }
+
+    pop() {
+        this.stack.shift();
+        this.current = this.stack[0];
+    }
+
+    add(type, message) {
+        this.current.children.push({ type, message });
+    }
+
+    addWarning(message) {
+        this.add('warning', message);
+
+        for (let node of this.stack) {
+            node.warnings += 1;
+        }
+    }
+
+    addError(message) {
+        this.add('error', message);
+
+        for (let node of this.stack) {
+            node.errors += 1;
+        }
+    }
+
+    assertWarning(condition, message) {
+        if (!condition) {
+            this.addWarning(message);
+        }
+    }
+
+    assertError(condition, message) {
+        if (!condition) {
+            this.addError(message);
+        }
+    }
+
+    addReference(objectType, index) {
+        if (objectType) {
+            this.map[objectType][index].uses += 1;
+        } else {
+            this.current.uses += 1;
+        }
     }
 }
 
 export default function sanityTest(model) {
-    let state = {
-        model,
-        objects: [...model.bones, ...model.lights, ...model.helpers, ...model.attachments, ...model.particleEmitters, ...model.particleEmitters2, ...model.ribbonEmitters, ...model.cameras, ...model.eventObjects, ...model.collisionShapes],
-        referenceMap: new Map(),
-        output: { errors: [], warnings: [], unused: [] }
-    };
-
-    // Initialize all of the reference-counted objects to 0 references.
-    initializeReferences(state);
+    let state = new State(model);
 
     testVersion(state);
     testSequences(state);
@@ -795,12 +872,24 @@ export default function sanityTest(model) {
     testCameras(state);
     testCollisionShapes(state);
 
-    // If any reference-counted object has no references, report it.
-    for (let [object, references] of state.referenceMap) {
-        if (references === 0) {
-            addUnused(state, object.name);
+    let nodes = state.stack[0].children,
+        warnings = 0,
+        errors = 0,
+        unused = 0;
+
+    for (let node of nodes) {
+        if (node.warnings) {
+            warnings += node.warnings;
+        }
+
+        if (node.errors) {
+            errors += node.errors;
+        }
+
+        if (node.uses === 0) {
+            unused += 1;
         }
     }
 
-    return state.output;
+    return { nodes, warnings, errors, unused };
 };

@@ -6,6 +6,10 @@ module.exports = {
         filename: 'viewer.min.js',
         library: 'ModelViewer'
     },
-    plugins: [new webpack.BannerPlugin(fs.readFileSync('LICENSE', 'utf8'))],
-    performance: { hints: false }
+    plugins: [
+        new webpack.BannerPlugin(fs.readFileSync('LICENSE', 'utf8'))
+    ],
+    performance: {
+        hints: false
+    }
 };
