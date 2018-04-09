@@ -88,7 +88,7 @@ export default class Layer extends AnimatedObject {
             } else if (token === 'CoordId') {
                 this.coordId = stream.readInt();
             } else if (token === 'static Alpha') {
-                this.alpha = stream.readInt();
+                this.alpha = stream.readFloat();
             } else if (token === 'Alpha') {
                 this.readAnimation(stream, 'KMTA');
             } else {
@@ -139,7 +139,7 @@ export default class Layer extends AnimatedObject {
         }
 
         if (!this.writeAnimation(stream, 'KMTA') && this.alpha !== 1) {
-            stream.writeAttrib('static Alpha', this.alpha);
+            stream.writeFloatAttrib('static Alpha', this.alpha);
         }
 
         stream.endBlock();

@@ -43,7 +43,7 @@ function testSequences(state) {
             if (sequenceNames.has(token)) {
                 state.addReference();
             } else {
-                state.addWarning(`Not used due to an invalid name: "${token}"`);
+                state.addWarning(`Unknown sequence "${token}"`);
             }
 
             state.assertWarning(length !== 0, 'Zero length');
@@ -64,7 +64,7 @@ function testGlobalSequences(state) {
         state.push('GlobalSequence', index);
 
         state.assertWarning(sequence !== 0, 'Zero length');
-        state.assertWarning(sequence > 0, `Negative length ${sequence}`);
+        state.assertWarning(sequence >= 0, `Negative length ${sequence}`);
 
         state.pop();
     }
@@ -204,7 +204,7 @@ function testGeosetSkinning(state, geoset) {
                 }
             }
         } else {
-            state.addWarning(`Vertex ${i}: Attached to vertex group ${i} which does not exist`);
+            state.addWarning(`Vertex ${i}: Attached to vertex group ${vertexGroups[i]} which does not exist`);
         }
     }
 }
@@ -468,6 +468,10 @@ function testCameras(state) {
     for (let [index, camera] of state.model.cameras.entries()) {
         state.push('Camera', index);
 
+        // I don't know what the rules are as to when cameras are used for portraits.
+        // Therefore, for now never report them as not used.
+        state.addReference();
+
         testAnimations(state, camera);
 
         state.pop();
@@ -729,6 +733,9 @@ let replaceableIds = new Set([
 ]);
 
 class State {
+    /**
+     * @param {ModelViewer.parsers.mdlx.Model} model 
+     */
     constructor(model) {
         this.model = model;
         this.objects = [];
@@ -755,6 +762,14 @@ class State {
         this.addObjects(model.collisionShapes, 'CollisionShape', true);
     }
 
+    /**
+     * Adds nodes for all of the given objects.
+     * Also handles the flat array of generic objects.
+     * 
+     * @param {Array<?>} objects 
+     * @param {string} objectType 
+     * @param {boolean} areGeneric 
+     */
     addObjects(objects, objectType, areGeneric) {
         let array = [];
 
@@ -780,6 +795,13 @@ class State {
         }
     }
 
+    /**
+     * Pushes to the stack either the node described by the parameters.
+     * If this node does not exist, a new one will be created, which is used by internal nodes like material layers.
+     * 
+     * @param {string} objectType 
+     * @param {number} index 
+     */
     push(objectType, index) {
         let nodes = this.map[objectType],
             node;
@@ -803,15 +825,30 @@ class State {
         this.stack.unshift(node);
     }
 
+    /**
+     * Pops the current node from the stack.
+     */
     pop() {
         this.stack.shift();
         this.current = this.stack[0];
     }
 
+    /**
+     * Adds a child to the current node.
+     * 
+     * @param {string} type 
+     * @param {string} message 
+     */
     add(type, message) {
         this.current.children.push({ type, message });
     }
 
+    /**
+     * Adds the given message as a warning child.
+     * This also propagates to all of stack that a warning was added.
+     * 
+     * @param {string} message 
+     */
     addWarning(message) {
         this.add('warning', message);
 
@@ -820,6 +857,12 @@ class State {
         }
     }
 
+    /**
+     * Adds the given message as an error child.
+     * This also propagates to all of stack that an error was added.
+     * 
+     * @param {string} message 
+     */
     addError(message) {
         this.add('error', message);
 
@@ -828,18 +871,36 @@ class State {
         }
     }
 
+    /**
+     * Adds the given message as a warning child if the condition is true.
+     * 
+     * @param {boolean} condition 
+     * @param {string} message 
+     */
     assertWarning(condition, message) {
         if (!condition) {
             this.addWarning(message);
         }
     }
 
+    /**
+     * Adds the given message as an error child if the condition is true.
+     * 
+     * @param {boolean} condition 
+     * @param {string} message 
+     */
     assertError(condition, message) {
         if (!condition) {
             this.addError(message);
         }
     }
 
+    /**
+     * Adds a reference to either the node described by the parameters, or the current node if nothing is passed.
+     * 
+     * @param {string} objectType 
+     * @param {number} index 
+     */
     addReference(objectType, index) {
         if (objectType) {
             this.map[objectType][index].uses += 1;

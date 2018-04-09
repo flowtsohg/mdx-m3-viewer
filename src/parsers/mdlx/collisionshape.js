@@ -96,16 +96,16 @@ export default class CollisionShape extends GenericObject {
 
         stream.writeFlag(type);
         stream.startBlock('Vertices', vertices);
-        stream.writeArray(this.vertices[0]);
+        stream.writeFloatArray(this.vertices[0]);
 
         if (vertices === 2) {
-            stream.writeArray(this.vertices[1]);
+            stream.writeFloatArray(this.vertices[1]);
         }
 
         stream.endBlock();
 
         if (boundsRadius) {
-            stream.writeAttrib('BoundsRadius', this.boundsRadius);
+            stream.writeFloatAttrib('BoundsRadius', this.boundsRadius);
         }
 
         this.writeGenericAnimations(stream);

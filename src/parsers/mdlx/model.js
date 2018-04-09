@@ -522,7 +522,7 @@ export default class Model {
             stream.startBlock('PivotPoints', this.pivotPoints.length);
 
             for (let pivotPoint of this.pivotPoints) {
-                stream.writeArray(pivotPoint);
+                stream.writeFloatArray(pivotPoint);
             }
 
             stream.endBlock();

@@ -35,12 +35,22 @@ export default class MdxModelInstance extends ModelInstance {
         this.vertexColor = new Uint8Array([255, 255, 255, 255]);
 
         this.allowParticleSpawn = false;
+
+        this.geosetColors = null;
+        this.uvOffsets = null;
+        this.layerAlphas = null;
     }
 
     initialize() {
-        let model = this.model;
-
+        let model = this.model,
+            geosetCount = model.geosets.length,
+            layerCount = model.layers.length;
+        
         this.skeleton = new MdxSkeleton(this);
+
+        this.geosetColors = new Uint8Array(geosetCount * 4);
+        this.layerAlphas = new Uint8Array(layerCount);
+        this.uvOffsets = new Float32Array(layerCount * 4);
 
         let attachments = model.attachments;
         for (let i = 0, l = attachments.length; i < l; i++) {
@@ -54,7 +64,6 @@ export default class MdxModelInstance extends ModelInstance {
         this.hasAttachments = this.attachments.length > 0;
         this.hasBatches = model.batches.length > 0;
 
-
         // This takes care of calling setSequence before the model is loaded.
         // In this case, this.sequence will be set, but nothing else is changed.
         // Now that the model is loaded, set it again to do the real work.
@@ -63,24 +72,7 @@ export default class MdxModelInstance extends ModelInstance {
         }
     }
 
-    setSharedData(sharedData) {
-        this.boneArray = sharedData.boneArray;
-
-        this.geosetColorArrays = sharedData.geosetColorArrays;
-        this.uvOffsetArrays = sharedData.uvOffsetArrays;
-        this.layerAlphaArrays = sharedData.layerAlphaArrays;
-
-        this.teamColorArray = sharedData.teamColorArray;
-        this.vertexColorArray = sharedData.vertexColorArray;
-
-        this.geosetAlphaArrays = sharedData.geosetAlphaArrays;
-
-        this.teamColorArray[0] = this.teamColor;
-        this.bucket.updateTeamColors = true;
-
-        this.vertexColorArray.set(this.vertexColor);
-        this.bucket.updateVertexColors = true;
-
+    setSharedData() {
         let bucket = this.bucket,
             objects;
 
@@ -111,14 +103,6 @@ export default class MdxModelInstance extends ModelInstance {
     }
 
     invalidateSharedData() {
-        this.boneArray = null;
-        this.geosetColorArrays = null;
-        this.uvOffsetArrays = null;
-        this.teamColorArray = null;
-        this.vertexColorArray = null;
-        this.geosetAlphaArrays = null;
-        this.layerAlphaArrays = null;
-
         this.particleEmitters = [];
         this.particle2Emitters = [];
         this.ribbonEmitters = [];
@@ -213,80 +197,64 @@ export default class MdxModelInstance extends ModelInstance {
 
     updateBatches(forced) {
         let model = this.model,
-            bucket = this.bucket,
             sequence = this.sequence;
 
-        // Update geosets
+        // Geosets
         if (forced || model.hasGeosetAnims) {
             let geosets = model.geosets,
-                geosetAlphaArrays = this.geosetAlphaArrays,
-                geosetColorArrays = this.geosetColorArrays;
+                geosetColors = this.geosetColors;
 
-            for (var i = 0, l = geosets.length; i < l; i++) {
+            for (let i = 0, l = geosets.length; i < l; i++) {
                 let geoset = geosets[i],
-                    index = geoset.index;
+                    offset = i * 4;
 
-                // Update geoset visibility
-                if (forced || geoset.variants.alpha[sequence]) {
-                    if (!geosetAlphaArrays) {
-                    console.log(index, this.model)
-                    this.model.env.clear();
-                    }
-                    geosetAlphaArrays[index][0] = geoset.getAlpha(this) * 255;
-                    bucket.updateGeosetAlphas = true;
+                // Color
+                if (forced || geoset.variants.color[sequence]) {
+                    let color = geoset.getColor(this);
+
+                    geosetColors[offset] = color[0] * 255;
+                    geosetColors[offset + 1] = color[1] * 255;
+                    geosetColors[offset + 2] = color[2] * 255;
                 }
 
-                // Update geoset colors
-                if (geoset.geosetAnimation && (forced || geoset.variants.color[sequence])) {
-                    var color = geoset.geosetAnimation.getColor(this),
-                        geosetColorArray = geosetColorArrays[index];
-
-                    geosetColorArray[0] = color[0] * 255;
-                    geosetColorArray[1] = color[1] * 255;
-                    geosetColorArray[2] = color[2] * 255;
-
-                    bucket.updateGeosetColors = true;
+                // Alpha
+                if (forced || geoset.variants.alpha[sequence]) {
+                    geosetColors[offset + 3] = geoset.getAlpha(this) * 255;
                 }
             }
         }
 
-        // Update layers
+        // Layers
         if (forced || model.hasLayerAnims) {
             let layers = model.layers,
-                layerAlphaArrays = this.layerAlphaArrays,
-                uvOffsetArrays = this.uvOffsetArrays;
+                layerAlphas = this.layerAlphas,
+                uvOffsets = this.uvOffsets;
 
-            for (var i = 0, l = layers.length; i < l; i++) {
-                var layer = layers[i],
-                    index = layer.index,
-                    uvOffsetArray = uvOffsetArrays[index];
+            for (let i = 0, l = layers.length; i < l; i++) {
+                let layer = layers[i],
+                    offset = i * 4;
 
-                // Update layer alphas
+                // Alpha
                 if (forced || layer.variants.alpha[sequence]) {
-                    layerAlphaArrays[index][0] = layer.getAlpha(this) * 255;
-                    bucket.updateLayerAlphas = true;
+                    layerAlphas[i] = layer.getAlpha(this) * 255;
                 }
 
-                // Texture animation that works by offsetting the coordinates themselves
+                // Texture coordinates
                 if (layer.hasUvAnim && (forced || layer.variants.uv[sequence])) {
                     // What is Z used for?
-                    var uvOffset = layer.textureAnimation.getTranslation(this);
+                    let uvOffset = layer.textureAnimation.getTranslation(this);
 
-                    uvOffsetArray[0] = uvOffset[0];
-                    uvOffsetArray[1] = uvOffset[1];
-
-                    bucket.updateUvOffsets = true;
+                    uvOffsets[offset] = uvOffset[0];
+                    uvOffsets[offset + 1] = uvOffset[1];
                 }
 
-                // Texture animation that is based on a texture atlas, where the selected tile changes
+                // Sprite animations
                 if (layer.hasSlotAnim && (forced || layer.variants.slot[sequence])) {
-                    var uvDivisor = layer.uvDivisor;
-                    var textureId = layer.getTextureId(this);
+                    let uvDivisor = layer.uvDivisor,
+                        textureId = layer.getTextureId(this);
 
-                    uvOffsetArray[2] = textureId % uvDivisor[0];
-                    uvOffsetArray[3] = Math.floor(textureId / uvDivisor[1]);
-
-                    bucket.updateUvOffsets = true;
+                    uvOffsets[offset + 2] = textureId % uvDivisor[0];
+                    uvOffsets[offset + 3] = Math.floor(textureId / uvDivisor[1]);
                 }
             }
         }
@@ -302,7 +270,7 @@ export default class MdxModelInstance extends ModelInstance {
         }
 
         // Update the geometry
-        if (this.hasBatches && this.bucket) {
+        if (this.hasBatches) {
             this.updateBatches(forced);
         }
 
@@ -332,21 +300,11 @@ export default class MdxModelInstance extends ModelInstance {
     setTeamColor(id) {
         this.teamColor = id;
 
-        if (this.bucket) {
-            this.teamColorArray[0] = id;
-            this.bucket.updateTeamColors = true;
-        }
-
         return this;
     }
 
     setVertexColor(color) {
         this.vertexColor.set(color);
-
-        if (this.bucket) {
-            this.vertexColorArray.set(color);
-            this.bucket.updateVertexColors = true;
-        }
 
         return this;
     }
@@ -379,9 +337,7 @@ export default class MdxModelInstance extends ModelInstance {
             }
 
             // Do a forced update, so non-animated data can be skipped in future updates
-            if (this.bucket) {
-                this.update(true);
-            }
+            this.update(true);
         }
 
         return this;

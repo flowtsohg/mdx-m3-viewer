@@ -110,19 +110,19 @@ export default class ParticleEmitter extends GenericObject {
         }
 
         if (!this.writeAnimation(stream, 'KPEE')) {
-            stream.writeAttrib('static EmissionRate', this.emissionRate);
+            stream.writeFloatAttrib('static EmissionRate', this.emissionRate);
         }
 
         if (!this.writeAnimation(stream, 'KPEG')) {
-            stream.writeAttrib('static Gravity', this.gravity);
+            stream.writeFloatAttrib('static Gravity', this.gravity);
         }
 
         if (!this.writeAnimation(stream, 'KPLN')) {
-            stream.writeAttrib('static Longitude', this.longitude);
+            stream.writeFloatAttrib('static Longitude', this.longitude);
         }
 
         if (!this.writeAnimation(stream, 'KPLT')) {
-            stream.writeAttrib('static Latitude', this.latitude);
+            stream.writeFloatAttrib('static Latitude', this.latitude);
         }
 
         this.writeAnimation(stream, 'KPEV');
@@ -130,11 +130,11 @@ export default class ParticleEmitter extends GenericObject {
         stream.startBlock('Particle');
 
         if (!this.writeAnimation(stream, 'KPEL')) {
-            stream.writeAttrib('static LifeSpan', this.lifeSpan);
+            stream.writeFloatAttrib('static LifeSpan', this.lifeSpan);
         }
 
         if (!this.writeAnimation(stream, 'KPES')) {
-            stream.writeAttrib('static InitVelocity', this.speed);
+            stream.writeFloatAttrib('static InitVelocity', this.speed);
         }
 
         if ((this.flags & 0x8000) || (this.flags & 0x10000)) {

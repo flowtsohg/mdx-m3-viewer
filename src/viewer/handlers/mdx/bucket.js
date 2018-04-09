@@ -21,7 +21,6 @@ export default class MdxBucket extends Bucket {
         this.boneArrayInstanceSize = numberOfBones * 16;
         this.boneArray = new Float32Array(this.boneArrayInstanceSize * this.size);
 
-        this.updateBoneTexture = false;
         this.boneTexture = gl.createTexture();
         this.boneTextureWidth = numberOfBones * 4;
         this.boneTextureHeight = this.size;
@@ -37,36 +36,26 @@ export default class MdxBucket extends Bucket {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.boneTextureWidth, this.boneTextureHeight, 0, gl.RGBA, gl.FLOAT, this.boneArray);
 
         // Team colors (per instance)
-        this.updateTeamColors = false;
         this.teamColorArray = new Uint8Array(this.size);
         this.teamColorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.teamColorArray, gl.DYNAMIC_DRAW);
 
         // Vertex color (per instance)
-        this.updateVertexColors = false;
         this.vertexColorArray = new Uint8Array(4 * this.size).fill(255); // Vertex color initialized to white
         this.vertexColorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.vertexColorArray, gl.DYNAMIC_DRAW);
 
-        // Batch visibility (per instance per batch)
-        this.updateGeosetAlphas = false;
-        this.geosetAlphaArrays = [];
-        this.geosetAlphaBuffers = [];
-
         // Geoset colors (per instance per geoset)
-        this.updateGeosetColors = false;
         this.geosetColorArrays = [];
         this.geosetColorBuffers = [];
 
         // Layer alphas (per instance per layer)
-        this.updateLayerAlphas = false;
         this.layerAlphaArrays = [];
         this.layerAlphaBuffers = [];
 
         // Texture coordinate animations (per instance per layer)
-        this.updateUvOffsets = false;
         this.uvOffsetArrays = [];
         this.uvOffsetBuffers = [];
 
@@ -75,12 +64,7 @@ export default class MdxBucket extends Bucket {
         // Batches
         if (this.hasBatches) {
             for (var i = 0, l = model.geosets.length; i < l; i++) {
-                this.geosetAlphaArrays[i] = new Uint8Array(this.size).fill(255);
-                this.geosetAlphaBuffers[i] = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetAlphaBuffers[i]);
-                gl.bufferData(gl.ARRAY_BUFFER, this.geosetAlphaArrays[i], gl.DYNAMIC_DRAW);
-
-                this.geosetColorArrays[i] = new Uint8Array(3 * this.size).fill(255); // Geoset colors are initialized to white
+                this.geosetColorArrays[i] = new Uint8Array(4 * this.size).fill(255); // Geoset colors are initialized to white
                 this.geosetColorBuffers[i] = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetColorBuffers[i]);
                 gl.bufferData(gl.ARRAY_BUFFER, this.geosetColorArrays[i], gl.DYNAMIC_DRAW);
@@ -98,10 +82,6 @@ export default class MdxBucket extends Bucket {
                 gl.bufferData(gl.ARRAY_BUFFER, this.layerAlphaArrays[i], gl.DYNAMIC_DRAW);
             }
         }
-
-        // Instantiate all of the pointers to all of the structures that were just made.
-        this.sharedData = [];
-        this.prefetchSharedData();
 
         // Emitters
         this.particleEmitters = [];
@@ -197,76 +177,100 @@ export default class MdxBucket extends Bucket {
     }
 
     update(scene) {
-        let gl = this.model.env.gl,
-            size = this.instances.length,
-            objects;
+        let size = this.instances.length,
+            model = this.model,
+            gl = model.env.gl,
+            geosets = model.geosets,
+            geosetCount = geosets.length,
+            layers = model.layers,
+            layerCount = layers.length,
+            instances = this.instances,
+            boneArray = this.boneArray,
+            teamColorArray = this.teamColorArray,
+            vertexColorArray = this.vertexColorArray,
+            geosetColorArrays = this.geosetColorArrays,
+            layerAlphaArrays = this.layerAlphaArrays,
+            uvOffsetArrays = this.uvOffsetArrays,
+            instanceOffset = 0;
 
-        if (window.BETA) {
-            let instances = this.instances;
-            let boneArray = this.boneArray;
-            let teamColorArray = this.teamColorArray;
-            let vertexColorArray = this.vertexColorArray;
+        for (let i = 0, l = instances.length; i < l; i++) {
+            let instance = instances[i];
 
-            for (let i = 0, l = instances.length; i < l; i++) {
-                let instance = instances[i];
+            if (instance.isVisible) {
+                let bones = instance.skeleton.bones,
+                    vertexColor = instance.vertexColor,
+                    boneMatrices = instance.skeleton.boneMatrices,
+                    geosetColors = instance.geosetColors,
+                    layerAlphas = instance.layerAlphas,
+                    uvOffsets = instance.uvOffsets,
+                    base = 16 + instanceOffset * (16 + boneMatrices.length);
 
-                if (instance.isVisible) {
-                    let bones = instance.skeleton.bones;
-                    let vertexColor = instance.vertexColor;
-                    let boneMatrices = instance.skeleton.boneMatrices;
-                    let base = 16 + i * (16 + boneMatrices.length);
-
-                    for (let j = 0, k = boneMatrices.length / 4; j < k; j += 4) {
-                        let b = base + j;
-
-                        boneArray[b] = boneMatrices[j];
-                        boneArray[b + 1] = boneMatrices[j + 1];
-                        boneArray[b + 2] = boneMatrices[j + 2];
-                        boneArray[b + 3] = boneMatrices[j + 3];
-                    }
-                    //boneArray.set(instance.skeleton.boneMatrices, 16 + i * (16 + instance.skeleton.boneMatrices.length));
-
-                    teamColorArray[i] = instance.teamColor;
-
-                    vertexColorArray[i * 4 + 0] = vertexColor[0];
-                    vertexColorArray[i * 4 + 1] = vertexColor[1];
-                    vertexColorArray[i * 4 + 2] = vertexColor[2];
-                    vertexColorArray[i * 4 + 3] = vertexColor[3];
+                // Bones
+                for (let j = 0, k = boneMatrices.length; j < k; j++) {
+                    boneArray[base + j] = boneMatrices[j];
                 }
-            }
 
-            gl.activeTexture(gl.TEXTURE15);
-            gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
-            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, size, gl.RGBA, gl.FLOAT, boneArray);
+                // Team color
+                teamColorArray[instanceOffset] = instance.teamColor;
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
-            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.teamColorArray);
+                // Vertex color
+                vertexColorArray[instanceOffset * 4 + 0] = vertexColor[0];
+                vertexColorArray[instanceOffset * 4 + 1] = vertexColor[1];
+                vertexColorArray[instanceOffset * 4 + 2] = vertexColor[2];
+                vertexColorArray[instanceOffset * 4 + 3] = vertexColor[3];
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
-            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertexColorArray);
-        } else {
-            if (this.updateBoneTexture) {
-                this.updateBoneTexture = false;
+                for (let geosetIndex = 0; geosetIndex < geosetCount; geosetIndex++) {
+                    let geosetColorArray = geosetColorArrays[geosetIndex];
 
-                gl.activeTexture(gl.TEXTURE15);
-                gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
-                gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, size, gl.RGBA, gl.FLOAT, this.boneArray);
-            }
+                    // Geoset color
+                    geosetColorArray[instanceOffset * 4] = geosetColors[geosetIndex * 4];
+                    geosetColorArray[instanceOffset * 4 + 1] = geosetColors[geosetIndex * 4 + 1];
+                    geosetColorArray[instanceOffset * 4 + 2] = geosetColors[geosetIndex * 4 + 2];
+                    geosetColorArray[instanceOffset * 4 + 3] = geosetColors[geosetIndex * 4 + 3];
+                }
 
-            if (this.updateTeamColors) {
-                this.updateTeamColors = false;
+                for (let layerIndex = 0; layerIndex < layerCount; layerIndex++) {
+                    let layerAlphaArray = layerAlphaArrays[layerIndex],
+                        uvOffsetArray = uvOffsetArrays[layerIndex];
 
-                gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
-                gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.teamColorArray.subarray(0, size));
-            }
+                    // Layer alpha
+                    layerAlphaArray[instanceOffset] = layerAlphas[layerIndex];
 
-            if (this.updateVertexColors) {
-                this.updateVertexColors = false;
+                    // Texture coordinate animation + sprite animation
+                    uvOffsetArray[instanceOffset * 4] = uvOffsets[layerIndex * 4];
+                    uvOffsetArray[instanceOffset * 4 + 1] = uvOffsets[layerIndex * 4 + 1];
+                    uvOffsetArray[instanceOffset * 4 + 2] = uvOffsets[layerIndex * 4 + 2];
+                    uvOffsetArray[instanceOffset * 4 + 3] = uvOffsets[layerIndex * 4 + 3];
+                }
 
-                gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
-                gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertexColorArray.subarray(0, 4 * size));
+                instanceOffset += 1;
             }
         }
+
+        gl.activeTexture(gl.TEXTURE15);
+        gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, size, gl.RGBA, gl.FLOAT, boneArray);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.teamColorArray);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertexColorArray);
+
+        for (let i = 0; i < geosetCount; i++) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetColorBuffers[i]);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, geosetColorArrays[i]);
+        }
+
+        for (let i = 0; i < layerCount; i++) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.layerAlphaBuffers[i]);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.layerAlphaArrays[i]);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.uvOffsetBuffers[i]);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.uvOffsetArrays[i]);
+        }
+
+        let objects;
 
         objects = this.particleEmitters;
         for (let i = 0, l = objects.length; i < l; i++) {
@@ -287,96 +291,5 @@ export default class MdxBucket extends Bucket {
         for (let i = 0, l = objects.length; i < l; i++) {
             objects[i].update(scene);
         }
-
-        if (this.updateGeosetAlphas) {
-            this.updateGeosetAlphas = false;
-
-            for (var i = 0, l = this.geosetAlphaArrays.length; i < l; i++) {
-                gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetAlphaBuffers[i]);
-                gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.geosetAlphaArrays[i].subarray(0, size));
-            }
-        }
-
-        if (this.updateGeosetColors) {
-            this.updateGeosetColors = false;
-
-            for (var i = 0, l = this.geosetColorArrays.length; i < l; i++) {
-                gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetColorBuffers[i]);
-                gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.geosetColorArrays[i].subarray(0, 3 * size));
-            }
-        }
-
-        if (this.updateUvOffsets) {
-            this.updateUvOffsets = false;
-
-            for (var i = 0, l = this.uvOffsetArrays.length; i < l; i++) {
-                gl.bindBuffer(gl.ARRAY_BUFFER, this.uvOffsetBuffers[i]);
-                gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.uvOffsetArrays[i].subarray(0, 4 * size));
-            }
-        }
-
-        if (this.updateLayerAlphas) {
-            this.updateLayerAlphas = false;
-
-            for (var i = 0, l = this.layerAlphaArrays.length; i < l; i++) {
-                gl.bindBuffer(gl.ARRAY_BUFFER, this.layerAlphaBuffers[i]);
-                gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.layerAlphaArrays[i].subarray(0, size));
-            }
-        }
-    }
-
-    prefetchSharedData() {
-        for (let i = 0, l = this.size; i < l; i++) {
-            this.sharedData[i] = this.prefetchSharedDataInstance(i);
-        }
-    }
-
-    prefetchSharedDataInstance(index) {
-        let data = {
-            boneArray: new Float32Array(this.boneArray.buffer, this.boneArrayInstanceSize * 4 * index, this.boneArrayInstanceSize),
-            teamColorArray: new Uint8Array(this.teamColorArray.buffer, index, 1),
-            vertexColorArray: new Uint8Array(this.vertexColorArray.buffer, 4 * index, 4),
-            batches: [],
-            geosetAlphaArrays: [],
-            geosetColorArrays: [],
-            uvOffsetArrays: [],
-            layerAlphaArrays: []
-        };
-
-        if (this.batchesCount) {
-            let buffer = this.dataArray.buffer,
-                base = this.dataInstanceSize * index;
-
-            for (let i = 0, l = this.batchesCount; i < l; i++) {
-                let batchBase = base + 4 * 12 * i;
-
-                data.batches[i] = {
-                    teamColor: new Float32Array(buffer, batchBase, 1),
-                    vertexColor: new Float32Array(buffer, batchBase + 4, 3),
-                    layerAlpha: new Float32Array(buffer, batchBase + 16, 1),
-                    geosetColor: new Float32Array(buffer, batchBase + 20, 3),
-                    textureAnimation: new Float32Array(buffer, batchBase + 32, 2),
-                    spriteAnimation: new Float32Array(buffer, batchBase + 40, 2),
-                };
-            }
-        }
-
-        if (this.hasBatches) {
-            for (let i = 0, l = this.geosetAlphaArrays.length; i < l; i++) {
-                data.geosetAlphaArrays[i] = new Uint8Array(this.geosetAlphaArrays[i].buffer, index, 1);
-                data.geosetColorArrays[i] = new Uint8Array(this.geosetColorArrays[i].buffer, 3 * index, 3);
-            }
-
-            for (let i = 0, l = this.uvOffsetArrays.length; i < l; i++) {
-                data.uvOffsetArrays[i] = new Float32Array(this.uvOffsetArrays[i].buffer, 4 * 4 * index, 4);
-                data.layerAlphaArrays[i] = new Uint8Array(this.layerAlphaArrays[i].buffer, index, 1);
-            }
-        }
-
-        return data;
-    }
-
-    getSharedData(index) {
-        return this.sharedData[index];
     }
 };

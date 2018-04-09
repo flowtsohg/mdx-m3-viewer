@@ -9,8 +9,7 @@ export default {
         attribute float a_boneNumber;
         attribute float a_teamColor;
         attribute vec4 a_vertexColor;
-        attribute float a_geosetAlpha;
-        attribute vec3 a_geosetColor;
+        attribute vec4 a_geosetColor;
         attribute float a_layerAlpha;
         attribute vec4 a_uvOffset;
 
@@ -47,9 +46,9 @@ export default {
             v_vertexColor = a_vertexColor;
             
             /// Is the alpha here even correct?
-            v_geosetColor = vec4(a_geosetColor, a_layerAlpha);
+            v_geosetColor = vec4(a_geosetColor.rgb, a_layerAlpha);
             
-	        if (a_geosetAlpha < 0.75 || a_layerAlpha < 0.1) {
+	        if (a_geosetColor.a < 0.75 || a_layerAlpha < 0.1) {
 		        gl_Position = vec4(0.0);
             } else {
 		        gl_Position = u_mvp * vec4(position, 1);

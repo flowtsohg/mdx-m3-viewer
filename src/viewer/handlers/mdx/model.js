@@ -71,7 +71,7 @@ export default class MdxModel extends TexturedModel {
 
     loadTeamTextures() {
         let viewer = this.env;
-        
+
         if (!viewer.getTextureAtlas('teamColors')) {
             let pathSolver = this.pathSolver,
                 teamColors = [],
@@ -83,7 +83,7 @@ export default class MdxModel extends TexturedModel {
                 teamColors[i] = viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}.blp`, pathSolver);
                 teamGlows[i] = viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}.blp`, pathSolver);
             }
-            
+
             viewer.loadTextureAtlas('teamColors', teamColors);
             viewer.loadTextureAtlas('teamGlows', teamGlows);
         }
@@ -496,7 +496,6 @@ export default class MdxModel extends TexturedModel {
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_teamColor'), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_vertexColor'), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_InstanceID'), 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_geosetAlpha'), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_geosetColor'), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_layerAlpha'), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_uvOffset'), 0);
@@ -548,16 +547,10 @@ export default class MdxModel extends TexturedModel {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT);
 
-        // Geoset alphas
-        let geosetAlpha = attribs.get('a_geosetAlpha');
-        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.geosetAlphaBuffers[geoset.index]);
-        gl.vertexAttribPointer(geosetAlpha, 1, gl.UNSIGNED_BYTE, true, 1, 0);
-        instancedArrays.vertexAttribDivisorANGLE(geosetAlpha, 1);
-
         // Geoset colors
         let geosetColor = attribs.get('a_geosetColor');
         gl.bindBuffer(gl.ARRAY_BUFFER, bucket.geosetColorBuffers[geoset.index]);
-        gl.vertexAttribPointer(geosetColor, 3, gl.UNSIGNED_BYTE, true, 3, 0);
+        gl.vertexAttribPointer(geosetColor, 4, gl.UNSIGNED_BYTE, true, 4, 0);
         instancedArrays.vertexAttribDivisorANGLE(geosetColor, 1);
 
         // Layer alphas

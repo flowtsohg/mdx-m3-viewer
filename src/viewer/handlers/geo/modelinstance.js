@@ -42,7 +42,9 @@ export default class GeometryModelInstance extends ModelInstance {
     }
 
     update() {
-        mat4.copy(this.boneArray, this.worldMatrix);
+        if (this.bucket) {
+            mat4.copy(this.boneArray, this.worldMatrix);
+        }
     }
 
     setVertexColor(color) {

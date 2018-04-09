@@ -46,12 +46,12 @@ export class NumberTrack extends Track {
     }
 
     writeMdl(stream, interpolationType) {
-        stream.writeAttrib(`${this.frame}:`, this.value);
+        this.writeMdlValue(stream, `${this.frame}:`, this.value);
 
         if (interpolationType > 1) {
             stream.indent();
-            stream.writeAttrib('InTan', this.inTan);
-            stream.writeAttrib('OutTan', this.outTan);
+            this.writeMdlValue(stream, 'InTan', this.inTan);
+            this.writeMdlValue(stream, 'OutTan', this.outTan);
             stream.unindent();
         }
     }
@@ -101,12 +101,12 @@ class VectorTrack extends Track {
     }
 
     writeMdl(stream, interpolationType) {
-        stream.writeArrayAttrib(`${this.frame}:`, this.value);
+        stream.writeFloatArrayAttrib(`${this.frame}:`, this.value);
 
         if (interpolationType > 1) {
             stream.indent();
-            stream.writeArrayAttrib('InTan', this.inTan);
-            stream.writeArrayAttrib('OutTan', this.outTan);
+            stream.writeFloatArrayAttrib('InTan', this.inTan);
+            stream.writeFloatArrayAttrib('OutTan', this.outTan);
             stream.unindent();
         }
     }
@@ -124,6 +124,10 @@ export class UintTrack extends NumberTrack {
     readMdlValue(stream) {
         return stream.readInt();
     }
+
+    writeMdlValue(stream, name, value) {
+        stream.writeAttrib(name, value);
+    }
 };
 
 export class FloatTrack extends NumberTrack {
@@ -137,6 +141,10 @@ export class FloatTrack extends NumberTrack {
 
     readMdlValue(stream) {
         return stream.readFloat();
+    }
+
+    writeMdlValue(stream, name, value) {
+        stream.writeFloatAttrib(name, value);
     }
 };
 

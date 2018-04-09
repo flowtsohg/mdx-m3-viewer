@@ -9,6 +9,7 @@ export default class TokenStream {
         this.buffer = buffer || '';
         this.index = 0;
         this.ident = 0; // Used for writing blocks nicely.
+        this.fractionDigits = 6; // The number of fraction digits when writing floats.
     }
 
     /**
@@ -251,6 +252,16 @@ export default class TokenStream {
     }
 
     /**
+     * Same as writeAttrib, but formats the given number.
+     * 
+     * @param {string} name
+     * @param {number} value 
+     */
+    writeFloatAttrib(name, value) {
+        this.writeLine(`${name} ${this.formatFloat(value)},`)
+    }
+
+    /**
      * Name "Value",
      * 
      * @param {string} name
@@ -271,13 +282,31 @@ export default class TokenStream {
     }
 
     /**
-     * { Value0, Value1, ..., ValueN },
+     * Name { Value0, Value1, ..., ValueN },
      * 
      * @param {string} name 
+     * @param {Float32Array} value 
+     */
+    writeFloatArrayAttrib(name, value) {
+        this.writeLine(`${name} { ${this.formatFloatArray(value)} },`);
+    }
+
+    /**
+     * { Value0, Value1, ..., ValueN },
+     * 
      * @param {TypedArray} value 
      */
     writeArray(value) {
         this.writeLine(`{ ${value.join(', ')} },`);
+    }
+
+    /**
+     * { Value0, Value1, ..., ValueN },
+     * 
+     * @param {Float32Array} value 
+     */
+    writeFloatArray(value) {
+        this.writeLine(`{ ${this.formatFloatArray(value)} },`);
     }
 
     /**
@@ -295,7 +324,7 @@ export default class TokenStream {
         this.startBlock(name, view.length / size);
 
         for (let i = 0, l = view.length; i < l; i += size) {
-            this.writeArray(view.subarray(i, i + size));
+            this.writeFloatArray(view.subarray(i, i + size));
         }
 
         this.endBlock();
@@ -374,5 +403,38 @@ export default class TokenStream {
      */
     unindent() {
         this.ident -= 1;
+    }
+
+    /**
+     * Formats a given float to the shorter of either its string representation, or its fixed point representation with the stream's fraction digits.
+     * 
+     * @param {number} value 
+     * @returns {string}
+     */
+    formatFloat(value) {
+        let s = value.toString(),
+            f = value.toFixed(this.fractionDigits);
+
+        if (s.length > f.length) {
+            return f;
+        } else {
+            return s;
+        }
+    }
+
+    /**
+     * Uses formatFloat to format a whole array, and returns it as a comma separated string.
+     * 
+     * @param {Float32Array} value 
+     * @returns {string}
+     */
+    formatFloatArray(value) {
+        let result = [];
+
+        for (let i = 0, l = value.length; i < l; i++) {
+            result[i] = this.formatFloat(value[i]);
+        }
+
+        return result.join(', ');
     }
 };

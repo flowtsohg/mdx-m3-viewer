@@ -101,15 +101,15 @@ export default class Light extends GenericObject {
         }
 
         if (!this.writeAnimation(stream, 'KLAS')) {
-            stream.writeAttrib('static AttenuationStart', this.attenuation[0]);
+            stream.writeFloatAttrib('static AttenuationStart', this.attenuation[0]);
         }
 
         if (!this.writeAnimation(stream, 'KLAE')) {
-            stream.writeAttrib('static AttenuationEnd', this.attenuation[1]);
+            stream.writeFloatAttrib('static AttenuationEnd', this.attenuation[1]);
         }
 
         if (!this.writeAnimation(stream, 'KLAI')) {
-            stream.writeAttrib('static Intensity', this.intensity);
+            stream.writeFloatAttrib('static Intensity', this.intensity);
         }
 
         if (!this.writeAnimation(stream, 'KLAC')) {
@@ -117,7 +117,7 @@ export default class Light extends GenericObject {
         }
 
         if (!this.writeAnimation(stream, 'KLBI')) {
-            stream.writeAttrib('static AmbIntensity', this.ambientIntensity);
+            stream.writeFloatAttrib('static AmbIntensity', this.ambientIntensity);
         }
 
         if (!this.writeAnimation(stream, 'KLBC')) {

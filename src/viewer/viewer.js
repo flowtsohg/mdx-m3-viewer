@@ -17,7 +17,7 @@ export default class ModelViewer extends EventDispatcher {
          *
          * @member {string}
          */
-        this.version = '4.2.1';
+        this.version = '4.2.2';
 
         /** @member {object} */
         this.resources = {
@@ -304,7 +304,7 @@ export default class ModelViewer extends EventDispatcher {
                                 if (data) {
                                     resource.onload(data);
                                 } else {
-                                    this.dispatchEvent({ type: 'error', error: 'Fetch' });
+                                    resource.onerror('FailedToFetch');
                                 }
                             })
                     } else {

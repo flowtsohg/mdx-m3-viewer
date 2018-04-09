@@ -1,5 +1,5 @@
+import TexturedModelView from '../../texturedmodelview';
 import GeometryModel from './model';
-import GeometryModelView from './modelview';
 import GeometryBucket from './bucket';
 import GeometryModelInstance from './modelinstance';
 
@@ -58,7 +58,7 @@ export default {
 
     extensions: [['.geo', 'json']],
     constructor: GeometryModel,
-    view: GeometryModelView,
+    view: TexturedModelView,
     bucket: GeometryBucket,
     instance: GeometryModelInstance,
 };

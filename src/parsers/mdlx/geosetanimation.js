@@ -67,7 +67,7 @@ export default class GeosetAnimation extends AnimatedObject {
         }
 
         if (!this.writeAnimation(stream, 'KGAO')) {
-            stream.writeAttrib('static Alpha', this.alpha);
+            stream.writeFloatAttrib('static Alpha', this.alpha);
         }
 
         if (this.flags & 0x2) {

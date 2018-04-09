@@ -1,4 +1,4 @@
-import { eachAnimation, readAnimation, writeAnimation } from './animations';
+import animationMap from './animationmap';
 
 /**
  * The parent class for all objects that have animated data in them.
@@ -10,7 +10,14 @@ export default class AnimatedObject {
     }
 
     readAnimations(stream, size) {
-        for (let animation of eachAnimation(stream, size)) {
+        while (size > 0) {
+            let name = stream.read(4),
+                animation = new animationMap[name][1]();
+    
+            animation.readMdx(stream, name);
+    
+            size -= animation.getByteLength();
+    
             this.animations.push(animation);
         }
     }
@@ -35,11 +42,22 @@ export default class AnimatedObject {
     }
 
     readAnimation(stream, token) {
-        this.animations.push(readAnimation(stream, token));
+        let animation = new animationMap[token][1]();
+
+        animation.readMdl(stream, token);
+
+        this.animations.push(animation);
     }
 
     writeAnimation(stream, name) {
-        return writeAnimation(stream, this.animations, name);
+        for (let animation of this.animations) {
+            if (animation.name === name) {
+                animation.writeMdl(stream, animationMap[name][0]);
+                return true;
+            }
+        }
+    
+        return false;
     }
 
     getByteLength() {

@@ -22,15 +22,15 @@ export default class Extent {
 
     writeMdl(stream) {
         if (this.min[0] !== 0 || this.min[1] !== 0 || this.min[2] !== 0) {
-            stream.writeArrayAttrib('MinimumExtent', this.min);
+            stream.writeFloatArrayAttrib('MinimumExtent', this.min);
         }
 
         if (this.max[0] !== 0 || this.max[1] !== 0 || this.max[2] !== 0) {
-            stream.writeArrayAttrib('MaximumExtent', this.max);
+            stream.writeFloatArrayAttrib('MaximumExtent', this.max);
         }
 
         if (this.boundsRadius !== 0) {
-            stream.writeAttrib('BoundsRadius', this.boundsRadius);
+            stream.writeFloatAttrib('BoundsRadius', this.boundsRadius);
         }
     }
 };

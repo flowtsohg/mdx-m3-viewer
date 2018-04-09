@@ -40,7 +40,7 @@ export default class Layer extends AnimatedObject {
         this.blended = (filterMode > 1) ? true : false;
 
         if (this.blended) {
-           [this.blendSrc, this.blendDst] = layerFilterMode(filterMode, gl);
+            [this.blendSrc, this.blendDst] = layerFilterMode(filterMode, gl);
         }
 
         this.uvDivisor = new Float32Array([1, 1]);
@@ -129,7 +129,7 @@ export default class Layer extends AnimatedObject {
     setupVaryingTextures(model) {
         // Get all unique texture IDs used by this layer
         var textureIds = unique(this.animations.KMTF.getValues());
-        
+
         if (textureIds.length > 1) {
             let env = model.env,
                 hash = stringHash(textureIds.join('')),

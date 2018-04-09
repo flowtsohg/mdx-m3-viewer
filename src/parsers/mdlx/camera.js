@@ -79,15 +79,15 @@ export default class Camera extends AnimatedObject {
     writeMdl(stream) {
         stream.startObjectBlock('Camera', this.name);
 
-        stream.writeArrayAttrib('Position', this.position);
+        stream.writeFloatArrayAttrib('Position', this.position);
         this.writeAnimation(stream, 'KCTR');
         this.writeAnimation(stream, 'KCRL');
-        stream.writeAttrib('FieldOfView', this.fieldOfView);
-        stream.writeAttrib('FarClip', this.farClippingPlane);
-        stream.writeAttrib('NearClip', this.nearClippingPlane);
+        stream.writeFloatAttrib('FieldOfView', this.fieldOfView);
+        stream.writeFloatAttrib('FarClip', this.farClippingPlane);
+        stream.writeFloatAttrib('NearClip', this.nearClippingPlane);
 
         stream.startBlock('Target');
-        stream.writeArrayAttrib('Position', this.targetPosition);
+        stream.writeFloatArrayAttrib('Position', this.targetPosition);
         this.writeAnimation(stream, 'KTTR');
         stream.endBlock();
 

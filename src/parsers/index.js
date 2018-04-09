@@ -1,15 +1,17 @@
-import Ini from './ini';
-import Slk from './slk';
-import M3 from './m3';
-import Mdlx from './mdlx';
-import Mpq from './mpq';
-import W3x from './w3x';
+import ini from './ini';
+import slk from './slk';
+import m3 from './m3';
+import mdlx from './mdlx';
+import mpq from './mpq';
+import w3x from './w3x';
+import blp from './blp';
 
 export default {
-    Ini,
-    Slk,
-    M3,
-    Mdlx,
-    Mpq,
-    W3x
+    ini,
+    slk,
+    m3,
+    mdlx,
+    mpq,
+    w3x,
+    blp
 };

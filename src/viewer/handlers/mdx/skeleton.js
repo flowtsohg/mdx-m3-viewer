@@ -120,19 +120,6 @@ export default class MdxSkeleton extends Skeleton {
                     //    node.justUpdated = false;
                 }
             }
-
-            if (!window.BETA) {
-                let boneMatrices = this.boneMatrices,
-                    boneArray = this.instance.boneArray;
-
-                for (let i = 0, j = boneMatrices.length; i < j; i++) {
-                    boneArray[16 + i] = boneMatrices[i];
-                }
-
-                //boneArray.set(this.boneMatrices, 16);
-
-                instance.bucket.updateBoneTexture = true;
-            }
         }
     }
 };

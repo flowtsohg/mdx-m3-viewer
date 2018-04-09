@@ -72,11 +72,11 @@ export default class Sequence {
         }
 
         if (this.moveSpeed !== 0) {
-            stream.writeAttrib('MoveSpeed', this.moveSpeed);
+            stream.writeFloatAttrib('MoveSpeed', this.moveSpeed);
         }
 
         if (this.rarity !== 0) {
-            stream.writeAttrib('Rarity', this.rarity);
+            stream.writeFloatAttrib('Rarity', this.rarity);
         }
 
         this.extent.writeMdl(stream);

@@ -1,3 +1,5 @@
+let whiteColor = new Uint8Array([1, 1, 1]);
+
 export class MdxShallowGeoset {
     /**
      * @param {MdxModel} model
@@ -135,6 +137,16 @@ export class MdxGeoset {
         }
 
         return 1;
+    }
+
+    getColor(instance) {
+        let geosetAnimation = this.geosetAnimation;
+
+        if (geosetAnimation) {
+            return geosetAnimation.getColor(instance);
+        }
+
+        return whiteColor; 
     }
 
     isAlphaVariant(sequence) {

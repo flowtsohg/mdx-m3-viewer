@@ -115,15 +115,15 @@ export default class RibbonEmitter extends GenericObject {
         this.writeGenericHeader(stream);
 
         if (!this.writeAnimation(stream, 'KRHA')) {
-            stream.writeAttrib('static HeightAbove', this.heightAbove);
+            stream.writeFloatAttrib('static HeightAbove', this.heightAbove);
         }
 
         if (!this.writeAnimation(stream, 'KRHB')) {
-            stream.writeAttrib('static HeightBelow', this.heightBelow);
+            stream.writeFloatAttrib('static HeightBelow', this.heightBelow);
         }
 
         if (!this.writeAnimation(stream, 'KRAL')) {
-            stream.writeAttrib('static Alpha', this.alpha);
+            stream.writeFloatAttrib('static Alpha', this.alpha);
         }
 
         if (!this.writeAnimation(stream, 'KRCO')) {
@@ -137,10 +137,10 @@ export default class RibbonEmitter extends GenericObject {
         this.writeAnimation(stream, 'KPEV');
 
         stream.writeAttrib('EmissionRate', this.emissionRate);
-        stream.writeAttrib('LifeSpan', this.lifeSpan);
+        stream.writeFloatAttrib('LifeSpan', this.lifeSpan);
 
         if (this.gravity !== 0) {
-            stream.writeAttrib('Gravity', this.gravity);
+            stream.writeFloatAttrib('Gravity', this.gravity);
         }
 
         stream.writeAttrib('Rows', this.rows);

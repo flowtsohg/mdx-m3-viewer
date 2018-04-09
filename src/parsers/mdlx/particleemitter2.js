@@ -258,19 +258,19 @@ export default class ParticleEmitter2 extends GenericObject {
         }
 
         if (!this.writeAnimation(stream, 'KP2S')) {
-            stream.writeAttrib('static Speed', this.speed);
+            stream.writeFloatAttrib('static Speed', this.speed);
         }
 
         if (!this.writeAnimation(stream, 'KP2R')) {
-            stream.writeAttrib('static Variation', this.variation);
+            stream.writeFloatAttrib('static Variation', this.variation);
         }
 
         if (!this.writeAnimation(stream, 'KP2L')) {
-            stream.writeAttrib('static Latitude', this.latitude);
+            stream.writeFloatAttrib('static Latitude', this.latitude);
         }
 
         if (!this.writeAnimation(stream, 'KP2G')) {
-            stream.writeAttrib('static Gravity', this.gravity);
+            stream.writeFloatAttrib('static Gravity', this.gravity);
         }
 
         this.writeAnimation(stream, 'KP2V');
@@ -279,18 +279,18 @@ export default class ParticleEmitter2 extends GenericObject {
             stream.writeFlag('Squirt');
         }
 
-        stream.writeAttrib('LifeSpan', this.lifeSpan);
+        stream.writeFloatAttrib('LifeSpan', this.lifeSpan);
 
         if (!this.writeAnimation(stream, 'KP2E')) {
-            stream.writeAttrib('static EmissionRate', this.emissionRate);
+            stream.writeFloatAttrib('static EmissionRate', this.emissionRate);
         }
 
         if (!this.writeAnimation(stream, 'KP2W')) {
-            stream.writeAttrib('static Width', this.width);
+            stream.writeFloatAttrib('static Width', this.width);
         }
 
         if (!this.writeAnimation(stream, 'KP2N')) {
-            stream.writeAttrib('static Length', this.length);
+            stream.writeFloatAttrib('static Length', this.length);
         }
 
         if (this.filterMode === 0) {
@@ -316,8 +316,8 @@ export default class ParticleEmitter2 extends GenericObject {
             stream.writeFlag('Both');
         }
 
-        stream.writeAttrib('TailLength', this.tailLength);
-        stream.writeAttrib('Time', this.timeMiddle);
+        stream.writeFloatAttrib('TailLength', this.tailLength);
+        stream.writeFloatAttrib('Time', this.timeMiddle);
 
         stream.startBlock('SegmentColor');
         stream.writeColor('Color', this.segmentColors[0]);
@@ -326,7 +326,7 @@ export default class ParticleEmitter2 extends GenericObject {
         stream.endBlock();
 
         stream.writeArrayAttrib('Alpha', this.segmentAlphas);
-        stream.writeArrayAttrib('ParticleScaling', this.segmentScaling);
+        stream.writeFloatArrayAttrib('ParticleScaling', this.segmentScaling);
         stream.writeArrayAttrib('LifeSpanUVAnim', this.headIntervals[0]);
         stream.writeArrayAttrib('DecayUVAnim', this.headIntervals[1]);
         stream.writeArrayAttrib('TailUVAnim', this.tailIntervals[0]);
