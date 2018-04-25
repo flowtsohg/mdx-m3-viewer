@@ -53,4 +53,40 @@ export default class ParticleEmitter2 extends GenericObject {
 
         [this.blendSrc, this.blendDst] = emitterFilterMode(emitter.filterMode, this.model.env.gl);
     }
+
+    getWidth(instance) {
+        return this.getValue('KP2W', instance, this.width);
+    }
+
+    getLength(instance) {
+        return this.getValue('KP2N', instance, this.length);
+    }
+
+    getSpeed(instance) {
+        return this.getValue('KP2S', instance, this.speed);
+    }
+
+    getLatitude(instance) {
+        return this.getValue('KP2L', instance, this.latitude);
+    }
+
+    getGravity(instance) {
+        return this.getValue('KP2G', instance, this.gravity);
+    }
+
+    getEmissionRate(instance) {
+        return this.getValue('KP2E', instance, this.emissionRate);
+    }
+
+    getEmissionRateKeyframe(instance) {
+        return this.getKeyframe('KP2E', instance);
+    }
+
+    getVisibility(instance) {
+        return this.getValue('KP2V', instance, 1);
+    }
+
+    getVariation(instance) {
+        return this.getValue('KP2R', instance, this.variation);
+    }
 };

@@ -325,7 +325,7 @@ let mdxTests = {
 
                         scene.addInstance(instance);
 
-                        for (let i = 0; i < 200; i++) {
+                        for (let i = 0; i < 205; i++) {
                             viewer.update();
                         }
                     }

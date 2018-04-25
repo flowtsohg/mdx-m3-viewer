@@ -16,4 +16,32 @@ export default class ParticleEmitter extends GenericObject {
         this.gravity = emitter.gravity;
         this.emissionRate = emitter.emissionRate;
     }
+
+    getSpeed(instance) {
+        return this.getValue('KPES', instance, this.speed);
+    }
+
+    getLatitude(instance) {
+        return this.getValue('KPLTV', instance, this.latitude);
+    }
+
+    getLongitude(instance) {
+        return this.getValue('KPLN', instance, this.longitude);
+    }
+
+    getLifeSpan(instance) {
+        return this.getValue('KPEL', instance, this.lifeSpan);
+    }
+
+    getGravity(instance) {
+        return this.getValue('KPEG', instance, this.gravity);
+    }
+
+    getEmissionRate(instance) {
+        return this.getValue('KPEE', instance, this.emissionRate);
+    }
+
+    getVisibility(instance) {
+        return this.getValue('KPEV', instance, 1);
+    }
 };

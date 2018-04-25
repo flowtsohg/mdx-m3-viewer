@@ -91,7 +91,6 @@ export default class GeometryModel extends Model {
             shader = this.env.shaderMap.get('GeoStandardShader'),
             uniforms = shader.uniforms,
             attribs = shader.attribs,
-            instances = bucket.instances,
             modelView = bucket.modelView;
 
         webgl.useShaderProgram(shader);
@@ -172,7 +171,7 @@ export default class GeometryModel extends Model {
             gl.vertexAttribPointer(colorAttrib, 4, gl.UNSIGNED_BYTE, true, 0, 0);
 
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.faceBuffer);
-            instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.faceArray.length, this.faceIndexType, 0, instances.length);
+            instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.faceArray.length, this.faceIndexType, 0, bucket.count);
         }
 
         if (this.renderMode === 1 || this.renderMode === 2) {
@@ -183,7 +182,7 @@ export default class GeometryModel extends Model {
             gl.vertexAttribPointer(colorAttrib, 4, gl.UNSIGNED_BYTE, true, 0, 0);
 
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.edgeBuffer);
-            instancedArrays.drawElementsInstancedANGLE(gl.LINES, this.edgeArray.length, this.edgeIndexType, 0, instances.length);
+            instancedArrays.drawElementsInstancedANGLE(gl.LINES, this.edgeArray.length, this.edgeIndexType, 0, bucket.count);
         }
 
         /// Reset the attributes to play nice with other handlers
@@ -191,19 +190,23 @@ export default class GeometryModel extends Model {
         instancedArrays.vertexAttribDivisorANGLE(colorAttrib, 0);
     }
 
-    renderOpaque(bucket, scene) {
+    renderOpaque(data, scene, modelView) {
         if (this.opaque) {
-            this.render(bucket, scene);
+            for (let bucket of data.buckets) {
+                if (bucket.count) {
+                    this.render(bucket, scene);
+                }
+            }
         }
     }
 
-    renderTranslucent(bucket, scene) {
+    renderTranslucent(data, scene, modelView) {
         if (this.translucent) {
-            this.render(bucket, scene);
+            for (let bucket of data.buckets) {
+                if (bucket.count) {
+                    this.render(bucket, scene);
+                }
+            }
         }
-    }
-
-    renderEmitters(bucket, scene) {
-
     }
 };

@@ -572,7 +572,7 @@ export default class MdxModel extends TexturedModel {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.__webglArrayBuffer);
         shallowGeoset.bind(shader, layer.coordId);
 
-        shallowGeoset.render(bucket.instances.length);
+        shallowGeoset.render(bucket.count);
     }
 
     renderBatches(bucket, scene, batches) {
@@ -587,23 +587,32 @@ export default class MdxModel extends TexturedModel {
         }
     }
 
-    renderOpaque(bucket, scene) {
-        this.renderBatches(bucket, scene, this.opaqueBatches);
+    renderOpaque(data, scene, modelView) {
+        for (let bucket of data.buckets) {
+            if (bucket.count) {
+                this.renderBatches(bucket, scene, this.opaqueBatches);
+            }
+        }
     }
 
-    renderTranslucent(bucket, scene) {
-        this.renderBatches(bucket, scene, this.translucentBatches);
-    }
+    renderTranslucent(data, scene, modelView) {
+        let buckets = data.buckets,
+            particleEmitters2 = data.particleEmitters2,
+            ribbonEmitters = data.ribbonEmitters,
+            eventObjectEmitters = data.eventObjectEmitters;
 
-    renderEmitters(bucket, scene) {
-        let webgl = this.env.webgl,
-            gl = this.env.gl,
-            particle2Emitters = bucket.particle2Emitters,
-            eventObjectEmitters = bucket.eventObjectEmitters,
-            ribbonEmitters = bucket.ribbonEmitters;
+        // Batches
+        for (let bucket of buckets) {
+            if (bucket.count) {
+                this.renderBatches(bucket, scene, this.translucentBatches);
+            }
+        }
 
+        // Emitters
+        if (particleEmitters2.length || eventObjectEmitters.length || ribbonEmitters.length) {
+            let webgl = this.env.webgl,
+                gl = this.env.gl;
 
-        if (particle2Emitters.length || eventObjectEmitters.length || ribbonEmitters.length) {
             gl.depthMask(0);
             gl.enable(gl.BLEND);
             gl.disable(gl.CULL_FACE);
@@ -618,18 +627,18 @@ export default class MdxModel extends TexturedModel {
 
             gl.uniform1f(shader.uniforms.get('u_isRibbonEmitter'), false);
 
-            for (let i = 0, l = particle2Emitters.length; i < l; i++) {
-                particle2Emitters[i].render(bucket, shader);
+            for (let i = 0, l = particleEmitters2.length; i < l; i++) {
+                particleEmitters2[i].render(modelView, shader);
             }
 
             for (let i = 0, l = eventObjectEmitters.length; i < l; i++) {
-                eventObjectEmitters[i].render(bucket, shader);
+                eventObjectEmitters[i].render(modelView, shader);
             }
 
             gl.uniform1f(shader.uniforms.get('u_isRibbonEmitter'), true);
 
             for (let i = 0, l = ribbonEmitters.length; i < l; i++) {
-                ribbonEmitters[i].render(bucket, shader);
+                ribbonEmitters[i].render(modelView, shader);
             }
         }
     }

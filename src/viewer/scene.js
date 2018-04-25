@@ -7,28 +7,20 @@ let ndcHeap = new Float32Array(3);
 
 export default class Scene {
     constructor() {
-        /** @member {ModelViewer} */
-        this.env = null;
-        /** @member {Camera} */
+        this.viewer = null;
+
+        /** @member {ModelViewer.viewer.Camera} */
         this.camera = new Camera();
-        /** @member {Array<ModelInstance>} */
+        /** @member {Array<ModelViewer.viewer.ModelInstance>} */
         this.instances = [];
-        /** @member {Set<ModelInstance>} */
+        /** @member {Set<ModelViewer.viewer.ModelInstance>} */
         this.instanceSet = new Set();
-        /** @member {Array<Bucket>} */
-        this.buckets = [];
-        /** @member {Set<Bucket>} */
-        this.bucketSet = new Set();
-        /** @member {NotifiedSceneNode} */
+        /** @member {Array<ModelViewer.viewer.ModelView>} */
+        this.modelViews = [];
+        /** @member {Set<ModelViewer.viewer.ModelView>} */
+        this.modelViewSet = new Set();
+        /** @member {ModelViewer.viewer.NotifiedSceneNode} */
         this.root = new NotifiedSceneNode();
-
-        this.bucketsToAdd = [];
-        this.bucketsToRemove = [];
-    }
-
-    /** @member {string} */
-    get objectType() {
-        return 'scene';
     }
 
     /**
@@ -43,8 +35,9 @@ export default class Scene {
      *     dynamicPolygons
      */
     getRenderStats() {
-        let objects = this.buckets,
-            buckets = objects.length,
+        //let objects = this.buckets,
+       //     buckets = objects.length,
+        let buckets = 0,
             calls = 0,
             instances = 0,
             vertices = 0,
@@ -52,6 +45,7 @@ export default class Scene {
             dynamicVertices = 0,
             dynamicPolygons = 0;
 
+        /*
         for (let i = 0; i < buckets; i++) {
             let stats = objects[i].getRenderStats();
 
@@ -62,35 +56,48 @@ export default class Scene {
             dynamicVertices += stats.dynamicVertices;
             dynamicPolygons += stats.dynamicPolygons;
         }
+        */
 
         return { buckets, calls, instances, vertices, polygons, dynamicVertices, dynamicPolygons };
     }
 
     /**
-     * Add an instance to this scene.
+     * Sets the scene of the given instance.
+     * This is equivalent to instance.setScene(scene).
      * 
-     * @param {ModelInstance} instance The instance to add.
+     * @param {ModelViewer.viewer.ModelInstance} instance 
+     * @returns {boolean} 
      */
     addInstance(instance) {
-        if (instance && instance.objectType === 'instance') {
-            let instanceSet = this.instanceSet;
+        let instanceSet = this.instanceSet;
 
-            if (!instanceSet.has(instance)) {
-                instanceSet.add(instance);
+        if (!instanceSet.has(instance)) {
+            instanceSet.add(instance);
+            this.instances.push(instance);
 
-                this.instances.push(instance);
-
-                instance.modelView.sceneChanged(instance, this);
-
-                if (instance.parent === null) {
-                    instance.setParent(this.root);
-                }
-
-                return true;
+            if (instance.scene) {
+                instance.scene.removeInstance(instance);
             }
+
+            instance.modelView.sceneChanged(instance, this);
+            instance.scene = this;
+
+            this.addView(instance.modelView);
+
+            return true;
         }
 
         return false;
+    }
+
+    // Add a model view to this scene if it wasn't added previously.
+    addView(modelView) {
+        let modelViewSet = this.modelViewSet;
+
+        if (!modelViewSet.has(modelView)) {
+            modelViewSet.add(modelView);
+            this.modelViews.push(modelView);
+        }
     }
 
     /**
@@ -99,20 +106,14 @@ export default class Scene {
      * @param {ModelInstance} instance The instance to remove.
      */
     removeInstance(instance) {
-        if (instance && instance.objectType === 'instance') {
-            let instanceSet = this.instanceSet;
+        if (this.instanceSet.delete(instance)) {
+            let instances = this.instances;
+            instances.splice(instances.indexOf(instance), 1);
 
-            if (instanceSet.has(instance)) {
-                instanceSet.delete(instance);
+            instance.modelView.sceneChanged(instance, null);
+            instance.scene = null;
 
-                let instances = this.instances;
-
-                instances.splice(instances.indexOf(instance), 1);
-
-                instance.modelView.sceneChanged(instance, null);
-
-                return true;
-            }
+            return true;
         }
 
         return false;
@@ -122,9 +123,7 @@ export default class Scene {
      * Removes all of the buckets in this scene.
      */
     clear() {
-        this.buckets.length = 0;
-        this.instanceSet.clear();
-        this.instances.length = 0;
+        
     }
 
     /**
@@ -138,91 +137,27 @@ export default class Scene {
         return false;
     }
 
-    // Note: the bucket will actually be added at the next update call.
-    addBucket(bucket) {
-        this.bucketsToAdd.push(bucket);
-    }
-
-    // Note: the bucket will actually be removed at the next update call.
-    removeBucket(bucket) {
-        this.bucketsToRemove.push(bucket);
-    }
-
-    // Sort the buckets based on priority.
-    // Note that this is never called by the library so far, and is manually used by the W3x handler.
-    sortBuckets() {
-        this.buckets.sort((a, b) => b.priority - a.priority);
-    }
-
     update() {
-        // First update all of the instances.
-        var instances = this.instances;
+        for (let instance of this.instances) {
+            if (instance.loaded && !instance.paused) {
+                // Update animation timers.
+                instance.updateTimers();
+                
+                if (instance.rendered) {
+                    let visible = this.isVisible(instance) || instance.noCulling || this.viewer.noCulling;
 
-        for (var i = 0, l = instances.length; i < l; i++) {
-            var instance = instances[i];
-
-            if (instance.loaded) {
-                var isVisible = this.isVisible(instance) || instance.noCulling || this.env.noCulling,
-                    isCulled = instance.culled;
-
-                // Handle culling.
-                if (isVisible && isCulled) {
-                    instance.uncull();
-                } else if (!isVisible && !isCulled) {
-                    instance.cull();
-                }
-
-                if (!instance.paused) {
-                    // Update animation timers.
-                    instance.updateTimers();
-
-                    instance.isVisible = isVisible && !isCulled;
-
-                    // If the instance is actually shown, do the full update.
-                    if (instance.isVisible) {
+                    instance.culled = !visible;
+                    
+                    if (visible) {
                         instance.update();
                     }
                 }
             }
         }
 
-        // Update the buckets.
-        var buckets = this.buckets;
-
-        for (var i = 0, l = buckets.length; i < l; i++) {
-            buckets[i].update(this);
+        for (let modelView of this.modelViews) {
+            modelView.update(this);
         }
-
-        // Now that all updates have finished, add and remove buckets.
-        var bucketSet = this.bucketSet,
-            bucketsToAdd = this.bucketsToAdd,
-            bucketsToRemove = this.bucketsToRemove;
-
-        // Add buckets.
-        for (var i = 0, l = bucketsToAdd.length; i < l; i++) {
-            var bucket = bucketsToAdd[i];
-
-            if (!bucketSet.has(bucket)) {
-                bucketSet.add(bucket);
-                buckets.push(bucket);
-            }
-        }
-
-        // Remove buckets.
-        for (var i = 0, l = bucketsToRemove.length; i < l; i++) {
-            var bucket = bucketsToRemove[i];
-
-            if (bucketSet.has(bucket)) {
-                if (bucket.instances.length === 0) {
-                    bucketSet.delete(bucket);
-                    buckets.splice(buckets.indexOf(bucket), 1);
-                }
-            }
-        }
-
-        // Reset the arrays.
-        bucketsToAdd.length = 0;
-        bucketsToRemove.length = 0;
     }
 
     isVisible(instance) {
@@ -241,39 +176,25 @@ export default class Scene {
         //return this.model.env.camera.testIntersectionAABB(instance.boundingShape) > 0;
     }
 
-    renderOpaque() {
-        let buckets = this.buckets;
+    renderOpaque(gl) {
+        this.setViewport(gl);
 
-        this.setViewport();
-
-        for (let i = 0, l = buckets.length; i < l; i++) {
-            buckets[i].renderOpaque(this);
+        for (let modelView of this.modelViews) {
+            modelView.renderOpaque(this);
         }
     }
 
-    renderTranslucent() {
-        let buckets = this.buckets;
+    renderTranslucent(gl) {
+        this.setViewport(gl);
 
-        this.setViewport();
-
-        for (let i = 0, l = buckets.length; i < l; i++) {
-            buckets[i].renderTranslucent(this);
+        for (let modelView of this.modelViews) {
+            modelView.renderTranslucent(this);
         }
     }
 
-    renderEmitters() {
-        let buckets = this.buckets;
-
-        this.setViewport();
-
-        for (let i = 0, l = buckets.length; i < l; i++) {
-            buckets[i].renderEmitters(this);
-        }
-    }
-
-    setViewport() {
+    setViewport(gl) {
         let viewport = this.camera.viewport;
 
-        this.env.gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+        gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
     }
 };

@@ -1,3 +1,15 @@
+function isMipmapFake(whichMipmap, mipmapOffsets) {
+    let offset = mipmapOffsets[whichMipmap];
+
+    for (let i = 0; i < whichMipmap; i++) {
+        if (mipmapOffsets[i] === offset) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 export default function sanityTest(texture) {
     let messages = [];
 
@@ -31,33 +43,33 @@ export default function sanityTest(texture) {
     for (let i = 0; i < 16; i++) {
         if (mipmapSizes[i] > 0) {
             // This happens if this mipmap level supposedly exists, but we already passed the level that should have been last.
-            if (width < 1 || height < 1) {
+            if (width < 1 && height < 1) {
                 messages.push(`Mipmap ${i}: this mipmap should not exist`);
-            } else {
-                if (content === 0) {
-                    try {
-                        let imageData = texture.getMipmap(i);
+            } else if (isMipmapFake(i, mipmapOffsets)) {
+                messages.push(`Mipmap ${i}: this mipmap is fake`);
+            } else if (content === 0) {
+                try {
+                    let imageData = texture.getMipmap(i);
 
-                        if (imageData.width !== width || imageData.height !== height) {
-                            messages.push(`Mipmap ${i}: the JPG width (${imageData.width}) and height (${imageData.height}) do not match the mipmap width (${width}) and height (${height})`);
-                        }
-                    } catch (e) {
-                        messages.push(`Mipmap ${i}: JPG decoding failed`)
-                    }
                     
-                } else if (content === 1) {
-                    let pixels = width * height,
-                        size = pixels + Math.ceil((pixels * alphaBits) / 8);
-
-                    if (size !== mipmapSizes[i]) {
-                        messages.push(`Mipmap ${i}: the declared size is ${mipmapSizes[i]}, but the real size is ${size}`);
+                    if (imageData.width !== width || imageData.height !== height) {
+                        messages.push(`Mipmap ${i}: the JPG width (${imageData.width}) and height (${imageData.height}) do not match the mipmap width (${width}) and height (${height})`);
                     }
+                } catch (e) {
+                    messages.push(`Mipmap ${i}: JPG decoding failed`)
+                }
+            } else if (content === 1) {
+                let pixels = width * height,
+                    size = pixels + Math.ceil((pixels * alphaBits) / 8);
+
+                if (size !== mipmapSizes[i]) {
+                    messages.push(`Mipmap ${i}: the declared size is ${mipmapSizes[i]}, but the real size is ${size}`);
                 }
             }
         }
 
-        width = Math.floor(width / 2);
-        height = Math.floor(height / 2);
+        width >>= 1;
+        height >>= 1;
     }
 
     return messages;

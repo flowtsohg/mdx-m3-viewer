@@ -16,10 +16,9 @@ export default class TexturedModelView extends ModelView {
     }
 
     applyShallowCopy(view) {
-        let textures = this.textures,
-            dstTextures = view.textures;
+        let textures = this.textures;
 
-        for (let [src, dst] of dstTextures) {
+        for (let [src, dst] of view.textures) {
             textures.set(src, dst)
         }
     }

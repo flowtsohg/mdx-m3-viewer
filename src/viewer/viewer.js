@@ -17,7 +17,7 @@ export default class ModelViewer extends EventDispatcher {
          *
          * @member {string}
          */
-        this.version = '4.2.2';
+        this.version = '4.2.3';
 
         /** @member {object} */
         this.resources = {
@@ -123,6 +123,8 @@ export default class ModelViewer extends EventDispatcher {
         this.noCulling = false; // Set to true to disable culling viewer-wide.
 
         this.textureAtlases = {};
+
+        this.batchSize = 256; // The size of instances batched per bucket.
     }
 
     /**
@@ -157,17 +159,15 @@ export default class ModelViewer extends EventDispatcher {
      * @returns {boolean}
      */
     addScene(scene) {
-        if (scene && scene.objectType === 'scene') {
-            let scenes = this.scenes,
-                index = scenes.indexOf(scene);
+        let scenes = this.scenes,
+            index = scenes.indexOf(scene);
 
-            if (index === -1) {
-                scenes.push(scene);
+        if (index === -1) {
+            scenes.push(scene);
 
-                scene.env = this;
-
-                return true;
-            }
+            scene.viewer = this;
+            
+            return true;
         }
 
         return false;
@@ -185,8 +185,6 @@ export default class ModelViewer extends EventDispatcher {
 
         if (index !== -1) {
             scenes.splice(index, 1);
-
-            scene.env = null;
 
             return true;
         }
@@ -542,19 +540,14 @@ export default class ModelViewer extends EventDispatcher {
         gl.depthMask(1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        // Render opaque geometry.
+        // Render opaque things.
         for (i = 0; i < l; i++) {
-            scenes[i].renderOpaque();
+            scenes[i].renderOpaque(gl);
         }
 
-        // Render translucent geometry.
+        // Render translucent things.
         for (i = 0; i < l; i++) {
-            scenes[i].renderTranslucent();
-        }
-
-        // Render all types of emitters.
-        for (i = 0; i < l; i++) {
-            scenes[i].renderEmitters();
+            scenes[i].renderTranslucent(gl);
         }
     }
 
@@ -562,6 +555,6 @@ export default class ModelViewer extends EventDispatcher {
     registerEvents(resource) {
         let listener = (e) => this.dispatchEvent(e);
 
-        ['loadstart', 'load', 'loadend', 'error', 'progress'].map((e) => resource.addEventListener(e, listener));
+        ['loadstart', 'load', 'loadend', 'error'].map((e) => resource.addEventListener(e, listener));
     }
 };

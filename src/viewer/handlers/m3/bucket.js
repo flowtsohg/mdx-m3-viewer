@@ -1,4 +1,8 @@
+import { mat4 } from 'gl-matrix';
 import Bucket from '../../bucket';
+
+// Heap allocations needed for this module.
+let matrixHeap = mat4.create();
 
 export default class M3Bucket extends Bucket {
     /**
@@ -14,13 +18,14 @@ export default class M3Bucket extends Bucket {
 
         var numberOfBones = model.initialReference.length;
 
-        this.boneArrayInstanceSize = numberOfBones * 16;
-        this.boneArray = new Float32Array(this.boneArrayInstanceSize * this.size);
+        let batchSize = model.batchSize;
 
-        this.updateBoneTexture = new Uint8Array([1]);
+        this.boneArrayInstanceSize = numberOfBones * 16;
+        this.boneArray = new Float32Array(this.boneArrayInstanceSize * batchSize);
+
         this.boneTexture = gl.createTexture();
         this.boneTextureWidth = numberOfBones * 4;
-        this.boneTextureHeight = this.size;
+        this.boneTextureHeight = batchSize;
         this.vectorSize = 1 / this.boneTextureWidth;
         this.rowSize = 1 / this.boneTextureHeight;
 
@@ -33,30 +38,16 @@ export default class M3Bucket extends Bucket {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.boneTextureWidth, this.boneTextureHeight, 0, gl.RGBA, gl.FLOAT, this.boneArray);
 
         // Team colors (per instance)
-        this.updateTeamColors = new Uint8Array(1);
-        this.teamColorArray = new Uint8Array(this.size);
+        this.teamColorArray = new Uint8Array(batchSize);
         this.teamColorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.teamColorArray, gl.DYNAMIC_DRAW);
 
         // Vertex color (per instance)
-        this.updateVertexColors = new Uint8Array(1);
-        this.vertexColorArray = new Uint8Array(4 * this.size).fill(255); // Vertex color initialized to white
+        this.vertexColorArray = new Uint8Array(4 * batchSize).fill(255); // Vertex color initialized to white
         this.vertexColorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.vertexColorArray, gl.DYNAMIC_DRAW);
-
-        // Batch visibility (per instance per batch)
-        this.updateBatches = new Uint8Array(model.batches.length);
-        this.batchVisibilityArrays = [];
-        this.batchVisibilityBuffers = [];
-
-        for (var i = 0, l = model.batches.length; i < l; i++) {
-            this.batchVisibilityArrays[i] = new Uint8Array(this.size);
-            this.batchVisibilityBuffers[i] = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.batchVisibilityBuffers[i]);
-            gl.bufferData(gl.ARRAY_BUFFER, this.batchVisibilityArrays[i], gl.DYNAMIC_DRAW);
-        }
     }
 
     getRenderStats() {
@@ -78,59 +69,96 @@ export default class M3Bucket extends Bucket {
         return { calls, instances, vertices, polygons, dynamicVertices: 0, dynamicPolygons: 0 };
     }
 
-    update(scene) {
-        let gl = this.gl,
-            size = this.instances.length;
+    fill(data, baseInstance, scene) {
+        let model = this.model,
+            gl = model.env.gl,
+            batchSize = model.batchSize,
+            initialReferences = model.initialReference,
+            boneLookup = model.boneLookup,
+            boneArray = this.boneArray,
+            teamColorArray = this.teamColorArray,
+            vertexColorArray = this.vertexColorArray,
+            instanceOffset = 0,
+            instances = data.instances;
 
-        //this.updateBatches.fill(0);
+        for (let l = instances.length; baseInstance < l && instanceOffset < batchSize; baseInstance++) {
+            let instance = instances[baseInstance];
 
-        //if (this.updateBoneTexture[0]) {
-        gl.activeTexture(gl.TEXTURE15);
-        gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
-        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, size, gl.RGBA, gl.FLOAT, this.boneArray);
-        //console.log(this.boneTextureWidth, size)
+            if (instance.loaded && instance.rendered && !instance.culled) {
+                let bones = instance.skeleton.bones,
+                    vertexColor = instance.vertexColor,
+                    boneMatrices = instance.skeleton.boneMatrices,
+                    base = instanceOffset * this.boneArrayInstanceSize;
 
-        //this.updateBoneTexture[0] = 0;
-        //}
+                // Update the bone texture data.
+                let sequence = instance.sequence,
+                    nodes = instance.skeleton.nodes,
+                    finalMatrix;
 
-        if (this.updateTeamColors[0]) {
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
-            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.teamColorArray.subarray(0, size));
+                if (sequence === -1) {
+                    finalMatrix = instance.worldMatrix;
+                } else {
+                    finalMatrix = matrixHeap;
 
-            this.updateTeamColors[0] = 0;
-        }
+                    mat4.identity(finalMatrix);
+                }
 
-        if (this.updateVertexColors[0]) {
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
-            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertexColorArray.subarray(0, 3 * size));
+                for (let i = 0, l = boneLookup.length; i < l; i++) {
+                    let offset = base + i * 16;
 
-            this.updateVertexColors[0] = 0;
-        }
-        /*
-        for (var i = 0, l = this.batchVisibilityArrays.length; i < l; i++) {
-            if (this.updateBatches[i]) {
-                gl.bindBuffer(gl.ARRAY_BUFFER, this.batchVisibilityBuffers[i]);
-                gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.batchVisibilityArrays[i].subarray(0, size));
+                    if (sequence !== -1) {
+                        let bone = boneLookup[i];
 
-                gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetColorBuffers[i]);
-                gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.geosetColorArrays[i].subarray(0, 4 * size));
+                        mat4.multiply(finalMatrix, nodes[bone].worldMatrix, initialReferences[bone]);
+                    }
+
+                    boneArray[offset] = finalMatrix[0];
+                    boneArray[offset + 1] = finalMatrix[1];
+                    boneArray[offset + 2] = finalMatrix[2];
+                    boneArray[offset + 3] = finalMatrix[3];
+                    boneArray[offset + 4] = finalMatrix[4];
+                    boneArray[offset + 5] = finalMatrix[5];
+                    boneArray[offset + 6] = finalMatrix[6];
+                    boneArray[offset + 7] = finalMatrix[7];
+                    boneArray[offset + 8] = finalMatrix[8];
+                    boneArray[offset + 9] = finalMatrix[9];
+                    boneArray[offset + 10] = finalMatrix[10];
+                    boneArray[offset + 11] = finalMatrix[11];
+                    boneArray[offset + 12] = finalMatrix[12];
+                    boneArray[offset + 13] = finalMatrix[13];
+                    boneArray[offset + 14] = finalMatrix[14];
+                    boneArray[offset + 15] = finalMatrix[15];
+                }
+
+                // Team color
+                teamColorArray[instanceOffset] = instance.teamColor;
+
+                // Vertex color
+                vertexColorArray[instanceOffset * 4] = vertexColor[0];
+                vertexColorArray[instanceOffset * 4 + 1] = vertexColor[1];
+                vertexColorArray[instanceOffset * 4 + 2] = vertexColor[2];
+                vertexColorArray[instanceOffset * 4 + 3] = vertexColor[3];
+
+                instanceOffset += 1;
             }
         }
-        */
-    }
 
-    getSharedData(index) {
-        var data = {
-            boneArray: new Float32Array(this.boneArray.buffer, this.boneArrayInstanceSize * 4 * index, this.boneArrayInstanceSize),
-            teamColorArray: new Uint8Array(this.teamColorArray.buffer, index, 1),
-            vertexColorArray: new Uint8Array(this.vertexColorArray.buffer, 4 * index, 4),
-            batchVisibilityArrays: []
-        };
+        // Save the number of instances of which data was copied.
+        this.count = instanceOffset;
 
-        for (var i = 0, l = this.batchVisibilityArrays.length; i < l; i++) {
-            data.batchVisibilityArrays[i] = new Uint8Array(this.batchVisibilityArrays[i].buffer, index, 1);
+        if (instanceOffset) {
+            gl.activeTexture(gl.TEXTURE15);
+            gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
+            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, instanceOffset, gl.RGBA, gl.FLOAT, this.boneArray);
+
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.teamColorArray);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertexColorArray);
         }
 
-        return data;
+        return baseInstance;
     }
 };

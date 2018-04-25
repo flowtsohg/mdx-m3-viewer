@@ -95,7 +95,7 @@ export default class MdxParticle2 {
         }
     }
 
-    update(scene) {
+    update() {
         let modelObject = this.emitter.modelObject,
             dt = modelObject.model.env.frameTime * 0.001,
             location = this.location,
@@ -167,7 +167,7 @@ export default class MdxParticle2 {
 
         vec4.lerp(color, colors[firstColor], colors[firstColor + 1], factor);
 
-        let camera = scene.camera,
+        let camera = this.instance.scene.camera,
             vectors;
 
         // Choose between a default rectangle or billboarded one

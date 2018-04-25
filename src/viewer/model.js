@@ -2,23 +2,22 @@ import DownloadableResource from './downloadableresource';
 
 export default class Model extends DownloadableResource {
     /**
-     * @param {ModelViewer} env
+     * @param {ModelViewer} viewer
      * @param {function(?)} pathSolver
      * @param {Handler} handler
      * @param {string} extension
      */
-    constructor(env, pathSolver, handler, extension) {
-        super(env, pathSolver, handler, extension);
+    constructor(viewer, pathSolver, handler, extension) {
+        super(viewer, pathSolver, handler, extension);
+
+        /** @member {number} */
+        this.batchSize = viewer.batchSize;
 
         /** @member {Array<ModelInstance>} */
         this.instances = [];
 
         /** @member {Array<ModelView>} */
         this.views = [];
-    }
-
-    get objectType() {
-        return 'model';
     }
 
     /**
@@ -62,15 +61,11 @@ export default class Model extends DownloadableResource {
         this.env.removeReference(this);
     }
 
-    renderOpaque(bucket) {
+    renderOpaque(data, scene, modelView) {
 
     }
 
-    renderTranslucent(bucket) {
-
-    }
-
-    renderEmitters(bucket) {
+    renderTranslucent(data, scene, modelView) {
 
     }
 
@@ -90,11 +85,7 @@ export default class Model extends DownloadableResource {
 
     viewChanged(instance, shallowView) {
         // Check if there's another view that matches the instance
-        let views = this.views;
-
-        for (let i = 0, l = views.length; i < l; i++) {
-            let view = views[i];
-
+        for (let view of this.views) {
             if (view.equals(shallowView)) {
                 view.addInstance(instance);
                 return;
@@ -106,16 +97,23 @@ export default class Model extends DownloadableResource {
 
         view.applyShallowCopy(shallowView);
         view.addInstance(instance);
+
+        // If the instance is already in a scene, and this is a new view, it will not be in the scene, so add it.
+        if (instance.scene) {
+            instance.scene.addView(view);
+        }
     }
 
     // This allows setting up preloaded instances without event listeners.
     resolve() {
         super.resolve();
+        
+        for (let view of this.views) {
+            view.modelReady();
+        }
 
-        let instances = this.instances;
-
-        for (let i = 0, l = instances.length; i < l; i++) {
-            instances[i].modelReady();
+        for (let instance of this.instances) {
+            instance.modelReady();
         }
     }
 };

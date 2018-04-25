@@ -9,7 +9,7 @@ export default class MdxSharedEmitter {
         this.inactive = [];
     }
 
-    update(scene) {
+    update(instances, scene) {
         let active = this.active,
             inactive = this.inactive;
 

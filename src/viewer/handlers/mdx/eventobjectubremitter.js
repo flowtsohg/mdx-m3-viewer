@@ -14,6 +14,16 @@ export default class MdxEventObjectUbrEmitter extends MdxSharedGeometryEmitter {
         this.bytesPerEmit = 4 * 30;
     }
 
+    fill(emitterView, scene) {
+        let emission = emitterView.currentEmission;
+
+        if (emission >= 1) {
+            for (let i = 0, l = Math.floor(emission); i < l; i++ , emitterView.currentEmission--) {
+                this.emit(emitterView);
+            }
+        }
+    }
+
     emit(emitterView) {
         if (this.modelObject.ready) {
             let inactive = this.inactive,

@@ -80,7 +80,7 @@ export default class ParticleEmitter2 extends GenericObject {
         stream.readUint32Array(this.headIntervals[1]);
         stream.readUint32Array(this.tailIntervals[0]);
         stream.readUint32Array(this.tailIntervals[1]);
-        this.textureId = stream.readUint32();
+        this.textureId = stream.readInt32();
         this.squirt = stream.readUint32();
         this.priorityPlane = stream.readUint32();
         this.replaceableId = stream.readUint32();
@@ -116,7 +116,7 @@ export default class ParticleEmitter2 extends GenericObject {
         stream.writeUint32Array(this.headIntervals[1]);
         stream.writeUint32Array(this.tailIntervals[0]);
         stream.writeUint32Array(this.tailIntervals[1]);
-        stream.writeUint32(this.textureId);
+        stream.writeInt32(this.textureId);
         stream.writeUint32(this.squirt);
         stream.writeUint32(this.priorityPlane);
         stream.writeUint32(this.replaceableId);

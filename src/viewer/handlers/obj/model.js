@@ -53,15 +53,14 @@ export default class ObjModel extends Model {
     }
 
     // Called every frame, render opaque stuff here.
-    renderOpaque(bucket, scene) {
+    renderOpaque(data, scene, modelView) {
         let webgl = this.env.webgl,
             gl = this.env.gl,
             instancedArrays = webgl.extensions.instancedArrays,
             shader = this.env.shaderMap.get('ObjShader'),
             uniforms = shader.uniforms,
             attribs = shader.attribs,
-            instances = bucket.instances;
-
+            instances = data.instances;
 
         webgl.useShaderProgram(shader);
 
@@ -85,12 +84,7 @@ export default class ObjModel extends Model {
     }
 
     // Called every frame, render stuff with alpha translucency here.
-    renderTranslucent(bucket, scene) {
-
-    }
-
-    // Called every frame, render any kind of particle emitter here.
-    renderEmitters(bucket, scene) {
+    renderTranslucent(data, scene, modelView) {
 
     }
 };

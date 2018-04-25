@@ -5,17 +5,9 @@ export default class ModelView {
     constructor(model) {
         /** @member {Model} */
         this.model = model;
-        /** @member {Array<ModelInstance>} */
-        this.instances = [];
-        /** @member {Array<Bucket>} */
-        this.buckets = [];
-        /** @member {Map<Scene, Array<Bucket>>} */
-        this.sceneToBucket = new Map();
-    }
 
-    /** @member {string} */
-    get objectType() {
-        return 'modelview';
+        this.instanceSet = new Set();
+        this.sceneData = new Map();
     }
 
     // Get a shallow copy of this view
@@ -33,48 +25,130 @@ export default class ModelView {
         return true;
     }
 
-    addInstance(instance) {
-        // If the instance is already in another view, remove it first.
-        // This is always true, except when the instance is created and added to its first view.
-        let modelView = instance.modelView;
-        if (modelView) {
-            modelView.removeInstance(instance);
-        }
-
-        // Add the instance
-        this.instances.push(instance);
-        instance.modelView = this;
-
-        // If it should be rendered, add it to a bucket
-        if (instance.shouldRender && instance.scene && instance.loaded) {
-            this.setVisibility(instance, true);
+    // Called when the model loads
+    modelReady() {
+        for (let instance of this.instanceSet) {
+            this.addSceneData(instance, instance.scene);
         }
     }
 
-    removeInstance(instance) {
-        // If the instance has a bucket, remove it from it.
-        if (instance.bucket) {
-            this.setVisibility(instance, false);
+    addSceneData(instance, scene) {
+        if (scene) {
+            let sceneData = this.sceneData,
+                data = sceneData.get(scene);
+
+            if (!data) {
+                data = this.createSceneData();
+
+                sceneData.set(scene, data);
+            }
+
+            data.instances.push(instance);
+        }
+    }
+
+    addInstance(instance) {
+        let instanceSet = this.instanceSet;
+
+        if (!instanceSet.has(instance)) {
+            // If the instance is already in another view, remove it first.
+            // This is always true, except when the instance is created and added to its first view.
+            let modelView = instance.modelView;
+            if (modelView) {
+                modelView.removeInstance(instance);
+            }
+
+            // Add the instance
+            instanceSet.add(instance);
+            instance.modelView = this;
+
+            // The scene data may depend on the model, so if it's not loaded yet, it can't be created.
+            if (this.model.loaded) {
+                this.addSceneData(instance, instance.scene);
+            }
+
+            return true;
         }
 
-        instance.modelView = null;
+        return false;
+    }
 
-        let instances = this.instances;
+    createSceneData() {
+        return {
+            instances: [],
+            buckets: []
+        };
+    }
 
-        instances.splice(instances.indexOf(instance), 1);
+    removeInstance(instance) {
+        let instanceSet = this.instanceSet;
 
-        // If the view now has no instances, ask the model to remove.
-        if (instances.length === 0) {
-            this.model.removeView(this);
+        if (instanceSet.delete(instance)) {
+            let sceneData = this.sceneData,
+                scene = instance.scene;
+
+            if (scene) {
+                let data = sceneData.get(scene),
+                    instances = data.instances,
+                    buckets = data.buckets;
+
+                // Remove the instance from its scene data.
+                instances.splice(instances.indexOf(instance), 1);
+
+                // See how many buckets are needed to hold all of the instances.
+                let neededBuckets = Math.ceil(instances.length / this.model.batchSize);
+                
+                // If there are more buckets than are needed, remove them.
+                if (neededBuckets < buckets.length) {
+                    buckets.length = neededBuckets;
+                }
+            }
+
+            instance.modelView = null;
+
+            // If this view has no instances, ask the model to remove it.
+            if (instanceSet.size === 0) {
+                /// TODO: THIS NEEDS TO ALSO UPDATE ALL SCENES???
+                this.model.removeView(this);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    // Called every time an instance changes its scene via scene.addInstance(instance) or instance.setScene(scene).
+    sceneChanged(instance, scene) {
+        let sceneData = this.sceneData,
+            oldScene = instance.scene;
+
+        if (oldScene) {
+            let data = sceneData.get(oldScene),
+                instances = data.instances,
+                buckets = data.buckets;
+
+            // Remove the instance from its scene data.
+            instances.splice(instances.indexOf(instance), 1);
+
+            // See how many buckets are needed to hold all of the instances.
+            let neededBuckets = Math.ceil(instances.length / this.model.batchSize);
+            
+            // If there are more buckets than are needed, remove them.
+            if (neededBuckets < buckets.length) {
+                buckets.length = neededBuckets;
+            }
+        }
+
+        if (scene) {
+            if (this.model.loaded) {
+                this.addSceneData(instance, scene);
+            }
         }
     }
 
     clear() {
-        let instances = this.instances;
 
-        for (let i = 0, l = instances.length; i < l; i++) {
-            this.removeInstance(instances[i]);
-        }
     }
 
     detach() {
@@ -88,78 +162,49 @@ export default class ModelView {
         return false;
     }
 
-    // Find a bucket that isn't full. If no bucket is found, add a new bucket and return it.
-    getAvailableBucket(scene) {
-        let sceneToBucket = this.sceneToBucket;
+    update(scene) {
+        if (this.model.loaded) {
+            let data = this.sceneData.get(scene);
 
-        if (!sceneToBucket.has(scene)) {
-            sceneToBucket.set(scene, []);
-        }
+            if (data) {
+                let instances = data.instances,
+                    buckets = data.buckets,
+                    bucketIndex = 0,
+                    offset = 0,
+                    count = instances.length;
 
-        let buckets = sceneToBucket.get(scene);
+                while (offset < count) {
+                    let bucket = buckets[bucketIndex];
 
-        for (let i = 0, l = buckets.length; i < l; i++) {
-            let bucket = buckets[i];
+                    if (!bucket) {
+                        bucket = new this.model.handler.bucket(this);
 
-            if (!bucket.isFull()) {
-                return bucket;
-            }
-        }
+                        buckets[bucketIndex] = bucket;
+                    }
 
-        let bucket = new this.model.handler.bucket(this);
+                    bucketIndex += 1;
 
-        buckets.push(bucket);
+                    offset = bucket.fill(data, offset, scene);
+                }
 
-        this.buckets.push(bucket);
-
-        return bucket;
-    }
-
-    sceneChanged(instance, scene) {
-        if (instance.scene !== scene) {
-            let loaded = this.model.loaded;
-
-            // Remove the instance from its current bucket
-            if (instance.scene && loaded) {
-                this.setVisibility(instance, false);
-            }
-
-            // Set the scene
-            instance.scene = scene;
-
-            // If the instance should be rendered, add it to a bucket
-            if (instance.shouldRender && !instance.culled && scene && loaded) {
-                this.setVisibility(instance, true);
+                return data;
             }
         }
     }
 
-    // Note: this should only be called if the instance has a bucket and a scene
-    setVisibility(instance, shouldRender) {
-        if (shouldRender) {
-            let bucket = this.getAvailableBucket(instance.scene);
+    renderOpaque(scene) {
+        let data = this.sceneData.get(scene);
 
-            instance.bucket = bucket;
-            instance.setSharedData(bucket.addInstance(instance));
+        if (data) {
+            this.model.renderOpaque(data, scene, this);
+        }
+    }
 
-            // Will add the bucket if it wasn't already added
-            instance.scene.addBucket(bucket);
+    renderTranslucent(scene) {
+        let data = this.sceneData.get(scene);
 
-            return true;
-        } else {
-            let bucket = instance.bucket;
-
-            bucket.removeInstance(instance);
-
-            // Invalidate whatever shared data this instance used, because it doesn't belong to it anymore.
-            instance.bucket = null;
-            instance.invalidateSharedData();
-
-            // Will remove the bucket if it has 0 instances
-            // TODO: This causes weird logic, and can cause to loop over undefined buckets.
-            instance.scene.removeBucket(bucket);
-
-            return false;
+        if (data) {
+            this.model.renderTranslucent(data, scene, this);
         }
     }
 };

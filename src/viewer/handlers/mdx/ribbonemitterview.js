@@ -13,21 +13,9 @@ export default class MdxRibbonEmitterView {
     }
 
     update() {
-        if (this.shouldRender()) {
-            let emitter = this.emitter;
-
-            this.currentEmission += emitter.modelObject.emissionRate * this.instance.env.frameTime * 0.001;
-
-            if (this.currentEmission >= 1) {
-                for (let i = 0, l = Math.floor(this.currentEmission); i < l; i++ , this.currentEmission--) {
-                    this.lastEmit = emitter.emit(this);
-                }
-            }
+        if (this.getVisibility() > 0.75) {
+            this.currentEmission += this.emitter.emissionRate * this.instance.env.frameTime * 0.001;
         }
-    }
-
-    shouldRender() {
-        return this.emitter.shouldRender(this.instance);
     }
 
     getHeightBelow() {

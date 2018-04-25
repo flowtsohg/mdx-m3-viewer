@@ -14,16 +14,17 @@ export default class MdxBucket extends Bucket {
         super(modelView);
 
         let model = this.model,
+            batchSize = model.batchSize,
             gl = model.env.gl,
             numberOfBones = model.bones.length + 1,
             objects;
 
         this.boneArrayInstanceSize = numberOfBones * 16;
-        this.boneArray = new Float32Array(this.boneArrayInstanceSize * this.size);
+        this.boneArray = new Float32Array(this.boneArrayInstanceSize * batchSize);
 
         this.boneTexture = gl.createTexture();
         this.boneTextureWidth = numberOfBones * 4;
-        this.boneTextureHeight = this.size;
+        this.boneTextureHeight = batchSize;
         this.vectorSize = 1 / this.boneTextureWidth;
         this.rowSize = 1 / this.boneTextureHeight;
 
@@ -36,13 +37,13 @@ export default class MdxBucket extends Bucket {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.boneTextureWidth, this.boneTextureHeight, 0, gl.RGBA, gl.FLOAT, this.boneArray);
 
         // Team colors (per instance)
-        this.teamColorArray = new Uint8Array(this.size);
+        this.teamColorArray = new Uint8Array(batchSize);
         this.teamColorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.teamColorArray, gl.DYNAMIC_DRAW);
 
         // Vertex color (per instance)
-        this.vertexColorArray = new Uint8Array(4 * this.size).fill(255); // Vertex color initialized to white
+        this.vertexColorArray = new Uint8Array(4 * batchSize).fill(255); // Vertex color initialized to white
         this.vertexColorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.vertexColorArray, gl.DYNAMIC_DRAW);
@@ -64,52 +65,22 @@ export default class MdxBucket extends Bucket {
         // Batches
         if (this.hasBatches) {
             for (var i = 0, l = model.geosets.length; i < l; i++) {
-                this.geosetColorArrays[i] = new Uint8Array(4 * this.size).fill(255); // Geoset colors are initialized to white
+                this.geosetColorArrays[i] = new Uint8Array(4 * batchSize).fill(255); // Geoset colors are initialized to white
                 this.geosetColorBuffers[i] = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetColorBuffers[i]);
                 gl.bufferData(gl.ARRAY_BUFFER, this.geosetColorArrays[i], gl.DYNAMIC_DRAW);
             }
 
             for (var i = 0, l = model.layers.length; i < l; i++) {
-                this.uvOffsetArrays[i] = new Float32Array(4 * this.size);
+                this.uvOffsetArrays[i] = new Float32Array(4 * batchSize);
                 this.uvOffsetBuffers[i] = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.uvOffsetBuffers[i]);
                 gl.bufferData(gl.ARRAY_BUFFER, this.uvOffsetArrays[i], gl.DYNAMIC_DRAW);
 
-                this.layerAlphaArrays[i] = new Uint8Array(this.size).fill(255); // Layer alphas are initialized to opaque
+                this.layerAlphaArrays[i] = new Uint8Array(batchSize).fill(255); // Layer alphas are initialized to opaque
                 this.layerAlphaBuffers[i] = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.layerAlphaBuffers[i]);
                 gl.bufferData(gl.ARRAY_BUFFER, this.layerAlphaArrays[i], gl.DYNAMIC_DRAW);
-            }
-        }
-
-        // Emitters
-        this.particleEmitters = [];
-        this.particle2Emitters = [];
-        this.eventObjectEmitters = [];
-        this.ribbonEmitters = [];
-
-        for (let emitter of model.particleEmitters) {
-            this.particleEmitters.push(new MdxParticleEmitter(emitter));
-        }
-
-        for (let emitter of model.particleEmitters2) {
-            this.particle2Emitters.push(new MdxParticleEmitter2(emitter));
-        }
-
-        for (let emitter of model.ribbonEmitters) {
-            this.ribbonEmitters.push(new MdxRibbonEmitter(emitter));
-        }
-
-        for (let emitter of model.eventObjects) {
-            let type = emitter.type;
-
-            if (type === 'SPN') {
-                this.eventObjectEmitters.push(new MdxEventObjectSpnEmitter(emitter));
-            } else if (type === 'SPL') {
-                this.eventObjectEmitters.push(new MdxEventObjectSplEmitter(emitter));
-            } else if (type === 'UBR') {
-                this.eventObjectEmitters.push(new MdxEventObjectUbrEmitter(emitter));
             }
         }
     }
@@ -176,34 +147,40 @@ export default class MdxBucket extends Bucket {
         return { calls, instances, vertices, polygons, dynamicVertices, dynamicPolygons };
     }
 
-    update(scene) {
-        let size = this.instances.length,
-            model = this.model,
+    fill(data, baseInstance, scene) {
+        let model = this.model,
             gl = model.env.gl,
-            geosets = model.geosets,
-            geosetCount = geosets.length,
-            layers = model.layers,
-            layerCount = layers.length,
-            instances = this.instances,
+            batchSize = model.batchSize,
+            geosetCount = model.geosets.length,
+            layerCount = model.layers.length,
             boneArray = this.boneArray,
             teamColorArray = this.teamColorArray,
             vertexColorArray = this.vertexColorArray,
             geosetColorArrays = this.geosetColorArrays,
             layerAlphaArrays = this.layerAlphaArrays,
             uvOffsetArrays = this.uvOffsetArrays,
-            instanceOffset = 0;
+            instanceOffset = 0,
+            instances = data.instances,
+            particleEmitters = data.particleEmitters,
+            particleEmitters2 = data.particleEmitters2,
+            ribbonEmitters = data.ribbonEmitters,
+            eventObjectEmitters = data.eventObjectEmitters;
 
-        for (let i = 0, l = instances.length; i < l; i++) {
-            let instance = instances[i];
+        for (let l = instances.length; baseInstance < l && instanceOffset < batchSize; baseInstance++) {
+            let instance = instances[baseInstance];
 
-            if (instance.isVisible) {
+            if (instance.loaded && instance.rendered && !instance.culled) {
                 let bones = instance.skeleton.bones,
                     vertexColor = instance.vertexColor,
                     boneMatrices = instance.skeleton.boneMatrices,
                     geosetColors = instance.geosetColors,
                     layerAlphas = instance.layerAlphas,
                     uvOffsets = instance.uvOffsets,
-                    base = 16 + instanceOffset * (16 + boneMatrices.length);
+                    base = 16 + instanceOffset * (16 + boneMatrices.length),
+                    particleEmitterViews = instance.particleEmitters,
+                    particleEmitter2Views = instance.particleEmitters2,
+                    ribbonEmitterViews = instance.ribbonEmitters,
+                    eventObjectEmitterViews = instance.eventObjectEmitters;
 
                 // Bones
                 for (let j = 0, k = boneMatrices.length; j < k; j++) {
@@ -214,7 +191,7 @@ export default class MdxBucket extends Bucket {
                 teamColorArray[instanceOffset] = instance.teamColor;
 
                 // Vertex color
-                vertexColorArray[instanceOffset * 4 + 0] = vertexColor[0];
+                vertexColorArray[instanceOffset * 4] = vertexColor[0];
                 vertexColorArray[instanceOffset * 4 + 1] = vertexColor[1];
                 vertexColorArray[instanceOffset * 4 + 2] = vertexColor[2];
                 vertexColorArray[instanceOffset * 4 + 3] = vertexColor[3];
@@ -243,53 +220,54 @@ export default class MdxBucket extends Bucket {
                     uvOffsetArray[instanceOffset * 4 + 3] = uvOffsets[layerIndex * 4 + 3];
                 }
 
+                for (let i = 0, l = particleEmitters.length; i < l; i++) {
+                    particleEmitters[i].fill(particleEmitterViews[i], scene);
+                }
+
+                for (let i = 0, l = particleEmitters2.length; i < l; i++) {
+                    particleEmitters2[i].fill(particleEmitter2Views[i], scene);
+                }
+
+                for (let i = 0, l = ribbonEmitters.length; i < l; i++) {
+                    ribbonEmitters[i].fill(ribbonEmitterViews[i], scene);
+                }
+
+                for (let i = 0, l = eventObjectEmitters.length; i < l; i++) {
+                    eventObjectEmitters[i].fill(eventObjectEmitterViews[i], scene);
+                }
+
                 instanceOffset += 1;
             }
         }
 
-        gl.activeTexture(gl.TEXTURE15);
-        gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
-        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, size, gl.RGBA, gl.FLOAT, boneArray);
+        // Save the number of instances of which data was copied.
+        this.count = instanceOffset;
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.teamColorArray);
+        if (instanceOffset) {
+            gl.activeTexture(gl.TEXTURE15);
+            gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
+            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, instanceOffset, gl.RGBA, gl.FLOAT, boneArray);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertexColorArray);
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, teamColorArray);
 
-        for (let i = 0; i < geosetCount; i++) {
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetColorBuffers[i]);
-            gl.bufferSubData(gl.ARRAY_BUFFER, 0, geosetColorArrays[i]);
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertexColorArray);
+
+            for (let i = 0; i < geosetCount; i++) {
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetColorBuffers[i]);
+                gl.bufferSubData(gl.ARRAY_BUFFER, 0, geosetColorArrays[i]);
+            }
+
+            for (let i = 0; i < layerCount; i++) {
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.layerAlphaBuffers[i]);
+                gl.bufferSubData(gl.ARRAY_BUFFER, 0, layerAlphaArrays[i]);
+
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.uvOffsetBuffers[i]);
+                gl.bufferSubData(gl.ARRAY_BUFFER, 0, uvOffsetArrays[i]);
+            }
         }
 
-        for (let i = 0; i < layerCount; i++) {
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.layerAlphaBuffers[i]);
-            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.layerAlphaArrays[i]);
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.uvOffsetBuffers[i]);
-            gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.uvOffsetArrays[i]);
-        }
-
-        let objects;
-
-        objects = this.particleEmitters;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            objects[i].update();
-        }
-
-        objects = this.particle2Emitters;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            objects[i].update(scene);
-        }
-
-        objects = this.ribbonEmitters;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            objects[i].update(scene);
-        }
-
-        objects = this.eventObjectEmitters;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            objects[i].update(scene);
-        }
+        return baseInstance;
     }
 };

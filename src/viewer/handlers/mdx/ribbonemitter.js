@@ -1,11 +1,7 @@
-import { vec3 } from 'gl-matrix';
 import ResizeableBuffer from '../../gl/resizeablebuffer';
 import MdxSharedGeometryEmitter from './sharedgeometryemitter';
 import MdxSdContainer from './sd';
 import MdxRibbon from './ribbon';
-
-// Heap allocations needed for this module.
-let colorHeap = vec3.create();
 
 export default class MdxRibbonEmitter extends MdxSharedGeometryEmitter {
     /**
@@ -17,6 +13,16 @@ export default class MdxRibbonEmitter extends MdxSharedGeometryEmitter {
 
         this.bytesPerEmit = 4 * 30;
         this.buffer = new ResizeableBuffer(modelObject.model.env.gl);
+    }
+
+    fill(emitterView, scene) {
+        let emission = emitterView.currentEmission;
+
+        if (emission >= 1) {
+            for (let i = 0, l = Math.floor(emission); i < l; i++ , emitterView.currentEmission--) {
+                emitterView.lastEmit = this.emit(emitterView);
+            }
+        }
     }
 
     emit(emitterView) {
@@ -38,7 +44,7 @@ export default class MdxRibbonEmitter extends MdxSharedGeometryEmitter {
         return object;
     }
 
-    render(bucket, shader) {
+    render(modelView, shader) {
         let active = this.active.length;
 
         if (active > 0) {
@@ -49,7 +55,7 @@ export default class MdxRibbonEmitter extends MdxSharedGeometryEmitter {
 
             gl.uniform2fv(shader.uniforms.get('u_dimensions'), this.modelObject.dimensions);
 
-            model.bindTexture(this.modelObject.texture, 0, bucket.modelView);
+            model.bindTexture(this.modelObject.texture, 0, modelView);
 
             /// TODO: Needed to avoid bleeding from the other side of the texture.
             ///       Any better way to handle this?
@@ -64,33 +70,5 @@ export default class MdxRibbonEmitter extends MdxSharedGeometryEmitter {
 
             gl.drawArrays(gl.TRIANGLES, 0, active * 6);
         }
-    }
-
-    shouldRender(instance) {
-        return this.getVisibility(instance) > 0.75;
-    }
-
-    getHeightBelow(instance) {
-        return this.modelObject.getValue('KRHB', instance, this.modelObject.heightBelow);
-    }
-
-    getHeightAbove(instance) {
-        return this.modelObject.getValue('KRHA', instance, this.modelObject.heightAbove);
-    }
-
-    getTextureSlot(instance) {
-        return this.modelObject.getValue('KRTX', instance, 0);
-    }
-
-    getColor(instance) {
-        return this.modelObject.getValue3(colorHeap, 'KRCO', instance, this.modelObject.color);
-    }
-
-    getAlpha(instance) {
-        return this.modelObject.getValue('KRAL', instance, this.modelObject.alpha);
-    }
-
-    getVisibility(instance) {
-        return this.modelObject.getValue('KRVS', instance, 1);
     }
 };

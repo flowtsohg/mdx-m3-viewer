@@ -43,7 +43,7 @@ export default class EventObject extends GenericObject {
         }
 
         let path = typeToSlk[type];
-
+        
         if (path) {
             let slk = env.load(path, model.pathSolver);
 

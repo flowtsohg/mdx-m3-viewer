@@ -3,7 +3,7 @@ import Tga from '../tga/handler';
 import Slk from '../slk/handler';
 import NativeTexture from '../nativetexture/handler';
 import MdxModel from './model';
-import TexturedModelView from '../../texturedmodelview';
+import MdxModelView from './modelview';
 import MdxBucket from './bucket';
 import MdxModelInstance from './modelinstance';
 import MdxShaders from './shaders';
@@ -25,7 +25,7 @@ export default {
 
     extensions: [['.mdx', 'arrayBuffer'], ['.mdl', 'text']],
     constructor: MdxModel,
-    view: TexturedModelView,
+    view: MdxModelView,
     bucket: MdxBucket,
     instance: MdxModelInstance
 };

@@ -52,7 +52,7 @@ export default class MdxSharedGeometryEmitter extends MdxSharedEmitter {
         }
     }
 
-    render(bucket, shader) {
+    render(modelView, shader) {
         let modelObject = this.modelObject,
             active = this.active.length;
 
@@ -64,7 +64,7 @@ export default class MdxSharedGeometryEmitter extends MdxSharedEmitter {
 
             gl.uniform2fv(shader.uniforms.get('u_dimensions'), modelObject.dimensions);
 
-            model.bindTexture(modelObject.internalResource, 0, bucket.modelView);
+            model.bindTexture(modelObject.internalResource, 0, modelView);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer.buffer);
             gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.buffer.float32array.subarray(0, active * 30));

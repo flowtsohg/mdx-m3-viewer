@@ -15,6 +15,8 @@ export default class M3ModelInstance extends TexturedModelInstance {
         this.sequence = -1;
         this.frame = 0;
         this.sequenceLoopMode = 0;
+
+        this.forced = true;
     }
 
     initialize() {
@@ -26,28 +28,6 @@ export default class M3ModelInstance extends TexturedModelInstance {
         if (this.sequence !== -1) {
             this.setSequence(this.sequence);
         }
-    }
-
-    setSharedData(sharedData) {
-        this.boneArray = sharedData.boneArray;
-
-        // Update once at setup, since it might not be updated later, depending on sequence variancy
-        this.skeleton.update();
-
-        this.teamColorArray = sharedData.teamColorArray;
-        this.vertexColorArray = sharedData.vertexColorArray;
-
-        this.teamColorArray[0] = this.teamColor;
-        this.bucket.updateTeamColors[0] = 1;
-
-        this.vertexColorArray.set(this.vertexColor);
-        this.bucket.updateVertexColors[0] = 1;
-    }
-
-    invalidateSharedData() {
-        this.skeleton.boneArray = null;
-        this.teamColorArray = null;
-        this.vertexColorArray = null;
     }
 
     updateTimers() {
@@ -72,11 +52,8 @@ export default class M3ModelInstance extends TexturedModelInstance {
     }
 
     update() {
-        var sequenceId = this.sequence;
-
-        if (sequenceId !== -1) {
+        if (this.forced || this.sequence !== -1) {
             this.skeleton.update();
-            this.bucket.updateBoneTexture[0] = 1;
         }
     }
 
@@ -93,21 +70,11 @@ export default class M3ModelInstance extends TexturedModelInstance {
     setTeamColor(id) {
         this.teamColor = id;
 
-        if (this.bucket) {
-            this.teamColorArray[0] = id;
-            this.bucket.updateTeamColors[0] = 1;
-        }
-
         return this;
     }
 
     setVertexColor(color) {
         this.vertexColor.set(color);
-
-        if (this.bucket) {
-            this.vertexColorArray.set(color);
-            this.bucket.updateVertexColors[0] = 1;
-        }
 
         return this;
     }
@@ -125,10 +92,8 @@ export default class M3ModelInstance extends TexturedModelInstance {
                 this.sequence = id;
             }
 
-            if (this.bucket) {
-                // Update the skeleton in case this sequence isn't variant, and thus it won't get updated in the update function
-                this.skeleton.update();
-            }
+            // Do a forced update, so non-animated data can be skipped in future updates
+            this.forced = true;
         }
 
         return this;

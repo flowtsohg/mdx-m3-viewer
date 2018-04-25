@@ -176,13 +176,8 @@ export default class UnitTester {
             // Run the test.
             test.test(viewer, scene, camera, data);
 
-            // Update the viewer.
-            // Do it twice to ensure all of the internal viewer state finished loading (e.g. buckets)
-            viewer.update();
-            viewer.update();
-
-            // Render the viewer
-            viewer.render();
+            // Update and render.
+            viewer.updateAndRender();
 
             // Put back Math.random in its place.
             Math.random = this.mathRandom;

@@ -73,13 +73,20 @@ export default class WebGL {
         this.floatPrecision = 'precision mediump float;\n';
 
         // An empty 2x2 texture that is used automatically when binding an invalid texture
+        let imageData = new ImageData(2, 2);
+
+        // Alpha fully set.
+        for (let i = 0; i < 4; i++) {
+            imageData.data[i * 4 + 3] = 255;
+        }
+
         let emptyTexture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, emptyTexture);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, new ImageData(2, 2));
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
 
         /** @member {WebGLTexture} */
         this.emptyTexture = emptyTexture;

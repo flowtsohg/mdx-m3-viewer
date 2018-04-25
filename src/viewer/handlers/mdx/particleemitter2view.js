@@ -11,10 +11,10 @@ export default class MdxParticleEmitter2View {
     }
 
     update() {
-        if (this.shouldRender()) {
+        if (this.getVisibility() > 0.75) {
             let emitter = this.emitter;
 
-            if (emitter.modelObject.squirt) {
+            if (emitter.squirt) {
                 let keyframe = this.getEmissionRateKeyframe();
 
                 if (keyframe !== this.lastEmissionKey) {
@@ -25,17 +25,7 @@ export default class MdxParticleEmitter2View {
             } else {
                 this.currentEmission += this.getEmissionRate() * this.instance.env.frameTime * 0.001;
             }
-
-            if (this.currentEmission >= 1) {
-                for (let i = 0, l = Math.floor(this.currentEmission); i < l; i++ , this.currentEmission--) {
-                    emitter.emit(this);
-                }
-            }
         }
-    }
-
-    shouldRender() {
-        return this.emitter.shouldRender(this.instance);
     }
 
     getWidth() {

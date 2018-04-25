@@ -372,53 +372,35 @@ export default class M3Model extends TexturedModel {
         let shader = this.shader,
             region = batch.region,
             material = batch.material;
-
+            
         material.bind(bucket, shader);
 
-        region.render(shader, bucket.instances.length);
+        region.render(shader, bucket.count);
 
         material.unbind(shader); // This is required to not use by mistake layers from this material that were bound and are not overwritten by the next material
     }
 
-    renderOpaque(bucket, scene) {
-        const batches = this.batches;
-
-        if (batches.length) {
-            //const updateBatches = bucket.updateBatches;
-
+    renderBatches(bucket, scene, batches) {
+        if (batches && batches.length) {
             this.bind(bucket, scene);
 
             for (let i = 0, l = batches.length; i < l; i++) {
-                const batch = batches[i];
-
-                //if (updateBatches[batch.index]) {
-                this.renderBatch(bucket, batch);
-                //}
+                this.renderBatch(bucket, batches[i]);
             }
 
             this.unbind();
         }
     }
 
-    renderTranslucent(bucket, scene) {
-
+    renderOpaque(data, scene, modelView) {
+        for (let bucket of data.buckets) {
+            if (bucket.count) {
+                this.renderBatches(bucket, scene, this.batches);
+            }
+        }
     }
 
-    renderEmitters(bucket, scene) {
-        /*
-        if (this.particleEmitters) {
-        ctx.disable(ctx.CULL_FACE);
-    
-        for (i = 0, l = this.particleEmitters.length; i < l; i++) {
-        gl.bindShader('particles');
-    
-        gl.bindMVP('u_mvp');
-    
-        this.particleEmitters[i].render();
-        }
-    
-        ctx.enable(ctx.CULL_FACE);
-        }
-        */
+    renderTranslucent(data, scene, modelView) {
+
     }
 };

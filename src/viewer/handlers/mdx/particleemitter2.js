@@ -13,6 +13,16 @@ export default class MdxParticleEmitter2 extends MdxSharedGeometryEmitter {
         this.buffer = new ResizeableBuffer(modelObject.model.env.gl);
     }
 
+    fill(emitterView, scene) {
+        let emission = emitterView.currentEmission;
+
+        if (emission >= 1) {
+            for (let i = 0, l = Math.floor(emission); i < l; i++ , emitterView.currentEmission--) {
+                this.emit(emitterView);
+            }
+        }
+    }
+
     emitParticle(emitterView, isHead) {
         this.buffer.grow((this.active.length + 1) * this.bytesPerEmit);
 
@@ -38,45 +48,5 @@ export default class MdxParticleEmitter2 extends MdxSharedGeometryEmitter {
         if (this.modelObject.tail) {
             this.emitParticle(emitterView, false);
         }
-    }
-
-    shouldRender(instance) {
-        return this.getVisibility(instance) > 0.75;
-    }
-
-    getWidth(instance) {
-        return this.modelObject.getValue('KP2W', instance, this.modelObject.width);
-    }
-
-    getLength(instance) {
-        return this.modelObject.getValue('KP2N', instance, this.modelObject.length);
-    }
-
-    getSpeed(instance) {
-        return this.modelObject.getValue('KP2S', instance, this.modelObject.speed);
-    }
-
-    getLatitude(instance) {
-        return this.modelObject.getValue('KP2L', instance, this.modelObject.latitude);
-    }
-
-    getGravity(instance) {
-        return this.modelObject.getValue('KP2G', instance, this.modelObject.gravity);
-    }
-
-    getEmissionRate(instance) {
-        return this.modelObject.getValue('KP2E', instance, this.modelObject.emissionRate);
-    }
-
-    getEmissionRateKeyframe(instance) {
-        return this.modelObject.getKeyframe('KP2E', instance);
-    }
-
-    getVisibility(instance) {
-        return this.modelObject.getValue('KP2V', instance, 1);
-    }
-
-    getVariation(instance) {
-        return this.modelObject.getValue('KP2R', instance, this.modelObject.variation);
     }
 };
