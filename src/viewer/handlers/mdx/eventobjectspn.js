@@ -1,4 +1,4 @@
-export default class MdxEventObjectSpn {
+export default class EventObjectSpn {
     /**
      * @param {MdxEventObjectEmitter} emitter
      */
@@ -10,7 +10,7 @@ export default class MdxEventObjectSpn {
 
     reset(emitterView) {
         let instance = this.internalResource,
-            node = emitterView.instance.skeleton.nodes[this.emitter.modelObject.index];
+            node = emitterView.instance.nodes[this.emitter.modelObject.index];
 
         instance.setSequence(0);
         instance.setTransformation(node.worldLocation, node.worldRotation, node.worldScale);

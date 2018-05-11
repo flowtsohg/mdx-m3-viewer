@@ -1,4 +1,5 @@
 import { vec3, quat } from 'gl-matrix';
+import { VEC3_UNIT_Z } from '../../../common/gl-matrix-addon';
 import standSequence from './standsequence';
 
 export default class W3xUnit {
@@ -78,12 +79,12 @@ export default class W3xUnit {
         this.map.scene.addInstance(instance);
 
         instance.setLocation(this.location);
-        instance.setRotation(quat.setAxisAngle(quat.create(), vec3.UNIT_Z, this.angle));
+        instance.setRotation(quat.setAxisAngle(quat.create(), VEC3_UNIT_Z, this.angle));
         instance.setScale(this.scale);
         instance.setTeamColor(this.player);
 
         // Select a random stand sequence when the instance is loaded
-        instance.whenLoaded().then(standSequence);
+        instance.model.whenLoaded().then(() => standSequence(instance));
 
         // And select a random stand sequence every time a sequence ends
         instance.addEventListener('seqend', standSequence);

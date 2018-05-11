@@ -1,4 +1,4 @@
-export default class MdxRibbonEmitterView {
+export default class RibbonEmitterView {
     /**
      * @param {MdxInstance} instance
      * @param {MdxRibbonEmitter} emitter
@@ -13,8 +13,8 @@ export default class MdxRibbonEmitterView {
     }
 
     update() {
-        if (this.getVisibility() > 0.75) {
-            this.currentEmission += this.emitter.emissionRate * this.instance.env.frameTime * 0.001;
+        if (this.instance.allowParticleSpawn) {
+            this.currentEmission += this.emitter.emissionRate * this.instance.model.viewer.frameTime * 0.001;
         }
     }
 

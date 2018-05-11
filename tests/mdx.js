@@ -85,20 +85,57 @@ let mdxTests = {
 
         {
             name: "texture-animation",
-            load(viewer) {
-                return viewer.load("Units/Human/WaterElemental/WaterElemental.mdx", wc3Solver);
-            },
-            test(viewer, scene, camera, model) {
-                camera.move([0, -80, -200]);
-                camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
-                camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-90)));
+            tests: [
+                {
+                    name: "translation-and-slot",
+                    load(viewer) {
+                        return viewer.load("Units/Human/WaterElemental/WaterElemental.mdx", wc3Solver);
+                    },
+                    test(viewer, scene, camera, model) {
+                        camera.move([0, -80, -200]);
+                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
+                        camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-90)));
+        
+                        let instance = model.addInstance().setSequence(0);
+        
+                        instance.frame = 800;
+        
+                        scene.addInstance(instance);
+                    }
+                },
 
-                let instance = model.addInstance().setSequence(0);
+                {
+                    name: "rotation",
+                    load(viewer) {
+                        return viewer.load("UI/Feedback/Cooldown/UI-Cooldown-Indicator.mdx", wc3Solver);
+                    },
+                    test(viewer, scene, camera, model) {
+                        camera.move([-40, -40, -100]);
+        
+                        let instance = model.addInstance().setSequence(0).uniformScale(2100).setSequenceLoopMode(2);
+                        
+                        instance.frame = 600;
+        
+                        scene.addInstance(instance);
+                    }
+                },
 
-                instance.frame = 800;
-
-                scene.addInstance(instance);
-            }
+                {
+                    name: "scale",
+                    load(viewer) {
+                        return viewer.load("Abilities/Spells/Other/Volcano/Volcano.mdx", wc3Solver);
+                    },
+                    test(viewer, scene, camera, model) {
+                        camera.move([0, -80, -600]);
+                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
+                        camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-90)));
+        
+                        let instance = model.addInstance().setSequence(1);
+        
+                        scene.addInstance(instance);
+                    }
+                }
+            ]
         },
 
         {

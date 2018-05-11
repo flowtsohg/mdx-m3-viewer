@@ -1,5 +1,4 @@
-import Resource from './resource';
-import { NotifiedNodeMixin } from './node';
+import { EventNode } from './node';
 
 /**
  * @constructor
@@ -7,11 +6,9 @@ import { NotifiedNodeMixin } from './node';
  * @augments NotifiedNode
  * @param {Model} model
  */
-export default class ModelInstance extends NotifiedNodeMixin(Resource) {
+export default class ModelInstance extends EventNode {
     constructor(model) {
-        super(model.env);
-
-        this.dontInheritScaling = true;
+        super();
 
         /** @member {?ModelView} */
         this.modelView = null;
@@ -24,7 +21,7 @@ export default class ModelInstance extends NotifiedNodeMixin(Resource) {
         /** @member {boolean} */
         this.culled = false;
         /** 
-         *  Set to true if the model should always be rendered.
+         *  Set to true if this instance should always be rendered.
          * 
          * @member {boolean}
          */
@@ -64,24 +61,25 @@ export default class ModelInstance extends NotifiedNodeMixin(Resource) {
 
     }
 
-    update() {
+    updateAnimations() {
 
     }
 
-    modelReady() {
-        if (this.model.loaded) {
-            this.loaded = true;
+    updateObject(scene) {
+        if (!this.paused && this.model.loaded) {
+            // Update animation timers.
+            this.updateTimers();
+            
+            if (this.rendered) {
+                let visible = scene.isVisible(this) || this.noCulling || this.model.viewer.noCulling;
 
-            this.initialize();
-
-            this.dispatchEvent({ type: 'load' });
-        } else {
-            this.error = true;
-
-            this.dispatchEvent({ type: 'error', error: 'InvalidModel' });
+                this.culled = !visible;
+                
+                if (visible) {
+                    this.updateAnimations();
+                }
+            }
         }
-
-        this.dispatchEvent({ type: 'loadend' });
     }
 
     /**

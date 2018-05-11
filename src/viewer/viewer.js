@@ -2,7 +2,8 @@ import { createTextureAtlas } from '../common/canvas';
 import EventDispatcher from './eventdispatcher';
 import WebGL from './gl/gl';
 import Resource from './resource';
-import DownloadableResource from './downloadableresource';
+import PromiseResource from './promiseresource';
+import Scene from './scene';
 
 export default class ModelViewer extends EventDispatcher {
     /**
@@ -17,7 +18,7 @@ export default class ModelViewer extends EventDispatcher {
          *
          * @member {string}
          */
-        this.version = '4.2.3';
+        this.version = '4.3.0';
 
         /** @member {object} */
         this.resources = {
@@ -125,6 +126,12 @@ export default class ModelViewer extends EventDispatcher {
         this.textureAtlases = {};
 
         this.batchSize = 256; // The size of instances batched per bucket.
+
+        this.renderedInstances = 0;
+        this.renderedParticles = 0;
+        this.renderedBuckets = 0;
+        this.renderedScenes = 0;
+        this.renderCalls = 0;
     }
 
     /**
@@ -139,8 +146,8 @@ export default class ModelViewer extends EventDispatcher {
 
         // Check to see if this handler was added already.
         if (!handlers.has(handler)) {
-            if (handler.initialize && !handler.initialize(this)) {
-                this.dispatchEvent({ type: 'error', error: 'InvalidHandler', reason: 'FailedToInitalize' });
+            if (handler.load && !handler.load(this)) {
+                this.dispatchEvent({ type: 'error', error: 'InvalidHandler', reason: 'FailedToLoad' });
                 return false;
             }
 
@@ -155,22 +162,14 @@ export default class ModelViewer extends EventDispatcher {
     /**
      * Add a scene.
      * 
-     * @param {Scene} scene The scene to add.
-     * @returns {boolean}
+     * @returns {Scene}
      */
-    addScene(scene) {
-        let scenes = this.scenes,
-            index = scenes.indexOf(scene);
+    addScene() {
+        let scene = new Scene(this);
 
-        if (index === -1) {
-            scenes.push(scene);
+        this.scenes.push(scene);
 
-            scene.viewer = this;
-            
-            return true;
-        }
-
-        return false;
+        return scene;
     }
 
     /**
@@ -203,44 +202,6 @@ export default class ModelViewer extends EventDispatcher {
         }
     }
 
-    /**
-     * Get the rendering statistics of the viewer.
-     * This includes the following:
-     *     scenes
-     *     buckets
-     *     calls
-     *     instances
-     *     vertices
-     *     polygons
-     *     dynamicVertices
-     *     dynamicPolygons
-     */
-    getRenderStats() {
-        let objects = this.scenes,
-            scenes = objects.length,
-            buckets = 0,
-            calls = 0,
-            instances = 0,
-            vertices = 0,
-            polygons = 0,
-            dynamicVertices = 0,
-            dynamicPolygons = 0;
-
-        for (let i = 0; i < scenes; i++) {
-            let stats = objects[i].getRenderStats();
-
-            buckets += stats.buckets;
-            calls += stats.calls;
-            instances += stats.instances;
-            vertices += stats.vertices;
-            polygons += stats.polygons;
-            dynamicVertices += stats.dynamicVertices;
-            dynamicPolygons += stats.dynamicPolygons;
-        }
-
-        return { scenes, buckets, calls, instances, vertices, polygons, dynamicVertices, dynamicPolygons };
-    }
-
     findHandler(ext) {
         for (let handler of this.handlers) {
             for (let extention of handler.extensions) {
@@ -264,9 +225,10 @@ export default class ModelViewer extends EventDispatcher {
                 serverFetch;
 
             // Built-in texture source
-            if (src instanceof HTMLImageElement || src instanceof HTMLVideoElement || src instanceof HTMLCanvasElement || src instanceof ImageData || src instanceof WebGLTexture) {
+            if ((src instanceof HTMLImageElement) || (src instanceof HTMLVideoElement) || (src instanceof HTMLCanvasElement) || (src instanceof ImageData) || (src instanceof WebGLTexture)) {
                 extension = '.png';
                 serverFetch = false;
+                pathSolver = null;
             } else {
                 [src, extension, serverFetch] = pathSolver(src);
             }
@@ -275,52 +237,89 @@ export default class ModelViewer extends EventDispatcher {
 
             // Is there an handler for this file type?
             if (handlerAndDataType) {
-                let handler = handlerAndDataType[0],
-                    dataType = handlerAndDataType[1],
-                    resources = this.resources,
-                    map = resources.map;
+                let resources = this.resources,
+                    map = resources.map,
+                    resource = map.get(src);
 
-                // Only construct the resource if the source was not already loaded.
-                if (!map.has(src)) {
-                    let resource = new handler.constructor(this, pathSolver, handler, extension);
+                if (resource) {
+                    return resource;
+                }
 
-                    // Cache the resource
-                    resources.array.push(resource);
-                    map.set(src, resource);
+                let handler = handlerAndDataType[0];
 
-                    // Register the standard events.
-                    this.registerEvents(resource);
+                resource = new handler.constructor({ viewer: this, handler, extension, pathSolver, fetchUrl: serverFetch ? src : '' });
 
-                    // Sends the loadstart event
-                    resource.load();
+                resources.array.push(resource);
+                map.set(src, resource);
 
-                    if (serverFetch) {
-                        resource.fetchUrl = src;
+                this.registerEvents(resource);
 
-                        this.fetch(src, dataType)
-                            .then((data) => {
-                                if (data) {
-                                    resource.onload(data);
-                                } else {
-                                    resource.onerror('FailedToFetch');
+                resource.dispatchEvent({ type: 'loadstart' });
+
+                if (serverFetch) {
+                    let dataType = handlerAndDataType[1];
+
+                    this.getData(src, dataType)
+                        .then((data) => {
+                            if (data) {
+                                try {
+                                    resource.loadData(data);
+                                } catch (e) {
+                                    resource.error('InvalidData', e);
                                 }
-                            })
-                    } else {
-                        resource.onload(src);
+                            } else {
+                                resource.error('FailedToFetch');
+                            }
+                        })
+                } else {
+                    try {
+                        resource.loadData(src);
+                    } catch (e) {
+                        resource.error('InvalidData', e);
                     }
                 }
 
-                // Get the resource from the cache.
-                return map.get(src);
+                return resource;
             } else {
                 this.dispatchEvent({ type: 'error', error: 'MissingHandler', reason: [src, extension, serverFetch] });
+
+                return null;
             }
         }
     }
 
-    async fetch(path, dataType) {
+    /**
+     * Returns a promise that will resolve with the data from the given path.
+     * The data type determines the returned object:
+     *     "image" => Image
+     *     "text" => string
+     *     "arrayBuffer" => ArrayBuffer
+     *     "blob" => Blob
+     */
+    async getData(path, dataType) {
+        if (dataType === 'image') {
+            // Promise wrapper for an image load.
+            let image = await new Promise((resolve, reject) => {
+                let image = new Image();
+    
+                image.onload = () => {
+                    resolve(image);
+                };
+    
+                image.onerror = (e) => {
+                    this.dispatchEvent({ type: 'error', error: 'ImageError', reason: e });
+                    resolve(null);
+                };
+    
+                image.src = path;
+            });
+
+            return image;
+        }
+
         let response;
 
+        // Fetch.
         try {
             response = await fetch(path);
         } catch (e) {
@@ -328,6 +327,7 @@ export default class ModelViewer extends EventDispatcher {
             return;
         }
 
+        // Fetch went ok?
         if (!response.ok) {
             this.dispatchEvent({ type: 'error', error: 'HttpError', reason: response });
             return;
@@ -335,6 +335,7 @@ export default class ModelViewer extends EventDispatcher {
 
         let data;
 
+        // Try to get the requested data type.
         try {
             if (dataType === 'text') {
                 data = await response.text();
@@ -361,43 +362,36 @@ export default class ModelViewer extends EventDispatcher {
         return map.get(name);
     }
 
-    loadTextureAtlas(name, textures) {
-        return new Promise((resolve, reject) => {
-            let gl = this.gl,
-                textureAtlases = this.textureAtlases,
-                atlas = textureAtlases[name];
+    async loadTextureAtlas(name, textures) {
+        let textureAtlases = this.textureAtlases;
 
-            if (atlas) {
-                resolve(atlas);
-            } else {
-                // Promise that there is a future load that the code cannot know about yet, so whenAllLoaded() isn't called prematurely.
-                let promise = this.makePromise();
+        if (textureAtlases[name]) {
+            return textureAtlases[name];
+        }
 
-                // When all of the textures are loaded, it's time to construct a texture atlas
-                this.whenLoaded(textures)
-                    .then((textures) => {
-                        atlas = textureAtlases[name];
+        // Promise that there is a future load that the code cannot know about yet, so whenAllLoaded() isn't called prematurely.
+        let promise = this.makePromise();
 
-                        // In case multiple models are loaded quickly, and this is called before the textures finished loading, this will stop multiple atlases from being created.
-                        if (atlas) {
-                            // Resolve the promise.
-                            promise.resolve();
+        // When all of the textures are loaded, it's time to construct a texture atlas
+        await this.whenLoaded(textures);
 
-                            resolve(atlas);
-                        } else {
-                            let atlasData = createTextureAtlas(textures.map((texture) => texture.imageData)),
-                                atlas = { texture: this.load(atlasData.imageData), columns: atlasData.columns, rows: atlasData.rows };
+        // In case multiple models are loaded quickly, and this is called before the textures finished loading, this will stop multiple atlases from being created.
+        if (textureAtlases[name]) {
+            // Resolve the promise.
+            promise.resolve();
 
-                            textureAtlases[name] = atlas;
+            return textureAtlases[name];
+        } else {
+            let atlasData = createTextureAtlas(textures.map((texture) => texture.imageData)),
+                atlas = { texture: this.load(atlasData.imageData), columns: atlasData.columns, rows: atlasData.rows };
 
-                            // Resolve the promise.
-                            promise.resolve();
+            textureAtlases[name] = atlas;
 
-                            resolve(atlas);
-                        }
-                    });
-            }
-        });
+            // Resolve the promise.
+            promise.resolve();
+
+            return atlas;
+        }
     }
 
     getTextureAtlas(name) {
@@ -415,14 +409,14 @@ export default class ModelViewer extends EventDispatcher {
      * This empty resource will block the "idle" event (and thus whenAllLoaded) until it's resolved.
      * This is used when a resource might get loaded in the future, but it is not known what it is yet.
      * 
-     * @returns {Resource}
+     * @returns {PromiseResource}
      */
     makePromise() {
-        let resource = new Resource(this);
+        let resource = new PromiseResource();
         
         this.registerEvents(resource);
 
-        resource.load();
+        resource.promise();
 
         return resource;
     }
@@ -431,25 +425,17 @@ export default class ModelViewer extends EventDispatcher {
      * Returns a promise that will be resolved once all of the given resources get loaded.
      * The promise will resolve instantly if they are already loaded.
      * 
-     * @param {Iterable<DownloadableResource>} resources The resources to wait for.
+     * @param {Iterable<Resource>} resources The resources to wait for.
      * @returns {Promise}
      */
     whenLoaded(resources) {
-        return new Promise((resolve, reject) => {
-            let array = this.resources.array,
-                promises = [];
+        let promises = [];
 
-                
-            for (let resource of resources) {
-                
-                if (array.includes(resource)) {
-                    promises.push(resource.whenLoaded());
-                }
-            }
+        for (let resource of resources) {
+            promises.push(resource.whenLoaded());
+        }
 
-            Promise.all(promises)
-                .then((results) => resolve(results));
-        });
+        return Promise.all(promises);
     }
 
     /**
@@ -458,7 +444,7 @@ export default class ModelViewer extends EventDispatcher {
      * 
      * @returns {Promise}
      */
-    whenAllLoaded(callback) {
+    whenAllLoaded() {
         return new Promise((resolve, reject) => {
             if (this.resourcesLoading.size === 0) {
                 resolve(this);
@@ -521,9 +507,25 @@ export default class ModelViewer extends EventDispatcher {
             //resources[i].update();
         //}
 
+        this.renderedInstances = 0;
+        this.renderedParticles = 0;
+        this.renderedBuckets = 0;
+        this.renderedScenes = 0;
+        this.renderCalls = 0;
+
         // Update all of the scenes.
         for (let i = 0, l = scenes.length; i < l; i++) {
-            scenes[i].update();
+            let scene = scenes[i];
+
+            if (scene.rendered) {
+                scene.update();
+
+                this.renderedInstances += scene.renderedInstances;
+                this.renderedParticles += scene.renderedParticles;
+                this.renderedBuckets += scene.renderedBuckets;
+                this.renderedScenes += 1;
+                this.renderCalls += scene.renderCalls;
+            }
         }
     }
 
@@ -555,6 +557,6 @@ export default class ModelViewer extends EventDispatcher {
     registerEvents(resource) {
         let listener = (e) => this.dispatchEvent(e);
 
-        ['loadstart', 'load', 'loadend', 'error'].map((e) => resource.addEventListener(e, listener));
+        ['loadstart', 'load', 'error', 'loadend'].map((e) => resource.addEventListener(e, listener));
     }
 };

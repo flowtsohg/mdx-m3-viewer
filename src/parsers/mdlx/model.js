@@ -92,6 +92,20 @@ export default class Model {
     }
 
     /**
+     * Load the model from MDX or MDL.
+     * The format is detected by the buffer type: ArrayBuffer for MDX, and string for MDL.
+     * 
+     * @param {ArrayBuffer|string} buffer
+     */
+    load(buffer) {
+        if (buffer instanceof ArrayBuffer) {
+            this.loadMdx(buffer);
+        } else {
+            this.loadMdl(buffer);
+        }
+    }
+
+    /**
      * Load the model from MDX.
      * 
      * @param {ArrayBuffer} buffer

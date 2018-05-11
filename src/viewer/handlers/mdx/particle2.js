@@ -1,11 +1,12 @@
 import { vec3, vec4, quat } from 'gl-matrix';
+import { VEC3_UNIT_Z } from '../../../common/gl-matrix-addon';
 import { degToRad, randomInRange, lerp } from '../../../common/math';
 import { uint8ToUint24 } from '../../../common/typecast';
 
 // Heap allocations needed for this module.
 let rotationHeap = quat.create();
 
-export default class MdxParticle2 {
+export default class Particle2 {
     /**
      * @param {MdxParticle2Emitter} emitter
      */
@@ -33,7 +34,7 @@ export default class MdxParticle2 {
 
     reset(emitterView, isHead) {
         let modelObject = this.emitter.modelObject,
-            node = emitterView.instance.skeleton.nodes[modelObject.index],
+            node = emitterView.instance.nodes[modelObject.index],
             pivot = node.pivot,
             scale = node.worldScale,
             width = emitterView.getWidth() * 0.5,
@@ -80,7 +81,7 @@ export default class MdxParticle2 {
         }
 
         // Apply the rotation
-        vec3.transformQuat(velocity, vec3.UNIT_Z, rotationHeap);
+        vec3.transformQuat(velocity, VEC3_UNIT_Z, rotationHeap);
 
         // Apply speed
         vec3.scale(velocity, velocity, emitterView.getSpeed() + randomInRange(-variation, variation));
@@ -97,7 +98,7 @@ export default class MdxParticle2 {
 
     update() {
         let modelObject = this.emitter.modelObject,
-            dt = modelObject.model.env.frameTime * 0.001,
+            dt = modelObject.model.viewer.frameTime * 0.001,
             location = this.location,
             worldLocation = this.worldLocation,
             velocity = this.velocity;
@@ -154,15 +155,11 @@ export default class MdxParticle2 {
             colors = modelObject.colors,
             color = this.color,
             scale = lerp(scaling[firstColor], scaling[firstColor + 1], factor),
-            index;
-
-        let spriteCount = end - start;
+            index = 0,
+            spriteCount = end - start;
 
         if (spriteCount) {
-            // modulus 0 = NaN
             index = start + Math.floor(spriteCount * repeat * factor) % spriteCount;
-        } else {
-            index = 0;
         }
 
         vec4.lerp(color, colors[firstColor], colors[firstColor + 1], factor);

@@ -7,7 +7,7 @@ export default class M3StandardMaterial {
      */
     constructor(model, material) {
         this.model = model;
-        this.gl = model.env.gl;
+        this.gl = model.viewer.gl;
 
         this.name = material.name.getAll().join('');
         this.flags = material.flags;

@@ -30,11 +30,20 @@ export default class War3MapWct {
 
         if (this.version === 1) {
             this.comment = stream.readUntilNull();
-            this.trigger = new CustomTextTrigger(stream);
+
+            let trigger = new CustomTextTrigger();
+
+            trigger.load(stream);
+
+            this.trigger = trigger;
         }
 
         for (let i = 0, l = stream.readUint32(); i < l; i++) {
-            this.triggers[i] = new CustomTextTrigger(stream);
+            let trigger = new CustomTextTrigger();
+
+            trigger.load(stream);
+
+            this.triggers[i] = trigger;
         }
     }
 

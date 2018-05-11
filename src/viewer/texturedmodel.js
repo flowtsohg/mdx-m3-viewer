@@ -16,6 +16,6 @@ export default class TexturedModel extends Model {
             texture = textures.get(texture);
         }
 
-        this.env.webgl.bindTexture(texture, unit);
+        this.viewer.webgl.bindTexture(texture, unit);
     }
 };

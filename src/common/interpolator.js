@@ -1,5 +1,6 @@
 import { vec3, quat } from 'gl-matrix';
 import { lerp, hermite, bezier } from './math';
+import { qnlerp, qnquad } from './gl-matrix-addon';
 
 // Heap allocations needed for this module.
 // NOTE: The values returned by interpolate() are not heap safe!
@@ -40,9 +41,9 @@ let Interpolator = {
         if (type === 0) {
             return a;
         } else if (type === 1) {
-            return quat.nlerp(quatHeap, a, d, t);
+            return quat.slerp(quatHeap, a, d, t);
         } else if (type === 2 || type === 3) {
-            return quat.nquad(quatHeap, a, b, c, d, t);
+            return quat.sqlerp(quatHeap, a, b, c, d, t);
         }
 
         return quat.copy(quatHeap, quat.ZERO);

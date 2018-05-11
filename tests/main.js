@@ -9,14 +9,16 @@ function addTestResult(testResult) {
         status = document.createElement("td"),
         imageA = document.createElement("td"),
         imageB = document.createElement("td"),
-        value = testResult[1],
-        result = value.result;
+        testName = testResult.name,
+        testImage = testResult.testImage,
+        comparisonImage = testResult.comparisonImage,
+        result = testResult.result;
 
     testsCount += 1;
     testsPassed += result ? 1 : 0;
 
     // Name of the test
-    name.textContent = testResult[0];
+    name.textContent = testName;
 
     // Status of the test
     status.textContent = result ? "passed" : "failed";
@@ -24,19 +26,19 @@ function addTestResult(testResult) {
 
     // The rendered image
     let a = document.createElement("a");
-    a.href = value.a.src;
+    a.href = testImage.src;
     a.target = "_blank";
 
-    a.appendChild(value.a);
-    value.a.style.width = "16px";
+    a.appendChild(testImage);
+    testImage.style.width = "16px";
 
     // The comparison image
     let b = document.createElement("a");
-    b.href = value.b.src;
+    b.href = comparisonImage.src;
     b.target = "_blank";
 
-    b.appendChild(value.b);
-    value.b.style.width = "16px";
+    b.appendChild(comparisonImage);
+    comparisonImage.style.width = "16px";
 
     imageA.appendChild(a);
     imageB.appendChild(b);
@@ -79,7 +81,7 @@ function disableButtons() {
 runElement.addEventListener("click", () => {
     disableButtons();
 
-    unitTester.run((entry) => {
+    unitTester.test((entry) => {
         if (!entry.done) {
             addTestResult(entry.value);
         } else {
@@ -94,7 +96,7 @@ runElement.addEventListener("click", () => {
 downloadElement.addEventListener("click", () => {
     disableButtons();
 
-    unitTester.downloadTestResults((entry) => {
+    unitTester.download((entry) => {
         if (entry.done) {
             enableButtons();
         }

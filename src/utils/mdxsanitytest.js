@@ -1,5 +1,5 @@
-import unique from '../../common/arrayunique';
-import Bone from './bone';
+import unique from '../common/arrayunique';
+import Bone from '../parsers/mdlx/bone';
 
 // Is minVal <= x <= maxVal?
 function inRange(x, minVal, maxVal) {
@@ -939,6 +939,11 @@ export default function sanityTest(model) {
         unused = 0;
 
     for (let node of nodes) {
+        // There are some top-level warnings.
+        if (node.type === 'warning') {
+            warnings += 1;
+        }
+        
         if (node.warnings) {
             warnings += node.warnings;
         }

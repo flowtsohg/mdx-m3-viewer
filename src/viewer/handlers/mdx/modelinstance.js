@@ -1,12 +1,12 @@
 import TexturedModelInstance from '../../texturedmodelinstance';
-import MdxSkeleton from './skeleton';
+import { createSkeletalNodes } from '../../node';
 import AttachmentInstance from './attachmentinstance';
-import MdxParticleEmitterView from './particleemitterview';
-import MdxParticleEmitter2View from './particleemitter2view';
-import MdxRibbonEmitterView from './ribbonemitterview';
-import MdxEventObjectEmitterView from './eventobjectemitterview';
+import ParticleEmitterView from './particleemitterview';
+import ParticleEmitter2View from './particleemitter2view';
+import RibbonEmitterView from './ribbonemitterview';
+import EventObjectEmitterView from './eventobjectemitterview';
 
-export default class MdxModelInstance extends TexturedModelInstance {
+export default class ModelInstance extends TexturedModelInstance {
     /**
      * @param {MdxModel} model
      */
@@ -18,11 +18,9 @@ export default class MdxModelInstance extends TexturedModelInstance {
         this.particleEmitters2 = [];
         this.ribbonEmitters = [];
         this.eventObjectEmitters = [];
+        this.nodes = [];
+        this.sortedNodes = [];
 
-        this.hasAttachments = false;
-        this.hasBatches = false;
-
-        this.skeleton = null;
         this.frame = 0;
         this.counter = 0; // Global sequences
         this.sequence = -1;
@@ -31,60 +29,130 @@ export default class MdxModelInstance extends TexturedModelInstance {
         this.teamColor = 0;
         this.vertexColor = new Uint8Array([255, 255, 255, 255]);
 
-        this.allowParticleSpawn = false;
+        this.allowParticleSpawn = false; // Particles do not spawn when the sequence is -1, or when the sequence finished and it's not repeating
 
-        this.geosetColors = null;
-        this.uvOffsets = null;
-        this.layerAlphas = null;
-
+        // If forced is true, everything will update regardless of variancy.
+        // Any later non-forced update can then use variancy to skip updating things.
+        // It is set to true every time the sequence is set with setSequence().
         this.forced = true;
     }
 
-    initialize() {
+    load() {
         let model = this.model,
             geosetCount = model.geosets.length,
             layerCount = model.layers.length;
 
-        this.skeleton = new MdxSkeleton(this);
-
         this.geosetColors = new Uint8Array(geosetCount * 4);
         this.layerAlphas = new Uint8Array(layerCount);
         this.uvOffsets = new Float32Array(layerCount * 4);
+        this.uvScales = new Float32Array(layerCount);
+        this.uvRots = new Float32Array(layerCount * 2);
+
+        // Create the needed amount of shared nodes.
+        let sharedNodeData = createSkeletalNodes(model.genericObjects.length),
+            nodes = sharedNodeData.nodes,
+            nodeIndex = 0;
+
+        this.nodes.push(...nodes);
+
+        // A shared typed array for all world matrices of the internal nodes.
+        this.worldMatrices = sharedNodeData.worldMatrices;
+
+        // And now initialize all of the nodes and objects
+        for (let bone of model.bones) {
+            this.initNode(nodes, nodes[nodeIndex++], bone);
+        }
+
+        for (let light of model.lights) {
+            this.initNode(nodes, nodes[nodeIndex++], light);
+        }
+
+        for (let helper of model.helpers) {
+            this.initNode(nodes, nodes[nodeIndex++], helper);
+        }
 
         for (let attachment of model.attachments) {
+            let attachmentInstance;
+
+            // Attachments may have game models attached to them, such as Undead and Nightelf building animations.
             if (attachment.internalModel) {
-                this.attachments.push(new AttachmentInstance(this, attachment));
+                attachmentInstance = new AttachmentInstance(this, attachment);
+
+                this.attachments.push(attachmentInstance);
             }
+
+            this.initNode(nodes, nodes[nodeIndex++], attachment, attachmentInstance);
         }
 
         for (let emitter of model.particleEmitters) {
-            this.particleEmitters.push(new MdxParticleEmitterView(this, emitter));
+            let emitterView = new ParticleEmitterView(this, emitter);
+
+            this.particleEmitters.push(emitterView);
+
+            this.initNode(nodes, nodes[nodeIndex++], emitter, emitterView);
         }
 
         for (let emitter of model.particleEmitters2) {
-            this.particleEmitters2.push(new MdxParticleEmitter2View(this, emitter));
+            let emitterView = new ParticleEmitter2View(this, emitter);
+
+            this.particleEmitters2.push(emitterView);
+
+            this.initNode(nodes, nodes[nodeIndex++], emitter, emitterView);
         }
 
         for (let emitter of model.ribbonEmitters) {
-            this.ribbonEmitters.push(new MdxRibbonEmitterView(this, emitter));
+            let emitterView = new RibbonEmitterView(this, emitter);
+
+            this.ribbonEmitters.push(emitterView);
+
+            this.initNode(nodes, nodes[nodeIndex++], emitter, emitterView);
+        }
+
+        for (let camera of model.cameras) {
+            this.initNode(nodes, nodes[nodeIndex++], camera);
         }
 
         for (let emitter of model.eventObjects) {
-            this.eventObjectEmitters.push(new MdxEventObjectEmitterView(this, emitter));
+            let emitterView = new EventObjectEmitterView(this, emitter);
+
+            this.eventObjectEmitters.push(emitterView);
+
+            this.initNode(nodes, nodes[nodeIndex++], emitter, emitterView);
         }
 
-        this.hasAttachments = this.attachments.length > 0;
-        this.hasBatches = model.batches.length > 0;
+        for (let collisionShape of model.collisionShapes) {
+            this.initNode(nodes, nodes[nodeIndex++], collisionShape);
+        }
 
-        // This takes care of calling setSequence before the model is loaded.
-        // In this case, this.sequence will be set, but nothing else is changed.
-        // Now that the model is loaded, set it again to do the real work.
-        if (this.sequence !== -1) {
-            this.setSequence(this.sequence);
+        // Save a sorted array of all of the nodes, such that every child node comes after its parent.
+        // This allows for flat iteration when updating.
+        let hierarchy = model.hierarchy;
+
+        for (let i = 0, l = nodes.length; i < l; i++) {
+            this.sortedNodes[i] = nodes[hierarchy[i]];
+        }
+
+        // If the sequence was changed before the model was loaded, reset it now that the model loaded.
+        this.setSequence(this.sequence);
+    }
+
+    initNode(nodes, node, genericObject, object) {
+        node.setPivot(genericObject.pivot);
+
+        if (genericObject.parentId === -1) {
+            node.setParent(this);
+        } else {
+            node.setParent(nodes[genericObject.parentId]);
+        }
+
+        if (object) {
+            node.object = object;
         }
     }
 
-    // Overriden to handle the interal attachments.
+    /**
+     * Overriden to hide also attachment models.
+     */
     hide() {
         super.hide();
 
@@ -93,7 +161,9 @@ export default class MdxModelInstance extends TexturedModelInstance {
         }
     }
 
-    // Overriden to handle the interal attachments.
+    /**
+     * Overriden to show also attachment models.
+     */
     show() {
         super.show();
 
@@ -102,11 +172,16 @@ export default class MdxModelInstance extends TexturedModelInstance {
         }
     }
 
+    /**
+     * Updates the animation timers.
+     * Emits a 'seqend' event every time a sequence ends.
+     */
     updateTimers() {
         if (this.sequence !== -1) {
-            var sequence = this.model.sequences[this.sequence],
+            let model = this.model,
+                sequence = model.sequences[this.sequence],
                 interval = sequence.interval,
-                frameTime = this.env.frameTime;
+                frameTime = model.viewer.frameTime;
 
             this.frame += frameTime;
             this.counter += frameTime;
@@ -126,6 +201,108 @@ export default class MdxModelInstance extends TexturedModelInstance {
         }
     }
 
+    // Updates all of this instance internal nodes and objects.
+    // Nodes that are determined to not be visible will not be updated, nor will any of their children down the hierarchy.
+    updateNodes(forced) {
+        let sortedNodes = this.sortedNodes,
+            sequence = this.sequence,
+            sortedGenericObjects = this.model.sortedGenericObjects,
+            scene = this.scene;
+
+        // Update the nodes
+        for (let i = 0, l = sortedNodes.length; i < l; i++) {
+            let genericObject = sortedGenericObjects[i],
+                node = sortedNodes[i],
+                parent = node.parent,
+                objectVisible = genericObject.getVisibility(this) >= 0.75,
+                nodeVisible = forced || (parent.visible && objectVisible);
+
+            node.visible = nodeVisible;
+
+            // Every node only needs to be updated if this is a forced update, or if both the parent node and the generic object corresponding to this node are visible.
+            // Incoming messy code for optimizations!
+            if (nodeVisible) {
+                let wasDirty = false,
+                    variants = genericObject.variants,
+                    localLocation = node.localLocation,
+                    localRotation = node.localRotation,
+                    localScale = node.localScale;
+
+                // Only update the local node data if there is a need to
+                if (forced || variants.generic[sequence]) {
+                    wasDirty = true;
+
+                    // Translation
+                    if (forced || variants.translation[sequence]) {
+                        let translation = genericObject.getTranslation(this);
+
+                        localLocation[0] = translation[0];
+                        localLocation[1] = translation[1];
+                        localLocation[2] = translation[2];
+                    }
+
+                    // Rotation
+                    if (forced || variants.rotation[sequence]) {
+                        let rotation = genericObject.getRotation(this);
+
+                        localRotation[0] = rotation[0];
+                        localRotation[1] = rotation[1];
+                        localRotation[2] = rotation[2];
+                        localRotation[3] = rotation[3];
+                    }
+
+                    // Scale
+                    if (forced || variants.scale[sequence]) {
+                        let scale = genericObject.getScale(this);
+
+                        localScale[0] = scale[0];
+                        localScale[1] = scale[1];
+                        localScale[2] = scale[2];
+                    }
+                }
+
+
+                // Billboarding
+                // If the instance is not attached to any scene, this is meaningless.
+                if (genericObject.billboarded) {
+                    wasDirty = true;
+
+                    // Cancel the parent's rotation.
+                    quat.copy(localRotation, parent.inverseWorldRotation);
+
+                    // Rotate inversly to the camera, so as to always face it.
+                    quat.mul(localRotation, localRotation, scene.camera.inverseWorldRotation);
+
+                    // The coordinate systems are different between the handler and the viewer.
+                    // Therefore, get to the viewer's coordinate system.
+                    quat.rotateZ(localRotation, localRotation, Math.PI / 2);
+                    quat.rotateY(localRotation, localRotation, -Math.PI / 2);
+                }
+
+                let wasReallyDirty = forced || wasDirty || parent.wasDirty;
+
+                node.wasDirty = wasReallyDirty;
+
+                // If this is a forced update, or this node's local data was updated, or the parent node was updated, do a full world update.
+                if (wasReallyDirty) {
+                    node.recalculateTransformation();
+                }
+
+                // If there is an instance object associated with this node, and the node is visible (which might not be the case for a forced update!), update the object.
+                // This includes attachments and emitters.
+                let object = node.object;
+
+                if (object && objectVisible) {
+                    object.update();
+                }
+
+                // Update all of the node's non-skeletal children, which will update their children, and so on.
+                node.updateChildren(scene)
+            }
+        }
+    }
+
+    // Update the batch data.
     updateBatches(forced) {
         let model = this.model,
             geosets = model.geosets,
@@ -133,6 +310,8 @@ export default class MdxModelInstance extends TexturedModelInstance {
             geosetColors = this.geosetColors,
             layerAlphas = this.layerAlphas,
             uvOffsets = this.uvOffsets,
+            uvScales = this.uvScales,
+            uvRots = this.uvRots,
             sequence = this.sequence;
 
         // Geosets
@@ -158,85 +337,57 @@ export default class MdxModelInstance extends TexturedModelInstance {
         // Layers
         for (let i = 0, l = layers.length; i < l; i++) {
             let layer = layers[i],
-                offset = i * 4;
+                i4 = i * 4;
 
             // Alpha
             if (forced || layer.variants.alpha[sequence]) {
                 layerAlphas[i] = layer.getAlpha(this) * 255;
             }
 
-            // Texture coordinate animation
-            if (layer.hasUvAnim && (forced || layer.variants.uv[sequence])) {
-                // What is Z used for?
-                let uvOffset = layer.textureAnimation.getTranslation(this);
+            // UV translation animation
+            if (forced || layer.variants.translation[sequence]) {
+                let translation = layer.getTranslation(this);
 
-                uvOffsets[offset] = uvOffset[0];
-                uvOffsets[offset + 1] = uvOffset[1];
+                uvOffsets[i4] = translation[0];
+                uvOffsets[i4 + 1] = translation[1];
+            }
+
+            if (forced || layer.variants.rotation[sequence]) {
+                let rotation = layer.getRotation(this);
+
+                uvRots[i * 2] = rotation[2];
+                uvRots[i * 2 + 1] = rotation[3];
+            }
+
+            // UV scale animation
+            if (forced || layer.variants.scale[sequence]) {
+                let scale = layer.getScale(this);
+
+                uvScales[i] = scale[0];
             }
 
             // Sprite animation
-            if (layer.hasSlotAnim && (forced || layer.variants.slot[sequence])) {
+            if (forced || layer.variants.slot[sequence]) {
                 let uvDivisor = layer.uvDivisor,
                     textureId = layer.getTextureId(this);
 
-                uvOffsets[offset + 2] = textureId % uvDivisor[0];
-                uvOffsets[offset + 3] = Math.floor(textureId / uvDivisor[1]);
+                uvOffsets[i4 + 2] = textureId % uvDivisor[0];
+                uvOffsets[i4 + 3] = (textureId / uvDivisor[1]) | 0;
             }
         }
     }
 
-    // If forced is true-ish, the skeleton and geometry will be updated regadless of variancy.
-    // This allows to do a forced update once when setting the sequence or the bucket.
-    // Any later non-forced update can then use variancy to skip updating things.
-    update() {
+    updateAnimations() {
         let forced = this.forced;
 
         if (forced || this.sequence !== -1) {
-            // Update the skeleton
-            if (forced || this.model.variants[this.sequence]) {
-                this.skeleton.update(forced);
-            }
+            this.forced = false;
+
+            // Update the nodes
+            this.updateNodes(forced);
 
             // Update the batches
-            if (this.hasBatches) {
-                this.updateBatches(forced);
-            }
-
-            // Update the model attachments
-            for (let attachment of this.attachments) {
-                attachment.update();
-            }
-
-            // Update all of the emitters
-            if (this.allowParticleSpawn) {
-                for (let emitter of this.particleEmitters) {
-                    emitter.update();
-                }
-
-                for (let emitter of this.particleEmitters2) {
-                    emitter.update();
-                }
-
-                for (let emitter of this.ribbonEmitters) {
-                    emitter.update();
-                }
-
-                for (let emitter of this.eventObjectEmitters) {
-                    emitter.update();
-                }
-            }
-        }
-
-        this.forced = false;
-    }
-
-    // This is overriden in order to update the skeleton when the parent node changes
-    recalculateTransformation() {
-        super.recalculateTransformation();
-
-        // If the instance is moved before it is loaded, the skeleton doesn't exist yet.
-        if (this.skeleton) {
-            this.skeleton.update();
+            this.updateBatches(forced);
         }
     }
 
@@ -253,30 +404,31 @@ export default class MdxModelInstance extends TexturedModelInstance {
     }
 
     setSequence(id) {
-        this.sequence = id;
+        if (this.sequence !== id) {
+            this.sequence = id;
 
-        // If the model isn't loaded yet, a sequence can't be selected.
-        if (this.model.loaded) {
-            var sequences = this.model.sequences.length;
+            if (this.model.loaded) {
+                var sequences = this.model.sequences.length;
 
-            if (id < -1 || id > sequences - 1) {
-                id = -1;
+                if (id < -1 || id > sequences - 1) {
+                    id = -1;
 
-                this.sequence = id;
+                    this.sequence = id;
+                }
+
+                if (id === -1) {
+                    this.frame = 0;
+
+                    this.allowParticleSpawn = false;
+                } else {
+                    var sequence = this.model.sequences[id];
+
+                    this.frame = sequence.interval[0];
+                }
+
+                // Do a forced update, so non-animated data can be skipped in future updates
+                this.forced = true;
             }
-
-            if (id === -1) {
-                this.frame = 0;
-
-                this.allowParticleSpawn = false;
-            } else {
-                var sequence = this.model.sequences[id];
-
-                this.frame = sequence.interval[0];
-            }
-
-            // Do a forced update, so non-animated data can be skipped in future updates
-            this.forced = true;
         }
 
         return this;
@@ -289,14 +441,10 @@ export default class MdxModelInstance extends TexturedModelInstance {
     }
 
     getAttachment(id) {
-        if (this.model.loaded) {
-            var attachment = this.model.attachments[id];
+        let attachment = this.model.attachments[id];
 
-            if (attachment) {
-                return this.skeleton.nodes[attachment.index];
-            } else {
-                return this.skeleton.nodes[0];
-            }
+        if (attachment) {
+            return this.nodes[attachment.index];
         }
     }
 };

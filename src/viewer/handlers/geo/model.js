@@ -1,8 +1,8 @@
 import Model from '../../model';
 
 export default class GeometryModel extends Model {
-    initialize(src) {
-        const gl = this.env.gl;
+    load(src) {
+        const gl = this.viewer.gl;
 
         var geometry = src.geometry;
         var material = src.material;
@@ -80,15 +80,13 @@ export default class GeometryModel extends Model {
         } else {
             this.opaque = true;
         }
-
-        return true;
     }
 
     render(bucket, scene) {
-        let webgl = this.env.webgl,
-            gl = this.env.gl,
+        let webgl = this.viewer.webgl,
+            gl = this.viewer.gl,
             instancedArrays = webgl.extensions.instancedArrays,
-            shader = this.env.shaderMap.get('GeoStandardShader'),
+            shader = this.viewer.shaderMap.get('GeoStandardShader'),
             uniforms = shader.uniforms,
             attribs = shader.attribs,
             modelView = bucket.modelView;

@@ -6,10 +6,6 @@ let positionHeap = vec3.create(),
     targetPositionHeap = vec3.create();
 
 export default class Camera extends GenericObject {
-    /**
-     * @param {MdxModel} model
-     * @param {MdxParserCamera} camera
-     */
     constructor(model, camera, pivotPoints, index) {
         super(model, camera, pivotPoints, index);
 

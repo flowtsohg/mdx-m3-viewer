@@ -13,10 +13,10 @@ export default class GeometryModelInstance extends ModelInstance {
         this.edgeColor = new Uint8Array(4);
     }
 
-    initialize() {
-        this.boundingShape = new BoundingShape();
-        this.boundingShape.fromVertices(this.model.vertexArray);
-        this.boundingShape.setParent(this);
+    load() {
+        //this.boundingShape = new BoundingShape();
+        //this.boundingShape.fromVertices(this.model.vertexArray);
+        //this.boundingShape.setParent(this);
 
         // Initialize to the model's material color
         this.setVertexColor(this.model.vertexColor);

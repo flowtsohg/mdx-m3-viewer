@@ -19,7 +19,7 @@ export default class M3Region {
             elementArray[offset + i] = triangles[firstTriangleIndex + i] + firstVertexIndex;
         }
 
-        this.gl = model.env.gl;
+        this.gl = model.viewer.gl;
         this.firstBoneLookupIndex = region.firstBoneLookupIndex;
         this.boneWeightPairsCount = region.boneWeightPairsCount;
         this.offset = offset * 2;

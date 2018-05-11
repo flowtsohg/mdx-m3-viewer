@@ -7,7 +7,7 @@ export default class GeometryBucket extends Bucket {
     constructor(modelView) {
         super(modelView);
 
-        const gl = this.model.env.gl;
+        const gl = this.model.viewer.gl;
         const numberOfBones = 1;
 
         this.gl = gl;
@@ -45,30 +45,9 @@ export default class GeometryBucket extends Bucket {
         gl.bufferData(gl.ARRAY_BUFFER, this.edgeColorArray, gl.DYNAMIC_DRAW);
     }
 
-    getRenderStats() {
-        let model = this.model,
-            renderMode = model.renderMode,
-            calls = (model.renderMode === 2 ? 2 : 1),
-            instances = this.instances.length,
-            vertices = (model.vertexArray.length / 3) * instances,
-            polygons = 0;
-
-        // Add faces
-        if (renderMode === 0 || renderMode === 2) {
-            polygons += (model.faceArray.length / 3) * instances;
-        }
-
-        // Add edges
-        if (renderMode === 1 || renderMode === 2) {
-            polygons += (model.edgeArray.length / 2) * instances;
-        }
-
-        return { calls, instances, vertices, polygons, dynamicVertices: 0, dynamicPolygons: 0 };
-    }
-
     fill(data, baseInstance, scene) {
         let model = this.model,
-            gl = model.env.gl,
+            gl = model.viewer.gl,
             batchSize = model.batchSize,
             boneArray = this.boneArray,
             vertexColorArray = this.vertexColorArray,
@@ -79,7 +58,7 @@ export default class GeometryBucket extends Bucket {
         for (let l = instances.length; baseInstance < l && instanceOffset < batchSize; baseInstance++) {
             let instance = instances[baseInstance];
 
-            if (instance.loaded && instance.rendered && !instance.culled) {
+            if (instance.rendered && !instance.culled) {
                 let worldMatrix = instance.worldMatrix,
                     vertexColor = instance.vertexColor,
                     edgeColor = instance.edgeColor,
@@ -133,13 +112,5 @@ export default class GeometryBucket extends Bucket {
         }
 
         return baseInstance;
-    }
-
-    getSharedData(index) {
-        return {
-            boneArray: new Float32Array(this.boneArray.buffer, this.boneArrayInstanceSize * 4 * index, this.boneArrayInstanceSize),
-            vertexColorArray: new Uint8Array(this.vertexColorArray.buffer, 4 * index, 4),
-            edgeColorArray: new Uint8Array(this.edgeColorArray.buffer, 4 * index, 4)
-        };
     }
 };

@@ -88,23 +88,4 @@ export default class Parameter {
 
         return size;
     }
-
-    toCustomScriptCode() {
-        // (0 = PRESET, 1 = VARIABLE, 2 = FUNCTION, 3 = STRING, -1 = INVALID)
-        if (this.type === 0) {
-            if (this.value === 'PermanentPerm') {
-                return true;
-            }
-
-            throw new Error(`Unknown preset parameter: ${this.value}`);
-        } else if (this.type === 1) {
-            return `udg_${this.value}`;
-        } else if (this.type === 2) {
-            return this.subParameters.toCustomScriptCode();
-        } else if (this.type === 3) {
-            return this.value;
-        } else {
-            throw new Error(`Unknown parameter type: ${this.type}`);
-        }
-    }
 };

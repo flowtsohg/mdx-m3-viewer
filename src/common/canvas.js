@@ -6,6 +6,28 @@ let canvas = document.createElement('canvas'),
 let canvas2 = document.createElement('canvas'),
     ctx2 = canvas2.getContext('2d');
 
+export function blobToImage(blob) {
+    return new Promise((resolve, reject) => {
+        let url = URL.createObjectURL(blob),
+            image = new Image();
+
+        image.onload = () => {
+            canvas.width = image.width;
+            canvas.height = image.height;
+
+            ctx.drawImage(image, 0, 0);
+
+            resolve(image);
+        };
+
+        image.onerror = (e) => {
+            reject(e);
+        };
+
+        image.src = url;
+    });
+};
+
 export function blobToImageData(blob) {
     return new Promise((resolve, reject) => {
         let url = URL.createObjectURL(blob),
@@ -52,7 +74,7 @@ export function imageDataToDataUrl(imageData) {
     return canvas.toDataURL();
 };
 
-export function getImageData(image) {
+export function imageToImageData(image) {
     let width = image.width,
         height = image.height;
 
@@ -63,6 +85,19 @@ export function getImageData(image) {
 
     return ctx.getImageData(0, 0, width, height);
 };
+
+export function scaleNPOT(imageData) {
+    let width = imageData.width,
+        height = imageData.height,
+        potWidth = powerOfTwo(width),
+        potHeight = powerOfTwo(height);
+
+    if (width !== potWidth || height !== potHeight) {
+        return resizeImageData(imageData, potWidth, potHeight);
+    }
+
+    return imageData;
+}
 
 // Resize an Image or ImageData object to the given dimensions.
 export function resizeImageData(data, width, height) {
@@ -108,10 +143,13 @@ export function drawImageData(dCanvas, imageData) {
 export function createTextureAtlas(src) {
     let width = src[0].width,
         height = src[0].height,
-        texturesPerRow = powerOfTwo(Math.sqrt(src.length)),
+        texturesPerRow = powerOfTwo(Math.ceil(Math.sqrt(src.length))),
+        rows = powerOfTwo(Math.ceil(src.length / texturesPerRow)),
         pixelsPerRow = texturesPerRow * width;
 
-    canvas.width = canvas.height = width * texturesPerRow;
+    canvas.width = width * texturesPerRow;
+    canvas.height = height * rows;
+    //canvas.height = canvas.width;
 
     for (let i = 0, l = src.length; i < l; i++) {
         ctx.putImageData(src[i], (i % texturesPerRow) * height, Math.floor(i / texturesPerRow) * height);

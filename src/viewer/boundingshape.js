@@ -1,6 +1,6 @@
-import { NotifiedSceneNode } from './node';
+import { SceneNode } from './node';
 
-export default class BoundingShape extends NotifiedSceneNode {
+export default class BoundingShape extends SceneNode {
     constructor() {
         super();
 

@@ -1,17 +1,12 @@
-import { vec3, quat } from 'gl-matrix';
-import MdxSd from './sd';
+import Sd from './sd';
 
 export default class AnimatedObject {
-    /**
-     * @param {MdxModel} model
-     * @param {MdxParserNode} node
-     */
     constructor(model, object) {
         this.model = model;
         this.animations = {};
 
         for (let animation of object.animations) {
-            this.animations[animation.name] = new MdxSd(model, animation);
+            this.animations[animation.name] = new Sd(model, animation);
         }
     }
 

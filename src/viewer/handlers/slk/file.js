@@ -1,28 +1,18 @@
-import ViewerFile from '../../file';
+import Resource from '../../resource';
 import SlkParser from '../../../parsers/slk/file';
 
-export default class SlkFile extends ViewerFile {
+export default class SlkFile extends Resource {
     /**
-     * @param {ModelViewer} env
-     * @param {function(?)} pathSolver
-     * @param {Handler} handler
-     * @param {string} extension
+     * @param {Object} resourceData
      */
-    constructor(env, pathSolver, handler, extension) {
-        super(env, pathSolver, handler, extension);
+    constructor(resourceData) {
+        super(resourceData);
 
         this.file = null;
     }
 
-    initialize(src) {
-        try {
-            this.file = new SlkParser(src);
-        } catch (e) {
-            this.onerror('InvalidSource', 'WrongMagicNumber');
-            return false;
-        }
-
-        return true;
+    load(src) {
+        this.file = new SlkParser(src);
     }
 
     getRow(key) {

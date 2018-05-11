@@ -1,10 +1,10 @@
 import Dds from '../dds/handler';
 import Tga from '../tga/handler';
-import M3Model from './model';
-import TexturedModelView from '../../texturedmodelview';
-import M3Bucket from './bucket';
-import M3ModelInstance from './modelinstance';
-import M3Shaders from './shaders';
+import Model from './model';
+import ModelView from './modelview';
+import Bucket from './bucket';
+import ModelInstance from './modelinstance';
+import shaders from './shaders';
 
 function initializeTeamColors(viewer, shader) {
     let webgl = viewer.webgl,
@@ -21,7 +21,7 @@ function initializeTeamColors(viewer, shader) {
 }
 
 export default {
-    initialize(viewer) {
+    load(viewer) {
         viewer.addHandler(Dds);
         viewer.addHandler(Tga);
 
@@ -29,8 +29,8 @@ export default {
 
         for (let i = 0; i < 4; i++) {
             let shader = viewer.loadShader('M3StandardShader' + i,
-                '#define EXPLICITUV' + i + '\n' + shared.instanceId + shared.boneTexture + M3Shaders.vs_common + M3Shaders.vs_main,
-                '#define STANDARD_PASS\n' + M3Shaders.ps_common + M3Shaders.ps_main);
+                '#define EXPLICITUV' + i + '\n' + shared.instanceId + shared.boneTexture + shaders.vs_common + shaders.vs_main,
+                '#define STANDARD_PASS\n' + shaders.ps_common + shaders.ps_main);
 
             // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
             if (!shader.loaded) {
@@ -44,9 +44,9 @@ export default {
     },
 
     extensions: [['.m3', 'arrayBuffer']],
-    constructor: M3Model,
-    view: TexturedModelView,
-    bucket: M3Bucket,
-    instance: M3ModelInstance,
+    constructor: Model,
+    view: ModelView,
+    bucket: Bucket,
+    instance: ModelInstance,
     lightPosition: new Float32Array([0, 0, 10000])
 };

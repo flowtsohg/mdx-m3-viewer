@@ -1,15 +1,15 @@
 import BinaryStream from '../../../common/binarystream';
+import { scaleNPOT } from '../../../common/canvas';
 import Texture from '../../texture';
 
 export default class BmpTexture extends Texture {
-    initialize(src) {
+    load(src) {
         // Simple binary stream implementation, see src/common/binarystream.
         let reader = new BinaryStream(src);
 
         // BMP magic identifier
         if (reader.read(2) !== 'BM') {
-            this.onerror('InvalidSource', 'WrongMagicNumber');
-            return false;
+            throw new Error('Wrong magic number');
         }
 
         reader.skip(8);
@@ -53,10 +53,10 @@ export default class BmpTexture extends Texture {
         }
 
         // Upscale to POT if the size is NPOT.
-        imageData = this.upscaleNPOT(imageData);
+        imageData = scaleNPOT(imageData);
 
         // Finally, create the actual WebGL texture.
-        let gl = this.env.gl;
+        let gl = this.viewer.gl;
         let id = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, id);
         this.setParameters(gl.REPEAT, gl.REPEAT, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
@@ -67,8 +67,5 @@ export default class BmpTexture extends Texture {
         this.width = imageData.width; // Note: might not be the same as 'width' and 'height' due to NPOT upscaling.
         this.height = imageData.height;
         this.webglResource = id; // If webglResource isn't set, this texture won't be bound to a texture unit
-
-        // Report that this texture was loaded properly
-        return true;
     }
 };

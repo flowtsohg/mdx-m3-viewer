@@ -4,8 +4,7 @@ export default class Bucket {
     */
     constructor(modelView) {
         let model = modelView.model,
-            viewer = model.env,
-            gl = viewer.gl;
+            gl = model.viewer.gl;
 
         /** @member {ModelView} */
         this.modelView = modelView;
@@ -20,7 +19,7 @@ export default class Bucket {
         // It's 256 bytes per bucket, no big deal. Right?
         this.instanceIdBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceIdBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Uint16Array(viewer.batchSize).map((currentValue, index, array) => index), gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, new Uint16Array(model.batchSize).map((currentValue, index, array) => index), gl.STATIC_DRAW);
     }
 
     fill(data, baseInstance, scene) {

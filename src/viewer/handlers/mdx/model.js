@@ -1,16 +1,12 @@
 import TexturedModel from '../../texturedmodel';
-import MdxGenericObject from './genericobject';
 import TextureAnimation from './textureanimation';
-import MdxLayer from './layer';
+import Layer from './layer';
 import GeosetAnimation from './geosetanimation';
-import { MdxGeoset } from './geoset';
-import MdxBatch from './batch';
-
-import { MdxShallowGeoset } from './geoset';
+import { Geoset } from './geoset';
+import Batch from './batch';
+import { ShallowGeoset } from './geoset';
 import replaceableIds from './replaceableids';
-
-import Model from '../../../parsers/mdlx/model';
-
+import Parser from '../../../parsers/mdlx/model';
 import Bone from './bone';
 import Light from './light';
 import Helper from './helper';
@@ -22,15 +18,12 @@ import Camera from './camera';
 import EventObject from './modeleventobject';
 import CollisionShape from './collisionshape';
 
-export default class MdxModel extends TexturedModel {
+export default class Model extends TexturedModel {
     /**
-     * @param {ModelViewer} env
-     * @param {function(?)} pathSolver
-     * @param {Handler} handler
-     * @param {string} extension
+     * @param {Object} resourceData
      */
-    constructor(env, pathSolver, handler, extension) {
-        super(env, pathSolver, handler, extension);
+    constructor(resourceData) {
+        super(resourceData);
 
         this.model = null;
         this.name = '';
@@ -61,77 +54,52 @@ export default class MdxModel extends TexturedModel {
         this.opaqueBatches = [];
         this.translucentBatches = [];
 
-        this.objects = [];
+        this.genericObjects = [];
+        this.sortedGenericObjects = [];
         this.hierarchy = [];
         this.replaceables = [];
         this.textureOptions = [];
-
-        this.loadTeamTextures();
     }
 
-    loadTeamTextures() {
-        let viewer = this.env;
-
-        if (!viewer.getTextureAtlas('teamColors')) {
-            let pathSolver = this.pathSolver,
-                teamColors = [],
-                teamGlows = [];
-
-            for (let i = 0; i < 14; i++) {
-                let id = ('' + i).padStart(2, '0');
-
-                teamColors[i] = viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}.blp`, pathSolver);
-                teamGlows[i] = viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}.blp`, pathSolver);
-            }
-
-            viewer.loadTextureAtlas('teamColors', teamColors);
-            viewer.loadTextureAtlas('teamGlows', teamGlows);
-        }
-    }
-
-    initialize(src) {
+    load(src) {
         // Parsing
-        let model = new Model();
+        let parser = new Parser();
 
-        if (this.extension === '.mdx') {
-            model.loadMdx(src);
-        } else {
-            model.loadMdl(src);
-        }
+        parser.load(src);
 
-        this.model = model;
+        this.parser = parser;
 
         // Model
-        this.name = model.name;
-        this.extent = model.extent;
+        this.name = parser.name;
+        this.extent = parser.extent;
 
         // Sequences
-        for (let sequence of model.sequences) {
+        for (let sequence of parser.sequences) {
             this.sequences.push(sequence);
         }
 
         // Global sequences
-        for (let globalSequence of model.globalSequences) {
+        for (let globalSequence of parser.globalSequences) {
             this.globalSequences.push(globalSequence);
         }
 
         // Textures
-        for (let texture of model.textures) {
+        for (let texture of parser.textures) {
             this.loadTexture(texture);
         }
 
         // Texture animations
-        for (let textureAnimation of model.textureAnimations) {
+        for (let textureAnimation of parser.textureAnimations) {
             this.textureAnimations.push(new TextureAnimation(this, textureAnimation));
         }
 
         // Materials
         let layerId = 0;
-        for (let material of model.materials) {
+        for (let material of parser.materials) {
             let vMaterial = [];
 
             for (let layer of material.layers) {
-                let vLayer = new MdxLayer(this, layer, layerId++, material.priorityPlane);
+                let vLayer = new Layer(this, layer, layerId++, material.priorityPlane);
 
                 vMaterial.push(vLayer);
                 this.layers.push(vLayer);
@@ -145,19 +113,19 @@ export default class MdxModel extends TexturedModel {
         }
 
         // Geoset animations
-        for (let geosetAnimation of model.geosetAnimations) {
+        for (let geosetAnimation of parser.geosetAnimations) {
             this.geosetAnimations.push(new GeosetAnimation(this, geosetAnimation));
         }
 
         // Geosets
-        if (model.geosets.length) {
+        if (parser.geosets.length) {
             let geosetId = 0,
                 batchId = 0,
                 opaqueBatches = [],
                 translucentBatches = [];
 
-            for (let geoset of model.geosets) {
-                let vGeoset = new MdxGeoset(this, geoset, geosetId++);
+            for (let geoset of parser.geosets) {
+                let vGeoset = new Geoset(this, geoset, geosetId++);
 
                 if (vGeoset.hasAnim) {
                     this.hasGeosetAnims = true;
@@ -167,7 +135,7 @@ export default class MdxModel extends TexturedModel {
 
                 // Batches
                 for (let vLayer of this.materials[geoset.materialId]) {
-                    let batch = new MdxBatch(batchId++, vLayer, vGeoset);
+                    let batch = new Batch(batchId++, vLayer, vGeoset);
 
                     if (vLayer.filterMode < 1) {
                         opaqueBatches.push(batch);
@@ -189,77 +157,102 @@ export default class MdxModel extends TexturedModel {
 
         // Tracks the IDs of all generic objects.
         let objectId = 0,
-            pivotPoints = model.pivotPoints;
+            pivotPoints = parser.pivotPoints;
 
         // Bones
-        for (let bone of model.bones) {
+        for (let bone of parser.bones) {
             this.bones.push(new Bone(this, bone, pivotPoints, objectId++));
         }
 
         // Lights
-        for (let light of model.lights) {
+        for (let light of parser.lights) {
             this.lights.push(new Light(this, light, pivotPoints, objectId++));
         }
 
         // Helpers
-        for (let helper of model.helpers) {
+        for (let helper of parser.helpers) {
             this.helpers.push(new Helper(this, helper, pivotPoints, objectId++));
         }
 
         // Attachments
-        for (let attachment of model.attachments) {
+        for (let attachment of parser.attachments) {
             this.attachments.push(new Attachment(this, attachment, pivotPoints, objectId++));
         }
 
         // Particle emitters
-        for (let particleEmitter of model.particleEmitters) {
+        for (let particleEmitter of parser.particleEmitters) {
             this.particleEmitters.push(new ParticleEmitter(this, particleEmitter, pivotPoints, objectId++));
         }
 
         // Particle emitters 2
-        for (let particleEmitter2 of model.particleEmitters2) {
+        for (let particleEmitter2 of parser.particleEmitters2) {
             this.particleEmitters2.push(new ParticleEmitter2(this, particleEmitter2, pivotPoints, objectId++));
         }
 
         // Ribbon emitters
-        for (let ribbonEmitter of model.ribbonEmitters) {
+        for (let ribbonEmitter of parser.ribbonEmitters) {
             this.ribbonEmitters.push(new RibbonEmitter(this, ribbonEmitter, pivotPoints, objectId++));
         }
 
         // Cameras
-        for (let camera of model.cameras) {
+        for (let camera of parser.cameras) {
             this.cameras.push(new Camera(this, camera, pivotPoints, objectId++));
         }
 
         // Event objects
-        for (let eventObject of model.eventObjects) {
+        for (let eventObject of parser.eventObjects) {
             this.eventObjects.push(new EventObject(this, eventObject, pivotPoints, objectId++));
         }
 
         // Collision shapes
-        for (let collisionShape of model.collisionShapes) {
+        for (let collisionShape of parser.collisionShapes) {
             this.collisionShapes.push(new CollisionShape(this, collisionShape, pivotPoints, objectId++));
         }
 
         // One array for all generic objects.
-        this.objects.push(...this.bones, ...this.lights, ...this.helpers, ...this.attachments, ...this.particleEmitters, ...this.particleEmitters2, ...this.ribbonEmitters, ...this.cameras, ...this.eventObjects, ...this.collisionShapes);
+        this.genericObjects.push(...this.bones, ...this.lights, ...this.helpers, ...this.attachments, ...this.particleEmitters, ...this.particleEmitters2, ...this.ribbonEmitters, ...this.cameras, ...this.eventObjects, ...this.collisionShapes);
 
         // Creates the sorted indices array of the generic objects.
         this.setupHierarchy(-1);
 
+        // Keep a sorted array.
+        for (let i = 0, l = this.genericObjects.length; i < l; i++) {
+            this.sortedGenericObjects[i] = this.genericObjects[this.hierarchy[i]];
+        }
+
         // Checks what sequences are variant or not.
         this.setupVariants();
 
-        //this.calculateExtent();
+        this.loadTeamTextures();
 
-        return true;
+        //this.calculateExtent();
+    }
+
+    loadTeamTextures() {
+        let viewer = this.viewer;
+
+        if (!viewer.getTextureAtlas('teamColors')) {
+            let pathSolver = this.pathSolver,
+                teamColors = [],
+                teamGlows = [];
+
+            for (let i = 0; i < 14; i++) {
+                let id = ('' + i).padStart(2, '0');
+
+                teamColors[i] = viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}.blp`, pathSolver);
+                teamGlows[i] = viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}.blp`, pathSolver);
+            }
+
+            viewer.loadTextureAtlas('teamColors', teamColors);
+            viewer.loadTextureAtlas('teamGlows', teamGlows);
+        }
     }
 
     isVariant(sequence) {
-        let objects = this.objects;
+        let genericObjects = this.genericObjects;
 
-        for (let i = 0, l = objects.length; i < l; i++) {
-            if (objects[i].variants.generic[sequence]) {
+        for (let i = 0, l = genericObjects.length; i < l; i++) {
+            if (genericObjects[i].variants.generic[sequence]) {
                 return true;
             }
         }
@@ -281,7 +274,7 @@ export default class MdxModel extends TexturedModel {
         let geosets = this.geosets;
 
         if (geosets.length > 0) {
-            let gl = this.env.gl,
+            let gl = this.viewer.gl,
                 shallowGeosets = [],
                 typedArrays = [],
                 totalArrayOffset = 0,
@@ -303,7 +296,7 @@ export default class MdxModel extends TexturedModel {
                     boneIndicesOffset = uvSetsOffset + uvSets.byteLength,
                     boneNumbersOffset = boneIndicesOffset + boneIndices.byteLength;
 
-                shallowGeosets[i] = new MdxShallowGeoset(this, [verticesOffset, normalsOffset, uvSetsOffset, boneIndicesOffset, boneNumbersOffset, totalElementOffset], geoset.uvSetSize, faces.length);
+                shallowGeosets[i] = new ShallowGeoset(this, [verticesOffset, normalsOffset, uvSetsOffset, boneIndicesOffset, boneNumbersOffset, totalElementOffset], geoset.uvSetSize, faces.length);
 
                 typedArrays.push([verticesOffset, vertices]);
                 typedArrays.push([normalsOffset, normals]);
@@ -340,8 +333,8 @@ export default class MdxModel extends TexturedModel {
     }
 
     setupHierarchy(parent) {
-        for (let i = 0, l = this.objects.length; i < l; i++) {
-            let object = this.objects[i];
+        for (let i = 0, l = this.genericObjects.length; i < l; i++) {
+            let object = this.genericObjects[i];
 
             if (object.parentId === parent) {
                 this.hierarchy.push(i);
@@ -377,7 +370,7 @@ export default class MdxModel extends TexturedModel {
         }
 
         this.replaceables.push(replaceableId);
-        this.textures.push(this.env.load(path, this.pathSolver));
+        this.textures.push(this.viewer.load(path, this.pathSolver));
         this.textureOptions.push({ repeatS: !!(flags & 0x1), repeatT: !!(flags & 0x2) });
     }
 
@@ -438,12 +431,12 @@ export default class MdxModel extends TexturedModel {
     }
 
     bind(bucket, scene) {
-        const webgl = this.env.webgl;
-        var gl = this.env.gl;
+        const webgl = this.viewer.webgl;
+        var gl = this.viewer.gl;
 
         // HACK UNTIL I IMPLEMENT MULTIPLE SHADERS AGAIN
 
-        var shader = this.env.shaderMap.get('MdxStandardShader');
+        var shader = this.viewer.shaderMap.get('MdxStandardShader');
         webgl.useShaderProgram(shader);
         this.shader = shader;
 
@@ -482,7 +475,7 @@ export default class MdxModel extends TexturedModel {
     }
 
     unbind() {
-        let gl = this.env.gl,
+        let gl = this.viewer.gl,
             instancedArrays = gl.extensions.instancedArrays,
             attribs = this.shader.attribs;
 
@@ -499,10 +492,12 @@ export default class MdxModel extends TexturedModel {
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_geosetColor'), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_layerAlpha'), 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_uvOffset'), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_uvScale'), 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_uvRot'), 0);
     }
 
     renderBatch(bucket, batch) {
-        let gl = this.env.gl,
+        let gl = this.viewer.gl,
             instancedArrays = gl.extensions.instancedArrays,
             shader = this.shader,
             attribs = this.shader.attribs,
@@ -518,17 +513,24 @@ export default class MdxModel extends TexturedModel {
             isTeamColor = false;;
 
         if (replaceable === 1) {
-            texture = this.env.getTextureAtlas('teamColors');
+            texture = this.viewer.getTextureAtlas('teamColors');
             isTeamColor = true;
         } else if (replaceable === 2) {
-            texture = this.env.getTextureAtlas('teamGlows');
+            texture = this.viewer.getTextureAtlas('teamGlows');
             isTeamColor = true;
         } else {
             texture = this.textures[layer.textureId];
         }
 
         gl.uniform1f(uniforms.get('u_isTeamColor'), isTeamColor);
-        gl.uniform1f(uniforms.get('u_hasLayerAnim'), layer.hasSlotAnim || layer.hasUvAnim);
+        gl.uniform1f(uniforms.get('u_hasSlotAnim'), layer.hasSlotAnim);
+        gl.uniform1f(uniforms.get('u_hasTranslationAnim'), layer.hasTranslationAnim);
+        gl.uniform1f(uniforms.get('u_hasRotationAnim'), layer.hasRotationAnim);
+        gl.uniform1f(uniforms.get('u_hasScaleAnim'), layer.hasScaleAnim);
+
+        // Texture coordinate divisor
+        // Used for layers that use image animations, in order to scale the coordinates to match the generated texture atlas
+        gl.uniform2f(uniforms.get('u_uvScale'), 1 / layer.uvDivisor[0], 1 / layer.uvDivisor[1]);
 
         this.bindTexture(texture, 0, bucket.modelView);
 
@@ -565,9 +567,15 @@ export default class MdxModel extends TexturedModel {
         gl.vertexAttribPointer(uvOffset, 4, gl.FLOAT, false, 16, 0);
         instancedArrays.vertexAttribDivisorANGLE(uvOffset, 1);
 
-        // Texture coordinate divisor
-        // Used for layers that use image animations, in order to scale the coordinates to match the generated texture atlas
-        gl.uniform2f(uniforms.get('u_uvScale'), 1 / layer.uvDivisor[0], 1 / layer.uvDivisor[1]);
+        let uvScale = attribs.get('a_uvScale');
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.uvScaleBuffers[layer.index]);
+        gl.vertexAttribPointer(uvScale, 1, gl.FLOAT, false, 4, 0);
+        instancedArrays.vertexAttribDivisorANGLE(uvScale, 1);
+
+        let uvRot = attribs.get('a_uvRot');
+        gl.bindBuffer(gl.ARRAY_BUFFER, bucket.uvRotBuffers[layer.index]);
+        gl.vertexAttribPointer(uvRot, 2, gl.FLOAT, false, 8, 0);
+        instancedArrays.vertexAttribDivisorANGLE(uvRot, 1);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.__webglArrayBuffer);
         shallowGeoset.bind(shader, layer.coordId);
@@ -610,15 +618,15 @@ export default class MdxModel extends TexturedModel {
 
         // Emitters
         if (particleEmitters2.length || eventObjectEmitters.length || ribbonEmitters.length) {
-            let webgl = this.env.webgl,
-                gl = this.env.gl;
+            let webgl = this.viewer.webgl,
+                gl = this.viewer.gl;
 
             gl.depthMask(0);
             gl.enable(gl.BLEND);
             gl.disable(gl.CULL_FACE);
             gl.enable(gl.DEPTH_TEST);
 
-            var shader = this.env.shaderMap.get('MdxParticleShader');
+            var shader = this.viewer.shaderMap.get('MdxParticleShader');
             webgl.useShaderProgram(shader);
 
             gl.uniformMatrix4fv(shader.uniforms.get('u_mvp'), false, scene.camera.worldProjectionMatrix);

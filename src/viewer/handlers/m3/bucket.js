@@ -12,7 +12,7 @@ export default class M3Bucket extends Bucket {
         super(modelView);
 
         const model = this.model;
-        const gl = model.env.gl;
+        const gl = model.viewer.gl;
 
         this.gl = gl;
 
@@ -50,28 +50,9 @@ export default class M3Bucket extends Bucket {
         gl.bufferData(gl.ARRAY_BUFFER, this.vertexColorArray, gl.DYNAMIC_DRAW);
     }
 
-    getRenderStats() {
-        let model = this.model,
-            calls = 0,
-            instances = this.instances.length,
-            vertices = 0,
-            polygons = 0,
-            objects = model.batches;
-
-        for (let i = 0, l = objects.length; i < l; i++) {
-            let region = objects[i].region;
-
-            calls += 1;
-            vertices += region.verticesCount;
-            polygons += region.elements / 3;
-        }
-
-        return { calls, instances, vertices, polygons, dynamicVertices: 0, dynamicPolygons: 0 };
-    }
-
     fill(data, baseInstance, scene) {
         let model = this.model,
-            gl = model.env.gl,
+            gl = model.viewer.gl,
             batchSize = model.batchSize,
             initialReferences = model.initialReference,
             boneLookup = model.boneLookup,
@@ -84,7 +65,7 @@ export default class M3Bucket extends Bucket {
         for (let l = instances.length; baseInstance < l && instanceOffset < batchSize; baseInstance++) {
             let instance = instances[baseInstance];
 
-            if (instance.loaded && instance.rendered && !instance.culled) {
+            if (instance.rendered && !instance.culled) {
                 let bones = instance.skeleton.bones,
                     vertexColor = instance.vertexColor,
                     boneMatrices = instance.skeleton.boneMatrices,

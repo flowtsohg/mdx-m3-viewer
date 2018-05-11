@@ -1,5 +1,4 @@
 import Parameter from './parameter';
-import { weuParamCount } from './weu';
 
 export default class SubParameters {
     constructor() {
@@ -17,11 +16,11 @@ export default class SubParameters {
             let argumentsCount = argumentMap.get(this.name.toLowerCase());
 
             if (isNaN(argumentsCount)) {
-                argumentsCount = weuParamCount(this.name);
+                //argumentsCount = weuParamCount(this.name);
 
-                if (isNaN(argumentsCount)) {
+                //if (isNaN(argumentsCount)) {
                     throw new Error(`Unknown ECA '${this.name}'`);
-                }
+                //}
             }
 
             for (let i = 0; i < argumentsCount; i++) {
@@ -58,27 +57,5 @@ export default class SubParameters {
         }
 
         return size;
-    }
-
-    toCustomScriptCode() {
-        let parameters = this.parameters;
-
-        // Math ops
-        if (this.name === 'OperatorInt') {
-            let operator = parameters[1].value,
-                op;
-
-            if (operator === 'OperatorAdd') {
-                op = '+';
-            } else if (operator === 'OperatorMultiply') {
-                op = '*';
-            } else {
-                throw new Error(`Unknown OperatorInt mode: ${operator}`);
-            }
-
-            return `(${parameters[0].toCustomScriptCode()} ${op} ${parameters[2].toCustomScriptCode()})`;
-        }
-
-        return `${this.name}(${parameters.map((value) => value.toCustomScriptCode()).join(', ')})`;
     }
 };

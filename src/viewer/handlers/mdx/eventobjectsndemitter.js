@@ -1,17 +1,10 @@
-import MdxSharedEmitter from './sharedemitter';
+import SharedEmitter from './sharedemitter';
 
-export default class MdxEventObjectSndEmitter extends MdxSharedEmitter {
-    /**
-     * @param {MdxModelEventObject} modelObject
-     */
+export default class EventObjectSndEmitter extends SharedEmitter {
     constructor(modelObject) {
         super(modelObject);
 
         this.type = 'SND';
-    }
-
-    fill(emitterView, scene) {
-
     }
 
     emit(emitterView) {

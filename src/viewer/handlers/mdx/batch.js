@@ -1,4 +1,4 @@
-export default class MdxBatch {
+export default class Batch {
     /**
      * @param {number} index
      * @param {MdxLayer} layer

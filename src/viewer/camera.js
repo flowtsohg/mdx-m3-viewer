@@ -1,14 +1,15 @@
 import { vec3, vec4, quat, mat4 } from 'gl-matrix';
+import { SceneNode } from './node';
 import Frustum from './frustum';
-import { NotifiedNodeMixin } from './node';
 
 let vectorHeap = vec3.create(),
     vectorHeap2 = vec3.create(),
     vectorHeap3 = vec3.create();
 
-export default class Camera extends NotifiedNodeMixin(Frustum) {
+export default class Camera extends SceneNode {
     constructor() {
         super();
+        this.frusum = new Frustum();
 
         this.perspective = true;
         this.ortho = false;
@@ -33,8 +34,6 @@ export default class Camera extends NotifiedNodeMixin(Frustum) {
 
         // First four vectors are the corners of a 2x2 rectangle billboarded to the camera, the last three vectors are the unit axes billboarded
         this.billboardedVectors = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
-
-        this.dontInheritScaling = true;
     }
 
     setPerspective(fieldOfView, aspectRatio, nearClipPlane, farClipPlane) {
@@ -45,7 +44,7 @@ export default class Camera extends NotifiedNodeMixin(Frustum) {
         this.nearClipPlane = nearClipPlane;
         this.farClipPlane = farClipPlane;
 
-        this.recalculateTransformation();
+        this.dirty = true;
     }
 
     setOrtho(left, right, bottom, top, near, far) {
@@ -58,7 +57,7 @@ export default class Camera extends NotifiedNodeMixin(Frustum) {
         this.nearClipPlane = near;
         this.farClipPlane = far;
 
-        this.recalculateTransformation();
+        this.dirty = true;
     }
 
     setViewport(viewport) {
@@ -66,19 +65,18 @@ export default class Camera extends NotifiedNodeMixin(Frustum) {
 
         this.aspectRatio = viewport[2] / viewport[3];
 
-        return this.recalculateTransformation();
+        this.dirty = true;
     }
 
     recalculateTransformation() {
+        super.recalculateTransformation();
+
         let worldMatrix = this.worldMatrix,
             projectionMatrix = this.projectionMatrix,
             worldProjectionMatrix = this.worldProjectionMatrix,
             inverseWorldRotation = this.inverseWorldRotation,
             vectors = this.vectors,
             billboardedVectors = this.billboardedVectors;
-
-        // Recalculate the node part
-        super.recalculateTransformation();
 
         // Projection matrix
         // Camera space -> NDC space
@@ -106,9 +104,7 @@ export default class Camera extends NotifiedNodeMixin(Frustum) {
         }
 
         // Recaculate the camera's frusum planes
-        this.recalculatePlanes(worldProjectionMatrix);
-
-        return this;
+        this.frusum.recalculatePlanes(worldProjectionMatrix);
     }
 
     // Given a vector in camera space, return the vector transformed to world space

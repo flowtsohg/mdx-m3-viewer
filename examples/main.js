@@ -13,10 +13,7 @@ canvas.height = 600;
 let viewer = new ModelViewer.viewer.ModelViewer(canvas);
 
 // Create a new scene. Each scene has its own camera, and a list of things to render.
-let scene = new ModelViewer.viewer.Scene();
-
-// Add the scene to the viewer.
-viewer.addScene(scene);
+let scene = viewer.addScene();
 
 // Get the scene's camera.
 let camera = scene.camera;

@@ -19,6 +19,6 @@ let glMatrix = ModelViewer.common.glMatrix,
     quat = glMatrix.quat,
     mat3 = glMatrix.mat3,
     mat4 = glMatrix.mat4,
-    UnitTester = ModelViewer.viewer.UnitTester,
+    UnitTester = ModelViewer.utils.UnitTester,
     geometry = ModelViewer.common.geometry,
     math = ModelViewer.common.math;

@@ -12,13 +12,10 @@ import M3Region from './region';
 
 export default class M3Model extends TexturedModel {
     /**
-     * @param {ModelViewer} env
-     * @param {function(?)} pathSolver
-     * @param {Handler} handler
-     * @param {string} extension
+     * @param {Object} resourceData
      */
-    constructor(env, pathSolver, handler, extension) {
-        super(env, pathSolver, handler, extension);
+    constructor(resourceData) {
+        super(resourceData);
 
         this.parser = null;
         this.name = '';
@@ -35,15 +32,8 @@ export default class M3Model extends TexturedModel {
         this.cameras = [];
     }
 
-    initialize(src) {
-        var parser;
-
-        try {
-            parser = new M3Parser(src);
-        } catch (e) {
-            this.onerror('InvalidSource', e);
-            return false;
-        }
+    load(src) {
+        var parser = new M3Parser(src);
 
         var i, l;
         var model = parser.model;
@@ -182,12 +172,10 @@ export default class M3Model extends TexturedModel {
         for (i = 0, l = cameras.length; i < l; i++) {
             this.cameras[i] = new M3Camera(cameras[i]);
         }
-
-        return true;
     }
 
     setupGeometry(parser, div) {
-        let gl = this.env.gl;
+        let gl = this.viewer.gl;
 
         var i, l;
         var uvSetCount = 1;
@@ -285,7 +273,7 @@ export default class M3Model extends TexturedModel {
     }
 
     bindShared(bucket) {
-        let gl = this.env.gl,
+        let gl = this.viewer.gl,
             shader = this.shader,
             vertexSize = this.vertexSize,
             instancedArrays = gl.extensions.instancedArrays,
@@ -322,14 +310,14 @@ export default class M3Model extends TexturedModel {
     }
 
     bind(bucket, scene) {
-        const gl = this.env.gl,
-            webgl = this.env.webgl;
+        const gl = this.viewer.gl,
+            webgl = this.viewer.webgl;
 
         var vertexSize = this.vertexSize;
         var uvSetCount = this.uvSetCount;
 
         // HACK UNTIL I IMPLEMENT MULTIPLE SHADERS AGAIN
-        var shader = this.env.shaderMap.get('M3StandardShader' + (uvSetCount - 1));
+        var shader = this.viewer.shaderMap.get('M3StandardShader' + (uvSetCount - 1));
         webgl.useShaderProgram(shader);
         this.shader = shader;
 
@@ -359,7 +347,7 @@ export default class M3Model extends TexturedModel {
     }
 
     unbind() {
-        let instancedArrays = this.env.gl.extensions.instancedArrays,
+        let instancedArrays = this.viewer.gl.extensions.instancedArrays,
             shader = this.shader,
             attribs = shader.attribs;
 

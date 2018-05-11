@@ -12,7 +12,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -120]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -26,7 +26,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -120]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -40,7 +40,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -120]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -54,7 +54,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -120]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -68,7 +68,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -120]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -82,7 +82,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -120]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -98,7 +98,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -120]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -117,7 +117,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -160]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -131,7 +131,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -160]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -145,7 +145,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -160]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -159,7 +159,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -160]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -173,7 +173,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -160]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -187,7 +187,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -160]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -203,7 +203,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -160]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -222,7 +222,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -120]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -236,7 +236,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -120]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -250,7 +250,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -120]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -264,7 +264,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -120]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -278,7 +278,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -120]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -292,7 +292,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -120]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -308,7 +308,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -120]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -327,7 +327,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -150]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -341,7 +341,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -150]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -355,7 +355,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -150]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -369,7 +369,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -150]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -383,7 +383,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -150]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -397,7 +397,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -150]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -413,7 +413,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, 0, -150]);
 
-                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().uniformScale(40).rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -432,7 +432,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, -70, -200]);
 
-                        let instance = model.addInstance().rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -446,7 +446,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, -70, -200]);
 
-                        let instance = model.addInstance().rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -460,7 +460,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, -70, -200]);
 
-                        let instance = model.addInstance().rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -474,7 +474,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, -70, -200]);
 
-                        let instance = model.addInstance().rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -488,7 +488,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, -70, -200]);
 
-                        let instance = model.addInstance().rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -502,7 +502,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, -70, -200]);
 
-                        let instance = model.addInstance().rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }
@@ -518,7 +518,7 @@ let geoTests = {
                     test(viewer, scene, camera, model) {
                         camera.move([0, -70, -200]);
 
-                        let instance = model.addInstance().rotate(quat.setAxisAngle([], vec3.UNIT_X, Math.PI / 8));
+                        let instance = model.addInstance().rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
 
                         scene.addInstance(instance);
                     }

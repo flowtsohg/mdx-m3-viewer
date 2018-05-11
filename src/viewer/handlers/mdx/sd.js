@@ -1,12 +1,12 @@
 import { clamp } from '../../../common/math';
 import Interpolator from '../../../common/interpolator';
 
-class MdxSdSequence {
+class SdSequence {
     /**
-     * @param {MdxSd} sd
+     * @param {Sd} sd
      * @param {number} start
      * @param {number} end
-     * @param {Array<MdxParserTrack>} keyframes
+     * @param {Array<Track>} keyframes
      * @param {boolean} isGlobalSequence
      */
     constructor(sd, start, end, keyframes, isGlobalSequence) {
@@ -212,7 +212,7 @@ let defVals = {
     KGSC: new Float32Array([1, 1, 1])
 };
 
-export default class MdxSd {
+export default class Sd {
     /**
      * @param {MdxModel} model
      * @param {MdxParserSd} sd
@@ -234,7 +234,7 @@ export default class MdxSd {
         this.interpolationType = forcedInterp !== undefined ? forcedInterp : sd.interpolationType;
 
         if (globalSequenceId !== -1 && globalSequences) {
-            this.globalSequence = new MdxSdSequence(this, 0, globalSequences[globalSequenceId], tracks, true);
+            this.globalSequence = new SdSequence(this, 0, globalSequences[globalSequenceId], tracks, true);
         } else {
             var sequences = model.sequences;
 
@@ -243,7 +243,7 @@ export default class MdxSd {
             for (var i = 0, l = sequences.length; i < l; i++) {
                 var interval = sequences[i].interval;
 
-                this.sequences[i] = new MdxSdSequence(this, interval[0], interval[1], tracks, false);
+                this.sequences[i] = new SdSequence(this, interval[0], interval[1], tracks, false);
             }
         }
     }

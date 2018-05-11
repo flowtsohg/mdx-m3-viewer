@@ -1,12 +1,6 @@
 import Bucket from '../../bucket';
-import MdxParticleEmitter from './particleemitter';
-import MdxParticleEmitter2 from './particleemitter2';
-import MdxRibbonEmitter from './ribbonemitter';
-import MdxEventObjectSpnEmitter from './eventobjectspnemitter';
-import MdxEventObjectSplEmitter from './eventobjectsplemitter';
-import MdxEventObjectUbrEmitter from './eventobjectubremitter';
 
-export default class MdxBucket extends Bucket {
+export default class extends Bucket {
     /**
      * @param {MdxModelView} modelView
      */
@@ -15,7 +9,7 @@ export default class MdxBucket extends Bucket {
 
         let model = this.model,
             batchSize = model.batchSize,
-            gl = model.env.gl,
+            gl = model.viewer.gl,
             numberOfBones = model.bones.length + 1,
             objects;
 
@@ -60,105 +54,60 @@ export default class MdxBucket extends Bucket {
         this.uvOffsetArrays = [];
         this.uvOffsetBuffers = [];
 
-        this.hasBatches = model.batches.length > 0;
+        this.uvScaleArrays = [];
+        this.uvScaleBuffers = [];
+
+        this.uvRotArrays = [];
+        this.uvRotBuffers = [];
 
         // Batches
-        if (this.hasBatches) {
-            for (var i = 0, l = model.geosets.length; i < l; i++) {
-                this.geosetColorArrays[i] = new Uint8Array(4 * batchSize).fill(255); // Geoset colors are initialized to white
+        if (model.batches.length > 0) {
+            for (let i = 0, l = model.geosets.length; i < l; i++) {
+                this.geosetColorArrays[i] = new Uint8Array(4 * batchSize);
                 this.geosetColorBuffers[i] = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetColorBuffers[i]);
                 gl.bufferData(gl.ARRAY_BUFFER, this.geosetColorArrays[i], gl.DYNAMIC_DRAW);
             }
 
-            for (var i = 0, l = model.layers.length; i < l; i++) {
+            for (let i = 0, l = model.layers.length; i < l; i++) {
                 this.uvOffsetArrays[i] = new Float32Array(4 * batchSize);
                 this.uvOffsetBuffers[i] = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.uvOffsetBuffers[i]);
                 gl.bufferData(gl.ARRAY_BUFFER, this.uvOffsetArrays[i], gl.DYNAMIC_DRAW);
 
-                this.layerAlphaArrays[i] = new Uint8Array(batchSize).fill(255); // Layer alphas are initialized to opaque
+                this.layerAlphaArrays[i] = new Uint8Array(batchSize);
                 this.layerAlphaBuffers[i] = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.layerAlphaBuffers[i]);
                 gl.bufferData(gl.ARRAY_BUFFER, this.layerAlphaArrays[i], gl.DYNAMIC_DRAW);
+
+                this.uvScaleArrays[i] = new Float32Array(batchSize);
+                this.uvScaleBuffers[i] = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.uvScaleBuffers[i]);
+                gl.bufferData(gl.ARRAY_BUFFER, this.uvScaleArrays[i], gl.DYNAMIC_DRAW);
+
+                this.uvRotArrays[i] = new Float32Array(batchSize * 2);
+                this.uvRotBuffers[i] = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.uvRotBuffers[i]);
+                gl.bufferData(gl.ARRAY_BUFFER, this.uvRotArrays[i], gl.DYNAMIC_DRAW);
             }
         }
-    }
-
-    getRenderStats() {
-        let model = this.model,
-            calls = 0,
-            instances = this.instances.length,
-            vertices = 0,
-            polygons = 0,
-            dynamicVertices = 0,
-            dynamicPolygons = 0,
-            objects;
-
-        objects = model.batches;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            let geoset = objects[i].geoset;
-
-            calls += 1;
-            vertices += (geoset.locationArray.length / 3) * instances;
-            polygons += (geoset.faceArray.length / 3) * instances;
-        }
-
-        objects = this.particle2Emitters;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            let emitter = objects[i],
-                active = emitter.active.length;
-
-            if (active > 0) {
-                calls += 1;
-                dynamicVertices += active * 6;
-                dynamicPolygons += active * 2;
-            }
-        }
-
-        objects = this.ribbonEmitters;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            let emitter = objects[i],
-                active = emitter.active.length;
-
-            if (active > 0) {
-                calls += 1;
-                dynamicVertices += active * 6;
-                dynamicPolygons += active * 2;
-            }
-        }
-
-        objects = this.eventObjectEmitters;
-        for (let i = 0, l = objects.length; i < l; i++) {
-            let emitter = objects[i],
-                active = emitter.active.length;
-
-            if (active > 0) {
-                let type = emitter.type;
-
-                if (type === 'SPL' || type === 'UBR') {
-                    calls += 1;
-                    dynamicVertices += active * 6;
-                    dynamicPolygons += active * 2;
-                }
-            }
-        }
-
-        return { calls, instances, vertices, polygons, dynamicVertices, dynamicPolygons };
     }
 
     fill(data, baseInstance, scene) {
         let model = this.model,
-            gl = model.env.gl,
+            gl = model.viewer.gl,
             batchSize = model.batchSize,
             geosetCount = model.geosets.length,
             layerCount = model.layers.length,
+            boneCount = model.bones.length,
             boneArray = this.boneArray,
             teamColorArray = this.teamColorArray,
             vertexColorArray = this.vertexColorArray,
             geosetColorArrays = this.geosetColorArrays,
             layerAlphaArrays = this.layerAlphaArrays,
             uvOffsetArrays = this.uvOffsetArrays,
+            uvScaleArrays = this.uvScaleArrays,
+            uvRotArrays = this.uvRotArrays,
             instanceOffset = 0,
             instances = data.instances,
             particleEmitters = data.particleEmitters,
@@ -169,55 +118,66 @@ export default class MdxBucket extends Bucket {
         for (let l = instances.length; baseInstance < l && instanceOffset < batchSize; baseInstance++) {
             let instance = instances[baseInstance];
 
-            if (instance.loaded && instance.rendered && !instance.culled) {
-                let bones = instance.skeleton.bones,
-                    vertexColor = instance.vertexColor,
-                    boneMatrices = instance.skeleton.boneMatrices,
+            if (instance.rendered && !instance.culled) {
+                let vertexColor = instance.vertexColor,
+                    worldMatrices = instance.worldMatrices,
                     geosetColors = instance.geosetColors,
                     layerAlphas = instance.layerAlphas,
                     uvOffsets = instance.uvOffsets,
-                    base = 16 + instanceOffset * (16 + boneMatrices.length),
+                    uvScales = instance.uvScales,
+                    uvRots = instance.uvRots,
+                    base = 16 + instanceOffset * (16 + boneCount * 16),
                     particleEmitterViews = instance.particleEmitters,
                     particleEmitter2Views = instance.particleEmitters2,
                     ribbonEmitterViews = instance.ribbonEmitters,
-                    eventObjectEmitterViews = instance.eventObjectEmitters;
+                    eventObjectEmitterViews = instance.eventObjectEmitters,
+                    instanceOffset4 = instanceOffset * 4;
 
                 // Bones
-                for (let j = 0, k = boneMatrices.length; j < k; j++) {
-                    boneArray[base + j] = boneMatrices[j];
+                for (let j = 0, k = boneCount * 16; j < k; j++) {
+                    boneArray[base + j] = worldMatrices[j];
                 }
 
                 // Team color
                 teamColorArray[instanceOffset] = instance.teamColor;
 
                 // Vertex color
-                vertexColorArray[instanceOffset * 4] = vertexColor[0];
-                vertexColorArray[instanceOffset * 4 + 1] = vertexColor[1];
-                vertexColorArray[instanceOffset * 4 + 2] = vertexColor[2];
-                vertexColorArray[instanceOffset * 4 + 3] = vertexColor[3];
+                vertexColorArray[instanceOffset4] = vertexColor[0];
+                vertexColorArray[instanceOffset4 + 1] = vertexColor[1];
+                vertexColorArray[instanceOffset4 + 2] = vertexColor[2];
+                vertexColorArray[instanceOffset4 + 3] = vertexColor[3];
 
                 for (let geosetIndex = 0; geosetIndex < geosetCount; geosetIndex++) {
-                    let geosetColorArray = geosetColorArrays[geosetIndex];
+                    let geosetColorArray = geosetColorArrays[geosetIndex],
+                        geosetIndex4 = geosetIndex * 4;
 
                     // Geoset color
-                    geosetColorArray[instanceOffset * 4] = geosetColors[geosetIndex * 4];
-                    geosetColorArray[instanceOffset * 4 + 1] = geosetColors[geosetIndex * 4 + 1];
-                    geosetColorArray[instanceOffset * 4 + 2] = geosetColors[geosetIndex * 4 + 2];
-                    geosetColorArray[instanceOffset * 4 + 3] = geosetColors[geosetIndex * 4 + 3];
+                    geosetColorArray[instanceOffset4] = geosetColors[geosetIndex4];
+                    geosetColorArray[instanceOffset4 + 1] = geosetColors[geosetIndex4 + 1];
+                    geosetColorArray[instanceOffset4 + 2] = geosetColors[geosetIndex4 + 2];
+                    geosetColorArray[instanceOffset4 + 3] = geosetColors[geosetIndex4 + 3];
                 }
 
                 for (let layerIndex = 0; layerIndex < layerCount; layerIndex++) {
                     let layerAlphaArray = layerAlphaArrays[layerIndex],
-                        uvOffsetArray = uvOffsetArrays[layerIndex];
+                        uvOffsetArray = uvOffsetArrays[layerIndex],
+                        uvScaleArray = uvScaleArrays[layerIndex],
+                        uvRotArray = uvRotArrays[layerIndex],
+                        layerIndex4 = layerIndex * 4;
 
                     // Layer alpha
                     layerAlphaArray[instanceOffset] = layerAlphas[layerIndex];
 
                     // Texture coordinate animation + sprite animation
-                    uvOffsetArray[instanceOffset * 4] = uvOffsets[layerIndex * 4];
-                    uvOffsetArray[instanceOffset * 4 + 1] = uvOffsets[layerIndex * 4 + 1];
-                    uvOffsetArray[instanceOffset * 4 + 2] = uvOffsets[layerIndex * 4 + 2];
-                    uvOffsetArray[instanceOffset * 4 + 3] = uvOffsets[layerIndex * 4 + 3];
+                    uvOffsetArray[instanceOffset4] = uvOffsets[layerIndex4];
+                    uvOffsetArray[instanceOffset4 + 1] = uvOffsets[layerIndex4 + 1];
+                    uvOffsetArray[instanceOffset4 + 2] = uvOffsets[layerIndex4 + 2];
+                    uvOffsetArray[instanceOffset4 + 3] = uvOffsets[layerIndex4 + 3];
+
+                    uvScaleArray[instanceOffset] = uvScales[layerIndex];
+
+                    uvRotArray[instanceOffset * 2] = uvRots[layerIndex * 2];
+                    uvRotArray[instanceOffset * 2 + 1] = uvRots[layerIndex * 2 + 1];
                 }
 
                 for (let i = 0, l = particleEmitters.length; i < l; i++) {
@@ -244,6 +204,8 @@ export default class MdxBucket extends Bucket {
         this.count = instanceOffset;
 
         if (instanceOffset) {
+            let instanceOffset4 = instanceOffset * 4;
+
             gl.activeTexture(gl.TEXTURE15);
             gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
             gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, instanceOffset, gl.RGBA, gl.FLOAT, boneArray);
@@ -265,6 +227,12 @@ export default class MdxBucket extends Bucket {
 
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.uvOffsetBuffers[i]);
                 gl.bufferSubData(gl.ARRAY_BUFFER, 0, uvOffsetArrays[i]);
+
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.uvScaleBuffers[i]);
+                gl.bufferSubData(gl.ARRAY_BUFFER, 0, uvScaleArrays[i]);
+
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.uvRotBuffers[i]);
+                gl.bufferSubData(gl.ARRAY_BUFFER, 0, uvRotArrays[i]);
             }
         }
 

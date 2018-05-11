@@ -1,47 +1,29 @@
-import ResizeableBuffer from '../../gl/resizeablebuffer';
-import MdxSharedGeometryEmitter from './sharedgeometryemitter';
-import MdxSdContainer from './sd';
-import MdxRibbon from './ribbon';
+import SharedGeometryEmitter from './sharedgeometryemitter';
+import Ribbon from './ribbon';
 
-export default class MdxRibbonEmitter extends MdxSharedGeometryEmitter {
-    /**
-     * @param {MdxModel} model
-     * @param {MdxParserRibbonEmitter} emitter
-     */
+export default class RibbonEmitter extends SharedGeometryEmitter {
     constructor(modelObject) {
         super(modelObject);
 
         this.bytesPerEmit = 4 * 30;
-        this.buffer = new ResizeableBuffer(modelObject.model.env.gl);
+    }
+
+    emit(emitterView) {
+        emitterView.lastEmit = this.emitObject(emitterView);
+    }
+
+    createObject() {
+        return new Ribbon(this);
     }
 
     fill(emitterView, scene) {
         let emission = emitterView.currentEmission;
 
         if (emission >= 1) {
-            for (let i = 0, l = Math.floor(emission); i < l; i++ , emitterView.currentEmission--) {
-                emitterView.lastEmit = this.emit(emitterView);
-            }
+            this.emit(emitterView);
+
+            emitterView.currentEmission--;
         }
-    }
-
-    emit(emitterView) {
-        this.buffer.grow((this.active.length + 1) * this.bytesPerEmit);
-
-        let inactive = this.inactive,
-            object;
-
-        if (inactive.length) {
-            object = inactive.pop();
-        } else {
-            object = new MdxRibbon(this);
-        }
-
-        object.reset(emitterView);
-
-        this.active.push(object);
-
-        return object;
     }
 
     render(modelView, shader) {
@@ -49,7 +31,7 @@ export default class MdxRibbonEmitter extends MdxSharedGeometryEmitter {
 
         if (active > 0) {
             let model = this.modelObject.model,
-                gl = model.env.gl;
+                gl = model.viewer.gl;
 
             this.modelObject.layer.bind(shader);
 

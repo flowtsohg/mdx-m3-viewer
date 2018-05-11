@@ -1,6 +1,6 @@
 import ImageTexture from './texture';
 
 export default {
-    extensions: [['.png', 'blob'], ['.jpg', 'blob'], ['.gif', 'blob']],
+    extensions: [['.png', 'image'], ['.jpg', 'image'], ['.gif', 'image']],
     constructor: ImageTexture
 };

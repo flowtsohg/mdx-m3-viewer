@@ -4,7 +4,7 @@ import Geo from '../geo/handler';
 import W3xMap from './map';
 
 export default {
-    initialize(viewer) {
+    load(viewer) {
         viewer.addHandler(Mpq);
         viewer.addHandler(Mdx);
         viewer.addHandler(Geo);

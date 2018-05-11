@@ -1,14 +1,14 @@
 import { vec3 } from 'gl-matrix';
 import Camera from './camera';
-import { NotifiedSceneNode } from './node';
+import { SceneNode } from './node';
 
 // Heap allocations needed for this module.
 let ndcHeap = new Float32Array(3);
 
 export default class Scene {
-    constructor() {
-        this.viewer = null;
-
+    constructor(viewer) {
+        /** @member {ModelViewer.viewer.ModelViewer} */
+        this.viewer = viewer;
         /** @member {ModelViewer.viewer.Camera} */
         this.camera = new Camera();
         /** @member {Array<ModelViewer.viewer.ModelInstance>} */
@@ -19,46 +19,18 @@ export default class Scene {
         this.modelViews = [];
         /** @member {Set<ModelViewer.viewer.ModelView>} */
         this.modelViewSet = new Set();
-        /** @member {ModelViewer.viewer.NotifiedSceneNode} */
-        this.root = new NotifiedSceneNode();
-    }
+        /** @member {ModelViewer.viewer.SceneNode} */
+        this.node = new SceneNode();
+        /** @member {boolean} */
+        this.rendered = true;
 
-    /**
-     * Get the rendering statistics of this scene.
-     * This includes the following:
-     *     buckets
-     *     calls
-     *     instances
-     *     vertices
-     *     polygons
-     *     dynamicVertices
-     *     dynamicPolygons
-     */
-    getRenderStats() {
-        //let objects = this.buckets,
-       //     buckets = objects.length,
-        let buckets = 0,
-            calls = 0,
-            instances = 0,
-            vertices = 0,
-            polygons = 0,
-            dynamicVertices = 0,
-            dynamicPolygons = 0;
+        this.node.recalculateTransformation();
+        this.camera.setParent(this.node);
 
-        /*
-        for (let i = 0; i < buckets; i++) {
-            let stats = objects[i].getRenderStats();
-
-            calls += stats.calls;
-            instances += stats.instances;
-            vertices += stats.vertices;
-            polygons += stats.polygons;
-            dynamicVertices += stats.dynamicVertices;
-            dynamicPolygons += stats.dynamicPolygons;
-        }
-        */
-
-        return { buckets, calls, instances, vertices, polygons, dynamicVertices, dynamicPolygons };
+        this.renderedInstances = 0;
+        this.renderedParticles = 0;
+        this.renderedBuckets = 0;
+        this.renderCalls = 0;
     }
 
     /**
@@ -81,6 +53,10 @@ export default class Scene {
 
             instance.modelView.sceneChanged(instance, this);
             instance.scene = this;
+
+            if (!instance.parent) {
+                instance.setParent(this.node);
+            }
 
             this.addView(instance.modelView);
 
@@ -123,40 +99,42 @@ export default class Scene {
      * Removes all of the buckets in this scene.
      */
     clear() {
-        
+        this.instances.length = 0;
+        this.instanceSet.clear();
+        this.modelViews.length = 0;
+        this.modelViewSet.clear();
     }
 
     /**
      * Detach this scene from the viewer.
      */
     detach() {
-        if (this.env) {
-            return this.env.removeScene(this);
+        if (this.viewer) {
+            return this.viewer.removeScene(this);
         }
 
         return false;
     }
 
     update() {
-        for (let instance of this.instances) {
-            if (instance.loaded && !instance.paused) {
-                // Update animation timers.
-                instance.updateTimers();
-                
-                if (instance.rendered) {
-                    let visible = this.isVisible(instance) || instance.noCulling || this.viewer.noCulling;
+        if (this.rendered) {
+            // Update all of the nodes, instances, etc.
+            this.node.updateChildren(this);
 
-                    instance.culled = !visible;
-                    
-                    if (visible) {
-                        instance.update();
-                    }
-                }
+            this.renderedInstances = 0;
+            this.renderedParticles = 0;
+            this.renderedBuckets = 0;
+            this.renderCalls = 0;
+
+            // Update the rendering data
+            for (let modelView of this.modelViews) {
+                modelView.update(this);
+
+                this.renderedInstances += modelView.renderedInstances;
+                this.renderedParticles += modelView.renderedParticles;
+                this.renderedBuckets += modelView.renderedBuckets;
+                this.renderCalls += modelView.renderCalls;
             }
-        }
-
-        for (let modelView of this.modelViews) {
-            modelView.update(this);
         }
     }
 
@@ -173,22 +151,26 @@ export default class Scene {
         return false;
         //*/
 
-        //return this.model.env.camera.testIntersectionAABB(instance.boundingShape) > 0;
+        //return this.model.viewer.camera.testIntersectionAABB(instance.boundingShape) > 0;
     }
 
     renderOpaque(gl) {
-        this.setViewport(gl);
+        if (this.rendered) {
+            this.setViewport(gl);
 
-        for (let modelView of this.modelViews) {
-            modelView.renderOpaque(this);
+            for (let modelView of this.modelViews) {
+                modelView.renderOpaque(this);
+            }
         }
     }
 
     renderTranslucent(gl) {
-        this.setViewport(gl);
+        if (this.rendered) {
+            this.setViewport(gl);
 
-        for (let modelView of this.modelViews) {
-            modelView.renderTranslucent(this);
+            for (let modelView of this.modelViews) {
+                modelView.renderTranslucent(this);
+            }
         }
     }
 

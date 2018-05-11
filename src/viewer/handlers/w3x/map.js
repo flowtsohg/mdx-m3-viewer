@@ -1,34 +1,29 @@
 import unique from '../../../common/arrayunique';
 import * as geometry from '../../../common/geometry';
 import MpqArchive from '../../../parsers/mpq/archive';
-import W3xParser from '../../../parsers/w3x/map';
-import ViewerFile from '../../file';
-import Scene from '../../scene';
-import W3xUnit from './unit';
-import W3xDoodad from './doodad';
-import W3xTilePoint from './tilepoint';
+import Parser from '../../../parsers/w3x/map';
+import Resource from '../../resource';
+import Unit from './unit';
+import Doodad from './doodad';
+import TilePoint from './tilepoint';
 
-export default class W3xMap extends ViewerFile {
+export default class W3xMap extends Resource {
     /**
-     * @param {ModelViewer} env
-     * @param {function(?)} pathSolver
-     * @param {Handler} handler
-     * @param {string} extension
+     * @param {Object} resourceData
      */
-    constructor(env, pathSolver, handler, extension) {
-        super(env, pathSolver, handler, extension);
+    constructor(resourceData) {
+        super(resourceData);
 
-        this.scene = new Scene();
+        this.scene = resourceData.viewer.addScene();
     }
 
-    initialize(src) {
-        let parser = new W3xParser(null, true); // Use readonly mode to reduce memory usage.
+    load(src) {
+        let parser = new Parser(null, true); // Use readonly mode to reduce memory usage.
 
         if (!parser.load(src)) {
-            this.onerror('InvalidSource');
-            return false;
+            throw new Error('Failed to parse the map');
         }
-
+        
         let environment = parser.readEnvironment(),
             doodads = parser.readDoodads(),
             units = parser.readUnits(),
@@ -41,7 +36,7 @@ export default class W3xMap extends ViewerFile {
         this.doodads = [];
         this.units = [];
 
-        let env = this.env;
+        let env = this.viewer;
         let internalPathSolver = this.internalPathSolver;
         let fileCache = new Map();
 
@@ -120,9 +115,9 @@ export default class W3xMap extends ViewerFile {
         };
 
         // Promise that there is a future load that the code cannot know about yet, so Viewer.whenAllLoaded() isn't called prematurely.
-        let promise = this.env.makePromise();
+        let promise = this.viewer.makePromise();
 
-        this.env.whenLoaded(fileCache.values())
+        this.viewer.whenLoaded(fileCache.values())
             .then(() => {
                 this.loadModifications(modifications);
                 this.loadTerrain(environment);
@@ -132,25 +127,23 @@ export default class W3xMap extends ViewerFile {
                 // Resolve the promise
                 promise.resolve();
             });
-
-        return true;
     }
 
     loadFile(src) {
-        return this.env.load(src, this.internalPathSolver);
+        return this.viewer.load(src, this.internalPathSolver);
     }
 
     // Doodads and destructables
     loadDoodads(doodadChunk) {
         for (let doodad of doodadChunk.doodads) {
-            this.doodads.push(new W3xDoodad(this, doodad));
+            this.doodads.push(new Doodad(this, doodad));
         }
     }
 
     // Units and items
     loadUnits(unitsChunk) {
         for (let unit of unitsChunk.units) {
-            this.units.push(new W3xUnit(this, unit));
+            this.units.push(new Unit(this, unit));
         }
     }
 
@@ -202,7 +195,7 @@ export default class W3xMap extends ViewerFile {
             this.tilepoints[y] = [];
 
             for (let x = 0; x < mapSize[0]; x++) {
-                this.tilepoints[y][x] = new W3xTilePoint(tilepoints[y][x]);
+                this.tilepoints[y][x] = new TilePoint(tilepoints[y][x]);
             }
         }
 
@@ -210,7 +203,7 @@ export default class W3xMap extends ViewerFile {
 
         this.tilesetTextures = [];
 
-        var gl = this.env.gl;
+        var gl = this.viewer.gl;
 
         for (let groundTileset of environment.groundTilesets) {
             var row = slk.getRow(groundTileset);
@@ -268,7 +261,7 @@ export default class W3xMap extends ViewerFile {
 
         this.cliffTexturesOffset = this.blightTextureIndex + 1;
 
-        this.env.whenLoaded(this.tilesetTextures)
+        this.viewer.whenLoaded(this.tilesetTextures)
             .then(() => {
                 for (let texture of this.tilesetTextures) {
                     // To avoid WebGL errors if a texture failed to load
@@ -493,15 +486,15 @@ export default class W3xMap extends ViewerFile {
             //textures[i] = this.loadFile('ReplaceableTextures/Water/N_Water' + n + '.blp');
         }
 
-        this.env.loadTextureAtlas('mapWater', textures)
+        this.viewer.loadTextureAtlas('mapWater', textures)
             .then((atlas) => {
-                var texture = this.env.load(atlas.texture);
+                var texture = this.viewer.load(atlas.texture);
 
-                var gl = this.env.gl;
+                var gl = this.viewer.gl;
                 gl.bindTexture(gl.TEXTURE_2D, texture.webglResource);
                 texture.setParameters(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR);
 
-                var model = this.env.load({
+                var model = this.viewer.load({
                     geometry: { vertices: new Float32Array(vertices), uvs: new Float32Array(uvs), faces: new Uint16Array(faces), edges: new Float32Array(edges) },
                     material: { renderMode: 0, twoSided: true, alpha: 0.5, texture: texture, isBGR: true, isBlended: true }
                 }, src => [src, '.geo', false]);
@@ -522,17 +515,18 @@ export default class W3xMap extends ViewerFile {
 
     loadSky() {
         let model = this.loadFile('Environment/Sky/LordaeronSummerSky/LordaeronSummerSky.mdx'),
-            instance = model.addInstance().uniformScale(3);
+            instance = model.addInstance();
 
+        instance.uniformScale(3);
         instance.noCulling = true;
 
         this.scene.addInstance(instance);
 
-        instance.whenLoaded()
-            .then(() => {
-                instance.bucket.priority = 200;
-                this.scene.sortBuckets();
-            });
+        // instance.whenLoaded()
+        //     .then(() => {
+        //         instance.bucket.priority = 200;
+        //         this.scene.sortBuckets();
+        //     });
     }
 
     loadTerrainCliffs() {
@@ -543,7 +537,7 @@ export default class W3xMap extends ViewerFile {
         var tilepoints = this.tilepoints;
 
         /*
-        var unitCube = this.env.load({
+        var unitCube = this.viewer.load({
             geometry: geometry.createUnitCube(),
             material: { renderMode: 0, color: [1, 1, 1], twoSided: true }
         }, src =>[src, '.geo', false]);
@@ -807,7 +801,9 @@ export default class W3xMap extends ViewerFile {
 
                         if (supportedMask) {
                             let model = this.loadFile('Doodads/Terrain/' + dir + '/' + dir + tag + tryVariation(dir, tag, cliffVariation) + '.mdx'),
-                                instance = model.addInstance().setLocation([tile.x, tile.y, tile.z]);
+                                instance = model.addInstance();
+
+                            instance.setLocation([tile.x, tile.y, tile.z]);
 
                             model.whenLoaded().then(() => model.textures[0] = texture);
 
@@ -889,7 +885,9 @@ export default class W3xMap extends ViewerFile {
 
                         if (supportedMask) {
                             let model = this.loadFile('Doodads/Terrain/' + dir + '/' + dir + tag + tryVariation(dir, tag, cliffVariation) + '.mdx'),
-                                instance = model.addInstance().setLocation([tile.x + 128, tile.y, tile.z]);
+                                instance = model.addInstance();
+
+                            instance.setLocation([tile.x + 128, tile.y, tile.z]);
 
                             model.whenLoaded().then(() => model.textures[0] = texture);
 
@@ -929,7 +927,9 @@ export default class W3xMap extends ViewerFile {
 
                         if (supportedMask) {
                             let model = this.loadFile('Doodads/Terrain/' + dir + '/' + dir + tag + tryVariation(dir, tag, cliffVariation) + '.mdx'),
-                                instance = model.addInstance().setLocation([tile.x + 128, tile.y - 128, tile.z]);
+                                instance = model.addInstance();
+
+                            instance.setLocation([tile.x + 128, tile.y - 128, tile.z]);
 
                             model.whenLoaded().then(() => model.textures[0] = texture);
 
@@ -994,7 +994,9 @@ export default class W3xMap extends ViewerFile {
 
                         if (supportedMask) {
                             let model = this.loadFile('Doodads/Terrain/' + dir + '/' + dir + tag + tryVariation(dir, tag, cliffVariation) + '.mdx'),
-                                instance = model.addInstance().setLocation([tile.x, tile.y - 128, tile.z]);
+                                instance = model.addInstance();
+
+                            instance.setLocation([tile.x, tile.y - 128, tile.z]);
 
                             model.whenLoaded().then(() => model.textures[0] = texture);
 
@@ -1204,6 +1206,7 @@ export default class W3xMap extends ViewerFile {
                     offsetX *= width;
                     offsetY *= height;
 
+                    //*
                     // pixel correction, to avoid bleeding
                     var pixelSizeX = 1 / tilesetTextures[t].width;
                     var pixelSizeY = 1 / tilesetTextures[t].height;
@@ -1211,7 +1214,8 @@ export default class W3xMap extends ViewerFile {
                     offsetY += pixelSizeY;
                     width -= 2 * pixelSizeX;
                     height -= 2 * pixelSizeY;
-
+                    //*/
+                   
                     uvs[t].push(offsetX, offsetY + height, offsetX, offsetY, offsetX + width, offsetY, offsetX + width, offsetY + height);
                 }
             }
@@ -1225,7 +1229,7 @@ export default class W3xMap extends ViewerFile {
                     e = new Uint32Array(edges[i]),
                     t = tilesetTextures[i];
 
-                var terrainModel = this.env.load({
+                var terrainModel = this.viewer.load({
                     geometry: { vertices: v, uvs: u, faces: f, edges: e },
                     material: { renderMode: 0, twoSided: true, texture: t, isBGR: true, isBlended: true }
                 }, src => [src, '.geo', false]);
@@ -1235,11 +1239,11 @@ export default class W3xMap extends ViewerFile {
 
                 this.scene.addInstance(instance);
 
-                instance.whenLoaded()
-                    .then(() => {
-                        instance.bucket.priority = 100 - i;
-                        this.scene.sortBuckets();
-                    });
+                // instance.whenLoaded()
+                //     .then(() => {
+                //         instance.bucket.priority = 100 - i;
+                //         this.scene.sortBuckets();
+                //     });
             }
         }
     }

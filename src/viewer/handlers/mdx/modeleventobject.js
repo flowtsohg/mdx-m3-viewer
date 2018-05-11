@@ -16,7 +16,7 @@ export default class EventObject extends GenericObject {
     constructor(model, eventObject, pivotPoints, index) {
         super(model, eventObject, pivotPoints, index);
 
-        let env = model.env,
+        let env = model.viewer,
             name = eventObject.name,
             type = name.substring(0, 3),
             id = name.substring(4);
@@ -70,9 +70,9 @@ export default class EventObject extends GenericObject {
                 model = this.model;
 
             if (type === 'SPN') {
-                this.internalResource = model.env.load(row.Model.replace('.mdl', '.mdx'), model.pathSolver);
+                this.internalResource = model.viewer.load(row.Model.replace('.mdl', '.mdx'), model.pathSolver);
             } else if (type === 'SPL' || type === 'UBR') {
-                this.internalResource = model.env.load('replaceabletextures/splats/' + row.file + '.blp', model.pathSolver);
+                this.internalResource = model.viewer.load('replaceabletextures/splats/' + row.file + '.blp', model.pathSolver);
                 this.colors = [[row.StartR, row.StartG, row.StartB, row.StartA], [row.MiddleR, row.MiddleG, row.MiddleB, row.MiddleA], [row.EndR, row.EndG, row.EndB, row.EndA]];
                 this.scale = row.Scale;
 
@@ -87,10 +87,13 @@ export default class EventObject extends GenericObject {
                     this.lifespan = row.BirthTime + row.PauseTime + row.Decay;
                 }
 
-                [this.blendSrc, this.blendDst] = emitterFilterMode(row.BlendMode, this.model.env.gl);
+                [this.blendSrc, this.blendDst] = emitterFilterMode(row.BlendMode, this.model.viewer.gl);
             }
 
-            this.ready = true;
+            // Don't care about sounds for now.
+            if (type !== 'SND') {
+                this.ready = true;
+            }
         }
     }
 

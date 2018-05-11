@@ -12,6 +12,8 @@ export default {
         attribute vec4 a_geosetColor;
         attribute float a_layerAlpha;
         attribute vec4 a_uvOffset;
+        attribute float a_uvScale;
+        attribute vec2 a_uvRot;
 
         varying vec3 v_normal;
         varying vec2 v_uv;
@@ -19,6 +21,8 @@ export default {
         varying vec4 v_vertexColor;
         varying vec4 v_geosetColor;
         varying vec4 v_uvOffset;
+        varying float v_uvScale;
+        varying vec2 v_uvRot;
 
         void transform(inout vec3 position, inout vec3 normal, float boneNumber, vec4 bones) {
             mat4 b0 = fetchMatrix(bones[0], a_InstanceID);
@@ -41,13 +45,17 @@ export default {
 
             v_uv = a_uv;
             v_uvOffset = a_uvOffset;
+            v_uvScale = a_uvScale;
+            v_uvRot = a_uvRot;
+
             v_normal = normal;
             v_teamColor = a_teamColor;
             v_vertexColor = a_vertexColor;
             
             /// Is the alpha here even correct?
             v_geosetColor = vec4(a_geosetColor.rgb, a_layerAlpha);
-            
+
+            // Definitely not correct, but the best I could figure so far.
 	        if (a_geosetColor.a < 0.75 || a_layerAlpha < 0.1) {
 		        gl_Position = vec4(0.0);
             } else {
@@ -61,7 +69,10 @@ export default {
         uniform bool u_alphaTest;
         uniform bool u_isTeamColor;
         uniform vec2 u_uvScale;
-        uniform bool u_hasLayerAnim;
+        uniform bool u_hasSlotAnim;
+        uniform bool u_hasTranslationAnim;
+        uniform bool u_hasRotationAnim;
+        uniform bool u_hasScaleAnim;
 
         varying vec3 v_normal;
         varying vec2 v_uv;
@@ -69,6 +80,17 @@ export default {
         varying vec4 v_vertexColor;
         varying vec4 v_geosetColor;
         varying vec4 v_uvOffset;
+        varying float v_uvScale;
+        varying vec2 v_uvRot;
+
+        // A 2D quaternion*vector.
+        // q is the zw components of the original quaternion.
+        vec2 transformQuat(vec2 v, vec2 q) {
+            float ix = q.y * v.x - q.x * v.y,
+                  iy = q.y * v.y + q.x * v.x;
+                  
+            return vec2(ix * q.y + iy * -q.x, iy * q.y - ix * - q.x);
+        }
 
         void main() {
             #ifdef STANDARD_PASS
@@ -77,20 +99,28 @@ export default {
 	        if (u_isTeamColor) {
                 // 4 is the amount of columns and rows in the team colors/glows texture.
                 uv = (vec2(mod(v_teamColor, 4.0), floor(v_teamColor / 4.0)) + v_uv) / 4.0;
-            } else if (u_hasLayerAnim) {
-                vec2 relativePos = fract(v_uv + v_uvOffset.xy);
-
-                if (relativePos.x < 0.0) {
-                    relativePos.x = 1.0 - relativePos.x;
-                }
-
-                if (relativePos.y < 0.0) {
-                    relativePos.y = 1.0 - relativePos.y;
-                }
-
-                uv = (v_uvOffset.zw + relativePos) * u_uvScale;
             } else {
                 uv = v_uv;
+
+                // Translation animation
+                if (u_hasTranslationAnim) {
+                    uv += v_uvOffset.xy;
+                }
+
+                // Rotation animation
+                if (u_hasRotationAnim) {
+                    uv = transformQuat(uv - 0.5, v_uvRot) + 0.5;
+                }
+
+                // Scale animation
+                if (u_hasScaleAnim) {
+                    uv = v_uvScale * (uv - 0.5) + 0.5;
+                }
+
+                // Sprite animation
+                if (u_hasSlotAnim) {
+                    uv = (v_uvOffset.zw + fract(uv)) * u_uvScale;
+                }
             }
 
             vec4 texel = texture2D(u_texture, uv).bgra;

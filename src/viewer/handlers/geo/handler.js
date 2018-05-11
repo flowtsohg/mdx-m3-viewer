@@ -1,10 +1,10 @@
-import TexturedModelView from '../../texturedmodelview';
-import GeometryModel from './model';
-import GeometryBucket from './bucket';
-import GeometryModelInstance from './modelinstance';
+import ModelView from './modelview';
+import Model from './model';
+import Bucket from './bucket';
+import ModelInstance from './modelinstance';
 
 export default {
-    initialize(viewer) {
+    load(viewer) {
         let shader = viewer.loadShader('GeoStandardShader',
             viewer.sharedShaders.boneTexture + viewer.sharedShaders.instanceId + `
                 uniform mat4 u_mvp;
@@ -56,9 +56,9 @@ export default {
         return shader.loaded;
     },
 
-    extensions: [['.geo', 'json']],
-    constructor: GeometryModel,
-    view: TexturedModelView,
-    bucket: GeometryBucket,
-    instance: GeometryModelInstance,
+    extensions: [['.geo']],
+    constructor: Model,
+    view: ModelView,
+    bucket: Bucket,
+    instance: ModelInstance,
 };

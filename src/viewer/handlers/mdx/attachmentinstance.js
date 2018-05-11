@@ -1,16 +1,12 @@
 export default class AttachmentInstance {
-    /**
-     * @param {MdxInstance} instance
-     * @param {MdxAttachment} attachment
-     */
     constructor(instance, attachment) {
-        let internalInstance = attachment.internalModel.addInstance();
+        let internalModel = attachment.internalModel,
+            internalInstance = internalModel.addInstance();
 
         internalInstance.setSequenceLoopMode(2);
         internalInstance.dontInheritScale = false;
         internalInstance.hide();
-
-        instance.whenLoaded(() => internalInstance.setParent(instance.skeleton.nodes[attachment.objectId]));
+        internalInstance.setParent(instance.nodes[attachment.objectId]) 
 
         this.instance = instance;
         this.attachment = attachment;
@@ -20,7 +16,7 @@ export default class AttachmentInstance {
     update() {
         let internalInstance = this.internalInstance;
 
-        if (internalInstance.loaded) {
+        if (internalInstance.model.loaded) {
             if (this.attachment.getVisibility(this.instance) > 0.1) {
                 
                 // The parent instance might not actually be in a scene.

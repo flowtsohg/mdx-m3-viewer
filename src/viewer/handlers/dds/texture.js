@@ -1,14 +1,14 @@
 import { base256ToString } from '../../../common/typecast';
-import Texture from '../../texture';
 import { decodeDxt1, decodeDxt3, decodeDxt5 } from '../../../common/dxt';
+import Texture from '../../texture';
 
 /**
  * Largely based on https://github.com/toji/webctx-texture-utils/blob/master/texture-util/dds.js
  */
 export default class DdsTexture extends Texture {
-    initialize(src) {
-        let gl = this.env.gl,
-            compressedTextures = this.env.webgl.extensions.compressedTextureS3tc,
+    load(src) {
+        let gl = this.viewer.gl,
+            compressedTextures = this.viewer.webgl.extensions.compressedTextureS3tc,
             DDS_MAGIC = 0x20534444,
             DDSD_MIPMAPCOUNT = 0x20000,
             DDPF_FOURCC = 0x4,
@@ -18,13 +18,11 @@ export default class DdsTexture extends Texture {
             header = new Int32Array(src, 0, 31);
 
         if (header[0] !== DDS_MAGIC) {
-            this.onerror('InvalidSource', 'WrongMagicNumber');
-            return false;
+            throw new Error('Wrong magic number');
         }
 
         if (!(header[20] & DDPF_FOURCC)) {
-            this.onerror('UnsupportedFeature', 'FourCC');
-            return false;
+            throw new Error('Not DXT');
         }
 
         let fourCC = header[21],
@@ -41,8 +39,7 @@ export default class DdsTexture extends Texture {
             blockBytes = 16;
             internalFormat = compressedTextures ? compressedTextures.COMPRESSED_RGBA_S3TC_DXT5_EXT : null;
         } else {
-            this.onerror(base256ToString(fourCC))
-            return false;
+            throw new Error(`Unsupported FourCC: ${base256ToString(fourCC)}`)
         }
 
         let mipmapCount = 1;
@@ -92,7 +89,5 @@ export default class DdsTexture extends Texture {
         }
 
         this.setParameters(gl.REPEAT, gl.REPEAT, gl.LINEAR, mipmapCount > 1 ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
-
-        return true;
     }
 };

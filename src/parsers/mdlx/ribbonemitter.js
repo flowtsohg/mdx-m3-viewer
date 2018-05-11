@@ -42,7 +42,7 @@ export default class RibbonEmitter extends GenericObject {
         this.emissionRate = stream.readUint32();
         this.rows = stream.readUint32();
         this.columns = stream.readUint32();
-        this.materialId = stream.readUint32();
+        this.materialId = stream.readInt32();
         this.gravity = stream.readFloat32();
 
         this.readAnimations(stream, size - this.getByteLength());
@@ -62,7 +62,7 @@ export default class RibbonEmitter extends GenericObject {
         stream.writeUint32(this.emissionRate);
         stream.writeUint32(this.rows);
         stream.writeUint32(this.columns);
-        stream.writeUint32(this.materialId);
+        stream.writeInt32(this.materialId);
         stream.writeFloat32(this.gravity);
 
         this.writeNonGenericAnimationChunks(stream);

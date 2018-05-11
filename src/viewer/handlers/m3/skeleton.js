@@ -1,12 +1,12 @@
 import { vec3, quat } from 'gl-matrix';
-import Skeleton from '../../skeleton';
+import { createSkeletalNodes } from '../../node';
 
 // Heap allocations needed for this module.
 let locationHeap = vec3.create(),
     rotationHeap = quat.create(),
     scaleHeap = vec3.create();
 
-export default class M3Skeleton extends Skeleton {
+export default class M3Skeleton  {
     /**
      * @extends {Skeleton}
      * @param {M3ModelInstance} instance
@@ -16,8 +16,10 @@ export default class M3Skeleton extends Skeleton {
             bones = model.bones,
             boneLookup = model.boneLookup;
 
-        super(bones.length, instance);
+        let sharedNodeData = createSkeletalNodes(bones.length),
+            nodes = sharedNodeData.nodes;
 
+        this.nodes = nodes;
         this.instance = instance;
         this.modelNodes = bones;
         this.initialReference = model.initialReference;
@@ -28,7 +30,13 @@ export default class M3Skeleton extends Skeleton {
 
         // Set the bone parent references
         for (let i = 0, l = bones.length; i < l; i++) {
-            this.nodes[i].setParent(this.getNode(bones[i].parent));
+            let bone = bones[i];
+
+            if (bone.parent === -1) {
+                nodes[i].setParent(instance);
+            } else {
+                nodes[i].setParent(nodes[bone.parent]);
+            }
         }
     }
 
@@ -40,9 +48,9 @@ export default class M3Skeleton extends Skeleton {
         for (let i = 0, l = nodes.length; i < l; i++) {
             let node = nodes[i],
                 modelNode = modelNodes[i],
-                location = this.getValue3(locationHeap, modelNode.location, instance),
-                rotation = this.getValue4(rotationHeap, modelNode.rotation, instance),
-                scale = this.getValue3(scaleHeap, modelNode.scale, instance);
+                location = this.getValue3(node.localLocation, modelNode.location, instance),
+                rotation = this.getValue4(node.localRotation, modelNode.rotation, instance),
+                scale = this.getValue3(node.localScale, modelNode.scale, instance);
 
             if (modelNode.billboard1) {
                 // Cancel the parent's rotation.
@@ -57,7 +65,9 @@ export default class M3Skeleton extends Skeleton {
                 quat.rotateY(rotation, rotation, -Math.PI / 2);
             }
 
-            node.setTransformation(location, rotation, scale);
+            node.recalculateTransformation();
+
+            node.updateChildren(instance.scene);
         }
     }
 

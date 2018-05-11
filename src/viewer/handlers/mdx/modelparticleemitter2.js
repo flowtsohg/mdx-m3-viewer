@@ -36,7 +36,7 @@ export default class ParticleEmitter2 extends GenericObject {
 
         let colors = emitter.segmentColors,
             alpha = emitter.segmentAlphas;
-            
+
         for (let i = 0; i < 3; i++) {
             this.colors[i] = new Uint8Array([Math.min(colors[i][0], 1) * 255, Math.min(colors[i][1], 1) * 255, Math.min(colors[i][2], 1) * 255, alpha[i]]);
         }
@@ -51,7 +51,7 @@ export default class ParticleEmitter2 extends GenericObject {
 
         this.dimensions = [emitter.columns, emitter.rows];
 
-        [this.blendSrc, this.blendDst] = emitterFilterMode(emitter.filterMode, this.model.env.gl);
+        [this.blendSrc, this.blendDst] = emitterFilterMode(emitter.filterMode, this.model.viewer.gl);
     }
 
     getWidth(instance) {

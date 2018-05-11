@@ -1,4 +1,5 @@
 import { vec3, quat } from 'gl-matrix';
+import { VEC3_ZERO, VEC3_ONE, QUAT_DEFAULT } from '../../../common/gl-matrix-addon';
 import AnimatedObject from './animatedobject';
 
 // Heap allocations needed for this module.
@@ -8,7 +9,7 @@ let translationHeap = vec3.create(),
 
 export default class TextureAnimation extends AnimatedObject {
     getTranslation(instance) {
-        return this.getValue3(translationHeap, 'KTAT', instance, vec3.ZERO);
+        return this.getValue3(translationHeap, 'KTAT', instance, VEC3_ZERO);
     }
 
     isTranslationVariant(sequence) {
@@ -16,10 +17,18 @@ export default class TextureAnimation extends AnimatedObject {
     }
 
     getRotation(instance) {
-        return this.getValue4(rotationHeap, 'KTAR', instance, quat.DEFAULT);
+        return this.getValue4(rotationHeap, 'KTAR', instance, QUAT_DEFAULT);
+    }
+
+    isRotationVariant(sequence) {
+        return this.isVariant('KTAR', sequence);
     }
 
     getScale(instance) {
-        return this.getValue3(scaleHeap, 'KTAS', instance, vec3.ONE);
+        return this.getValue3(scaleHeap, 'KTAS', instance, VEC3_ONE);
+    }
+
+    isScaleVariant(sequence) {
+        return this.isVariant('KTAS', sequence);
     }
 };

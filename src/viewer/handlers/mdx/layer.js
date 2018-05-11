@@ -1,3 +1,4 @@
+import { VEC3_ZERO, VEC3_ONE, QUAT_DEFAULT } from '../../../common/gl-matrix-addon';
 import stringHash from '../../../common/stringhash';
 import unique from '../../../common/arrayunique';
 import AnimatedObject from './animatedobject';
@@ -12,7 +13,7 @@ export default class Layer extends AnimatedObject {
     constructor(model, layer, layerId, priorityPlane) {
         let filterMode = layer.filterMode,
             textureAnimationId = layer.textureAnimationId,
-            gl = model.env.gl;
+            gl = model.viewer.gl;
 
         super(model, layer);
 
@@ -55,48 +56,47 @@ export default class Layer extends AnimatedObject {
 
         let variants = {
             alpha: [],
-            uv: [],
-            slot: []
+            slot: [],
+            translation: [],
+            rotation: [],
+            scale: []
         };
 
-        let hasAnim = false,
-            hasSlotAnim = false,
-            hasUvAnim = false;
+        let hasSlotAnim = false,
+            hasTranslationAnim = false,
+            hasRotationAnim = false,
+            hasScaleAnim = false;
 
         for (let i = 0, l = model.sequences.length; i < l; i++) {
             let alpha = this.isAlphaVariant(i),
                 slot = this.isTextureIdVariant(i),
-                uv = this.isTranslationVariant(i);
-
-            if (alpha || slot || uv) {
-                hasAnim = true;
-            }
-
-            if (slot) {
-                hasSlotAnim = true;
-            }
-
-            if (uv) {
-                hasUvAnim = true;
-            }
+                translation = this.isTranslationVariant(i),
+                rotation = this.isRotationVariant(i),
+                scale = this.isScaleVariant(i);
 
             variants.alpha[i] = alpha;
             variants.slot[i] = slot;
-            variants.uv[i] = uv;
+            variants.translation[i] = translation;
+            variants.rotation[i] = rotation;
+            variants.scale[i] = scale;
+
+            hasSlotAnim = hasSlotAnim || slot;
+            hasTranslationAnim = hasTranslationAnim || translation;
+            hasRotationAnim = hasRotationAnim || rotation;
+            hasScaleAnim = hasScaleAnim || scale;
         }
 
         this.variants = variants;
-        this.hasAnim = hasAnim;
         this.hasSlotAnim = hasSlotAnim;
-        this.hasUvAnim = hasUvAnim;
+        this.hasTranslationAnim = hasTranslationAnim;
+        this.hasRotationAnim = hasRotationAnim;
+        this.hasScaleAnim = hasScaleAnim;
 
-        if (hasSlotAnim) {
-            this.setupVaryingTextures(model);
-        }
+        this.setupVaryingTextures(model);
     }
 
     bind(shader) {
-        let gl = this.model.env.gl;
+        let gl = this.model.viewer.gl;
 
         gl.uniform1f(shader.uniforms.get('u_alphaTest'), this.alphaTestValue);
 
@@ -127,11 +127,15 @@ export default class Layer extends AnimatedObject {
     }
 
     setupVaryingTextures(model) {
+        if (!this.animations.KMTF) {
+            return;
+        }
+
         // Get all unique texture IDs used by this layer
         var textureIds = unique(this.animations.KMTF.getValues());
 
         if (textureIds.length > 1) {
-            let env = model.env,
+            let env = model.viewer,
                 hash = stringHash(textureIds.join('')),
                 textures = [];
 
@@ -141,7 +145,7 @@ export default class Layer extends AnimatedObject {
             }
 
             // Load the atlas, and use the hash to cache it.
-            model.env.loadTextureAtlas(hash, textures)
+            model.viewer.loadTextureAtlas(hash, textures)
                 .then((atlas) => {
                     model.textures.push(atlas.texture);
                     model.textureOptions.push({ repeatS: true, repeatT: true });
@@ -169,11 +173,49 @@ export default class Layer extends AnimatedObject {
         return this.isVariant('KMTF', sequence);
     }
 
-    isTranslationVariant(sequence) {
-        let textureAnimation = this.textureAnimation;
+    getTranslation(instance) {
+        if (this.textureAnimation) {
+            return this.textureAnimation.getTranslation(instance);
+        }
 
-        if (textureAnimation) {
-            return textureAnimation.isTranslationVariant(sequence);
+        return VEC3_ZERO;
+    }
+
+    isTranslationVariant(sequence) {
+        if (this.textureAnimation) {
+            return this.textureAnimation.isTranslationVariant(sequence);
+        } else {
+            return false;
+        }
+    }
+
+    getRotation(instance) {
+        if (this.textureAnimation) {
+            return this.textureAnimation.getRotation(instance);
+        }
+
+        return QUAT_DEFAULT;
+    }
+
+    isRotationVariant(sequence) {
+        if (this.textureAnimation) {
+            return this.textureAnimation.isRotationVariant(sequence);
+        } else {
+            return false;
+        }
+    }
+
+    getScale(instance) {
+        if (this.textureAnimation) {
+            return this.textureAnimation.getScale(instance);
+        }
+
+        return VEC3_ONE;
+    }
+
+    isScaleVariant(sequence) {
+        if (this.textureAnimation) {
+            return this.textureAnimation.isScaleVariant(sequence);
         } else {
             return false;
         }

@@ -1,17 +1,14 @@
-import DownloadableResource from './downloadableresource';
+import Resource from './resource';
 
-export default class Model extends DownloadableResource {
+export default class Model extends Resource {
     /**
-     * @param {ModelViewer} viewer
-     * @param {function(?)} pathSolver
-     * @param {Handler} handler
-     * @param {string} extension
+     * @param {Object} resourceData
      */
-    constructor(viewer, pathSolver, handler, extension) {
-        super(viewer, pathSolver, handler, extension);
+    constructor(resourceData) {
+        super(resourceData);
 
         /** @member {number} */
-        this.batchSize = viewer.batchSize;
+        this.batchSize = resourceData.viewer.batchSize;
 
         /** @member {Array<ModelInstance>} */
         this.instances = [];
@@ -29,8 +26,6 @@ export default class Model extends DownloadableResource {
         let views = this.views,
             instance = new this.handler.instance(this);
 
-        instance.load(this);
-
         this.instances.push(instance);
 
         if (views.length === 0) {
@@ -39,8 +34,8 @@ export default class Model extends DownloadableResource {
 
         views[0].addInstance(instance);
 
-        if (this.loaded || this.error) {
-            instance.modelReady();
+        if (this.loaded) {
+            instance.load();
         }
 
         return instance;
@@ -58,7 +53,7 @@ export default class Model extends DownloadableResource {
         }
 
         // Remove references from the viewer
-        this.env.removeReference(this);
+        this.viewer.removeReference(this);
     }
 
     renderOpaque(data, scene, modelView) {
@@ -105,15 +100,13 @@ export default class Model extends DownloadableResource {
     }
 
     // This allows setting up preloaded instances without event listeners.
-    resolve() {
-        super.resolve();
-        
-        for (let view of this.views) {
-            view.modelReady();
+    lateLoad() {
+        for (let instance of this.instances) {
+            instance.load();
         }
 
-        for (let instance of this.instances) {
-            instance.modelReady();
+        for (let view of this.views) {
+            view.lateLoad();
         }
     }
 };

@@ -1,6 +1,19 @@
-import MdxSharedEmitter from './sharedemitter';
+import SharedEmitter from './sharedemitter';
+import ResizeableBuffer from '../../gl/resizeablebuffer';
 
-export default class MdxSharedGeometryEmitter extends MdxSharedEmitter {
+export default class SharedGeometryEmitter extends SharedEmitter {
+    constructor(modelObject) {
+        super(modelObject);
+
+        this.buffer = new ResizeableBuffer(modelObject.model.viewer.gl);
+    }
+
+    emitObject(emitterView, flag) {
+        this.buffer.grow((this.active.length + 1) * this.bytesPerEmit);
+
+        return super.emitObject(emitterView, flag);
+    }
+
     updateData() {
         let active = this.active,
             data = this.buffer.float32array;
@@ -58,7 +71,7 @@ export default class MdxSharedGeometryEmitter extends MdxSharedEmitter {
 
         if (modelObject.internalResource && active > 0) {
             let model = modelObject.model,
-                gl = model.env.gl;
+                gl = model.viewer.gl;
 
             gl.blendFunc(modelObject.blendSrc, modelObject.blendDst);
 

@@ -1,13 +1,18 @@
 export default class ModelView {
     /**
-     * @param {Model} model.
+     * @param {ModelViewer.viewer.Model} model
      */
     constructor(model) {
-        /** @member {Model} */
+        /** @member {ModelViewer.viewer.Model} */
         this.model = model;
 
         this.instanceSet = new Set();
         this.sceneData = new Map();
+
+        this.renderedInstances = 0;
+        this.renderedParticles = 0;
+        this.renderedBuckets = 0;
+        this.renderCalls = 0;
     }
 
     // Get a shallow copy of this view
@@ -26,14 +31,14 @@ export default class ModelView {
     }
 
     // Called when the model loads
-    modelReady() {
+    lateLoad() {
         for (let instance of this.instanceSet) {
             this.addSceneData(instance, instance.scene);
         }
     }
 
     addSceneData(instance, scene) {
-        if (scene) {
+        if (this.model.loaded && scene) {
             let sceneData = this.sceneData,
                 data = sceneData.get(scene);
 
@@ -62,10 +67,7 @@ export default class ModelView {
             instanceSet.add(instance);
             instance.modelView = this;
 
-            // The scene data may depend on the model, so if it's not loaded yet, it can't be created.
-            if (this.model.loaded) {
-                this.addSceneData(instance, instance.scene);
-            }
+            this.addSceneData(instance, instance.scene);
 
             return true;
         }
@@ -120,28 +122,28 @@ export default class ModelView {
 
     // Called every time an instance changes its scene via scene.addInstance(instance) or instance.setScene(scene).
     sceneChanged(instance, scene) {
-        let sceneData = this.sceneData,
-            oldScene = instance.scene;
+        if (this.model.loaded) {
+            let sceneData = this.sceneData,
+                oldScene = instance.scene;
 
-        if (oldScene) {
-            let data = sceneData.get(oldScene),
-                instances = data.instances,
-                buckets = data.buckets;
+            if (oldScene) {
+                let data = sceneData.get(oldScene),
+                    instances = data.instances,
+                    buckets = data.buckets;
 
-            // Remove the instance from its scene data.
-            instances.splice(instances.indexOf(instance), 1);
+                // Remove the instance from its scene data.
+                instances.splice(instances.indexOf(instance), 1);
 
-            // See how many buckets are needed to hold all of the instances.
-            let neededBuckets = Math.ceil(instances.length / this.model.batchSize);
-            
-            // If there are more buckets than are needed, remove them.
-            if (neededBuckets < buckets.length) {
-                buckets.length = neededBuckets;
+                // See how many buckets are needed to hold all of the instances.
+                let neededBuckets = Math.ceil(instances.length / this.model.batchSize);
+                
+                // If there are more buckets than are needed, remove them.
+                if (neededBuckets < buckets.length) {
+                    buckets.length = neededBuckets;
+                }
             }
-        }
 
-        if (scene) {
-            if (this.model.loaded) {
+            if (scene) {
                 this.addSceneData(instance, scene);
             }
         }

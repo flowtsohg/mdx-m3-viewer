@@ -1,4 +1,4 @@
-export default class MdxParticleEmitter2View {
+export default class ParticleEmitter2View {
     /**
      * @param {MdxModelInstance} instance
      * @param {MdxParticle2Emitter} emitter
@@ -11,10 +11,8 @@ export default class MdxParticleEmitter2View {
     }
 
     update() {
-        if (this.getVisibility() > 0.75) {
-            let emitter = this.emitter;
-
-            if (emitter.squirt) {
+        if (this.instance.allowParticleSpawn) {
+            if (this.emitter.squirt) {
                 let keyframe = this.getEmissionRateKeyframe();
 
                 if (keyframe !== this.lastEmissionKey) {
@@ -23,7 +21,7 @@ export default class MdxParticleEmitter2View {
 
                 this.lastEmissionKey = keyframe;
             } else {
-                this.currentEmission += this.getEmissionRate() * this.instance.env.frameTime * 0.001;
+                this.currentEmission += this.getEmissionRate() * this.instance.model.viewer.frameTime * 0.001;
             }
         }
     }

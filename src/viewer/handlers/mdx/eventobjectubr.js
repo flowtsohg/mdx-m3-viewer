@@ -1,7 +1,7 @@
 import { vec3, vec4 } from 'gl-matrix';
 import { uint8ToUint24 } from '../../../common/typecast';
 
-export default class MdxEventObjectUbr {
+export default class EventObjectUbr {
     /**
      * @param {MdxEventObjectEmitter} emitter
      */
@@ -21,25 +21,21 @@ export default class MdxEventObjectUbr {
         let modelObject = this.emitter.modelObject,
             vertices = this.vertices,
             emitterScale = modelObject.scale,
-            node = emitterView.instance.skeleton.nodes[modelObject.index],
-            location = node.worldLocation,
+            node = emitterView.instance.nodes[modelObject.index],
+            worldMatrix = node.worldMatrix,
             vertex;
 
-        vertex = new Float32Array(vertices.buffer, 0, 3);
-        vec3.transformMat4(vertex, [-emitterScale, -emitterScale, 0], node.worldMatrix);
-        vec3.add(vertex, vertex, location);
+        vertex = vertices.subarray(0, 2);
+        vec3.transformMat4(vertex, [-emitterScale, -emitterScale, 0], worldMatrix);
 
-        vertex = new Float32Array(vertices.buffer, 12, 3);
-        vec3.transformMat4(vertex, [-emitterScale, emitterScale, 0], node.worldMatrix);
-        vec3.add(vertex, vertex, location);
+        vertex = vertices.subarray(3, 5);
+        vec3.transformMat4(vertex, [-emitterScale, emitterScale, 0], worldMatrix);
 
-        vertex = new Float32Array(vertices.buffer, 24, 3);
-        vec3.transformMat4(vertex, [emitterScale, emitterScale, 0], node.worldMatrix);
-        vec3.add(vertex, vertex, location);
+        vertex = vertices.subarray(6, 8);
+        vec3.transformMat4(vertex, [emitterScale, emitterScale, 0], worldMatrix);
 
-        vertex = new Float32Array(vertices.buffer, 36, 3);
-        vec3.transformMat4(vertex, [emitterScale, -emitterScale, 0], node.worldMatrix);
-        vec3.add(vertex, vertex, location);
+        vertex = vertices.subarray(9, 11);
+        vec3.transformMat4(vertex, [emitterScale, -emitterScale, 0], worldMatrix);
 
         this.health = modelObject.lifespan;
     }
@@ -53,7 +49,7 @@ export default class MdxEventObjectUbr {
             colors = modelObject.colors,
             color = this.color;
 
-        this.health -= modelObject.model.env.frameTime * 0.001;
+        this.health -= modelObject.model.viewer.frameTime * 0.001;
 
         // Inverse of health
         let time = modelObject.lifespan - this.health;

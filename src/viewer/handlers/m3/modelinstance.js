@@ -19,7 +19,7 @@ export default class M3ModelInstance extends TexturedModelInstance {
         this.forced = true;
     }
 
-    initialize() {
+    load() {
         this.skeleton = new M3Skeleton(this);
 
         // This takes care of calling setSequence before the model is loaded.
@@ -37,7 +37,7 @@ export default class M3ModelInstance extends TexturedModelInstance {
             var sequence = this.model.sequences[sequenceId],
                 interval = sequence.interval;
 
-            this.frame += this.env.frameTime;
+            this.frame += this.model.viewer.frameTime;
 
             if (this.frame > interval[1]) {
                 if ((this.sequenceLoopMode === 0 && !(sequence.flags & 0x1)) || this.sequenceLoopMode === 2) {
@@ -51,22 +51,14 @@ export default class M3ModelInstance extends TexturedModelInstance {
         }
     }
 
-    update() {
+    updateAnimations() {
         if (this.forced || this.sequence !== -1) {
+            this.forced = false;
+
             this.skeleton.update();
         }
     }
-
-    // This is overriden in order to update the skeleton when the parent node changes
-    recalculateTransformation() {
-        super.recalculateTransformation();
-
-        // If the instance is moved before it is loaded, the skeleton doesn't exist yet.
-        if (this.skeleton) {
-            this.skeleton.update();
-        }
-    }
-
+    
     setTeamColor(id) {
         this.teamColor = id;
 
@@ -107,12 +99,10 @@ export default class M3ModelInstance extends TexturedModelInstance {
     }
 
     getAttachment(id) {
-        var attachment = this.model.attachments[id];
+        let attachment = this.model.attachments[id];
 
         if (attachment) {
             return this.skeleton.nodes[attachment.bone];
-        } else {
-            return this.skeleton.parent;
         }
     }
 };

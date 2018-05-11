@@ -3,7 +3,7 @@ import Model from '../../model';
 export default class ObjModel extends Model {
     // Called when the model finishes loading.
     // src is either a string, or an ArrayBuffer, depending on the handler's binaryFormat getter (default to false, where src is a string).
-    initialize(src) {
+    load(src) {
         const lines = src.split('\n'),
             vertices = [],
             faces = [];
@@ -32,7 +32,7 @@ export default class ObjModel extends Model {
         }
 
         // gl is the WebGLRenderingContext object used by the viewer.
-        const gl = this.env.gl,
+        const gl = this.viewer.gl,
             vertexArray = new Float32Array(vertices),
             faceArray = new Uint16Array(faces);
 
@@ -47,17 +47,14 @@ export default class ObjModel extends Model {
         this.vertexBuffer = vertexBuffer;
         this.faceBuffer = faceBuffer;
         this.elements = faces.length;
-
-        // Report that this model was loaded properly.
-        return true;
     }
 
     // Called every frame, render opaque stuff here.
     renderOpaque(data, scene, modelView) {
-        let webgl = this.env.webgl,
-            gl = this.env.gl,
+        let webgl = this.viewer.webgl,
+            gl = this.viewer.gl,
             instancedArrays = webgl.extensions.instancedArrays,
-            shader = this.env.shaderMap.get('ObjShader'),
+            shader = this.viewer.shaderMap.get('ObjShader'),
             uniforms = shader.uniforms,
             attribs = shader.attribs,
             instances = data.instances;

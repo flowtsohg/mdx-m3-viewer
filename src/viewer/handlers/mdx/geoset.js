@@ -1,6 +1,6 @@
 let whiteColor = new Uint8Array([1, 1, 1]);
 
-export class MdxShallowGeoset {
+export class ShallowGeoset {
     /**
      * @param {MdxModel} model
      * @param {Array<number>} offsets
@@ -15,7 +15,7 @@ export class MdxShallowGeoset {
     }
 
     bind(shader, coordId) {
-        let gl = this.model.env.gl,
+        let gl = this.model.viewer.gl,
             offsets = this.offsets,
             attribs = shader.attribs;
 
@@ -27,13 +27,13 @@ export class MdxShallowGeoset {
     }
 
     render(instances) {
-        let gl = this.model.env.gl;
+        let gl = this.model.viewer.gl;
 
         gl.extensions.instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.offsets[5], instances);
     }
 };
 
-export class MdxGeoset {
+export class Geoset {
     /**
      * @param {MdxModel} model
      * @param {MdxParserGeoset} geoset

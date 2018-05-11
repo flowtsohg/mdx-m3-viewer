@@ -1,21 +1,16 @@
-import Texture from '../../texture';
 import Parser from '../../../parsers/blp/texture';
+import { scaleNPOT } from '../../../common/canvas';
+import Texture from '../../texture';
 
 export default class BlpTexture extends Texture {
-    initialize(src) {
-        let texture = new Parser();
+    load(src) {
+        let parser = new Parser();
+        parser.load(src);
 
-        try {
-            texture.load(src);
-        } catch (e) {
-            this.onerror('InvalidSource', e);
-            return false;
-        }
-
-        let gl = this.env.gl;
+        let gl = this.viewer.gl;
 
         // Upscale to POT if the size is NPOT.
-        let imageData = this.upscaleNPOT(texture.getMipmap(0));
+        let imageData = scaleNPOT(parser.getMipmap(0));
 
         // NOTE: BGRA data, it gets sizzled in the shader.
         //       I feel like the noticeable slow down when sizzling once on the client side isn't worth it.
@@ -25,12 +20,10 @@ export default class BlpTexture extends Texture {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
         gl.generateMipmap(gl.TEXTURE_2D);
 
-        this.texture = texture;
+        this.parser = parser;
         this.imageData = imageData;
         this.width = imageData.width; // Note: might not be the same as 'width' and 'height' due to NPOT upscaling.
         this.height = imageData.height;
         this.webglResource = id;
-
-        return true;
     }
 };

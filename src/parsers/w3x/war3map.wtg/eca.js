@@ -1,5 +1,4 @@
 import Parameter from './parameter';
-import { weuParamCount } from './weu';
 
 export default class ECA {
     constructor() {
@@ -24,11 +23,11 @@ export default class ECA {
         let argumentsCount = argumentMap.get(this.name.toLowerCase());
 
         if (isNaN(argumentsCount)) {
-            argumentsCount = weuParamCount(this.name);
+            //argumentsCount = weuParamCount(this.name);
 
-            if (isNaN(argumentsCount)) {
-                throw new Error(`Unknown ECA '${this.name}'`);
-            }
+            //if (isNaN(argumentsCount)) {
+                throw new Error(`Unknown ECA "${this.name}"`);
+            //}
         }
 
         for (let i = 0; i < argumentsCount; i++) {
@@ -97,24 +96,5 @@ export default class ECA {
         }
 
         return size;
-    }
-
-    fromCustomScriptCode(code) {
-        this.name = 'CustomScriptCode';
-
-        // Remove any existing parameters and ECAs.
-        this.parameters.length = 0;
-        this.ecas.length = 0;
-
-        let parameter = new Parameter();
-
-        parameter.type = 3; // String
-        parameter.value = code; // Jass code
-
-        this.parameters[0] = parameter;
-    }
-
-    toCustomScriptCode() {
-        return `call ${this.name}(${this.parameters.map((value) => value.toCustomScriptCode()).join(', ')})`;
     }
 };

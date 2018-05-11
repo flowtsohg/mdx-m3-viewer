@@ -1,11 +1,12 @@
 import { vec3, quat } from 'gl-matrix';
+import { VEC3_UNIT_Z } from '../../../common/gl-matrix-addon';
 import { randomInRange } from '../../../common/math';
 
 // Heap allocations needed for this module.
 let rotationHeap = quat.create(),
     velocityHeap = vec3.create();
 
-export default class MdxParticle {
+export default class Particle {
     /**
      * @param {MdxParticleEmitter} emitter
      */
@@ -20,7 +21,7 @@ export default class MdxParticle {
 
     reset(emitterView) {
         let instance = emitterView.instance,
-            node = instance.skeleton.nodes[this.emitter.modelObject.index],
+            node = instance.nodes[this.emitter.modelObject.index],
             internalInstance = this.internalInstance,
             scale = node.worldScale,
             latitude = emitterView.getLatitude(),
@@ -36,7 +37,7 @@ export default class MdxParticle {
         quat.identity(rotationHeap);
         quat.rotateZ(rotationHeap, rotationHeap, randomInRange(-Math.PI, Math.PI));
         quat.rotateY(rotationHeap, rotationHeap, randomInRange(-latitude, latitude));
-        vec3.transformQuat(velocity, vec3.UNIT_Z, rotationHeap);
+        vec3.transformQuat(velocity, VEC3_UNIT_Z, rotationHeap);
 
         // World rotation
         vec3.transformQuat(velocity, velocity, node.worldRotation);
@@ -49,7 +50,7 @@ export default class MdxParticle {
 
         instance.scene.addInstance(internalInstance);
 
-        internalInstance.setTransformation(node.worldLocation, quat.setAxisAngle(rotationHeap, vec3.UNIT_Z, randomInRange(0, Math.PI * 2)), node.worldScale);
+        internalInstance.setTransformation(node.worldLocation, quat.setAxisAngle(rotationHeap, VEC3_UNIT_Z, randomInRange(0, Math.PI * 2)), node.worldScale);
         internalInstance.setSequence(0);
         internalInstance.show();
     }
@@ -57,7 +58,7 @@ export default class MdxParticle {
     update() {
         let internalInstance = this.internalInstance,
             velocity = this.velocity,
-            frameTimeS = internalInstance.env.frameTime * 0.001;
+            frameTimeS = internalInstance.model.viewer.frameTime * 0.001;
 
         internalInstance.paused = false;
 

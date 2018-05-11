@@ -1,31 +1,25 @@
 import MpqParserArchive from '../../../parsers/mpq/archive';
-import ViewerFile from '../../file';
+import Resource from '../../resource';
 
-export default class MpqArchive extends ViewerFile {
+export default class MpqArchive extends Resource {
     /**
-     * @param {ModelViewer} env
-     * @param {function(?)} pathSolver
-     * @param {Handler} handler
-     * @param {string} extension
+     * @param {Object} resourceData
      */
-    constructor(env, pathSolver, handler, extension) {
-        super(env, pathSolver, handler, extension);
+    constructor(resourceData) {
+        super(resourceData);
 
         /** @member {?MpqParserArchive} */
         this.archive = null;
     }
 
-    initialize(src) {
+    load(src) {
         let archive = new MpqParserArchive(null, true);
 
         if (!archive.load(src)) {
-            this.onerror('InvalidSource');
-            return false;
+            throw new Error('Failed to load archive');
         }
 
         this.archive = archive;
-
-        return true;
     }
 
     /**

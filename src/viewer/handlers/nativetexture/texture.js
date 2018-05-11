@@ -1,37 +1,25 @@
+import { imageToImageData, scaleNPOT } from '../../../common/canvas';
 import Texture from '../../texture';
 
 export default class ImageTexture extends Texture {
-    initialize(src) {
+    load(src) {
         // src can either be an Image, or an ArrayBuffer, depending on the way it was loaded
         if (src instanceof HTMLImageElement || src instanceof HTMLVideoElement || src instanceof HTMLCanvasElement || src instanceof ImageData) {
             this.loadFromImage(src);
-
-            return true;
         } else if (src instanceof WebGLTexture) {
             this.webglResource = src;
-
-            return true;
-        } else {
-            let url = URL.createObjectURL(src),
-                image = new Image();
-
-            image.onload = () => {
-                this.loadFromImage(image);
-
-                URL.revokeObjectURL(url);
-
-                this.resolve();
-            };
-
-            image.src = url;
         }
     }
 
-    loadFromImage(image) {
-        let gl = this.env.gl;
+    loadFromImage(imageData) {
+        let gl = this.viewer.gl;
+
+        if (!(imageData instanceof ImageData)) {
+            imageData = imageToImageData(imageData);
+        }
 
         // Upscale to POT if the size is NPOT.
-        let imageData = this.upscaleNPOT(image);
+        imageData = scaleNPOT(imageData);
 
         let id = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, id);

@@ -56,7 +56,7 @@ export default class M3Layer {
 
                 this.source = source;
 
-                this.texture = model.env.load(source, pathSolver);
+                this.texture = model.viewer.load(source, pathSolver);
 
                 this.active = true;
 

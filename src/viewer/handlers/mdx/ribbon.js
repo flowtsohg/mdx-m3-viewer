@@ -5,7 +5,7 @@ import { uint8ToUint24 } from '../../../common/typecast';
 let belowHeap = vec3.create(),
     aboveHeap = vec3.create();
 
-export default class MdxRibbon {
+export default class Ribbon {
     /**
      * @param {MdxRibbonEmitter} emitter
      */
@@ -40,7 +40,7 @@ export default class MdxRibbon {
         // Otherwise, the vertices will be filled with zeroes, and the ribbon will not render.
         // This allows the emitter to always work with quads, and therefore it can work with many views, because the ribbon chains are implicit.
         if (lastEmit && lastEmit.health > 0) {
-            let node = emitterView.instance.skeleton.nodes[emitter.modelObject.index],
+            let node = emitterView.instance.nodes[emitter.modelObject.index],
                 pivot = node.pivot;
 
             vec3.set(belowHeap, pivot[0], pivot[1] - emitterView.getHeightBelow(), pivot[2])
@@ -88,7 +88,7 @@ export default class MdxRibbon {
 
     update() {
         let modelObject = this.emitter.modelObject,
-            dt = modelObject.model.env.frameTime * 0.001,
+            dt = modelObject.model.viewer.frameTime * 0.001,
             emitterView = this.emitterView,
             gravity = modelObject.gravity * dt * dt,
             vertices = this.vertices,
@@ -110,25 +110,21 @@ export default class MdxRibbon {
         } else {
             let columns = modelObject.dimensions[0],
                 left = (animatedSlot % columns) + (locationInChain * chainLengthFactor),
-                top = Math.floor(animatedSlot / columns),
+                top = (animatedSlot / columns)|0,
                 right = left + chainLengthFactor,
                 bottom = top + 1;
 
-            left = Math.floor(left * 255);
-            top = Math.floor(top * 255);
-            // Paladin - when the UV rectangle reaches 254-255 on the X axis, it has a row or two of white pixels in the end for some reason.
-            // This happens also if the texture coordinates are clamped to [0, 1] in the shader.
-            // The only thing that removes it is to change the texture to being clamped rather than repeating.
-            // How is this possible?
-            right = Math.floor(right * 255);
-            bottom = Math.floor(bottom * 255);
-            animatedAlpha = Math.floor(animatedAlpha * 255);
+            left = (left * 255)|0;
+            top = (top * 255)|0;
+            right = (right * 255)|0;
+            bottom = (bottom * 255);
+            animatedAlpha = (animatedAlpha * 255)|0;
 
             this.lta = uint8ToUint24(left, top, animatedAlpha);
             this.lba = uint8ToUint24(left, bottom, animatedAlpha);
             this.rta = uint8ToUint24(right, top, animatedAlpha);
             this.rba = uint8ToUint24(right, bottom, animatedAlpha);
-            this.rgb = uint8ToUint24(Math.floor(animatedColor[0] * 255), Math.floor(animatedColor[1] * 255), Math.floor(animatedColor[2] * 255)); // Color even used???
+            this.rgb = uint8ToUint24((animatedColor[0] * 255)|0, (animatedColor[1] * 255)|0, (animatedColor[2] * 255)|0); // Color even used???
         }
     }
 };

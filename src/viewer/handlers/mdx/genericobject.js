@@ -1,4 +1,5 @@
 import { vec3, quat } from 'gl-matrix';
+import { VEC3_ZERO, VEC3_ONE, QUAT_DEFAULT } from '../../../common/gl-matrix-addon';
 import AnimatedObject from './animatedobject';
 
 // Heap allocations needed for this module.
@@ -59,28 +60,27 @@ export default class GenericObject extends AnimatedObject {
         for (let i = 0, l = model.sequences.length; i < l; i++) {
             let translation = this.isTranslationVariant(i),
                 rotation = this.isRotationVariant(i),
-                scale = this.isScaleVariant(i),
-                generic = translation || rotation || scale;
+                scale = this.isScaleVariant(i);
 
             variants.translation[i] = translation;
             variants.rotation[i] = rotation;
             variants.scale[i] = scale;
-            variants.generic[i] = generic;
+            variants.generic[i] = translation || rotation || scale;
         }
 
         this.variants = variants;
     }
 
     getTranslation(instance) {
-        return this.getValue3(translationHeap, 'KGTR', instance, vec3.ZERO);
+        return this.getValue3(translationHeap, 'KGTR', instance, VEC3_ZERO);
     }
 
     getRotation(instance) {
-        return this.getValue4(rotationHeap, 'KGRT', instance, quat.DEFAULT);
+        return this.getValue4(rotationHeap, 'KGRT', instance, QUAT_DEFAULT);
     }
 
     getScale(instance) {
-        return this.getValue3(scaleHeap, 'KGSC', instance, vec3.ONE);
+        return this.getValue3(scaleHeap, 'KGSC', instance, VEC3_ONE);
     }
 
     isTranslationVariant(sequence) {
@@ -93,5 +93,11 @@ export default class GenericObject extends AnimatedObject {
 
     isScaleVariant(sequence) {
         return this.isVariant('KGSC', sequence);
+    }
+
+    // Many of the generic objects have animated visibilities.
+    // This is a generic getter to allow the code to be consistent.
+    getVisibility(instance) {
+        return 1;
     }
 };

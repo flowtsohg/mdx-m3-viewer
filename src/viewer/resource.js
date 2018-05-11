@@ -2,17 +2,43 @@ import EventDispatcher from './eventdispatcher';
 
 export default class Resource extends EventDispatcher {
     /**
-     * @param {ModelViewer} env
+     * @param {Object} resourceData
      */
-    constructor(env) {
+    constructor({ viewer, handler, extension, pathSolver, fetchUrl }) {
         super();
 
-        /** @member {ModelViewer} */
-        this.env = env;
+        /** @member {ModelViewer.viewer.ModelViewer} */
+        this.viewer = viewer;
+        /** @member {Handler} */
+        this.handler = handler;
+        /** @member {string} */
+        this.extension = extension;
         /** @member {boolean} */
+        /** @member {function(?)} */
+        this.pathSolver = pathSolver;
+        /** @member {string} */
+        this.fetchUrl = fetchUrl;
         this.loaded = false;
         /** @member {boolean} */
-        this.error = false;
+        this.errored = false;
+    }
+
+    loadData(src) {
+        this.load(src);
+
+        this.loaded = true;
+
+        this.lateLoad();
+
+        this.dispatchEvent({ type: 'load' });
+        this.dispatchEvent({ type: 'loadend' });
+    }
+
+    error(error, reason) {
+        this.errored = true;
+
+        this.dispatchEvent({ type: 'error', error, reason });
+        this.dispatchEvent({ type: 'loadend' });
     }
 
     /**
@@ -22,7 +48,7 @@ export default class Resource extends EventDispatcher {
      */
     whenLoaded() {
         return new Promise((resolve, reject) => {
-            if (this.loaded || this.error) {
+            if (this.loaded || this.errored) {
                 resolve(this);
             } else {
                 this.once('loadend', () => resolve(this));
@@ -30,40 +56,7 @@ export default class Resource extends EventDispatcher {
         });
     }
 
-    initialize(src) {
-        throw new Error('Resource.initialize must be overriden!');
-    }
-
-    detach() {
-
-    }
-
-    update() {
-
-    }
-
-    load() {
-        this.dispatchEvent({ type: 'loadstart' });
-    }
-
-    onload(src) {
-        // This check allows an handler to postpone load finalization, either for asynchronious reasons (e.g. NativeTexture), or because an internal error occured
-        if (this.initialize(src)) {
-            this.resolve(this);
-        }
-    }
-
-    resolve() {
-        this.loaded = true;
-
-        this.dispatchEvent({ type: 'load' });
-        this.dispatchEvent({ type: 'loadend' });
-    }
-
-    onerror(error, reason) {
-        this.error = true;
-
-        this.dispatchEvent({ type: 'error', error, reason });
-        this.dispatchEvent({ type: 'loadend' });
+    lateLoad() {
+        
     }
 };
