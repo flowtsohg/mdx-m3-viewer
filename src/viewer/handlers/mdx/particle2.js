@@ -89,10 +89,9 @@ export default class Particle2 {
         // Apply the parent's scale
         vec3.mul(velocity, velocity, scale);
 
+        // If this is a tail particle, change the location based on the velocity and tail length
         if (!isHead) {
-            var tailLength = modelObject.tailLength * 0.5;
-
-            vec3.scaleAndAdd(location, location, velocity, -tailLength);
+            vec3.scaleAndAdd(location, location, velocity, -modelObject.tailLength * 0.5);
         }
     }
 
@@ -109,11 +108,7 @@ export default class Particle2 {
 
         vec3.scaleAndAdd(location, location, velocity, dt);
 
-        if (modelObject.modelSpace) {
-            vec3.transformMat4(worldLocation, location, this.node.worldMatrix);
-        } else {
-            vec3.copy(worldLocation, location);
-        }
+        vec3.copy(worldLocation, location);
 
         let lifeFactor = (modelObject.lifeSpan - this.health) / modelObject.lifeSpan,
             timeMiddle = modelObject.timeMiddle,
@@ -175,12 +170,17 @@ export default class Particle2 {
         }
 
         let vertices = this.vertices,
-            nodeScale = this.nodeScale,
-            px = worldLocation[0],
-            py = worldLocation[1],
-            pz = worldLocation[2];
+            nodeScale = this.nodeScale;
 
         if (head) {
+            if (modelObject.modelSpace) {
+                vec3.transformMat4(worldLocation, worldLocation, this.node.worldMatrix);
+            }
+
+            let px = worldLocation[0],
+                py = worldLocation[1],
+                pz = worldLocation[2];
+
             let pv1 = vectors[0],
                 pv2 = vectors[1],
                 pv3 = vectors[2],
@@ -211,35 +211,50 @@ export default class Particle2 {
             var offsetx = tailLength * velocity[0] * 0.5;
             var offsety = tailLength * velocity[1] * 0.5;
             var offsetz = tailLength * velocity[2] * 0.5;
-            var px2 = px;
-            var py2 = py;
-            var pz2 = pz;
 
-            px -= offsetx;
-            py -= offsety;
-            pz -= offsetz;
+            let start = [],
+                end = [];
 
-            vertices[0] = px - cameraScaleX * scale * nodeScale[0];
-            vertices[1] = py - cameraScaleY * scale * nodeScale[1];
-            vertices[2] = pz - cameraScaleZ * scale * nodeScale[2];
-            vertices[6] = px2 + cameraScaleX * scale * nodeScale[0];
-            vertices[7] = py2 + cameraScaleY * scale * nodeScale[1];
-            vertices[8] = pz2 + cameraScaleZ * scale * nodeScale[2];
-            vertices[3] = px2 - cameraScaleX * scale * nodeScale[0];
-            vertices[4] = py2 - cameraScaleY * scale * nodeScale[1];
-            vertices[5] = pz2 - cameraScaleZ * scale * nodeScale[2];
-            vertices[9] = px + cameraScaleX * scale * nodeScale[0];
-            vertices[10] = py + cameraScaleY * scale * nodeScale[1];
-            vertices[11] = pz + cameraScaleZ * scale * nodeScale[2];
+            let scalex = scale * cameraScaleX * nodeScale[0],
+                scaley = scale * cameraScaleY * nodeScale[1],
+                scalez = scale * cameraScaleZ * nodeScale[2];
+            
+            if (modelObject.modelSpace) {
+                vec3.transformMat4(start, [worldLocation[0]-offsetx, worldLocation[1]-offsety, worldLocation[2]-offsetz], this.node.worldMatrix);
+                vec3.transformMat4(end, worldLocation, this.node.worldMatrix);
+            } else {
+                end = worldLocation;
+                start = [end[0] - offsetx, end[1] - offsety, end[2] - offsetz]
+            }
+
+            let startx = start[0],
+                starty = start[1],
+                startz = start[2],
+                endx = end[0],
+                endy = end[1],
+                endz = end[2];
+
+            vertices[0] = startx - scalex;
+            vertices[1] = starty - scaley;
+            vertices[2] = startz - scalez;
+            vertices[6] = endx + scalex;
+            vertices[7] = endy + scaley;
+            vertices[8] = endz + scalez;
+            vertices[3] = endx - scalex;
+            vertices[4] = endy - scaley;
+            vertices[5] = endz - scalez;
+            vertices[9] = startx + scalex;
+            vertices[10] = starty + scaley;
+            vertices[11] = startz + scalez;
         }
 
         let columns = modelObject.dimensions[0],
             left = index % columns,
-            top = Math.floor(index / columns),
+            top = (index / columns)|0,
             right = left + 1,
             bottom = top + 1,
             a = color[3];
-
+            
         this.lta = uint8ToUint24(right, bottom, a);
         this.lba = uint8ToUint24(left, bottom, a);
         this.rta = uint8ToUint24(right, top, a);

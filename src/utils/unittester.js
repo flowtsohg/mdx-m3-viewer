@@ -129,7 +129,7 @@ export default class UnitTester {
             b = imageToImageData(imageB).data;
 
         for (let i = 0, l = a.length; i < l; i++) {
-            if ((i+1)%4!=0 && a[i] !== b[i]) {
+            if (a[i] !== b[i]) {
                 return false;
             }
         }

@@ -25,9 +25,10 @@ export default class Model extends TexturedModel {
     constructor(resourceData) {
         super(resourceData);
 
-        this.model = null;
+        this.parser = null;
         this.name = '';
         this.extent = null;
+        this.boundingSphere = null;
         this.sequences = [];
         this.globalSequences = [];
         this.materials = [];
@@ -71,7 +72,23 @@ export default class Model extends TexturedModel {
 
         // Model
         this.name = parser.name;
-        this.extent = parser.extent;
+
+        // Make a bounding sphere from the model extent.
+        let extent = parser.extent,
+            min = extent.min,
+            max = extent.max,
+            minx = min[0],
+            miny = min[1],
+            minz = min[2],
+            maxx = max[0],
+            maxy = max[1],
+            maxz = max[2],
+            dx = maxx - minx,
+            dy = maxy - miny,
+            dz = maxz - minz;
+
+        this.bounds = { center: vec3.fromValues((minx + maxx) / 2, (miny + maxy) / 2, (minz + maxz) / 2), radius: Math.sqrt(dx * dx + dy * dy + dz * dz) / 2 };
+        this.extent = extent;
 
         // Sequences
         for (let sequence of parser.sequences) {

@@ -1,6 +1,6 @@
 import { vec3, quat } from 'gl-matrix';
+import { VEC3_ZERO, QUAT_ZERO } from './gl-matrix-addon';
 import { lerp, hermite, bezier } from './math';
-import { qnlerp, qnquad } from './gl-matrix-addon';
 
 // Heap allocations needed for this module.
 // NOTE: The values returned by interpolate() are not heap safe!
@@ -34,7 +34,7 @@ let Interpolator = {
             return vec3.bezier(vectorHeap, a, b, c, d, t);
         }
 
-        return vec3.copy(vectorHeap, vec3.ZERO);
+        return vec3.copy(vectorHeap, VEC3_ZERO);
     },
 
     quaternion(a, b, c, d, t, type) {
@@ -46,7 +46,7 @@ let Interpolator = {
             return quat.sqlerp(quatHeap, a, b, c, d, t);
         }
 
-        return quat.copy(quatHeap, quat.ZERO);
+        return quat.copy(quatHeap, QUAT_ZERO);
     },
 
     interpolate(a, b, c, d, t, type) {

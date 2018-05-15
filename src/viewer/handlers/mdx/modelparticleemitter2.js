@@ -16,14 +16,14 @@ export default class ParticleEmitter2 extends GenericObject {
         this.gravity = emitter.gravity;
         this.emissionRate = emitter.emissionRate;
         this.squirt = emitter.squirt;
-
         this.lifeSpan = emitter.lifeSpan;
-        this.modelSpace = emitter.modelSpace;
         this.variation = emitter.variation;
         this.tailLength = emitter.tailLength;
         this.timeMiddle = emitter.timeMiddle;
 
         this.internalResource = model.textures[emitter.textureId]
+
+        this.replaceableId = emitter.replaceableId;
 
         let headOrTail = emitter.headOrTail;
 

@@ -360,8 +360,7 @@ export default class Model {
             } else if (token === 'CollisionShape') {
                 this.loadObject(this.collisionShapes, CollisionShape, stream);
             } else {
-                console.error(`Unsupported block: ${token}`);
-                return;
+                throw new Error(`Unsupported block: ${token}`)
             }
         }
     }

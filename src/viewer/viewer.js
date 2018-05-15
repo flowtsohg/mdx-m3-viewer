@@ -13,13 +13,6 @@ export default class ModelViewer extends EventDispatcher {
     constructor(canvas, options) {
         super();
 
-        /**
-         * The version string of the viewer - <major>.<minor>.<patch>.
-         *
-         * @member {string}
-         */
-        this.version = '4.3.0';
-
         /** @member {object} */
         this.resources = {
             array: [],

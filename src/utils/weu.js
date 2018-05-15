@@ -198,16 +198,14 @@ function handleCustomScript(state, ecas, i, eca, customScript) {
 
             i = addComments(ecas, i, eca.group,
                 'AUTOMATICALLY CONVERTED BUT CANNOT BE INLINED',
-                `ADDED ${callbackName} TO THE MAP HEADER`
-                );
+                `ADDED ${callbackName} TO THE MAP HEADER`);
         } else {
             i = addComments(ecas, i, eca.group,
                 'AUTOMATICALLY CONVERTED BUT CANNOT BE INLINED',
-                'ADD THE FOLLOWING TO THE MAP HEADER TO FIX THIS AND CHANGE FUNCTION_NAME TO SOMETHING UNIQUE',
+                'ADD THE FOLLOWING TO THE MAP HEADER TO FIX THIS',
                 `    function ${callbackName} takes nothing returns boolean`,
                 `        return ${callback}`,
-                '    endfunction'
-                );
+                '    endfunction');
 
             eca.isEnabled = false;
         }

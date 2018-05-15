@@ -302,6 +302,26 @@ let mdxTests = {
                             viewer.update();
                         }
                     }
+                },
+
+                {
+                    name: "xy-quad",
+                    load(viewer) {
+                        return viewer.load("Units/Orc/SpiritWyvern/SpiritWyvern.mdx", wc3Solver);
+                    },
+                    test(viewer, scene, camera, model) {
+                        camera.move([0, 0, -300]);
+                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(90)));
+                        camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(45)));
+
+                        let instance = model.addInstance().setSequence(9).setSequenceLoopMode(2);
+
+                        scene.addInstance(instance);
+
+                        for (let i = 0; i < 50; i++) {
+                            viewer.update();
+                        }
+                    }
                 }
             ]
             

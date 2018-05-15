@@ -55,9 +55,9 @@ function addTestResult(testResult) {
 
 let unitTester = new UnitTester();
 
-document.getElementById("version").textContent = "Viewer version " + unitTester.viewer.version;
+document.getElementById("version").textContent = "Viewer version " + ModelViewer.version;
 
-console.log("Viewer version", unitTester.viewer.version);
+console.log("Viewer version", ModelViewer.version);
 
 unitTester.add(mdxTests);
 unitTester.add(m3Tests);

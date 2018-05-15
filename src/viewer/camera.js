@@ -9,7 +9,7 @@ let vectorHeap = vec3.create(),
 export default class Camera extends SceneNode {
     constructor() {
         super();
-        this.frusum = new Frustum();
+        this.frustum = new Frustum();
 
         this.perspective = true;
         this.ortho = false;
@@ -104,7 +104,7 @@ export default class Camera extends SceneNode {
         }
 
         // Recaculate the camera's frusum planes
-        this.frusum.recalculatePlanes(worldProjectionMatrix);
+        this.frustum.recalculatePlanes(worldProjectionMatrix);
     }
 
     // Given a vector in camera space, return the vector transformed to world space

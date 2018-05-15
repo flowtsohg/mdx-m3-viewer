@@ -1,28 +1,37 @@
-import { vec3, quat } from 'gl-matrix';
+import { vec3, vec4 } from 'gl-matrix';
+
+function distanceToPlane(plane, point) {
+    // dot(plane, vec4(point, 1));
+    return plane[0] * point[0] + plane[1] * point[1] + plane[2] * point[2] + plane[3];
+}
+
+
+function normalizePlane(out, plane) {
+    let len = vec3.len(plane);
+
+    out[0] = plane[0] / len;
+    out[1] = plane[1] / len;
+    out[2] = plane[2] / len;
+    out[3] = plane[3] / len;
+}
 
 export default class Frustum {
     constructor() {
         // Left, right, top, bottom, near, far
-        this.planes = [quat.create(), quat.create(), quat.create(), quat.create(), quat.create(), quat.create()];
+        this.planes = [vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create()];
     }
 
-    /*
-plane.distanceToPoint = function (p, v) {
-    return p[0] * v[0] + p[1] * v[1] + p[2] * v[2] + p[3];
-};
+    testSphere(center, radius) {
+        for (let plane of this.planes) {
+            if (distanceToPlane(plane, center) <= -radius) {
+                return false;
+            }
 
-plane.classifyPoint = function (plane, point) {
-    let d = plane[0] * point[0] + plane[1] * point[1] + plane[2] * point[2] + plane[3];
-
-    if (d < 0) {
-        return -1;
-    } else if (d > 0) {
-        return 1;
+        }
+    
+        return true;
     }
-
-    return 0;
-};
-     */
+  
 
     /// NOTE: NOT SCALING RADIUS
     testIntersectionSphere(boundingShape) {
@@ -139,15 +148,12 @@ plane.classifyPoint = function (plane, point) {
         plane[2] = a32 - a22;
         plane[3] = a33 - a23;
 
-        /*
-        quat.normalize(planes[0], planes[0]);
-        quat.normalize(planes[1], planes[1]);
-        quat.normalize(planes[2], planes[2]);
-        quat.normalize(planes[3], planes[3]);
-        quat.normalize(planes[4], planes[4]);
-        quat.normalize(planes[5], planes[5]);
-        */
-
-        return this;
+        
+        normalizePlane(planes[0], planes[0]);
+        normalizePlane(planes[1], planes[1]);
+        normalizePlane(planes[2], planes[2]);
+        normalizePlane(planes[3], planes[3]);
+        normalizePlane(planes[4], planes[4]);
+        normalizePlane(planes[5], planes[5]);
     }
 };

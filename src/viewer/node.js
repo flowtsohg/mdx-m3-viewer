@@ -422,7 +422,7 @@ let Node = (superclass) => class extends superclass {
                     //vec3.mul(worldScale, parentScale, localScale);
                 }
 
-                mat4.fromRotationTranslationScale(localMatrix, localRotation, computedLocation, computedScaling);
+                mat4.fromRotationTranslationScaleOrigin(localMatrix, localRotation, computedLocation, computedScaling, this.pivot);
 
                 mat4.mul(worldMatrix, parent.worldMatrix, localMatrix);
 

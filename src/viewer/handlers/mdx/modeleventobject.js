@@ -90,9 +90,8 @@ export default class EventObject extends GenericObject {
                 [this.blendSrc, this.blendDst] = emitterFilterMode(row.BlendMode, this.model.viewer.gl);
             }
 
-            // Don't care about sounds for now.
-            if (type !== 'SND') {
-                this.ready = true;
+            if (this.internalResource) {
+                this.internalResource.whenLoaded().then(() => { this.ready = true; });
             }
         }
     }

@@ -139,19 +139,31 @@ export default class Scene {
     }
 
     isVisible(instance) {
-        //*
-        let worldProjectionMatrix = this.camera.worldProjectionMatrix;
+        let model = instance.model,
+            bounds = model.bounds;
 
-        // This test checks whether the instance's position is visible in NDC space. In other words, that it lies in [-1, 1] on all axes
-        vec3.transformMat4(ndcHeap, instance.worldLocation, worldProjectionMatrix);
-        if (ndcHeap[0] >= -1 && ndcHeap[0] <= 1 && ndcHeap[1] >= -1 && ndcHeap[1] <= 1 && ndcHeap[2] >= -1 && ndcHeap[2] <= 1) {
-            return true;
+        // If the model has a bounding sphere in it, do a sphere test.
+        // Otherwise do a point test.
+        if (bounds) {
+            let center = bounds.center,
+                location = instance.worldLocation;
+
+            ndcHeap[0] = location[0] + center[0];
+            ndcHeap[1] = location[1] + center[1];
+            ndcHeap[2] = location[2] + center[2];
+
+            return this.camera.frustum.testSphere(ndcHeap, bounds.radius);
+        } else {
+            let worldProjectionMatrix = this.camera.worldProjectionMatrix;
+
+            // This test checks whether the instance's position is visible in NDC space. In other words, that it lies in [-1, 1] on all axes
+            vec3.transformMat4(ndcHeap, instance.worldLocation, worldProjectionMatrix);
+            if (ndcHeap[0] >= -1 && ndcHeap[0] <= 1 && ndcHeap[1] >= -1 && ndcHeap[1] <= 1 && ndcHeap[2] >= -1 && ndcHeap[2] <= 1) {
+                return true;
+            }
+
+            return false;
         }
-
-        return false;
-        //*/
-
-        //return this.model.viewer.camera.testIntersectionAABB(instance.boundingShape) > 0;
     }
 
     renderOpaque(gl) {

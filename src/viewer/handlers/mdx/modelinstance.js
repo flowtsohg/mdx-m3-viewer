@@ -337,6 +337,7 @@ export default class ModelInstance extends TexturedModelInstance {
         // Layers
         for (let i = 0, l = layers.length; i < l; i++) {
             let layer = layers[i],
+                i2 = i * 2,
                 i4 = i * 4;
 
             // Alpha
@@ -352,11 +353,12 @@ export default class ModelInstance extends TexturedModelInstance {
                 uvOffsets[i4 + 1] = translation[1];
             }
 
+            // UV rotation animation
             if (forced || layer.variants.rotation[sequence]) {
                 let rotation = layer.getRotation(this);
 
-                uvRots[i * 2] = rotation[2];
-                uvRots[i * 2 + 1] = rotation[3];
+                uvRots[i2] = rotation[2];
+                uvRots[i2 + 1] = rotation[3];
             }
 
             // UV scale animation
@@ -404,31 +406,20 @@ export default class ModelInstance extends TexturedModelInstance {
     }
 
     setSequence(id) {
-        if (this.sequence !== id) {
-            this.sequence = id;
+        this.sequence = id;
 
-            if (this.model.loaded) {
-                var sequences = this.model.sequences.length;
+        if (this.model.loaded) {
+            let sequences = this.model.sequences;
 
-                if (id < -1 || id > sequences - 1) {
-                    id = -1;
-
-                    this.sequence = id;
-                }
-
-                if (id === -1) {
-                    this.frame = 0;
-
-                    this.allowParticleSpawn = false;
-                } else {
-                    var sequence = this.model.sequences[id];
-
-                    this.frame = sequence.interval[0];
-                }
-
-                // Do a forced update, so non-animated data can be skipped in future updates
-                this.forced = true;
+            if (id < 0 || id > sequences.length - 1) {
+                this.sequence = -1;
+                this.frame = 0;
+                this.allowParticleSpawn = false;
+            } else {
+                this.frame = sequences[id].interval[0];
             }
+
+            this.forced = true;
         }
 
         return this;
