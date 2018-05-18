@@ -1,11 +1,13 @@
 import { vec2 } from 'gl-matrix';
+import { decodeAudioData } from '../../../common/audio';
 import GenericObject from './genericobject';
 import { emitterFilterMode } from './filtermode';
 
 let typeToSlk = {
     'SPN': 'Splats/SpawnData.slk',
     'SPL': 'Splats/SplatData.slk',
-    'UBR': 'Splats/UberSplatData.slk'
+    'UBR': 'Splats/UberSplatData.slk',
+    'SND': 'UI/SoundInfo/AnimSounds.slk'
 };
 
 export default class EventObject extends GenericObject {
@@ -16,7 +18,7 @@ export default class EventObject extends GenericObject {
     constructor(model, eventObject, pivotPoints, index) {
         super(model, eventObject, pivotPoints, index);
 
-        let env = model.viewer,
+        let viewer = model.viewer,
             name = eventObject.name,
             type = name.substring(0, 3),
             id = name.substring(4);
@@ -42,57 +44,82 @@ export default class EventObject extends GenericObject {
             this.globalSequence = model.globalSequences[globalSequenceId];
         }
 
-        let path = typeToSlk[type];
-        
-        if (path) {
-            let slk = env.load(path, model.pathSolver);
+        let tables = [],
+            pathSolver = model.pathSolver;
 
-            if (slk.loaded) {
-                this.initialize(slk.getRow(id));
-            } else {
-                // Promise that there is a future load that the code cannot know about yet, so Viewer.whenAllLoaded() isn't called prematurely.
-                let promise = env.makePromise();
-
-                slk.whenLoaded()
-                    .then(() => {
-                        this.initialize(slk.getRow(id));
-
-                        // Resolve the promise.
-                        promise.resolve();
-                    });
-            }
+        if (type === 'SPN') {
+            tables[0] = viewer.load('Splats\\SpawnData.slk', pathSolver);
+        } else if (type === 'SPL') {
+            tables[0] = viewer.load('Splats\\SplatData.slk', pathSolver);
+        } else if (type === 'UBR') {
+            tables[0] = viewer.load('Splats\\UberSplatData.slk', pathSolver);
+        } else if (type === 'SND') {
+            tables[0] = viewer.load('UI\\SoundInfo\\AnimLookups.slk', pathSolver);
+            tables[1] = viewer.load('UI\\SoundInfo\\AnimSounds.slk', pathSolver);
         }
+
+        let promise = viewer.makePromise()
+
+        viewer.whenLoaded(tables)
+            .then((tables) => {
+                this.load(tables);
+
+                promise.resolve();
+            });
     }
 
-    initialize(row) {
-        if (row) {
-            let type = this.type,
-                model = this.model;
+    load(tables) {
+        let type = this.type,
+            model = this.model,
+            viewer = model.viewer,
+            pathSolver = model.pathSolver,
+            row = tables[0].getRow(this.id);
 
-            if (type === 'SPN') {
-                this.internalResource = model.viewer.load(row.Model.replace('.mdl', '.mdx'), model.pathSolver);
-            } else if (type === 'SPL' || type === 'UBR') {
-                this.internalResource = model.viewer.load('replaceabletextures/splats/' + row.file + '.blp', model.pathSolver);
-                this.colors = [[row.StartR, row.StartG, row.StartB, row.StartA], [row.MiddleR, row.MiddleG, row.MiddleB, row.MiddleA], [row.EndR, row.EndG, row.EndB, row.EndA]];
-                this.scale = row.Scale;
+        if (type === 'SPN') {
+            this.internalResource = viewer.load(row.Model.replace('.mdl', '.mdx'), pathSolver);
+        } else if (type === 'SPL' || type === 'UBR') {
+            this.internalResource = viewer.load('replaceabletextures/splats/' + row.file + '.blp', pathSolver);
+            this.colors = [[row.StartR, row.StartG, row.StartB, row.StartA], [row.MiddleR, row.MiddleG, row.MiddleB, row.MiddleA], [row.EndR, row.EndG, row.EndB, row.EndA]];
+            this.scale = row.Scale;
 
-                if (type === 'SPL') {
-                    this.dimensions = [row.Columns, row.Rows];
-                    this.intervals = [[row.UVLifespanStart, row.UVLifespanEnd, row.LifespanRepeat], [row.UVDecayStart, row.UVDecayEnd, row.DecayRepeat]];
-                    this.intervalTimes = [row.Lifespan, row.Decay];
-                    this.lifespan = row.Lifespan + row.Decay;
-                } else {
-                    this.dimensions = [1, 1];
-                    this.intervalTimes = [row.BirthTime, row.PauseTime, row.Decay];
-                    this.lifespan = row.BirthTime + row.PauseTime + row.Decay;
-                }
-
-                [this.blendSrc, this.blendDst] = emitterFilterMode(row.BlendMode, this.model.viewer.gl);
+            if (type === 'SPL') {
+                this.dimensions = [row.Columns, row.Rows];
+                this.intervals = [[row.UVLifespanStart, row.UVLifespanEnd, row.LifespanRepeat], [row.UVDecayStart, row.UVDecayEnd, row.DecayRepeat]];
+                this.intervalTimes = [row.Lifespan, row.Decay];
+                this.lifespan = row.Lifespan + row.Decay;
+            } else {
+                this.dimensions = [1, 1];
+                this.intervalTimes = [row.BirthTime, row.PauseTime, row.Decay];
+                this.lifespan = row.BirthTime + row.PauseTime + row.Decay;
             }
 
-            if (this.internalResource) {
-                this.internalResource.whenLoaded().then(() => { this.ready = true; });
-            }
+            [this.blendSrc, this.blendDst] = emitterFilterMode(row.BlendMode, viewer.gl);
+        } else if (type === 'SND') {
+            row = tables[1].getRow(row.SoundLabel);
+
+            this.distanceCutoff = row.DistanceCutoff;
+            this.maxDistance = row.MaxDistance;
+            this.minDistance = row.MinDistance;
+            this.pitch = row.Pitch;
+            this.pitchVariance = row.PitchVariance;
+            this.volume = row.Volume;
+
+            fetch(pathSolver(row.DirectoryBase + row.FileNames)[0])
+                .then((response) => response.arrayBuffer())
+                .then((buffer) => {
+                    decodeAudioData(buffer)
+                        .then((decodedBuffer) => {
+                            this.decodedBuffer = decodedBuffer;
+
+                            this.ready = true;
+                        });
+                    
+                })
+        }
+
+        if (this.internalResource) {
+            this.internalResource.whenLoaded()
+                .then(() => this.ready = true);
         }
     }
 

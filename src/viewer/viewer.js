@@ -118,13 +118,26 @@ export default class ModelViewer extends EventDispatcher {
 
         this.textureAtlases = {};
 
-        this.batchSize = 256; // The size of instances batched per bucket.
+        /** 
+         * The number of instances that a bucket should be able to contain.
+         * 
+         * @member {number}
+         */
+        this.batchSize = 256;
 
+        /** @member {number} */
         this.renderedInstances = 0;
+        /** @member {number} */
         this.renderedParticles = 0;
+        /** @member {number} */
         this.renderedBuckets = 0;
+        /** @member {number} */
         this.renderedScenes = 0;
+        /** @member {number} */
         this.renderCalls = 0;
+
+        /** @member {boolean} */
+        this.audioEnabled = false;
     }
 
     /**
@@ -145,7 +158,7 @@ export default class ModelViewer extends EventDispatcher {
             }
 
             handlers.add(handler);
-            
+
             return true;
         }
 
@@ -294,16 +307,16 @@ export default class ModelViewer extends EventDispatcher {
             // Promise wrapper for an image load.
             let image = await new Promise((resolve, reject) => {
                 let image = new Image();
-    
+
                 image.onload = () => {
                     resolve(image);
                 };
-    
+
                 image.onerror = (e) => {
                     this.dispatchEvent({ type: 'error', error: 'ImageError', reason: e });
                     resolve(null);
                 };
-    
+
                 image.src = path;
             });
 
@@ -406,7 +419,7 @@ export default class ModelViewer extends EventDispatcher {
      */
     makePromise() {
         let resource = new PromiseResource();
-        
+
         this.registerEvents(resource);
 
         resource.promise();
@@ -485,6 +498,7 @@ export default class ModelViewer extends EventDispatcher {
      */
     updateAndRender() {
         this.update();
+        this.startFrame();
         this.render();
     }
 
@@ -497,7 +511,7 @@ export default class ModelViewer extends EventDispatcher {
 
         // Update all of the resources.
         //for (let i = 0, l = resources.length; i < l; i++) {
-            //resources[i].update();
+        //resources[i].update();
         //}
 
         this.renderedInstances = 0;
@@ -523,26 +537,34 @@ export default class ModelViewer extends EventDispatcher {
     }
 
     /**
-     * Render.
+     * Clears the WebGL buffer.
+     * Called automatically by updateAndRender().
+     * Call this at some point before render() if you need more control.
      */
-    render() {
-        let gl = this.gl,
-            scenes = this.scenes,
-            i,
-            l = scenes.length;
+    startFrame() {
+        let gl = this.gl;
 
         // See https://www.opengl.org/wiki/FAQ#Masking
         gl.depthMask(1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    }
+
+    /**
+     * Render.
+     */
+    render() {
+        let scenes = this.scenes,
+            i,
+            l = scenes.length;
 
         // Render opaque things.
         for (i = 0; i < l; i++) {
-            scenes[i].renderOpaque(gl);
+            scenes[i].renderOpaque();
         }
 
         // Render translucent things.
         for (i = 0; i < l; i++) {
-            scenes[i].renderTranslucent(gl);
+            scenes[i].renderTranslucent();
         }
     }
 

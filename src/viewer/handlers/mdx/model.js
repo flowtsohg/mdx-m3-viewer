@@ -28,7 +28,7 @@ export default class Model extends TexturedModel {
         this.parser = null;
         this.name = '';
         this.extent = null;
-        this.boundingSphere = null;
+        this.bounds = null;
         this.sequences = [];
         this.globalSequences = [];
         this.materials = [];
@@ -154,7 +154,7 @@ export default class Model extends TexturedModel {
                 for (let vLayer of this.materials[geoset.materialId]) {
                     let batch = new Batch(batchId++, vLayer, vGeoset);
 
-                    if (vLayer.filterMode < 1) {
+                    if (vLayer.filterMode < 2) {
                         opaqueBatches.push(batch);
                     } else {
                         translucentBatches.push(batch);

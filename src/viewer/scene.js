@@ -24,13 +24,43 @@ export default class Scene {
         /** @member {boolean} */
         this.rendered = true;
 
+        /** @member {number} */
+        this.renderedInstances = 0;
+        /** @member {number} */
+        this.renderedParticles = 0;
+        /** @member {number} */
+        this.renderedBuckets = 0;
+        /** @member {number} */
+        this.renderCalls = 0;
+
+        /**
+         * If this scene is going to use sounds, call enableAudio().
+         * 
+         * @member {?AudioContext}
+         */
+        this.audioContext = null;
+
         this.node.recalculateTransformation();
         this.camera.setParent(this.node);
+    }
 
-        this.renderedInstances = 0;
-        this.renderedParticles = 0;
-        this.renderedBuckets = 0;
-        this.renderCalls = 0;
+    /**
+     * Creates an AudioContext if one wasn't created already, and resumes it if needed.
+     * The returned promise will resolve to whether it is actually running or not.
+     * It may stay in suspended state indefinitly until the client interact with the page, due to browser policies.
+     * 
+     * @returns {Promise}
+     */
+    async enableAudio() {
+        if (!this.audioContext) {
+            this.audioContext = new AudioContext();
+        }
+
+        if (this.audioContext.state !== 'suspended') {
+            await this.audioContext.resume();
+        }
+
+        return this.audioContext.state === 'running';
     }
 
     /**
@@ -135,6 +165,12 @@ export default class Scene {
                 this.renderedBuckets += modelView.renderedBuckets;
                 this.renderCalls += modelView.renderCalls;
             }
+
+            if (this.audioContext) {
+                let [x, y, z] = this.camera.worldLocation;
+
+                this.audioContext.listener.setPosition(-x, -y, -z);
+            }
         }
     }
 
@@ -166,9 +202,9 @@ export default class Scene {
         }
     }
 
-    renderOpaque(gl) {
+    renderOpaque() {
         if (this.rendered) {
-            this.setViewport(gl);
+            this.setViewport(this.viewer.gl);
 
             for (let modelView of this.modelViews) {
                 modelView.renderOpaque(this);
@@ -176,9 +212,9 @@ export default class Scene {
         }
     }
 
-    renderTranslucent(gl) {
+    renderTranslucent() {
         if (this.rendered) {
-            this.setViewport(gl);
+            this.setViewport(this.viewer.gl);
 
             for (let modelView of this.modelViews) {
                 modelView.renderTranslucent(this);
@@ -186,9 +222,9 @@ export default class Scene {
         }
     }
 
-    setViewport(gl) {
+    setViewport() {
         let viewport = this.camera.viewport;
 
-        gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+        this.viewer.gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
     }
 };

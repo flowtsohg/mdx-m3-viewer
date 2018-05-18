@@ -477,7 +477,6 @@ let Node = (superclass) => class extends superclass {
             inverseWorldScale[2] = 1 / worldScale[2];
             //vec3.inverse(this.inverseWorldScale, worldScale);
 
-
             // World location
             worldLocation[0] = worldMatrix[12];
             worldLocation[1] = worldMatrix[13];

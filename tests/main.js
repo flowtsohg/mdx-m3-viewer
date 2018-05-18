@@ -77,7 +77,6 @@ function disableButtons() {
     downloadElement.disabled = true;
 }
 
-
 runElement.addEventListener("click", () => {
     disableButtons();
 

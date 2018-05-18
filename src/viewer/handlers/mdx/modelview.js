@@ -112,7 +112,8 @@ export default class ModelView extends TexturedModelView {
 
                 let particles = emitter.active.length;
 
-                if (particles) {
+                // Don't count sounds as particles.
+                if (particles && emitter.type !== 'SND') {
                     renderedParticles += particles;
                     renderCalls += 1;
                 }

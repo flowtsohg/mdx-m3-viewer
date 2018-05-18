@@ -430,9 +430,9 @@ let geoTests = {
                         return viewer.load({ geometry: geometry.createFrustum(Math.PI / 4, 0.75, 8, 120), material: { renderMode: 0 } }, geoSolver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, -70, -200]);
+                        camera.move([0, -70, -235]).rotate(quat.setAxisAngle([], [1, 0, 0], -Math.PI / 4));
 
-                        let instance = model.addInstance().rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
+                        let instance = model.addInstance();
 
                         scene.addInstance(instance);
                     }
@@ -444,9 +444,9 @@ let geoTests = {
                         return viewer.load({ geometry: geometry.createFrustum(Math.PI / 4, 0.75, 8, 120), material: { renderMode: 1 } }, geoSolver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, -70, -200]);
+                        camera.move([0, -70, -235]).rotate(quat.setAxisAngle([], [1, 0, 0], -Math.PI / 4));
 
-                        let instance = model.addInstance().rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
+                        let instance = model.addInstance();
 
                         scene.addInstance(instance);
                     }
@@ -458,9 +458,9 @@ let geoTests = {
                         return viewer.load({ geometry: geometry.createFrustum(Math.PI / 4, 0.75, 8, 120), material: { renderMode: 2 } }, geoSolver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, -70, -200]);
+                        camera.move([0, -70, -235]).rotate(quat.setAxisAngle([], [1, 0, 0], -Math.PI / 4));
 
-                        let instance = model.addInstance().rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
+                        let instance = model.addInstance();
 
                         scene.addInstance(instance);
                     }
@@ -472,9 +472,9 @@ let geoTests = {
                         return viewer.load({ geometry: geometry.createFrustum(Math.PI / 4, 0.75, 8, 120), material: { renderMode: 0, vertexColor: new Uint8Array([255, 0, 0, 255]) } }, geoSolver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, -70, -200]);
+                        camera.move([0, -70, -235]).rotate(quat.setAxisAngle([], [1, 0, 0], -Math.PI / 4));
 
-                        let instance = model.addInstance().rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
+                        let instance = model.addInstance();
 
                         scene.addInstance(instance);
                     }
@@ -486,9 +486,9 @@ let geoTests = {
                         return viewer.load({ geometry: geometry.createFrustum(Math.PI / 4, 0.75, 8, 120), material: { renderMode: 1, edgeColor: new Uint8Array([0, 255, 0, 255]) } }, geoSolver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, -70, -200]);
+                        camera.move([0, -70, -235]).rotate(quat.setAxisAngle([], [1, 0, 0], -Math.PI / 4));
 
-                        let instance = model.addInstance().rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
+                        let instance = model.addInstance();
 
                         scene.addInstance(instance);
                     }
@@ -500,9 +500,9 @@ let geoTests = {
                         return viewer.load({ geometry: geometry.createFrustum(Math.PI / 4, 0.75, 8, 120), material: { renderMode: 2, vertexColor: new Uint8Array([255, 0, 0, 255]), edgeColor: new Uint8Array([0, 255, 0, 255]) } }, geoSolver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, -70, -200]);
+                        camera.move([0, -70, -235]).rotate(quat.setAxisAngle([], [1, 0, 0], -Math.PI / 4));
 
-                        let instance = model.addInstance().rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
+                        let instance = model.addInstance();
 
                         scene.addInstance(instance);
                     }
@@ -516,9 +516,9 @@ let geoTests = {
                         return viewer.load({ geometry: geometry.createFrustum(Math.PI / 4, 0.75, 8, 120), material: { texture } }, geoSolver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, -70, -200]);
+                        camera.move([0, -70, -235]).rotate(quat.setAxisAngle([], [1, 0, 0], -Math.PI / 4));
 
-                        let instance = model.addInstance().rotate(quat.setAxisAngle([], [1, 0, 0], Math.PI / 8));
+                        let instance = model.addInstance();
 
                         scene.addInstance(instance);
                     }

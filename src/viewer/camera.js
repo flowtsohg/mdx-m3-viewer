@@ -70,7 +70,7 @@ export default class Camera extends SceneNode {
 
     recalculateTransformation() {
         super.recalculateTransformation();
-
+        
         let worldMatrix = this.worldMatrix,
             projectionMatrix = this.projectionMatrix,
             worldProjectionMatrix = this.worldProjectionMatrix,

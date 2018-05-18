@@ -7,8 +7,12 @@ export default class EventObjectEmitterView {
     constructor(instance, emitter) {
         this.instance = instance;
         this.emitter = emitter;
-        this.lastTrack = [0, 0];
+        this.lastTrack = new Uint16Array(2); // Support more than 256 keyframes per sequence, why not.
         this.currentEmission = 0;
+    }
+
+    reset() {
+        this.lastTrack.fill(0);
     }
 
     update() {

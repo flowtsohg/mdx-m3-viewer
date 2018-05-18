@@ -190,6 +190,8 @@ export default class ModelInstance extends TexturedModelInstance {
             if (this.frame >= interval[1]) {
                 if (this.sequenceLoopMode === 2 || (this.sequenceLoopMode === 0 && sequence.flags === 0)) {
                     this.frame = interval[0];
+
+                    this.resetEventEmitters();
                 } else {
                     this.frame = interval[1];
                     this.counter -= frameTime;
@@ -419,6 +421,8 @@ export default class ModelInstance extends TexturedModelInstance {
                 this.frame = sequences[id].interval[0];
             }
 
+            this.resetEventEmitters();
+
             this.forced = true;
         }
 
@@ -436,6 +440,15 @@ export default class ModelInstance extends TexturedModelInstance {
 
         if (attachment) {
             return this.nodes[attachment.index];
+        }
+    }
+
+    // Event emitters depend on keyframe index changes to emit, rather than only values.
+    // To work, they need to check what the last keyframe was, and only if it's a different one, do something.
+    // When changing sequences, these states need to be reset, so they can immediately emit things if needed.
+    resetEventEmitters() {
+        for (let eventEmitterView of this.eventObjectEmitters) {
+            eventEmitterView.reset();
         }
     }
 };
