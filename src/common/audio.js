@@ -1,4 +1,4 @@
-let audioContext = new OfflineAudioContext(1, 1, 3000);
+let audioContext = new OfflineAudioContext(1, 1, 48000);
  
 /**
  * A context-less decodeAudioData().
