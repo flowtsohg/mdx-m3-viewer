@@ -25,15 +25,18 @@ export default {
         varying vec2 v_uvRot;
 
         void transform(inout vec3 position, inout vec3 normal, float boneNumber, vec4 bones) {
-            mat4 b0 = fetchMatrix(bones[0], a_InstanceID);
-            mat4 b1 = fetchMatrix(bones[1], a_InstanceID);
-            mat4 b2 = fetchMatrix(bones[2], a_InstanceID);
-            mat4 b3 = fetchMatrix(bones[3], a_InstanceID);
-            vec4 p = vec4(position, 1);
-            vec4 n = vec4(normal, 0);
+            // For the broken models out there, since the game supports this.
+            if (boneNumber > 0.0) {
+                mat4 b0 = fetchMatrix(bones[0], a_InstanceID);
+                mat4 b1 = fetchMatrix(bones[1], a_InstanceID);
+                mat4 b2 = fetchMatrix(bones[2], a_InstanceID);
+                mat4 b3 = fetchMatrix(bones[3], a_InstanceID);
+                vec4 p = vec4(position, 1);
+                vec4 n = vec4(normal, 0);
 
-            position = vec3(b0 * p + b1 * p + b2 * p + b3 * p) / boneNumber;
-            normal = normalize(vec3(b0 * n + b1 * n + b2 * n + b3 * n));
+                position = vec3(b0 * p + b1 * p + b2 * p + b3 * p) / boneNumber;
+                normal = normalize(vec3(b0 * n + b1 * n + b2 * n + b3 * n));
+            }
         }
 
         void main() {

@@ -141,7 +141,9 @@ export default function mdlSourceMap(model) {
     mapGenerics(sourceMap, stream, model.helpers, 'Helper');
     mapGenerics(sourceMap, stream, model.attachments, 'Attachment');
 
-    addSourceMapEntry(sourceMap, 'PivotPoints', stream, readUpTo(stream, 'PivotPoints'), stepOver(stream));
+    if (model.pivotPoints.length) {
+        addSourceMapEntry(sourceMap, 'PivotPoints', stream, readUpTo(stream, 'PivotPoints'), stepOver(stream));
+    }
 
     mapGenerics(sourceMap, stream, model.particleEmitters, 'ParticleEmitter');
     mapGenerics(sourceMap, stream, model.particleEmitters2, 'ParticleEmitter2');
