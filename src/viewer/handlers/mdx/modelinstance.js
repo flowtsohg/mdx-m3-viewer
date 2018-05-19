@@ -1,3 +1,4 @@
+import { getRotationX, getRotationY, getRotationZ } from '../../../common/gl-matrix-addon';
 import TexturedModelInstance from '../../texturedmodelinstance';
 import { createSkeletalNodes } from '../../node';
 import AttachmentInstance from './attachmentinstance';
@@ -263,22 +264,41 @@ export default class ModelInstance extends TexturedModelInstance {
                     }
                 }
 
-
-                // Billboarding
-                // If the instance is not attached to any scene, this is meaningless.
-                if (genericObject.billboarded) {
+                // Handle billboarding.
+                if (genericObject.anyBillboarding) {
                     wasDirty = true;
 
-                    // Cancel the parent's rotation.
+                    /// TODO: Not sure if this is correct for the axis specific billboarding.
                     quat.copy(localRotation, parent.inverseWorldRotation);
 
-                    // Rotate inversly to the camera, so as to always face it.
-                    quat.mul(localRotation, localRotation, scene.camera.inverseWorldRotation);
+                    let cameraInverseWorldRotation = scene.camera.inverseWorldRotation,
+                        halfPI = Math.PI / 2;
 
-                    // The coordinate systems are different between the handler and the viewer.
-                    // Therefore, get to the viewer's coordinate system.
-                    quat.rotateZ(localRotation, localRotation, Math.PI / 2);
-                    quat.rotateY(localRotation, localRotation, -Math.PI / 2);
+                    // Full billboarding or axis specific billboarding.
+                    if (genericObject.billboarded) {
+                        // Rotate inversly to the camera, so as to always face it.
+                        quat.mul(localRotation, localRotation, cameraInverseWorldRotation);
+
+                        // The coordinate systems are different between the handler and the viewer.
+                        // Therefore, get to the viewer's coordinate system.
+                        quat.rotateZ(localRotation, localRotation, halfPI);
+                        quat.rotateY(localRotation, localRotation, -halfPI);
+                    } else {
+                        if (genericObject.billboardedX) {
+                            /// TODO: Not sure if this is correct
+                            quat.rotateX(localRotation, localRotation, getRotationX(cameraInverseWorldRotation) - halfPI);
+                        }
+
+                        if (genericObject.billboardedY) {
+                            /// TODO: Not sure if this is correct
+                            quat.rotateY(localRotation, localRotation, getRotationY(cameraInverseWorldRotation) - halfPI);
+                        }
+
+                        if (genericObject.billboardedZ) {
+                            // Rotate inversly to the camera on the Z axis, and move to the viewer's coordinate system.
+                            quat.rotateZ(localRotation, localRotation, getRotationZ(cameraInverseWorldRotation) - halfPI);
+                        }
+                    }
                 }
 
                 let wasReallyDirty = forced || wasDirty || parent.wasDirty;
@@ -299,7 +319,7 @@ export default class ModelInstance extends TexturedModelInstance {
                 }
 
                 // Update all of the node's non-skeletal children, which will update their children, and so on.
-                node.updateChildren(scene)
+                node.updateChildren(scene);
             }
         }
     }

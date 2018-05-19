@@ -22,6 +22,26 @@ function unproject(out, v, inverseMatrix, viewport) {
     return out;
 }
 
+let vec3Heap = vec3.create();
+
+function getRotationX(q) {
+    vec3.transformQuat(vec3Heap, VEC3_UNIT_Y, q);
+
+    return Math.atan2(vec3Heap[2], vec3Heap[1]);
+}
+
+function getRotationY(q) {
+    vec3.transformQuat(vec3Heap, VEC3_UNIT_Z, q);
+    
+    return Math.atan2(vec3Heap[0], vec3Heap[2]);
+}
+
+function getRotationZ(q) {
+    vec3.transformQuat(vec3Heap, VEC3_UNIT_X, q);
+
+    return Math.atan2(vec3Heap[1], vec3Heap[0]);
+}
+
 export {
     VEC3_UNIT_X,
     VEC3_UNIT_Y,
@@ -30,5 +50,8 @@ export {
     VEC3_ONE,
     QIAT_ZERO,
     QUAT_DEFAULT,
-    unproject
+    unproject,
+    getRotationX,
+    getRotationY,
+    getRotationZ
 };

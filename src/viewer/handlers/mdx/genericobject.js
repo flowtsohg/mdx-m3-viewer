@@ -46,6 +46,8 @@ export default class GenericObject extends AnimatedObject {
         this.modelSpace = flags & 0x80000;
         this.xYQuad = flags & 0x100000;
 
+        this.anyBillboarding = this.billboarded || this.billboardedX || this.billboardedY || this.billboardedZ;
+
         if (object.objectId === object.parentId) {
             this.parentId = -1;
         }

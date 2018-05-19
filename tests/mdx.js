@@ -140,24 +140,47 @@ let mdxTests = {
 
         {
             name: "billboarding",
-            load(viewer) {
-                return viewer.load("Units/Creeps/Gnoll/Gnoll.mdx", wc3Solver);
-            },
-            test(viewer, scene, camera, model) {
-                camera.move([30, -20, -180]);
-                camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-45)));
+            tests: [
+                {
+                    name: "standard",
+                    load(viewer) {
+                        return viewer.load("Units/Creeps/Gnoll/Gnoll.mdx", wc3Solver);
+                    },
+                    test(viewer, scene, camera, model) {
+                        camera.move([30, -20, -180]);
+                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-45)));
 
-                let instance = model.addInstance().setSequence(1).setSequenceLoopMode(2);
+                        let instance = model.addInstance().setSequence(1).setSequenceLoopMode(2);
 
-                // Rotate also the instance, to be sure billboarding works in all cases.
-                // It happened in a past implementation that billboaring worked as long as the instance isn't rotated.
-                // Needless to say, it took a long time to find that bug.
-                instance.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-45)));
+                        // Rotate also the instance, to be sure billboarding works in all cases.
+                        // It happened in a past implementation that billboaring worked as long as the instance isn't rotated.
+                        // Needless to say, it took a long time to find that bug.
+                        instance.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-45)));
 
-                instance.frame = 800;
+                        instance.frame = 800;
 
-                scene.addInstance(instance);
-            }
+                        scene.addInstance(instance);
+                    }
+                },
+
+                {
+                    name: "x-axis",
+                    load(viewer) {
+                        return viewer.load("SharedModels/NEBirth.MDX", wc3Solver);
+                    },
+                    test(viewer, scene, camera, model) {
+                        camera.move([0, -150, -500]);
+                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
+                        camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-45)));
+
+                        let instance = model.addInstance().setSequence(0).rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-45)));
+
+                        instance.frame += 3000;
+
+                        scene.addInstance(instance);
+                    }
+                }
+            ]
         },
 
         {
