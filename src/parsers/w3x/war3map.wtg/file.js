@@ -4,7 +4,7 @@ import Variable from './variable';
 import Trigger from './trigger';
 
 export default class War3MapWtg {
-    constructor(buffer, argumentMap) {
+    constructor(buffer, functions) {
         this.version = 0;
         this.triggerCategories = [];
         this.u1 = 0;
@@ -12,11 +12,11 @@ export default class War3MapWtg {
         this.triggers = [];
 
         if (buffer) {
-            this.load(buffer, argumentMap);
+            this.load(buffer, functions);
         }
     }
 
-    load(buffer, argumentMap) {
+    load(buffer, functions) {
         let stream = new BinaryStream(buffer);
 
         if (stream.read(4) !== 'WTG!') {
@@ -46,7 +46,7 @@ export default class War3MapWtg {
         for (let i = 0, l = stream.readUint32(); i < l; i++) {
             let trigger = new Trigger();
 
-            trigger.load(stream, this.version, argumentMap);
+            trigger.load(stream, this.version, functions);
 
             this.triggers[i] = trigger;
         }
@@ -81,7 +81,7 @@ export default class War3MapWtg {
     }
 
     /**
-     * @returns {number} 
+     * @return {number}
      */
     getByteLength() {
         let size = 24;

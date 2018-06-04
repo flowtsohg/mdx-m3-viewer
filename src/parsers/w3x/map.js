@@ -2,18 +2,18 @@ import BinaryStream from '../../common/binarystream';
 import MpqArchive from '../mpq/archive';
 import War3MapDoo from './war3map.doo/file';
 import War3MapImp from './war3map.imp/file';
-import War3MapMmp from './war3map.mmp/file';
-import War3MapShd from './war3map.shd/file';
-import War3MapW3c from './war3map.w3c/file';
+// import War3MapMmp from './war3map.mmp/file';
+// import War3MapShd from './war3map.shd/file';
+// import War3MapW3c from './war3map.w3c/file';
 import War3MapW3d from './war3map.w3d/file';
 import War3MapW3e from './war3map.w3e/file';
-import War3MapW3i from './war3map.w3i/file';
-import War3MapW3o from './war3map.w3o/file';
-import War3MapW3r from './war3map.w3r/file';
-import War3MapW3s from './war3map.w3s/file';
+// import War3MapW3i from './war3map.w3i/file';
+// import War3MapW3o from './war3map.w3o/file';
+// import War3MapW3r from './war3map.w3r/file';
+// import War3MapW3s from './war3map.w3s/file';
 import War3MapW3u from './war3map.w3u/file';
 import War3MapWct from './war3map.wct/file';
-import War3MapWpm from './war3map.wpm/file';
+// import War3MapWpm from './war3map.wpm/file';
 import War3MapWtg from './war3map.wtg/file';
 import War3MapWts from './war3map.wts/file';
 import War3MapUnitsDoo from './war3mapUnits.doo/file';
@@ -50,9 +50,9 @@ export default class War3Map {
     /**
      * Load an existing map.
      * Note that this clears the map from whatever it had in it before.
-     * 
+     *
      * @param {ArrayBuffer} buffer
-     * @returns {boolean}
+     * @return {boolean}
      */
     load(buffer) {
         let stream = new BinaryStream(buffer);
@@ -82,8 +82,8 @@ export default class War3Map {
     /**
      * Save this map.
      * If the archive is in readonly mode, returns null.
-     * 
-     * @returns {?ArrayBuffer}
+     *
+     * @return {?ArrayBuffer}
      */
     save() {
         if (this.readonly) {
@@ -93,11 +93,11 @@ export default class War3Map {
         // Update the imports if needed.
         this.setImportsFile();
 
-        let headerSize = 512,
-            archiveBuffer = this.archive.save(),
-            buffer = new ArrayBuffer(headerSize + archiveBuffer.byteLength),
-            typedArray = new Uint8Array(buffer),
-            writer = new BinaryStream(buffer);
+        let headerSize = 512;
+        let archiveBuffer = this.archive.save();
+        let buffer = new ArrayBuffer(headerSize + archiveBuffer.byteLength);
+        let typedArray = new Uint8Array(buffer);
+        let writer = new BinaryStream(buffer);
 
         // Write the header.
         writer.write('HM3W');
@@ -107,15 +107,15 @@ export default class War3Map {
         writer.writeUint32(this.maxPlayers);
 
         // Writer the archive.
-        typedArray.set(new Uint8Array(archiveBuffer), headerSize)
+        typedArray.set(new Uint8Array(archiveBuffer), headerSize);
 
         return buffer;
     }
 
     /**
      * A shortcut to the internal archive function.
-     * 
-     * @returns {Array<string>}
+     *
+     * @return {Array<string>}
      */
     getFileNames() {
         return this.archive.getFileNames();
@@ -123,14 +123,20 @@ export default class War3Map {
 
     /**
      * Gets a list of the file names imported in this map.
-     * 
-     * @returns {Array<string>}
+     *
+     * @return {Array<string>}
      */
     getImportNames() {
         let names = [];
 
         for (let entry of this.imports.entries.values()) {
-            names.push(entry.path);
+            let isCustom = entry.isCustom;
+
+            if (isCustom === 10 || isCustom === 13) {
+                names.push(entry.name);
+            } else {
+                names.push(`war3mapImported\\${entry.name}`);
+            }
         }
 
         return names;
@@ -139,8 +145,8 @@ export default class War3Map {
     /**
      * Sets the imports file with all of the imports.
      * Does nothing if the archive is in readonly mode.
-     * 
-     * @returns {boolean}
+     *
+     * @return {boolean}
      */
     setImportsFile() {
         if (this.readonly) {
@@ -160,10 +166,10 @@ export default class War3Map {
      * Files added to the archive but not to the imports list will be deleted by the World Editor automatically.
      * This of course doesn't apply to internal map files.
      * Does nothing if the archive is in readonly mode.
-     * 
+     *
      * @param {string} name
      * @param {ArrayBuffer} buffer
-     * @returns {boolean}
+     * @return {boolean}
      */
     import(name, buffer) {
         if (this.readonly) {
@@ -181,8 +187,10 @@ export default class War3Map {
 
     /**
      * A shortcut to the internal archive function.
-     * 
-     * @returns {boolean}
+     *
+     * @param {string} name
+     * @param {ArrayBuffer} buffer
+     * @return {boolean}
      */
     set(name, buffer) {
         if (this.readonly) {
@@ -194,8 +202,9 @@ export default class War3Map {
 
     /**
      * A shortcut to the internal archive function.
-     * 
-     * @returns {?MpqFile}
+     *
+     * @param {string} name
+     * @return {?MpqFile}
      */
     get(name) {
         return this.archive.get(name);
@@ -203,8 +212,8 @@ export default class War3Map {
 
     /**
      * Get the map's script file.
-     * 
-     * @returns {?MpqFile}
+     *
+     * @return {?MpqFile}
      */
     getScript() {
         let file = this.get('war3map.j') || this.get('scripts\\war3map.j');
@@ -214,8 +223,9 @@ export default class War3Map {
 
     /**
      * A shortcut to the internal archive function.
-     * 
-     * @returns {boolean}
+     *
+     * @param {string} name
+     * @return {boolean}
      */
     has(name) {
         return this.archive.has(name);
@@ -225,9 +235,9 @@ export default class War3Map {
      * Deletes a file from the internal archive.
      * Note that if the file is in the imports list, it will be removed from it too.
      * Use this rather than the internal archive's delete.
-     * 
+     *
      * @param {string} name
-     * @returns {boolean}
+     * @return {boolean}
      */
     delete(name) {
         if (this.readonly) {
@@ -242,8 +252,10 @@ export default class War3Map {
 
     /**
      * A shortcut to the internal archive function.
-     * 
-     * @returns {boolean}
+     *
+     * @param {string} name
+     * @param {string} newName
+     * @return {boolean}
      */
     rename(name, newName) {
         if (this.readonly) {
@@ -277,6 +289,8 @@ export default class War3Map {
 
     /**
      * Read the environment file.
+     *
+     * @return {?War3MapW3e}
      */
     readEnvironment() {
         let file = this.archive.get('war3map.w3e');
@@ -288,6 +302,8 @@ export default class War3Map {
 
     /**
      * Read and parse the doodads file.
+     *
+     * @return {?War3MapDoo}
      */
     readDoodads() {
         let file = this.archive.get('war3map.doo');
@@ -299,6 +315,8 @@ export default class War3Map {
 
     /**
      * Read and parse the units file.
+     *
+     * @return {?War3MapUnitsDoo}
      */
     readUnits() {
         let file = this.archive.get('war3mapUnits.doo');
@@ -308,14 +326,39 @@ export default class War3Map {
         }
     }
 
-    readTriggers() {
+    /**
+     * Read and parse the trigger file.
+     *
+     * @param {Object} functions
+     * @return {?War3MapWtg}
+     */
+    readTriggers(functions) {
         let file = this.archive.get('war3map.wtg');
 
         if (file) {
-            return new War3MapWtg(file.arrayBuffer(), this.argumentMap);
+            return new War3MapWtg(file.arrayBuffer(), functions);
         }
     }
 
+    /**
+     * Read and parse the custom text trigger file.
+     *
+     * @param {Object} functions
+     * @return {?War3MapWct}
+     */
+    readCustomTextTriggers(functions) {
+        let file = this.archive.get('war3map.wct');
+
+        if (file) {
+            return new War3MapWct(file.arrayBuffer());
+        }
+    }
+
+    /**
+     * Read and parse the string table file.
+     *
+     * @return {?War3MapWts}
+     */
     readStringTable() {
         let file = this.archive.get('war3map.wts');
 
@@ -326,6 +369,8 @@ export default class War3Map {
 
     /**
      * Read and parse all of the modification tables.
+     *
+     * @return {Map}
      */
     readModifications() {
         let modifications = new Map();
@@ -346,8 +391,8 @@ export default class War3Map {
             let file = this.archive.get(fileNames[i]);
 
             if (file) {
-                let buffer = file.arrayBuffer(),
-                    modification;
+                let buffer = file.arrayBuffer();
+                let modification;
 
                 if (useOptionalInts[i]) {
                     modification = new War3MapW3d(buffer);
@@ -360,44 +405,5 @@ export default class War3Map {
         }
 
         return modifications;
-    }
-
-    addTriggerDataSection(map, section, hasReturn) {
-        for (let [key, value] of section) {
-            // We don't care about metadata lines.
-            if (key[0] !== '_') {
-                let count = 0;
-
-                for (let argument of value.split(',')) {
-                    // We don't care about constants.
-                    if (isNaN(argument) && argument !== 'nothing' && argument !== '') {
-                        count += 1;
-                    }
-                }
-
-                // The [TriggerCalls] section entries define trigger getters etc.
-                // The last argument is the return type, rather than an argument.
-                if (hasReturn) {
-                    count -= 1;
-                }
-
-                map.set(key, count);
-            }
-        }
-    }
-
-    readTriggerData(triggerData) {
-        let map = new Map();
-
-        this.addTriggerDataSection(map, triggerData.getSection('TriggerActions'), false);
-        this.addTriggerDataSection(map, triggerData.getSection('TriggerEvents'), false);
-        this.addTriggerDataSection(map, triggerData.getSection('TriggerConditions'), false);
-        this.addTriggerDataSection(map, triggerData.getSection('TriggerCalls'), true);
-
-        return map;
-    }
-
-    addTriggerData(triggerData) {
-        this.argumentMap = this.readTriggerData(triggerData);
     }
 };

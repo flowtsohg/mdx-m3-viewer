@@ -1,6 +1,12 @@
 import ECA from './eca';
 
+/**
+ * A GUI Trigger.
+ */
 export default class Trigger {
+    /**
+     * Construct a new empty trigger.
+     */
     constructor() {
         this.name = '';
         this.description = '';
@@ -13,7 +19,12 @@ export default class Trigger {
         this.ecas = [];
     }
 
-    load(stream, version, argumentMap) {
+    /**
+     * @param {BinaryStream} stream
+     * @param {number} version
+     * @param {Object} functions
+     */
+    load(stream, version, functions) {
         this.name = stream.readUntilNull();
         this.description = stream.readUntilNull();
 
@@ -30,12 +41,16 @@ export default class Trigger {
         for (let i = 0, l = stream.readUint32(); i < l; i++) {
             let eca = new ECA();
 
-            eca.load(stream, version, false, argumentMap);
+            eca.load(stream, version, false, functions);
 
             this.ecas[i] = eca;
         }
     }
 
+    /**
+     * @param {BinaryStream} stream
+     * @param {number} version
+     */
     save(stream, version) {
         stream.write(`${this.name}\0`);
         stream.write(`${this.description}\0`);
@@ -57,8 +72,8 @@ export default class Trigger {
     }
 
     /**
-     * @param {number} version 
-     * @returns {number} 
+     * @param {number} version
+     * @return {number}
      */
     getByteLength(version) {
         let size = 26 + this.name.length + this.description.length;

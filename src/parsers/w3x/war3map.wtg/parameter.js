@@ -10,14 +10,14 @@ export default class Parameter {
         this.arrayIndex = null;
     }
 
-    load(stream, version, argumentMap) {
+    load(stream, version, functions) {
         this.type = stream.readInt32();
         this.value = stream.readUntilNull();
 
         if (stream.readInt32()) {
             let subParameters = new SubParameters();
 
-            subParameters.load(stream, version, argumentMap);
+            subParameters.load(stream, version, functions);
 
             this.subParameters = subParameters;
         }
@@ -33,7 +33,7 @@ export default class Parameter {
         if (this.isArray) {
             let arrayIndex = new Parameter();
 
-            arrayIndex.load(stream, version, argumentMap);
+            arrayIndex.load(stream, version, functions);
 
             this.arrayIndex = arrayIndex;
         }
@@ -64,8 +64,8 @@ export default class Parameter {
     }
 
     /**
-     * @param {number} version 
-     * @returns {number} 
+     * @param {number} version
+     * @return {number}
      */
     getByteLength(version) {
         let size = 9 + this.value.length;
