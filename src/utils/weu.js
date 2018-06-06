@@ -29,6 +29,56 @@ export function stackToString(stack) {
 }
 
 /**
+ * Creates a new Custom Script or comment ECA with the given data.
+ *
+ * @param {string} data
+ * @param {boolean} isComment
+ * @return {ECA}
+ */
+function createCustomScriptOrCommentECA(data, isComment) {
+  let eca = new ECA();
+
+  eca.type = 2; // Function
+
+  if (isComment) {
+    eca.name = 'CommentString';
+  } else {
+    eca.name = 'CustomScriptCode';
+  }
+
+  eca.isEnabled = 1;
+
+  let parameter = new Parameter();
+
+  parameter.type = 3; // String
+  parameter.value = data;
+
+  eca.parameters[0] = parameter;
+
+  return eca;
+}
+
+/**
+ * Creates a new Custom Script ECA with the given script.
+ *
+ * @param {string} script
+ * @return {ECA}
+ */
+function createCustomScriptECA(script) {
+  return createCustomScriptOrCommentECA(script);
+}
+
+// /**
+//  * Creates a new comment ECA with the given comment.
+//  *
+//  * @param {string} comment
+//  * @return {ECA}
+//  */
+// function createCommentECA(comment) {
+//   return createCustomScriptOrCommentECA(comment, true);
+// }
+
+/**
  * A WEU converter.
  */
 class WEUConverter {
@@ -90,79 +140,6 @@ class WEUConverter {
   }
 
   /**
-   * Creates a new Custom Script or comment ECA with the given data.
-   *
-   * @param {string} data
-   * @param {boolean} isComment
-   * @return {ECA}
-   */
-  createCustomScriptOrCommentECA(data, isComment) {
-    let eca = new ECA();
-
-    eca.type = 2; // Function
-
-    if (isComment) {
-      eca.name = 'CommentString';
-    } else {
-      eca.name = 'CustomScriptCode';
-    }
-
-    eca.isEnabled = 1;
-
-    let parameter = new Parameter();
-
-    parameter.type = 3; // String
-    parameter.value = data;
-
-    eca.parameters[0] = parameter;
-
-    return eca;
-  }
-
-  /**
-   * Creates a new Custom Script ECA with the given script.
-   *
-   * @param {string} script
-   * @return {ECA}
-   */
-  createCustomScriptECA(script) {
-    return this.createCustomScriptOrCommentECA(script);
-  }
-
-  /**
-   * Creates a new comment ECA with the given comment.
-   *
-   * @param {string} comment
-   * @return {ECA}
-   */
-  createCommentECA(comment) {
-    return this.createCustomScriptOrCommentECA(comment, true);
-  }
-
-  /**
-   * Gets the signature of the given function.
-   *
-   * @param {ECA|SubParameters} object
-   * @return {Array<string>}
-   */
-  getFunctionSignature(object) {
-    let name = object.name.toLowerCase();
-
-    let triggerData = this.triggerData;
-    let args = triggerData.functions[name];
-
-    if (!args) {
-      args = triggerData.externalFunctions[name];
-
-      if (!args) {
-        throw new Error('Tried to get signature for unknown function', name);
-      }
-    }
-
-    return args;
-  }
-
-  /**
    * Converts an ECA or SubParameters to an array of custom script ECAs.
    * Also creates callbacks when needed, which are added to the map header.
    *
@@ -173,7 +150,7 @@ class WEUConverter {
     let ecas = [];
     let name = object.name;
     let parameters = object.parameters;
-    let args = this.getFunctionSignature(object);
+    let args = this.triggerData.getFunction(object.name);
     let argCount = args.length;
     let isCode = false;
     let isBoolexpr = false;
@@ -190,11 +167,11 @@ class WEUConverter {
 
     // IfThenElse and other control flow "functions" must come before the generic code/boolexpr callback handling, since they don't follow the same rules.
     if (name === 'IfThenElse') {
-      ecas.push(this.createCustomScriptECA(`if ${this.convertParameterToCustomScript(parameters[0], args[0])} then`));
-      ecas.push(this.createCustomScriptECA(`call ${this.convertParameterToCustomScript(parameters[1], args[1])}`));
-      ecas.push(this.createCustomScriptECA('else'));
-      ecas.push(this.createCustomScriptECA(`call ${this.convertParameterToCustomScript(parameters[2], args[2])}`));
-      ecas.push(this.createCustomScriptECA('endif'));
+      ecas.push(createCustomScriptECA(`if ${this.convertParameterToCustomScript(parameters[0], args[0])} then`));
+      ecas.push(createCustomScriptECA(`call ${this.convertParameterToCustomScript(parameters[1], args[1])}`));
+      ecas.push(createCustomScriptECA('else'));
+      ecas.push(createCustomScriptECA(`call ${this.convertParameterToCustomScript(parameters[2], args[2])}`));
+      ecas.push(createCustomScriptECA('endif'));
     } else if (isCode || isBoolexpr) {
       let callbackName = this.generateCallbackName(object);
       let call = `function ${callbackName}`;
@@ -207,7 +184,7 @@ class WEUConverter {
         callOrReturn = 'return';
       }
 
-      ecas.push(this.createCustomScriptECA(`call ${name}(${parameters.slice(0, -1).map((value, index) => this.convertParameterToCustomScript(value, args[index]))}, ${call})`));
+      ecas.push(createCustomScriptECA(`call ${name}(${parameters.slice(0, -1).map((value, index) => this.convertParameterToCustomScript(value, args[index]))}, ${call})`));
 
       let callback = `
 function ${callbackName} takes nothing returns ${returnType}
@@ -221,13 +198,13 @@ endfunction
         this.callback({type: 'changed', name: 'CallbackCreation', data: this.stack});
       }
     } else if (name === 'OperatorString') { // String concat
-      ecas.push(this.createCustomScriptECA(`${this.convertParameterToCustomScript(parameters[0], args[0])} + ${this.convertParameterToCustomScript(parameters[1], args[1])}`));
+      ecas.push(createCustomScriptECA(`${this.convertParameterToCustomScript(parameters[0], args[0])} + ${this.convertParameterToCustomScript(parameters[1], args[1])}`));
     } else if (name.startsWith('Operator')) { // All other operators?
-      ecas.push(this.createCustomScriptECA(`${this.convertParameterToCustomScript(parameters[0], args[0])} ${this.convertParameterToCustomScript(parameters[1], args[1])} ${this.convertParameterToCustomScript(parameters[2], args[2])}`));
+      ecas.push(createCustomScriptECA(`${this.convertParameterToCustomScript(parameters[0], args[0])} ${this.convertParameterToCustomScript(parameters[1], args[1])} ${this.convertParameterToCustomScript(parameters[2], args[2])}`));
     } else if (object instanceof ECA) {
-      ecas.push(this.createCustomScriptECA(`call ${name}(${parameters.map((value, index) => this.convertParameterToCustomScript(value, args[index])).join(', ')})`));
+      ecas.push(createCustomScriptECA(`call ${name}(${parameters.map((value, index) => this.convertParameterToCustomScript(value, args[index])).join(', ')})`));
     } else if (object instanceof SubParameters) {
-      ecas.push(this.createCustomScriptECA(`${name}(${parameters.map((value, index) => this.convertParameterToCustomScript(value, args[index])).join(', ')})`));
+      ecas.push(createCustomScriptECA(`${name}(${parameters.map((value, index) => this.convertParameterToCustomScript(value, args[index])).join(', ')})`));
     }
 
     return ecas;
@@ -394,26 +371,6 @@ endfunction
   }
 
   /**
-   * Gets a preset value.
-   *
-   * @param {string} name
-   * @return {string}
-   */
-  getPreset(name) {
-    let preset = this.triggerData.presets[name];
-
-    if (preset === undefined) {
-      preset = this.triggerData.externalPresets[name];
-
-      if (preset === undefined) {
-        throw new Error(`Failed to find a preset: ${name}`);
-      }
-    }
-
-    return preset;
-  }
-
-  /**
    * Converts a parameter to custom script.
    *
    * @param {Parameter} parameter
@@ -427,7 +384,7 @@ endfunction
     // 3: literal (need to test for strings)
     // -1: invalid
     if (parameter.type === 0) {
-      return this.getPreset(parameter.value.toLowerCase());
+      return this.triggerData.getPreset(parameter.value);
     } else if (parameter.type === 1) {
       return `udg_${parameter.value}`;
     } else if (parameter.type === 2) {

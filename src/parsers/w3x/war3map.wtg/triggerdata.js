@@ -44,34 +44,6 @@ export default class TriggerData {
   }
 
   /**
-   * @param {string} buffer
-   */
-  addNativeFunctions(buffer) {
-    let stream = new TokenStream(buffer);
-    let token;
-
-    while ((token = stream.read()) !== undefined) {
-      if (token === 'native') {
-        let name = stream.read();
-        let args = [];
-
-        stream.read(); // takes
-
-        token = stream.read(); // nothing or a type
-        while (token !== 'returns' && token !== 'nothing') {
-          args.push(token);
-
-          stream.read(); // name
-
-          token = stream.read(); // next type, or returns
-        }
-
-        this.externalFunctions[name.toLowerCase()] = args;
-      }
-    }
-  }
-
-  /**
    * @param {Object} functions
    * @param {Map<string, string>} section
    * @param {number} skipped
@@ -107,5 +79,77 @@ export default class TriggerData {
       // Note that string literals are enclosed by backticks.
       presets[key] = tokens[2].replace(/"/g, '').replace(/`/g, '"');
     }
+  }
+
+  /**
+   * @param {string} buffer
+   */
+  addNativeFunctions(buffer) {
+    let stream = new TokenStream(buffer);
+    let token;
+
+    while ((token = stream.read()) !== undefined) {
+      if (token === 'native') {
+        let name = stream.read();
+        let args = [];
+
+        stream.read(); // takes
+
+        token = stream.read(); // nothing or a type
+        while (token !== 'returns' && token !== 'nothing') {
+          args.push(token);
+
+          stream.read(); // name
+
+          token = stream.read(); // next type, or returns
+        }
+
+        this.externalFunctions[name.toLowerCase()] = args;
+      }
+    }
+  }
+
+  /**
+   * Gets the signature of the given function.
+   *
+   * @param {string} name
+   * @return {Array<string>}
+   */
+  getFunction(name) {
+    name = name.toLowerCase();
+
+    let args = this.functions[name];
+
+    if (!args) {
+      args = this.externalFunctions[name];
+
+      if (!args) {
+        throw new Error('Tried to get signature for unknown function', name);
+      }
+    }
+
+    return args;
+  }
+
+  /**
+  * Gets a preset value.
+  *
+  * @param {string} name
+  * @return {string}
+  */
+  getPreset(name) {
+    name = name.toLowerCase();
+
+    let preset = this.presets[name];
+
+    if (preset === undefined) {
+      preset = this.externalPresets[name];
+
+      if (preset === undefined) {
+        throw new Error(`Failed to find a preset: ${name}`);
+      }
+    }
+
+    return preset;
   }
 }
