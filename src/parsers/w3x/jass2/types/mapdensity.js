@@ -1,3 +1,6 @@
 import JassEnum from './enum';
 
-export default class JassMapDensity extends JassEnum { };
+/**
+ * type mapdensity
+ */
+export default class JassMapDensity extends JassEnum {}

@@ -7,11 +7,11 @@ import Unit from './unit';
 import War3MapUnitsDoo from './file';
 
 export default {
-    DroppedItem,
-    DroppedItemSet,
-    InventoryItem,
-    ModifiedAbility,
-    RandomUnit,
-    Unit,
-    War3MapUnitsDoo
+  DroppedItem,
+  DroppedItemSet,
+  InventoryItem,
+  ModifiedAbility,
+  RandomUnit,
+  Unit,
+  War3MapUnitsDoo,
 };

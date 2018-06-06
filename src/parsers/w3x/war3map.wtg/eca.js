@@ -1,6 +1,12 @@
 import Parameter from './parameter';
 
+/**
+ * An Event/Condition/Action.
+ */
 export default class ECA {
+  /**
+   *
+   */
   constructor() {
     this.type = 0;
     this.group = -1;
@@ -10,7 +16,13 @@ export default class ECA {
     this.ecas = [];
   }
 
-  load(stream, version, isChildECA, functions) {
+  /**
+   * @param {BinaryStream} stream
+   * @param {number} version
+   * @param {boolean} isChildECA
+   * @param {TriggerData} triggerData
+   */
+  load(stream, version, isChildECA, triggerData) {
     this.type = stream.readInt32();
 
     if (isChildECA) {
@@ -21,10 +33,10 @@ export default class ECA {
     this.isEnabled = stream.readInt32();
 
     let name = this.name.toLowerCase();
-    let args = functions.triggerData[name];
+    let args = triggerData.functions[name];
 
     if (!args) {
-      args = functions.external[name];
+      args = triggerData.externalFunctions[name];
 
       if (!args) {
         throw new Error(`Unknown ECA "${this.name}"`);
@@ -34,7 +46,7 @@ export default class ECA {
     for (let i = 0, l = args.length; i < l; i++) {
       let parameter = new Parameter();
 
-      parameter.load(stream, version, functions);
+      parameter.load(stream, version, triggerData);
 
       this.parameters[i] = parameter;
     }
@@ -43,13 +55,17 @@ export default class ECA {
       for (let i = 0, l = stream.readUint32(); i < l; i++) {
         let eca = new ECA();
 
-        eca.load(stream, version, true, functions);
+        eca.load(stream, version, true, triggerData);
 
         this.ecas[i] = eca;
       }
     }
   }
 
+  /**
+   * @param {BinaryStream} stream
+   * @param {number} version
+   */
   save(stream, version) {
     stream.writeInt32(this.type);
 
@@ -98,4 +114,4 @@ export default class ECA {
 
     return size;
   }
-};
+}

@@ -1,9 +1,16 @@
 import JassAgent from './agent';
 
+/**
+ * type trigger
+ */
 export default class JassTrigger extends JassAgent {
-    constructor(jassContext) {
-        super(jassContext);
+  /**
+   * @param {JassContext} jassContext
+   */
+  constructor(jassContext) {
+    super(jassContext);
 
-        this.enabled = true;
-    }
-};
+    /** @member {boolean} */
+    this.enabled = true;
+  }
+}

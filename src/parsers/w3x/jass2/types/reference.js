@@ -1,10 +1,24 @@
+/**
+ * type reference
+ *
+ * Not visible to jass.
+ */
 export default class JassReference {
-    constructor(name, object) {
-        this.name = name;
-        this.object = object;
-    }
+  /**
+   * @param {string} name
+   * @param {*} object
+   */
+  constructor(name, object) {
+    /** @member {string} */
+    this.name = name;
+    /** @member {*} */
+    this.object = object;
+  }
 
-    toString() {
-        return this.name || this.object.toString();
-    }
-};
+  /**
+   * @return {string}
+   */
+  toString() {
+    return this.name || this.object.toString();
+  }
+}

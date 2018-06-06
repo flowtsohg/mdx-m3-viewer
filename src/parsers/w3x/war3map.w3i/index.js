@@ -10,14 +10,14 @@ import RandomItem from './randomitem';
 import War3MapW3i from './file';
 
 export default {
-    Player,
-    Force,
-    UpgradeAvailabilityChange,
-    TechAvailabilityChange,
-    RandomUnitTable,
-    RandomUnit,
-    RandomItemTable,
-    RandomItemSet,
-    RandomItem,
-    War3MapW3i
+  Player,
+  Force,
+  UpgradeAvailabilityChange,
+  TechAvailabilityChange,
+  RandomUnitTable,
+  RandomUnit,
+  RandomItemTable,
+  RandomItemSet,
+  RandomItem,
+  War3MapW3i,
 };

@@ -1,0 +1,5 @@
+dist
+examples
+tests
+thirdparty
+src/parsers/w3x/jass2/jass.js

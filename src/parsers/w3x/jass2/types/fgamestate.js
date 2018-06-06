@@ -1,3 +1,6 @@
 import JassGameState from './gamestate';
 
-export default class JassFGameState extends JassGameState { };
+/**
+ * type fgamestate
+ */
+export default class JassFGameState extends JassGameState {}

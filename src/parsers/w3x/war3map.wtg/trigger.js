@@ -4,88 +4,88 @@ import ECA from './eca';
  * A GUI Trigger.
  */
 export default class Trigger {
-    /**
-     * Construct a new empty trigger.
-     */
-    constructor() {
-        this.name = '';
-        this.description = '';
-        this.isComment = 0;
-        this.isEnabled = 0;
-        this.isCustom = 0;
-        this.isInitiallyOff = 0;
-        this.runOnInitialization = 0;
-        this.triggerCategory = 0;
-        this.ecas = [];
+  /**
+   *
+   */
+  constructor() {
+    this.name = '';
+    this.description = '';
+    this.isComment = 0;
+    this.isEnabled = 0;
+    this.isCustom = 0;
+    this.isInitiallyOff = 0;
+    this.runOnInitialization = 0;
+    this.triggerCategory = 0;
+    this.ecas = [];
+  }
+
+  /**
+   * @param {BinaryStream} stream
+   * @param {number} version
+   * @param {TriggerData} triggerData
+   */
+  load(stream, version, triggerData) {
+    this.name = stream.readUntilNull();
+    this.description = stream.readUntilNull();
+
+    if (version === 7) {
+      this.isComment = stream.readInt32();
     }
 
-    /**
-     * @param {BinaryStream} stream
-     * @param {number} version
-     * @param {Object} functions
-     */
-    load(stream, version, functions) {
-        this.name = stream.readUntilNull();
-        this.description = stream.readUntilNull();
+    this.isEnabled = stream.readInt32();
+    this.isCustomText = stream.readInt32();
+    this.isInitiallyOff = stream.readInt32();
+    this.runOnInitialization = stream.readInt32();
+    this.triggerCategory = stream.readInt32();
 
-        if (version === 7) {
-            this.isComment = stream.readInt32();
-        }
+    for (let i = 0, l = stream.readUint32(); i < l; i++) {
+      let eca = new ECA();
 
-        this.isEnabled = stream.readInt32();
-        this.isCustomText = stream.readInt32();
-        this.isInitiallyOff = stream.readInt32();
-        this.runOnInitialization = stream.readInt32();
-        this.triggerCategory = stream.readInt32();
+      eca.load(stream, version, false, triggerData);
 
-        for (let i = 0, l = stream.readUint32(); i < l; i++) {
-            let eca = new ECA();
+      this.ecas[i] = eca;
+    }
+  }
 
-            eca.load(stream, version, false, functions);
+  /**
+   * @param {BinaryStream} stream
+   * @param {number} version
+   */
+  save(stream, version) {
+    stream.write(`${this.name}\0`);
+    stream.write(`${this.description}\0`);
 
-            this.ecas[i] = eca;
-        }
+    if (version === 7) {
+      stream.writeInt32(this.isComment);
     }
 
-    /**
-     * @param {BinaryStream} stream
-     * @param {number} version
-     */
-    save(stream, version) {
-        stream.write(`${this.name}\0`);
-        stream.write(`${this.description}\0`);
+    stream.writeInt32(this.isEnabled);
+    stream.writeInt32(this.isCustomText);
+    stream.writeInt32(this.isInitiallyOff);
+    stream.writeInt32(this.runOnInitialization);
+    stream.writeInt32(this.triggerCategory);
+    stream.writeUint32(this.ecas.length);
 
-        if (version === 7) {
-            stream.writeInt32(this.isComment);
-        }
+    for (let eca of this.ecas) {
+      eca.save(stream, version);
+    }
+  }
 
-        stream.writeInt32(this.isEnabled);
-        stream.writeInt32(this.isCustomText);
-        stream.writeInt32(this.isInitiallyOff);
-        stream.writeInt32(this.runOnInitialization);
-        stream.writeInt32(this.triggerCategory);
-        stream.writeUint32(this.ecas.length);
+  /**
+   * @param {number} version
+   * @return {number}
+   */
+  getByteLength(version) {
+    let size = 26 + this.name.length + this.description.length;
 
-        for (let eca of this.ecas) {
-            eca.save(stream, version);
-        }
+    if (version === 7) {
+      size += 4;
     }
 
-    /**
-     * @param {number} version
-     * @return {number}
-     */
-    getByteLength(version) {
-        let size = 26 + this.name.length + this.description.length;
-
-        if (version === 7) {
-            size += 4;
-        }
-
-        for (let eca of this.ecas) {
-            size += eca.getByteLength(version);
-        }
-
-        return size;
+    for (let eca of this.ecas) {
+      size += eca.getByteLength(version);
     }
-};
+
+    return size;
+  }
+}

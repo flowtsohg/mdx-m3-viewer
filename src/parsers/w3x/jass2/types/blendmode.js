@@ -1,3 +1,6 @@
 import JassEnum from './enum';
 
-export default class JassBlendMode extends JassEnum { };
+/**
+ * type blendmode
+ */
+export default class JassBlendMode extends JassEnum {}

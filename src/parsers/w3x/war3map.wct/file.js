@@ -1,89 +1,92 @@
 import BinaryStream from '../../../common/binarystream';
 import CustomTextTrigger from './customtexttrigger';
 
+/**
+ * war3map.wct - the custom text (jass) trigger file.
+ */
 export default class War3MapWct {
-    /**
-     * @param {?ArrayBuffer} buffer 
-     */
-    constructor(buffer) {
-        /** @member {number} */
-        this.version = 0;
-        /** @member {string} */
-        this.comment = '';
-        /** @member {?CustomTextTrigger} */
-        this.trigger = null;
-        /** @member {Array<CustomTextTrigger>} */
-        this.triggers = [];
+  /**
+   * @param {?ArrayBuffer} buffer
+   */
+  constructor(buffer) {
+    /** @member {number} */
+    this.version = 0;
+    /** @member {string} */
+    this.comment = '';
+    /** @member {?CustomTextTrigger} */
+    this.trigger = null;
+    /** @member {Array<CustomTextTrigger>} */
+    this.triggers = [];
 
-        if (buffer) {
-            this.load(buffer);
-        }
+    if (buffer) {
+      this.load(buffer);
+    }
+  }
+
+  /**
+   * @param {ArrayBuffer} buffer
+   */
+  load(buffer) {
+    let stream = new BinaryStream(buffer);
+
+    this.version = stream.readInt32();
+
+    if (this.version === 1) {
+      this.comment = stream.readUntilNull();
+
+      let trigger = new CustomTextTrigger();
+
+      trigger.load(stream);
+
+      this.trigger = trigger;
     }
 
-    /**
-     * @param {ArrayBuffer} buffer 
-     */
-    load(buffer) {
-        let stream = new BinaryStream(buffer);
+    for (let i = 0, l = stream.readUint32(); i < l; i++) {
+      let trigger = new CustomTextTrigger();
 
-        this.version = stream.readInt32();
+      trigger.load(stream);
 
-        if (this.version === 1) {
-            this.comment = stream.readUntilNull();
+      this.triggers[i] = trigger;
+    }
+  }
 
-            let trigger = new CustomTextTrigger();
+  /**
+   * @return {ArrayBuffer}
+   */
+  save() {
+    let buffer = new ArrayBuffer(this.getByteLength());
+    let stream = new BinaryStream(buffer);
 
-            trigger.load(stream);
+    stream.writeInt32(this.version);
 
-            this.trigger = trigger;
-        }
-
-        for (let i = 0, l = stream.readUint32(); i < l; i++) {
-            let trigger = new CustomTextTrigger();
-
-            trigger.load(stream);
-
-            this.triggers[i] = trigger;
-        }
+    if (this.version === 1) {
+      stream.write(`${this.comment}\0`);
+      this.trigger.save(stream);
     }
 
-    /**
-     * @returns {ArrayBuffer} 
-     */
-    save() {
-        let buffer = new ArrayBuffer(this.getByteLength()),
-            stream = new BinaryStream(buffer);
+    stream.writeUint32(this.triggers.length);
 
-        stream.writeInt32(this.version);
-
-        if (this.version === 1) {
-            stream.write(`${this.comment}\0`);
-            this.trigger.save(stream);
-        }
-
-        stream.writeUint32(this.triggers.length);
-
-        for (let trigger of this.triggers) {
-            trigger.save(stream);
-        }
-
-        return buffer;
+    for (let trigger of this.triggers) {
+      trigger.save(stream);
     }
 
-    /**
-     * @returns {number} 
-     */
-    getByteLength() {
-        let size = 8;
+    return buffer;
+  }
 
-        if (this.version === 1) {
-            size += this.comment.length + 1 + this.trigger.getByteLength();
-        }
+  /**
+   * @return {number}
+   */
+  getByteLength() {
+    let size = 8;
 
-        for (let trigger of this.triggers) {
-            size += trigger.getByteLength();
-        }
-
-        return size;
+    if (this.version === 1) {
+      size += this.comment.length + 1 + this.trigger.getByteLength();
     }
-};
+
+    for (let trigger of this.triggers) {
+      size += trigger.getByteLength();
+    }
+
+    return size;
+  }
+}

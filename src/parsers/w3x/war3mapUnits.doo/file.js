@@ -1,86 +1,80 @@
 import BinaryStream from '../../../common/binarystream';
 import Unit from './unit';
 
+/**
+ * war3mapUnits.doo - the units and items file.
+ */
 export default class War3MapUnitsDoo {
-    /**
-     * @param {?ArrayBuffer} buffer
-     */
-    constructor(buffer) {
-        /** @member {number} */
-        this.version = 8;
-        /** @member {number} */
-        this.unknown = 11;
-        /** @member {Array<Unit>} */
-        this.units = [];
+  /**
+   * @param {?ArrayBuffer} buffer
+   */
+  constructor(buffer) {
+    /** @member {number} */
+    this.version = 8;
+    /** @member {number} */
+    this.unknown = 11;
+    /** @member {Array<Unit>} */
+    this.units = [];
 
-        if (buffer) {
-            this.load(buffer);
-        }
+    if (buffer) {
+      this.load(buffer);
+    }
+  }
+
+  /**
+   * @param {ArrayBuffer} buffer
+   * @return {boolean}
+   */
+  load(buffer) {
+    let stream = new BinaryStream(buffer);
+
+    if (stream.read(4) !== 'W3do') {
+      return false;
     }
 
-    /**
-     * @param {ArrayBuffer} buffer
-     */
-    load(buffer) {
-        let stream = new BinaryStream(buffer);
+    this.version = stream.readInt32();
+    this.unknown = stream.readUint32();
 
-        if (stream.read(4) !== 'W3do') {
-            return false;
-        }
+    for (let i = 0, l = stream.readInt32(); i < l; i++) {
+      let unit = new Unit();
 
-        this.version = stream.readInt32();
-        this.unknown = stream.readUint32();
+      unit.load(stream, this.version);
 
-        for (let i = 0, l = stream.readInt32(); i < l; i++) {
-            let unit = new Unit();
-
-            unit.load(stream, this.version);
-
-            this.units[i] = unit;
-        }
+      this.units[i] = unit;
     }
 
-    /**
-     * @returns {ArrayBuffer} 
-     */
-    save() {
-        let buffer = new ArrayBuffer(this.calcSize()),
-            stream = new BinaryStream(buffer);
+    return true;
+  }
 
-        stream.write('W3do');
-        stream.writeInt32(this.version);
-        stream.writeUint32(this.unknown);
-        stream.writeInt32(this.units.length);
+  /**
+   * @return {ArrayBuffer}
+   */
+  save() {
+    let buffer = new ArrayBuffer(this.calcSize());
+    let stream = new BinaryStream(buffer);
 
-        for (let unit of this.units) {
-            unit.save(stream, this.version);
-        }
+    stream.write('W3do');
+    stream.writeInt32(this.version);
+    stream.writeUint32(this.unknown);
+    stream.writeInt32(this.units.length);
 
-        return buffer;
+    for (let unit of this.units) {
+      unit.save(stream, this.version);
     }
 
-    /**
-     * @returns {number} 
-     */
-    getByteLength() {
-        let size = 16;
+    return buffer;
+  }
 
-        for (let unit of this.units) {
-            size += unit.getByteLength(this.version);
-        }
+  /**
+   * @return {number}
+   */
+  getByteLength() {
+    let size = 16;
 
-        return size;
+    for (let unit of this.units) {
+      size += unit.getByteLength(this.version);
     }
 
-    createUnit() {
-        let unit = new Unit();
-
-        this.units.push(unit);
-
-        return unit;
-    }
-
-    addUnit(unit) {
-        this.units.push(unit);
-    }
-};
+    return size;
+  }
+}

@@ -5,9 +5,9 @@ import * as weu from './weu';
 import mdlSourceMap from './mdlsourcemap';
 
 export default {
-    UnitTester,
-    mdxSanityTest,
-    blpSanityTest,
-    weu,
-    mdlSourceMap
+  UnitTester,
+  mdxSanityTest,
+  blpSanityTest,
+  weu,
+  mdlSourceMap,
 };

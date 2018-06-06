@@ -1,158 +1,164 @@
-import { HASH_FILE_KEY, FILE_OFFSET_ADJUSTED_KEY } from './constants';
+import {HASH_FILE_KEY, FILE_OFFSET_ADJUSTED_KEY} from './constants';
 
 // Global variables for this module.
-let bytes = new Uint8Array(4),
-    long = new Uint32Array(bytes.buffer);
+let bytes = new Uint8Array(4);
+let long = new Uint32Array(bytes.buffer);
 
+/**
+ * MPQ crypto.
+ */
 export default class MpqCrypto {
-    constructor() {
-        let cryptTable = new Uint32Array(0x500),
-            seed = 0x00100001,
-            temp1,
-            temp2;
+  /**
+   *
+   */
+  constructor() {
+    let cryptTable = new Uint32Array(0x500);
+    let seed = 0x00100001;
+    let temp1;
+    let temp2;
 
-        for (let index1 = 0; index1 < 0x100; index1++) {
-            for (let index2 = index1, i = 0; i < 5; i++ , index2 += 0x100) {
-                seed = (seed * 125 + 3) % 0x2AAAAB;
-                temp1 = (seed & 0xFFFF) << 0x10;
+    for (let index1 = 0; index1 < 0x100; index1++) {
+      for (let index2 = index1, i = 0; i < 5; i += 1, index2 += 0x100) {
+        seed = (seed * 125 + 3) % 0x2AAAAB;
+        temp1 = (seed & 0xFFFF) << 0x10;
 
-                seed = (seed * 125 + 3) % 0x2AAAAB;
-                temp2 = (seed & 0xFFFF);
+        seed = (seed * 125 + 3) % 0x2AAAAB;
+        temp2 = (seed & 0xFFFF);
 
-                cryptTable[index2] = temp1 | temp2;
-            }
-        }
-
-        /** @member {Uint32Array} */
-        this.cryptTable = cryptTable;
+        cryptTable[index2] = temp1 | temp2;
+      }
     }
 
-    /**
-     * @param {string} name
-     * @param {number} key
-     * @returns {number}
-     */
-    hash(name, key) {
-        let cryptTable = this.cryptTable,
-            seed1 = 0x7FED7FED,
-            seed2 = 0xEEEEEEEE;
+    /** @member {Uint32Array} */
+    this.cryptTable = cryptTable;
+  }
 
-        name = name.toUpperCase();
+  /**
+   * @param {string} name
+   * @param {number} key
+   * @return {number}
+   */
+  hash(name, key) {
+    let cryptTable = this.cryptTable;
+    let seed1 = 0x7FED7FED;
+    let seed2 = 0xEEEEEEEE;
 
-        for (let i = 0; i < name.length; i++) {
-            let ch = name.charCodeAt(i);
+    name = name.toUpperCase();
 
-            seed1 = cryptTable[(key << 8) + ch] ^ (seed1 + seed2);
-            seed2 = ch + seed1 + seed2 + (seed2 << 5) + 3;
-        }
+    for (let i = 0; i < name.length; i++) {
+      let ch = name.charCodeAt(i);
 
-        // Convert the seed to an unsigned integer
-        return seed1 >>> 0;
+      seed1 = cryptTable[(key << 8) + ch] ^ (seed1 + seed2);
+      seed2 = ch + seed1 + seed2 + (seed2 << 5) + 3;
     }
 
-    /**
-     * @param {ArrayBuffer|TypedArray} data
-     * @param {number} key
-     * @returns {ArrayBuffer|TypedArray}
-     */
-    decryptBlock(data, key) {
-        let cryptTable = this.cryptTable,
-            seed = 0xEEEEEEEE,
-            view;
+    // Convert the seed to an unsigned integer
+    return seed1 >>> 0;
+  }
 
-        if (data instanceof ArrayBuffer) {
-            view = new Uint8Array(data);
-        } else {
-            view = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
-        }
+  /**
+   * @param {ArrayBuffer|TypedArray} data
+   * @param {number} key
+   * @return {ArrayBuffer|TypedArray}
+   */
+  decryptBlock(data, key) {
+    let cryptTable = this.cryptTable;
+    let seed = 0xEEEEEEEE;
+    let view;
 
-        for (let i = 0, l = data.byteLength >>> 2; i < l; i++) {
-            // Update the seed.
-            seed += cryptTable[0x400 + (key & 0xFF)];
-
-            // Get 4 encrypted bytes.
-            bytes[0] = view[i * 4];
-            bytes[1] = view[i * 4 + 1];
-            bytes[2] = view[i * 4 + 2];
-            bytes[3] = view[i * 4 + 3];
-
-            // Decrypted 32bit integer.
-            long[0] ^= (key + seed);
-
-            // Update the seed.
-            key = ((~key << 0x15) + 0x11111111) | (key >>> 0x0B);
-            seed = long[0] + seed + (seed << 5) + 3;
-
-            // Set 4 decryped bytes.
-            view[i * 4] = bytes[0];
-            view[i * 4 + 1] = bytes[1];
-            view[i * 4 + 2] = bytes[2];
-            view[i * 4 + 3] = bytes[3];
-        }
-
-        return data;
+    if (data instanceof ArrayBuffer) {
+      view = new Uint8Array(data);
+    } else {
+      view = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
     }
 
-    /**
-     * @param {ArrayBuffer|TypedArray} data
-     * @param {number} key
-     * @returns {ArrayBuffer|TypedArray}
-     */
-    encryptBlock(data, key) {
-        let cryptTable = this.cryptTable,
-            seed = 0xEEEEEEEE,
-            view;
+    for (let i = 0, l = data.byteLength >>> 2; i < l; i++) {
+      // Update the seed.
+      seed += cryptTable[0x400 + (key & 0xFF)];
 
-        if (data instanceof ArrayBuffer) {
-            view = new Uint8Array(data);
-        } else {
-            view = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
-        }
+      // Get 4 encrypted bytes.
+      bytes[0] = view[i * 4];
+      bytes[1] = view[i * 4 + 1];
+      bytes[2] = view[i * 4 + 2];
+      bytes[3] = view[i * 4 + 3];
 
-        for (let i = 0, l = data.byteLength >>> 2; i < l; i++) {
-            // Update the seed.
-            seed += cryptTable[0x400 + (key & 0xFF)];
+      // Decrypted 32bit integer.
+      long[0] ^= (key + seed);
 
-            // Get 4 decrypted bytes.
-            bytes[0] = view[i * 4];
-            bytes[1] = view[i * 4 + 1];
-            bytes[2] = view[i * 4 + 2];
-            bytes[3] = view[i * 4 + 3];
+      // Update the seed.
+      key = ((~key << 0x15) + 0x11111111) | (key >>> 0x0B);
+      seed = long[0] + seed + (seed << 5) + 3;
 
-            // Decrypted 32bit integer.
-            let decrypted = long[0];
-
-            // Encrypted 32bit integer.
-            long[0] ^= (key + seed);
-
-            // Update the seed.
-            key = ((~key << 0x15) + 0x11111111) | (key >>> 0x0B);
-            seed = decrypted + seed + (seed << 5) + 3;
-
-            // Set 4 encrypted bytes.
-            view[i * 4] = bytes[0];
-            view[i * 4 + 1] = bytes[1];
-            view[i * 4 + 2] = bytes[2];
-            view[i * 4 + 3] = bytes[3];
-        }
-
-        return data;
+      // Set 4 decryped bytes.
+      view[i * 4] = bytes[0];
+      view[i * 4 + 1] = bytes[1];
+      view[i * 4 + 2] = bytes[2];
+      view[i * 4 + 3] = bytes[3];
     }
 
-    /**
-     * @param {string} name
-     * @param {MpqBlock} block
-     * @returns {number}
-     */
-    computeFileKey(name, block) {
-        let sepIndex = name.lastIndexOf('\\'),
-            pathlessName = name.substring(sepIndex + 1),
-            encryptionKey = this.hash(pathlessName, HASH_FILE_KEY);
+    return data;
+  }
 
-        if (block.flags & FILE_OFFSET_ADJUSTED_KEY) {
-            encryptionKey = (encryptionKey + block.offset) ^ block.normalSize;
-        }
+  /**
+   * @param {ArrayBuffer|TypedArray} data
+   * @param {number} key
+   * @return {ArrayBuffer|TypedArray}
+   */
+  encryptBlock(data, key) {
+    let cryptTable = this.cryptTable;
+    let seed = 0xEEEEEEEE;
+    let view;
 
-        return encryptionKey;
+    if (data instanceof ArrayBuffer) {
+      view = new Uint8Array(data);
+    } else {
+      view = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
     }
-};
+
+    for (let i = 0, l = data.byteLength >>> 2; i < l; i++) {
+      // Update the seed.
+      seed += cryptTable[0x400 + (key & 0xFF)];
+
+      // Get 4 decrypted bytes.
+      bytes[0] = view[i * 4];
+      bytes[1] = view[i * 4 + 1];
+      bytes[2] = view[i * 4 + 2];
+      bytes[3] = view[i * 4 + 3];
+
+      // Decrypted 32bit integer.
+      let decrypted = long[0];
+
+      // Encrypted 32bit integer.
+      long[0] ^= (key + seed);
+
+      // Update the seed.
+      key = ((~key << 0x15) + 0x11111111) | (key >>> 0x0B);
+      seed = decrypted + seed + (seed << 5) + 3;
+
+      // Set 4 encrypted bytes.
+      view[i * 4] = bytes[0];
+      view[i * 4 + 1] = bytes[1];
+      view[i * 4 + 2] = bytes[2];
+      view[i * 4 + 3] = bytes[3];
+    }
+
+    return data;
+  }
+
+  /**
+   * @param {string} name
+   * @param {MpqBlock} block
+   * @return {number}
+   */
+  computeFileKey(name, block) {
+    let sepIndex = name.lastIndexOf('\\');
+    let pathlessName = name.substring(sepIndex + 1);
+    let encryptionKey = this.hash(pathlessName, HASH_FILE_KEY);
+
+    if (block.flags & FILE_OFFSET_ADJUSTED_KEY) {
+      encryptionKey = (encryptionKey + block.offset) ^ block.normalSize;
+    }
+
+    return encryptionKey;
+  }
+}

@@ -1,12 +1,21 @@
 import SharedEmitter from './sharedemitter';
 import Particle from './particle';
 
+/**
+ * An MDX particle emitter.
+ */
 export default class ParticleEmitter extends SharedEmitter {
-    emit(emitterView) {
-        this.emitObject(emitterView);
-    }
+  /**
+   * @param {ParticleEmitterView} emitterView
+   */
+  emit(emitterView) {
+    this.emitObject(emitterView);
+  }
 
-    createObject() {
-        return new Particle(this);
-    }
-};
+  /**
+   * @return {Particle}
+   */
+  createObject() {
+    return new Particle(this);
+  }
+}

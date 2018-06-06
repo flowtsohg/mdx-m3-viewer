@@ -1,9 +1,14 @@
+/**
+ * An M3 attachment.
+ */
 export default class M3Attachment {
-    /**
-     * @param {M3ParserAttachmentPoint} attachment
-     */
-    constructor(attachment) {
-        this.name = attachment.name.getAll().join('');
-        this.bone = attachment.bone;
-    }
-};
+  /**
+   * @param {Attachment} attachment
+   */
+  constructor(attachment) {
+    /** @member {string} */
+    this.name = attachment.name.getAll().join('');
+    /** @member {number} */
+    this.bone = attachment.bone;
+  }
+}

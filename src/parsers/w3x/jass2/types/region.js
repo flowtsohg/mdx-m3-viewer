@@ -1,9 +1,16 @@
 import JassAgent from './agent';
 
+/**
+ * type region
+ */
 export default class JassRegion extends JassAgent {
-    constructor(jassContext, minx, miny, maxx, maxy) {
-        super(jassContext);
+  /**
+   * @param {JassContext} jassContext
+   */
+  constructor(jassContext) {
+    super(jassContext);
 
-        this.rects = new Set();
-    }
-};
+    /** @member {Set<JassRect>} */
+    this.rects = new Set();
+  }
+}

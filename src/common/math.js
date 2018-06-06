@@ -2,32 +2,32 @@
  * Convert from degrees to radians.
  *
  * @param {number} degrees
- * @returns {number} Radians.
+ * @return {number} Radians.
  */
 export function degToRad(degrees) {
-    return degrees * (Math.PI / 180);
-};
+  return degrees * (Math.PI / 180);
+}
 
 /**
  * Convert from radians to degrees.
  *
  * @param {number} radians
- * @returns {number} Degrees.
+ * @return {number} Degrees.
  */
 export function radToDeg(radians) {
-    return radians * (180 / Math.PI);
-};
+  return radians * (180 / Math.PI);
+}
 
 /**
  * Gets a random number in the given range.
  *
  * @param {number} a
  * @param {number} b
- * @returns {number} A random number in [a, b].
+ * @return {number} A random number in [a, b].
  */
 export function randomInRange(a, b) {
-    return a + Math.random() * (b - a);
-};
+  return a + Math.random() * (b - a);
+}
 
 /**
  * Clamp a number in a range.
@@ -35,11 +35,11 @@ export function randomInRange(a, b) {
  * @param {number} x
  * @param {number} minVal
  * @param {number} maxVal
- * @returns {number} Clamped number.
+ * @return {number} Clamped number.
  */
 export function clamp(x, minVal, maxVal) {
-    return Math.min(Math.max(x, minVal), maxVal);
-};
+  return Math.min(Math.max(x, minVal), maxVal);
+}
 
 /**
  * Linear interpolation between to numbers.
@@ -47,11 +47,11 @@ export function clamp(x, minVal, maxVal) {
  * @param {number} a First number.
  * @param {number} b Second number.
  * @param {number} t Factor.
- * @returns {number} Interpolated value.
+ * @return {number} Interpolated value.
  */
 export function lerp(a, b, t) {
-    return a + t * (b - a);
-};
+  return a + t * (b - a);
+}
 
 /**
  * Hermite interpolation between to numbers.
@@ -61,17 +61,17 @@ export function lerp(a, b, t) {
  * @param {number} c Second control point.
  * @param {number} d Second number.
  * @param {number} t Factor.
- * @returns {number} Interpolated value.
+ * @return {number} Interpolated value.
  */
 export function hermite(a, b, c, d, t) {
-    var factorTimes2 = t * t,
-        factor1 = factorTimes2 * (2 * t - 3) + 1,
-        factor2 = factorTimes2 * (t - 2) + t,
-        factor3 = factorTimes2 * (t - 1),
-        factor4 = factorTimes2 * (3 - 2 * t);
+  let factorTimes2 = t * t;
+  let factor1 = factorTimes2 * (2 * t - 3) + 1;
+  let factor2 = factorTimes2 * (t - 2) + t;
+  let factor3 = factorTimes2 * (t - 1);
+  let factor4 = factorTimes2 * (3 - 2 * t);
 
-    return (a * factor1) + (b * factor2) + (c * factor3) + (d * factor4);
-};
+  return (a * factor1) + (b * factor2) + (c * factor3) + (d * factor4);
+}
 
 /**
  * Bezier interpolation between to numbers.
@@ -81,71 +81,71 @@ export function hermite(a, b, c, d, t) {
  * @param {number} c Second control point.
  * @param {number} d Second number.
  * @param {number} t Factor.
- * @returns {number} Interpolated value.
+ * @return {number} Interpolated value.
  */
 export function bezier(a, b, c, d, t) {
-    var invt = 1 - t,
-        factorTimes2 = t * t,
-        inverseFactorTimesTwo = invt * invt,
-        factor1 = inverseFactorTimesTwo * invt,
-        factor2 = 3 * t * inverseFactorTimesTwo,
-        factor3 = 3 * factorTimes2 * invt,
-        factor4 = factorTimes2 * t;
+  let invt = 1 - t;
+  let factorTimes2 = t * t;
+  let inverseFactorTimesTwo = invt * invt;
+  let factor1 = inverseFactorTimesTwo * invt;
+  let factor2 = 3 * t * inverseFactorTimesTwo;
+  let factor3 = 3 * factorTimes2 * invt;
+  let factor4 = factorTimes2 * t;
 
-    return (a * factor1) + (b * factor2) + (c * factor3) + (d * factor4);
-};
+  return (a * factor1) + (b * factor2) + (c * factor3) + (d * factor4);
+}
 
 /**
  * Copies the sign of one number onto another.
  *
  * @param {number} x Destination.
  * @param {number} y Source.
- * @returns {number} Returns the destination with the source's sign.
+ * @return {number} Returns the destination with the source's sign.
  */
 export function copysign(x, y) {
-    let signy = Math.sign(y);
+  let signy = Math.sign(y);
 
-    if (signy === 0) {
-        return 0;
-    }
+  if (signy === 0) {
+    return 0;
+  }
 
-    let signx = Math.sign(x);
+  let signx = Math.sign(x);
 
-    if (signx !== signy) {
-        return -x;
-    }
+  if (signx !== signy) {
+    return -x;
+  }
 
-    return x;
-};
+  return x;
+}
 
 /**
  * Gets the closest power of two bigger or equal to the given number.
  *
  * @param {number} x
- * @returns {number} A power of two number.
+ * @return {number} A power of two number.
  */
 export function powerOfTwo(x) {
-    x--;
-    x |= x >> 1;
-    x |= x >> 2;
-    x |= x >> 4;
-    x |= x >> 8;
-    x |= x >> 16;
-    x++;
+  x--;
+  x |= x >> 1;
+  x |= x >> 2;
+  x |= x >> 4;
+  x |= x >> 8;
+  x |= x >> 16;
+  x++;
 
-    return x;
-};
+  return x;
+}
 
 /**
  * Is this number a power of two?
  *
  * @param {number} x
- * @returns {boolean}
+ * @return {boolean}
  */
 export function isPowerOfTwo(x) {
-    if (x === 0) {
-        return false;
-    }
+  if (x === 0) {
+    return false;
+  }
 
-    return ((x & (x - 1)) === 0);
-};
+  return ((x & (x - 1)) === 0);
+}

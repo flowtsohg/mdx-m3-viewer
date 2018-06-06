@@ -3,7 +3,7 @@ import Model from './model';
 import ModelInstance from './modelinstance';
 
 export default {
-    Handler,
-    Model,
-    ModelInstance
+  Handler,
+  Model,
+  ModelInstance,
 };

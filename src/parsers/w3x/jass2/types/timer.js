@@ -1,12 +1,22 @@
 import JassAgent from './agent';
 
+/**
+ * type timer
+ */
 export default class JassTimer extends JassAgent {
-    constructor(jassContext) {
-        super(jassContext);
+  /**
+   * @param {JassContext} jassContext
+   */
+  constructor(jassContext) {
+    super(jassContext);
 
-        this.elapsed = 0;
-        this.timeout = 0;
-        this.periodic = false;
-        this.handlerFunc = null;
-    }
-};
+    /** @member {number} */
+    this.elapsed = 0;
+    /** @member {number} */
+    this.timeout = 0;
+    /** @member {boolean} */
+    this.periodic = false;
+    /** @member {function|null} */
+    this.handlerFunc = null;
+  }
+}

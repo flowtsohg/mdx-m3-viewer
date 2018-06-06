@@ -1,95 +1,125 @@
-import { EventNode } from './node';
+import {EventNode} from './node';
 
 /**
- * @constructor
- * @augments AsyncResource
- * @augments NotifiedNode
- * @param {Model} model
+ * A model instance.
  */
 export default class ModelInstance extends EventNode {
-    constructor(model) {
-        super();
+  /**
+   * @param {Model} model
+   */
+  constructor(model) {
+    super();
 
-        /** @member {?ModelView} */
-        this.modelView = null;
-        /** @member {Model} */
-        this.model = model;
-        /** @member {boolean} */
-        this.paused = false;
-        /** @member {boolean} */
-        this.rendered = true;
-        /** @member {boolean} */
-        this.culled = false;
-        /** 
-         *  Set to true if this instance should always be rendered.
-         * 
-         * @member {boolean}
-         */
-        this.noCulling = false;
-    }
-
-    show() {
-        this.rendered = true;
-    }
-
-    hide() {
-        this.rendered = false;
-    }
-
-    shown() {
-        return this.rendered;
-    }
-
-    hidden() {
-        return !this.rendered;
-    }
-
+    /** @member {?ModelView} */
+    this.modelView = null;
+    /** @member {Model} */
+    this.model = model;
+    /** @member {boolean} */
+    this.paused = false;
+    /** @member {boolean} */
+    this.rendered = true;
+    /** @member {boolean} */
+    this.culled = false;
     /**
-     * Detach this instance from the scene it's in.
-     * 
-     * @returns {boolean}
+     *  Set to true if this instance should always be rendered.
+     *
+     * @member {boolean}
      */
-    detach() {
-        if (this.scene) {
-            return this.scene.removeInstance(this);
+    this.noCulling = false;
+  }
+
+  /**
+   * This instance should be shown.
+   * Note that it can still be hidden due to culling.
+   */
+  show() {
+    this.rendered = true;
+  }
+
+  /**
+   * This instance should be hidden.
+   */
+  hide() {
+    this.rendered = false;
+  }
+
+  /**
+   * Should the instance be shown?
+   *
+   * @return {boolean}
+   */
+  shown() {
+    return this.rendered;
+  }
+
+  /**
+   * Should the instance be hidden?
+   *
+   * @return {boolean}
+   */
+  hidden() {
+    return !this.rendered;
+  }
+
+  /**
+   * Detach this instance from the scene it's in.
+   *
+   * @return {boolean}
+   */
+  detach() {
+    if (this.scene) {
+      return this.scene.removeInstance(this);
+    }
+
+    return false;
+  }
+
+  /**
+   * Called every frame.
+   * Do lightweight updates here, like updating animation timers.
+   */
+  updateTimers() {
+
+  }
+
+  /**
+   * Called if the instance is shown and not culled.
+   * Do heavyweight updates here, like updating skeletons.
+   */
+  updateAnimations() {
+
+  }
+
+  /**
+   * Update this model instance.
+   * Called automatically by the scene that owns this model instance.
+   *
+   * @param {Scene} scene
+   */
+  updateObject(scene) {
+    if (!this.paused && this.model.loaded) {
+      this.updateTimers();
+
+      if (this.rendered) {
+        let visible = scene.isVisible(this) || this.noCulling || this.model.viewer.noCulling;
+
+        this.culled = !visible;
+
+        if (visible) {
+          this.updateAnimations();
         }
-
-        return false;
+      }
     }
+  }
 
-    updateTimers() {
-
-    }
-
-    updateAnimations() {
-
-    }
-
-    updateObject(scene) {
-        if (!this.paused && this.model.loaded) {
-            // Update animation timers.
-            this.updateTimers();
-            
-            if (this.rendered) {
-                let visible = scene.isVisible(this) || this.noCulling || this.model.viewer.noCulling;
-
-                this.culled = !visible;
-                
-                if (visible) {
-                    this.updateAnimations();
-                }
-            }
-        }
-    }
-
-    /**
-     * Sets the scene of this instance.
-     * This is equivalent to scene.addInstance(instance).
-     * 
-     * @param {ModelViewer.viewer.Scene} scene 
-     * @returns {boolean} 
-     */
-    setScene(scene) {
-        return scene.addInstance(this);
-    }
-};
+  /**
+   * Sets the scene of this instance.
+   * This is equivalent to scene.addInstance(instance).
+   *
+   * @param {Scene} scene
+   * @return {boolean}
+   */
+  setScene(scene) {
+    return scene.addInstance(this);
+  }
+}

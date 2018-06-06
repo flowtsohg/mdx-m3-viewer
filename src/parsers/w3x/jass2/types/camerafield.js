@@ -1,3 +1,6 @@
 import JassEnum from './enum';
 
-export default class JassCameraField extends JassEnum { };
+/**
+ * type camerafield
+ */
+export default class JassCameraField extends JassEnum {}

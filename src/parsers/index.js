@@ -7,11 +7,11 @@ import w3x from './w3x';
 import blp from './blp';
 
 export default {
-    ini,
-    slk,
-    m3,
-    mdlx,
-    mpq,
-    w3x,
-    blp
+  ini,
+  slk,
+  m3,
+  mdlx,
+  mpq,
+  w3x,
+  blp,
 };

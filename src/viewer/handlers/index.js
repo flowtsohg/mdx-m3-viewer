@@ -12,16 +12,16 @@ import tga from './tga';
 import w3x from './w3x';
 
 export default {
-    blp,
-    bmp,
-    dds,
-    geo,
-    m3,
-    mdx,
-    mpq,
-    nativetexture,
-    obj,
-    slk,
-    tga,
-    w3x
+  blp,
+  bmp,
+  dds,
+  geo,
+  m3,
+  mdx,
+  mpq,
+  nativetexture,
+  obj,
+  slk,
+  tga,
+  w3x,
 };

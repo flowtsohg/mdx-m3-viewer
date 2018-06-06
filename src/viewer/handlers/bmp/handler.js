@@ -1,6 +1,6 @@
 import BmpTexture from './texture';
 
 export default {
-    extensions: [['.bmp', 'arrayBuffer']],
-    constructor: BmpTexture
+  extensions: [['.bmp', 'arrayBuffer']],
+  Constructor: BmpTexture,
 };

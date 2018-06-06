@@ -1,20 +1,32 @@
+/**
+ * @param {URL} url
+ * @param {string} name
+ */
 export function downloadUrl(url, name) {
-    let a = document.createElement('a');
+  let a = document.createElement('a');
 
-    a.href = url;
-    a.download = name;
+  a.href = url;
+  a.download = name;
 
-    a.dispatchEvent(new MouseEvent('click'));
-};
+  a.dispatchEvent(new MouseEvent('click'));
+}
 
+/**
+ * @param {Blob} blob
+ * @param {string} name
+ */
 export function downloadBlob(blob, name) {
-    let url = URL.createObjectURL(blob);
+  let url = URL.createObjectURL(blob);
 
-    downloadUrl(url, name);
+  downloadUrl(url, name);
 
-    URL.revokeObjectURL(url);
-};
+  URL.revokeObjectURL(url);
+}
 
+/**
+ * @param {ArrayBuffer} arrayBuffer
+ * @param {string} name
+ */
 export function downloadBuffer(arrayBuffer, name) {
-    downloadBlob(new Blob([arrayBuffer], { type: 'application/octet-stream' }), name);
-};
+  downloadBlob(new Blob([arrayBuffer], {type: 'application/octet-stream'}), name);
+}

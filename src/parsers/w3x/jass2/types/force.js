@@ -1,9 +1,16 @@
 import JassAgent from './agent';
 
+/**
+ * type force
+ */
 export default class JassForce extends JassAgent {
-    constructor(jassContext) {
-        super(jassContext);
+  /**
+   * @param {JassContext} jassContext
+   */
+  constructor(jassContext) {
+    super(jassContext);
 
-        this.players = new Set();
-    }
-};
+    /** @member {Set<JassPlayer>} */
+    this.players = new Set();
+  }
+}

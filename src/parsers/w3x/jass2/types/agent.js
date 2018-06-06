@@ -1,17 +1,30 @@
 import JassHandle from './handle';
 
+/**
+ * type agent
+ */
 export default class JassAgent extends JassHandle {
-    constructor(jassContext) {
-        super(jassContext);
+  /**
+   * @param {JassContext} jassContext
+   */
+  constructor(jassContext) {
+    super(jassContext);
 
-        this.references = new Set();
-    }
+    /** @member {Set<JassReference>} */
+    this.references = new Set();
+  }
 
-    addReference(reference) {
-        this.references.add(reference);
-    }
+  /**
+   * @param {JassReference} reference
+   */
+  addReference(reference) {
+    this.references.add(reference);
+  }
 
-    removeReference(reference) {
-        this.references.delete(reference);
-    }
-};
+  /**
+   * @param {JassReference} reference
+   */
+  removeReference(reference) {
+    this.references.delete(reference);
+  }
+}

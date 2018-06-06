@@ -1,3 +1,6 @@
 import JassEnum from './enum';
 
-export default class JassVolumeGroup extends JassEnum { };
+/**
+ * type volumegroup
+ */
+export default class JassVolumeGroup extends JassEnum {}

@@ -1,5 +1,5 @@
 export default {
-    'vs_main': `
+  'vs_main': `
         uniform mat4 u_mvp;
 
         attribute vec3 a_position;
@@ -59,15 +59,15 @@ export default {
             v_geosetColor = vec4(a_geosetColor.rgb, a_layerAlpha);
 
             // Definitely not correct, but the best I could figure so far.
-	        if (a_geosetColor.a < 0.75 || a_layerAlpha < 0.1) {
-		        gl_Position = vec4(0.0);
+         if (a_geosetColor.a < 0.75 || a_layerAlpha < 0.1) {
+              gl_Position = vec4(0.0);
             } else {
-		        gl_Position = u_mvp * vec4(position, 1);
+              gl_Position = u_mvp * vec4(position, 1);
             }
         }
     `,
 
-    'ps_main': `
+  'ps_main': `
         uniform sampler2D u_texture;
         uniform bool u_alphaTest;
         uniform bool u_isTeamColor;
@@ -99,7 +99,7 @@ export default {
             #ifdef STANDARD_PASS
             vec2 uv;
 
-	        if (u_isTeamColor) {
+         if (u_isTeamColor) {
                 // 4 is the amount of columns and rows in the team colors/glows texture.
                 uv = (vec2(mod(v_teamColor, 4.0), floor(v_teamColor / 4.0)) + v_uv) / 4.0;
             } else {
@@ -150,7 +150,7 @@ export default {
         }
     `,
 
-    'vs_particles': `
+  'vs_particles': `
         uniform mat4 u_mvp;
         uniform vec2 u_dimensions;
         uniform bool u_isRibbonEmitter;
@@ -177,7 +177,7 @@ export default {
         }
     `,
 
-    'ps_particles': `
+  'ps_particles': `
         uniform sampler2D u_texture;
         uniform bool u_alphaTest;
         uniform bool u_isRibbonEmitter;
@@ -195,5 +195,5 @@ export default {
 
             gl_FragColor = texel * v_color;
         }
-    `
+    `,
 };

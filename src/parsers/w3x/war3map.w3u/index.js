@@ -4,8 +4,8 @@ import ModificationTable from './modificationtable';
 import War3MapW3u from './file';
 
 export default {
-    Modification,
-    ModifiedObject,
-    ModificationTable,
-    War3MapW3u
+  Modification,
+  ModifiedObject,
+  ModificationTable,
+  War3MapW3u,
 };

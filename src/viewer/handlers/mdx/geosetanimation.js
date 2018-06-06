@@ -1,44 +1,63 @@
-import { vec3 } from 'gl-matrix';
+import {vec3} from 'gl-matrix';
 import AnimatedObject from './animatedobject';
 
 // Heap allocations needed for this module.
 let colorHeap = vec3.create();
 
+/**
+ * A geoset animation.
+ */
 export default class GeosetAnimation extends AnimatedObject {
-    /**
-     * @param {MdxModel} model
-     * @param {MdxParserGeosetAnimation} geosetAnimation
-     */
-    constructor(model, geosetAnimation) {
-        super(model, geosetAnimation);
+  /**
+   * @param {MdxModel} model
+   * @param {MdxParserGeosetAnimation} geosetAnimation
+   */
+  constructor(model, geosetAnimation) {
+    super(model, geosetAnimation);
 
-        this.alpha = geosetAnimation.alpha;
-        this.color = [...geosetAnimation.color].reverse(); // Stored as RGB, but animated colors are stored as BGR, so sizzle.
-        this.geosetId = geosetAnimation.geosetId;
-    }
+    this.alpha = geosetAnimation.alpha;
+    this.color = [...geosetAnimation.color].reverse(); // Stored as RGB, but animated colors are stored as BGR, so sizzle.
+    this.geosetId = geosetAnimation.geosetId;
+  }
 
-    getAlpha(instance) {
-        // The alpha variable doesn't seem to actually be used by the game?
-        return this.getValue('KGAO', instance, 1);
-    }
+  /**
+   * @param {ModelInstance} instance
+   * @return {number}
+   */
+  getAlpha(instance) {
+    // The alpha variable doesn't seem to actually be used by the game?
+    return this.getValue('KGAO', instance, 1);
+  }
 
-    isAlphaVariant(sequence) {
-        return this.isVariant('KGAO', sequence);
-    }
+  /**
+   * @param {ModelInstance} instance
+   * @return {vec3}
+   */
+  getColor(instance) {
+    let color = this.getValue3(colorHeap, 'KGAC', instance, this.color);
 
-    getColor(instance) {
-        let color = this.getValue3(colorHeap, 'KGAC', instance, this.color);
+    // Some Blizzard models have values greater than 1, which messes things up.
+    // Geoset animations are supposed to modulate colors, not intensify them.
+    color[0] = Math.min(color[0], 1);
+    color[1] = Math.min(color[1], 1);
+    color[2] = Math.min(color[2], 1);
 
-        // Some Blizzard models have values greater than 1, which messes things up.
-        // Geoset animations are supposed to modulate colors, not intensify them.
-        color[0] = Math.min(color[0], 1);
-        color[1] = Math.min(color[1], 1);
-        color[2] = Math.min(color[2], 1);
+    return color;
+  }
 
-        return color;
-    }
+  /**
+   * @param {number} sequence
+   * @return {boolean}
+   */
+  isAlphaVariant(sequence) {
+    return this.isVariant('KGAO', sequence);
+  }
 
-    isColorVariant(sequence) {
-        return this.isVariant('KGAC', sequence);
-    }
-};
+  /**
+   * @param {number} sequence
+   * @return {boolean}
+   */
+  isColorVariant(sequence) {
+    return this.isVariant('KGAC', sequence);
+  }
+}

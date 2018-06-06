@@ -1,76 +1,97 @@
 import GenericObject from './genericobject';
 
+/**
+ * A bone.
+ */
 export default class Bone extends GenericObject {
-    constructor() {
-        super(0x100);
+  /**
+   *
+   */
+  constructor() {
+    super(0x100);
 
-        /** @member {number} */
-        this.geosetId = -1;
-        /** @member {number} */
-        this.geosetAnimationId = -1;
-    }
+    /** @member {number} */
+    this.geosetId = -1;
+    /** @member {number} */
+    this.geosetAnimationId = -1;
+  }
 
-    readMdx(stream) {
-        super.readMdx(stream);
+  /**
+   * @param {BinaryStream} stream
+   */
+  readMdx(stream) {
+    super.readMdx(stream);
 
-        this.geosetId = stream.readInt32();
-        this.geosetAnimationId = stream.readInt32();
-    }
+    this.geosetId = stream.readInt32();
+    this.geosetAnimationId = stream.readInt32();
+  }
 
-    writeMdx(stream) {
-        super.writeMdx(stream);
+  /**
+   * @param {BinaryStream} stream
+   */
+  writeMdx(stream) {
+    super.writeMdx(stream);
 
-        stream.writeInt32(this.geosetId);
-        stream.writeInt32(this.geosetAnimationId);
-    }
+    stream.writeInt32(this.geosetId);
+    stream.writeInt32(this.geosetAnimationId);
+  }
 
-    readMdl(stream) {
-        for (let token of super.readMdl(stream)) {
-            if (token === 'GeosetId') {
-                token = stream.read();
+  /**
+   * @param {TokenStream} stream
+   */
+  readMdl(stream) {
+    for (let token of super.readMdl(stream)) {
+      if (token === 'GeosetId') {
+        token = stream.read();
 
-                if (token === 'Multiple') {
-                    this.geosetId = -1;
-                } else {
-                    this.geosetId = parseInt(token);
-                }
-            } else if (token === 'GeosetAnimId') {
-                token = stream.read();
-
-                if (token === 'None') {
-                    this.geosetAnimationId = -1;
-                } else {
-                    this.geosetAnimationId = parseInt(token);
-                }
-            } else {
-                throw new Error(`Unknown token in Bone ${this.name}: "${token}"`);
-            }
+        if (token === 'Multiple') {
+          this.geosetId = -1;
+        } else {
+          this.geosetId = parseInt(token);
         }
-    }
+      } else if (token === 'GeosetAnimId') {
+        token = stream.read();
 
-    writeMdl(stream) {
-        stream.startObjectBlock('Bone', this.name);
-        this.writeGenericHeader(stream);
-
-        let geosetId = this.geosetId,
-            geosetAnimationId = this.geosetAnimationId;
-
-        if (geosetId === -1) {
-            geosetId = 'Multiple';
+        if (token === 'None') {
+          this.geosetAnimationId = -1;
+        } else {
+          this.geosetAnimationId = parseInt(token);
         }
+      } else {
+        throw new Error(`Unknown token in Bone ${this.name}: "${token}"`);
+      }
+    }
+  }
 
-        if (geosetAnimationId === -1) {
-            geosetAnimationId = 'None';
-        }
+  /**
+   * @param {TokenStream} stream
+   */
+  writeMdl(stream) {
+    stream.startObjectBlock('Bone', this.name);
+    this.writeGenericHeader(stream);
 
-        stream.writeAttrib('GeosetId', geosetId);
-        stream.writeAttrib('GeosetAnimId', geosetAnimationId);
+    let geosetId = this.geosetId;
+    let geosetAnimationId = this.geosetAnimationId;
 
-        this.writeGenericAnimations(stream);
-        stream.endBlock();
+    if (geosetId === -1) {
+      geosetId = 'Multiple';
     }
 
-    getByteLength() {
-        return 8 + super.getByteLength();
+    if (geosetAnimationId === -1) {
+      geosetAnimationId = 'None';
     }
-};
+
+    stream.writeAttrib('GeosetId', geosetId);
+    stream.writeAttrib('GeosetAnimId', geosetAnimationId);
+
+    this.writeGenericAnimations(stream);
+    stream.endBlock();
+  }
+
+  /**
+   * @return {number}
+   */
+  getByteLength() {
+    return 8 + super.getByteLength();
+  }
+}

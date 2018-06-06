@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"editor.tabSize": 2,
+		"files.eol": "\n",
+		"javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
+		"javascript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
+		"javascript.format.insertSpaceAfterSemicolonInForStatements": true,
+		"javascript.validate.enable": true,
+		"editor.formatOnSave": true,
+		"eslint.provideLintTask": true
+	}
+}

@@ -5,8 +5,8 @@
  *
  * @param {number} fromBits
  * @param {number} toBits
- * @returns {number}
+ * @return {number}
  */
 export default function convertBitRange(fromBits, toBits) {
-    return ((1 << toBits) - 1) / ((1 << fromBits) - 1);
-};
+  return ((1 << toBits) - 1) / ((1 << fromBits) - 1);
+}

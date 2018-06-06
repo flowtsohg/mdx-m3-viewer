@@ -1,3 +1,6 @@
 import JassEnum from './enum';
 
-export default class JassStartLocPrio extends JassEnum { };
+/**
+ * type startlocprio
+ */
+export default class JassStartLocPrio extends JassEnum {}

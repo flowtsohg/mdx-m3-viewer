@@ -7,11 +7,11 @@ import Hash from './hash';
 import HashTable from './hashtable';
 
 export default {
-    Archive,
-    Block,
-    BlockTable,
-    Crypto,
-    File,
-    Hash,
-    HashTable
+  Archive,
+  Block,
+  BlockTable,
+  Crypto,
+  File,
+  Hash,
+  HashTable,
 };

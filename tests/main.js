@@ -12,17 +12,18 @@ function addTestResult(testResult) {
         testName = testResult.name,
         testImage = testResult.testImage,
         comparisonImage = testResult.comparisonImage,
-        result = testResult.result;
+        result = testResult.result,
+        passed = result < 1;
 
     testsCount += 1;
-    testsPassed += result ? 1 : 0;
+    testsPassed += passed ? 1 : 0;
 
     // Name of the test
     name.textContent = testName;
 
     // Status of the test
-    status.textContent = result ? "passed" : "failed";
-    status.className = result ? "success" : "failure";
+    status.textContent = passed ? "passed" : "failed";
+    status.className = passed ? "success" : "failure";
 
     // The rendered image
     let a = document.createElement("a");
@@ -80,12 +81,18 @@ function disableButtons() {
 runElement.addEventListener("click", () => {
     disableButtons();
 
+    console.log('Starting to test');
+
     unitTester.test((entry) => {
         if (!entry.done) {
+            console.log(`Tested ${entry.value.name}`);
+
             addTestResult(entry.value);
         } else {
             resultElement.textContent = testsPassed + "/" + testsCount + " tests passed";
             resultElement.className = (testsPassed === testsCount) ? "success" : "failure";
+
+            console.log('Finished testing');
 
             enableButtons();
         }
@@ -95,8 +102,14 @@ runElement.addEventListener("click", () => {
 downloadElement.addEventListener("click", () => {
     disableButtons();
 
+    console.log('Starting to download');
+
     unitTester.download((entry) => {
-        if (entry.done) {
+        if (!entry.done) {
+            console.log(`Downloaded ${entry.value.name}`);
+        } else {
+            console.log('Finished downloading');
+
             enableButtons();
         }
     });

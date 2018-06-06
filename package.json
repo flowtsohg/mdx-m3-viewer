@@ -1,6 +1,6 @@
 {
   "name": "mdx-m3-viewer",
-  "version": "4.3.6",
+  "version": "4.3.7",
   "description": "A browser WebGL model viewer. Mainly focused on models of the games Warcraft 3 and Starcraft 2.",
   "main": "src/index.js",
   "directories": {
@@ -28,9 +28,6 @@
   },
   "devDependencies": {
     "eslint": "^4.19.1",
-    "eslint-config-google": "^0.9.1",
-    "eslint-plugin-import": "^2.12.0",
-    "eslint-plugin-node": "^6.0.1",
-    "eslint-plugin-promise": "^3.8.0",
+    "eslint-config-google": "^0.9.1"
   }
 }

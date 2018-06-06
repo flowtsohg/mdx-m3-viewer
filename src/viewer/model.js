@@ -1,112 +1,149 @@
 import Resource from './resource';
 
+/**
+ * A model.
+ */
 export default class Model extends Resource {
-    /**
-     * @param {Object} resourceData
-     */
-    constructor(resourceData) {
-        super(resourceData);
+  /**
+   * @param {Object} resourceData
+   */
+  constructor(resourceData) {
+    super(resourceData);
 
-        /** @member {number} */
-        this.batchSize = resourceData.viewer.batchSize;
+    /** @member {number} */
+    this.batchSize = resourceData.viewer.batchSize;
 
-        /** @member {Array<ModelInstance>} */
-        this.instances = [];
+    /** @member {Array<ModelInstance>} */
+    this.instances = [];
 
-        /** @member {Array<ModelView>} */
-        this.views = [];
+    /** @member {Array<ModelView>} */
+    this.views = [];
+  }
+
+  /**
+   * Adds a new instance to this model, and returns it.
+   *
+   * @return {ModelInstance}
+   */
+  addInstance() {
+    let views = this.views;
+    let instance = new this.handler.Instance(this);
+
+    this.instances.push(instance);
+
+    if (views.length === 0) {
+      this.addView();
     }
 
-    /**
-     * Adds a new instance to this model, and returns it.
-     * 
-     * @returns {ModelInstance}
-     */
-    addInstance() {
-        let views = this.views,
-            instance = new this.handler.instance(this);
+    views[0].addInstance(instance);
 
-        this.instances.push(instance);
-
-        if (views.length === 0) {
-            this.addView();
-        }
-
-        views[0].addInstance(instance);
-
-        if (this.loaded) {
-            instance.load();
-        }
-
-        return instance;
+    if (this.loaded) {
+      instance.load();
     }
 
-    /**
-     * Detach this model from the viewer. This removes references to it from the viewer, and also detaches all of the model views it owns.
-     */
-    detach() {
-        // Detach all of the views
-        let views = this.views;
+    return instance;
+  }
 
-        for (let i = 0, l = views.length; i < l; i++) {
-            views[i].clear();
-        }
+  /**
+   * Detach this model from the viewer. This removes references to it from the viewer, and also detaches all of the model views it owns.
+   */
+  detach() {
+    // Detach all of the views
+    let views = this.views;
 
-        // Remove references from the viewer
-        this.viewer.removeReference(this);
+    for (let i = 0, l = views.length; i < l; i++) {
+      views[i].clear();
     }
 
-    renderOpaque(data, scene, modelView) {
+    // Remove references from the viewer
+    this.viewer.removeReference(this);
+  }
 
-    }
+  /**
+   * Render opaque things.
+   *
+   * @param {*} data
+   * @param {*} scene
+   * @param {*} modelView
+   */
+  renderOpaque(data, scene, modelView) {
 
-    renderTranslucent(data, scene, modelView) {
+  }
 
-    }
+  /**
+   * Render translucent things.
+   *
+   * @param {*} data
+   * @param {*} scene
+   * @param {*} modelView
+   */
+  renderTranslucent(data, scene, modelView) {
 
-    addView() {
-        let view = new this.handler.view(this);
+  }
 
-        this.views.push(view);
+  /**
+   * Create a new model view for this model, and return it.
+   *
+   * @return {ModelView}
+   */
+  addView() {
+    let view = new this.handler.View(this);
 
-        return view;
-    }
+    this.views.push(view);
 
-    removeView(modelView) {
-        let views = this.views;
+    return view;
+  }
 
-        views.splice(views.indexOf(modelView), 1);
-    }
+  /**
+   * Remove a model view from this model.
+   *
+   * @param {*} modelView
+   */
+  removeView(modelView) {
+    let views = this.views;
 
-    viewChanged(instance, shallowView) {
-        // Check if there's another view that matches the instance
-        for (let view of this.views) {
-            if (view.equals(shallowView)) {
-                view.addInstance(instance);
-                return;
-            }
-        }
+    views.splice(views.indexOf(modelView), 1);
+  }
 
-        // Since no view matched, create a new one
-        let view = this.addView();
-
-        view.applyShallowCopy(shallowView);
+  /**
+   * Called every time an instance changes a model view.
+   * This generally corresponds to the instance creation, and to texture overriding.
+   *
+   * @param {ModelInstance} instance
+   * @param {Object} shallowView
+   */
+  viewChanged(instance, shallowView) {
+    // Check if there's another view that matches the instance
+    for (let view of this.views) {
+      if (view.equals(shallowView)) {
         view.addInstance(instance);
-
-        // If the instance is already in a scene, and this is a new view, it will not be in the scene, so add it.
-        if (instance.scene) {
-            instance.scene.addView(view);
-        }
+        return;
+      }
     }
 
-    // This allows setting up preloaded instances without event listeners.
-    lateLoad() {
-        for (let instance of this.instances) {
-            instance.load();
-        }
+    // Since no view matched, create a new one
+    let view = this.addView();
 
-        for (let view of this.views) {
-            view.lateLoad();
-        }
+    view.applyShallowCopy(shallowView);
+    view.addInstance(instance);
+
+    // If the instance is already in a scene, and this is a new view, it will not be in the scene, so add it.
+    if (instance.scene) {
+      instance.scene.addView(view);
     }
-};
+  }
+
+  /**
+   * Called when the model finishes loading.
+   * Automatically finalizes loading for all of the model instances and views of this model.
+   */
+  lateLoad() {
+    for (let instance of this.instances) {
+      instance.load();
+    }
+
+    for (let view of this.views) {
+      view.lateLoad();
+    }
+  }
+}

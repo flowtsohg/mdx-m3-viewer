@@ -1,3 +1,6 @@
 import GenericObject from './genericobject';
 
-export default class CollisionShape extends GenericObject { };
+/**
+ * A collision shape.
+ */
+export default class CollisionShape extends GenericObject {}

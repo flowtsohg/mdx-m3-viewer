@@ -1,223 +1,266 @@
-import { VEC3_ZERO, VEC3_ONE, QUAT_DEFAULT } from '../../../common/gl-matrix-addon';
+import {VEC3_ZERO, VEC3_ONE, QUAT_DEFAULT} from '../../../common/gl-matrix-addon';
 import stringHash from '../../../common/stringhash';
 import unique from '../../../common/arrayunique';
 import AnimatedObject from './animatedobject';
-import { layerFilterMode } from './filtermode';
+import {layerFilterMode} from './filtermode';
 
+/**
+ * An MDX layer.
+ */
 export default class Layer extends AnimatedObject {
-    /**
-     * @param {ModelViewer.viewer.mdx.Model} model
-     * @param {ModelViewer.parser.mdlx.Layer} layer
-     * @param {number} priorityPlane
-     */
-    constructor(model, layer, layerId, priorityPlane) {
-        let filterMode = layer.filterMode,
-            textureAnimationId = layer.textureAnimationId,
-            gl = model.viewer.gl;
+  /**
+   * @param {Model} model
+   * @param {ModelViewer.parser.mdlx.Layer} layer
+   * @param {number} layerId
+   * @param {number} priorityPlane
+   */
+  constructor(model, layer, layerId, priorityPlane) {
+    let filterMode = layer.filterMode;
+    let textureAnimationId = layer.textureAnimationId;
+    let gl = model.viewer.gl;
 
-        super(model, layer);
+    super(model, layer);
 
-        this.index = layerId;
-        this.priorityPlane = priorityPlane;
-        this.filterMode = filterMode;
-        this.textureId = layer.textureId;
-        this.coordId = layer.coordId;
-        this.alpha = layer.alpha;
+    this.index = layerId;
+    this.priorityPlane = priorityPlane;
+    this.filterMode = filterMode;
+    this.textureId = layer.textureId;
+    this.coordId = layer.coordId;
+    this.alpha = layer.alpha;
 
-        var flags = layer.flags;
+    let flags = layer.flags;
 
-        this.unshaded = flags & 0x1;
-        this.sphereEnvironmentMap = flags & 0x2;
-        this.twoSided = flags & 0x10;
-        this.unfogged = flags & 0x20;
-        this.noDepthTest = flags & 0x40;
-        this.noDepthSet = flags & 0x80;
+    this.unshaded = flags & 0x1;
+    this.sphereEnvironmentMap = flags & 0x2;
+    this.twoSided = flags & 0x10;
+    this.unfogged = flags & 0x20;
+    this.noDepthTest = flags & 0x40;
+    this.noDepthSet = flags & 0x80;
 
-        this.depthMaskValue = (filterMode === 0 || filterMode === 1) ? 1 : 0;
-        this.alphaTestValue = (filterMode === 1) ? 1 : 0;
+    this.depthMaskValue = (filterMode === 0 || filterMode === 1) ? 1 : 0;
+    this.alphaTestValue = (filterMode === 1) ? 1 : 0;
 
-        this.blendSrc = 0;
-        this.blendDst = 0;
-        this.blended = (filterMode > 1) ? true : false;
+    this.blendSrc = 0;
+    this.blendDst = 0;
+    this.blended = (filterMode > 1) ? true : false;
 
-        if (this.blended) {
-            [this.blendSrc, this.blendDst] = layerFilterMode(filterMode, gl);
-        }
-
-        this.uvDivisor = new Float32Array([1, 1]);
-
-        if (textureAnimationId !== -1) {
-            let textureAnimation = model.textureAnimations[textureAnimationId];
-
-            if (textureAnimation) {
-                this.textureAnimation = textureAnimation;
-            }
-        }
-
-        let variants = {
-            alpha: [],
-            slot: [],
-            translation: [],
-            rotation: [],
-            scale: []
-        };
-
-        let hasSlotAnim = false,
-            hasTranslationAnim = false,
-            hasRotationAnim = false,
-            hasScaleAnim = false;
-
-        for (let i = 0, l = model.sequences.length; i < l; i++) {
-            let alpha = this.isAlphaVariant(i),
-                slot = this.isTextureIdVariant(i),
-                translation = this.isTranslationVariant(i),
-                rotation = this.isRotationVariant(i),
-                scale = this.isScaleVariant(i);
-
-            variants.alpha[i] = alpha;
-            variants.slot[i] = slot;
-            variants.translation[i] = translation;
-            variants.rotation[i] = rotation;
-            variants.scale[i] = scale;
-
-            hasSlotAnim = hasSlotAnim || slot;
-            hasTranslationAnim = hasTranslationAnim || translation;
-            hasRotationAnim = hasRotationAnim || rotation;
-            hasScaleAnim = hasScaleAnim || scale;
-        }
-
-        this.variants = variants;
-        this.hasSlotAnim = hasSlotAnim;
-        this.hasTranslationAnim = hasTranslationAnim;
-        this.hasRotationAnim = hasRotationAnim;
-        this.hasScaleAnim = hasScaleAnim;
-
-        this.setupVaryingTextures(model);
+    if (this.blended) {
+      [this.blendSrc, this.blendDst] = layerFilterMode(filterMode, gl);
     }
 
-    bind(shader) {
-        let gl = this.model.viewer.gl;
+    this.uvDivisor = new Float32Array([1, 1]);
 
-        gl.uniform1f(shader.uniforms.get('u_alphaTest'), this.alphaTestValue);
+    if (textureAnimationId !== -1) {
+      let textureAnimation = model.textureAnimations[textureAnimationId];
 
-        if (this.blended) {
-            gl.enable(gl.BLEND);
-            gl.blendFunc(this.blendSrc, this.blendDst);
-        } else {
-            gl.disable(gl.BLEND);
-        }
-
-        if (this.twoSided) {
-            gl.disable(gl.CULL_FACE);
-        } else {
-            gl.enable(gl.CULL_FACE);
-        }
-
-        if (this.noDepthTest) {
-            gl.disable(gl.DEPTH_TEST);
-        } else {
-            gl.enable(gl.DEPTH_TEST);
-        }
-
-        if (this.noDepthSet) {
-            gl.depthMask(0);
-        } else {
-            gl.depthMask(this.depthMaskValue);
-        }
+      if (textureAnimation) {
+        this.textureAnimation = textureAnimation;
+      }
     }
 
-    setupVaryingTextures(model) {
-        if (!this.animations.KMTF) {
-            return;
+    let variants = {
+      alpha: [],
+      slot: [],
+      translation: [],
+      rotation: [],
+      scale: [],
+    };
+
+    let hasSlotAnim = false;
+    let hasTranslationAnim = false;
+    let hasRotationAnim = false;
+    let hasScaleAnim = false;
+
+    for (let i = 0, l = model.sequences.length; i < l; i++) {
+      let alpha = this.isAlphaVariant(i);
+      let slot = this.isTextureIdVariant(i);
+      let translation = this.isTranslationVariant(i);
+      let rotation = this.isRotationVariant(i);
+      let scale = this.isScaleVariant(i);
+
+      variants.alpha[i] = alpha;
+      variants.slot[i] = slot;
+      variants.translation[i] = translation;
+      variants.rotation[i] = rotation;
+      variants.scale[i] = scale;
+
+      hasSlotAnim = hasSlotAnim || slot;
+      hasTranslationAnim = hasTranslationAnim || translation;
+      hasRotationAnim = hasRotationAnim || rotation;
+      hasScaleAnim = hasScaleAnim || scale;
+    }
+
+    this.variants = variants;
+    this.hasSlotAnim = hasSlotAnim;
+    this.hasTranslationAnim = hasTranslationAnim;
+    this.hasRotationAnim = hasRotationAnim;
+    this.hasScaleAnim = hasScaleAnim;
+
+    // Handle sprite animations
+    if (this.animations.KMTF) {
+      // Get all unique texture IDs used by this layer
+      let textureIds = unique(this.animations.KMTF.getValues());
+
+      if (textureIds.length > 1) {
+        let hash = stringHash(textureIds.join(''));
+        let textures = [];
+
+        // Grab all of the textures
+        for (let i = 0, l = textureIds.length; i < l; i++) {
+          textures[i] = model.textures[textureIds[i]];
         }
 
-        // Get all unique texture IDs used by this layer
-        var textureIds = unique(this.animations.KMTF.getValues());
+        let atlas = model.viewer.loadTextureAtlas(hash, textures);
 
-        if (textureIds.length > 1) {
-            let env = model.viewer,
-                hash = stringHash(textureIds.join('')),
-                textures = [];
+        atlas.texture.whenLoaded()
+          .then(() => {
+            model.textures.push(atlas.texture);
+            model.textureOptions.push({repeatS: true, repeatT: true});
 
-            // Grab all of the textures
-            for (let i = 0, l = textureIds.length; i < l; i++) {
-                textures[i] = model.textures[textureIds[i]];
-            }
+            this.textureId = model.textures.length - 1;
+            this.uvDivisor.set([atlas.columns, atlas.rows]);
+          });
+      }
+    }
+  }
 
-            // Load the atlas, and use the hash to cache it.
-            model.viewer.loadTextureAtlas(hash, textures)
-                .then((atlas) => {
-                    model.textures.push(atlas.texture);
-                    model.textureOptions.push({ repeatS: true, repeatT: true });
+  /**
+   * @param {ShaderProgram} shader
+   */
+  bind(shader) {
+    let gl = this.model.viewer.gl;
 
-                    this.textureId = model.textures.length - 1;
-                    this.uvDivisor.set([atlas.columns, atlas.rows]);
-                });
-        }
+    gl.uniform1f(shader.uniforms.get('u_alphaTest'), this.alphaTestValue);
+
+    if (this.blended) {
+      gl.enable(gl.BLEND);
+      gl.blendFunc(this.blendSrc, this.blendDst);
+    } else {
+      gl.disable(gl.BLEND);
     }
 
-    getAlpha(instance) {
-        return this.getValue('KMTA', instance, this.alpha);
+    if (this.twoSided) {
+      gl.disable(gl.CULL_FACE);
+    } else {
+      gl.enable(gl.CULL_FACE);
     }
 
-    isAlphaVariant(sequence) {
-        return this.isVariant('KMTA', sequence);
+    if (this.noDepthTest) {
+      gl.disable(gl.DEPTH_TEST);
+    } else {
+      gl.enable(gl.DEPTH_TEST);
     }
 
-    getTextureId(instance) {
-        return this.getValue('KMTF', instance, this.textureId);
-        /// TODO: map the returned slot to a texture atlas slot if one exists.
+    if (this.noDepthSet) {
+      gl.depthMask(0);
+    } else {
+      gl.depthMask(this.depthMaskValue);
+    }
+  }
+
+  /**
+   * @param {ModelInstance} instance
+   * @return {number}
+   */
+  getAlpha(instance) {
+    return this.getValue('KMTA', instance, this.alpha);
+  }
+
+
+  /**
+   * @param {ModelInstance} instance
+   * @return {number}
+   */
+  getTextureId(instance) {
+    return this.getValue('KMTF', instance, this.textureId);
+    // / TODO: map the returned slot to a texture atlas slot if one exists.
+  }
+
+  /**
+  * @param {ModelInstance} instance
+  * @return {vec3}
+  */
+  getTranslation(instance) {
+    if (this.textureAnimation) {
+      return this.textureAnimation.getTranslation(instance);
     }
 
-    isTextureIdVariant(sequence) {
-        return this.isVariant('KMTF', sequence);
+    return VEC3_ZERO;
+  }
+
+  /**
+   * @param {ModelInstance} instance
+   * @return {quat}
+   */
+  getRotation(instance) {
+    if (this.textureAnimation) {
+      return this.textureAnimation.getRotation(instance);
     }
 
-    getTranslation(instance) {
-        if (this.textureAnimation) {
-            return this.textureAnimation.getTranslation(instance);
-        }
+    return QUAT_DEFAULT;
+  }
 
-        return VEC3_ZERO;
+  /**
+   * @param {ModelInstance} instance
+   * @return {vec3}
+   */
+  getScale(instance) {
+    if (this.textureAnimation) {
+      return this.textureAnimation.getScale(instance);
     }
 
-    isTranslationVariant(sequence) {
-        if (this.textureAnimation) {
-            return this.textureAnimation.isTranslationVariant(sequence);
-        } else {
-            return false;
-        }
+    return VEC3_ONE;
+  }
+
+  /**
+   * @param {number} sequence
+   * @return {boolean}
+   */
+  isAlphaVariant(sequence) {
+    return this.isVariant('KMTA', sequence);
+  }
+
+  /**
+   * @param {number} sequence
+   * @return {boolean}
+   */
+  isTextureIdVariant(sequence) {
+    return this.isVariant('KMTF', sequence);
+  }
+
+  /**
+   * @param {number} sequence
+   * @return {boolean}
+   */
+  isTranslationVariant(sequence) {
+    if (this.textureAnimation) {
+      return this.textureAnimation.isTranslationVariant(sequence);
+    } else {
+      return false;
     }
+  }
 
-    getRotation(instance) {
-        if (this.textureAnimation) {
-            return this.textureAnimation.getRotation(instance);
-        }
-
-        return QUAT_DEFAULT;
+  /**
+   * @param {number} sequence
+   * @return {boolean}
+   */
+  isRotationVariant(sequence) {
+    if (this.textureAnimation) {
+      return this.textureAnimation.isRotationVariant(sequence);
+    } else {
+      return false;
     }
+  }
 
-    isRotationVariant(sequence) {
-        if (this.textureAnimation) {
-            return this.textureAnimation.isRotationVariant(sequence);
-        } else {
-            return false;
-        }
+  /**
+   * @param {number} sequence
+   * @return {boolean}
+   */
+  isScaleVariant(sequence) {
+    if (this.textureAnimation) {
+      return this.textureAnimation.isScaleVariant(sequence);
+    } else {
+      return false;
     }
-
-    getScale(instance) {
-        if (this.textureAnimation) {
-            return this.textureAnimation.getScale(instance);
-        }
-
-        return VEC3_ONE;
-    }
-
-    isScaleVariant(sequence) {
-        if (this.textureAnimation) {
-            return this.textureAnimation.isScaleVariant(sequence);
-        } else {
-            return false;
-        }
-    }
-};
+  }
+}

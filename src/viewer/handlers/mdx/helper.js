@@ -1,3 +1,6 @@
 import GenericObject from './genericobject';
 
-export default class Helper extends GenericObject { };
+/**
+ * An MDX helper.
+ */
+export default class Helper extends GenericObject {}

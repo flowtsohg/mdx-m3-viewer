@@ -95,11 +95,11 @@ let mdxTests = {
                         camera.move([0, -80, -200]);
                         camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
                         camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-90)));
-        
+
                         let instance = model.addInstance().setSequence(0);
-        
+
                         instance.frame = 800;
-        
+
                         scene.addInstance(instance);
                     }
                 },
@@ -111,11 +111,11 @@ let mdxTests = {
                     },
                     test(viewer, scene, camera, model) {
                         camera.move([-40, -40, -100]);
-        
+
                         let instance = model.addInstance().setSequence(0).uniformScale(2100).setSequenceLoopMode(2);
-                        
+
                         instance.frame = 600;
-        
+
                         scene.addInstance(instance);
                     }
                 },
@@ -129,9 +129,9 @@ let mdxTests = {
                         camera.move([0, -80, -600]);
                         camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
                         camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-90)));
-        
+
                         let instance = model.addInstance().setSequence(1);
-        
+
                         scene.addInstance(instance);
                     }
                 }
@@ -294,7 +294,7 @@ let mdxTests = {
                         return viewer.load("Doodads/Dungeon/Props/ForceWall/ForceWall.mdx", wc3Solver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, -50, -200]);
+                        camera.move([0, -50, -600]);
                         camera.rotate(quat.setAxisAngle([], [1, 0, 0], math.degToRad(-90)));
 
                         let instance = model.addInstance().setSequence(0).setSequenceLoopMode(2);
@@ -313,7 +313,7 @@ let mdxTests = {
                         return viewer.load("Doodads/Cinematic/EnergyField/EnergyField.mdx", wc3Solver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, 0, -300]);
+                        camera.move([0, 0, -600]);
                         camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(90)));
                         camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(45)));
 
@@ -347,7 +347,7 @@ let mdxTests = {
                     }
                 }
             ]
-            
+
         },
 
         {

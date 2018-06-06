@@ -1,150 +1,192 @@
+import * as resemble from '../../thirdparty/resemble';
 import seededRandom from '../common/seededrandom';
-import { imageToImageData, blobToImage } from '../common/canvas';
-import { downloadBlob } from '../common/download';
+import {imageToImageData, blobToImage} from '../common/canvas';
+import {downloadBlob} from '../common/download';
 import ModelViewer from '../viewer/viewer';
-import Scene from '../viewer/scene';
 import Mdx from '../viewer/handlers/mdx/handler';
 import M3 from '../viewer/handlers/m3/handler';
 import Geo from '../viewer/handlers/geo/handler';
 
+/**
+ * A unit tester designed for the model viewer.
+ * The input of each test is a pre-defined scene, and the output is the rendered image.
+ * The image is then compared to another image generated from the same test, at a time when rendering it was considered "correct".
+ *
+ * Note: it looks like this tester cannot be completely dependant on.
+ *     This is because different computers (and even different browsers on the same computer) render slightly different.
+ */
 export default class UnitTester {
-    constructor() {
-        let canvas = document.createElement('canvas');
+  /**
+   *
+   */
+  constructor() {
+    let canvas = document.createElement('canvas');
 
-        canvas.width = canvas.height = 256;
+    canvas.width = canvas.height = 256;
 
-        let viewer = new ModelViewer(canvas, { alpha: false, antialias: false });
+    let viewer = new ModelViewer(canvas, {alpha: false, antialias: false});
 
-        viewer.gl.clearColor(0.05, 0.05, 0.05, 1);
+    viewer.gl.clearColor(0.05, 0.05, 0.05, 1);
 
-        viewer.addEventListener('error', (e) => console.log(e));
+    viewer.addEventListener('error', (e) => console.log(e));
 
-        viewer.addHandler(Mdx);
-        viewer.addHandler(M3);
-        viewer.addHandler(Geo);
+    viewer.addHandler(Mdx);
+    viewer.addHandler(M3);
+    viewer.addHandler(Geo);
 
-        viewer.noCulling = true;
-        
-        this.viewer = viewer;
-        this.mathRandom = Math.random;
-        this.tests = [];
+    viewer.noCulling = true;
+
+    this.viewer = viewer;
+    this.mathRandom = Math.random;
+    this.tests = [];
+  }
+
+  /**
+   * Add a test or a hierarchy of tests.
+   *
+   * @param {Object} test
+   */
+  add(test) {
+    if (test.tests) {
+      this.addBaseName(test.tests, test.name);
+    } else {
+      this.tests.push({name: test.name, test});
+    }
+  }
+
+  /**
+   * Run all of the tests that were added.
+   * The callback will be called with the result of each one.
+   * The results look like iterators: {done: true/false, value: undefine/result }.
+   *
+   * @param {function} callback
+   */
+  async test(callback) {
+    for (let test of this.tests) {
+      let testBlob = await this.getTestBlob(test);
+      let comparisonBlob = await this.getComparisonBlob(test);
+      let comparisonPromise = new Promise((resolve) => resemble(testBlob).compareTo(comparisonBlob).ignoreColors().onComplete((data) => resolve(data)));
+      let [testImage, comparisonImage, testResult] = await Promise.all([blobToImage(testBlob), blobToImage(comparisonBlob), comparisonPromise]);
+
+      callback({done: false, value: {name: test.name, testImage, comparisonImage, result: testResult.rawMisMatchPercentage}});
     }
 
-    add(test) {
-        if (test.tests) {
-            this.addBaseName(test.tests, test.name);
-        } else {
-            this.tests.push({ name: test.name, test });
-        }
-    }
-    
-    async test(callback) {
-        for (let test of this.tests) {
-            let testImage = await blobToImage(await this.getTestBlob(test)),
-                comparisonImage = await this.getComparisonImage(test),
-                result = this.compareImages(testImage, comparisonImage);
+    callback({done: true});
+  }
 
-            callback({ done: false, value: { name: test.name, testImage, comparisonImage, result }});
-        }
+  /**
+   * Run all of the tests that were added, and download them.
+   * The tests are not compared against anything.
+   * This is used to update the "correct" results.
+   *
+   * @param {function} callback
+   */
+  async download(callback) {
+    for (let test of this.tests) {
+      let testBlob = await this.getTestBlob(test);
 
-        callback({ done: true });
-    }
+      downloadBlob(testBlob, `${test.name}.png`);
 
-    async download(callback) {
-        for (let test of this.tests) {
-            let testBlob = await this.getTestBlob(test);
-
-            downloadBlob(testBlob, `${test.name}.png`);
-        }
-
-        callback({ done: true });
+      callback({done: false, value: {name: test.name}});
     }
 
-    // Given a test, return a promise that will resolve to the blob that resulted from running the test.
-    async getTestBlob(test) {
-        let name = test.name,
-            loadHandler = test.test.load,
-            testHandler = test.test.test,
-            viewer = this.viewer;
+    callback({done: true});
+  }
 
-        // Clear the viewer
-        viewer.clear();
+  /**
+   * Given a test, return a promise that will resolve to the blob that resulted from running the test.
+   *
+   * @param {Object} test
+   * @return {Promise}
+   */
+  async getTestBlob(test) {
+    let loadHandler = test.test.load;
+    let testHandler = test.test.test;
+    let viewer = this.viewer;
 
-        let scene = viewer.addScene(),
-            camera = scene.camera;
+    // Clear the viewer
+    viewer.clear();
 
-        // Setup the camera
-        camera.setViewport([0, 0, viewer.canvas.width, viewer.canvas.height]);
-        camera.setPerspective(Math.PI / 4, 1, 8, 100000);
-        camera.resetTransformation();
+    let scene = viewer.addScene();
+    let camera = scene.camera;
 
-        // Start loading the test.
-        let data = loadHandler(viewer);
+    // Setup the camera
+    camera.setViewport([0, 0, viewer.canvas.width, viewer.canvas.height]);
+    camera.setPerspective(Math.PI / 4, 1, 8, 100000);
+    camera.resetTransformation();
 
-        // Wait until everything loaded.
-        await viewer.whenAllLoaded();
+    // Start loading the test.
+    let data = loadHandler(viewer);
 
-        // Replace Math.random with a custom seeded random generator.
-        // This allows to run the viewer in a deterministic environment for tests.
-        // For example, particles have some randomized data, which can make tests mismatch.
-        Math.random = seededRandom(6);
+    // Wait until everything loaded.
+    await viewer.whenAllLoaded();
 
-        // Run the test.
-        testHandler(viewer, scene, camera, data);
+    // Replace Math.random with a custom seeded random generator.
+    // This allows to run the viewer in a deterministic environment for tests.
+    // For example, particles have some randomized data, which can make tests mismatch.
+    Math.random = seededRandom(6);
 
-        // Update and render.
-        viewer.updateAndRender();
+    // Run the test.
+    testHandler(viewer, scene, camera, data);
 
-        // Put back Math.random in its place.
-        Math.random = this.mathRandom;
+    // Update and render.
+    viewer.updateAndRender();
 
-        // Return the viewer's canvas' blob.
-        return await viewer.toBlob();
+    // Put back Math.random in its place.
+    Math.random = this.mathRandom;
+
+    // Return the viewer's canvas' blob.
+    return await viewer.toBlob();
+  }
+
+  /**
+   * Given a test, return a promise that will resolve to the comparison image of this test.
+   *
+   * @param {Object} test
+   * @return {Promise}
+   */
+  async getComparisonBlob(test) {
+    return await (await fetch(`compare/${test.name}.png`)).blob();
+  }
+
+  /**
+   * Compares two images.
+   *
+   * @param {Image} imageA
+   * @param {Image} imageB
+   * @return {boolean}
+   */
+  compareImages(imageA, imageB) {
+    if (imageA.width !== imageB.width || imageA.height !== imageB.height) {
+      return false;
     }
 
-    // Given a test, return a promise that will resolve to the comparison image of this test.
-    getComparisonImage(test) {
-        return new Promise((resolve, reject) => {
-            let image = new Image();
+    let a = imageToImageData(imageA).data;
+    let b = imageToImageData(imageB).data;
 
-            image.onload = () => {
-                resolve(image);
-            };
-
-            image.onerror = () => {
-                resolve(image);
-            };
-
-            image.src = 'compare/' + test.name + '.png';
-        });
+    for (let i = 0, l = a.length; i < l; i++) {
+      if (a[i] !== b[i]) {
+        return false;
+      }
     }
 
-    // Compares the size and every pixel of two images, and returns the result.
-    compareImages(imageA, imageB) {
-        if (imageA.width !== imageB.width || imageA.height !== imageB.height) {
-            return false;
-        }
+    return true;
+  }
 
-        let a = imageToImageData(imageA).data,
-            b = imageToImageData(imageB).data;
-
-        for (let i = 0, l = a.length; i < l; i++) {
-            if (a[i] !== b[i]) {
-                return false;
-            }
-        }
-
-        return true;
+  /**
+   * Adds tests from an hierarchy will appending their names.
+   * Called automatically by add() if needed.
+   *
+   * @param {Array<Object>} tests
+   * @param {string} baseName
+   */
+  addBaseName(tests, baseName) {
+    for (let test of tests) {
+      if (test.tests) {
+        this.addBaseName(test.tests, baseName + '-' + test.name);
+      } else {
+        this.tests.push({name: baseName + '-' + test.name, test});
+      }
     }
-
-    addBaseName(tests, baseName) {
-        for (let test of tests) {
-            if (test.tests) {
-                this.addBaseName(test.tests, baseName + '-' + test.name);
-            } else {
-                this.tests.push({ name: baseName + '-' + test.name, test });
-            }
-
-        }
-    }
-};
+  }
+}

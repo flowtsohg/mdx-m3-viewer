@@ -4,8 +4,8 @@ import ModelInstance from './modelinstance';
 import Bucket from './bucket';
 
 export default {
-    Handler,
-    Model,
-    ModelInstance,
-    Bucket
+  Handler,
+  Model,
+  ModelInstance,
+  Bucket,
 };

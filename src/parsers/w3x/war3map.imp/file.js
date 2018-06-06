@@ -1,105 +1,121 @@
 import BinaryStream from '../../../common/binarystream';
 import Import from './import';
 
+/**
+ * war3map.imp - the import file.
+ */
 export default class War3MapImp {
-    /**
-     * @param {?ArrayBuffer} buffer 
-     */
-    constructor(buffer) {
-        /** @member {number} */
-        this.version = 1;
-        /** @member {Map<string, Import>} */
-        this.entries = new Map();
+  /**
+   *
+   */
+  constructor() {
+    /** @member {number} */
+    this.version = 1;
+    /** @member {Map<string, Import>} */
+    this.entries = new Map();
+  }
 
-        if (buffer) {
-            this.load(buffer);
-        }
+  /**
+   * @param {ArrayBuffer} buffer
+   */
+  load(buffer) {
+    let stream = new BinaryStream(buffer);
+
+    this.version = stream.readUint32();
+
+    for (let i = 0, l = stream.readUint32(); i < l; i++) {
+      let entry = new Import();
+
+      entry.load(stream);
+
+      if (entry.isCustom) {
+        this.entries.set(entry.name, entry);
+      } else {
+        this.entries.set(`war3mapimported\\${entry.name}`, entry);
+      }
+    }
+  }
+
+  /**
+   * @return {ArrayBuffer}
+   */
+  save() {
+    let buffer = new ArrayBuffer(this.getByteLength());
+    let stream = new BinaryStream(buffer);
+
+    stream.writeUint32(this.version);
+    stream.writeUint32(this.entries.size);
+
+    for (let entry of this.entries.values()) {
+      entry.save(stream);
     }
 
-    /**
-     * @param {ArrayBuffer} buffer 
-     */
-    load(buffer) {
-        let stream = new BinaryStream(buffer);
+    return buffer;
+  }
 
-        this.version = stream.readUint32();
+  /**
+   * @return {number}
+   */
+  getByteLength() {
+    let size = 8;
 
-        for (let i = 0, l = stream.readUint32(); i < l; i++) {
-            let entry = new Import();
-
-            entry.load(stream);
-
-            if (entry.isCustom) {
-                this.entries.set(entry.name, entry);
-            } else {
-                this.entries.set(`war3mapimported\\${entry.name}`, entry);
-            }
-        }
+    for (let entry of this.entries.values()) {
+      size += entry.getByteLength();
     }
 
-    /**
-     * @returns {ArrayBuffer}
-     */
-    save() {
-        let buffer = new ArrayBuffer(this.getByteLength()),
-            stream = new BinaryStream(buffer);
+    return size;
+  }
 
-        stream.writeUint32(this.version);
-        stream.writeUint32(this.entries.size);
+  /**
+   * @param {string} name
+   * @return {boolean}
+   */
+  set(name) {
+    if (!this.entries.has(name)) {
+      let entry = new Import();
 
-        for (let entry of this.entries.values()) {
-            entry.save(stream);
-        }
+      entry.isCustom = 10;
+      entry.path = name;
 
-        return buffer;
+      this.entries.set(name, entry);
+
+      return true;
     }
 
-    /**
-     * @returns {number}
-     */
-    getByteLength() {
-        let size = 8;
+    return false;
+  }
 
-        for (let entry of this.entries.values()) {
-            size += entry.getByteLength();
-        }
+  /**
+   * @param {string} name
+   * @return {boolean}
+   */
+  has(name) {
+    return this.entries.has(name);
+  }
 
-        return size;
+  /**
+   * @param {string} name
+   * @return {boolean}
+   */
+  delete(name) {
+    return this.entries.delete(name);
+  }
+
+  /**
+   * @param {string} name
+   * @param {string} newName
+   * @return {boolean}
+   */
+  rename(name, newName) {
+    let entry = this.entries.get(name);
+
+    if (entry) {
+      entry.isCustom = 10;
+      entry.path = newName;
+
+      return true;
     }
 
-    set(name) {
-        if (!this.entries.has(name)) {
-            let entry = new Import();
-
-            entry.isCustom = 10;
-            entry.path = name;
-
-            this.entries.set(name, entry);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    has(name) {
-        return this.entries.has(name);
-    }
-
-    delete(name) {
-        return this.entries.delete(name);
-    }
-
-    rename(name, newName) {
-        let entry = this.entries.get(name);
-
-        if (entry) {
-            entry.isCustom = 10;
-            entry.path = newName;
-
-            return true;
-        }
-
-        return false;
-    }
-};
+    return false;
+  }
+}

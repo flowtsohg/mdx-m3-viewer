@@ -1,20 +1,32 @@
 import SharedEmitter from './sharedemitter';
 import EventObjectSpn from './eventobjectspn';
 
+/**
+ * An MDX model emitter.
+ */
 export default class EventObjectSpnEmitter extends SharedEmitter {
-    constructor(modelObject) {
-        super(modelObject);
+  /**
+   * @param {EventObject} modelObject
+   */
+  constructor(modelObject) {
+    super(modelObject);
 
-        this.type = 'SPN';
-    }
+    this.type = 'SPN';
+  }
 
-    emit(emitterView) {
-        if (this.modelObject.ready) {
-            this.emitObject(emitterView);
-        }
+  /**
+   * @param {EventObjectEmitterView} emitterView
+   */
+  emit(emitterView) {
+    if (this.modelObject.ready) {
+      this.emitObject(emitterView);
     }
+  }
 
-    createObject() {
-        return new EventObjectSpn(this);
-    }
-};
+  /**
+   * @return {EventObjectSpn}
+   */
+  createObject() {
+    return new EventObjectSpn(this);
+  }
+}

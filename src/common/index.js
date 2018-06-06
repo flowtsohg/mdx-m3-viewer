@@ -9,13 +9,13 @@ import BitStream from './bitstream';
 import TokenStream from './tokenstream';
 
 export default {
-    glMatrix,
-    glMatrixAddon,
-    math,
-    canvas,
-    geometry,
-    download,
-    BinaryStream,
-    BitStream,
-    TokenStream
+  glMatrix,
+  glMatrixAddon,
+  math,
+  canvas,
+  geometry,
+  download,
+  BinaryStream,
+  BitStream,
+  TokenStream,
 };

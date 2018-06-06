@@ -4,9 +4,9 @@ import Bucket from './bucket';
 import ModelInstance from './modelinstance';
 
 export default {
-    load(viewer) {
-        let shader = viewer.loadShader('GeoStandardShader',
-            viewer.sharedShaders.boneTexture + viewer.sharedShaders.instanceId + `
+  load(viewer) {
+    let shader = viewer.loadShader('GeoStandardShader',
+      viewer.sharedShaders.boneTexture + viewer.sharedShaders.instanceId + `
                 uniform mat4 u_mvp;
                 uniform vec2 u_uvOffset;
                 uniform vec2 u_uvScale;
@@ -26,7 +26,7 @@ export default {
                     gl_Position = u_mvp * fetchMatrix(0.0, a_InstanceID) * vec4(a_position, 1.0);
                 }
             `,
-            `
+      `
                 uniform sampler2D u_diffuseMap;
                 uniform float u_alphaMod;
                 uniform bool u_isEdge;
@@ -50,15 +50,15 @@ export default {
                     } 
                 }
             `
-        );
+    );
 
-        // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
-        return shader.loaded;
-    },
+    // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
+    return shader.loaded;
+  },
 
-    extensions: [['.geo']],
-    constructor: Model,
-    view: ModelView,
-    bucket: Bucket,
-    instance: ModelInstance,
+  extensions: [['.geo']],
+  Constructor: Model,
+  View: ModelView,
+  Bucket: Bucket,
+  Instance: ModelInstance,
 };

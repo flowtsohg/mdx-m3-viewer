@@ -2,33 +2,33 @@
  * Returns the ArrayBuffer representation of the given string.
  * The string is assumed to be a binary string.
  * That is, unicode and locales are not handled in any way.
- * 
- * @param {string} s 
- * @returns {ArrayBuffer}
+ *
+ * @param {string} s
+ * @return {ArrayBuffer}
  */
 export function stringToBuffer(s) {
-    let typedArray = new Uint8Array(s.length);
+  let typedArray = new Uint8Array(s.length);
 
-    for (let i = 0, l = typedArray.length; i < l; i++) {
-        typedArray[i] = s.charCodeAt(i);
-    }
+  for (let i = 0, l = typedArray.length; i < l; i++) {
+    typedArray[i] = s.charCodeAt(i);
+  }
 
-    return typedArray.buffer;
-};
+  return typedArray.buffer;
+}
 
 /**
  * Returns the string representation of the given ArrayBuffer.
- * 
- * @param {ArrayBuffer} b 
- * @returns {string}
+ *
+ * @param {ArrayBuffer} b
+ * @return {string}
  */
 export function bufferToString(b) {
-    let typedArray = new Uint8Array(b),
-        s = '';
+  let typedArray = new Uint8Array(b);
+  let s = '';
 
-    for (let i = 0, l = typedArray.length; i < l; i++) {
-        s += String.fromCharCode(typedArray[i]);
-    }
+  for (let i = 0, l = typedArray.length; i < l; i++) {
+    s += String.fromCharCode(typedArray[i]);
+  }
 
-    return s;
-};
+  return s;
+}

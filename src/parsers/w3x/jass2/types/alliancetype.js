@@ -1,3 +1,6 @@
 import JassEnum from './enum';
 
-export default class JassAllianceType extends JassEnum { };
+/**
+ * type alliancetype
+ */
+export default class JassAllianceType extends JassEnum {}

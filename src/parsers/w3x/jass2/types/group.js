@@ -1,9 +1,16 @@
 import JassAgent from './agent';
 
+/**
+ * type group
+ */
 export default class JassGroup extends JassAgent {
-    constructor(jassContext) {
-        super(jassContext);
+  /**
+   * @param {JassContext} jassContext
+   */
+  constructor(jassContext) {
+    super(jassContext);
 
-        this.units = new Set();
-    }
-};
+    /** @member {Set<JassUnit>} */
+    this.units = new Set();
+  }
+}

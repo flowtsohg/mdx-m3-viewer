@@ -1,23 +1,35 @@
 import Parameter from './parameter';
 
+/**
+ * A function call in an expression.
+ */
 export default class SubParameters {
+  /**
+   *
+   */
   constructor() {
     this.type = 0;
     this.name = '';
+    this.beginParameters = 0;
     this.parameters = [];
   }
 
-  load(stream, version, functions) {
+  /**
+   * @param {BinaryStream} stream
+   * @param {number} version
+   * @param {TriggerData} triggerData
+   */
+  load(stream, version, triggerData) {
     this.type = stream.readInt32();
     this.name = stream.readUntilNull();
     this.beginParameters = stream.readInt32();
 
     if (this.beginParameters) {
       let name = this.name.toLowerCase();
-      let args = functions.triggerData[name];
+      let args = triggerData.functions[name];
 
       if (!args) {
-        args = functions.external[name];
+        args = triggerData.externalFunctions[name];
 
         if (!args) {
           throw new Error(`Unknown SubParameters "${this.name}"`);
@@ -27,13 +39,17 @@ export default class SubParameters {
       for (let i = 0, l = args.length; i < l; i++) {
         let parameter = new Parameter();
 
-        parameter.load(stream, version, functions);
+        parameter.load(stream, version, triggerData);
 
         this.parameters[i] = parameter;
       }
     }
   }
 
+  /**
+   * @param {BinaryStream} stream
+   * @param {number} version
+   */
   save(stream, version) {
     stream.writeInt32(this.type);
     stream.write(`${this.name}\0`);
@@ -59,4 +75,4 @@ export default class SubParameters {
 
     return size;
   }
-};
+}

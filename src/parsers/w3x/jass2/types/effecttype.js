@@ -1,3 +1,6 @@
 import JassEnum from './enum';
 
-export default class JassEffectType extends JassEnum { };
+/**
+ * type effecttype
+ */
+export default class JassEffectType extends JassEnum {}

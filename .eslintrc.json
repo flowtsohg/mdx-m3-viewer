@@ -1,0 +1,21 @@
+{
+  "extends": "google",
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 8,
+    "sourceType": "module",
+    "impliedStrict": true
+  },
+  "rules": {
+    "max-len": "off",
+    "indent": [
+      "error",
+      2
+    ],
+    "no-extra-semi": 2
+  }
+}

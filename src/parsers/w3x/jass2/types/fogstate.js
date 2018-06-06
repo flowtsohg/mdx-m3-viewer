@@ -1,3 +1,6 @@
 import JassEnum from './enum';
 
-export default class JassFogState extends JassEnum { };
+/**
+ * type fogstate
+ */
+export default class JassFogState extends JassEnum {}

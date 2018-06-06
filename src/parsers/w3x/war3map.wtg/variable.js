@@ -1,53 +1,67 @@
+/**
+ * A global variable.
+ */
 export default class Variable {
-    constructor() {
-        this.name = '';
-        this.type = '';
-        this.u1 = 0;
-        this.isArray = 0;
-        this.arraySize = 0;
-        this.isInitialized = 0;
-        this.initialValue = '';
+  /**
+   *
+   */
+  constructor() {
+    this.name = '';
+    this.type = '';
+    this.u1 = 0;
+    this.isArray = 0;
+    this.arraySize = 0;
+    this.isInitialized = 0;
+    this.initialValue = '';
+  }
+
+  /**
+   * @param {BinaryStream} stream
+   * @param {number} version
+   */
+  load(stream, version) {
+    this.name = stream.readUntilNull();
+    this.type = stream.readUntilNull();
+    this.u1 = stream.readInt32();
+    this.isArray = stream.readInt32();
+
+    if (version === 7) {
+      this.arraySize = stream.readInt32();
     }
 
-    load(stream, version) {
-        this.name = stream.readUntilNull();
-        this.type = stream.readUntilNull();
-        this.u1 = stream.readInt32();
-        this.isArray = stream.readInt32();
+    this.isInitialized = stream.readInt32();
+    this.initialValue = stream.readUntilNull();
+  }
 
-        if (version === 7) {
-            this.arraySize = stream.readInt32();
-        }
+  /**
+   * @param {BinaryStream} stream
+   * @param {number} version
+   */
+  save(stream, version) {
+    stream.write(`${this.name}\0`);
+    stream.write(`${this.type}\0`);
+    stream.writeInt32(this.u1);
+    stream.writeInt32(this.isArray);
 
-        this.isInitialized = stream.readInt32();
-        this.initialValue = stream.readUntilNull();
+    if (version === 7) {
+      stream.writeInt32(this.arraySize);
     }
 
-    save(stream, version) {
-        stream.write(`${this.name}\0`);
-        stream.write(`${this.type}\0`);
-        stream.writeInt32(this.u1);
-        stream.writeInt32(this.isArray);
+    stream.writeInt32(this.isInitialized);
+    stream.write(`${this.initialValue}\0`);
+  }
 
-        if (version === 7) {
-            stream.writeInt32(this.arraySize);
-        }
+  /**
+   * @param {number} version
+   * @return {number}
+   */
+  getByteLength(version) {
+    let size = 15 + this.name.length + this.type.length + this.initialValue.length;
 
-        stream.writeInt32(this.isInitialized);
-        stream.write(`${this.initialValue}\0`);
+    if (version === 7) {
+      size += 4;
     }
 
-    /**
-     * @param {number} version 
-     * @returns {number} 
-     */
-    getByteLength(version) {
-        let size = 15 + this.name.length + this.type.length + this.initialValue.length;
-
-        if (version === 7) {
-            size += 4;
-        }
-
-        return size;
-    }
-};
+    return size;
+  }
+}

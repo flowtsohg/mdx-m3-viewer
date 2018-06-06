@@ -1,67 +1,73 @@
 import Modification from './modification';
 
+/**
+ * A modified object.
+ */
 export default class ModifiedObject {
-    constructor(stream, useOptionalInts) {
-        /** @member {string} */
-        this.oldId = '\0\0\0\0';
-        /** @member {string} */
-        this.newId = '\0\0\0\0';
-        /** @member {Array<Modification>} */
-        this.modifications = [];
+  /**
+   *
+   */
+  constructor() {
+    /** @member {string} */
+    this.oldId = '\0\0\0\0';
+    /** @member {string} */
+    this.newId = '\0\0\0\0';
+    /** @member {Array<Modification>} */
+    this.modifications = [];
+  }
+
+  /**
+   * @param {BinaryStream} stream
+   * @param {number} useOptionalInts
+   */
+  load(stream, useOptionalInts) {
+    this.oldId = stream.read(4);
+    this.newId = stream.read(4);
+
+    for (let i = 0, l = stream.readUint32(); i < l; i++) {
+      let modification = new Modification();
+
+      modification.load(stream, useOptionalInts);
+
+      this.modifications[i] = modification;
+    }
+  }
+
+  /**
+   * @param {BinaryStream} stream
+   * @param {number} useOptionalInts
+   */
+  save(stream, useOptionalInts) {
+    if (this.oldId) {
+      stream.write(this.oldId);
+    } else {
+      stream.writeUint32(0);
     }
 
-    /**
-     * @param {BinaryStream} stream 
-     * @param {number} useOptionalInts 
-     */
-    load(stream, useOptionalInts) {
-        this.oldId = stream.read(4);
-        this.newId = stream.read(4);
-
-        for (let i = 0, l = stream.readUint32(); i < l; i++) {
-            let modification = new Modification();
-
-            modification.load(stream, useOptionalInts);
-
-            this.modifications[i] = modification;
-        }
+    if (this.newId) {
+      stream.write(this.newId);
+    } else {
+      stream.writeUint32(0);
     }
 
-    /**
-     * @param {BinaryStream} stream 
-     * @param {number} useOptionalInts 
-     */
-    save(stream, useOptionalInts) {
-        if (this.oldId) {
-            stream.write(this.oldId);
-        } else {
-            stream.writeUint32(0);
-        }
+    stream.writeUint32(this.modifications.length);
 
-        if (this.newId) {
-            stream.write(this.newId);
-        } else {
-            stream.writeUint32(0);
-        }
+    for (let modification of this.modifications) {
+      modification.save(stream, useOptionalInts);
+    }
+  }
 
-        stream.writeUint32(this.modifications.length);
+  /**
+   * @param {number} useOptionalInts
+   * @return {number}
+   */
+  getByteLength(useOptionalInts) {
+    let size = 12;
 
-        for (let modification of this.modifications) {
-            modification.save(stream, useOptionalInts);
-        }
+    for (let modification of this.modifications) {
+      size += modification.getByteLength(useOptionalInts);
     }
 
-    /**
-     * @param {number} useOptionalInts 
-     * @returns {number} 
-     */
-    getByteLength(useOptionalInts) {
-        let size = 12;
-
-        for (let modification of this.modifications) {
-            size += modification.getByteLength(useOptionalInts);
-        }
-
-        return size;
-    }
-};
+    return size;
+  }
+}
