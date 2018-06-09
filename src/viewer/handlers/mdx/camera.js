@@ -1,9 +1,4 @@
-import {vec3} from 'gl-matrix';
 import GenericObject from './genericobject';
-
-// Heap allocations needed for this module.
-let positionHeap = vec3.create();
-let targetPositionHeap = vec3.create();
 
 /**
  * An MDX camera.
@@ -26,26 +21,29 @@ export default class Camera extends GenericObject {
   }
 
   /**
+   * @param {vec3} out
    * @param {ModelInstance} instance
-   * @return {vec3}
+   * @return {number}
    */
-  getPositionTranslation(instance) {
-    return this.getValue3(positionHeap, 'KCTR', instance, this.position);
+  getPositionTranslation(out, instance) {
+    return this.getVector3Value(out, 'KCTR', instance, this.position);
   }
 
   /**
+   * @param {vec3} out
    * @param {ModelInstance} instance
-   * @return {vec3}
+   * @return {number}
    */
-  getTargetTranslation(instance) {
-    return this.getValue3(targetPositionHeap, 'KTTR', instance, this.targetPosition);
+  getTargetTranslation(out, instance) {
+    return this.getVector3Value(out, 'KTTR', instance, this.targetPosition);
   }
 
   /**
+   * @param {Uint32Array} out
    * @param {ModelInstance} instance
-   * @return {quat}
+   * @return {number}
    */
-  getRotation(instance) {
-    return this.getValue('KCRL', instance, 0);
+  getRotation(out, instance) {
+    return this.getUintValue(out, 'KCRL', instance, 0);
   }
 }

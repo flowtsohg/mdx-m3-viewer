@@ -5,6 +5,11 @@ import {randomInRange} from '../../../common/math';
 // Heap allocations needed for this module.
 let rotationHeap = quat.create();
 let velocityHeap = vec3.create();
+let latitudeHeap = new Float32Array(1);
+// let longitudeHeap = new Float32Array(1);
+let lifeSpanHeap = new Float32Array(1);
+let gravityHeap = new Float32Array(1);
+let speedHeap = new Float32Array(1);
 
 /**
  * A spawned model particle.
@@ -30,26 +35,30 @@ export default class Particle {
     let node = instance.nodes[this.emitter.modelObject.index];
     let internalInstance = this.internalInstance;
     let scale = node.worldScale;
-    let latitude = emitterView.getLatitude();
-    // let longitude = emitterView.getLongitude();
     let velocity = this.velocity;
+
+    emitterView.getLatitude(latitudeHeap);
+    // emitterView.getLongitude(longitudeHeap);
+    emitterView.getLifeSpan(lifeSpanHeap);
+    emitterView.getGravity(gravityHeap);
+    emitterView.getSpeed(speedHeap);
 
     this.instance = instance;
     this.node = node;
-    this.health = emitterView.getLifeSpan();
-    this.gravity = emitterView.getGravity() * scale[2];
+    this.health = lifeSpanHeap[0];
+    this.gravity = gravityHeap[0] * scale[2];
 
     // Local rotation
     quat.identity(rotationHeap);
     quat.rotateZ(rotationHeap, rotationHeap, randomInRange(-Math.PI, Math.PI));
-    quat.rotateY(rotationHeap, rotationHeap, randomInRange(-latitude, latitude));
+    quat.rotateY(rotationHeap, rotationHeap, randomInRange(-latitudeHeap[0], latitudeHeap[0]));
     vec3.transformQuat(velocity, VEC3_UNIT_Z, rotationHeap);
 
     // World rotation
     vec3.transformQuat(velocity, velocity, node.worldRotation);
 
     // Apply speed
-    vec3.scale(velocity, velocity, emitterView.getSpeed());
+    vec3.scale(velocity, velocity, speedHeap[0]);
 
     // Apply the parent's scale
     vec3.mul(velocity, velocity, scale);

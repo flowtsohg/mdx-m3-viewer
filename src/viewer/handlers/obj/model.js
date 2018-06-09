@@ -55,12 +55,12 @@ export default class ObjModel extends Model {
 
   // Called every frame, render opaque stuff here.
   renderOpaque(data, scene, modelView) {
-    let webgl = this.viewer.webgl,
-      gl = this.viewer.gl,
-      shader = this.viewer.shaderMap.get('ObjShader'),
-      uniforms = shader.uniforms,
-      attribs = shader.attribs,
-      instances = data.instances;
+    let webgl = this.viewer.webgl;
+    let gl = this.viewer.gl;
+    let shader = this.viewer.shaderMap.get('ObjShader');
+    let uniforms = shader.uniforms;
+    let attribs = shader.attribs;
+    let instances = data.instances;
 
     webgl.useShaderProgram(shader);
 

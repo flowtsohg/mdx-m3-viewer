@@ -25,44 +25,50 @@ export default class RibbonEmitterView {
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getHeightBelow() {
-    return this.emitter.getHeightBelow(this.instance);
+  getHeightBelow(out) {
+    return this.emitter.getHeightBelow(out, this.instance);
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getHeightAbove() {
-    return this.emitter.getHeightAbove(this.instance);
+  getHeightAbove(out) {
+    return this.emitter.getHeightAbove(out, this.instance);
   }
 
   /**
+   * @param {Uint32Array} out
    * @return {number}
    */
-  getTextureSlot() {
-    return this.emitter.getTextureSlot(this.instance);
+  getTextureSlot(out) {
+    return this.emitter.getTextureSlot(out, this.instance);
   }
 
   /**
-   * @return {vec3}
+   * @param {vec3} out
+   * @return {number}
    */
-  getColor() {
-    return this.emitter.getColor(this.instance);
+  getColor(out) {
+    return this.emitter.getColor(out, this.instance);
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getAlpha() {
-    return this.emitter.getAlpha(this.instance);
+  getAlpha(out) {
+    return this.emitter.getAlpha(out, this.instance);
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getVisibility() {
-    return this.emitter.getVisibility(this.instance);
+  getVisibility(out) {
+    return this.emitter.getVisibility(out, this.instance);
   }
 }

@@ -5,7 +5,7 @@ import geo from './geo';
 import m3 from './m3';
 import mdx from './mdx';
 import mpq from './mpq';
-import nativetexture from './nativetexture';
+import imagetexture from './imagetexture';
 import obj from './obj';
 import slk from './slk';
 import tga from './tga';
@@ -19,7 +19,7 @@ export default {
   m3,
   mdx,
   mpq,
-  nativetexture,
+  imagetexture,
   obj,
   slk,
   tga,

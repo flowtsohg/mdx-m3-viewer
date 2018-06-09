@@ -1,7 +1,7 @@
-import Trigger from '../parsers/w3x/war3map.wtg/trigger';
-import ECA from '../parsers/w3x/war3map.wtg/eca';
-import Parameter from '../parsers/w3x/war3map.wtg/parameter';
-import SubParameters from '../parsers/w3x/war3map.wtg/subparameters';
+import Trigger from '../parsers/w3x/wtg/trigger';
+import ECA from '../parsers/w3x/wtg/eca';
+import Parameter from '../parsers/w3x/wtg/parameter';
+import SubParameters from '../parsers/w3x/wtg/subparameters';
 
 /**
    *
@@ -92,6 +92,7 @@ class WEUConverter {
     this.callback = callback;
     this.stack = [];
     this.generatedNames = {};
+    this.callbacks = [];
     this.triggerData = triggerData;
     this.triggerFile = null;
     this.customTextTriggerFile = null;
@@ -118,6 +119,10 @@ class WEUConverter {
 
     for (let trigger of this.triggerFile.triggers) {
       this.handleTrigger(trigger);
+    }
+
+    for (let callback of this.callbacks) {
+      this.customTextTriggerFile.trigger.text += callback.replace(/\n/g, '\r\n');
     }
 
     map.set('war3map.wtg', this.triggerFile.save());
@@ -168,9 +173,9 @@ class WEUConverter {
     // IfThenElse and other control flow "functions" must come before the generic code/boolexpr callback handling, since they don't follow the same rules.
     if (name === 'IfThenElse') {
       ecas.push(createCustomScriptECA(`if ${this.convertParameterToCustomScript(parameters[0], args[0])} then`));
-      ecas.push(createCustomScriptECA(`call ${this.convertParameterToCustomScript(parameters[1], args[1])}`));
+      ecas.push(createCustomScriptECA(`    call ${this.convertParameterToCustomScript(parameters[1], args[1])}`));
       ecas.push(createCustomScriptECA('else'));
-      ecas.push(createCustomScriptECA(`call ${this.convertParameterToCustomScript(parameters[2], args[2])}`));
+      ecas.push(createCustomScriptECA(`    call ${this.convertParameterToCustomScript(parameters[2], args[2])}`));
       ecas.push(createCustomScriptECA('endif'));
     } else if (isCode || isBoolexpr) {
       let callbackName = this.generateCallbackName(object);
@@ -192,10 +197,10 @@ function ${callbackName} takes nothing returns ${returnType}
 endfunction
 `;
 
-      this.customTextTriggerFile.trigger.text += callback.replace(/\n/g, '\r\n');
+      this.callbacks.push(callback);
 
       if (this.callback) {
-        this.callback({type: 'changed', name: 'CallbackCreation', data: this.stack});
+        this.callback({type: 'changed', name: 'CallbackCreation', stack: this.stack, data: callback});
       }
     } else if (name === 'OperatorString') { // String concat
       ecas.push(createCustomScriptECA(`${this.convertParameterToCustomScript(parameters[0], args[0])} + ${this.convertParameterToCustomScript(parameters[1], args[1])}`));
@@ -374,31 +379,36 @@ endfunction
    * Converts a parameter to custom script.
    *
    * @param {Parameter} parameter
-   * @param {string} type
+   * @param {string} dataType
    * @return {string}
    */
-  convertParameterToCustomScript(parameter, type) {
+  convertParameterToCustomScript(parameter, dataType) {
+    let type = parameter.type;
+    let value = parameter.value;
+
     // 0: preset
     // 1: variable
     // 2: function
     // 3: literal (need to test for strings)
     // -1: invalid
-    if (parameter.type === 0) {
-      return this.triggerData.getPreset(parameter.value);
-    } else if (parameter.type === 1) {
-      return `udg_${parameter.value}`;
+    if (type === 0) {
+      return this.triggerData.getPreset(value);
+    } else if (type === 1) {
+      if (value.startsWith('gg_')) {
+        return value;
+      } else {
+        return `udg_${value}`;
+      }
     } else if (parameter.type === 2) {
       return this.convertFunctionCallToCustomScript(parameter.subParameters)[0].parameters[0].value;
     } else if (parameter.type === 3) {
-      let value = parameter.value;
-
       // "value"
-      if (type === 'string') {
+      if (dataType === 'string') {
         return `"${value}"`;
       }
 
       // 'value'
-      if (type === 'integer' && isNaN(value)) {
+      if (dataType === 'integer' && isNaN(value)) {
         return `'${value}'`;
       }
 
@@ -437,14 +447,14 @@ endfunction
     // If it's not, check if custom scripts are needed.
     if (this.handleInlineGUI(object)) {
       if (this.callback) {
-        this.callback({type: 'changed', name: 'InlineGUI', data: this.stack});
+        this.callback({type: 'changed', name: 'InlineGUI', stack: this.stack});
       }
     } else {
       let replacements = this.handleCustomScript(object);
 
       if (replacements) {
         if (this.callback) {
-          this.callback({type: 'changed', name: 'InlineCustomScript', data: this.stack});
+          this.callback({type: 'changed', name: 'InlineCustomScript', stack: this.stack, data: replacements});
         }
 
         this.stack.shift();

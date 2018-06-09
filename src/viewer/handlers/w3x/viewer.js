@@ -3,7 +3,7 @@ import geoHandler from '../geo/handler';
 import mdxHandler from '../mdx/handler';
 import mpqHandler from '../mpq/handler';
 import War3Map from '../../../parsers/w3x/map';
-import War3MapW3e from '../../../parsers/w3x/war3map.w3e/file';
+import War3MapW3e from '../../../parsers/w3x/w3e/file';
 import IniFile from '../../../parsers/ini/file';
 import SlkFile from '../../../parsers/slk/file';
 

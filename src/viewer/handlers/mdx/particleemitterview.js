@@ -1,3 +1,6 @@
+// Heap allocations needed for this module.
+let emissionRateHeap = new Float32Array(1);
+
 /**
  * An MDX particle emitter view.
  */
@@ -17,56 +20,65 @@ export default class ParticleEmitterView {
    */
   update() {
     if (this.instance.allowParticleSpawn) {
-      this.currentEmission += this.getEmissionRate() * this.instance.model.viewer.frameTime * 0.001;
+      this.getEmissionRate(emissionRateHeap);
+
+      this.currentEmission += emissionRateHeap[0] * this.instance.model.viewer.frameTime * 0.001;
     }
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getSpeed() {
-    return this.emitter.getSpeed(this.instance);
+  getSpeed(out) {
+    return this.emitter.getSpeed(out, this.instance);
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getLatitude() {
-    return this.emitter.getLatitude(this.instance);
+  getLatitude(out) {
+    return this.emitter.getLatitude(out, this.instance);
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getLongitude() {
-    return this.emitter.getLongitude(this.instance);
+  getLongitude(out) {
+    return this.emitter.getLongitude(out, this.instance);
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getLifeSpan() {
-    return this.emitter.getLifeSpan(this.instance);
+  getLifeSpan(out) {
+    return this.emitter.getLifeSpan(out, this.instance);
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getGravity() {
-    return this.emitter.getGravity(this.instance);
+  getGravity(out) {
+    return this.emitter.getGravity(out, this.instance);
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getEmissionRate() {
-    return this.emitter.getEmissionRate(this.instance);
+  getEmissionRate(out) {
+    return this.emitter.getEmissionRate(out, this.instance);
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getVisibility() {
-    return this.emitter.getVisibility(this.instance);
+  getVisibility(out) {
+    return this.emitter.getVisibility(out, this.instance);
   }
 }

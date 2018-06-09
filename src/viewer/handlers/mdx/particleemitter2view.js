@@ -1,3 +1,6 @@
+// Heap allocations needed for this module.
+let emissionRateHeap = new Float32Array(1);
+
 /**
  * An MDX particle emitter type 2 view.
  */
@@ -18,80 +21,81 @@ export default class ParticleEmitter2View {
    */
   update() {
     if (this.instance.allowParticleSpawn) {
-      if (this.emitter.squirt) {
-        let keyframe = this.getEmissionRateKeyframe();
+      let keyframe = this.getEmissionRate(emissionRateHeap);
 
+      if (this.emitter.squirt) {
         if (keyframe !== this.lastEmissionKey) {
-          this.currentEmission += this.getEmissionRate();
+          this.currentEmission += emissionRateHeap[0];
         }
 
         this.lastEmissionKey = keyframe;
       } else {
-        this.currentEmission += this.getEmissionRate() * this.instance.model.viewer.frameTime * 0.001;
+        this.currentEmission += emissionRateHeap[0] * this.instance.model.viewer.frameTime * 0.001;
       }
     }
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getWidth() {
-    return this.emitter.getWidth(this.instance);
+  getWidth(out) {
+    return this.emitter.getWidth(out, this.instance);
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getLength() {
-    return this.emitter.getLength(this.instance);
+  getLength(out) {
+    return this.emitter.getLength(out, this.instance);
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getSpeed() {
-    return this.emitter.getSpeed(this.instance);
+  getSpeed(out) {
+    return this.emitter.getSpeed(out, this.instance);
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getLatitude() {
-    return this.emitter.getLatitude(this.instance);
+  getLatitude(out) {
+    return this.emitter.getLatitude(out, this.instance);
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getGravity() {
-    return this.emitter.getGravity(this.instance);
+  getGravity(out) {
+    return this.emitter.getGravity(out, this.instance);
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getEmissionRate() {
-    return this.emitter.getEmissionRate(this.instance);
+  getEmissionRate(out) {
+    return this.emitter.getEmissionRate(out, this.instance);
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getEmissionRateKeyframe() {
-    return this.emitter.getEmissionRateKeyframe(this.instance);
+  getVisibility(out) {
+    return this.emitter.getVisibility(out, this.instance);
   }
 
   /**
+   * @param {Float32Array} out
    * @return {number}
    */
-  getVisibility() {
-    return this.emitter.getVisibility(this.instance);
-  }
-
-  /**
-   * @return {number}
-   */
-  getVariation() {
-    return this.emitter.getVariation(this.instance);
+  getVariation(out) {
+    return this.emitter.getVariation(out, this.instance);
   }
 }

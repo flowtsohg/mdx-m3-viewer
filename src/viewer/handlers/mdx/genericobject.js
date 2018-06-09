@@ -1,11 +1,6 @@
-import {vec3, quat} from 'gl-matrix';
+import {vec3} from 'gl-matrix';
 import {VEC3_ZERO, VEC3_ONE, QUAT_DEFAULT} from '../../../common/gl-matrix-addon';
 import AnimatedObject from './animatedobject';
-
-// Heap allocations needed for this module.
-let translationHeap = vec3.create();
-let rotationHeap = quat.create();
-let scaleHeap = vec3.create();
 
 /**
  * An MDX generic object.
@@ -77,27 +72,43 @@ export default class GenericObject extends AnimatedObject {
   }
 
   /**
-   * @param {handlers.mdx.ModelInstance} instance
-   * @return {vec3}
+   * Many of the generic objects have animated visibilities.
+   * This is a generic getter to allow the code to be consistent.
+   *
+   * @param {Float32Array} out
+   * @param {ModelInstance} instance
+   * @return {number}
    */
-  getTranslation(instance) {
-    return this.getValue3(translationHeap, 'KGTR', instance, VEC3_ZERO);
+  getVisibility(out, instance) {
+    out[0] = 1;
+    return -1;
   }
 
   /**
-   * @param {handlers.mdx.ModelInstance} instance
-   * @return {quat}
+   * @param {vec3} out
+   * @param {ModelInstance} instance
+   * @return {number}
    */
-  getRotation(instance) {
-    return this.getValue4(rotationHeap, 'KGRT', instance, QUAT_DEFAULT);
+  getTranslation(out, instance) {
+    return this.getVector3Value(out, 'KGTR', instance, VEC3_ZERO);
   }
 
   /**
-   * @param {handlers.mdx.ModelInstance} instance
-   * @return {vec3}
+   * @param {quat} out
+   * @param {ModelInstance} instance
+   * @return {number}
    */
-  getScale(instance) {
-    return this.getValue3(scaleHeap, 'KGSC', instance, VEC3_ONE);
+  getRotation(out, instance) {
+    return this.getVector4Value(out, 'KGRT', instance, QUAT_DEFAULT);
+  }
+
+  /**
+   * @param {vec3} out
+   * @param {ModelInstance} instance
+   * @return {number}
+   */
+  getScale(out, instance) {
+    return this.getVector3Value(out, 'KGSC', instance, VEC3_ONE);
   }
 
   /**
@@ -122,16 +133,5 @@ export default class GenericObject extends AnimatedObject {
    */
   isScaleVariant(sequence) {
     return this.isVariant('KGSC', sequence);
-  }
-
-  /**
-   * Many of the generic objects have animated visibilities.
-   * This is a generic getter to allow the code to be consistent.
-   *
-   * @param {handlers.mdx.ModelInstance} instance
-   * @return {number}
-   */
-  getVisibility(instance) {
-    return 1;
   }
 }

@@ -22,58 +22,65 @@ export default class ParticleEmitter extends GenericObject {
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getSpeed(instance) {
-    return this.getValue('KPES', instance, this.speed);
+  getSpeed(out, instance) {
+    return this.getFloatValue(out, 'KPES', instance, this.speed);
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getLatitude(instance) {
-    return this.getValue('KPLTV', instance, this.latitude);
+  getLatitude(out, instance) {
+    return this.getFloatValue(out, 'KPLTV', instance, this.latitude);
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getLongitude(instance) {
-    return this.getValue('KPLN', instance, this.longitude);
+  getLongitude(out, instance) {
+    return this.getFloatValue(out, 'KPLN', instance, this.longitude);
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getLifeSpan(instance) {
-    return this.getValue('KPEL', instance, this.lifeSpan);
+  getLifeSpan(out, instance) {
+    return this.getFloatValue(out, 'KPEL', instance, this.lifeSpan);
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getGravity(instance) {
-    return this.getValue('KPEG', instance, this.gravity);
+  getGravity(out, instance) {
+    return this.getFloatValue(out, 'KPEG', instance, this.gravity);
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getEmissionRate(instance) {
-    return this.getValue('KPEE', instance, this.emissionRate);
+  getEmissionRate(out, instance) {
+    return this.getFloatValue(out, 'KPEE', instance, this.emissionRate);
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getVisibility(instance) {
-    return this.getValue('KPEV', instance, 1);
+  getVisibility(out, instance) {
+    return this.getFloatValue(out, 'KPEV', instance, 1);
   }
 }

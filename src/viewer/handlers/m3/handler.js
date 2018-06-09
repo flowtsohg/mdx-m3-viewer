@@ -29,12 +29,9 @@ export default {
     viewer.addHandler(Dds);
     viewer.addHandler(Tga);
 
-    let shared = viewer.sharedShaders;
-
+    // Load shaders for 1-4 texture coordinate models.
     for (let i = 0; i < 4; i++) {
-      let shader = viewer.loadShader('M3StandardShader' + i,
-        '#define EXPLICITUV' + i + '\n' + shared.instanceId + shared.boneTexture + shaders.vs_common + shaders.vs_main,
-        '#define STANDARD_PASS\n' + shaders.ps_common + shaders.ps_main);
+      let shader = viewer.loadShader(`M3StandardShader${i}`, `#define EXPLICITUV${i}\n${shaders.vs}`, shaders.ps);
 
       // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
       if (!shader.loaded) {

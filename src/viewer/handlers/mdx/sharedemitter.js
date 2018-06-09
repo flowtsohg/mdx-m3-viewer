@@ -74,7 +74,7 @@ export default class SharedEmitter {
     let emission = emitterView.currentEmission;
 
     if (emission >= 1) {
-      for (let i = 0; i < emission; i++ , emitterView.currentEmission--) {
+      for (let i = 0; i < emission; i += 1, emitterView.currentEmission--) {
         this.emit(emitterView);
       }
     }

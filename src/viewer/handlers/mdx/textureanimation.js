@@ -1,38 +1,35 @@
-import {vec3, quat} from 'gl-matrix';
 import {VEC3_ZERO, VEC3_ONE, QUAT_DEFAULT} from '../../../common/gl-matrix-addon';
 import AnimatedObject from './animatedobject';
-
-// Heap allocations needed for this module.
-let translationHeap = vec3.create();
-let rotationHeap = quat.create();
-let scaleHeap = vec3.create();
 
 /**
  * An MDX texture animation.
  */
 export default class TextureAnimation extends AnimatedObject {
   /**
+   * @param {vec3} out
    * @param {ModelInstance} instance
-   * @return {vec3}
+   * @return {number}
    */
-  getTranslation(instance) {
-    return this.getValue3(translationHeap, 'KTAT', instance, VEC3_ZERO);
+  getTranslation(out, instance) {
+    return this.getVector3Value(out, 'KTAT', instance, VEC3_ZERO);
   }
 
   /**
+   * @param {quat} out
    * @param {ModelInstance} instance
-   * @return {quat}
+   * @return {number}
    */
-  getRotation(instance) {
-    return this.getValue4(rotationHeap, 'KTAR', instance, QUAT_DEFAULT);
+  getRotation(out, instance) {
+    return this.getVector4Value(out, 'KTAR', instance, QUAT_DEFAULT);
   }
 
   /**
+   * @param {vec3} out
    * @param {ModelInstance} instance
-   * @return {vec3}
+   * @return {number}
    */
-  getScale(instance) {
-    return this.getValue3(scaleHeap, 'KTAS', instance, VEC3_ONE);
+  getScale(out, instance) {
+    return this.getVector3Value(out, 'KTAS', instance, VEC3_ONE);
   }
 
   /**

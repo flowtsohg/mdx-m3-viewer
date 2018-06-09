@@ -16,14 +16,16 @@ export default class Bone extends GenericObject {
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getVisibility(instance) {
+  getVisibility(out, instance) {
     if (this.geosetAnimation) {
-      return this.geosetAnimation.getAlpha(instance);
+      return this.geosetAnimation.getAlpha(out, instance);
     }
 
-    return 1;
+    out[0] = 1;
+    return -1;
   }
 }

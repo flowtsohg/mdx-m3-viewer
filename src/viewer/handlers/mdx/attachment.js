@@ -24,10 +24,11 @@ export default class Attachment extends GenericObject {
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getVisibility(instance) {
-    return this.getValue('KATV', instance, 1);
+  getVisibility(out, instance) {
+    return this.getFloatValue(out, 'KATV', instance, 1);
   }
 }

@@ -36,14 +36,19 @@ export default class Resource extends EventDispatcher {
    * @param {*} src
    */
   loadData(src) {
-    this.load(src);
+    // In case the resource parsing/loading fails, e.g. if the source is not valid.
+    try {
+      this.load(src);
 
-    this.loaded = true;
+      this.loaded = true;
 
-    this.lateLoad();
+      this.lateLoad();
 
-    this.dispatchEvent({type: 'load'});
-    this.dispatchEvent({type: 'loadend'});
+      this.dispatchEvent({type: 'load'});
+      this.dispatchEvent({type: 'loadend'});
+    } catch (e) {
+      this.error('InvalidData', e);
+    }
   }
 
   /**

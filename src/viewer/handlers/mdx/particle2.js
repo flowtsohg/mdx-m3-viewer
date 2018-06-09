@@ -7,6 +7,12 @@ import {uint8ToUint24} from '../../../common/typecast';
 let rotationHeap = quat.create();
 let locationHeap = vec3.create();
 let colorHeap = new Uint8Array(4);
+let widthHeap = new Float32Array(1);
+let lengthHeap = new Float32Array(1);
+let latitudeHeap = new Float32Array(1);
+let variationHeap = new Float32Array(1);
+let speedHeap = new Float32Array(1);
+let gravityHeap = new Float32Array(1);
 
 /**
  * A type 2 particle.
@@ -38,15 +44,22 @@ export default class Particle2 {
    * @param {boolean} isHead
    */
   reset(emitterView, isHead) {
+    emitterView.getWidth(widthHeap);
+    emitterView.getLength(lengthHeap);
+    emitterView.getLatitude(latitudeHeap);
+    emitterView.getVariation(variationHeap);
+    emitterView.getSpeed(speedHeap);
+    emitterView.getGravity(gravityHeap);
+
     let modelObject = this.emitter.modelObject;
     let node = emitterView.instance.nodes[modelObject.index];
     let pivot = node.pivot;
     let scale = node.worldScale;
-    let width = emitterView.getWidth() * 0.5;
-    let length = emitterView.getLength() * 0.5;
-    let latitude = degToRad(emitterView.getLatitude());
-    let variation = emitterView.getVariation();
-    let speed = emitterView.getSpeed();
+    let width = widthHeap[0] * 0.5;
+    let length = lengthHeap[0] * 0.5;
+    let latitude = degToRad(latitudeHeap[0]);
+    let variation = variationHeap[0];
+    let speed = speedHeap[0];
     let location = this.location;
     let velocity = this.velocity;
 
@@ -54,7 +67,7 @@ export default class Particle2 {
     this.node = node;
     this.health = modelObject.lifeSpan;
     this.head = isHead;
-    this.gravity = emitterView.getGravity() * scale[2];
+    this.gravity = gravityHeap[0] * scale[2];
 
     vec3.copy(this.nodeScale, scale);
 

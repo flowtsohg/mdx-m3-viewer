@@ -1,3 +1,4 @@
+import {vec3, quat} from 'gl-matrix';
 import TexturedModelInstance from '../../texturedmodelinstance';
 import {createSkeletalNodes} from '../../node';
 import Node from './node';
@@ -6,6 +7,15 @@ import ParticleEmitterView from './particleemitterview';
 import ParticleEmitter2View from './particleemitter2view';
 import RibbonEmitterView from './ribbonemitterview';
 import EventObjectEmitterView from './eventobjectemitterview';
+
+// Heap allocations needed for this module.
+let visibilityHeap = new Float32Array(1);
+let translationHeap = vec3.create();
+let rotationHeap = quat.create();
+let scaleHeap = vec3.create();
+let colorHeap = new Float32Array(3);
+let alphaHeap = new Float32Array(1);
+let textureIdHeap = new Float32Array(1);
 
 /**
  * An MDX model instance.
@@ -245,7 +255,10 @@ export default class ModelInstance extends TexturedModelInstance {
       let genericObject = sortedGenericObjects[i];
       let node = sortedNodes[i];
       let parent = node.parent;
-      let objectVisible = genericObject.getVisibility(this) >= 0.75;
+
+      genericObject.getVisibility(visibilityHeap, this);
+
+      let objectVisible = visibilityHeap[0] >= 0.75;
       let nodeVisible = forced || (parent.visible && objectVisible);
 
       node.visible = nodeVisible;
@@ -265,30 +278,30 @@ export default class ModelInstance extends TexturedModelInstance {
 
           // Translation
           if (forced || variants.translation[sequence]) {
-            let translation = genericObject.getTranslation(this);
+            genericObject.getTranslation(translationHeap, this);
 
-            localLocation[0] = translation[0];
-            localLocation[1] = translation[1];
-            localLocation[2] = translation[2];
+            localLocation[0] = translationHeap[0];
+            localLocation[1] = translationHeap[1];
+            localLocation[2] = translationHeap[2];
           }
 
           // Rotation
           if (forced || variants.rotation[sequence]) {
-            let rotation = genericObject.getRotation(this);
+            genericObject.getRotation(rotationHeap, this);
 
-            localRotation[0] = rotation[0];
-            localRotation[1] = rotation[1];
-            localRotation[2] = rotation[2];
-            localRotation[3] = rotation[3];
+            localRotation[0] = rotationHeap[0];
+            localRotation[1] = rotationHeap[1];
+            localRotation[2] = rotationHeap[2];
+            localRotation[3] = rotationHeap[3];
           }
 
           // Scale
           if (forced || variants.scale[sequence]) {
-            let scale = genericObject.getScale(this);
+            genericObject.getScale(scaleHeap, this);
 
-            localScale[0] = scale[0];
-            localScale[1] = scale[1];
-            localScale[2] = scale[2];
+            localScale[0] = scaleHeap[0];
+            localScale[1] = scaleHeap[1];
+            localScale[2] = scaleHeap[2];
           }
         }
 
@@ -334,20 +347,24 @@ export default class ModelInstance extends TexturedModelInstance {
     // Geosets
     for (let i = 0, l = geosets.length; i < l; i++) {
       let geoset = geosets[i];
-      let offset = i * 4;
+      let i4 = i * 4;
 
       // Color
       if (forced || geoset.variants.color[sequence]) {
-        let color = geoset.getColor(this);
+        geoset.getColor(colorHeap, this);
 
-        geosetColors[offset] = color[0] * 255;
-        geosetColors[offset + 1] = color[1] * 255;
-        geosetColors[offset + 2] = color[2] * 255;
+        // Some Blizzard models have values greater than 1, which messes things up.
+        // Geoset animations are supposed to modulate colors, not intensify them.
+        geosetColors[i4] = colorHeap[0] * 255;
+        geosetColors[i4 + 1] = colorHeap[1] * 255;
+        geosetColors[i4 + 2] = colorHeap[2] * 255;
       }
 
       // Alpha
       if (forced || geoset.variants.alpha[sequence]) {
-        geosetColors[offset + 3] = geoset.getAlpha(this) * 255;
+        geoset.getAlpha(alphaHeap, this);
+
+        geosetColors[i4 + 3] = alphaHeap[0] * 255;
       }
     }
 
@@ -359,36 +376,40 @@ export default class ModelInstance extends TexturedModelInstance {
 
       // Alpha
       if (forced || layer.variants.alpha[sequence]) {
-        layerAlphas[i] = layer.getAlpha(this) * 255;
+        layer.getAlpha(alphaHeap, this);
+
+        layerAlphas[i] = alphaHeap[0] * 255;
       }
 
       // UV translation animation
       if (forced || layer.variants.translation[sequence]) {
-        let translation = layer.getTranslation(this);
+        layer.getTranslation(translationHeap, this);
 
-        uvOffsets[i4] = translation[0];
-        uvOffsets[i4 + 1] = translation[1];
+        uvOffsets[i4] = translationHeap[0];
+        uvOffsets[i4 + 1] = translationHeap[1];
       }
 
       // UV rotation animation
       if (forced || layer.variants.rotation[sequence]) {
-        let rotation = layer.getRotation(this);
+        layer.getRotation(rotationHeap, this);
 
-        uvRots[i2] = rotation[2];
-        uvRots[i2 + 1] = rotation[3];
+        uvRots[i2] = rotationHeap[2];
+        uvRots[i2 + 1] = rotationHeap[3];
       }
 
       // UV scale animation
       if (forced || layer.variants.scale[sequence]) {
-        let scale = layer.getScale(this);
+        layer.getScale(scaleHeap, this);
 
-        uvScales[i] = scale[0];
+        uvScales[i] = scaleHeap[0];
       }
 
       // Sprite animation
       if (forced || layer.variants.slot[sequence]) {
+        layer.getTextureId(textureIdHeap, this);
+
         let uvDivisor = layer.uvDivisor;
-        let textureId = layer.getTextureId(this);
+        let textureId = textureIdHeap[0];
 
         uvOffsets[i4 + 2] = textureId % uvDivisor[0];
         uvOffsets[i4 + 3] = (textureId / uvDivisor[1]) | 0;

@@ -1,4 +1,4 @@
-import Sd from './sd';
+import createTypedSd from './sd';
 
 /**
  * An animation object.
@@ -13,10 +13,14 @@ export default class AnimatedObject {
     this.animations = {};
 
     for (let animation of object.animations) {
-      this.animations[animation.name] = new Sd(model, animation);
+      this.animations[animation.name] = createTypedSd(model, animation);
     }
   }
 
+  /**
+   * @param {string} name
+   * @return {Array<number|vec3|quat>}
+   */
   getValues(name) {
     let animation = this.animations[name];
 
@@ -27,51 +31,83 @@ export default class AnimatedObject {
     return [];
   }
 
-  getValueUnsafe(name, instance, defval) {
+  /**
+   * @param {Uint32Array} out
+   * @param {string} name
+   * @param {ModelInstance} instance
+   * @param {number} defaultValue
+   * @return {number}
+   */
+  getUintValue(out, name, instance, defaultValue) {
     let animation = this.animations[name];
 
     if (animation) {
-      return animation.getValueUnsafe(instance);
+      return animation.getValue(out, instance);
     }
 
-    return defval;
+    out[0] = defaultValue;
+    return -1;
   }
 
-  getValue(name, instance, defval) {
-    return this.getValueUnsafe(name, instance, defval);
-  }
-
-  getValue3(out, name, instance, defval) {
-    let unsafeHeap = this.getValueUnsafe(name, instance, defval);
-
-    out[0] = unsafeHeap[0];
-    out[1] = unsafeHeap[1];
-    out[2] = unsafeHeap[2];
-
-    return out;
-  }
-
-  getValue4(out, name, instance, defval) {
-    let unsafeHeap = this.getValueUnsafe(name, instance, defval);
-
-    out[0] = unsafeHeap[0];
-    out[1] = unsafeHeap[1];
-    out[2] = unsafeHeap[2];
-    out[3] = unsafeHeap[3];
-
-    return out;
-  }
-
-  getKeyframe(name, instance) {
+  /**
+   * @param {Float32Array} out
+   * @param {string} name
+   * @param {ModelInstance} instance
+   * @param {number} defaultValue
+   * @return {number}
+   */
+  getFloatValue(out, name, instance, defaultValue) {
     let animation = this.animations[name];
 
     if (animation) {
-      return animation.getKeyframe(instance);
+      return animation.getValue(out, instance);
     }
 
-    return 0;
+    out[0] = defaultValue;
+    return -1;
   }
 
+  /**
+   * @param {vec3} out
+   * @param {string} name
+   * @param {ModelInstance} instance
+   * @param {vec3} defaultValue
+   * @return {number}
+   */
+  getVector3Value(out, name, instance, defaultValue) {
+    let animation = this.animations[name];
+
+    if (animation) {
+      return animation.getValue(out, instance);
+    }
+
+    vec3.copy(out, defaultValue);
+    return -1;
+  }
+
+  /**
+   * @param {quat} out
+   * @param {string} name
+   * @param {ModelInstance} instance
+   * @param {quat} defaultValue
+   * @return {number}
+   */
+  getVector4Value(out, name, instance, defaultValue) {
+    let animation = this.animations[name];
+
+    if (animation) {
+      return animation.getValue(out, instance);
+    }
+
+    quat.copy(out, defaultValue);
+    return -1;
+  }
+
+  /**
+   * @param {string} name
+   * @param {number} sequence
+   * @return {boolean}
+   */
   isVariant(name, sequence) {
     let animation = this.animations[name];
 

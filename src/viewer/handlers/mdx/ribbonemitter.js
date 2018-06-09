@@ -42,8 +42,8 @@ export default class RibbonEmitter extends SharedGeometryEmitter {
     let active = this.active.length;
 
     if (active > 0) {
-      let model = this.modelObject.model,
-        gl = model.viewer.gl;
+      let model = this.modelObject.model;
+      let gl = model.viewer.gl;
 
       this.modelObject.layer.bind(shader);
 

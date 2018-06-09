@@ -12,6 +12,7 @@
 		"javascript.format.insertSpaceAfterSemicolonInForStatements": true,
 		"javascript.validate.enable": true,
 		"editor.formatOnSave": true,
-		"eslint.provideLintTask": true
+		"eslint.provideLintTask": true,
+		"workbench.editor.enablePreview": false
 	}
 }

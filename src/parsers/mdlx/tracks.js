@@ -1,173 +1,125 @@
+/**
+ * A keyframe on a timeline.
+ */
 class Track {
+  /**
+   *
+   */
   constructor() {
+    /** @member {number} */
     this.frame = 0;
-  }
-}
-
-export class NumberTrack extends Track {
-  constructor() {
-    super();
-
-    this.value = 0;
-    this.inTan = 0;
-    this.outTan = 0;
+    /** @member {Uint32Array|Float32Array} */
+    this.value = this.dataType();
+    /** @member {Uint32Array|Float32Array} */
+    this.inTan = this.dataType();
+    /** @member {Uint32Array|Float32Array} */
+    this.outTan = this.dataType();
   }
 
   /**
    * @param {BinaryStream} stream
+   * @param {number} interpolationType
    */
   readMdx(stream, interpolationType) {
     this.frame = stream.readUint32();
-    this.value = this.readMdxValue(stream);
+    stream.readTypedArray(this.value);
 
     if (interpolationType > 1) {
-      this.inTan = this.readMdxValue(stream);
-      this.outTan = this.readMdxValue(stream);
+      stream.readTypedArray(this.inTan);
+      stream.readTypedArray(this.outTan);
     }
   }
 
   /**
    * @param {BinaryStream} stream
+   * @param {number} interpolationType
    */
   writeMdx(stream, interpolationType) {
     stream.writeUint32(this.frame);
-    this.writeMdxValue(stream, this.value);
+    stream.writeTypedArray(this.value);
 
     if (interpolationType > 1) {
-      this.writeMdxValue(stream, this.inTan);
-      this.writeMdxValue(stream, this.outTan);
+      stream.writeTypedArray(this.inTan);
+      stream.writeTypedArray(this.outTan);
     }
   }
 
   /**
    * @param {TokenStream} stream
+   * @param {number} interpolationType
    */
   readMdl(stream, interpolationType) {
     this.frame = stream.readInt();
-    this.value = this.readMdlValue(stream);
+    stream.readTypedArray(this.value);
 
     if (interpolationType > 1) {
       stream.read(); // InTan
-      this.inTan = this.readMdlValue(stream);
+      stream.readTypedArray(this.inTan);
       stream.read(); // OutTan
-      this.outTan = this.readMdlValue(stream);
+      stream.readTypedArray(this.outTan);
     }
   }
 
   /**
    * @param {TokenStream} stream
+   * @param {number} interpolationType
    */
   writeMdl(stream, interpolationType) {
-    this.writeMdlValue(stream, `${this.frame}:`, this.value);
+    stream.writeTypedArrayAttrib(`${this.frame}:`, this.value);
 
     if (interpolationType > 1) {
       stream.indent();
-      this.writeMdlValue(stream, 'InTan', this.inTan);
-      this.writeMdlValue(stream, 'OutTan', this.outTan);
-      stream.unindent();
-    }
-  }
-};
-
-class VectorTrack extends Track {
-  constructor() {
-    super();
-
-    let length = this.valueLength();
-
-    this.value = new Float32Array(length);
-    this.inTan = new Float32Array(length);
-    this.outTan = new Float32Array(length);
-  }
-
-  readMdx(stream, interpolationType) {
-    this.frame = stream.readUint32();
-    stream.readFloat32Array(this.value);
-
-    if (interpolationType > 1) {
-      stream.readFloat32Array(this.inTan);
-      stream.readFloat32Array(this.outTan);
-    }
-  }
-
-  writeMdx(stream, interpolationType) {
-    stream.writeUint32(this.frame);
-    stream.writeFloat32Array(this.value);
-
-    if (interpolationType > 1) {
-      stream.writeFloat32Array(this.inTan);
-      stream.writeFloat32Array(this.outTan);
-    }
-  }
-
-  readMdl(stream, interpolationType) {
-    this.frame = stream.readInt();
-    stream.readFloatArray(this.value);
-
-    if (interpolationType > 1) {
-      stream.read(); // InTan
-      stream.readFloatArray(this.inTan);
-      stream.read(); // OutTan
-      stream.readFloatArray(this.outTan);
-    }
-  }
-
-  writeMdl(stream, interpolationType) {
-    stream.writeFloatArrayAttrib(`${this.frame}:`, this.value);
-
-    if (interpolationType > 1) {
-      stream.indent();
-      stream.writeFloatArrayAttrib('InTan', this.inTan);
-      stream.writeFloatArrayAttrib('OutTan', this.outTan);
+      stream.writeTypedArrayAttrib('InTan', this.inTan);
+      stream.writeTypedArrayAttrib('OutTan', this.outTan);
       stream.unindent();
     }
   }
 }
 
-export class UintTrack extends NumberTrack {
-  readMdxValue(stream) {
-    return stream.readUint32();
+/**
+ * A uint track.
+ */
+export class UintTrack extends Track {
+  /**
+   * @return {Uint32Array}
+   */
+  dataType() {
+    return new Uint32Array(1);
   }
+}
 
-  writeMdxValue(stream, value) {
-    stream.writeUint32(value);
+/**
+ * A float track.
+ */
+export class FloatTrack extends Track {
+  /**
+   * @return {Float32Array}
+   */
+  dataType() {
+    return new Float32Array(1);
   }
+}
 
-  readMdlValue(stream) {
-    return stream.readInt();
+/**
+ * A vec3 track.
+ */
+export class Vector3Track extends Track {
+  /**
+   * @return {Float32Array}
+   */
+  dataType() {
+    return new Float32Array(3);
   }
+}
 
-  writeMdlValue(stream, name, value) {
-    stream.writeAttrib(name, value);
+/**
+ * A vec4 track.
+ */
+export class Vector4Track extends Track {
+  /**
+   * @return {Float32Array}
+   */
+  dataType() {
+    return new Float32Array(4);
   }
-};
-
-export class FloatTrack extends NumberTrack {
-  readMdxValue(stream) {
-    return stream.readFloat32();
-  }
-
-  writeMdxValue(stream, value) {
-    stream.writeFloat32(value);
-  }
-
-  readMdlValue(stream) {
-    return stream.readFloat();
-  }
-
-  writeMdlValue(stream, name, value) {
-    stream.writeFloatAttrib(name, value);
-  }
-};
-
-export class Vector3Track extends VectorTrack {
-  valueLength() {
-    return 3;
-  }
-};
-
-export class Vector4Track extends VectorTrack {
-  valueLength() {
-    return 4;
-  }
-};
+}

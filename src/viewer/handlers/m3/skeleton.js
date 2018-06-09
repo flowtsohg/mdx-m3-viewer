@@ -1,4 +1,3 @@
-import {quat} from 'gl-matrix';
 import {createSkeletalNodes} from '../../node';
 import Node from './node';
 

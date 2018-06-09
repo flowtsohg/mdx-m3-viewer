@@ -160,6 +160,19 @@ export default class TokenStream {
   }
 
   /**
+   * Reads into a uint or float typed array.
+   *
+   * @param {Uint32Array|Float32Array} view
+   */
+  readTypedArray(view) {
+    if (view instanceof Float32Array) {
+      this.readFloatArray(view);
+    } else {
+      this.readIntArray(view);
+    }
+  }
+
+  /**
    * Reads a color in the form:
    *
    *      { R, G, B }
@@ -302,6 +315,18 @@ export default class TokenStream {
    */
   writeFloatArrayAttrib(name, value) {
     this.writeLine(`${name} { ${this.formatFloatArray(value)} },`);
+  }
+
+  /**
+   * @param {string} name
+   * @param {Uint32Array|Float32Array} value
+   */
+  writeTypedArrayAttrib(name, value) {
+    if (value instanceof Float32Array) {
+      this.writeFloatArrayAttrib(name, value);
+    } else {
+      this.writeArrayAttrib(name, valie);
+    }
   }
 
   /**

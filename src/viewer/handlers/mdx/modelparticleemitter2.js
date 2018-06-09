@@ -78,74 +78,74 @@ export default class ParticleEmitter2 extends GenericObject {
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getWidth(instance) {
-    return this.getValue('KP2W', instance, this.width);
+  getWidth(out, instance) {
+    return this.getFloatValue(out, 'KP2W', instance, this.width);
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getLength(instance) {
-    return this.getValue('KP2N', instance, this.length);
+  getLength(out, instance) {
+    return this.getFloatValue(out, 'KP2N', instance, this.length);
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getSpeed(instance) {
-    return this.getValue('KP2S', instance, this.speed);
+  getSpeed(out, instance) {
+    return this.getFloatValue(out, 'KP2S', instance, this.speed);
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getLatitude(instance) {
-    return this.getValue('KP2L', instance, this.latitude);
+  getLatitude(out, instance) {
+    return this.getFloatValue(out, 'KP2L', instance, this.latitude);
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getGravity(instance) {
-    return this.getValue('KP2G', instance, this.gravity);
+  getGravity(out, instance) {
+    return this.getFloatValue(out, 'KP2G', instance, this.gravity);
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getEmissionRate(instance) {
-    return this.getValue('KP2E', instance, this.emissionRate);
+  getEmissionRate(out, instance) {
+    return this.getFloatValue(out, 'KP2E', instance, this.emissionRate);
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getEmissionRateKeyframe(instance) {
-    return this.getKeyframe('KP2E', instance);
+  getVisibility(out, instance) {
+    return this.getFloatValue(out, 'KP2V', instance, 1);
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getVisibility(instance) {
-    return this.getValue('KP2V', instance, 1);
-  }
-
-  /**
-   * @param {ModelInstance} instance
-   * @return {number}
-   */
-  getVariation(instance) {
-    return this.getValue('KP2R', instance, this.variation);
+  getVariation(out, instance) {
+    return this.getFloatValue(out, 'KP2R', instance, this.variation);
   }
 }

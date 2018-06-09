@@ -1,7 +1,7 @@
 import Blp from '../blp/handler';
 import Tga from '../tga/handler';
 import Slk from '../slk/handler';
-import NativeTexture from '../nativetexture/handler';
+import ImageTexture from '../imagetexture/handler';
 import Model from './model';
 import ModelView from './modelview';
 import Bucket from './bucket';
@@ -13,11 +13,10 @@ export default {
     viewer.addHandler(Blp);
     viewer.addHandler(Tga);
     viewer.addHandler(Slk);
-    viewer.addHandler(NativeTexture);
+    viewer.addHandler(ImageTexture);
 
-    let shared = viewer.sharedShaders;
-    let standardShader = viewer.loadShader('MdxStandardShader', shared.instanceId + shared.boneTexture + shaders.vs_main, '#define STANDARD_PASS\n' + shaders.ps_main);
-    let particleShader = viewer.loadShader('MdxParticleShader', shared.decodeFloat + shaders.vs_particles, shaders.ps_particles);
+    let standardShader = viewer.loadShader('MdxStandardShader', shaders.vs, shaders.ps);
+    let particleShader = viewer.loadShader('MdxParticleShader', shaders.vsParticles, shaders.psParticles);
 
     // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
     return standardShader.loaded && particleShader.loaded;

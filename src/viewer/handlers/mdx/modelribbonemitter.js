@@ -1,8 +1,4 @@
-import {vec3} from 'gl-matrix';
 import GenericObject from './genericobject';
-
-// Heap allocations needed for this module.
-let colorHeap = vec3.create();
 
 /**
  * An MDX ribbon emitter.
@@ -34,50 +30,56 @@ export default class RibbonEmitter extends GenericObject {
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getHeightBelow(instance) {
-    return this.getValue('KRHB', instance, this.heightBelow);
+  getHeightBelow(out, instance) {
+    return this.getFloatValue(out, 'KRHB', instance, this.heightBelow);
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getHeightAbove(instance) {
-    return this.getValue('KRHA', instance, this.heightAbove);
+  getHeightAbove(out, instance) {
+    return this.getFloatValue(out, 'KRHA', instance, this.heightAbove);
   }
 
   /**
+   * @param {Uint32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getTextureSlot(instance) {
-    return this.getValue('KRTX', instance, 0);
+  getTextureSlot(out, instance) {
+    return this.getUintValue(out, 'KRTX', instance, 0);
   }
 
   /**
-   * @param {ModelInstance} instance
-   * @return {vec3}
-   */
-  getColor(instance) {
-    return this.getValue3(colorHeap, 'KRCO', instance, this.color);
-  }
-
-  /**
+   * @param {vec3} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getAlpha(instance) {
-    return this.getValue('KRAL', instance, this.alpha);
+  getColor(out, instance) {
+    return this.getVector3Value(out, 'KRCO', instance, this.color);
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getVisibility(instance) {
-    return this.getValue('KRVS', instance, 1);
+  getAlpha(out, instance) {
+    return this.getFloatValue(out, 'KRAL', instance, this.alpha);
+  }
+
+  /**
+   * @param {Float32Array} out
+   * @param {ModelInstance} instance
+   * @return {number}
+   */
+  getVisibility(out, instance) {
+    return this.getFloatValue(out, 'KRVS', instance, 1);
   }
 }

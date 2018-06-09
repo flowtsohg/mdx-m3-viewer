@@ -31,7 +31,7 @@ class Animation {
     this.globalSequenceId = stream.readInt32();
 
     for (let i = 0; i < tracksCount; i++) {
-      const track = this.newTrack();
+      const track = this.trackType();
 
       track.readMdx(stream, this.interpolationType);
 
@@ -87,7 +87,7 @@ class Animation {
     }
 
     for (let i = 0; i < numberOfTracks; i++) {
-      const track = this.newTrack();
+      const track = this.trackType();
 
       track.readMdl(stream, interpolationType);
 
@@ -133,7 +133,7 @@ class Animation {
    * @return {number}
    */
   getByteLength() {
-    return 16 + this.tracks.length * (4 + 4 * this.valueLength() * (this.interpolationType > 1 ? 3 : 1));
+    return 16 + this.tracks.length * (4 + 4 * this.size() * (this.interpolationType > 1 ? 3 : 1));
   }
 }
 
@@ -141,11 +141,17 @@ class Animation {
  * A uint32 animation.
  */
 export class UintAnimation extends Animation {
-  newTrack() {
+  /**
+   * @return {UintTrack}
+   */
+  trackType() {
     return new UintTrack();
   }
 
-  valueLength() {
+  /**
+   * @return {1}
+   */
+  size() {
     return 1;
   }
 }
@@ -154,11 +160,17 @@ export class UintAnimation extends Animation {
  * A float animation.
  */
 export class FloatAnimation extends Animation {
-  newTrack() {
+  /**
+   * @return {FloatTrack}
+   */
+  trackType() {
     return new FloatTrack();
   }
 
-  valueLength() {
+  /**
+   * @return {1}
+   */
+  size() {
     return 1;
   }
 }
@@ -167,11 +179,17 @@ export class FloatAnimation extends Animation {
  * A vec3 animation.
  */
 export class Vector3Animation extends Animation {
-  newTrack() {
+  /**
+   * @return {Vector3Track}
+   */
+  trackType() {
     return new Vector3Track();
   }
 
-  valueLength() {
+  /**
+   * @return {3}
+   */
+  size() {
     return 3;
   }
 }
@@ -180,11 +198,17 @@ export class Vector3Animation extends Animation {
  * A quat animation.
  */
 export class Vector4Animation extends Animation {
-  newTrack() {
+  /**
+   * @return {Vector4Track}
+   */
+  trackType() {
     return new Vector4Track();
   }
 
-  valueLength() {
+  /**
+   * @return {4}
+   */
+  size() {
     return 4;
   }
 }

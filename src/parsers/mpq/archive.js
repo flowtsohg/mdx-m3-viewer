@@ -1,6 +1,7 @@
 import {powerOfTwo} from '../../common/math';
 import {stringToBuffer} from '../../common/stringtobuffer';
 import {numberToUint32} from '../../common/typecast';
+import {searchHeader} from './isarchive';
 import MpqCrypto from './crypto';
 import MpqHashTable from './hashtable';
 import MpqBlockTable from './blocktable';
@@ -46,7 +47,7 @@ export default class MpqArchive {
   load(buffer) {
     // let fileSize = buffer.byteLength;
     let typedArray = new Uint8Array(buffer);
-    let headerOffset = this.searchHeader(typedArray);
+    let headerOffset = searchHeader(typedArray);
 
     if (headerOffset === -1) {
       return false;
@@ -359,7 +360,7 @@ export default class MpqArchive {
 
         if (file) {
           // Save the name in case it wasn't already resolved.
-          file.name = name.toLowerCase();
+          file.name = name;
           file.nameResolved = true;
 
           return file;
@@ -488,28 +489,5 @@ export default class MpqArchive {
     }
 
     return true;
-  }
-
-
-  /**
-   * Search for the MPQ header - MPQ\x1A.
-   * The header can be on any 512 bytes boundry offset.
-   *
-   * @param {Uint8Array} typedArray
-   * @return {number}
-   */
-  searchHeader(typedArray) {
-    let offset = -1;
-
-    for (let i = 0, l = Math.ceil(typedArray.byteLength / 512); i < l; i++) {
-      let base = i * 512;
-
-      // Test 'MPQ\x1A'.
-      if (typedArray[base] === 77 && typedArray[base + 1] === 80 && typedArray[base + 2] === 81 && typedArray[base + 3] === 26) {
-        offset = base;
-      }
-    }
-
-    return offset;
   }
 }

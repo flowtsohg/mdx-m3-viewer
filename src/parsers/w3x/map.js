@@ -1,22 +1,22 @@
 import BinaryStream from '../../common/binarystream';
 import MpqArchive from '../mpq/archive';
-import War3MapDoo from './war3map.doo/file';
-import War3MapImp from './war3map.imp/file';
-// import War3MapMmp from './war3map.mmp/file';
-// import War3MapShd from './war3map.shd/file';
-// import War3MapW3c from './war3map.w3c/file';
-import War3MapW3d from './war3map.w3d/file';
-import War3MapW3e from './war3map.w3e/file';
-// import War3MapW3i from './war3map.w3i/file';
-// import War3MapW3o from './war3map.w3o/file';
-// import War3MapW3r from './war3map.w3r/file';
-// import War3MapW3s from './war3map.w3s/file';
-import War3MapW3u from './war3map.w3u/file';
-import War3MapWct from './war3map.wct/file';
-// import War3MapWpm from './war3map.wpm/file';
-import War3MapWtg from './war3map.wtg/file';
-import War3MapWts from './war3map.wts/file';
-import War3MapUnitsDoo from './war3mapUnits.doo/file';
+import War3MapDoo from './doo/file';
+import War3MapImp from './imp/file';
+// import War3MapMmp from './mmp/file';
+// import War3MapShd from './shd/file';
+// import War3MapW3c from './w3c/file';
+import War3MapW3d from './w3d/file';
+import War3MapW3e from './w3e/file';
+import War3MapW3i from './w3i/file';
+// import War3MapW3o from './w3o/file';
+// import War3MapW3r from './w3r/file';
+// import War3MapW3s from './w3s/file';
+import War3MapW3u from './w3u/file';
+import War3MapWct from './wct/file';
+// import War3MapWpm from './wpm/file';
+import War3MapWtg from './wtg/file';
+import War3MapWts from './wts/file';
+import War3MapUnitsDoo from './unitsdoo/file';
 
 /**
  * Warcraft 3 map (W3X and W3M).
@@ -273,6 +273,27 @@ export default class War3Map {
   }
 
   /**
+   * @param {string} path
+   * @param {Constructor} Constructor
+   * @return {Constructor|null|undefined}
+   */
+  readHelper(path, Constructor) {
+    let file = this.archive.get(path);
+
+    if (file) {
+      let buffer = file.arrayBuffer();
+
+      if (buffer) {
+        return new Constructor(buffer);
+      }
+
+      return null;
+    }
+
+    return undefined;
+  }
+
+  /**
    * Read the imports file.
    */
   readImports() {
@@ -288,16 +309,21 @@ export default class War3Map {
   }
 
   /**
+   * Read the map information file.
+   *
+   * @return {?War3MapW3i}
+   */
+  readMapInformation() {
+    return this.readHelper('war3map.w3i', War3MapW3i);
+  }
+
+  /**
    * Read the environment file.
    *
    * @return {?War3MapW3e}
    */
   readEnvironment() {
-    let file = this.archive.get('war3map.w3e');
-
-    if (file) {
-      return new War3MapW3e(file.arrayBuffer());
-    }
+    return this.readHelper('war3map.w3e', War3MapW3e);
   }
 
   /**

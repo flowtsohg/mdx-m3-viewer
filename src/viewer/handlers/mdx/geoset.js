@@ -1,4 +1,4 @@
-let whiteColor = new Uint8Array([1, 1, 1]);
+import {VEC3_ONE} from '../../../common/gl-matrix-addon';
 
 /**
  * A shallow geoset.
@@ -144,31 +144,31 @@ export class Geoset {
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getAlpha(instance) {
-    let geosetAnimation = this.geosetAnimation;
-
-    if (geosetAnimation) {
-      return geosetAnimation.getAlpha(instance);
+  getAlpha(out, instance) {
+    if (this.geosetAnimation) {
+      return this.geosetAnimation.getAlpha(out, instance);
     }
 
-    return 1;
+    out[0] = 1;
+    return -1;
   }
 
   /**
+   * @param {vec3} out
    * @param {ModelInstance} instance
-   * @return {vec3}
+   * @return {number}
    */
-  getColor(instance) {
-    let geosetAnimation = this.geosetAnimation;
-
-    if (geosetAnimation) {
-      return geosetAnimation.getColor(instance);
+  getColor(out, instance) {
+    if (this.geosetAnimation) {
+      return this.geosetAnimation.getColor(out, instance);
     }
 
-    return whiteColor;
+    vec3.copy(out, VEC3_ONE);
+    return -1;
   }
 
   /**
@@ -176,13 +176,7 @@ export class Geoset {
    * @return {boolean}
    */
   isAlphaVariant(sequence) {
-    let geosetAnimation = this.geosetAnimation;
-
-    if (geosetAnimation) {
-      return geosetAnimation.isAlphaVariant(sequence);
-    }
-
-    return false;
+    return this.geosetAnimation && this.geosetAnimation.isAlphaVariant(sequence);
   }
 
   /**
@@ -190,12 +184,6 @@ export class Geoset {
    * @return {boolean}
    */
   isColorVariant(sequence) {
-    let geosetAnimation = this.geosetAnimation;
-
-    if (geosetAnimation) {
-      return geosetAnimation.isColorVariant(sequence);
-    }
-
-    return false;
+    return this.geosetAnimation && this.geosetAnimation.isColorVariant(sequence);
   }
 }

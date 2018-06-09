@@ -1,3 +1,7 @@
+
+// Heap allocations needed for this module.
+let visibilityHeap = new Float32Array(1);
+
 /**
  * An attachment instance.
  */
@@ -27,7 +31,9 @@ export default class AttachmentInstance {
     let internalInstance = this.internalInstance;
 
     if (internalInstance.model.loaded) {
-      if (this.attachment.getVisibility(this.instance) > 0.1) {
+      this.attachment.getVisibility(visibilityHeap, this.instance);
+
+      if (visibilityHeap[0] > 0.1) {
         // The parent instance might not actually be in a scene.
         // This happens if loading a local model, where loading is instant and adding to a scene always comes afterwards.
         // Therefore, do it here dynamically.

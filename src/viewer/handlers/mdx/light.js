@@ -1,9 +1,4 @@
-import {vec3} from 'gl-matrix';
 import GenericObject from './genericobject';
-
-// Heap allocations needed for this module.
-let colorHeap = vec3.create();
-let ambientColorHeap = vec3.create();
 
 /**
  * An MDX light.
@@ -26,50 +21,56 @@ export default class Light extends GenericObject {
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getAttenuationStart(instance) {
-    return this.getValue('KLAS', instance, this.attenuation[0]);
+  getAttenuationStart(out, instance) {
+    return this.getFloatValue(out, 'KLAS', instance, this.attenuation[0]);
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getAttenuationEnd(instance) {
-    return this.getValue('KLAE', instance, this.attenuation[1]);
+  getAttenuationEnd(out, instance) {
+    return this.getFloatValue(out, 'KLAE', instance, this.attenuation[1]);
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getIntensity(instance) {
-    return this.getValue('KLAI', instance, this.intensity);
+  getIntensity(out, instance) {
+    return this.getFloatValue(out, 'KLAI', instance, this.intensity);
   }
 
   /**
-   * @param {ModelInstance} instance
-   * @return {vec3}
-   */
-  getColor(instance) {
-    return this.getValue3(colorHeap, 'KLAC', instance, this.color);
-  }
-
-  /**
+   * @param {vec3} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getAmbientIntensity(instance) {
-    return this.getValue('KLBI', instance, this.ambientIntensity);
+  getColor(out, instance) {
+    return this.getVector3Value(out, 'KLAC', instance, this.color);
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
-   * @return {vec3}
+   * @return {number}
    */
-  getAmbientColor(instance) {
-    return this.getValue3(ambientColorHeap, 'KLBC', instance, this.ambientColor);
+  getAmbientIntensity(out, instance) {
+    return this.getFloatValue(out, 'KLBI', instance, this.ambientIntensity);
+  }
+
+  /**
+   * @param {vec3} out
+   * @param {ModelInstance} instance
+   * @return {number}
+   */
+  getAmbientColor(out, instance) {
+    return this.getVector3Value(out, 'KLBC', instance, this.ambientColor);
   }
 }

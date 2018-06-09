@@ -1,10 +1,11 @@
 import {createTextureAtlas} from '../common/canvas';
+import fetchDataType from '../common/fetchdatatype';
 import EventDispatcher from './eventdispatcher';
 import WebGL from './gl/gl';
 import PromiseResource from './promiseresource';
 import Scene from './scene';
-import nativeTextureHandler from './handlers/nativetexture/handler';
-import ImageTexture from './handlers/nativetexture/texture';
+import imageTextureHandler from './handlers/imagetexture/handler';
+import ImageTexture from './handlers/imagetexture/texture';
 
 /**
  * A model viewer.
@@ -27,7 +28,7 @@ export default class ModelViewer extends EventDispatcher {
 
     /**
      * The speed of animation. Note that this is not the time of a frame in milliseconds, but rather the amount of animation frames to advance each update.
-     * The speed of animation. Note that this is not the time of a frame in mill
+     *
      * @member {number}
      */
     this.frameTime = 1000 / 60;
@@ -40,56 +41,6 @@ export default class ModelViewer extends EventDispatcher {
 
     /** @member {WebGLRenderingContext} */
     this.gl = this.webgl.gl;
-
-    /** @member {Object<string, string>} */
-    this.sharedShaders = {
-      // Shared shader code to mimic gl_InstanceID
-      'instanceId': `
-                attribute float a_InstanceID;
-            `,
-      // Shared shader code to handle bone textures
-      'boneTexture': `
-                uniform sampler2D u_boneMap;
-                uniform float u_vectorSize;
-                uniform float u_rowSize;
-
-                mat4 fetchMatrix(float column, float row) {
-                    column *= u_vectorSize * 4.0;
-                    row *= u_rowSize;
-                    // Add in half texel to sample in the middle of the texel.
-                    // Otherwise, since the sample is directly on the boundry, small floating point errors can cause the sample to get the wrong pixel.
-                    // This is mostly noticable with NPOT textures, which the bone maps are.
-                    column += 0.5 * u_vectorSize;
-                    row += 0.5 * u_rowSize;
-
-                    return mat4(texture2D(u_boneMap, vec2(column, row)),
-                                texture2D(u_boneMap, vec2(column + u_vectorSize, row)),
-                                texture2D(u_boneMap, vec2(column + u_vectorSize * 2.0, row)),
-                                texture2D(u_boneMap, vec2(column + u_vectorSize * 3.0, row)));
-                }
-                `,
-      // Shared shader code to handle decoding multiple bytes stored in floats
-      'decodeFloat': `
-                vec2 decodeFloat2(float f) {
-                    vec2 v;
-
-                    v[1] = floor(f / 256.0);
-                    v[0] = floor(f - v[1] * 256.0);
-
-                    return v;
-                }
-
-                vec3 decodeFloat3(float f) {
-                    vec3 v;
-
-                    v[2] = floor(f / 65536.0);
-                    v[1] = floor((f - v[2] * 65536.0) / 256.0);
-                    v[0] = floor(f - v[2] * 65536.0 - v[1] * 256.0);
-
-                    return v;
-                }
-            `,
-    };
 
     /** @member {Map<string, ShaderProgram>} */
     this.shaderMap = new Map();
@@ -146,7 +97,7 @@ export default class ModelViewer extends EventDispatcher {
     /** @member {boolean} */
     this.audioEnabled = false;
 
-    this.addHandler(nativeTextureHandler);
+    this.addHandler(imageTextureHandler);
   }
 
   /**
@@ -279,24 +230,20 @@ export default class ModelViewer extends EventDispatcher {
         if (serverFetch) {
           let dataType = handlerAndDataType[1];
 
-          this.getData(src, dataType)
-            .then((data) => {
-              if (data) {
-                try {
-                  resource.loadData(data);
-                } catch (e) {
-                  resource.error('InvalidData', e);
-                }
-              } else {
+          fetchDataType(src, dataType)
+            .then((response) => {
+              let data = response.data;
+
+              if (response.type === 'error') {
+                this.dispatchEvent({type: 'error', error: response.error, reason: data});
+
                 resource.error('FailedToFetch');
+              } else {
+                resource.loadData(data);
               }
             });
         } else {
-          try {
-            resource.loadData(src);
-          } catch (e) {
-            resource.error('InvalidData', e);
-          }
+          resource.loadData(src);
         }
 
         return resource;
@@ -306,72 +253,6 @@ export default class ModelViewer extends EventDispatcher {
         return null;
       }
     }
-  }
-
-  /**
-   * Returns a promise that will resolve with the data from the given path.
-   * The data type determines the returned object:
-   *     "image" => Image
-   *     "text" => string
-   *     "arrayBuffer" => ArrayBuffer
-   *     "blob" => Blob
-   *
-   * @param {string} path
-   * @param {string} dataType
-   * @return {Promise}
-   */
-  async getData(path, dataType) {
-    if (dataType === 'image') {
-      // Promise wrapper for an image load.
-      return await new Promise((resolve, reject) => {
-        let image = new Image();
-
-        image.onload = () => {
-          resolve(image);
-        };
-
-        image.onerror = (e) => {
-          this.dispatchEvent({type: 'error', error: 'ImageError', reason: e});
-          resolve(null);
-        };
-
-        image.src = path;
-      });
-    }
-
-    let response;
-
-    // Fetch.
-    try {
-      response = await fetch(path);
-    } catch (e) {
-      this.dispatchEvent({type: 'error', error: 'NetworkError', reason: e});
-      return;
-    }
-
-    // Fetch went ok?
-    if (!response.ok) {
-      this.dispatchEvent({type: 'error', error: 'HttpError', reason: response});
-      return;
-    }
-
-    let data;
-
-    // Try to get the requested data type.
-    try {
-      if (dataType === 'text') {
-        data = await response.text();
-      } else if (dataType === 'arrayBuffer') {
-        data = await response.arrayBuffer();
-      } else if (dataType === 'blob') {
-        data = await response.blob();
-      }
-    } catch (e) {
-      this.dispatchEvent({type: 'error', error: 'DataError', reason: e});
-      return;
-    }
-
-    return data;
   }
 
   /**
@@ -522,7 +403,7 @@ export default class ModelViewer extends EventDispatcher {
   /**
    * Returns a promise that will be resolved with the canvas blob.
    *
-   * @return {Promise}
+   * @return {Promise<Blob>}
    */
   toBlob() {
     return new Promise((resolve) => this.canvas.toBlob((blob) => resolve(blob)));

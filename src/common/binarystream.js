@@ -505,6 +505,23 @@ export default class BinaryStream {
   }
 
   /**
+   * Read into a typed array.
+   *
+   * @param {ArrayBufferView} view
+   */
+  readTypedArray(view) {
+    let buffer = new Uint8Array(view.buffer);
+    let index = this.index;
+    let uint8array = this.uint8array;
+
+    for (let i = 0, l = buffer.length; i < l; i++) {
+      buffer[i] = uint8array[index + i];
+    }
+
+    this.index += buffer.length;
+  }
+
+  /**
    * Write a string
    *
    * @param {string} value
@@ -823,5 +840,20 @@ export default class BinaryStream {
     }
 
     this.index += view.byteLength;
+  }
+
+  /**
+   * Write a typed array.
+   *
+   * @param {ArrayBufferView} view
+   */
+  writeTypedArray(view) {
+    let buffer = new Uint8Array(view.buffer);
+    let index = this.index;
+    let uint8array = this.uint8array;
+
+    for (let i = 0, l = buffer.length; i < l; i++) {
+      uint8array[index + i] = buffer[i];
+    }
   }
 }

@@ -172,6 +172,7 @@ export default class Geoset {
         stream.readInt(); // matrices count
         stream.readInt(); // total indices
 
+        // eslint-disable-next-line no-unused-vars
         for (let matrix of stream.readBlock()) {
           let size = 0;
 

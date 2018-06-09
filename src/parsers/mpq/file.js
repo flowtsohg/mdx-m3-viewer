@@ -1,6 +1,7 @@
 import {inflate, deflate} from 'pako';
 import {bufferToString} from '../../common/stringtobuffer';
 import {HASH_ENTRY_DELETED, FILE_COMPRESSED, FILE_ENCRYPTED, FILE_OFFSET_ADJUSTED_KEY, FILE_SINGLE_UNIT, FILE_EXISTS, COMPRESSION_HUFFMAN, COMPRESSION_DEFLATE, COMPRESSION_IMPLODE, COMPRESSION_BZIP2, COMPRESSION_ADPCM_MONO, COMPRESSION_ADPCM_STEREO} from './constants';
+import {isArchive} from './isarchive';
 
 /**
  * A MPQ file.
@@ -337,68 +338,77 @@ export default class MpqFile {
 
   /**
    * Encode this file.
-   * For now it is hardcoded to zlib compression.
-   * If the resulting compressed data is bigger than the uncompressed data, the uncompressed data will be saved.
+   * Archives (maps or generic MPQs) are stored uncompressed in one chunk.
+   * Other files are always stored in sectors, except when a file is smaller than a sector.
+   * Sectors themselves are always compressed, except when the result is smaller than the uncompressed data.
+   * This can only happen in the last sector when there are multiple sectors.
    */
   encode() {
     if (this.buffer !== null && this.rawBuffer === null) {
-      let sectorSize = this.archive.sectorSize;
       let data = new Uint8Array(this.buffer);
-      let sectorCount = Math.ceil(data.byteLength / sectorSize);
-      let offsets = new Uint32Array(sectorCount + 1);
-      let offset = offsets.byteLength;
-      let chunks = [];
 
-      // First offset is right after the offsets list.
-      offsets[0] = offsets.byteLength;
-
-      for (let i = 0; i < sectorCount; i++) {
-        let sectorOffset = i * sectorSize;
-        let uncompressed = data.subarray(sectorOffset, sectorOffset + sectorSize);
-        let chunk = deflate(uncompressed);
-        let compressedSectorSize = chunk.byteLength + 1;
-
-        // If the sector is going to take more than the archive's sector size, don't compress it.
-        if (compressedSectorSize > sectorSize) {
-          chunk = uncompressed;
-        }
-
-        offset += compressedSectorSize;
-
-        offsets[i + 1] = offset;
-
-        chunks[i] = chunk;
-      }
-
-      let compressedSize = offsets[offsets.length - 1];
-      let rawBuffer = new Uint8Array(new ArrayBuffer(compressedSize));
-
-      // Write the offsets list.
-      rawBuffer.set(new Uint8Array(offsets.buffer));
-
-      offset = offsets.byteLength;
-
-      for (let chunk of chunks) {
-        // If the chunk size is smaller than the archive's sector size, it means it was compressed.
-        if (chunk.byteLength < sectorSize) {
-          rawBuffer[offset] = 2; // zlib
-          offset += 1;
-        }
-
-        // Write the chunk.
-        rawBuffer.set(chunk, offset);
-        offset += chunk.byteLength;
-      }
-
-      // Only use the compressed data if it's actually smaller than the normal data.
-      if (rawBuffer.byteLength < data.byteLength) {
-        this.rawBuffer = rawBuffer.buffer;
-        this.block.compressedSize = rawBuffer.byteLength;
-        this.block.flags = (FILE_EXISTS | FILE_COMPRESSED) >>> 0;
-      } else {
+      if (isArchive(data)) {
         this.rawBuffer = this.buffer;
         this.block.compressedSize = this.buffer.byteLength;
         this.block.flags = FILE_EXISTS;
+      } else {
+        let sectorSize = this.archive.sectorSize;
+        let sectorCount = Math.ceil(data.byteLength / sectorSize);
+        let offsets = new Uint32Array(sectorCount + 1);
+        let offset = offsets.byteLength;
+        let chunks = [];
+
+        // First offset is right after the offsets list.
+        offsets[0] = offsets.byteLength;
+
+        for (let i = 0; i < sectorCount; i++) {
+          let sectorOffset = i * sectorSize;
+          let uncompressed = data.subarray(sectorOffset, sectorOffset + sectorSize);
+          let chunk = deflate(uncompressed);
+          let compressedSectorSize = chunk.byteLength + 1;
+
+          // If the sector is going to take more than the archive's sector size, don't compress it.
+          if (compressedSectorSize > sectorSize) {
+            chunk = uncompressed;
+          }
+
+          offset += compressedSectorSize;
+
+          offsets[i + 1] = offset;
+
+          chunks[i] = chunk;
+        }
+
+        let compressedSize = offsets[offsets.length - 1];
+        let rawBuffer = new Uint8Array(compressedSize);
+
+        // Write the offsets list.
+        rawBuffer.set(new Uint8Array(offsets.buffer));
+
+        offset = offsets.byteLength;
+
+        for (let chunk of chunks) {
+          // If the chunk size is smaller than the archive's sector size, it means it was compressed.
+          if (chunk.byteLength < sectorSize) {
+            rawBuffer[offset] = 2; // zlib
+            offset += 1;
+          }
+
+          // Write the chunk.
+          rawBuffer.set(chunk, offset);
+          offset += chunk.byteLength;
+        }
+
+        // Only use the compressed data if it's actually smaller than the normal data.
+        if (rawBuffer.byteLength < data.byteLength) {
+          this.rawBuffer = rawBuffer.buffer;
+          this.block.compressedSize = rawBuffer.byteLength;
+          this.block.flags = (FILE_EXISTS | FILE_COMPRESSED) >>> 0;
+        } else {
+          this.rawBuffer = this.buffer;
+          this.block.compressedSize = this.buffer.byteLength;
+          this.block.flags = FILE_EXISTS;
+        }
       }
     }
   }
@@ -421,14 +431,12 @@ export default class MpqFile {
 
     let newEncryptionKey = c.computeFileKey(this.name, block);
 
-    // One chunk.
     if (flags & FILE_SINGLE_UNIT) {
       // Decrypt the chunk with the old key.
       c.decryptBlock(typedArray, encryptionKey);
 
       // Encrypt the chunk with the new key.
       c.encryptBlock(typedArray, newEncryptionKey);
-      // One or more sectors.
     } else {
       let sectorCount = Math.ceil(block.normalSize / archive.sectorSize);
 

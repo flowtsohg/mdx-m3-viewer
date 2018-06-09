@@ -159,57 +159,64 @@ export default class Layer extends AnimatedObject {
   }
 
   /**
+   * @param {Float32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getAlpha(instance) {
-    return this.getValue('KMTA', instance, this.alpha);
+  getAlpha(out, instance) {
+    return this.getFloatValue(out, 'KMTA', instance, this.alpha);
   }
 
-
   /**
+   * @param {Uint32Array} out
    * @param {ModelInstance} instance
    * @return {number}
    */
-  getTextureId(instance) {
-    return this.getValue('KMTF', instance, this.textureId);
-    // / TODO: map the returned slot to a texture atlas slot if one exists.
+  getTextureId(out, instance) {
+    /// TODO: map the returned slot to a texture atlas slot if one exists.
+    return this.getUintValue(out, 'KMTF', instance, this.textureId);
   }
 
   /**
-  * @param {ModelInstance} instance
-  * @return {vec3}
-  */
-  getTranslation(instance) {
-    if (this.textureAnimation) {
-      return this.textureAnimation.getTranslation(instance);
-    }
-
-    return VEC3_ZERO;
-  }
-
-  /**
+   * @param {vec3} out
    * @param {ModelInstance} instance
-   * @return {quat}
+   * @return {number}
    */
-  getRotation(instance) {
+  getTranslation(out, instance) {
     if (this.textureAnimation) {
-      return this.textureAnimation.getRotation(instance);
+      return this.textureAnimation.getTranslation(out, instance);
     }
 
-    return QUAT_DEFAULT;
+    vec3.copy(out, VEC3_ZERO);
+    return -1;
   }
 
   /**
+   * @param {quat} out
    * @param {ModelInstance} instance
-   * @return {vec3}
+   * @return {number}
    */
-  getScale(instance) {
+  getRotation(out, instance) {
     if (this.textureAnimation) {
-      return this.textureAnimation.getScale(instance);
+      return this.textureAnimation.getRotation(out, instance);
     }
 
-    return VEC3_ONE;
+    quat.copy(out, QUAT_DEFAULT);
+    return -1;
+  }
+
+  /**
+   * @param {vec3} out
+   * @param {ModelInstance} instance
+   * @return {number}
+   */
+  getScale(out, instance) {
+    if (this.textureAnimation) {
+      return this.textureAnimation.getScale(out, instance);
+    }
+
+    vec3.copy(out, VEC3_ONE);
+    return -1;
   }
 
   /**
@@ -233,11 +240,7 @@ export default class Layer extends AnimatedObject {
    * @return {boolean}
    */
   isTranslationVariant(sequence) {
-    if (this.textureAnimation) {
-      return this.textureAnimation.isTranslationVariant(sequence);
-    } else {
-      return false;
-    }
+    return this.textureAnimation && this.textureAnimation.isTranslationVariant(sequence);
   }
 
   /**
@@ -245,11 +248,7 @@ export default class Layer extends AnimatedObject {
    * @return {boolean}
    */
   isRotationVariant(sequence) {
-    if (this.textureAnimation) {
-      return this.textureAnimation.isRotationVariant(sequence);
-    } else {
-      return false;
-    }
+    return this.textureAnimation && this.textureAnimation.isRotationVariant(sequence);
   }
 
   /**
@@ -257,10 +256,6 @@ export default class Layer extends AnimatedObject {
    * @return {boolean}
    */
   isScaleVariant(sequence) {
-    if (this.textureAnimation) {
-      return this.textureAnimation.isScaleVariant(sequence);
-    } else {
-      return false;
-    }
+    return this.textureAnimation && this.textureAnimation.isScaleVariant(sequence);
   }
 }
