@@ -15,13 +15,13 @@ export default class M3Stg {
   }
 
   getValueUnsafe(animRef, instance) {
-    let stcIndices = this.stcIndices,
-      stcs = this.stc,
-      stss = this.sts;
+    let stcIndices = this.stcIndices;
+    let stcs = this.stc;
+    let stss = this.sts;
 
     for (let i = 0, l = stcIndices.length; i < l; i++) {
-      let stc = stcs[stcIndices[i]],
-        sts = stss[stc.stsIndex];
+      let stc = stcs[stcIndices[i]];
+      let sts = stss[stc.stsIndex];
 
       // First check if this STC actually has data for this animation reference
       if (sts.hasData(animRef)) {

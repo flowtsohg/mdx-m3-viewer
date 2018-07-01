@@ -8,7 +8,7 @@ export default class ECA {
    *
    */
   constructor() {
-    this.type = 0;
+    this.type = -1;
     this.group = -1;
     this.name = '';
     this.isEnabled = 0;
@@ -32,16 +32,7 @@ export default class ECA {
     this.name = stream.readUntilNull();
     this.isEnabled = stream.readInt32();
 
-    let name = this.name.toLowerCase();
-    let args = triggerData.functions[name];
-
-    if (!args) {
-      args = triggerData.externalFunctions[name];
-
-      if (!args) {
-        throw new Error(`Unknown ECA "${this.name}"`);
-      }
-    }
+    let args = triggerData.getFunction(this.type, this.name).args;
 
     for (let i = 0, l = args.length; i < l; i++) {
       let parameter = new Parameter();

@@ -18,7 +18,7 @@ export default class EventObjectSpnEmitter extends SharedEmitter {
    * @param {EventObjectEmitterView} emitterView
    */
   emit(emitterView) {
-    if (this.modelObject.ready) {
+    if (this.modelObject.ok) {
       this.emitObject(emitterView);
     }
   }

@@ -99,7 +99,7 @@ export default class M3ModelInstance extends TexturedModelInstance {
     this.sequence = id;
     this.frame = 0;
 
-    if (this.model.loaded) {
+    if (this.model.ok) {
       let sequences = this.model.sequences.length;
 
       if (id < -1 || id > sequences - 1) {

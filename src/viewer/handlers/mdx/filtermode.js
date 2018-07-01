@@ -15,6 +15,8 @@ export function layerFilterMode(filterMode, gl) {
   } else if (filterMode === 6) {
     return [gl.DST_COLOR, gl.SRC_COLOR]; // Modulate 2x
   }
+
+  return [0, 0];
 }
 
 /**

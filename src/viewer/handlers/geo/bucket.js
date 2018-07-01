@@ -48,7 +48,14 @@ export default class GeometryBucket extends Bucket {
     gl.bufferData(gl.ARRAY_BUFFER, this.edgeColorArray, gl.DYNAMIC_DRAW);
   }
 
-  fill(data, baseInstance, scene) {
+  /**
+   * Fill this bucket with scene data.
+   *
+   * @param {Object} data
+   * @return {number}
+   */
+  fill(data) {
+    let baseIndex = data.baseIndex;
     let model = this.model;
     let gl = model.viewer.gl;
     let batchSize = model.batchSize;
@@ -58,8 +65,8 @@ export default class GeometryBucket extends Bucket {
     let instanceOffset = 0;
     let instances = data.instances;
 
-    for (let l = instances.length; baseInstance < l && instanceOffset < batchSize; baseInstance++) {
-      let instance = instances[baseInstance];
+    for (let l = instances.length; baseIndex < l && instanceOffset < batchSize; baseIndex++) {
+      let instance = instances[baseIndex];
 
       if (instance.rendered && !instance.culled) {
         let worldMatrix = instance.worldMatrix;
@@ -114,6 +121,6 @@ export default class GeometryBucket extends Bucket {
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.edgeColorArray);
     }
 
-    return baseInstance;
+    return baseIndex;
   }
 }

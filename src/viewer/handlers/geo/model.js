@@ -108,28 +108,28 @@ export default class GeometryModel extends TexturedModel {
 
     webgl.useShaderProgram(shader);
 
-    gl.uniformMatrix4fv(uniforms.get('u_mvp'), false, scene.camera.worldProjectionMatrix);
+    gl.uniformMatrix4fv(uniforms.u_mvp, false, scene.camera.worldProjectionMatrix);
 
     // Bone texture
     gl.activeTexture(gl.TEXTURE15);
     gl.bindTexture(gl.TEXTURE_2D, bucket.boneTexture);
-    gl.uniform1i(uniforms.get('u_boneMap'), 15);
-    gl.uniform1f(uniforms.get('u_vectorSize'), bucket.vectorSize);
-    gl.uniform1f(uniforms.get('u_rowSize'), bucket.rowSize);
+    gl.uniform1i(uniforms.u_boneMap, 15);
+    gl.uniform1f(uniforms.u_vectorSize, bucket.vectorSize);
+    gl.uniform1f(uniforms.u_rowSize, bucket.rowSize);
 
     // Instanced IDs
-    let instanceIdAttrib = attribs.get('a_InstanceID');
+    let instanceIdAttrib = attribs.a_InstanceID;
     gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);
     gl.vertexAttribPointer(instanceIdAttrib, 1, gl.UNSIGNED_SHORT, false, 2, 0);
     instancedArrays.vertexAttribDivisorANGLE(instanceIdAttrib, 1);
 
     // Vertices
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-    gl.vertexAttribPointer(attribs.get('a_position'), 3, gl.FLOAT, false, 12, 0);
+    gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, 12, 0);
 
     // UVs
     gl.bindBuffer(gl.ARRAY_BUFFER, this.uvBuffer);
-    gl.vertexAttribPointer(attribs.get('a_uv'), 2, gl.FLOAT, false, 8, 0);
+    gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 8, 0);
 
     if (this.twoSided) {
       gl.disable(gl.CULL_FACE);
@@ -156,9 +156,9 @@ export default class GeometryModel extends TexturedModel {
       gl.disable(gl.BLEND);
     }
 
-    gl.uniform1i(uniforms.get('u_texture'), 0);
+    gl.uniform1i(uniforms.u_texture, 0);
 
-    let colorAttrib = attribs.get('a_color');
+    let colorAttrib = attribs.a_color;
     instancedArrays.vertexAttribDivisorANGLE(colorAttrib, 1);
 
     if (this.renderMode === 0 || this.renderMode === 2) {
@@ -166,18 +166,18 @@ export default class GeometryModel extends TexturedModel {
 
       webgl.bindTexture(texture, 0);
 
-      let hasTexture = uniforms.get('u_hasTexture');
+      let hasTexture = uniforms.u_hasTexture;
       if (texture) {
         gl.uniform1f(hasTexture, 1);
       } else {
         gl.uniform1f(hasTexture, 0);
       }
 
-      gl.uniform1f(uniforms.get('u_isEdge'), 0);
-      gl.uniform2fv(uniforms.get('u_uvScale'), this.uvScale);
-      gl.uniform2fv(uniforms.get('u_uvOffset'), this.uvOffset);
-      gl.uniform1f(uniforms.get('u_isBGR'), this.isBGR);
-      gl.uniform1f(uniforms.get('u_alphaMod'), this.alpha);
+      gl.uniform1f(uniforms.u_isEdge, 0);
+      gl.uniform2fv(uniforms.u_uvScale, this.uvScale);
+      gl.uniform2fv(uniforms.u_uvOffset, this.uvOffset);
+      gl.uniform1f(uniforms.u_isBGR, this.isBGR);
+      gl.uniform1f(uniforms.u_alphaMod, this.alpha);
 
       // Colors
       gl.bindBuffer(gl.ARRAY_BUFFER, bucket.vertexColorBuffer);
@@ -188,7 +188,7 @@ export default class GeometryModel extends TexturedModel {
     }
 
     if (this.renderMode === 1 || this.renderMode === 2) {
-      gl.uniform1f(uniforms.get('u_isEdge'), 1);
+      gl.uniform1f(uniforms.u_isEdge, 1);
 
       // Edge colors
       gl.bindBuffer(gl.ARRAY_BUFFER, bucket.edgeColorBuffer);
@@ -203,7 +203,15 @@ export default class GeometryModel extends TexturedModel {
     instancedArrays.vertexAttribDivisorANGLE(colorAttrib, 0);
   }
 
-  renderOpaque(data, scene, modelView) {
+  /**
+   * Render the opaque things in the given scene data.
+   *
+   * @param {Object} data
+   */
+  renderOpaque(data) {
+    let scene = data.scene;
+    let modelView = data.modelView;
+
     if (this.opaque) {
       for (let bucket of data.buckets) {
         if (bucket.count) {
@@ -213,7 +221,15 @@ export default class GeometryModel extends TexturedModel {
     }
   }
 
-  renderTranslucent(data, scene, modelView) {
+  /**
+   * Render the translucent things in the given scene data.
+   *
+   * @param {Object} data
+   */
+  renderTranslucent(data) {
+    let scene = data.scene;
+    let modelView = data.modelView;
+
     if (this.translucent) {
       for (let bucket of data.buckets) {
         if (bucket.count) {

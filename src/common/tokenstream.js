@@ -325,7 +325,7 @@ export default class TokenStream {
     if (value instanceof Float32Array) {
       this.writeFloatArrayAttrib(name, value);
     } else {
-      this.writeArrayAttrib(name, valie);
+      this.writeArrayAttrib(name, value);
     }
   }
 

@@ -26,6 +26,8 @@ export default class ModelInstance extends EventNode {
      * @member {boolean}
      */
     this.noCulling = false;
+    /** @member {?object} */
+    this.bounds = null;
   }
 
   /**
@@ -75,6 +77,15 @@ export default class ModelInstance extends EventNode {
   }
 
   /**
+   * Called once the model is loaded, or immediately if the model was already loaded.
+   *
+   * @param {ArrayBuffer|string|Image} buffer
+   */
+  load(buffer) {
+
+  }
+
+  /**
    * Called every frame.
    * Do lightweight updates here, like updating animation timers.
    */
@@ -97,7 +108,7 @@ export default class ModelInstance extends EventNode {
    * @param {Scene} scene
    */
   updateObject(scene) {
-    if (!this.paused && this.model.loaded) {
+    if (!this.paused && this.model.ok) {
       this.updateTimers();
 
       if (this.rendered) {

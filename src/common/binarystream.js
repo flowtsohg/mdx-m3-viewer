@@ -21,7 +21,7 @@ export default class BinaryStream {
     }
 
     if (!(buffer instanceof ArrayBuffer)) {
-      throw new TypeError(`BinaryStream: expected ArrayBuffer or ArrayBuffer, got ${buffer}`);
+      throw new TypeError(`BinaryStream: expected ArrayBuffer or ArrayBufferView, got ${buffer}`);
     }
 
     /** @member {ArrayBuffer} */

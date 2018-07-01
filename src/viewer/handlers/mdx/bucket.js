@@ -39,7 +39,7 @@ export default class extends Bucket {
     gl.bufferData(gl.ARRAY_BUFFER, this.teamColorArray, gl.DYNAMIC_DRAW);
 
     // Vertex color (per instance)
-    this.vertexColorArray = new Uint8Array(4 * batchSize).fill(255); // Vertex color initialized to white
+    this.vertexColorArray = new Uint8Array(4 * batchSize);
     this.vertexColorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, this.vertexColorArray, gl.DYNAMIC_DRAW);
@@ -74,6 +74,7 @@ export default class extends Bucket {
       for (let i = 0, l = model.layers.length; i < l; i++) {
         this.uvOffsetArrays[i] = new Float32Array(4 * batchSize);
         this.uvOffsetBuffers[i] = gl.createBuffer();
+
         gl.bindBuffer(gl.ARRAY_BUFFER, this.uvOffsetBuffers[i]);
         gl.bufferData(gl.ARRAY_BUFFER, this.uvOffsetArrays[i], gl.DYNAMIC_DRAW);
 
@@ -95,7 +96,14 @@ export default class extends Bucket {
     }
   }
 
-  fill(data, baseInstance, scene) {
+  /**
+   * Fill this bucket with scene data.
+   *
+   * @param {Object} data
+   * @return {number}
+   */
+  fill(data) {
+    let baseIndex = data.baseIndex;
     let model = this.model;
     let gl = model.viewer.gl;
     let batchSize = model.batchSize;
@@ -117,8 +125,8 @@ export default class extends Bucket {
     let ribbonEmitters = data.ribbonEmitters;
     let eventObjectEmitters = data.eventObjectEmitters;
 
-    for (let l = instances.length; baseInstance < l && instanceOffset < batchSize; baseInstance++) {
-      let instance = instances[baseInstance];
+    for (let l = instances.length; baseIndex < l && instanceOffset < batchSize; baseIndex++) {
+      let instance = instances[baseIndex];
 
       if (instance.rendered && !instance.culled) {
         let vertexColor = instance.vertexColor;
@@ -183,19 +191,19 @@ export default class extends Bucket {
         }
 
         for (let i = 0, l = particleEmitters.length; i < l; i++) {
-          particleEmitters[i].fill(particleEmitterViews[i], scene);
+          particleEmitters[i].fill(particleEmitterViews[i]);
         }
 
         for (let i = 0, l = particleEmitters2.length; i < l; i++) {
-          particleEmitters2[i].fill(particleEmitter2Views[i], scene);
+          particleEmitters2[i].fill(particleEmitter2Views[i]);
         }
 
         for (let i = 0, l = ribbonEmitters.length; i < l; i++) {
-          ribbonEmitters[i].fill(ribbonEmitterViews[i], scene);
+          ribbonEmitters[i].fill(ribbonEmitterViews[i]);
         }
 
         for (let i = 0, l = eventObjectEmitters.length; i < l; i++) {
-          eventObjectEmitters[i].fill(eventObjectEmitterViews[i], scene);
+          eventObjectEmitters[i].fill(eventObjectEmitterViews[i]);
         }
 
         instanceOffset += 1;
@@ -236,6 +244,6 @@ export default class extends Bucket {
       }
     }
 
-    return baseInstance;
+    return baseIndex;
   }
 }

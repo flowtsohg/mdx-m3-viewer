@@ -3,12 +3,15 @@
  */
 export default class SlkFile {
   /**
-   *
+   * @param {?string} buffer
    */
-  constructor() {
+  constructor(buffer) {
     /** @member {Array<Array<string>>} */
     this.rows = [];
-    this.map = {};
+
+    if (buffer) {
+      this.load(buffer);
+    }
   }
 
   /**

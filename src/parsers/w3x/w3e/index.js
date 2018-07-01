@@ -1,7 +1,7 @@
-import TilePoint from './tilepoint';
+import Corner from './corner';
 import File from './file';
 
 export default {
-  TilePoint,
+  Corner,
   File,
 };

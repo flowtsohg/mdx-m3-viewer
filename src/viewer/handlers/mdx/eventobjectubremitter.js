@@ -12,14 +12,14 @@ export default class EventObjectUbrEmitter extends SharedGeometryEmitter {
     super(modelObject);
 
     this.type = 'UBR';
-    this.bytesPerEmit = 4 * 30;
+    this.elementsPerEmit = 30;
   }
 
   /**
    * @param {EventObjectEmitterView} emitterView
    */
   emit(emitterView) {
-    if (this.modelObject.ready) {
+    if (this.modelObject.ok) {
       this.emitObject(emitterView);
     }
   }

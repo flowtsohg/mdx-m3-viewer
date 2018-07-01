@@ -2,6 +2,187 @@ import unique from '../common/arrayunique';
 import Bone from '../parsers/mdlx/bone';
 
 /**
+ * The data needed for a data.
+ */
+class SanityTestData {
+  /**
+   * @param {Model} model
+   */
+  constructor(model) {
+    this.model = model;
+    this.objects = [];
+    this.current = {children: []};
+    this.stack = [this.current];
+    this.map = {};
+
+    this.addObjects(model.sequences, 'Sequence', );
+    this.addObjects(model.globalSequences, 'GlobalSequence');
+    this.addObjects(model.textures, 'Texture');
+    this.addObjects(model.materials, 'Material');
+    this.addObjects(model.textureAnimations, 'TextureAnimation');
+    this.addObjects(model.geosets, 'Geoset');
+    this.addObjects(model.geosetAnimations, 'GeosetAnimation');
+    this.addObjects(model.bones, 'Bone', true);
+    this.addObjects(model.lights, 'Light', true);
+    this.addObjects(model.helpers, 'Helper', true);
+    this.addObjects(model.attachments, 'Attachment', true);
+    this.addObjects(model.particleEmitters, 'ParticleEmitter', true);
+    this.addObjects(model.particleEmitters2, 'ParticleEmitter2', true);
+    this.addObjects(model.ribbonEmitters, 'RibbonEmitter', true);
+    this.addObjects(model.cameras, 'Camera');
+    this.addObjects(model.eventObjects, 'EventObject', true);
+    this.addObjects(model.collisionShapes, 'CollisionShape', true);
+  }
+
+  /**
+   * Adds nodes for all of the given objects.
+   * Also handles the flat array of generic objects.
+   *
+   * @param {Array<?>} objects
+   * @param {string} objectType
+   * @param {boolean} areGeneric
+   */
+  addObjects(objects, objectType, areGeneric) {
+    let array = [];
+
+    for (let [index, object] of objects.entries()) {
+      let name = object.name || object.path;
+      let data = {objectType, index, warnings: 0, errors: 0, children: []};
+
+      if (name) {
+        data.name = name;
+      }
+
+      if (!areGeneric) {
+        data.uses = 0;
+      }
+
+      array.push(data);
+    }
+
+    this.map[objectType] = array;
+
+    if (areGeneric) {
+      this.objects.push(...objects);
+    }
+  }
+
+  /**
+   * Pushes to the stack either the node described by the parameters.
+   * If this node does not exist, a new one will be created, which is used by internal nodes like material layers.
+   *
+   * @param {string} objectType
+   * @param {number} index
+   */
+  push(objectType, index) {
+    let nodes = this.map[objectType];
+    let node;
+
+    // Internal objects like material layers are not added at initialization, but rather added as internal nodes here when needed.
+    if (nodes) {
+      node = nodes[index];
+    } else {
+      node = {objectType, warnings: 0, errors: 0, children: []};
+
+      // Animations don't need the index.
+      if (typeof index === 'number') {
+        node.index = index;
+      }
+    }
+
+    this.current.children.push(node);
+
+    this.current = node;
+
+    this.stack.unshift(node);
+  }
+
+  /**
+   * Pops the current node from the stack.
+   */
+  pop() {
+    this.stack.shift();
+    this.current = this.stack[0];
+  }
+
+  /**
+   * Adds a child to the current node.
+   *
+   * @param {string} type
+   * @param {string} message
+   */
+  add(type, message) {
+    this.current.children.push({type, message});
+  }
+
+  /**
+   * Adds the given message as a warning child.
+   * This also propagates to all of stack that a warning was added.
+   *
+   * @param {string} message
+   */
+  addWarning(message) {
+    this.add('warning', message);
+
+    for (let node of this.stack) {
+      node.warnings += 1;
+    }
+  }
+
+  /**
+   * Adds the given message as an error child.
+   * This also propagates to all of stack that an error was added.
+   *
+   * @param {string} message
+   */
+  addError(message) {
+    this.add('error', message);
+
+    for (let node of this.stack) {
+      node.errors += 1;
+    }
+  }
+
+  /**
+   * Adds the given message as a warning child if the condition is true.
+   *
+   * @param {boolean} condition
+   * @param {string} message
+   */
+  assertWarning(condition, message) {
+    if (!condition) {
+      this.addWarning(message);
+    }
+  }
+
+  /**
+   * Adds the given message as an error child if the condition is true.
+   *
+   * @param {boolean} condition
+   * @param {string} message
+   */
+  assertError(condition, message) {
+    if (!condition) {
+      this.addError(message);
+    }
+  }
+
+  /**
+   * Adds a reference to either the node described by the parameters, or the current node if nothing is passed.
+   *
+   * @param {string} objectType
+   * @param {number} index
+   */
+  addReference(objectType, index) {
+    if (objectType) {
+      this.map[objectType][index].uses += 1;
+    } else {
+      this.current.uses += 1;
+    }
+  }
+}
+
+/**
  * Is minVal <= x <= maxVal?
  *
  * @param {number} x
@@ -13,32 +194,40 @@ function inRange(x, minVal, maxVal) {
   return minVal <= x && x <= maxVal;
 }
 
-/**
- * Test the version chunk.
- *
- * @param {Object} state
- */
-function testVersion(state) {
-  let version = state.model.version;
 
-  state.assertWarning(version === 800, `Unknown version ${version}`);
+/**
+ * Test the version and model chunks.
+ *
+ * @param {SanityTestData} data
+ */
+function testHeader(data) {
+  let version = data.model.version;
+  let animationFile = data.model.animationFile;
+
+  data.assertWarning(version === 800, `Unknown version ${version}`);
+  data.assertError(animationFile === '', `Expected an empty animation file path, got "${animationFile}"`);
 }
 
-function testSequences(state) {
-  let sequences = state.model.sequences;
+/**
+ * Test the sequence chunk.
+ *
+ * @param {SanityTestData} data
+ */
+function testSequences(data) {
+  let sequences = data.model.sequences;
 
   if (sequences.length) {
-    let foundStand = false,
-      foundDeath = false;
+    let foundStand = false;
+    let foundDeath = false;
 
     for (let [index, sequence] of sequences.entries()) {
-      state.push('Sequence', index);
+      data.push('Sequence', index);
 
-      let name = sequence.name,
-        tokens = name.toLowerCase().trim().split('-')[0].split(/\s+/),
-        token = tokens[0],
-        interval = sequence.interval,
-        length = interval[1] - interval[0];
+      let name = sequence.name;
+      let tokens = name.toLowerCase().trim().split('-')[0].split(/\s+/);
+      let token = tokens[0];
+      let interval = sequence.interval;
+      let length = interval[1] - interval[0];
 
       if (token === 'alternate') {
         token = tokens[1];
@@ -53,91 +242,116 @@ function testSequences(state) {
       }
 
       if (sequenceNames.has(token)) {
-        state.addReference();
+        data.addReference();
       } else {
-        state.addWarning(`Unknown sequence "${token}"`);
+        data.addWarning(`Unknown sequence "${token}"`);
       }
 
-      state.assertWarning(length !== 0, 'Zero length');
-      state.assertWarning(length > -1, `Negative length ${length}`);
+      data.assertWarning(length !== 0, 'Zero length');
+      data.assertWarning(length > -1, `Negative length ${length}`);
 
-      state.pop();
+      data.pop();
     }
 
-    state.assertWarning(foundStand, 'Missing "Stand" sequence');
-    state.assertWarning(foundDeath, 'Missing "Death" sequence');
+    data.assertWarning(foundStand, 'Missing "Stand" sequence');
+    data.assertWarning(foundDeath, 'Missing "Death" sequence');
   } else {
-    state.addWarning('No sequences');
+    data.addWarning('No sequences');
   }
 }
 
-function testGlobalSequences(state) {
-  for (let [index, sequence] of state.model.globalSequences.entries()) {
-    state.push('GlobalSequence', index);
+/**
+ * Test the global sequence chunk.
+ *
+ * @param {SanityTestData} data
+ */
+function testGlobalSequences(data) {
+  for (let [index, sequence] of data.model.globalSequences.entries()) {
+    data.push('GlobalSequence', index);
 
-    state.assertWarning(sequence !== 0, 'Zero length');
-    state.assertWarning(sequence >= 0, `Negative length ${sequence}`);
+    data.assertWarning(sequence !== 0, 'Zero length');
+    data.assertWarning(sequence >= 0, `Negative length ${sequence}`);
 
-    state.pop();
+    data.pop();
   }
 }
 
-function testTextures(state) {
-  let textures = state.model.textures;
+/**
+ * Test the texture chunk.
+ *
+ * @param {SanityTestData} data
+ */
+function testTextures(data) {
+  let textures = data.model.textures;
 
   if (textures.length) {
     for (let [index, texture] of textures.entries()) {
-      state.push('Texture', index);
+      data.push('Texture', index);
 
-      let replaceableId = texture.replaceableId,
-        path = texture.path.toLowerCase();
+      let replaceableId = texture.replaceableId;
+      let path = texture.path.toLowerCase();
 
-      state.assertError(path === '' || path.endsWith('.blp') || path.endsWith('.tga'), `Corrupted path "${path}"`);
-      state.assertError(replaceableId === 0 || replaceableIds.has(replaceableId), `Unknown replaceable ID ${replaceableId}`);
-      state.assertWarning(path === '' || replaceableId === 0, `Path "${path}" and replaceable ID ${replaceableId} used together`);
+      data.assertError(path === '' || path.endsWith('.blp') || path.endsWith('.tga'), `Corrupted path "${path}"`);
+      data.assertError(replaceableId === 0 || replaceableIds.has(replaceableId), `Unknown replaceable ID ${replaceableId}`);
+      data.assertWarning(path === '' || replaceableId === 0, `Path "${path}" and replaceable ID ${replaceableId} used together`);
 
-      state.pop();
+      data.pop();
     }
   } else {
-    state.addWarning('No textures');
+    data.addWarning('No textures');
   }
 }
 
-function testMaterials(state) {
-  let materials = state.model.materials;
+/**
+ * Test the material chunk.
+ *
+ * @param {SanityTestData} data
+ */
+function testMaterials(data) {
+  let materials = data.model.materials;
 
   if (materials.length) {
     for (let [index, material] of materials.entries()) {
-      state.push('Material', index);
+      data.push('Material', index);
 
-      testMaterial(state, material);
+      testMaterial(data, material);
 
-      state.pop();
+      data.pop();
     }
   } else {
-    state.addWarning('No materials');
+    data.addWarning('No materials');
   }
 }
 
-function testMaterial(state, material) {
+/**
+ * Test a material.
+ *
+ * @param {SanityTestData} data
+ * @param {Material} material
+ */
+function testMaterial(data, material) {
   let layers = material.layers;
 
   if (layers.length) {
     for (let [index, layer] of layers.entries()) {
-      state.push('Layer', index);
+      data.push('Layer', index);
 
-      testLayer(state, layer);
+      testLayer(data, layer);
 
-      state.pop();
+      data.pop();
     }
   } else {
-    state.addWarning('No layers');
+    data.addWarning('No layers');
   }
 }
 
+/**
+ * Get all of the texture indices referenced by a layer.
+ *
+ * @param {Layer} layer
+ * @return {Array<number>}
+ */
 function getTextureIds(layer) {
-  let textureIds = [];
-
   for (let animation of layer.animations) {
     if (animation.name === 'KMTF') {
       let values = [];
@@ -153,15 +367,21 @@ function getTextureIds(layer) {
   return [layer.textureId];
 }
 
-function testLayer(state, layer) {
-  let textures = state.model.textures,
-    textureAnimations = state.model.textureAnimations;
+/**
+ * Test a layer.
+ *
+ * @param {SanityTestData} data
+ * @param {Layer} layer
+ */
+function testLayer(data, layer) {
+  let textures = data.model.textures;
+  let textureAnimations = data.model.textureAnimations;
 
   for (let textureId of getTextureIds(layer)) {
     if (inRange(textureId, 0, textures.length - 1)) {
-      state.addReference('Texture', textureId);
+      data.addReference('Texture', textureId);
     } else {
-      state.addError(`Invalid texture ${textureId}`);
+      data.addError(`Invalid texture ${textureId}`);
     }
   }
 
@@ -169,33 +389,44 @@ function testLayer(state, layer) {
 
   if (textureAnimationId !== -1) {
     if (inRange(textureAnimationId, 0, textureAnimations.length - 1)) {
-      state.addReference('TextureAnimation', textureAnimationId);
+      data.addReference('TextureAnimation', textureAnimationId);
     } else {
-      state.addWarning(`Invalid texture animation ${textureAnimationId}`);
+      data.addError(`Invalid texture animation ${textureAnimationId}`);
     }
   }
 
-  state.assertWarning(inRange(layer.filterMode, 0, 6), `Invalid filter mode ${layer.filterMode}`);
+  data.assertWarning(inRange(layer.filterMode, 0, 6), `Invalid filter mode ${layer.filterMode}`);
 
-  testAnimations(state, layer);
+  testAnimations(data, layer);
 }
 
-function testTextureAnimations(state) {
-  for (let [index, textureAnimation] of state.model.textureAnimations.entries()) {
-    state.push('TextureAnimation', index);
+/**
+ * Test the texture animation chunk.
+ *
+ * @param {SanityTestData} data
+ */
+function testTextureAnimations(data) {
+  for (let [index, textureAnimation] of data.model.textureAnimations.entries()) {
+    data.push('TextureAnimation', index);
 
-    testAnimations(state, textureAnimation);
+    testAnimations(data, textureAnimation);
 
-    state.pop();
+    data.pop();
   }
 }
 
-function testGeosetSkinning(state, geoset) {
-  let objects = state.objects,
-    vertexGroups = geoset.vertexGroups,
-    matrixGroups = geoset.matrixGroups,
-    matrixIndices = geoset.matrixIndices,
-    slices = [];
+/**
+ * Test geoset skinning.
+ *
+ * @param {SanityTestData} data
+ * @param {Geoset} geoset
+ */
+function testGeosetSkinning(data, geoset) {
+  let objects = data.objects;
+  let vertexGroups = geoset.vertexGroups;
+  let matrixGroups = geoset.matrixGroups;
+  let matrixIndices = geoset.matrixIndices;
+  let slices = [];
 
   for (let i = 0, l = matrixGroups.length, k = 0; i < l; i++) {
     slices.push(matrixIndices.subarray(k, k + matrixGroups[i]));
@@ -210,30 +441,35 @@ function testGeosetSkinning(state, geoset) {
         let object = objects[bone];
 
         if (object) {
-          state.assertWarning(object instanceof Bone, `Vertex ${i}: Attached to generic object "${object.name}" which is not a bone`);
+          data.assertWarning(object instanceof Bone, `Vertex ${i}: Attached to generic object "${object.name}" which is not a bone`);
         } else {
-          state.addError(`Vertex ${i}: Attached to generic object ${bone} which does not exist`);
+          data.addError(`Vertex ${i}: Attached to generic object ${bone} which does not exist`);
         }
       }
     } else {
-      state.addWarning(`Vertex ${i}: Attached to vertex group ${vertexGroups[i]} which does not exist`);
+      data.addWarning(`Vertex ${i}: Attached to vertex group ${vertexGroups[i]} which does not exist`);
     }
   }
 }
 
-function testGeosets(state) {
-  let geosets = state.model.geosets,
-    geosetAnimations = state.model.geosetAnimations;
+/**
+ * Test the geoset chunk.
+ *
+ * @param {SanityTestData} data
+ */
+function testGeosets(data) {
+  let geosets = data.model.geosets;
+  let geosetAnimations = data.model.geosetAnimations;
 
   for (let i = 0, l = geosets.length; i < l; i++) {
-    state.push('Geoset', i);
+    data.push('Geoset', i);
 
-    let geoset = geosets[i],
-      materialId = geoset.materialId;
+    let geoset = geosets[i];
+    let materialId = geoset.materialId;
 
-    testGeosetSkinning(state, geoset);
+    testGeosetSkinning(data, geoset);
     // / TODO: ADD THIS
-    // /testGeosetNormals(state, geoset);
+    // /testGeosetNormals(data, geoset);
 
     if (geosetAnimations.length) {
       let references = [];
@@ -244,119 +480,144 @@ function testGeosets(state) {
         }
       }
 
-      state.assertWarning(references.length <= 1, `Referenced by ${references.length} geoset animations (${references.join(', ')})`);
+      data.assertWarning(references.length <= 1, `Referenced by ${references.length} geoset animations (${references.join(', ')})`);
     }
 
-    if (inRange(materialId, 0, state.model.materials.length - 1)) {
-      state.addReference('Material', materialId);
+    if (inRange(materialId, 0, data.model.materials.length - 1)) {
+      data.addReference('Material', materialId);
     } else {
-      state.addError(`Invalid material ${materialId}`);
+      data.addError(`Invalid material ${materialId}`);
     }
 
     if (geoset.faces.length) {
-      state.addReference();
+      data.addReference();
     } else {
       // The game and my code have no issue with geosets containing no faces, but Magos crashes, so add a warning in addition to it being useless.
-      state.addWarning('Zero faces');
+      data.addWarning('Zero faces');
     }
 
     // The game and my code have no issue with geosets having any number of sequence extents, but Magos fails to parse, so add a warning.
-    if (geoset.sequenceExtents.length !== state.model.sequences.length) {
-      state.addWarning(`Number of sequence extents (${geoset.sequenceExtents.length}) does not match the number of sequences (${state.model.sequences.length})`);
+    if (geoset.sequenceExtents.length !== data.model.sequences.length) {
+      data.addWarning(`Number of sequence extents (${geoset.sequenceExtents.length}) does not match the number of sequences (${data.model.sequences.length})`);
     }
 
-    state.pop();
+    data.pop();
   }
 }
 
-function testGeosetAnimations(state) {
-  let geosets = state.model.geosets;
+/**
+ * Test the geoset animation chunk.
+ *
+ * @param {SanityTestData} data
+ */
+function testGeosetAnimations(data) {
+  let geosets = data.model.geosets;
 
-  for (let [index, geosetAnimation] of state.model.geosetAnimations.entries()) {
-    state.push('GeosetAnimation', index);
+  for (let [index, geosetAnimation] of data.model.geosetAnimations.entries()) {
+    data.push('GeosetAnimation', index);
 
     let geosetId = geosetAnimation.geosetId;
 
     if (inRange(geosetId, 0, geosets.length - 1)) {
-      state.addReference();
+      data.addReference();
     } else {
-      state.addError(`Invalid geoset ${geosetId}`);
+      data.addError(`Invalid geoset ${geosetId}`);
     }
 
-    testAnimations(state, geosetAnimation);
+    testAnimations(data, geosetAnimation);
 
-    state.pop();
+    data.pop();
   }
 }
 
-function testBones(state) {
-  let bones = state.model.bones,
-    geosets = state.model.geosets,
-    geosetAnimations = state.model.geosetAnimations;
+/**
+ * Test the bone chunk.
+ *
+ * @param {SanityTestData} data
+ */
+function testBones(data) {
+  let bones = data.model.bones;
+  let geosets = data.model.geosets;
+  let geosetAnimations = data.model.geosetAnimations;
 
   if (bones.length) {
     for (let [index, bone] of bones.entries()) {
-      state.push('Bone', index);
+      data.push('Bone', index);
 
-      let geosetId = bone.geosetId,
-        geosetAnimationId = bone.geosetAnimationId;
+      let geosetId = bone.geosetId;
+      let geosetAnimationId = bone.geosetAnimationId;
 
-      state.assertError(geosetId === -1 || geosetId < geosets.length, `Invalid geoset ${geosetId}`);
-      state.assertError(geosetAnimationId === -1 || geosetAnimationId < geosetAnimations.length, `Invalid geoset animation ${geosetAnimationId}`);
+      data.assertError(geosetId === -1 || geosetId < geosets.length, `Invalid geoset ${geosetId}`);
+      data.assertError(geosetAnimationId === -1 || geosetAnimationId < geosetAnimations.length, `Invalid geoset animation ${geosetAnimationId}`);
 
-      testGenericObject(state, bone);
+      testGenericObject(data, bone);
 
-      state.pop();
+      data.pop();
     }
   } else {
-    state.addWarning('No bones');
+    data.addWarning('No bones');
   }
 }
 
-function testLights(state) {
-  for (let [index, light] of state.model.lights.entries()) {
-    state.push('Light', index);
+/**
+ * Test the light chunk.
+ *
+ * @param {SanityTestData} data
+ */
+function testLights(data) {
+  for (let [index, light] of data.model.lights.entries()) {
+    data.push('Light', index);
 
     let attenuation = light.attenuation;
 
-    state.assertWarning(attenuation[0] >= 80 && attenuation[1] <= 200 && attenuation[1] - attenuation[0] > 0, `Attenuation min=${attenuation[0]} max=${attenuation[1]}`);
+    data.assertWarning(attenuation[0] >= 80 && attenuation[1] <= 200 && attenuation[1] - attenuation[0] > 0, `Attenuation min=${attenuation[0]} max=${attenuation[1]}`);
 
-    testGenericObject(state, light);
+    testGenericObject(data, light);
 
-    state.pop();
+    data.pop();
   }
 }
 
-function testHelpers(state) {
-  for (let [index, helper] of state.model.helpers.entries()) {
-    state.push('Helper', index);
+/**
+ * Test the helper chunk.
+ *
+ * @param {SanityTestData} data
+ */
+function testHelpers(data) {
+  for (let [index, helper] of data.model.helpers.entries()) {
+    data.push('Helper', index);
 
-    testGenericObject(state, helper);
+    testGenericObject(data, helper);
 
-    state.pop();
+    data.pop();
   }
 }
 
-function testAttachments(state) {
-  for (let [index, attachment] of state.model.attachments.entries()) {
-    state.push('Attachment', index);
+/**
+ * Test the attachment chunk.
+ *
+ * @param {SanityTestData} data
+ */
+function testAttachments(data) {
+  for (let [index, attachment] of data.model.attachments.entries()) {
+    data.push('Attachment', index);
 
     // NOTE: I can't figure out what exactly the rules for attachment names even are.
     /*
     let path = attachment.path;
 
     if (path === '') {
-        assertWarning(state, testAttachmentName(attachment), `${objectName}: Invalid attachment "${attachment.node.name}"`);
+        assertWarning(data, testAttachmentName(attachment), `${objectName}: Invalid attachment "${attachment.node.name}"`);
     } else {
         let lowerCase = path.toLowerCase();
 
-        assertError(state, lowerCase.endsWith('.mdl') || lowerCase.endsWith('.mdx'), `${objectName}: Invalid path "${path}"`);
+        assertError(data, lowerCase.endsWith('.mdl') || lowerCase.endsWith('.mdx'), `${objectName}: Invalid path "${path}"`);
     }
     */
 
-    testGenericObject(state, attachment);
+    testGenericObject(data, attachment);
 
-    state.pop();
+    data.pop();
   }
 }
 /*
@@ -389,74 +650,99 @@ function testAttachmentName(attachment) {
     return valid;
 }
 */
-function testPivotPoints(state) {
-  let pivotPoints = state.model.pivotPoints,
-    objects = state.objects;
+/**
+ * Test the pivot point chunk.
+ *
+ * @param {SanityTestData} data
+ */
+function testPivotPoints(data) {
+  let pivotPoints = data.model.pivotPoints;
+  let objects = data.objects;
 
-  state.assertWarning(pivotPoints.length === objects.length, `Expected ${objects.length} pivot points, got ${pivotPoints.length}`);
+  data.assertWarning(pivotPoints.length === objects.length, `Expected ${objects.length} pivot points, got ${pivotPoints.length}`);
 }
 
-function testParticleEmitters(state) {
-  for (let [index, emitter] of state.model.particleEmitters.entries()) {
-    state.push('ParticleEmitter', index);
+/**
+ * Test the particle emitter chunk.
+ *
+ * @param {SanityTestData} data
+ */
+function testParticleEmitters(data) {
+  for (let [index, emitter] of data.model.particleEmitters.entries()) {
+    data.push('ParticleEmitter', index);
 
-    state.assertError(emitter.path.toLowerCase().endsWith('.mdl'), 'Invalid path');
+    data.assertError(emitter.path.toLowerCase().endsWith('.mdl'), 'Invalid path');
 
-    testGenericObject(state, emitter);
+    testGenericObject(data, emitter);
 
-    state.pop();
+    data.pop();
   }
 }
 
-function testParticleEmitters2(state) {
-  for (let [index, emitter] of state.model.particleEmitters2.entries()) {
-    state.push('ParticleEmitter2', index);
+/**
+ * Test the particle emitter 2 chunk.
+ *
+ * @param {SanityTestData} data
+ */
+function testParticleEmitters2(data) {
+  for (let [index, emitter] of data.model.particleEmitters2.entries()) {
+    data.push('ParticleEmitter2', index);
 
     let replaceableId = emitter.replaceableId;
 
-    if (inRange(emitter.textureId, 0, state.model.textures.length - 1)) {
-      state.addReference('Texture', emitter.textureId);
+    if (inRange(emitter.textureId, 0, data.model.textures.length - 1)) {
+      data.addReference('Texture', emitter.textureId);
     } else {
-      state.addError(`Invalid texture ${emitter.textureId}`);
+      data.addError(`Invalid texture ${emitter.textureId}`);
     }
 
-    state.assertWarning(inRange(emitter.filterMode, 0, 4), `Invalid filter mode ${emitter.filterMode}`);
-    state.assertError(replaceableId === 0 || replaceableIds.has(replaceableId), `Invalid replaceable ID ${replaceableId}`);
+    data.assertWarning(inRange(emitter.filterMode, 0, 4), `Invalid filter mode ${emitter.filterMode}`);
+    data.assertError(replaceableId === 0 || replaceableIds.has(replaceableId), `Invalid replaceable ID ${replaceableId}`);
 
-    testGenericObject(state, emitter);
+    testGenericObject(data, emitter);
 
-    state.pop();
+    data.pop();
   }
 }
 
-function testRibbonEmitters(state) {
-  for (let [index, emitter] of state.model.ribbonEmitters.entries()) {
-    state.push('RibbonEmitter', index);
+/**
+ * Test the ribbon emitter chunk.
+ *
+ * @param {SanityTestData} data
+ */
+function testRibbonEmitters(data) {
+  for (let [index, emitter] of data.model.ribbonEmitters.entries()) {
+    data.push('RibbonEmitter', index);
 
-    if (inRange(emitter.materialId, 0, state.model.materials.length - 1)) {
-      state.addReference('Material', emitter.materialId);
+    if (inRange(emitter.materialId, 0, data.model.materials.length - 1)) {
+      data.addReference('Material', emitter.materialId);
     } else {
-      state.addError(`Invalid material ${emitter.materialId}`);
+      data.addError(`Invalid material ${emitter.materialId}`);
     }
 
-    testGenericObject(state, emitter);
+    testGenericObject(data, emitter);
 
-    state.pop();
+    data.pop();
   }
 }
 
-function testEventObjects(state) {
-  for (let [index, eventObject] of state.model.eventObjects.entries()) {
-    state.push('EventObject', index);
+/**
+ * Test the event object chunk.
+ *
+ * @param {SanityTestData} data
+ */
+function testEventObjects(data) {
+  for (let [index, eventObject] of data.model.eventObjects.entries()) {
+    data.push('EventObject', index);
 
-    let tracks = eventObject.tracks,
-      globalSequenceId = eventObject.globalSequenceId;
+    let tracks = eventObject.tracks;
+    let globalSequenceId = eventObject.globalSequenceId;
 
     if (globalSequenceId !== -1) {
-      if (inRange(globalSequenceId, 0, state.model.globalSequences.length - 1)) {
-        state.addReference('GlobalSequence', globalSequenceId);
+      if (inRange(globalSequenceId, 0, data.model.globalSequences.length - 1)) {
+        data.addReference('GlobalSequence', globalSequenceId);
       } else {
-        state.addError(`Invalid global sequence ${globalSequenceId}`);
+        data.addError(`Invalid global sequence ${globalSequenceId}`);
       }
     }
 
@@ -464,54 +750,77 @@ function testEventObjects(state) {
       for (let j = 0, k = tracks.length; j < k; j++) {
         let track = tracks[j];
 
-        state.assertWarning(getSequenceInfoFromFrame(state, track, globalSequenceId)[0] !== -1, `Track ${j}: Frame ${track} is not in any sequence`);
+        data.assertWarning(getSequenceInfoFromFrame(data, track, globalSequenceId)[0] !== -1, `Track ${j}: Frame ${track} is not in any sequence`);
       }
     } else {
-      state.addError('Zero keys');
+      data.addError('Zero keys');
     }
 
-    testGenericObject(state, eventObject);
+    testGenericObject(data, eventObject);
 
-    state.pop();
+    data.pop();
   }
 }
 
-function testCameras(state) {
-  for (let [index, camera] of state.model.cameras.entries()) {
-    state.push('Camera', index);
+/**
+ * Test the camera chunk.
+ *
+ * @param {SanityTestData} data
+ */
+function testCameras(data) {
+  for (let [index, camera] of data.model.cameras.entries()) {
+    data.push('Camera', index);
 
     // I don't know what the rules are as to when cameras are used for portraits.
     // Therefore, for now never report them as not used.
-    state.addReference();
+    data.addReference();
 
-    testAnimations(state, camera);
+    testAnimations(data, camera);
 
-    state.pop();
+    data.pop();
   }
 }
 
-function testCollisionShapes(state) {
-  for (let [index, collisionShape] of state.model.collisionShapes.entries()) {
-    state.push('CollisionShape', index);
+/**
+ * Test the collision shape chunk.
+ *
+ * @param {SanityTestData} data
+ */
+function testCollisionShapes(data) {
+  for (let [index, collisionShape] of data.model.collisionShapes.entries()) {
+    data.push('CollisionShape', index);
 
-    testGenericObject(state, collisionShape);
+    testGenericObject(data, collisionShape);
 
-    state.pop();
+    data.pop();
   }
 }
 
-function testGenericObject(state, object) {
-  let objectId = object.objectId,
-    parentId = object.parentId;
+/**
+ * Test a generic object.
+ *
+ * @param {SanityTestData} data
+ * @param {GenericObject} object
+ */
+function testGenericObject(data, object) {
+  let objectId = object.objectId;
+  let parentId = object.parentId;
 
-  state.assertError(parentId === -1 || hasGenericObject(state, parentId), `Invalid parent ${parentId}`);
-  state.assertError(objectId !== parentId, 'Same object and parent');
+  data.assertError(parentId === -1 || hasGenericObject(data, parentId), `Invalid parent ${parentId}`);
+  data.assertError(objectId !== parentId, 'Same object and parent');
 
-  testAnimations(state, object);
+  testAnimations(data, object);
 }
 
-function hasGenericObject(state, id) {
-  for (let object of state.objects) {
+/**
+ * Is the given ID a valid generic object?
+ *
+ * @param {SanityTestData} data
+ * @param {number} id
+ * @return {boolean}
+ */
+function hasGenericObject(data, id) {
+  for (let object of data.objects) {
     if (object.objectId === id) {
       return true;
     }
@@ -520,59 +829,76 @@ function hasGenericObject(state, id) {
   return false;
 }
 
-function testAnimations(state, object) {
-  let i = 0;
-
+/**
+ * Test all of the animations in the given animated object.
+ *
+ * @param {SanityTestData} data
+ * @param {AnimatedObject} object
+ */
+function testAnimations(data, object) {
   for (let animation of object.animations) {
-    state.push(animatedTypeNames.get(animation.name));
+    data.push(animatedTypeNames.get(animation.name));
 
-    testAnimation(state, object, animation);
+    testAnimation(data, animation);
 
-    state.pop();
+    data.pop();
   }
 }
 
-function testAnimation(state, object, animation) {
+/**
+ * Test an animation.
+ *
+ * @param {SanityTestData} data
+ * @param {Animation} animation
+ */
+function testAnimation(data, animation) {
   let globalSequenceId = animation.globalSequenceId;
 
   if (globalSequenceId !== -1) {
-    if (inRange(globalSequenceId, 0, state.model.globalSequences.length - 1)) {
-      state.addReference('GlobalSequence', globalSequenceId);
+    if (inRange(globalSequenceId, 0, data.model.globalSequences.length - 1)) {
+      data.addReference('GlobalSequence', globalSequenceId);
     } else {
-      state.addError(`Invalid global sequence ${globalSequenceId}`);
+      data.addError(`Invalid global sequence ${globalSequenceId}`);
     }
   }
 
   if (animation.name === 'KP2R') {
     // Particle emitter 2 variation animations are not implemented in Magos for the MDX format.
-    state.addWarning('Using a variation animation.');
+    data.addWarning('Using a variation animation.');
   }
 
   if (animation.name === 'KP2G') {
     // Particle emitter 2 gravity animations are not implemented in Magos for the MDX format.
-    state.addWarning('Using a gravity animation.');
+    data.addWarning('Using a gravity animation.');
   }
 
-  testInterpolationType(state, animation);
-  testTracks(state, animation.tracks, globalSequenceId);
+  testInterpolationType(data, animation);
+  testTracks(data, animation.tracks, globalSequenceId);
 }
 
-function testTracks(state, tracks, globalSequenceId) {
-  let sequences = state.model.sequences,
-    usageMap = {};
+/**
+ * Test an animation's tracks.
+ *
+ * @param {SanityTestData} data
+ * @param {Array<Track>} tracks
+ * @param {number} globalSequenceId
+ */
+function testTracks(data, tracks, globalSequenceId) {
+  let sequences = data.model.sequences;
+  let usageMap = {};
 
-  state.assertWarning(tracks.length, 'Zero tracks');
-  state.assertWarning(globalSequenceId !== -1 || tracks.length === 0 || sequences.length !== 0, 'Tracks used without sequences');
+  data.assertWarning(tracks.length, 'Zero tracks');
+  data.assertWarning(globalSequenceId !== -1 || tracks.length === 0 || sequences.length !== 0, 'Tracks used without sequences');
 
   for (let i = 0, l = tracks.length; i < l; i++) {
-    let track = tracks[i],
-      sequenceInfo = getSequenceInfoFromFrame(state, track.frame, globalSequenceId),
-      sequenceId = sequenceInfo[0],
-      isBeginning = sequenceInfo[1],
-      isEnding = sequenceInfo[2];
+    let track = tracks[i];
+    let sequenceInfo = getSequenceInfoFromFrame(data, track.frame, globalSequenceId);
+    let sequenceId = sequenceInfo[0];
+    let isBeginning = sequenceInfo[1];
+    let isEnding = sequenceInfo[2];
 
-    state.assertWarning(tracks.length === 1 || sequenceId !== -1 || track.frame === 0, `Track ${i}: Frame ${track.frame} is not in any sequence`);
-    state.assertWarning(track.frame >= 0, `Track ${i}: Negative frame`);
+    data.assertWarning(tracks.length === 1 || sequenceId !== -1 || track.frame === 0, `Track ${i}: Frame ${track.frame} is not in any sequence`);
+    data.assertWarning(track.frame >= 0, `Track ${i}: Negative frame`);
 
     if (sequenceId !== -1) {
       if (!usageMap[sequenceId]) {
@@ -597,25 +923,40 @@ function testTracks(state, tracks, globalSequenceId) {
     if (globalSequenceId === -1) {
       let sequence = sequences[sequenceId];
 
-      state.assertWarning(sequenceInfo[0] || sequenceInfo[2] === 1, `No opening track for "${sequence.name}" at frame ${sequence.interval[0]}`);
-      state.assertWarning(sequenceInfo[1] || sequenceInfo[2] === 1, `No closing track for "${sequence.name}" at frame ${sequence.interval[1]}`);
+      data.assertWarning(sequenceInfo[0] || sequenceInfo[2] === 1, `No opening track for "${sequence.name}" at frame ${sequence.interval[0]}`);
+      data.assertWarning(sequenceInfo[1] || sequenceInfo[2] === 1, `No closing track for "${sequence.name}" at frame ${sequence.interval[1]}`);
     }
   }
 }
 
-function testInterpolationType(state, animation) {
+/**
+ * Test an animation's interpolation type.
+ *
+ * @param {SanityTestData} data
+ * @param {Animation} animation
+ */
+function testInterpolationType(data, animation) {
   if (animatedTypeNames.get(animation.name) === 'Visibility' && animation.interpolationType !== 0) {
-    state.addWarning('Interpolation type not set to None');
+    data.addWarning('Interpolation type not set to None');
   }
 }
 
-function getSequenceInfoFromFrame(state, frame, globalSequenceId) {
-  let index = -1,
-    isBeginning = false,
-    isEnding = false;
+/**
+ * Get metadata about a frame in an animation.
+ * This includes whether it starts a sequence, ends a sequence, and the keyframe it belongs to.
+ *
+ * @param {SanityTestData} data
+ * @param {number} frame
+ * @param {number} globalSequenceId
+ * @return {Object}
+ */
+function getSequenceInfoFromFrame(data, frame, globalSequenceId) {
+  let index = -1;
+  let isBeginning = false;
+  let isEnding = false;
 
   if (globalSequenceId === -1) {
-    let sequences = state.model.sequences;
+    let sequences = data.model.sequences;
 
     for (let i = 0, l = sequences.length; i < l; i++) {
       let interval = sequences[i].interval;
@@ -633,7 +974,7 @@ function getSequenceInfoFromFrame(state, frame, globalSequenceId) {
       }
     }
   } else {
-    let globalSequence = state.model.globalSequences[globalSequenceId];
+    let globalSequence = data.model.globalSequences[globalSequenceId];
 
     index = globalSequenceId;
 
@@ -754,223 +1095,52 @@ let replaceableIds = new Set([
   37,
 ]);
 
-class State {
-  /**
-   * @param {ModelViewer.parsers.mdlx.Model} model
-   */
-  constructor(model) {
-    this.model = model;
-    this.objects = [];
-    this.current = {children: []};
-    this.stack = [this.current];
-    this.map = {};
-
-    this.addObjects(model.sequences, 'Sequence', );
-    this.addObjects(model.globalSequences, 'GlobalSequence');
-    this.addObjects(model.textures, 'Texture');
-    this.addObjects(model.materials, 'Material');
-    this.addObjects(model.textureAnimations, 'TextureAnimation');
-    this.addObjects(model.geosets, 'Geoset');
-    this.addObjects(model.geosetAnimations, 'GeosetAnimation');
-    this.addObjects(model.bones, 'Bone', true);
-    this.addObjects(model.lights, 'Light', true);
-    this.addObjects(model.helpers, 'Helper', true);
-    this.addObjects(model.attachments, 'Attachment', true);
-    this.addObjects(model.particleEmitters, 'ParticleEmitter', true);
-    this.addObjects(model.particleEmitters2, 'ParticleEmitter2', true);
-    this.addObjects(model.ribbonEmitters, 'RibbonEmitter', true);
-    this.addObjects(model.cameras, 'Camera');
-    this.addObjects(model.eventObjects, 'EventObject', true);
-    this.addObjects(model.collisionShapes, 'CollisionShape', true);
-  }
-
-  /**
-   * Adds nodes for all of the given objects.
-   * Also handles the flat array of generic objects.
-   *
-   * @param {Array<?>} objects
-   * @param {string} objectType
-   * @param {boolean} areGeneric
-   */
-  addObjects(objects, objectType, areGeneric) {
-    let array = [];
-
-    for (let [index, object] of objects.entries()) {
-      let name = object.name || object.path,
-        data = {objectType, index, warnings: 0, errors: 0, children: []};
-
-      if (name) {
-        data.name = name;
-      }
-
-      if (!areGeneric) {
-        data.uses = 0;
-      }
-
-      array.push(data);
-    }
-
-    this.map[objectType] = array;
-
-    if (areGeneric) {
-      this.objects.push(...objects);
-    }
-  }
-
-  /**
-   * Pushes to the stack either the node described by the parameters.
-   * If this node does not exist, a new one will be created, which is used by internal nodes like material layers.
-   *
-   * @param {string} objectType
-   * @param {number} index
-   */
-  push(objectType, index) {
-    let nodes = this.map[objectType],
-      node;
-
-    // Internal objects like material layers are not added at initialization, but rather added as internal nodes here when needed.
-    if (nodes) {
-      node = nodes[index];
-    } else {
-      node = {objectType, warnings: 0, errors: 0, children: []};
-
-      // Animations don't need the index.
-      if (typeof index === 'number') {
-        node.index = index;
-      }
-    }
-
-    this.current.children.push(node);
-
-    this.current = node;
-
-    this.stack.unshift(node);
-  }
-
-  /**
-   * Pops the current node from the stack.
-   */
-  pop() {
-    this.stack.shift();
-    this.current = this.stack[0];
-  }
-
-  /**
-   * Adds a child to the current node.
-   *
-   * @param {string} type
-   * @param {string} message
-   */
-  add(type, message) {
-    this.current.children.push({type, message});
-  }
-
-  /**
-   * Adds the given message as a warning child.
-   * This also propagates to all of stack that a warning was added.
-   *
-   * @param {string} message
-   */
-  addWarning(message) {
-    this.add('warning', message);
-
-    for (let node of this.stack) {
-      node.warnings += 1;
-    }
-  }
-
-  /**
-   * Adds the given message as an error child.
-   * This also propagates to all of stack that an error was added.
-   *
-   * @param {string} message
-   */
-  addError(message) {
-    this.add('error', message);
-
-    for (let node of this.stack) {
-      node.errors += 1;
-    }
-  }
-
-  /**
-   * Adds the given message as a warning child if the condition is true.
-   *
-   * @param {boolean} condition
-   * @param {string} message
-   */
-  assertWarning(condition, message) {
-    if (!condition) {
-      this.addWarning(message);
-    }
-  }
-
-  /**
-   * Adds the given message as an error child if the condition is true.
-   *
-   * @param {boolean} condition
-   * @param {string} message
-   */
-  assertError(condition, message) {
-    if (!condition) {
-      this.addError(message);
-    }
-  }
-
-  /**
-   * Adds a reference to either the node described by the parameters, or the current node if nothing is passed.
-   *
-   * @param {string} objectType
-   * @param {number} index
-   */
-  addReference(objectType, index) {
-    if (objectType) {
-      this.map[objectType][index].uses += 1;
-    } else {
-      this.current.uses += 1;
-    }
-  }
-}
-
+/**
+ * Run a sanity test on the model and return the results.
+ *
+ * @param {Model} model
+ * @return {Object}
+ */
 export default function sanityTest(model) {
-  let state = new State(model);
+  let data = new SanityTestData(model);
 
-  testVersion(state);
-  testSequences(state);
-  testGlobalSequences(state);
-  testTextures(state);
-  testMaterials(state);
-  testTextureAnimations(state);
-  testGeosets(state);
-  testGeosetAnimations(state);
-  testBones(state);
-  testLights(state);
-  testHelpers(state);
-  testAttachments(state);
-  testPivotPoints(state);
-  testParticleEmitters(state);
-  testParticleEmitters2(state);
-  testRibbonEmitters(state);
-  testEventObjects(state);
-  testCameras(state);
-  testCollisionShapes(state);
+  testHeader(data);
+  testSequences(data);
+  testGlobalSequences(data);
+  testTextures(data);
+  testMaterials(data);
+  testTextureAnimations(data);
+  testGeosets(data);
+  testGeosetAnimations(data);
+  testBones(data);
+  testLights(data);
+  testHelpers(data);
+  testAttachments(data);
+  testPivotPoints(data);
+  testParticleEmitters(data);
+  testParticleEmitters2(data);
+  testRibbonEmitters(data);
+  testEventObjects(data);
+  testCameras(data);
+  testCollisionShapes(data);
 
-  let nodes = state.stack[0].children,
-    warnings = 0,
-    errors = 0,
-    unused = 0;
+  let nodes = data.stack[0].children;
+  let warnings = 0;
+  let errors = 0;
+  let unused = 0;
 
   for (let node of nodes) {
     // There are some top-level warnings.
     if (node.type === 'warning') {
       warnings += 1;
-    }
-
-    if (node.warnings) {
+    } else if (node.warnings) {
       warnings += node.warnings;
     }
 
-    if (node.errors) {
+    // There are some top-level errors.
+    if (node.type === 'error') {
+      errors += 1;
+    } else if (node.errors) {
       errors += node.errors;
     }
 
@@ -980,4 +1150,4 @@ export default function sanityTest(model) {
   }
 
   return {nodes, warnings, errors, unused};
-};
+}

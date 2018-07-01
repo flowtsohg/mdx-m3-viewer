@@ -1,63 +1,72 @@
 import {vec3, quat} from 'gl-matrix';
-import {VEC3_ZERO, QUAT_ZERO} from './gl-matrix-addon';
 import {lerp, hermite, bezier} from './math';
 
-// Heap allocations needed for this module.
-// NOTE: The values returned by interpolate() are not heap safe!
-//       In other words, if you call interpolate() twice with the same input-types, you will get back the same typed array!
-let vectorHeap = vec3.create();
-let quatHeap = quat.create();
+/**
+ * @param {ArrayBufferView} out
+ * @param {number} a
+ * @param {number} b
+ * @param {number} c
+ * @param {number} d
+ * @param {number} t
+ * @param {number} type
+ * @return {out}
+ */
+export function interpolateScalar(out, a, b, c, d, t, type) {
+  if (type === 0) {
+    out[0] = a[0];
+  } else if (type === 1) {
+    out[0] = lerp(a[0], d[0], t);
+  } else if (type === 2) {
+    out[0] = hermite(a[0], b[0], c[0], d[0], t);
+  } else if (type === 3) {
+    out[0] = bezier(a[0], b[0], c[0], d[0], t);
+  }
 
-export default {
-  scalar(a, b, c, d, t, type) {
-    if (type === 0) {
-      return a;
-    } else if (type === 1) {
-      return lerp(a, d, t);
-    } else if (type === 2) {
-      return hermite(a, b, c, d, t);
-    } else if (type === 3) {
-      return bezier(a, b, c, d, t);
-    }
+  return out;
+}
 
-    return 0;
-  },
+/**
+ * @param {vec3} out
+ * @param {vec3} a
+ * @param {vec3} b
+ * @param {vec3} c
+ * @param {vec3} d
+ * @param {number} t
+ * @param {number} type
+ * @return {out}
+ */
+export function interpolateVector(out, a, b, c, d, t, type) {
+  if (type === 0) {
+    vec3.copy(out, a);
+  } else if (type === 1) {
+    vec3.lerp(out, a, d, t);
+  } else if (type === 2) {
+    vec3.hermite(out, a, b, c, d, t);
+  } else if (type === 3) {
+    vec3.bezier(out, a, b, c, d, t);
+  }
 
-  vector(a, b, c, d, t, type) {
-    if (type === 0) {
-      return a;
-    } else if (type === 1) {
-      return vec3.lerp(vectorHeap, a, d, t);
-    } else if (type === 2) {
-      return vec3.hermite(vectorHeap, a, b, c, d, t);
-    } else if (type === 3) {
-      return vec3.bezier(vectorHeap, a, b, c, d, t);
-    }
+  return out;
+}
 
-    return vec3.copy(vectorHeap, VEC3_ZERO);
-  },
+/**
+ * @param {quat} out
+ * @param {quat} a
+ * @param {quat} b
+ * @param {quat} c
+ * @param {quat} d
+ * @param {number} t
+ * @param {number} type
+ * @return {out}
+ */
+export function interpolateQuaternion(out, a, b, c, d, t, type) {
+  if (type === 0) {
+    quat.copy(out, a);
+  } else if (type === 1) {
+    quat.slerp(out, a, d, t);
+  } else if (type === 2 || type === 3) {
+    quat.sqlerp(out, a, b, c, d, t);
+  }
 
-  quaternion(a, b, c, d, t, type) {
-    if (type === 0) {
-      return a;
-    } else if (type === 1) {
-      return quat.slerp(quatHeap, a, d, t);
-    } else if (type === 2 || type === 3) {
-      return quat.sqlerp(quatHeap, a, b, c, d, t);
-    }
-
-    return quat.copy(quatHeap, QUAT_ZERO);
-  },
-
-  interpolate(a, b, c, d, t, type) {
-    const length = a.length;
-
-    if (length === 3) {
-      return this.vector(a, b, c, d, t, type);
-    } else if (length === 4) {
-      return this.quaternion(a, b, c, d, t, type);
-    } else {
-      return this.scalar(a, b, c, d, t, type);
-    }
-  },
-};
+  return out;
+}

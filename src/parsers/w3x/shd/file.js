@@ -1,54 +1,41 @@
-import BinaryStream from '../../../common/binarystream';
-
 /**
  * war3map.shd - the shadow file.
  */
 export default class War3MapShd {
   /**
    * @param {?ArrayBuffer} buffer
-   * @param {?Int32Array} mapSize
+   * @param {?number} width
+   * @param {?number} height
    */
-  constructor(buffer, mapSize) {
-    /** @member {Array<Uint8Array>} */
-    this.shadows = [];
+  constructor(buffer, width, height) {
+    /** @member {Uint8Array} */
+    this.shadows = new Uint8Array(0);
 
     if (buffer) {
-      this.load(buffer, mapSize);
+      this.load(buffer, width, height);
     }
   }
 
   /**
    * @param {ArrayBuffer} buffer
-   * @param {Int32Array} mapSize
+   * @param {number} width
+   * @param {number} height
    */
-  load(buffer, mapSize) {
-    let stream = new BinaryStream(buffer);
-    let columns = mapSize[0] * 4;
-    let rows = mapSize[1] * 4;
-
-    for (let i = 0; i < rows; i++) {
-      this.shadows[row] = stream.readUint8Array(columns);
-    }
+  load(buffer, width, height) {
+    this.shadows = new Uint8Array(buffer.slice(0, width * height * 16));
   }
 
   /**
    * @return {ArrayBuffer}
    */
   save() {
-    let buffer = new ArrayBuffer(this.getByteLength());
-    let stream = new BinaryStream(buffer);
-
-    for (let row of this.shadows) {
-      stream.writeUint8Array(row);
-    }
-
-    return buffer;
+    return this.shadows.slice().buffer;
   }
 
   /**
    * @return {number}
    */
   getByteLength() {
-    return this.shadows.length * this.shadows[0].byteLength;
+    return this.shadows.length;
   }
 }

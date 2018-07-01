@@ -1,11 +1,14 @@
 import {clamp} from '../../../common/math';
-import Interpolator from '../../../common/interpolator';
+import {interpolateScalar, interpolateVector, interpolateQuaternion} from '../../../common/interpolator';
 import {UintAnimation, FloatAnimation, Vector3Animation, Vector4Animation} from '../../../parsers/mdlx/animations';
 
 /**
- * Animated data for a specific sequence.
+ * Templated animated data for a specific sequence.
+ *
+ * @param {function} interpolator
+ * @return {class}
  */
-class SdSequence {
+const templatedSdSequence = (interpolator) => class {
   /**
    * @param {Sd} sd
    * @param {number} start
@@ -99,20 +102,27 @@ class SdSequence {
    * @return {number}
    */
   getValue(out, frame) {
-    let index = this.getKeyframe(frame);
     let keyframes = this.keyframes;
+    let index = this.getKeyframe(frame);
+    let length = keyframes.length;
 
-    if (index === 0) {
+    if (index === -1) {
       out.set(keyframes[0].value);
+
+      return 0;
+    } else if (index === length) {
+      out.set(keyframes[length - 1].value);
+
+      return length - 1;
     } else {
       let start = keyframes[index - 1];
       let end = keyframes[index];
       let t = clamp((frame - start.frame) / (end.frame - start.frame), 0, 1);
 
-      this.sd.interpolate(out, start.value, start.outTan, end.inTan, end.value, t);
-    }
+      interpolator(out, start.value, start.outTan, end.inTan, end.value, t, this.sd.interpolationType);
 
-    return index;
+      return index;
+    }
   }
 
   /**
@@ -121,15 +131,15 @@ class SdSequence {
    */
   getKeyframe(frame) {
     if (this.constant) {
-      return 0;
+      return -1;
     } else {
       let keyframes = this.keyframes;
       let l = keyframes.length;
 
-      if (frame <= this.start) {
-        return 0;
+      if (frame < this.start) {
+        return -1;
       } else if (frame >= this.end) {
-        return l - 1;
+        return l;
       } else {
         for (let i = 1; i < l; i++) {
           let keyframe = keyframes[i];
@@ -141,9 +151,9 @@ class SdSequence {
       }
     }
   }
-}
+};
 
-let forcedInterpMap = {
+const forcedInterpMap = {
   KLAV: 0,
   KATV: 0,
   KPEV: 0,
@@ -151,7 +161,7 @@ let forcedInterpMap = {
   KRVS: 0,
 };
 
-let defVals = {
+const defVals = {
   // LAYS
   KMTF: [0],
   KMTA: [1],
@@ -207,9 +217,12 @@ let defVals = {
 };
 
 /**
- * Sequence data.
+ * Templated sequence data.
+ *
+ * @param {UintSequence|FloatSequence|Vector3Sequence|Vector4Sequence} SequenceType
+ * @return {class}
  */
-class Sd {
+const templatedSd = (SequenceType) => class {
   /**
    * @param {MdxModel} model
    * @param {UintAnimation|FloatAnimation|Vector3Animation|Vector4Animation} animation
@@ -232,10 +245,10 @@ class Sd {
     this.interpolationType = forcedInterp !== undefined ? forcedInterp : animation.interpolationType;
 
     if (globalSequenceId !== -1 && globalSequences) {
-      this.globalSequence = new SdSequence(this, 0, globalSequences[globalSequenceId], tracks, true);
+      this.globalSequence = new SequenceType(this, 0, globalSequences[globalSequenceId], tracks, true);
     } else {
       for (let sequence of model.sequences) {
-        this.sequences.push(new SdSequence(this, ...sequence.interval, tracks, false));
+        this.sequences.push(new SequenceType(this, ...sequence.interval, tracks, false));
       }
     }
   }
@@ -251,7 +264,7 @@ class Sd {
     } else if (instance.sequence !== -1) {
       return this.sequences[instance.sequence].getValue(out, instance.frame);
     } else {
-      this.defaultValue(out);
+      out.set(this.defval);
       return -1;
     }
   }
@@ -284,116 +297,22 @@ class Sd {
       return values;
     }
   }
-}
+};
 
-/**
- * uint sequence data.
- */
-class UintSd extends Sd {
-  /**
-   * @param {Uint32Array} out
-   */
-  defaultValue(out) {
-    out[0] = this.defval[0];
-  }
-
-  /**
-   * @param {Uint32Array} out
-   * @param {Uint32Array} start
-   * @param {Uint32Array} outTan
-   * @param {Uint32Array} inTan
-   * @param {Uint32Array} end
-   * @param {number} t
-   */
-  interpolate(out, start, outTan, inTan, end, t) {
-    out[0] = Interpolator.scalar(start[0], outTan[0], inTan[0], end[0], t, this.interpolationType) | 0;
-  }
-}
-
-/**
- * float sequence data.
- */
-class FloatSd extends Sd {
-  /**
-   * @param {Float32Array} out
-   */
-  defaultValue(out) {
-    out[0] = this.defval[0];
-  }
-
-  /**
-   * @param {Float32Array} out
-   * @param {Float32Array} start
-   * @param {Float32Array} outTan
-   * @param {Float32Array} inTan
-   * @param {Float32Array} end
-   * @param {number} t
-   */
-  interpolate(out, start, outTan, inTan, end, t) {
-    out[0] = Interpolator.scalar(start[0], outTan[0], inTan[0], end[0], t, this.interpolationType);
-  }
-}
-
-/**
- * vec3 sequence data.
- */
-class Vector3Sd extends Sd {
-  /**
-   * @param {vec3} out
-   */
-  defaultValue(out) {
-    vec3.copy(out, this.defval);
-  }
-
-  /**
-   * @param {vec3} out
-   * @param {vec3} start
-   * @param {vec3} outTan
-   * @param {vec3} inTan
-   * @param {vec3} end
-   * @param {number} t
-   */
-  interpolate(out, start, outTan, inTan, end, t) {
-    vec3.copy(out, Interpolator.vector(start, outTan, inTan, end, t, this.interpolationType));
-  }
-}
-
-/**
- * quat sequence data.
- */
-class Vector4Sd extends Sd {
-  /**
-   * @param {quat} out
-   */
-  defaultValue(out) {
-    quat.copy(out, this.defval);
-  }
-
-  /**
-   * @param {quat} out
-   * @param {quat} start
-   * @param {quat} outTan
-   * @param {quat} inTan
-   * @param {quat} end
-   * @param {number} t
-   */
-  interpolate(out, start, outTan, inTan, end, t) {
-    quat.copy(out, Interpolator.quaternion(start, outTan, inTan, end, t, this.interpolationType));
-  }
-}
+const ScalarSd = templatedSd(templatedSdSequence(interpolateScalar));
+const Vector3Sd = templatedSd(templatedSdSequence(interpolateVector));
+const Vector4Sd = templatedSd(templatedSdSequence(interpolateQuaternion));
 
 /**
  * @param {Model} model
  * @param {UintAnimation|FloatAnimation|Vector3Animation|Vector4Animation} animation
- * @return {UintSd|FloatSd|Vector3Sd|Vector4Sd}
+ * @return {ScalarSd|Vector3Sd|Vector4Sd}
  */
 export default function createTypedSd(model, animation) {
   let ClassObject;
 
-  if (animation instanceof UintAnimation) {
-    ClassObject = UintSd;
-  } else if (animation instanceof FloatAnimation) {
-    ClassObject = FloatSd;
+  if (animation instanceof UintAnimation || animation instanceof FloatAnimation) {
+    ClassObject = ScalarSd;
   } else if (animation instanceof Vector3Animation) {
     ClassObject = Vector3Sd;
   } else if (animation instanceof Vector4Animation) {

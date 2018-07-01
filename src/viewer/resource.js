@@ -9,23 +9,23 @@ export default class Resource extends EventDispatcher {
   /**
    * @param {Object} resourceData
    */
-  constructor(resourceData) {
+  constructor({viewer, handler, extension, pathSolver, fetchUrl = ''}) {
     super();
 
     /** @member {ModelViewer.viewer.ModelViewer} */
-    this.viewer = resourceData.viewer;
+    this.viewer = viewer;
     /** @member {Handler} */
-    this.handler = resourceData.handler;
+    this.handler = handler || null;
     /** @member {string} */
-    this.extension = resourceData.extension;
+    this.extension = extension || '';
     /** @member {function(?)} */
-    this.pathSolver = resourceData.pathSolver;
+    this.pathSolver = pathSolver || null;
     /** @member {string} */
-    this.fetchUrl = resourceData.fetchUrl;
+    this.fetchUrl = fetchUrl;
+    /** @member {boolean} */
+    this.ok = false;
     /** @member {boolean} */
     this.loaded = false;
-    /** @member {boolean} */
-    this.errored = false;
   }
 
   /**
@@ -33,14 +33,16 @@ export default class Resource extends EventDispatcher {
    * If it was loaded from memory, it will be called instantly.
    * Otherwise it will be called when the server fetch finishes, assuming it succeeded.
    *
-   * @param {*} src
+   * @param {string|ArrayBuffer|Image} src
    */
   loadData(src) {
+    this.loaded = true;
+
     // In case the resource parsing/loading fails, e.g. if the source is not valid.
     try {
       this.load(src);
 
-      this.loaded = true;
+      this.ok = true;
 
       this.lateLoad();
 
@@ -52,7 +54,14 @@ export default class Resource extends EventDispatcher {
   }
 
   /**
-   * This is used by models to finish loading their instances and model views, in case any are added before the model loaded.
+   * @param {*} src
+   */
+  load(src) {
+
+  }
+
+  /**
+   * This is used by models to finish loading their instances and model views, in case any are added before the model finished loaded.
    */
   lateLoad() {
 
@@ -66,7 +75,7 @@ export default class Resource extends EventDispatcher {
    * @param {*} reason
    */
   error(error, reason) {
-    this.errored = true;
+    this.loaded = true;
 
     this.dispatchEvent({type: 'error', error, reason});
     this.dispatchEvent({type: 'loadend'});
@@ -79,7 +88,7 @@ export default class Resource extends EventDispatcher {
    */
   whenLoaded() {
     return new Promise((resolve, reject) => {
-      if (this.loaded || this.errored) {
+      if (this.loaded) {
         resolve(this);
       } else {
         this.once('loadend', () => resolve(this));

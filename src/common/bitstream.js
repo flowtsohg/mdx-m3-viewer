@@ -17,7 +17,7 @@ export default class BitStream {
     }
 
     if (!(buffer instanceof ArrayBuffer)) {
-      throw new TypeError(`BitStream: expected ArrayBuffer or TypedArray, got ${buffer}`);
+      throw new TypeError(`BitStream: expected ArrayBuffer or ArrayBufferView, got ${buffer}`);
     }
 
     /** @member {ArrayBuffer} */

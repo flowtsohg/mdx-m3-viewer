@@ -6,6 +6,7 @@ import PromiseResource from './promiseresource';
 import Scene from './scene';
 import imageTextureHandler from './handlers/imagetexture/handler';
 import ImageTexture from './handlers/imagetexture/texture';
+import GenericResource from './genericresource';
 
 /**
  * A model viewer.
@@ -20,11 +21,14 @@ export default class ModelViewer extends EventDispatcher {
 
     this.eventDispatchCallback = (e) => this.dispatchEvent(e);
 
-    /** @member {object} */
-    this.resources = {
-      array: [],
-      map: new Map(),
-    };
+    /** @member {Map<string, Resource>} */
+    this.resourcesMap = new Map();
+
+    /** @member {Array<GenericResource} */
+    this.genericResourcesMap = {};
+
+    /** @member {Array<Resource>} */
+    this.resources = [];
 
     /**
      * The speed of animation. Note that this is not the time of a frame in milliseconds, but rather the amount of animation frames to advance each update.
@@ -94,8 +98,14 @@ export default class ModelViewer extends EventDispatcher {
     /** @member {number} */
     this.renderCalls = 0;
 
-    /** @member {boolean} */
-    this.audioEnabled = false;
+    /**
+     * A viewer-wide flag.
+     * If it is false, not only will audio not run, but in fact audio files won't even be fetched in the first place.
+     * If audio is desired, this should be set to true before loading models that use audio.
+     *
+     * @member {boolean}
+     */
+    this.enableAudio = false;
 
     this.addHandler(imageTextureHandler);
   }
@@ -208,9 +218,7 @@ export default class ModelViewer extends EventDispatcher {
 
       // Is there an handler for this file type?
       if (handlerAndDataType) {
-        let resources = this.resources;
-        let map = resources.map;
-        let resource = map.get(src);
+        let resource = this.resourcesMap.get(src);
 
         if (resource) {
           return resource;
@@ -220,8 +228,8 @@ export default class ModelViewer extends EventDispatcher {
 
         resource = new handler.Constructor({viewer: this, handler, extension, pathSolver, fetchUrl: serverFetch ? src : ''});
 
-        resources.array.push(resource);
-        map.set(src, resource);
+        this.resources.push(resource);
+        this.resourcesMap.set(src, resource);
 
         this.registerEvents(resource);
 
@@ -234,12 +242,12 @@ export default class ModelViewer extends EventDispatcher {
             .then((response) => {
               let data = response.data;
 
-              if (response.type === 'error') {
-                this.dispatchEvent({type: 'error', error: response.error, reason: data});
-
-                resource.error('FailedToFetch');
-              } else {
+              if (response.ok) {
                 resource.loadData(data);
+              } else {
+                resource.error('FailedToFetch');
+
+                this.dispatchEvent({type: 'error', error: response.error, reason: data});
               }
             });
         } else {
@@ -253,6 +261,70 @@ export default class ModelViewer extends EventDispatcher {
         return null;
       }
     }
+  }
+
+  /**
+   * Check whether the given key maps to a resource in the cache.
+   *
+   * @param {*} key
+   * @return {boolean}
+   */
+  exists(key) {
+    return this.resourcesMap.has(key);
+  }
+
+  /**
+   * Load a resource generically.
+   * Unlike load(), this does not use handlers or construct any internal objects.
+   * If no callback is given, the resource's data is the fetch data.
+   * If a callback is given, the resource's data is the value returned by it when called with the fetch data.
+   * If a callback returns a promise, the resource's data will be the result of the promise.
+   *
+   * @param {string} path
+   * @param {string} dataType
+   * @param {?function} callback
+   * @return {GenericResource}
+   */
+  loadGeneric(path, dataType, callback) {
+    let resource = this.genericResourcesMap[path];
+
+    if (resource) {
+      return resource;
+    }
+
+    resource = new GenericResource({viewer: this, handler: callback, fetchUrl: path});
+
+    this.resources.push(resource);
+    this.genericResourcesMap[path] = resource;
+
+    this.registerEvents(resource);
+
+    resource.dispatchEvent({type: 'loadstart'});
+
+    fetchDataType(path, dataType)
+      .then((response) => {
+        let data = response.data;
+
+        if (response.ok) {
+          if (callback) {
+            data = callback(data);
+
+            if (data instanceof Promise) {
+              data.then((data) => resource.loadData(data));
+            } else {
+              resource.loadData(data);
+            }
+          } else {
+            resource.loadData(data);
+          }
+        } else {
+          resource.error('FailedToFetch');
+
+          this.dispatchEvent({type: 'error', error: response.error, reason: data});
+        }
+      });
+
+    return resource;
   }
 
   /**
@@ -385,12 +457,8 @@ export default class ModelViewer extends EventDispatcher {
    * @return {boolean}
    */
   removeResource(resource) {
-    let resources = this.resources;
-    let map = resources.map;
-
-    if (map.has(resource)) {
-      resources.array.delete(resource);
-      map.delete(resource);
+    if (this.resourcesMap.delete(resource)) {
+      this.resources.delete(resource);
 
       resource.detach();
 
@@ -463,18 +531,25 @@ export default class ModelViewer extends EventDispatcher {
    * Render.
    */
   render() {
-    let scenes = this.scenes;
-    let i;
-    let l = scenes.length;
+    this.renderOpaque();
+    this.renderTranslucent();
+  }
 
-    // Render opaque things.
-    for (i = 0; i < l; i++) {
-      scenes[i].renderOpaque();
+  /**
+   * Render opaque things.
+   */
+  renderOpaque() {
+    for (let scene of this.scenes) {
+      scene.renderOpaque();
     }
+  }
 
-    // Render translucent things.
-    for (i = 0; i < l; i++) {
-      scenes[i].renderTranslucent();
+  /**
+   * Render translucent things.
+   */
+  renderTranslucent() {
+    for (let scene of this.scenes) {
+      scene.renderTranslucent();
     }
   }
 

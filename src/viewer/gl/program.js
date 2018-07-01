@@ -9,11 +9,11 @@ export default class ShaderProgram {
    */
   constructor(gl, vertexShader, fragmentShader) {
     let id = gl.createProgram();
-    let uniforms = new Map();
-    let attribs = new Map();
+    let uniforms = {};
+    let attribs = {};
 
     /** @member {boolean} */
-    this.loaded = false;
+    this.ok = false;
     /** @member {WebGLProgram} */
     this.webglResource = id;
     /** @member {Array<ShaderUnit>} */
@@ -22,6 +22,8 @@ export default class ShaderProgram {
     this.uniforms = uniforms;
     /** @member {Map<string, number>} */
     this.attribs = attribs;
+    /** @member {number} */
+    this.attribsCount = 0;
 
     gl.attachShader(id, vertexShader.webglResource);
     gl.attachShader(id, fragmentShader.webglResource);
@@ -32,14 +34,14 @@ export default class ShaderProgram {
         let object = gl.getActiveUniform(id, i);
 
         if (object.size === 1) {
-          uniforms.set(object.name, gl.getUniformLocation(id, object.name));
+          uniforms[object.name] = gl.getUniformLocation(id, object.name);
         } else {
           let base = object.name.substr(0, object.name.length - 3);
 
           for (let index = 0; index < object.size; index++) {
             let name = base + '[' + index + ']';
 
-            uniforms.set(name, gl.getUniformLocation(id, name));
+            uniforms[name] = gl.getUniformLocation(id, name);
           }
         }
       }
@@ -47,20 +49,22 @@ export default class ShaderProgram {
       for (let i = 0, l = gl.getProgramParameter(id, gl.ACTIVE_ATTRIBUTES); i < l; i++) {
         let object = gl.getActiveAttrib(id, i);
 
+        this.attribsCount += object.size;
+
         if (object.size === 1) {
-          attribs.set(object.name, gl.getAttribLocation(id, object.name));
+          attribs[object.name] = gl.getAttribLocation(id, object.name);
         } else {
           let base = object.name.substr(0, object.name.length - 3);
 
           for (let index = 0; index < object.size; index++) {
             let name = base + '[' + index + ']';
 
-            attribs.set(name, gl.getAttribLocation(id, name));
+            attribs[name] = gl.getAttribLocation(id, name);
           }
         }
       }
 
-      this.loaded = true;
+      this.ok = true;
     } else {
       console.error('Shader program failed to link!');
       console.error(gl.getProgramInfoLog(id));

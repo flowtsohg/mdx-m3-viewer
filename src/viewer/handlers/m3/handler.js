@@ -20,7 +20,7 @@ function initializeTeamColors(viewer, shader) {
   for (let i = 0; i < 14; i++) {
     let color = teamColors[i];
 
-    gl.uniform3fv(shader.uniforms.get('u_teamColors[' + i + ']'), [color[0] / 255, color[1] / 255, color[2] / 255]);
+    gl.uniform3fv(shader.uniforms['u_teamColors[' + i + ']'], [color[0] / 255, color[1] / 255, color[2] / 255]);
   }
 }
 
@@ -31,10 +31,10 @@ export default {
 
     // Load shaders for 1-4 texture coordinate models.
     for (let i = 0; i < 4; i++) {
-      let shader = viewer.loadShader(`M3StandardShader${i}`, `#define EXPLICITUV${i}\n${shaders.vs}`, shaders.ps);
+      let shader = viewer.loadShader(`M3StandardShader${i}`, `#define EXPLICITUV${i}\n${shaders.vs}`, shaders.fs);
 
       // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
-      if (!shader.loaded) {
+      if (!shader.ok) {
         return false;
       }
 

@@ -37,7 +37,7 @@ export default class Model extends Resource {
 
     views[0].addInstance(instance);
 
-    if (this.loaded) {
+    if (this.ok) {
       instance.load();
     }
 

@@ -398,7 +398,7 @@ export default class War3Map {
    * @return {Map}
    */
   readModifications() {
-    let modifications = new Map();
+    let modifications = {};
 
     // useOptionalInts:
     //      w3u: no (units)
@@ -408,12 +408,11 @@ export default class War3Map {
     //      w3a: yes (abilities)
     //      w3h: no (buffs)
     //      w3q: yes (upgrades)
-    let keyNames = ['units', 'items', 'destructables', 'doodads', 'abilities', 'buffs', 'upgrades'];
-    let fileNames = ['war3map.w3u', 'war3map.w3t', 'war3map.w3b', 'war3map.w3d', 'war3map.w3a', 'war3map.w3h', 'war3map.w3q'];
+    let fileNames = ['w3u', 'w3t', 'w3b', 'w3d', 'w3a', 'w3h', 'w3q'];
     let useOptionalInts = [false, false, false, true, true, false, true];
 
-    for (let i = 0, l = keyNames.length; i < l; i++) {
-      let file = this.archive.get(fileNames[i]);
+    for (let i = 0, l = fileNames.length; i < l; i++) {
+      let file = this.archive.get(`war3map.${fileNames[i]}`);
 
       if (file) {
         let buffer = file.arrayBuffer();
@@ -425,7 +424,7 @@ export default class War3Map {
           modification = new War3MapW3u(buffer);
         }
 
-        modifications.set(fileNames[i], modification);
+        modifications[fileNames[i]] = modification;
       }
     }
 

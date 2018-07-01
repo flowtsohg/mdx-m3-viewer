@@ -68,12 +68,12 @@ export default class ModelView {
    * @param {Scene} scene
    */
   addSceneData(instance, scene) {
-    if (this.model.loaded && scene) {
+    if (this.model.ok && scene) {
       let sceneData = this.sceneData;
       let data = sceneData.get(scene);
 
       if (!data) {
-        data = this.createSceneData();
+        data = this.createSceneData(scene);
 
         sceneData.set(scene, data);
       }
@@ -115,10 +115,14 @@ export default class ModelView {
   /**
    * Create a new scene data object.
    *
+   * @param {Scene} scene
    * @return {Object}
    */
-  createSceneData() {
+  createSceneData(scene) {
     return {
+      scene,
+      modelView: this,
+      baseIndex: 0,
       instances: [],
       buckets: [],
     };
@@ -176,7 +180,7 @@ export default class ModelView {
    * @param {Scene} scene
    */
   sceneChanged(instance, scene) {
-    if (this.model.loaded) {
+    if (this.model.ok) {
       let sceneData = this.sceneData;
       let oldScene = instance.scene;
 
@@ -231,28 +235,24 @@ export default class ModelView {
    * @return {Object|null}
    */
   update(scene) {
-    if (this.model.loaded) {
+    if (this.model.ok) {
       let data = this.sceneData.get(scene);
 
       if (data) {
-        let instances = data.instances;
+        let instancesCount = data.instances.length;
         let buckets = data.buckets;
         let bucketIndex = 0;
-        let offset = 0;
-        let count = instances.length;
 
-        while (offset < count) {
-          let bucket = buckets[bucketIndex];
+        data.baseIndex = 0;
 
-          if (!bucket) {
-            bucket = new this.model.handler.Bucket(this);
-
-            buckets[bucketIndex] = bucket;
+        while (data.baseIndex < instancesCount) {
+          if (bucketIndex === buckets.length) {
+            buckets[bucketIndex] = new this.model.handler.Bucket(this);
           }
 
-          bucketIndex += 1;
+          data.baseIndex = buckets[bucketIndex].fill(data);
 
-          offset = bucket.fill(data, offset, scene);
+          bucketIndex += 1;
         }
 
         return data;
@@ -270,8 +270,8 @@ export default class ModelView {
   renderOpaque(scene) {
     let data = this.sceneData.get(scene);
 
-    if (data) {
-      this.model.renderOpaque(data, scene, this);
+    if (data && data.baseIndex) {
+      this.model.renderOpaque(data);
     }
   }
 
@@ -283,8 +283,8 @@ export default class ModelView {
   renderTranslucent(scene) {
     let data = this.sceneData.get(scene);
 
-    if (data) {
-      this.model.renderTranslucent(data, scene, this);
+    if (data && data.baseIndex) {
+      this.model.renderTranslucent(data);
     }
   }
 }

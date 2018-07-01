@@ -9,21 +9,21 @@ export default class Geoset {
    */
   constructor() {
     /** @member {Float32Array} */
-    this.vertices = new Float32Array(1);
+    this.vertices = new Float32Array(0);
     /** @member {Float32Array} */
-    this.normals = new Float32Array(1);
+    this.normals = new Float32Array(0);
     /** @member {Uint32Array} */
-    this.faceTypeGroups = new Uint32Array(1);
+    this.faceTypeGroups = new Uint32Array(0);
     /** @member {Uint32Array} */
-    this.faceGroups = new Uint32Array(1);
+    this.faceGroups = new Uint32Array(0);
     /** @member {Uint16Array} */
-    this.faces = new Uint16Array(1);
+    this.faces = new Uint16Array(0);
     /** @member {Uint8Array} */
-    this.vertexGroups = new Uint8Array(1);
+    this.vertexGroups = new Uint8Array(0);
     /** @member {Uint32Array} */
-    this.matrixGroups = new Uint32Array(1);
+    this.matrixGroups = new Uint32Array(0);
     /** @member {Uint32Array} */
-    this.matrixIndices = new Uint32Array(1);
+    this.matrixIndices = new Uint32Array(0);
     /** @member {number} */
     this.materialId = 0;
     /** @member {number} */
@@ -35,7 +35,7 @@ export default class Geoset {
     /** @member {Array<Extent>} */
     this.sequenceExtents = [];
     /** @member {Array<Float32Array>} */
-    this.textureCoordinateSets = [];
+    this.uvSets = [];
   }
 
   /**
@@ -76,7 +76,7 @@ export default class Geoset {
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
       stream.skip(4); // UVBS
-      this.textureCoordinateSets.push(stream.readFloat32Array(stream.readUint32() * 2));
+      this.uvSets.push(stream.readFloat32Array(stream.readUint32() * 2));
     }
   }
 
@@ -120,12 +120,12 @@ export default class Geoset {
     }
 
     stream.write('UVAS');
-    stream.writeUint32(this.textureCoordinateSets.length);
+    stream.writeUint32(this.uvSets.length);
 
-    for (let textureCoordinateSet of this.textureCoordinateSets) {
+    for (let uvSet of this.uvSets) {
       stream.write('UVBS');
-      stream.writeUint32(textureCoordinateSet.length / 2);
-      stream.writeFloat32Array(textureCoordinateSet);
+      stream.writeUint32(uvSet.length / 2);
+      stream.writeFloat32Array(uvSet);
     }
   }
 
@@ -139,7 +139,7 @@ export default class Geoset {
       } else if (token === 'Normals') {
         this.normals = stream.readVectorArray(new Float32Array(stream.readInt() * 3), 3);
       } else if (token === 'TVertices') {
-        this.textureCoordinateSets.push(stream.readVectorArray(new Float32Array(stream.readInt() * 2), 2));
+        this.uvSets.push(stream.readVectorArray(new Float32Array(stream.readInt() * 2), 2));
       } else if (token === 'VertexGroup') {
         // Vertex groups are stored in a block with no count, can't allocate the buffer yet.
         let vertexGroups = [];
@@ -227,8 +227,8 @@ export default class Geoset {
     stream.writeVectorArray('Vertices', this.vertices, 3);
     stream.writeVectorArray('Normals', this.normals, 3);
 
-    for (let textureCoordinateSet of this.textureCoordinateSets) {
-      stream.writeVectorArray('TVertices', textureCoordinateSet, 2);
+    for (let uvSet of this.uvSets) {
+      stream.writeVectorArray('TVertices', uvSet, 2);
     }
 
     stream.startBlock('VertexGroup');
@@ -276,8 +276,8 @@ export default class Geoset {
   getByteLength() {
     let size = 120 + this.vertices.byteLength + this.normals.byteLength + this.faceTypeGroups.byteLength + this.faceGroups.byteLength + this.faces.byteLength + this.vertexGroups.byteLength + this.matrixGroups.byteLength + this.matrixIndices.byteLength + this.sequenceExtents.length * 28;
 
-    for (let textureCoordinateSet of this.textureCoordinateSets) {
-      size += 8 + textureCoordinateSet.byteLength;
+    for (let uvSet of this.uvSets) {
+      size += 8 + uvSet.byteLength;
     }
 
     return size;

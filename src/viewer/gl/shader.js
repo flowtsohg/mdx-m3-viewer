@@ -13,7 +13,7 @@ export default class ShaderUnit {
     let id = gl.createShader(type);
 
     /** @member {boolean} */
-    this.loaded = false;
+    this.ok = false;
     /** @member {WebGLShader} */
     this.webglResource = id;
     /** @member {string} */
@@ -25,7 +25,7 @@ export default class ShaderUnit {
     gl.compileShader(id);
 
     if (gl.getShaderParameter(id, gl.COMPILE_STATUS)) {
-      this.loaded = true;
+      this.ok = true;
     } else {
       let error = gl.getShaderInfoLog(id);
       let lines = src.split('\n');

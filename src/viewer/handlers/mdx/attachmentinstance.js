@@ -30,7 +30,7 @@ export default class AttachmentInstance {
   update() {
     let internalInstance = this.internalInstance;
 
-    if (internalInstance.model.loaded) {
+    if (internalInstance.model.ok) {
       this.attachment.getVisibility(visibilityHeap, this.instance);
 
       if (visibilityHeap[0] > 0.1) {

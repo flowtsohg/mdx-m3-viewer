@@ -13,7 +13,7 @@ export default class War3MapWtg {
    */
   constructor(buffer, triggerData) {
     this.version = 0;
-    this.triggerCategories = [];
+    this.categories = [];
     this.u1 = 0;
     this.variables = [];
     this.triggers = [];
@@ -37,11 +37,11 @@ export default class War3MapWtg {
     this.version = stream.readInt32();
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let triggerCategory = new TriggerCategory();
+      let category = new TriggerCategory();
 
-      triggerCategory.load(stream, this.version);
+      category.load(stream, this.version);
 
-      this.triggerCategories[i] = triggerCategory;
+      this.categories[i] = category;
     }
 
     this.u1 = stream.readInt32();
@@ -72,10 +72,10 @@ export default class War3MapWtg {
 
     stream.write('WTG!');
     stream.writeInt32(this.version);
-    stream.writeUint32(this.triggerCategories.length);
+    stream.writeUint32(this.categories.length);
 
-    for (let triggerCategory of this.triggerCategories) {
-      triggerCategory.save(stream, this.version);
+    for (let category of this.categories) {
+      category.save(stream, this.version);
     }
 
     stream.writeInt32(this.u1);
@@ -100,8 +100,8 @@ export default class War3MapWtg {
   getByteLength() {
     let size = 24;
 
-    for (let triggerCategory of this.triggerCategories) {
-      size += triggerCategory.getByteLength(this.version);
+    for (let category of this.categories) {
+      size += category.getByteLength(this.version);
     }
 
     for (let variable of this.variables) {

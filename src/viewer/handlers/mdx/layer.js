@@ -130,7 +130,8 @@ export default class Layer extends AnimatedObject {
   bind(shader) {
     let gl = this.model.viewer.gl;
 
-    gl.uniform1f(shader.uniforms.get('u_alphaTest'), this.alphaTestValue);
+    gl.uniform1f(shader.uniforms.u_alphaTest, this.alphaTestValue);
+    // gl.uniform1f(shader.uniforms.u_unshaded, this.unshaded);
 
     if (this.blended) {
       gl.enable(gl.BLEND);

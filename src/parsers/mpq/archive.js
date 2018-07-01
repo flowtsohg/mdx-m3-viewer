@@ -269,7 +269,6 @@ export default class MpqArchive {
     }
 
     this.blockTable.entries.splice(blockIndex, 1);
-    this.hashTable.entries.splice(blockIndex, 1);
   }
 
   /**

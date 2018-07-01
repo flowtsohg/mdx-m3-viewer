@@ -106,33 +106,33 @@ export default class M3Layer {
     let uniforms = shader.uniforms;
     let active = this.active;
 
-    gl.uniform1f(uniforms.get(uniformMap.enabled), active);
+    gl.uniform1f(uniforms[uniformMap.enabled], active);
 
     if (active) {
-      gl.uniform1i(uniforms.get(uniformMap.map), this.textureUnit);
+      gl.uniform1i(uniforms[uniformMap.map], this.textureUnit);
       this.model.bindTexture(this.texture, this.textureUnit, bucket.modelView);
 
-      gl.uniform1f(uniforms.get(uniformMap.op), this.op);
-      gl.uniform1f(uniforms.get(uniformMap.channels), this.colorChannels);
-      gl.uniform1f(uniforms.get(uniformMap.teamColorMode), this.teamColorMode);
+      gl.uniform1f(uniforms[uniformMap.op], this.op);
+      gl.uniform1f(uniforms[uniformMap.channels], this.colorChannels);
+      gl.uniform1f(uniforms[uniformMap.teamColorMode], this.teamColorMode);
 
       // Alpha is probably unknown12. Can this be confirmed?
       // Many of these flags seem to be incorrect
       // gl.setParameter(uniform + 'multAddAlpha', [this.model.getValue(this.rgbMultiply, sequence, frame), this.model.getValue(this.rgbAdd, sequence, frame), 0]);
       // gl.setParameter(uniform + 'useAlphaFactor', 0);
 
-      gl.uniform1f(uniforms.get(uniformMap.invert), this.invert);
+      gl.uniform1f(uniforms[uniformMap.invert], this.invert);
 
       // gl.setParameter(uniform + 'multColor', 0);
       // gl.setParameter(uniform + 'addColor', 0);
 
-      gl.uniform1f(uniforms.get(uniformMap.clampResult), this.clampResult);
+      gl.uniform1f(uniforms[uniformMap.clampResult], this.clampResult);
 
       // gl.setParameter(uniform + 'useConstantColor', this.flags && 0x400);
       // gl.setParameter(uniform + 'constantColor', this.model.getValue(this.color, sequence, frame));
       // gl.setParameter(settings + 'uvSource', this.uvSource);
 
-      gl.uniform1f(uniforms.get(uniformMap.uvCoordinate), this.uvCoordinate);
+      gl.uniform1f(uniforms[uniformMap.uvCoordinate], this.uvCoordinate);
     }
   }
 
@@ -141,7 +141,7 @@ export default class M3Layer {
    */
   unbind(shader) {
     if (this.active) {
-      this.gl.uniform1f(shader.uniforms.get(this.uniformMap.enabled), 0);
+      this.gl.uniform1f(shader.uniforms[this.uniformMap.enabled], 0);
     }
   }
 }

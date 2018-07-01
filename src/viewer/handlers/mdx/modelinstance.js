@@ -467,7 +467,7 @@ export default class ModelInstance extends TexturedModelInstance {
   setSequence(id) {
     this.sequence = id;
 
-    if (this.model.loaded) {
+    if (this.model.ok) {
       let sequences = this.model.sequences;
 
       if (id < 0 || id > sequences.length - 1) {

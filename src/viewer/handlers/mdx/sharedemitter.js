@@ -70,7 +70,10 @@ export default class SharedEmitter {
     }
   }
 
-  fill(emitterView, scene) {
+  /**
+   * @param {*} emitterView
+   */
+  fill(emitterView) {
     let emission = emitterView.currentEmission;
 
     if (emission >= 1) {
@@ -80,11 +83,18 @@ export default class SharedEmitter {
     }
   }
 
+  /**
+   *
+   */
   updateData() {
 
   }
 
-  render(bucket, shader) {
+  /**
+   * @param {ModelView} modelView
+   * @param {ShaderProgram} shader
+   */
+  render(modelView, shader) {
 
   }
 }

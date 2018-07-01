@@ -25,9 +25,9 @@ import UnknownChunk from './unknownchunk';
  */
 export default class Model {
   /**
-   * Construct a new empty model.
+   * @param {?ArrayBuffer|string} buffer
    */
-  constructor() {
+  constructor(buffer) {
     /**
      * Always 800 since Warcraft 3 released.
      *
@@ -92,6 +92,10 @@ export default class Model {
      * @member {Array<UnknownChunk}
      */
     this.unknownChunks = [];
+
+    if (buffer) {
+      this.load(buffer);
+    }
   }
 
   /**

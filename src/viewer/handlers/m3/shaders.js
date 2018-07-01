@@ -10,7 +10,7 @@ let vsCommon = `
   }
 `;
 
-let psCommon = `
+let fsCommon = `
   varying vec3 v_normal;
   varying vec4 v_uv[2];
   varying vec3 v_lightDir;
@@ -360,8 +360,8 @@ export default {
       gl_Position = u_mvp * vec4(position, 1.0);
     }
   `,
-  ps: `
-    ${psCommon}
+  fs: `
+    ${fsCommon}
     uniform float u_specularity;
     uniform float u_specMult;
     uniform float u_emisMult;

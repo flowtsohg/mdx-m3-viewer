@@ -1,7 +1,11 @@
 /**
- * A keyframe on a timeline.
+ * A templated animation track.
+ *
+ * @param {Uint32Array|Float32Array} DataType
+ * @param {number} size
+ * @return {class}
  */
-class Track {
+const templatedTrack = (DataType, size) => class {
   /**
    *
    */
@@ -9,11 +13,11 @@ class Track {
     /** @member {number} */
     this.frame = 0;
     /** @member {Uint32Array|Float32Array} */
-    this.value = this.dataType();
+    this.value = new DataType(size);
     /** @member {Uint32Array|Float32Array} */
-    this.inTan = this.dataType();
+    this.inTan = new DataType(size);
     /** @member {Uint32Array|Float32Array} */
-    this.outTan = this.dataType();
+    this.outTan = new DataType(size);
   }
 
   /**
@@ -74,52 +78,39 @@ class Track {
       stream.unindent();
     }
   }
-}
+
+  /**
+   * @param {number} interpolationType
+   * @return {number}
+   */
+  getByteLength(interpolationType) {
+    let valueSize = this.value.byteLength;
+    let size = 4 + valueSize;
+
+    if (interpolationType > 1) {
+      size += valueSize * 2;
+    }
+
+    return size;
+  }
+};
 
 /**
  * A uint track.
  */
-export class UintTrack extends Track {
-  /**
-   * @return {Uint32Array}
-   */
-  dataType() {
-    return new Uint32Array(1);
-  }
-}
+export const UintTrack = templatedTrack(Uint32Array, 1);
 
 /**
  * A float track.
  */
-export class FloatTrack extends Track {
-  /**
-   * @return {Float32Array}
-   */
-  dataType() {
-    return new Float32Array(1);
-  }
-}
+export const FloatTrack = templatedTrack(Float32Array, 1);
 
 /**
- * A vec3 track.
+ * A vector 3 track.
  */
-export class Vector3Track extends Track {
-  /**
-   * @return {Float32Array}
-   */
-  dataType() {
-    return new Float32Array(3);
-  }
-}
+export const Vector3Track = templatedTrack(Float32Array, 3);
 
 /**
- * A vec4 track.
+ * A vector 4 track.
  */
-export class Vector4Track extends Track {
-  /**
-   * @return {Float32Array}
-   */
-  dataType() {
-    return new Float32Array(4);
-  }
-}
+export const Vector4Track = templatedTrack(Float32Array, 4);

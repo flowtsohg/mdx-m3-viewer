@@ -9,7 +9,9 @@ export default class AnimatedObject {
    * @param {mdlx.AnimatedObject} object
    */
   constructor(model, object) {
+    /** @member {Model} */
     this.model = model;
+    /** @member {Object<string, ScalarSd|Vector3Sd|Vector4Sd>} */
     this.animations = {};
 
     for (let animation of object.animations) {

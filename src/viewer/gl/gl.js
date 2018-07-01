@@ -56,7 +56,7 @@ export default class WebGL {
     }
 
     if (!extensions.instancedArrays) {
-      throw new Error('WebGL: No instanced rendering support!');
+      //throw new Error('WebGL: No instanced rendering support!');
     }
 
     if (!extensions.compressedTextureS3tc) {
@@ -65,7 +65,7 @@ export default class WebGL {
 
     gl.extensions = extensions;
 
-    // The only initial setup required, the rest should be handled by the handelrs
+    // The only initial setup required, the rest should be handled by the handlers
     gl.depthFunc(gl.LEQUAL);
     gl.enable(gl.DEPTH_TEST);
 
@@ -133,7 +133,7 @@ export default class WebGL {
     let fragmentShader = this.createShaderUnit(this.floatPrecision + fragmentSrc, gl.FRAGMENT_SHADER);
     let shaderPrograms = this.shaderPrograms;
 
-    if (vertexShader.loaded && fragmentShader.loaded) {
+    if (vertexShader.ok && fragmentShader.ok) {
       let hash = stringHash(vertexSrc + fragmentSrc);
 
       if (!shaderPrograms.has(hash)) {
@@ -142,7 +142,7 @@ export default class WebGL {
 
       let shaderProgram = shaderPrograms.get(hash);
 
-      if (shaderProgram.loaded) {
+      if (shaderProgram.ok) {
         return shaderProgram;
       }
     }
@@ -184,12 +184,12 @@ export default class WebGL {
   useShaderProgram(shaderProgram) {
     let currentShaderProgram = this.currentShaderProgram;
 
-    if (shaderProgram && shaderProgram.loaded && shaderProgram !== currentShaderProgram) {
+    if (shaderProgram && shaderProgram.ok && shaderProgram !== currentShaderProgram) {
       let oldAttribs = 0;
-      let newAttribs = shaderProgram.attribs.size;
+      let newAttribs = shaderProgram.attribsCount;
 
       if (currentShaderProgram) {
-        oldAttribs = currentShaderProgram.attribs.size;
+        oldAttribs = currentShaderProgram.attribsCount;
       }
 
       this.gl.useProgram(shaderProgram.webglResource);
@@ -216,7 +216,7 @@ export default class WebGL {
 
     gl.activeTexture(gl.TEXTURE0 + unit);
 
-    if (texture && texture.loaded) {
+    if (texture && texture.ok) {
       gl.bindTexture(gl.TEXTURE_2D, texture.webglResource);
     } else {
       // Bind an empty texture in case an invalid one was given, to avoid WebGL errors.

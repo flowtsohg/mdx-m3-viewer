@@ -53,7 +53,14 @@ export default class M3Bucket extends Bucket {
     gl.bufferData(gl.ARRAY_BUFFER, this.vertexColorArray, gl.DYNAMIC_DRAW);
   }
 
-  fill(data, baseInstance, scene) {
+  /**
+   * Fill this bucket with scene data.
+   *
+   * @param {Object} data
+   * @return {number}
+   */
+  fill(data) {
+    let baseIndex = data.baseIndex;
     let model = this.model;
     let gl = model.viewer.gl;
     let batchSize = model.batchSize;
@@ -65,8 +72,8 @@ export default class M3Bucket extends Bucket {
     let instanceOffset = 0;
     let instances = data.instances;
 
-    for (let l = instances.length; baseInstance < l && instanceOffset < batchSize; baseInstance++) {
-      let instance = instances[baseInstance];
+    for (let l = instances.length; baseIndex < l && instanceOffset < batchSize; baseIndex++) {
+      let instance = instances[baseIndex];
 
       if (instance.rendered && !instance.culled) {
         let vertexColor = instance.vertexColor;
@@ -139,6 +146,6 @@ export default class M3Bucket extends Bucket {
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertexColorArray);
     }
 
-    return baseInstance;
+    return baseIndex;
   }
 }

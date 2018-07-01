@@ -15,7 +15,7 @@ export default class Trigger {
     this.isCustom = 0;
     this.isInitiallyOff = 0;
     this.runOnInitialization = 0;
-    this.triggerCategory = 0;
+    this.category = 0;
     this.ecas = [];
   }
 
@@ -36,7 +36,7 @@ export default class Trigger {
     this.isCustomText = stream.readInt32();
     this.isInitiallyOff = stream.readInt32();
     this.runOnInitialization = stream.readInt32();
-    this.triggerCategory = stream.readInt32();
+    this.category = stream.readInt32();
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
       let eca = new ECA();
@@ -63,7 +63,7 @@ export default class Trigger {
     stream.writeInt32(this.isCustomText);
     stream.writeInt32(this.isInitiallyOff);
     stream.writeInt32(this.runOnInitialization);
-    stream.writeInt32(this.triggerCategory);
+    stream.writeInt32(this.category);
     stream.writeUint32(this.ecas.length);
 
     for (let eca of this.ecas) {

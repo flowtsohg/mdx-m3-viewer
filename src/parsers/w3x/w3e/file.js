@@ -1,5 +1,5 @@
 import BinaryStream from '../../../common/binarystream';
-import TilePoint from './tilepoint';
+import Corner from './corner';
 
 /**
  * war3map.w3e - the environment file.
@@ -12,7 +12,7 @@ export default class War3MapW3e {
     /** @member {number} */
     this.version = 0;
     /** @member {string} */
-    this.tileset = '';
+    this.tileset = 'A';
     /** @member {number} */
     this.haveCustomTileset = 0;
     /** @member {Array<string>} */
@@ -23,8 +23,8 @@ export default class War3MapW3e {
     this.mapSize = new Int32Array(2);
     /** @member {Float32Array} */
     this.centerOffset = new Float32Array(2);
-    /** @member {Array<Array<TilePoint>>} */
-    this.tilepoints = [];
+    /** @member {Array<Array<Corner>>} */
+    this.corners = [];
 
     if (buffer instanceof ArrayBuffer) {
       this.load(buffer);
@@ -57,19 +57,17 @@ export default class War3MapW3e {
     this.mapSize = stream.readInt32Array(2);
     this.centerOffset = stream.readFloat32Array(2);
 
-    let mapSize = this.mapSize;
-    let columns = mapSize[0];
-    let rows = mapSize[1];
+    let [columns, rows] = this.mapSize;
 
     for (let row = 0; row < rows; row++) {
-      this.tilepoints[row] = [];
+      this.corners[row] = [];
 
       for (let column = 0; column < columns; column++) {
-        let tilepoint = new TilePoint();
+        let corner = new Corner();
 
-        tilepoint.load(stream);
+        corner.load(stream);
 
-        this.tilepoints[row][column] = tilepoint;
+        this.corners[row][column] = corner;
       }
     }
 
@@ -102,9 +100,9 @@ export default class War3MapW3e {
     stream.writeInt32Array(this.mapSize);
     stream.writeFloat32Array(this.centerOffset);
 
-    for (let row of this.tilepoints) {
-      for (let tilepoint of row) {
-        tilepoint.save(stream);
+    for (let row of this.corners) {
+      for (let corner of row) {
+        corner.save(stream);
       }
     }
 

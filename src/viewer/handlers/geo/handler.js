@@ -9,7 +9,7 @@ export default {
     let shader = viewer.loadShader('GeoStandardShader', shaders.vs, shaders.ps);
 
     // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
-    return shader.loaded;
+    return shader.ok;
   },
 
   extensions: [['.geo']],

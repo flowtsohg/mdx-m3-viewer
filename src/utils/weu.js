@@ -2,28 +2,66 @@ import Trigger from '../parsers/w3x/wtg/trigger';
 import ECA from '../parsers/w3x/wtg/eca';
 import Parameter from '../parsers/w3x/wtg/parameter';
 import SubParameters from '../parsers/w3x/wtg/subparameters';
+import CustomTextTrigger from '../parsers/w3x/wct/customtexttrigger';
 
 /**
-   *
-   * @param {Array<Trigger|ECA|Parameter|SubParameters>} stack
-   * @return {string}
+ * The data needed to convert one map.
+ */
+class WeuConverterData {
+  /**
+   * @param {TriggerData} triggerData
    */
-export function stackToString(stack) {
-  return stack.map((value) => {
-    if (value instanceof Trigger) {
-      return `Trigger ${value.name}`;
-    } else if (value instanceof ECA) {
-      if (value.type === 0) {
-        return `Event ${value.name}`;
-      } else if (value.type === 1) {
-        `Condition ${value.name}`;
-      } else {
-        return `Action ${value.name}`;
-      }
-    } else if (value instanceof Parameter) {
-      return `Parameter ${value.value}`;
-    } else if (value instanceof SubParameters) {
-      return `SubParameters ${value.name}`;
+  constructor(triggerData) {
+    /** @member {TriggerData} */
+    this.triggerData = triggerData;
+    /** @member {Array<Trigger|ECA|Parameter|SubParameters>} */
+    this.stack = [];
+    /** @member {Object<string, number>} */
+    this.generatedNames = {};
+    /** @member {Array<string>} */
+    this.generatedFunctions = [];
+    /** @member {Object<string, boolean>} */
+    this.preplacedObjects = {};
+    /** @member {Object} */
+    this.output = {ok: false, error: '', changes: []};
+  }
+}
+
+/**
+ * Every time a reference to a preplaced object is encountered while testing the GUI, this will be called with isGUI being true.
+ * Every time a reference to a preplaced object is converted to custom script, this will be called with isGUI being false.
+ * This is used to track references that existed in GUI before the conversion, but that will be only in custom scripts afterwards.
+ * References that are lost due to the conversion are then added in a new trigger called PreplacedObjectReferences.
+ *
+ * @param {WeuConverterData} data
+ * @param {string} name
+ * @param {boolean} isGUI
+ */
+function updateGUIRef(data, name, isGUI) {
+  // For now track only units and destructibles.
+  // Not sure what else needs tracking.
+  if (name.startsWith('gg_unit') || name.startsWith('gg_dest')) {
+    let preplacedObjects = data.preplacedObjects;
+
+    // If the reference is already known to be used by GUI, no need to do anything.
+    if (!preplacedObjects[name]) {
+      preplacedObjects[name] = isGUI;
+    }
+  }
+}
+
+/**
+ * @param {Array<Trigger|ECA|Parameter|SubParameters>} stack
+ * @return {string}
+ */
+function stackToString(stack) {
+  return stack.map((object) => {
+    if (object instanceof Trigger) {
+      return `Trigger ${object.name}`;
+    } else if (object instanceof ECA || object instanceof SubParameters) {
+      return object.name;
+    } else if (object instanceof Parameter) {
+      return object.value;
     }
   }).reverse().join(' > ');
 }
@@ -38,7 +76,7 @@ export function stackToString(stack) {
 function createCustomScriptOrCommentECA(data, isComment) {
   let eca = new ECA();
 
-  eca.type = 2; // Function
+  eca.type = 2; // Action
 
   if (isComment) {
     eca.name = 'CommentString';
@@ -65,7 +103,7 @@ function createCustomScriptOrCommentECA(data, isComment) {
  * @return {ECA}
  */
 function createCustomScriptECA(script) {
-  return createCustomScriptOrCommentECA(script);
+  return createCustomScriptOrCommentECA(script, false);
 }
 
 // /**
@@ -79,513 +117,888 @@ function createCustomScriptECA(script) {
 // }
 
 /**
- * A WEU converter.
+ * @param {WeuConverterData} data
+ * @param {ECA|SubParameters} object
+ * @return {string}
  */
-class WEUConverter {
-  /**
-   *
-   * @param {War3Map} map
-   * @param {TriggerData} triggerData
-   * @param {function} callback
-   */
-  constructor(map, triggerData, callback) {
-    this.callback = callback;
-    this.stack = [];
-    this.generatedNames = {};
-    this.callbacks = [];
-    this.triggerData = triggerData;
-    this.triggerFile = null;
-    this.customTextTriggerFile = null;
-
-    try {
-      this.triggerFile = map.readTriggers(triggerData);
-    } catch (e) {
-      if (callback) {
-        callback({type: 'error', name: 'war3map.wtg', data: `Failed to read the trigger file: ${e}`});
-      }
-
-      return;
-    }
-
-    try {
-      this.customTextTriggerFile = map.readCustomTextTriggers();
-    } catch (e) {
-      if (callback) {
-        callback({type: 'error', name: 'war3map.wtc', data: `Failed to read the custom text trigger file: ${e}`});
-      }
-
-      return;
-    }
-
-    for (let trigger of this.triggerFile.triggers) {
-      this.handleTrigger(trigger);
-    }
-
-    for (let callback of this.callbacks) {
-      this.customTextTriggerFile.trigger.text += callback.replace(/\n/g, '\r\n');
-    }
-
-    map.set('war3map.wtg', this.triggerFile.save());
-    map.set('war3map.wct', this.customTextTriggerFile.save());
+function generateCallbackName(data, object) {
+  if (data.generatedNames[object.name] === undefined) {
+    data.generatedNames[object.name] = 0;
   }
 
-  /**
-   *
-   * @param {ECA|SubParameters} object
-   * @return {string}
-   */
-  generateCallbackName(object) {
-    if (this.generatedNames[object.name] === undefined) {
-      this.generatedNames[object.name] = 0;
+  let trigger = data.stack[data.stack.length - 1];
+
+  // Convert non-ASCII characters to underlines, for locales other than en.
+  let name = trigger.name.split('').map((value) => value.charCodeAt(0) > 127 ? '_' : value).join('');
+
+  return `Trig_${name.replace(/\s/g, '_')}_Func${data.generatedNames[object.name]++}_${object.name}`.replace(/_+/g, '_');
+}
+
+/**
+ * Converts an ECA or SubParameters to an array of custom script ECAs.
+ * Also creates callbacks when needed, which are added to the map header.
+ *
+ * @param {WeuConverterData} data
+ * @param {ECA|SubParameters} object
+ * @return {string}
+ */
+function convertFunctionCallToCustomScript(data, object) {
+  let ecas = [];
+  let parameters = object.parameters;
+  let {args, scriptName} = data.triggerData.getFunction(object.type, object.name);
+  let name = object.name;
+  let argCount = args.length;
+  let isCode = false;
+  let isBoolexpr = false;
+
+  scriptName = scriptName || object.name;
+
+  if (argCount) {
+    let lastArg = args[argCount - 1];
+
+    if (lastArg === 'code') {
+      isCode = true;
+    } else if (lastArg === 'boolexpr') {
+      isBoolexpr = true;
     }
-
-    let trigger = this.stack[this.stack.length - 1];
-
-    return `${trigger.name.replace(/\s/g, '_')}_Func${this.generatedNames[object.name]++}_${object.name}`;
   }
 
-  /**
-   * Converts an ECA or SubParameters to an array of custom script ECAs.
-   * Also creates callbacks when needed, which are added to the map header.
-   *
-   * @param {ECA|SubParameters} object
-   * @return {string}
-   */
-  convertFunctionCallToCustomScript(object) {
-    let ecas = [];
-    let name = object.name;
-    let parameters = object.parameters;
-    let args = this.triggerData.getFunction(object.name);
-    let argCount = args.length;
-    let isCode = false;
-    let isBoolexpr = false;
+  // IfThenElse and other control flow "functions" must come before the generic code/boolexpr callback handling, since they don't follow the same rules.
+  if (name === 'IfThenElse') {
+    ecas.push(createCustomScriptECA(`if ${convertParameterToCustomScript(data, parameters[0], args[0])} then`));
+    ecas.push(createCustomScriptECA(`call ${convertParameterToCustomScript(data, parameters[1], args[1])}`));
+    ecas.push(createCustomScriptECA('else'));
+    ecas.push(createCustomScriptECA(`call ${convertParameterToCustomScript(data, parameters[2], args[2])}`));
+    ecas.push(createCustomScriptECA('endif'));
+  } else if (name === 'OrMultiple') {
+    ecas[0] = createCustomScriptECA(object.ecas.slice().map((eca) => convertFunctionCallToCustomScript(data, eca).map((eca) => eca.parameters[0].value)).join(' or '));
+  } else if (name === 'ForLoopAMultiple') {
+    ecas.push(createCustomScriptECA(`set bj_forLoopAIndex = ${convertParameterToCustomScript(data, parameters[0], args[0])}`));
+    ecas.push(createCustomScriptECA(`set bj_forLoopAIndexEnd = ${convertParameterToCustomScript(data, parameters[1], args[1])}`));
+    ecas.push(createCustomScriptECA('loop'));
+    ecas.push(createCustomScriptECA('exitwhen bj_forLoopAIndex > bj_forLoopAIndexEnd'));
 
-    if (argCount) {
-      let lastArg = args[argCount - 1];
+    for (let action of object.ecas) {
+      let replacements = convertFunctionCallToCustomScript(data, action);
 
-      if (lastArg === 'code') {
-        isCode = true;
-      } else if (lastArg === 'boolexpr') {
-        isBoolexpr = true;
+      for (let replacement of replacements) {
+        ecas.push(createCustomScriptECA(`${replacement.parameters[0].value}`));
       }
     }
 
-    // IfThenElse and other control flow "functions" must come before the generic code/boolexpr callback handling, since they don't follow the same rules.
-    if (name === 'IfThenElse') {
-      ecas.push(createCustomScriptECA(`if ${this.convertParameterToCustomScript(parameters[0], args[0])} then`));
-      ecas.push(createCustomScriptECA(`    call ${this.convertParameterToCustomScript(parameters[1], args[1])}`));
+    ecas.push(createCustomScriptECA('endloop'));
+  } else if (name === 'IfThenElseMultiple') {
+    let condition;
+    let thenActions = [];
+    let elseActions = [];
+
+    for (let eca of object.ecas) {
+      if (eca.group === 0) {
+        condition = eca;
+      } else if (eca.group === 1) {
+        thenActions.push(eca);
+      } else if (eca.group === 2) {
+        elseActions.push(eca);
+      }
+    }
+
+    ecas.push(createCustomScriptECA(`if ${convertFunctionCallToCustomScript(data, condition)[0].parameters[0].value} then`));
+
+    for (let action of thenActions) {
+      let replacements = convertFunctionCallToCustomScript(data, action);
+
+      for (let replacement of replacements) {
+        ecas.push(createCustomScriptECA(`${replacement.parameters[0].value}`));
+      }
+    }
+
+    if (elseActions.length) {
       ecas.push(createCustomScriptECA('else'));
-      ecas.push(createCustomScriptECA(`    call ${this.convertParameterToCustomScript(parameters[2], args[2])}`));
-      ecas.push(createCustomScriptECA('endif'));
-    } else if (isCode || isBoolexpr) {
-      let callbackName = this.generateCallbackName(object);
-      let call = `function ${callbackName}`;
-      let returnType = 'nothing';
-      let callOrReturn = 'call';
 
-      if (isBoolexpr) {
-        call = `Filter(${call})`;
-        returnType = 'boolean';
-        callOrReturn = 'return';
+      for (let action of elseActions) {
+        let replacements = convertFunctionCallToCustomScript(data, action);
+
+        for (let replacement of replacements) {
+          ecas.push(createCustomScriptECA(`${replacement.parameters[0].value}`));
+        }
       }
-
-      ecas.push(createCustomScriptECA(`call ${name}(${parameters.slice(0, -1).map((value, index) => this.convertParameterToCustomScript(value, args[index]))}, ${call})`));
-
-      let callback = `
-function ${callbackName} takes nothing returns ${returnType}
-    ${callOrReturn} ${this.convertParameterToCustomScript(parameters[argCount - 1], args[argCount - 1])}
-endfunction
-`;
-
-      this.callbacks.push(callback);
-
-      if (this.callback) {
-        this.callback({type: 'changed', name: 'CallbackCreation', stack: this.stack, data: callback});
-      }
-    } else if (name === 'OperatorString') { // String concat
-      ecas.push(createCustomScriptECA(`${this.convertParameterToCustomScript(parameters[0], args[0])} + ${this.convertParameterToCustomScript(parameters[1], args[1])}`));
-    } else if (name.startsWith('Operator')) { // All other operators?
-      ecas.push(createCustomScriptECA(`${this.convertParameterToCustomScript(parameters[0], args[0])} ${this.convertParameterToCustomScript(parameters[1], args[1])} ${this.convertParameterToCustomScript(parameters[2], args[2])}`));
-    } else if (object instanceof ECA) {
-      ecas.push(createCustomScriptECA(`call ${name}(${parameters.map((value, index) => this.convertParameterToCustomScript(value, args[index])).join(', ')})`));
-    } else if (object instanceof SubParameters) {
-      ecas.push(createCustomScriptECA(`${name}(${parameters.map((value, index) => this.convertParameterToCustomScript(value, args[index])).join(', ')})`));
     }
 
-    return ecas;
-  }
+    ecas.push(createCustomScriptECA('endif'));
+  } else if (isCode || isBoolexpr) {
+    let callbackName = generateCallbackName(data, object);
+    let call = `function ${callbackName}`;
+    let returnType = 'nothing';
+    let callOrReturn = 'call';
+    let lastParam = parameters.length - 1;
+    let isMultiple = object.name.endsWith('Multiple');
 
-  /**
-   * Given a call to IsUnitOwnedByPlayer that is inside an OperatorCompareBoolean, replace it with GetOwningPlayer in an OperatorComparePlayer.
-   * This will only happen if the boolean comparison was compared against "true" or "false".
-   * If the comparison term is more complex, the replacement will be skipped.
-   *
-   * @param {SubParameters} object
-   * @return {boolean}
-   */
-  replaceIsUnitOwned(object) {
-    let trueOrFalse = object.parameters[2].value;
-
-    if (trueOrFalse !== 'true' && trueOrFalse !== 'false') {
-      return false;
+    if (isBoolexpr) {
+      call = `Filter(${call})`;
+      returnType = 'boolean';
+      callOrReturn = 'return';
     }
 
-    object.name = 'OperatorComparePlayer';
+    if (isMultiple) {
+      lastParam = parameters.length;
+    }
 
-    let unit = object.parameters[0].subParameters.parameters[0];
-    let otherPlayer = object.parameters[0].subParameters.parameters[1];
+    let callParams = [...parameters.slice(0, lastParam).map((value, index) => convertParameterToCustomScript(data, value, args[index])), call];
 
-    // Change IsUnitOwnedByPlayer(unit, otherPlayer) to GetOwningPlayer(unit)
-    object.parameters[0].value = 'GetOwningPlayer';
-    object.parameters[0].subParameters.name = 'GetOwningPlayer';
-    object.parameters[0].subParameters.parameters.length = 1;
-    object.parameters[0].subParameters.parameters[0] = unit;
-
-    // Equal or not equal
-    if (trueOrFalse === 'true') {
-      object.parameters[1].value = 'OperatorEqualENE';
+    if (object instanceof ECA) {
+      ecas.push(createCustomScriptECA(`call ${scriptName}(${callParams.join(', ')})`));
     } else {
-      object.parameters[1].value = 'OperatorNotEqualENE';
+      ecas.push(createCustomScriptECA(`${scriptName}(${callParams.join(', ')})`));
     }
 
-    // Change false/true to otherPlayer
-    object.parameters[2] = otherPlayer;
+    let callback;
+    let body = '';
 
-    return true;
-  }
-
-  /**
-   * Given a call to IsUnitInRange that is inside an OperatorCompareBoolean, replace it with DistanceBetweenPoints in an OperatorCompareReal.
-   * This will only happen if the boolean comparison was compared against "true" or "false".
-   * If the comparison term is more complex, the replacement will be skipped.
-   *
-   * @param {ECA|SubParameters} object
-   * @return {boolean}
-   */
-  replaceIsUnitInRange(object) {
-    let trueOrFalse = object.parameters[2].value;
-
-    if (trueOrFalse !== 'true' && trueOrFalse !== 'false') {
-      return false;
-    }
-
-    object.name = 'OperatorCompareReal';
-
-    let unit = object.parameters[0].subParameters.parameters[0];
-    let otherUnit = object.parameters[0].subParameters.parameters[1];
-    let range = object.parameters[0].subParameters.parameters[2];
-
-    object.parameters[0].value = 'DistanceBetweenPoints';
-    object.parameters[0].subParameters.name = 'DistanceBetweenPoints';
-
-    let getUnitLoc1 = new Parameter();
-    getUnitLoc1.type = 2; // function
-    getUnitLoc1.value = 'GetUnitLoc';
-    getUnitLoc1.subParameters = new SubParameters();
-    getUnitLoc1.subParameters.beginParameters = 1;
-    getUnitLoc1.subParameters.type = 3;
-    getUnitLoc1.subParameters.name = 'GetUnitLoc';
-    getUnitLoc1.subParameters.parameters[0] = unit;
-
-    let getUnitLoc2 = new Parameter();
-    getUnitLoc2.type = 2; // function
-    getUnitLoc2.value = 'GetUnitLoc';
-    getUnitLoc2.subParameters = new SubParameters();
-    getUnitLoc2.subParameters.beginParameters = 1;
-    getUnitLoc2.subParameters.type = 3;
-    getUnitLoc2.subParameters.name = 'GetUnitLoc';
-    getUnitLoc2.subParameters.parameters[0] = otherUnit;
-
-    let operator = new Parameter();
-    operator.type = 0; // preset
-
-
-    if (trueOrFalse === 'true') {
-      operator.value = 'OperatorLessEq';
+    if (isMultiple) {
+      body = object.ecas.map((eca) => convertFunctionCallToCustomScript(data, eca).map((customScript) => customScript.parameters[0].value).join('\n')).join('\n');
     } else {
-      operator.value = 'OperatorGreater';
+      body = `${callOrReturn} ${convertParameterToCustomScript(data, parameters[lastParam], args[lastParam])}`;
     }
 
-    object.parameters[0].subParameters.parameters.length = 0;
-    object.parameters[0].subParameters.parameters[0] = getUnitLoc1;
-    object.parameters[0].subParameters.parameters[1] = getUnitLoc2;
+    callback = `function ${callbackName} takes nothing returns ${returnType}\n${body}\nendfunction`;
 
-    object.parameters[1] = operator;
-
-    object.parameters[2] = range;
-
-    return true;
+    data.generatedFunctions.push(callback);
+    data.output.changes.push({type: 'generatedfunction', stack: stackToString(data.stack), data: callback});
+  } else if (name === 'CustomScriptCode') {
+    ecas[0] = object;
+  } else if (name === 'SetVariable') {
+    ecas.push(createCustomScriptECA(`set ${convertParameterToCustomScript(data, parameters[0], args[0])} = ${convertParameterToCustomScript(data, parameters[1], args[1])}`));
+  } else if (name === 'OperatorString') { // String concat
+    ecas.push(createCustomScriptECA(`${convertParameterToCustomScript(data, parameters[0], args[0])} + ${convertParameterToCustomScript(data, parameters[1], args[1])}`));
+  } else if (name.startsWith('Operator')) { // All other operators?
+    ecas.push(createCustomScriptECA(`${convertParameterToCustomScript(data, parameters[0], args[0])} ${convertParameterToCustomScript(data, parameters[1], args[1])} ${convertParameterToCustomScript(data, parameters[2], args[2])}`));
+  } else if (object instanceof ECA) {
+    ecas.push(createCustomScriptECA(`call ${scriptName}(${parameters.map((value, index) => convertParameterToCustomScript(data, value, args[index])).join(', ')})`));
+  } else if (object instanceof SubParameters) {
+    ecas.push(createCustomScriptECA(`${scriptName}(${parameters.map((value, index) => convertParameterToCustomScript(data, value, args[index])).join(', ')})`));
   }
 
-  /**
-   * Given a call to SetHeroStr, SetHeroAgi, or SetHeroInt, replace it with ModifyHeroStat.
-   * This will only happen if the change is permanent, since ModifyHeroStat is hardcoded for permanent changes.
-   *
-   * @param {ECA|SubParameters} object
-   * @return {boolean}
-   */
-  replaceSetHeroStat(object) {
-    // If it's not permanent, can't change to GUI.
-    if (object.parameters[2].value !== 'PermanentPerm') {
-      return false;
-    }
+  return ecas;
+}
 
-    let name = object.name;
-    let whichHero = object.parameters[0];
-    let value = object.parameters[1];
+/**
+ * Converts a parameter to custom script.
+ *
+ * @param {WeuConverterData} data
+ * @param {Parameter} parameter
+ * @param {string} dataType
+ * @return {string}
+ */
+function convertParameterToCustomScript(data, parameter, dataType) {
+  let type = parameter.type;
+  let value = parameter.value;
 
-    object.name = 'ModifyHeroStat';
+  // 0: preset
+  // 1: variable
+  // 2: function
+  // 3: literal
+  // -1: invalid
+  if (type === 0) {
+    return data.triggerData.getPreset(value);
+  } else if (type === 1) {
+    if (value.startsWith('gg_')) {
+      // Used to track global generated variables and their status.
+      updateGUIRef(data, value, false);
 
-    let whichStat = new Parameter();
-    whichStat.type = 0; // preset
-    whichStat.value = `HeroStat${name.slice(-3)}`;
-
-    let modifyMethod = new Parameter();
-    modifyMethod.type = 0; // preset
-    modifyMethod.value = 'ModifyMethodSet';
-
-    object.parameters[0] = whichStat;
-    object.parameters[1] = whichHero;
-    object.parameters[2] = modifyMethod;
-    object.parameters[3] = value;
-
-    return true;
-  }
-
-  /**
-   * Try to find extended GUI that can be converted back to GUI.
-   * This involves finding specific functions and cases where native function can be emulated via GUI functions.
-   * This can avoid having to convert the extended GUI to custom script.
-   * It's both nicer, and in the case of top-level events and conditions can avoid having to convert whole triggers.
-   *
-   * @param {ECA|SubParameters} object
-   * @return {boolean}
-   */
-  handleInlineGUI(object) {
-    if (object.name === 'OperatorCompareBoolean') {
-      if (object.parameters[0].value === 'IsUnitOwnedByPlayer') {
-        return this.replaceIsUnitOwned(object);
-      } else if (object.parameters[0].value === 'IsUnitInRange') {
-        return this.replaceIsUnitInRange(object);
-      }
-    } else if (object.name === 'SetHeroStr' || object.name === 'SetHeroAgi' || object.name === 'SetHeroInt') {
-      return this.replaceSetHeroStat(object);
-    }
-
-    return false;
-  }
-
-  /**
-   * Converts a parameter to custom script.
-   *
-   * @param {Parameter} parameter
-   * @param {string} dataType
-   * @return {string}
-   */
-  convertParameterToCustomScript(parameter, dataType) {
-    let type = parameter.type;
-    let value = parameter.value;
-
-    // 0: preset
-    // 1: variable
-    // 2: function
-    // 3: literal (need to test for strings)
-    // -1: invalid
-    if (type === 0) {
-      return this.triggerData.getPreset(value);
-    } else if (type === 1) {
-      if (value.startsWith('gg_')) {
-        return value;
+      return value;
+    } else {
+      if (parameter.isArray) {
+        return `udg_${value}[${convertParameterToCustomScript(data, parameter.arrayIndex, 'integer')}]`;
       } else {
         return `udg_${value}`;
       }
-    } else if (parameter.type === 2) {
-      return this.convertFunctionCallToCustomScript(parameter.subParameters)[0].parameters[0].value;
-    } else if (parameter.type === 3) {
-      // "value"
-      if (dataType === 'string') {
-        return `"${value}"`;
-      }
-
-      // 'value'
-      if (dataType === 'integer' && isNaN(value)) {
-        return `'${value}'`;
-      }
-
-      // value
-      return value;
-    } else {
-      return 'null';
     }
-  }
+  } else if (parameter.type === 2) {
+    return convertFunctionCallToCustomScript(data, parameter.subParameters)[0].parameters[0].value;
+  } else if (parameter.type === 3) {
+    let baseType = data.triggerData.getBaseType(dataType);
 
-  /**
-   * If the given function is not in the trigger data, go back to the nearest ECA in the stack, and convert everything starting from it to custom script.
-   * In case that happens, an array of ECAs will be returned, which are the replacement of the original ECA.
-   *
-   * @param {ECA|SubParameters} object
-   * @return {Array<ECA>|null}
-   */
-  handleCustomScript(object) {
-    if (!this.triggerData.functions[object.name.toLowerCase()]) {
-      for (let node of this.stack) {
-        if (node instanceof ECA) {
-          return this.convertFunctionCallToCustomScript(node);
-        }
-      }
-    }
-    return null;
-  }
-
-  /**
-   *
-   * @param {ECA|SubParameters} object
-   * @return {Array<ECA>|null}
-   */
-  handleFunctionCall(object) {
-    // Check if any GUI inlining is relevant.
-    // If it's not, check if custom scripts are needed.
-    if (this.handleInlineGUI(object)) {
-      if (this.callback) {
-        this.callback({type: 'changed', name: 'InlineGUI', stack: this.stack});
-      }
-    } else {
-      let replacements = this.handleCustomScript(object);
-
-      if (replacements) {
-        if (this.callback) {
-          this.callback({type: 'changed', name: 'InlineCustomScript', stack: this.stack, data: replacements});
-        }
-
-        this.stack.shift();
-        return replacements;
-      }
+    // "value"
+    // scriptcode needs to be converted as-is, and doesn't need quotes.
+    if (baseType === 'string' && dataType !== 'scriptcode') {
+      return `"${value.replace(/\\/g, '\\\\')}"`;
     }
 
-    // Check the parameters.
-    // Note that they will also be checked if GUI was inlined.
-    // This is needed, because the inline functions don't check the parameters, only move them around.
-    for (let parameter of object.parameters) {
-      let replacements = this.handleParameter(parameter);
-
-      if (replacements) {
-        this.stack.shift();
-        return replacements;
-      }
+    // 'value'
+    if (baseType === 'integer' && isNaN(value)) {
+      return `'${value}'`;
     }
 
-    return null;
-  }
-
-  /**
-   * @param {SubParameters} subParameters
-   * @return {Array<ECA>|null}
-   */
-  handleSubParameters(subParameters) {
-    this.stack.unshift(subParameters);
-
-    let replacements = this.handleFunctionCall(subParameters);
-
-    this.stack.shift();
-    return replacements;
-  }
-
-  /**
-   * @param {Parameter} parameter
-   * @return {Array<ECA>|null}
-   */
-  handleParameter(parameter) {
-    this.stack.unshift(parameter);
-
-    if (parameter.subParameters) {
-      let replacements = this.handleSubParameters(parameter.subParameters);
-
-      if (replacements) {
-        this.stack.shift();
-        return replacements;
-      }
-    }
-
-    this.stack.shift();
-    return null;
-  }
-
-  /**
-   * @param {ECA} eca
-   * @param {boolean} isChild
-   * @return {Array<ECA>|null}
-   */
-  handleECA(eca, isChild) {
-    this.stack.unshift(eca);
-
-    let replacements = this.handleFunctionCall(eca);
-
-    if (replacements) {
-      this.stack.unshift();
-      return replacements;
-    }
-
-    let newEcas = [];
-
-    for (let child of eca.ecas) {
-      let replacements = this.handleECA(child, true);
-
-      if (replacements) {
-        for (let replacement of replacements) {
-          replacement.group = 0;
-        }
-        newEcas.push(...replacements);
-      } else {
-        newEcas.push(child);
-      }
-    }
-
-    eca.ecas = newEcas;
-
-    this.stack.shift();
-    return null;
-  }
-
-  /**
-   * @param {Trigger} trigger
-   */
-  handleTrigger(trigger) {
-    this.stack.unshift(trigger);
-
-    let newEcas = [];
-
-    for (let eca of trigger.ecas) {
-      let replacements = this.handleECA(eca, false);
-
-      if (replacements) {
-        // If an event or a condition need to be replaced, the whole trigger needs to be replaced.
-        if (eca.type === 0 || eca.type === 1) {
-          console.log('NEED TO REPLACE WHOLE TRIGGER', trigger.name);
-          console.log('REASON:', eca);
-        } else {
-          for (let replacement of replacements) {
-            // console.log('replacement group is', replacement.group, 'should be -1 (top level)')
-            replacement.group = -1;
-          }
-          newEcas.push(...replacements);
-        }
-      } else {
-        newEcas.push(eca);
-      }
-    }
-
-    trigger.ecas = newEcas;
-
-    this.stack.shift();
+    // value
+    return value;
+  } else {
+    return '';
   }
 }
 
 /**
+ * Given a call to IsUnitOwnedByPlayer that is inside an OperatorCompareBoolean, replace it with GetOwningPlayer in an OperatorComparePlayer.
+ * This will only happen if the boolean comparison was compared against "true" or "false".
+ * If the comparison term is more complex, the replacement will be skipped.
+ *
+ * @param {SubParameters} object
+ * @return {boolean}
+ */
+function replaceIsUnitOwned(object) {
+  let trueOrFalse = object.parameters[2].value;
+
+  if (trueOrFalse !== 'true' && trueOrFalse !== 'false') {
+    return false;
+  }
+
+  object.name = 'OperatorComparePlayer';
+
+  let unit = object.parameters[0].subParameters.parameters[0];
+  let otherPlayer = object.parameters[0].subParameters.parameters[1];
+
+  // Change IsUnitOwnedByPlayer(unit, otherPlayer) to GetOwningPlayer(unit)
+  object.parameters[0].value = 'GetOwningPlayer';
+  object.parameters[0].subParameters.name = 'GetOwningPlayer';
+  object.parameters[0].subParameters.parameters.length = 1;
+  object.parameters[0].subParameters.parameters[0] = unit;
+
+  // Equal or not equal
+  if (trueOrFalse === 'true') {
+    object.parameters[1].value = 'OperatorEqualENE';
+  } else {
+    object.parameters[1].value = 'OperatorNotEqualENE';
+  }
+
+  // Change false/true to otherPlayer
+  object.parameters[2] = otherPlayer;
+
+  return true;
+}
+
+/**
+ * Given a call to IsUnitInRange that is inside an OperatorCompareBoolean, replace it with DistanceBetweenPoints in an OperatorCompareReal.
+ * This will only happen if the boolean comparison was compared against "true" or "false".
+ * If the comparison term is more complex, the replacement will be skipped.
+ *
+ * @param {ECA|SubParameters} object
+ * @return {boolean}
+ */
+function replaceIsUnitInRange(object) {
+  let trueOrFalse = object.parameters[2].value;
+
+  if (trueOrFalse !== 'true' && trueOrFalse !== 'false') {
+    return false;
+  }
+
+  object.name = 'OperatorCompareReal';
+
+  let unit = object.parameters[0].subParameters.parameters[0];
+  let otherUnit = object.parameters[0].subParameters.parameters[1];
+  let range = object.parameters[0].subParameters.parameters[2];
+
+  object.parameters[0].value = 'DistanceBetweenPoints';
+  object.parameters[0].subParameters.name = 'DistanceBetweenPoints';
+
+  let getUnitLoc1 = new Parameter();
+  getUnitLoc1.type = 2; // function
+  getUnitLoc1.value = 'GetUnitLoc';
+  getUnitLoc1.subParameters = new SubParameters();
+  getUnitLoc1.subParameters.beginParameters = 1;
+  getUnitLoc1.subParameters.type = 3;
+  getUnitLoc1.subParameters.name = 'GetUnitLoc';
+  getUnitLoc1.subParameters.parameters[0] = unit;
+
+  let getUnitLoc2 = new Parameter();
+  getUnitLoc2.type = 2; // function
+  getUnitLoc2.value = 'GetUnitLoc';
+  getUnitLoc2.subParameters = new SubParameters();
+  getUnitLoc2.subParameters.beginParameters = 1;
+  getUnitLoc2.subParameters.type = 3;
+  getUnitLoc2.subParameters.name = 'GetUnitLoc';
+  getUnitLoc2.subParameters.parameters[0] = otherUnit;
+
+  let operator = new Parameter();
+  operator.type = 0; // preset
+
+
+  if (trueOrFalse === 'true') {
+    operator.value = 'OperatorLessEq';
+  } else {
+    operator.value = 'OperatorGreater';
+  }
+
+  object.parameters[0].subParameters.parameters.length = 0;
+  object.parameters[0].subParameters.parameters[0] = getUnitLoc1;
+  object.parameters[0].subParameters.parameters[1] = getUnitLoc2;
+
+  object.parameters[1] = operator;
+
+  object.parameters[2] = range;
+
+  return true;
+}
+
+/**
+ * Given a call to SetHeroStr, SetHeroAgi, or SetHeroInt, replace it with ModifyHeroStat.
+ * This will only happen if the change is permanent, since ModifyHeroStat is hardcoded for permanent changes.
+ *
+ * @param {ECA|SubParameters} object
+ * @return {boolean}
+ */
+function replaceSetHeroStat(object) {
+  // If it's not permanent, can't change to GUI.
+  if (object.parameters[2].value !== 'PermanentPerm') {
+    return false;
+  }
+
+  let name = object.name;
+  let whichHero = object.parameters[0];
+  let value = object.parameters[1];
+
+  object.name = 'ModifyHeroStat';
+
+  let whichStat = new Parameter();
+  whichStat.type = 0; // preset
+  whichStat.value = `HeroStat${name.slice(-3)}`;
+
+  let modifyMethod = new Parameter();
+  modifyMethod.type = 0; // preset
+  modifyMethod.value = 'ModifyMethodSet';
+
+  object.parameters[0] = whichStat;
+  object.parameters[1] = whichHero;
+  object.parameters[2] = modifyMethod;
+  object.parameters[3] = value;
+
+  return true;
+}
+
+/**
+ * Given a TriggerRegisterUnitStateEvent call, replace it with TriggerRegisterUnitLifeEvent/TriggerRegisterUnitManaEvent.
+ * WEU has both event and action variations for TriggerRegisterUnitStateEvent.
+ * This handles only the event, while the actions will be converted to custom script.
+ *
+ * @param {ECA} object
+ * @return {boolean}
+ */
+function replaceTriggerRegisterUnitStateEvent(object) {
+  let state = object.parameters[1].value;
+
+  if (state === 'UnitStateLife') {
+    object.name = 'TriggerRegisterUnitLifeEvent';
+  } else if (state === 'UnitStateMana') {
+    object.name = 'TriggerRegisterUnitManaEvent';
+  } else {
+    throw new Error(`Trying to replace unit state "${state}"`);
+  }
+
+  // Remove the state parameter.
+  object.parameters.splice(1, 1);
+
+  return true;
+}
+
+/**
+ * Given a IsUnitType call inside an OperatorCompareBoolean, with the type being UNIT_TYPE_DEAD, replace it with IsUnitDeadBJ.
+ * This may or may not have side effects on the game in some situations. Warcraft 3 is weird.
+ * That is the reasoning behind not changing this for non-conditions, since they can be converted to custom scripts.
+ *
+ * @param {ECA} object
+ * @return {boolean}
+ */
+function replaceIsUnitType(object) {
+  let parameter = object.parameters[0];
+  let subParameters = parameter.subParameters;
+  let unitType = subParameters.parameters[1].value;
+
+  // Exposed in WEU and YDWE as UnitTypedead (with the typo).
+  if (unitType.toLowerCase() !== 'unittypedead') {
+    return false;
+  }
+
+  parameter.value = 'IsUnitDeadBJ';
+
+  subParameters.name = 'IsUnitDeadBJ';
+  subParameters.parameters.length = 1;
+
+  return true;
+}
+
+/**
+ * Given a IsUnitRace call inside an OperatorCompareBoolean, replace it with GetUnitRace inside an OperatorCompareRace.
+ * This will only happen for a simple true/false comparison.
+ *
+ * @param {ECA} object
+ * @return {boolean}
+ */
+function replaceIsUnitRace(object) {
+  let trueOrFalse = object.parameters[2].value;
+
+  if (trueOrFalse !== 'true' && trueOrFalse !== 'false') {
+    return false;
+  }
+
+  object.name = 'OperatorCompareRace';
+
+  let operator = object.parameters[1].value;
+  let race = object.parameters[0].subParameters.parameters[1];
+
+  // IsUnitRace -> GetUnitRace.
+  object.parameters[0].value = 'GetUnitRace';
+  object.parameters[0].subParameters.name = 'GetUnitRace';
+
+  // Remove the race from GetUnitRace.
+  object.parameters[0].subParameters.parameters.length = 1;
+
+  // And add it instead to OperatorCompareRace.
+  object.parameters[2] = race;
+
+  let isEqual = operator === 'OperatorEqualENE';
+  let isTrue = trueOrFalse === 'true';
+
+  // Essentially a XOR between the booleans.
+  if (isEqual === isTrue) {
+    object.parameters[1].value = 'OperatorEqualENE';
+  } else {
+    object.parameters[1].value = 'OperatorNotEqualENE';
+  }
+
+  return true;
+}
+
+/**
+ * Try to find extended GUI that can be converted back to GUI.
+ * This involves finding specific functions and cases where native function can be emulated via GUI functions.
+ * This can avoid having to convert the extended GUI to custom script.
+ * It's both nicer, and in the case of top-level events and conditions can avoid having to convert whole triggers.
+ *
+ * @param {ECA|SubParameters} object
+ * @return {boolean}
+ */
+function convertInlineGUI(object) {
+  let name = object.name;
+
+  if (name === 'OperatorCompareBoolean') {
+    let value = object.parameters[0].value;
+
+    if (value === 'IsUnitOwnedByPlayer') {
+      return replaceIsUnitOwned(object);
+    } else if (value === 'IsUnitInRange') {
+      return replaceIsUnitInRange(object);
+    } else if (value === 'IsUnitType' && object.group === -1) {
+      return replaceIsUnitType(object);
+    } else if (value === 'IsUnitRace') {
+      return replaceIsUnitRace(object);
+    }
+  } else if (name === 'SetHeroStr' || name === 'SetHeroAgi' || name === 'SetHeroInt') {
+    return replaceSetHeroStat(object);
+  } else if (name === 'TriggerRegisterUnitStateEvent') {
+    return replaceTriggerRegisterUnitStateEvent(object);
+  }
+
+  return false;
+}
+
+/**
+ * @param {WeuConverterData} data
+ * @param {ECA|SubParameters} object
+ * @return {boolean}
+ */
+function testFunctionCall(data, object) {
+  // Check if this object can be converted back to normal GUI.
+  // If it's already normal GUI, nothing will happen.
+  if (convertInlineGUI(object)) {
+    data.output.changes.push({type: 'inlinegui', stack: stackToString(data.stack)});
+  }
+
+  // If this function is not from normal GUI, it has to be converted.
+  if (!data.triggerData.isBaseFunction(object.type, object.name)) {
+    return true;
+  }
+
+  // Check the parameters.
+  // Note that they will also be checked if GUI was inlined.
+  // This is needed, because the inline functions don't check the parameters, only move them around.
+  for (let parameter of object.parameters) {
+    // Check for custom presets.
+    if (parameter.type === 0 && data.triggerData.isCustomPreset(parameter.value)) {
+      return true;
+    }
+
+    if (testParameter(data, parameter)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * @param {WeuConverterData} data
+ * @param {SubParameters} subParameters
+ * @return {boolean}
+ */
+function testSubParameters(data, subParameters) {
+  data.stack.unshift(subParameters);
+
+  if (testFunctionCall(data, subParameters)) {
+    data.stack.shift();
+    return true;
+  }
+
+  data.stack.shift();
+  return false;
+}
+
+/**
+ * @param {WeuConverterData} data
+ * @param {Parameter} parameter
+ * @return {boolean}
+ */
+function testParameter(data, parameter) {
+  data.stack.unshift(parameter);
+
+  let type = parameter.type;
+  let value = parameter.value;
+
+  if (type === 1) {
+    if (value.startsWith('gg_')) {
+      // Used to track global generated variables and their status.
+      updateGUIRef(data, value, true);
+    }
+  } else if (type === 2) {
+    if (testSubParameters(data, parameter.subParameters)) {
+      data.stack.shift();
+      return true;
+    }
+  }
+
+  data.stack.shift();
+  return false;
+}
+
+/**
+ * Given the name of the parent of some child ECA, and the child's group, determine if it's a condition.
+ *
+ * @param {string} name
+ * @param {number} group
+ * @return {boolean}
+ */
+function isConditionECA(name, group) {
+  if (group !== 0) {
+    return false;
+  }
+
+  return name === 'AndMultiple' || name === 'OrMultiple' || name === 'IfThenElseMultiple';
+}
+
+/**
+ * @param {SubParameters} subParameters
+ * @param {number} group
+ * @return {ECA}
+ */
+function subParametersToEca(subParameters, group) {
+  let eca = new ECA();
+
+  eca.name = subParameters.name;
+  eca.type = subParameters.type;
+  eca.group = group;
+  eca.isEnabled = 1;
+  eca.parameters.push(...subParameters.parameters);
+
+  return eca;
+}
+
+/**
+ * @param {WeuConverterData} data
+ * @param {ECA} eca
+ * @return {boolean}
+ */
+function convertSingleEcaToMultple(data, eca) {
+  if (eca.name === 'IfThenElse') {
+    let parameters = eca.parameters;
+    let ifParam = subParametersToEca(parameters[0].subParameters, 0);
+    let thenParam = subParametersToEca(parameters[1].subParameters, 1);
+    let elseParam = subParametersToEca(parameters[2].subParameters, 2);
+
+    eca.name = 'IfThenElseMultiple';
+    eca.parameters.length = 0;
+    eca.ecas.push(ifParam, thenParam, elseParam);
+
+    return true;
+  } else if (eca.name === 'ForGroup' || eca.name === 'ForForce') {
+    let action = subParametersToEca(eca.parameters[1].subParameters, 0);
+
+    eca.name = `${eca.name}Multiple`;
+    eca.parameters.length = 1;
+    eca.ecas.push(action);
+
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * @param {WeuConverterData} data
+ * @param {ECA} eca
+ * @return {boolean}
+ */
+function testECA(data, eca) {
+  data.stack.unshift(eca);
+
+  // Test if this function call, or anything down its hierarchy, needs to be converted to custom script.
+  if (testFunctionCall(data, eca)) {
+    // If conversion is needed, try first to see if this is a RoC control flow ECA, and convert it to its TFT equivalent.
+    // This includes things like IfThenElse (RoC) and IfThenElseMultiple (TFT).
+    // This allows to potentially only convert to custom script one part of the control flow block, rather than all of it.
+    if (convertSingleEcaToMultple(data, eca)) {
+      // If the test passes here (that is, false is returned), the TFT conversion allowed to handle the conversion down the hierarchy.
+      // In this case, this ECA no longer needs to be converted to custom script.
+      if (testFunctionCall(data, eca)) {
+        data.stack.shift();
+        return true;
+      } else {
+        data.output.changes.push({type: 'singletomultiple', stack: stackToString(data.stack)});
+      }
+    } else {
+      data.stack.shift();
+      return true;
+    }
+  }
+
+  let outputEcas = [];
+
+  // Test the child ECAs if there are any.
+  for (let child of eca.ecas) {
+    if (testECA(data, child)) {
+      let customScripts;
+
+      // If this is a condition ECA, make a custom script condition.
+      if (isConditionECA(eca.name, child.group)) {
+        let condition = convertFunctionCallToCustomScript(data, child)[0].parameters[0].value;
+
+        // Normally type 2 (function) ECAs have the call keyword prepended to them.
+        // If one was added, remove it now, since this is a condition.
+        if (condition.startsWith('call ')) {
+          condition = condition.slice(5);
+        }
+
+        let finalCondition;
+        let returnValue;
+
+        // IfThenElseMultiple and AndMultiple return false if any condition is false.
+        // OrMultiple needs to return true if any condition is true.
+        if (eca.name === 'OrMultiple') {
+          finalCondition = condition;
+          returnValue = 'true';
+        } else {
+          finalCondition = `not (${condition})`;
+          returnValue = 'false';
+        }
+
+        customScripts = [
+          createCustomScriptECA(`if ${finalCondition} then`),
+          createCustomScriptECA(`return ${returnValue}`),
+          createCustomScriptECA('endif'),
+        ];
+      } else {
+        customScripts = convertFunctionCallToCustomScript(data, child);
+      }
+
+      // All of the custom scripts should be in the same group as the original child.
+      for (let script of customScripts) {
+        script.group = child.group;
+      }
+
+      data.output.changes.push({type: 'inlinecustomscript', stack: stackToString(data.stack), data: customScripts.map((eca) => eca.parameters[0].value).join('\n')});
+      outputEcas.push(...customScripts);
+    } else {
+      outputEcas.push(child);
+    }
+  }
+
+  eca.ecas = outputEcas;
+
+  data.stack.shift();
+  return false;
+}
+
+/**
+ * @param {WeuConverterData} data
+ * @param {Trigger} trigger
+ * @return {boolean}
+ */
+function testTrigger(data, trigger) {
+  data.stack.unshift(trigger);
+
+  let eventsAndConditions = [];
+  let actions = [];
+
+  for (let eca of trigger.ecas) {
+    let type = eca.type;
+
+    if (type === 0 || type === 1) {
+      eventsAndConditions.push(eca);
+    } else if (type === 2) {
+      actions.push(eca);
+    }
+  }
+
+  let outputEcas = [];
+
+  for (let eventOrCondition of eventsAndConditions) {
+    if (testECA(data, eventOrCondition)) {
+      data.stack.shift();
+      return true;
+    }
+
+    outputEcas.push(eventOrCondition);
+  }
+
+  for (let action of actions) {
+    if (testECA(data, action)) {
+      let customScripts = convertFunctionCallToCustomScript(data, action);
+
+      data.output.changes.push({type: 'inlinecustomscript', stack: stackToString(data.stack), data: customScripts.map((eca) => eca.parameters[0].value).join('\n')});
+      outputEcas.push(...customScripts);
+    } else {
+      outputEcas.push(action);
+    }
+  }
+
+  trigger.ecas = outputEcas;
+
+  data.stack.shift();
+  return false;
+}
+
+/**
+ * @param {wtg.File} triggerFile
+ * @param {wct.File} customTextTriggerFile
+ * @param {WeuConverterData} data
+ */
+function saveGUIRefs(triggerFile, customTextTriggerFile, data) {
+  let references = [];
+
+  // Get all of the references that are no longer references.
+  for (let entry of Object.entries(data.preplacedObjects)) {
+    if (!entry[1]) {
+      references.push(entry[0]);
+    }
+  }
+
+  // If there are indeed missing references, add them to a new trigger.
+  if (references.length) {
+    let trigger = new Trigger();
+    trigger.name = 'PreplacedObjectReferences';
+    trigger.isEnabled = 1;
+    trigger.isInitiallyOff = 1;
+
+    for (let reference of references) {
+      let eca = new ECA();
+      eca.type = 2;
+      eca.isEnabled = 1;
+
+      if (reference.startsWith('gg_unit')) {
+        eca.name = 'RemoveUnit';
+      } else if (reference.startsWith('gg_dest')) {
+        eca.name = 'RemoveDestructable';
+      }
+
+      let parameter = new Parameter();
+      parameter.type = 1;
+      parameter.value = reference;
+
+      eca.parameters[0] = parameter;
+
+      trigger.ecas.push(eca);
+    }
+
+    triggerFile.triggers.push(trigger);
+    customTextTriggerFile.triggers.push(new CustomTextTrigger());
+
+    data.output.changes.push({type: 'references', data: references});
+  }
+}
+/**
+ * Convert extended GUI of a map back to something the World Editor can open.
+ * The conversion depends on the given TriggerData object, which must be filled by the caller.
+ * The conversion is in-place.
+ *
  * @param {War3Map} map
  * @param {TriggerData} triggerData
- * @param {function} callback
- * @return {WEUConverter}
+ * @param {TriggerData} weTriggerData
+ * @return {WeuConverterData}
  */
-export function convertWeu(map, triggerData, callback) {
-  return new WEUConverter(map, triggerData, callback);
+export default function convertWeu(map, triggerData, weTriggerData) {
+  let triggerFile;
+  let customTextTriggerFile;
+  let data = new WeuConverterData(triggerData);
+  let output = data.output;
+
+  // Try to read the triggers file using the custom trigger data.
+  try {
+    triggerFile = map.readTriggers(triggerData);
+  } catch (e) {
+    output.error = `Failed to read the triggers file: ${e}`;
+    return output;
+  }
+
+  // Try to read the custom text triggers file.
+  try {
+    customTextTriggerFile = map.readCustomTextTriggers();
+  } catch (e) {
+    output.error = `Failed to read the custom text triggers file: ${e}`;
+    return output;
+  }
+
+  // Test and convert the triggers as needed.
+  for (let trigger of triggerFile.triggers) {
+    try {
+      if (testTrigger(data, trigger)) {
+        // For now don't bother with converting whole triggers, since GUI conversions manage all of the maps I saw so far.
+        output.error = `Trigger ${trigger.name} needs to be converted due to top-level event/condition, but full trigger conversion is not implemented yet`;
+        return output;
+      }
+    } catch (e) {
+      output.error = `Error at trigger ${trigger.name}: ${e}`;
+      return output;
+    }
+  }
+
+  // WE will only generate global variables for preplaced objects that are referenced directly by GUI.
+  // Referencing them in custom text ECAs or custom text triggers doesn't cut it.
+  // This function saves such references if they are deemed to be lost due to the conversion.
+  // It does this by adding a new trigger called PreplacedObjectReferences, which is not initially on.
+  // In it an ECA is added for each reference.
+  // Note that this is not the case for all preplaced objects.
+  // For example, triggers and regions seem to always be available.
+  // For now only units and destructibles are checked.
+  saveGUIRefs(triggerFile, customTextTriggerFile, data);
+
+  // If there are generated functions, add them to the custom text triggers file.
+  if (data.generatedFunctions.length) {
+    for (let generatedFunction of data.generatedFunctions) {
+      customTextTriggerFile.trigger.text += `\r\n${generatedFunction.replace(/\n/g, '\r\n')}`;
+    }
+  }
+
+  // Save the triggers file back.
+  map.set('war3map.wtg', triggerFile.save());
+
+  // Save the custom text triggers file back.
+  map.set('war3map.wct', customTextTriggerFile.save());
+
+  // Now try to re-read the triggers file, but using the normal WE trigger data.
+  // If this fails, WE will fail too.
+  try {
+    map.readTriggers(weTriggerData);
+  } catch (e) {
+    output.error = `Failed to validate the triggers file: ${e}`;
+    return output;
+  }
+
+  output.ok = true;
+  return output;
 }

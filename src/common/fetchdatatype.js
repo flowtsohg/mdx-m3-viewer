@@ -18,11 +18,11 @@ export default async function fetchDataType(path, dataType) {
       let image = new Image();
 
       image.onload = () => {
-        resolve({type: 'image', data: image});
+        resolve({ok: true, data: image});
       };
 
       image.onerror = (e) => {
-        resolve({type: 'error', error: 'ImageError', data: e});
+        resolve({ok: false, error: 'ImageError', data: e});
       };
 
       image.src = path;
@@ -34,12 +34,12 @@ export default async function fetchDataType(path, dataType) {
     try {
       response = await fetch(path);
     } catch (e) {
-      return {type: 'error', error: 'NetworkError', data: e};
+      return {ok: false, error: 'NetworkError', data: e};
     }
 
     // Fetch went ok?
     if (!response.ok) {
-      return {type: 'error', error: 'HttpError', data: response};
+      return {ok: false, error: 'HttpError', data: response};
     }
 
     let data;
@@ -54,9 +54,9 @@ export default async function fetchDataType(path, dataType) {
         data = await response.blob();
       }
     } catch (e) {
-      return {type: 'error', error: 'DataError', data: e};
+      return {ok: false, error: 'DataError', data: e};
     }
 
-    return {type: dataType, data};
+    return {ok: true, data};
   }
 }

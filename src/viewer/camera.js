@@ -1,7 +1,6 @@
 import {vec3, vec4, quat, mat4} from 'gl-matrix';
-import {unproject} from '../common/gl-matrix-addon';
+import {unproject, distanceToPlane, unpackPlanes} from '../common/gl-matrix-addon';
 import {SceneNode} from './node';
-import Frustum from './frustum';
 
 let vectorHeap = vec3.create();
 let vectorHeap2 = vec3.create();
@@ -16,8 +15,6 @@ export default class Camera extends SceneNode {
    */
   constructor() {
     super();
-    this.frustum = new Frustum();
-
     this.perspective = true;
     this.ortho = false;
     this.fieldOfView = 0;
@@ -41,6 +38,9 @@ export default class Camera extends SceneNode {
 
     // First four vectors are the corners of a 2x2 rectangle billboarded to the camera, the last three vectors are the unit axes billboarded
     this.billboardedVectors = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
+
+    // Left, right, top, bottom, near, far
+    this.planes = [vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create()];
   }
 
   /**
@@ -148,7 +148,24 @@ export default class Camera extends SceneNode {
     }
 
     // Recaculate the camera's frusum planes
-    this.frustum.recalculatePlanes(worldProjectionMatrix);
+    unpackPlanes(this.planes, worldProjectionMatrix);
+  }
+
+  /**
+   * Test it a sphere with the given center and radius intersects this frustum.
+   *
+   * @param {vec3} center
+   * @param {number} radius
+   * @return {boolean}
+   */
+  testSphere(center, radius) {
+    for (let plane of this.planes) {
+      if (distanceToPlane(plane, center) <= -radius) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /**

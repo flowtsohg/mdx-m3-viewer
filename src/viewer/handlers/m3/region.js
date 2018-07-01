@@ -37,8 +37,8 @@ export default class M3Region {
   render(shader, instances) {
     let gl = this.gl;
 
-    gl.uniform1f(shader.uniforms.get('u_firstBoneLookupIndex'), this.firstBoneLookupIndex);
-    gl.uniform1f(shader.uniforms.get('u_boneWeightPairsCount'), this.boneWeightPairsCount);
+    gl.uniform1f(shader.uniforms.u_firstBoneLookupIndex, this.firstBoneLookupIndex);
+    gl.uniform1f(shader.uniforms.u_boneWeightPairsCount, this.boneWeightPairsCount);
 
     gl.extensions.instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.offset, instances);
   }

@@ -79,10 +79,10 @@ export default class M3StandardMaterial {
 
     this.bindCommon();
 
-    gl.uniform1f(shader.uniforms.get('u_specularity'), this.specularity);
-    gl.uniform1f(shader.uniforms.get('u_specMult'), this.specMult);
-    gl.uniform1f(shader.uniforms.get('u_emisMult'), this.emisMult);
-    gl.uniform4fv(shader.uniforms.get('u_lightAmbient'), [0.02, 0.02, 0.02, 0]);
+    gl.uniform1f(shader.uniforms.u_specularity, this.specularity);
+    gl.uniform1f(shader.uniforms.u_specMult, this.specMult);
+    gl.uniform1f(shader.uniforms.u_emisMult, this.emisMult);
+    gl.uniform4fv(shader.uniforms.u_lightAmbient, [0.02, 0.02, 0.02, 0]);
 
     const layers = this.layers;
 
@@ -132,8 +132,8 @@ export default class M3StandardMaterial {
 
     this.bindCommon();
 
-    gl.uniform1f(shader.uniforms.get('u_specularity'), this.specularity);
-    gl.uniform1f(shader.uniforms.get('u_specMult'), this.specMult);
+    gl.uniform1f(shader.uniforms.u_specularity, this.specularity);
+    gl.uniform1f(shader.uniforms.u_specMult, this.specMult);
 
     this.layers[2].bind(shader);
   }
@@ -153,7 +153,7 @@ export default class M3StandardMaterial {
   bindEmissive(shader) {
     this.bindCommon();
 
-    this.gl.uniform1f(shader.uniforms.get('u_emisMult'), this.emisMult);
+    this.gl.uniform1f(shader.uniforms.u_emisMult, this.emisMult);
 
     this.layers[4].bind(shader);
     this.layers[5].bind(shader);

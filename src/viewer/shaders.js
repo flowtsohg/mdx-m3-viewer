@@ -45,5 +45,28 @@ export default {
 
       return v;
     }
+
+    vec4 decodeFloat4(float v) {
+      vec4 enc = vec4(1.0, 255.0, 65025.0, 16581375.0) * v;
+      enc = fract(enc);
+      enc -= enc.yzww * vec4(1.0 / 255.0, 1.0 / 255.0, 1.0 / 255.0, 0.0);
+      return enc;
+    }
+  `,
+  quat_transform: `
+    // A 2D quaternion*vector.
+    // q is the zw components of the original quaternion.
+    vec2 quat_transform(vec2 q, vec2 v) {
+      vec2 uv = vec2(-q.x * v.y, q.x * v.x);
+      vec2 uuv = vec2(-q.x * uv.y, q.x * uv.x);
+
+      return v + 2.0 * (uv * q.y + uuv);
+    }
+
+    // A 2D quaternion*vector.
+    // q is the zw components of the original quaternion.
+    vec3 quat_transform(vec2 q, vec3 v) {
+      return vec3(quat_transform(q, v.xy), v.z);
+    }
   `,
 };

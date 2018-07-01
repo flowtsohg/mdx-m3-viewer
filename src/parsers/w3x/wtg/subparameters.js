@@ -25,16 +25,7 @@ export default class SubParameters {
     this.beginParameters = stream.readInt32();
 
     if (this.beginParameters) {
-      let name = this.name.toLowerCase();
-      let args = triggerData.functions[name];
-
-      if (!args) {
-        args = triggerData.externalFunctions[name];
-
-        if (!args) {
-          throw new Error(`Unknown SubParameters "${this.name}"`);
-        }
-      }
+      let args = triggerData.getFunction(this.type, this.name).args;
 
       for (let i = 0, l = args.length; i < l; i++) {
         let parameter = new Parameter();

@@ -45,14 +45,14 @@ export default class Scene {
     /** @member {number} */
     this.renderCalls = 0;
 
-    /**
-     * If this scene is going to use sounds, call enableAudio().
-     *
-     * @member {?AudioContext}
-     */
+    /** @member {boolean} */
+    this.audioEnabled = false;
+    /** @member {?AudioContext} */
     this.audioContext = null;
 
     this.node.recalculateTransformation();
+    this.node.wasDirty = false;
+
     this.camera.setParent(this.node);
   }
 
@@ -72,7 +72,20 @@ export default class Scene {
       await this.audioContext.resume();
     }
 
-    return this.audioContext.state === 'running';
+    this.audioEnabled = this.audioContext.state === 'running';
+
+    return this.audioEnabled;
+  }
+
+  /**
+   * Suspend the audio context.
+   */
+  disableAudio() {
+    if (this.audioContext) {
+      this.audioContext.suspend();
+    }
+
+    this.audioEnabled = false;
   }
 
   /**
@@ -224,7 +237,7 @@ export default class Scene {
       ndcHeap[1] = location[1] + center[1];
       ndcHeap[2] = location[2] + center[2];
 
-      return this.camera.frustum.testSphere(ndcHeap, bounds.radius);
+      return this.camera.testSphere(ndcHeap, bounds.radius);
     } else {
       let worldProjectionMatrix = this.camera.worldProjectionMatrix;
 

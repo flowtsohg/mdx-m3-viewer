@@ -12,11 +12,12 @@ import EventObjectSndEmitter from './eventobjectsndemitter';
  */
 export default class ModelView extends TexturedModelView {
   /**
+   * @param {Scene} scene
    * @return {Object}
    */
-  createSceneData() {
+  createSceneData(scene) {
     let model = this.model;
-    let data = super.createSceneData();
+    let data = super.createSceneData(scene);
     let particleEmitters = [];
     let particleEmitters2 = [];
     let ribbonEmitters = [];
@@ -49,10 +50,7 @@ export default class ModelView extends TexturedModelView {
     }
 
     return {
-      // Object destructuring not supported on Edge yet.
-      // ...data,
-      instances: data.instances,
-      buckets: data.buckets,
+      ...data,
       particleEmitters,
       particleEmitters2,
       ribbonEmitters,
@@ -119,12 +117,14 @@ export default class ModelView extends TexturedModelView {
       for (let emitter of data.eventObjectEmitters) {
         emitter.update();
 
-        let particles = emitter.active.length;
+        // Sounds are not particles.
+        if (emitter.type !== 'SND') {
+          let particles = emitter.active.length;
 
-        // Don't count sounds as particles.
-        if (particles && emitter.type !== 'SND') {
-          renderedParticles += particles;
-          renderCalls += 1;
+          if (particles) {
+            renderedParticles += particles;
+            renderCalls += 1;
+          }
         }
       }
 

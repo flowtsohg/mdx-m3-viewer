@@ -1,4 +1,3 @@
-import TokenStream from '../../../common/tokenstream';
 import IniFile from '../../ini/file';
 
 /**
@@ -9,12 +8,16 @@ export default class TriggerData {
    *
    */
   constructor() {
+    /** @member {Object<string, string>} */
+    this.types = {};
     /** @member {Object<string, Array<string>>} */
-    this.functions = {};
+    this.functions = [{}, {}, {}, {}];
     /** @member {Object<string, string>} */
     this.presets = {};
+    /** @member {Object<string, string>} */
+    this.externalTypes = {};
     /** @member {Object<string, Array<string>>} */
-    this.externalFunctions = {};
+    this.externalFunctions = [{}, {}, {}, {}];
     /** @member {Object<string, string>} */
     this.externalPresets = {};
   }
@@ -24,10 +27,12 @@ export default class TriggerData {
    * @param {boolean} isExternal
    */
   addTriggerData(buffer, isExternal) {
+    let types = this.types;
     let functions = this.functions;
     let presets = this.presets;
 
     if (isExternal) {
+      types = this.externalTypes;
       functions = this.externalFunctions;
       presets = this.externalPresets;
     }
@@ -36,11 +41,24 @@ export default class TriggerData {
 
     triggerData.load(buffer);
 
-    this.addTriggerDataFunctions(functions, triggerData.getSection('TriggerEvents'), 1);
-    this.addTriggerDataFunctions(functions, triggerData.getSection('TriggerConditions'), 1);
-    this.addTriggerDataFunctions(functions, triggerData.getSection('TriggerActions'), 1);
-    this.addTriggerDataFunctions(functions, triggerData.getSection('TriggerCalls'), 3);
+    this.addTriggerTypes(types, triggerData.getSection('TriggerTypes'));
+    this.addTriggerDataFunctions(functions[0], triggerData.getSection('TriggerEvents'), 1);
+    this.addTriggerDataFunctions(functions[1], triggerData.getSection('TriggerConditions'), 1);
+    this.addTriggerDataFunctions(functions[2], triggerData.getSection('TriggerActions'), 1);
+    this.addTriggerDataFunctions(functions[3], triggerData.getSection('TriggerCalls'), 3);
     this.addTriggerDataPresets(presets, triggerData.getSection('TriggerParams'));
+  }
+
+  /**
+   * @param {Object} types
+   * @param {Map<string, string>} section
+   */
+  addTriggerTypes(types, section) {
+    for (let [key, value] of section) {
+      let tokens = value.split(',');
+
+      types[key] = tokens[4] || '';
+    }
   }
 
   /**
@@ -52,17 +70,20 @@ export default class TriggerData {
     for (let [key, value] of section) {
       // We don't care about metadata lines.
       if (key[0] !== '_') {
-        let types = [];
         let tokens = value.split(',').slice(skipped);
+        let args = [];
+
+        // Can be used by actions to make aliases.
+        let scriptName = section.get(`_${key}_scriptname`) || null;
 
         for (let argument of tokens) {
           // We don't care about constants.
           if (isNaN(argument) && argument !== 'nothing' && argument !== '') {
-            types.push(argument);
+            args.push(argument);
           }
         }
 
-        functions[key] = types;
+        functions[key] = {args, scriptName};
       }
     }
   }
@@ -82,49 +103,61 @@ export default class TriggerData {
   }
 
   /**
-   * @param {string} buffer
+   * Given a type, return its base type.
+   * Returns the given type if its not a child type.
+   *
+   * @param {string} type
+   * @return {string}
    */
-  addNativeFunctions(buffer) {
-    let stream = new TokenStream(buffer);
-    let token;
+  getBaseType(type) {
+    type = type.toLowerCase();
 
-    while ((token = stream.read()) !== undefined) {
-      if (token === 'native') {
-        let name = stream.read();
-        let args = [];
+    let base = this.types[type];
 
-        stream.read(); // takes
-
-        token = stream.read(); // nothing or a type
-        while (token !== 'returns' && token !== 'nothing') {
-          args.push(token);
-
-          stream.read(); // name
-
-          token = stream.read(); // next type, or returns
-        }
-
-        this.externalFunctions[name.toLowerCase()] = args;
-      }
+    if (base === undefined) {
+      base = this.externalTypes[type];
     }
+
+    // Same as !base, but be explicit to be clearer.
+    if (base === '' || base === undefined) {
+      return type;
+    }
+
+    return base;
+  }
+
+  /**
+   * @param {number} type
+   * @param {string} name
+   * @return {boolean}
+   */
+  isBaseFunction(type, name) {
+    name = name.toLowerCase();
+
+    if (this.functions[type][name]) {
+      return true;
+    }
+
+    return false;
   }
 
   /**
    * Gets the signature of the given function.
    *
+   * @param {number} type
    * @param {string} name
    * @return {Array<string>}
    */
-  getFunction(name) {
+  getFunction(type, name) {
     name = name.toLowerCase();
 
-    let args = this.functions[name];
+    let args = this.functions[type][name];
 
     if (!args) {
-      args = this.externalFunctions[name];
+      args = this.externalFunctions[type][name];
 
       if (!args) {
-        throw new Error('Tried to get signature for unknown function', name);
+        throw new Error(`Tried to get signature for unknown function "${name}"`);
       }
     }
 
@@ -151,5 +184,25 @@ export default class TriggerData {
     }
 
     return preset;
+  }
+
+  /**
+   * Is the given preset a custom or standard one?
+   *
+   * @param {string} name
+   * @return {boolean}
+   */
+  isCustomPreset(name) {
+    name = name.toLowerCase();
+
+    if (this.presets[name] !== undefined) {
+      return false;
+    }
+
+    if (this.externalPresets[name] !== undefined) {
+      return true;
+    }
+
+    throw new Error(`Failed to find a preset: ${name}`);
   }
 }

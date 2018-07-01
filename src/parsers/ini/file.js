@@ -3,26 +3,29 @@
  */
 export default class IniFile {
   /**
-   *
+   * @param {?string} buffer
    */
-  constructor() {
+  constructor(buffer) {
     /** @member {Map<string, string>} */
     this.properties = new Map();
     /** @member {Map<string, Map<string, string>>} */
     this.sections = new Map();
+
+    if (buffer) {
+      this.load(buffer);
+    }
   }
 
   /**
-   * @param {string} src
+   * @param {string} buffer
    */
-  load(src) {
+  load(buffer) {
     // All properties added until a section is reached are added to the properties map.
     // Once a section is reached, any further properties will be added to it until matching another section, etc.
     let section = this.properties;
+    let sections = this.sections;
 
-    for (let line of src.split('\r\n')) {
-      line = line.trim();
-
+    for (let line of buffer.split('\r\n')) {
       // INI defines comments as starting with a semicolon ';'.
       // However, Warcraft 3 INI files use normal C comments '//'.
       // In addition, Warcraft 3 files have empty lines.
@@ -33,20 +36,18 @@ export default class IniFile {
         if (match) {
           let name = match[1].trim().toLowerCase();
 
-          // For now, ignore sections with names that already exist.
-          if (this.sections.has(name)) {
-            section = null;
-          } else {
-            // If this line starts a new section, use it.
+          section = sections.get(name);
+
+          if (!section) {
             section = new Map();
 
-            this.sections.set(name, section);
+            sections.set(name, section);
           }
         } else {
           match = line.match(/^(.+?)=(.*?)$/);
 
-          if (match && section) {
-            section.set(match[1].trim().toLowerCase(), match[2].trim());
+          if (match) {
+            section.set(match[1].toLowerCase(), match[2]);
           }
         }
       }

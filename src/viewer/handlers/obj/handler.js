@@ -11,7 +11,7 @@ export default {
 
     // Returning false will not allow the handler to be added.
     // In this case, this should happen when the shader fails to compile.
-    return shader.loaded;
+    return shader.ok;
   },
 
   extensions: [['.obj', 'text']],

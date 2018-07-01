@@ -1,4 +1,5 @@
-import {vec3} from 'gl-matrix';
+import {extentToSphere} from '../../../common/bounds';
+import Parser from '../../../parsers/mdlx/model';
 import TexturedModel from '../../texturedmodel';
 import TextureAnimation from './textureanimation';
 import Layer from './layer';
@@ -7,7 +8,6 @@ import {Geoset} from './geoset';
 import Batch from './batch';
 import {ShallowGeoset} from './geoset';
 import replaceableIds from './replaceableids';
-import Parser from '../../../parsers/mdlx/model';
 import Bone from './bone';
 import Light from './light';
 import Helper from './helper';
@@ -18,7 +18,6 @@ import RibbonEmitter from './modelribbonemitter';
 import Camera from './camera';
 import EventObject from './modeleventobject';
 import CollisionShape from './collisionshape';
-
 /**
  * An MDX model.
  */
@@ -85,19 +84,7 @@ export default class Model extends TexturedModel {
 
     // Make a bounding sphere from the model extent.
     let extent = parser.extent;
-    let min = extent.min;
-    let max = extent.max;
-    let minx = min[0];
-    let miny = min[1];
-    let minz = min[2];
-    let maxx = max[0];
-    let maxy = max[1];
-    let maxz = max[2];
-    let dx = maxx - minx;
-    let dy = maxy - miny;
-    let dz = maxz - minz;
-
-    this.bounds = {center: vec3.fromValues((minx + maxx) / 2, (miny + maxy) / 2, (minz + maxz) / 2), radius: Math.sqrt(dx * dx + dy * dy + dz * dz) / 2};
+    this.bounds = extentToSphere(extent.min, extent.max);
     this.extent = extent;
 
     // Sequences
@@ -217,8 +204,6 @@ export default class Model extends TexturedModel {
       this.particleEmitters2.push(new ParticleEmitter2(this, particleEmitter2, objectId++));
     }
 
-    // this.particleEmitters2.splice(1, 1);
-    // console.log(this.name, this.particleEmitters2)
     // E.g. Wisp
     this.particleEmitters2.sort((a, b) => a.priorityPlane - b.priorityPlane);
 
@@ -400,7 +385,7 @@ export default class Model extends TexturedModel {
     let flags = texture.flags;
 
     if (replaceableId !== 0) {
-      path = 'ReplaceableTextures\\' + replaceableIds[replaceableId] + '.blp';
+      path = `ReplaceableTextures\\${replaceableIds[replaceableId]}.blp`;
     }
 
     // If the path is corrupted, try to fix it.
@@ -442,31 +427,31 @@ export default class Model extends TexturedModel {
     const attribs = shader.attribs;
     const uniforms = shader.uniforms;
 
-    gl.uniformMatrix4fv(uniforms.get('u_mvp'), false, scene.camera.worldProjectionMatrix);
+    gl.uniformMatrix4fv(uniforms.u_mvp, false, scene.camera.worldProjectionMatrix);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.__webglElementBuffer);
 
-    gl.uniform1i(uniforms.get('u_texture'), 0);
+    gl.uniform1i(uniforms.u_texture, 0);
 
     // Team colors
-    let teamColor = attribs.get('a_teamColor');
+    let teamColor = attribs.a_teamColor;
     gl.bindBuffer(gl.ARRAY_BUFFER, bucket.teamColorBuffer);
     gl.vertexAttribPointer(teamColor, 1, gl.UNSIGNED_BYTE, false, 1, 0);
     instancedArrays.vertexAttribDivisorANGLE(teamColor, 1);
 
     // Vertex colors
-    let vertexColor = attribs.get('a_vertexColor');
+    let vertexColor = attribs.a_vertexColor;
     gl.bindBuffer(gl.ARRAY_BUFFER, bucket.vertexColorBuffer);
     gl.vertexAttribPointer(vertexColor, 4, gl.UNSIGNED_BYTE, true, 4, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
     instancedArrays.vertexAttribDivisorANGLE(vertexColor, 1);
 
     gl.activeTexture(gl.TEXTURE15);
     gl.bindTexture(gl.TEXTURE_2D, bucket.boneTexture);
-    gl.uniform1i(uniforms.get('u_boneMap'), 15);
-    gl.uniform1f(uniforms.get('u_vectorSize'), bucket.vectorSize);
-    gl.uniform1f(uniforms.get('u_rowSize'), bucket.rowSize);
+    gl.uniform1i(uniforms.u_boneMap, 15);
+    gl.uniform1f(uniforms.u_vectorSize, bucket.vectorSize);
+    gl.uniform1f(uniforms.u_rowSize, bucket.rowSize);
 
-    let instanceId = attribs.get('a_InstanceID');
+    let instanceId = attribs.a_InstanceID;
     gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);
     gl.vertexAttribPointer(instanceId, 1, gl.UNSIGNED_SHORT, false, 0, 0);
     instancedArrays.vertexAttribDivisorANGLE(instanceId, 1);
@@ -487,14 +472,14 @@ export default class Model extends TexturedModel {
     gl.enable(gl.DEPTH_TEST);
 
     // Reset the attributes to play nice with other handlers
-    instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_teamColor'), 0);
-    instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_vertexColor'), 0);
-    instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_InstanceID'), 0);
-    instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_geosetColor'), 0);
-    instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_layerAlpha'), 0);
-    instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_uvOffset'), 0);
-    instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_uvScale'), 0);
-    instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_uvRot'), 0);
+    instancedArrays.vertexAttribDivisorANGLE(attribs.a_teamColor, 0);
+    instancedArrays.vertexAttribDivisorANGLE(attribs.a_vertexColor, 0);
+    instancedArrays.vertexAttribDivisorANGLE(attribs.a_InstanceID, 0);
+    instancedArrays.vertexAttribDivisorANGLE(attribs.a_geosetColor, 0);
+    instancedArrays.vertexAttribDivisorANGLE(attribs.a_layerAlpha, 0);
+    instancedArrays.vertexAttribDivisorANGLE(attribs.a_uvOffset, 0);
+    instancedArrays.vertexAttribDivisorANGLE(attribs.a_uvScale, 0);
+    instancedArrays.vertexAttribDivisorANGLE(attribs.a_uvRot, 0);
   }
 
   /**
@@ -527,18 +512,19 @@ export default class Model extends TexturedModel {
       texture = this.textures[layer.textureId];
     }
 
-    gl.uniform1f(uniforms.get('u_isTeamColor'), isTeamColor);
-    gl.uniform1f(uniforms.get('u_hasSlotAnim'), layer.hasSlotAnim);
-    gl.uniform1f(uniforms.get('u_hasTranslationAnim'), layer.hasTranslationAnim);
-    gl.uniform1f(uniforms.get('u_hasRotationAnim'), layer.hasRotationAnim);
-    gl.uniform1f(uniforms.get('u_hasScaleAnim'), layer.hasScaleAnim);
+    gl.uniform1f(uniforms.u_isTeamColor, isTeamColor);
+    gl.uniform1f(uniforms.u_hasSlotAnim, layer.hasSlotAnim);
+    gl.uniform1f(uniforms.u_hasTranslationAnim, layer.hasTranslationAnim);
+    gl.uniform1f(uniforms.u_hasRotationAnim, layer.hasRotationAnim);
+    gl.uniform1f(uniforms.u_hasScaleAnim, layer.hasScaleAnim);
 
     // Texture coordinate divisor
     // Used for layers that use image animations, in order to scale the coordinates to match the generated texture atlas
-    gl.uniform2f(uniforms.get('u_uvScale'), 1 / layer.uvDivisor[0], 1 / layer.uvDivisor[1]);
+    gl.uniform2f(uniforms.u_uvScale, 1 / layer.uvDivisor[0], 1 / layer.uvDivisor[1]);
 
     this.bindTexture(texture, 0, bucket.modelView);
 
+    /// TODO: Move texture wrap modes into the textures.
     let textureOptions = this.textureOptions[layer.textureId];
     let wrapS = gl.CLAMP_TO_EDGE;
     let wrapT = gl.CLAMP_TO_EDGE;
@@ -555,29 +541,29 @@ export default class Model extends TexturedModel {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT);
 
     // Geoset colors
-    let geosetColor = attribs.get('a_geosetColor');
+    let geosetColor = attribs.a_geosetColor;
     gl.bindBuffer(gl.ARRAY_BUFFER, bucket.geosetColorBuffers[geoset.index]);
     gl.vertexAttribPointer(geosetColor, 4, gl.UNSIGNED_BYTE, true, 4, 0);
     instancedArrays.vertexAttribDivisorANGLE(geosetColor, 1);
 
     // Layer alphas
-    let layerAlpha = attribs.get('a_layerAlpha');
+    let layerAlpha = attribs.a_layerAlpha;
     gl.bindBuffer(gl.ARRAY_BUFFER, bucket.layerAlphaBuffers[layer.index]);
     gl.vertexAttribPointer(layerAlpha, 1, gl.UNSIGNED_BYTE, true, 1, 0);
     instancedArrays.vertexAttribDivisorANGLE(layerAlpha, 1);
 
     // Texture coordinate animations
-    let uvOffset = attribs.get('a_uvOffset');
+    let uvOffset = attribs.a_uvOffset;
     gl.bindBuffer(gl.ARRAY_BUFFER, bucket.uvOffsetBuffers[layer.index]);
     gl.vertexAttribPointer(uvOffset, 4, gl.FLOAT, false, 16, 0);
     instancedArrays.vertexAttribDivisorANGLE(uvOffset, 1);
 
-    let uvScale = attribs.get('a_uvScale');
+    let uvScale = attribs.a_uvScale;
     gl.bindBuffer(gl.ARRAY_BUFFER, bucket.uvScaleBuffers[layer.index]);
     gl.vertexAttribPointer(uvScale, 1, gl.FLOAT, false, 4, 0);
     instancedArrays.vertexAttribDivisorANGLE(uvScale, 1);
 
-    let uvRot = attribs.get('a_uvRot');
+    let uvRot = attribs.a_uvRot;
     gl.bindBuffer(gl.ARRAY_BUFFER, bucket.uvRotBuffers[layer.index]);
     gl.vertexAttribPointer(uvRot, 2, gl.FLOAT, false, 8, 0);
     instancedArrays.vertexAttribDivisorANGLE(uvRot, 1);
@@ -588,6 +574,11 @@ export default class Model extends TexturedModel {
     shallowGeoset.render(bucket.count);
   }
 
+  /**
+   * @param {Bucket} bucket
+   * @param {Scene} scene
+   * @param {Array<Batch>} batches
+   */
   renderBatches(bucket, scene, batches) {
     if (batches && batches.length) {
       this.bind(bucket, scene);
@@ -600,7 +591,14 @@ export default class Model extends TexturedModel {
     }
   }
 
-  renderOpaque(data, scene, modelView) {
+  /**
+   * Render the opaque things in the given scene data.
+   *
+   * @param {Object} data
+   */
+  renderOpaque(data) {
+    let scene = data.scene;
+
     for (let bucket of data.buckets) {
       if (bucket.count) {
         this.renderBatches(bucket, scene, this.opaqueBatches);
@@ -608,11 +606,18 @@ export default class Model extends TexturedModel {
     }
   }
 
-  renderTranslucent(data, scene, modelView) {
-    let buckets = data.buckets,
-      particleEmitters2 = data.particleEmitters2,
-      ribbonEmitters = data.ribbonEmitters,
-      eventObjectEmitters = data.eventObjectEmitters;
+  /**
+   * Render the translucent things in the given scene data.
+   *
+   * @param {Object} data
+   */
+  renderTranslucent(data) {
+    let scene = data.scene;
+    let modelView = data.modelView;
+    let buckets = data.buckets;
+    let particleEmitters2 = data.particleEmitters2;
+    let ribbonEmitters = data.ribbonEmitters;
+    let eventObjectEmitters = data.eventObjectEmitters;
 
     // Batches
     for (let bucket of buckets) {
@@ -623,8 +628,8 @@ export default class Model extends TexturedModel {
 
     // Emitters
     if (particleEmitters2.length || eventObjectEmitters.length || ribbonEmitters.length) {
-      let webgl = this.viewer.webgl,
-        gl = this.viewer.gl;
+      let webgl = this.viewer.webgl;
+      let gl = this.viewer.gl;
 
       gl.depthMask(0);
       gl.enable(gl.BLEND);
@@ -634,11 +639,11 @@ export default class Model extends TexturedModel {
       let shader = this.viewer.shaderMap.get('MdxParticleShader');
       webgl.useShaderProgram(shader);
 
-      gl.uniformMatrix4fv(shader.uniforms.get('u_mvp'), false, scene.camera.worldProjectionMatrix);
+      gl.uniformMatrix4fv(shader.uniforms.u_mvp, false, scene.camera.worldProjectionMatrix);
 
-      gl.uniform1i(shader.uniforms.get('u_texture'), 0);
+      gl.uniform1i(shader.uniforms.u_texture, 0);
 
-      gl.uniform1f(shader.uniforms.get('u_isRibbonEmitter'), false);
+      gl.uniform1f(shader.uniforms.u_isRibbonEmitter, false);
 
       for (let i = 0, l = particleEmitters2.length; i < l; i++) {
         particleEmitters2[i].render(modelView, shader);
@@ -648,7 +653,7 @@ export default class Model extends TexturedModel {
         eventObjectEmitters[i].render(modelView, shader);
       }
 
-      gl.uniform1f(shader.uniforms.get('u_isRibbonEmitter'), true);
+      gl.uniform1f(shader.uniforms.u_isRibbonEmitter, true);
 
       for (let i = 0, l = ribbonEmitters.length; i < l; i++) {
         ribbonEmitters[i].render(modelView, shader);

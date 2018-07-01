@@ -28,7 +28,7 @@ export function searchHeader(typedArray) {
  */
 export function isArchive(typedArray) {
   // Check for the map identifier - HM3W
-  if (data[0] === 72 && data[1] === 77 && data[2] === 51 && data[3] === 87) {
+  if (typedArray[0] === 72 && typedArray[1] === 77 && typedArray[2] === 51 && typedArray[3] === 87) {
     return true;
   }
 

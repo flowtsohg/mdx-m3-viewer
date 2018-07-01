@@ -1,9 +1,12 @@
 import {UintTrack, FloatTrack, Vector3Track, Vector4Track} from './tracks';
 
 /**
- * An animation.
+ * A templated animation.
+ *
+ * @param {UintTrack|FloatTrack|Vector3Track|Vector4Track} TrackType
+ * @return {class}
  */
-class Animation {
+const templatedAnimation = (TrackType) => class {
   /**
    *
    */
@@ -31,7 +34,7 @@ class Animation {
     this.globalSequenceId = stream.readInt32();
 
     for (let i = 0; i < tracksCount; i++) {
-      const track = this.trackType();
+      const track = new TrackType();
 
       track.readMdx(stream, this.interpolationType);
 
@@ -65,19 +68,16 @@ class Animation {
     stream.read(); // {
 
     const token = stream.read();
-    let interpolationType = 0;
 
     if (token === 'DontInterp') {
-      interpolationType = 0;
+      this.interpolationType = 0;
     } else if (token === 'Linear') {
-      interpolationType = 1;
+      this.interpolationType = 1;
     } else if (token === 'Hermite') {
-      interpolationType = 2;
+      this.interpolationType = 2;
     } else if (token === 'Bezier') {
-      interpolationType = 3;
+      this.interpolationType = 3;
     }
-
-    this.interpolationType = interpolationType;
 
     // GlobalSeqId only exists if it's not -1.
     if (stream.peek() === 'GlobalSeqId') {
@@ -87,9 +87,9 @@ class Animation {
     }
 
     for (let i = 0; i < numberOfTracks; i++) {
-      const track = this.trackType();
+      const track = new TrackType();
 
-      track.readMdl(stream, interpolationType);
+      track.readMdl(stream, this.interpolationType);
 
       this.tracks[i] = track;
     }
@@ -133,82 +133,33 @@ class Animation {
    * @return {number}
    */
   getByteLength() {
-    return 16 + this.tracks.length * (4 + 4 * this.size() * (this.interpolationType > 1 ? 3 : 1));
+    let tracks = this.tracks;
+    let size = 16;
+
+    if (tracks.length) {
+      size += tracks[0].getByteLength(this.interpolationType) * tracks.length;
+    }
+
+    return size;
   }
-}
+};
 
 /**
- * A uint32 animation.
+ * A uint animation.
  */
-export class UintAnimation extends Animation {
-  /**
-   * @return {UintTrack}
-   */
-  trackType() {
-    return new UintTrack();
-  }
-
-  /**
-   * @return {1}
-   */
-  size() {
-    return 1;
-  }
-}
+export const UintAnimation = templatedAnimation(UintTrack);
 
 /**
- * A float animation.
+ * A float animation
  */
-export class FloatAnimation extends Animation {
-  /**
-   * @return {FloatTrack}
-   */
-  trackType() {
-    return new FloatTrack();
-  }
-
-  /**
-   * @return {1}
-   */
-  size() {
-    return 1;
-  }
-}
+export const FloatAnimation = templatedAnimation(FloatTrack);
 
 /**
- * A vec3 animation.
+ * A vector 3 animation.
  */
-export class Vector3Animation extends Animation {
-  /**
-   * @return {Vector3Track}
-   */
-  trackType() {
-    return new Vector3Track();
-  }
-
-  /**
-   * @return {3}
-   */
-  size() {
-    return 3;
-  }
-}
+export const Vector3Animation = templatedAnimation(Vector3Track);
 
 /**
- * A quat animation.
+ * A vector 4 animation.
  */
-export class Vector4Animation extends Animation {
-  /**
-   * @return {Vector4Track}
-   */
-  trackType() {
-    return new Vector4Track();
-  }
-
-  /**
-   * @return {4}
-   */
-  size() {
-    return 4;
-  }
-}
+export const Vector4Animation = templatedAnimation(Vector4Track);

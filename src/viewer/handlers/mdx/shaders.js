@@ -70,9 +70,10 @@ export default {
       }
     }
   `,
-  ps: `
+  fs: `
     uniform sampler2D u_texture;
     uniform bool u_alphaTest;
+    // uniform bool u_unshaded;
     uniform bool u_isTeamColor;
     uniform vec2 u_uvScale;
     uniform bool u_hasSlotAnim;
@@ -89,14 +90,9 @@ export default {
     varying float v_uvScale;
     varying vec2 v_uvRot;
 
-    // A 2D quaternion*vector.
-    // q is the zw components of the original quaternion.
-    vec2 transformQuat(vec2 v, vec2 q) {
-        float ix = q.y * v.x - q.x * v.y;
-        float iy = q.y * v.y + q.x * v.x;
-              
-        return vec2(ix * q.y + iy * -q.x, iy * q.y - ix * - q.x);
-    }
+    // const vec3 lightDirection = normalize(vec3(-0.3, -0.3, 0.25));
+
+    ${shaders.quat_transform}
 
     void main() {
       vec2 uv;
@@ -114,7 +110,7 @@ export default {
 
         // Rotation animation
         if (u_hasRotationAnim) {
-          uv = transformQuat(uv - 0.5, v_uvRot) + 0.5;
+          uv = quat_transform(v_uvRot, uv - 0.5) + 0.5;
         }
 
         // Scale animation
@@ -135,7 +131,13 @@ export default {
         discard;
       }
 
-      gl_FragColor = texel * v_geosetColor.bgra * v_vertexColor;
+      vec4 color = texel * v_geosetColor.bgra * v_vertexColor;
+
+      // if (!u_unshaded) {
+      //   color *= clamp(dot(v_normal, lightDirection) + 0.45, 0.0, 1.0);
+      // }
+
+      gl_FragColor = color;
     }
   `,
   vsParticles: `
@@ -165,7 +167,7 @@ export default {
       gl_Position = u_mvp * vec4(a_position, 1);
     }
   `,
-  psParticles: `
+  fsParticles: `
     uniform sampler2D u_texture;
     uniform bool u_alphaTest;
     uniform bool u_isRibbonEmitter;

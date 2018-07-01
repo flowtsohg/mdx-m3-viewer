@@ -281,32 +281,32 @@ export default class M3Model extends TexturedModel {
     let uniforms = shader.uniforms;
 
     // Team colors
-    let teamColorAttrib = attribs.get('a_teamColor');
+    let teamColorAttrib = attribs.a_teamColor;
     gl.bindBuffer(gl.ARRAY_BUFFER, bucket.teamColorBuffer);
     gl.vertexAttribPointer(teamColorAttrib, 1, gl.UNSIGNED_BYTE, false, 1, 0);
     instancedArrays.vertexAttribDivisorANGLE(teamColorAttrib, 1);
 
     // Vertex colors
-    let vertexColorAttrib = attribs.get('a_vertexColor');
+    let vertexColorAttrib = attribs.a_vertexColor;
     gl.bindBuffer(gl.ARRAY_BUFFER, bucket.vertexColorBuffer);
     gl.vertexAttribPointer(vertexColorAttrib, 4, gl.UNSIGNED_BYTE, true, 4, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
     instancedArrays.vertexAttribDivisorANGLE(vertexColorAttrib, 1);
 
-    let instanceIdAttrib = attribs.get('a_InstanceID');
+    let instanceIdAttrib = attribs.a_InstanceID;
     gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);
     gl.vertexAttribPointer(instanceIdAttrib, 1, gl.UNSIGNED_SHORT, false, 2, 0);
     instancedArrays.vertexAttribDivisorANGLE(instanceIdAttrib, 1);
 
     gl.activeTexture(gl.TEXTURE15);
     gl.bindTexture(gl.TEXTURE_2D, bucket.boneTexture);
-    gl.uniform1i(uniforms.get('u_boneMap'), 15);
-    gl.uniform1f(uniforms.get('u_vectorSize'), bucket.vectorSize);
-    gl.uniform1f(uniforms.get('u_rowSize'), bucket.rowSize);
+    gl.uniform1i(uniforms.u_boneMap, 15);
+    gl.uniform1f(uniforms.u_vectorSize, bucket.vectorSize);
+    gl.uniform1f(uniforms.u_rowSize, bucket.rowSize);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.arrayBuffer);
-    gl.vertexAttribPointer(attribs.get('a_position'), 3, gl.FLOAT, false, vertexSize, 0);
-    gl.vertexAttribPointer(attribs.get('a_weights'), 4, gl.UNSIGNED_BYTE, false, vertexSize, 12);
-    gl.vertexAttribPointer(attribs.get('a_bones'), 4, gl.UNSIGNED_BYTE, false, vertexSize, 16);
+    gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, vertexSize, 0);
+    gl.vertexAttribPointer(attribs.a_weights, 4, gl.UNSIGNED_BYTE, false, vertexSize, 12);
+    gl.vertexAttribPointer(attribs.a_bones, 4, gl.UNSIGNED_BYTE, false, vertexSize, 16);
   }
 
   /**
@@ -330,23 +330,23 @@ export default class M3Model extends TexturedModel {
     let attribs = shader.attribs;
     let uniforms = shader.uniforms;
 
-    gl.vertexAttribPointer(attribs.get('a_normal'), 4, gl.UNSIGNED_BYTE, false, vertexSize, 20);
+    gl.vertexAttribPointer(attribs.a_normal, 4, gl.UNSIGNED_BYTE, false, vertexSize, 20);
 
     for (let i = 0; i < uvSetCount; i++) {
-      gl.vertexAttribPointer(attribs.get('a_uv' + i), 2, gl.SHORT, false, vertexSize, 24 + i * 4);
+      gl.vertexAttribPointer(attribs['a_uv' + i], 2, gl.SHORT, false, vertexSize, 24 + i * 4);
     }
 
-    gl.vertexAttribPointer(attribs.get('a_tangent'), 4, gl.UNSIGNED_BYTE, false, vertexSize, 24 + uvSetCount * 4);
+    gl.vertexAttribPointer(attribs.a_tangent, 4, gl.UNSIGNED_BYTE, false, vertexSize, 24 + uvSetCount * 4);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
 
     let camera = scene.camera;
 
-    gl.uniformMatrix4fv(uniforms.get('u_mvp'), false, camera.worldProjectionMatrix);
-    gl.uniformMatrix4fv(uniforms.get('u_mv'), false, camera.worldMatrix);
+    gl.uniformMatrix4fv(uniforms.u_mvp, false, camera.worldProjectionMatrix);
+    gl.uniformMatrix4fv(uniforms.u_mv, false, camera.worldMatrix);
 
-    gl.uniform3fv(uniforms.get('u_eyePos'), camera.worldLocation);
-    gl.uniform3fv(uniforms.get('u_lightPos'), this.handler.lightPosition);
+    gl.uniform3fv(uniforms.u_eyePos, camera.worldLocation);
+    gl.uniform3fv(uniforms.u_lightPos, this.handler.lightPosition);
   }
 
   /**
@@ -357,11 +357,15 @@ export default class M3Model extends TexturedModel {
     let shader = this.shader;
     let attribs = shader.attribs;
 
-    instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_teamColor'), 0);
-    instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_vertexColor'), 0);
-    instancedArrays.vertexAttribDivisorANGLE(attribs.get('a_InstanceID'), 0);
+    instancedArrays.vertexAttribDivisorANGLE(attribs.a_teamColor, 0);
+    instancedArrays.vertexAttribDivisorANGLE(attribs.a_vertexColor, 0);
+    instancedArrays.vertexAttribDivisorANGLE(attribs.a_InstanceID, 0);
   }
 
+  /**
+   * @param {Bucket} bucket
+   * @param {Object} batch
+   */
   renderBatch(bucket, batch) {
     let shader = this.shader;
     let region = batch.region;
@@ -374,6 +378,11 @@ export default class M3Model extends TexturedModel {
     material.unbind(shader); // This is required to not use by mistake layers from this material that were bound and are not overwritten by the next material
   }
 
+  /**
+   * @param {Bucket} bucket
+   * @param {Scene} scene
+   * @param {Array<Object>} batches
+   */
   renderBatches(bucket, scene, batches) {
     if (batches && batches.length) {
       this.bind(bucket, scene);
@@ -386,7 +395,14 @@ export default class M3Model extends TexturedModel {
     }
   }
 
-  renderOpaque(data, scene, modelView) {
+  /**
+   * Render the opaque things in the given scene data.
+   *
+   * @param {Object} data
+   */
+  renderOpaque(data) {
+    let scene = data.scene;
+
     for (let bucket of data.buckets) {
       if (bucket.count) {
         this.renderBatches(bucket, scene, this.batches);
@@ -394,7 +410,12 @@ export default class M3Model extends TexturedModel {
     }
   }
 
-  renderTranslucent(data, scene, modelView) {
+  /**
+   * Render the translucent things in the given scene data.
+   *
+   * @param {Object} data
+   */
+  renderTranslucent(data) {
 
   }
 }
