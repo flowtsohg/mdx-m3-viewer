@@ -20,7 +20,7 @@ export default class Unit {
     /** @member {number} */
     this.angle = 0;
     /** @member {Float32Array} */
-    this.scale = new Float32Array(3);
+    this.scale = new Float32Array([1, 1, 1]);
     /** @member {number} */
     this.flags = 0;
     /** @member {number} */

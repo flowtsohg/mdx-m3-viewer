@@ -62,7 +62,6 @@ export default class Model extends TexturedModel {
     this.sortedGenericObjects = [];
     this.hierarchy = [];
     this.replaceables = [];
-    this.textureOptions = [];
   }
 
   /**
@@ -405,8 +404,13 @@ export default class Model extends TexturedModel {
     }
 
     this.replaceables.push(replaceableId);
-    this.textures.push(this.viewer.load(path, this.pathSolver));
-    this.textureOptions.push({repeatS: !!(flags & 0x1), repeatT: !!(flags & 0x2)});
+
+    let textureRes = this.viewer.load(path, this.pathSolver);
+
+    textureRes.wrapS = !!(flags & 0x1);
+    textureRes.wrapT = !!(flags & 0x2);
+
+    this.textures.push(textureRes);
   }
 
   /**
@@ -433,17 +437,13 @@ export default class Model extends TexturedModel {
 
     gl.uniform1i(uniforms.u_texture, 0);
 
-    // Team colors
-    let teamColor = attribs.a_teamColor;
-    gl.bindBuffer(gl.ARRAY_BUFFER, bucket.teamColorBuffer);
-    gl.vertexAttribPointer(teamColor, 1, gl.UNSIGNED_BYTE, false, 1, 0);
-    instancedArrays.vertexAttribDivisorANGLE(teamColor, 1);
 
-    // Vertex colors
+    // Team and vertex colors.
+    let teamColor = attribs.a_teamColor;
     let vertexColor = attribs.a_vertexColor;
-    gl.bindBuffer(gl.ARRAY_BUFFER, bucket.vertexColorBuffer);
-    gl.vertexAttribPointer(vertexColor, 4, gl.UNSIGNED_BYTE, true, 4, 0); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
-    instancedArrays.vertexAttribDivisorANGLE(vertexColor, 1);
+    gl.bindBuffer(gl.ARRAY_BUFFER, bucket.colorBuffer);
+    gl.vertexAttribPointer(teamColor, 1, gl.UNSIGNED_BYTE, false, 5, 0);
+    gl.vertexAttribPointer(vertexColor, 4, gl.UNSIGNED_BYTE, true, 5, 1); // normalize the colors from [0, 255] to [0, 1] here instead of in the pixel shader
 
     gl.activeTexture(gl.TEXTURE15);
     gl.bindTexture(gl.TEXTURE_2D, bucket.boneTexture);
@@ -454,6 +454,9 @@ export default class Model extends TexturedModel {
     let instanceId = attribs.a_InstanceID;
     gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);
     gl.vertexAttribPointer(instanceId, 1, gl.UNSIGNED_SHORT, false, 0, 0);
+
+    instancedArrays.vertexAttribDivisorANGLE(teamColor, 1);
+    instancedArrays.vertexAttribDivisorANGLE(vertexColor, 1);
     instancedArrays.vertexAttribDivisorANGLE(instanceId, 1);
   }
 
@@ -477,9 +480,8 @@ export default class Model extends TexturedModel {
     instancedArrays.vertexAttribDivisorANGLE(attribs.a_InstanceID, 0);
     instancedArrays.vertexAttribDivisorANGLE(attribs.a_geosetColor, 0);
     instancedArrays.vertexAttribDivisorANGLE(attribs.a_layerAlpha, 0);
-    instancedArrays.vertexAttribDivisorANGLE(attribs.a_uvOffset, 0);
-    instancedArrays.vertexAttribDivisorANGLE(attribs.a_uvScale, 0);
-    instancedArrays.vertexAttribDivisorANGLE(attribs.a_uvRot, 0);
+    instancedArrays.vertexAttribDivisorANGLE(attribs.uvTransRot, 0);
+    instancedArrays.vertexAttribDivisorANGLE(attribs.uvScaleSprite, 0);
   }
 
   /**
@@ -494,7 +496,7 @@ export default class Model extends TexturedModel {
     let uniforms = shader.uniforms;
     let geoset = batch.geoset;
     let layer = batch.layer;
-    let shallowGeoset = this.shallowGeosets[batch.geoset.index];
+    let shallowGeoset = this.shallowGeosets[geoset.index];
     let replaceable = this.replaceables[layer.textureId];
 
     layer.bind(shader);
@@ -524,51 +526,30 @@ export default class Model extends TexturedModel {
 
     this.bindTexture(texture, 0, bucket.modelView);
 
-    /// TODO: Move texture wrap modes into the textures.
-    let textureOptions = this.textureOptions[layer.textureId];
-    let wrapS = gl.CLAMP_TO_EDGE;
-    let wrapT = gl.CLAMP_TO_EDGE;
-
-    if (textureOptions.repeatS) {
-      wrapS = gl.REPEAT;
-    }
-
-    if (textureOptions.repeatT) {
-      wrapT = gl.REPEAT;
-    }
-
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT);
-
-    // Geoset colors
     let geosetColor = attribs.a_geosetColor;
-    gl.bindBuffer(gl.ARRAY_BUFFER, bucket.geosetColorBuffers[geoset.index]);
-    gl.vertexAttribPointer(geosetColor, 4, gl.UNSIGNED_BYTE, true, 4, 0);
-    instancedArrays.vertexAttribDivisorANGLE(geosetColor, 1);
-
-    // Layer alphas
+    let uvTransRot = attribs.a_uvTransRot;
+    let uvScaleSprite = attribs.a_uvScaleSprite;
     let layerAlpha = attribs.a_layerAlpha;
-    gl.bindBuffer(gl.ARRAY_BUFFER, bucket.layerAlphaBuffers[layer.index]);
-    gl.vertexAttribPointer(layerAlpha, 1, gl.UNSIGNED_BYTE, true, 1, 0);
+
+    instancedArrays.vertexAttribDivisorANGLE(geosetColor, 1);
+    instancedArrays.vertexAttribDivisorANGLE(uvTransRot, 1);
+    instancedArrays.vertexAttribDivisorANGLE(uvScaleSprite, 1);
     instancedArrays.vertexAttribDivisorANGLE(layerAlpha, 1);
 
-    // Texture coordinate animations
-    let uvOffset = attribs.a_uvOffset;
-    gl.bindBuffer(gl.ARRAY_BUFFER, bucket.uvOffsetBuffers[layer.index]);
-    gl.vertexAttribPointer(uvOffset, 4, gl.FLOAT, false, 16, 0);
-    instancedArrays.vertexAttribDivisorANGLE(uvOffset, 1);
+    gl.bindBuffer(gl.ARRAY_BUFFER, bucket.geosetColorsBuffer);
+    // Geoset colors.
+    gl.vertexAttribPointer(geosetColor, 4, gl.UNSIGNED_BYTE, true, 4, this.batchSize * geoset.index * 4);
 
-    let uvScale = attribs.a_uvScale;
-    gl.bindBuffer(gl.ARRAY_BUFFER, bucket.uvScaleBuffers[layer.index]);
-    gl.vertexAttribPointer(uvScale, 1, gl.FLOAT, false, 4, 0);
-    instancedArrays.vertexAttribDivisorANGLE(uvScale, 1);
 
-    let uvRot = attribs.a_uvRot;
-    gl.bindBuffer(gl.ARRAY_BUFFER, bucket.uvRotBuffers[layer.index]);
-    gl.vertexAttribPointer(uvRot, 2, gl.FLOAT, false, 8, 0);
-    instancedArrays.vertexAttribDivisorANGLE(uvRot, 1);
+    gl.bindBuffer(gl.ARRAY_BUFFER, bucket.layersBuffer);
+    // Texture animations.
+    gl.vertexAttribPointer(uvTransRot, 4, gl.FLOAT, false, 28, this.batchSize * 7 * layer.index * 4);
+    gl.vertexAttribPointer(uvScaleSprite, 3, gl.FLOAT, false, 28, this.batchSize * 7 * layer.index * 4 + 16);
+    // Layer alphas.
+    gl.vertexAttribPointer(layerAlpha, 1, gl.UNSIGNED_BYTE, true, 1, bucket.layerAlphasData.byteOffset + this.batchSize * layer.index);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.__webglArrayBuffer);
+    // Vertices.
     shallowGeoset.bind(shader, layer.coordId);
 
     shallowGeoset.render(bucket.count);

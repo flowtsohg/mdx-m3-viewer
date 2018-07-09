@@ -71,7 +71,6 @@ export default class EventDispatcher {
    * Dispatch an event.
    *
    * @param {object} event The event object to dispatch.
-   * @return {this}
    */
   dispatchEvent(event) {
     let listeners = this.listeners.get(event.type);
@@ -91,7 +90,5 @@ export default class EventDispatcher {
         listeners[i].call(this, event);
       }
     }
-
-    return this;
   }
 }

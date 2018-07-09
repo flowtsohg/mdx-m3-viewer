@@ -65,10 +65,17 @@ export default class UnitTester {
     for (let test of this.tests) {
       let testBlob = await this.getTestBlob(test);
       let comparisonBlob = await this.getComparisonBlob(test);
-      let comparisonPromise = new Promise((resolve) => resemble(testBlob).compareTo(comparisonBlob).ignoreColors().onComplete((data) => resolve(data)));
-      let [testImage, comparisonImage, testResult] = await Promise.all([blobToImage(testBlob), blobToImage(comparisonBlob), comparisonPromise]);
 
-      callback({done: false, value: {name: test.name, testImage, comparisonImage, result: testResult.rawMisMatchPercentage}});
+      if (comparisonBlob) {
+        let comparisonPromise = new Promise((resolve) => resemble(testBlob).compareTo(comparisonBlob).ignoreColors().onComplete((data) => resolve(data)));
+        let [testImage, comparisonImage, testResult] = await Promise.all([blobToImage(testBlob), blobToImage(comparisonBlob), comparisonPromise]);
+
+        callback({done: false, value: {name: test.name, testImage, comparisonImage, result: testResult.rawMisMatchPercentage}});
+      } else {
+        // When adding new tests, or not having the comparison images yet, the above will fail.
+        // In this case, always return the test image, and make it fail 100%.
+        callback({done: false, value: {name: test.name, testImage: await blobToImage(testBlob), result: 100}});
+      }
     }
 
     callback({done: true});
@@ -111,9 +118,8 @@ export default class UnitTester {
     let camera = scene.camera;
 
     // Setup the camera
-    camera.setViewport([0, 0, viewer.canvas.width, viewer.canvas.height]);
-    camera.setPerspective(Math.PI / 4, 1, 8, 100000);
-    camera.resetTransformation();
+    camera.viewport([0, 0, viewer.canvas.width, viewer.canvas.height]);
+    camera.perspective(Math.PI / 4, 1, 8, 100000);
 
     // Start loading the test.
     let data = loadHandler(viewer);
@@ -146,7 +152,11 @@ export default class UnitTester {
    * @return {Promise}
    */
   async getComparisonBlob(test) {
-    return await (await fetch(`compare/${test.name}.png`)).blob();
+    let response = await fetch(`compare/${test.name}.png`);
+
+    if (response.ok) {
+      return await response.blob();
+    }
   }
 
   /**

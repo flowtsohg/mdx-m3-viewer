@@ -29,9 +29,9 @@ function compileJassNative(native) {
  */
 function compileJsArgs(args) {
   if (args.length) {
-    return ['jassContext'].concat(args.map((arg) => `${arg.name}`)).join(', ');
+    return ['jass'].concat(args.map((arg) => `${arg.name}`)).join(', ');
   } else {
-    return 'jassContext';
+    return 'jass';
   }
 }
 let typeMapping = {
@@ -139,7 +139,7 @@ let typeMapping = {
  * @return {string}
  */
 function compileJsDocSignature(node) {
-  let args = ['param {JassContext} jassContext'];
+  let args = ['param {JassContext} jass'];
 
   if (node.args.length) {
     args.push(...node.args.map((arg) => `param {${typeMapping[arg.type]}} ${arg.name}`));

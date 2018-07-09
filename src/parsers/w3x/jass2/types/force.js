@@ -5,10 +5,10 @@ import JassAgent from './agent';
  */
 export default class JassForce extends JassAgent {
   /**
-   * @param {JassContext} jassContext
+   * @param {JassContext} jass
    */
-  constructor(jassContext) {
-    super(jassContext);
+  constructor(jass) {
+    super(jass);
 
     /** @member {Set<JassPlayer>} */
     this.players = new Set();

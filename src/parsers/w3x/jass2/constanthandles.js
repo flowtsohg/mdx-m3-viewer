@@ -42,10 +42,10 @@ import JassEffectType from './types/effecttype';
 import JassSoundType from './types/soundtype';
 
 /**
- * @param {Context} jassContext
+ * @param {Context} jass
  * @return {Object}
  */
-export default function constantHandles(jassContext) {
+export default function constantHandles(jass) {
   let handles = {
     playerColors: [],
     races: [],
@@ -87,193 +87,193 @@ export default function constantHandles(jassContext) {
   };
 
   for (let i = 0; i < 12; i++) {
-    handles.playerColors[i] = new JassPlayerColor(jassContext, i);
+    handles.playerColors[i] = new JassPlayerColor(jass, i);
   }
 
   for (let i = 1; i < 8; i++) {
-    handles.races[i] = new JassRace(jassContext, i);
+    handles.races[i] = new JassRace(jass, i);
   }
 
   for (let i = 0; i < 4; i++) {
-    handles.playerGameResults[i] = new JassPlayerGameResult(jassContext, i);
+    handles.playerGameResults[i] = new JassPlayerGameResult(jass, i);
   }
 
   for (let i = 0; i < 10; i++) {
-    handles.allianceTypes[i] = new JassAllianceType(jassContext, i);
+    handles.allianceTypes[i] = new JassAllianceType(jass, i);
   }
 
   for (let i = 0; i < 2; i++) {
-    handles.versions[i] = new JassVersion(jassContext, i);
+    handles.versions[i] = new JassVersion(jass, i);
   }
 
   for (let i = 0; i < 7; i++) {
-    handles.attackTypes[i] = new JassAttackType(jassContext, i);
+    handles.attackTypes[i] = new JassAttackType(jass, i);
   }
 
   for (let i = 0; i < 27; i++) {
     // Note: 1, 2, 3, 6, and 7 not exposed in common.j
-    handles.damageTypes[i] = new JassDamageType(jassContext, i);
+    handles.damageTypes[i] = new JassDamageType(jass, i);
   }
 
   for (let i = 0; i < 24; i++) {
-    handles.weaponTypes[i] = new JassWeaponType(jassContext, i);
+    handles.weaponTypes[i] = new JassWeaponType(jass, i);
   }
 
   for (let i = 0; i < 8; i++) {
-    handles.pathingTypes[i] = new JassPathingType(jassContext, i);
+    handles.pathingTypes[i] = new JassPathingType(jass, i);
   }
 
   for (let i = 0; i < 7; i++) {
-    handles.racePreferences[i] = new JassRacePreference(jassContext, Math.pow(2, i));
+    handles.racePreferences[i] = new JassRacePreference(jass, Math.pow(2, i));
   }
 
   for (let i = 0; i < 6; i++) {
-    handles.mapControls[i] = new JassMapControl(jassContext, i);
+    handles.mapControls[i] = new JassMapControl(jass, i);
   }
 
   for (let i = 0; i < 8; i++) {
-    handles.gameTypes[i] = new JassGameType(jassContext, Math.pow(2, i));
+    handles.gameTypes[i] = new JassGameType(jass, Math.pow(2, i));
   }
 
   for (let i = 0; i < 19; i++) {
-    handles.mapFlags[i] = new JassMapFlag(jassContext, Math.pow(2, i));
+    handles.mapFlags[i] = new JassMapFlag(jass, Math.pow(2, i));
   }
 
   for (let i = 0; i < 4; i++) {
-    handles.placements[i] = new JassPlacement(jassContext, i);
+    handles.placements[i] = new JassPlacement(jass, i);
   }
 
   for (let i = 0; i < 3; i++) {
-    handles.startLocPrios[i] = new JassStartLocPrio(jassContext, i);
+    handles.startLocPrios[i] = new JassStartLocPrio(jass, i);
   }
 
   for (let i = 0; i < 4; i++) {
-    handles.mapDensities[i] = new JassMapDensity(jassContext, i);
+    handles.mapDensities[i] = new JassMapDensity(jass, i);
   }
 
   for (let i = 0; i < 4; i++) {
-    handles.gameDifficulties[i] = new JassGameDifficulty(jassContext, i);
+    handles.gameDifficulties[i] = new JassGameDifficulty(jass, i);
   }
 
   for (let i = 0; i < 5; i++) {
-    handles.gameSpeeds[i] = new JassGameSpeed(jassContext, i);
+    handles.gameSpeeds[i] = new JassGameSpeed(jass, i);
   }
 
   for (let i = 0; i < 3; i++) {
-    handles.playerSlotStates[i] = new JassPlayerSlotState(jassContext, i);
+    handles.playerSlotStates[i] = new JassPlayerSlotState(jass, i);
   }
 
   for (let i = 0; i < 8; i++) {
-    handles.volumeGroups[i] = new JassVolumeGroup(jassContext, i);
+    handles.volumeGroups[i] = new JassVolumeGroup(jass, i);
   }
 
   for (let i = 0; i < 2; i++) {
-    handles.iGameStates[i] = new JassIGameState(jassContext, i);
+    handles.iGameStates[i] = new JassIGameState(jass, i);
   }
 
   for (let i = 2; i < 3; i++) {
-    handles.fGameStates[i] = new JassFGameState(jassContext, i);
+    handles.fGameStates[i] = new JassFGameState(jass, i);
   }
 
   for (let i = 0; i < 26; i++) {
     // Note: 17-24 not exposed in common.j
-    handles.playerStates[i] = new JassPlayerState(jassContext, i);
+    handles.playerStates[i] = new JassPlayerState(jass, i);
   }
 
   for (let i = 0; i < 4; i++) {
-    handles.unitStates[i] = new JassUnitState(jassContext, i);
+    handles.unitStates[i] = new JassUnitState(jass, i);
   }
 
   for (let i = 0; i < 3; i++) {
-    handles.aiDifficulties[i] = new JassAiDifficulty(jassContext, i);
+    handles.aiDifficulties[i] = new JassAiDifficulty(jass, i);
   }
 
   for (let i = 0; i < 25; i++) {
-    handles.playerScores[i] = new JassPlayerScore(jassContext, i);
+    handles.playerScores[i] = new JassPlayerScore(jass, i);
   }
 
   for (let i = 0; i < 11; i++) {
-    handles.events[i] = new JassGameEvent(jassContext, i);
+    handles.events[i] = new JassGameEvent(jass, i);
   }
 
   for (let i = 11; i < 18; i++) {
-    handles.events[i] = new JassPlayerEvent(jassContext, i);
+    handles.events[i] = new JassPlayerEvent(jass, i);
   }
 
   for (let i = 18; i < 52; i++) {
-    handles.events[i] = new JassPlayerUnitEvent(jassContext, i);
+    handles.events[i] = new JassPlayerUnitEvent(jass, i);
   }
 
   for (let i = 52; i < 89; i++) {
-    handles.events[i] = new JassUnitEvent(jassContext, i);
+    handles.events[i] = new JassUnitEvent(jass, i);
   }
 
   for (let i = 89; i < 90; i++) {
-    handles.events[i] = new JassWidgetEvent(jassContext, i);
+    handles.events[i] = new JassWidgetEvent(jass, i);
   }
 
   for (let i = 90; i < 92; i++) {
-    handles.events[i] = new JassDialogEvent(jassContext, i);
+    handles.events[i] = new JassDialogEvent(jass, i);
   }
 
   for (let i = 90; i < 92; i++) {
-    handles.events[i] = new JassDialogEvent(jassContext, i);
+    handles.events[i] = new JassDialogEvent(jass, i);
   }
 
   for (let i = 256; i < 260; i++) {
-    handles.events[i] = new JassGameEvent(jassContext, i);
+    handles.events[i] = new JassGameEvent(jass, i);
   }
 
   for (let i = 261; i < 269; i++) {
-    handles.events[i] = new JassPlayerEvent(jassContext, i);
+    handles.events[i] = new JassPlayerEvent(jass, i);
   }
 
   for (let i = 269; i < 278; i++) {
-    handles.events[i] = new JassPlayerUnitEvent(jassContext, i);
+    handles.events[i] = new JassPlayerUnitEvent(jass, i);
   }
 
   for (let i = 286; i < 295; i++) {
-    handles.events[i] = new JassUnitEvent(jassContext, i);
+    handles.events[i] = new JassUnitEvent(jass, i);
   }
 
   for (let i = 0; i < 6; i++) {
-    handles.limitOps[i] = new JassLimitOp(jassContext, i);
+    handles.limitOps[i] = new JassLimitOp(jass, i);
   }
 
   for (let i = 0; i < 27; i++) {
-    handles.unitTypes[i] = new JassUnitType(jassContext, i);
+    handles.unitTypes[i] = new JassUnitType(jass, i);
   }
 
   for (let i = 0; i < 9; i++) {
-    handles.itemTypes[i] = new JassItemType(jassContext, i);
+    handles.itemTypes[i] = new JassItemType(jass, i);
   }
 
   for (let i = 0; i < 7; i++) {
-    handles.cameraFields[i] = new JassCameraField(jassContext, i);
+    handles.cameraFields[i] = new JassCameraField(jass, i);
   }
 
   for (let i = 0; i < 6; i++) {
-    handles.blendModes[i] = new JassBlendMode(jassContext, i);
+    handles.blendModes[i] = new JassBlendMode(jass, i);
   }
 
   for (let i = 0; i < 1; i++) {
-    handles.rarityControls[i] = new JassRarityControl(jassContext, i);
+    handles.rarityControls[i] = new JassRarityControl(jass, i);
   }
 
   for (let i = 0; i < 4; i++) {
-    handles.texMapFlags[i] = new JassTexMapFlags(jassContext, i);
+    handles.texMapFlags[i] = new JassTexMapFlags(jass, i);
   }
 
   for (let i = 0; i < 3; i++) {
-    handles.fogStates[i] = new JassFogState(jassContext, Math.pow(2, i));
+    handles.fogStates[i] = new JassFogState(jass, Math.pow(2, i));
   }
 
   for (let i = 0; i < 7; i++) {
-    handles.effectTypes[i] = new JassEffectType(jassContext, i);
+    handles.effectTypes[i] = new JassEffectType(jass, i);
   }
 
   for (let i = 0; i < 2; i++) {
-    handles.soundTypes[i] = new JassSoundType(jassContext, i);
+    handles.soundTypes[i] = new JassSoundType(jass, i);
   }
 
   return handles;

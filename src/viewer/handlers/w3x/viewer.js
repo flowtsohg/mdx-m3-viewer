@@ -30,6 +30,8 @@ export default class War3MapViewer extends ModelViewer {
   constructor(canvas, wc3PathSolver) {
     super(canvas);
 
+    this.batchSize = 256;
+
     this.addEventListener('error', (e) => console.error(e));
 
     this.addHandler(geoHandler);
@@ -45,6 +47,7 @@ export default class War3MapViewer extends ModelViewer {
 
     this.scene = this.addScene();
     this.camera = this.scene.camera;
+    this.camera2 = this.scene.camera2;
 
     this.waterIndex = 0;
     this.waterIncreasePerFrame = 0;
@@ -124,7 +127,7 @@ export default class War3MapViewer extends ModelViewer {
 
       webgl.useShaderProgram(shader);
 
-      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
+      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera2.worldProjectionMatrix);
       gl.uniform2fv(uniforms.u_offset, centerOffset);
       gl.uniform2f(uniforms.u_size, columns - 1, rows - 1);
       gl.uniform1i(uniforms.u_heightMap, 0);
@@ -184,7 +187,7 @@ export default class War3MapViewer extends ModelViewer {
 
       webgl.useShaderProgram(shader);
 
-      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
+      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera2.worldProjectionMatrix);
       gl.uniform2fv(uniforms.u_offset, centerOffset);
       gl.uniform2f(uniforms.u_size, columns - 1, rows - 1);
       gl.uniform1i(uniforms.u_heightMap, 0);
@@ -242,7 +245,7 @@ export default class War3MapViewer extends ModelViewer {
 
       webgl.useShaderProgram(shader);
 
-      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
+      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera2.worldProjectionMatrix);
       gl.uniform1i(uniforms.u_heightMap, 0);
       gl.uniform2fv(uniforms.u_pixel, heightMapSize);
       gl.uniform2fv(uniforms.u_centerOffset, centerOffset);
@@ -289,16 +292,12 @@ export default class War3MapViewer extends ModelViewer {
 
       webgl.useShaderProgram(shader);
 
-      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
+      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera2.worldProjectionMatrix);
       gl.uniform1i(uniforms.u_texture, 0);
 
       gl.activeTexture(gl.TEXTURE0);
 
       // Enable instancing.
-      // instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceMatrix0, 1);
-      // instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceMatrix1, 1);
-      // instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceMatrix2, 1);
-      // instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceMatrix3, 1);
       instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 1);
       instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceRotation, 1);
       instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceScale, 1);
@@ -322,10 +321,6 @@ export default class War3MapViewer extends ModelViewer {
       }
 
       // Disable instancing.
-      // instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceMatrix0, 0);
-      // instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceMatrix1, 0);
-      // instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceMatrix2, 0);
-      // instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceMatrix3, 0);
       instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 0);
       instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceRotation, 0);
       instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceScale, 0);
@@ -337,7 +332,7 @@ export default class War3MapViewer extends ModelViewer {
    */
   render() {
     if (this.anyReady) {
-      this.gl.viewport(...this.camera.viewport);
+      this.gl.viewport(...this.camera2.viewport);
 
       this.renderGround();
       this.renderCliffs();
@@ -456,14 +451,15 @@ export default class War3MapViewer extends ModelViewer {
       fileVar += '.mdx';
 
       if (!doodads[file]) {
-        doodads[file] = {file, fileVar, matrices: []};
+        doodads[file] = {file, fileVar, instances: 0, instanceData: []};
       }
 
       let location = doodad.location;
       let angle = doodad.angle / 2;
       let scale = doodad.scale;
 
-      doodads[file].matrices.push(...location, Math.sin(angle), Math.cos(angle), scale[0]);
+      doodads[file].instances += 1;
+      doodads[file].instanceData.push(...location, Math.sin(angle), Math.cos(angle), scale[0]);
     }
 
     // Load the models.
@@ -475,11 +471,11 @@ export default class War3MapViewer extends ModelViewer {
       // If it's a local file, load it.
       // Otherwise, fetch and then load it.
       if (mpqFile) {
-        this.doodads.push(new SimpleModel(this, mpqFile.arrayBuffer(), object.matrices));
+        this.doodads.push(new SimpleModel(this, mpqFile.arrayBuffer(), object.instances, object.instanceData));
       } else {
         this.loadGeneric(this.mapPathSolver(object.fileVar)[0], 'arrayBuffer').whenLoaded()
           .then((resource) => {
-            this.doodads.push(new SimpleModel(this, resource.data, object.matrices));
+            this.doodads.push(new SimpleModel(this, resource.data, object.instances, object.instanceData));
           });
       }
     }
@@ -833,7 +829,6 @@ export default class War3MapViewer extends ModelViewer {
     });
 
     this.cliffModels = await Promise.all(cliffPromises);
-
     this.cliffsReady = true;
   }
 

@@ -32,67 +32,34 @@ export default class extends Bucket {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.boneTextureWidth, this.boneTextureHeight, 0, gl.RGBA, gl.FLOAT, this.boneArray);
 
-    // Team colors (per instance)
-    this.teamColorArray = new Uint8Array(batchSize);
-    this.teamColorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this.teamColorArray, gl.DYNAMIC_DRAW);
-
-    // Vertex color (per instance)
-    this.vertexColorArray = new Uint8Array(4 * batchSize);
-    this.vertexColorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this.vertexColorArray, gl.DYNAMIC_DRAW);
-
-    // Geoset colors (per instance per geoset)
-    this.geosetColorArrays = [];
-    this.geosetColorBuffers = [];
-
-    // Layer alphas (per instance per layer)
-    this.layerAlphaArrays = [];
-    this.layerAlphaBuffers = [];
-
-    // Texture coordinate animations (per instance per layer)
-    this.uvOffsetArrays = [];
-    this.uvOffsetBuffers = [];
-
-    this.uvScaleArrays = [];
-    this.uvScaleBuffers = [];
-
-    this.uvRotArrays = [];
-    this.uvRotBuffers = [];
+    // Team colors and vertex colors
+    // [TC, RR, GG, BB, AA]
+    this.colorData = new Uint8Array(batchSize * 5);
+    this.colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this.colorData.byteLength, gl.DYNAMIC_DRAW);
 
     // Batches
     if (model.batches.length > 0) {
-      for (let i = 0, l = model.geosets.length; i < l; i++) {
-        this.geosetColorArrays[i] = new Uint8Array(4 * batchSize);
-        this.geosetColorBuffers[i] = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetColorBuffers[i]);
-        gl.bufferData(gl.ARRAY_BUFFER, this.geosetColorArrays[i], gl.DYNAMIC_DRAW);
-      }
+      this.geosetColorsData = new Uint8Array(batchSize * model.geosets.length * 4);
+      this.geosetColorsBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetColorsBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, this.geosetColorsData.byteLength, gl.DYNAMIC_DRAW);
 
-      for (let i = 0, l = model.layers.length; i < l; i++) {
-        this.uvOffsetArrays[i] = new Float32Array(4 * batchSize);
-        this.uvOffsetBuffers[i] = gl.createBuffer();
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvOffsetBuffers[i]);
-        gl.bufferData(gl.ARRAY_BUFFER, this.uvOffsetArrays[i], gl.DYNAMIC_DRAW);
-
-        this.layerAlphaArrays[i] = new Uint8Array(batchSize);
-        this.layerAlphaBuffers[i] = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.layerAlphaBuffers[i]);
-        gl.bufferData(gl.ARRAY_BUFFER, this.layerAlphaArrays[i], gl.DYNAMIC_DRAW);
-
-        this.uvScaleArrays[i] = new Float32Array(batchSize);
-        this.uvScaleBuffers[i] = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvScaleBuffers[i]);
-        gl.bufferData(gl.ARRAY_BUFFER, this.uvScaleArrays[i], gl.DYNAMIC_DRAW);
-
-        this.uvRotArrays[i] = new Float32Array(batchSize * 2);
-        this.uvRotBuffers[i] = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvRotBuffers[i]);
-        gl.bufferData(gl.ARRAY_BUFFER, this.uvRotArrays[i], gl.DYNAMIC_DRAW);
-      }
+      // This buffer first contains the texture animation data for each instance, for each layer, and then every alpha for each instance for each layer.
+      // Every texture animation data per instance contains the following:
+      //     [Tx, Ty, Rz, Rw, S, Ox, Oy]
+      // Where:
+      //     T = translation
+      //     R = rotation (quaternion with x=0 and y=0)
+      //     S = scale (uniform)
+      //     O = offset for sprite animations
+      this.layersData = new ArrayBuffer(batchSize * model.layers.length * 29);
+      this.uvTransformsData = new Float32Array(this.layersData, 0, batchSize * model.layers.length * 7);
+      this.layerAlphasData = new Uint8Array(this.layersData, batchSize * model.layers.length * 28, batchSize * model.layers.length);
+      this.layersBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.layersBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, this.layersData.byteLength, gl.DYNAMIC_DRAW);
     }
   }
 
@@ -111,13 +78,10 @@ export default class extends Bucket {
     let layerCount = model.layers.length;
     let boneCount = model.bones.length;
     let boneArray = this.boneArray;
-    let teamColorArray = this.teamColorArray;
-    let vertexColorArray = this.vertexColorArray;
-    let geosetColorArrays = this.geosetColorArrays;
-    let layerAlphaArrays = this.layerAlphaArrays;
-    let uvOffsetArrays = this.uvOffsetArrays;
-    let uvScaleArrays = this.uvScaleArrays;
-    let uvRotArrays = this.uvRotArrays;
+    let colorData = this.colorData;
+    let geosetColorsData = this.geosetColorsData;
+    let layerAlphasData = this.layerAlphasData;
+    let uvTransformsData = this.uvTransformsData;
     let instanceOffset = 0;
     let instances = data.instances;
     let particleEmitters = data.particleEmitters;
@@ -142,6 +106,8 @@ export default class extends Bucket {
         let ribbonEmitterViews = instance.ribbonEmitters;
         let eventObjectEmitterViews = instance.eventObjectEmitters;
         let instanceOffset4 = instanceOffset * 4;
+        let instanceOffset5 = instanceOffset * 5;
+        let instanceOffset7 = instanceOffset * 7;
 
         // Bones
         for (let j = 0, k = boneCount * 16; j < k; j++) {
@@ -149,45 +115,46 @@ export default class extends Bucket {
         }
 
         // Team color
-        teamColorArray[instanceOffset] = instance.teamColor;
+        colorData[instanceOffset5] = instance.teamColor;
 
         // Vertex color
-        vertexColorArray[instanceOffset4] = vertexColor[0];
-        vertexColorArray[instanceOffset4 + 1] = vertexColor[1];
-        vertexColorArray[instanceOffset4 + 2] = vertexColor[2];
-        vertexColorArray[instanceOffset4 + 3] = vertexColor[3];
+        colorData[instanceOffset5 + 1] = vertexColor[0];
+        colorData[instanceOffset5 + 2] = vertexColor[1];
+        colorData[instanceOffset5 + 3] = vertexColor[2];
+        colorData[instanceOffset5 + 4] = vertexColor[3];
 
         for (let geosetIndex = 0; geosetIndex < geosetCount; geosetIndex++) {
-          let geosetColorArray = geosetColorArrays[geosetIndex];
           let geosetIndex4 = geosetIndex * 4;
+          let base = batchSize * geosetIndex4 + instanceOffset4;
 
           // Geoset color
-          geosetColorArray[instanceOffset4] = geosetColors[geosetIndex4];
-          geosetColorArray[instanceOffset4 + 1] = geosetColors[geosetIndex4 + 1];
-          geosetColorArray[instanceOffset4 + 2] = geosetColors[geosetIndex4 + 2];
-          geosetColorArray[instanceOffset4 + 3] = geosetColors[geosetIndex4 + 3];
+          geosetColorsData[base] = geosetColors[geosetIndex4];
+          geosetColorsData[base + 1] = geosetColors[geosetIndex4 + 1];
+          geosetColorsData[base + 2] = geosetColors[geosetIndex4 + 2];
+          geosetColorsData[base + 3] = geosetColors[geosetIndex4 + 3];
         }
 
         for (let layerIndex = 0; layerIndex < layerCount; layerIndex++) {
-          let layerAlphaArray = layerAlphaArrays[layerIndex];
-          let uvOffsetArray = uvOffsetArrays[layerIndex];
-          let uvScaleArray = uvScaleArrays[layerIndex];
-          let uvRotArray = uvRotArrays[layerIndex];
           let layerIndex4 = layerIndex * 4;
+          let uvBase = batchSize * layerIndex * 7 + instanceOffset7;
 
           // Layer alpha
-          layerAlphaArray[instanceOffset] = layerAlphas[layerIndex];
+          layerAlphasData[batchSize * layerIndex + instanceOffset] = layerAlphas[layerIndex];
 
-          // Texture coordinate animation + sprite animation
-          uvOffsetArray[instanceOffset4] = uvOffsets[layerIndex4];
-          uvOffsetArray[instanceOffset4 + 1] = uvOffsets[layerIndex4 + 1];
-          uvOffsetArray[instanceOffset4 + 2] = uvOffsets[layerIndex4 + 2];
-          uvOffsetArray[instanceOffset4 + 3] = uvOffsets[layerIndex4 + 3];
+          // Translation
+          uvTransformsData[uvBase] = uvOffsets[layerIndex4];
+          uvTransformsData[uvBase + 1] = uvOffsets[layerIndex4 + 1];
 
-          uvScaleArray[instanceOffset] = uvScales[layerIndex];
+          // Rotation
+          uvTransformsData[uvBase + 2] = uvRots[layerIndex * 2];
+          uvTransformsData[uvBase + 3] = uvRots[layerIndex * 2 + 1];
 
-          uvRotArray[instanceOffset * 2] = uvRots[layerIndex * 2];
-          uvRotArray[instanceOffset * 2 + 1] = uvRots[layerIndex * 2 + 1];
+          // Scale
+          uvTransformsData[uvBase + 4] = uvScales[layerIndex];
+
+          // Sprite animation
+          uvTransformsData[uvBase + 5] = uvOffsets[layerIndex4 + 2];
+          uvTransformsData[uvBase + 6] = uvOffsets[layerIndex4 + 3];
         }
 
         for (let i = 0, l = particleEmitters.length; i < l; i++) {
@@ -218,29 +185,17 @@ export default class extends Bucket {
       gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
       gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, instanceOffset, gl.RGBA, gl.FLOAT, boneArray);
 
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
-      gl.bufferSubData(gl.ARRAY_BUFFER, 0, teamColorArray);
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
+      gl.bufferSubData(gl.ARRAY_BUFFER, 0, colorData);
 
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
-      gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertexColorArray);
-
-      for (let i = 0; i < geosetCount; i++) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetColorBuffers[i]);
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, geosetColorArrays[i]);
+      if (geosetCount) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetColorsBuffer);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, geosetColorsData);
       }
 
-      for (let i = 0; i < layerCount; i++) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.layerAlphaBuffers[i]);
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, layerAlphaArrays[i]);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvOffsetBuffers[i]);
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, uvOffsetArrays[i]);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvScaleBuffers[i]);
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, uvScaleArrays[i]);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvRotBuffers[i]);
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, uvRotArrays[i]);
+      if (layerCount) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.layersBuffer);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.layersData);
       }
     }
 

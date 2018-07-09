@@ -5,10 +5,10 @@ import JassAgent from './agent';
  */
 export default class JassTrigger extends JassAgent {
   /**
-   * @param {JassContext} jassContext
+   * @param {JassContext} jass
    */
-  constructor(jassContext) {
-    super(jassContext);
+  constructor(jass) {
+    super(jass);
 
     /** @member {boolean} */
     this.enabled = true;

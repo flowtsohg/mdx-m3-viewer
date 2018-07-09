@@ -2,7 +2,7 @@
  * @param {string} value
  * @return {Object}
  */
-export function literalValue(value) {
+function literalValue(value) {
   let result = null;
   let type = null;
 
@@ -46,3 +46,7 @@ export function literalValue(value) {
     type: type,
   };
 }
+
+module.exports = {
+  literalValue,
+};

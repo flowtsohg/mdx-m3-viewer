@@ -5,14 +5,14 @@ import JassAgent from './agent';
  */
 export default class JassRect extends JassAgent {
   /**
-   * @param {JassContext} jassContext
+   * @param {JassContext} jass
    * @param {number} minx
    * @param {number} miny
    * @param {number} maxx
    * @param {number} maxy
    */
-  constructor(jassContext, minx, miny, maxx, maxy) {
-    super(jassContext);
+  constructor(jass, minx, miny, maxx, maxy) {
+    super(jass);
 
     /** @member {Float32Array} */
     this.center = new Float32Array([maxx - minx, maxy - miny]);

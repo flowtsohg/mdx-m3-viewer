@@ -1,4 +1,5 @@
-import SlkFile from '../../slk/file';
+import EventDispatcher from '../../../viewer/eventdispatcher';
+import MappedData from '../../../utils/mappeddata';
 import recompile from './recompile';
 import * as natives from './natives';
 import JassHandle from './types/handle';
@@ -8,59 +9,17 @@ import JassPlayer from './types/player';
 import constantHandles from './constanthandles';
 
 /**
- * @param {*} value
- * @return {string}
- */
-function valueToString(value) {
-  if (value === undefined) {
-    return 'undefined';
-  } else if (value === null) {
-    return 'null';
-  } else if (typeof value === 'string') {
-    return `"${value}"`;
-  } else {
-    return value;
-  }
-}
-
-/**
- * @param {Array<*>} args
- * @param {War3MapWts} stringTable
- * @return {Array<*>}
- */
-function handleArgs(args, stringTable) {
-  return args.map((value) => {
-    // If this argument is a string, check if it's a trigger string, and if so replace it accordingly.
-    if (typeof value === 'string') {
-      let match = value.match(/^TRIGSTR_(\d+)$/);
-
-      if (match) {
-        return stringTable.get(parseInt(match[1]));
-      }
-      // If this argument is a reference, pass in its object instead.
-    } else if (value instanceof JassReference) {
-      return value.object;
-    }
-
-    return value;
-  });
-}
-
-/**
  * A Jass2 context.
  */
-export default class JassContext {
+export default class JassContext extends EventDispatcher {
   /**
    * @param {War3Map} map
-   * @param {string} commonj
-   * @param {string} blizzardj
-   * @param {string} unitbalanceslk
    */
-  constructor(map, commonj, blizzardj, unitbalanceslk) {
+  constructor(map) {
+    super();
+
     this.debugMode = false;
 
-    this.commonj = commonj;
-    this.blizzardj = blizzardj;
     this.map = map;
 
     this.globals = {};
@@ -75,7 +34,7 @@ export default class JassContext {
 
     this.references = new Set();
 
-    this.tables = {UnitBalance: new SlkFile(unitbalanceslk)};
+    this.mappedData = new MappedData();
 
     this.constantHandles = constantHandles(this);
     this.mapName = '';
@@ -91,8 +50,9 @@ export default class JassContext {
 
     this.timers = new Set();
 
-    for (let i = 0; i < 16; i++) {
-      this.players[i] = new JassPlayer(this, i);
+    //For now hardcoded to 1.29+
+    for (let i = 0; i < 28; i++) {
+      this.players[i] = new JassPlayer(this, i, 28);
     }
 
     this.stringTable = map.readStringTable();
@@ -110,8 +70,10 @@ export default class JassContext {
   /**
    * @param {string} name
    */
-  onNativeDefinition(name) {
-    // console.log('onNativeDefinition', name);
+  onNativeDef(name) {
+    if (this.debugMode) {
+      this.dispatchEvent({type: 'nativedef', name});
+    }
   }
 
   /**
@@ -119,8 +81,10 @@ export default class JassContext {
    * @param {function} handlerFunc
    * @return {function}
    */
-  onFunctionDefinition(name, handlerFunc) {
-    // console.log('onFunctionDefinition', name, handlerFunc);
+  onFunctionDef(name, handlerFunc) {
+    if (this.debugMode) {
+      this.dispatchEvent({type: 'functiondef', name, handlerFunc});
+    }
 
     return handlerFunc;
   }
@@ -130,8 +94,10 @@ export default class JassContext {
    * @param {*} value
    * @return {*}
    */
-  onLocalDefinition(name, value) {
-    // console.log('onLocalDefinition', name, value);
+  onLocalVarDef(name, value) {
+    if (this.debugMode) {
+      this.dispatchEvent({type: 'localvardef', name, value});
+    }
 
     if (value instanceof JassAgent) {
       return this.addReference(name, value);
@@ -145,8 +111,10 @@ export default class JassContext {
    * @param {*} value
    * @return {*}
    */
-  onGlobalDefinition(name, value) {
-    // console.log('onGlobalDefinition', name, value);
+  onGlobalVarDef(name, value) {
+    if (this.debugMode) {
+      this.dispatchEvent({type: 'globalvardef', name, value});
+    }
 
     // Store the names global handles are assigned to.
     // It can be nice to get e.g. enum names of types.
@@ -173,8 +141,10 @@ export default class JassContext {
    * @param {*} newValue
    * @return {*}
    */
-  onVariableSet(name, oldValue, newValue) {
-    // console.log('onVariableSet', name, oldValue, newValue);
+  onVarSet(name, oldValue, newValue) {
+    if (this.debugMode) {
+      this.dispatchEvent({type: 'varset', name, oldValue, newValue});
+    }
 
     // If the old value was a reference, remove it.
     if (oldValue instanceof JassReference) {
@@ -201,12 +171,16 @@ export default class JassContext {
    * @param {number} index
    * @param {*} newValue
    */
-  onVariableArraySet(name, array, index, newValue) {
-    // console.log('onVariableArraySet', name, index, newValue);
+  onArrayVarSet(name, array, index, newValue) {
+    let oldValue = array[index];
+
+    if (this.debugMode) {
+      this.dispatchEvent({type: 'arrayvarset', name, index, oldValue, newValue});
+    }
 
     // If the old value was a reference, remove it.
-    if (array[index] instanceof JassReference) {
-      this.removeReference(array[index]);
+    if (oldValue instanceof JassReference) {
+      this.removeReference(oldValue);
     }
 
     // If the new value is an agent, set a reference instead.
@@ -230,8 +204,10 @@ export default class JassContext {
    * @param {*} value
    * @return {*}
    */
-  onVariableGet(name, value) {
-    // console.log('onVariableGet', name, value);
+  onVarGet(name, value) {
+    if (this.debugMode) {
+      this.dispatchEvent({type: 'varget', name, value});
+    }
 
     return value;
   }
@@ -242,38 +218,50 @@ export default class JassContext {
    * @param {number} index
    * @return {*}
    */
-  onVariableArrayGet(name, array, index) {
-    // console.log('onVariableArrayGet', name, index, array, array[index]);
+  onArrayVarGet(name, array, index) {
+    let value = array[index];
 
-    return array[index];
+    if (this.debugMode) {
+      this.dispatchEvent({type: 'arrayvarget', name, index, value});
+    }
+
+    return value;
   }
 
   /**
    * @param {JassHandle} handle
    */
   onHandleCreation(handle) {
-    // console.log('onHandleCreation', handle);
+    if (this.debugMode) {
+      this.dispatchEvent({type: 'handlecreated', handle});
+    }
   }
 
   /**
    * @param {JassHandle} handle
    */
   onHandleDestruction(handle) {
-    // console.log('onHandleDestruction', handle);
+    if (this.debugMode) {
+      this.dispatchEvent({type: 'handledestroyed', handle});
+    }
   }
 
   /**
    * @param {JassReference} reference
    */
   onReferenceCreation(reference) {
-    console.log('onReferenceCreation', reference);
+    if (this.debugMode) {
+      this.dispatchEvent({type: 'refcreated', reference});
+    }
   }
 
   /**
    * @param {JassReference} reference
    */
   onReferenceDestruction(reference) {
-    console.log('onReferenceDestruction', reference);
+    if (this.debugMode) {
+      this.dispatchEvent({type: 'refdestroyed', reference});
+    }
   }
 
   /**
@@ -282,45 +270,58 @@ export default class JassContext {
    * @return {*}
    */
   call(name, ...args) {
-    let isNative = false;
     let handlerFunc = this.globals[name];
 
     if (!handlerFunc) {
-      isNative = true;
       handlerFunc = this.natives.get(name);
     }
 
     if (this.debugMode) {
-      let message = `[${isNative ? 'Native' : 'User'}] ${name}(${args.map(valueToString).join(', ')})`;
-
-      if (handlerFunc) {
-        console.warn(message);
-      } else {
-        console.error(message);
-      }
+      this.dispatchEvent({type: 'call', name, args, handlerFunc});
     }
 
     if (handlerFunc) {
-      // Handle references to the string table.
-      // E.g. if a string is equal to "TRIGSTR_002", replace it with the matching entry in the table.
-      return handlerFunc(this, ...handleArgs(args, this.stringTable));
+      return handlerFunc(this, ...args.map((value) => {
+        // If this argument is a string, check if it's a trigger string, and if so replace it accordingly.
+        if (typeof value === 'string') {
+          let match = value.match(/^TRIGSTR_(\d+)$/);
+
+          if (match) {
+            return this.stringTable.stringMap.get(parseInt(match[1]));
+          }
+          // If this argument is a reference, pass in its object instead.
+        } else if (value instanceof JassReference) {
+          return value.object;
+        }
+
+        // Otherwise return the value directly.
+        return value;
+      }));
     }
   }
 
   /**
    * @param {string} jass
    */
-  run(jass) {
-    eval(`(function (jassContext, globals) {\n${recompile(jass, this.data)}\n})`)(this, this.globals);
+  run(js) {
+    eval(`(function (jass, globals) {\n${js}\n})`)(this, this.globals);
+  }
+
+  /**
+   * @param {string} jass
+   * @return {string}
+   */
+  recompile(jass) {
+    return recompile(jass, this.data);
   }
 
   /**
    *
    */
   start() {
-    this.run(this.commonj);
-    this.run(this.blizzardj);
-    this.run(this.map.getScript());
+    this.run(this.recompile(this.commonj));
+    this.run(this.recompile(this.blizzardj));
+    this.run(this.recompile(this.map.getScript()));
   }
 
   /**

@@ -14,7 +14,7 @@ export default class TerrainDoodad {
     /** @member {string} */
     this.id = '\0\0\0\0';
     /** @member {number} */
-    this.u1 = 0; // Unknown
+    this.u1 = 0;
     /** @member {Uint32Array} */
     this.location = new Uint32Array(2);
   }

@@ -15,18 +15,16 @@ export default {
     attribute vec4 a_vertexColor;
     attribute vec4 a_geosetColor;
     attribute float a_layerAlpha;
-    attribute vec4 a_uvOffset;
-    attribute float a_uvScale;
-    attribute vec2 a_uvRot;
+    attribute vec4 a_uvTransRot;
+    attribute vec3 a_uvScaleSprite;
 
     varying vec3 v_normal;
     varying vec2 v_uv;
     varying float v_teamColor;
     varying vec4 v_vertexColor;
     varying vec4 v_geosetColor;
-    varying vec4 v_uvOffset;
-    varying float v_uvScale;
-    varying vec2 v_uvRot;
+    varying vec4 v_uvTransRot;
+    varying vec3 v_uvScaleSprite;
 
     void transform(inout vec3 position, inout vec3 normal, float boneNumber, vec4 bones) {
       // For the broken models out there, since the game supports this.
@@ -51,9 +49,8 @@ export default {
       transform(position, normal, a_boneNumber, a_bones);
 
       v_uv = a_uv;
-      v_uvOffset = a_uvOffset;
-      v_uvScale = a_uvScale;
-      v_uvRot = a_uvRot;
+      v_uvTransRot = a_uvTransRot;
+      v_uvScaleSprite = a_uvScaleSprite;
 
       v_normal = normal;
       v_teamColor = a_teamColor;
@@ -86,9 +83,8 @@ export default {
     varying float v_teamColor;
     varying vec4 v_vertexColor;
     varying vec4 v_geosetColor;
-    varying vec4 v_uvOffset;
-    varying float v_uvScale;
-    varying vec2 v_uvRot;
+    varying vec4 v_uvTransRot;
+    varying vec3 v_uvScaleSprite;
 
     // const vec3 lightDirection = normalize(vec3(-0.3, -0.3, 0.25));
 
@@ -105,22 +101,22 @@ export default {
 
         // Translation animation
         if (u_hasTranslationAnim) {
-          uv += v_uvOffset.xy;
+          uv += v_uvTransRot.xy;
         }
 
         // Rotation animation
         if (u_hasRotationAnim) {
-          uv = quat_transform(v_uvRot, uv - 0.5) + 0.5;
+          uv = quat_transform(v_uvTransRot.zw, uv - 0.5) + 0.5;
         }
 
         // Scale animation
         if (u_hasScaleAnim) {
-          uv = v_uvScale * (uv - 0.5) + 0.5;
+          uv = v_uvScaleSprite.x * (uv - 0.5) + 0.5;
         }
 
         // Sprite animation
         if (u_hasSlotAnim) {
-          uv = (v_uvOffset.zw + fract(uv)) * u_uvScale;
+          uv = (v_uvScaleSprite.yz + fract(uv)) * u_uvScale;
         }
       }
 

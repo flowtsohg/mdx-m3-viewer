@@ -74,14 +74,14 @@ export default class War3MapDoo {
     stream.writeUint32(this.doodads.length);
 
     for (let doodad of this.doodads) {
-      doodad.save(stream);
+      doodad.save(stream, this.version);
     }
 
     stream.writeUint8Array(this.u2);
     stream.writeUint32(this.terrainDoodads.length);
 
     for (let terrainDoodad of this.terrainDoodads) {
-      terrainDoodad.save(stream);
+      terrainDoodad.save(stream, this.version);
     }
 
     return buffer;

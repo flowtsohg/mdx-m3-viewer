@@ -30,7 +30,7 @@ export class ShallowGeoset {
     gl.vertexAttribPointer(attribs.a_normal, 3, gl.FLOAT, false, 12, offsets[1]);
     gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 8, offsets[2] + coordId * this.uvSetSize);
     gl.vertexAttribPointer(attribs.a_bones, 4, gl.UNSIGNED_BYTE, false, 4, offsets[3]);
-    gl.vertexAttribPointer(attribs.a_boneNumber, 4, gl.UNSIGNED_BYTE, false, 4, offsets[4]);
+    gl.vertexAttribPointer(attribs.a_boneNumber, 1, gl.UNSIGNED_BYTE, false, 4, offsets[4]);
   }
 
   /**
@@ -60,6 +60,11 @@ export class Geoset {
     let vertices = positions.length / 3;
     let uvs;
     let boneIndices = new Uint8Array(vertices * 4);
+    // A note for the future, since I keep coming back to this.
+    // The reason bone numbers are stored as 32 bits instead of 8 are because of offset rules.
+    // WebGL complains if the bind() method of ShallowGeoset above uses offset 1 instead of 4, even if the shader gets one float.
+    // Why? heck if I know.
+    // I don't see the alignment issues, but WebGL does.
     let boneNumbers = new Uint32Array(vertices);
     let vertexGroups = geoset.vertexGroups;
     let matrixGroups = geoset.matrixGroups;

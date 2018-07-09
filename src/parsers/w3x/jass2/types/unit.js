@@ -6,33 +6,32 @@ import JassLocation from './location';
  */
 export default class JassUnit extends JassWidget {
   /**
-   * @param {JassContext} jassContext
+   * @param {JassContext} jass
    * @param {JassPlayer} player
    * @param {string} unitId
    * @param {number} x
    * @param {number} y
    * @param {number} face
    */
-  constructor(jassContext, player, unitId, x, y, face) {
-    super(jassContext);
+  constructor(jass, player, unitId, x, y, face) {
+    super(jass);
 
-    let balanceRow = jassContext.tables.UnitBalance.getRowByKey(unitId);
+    let balanceRow = jass.mappedData.getRow(unitId);
 
-    if (!balanceRow) {
-      console.log('Unknown unitid', unitId);
-      return;
-    }
-
-    // Metadata
-    this.balanceRow = balanceRow;
-
+    this.id = unitId;
     this.player = player;
-    this.location = new JassLocation(jassContext, x, y);
+    this.location = new JassLocation(jass, x, y);
     this.face = face;
-    this.health = balanceRow.realHP;
-    this.maxHealth = this.health;
-    this.mana = parseFloat(balanceRow.realM) || 0;
-    this.maxMana = this.mana;
     this.acquireRange = 500;
+
+    if (balanceRow) {
+      this.balanceRow = balanceRow;
+      this.health = balanceRow.realHP;
+      this.maxHealth = this.health;
+      this.mana = parseFloat(balanceRow.realM) || 0;
+      this.maxMana = this.mana;
+    } else if (jass.debugMode) {
+      console.log('Unknown unitid', unitId);
+    }
   }
 }

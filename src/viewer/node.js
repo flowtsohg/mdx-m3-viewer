@@ -429,7 +429,7 @@ let nodeMixin = (superclass) => class extends superclass {
           // vec3.mul(worldScale, parentScale, localScale);
         }
 
-        mat4.fromRotationTranslationScaleOrigin(localMatrix, localRotation, computedLocation, computedScaling, this.pivot);
+        mat4.fromRotationTranslationScale(localMatrix, localRotation, computedLocation, computedScaling);
 
         mat4.mul(worldMatrix, parent.worldMatrix, localMatrix);
 
@@ -666,7 +666,7 @@ export class SkeletalNode {
       computedRotation = rotationHeap;
 
       quat.copy(computedRotation, parent.inverseWorldRotation);
-      quat.mul(computedRotation, computedRotation, scene.camera.inverseWorldRotation);
+      quat.mul(computedRotation, computedRotation, scene.camera.inverseRotation);
 
       this.convertBasis(computedRotation);
     } else {

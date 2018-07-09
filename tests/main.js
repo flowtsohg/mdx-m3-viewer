@@ -33,16 +33,19 @@ function addTestResult(testResult) {
     a.appendChild(testImage);
     testImage.style.width = "16px";
 
-    // The comparison image
-    let b = document.createElement("a");
-    b.href = comparisonImage.src;
-    b.target = "_blank";
-
-    b.appendChild(comparisonImage);
-    comparisonImage.style.width = "16px";
-
     imageA.appendChild(a);
-    imageB.appendChild(b);
+
+    if (comparisonImage) {
+        // The comparison image
+        let b = document.createElement("a");
+        b.href = comparisonImage.src;
+        b.target = "_blank";
+
+        b.appendChild(comparisonImage);
+        comparisonImage.style.width = "16px";
+
+        imageB.appendChild(b);
+    }
 
     imageA.className = "centered";
     imageB.className = "centered";

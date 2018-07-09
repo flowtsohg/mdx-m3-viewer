@@ -9,9 +9,10 @@ export default class SimpleModel {
   /**
    * @param {War3MapViewer} viewer
    * @param {ArrayBuffer} arrayBuffer
-   * @param {Array<number>} matrices
+   * @param {number} instances
+   * @param {Array<number>} instanceData
    */
-  constructor(viewer, arrayBuffer, matrices) {
+  constructor(viewer, arrayBuffer, instances, instanceData) {
     let gl = viewer.gl;
     let parser = new MdxParser(arrayBuffer);
     let geosets = parser.geosets;
@@ -98,9 +99,9 @@ export default class SimpleModel {
       }
     }
 
-    let matrixBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, matrixBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(matrices), gl.STATIC_DRAW);
+    let instanceDataBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, instanceDataBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(instanceData), gl.STATIC_DRAW);
 
     let textures = [];
 
@@ -129,9 +130,9 @@ export default class SimpleModel {
     /** @member {Array<number>} */
     this.offsets = offsets;
     /** @member {WebGLBuffer} */
-    this.matrixBuffer = matrixBuffer;
+    this.instanceDataBuffer = instanceDataBuffer;
     /** @member {number} */
-    this.instances = matrices.length / 6;
+    this.instances = instances;
     /** @member {Array<Object>} */
     this.opaqueBatches = opaqueBatches;
     /** @member {Array<Object>} */
@@ -150,7 +151,7 @@ export default class SimpleModel {
   render(gl, instancedArrays, uniforms, attribs, batches) {
     if (this.ok && batches.length) {
       // Matrices
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.matrixBuffer);
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceDataBuffer);
       gl.vertexAttribPointer(attribs.a_instancePosition, 3, gl.FLOAT, false, 24, 0);
       gl.vertexAttribPointer(attribs.a_instanceRotation, 2, gl.FLOAT, false, 24, 12);
       gl.vertexAttribPointer(attribs.a_instanceScale, 1, gl.FLOAT, false, 24, 20);

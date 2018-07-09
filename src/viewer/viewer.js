@@ -85,7 +85,7 @@ export default class ModelViewer extends EventDispatcher {
      *
      * @member {number}
      */
-    this.batchSize = 256;
+    this.batchSize = 8;
 
     /** @member {number} */
     this.renderedInstances = 0;

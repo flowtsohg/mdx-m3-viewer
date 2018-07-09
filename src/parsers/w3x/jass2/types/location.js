@@ -5,12 +5,12 @@ import JassAgent from './agent';
  */
 export default class JassLocation extends JassAgent {
   /**
-   * @param {JassContext} jassContext
+   * @param {JassContext} jass
    * @param {number} x
    * @param {number} y
    */
-  constructor(jassContext, x, y) {
-    super(jassContext);
+  constructor(jass, x, y) {
+    super(jass);
 
     /** @member {number} */
     this.x = x;

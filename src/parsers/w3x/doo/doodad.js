@@ -17,7 +17,7 @@ export default class Doodad {
     /** @member {number} */
     this.angle = 0;
     /** @member {Float32Array} */
-    this.scale = new Float32Array(3);
+    this.scale = new Float32Array([1, 1, 1]);
     /** @member {number} */
     this.flags = 0;
     /** @member {number} */
@@ -82,7 +82,7 @@ export default class Doodad {
       }
     }
 
-    stream.writeUint32(this.editorId);
+    stream.writeInt32(this.editorId);
   }
 
   /**
@@ -90,7 +90,7 @@ export default class Doodad {
    * @return {number}
    */
   getByteLength(version) {
-    let size = 38;
+    let size = 42;
 
     if (version > 7) {
       size += 8;

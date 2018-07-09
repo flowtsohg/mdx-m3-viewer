@@ -52,8 +52,6 @@ export default class Scene {
 
     this.node.recalculateTransformation();
     this.node.wasDirty = false;
-
-    this.camera.setParent(this.node);
   }
 
   /**
@@ -188,8 +186,6 @@ export default class Scene {
    */
   update() {
     if (this.rendered) {
-      this.camera.recalculateTransformation();
-
       // Update all of the nodes, instances, etc.
       this.node.updateChildren(this);
 
@@ -209,10 +205,12 @@ export default class Scene {
       }
 
       if (this.audioContext) {
-        let [x, y, z] = this.camera.worldLocation;
+        let [x, y, z] = this.camera.location;
 
         this.audioContext.listener.setPosition(-x, -y, -z);
       }
+
+      this.camera.update();
     }
   }
 
@@ -257,7 +255,7 @@ export default class Scene {
    */
   renderOpaque() {
     if (this.rendered) {
-      this.setViewport(this.viewer.gl);
+      this.viewport();
 
       for (let modelView of this.modelViews) {
         modelView.renderOpaque(this);
@@ -271,7 +269,7 @@ export default class Scene {
    */
   renderTranslucent() {
     if (this.rendered) {
-      this.setViewport(this.viewer.gl);
+      this.viewport();
 
       for (let modelView of this.modelViews) {
         modelView.renderTranslucent(this);
@@ -282,8 +280,8 @@ export default class Scene {
   /**
    * Set the viewport to that of this scene's camera.
    */
-  setViewport() {
-    let viewport = this.camera.viewport;
+  viewport() {
+    let viewport = this.camera.rect;
 
     this.viewer.gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
   }

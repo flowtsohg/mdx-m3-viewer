@@ -202,10 +202,8 @@ function inRange(x, minVal, maxVal) {
  */
 function testHeader(data) {
   let version = data.model.version;
-  let animationFile = data.model.animationFile;
 
   data.assertWarning(version === 800, `Unknown version ${version}`);
-  data.assertError(animationFile === '', `Expected an empty animation file path, got "${animationFile}"`);
 }
 
 /**

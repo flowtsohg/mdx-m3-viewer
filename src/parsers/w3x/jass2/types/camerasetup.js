@@ -6,10 +6,10 @@ import JassLocation from './location';
  */
 export default class JassCameraSetup extends JassHandle {
   /**
-   * @param {JassContext} jassContext
+   * @param {JassContext} jass
    */
-  constructor(jassContext) {
-    super(jassContext);
+  constructor(jass) {
+    super(jass);
 
     /** @member {number} */
     this.targetDistance = 0;
@@ -26,6 +26,6 @@ export default class JassCameraSetup extends JassHandle {
     /** @member {number} */
     this.zOffset = 0;
     /** @member {JassLocation} */
-    this.destPosition = new JassLocation(jassContext, 0, 0);
+    this.destPosition = new JassLocation(jass, 0, 0);
   }
 }

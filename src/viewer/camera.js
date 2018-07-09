@@ -1,37 +1,72 @@
 import {vec3, vec4, quat, mat4} from 'gl-matrix';
-import {unproject, distanceToPlane, unpackPlanes} from '../common/gl-matrix-addon';
-import {SceneNode} from './node';
+import {unproject, distanceToPlane, unpackPlanes, VEC3_UNIT_Y, VEC3_UNIT_X, VEC3_UNIT_Z} from '../common/gl-matrix-addon';
 
 let vectorHeap = vec3.create();
 let vectorHeap2 = vec3.create();
 let vectorHeap3 = vec3.create();
+let quatHeap = quat.create();
+
+let directionHeap = vec3.create();
+let rightHeap = vec3.create();
+let upHeap = vec3.create();
+let targetHeap = vec3.create();
+
+let matHeap = mat4.create();
+
+function rotateAngles(rotation, horizontalAngle, verticalAngle) {
+  quat.identity(quatHeap);
+  quat.rotateX(quatHeap, quatHeap, verticalAngle);
+
+  quat.mul(rotation, quatHeap, rotation);
+  quat.rotateZ(rotation, rotation, horizontalAngle);
+}
 
 /**
  * A camera.
  */
-export default class Camera extends SceneNode {
+export default class Camera {
   /**
    *
    */
   constructor() {
-    super();
-    this.perspective = true;
-    this.ortho = false;
-    this.fieldOfView = 0;
-    this.aspectRatio = 0;
-    this.nearClipPlane = 0;
-    this.farClipPlane = 0;
+    // Rendered viewport.
+    this.rect = vec4.create();
+
+    // Perspective values.
+    this.isPerspective = true;
+    this.fov = 0;
+    this.aspect = 0;
+
+    // Orthogonal values.
+    this.isOrtho = false;
     this.leftClipPlane = 0;
     this.rightClipPlane = 0;
     this.bottomClipPlane = 0;
     this.topClipPlane = 0;
-    this.viewport = vec4.create();
+
+    // Shared values.
+    this.nearClipPlane = 0;
+    this.farClipPlane = 0;
+
+    // World values.
+    this.location = vec3.create();
+    this.rotation = quat.create();
+
+    // Derived values.
+    this.inverseRotation = quat.create();
+    this.forward = vec3.create();
+    this.right = vec3.create();
+    this.up = vec3.create();
+    this.worldMatrix = mat4.create();
     this.projectionMatrix = mat4.create();
     this.worldProjectionMatrix = mat4.create();
     this.inverseWorldMatrix = mat4.create();
-    this.inverseRotation = quat.create();
     this.inverseRotationMatrix = mat4.create();
     this.inverseWorldProjectionMatrix = mat4.create();
+
+    this.directionX = vec3.create();
+    this.directionY = vec3.create();
+    this.directionZ = vec3.create();
 
     // First four vectors are the corners of a 2x2 rectangle, the last three vectors are the unit axes
     this.vectors = [vec3.fromValues(-1, -1, 0), vec3.fromValues(-1, 1, 0), vec3.fromValues(1, 1, 0), vec3.fromValues(1, -1, 0), vec3.fromValues(1, 0, 0), vec3.fromValues(0, 1, 0), vec3.fromValues(0, 0, 1)];
@@ -41,34 +76,25 @@ export default class Camera extends SceneNode {
 
     // Left, right, top, bottom, near, far
     this.planes = [vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create()];
-  }
 
-  /**
-   * Set the parent of the camera.
-   * Note that this does not add the camera as a child to the parent.
-   * The camera is updated from the scene, rather than it's parent.
-   *
-   * @param {SceneNode|SkeletalNode|EventNode} parent
-   */
-  setParent(parent) {
-    this.parent = parent;
+    this.dirty = true;
   }
 
   /**
    * Set the camera to perspective projection mode.
    *
-   * @param {number} fieldOfView
-   * @param {number} aspectRatio
-   * @param {number} nearClipPlane
-   * @param {number} farClipPlane
+   * @param {number} fov
+   * @param {number} aspect
+   * @param {number} near
+   * @param {number} far
    */
-  setPerspective(fieldOfView, aspectRatio, nearClipPlane, farClipPlane) {
-    this.perspective = true;
-    this.ortho = false;
-    this.fieldOfView = fieldOfView;
-    this.aspectRatio = aspectRatio;
-    this.nearClipPlane = nearClipPlane;
-    this.farClipPlane = farClipPlane;
+  perspective(fov, aspect, near, far) {
+    this.isPerspective = true;
+    this.isOrtho = false;
+    this.fov = fov;
+    this.aspect = aspect;
+    this.nearClipPlane = near;
+    this.farClipPlane = far;
 
     this.dirty = true;
   }
@@ -83,9 +109,9 @@ export default class Camera extends SceneNode {
    * @param {number} near
    * @param {number} far
    */
-  setOrtho(left, right, bottom, top, near, far) {
-    this.perspective = false;
-    this.ortho = true;
+  ortho(left, right, bottom, top, near, far) {
+    this.isPerspective = false;
+    this.isOrtho = true;
     this.leftClipPlane = left;
     this.rightClipPlane = right;
     this.bottomClipPlane = bottom;
@@ -101,10 +127,166 @@ export default class Camera extends SceneNode {
    *
    * @param {vec4} viewport
    */
-  setViewport(viewport) {
-    vec4.copy(this.viewport, viewport);
+  viewport(viewport) {
+    vec4.copy(this.rect, viewport);
 
-    this.aspectRatio = viewport[2] / viewport[3];
+    this.aspect = viewport[2] / viewport[3];
+
+    this.dirty = true;
+  }
+
+  /**
+   * Set the camera location in world coordinates.
+   *
+   * @param {vec3} location
+   */
+  setLocation(location) {
+    vec3.copy(this.location, location);
+
+    this.dirty = true;
+  }
+
+  /**
+   * Move the camera by the given offset in world coordinates.
+   *
+   * @param {vec3} offset
+   */
+  move(offset) {
+    vec3.add(this.location, this.location, offset);
+
+    this.dirty = true;
+  }
+
+  /**
+   * Set the camera rotation.
+   *
+   * @param {quat} rotation
+   */
+  setRotation(rotation) {
+    quat.identity(this.rotation);
+
+    this.rotate(rotation);
+  }
+
+  /**
+   * Rotate the camera by the given rotation.
+   *
+   * @param {quat} rotation
+   */
+  rotate(rotation) {
+    quat.mul(this.rotation, this.rotation, rotation);
+
+    this.dirty = true;
+  }
+
+  /**
+   * Set the camera rotation to the given horizontal and vertical angles.
+   *
+   * @param {number} horizontalAngle
+   * @param {number} verticalAngle
+   */
+  setRotationAngles(horizontalAngle, verticalAngle) {
+    quat.identity(this.rotation);
+
+    this.rotateAngles(horizontalAngle, verticalAngle);
+  }
+
+  /**
+   * Rotate the camera by the given horizontal and vertical angles.
+   *
+   * @param {number} horizontalAngle
+   * @param {number} verticalAngle
+   */
+  rotateAngles(horizontalAngle, verticalAngle) {
+    rotateAngles(this.rotation, horizontalAngle, verticalAngle);
+
+    this.dirty = true;
+  }
+
+  /**
+   * Rotate around the given point.
+   * Changes both the camera location and rotation.
+   *
+   * @param {quat} rotation
+   * @param {vec3} point
+   */
+  rotateAround(rotation, point) {
+    this.rotate(rotation);
+
+    quat.conjugate(quatHeap, quatHeap);
+    vec3.sub(vectorHeap, this.location, point);
+    vec3.transformQuat(vectorHeap, vectorHeap, rotation);
+    vec3.add(this.location, vectorHeap, point);
+  }
+
+  /**
+   * Set the rotation around the given point.
+   * Changes both the camera location and rotation.
+   *
+   * @param {number} horizontalAngle
+   * @param {number} verticalAngle
+   * @param {vec3} point
+   */
+  setRotationAroundAngles(horizontalAngle, verticalAngle, point) {
+    quat.identity(quatHeap);
+    rotateAngles(quatHeap, horizontalAngle, verticalAngle);
+
+    this.setRotation(quatHeap);
+
+    let length = vec3.len(vec3.sub(vectorHeap, this.location, point));
+
+    quat.conjugate(quatHeap, quatHeap);
+    vec3.copy(vectorHeap, VEC3_UNIT_Z);
+    vec3.transformQuat(vectorHeap, vectorHeap, quatHeap);
+    vec3.scale(vectorHeap, vectorHeap, length);
+    vec3.add(this.location, vectorHeap, point);
+  }
+
+  /**
+   * Face the given point. Changes only the camera's orientation.
+   *
+   * @param {vec3} point
+   * @param {vec3} worldUp
+   */
+  face(point, worldUp) {
+    mat4.lookAt(matHeap, this.location, point, worldUp);
+    mat4.getRotation(this.rotation, matHeap);
+
+    this.dirty = true;
+  }
+
+  /**
+   * Move to the given location, and look at the given target.
+   *
+   * @param {vec3} location
+   * @param {vec3} target
+   * @param {vec3} worldUp
+   */
+  moveToAndFace(location, target, worldUp) {
+    vec3.copy(this.location, location);
+    this.face(target, worldUp);
+  }
+
+  /**
+   * Reset the location and angles.
+   */
+  reset() {
+    vec3.set(this.location, 0, 0, 0);
+    quat.identity(this.rotation);
+
+    this.dirty = true;
+  }
+
+  /**
+   * Target the given point.
+   * If the camera should orbit a point, call this every time the angles change, or the target point changes.
+   * Note that the camera will always face the point.
+   *
+   * @param {vec3} point
+   */
+  target(point) {
+    vec3.scale(vectorHeap, this.forward, -vec3.len(vec3.sub(vectorHeap, this.location, point)));
+    vec3.add(this.location, point, vectorHeap);
 
     this.dirty = true;
   }
@@ -112,43 +294,56 @@ export default class Camera extends SceneNode {
   /**
    * Recalculate the camera's transformation.
    */
-  recalculateTransformation() {
-    super.recalculateTransformation();
+  update() {
+    if (this.dirty) {
+      this.dirty = false;
 
-    let worldMatrix = this.worldMatrix;
-    let projectionMatrix = this.projectionMatrix;
-    let worldProjectionMatrix = this.worldProjectionMatrix;
-    let inverseWorldRotation = this.inverseWorldRotation;
-    let vectors = this.vectors;
-    let billboardedVectors = this.billboardedVectors;
+      let location = this.location;
+      let rotation = this.rotation;
+      let inverseRotation = this.inverseRotation;
+      let worldMatrix = this.worldMatrix;
+      let projectionMatrix = this.projectionMatrix;
+      let worldProjectionMatrix = this.worldProjectionMatrix;
+      let vectors = this.vectors;
+      let billboardedVectors = this.billboardedVectors;
 
-    // Projection matrix
-    // Camera space -> NDC space
-    if (this.perspective) {
-      mat4.perspective(projectionMatrix, this.fieldOfView, this.aspectRatio, this.nearClipPlane, this.farClipPlane);
-    } else {
-      mat4.ortho(projectionMatrix, this.leftClipPlane, this.rightClipPlane, this.bottomClipPlane, this.topClipPlane, this.nearClipPlane, this.farClipPlane);
+      // Projection matrix
+      // Camera space -> NDC space
+      if (this.isPerspective) {
+        mat4.perspective(projectionMatrix, this.fov, this.aspect, this.nearClipPlane, this.farClipPlane);
+      } else {
+        mat4.ortho(projectionMatrix, this.leftClipPlane, this.rightClipPlane, this.bottomClipPlane, this.topClipPlane, this.nearClipPlane, this.farClipPlane);
+      }
+
+      mat4.fromQuat(worldMatrix, rotation);
+      mat4.translate(worldMatrix, worldMatrix, vec3.negate(vectorHeap, location));
+
+      quat.conjugate(inverseRotation, rotation);
+
+      // World projection matrix
+      // World space -> NDC space
+      mat4.mul(worldProjectionMatrix, projectionMatrix, worldMatrix);
+
+      // Recaculate the camera's frusum planes
+      unpackPlanes(this.planes, worldProjectionMatrix);
+
+      // Inverse world matrix
+      // Camera space -> World space
+      mat4.invert(this.inverseWorldMatrix, worldMatrix);
+
+      vec3.transformQuat(this.directionX, VEC3_UNIT_X, inverseRotation);
+      vec3.transformQuat(this.directionY, VEC3_UNIT_Y, inverseRotation);
+      vec3.transformQuat(this.directionZ, VEC3_UNIT_Z, inverseRotation);
+
+      // Inverse world projection matrix
+      // NDC space -> World space
+      mat4.invert(this.inverseWorldProjectionMatrix, worldProjectionMatrix);
+
+      // Cache the billboarded vectors
+      for (let i = 0; i < 7; i++) {
+        vec3.transformQuat(billboardedVectors[i], vectors[i], inverseRotation);
+      }
     }
-
-    // World projection matrix
-    // World space -> NDC space
-    mat4.mul(worldProjectionMatrix, projectionMatrix, worldMatrix);
-
-    // Inverse world matrix
-    // Camera space -> World space
-    mat4.invert(this.inverseWorldMatrix, worldMatrix);
-
-    // Inverse world projection matrix
-    // NDC space -> World space
-    mat4.invert(this.inverseWorldProjectionMatrix, worldProjectionMatrix);
-
-    // Cache the billboarded vectors
-    for (let i = 0; i < 7; i++) {
-      vec3.transformQuat(billboardedVectors[i], vectors[i], inverseWorldRotation);
-    }
-
-    // Recaculate the camera's frusum planes
-    unpackPlanes(this.planes, worldProjectionMatrix);
   }
 
   /**
@@ -199,7 +394,7 @@ export default class Camera extends SceneNode {
    * @return {vec2}
    */
   worldToScreen(out, v) {
-    let viewport = this.viewport;
+    let viewport = this.rect;
 
     vec3.transformMat4(vectorHeap, v, this.worldProjectionMatrix);
 
@@ -210,20 +405,20 @@ export default class Camera extends SceneNode {
   }
 
   /**
-   * Given a vector in screen space, return the vector transformed to world space, projected on the X-Z plane.
+   * Given a vector in screen space, return a ray from the near plane to the far plane.
    *
-   * @param {vec3} out
+   * @param {Float32Array} out
    * @param {vec2} v
-   * @return {vec3}
+   * @return {Float32Array}
    */
-  screenToWorld(out, v) {
+  screenToWorldRay(out, v) {
     let a = vectorHeap;
     let b = vectorHeap2;
     let c = vectorHeap3;
     let x = v[0];
     let y = v[1];
     let inverseWorldProjectionMatrix = this.inverseWorldProjectionMatrix;
-    let viewport = this.viewport;
+    let viewport = this.rect;
 
     // Intersection on the near-plane
     unproject(a, vec3.set(c, x, y, 0), inverseWorldProjectionMatrix, viewport);
@@ -231,12 +426,9 @@ export default class Camera extends SceneNode {
     // Intersection on the far-plane
     unproject(b, vec3.set(c, x, y, 1), inverseWorldProjectionMatrix, viewport);
 
-    // Intersection on the X-Y plane
-    let zIntersection = -a[2] / (b[2] - a[2]);
+    out.set(a, 0);
+    out.set(b, 3);
 
-    vec3.set(out, a[0] + (b[0] - a[0]) * zIntersection, 0, a[1] + (b[1] - a[1]) * zIntersection);
-
-    // console.log(out, a, b, zIntersection)
     return out;
   }
 }

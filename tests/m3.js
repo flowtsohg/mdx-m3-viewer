@@ -7,7 +7,7 @@ let m3Tests = {
                 return viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([0, -5, -100]);
+                camera.moveToAndFace([0, 5, 100], [0, 5, 0], [0, 1, 0]);
 
                 let instance = model.addInstance().uniformScale(50);
 
@@ -21,7 +21,7 @@ let m3Tests = {
                 return viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([0, -5, -100]);
+                camera.moveToAndFace([0, 5, 100], [0, 5, 0], [0, 1, 0]);
 
                 let instance = model.addInstance().uniformScale(50).setSequence(0);
 
@@ -37,7 +37,7 @@ let m3Tests = {
                 return viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([0, -5, -100]);
+                camera.moveToAndFace([0, 5, 100], [0, 5, 0], [0, 1, 0]);
 
                 let instance = model.addInstance().uniformScale(50).setTeamColor(1);
 
@@ -51,7 +51,7 @@ let m3Tests = {
                 return viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([0, -5, -100]);
+                camera.moveToAndFace([0, 5, 100], [0, 5, 0], [0, 1, 0]);
 
                 let instance = model.addInstance().uniformScale(50).setVertexColor([255, 0, 0, 255]);
 
@@ -65,12 +65,31 @@ let m3Tests = {
                 return viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([0, -5, -100]);
+                camera.moveToAndFace([0, 5, 100], [0, 5, 0], [0, 1, 0]);
 
                 let instance = model.addInstance().uniformScale(50).setVertexColor([255, 0, 0, 255]).setTeamColor(1);
 
                 scene.addInstance(instance);
             }
-        }
+        },
+
+        {
+            name: "texture-overriding",
+            load(viewer) {
+                return viewer.load("Assets/Units/Zerg/Baneling/Baneling.m3", sc2Solver);
+            },
+            test(viewer, scene, camera, model) {
+                camera.moveToAndFace([0, 5, 140], [0, 5, 0], [0, 1, 0]);
+
+                let instance = model.addInstance().uniformScale(50).move([25, 0, 0]);
+                let instance2 = model.addInstance().uniformScale(50).move([-25, 0, 0]);
+                let material = model.materials[1][0];
+
+                instance.setTexture(material.layers[0].texture, material.layers[10].texture);
+
+                scene.addInstance(instance);
+                scene.addInstance(instance2);
+            }
+        },
     ]
 };

@@ -50,7 +50,7 @@ export default class War3MapUnitsDoo {
    * @return {ArrayBuffer}
    */
   save() {
-    let buffer = new ArrayBuffer(this.calcSize());
+    let buffer = new ArrayBuffer(this.getByteLength());
     let stream = new BinaryStream(buffer);
 
     stream.write('W3do');

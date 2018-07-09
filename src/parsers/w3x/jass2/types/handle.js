@@ -3,11 +3,11 @@
  */
 export default class JassHandle {
   /**
-   * @param {JassContext} jassContext
+   * @param {JassContext} jass
    */
-  constructor(jassContext) {
+  constructor(jass) {
     /** @member {JassContext} */
-    this.jassContext = jassContext;
+    this.jass = jass;
     /** @member {number} */
     this.handleId = -1;
     /** @member {Array<string>} */

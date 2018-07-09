@@ -345,7 +345,7 @@ export default class M3Model extends TexturedModel {
     gl.uniformMatrix4fv(uniforms.u_mvp, false, camera.worldProjectionMatrix);
     gl.uniformMatrix4fv(uniforms.u_mv, false, camera.worldMatrix);
 
-    gl.uniform3fv(uniforms.u_eyePos, camera.worldLocation);
+    gl.uniform3fv(uniforms.u_eyePos, camera.location);
     gl.uniform3fv(uniforms.u_lightPos, this.handler.lightPosition);
   }
 

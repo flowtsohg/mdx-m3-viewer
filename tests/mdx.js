@@ -7,9 +7,7 @@ let mdxTests = {
                 return viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([0, -45, -140]);
-                camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
-                camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-90)));
+                camera.moveToAndFace([150, 0, 45], [0, 0, 45], [0, 0, 1]);
 
                 let instance = model.addInstance();
 
@@ -23,9 +21,7 @@ let mdxTests = {
                 return viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([0, -45, -140]);
-                camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
-                camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-90)));
+                camera.moveToAndFace([150, 0, 45], [0, 0, 45], [0, 0, 1]);
 
                 let instance = model.addInstance().setSequence(0);
 
@@ -41,9 +37,7 @@ let mdxTests = {
                 return viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([0, -45, -140]);
-                camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
-                camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-90)));
+                camera.moveToAndFace([150, 0, 45], [0, 0, 45], [0, 0, 1]);
 
                 let instance = model.addInstance().setTeamColor(1);
 
@@ -57,9 +51,7 @@ let mdxTests = {
                 return viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([0, -45, -140]);
-                camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
-                camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-90)));
+                camera.moveToAndFace([150, 0, 45], [0, 0, 45], [0, 0, 1]);
 
                 let instance = model.addInstance().setVertexColor([255, 0, 0, 255]);
 
@@ -73,9 +65,7 @@ let mdxTests = {
                 return viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([0, -45, -140]);
-                camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
-                camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-90)));
+                camera.moveToAndFace([150, 0, 45], [0, 0, 45], [0, 0, 1]);
 
                 let instance = model.addInstance().setVertexColor([255, 0, 0, 255]).setTeamColor(1);
 
@@ -92,9 +82,7 @@ let mdxTests = {
                         return viewer.load("Units/Human/WaterElemental/WaterElemental.mdx", wc3Solver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, -80, -200]);
-                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
-                        camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-90)));
+                        camera.moveToAndFace([200, 0, 85], [0, 0, 85], [0, 0, 1]);
 
                         let instance = model.addInstance().setSequence(0);
 
@@ -110,7 +98,7 @@ let mdxTests = {
                         return viewer.load("UI/Feedback/Cooldown/UI-Cooldown-Indicator.mdx", wc3Solver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([-40, -40, -100]);
+                        camera.moveToAndFace([40, 40, 100], [40, 40, 0], [0, 1, 0]);
 
                         let instance = model.addInstance().setSequence(0).uniformScale(2100).setSequenceLoopMode(2);
 
@@ -126,9 +114,7 @@ let mdxTests = {
                         return viewer.load("Abilities/Spells/Other/Volcano/Volcano.mdx", wc3Solver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, -80, -600]);
-                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
-                        camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-90)));
+                        camera.moveToAndFace([400, 0, 50], [0, 0, 50], [0, 0, 1]);
 
                         let instance = model.addInstance().setSequence(1);
 
@@ -147,8 +133,7 @@ let mdxTests = {
                         return viewer.load("Units/Creeps/Gnoll/Gnoll.mdx", wc3Solver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([30, -20, -180]);
-                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-45)));
+                        camera.moveToAndFace([120, -50, 75], [0, 0, 40], [0, 0, 1]);
 
                         let instance = model.addInstance().setSequence(1).setSequenceLoopMode(2);
 
@@ -160,26 +145,28 @@ let mdxTests = {
                         instance.frame = 800;
 
                         scene.addInstance(instance);
+
+                        viewer.update();
                     }
                 },
 
-                {
-                    name: "x-axis",
-                    load(viewer) {
-                        return viewer.load("SharedModels/NEBirth.MDX", wc3Solver);
-                    },
-                    test(viewer, scene, camera, model) {
-                        camera.move([0, -150, -500]);
-                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
-                        camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-45)));
+                // {
+                //     name: "x-axis",
+                //     load(viewer) {
+                //         return viewer.load("SharedModels/NEBirth.MDX", wc3Solver);
+                //     },
+                //     test(viewer, scene, camera, model) {
+                //         camera.move([0, -150, -500]);
+                //         camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
+                //         camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-45)));
 
-                        let instance = model.addInstance().setSequence(0).rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-45)));
+                //         let instance = model.addInstance().setSequence(0).rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-45)));
 
-                        instance.frame += 3000;
+                //         instance.frame += 3000;
 
-                        scene.addInstance(instance);
-                    }
-                }
+                //         scene.addInstance(instance);
+                //     }
+                // }
             ]
         },
 
@@ -189,8 +176,7 @@ let mdxTests = {
                 return viewer.load("Buildings/Undead/HauntedMine/HauntedMine.mdx", wc3Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([0, 0, -600]);
-                camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
+                camera.moveToAndFace([0, 0, 620], [0, 0, 0], [0, 1, 0]);
 
                 let instance = model.addInstance().setSequence(0);
 
@@ -214,9 +200,7 @@ let mdxTests = {
                 return viewer.load("Units/Creeps/AzureDragon/AzureDragon.mdx", wc3Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([0, -60, -150]);
-                camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
-                camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-90)));
+                camera.moveToAndFace([50, -35, 250], [50, -35, 0], [0, 1, 0]);
 
                 let instance = model.addInstance().setSequence(5);
 
@@ -237,9 +221,7 @@ let mdxTests = {
                         return viewer.load("Units/Creeps/AzureDragon/AzureDragon.mdx", wc3Solver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, 20, -300]);
-                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
-                        camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-90)));
+                        camera.moveToAndFace([300, 0, -20], [0, 0, -20], [0, 0, 1]);
 
                         let instance = model.addInstance().setSequence(1);
 
@@ -257,7 +239,7 @@ let mdxTests = {
                         return viewer.load("Abilities/Spells/Human/Thunderclap/ThunderclapCaster.mdx", wc3Solver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, 0, -250]);
+                        camera.moveToAndFace([0, 0, 250], [0, 0, 0], [0, 1, 0]);
 
                         let instance = model.addInstance().setSequence(1);
 
@@ -275,8 +257,7 @@ let mdxTests = {
                         return viewer.load("Abilities/Spells/Human/Thunderclap/ThunderclapCaster.mdx", wc3Solver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([-50, 0, -200]);
-                        camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(90)));
+                        camera.moveToAndFace([200, 0, 50], [0, 0, 50], [0, 0, 1]);
 
                         let instance = model.addInstance().setSequence(1);
 
@@ -294,8 +275,7 @@ let mdxTests = {
                         return viewer.load("Doodads/Dungeon/Props/ForceWall/ForceWall.mdx", wc3Solver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, -50, -600]);
-                        camera.rotate(quat.setAxisAngle([], [1, 0, 0], math.degToRad(-90)));
+                        camera.moveToAndFace([0, 700, 100], [0, 0, 100], [0, 0, 1]);
 
                         let instance = model.addInstance().setSequence(0).setSequenceLoopMode(2);
 
@@ -313,9 +293,7 @@ let mdxTests = {
                         return viewer.load("Doodads/Cinematic/EnergyField/EnergyField.mdx", wc3Solver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, 0, -600]);
-                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(90)));
-                        camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(45)));
+                        camera.moveToAndFace([0, 600, 100], [0, 0, 50], [0, 0, 1]);
 
                         let instance = model.addInstance().setSequence(0).setSequenceLoopMode(2);
 
@@ -333,9 +311,7 @@ let mdxTests = {
                         return viewer.load("Units/Orc/SpiritWyvern/SpiritWyvern.mdx", wc3Solver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, 0, -300]);
-                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(90)));
-                        camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(45)));
+                        camera.moveToAndFace([0, 300, 100], [0, 0, 50], [0, 0, 1]);
 
                         let instance = model.addInstance().setSequence(9).setSequenceLoopMode(2);
 
@@ -356,9 +332,7 @@ let mdxTests = {
                 return viewer.load("Units/Human/HeroPaladin/HeroPaladin.mdx", wc3Solver);
             },
             test(viewer, scene, camera, model) {
-                camera.move([10, -60, -200]);
-                camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
-                camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-90)));
+                camera.moveToAndFace([225, -45, 70], [0, 0, 70], [0, 0, 1]);
 
                 let instance = model.addInstance().setSequence(4).setSequenceLoopMode(2);
 
@@ -379,8 +353,7 @@ let mdxTests = {
                         return viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, -55, -140]);
-                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
+                        camera.moveToAndFace([-40, 0, 100], [-40, 0, 0], [0, 1, 0]);
 
                         let instance = model.addInstance().setSequence(9);
 
@@ -398,8 +371,7 @@ let mdxTests = {
                         return viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, 0, -140]);
-                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
+                        camera.moveToAndFace([0, 0, 80], [0, 0, 0], [0, 1, 0]);
 
                         let instance = model.addInstance().setSequence(9);
 
@@ -417,8 +389,7 @@ let mdxTests = {
                         return viewer.load("Abilities/Spells/Human/Thunderclap/ThunderclapCaster.mdx", wc3Solver);
                     },
                     test(viewer, scene, camera, model) {
-                        camera.move([0, 0, -500]);
-                        camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
+                        camera.moveToAndFace([0, 0, 500], [0, 0, 0], [0, 1, 0]);
 
                         let instance = model.addInstance().setSequence(1);
 
@@ -430,6 +401,24 @@ let mdxTests = {
                     }
                 }
             ]
-        }
+        },
+
+        {
+            name: "texture-overriding",
+            load(viewer) {
+                return viewer.load("Units/Human/Footman/Footman.mdx", wc3Solver);
+            },
+            test(viewer, scene, camera, model) {
+                camera.moveToAndFace([220, 0, 45], [0, 0, 45], [0, 0, 1]);
+
+                let instance = model.addInstance().move([0, 40, 0]);
+                let instance2 = model.addInstance().move([0, -40, 0]);
+
+                instance.setTexture(model.textures[0], model.textures[2]);
+
+                scene.addInstance(instance);
+                scene.addInstance(instance2);
+            }
+        },
     ]
 };

@@ -25,7 +25,7 @@
 \bnot\b return yytext
 
 // types
-\b(integer|string|unit|boolean|rect|real|texttag|hashtable|timer|player|group|dialog|boolexpr|location|trigger|item|region|sound|quest|code|destructable|playercolor|camerasetup|gamecache|effect|multiboard|fogmodifier|lightning|trackable|attacktype|itemtype|multiboarditem|event|widget|ability|buff|force|triggercondition|triggeraction|conditionfunc|filterfunc|unitpool|itempool|race|alliancetype|racepreference|gamestate|igamestate|fgamestate|playerstate|playergameresult|unitstate|aidifficulty|eventid|gameevent|playerevent|playerunitevent|unitevent|limitop|widgetevent|dialogevent|unittype|gamespeed|gamedifficulty|gametype|mapflag|mapvisibility|mapsetting|mapdensity|mapcontrol|playerslotstate|volumegroup|camerafield|placement|startlocprio|raritycontrol|blendmode|texmapflags|effecttype|weathereffect|terraindeformation|fogstate|button|questitem|defeatcondition|timerdialog|leaderboard|version|agent|handle|image|ubersplat|damagetype|playerscore|weapontype|soundtype|pathingtype)\b return 'TYPE'
+\b(integer|string|unit|boolean|rect|real|texttag|hashtable|timer|player|group|dialog|boolexpr|location|trigger|item|region|sound|quest|code|destructable|playercolor|camerasetup|gamecache|effect|multiboard|fogmodifier|lightning|trackable|attacktype|itemtype|multiboarditem|event|widget|ability|buff|force|triggercondition|triggeraction|conditionfunc|filterfunc|unitpool|itempool|race|alliancetype|racepreference|gamestate|igamestate|fgamestate|playerstate|playergameresult|unitstate|aidifficulty|eventid|gameevent|playerevent|playerunitevent|unitevent|limitop|widgetevent|dialogevent|unittype|gamespeed|gamedifficulty|gametype|mapflag|mapvisibility|mapsetting|mapdensity|mapcontrol|playerslotstate|volumegroup|camerafield|placement|startlocprio|raritycontrol|blendmode|texmapflags|effecttype|weathereffect|terraindeformation|fogstate|button|questitem|defeatcondition|timerdialog|leaderboard|version|agent|handle|image|ubersplat|damagetype|playerscore|weapontype|soundtype|pathingtype|mousebuttontype)\b return 'TYPE'
 
 "*"   return '*'
 "/"   return '/'
@@ -608,5 +608,5 @@ Expression
 
 %%
 
-var ast = require('./ast');
-var util = require('./util');
+//var ast = require('./ast');
+//var util = require('./util');

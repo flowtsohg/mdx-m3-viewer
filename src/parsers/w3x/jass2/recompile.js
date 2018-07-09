@@ -56,8 +56,7 @@ function recompileNode(node, data, functionDef) {
 
     data[node.name] = functionDef;
 
-    result += `globals.${node.name} = jassContext.onFunctionDefinition("${node.name}", function ${node.name} (${['jassContext'].concat(node.args.map((arg) => recompileNode(arg, data, functionDef))).join(', ')}) {\n${node.body.map((statement) => recompileNode(statement, data, functionDef)).join('\n')}\n})\n`;
-    // result += `globals.${node.name} = function(${['jassContext'].concat(node.args.map((arg) => recompileNode(arg, data, functionDef))).join(', ')}) {\n${node.body.map((statement) => recompileNode(statement, data, functionDef)).join('\n')}\n}\n`;
+    result += `globals.${node.name} = jass.onFunctionDef("${node.name}", function ${node.name} (${['jass'].concat(node.args.map((arg) => recompileNode(arg, data, functionDef))).join(', ')}) {\n${node.body.map((statement) => recompileNode(statement, data, functionDef)).join('\n')}\n})\n`;
   } else if (node instanceof ast.FunctionArgument) {
     // Can only happen in a function definition.
     functionDef.arguments.push(node.name);
@@ -74,16 +73,17 @@ function recompileNode(node, data, functionDef) {
     // If this name is not an argument or a local, use the global scope.
     let name = scopedName(node.name, functionDef);
 
-    result += `${name} = jassContext.onVariableSet("${node.name}", ${name}, ${recompileNode(node.value, data, functionDef)})`;
+    result += `${name} = jass.onVarSet("${node.name}", ${name}, ${recompileNode(node.value, data, functionDef)})`;
   } else if (node instanceof ast.SetVariableArray) {
     // Can only happen in functions.
     // If this name is not an argument or a local, use the global scope.
     let name = scopedName(node.name, functionDef);
 
-    result += `jassContext.onVariableArraySet("${node.name}", ${name}, ${recompileNode(node.index, data, functionDef)}, ${recompileNode(node.value, data, functionDef)})`;
+    result += `jass.onArrayVarSet("${node.name}", ${name}, ${recompileNode(node.index, data, functionDef)}, ${recompileNode(node.value, data, functionDef)})`;
   } else if (node instanceof ast.Literal) {
     if (node.type === 'string') {
-      result += `"${node.value}"`;
+      // Inline newlines.
+      result += `"${node.value.replace(/(\r|\n)/g, '\%1')}"`;
     } else {
       result += node.value;
     }
@@ -92,13 +92,13 @@ function recompileNode(node, data, functionDef) {
     // If this name is not an argument or a local, use the global scope.
     let name = scopedName(node.name, functionDef);
 
-    result += `jassContext.onVariableGet("${node.name}", ${name})`;
+    result += `jass.onVarGet("${node.name}", ${name})`;
   } else if (node instanceof ast.GetVariableArray) {
     // Can be both in global scope and in functions.
     // If this name is not an argument or a local, use the global scope.
     let name = scopedName(node.name, functionDef);
 
-    result += `jassContext.onVariableArrayGet("${node.name}", ${name}, ${recompileNode(node.index, data, functionDef)})`;
+    result += `jass.onArrayVarGet("${node.name}", ${name}, ${recompileNode(node.index, data, functionDef)})`;
   } else if (node instanceof ast.Return) {
     result += `return ${recompileNode(node.value, data, functionDef)}`;
   } else if (node instanceof ast.Infix) {
@@ -114,19 +114,19 @@ function recompileNode(node, data, functionDef) {
 
     // Is this a local variable?
     if (node.isLocal) {
-      result += `let ${node.name} = jassContext.onLocalDefinition("${node.name}", ${value})`;
+      result += `let ${node.name} = jass.onLocalVarDef("${node.name}", ${value})`;
 
       // If so, also add it to the function data.
       functionDef.locals.push(node.name);
     } else {
-      result += `globals.${node.name} = jassContext.onGlobalDefinition("${node.name}", ${value})`;
+      result += `globals.${node.name} = jass.onGlobalVarDef("${node.name}", ${value})`;
     }
   } else if (node instanceof ast.Loop) {
     result += `while (true) {\n${node.actions.map((action) => recompileNode(action, data, functionDef)).join('\n')}\n}`;
   } else if (node instanceof ast.ExitWhen) {
     result += `if (${recompileNode(node.condition, data, functionDef)}) { break }`;
   } else if (node instanceof ast.FunctionCall) {
-    result += `jassContext.call(${[`"${node.name}"`].concat(node.args.map((arg) => recompileNode(arg, data, functionDef))).join(', ')})`;
+    result += `jass.call(${[`"${node.name}"`].concat(node.args.map((arg) => recompileNode(arg, data, functionDef))).join(', ')})`;
   } else if (node instanceof ast.FunctionReference) {
     result += `globals.${node.name}`;
   } else if (node instanceof ast.Unary) {
@@ -136,7 +136,7 @@ function recompileNode(node, data, functionDef) {
   } else if (node instanceof ast.Native) {
     data[node.name] = {type: 'native'};
 
-    result += `jassContext.onNativeDefinition("${node.name}")`;
+    result += `jass.onNativeDef("${node.name}")`;
   } else if (node instanceof ast.FunctionCallStatement) {
     result += recompileNode(node.functionCall, data, functionDef);
   }

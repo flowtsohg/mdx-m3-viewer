@@ -58,10 +58,6 @@ export default class RibbonEmitter extends SharedGeometryEmitter {
 
       model.bindTexture(modelObject.texture, 0, modelView);
 
-      /// TODO: Move texture wrap modes into the textures.
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
       gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.data.subarray(0, active * 30));
 

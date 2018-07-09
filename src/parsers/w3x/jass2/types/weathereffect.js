@@ -5,12 +5,12 @@ import JassHandle from './handle';
  */
 export default class JassWeatherEffect extends JassHandle {
   /**
-   * @param {JassContext} jassContext
+   * @param {JassContext} jass
    * @param {JassRect} whichRect
    * @param {string} effectId
    */
-  constructor(jassContext, whichRect, effectId) {
-    super(jassContext);
+  constructor(jass, whichRect, effectId) {
+    super(jass);
 
     /** @member {JassRect} */
     this.whichRect = whichRect;

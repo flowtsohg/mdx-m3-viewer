@@ -14,12 +14,19 @@ export default class TexturedModel extends Model {
    * @param {ModelView} modelView
    */
   bindTexture(texture, unit, modelView) {
+    let viewer = this.viewer;
     let textures = modelView.textures;
 
     if (textures.has(texture)) {
       texture = textures.get(texture);
     }
 
-    this.viewer.webgl.bindTexture(texture, unit);
+    // If the texture exists, bind it.
+    // Otherwise, bind null, which will result in a black texture being bound to avoid console errors.
+    if (texture) {
+      texture.bind(unit);
+    } else {
+      viewer.webgl.bindTexture(null, unit);
+    }
   }
 }

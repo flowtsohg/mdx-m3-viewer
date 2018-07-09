@@ -13,9 +13,7 @@ let baseTests = {
         let mountainKing = models[0];
         let baneling = models[1];
 
-        camera.move([0, -150, -400]);
-        camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
-        camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-90)));
+        camera.moveToAndFace([450, 0, 160], [0, 0, 160], [0, 0, 1]);
 
         let instance1 = mountainKing.addInstance().setSequence(1);
         let instance3 = mountainKing.addInstance().setSequence(1);
@@ -37,6 +35,8 @@ let baseTests = {
         scene.addInstance(instance4);
         scene.addInstance(instance5);
         scene.addInstance(instance6);
+
+        console.log(scene)
       },
     },
   ],
