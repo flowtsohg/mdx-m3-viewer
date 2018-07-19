@@ -567,15 +567,47 @@ function replaceIsUnitRace(object) {
 }
 
 /**
+ * The Warcraft 3 1.29 PTR introduced many new functions.
+ * A lot were later prepended with Blz to avoid name clashes with user functions.
+ * This returns whether the given name matches one of these functions.
+ *
+ * @param {string} name
+ * @return {boolean}
+ */
+function isBlzNeeded(name) {
+  return name === 'GetTriggerPlayerMouseX' || name === 'GetTriggerPlayerMouseY' || name === 'GetTriggerPlayerMousePosition' || name === 'GetTriggerPlayerMouseButton' ||
+    name === 'SetAbilityTooltip' || name === 'SetAbilityExtendedTooltip' || name === 'SetAbilityResearchTooltip' || name === 'SetAbilityResearchExtendedTooltip' ||
+    name === 'GetAbilityTooltip' || name === 'GetAbilityExtendedTooltip' || name === 'GetAbilityResearchTooltip' || name === 'GetAbilityResearchExtendedTooltip' ||
+    name === 'SetAbilityIcon' || name === 'GetAbilityIcon' || name === 'GetAbilityPosX' || name === 'GetAbilityPosY' || name === 'SetAbilityPosX' || name === 'SetAbilityPosY' ||
+    name === 'GetUnitMaxHP' || name === 'SetUnitMaxHP' || name === 'GetUnitMaxMana' || name === 'SetUnitMaxMana' || name === 'SetItemName' || name === 'SetItemDescription' ||
+    name === 'GetItemDescription' || name === 'SetItemTooltip' || name === 'GetItemTooltip' || name === 'SetItemExtendedTooltip' || name === 'GetItemExtendedTooltip' ||
+    name === 'SetItemIconPath' || name === 'GetItemIconPath' || name === 'SetUnitName' || name === 'SetHeroProperName' || name === 'GetUnitBaseDamage' ||
+    name === 'SetUnitBaseDamage' || name === 'GetUnitDiceNumber' || name === 'SetUnitDiceNumber' || name === 'GetUnitDiceSides' || name === 'SetUnitDiceSides' ||
+    name === 'GetUnitAttackCooldown' || name === 'SetUnitAttackCooldown' || name === 'SetSpcialEffectColorByPlayer' || name === 'SetSpecialEffectColor' ||
+    name === 'SetSpecialEffectAlpha' || name === 'SetSpecialEffectScale' || name === 'SetSpecialEffectPosition' || name === 'SetSpecialEffectHeight' ||
+    name === 'SetSpecialEffectTimeScale' || name === 'SetSpecialEffectTime' || name === 'SetSpecialEffectOrientation' || name === 'SetSpecialEffectYaw' ||
+    name === 'SetSpecialEffectPitch' || name === 'SetSpecialEffectRoll' || name === 'SetSpecialEffectX' || name === 'SetSpecialEffectY' || name === 'SetSpecialEffectZ' ||
+    name === 'SetSpecialEffectPositionLoc' || name === 'GetLocalSpecialEffectX' || name === 'GetLocalSpecialEffectY' || name === 'GetLocalSpecialEffectZ' ||
+    name === 'GetUnitArmor' || name === 'SetUnitArmor' || name === 'UnitHideAbility' || name === 'UnitDisableAbility' || name === 'UnitCancelTimedLife' ||
+    name === 'IsUnitSelectable' || name === 'IsUnitInvulnerable' || name === 'UnitInterruptAttack' || name === 'GetUnitCollisionSize' || name === 'GetAbilityManaCost' ||
+    name === 'GetAbilityCooldown' || name === 'SetUnitAbilityCooldown' || name === 'GetUnitAbilityCooldown' || name === 'GetUnitAbilityCooldownRemaining' ||
+    name === 'EndUnitAbilityCooldown' || name === 'GetUnitAbilityManaCost' || name === 'SetEventDamage' ||
+    // Note, the following two functions are available in the 1.29 PTR, but not in the public version!
+    // They require version 1.30, which at the time of writing is in PTR.
+    name === 'PlaySpecialEffect' || name === 'PlaySpecialEffectWithTimeScale';
+}
+
+/**
  * Try to find extended GUI that can be converted back to GUI.
  * This involves finding specific functions and cases where native function can be emulated via GUI functions.
  * This can avoid having to convert the extended GUI to custom script.
  * It's both nicer, and in the case of top-level events and conditions can avoid having to convert whole triggers.
  *
+ * @param {WeuConverterData} data
  * @param {ECA|SubParameters} object
  * @return {boolean}
  */
-function convertInlineGUI(object) {
+function convertInlineGUI(data, object) {
   let name = object.name;
 
   if (name === 'OperatorCompareBoolean') {
@@ -594,6 +626,20 @@ function convertInlineGUI(object) {
     return replaceSetHeroStat(object);
   } else if (name === 'TriggerRegisterUnitStateEvent') {
     return replaceTriggerRegisterUnitStateEvent(object);
+  } else if (isBlzNeeded(name)) {
+    object.name = `Blz${name}`;
+
+    // If this is a subparameters object, need to change the name also for the parent parameter.
+    if (object instanceof SubParameters) {
+      data.stack[1].value = `Blz${name}`;
+    }
+
+    // In the PTR this has 3 parameters, but later it became 2.
+    if (name === 'GetAbilityIcon' || name === 'SetAbilityIcon') {
+      object.parameters.pop();
+    }
+
+    return true;
   }
 
   return false;
@@ -607,7 +653,7 @@ function convertInlineGUI(object) {
 function testFunctionCall(data, object) {
   // Check if this object can be converted back to normal GUI.
   // If it's already normal GUI, nothing will happen.
-  if (convertInlineGUI(object)) {
+  if (convertInlineGUI(data, object)) {
     data.output.changes.push({type: 'inlinegui', stack: stackToString(data.stack)});
   }
 

@@ -1,6 +1,6 @@
 import {createTextureAtlas} from '../common/canvas';
 import fetchDataType from '../common/fetchdatatype';
-import EventDispatcher from './eventdispatcher';
+import EventDispatcher from '../common/eventdispatcher';
 import WebGL from './gl/gl';
 import PromiseResource from './promiseresource';
 import Scene from './scene';

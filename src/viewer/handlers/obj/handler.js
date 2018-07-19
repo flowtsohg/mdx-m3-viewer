@@ -4,10 +4,9 @@ import Bucket from '../../bucket';
 import ObjModelInstance from './modelinstance';
 import shaders from './shaders';
 
-
 export default {
   load(viewer) {
-    let shader = viewer.loadShader('ObjShader', shaders.vs, shaders.ps);
+    let shader = viewer.loadShader('ObjShader', shaders.vs, shaders.fs);
 
     // Returning false will not allow the handler to be added.
     // In this case, this should happen when the shader fails to compile.

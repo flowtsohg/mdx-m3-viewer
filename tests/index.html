@@ -1,65 +1,67 @@
 ﻿<!DOCTYPE html>
 <html>
-    <head>
-        <title>Unit Tests</title>
-        <meta charset="utf-8" />
 
-        <style>
-            td {
-                padding-left: 4px;
-                padding-right: 4px;
-            }
+<head>
+  <title>Unit Tests</title>
+  <meta charset="utf-8" />
 
-            .bold {
-                font-weight: bold;
-            }
+  <style>
+    td {
+      padding-left: 4px;
+      padding-right: 4px;
+    }
 
-            .centered {
-                text-align: center;
-            }
+    .bold {
+      font-weight: bold;
+    }
 
-            .success {
-                color: green;
-            }
+    .centered {
+      text-align: center;
+    }
 
-            .failure {
-                color: red;
-            }
-        </style>
-    </head>
+    .success {
+      color: green;
+    }
 
-    <body>
-        <b id="version"></b>
+    .failure {
+      color: red;
+    }
+  </style>
+</head>
 
-        <br />
-        <br />
+<body>
+  <b id="version"></b>
 
-        <button id="run">Run</button>
-        <button id="download">Download</button>
-        
-        <br />
-        <br />
+  <br />
+  <br />
 
-        <table id="tests">
-            <tr class="bold">
-                <td>Test</td>
-                <td>Status</td>
-                <td>A</td>
-                <td>B</td>
-            </tr>
-        </table>
+  <button id="run">Run</button>
+  <button id="download">Download</button>
 
-        <p id="result"></p>
+  <br />
+  <br />
 
-        <script src="../dist/viewer.min.js"></script>
+  <table id="tests">
+    <tr class="bold">
+      <td>Test</td>
+      <td>Status</td>
+      <td>A</td>
+      <td>B</td>
+    </tr>
+  </table>
 
-        <script src="common.js"></script>
+  <p id="result"></p>
 
-        <script src="geo.js"></script>
-        <script src="mdx.js"></script>
-        <script src="m3.js"></script>
-        <script src="base.js"></script>
+  <script src="../dist/viewer.min.js"></script>
 
-        <script src="main.js"></script>
-    </body>
+  <script src="common.js"></script>
+
+  <script src="geo.js"></script>
+  <script src="mdx.js"></script>
+  <script src="m3.js"></script>
+  <script src="base.js"></script>
+
+  <script src="main.js"></script>
+</body>
+
 </html>

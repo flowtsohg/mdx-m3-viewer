@@ -1,5 +1,5 @@
-import EventDispatcher from '../../../viewer/eventdispatcher';
-import MappedData from '../../../utils/mappeddata';
+import EventDispatcher from '../../common/eventdispatcher';
+import MappedData from '../mappeddata';
 import recompile from './recompile';
 import * as natives from './natives';
 import JassHandle from './types/handle';

@@ -12,13 +12,13 @@ function sc2Solver(path) {
 
 ModelViewer = ModelViewer.default;
 
-let glMatrix = ModelViewer.common.glMatrix,
-    vec2 = glMatrix.vec2,
-    vec3 = glMatrix.vec3,
-    vec4 = glMatrix.vec4,
-    quat = glMatrix.quat,
-    mat3 = glMatrix.mat3,
-    mat4 = glMatrix.mat4,
-    UnitTester = ModelViewer.utils.UnitTester,
-    geometry = ModelViewer.common.geometry,
-    math = ModelViewer.common.math;
+let glMatrix = ModelViewer.common.glMatrix;
+let vec2 = glMatrix.vec2;
+let vec3 = glMatrix.vec3;
+let vec4 = glMatrix.vec4;
+let quat = glMatrix.quat;
+let mat3 = glMatrix.mat3;
+let mat4 = glMatrix.mat4;
+let UnitTester = ModelViewer.utils.UnitTester;
+let geometry = ModelViewer.common.geometry;
+let math = ModelViewer.common.math;

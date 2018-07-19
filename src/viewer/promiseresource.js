@@ -1,4 +1,4 @@
-import EventDispatcher from './eventdispatcher';
+import EventDispatcher from '../common/eventdispatcher';
 
 /**
  * This object is used to promise about future resource loads, in case they are not yet known.

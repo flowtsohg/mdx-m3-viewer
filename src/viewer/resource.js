@@ -1,4 +1,4 @@
-import EventDispatcher from './eventdispatcher';
+import EventDispatcher from '../common/eventdispatcher';
 
 /**
  * A viewer resource.

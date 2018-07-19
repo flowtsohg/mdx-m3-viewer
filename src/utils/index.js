@@ -4,6 +4,7 @@ import blpSanityTest from './blpsanitytest';
 import convertWeu from './weu';
 import mdlSourceMap from './mdlsourcemap';
 import MappedData from './mappeddata';
+import jass2 from './jass2';
 
 export default {
   UnitTester,
@@ -12,4 +13,5 @@ export default {
   convertWeu,
   mdlSourceMap,
   MappedData,
+  jass2,
 };

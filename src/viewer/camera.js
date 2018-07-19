@@ -5,21 +5,7 @@ let vectorHeap = vec3.create();
 let vectorHeap2 = vec3.create();
 let vectorHeap3 = vec3.create();
 let quatHeap = quat.create();
-
-let directionHeap = vec3.create();
-let rightHeap = vec3.create();
-let upHeap = vec3.create();
-let targetHeap = vec3.create();
-
 let matHeap = mat4.create();
-
-function rotateAngles(rotation, horizontalAngle, verticalAngle) {
-  quat.identity(quatHeap);
-  quat.rotateX(quatHeap, quatHeap, verticalAngle);
-
-  quat.mul(rotation, quatHeap, rotation);
-  quat.rotateZ(rotation, rotation, horizontalAngle);
-}
 
 /**
  * A camera.
@@ -54,16 +40,12 @@ export default class Camera {
 
     // Derived values.
     this.inverseRotation = quat.create();
-    this.forward = vec3.create();
-    this.right = vec3.create();
-    this.up = vec3.create();
     this.worldMatrix = mat4.create();
     this.projectionMatrix = mat4.create();
     this.worldProjectionMatrix = mat4.create();
     this.inverseWorldMatrix = mat4.create();
     this.inverseRotationMatrix = mat4.create();
     this.inverseWorldProjectionMatrix = mat4.create();
-
     this.directionX = vec3.create();
     this.directionY = vec3.create();
     this.directionZ = vec3.create();
@@ -163,9 +145,9 @@ export default class Camera {
    * @param {quat} rotation
    */
   setRotation(rotation) {
-    quat.identity(this.rotation);
+    quat.copy(this.rotation, rotation);
 
-    this.rotate(rotation);
+    this.dirty = true;
   }
 
   /**
@@ -192,18 +174,6 @@ export default class Camera {
   }
 
   /**
-   * Rotate the camera by the given horizontal and vertical angles.
-   *
-   * @param {number} horizontalAngle
-   * @param {number} verticalAngle
-   */
-  rotateAngles(horizontalAngle, verticalAngle) {
-    rotateAngles(this.rotation, horizontalAngle, verticalAngle);
-
-    this.dirty = true;
-  }
-
-  /**
    * Rotate around the given point.
    * Changes both the camera location and rotation.
    *
@@ -220,6 +190,25 @@ export default class Camera {
   }
 
   /**
+   * Rotate around the given point.
+   * Changes both the camera location and rotation.
+   *
+   * @param {quat} rotation
+   * @param {vec3} point
+   */
+  setRotationAround(rotation, point) {
+    this.setRotation(rotation);
+
+    let length = vec3.len(vec3.sub(vectorHeap, this.location, point));
+
+    quat.conjugate(quatHeap, quatHeap);
+    vec3.copy(vectorHeap, VEC3_UNIT_Z);
+    vec3.transformQuat(vectorHeap, vectorHeap, quatHeap);
+    vec3.scale(vectorHeap, vectorHeap, length);
+    vec3.add(this.location, vectorHeap, point);
+  }
+
+  /**
    * Set the rotation around the given point.
    * Changes both the camera location and rotation.
    *
@@ -229,17 +218,10 @@ export default class Camera {
    */
   setRotationAroundAngles(horizontalAngle, verticalAngle, point) {
     quat.identity(quatHeap);
-    rotateAngles(quatHeap, horizontalAngle, verticalAngle);
+    quat.rotateX(quatHeap, quatHeap, verticalAngle);
+    quat.rotateZ(quatHeap, quatHeap, horizontalAngle);
 
-    this.setRotation(quatHeap);
-
-    let length = vec3.len(vec3.sub(vectorHeap, this.location, point));
-
-    quat.conjugate(quatHeap, quatHeap);
-    vec3.copy(vectorHeap, VEC3_UNIT_Z);
-    vec3.transformQuat(vectorHeap, vectorHeap, quatHeap);
-    vec3.scale(vectorHeap, vectorHeap, length);
-    vec3.add(this.location, vectorHeap, point);
+    this.setRotationAround(quatHeap, point);
   }
 
   /**
@@ -273,20 +255,6 @@ export default class Camera {
   reset() {
     vec3.set(this.location, 0, 0, 0);
     quat.identity(this.rotation);
-
-    this.dirty = true;
-  }
-
-  /**
-   * Target the given point.
-   * If the camera should orbit a point, call this every time the angles change, or the target point changes.
-   * Note that the camera will always face the point.
-   *
-   * @param {vec3} point
-   */
-  target(point) {
-    vec3.scale(vectorHeap, this.forward, -vec3.len(vec3.sub(vectorHeap, this.location, point)));
-    vec3.add(this.location, point, vectorHeap);
 
     this.dirty = true;
   }

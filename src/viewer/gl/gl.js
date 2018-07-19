@@ -56,7 +56,7 @@ export default class WebGL {
     }
 
     if (!extensions.instancedArrays) {
-      //throw new Error('WebGL: No instanced rendering support!');
+      throw new Error('WebGL: No instanced rendering support!');
     }
 
     if (!extensions.compressedTextureS3tc) {

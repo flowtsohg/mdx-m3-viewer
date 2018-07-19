@@ -9,7 +9,7 @@ export default {
       gl_Position = u_mvp * u_transform * vec4(a_position, 1.0);
     }
   `,
-  ps: `
+  fs: `
     uniform vec3 u_color;
 
     void main() {

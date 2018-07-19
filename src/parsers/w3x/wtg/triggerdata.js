@@ -10,13 +10,13 @@ export default class TriggerData {
   constructor() {
     /** @member {Object<string, string>} */
     this.types = {};
-    /** @member {Object<string, Array<string>>} */
+    /** @member {Array<Object>} */
     this.functions = [{}, {}, {}, {}];
     /** @member {Object<string, string>} */
     this.presets = {};
     /** @member {Object<string, string>} */
     this.externalTypes = {};
-    /** @member {Object<string, Array<string>>} */
+    /** @member {Array<Object>} */
     this.externalFunctions = [{}, {}, {}, {}];
     /** @member {Object<string, string>} */
     this.externalPresets = {};

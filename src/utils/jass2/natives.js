@@ -1,8 +1,8 @@
 // Stop the linter from complaining about uppercase function names.
 /* eslint new-cap: "off" */
 
-import {base256ToString} from '../../../common/typecast';
-import sstrhash2 from '../../../common/sstrhash2';
+import {base256ToString} from '../../common/typecast';
+import sstrhash2 from '../../common/sstrhash2';
 
 // import JassHandle from './types/handle';
 // import JassAgent from './types/agent';

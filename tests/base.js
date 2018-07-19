@@ -35,8 +35,6 @@ let baseTests = {
         scene.addInstance(instance4);
         scene.addInstance(instance5);
         scene.addInstance(instance6);
-
-        console.log(scene)
       },
     },
   ],

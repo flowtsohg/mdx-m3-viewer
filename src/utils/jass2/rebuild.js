@@ -1,5 +1,5 @@
-import UnitsDoo from '../unitsdoo/file';
-import Unit from '../unitsdoo/unit';
+import UnitsDoo from '../../parsers/w3x/unitsdoo/file';
+import Unit from '../../parsers/w3x/unitsdoo/unit';
 import JassContext from './context';
 import JassUnit from './types/unit';
 

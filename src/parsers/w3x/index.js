@@ -17,7 +17,6 @@ import wtg from './wtg';
 import wts from './wts';
 import unitsdoo from './unitsdoo';
 import w3f from './w3f';
-import jass2 from './jass2';
 
 export default {
   Map,
@@ -39,5 +38,4 @@ export default {
   wts,
   unitsdoo,
   w3f,
-  jass2,
 };
