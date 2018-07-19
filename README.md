@@ -1,34 +1,50 @@
-NO LONGER MAINTAINED.
-NO LONGER MAINTAINED.
-NO LONGER MAINTAINED.
+**NO LONGER ACTIVELY MAINTAINED.**
 
 mdx-m3-viewer
 =============
 
-Originally a simple model viewer used to render MDX and M3 models, used by the games Warcraft 3 and Starcraft 2 respectively. 
-Nowadays it is more of a general model viewer, that can handle any format the client can supply a handler for.
+A 3D model viewer for MDX and M3 models used by the games Warcraft 3 and Starcraft 2 respectively.
+
+The `viewer` folder contains all of the 3D viewer specific functions and classes.
 Built-in handlers exist for the following formats:
 * MDX (Warcraft 3 model): extensive support, almost everything should work.
 * M3 (Starcraft 2 model): partial support, file format not quite reverse engineered yet.
 * W3M/W3X (Warcraft 3 map): partial support, will grow in future.
 * BLP1 (Warcraft 3 texture): extensive support, almost everything should work.
-* MPQ1 (Warcraft 3 archive): partial support, only inflate (which accounts for all models, textures, and table files, but no sound files or weird things).
 * TGA (image): partial support, only simple 24bit images.
-* SLK (table data): partial support, but will probably keep working for Warcraft 3 files.
 * DDS (compressed texture, used by Starcraft 2): partial support, should work for every Starcraft 2 texture, and probably for most DDS files in existence (DXT1/3/5).
 * PNG/JPG/GIF: supported as a wrapper around Image.
 * GEO (a simple JS format used for geometric shapes): note that this is solely a run-time handler.
 * OBJ: partial support (more of an example handler).
 * BMP: partial support (more of an example handler).
 
+The `parsers` folder contains classes that know how to read (and some how to write) different file formats.
+The parsers can be used also outside of the context of a web browser (e.g. NodeJS).
+These include:
+* MDX/MDL: reading/writing.
+* M3: reading.
+* BLP1: reading.
+* INI: reading.
+* SLK: reading.
+* MPQ1: reading/writing.
+* W3M/W3X/W3N: reading/writing, including all of the internal files.
+
+The `common` folder contains functions and classes that are relatively general, and are used by all other parts.
+
+The `utils` folder contains mostly interesting functions and classes that are built on top of the parsers.
+
+The `tests` folder contains a page that runs unit tests. Problem is, it uses many files owned by Blizzard, which I cannot add here.
+
 ------------------------
 
 #### Building
 
 1. Download and install NodeJS from https://nodejs.org/en/.
-2. Open a command prompt in the viewer's directory, and run "npm install".
-3. Run the given webpack dev/prod file, this will generate `viewer.min.js`.
-4. Note that the API is given under the global object ModelViewer.
+2. Open a command prompt in the viewer's directory, and run `npm install`.
+
+Running the given webpack dev/prod files will generate `dist/viewer.min.js`, with the API given under the global object ModelViewer.
+
+You can also require/import the library or anything in it directly in a NodeJS project, as long as it doesn't use canvases.
 
 ------------------------
 
@@ -37,13 +53,33 @@ Built-in handlers exist for the following formats:
 The examples directory has a simple example, I highly suggest looking at it first.
 
 In case you don't have an HTTP server:
-1. Open a command prompt, run "npm install http-server -g".
-2. Once it is done, at any time go to the viewer's folder, fire up the command prompt, and run "http-server -p 80".
+1. Open a command prompt, run `npm install http-server -g`.
+2. Once it is done, at any time go to the viewer's folder, fire up the command prompt, and run `http-server -p 80`.
 3. In your browser, open `http://localhost/examples/`.
 
 ------------------------
 
 #### Usage
+
+You can import the viewer in different ways:
+```javascript
+// webpack export in the browser
+ModelViewer = ModelViewer.default;
+new ModelViewer.viewer.ModelViewer(canvas);
+
+// require/import the library
+const ModelViewer = require('mdx-m3-viewer'); // CommonJS.
+import ModelViewer from 'mdx-m3-viewer'; // ES6.
+new ModelViewer.viewer.ModelViewer(canvas);
+
+// require/import something directly
+const ModelViewer = require('path_to_viewer/src/viewer/viewer'); // CommonJS.
+import ModelViewer from 'path_to_viewer/src/viewer/viewer'; // ES6.
+new ModelViewer(canvas);
+
+```
+
+All code snippets will use the names as if you imported them directly to avoid some mess. For actual examples of the namespacing, see the example.
 
 First, let's create the viewer.
 ```javascript
@@ -59,7 +95,7 @@ Handlers are simple JS objects with a specific signature, that give information 
 When you want to load something, the viewer will select the appropriate handler, if there is one, and use it to construct the object.
 
 Let's add the MDX handler.
-This handler handles MDX files, unsurprisingly. It also adds the SLK, BLP, and TGA handlers automatically, since it requires them.
+This handler handles MDX files, unsurprisingly. It also adds the BLP and TGA handlers automatically, since it requires them.
 
 ```javascript
 viewer.addHandler(Mdx);
@@ -67,9 +103,7 @@ viewer.addHandler(Mdx);
 
 Next, let's create a scene and add it to the viewer. Each scene has its own camera and viewport, and holds a list of things to render.
 ```javascript
-let scene = new Scene();
-
-viewer.addScene(scene);
+let scene = viewer.addScene();
 ```
 
 Finally, setup the scene's camera.
@@ -77,18 +111,21 @@ Finally, setup the scene's camera.
 let camera = scene.camera;
 
 // Use the whole canvas
-camera.setViewport([0, 0, canvas.width, canvas.height]);
+camera.viewport([0, 0, canvas.width, canvas.height]);
 
 // Use perspective projection with normal settings
-camera.setPerspective(Math.PI / 4, 1, 8, 100000);
+camera.perspective(Math.PI / 4, 1, 8, 100000);
 
-// Move the camera back, so you could see things
-camera.move([0, 0, -500]);
+// Move the camera towards the screen, so you could see things.
+camera.move([0, 0, 500]);
 ```
 
 
-So how do you actually load models and other files?
-The model viewer uses a system of path solving functions.
+The viewer class acts as a sort-of resource manager.
+Loading models and textures happens by using handlers and `load`, while other files are loaded generically with `loadGeneric`.
+
+
+For handlers, the viewer uses a system of path solving functions.
 That is, you supply a function that takes a source you want to load, such as an url, and you need to return specific results so the viewer knows what to do.
 The load function itself looks like this:
 
@@ -97,19 +134,19 @@ let resource = viewer.load(src, pathSolver)
 ```
 
 In other words, you give it a source, and a resource is returned.
-A resource in this context means a model, a texture, or a generic file (any handler that is not a model or texture handler, such as SLK).
+A resource in this context means a model or a texture.
 
 The source here can be anything - a string, an object, a typed array, whatever - it highly depends on your code, and on the path solver.
 Generally speaking though, the source will probably be a an url string.
 
-The path solver is a function with this signature: `function(src) => [finalSrc, srcExtension, isServerFetch]`, where:
+The path solver is a function with this signature: `function(src) => [finalSrc, ext, isFetch]`, where:
 * `src` is the source you gave the load call.
 * `finalSrc` is the actual source to load from. If this is a server fetch, then this is the url to fetch from.
 If it's an in-memory load, it depends on what each handler expects.
-* `srcExtension` is the extension of the resource you are loading, which selects the handler to use. The extension is given in a ".ext" format.
+* `ext` is the extension of the resource you are loading, which selects the handler to use. The extension is given in a ".ext" format.
 That is, a string that contains a dot, followed by the extension.
 Generally speaking, this will usually be the extension of an url.
-* `isServerFetch` is a boolean, and will determine if this is an in-memory load, or a server fetch. This will usually be true.
+* `isFetch` is a boolean, and will determine if this is an in-memory load, or a server fetch. This will usually be true.
 
 So let's use an example.
 
@@ -129,7 +166,8 @@ I'll make it assume it's getting urls, and automatically prepend "Resources/" to
 
 ```javascript
 function myPathSolver(path) {
-	return ["Resources/" + path, SomeFunctionThatGetsFileExtensions(path), true];
+	// Prepend Resources/, and get the extension from the path.
+	return ["Resources/" + path, path.slice(path.lastIndexOf('.')), true];
 }
 ```
 
@@ -145,7 +183,7 @@ This function call results in the following chain of events:
 2. The viewer chooses the correct handler based on the extension - in this case the MDX handler - sees this is a server fetch, and uses the source for the fetch.
 3. A new MDX model is created and starts loading (at this point the viewer gets a `loadstart` event from the model).
 4. The model is returned.
-5. ...time passes until the model finishes loading...(meanwhile, the model sends `progress` events, if it's a server fetch, which it is in this case)
+5. ...time passes until the model finishes loading...
 6. The model is constructed successfuly, or not, and sends a `load` or `error` event respectively, followed by the `loadend` event.
 7. In the case of a MDX model, the previous step will also cause it to load its textures, in this case `texture.blp`.
 8. myPathSolver is called with `texture.blp`, which returns `["Resources/texture.blp", ".blp", true]`, and we loop back to step 2, but with a texture this time.
@@ -162,7 +200,8 @@ let instance = model.addInstance();
 
 Finally, let's add the instance to the scene, so it's rendered:
 ```javascript
-scene.addInstance(instance);
+scene.addInstance(instance); // or
+instance.setScene(scene);
 ```
 
 Never forget the actual rendering loop!
@@ -173,6 +212,25 @@ Never forget the actual rendering loop!
     viewer.updateAndRender();
 }());
 ```
+
+---
+
+Loading other files is simpler:
+```javascript
+let resource = viewer.loadGeneric(path, dataType [, callback]);
+```
+
+It is in fact only a small layer above the standard `fetch` function.
+The purpose of loading other files through the viewer is to cache the results and avoid multiple loads, while also allowing the viewer itself to handle events correctly, such as `whenAllLoaded`.
+
+Where:
+* `path` is an url string.
+* `dataType` is a string with one of these values: `"text"`, `"arrayBuffer"`, `"blob"`, or `"image"`.
+* `callback` is a function that will be called with the data once the fetch is complete, and should return the resource's data.
+
+If a callback is given, `resource.data` will be whatever the callback returns.
+If a promise is returned, the loader waits for it to resolve, and uses whatever it resolved to.
+If no callback is given, the data will be the fetch data itself, according to the given data type.
 
 ------------------------
 
@@ -194,8 +252,8 @@ Generally speaking, whenever you want to set/change something, you will be able 
 If you want to get any information from the model, like a list of animations, or textures, then the model obviously needs to exist before.
 For this reason, there are two ways to react to resources being loaded.
 First of all, as the next section explains (and as is mentioned above), every resource uses event dispatching, much like regular asyncronous JS objects (Image, XMLHttpRequest, and so on).
-In addition, every resource has a `whenLoaded(callback)` method that calls `callback` when the resource loads, or immediately if it was already loaded.
-The viewer itself has `whenLoaded(resources, callback)` which does the same when all of the given resources in an array have been loaded, and also `whenAllLoaded(callback)`, which calls the callback when there are no longer resources being loaded.
+In addition, every resource has a `whenLoaded()` method that returns a promise which is resolved when the resource loads, or immediately if it was already loaded.
+The viewer itself has `whenLoaded(resources)` which does the same when all of the given resources in an array have been loaded, and also `whenAllLoaded()`, to check when there are no longer resources being loaded.
 
 ------------------------
 
@@ -207,6 +265,8 @@ Resources, including the viewer, can send events, very similar to those of nativ
 resource.addEventListener(type, listener)
 resource.removeEventListener(type, listener)
 resource.dispatchEvent(event)
+// non-standard
+resource.once(type, listener)
 ```
 
 When an event listener is attached to a specific resource, such as a model, it only gets events from that object.
@@ -216,13 +276,12 @@ Note that attaching a `loadstart` listener to a resource that is not the viewer 
 
 The type can be one of:
 * `loadstart` - a resource started loading.
-* `progress` - progress updates for loads. The `loaded`, `total`, and `lengthComputable` properties will be set.
 * `load` - a resource finished loading.
 * `error` - an error occured when loading a resource. The `error` property will be set.
 * `loadend` - sent when a resource finishes loading, either because of an error, or because it loaded successfully.
 
 The event object that a listener recieves has the same structure as JS events.
-For example, for the load call above, the following is how a `progress` event could look: `{type: "progress", target: MdxModel, loaded: 101, total: 9001, lengthComputable: true}`, `MdxModel` being our `model` variable in this case. That is, `e.target === model`.
+For example, for the load call above, the following is how the `load` event could look: `{type: "load", target: MdxModel}`, `MdxModel` being our `model` variable in this case. That is, `e.target === model`.
 
 Errors might occur, but don't panic.
 These are the errors the code uses:
