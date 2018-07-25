@@ -14,6 +14,8 @@ class WeuConverterData {
   constructor(triggerData) {
     /** @member {TriggerData} */
     this.triggerData = triggerData;
+    /** @member {?War3MapWts} */
+    this.stringTable = null;
     /** @member {Array<Trigger|ECA|Parameter|SubParameters>} */
     this.stack = [];
     /** @member {Object<string, number>} */
@@ -321,6 +323,19 @@ function convertParameterToCustomScript(data, parameter, dataType) {
     // "value"
     // scriptcode needs to be converted as-is, and doesn't need quotes.
     if (baseType === 'string' && dataType !== 'scriptcode') {
+      // Inline string table entries.
+      if (value.startsWith('TRIGSTR')) {
+        let index = parseInt(value.slice(8));
+        let string = data.stringTable.stringMap.get(index).replace(/\n/g, '\\n');
+        let callbackName = `StringTable${index}`;
+        let callback = `function ${callbackName} takes nothing returns string\nreturn "${string}"\nendfunction`;
+
+        data.generatedFunctions.push(callback);
+        data.output.changes.push({type: 'generatedstringtable', stack: stackToString(data.stack), data: {value, callback}});
+
+        return `${callbackName}()`;
+      }
+
       return `"${value.replace(/\\/g, '\\\\')}"`;
     }
 
@@ -996,6 +1011,13 @@ export default function convertWeu(map, triggerData, weTriggerData) {
     customTextTriggerFile = map.readCustomTextTriggers();
   } catch (e) {
     output.error = `Failed to read the custom text triggers file: ${e}`;
+    return output;
+  }
+
+  try {
+    data.stringTable = map.readStringTable();
+  } catch (e) {
+    output.error = `Failed to read the string table file: ${e}`;
     return output;
   }
 

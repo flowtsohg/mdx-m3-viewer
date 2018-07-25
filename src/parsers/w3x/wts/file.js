@@ -1,5 +1,6 @@
-let stringRegex = /STRING\s+(\d+)\s*{\s*([\s\S]+?)\s*}/g;
-let newLineRegex = /\r\n/g;
+import TokenStream from '../../../common/tokenstream';
+
+let newLineRegex = /\n/g;
 let newLineLiteralRegex = /\\n/g;
 
 /**
@@ -25,13 +26,23 @@ export default class War3MapWts {
    * @param {string} buffer
    */
   load(buffer) {
-    buffer = buffer.substring(3); // ???
+    let stream = new TokenStream(buffer);
+    let token;
 
-    let match;
+    stream.index += 3; // ï»¿???
 
-    while ((match = stringRegex.exec(buffer))) {
-      // praseInt to consistently support numbers such as 1 and 001.
-      this.stringMap.set(parseInt(match[1], 10), match[2].replace(newLineRegex, '\\n'));
+    while ((token = stream.read())) {
+      if (token === 'STRING') {
+        let index = stream.readInt();
+
+        stream.read(); // {
+
+        let end = buffer.indexOf('}', stream.index);
+
+        this.stringMap.set(index, buffer.slice(stream.index, end).trim());
+
+        stream.index = end;
+      }
     }
   }
 
@@ -39,10 +50,10 @@ export default class War3MapWts {
    * @return {string}
    */
   save() {
-    let buffer = 'ï»¿'; // ???
+    let buffer = 'ï»¿'; // ï»¿???
 
     for (let [key, value] of this.stringMap) {
-      buffer += `STRING ${key}\n{\n${value.replace(newLineLiteralRegex, '\n')}\n}\n`;
+      buffer += `STRING ${key}\n{\n${value}\n}\n`;
     }
 
     return buffer;

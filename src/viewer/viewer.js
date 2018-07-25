@@ -365,6 +365,16 @@ export default class ModelViewer extends EventDispatcher {
       // When all of the textures are loaded, it's time to construct a texture atlas
       this.whenLoaded(textures)
         .then(() => {
+          for (let texture of textures) {
+            // If a texture failed to load, don't create the atlas.
+            if (!texture.ok) {
+              // Resolve the promise.
+              promise.resolve();
+
+              return;
+            }
+          }
+
           let atlasData = createTextureAtlas(textures.map((texture) => texture.imageData));
 
           textureAtlas.texture.loadData(atlasData.imageData);

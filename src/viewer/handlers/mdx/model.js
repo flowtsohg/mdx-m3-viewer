@@ -75,9 +75,6 @@ export default class Model extends TexturedModel {
 
     this.parser = parser;
 
-    // Start loading the team textures if needed.
-    this.loadTeamTextures();
-
     // Model
     this.name = parser.name;
 
@@ -96,9 +93,51 @@ export default class Model extends TexturedModel {
       this.globalSequences.push(globalSequence);
     }
 
+    let usingTeamTextures = false;
+
     // Textures
     for (let texture of parser.textures) {
-      this.loadTexture(texture);
+      let path = texture.path;
+      let replaceableId = texture.replaceableId;
+      let flags = texture.flags;
+
+      if (replaceableId !== 0) {
+        path = `ReplaceableTextures\\${replaceableIds[replaceableId]}.blp`;
+
+        if (replaceableId === 1 || replaceableId === 2) {
+          usingTeamTextures = true;
+        }
+      }
+
+      // If the path is corrupted, try to fix it.
+      if (!path.endsWith('.blp') && !path.endsWith('.tga')) {
+        // Try to search for .blp
+        let index = path.indexOf('.blp');
+
+        if (index === -1) {
+          // Not a .blp, try to search for .tga
+          index = path.indexOf('.tga');
+        }
+
+        if (index !== -1) {
+          // Hopefully fix the path
+          path = path.slice(0, index + 4);
+        }
+      }
+
+      this.replaceables.push(replaceableId);
+
+      let textureRes = this.viewer.load(path, this.pathSolver);
+
+      textureRes.wrapS = !!(flags & 0x1);
+      textureRes.wrapT = !!(flags & 0x2);
+
+      this.textures.push(textureRes);
+    }
+
+    if (usingTeamTextures) {
+      // Start loading the team color and glow textures.
+      this.loadTeamTextures();
     }
 
     // Texture animations
@@ -373,44 +412,6 @@ export default class Model extends TexturedModel {
         this.setupHierarchy(object.objectId);
       }
     }
-  }
-
-  /**
-   * @param {Texture} texture
-   */
-  loadTexture(texture) {
-    let path = texture.path;
-    let replaceableId = texture.replaceableId;
-    let flags = texture.flags;
-
-    if (replaceableId !== 0) {
-      path = `ReplaceableTextures\\${replaceableIds[replaceableId]}.blp`;
-    }
-
-    // If the path is corrupted, try to fix it.
-    if (!path.endsWith('.blp') && !path.endsWith('.tga')) {
-      // Try to search for .blp
-      let index = path.indexOf('.blp');
-
-      if (index === -1) {
-        // Not a .blp, try to search for .tga
-        index = path.indexOf('.tga');
-      }
-
-      if (index !== -1) {
-        // Hopefully fix the path
-        path = path.slice(0, index + 4);
-      }
-    }
-
-    this.replaceables.push(replaceableId);
-
-    let textureRes = this.viewer.load(path, this.pathSolver);
-
-    textureRes.wrapS = !!(flags & 0x1);
-    textureRes.wrapT = !!(flags & 0x2);
-
-    this.textures.push(textureRes);
   }
 
   /**
