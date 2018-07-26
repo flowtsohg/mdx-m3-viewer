@@ -23,7 +23,7 @@ export default class Particle2 {
    */
   constructor(emitter) {
     this.emitter = emitter;
-    this.instance = null;
+    this.emitterView = null;
     this.health = 0;
     this.head = true;
     this.location = vec3.create();
@@ -63,7 +63,7 @@ export default class Particle2 {
     let location = this.location;
     let velocity = this.velocity;
 
-    this.instance = emitterView.instance;
+    this.emitterView = emitterView;
     this.node = node;
     this.health = modelObject.lifeSpan;
     this.head = isHead;
@@ -166,11 +166,12 @@ export default class Particle2 {
     let top;
     let right;
     let bottom;
+    let instance = this.emitterView.instance;
 
     // If this is a team colored emitter, get the team color tile from the atlas.
     // Otherwise do normal texture atlas handling.
     if (modelObject.teamColored) {
-      let teamColor = this.instance.teamColor;
+      let teamColor = instance.teamColor;
 
       left = teamColor % 4;
       top = (teamColor / 4) | 0;
@@ -203,7 +204,7 @@ export default class Particle2 {
     this.rba = uint8ToUint24(left, top, a);
     this.rgb = uint8ToUint24(colorHeap[0], colorHeap[1], colorHeap[2]);
 
-    let camera = this.instance.scene.camera;
+    let camera = instance.scene.camera;
     let vectors;
 
     // Choose between a default rectangle or billboarded one

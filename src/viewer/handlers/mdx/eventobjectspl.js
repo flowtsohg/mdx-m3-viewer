@@ -11,6 +11,7 @@ export default class EventObjectSpl {
    */
   constructor(emitter) {
     this.emitter = emitter;
+    this.emitterView = null;
     this.health = 0;
     this.color = new Uint8Array(4);
     this.vertices = new Float32Array(12);
@@ -31,6 +32,8 @@ export default class EventObjectSpl {
     let node = emitterView.instance.nodes[modelObject.index];
     let worldMatrix = node.worldMatrix;
     let vertex;
+
+    this.emitterView = emitterView;
 
     vertex = vertices.subarray(0, 2);
     vec3.transformMat4(vertex, [-emitterScale, -emitterScale, 0], worldMatrix);

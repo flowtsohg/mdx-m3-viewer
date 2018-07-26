@@ -7,6 +7,7 @@ export default class EventObjectSpn {
    */
   constructor(emitter) {
     this.emitter = emitter;
+    this.emitterView = null;
     this.health = 0;
     this.internalResource = emitter.modelObject.internalResource.addInstance();
   }
@@ -17,6 +18,8 @@ export default class EventObjectSpn {
   reset(emitterView) {
     let instance = this.internalResource;
     let node = emitterView.instance.nodes[this.emitter.modelObject.index];
+
+    this.emitterView = emitterView;
 
     instance.setSequence(0);
     instance.setTransformation(node.worldLocation, node.worldRotation, node.worldScale);

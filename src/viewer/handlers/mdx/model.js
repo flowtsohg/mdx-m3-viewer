@@ -580,11 +580,10 @@ export default class Model extends TexturedModel {
    */
   renderOpaque(data) {
     let scene = data.scene;
+    let buckets = data.buckets;
 
-    for (let bucket of data.buckets) {
-      if (bucket.count) {
-        this.renderBatches(bucket, scene, this.opaqueBatches);
-      }
+    for (let i = 0, l = data.usedBuckets; i < l; i++) {
+      this.renderBatches(buckets[i], scene, this.opaqueBatches);
     }
   }
 
@@ -602,10 +601,8 @@ export default class Model extends TexturedModel {
     let eventObjectEmitters = data.eventObjectEmitters;
 
     // Batches
-    for (let bucket of buckets) {
-      if (bucket.count) {
-        this.renderBatches(bucket, scene, this.translucentBatches);
-      }
+    for (let i = 0, l = data.usedBuckets; i < l; i++) {
+      this.renderBatches(buckets[i], scene, this.translucentBatches);
     }
 
     // Emitters

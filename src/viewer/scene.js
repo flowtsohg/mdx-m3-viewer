@@ -285,4 +285,13 @@ export default class Scene {
 
     this.viewer.gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
   }
+
+  /**
+   * Clear all of the emitted objects in this scene.
+   */
+  clearEmittedObjects() {
+    for (let instance of this.instances) {
+      instance.clearEmittedObjects();
+    }
+  }
 }

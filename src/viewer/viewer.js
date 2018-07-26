@@ -364,7 +364,7 @@ export default class ModelViewer extends EventDispatcher {
 
       // When all of the textures are loaded, it's time to construct a texture atlas
       this.whenLoaded(textures)
-        .then(() => {
+        .then((textures) => {
           for (let texture of textures) {
             // If a texture failed to load, don't create the atlas.
             if (!texture.ok) {
@@ -570,5 +570,14 @@ export default class ModelViewer extends EventDispatcher {
    */
   registerEvents(resource) {
     ['loadstart', 'load', 'error', 'loadend'].map((e) => resource.addEventListener(e, this.eventDispatchCallback));
+  }
+
+  /**
+   * Clear all of the emitted objects in this viewer.
+   */
+  clearEmittedObjects() {
+    for (let scene of this.scenes) {
+      scene.clearEmittedObjects();
+    }
   }
 }

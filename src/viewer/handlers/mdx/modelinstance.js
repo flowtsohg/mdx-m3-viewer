@@ -154,6 +154,38 @@ export default class ModelInstance extends TexturedModelInstance {
   }
 
   /**
+   * Clear all of the emitted objects that belong to this instance.
+   */
+  clearEmittedObjects() {
+    if (this.modelView) {
+      for (let sceneData of this.modelView.sceneData.values()) {
+        this.clearEmitters(sceneData.particleEmitters);
+        this.clearEmitters(sceneData.particleEmitters2);
+        this.clearEmitters(sceneData.ribbonEmitters);
+        this.clearEmitters(sceneData.eventObjectEmitters, true);
+      }
+    }
+  }
+
+  /**
+   * Clear all of the emitted objects in the given emitters that belong to this instance.
+   *
+   * @param {Array<SharedEmitter>} emitters
+   * @param {?boolean} areEventObjects
+   */
+  clearEmitters(emitters, areEventObjects) {
+    for (let emitter of emitters) {
+      if (!areEventObjects || emitter.type !== 'SND') {
+        for (let object of emitter.objects) {
+          if (object.emitterView.instance === this) {
+            object.health = 0;
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * Initialize a skeletal node.
    *
    * @param {Array<SkeletalNode>} nodes

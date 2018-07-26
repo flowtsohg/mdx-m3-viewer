@@ -8,6 +8,10 @@ export default class SharedEmitter {
    */
   constructor(modelObject) {
     this.modelObject = modelObject;
+
+    this.objects = [];
+    this.alive = 0;
+
     this.active = [];
     this.inactive = [];
   }
@@ -20,18 +24,20 @@ export default class SharedEmitter {
    * @return {*}
    */
   emitObject(emitterView, flag) {
-    let inactive = this.inactive;
-    let object;
+    let objects = this.objects;
 
-    if (inactive.length) {
-      object = inactive.pop();
-    } else {
-      object = this.createObject();
+    // If there are no unused objects, create a new one.
+    if (this.alive === objects.length) {
+      objects.push(this.createObject());
     }
 
-    object.reset(emitterView, flag);
 
-    this.active.push(object);
+    // Get the first unused object.
+    let object = objects[this.alive];
+
+    this.alive += 1;
+
+    object.reset(emitterView, flag);
 
     return object;
   }
@@ -40,34 +46,25 @@ export default class SharedEmitter {
    *
    */
   update() {
-    let active = this.active;
-    let inactive = this.inactive;
+    let objects = this.objects;
 
-    if (active.length > 0) {
-      // First update all of the active particles
-      for (let i = 0, l = active.length; i < l; i++) {
-        active[i].update();
-      }
+    for (let i = 0; i < this.alive; i++) {
+      let object = objects[i];
 
-      if (active[0].health <= 0) {
-        // Reverse the array
-        active.reverse();
+      object.update();
 
-        // All dead active particles will now be at the end of the array, so pop them
-        let object = active[active.length - 1];
-        while (object && object.health <= 0) {
-          inactive.push(active.pop());
+      if (object.health <= 0) {
+        this.alive -= 1;
 
-          // Need to recalculate the length each time
-          object = active[active.length - 1];
+        if (i !== this.alive) {
+          objects[i] = objects[this.alive];
+          objects[this.alive] = object;
+          i -= 1;
         }
-
-        // Reverse the array again
-        active.reverse();
       }
-
-      this.updateData();
     }
+
+    this.updateData();
   }
 
   /**

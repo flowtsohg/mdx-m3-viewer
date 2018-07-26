@@ -20,7 +20,7 @@ export default class Particle {
    */
   constructor(emitter) {
     this.emitter = emitter;
-    this.instance = null;
+    this.emitterView = null;
 
     this.internalInstance = emitter.modelObject.internalResource.addInstance();
     this.velocity = vec3.create();
@@ -43,7 +43,7 @@ export default class Particle {
     emitterView.getGravity(gravityHeap);
     emitterView.getSpeed(speedHeap);
 
-    this.instance = instance;
+    this.emitterView = emitterView;
     this.node = node;
     this.health = lifeSpanHeap[0];
     this.gravity = gravityHeap[0] * scale[2];

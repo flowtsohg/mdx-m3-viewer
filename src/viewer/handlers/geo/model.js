@@ -204,20 +204,26 @@ export default class GeometryModel extends TexturedModel {
   }
 
   /**
+   * @param {*} data
+   */
+  renderBuckets(data) {
+    let scene = data.scene;
+    let buckets = data.buckets;
+    let modelView = data.modelView;
+
+    for (let i = 0, l = data.usedBuckets; i < l; i++) {
+      this.render(buckets[i], scene, modelView);
+    }
+  }
+
+  /**
    * Render the opaque things in the given scene data.
    *
    * @param {Object} data
    */
   renderOpaque(data) {
-    let scene = data.scene;
-    let modelView = data.modelView;
-
     if (this.opaque) {
-      for (let bucket of data.buckets) {
-        if (bucket.count) {
-          this.render(bucket, scene, modelView);
-        }
-      }
+      this.renderBuckets(data);
     }
   }
 
@@ -227,15 +233,8 @@ export default class GeometryModel extends TexturedModel {
    * @param {Object} data
    */
   renderTranslucent(data) {
-    let scene = data.scene;
-    let modelView = data.modelView;
-
     if (this.translucent) {
-      for (let bucket of data.buckets) {
-        if (bucket.count) {
-          this.render(bucket, scene, modelView);
-        }
-      }
+      this.renderBuckets(data);
     }
   }
 }

@@ -79,6 +79,10 @@ export default class EventObject extends GenericObject {
    * @param {Array<SlkFile>} tables
    */
   load(tables) {
+    if (!tables[0].ok) {
+      return;
+    }
+
     let type = this.type;
     let model = this.model;
     let viewer = model.viewer;
@@ -109,6 +113,10 @@ export default class EventObject extends GenericObject {
         // Only load sounds if audio is enabled.
         // This is mostly to save on bandwidth and loading time, especially when loading full maps.
         if (viewer.enableAudio) {
+          if (!tables[1].ok) {
+            return;
+          }
+
           row = tables[1].data.getRow(row.SoundLabel);
 
           if (row) {

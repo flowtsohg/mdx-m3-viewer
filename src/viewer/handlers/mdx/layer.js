@@ -1,3 +1,4 @@
+import {vec3, quat} from 'gl-matrix';
 import {VEC3_ZERO, VEC3_ONE, QUAT_DEFAULT} from '../../../common/gl-matrix-addon';
 import stringHash from '../../../common/stringhash';
 import unique from '../../../common/arrayunique';

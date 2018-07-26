@@ -1,3 +1,4 @@
+import {vec3} from 'gl-matrix';
 import {VEC3_ONE} from '../../../common/gl-matrix-addon';
 
 /**

@@ -1,3 +1,4 @@
+import {vec3, quat} from 'gl-matrix';
 import createTypedSd from './sd';
 
 /**

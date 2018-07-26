@@ -125,6 +125,7 @@ export default class ModelView {
       baseIndex: 0,
       instances: [],
       buckets: [],
+      usedBuckets: 0,
     };
   }
 
@@ -241,18 +242,17 @@ export default class ModelView {
       if (data) {
         let instancesCount = data.instances.length;
         let buckets = data.buckets;
-        let bucketIndex = 0;
 
         data.baseIndex = 0;
+        data.usedBuckets = 0;
 
         while (data.baseIndex < instancesCount) {
-          if (bucketIndex === buckets.length) {
-            buckets[bucketIndex] = new this.model.handler.Bucket(this);
+          if (data.usedBuckets === buckets.length) {
+            buckets[data.usedBuckets] = new this.model.handler.Bucket(this);
           }
 
-          data.baseIndex = buckets[bucketIndex].fill(data);
-
-          bucketIndex += 1;
+          data.baseIndex = buckets[data.usedBuckets].fill(data);
+          data.usedBuckets += 1;
         }
 
         return data;

@@ -29,8 +29,9 @@ export default class SharedGeometryEmitter extends SharedEmitter {
    *
    */
   updateData() {
-    let active = this.active;
-    let sizeNeeded = active.length * this.elementsPerEmit;
+    let objects = this.objects;
+    let alive = this.alive;
+    let sizeNeeded = alive * this.elementsPerEmit;
 
     if (this.data.length < sizeNeeded) {
       this.data = new Float32Array(powerOfTwo(sizeNeeded));
@@ -43,8 +44,8 @@ export default class SharedGeometryEmitter extends SharedEmitter {
 
     let data = this.data;
 
-    for (let i = 0, l = active.length, offset = 0; i < l; i += 1, offset += 30) {
-      let object = active[i];
+    for (let i = 0, offset = 0; i < alive; i += 1, offset += 30) {
+      let object = objects[i];
       let vertices = object.vertices;
       let lta = object.lta;
       let lba = object.lba;
@@ -96,9 +97,9 @@ export default class SharedGeometryEmitter extends SharedEmitter {
    */
   render(modelView, shader) {
     let modelObject = this.modelObject;
-    let active = this.active.length;
+    let alive = this.alive;
 
-    if (modelObject.internalResource && active > 0) {
+    if (modelObject.internalResource && alive > 0) {
       let model = modelObject.model;
       let gl = model.viewer.gl;
 
@@ -109,12 +110,12 @@ export default class SharedGeometryEmitter extends SharedEmitter {
       model.bindTexture(modelObject.internalResource, 0, modelView);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-      gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.data.subarray(0, active * 30));
+      gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.data.subarray(0, alive * 30));
 
       gl.vertexAttribPointer(shader.attribs.a_position, 3, gl.FLOAT, false, 20, 0);
       gl.vertexAttribPointer(shader.attribs.a_uva_rgb, 2, gl.FLOAT, false, 20, 12);
 
-      gl.drawArrays(gl.TRIANGLES, 0, active * 6);
+      gl.drawArrays(gl.TRIANGLES, 0, alive * 6);
     }
   }
 }

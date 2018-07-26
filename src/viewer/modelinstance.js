@@ -102,6 +102,13 @@ export default class ModelInstance extends EventNode {
   }
 
   /**
+   * Clears any objects that were emitted by this instance.
+   */
+  clearEmittedObjects() {
+
+  }
+
+  /**
    * Update this model instance.
    * Called automatically by the scene that owns this model instance.
    *
