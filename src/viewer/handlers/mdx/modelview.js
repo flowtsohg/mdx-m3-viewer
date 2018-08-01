@@ -66,25 +66,22 @@ export default class ModelView extends TexturedModelView {
 
     if (data) {
       let batchCount = this.model.batches.length;
+      let buckets = data.buckets;
       let renderedInstances = 0;
       let renderedParticles = 0;
       let renderedBuckets = 0;
       let renderCalls = 0;
 
-      for (let bucket of data.buckets) {
-        let count = bucket.count;
-
-        if (count) {
-          renderedInstances += count;
-          renderedBuckets += 1;
-          renderCalls += batchCount;
-        }
+      for (let i = 0, l = data.usedBuckets; i < l; i++) {
+        renderedInstances += buckets[i].count;
+        renderedBuckets += 1;
+        renderCalls += batchCount;
       }
 
       for (let emitter of data.particleEmitters) {
         emitter.update();
 
-        let particles = emitter.active.length;
+        let particles = emitter.alive;
 
         if (particles) {
           renderedParticles += particles;
@@ -95,7 +92,7 @@ export default class ModelView extends TexturedModelView {
       for (let emitter of data.particleEmitters2) {
         emitter.update();
 
-        let particles = emitter.active.length;
+        let particles = emitter.alive;
 
         if (particles) {
           renderedParticles += particles;
@@ -106,7 +103,7 @@ export default class ModelView extends TexturedModelView {
       for (let emitter of data.ribbonEmitters) {
         emitter.update();
 
-        let particles = emitter.active.length;
+        let particles = emitter.alive;
 
         if (particles) {
           renderedParticles += particles;
@@ -119,7 +116,7 @@ export default class ModelView extends TexturedModelView {
 
         // Sounds are not particles.
         if (emitter.type !== 'SND') {
-          let particles = emitter.active.length;
+          let particles = emitter.alive;
 
           if (particles) {
             renderedParticles += particles;

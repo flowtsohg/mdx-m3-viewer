@@ -34,19 +34,19 @@ export default function rebuild(map, commonj, blizzardj, callback) {
   time('Running war3map.j');
   jass.run(scriptJs);
 
-  // jass.addEventListener('nativedef', (e) => console.log(e));
-  // jass.addEventListener('functiondef', (e) => console.log(e));
-  // jass.addEventListener('localvardef', (e) => console.log(e));
-  // jass.addEventListener('globalvardef', (e) => console.log(e));
-  // jass.addEventListener('varset', (e) => console.log(e));
-  // jass.addEventListener('arrayvarset', (e) => console.log(e));
-  // jass.addEventListener('varget', (e) => console.log(e));
-  // jass.addEventListener('arrayvarget', (e) => console.log(e));
-  // jass.addEventListener('handlecreated', (e) => console.log(e));
-  // jass.addEventListener('handledestroyed', (e) => console.log(e));
-  // jass.addEventListener('refcreated', (e) => console.log(e));
-  // jass.addEventListener('refdestroyed', (e) => console.log(e));
-  // jass.addEventListener('call', (e) => console.log(e));
+  // jass.on('nativedef', (e) => console.log(e));
+  // jass.on('functiondef', (e) => console.log(e));
+  // jass.on('localvardef', (e) => console.log(e));
+  // jass.on('globalvardef', (e) => console.log(e));
+  // jass.on('varset', (e) => console.log(e));
+  // jass.on('arrayvarset', (e) => console.log(e));
+  // jass.on('varget', (e) => console.log(e));
+  // jass.on('arrayvarget', (e) => console.log(e));
+  // jass.on('handlecreated', (e) => console.log(e));
+  // jass.on('handledestroyed', (e) => console.log(e));
+  // jass.on('refcreated', (e) => console.log(e));
+  // jass.on('refdestroyed', (e) => console.log(e));
+  // jass.on('call', (e) => console.log(e));
 
   time('Running config()');
   jass.call('config');

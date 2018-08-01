@@ -22,13 +22,13 @@ camera.perspective(Math.PI / 4, 1, 8, 100000);
 camera.move([0, 0, 1000]);
 
 // The model viewer, and every resource it loads, all support the following events.
-// They are all event emitters, and use the standard JS model of event emitters (addEventListener, removeEventListener, dispatchEvent).
+// They are all event emitters, and use the standard JS model of event emitters (on, off, emit).
 // Since all resources are event emitters, it is very easy for the implementation to add its own events.
 // For an example of this, the Mdx and M3 model instances send the 'seqend' event, every time an animation sequence finishes.
-viewer.addEventListener('loadstart', (e) => console.log(e));
-viewer.addEventListener('load', (e) => console.log(e));
-viewer.addEventListener('loadend', (e) => console.log(e));
-viewer.addEventListener('error', (e) => console.log(e));
+viewer.on('loadstart', (target) => console.log(target));
+viewer.on('load', (target) => console.log(target));
+viewer.on('loadend', (target) => console.log(target));
+viewer.on('error', (target, error, reason) => console.log(target, error, reason));
 
 // A handler is an object that describes the neccassary properties to handle some resource.
 // For example, the Bmp handler is a texture handler, and thus has a Texture getter, that returns the texture implementation BmpTexture.

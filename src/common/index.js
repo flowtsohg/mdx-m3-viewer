@@ -8,7 +8,6 @@ import * as bounds from './bounds';
 import BinaryStream from './binarystream';
 import BitStream from './bitstream';
 import TokenStream from './tokenstream';
-import EventDispatcher from './eventdispatcher';
 
 export default {
   glMatrix,
@@ -21,5 +20,4 @@ export default {
   BinaryStream,
   BitStream,
   TokenStream,
-  EventDispatcher,
 };

@@ -1,4 +1,5 @@
-import EventDispatcher from '../../common/eventdispatcher';
+
+import EventEmitter from 'events';
 import MappedData from '../mappeddata';
 import recompile from './recompile';
 import * as natives from './natives';
@@ -11,7 +12,7 @@ import constantHandles from './constanthandles';
 /**
  * A Jass2 context.
  */
-export default class JassContext extends EventDispatcher {
+export default class JassContext extends EventEmitter {
   /**
    * @param {War3Map} map
    */
@@ -72,7 +73,7 @@ export default class JassContext extends EventDispatcher {
    */
   onNativeDef(name) {
     if (this.debugMode) {
-      this.dispatchEvent({type: 'nativedef', name});
+      this.emit('nativedef', name);
     }
   }
 
@@ -83,7 +84,7 @@ export default class JassContext extends EventDispatcher {
    */
   onFunctionDef(name, handlerFunc) {
     if (this.debugMode) {
-      this.dispatchEvent({type: 'functiondef', name, handlerFunc});
+      this.emit('functiondef', name, handlerFunc);
     }
 
     return handlerFunc;
@@ -96,7 +97,7 @@ export default class JassContext extends EventDispatcher {
    */
   onLocalVarDef(name, value) {
     if (this.debugMode) {
-      this.dispatchEvent({type: 'localvardef', name, value});
+      this.emit('localvardef', name, value);
     }
 
     if (value instanceof JassAgent) {
@@ -113,7 +114,7 @@ export default class JassContext extends EventDispatcher {
    */
   onGlobalVarDef(name, value) {
     if (this.debugMode) {
-      this.dispatchEvent({type: 'globalvardef', name, value});
+      this.emit('globalvardef', name, value);
     }
 
     // Store the names global handles are assigned to.
@@ -143,7 +144,7 @@ export default class JassContext extends EventDispatcher {
    */
   onVarSet(name, oldValue, newValue) {
     if (this.debugMode) {
-      this.dispatchEvent({type: 'varset', name, oldValue, newValue});
+      this.emit('varset', name, oldValue, newValue);
     }
 
     // If the old value was a reference, remove it.
@@ -175,7 +176,7 @@ export default class JassContext extends EventDispatcher {
     let oldValue = array[index];
 
     if (this.debugMode) {
-      this.dispatchEvent({type: 'arrayvarset', name, index, oldValue, newValue});
+      this.emit('arrayvarset', name, index, oldValue, newValue);
     }
 
     // If the old value was a reference, remove it.
@@ -206,7 +207,7 @@ export default class JassContext extends EventDispatcher {
    */
   onVarGet(name, value) {
     if (this.debugMode) {
-      this.dispatchEvent({type: 'varget', name, value});
+      this.emit('varget', name, value);
     }
 
     return value;
@@ -222,7 +223,7 @@ export default class JassContext extends EventDispatcher {
     let value = array[index];
 
     if (this.debugMode) {
-      this.dispatchEvent({type: 'arrayvarget', name, index, value});
+      this.emit('arrayvarget', name, index, value);
     }
 
     return value;
@@ -233,7 +234,7 @@ export default class JassContext extends EventDispatcher {
    */
   onHandleCreation(handle) {
     if (this.debugMode) {
-      this.dispatchEvent({type: 'handlecreated', handle});
+      this.emit('handlecreated', handle);
     }
   }
 
@@ -242,7 +243,7 @@ export default class JassContext extends EventDispatcher {
    */
   onHandleDestruction(handle) {
     if (this.debugMode) {
-      this.dispatchEvent({type: 'handledestroyed', handle});
+      this.emit('handledestroyed', handle);
     }
   }
 
@@ -251,7 +252,7 @@ export default class JassContext extends EventDispatcher {
    */
   onReferenceCreation(reference) {
     if (this.debugMode) {
-      this.dispatchEvent({type: 'refcreated', reference});
+      this.emit('refcreated', reference);
     }
   }
 
@@ -260,7 +261,7 @@ export default class JassContext extends EventDispatcher {
    */
   onReferenceDestruction(reference) {
     if (this.debugMode) {
-      this.dispatchEvent({type: 'refdestroyed', reference});
+      this.emit('refdestroyed', reference);
     }
   }
 
@@ -277,7 +278,7 @@ export default class JassContext extends EventDispatcher {
     }
 
     if (this.debugMode) {
-      this.dispatchEvent({type: 'call', name, args, handlerFunc});
+      this.emit('call', name, args, handlerFunc);
     }
 
     if (handlerFunc) {
@@ -301,7 +302,7 @@ export default class JassContext extends EventDispatcher {
   }
 
   /**
-   * @param {string} jass
+   * @param {string} js
    */
   run(js) {
     eval(`(function (jass, globals) {\n${js}\n})`)(this, this.globals);

@@ -12,18 +12,15 @@ export default class ModelView extends TexturedModelView {
 
     if (data) {
       let batchCount = (this.model.renderMode === 2 ? 2 : 1);
+      let buckets = data.buckets;
       let renderedInstances = 0;
       let renderedBuckets = 0;
       let renderCalls = 0;
 
-      for (let bucket of data.buckets) {
-        let count = bucket.count;
-
-        if (count) {
-          renderedInstances += count;
-          renderedBuckets += 1;
-          renderCalls += batchCount;
-        }
+      for (let i = 0, l = data.usedBuckets; i < l; i++) {
+        renderedInstances += buckets[i].count;
+        renderedBuckets += 1;
+        renderCalls += batchCount;
       }
 
       this.renderedInstances = renderedInstances;

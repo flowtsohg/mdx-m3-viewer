@@ -32,7 +32,7 @@ export default class War3MapViewer extends ModelViewer {
 
     this.batchSize = 256;
 
-    this.addEventListener('error', (e) => console.error(e));
+    this.on('error', (target, error, reason) => console.error(target, error, reason));
 
     this.addHandler(geoHandler);
     this.addHandler(mdxHandler);
@@ -67,7 +67,7 @@ export default class War3MapViewer extends ModelViewer {
         this.terrainData.load(terrain.data);
         this.cliffTypesData.load(cliffTypes.data);
         this.waterData.load(water.data);
-        this.dispatchEvent({type: 'terrainloaded'});
+        this.emit('terrainloaded');
       });
 
     this.doodadsAndDestructiblesLoaded = false;
@@ -85,7 +85,7 @@ export default class War3MapViewer extends ModelViewer {
         this.doodadMetaData.load(doodadMetaData.data);
         this.doodadsData.load(destructableData.data);
         this.destructableMetaData.load(destructableMetaData.data);
-        this.dispatchEvent({type: 'doodadsloaded'});
+        this.emit('doodadsloaded');
       });
 
     this.unitsAndItemsLoaded = false;
@@ -101,7 +101,7 @@ export default class War3MapViewer extends ModelViewer {
         this.unitsData.load(unitUi.data);
         this.unitsData.load(itemData.data);
         this.unitMetaData.load(unitMetaData.data);
-        this.dispatchEvent({type: 'unitsloaded'});
+        this.emit('unitsloaded');
       });
   }
 
@@ -371,7 +371,7 @@ export default class War3MapViewer extends ModelViewer {
     let w3i = new War3MapW3i(this.mapMpq.get('war3map.w3i').arrayBuffer());
     let tileset = w3i.tileset;
 
-    this.dispatchEvent({type: 'maploaded'});
+    this.emit('maploaded');
 
     this.tilesetMpq = new MpqArchive((await this.loadGeneric(wc3PathSolver(`${tileset}.mpq`)[0], 'arrayBuffer').whenLoaded()).data, true);
 
@@ -396,7 +396,7 @@ export default class War3MapViewer extends ModelViewer {
     this.centerOffset = w3e.centerOffset;
     this.mapSize = w3e.mapSize;
 
-    this.dispatchEvent({type: 'tilesetloaded'});
+    this.emit('tilesetloaded');
 
     if (this.terrainCliffsAndWaterLoaded) {
       this.loadTerrainCliffsAndWater(w3e);

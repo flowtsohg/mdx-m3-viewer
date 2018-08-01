@@ -1,11 +1,11 @@
-import EventDispatcher from '../common/eventdispatcher';
+import EventEmitter from 'events';
 
 /**
  * A viewer resource.
  * Generally speaking resources are created via viewer.load().
  * Resources include models, textures, or any arbitrary file types that have handlers (e.g. INI).
  */
-export default class Resource extends EventDispatcher {
+export default class Resource extends EventEmitter {
   /**
    * @param {Object} resourceData
    */
@@ -46,8 +46,8 @@ export default class Resource extends EventDispatcher {
 
       this.lateLoad();
 
-      this.dispatchEvent({type: 'load'});
-      this.dispatchEvent({type: 'loadend'});
+      this.emit('load', this);
+      this.emit('loadend', this);
     } catch (e) {
       this.error('InvalidData', e);
     }
@@ -77,8 +77,8 @@ export default class Resource extends EventDispatcher {
   error(error, reason) {
     this.loaded = true;
 
-    this.dispatchEvent({type: 'error', error, reason});
-    this.dispatchEvent({type: 'loadend'});
+    this.emit('error', this, error, reason);
+    this.emit('loadend', this);
   }
 
   /**

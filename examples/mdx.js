@@ -15,10 +15,10 @@ let scene = viewer.addScene();
 setupCamera(scene);
 
 // Events.
-viewer.addEventListener('loadstart', (e) => console.log(e));
-viewer.addEventListener('load', (e) => console.log(e));
-viewer.addEventListener('loadend', (e) => console.log(e));
-viewer.addEventListener('error', (e) => console.log(e));
+viewer.on('loadstart', (target) => console.log(target));
+viewer.on('load', (target) => console.log(target));
+viewer.on('loadend', (target) => console.log(target));
+viewer.on('error', (target, error, reason) => console.log(target, error, reason));
 
 // Add the MDX handler.
 viewer.addHandler(handlers.mdx.Handler);

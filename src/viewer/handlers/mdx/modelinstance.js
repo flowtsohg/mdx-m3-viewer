@@ -159,27 +159,20 @@ export default class ModelInstance extends TexturedModelInstance {
   clearEmittedObjects() {
     if (this.modelView) {
       for (let sceneData of this.modelView.sceneData.values()) {
-        this.clearEmitters(sceneData.particleEmitters);
-        this.clearEmitters(sceneData.particleEmitters2);
-        this.clearEmitters(sceneData.ribbonEmitters);
-        this.clearEmitters(sceneData.eventObjectEmitters, true);
-      }
-    }
-  }
+        for (let emitter of sceneData.particleEmitters) {
+          emitter.clear(this);
+        }
 
-  /**
-   * Clear all of the emitted objects in the given emitters that belong to this instance.
-   *
-   * @param {Array<SharedEmitter>} emitters
-   * @param {?boolean} areEventObjects
-   */
-  clearEmitters(emitters, areEventObjects) {
-    for (let emitter of emitters) {
-      if (!areEventObjects || emitter.type !== 'SND') {
-        for (let object of emitter.objects) {
-          if (object.emitterView.instance === this) {
-            object.health = 0;
-          }
+        for (let emitter of sceneData.particleEmitters2) {
+          emitter.clear(this);
+        }
+
+        for (let emitter of sceneData.ribbonEmitters) {
+          emitter.clear(this);
+        }
+
+        for (let emitter of sceneData.eventObjectEmitters) {
+          emitter.clear(this);
         }
       }
     }
@@ -265,7 +258,7 @@ export default class ModelInstance extends TexturedModelInstance {
           this.allowParticleSpawn = false;
         }
 
-        this.dispatchEvent({type: 'seqend'});
+        this.emit('seqend', this);
       }
     }
   }

@@ -4,24 +4,23 @@
  */
 export default class SharedEmitter {
   /**
-   * @param {MdxModelParticleEmitter} modelObject
+   * @param {ParticleEmitter|ParticleEmitter2|RibbonEmitter|EventObject} modelObject
    */
   constructor(modelObject) {
+    /** @member {ParticleEmitter|ParticleEmitter2|RibbonEmitter|EventObject} */
     this.modelObject = modelObject;
-
+    /** @member {Array<Particle|Particle2|Ribbon|EventObjectSpn|EventObjectSpl|EventObjectUbr>} */
     this.objects = [];
+    /** @member {number} */
     this.alive = 0;
-
-    this.active = [];
-    this.inactive = [];
   }
 
   /**
    * Note: flag is used for ParticleEmitter2's head/tail selection.
    *
-   * @param {*} emitterView
+   * @param {ParticleEmitterView|ParticleEmitter2View|RibbonEmitterView|EventObjectEmitterView} emitterView
    * @param {boolean} flag
-   * @return {*}
+   * @return {Particle|Particle2|Ribbon|EventObjectSpn|EventObjectSpl|EventObjectUbr}
    */
   emitObject(emitterView, flag) {
     let objects = this.objects;
@@ -30,7 +29,6 @@ export default class SharedEmitter {
     if (this.alive === objects.length) {
       objects.push(this.createObject());
     }
-
 
     // Get the first unused object.
     let object = objects[this.alive];
@@ -56,6 +54,8 @@ export default class SharedEmitter {
       if (object.health <= 0) {
         this.alive -= 1;
 
+        // Swap between this object and the first unused object.
+        // Decrement the iterator so the moved object is indexed.
         if (i !== this.alive) {
           objects[i] = objects[this.alive];
           objects[this.alive] = object;
@@ -68,7 +68,7 @@ export default class SharedEmitter {
   }
 
   /**
-   * @param {*} emitterView
+   * @param {ParticleEmitterView|ParticleEmitter2View|RibbonEmitterView|EventObjectEmitterView} emitterView
    */
   fill(emitterView) {
     let emission = emitterView.currentEmission;
@@ -93,5 +93,18 @@ export default class SharedEmitter {
    */
   render(modelView, shader) {
 
+  }
+
+  /**
+   * Clear any emitted objects belonging to the given owner.
+   *
+   * @param {ModelInstance} owner
+   */
+  clear(owner) {
+    for (let object of this.objects) {
+      if (owner === object.emitterView.instance) {
+        object.health = 0;
+      }
+    }
   }
 }

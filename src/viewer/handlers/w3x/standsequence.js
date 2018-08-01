@@ -43,7 +43,7 @@ function selectSequence(type, sequences) {
 }
 
 function standSequence(target) {
-  // This function is registered both with whenLoaded, and with addEventListener.
+  // This function is registered both with whenLoaded, and with on.
   // The former sends the object directly, while the latter passes an event object, so take care of this difference here.
   if (target.target) {
     target = target.target;

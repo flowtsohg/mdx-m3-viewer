@@ -1,4 +1,4 @@
-import EventDispatcher from '../common/eventdispatcher';
+import EventEmitter from 'events';
 
 /**
  * This object is used to promise about future resource loads, in case they are not yet known.
@@ -11,18 +11,18 @@ import EventDispatcher from '../common/eventdispatcher';
  *
  * Note that you can create a promise resource with viewer.makePromise(), which returns an already active promise.
  */
-export default class PromiseResource extends EventDispatcher {
+export default class PromiseResource extends EventEmitter {
   /**
    * Immitates a promise.
    */
   promise() {
-    this.dispatchEvent({type: 'loadstart'});
+    this.emit('loadstart', this);
   }
 
   /**
    * Immitates promise resolution.
    */
   resolve() {
-    this.dispatchEvent({type: 'loadend'});
+    this.emit('loadend', this);
   }
 }

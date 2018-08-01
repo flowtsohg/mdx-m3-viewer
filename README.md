@@ -63,16 +63,16 @@ In case you don't have an HTTP server:
 
 You can import the viewer in different ways:
 ```javascript
-// webpack export in the browser
+// webpack export in the browser.
 ModelViewer = ModelViewer.default;
 new ModelViewer.viewer.ModelViewer(canvas);
 
-// require/import the library
+// require/import the library.
 const ModelViewer = require('mdx-m3-viewer'); // CommonJS.
 import ModelViewer from 'mdx-m3-viewer'; // ES6.
 new ModelViewer.viewer.ModelViewer(canvas);
 
-// require/import something directly
+// require/import something directly.
 const ModelViewer = require('path_to_viewer/src/viewer/viewer'); // CommonJS.
 import ModelViewer from 'path_to_viewer/src/viewer/viewer'; // ES6.
 new ModelViewer(canvas);
@@ -83,7 +83,7 @@ All code snippets will use the names as if you imported them directly to avoid s
 
 First, let's create the viewer.
 ```javascript
-let canvas = ...; // A <canvas> aka HTMLCanvasElement object
+let canvas = ...; // A <canvas> aka HTMLCanvasElement object.
 
 let viewer = new ModelViewer(canvas);
 ```
@@ -110,10 +110,10 @@ Finally, setup the scene's camera.
 ```javascript
 let camera = scene.camera;
 
-// Use the whole canvas
+// Use the whole canvas.
 camera.viewport([0, 0, canvas.width, canvas.height]);
 
-// Use perspective projection with normal settings
+// Use perspective projection with normal settings.
 camera.perspective(Math.PI / 4, 1, 8, 100000);
 
 // Move the camera towards the screen, so you could see things.
@@ -125,8 +125,8 @@ The viewer class acts as a sort-of resource manager.
 Loading models and textures happens by using handlers and `load`, while other files are loaded generically with `loadGeneric`.
 
 
-For handlers, the viewer uses a system of path solving functions.
-That is, you supply a function that takes a source you want to load, such as an url, and you need to return specific results so the viewer knows what to do.
+For handlers, the viewer uses path solving functions.
+You supply a function that takes a source you want to load, such as an url, and you need to return specific results so the viewer knows what to do.
 The load function itself looks like this:
 
 ```javascript
@@ -136,7 +136,7 @@ let resource = viewer.load(src, pathSolver)
 In other words, you give it a source, and a resource is returned.
 A resource in this context means a model or a texture.
 
-The source here can be anything - a string, an object, a typed array, whatever - it highly depends on your code, and on the path solver.
+The source here can be anything - a string, an object, a typed array, something else - it highly depends on your code, and on the path solver.
 Generally speaking though, the source will probably be a an url string.
 
 The path solver is a function with this signature: `function(src) => [finalSrc, ext, isFetch]`, where:
@@ -177,7 +177,7 @@ Now let's try to load the model.
 let model = viewer.load("model.mdx", myPathSolver);
 ```
 
-This function call results in the following chain of events:
+This function call results in the following:
 
 1. myPathSolver is called with `"model.mdx"` and returns `["Resources/model.mdx", ".mdx", true]`.
 2. The viewer chooses the correct handler based on the extension - in this case the MDX handler - sees this is a server fetch, and uses the source for the fetch.
@@ -188,7 +188,6 @@ This function call results in the following chain of events:
 7. In the case of a MDX model, the previous step will also cause it to load its textures, in this case `texture.blp`.
 8. myPathSolver is called with `texture.blp`, which returns `["Resources/texture.blp", ".blp", true]`, and we loop back to step 2, but with a texture this time.
 
-Had we used the paths directly, `model.mdx` would have tried to load `texture.blp`, a relative path, and would get a 404 error.
 Generally speaking, an identity solver is what you'll need (as in, it returns the source assuming its an url but prepended by some directory, its extension, and true for server fetch), but there are times where this is not the case, such as loading models with custom textures, handling both in-memory and server-fetches in the same solver (used by the W3X handler), etc.
 
 We now have a model, however a model in this context is simply a source of data, not something that you see.
@@ -200,7 +199,8 @@ let instance = model.addInstance();
 
 Finally, let's add the instance to the scene, so it's rendered:
 ```javascript
-scene.addInstance(instance); // or
+scene.addInstance(instance);
+// Equivalent to:
 instance.setScene(scene);
 ```
 
@@ -220,13 +220,13 @@ Loading other files is simpler:
 let resource = viewer.loadGeneric(path, dataType [, callback]);
 ```
 
-It is in fact only a small layer above the standard `fetch` function.
-The purpose of loading other files through the viewer is to cache the results and avoid multiple loads, while also allowing the viewer itself to handle events correctly, such as `whenAllLoaded`.
-
 Where:
 * `path` is an url string.
-* `dataType` is a string with one of these values: `"text"`, `"arrayBuffer"`, `"blob"`, or `"image"`.
+* `dataType` is a string with one of these values: `text`, `arrayBuffer`, `blob`, or `image`.
 * `callback` is a function that will be called with the data once the fetch is complete, and should return the resource's data.
+
+It is in fact only a small layer above the standard `fetch` function.
+The purpose of loading other files through the viewer is to cache the results and avoid multiple loads, while also allowing the viewer itself to handle events correctly, such as `whenAllLoaded`.
 
 If a callback is given, `resource.data` will be whatever the callback returns.
 If a promise is returned, the loader waits for it to resolve, and uses whatever it resolved to.
@@ -236,13 +236,11 @@ If no callback is given, the data will be the fetch data itself, according to th
 
 #### Async everywhere I go
 
-A big design part of this viewer is that it tries to allow you to write as linear code as you can.
-That is, even though this code heavily relies on asyncronous actions (and not only in server fetches, you'd be surprised), it tries to hide this fact, and make the code feel syncronous to the client.
-
-For example, let's say we want the instance above to play an animation, assuming its model has any.
+The viewer tries to allow you to write linear code, even though many things are asyncronious.
+For example, let's say we want the instance above to play an animation, assuming its model has any:
 
 ```javascript
-instance.setSequence(0); // first animation, -1 == no animation.
+instance.setSequence(0); // First animation, -1 == no animation.
 ```
 
 This method needs to get animation data from the model, which, if all of this code is put together, is not loaded yet! (even if you run locally, the file fetch will finish after this line).
@@ -253,45 +251,49 @@ If you want to get any information from the model, like a list of animations, or
 For this reason, there are two ways to react to resources being loaded.
 First of all, as the next section explains (and as is mentioned above), every resource uses event dispatching, much like regular asyncronous JS objects (Image, XMLHttpRequest, and so on).
 In addition, every resource has a `whenLoaded()` method that returns a promise which is resolved when the resource loads, or immediately if it was already loaded.
-The viewer itself has `whenLoaded(resources)` which does the same when all of the given resources in an array have been loaded, and also `whenAllLoaded()`, to check when there are no longer resources being loaded.
+The viewer itself has `whenLoaded(resources)` which does the same when all of the given resources in an iterable have been loaded, and also `whenAllLoaded()`, to check when there are no longer resources being loaded.
 
 ------------------------
 
 #### Events
 
-Resources, including the viewer, can send events, very similar to those of native JS objects, and with the same API:
+Resources, including the viewer, can send events, with the NodeJS EventEmitter API:
 
-```
-resource.addEventListener(type, listener)
-resource.removeEventListener(type, listener)
-resource.dispatchEvent(event)
-// non-standard
-resource.once(type, listener)
+```javascript
+resource.on(eventName, listener)
+resource.off(eventName, listener)
+resource.once(eventName, listener)
+resource.emit(eventName[, ...args])
 ```
 
-When an event listener is attached to a specific resource, such as a model, it only gets events from that object.
+If a listener is attached to a specific resource, such as a model, it only gets events from that object.
 If a listener is attached to the viewer itself, it will receive events for all resources.
 
-Note that attaching a `loadstart` listener to a resource that is not the viewer is pointless, since the listener is registered after the resource started loading.
+Note that attaching a `loadstart` listener to a resource is pointless, since the listener is registered after the resource started loading. Attach it to the viewer instead.
 
-The type can be one of:
+The event name can be one of:
 * `loadstart` - a resource started loading.
-* `load` - a resource finished loading.
-* `error` - an error occured when loading a resource. The `error` property will be set.
-* `loadend` - sent when a resource finishes loading, either because of an error, or because it loaded successfully.
+* `load` - a resource successfully loaded.
+* `error` - something bad happened.
+* `loadend` - a resource finished loading, follows both `load` and `error` when loading a resource.
 
-The event object that a listener recieves has the same structure as JS events.
-For example, for the load call above, the following is how the `load` event could look: `{type: "load", target: MdxModel}`, `MdxModel` being our `model` variable in this case. That is, `e.target === model`.
+For example, for the model loaded above, the following is how a `load` listener could look:
 
-Errors might occur, but don't panic.
-These are the errors the code uses:
-* InvalidHandler - sent by the viewer when adding an invalid handler - either its type is unknown, or its `initialize()` function failed (e.g. a shader failed to compile).
-* MissingHandler - sent by the viewer if you try to load some resource with an unknown extension (did you forget to add the handler?).
-* HttpError - sent by handlers when a server fetch failed.
-* InvalidSource - sent by handlers when they think your source is not valid, such as trying to load a file as MDX, but it's not really an MDX file.
-* UnsupportedFeature - sent by handlers when the source is valid, but a feature in the format isn't supported, such as DDS textures not supporting encodings that are not DXT1/3/5.
+```javascript
+model.on('load', (model) => {
+	// Loading finished.
+	console.assert(model.loaded);
+	// But just because it loaded doesn't mean it loaded successfully!
+	console.assert(model.ok);
+});
+```
 
-Together with these error strings (in the `error` property naturally), more information can be added in the `extra` property.
-For example, when you get a MissingHandler error because you tried loading an unknown extension, the `extra` property will hold the result from your path solver.
-Another example - when an HttpError occurs, `extra` will contain the XMLHttpRequest object of the fetch.
-You can choose to respond to errors (or not) however you want.
+And an example of a global `error` listener:
+
+```javascript
+// target here is the resource for which the error occured.
+// For global errors, this will be the viewer itself.
+viewer.on('error', (target, error, reason) => {
+	console.log(`Error: ${error}, Reason: ${reason}`);
+});
+```

@@ -1,6 +1,6 @@
+import EventEmitter from 'events';
 import {createTextureAtlas} from '../common/canvas';
 import fetchDataType from '../common/fetchdatatype';
-import EventDispatcher from '../common/eventdispatcher';
 import WebGL from './gl/gl';
 import PromiseResource from './promiseresource';
 import Scene from './scene';
@@ -11,15 +11,13 @@ import GenericResource from './genericresource';
 /**
  * A model viewer.
  */
-export default class ModelViewer extends EventDispatcher {
+export default class ModelViewer extends EventEmitter {
   /**
    * @param {HTMLCanvasElement} canvas
    * @param {?Object} options
    */
   constructor(canvas, options) {
     super();
-
-    this.eventDispatchCallback = (e) => this.dispatchEvent(e);
 
     /** @member {Map<string, Resource>} */
     this.resourcesMap = new Map();
@@ -59,19 +57,19 @@ export default class ModelViewer extends EventDispatcher {
     this.resourcesLoading = new Set();
 
     // Track when resources start loading.
-    this.addEventListener('loadstart', (e) => {
-      this.resourcesLoading.add(e.target);
+    this.on('loadstart', (target) => {
+      this.resourcesLoading.add(target);
     });
 
     // Track when resources end loading.
-    this.addEventListener('loadend', (e) => {
-      this.resourcesLoading.delete(e.target);
+    this.on('loadend', (target) => {
+      this.resourcesLoading.delete(target);
 
       // If there are currently no resources loading, dispatch the 'idle' event.
       if (this.resourcesLoading.size === 0) {
         // A timeout is used so that this event will arrive after the loadend event being processed.
         // Any nicer solution?
-        setTimeout(() => this.dispatchEvent({type: 'idle'}), 0);
+        setTimeout(() => this.emit('idle'), 0);
       }
     });
 
@@ -122,7 +120,7 @@ export default class ModelViewer extends EventDispatcher {
     // Check to see if this handler was added already.
     if (!handlers.has(handler)) {
       if (handler.load && !handler.load(this)) {
-        this.dispatchEvent({type: 'error', error: 'InvalidHandler', reason: 'FailedToLoad'});
+        this.emit('error', this, 'InvalidHandler', 'FailedToLoad');
         return false;
       }
 
@@ -233,7 +231,7 @@ export default class ModelViewer extends EventDispatcher {
 
         this.registerEvents(resource);
 
-        resource.dispatchEvent({type: 'loadstart'});
+        resource.emit('loadstart', resource);
 
         if (serverFetch) {
           let dataType = handlerAndDataType[1];
@@ -247,7 +245,7 @@ export default class ModelViewer extends EventDispatcher {
               } else {
                 resource.error('FailedToFetch');
 
-                this.dispatchEvent({type: 'error', error: response.error, reason: data});
+                this.emit('error', resource, response.error, data);
               }
             });
         } else {
@@ -256,7 +254,7 @@ export default class ModelViewer extends EventDispatcher {
 
         return resource;
       } else {
-        this.dispatchEvent({type: 'error', error: 'MissingHandler', reason: [src, extension, serverFetch]});
+        this.emit('error', this, 'MissingHandler', [src, extension, serverFetch]);
 
         return null;
       }
@@ -299,7 +297,7 @@ export default class ModelViewer extends EventDispatcher {
 
     this.registerEvents(resource);
 
-    resource.dispatchEvent({type: 'loadstart'});
+    resource.emit('loadstart', resource);
 
     fetchDataType(path, dataType)
       .then((response) => {
@@ -320,7 +318,7 @@ export default class ModelViewer extends EventDispatcher {
         } else {
           resource.error('FailedToFetch');
 
-          this.dispatchEvent({type: 'error', error: response.error, reason: data});
+          this.emit('error', resource, response.error, data);
         }
       });
 
@@ -569,7 +567,7 @@ export default class ModelViewer extends EventDispatcher {
    * @param {Resource} resource
    */
   registerEvents(resource) {
-    ['loadstart', 'load', 'error', 'loadend'].map((e) => resource.addEventListener(e, this.eventDispatchCallback));
+    ['loadstart', 'load', 'error', 'loadend'].map((e) => resource.on(e, (...data) => this.emit(e, ...data)));
   }
 
   /**

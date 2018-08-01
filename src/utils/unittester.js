@@ -28,7 +28,7 @@ export default class UnitTester {
 
     viewer.gl.clearColor(0.05, 0.05, 0.05, 1);
 
-    viewer.addEventListener('error', (e) => console.log(e));
+    viewer.on('error', (target, error, reason) => console.log(target, error, reason));
 
     viewer.addHandler(Mdx);
     viewer.addHandler(M3);

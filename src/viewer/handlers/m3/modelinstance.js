@@ -55,7 +55,7 @@ export default class M3ModelInstance extends TexturedModelInstance {
           this.frame = interval[1];
         }
 
-        this.dispatchEvent({type: 'seqend'});
+        this.emit('seqend', this);
       }
     }
   }

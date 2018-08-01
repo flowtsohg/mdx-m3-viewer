@@ -1,6 +1,6 @@
+import EventEmitter from 'events';
 import {vec3, quat, mat4} from 'gl-matrix';
 import {VEC3_ZERO, VEC3_ONE, QUAT_DEFAULT} from '../common/gl-matrix-addon';
-import EventDispatcher from '../common/eventdispatcher';
 
 // Heap allocations needed for this module.
 let locationHeap = vec3.create();
@@ -550,7 +550,7 @@ export class SceneNode extends nodeMixin(Object) {}
 /**
  * A scene node that is also an event dispatcher.
  */
-export class EventNode extends nodeMixin(EventDispatcher) {}
+export class EventNode extends nodeMixin(EventEmitter) {}
 
 /**
  * A skeletal node used for skeletons.

@@ -69,4 +69,14 @@ export default class EventObjectSndEmitter {
   render(modelView, shader) {
 
   }
+
+  /**
+   * Does nothing.
+   * Defined to stay compatible with SharedEmitter.
+   *
+   * @param {ModelInstance} owner
+   */
+  clear(owner) {
+
+  }
 }
