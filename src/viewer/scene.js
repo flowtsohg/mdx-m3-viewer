@@ -50,7 +50,7 @@ export default class Scene {
     /** @member {?AudioContext} */
     this.audioContext = null;
 
-    this.node.recalculateTransformation();
+    this.node.recalculateTransformation(this);
     this.node.wasDirty = false;
   }
 
@@ -155,8 +155,6 @@ export default class Scene {
 
   /**
    * Clear this scene.
-   *
-   * TODO: Implement this properly.
    */
   clear() {
     this.instances.length = 0;
@@ -167,8 +165,7 @@ export default class Scene {
 
   /**
    * Detach this scene from the viewer.
-   *
-   * TODO: Implement this properly.
+   * Equivalent to viewer.removeScene(scene).
    *
    * @return {boolean}
    */

@@ -61,6 +61,16 @@ export default class Resource extends EventEmitter {
   }
 
   /**
+   * Remove this resource from its viewer's cache.
+   * Equivalent to viewer.unload(resource).
+   *
+   * @return {boolean}
+   */
+  detach() {
+    return this.viewer.unload(this);
+  }
+
+  /**
    * This is used by models to finish loading their instances and model views, in case any are added before the model finished loaded.
    */
   lateLoad() {

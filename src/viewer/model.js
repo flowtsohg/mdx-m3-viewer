@@ -45,21 +45,6 @@ export default class Model extends Resource {
   }
 
   /**
-   * Detach this model from the viewer. This removes references to it from the viewer, and also detaches all of the model views it owns.
-   */
-  detach() {
-    // Detach all of the views
-    let views = this.views;
-
-    for (let i = 0, l = views.length; i < l; i++) {
-      views[i].clear();
-    }
-
-    // Remove references from the viewer
-    this.viewer.removeReference(this);
-  }
-
-  /**
    * Render opaque things.
    *
    * @param {*} data

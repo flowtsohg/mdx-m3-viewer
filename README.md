@@ -277,20 +277,28 @@ The event name can be one of:
 * `error` - something bad happened.
 * `loadend` - a resource finished loading, follows both `load` and `error` when loading a resource.
 
-For example, for the model loaded above, the following is how a `load` listener could look:
+Here are examples of how event listeners can look:
 
 ```javascript
 model.on('load', (model) => {
-	// Loading finished.
-	console.assert(model.loaded);
-	// But just because it loaded doesn't mean it loaded successfully!
-	console.assert(model.ok);
+	// Assuming this is an MDX/M3 model, let's print all of its animation names.
+	console.log(model.sequences.map((sequence) => sequence.name));
 });
-```
 
-And an example of a global `error` listener:
+model.on('loadend', (model) => {
+	// Will be true for both load and loadend.
+	// loaded just means the resource doesn't need further processing to load.
+	// However, it doesn't mean it loaded successfully.
+	console.assert(model.loaded);
 
-```javascript
+	// ok tells if the resource loaded successfully, and is ready to be used.
+	console.assert(model.ok);
+
+	// If model.ok == true: this will print the same thing as in load.
+	// If model.ok == false: this will print an empty line (sequences is an empty array!)
+	console.log(model.sequences.map((sequence) => sequence.name));
+});
+
 // target here is the resource for which the error occured.
 // For global errors, this will be the viewer itself.
 viewer.on('error', (target, error, reason) => {

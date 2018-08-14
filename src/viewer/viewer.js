@@ -22,9 +22,6 @@ export default class ModelViewer extends EventEmitter {
     /** @member {Map<string, Resource>} */
     this.resourcesMap = new Map();
 
-    /** @member {Array<GenericResource} */
-    this.genericResourcesMap = {};
-
     /** @member {Array<Resource>} */
     this.resources = [];
 
@@ -284,7 +281,7 @@ export default class ModelViewer extends EventEmitter {
    * @return {GenericResource}
    */
   loadGeneric(path, dataType, callback) {
-    let resource = this.genericResourcesMap[path];
+    let resource = this.resourcesMap.get(path);
 
     if (resource) {
       return resource;
@@ -293,7 +290,7 @@ export default class ModelViewer extends EventEmitter {
     resource = new GenericResource({viewer: this, handler: callback, fetchUrl: path});
 
     this.resources.push(resource);
-    this.genericResourcesMap[path] = resource;
+    this.resourcesMap.set(path, resource);
 
     this.registerEvents(resource);
 
@@ -323,6 +320,29 @@ export default class ModelViewer extends EventEmitter {
       });
 
     return resource;
+  }
+
+  /**
+   * Unload a resource.
+   * Note that this only removes the resource from the viewer's cache.
+   * If it's being referenced and used e.g. by a scene, it will not be garbage collected.
+   *
+   * @param {Resource} resource
+   * @return {boolean}
+   */
+  unload(resource) {
+    // Loop over all of the values and fine this resource.
+    // This is needed to support unloading in-memory resources that will have no fetchUrl.
+    for (let [key, value] of this.resourcesMap) {
+      if (value === resource) {
+        this.resourcesMap.delete(key);
+        this.resources.splice(this.resources.indexOf(resource), 1);
+
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -453,27 +473,6 @@ export default class ModelViewer extends EventEmitter {
         this.once('idle', () => resolve(this));
       }
     });
-  }
-
-  /**
-   * Remove a resource from the viewer.
-   * Note that this only removes references to this resource, so your code should do the same, to allow GC to work.
-   * This also means that if a resource is referenced by another resource, it is not going to be GC'd.
-   * For example, removing  a texture that is being used by a model will not actually let GC collect it, until the model is deleted too, and loses all references.
-   *
-   * @param {Resource} resource
-   * @return {boolean}
-   */
-  removeResource(resource) {
-    if (this.resourcesMap.delete(resource)) {
-      this.resources.delete(resource);
-
-      resource.detach();
-
-      return true;
-    }
-
-    return false;
   }
 
   /**

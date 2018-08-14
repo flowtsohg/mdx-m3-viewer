@@ -65,6 +65,7 @@ export default class ModelInstance extends EventNode {
 
   /**
    * Detach this instance from the scene it's in.
+   * Equivalent to scene.removeInstance(instance).
    *
    * @return {boolean}
    */
