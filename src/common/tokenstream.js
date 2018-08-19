@@ -122,6 +122,24 @@ export default class TokenStream {
   }
 
   /**
+   * Read an MDL keyframe value.
+   * If the value is a scalar, it us just the number.
+   * If the value is a vector, it is enclosed with curly braces.
+   * @param {Float32Array|Uint32Array} value
+   */
+  readKeyframe(value) {
+    if (value.length === 1) {
+      if (value instanceof Float32Array) {
+        value[0] = this.readFloat();
+      } else {
+        value[0] = this.readInt();
+      }
+    } else {
+      this.readTypedArray(value);
+    }
+  }
+
+  /**
    * Reads an array of integers in the form:
    *     { Value1, Value2, ..., ValueN }
    *
@@ -327,6 +345,25 @@ export default class TokenStream {
     } else {
       this.writeArrayAttrib(name, value);
     }
+  }
+
+  /**
+   * Write an MDL keyframe.
+   *
+   * @param {string} start
+   * @param {Float32Array|Uint32Array} value
+   */
+  writeKeyframe(start, value) {
+    if (value.length === 1) {
+      if (value instanceof Float32Array) {
+        this.writeFloatAttrib(start, value[0]);
+      } else {
+        this.writeAttrib(start, value[0]);
+      }
+    } else {
+      this.writeTypedArrayAttrib(start, value);
+    }
+
   }
 
   /**

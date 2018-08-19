@@ -54,13 +54,13 @@ const templatedTrack = (DataType, size) => class {
    */
   readMdl(stream, interpolationType) {
     this.frame = stream.readInt();
-    stream.readTypedArray(this.value);
+    stream.readKeyframe(this.value);
 
     if (interpolationType > 1) {
       stream.read(); // InTan
-      stream.readTypedArray(this.inTan);
+      stream.readKeyframe(this.inTan);
       stream.read(); // OutTan
-      stream.readTypedArray(this.outTan);
+      stream.readKeyframe(this.outTan);
     }
   }
 
@@ -69,12 +69,12 @@ const templatedTrack = (DataType, size) => class {
    * @param {number} interpolationType
    */
   writeMdl(stream, interpolationType) {
-    stream.writeTypedArrayAttrib(`${this.frame}:`, this.value);
+    stream.writeKeyframe(`${this.frame}:`, this.value);
 
     if (interpolationType > 1) {
       stream.indent();
-      stream.writeTypedArrayAttrib('InTan', this.inTan);
-      stream.writeTypedArrayAttrib('OutTan', this.outTan);
+      stream.writeKeyframe('InTan', this.inTan);
+      stream.writeKeyframe('OutTan', this.outTan);
       stream.unindent();
     }
   }
