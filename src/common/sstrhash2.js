@@ -93,7 +93,7 @@ export default function sstrhash2(key) {
         buffer[offset] = byte;
       }
     } else {
-      // lower csae ascii to upper case.
+      // lower case ascii to upper case.
       buffer[offset] = byte - 0x20;
     }
 

@@ -9,7 +9,7 @@ import EventEmitter from 'events';
  * Once the SLK loads, the viewer thinks it finished loading and calls whenAllLoaded, before starting to load the objects.
  * Adding a promise in this case acts as a barrier, which is removed by resolving the promise after the objects starts loading.
  *
- * Note that you can create a promise resource with viewer.makePromise(), which returns an already active promise.
+ * Note that you can create a promise resource with viewer.promise(), which returns an already active promise.
  */
 export default class PromiseResource extends EventEmitter {
   /**

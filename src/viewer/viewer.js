@@ -112,18 +112,26 @@ export default class ModelViewer extends EventEmitter {
    * @return {boolean}
    */
   addHandler(handler) {
-    let handlers = this.handlers;
+    if (handler) {
+      let handlers = this.handlers;
 
-    // Check to see if this handler was added already.
-    if (!handlers.has(handler)) {
-      if (handler.load && !handler.load(this)) {
-        this.emit('error', this, 'InvalidHandler', 'FailedToLoad');
-        return false;
+      // Allow to pass also the handler's module for convenience.
+      if (handler.handler) {
+        handler = handler.handler;
       }
 
-      handlers.add(handler);
+      // Check to see if this handler was added already.
+      if (!handlers.has(handler)) {
+        // Check if the handler has a loader, and if so load it.
+        if (handler.load && !handler.load(this)) {
+          this.emit('error', this, 'InvalidHandler', 'FailedToLoad');
+          return false;
+        }
 
-      return true;
+        handlers.add(handler);
+
+        return true;
+      }
     }
 
     return false;
@@ -331,7 +339,7 @@ export default class ModelViewer extends EventEmitter {
    * @return {boolean}
    */
   unload(resource) {
-    // Loop over all of the values and fine this resource.
+    // Loop over all of the values and find this resource.
     // This is needed to support unloading in-memory resources that will have no fetchUrl.
     for (let [key, value] of this.resourcesMap) {
       if (value === resource) {
@@ -378,7 +386,7 @@ export default class ModelViewer extends EventEmitter {
       let textureAtlas = {texture: new ImageTexture({viewer: this}), columns: 0, rows: 0};
 
       // Promise that there is a future load that the code cannot know about yet, so whenAllLoaded() isn't called prematurely.
-      let promise = this.makePromise();
+      let promise = this.promise();
 
       // When all of the textures are loaded, it's time to construct a texture atlas
       this.whenLoaded(textures)
@@ -432,7 +440,7 @@ export default class ModelViewer extends EventEmitter {
    *
    * @return {PromiseResource}
    */
-  makePromise() {
+  promise() {
     let resource = new PromiseResource();
 
     this.registerEvents(resource);
@@ -453,7 +461,10 @@ export default class ModelViewer extends EventEmitter {
     let promises = [];
 
     for (let resource of resources) {
-      promises.push(resource.whenLoaded());
+      // Only process actual resources.
+      if (resource && resource.whenLoaded) {
+        promises.push(resource.whenLoaded());
+      }
     }
 
     return Promise.all(promises);

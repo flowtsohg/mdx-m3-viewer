@@ -43,20 +43,18 @@ function selectSequence(type, sequences) {
 }
 
 function standSequence(target) {
-  // This function is registered both with whenLoaded, and with on.
-  // The former sends the object directly, while the latter passes an event object, so take care of this difference here.
-  if (target.target) {
-    target = target.target;
+  let sequences = target.model.sequences;
+  let sequence = selectSequence('stand', sequences);
+
+  if (sequence) {
+    target.setSequence(sequence.index);
   }
+};
 
-  if (target.model.sequences) {
-    let sequences = target.model.sequences;
-    let standSequence = selectSequence('stand', sequences);
-
-    if (standSequence) {
-      target.setSequence(standSequence.index);
-    }
-  }
-}
-
-export default standSequence;
+export default function standOnRepeat(target) {
+  target.model.whenLoaded()
+    .then((model) => {
+      standSequence(target);
+      target.on('seqend', standSequence);
+    });
+};

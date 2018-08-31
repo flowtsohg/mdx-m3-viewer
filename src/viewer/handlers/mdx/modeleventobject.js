@@ -65,7 +65,7 @@ export default class EventObject extends GenericObject {
       return;
     }
 
-    let promise = viewer.makePromise();
+    let promise = viewer.promise();
 
     viewer.whenLoaded(tables)
       .then((tables) => {

@@ -1,9 +1,9 @@
-import Handler from './handler';
+import handler from './handler';
 import Model from './model';
 import ModelInstance from './modelinstance';
 
 export default {
-  Handler,
+  handler,
   Model,
   ModelInstance,
 };

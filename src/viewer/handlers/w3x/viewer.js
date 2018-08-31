@@ -14,7 +14,8 @@ import mdxHandler from '../mdx/handler';
 import shaders from './shaders';
 import getCliffVariation from './variations';
 import TerrainModel from './terrainmodel';
-import SimpleModel from './simplemodel';
+// import SimpleModel from './simplemodel';
+import standOnRepeat from './standsequence';
 
 let normalHeap1 = vec3.create();
 let normalHeap2 = vec3.create();
@@ -47,7 +48,6 @@ export default class War3MapViewer extends ModelViewer {
 
     this.scene = this.addScene();
     this.camera = this.scene.camera;
-    this.camera2 = this.scene.camera2;
 
     this.waterIndex = 0;
     this.waterIncreasePerFrame = 0;
@@ -127,7 +127,7 @@ export default class War3MapViewer extends ModelViewer {
 
       webgl.useShaderProgram(shader);
 
-      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera2.worldProjectionMatrix);
+      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
       gl.uniform2fv(uniforms.u_offset, centerOffset);
       gl.uniform2f(uniforms.u_size, columns - 1, rows - 1);
       gl.uniform1i(uniforms.u_heightMap, 0);
@@ -187,7 +187,7 @@ export default class War3MapViewer extends ModelViewer {
 
       webgl.useShaderProgram(shader);
 
-      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera2.worldProjectionMatrix);
+      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
       gl.uniform2fv(uniforms.u_offset, centerOffset);
       gl.uniform2f(uniforms.u_size, columns - 1, rows - 1);
       gl.uniform1i(uniforms.u_heightMap, 0);
@@ -245,7 +245,7 @@ export default class War3MapViewer extends ModelViewer {
 
       webgl.useShaderProgram(shader);
 
-      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera2.worldProjectionMatrix);
+      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
       gl.uniform1i(uniforms.u_heightMap, 0);
       gl.uniform2fv(uniforms.u_pixel, heightMapSize);
       gl.uniform2fv(uniforms.u_centerOffset, centerOffset);
@@ -278,67 +278,67 @@ export default class War3MapViewer extends ModelViewer {
     }
   }
 
-  /**
-   * 
-   */
-  renderDoodads(opaque) {
-    if (this.doodadsReady) {
-      let gl = this.gl;
-      let instancedArrays = gl.extensions.instancedArrays;
-      let webgl = this.webgl;
-      let shader = this.simpleModelShader;
-      let attribs = shader.attribs;
-      let uniforms = shader.uniforms;
+  // /**
+  //  * 
+  //  */
+  // renderDoodads(opaque) {
+  //   if (this.doodadsReady) {
+  //     let gl = this.gl;
+  //     let instancedArrays = gl.extensions.instancedArrays;
+  //     let webgl = this.webgl;
+  //     let shader = this.simpleModelShader;
+  //     let attribs = shader.attribs;
+  //     let uniforms = shader.uniforms;
 
-      webgl.useShaderProgram(shader);
+  //     webgl.useShaderProgram(shader);
 
-      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera2.worldProjectionMatrix);
-      gl.uniform1i(uniforms.u_texture, 0);
+  //     gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
+  //     gl.uniform1i(uniforms.u_texture, 0);
 
-      gl.activeTexture(gl.TEXTURE0);
+  //     gl.activeTexture(gl.TEXTURE0);
 
-      // Enable instancing.
-      instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 1);
-      instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceRotation, 1);
-      instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceScale, 1);
+  //     // Enable instancing.
+  //     instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 1);
+  //     instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceRotation, 1);
+  //     instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceScale, 1);
 
-      // Render the dooadads.
-      for (let doodad of this.doodads) {
-        if (opaque) {
-          doodad.renderOpaque(gl, instancedArrays, uniforms, attribs);
-        } else {
-          doodad.renderTranslucent(gl, instancedArrays, uniforms, attribs);
-        }
-      }
+  //     // Render the dooadads.
+  //     for (let doodad of this.doodads) {
+  //       if (opaque) {
+  //         doodad.renderOpaque(gl, instancedArrays, uniforms, attribs);
+  //       } else {
+  //         doodad.renderTranslucent(gl, instancedArrays, uniforms, attribs);
+  //       }
+  //     }
 
-      // Render the terrain doodads.
-      for (let doodad of this.terrainDoodads) {
-        if (opaque) {
-          doodad.renderOpaque(gl, instancedArrays, uniforms, attribs);
-        } else {
-          doodad.renderTranslucent(gl, instancedArrays, uniforms, attribs);
-        }
-      }
+  //     // Render the terrain doodads.
+  //     for (let doodad of this.terrainDoodads) {
+  //       if (opaque) {
+  //         doodad.renderOpaque(gl, instancedArrays, uniforms, attribs);
+  //       } else {
+  //         doodad.renderTranslucent(gl, instancedArrays, uniforms, attribs);
+  //       }
+  //     }
 
-      // Disable instancing.
-      instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 0);
-      instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceRotation, 0);
-      instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceScale, 0);
-    }
-  }
+  //     // Disable instancing.
+  //     instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 0);
+  //     instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceRotation, 0);
+  //     instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceScale, 0);
+  //   }
+  // }
 
   /**
    * Render the map.
    */
   render() {
     if (this.anyReady) {
-      this.gl.viewport(...this.camera2.viewport);
+      this.gl.viewport(...this.camera.rect);
 
       this.renderGround();
       this.renderCliffs();
-      this.renderDoodads(true);
+      // this.renderDoodads(true);
       super.renderOpaque();
-      this.renderDoodads(false);
+      // this.renderDoodads(false);
       super.renderTranslucent();
       this.renderWater();
     }
@@ -428,7 +428,7 @@ export default class War3MapViewer extends ModelViewer {
     this.applyModificationFile(this.doodadsData, this.destructableMetaData, modifications.w3b);
 
     let doo = new War3MapDoo(this.mapMpq.get('war3map.doo').arrayBuffer());
-    let doodads = {};
+    let scene = this.scene;
 
     // Collect the doodad and destructible data.
     for (let doodad of doo.doodads) {
@@ -450,80 +450,29 @@ export default class War3MapViewer extends ModelViewer {
 
       fileVar += '.mdx';
 
-      if (!doodads[file]) {
-        doodads[file] = {file, fileVar, instances: 0, instanceData: []};
-      }
-
-      let location = doodad.location;
-      let angle = doodad.angle / 2;
-      let scale = doodad.scale;
-
-      doodads[file].instances += 1;
-      doodads[file].instanceData.push(...location, Math.sin(angle), Math.cos(angle), scale[0]);
-    }
-
-    // Load the models.
-    for (let object of Object.values(doodads)) {
       // First see if the model is local.
       // Doodads refering to local models may have invalid variations, so if the variation doesn't exist, try without a variation.
-      let mpqFile = this.mapMpq.get(object.fileVar) || this.mapMpq.get(object.file);
+      let mpqFile = this.mapMpq.get(fileVar) || this.mapMpq.get(file);
+      let model;
 
-      // If it's a local file, load it.
-      // Otherwise, fetch and then load it.
       if (mpqFile) {
-        this.doodads.push(new SimpleModel(this, mpqFile.arrayBuffer(), object.instances, object.instanceData));
+        model = this.load(mpqFile.name);
       } else {
-        this.loadGeneric(this.mapPathSolver(object.fileVar)[0], 'arrayBuffer').whenLoaded()
-          .then((resource) => {
-            this.doodads.push(new SimpleModel(this, resource.data, object.instances, object.instanceData));
-          });
+        model = this.load(fileVar);
       }
+
+      let instance = model.addInstance();
+
+      instance.move(doodad.location);
+      instance.rotateLocal(quat.setAxisAngle(quat.create(), VEC3_UNIT_Z, doodad.angle));
+      instance.scale(doodad.scale);
+      instance.setScene(scene);
+
+      standOnRepeat(instance);
     }
 
     this.doodadsReady = true;
     this.anyReady = true;
-
-    // let centerOffset = this.centerOffset;
-    // let terrainDoodads = {};
-
-    // // Collect the doodad and destructible data.
-    // for (let doodad of doo.terrainDoodads) {
-    //   let row = this.doodadsData.getRow(doodad.id);
-    //   let file = row.file;
-
-    //   if (file.endsWith('.mdl')) {
-    //     file = file.slice(0, -4);
-    //   }
-
-    //   file += '.mdx';
-
-    //   if (!terrainDoodads[file]) {
-    //     terrainDoodads[file] = {file, matrices: []};
-    //   }
-
-    //   //Height?
-    //   let location = doodad.location;
-
-    //   terrainDoodads[file].matrices.push(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, location[0] * 128 + centerOffset[0], location[1] * 128 + centerOffset[1], 0, 1);
-    // }
-
-    // // Load the models.
-    // for (let object of Object.values(terrainDoodads)) {
-    //   // First see if the model is local.
-    //   // Doodads refering to local models may have invalid variations, so if the variation doesn't exist, try without a variation.
-    //   let mpqFile = this.mapMpq.get(object.file);
-
-    //   // If it's a local file, load it.
-    //   // Otherwise, fetch and then load it.
-    //   if (mpqFile) {
-    //     this.terrainDoodads.push(new SimpleModel(this, mpqFile.arrayBuffer(), object.matrices));
-    //   } else {
-    //     this.loadGeneric(this.mapPathSolver(object.file)[0], 'arrayBuffer').whenLoaded()
-    //       .then((resource) => {
-    //         this.terrainDoodads.push(new SimpleModel(this, resource.data, object.matrices));
-    //       });
-    //   }
-    // }
   }
 
   /**
@@ -566,8 +515,9 @@ export default class War3MapViewer extends ModelViewer {
         instance.rotateLocal(quat.setAxisAngle(quat.create(), VEC3_UNIT_Z, unit.angle));
         instance.scale(unit.scale);
         instance.setTeamColor(unit.player);
-        instance.setSequence(0);
         instance.setScene(scene);
+
+        standOnRepeat(instance);
       } else {
         console.log('Unknown unit ID', unit.id, unit)
       }

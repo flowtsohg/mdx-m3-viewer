@@ -26,6 +26,10 @@ export default class Resource extends EventEmitter {
     this.ok = false;
     /** @member {boolean} */
     this.loaded = false;
+
+    // Ignore EventEmitter warnings.
+    // Mostly relevant when loading many models that reference the same texture / event object.
+    this.setMaxListeners(0);
   }
 
   /**

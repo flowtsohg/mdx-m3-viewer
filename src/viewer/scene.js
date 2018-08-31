@@ -19,6 +19,8 @@ export default class Scene {
    * @param {ModelViewer} viewer
    */
   constructor(viewer) {
+    let canvas = viewer.canvas;
+
     /** @member {ModelViewer.viewer.ModelViewer} */
     this.viewer = viewer;
     /** @member {ModelViewer.viewer.Camera} */
@@ -52,6 +54,10 @@ export default class Scene {
 
     this.node.recalculateTransformation(this);
     this.node.wasDirty = false;
+
+    // Use the whole canvas, and standard perspective projection values.
+    this.camera.viewport([0, 0, canvas.width, canvas.height]);
+    this.camera.perspective(Math.PI / 4, canvas.width / canvas.height, 8, 10000);
   }
 
   /**

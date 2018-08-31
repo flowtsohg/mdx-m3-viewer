@@ -1,10 +1,10 @@
-import Handler from './handler';
+import handler from './handler';
 import Model from './model';
 import ModelInstance from './modelinstance';
 import Bucket from './bucket';
 
 export default {
-  Handler,
+  handler,
   Model,
   ModelInstance,
   Bucket,

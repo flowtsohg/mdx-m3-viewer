@@ -1,5 +1,5 @@
-import Dds from '../dds/handler';
-import Tga from '../tga/handler';
+import dds from '../dds/handler';
+import tga from '../tga/handler';
 import Model from './model';
 import ModelView from './modelview';
 import Bucket from './bucket';
@@ -26,8 +26,8 @@ function initializeTeamColors(viewer, shader) {
 
 export default {
   load(viewer) {
-    viewer.addHandler(Dds);
-    viewer.addHandler(Tga);
+    viewer.addHandler(dds);
+    viewer.addHandler(tga);
 
     // Load shaders for 1-4 texture coordinate models.
     for (let i = 0; i < 4; i++) {

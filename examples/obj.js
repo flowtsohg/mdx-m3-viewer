@@ -37,7 +37,7 @@ viewer.on('error', (target, error, reason) => console.log(target, error, reason)
 // In this case, Bmp.extension is a getter that returns '.bmp'.
 // If one handler handles multiple extensions, they can be added with pipe characters inbetween, like the Png handler's extension - '.png|.jpg|.gif'.
 // Finally, the Bmp handler defines the binaryFormat getter to true, which means that any HTTP requests made for it will return an ArrayBuffer, instead of a string.
-viewer.addHandler(handlers.bmp.Handler);
+viewer.addHandler(handlers.bmp);
 
 // Same deal as the above, but Obj is a model handler.
 // Model handlers are slightly more complicated.
@@ -47,7 +47,7 @@ viewer.addHandler(handlers.bmp.Handler);
 // 3) ModelInstance (optional) - The model instance implementation (e.g. ObjModelInstance).
 // 4) Bucket (optional) - The model's bucket implementation (e.g. Bucket).
 // Note that ModelView, ModelInstance, and Bucket, default to the base implementation - you are not required to define your own implementations if you don't need to.
-viewer.addHandler(handlers.obj.Handler);
+viewer.addHandler(handlers.obj);
 
 // A path solver is used for every load call.
 // The purpose of a path solver is to transform local paths to either of 1) A server fetch, or 2) A local load.

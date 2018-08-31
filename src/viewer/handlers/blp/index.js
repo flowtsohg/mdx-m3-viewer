@@ -1,7 +1,7 @@
-import Handler from './handler';
+import handler from './handler';
 import Texture from './texture';
 
 export default {
-  Handler,
+  handler,
   Texture,
 };

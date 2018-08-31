@@ -21,7 +21,7 @@ viewer.on('loadend', (target) => console.log(target));
 viewer.on('error', (target, error, reason) => console.log(target, error, reason));
 
 // Add the MDX handler.
-viewer.addHandler(handlers.mdx.Handler);
+viewer.addHandler(handlers.mdx);
 
 // A path solver is used for every load call.
 // The purpose of a path solver is to transform local paths to either of 1) A server fetch, or 2) A local load.
