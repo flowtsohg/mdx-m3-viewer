@@ -19,9 +19,9 @@
 
 
 let _typeof = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol' ? function(obj) {
- return typeof obj;
+  return typeof obj;
 } : function(obj) {
- return obj && typeof Symbol === 'function' && obj.constructor === Symbol && obj !== Symbol.prototype ? 'symbol' : typeof obj;
+  return obj && typeof Symbol === 'function' && obj.constructor === Symbol && obj !== Symbol.prototype ? 'symbol' : typeof obj;
 };
 
 
@@ -50,10 +50,10 @@ let JpegImage = function JpegImageClosure() {
   }
   function buildHuffmanTable(codeLengths, values) {
     let k = 0,
-        code = [],
-        i,
-        j,
-        length = 16;
+      code = [],
+      i,
+      j,
+      length = 16;
     while (length > 0 && !codeLengths[length - 1]) {
       length--;
     }
@@ -62,7 +62,7 @@ let JpegImage = function JpegImageClosure() {
       index: 0,
     });
     let p = code[0],
-        q;
+      q;
     for (i = 0; i < length; i++) {
       for (j = 0; j < codeLengths[i]; j++) {
         p = code.pop();
@@ -100,8 +100,8 @@ let JpegImage = function JpegImageClosure() {
     let mcusPerLine = frame.mcusPerLine;
     let progressive = frame.progressive;
     let startOffset = offset,
-        bitsData = 0,
-        bitsCount = 0;
+      bitsData = 0,
+      bitsCount = 0;
     function readBit() {
       if (bitsCount > 0) {
         bitsCount--;
@@ -155,7 +155,7 @@ let JpegImage = function JpegImageClosure() {
       while (k < 64) {
         let rs = decodeHuffman(component.huffmanTableAC);
         let s = rs & 15,
-            r = rs >> 4;
+          r = rs >> 4;
         if (s === 0) {
           if (r < 15) {
             break;
@@ -184,11 +184,11 @@ let JpegImage = function JpegImageClosure() {
         return;
       }
       let k = spectralStart,
-          e = spectralEnd;
+        e = spectralEnd;
       while (k <= e) {
         let rs = decodeHuffman(component.huffmanTableAC);
         let s = rs & 15,
-            r = rs >> 4;
+          r = rs >> 4;
         if (s === 0) {
           if (r < 15) {
             eobrun = receive(r) + (1 << r) - 1;
@@ -204,7 +204,7 @@ let JpegImage = function JpegImageClosure() {
       }
     }
     let successiveACState = 0,
-        successiveACNextValue;
+      successiveACNextValue;
     function decodeACSuccessive(component, offset) {
       let k = spectralStart;
       let e = spectralEnd;
@@ -295,7 +295,7 @@ let JpegImage = function JpegImageClosure() {
       decodeFn = decodeBaseline;
     }
     let mcu = 0,
-        fileMarker;
+      fileMarker;
     let mcuExpected;
     if (componentsLength === 1) {
       mcuExpected = components[0].blocksPerLine * components[0].blocksPerColumn;
@@ -355,7 +355,7 @@ let JpegImage = function JpegImageClosure() {
   }
   function quantizeAndInverse(component, blockBufferOffset, p) {
     let qt = component.quantizationTable,
-        blockData = component.blockData;
+      blockData = component.blockData;
     let v0, v1, v2, v3, v4, v5, v6, v7;
     let p0, p1, p2, p3, p4, p5, p6, p7;
     let t;
@@ -589,7 +589,7 @@ let JpegImage = function JpegImageClosure() {
       let frame, resetInterval;
       let quantizationTables = [];
       let huffmanTablesAC = [],
-          huffmanTablesDC = [];
+        huffmanTablesDC = [];
       let fileMarker = readUint16();
       if (fileMarker !== 0xFFD8) {
         throw new JpegError('SOI not found');
@@ -682,9 +682,9 @@ let JpegImage = function JpegImageClosure() {
             frame.components = [];
             frame.componentIds = {};
             var componentsCount = data[offset++],
-                componentId;
+              componentId;
             var maxH = 0,
-                maxV = 0;
+              maxV = 0;
             for (i = 0; i < componentsCount; i++) {
               componentId = data[offset];
               let h = data[offset + 1] >> 4;
@@ -715,11 +715,11 @@ let JpegImage = function JpegImageClosure() {
               let huffmanTableSpec = data[offset++];
               let codeLengths = new Uint8Array(16);
               let codeLengthSum = 0;
-              for (j = 0; j < 16; j++, offset++) {
+              for (j = 0; j < 16; j++ , offset++) {
                 codeLengthSum += codeLengths[j] = data[offset];
               }
               let huffmanValues = new Uint8Array(codeLengthSum);
-              for (j = 0; j < codeLengthSum; j++, offset++) {
+              for (j = 0; j < codeLengthSum; j++ , offset++) {
                 huffmanValues[j] = data[offset];
               }
               i += 17 + codeLengthSum;
@@ -734,7 +734,7 @@ let JpegImage = function JpegImageClosure() {
             readUint16();
             var selectorsCount = data[offset++];
             var components = [],
-                component;
+              component;
             for (i = 0; i < selectorsCount; i++) {
               let componentIndex = frame.componentIds[data[offset++]];
               component = frame.components[componentIndex];
@@ -785,46 +785,49 @@ let JpegImage = function JpegImageClosure() {
       this.numComponents = this.components.length;
     },
     getData: function(imageData) {
-        let data = imageData.data;
-        let components = this.components;
-        let lineData = new Uint8Array((components[0].blocksPerLine << 3) * components[0].blocksPerColumn * 8);
+      let data = imageData.data;
+      let components = this.components;
+      let lineData = new Uint8Array((components[0].blocksPerLine << 3) * components[0].blocksPerColumn * 8);
 
-        for (let i = 0, numComponents = components.length; i < numComponents; i++) {
-            let component = components[i];
-            let blocksPerLine = component.blocksPerLine;
-            let blocksPerColumn = component.blocksPerColumn;
-            let samplesPerLine = blocksPerLine << 3;
-            var j, k, ll = 0;
-            var lineOffset = 0;
+      // NOTICE: This forces BGR->RGB conversion without adding any costs, since really we know this is going to be a hacky BGRA BLP file.
+      [components[0], components[2]] = [components[2], components[0]];
 
-            for (let blockRow = 0; blockRow < blocksPerColumn; blockRow++) {
-                let scanLine = blockRow << 3;
+      for (let i = 0, numComponents = components.length; i < numComponents; i++) {
+        let component = components[i];
+        let blocksPerLine = component.blocksPerLine;
+        let blocksPerColumn = component.blocksPerColumn;
+        let samplesPerLine = blocksPerLine << 3;
+        var j, k, ll = 0;
+        var lineOffset = 0;
 
-                for (let blockCol = 0; blockCol < blocksPerLine; blockCol++) {
-                    let bufferOffset = getBlockBufferOffset(component, blockRow, blockCol);
-                    let offset2 = 0, sample = blockCol << 3;
+        for (let blockRow = 0; blockRow < blocksPerColumn; blockRow++) {
+          let scanLine = blockRow << 3;
 
-                    for (j = 0; j < 8; j++) {
-                        var lineOffset = (scanLine + j) * samplesPerLine;
+          for (let blockCol = 0; blockCol < blocksPerLine; blockCol++) {
+            let bufferOffset = getBlockBufferOffset(component, blockRow, blockCol);
+            let offset2 = 0, sample = blockCol << 3;
 
-                        for (k = 0; k < 8; k++) {
-                            lineData[lineOffset + sample + k] = component.output[bufferOffset + offset2++];
-                        }
-                    }
-                }
+            for (j = 0; j < 8; j++) {
+              var lineOffset = (scanLine + j) * samplesPerLine;
+
+              for (k = 0; k < 8; k++) {
+                lineData[lineOffset + sample + k] = component.output[bufferOffset + offset2++];
+              }
             }
-
-            let offset = i;
-
-            for (let y = 0; y < this.height; y++) {
-                for (let x = 0; x < this.width; x++) {
-                    data[offset] = lineData[y * samplesPerLine + x];
-                    offset += numComponents;
-                }
-            }
+          }
         }
 
-        return data;
+        let offset = i;
+
+        for (let y = 0; y < this.height; y++) {
+          for (let x = 0; x < this.width; x++) {
+            data[offset] = lineData[y * samplesPerLine + x];
+            offset += numComponents;
+          }
+        }
+      }
+
+      return data;
     },
   };
   return JpegImage;

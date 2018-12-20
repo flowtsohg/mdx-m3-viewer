@@ -120,7 +120,7 @@ export default {
         }
       }
 
-      vec4 texel = texture2D(u_texture, uv).bgra;
+      vec4 texel = texture2D(u_texture, uv);
 
       // 1bit Alpha
       if (u_alphaTest && texel.a < 0.75) {
@@ -172,7 +172,7 @@ export default {
     varying vec4 v_color;
 
     void main() {
-      vec4 texel = texture2D(u_texture, v_uv).bgra;
+      vec4 texel = texture2D(u_texture, v_uv);
 
       // 1bit Alpha, used by ribbon emitters
       if (u_isRibbonEmitter && u_alphaTest && texel.a < 0.75) {

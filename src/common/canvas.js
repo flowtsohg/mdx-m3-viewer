@@ -91,6 +91,18 @@ export function imageDataToDataUrl(imageData) {
 }
 
 /**
+ * @param {ImageData} imageData
+ * @return {Image}
+ */
+export function imageDataToImage(imageData) {
+  let image = new Image();
+
+  image.src = imageDataToDataUrl(imageData);
+
+  return image;
+}
+
+/**
  * @param {Image} image
  * @return {ImageData}
  */

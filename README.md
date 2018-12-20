@@ -232,6 +232,10 @@ Sometimes this is not possible, for example when you want to get the list of ani
 
 There are two ways to react to resources being loaded: promises, and events.
 
+Regardless of which is used, every resource has two loading hints: `loaded`, and `ok`.
+When a resource is `loaded`, it means that it doesn't need further processing by the viewer. It doesn't however neccessarily mean the resource loaded successfully.
+When a resource is `ok`, it means it actually loaded successfully and is ready for use.
+
 ##### Promises
 
 Every resource has a `whenLoaded` method that returns a promise which is resolved when the resource loads, or immediately if it was already loaded. 
@@ -243,7 +247,14 @@ Some examples of promises:
 ```javascript
 model.whenLoaded()
   .then((model) => {
+    // Must be true!
+    console.assert(model.loaded);
+
+    // May be true.
+    console.log(model.ok);
+
     // Assuming this is an MDX/M3 model, let's print all of its animation names.
+    // If model.ok is false, this will print an empty line, since sequences is an empty array.
     console.log(model.sequences.map((sequence) => sequence.name));
   });
 
@@ -272,33 +283,37 @@ resource.emit(eventName[, ...args])
 If a listener is attached to a specific resource, such as a model, it only gets events from that object.
 If a listener is attached to the viewer itself, it will receive events for all resources.
 
-Note that attaching a `loadstart` listener to a resource is pointless, since the listener is registered after the resource started loading. Attach it to the viewer instead.
-
 The event name can be one of:
 * `loadstart` - a resource started loading.
 * `load` - a resource successfully loaded.
 * `error` - something bad happened.
 * `loadend` - a resource finished loading, follows both `load` and `error` when loading a resource.
 
+Note that attaching a `loadstart` listener to a resource is pointless, since the listener is registered after the resource started loading. Attach it to the viewer instead.
+
 Some examples of event listeners:
 
 ```javascript
 model.on('load', (model) => {
+  // Must be true!
+  console.assert(model.loaded);
+
+  // Must be true!
+  console.assert(model.ok);
+  
   // Assuming this is an MDX/M3 model, let's print all of its animation names.
   console.log(model.sequences.map((sequence) => sequence.name));
 });
 
 model.on('loadend', (model) => {
-  // Will be true for both load and loadend.
-  // loadend just means the resource doesn't need further processing to load.
-  // It doesn't mean it loaded successfully.
+  // Must be true!
   console.assert(model.loaded);
 
-  // ok tells if the resource loaded successfully, and is ready to be used.
+  // May be true.
   console.log(model.ok);
 
-  // If model.ok is true, this will print the same thing as in load.
-  // If model.ok is false, this will print an empty line (sequences is an empty array!)
+  // Assuming this is an MDX/M3 model, let's print all of its animation names.
+  // If model.ok is false, this will print an empty line, since sequences is an empty array.
   console.log(model.sequences.map((sequence) => sequence.name));
 });
 

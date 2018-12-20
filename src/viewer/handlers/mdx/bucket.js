@@ -74,6 +74,7 @@ export default class extends Bucket {
     let model = this.model;
     let gl = model.viewer.gl;
     let batchSize = model.batchSize;
+    let hasBatches = model.batches.length > 0;
     let geosetCount = model.geosets.length;
     let layerCount = model.layers.length;
     let boneCount = model.bones.length;
@@ -93,14 +94,9 @@ export default class extends Bucket {
       let instance = instances[baseIndex];
 
       if (instance.rendered && !instance.culled) {
-        let vertexColor = instance.vertexColor;
-        let worldMatrices = instance.worldMatrices;
-        let geosetColors = instance.geosetColors;
-        let layerAlphas = instance.layerAlphas;
-        let uvOffsets = instance.uvOffsets;
-        let uvScales = instance.uvScales;
-        let uvRots = instance.uvRots;
         let base = 16 + instanceOffset * (16 + boneCount * 16);
+        let worldMatrices = instance.worldMatrices;
+        let vertexColor = instance.vertexColor;
         let particleEmitterViews = instance.particleEmitters;
         let particleEmitter2Views = instance.particleEmitters2;
         let ribbonEmitterViews = instance.ribbonEmitters;
@@ -123,38 +119,46 @@ export default class extends Bucket {
         colorData[instanceOffset5 + 3] = vertexColor[2];
         colorData[instanceOffset5 + 4] = vertexColor[3];
 
-        for (let geosetIndex = 0; geosetIndex < geosetCount; geosetIndex++) {
-          let geosetIndex4 = geosetIndex * 4;
-          let base = batchSize * geosetIndex4 + instanceOffset4;
+        if (hasBatches) {
+          let geosetColors = instance.geosetColors;
+          let layerAlphas = instance.layerAlphas;
+          let uvOffsets = instance.uvOffsets;
+          let uvRots = instance.uvRots;
+          let uvScales = instance.uvScales;
 
-          // Geoset color
-          geosetColorsData[base] = geosetColors[geosetIndex4];
-          geosetColorsData[base + 1] = geosetColors[geosetIndex4 + 1];
-          geosetColorsData[base + 2] = geosetColors[geosetIndex4 + 2];
-          geosetColorsData[base + 3] = geosetColors[geosetIndex4 + 3];
-        }
+          for (let geosetIndex = 0; geosetIndex < geosetCount; geosetIndex++) {
+            let geosetIndex4 = geosetIndex * 4;
+            let base = batchSize * geosetIndex4 + instanceOffset4;
 
-        for (let layerIndex = 0; layerIndex < layerCount; layerIndex++) {
-          let layerIndex4 = layerIndex * 4;
-          let uvBase = batchSize * layerIndex * 7 + instanceOffset7;
+            // Geoset color
+            geosetColorsData[base] = geosetColors[geosetIndex4];
+            geosetColorsData[base + 1] = geosetColors[geosetIndex4 + 1];
+            geosetColorsData[base + 2] = geosetColors[geosetIndex4 + 2];
+            geosetColorsData[base + 3] = geosetColors[geosetIndex4 + 3];
+          }
 
-          // Layer alpha
-          layerAlphasData[batchSize * layerIndex + instanceOffset] = layerAlphas[layerIndex];
+          for (let layerIndex = 0; layerIndex < layerCount; layerIndex++) {
+            let layerIndex4 = layerIndex * 4;
+            let uvBase = batchSize * layerIndex * 7 + instanceOffset7;
 
-          // Translation
-          uvTransformsData[uvBase] = uvOffsets[layerIndex4];
-          uvTransformsData[uvBase + 1] = uvOffsets[layerIndex4 + 1];
+            // Layer alpha
+            layerAlphasData[batchSize * layerIndex + instanceOffset] = layerAlphas[layerIndex];
 
-          // Rotation
-          uvTransformsData[uvBase + 2] = uvRots[layerIndex * 2];
-          uvTransformsData[uvBase + 3] = uvRots[layerIndex * 2 + 1];
+            // Translation
+            uvTransformsData[uvBase] = uvOffsets[layerIndex4];
+            uvTransformsData[uvBase + 1] = uvOffsets[layerIndex4 + 1];
 
-          // Scale
-          uvTransformsData[uvBase + 4] = uvScales[layerIndex];
+            // Rotation
+            uvTransformsData[uvBase + 2] = uvRots[layerIndex * 2];
+            uvTransformsData[uvBase + 3] = uvRots[layerIndex * 2 + 1];
 
-          // Sprite animation
-          uvTransformsData[uvBase + 5] = uvOffsets[layerIndex4 + 2];
-          uvTransformsData[uvBase + 6] = uvOffsets[layerIndex4 + 3];
+            // Scale
+            uvTransformsData[uvBase + 4] = uvScales[layerIndex];
+
+            // Sprite animation
+            uvTransformsData[uvBase + 5] = uvOffsets[layerIndex4 + 2];
+            uvTransformsData[uvBase + 6] = uvOffsets[layerIndex4 + 3];
+          }
         }
 
         for (let i = 0, l = particleEmitters.length; i < l; i++) {
