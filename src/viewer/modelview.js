@@ -83,6 +83,22 @@ export default class ModelView {
   }
 
   /**
+   * Does this view contain any instances for the given scene?
+   *
+   * @param {Scene} whichScene
+   * @return {boolean}
+   */
+  hasInstances(whichScene) {
+    for (let [scene, data] of this.sceneData) {
+      if (scene === whichScene && data.instances.length > 0) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * Add a new model instance to this model view.
    * If the instance was alraedy in this model view, returns false, otherwise returns true.
    *

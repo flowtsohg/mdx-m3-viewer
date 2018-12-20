@@ -150,8 +150,23 @@ export default class Scene {
       let instances = this.instances;
       instances.splice(instances.indexOf(instance), 1);
 
-      instance.modelView.sceneChanged(instance, null);
+      let modelView = instance.modelView;
+
+      modelView.sceneChanged(instance, null);
+
       instance.scene = null;
+
+      // If the instance is parented to the scene itself, unparent it.
+      // Otherwise, there is no way to know if the parenting is intentional, so do nothing with it.
+      if (instance.parent === this.node) {
+        instance.setParent(null);
+      }
+
+      // If this modelview has no more instances left in it, may as well remove it from the scene.
+      if (!modelView.hasInstances(this)) {
+        this.modelViewSet.delete(modelView);
+        this.modelViews.splice(this.modelViews.indexOf(modelView), 1);
+      }
 
       return true;
     }

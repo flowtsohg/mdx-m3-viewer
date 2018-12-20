@@ -41,7 +41,7 @@ The `tests` folder contains a page that runs unit tests. Problem is, it uses man
 
 1. Download and install NodeJS from https://nodejs.org/en/.
 2. Open a command prompt in the viewer's directory, and run `npm install`.
-3. Run `webpack-dev` to generate `dist/viewer.min.js`, with the API given under the global object ModelViewer.
+3. Run `webpack-prod` to generate `dist/viewer.min.js`, with the API given under the global object ModelViewer.
 
 You can also require/import the library or anything in it directly in a webpack project.
 
@@ -215,12 +215,12 @@ Where:
 * `dataType` is a string with one of these values: `text`, `arrayBuffer`, `blob`, or `image`.
 * `callback` is a function that will be called with the data once the fetch is complete, and should return the resource's data.
 
-It is in fact only a small layer above the standard `fetch` function.
-The purpose of loading other files through the viewer is to cache the results and avoid multiple loads, while also allowing the viewer itself to handle events correctly, such as `whenAllLoaded`.
-
 If a callback is given, `resource.data` will be whatever the callback returns.
 If a promise is returned, the loader waits for it to resolve, and uses whatever it resolved to.
 If no callback is given, the data will be the fetch data itself, according to the given data type.
+
+`loadGeneric` is a simple layer above the standard `fetch` function.
+The purpose of loading other files through the viewer is to cache the results and avoid multiple loads, while also allowing the viewer itself to handle events correctly, such as `whenAllLoaded`.
 
 ------------------------
 
@@ -280,7 +280,7 @@ resource.once(eventName, listener)
 resource.emit(eventName[, ...args])
 ```
 
-If a listener is attached to a specific resource, such as a model, it only gets events from that object.
+If a listener is attached to a specific resource, such as a model, it only gets events from that resource.
 If a listener is attached to the viewer itself, it will receive events for all resources.
 
 The event name can be one of:
@@ -317,7 +317,7 @@ model.on('loadend', (model) => {
   console.log(model.sequences.map((sequence) => sequence.name));
 });
 
-// target here is the resource for which the error occured.
+// target is the resource for which the error occured.
 // For global errors, this will be the viewer itself.
 viewer.on('error', (target, error, reason) => {
   console.log(`Error: ${error}, Reason: ${reason}`, target);
