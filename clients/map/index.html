@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Map | HIVE</title>
+    <meta charset="utf-8" />
+
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            color: white;
+        }
+
+        #canvas {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+        }
+
+        #stats {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        #status {
+            position: absolute;
+            left: 10%;
+            top: 10%;
+            width: 80%;
+            height: 80%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div id="status">Loading the page</div>
+
+    <div id="stats">
+        <div id="instances"></div>
+        <div id="particles"></div>
+        <div id="buckets"></div>
+        <div id="rendercalls"></div>
+    </div>
+
+    <script src="../../dist/viewer.min.js"></script>
+    <script src="../thirdparty/fpsmeter.min.js"></script>
+    <script src="../thirdparty/filesaver.js"></script>
+    <script src="../camera.js"></script>
+    <script src="../localorhive.js"></script>
+    <script src="main.js"></script>
+</body>
+
+</html>

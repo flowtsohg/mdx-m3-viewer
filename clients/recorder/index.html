@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Recorder | HIVE</title>
+    <meta charset="utf-8" />
+
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+        }
+
+        #canvas {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        #sequence_name {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            color: white;
+            margin: 8px;
+        }
+
+        #frame_counter {
+            position: absolute;
+            right: 0px;
+            top: 0px;
+            color: white;
+            margin: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <p id="sequence_name"></p>
+    <p id="frame_counter"></p>
+
+    <script src="../../dist/viewer.min.js"></script>
+    <script src="../thirdparty/jszip.min.js"></script>
+    <script src="../thirdparty/filesaver.js"></script>
+    <script src="../camera.js"></script>
+    <script src="../localorhive.js"></script>
+    <script src="main.js"></script>
+</body>
+
+</html>

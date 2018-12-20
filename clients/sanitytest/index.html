@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Sanity Test | HIVE</title>
+    <meta charset="utf-8" />
+
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            font-size: 2ch;
+        }
+
+        #canvas {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 40%;
+            height: 50%;
+        }
+
+        #sourceview {
+            position: absolute;
+            left: 0px;
+            top: 50%;
+            width: 40%;
+            height: 50%;
+            box-sizing: border-box;
+            padding: 10px;
+            margin: 0px;
+            overflow: auto;
+        }
+
+        #tests {
+            position: absolute;
+            left: 40%;
+            top: 0px;
+            width: 40%;
+            height: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        #sourcemap {
+            position: absolute;
+            left: 80%;
+            top: 0px;
+            width: 20%;
+            height: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            overflow-y: auto;
+            user-select: none;
+        }
+
+        .log {
+            color: gray;
+        }
+
+        .info {
+            color: black;
+            font-weight: bold;
+        }
+
+        .warn {
+            color: darkgoldenrod;
+        }
+
+        .error {
+            color: #cc0000;
+        }
+
+        .unused {
+            color: rgb(96, 166, 0);
+        }
+
+        .sourceMapName {
+            color: black;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .sourceMapName:hover {
+            background-color: rgb(230, 230, 230);
+        }
+
+        .selectedSourceMapName {
+            color: black;
+            font-weight: bold;
+            background-color: rgb(200, 200, 230);
+        }
+
+        .tooltip {
+            border-bottom-style: dashed;
+            border-bottom-width: 1px;
+            border-color: black;
+        }
+
+        .header {
+            font-weight: bold;
+        }
+
+        .closed {
+            cursor: pointer;
+            background-color: rgb(225, 225, 225);
+        }
+
+        .closed:hover {
+            background-color: rgb(235, 235, 235);
+        }
+
+        .opened {
+            cursor: default;
+            background-color: rgb(255, 255, 255);
+        }
+
+        #status {
+            position: absolute;
+            top: 25%;
+            left: 50%;
+            width: 40%;
+            user-select: none;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="status"></div>
+
+    <canvas id="canvas"></canvas>
+    <pre id="sourceview"></pre>
+    <div id="tests"></div>
+    <div id="sourcemap"></div>
+
+    <script src="../../dist/viewer.min.js"></script>
+    <script src="../logstream.js"></script>
+    <script src="../camera.js"></script>
+    <script src="../localorhive.js"></script>
+    <script src="sourcemap.js"></script>
+    <script src="main.js"></script>
+</body>
+
+</html>

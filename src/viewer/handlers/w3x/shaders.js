@@ -73,13 +73,13 @@ export default {
     const vec3 lightDirection = normalize(vec3(-0.3, -0.3, 0.25));
 
     vec4 blend(vec4 color, vec2 uv) {
-      vec4 texel = texture2D(u_tilesets, uv).bgra;
+      vec4 texel = texture2D(u_tilesets, uv);
 
       return mix(color, texel, texel.a);
     }
 
     void main() {
-      vec4 color = texture2D(u_tilesets, v_uv[0]).bgra;
+      vec4 color = texture2D(u_tilesets, v_uv[0]);
       color = blend(color, v_uv[1]);
       color = blend(color, v_uv[2]);
       color = blend(color, v_uv[3]);
@@ -147,7 +147,7 @@ export default {
     varying vec4 v_color;
 
     void main() {
-      gl_FragColor = texture2D(u_waterMap, v_uv).bgra * v_color;
+      gl_FragColor = texture2D(u_waterMap, v_uv) * v_color;
     }
   `,
   vsCliffs: `
@@ -214,7 +214,7 @@ export default {
     }
 
     void main() {
-      vec4 color = sample(int(v_texture), v_uv).bgra;
+      vec4 color = sample(int(v_texture), v_uv);
 
       vec3 faceNormal = cross(dFdx(v_position), dFdy(v_position));
       vec3 normal = normalize((faceNormal + v_normal) * 0.5);
@@ -257,7 +257,7 @@ export default {
     const vec3 lightDirection = normalize(vec3(-0.3, -0.3, 0.25));
 
     void main() {
-      vec4 color = texture2D(u_texture, v_uv).bgra;
+      vec4 color = texture2D(u_texture, v_uv);
 
       // 1bit Alpha
       if (u_alphaTest && color.a < 0.75) {
