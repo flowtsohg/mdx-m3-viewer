@@ -66,15 +66,23 @@ export default class UnitTester {
       let testBlob = await this.getTestBlob(test);
       let comparisonBlob = await this.getComparisonBlob(test);
 
-      if (comparisonBlob) {
+      if (testBlob && comparisonBlob) {
         let comparisonPromise = new Promise((resolve) => resemble(testBlob).compareTo(comparisonBlob).ignoreColors().onComplete((data) => resolve(data)));
         let [testImage, comparisonImage, testResult] = await Promise.all([blobToImage(testBlob), blobToImage(comparisonBlob), comparisonPromise]);
 
         callback({done: false, value: {name: test.name, testImage, comparisonImage, result: testResult.rawMisMatchPercentage}});
       } else {
-        // When adding new tests, or not having the comparison images yet, the above will fail.
-        // In this case, always return the test image, and make it fail 100%.
-        callback({done: false, value: {name: test.name, testImage: await blobToImage(testBlob), result: 100}});
+        // Fail modes.
+        // 1) The test blob exists, but comparison doesn't. This happens when adding new tests.
+        // 2) The comparison blob exists, but the test doesn't. This happens when having issues with fetching the files needed for the tests.
+        // 3) Neither exists.
+        if (testBlob) {
+          callback({done: false, value: {name: test.name, testImage: await blobToImage(testBlob), result: 100}});
+        } else if (comparisonBlob) {
+          callback({done: false, value: {name: test.name, comparisonImage: await blobToImage(comparisonBlob), result: 100}});
+        } else {
+          callback({done: false, value: {name: test.name, result: 100}});
+        }
       }
     }
 
@@ -90,21 +98,45 @@ export default class UnitTester {
    */
   async download(callback) {
     for (let test of this.tests) {
+      let name = test.name;
       let testBlob = await this.getTestBlob(test);
+      let ok = !!testBlob;
 
-      downloadBlob(testBlob, `${test.name}.png`);
+      if (ok) {
+        downloadBlob(testBlob, `${test.name}.png`);
+      }
 
-      callback({done: false, value: {name: test.name}});
+      callback({done: false, value: {name, ok}});
     }
 
     callback({done: true});
   }
 
   /**
+   * Is the given resource or array of resources ok?
+   *
+   * @param {Resource|Array<Resource>} data
+   * @return {boolean}
+   */
+  isDataAGo(data) {
+    if (Array.isArray(data)) {
+      for (let resource of data) {
+        if (!resource.ok) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    return data.ok;
+  }
+
+  /**
    * Given a test, return a promise that will resolve to the blob that resulted from running the test.
    *
    * @param {Object} test
-   * @return {Promise}
+   * @return {Promise<?Blob>}
    */
   async getTestBlob(test) {
     let loadHandler = test.test.load;
@@ -127,22 +159,26 @@ export default class UnitTester {
     // Wait until everything loaded.
     await viewer.whenAllLoaded();
 
-    // Replace Math.random with a custom seeded random generator.
-    // This allows to run the viewer in a deterministic environment for tests.
-    // For example, particles have some randomized data, which can make tests mismatch.
-    Math.random = seededRandom(6);
+    if (this.isDataAGo(data)) {
+      // Replace Math.random with a custom seeded random generator.
+      // This allows to run the viewer in a deterministic environment for tests.
+      // For example, particles have some randomized data, which can make tests mismatch.
+      Math.random = seededRandom(6);
 
-    // Run the test.
-    testHandler(viewer, scene, camera, data);
+      // Run the test.
+      testHandler(viewer, scene, camera, data);
 
-    // Update and render.
-    viewer.updateAndRender();
+      // Update and render.
+      viewer.updateAndRender();
 
-    // Put back Math.random in its place.
-    Math.random = this.mathRandom;
+      // Put back Math.random in its place.
+      Math.random = this.mathRandom;
 
-    // Return the viewer's canvas' blob.
-    return await viewer.toBlob();
+      // Return the viewer's canvas' blob.
+      return await viewer.toBlob();
+    } else {
+      return null;
+    }
   }
 
   /**

@@ -1,13 +1,38 @@
-let testsCount = 0;
-let testsPassed = 0;
-let testsElement = document.getElementById('tests');
-let resultElement = document.getElementById('result');
+ModelViewer = ModelViewer.default;
+glMatrix = ModelViewer.common.glMatrix;
+vec2 = glMatrix.vec2;
+vec3 = glMatrix.vec3;
+vec4 = glMatrix.vec4;
+quat = glMatrix.quat;
+mat3 = glMatrix.mat3;
+mat4 = glMatrix.mat4;
+UnitTester = ModelViewer.utils.UnitTester;
+geometry = ModelViewer.common.geometry;
+math = ModelViewer.common.math;
 
-/**
- * @param {object} testResult
- */
-function addTestResult(testResult) {
-  let tr = testsElement.insertRow();
+geoSolver = (src) => {
+  return [src, '.geo', false];
+};
+
+wc3Solver = (path) => {
+  path = localOrHive(path);
+
+  // GREAT JOB BLIZZARD. AWESOME PATCHES.
+  if (path.endsWith('orcbloodriderlesswyvernrider.mdx') && path.includes('hiveworkshop')) {
+    path = path.replace('orcbloodriderlesswyvernrider.mdx', 'ordbloodriderlesswyvernrider.mdx');
+  }
+
+  return [path, path.substr(path.lastIndexOf('.')), true];
+};
+
+sc2Solver = (path) => {
+  path = localOrHive(path, 'starcraft2');
+
+  return [path, path.substr(path.lastIndexOf('.')), true];
+};
+
+function addTestResult(table, testResult) {
+  let tr = table.insertRow();
   let name = document.createElement('td');
   let status = document.createElement('td');
   let imageA = document.createElement('td');
@@ -18,9 +43,6 @@ function addTestResult(testResult) {
   let result = testResult.result;
   let passed = result < 1;
 
-  testsCount += 1;
-  testsPassed += passed ? 1 : 0;
-
   // Name of the test
   name.textContent = testName;
 
@@ -28,15 +50,17 @@ function addTestResult(testResult) {
   status.textContent = passed ? 'passed' : 'failed';
   status.className = passed ? 'success' : 'failure';
 
-  // The rendered image
-  let a = document.createElement('a');
-  a.href = testImage.src;
-  a.target = '_blank';
+  if (testImage) {
+    // The rendered image
+    let a = document.createElement('a');
+    a.href = testImage.src;
+    a.target = '_blank';
 
-  a.appendChild(testImage);
-  testImage.style.width = '16px';
+    a.appendChild(testImage);
+    testImage.style.width = '16px';
 
-  imageA.appendChild(a);
+    imageA.appendChild(a);
+  }
 
   if (comparisonImage) {
     // The comparison image
@@ -58,8 +82,14 @@ function addTestResult(testResult) {
   tr.appendChild(status);
   tr.appendChild(imageA);
   tr.appendChild(imageB);
+
+  return passed;
 }
 
+let testsCount = 0;
+let testsPassed = 0;
+let testsElement = document.getElementById('tests');
+let resultElement = document.getElementById('result');
 let unitTester = new UnitTester();
 
 document.getElementById('version').textContent = 'Viewer version ' + ModelViewer.version;
@@ -74,24 +104,9 @@ unitTester.add(baseTests);
 let runElement = document.getElementById('run');
 let downloadElement = document.getElementById('download');
 
-/**
- * Enable the buttons.
- */
-function enableButtons() {
-  runElement.disabled = false;
-  downloadElement.disabled = false;
-}
-
-/**
- * Disable the buttons.
- */
-function disableButtons() {
+runElement.addEventListener('click', () => {
   runElement.disabled = true;
   downloadElement.disabled = true;
-}
-
-runElement.addEventListener('click', () => {
-  disableButtons();
 
   console.log('Starting to test');
 
@@ -99,20 +114,25 @@ runElement.addEventListener('click', () => {
     if (!entry.done) {
       console.log(`Tested ${entry.value.name}`);
 
-      addTestResult(entry.value);
+      let passed = addTestResult(testsElement, entry.value);
+
+      testsCount += 1;
+      testsPassed += passed ? 1 : 0;
     } else {
       resultElement.textContent = testsPassed + '/' + testsCount + ' tests passed';
       resultElement.className = (testsPassed === testsCount) ? 'success' : 'failure';
 
       console.log('Finished testing');
 
-      enableButtons();
+      runElement.disabled = false;
+      downloadElement.disabled = false;
     }
   });
 });
 
 downloadElement.addEventListener('click', () => {
-  disableButtons();
+  runElement.disabled = true;
+  downloadElement.disabled = true;
 
   console.log('Starting to download');
 
@@ -122,7 +142,8 @@ downloadElement.addEventListener('click', () => {
     } else {
       console.log('Finished downloading');
 
-      enableButtons();
+      runElement.disabled = false;
+      downloadElement.disabled = false;
     }
   });
 });
