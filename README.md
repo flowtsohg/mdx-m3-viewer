@@ -5,35 +5,39 @@ mdx-m3-viewer
 
 A 3D model viewer for MDX and M3 models used by the games Warcraft 3 and Starcraft 2 respectively.
 
-The `viewer` folder contains all of the 3D viewer specific functions and classes.
-Built-in handlers exist for the following formats:
-* MDX (Warcraft 3 model): extensive support, almost everything should work.
-* M3 (Starcraft 2 model): partial support, file format not quite reverse engineered yet.
-* W3M/W3X (Warcraft 3 map): partial support, will grow in future.
-* BLP1 (Warcraft 3 texture): extensive support, almost everything should work.
-* TGA (image): partial support, only simple 24bit images.
-* DDS (compressed texture, used by Starcraft 2): partial support, should work for every Starcraft 2 texture, and probably for most DDS files in existence (DXT1/3/5).
-* PNG/JPG/GIF: supported as a wrapper around Image.
-* GEO (a simple JS format used for geometric shapes): note that this is solely a run-time handler.
-* OBJ: partial support (more of an example handler).
-* BMP: partial support (more of an example handler).
+* The `src` folder has in it the following:
 
-The `parsers` folder contains classes that know how to read (and some how to write) different file formats.
-The parsers can be used also outside of the context of a web browser or the viewer itself.
-These include:
-* MDX/MDL: read/write.
-* M3: read.
-* BLP1: read.
-* INI: read.
-* SLK: read.
-* MPQ1: read/write.
-* W3M/W3X/W3N: read/write, including all of the internal files.
+  The `viewer` folder contains all of the 3D viewer specific functions and classes.
+  Built-in handlers exist for the following formats:
+  * MDX (Warcraft 3 model): extensive support, almost everything should work.
+  * M3 (Starcraft 2 model): partial support, file format not quite reverse engineered yet.
+  * W3M/W3X (Warcraft 3 map): partial support, will grow in future.
+  * BLP1 (Warcraft 3 texture): extensive support, almost everything should work.
+  * TGA (image): partial support, only simple 24bit images.
+  * DDS (compressed texture, used by Starcraft 2): partial support, should work for every Starcraft 2 texture, and probably for most DDS files in existence (DXT1/3/5).
+  * PNG/JPG/GIF: supported as a wrapper around Image.
+  * GEO (a simple JS format used for geometric shapes): note that this is solely a run-time handler.
+  * OBJ: partial support (more of an example handler).
+  * BMP: partial support (more of an example handler).
 
-The `common` folder contains functions and classes that are relatively general, and are used by all other parts.
+  The `parsers` folder contains classes that know how to read (and some how to write) different file formats.
+  The parsers can be used also outside of the context of a web browser or the viewer itself.
+  These include:
+  * MDX/MDL: read/write.
+  * M3: read.
+  * BLP1: read.
+  * INI: read.
+  * SLK: read.
+  * MPQ1: read/write.
+  * W3M/W3X/W3N: read/write, including all of the internal files.
 
-The `utils` folder contains mostly interesting functions and classes that are built on top of the parsers.
+  * The `common` folder contains functions and classes that are relatively general, and are used by all other parts.
 
-The `tests` folder contains a page that runs unit tests. Problem is, it uses many files owned by Blizzard, which I cannot add here.
+  * The `utils` folder contains mostly interesting functions and classes that are built on top of the parsers.
+
+* The `clients` folder has in it a couple of clients using the library to perform different operations, including the unit tester.
+
+* Finally, the `examples` folder contains simple examples.
 
 ------------------------
 
