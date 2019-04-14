@@ -179,8 +179,14 @@ export default class Layer extends AnimatedObject {
    * @return {number}
    */
   getTextureId(out, instance) {
-    /// TODO: map the returned slot to a texture atlas slot if one exists.
-    return this.getUintValue(out, 'KMTF', instance, this.textureId);
+    let keyframe = this.getUintValue(out, 'KMTF', instance, this.textureId);
+
+    // If this layer is using a texture atlas, remap the texture ID to that of the texture atlas.
+    if (this.texutreAtlasMapping) {
+      out[0] = this.texutreAtlasMapping[out[0]];
+    }
+
+    return keyframe;
   }
 
   /**

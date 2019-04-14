@@ -152,7 +152,7 @@ export default class RibbonEmitter extends GenericObject {
       stream.writeAttrib('static TextureSlot', this.textureSlot);
     }
 
-    this.writeAnimation(stream, 'KPEV');
+    this.writeAnimation(stream, 'KRVS');
 
     stream.writeAttrib('EmissionRate', this.emissionRate);
     stream.writeFloatAttrib('LifeSpan', this.lifeSpan);

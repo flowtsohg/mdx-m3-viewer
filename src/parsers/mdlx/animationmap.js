@@ -17,8 +17,8 @@ export default {
   KLAE: ['AttenuationEnd', FloatAnimation],
   KLAC: ['Color', Vector3Animation],
   KLAI: ['Intensity', FloatAnimation],
-  KLBI: ['AmbientIntensity', FloatAnimation],
-  KLBC: ['AmbientColor', Vector3Animation],
+  KLBI: ['AmbIntensity', FloatAnimation],
+  KLBC: ['AmbColor', Vector3Animation],
   KLAV: ['Visibility', FloatAnimation],
   // Attachment
   KATV: ['Visibility', FloatAnimation],
@@ -28,7 +28,7 @@ export default {
   KPLN: ['Longitude', FloatAnimation],
   KPLT: ['Latitude', FloatAnimation],
   KPEL: ['LifeSpan', FloatAnimation],
-  KPES: ['Speed', FloatAnimation],
+  KPES: ['InitVelocity', FloatAnimation],
   KPEV: ['Visibility', FloatAnimation],
   // ParticleEmitter2
   KP2S: ['Speed', FloatAnimation],
