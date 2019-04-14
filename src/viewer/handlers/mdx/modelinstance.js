@@ -196,14 +196,14 @@ export default class ModelInstance extends TexturedModelInstance {
     }
 
     if (genericObject.billboarded) {
-      //node.billboarded = true;
-    }// else if (genericObject.billboardedX) {
-    //   node.billboardedX = true;
-    // } else if (genericObject.billboardedY) {
-    //   node.billboardedY = true;
-    // } else if (genericObject.billboardedZ) {
-    //   node.billboardedZ = true;
-    // }
+      node.billboarded = true;
+    } else if (genericObject.billboardedX) {
+      node.billboardedX = true;
+    } else if (genericObject.billboardedY) {
+      node.billboardedY = true;
+    } else if (genericObject.billboardedZ) {
+      node.billboardedZ = true;
+    }
 
     if (object) {
       node.object = object;

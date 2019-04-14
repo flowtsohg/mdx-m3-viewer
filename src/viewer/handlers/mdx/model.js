@@ -538,15 +538,20 @@ export default class Model extends TexturedModel {
     instancedArrays.vertexAttribDivisorANGLE(layerAlpha, 1);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, bucket.geosetColorsBuffer);
-    gl.vertexAttribPointer(geosetColor, 4, gl.UNSIGNED_BYTE, true, 4, this.batchSize * geoset.index * 4); // Geoset colors.
+    // Geoset colors.
+    gl.vertexAttribPointer(geosetColor, 4, gl.UNSIGNED_BYTE, true, 4, this.batchSize * geoset.index * 4);
+
 
     gl.bindBuffer(gl.ARRAY_BUFFER, bucket.layersBuffer);
-    gl.vertexAttribPointer(uvTransRot, 4, gl.FLOAT, false, 28, this.batchSize * 7 * layer.index * 4); // Translation/Rotation texture animation.
-    gl.vertexAttribPointer(uvScaleSprite, 3, gl.FLOAT, false, 28, this.batchSize * 7 * layer.index * 4 + 16); // Scale/Sprite texture animation.
-    gl.vertexAttribPointer(layerAlpha, 1, gl.UNSIGNED_BYTE, true, 1, bucket.layerAlphasData.byteOffset + this.batchSize * layer.index); // Layer alphas.
+    // Texture animations.
+    gl.vertexAttribPointer(uvTransRot, 4, gl.FLOAT, false, 28, this.batchSize * 7 * layer.index * 4);
+    gl.vertexAttribPointer(uvScaleSprite, 3, gl.FLOAT, false, 28, this.batchSize * 7 * layer.index * 4 + 16);
+    // Layer alphas.
+    gl.vertexAttribPointer(layerAlpha, 1, gl.UNSIGNED_BYTE, true, 1, bucket.layerAlphasData.byteOffset + this.batchSize * layer.index);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.__webglArrayBuffer);
-    shallowGeoset.bind(shader, layer.coordId); // Vertices.
+    // Vertices.
+    shallowGeoset.bind(shader, layer.coordId);
 
     shallowGeoset.render(bucket.count);
   }

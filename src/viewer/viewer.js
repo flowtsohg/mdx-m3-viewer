@@ -5,7 +5,7 @@ import WebGL from './gl/gl';
 import PromiseResource from './promiseresource';
 import Scene from './scene';
 import imageTextureHandler from './handlers/imagetexture/handler';
-import TextureAtlas from './handlers/textureatlas';
+import ImageTexture from './handlers/imagetexture/texture';
 import GenericResource from './genericresource';
 
 /**
@@ -377,13 +377,13 @@ export default class ModelViewer extends EventEmitter {
    *
    * @param {string} name
    * @param {Iterable<Texture>} textures
-   * @return {object}
+   * @return {ImageTexture}
    */
   loadTextureAtlas(name, textures) {
     let textureAtlases = this.textureAtlases;
 
     if (!textureAtlases[name]) {
-      let textureAtlas = {texture: new TextureAtlas({viewer: this}), columns: 0, rows: 0};
+      let textureAtlas = {texture: new ImageTexture({viewer: this}), columns: 0, rows: 0};
 
       // Promise that there is a future load that the code cannot know about yet, so whenAllLoaded() isn't called prematurely.
       let promise = this.promise();

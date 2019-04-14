@@ -169,9 +169,6 @@ export function resizeImageData(data, width, height) {
   }
 }
 
-// This should be queried from the WebGL context. For now though, just keep it constant.
-const TEXTURE_ATLAS_MAX_WIDTH = 2048;
-
 /**
  * Given an array of Image objects, constructs a texture atlas.
  * The dimensions of each tile are the dimensions of the first Image object (that is, all images are assumed to have the same size!).
@@ -181,30 +178,19 @@ const TEXTURE_ATLAS_MAX_WIDTH = 2048;
  * @return {Object}
  */
 export function createTextureAtlas(src) {
-  let cells = src.length;
-  let cellSize = src[0].width;
-  let cellsPerRow = (TEXTURE_ATLAS_MAX_WIDTH / cellSize) | 0;
-  let columns = 0;
-  let rows = 0;
+  let width = src[0].width;
+  let height = src[0].height;
+  let texturesPerRow = powerOfTwo(Math.ceil(Math.sqrt(src.length)));
+  let rows = powerOfTwo(Math.ceil(src.length / texturesPerRow));
+  // let pixelsPerRow = texturesPerRow * width;
 
-  for (let i = 1; i < cellsPerRow; i++) {
-    columns = cells / i;
-
-    if (columns === (columns | 0) && columns <= cellsPerRow) {
-      rows = cells / columns;
-      break;
-    }
-  }
-
-  canvas.width = cellSize * columns;
-  canvas.height = cellSize * rows;
+  canvas.width = width * texturesPerRow;
+  canvas.height = height * rows;
+  // canvas.height = canvas.width;
 
   for (let i = 0, l = src.length; i < l; i++) {
-    let x = (i % columns) * cellSize;
-    let y = ((i / columns) | 0) * cellSize;
-
-    ctx.putImageData(src[i], x, y);
+    ctx.putImageData(src[i], (i % texturesPerRow) * height, Math.floor(i / texturesPerRow) * height);
   }
 
-  return {imageData: ctx.getImageData(0, 0, canvas.width, canvas.height), columns, rows};
+  return {imageData: ctx.getImageData(0, 0, canvas.width, canvas.height), columns: texturesPerRow, rows: texturesPerRow};
 }

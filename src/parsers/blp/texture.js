@@ -125,10 +125,9 @@ export default class BlpTexture {
         let dataIndex = i * 4;
         let paletteIndex = uint8array[offset + i] * 4;
 
-        // BGRA->RGBA
-        data[dataIndex] = pallete[paletteIndex + 2];
+        data[dataIndex] = pallete[paletteIndex];
         data[dataIndex + 1] = pallete[paletteIndex + 1];
-        data[dataIndex + 2] = pallete[paletteIndex];
+        data[dataIndex + 2] = pallete[paletteIndex + 2];
 
         if (alphaBits > 0) {
           data[dataIndex + 3] = bitStream.readBits(alphaBits) * bitsToByte;

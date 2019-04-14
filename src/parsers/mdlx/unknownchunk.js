@@ -15,18 +15,9 @@ export default class UnknownChunk {
   }
 
   /**
-   * @param {BinaryStream} stream
-   */
-  writeMdx(stream) {
-    stream.write(this.tag);
-    stream.writeUint32(this.chunk.byteLength);
-    stream.writeUint8Array(this.chunk);
-  }
-
-  /**
    * @return {number}
    */
   getByteLength() {
-    return 8 + this.chunk.byteLength;
+    return this.chunk.byteLength;
   }
 }

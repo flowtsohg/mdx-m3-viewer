@@ -278,10 +278,6 @@ export default class Model {
     this.saveDynamicObjectChunk(stream, 'EVTS', this.eventObjects);
     this.saveDynamicObjectChunk(stream, 'CLID', this.collisionShapes);
 
-    for (let chunk of this.unknownChunks) {
-      chunk.saveMdx(stream);
-    }
-
     return buffer;
   }
 
@@ -672,7 +668,7 @@ export default class Model {
     size += this.getDynamicObjectsChunkByteLength(this.cameras);
     size += this.getDynamicObjectsChunkByteLength(this.eventObjects);
     size += this.getDynamicObjectsChunkByteLength(this.collisionShapes);
-    size += this.getObjectsByteLength(this.unknownChunks);
+    size += 8 * this.unknownChunks.length + this.getDynamicObjectsChunkByteLength(this.unknownChunks);
 
     return size;
   }

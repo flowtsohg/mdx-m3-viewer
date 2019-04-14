@@ -99,9 +99,6 @@ export class Geoset {
         let bones = slices[vertexGroups[i]];
         let boneCount = Math.min(bones.length, 4); // The viewer supports up to 4 bones per vertex, the game handles any(?) amount.
 
-        if (bones.length > 4) {
-          console.warn('Verteasdx has more than 4 bones:', bones.length)
-        }
         for (let j = 0; j < boneCount; j++) {
           // 1 is added to every index for shader optimization (index 0 is a zero matrix)
           boneIndices[i * 4 + j] = bones[j] + 1;
