@@ -1,4 +1,4 @@
-import {vec3} from 'gl-matrix';
+import {vec3, quat} from 'gl-matrix';
 import {VEC3_UNIT_Z} from '../../../common/gl-matrix-addon';
 import unique from '../../../common/arrayunique';
 import War3Map from '../../../parsers/w3x/map';
@@ -264,8 +264,10 @@ export default class War3MapViewer extends ModelViewer {
       }
 
       // Set instanced attributes.
-      instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 1);
-      instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceTexture, 1);
+      if (!gl.extensions.vertexArrayObject) {
+        instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 1);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceTexture, 1);
+      }
 
       // Render the cliffs.
       for (let cliff of this.cliffModels) {
@@ -273,8 +275,10 @@ export default class War3MapViewer extends ModelViewer {
       }
 
       // Clear instanced attributes.
-      instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 0);
-      instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceTexture, 0);
+      if (!gl.extensions.vertexArrayObject) {
+        instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceTexture, 0);
+      }
     }
   }
 
@@ -360,7 +364,7 @@ export default class War3MapViewer extends ModelViewer {
   }
 
   /**
-   * @param {*} buffer 
+   * @param {ArrayBuffer} buffer
    */
   async loadMap(buffer) {
     // Readonly mode to optimize memory usage.
@@ -409,19 +413,18 @@ export default class War3MapViewer extends ModelViewer {
     if (this.doodadsAndDestructiblesLoaded) {
       this.loadDoodadsAndDestructibles(modifications);
     } else {
-      this.once('doodadsloaded', () => this.loadDoodadsAndDestructibles());
+      this.once('doodadsloaded', () => this.loadDoodadsAndDestructibles(modifications));
     }
 
     if (this.unitsAndItemsLoaded) {
       this.loadUnitsAndItems(modifications);
     } else {
-      this.once('unitsloaded', () => this.loadUnitsAndItems());
+      this.once('unitsloaded', () => this.loadUnitsAndItems(modifications));
     }
   }
 
   /**
-   * 
-   * @param {*} modifications 
+   * @param {*} modifications
    */
   loadDoodadsAndDestructibles(modifications) {
     this.applyModificationFile(this.doodadsData, this.doodadMetaData, modifications.w3d);
@@ -476,8 +479,7 @@ export default class War3MapViewer extends ModelViewer {
   }
 
   /**
-   * 
-   * @param {*} modifications 
+   * @param {*} modifications
    */
   loadUnitsAndItems(modifications) {
     this.applyModificationFile(this.unitsData, this.unitMetaData, modifications.w3u);
@@ -774,7 +776,7 @@ export default class War3MapViewer extends ModelViewer {
       return this.loadGeneric(this.mapPathSolver(path)[0], 'arrayBuffer')
         .whenLoaded()
         .then((resource) => {
-          return new TerrainModel(gl, resource.data, locations, textures);
+          return new TerrainModel(gl, resource.data, locations, textures, this.cliffShader.attribs);
         });
     });
 

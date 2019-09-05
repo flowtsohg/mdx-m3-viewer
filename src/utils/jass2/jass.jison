@@ -225,6 +225,16 @@ Function
         body: $7
       });
     }
+  | 'constant' 'function' IDENT 'takes' FunctionArguments 'returns' FunctionReturn Statements 'endfunction'
+    {
+      $$ = new ast.FunctionDefinition({
+        line: yylineno,
+        name: $3,
+        args: $5,
+        returnType: $7,
+        body: $8
+      });
+    }
   ;
 
 FunctionArguments
@@ -597,7 +607,7 @@ Expression
     }
   | LITERAL
     {
-      literalValue = util.literalValue($1);
+      const literalValue = util.literalValue($1);
       $$ = new ast.Literal({
         line: yylineno,
         type: literalValue.type,

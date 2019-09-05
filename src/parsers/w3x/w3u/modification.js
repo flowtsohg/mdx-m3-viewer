@@ -40,7 +40,7 @@ export default class Modification {
     } else if (this.variableType === 3) {
       this.value = stream.readUntilNull();
     } else {
-      throw new Error(`Modification: unknown variable type ${variableType}`);
+      throw new Error(`Modification: unknown variable type ${this.variableType}`);
     }
 
     this.u1 = stream.readInt32();
@@ -66,7 +66,7 @@ export default class Modification {
     } else if (this.variableType === 3) {
       stream.write(`${this.value}\0`);
     } else {
-      throw new Error(`Modification: unknown variable type ${variableType}`);
+      throw new Error(`Modification: unknown variable type ${this.variableType}`);
     }
 
     stream.writeInt32(this.u1);

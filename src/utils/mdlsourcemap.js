@@ -14,6 +14,7 @@ class SourceMapData {
     this.counts = {};
     this.ident = 0;
     this.searchBitmapName = false;
+    this.lookingForAnimName = false;
   }
 }
 

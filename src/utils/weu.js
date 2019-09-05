@@ -990,7 +990,7 @@ function saveGUIRefs(triggerFile, customTextTriggerFile, data) {
  * @param {War3Map} map
  * @param {TriggerData} triggerData
  * @param {TriggerData} weTriggerData
- * @return {WeuConverterData}
+ * @return {Object}
  */
 export default function convertWeu(map, triggerData, weTriggerData) {
   let triggerFile;
