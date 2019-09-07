@@ -94,8 +94,7 @@ export default {
       vec2 uv;
 
       if (u_isTeamColor) {
-        // 4 is the amount of columns and rows in the team colors/glows texture.
-        uv = (vec2(mod(v_teamColor, 4.0), floor(v_teamColor / 4.0)) + v_uv) / 4.0;
+        uv = vec2(v_teamColor / 14.0, 0.0) + vec2(v_uv.x / 14.0, v_uv.y);
       } else {
         uv = v_uv;
 
@@ -156,7 +155,7 @@ export default {
       if (u_isRibbonEmitter) {
         uv /= 255.0;
       }
-
+      
       v_uv = uv / u_dimensions;
       v_color = vec4(rgb, uva.z) / 255.0;
 

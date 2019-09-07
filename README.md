@@ -234,7 +234,7 @@ The viewer tries to allow you to write linear code, even though many things are 
 
 Sometimes this is not possible, for example when you want to get the list of animations a model has. If the model wasn't loaded yet, the list will be empty.
 
-There are two ways to react to resources being loaded: promises, and events.
+There are two ways to react to resources being loaded: promises/callbacks, and events.
 
 Regardless of which is used, every resource has two loading hints: `loaded`, and `ok`.
 When a resource is `loaded`, it means that it doesn't need further processing by the viewer. It doesn't however neccessarily mean the resource loaded successfully.
@@ -242,11 +242,13 @@ When a resource is `ok`, it means it actually loaded successfully and is ready f
 
 ##### Promises
 
-Every resource has a `whenLoaded` method that returns a promise which is resolved when the resource loads, or immediately if it was already loaded. 
+Every resource has a `whenLoaded([callback])` method that waits for it to load.
+If a callback is given, it will be used. Otherwise, a promise is returned.
+If the resource was already loaded, the callback/promise is immediately called/resolved.
 
-The viewer itself has `whenLoaded(resources)` which does the same when all of the given resources in an iterable have been loaded, and also `whenAllLoaded()`, whose promise is resolved when there are no longer resources being loaded.
+The viewer itself has `whenLoaded(resources[, callback])` which does the same when all of the given resources in an iterable have been loaded, and also `whenAllLoaded([callback])`, to check when there are no longer resources being loaded.
 
-Some examples of promises:
+Some examples of callbacks/promises:
 
 ```javascript
 model.whenLoaded()
@@ -267,10 +269,9 @@ viewer.whenLoaded([model, otherModel])
     // Do something.
   });
 
-viewer.whenAllLoaded()
-  .then((viewer) => {
-    // Everything loaded.
-  });
+viewer.whenAllLoaded((viewer) => {
+  // Everything loaded
+})
 ```
 
 ##### Events

@@ -23,9 +23,9 @@ export default class ParticleEmitter2 extends GenericObject {
     /** @member {number} */
     this.emissionRate = 0;
     /** @member {number} */
-    this.length = 0;
-    /** @member {number} */
     this.width = 0;
+    /** @member {number} */
+    this.length = 0;
     /** @member {number} */
     this.filterMode = 0;
     /** @member {number} */
@@ -72,8 +72,8 @@ export default class ParticleEmitter2 extends GenericObject {
     this.gravity = stream.readFloat32();
     this.lifeSpan = stream.readFloat32();
     this.emissionRate = stream.readFloat32();
-    this.length = stream.readFloat32();
     this.width = stream.readFloat32();
+    this.length = stream.readFloat32();
     this.filterMode = stream.readUint32();
     this.rows = stream.readUint32();
     this.columns = stream.readUint32();

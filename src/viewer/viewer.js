@@ -383,7 +383,7 @@ export default class ModelViewer extends EventEmitter {
     let textureAtlases = this.textureAtlases;
 
     if (!textureAtlases[name]) {
-      let textureAtlas = {texture: new TextureAtlas({viewer: this}), columns: 0, rows: 0};
+      let textureAtlas = new TextureAtlas({viewer: this});
 
       // Promise that there is a future load that the code cannot know about yet, so whenAllLoaded() isn't called prematurely.
       let promise = this.promise();
@@ -401,11 +401,7 @@ export default class ModelViewer extends EventEmitter {
             }
           }
 
-          let atlasData = createTextureAtlas(textures.map((texture) => texture.imageData));
-
-          textureAtlas.texture.loadData(atlasData.imageData);
-          textureAtlas.columns = atlasData.columns;
-          textureAtlas.rows = atlasData.rows;
+          textureAtlas.loadData(createTextureAtlas(textures.map((texture) => texture.imageData)));
 
           // Resolve the promise.
           promise.resolve();
@@ -418,19 +414,13 @@ export default class ModelViewer extends EventEmitter {
   }
 
   /**
-   * Returns the texture part of a texture atlas, or null if it doesn't exist.
+   * Returns a texture atlas, or null if it doesn't exist.
    *
    * @param {string} name
    * @return {Texture|null}
    */
   getTextureAtlas(name) {
-    let atlas = this.textureAtlases[name];
-
-    if (atlas) {
-      return atlas.texture;
-    }
-
-    return null;
+    return this.textureAtlases[name];
   }
 
   /**
@@ -451,13 +441,15 @@ export default class ModelViewer extends EventEmitter {
   }
 
   /**
-   * Returns a promise that will be resolved once all of the given resources get loaded.
-   * The promise will resolve instantly if they are already loaded.
+   * Wait for a group of resources to load.
+   * If a callback is given, it will be called.
+   * Otherwise a promise is returned.
    *
-   * @param {Iterable<Resource>} resources The resources to wait for.
-   * @return {Promise}
+   * @param {Iterable<Resource>} resources
+   * @param {?function} callback
+   * @return {?Promise}
    */
-  whenLoaded(resources) {
+  whenLoaded(resources, callback) {
     let promises = [];
 
     for (let resource of resources) {
@@ -467,32 +459,55 @@ export default class ModelViewer extends EventEmitter {
       }
     }
 
-    return Promise.all(promises);
+    let all = Promise.all(promises);
+
+    if (callback) {
+      all.then(() => callback(promises));
+    } else {
+      return all;
+    }
   }
 
   /**
-   * Returns a promise that will be resolved once all of the currently loading resources get loaded.
-   * The promise will resolve instantly if nothing is being loaded.
+   * Wait for all of the resources to load.
+   * If a callback is given, it will be called.
+   * Otherwise, a promise is returned.
    *
-   * @return {Promise}
+   * @param {?function} callback
+   * @return {?Promise}
    */
-  whenAllLoaded() {
-    return new Promise((resolve, reject) => {
+  whenAllLoaded(callback) {
+    if (callback) {
       if (this.resourcesLoading.size === 0) {
-        resolve(this);
+        callback(this);
       } else {
-        this.once('idle', () => resolve(this));
+        this.once('idle', () => callback(this));
       }
-    });
+    } else {
+      return new Promise((resolve, reject) => {
+        if (this.resourcesLoading.size === 0) {
+          resolve(this);
+        } else {
+          this.once('idle', () => resolve(this));
+        }
+      });
+    }
   }
 
   /**
-   * Returns a promise that will be resolved with the canvas blob.
+   * Get a blob representing the contents of the viewer's canvas.
+   * If a callback is given, it will be called.
+   * Otherwise, a promise is returned.
    *
-   * @return {Promise<Blob>}
+   * @param {?function} callback
+   * @return {?Promise<Blob>}
    */
-  toBlob() {
-    return new Promise((resolve) => this.canvas.toBlob((blob) => resolve(blob)));
+  toBlob(callback) {
+    if (callback) {
+      this.canvas.toBlob((blob) => callback(blob))
+    } else {
+      return new Promise((resolve) => this.canvas.toBlob((blob) => resolve(blob)));
+    }
   }
 
   /**

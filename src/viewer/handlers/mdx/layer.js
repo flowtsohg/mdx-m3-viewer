@@ -113,14 +113,12 @@ export default class Layer extends AnimatedObject {
 
         let atlas = model.viewer.loadTextureAtlas(hash, textures);
 
-        atlas.texture.whenLoaded()
+        atlas.whenLoaded()
           .then(() => {
-            let texture = atlas.texture;
+            atlas.wrapS = true;
+            atlas.wrapT = true;
 
-            texture.wrapS = true;
-            texture.wrapT = true;
-
-            model.textures.push(texture);
+            model.textures.push(atlas);
 
             this.textureId = model.textures.length - 1;
             this.uvDivisor.set([atlas.columns, atlas.rows]);

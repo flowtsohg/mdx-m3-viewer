@@ -94,6 +94,6 @@ export default class DdsTexture extends Texture {
       height *= 0.5;
     }
 
-    this.setParameters(gl.REPEAT, gl.REPEAT, gl.LINEAR, mipmapCount > 1 ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
+    this.viewer.webgl.setTextureMode(gl.REPEAT, gl.REPEAT, gl.LINEAR, mipmapCount > 1 ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
   }
 }

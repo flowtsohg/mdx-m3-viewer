@@ -227,4 +227,21 @@ export default class WebGL {
       gl.bindTexture(gl.TEXTURE_2D, this.emptyTexture);
     }
   }
+
+  /**
+   * Set the texture wrap and filter values.
+   *
+   * @param {number} wrapS Wrap on the S axis.
+   * @param {number} wrapT Wrap on the T axis.
+   * @param {number} magFilter Maginfying filter.
+   * @param {number} minFilter Minifying filter.
+   */
+  setTextureMode(wrapS, wrapT, magFilter, minFilter) {
+    let gl = this.gl;
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter);
+  }
 }

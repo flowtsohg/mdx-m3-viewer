@@ -438,7 +438,6 @@ export default class Model extends TexturedModel {
 
     gl.uniform1i(uniforms.u_texture, 0);
 
-
     // Team and vertex colors.
     let teamColor = attribs.a_teamColor;
     let vertexColor = attribs.a_vertexColor;

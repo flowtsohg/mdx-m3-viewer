@@ -45,22 +45,23 @@ export default class extends Bucket {
       this.geosetColorsBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetColorsBuffer);
       gl.bufferData(gl.ARRAY_BUFFER, this.geosetColorsData.byteLength, gl.DYNAMIC_DRAW);
-
-      // This buffer first contains the texture animation data for each instance, for each layer, and then every alpha for each instance for each layer.
-      // Every texture animation data per instance contains the following:
-      //     [Tx, Ty, Rz, Rw, S, Ox, Oy]
-      // Where:
-      //     T = translation
-      //     R = rotation (quaternion with x=0 and y=0)
-      //     S = scale (uniform)
-      //     O = offset for sprite animations
-      this.layersData = new ArrayBuffer(batchSize * model.layers.length * 29);
-      this.uvTransformsData = new Float32Array(this.layersData, 0, batchSize * model.layers.length * 7);
-      this.layerAlphasData = new Uint8Array(this.layersData, batchSize * model.layers.length * 28, batchSize * model.layers.length);
-      this.layersBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.layersBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, this.layersData.byteLength, gl.DYNAMIC_DRAW);
     }
+
+    // Layers
+    // This buffer first contains the texture animation data for each instance, for each layer, and then every alpha for each instance for each layer.
+    // Every texture animation data per instance contains the following:
+    //     [Tx, Ty, Rz, Rw, S, Ox, Oy]
+    // Where:
+    //     T = translation
+    //     R = rotation (quaternion with x=0 and y=0)
+    //     S = scale (uniform)
+    //     O = offset for sprite animations
+    this.layersData = new ArrayBuffer(batchSize * model.layers.length * 29);
+    this.uvTransformsData = new Float32Array(this.layersData, 0, batchSize * model.layers.length * 7);
+    this.layerAlphasData = new Uint8Array(this.layersData, batchSize * model.layers.length * 28, batchSize * model.layers.length);
+    this.layersBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.layersBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this.layersData.byteLength, gl.DYNAMIC_DRAW);
   }
 
   /**

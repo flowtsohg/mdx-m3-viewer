@@ -200,7 +200,7 @@ export default class Scene {
 
   /**
    * Update this scene.
-   * This includes updating the scene's camera, the node hierarchy (model instances etc.), the model views, and the AudoContext's lisener's position if it exists.
+   * This includes updating the scene's camera, the node hierarchy (model instances etc.), the model views, and the AudioContext's lisener's position if it exists.
    */
   update() {
     if (this.rendered) {

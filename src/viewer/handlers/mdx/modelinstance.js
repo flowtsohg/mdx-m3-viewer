@@ -196,7 +196,7 @@ export default class ModelInstance extends TexturedModelInstance {
     }
 
     if (genericObject.billboarded) {
-      //node.billboarded = true;
+      node.billboarded = true;
     }// else if (genericObject.billboardedX) {
     //   node.billboardedX = true;
     // } else if (genericObject.billboardedY) {

@@ -79,10 +79,8 @@ export default class ModelInstance extends EventNode {
 
   /**
    * Called once the model is loaded, or immediately if the model was already loaded.
-   *
-   * @param {ArrayBuffer|string|Image} buffer
    */
-  load(buffer) {
+  load() {
 
   }
 

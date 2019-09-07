@@ -30,7 +30,7 @@ export default class TgaTexture extends Texture {
 
     let id = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, id);
-    this.setParameters(gl.REPEAT, gl.REPEAT, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
+    this.viewer.webgl.setTextureMode(gl.REPEAT, gl.REPEAT, gl.LINEAR, gl.LINEAR_MIPMAP_LINEAR);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
     gl.generateMipmap(gl.TEXTURE_2D);
 

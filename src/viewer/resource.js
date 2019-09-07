@@ -96,17 +96,29 @@ export default class Resource extends EventEmitter {
   }
 
   /**
-   * Similar to attaching an event listener to the 'loadend' event, but handles the case where the resource already loaded, and the callback should still be called.
+   * Wait for this resource to load.
+   * Similar to attaching an event listener to the 'loadend' event, but handles the case where the resource already loaded, and code should still run.
+   * If a callback is given, it will be called.
+   * Otherwise a promise is returned.
    *
-   * @return {Promise}
+   * @param {?function} callback
+   * @return {?Promise}
    */
-  whenLoaded() {
-    return new Promise((resolve, reject) => {
+  whenLoaded(callback) {
+    if (callback) {
       if (this.loaded) {
-        resolve(this);
+        callback(this);
       } else {
-        this.once('loadend', () => resolve(this));
+        this.once('loadend', () => callback(this));
       }
-    });
+    } else {
+      return new Promise((resolve, reject) => {
+        if (this.loaded) {
+          resolve(this);
+        } else {
+          this.once('loadend', () => resolve(this));
+        }
+      });
+    }
   }
 }

@@ -34,13 +34,15 @@ export default class ParticleEmitter2 extends GenericObject {
 
     if (replaceableId === 0) {
       this.internalResource = model.textures[emitter.textureId];
-    } else if (replaceableId === 1) {
-      this.internalResource = model.viewer.getTextureAtlas('teamColors');
-      this.dimensions.fill(4);
-      this.teamColored = true;
-    } else if (replaceableId === 2) {
-      this.internalResource = model.viewer.getTextureAtlas('teamGlows');
-      this.dimensions.fill(4);
+    } else if (replaceableId === 1 || replaceableId === 2) {
+      if (replaceableId === 1) {
+        this.internalResource = model.viewer.getTextureAtlas('teamColors');
+      } else {
+        this.internalResource = model.viewer.getTextureAtlas('teamGlows');
+      }
+
+      this.dimensions[0] = 14;
+      this.dimensions[1] = 1;
       this.teamColored = true;
     } else {
       this.internalResource = model.viewer.load('ReplaceableTextures\\' + replaceableIds[replaceableId] + '.blp', model.pathSolver);

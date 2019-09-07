@@ -173,9 +173,8 @@ export function resizeImageData(data, width, height) {
 const TEXTURE_ATLAS_MAX_WIDTH = 2048;
 
 /**
- * Given an array of Image objects, constructs a texture atlas.
- * The dimensions of each tile are the dimensions of the first Image object (that is, all images are assumed to have the same size!).
- * The resulting texture atlas is always square, and power of two.
+ * Given an array of ImageData objects, constructs a texture atlas.
+ * The dimensions of each tile are equal to the width of the first image (that is, all images are assumed to have the same size!).
  *
  * @param {Array<ImageData>} src
  * @return {Object}
