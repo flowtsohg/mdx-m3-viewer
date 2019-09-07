@@ -20,6 +20,8 @@ export default class War3MapW3i {
     this.saves = 0;
     /** @member {number} */
     this.editorVersion = 0;
+    /** @member {?} */
+    this.unknown1 = null;
     /** @member {string} */
     this.name = '';
     /** @member {string} */
@@ -74,6 +76,8 @@ export default class War3MapW3i {
     this.lightEnvironmentTileset = '\0';
     /** @member {Uint8Array} */
     this.waterVertexColor = new Uint8Array(4);
+    /** @member {?} */
+    this.unknown2 = null;
     /** @member {Array<Player>} */
     this.players = [];
     /** @member {Array<Force>} */
@@ -101,6 +105,11 @@ export default class War3MapW3i {
     this.version = stream.readInt32();
     this.saves = stream.readInt32();
     this.editorVersion = stream.readInt32();
+
+    if (this.version > 27) {
+      this.unknown1 = stream.readUint8Array(16);
+    }
+
     this.name = stream.readUntilNull();
     this.author = stream.readUntilNull();
     this.description = stream.readUntilNull();
@@ -138,6 +147,10 @@ export default class War3MapW3i {
       this.soundEnvironment = stream.readUntilNull();
       this.lightEnvironmentTileset = stream.read(1, true);
       this.waterVertexColor = stream.readUint8Array(4);
+    }
+
+    if (this.version > 27) {
+      this.unknown2 = stream.readUint8Array(4);
     }
 
     for (let i = 0, l = stream.readInt32(); i < l; i++) {

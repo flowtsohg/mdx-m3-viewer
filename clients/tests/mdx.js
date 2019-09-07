@@ -275,7 +275,7 @@ let mdxTests = {
             return viewer.load('Doodads/Dungeon/Props/ForceWall/ForceWall.mdx', wc3Solver);
           },
           test(viewer, scene, camera, model) {
-            camera.moveToAndFace([0, 700, 100], [0, 0, 100], [0, 0, 1]);
+            camera.moveToAndFace([700, 0, 100], [0, 0, 100], [0, 0, 1]);
 
             let instance = model.addInstance().setSequence(0).setSequenceLoopMode(2);
 

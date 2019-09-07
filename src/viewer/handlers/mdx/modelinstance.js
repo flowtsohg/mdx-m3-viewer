@@ -283,7 +283,7 @@ export default class ModelInstance extends TexturedModelInstance {
 
       genericObject.getVisibility(visibilityHeap, this);
 
-      let objectVisible = visibilityHeap[0] >= 0.75;
+      let objectVisible = visibilityHeap[0] > 0;
       let nodeVisible = forced || (parent.visible && objectVisible);
 
       node.visible = nodeVisible;

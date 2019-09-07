@@ -51,19 +51,15 @@ export default {
       v_uv = a_uv;
       v_uvTransRot = a_uvTransRot;
       v_uvScaleSprite = a_uvScaleSprite;
-
       v_normal = normal;
       v_teamColor = a_teamColor;
       v_vertexColor = a_vertexColor;
+      v_geosetColor = a_geosetColor;
 
-      // Is the alpha here even correct?
-      v_geosetColor = vec4(a_geosetColor.rgb, a_layerAlpha);
-
-      // Definitely not correct, but the best I could figure so far.
-      if (a_geosetColor.a < 0.75 || a_layerAlpha < 0.1) {
-        gl_Position = vec4(0.0);
-      } else {
+      if (a_geosetColor.a > 0.0 && a_layerAlpha > 0.0) {
         gl_Position = u_mvp * vec4(position, 1);
+      } else {
+        gl_Position = vec4(0.0);
       }
     }
   `,

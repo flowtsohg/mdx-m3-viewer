@@ -57,15 +57,13 @@ export default class War3Map {
   load(buffer) {
     let stream = new BinaryStream(buffer);
 
-    if (stream.read(4) !== 'HM3W') {
-      return false;
+    // The header no longer exists since some 1.3X.X patch?
+    if (stream.read(4) === 'HM3W') {
+      this.u1 = stream.readUint32();
+      this.name = stream.readUntilNull();
+      this.flags = stream.readUint32();
+      this.maxPlayers = stream.readUint32();
     }
-
-    // Read the header.
-    this.u1 = stream.readUint32();
-    this.name = stream.readUntilNull();
-    this.flags = stream.readUint32();
-    this.maxPlayers = stream.readUint32();
 
     // Read the archive.
     // If it failed to be read, abort.
@@ -97,16 +95,16 @@ export default class War3Map {
     let archiveBuffer = this.archive.save();
     let buffer = new ArrayBuffer(headerSize + archiveBuffer.byteLength);
     let typedArray = new Uint8Array(buffer);
-    let writer = new BinaryStream(buffer);
+    let stream = new BinaryStream(buffer);
 
     // Write the header.
-    writer.write('HM3W');
-    writer.writeUint32(this.u1);
-    writer.write(`${this.name}\0`);
-    writer.writeUint32(this.flags);
-    writer.writeUint32(this.maxPlayers);
+    stream.write('HM3W');
+    stream.writeUint32(this.u1);
+    stream.write(`${this.name}\0`);
+    stream.writeUint32(this.flags);
+    stream.writeUint32(this.maxPlayers);
 
-    // Writer the archive.
+    // Write the archive.
     typedArray.set(new Uint8Array(archiveBuffer), headerSize);
 
     return buffer;
@@ -211,9 +209,9 @@ export default class War3Map {
   }
 
   /**
-   * Get the map's script file.
+   * Get the map's script.
    *
-   * @return {?MpqFile}
+   * @return {string}
    */
   getScript() {
     let file = this.get('war3map.j') || this.get('scripts\\war3map.j');
