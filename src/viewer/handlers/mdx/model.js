@@ -18,6 +18,9 @@ import RibbonEmitter from './modelribbonemitter';
 import Camera from './camera';
 import EventObject from './modeleventobject';
 import CollisionShape from './collisionshape';
+import BatchGroup from './batchgroup';
+import EmitterGroup from './emittergroup';
+
 /**
  * An MDX model.
  */
@@ -243,7 +246,7 @@ export default class Model extends TexturedModel {
     }
 
     // E.g. Wisp
-    this.particleEmitters2.sort((a, b) => a.priorityPlane - b.priorityPlane);
+    //this.particleEmitters2.sort((a, b) => a.priorityPlane - b.priorityPlane);
 
 
     // Ribbon emitters
@@ -279,8 +282,6 @@ export default class Model extends TexturedModel {
 
     // Checks what sequences are variant or not.
     this.setupVariants();
-
-    // this.calculateExtent();
   }
 
   /**
@@ -587,50 +588,8 @@ export default class Model extends TexturedModel {
    * @param {Object} data
    */
   renderTranslucent(data) {
-    let scene = data.scene;
-    let modelView = data.modelView;
-    let buckets = data.buckets;
-    let particleEmitters2 = data.particleEmitters2;
-    let ribbonEmitters = data.ribbonEmitters;
-    let eventObjectEmitters = data.eventObjectEmitters;
-
-    // Batches
-    for (let i = 0, l = data.usedBuckets; i < l; i++) {
-      this.renderBatches(buckets[i], scene, this.translucentBatches);
-    }
-
-    // Emitters
-    if (particleEmitters2.length || eventObjectEmitters.length || ribbonEmitters.length) {
-      let webgl = this.viewer.webgl;
-      let gl = this.viewer.gl;
-
-      gl.depthMask(0);
-      gl.enable(gl.BLEND);
-      gl.disable(gl.CULL_FACE);
-      gl.enable(gl.DEPTH_TEST);
-
-      let shader = this.viewer.shaderMap.get('MdxParticleShader');
-      webgl.useShaderProgram(shader);
-
-      gl.uniformMatrix4fv(shader.uniforms.u_mvp, false, scene.camera.worldProjectionMatrix);
-
-      gl.uniform1i(shader.uniforms.u_texture, 0);
-
-      gl.uniform1f(shader.uniforms.u_isRibbonEmitter, false);
-
-      for (let i = 0, l = particleEmitters2.length; i < l; i++) {
-        particleEmitters2[i].render(modelView, shader);
-      }
-
-      for (let i = 0, l = eventObjectEmitters.length; i < l; i++) {
-        eventObjectEmitters[i].render(modelView, shader);
-      }
-
-      gl.uniform1f(shader.uniforms.u_isRibbonEmitter, true);
-
-      for (let i = 0, l = ribbonEmitters.length; i < l; i++) {
-        ribbonEmitters[i].render(modelView, shader);
-      }
+    for (let group of data.groups) {
+      group.render(data);
     }
   }
 }

@@ -6,6 +6,9 @@ import EventObjectSpnEmitter from './eventobjectspnemitter';
 import EventObjectSplEmitter from './eventobjectsplemitter';
 import EventObjectUbrEmitter from './eventobjectubremitter';
 import EventObjectSndEmitter from './eventobjectsndemitter';
+import Batch from './batch';
+import BatchGroup from './batchgroup';
+import EmitterGroup from './emittergroup';
 
 /**
  * An MDX model view.
@@ -49,12 +52,70 @@ export default class ModelView extends TexturedModelView {
       }
     }
 
+    let translucentThings = [...model.translucentBatches, ...particleEmitters2, ...eventObjectEmitters, ...ribbonEmitters];
+
+    let getPrio = (object) => {
+      if (object.layer) {
+        return object.layer.priorityPlane;
+      } else if (object.modelObject) {
+        return object.modelObject.priorityPlane;
+      } else {
+        console.log(object);
+        throw 'asdasdsadsadsadsadsaad';
+      }
+    };
+
+    translucentThings.sort((a, b) => {
+      return getPrio(a) - getPrio(b);
+    });
+
+    let isNormalEmitter = (object) => {
+      return object instanceof ParticleEmitter2 || object instanceof EventObjectSpnEmitter || object instanceof EventObjectSplEmitter || object instanceof EventObjectUbrEmitter;
+    };
+
+    let isRibbonEmitter = (object) => {
+      return object instanceof RibbonEmitter;
+    };
+
+    let matchingGroup = (group, object) => {
+      return (group instanceof BatchGroup && object instanceof Batch) ||
+        (group instanceof EmitterGroup && group.isRibbons === false && isNormalEmitter(object)) ||
+        (group instanceof EmitterGroup && group.isRibbons === true && isRibbonEmitter(object));
+    };
+
+    let createMatchingGroup = (object) => {
+      if (object instanceof Batch) {
+        return new BatchGroup(this);
+      } else if (isNormalEmitter(object)) {
+        return new EmitterGroup(this, false);
+      } else if (isRibbonEmitter(object)) {
+        return new EmitterGroup(this, true);
+      }
+    };
+
+    let groups = [];
+    let currentGroup = null;
+
+    for (let object of translucentThings) {
+      // Sound emitters aren't rendered.
+      if (!(object instanceof EventObjectSndEmitter)) {
+        if (!currentGroup || !matchingGroup(currentGroup, object)) {
+          currentGroup = createMatchingGroup(object);
+
+          groups.push(currentGroup);
+        }
+
+        currentGroup.objects.push(object);
+      }
+    }
+
     return {
       ...data,
       particleEmitters,
       particleEmitters2,
       ribbonEmitters,
       eventObjectEmitters,
+      groups,
     };
   }
 

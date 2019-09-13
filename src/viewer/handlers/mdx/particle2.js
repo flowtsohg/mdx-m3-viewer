@@ -183,9 +183,12 @@ export default class Particle2 {
       let spriteCount = end - start;
 
       if (spriteCount) {
+        let rows = modelObject.dimensions[1];
+
         // Repeating speeds up the sprite animation, which makes it effectively run N times in its interval.
         // E.g. if repeat is 4, the sprite animation will be seen 4 times, and thus also run 4 times as fast.
-        index = start + Math.floor(spriteCount * repeat * factor) % spriteCount;
+        // The sprite index is limited to the number of actual sprites.
+        index = Math.min(start + Math.floor(spriteCount * repeat * factor) % spriteCount, columns * rows - 1);
       }
 
       left = index % columns;

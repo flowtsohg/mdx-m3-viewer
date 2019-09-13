@@ -39,7 +39,6 @@ export default class Layer extends AnimatedObject {
     this.noDepthSet = flags & 0x80;
 
     this.depthMaskValue = (filterMode === 0 || filterMode === 1) ? 1 : 0;
-    this.alphaTestValue = (filterMode === 1) ? 1 : 0;
 
     this.blendSrc = 0;
     this.blendDst = 0;
@@ -133,8 +132,8 @@ export default class Layer extends AnimatedObject {
   bind(shader) {
     let gl = this.model.viewer.gl;
 
-    gl.uniform1f(shader.uniforms.u_alphaTest, this.alphaTestValue);
     // gl.uniform1f(shader.uniforms.u_unshaded, this.unshaded);
+    gl.uniform1f(shader.uniforms.u_filterMode, this.filterMode);
 
     if (this.blended) {
       gl.enable(gl.BLEND);

@@ -16,6 +16,7 @@ import getCliffVariation from './variations';
 import TerrainModel from './terrainmodel';
 // import SimpleModel from './simplemodel';
 import standOnRepeat from './standsequence';
+import Unit from './unit';
 
 let normalHeap1 = vec3.create();
 let normalHeap2 = vec3.create();
@@ -448,7 +449,7 @@ export default class War3MapViewer extends ModelViewer {
       file += '.mdx';
 
       if (numVar > 1) {
-        fileVar += Math.max(doodad.variation, numVar - 1);
+        fileVar += Math.min(doodad.variation, numVar - 1);
       }
 
       fileVar += '.mdx';
@@ -486,43 +487,10 @@ export default class War3MapViewer extends ModelViewer {
     this.applyModificationFile(this.unitsData, this.unitMetaData, modifications.w3t);
 
     let unitsDoo = new War3MapUnitsDoo(this.mapMpq.get('war3mapUnits.doo').arrayBuffer());
-    let scene = this.scene;
 
     // Collect the units and items data.
     for (let unit of unitsDoo.units) {
-      let path;
-
-      // Hardcoded?
-      if (unit.id === 'sloc') {
-        path = 'Objects\\StartLocation\\StartLocation.mdx';
-      } else {
-        let row = this.unitsData.getRow(unit.id);
-
-        path = row.file;
-
-        if (path.endsWith('.mdl')) {
-          path = path.slice(0, -4);
-        }
-
-        path += '.mdx';
-      }
-
-      if (path) {
-        let model = this.load(path);
-        let instance = model.addInstance();
-
-        //let normal = this.groundNormal([], unit.location[0], unit.location[1]);
-
-        instance.move(unit.location);
-        instance.rotateLocal(quat.setAxisAngle(quat.create(), VEC3_UNIT_Z, unit.angle));
-        instance.scale(unit.scale);
-        instance.setTeamColor(unit.player);
-        instance.setScene(scene);
-
-        standOnRepeat(instance);
-      } else {
-        console.log('Unknown unit ID', unit.id, unit)
-      }
+      this.units.push(new Unit(this, unit));
     }
 
     this.unitsReady = true;
@@ -1009,12 +977,18 @@ export default class War3MapViewer extends ModelViewer {
    */
   applyModificationTable(dataMap, metadataMap, modificationTable) {
     for (let modificationObject of modificationTable.objects) {
-      let row = dataMap.getRow(modificationObject.oldId);
-      let newId = modificationObject.newId;
+      let row;
 
-      // If this is a custom object, and it's not in the mapped data, copy the standard object.
-      if (modificationObject.newId !== '' && !dataMap.getRow(newId)) {
-        dataMap.setRow(modificationObject.newId, {...row});
+      if (modificationObject.newId !== '') {
+        row = dataMap.getRow(modificationObject.newId);
+
+        if (!row) {
+          row = {...dataMap.getRow(modificationObject.oldId)};
+
+          dataMap.setRow(modificationObject.newId, row);
+        }
+      } else {
+        row = dataMap.getRow(modificationObject.oldId);
       }
 
       for (let modification of modificationObject.modifications) {
@@ -1023,7 +997,7 @@ export default class War3MapViewer extends ModelViewer {
         if (metadata) {
           row[metadata.field] = modification.value;
         } else {
-          console.warn('Unknown modification ID', modification.id);
+          console.warn('Unknown modification ID', modification);
         }
       }
     }

@@ -214,6 +214,11 @@ export default class War3MapW3i {
     stream.writeInt32(this.version);
     stream.writeInt32(this.saves);
     stream.writeInt32(this.editorVersion);
+
+    if (this.version > 27) {
+      stream.writeUint8Array(this.unknown1);
+    }
+
     stream.write(`${this.name}\0`);
     stream.write(`${this.author}\0`);
     stream.write(`${this.description}\0`);
@@ -251,6 +256,10 @@ export default class War3MapW3i {
       stream.write(`${this.soundEnvironment}\0`);
       stream.write(this.lightEnvironmentTileset);
       stream.writeUint8Array(this.waterVertexColor);
+    }
+
+    if (this.version > 27) {
+      stream.writeUint8Array(this.unknown2);
     }
 
     stream.writeUint32(this.players.length);

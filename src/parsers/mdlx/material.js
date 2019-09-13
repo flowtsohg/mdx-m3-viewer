@@ -22,7 +22,7 @@ export default class Material {
   readMdx(stream) {
     stream.readUint32(); // Don't care about the size.
 
-    this.priorityPlane = stream.readUint32();
+    this.priorityPlane = stream.readInt32();
     this.flags = stream.readUint32();
 
     stream.skip(4); // LAYS
