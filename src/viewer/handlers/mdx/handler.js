@@ -1,8 +1,9 @@
+import TexturedModelView from '../../texturedmodelview';
 import blp from '../blp/handler';
 import tga from '../tga/handler';
 import imagetexture from '../imagetexture/handler';
 import Model from './model';
-import ModelView from './modelview';
+import ModelViewData from './modelviewdata';
 import Bucket from './bucket';
 import ModelInstance from './modelinstance';
 import shaders from './shaders';
@@ -22,7 +23,8 @@ export default {
 
   extensions: [['.mdx', 'arrayBuffer'], ['.mdl', 'text']],
   Constructor: Model,
-  View: ModelView,
+  View: TexturedModelView,
+  Data: ModelViewData,
   Bucket: Bucket,
   Instance: ModelInstance,
 };

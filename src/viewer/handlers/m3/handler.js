@@ -1,7 +1,8 @@
+import TexturedModelView from '../../texturedmodelview';
+import ModelViewData from '../../modelviewdata';
 import dds from '../dds/handler';
 import tga from '../tga/handler';
 import Model from './model';
-import ModelView from './modelview';
 import Bucket from './bucket';
 import ModelInstance from './modelinstance';
 import shaders from './shaders';
@@ -46,7 +47,8 @@ export default {
 
   extensions: [['.m3', 'arrayBuffer']],
   Constructor: Model,
-  View: ModelView,
+  View: TexturedModelView,
+  Data: ModelViewData,
   Bucket: Bucket,
   Instance: ModelInstance,
   lightPosition: new Float32Array([0, 0, 10000]),

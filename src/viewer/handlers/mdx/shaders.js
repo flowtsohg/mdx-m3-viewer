@@ -125,7 +125,7 @@ export default {
       // For additive, premultiply the color by the layer alpha, because additive doesn't care about alphas.
       // Otherwise, only multiply the color's alpha by the layer alpha.
       if (u_filterMode == 3.0) {
-        color *= v_layerAlpha;
+        color.rgb *= v_layerAlpha;
       } else {
         color.a *= v_layerAlpha;
       }

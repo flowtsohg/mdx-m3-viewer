@@ -11,7 +11,7 @@ function setupCamera(scene, initialDistance) {
   let mouse = {buttons: [false, false, false], x: 0, y: 0, x2: 0, y2: 0};
   let right = vec3.create();
   let up = vec3.create();
-  let horizontalAngle = -Math.PI / 2;
+  let horizontalAngle = 0;
   let verticalAngle = -Math.PI / 4;
   let cameraTarget = vec3.create(); // What the camera orbits.
 

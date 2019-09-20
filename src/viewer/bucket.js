@@ -26,16 +26,16 @@ export default class Bucket {
   }
 
   /**
-   * Fills in data from a collection of model instances.
-   *
-   * @param {Object} data
-   * @param {number} baseInstance
-   * @param {Scene} scene
-   * @return {number}
+   * @param {ModelInstance} instance
    */
-  fill(data, baseInstance, scene) {
-    // Make believe the bucket is now filled with data for all instances.
-    // This is because if a non-specific bucket implementation is supplied, instancing isn't used, so batching is irrelevant.
-    return data.instances.length;
+  renderInstance(instance) {
+    throw new Error('Bucket.renderInstance must be overloaded');
+  }
+
+  /**
+   *
+   */
+  updateBuffers() {
+    throw new Error('Bucket.updateBuffers must be overloaded');
   }
 }

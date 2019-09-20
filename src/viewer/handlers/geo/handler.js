@@ -1,4 +1,5 @@
-import ModelView from './modelview';
+import TexturedModelView from '../../texturedmodelview';
+import ModelViewData from '../../modelviewdata';
 import Model from './model';
 import Bucket from './bucket';
 import ModelInstance from './modelinstance';
@@ -14,7 +15,8 @@ export default {
 
   extensions: [['.geo']],
   Constructor: Model,
-  View: ModelView,
+  View: TexturedModelView,
+  Data: ModelViewData,
   Bucket: Bucket,
   Instance: ModelInstance,
 };

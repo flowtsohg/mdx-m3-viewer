@@ -1,6 +1,6 @@
 import {vec3} from 'gl-matrix';
 import Camera from './camera';
-import {SceneNode} from './node';
+import QuadTree from './quadtree';
 
 // Heap allocations needed for this module.
 let ndcHeap = new Float32Array(3);
@@ -25,39 +25,34 @@ export default class Scene {
     this.viewer = viewer;
     /** @member {ModelViewer.viewer.Camera} */
     this.camera = new Camera();
-    /** @member {Array<ModelViewer.viewer.ModelInstance>} */
-    this.instances = [];
-    /** @member {Set<ModelViewer.viewer.ModelInstance>} */
-    this.instanceSet = new Set();
     /** @member {Array<ModelViewer.viewer.ModelView>} */
-    this.modelViews = [];
-    /** @member {Set<ModelViewer.viewer.ModelView>} */
-    this.modelViewSet = new Set();
-    /** @member {ModelViewer.viewer.SceneNode} */
-    this.node = new SceneNode();
     /** @member {boolean} */
     this.rendered = true;
 
+    /** @member {Array<ModelViewData} */
+    this.modelViewsData = [];
+    /** @member {Map<ModelView, ModelViewData} */
+    this.modelViewsDataMap = new Map();
+
+    /** @member {number} */
+    this.renderedCells = 0;
+    /** @member {number} */
+    this.renderedBuckets = 0;
     /** @member {number} */
     this.renderedInstances = 0;
     /** @member {number} */
     this.renderedParticles = 0;
-    /** @member {number} */
-    this.renderedBuckets = 0;
-    /** @member {number} */
-    this.renderCalls = 0;
 
     /** @member {boolean} */
     this.audioEnabled = false;
     /** @member {?AudioContext} */
     this.audioContext = null;
 
-    this.node.recalculateTransformation(this);
-    this.node.wasDirty = false;
-
     // Use the whole canvas, and standard perspective projection values.
     this.camera.viewport([0, 0, canvas.width, canvas.height]);
     this.camera.perspective(Math.PI / 4, canvas.width / canvas.height, 8, 10000);
+
+    this.tree = new QuadTree([-100000, -100000], [200000, 200000], [200000, 200000]);
   }
 
   /**
@@ -96,92 +91,72 @@ export default class Scene {
    * Sets the scene of the given instance.
    * This is equivalent to instance.setScene(scene).
    *
-   * @param {ModelViewer.viewer.ModelInstance} instance
+   * @param {ModelInstance} instance
    * @return {boolean}
    */
   addInstance(instance) {
-    let instanceSet = this.instanceSet;
-
-    if (!instanceSet.has(instance)) {
-      instanceSet.add(instance);
-      this.instances.push(instance);
-
+    if (instance.scene !== this) {
       if (instance.scene) {
         instance.scene.removeInstance(instance);
       }
 
-      instance.modelView.sceneChanged(instance, this);
       instance.scene = this;
 
-      if (!instance.parent) {
-        instance.setParent(this.node);
+      // Only allow instances that are actually ok to be added the scene.
+      if (instance.model.ok) {
+        this.tree.add(instance);
+
+        this.viewChanged(instance);
+
+        return true;
       }
-
-      this.addView(instance.modelView);
-
-      return true;
     }
 
     return false;
   }
 
   /**
-   * Add a model view to this scene.
-   *
-   * @param {ModelView} modelView
-   */
-  addView(modelView) {
-    let modelViewSet = this.modelViewSet;
-
-    if (!modelViewSet.has(modelView)) {
-      modelViewSet.add(modelView);
-      this.modelViews.push(modelView);
-    }
-  }
-
-  /**
-   * Remove an instance from this scene.
-   *
    * @param {ModelInstance} instance The instance to remove.
    * @return {boolean}
    */
   removeInstance(instance) {
-    if (this.instanceSet.delete(instance)) {
-      let instances = this.instances;
-      instances.splice(instances.indexOf(instance), 1);
-
-      let modelView = instance.modelView;
-
-      modelView.sceneChanged(instance, null);
+    if (instance.scene === this) {
+      this.tree.remove(instance);
 
       instance.scene = null;
-
-      // If the instance is parented to the scene itself, unparent it.
-      // Otherwise, there is no way to know if the parenting is intentional, so do nothing with it.
-      if (instance.parent === this.node) {
-        instance.setParent(null);
-      }
-
-      // If this modelview has no more instances left in it, may as well remove it from the scene.
-      if (!modelView.hasInstances(this)) {
-        this.modelViewSet.delete(modelView);
-        this.modelViews.splice(this.modelViews.indexOf(modelView), 1);
-      }
+      instance.modelViewData = null;
 
       return true;
     }
 
     return false;
+  }
+
+  /**
+   * Called by Model when an instance changes its view, e.g. by using TexturedModelInstance.setTexture()
+   *
+   * @param {ModelInstance} instance
+   */
+  viewChanged(instance) {
+    let modelViewsData = this.modelViewsData;
+    let modelViewsDataMap = this.modelViewsDataMap;
+    let modelView = instance.modelView;
+
+    if (!modelViewsDataMap.has(modelView)) {
+      let modelViewData = new instance.model.handler.Data(modelView, this);
+
+      modelViewsData.push(modelViewData);
+      modelViewsDataMap.set(modelView, modelViewData);
+    }
+
+    instance.modelViewData = modelViewsDataMap.get(modelView);
   }
 
   /**
    * Clear this scene.
    */
   clear() {
-    this.instances.length = 0;
-    this.instanceSet.clear();
-    this.modelViews.length = 0;
-    this.modelViewSet.clear();
+    /// TODO: UPDATE THIS
   }
 
   /**
@@ -200,35 +175,71 @@ export default class Scene {
 
   /**
    * Update this scene.
-   * This includes updating the scene's camera, the node hierarchy (model instances etc.), the model views, and the AudioContext's lisener's position if it exists.
+   * This includes updating the scene's camera, the node hierarchy (model instances etc.), the rendering data, and the AudioContext's lisener's position if it exists.
    */
   update() {
     if (this.rendered) {
-      // Update all of the nodes, instances, etc.
-      this.node.updateChildren(this);
+      // Update the camera.
+      this.camera.update();
 
-      this.renderedInstances = 0;
-      this.renderedParticles = 0;
-      this.renderedBuckets = 0;
-      this.renderCalls = 0;
-
-      // Update the rendering data
-      for (let modelView of this.modelViews) {
-        modelView.update(this);
-
-        this.renderedInstances += modelView.renderedInstances;
-        this.renderedParticles += modelView.renderedParticles;
-        this.renderedBuckets += modelView.renderedBuckets;
-        this.renderCalls += modelView.renderCalls;
-      }
-
+      // Update the autido context's position if it exists.
       if (this.audioContext) {
         let [x, y, z] = this.camera.location;
 
         this.audioContext.listener.setPosition(-x, -y, -z);
       }
 
-      this.camera.update();
+      // Update all of the visible instances that have no parents.
+      // Instances that have parents will be updated down the hierarcy automatically.
+      for (let cell of this.tree.cells) {
+        if (this.camera.testCell(cell)) {
+          cell.rendered = true;
+
+          for (let instance of cell.instances) {
+            if (instance.rendered && !instance.parent) {
+              instance.update(this);
+            }
+          }
+        } else {
+          cell.rendered = false;
+        }
+      }
+
+      // Reset all of the buckets.
+      for (let modelViewData of this.modelViewsData) {
+        modelViewData.startFrame();
+      }
+
+      this.renderedCells = 0;
+      this.renderedBuckets = 0;
+      this.renderedInstances = 0;
+      this.renderedParticles = 0;
+
+      // Push all of the visible instances into the buckets.
+      for (let cell of this.tree.cells) {
+        if (cell.rendered) {
+          this.renderedCells += 1;
+
+          for (let instance of cell.instances) {
+            if (instance.rendered) {
+              let modelViewData = instance.modelViewData;
+
+              modelViewData.renderInstance(instance);
+              modelViewData.renderEmitters(instance);
+            }
+          }
+        }
+      }
+
+      // Update the bucket buffers.
+      for (let modelViewData of this.modelViewsData) {
+        modelViewData.updateBuffers();
+        modelViewData.updateEmitters();
+
+        this.renderedBuckets += modelViewData.usedBuckets;
+        this.renderedInstances += modelViewData.instances;
+        this.renderedParticles += modelViewData.particles;
+      }
     }
   }
 
@@ -275,8 +286,8 @@ export default class Scene {
     if (this.rendered) {
       this.viewport();
 
-      for (let modelView of this.modelViews) {
-        modelView.renderOpaque(this);
+      for (let modelViewData of this.modelViewsData) {
+        modelViewData.renderOpaque(this);
       }
     }
   }
@@ -289,8 +300,8 @@ export default class Scene {
     if (this.rendered) {
       this.viewport();
 
-      for (let modelView of this.modelViews) {
-        modelView.renderTranslucent(this);
+      for (let modelViewData of this.modelViewsData) {
+        modelViewData.renderTranslucent(this);
       }
     }
   }
@@ -308,8 +319,10 @@ export default class Scene {
    * Clear all of the emitted objects in this scene.
    */
   clearEmittedObjects() {
-    for (let instance of this.instances) {
-      instance.clearEmittedObjects();
+    for (let cell of this.tree.cells) {
+      for (let instance of cell.instances) {
+        instance.clearEmittedObjects();
+      }
     }
   }
 }

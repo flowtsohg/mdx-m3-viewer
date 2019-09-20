@@ -13,15 +13,15 @@ export default class BatchGroup {
   }
 
   /**
-   * @param {Object} data
+   * @param {ModelViewData} modelViewData
    */
-  render(data) {
+  render(modelViewData) {
     let model = this.modelView.model;
     let batches = this.objects;
-    let scene = data.scene;
-    let buckets = data.buckets;
+    let scene = modelViewData.scene;
+    let buckets = modelViewData.buckets;
 
-    for (let i = 0, l = data.usedBuckets; i < l; i++) {
+    for (let i = 0, l = modelViewData.usedBuckets; i < l; i++) {
       model.renderBatches(buckets[i], scene, batches);
     }
   }

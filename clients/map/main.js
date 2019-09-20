@@ -73,6 +73,11 @@ viewer.on('loadend', (target) => {
 
 let meter = new FPSMeter({position: 'absolute', right: '10px', top: '10px', left: 'calc(100% - 130px)', theme: 'transparent', heat: 1, graph: 1});
 
+let cellsElement = document.getElementById('cells');
+let bucketsElement = document.getElementById('buckets');
+let instancesElement = document.getElementById('instances');
+let particlesElement = document.getElementById('particles');
+
 setupCamera(viewer.scene, 3000);
 
 (function step() {
@@ -80,6 +85,11 @@ setupCamera(viewer.scene, 3000);
 
   viewer.updateAndRender();
   meter.tick();
+
+  cellsElement.textContent = `Cells: ${viewer.scene.renderedCells}`;
+  bucketsElement.textContent = `Buckets: ${viewer.scene.renderedBuckets}`;
+  instancesElement.textContent = `Instances: ${viewer.scene.renderedInstances}`;
+  particlesElement.textContent = `Particles: ${viewer.scene.renderedParticles}`;
 }());
 
 function handleDrop(file) {

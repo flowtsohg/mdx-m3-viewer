@@ -114,8 +114,7 @@ export default class Layer extends AnimatedObject {
 
         atlas.whenLoaded()
           .then(() => {
-            atlas.wrapS = true;
-            atlas.wrapT = true;
+            atlas.wrapMode(gl.REPEAT, gl.REPEAT);
 
             model.textures.push(atlas);
 

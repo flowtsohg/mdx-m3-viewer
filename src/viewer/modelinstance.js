@@ -10,10 +10,16 @@ export default class ModelInstance extends EventNode {
   constructor(model) {
     super();
 
-    /** @member {?ModelView} */
-    this.modelView = null;
+    /** @member {?Scene} */
+    this.scene = null;
+    /** @member {?Cell} */
+    this.cell = null;
     /** @member {Model} */
     this.model = model;
+    /** @member {?ModelView} */
+    this.modelView = null;
+    /** @member {?ModelViewData} */
+    this.modelViewData = null;
     /** @member {boolean} */
     this.paused = false;
     /** @member {boolean} */
@@ -114,18 +120,9 @@ export default class ModelInstance extends EventNode {
    * @param {Scene} scene
    */
   updateObject(scene) {
-    if (!this.paused && this.model.ok) {
+    if (this.rendered && !this.paused) {
       this.updateTimers();
-
-      if (this.rendered) {
-        let visible = scene.isVisible(this) || this.noCulling || this.model.viewer.noCulling;
-
-        this.culled = !visible;
-
-        if (visible) {
-          this.updateAnimations();
-        }
-      }
+      this.updateAnimations();
     }
   }
 
@@ -138,5 +135,16 @@ export default class ModelInstance extends EventNode {
    */
   setScene(scene) {
     return scene.addInstance(this);
+  }
+
+  /**
+   * @override
+   */
+  recalculateTransformation() {
+    super.recalculateTransformation();
+
+    if (this.scene) {
+      this.scene.tree.moved(this);
+    }
   }
 }

@@ -105,8 +105,8 @@ export default class BlpTexture {
       jpegImage.getData(imageData);
     } else {
       let pallete = this.pallete;
-      let width = this.width / (1 << level);
-      let height = this.height / (1 << level);
+      let width = Math.max(this.width / (1 << level), 1); // max of 1 because for non-square textures one dimension will eventually be <1.
+      let height = Math.max(this.height / (1 << level), 1);
       let size = width * height;
       let alphaBits = this.alphaBits;
       let bitStream;
@@ -146,7 +146,7 @@ export default class BlpTexture {
    */
   mipmaps() {
     if (this.hasMipmaps) {
-      return Math.log2(Math.max(this.width, this.height));
+      return Math.ceil(Math.log2(Math.max(this.width, this.height))) + 1;
     }
 
     return 1;

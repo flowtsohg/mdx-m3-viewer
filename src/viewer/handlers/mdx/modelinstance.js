@@ -212,23 +212,14 @@ export default class ModelInstance extends TexturedModelInstance {
 
   /**
    * Overriden to hide also attachment models.
+   *
+   * @override
    */
   hide() {
     super.hide();
 
     for (let attachment of this.attachments) {
       attachment.internalInstance.hide();
-    }
-  }
-
-  /**
-   * Overriden to show also attachment models.
-   */
-  show() {
-    super.show();
-
-    for (let attachment of this.attachments) {
-      attachment.internalInstance.show();
     }
   }
 

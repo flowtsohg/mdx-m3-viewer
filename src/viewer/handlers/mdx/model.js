@@ -18,8 +18,6 @@ import RibbonEmitter from './modelribbonemitter';
 import Camera from './camera';
 import EventObject from './modeleventobject';
 import CollisionShape from './collisionshape';
-import BatchGroup from './batchgroup';
-import EmitterGroup from './emittergroup';
 
 /**
  * An MDX model.
@@ -78,6 +76,8 @@ export default class Model extends TexturedModel {
 
     this.parser = parser;
 
+    let gl = this.viewer.gl;
+
     // Model
     this.name = parser.name;
 
@@ -132,8 +132,7 @@ export default class Model extends TexturedModel {
 
       let textureRes = this.viewer.load(path, this.pathSolver);
 
-      textureRes.wrapS = !!(flags & 0x1);
-      textureRes.wrapT = !!(flags & 0x2);
+      textureRes.wrapMode(!!(flags & 0x1) ? gl.REPEAT : gl.CLAMP_TO_EDGE, !!(flags & 0x2) ? gl.REPEAT : gl.CLAMP_TO_EDGE);
 
       this.textures.push(textureRes);
     }
@@ -200,9 +199,6 @@ export default class Model extends TexturedModel {
         }
       }
 
-      // / TODO: I don't remember if this is actually needed, are the layers ever not sorted?
-      translucentBatches.sort((a, b) => a.layer.priorityPlane - b.layer.priorityPlane);
-
       this.opaqueBatches.push(...opaqueBatches);
       this.translucentBatches.push(...translucentBatches);
       this.batches.push(...opaqueBatches, ...translucentBatches);
@@ -244,10 +240,6 @@ export default class Model extends TexturedModel {
     for (let particleEmitter2 of parser.particleEmitters2) {
       this.particleEmitters2.push(new ParticleEmitter2(this, particleEmitter2, objectId++));
     }
-
-    // E.g. Wisp
-    //this.particleEmitters2.sort((a, b) => a.priorityPlane - b.priorityPlane);
-
 
     // Ribbon emitters
     for (let ribbonEmitter of parser.ribbonEmitters) {
@@ -423,8 +415,7 @@ export default class Model extends TexturedModel {
     const webgl = this.viewer.webgl;
     let gl = this.viewer.gl;
 
-    // HACK UNTIL I IMPLEMENT MULTIPLE SHADERS AGAIN
-
+    /// HACK UNTIL I IMPLEMENT MULTIPLE SHADERS AGAIN
     let shader = this.viewer.shaderMap.get('MdxStandardShader');
     webgl.useShaderProgram(shader);
     this.shader = shader;
@@ -571,13 +562,13 @@ export default class Model extends TexturedModel {
   /**
    * Render the opaque things in the given scene data.
    *
-   * @param {Object} data
+   * @param {ModelViewData} modelViewData
    */
-  renderOpaque(data) {
-    let scene = data.scene;
-    let buckets = data.buckets;
+  renderOpaque(modelViewData) {
+    let scene = modelViewData.scene;
+    let buckets = modelViewData.buckets;
 
-    for (let i = 0, l = data.usedBuckets; i < l; i++) {
+    for (let i = 0, l = modelViewData.usedBuckets; i < l; i++) {
       this.renderBatches(buckets[i], scene, this.opaqueBatches);
     }
   }
@@ -585,11 +576,11 @@ export default class Model extends TexturedModel {
   /**
    * Render the translucent things in the given scene data.
    *
-   * @param {Object} data
+   * @param {ModelViewData} modelViewData
    */
-  renderTranslucent(data) {
-    for (let group of data.groups) {
-      group.render(data);
+  renderTranslucent(modelViewData) {
+    for (let group of modelViewData.groups) {
+      group.render(modelViewData);
     }
   }
 }

@@ -398,13 +398,13 @@ export default class M3Model extends TexturedModel {
   /**
    * Render the opaque things in the given scene data.
    *
-   * @param {Object} data
+   * @param {ModelViewData} modelViewData
    */
-  renderOpaque(data) {
-    let scene = data.scene;
-    let buckets = data.buckets;
+  renderOpaque(modelViewData) {
+    let scene = modelViewData.scene;
+    let buckets = modelViewData.buckets;
 
-    for (let i = 0, l = data.usedBuckets; i < l; i++) {
+    for (let i = 0, l = modelViewData.usedBuckets; i < l; i++) {
       this.renderBatches(buckets[i], scene, this.batches);
     }
   }
@@ -412,9 +412,9 @@ export default class M3Model extends TexturedModel {
   /**
    * Render the translucent things in the given scene data.
    *
-   * @param {Object} data
+   * @param {ModelViewData} modelViewData
    */
-  renderTranslucent(data) {
+  renderTranslucent(modelViewData) {
 
   }
 }

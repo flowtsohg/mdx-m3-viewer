@@ -1,5 +1,5 @@
 import {vec3, vec4, quat, mat4} from 'gl-matrix';
-import {unproject, distanceToPlane, unpackPlanes, VEC3_UNIT_Y, VEC3_UNIT_X, VEC3_UNIT_Z} from '../common/gl-matrix-addon';
+import {unproject, distanceToPlane, distanceToPlane2, unpackPlanes, VEC3_UNIT_Y, VEC3_UNIT_X, VEC3_UNIT_Z} from '../common/gl-matrix-addon';
 
 let vectorHeap = vec3.create();
 let vectorHeap2 = vec3.create();
@@ -324,6 +324,25 @@ export default class Camera {
   testSphere(center, radius) {
     for (let plane of this.planes) {
       if (distanceToPlane(plane, center) <= -radius) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * @param {Cell} cell
+   * @return {boolean}
+   */
+  testCell(cell) {
+    let corners = cell.corners;
+
+    for (let plane of this.planes) {
+      if (distanceToPlane2(plane, corners[0]) < 0 &&
+        distanceToPlane2(plane, corners[1]) < 0 &&
+        distanceToPlane2(plane, corners[2]) < 0 &&
+        distanceToPlane2(plane, corners[3]) < 0) {
         return false;
       }
     }

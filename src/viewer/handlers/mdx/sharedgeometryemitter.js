@@ -17,15 +17,6 @@ export default class SharedGeometryEmitter extends SharedEmitter {
   }
 
   /**
-   * @param {ParticleEmitter2View|RibbonEmitterView|EventObjectEmitterView} emitterView
-   * @param {boolean} flag
-   * @return {Particle2|Ribbon|EventObjectSpl|EventObjectUbr}
-   */
-  emitObject(emitterView, flag) {
-    return super.emitObject(emitterView, flag);
-  }
-
-  /**
    *
    */
   updateData() {

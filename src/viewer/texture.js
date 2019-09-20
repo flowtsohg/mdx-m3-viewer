@@ -14,31 +14,40 @@ export default class Texture extends Resource {
     this.width = 0;
     /** @param {number} */
     this.height = 0;
-    /** @param {boolean} */
-    this.wrapS = false;
-    /** @param {boolean} */
-    this.wrapT = false;
   }
 
   /**
    * @param {number} unit
    */
   bind(unit) {
+    this.viewer.webgl.bindTexture(this, unit);
+  }
+
+  /**
+   * @param {number} s
+   * @param {number} t
+   */
+  wrapMode(s, t) {
     let viewer = this.viewer;
-    let gl = this.viewer.gl;
+    let gl = viewer.gl;
 
-    viewer.webgl.bindTexture(this, unit);
+    viewer.webgl.bindTexture(this, 0);
 
-    if (this.wrapS) {
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-    } else {
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    }
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, s);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, t);
+  }
 
-    if (this.wrapT) {
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-    } else {
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    }
+  /**
+   * @param {number} mag
+   * @param {number} min
+   */
+  filterMode(mag, min) {
+    let viewer = this.viewer;
+    let gl = viewer.gl;
+
+    viewer.webgl.bindTexture(this, 0);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, mag);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, min);
   }
 }

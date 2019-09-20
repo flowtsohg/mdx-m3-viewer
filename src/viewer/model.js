@@ -35,7 +35,7 @@ export default class Model extends Resource {
       this.addView();
     }
 
-    views[0].addInstance(instance);
+    instance.modelView = views[0];
 
     if (this.ok) {
       instance.load();
@@ -47,22 +47,18 @@ export default class Model extends Resource {
   /**
    * Render opaque things.
    *
-   * @param {*} data
-   * @param {*} scene
-   * @param {*} modelView
+   * @param {ModelViewData} modelViewData
    */
-  renderOpaque(data, scene, modelView) {
+  renderOpaque(modelViewData) {
 
   }
 
   /**
    * Render translucent things.
    *
-   * @param {*} data
-   * @param {*} scene
-   * @param {*} modelView
+   * @param {ModelViewData} modelViewData
    */
-  renderTranslucent(data, scene, modelView) {
+  renderTranslucent(modelViewData) {
 
   }
 
@@ -98,11 +94,25 @@ export default class Model extends Resource {
    * @param {Object} shallowView
    */
   viewChanged(instance, shallowView) {
+    let view = this.matchingView(shallowView);
+
+    instance.modelView = view;
+
+    // If the instance is already in a scene, and this is a new view, it will not be in the scene, so add it.
+    if (instance.scene) {
+      instance.scene.viewChanged(instance);
+    }
+  }
+
+  /**
+   * @param {Object} shallowView
+   * @return {ModelView}
+   */
+  matchingView(shallowView) {
     // Check if there's another view that matches the instance
     for (let view of this.views) {
       if (view.equals(shallowView)) {
-        view.addInstance(instance);
-        return;
+        return view;
       }
     }
 
@@ -110,25 +120,26 @@ export default class Model extends Resource {
     let view = this.addView();
 
     view.applyShallowCopy(shallowView);
-    view.addInstance(instance);
 
-    // If the instance is already in a scene, and this is a new view, it will not be in the scene, so add it.
-    if (instance.scene) {
-      instance.scene.addView(view);
-    }
+    return view;
   }
 
   /**
    * Called when the model finishes loading.
-   * Automatically finalizes loading for all of the model instances and views of this model.
+   * Automatically finalizes loading for all of the model instances.
    */
   lateLoad() {
     for (let instance of this.instances) {
       instance.load();
-    }
 
-    for (let view of this.views) {
-      view.lateLoad();
+      // If an instance was created and attached to a scene before the model finished loading, it was rejected by the scene.
+      // Therefore re-add it now that the model is loaded.
+      let scene = instance.scene;
+
+      if (scene) {
+        instance.scene = null;
+        scene.addInstance(instance);
+      }
     }
   }
 }

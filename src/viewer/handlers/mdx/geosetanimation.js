@@ -22,9 +22,7 @@ export default class GeosetAnimation extends AnimatedObject {
    * @return {number}
    */
   getAlpha(out, instance) {
-    // I don't quite understand how the static alpha is used. Weird rules.
-    // For now hardcode it to 1 if there is no animation.
-    return this.getFloatValue(out, 'KGAO', instance, 1);
+    return this.getFloatValue(out, 'KGAO', instance, this.alpha);
   }
 
   /**

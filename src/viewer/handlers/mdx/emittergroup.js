@@ -16,14 +16,14 @@ export default class EmitterGroup {
   }
 
   /**
-   * @param {Object} data
+   * @param {ModelViewData} modelViewData
    */
-  render(data) {
+  render(modelViewData) {
     let viewer = this.modelView.model.viewer;
     let gl = viewer.gl;
     let webgl = viewer.webgl;
-    let scene = data.scene;
-    let modelView = data.modelView;
+    let scene = modelViewData.scene;
+    let modelView = modelViewData.modelView;
 
     gl.depthMask(0);
     gl.enable(gl.BLEND);

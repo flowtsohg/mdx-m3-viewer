@@ -83,15 +83,15 @@ export default class ModelViewer extends EventEmitter {
     this.batchSize = 8;
 
     /** @member {number} */
-    this.renderedInstances = 0;
+    this.renderedScenes = 0;
     /** @member {number} */
-    this.renderedParticles = 0;
+    this.renderedCells = 0;
     /** @member {number} */
     this.renderedBuckets = 0;
     /** @member {number} */
-    this.renderedScenes = 0;
+    this.renderedInstances = 0;
     /** @member {number} */
-    this.renderCalls = 0;
+    this.renderedParticles = 0;
 
     /**
      * A viewer-wide flag.
@@ -272,8 +272,18 @@ export default class ModelViewer extends EventEmitter {
    * @param {*} key
    * @return {boolean}
    */
-  exists(key) {
+  has(key) {
     return this.resourcesMap.has(key);
+  }
+
+  /**
+   * Get a resource from the cache.
+   *
+   * @param {*} key
+   * @return {?Resource}
+   */
+  get(key) {
+    return this.resourcesMap.get(key);
   }
 
   /**
@@ -504,7 +514,7 @@ export default class ModelViewer extends EventEmitter {
    */
   toBlob(callback) {
     if (callback) {
-      this.canvas.toBlob((blob) => callback(blob))
+      this.canvas.toBlob((blob) => callback(blob));
     } else {
       return new Promise((resolve) => this.canvas.toBlob((blob) => resolve(blob)));
     }
@@ -525,11 +535,11 @@ export default class ModelViewer extends EventEmitter {
   update() {
     let scenes = this.scenes;
 
+    this.renderedScenes = scenes.length;
+    this.renderedCells = 0;
+    this.renderedBuckets = 0;
     this.renderedInstances = 0;
     this.renderedParticles = 0;
-    this.renderedBuckets = 0;
-    this.renderedScenes = 0;
-    this.renderCalls = 0;
 
     // Update all of the scenes.
     for (let i = 0, l = scenes.length; i < l; i++) {
@@ -538,11 +548,10 @@ export default class ModelViewer extends EventEmitter {
       if (scene.rendered) {
         scene.update();
 
+        this.renderedCells += scene.renderedCells;
+        this.renderedBuckets += scene.renderedBuckets;
         this.renderedInstances += scene.renderedInstances;
         this.renderedParticles += scene.renderedParticles;
-        this.renderedBuckets += scene.renderedBuckets;
-        this.renderedScenes += 1;
-        this.renderCalls += scene.renderCalls;
       }
     }
   }

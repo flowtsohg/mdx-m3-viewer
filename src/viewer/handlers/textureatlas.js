@@ -12,10 +12,7 @@ export default class TextureAtlas extends Texture {
 
     let id = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, id);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    this.viewer.webgl.setTextureMode(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src.imageData);
 
     this.width = src.imageData.width;
@@ -23,7 +20,5 @@ export default class TextureAtlas extends Texture {
     this.columns = src.columns;
     this.rows = src.rows;
     this.webglResource = id;
-    this.wrapS = false;
-    this.wrapT = false;
   }
 }

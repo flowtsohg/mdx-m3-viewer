@@ -9,6 +9,7 @@ import War3MapUnitsDoo from '../../../parsers/w3x/unitsdoo/file';
 import MpqArchive from '../../../parsers/mpq/archive';
 import MappedData from '../../../utils/mappeddata';
 import ModelViewer from '../../viewer';
+import QuadTree from '../../quadtree';
 import geoHandler from '../geo/handler';
 import mdxHandler from '../mdx/handler';
 import shaders from './shaders';
@@ -400,6 +401,9 @@ export default class War3MapViewer extends ModelViewer {
     this.corners = w3e.corners;
     this.centerOffset = w3e.centerOffset;
     this.mapSize = w3e.mapSize;
+
+    // Override the tree based on the map.
+    this.scene.tree = new QuadTree(this.centerOffset, [this.mapSize[0] * 128 - 128, this.mapSize[1] * 128 - 128], [16 * 128, 16 * 128]);
 
     this.emit('tilesetloaded');
 
@@ -949,8 +953,13 @@ export default class War3MapViewer extends ModelViewer {
     return corner.groundTexture;
   }
 
-  load(src) {
-    return super.load(src, this.mapPathSolver);
+  /**
+   * @param {*} src
+   * @param {?function} pathSolver
+   * @return {Resource}
+   */
+  load(src, pathSolver) {
+    return super.load(src, pathSolver || this.mapPathSolver);
   }
 
   /**

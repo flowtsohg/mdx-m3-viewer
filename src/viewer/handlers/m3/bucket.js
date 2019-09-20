@@ -34,10 +34,7 @@ export default class M3Bucket extends Bucket {
 
     gl.activeTexture(gl.TEXTURE15);
     gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    model.viewer.webgl.setTextureMode(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.boneTextureWidth, this.boneTextureHeight, 0, gl.RGBA, gl.FLOAT, this.boneArray);
 
     // Team colors (per instance)
@@ -54,89 +51,80 @@ export default class M3Bucket extends Bucket {
   }
 
   /**
-   * Fill this bucket with scene data.
-   *
-   * @param {Object} data
-   * @return {number}
+   * @override
+   * @param {ModelInstance} instance
    */
-  fill(data) {
-    let baseIndex = data.baseIndex;
+  renderInstance(instance) {
     let model = this.model;
-    let gl = model.viewer.gl;
-    let batchSize = model.batchSize;
     let initialReferences = model.initialReference;
     let boneLookup = model.boneLookup;
     let boneArray = this.boneArray;
     let teamColorArray = this.teamColorArray;
     let vertexColorArray = this.vertexColorArray;
-    let instanceOffset = 0;
-    let instances = data.instances;
+    let instanceOffset = this.count;
+    let vertexColor = instance.vertexColor;
+    let base = instanceOffset * this.boneArrayInstanceSize;
+    let sequence = instance.sequence;
+    let nodes = instance.skeleton.nodes;
+    let finalMatrix;
 
-    for (let l = instances.length; baseIndex < l && instanceOffset < batchSize; baseIndex++) {
-      let instance = instances[baseIndex];
+    if (sequence === -1) {
+      finalMatrix = instance.worldMatrix;
+    } else {
+      finalMatrix = matrixHeap;
 
-      if (instance.rendered && !instance.culled) {
-        let vertexColor = instance.vertexColor;
-        let base = instanceOffset * this.boneArrayInstanceSize;
-        let sequence = instance.sequence;
-        let nodes = instance.skeleton.nodes;
-        let finalMatrix;
-
-        if (sequence === -1) {
-          finalMatrix = instance.worldMatrix;
-        } else {
-          finalMatrix = matrixHeap;
-
-          mat4.identity(finalMatrix);
-        }
-
-        for (let i = 0, l = boneLookup.length; i < l; i++) {
-          let offset = base + i * 16;
-
-          if (sequence !== -1) {
-            let bone = boneLookup[i];
-
-            mat4.multiply(finalMatrix, nodes[bone].worldMatrix, initialReferences[bone]);
-          }
-
-          boneArray[offset] = finalMatrix[0];
-          boneArray[offset + 1] = finalMatrix[1];
-          boneArray[offset + 2] = finalMatrix[2];
-          boneArray[offset + 3] = finalMatrix[3];
-          boneArray[offset + 4] = finalMatrix[4];
-          boneArray[offset + 5] = finalMatrix[5];
-          boneArray[offset + 6] = finalMatrix[6];
-          boneArray[offset + 7] = finalMatrix[7];
-          boneArray[offset + 8] = finalMatrix[8];
-          boneArray[offset + 9] = finalMatrix[9];
-          boneArray[offset + 10] = finalMatrix[10];
-          boneArray[offset + 11] = finalMatrix[11];
-          boneArray[offset + 12] = finalMatrix[12];
-          boneArray[offset + 13] = finalMatrix[13];
-          boneArray[offset + 14] = finalMatrix[14];
-          boneArray[offset + 15] = finalMatrix[15];
-        }
-
-        // Team color
-        teamColorArray[instanceOffset] = instance.teamColor;
-
-        // Vertex color
-        vertexColorArray[instanceOffset * 4] = vertexColor[0];
-        vertexColorArray[instanceOffset * 4 + 1] = vertexColor[1];
-        vertexColorArray[instanceOffset * 4 + 2] = vertexColor[2];
-        vertexColorArray[instanceOffset * 4 + 3] = vertexColor[3];
-
-        instanceOffset += 1;
-      }
+      mat4.identity(finalMatrix);
     }
 
-    // Save the number of instances of which data was copied.
-    this.count = instanceOffset;
+    for (let i = 0, l = boneLookup.length; i < l; i++) {
+      let offset = base + i * 16;
 
-    if (instanceOffset) {
+      if (sequence !== -1) {
+        let bone = boneLookup[i];
+
+        mat4.multiply(finalMatrix, nodes[bone].worldMatrix, initialReferences[bone]);
+      }
+
+      boneArray[offset] = finalMatrix[0];
+      boneArray[offset + 1] = finalMatrix[1];
+      boneArray[offset + 2] = finalMatrix[2];
+      boneArray[offset + 3] = finalMatrix[3];
+      boneArray[offset + 4] = finalMatrix[4];
+      boneArray[offset + 5] = finalMatrix[5];
+      boneArray[offset + 6] = finalMatrix[6];
+      boneArray[offset + 7] = finalMatrix[7];
+      boneArray[offset + 8] = finalMatrix[8];
+      boneArray[offset + 9] = finalMatrix[9];
+      boneArray[offset + 10] = finalMatrix[10];
+      boneArray[offset + 11] = finalMatrix[11];
+      boneArray[offset + 12] = finalMatrix[12];
+      boneArray[offset + 13] = finalMatrix[13];
+      boneArray[offset + 14] = finalMatrix[14];
+      boneArray[offset + 15] = finalMatrix[15];
+    }
+
+    // Team color
+    teamColorArray[instanceOffset] = instance.teamColor;
+
+    // Vertex color
+    vertexColorArray[instanceOffset * 4] = vertexColor[0];
+    vertexColorArray[instanceOffset * 4 + 1] = vertexColor[1];
+    vertexColorArray[instanceOffset * 4 + 2] = vertexColor[2];
+    vertexColorArray[instanceOffset * 4 + 3] = vertexColor[3];
+
+    this.count += 1;
+  }
+
+  /**
+   * @override
+   */
+  updateBuffers() {
+    if (this.count) {
+      let gl = this.model.viewer.gl;
+
       gl.activeTexture(gl.TEXTURE15);
       gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
-      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, instanceOffset, gl.RGBA, gl.FLOAT, this.boneArray);
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, this.count, gl.RGBA, gl.FLOAT, this.boneArray);
 
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this.teamColorBuffer);
@@ -145,7 +133,5 @@ export default class M3Bucket extends Bucket {
       gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertexColorArray);
     }
-
-    return baseIndex;
   }
 }

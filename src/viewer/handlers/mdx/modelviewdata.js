@@ -1,4 +1,4 @@
-import TexturedModelView from '../../texturedmodelview';
+import ModelViewData from '../../modelviewdata';
 import ParticleEmitter from './particleemitter';
 import ParticleEmitter2 from './particleemitter2';
 import RibbonEmitter from './ribbonemitter';
@@ -11,16 +11,17 @@ import BatchGroup from './batchgroup';
 import EmitterGroup from './emittergroup';
 
 /**
- * An MDX model view.
+ *
  */
-export default class ModelView extends TexturedModelView {
+export default class MdxModelViewData extends ModelViewData {
   /**
+   * @param {ModelView} modelView
    * @param {Scene} scene
-   * @return {Object}
    */
-  createSceneData(scene) {
-    let model = this.model;
-    let data = super.createSceneData(scene);
+  constructor(modelView, scene) {
+    super(modelView, scene);
+
+    let model = modelView.model;
     let particleEmitters = [];
     let particleEmitters2 = [];
     let ribbonEmitters = [];
@@ -85,11 +86,11 @@ export default class ModelView extends TexturedModelView {
 
     let createMatchingGroup = (object) => {
       if (object instanceof Batch) {
-        return new BatchGroup(this);
+        return new BatchGroup(modelView);
       } else if (isNormalEmitter(object)) {
-        return new EmitterGroup(this, false);
+        return new EmitterGroup(modelView, false);
       } else if (isRibbonEmitter(object)) {
-        return new EmitterGroup(this, true);
+        return new EmitterGroup(modelView, true);
       }
     };
 
@@ -109,87 +110,72 @@ export default class ModelView extends TexturedModelView {
       }
     }
 
-    return {
-      ...data,
-      particleEmitters,
-      particleEmitters2,
-      ribbonEmitters,
-      eventObjectEmitters,
-      groups,
-    };
+    this.particleEmitters = particleEmitters;
+    this.particleEmitters2 = particleEmitters2;
+    this.ribbonEmitters = ribbonEmitters;
+    this.eventObjectEmitters = eventObjectEmitters;
+    this.groups = groups;
   }
 
   /**
-   * @param {Scene} scene
+   * @param {ModelInstance} instance
    */
-  update(scene) {
-    let data = super.update(scene);
+  renderEmitters(instance) {
+    let particleEmitters = this.particleEmitters;
+    let particleEmitters2 = this.particleEmitters2;
+    let ribbonEmitters = this.ribbonEmitters;
+    let eventObjectEmitters = this.eventObjectEmitters;
+    let particleEmitterViews = instance.particleEmitters;
+    let particleEmitter2Views = instance.particleEmitters2;
+    let ribbonEmitterViews = instance.ribbonEmitters;
+    let eventObjectEmitterViews = instance.eventObjectEmitters;
 
-    if (data) {
-      let batchCount = this.model.batches.length;
-      let buckets = data.buckets;
-      let renderedInstances = 0;
-      let renderedParticles = 0;
-      let renderedBuckets = 0;
-      let renderCalls = 0;
+    for (let i = 0, l = particleEmitters.length; i < l; i++) {
+      particleEmitters[i].fill(particleEmitterViews[i]);
+    }
 
-      for (let i = 0, l = data.usedBuckets; i < l; i++) {
-        renderedInstances += buckets[i].count;
-        renderedBuckets += 1;
-        renderCalls += batchCount;
+    for (let i = 0, l = particleEmitters2.length; i < l; i++) {
+      particleEmitters2[i].fill(particleEmitter2Views[i]);
+    }
+
+    for (let i = 0, l = ribbonEmitters.length; i < l; i++) {
+      ribbonEmitters[i].fill(ribbonEmitterViews[i]);
+    }
+
+    for (let i = 0, l = eventObjectEmitters.length; i < l; i++) {
+      eventObjectEmitters[i].fill(eventObjectEmitterViews[i]);
+    }
+  }
+
+  /**
+   *
+   */
+  updateEmitters() {
+    for (let emitter of this.particleEmitters) {
+      emitter.update();
+
+      this.particles += emitter.alive;
+    }
+
+    for (let emitter of this.particleEmitters2) {
+      emitter.update();
+
+      this.particles += emitter.alive;
+    }
+
+    for (let emitter of this.ribbonEmitters) {
+      emitter.update();
+
+      this.particles += emitter.alive;
+    }
+
+    for (let emitter of this.eventObjectEmitters) {
+      emitter.update();
+
+      // Sounds are not particles.
+      if (emitter.type !== 'SND') {
+        this.particles += emitter.alive;
       }
-
-      for (let emitter of data.particleEmitters) {
-        emitter.update();
-
-        let particles = emitter.alive;
-
-        if (particles) {
-          renderedParticles += particles;
-          renderCalls += 1;
-        }
-      }
-
-      for (let emitter of data.particleEmitters2) {
-        emitter.update();
-
-        let particles = emitter.alive;
-
-        if (particles) {
-          renderedParticles += particles;
-          renderCalls += 1;
-        }
-      }
-
-      for (let emitter of data.ribbonEmitters) {
-        emitter.update();
-
-        let particles = emitter.alive;
-
-        if (particles) {
-          renderedParticles += particles;
-          renderCalls += 1;
-        }
-      }
-
-      for (let emitter of data.eventObjectEmitters) {
-        emitter.update();
-
-        // Sounds are not particles.
-        if (emitter.type !== 'SND') {
-          let particles = emitter.alive;
-
-          if (particles) {
-            renderedParticles += particles;
-            renderCalls += 1;
-          }
-        }
-      }
-
-      this.renderedInstances = renderedInstances;
-      this.renderedParticles = renderedParticles;
-      this.renderedBuckets = renderedBuckets;
-      this.renderCalls = renderCalls;
     }
   }
 }
