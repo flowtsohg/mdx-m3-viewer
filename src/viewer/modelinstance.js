@@ -24,21 +24,12 @@ export default class ModelInstance extends EventNode {
     this.paused = false;
     /** @member {boolean} */
     this.rendered = true;
-    /** @member {boolean} */
-    this.culled = false;
-    /**
-     *  Set to true if this instance should always be rendered.
-     *
-     * @member {boolean}
-     */
-    this.noCulling = false;
     /** @member {?object} */
     this.bounds = null;
   }
 
   /**
    * This instance should be shown.
-   * Note that it can still be hidden due to culling.
    */
   show() {
     this.rendered = true;

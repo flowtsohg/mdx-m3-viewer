@@ -34,8 +34,6 @@ export default class UnitTester {
     viewer.addHandler(M3);
     viewer.addHandler(Geo);
 
-    viewer.noCulling = true;
-
     this.viewer = viewer;
     this.mathRandom = Math.random;
     this.tests = [];

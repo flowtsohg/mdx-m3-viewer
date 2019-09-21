@@ -18,7 +18,7 @@ export default class BlpTexture extends Texture {
     let id = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, id);
 
-    viewer.webgl.setTextureMode(gl.REPEAT, gl.REPEAT, gl.LINEAR, gl.LINEAR);
+    viewer.webgl.setTextureMode(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR);
 
     let imageData = parser.getMipmap(0);
 
@@ -27,7 +27,7 @@ export default class BlpTexture extends Texture {
     /// TODO: What to do with fake mipmaps?
     // let mipmaps = parser.mipmaps();
 
-    // viewer.webgl.setTextureMode(gl.REPEAT, gl.REPEAT, gl.LINEAR, mipmaps > 1 ? gl.LINEAR : gl.LINEAR);
+    // viewer.webgl.setTextureMode(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, mipmaps > 1 ? gl.LINEAR : gl.LINEAR);
 
     // for (let i = 0; i < mipmaps; i++) {
     //   let imageData = parser.getMipmap(i);

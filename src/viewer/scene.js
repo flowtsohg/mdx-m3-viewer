@@ -25,9 +25,10 @@ export default class Scene {
     this.viewer = viewer;
     /** @member {ModelViewer.viewer.Camera} */
     this.camera = new Camera();
-    /** @member {Array<ModelViewer.viewer.ModelView>} */
     /** @member {boolean} */
     this.rendered = true;
+    /** @member {QuadTree} */
+    this.tree = new QuadTree([-100000, -100000], [200000, 200000], [200000, 200000]);
 
     /** @member {Array<ModelViewData} */
     this.modelViewsData = [];
@@ -51,14 +52,12 @@ export default class Scene {
     // Use the whole canvas, and standard perspective projection values.
     this.camera.viewport([0, 0, canvas.width, canvas.height]);
     this.camera.perspective(Math.PI / 4, canvas.width / canvas.height, 8, 10000);
-
-    this.tree = new QuadTree([-100000, -100000], [200000, 200000], [200000, 200000]);
   }
 
   /**
    * Creates an AudioContext if one wasn't created already, and resumes it if needed.
    * The returned promise will resolve to whether it is actually running or not.
-   * It may stay in suspended state indefinitly until the client interact with the page, due to browser policies.
+   * It may stay in suspended state indefinitly until the user interacts with the page, due to browser policies.
    *
    * @return {Promise}
    */

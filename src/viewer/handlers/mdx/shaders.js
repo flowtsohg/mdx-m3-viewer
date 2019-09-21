@@ -125,9 +125,15 @@ export default {
       // For additive, premultiply the color by the layer alpha, because additive doesn't care about alphas.
       // Otherwise, only multiply the color's alpha by the layer alpha.
       if (u_filterMode == 3.0) {
-        color.rgb *= v_layerAlpha;
+        color *= v_layerAlpha;
+        color *= v_geosetColor.a;
       } else {
         color.a *= v_layerAlpha;
+      }
+
+      // Additive alpha test? Needed for Wing01
+      if (u_filterMode == 3.0 && color.a < 0.25) {
+        discard;
       }
 
       // 1bit Alpha

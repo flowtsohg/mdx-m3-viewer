@@ -282,7 +282,7 @@ export default class Model extends TexturedModel {
   loadTeamTextures() {
     let viewer = this.viewer;
 
-    if (!viewer.getTextureAtlas('teamColors')) {
+    if (!viewer.has('teamColors')) {
       let pathSolver = this.pathSolver;
       let teamColors = [];
       let teamGlows = [];
@@ -497,10 +497,10 @@ export default class Model extends TexturedModel {
     let isTeamColor = false;
 
     if (replaceable === 1) {
-      texture = this.viewer.getTextureAtlas('teamColors');
+      texture = this.viewer.get('teamColors');
       isTeamColor = true;
     } else if (replaceable === 2) {
-      texture = this.viewer.getTextureAtlas('teamGlows');
+      texture = this.viewer.get('teamGlows');
       isTeamColor = true;
     } else {
       texture = this.textures[layer.textureId];

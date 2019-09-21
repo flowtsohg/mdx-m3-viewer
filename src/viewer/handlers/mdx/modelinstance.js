@@ -439,7 +439,7 @@ export default class ModelInstance extends TexturedModelInstance {
   updateAnimations() {
     let forced = this.forced;
 
-    if (forced || (this.sequence !== -1 && !this.model.viewer.noUpdating)) {
+    if (forced || this.sequence !== -1) {
       this.forced = false;
 
       // Update the nodes

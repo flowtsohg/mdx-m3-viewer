@@ -19,14 +19,19 @@ export default class ModelViewer extends EventEmitter {
   constructor(canvas, options) {
     super();
 
-    /** @member {Map<string, Resource>} */
-    this.resourcesMap = new Map();
-
     /** @member {Array<Resource>} */
     this.resources = [];
+    /** @member {Map<string, Resource>} */
+    this.resourcesMap = new Map();
+    /** @member {Set<Resource>} */
+    this.resourcesLoading = new Set();
+
+    /** @member {Set<Object>} */
+    this.handlers = new Set();
 
     /**
-     * The speed of animation. Note that this is not the time of a frame in milliseconds, but rather the amount of animation frames to advance each update.
+     * The speed of animation.
+     * Note that this is not the time of a frame in milliseconds, but rather the amount of animation frames to advance each update.
      *
      * @member {number}
      */
@@ -34,53 +39,21 @@ export default class ModelViewer extends EventEmitter {
 
     /** @member {HTMLCanvasElement} */
     this.canvas = canvas;
-
     /** @member {WebGL} */
     this.webgl = new WebGL(canvas, options);
-
     /** @member {WebGLRenderingContext} */
     this.gl = this.webgl.gl;
-
     /** @member {Map<string, ShaderProgram>} */
     this.shaderMap = new Map();
-
-    /** @member {Set<Object>} */
-    this.handlers = new Set();
-
-    /** @member {Array<Scene>} */
-    this.scenes = [];
-
-    /** @member {Set} */
-    this.resourcesLoading = new Set();
-
-    // Track when resources start loading.
-    this.on('loadstart', (target) => {
-      this.resourcesLoading.add(target);
-    });
-
-    // Track when resources end loading.
-    this.on('loadend', (target) => {
-      this.resourcesLoading.delete(target);
-
-      // If there are currently no resources loading, dispatch the 'idle' event.
-      if (this.resourcesLoading.size === 0) {
-        // A timeout is used so that this event will arrive after the loadend event being processed.
-        // Any nicer solution?
-        setTimeout(() => this.emit('idle'), 0);
-      }
-    });
-
-    this.noCulling = false; // Set to true to disable culling viewer-wide.
-    this.noUpdating = false;
-
-    this.textureAtlases = {};
-
     /**
      * The number of instances that a bucket should be able to contain.
      *
      * @member {number}
      */
     this.batchSize = 8;
+
+    /** @member {Array<Scene>} */
+    this.scenes = [];
 
     /** @member {number} */
     this.renderedScenes = 0;
@@ -101,6 +74,22 @@ export default class ModelViewer extends EventEmitter {
      * @member {boolean}
      */
     this.enableAudio = false;
+
+    // Track when resources start loading.
+    this.on('loadstart', (target) => {
+      this.resourcesLoading.add(target);
+    });
+
+    // Track when resources end loading.
+    this.on('loadend', (target) => {
+      this.resourcesLoading.delete(target);
+
+      // If there are currently no resources loading, dispatch the 'idle' event.
+      if (this.resourcesLoading.size === 0) {
+        // A timeout is used so that this event will arrive after the loadend event being processed.
+        setTimeout(() => this.emit('idle'), 0);
+      }
+    });
 
     this.addHandler(imageTextureHandler);
   }
@@ -390,9 +379,9 @@ export default class ModelViewer extends EventEmitter {
    * @return {object}
    */
   loadTextureAtlas(name, textures) {
-    let textureAtlases = this.textureAtlases;
+    let resourcesMap = this.resourcesMap;
 
-    if (!textureAtlases[name]) {
+    if (!resourcesMap.has(name)) {
       let textureAtlas = new TextureAtlas({viewer: this});
 
       // Promise that there is a future load that the code cannot know about yet, so whenAllLoaded() isn't called prematurely.
@@ -417,20 +406,10 @@ export default class ModelViewer extends EventEmitter {
           promise.resolve();
         });
 
-      textureAtlases[name] = textureAtlas;
+      resourcesMap.set(name, textureAtlas);
     }
 
-    return textureAtlases[name];
-  }
-
-  /**
-   * Returns a texture atlas, or null if it doesn't exist.
-   *
-   * @param {string} name
-   * @return {Texture|null}
-   */
-  getTextureAtlas(name) {
-    return this.textureAtlases[name];
+    return resourcesMap.get(name);
   }
 
   /**
