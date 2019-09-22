@@ -941,10 +941,11 @@ export default class War3MapViewer extends ModelViewer {
   /**
    * @param {*} src
    * @param {?function} pathSolver
+   * @param {?Object} options
    * @return {Resource}
    */
-  load(src, pathSolver) {
-    return super.load(src, pathSolver || this.mapPathSolver);
+  load(src, pathSolver, options) {
+    return super.load(src, pathSolver || this.mapPathSolver, options);
   }
 
   /**

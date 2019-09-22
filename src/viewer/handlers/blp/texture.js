@@ -7,8 +7,9 @@ import Texture from '../../texture';
 export default class BlpTexture extends Texture {
   /**
    * @param {ArrayBuffer} src
+   * @param {?Object} options
    */
-  load(src) {
+  load(src, options) {
     let parser = new Parser();
     parser.load(src);
 
@@ -18,7 +19,20 @@ export default class BlpTexture extends Texture {
     let id = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, id);
 
-    viewer.webgl.setTextureMode(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR);
+    let wrapS = gl.CLAMP_TO_EDGE;
+    let wrapT = gl.CLAMP_TO_EDGE;
+
+    if (options) {
+      if (options.wrapS) {
+        wrapS = gl.REPEAT;
+      }
+
+      if (options.wrapT) {
+        wrapT = gl.REPEAT;
+      }
+    }
+
+    viewer.webgl.setTextureMode(wrapS, wrapT, gl.LINEAR, gl.LINEAR);
 
     let imageData = parser.getMipmap(0);
 

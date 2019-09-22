@@ -130,11 +130,10 @@ export default class Model extends TexturedModel {
 
       this.replaceables.push(replaceableId);
 
-      let textureRes = this.viewer.load(path, this.pathSolver);
+      let wrapS = !!(flags & 0x1);
+      let wrapT = !!(flags & 0x2);
 
-      textureRes.wrapMode(!!(flags & 0x1) ? gl.REPEAT : gl.CLAMP_TO_EDGE, !!(flags & 0x2) ? gl.REPEAT : gl.CLAMP_TO_EDGE);
-
-      this.textures.push(textureRes);
+      this.textures.push(this.viewer.load(path, this.pathSolver, {wrapS, wrapT}));
     }
 
     if (usingTeamTextures) {
