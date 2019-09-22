@@ -7,7 +7,7 @@ export function layerFilterMode(filterMode, gl) {
   if (filterMode === 2) {
     return [gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA]; // Blend
   } else if (filterMode === 3) {
-    return [gl.ONE, gl.ONE]; // Additive
+    return [gl.SRC_ALPHA, gl.ONE]; // Additive
   } else if (filterMode === 4) {
     return [gl.SRC_ALPHA, gl.ONE]; // Add alpha
   } else if (filterMode === 5) {

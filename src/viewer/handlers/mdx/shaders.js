@@ -21,11 +21,9 @@ export default {
     varying vec3 v_normal;
     varying vec2 v_uv;
     varying float v_teamColor;
-    varying vec4 v_vertexColor;
-    varying vec4 v_geosetColor;
+    varying vec4 v_color;
     varying vec4 v_uvTransRot;
     varying vec3 v_uvScaleSprite;
-    varying float v_layerAlpha;
 
     void transform(inout vec3 position, inout vec3 normal, float boneNumber, vec4 bones) {
       // For the broken models out there, since the game supports this.
@@ -54,9 +52,8 @@ export default {
       v_uvScaleSprite = a_uvScaleSprite;
       v_normal = normal;
       v_teamColor = a_teamColor;
-      v_vertexColor = a_vertexColor;
-      v_geosetColor = a_geosetColor;
-      v_layerAlpha = a_layerAlpha;
+      v_color = a_vertexColor * a_geosetColor.bgra;
+      v_color.a *= a_layerAlpha;
 
       if (a_geosetColor.a > 0.0 && a_layerAlpha > 0.0) {
         gl_Position = u_mvp * vec4(position, 1);
@@ -79,11 +76,9 @@ export default {
     varying vec3 v_normal;
     varying vec2 v_uv;
     varying float v_teamColor;
-    varying vec4 v_vertexColor;
-    varying vec4 v_geosetColor;
+    varying vec4 v_color;
     varying vec4 v_uvTransRot;
     varying vec3 v_uvScaleSprite;
-    varying float v_layerAlpha;
 
     // const vec3 lightDirection = normalize(vec3(-0.3, -0.3, 0.25));
 
@@ -119,18 +114,7 @@ export default {
       }
 
       vec4 texel = texture2D(u_texture, uv);
-
-      vec4 color = texel * v_geosetColor.bgra * v_vertexColor;
-
-      // For additive, premultiply the color by the layer alpha, because additive doesn't care about alphas.
-      // Otherwise, only multiply the color's alpha by the layer alpha.
-      if (u_filterMode == 3.0) {
-        color *= texel.a;
-        color *= v_layerAlpha;
-        color *= v_geosetColor.a;
-      } else {
-        color.a *= v_layerAlpha;
-      }
+      vec4 color = texel * v_color;
 
       // 1bit Alpha
       if (u_filterMode == 1.0 && color.a < 0.75) {
