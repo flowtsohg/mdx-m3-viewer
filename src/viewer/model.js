@@ -1,4 +1,5 @@
 import Resource from './resource';
+import Bounds from './bounds';
 
 /**
  * A model.
@@ -18,6 +19,9 @@ export default class Model extends Resource {
 
     /** @member {Array<ModelView>} */
     this.views = [];
+
+    /** @member {Bounds} */
+    this.bounds = new Bounds();
   }
 
   /**

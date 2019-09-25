@@ -385,6 +385,7 @@ let nodeMixin = (superclass) => class extends superclass {
 
       if (parent) {
         let computedLocation;
+        let computedRotation;
         let computedScaling;
 
         let parentPivot = parent.pivot;
@@ -397,9 +398,13 @@ let nodeMixin = (superclass) => class extends superclass {
         // vec3.add(computedLocation, localLocation, parentPivot);
 
         // If this node shouldn't inherit the parent's rotation, rotate it by the inverse.
-        // if (this.dontInheritRotation) {
-        // mat4.rotateQ(worldMatrix, worldMatrix, parent.inverseWorldRotation);
-        // }
+        if (this.dontInheritRotation) {
+          computedRotation = rotationHeap;
+
+          quat.mul(computedRotation, localRotation, parent.inverseWorldRotation);
+        } else {
+          computedRotation = localRotation;
+        }
 
         // If this node shouldn't inherit the parent's translation, translate it by the inverse.
         // if (this.dontInheritTranslation) {
@@ -429,11 +434,11 @@ let nodeMixin = (superclass) => class extends superclass {
           // vec3.mul(worldScale, parentScale, localScale);
         }
 
-        mat4.fromRotationTranslationScale(localMatrix, localRotation, computedLocation, computedScaling);
+        mat4.fromRotationTranslationScale(localMatrix, computedRotation, computedLocation, computedScaling);
 
         mat4.mul(worldMatrix, parent.worldMatrix, localMatrix);
 
-        quat.mul(worldRotation, parent.worldRotation, localRotation);
+        quat.mul(worldRotation, parent.worldRotation, computedRotation);
       } else {
         // Local matrix
         mat4.fromRotationTranslationScale(localMatrix, localRotation, localLocation, localScale);

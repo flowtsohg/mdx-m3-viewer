@@ -11,9 +11,6 @@ import Geo from '../viewer/handlers/geo/handler';
  * A unit tester designed for the model viewer.
  * The input of each test is a pre-defined scene, and the output is the rendered image.
  * The image is then compared to another image generated from the same test, at a time when rendering it was considered "correct".
- *
- * Note: it looks like this tester cannot be completely dependant on.
- *     This is because different computers (and even different browsers on the same computer) render slightly different.
  */
 export default class UnitTester {
   /**
@@ -191,30 +188,6 @@ export default class UnitTester {
     if (response.ok) {
       return await response.blob();
     }
-  }
-
-  /**
-   * Compares two images.
-   *
-   * @param {Image} imageA
-   * @param {Image} imageB
-   * @return {boolean}
-   */
-  compareImages(imageA, imageB) {
-    if (imageA.width !== imageB.width || imageA.height !== imageB.height) {
-      return false;
-    }
-
-    let a = imageToImageData(imageA).data;
-    let b = imageToImageData(imageB).data;
-
-    for (let i = 0, l = a.length; i < l; i++) {
-      if (a[i] !== b[i]) {
-        return false;
-      }
-    }
-
-    return true;
   }
 
   /**

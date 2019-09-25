@@ -25,8 +25,6 @@ export default class Scene {
     this.viewer = viewer;
     /** @member {ModelViewer.viewer.Camera} */
     this.camera = new Camera();
-    /** @member {boolean} */
-    this.rendered = true;
     /** @member {QuadTree} */
     this.tree = new QuadTree([-100000, -100000], [200000, 200000], [200000, 200000]);
 
@@ -103,7 +101,7 @@ export default class Scene {
 
       // Only allow instances that are actually ok to be added the scene.
       if (instance.model.ok) {
-        this.tree.add(instance);
+        this.tree.moved(instance);
 
         this.viewChanged(instance);
 
@@ -177,68 +175,63 @@ export default class Scene {
    * This includes updating the scene's camera, the node hierarchy (model instances etc.), the rendering data, and the AudioContext's lisener's position if it exists.
    */
   update() {
-    if (this.rendered) {
-      // Update the camera.
-      this.camera.update();
+    // Update the camera.
+    this.camera.update();
 
-      // Update the autido context's position if it exists.
-      if (this.audioContext) {
-        let [x, y, z] = this.camera.location;
+    // Update the autido context's position if it exists.
+    if (this.audioContext) {
+      let [x, y, z] = this.camera.location;
 
-        this.audioContext.listener.setPosition(-x, -y, -z);
-      }
+      this.audioContext.listener.setPosition(-x, -y, -z);
+    }
 
-      // Update all of the visible instances that have no parents.
-      // Instances that have parents will be updated down the hierarcy automatically.
-      for (let cell of this.tree.cells) {
-        if (this.camera.testCell(cell)) {
-          cell.rendered = true;
+    // Update all of the visible instances that have no parents.
+    // Instances that have parents will be updated down the hierarcy automatically.
+    for (let cell of this.tree.cells) {
+      if (this.camera.testCell(cell)) {
+        cell.visible = true;
 
-          for (let instance of cell.instances) {
-            if (instance.rendered && !instance.parent) {
-              instance.update(this);
-            }
-          }
-        } else {
-          cell.rendered = false;
-        }
-      }
-
-      // Reset all of the buckets.
-      for (let modelViewData of this.modelViewsData) {
-        modelViewData.startFrame();
-      }
-
-      this.renderedCells = 0;
-      this.renderedBuckets = 0;
-      this.renderedInstances = 0;
-      this.renderedParticles = 0;
-
-      // Push all of the visible instances into the buckets.
-      for (let cell of this.tree.cells) {
-        if (cell.rendered) {
-          this.renderedCells += 1;
-
-          for (let instance of cell.instances) {
-            if (instance.rendered) {
-              let modelViewData = instance.modelViewData;
-
-              modelViewData.renderInstance(instance);
-              modelViewData.renderEmitters(instance);
-            }
+        for (let instance of cell.instances) {
+          if (!instance.parent) {
+            // The instance will check its update frame against the viewer, and act accordingly.
+            // It can't be done here like rendering, because instances with a parents won't actually be updated here.
+            instance.update(this);
           }
         }
+      } else {
+        cell.visible = false;
       }
+    }
 
-      // Update the bucket buffers.
-      for (let modelViewData of this.modelViewsData) {
-        modelViewData.updateBuffers();
-        modelViewData.updateEmitters();
+    // Reset all of the buckets.
+    for (let modelViewData of this.modelViewsData) {
+      modelViewData.startFrame();
+    }
 
-        this.renderedBuckets += modelViewData.usedBuckets;
-        this.renderedInstances += modelViewData.instances;
-        this.renderedParticles += modelViewData.particles;
+    this.renderedCells = 0;
+    this.renderedBuckets = 0;
+    this.renderedInstances = 0;
+    this.renderedParticles = 0;
+
+    // Render all of the visible instances into the buckets.
+    for (let cell of this.tree.cells) {
+      if (cell.visible) {
+        this.renderedCells += 1;
+
+        for (let instance of cell.instances) {
+          instance.render();
+        }
       }
+    }
+
+    // Update the bucket buffers.
+    for (let modelViewData of this.modelViewsData) {
+      modelViewData.updateBuffers();
+      modelViewData.updateEmitters();
+
+      this.renderedBuckets += modelViewData.usedBuckets;
+      this.renderedInstances += modelViewData.instances;
+      this.renderedParticles += modelViewData.particles;
     }
   }
 
@@ -282,12 +275,10 @@ export default class Scene {
    * Automatically applies the camera's viewport.
    */
   renderOpaque() {
-    if (this.rendered) {
-      this.viewport();
+    this.viewport();
 
-      for (let modelViewData of this.modelViewsData) {
-        modelViewData.renderOpaque(this);
-      }
+    for (let modelViewData of this.modelViewsData) {
+      modelViewData.renderOpaque(this);
     }
   }
 
@@ -296,12 +287,10 @@ export default class Scene {
    * Automatically applies the camera's viewport.
    */
   renderTranslucent() {
-    if (this.rendered) {
-      this.viewport();
+    this.viewport();
 
-      for (let modelViewData of this.modelViewsData) {
-        modelViewData.renderTranslucent(this);
-      }
+    for (let modelViewData of this.modelViewsData) {
+      modelViewData.renderTranslucent(this);
     }
   }
 

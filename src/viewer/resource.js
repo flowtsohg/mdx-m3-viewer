@@ -106,20 +106,18 @@ export default class Resource extends EventEmitter {
    * @return {?Promise}
    */
   whenLoaded(callback) {
-    if (callback) {
+    let promise = new Promise((resolve, reject) => {
       if (this.loaded) {
-        callback(this);
+        resolve(this);
       } else {
-        this.once('loadend', () => callback(this));
+        this.once('loadend', () => resolve(this));
       }
+    });
+
+    if (callback) {
+      promise.then(() => callback(this));
     } else {
-      return new Promise((resolve, reject) => {
-        if (this.loaded) {
-          resolve(this);
-        } else {
-          this.once('loadend', () => resolve(this));
-        }
-      });
+      return promise;
     }
   }
 }

@@ -293,7 +293,7 @@ export default class M3Model extends TexturedModel {
     instancedArrays.vertexAttribDivisorANGLE(vertexColorAttrib, 1);
 
     let instanceIdAttrib = attribs.a_InstanceID;
-    gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);
+    this.viewer.bindInstancesBuffer(this.batchSize);
     gl.vertexAttribPointer(instanceIdAttrib, 1, gl.UNSIGNED_SHORT, false, 2, 0);
     instancedArrays.vertexAttribDivisorANGLE(instanceIdAttrib, 1);
 

@@ -10,7 +10,7 @@ export default class extends Bucket {
   constructor(modelView) {
     super(modelView);
 
-    let model = this.model;
+    let model = modelView.model;
     let batchSize = model.batchSize;
     let gl = model.viewer.gl;
     let numberOfBones = model.bones.length + 1;
@@ -37,7 +37,7 @@ export default class extends Bucket {
     gl.bufferData(gl.ARRAY_BUFFER, this.colorData.byteLength, gl.DYNAMIC_DRAW);
 
     // Batches
-    if (model.batches.length > 0) {
+    if (model.batches > 0) {
       this.geosetColorsData = new Uint8Array(batchSize * model.geosets.length * 4);
       this.geosetColorsBuffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, this.geosetColorsBuffer);
@@ -66,28 +66,26 @@ export default class extends Bucket {
    * @param {ModelInstance} instance
    */
   renderInstance(instance) {
-    let model = this.model;
+    let model = this.modelView.model;
     let batchSize = model.batchSize;
-    let batchCount = model.batches.length;
+    let batchCount = model.batches;
     let geosetCount = model.geosets.length;
     let layerCount = model.layers.length;
     let boneCount = model.bones.length;
-    let boneArray = this.boneArray;
     let colorData = this.colorData;
-    let geosetColorsData = this.geosetColorsData;
-    let layerAlphasData = this.layerAlphasData;
-    let uvTransformsData = this.uvTransformsData;
-    let instanceOffset = this.count;
-    let base = 16 + instanceOffset * (16 + boneCount * 16);
-    let worldMatrices = instance.worldMatrices;
     let vertexColor = instance.vertexColor;
-    let instanceOffset4 = instanceOffset * 4;
+    let instanceOffset = this.count;
     let instanceOffset5 = instanceOffset * 5;
-    let instanceOffset7 = instanceOffset * 7;
 
     // Bones
-    for (let j = 0, k = boneCount * 16; j < k; j++) {
-      boneArray[base + j] = worldMatrices[j];
+    if (boneCount) {
+      let boneArray = this.boneArray;
+      let worldMatrices = instance.worldMatrices;
+      let base = 16 + instanceOffset * (16 + boneCount * 16);
+
+      for (let i = 0, l = boneCount * 16; i < l; i++) {
+        boneArray[base + i] = worldMatrices[i];
+      }
     }
 
     // Team color
@@ -100,47 +98,52 @@ export default class extends Bucket {
     colorData[instanceOffset5 + 4] = vertexColor[3];
 
     if (batchCount) {
+      let geosetColorsData = this.geosetColorsData;
       let geosetColors = instance.geosetColors;
+      let instanceOffset4 = instanceOffset * 4;
 
-      for (let geosetIndex = 0; geosetIndex < geosetCount; geosetIndex++) {
-        let geosetIndex4 = geosetIndex * 4;
-        let base = batchSize * geosetIndex4 + instanceOffset4;
+      for (let i = 0; i < geosetCount; i++) {
+        let index = i * 4;
+        let base = batchSize * index + instanceOffset4;
 
         // Geoset color
-        geosetColorsData[base] = geosetColors[geosetIndex4];
-        geosetColorsData[base + 1] = geosetColors[geosetIndex4 + 1];
-        geosetColorsData[base + 2] = geosetColors[geosetIndex4 + 2];
-        geosetColorsData[base + 3] = geosetColors[geosetIndex4 + 3];
+        geosetColorsData[base] = geosetColors[index];
+        geosetColorsData[base + 1] = geosetColors[index + 1];
+        geosetColorsData[base + 2] = geosetColors[index + 2];
+        geosetColorsData[base + 3] = geosetColors[index + 3];
       }
     }
 
     if (layerCount) {
-      let layerAlphas = instance.layerAlphas;
+      let uvTransformsData = this.uvTransformsData;
+      let layerAlphasData = this.layerAlphasData;
       let uvOffsets = instance.uvOffsets;
       let uvRots = instance.uvRots;
       let uvScales = instance.uvScales;
+      let layerAlphas = instance.layerAlphas;
+      let instanceOffset7 = instanceOffset * 7;
 
-      for (let layerIndex = 0; layerIndex < layerCount; layerIndex++) {
-        let layerIndex4 = layerIndex * 4;
-        let uvBase = batchSize * layerIndex * 7 + instanceOffset7;
-
-        // Layer alpha
-        layerAlphasData[batchSize * layerIndex + instanceOffset] = layerAlphas[layerIndex];
+      for (let i = 0; i < layerCount; i++) {
+        let index = i * 4;
+        let base = batchSize * i * 7 + instanceOffset7;
 
         // Translation
-        uvTransformsData[uvBase] = uvOffsets[layerIndex4];
-        uvTransformsData[uvBase + 1] = uvOffsets[layerIndex4 + 1];
+        uvTransformsData[base] = uvOffsets[index];
+        uvTransformsData[base + 1] = uvOffsets[index + 1];
 
         // Rotation
-        uvTransformsData[uvBase + 2] = uvRots[layerIndex * 2];
-        uvTransformsData[uvBase + 3] = uvRots[layerIndex * 2 + 1];
+        uvTransformsData[base + 2] = uvRots[i * 2];
+        uvTransformsData[base + 3] = uvRots[i * 2 + 1];
 
         // Scale
-        uvTransformsData[uvBase + 4] = uvScales[layerIndex];
+        uvTransformsData[base + 4] = uvScales[i];
 
         // Sprite animation
-        uvTransformsData[uvBase + 5] = uvOffsets[layerIndex4 + 2];
-        uvTransformsData[uvBase + 6] = uvOffsets[layerIndex4 + 3];
+        uvTransformsData[base + 5] = uvOffsets[index + 2];
+        uvTransformsData[base + 6] = uvOffsets[index + 3];
+
+        // Layer alpha
+        layerAlphasData[batchSize * i + instanceOffset] = layerAlphas[i];
       }
     }
 
@@ -152,7 +155,7 @@ export default class extends Bucket {
    */
   updateBuffers() {
     if (this.count) {
-      let model = this.model;
+      let model = this.modelView.model;
       let gl = model.viewer.gl;
 
       gl.activeTexture(gl.TEXTURE15);

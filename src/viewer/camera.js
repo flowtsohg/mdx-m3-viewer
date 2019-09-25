@@ -336,13 +336,16 @@ export default class Camera {
    * @return {boolean}
    */
   testCell(cell) {
-    let corners = cell.corners;
+    let left = cell.left;
+    let right = cell.right;
+    let bottom = cell.bottom;
+    let top = cell.top;
 
     for (let plane of this.planes) {
-      if (distanceToPlane2(plane, corners[0]) < 0 &&
-        distanceToPlane2(plane, corners[1]) < 0 &&
-        distanceToPlane2(plane, corners[2]) < 0 &&
-        distanceToPlane2(plane, corners[3]) < 0) {
+      if (distanceToPlane2(plane, left, bottom) < 0 &&
+        distanceToPlane2(plane, left, top) < 0 &&
+        distanceToPlane2(plane, right, top) < 0 &&
+        distanceToPlane2(plane, right, bottom) < 0) {
         return false;
       }
     }

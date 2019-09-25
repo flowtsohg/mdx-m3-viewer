@@ -10,6 +10,41 @@ import Batch from './batch';
 import BatchGroup from './batchgroup';
 import EmitterGroup from './emittergroup';
 
+function getPrio(object) {
+  if (object.layer) {
+    return object.layer.priorityPlane;
+  } else if (object.modelObject) {
+    return object.modelObject.priorityPlane;
+  } else {
+    console.log(object);
+    throw 'asdasdsadsadsadsadsaad';
+  }
+}
+
+function isNormalEmitter(object) {
+  return object instanceof ParticleEmitter2 || object instanceof EventObjectSpnEmitter || object instanceof EventObjectSplEmitter || object instanceof EventObjectUbrEmitter;
+}
+
+function isRibbonEmitter(object) {
+  return object instanceof RibbonEmitter;
+}
+
+function matchingGroup(group, object) {
+  return (group instanceof BatchGroup && object instanceof Batch) ||
+    (group instanceof EmitterGroup && group.isRibbons === false && isNormalEmitter(object)) ||
+    (group instanceof EmitterGroup && group.isRibbons === true && isRibbonEmitter(object));
+}
+
+function createMatchingGroup(object, modelView) {
+  if (object instanceof Batch) {
+    return new BatchGroup(modelView);
+  } else if (isNormalEmitter(object)) {
+    return new EmitterGroup(modelView, false);
+  } else if (isRibbonEmitter(object)) {
+    return new EmitterGroup(modelView, true);
+  }
+}
+
 /**
  *
  */
@@ -55,55 +90,20 @@ export default class MdxModelViewData extends ModelViewData {
 
     let translucentThings = [...model.translucentBatches, ...particleEmitters2, ...eventObjectEmitters, ...ribbonEmitters];
 
-    let getPrio = (object) => {
-      if (object.layer) {
-        return object.layer.priorityPlane;
-      } else if (object.modelObject) {
-        return object.modelObject.priorityPlane;
-      } else {
-        console.log(object);
-        throw 'asdasdsadsadsadsadsaad';
-      }
-    };
-
     translucentThings.sort((a, b) => {
       return getPrio(a) - getPrio(b);
     });
 
-    let isNormalEmitter = (object) => {
-      return object instanceof ParticleEmitter2 || object instanceof EventObjectSpnEmitter || object instanceof EventObjectSplEmitter || object instanceof EventObjectUbrEmitter;
-    };
-
-    let isRibbonEmitter = (object) => {
-      return object instanceof RibbonEmitter;
-    };
-
-    let matchingGroup = (group, object) => {
-      return (group instanceof BatchGroup && object instanceof Batch) ||
-        (group instanceof EmitterGroup && group.isRibbons === false && isNormalEmitter(object)) ||
-        (group instanceof EmitterGroup && group.isRibbons === true && isRibbonEmitter(object));
-    };
-
-    let createMatchingGroup = (object) => {
-      if (object instanceof Batch) {
-        return new BatchGroup(modelView);
-      } else if (isNormalEmitter(object)) {
-        return new EmitterGroup(modelView, false);
-      } else if (isRibbonEmitter(object)) {
-        return new EmitterGroup(modelView, true);
-      }
-    };
-
-    let groups = [];
+    let translucentGroups = [];
     let currentGroup = null;
 
     for (let object of translucentThings) {
       // Sound emitters aren't rendered.
       if (!(object instanceof EventObjectSndEmitter)) {
         if (!currentGroup || !matchingGroup(currentGroup, object)) {
-          currentGroup = createMatchingGroup(object);
+          currentGroup = createMatchingGroup(object, modelView);
 
-          groups.push(currentGroup);
+          translucentGroups.push(currentGroup);
         }
 
         currentGroup.objects.push(object);
@@ -114,7 +114,8 @@ export default class MdxModelViewData extends ModelViewData {
     this.particleEmitters2 = particleEmitters2;
     this.ribbonEmitters = ribbonEmitters;
     this.eventObjectEmitters = eventObjectEmitters;
-    this.groups = groups;
+    this.opaqueGroup = new BatchGroup(modelView, model.opaqueBatches);
+    this.translucentGroups = translucentGroups;
   }
 
   /**

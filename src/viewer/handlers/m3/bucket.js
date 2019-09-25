@@ -14,7 +14,7 @@ export default class M3Bucket extends Bucket {
   constructor(modelView) {
     super(modelView);
 
-    const model = this.model;
+    const model = modelView.model;
     const gl = model.viewer.gl;
 
     this.gl = gl;
@@ -55,7 +55,7 @@ export default class M3Bucket extends Bucket {
    * @param {ModelInstance} instance
    */
   renderInstance(instance) {
-    let model = this.model;
+    let model = this.modelView.model;
     let initialReferences = model.initialReference;
     let boneLookup = model.boneLookup;
     let boneArray = this.boneArray;
@@ -120,7 +120,7 @@ export default class M3Bucket extends Bucket {
    */
   updateBuffers() {
     if (this.count) {
-      let gl = this.model.viewer.gl;
+      let gl = this.modelView.model.viewer.gl;
 
       gl.activeTexture(gl.TEXTURE15);
       gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);

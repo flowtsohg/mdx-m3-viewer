@@ -1,4 +1,3 @@
-import {extentToSphere} from '../../../common/bounds';
 import Parser from '../../../parsers/mdlx/model';
 import TexturedModel from '../../texturedmodel';
 import TextureAnimation from './textureanimation';
@@ -31,8 +30,6 @@ export default class Model extends TexturedModel {
 
     this.parser = null;
     this.name = '';
-    this.extent = null;
-    this.bounds = null;
     this.sequences = [];
     this.globalSequences = [];
     this.materials = [];
@@ -55,7 +52,7 @@ export default class Model extends TexturedModel {
 
     this.hasLayerAnims = false;
     this.hasGeosetAnims = false;
-    this.batches = [];
+    this.batches = 0;
     this.opaqueBatches = [];
     this.translucentBatches = [];
 
@@ -76,15 +73,12 @@ export default class Model extends TexturedModel {
 
     this.parser = parser;
 
-    let gl = this.viewer.gl;
-
     // Model
     this.name = parser.name;
 
-    // Make a bounding sphere from the model extent.
+    // Initialize the bounds.
     let extent = parser.extent;
-    this.bounds = extentToSphere(extent.min, extent.max);
-    this.extent = extent;
+    this.bounds.fromExtents(extent.min, extent.max);
 
     // Sequences
     for (let sequence of parser.sequences) {
@@ -200,7 +194,7 @@ export default class Model extends TexturedModel {
 
       this.opaqueBatches.push(...opaqueBatches);
       this.translucentBatches.push(...translucentBatches);
-      this.batches.push(...opaqueBatches, ...translucentBatches);
+      this.batches = opaqueBatches.length + translucentBatches.length;
 
       this.setupGeosets();
     }
@@ -409,16 +403,10 @@ export default class Model extends TexturedModel {
   /**
    * @param {Bucket} bucket
    * @param {Scene} scene
+   * @param {Shader} shader
    */
-  bind(bucket, scene) {
-    const webgl = this.viewer.webgl;
+  bind(bucket, scene, shader) {
     let gl = this.viewer.gl;
-
-    /// HACK UNTIL I IMPLEMENT MULTIPLE SHADERS AGAIN
-    let shader = this.viewer.shaderMap.get('MdxStandardShader');
-    webgl.useShaderProgram(shader);
-    this.shader = shader;
-
     const instancedArrays = gl.extensions.instancedArrays;
     const attribs = shader.attribs;
     const uniforms = shader.uniforms;
@@ -443,7 +431,7 @@ export default class Model extends TexturedModel {
     gl.uniform1f(uniforms.u_rowSize, bucket.rowSize);
 
     let instanceId = attribs.a_InstanceID;
-    gl.bindBuffer(gl.ARRAY_BUFFER, bucket.instanceIdBuffer);
+    this.viewer.bindInstancesBuffer(this.batchSize);
     gl.vertexAttribPointer(instanceId, 1, gl.UNSIGNED_SHORT, false, 0, 0);
 
     instancedArrays.vertexAttribDivisorANGLE(teamColor, 1);
@@ -452,12 +440,12 @@ export default class Model extends TexturedModel {
   }
 
   /**
-   *
+   * @param {Shader} shader
    */
-  unbind() {
+  unbind(shader) {
     let gl = this.viewer.gl;
     let instancedArrays = gl.extensions.instancedArrays;
-    let attribs = this.shader.attribs;
+    let attribs = shader.attribs;
 
     // Reset gl values to default, to play nice with other handlers
     gl.depthMask(1);
@@ -478,12 +466,12 @@ export default class Model extends TexturedModel {
   /**
    * @param {Bucket} bucket
    * @param {Batch} batch
+   * @param {Shader} shader
    */
-  renderBatch(bucket, batch) {
+  renderBatch(bucket, batch, shader) {
     let gl = this.viewer.gl;
     let instancedArrays = gl.extensions.instancedArrays;
-    let shader = this.shader;
-    let attribs = this.shader.attribs;
+    let attribs = shader.attribs;
     let uniforms = shader.uniforms;
     let geoset = batch.geoset;
     let layer = batch.layer;
@@ -545,16 +533,17 @@ export default class Model extends TexturedModel {
    * @param {Bucket} bucket
    * @param {Scene} scene
    * @param {Array<Batch>} batches
+   * @param {Shader} shader
    */
-  renderBatches(bucket, scene, batches) {
+  renderBatches(bucket, scene, batches, shader) {
     if (batches && batches.length) {
-      this.bind(bucket, scene);
+      this.bind(bucket, scene, shader);
 
       for (let i = 0, l = batches.length; i < l; i++) {
-        this.renderBatch(bucket, batches[i]);
+        this.renderBatch(bucket, batches[i], shader);
       }
 
-      this.unbind();
+      this.unbind(shader);
     }
   }
 
@@ -564,12 +553,7 @@ export default class Model extends TexturedModel {
    * @param {ModelViewData} modelViewData
    */
   renderOpaque(modelViewData) {
-    let scene = modelViewData.scene;
-    let buckets = modelViewData.buckets;
-
-    for (let i = 0, l = modelViewData.usedBuckets; i < l; i++) {
-      this.renderBatches(buckets[i], scene, this.opaqueBatches);
-    }
+    modelViewData.opaqueGroup.render(modelViewData);
   }
 
   /**
@@ -578,7 +562,7 @@ export default class Model extends TexturedModel {
    * @param {ModelViewData} modelViewData
    */
   renderTranslucent(modelViewData) {
-    for (let group of modelViewData.groups) {
+    for (let group of modelViewData.translucentGroups) {
       group.render(modelViewData);
     }
   }

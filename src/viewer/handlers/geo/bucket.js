@@ -12,7 +12,7 @@ export default class GeometryBucket extends Bucket {
 
     const numberOfBones = 1;
 
-    let model = this.model;
+    let model = modelView.model;
     let gl = model.viewer.gl;
     let batchSize = model.batchSize;
 
@@ -94,7 +94,7 @@ export default class GeometryBucket extends Bucket {
    */
   updateBuffers() {
     if (this.count) {
-      let gl = this.model.viewer.gl;
+      let gl = this.modelView.model.viewer.gl;
 
       gl.activeTexture(gl.TEXTURE15);
       gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);

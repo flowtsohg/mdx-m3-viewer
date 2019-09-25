@@ -1,4 +1,5 @@
 import EventEmitter from 'events';
+import {powerOfTwo} from '../common/math';
 import {createTextureAtlas} from '../common/canvas';
 import fetchDataType from '../common/fetchdatatype';
 import WebGL from './gl/gl';
@@ -56,8 +57,6 @@ export default class ModelViewer extends EventEmitter {
     this.scenes = [];
 
     /** @member {number} */
-    this.renderedScenes = 0;
-    /** @member {number} */
     this.renderedCells = 0;
     /** @member {number} */
     this.renderedBuckets = 0;
@@ -65,6 +64,20 @@ export default class ModelViewer extends EventEmitter {
     this.renderedInstances = 0;
     /** @member {number} */
     this.renderedParticles = 0;
+
+    /** @member {number} */
+    this.frame = 0;
+
+    /**
+     * The instances buffer is used instead of gl_InstanceID, which isn't defined in WebGL shaders.
+     * It's a simple buffer of indices, [0, 1, ..., instancesCount - 1].
+     * It grows automatically when binding with bindInstancesBuffer.
+     *
+     * @member {WebGLBuffer}
+     */
+    this.instancesBuffer = this.gl.createBuffer();
+    /** @member {number} */
+    this.instancesCount = 0;
 
     /**
      * A viewer-wide flag.
@@ -467,20 +480,18 @@ export default class ModelViewer extends EventEmitter {
    * @return {?Promise}
    */
   whenAllLoaded(callback) {
-    if (callback) {
+    let promise = new Promise((resolve, reject) => {
       if (this.resourcesLoading.size === 0) {
-        callback(this);
+        resolve(this);
       } else {
-        this.once('idle', () => callback(this));
+        this.once('idle', () => resolve(this));
       }
+    });
+
+    if (callback) {
+      promise.then(() => callback(this));
     } else {
-      return new Promise((resolve, reject) => {
-        if (this.resourcesLoading.size === 0) {
-          resolve(this);
-        } else {
-          this.once('idle', () => resolve(this));
-        }
-      });
+      return promise;
     }
   }
 
@@ -493,10 +504,12 @@ export default class ModelViewer extends EventEmitter {
    * @return {?Promise<Blob>}
    */
   toBlob(callback) {
+    let promise = new Promise((resolve) => this.canvas.toBlob((blob) => resolve(blob)));
+
     if (callback) {
-      this.canvas.toBlob((blob) => callback(blob));
+      promise.then((blob) => callback(blob));
     } else {
-      return new Promise((resolve) => this.canvas.toBlob((blob) => resolve(blob)));
+      return promise;
     }
   }
 
@@ -510,29 +523,23 @@ export default class ModelViewer extends EventEmitter {
   }
 
   /**
-   * Update.
+   * Update all of the scenes, which includes updating their cameras, audio context if one exists, and all of the instances they hold.
    */
   update() {
-    let scenes = this.scenes;
+    this.frame += 1;
 
-    this.renderedScenes = scenes.length;
     this.renderedCells = 0;
     this.renderedBuckets = 0;
     this.renderedInstances = 0;
     this.renderedParticles = 0;
 
-    // Update all of the scenes.
-    for (let i = 0, l = scenes.length; i < l; i++) {
-      let scene = scenes[i];
+    for (let scene of this.scenes) {
+      scene.update();
 
-      if (scene.rendered) {
-        scene.update();
-
-        this.renderedCells += scene.renderedCells;
-        this.renderedBuckets += scene.renderedBuckets;
-        this.renderedInstances += scene.renderedInstances;
-        this.renderedParticles += scene.renderedParticles;
-      }
+      this.renderedCells += scene.renderedCells;
+      this.renderedBuckets += scene.renderedBuckets;
+      this.renderedInstances += scene.renderedInstances;
+      this.renderedParticles += scene.renderedParticles;
     }
   }
 
@@ -572,6 +579,34 @@ export default class ModelViewer extends EventEmitter {
   renderTranslucent() {
     for (let scene of this.scenes) {
       scene.renderTranslucent();
+    }
+  }
+
+  /**
+   * Bind the instances buffer.
+   * This is used as a shared buffer for all instanced rendering.
+   *
+   * If given an amount of instances, and it is bigger than the current amount of instances, the buffer will grow.
+   *
+   * @param {?number} instances
+   */
+  bindInstancesBuffer(instances) {
+    let gl = this.gl;
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.instancesBuffer);
+
+    if (instances > this.instancesCount) {
+      instances = powerOfTwo(instances);
+
+      let data = new Uint16Array(instances);
+
+      for (let i = 0; i < instances; i++) {
+        data[i] = i;
+      }
+
+      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+
+      this.instancesCount = instances;
     }
   }
 

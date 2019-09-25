@@ -46,11 +46,12 @@ function distanceToPlane(plane, point) {
  * dot(plane, vec4(point, 0, 1))
  *
  * @param {vec4} plane
- * @param {vec2} point
+ * @param {number} px
+ * @param {number} py
  * @return {number}
  */
-function distanceToPlane2(plane, point) {
-  return plane[0] * point[0] + plane[1] * point[1] + plane[3];
+function distanceToPlane2(plane, px, py) {
+  return plane[0] * px + plane[1] * py + plane[3];
 }
 
 /**

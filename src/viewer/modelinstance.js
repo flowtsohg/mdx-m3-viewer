@@ -12,20 +12,29 @@ export default class ModelInstance extends EventNode {
 
     /** @member {?Scene} */
     this.scene = null;
-    /** @member {?Cell} */
-    this.cell = null;
+    /** @member {number} */
+    this.left = -1;
+    /** @member {number} */
+    this.right = -1;
+    /** @member {number} */
+    this.bottom = -1;
+    /** @member {number} */
+    this.top = -1;
+    /** @member {number} */
+    this.updateFrame = 0;
+    /** @member {number} */
+    this.renderFrame = 0;
     /** @member {Model} */
     this.model = model;
     /** @member {?ModelView} */
     this.modelView = null;
     /** @member {?ModelViewData} */
     this.modelViewData = null;
+
     /** @member {boolean} */
     this.paused = false;
     /** @member {boolean} */
     this.rendered = true;
-    /** @member {?object} */
-    this.bounds = null;
   }
 
   /**
@@ -111,9 +120,11 @@ export default class ModelInstance extends EventNode {
    * @param {Scene} scene
    */
   updateObject(scene) {
-    if (this.rendered && !this.paused) {
+    if (this.rendered && !this.paused && this.updateFrame < this.model.viewer.frame) {
       this.updateTimers();
       this.updateAnimations();
+
+      this.updateFrame = this.model.viewer.frame;
     }
   }
 
@@ -136,6 +147,20 @@ export default class ModelInstance extends EventNode {
 
     if (this.scene) {
       this.scene.tree.moved(this);
+    }
+  }
+
+  /**
+   *
+   */
+  render() {
+    if (this.rendered && this.renderFrame < this.model.viewer.frame) {
+      let modelViewData = this.modelViewData;
+
+      modelViewData.renderInstance(this);
+      modelViewData.renderEmitters(this);
+
+      this.renderFrame = this.model.viewer.frame;
     }
   }
 }

@@ -44,7 +44,7 @@ export default {
         }
 
         gl_FragColor *= texel;
-      } 
+      }
     }
   `,
 };

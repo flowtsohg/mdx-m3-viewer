@@ -4,12 +4,17 @@
 export default class BatchGroup {
   /**
    * @param {ModelView} modelView
+   * @param {?Array<Batch>} batches
    */
-  constructor(modelView) {
+  constructor(modelView, batches) {
     /** @member {ModelView} */
     this.modelView = modelView;
     /** @member {Array<Batch>} */
     this.objects = [];
+
+    if (batches) {
+      this.objects.push(...batches);
+    }
   }
 
   /**
@@ -17,12 +22,16 @@ export default class BatchGroup {
    */
   render(modelViewData) {
     let model = this.modelView.model;
+    let viewer = model.viewer;
     let batches = this.objects;
     let scene = modelViewData.scene;
     let buckets = modelViewData.buckets;
+    let shader = viewer.shaderMap.get('MdxStandardShader');
+
+    viewer.webgl.useShaderProgram(shader);
 
     for (let i = 0, l = modelViewData.usedBuckets; i < l; i++) {
-      model.renderBatches(buckets[i], scene, batches);
+      model.renderBatches(buckets[i], scene, batches, shader);
     }
   }
 }
