@@ -363,7 +363,6 @@ export default class TokenStream {
     } else {
       this.writeTypedArrayAttrib(start, value);
     }
-
   }
 
   /**

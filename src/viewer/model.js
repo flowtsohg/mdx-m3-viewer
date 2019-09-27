@@ -13,13 +13,14 @@ export default class Model extends Resource {
 
     /** @member {number} */
     this.batchSize = resourceData.viewer.batchSize;
-
-    /** @member {Array<ModelInstance>} */
-    this.instances = [];
-
+    /**
+     * This is an array of instances that were created before the model loaded.
+     * When it is loaded, they will be initialized, and then this array will be cleared.
+     *
+     * @member {Array<ModelInstance>} */
+    this.preloadedInstances = [];
     /** @member {Array<ModelView>} */
     this.views = [];
-
     /** @member {Bounds} */
     this.bounds = new Bounds();
   }
@@ -33,8 +34,6 @@ export default class Model extends Resource {
     let views = this.views;
     let instance = new this.handler.Instance(this);
 
-    this.instances.push(instance);
-
     if (views.length === 0) {
       this.addView();
     }
@@ -43,6 +42,8 @@ export default class Model extends Resource {
 
     if (this.ok) {
       instance.load();
+    } else {
+      this.preloadedInstances.push(instance);
     }
 
     return instance;
@@ -133,7 +134,7 @@ export default class Model extends Resource {
    * Automatically finalizes loading for all of the model instances.
    */
   lateLoad() {
-    for (let instance of this.instances) {
+    for (let instance of this.preloadedInstances) {
       instance.load();
 
       // If an instance was created and attached to a scene before the model finished loading, it was rejected by the scene.
@@ -145,5 +146,8 @@ export default class Model extends Resource {
         scene.addInstance(instance);
       }
     }
+
+    // Remove references to the instances.
+    this.preloadedInstances.length = 0;
   }
 }

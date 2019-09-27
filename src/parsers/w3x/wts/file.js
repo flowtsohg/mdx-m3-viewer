@@ -1,7 +1,4 @@
-import TokenStream from '../../../common/tokenstream';
-
-let newLineRegex = /\n/g;
-let newLineLiteralRegex = /\\n/g;
+import TokenStream from '../../mdlx/tokenstream';
 
 /**
  * war3map.wts - the string table file.

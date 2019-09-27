@@ -1,9 +1,5 @@
-import {vec3} from 'gl-matrix';
 import Camera from './camera';
-import QuadTree from './quadtree';
-
-// Heap allocations needed for this module.
-let ndcHeap = new Float32Array(3);
+import Grid from './grid';
 
 /**
  * A scene.
@@ -25,8 +21,8 @@ export default class Scene {
     this.viewer = viewer;
     /** @member {ModelViewer.viewer.Camera} */
     this.camera = new Camera();
-    /** @member {QuadTree} */
-    this.tree = new QuadTree([-100000, -100000], [200000, 200000], [200000, 200000]);
+    /** @member {Grid} */
+    this.grid = new Grid([-100000, -100000], [200000, 200000], [200000, 200000]);
 
     /** @member {Array<ModelViewData} */
     this.modelViewsData = [];
@@ -101,7 +97,7 @@ export default class Scene {
 
       // Only allow instances that are actually ok to be added the scene.
       if (instance.model.ok) {
-        this.tree.moved(instance);
+        this.grid.moved(instance);
 
         this.viewChanged(instance);
 
@@ -118,7 +114,7 @@ export default class Scene {
    */
   removeInstance(instance) {
     if (instance.scene === this) {
-      this.tree.remove(instance);
+      this.grid.remove(instance);
 
       instance.scene = null;
       instance.modelViewData = null;
@@ -153,7 +149,22 @@ export default class Scene {
    * Clear this scene.
    */
   clear() {
-    /// TODO: UPDATE THIS
+    // First remove references to this scene stored in the instances.
+    for (let cell of this.grid.cells) {
+      for (let instance of cell.instances) {
+        if (instance.scene) {
+          instance.scene = null;
+          instance.modelViewData = null;
+        }
+      }
+    }
+
+    // Then remove references to the instances.
+    this.grid.clear();
+
+    // Finally clear the model views data.
+    this.modelViewsData.length = 0;
+    this.modelViewsDataMap.clear();
   }
 
   /**
@@ -187,7 +198,7 @@ export default class Scene {
 
     // Update all of the visible instances that have no parents.
     // Instances that have parents will be updated down the hierarcy automatically.
-    for (let cell of this.tree.cells) {
+    for (let cell of this.grid.cells) {
       if (this.camera.testCell(cell)) {
         cell.visible = true;
 
@@ -214,7 +225,7 @@ export default class Scene {
     this.renderedParticles = 0;
 
     // Render all of the visible instances into the buckets.
-    for (let cell of this.tree.cells) {
+    for (let cell of this.grid.cells) {
       if (cell.visible) {
         this.renderedCells += 1;
 
@@ -232,41 +243,6 @@ export default class Scene {
       this.renderedBuckets += modelViewData.usedBuckets;
       this.renderedInstances += modelViewData.instances;
       this.renderedParticles += modelViewData.particles;
-    }
-  }
-
-  /**
-   * Tests if an instance is currently visible in this scene.
-   * If the model has a bounding sphere, it will be used. Otherwise checks only the location of the instance.
-   *
-   * @param {ModelInstance} instance
-   * @return {boolean}
-   */
-  isVisible(instance) {
-    let model = instance.model;
-    let bounds = model.bounds;
-
-    // If the model has a bounding sphere in it, do a sphere test.
-    // Otherwise do a point test.
-    if (bounds) {
-      let center = bounds.center;
-      let location = instance.worldLocation;
-
-      ndcHeap[0] = location[0] + center[0];
-      ndcHeap[1] = location[1] + center[1];
-      ndcHeap[2] = location[2] + center[2];
-
-      return this.camera.testSphere(ndcHeap, bounds.radius);
-    } else {
-      let worldProjectionMatrix = this.camera.worldProjectionMatrix;
-
-      // This test checks whether the instance's position is visible in NDC space. In other words, that it lies in [-1, 1] on all axes
-      vec3.transformMat4(ndcHeap, instance.worldLocation, worldProjectionMatrix);
-      if (ndcHeap[0] >= -1 && ndcHeap[0] <= 1 && ndcHeap[1] >= -1 && ndcHeap[1] <= 1 && ndcHeap[2] >= -1 && ndcHeap[2] <= 1) {
-        return true;
-      }
-
-      return false;
     }
   }
 
@@ -307,7 +283,7 @@ export default class Scene {
    * Clear all of the emitted objects in this scene.
    */
   clearEmittedObjects() {
-    for (let cell of this.tree.cells) {
+    for (let cell of this.grid.cells) {
       for (let instance of cell.instances) {
         instance.clearEmittedObjects();
       }

@@ -1,5 +1,5 @@
 import BinaryStream from '../../common/binarystream';
-import TokenStream from '../../common/tokenstream';
+import TokenStream from './tokenstream';
 import Extent from './extent';
 import Sequence from './sequence';
 import Material from './material';

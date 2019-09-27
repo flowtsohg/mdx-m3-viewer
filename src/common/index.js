@@ -6,7 +6,6 @@ import * as geometry from './geometry';
 import * as download from './download';
 import BinaryStream from './binarystream';
 import BitStream from './bitstream';
-import TokenStream from './tokenstream';
 
 export default {
   glMatrix,
@@ -17,5 +16,4 @@ export default {
   download,
   BinaryStream,
   BitStream,
-  TokenStream,
 };

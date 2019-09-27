@@ -287,7 +287,7 @@ export default class Model extends TexturedModel {
         teamGlows[i] = viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}.blp`, pathSolver);
       }
 
-      viewer.loadTextureAtlas('teamColors', teamColors);
+      viewer.loadTextureAtlas('teamColors', teamColors, {nearestFiltering: true});
       viewer.loadTextureAtlas('teamGlows', teamGlows);
     }
   }

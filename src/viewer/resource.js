@@ -60,8 +60,9 @@ export default class Resource extends EventEmitter {
 
   /**
    * @param {*} src
+   * @param {?Object} options
    */
-  load(src) {
+  load(src, options) {
 
   }
 

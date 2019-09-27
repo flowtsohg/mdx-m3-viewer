@@ -175,11 +175,7 @@ export default class ModelViewer extends EventEmitter {
    * Removes all of the scenes in the viewer.
    */
   clear() {
-    let scenes = this.scenes;
-
-    for (let i = scenes.length; i--;) {
-      this.removeScene(scenes[i]);
-    }
+    this.scenes.length = 0;
   }
 
   /**
@@ -390,9 +386,10 @@ export default class ModelViewer extends EventEmitter {
    *
    * @param {string} name
    * @param {Iterable<Texture>} textures
-   * @return {object}
+   * @param {?Object} options
+   * @return {TextureAtlas}
    */
-  loadTextureAtlas(name, textures) {
+  loadTextureAtlas(name, textures, options) {
     let resourcesMap = this.resourcesMap;
 
     if (!resourcesMap.has(name)) {
@@ -414,7 +411,7 @@ export default class ModelViewer extends EventEmitter {
             }
           }
 
-          textureAtlas.loadData(createTextureAtlas(textures.map((texture) => texture.imageData)));
+          textureAtlas.loadData(createTextureAtlas(textures.map((texture) => texture.imageData)), options);
 
           // Resolve the promise.
           promise.resolve();

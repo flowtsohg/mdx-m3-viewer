@@ -1,5 +1,5 @@
 /**
- * A quadtree cell.
+ * A grid cell.
  */
 class Cell {
   /**
@@ -38,12 +38,19 @@ class Cell {
 
     this.instances.splice(index, 1);
   }
+
+  /**
+   * Remove all of the instances from this cell.
+   */
+  clear() {
+    this.instances.length = 0;
+  }
 }
 
 /**
- * A quadtree.
+ * A grid.
  */
-export default class QuadTree {
+export default class Grid {
   /**
    * @param {Array<number>} location
    * @param {Array<number>} size
@@ -152,6 +159,15 @@ export default class QuadTree {
 
         this.add(instance);
       }
+    }
+  }
+
+  /**
+   * Removes all of the instances from this grid.
+   */
+  clear() {
+    for (let cell of this.cells) {
+      cell.clear();
     }
   }
 }

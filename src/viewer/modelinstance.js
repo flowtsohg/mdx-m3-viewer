@@ -146,7 +146,7 @@ export default class ModelInstance extends EventNode {
     super.recalculateTransformation();
 
     if (this.scene) {
-      this.scene.tree.moved(this);
+      this.scene.grid.moved(this);
     }
   }
 

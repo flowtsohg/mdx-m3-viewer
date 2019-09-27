@@ -1,4 +1,4 @@
-import TokenStream from '../common/tokenstream';
+import TokenStream from '../parsers/mdlx/tokenstream';
 
 /**
  * The need data for a single source map creation.
