@@ -63,15 +63,16 @@ export default class Model extends TexturedModel {
   }
 
   /**
-   * @param {ArrayBuffer|string} buffer
+   * @param {ArrayBuffer|string|Parser} bufferOrParser
    */
-  load(buffer) {
-    // Parsing
-    let parser = new Parser();
+  load(bufferOrParser) {
+    let parser;
 
-    parser.load(buffer);
-
-    this.parser = parser;
+    if (bufferOrParser instanceof Parser) {
+      parser = bufferOrParser;
+    } else {
+      parser = new Parser(bufferOrParser);
+    }
 
     // Model
     this.name = parser.name;

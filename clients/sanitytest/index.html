@@ -14,12 +14,22 @@
             font-size: 2ch;
         }
 
-        #canvas {
+        #canvas,
+        #controls {
             position: absolute;
             left: 0px;
             top: 0px;
             width: 40%;
             height: 50%;
+        }
+
+        #canvas {
+            z-index: 0;
+        }
+
+        #controls {
+            z-index: 1;
+            pointer-events: none;
         }
 
         #sourceview {
@@ -126,6 +136,10 @@
             user-select: none;
             pointer-events: none;
         }
+
+        .inputs {
+            pointer-events: all;
+        }
     </style>
 </head>
 
@@ -133,6 +147,24 @@
     <div id="status"></div>
 
     <canvas id="canvas"></canvas>
+    <div id="controls">
+        <button id="animation_toggle" class="inputs">Play/Pause</button>
+
+        <!-- <br>
+
+        <label for="animation_control">Animation</label>
+        <select id="animation_control" class="inputs">
+            <option default value="-1">None</option>
+        </select>
+
+        <br>
+
+        <label for="animation_loop_control">Looping</label>
+        <select id="animation_loop_control" class="inputs">
+            <option default>Yes</option>
+            <option>No</option>
+        </select> -->
+    </div>
     <pre id="sourceview"></pre>
     <div id="tests"></div>
     <div id="sourcemap"></div>

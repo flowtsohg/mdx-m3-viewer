@@ -6,13 +6,17 @@ import Import from './import';
  */
 export default class War3MapImp {
   /**
-   *
+   * @param {?ArrayBuffer} buffer
    */
-  constructor() {
+  constructor(buffer) {
     /** @member {number} */
     this.version = 1;
     /** @member {Map<string, Import>} */
     this.entries = new Map();
+
+    if (buffer) {
+      this.load(buffer);
+    }
   }
 
   /**

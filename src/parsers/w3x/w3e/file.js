@@ -26,7 +26,7 @@ export default class War3MapW3e {
     /** @member {Array<Array<Corner>>} */
     this.corners = [];
 
-    if (buffer instanceof ArrayBuffer) {
+    if (buffer) {
       this.load(buffer);
     }
   }

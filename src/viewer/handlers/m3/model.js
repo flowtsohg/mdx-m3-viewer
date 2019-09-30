@@ -1,4 +1,4 @@
-import M3Parser from '../../../parsers/m3/model';
+import Parser from '../../../parsers/m3/model';
 import TexturedModel from '../../texturedmodel';
 import M3StandardMaterial from './standardmaterial';
 import M3Bone from './bone';
@@ -37,14 +37,20 @@ export default class M3Model extends TexturedModel {
   }
 
   /**
-   * @param {ArrayBuffer} buffer
+   * @param {ArrayBuffer|Parser} bufferOrParser
    */
-  load(buffer) {
-    let parser = new M3Parser(buffer);
+  load(bufferOrParser) {
+    let parser;
+
+    if (bufferOrParser instanceof Parser) {
+      parser = bufferOrParser;
+    } else {
+      parser = new Parser(bufferOrParser);
+    }
+
     let model = parser.model;
     let div = model.divisions.get();
 
-    this.parser = parser;
     this.name = model.modelName.getAll().join('');
 
     this.setupGeometry(model, div);

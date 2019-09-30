@@ -7,9 +7,9 @@ import MapOrder from './maporder';
  */
 export default class War3CampaignW3f {
   /**
-   *
+   * @param {?ArrayBuffer} buffer
    */
-  constructor() {
+  constructor(buffer) {
     this.version = 0;
     this.campaignVersion = 0;
     this.editorVersion = 0;
@@ -31,6 +31,10 @@ export default class War3CampaignW3f {
     this.userInterface = -1; // 0 = human
     this.mapTitles = [];
     this.mapOrders = [];
+
+    if (buffer) {
+      this.load(buffer);
+    }
   }
 
   /**

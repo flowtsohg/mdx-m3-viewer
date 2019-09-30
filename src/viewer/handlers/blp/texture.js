@@ -6,12 +6,17 @@ import Texture from '../../texture';
  */
 export default class BlpTexture extends Texture {
   /**
-   * @param {ArrayBuffer} src
+   * @param {ArrayBuffer|Parser} bufferOrParser
    * @param {?Object} options
    */
-  load(src, options) {
-    let parser = new Parser();
-    parser.load(src);
+  load(bufferOrParser, options) {
+    let parser;
+
+    if (bufferOrParser instanceof Parser) {
+      parser = bufferOrParser;
+    } else {
+      parser = new Parser(bufferOrParser);
+    }
 
     let viewer = this.viewer;
     let gl = viewer.gl;
@@ -58,7 +63,6 @@ export default class BlpTexture extends Texture {
     this.imageData = imageData;
     this.width = imageData.width;
     this.height = imageData.height;
-    this.parser = parser;
     this.webglResource = id;
   }
 }

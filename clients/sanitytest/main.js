@@ -1,15 +1,14 @@
 ModelViewer = ModelViewer.default;
 
-let math = ModelViewer.common.math;
 let glMatrix = ModelViewer.common.glMatrix;
-let vec2 = glMatrix.vec2;
 let vec3 = glMatrix.vec3;
-let vec4 = glMatrix.vec4;
 let quat = glMatrix.quat;
-let mat3 = glMatrix.mat3;
-let mat4 = glMatrix.mat4;
 let geometry = ModelViewer.common.geometry;
 let handlers = ModelViewer.viewer.handlers;
+let parsers = ModelViewer.parsers;
+let mdlx = parsers.mdlx;
+let blp = parsers.blp;
+let w3x = parsers.w3x;
 
 let testsElement = document.getElementById('tests');
 
@@ -22,7 +21,6 @@ let canvas = document.getElementById('canvas');
 let viewer = new ModelViewer.viewer.ModelViewer(canvas);
 
 viewer.gl.clearColor(0.7, 0.7, 0.7, 1);
-viewer.noCulling = true;
 
 viewer.addHandler(handlers.mdx); // Will add BLP too.
 viewer.addHandler(handlers.geo);
@@ -51,9 +49,17 @@ setupCamera(scene, 500);
   viewer.updateAndRender();
 }());
 
+document.getElementById('animation_toggle').addEventListener('click', () => {
+  if (viewer.frameTime === 0) {
+    viewer.frameTime = 1000 / 60;
+  } else {
+    viewer.frameTime = 0;
+  }
+});
+
 let textureModel = viewer.load({
   geometry: geometry.createUnitRectangle(),
-  material: {renderMode: 0, twoSided: true, isBGR: true}
+  material: {renderMode: 0, twoSided: true, isBGR: false}
 }, src => [src, '.geo', false]);
 
 function nodeName(node) {
@@ -135,99 +141,36 @@ function handleTestNode(stream, node) {
   }
 }
 
-function renderModelTest(name, model) {
-  let stream = new LogStream(document.createElement('div'));
-  let result = ModelViewer.utils.mdxSanityTest(model);
-  let header = stream.start();
-  let body = null;
-
-  stream.info(`${name}: `);
-
-  if (result.errors || result.warnings || result.unused) {
-    let added = false;
-
-    if (result.errors) {
-      stream.error(`${result.errors} error${result.errors === 1 ? '' : 's'}`);
-      added = true;
-    }
-
-    if (result.warnings) {
-      if (added) {
-        stream.info(', ');
-      }
-
-      stream.warn(`${result.warnings} warning${result.warnings === 1 ? '' : 's'}`);
-
-      added = true;
-    }
-
-    if (result.unused) {
-      if (added) {
-        stream.info(', ');
-      }
-
-      stream.unused(`${result.unused} unused`);
-    }
-
-    stream.commit();
-
-    body = stream.start();
-    stream.indent();
-
-    for (let node of result.nodes) {
-      handleTestNode(stream, node);
-    }
-
-    stream.commit();
-
-  } else {
-    stream.log('Passed');
-
-    stream.commit();
-  }
-
-  return {container: stream.container, header, body};
-}
-
-function renderTextureTest(name, texture) {
-  let stream = new LogStream(document.createElement('div'));
-  let results = ModelViewer.utils.blpSanityTest(texture);
-  let header = stream.start();
-  let body = null;
-
-  stream.info(`${name}: `);
-
-  if (results.length) {
-    stream.warn(`${results.length} warning${results.length === 1 ? '' : 's'}`)
-
-    stream.commit();
-
-    body = stream.start();
-    stream.indent();
-
-    for (let result of results) {
-      stream.warn(result);
-      stream.br();
-    }
-
-    stream.commit();
-  } else {
-    stream.log('Passed');
-
-    stream.commit();
-  }
-
-  return {container: stream.container, header, body};
-}
-
+/**
+ *
+ */
 class TestInstance {
-  constructor(container, header, body, instance, sourceMapContainer) {
-    this.container = container;
-    this.header = header;
-    this.body = body;
+  /**
+   * @param {string} name
+   * @param {Model|Texture} resource
+   * @param {ModelInstance} instance
+   * @param {mdlx.Model|blp.Texture} parser
+   */
+  constructor(name, resource, instance, parser) {
+    this.name = name.toLowerCase();
+    this.resource = resource;
     this.instance = instance;
+    this.parser = parser;
     this.rendered = false;
-    this.sourceMapContainer = sourceMapContainer || null;
+    this.container = null;
+    this.header = null;
+    this.body = null;
+    this.sourceMapContainer = null;
+
+    if (instance.model.extension === '.mdx') {
+      this.type = 'model';
+
+      this.renderModelTest(name, parser);
+    } else {
+      this.type = 'texture';
+
+      this.renderTextureTest(name, parser);
+    }
 
     this.hide();
   }
@@ -254,6 +197,104 @@ class TestInstance {
     }
 
     this.instance.hide();
+  }
+
+  getModel() {
+    return this.instance.model;
+  }
+
+  getTexture() {
+    return this.instance.modelView.textures.get(null);
+  }
+
+  renderModelTest(name, model) {
+    let stream = new LogStream(document.createElement('div'));
+    let result = ModelViewer.utils.mdxSanityTest(model);
+    let header = stream.start();
+    let body = null;
+
+    stream.info(`${name}: `);
+
+    if (result.errors || result.warnings || result.unused) {
+      let added = false;
+
+      if (result.errors) {
+        stream.error(`${result.errors} error${result.errors === 1 ? '' : 's'}`);
+        added = true;
+      }
+
+      if (result.warnings) {
+        if (added) {
+          stream.info(', ');
+        }
+
+        stream.warn(`${result.warnings} warning${result.warnings === 1 ? '' : 's'}`);
+
+        added = true;
+      }
+
+      if (result.unused) {
+        if (added) {
+          stream.info(', ');
+        }
+
+        stream.unused(`${result.unused} unused`);
+      }
+
+      stream.commit();
+
+      body = stream.start();
+      stream.indent();
+
+      for (let node of result.nodes) {
+        handleTestNode(stream, node);
+      }
+
+      stream.commit();
+
+    } else {
+      stream.log('Passed');
+
+      stream.commit();
+    }
+
+    this.container = stream.container;
+    this.header = header;
+    this.body = body;
+    this.sourceMapContainer = handleSourceMap(model.saveMdl());
+  }
+
+  renderTextureTest(name, texture) {
+    let stream = new LogStream(document.createElement('div'));
+    let results = ModelViewer.utils.blpSanityTest(texture);
+    let header = stream.start();
+    let body = null;
+
+    stream.info(`${name}: `);
+
+    if (results.length) {
+      stream.warn(`${results.length} warning${results.length === 1 ? '' : 's'}`)
+
+      stream.commit();
+
+      body = stream.start();
+      stream.indent();
+
+      for (let result of results) {
+        stream.warn(result);
+        stream.br();
+      }
+
+      stream.commit();
+    } else {
+      stream.log('Passed');
+
+      stream.commit();
+    }
+
+    this.container = stream.container;
+    this.header = header;
+    this.body = body;
   }
 }
 
@@ -282,20 +323,20 @@ function showTest(test) {
   }
 }
 
-function addTest(container, header, body, instance, sourceMapContainer) {
-  container.style.paddingBottom = '3px';
+function addTest(name, resource, instance, parser) {
+  let test = new TestInstance(name, resource, instance, parser);
 
-  testsElement.appendChild(container);
+  test.container.style.paddingBottom = '3px';
 
-  let test = new TestInstance(container, header, body, instance, sourceMapContainer);
+  testsElement.appendChild(test.container);
 
-  header.addEventListener('click', (e) => {
+  test.header.addEventListener('click', (e) => {
     if (!test.rendered) {
-      header.classList.remove('closed');
-      header.classList.add('opened');
+      test.header.classList.remove('closed');
+      test.header.classList.add('opened');
 
-      if (body) {
-        body.style.display = 'initial';
+      if (test.body) {
+        test.body.style.display = 'initial';
       }
 
       showTest(test);
@@ -303,17 +344,19 @@ function addTest(container, header, body, instance, sourceMapContainer) {
   });
 
   allTests.push(test);
+
+  showTest(test);
+
+  statusElement.textContent = '';
+
+  return test;
 }
 
 function addModelTest(name, ext, buffer, pathSolver) {
-  let model = new ModelViewer.parsers.mdlx.Model();
+  let parser = new mdlx.Model(buffer);
 
-  model.load(buffer);
-
-  let {container, header, body} = renderModelTest(name, model);
-
-  let viewerModel = viewer.load(buffer, (src) => {
-    if (src === buffer) {
+  let viewerModel = viewer.load(parser, (src) => {
+    if (src === parser) {
       return [src, ext, false]
     } else if (pathSolver) {
       // If an external path solver is given, this is a Hive resource, and it will handle custom textures.
@@ -323,33 +366,100 @@ function addModelTest(name, ext, buffer, pathSolver) {
     }
   });
 
-  let instance = viewerModel.addInstance();
+  viewerModel.whenLoaded().then(() => {
+    let instance = viewerModel.addInstance();
 
-  instance.setScene(scene);
+    instance.setScene(scene);
 
-  instance.setSequence(0);
+    instance.setSequence(0);
+    instance.setSequenceLoopMode(2);
 
-  instance.on('seqend', () => {
-    let sequence = instance.sequence + 1;
+    instance.on('seqend', () => {
+      let sequence = instance.sequence + 1;
 
-    if (sequence === model.sequences.length) {
-      sequence = 0;
-    }
+      if (sequence === viewerModel.sequences.length) {
+        sequence = 0;
+      }
 
-    instance.setSequence(sequence);
+      instance.setSequence(sequence);
+    });
+
+    let test = addTest(name, viewerModel, instance, parser);
+
+    tryToInjectCustomTextures(test);
   });
+}
 
-  addTest(container, header, body, instance, handleSourceMap(model.saveMdl()));
+function getPathFileName(path) {
+  const url = path.replace(/\\/g, '/');
+
+  return url.slice(url.lastIndexOf('/') + 1).toLowerCase();
+}
+
+function areSameFiles(a, b) {
+  return getPathFileName(a) === getPathFileName(b);
+}
+
+function* eachModelTest() {
+  for (let test of allTests) {
+    if (test.type === 'model') {
+      yield test;
+    }
+  }
+}
+
+function* eachTextureTest() {
+  for (let test of allTests) {
+    if (test.type === 'texture') {
+      yield test;
+    }
+  }
+}
+
+// Given a new custom model, go over all of the textures, and see if any match any of the model's textures.
+// Matches are replaced with the matched textures.
+function tryToInjectCustomTextures(modelTest) {
+  let model = modelTest.getModel();
+  let parser = modelTest.parser;
+
+  for (let textureTest of eachTextureTest()) {
+    for (let i = 0, l = model.textures.length; i < l; i++) {
+      const texture = model.textures[i];
+
+      texture.whenLoaded().then(() => {
+        if (!texture.ok && areSameFiles(parser.textures[i].path, textureTest.name)) {
+          model.textures[i] = textureTest.getTexture();
+
+          console.log(`NOTE: loaded ${textureTest.name} as a custom texture for model: ${modelTest.name}`);
+        }
+      });
+    }
+  }
+}
+
+// Given a new texture test, go over all of the models, and see if it can match one of their textures.
+// Matches are replaced with this texture.
+function tryToLoadCustomTexture(textureTest) {
+  for (let modelTest of eachModelTest()) {
+    const model = modelTest.getModel();
+
+    for (let i = 0, l = model.textures.length; i < l; i++) {
+      const modelTexture = model.textures[i];
+
+      // If the texture failed to load, check if it matches the name.
+      if (!modelTexture.ok && areSameFiles(modelTexture.fetchUrl, textureTest.name)) {
+        model.textures[i] = textureTest.getTexture();
+
+        console.log(`NOTE: loaded ${textureTest.name} as a custom texture for model: ${modelTest.name}`);
+      }
+    }
+  }
 }
 
 function addTextureTest(name, ext, buffer) {
-  let texture = new ModelViewer.parsers.blp.Texture();
+  let parser = new blp.Texture(buffer);
 
-  texture.load(buffer);
-
-  let {container, header, body} = renderTextureTest(name, texture);
-
-  let viewerTexture = viewer.load(buffer, (src) => {
+  let viewerTexture = viewer.load(parser, (src) => {
     return [src, ext, false]
   });
 
@@ -363,13 +473,16 @@ function addTextureTest(name, ext, buffer) {
     .then(() => {
       // Don't really care about the size of the texture instance, just the proportions.
       instance.scale([viewerTexture.width / viewerTexture.height, 1, 1]);
-    });
 
-  addTest(container, header, body, instance);
+      let test = addTest(name, viewerTexture, instance, parser);
+
+      // Try to load this texture as a custom texture, in case a model that uses it was loaded before.
+      tryToLoadCustomTexture(test);
+    });
 }
 
 function addMapTest(buffer) {
-  let map = new ModelViewer.parsers.w3x.Map();
+  let map = new w3x.Map();
 
   map.load(buffer);
 
@@ -394,16 +507,6 @@ function onLocalFileLoaded(name, ext, buffer, pathSolver) {
     addTextureTest(name, ext, buffer);
   } else if (ext === '.w3x' || ext === '.w3m') {
     addMapTest(buffer);
-  } else {
-    return;
-  }
-
-  if (allTests.length) {
-    statusElement.textContent = '';
-
-    showTest(allTests[allTests.length - 1])
-  } else {
-    statusElement.textContent = `Nothing to check for ${name}!`;
   }
 }
 

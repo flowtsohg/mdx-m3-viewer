@@ -11,9 +11,9 @@ let CONTENT_JPG = 0x0;
  */
 export default class BlpTexture {
   /**
-   *
+   * @param {?ArrayBuffer} buffer
    */
-  constructor() {
+  constructor(buffer) {
     /** @member {number} */
     this.content = 0;
     /** @member {number} */
@@ -44,6 +44,10 @@ export default class BlpTexture {
      * @member {?Uint8Array}
      */
     this.pallete = null;
+
+    if (buffer) {
+      this.load(buffer);
+    }
   }
 
   /**
