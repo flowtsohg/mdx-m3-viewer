@@ -1,10 +1,10 @@
-import SharedEmitter from './sharedemitter';
+import Emitter from './emitter';
 import Particle from './particle';
 
 /**
  * An MDX particle emitter.
  */
-export default class ParticleEmitter extends SharedEmitter {
+export default class ParticleEmitter extends Emitter {
   /**
    * @param {ParticleEmitterView} emitterView
    */

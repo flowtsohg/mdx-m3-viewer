@@ -15,7 +15,7 @@ export default class EventObjectSpn {
   /**
    * @param {EventObjectEmitterView} emitterView
    */
-  reset(emitterView) {
+  bind(emitterView) {
     let instance = this.internalResource;
     let node = emitterView.instance.nodes[this.emitter.modelObject.index];
 
@@ -31,9 +31,10 @@ export default class EventObjectSpn {
   }
 
   /**
-   *
+   * @param {number} offset
+   * @param {number} dt
    */
-  update() {
+  render(offset, dt) {
     let instance = this.internalResource;
 
     // Once the sequence finishes, this event object dies

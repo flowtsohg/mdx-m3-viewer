@@ -68,6 +68,8 @@ export default class ModelViewer extends EventEmitter {
     /** @member {number} */
     this.frame = 0;
 
+    let gl = this.gl;
+
     /**
      * The instances buffer is used instead of gl_InstanceID, which isn't defined in WebGL shaders.
      * It's a simple buffer of indices, [0, 1, ..., instancesCount - 1].
@@ -75,9 +77,18 @@ export default class ModelViewer extends EventEmitter {
      *
      * @member {WebGLBuffer}
      */
-    this.instancesBuffer = this.gl.createBuffer();
+    this.instancesBuffer = gl.createBuffer();
     /** @member {number} */
     this.instancesCount = 0;
+
+    /**
+     * A simple buffer containing the bytes [0, 1, 2, 0, 2, 3].
+     * These are used as vertices in all geometry shaders.
+     */
+    this.rectBuffer = gl.createBuffer();
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.rectBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array([0, 1, 2, 0, 2, 3]), gl.STATIC_DRAW);
 
     /**
      * A viewer-wide flag.

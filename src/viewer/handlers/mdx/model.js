@@ -21,7 +21,7 @@ import CollisionShape from './collisionshape';
 /**
  * An MDX model.
  */
-export default class Model extends TexturedModel {
+export default class MdxModel extends TexturedModel {
   /**
    * @param {Object} resourceData
    */

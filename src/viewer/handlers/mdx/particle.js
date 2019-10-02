@@ -21,7 +21,6 @@ export default class Particle {
   constructor(emitter) {
     this.emitter = emitter;
     this.emitterView = null;
-
     this.internalInstance = emitter.modelObject.internalResource.addInstance();
     this.velocity = vec3.create();
     this.gravity = 0;
@@ -30,7 +29,7 @@ export default class Particle {
   /**
    * @param {ParticleEmitterView} emitterView
    */
-  reset(emitterView) {
+  bind(emitterView) {
     let instance = emitterView.instance;
     let node = instance.nodes[this.emitter.modelObject.index];
     let internalInstance = this.internalInstance;
@@ -71,22 +70,23 @@ export default class Particle {
   }
 
   /**
-   *
+   * @param {number} offset
+   * @param {number} dt
    */
-  update() {
+  render(offset, dt) {
     let internalInstance = this.internalInstance;
-    let velocity = this.velocity;
-    let frameTimeS = internalInstance.model.viewer.frameTime * 0.001;
 
-    internalInstance.paused = false;
+    internalInstance.paused = false; /// Why is this here?
 
-    this.health -= frameTimeS;
+    this.health -= dt;
 
-    velocity[2] -= this.gravity * frameTimeS;
+    if (this.health > 0) {
+      let velocity = this.velocity;
 
-    internalInstance.move(vec3.scale(velocityHeap, velocity, frameTimeS));
+      velocity[2] -= this.gravity * dt;
 
-    if (this.health <= 0) {
+      internalInstance.move(vec3.scale(velocityHeap, velocity, dt));
+    } else {
       this.internalInstance.hide();
     }
   }

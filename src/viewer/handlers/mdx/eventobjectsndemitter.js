@@ -7,7 +7,27 @@ export default class EventObjectSndEmitter {
    */
   constructor(modelObject) {
     this.modelObject = modelObject;
-    this.type = 'SND';
+
+    /**
+     * Does nothing.
+     * Defined to stay compatible with Emitter.
+     *
+     * @member {number}
+     */
+    this.alive = 0;
+  }
+
+  /**
+   * @param {*} emitterView
+   */
+  fill(emitterView) {
+    let emission = emitterView.currentEmission;
+
+    if (emission >= 1) {
+      for (let i = 0; i < emission; i += 1, emitterView.currentEmission--) {
+        this.emit(emitterView);
+      }
+    }
   }
 
   /**
@@ -43,26 +63,17 @@ export default class EventObjectSndEmitter {
   }
 
   /**
-   *
+   * Does nothing.
+   * Defined to stay compatible with Emitter.
    */
   update() {
 
   }
 
   /**
-   * @param {*} emitterView
-   */
-  fill(emitterView) {
-    let emission = emitterView.currentEmission;
-
-    if (emission >= 1) {
-      for (let i = 0; i < emission; i += 1, emitterView.currentEmission--) {
-        this.emit(emitterView);
-      }
-    }
-  }
-
-  /**
+   * Does nothing.
+   * Defined to stay compatible with Emitter.
+   *
    * @param {ModelView} modelView
    * @param {ShaderProgram} shader
    */
@@ -72,7 +83,7 @@ export default class EventObjectSndEmitter {
 
   /**
    * Does nothing.
-   * Defined to stay compatible with SharedEmitter.
+   * Defined to stay compatible with Emitter.
    *
    * @param {ModelInstance} owner
    */

@@ -101,12 +101,15 @@ export default class EventObject extends GenericObject {
           this.dimensions = [row.Columns, row.Rows];
           this.intervals = [[row.UVLifespanStart, row.UVLifespanEnd, row.LifespanRepeat], [row.UVDecayStart, row.UVDecayEnd, row.DecayRepeat]];
           this.intervalTimes = [row.Lifespan, row.Decay];
-          this.lifespan = row.Lifespan + row.Decay;
+          this.lifeSpan = row.Lifespan + row.Decay;
         } else {
           this.dimensions = [1, 1];
           this.intervalTimes = [row.BirthTime, row.PauseTime, row.Decay];
-          this.lifespan = row.BirthTime + row.PauseTime + row.Decay;
+          this.lifeSpan = row.BirthTime + row.PauseTime + row.Decay;
         }
+
+        this.columns = this.dimensions[0];
+        this.rows = this.dimensions[1];
 
         [this.blendSrc, this.blendDst] = emitterFilterMode(row.BlendMode, viewer.gl);
       } else if (type === 'SND') {

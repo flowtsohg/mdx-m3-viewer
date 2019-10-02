@@ -1,12 +1,15 @@
 /**
- * A shared emitter.
+ * An emitter.
  * The base class of all MDX emitters.
  */
-export default class SharedEmitter {
+export default class Emitter {
   /**
+   * @param {ModelViewData} modelViewData
    * @param {ParticleEmitter|ParticleEmitter2|RibbonEmitter|EventObject} modelObject
    */
-  constructor(modelObject) {
+  constructor(modelViewData, modelObject) {
+    /** @member {ModelViewData} */
+    this.modelViewData = modelViewData;
     /** @member {ParticleEmitter|ParticleEmitter2|RibbonEmitter|EventObject} */
     this.modelObject = modelObject;
     /** @member {Array<Particle|Particle2|Ribbon|EventObjectSpn|EventObjectSpl|EventObjectUbr>} */
@@ -16,13 +19,13 @@ export default class SharedEmitter {
   }
 
   /**
-   * Note: flag is used for ParticleEmitter2's head/tail selection.
+   * Note: tail is used for ParticleEmitter2's head/tail selection.
    *
    * @param {ParticleEmitterView|ParticleEmitter2View|RibbonEmitterView|EventObjectEmitterView} emitterView
-   * @param {boolean} flag
+   * @param {number} tail
    * @return {Particle|Particle2|Ribbon|EventObjectSpn|EventObjectSpl|EventObjectUbr}
    */
-  emitObject(emitterView, flag) {
+  emitObject(emitterView, tail) {
     let objects = this.objects;
 
     // If there are no unused objects, create a new one.
@@ -35,7 +38,7 @@ export default class SharedEmitter {
 
     this.alive += 1;
 
-    object.reset(emitterView, flag);
+    object.bind(emitterView, tail);
 
     return object;
   }
@@ -44,18 +47,22 @@ export default class SharedEmitter {
    *
    */
   update() {
+    let dt = this.modelObject.model.viewer.frameTime * 0.001;
     let objects = this.objects;
+    let offset = 0;
 
     for (let i = 0; i < this.alive; i++) {
       let object = objects[i];
 
-      object.update();
+      object.render(offset, dt);
 
-      if (object.health <= 0) {
+      if (object.health > 0) {
+        offset += 1;
+      } else {
         this.alive -= 1;
 
-        // Swap between this object and the first unused object.
-        // Decrement the iterator so the moved object is indexed.
+        // Swap between this object and the last living object.
+        // Decrement the iterator so the swapped object is updated this frame.
         if (i !== this.alive) {
           objects[i] = objects[this.alive];
           objects[this.alive] = object;
@@ -63,8 +70,6 @@ export default class SharedEmitter {
         }
       }
     }
-
-    this.updateData();
   }
 
   /**
@@ -78,13 +83,6 @@ export default class SharedEmitter {
         this.emit(emitterView);
       }
     }
-  }
-
-  /**
-   *
-   */
-  updateData() {
-
   }
 
   /**

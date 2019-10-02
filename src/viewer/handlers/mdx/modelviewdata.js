@@ -14,34 +14,23 @@ function getPrio(object) {
   if (object.layer) {
     return object.layer.priorityPlane;
   } else if (object.modelObject) {
-    return object.modelObject.priorityPlane;
-  } else {
-    console.log(object);
-    throw 'asdasdsadsadsadsadsaad';
+    // Not all emitters have priority planes.
+    return object.modelObject.priorityPlane || 0;
   }
 }
 
-function isNormalEmitter(object) {
-  return object instanceof ParticleEmitter2 || object instanceof EventObjectSpnEmitter || object instanceof EventObjectSplEmitter || object instanceof EventObjectUbrEmitter;
-}
-
-function isRibbonEmitter(object) {
-  return object instanceof RibbonEmitter;
-}
-
 function matchingGroup(group, object) {
-  return (group instanceof BatchGroup && object instanceof Batch) ||
-    (group instanceof EmitterGroup && group.isRibbons === false && isNormalEmitter(object)) ||
-    (group instanceof EmitterGroup && group.isRibbons === true && isRibbonEmitter(object));
+  let a = group instanceof BatchGroup;
+  let b = object instanceof Batch;
+
+  return (a && b) || (!a && !b);
 }
 
 function createMatchingGroup(object, modelView) {
   if (object instanceof Batch) {
     return new BatchGroup(modelView);
-  } else if (isNormalEmitter(object)) {
-    return new EmitterGroup(modelView, false);
-  } else if (isRibbonEmitter(object)) {
-    return new EmitterGroup(modelView, true);
+  } else {
+    return new EmitterGroup(modelView);
   }
 }
 
@@ -63,27 +52,29 @@ export default class MdxModelViewData extends ModelViewData {
     let eventObjectEmitters = [];
 
     for (let emitter of model.particleEmitters) {
-      particleEmitters.push(new ParticleEmitter(emitter));
+      particleEmitters.push(new ParticleEmitter(this, emitter));
     }
 
     for (let emitter of model.particleEmitters2) {
-      particleEmitters2.push(new ParticleEmitter2(emitter));
+      particleEmitters2.push(new ParticleEmitter2(this, emitter));
     }
 
     for (let emitter of model.ribbonEmitters) {
-      ribbonEmitters.push(new RibbonEmitter(emitter));
+      ribbonEmitters.push(new RibbonEmitter(this, emitter));
     }
 
     for (let emitter of model.eventObjects) {
       let type = emitter.type;
 
       if (type === 'SPN') {
-        eventObjectEmitters.push(new EventObjectSpnEmitter(emitter));
+        eventObjectEmitters.push(new EventObjectSpnEmitter(this, emitter));
       } else if (type === 'SPL') {
-        eventObjectEmitters.push(new EventObjectSplEmitter(emitter));
+        eventObjectEmitters.push(new EventObjectSplEmitter(this, emitter));
       } else if (type === 'UBR') {
-        eventObjectEmitters.push(new EventObjectUbrEmitter(emitter));
+        eventObjectEmitters.push(new EventObjectUbrEmitter(this, emitter));
       } else if (type === 'SND') {
+        // Sound objects aren't tracked in any way, they are fire-and-forget emitters.
+        // Therefore, they have no reason to store a reference back here.
         eventObjectEmitters.push(new EventObjectSndEmitter(emitter));
       }
     }
@@ -173,10 +164,7 @@ export default class MdxModelViewData extends ModelViewData {
     for (let emitter of this.eventObjectEmitters) {
       emitter.update();
 
-      // Sounds are not particles.
-      if (emitter.type !== 'SND') {
-        this.particles += emitter.alive;
-      }
+      this.particles += emitter.alive;
     }
   }
 }

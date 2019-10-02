@@ -29,6 +29,8 @@ export default class ParticleEmitter2 extends GenericObject {
     let replaceableId = emitter.replaceableId;
 
     this.dimensions = [emitter.columns, emitter.rows];
+    this.columns = emitter.columns;
+    this.rows = emitter.rows;
 
     this.teamColored = false;
 
@@ -44,6 +46,8 @@ export default class ParticleEmitter2 extends GenericObject {
       this.dimensions[0] = 14;
       this.dimensions[1] = 1;
       this.teamColored = true;
+      this.columns = 14;
+      this.rows = 1;
     } else {
       this.internalResource = model.viewer.load('ReplaceableTextures\\' + replaceableIds[replaceableId] + '.blp', model.pathSolver);
     }
@@ -58,12 +62,14 @@ export default class ParticleEmitter2 extends GenericObject {
     this.cellWidth = 1 / emitter.columns;
     this.cellHeight = 1 / emitter.rows;
     this.colors = [];
+    this.floatColors = [];
 
     let colors = emitter.segmentColors;
     let alpha = emitter.segmentAlphas;
 
     for (let i = 0; i < 3; i++) {
       this.colors[i] = new Uint8Array([Math.min(colors[i][0], 1) * 255, Math.min(colors[i][1], 1) * 255, Math.min(colors[i][2], 1) * 255, alpha[i]]);
+      this.floatColors[i] = new Float32Array([colors[i][0], colors[i][1], colors[i][2], alpha[i] / 255]);
     }
 
     this.scaling = emitter.segmentScaling;
