@@ -1,5 +1,5 @@
 import {vec3, vec4, quat, mat4} from 'gl-matrix';
-import {unproject, distanceToPlane, distanceToPlane2, unpackPlanes, VEC3_UNIT_Y, VEC3_UNIT_X, VEC3_UNIT_Z} from '../common/gl-matrix-addon';
+import {unproject, distanceToPlane2, distanceToPlane3, unpackPlanes, VEC3_UNIT_Y, VEC3_UNIT_X, VEC3_UNIT_Z} from '../common/gl-matrix-addon';
 
 let vectorHeap = vec3.create();
 let vectorHeap2 = vec3.create();
@@ -317,18 +317,31 @@ export default class Camera {
   /**
    * Test it a sphere with the given center and radius intersects this frustum.
    *
-   * @param {vec3} center
-   * @param {number} radius
+   * @param {number} x
+   * @param {number} y
+   * @param {number} z
+   * @param {number} r
    * @return {boolean}
    */
-  testSphere(center, radius) {
+  testSphere(x, y, z, r) {
     for (let plane of this.planes) {
-      if (distanceToPlane(plane, center) <= -radius) {
+      if (distanceToPlane3(plane, x, y, z) <= -r) {
         return false;
       }
     }
 
     return true;
+  }
+
+  /**
+   * @param {ModelInstance} instance
+   * @return {boolean}
+   */
+  testInstance(instance) {
+    let location = instance.worldLocation;
+    let bounds = instance.model.bounds;
+
+    return this.testSphere(location[0] + bounds.x, location[1] + bounds.y, location[2], bounds.r);
   }
 
   /**

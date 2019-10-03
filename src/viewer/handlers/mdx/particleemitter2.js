@@ -41,7 +41,7 @@ export default class ParticleEmitter2 extends GeometryEmitter {
 
     gl.blendFunc(modelObject.blendSrc, modelObject.blendDst);
 
-    model.bindTexture(modelObject.internalResource, 0, modelView);
+    modelView.bindTexture(modelObject.internalResource, 0);
 
     // Choose between a default rectangle or a billboarded one
     if (modelObject.xYQuad) {

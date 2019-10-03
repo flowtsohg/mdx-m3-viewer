@@ -1,7 +1,5 @@
-import {vec2} from 'gl-matrix';
-
 // Heap allocations needed for this module.
-let track = vec2.create();
+let valueHeap = new Uint32Array(1);
 
 /**
  * An event object emitter view.
@@ -14,7 +12,7 @@ export default class EventObjectEmitterView {
   constructor(instance, emitter) {
     this.instance = instance;
     this.emitter = emitter;
-    this.lastTrack = new Uint16Array(2); // Support more than 256 keyframes per sequence, why not.
+    this.lastValue = 0;
     this.currentEmission = 0;
   }
 
@@ -22,7 +20,7 @@ export default class EventObjectEmitterView {
    *
    */
   reset() {
-    this.lastTrack.fill(0);
+    this.lastValue = 0;
   }
 
   /**
@@ -30,17 +28,15 @@ export default class EventObjectEmitterView {
    */
   update() {
     if (this.instance.allowParticleSpawn) {
-      let emitter = this.emitter;
-      let lastTrack = this.lastTrack;
+      this.emitter.getValue(valueHeap, this.instance);
 
-      emitter.getValue(track, this.instance);
+      let value = valueHeap[0];
 
-      if (track[0] === 1 && (track[0] !== lastTrack[0] || track[1] !== lastTrack[1])) {
+      if (value === 1 && value !== this.lastValue) {
         this.currentEmission += 1;
       }
 
-      lastTrack[0] = track[0];
-      lastTrack[1] = track[1];
+      this.lastValue = value;
     }
   }
 }

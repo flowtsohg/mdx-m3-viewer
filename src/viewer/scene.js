@@ -204,9 +204,15 @@ export default class Scene {
 
         for (let instance of cell.instances) {
           if (!instance.parent) {
-            // The instance will check its update frame against the viewer, and act accordingly.
-            // It can't be done here like rendering, because instances with a parents won't actually be updated here.
-            instance.update(this);
+            /// TODO: This stops attached instances from being updated when their parent isn't, but it doesn't do the same for rendering.
+            ///       Need to think how to handle this - even though updating is more important to cull, rendering is preferable as well.
+            let visible = this.camera.testInstance(instance);
+
+            instance.culled = !visible;
+
+            if (visible) {
+              instance.update(this);
+            }
           }
         }
       } else {
@@ -230,7 +236,9 @@ export default class Scene {
         this.renderedCells += 1;
 
         for (let instance of cell.instances) {
-          instance.render();
+          if (!instance.culled) {
+            instance.render();
+          }
         }
       }
     }

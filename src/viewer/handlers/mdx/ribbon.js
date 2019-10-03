@@ -13,7 +13,7 @@ let slotHeap = new Float32Array(1);
  */
 export default class Ribbon {
   /**
-   * @param {MdxRibbonEmitter} emitter
+   * @param {RibbonEmitter} emitter
    */
   constructor(emitter) {
     this.emitter = emitter;

@@ -110,7 +110,7 @@ export default class M3Layer {
 
     if (active) {
       gl.uniform1i(uniforms[uniformMap.map], this.textureUnit);
-      this.model.bindTexture(this.texture, this.textureUnit, bucket.modelView);
+      bucket.modelView.bindTexture(this.texture, this.textureUnit);
 
       gl.uniform1f(uniforms[uniformMap.op], this.op);
       gl.uniform1f(uniforms[uniformMap.channels], this.colorChannels);

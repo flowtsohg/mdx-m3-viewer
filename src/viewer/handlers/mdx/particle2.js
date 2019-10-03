@@ -20,7 +20,7 @@ const endHeap = vec3.create();
  */
 export default class Particle2 {
   /**
-   * @param {GeomeryEmitter} emitter
+   * @param {ParticleEmitter2} emitter
    */
   constructor(emitter) {
     this.emitter = emitter;
@@ -141,15 +141,12 @@ export default class Particle2 {
       } else {
         let velocity = this.velocity;
         let tailLength = modelObject.tailLength;
-        let offsetx = tailLength * velocity[0];
-        let offsety = tailLength * velocity[1];
-        let offsetz = tailLength * velocity[2];
         let start = startHeap;
         let end = location;
 
-        start[0] = end[0] - offsetx;
-        start[1] = end[1] - offsety;
-        start[2] = end[2] - offsetz;
+        start[0] = end[0] - tailLength * velocity[0];
+        start[1] = end[1] - tailLength * velocity[1];
+        start[2] = end[2] - tailLength * velocity[2];
 
         // If this is a model space emitter, the start and end are in local space, so convert them to world space.
         if (modelObject.modelSpace) {

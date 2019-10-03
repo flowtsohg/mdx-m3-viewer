@@ -1,5 +1,5 @@
 import Parser from '../../../parsers/mdlx/model';
-import TexturedModel from '../../texturedmodel';
+import Model from '../../model';
 import TextureAnimation from './textureanimation';
 import Layer from './layer';
 import GeosetAnimation from './geosetanimation';
@@ -21,7 +21,7 @@ import CollisionShape from './collisionshape';
 /**
  * An MDX model.
  */
-export default class MdxModel extends TexturedModel {
+export default class MdxModel extends Model {
   /**
    * @param {Object} resourceData
    */
@@ -504,7 +504,7 @@ export default class MdxModel extends TexturedModel {
     // Used for layers that use image animations, in order to scale the coordinates to match the generated texture atlas
     gl.uniform2f(uniforms.u_uvScale, 1 / layer.uvDivisor[0], 1 / layer.uvDivisor[1]);
 
-    this.bindTexture(texture, 0, bucket.modelView);
+    bucket.modelView.bindTexture(texture, 0);
 
     let geosetColor = attribs.a_geosetColor;
     let uvTransRot = attribs.a_uvTransRot;

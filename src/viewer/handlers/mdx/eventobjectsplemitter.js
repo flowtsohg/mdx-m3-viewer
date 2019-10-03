@@ -36,7 +36,7 @@ export default class EventObjectSplEmitter extends GeometryEmitter {
 
     gl.blendFunc(modelObject.blendSrc, modelObject.blendDst);
 
-    model.bindTexture(modelObject.internalResource, 0, modelView);
+    modelView.bindTexture(modelObject.internalResource, 0);
 
     gl.uniform1f(uniforms.u_emitter, EMITTER_SPLAT);
 

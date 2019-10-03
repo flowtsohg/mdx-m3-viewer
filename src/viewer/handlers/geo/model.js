@@ -1,11 +1,11 @@
-import TexturedModel from '../../texturedmodel';
+import Model from '../../model';
 
 /**
  * A geometry model.
  *
  * Used to render simple geometric shapes.
  */
-export default class GeometryModel extends TexturedModel {
+export default class GeometryModel extends Model {
   /**
    * Load the model.
    *

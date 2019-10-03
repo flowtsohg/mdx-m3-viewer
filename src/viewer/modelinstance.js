@@ -20,6 +20,8 @@ export default class ModelInstance extends EventNode {
     this.bottom = -1;
     /** @member {number} */
     this.top = -1;
+    /** @member {boolean} */
+    this.culled = false;
     /** @member {number} */
     this.updateFrame = 0;
     /** @member {number} */
@@ -31,9 +33,17 @@ export default class ModelInstance extends EventNode {
     /** @member {?ModelViewData} */
     this.modelViewData = null;
 
-    /** @member {boolean} */
+    /**
+     * Decides whether the instance is updated or not.
+     *
+     * @member {boolean}
+     */
     this.paused = false;
-    /** @member {boolean} */
+    /**
+     * Decides whether the instance is rendered or not.
+     *
+     * @member {boolean}
+     */
     this.rendered = true;
   }
 

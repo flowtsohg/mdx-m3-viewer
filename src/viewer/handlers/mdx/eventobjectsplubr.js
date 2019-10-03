@@ -8,7 +8,7 @@ const vertexHeap = vec3.create();
  */
 export default class EventObjectSplUbr {
   /**
-   * @param {MdxEventObjectEmitter} emitter
+   * @param {EventObjectSplEmitter|EventObjectUbrEmitter} emitter
    */
   constructor(emitter) {
     this.emitter = emitter;

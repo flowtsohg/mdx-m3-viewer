@@ -16,6 +16,27 @@ export default class TexturedModelView extends ModelView {
   }
 
   /**
+   * Bind a texture to some texture unit.
+   * Checks the model view for an override.
+   *
+   * @param {Texture} texture
+   * @param {number} unit
+   */
+  bindTexture(texture, unit) {
+    if (this.textures.has(texture)) {
+      texture = this.textures.get(texture);
+    }
+
+    // If the texture exists, bind it.
+    // Otherwise, bind null, which will result in a black texture being bound to avoid console errors.
+    if (texture) {
+      texture.bind(unit);
+    } else {
+      this.model.viewer.webgl.bindTexture(null, unit);
+    }
+  }
+
+  /**
    * The shallow copy of a textured model view is a map of its textures.
    *
    * @return {Object}

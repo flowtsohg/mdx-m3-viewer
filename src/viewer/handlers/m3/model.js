@@ -1,5 +1,5 @@
 import Parser from '../../../parsers/m3/model';
-import TexturedModel from '../../texturedmodel';
+import Model from '../../model';
 import M3StandardMaterial from './standardmaterial';
 import M3Bone from './bone';
 import M3Sequence from './sequence';
@@ -13,7 +13,7 @@ import M3Region from './region';
 /**
  * An M3 model.
  */
-export default class M3Model extends TexturedModel {
+export default class M3Model extends Model {
   /**
    * @param {Object} resourceData
    */

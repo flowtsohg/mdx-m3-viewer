@@ -1,11 +1,10 @@
-import {vec2} from 'gl-matrix';
-import MappedData from '../../../utils/mappeddata';
 import {decodeAudioData} from '../../../common/audio';
+import MappedData from '../../../utils/mappeddata';
 import GenericObject from './genericobject';
 import {emitterFilterMode} from './filtermode';
 
-let mappedDataCallback = (text) => new MappedData(text);
-let decodedDataCallback = (arrayBuffer) => decodeAudioData(arrayBuffer);
+const mappedDataCallback = (text) => new MappedData(text);
+const decodedDataCallback = (arrayBuffer) => decodeAudioData(arrayBuffer);
 
 /**
  * An event object.
@@ -32,16 +31,35 @@ export default class EventObject extends GenericObject {
     this.ok = false;
     this.type = type;
     this.id = id;
+    this.tracks = eventObject.tracks;
+    this.globalSequence = null;
+    this.defval = new Uint32Array(1);
 
+    // SPN - Model
+    // SPL & UBR - Texture
     this.internalResource = null;
 
-    // For SND
-    this.decodedBuffers = [];
+    // SPL & UBR
+    this.colors = null;
+    this.intervalTimes = null;
+    this.scale = 0;
+    this.columns = 0;
+    this.rows = 0;
+    this.lifeSpan = 0;
+    this.blendSrc = 0;
+    this.blendDst = 0;
 
-    this.tracks = eventObject.tracks;
-    this.ok = false;
-    this.globalSequence = null;
-    this.defval = vec2.create();
+    // SPL
+    this.intervals = null;
+
+    // SND
+    this.distanceCutoff = 0;
+    this.maxDistance = 0;
+    this.minDistance = 0;
+    this.pitch = 0;
+    this.pitchVariance = 0;
+    this.volume = 0;
+    this.decodedBuffers = [];
 
     let globalSequenceId = eventObject.globalSequenceId;
     if (globalSequenceId !== -1) {
@@ -69,6 +87,14 @@ export default class EventObject extends GenericObject {
 
     viewer.whenLoaded(tables)
       .then((tables) => {
+        for (let table of tables) {
+          if (!table.ok) {
+            promise.resolve();
+
+            return;
+          }
+        }
+
         this.load(tables);
 
         promise.resolve();
@@ -79,17 +105,14 @@ export default class EventObject extends GenericObject {
    * @param {Array<SlkFile>} tables
    */
   load(tables) {
-    if (!tables[0].ok) {
-      return;
-    }
-
-    let type = this.type;
-    let model = this.model;
-    let viewer = model.viewer;
-    let pathSolver = model.pathSolver;
     let row = tables[0].data.getRow(this.id);
+    let type = this.type;
 
     if (row) {
+      let model = this.model;
+      let viewer = model.viewer;
+      let pathSolver = model.pathSolver;
+
       if (type === 'SPN') {
         this.internalResource = viewer.load(row.Model.replace('.mdl', '.mdx'), pathSolver);
       } else if (type === 'SPL' || type === 'UBR') {
@@ -98,28 +121,23 @@ export default class EventObject extends GenericObject {
         this.scale = row.Scale;
 
         if (type === 'SPL') {
-          this.dimensions = [row.Columns, row.Rows];
+          this.columns = row.Columns;
+          this.rows = row.Rows;
           this.intervals = [[row.UVLifespanStart, row.UVLifespanEnd, row.LifespanRepeat], [row.UVDecayStart, row.UVDecayEnd, row.DecayRepeat]];
           this.intervalTimes = [row.Lifespan, row.Decay];
           this.lifeSpan = row.Lifespan + row.Decay;
         } else {
-          this.dimensions = [1, 1];
+          this.columns = 1;
+          this.rows = 1;
           this.intervalTimes = [row.BirthTime, row.PauseTime, row.Decay];
           this.lifeSpan = row.BirthTime + row.PauseTime + row.Decay;
         }
-
-        this.columns = this.dimensions[0];
-        this.rows = this.dimensions[1];
 
         [this.blendSrc, this.blendDst] = emitterFilterMode(row.BlendMode, viewer.gl);
       } else if (type === 'SND') {
         // Only load sounds if audio is enabled.
         // This is mostly to save on bandwidth and loading time, especially when loading full maps.
         if (viewer.enableAudio) {
-          if (!tables[1].ok) {
-            return;
-          }
-
           row = tables[1].data.getRow(row.SoundLabel);
 
           if (row) {
@@ -153,6 +171,11 @@ export default class EventObject extends GenericObject {
     }
   }
 
+  /**
+   * @param {Uint32Array} out
+   * @param {ModelInstance} instance
+   * @return {number}
+   */
   getValue(out, instance) {
     if (this.globalSequence) {
       let globalSequence = this.globalSequence;
@@ -163,38 +186,38 @@ export default class EventObject extends GenericObject {
 
       return this.getValueAtTime(out, instance.frame, interval[0], interval[1]);
     } else {
-      let defval = this.defval;
+      out[0] = this.defval[0];
 
-      out[0] = defval[0];
-      out[1] = defval[1];
-
-      return out;
+      return -1;
     }
   }
 
+  /**
+   * @param {Uint32Array} out
+   * @param {number} frame
+   * @param {number} start
+   * @param {number} end
+   * @return {number}
+   */
   getValueAtTime(out, frame, start, end) {
     let tracks = this.tracks;
 
     if (frame < start || frame > end) {
       out[0] = 0;
-      out[1] = 0;
-      return out;
+      return -1;
     }
 
     for (let i = tracks.length - 1; i > -1; i--) {
       if (tracks[i] < start) {
         out[0] = 0;
-        out[1] = i;
-        return out;
+        return i;
       } else if (tracks[i] <= frame) {
         out[0] = 1;
-        out[1] = i;
-        return out;
+        return i;
       }
     }
 
     out[0] = 0;
-    out[1] = 0;
-    return out;
+    return -1;
   }
 }

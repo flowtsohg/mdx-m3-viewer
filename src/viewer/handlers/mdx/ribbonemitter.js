@@ -45,7 +45,7 @@ export default class RibbonEmitter extends GeometryEmitter {
 
     layer.bind(shader);
 
-    model.bindTexture(modelObject.texture, 0, modelView);
+    modelView.bindTexture(modelObject.texture, 0);
 
     gl.uniform1f(uniforms.u_emitter, EMITTER_RIBBON);
 

@@ -55,6 +55,20 @@ function distanceToPlane2(plane, px, py) {
 }
 
 /**
+ * Get the distance of a point from a plane.
+ * dot(plane, vec4(point, 1))
+ *
+ * @param {vec4} plane
+ * @param {number} px
+ * @param {number} py
+ * @param {number} pz
+ * @return {number}
+ */
+function distanceToPlane3(plane, px, py, pz) {
+  return plane[0] * px + plane[1] * py + plane[2] * pz + plane[3];
+}
+
+/**
  * Normalize a plane. Note that this is not the same as normalizing a vec4.
  *
  * @param {vec4} out
@@ -176,6 +190,7 @@ export {
   unproject,
   distanceToPlane,
   distanceToPlane2,
+  distanceToPlane3,
   normalizePlane,
   unpackPlanes,
   getRotationX,
