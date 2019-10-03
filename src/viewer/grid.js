@@ -1,3 +1,5 @@
+import {testCell} from '../common/gl-matrix-addon';
+
 /**
  * A grid cell.
  */
@@ -17,6 +19,8 @@ class Cell {
     this.bottom = bottom;
     /** @member {number} */
     this.top = top;
+    /** @member {boolean} */
+    this.plane = -1;
     /** @member {Array<ModelInstance>} */
     this.instances = [];
     /** @member {boolean} */
@@ -44,6 +48,16 @@ class Cell {
    */
   clear() {
     this.instances.length = 0;
+  }
+
+  /**
+   * @param {Camera} camera
+   * @return {boolean}
+   */
+  isVisible(camera) {
+    this.plane = testCell(camera.planes, this.left, this.right, this.bottom, this.top, this.plane);
+
+    return this.plane === -1;
   }
 }
 

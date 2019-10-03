@@ -69,6 +69,72 @@ function distanceToPlane3(plane, px, py, pz) {
 }
 
 /**
+ * Test it a sphere with the given center and radius intersects the given planes.
+ * If it doesn't, the index of the first plane that proved this is returned.
+ * Otherwise returns -1.
+ *
+ * If first is given, the test will begin from the plane at that index.
+ *
+ * @param {Array<vec4>} planes
+ * @param {number} x
+ * @param {number} y
+ * @param {number} z
+ * @param {number} r
+ * @param {number} first
+ * @return {boolean}
+ */
+function testSphere(planes, x, y, z, r, first) {
+  if (first === -1) {
+    first = 0;
+  }
+
+  for (let i = 0; i < 6; i++) {
+    let index = (first + i) % 6;
+
+    if (distanceToPlane3(planes[index], x, y, z) <= -r) {
+      return index;
+    }
+  }
+
+  return -1;
+}
+
+/**
+ * Test if a cell with the given coordinates intersects the given planes.
+ * If it doesn't, the index of the first plane that proved this is returned.
+ * Otherwise returns -1.
+ *
+ * If first is given, the test will begin from the plane at that index.
+ *
+ * @param {Array<vec4>} planes
+ * @param {number} left
+ * @param {number} right
+ * @param {number} bottom
+ * @param {number} top
+ * @param {number} first
+ * @return {boolean}
+ */
+function testCell(planes, left, right, bottom, top, first) {
+  if (first === -1) {
+    first = 0;
+  }
+
+  for (let i = 0; i < 6; i++) {
+    let index = (first + i) % 6;
+    let plane = planes[index];
+
+    if (distanceToPlane2(plane, left, bottom) < 0 &&
+      distanceToPlane2(plane, left, top) < 0 &&
+      distanceToPlane2(plane, right, top) < 0 &&
+      distanceToPlane2(plane, right, bottom) < 0) {
+      return index;
+    }
+  }
+
+  return -1;
+}
+
+/**
  * Normalize a plane. Note that this is not the same as normalizing a vec4.
  *
  * @param {vec4} out
@@ -191,6 +257,8 @@ export {
   distanceToPlane,
   distanceToPlane2,
   distanceToPlane3,
+  testSphere,
+  testCell,
   normalizePlane,
   unpackPlanes,
   getRotationX,

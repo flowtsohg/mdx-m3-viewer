@@ -1,3 +1,4 @@
+import {testSphere} from '../common/gl-matrix-addon';
 import {EventNode} from './node';
 
 /**
@@ -20,8 +21,8 @@ export default class ModelInstance extends EventNode {
     this.bottom = -1;
     /** @member {number} */
     this.top = -1;
-    /** @member {boolean} */
-    this.culled = false;
+    /** @member {number} */
+    this.plane = -1;
     /** @member {number} */
     this.updateFrame = 0;
     /** @member {number} */
@@ -130,9 +131,11 @@ export default class ModelInstance extends EventNode {
    * @param {Scene} scene
    */
   updateObject(scene) {
-    if (this.rendered && !this.paused && this.updateFrame < this.model.viewer.frame) {
-      this.updateTimers();
-      this.updateAnimations();
+    if (this.rendered && this.updateFrame < this.model.viewer.frame) {
+      if (!this.paused) {
+        this.updateTimers();
+        this.updateAnimations();
+      }
 
       this.updateFrame = this.model.viewer.frame;
     }
@@ -172,5 +175,18 @@ export default class ModelInstance extends EventNode {
 
       this.renderFrame = this.model.viewer.frame;
     }
+  }
+
+  /**
+   * @param {Camera} camera
+   * @return {boolean}
+   */
+  isVisible(camera) {
+    let location = this.worldLocation;
+    let bounds = this.model.bounds;
+
+    this.plane = testSphere(camera.planes, location[0] + bounds.x, location[1] + bounds.y, location[2], bounds.r, this.plane);
+
+    return this.plane === -1;
   }
 }

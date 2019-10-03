@@ -186,8 +186,10 @@ export default class Scene {
    * This includes updating the scene's camera, the node hierarchy (model instances etc.), the rendering data, and the AudioContext's lisener's position if it exists.
    */
   update() {
+    let camera = this.camera;
+
     // Update the camera.
-    this.camera.update();
+    camera.update();
 
     // Update the autido context's position if it exists.
     if (this.audioContext) {
@@ -199,24 +201,12 @@ export default class Scene {
     // Update all of the visible instances that have no parents.
     // Instances that have parents will be updated down the hierarcy automatically.
     for (let cell of this.grid.cells) {
-      if (this.camera.testCell(cell)) {
-        cell.visible = true;
-
+      if (cell.isVisible(camera)) {
         for (let instance of cell.instances) {
-          if (!instance.parent) {
-            /// TODO: This stops attached instances from being updated when their parent isn't, but it doesn't do the same for rendering.
-            ///       Need to think how to handle this - even though updating is more important to cull, rendering is preferable as well.
-            let visible = this.camera.testInstance(instance);
-
-            instance.culled = !visible;
-
-            if (visible) {
-              instance.update(this);
-            }
+          if (instance.isVisible(camera) && !instance.parent) {
+            instance.update(this);
           }
         }
-      } else {
-        cell.visible = false;
       }
     }
 
@@ -232,11 +222,11 @@ export default class Scene {
 
     // Render all of the visible instances into the buckets.
     for (let cell of this.grid.cells) {
-      if (cell.visible) {
+      if (cell.plane === -1) {
         this.renderedCells += 1;
 
         for (let instance of cell.instances) {
-          if (!instance.culled) {
+          if (instance.isVisible(camera)) {
             instance.render();
           }
         }

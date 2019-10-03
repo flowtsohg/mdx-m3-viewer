@@ -1,5 +1,5 @@
 import {vec3, vec4, quat, mat4} from 'gl-matrix';
-import {unproject, distanceToPlane2, distanceToPlane3, unpackPlanes, VEC3_UNIT_Y, VEC3_UNIT_X, VEC3_UNIT_Z} from '../common/gl-matrix-addon';
+import {unproject, unpackPlanes, VEC3_UNIT_Y, VEC3_UNIT_X, VEC3_UNIT_Z} from '../common/gl-matrix-addon';
 
 let vectorHeap = vec3.create();
 let vectorHeap2 = vec3.create();
@@ -312,58 +312,6 @@ export default class Camera {
         vec3.transformQuat(billboardedVectors[i], vectors[i], inverseRotation);
       }
     }
-  }
-
-  /**
-   * Test it a sphere with the given center and radius intersects this frustum.
-   *
-   * @param {number} x
-   * @param {number} y
-   * @param {number} z
-   * @param {number} r
-   * @return {boolean}
-   */
-  testSphere(x, y, z, r) {
-    for (let plane of this.planes) {
-      if (distanceToPlane3(plane, x, y, z) <= -r) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  /**
-   * @param {ModelInstance} instance
-   * @return {boolean}
-   */
-  testInstance(instance) {
-    let location = instance.worldLocation;
-    let bounds = instance.model.bounds;
-
-    return this.testSphere(location[0] + bounds.x, location[1] + bounds.y, location[2], bounds.r);
-  }
-
-  /**
-   * @param {Cell} cell
-   * @return {boolean}
-   */
-  testCell(cell) {
-    let left = cell.left;
-    let right = cell.right;
-    let bottom = cell.bottom;
-    let top = cell.top;
-
-    for (let plane of this.planes) {
-      if (distanceToPlane2(plane, left, bottom) < 0 &&
-        distanceToPlane2(plane, left, top) < 0 &&
-        distanceToPlane2(plane, right, top) < 0 &&
-        distanceToPlane2(plane, right, bottom) < 0) {
-        return false;
-      }
-    }
-
-    return true;
   }
 
   /**
