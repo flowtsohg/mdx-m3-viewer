@@ -5,10 +5,10 @@ import JassAgent from './agent';
  */
 export default class JassTimer extends JassAgent {
   /**
-   * @param {JassContext} jass
+   *
    */
-  constructor(jass) {
-    super(jass);
+  constructor() {
+    super();
 
     /** @member {number} */
     this.elapsed = 0;
@@ -16,7 +16,7 @@ export default class JassTimer extends JassAgent {
     this.timeout = 0;
     /** @member {boolean} */
     this.periodic = false;
-    /** @member {function|null} */
-    this.handlerFunc = null;
+    /** @member {number} */
+    this.handlerFunc = -1;
   }
 }

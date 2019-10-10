@@ -1,6 +1,6 @@
 {
   "name": "mdx-m3-viewer",
-  "version": "4.8.2",
+  "version": "4.8.3",
   "description": "A browser WebGL model viewer. Mainly focused on models of the games Warcraft 3 and Starcraft 2.",
   "main": "src/index.js",
   "directories": {
@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/flowtsohg/mdx-m3-viewer#readme",
   "dependencies": {
+    "fengari": "^0.1.4",
     "gl-matrix": "^2.6.1",
     "pako": "^1.0.6",
     "webpack": "^4.9.1",

@@ -1,192 +1,148 @@
-import {parse} from './jass';
-import ast from './ast';
+import TokenStream from './tokenstream';
 
 /**
- * @param {Native} native
+ * @param {Array<Object>} params
  * @return {string}
  */
-function compileJassNative(native) {
-  let jass = '';
+function compileGetters(params) {
+  return params.map((p, i) => {
+    let type = p.type;
 
-  if (native.isConstant) {
-    jass += 'constant ';
-  }
+    if (type === 'code') {
+      return `let ${p.name} = luaL_ref(L, LUA_REGISTRYINDEX);`;
+    } else {
+      let func;
 
-  jass += `native ${native.name} takes `;
+      if (type === 'integer') {
+        func = 'luaL_checkinteger';
+      } else if (type === 'real') {
+        func = 'luaL_checknumber';
+      } else if (type === 'boolean') {
+        func = 'lua_toboolean';
+      } else if (type === 'string') {
+        func = 'luaL_checkstring';
+      } else {
+        func = 'lua_touserdata';
+      }
 
-  if (native.args.length) {
-    jass += native.args.map((arg) => `${arg.type} ${arg.name}`).join(', ');
+      return `let ${p.name} = ${func}(L, ${i + 1});`;
+    }
+  }).join('\n');
+}
+
+/**
+ * @param {string} type
+ * @return {string}
+ */
+function compileReturn(type) {
+  if (type === 'nothing') {
+    return 'return 0';
   } else {
-    jass += 'nothing';
-  }
+    let func;
+    let value;
 
-  return jass + ` returns ${native.returnType}`;
+    if (type === 'integer') {
+      func = 'lua_pushinteger';
+      value = '0';
+    } else if (type === 'real') {
+      func = 'lua_pushnumber';
+      value = '0';
+    } else if (type === 'boolean') {
+      func = 'lua_pushboolean';
+      value = 'false';
+    } else if (type === 'string') {
+      func = 'lua_pushstring';
+      value = `''`;
+    } else if (type === 'code') {
+      throw 'CODE??';
+    } else {
+      func = 'lua_pushlightuserdata';
+      value = `{name: 'FAKE'}`;
+    }
+
+    return `${func}(L, ${value});\nreturn 1;`;
+  }
 }
 
 /**
- * @param {Array<FunctionArgument>} args
+ * @param {TokenStream} stream
+ * @param {boolean} isConstant
  * @return {string}
  */
-function compileJsArgs(args) {
-  if (args.length) {
-    return ['jass'].concat(args.map((arg) => `${arg.name}`)).join(', ');
+function compileNative(stream, isConstant) {
+  let name = stream.read();
+  let params = [];
+
+  stream.read(); // takes
+
+  let token = stream.read(); // nothing or type
+
+  if (token !== 'nothing') {
+    params.push({type: token, name: stream.readSafe()});
+
+    while (stream.read() === ',') {
+      params.push({type: stream.read(), name: stream.readSafe()});
+    }
   } else {
-    return 'jass';
+    stream.read(); // returns
   }
-}
-let typeMapping = {
-  'handle': 'JassHandle',
-  'code': 'function()',
-  'integer': 'number',
-  'real': 'number',
-  'boolean': 'boolean',
-  'string': 'string',
-  'agent': 'JassAgent',
-  'event': 'JassEvent',
-  'player': 'JassPlayer',
-  'widget': 'JassWidget',
-  'unit': 'JassUnit',
-  'destructable': 'JassDestructable',
-  'item': 'JassItem',
-  'ability': 'JassAbility',
-  'buff': 'JassBuff',
-  'force': 'JassForce',
-  'group': 'JassGroup',
-  'trigger': 'JassTrigger',
-  'triggercondition': 'function(): boolean',
-  'triggeraction': 'function()',
-  'timer': 'JassTimer',
-  'location': 'JassLocation',
-  'region': 'JassRegion',
-  'rect': 'JassRect',
-  'boolexpr': 'function(): boolean',
-  'sound': 'JassSound',
-  'conditionfunc': 'function(): boolean',
-  'filterfunc': 'function(): boolean',
-  'unitpool': 'JassUnitPool',
-  'itempool': 'JassItemPool',
-  'race': 'JassRace',
-  'alliancetype': 'JassAllianceType',
-  'racepreference': 'JassRacePreference',
-  'gamestate': 'JassGameState',
-  'igamestate': 'JassIGameState',
-  'fgamestate': 'JassFGameState',
-  'playerstate': 'JassPlayerState',
-  'playerscore': 'JassPlayerScore',
-  'playergameresult': 'JassPlayerGameResult',
-  'unitstate': 'JassUnitState',
-  'aidifficulty': 'JassAiDifficulty',
-  'eventid': 'JassEventId',
-  'gameevent': 'JassGameEvent',
-  'playerevent': 'JassPlayerEvent',
-  'playerunitevent': 'JassPlayerUnitEvent',
-  'unitevent': 'JassUnitEvent',
-  'limitop': 'JassLimitOp',
-  'widgetevent': 'JassWidgetEvent',
-  'dialogevent': 'JassDialogEvent',
-  'unittype': 'JassUnitType',
-  'gamespeed': 'JassGameSpeed',
-  'gamedifficulty': 'JassGameDifficulty',
-  'gametype': 'JassGameType',
-  'mapflag': 'JassMapFlag',
-  'mapvisibility': 'JassMapVisibility',
-  'mapsetting': 'JassMapSetting',
-  'mapdensity': 'JassMapDensity',
-  'mapcontrol': 'JassMapControl',
-  'playerslotstate': 'JassPlayerSlotState',
-  'volumegroup': 'JassVolumeGroup',
-  'camerafield': 'JassCameraField',
-  'camerasetup': 'JassCameraSetup',
-  'playercolor': 'JassPlayerColor',
-  'placement': 'JassPlacement',
-  'startlocprio': 'JassStartLocPrio',
-  'raritycontrol': 'JassRarityControl',
-  'blendmode': 'JassBlendMode',
-  'texmapflags': 'JassTexMapFlags',
-  'effect': 'JassEffect',
-  'effecttype': 'JassEffectType',
-  'weathereffect': 'JassWeatherEffect',
-  'terraindeformation': 'JassTerrainDeformation',
-  'fogstate': 'JassFogState',
-  'fogmodifier': 'JassFogModifier',
-  'dialog': 'JassDialog',
-  'button': 'JassButton',
-  'quest': 'JassQuest',
-  'questitem': 'JassQuestItem',
-  'defeatcondition': 'JassDefeatCondition',
-  'timerdialog': 'JassTimerDialog',
-  'leaderboard': 'JassLeaderboard',
-  'multiboard': 'JassMultiboard',
-  'multiboarditem': 'JassMultiboardItem',
-  'trackable': 'JassTrackable',
-  'gamecache': 'JassGameCache',
-  'version': 'JassVersion',
-  'itemtype': 'JassItemType',
-  'texttag': 'JassTextTag',
-  'attacktype': 'JassAttackType',
-  'damagetype': 'JassDamageType',
-  'weapontype': 'JassWeaponType',
-  'soundtype': 'JassSoundType',
-  'lightning': 'JassLightning',
-  'pathingtype': 'JassPathingType',
-  'image': 'JassImage',
-  'ubersplat': 'JassUberSplat',
-  'hashtable': 'JassHashTable',
-};
 
+  let returnType = stream.read();
+
+  let decl = `
 /**
- * @param {Native} node
- * @return {string}
+ * ${isConstant ? 'constant ' : ''}native ${name} takes ${params.length ? params.map((p) => `${p.type} ${p.name}`).join(', ') : 'nothing'} returns ${returnType}
+ * 
+ * @param {lua_State} L
+ * @return {number}
  */
-function compileJsDocSignature(node) {
-  let args = ['param {JassContext} jass'];
+function ${name}(L) {
+  ${compileGetters(params)}
+  console.warn('${name} was called but is not implemented :(');
+  ${compileReturn(returnType)}
+}`;
 
-  if (node.args.length) {
-    args.push(...node.args.map((arg) => `param {${typeMapping[arg.type]}} ${arg.name}`));
-  }
-
-  if (node.returnType !== 'nothing') {
-    args.push(`return {${typeMapping[node.returnType]}}`);
-  }
-
-  return '//  * @' + args.join('\n//  * @');
+  return {name, decl};
 }
 
 /**
- * @param {Native} node
+ * @param {Array<string>} names
  * @return {string}
  */
-function compileJsDoc(node) {
-  return `// /**
-//  * ${compileJassNative(node)}
-//  *
-${compileJsDocSignature(node)}
-//  */`;
+function compileBindings(names) {
+  return `
+/**
+ * @param {LuaContext} C
+ */
+export default function bind(C) {\nlet L = C.L;\n${names.map((name) => `  lua_register(L, '${name}', ${name}.bind(C));`).join('\n')}\n}`;
 }
 
 /**
- * @param {Node} node
+ * @param {string} jass
  * @return {string}
  */
-function compileNode(node) {
-  let result = '';
+export default function compileNatives(jass) {
+  let stream = new TokenStream(jass);
+  let names = [];
+  let decls = [];
+  let token;
 
-  if (node instanceof ast.Program) {
-    result += node.blocks.map((block) => compileNode(block)).join('\n');
-  } else if (node instanceof ast.Native) {
-    let jsDoc = compileJsDoc(node);
-    let js = `// export function ${node.name}(${compileJsArgs(node.args)}) {}\n`;
+  while ((token = stream.read()) !== undefined) {
+    let isConstant = false;
 
-    result += `${jsDoc}\n${js}`;
+    if (token === 'constant') {
+      isConstant = true;
+
+      token = stream.read();
+    }
+
+    if (token === 'native') {
+      let {name, decl} = compileNative(stream, isConstant);
+
+      names.push(name);
+      decls.push(decl);
+    }
   }
 
-  return result;
-}
-
-/**
- * @param {string} jassCode
- * @return {string}
- */
-export default function compileNatives(jassCode) {
-  return compileNode(parse(jassCode));
+  return `${decls.join('\n')}\n${compileBindings(names)}\n`;
 }

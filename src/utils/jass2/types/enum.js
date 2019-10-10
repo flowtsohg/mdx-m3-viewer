@@ -5,12 +5,11 @@ import JassHandle from './handle';
  */
 export default class JassEnum extends JassHandle {
   /**
-   * @param {JassContext} jass
    * @param {number} value
    */
-  constructor(jass, value) {
-    super(jass);
+  constructor(value) {
+    super();
 
-    this.handleId = value;
+    this.id = value;
   }
 }

@@ -1,15 +1,13 @@
-import recompile from './recompile';
-import compileNatives from './compilenatives';
-import rebuild from './rebuild';
+import jass2lua from './jass2lua';
 import Context from './context';
-import * as natives from './natives';
-import {parse} from './jass';
+import compileNatives from './compilenatives';
+import bindNatives from './natives';
+import rebuild from './rebuild';
 
 export default {
-  recompile,
-  compileNatives,
-  rebuild,
+  jass2lua,
   Context,
-  natives,
-  parse,
+  compileNatives,
+  bindNatives,
+  rebuild,
 };

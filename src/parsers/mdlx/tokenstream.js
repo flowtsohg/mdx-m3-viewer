@@ -53,7 +53,13 @@ export default class TokenStream {
           inComment = false;
         }
       } else if (inString) {
-        if (c === '"') {
+        if (c === '\\') {
+          token += c + buffer[this.index++];
+        } else if (c === '\n') {
+          token += '\\n';
+        } else if (c === '\r') {
+          token += '\\r';
+        } else if (c === '"') {
           return token;
         } else {
           token += c;
@@ -453,7 +459,8 @@ export default class TokenStream {
    * @param {string} name
    */
   startObjectBlock(header, name) {
-    this.writeLine(`${header} "${name}" {`);
+    // Turns out you can have quotation marks in object names.
+    this.writeLine(`${header} "${name.replace(/"/g, '\\"')}" {`);
     this.ident += 1;
   }
 

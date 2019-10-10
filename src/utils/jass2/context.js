@@ -1,392 +1,228 @@
 
 import EventEmitter from 'events';
+import {to_luastring, to_jsstring} from 'fengari/src/fengaricore';
+import {lua_pop, lua_getglobal, lua_pcall, LUA_MULTRET, lua_atnativeerror, lua_pushstring, lua_touserdata, lua_rawgeti, LUA_REGISTRYINDEX, lua_resume, LUA_OK, LUA_YIELD} from 'fengari/src/lua';
+import {luaL_newstate, luaL_loadstring, luaL_tolstring, luaL_unref, luaL_checknumber} from 'fengari/src/lauxlib';
+import {luaL_openlibs} from 'fengari/src/lualib';
 import MappedData from '../mappeddata';
-import recompile from './recompile';
-import * as natives from './natives';
-import JassHandle from './types/handle';
-import JassAgent from './types/agent';
-import JassReference from './types/reference';
+import jass2lua from './jass2lua';
+import bindNatives from './natives';
 import JassPlayer from './types/player';
 import constantHandles from './constanthandles';
+import {WaitingThread} from './thread';
 
 /**
  * A Jass2 context.
  */
-export default class JassContext extends EventEmitter {
+export default class Context extends EventEmitter {
   /**
-   * @param {War3Map} map
+   *
    */
-  constructor(map) {
+  constructor() {
     super();
 
-    this.debugMode = false;
+    this.L = luaL_newstate();
 
-    this.map = map;
+    luaL_openlibs(this.L);
 
-    this.globals = {};
-    this.data = {};
+    bindNatives(this);
 
-    this.natives = new Map();
-    this.addNatives(Object.entries(natives));
+    lua_atnativeerror(this.L, (L) => {
+      let e = lua_touserdata(L, -1);
 
-    this.currentHandle = 0;
+      lua_pushstring(L, e.stack);
+
+      return 1;
+    });
+
+    this.map = null;
+
+    /** @member {number} */
+    this.handle = 0;
+    /** @member {Array<number>} */
     this.freeHandles = [];
-    this.handles = new Set();
+    /** @member {Array<?JassHandle} */
+    this.handles = [];
 
-    this.references = new Set();
-
-    this.mappedData = new MappedData();
+    this.name = '';
+    this.description = '';
+    this.players = [];
+    this.actualPlayers = 0;
+    this.startLocations = [];
 
     this.constantHandles = constantHandles(this);
-    this.mapName = '';
-    this.mapDescription = '';
-    this.gamePlacement = null;
-    this.gameSpeed = null;
-    this.gameDifficulty = null;
-    this.playerCount = 0;
-    this.teamCount = 0;
-    this.startLocations = [];
-    this.players = [];
-    this.teams = [];
 
+    for (let i = 0; i < 28; i++) {
+      this.players[i] = this.addHandle(new JassPlayer(i, 28));
+    }
+
+    // this.mappedData = new MappedData();
+
+    // this.mapName = '';
+    // this.mapDescription = '';
+    // this.gamePlacement = null;
+    // this.gameSpeed = null;
+    // this.gameDifficulty = null;
+    // this.playerCount = 0;
+    // this.teamCount = 0;
+    // this.startLocations = [];
+    // this.players = [];
+    // this.teams = [];
+
+    // this.stringTable = map.readStringTable();
+
+    /** @member {Set<JassTimer>} */
     this.timers = new Set();
 
-    //For now hardcoded to 1.29+
-    for (let i = 0; i < 28; i++) {
-      this.players[i] = new JassPlayer(this, i, 28);
-    }
+    /** @member {Map<lua_State, Thread>} */
+    this.threads = new Map();
 
-    this.stringTable = map.readStringTable();
-  }
-
-  /**
-   * @param {Iterable<string, function>} iterable
-   */
-  addNatives(iterable) {
-    for (let [name, handlerFunc] of iterable) {
-      this.natives.set(name, handlerFunc);
-    }
-  }
-
-  /**
-   * @param {string} name
-   */
-  onNativeDef(name) {
-    if (this.debugMode) {
-      this.emit('nativedef', name);
-    }
-  }
-
-  /**
-   * @param {string} name
-   * @param {function} handlerFunc
-   * @return {function}
-   */
-  onFunctionDef(name, handlerFunc) {
-    if (this.debugMode) {
-      this.emit('functiondef', name, handlerFunc);
-    }
-
-    return handlerFunc;
-  }
-
-  /**
-   * @param {string} name
-   * @param {*} value
-   * @return {*}
-   */
-  onLocalVarDef(name, value) {
-    if (this.debugMode) {
-      this.emit('localvardef', name, value);
-    }
-
-    if (value instanceof JassAgent) {
-      return this.addReference(name, value);
-    }
-
-    return value;
-  }
-
-  /**
-   * @param {string} name
-   * @param {*} value
-   * @return {*}
-   */
-  onGlobalVarDef(name, value) {
-    if (this.debugMode) {
-      this.emit('globalvardef', name, value);
-    }
-
-    // Store the names global handles are assigned to.
-    // It can be nice to get e.g. enum names of types.
-    if (value instanceof JassHandle) {
-      value.addName(name);
-    }
-
-    // If the value is an agent, return a reference instead.
-    if (value instanceof JassAgent) {
-      return this.addReference(name, value);
-    }
-
-    // If the value is a reference, return a reference to the object it references.
-    if (value instanceof JassReference) {
-      return this.addReference(name, value.object);
-    }
-
-    return value;
-  }
-
-  /**
-   * @param {string} name
-   * @param {*} oldValue
-   * @param {*} newValue
-   * @return {*}
-   */
-  onVarSet(name, oldValue, newValue) {
-    if (this.debugMode) {
-      this.emit('varset', name, oldValue, newValue);
-    }
-
-    // If the old value was a reference, remove it.
-    if (oldValue instanceof JassReference) {
-      this.removeReference(oldValue);
-    }
-
-    // If the new value is an agent, return a reference instead.
-    if (newValue instanceof JassAgent) {
-      return this.addReference(name, newValue);
-    }
-
-    // If the new value is a reference, return a reference to the object it references.
-    if (newValue instanceof JassReference) {
-      return this.addReference(name, newValue.object);
-    }
-
-    // Or just return the value.
-    return newValue;
-  }
-
-  /**
-   * @param {string} name
-   * @param {Array<*>} array
-   * @param {number} index
-   * @param {*} newValue
-   */
-  onArrayVarSet(name, array, index, newValue) {
-    let oldValue = array[index];
-
-    if (this.debugMode) {
-      this.emit('arrayvarset', name, index, oldValue, newValue);
-    }
-
-    // If the old value was a reference, remove it.
-    if (oldValue instanceof JassReference) {
-      this.removeReference(oldValue);
-    }
-
-    // If the new value is an agent, set a reference instead.
-    if (newValue instanceof JassAgent) {
-      array[index] = this.addReference(`${name}[${index}]`, newValue);
-      return;
-    }
-
-    // If the new value is a reference, set a reference to the object it references.
-    if (newValue instanceof JassReference) {
-      array[index] = this.addReference(`${name}[${index}]`, newValue.object);
-      return;
-    }
-
-    // Or just return the value.
-    array[index] = newValue;
-  }
-
-  /**
-   * @param {string} name
-   * @param {*} value
-   * @return {*}
-   */
-  onVarGet(name, value) {
-    if (this.debugMode) {
-      this.emit('varget', name, value);
-    }
-
-    return value;
-  }
-
-  /**
-   * @param {string} name
-   * @param {Array<*>} array
-   * @param {number} index
-   * @return {*}
-   */
-  onArrayVarGet(name, array, index) {
-    let value = array[index];
-
-    if (this.debugMode) {
-      this.emit('arrayvarget', name, index, value);
-    }
-
-    return value;
-  }
-
-  /**
-   * @param {JassHandle} handle
-   */
-  onHandleCreation(handle) {
-    if (this.debugMode) {
-      this.emit('handlecreated', handle);
-    }
-  }
-
-  /**
-   * @param {JassHandle} handle
-   */
-  onHandleDestruction(handle) {
-    if (this.debugMode) {
-      this.emit('handledestroyed', handle);
-    }
-  }
-
-  /**
-   * @param {JassReference} reference
-   */
-  onReferenceCreation(reference) {
-    if (this.debugMode) {
-      this.emit('refcreated', reference);
-    }
-  }
-
-  /**
-   * @param {JassReference} reference
-   */
-  onReferenceDestruction(reference) {
-    if (this.debugMode) {
-      this.emit('refdestroyed', reference);
-    }
-  }
-
-  /**
-   * @param {string} name
-   * @param {Array<*>} args
-   * @return {*}
-   */
-  call(name, ...args) {
-    let handlerFunc = this.globals[name];
-
-    if (!handlerFunc) {
-      handlerFunc = this.natives.get(name);
-    }
-
-    if (this.debugMode) {
-      this.emit('call', name, args, handlerFunc);
-    }
-
-    if (handlerFunc) {
-      return handlerFunc(this, ...args.map((value) => {
-        // If this argument is a string, check if it's a trigger string, and if so replace it accordingly.
-        if (typeof value === 'string') {
-          let match = value.match(/^TRIGSTR_(\d+)$/);
-
-          if (match) {
-            return this.stringTable.stringMap.get(parseInt(match[1]));
-          }
-          // If this argument is a reference, pass in its object instead.
-        } else if (value instanceof JassReference) {
-          return value.object;
-        }
-
-        // Otherwise return the value directly.
-        return value;
-      }));
-    }
-  }
-
-  /**
-   * @param {string} js
-   */
-  run(js) {
-    eval(`(function (jass, globals) {\n${js}\n})`)(this, this.globals);
-  }
-
-  /**
-   * @param {string} jass
-   * @return {string}
-   */
-  recompile(jass) {
-    return recompile(jass, this.data);
+    this.t = 0;
   }
 
   /**
    *
    */
   start() {
-    this.run(this.recompile(this.commonj));
-    this.run(this.recompile(this.blizzardj));
-    this.run(this.recompile(this.map.getScript()));
+    this.t = performance.now();
+  }
+
+  /**
+   *
+   */
+  step() {
+    let t = performance.now();
+    let dt = (t - this.t) * 0.001;
+    let timers = this.timers;
+    let threads = this.threads;
+
+    for (let timer of timers) {
+      timer.elapsed += dt;
+
+      if (timer.elapsed >= timer.timeout) {
+        let thread = new WaitingThread(this.L, {expiredTimer: timer}, 0);
+        let L = thread.L;
+
+        // Push the handler onto the thread's stack, so when the thread is resumed it will immediately be called.
+        lua_rawgeti(L, LUA_REGISTRYINDEX, timer.handlerFunc);
+
+        this.threads.set(L, thread);
+
+        if (timer.periodic) {
+          timer.elapsed = 0;
+        } else {
+          timers.delete(timer);
+
+          // If the timer isn't periodic, the callback reference can be collected.
+          luaL_unref(timer.handlerFunc);
+        }
+      }
+    }
+
+    for (let [L, thread] of threads) {
+      thread.timeout -= dt;
+
+      if (thread.timeout <= 0) {
+        let status = lua_resume(L, this.L, 0);
+
+        if (status === LUA_OK) {
+          threads.delete(L);
+        } else if (status === LUA_YIELD) {
+          thread.timeout = luaL_checknumber(L, 1);
+        } else {
+          console.log('[JS] Something went wrong during execution');
+          console.log(to_jsstring(luaL_tolstring(L, -1)));
+          lua_pop(L, 2);
+        }
+      }
+    }
+
+    this.t = t;
   }
 
   /**
    * @param {JassHandle} handle
-   * @return {handle}
+   * @return {JassHandle}
    */
   addHandle(handle) {
-    this.handles.add(handle);
+    if (handle.handleId === -1) {
+      let handleId;
 
-    this.onHandleCreation(handle);
+      if (this.freeHandles.length) {
+        handleId = this.freeHandles.pop();
+      } else {
+        handleId = this.handle++;
+      }
+
+      this.handles[handleId] = handle;
+
+      handle.handleId = handleId;
+    }
 
     return handle;
   }
 
   /**
-   * @param {Jasshandle} handle
-   * @return {handle}
+   * @param {JassHandle} handle
    */
-  removeHandle(handle) {
-    if (!this.handles.delete(handle)) {
-      throw new Error(`Trying to free handle ${handle} which does not refer to any data`);
+  freeHandle(handle) {
+    if (handle.handleId !== -1) {
+      this.freeHandles.push(handle.handleId);
+
+      this.handles[handle.handleId] = null;
+
+      handle.handleId = -1;
     }
-
-    handle.kill();
-
-    this.freeHandles.push(handle);
-
-    this.onHandleDestruction(handle);
-
-    return handle;
   }
 
   /**
    * @param {string} name
-   * @param {JassAgent} value
-   * @return {JassReference}
    */
-  addReference(name, value) {
-    let reference = new JassReference(name, value);
+  call(name) {
+    let L = this.L;
 
-    value.addReference(reference);
+    lua_getglobal(L, name);
 
-    this.references.add(reference);
-
-    this.onReferenceCreation(reference);
-
-    return reference;
+    if (lua_pcall(L, 0, 0, 0)) {
+      console.log('Something went wrong during execution');
+      console.log(to_jsstring(luaL_tolstring(L, -1)));
+      lua_pop(L, 2);
+    }
   }
 
   /**
-   * @param {JassReference} reference
+   * @param {string} code
+   * @param {boolean} isJass
    */
-  removeReference(reference) {
-    reference.object.removeReference(reference);
+  run(code, isJass) {
+    let L = this.L;
 
-    this.references.delete(reference);
+    if (isJass) {
+      code = jass2lua(code);
+    }
 
-    this.onReferenceDestruction(reference);
+    if (luaL_loadstring(L, to_luastring(code))) {
+      console.log('Something went wrong during execution');
+      console.log(to_jsstring(luaL_tolstring(L, -1)));
+      lua_pop(L, 2);
+    }
+
+    if (lua_pcall(L, 0, LUA_MULTRET, 0)) {
+      console.log('Something went wrong during execution');
+      console.log(to_jsstring(luaL_tolstring(L, -1)));
+      lua_pop(L, 2);
+    }
   }
 
   /**
-   * @return {number}
+   * @param {War3Map} map
    */
-  getAvailableHandle() {
-    return this.currentHandle++;
+  open(map) {
+    this.map = map;
+
+    let file = map.get('war3map.j') || map.get('war3map.lua') || map.get('scripts\\war3map.j') || map.get('scripts\\war3map.lua');
+    let isJass = file.name.endsWith('.j');
+
+    this.run(file.text(), isJass);
   }
 }

@@ -5,22 +5,21 @@ import JassAgent from './agent';
  */
 export default class JassPlayer extends JassAgent {
   /**
-   * @param {JassContext} jass
    * @param {number} index
    * @param {number} maxPlayers
    */
-  constructor(jass, index, maxPlayers) {
-    super(jass);
+  constructor(index, maxPlayers) {
+    super();
 
     this.index = index;
     this.name = `Player ${index}`;
     this.team = -1;
     this.startLocation = -1;
     this.forcedStartLocation = -1;
-    this.color = null;
-    this.racePreference = null;
+    this.color = -1;
+    this.racePreference = -1;
     this.raceSelectable = false;
-    this.controller = null;
+    this.controller = -1;
     this.alliances = new Map();
 
     for (let i = 0; i < maxPlayers; i++) {
@@ -39,12 +38,5 @@ export default class JassPlayer extends JassAgent {
         });
       }
     }
-  }
-
-  /**
-   * @return {string}
-   */
-  toString() {
-    return `Player(${this.index})`;
   }
 }
