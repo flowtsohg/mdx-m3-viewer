@@ -1,5 +1,5 @@
-let fs = require('fs');
-let webpack = require('webpack');
+const fs = require('fs');
+const webpack = require('webpack');
 
 module.exports = function(env, argv) {
   return {
@@ -9,6 +9,11 @@ module.exports = function(env, argv) {
     },
     plugins: [
       new webpack.BannerPlugin(fs.readFileSync('LICENSE', 'utf8')),
+      // Note: this is needed to compile fengari for the web.
+      new webpack.DefinePlugin({
+        'process.env.FENGARICONF': 'void 0',
+        'typeof process': JSON.stringify('undefined'),
+      }),
     ],
     performance: {
       hints: false,
