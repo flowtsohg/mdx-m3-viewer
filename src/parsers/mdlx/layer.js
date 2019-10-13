@@ -42,12 +42,18 @@ export default class Layer extends AnimatedObject {
     this.coordId = 0;
     /** @member {number} */
     this.alpha = 1;
+    /**
+     * @since 900
+     * @member {number}
+     */
+    this.emissive = 0;
   }
 
   /**
    * @param {BinaryStream} stream
+   * @param {number} version
    */
-  readMdx(stream) {
+  readMdx(stream, version) {
     let size = stream.readUint32();
 
     this.filterMode = stream.readUint32();
@@ -57,13 +63,21 @@ export default class Layer extends AnimatedObject {
     this.coordId = stream.readUint32();
     this.alpha = stream.readFloat32();
 
+    if (version === 900) {
+      this.emissive = stream.readFloat32();
+
+      // Instead of -32 below.
+      size -= 4;
+    }
+
     this.readAnimations(stream, size - 28);
   }
 
   /**
    * @param {BinaryStream} stream
+   * @param {number} version
    */
-  writeMdx(stream) {
+  writeMdx(stream, version) {
     stream.writeUint32(this.getByteLength());
     stream.writeUint32(this.filterMode);
     stream.writeUint32(this.flags);
@@ -71,6 +85,10 @@ export default class Layer extends AnimatedObject {
     stream.writeInt32(this.textureAnimationId);
     stream.writeUint32(this.coordId);
     stream.writeFloat32(this.alpha);
+
+    if (version === 900) {
+      stream.writeFloat32(this.emissive);
+    }
 
     this.writeAnimations(stream);
   }
@@ -164,9 +182,16 @@ export default class Layer extends AnimatedObject {
   }
 
   /**
+   * @param {number} version
    * @return {number}
    */
-  getByteLength() {
-    return 28 + super.getByteLength();
+  getByteLength(version) {
+    let size = 28 + super.getByteLength();
+
+    if (version === 900) {
+      size += 4;
+    }
+
+    return size;
   }
 }

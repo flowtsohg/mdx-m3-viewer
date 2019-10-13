@@ -5,11 +5,17 @@ import JassAgent from './agent';
  */
 export default class JassTrigger extends JassAgent {
   /**
-   * @param {JassContext} jass
+   *
    */
-  constructor(jass) {
-    super(jass);
+  constructor() {
+    super();
 
+    /** @member {Array<number>} */
+    this.events = [];
+    /** @member {Array<number>} */
+    this.conditions = [];
+    /** @member {Array<number>} */
+    this.actions = [];
     /** @member {boolean} */
     this.enabled = true;
   }

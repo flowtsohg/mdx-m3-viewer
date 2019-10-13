@@ -15,7 +15,6 @@ export default class JassUnit extends JassWidget {
   constructor(player, unitId, x, y, face) {
     super();
 
-
     this.player = player;
     this.unitId = base256ToString(unitId);
     this.x = x;

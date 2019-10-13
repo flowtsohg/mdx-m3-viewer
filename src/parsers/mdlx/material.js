@@ -12,25 +12,35 @@ export default class Material {
     this.priorityPlane = 0;
     /** @member {number} */
     this.flags = 0;
+    /**
+     * @since 900
+     * @member {string}
+     */
+    this.shader = '';
     /** @member {Array<Layer>} */
     this.layers = [];
   }
 
   /**
    * @param {BinaryStream} stream
+   * @param {number} version
    */
-  readMdx(stream) {
+  readMdx(stream, version) {
     stream.readUint32(); // Don't care about the size.
 
     this.priorityPlane = stream.readInt32();
     this.flags = stream.readUint32();
+
+    if (version === 900) {
+      this.shader = stream.read(80);
+    }
 
     stream.skip(4); // LAYS
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
       let layer = new Layer();
 
-      layer.readMdx(stream);
+      layer.readMdx(stream, version);
 
       this.layers.push(layer);
     }
@@ -38,16 +48,23 @@ export default class Material {
 
   /**
    * @param {BinaryStream} stream
+   * @param {number} version
    */
-  writeMdx(stream) {
+  writeMdx(stream, version) {
     stream.writeUint32(this.getByteLength());
     stream.writeUint32(this.priorityPlane);
     stream.writeUint32(this.flags);
+
+    if (version === 900) {
+      stream.write(this.shader);
+      stream.skip(80 - this.shader.length);
+    }
+
     stream.write('LAYS');
     stream.writeUint32(this.layers.length);
 
     for (let layer of this.layers) {
-      layer.writeMdx(stream);
+      layer.writeMdx(stream, version);
     }
   }
 
@@ -112,13 +129,18 @@ export default class Material {
   }
 
   /**
+   * @param {number} version
    * @return {number}
    */
-  getByteLength() {
+  getByteLength(version) {
     let size = 20;
 
+    if (version === 900) {
+      size += 80;
+    }
+
     for (let layer of this.layers) {
-      size += layer.getByteLength();
+      size += layer.getByteLength(version);
     }
 
     return size;

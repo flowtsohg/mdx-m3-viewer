@@ -34,15 +34,37 @@ export default class Geoset {
     this.extent = new Extent();
     /** @member {Array<Extent>} */
     this.sequenceExtents = [];
+    /**
+     * @since 900
+     * @member {number}
+     */
+    this.lod = 0;
+    /**
+     * @since 900
+     * @member {string}
+     */
+    this.lodName = '';
+    /**
+     * @since 900
+     * @member {Float32Array}
+     */
+    this.tangents = new Float32Array(0);
+    /**
+     * @since 900
+     * @member {Float32Array}
+     */
+    this.weights = new Uint8Array(0);
     /** @member {Array<Float32Array>} */
     this.uvSets = [];
   }
 
   /**
    * @param {BinaryStream} stream
+   * @param {number} version
    */
-  readMdx(stream) {
+  readMdx(stream, version) {
     stream.readUint32(); // Don't care about the size.
+
     stream.skip(4); // VRTX
     this.vertices = stream.readFloat32Array(stream.readUint32() * 3);
     stream.skip(4); // NRMS
@@ -62,14 +84,26 @@ export default class Geoset {
     this.materialId = stream.readUint32();
     this.selectionGroup = stream.readUint32();
     this.selectionFlags = stream.readUint32();
-    this.extent.readMdx(stream);
 
-    for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let extent = new Extent();
+    if (version === 900) {
+      this.lod = stream.readUint32();
+      this.lodName = stream.read(112);
 
-      extent.readMdx(stream);
+      stream.skip(4); // TANG
+      this.tangents = stream.readFloat32Array(stream.readUint32() * 4);
 
-      this.sequenceExtents.push(extent);
+      stream.skip(4); // SKIN
+      this.weights = stream.readUint8Array(stream.readUint32());
+    } else {
+      this.extent.readMdx(stream);
+
+      for (let i = 0, l = stream.readUint32(); i < l; i++) {
+        let extent = new Extent();
+
+        extent.readMdx(stream);
+
+        this.sequenceExtents.push(extent);
+      }
     }
 
     stream.skip(4); // UVAS
@@ -82,8 +116,9 @@ export default class Geoset {
 
   /**
    * @param {BinaryStream} stream
+   * @param {number} version
    */
-  writeMdx(stream) {
+  writeMdx(stream, version) {
     stream.writeUint32(this.getByteLength());
     stream.write('VRTX');
     stream.writeUint32(this.vertices.length / 3);
@@ -112,11 +147,23 @@ export default class Geoset {
     stream.writeUint32(this.materialId);
     stream.writeUint32(this.selectionGroup);
     stream.writeUint32(this.selectionFlags);
-    this.extent.writeMdx(stream);
-    stream.writeUint32(this.sequenceExtents.length);
 
-    for (let sequenceExtent of this.sequenceExtents) {
-      sequenceExtent.writeMdx(stream);
+    if (version === 900) {
+      stream.writeUint32(this.lod);
+      stream.write(this.lodName);
+      stream.skip(112 - this.lodName.length);
+      stream.write('TANG');
+      stream.writeFloat32Array(this.tangents);
+      stream.write('SKIN');
+      stream.writeUint8Array(this.weights);
+    } else {
+      this.extent.writeMdx(stream);
+
+      stream.writeUint32(this.sequenceExtents.length);
+
+      for (let sequenceExtent of this.sequenceExtents) {
+        sequenceExtent.writeMdx(stream);
+      }
     }
 
     stream.write('UVAS');
@@ -271,10 +318,17 @@ export default class Geoset {
   }
 
   /**
+   * @param {number} version
    * @return {number}
    */
-  getByteLength() {
-    let size = 120 + this.vertices.byteLength + this.normals.byteLength + this.faceTypeGroups.byteLength + this.faceGroups.byteLength + this.faces.byteLength + this.vertexGroups.byteLength + this.matrixGroups.byteLength + this.matrixIndices.byteLength + this.sequenceExtents.length * 28;
+  getByteLength(version) {
+    let size = 92 + this.vertices.byteLength + this.normals.byteLength + this.faceTypeGroups.byteLength + this.faceGroups.byteLength + this.faces.byteLength + this.vertexGroups.byteLength + this.matrixGroups.byteLength + this.matrixIndices.byteLength;
+
+    if (version === 900) {
+      size += 132 + this.tangents.byteLength + this.weights.byteLength;
+    } else {
+      size += 28 + this.sequenceExtents.length * 28;
+    }
 
     for (let uvSet of this.uvSets) {
       size += 8 + uvSet.byteLength;

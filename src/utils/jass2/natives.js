@@ -1,6 +1,6 @@
-import {lua_register, lua_pushinteger, lua_pushnumber, lua_pushstring, lua_pushlightuserdata, lua_touserdata, lua_pushboolean, lua_toboolean, LUA_REGISTRYINDEX, lua_yield} from 'fengari/src/lua';
-import {luaL_checkstring, luaL_checkinteger, luaL_checknumber, luaL_ref} from 'fengari/src/lauxlib';
-import {JassTimer, JassGroup, JassLocation, JassForce, JassUnit} from './types';
+import {lua_register, lua_pushinteger, lua_pushnumber, lua_pushstring, lua_pushlightuserdata, lua_touserdata, lua_pushboolean, lua_toboolean, LUA_REGISTRYINDEX, lua_yield, lua_pcall, lua_rawgeti} from 'fengari/src/lua';
+import {luaL_checkstring, luaL_checkinteger, luaL_checknumber, luaL_ref, luaL_unref} from 'fengari/src/lauxlib';
+import {JassTimer, JassGroup, JassLocation, JassForce, JassUnit, JassTrigger} from './types';
 
 /**
  * constant native ConvertRace takes integer i returns race
@@ -1056,7 +1056,7 @@ function GetHandleId(L) {
   let h = lua_touserdata(L, 1);
 
   lua_pushinteger(L, h.handleId);
-  
+
   return 1;
 }
 
@@ -1938,7 +1938,7 @@ function ResumeTimer(L) {
  * @return {number}
  */
 function GetExpiredTimer(L) {
-  lua_pushlightuserdata(L, this.threads.get(L).data.expiredTimer);
+  lua_pushlightuserdata(L, this.currentThread.expiredTimer);
 
   return 1;
 }
@@ -2292,7 +2292,17 @@ function GroupTargetOrderById(L) {
 function ForGroup(L) {
   let whichGroup = lua_touserdata(L, 1);
   let callback = luaL_ref(L, LUA_REGISTRYINDEX);
-  console.warn('ForGroup was called but is not implemented :(');
+
+  for (let unit of whichGroup.units) {
+    this.enumUnit = unit;
+
+    this.call(callback);
+  }
+
+  this.enumUnit = null;
+
+  luaL_unref(L, callback);
+
   return 0
 }
 
@@ -2443,7 +2453,17 @@ function ForceEnumEnemies(L) {
 function ForForce(L) {
   let whichForce = lua_touserdata(L, 1);
   let callback = luaL_ref(L, LUA_REGISTRYINDEX);
-  console.warn('ForForce was called but is not implemented :(');
+  
+  for (let player of whichForce.players) {
+    this.enumPlayer = player;
+
+    this.call(callback);
+  }
+
+  this.enumPlayer = null;
+
+  luaL_unref(L, callback);
+
   return 0
 }
 
@@ -2871,9 +2891,8 @@ function GetWorldBounds(L) {
  * @return {number}
  */
 function CreateTrigger(L) {
+  lua_pushlightuserdata(L, this.addHandle(new JassTrigger()));
 
-  console.warn('CreateTrigger was called but is not implemented :(');
-  lua_pushlightuserdata(L, {name: 'FAKE'});
   return 1;
 }
 
@@ -2885,7 +2904,12 @@ function CreateTrigger(L) {
  */
 function DestroyTrigger(L) {
   let whichTrigger = lua_touserdata(L, 1);
-  console.warn('DestroyTrigger was called but is not implemented :(');
+
+  // In case it's registered, remove it.
+  this.triggers.delete(whichTrigger);
+
+  this.freeHandle(whichTrigger);
+
   return 0
 }
 
@@ -2971,9 +2995,8 @@ function IsTriggerWaitOnSleeps(L) {
  * @return {number}
  */
 function GetFilterUnit(L) {
+  lua_pushlightuserdata(L, this.filterUnit);
 
-  console.warn('GetFilterUnit was called but is not implemented :(');
-  lua_pushlightuserdata(L, {name: 'FAKE'});
   return 1;
 }
 
@@ -2984,9 +3007,8 @@ function GetFilterUnit(L) {
  * @return {number}
  */
 function GetEnumUnit(L) {
+  lua_pushlightuserdata(L, this.enumUnit);
 
-  console.warn('GetEnumUnit was called but is not implemented :(');
-  lua_pushlightuserdata(L, {name: 'FAKE'});
   return 1;
 }
 
@@ -3062,9 +3084,8 @@ function GetFilterPlayer(L) {
  * @return {number}
  */
 function GetEnumPlayer(L) {
+  lua_pushlightuserdata(L, this.enumPlayer);
 
-  console.warn('GetEnumPlayer was called but is not implemented :(');
-  lua_pushlightuserdata(L, {name: 'FAKE'});
   return 1;
 }
 
@@ -3075,9 +3096,8 @@ function GetEnumPlayer(L) {
  * @return {number}
  */
 function GetTriggeringTrigger(L) {
-
-  console.warn('GetTriggeringTrigger was called but is not implemented :(');
-  lua_pushlightuserdata(L, {name: 'FAKE'});
+  lua_pushlightuserdata(L, this.currentThread.triggeringTrigger);
+  
   return 1;
 }
 
@@ -4354,9 +4374,8 @@ function TriggerRegisterDeathEvent(L) {
  * @return {number}
  */
 function GetTriggerUnit(L) {
-
-  console.warn('GetTriggerUnit was called but is not implemented :(');
-  lua_pushlightuserdata(L, {name: 'FAKE'});
+  lua_pushlightuserdata(L, this.currentThread.triggerUnit);
+  
   return 1;
 }
 
@@ -6845,8 +6864,9 @@ function GetUnitState(L) {
  */
 function GetOwningPlayer(L) {
   let whichUnit = lua_touserdata(L, 1);
-  console.warn('GetOwningPlayer was called but is not implemented :(');
-  lua_pushlightuserdata(L, {name: 'FAKE'});
+
+  lua_pushlightuserdata(L, whichUnit.player);
+
   return 1;
 }
 
@@ -8504,8 +8524,9 @@ function IsLocationMaskedToPlayer(L) {
  */
 function GetPlayerRace(L) {
   let whichPlayer = lua_touserdata(L, 1);
-  console.warn('GetPlayerRace was called but is not implemented :(');
-  lua_pushlightuserdata(L, {name: 'FAKE'});
+
+  lua_pushlightuserdata(L, whichPlayer.race);
+
   return 1;
 }
 

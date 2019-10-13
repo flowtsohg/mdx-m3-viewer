@@ -3,29 +3,21 @@ import {lua_newthread} from 'fengari/src/lua';
 /**
  * A thread.
  */
-class Thread {
+export default class Thread {
   /**
    * @param {lua_State} L
    * @param {Object} data
    */
   constructor(L, data) {
+    /** @member {lua_State} */
     this.L = lua_newthread(L);
-    this.data = {...data};
-  }
-}
-
-/**
- * A thread that waits for a timeout.
- */
-export class WaitingThread extends Thread {
-  /**
-   * @param {lua_State} L
-   * @param {Object} data
-   * @param {number} timeout
-   */
-  constructor(L, data, timeout) {
-    super(L, data);
-
-    this.timeout = timeout;
+    /** @member {number} */
+    this.sleep = 0;
+    /** @member {?Handle} */
+    this.expiredTimer = data.expiredTimer || null;
+    /** @member {?Handle} */
+    this.triggerUnit = data.triggerUnit || null;
+    /** @member {?Trigger} */
+    this.trigger = data.trigger || null;
   }
 }

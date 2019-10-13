@@ -5,6 +5,7 @@ export default {
   // Layer
   KMTF: ['TextureId', UintAnimation],
   KMTA: ['Alpha', FloatAnimation],
+  KMTE: ['Emissive', FloatAnimation],
   // TextureAnimation
   KTAT: ['Translation', Vector3Animation],
   KTAR: ['Rotation', Vector4Animation],

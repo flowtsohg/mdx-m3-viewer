@@ -224,14 +224,12 @@ export default class Model {
    * @param {number} size
    */
   loadDynamicObjects(out, constructor, stream, size) {
-    let totalSize = 0;
+    let end = stream.index + size;
 
-    while (totalSize < size) {
+    while (stream.index < end) {
       let object = new constructor();
 
-      object.readMdx(stream);
-
-      totalSize += object.getByteLength();
+      object.readMdx(stream, this.version);
 
       out.push(object);
     }
@@ -279,7 +277,7 @@ export default class Model {
     this.saveDynamicObjectChunk(stream, 'CLID', this.collisionShapes);
 
     for (let chunk of this.unknownChunks) {
-      chunk.saveMdx(stream);
+      chunk.writeMdx(stream);
     }
 
     return buffer;
@@ -350,7 +348,7 @@ export default class Model {
       stream.writeUint32(this.getObjectsByteLength(objects));
 
       for (let object of objects) {
-        object.writeMdx(stream);
+        object.writeMdx(stream, this.version);
       }
     }
   }
@@ -685,7 +683,7 @@ export default class Model {
     let size = 0;
 
     for (let object of objects) {
-      size += object.getByteLength();
+      size += object.getByteLength(this.version);
     }
 
     return size;
