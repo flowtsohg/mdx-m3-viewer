@@ -31,9 +31,6 @@ export default class Geoset {
     /** @member {number} */
     this.selectionFlags = 0;
     /** @member {Extent} */
-    this.extent = new Extent();
-    /** @member {Array<Extent>} */
-    this.sequenceExtents = [];
     /**
      * @since 900
      * @member {number}
@@ -44,6 +41,9 @@ export default class Geoset {
      * @member {string}
      */
     this.lodName = '';
+    this.extent = new Extent();
+    /** @member {Array<Extent>} */
+    this.sequenceExtents = [];
     /**
      * @since 900
      * @member {Float32Array}
@@ -87,23 +87,26 @@ export default class Geoset {
 
     if (version === 900) {
       this.lod = stream.readUint32();
-      this.lodName = stream.read(112);
+      this.lodName = stream.read(80);
+    }
 
+    this.extent.readMdx(stream);
+
+    for (let i = 0, l = stream.readUint32(); i < l; i++) {
+      let extent = new Extent();
+
+      extent.readMdx(stream);
+
+      this.sequenceExtents.push(extent);
+    }
+
+    // Non-reforged models that come with reforged are saved with version 900, however they don't have TANG and SKIN.
+    if (version === 900 && stream.peek(4) === 'TANG') {
       stream.skip(4); // TANG
       this.tangents = stream.readFloat32Array(stream.readUint32() * 4);
 
       stream.skip(4); // SKIN
       this.weights = stream.readUint8Array(stream.readUint32());
-    } else {
-      this.extent.readMdx(stream);
-
-      for (let i = 0, l = stream.readUint32(); i < l; i++) {
-        let extent = new Extent();
-
-        extent.readMdx(stream);
-
-        this.sequenceExtents.push(extent);
-      }
     }
 
     stream.skip(4); // UVAS

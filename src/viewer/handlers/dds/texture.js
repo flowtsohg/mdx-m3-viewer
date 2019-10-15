@@ -1,5 +1,5 @@
 import {base256ToString} from '../../../common/typecast';
-import {decodeDxt1, decodeDxt3, decodeDxt5} from '../../../common/dxt';
+import {decodeDxt1, decodeDxt3, decodeDxt5, decodeRgtc} from '../../../common/dxt';
 import Texture from '../../texture';
 
 let DDS_MAGIC = 0x20534444;
@@ -8,6 +8,7 @@ let DDPF_FOURCC = 0x4;
 let FOURCC_DXT1 = 0x31545844;
 let FOURCC_DXT3 = 0x33545844;
 let FOURCC_DXT5 = 0x35545844;
+let FOURCC_ATI2 = 0x32495441;
 
 /**
  * A DDS texture handler.
@@ -44,6 +45,9 @@ export default class DdsTexture extends Texture {
     } else if (fourCC === FOURCC_DXT5) {
       blockBytes = 16;
       internalFormat = compressedTextures ? compressedTextures.COMPRESSED_RGBA_S3TC_DXT5_EXT : null;
+    } else if (fourCC === FOURCC_ATI2) {
+      blockBytes = 16;
+      internalFormat = null;
     } else {
       throw new Error(`Unsupported FourCC: ${base256ToString(fourCC)}`);
     }
@@ -84,14 +88,16 @@ export default class DdsTexture extends Texture {
           gl.texImage2D(gl.TEXTURE_2D, i, gl.RGB, width, height, 0, gl.RGB, gl.UNSIGNED_SHORT_5_6_5, decodeDxt1(data, width, height));
         } else if (fourCC === FOURCC_DXT3) {
           gl.texImage2D(gl.TEXTURE_2D, i, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, decodeDxt3(data, width, height));
-        } else {
+        } else if (fourCC === FOURCC_DXT5) {
           gl.texImage2D(gl.TEXTURE_2D, i, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, decodeDxt5(data, width, height));
+        } else {
+          gl.texImage2D(gl.TEXTURE_2D, i, gl.LUMINANCE_ALPHA, width, height, 0, gl.LUMINANCE_ALPHA, gl.UNSIGNED_BYTE, decodeRgtc(new Uint8Array(src, dataOffset, dataLength), width, height));
         }
       }
 
       dataOffset += dataLength;
-      width *= 0.5;
-      height *= 0.5;
+      width = Math.max(width / 2, 1);
+      height = Math.max(height / 2, 1);
     }
 
     this.viewer.webgl.setTextureMode(gl.REPEAT, gl.REPEAT, gl.LINEAR, mipmapCount > 1 ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);

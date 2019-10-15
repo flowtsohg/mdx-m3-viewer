@@ -1,5 +1,6 @@
 // Note: This file is largely based on https://github.com/toji/webctx-texture-utils/blob/master/texture-util/dds.js
 import convertBitRange from './convertbitrange';
+import {uint8ToUint24} from './typecast';
 
 let dxt4to8 = convertBitRange(4, 8);
 let dxt5to8 = convertBitRange(5, 8);
@@ -251,6 +252,144 @@ export function decodeDxt5(src, width, height) {
       setRgba8888Dxt5(dst, dstI + 4, c[(m >> 10) & 0x3], a[(alphaBits >> 39) & 0x7]);
       setRgba8888Dxt5(dst, dstI + 8, c[(m >> 12) & 0x3], a[(alphaBits >> 42) & 0x7]);
       setRgba8888Dxt5(dst, dstI + 12, c[m >> 14], a[(alphaBits >> 45) & 0x7]);
+    }
+  }
+
+  return dst;
+}
+
+/**
+ * Decodes RGTC data to a Uint8Array typed array with 8-8 RG bits.
+ * RGTC is also known as BC5, ATI2, and 3Dc.
+ *
+ * @param {Uint8Array} src
+ * @param {number} width
+ * @param {number} height
+ * @return {Uint8Array}
+ */
+export function decodeRgtc(src, width, height) {
+  let red = new Uint8Array(8);
+  let green = new Uint8Array(8);
+  let dst = new Uint8Array(width * height * 2);
+  let rowBytes = width * 2;
+
+  for (let blockY = 0, blockHeight = height / 4; blockY < blockHeight; blockY++) {
+    for (let blockX = 0, blockWidth = width / 4; blockX < blockWidth; blockX++) {
+      let i = 16 * (blockY * blockWidth + blockX);
+
+      // Minimum and maximum red colors.
+      red[0] = src[i];
+      red[1] = src[i + 1];
+
+      // Interpolated red colors.
+      if (red[0] > red[1]) {
+        red[2] = (6 * red[0] + 1 * red[1]) / 7;
+        red[3] = (5 * red[0] + 2 * red[1]) / 7;
+        red[4] = (4 * red[0] + 3 * red[1]) / 7;
+        red[5] = (3 * red[0] + 4 * red[1]) / 7;
+        red[6] = (2 * red[0] + 5 * red[1]) / 7;
+        red[7] = (1 * red[0] + 6 * red[1]) / 7;
+      } else {
+        red[2] = (4 * red[0] + 1 * red[1]) / 5;
+        red[3] = (3 * red[0] + 2 * red[1]) / 5;
+        red[4] = (2 * red[0] + 3 * red[1]) / 5;
+        red[5] = (1 * red[0] + 4 * red[1]) / 5;
+        red[6] = 0;
+        red[7] = 1;
+      }
+
+      // Minimum and maximum green colors.
+      green[0] = src[i + 8];
+      green[1] = src[i + 9];
+
+      // Interpolated green colors.
+      if (green[0] > green[1]) {
+        green[2] = (6 * green[0] + 1 * green[1]) / 7;
+        green[3] = (5 * green[0] + 2 * green[1]) / 7;
+        green[4] = (4 * green[0] + 3 * green[1]) / 7;
+        green[5] = (3 * green[0] + 4 * green[1]) / 7;
+        green[6] = (2 * green[0] + 5 * green[1]) / 7;
+        green[7] = (1 * green[0] + 6 * green[1]) / 7;
+      } else {
+        green[2] = (4 * green[0] + 1 * green[1]) / 5;
+        green[3] = (3 * green[0] + 2 * green[1]) / 5;
+        green[4] = (2 * green[0] + 3 * green[1]) / 5;
+        green[5] = (1 * green[0] + 4 * green[1]) / 5;
+        green[6] = 0;
+        green[7] = 1;
+      }
+
+      // Each block is made of 16 3bit indices = 48 bits.
+      // Easiest way to read it is to split it to two 24bit integers, and use bitshifts.
+      // This is because JS bitwise operators only work with 32bit integers.
+      let red24 = uint8ToUint24(src[i + 2], src[i + 3], src[i + 4]);
+      let red48 = uint8ToUint24(src[i + 5], src[i + 6], src[i + 7]);
+      let green24 = uint8ToUint24(src[i + 10], src[i + 11], src[i + 12]);
+      let green48 = uint8ToUint24(src[i + 13], src[i + 14], src[i + 15]);
+
+      // The offset to the first pixel in the destination.
+      let dstI = (blockY * 8) * width + blockX * 8;
+
+      // Pixel 1.
+      dst[dstI + 0] = red[red24 & 0b111];
+      dst[dstI + 1] = green[green24 & 0b111];
+      // Pixel 2.
+      dst[dstI + 2] = red[(red24 >> 3) & 0b111];
+      dst[dstI + 3] = green[(green24 >> 3) & 0b111];
+      // Pixel 3.
+      dst[dstI + 4] = red[(red24 >> 6) & 0b111];
+      dst[dstI + 5] = green[(green24 >> 6) & 0b111];
+      // Pixel 4.
+      dst[dstI + 6] = red[(red24 >> 9) & 0b111];
+      dst[dstI + 7] = green[(green24 >> 9) & 0b111];
+
+      // Next row.
+      dstI += rowBytes;
+
+      // Pixel 5.
+      dst[dstI + 0] = red[(red24 >> 12) & 0b111];
+      dst[dstI + 1] = green[(green24 >> 12) & 0b111];
+      // Pixel 6.
+      dst[dstI + 2] = red[(red24 >> 15) & 0b111];
+      dst[dstI + 3] = green[(green24 >> 15) & 0b111];
+      // Pixel 7.
+      dst[dstI + 4] = red[(red24 >> 18) & 0b111];
+      dst[dstI + 5] = green[(green24 >> 18) & 0b111];
+      // Pixel 8.
+      dst[dstI + 6] = red[(red24 >> 21) & 0b111];
+      dst[dstI + 7] = green[(green24 >> 21) & 0b111];
+
+      // Next row.
+      dstI += rowBytes;
+
+      // Pixel 9.
+      dst[dstI + 0] = red[red48 & 0b111];
+      dst[dstI + 1] = green[green48 & 0b111];
+      // Pixel 10.
+      dst[dstI + 2] = red[(red48 >> 3) & 0b111];
+      dst[dstI + 3] = green[(green48 >> 3) & 0b111];
+      // Pixel 11.
+      dst[dstI + 4] = red[(red48 >> 6) & 0b111];
+      dst[dstI + 5] = green[(green48 >> 6) & 0b111];
+      // Pixel 12.
+      dst[dstI + 6] = red[(red48 >> 9) & 0b111];
+      dst[dstI + 7] = green[(green48 >> 9) & 0b111];
+
+      // Next row.
+      dstI += rowBytes;
+
+      // Pixel 13.
+      dst[dstI + 0] = red[(red48 >> 12) & 0b111];
+      dst[dstI + 1] = green[(green48 >> 12) & 0b111];
+      // Pixel 14.
+      dst[dstI + 2] = red[(red48 >> 15) & 0b111];
+      dst[dstI + 3] = green[(green48 >> 15) & 0b111];
+      // Pixel 15.
+      dst[dstI + 4] = red[(red48 >> 18) & 0b111];
+      dst[dstI + 5] = green[(green48 >> 18) & 0b111];
+      // Pixel 16.
+      dst[dstI + 6] = red[(red48 >> 21) & 0b111];
+      dst[dstI + 7] = green[(green48 >> 21) & 0b111];
     }
   }
 
