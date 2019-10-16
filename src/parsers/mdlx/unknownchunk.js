@@ -8,10 +8,10 @@ export default class UnknownChunk {
    * @param {string} tag
    */
   constructor(stream, size, tag) {
-    /** @member {Uint8Array} */
-    this.chunk = stream.readUint8Array(new Uint8Array(size));
     /** @member {string} */
     this.tag = tag;
+    /** @member {Uint8Array} */
+    this.chunk = stream.readUint8Array(new Uint8Array(size));
   }
 
   /**

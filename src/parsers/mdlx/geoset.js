@@ -154,19 +154,22 @@ export default class Geoset {
     if (version === 900) {
       stream.writeUint32(this.lod);
       stream.write(this.lodName);
-      stream.skip(112 - this.lodName.length);
+      stream.skip(80 - this.lodName.length);
+    }
+
+    this.extent.writeMdx(stream);
+
+    stream.writeUint32(this.sequenceExtents.length);
+
+    for (let sequenceExtent of this.sequenceExtents) {
+      sequenceExtent.writeMdx(stream);
+    }
+
+    if (version === 900 && this.tangents.length) {
       stream.write('TANG');
       stream.writeFloat32Array(this.tangents);
       stream.write('SKIN');
       stream.writeUint8Array(this.weights);
-    } else {
-      this.extent.writeMdx(stream);
-
-      stream.writeUint32(this.sequenceExtents.length);
-
-      for (let sequenceExtent of this.sequenceExtents) {
-        sequenceExtent.writeMdx(stream);
-      }
     }
 
     stream.write('UVAS');

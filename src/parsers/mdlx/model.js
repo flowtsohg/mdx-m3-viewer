@@ -29,7 +29,8 @@ export default class Model {
    */
   constructor(buffer) {
     /**
-     * Always 800 since Warcraft 3 released.
+     * 800 for Warcraft 3: RoC and TFT.
+     * 900 for Warcraft 3: Reforged.
      *
      * @member {number}
      */
@@ -83,6 +84,11 @@ export default class Model {
     this.eventObjects = [];
     /** @member {Array<CollisionShape>} */
     this.collisionShapes = [];
+    /**
+     * @since 900
+     * @member {Array<Float32Array}
+     */
+    this.bindPose = [];
     /**
      * The MDX format is chunk based, and Warcraft 3 does not mind there being unknown chunks in there.
      * Some 3rd party tools use this to attach metadata to models.
@@ -168,6 +174,8 @@ export default class Model {
         this.loadDynamicObjects(this.eventObjects, EventObject, stream, size);
       } else if (tag === 'CLID') {
         this.loadDynamicObjects(this.collisionShapes, CollisionShape, stream, size);
+      } else if (tag === 'BPOS') {
+        this.loadBindPoseChunk(stream, size);
       } else {
         this.unknownChunks.push(new UnknownChunk(stream, size, tag));
       }
@@ -246,6 +254,16 @@ export default class Model {
   }
 
   /**
+   * @param {BinaryStream} stream
+   * @param {number} size
+   */
+  loadBindPoseChunk(stream, size) {
+    for (let i = 0, l = stream.readUint32(); i < l; i++) {
+      this.bindPose[i] = stream.readFloat32Array(16);
+    }
+  }
+
+  /**
    * Save the model as MDX.
    *
    * @return {ArrayBuffer}
@@ -275,6 +293,7 @@ export default class Model {
     this.saveDynamicObjectChunk(stream, 'CAMS', this.cameras);
     this.saveDynamicObjectChunk(stream, 'EVTS', this.eventObjects);
     this.saveDynamicObjectChunk(stream, 'CLID', this.collisionShapes);
+    this.saveBindPoseChunk(stream);
 
     for (let chunk of this.unknownChunks) {
       chunk.writeMdx(stream);
@@ -366,6 +385,22 @@ export default class Model {
       }
     }
   }
+
+  /**
+   * @param {BinaryStream} stream
+   */
+  saveBindPoseChunk(stream) {
+    if (this.bindPose.length) {
+      stream.write('BPOS');
+      stream.writeUint32(this.bindPose.length * 64);
+      stream.writeUint32(this.bindPose.length);
+
+      for (let matrix of this.bindPose) {
+        stream.writeFloat32Array(matrix);
+      }
+    }
+  }
+
 
   /**
    * Load the model from MDL.
@@ -670,6 +705,7 @@ export default class Model {
     size += this.getDynamicObjectsChunkByteLength(this.cameras);
     size += this.getDynamicObjectsChunkByteLength(this.eventObjects);
     size += this.getDynamicObjectsChunkByteLength(this.collisionShapes);
+    size += this.getBindPoseChunkByteLength();
     size += this.getObjectsByteLength(this.unknownChunks);
 
     return size;
@@ -709,6 +745,17 @@ export default class Model {
   getStaticObjectsChunkByteLength(objects, size) {
     if (objects.length) {
       return 8 + objects.length * size;
+    }
+
+    return 0;
+  }
+
+  /**
+   * @return {number}
+   */
+  getBindPoseChunkByteLength() {
+    if (this.bindPose.length) {
+      return 12 + this.bindPose.length * 64;
     }
 
     return 0;
