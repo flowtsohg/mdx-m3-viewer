@@ -87,7 +87,7 @@ export default class Model {
     this.collisionShapes = [];
     /**
      * @since 900
-     * @member {Array<Float32Array}
+     * @member {Array<Float32Array>}
      */
     this.bindPose = [];
     /**
@@ -95,6 +95,16 @@ export default class Model {
      * @member {Array<Corn>}
      */
     this.corns = [];
+    /**
+     * @since 900
+     * @member {string}
+     */
+    this.faceEffectTarget = '';
+    /**
+     * @since 900
+     * @member {string}
+     */
+    this.faceEffect = '';
     /**
      * The MDX format is chunk based, and Warcraft 3 does not mind there being unknown chunks in there.
      * Some 3rd party tools use this to attach metadata to models.
@@ -184,6 +194,8 @@ export default class Model {
         this.loadBindPoseChunk(stream, size);
       } else if (tag === 'CORN') {
         this.loadDynamicObjects(this.corns, Corn, stream, size);
+      } else if (tag === 'FAFX') {
+        this.loadFaceEffectChunk(stream, size);
       } else {
         this.unknownChunks.push(new UnknownChunk(stream, size, tag));
       }
@@ -272,6 +284,15 @@ export default class Model {
   }
 
   /**
+   * @param {BinaryStream} stream
+   * @param {number} size
+   */
+  loadFaceEffectChunk(stream, size) {
+    this.faceEffectTarget = stream.read(80);
+    this.faceEffect = stream.read(260);
+  }
+
+  /**
    * Save the model as MDX.
    *
    * @return {ArrayBuffer}
@@ -305,6 +326,7 @@ export default class Model {
     if (this.version === 900) {
       this.saveBindPoseChunk(stream);
       this.saveDynamicObjectChunk(stream, 'CORN', this.corns);
+      this.saveFaceEffectChunk(stream);
     }
 
     for (let chunk of this.unknownChunks) {
@@ -413,6 +435,19 @@ export default class Model {
     }
   }
 
+  /**
+   * @param {BinaryStream} stream
+   */
+  saveFaceEffectChunk(stream) {
+    if (this.faceEffectTarget !== '' && this.faceEffect !== '') {
+      stream.write('FAFX');
+      stream.write(340);
+      stream.write(this.faceEffectTarget);
+      stream.skip(80 - this.faceEffectTarget.length);
+      stream.write(this.faceEffect);
+      stream.skip(260 - this.faceEffect.length);
+    }
+  }
 
   /**
    * Load the model from MDL.
@@ -717,7 +752,12 @@ export default class Model {
     size += this.getDynamicObjectsChunkByteLength(this.cameras);
     size += this.getDynamicObjectsChunkByteLength(this.eventObjects);
     size += this.getDynamicObjectsChunkByteLength(this.collisionShapes);
-    size += this.getBindPoseChunkByteLength();
+
+    if (this.version === 900) {
+      size += this.getBindPoseChunkByteLength();
+      size += this.getFaceEffectChunkByteLength();
+    }
+
     size += this.getObjectsByteLength(this.unknownChunks);
 
     return size;
@@ -766,8 +806,19 @@ export default class Model {
    * @return {number}
    */
   getBindPoseChunkByteLength() {
-    if (this.version === 900 && this.bindPose.length) {
+    if (this.bindPose.length) {
       return 12 + this.bindPose.length * 64;
+    }
+
+    return 0;
+  }
+
+  /**
+   * @return {number}
+   */
+  getFaceEffectChunkByteLength() {
+    if (this.faceEffectTarget !== '' && this.faceEffect !== '') {
+      return 348;
     }
 
     return 0;

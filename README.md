@@ -10,11 +10,11 @@ A 3D model viewer for MDX and M3 models used by the games Warcraft 3 and Starcra
   The `viewer` folder contains all of the 3D viewer specific functions and classes.
   Built-in handlers exist for the following formats:
   * MDX (Warcraft 3 model): extensive support, almost everything should work.
-  * M3 (Starcraft 2 model): partial support, file format not quite reverse engineered yet.
-  * W3M/W3X (Warcraft 3 map): partial support, will grow in future.
+  * M3 (Starcraft 2 model): partial support.
+  * W3M/W3X (Warcraft 3 map): partial support.
   * BLP1 (Warcraft 3 texture): extensive support, almost everything should work.
   * TGA (image): partial support, only simple 24bit images.
-  * DDS (compressed texture, used by Starcraft 2): partial support, should work for every Starcraft 2 texture, and probably for most DDS files in existence (DXT1/3/5).
+  * DDS (compressed texture): partial support - DXT1/DXT3/DXT5/RGTC.
   * PNG/JPG/GIF: supported as a wrapper around Image.
   * GEO (a simple JS format used for geometric shapes): note that this is solely a run-time handler.
   * OBJ: partial support (more of an example handler).
@@ -236,11 +236,11 @@ Sometimes this is not possible, for example when you want to get the list of ani
 
 There are two ways to react to resources being loaded: promises/callbacks, and events.
 
-Regardless of which is used, every resource has two loading hints: `loaded`, and `ok`.
+In addition, every resource has two loading hints: `loaded`, and `ok`.
 When a resource is `loaded`, it means that it doesn't need further processing by the viewer. It doesn't however neccessarily mean the resource loaded successfully.
 When a resource is `ok`, it means it actually loaded successfully and is ready for use.
 
-##### Promises
+##### Promises/Callbacks
 
 Every resource has a `whenLoaded([callback])` method that waits for it to load.
 If a callback is given, it will be used. Otherwise, a promise is returned.

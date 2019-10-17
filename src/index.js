@@ -4,7 +4,7 @@ import viewer from './viewer';
 import utils from './utils';
 
 export default {
-  version: '4.8.8',
+  version: '4.8.9',
   common,
   parsers,
   viewer,

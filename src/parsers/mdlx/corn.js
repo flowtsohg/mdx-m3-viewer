@@ -12,8 +12,8 @@ export default class Corn extends GenericObject {
   constructor() {
     super(0); /// What is the flag?
 
-    // So far I only saw this sequence of bytes:
-    // [0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 0, 0]
+    /// So far I only saw this sequence of bytes:
+    /// [0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 0, 0]
     this.maybeColors = new Uint8Array(32);
 
     /** @member {string} */
