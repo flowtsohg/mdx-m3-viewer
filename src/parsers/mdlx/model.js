@@ -17,6 +17,7 @@ import RibbonEmitter from './ribbonemitter';
 import Camera from './camera';
 import EventObject from './eventobject';
 import CollisionShape from './collisionshape';
+import Corn from './corn';
 import UnknownChunk from './unknownchunk';
 
 /**
@@ -89,6 +90,11 @@ export default class Model {
      * @member {Array<Float32Array}
      */
     this.bindPose = [];
+    /**
+     * @since 900
+     * @member {Array<Corn>}
+     */
+    this.corns = [];
     /**
      * The MDX format is chunk based, and Warcraft 3 does not mind there being unknown chunks in there.
      * Some 3rd party tools use this to attach metadata to models.
@@ -176,6 +182,8 @@ export default class Model {
         this.loadDynamicObjects(this.collisionShapes, CollisionShape, stream, size);
       } else if (tag === 'BPOS') {
         this.loadBindPoseChunk(stream, size);
+      } else if (tag === 'CORN') {
+        this.loadDynamicObjects(this.corns, Corn, stream, size);
       } else {
         this.unknownChunks.push(new UnknownChunk(stream, size, tag));
       }
@@ -249,7 +257,7 @@ export default class Model {
    */
   loadPivotPointChunk(stream, size) {
     for (let i = 0, l = size / 12; i < l; i++) {
-      this.pivotPoints.push(stream.readFloat32Array(new Float32Array(3)));
+      this.pivotPoints.push(stream.readFloat32Array(3));
     }
   }
 
@@ -293,7 +301,11 @@ export default class Model {
     this.saveDynamicObjectChunk(stream, 'CAMS', this.cameras);
     this.saveDynamicObjectChunk(stream, 'EVTS', this.eventObjects);
     this.saveDynamicObjectChunk(stream, 'CLID', this.collisionShapes);
-    this.saveBindPoseChunk(stream);
+
+    if (this.version === 900) {
+      this.saveBindPoseChunk(stream);
+      this.saveDynamicObjectChunk(stream, 'CORN', this.corns);
+    }
 
     for (let chunk of this.unknownChunks) {
       chunk.writeMdx(stream);
@@ -392,7 +404,7 @@ export default class Model {
   saveBindPoseChunk(stream) {
     if (this.bindPose.length) {
       stream.write('BPOS');
-      stream.writeUint32(this.bindPose.length * 64);
+      stream.writeUint32(4 + this.bindPose.length * 64);
       stream.writeUint32(this.bindPose.length);
 
       for (let matrix of this.bindPose) {
@@ -754,7 +766,7 @@ export default class Model {
    * @return {number}
    */
   getBindPoseChunkByteLength() {
-    if (this.bindPose.length) {
+    if (this.version === 900 && this.bindPose.length) {
       return 12 + this.bindPose.length * 64;
     }
 

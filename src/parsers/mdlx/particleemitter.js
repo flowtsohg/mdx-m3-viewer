@@ -30,7 +30,8 @@ export default class ParticleEmitter extends GenericObject {
    * @param {BinaryStream} stream
    */
   readMdx(stream) {
-    let size = stream.readUint32();
+    const start = stream.index;
+    const size = stream.readUint32();
 
     super.readMdx(stream);
 
@@ -42,7 +43,7 @@ export default class ParticleEmitter extends GenericObject {
     this.lifeSpan = stream.readFloat32();
     this.speed = stream.readFloat32();
 
-    this.readAnimations(stream, size - this.getByteLength());
+    this.readAnimations(stream, size - (stream.index - start));
   }
 
   /**

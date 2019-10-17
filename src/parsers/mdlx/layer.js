@@ -54,7 +54,8 @@ export default class Layer extends AnimatedObject {
    * @param {number} version
    */
   readMdx(stream, version) {
-    let size = stream.readUint32();
+    const start = stream.index;
+    const size = stream.readUint32();
 
     this.filterMode = stream.readUint32();
     this.flags = stream.readUint32();
@@ -65,12 +66,9 @@ export default class Layer extends AnimatedObject {
 
     if (version === 900) {
       this.emissive = stream.readFloat32();
-
-      // Instead of -32 below.
-      size -= 4;
     }
 
-    this.readAnimations(stream, size - 28);
+    this.readAnimations(stream, size - (stream.index - start));
   }
 
   /**

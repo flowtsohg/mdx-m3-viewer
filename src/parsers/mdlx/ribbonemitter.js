@@ -38,7 +38,8 @@ export default class RibbonEmitter extends GenericObject {
    * @param {BinaryStream} stream
    */
   readMdx(stream) {
-    let size = stream.readUint32();
+    const start = stream.index;
+    const size = stream.readUint32();
 
     super.readMdx(stream);
 
@@ -54,7 +55,7 @@ export default class RibbonEmitter extends GenericObject {
     this.materialId = stream.readInt32();
     this.gravity = stream.readFloat32();
 
-    this.readAnimations(stream, size - this.getByteLength());
+    this.readAnimations(stream, size - (stream.index - start));
   }
 
   /**

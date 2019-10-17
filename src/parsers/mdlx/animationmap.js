@@ -13,6 +13,10 @@ export default {
   // GeosetAnimation
   KGAO: ['Alpha', FloatAnimation],
   KGAC: ['Color', Vector3Animation],
+  // GenericObject
+  KGTR: ['Translation', Vector3Animation],
+  KGRT: ['Rotation', Vector4Animation],
+  KGSC: ['Scaling', Vector3Animation],
   // Light
   KLAS: ['AttenuationStart', FloatAnimation],
   KLAE: ['AttenuationEnd', FloatAnimation],
@@ -51,8 +55,8 @@ export default {
   KCTR: ['Translation', Vector3Animation],
   KTTR: ['Translation', Vector3Animation],
   KCRL: ['Rotation', UintAnimation],
-  // GenericObject
-  KGTR: ['Translation', Vector3Animation],
-  KGRT: ['Rotation', Vector4Animation],
-  KGSC: ['Scaling', Vector3Animation],
+  // Corn
+  KPPA: ['Alpha', FloatAnimation], /// Maybe alpha
+  KPPE: ['EmissionRate', FloatAnimation], /// Maybe emission rate
+  KPPV: ['Visibility', FloatAnimation], /// Maybe visibility
 };

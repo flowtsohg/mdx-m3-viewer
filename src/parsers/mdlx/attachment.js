@@ -20,14 +20,15 @@ export default class Attachment extends GenericObject {
    * @param {BinaryStream} stream
    */
   readMdx(stream) {
-    let size = stream.readUint32();
+    const start = stream.index;
+    const size = stream.readUint32();
 
     super.readMdx(stream);
 
     this.path = stream.read(260);
     this.attachmentId = stream.readInt32();
 
-    this.readAnimations(stream, size - this.getByteLength());
+    this.readAnimations(stream, size - (stream.index - start));
   }
 
   /**

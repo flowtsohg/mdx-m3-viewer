@@ -28,7 +28,8 @@ export default class Light extends GenericObject {
    * @param {BinaryStream} stream
    */
   readMdx(stream) {
-    let size = stream.readUint32();
+    const start = stream.index;
+    const size = stream.readUint32();
 
     super.readMdx(stream);
 
@@ -39,7 +40,7 @@ export default class Light extends GenericObject {
     stream.readFloat32Array(this.ambientColor);
     this.ambientIntensity = stream.readFloat32();
 
-    this.readAnimations(stream, size - this.getByteLength());
+    this.readAnimations(stream, size - (stream.index - start));
   }
 
   /**
