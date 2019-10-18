@@ -755,6 +755,7 @@ export default class Model {
 
     if (this.version === 900) {
       size += this.getBindPoseChunkByteLength();
+      size += this.getDynamicObjectsChunkByteLength(this.corns);
       size += this.getFaceEffectChunkByteLength();
     }
 

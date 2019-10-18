@@ -1,4 +1,4 @@
-import Parser from '../../../parsers/blp/texture';
+import BlpImage from '../../../parsers/blp/image';
 import Texture from '../../texture';
 
 /**
@@ -6,16 +6,16 @@ import Texture from '../../texture';
  */
 export default class BlpTexture extends Texture {
   /**
-   * @param {ArrayBuffer|Parser} bufferOrParser
+   * @param {ArrayBuffer|BlpImage} bufferOrImage
    * @param {?Object} options
    */
-  load(bufferOrParser, options) {
-    let parser;
+  load(bufferOrImage, options) {
+    let image;
 
-    if (bufferOrParser instanceof Parser) {
-      parser = bufferOrParser;
+    if (bufferOrImage instanceof BlpImage) {
+      image = bufferOrImage;
     } else {
-      parser = new Parser(bufferOrParser);
+      image = new BlpImage(bufferOrImage);
     }
 
     let viewer = this.viewer;
@@ -39,17 +39,17 @@ export default class BlpTexture extends Texture {
 
     viewer.webgl.setTextureMode(wrapS, wrapT, gl.LINEAR, gl.LINEAR);
 
-    let imageData = parser.getMipmap(0);
+    let imageData = image.getMipmap(0);
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
 
     /// TODO: What to do with fake mipmaps?
-    // let mipmaps = parser.mipmaps();
+    // let mipmaps = image.mipmaps();
 
     // viewer.webgl.setTextureMode(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, mipmaps > 1 ? gl.LINEAR : gl.LINEAR);
 
     // for (let i = 0; i < mipmaps; i++) {
-    //   let imageData = parser.getMipmap(i);
+    //   let imageData = image.getMipmap(i);
 
     //   if (i === 0) {
     //     this.imageData = imageData;

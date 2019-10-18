@@ -1,5 +1,5 @@
-import IniFile from './file';
+import File from './file';
 
 export default {
-  IniFile,
+  File,
 };

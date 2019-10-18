@@ -30,10 +30,11 @@ A 3D model viewer for MDX and M3 models used by the games Warcraft 3 and Starcra
   * SLK: read.
   * MPQ1: read/write.
   * W3M/W3X/W3N: read/write, including all of the internal files.
+  * DDS: read (DXT1/DXT3/DXT5/RGTC).
 
-  * The `common` folder contains functions and classes that are relatively general, and are used by all other parts.
+* The `common` folder contains functions and classes that are relatively general, and are used by all other parts.
 
-  * The `utils` folder contains mostly interesting functions and classes that are built on top of the parsers.
+* The `utils` folder contains mostly interesting functions and classes that are built on top of the parsers.
 
 * The `clients` folder has in it a couple of clients using the library to perform different operations, including the unit tester.
 

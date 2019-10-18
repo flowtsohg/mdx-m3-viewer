@@ -1,5 +1,5 @@
-import Texture from './texture';
+import Image from './image';
 
 export default {
-  Texture,
+  Image,
 };

@@ -5,6 +5,7 @@ import mdlx from './mdlx';
 import mpq from './mpq';
 import w3x from './w3x';
 import blp from './blp';
+import dds from './dds';
 
 export default {
   ini,
@@ -14,4 +15,5 @@ export default {
   mpq,
   w3x,
   blp,
+  dds,
 };
