@@ -83,28 +83,47 @@ export class Geoset {
       uvs = textureCoordinateSets[0];
     }
 
-    // Parse the bone indices by slicing the matrix groups
-    for (let i = 0, l = matrixGroups.length, k = 0; i < l; i++) {
-      slices.push(matrixIndices.subarray(k, k + matrixGroups[i]));
-      k += matrixGroups[i];
-    }
+    let skin = geoset.skin;
+    if (skin) {
+      // Not real handling yet.
+      for (let i = 0, l = skin.length / 8; i < l; i++) {
+        let b0 = skin[i * 8 + 0];
+        let b1 = skin[i * 8 + 1];
+        let b2 = skin[i * 8 + 2];
+        let b3 = skin[i * 8 + 3];
 
-    // Construct the final bone arrays
-    for (let i = 0; i < vertices; i++) {
-      let slice = slices[vertexGroups[i]];
+        boneIndices[i * 4 + 0] = b0;
+        boneIndices[i * 4 + 1] = b1;
+        boneIndices[i * 4 + 2] = b2;
+        boneIndices[i * 4 + 3] = b3;
 
-      // Somehow in some bad models a vertex group index refers to an invalid matrix group.
-      // Such models are still loaded by the game.
-      if (slice) {
-        let bones = slices[vertexGroups[i]];
-        let boneCount = Math.min(bones.length, 4); // The viewer supports up to 4 bones per vertex, the game handles any(?) amount.
-        
-        for (let j = 0; j < boneCount; j++) {
-          // 1 is added to every index for shader optimization (index 0 is a zero matrix)
-          boneIndices[i * 4 + j] = bones[j] + 1;
+        boneNumbers[i] = 4;
+      }
+    } else {
+
+      // Parse the bone indices by slicing the matrix groups
+      for (let i = 0, l = matrixGroups.length, k = 0; i < l; i++) {
+        slices.push(matrixIndices.subarray(k, k + matrixGroups[i]));
+        k += matrixGroups[i];
+      }
+
+      // Construct the final bone arrays
+      for (let i = 0; i < vertices; i++) {
+        let slice = slices[vertexGroups[i]];
+
+        // Somehow in some bad models a vertex group index refers to an invalid matrix group.
+        // Such models are still loaded by the game.
+        if (slice) {
+          let bones = slices[vertexGroups[i]];
+          let boneCount = Math.min(bones.length, 4); // The viewer supports up to 4 bones per vertex, the game handles any(?) amount.
+
+          for (let j = 0; j < boneCount; j++) {
+            // 1 is added to every index for shader optimization (index 0 is a zero matrix)
+            boneIndices[i * 4 + j] = bones[j] + 1;
+          }
+
+          boneNumbers[i] = boneCount;
         }
-
-        boneNumbers[i] = boneCount;
       }
     }
 
@@ -117,6 +136,11 @@ export class Geoset {
     this.boneNumberArray = boneNumbers;
     this.faceArray = geoset.faces;
     this.uvSetSize = uvsetSize * 4;
+
+    let tangents = geoset.tangents;
+    if (tangents.length) {
+      this.tangents = tangents;
+    }
 
     let geosetAnimations = model.geosetAnimations;
 

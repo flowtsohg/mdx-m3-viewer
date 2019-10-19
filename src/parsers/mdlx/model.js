@@ -101,6 +101,8 @@ export default class Model {
      */
     this.faceEffectTarget = '';
     /**
+     * A path to a face effect file, which is used by the FaceFX runtime.
+     *
      * @since 900
      * @member {string}
      */

@@ -50,10 +50,17 @@ export default class Geoset {
      */
     this.tangents = new Float32Array(0);
     /**
+     * An array of bone indices and weights.
+     * Every 8 consecutive elements describe the following:
+     *    [B0, B1, B2, B3, W0, W1, W2, W3]
+     * Where:
+     *     Bn is a bone index.
+     *     Wn is a weight, which can be normalized with Wn/255.
+     *
      * @since 900
-     * @member {Float32Array}
+     * @member {Uint8Array}
      */
-    this.weights = new Uint8Array(0);
+    this.skin = new Uint8Array(0);
     /** @member {Array<Float32Array>} */
     this.uvSets = [];
   }
@@ -106,7 +113,7 @@ export default class Geoset {
       this.tangents = stream.readFloat32Array(stream.readUint32() * 4);
 
       stream.skip(4); // SKIN
-      this.weights = stream.readUint8Array(stream.readUint32());
+      this.skin = stream.readUint8Array(stream.readUint32());
     }
 
     stream.skip(4); // UVAS
@@ -169,7 +176,7 @@ export default class Geoset {
       stream.write('TANG');
       stream.writeFloat32Array(this.tangents);
       stream.write('SKIN');
-      stream.writeUint8Array(this.weights);
+      stream.writeUint8Array(this.skin);
     }
 
     stream.write('UVAS');
@@ -328,12 +335,10 @@ export default class Geoset {
    * @return {number}
    */
   getByteLength(version) {
-    let size = 92 + this.vertices.byteLength + this.normals.byteLength + this.faceTypeGroups.byteLength + this.faceGroups.byteLength + this.faces.byteLength + this.vertexGroups.byteLength + this.matrixGroups.byteLength + this.matrixIndices.byteLength;
+    let size = 120 + this.vertices.byteLength + this.normals.byteLength + this.faceTypeGroups.byteLength + this.faceGroups.byteLength + this.faces.byteLength + this.vertexGroups.byteLength + this.matrixGroups.byteLength + this.matrixIndices.byteLength + this.sequenceExtents.length * 28;
 
     if (version === 900) {
-      size += 132 + this.tangents.byteLength + this.weights.byteLength;
-    } else {
-      size += 28 + this.sequenceExtents.length * 28;
+      size += 132 + this.tangents.byteLength + this.skin.byteLength;
     }
 
     for (let uvSet of this.uvSets) {

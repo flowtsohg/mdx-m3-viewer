@@ -2,6 +2,7 @@ import GenericObject from './genericobject';
 
 /**
  * A corn.
+ * Corns are particle emitters that reference pkfx files, which are used by the PopcornFX runtime.
  *
  * @since 900
  */
