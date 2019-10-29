@@ -3,7 +3,7 @@ import GenericObject from './genericobject';
 /**
  * An MDX particle emitter.
  */
-export default class ParticleEmitter extends GenericObject {
+export default class ParticleEmitterObject extends GenericObject {
   /**
    * @param {MdxModel} model
    * @param {MdxParserParticleEmitter} emitter

@@ -3,17 +3,22 @@ import TexturedModelInstance from '../../texturedmodelinstance';
 import {createSkeletalNodes} from '../../node';
 import Node from './node';
 import AttachmentInstance from './attachmentinstance';
-import ParticleEmitterView from './particleemitterview';
-import ParticleEmitter2View from './particleemitter2view';
-import RibbonEmitterView from './ribbonemitterview';
-import EventObjectEmitterView from './eventobjectemitterview';
+import ParticleEmitter from './particleemitter';
+import ParticleEmitter2 from './particleemitter2';
+import RibbonEmitter from './ribbonemitter';
+import EventObjectSpnEmitter from './eventobjectspnemitter';
+import EventObjectSplEmitter from './eventobjectsplemitter';
+import EventObjectUbrEmitter from './eventobjectubremitter';
+import EventObjectSndEmitter from './eventobjectsndemitter';
+import {renderEmitter} from './geometryemitterfuncs';
+
 
 // Heap allocations needed for this module.
 let visibilityHeap = new Float32Array(1);
 let translationHeap = vec3.create();
 let rotationHeap = quat.create();
 let scaleHeap = vec3.create();
-let colorHeap = new Float32Array(3);
+let colorHeap = vec3.create();
 let alphaHeap = new Float32Array(1);
 let textureIdHeap = new Float32Array(1);
 
@@ -49,6 +54,11 @@ export default class ModelInstance extends TexturedModelInstance {
     // Any later non-forced update can then use variancy to skip updating things.
     // It is set to true every time the sequence is set with setSequence().
     this.forced = true;
+
+
+    this.geosetColors = [];
+    this.layerAlphas = [];
+    this.uvAnims = [];
   }
 
   /**
@@ -56,14 +66,15 @@ export default class ModelInstance extends TexturedModelInstance {
    */
   load() {
     let model = this.model;
-    let geosetCount = model.geosets.length;
-    let layerCount = model.layers.length;
 
-    this.geosetColors = new Uint8Array(geosetCount * 4);
-    this.layerAlphas = new Uint8Array(layerCount);
-    this.uvOffsets = new Float32Array(layerCount * 4);
-    this.uvScales = new Float32Array(layerCount);
-    this.uvRots = new Float32Array(layerCount * 2);
+    for (let i = 0, l = model.geosets.length; i < l; i++) {
+      this.geosetColors[i] = new Uint8Array(4);
+    }
+
+    for (let i = 0, l = model.layers.length; i < l; i++) {
+      this.layerAlphas[i] = 0;
+      this.uvAnims[i] = new Float32Array(7);
+    }
 
     // Create the needed amount of shared nodes.
     let sharedNodeData = createSkeletalNodes(model.genericObjects.length, Node);
@@ -101,40 +112,51 @@ export default class ModelInstance extends TexturedModelInstance {
       this.initNode(nodes, nodes[nodeIndex++], attachment, attachmentInstance);
     }
 
-    for (let emitter of model.particleEmitters) {
-      let emitterView = new ParticleEmitterView(this, emitter);
+    for (let emitterObject of model.particleEmitters) {
+      let emitter = new ParticleEmitter(this, emitterObject);
 
-      this.particleEmitters.push(emitterView);
+      this.particleEmitters.push(emitter);
 
-      this.initNode(nodes, nodes[nodeIndex++], emitter, emitterView);
+      this.initNode(nodes, nodes[nodeIndex++], emitterObject, emitter);
     }
 
-    for (let emitter of model.particleEmitters2) {
-      let emitterView = new ParticleEmitter2View(this, emitter);
+    for (let emitterObject of model.particleEmitters2) {
+      let emitter = new ParticleEmitter2(this, emitterObject);
 
-      this.particleEmitters2.push(emitterView);
+      this.particleEmitters2.push(emitter);
 
-      this.initNode(nodes, nodes[nodeIndex++], emitter, emitterView);
+      this.initNode(nodes, nodes[nodeIndex++], emitterObject, emitter);
     }
 
-    for (let emitter of model.ribbonEmitters) {
-      let emitterView = new RibbonEmitterView(this, emitter);
+    for (let emitterObject of model.ribbonEmitters) {
+      let emitter = new RibbonEmitter(this, emitterObject);
 
-      this.ribbonEmitters.push(emitterView);
+      this.ribbonEmitters.push(emitter);
 
-      this.initNode(nodes, nodes[nodeIndex++], emitter, emitterView);
+      this.initNode(nodes, nodes[nodeIndex++], emitterObject, emitter);
     }
 
     for (let camera of model.cameras) {
       this.initNode(nodes, nodes[nodeIndex++], camera);
     }
 
-    for (let emitter of model.eventObjects) {
-      let emitterView = new EventObjectEmitterView(this, emitter);
+    for (let emitterObject of model.eventObjects) {
+      let type = emitterObject.type;
+      let emitter;
 
-      this.eventObjectEmitters.push(emitterView);
+      if (type === 'SPN') {
+        emitter = new EventObjectSpnEmitter(this, emitterObject);
+      } else if (type === 'SPL') {
+        emitter = new EventObjectSplEmitter(this, emitterObject);
+      } else if (type === 'UBR') {
+        emitter = new EventObjectUbrEmitter(this, emitterObject);
+      } else {
+        emitter = new EventObjectSndEmitter(this, emitterObject);
+      }
 
-      this.initNode(nodes, nodes[nodeIndex++], emitter, emitterView);
+      this.eventObjectEmitters.push(emitter);
+
+      this.initNode(nodes, nodes[nodeIndex++], emitterObject, emitter);
     }
 
     for (let collisionShape of model.collisionShapes) {
@@ -151,12 +173,27 @@ export default class ModelInstance extends TexturedModelInstance {
 
     // If the sequence was changed before the model was loaded, reset it now that the model loaded.
     this.setSequence(this.sequence);
+
+
+
+    let gl = model.viewer.gl;
+    let numberOfBones = model.bones.length + 1;
+
+    this.boneTexture = gl.createTexture();
+    this.boneTextureWidth = numberOfBones * 4;
+    this.vectorSize = 1 / this.boneTextureWidth;
+
+    gl.activeTexture(gl.TEXTURE15);
+    gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
+    model.viewer.webgl.setTextureMode(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.boneTextureWidth, 1, 0, gl.RGBA, gl.FLOAT, null);
   }
 
   /**
    * Clear all of the emitted objects that belong to this instance.
    */
   clearEmittedObjects() {
+    /// TODO: Update this.
     if (this.modelView) {
       for (let sceneData of this.modelView.sceneData.values()) {
         for (let emitter of sceneData.particleEmitters) {
@@ -195,6 +232,7 @@ export default class ModelInstance extends TexturedModelInstance {
       node.parent = nodes[genericObject.parentId];
     }
 
+    /// TODO: single-axis billboarding
     if (genericObject.billboarded) {
       node.billboarded = true;
     }// else if (genericObject.billboardedX) {
@@ -224,43 +262,13 @@ export default class ModelInstance extends TexturedModelInstance {
   }
 
   /**
-   * Updates the animation timers.
-   * Emits a 'seqend' event every time a sequence ends.
-   */
-  updateTimers() {
-    if (this.sequence !== -1) {
-      let model = this.model;
-      let sequence = model.sequences[this.sequence];
-      let interval = sequence.interval;
-      let frameTime = model.viewer.frameTime;
-
-      this.frame += frameTime;
-      this.counter += frameTime;
-      this.allowParticleSpawn = true;
-
-      if (this.frame >= interval[1]) {
-        if (this.sequenceLoopMode === 2 || (this.sequenceLoopMode === 0 && sequence.flags === 0)) {
-          this.frame = interval[0];
-
-          this.resetEventEmitters();
-        } else {
-          this.frame = interval[1];
-          this.counter -= frameTime;
-          this.allowParticleSpawn = false;
-        }
-
-        this.emit('seqend', this);
-      }
-    }
-  }
-
-  /**
    * Updates all of this instance internal nodes and objects.
    * Nodes that are determined to not be visible will not be updated, nor will any of their children down the hierarchy.
    *
+   * @param {number} dt
    * @param {boolean} forced
    */
-  updateNodes(forced) {
+  updateNodes(dt, forced) {
     let sortedNodes = this.sortedNodes;
     let sequence = this.sequence;
     let sortedGenericObjects = this.model.sortedGenericObjects;
@@ -335,7 +343,7 @@ export default class ModelInstance extends TexturedModelInstance {
         let object = node.object;
 
         if (object && objectVisible) {
-          object.update();
+          object.update(dt);
         }
 
         // Update all of the node's non-skeletal children, which will update their children, and so on.
@@ -355,40 +363,35 @@ export default class ModelInstance extends TexturedModelInstance {
     let layers = model.layers;
     let geosetColors = this.geosetColors;
     let layerAlphas = this.layerAlphas;
-    let uvOffsets = this.uvOffsets;
-    let uvScales = this.uvScales;
-    let uvRots = this.uvRots;
+    let uvAnims = this.uvAnims;
     let sequence = this.sequence;
 
     // Geosets
     for (let i = 0, l = geosets.length; i < l; i++) {
       let geoset = geosets[i];
-      let i4 = i * 4;
+      let geosetColor = geosetColors[i];
 
       // Color
       if (forced || geoset.variants.color[sequence]) {
         geoset.getColor(colorHeap, this);
 
-        // Some Blizzard models have values greater than 1, which messes things up.
-        // Geoset animations are supposed to modulate colors, not intensify them.
-        geosetColors[i4] = colorHeap[0] * 255;
-        geosetColors[i4 + 1] = colorHeap[1] * 255;
-        geosetColors[i4 + 2] = colorHeap[2] * 255;
+        geosetColor[0] = colorHeap[0] * 255;
+        geosetColor[1] = colorHeap[1] * 255;
+        geosetColor[2] = colorHeap[2] * 255;
       }
 
       // Alpha
       if (forced || geoset.variants.alpha[sequence]) {
         geoset.getAlpha(alphaHeap, this);
 
-        geosetColors[i4 + 3] = alphaHeap[0] * 255;
+        geosetColor[3] = alphaHeap[0] * 255;
       }
     }
 
     // Layers
     for (let i = 0, l = layers.length; i < l; i++) {
       let layer = layers[i];
-      let i2 = i * 2;
-      let i4 = i * 4;
+      let uvAnim = uvAnims[i];
 
       // Alpha
       if (forced || layer.variants.alpha[sequence]) {
@@ -401,23 +404,23 @@ export default class ModelInstance extends TexturedModelInstance {
       if (forced || layer.variants.translation[sequence]) {
         layer.getTranslation(translationHeap, this);
 
-        uvOffsets[i4] = translationHeap[0];
-        uvOffsets[i4 + 1] = translationHeap[1];
+        uvAnim[0] = translationHeap[0];
+        uvAnim[1] = translationHeap[1];
       }
 
       // UV rotation animation
       if (forced || layer.variants.rotation[sequence]) {
         layer.getRotation(rotationHeap, this);
 
-        uvRots[i2] = rotationHeap[2];
-        uvRots[i2 + 1] = rotationHeap[3];
+        uvAnim[2] = rotationHeap[2];
+        uvAnim[3] = rotationHeap[3];
       }
 
       // UV scale animation
       if (forced || layer.variants.scale[sequence]) {
         layer.getScale(scaleHeap, this);
 
-        uvScales[i] = scaleHeap[0];
+        uvAnim[4] = scaleHeap[0];
       }
 
       // Sprite animation
@@ -427,27 +430,175 @@ export default class ModelInstance extends TexturedModelInstance {
         let uvDivisor = layer.uvDivisor;
         let textureId = textureIdHeap[0];
 
-        uvOffsets[i4 + 2] = textureId % uvDivisor[0];
-        uvOffsets[i4 + 3] = (textureId / uvDivisor[1]) | 0;
+        uvAnim[5] = textureId % uvDivisor[0];
+        uvAnim[6] = (textureId / uvDivisor[1]) | 0;
       }
     }
   }
 
   /**
-   * Update all of the animated data.
+   *
    */
-  updateAnimations() {
+  updateBoneTexture() {
+    let gl = this.model.viewer.gl;
+
+    gl.activeTexture(gl.TEXTURE15);
+    gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 4, 0, this.boneTextureWidth - 4, 1, gl.RGBA, gl.FLOAT, this.worldMatrices);
+  }
+
+
+  /**
+   * @param {Batch} batch
+   * @param {Shader} shader
+   */
+  renderBatch(batch, shader) {
+    let geoset = batch.geoset;
+    let layer = batch.layer;
+    let geosetIndex = geoset.index;
+    let layerIndex = layer.index;
+    let geosetColor = this.geosetColors[geosetIndex];
+    let layerAlpha = this.layerAlphas[layerIndex];
+
+    if (geosetColor[3] > 0 && layerAlpha > 0) {
+      let scene = this.scene;
+      let model = this.model;
+      let viewer = model.viewer;
+      let gl = viewer.gl;
+      let uniforms = shader.uniforms;
+      let uvAnim = this.uvAnims[layerIndex];
+      let vertexColor = this.vertexColor;
+
+      viewer.webgl.useShaderProgram(shader);
+
+      gl.uniformMatrix4fv(uniforms.u_mvp, false, scene.camera.worldProjectionMatrix);
+
+      gl.activeTexture(gl.TEXTURE15);
+      gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
+      gl.uniform1i(uniforms.u_boneMap, 15);
+      gl.uniform1f(uniforms.u_vectorSize, this.vectorSize);
+      gl.uniform1f(uniforms.u_rowSize, 1);
+
+      gl.uniform4f(uniforms.u_vertexColor, vertexColor[0], vertexColor[1], vertexColor[2], vertexColor[3]);
+      gl.uniform4f(uniforms.u_geosetColor, geosetColor[0], geosetColor[1], geosetColor[2], geosetColor[3]);
+      gl.uniform1f(uniforms.u_layerAlpha, layerAlpha);
+
+      gl.uniform2f(uniforms.u_uvTrans, uvAnim[0], uvAnim[1]);
+      gl.uniform2f(uniforms.u_uvRot, uvAnim[2], uvAnim[3]);
+      gl.uniform1f(uniforms.u_uvScale, uvAnim[4]);
+      gl.uniform2f(uniforms.u_uvSprite, uvAnim[5], uvAnim[6]);
+
+      let shallowGeoset = model.shallowGeosets[geoset.index];
+      let replaceable = model.replaceables[layer.textureId];
+
+      layer.bind(shader);
+
+
+
+      let texture;
+
+      if (replaceable === 1) {
+        texture = model.handler.teamColors[this.teamColor];
+      } else if (replaceable === 2) {
+        texture = model.handler.teamGlows[this.teamColor];
+      } else {
+        texture = model.textures[layer.textureId];
+      }
+
+      gl.uniform1i(uniforms.u_texture, 0);
+      viewer.webgl.bindTexture(texture, 0);
+
+      // bucket.modelView.bindTexture(texture, 0);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, model.__webglArrayBuffer);
+      shallowGeoset.bind(shader, layer.coordId); // Vertices.
+
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.__webglElementBuffer);
+      shallowGeoset.render();
+    }
+  }
+
+  /**
+   *
+   */
+  renderOpaque() {
+    this.model.groups[0].render(this);
+  }
+
+  /**
+   *
+   */
+  renderTranslucent() {
+    let groups = this.model.groups;
+
+    for (let i = 1, l = groups.length; i < l; i++) {
+      groups[i].render(this);
+    }
+  }
+
+  /**
+   * Update all of the animated data.
+   *
+   * @override
+   * @param {number} dt
+   */
+  updateAnimations(dt) {
+    let sequenceId = this.sequence;
+    let model = this.model;
+
+    if (sequenceId !== -1) {
+      let sequence = model.sequences[sequenceId];
+      let interval = sequence.interval;
+      let frameTime = model.viewer.frameTime;
+
+      this.frame += frameTime;
+      this.counter += frameTime;
+      this.allowParticleSpawn = true;
+
+      if (this.frame >= interval[1]) {
+        if (this.sequenceLoopMode === 2 || (this.sequenceLoopMode === 0 && sequence.flags === 0)) {
+          this.frame = interval[0];
+
+          this.resetEventEmitters();
+        } else {
+          this.frame = interval[1];
+          this.counter -= frameTime;
+          this.allowParticleSpawn = false;
+        }
+
+        this.emit('seqend', this);
+      }
+    }
+
     let forced = this.forced;
 
-    if (forced || this.sequence !== -1) {
-      this.forced = false;
+    if (sequenceId === -1) {
+      if (forced) {
+        // Update the nodes
+        this.updateNodes(dt, forced);
 
+        this.updateBoneTexture();
+
+        // Update the batches
+        this.updateBatches(forced);
+      }
+    } else {
+      let variants = model.variants;
+
+      //if (forced || variants.nodes[sequenceId]) {
       // Update the nodes
-      this.updateNodes(forced);
+      this.updateNodes(dt, forced);
 
-      // Update the batches
-      this.updateBatches(forced);
+      this.updateBoneTexture();
+      //}
+
+      if (forced || variants.batches[sequenceId]) {
+        // Update the batches
+        this.updateBatches(forced);
+      }
     }
+
+    this.forced = false;
   }
 
   /**
@@ -535,8 +686,9 @@ export default class ModelInstance extends TexturedModelInstance {
    * When changing sequences, these states need to be reset, so they can immediately emit things if needed.
    */
   resetEventEmitters() {
-    for (let eventEmitterView of this.eventObjectEmitters) {
-      eventEmitterView.reset();
-    }
+    /// TODO: Update this.
+    // for (let eventEmitterView of this.eventObjectEmitters) {
+    //   eventEmitterView.reset();
+    // }
   }
 }

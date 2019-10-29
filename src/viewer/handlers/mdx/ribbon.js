@@ -1,5 +1,5 @@
 import {vec3} from 'gl-matrix';
-import {BYTES_PER_OBJECT, FLOATS_PER_OBJECT, FLOAT_OFFSET_P0, BYTE_OFFSET_COLOR, BYTE_OFFSET_LEFT_RIGHT_TOP} from './geometryemitter';
+import EmittedObject from '../../emittedobject';
 
 // Heap allocations needed for this module.
 let belowHeap = vec3.create();
@@ -11,42 +11,42 @@ let slotHeap = new Float32Array(1);
 /**
  * A ribbon.
  */
-export default class Ribbon {
+export default class Ribbon extends EmittedObject {
   /**
    * @param {RibbonEmitter} emitter
    */
   constructor(emitter) {
-    this.emitter = emitter;
-    this.emitterView = null;
-    this.index = 0;
-    this.health = 0;
+    super(emitter);
+
+    this.ribbonIndex = 0;
     this.vertices = new Float32Array(12);
+    this.color = new Uint8Array(4);
+    this.slot = 0;
   }
 
   /**
-   * @param {RibbonEmitterView} emitterView
+   * @override
    */
-  bind(emitterView) {
+  bind() {
     let emitter = this.emitter;
 
-    emitterView.ribbonCount++;
+    this.ribbonIndex = emitter.currentIndex++;
+    this.health = emitter.emitterObject.lifeSpan;
 
-    this.emitterView = emitterView;
-    this.index = emitterView.currentRibbon++;
-    this.health = emitter.modelObject.lifeSpan;
-
-    let lastEmit = emitterView.lastEmit;
+    let currentRibbon = emitter.currentRibbon;
 
     // If this isn't the first ribbon, construct a quad.
     // Otherwise, the vertices will be filled with zeroes, and the ribbon will not render.
-    // This allows the emitter to always work with quads, and therefore it can work with many views, because the ribbon chains are implicit.
-    if (lastEmit && lastEmit.health > 0) {
-      let node = emitterView.instance.nodes[emitter.modelObject.index];
+    // This allows the emitter to always work with quads.
+    if (currentRibbon && currentRibbon.health > 0) {
+      let instance = emitter.instance;
+      let emitterObject = emitter.emitterObject;
+      let node = instance.nodes[emitterObject.index];
       let [x, y, z] = node.pivot;
       let worldMatrix = node.worldMatrix;
 
-      emitterView.getHeightBelow(belowHeap);
-      emitterView.getHeightAbove(aboveHeap);
+      emitterObject.getHeightBelow(belowHeap, instance);
+      emitterObject.getHeightAbove(aboveHeap, instance);
 
       let heightBelow = belowHeap[0];
       let heightAbove = aboveHeap[0];
@@ -63,7 +63,7 @@ export default class Ribbon {
       vec3.transformMat4(aboveHeap, aboveHeap, worldMatrix);
 
       let vertices = this.vertices;
-      let lastVertices = lastEmit.vertices;
+      let lastVertices = currentRibbon.vertices;
 
       // Left top
       vertices[0] = aboveHeap[0];
@@ -88,67 +88,39 @@ export default class Ribbon {
   }
 
   /**
-   * @param {number} offset
+   * @override
    * @param {number} dt
    */
-  render(offset, dt) {
-    let emitterView = this.emitterView;
+  update(dt) {
+    let emitter = this.emitter;
 
     this.health -= dt;
 
     if (this.health > 0) {
-      let emitter = this.emitter;
-      let modelObject = emitter.modelObject;
-      let byteView = emitter.byteView;
-      let floatView = emitter.floatView;
-      let byteOffset = offset * BYTES_PER_OBJECT;
-      let floatOffset = offset * FLOATS_PER_OBJECT;
-      let p0Offset = floatOffset + FLOAT_OFFSET_P0;
-      let colorOffset = byteOffset + BYTE_OFFSET_COLOR;
-      let leftRightTopOffset = byteOffset + BYTE_OFFSET_LEFT_RIGHT_TOP;
+      let instance = emitter.instance;
+      let emitterObject = emitter.emitterObject;
+      let color = this.color;
 
-      emitterView.getColor(colorHeap);
-      emitterView.getAlpha(alphaHeap);
-      emitterView.getTextureSlot(slotHeap);
+      emitterObject.getColor(colorHeap, instance);
+      emitterObject.getAlpha(alphaHeap, instance);
+      emitterObject.getTextureSlot(slotHeap, instance);
 
-      let animatedSlot = slotHeap[0];
-      let chainLengthFactor = 1 / emitterView.ribbonCount;
-      let locationInChain = (emitterView.currentRibbon - this.index - 1);
-      let columns = modelObject.dimensions[0];
-      let left = (animatedSlot % columns) + (locationInChain * chainLengthFactor);
-      let top = (animatedSlot / columns) | 0;
-      let right = left + chainLengthFactor;
+      color[0] = colorHeap[0] * 255;
+      color[1] = colorHeap[1] * 255;
+      color[2] = colorHeap[2] * 255;
+      color[3] = alphaHeap[0] * 255;
+
+      this.slot = slotHeap[0];
+
       let vertices = this.vertices;
-      let gravity = modelObject.gravity * dt * dt;
+      let gravity = emitterObject.gravity * dt * dt;
 
       vertices[1] -= gravity;
       vertices[4] -= gravity;
       vertices[7] -= gravity;
       vertices[10] -= gravity;
-
-      floatView[p0Offset + 0] = vertices[0];
-      floatView[p0Offset + 1] = vertices[1];
-      floatView[p0Offset + 2] = vertices[2];
-      floatView[p0Offset + 3] = vertices[3];
-      floatView[p0Offset + 4] = vertices[4];
-      floatView[p0Offset + 5] = vertices[5];
-      floatView[p0Offset + 6] = vertices[6];
-      floatView[p0Offset + 7] = vertices[7];
-      floatView[p0Offset + 8] = vertices[8];
-      floatView[p0Offset + 9] = vertices[9];
-      floatView[p0Offset + 10] = vertices[10];
-      floatView[p0Offset + 11] = vertices[11];
-
-      byteView[colorOffset + 0] = colorHeap[0] * 255;
-      byteView[colorOffset + 1] = colorHeap[1] * 255;
-      byteView[colorOffset + 2] = colorHeap[2] * 255;
-      byteView[colorOffset + 3] = alphaHeap[0] * 255;
-
-      byteView[leftRightTopOffset + 0] = left * 255;
-      byteView[leftRightTopOffset + 1] = right * 255;
-      byteView[leftRightTopOffset + 2] = top * 255;
     } else {
-      emitterView.ribbonCount--;
+      emitter.baseIndex += 1;
     }
   }
 }

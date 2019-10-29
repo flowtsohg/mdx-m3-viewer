@@ -64,8 +64,10 @@ export default class Layer extends AnimatedObject {
       translation: [],
       rotation: [],
       scale: [],
+      object: [],
     };
 
+    let hasAlphaAnim = false;
     let hasSlotAnim = false;
     let hasTranslationAnim = false;
     let hasRotationAnim = false;
@@ -83,7 +85,9 @@ export default class Layer extends AnimatedObject {
       variants.translation[i] = translation;
       variants.rotation[i] = rotation;
       variants.scale[i] = scale;
+      variants.object[i] = alpha || slot || translation || rotation || scale;
 
+      hasAlphaAnim = hasAlphaAnim || slot;
       hasSlotAnim = hasSlotAnim || slot;
       hasTranslationAnim = hasTranslationAnim || translation;
       hasRotationAnim = hasRotationAnim || rotation;
@@ -91,38 +95,41 @@ export default class Layer extends AnimatedObject {
     }
 
     this.variants = variants;
+    this.hasAlphaAnim = hasAlphaAnim;
     this.hasSlotAnim = hasSlotAnim;
     this.hasTranslationAnim = hasTranslationAnim;
     this.hasRotationAnim = hasRotationAnim;
     this.hasScaleAnim = hasScaleAnim;
+    this.hasObjectAnim = hasAlphaAnim || hasSlotAnim || hasTranslationAnim || hasRotationAnim || hasScaleAnim;
 
+    ///
     // Handle sprite animations
-    if (this.animations.KMTF) {
-      // Get all unique texture IDs used by this layer
-      let textureIds = unique(this.animations.KMTF.getValues().map((array) => array[0]));
+    // if (this.animations.KMTF) {
+    //   // Get all unique texture IDs used by this layer
+    //   let textureIds = unique(this.animations.KMTF.getValues().map((array) => array[0]));
 
-      if (textureIds.length > 1) {
-        let hash = stringHash(textureIds.join(''));
-        let textures = [];
+    //   if (textureIds.length > 1) {
+    //     let hash = stringHash(textureIds.join(''));
+    //     let textures = [];
 
-        // Grab all of the textures
-        for (let i = 0, l = textureIds.length; i < l; i++) {
-          textures[i] = model.textures[textureIds[i]];
-        }
+    //     // Grab all of the textures
+    //     for (let i = 0, l = textureIds.length; i < l; i++) {
+    //       textures[i] = model.textures[textureIds[i]];
+    //     }
 
-        let atlas = model.viewer.loadTextureAtlas(hash, textures);
+    //     let atlas = model.viewer.loadTextureAtlas(hash, textures);
 
-        atlas.whenLoaded()
-          .then(() => {
-            atlas.wrapMode(gl.REPEAT, gl.REPEAT);
+    //     atlas.whenLoaded()
+    //       .then(() => {
+    //         atlas.wrapMode(gl.REPEAT, gl.REPEAT);
 
-            model.textures.push(atlas);
+    //         model.textures.push(atlas);
 
-            this.textureId = model.textures.length - 1;
-            this.uvDivisor.set([atlas.columns, atlas.rows]);
-          });
-      }
-    }
+    //         this.textureId = model.textures.length - 1;
+    //         this.uvDivisor.set([atlas.columns, atlas.rows]);
+    //       });
+    //   }
+    // }
   }
 
   /**
@@ -177,6 +184,7 @@ export default class Layer extends AnimatedObject {
   getTextureId(out, instance) {
     let keyframe = this.getUintValue(out, 'KMTF', instance, this.textureId);
 
+    /// TODO: Re-implement this. But is there actually a model to test it with?
     // If this layer is using a texture atlas, remap the texture ID to that of the texture atlas.
     if (this.texutreAtlasMapping) {
       out[0] = this.texutreAtlasMapping[out[0]];
@@ -248,7 +256,7 @@ export default class Layer extends AnimatedObject {
    * @return {boolean}
    */
   isTranslationVariant(sequence) {
-    return this.textureAnimation && this.textureAnimation.isTranslationVariant(sequence);
+    return (this.textureAnimation && this.textureAnimation.isTranslationVariant(sequence)) || false;
   }
 
   /**
@@ -256,7 +264,7 @@ export default class Layer extends AnimatedObject {
    * @return {boolean}
    */
   isRotationVariant(sequence) {
-    return this.textureAnimation && this.textureAnimation.isRotationVariant(sequence);
+    return (this.textureAnimation && this.textureAnimation.isRotationVariant(sequence)) || false;
   }
 
   /**
@@ -264,6 +272,6 @@ export default class Layer extends AnimatedObject {
    * @return {boolean}
    */
   isScaleVariant(sequence) {
-    return this.textureAnimation && this.textureAnimation.isScaleVariant(sequence);
+    return (this.textureAnimation && this.textureAnimation.isScaleVariant(sequence)) || false;
   }
 }

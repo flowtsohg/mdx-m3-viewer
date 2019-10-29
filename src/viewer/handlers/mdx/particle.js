@@ -1,6 +1,7 @@
 import {vec3, quat} from 'gl-matrix';
 import {VEC3_UNIT_Z} from '../../../common/gl-matrix-addon';
 import {randomInRange} from '../../../common/math';
+import EmittedObject from '../../emittedobject';
 
 // Heap allocations needed for this module.
 let rotationHeap = quat.create();
@@ -14,35 +15,36 @@ let speedHeap = new Float32Array(1);
 /**
  * A spawned model particle.
  */
-export default class Particle {
+export default class Particle extends EmittedObject {
   /**
-   * @param {MdxParticleEmitter} emitter
+   * @param {ParticleEmitter} emitter
    */
   constructor(emitter) {
-    this.emitter = emitter;
-    this.emitterView = null;
-    this.internalInstance = emitter.modelObject.internalResource.addInstance();
+    super(emitter);
+
+    this.internalInstance = emitter.emitterObject.internalResource.addInstance();
     this.velocity = vec3.create();
     this.gravity = 0;
   }
 
   /**
-   * @param {ParticleEmitterView} emitterView
+   * @override
    */
-  bind(emitterView) {
-    let instance = emitterView.instance;
-    let node = instance.nodes[this.emitter.modelObject.index];
+  bind() {
+    let emitter = this.emitter;
+    let instance = emitter.instance;
+    let emitterObject = emitter.emitterObject;
+    let node = instance.nodes[emitterObject.index];
     let internalInstance = this.internalInstance;
     let scale = node.worldScale;
     let velocity = this.velocity;
 
-    emitterView.getLatitude(latitudeHeap);
-    // emitterView.getLongitude(longitudeHeap);
-    emitterView.getLifeSpan(lifeSpanHeap);
-    emitterView.getGravity(gravityHeap);
-    emitterView.getSpeed(speedHeap);
+    emitterObject.getLatitude(latitudeHeap, instance);
+    // emitterObject.getLongitude(longitudeHeap, instance);
+    emitterObject.getLifeSpan(lifeSpanHeap, instance);
+    emitterObject.getGravity(gravityHeap, instance);
+    emitterObject.getSpeed(speedHeap, instance);
 
-    this.emitterView = emitterView;
     this.node = node;
     this.health = lifeSpanHeap[0];
     this.gravity = gravityHeap[0] * scale[2];
@@ -70,10 +72,10 @@ export default class Particle {
   }
 
   /**
-   * @param {number} offset
+   * @override
    * @param {number} dt
    */
-  render(offset, dt) {
+  update(dt) {
     let internalInstance = this.internalInstance;
 
     internalInstance.paused = false; /// Why is this here?

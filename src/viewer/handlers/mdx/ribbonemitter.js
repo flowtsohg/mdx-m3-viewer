@@ -1,15 +1,39 @@
-import {GeometryEmitter, EMITTER_RIBBON} from './geometryemitter';
+import Emitter from '../../emitter';
 import Ribbon from './ribbon';
 
 /**
  * A ribbon emitter.
  */
-export default class RibbonEmitter extends GeometryEmitter {
+export default class RibbonEmitter extends Emitter {
   /**
-   * @param {RibbonEmitterView} emitterView
+   * @param {ModelInstance} instance
+   * @param {RibbonEmitterObject} emitterObject
    */
-  emit(emitterView) {
-    emitterView.lastEmit = this.emitObject(emitterView);
+  constructor(instance, emitterObject) {
+    super(instance, emitterObject);
+
+    /** @member {number} */
+    this.baseIndex = 0;
+    /** @member {number} */
+    this.currentIndex = 0;
+    /** @member {?Ribbon} */
+    this.currentRibbon = null;
+  }
+
+  /**
+   * @param {number} dt
+   */
+  updateEmission(dt) {
+    if (this.instance.allowParticleSpawn) {
+      this.currentEmission += this.emitterObject.emissionRate * dt;
+    }
+  }
+
+  /**
+   *
+   */
+  emit() {
+    this.currentRibbon = this.emitObject();
   }
 
   /**
@@ -17,39 +41,5 @@ export default class RibbonEmitter extends GeometryEmitter {
    */
   createObject() {
     return new Ribbon(this);
-  }
-
-  /**
-   * @param {*} emitterView
-   */
-  fill(emitterView) {
-    let emission = emitterView.currentEmission;
-
-    if (emission >= 1) {
-      this.emit(emitterView);
-      emitterView.currentEmission--;
-    }
-  }
-
-  /**
-   * @param {ModelView} modelView
-   * @param {ShaderProgram} shader
-   */
-  bind(modelView, shader) {
-    let modelObject = this.modelObject;
-    let layer = modelObject.layer;
-    let uvDivisor = layer.uvDivisor;
-    let model = modelObject.model;
-    let gl = model.viewer.gl;
-    let uniforms = shader.uniforms;
-
-    layer.bind(shader);
-
-    modelView.bindTexture(modelObject.texture, 0);
-
-    gl.uniform1f(uniforms.u_emitter, EMITTER_RIBBON);
-
-    gl.uniform1f(uniforms.u_columns, uvDivisor[0]);
-    gl.uniform1f(uniforms.u_rows, uvDivisor[1]);
   }
 }

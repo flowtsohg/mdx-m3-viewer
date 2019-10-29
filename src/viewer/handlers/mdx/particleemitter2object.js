@@ -1,11 +1,12 @@
 import GenericObject from './genericobject';
 import {emitterFilterMode} from './filtermode';
 import replaceableIds from './replaceableids';
+import {EMITTER_PARTICLE2} from './geometryemitterfuncs';
 
 /**
  * An MDX particle emitter type 2.
  */
-export default class ParticleEmitter2 extends GenericObject {
+export default class ParticleEmitter2Object extends GenericObject {
   /**
    * @param {MdxModel} model
    * @param {MdxParserParticleEmitter2} emitter
@@ -13,6 +14,8 @@ export default class ParticleEmitter2 extends GenericObject {
    */
   constructor(model, emitter, index) {
     super(model, emitter, index);
+
+    this.geometryEmitterType = EMITTER_PARTICLE2;
 
     this.width = emitter.width;
     this.length = emitter.length;
@@ -38,9 +41,9 @@ export default class ParticleEmitter2 extends GenericObject {
       this.internalResource = model.textures[emitter.textureId];
     } else if (replaceableId === 1 || replaceableId === 2) {
       if (replaceableId === 1) {
-        this.internalResource = model.viewer.get('teamColors');
+        this.internalResource = model.handler.teamColorsAtlas;
       } else {
-        this.internalResource = model.viewer.get('teamGlows');
+        this.internalResource = model.handler.teamGlowsAtlas;
       }
 
       this.dimensions[0] = 14;

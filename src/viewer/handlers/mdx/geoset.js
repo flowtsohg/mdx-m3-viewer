@@ -35,9 +35,18 @@ export class ShallowGeoset {
   }
 
   /**
+   *
+   */
+  render() {
+    let gl = this.model.viewer.gl;
+
+    gl.drawElements(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.offsets[5]);
+  }
+
+  /**
    * @param {number} instances
    */
-  render(instances) {
+  renderInstanced(instances) {
     let gl = this.model.viewer.gl;
 
     gl.extensions.instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.offsets[5], instances);
@@ -84,7 +93,7 @@ export class Geoset {
     }
 
     let skin = geoset.skin;
-    if (skin) {
+    if (skin.length) {
       // Not real handling yet.
       for (let i = 0, l = skin.length / 8; i < l; i++) {
         let b0 = skin[i * 8 + 0];
@@ -100,7 +109,6 @@ export class Geoset {
         boneNumbers[i] = 4;
       }
     } else {
-
       // Parse the bone indices by slicing the matrix groups
       for (let i = 0, l = matrixGroups.length, k = 0; i < l; i++) {
         slices.push(matrixIndices.subarray(k, k + matrixGroups[i]));
@@ -153,24 +161,28 @@ export class Geoset {
     let variants = {
       alpha: [],
       color: [],
+      object: [],
     };
 
-    let hasAnim = false;
+    let hasAlphaAnim = false;
+    let hasColorAnim = false;
 
     for (let i = 0, l = model.sequences.length; i < l; i++) {
       let alpha = this.isAlphaVariant(i);
       let color = this.isColorVariant(i);
 
-      if (alpha || color) {
-        hasAnim = true;
-      }
-
       variants.alpha[i] = alpha;
       variants.color[i] = color;
+      variants.object[i] = alpha || color;
+
+      hasAlphaAnim = hasAlphaAnim || alpha;
+      hasColorAnim = hasColorAnim || color;
     }
 
     this.variants = variants;
-    this.hasAnim = hasAnim;
+    this.hasAlphaAnim = hasAlphaAnim;
+    this.hasColorAnim = hasColorAnim;
+    this.hasObjectAnim = hasAlphaAnim || hasColorAnim;
   }
 
   /**

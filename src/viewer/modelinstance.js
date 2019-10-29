@@ -1,4 +1,4 @@
-import {testSphere} from '../common/gl-matrix-addon';
+import {testSphere, distanceToPlane3} from '../common/gl-matrix-addon';
 import {EventNode} from './node';
 
 /**
@@ -23,6 +23,8 @@ export default class ModelInstance extends EventNode {
     this.top = -1;
     /** @member {number} */
     this.plane = -1;
+    /** @member {number} */
+    this.depth = 0;
     /** @member {number} */
     this.updateFrame = 0;
     /** @member {number} */
@@ -102,18 +104,11 @@ export default class ModelInstance extends EventNode {
   }
 
   /**
-   * Called every frame.
-   * Do lightweight updates here, like updating animation timers.
-   */
-  updateTimers() {
-
-  }
-
-  /**
    * Called if the instance is shown and not culled.
-   * Do heavyweight updates here, like updating skeletons.
+   *
+   * @param {number} dt
    */
-  updateAnimations() {
+  updateAnimations(dt) {
 
   }
 
@@ -128,13 +123,14 @@ export default class ModelInstance extends EventNode {
    * Update this model instance.
    * Called automatically by the scene that owns this model instance.
    *
+   * @override
+   * @param {number} dt
    * @param {Scene} scene
    */
-  updateObject(scene) {
+  updateObject(dt, scene) {
     if (this.rendered && this.updateFrame < this.model.viewer.frame) {
       if (!this.paused) {
-        this.updateTimers();
-        this.updateAnimations();
+        this.updateAnimations(dt);
       }
 
       this.updateFrame = this.model.viewer.frame;
@@ -182,11 +178,18 @@ export default class ModelInstance extends EventNode {
    * @return {boolean}
    */
   isVisible(camera) {
-    let location = this.worldLocation;
+    let [x, y, z] = this.worldLocation;
     let bounds = this.model.bounds;
+    let planes = camera.planes;
 
-    this.plane = testSphere(camera.planes, location[0] + bounds.x, location[1] + bounds.y, location[2], bounds.r, this.plane);
+    this.plane = testSphere(planes, x + bounds.x, y + bounds.y, z, bounds.r, this.plane);
 
-    return this.plane === -1;
+    if (this.plane === -1) {
+      this.depth = distanceToPlane3(planes[4], x, y, z);
+
+      return true;
+    }
+
+    return false;
   }
 }

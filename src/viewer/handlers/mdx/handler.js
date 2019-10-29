@@ -14,11 +14,13 @@ export default {
     viewer.addHandler(tga);
     viewer.addHandler(imagetexture);
 
-    let standardShader = viewer.loadShader('MdxStandardShader', shaders.vs, shaders.fs);
+    let standardShader = viewer.loadShader('MdxStandardShader', shaders.vsNew, shaders.fsNew);
+    let instancedShader = viewer.loadShader('MdxInstancedShader', shaders.vs, shaders.fs);
     let particleShader = viewer.loadShader('MdxParticleShader', shaders.vsParticles, shaders.fsParticles);
 
     // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
-    return standardShader.ok && particleShader.ok;
+
+    return standardShader.ok && instancedShader.ok && particleShader.ok;
   },
 
   extensions: [['.mdx', 'arrayBuffer'], ['.mdl', 'text']],
@@ -27,4 +29,9 @@ export default {
   Data: ModelViewData,
   Bucket: Bucket,
   Instance: ModelInstance,
+  // Team color/glow textures, shared between all models, but loaded with the first model that uses them.
+  teamColors: [],
+  teamGlows: [],
+  teamColorsAtlas: null,
+  teamGlowsAtlas: null,
 };

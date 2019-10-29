@@ -1,5 +1,6 @@
 import Camera from './camera';
 import Grid from './grid';
+import EmittedObjectUpdater from './emittedobjectupdater';
 
 /**
  * A scene.
@@ -46,6 +47,11 @@ export default class Scene {
     // Use the whole canvas, and standard perspective projection values.
     this.camera.viewport([0, 0, canvas.width, canvas.height]);
     this.camera.perspective(Math.PI / 4, canvas.width / canvas.height, 8, 10000);
+
+    this.instances = [];
+    this.currentInstance = 0;
+
+    this.emittedObjectUpdater = new EmittedObjectUpdater();
   }
 
   /**
@@ -99,7 +105,7 @@ export default class Scene {
       if (instance.model.ok) {
         this.grid.moved(instance);
 
-        this.viewChanged(instance);
+        ///this.viewChanged(instance);
 
         return true;
       }
@@ -152,10 +158,8 @@ export default class Scene {
     // First remove references to this scene stored in the instances.
     for (let cell of this.grid.cells) {
       for (let instance of cell.instances) {
-        if (instance.scene) {
-          instance.scene = null;
-          instance.modelViewData = null;
-        }
+        instance.scene = null;
+        instance.modelViewData = null;
       }
     }
 
@@ -183,65 +187,80 @@ export default class Scene {
 
   /**
    * Update this scene.
-   * This includes updating the scene's camera, the node hierarchy (model instances etc.), the rendering data, and the AudioContext's lisener's position if it exists.
+   *
+   * @param {number} dt
    */
-  update() {
+  update(dt) {
     let camera = this.camera;
 
     // Update the camera.
     camera.update();
 
-    // Update the autido context's position if it exists.
+    // Update the audio context's position if it exists.
     if (this.audioContext) {
-      let [x, y, z] = this.camera.location;
+      let [x, y, z] = camera.location;
 
       this.audioContext.listener.setPosition(-x, -y, -z);
+      /// Need to also update the orientation.
     }
+
+    this.currentInstance = 0;
 
     // Update all of the visible instances that have no parents.
     // Instances that have parents will be updated down the hierarcy automatically.
     for (let cell of this.grid.cells) {
       if (cell.isVisible(camera)) {
         for (let instance of cell.instances) {
-          if (instance.isVisible(camera) && !instance.parent) {
-            instance.update(this);
-          }
-        }
-      }
-    }
-
-    // Reset all of the buckets.
-    for (let modelViewData of this.modelViewsData) {
-      modelViewData.startFrame();
-    }
-
-    this.renderedCells = 0;
-    this.renderedBuckets = 0;
-    this.renderedInstances = 0;
-    this.renderedParticles = 0;
-
-    // Render all of the visible instances into the buckets.
-    for (let cell of this.grid.cells) {
-      if (cell.plane === -1) {
-        this.renderedCells += 1;
-
-        for (let instance of cell.instances) {
           if (instance.isVisible(camera)) {
-            instance.render();
+            if (!instance.parent) {
+              instance.update(dt, this);
+            }
+
+            this.instances[this.currentInstance++] = instance;
           }
         }
       }
     }
 
-    // Update the bucket buffers.
-    for (let modelViewData of this.modelViewsData) {
-      modelViewData.updateBuffers();
-      modelViewData.updateEmitters();
+    /// Does this change memory?
+    this.instances.length = this.currentInstance;
 
-      this.renderedBuckets += modelViewData.usedBuckets;
-      this.renderedInstances += modelViewData.instances;
-      this.renderedParticles += modelViewData.particles;
-    }
+    this.instances.sort((a, b) => b.depth - a.depth);
+
+    this.emittedObjectUpdater.update(dt);
+
+    // // Reset all of the buckets.
+    // for (let modelViewData of this.modelViewsData) {
+    //   modelViewData.startFrame();
+    // }
+
+    // this.renderedCells = 0;
+    // this.renderedBuckets = 0;
+    // this.renderedInstances = 0;
+    // this.renderedParticles = 0;
+
+    // // Render all of the visible instances into the buckets.
+    // for (let cell of this.grid.cells) {
+    //   if (cell.plane === -1) {
+    //     this.renderedCells += 1;
+
+    //     for (let instance of cell.instances) {
+    //       if (instance.isVisible(camera)) {
+    //         instance.render();
+    //       }
+    //     }
+    //   }
+    // }
+
+    // // Update the bucket buffers.
+    // for (let modelViewData of this.modelViewsData) {
+    //   modelViewData.updateBuffers();
+    //   modelViewData.updateEmitters();
+
+    //   this.renderedBuckets += modelViewData.usedBuckets;
+    //   this.renderedInstances += modelViewData.instances;
+    //   this.renderedParticles += modelViewData.particles;
+    // }
   }
 
   /**
@@ -249,10 +268,27 @@ export default class Scene {
    * Automatically applies the camera's viewport.
    */
   renderOpaque() {
-    this.viewport();
+    let camera = this.camera;
+    let viewport = camera.rect;
 
-    for (let modelViewData of this.modelViewsData) {
-      modelViewData.renderOpaque(this);
+    this.viewer.gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+    // for (let modelViewData of this.modelViewsData) {
+    //   modelViewData.renderOpaque(this);
+    // }
+
+    // for (let cell of this.grid.cells) {
+    //   if (cell.plane === -1) {
+    //     for (let instance of cell.instances) {
+    //       if (instance.isVisible(camera)) {
+    //         instance.renderOpaque();
+    //       }
+    //     }
+    //   }
+    // }
+
+    for (let instance of this.instances) {
+      instance.renderOpaque();
     }
   }
 
@@ -261,20 +297,28 @@ export default class Scene {
    * Automatically applies the camera's viewport.
    */
   renderTranslucent() {
-    this.viewport();
-
-    for (let modelViewData of this.modelViewsData) {
-      modelViewData.renderTranslucent(this);
-    }
-  }
-
-  /**
-   * Set the viewport to that of this scene's camera.
-   */
-  viewport() {
-    let viewport = this.camera.rect;
+    let camera = this.camera;
+    let viewport = camera.rect;
 
     this.viewer.gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+    // for (let modelViewData of this.modelViewsData) {
+    //   modelViewData.renderTranslucent(this);
+    // }
+
+    // for (let cell of this.grid.cells) {
+    //   if (cell.plane === -1) {
+    //     for (let instance of cell.instances) {
+    //       if (instance.isVisible(camera)) {
+    //         instance.renderTranslucent();
+    //       }
+    //     }
+    //   }
+    // }
+
+    for (let instance of this.instances) {
+      instance.renderTranslucent();
+    }
   }
 
   /**

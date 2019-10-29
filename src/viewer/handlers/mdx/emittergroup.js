@@ -1,25 +1,27 @@
+import {renderEmitter} from './geometryemitterfuncs';
+
 /**
  * A group of emitters that are going to be rendered together.
  */
 export default class EmitterGroup {
   /**
-   * @param {ModelView} modelView
+   * @param {Model} model
    */
-  constructor(modelView) {
-    /** @member {ModelView} */
-    this.modelView = modelView;
-    /** @member {Array<ParticleEmitter2|RibbonEmitter>} */
+  constructor(model) {
+    /** @member {Model} */
+    this.model = model;
+    /** @member {Array<number>} */
     this.objects = [];
   }
 
   /**
-   * @param {ModelViewData} modelViewData
+   * @param {ModelInstance} instance
    */
-  render(modelViewData) {
-    let viewer = this.modelView.model.viewer;
+  render(instance) {
+    let nodes = instance.nodes;
+    let viewer = instance.model.viewer;
     let gl = viewer.gl;
     let instancedArrays = gl.extensions.instancedArrays;
-    let modelView = modelViewData.modelView;
     let shader = viewer.shaderMap.get('MdxParticleShader');
     let uniforms = shader.uniforms;
     let attribs = shader.attribs;
@@ -31,7 +33,7 @@ export default class EmitterGroup {
 
     viewer.webgl.useShaderProgram(shader);
 
-    gl.uniformMatrix4fv(uniforms.u_mvp, false, modelViewData.scene.camera.worldProjectionMatrix);
+    gl.uniformMatrix4fv(uniforms.u_mvp, false, instance.scene.camera.worldProjectionMatrix);
     gl.uniform1i(uniforms.u_texture, 0);
 
     instancedArrays.vertexAttribDivisorANGLE(attribs.a_position, 0);
@@ -48,8 +50,8 @@ export default class EmitterGroup {
     instancedArrays.vertexAttribDivisorANGLE(attribs.a_tail, 1);
     instancedArrays.vertexAttribDivisorANGLE(attribs.a_leftRightTop, 1);
 
-    for (let emitter of this.objects) {
-      emitter.render(modelView, shader);
+    for (let index of this.objects) {
+      renderEmitter(nodes[index].object, shader);
     }
 
     instancedArrays.vertexAttribDivisorANGLE(attribs.a_leftRightTop, 0);

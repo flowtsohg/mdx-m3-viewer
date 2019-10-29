@@ -1,6 +1,106 @@
 import shaders from '../../shaders';
 
 export default {
+  vsNew: `
+    ${shaders.boneTexture}
+
+    void transform(inout vec3 position, inout vec3 normal, float boneNumber, vec4 bones, float instance) {
+      // For the broken models out there, since the game supports this.
+      if (boneNumber > 0.0) {
+        mat4 b0 = fetchMatrix(bones[0], instance);
+        mat4 b1 = fetchMatrix(bones[1], instance);
+        mat4 b2 = fetchMatrix(bones[2], instance);
+        mat4 b3 = fetchMatrix(bones[3], instance);
+        vec4 p = vec4(position, 1.0);
+        vec4 n = vec4(normal, 0.0);
+
+        position = vec3(b0 * p + b1 * p + b2 * p + b3 * p) / boneNumber;
+        normal = normalize(vec3(b0 * n + b1 * n + b2 * n + b3 * n));
+      }
+    }
+
+    uniform mat4 u_mvp;
+    uniform vec4 u_vertexColor;
+    uniform vec4 u_geosetColor;
+    uniform float u_layerAlpha;
+    uniform vec2 u_uvTrans;
+    uniform vec2 u_uvRot;
+    uniform float u_uvScale;
+    uniform vec2 u_uvSprite;
+
+    attribute vec3 a_position;
+    attribute vec3 a_normal;
+    attribute vec2 a_uv;
+    attribute vec4 a_bones;
+    attribute float a_boneNumber;
+
+    varying vec2 v_uv;
+    varying vec4 v_color;
+    varying vec4 v_uvTransRot;
+    varying vec3 v_uvScaleSprite;
+
+    void main() {
+      vec3 position = a_position;
+      vec3 normal = a_normal;
+
+      transform(position, normal, a_boneNumber, a_bones, 0.0);
+
+      v_uv = a_uv;
+      v_color = (u_vertexColor / 255.0) * (u_geosetColor.bgra / 255.0) * vec4(1.0, 1.0, 1.0, u_layerAlpha / 255.0);
+      v_uvTransRot = vec4(u_uvTrans, u_uvRot);
+      v_uvScaleSprite = vec3(u_uvScale, u_uvSprite);
+
+      gl_Position = u_mvp * vec4(position, 1.0);
+    }
+  `,
+  fsNew: `
+    ${shaders.quat_transform}
+
+    uniform sampler2D u_texture;
+    uniform float u_filterMode;
+
+    varying vec2 v_uv;
+    varying vec4 v_color;
+    varying vec4 v_uvTransRot;
+    varying vec3 v_uvScaleSprite;
+
+    void main() {
+      vec2 uv = v_uv;
+
+      // Translation animation
+      uv += v_uvTransRot.xy;
+
+      // Rotation animation
+      uv = quat_transform(v_uvTransRot.zw, uv - 0.5) + 0.5;
+
+      // Scale animation
+      uv = v_uvScaleSprite.x * (uv - 0.5) + 0.5;
+
+      // Sprite animation
+      // if (u_hasSlotAnim) {
+      //   uv = (v_uvScaleSprite.yz + fract(uv)) * u_uvScale;
+      // }
+
+      vec4 texel = texture2D(u_texture, uv);
+      vec4 color = texel * v_color;
+
+      // 1bit Alpha
+      if (u_filterMode == 1.0 && color.a < 0.75) {
+        discard;
+      }
+
+      // "Close to 0 alpha"
+      if (u_filterMode >= 5.0 && color.a < 0.02) {
+        discard;
+      }
+
+      // if (!u_unshaded) {
+      //   color *= clamp(dot(v_normal, lightDirection) + 0.45, 0.0, 1.0);
+      // }
+
+      gl_FragColor = color;
+    }
+  `,
   vs: `
     ${shaders.instanceId}
     ${shaders.boneTexture}
@@ -26,13 +126,13 @@ export default {
     varying vec4 v_uvTransRot;
     varying vec3 v_uvScaleSprite;
 
-    void transform(inout vec3 position, inout vec3 normal, float boneNumber, vec4 bones) {
+    void transform(inout vec3 position, inout vec3 normal, float boneNumber, vec4 bones, float instance) {
       // For the broken models out there, since the game supports this.
       if (boneNumber > 0.0) {
-        mat4 b0 = fetchMatrix(bones[0], a_InstanceID);
-        mat4 b1 = fetchMatrix(bones[1], a_InstanceID);
-        mat4 b2 = fetchMatrix(bones[2], a_InstanceID);
-        mat4 b3 = fetchMatrix(bones[3], a_InstanceID);
+        mat4 b0 = fetchMatrix(bones[0], instance);
+        mat4 b1 = fetchMatrix(bones[1], instance);
+        mat4 b2 = fetchMatrix(bones[2], instance);
+        mat4 b3 = fetchMatrix(bones[3], instance);
         vec4 p = vec4(position, 1.0);
         vec4 n = vec4(normal, 0.0);
 
@@ -42,11 +142,10 @@ export default {
     }
 
     void main() {
-      vec2 uv = a_uv;
       vec3 position = a_position;
       vec3 normal = a_normal;
 
-      transform(position, normal, a_boneNumber, a_bones);
+      transform(position, normal, a_boneNumber, a_bones, a_InstanceID);
 
       v_uv = a_uv;
       v_uvTransRot = a_uvTransRot;
@@ -138,7 +237,7 @@ export default {
     #define EMITTER_PARTICLE2 0.0
     #define EMITTER_RIBBON 1.0
     #define EMITTER_SPLAT 2.0
-    #define EMITTER_UBER 3.0
+    #define EMITTER_UBERSPLAT 3.0
     #define HEAD 0.0
 
     uniform mat4 u_mvp;
@@ -342,7 +441,7 @@ export default {
       gl_Position = u_mvp * vec4(position, 1.0);
     }
 
-    void uber() {
+    void ubersplat() {
       float factor = u_lifeSpan - a_health;
       vec4 color;
 
@@ -382,8 +481,8 @@ export default {
         ribbon();
       } else if (u_emitter == EMITTER_SPLAT) {
         splat();
-      } else if (u_emitter == EMITTER_UBER) {
-        uber();
+      } else if (u_emitter == EMITTER_UBERSPLAT) {
+        ubersplat();
       }
     }
   `,

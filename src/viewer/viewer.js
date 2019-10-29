@@ -8,6 +8,8 @@ import Scene from './scene';
 import imageTextureHandler from './handlers/imagetexture/handler';
 import TextureAtlas from './handlers/textureatlas';
 import GenericResource from './genericresource';
+import Buffer from './gl/buffer';
+import DataTexture from './gl/datatexture';
 
 /**
  * A model viewer.
@@ -23,7 +25,7 @@ export default class ModelViewer extends EventEmitter {
     /** @member {Array<Resource>} */
     this.resources = [];
     /** @member {Map<string, Resource>} */
-    this.resourcesMap = new Map();
+    this.fetchCache = new Map();
     /** @member {Set<Resource>} */
     this.resourcesLoading = new Set();
 
@@ -46,12 +48,6 @@ export default class ModelViewer extends EventEmitter {
     this.gl = this.webgl.gl;
     /** @member {Map<string, ShaderProgram>} */
     this.shaderMap = new Map();
-    /**
-     * The number of instances that a bucket should be able to contain.
-     *
-     * @member {number}
-     */
-    this.batchSize = 8;
 
     /** @member {Array<Scene>} */
     this.scenes = [];
@@ -84,11 +80,29 @@ export default class ModelViewer extends EventEmitter {
     /**
      * A simple buffer containing the bytes [0, 1, 2, 0, 2, 3].
      * These are used as vertices in all geometry shaders.
+     *
+     * @member {WebGLBuffer}
      */
     this.rectBuffer = gl.createBuffer();
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.rectBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array([0, 1, 2, 0, 2, 3]), gl.STATIC_DRAW);
+
+    /**
+     * A resizeable buffer that can be used by any part of the library.
+     * The data it contains is temporary, and can be overwritten at any time.
+     *
+     * @member {Buffer}
+     */
+    this.buffer = new Buffer(gl);
+
+    /**
+     * A resizeable data texture that can be used by any part of the library.
+     * The data it contains is temporary, and can be overwritten at any time.
+     *
+     * @member {DataTexture}
+     */
+    this.dataTexture = new DataTexture(gl);
 
     /**
      * A viewer-wide flag.
@@ -231,18 +245,22 @@ export default class ModelViewer extends EventEmitter {
 
       // Is there an handler for this file type?
       if (handlerAndDataType) {
-        let resource = this.resourcesMap.get(src);
+        if (serverFetch) {
+          let resource = this.fetchCache.get(src);
 
-        if (resource) {
-          return resource;
+          if (resource) {
+            return resource;
+          }
         }
 
         let handler = handlerAndDataType[0];
-
-        resource = new handler.Constructor({viewer: this, handler, extension, pathSolver, fetchUrl: serverFetch ? src : ''});
+        let resource = new handler.Constructor({viewer: this, handler, extension, pathSolver, fetchUrl: serverFetch ? src : ''});
 
         this.resources.push(resource);
-        this.resourcesMap.set(src, resource);
+
+        if (serverFetch) {
+          this.fetchCache.set(src, resource);
+        }
 
         this.registerEvents(resource);
 
@@ -277,23 +295,23 @@ export default class ModelViewer extends EventEmitter {
   }
 
   /**
-   * Check whether the given key maps to a resource in the cache.
+   * Check whether the given string maps to a resource in the cache.
    *
-   * @param {*} key
+   * @param {string} key
    * @return {boolean}
    */
   has(key) {
-    return this.resourcesMap.has(key);
+    return this.fetchCache.has(key);
   }
 
   /**
    * Get a resource from the cache.
    *
-   * @param {*} key
+   * @param {string} key
    * @return {?Resource}
    */
   get(key) {
-    return this.resourcesMap.get(key);
+    return this.fetchCache.get(key);
   }
 
   /**
@@ -309,7 +327,7 @@ export default class ModelViewer extends EventEmitter {
    * @return {GenericResource}
    */
   loadGeneric(path, dataType, callback) {
-    let resource = this.resourcesMap.get(path);
+    let resource = this.fetchCache.get(path);
 
     if (resource) {
       return resource;
@@ -318,7 +336,7 @@ export default class ModelViewer extends EventEmitter {
     resource = new GenericResource({viewer: this, handler: callback, fetchUrl: path});
 
     this.resources.push(resource);
-    this.resourcesMap.set(path, resource);
+    this.fetchCache.set(path, resource);
 
     this.registerEvents(resource);
 
@@ -359,15 +377,20 @@ export default class ModelViewer extends EventEmitter {
    * @return {boolean}
    */
   unload(resource) {
-    // Loop over all of the values and find this resource.
-    // This is needed to support unloading in-memory resources that will have no fetchUrl.
-    for (let [key, value] of this.resourcesMap) {
-      if (value === resource) {
-        this.resourcesMap.delete(key);
-        this.resources.splice(this.resources.indexOf(resource), 1);
+    let fetchCache;
+    let fetchUrl = resource.fetchUrl;
 
-        return true;
-      }
+    if (fetchUrl !== '') {
+      fetchCache.delete(fetchUrl);
+    }
+
+    let resources = this.resources;
+    let index = resources.indexOf(resource);
+
+    if (index !== -1) {
+      resource.splice(index, 1);
+
+      return true;
     }
 
     return false;
@@ -401,9 +424,9 @@ export default class ModelViewer extends EventEmitter {
    * @return {TextureAtlas}
    */
   loadTextureAtlas(name, textures, options) {
-    let resourcesMap = this.resourcesMap;
+    let fetchCache = this.fetchCache;
 
-    if (!resourcesMap.has(name)) {
+    if (!fetchCache.has(name)) {
       let textureAtlas = new TextureAtlas({viewer: this});
 
       // Promise that there is a future load that the code cannot know about yet, so whenAllLoaded() isn't called prematurely.
@@ -428,10 +451,10 @@ export default class ModelViewer extends EventEmitter {
           promise.resolve();
         });
 
-      resourcesMap.set(name, textureAtlas);
+      fetchCache.set(name, textureAtlas);
     }
 
-    return resourcesMap.get(name);
+    return fetchCache.get(name);
   }
 
   /**
@@ -541,8 +564,10 @@ export default class ModelViewer extends EventEmitter {
     this.renderedInstances = 0;
     this.renderedParticles = 0;
 
+    let dt = this.frameTime * 0.001;
+
     for (let scene of this.scenes) {
-      scene.update();
+      scene.update(dt);
 
       this.renderedCells += scene.renderedCells;
       this.renderedBuckets += scene.renderedBuckets;
@@ -624,7 +649,7 @@ export default class ModelViewer extends EventEmitter {
    * @param {Resource} resource
    */
   registerEvents(resource) {
-    ['loadstart', 'load', 'error', 'loadend'].map((e) => resource.on(e, (...data) => this.emit(e, ...data)));
+    ['loadstart', 'load', 'error', 'loadend'].map((e) => resource.once(e, (...data) => this.emit(e, ...data)));
   }
 
   /**

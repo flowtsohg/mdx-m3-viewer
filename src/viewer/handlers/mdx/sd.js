@@ -55,34 +55,12 @@ const templatedSdSequence = (interpolator) => class {
       // If there's only one key, use it directly.
       this.constant = true;
     } else {
-      // If all of the values in this sequence are the same, might as well make it constant.
-      let constant = true;
       let firstValue = this.keyframes[0].value;
 
-      for (let i = 1, l = this.keyframes.length; i < l; i++) {
-        let keyframe = this.keyframes[i];
-        let value = keyframe.value;
+      // If all of the values in this sequence are the same, might as well make it constant.
+      this.constant = this.keyframes.every((keyframe) => firstValue.every((value, index) => value === keyframe.value[index]));
 
-        if (value.length > 0) {
-          for (let j = 0, k = value.length; j < k; j++) {
-            if (firstValue[j] !== value[j]) {
-              constant = false;
-              break;
-            }
-          }
-        } else {
-          if (value !== firstValue) {
-            constant = false;
-            break;
-          }
-        }
-      }
-
-      if (constant) {
-        this.constant = true;
-      } else {
-        this.constant = false;
-
+      if (!this.constant) {
         // If there is no opening keyframe for this sequence, inject one with the default value.
         if (this.keyframes[0].frame !== start) {
           this.keyframes.unshift({frame: start, value: defval, inTan: defval, outTan: defval});

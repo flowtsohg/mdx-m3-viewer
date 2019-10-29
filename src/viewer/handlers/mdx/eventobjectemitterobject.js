@@ -2,6 +2,7 @@ import {decodeAudioData} from '../../../common/audio';
 import MappedData from '../../../utils/mappeddata';
 import GenericObject from './genericobject';
 import {emitterFilterMode} from './filtermode';
+import {EMITTER_SPLAT, EMITTER_UBERSPLAT} from './geometryemitterfuncs';
 
 const mappedDataCallback = (text) => new MappedData(text);
 const decodedDataCallback = (arrayBuffer) => decodeAudioData(arrayBuffer);
@@ -9,7 +10,7 @@ const decodedDataCallback = (arrayBuffer) => decodeAudioData(arrayBuffer);
 /**
  * An event object.
  */
-export default class EventObject extends GenericObject {
+export default class EventObjectEmitterObject extends GenericObject {
   /**
    * @param {MdxModel} model
    * @param {MdxParserEventObjectEmitter} eventObject
@@ -27,6 +28,16 @@ export default class EventObject extends GenericObject {
     if (type === 'FPT') {
       type = 'SPL';
     }
+
+    let geometryEmitterType = -1;
+
+    if (type === 'SPL') {
+      geometryEmitterType = EMITTER_SPLAT;
+    } else if (type === 'UBR') {
+      geometryEmitterType = EMITTER_UBERSPLAT;
+    }
+
+    this.geometryEmitterType = geometryEmitterType;
 
     this.ok = false;
     this.type = type;

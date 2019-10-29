@@ -39,7 +39,7 @@ export default class M3ModelInstance extends TexturedModelInstance {
   /**
    *
    */
-  updateTimers() {
+  updateAnimations() {
     let sequenceId = this.sequence;
 
     if (sequenceId !== -1) {
@@ -58,13 +58,8 @@ export default class M3ModelInstance extends TexturedModelInstance {
         this.emit('seqend', this);
       }
     }
-  }
 
-  /**
-   *
-   */
-  updateAnimations() {
-    if (this.forced || this.sequence !== -1) {
+    if (this.forced || sequenceId !== -1) {
       this.forced = false;
 
       this.skeleton.update();

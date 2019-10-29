@@ -1,36 +1,35 @@
 import {vec3} from 'gl-matrix';
-import {FLOATS_PER_OBJECT, FLOAT_OFFSET_P0, FLOAT_OFFSET_HEALTH} from './geometryemitter';
+import EmittedObject from '../../emittedobject';
 
 const vertexHeap = vec3.create();
 
 /**
  * An MDX splat or ubersplat object.
  */
-export default class EventObjectSplUbr {
+export default class EventObjectSplUbr extends EmittedObject {
   /**
    * @param {EventObjectSplEmitter|EventObjectUbrEmitter} emitter
    */
   constructor(emitter) {
-    this.emitter = emitter;
-    this.emitterView = null;
-    this.health = 0;
+    super(emitter);
+
     this.vertices = new Float32Array(12);
   }
 
   /**
-   * @param {EventObjectEmitterView} emitterView
+   * @override
    */
-  bind(emitterView) {
-    let modelObject = this.emitter.modelObject;
+  bind() {
+    let emitter = this.emitter;
+    let instance = emitter.instance;
+    let emitterObject = emitter.emitterObject;
     let vertices = this.vertices;
-    let scale = modelObject.scale;
-    let node = emitterView.instance.nodes[modelObject.index];
+    let scale = emitterObject.scale;
+    let node = instance.nodes[emitterObject.index];
     let worldMatrix = node.worldMatrix;
 
-    this.emitterView = emitterView;
-    this.health = modelObject.lifeSpan;
+    this.health = emitterObject.lifeSpan;
 
-    // Note that the order here isn't the same as particles/ribbons.
     vertexHeap[0] = scale;
     vertexHeap[1] = scale;
     vertexHeap[2] = 0;
@@ -53,33 +52,10 @@ export default class EventObjectSplUbr {
   }
 
   /**
-   * @param {number} offset
+   * @override
    * @param {number} dt
    */
-  render(offset, dt) {
+  update(dt) {
     this.health -= dt;
-
-    if (this.health > 0) {
-      let emitter = this.emitter;
-      let floatView = emitter.floatView;
-      let floatOffset = offset * FLOATS_PER_OBJECT;
-      let p0Offset = floatOffset + FLOAT_OFFSET_P0;
-      let vertices = this.vertices;
-
-      floatView[p0Offset + 0] = vertices[0];
-      floatView[p0Offset + 1] = vertices[1];
-      floatView[p0Offset + 2] = vertices[2];
-      floatView[p0Offset + 3] = vertices[3];
-      floatView[p0Offset + 4] = vertices[4];
-      floatView[p0Offset + 5] = vertices[5];
-      floatView[p0Offset + 6] = vertices[6];
-      floatView[p0Offset + 7] = vertices[7];
-      floatView[p0Offset + 8] = vertices[8];
-      floatView[p0Offset + 9] = vertices[9];
-      floatView[p0Offset + 10] = vertices[10];
-      floatView[p0Offset + 11] = vertices[11];
-
-      floatView[floatOffset + FLOAT_OFFSET_HEALTH] = this.health;
-    }
   }
 }

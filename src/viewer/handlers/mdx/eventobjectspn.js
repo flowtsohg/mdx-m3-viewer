@@ -1,40 +1,40 @@
+import EmittedObject from '../../emittedobject';
+
 /**
  * An MDX spawned model object.
  */
-export default class EventObjectSpn {
+export default class EventObjectSpn extends EmittedObject {
   /**
-   * @param {MdxEventObjectEmitter} emitter
+   * @param {EventObjectSpnEmitter} emitter
    */
   constructor(emitter) {
-    this.emitter = emitter;
-    this.emitterView = null;
-    this.health = 0;
-    this.internalResource = emitter.modelObject.internalResource.addInstance();
+    super(emitter);
+
+    this.internalResource = emitter.emitterObject.internalResource.addInstance();
   }
 
   /**
-   * @param {EventObjectEmitterView} emitterView
+   * @override
    */
-  bind(emitterView) {
+  bind() {
+    let emitter = this.emitter;
     let instance = this.internalResource;
-    let node = emitterView.instance.nodes[this.emitter.modelObject.index];
-
-    this.emitterView = emitterView;
+    let node = emitter.instance.nodes[emitter.emitterObject.index];
 
     instance.setSequence(0);
     instance.setTransformation(node.worldLocation, node.worldRotation, node.worldScale);
     instance.show();
 
-    emitterView.instance.scene.addInstance(instance);
+    emitter.instance.scene.addInstance(instance);
 
     this.health = 1;
   }
 
   /**
-   * @param {number} offset
+   * @override
    * @param {number} dt
    */
-  render(offset, dt) {
+  update(dt) {
     let instance = this.internalResource;
 
     // Once the sequence finishes, this event object dies

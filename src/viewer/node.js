@@ -507,9 +507,10 @@ let nodeMixin = (superclass) => class extends superclass {
    * Also updates the object part of this node, if there is any (e.g. model instances).
    * Continues the update hierarchy.
    *
+   * @param {number} dt
    * @param {Scene} scene
    */
-  update(scene) {
+  update(dt, scene) {
     if (this.dirty || (this.parent && this.parent.wasDirty)) {
       this.dirty = true; // In case this node isn't dirty, but the parent was.
       this.wasDirty = true;
@@ -518,31 +519,32 @@ let nodeMixin = (superclass) => class extends superclass {
       this.wasDirty = false;
     }
 
-    this.updateObject(scene);
-
-    this.updateChildren(scene);
+    this.updateObject(dt, scene);
+    this.updateChildren(dt, scene);
   }
 
   /**
    * Update the object part of this node.
    * Used by model instances.
    *
+   * @param {number} dt
    * @param {Scene} scene
    */
-  updateObject(scene) {
+  updateObject(dt, scene) {
 
   }
 
   /**
    * Update this node's children and continue the update hierarchy.
    *
+   * @param {number} dt
    * @param {Scene} scene
    */
-  updateChildren(scene) {
+  updateChildren(dt, scene) {
     let children = this.children;
 
     for (let i = 0, l = children.length; i < l; i++) {
-      children[i].update(scene);
+      children[i].update(dt, scene);
     }
   }
 };

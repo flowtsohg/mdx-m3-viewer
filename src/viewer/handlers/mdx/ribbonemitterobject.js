@@ -1,9 +1,10 @@
 import GenericObject from './genericobject';
+import {EMITTER_RIBBON} from './geometryemitterfuncs';
 
 /**
  * An MDX ribbon emitter.
  */
-export default class RibbonEmitter extends GenericObject {
+export default class RibbonEmitterObject extends GenericObject {
   /**
    * @param {MdxModel} model
    * @param {MdxParserParticleEmitter} emitter
@@ -11,6 +12,8 @@ export default class RibbonEmitter extends GenericObject {
    */
   constructor(model, emitter, index) {
     super(model, emitter, index);
+
+    this.geometryEmitterType = EMITTER_RIBBON;
 
     this.layer = model.materials[emitter.materialId][0];
     this.texture = model.textures[this.layer.textureId];
