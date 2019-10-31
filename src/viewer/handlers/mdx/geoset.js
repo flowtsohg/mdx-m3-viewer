@@ -27,11 +27,20 @@ export class ShallowGeoset {
     let offsets = this.offsets;
     let attribs = shader.attribs;
 
-    gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, 12, offsets[0]);
-    gl.vertexAttribPointer(attribs.a_normal, 3, gl.FLOAT, false, 12, offsets[1]);
-    gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 8, offsets[2] + coordId * this.uvSetSize);
+    gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, 0, offsets[0]);
+    gl.vertexAttribPointer(attribs.a_normal, 3, gl.FLOAT, false, 0, offsets[1]);
+    gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 0, offsets[2] + coordId * this.uvSetSize);
     gl.vertexAttribPointer(attribs.a_bones, 4, gl.UNSIGNED_BYTE, false, 4, offsets[3]);
     gl.vertexAttribPointer(attribs.a_boneNumber, 1, gl.UNSIGNED_BYTE, false, 4, offsets[4]);
+  }
+
+  bindNew(shader, coordId) {
+    let gl = this.model.viewer.gl;
+    let offsets = this.offsets;
+    let attribs = shader.attribs;
+
+    gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, 0, offsets[0]);
+    gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 0, offsets[2] + coordId * this.uvSetSize);
   }
 
   /**

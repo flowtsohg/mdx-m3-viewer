@@ -8,8 +8,8 @@ import Scene from './scene';
 import imageTextureHandler from './handlers/imagetexture/handler';
 import TextureAtlas from './handlers/textureatlas';
 import GenericResource from './genericresource';
-import Buffer from './gl/buffer';
-import DataTexture from './gl/datatexture';
+import ClientBuffer from './gl/clientbuffer';
+import ClientDataTexture from './gl/clientdatatexture';
 
 /**
  * A model viewer.
@@ -69,7 +69,7 @@ export default class ModelViewer extends EventEmitter {
     /**
      * The instances buffer is used instead of gl_InstanceID, which isn't defined in WebGL shaders.
      * It's a simple buffer of indices, [0, 1, ..., instancesCount - 1].
-     * It grows automatically when binding with bindInstancesBuffer.
+     * It grows automatically when binding with bindInstancesBuffer()
      *
      * @member {WebGLBuffer}
      */
@@ -92,17 +92,17 @@ export default class ModelViewer extends EventEmitter {
      * A resizeable buffer that can be used by any part of the library.
      * The data it contains is temporary, and can be overwritten at any time.
      *
-     * @member {Buffer}
+     * @member {ClientBuffer}
      */
-    this.buffer = new Buffer(gl);
+    this.buffer = new ClientBuffer(gl);
 
     /**
      * A resizeable data texture that can be used by any part of the library.
      * The data it contains is temporary, and can be overwritten at any time.
      *
-     * @member {DataTexture}
+     * @member {ClientDataTexture}
      */
-    this.dataTexture = new DataTexture(gl);
+    this.dataTexture = new ClientDataTexture(gl);
 
     /**
      * A viewer-wide flag.

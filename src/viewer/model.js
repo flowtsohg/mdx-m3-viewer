@@ -11,16 +11,12 @@ export default class Model extends Resource {
   constructor(resourceData) {
     super(resourceData);
 
-    /** @member {number} */
-    this.batchSize = resourceData.viewer.batchSize;
     /**
-     * This is an array of instances that were created before the model loaded.
-     * When it is loaded, they will be initialized, and then this array will be cleared.
+     * An array of instances that were created before the model loaded.
+     * When the model loads, the instances are loaded, and the array is cleared.
      *
      * @member {Array<ModelInstance>} */
     this.preloadedInstances = [];
-    /** @member {Array<ModelView>} */
-    this.views = [];
     /** @member {Bounds} */
     this.bounds = new Bounds();
   }
@@ -28,17 +24,12 @@ export default class Model extends Resource {
   /**
    * Adds a new instance to this model, and returns it.
    *
+   * @param {?number} type
    * @return {ModelInstance}
    */
-  addInstance() {
-    let views = this.views;
-    let instance = new this.handler.Instance(this);
-
-    if (views.length === 0) {
-      this.addView();
-    }
-
-    instance.modelView = views[0];
+  addInstance(type = 0) {
+    let Instance = this.handler.Instance[type];
+    let instance = new Instance(this);
 
     if (this.ok) {
       instance.load();
@@ -47,86 +38,6 @@ export default class Model extends Resource {
     }
 
     return instance;
-  }
-
-  /**
-   * Render opaque things.
-   *
-   * @param {ModelViewData} modelViewData
-   */
-  renderOpaque(modelViewData) {
-
-  }
-
-  /**
-   * Render translucent things.
-   *
-   * @param {ModelViewData} modelViewData
-   */
-  renderTranslucent(modelViewData) {
-
-  }
-
-  /**
-   * Create a new model view for this model, and return it.
-   *
-   * @return {ModelView}
-   */
-  addView() {
-    let view = new this.handler.View(this);
-
-    this.views.push(view);
-
-    return view;
-  }
-
-  /**
-   * Remove a model view from this model.
-   *
-   * @param {*} modelView
-   */
-  removeView(modelView) {
-    let views = this.views;
-
-    views.splice(views.indexOf(modelView), 1);
-  }
-
-  /**
-   * Called every time an instance changes a model view.
-   * This generally corresponds to the instance creation, and to texture overriding.
-   *
-   * @param {ModelInstance} instance
-   * @param {Object} shallowView
-   */
-  viewChanged(instance, shallowView) {
-    let view = this.matchingView(shallowView);
-
-    instance.modelView = view;
-
-    // If the instance is already in a scene, and this is a new view, it will not be in the scene, so add it.
-    if (instance.scene) {
-      instance.scene.viewChanged(instance);
-    }
-  }
-
-  /**
-   * @param {Object} shallowView
-   * @return {ModelView}
-   */
-  matchingView(shallowView) {
-    // Check if there's another view that matches the instance
-    for (let view of this.views) {
-      if (view.equals(shallowView)) {
-        return view;
-      }
-    }
-
-    // Since no view matched, create a new one
-    let view = this.addView();
-
-    view.applyShallowCopy(shallowView);
-
-    return view;
   }
 
   /**

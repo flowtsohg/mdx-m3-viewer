@@ -77,7 +77,6 @@ export default class MdxModel extends Model {
       parser = new Parser(bufferOrParser);
     }
 
-    // Model
     this.name = parser.name;
 
     // Initialize the bounds.
@@ -536,26 +535,6 @@ export default class MdxModel extends Model {
       }
 
       this.unbind(shader);
-    }
-  }
-
-  /**
-   * Render the opaque things in the given scene data.
-   *
-   * @param {ModelViewData} modelViewData
-   */
-  renderOpaque(modelViewData) {
-    modelViewData.opaqueGroup.render(modelViewData);
-  }
-
-  /**
-   * Render the translucent things in the given scene data.
-   *
-   * @param {ModelViewData} modelViewData
-   */
-  renderTranslucent(modelViewData) {
-    for (let group of modelViewData.translucentGroups) {
-      group.render(modelViewData);
     }
   }
 }

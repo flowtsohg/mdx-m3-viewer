@@ -1,6 +1,7 @@
 import Camera from './camera';
 import Grid from './grid';
 import EmittedObjectUpdater from './emittedobjectupdater';
+import RenderBatch from './renderbatch';
 
 /**
  * A scene.
@@ -52,6 +53,30 @@ export default class Scene {
     this.currentInstance = 0;
 
     this.emittedObjectUpdater = new EmittedObjectUpdater();
+
+    /**
+     * @member {Map<Model, RenderBatch>}
+     */
+    this.batches = new Map();
+  }
+
+  /**
+   * @param {ModelInstance} instance
+   */
+  addToBatch(instance) {
+    let batches = this.batches;
+    let model = instance.model;
+    let batch = batches.get(model);
+
+    if (!batch) {
+      let Batch = model.handler.Batch;
+
+      batch = new Batch(this, model);
+
+      batches.set(model, batch);
+    }
+
+    batch.add(instance);
   }
 
   /**
@@ -273,22 +298,20 @@ export default class Scene {
 
     this.viewer.gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 
-    // for (let modelViewData of this.modelViewsData) {
-    //   modelViewData.renderOpaque(this);
-    // }
+    // Clear all of the batches.
+    for (let batch of this.batches.values()) {
+      batch.clear();
+    }
 
-    // for (let cell of this.grid.cells) {
-    //   if (cell.plane === -1) {
-    //     for (let instance of cell.instances) {
-    //       if (instance.isVisible(camera)) {
-    //         instance.renderOpaque();
-    //       }
-    //     }
-    //   }
-    // }
-
+    // Render all of the visible instances.
+    // For instances that use batched rendering, this will add them to the batches.
     for (let instance of this.instances) {
       instance.renderOpaque();
+    }
+
+    // Render all of the batches.
+    for (let batch of this.batches.values()) {
+      batch.render();
     }
   }
 

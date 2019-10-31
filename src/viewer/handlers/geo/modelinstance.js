@@ -1,9 +1,9 @@
-import TexturedModelInstance from '../../texturedmodelinstance';
+import ModelInstance from '../../modelinstance';
 
 /**
  * A GEO model instance.
  */
-export default class GeometryModelInstance extends TexturedModelInstance {
+export default class GeometryModelInstance extends ModelInstance {
   /**
    * @param {GeometryModel} model
    */

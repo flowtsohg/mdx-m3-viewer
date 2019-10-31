@@ -1,5 +1,5 @@
 import {vec3, quat} from 'gl-matrix';
-import TexturedModelInstance from '../../texturedmodelinstance';
+import ModelInstance from '../../modelinstance';
 import {createSkeletalNodes} from '../../node';
 import Node from './node';
 import AttachmentInstance from './attachmentinstance';
@@ -10,8 +10,6 @@ import EventObjectSpnEmitter from './eventobjectspnemitter';
 import EventObjectSplEmitter from './eventobjectsplemitter';
 import EventObjectUbrEmitter from './eventobjectubremitter';
 import EventObjectSndEmitter from './eventobjectsndemitter';
-import {renderEmitter} from './geometryemitterfuncs';
-
 
 // Heap allocations needed for this module.
 let visibilityHeap = new Float32Array(1);
@@ -25,7 +23,7 @@ let textureIdHeap = new Float32Array(1);
 /**
  * An MDX model instance.
  */
-export default class ModelInstance extends TexturedModelInstance {
+export default class MdxComplexInstance extends ModelInstance {
   /**
    * @param {MdxModel} model
    */
@@ -519,14 +517,14 @@ export default class ModelInstance extends TexturedModelInstance {
   }
 
   /**
-   *
+   * @override
    */
   renderOpaque() {
     this.model.groups[0].render(this);
   }
 
   /**
-   *
+   * @override
    */
   renderTranslucent() {
     let groups = this.model.groups;

@@ -101,35 +101,6 @@ export default class Layer extends AnimatedObject {
     this.hasRotationAnim = hasRotationAnim;
     this.hasScaleAnim = hasScaleAnim;
     this.hasObjectAnim = hasAlphaAnim || hasSlotAnim || hasTranslationAnim || hasRotationAnim || hasScaleAnim;
-
-    ///
-    // Handle sprite animations
-    // if (this.animations.KMTF) {
-    //   // Get all unique texture IDs used by this layer
-    //   let textureIds = unique(this.animations.KMTF.getValues().map((array) => array[0]));
-
-    //   if (textureIds.length > 1) {
-    //     let hash = stringHash(textureIds.join(''));
-    //     let textures = [];
-
-    //     // Grab all of the textures
-    //     for (let i = 0, l = textureIds.length; i < l; i++) {
-    //       textures[i] = model.textures[textureIds[i]];
-    //     }
-
-    //     let atlas = model.viewer.loadTextureAtlas(hash, textures);
-
-    //     atlas.whenLoaded()
-    //       .then(() => {
-    //         atlas.wrapMode(gl.REPEAT, gl.REPEAT);
-
-    //         model.textures.push(atlas);
-
-    //         this.textureId = model.textures.length - 1;
-    //         this.uvDivisor.set([atlas.columns, atlas.rows]);
-    //       });
-    //   }
-    // }
   }
 
   /**
@@ -182,15 +153,7 @@ export default class Layer extends AnimatedObject {
    * @return {number}
    */
   getTextureId(out, instance) {
-    let keyframe = this.getUintValue(out, 'KMTF', instance, this.textureId);
-
-    /// TODO: Re-implement this. But is there actually a model to test it with?
-    // If this layer is using a texture atlas, remap the texture ID to that of the texture atlas.
-    if (this.texutreAtlasMapping) {
-      out[0] = this.texutreAtlasMapping[out[0]];
-    }
-
-    return keyframe;
+    return this.getUintValue(out, 'KMTF', instance, this.textureId);
   }
 
   /**

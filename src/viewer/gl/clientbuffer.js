@@ -1,45 +1,41 @@
-import {powerOfTwo} from '../../common/math';
-
 /**
  * A buffer.
  */
-export default class Buffer {
+export default class ClientBuffer {
   /**
    * @param {WebGLRenderingContext} gl
+   * @param {?number} size
    */
-  constructor(gl) {
+  constructor(gl, size = 64) {
     /** @member {WebGLRenderingContext} */
     this.gl = gl;
+    /** @member {WebGLBuffer} */
+    this.buffer = gl.createBuffer();
+    /** @member {number} */
+    this.size = 0;
     /** @member {ArrayBuffer} */
-    this.arrayBuffer = new ArrayBuffer(0);
+    this.arrayBuffer = null;
     /** @member {?Uint8Array} */
     this.byteView = null;
     /** @member {?Float32Array} */
     this.floatView = null;
-    /** @member {WebGLBuffer} */
-    this.buffer = gl.createBuffer();
-  }
 
-  /**
-   * @return {number}
-   */
-  size() {
-    return this.arrayBuffer.byteLength;
+    this.reserve(size);
   }
 
   /**
   * @param {number} size
   */
-  resize(size) {
-    if (this.arrayBuffer.byteLength < size) {
+  reserve(size) {
+    if (this.size < size) {
       const gl = this.gl;
 
-      this.arrayBuffer = new ArrayBuffer(powerOfTwo(size));
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+      gl.bufferData(gl.ARRAY_BUFFER, size, gl.DYNAMIC_DRAW);
+
+      this.arrayBuffer = new ArrayBuffer(size);
       this.byteView = new Uint8Array(this.arrayBuffer);
       this.floatView = new Float32Array(this.arrayBuffer);
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-      gl.bufferData(gl.ARRAY_BUFFER, this.arrayBuffer.byteLength, gl.DYNAMIC_DRAW);
     }
   }
 

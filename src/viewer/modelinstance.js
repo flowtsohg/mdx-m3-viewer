@@ -174,6 +174,20 @@ export default class ModelInstance extends EventNode {
   }
 
   /**
+   *
+   */
+  renderOpaque() {
+
+  }
+
+  /**
+   *
+   */
+  renderTranslucent() {
+
+  }
+
+  /**
    * @param {Camera} camera
    * @return {boolean}
    */

@@ -1,10 +1,10 @@
-import TexturedModelInstance from '../../texturedmodelinstance';
+import ModelInstance from '../../modelinstance';
 import M3Skeleton from './skeleton';
 
 /**
  * An M3 model instance.
  */
-export default class M3ModelInstance extends TexturedModelInstance {
+export default class M3ModelInstance extends ModelInstance {
   /**
    * @extends {TexturedModelInstance}
    * @param {M3Model} model

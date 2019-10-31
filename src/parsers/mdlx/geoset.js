@@ -30,7 +30,6 @@ export default class Geoset {
     this.selectionGroup = 0;
     /** @member {number} */
     this.selectionFlags = 0;
-    /** @member {Extent} */
     /**
      * @since 900
      * @member {number}
@@ -41,6 +40,7 @@ export default class Geoset {
      * @member {string}
      */
     this.lodName = '';
+    /** @member {Extent} */
     this.extent = new Extent();
     /** @member {Array<Extent>} */
     this.sequenceExtents = [];

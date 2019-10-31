@@ -359,7 +359,7 @@ export function renderEmitter(emitter, shader) {
     let size = alive * BYTES_PER_OBJECT;
     let attribs = shader.attribs;
 
-    buffer.resize(size);
+    buffer.reserve(size);
 
     if (emitterType === EMITTER_PARTICLE2) {
       bindParticleEmitter2Buffer(emitter, buffer);
