@@ -30,6 +30,8 @@ export default class ClientBuffer {
     if (this.size < size) {
       const gl = this.gl;
 
+      this.size = size;
+
       gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
       gl.bufferData(gl.ARRAY_BUFFER, size, gl.DYNAMIC_DRAW);
 

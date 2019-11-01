@@ -5,6 +5,33 @@ import RenderBatch from '../../renderbatch';
  */
 export default class MdxRenderBatch extends RenderBatch {
   /**
+   * @param {ClientBuffer} buffer
+   */
+  bindAndUpdateBuffer(buffer) {
+    let count = this.count;
+    let instances = this.instances;
+
+    // Ensure there is enough memory for all of the instances data.
+    buffer.reserve(count * 64);
+
+    let floatView = buffer.floatView;
+
+    // "Copy" the instances into the buffer.
+    for (let i = 0; i < count; i++) {
+      let instance = instances[i];
+      let worldMatrix = instance.worldMatrix;
+      let offset = i * 16;
+
+      for (let m = 0; m < 16; m++) {
+        floatView[offset + m] = worldMatrix[m];
+      }
+    }
+
+    // Update the buffer.
+    buffer.bindAndUpdate(count * 64);
+  }
+
+  /**
    * @override
    */
   render() {
@@ -15,7 +42,6 @@ export default class MdxRenderBatch extends RenderBatch {
       let batches = model.batches;
       let shallowGeosets = model.shallowGeosets;
       let textures = model.textures;
-      let instances = this.instances;
       let viewer = model.viewer;
       let gl = viewer.gl;
       let instancedArrays = gl.extensions.instancedArrays;
@@ -26,29 +52,12 @@ export default class MdxRenderBatch extends RenderBatch {
       let m1 = attribs.a_m1;
       let m2 = attribs.a_m2;
       let m3 = attribs.a_m3;
+      let buffer = viewer.buffer;
 
       viewer.webgl.useShaderProgram(shader);
 
-      let buffer = viewer.buffer;
+      this.bindAndUpdateBuffer(buffer);
 
-      // Ensure there is enough memory for all of the instances data.
-      buffer.reserve(count * 64);
-
-      let floatView = buffer.floatView;
-
-      // "Copy" the instances into the buffer.
-      for (let i = 0; i < count; i++) {
-        let instance = instances[i];
-        let worldMatrix = instance.worldMatrix;
-        let offset = i * 16;
-
-        for (let m = 0; m < 16; m++) {
-          floatView[offset + m] = worldMatrix[m];
-        }
-      }
-
-      // Update the buffer.
-      buffer.bindAndUpdate(count * 64);
       gl.vertexAttribPointer(m0, 4, gl.FLOAT, false, 64, 0);
       gl.vertexAttribPointer(m1, 4, gl.FLOAT, false, 64, 16);
       gl.vertexAttribPointer(m2, 4, gl.FLOAT, false, 64, 32);

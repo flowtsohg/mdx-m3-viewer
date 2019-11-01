@@ -27,8 +27,6 @@ export default class ModelInstance extends EventNode {
     this.depth = 0;
     /** @member {number} */
     this.updateFrame = 0;
-    /** @member {number} */
-    this.renderFrame = 0;
     /** @member {Model} */
     this.model = model;
     /** @member {?ModelView} */
@@ -128,8 +126,8 @@ export default class ModelInstance extends EventNode {
    * @param {Scene} scene
    */
   updateObject(dt, scene) {
-    if (this.rendered && this.updateFrame < this.model.viewer.frame) {
-      if (!this.paused) {
+    if (this.updateFrame < this.model.viewer.frame) {
+      if (this.rendered && !this.paused) {
         this.updateAnimations(dt);
       }
 
@@ -156,20 +154,6 @@ export default class ModelInstance extends EventNode {
 
     if (this.scene) {
       this.scene.grid.moved(this);
-    }
-  }
-
-  /**
-   *
-   */
-  render() {
-    if (this.rendered && this.renderFrame < this.model.viewer.frame) {
-      let modelViewData = this.modelViewData;
-
-      modelViewData.renderInstance(this);
-      modelViewData.renderEmitters(this);
-
-      this.renderFrame = this.model.viewer.frame;
     }
   }
 
@@ -204,6 +188,13 @@ export default class ModelInstance extends EventNode {
       return true;
     }
 
+    return false;
+  }
+
+  /**
+   * @return {boolean}
+   */
+  isBatched() {
     return false;
   }
 }

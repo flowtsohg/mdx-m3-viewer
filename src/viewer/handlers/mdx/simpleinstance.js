@@ -1,29 +1,14 @@
 import ModelInstance from '../../modelinstance';
 
 /**
- * An MDX model instance.
+ * A simple model instance.
  */
 export default class MdxSimpleInstance extends ModelInstance {
   /**
-   * @param {MdxModel} model
-   */
-  constructor(model) {
-    super(model);
-
-
-  }
-
-  /**
    * @override
+   * @return {boolean}
    */
-  load() {
-    let model = this.model;
-  }
-
-  /**
-   * @override
-   */
-  renderOpaque() {
-    this.scene.addToBatch(this);
+  isBatched() {
+    return true;
   }
 }

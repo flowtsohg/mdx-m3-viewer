@@ -345,8 +345,9 @@ export default class War3MapViewer extends ModelViewer {
       // this.renderDoodads(true);
       super.renderOpaque();
       // this.renderDoodads(false);
-      super.renderTranslucent();
       this.renderWater();
+      super.renderTranslucent();
+
     }
   }
 
@@ -369,6 +370,8 @@ export default class War3MapViewer extends ModelViewer {
    * @param {ArrayBuffer} buffer
    */
   async loadMap(buffer) {
+    let promise = this.promise();
+
     // Readonly mode to optimize memory usage.
     this.mapMpq = new War3Map(buffer, true);
 
@@ -426,6 +429,8 @@ export default class War3MapViewer extends ModelViewer {
     } else {
       this.once('unitsloaded', () => this.loadUnitsAndItems(modifications));
     }
+
+    promise.resolve();
   }
 
   /**
@@ -469,14 +474,23 @@ export default class War3MapViewer extends ModelViewer {
         model = this.load(fileVar);
       }
 
-      let instance = model.addInstance();
+      let isSimple = row.lightweight === 1;
+      let instance;
+
+      if (isSimple) {
+        instance = model.addInstance(1);
+      } else {
+        instance = model.addInstance();
+      }
 
       instance.move(doodad.location);
       instance.rotateLocal(quat.setAxisAngle(quat.create(), VEC3_UNIT_Z, doodad.angle));
       instance.scale(doodad.scale);
       instance.setScene(scene);
 
-      standOnRepeat(instance);
+      if (!isSimple) {
+        standOnRepeat(instance);
+      }
     }
 
     this.doodadsReady = true;

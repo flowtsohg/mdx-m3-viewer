@@ -52,31 +52,15 @@ export default class Scene {
     this.instances = [];
     this.currentInstance = 0;
 
+    this.batchedInstances = [];
+    this.currentBatchedInstance = 0;
+
     this.emittedObjectUpdater = new EmittedObjectUpdater();
 
     /**
      * @member {Map<Model, RenderBatch>}
      */
     this.batches = new Map();
-  }
-
-  /**
-   * @param {ModelInstance} instance
-   */
-  addToBatch(instance) {
-    let batches = this.batches;
-    let model = instance.model;
-    let batch = batches.get(model);
-
-    if (!batch) {
-      let Batch = model.handler.Batch;
-
-      batch = new Batch(this, model);
-
-      batches.set(model, batch);
-    }
-
-    batch.add(instance);
   }
 
   /**
@@ -157,26 +141,6 @@ export default class Scene {
   }
 
   /**
-   * Called by Model when an instance changes its view, e.g. by using TexturedModelInstance.setTexture()
-   *
-   * @param {ModelInstance} instance
-   */
-  viewChanged(instance) {
-    let modelViewsData = this.modelViewsData;
-    let modelViewsDataMap = this.modelViewsDataMap;
-    let modelView = instance.modelView;
-
-    if (!modelViewsDataMap.has(modelView)) {
-      let modelViewData = new instance.model.handler.Data(modelView, this);
-
-      modelViewsData.push(modelViewData);
-      modelViewsDataMap.set(modelView, modelViewData);
-    }
-
-    instance.modelViewData = modelViewsDataMap.get(modelView);
-  }
-
-  /**
    * Clear this scene.
    */
   clear() {
@@ -211,6 +175,25 @@ export default class Scene {
   }
 
   /**
+   * @param {ModelInstance} instance
+   */
+  addToBatch(instance) {
+    let batches = this.batches;
+    let model = instance.model;
+    let batch = batches.get(model);
+
+    if (!batch) {
+      let Batch = model.handler.Batch;
+
+      batch = new Batch(this, model);
+
+      batches.set(model, batch);
+    }
+
+    batch.add(instance);
+  }
+
+  /**
    * Update this scene.
    *
    * @param {number} dt
@@ -229,63 +212,44 @@ export default class Scene {
       /// Need to also update the orientation.
     }
 
-    this.currentInstance = 0;
+    let frame = this.viewer.frame;
+
+    let instances = this.instances;
+    let batchedInstances = this.batchedInstances;
+
+    let currentInstance = 0;
+    let currentBatchedInstance = 0;
+
+    this.visibleInstances = 0;
 
     // Update all of the visible instances that have no parents.
     // Instances that have parents will be updated down the hierarcy automatically.
     for (let cell of this.grid.cells) {
       if (cell.isVisible(camera)) {
         for (let instance of cell.instances) {
-          if (instance.isVisible(camera)) {
+          if (instance.isVisible(camera) && instance.updateFrame < frame) {
             if (!instance.parent) {
               instance.update(dt, this);
             }
 
-            this.instances[this.currentInstance++] = instance;
+            if (instance.isBatched()) {
+              batchedInstances[currentBatchedInstance++] = instance;
+            } else {
+              instances[currentInstance++] = instance;
+            }
+
+            this.visibleInstances += 1;
           }
         }
       }
     }
 
-    /// Does this change memory?
-    this.instances.length = this.currentInstance;
+    batchedInstances.length = currentBatchedInstance;
 
-    this.instances.sort((a, b) => b.depth - a.depth);
+    instances.length = currentInstance;
+    instances.sort((a, b) => b.depth - a.depth);
 
     this.emittedObjectUpdater.update(dt);
-
-    // // Reset all of the buckets.
-    // for (let modelViewData of this.modelViewsData) {
-    //   modelViewData.startFrame();
-    // }
-
-    // this.renderedCells = 0;
-    // this.renderedBuckets = 0;
-    // this.renderedInstances = 0;
-    // this.renderedParticles = 0;
-
-    // // Render all of the visible instances into the buckets.
-    // for (let cell of this.grid.cells) {
-    //   if (cell.plane === -1) {
-    //     this.renderedCells += 1;
-
-    //     for (let instance of cell.instances) {
-    //       if (instance.isVisible(camera)) {
-    //         instance.render();
-    //       }
-    //     }
-    //   }
-    // }
-
-    // // Update the bucket buffers.
-    // for (let modelViewData of this.modelViewsData) {
-    //   modelViewData.updateBuffers();
-    //   modelViewData.updateEmitters();
-
-    //   this.renderedBuckets += modelViewData.usedBuckets;
-    //   this.renderedInstances += modelViewData.instances;
-    //   this.renderedParticles += modelViewData.particles;
-    // }
   }
 
   /**
@@ -303,15 +267,19 @@ export default class Scene {
       batch.clear();
     }
 
-    // Render all of the visible instances.
-    // For instances that use batched rendering, this will add them to the batches.
-    for (let instance of this.instances) {
-      instance.renderOpaque();
+    ///
+    for (let instance of this.batchedInstances) {
+      this.addToBatch(instance);
     }
 
     // Render all of the batches.
     for (let batch of this.batches.values()) {
       batch.render();
+    }
+
+    ///
+    for (let instance of this.instances) {
+      instance.renderOpaque();
     }
   }
 
