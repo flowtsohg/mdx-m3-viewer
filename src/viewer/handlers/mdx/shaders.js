@@ -62,7 +62,6 @@ export default {
     uniform vec2 u_uvTrans;
     uniform vec2 u_uvRot;
     uniform float u_uvScale;
-    uniform vec2 u_uvSprite;
 
     attribute vec3 a_position;
     attribute vec3 a_normal;
@@ -73,7 +72,7 @@ export default {
     varying vec2 v_uv;
     varying vec4 v_color;
     varying vec4 v_uvTransRot;
-    varying vec3 v_uvScaleSprite;
+    varying float v_uvScale;
 
     void main() {
       vec3 position = a_position;
@@ -84,7 +83,7 @@ export default {
       v_uv = a_uv;
       v_color = (u_vertexColor / 255.0) * (u_geosetColor.bgra / 255.0) * vec4(1.0, 1.0, 1.0, u_layerAlpha / 255.0);
       v_uvTransRot = vec4(u_uvTrans, u_uvRot);
-      v_uvScaleSprite = vec3(u_uvScale, u_uvSprite);
+      v_uvScale = u_uvScale;
 
       gl_Position = u_mvp * vec4(position, 1.0);
     }
@@ -98,7 +97,7 @@ export default {
     varying vec2 v_uv;
     varying vec4 v_color;
     varying vec4 v_uvTransRot;
-    varying vec3 v_uvScaleSprite;
+    varying float v_uvScale;
 
     void main() {
       vec2 uv = v_uv;
@@ -110,12 +109,7 @@ export default {
       uv = quat_transform(v_uvTransRot.zw, uv - 0.5) + 0.5;
 
       // Scale animation
-      uv = v_uvScaleSprite.x * (uv - 0.5) + 0.5;
-
-      // Sprite animation
-      // if (u_hasSlotAnim) {
-      //   uv = (v_uvScaleSprite.yz + fract(uv)) * u_uvScale;
-      // }
+      uv = v_uvScale * (uv - 0.5) + 0.5;
 
       vec4 texel = texture2D(u_texture, uv);
       vec4 color = texel * v_color;

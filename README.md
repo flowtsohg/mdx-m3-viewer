@@ -17,8 +17,6 @@ A 3D model viewer for MDX and M3 models used by the games Warcraft 3 and Starcra
   * DDS (compressed texture): partial support - DXT1/DXT3/DXT5/RGTC.
   * PNG/JPG/GIF: supported as a wrapper around Image.
   * GEO (a simple JS format used for geometric shapes): note that this is solely a run-time handler.
-  * OBJ: partial support (more of an example handler).
-  * BMP: partial support (more of an example handler).
 
   The `parsers` folder contains classes that know how to read (and some how to write) different file formats.
   The parsers can be used also outside of the context of a web browser or the viewer itself.

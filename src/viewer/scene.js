@@ -1,7 +1,6 @@
 import Camera from './camera';
 import Grid from './grid';
 import EmittedObjectUpdater from './emittedobjectupdater';
-import RenderBatch from './renderbatch';
 
 /**
  * A scene.
@@ -24,12 +23,7 @@ export default class Scene {
     /** @member {ModelViewer.viewer.Camera} */
     this.camera = new Camera();
     /** @member {Grid} */
-    this.grid = new Grid([-100000, -100000], [200000, 200000], [200000, 200000]);
-
-    /** @member {Array<ModelViewData} */
-    this.modelViewsData = [];
-    /** @member {Map<ModelView, ModelViewData} */
-    this.modelViewsDataMap = new Map();
+    this.grid = new Grid(-100000, -100000, 200000, 200000, 200000, 200000);
 
     /** @member {number} */
     this.renderedCells = 0;
@@ -114,8 +108,6 @@ export default class Scene {
       if (instance.model.ok) {
         this.grid.moved(instance);
 
-        ///this.viewChanged(instance);
-
         return true;
       }
     }
@@ -132,7 +124,6 @@ export default class Scene {
       this.grid.remove(instance);
 
       instance.scene = null;
-      instance.modelViewData = null;
 
       return true;
     }
@@ -148,16 +139,11 @@ export default class Scene {
     for (let cell of this.grid.cells) {
       for (let instance of cell.instances) {
         instance.scene = null;
-        instance.modelViewData = null;
       }
     }
 
     // Then remove references to the instances.
     this.grid.clear();
-
-    // Finally clear the model views data.
-    this.modelViewsData.length = 0;
-    this.modelViewsDataMap.clear();
   }
 
   /**
@@ -227,7 +213,7 @@ export default class Scene {
     for (let cell of this.grid.cells) {
       if (cell.isVisible(camera)) {
         for (let instance of cell.instances) {
-          if (instance.isVisible(camera) && instance.updateFrame < frame) {
+          if (instance.rendered && instance.isVisible(camera) && instance.updateFrame < frame) {
             if (!instance.parent) {
               instance.update(dt, this);
             }
@@ -267,7 +253,7 @@ export default class Scene {
       batch.clear();
     }
 
-    ///
+    // Add all of the batched instances to batches.
     for (let instance of this.batchedInstances) {
       this.addToBatch(instance);
     }
@@ -277,7 +263,7 @@ export default class Scene {
       batch.render();
     }
 
-    ///
+    // Render all of the opaque things of non-batched instances.
     for (let instance of this.instances) {
       instance.renderOpaque();
     }
@@ -292,20 +278,6 @@ export default class Scene {
     let viewport = camera.rect;
 
     this.viewer.gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-
-    // for (let modelViewData of this.modelViewsData) {
-    //   modelViewData.renderTranslucent(this);
-    // }
-
-    // for (let cell of this.grid.cells) {
-    //   if (cell.plane === -1) {
-    //     for (let instance of cell.instances) {
-    //       if (instance.isVisible(camera)) {
-    //         instance.renderTranslucent();
-    //       }
-    //     }
-    //   }
-    // }
 
     for (let instance of this.instances) {
       instance.renderTranslucent();

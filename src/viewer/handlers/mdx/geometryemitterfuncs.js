@@ -128,7 +128,7 @@ function bindParticleEmitter2Shader(emitter, shader) {
   let viewer = model.viewer;
   let gl = viewer.gl;
   let uniforms = shader.uniforms;
-  let colors = emitterObject.floatColors;
+  let colors = emitterObject.colors;
   let intervals = emitterObject.intervals;
   let vectors;
 
@@ -234,7 +234,6 @@ function bindRibbonEmitterBuffer(emitter, buffer) {
 function bindRibbonEmitterShader(emitter, shader) {
   let emitterObject = emitter.emitterObject;
   let layer = emitterObject.layer;
-  let uvDivisor = layer.uvDivisor;
   let model = emitterObject.model;
   let gl = model.viewer.gl;
   let uniforms = shader.uniforms;
@@ -245,8 +244,8 @@ function bindRibbonEmitterShader(emitter, shader) {
 
   gl.uniform1f(uniforms.u_emitter, EMITTER_RIBBON);
 
-  gl.uniform1f(uniforms.u_columns, uvDivisor[0]);
-  gl.uniform1f(uniforms.u_rows, uvDivisor[1]);
+  gl.uniform1f(uniforms.u_columns, emitterObject.columns);
+  gl.uniform1f(uniforms.u_rows, emitterObject.rows);
 }
 
 /**

@@ -56,6 +56,7 @@ export default class MdxComplexInstance extends ModelInstance {
 
     this.geosetColors = [];
     this.layerAlphas = [];
+    this.layerTextures = [];
     this.uvAnims = [];
   }
 
@@ -71,7 +72,8 @@ export default class MdxComplexInstance extends ModelInstance {
 
     for (let i = 0, l = model.layers.length; i < l; i++) {
       this.layerAlphas[i] = 0;
-      this.uvAnims[i] = new Float32Array(7);
+      this.layerTextures[i] = 0;
+      this.uvAnims[i] = new Float32Array(5);
     }
 
     // Create the needed amount of shared nodes.
@@ -361,6 +363,7 @@ export default class MdxComplexInstance extends ModelInstance {
     let layers = model.layers;
     let geosetColors = this.geosetColors;
     let layerAlphas = this.layerAlphas;
+    let layerTextures = this.layerTextures;
     let uvAnims = this.uvAnims;
     let sequence = this.sequence;
 
@@ -425,11 +428,7 @@ export default class MdxComplexInstance extends ModelInstance {
       if (forced || layer.variants.slot[sequence]) {
         layer.getTextureId(textureIdHeap, this);
 
-        let uvDivisor = layer.uvDivisor;
-        let textureId = textureIdHeap[0];
-
-        uvAnim[5] = textureId % uvDivisor[0];
-        uvAnim[6] = (textureId / uvDivisor[1]) | 0;
+        layerTextures[i] = textureIdHeap[0];
       }
     }
   }
@@ -464,6 +463,7 @@ export default class MdxComplexInstance extends ModelInstance {
       let viewer = model.viewer;
       let gl = viewer.gl;
       let uniforms = shader.uniforms;
+      let layerTexture = this.layerTextures[layerIndex];
       let uvAnim = this.uvAnims[layerIndex];
       let vertexColor = this.vertexColor;
 
@@ -484,15 +484,10 @@ export default class MdxComplexInstance extends ModelInstance {
       gl.uniform2f(uniforms.u_uvTrans, uvAnim[0], uvAnim[1]);
       gl.uniform2f(uniforms.u_uvRot, uvAnim[2], uvAnim[3]);
       gl.uniform1f(uniforms.u_uvScale, uvAnim[4]);
-      gl.uniform2f(uniforms.u_uvSprite, uvAnim[5], uvAnim[6]);
-
-      let shallowGeoset = model.shallowGeosets[geoset.index];
-      let replaceable = model.replaceables[layer.textureId];
 
       layer.bind(shader);
 
-
-
+      let replaceable = model.replaceables[layerTexture];
       let texture;
 
       if (replaceable === 1) {
@@ -500,13 +495,13 @@ export default class MdxComplexInstance extends ModelInstance {
       } else if (replaceable === 2) {
         texture = model.handler.teamGlows[this.teamColor];
       } else {
-        texture = model.textures[layer.textureId];
+        texture = model.textures[layerTexture];
       }
 
       gl.uniform1i(uniforms.u_texture, 0);
       viewer.webgl.bindTexture(texture, 0);
 
-      // bucket.modelView.bindTexture(texture, 0);
+      let shallowGeoset = model.shallowGeosets[geoset.index];
 
       gl.bindBuffer(gl.ARRAY_BUFFER, model.__webglArrayBuffer);
       shallowGeoset.bind(shader, layer.coordId); // Vertices.

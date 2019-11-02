@@ -16,11 +16,11 @@ export default class Layer extends AnimatedObject {
    * @param {number} priorityPlane
    */
   constructor(model, layer, layerId, priorityPlane) {
+    super(model, layer);
+
     let filterMode = layer.filterMode;
     let textureAnimationId = layer.textureAnimationId;
     let gl = model.viewer.gl;
-
-    super(model, layer);
 
     this.index = layerId;
     this.priorityPlane = priorityPlane;
@@ -47,8 +47,6 @@ export default class Layer extends AnimatedObject {
     if (this.blended) {
       [this.blendSrc, this.blendDst] = layerFilterMode(filterMode, gl);
     }
-
-    this.uvDivisor = new Float32Array([1, 1]);
 
     if (textureAnimationId !== -1) {
       let textureAnimation = model.textureAnimations[textureAnimationId];

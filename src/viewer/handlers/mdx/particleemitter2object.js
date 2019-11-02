@@ -31,7 +31,6 @@ export default class ParticleEmitter2Object extends GenericObject {
 
     let replaceableId = emitter.replaceableId;
 
-    this.dimensions = [emitter.columns, emitter.rows];
     this.columns = emitter.columns;
     this.rows = emitter.rows;
 
@@ -46,8 +45,6 @@ export default class ParticleEmitter2Object extends GenericObject {
         this.internalResource = model.handler.teamGlowsAtlas;
       }
 
-      this.dimensions[0] = 14;
-      this.dimensions[1] = 1;
       this.teamColored = true;
       this.columns = 14;
       this.rows = 1;
@@ -65,23 +62,28 @@ export default class ParticleEmitter2Object extends GenericObject {
     this.cellWidth = 1 / emitter.columns;
     this.cellHeight = 1 / emitter.rows;
     this.colors = [];
-    this.floatColors = [];
 
     let colors = emitter.segmentColors;
     let alpha = emitter.segmentAlphas;
 
     for (let i = 0; i < 3; i++) {
-      this.colors[i] = new Uint8Array([Math.min(colors[i][0], 1) * 255, Math.min(colors[i][1], 1) * 255, Math.min(colors[i][2], 1) * 255, alpha[i]]);
-      this.floatColors[i] = new Float32Array([colors[i][0], colors[i][1], colors[i][2], alpha[i] / 255]);
+      let color = colors[i];
+
+      this.colors[i] = new Float32Array([color[0], color[1], color[2], alpha[i] / 255]);
     }
 
     this.scaling = emitter.segmentScaling;
 
-    this.intervals = [...emitter.headIntervals, ...emitter.tailIntervals];
+    let headIntervals = emitter.headIntervals;
+    let tailIntervals = emitter.tailIntervals;
 
-    this.lineEmitter = emitter.flags & 0x20000;
-    this.modelSpace = emitter.flags & 0x80000;
-    this.xYQuad = emitter.flags & 0x100000;
+    // Change to Float32Array instead of Uint32Array to be able to pass the intervals directly using uniform3fv().
+    this.intervals = [
+      new Float32Array(headIntervals[0]),
+      new Float32Array(headIntervals[1]),
+      new Float32Array(tailIntervals[0]),
+      new Float32Array(tailIntervals[1]),
+    ];
 
     [this.blendSrc, this.blendDst] = emitterFilterMode(emitter.filterMode, this.model.viewer.gl);
 

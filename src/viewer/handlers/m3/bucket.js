@@ -1,5 +1,9 @@
 import {mat4} from 'gl-matrix';
-import Bucket from '../../bucket';
+
+/// DELETE ME
+class Bucket {
+
+}
 
 // Heap allocations needed for this module.
 let matrixHeap = mat4.create();

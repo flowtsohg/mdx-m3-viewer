@@ -66,29 +66,35 @@ class Cell {
  */
 export default class Grid {
   /**
-   * @param {Array<number>} location
-   * @param {Array<number>} size
-   * @param {Array<number>} cellSize
+   * @param {number} x
+   * @param {number} y
+   * @param {number} width
+   * @param {number} depth
+   * @param {number} cellWidth
+   * @param {number} cellDepth
    */
-  constructor(location, size, cellSize) {
-    let columns = size[0] / cellSize[0];
-    let rows = size[1] / cellSize[1];
+  constructor(x, y, width, depth, cellWidth, cellDepth) {
+    let columns = width / cellWidth;
+    let rows = depth / cellDepth;
 
-    this.location = location;
-    this.size = size;
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.depth = depth;
+    this.cellWidth = cellWidth;
+    this.cellDepth = cellDepth;
     this.columns = columns;
     this.rows = rows;
-    this.cellSize = cellSize;
     this.cells = [];
 
-    for (let y = 0; y < rows; y++) {
-      for (let x = 0; x < columns; x++) {
-        let left = location[0] + x * cellSize[0];
-        let right = left + cellSize[0];
-        let bottom = location[1] + y * cellSize[1];
-        let top = bottom + cellSize[1];
+    for (let row = 0; row < rows; row++) {
+      for (let column = 0; column < columns; column++) {
+        let left = x + column * cellWidth;
+        let right = left + cellWidth;
+        let bottom = y + row * cellDepth;
+        let top = bottom + cellDepth;
 
-        this.cells[y * columns + x] = new Cell(left, right, bottom, top);
+        this.cells[row * columns + column] = new Cell(left, right, bottom, top);
       }
     }
   }
@@ -139,16 +145,17 @@ export default class Grid {
    * @param {ModelInstance} instance
    */
   moved(instance) {
-    let cellSize = this.cellSize;
+    let cellWidth = this.cellWidth;
+    let cellDepth = this.cellDepth;
     let bounds = instance.model.bounds;
-    let x = instance.worldLocation[0] + bounds.x - this.location[0];
-    let y = instance.worldLocation[1] + bounds.y - this.location[1];
+    let x = instance.worldLocation[0] + bounds.x - this.x;
+    let y = instance.worldLocation[1] + bounds.y - this.y;
     let r = bounds.r;
     let s = instance.worldScale;
-    let left = Math.floor((x - r * s[0]) / cellSize[0]);
-    let right = Math.floor((x + r * s[0]) / cellSize[0]);
-    let bottom = Math.floor((y - r * s[1]) / cellSize[1]);
-    let top = Math.floor((y + r * s[1]) / cellSize[1]);
+    let left = Math.floor((x - r * s[0]) / cellWidth);
+    let right = Math.floor((x + r * s[0]) / cellWidth);
+    let bottom = Math.floor((y - r * s[1]) / cellDepth);
+    let top = Math.floor((y + r * s[1]) / cellDepth);
 
     if (right < 0 || left > this.columns - 1 || top < 0 || bottom > this.rows - 1) {
       // The instance is outside of the grid, so remove it.

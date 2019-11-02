@@ -82,7 +82,7 @@ export default class M3StandardMaterial {
     gl.uniform1f(shader.uniforms.u_specularity, this.specularity);
     gl.uniform1f(shader.uniforms.u_specMult, this.specMult);
     gl.uniform1f(shader.uniforms.u_emisMult, this.emisMult);
-    gl.uniform4fv(shader.uniforms.u_lightAmbient, [0.02, 0.02, 0.02, 0]);
+    gl.uniform4f(shader.uniforms.u_lightAmbient, 0.02, 0.02, 0.02, 0);
 
     const layers = this.layers;
 

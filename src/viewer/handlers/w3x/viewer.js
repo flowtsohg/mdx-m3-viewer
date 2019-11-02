@@ -406,7 +406,7 @@ export default class War3MapViewer extends ModelViewer {
     this.mapSize = w3e.mapSize;
 
     // Override the grid based on the map.
-    this.scene.grid = new Grid(this.centerOffset, [this.mapSize[0] * 128 - 128, this.mapSize[1] * 128 - 128], [16 * 128, 16 * 128]);
+    this.scene.grid = new Grid(this.centerOffset[0], this.centerOffset[1], this.mapSize[0] * 128 - 128, this.mapSize[1] * 128 - 128, 16 * 128, 16 * 128);
 
     this.emit('tilesetloaded');
 

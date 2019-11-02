@@ -1,4 +1,7 @@
-import Bucket from '../../bucket';
+/// DELETE ME
+class Bucket {
+
+}
 
 /**
  * GEO bucket implementation.
