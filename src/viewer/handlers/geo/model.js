@@ -102,7 +102,7 @@ export default class GeometryModel extends Model {
     let webgl = this.viewer.webgl;
     let gl = this.viewer.gl;
     let instancedArrays = webgl.extensions.instancedArrays;
-    let shader = this.viewer.shaderMap.get('GeoStandardShader');
+    let shader = this.handler.shader;
     let uniforms = shader.uniforms;
     let attribs = shader.attribs;
 

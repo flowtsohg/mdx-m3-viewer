@@ -6,39 +6,46 @@ export default {
     uniform sampler2D u_heightMap;
     uniform vec2 u_size;
     uniform vec2 u_offset;
-    uniform float u_tilesetHeight;
-    uniform float u_tilesetCount;
+    uniform bool u_extended[14];
+    uniform float u_baseTileset;
 
     attribute vec2 a_position;
     ${shaders.instanceId}
     attribute vec4 a_textures;
     attribute vec4 a_variations;
 
+    varying vec4 v_tilesets;
     varying vec2 v_uv[4];
     varying vec3 v_normal;
 
-    vec4 getCell(float tileset, float variation) {
-      float x = variation * 0.03125;
-      float y = tileset * u_tilesetHeight;
+    vec2 getCell(float variation) {
+      if (variation < 16.0) {
+        return vec2(mod(variation, 4.0), floor(variation / 4.0));
+      } else {
+        variation -= 16.0;
 
-      return vec4(x, y, x + 0.03125, y + u_tilesetHeight);
+        return vec2(4.0 + mod(variation, 4.0), floor(variation / 4.0));
+      }
     }
-    
-    vec2 getUV(vec2 position, float tileset, float variation) {
-      vec2 uv = vec2(position.x, 1.0 - position.y);
-      vec4 cell = getCell(tileset, variation);
-      vec2 cellSize = vec2(1.0 / 32.0, 1.0 / u_tilesetCount);
-      vec2 pixelSize = vec2(2.0 / 2048.0, 2.0 / (64.0 * u_tilesetCount));
 
-      return clamp(cell.xy + uv * cellSize, cell.xy + pixelSize, cell.zw - pixelSize);
+    vec2 getUV(vec2 position, bool extended, float variation) {
+      vec2 cell = getCell(variation);
+      vec2 cellSize = vec2(extended ? 0.125 : 0.25, 0.25);
+      vec2 uv = vec2(position.x, 1.0 - position.y);
+
+      return (cell + uv) * cellSize;
     }
 
     void main() {
-      if (a_textures[0] > 0.5) {
-        v_uv[0] = getUV(a_position, a_textures[0], a_variations[0]);
-        v_uv[1] = getUV(a_position, a_textures[1], a_variations[1]);
-        v_uv[2] = getUV(a_position, a_textures[2], a_variations[2]);
-        v_uv[3] = getUV(a_position, a_textures[3], a_variations[3]);
+      vec4 textures = a_textures - u_baseTileset;
+      
+      if (textures[0] > 0.0 || textures[1] > 0.0 || textures[2] > 0.0 || textures[3] > 0.0) {
+        v_tilesets = a_textures - u_baseTileset;
+
+        v_uv[0] = getUV(a_position, u_extended[int(textures[0]) - 1], a_variations[0]);
+        v_uv[1] = getUV(a_position, u_extended[int(textures[1]) - 1], a_variations[1]);
+        v_uv[2] = getUV(a_position, u_extended[int(textures[2]) - 1], a_variations[2]);
+        v_uv[3] = getUV(a_position, u_extended[int(textures[3]) - 1], a_variations[3]);
 
         vec2 corner = vec2(mod(a_InstanceID, u_size.x), floor(a_InstanceID / u_size.x));
         vec2 base = corner + a_position;
@@ -53,6 +60,8 @@ export default {
 
         gl_Position = u_mvp * vec4(base * 128.0 + u_offset, height * 128.0, 1.0);
       } else {
+        v_tilesets = vec4(0.0);
+
         v_uv[0] = vec2(0.0);
         v_uv[1] = vec2(0.0);
         v_uv[2] = vec2(0.0);
@@ -65,26 +74,70 @@ export default {
     }
   `,
   fsGround: `
-    uniform sampler2D u_tilesets;
+    uniform sampler2D u_tilesets[15];
 
+    varying vec4 v_tilesets;
     varying vec2 v_uv[4];
     varying vec3 v_normal;
 
     const vec3 lightDirection = normalize(vec3(-0.3, -0.3, 0.25));
 
-    vec4 blend(vec4 color, vec2 uv) {
-      vec4 texel = texture2D(u_tilesets, uv);
+    vec4 sample(float tileset, vec2 uv) {
+      if (tileset == 0.0) {
+        return texture2D(u_tilesets[0], uv);
+      } else if (tileset == 1.0) {
+        return texture2D(u_tilesets[1], uv);
+      } else if (tileset == 2.0) {
+        return texture2D(u_tilesets[2], uv);
+      } else if (tileset == 3.0) {
+        return texture2D(u_tilesets[3], uv);
+      } else if (tileset == 4.0) {
+        return texture2D(u_tilesets[4], uv);
+      } else if (tileset == 5.0) {
+        return texture2D(u_tilesets[5], uv);
+      } else if (tileset == 6.0) {
+        return texture2D(u_tilesets[6], uv);
+      } else if (tileset == 7.0) {
+        return texture2D(u_tilesets[7], uv);
+      } else if (tileset == 8.0) {
+        return texture2D(u_tilesets[8], uv);
+      } else if (tileset == 9.0) {
+        return texture2D(u_tilesets[9], uv);
+      } else if (tileset == 10.0) {
+        return texture2D(u_tilesets[10], uv);
+      } else if (tileset == 11.0) {
+        return texture2D(u_tilesets[11], uv);
+      } else if (tileset == 12.0) {
+        return texture2D(u_tilesets[12], uv);
+      } else if (tileset == 13.0) {
+        return texture2D(u_tilesets[13], uv);
+      } else if (tileset == 14.0) {
+        return texture2D(u_tilesets[14], uv);
+      }
+    }
+
+    vec4 blend(vec4 color, float tileset, vec2 uv) {
+      vec4 texel = sample(tileset, uv);
 
       return mix(color, texel, texel.a);
     }
 
     void main() {
-      vec4 color = texture2D(u_tilesets, v_uv[0]);
-      color = blend(color, v_uv[1]);
-      color = blend(color, v_uv[2]);
-      color = blend(color, v_uv[3]);
+      vec4 color = sample(v_tilesets[0] - 1.0, v_uv[0]);
 
-      color *= clamp(dot(v_normal, lightDirection) + 0.45, 0.0, 1.0);
+      if (v_tilesets[1] > 0.5) {
+        color = blend(color, v_tilesets[1] - 1.0, v_uv[1]);
+      }
+
+      if (v_tilesets[2] > 0.5) {
+        color = blend(color, v_tilesets[2] - 1.0, v_uv[2]);
+      }
+
+      if (v_tilesets[3] > 0.5) {
+        color = blend(color, v_tilesets[3] - 1.0, v_uv[3]);
+      }
+
+      // color *= clamp(dot(v_normal, lightDirection) + 0.45, 0.0, 1.0);
 
       gl_FragColor = color;
     }
@@ -96,7 +149,6 @@ export default {
     uniform vec2 u_size;
     uniform vec2 u_offset;
     uniform float u_offsetHeight;
-    uniform float u_tileIndex;
     uniform vec4 u_minDeepColor;
     uniform vec4 u_maxDeepColor;
     uniform vec4 u_minShallowColor;
@@ -115,7 +167,7 @@ export default {
 
     void main() {
       if (a_isWater > 0.5) {
-        v_uv = (vec2(mod(u_tileIndex, 16.0), floor(u_tileIndex / 16.0)) + a_position) / vec2(16.0, 3.0);
+        v_uv = a_position;
 
         vec2 corner = vec2(mod(a_InstanceID, u_size.x), floor(a_InstanceID / u_size.x));
         vec2 base = corner + a_position;
@@ -141,13 +193,13 @@ export default {
     }
   `,
   fsWater: `
-    uniform sampler2D u_waterMap;
+    uniform sampler2D u_waterTexture;
 
     varying vec2 v_uv;
     varying vec4 v_color;
 
     void main() {
-      gl_FragColor = texture2D(u_waterMap, v_uv) * v_color;
+      gl_FragColor = texture2D(u_waterTexture, v_uv) * v_color;
     }
   `,
   vsCliffs: `
@@ -269,6 +321,30 @@ export default {
       }
 
       gl_FragColor = color;
+    }
+  `,
+  vsTextureAtlas: `
+    uniform vec2 u_cellSize;
+    uniform vec2 u_cellOffset;
+
+    attribute vec2 a_position;
+
+    varying vec2 v_uv;
+
+    void main() {
+      v_uv = a_position;
+
+      gl_Position = vec4(vec2(-1.0, -1.0) + u_cellOffset * u_cellSize + a_position * u_cellSize, 0.0, 1.0);
+    }
+  `,
+  fsTextureAtlas: `
+    uniform sampler2D u_texture;
+
+    varying vec2 v_uv;
+
+    void main() {
+      gl_FragColor = texture2D(u_texture, v_uv);
+      gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
     }
   `,
 };

@@ -13,23 +13,25 @@ export default {
     viewer.addHandler(tga);
     viewer.addHandler(imagetexture);
 
-    let standardShader = viewer.loadShader('MdxStandardShader', shaders.vsNew, shaders.fsNew);
-    let simpleShader = viewer.loadShader('MdxSimpleShader', shaders.vsSimple, shaders.fsSimple);
-    //let instancedShader = viewer.loadShader('MdxInstancedShader', shaders.vs, shaders.fs);
-    let particleShader = viewer.loadShader('MdxParticleShader', shaders.vsParticles, shaders.fsParticles);
+    this.complexShader = viewer.webgl.createShaderProgram(shaders.vsComplex, shaders.fsComplex);
+    this.simpleShader = viewer.webgl.createShaderProgram(shaders.vsSimple, shaders.fsSimple);
+    //this.instancedShader = viewer.webgl.createShaderProgram(shaders.vs, shaders.fs);
+    this.particleShader = viewer.webgl.createShaderProgram(shaders.vsParticles, shaders.fsParticles);
 
     // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
-
-    return standardShader.ok && simpleShader.ok && particleShader.ok;
+    return this.complexShader.ok && this.simpleShader.ok && this.particleShader.ok;
   },
 
   extensions: [['.mdx', 'arrayBuffer'], ['.mdl', 'text']],
   Constructor: Model,
   Batch: Batch,
   Instance: [ComplexInstance, SimpleInstance],
+
+  complexShader: null,
+  simpleShader: null,
+  particleShader: null,
+
   // Team color/glow textures, shared between all models, but loaded with the first model that uses them.
   teamColors: [],
   teamGlows: [],
-  teamColorsAtlas: null,
-  teamGlowsAtlas: null,
 };

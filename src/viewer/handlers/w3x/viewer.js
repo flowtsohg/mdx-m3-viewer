@@ -12,6 +12,7 @@ import ModelViewer from '../../viewer';
 import Grid from '../../grid';
 import geoHandler from '../geo/handler';
 import mdxHandler from '../mdx/handler';
+import ddsHandler from '../dds/handler';
 import shaders from './shaders';
 import getCliffVariation from './variations';
 import TerrainModel from './terrainmodel';
@@ -39,14 +40,16 @@ export default class War3MapViewer extends ModelViewer {
 
     this.addHandler(geoHandler);
     this.addHandler(mdxHandler);
+    this.addHandler(ddsHandler);
 
     /** @member {function} */
     this.wc3PathSolver = wc3PathSolver;
 
-    this.groundShader = this.loadShader('Ground', shaders.vsGround, shaders.fsGround);
-    this.waterShader = this.loadShader('Water', shaders.vsWater, shaders.fsWater);
-    this.cliffShader = this.loadShader('Cliffs', shaders.vsCliffs, shaders.fsCliffs);
-    this.simpleModelShader = this.loadShader('SimpleModel', shaders.vsSimpleModel, shaders.fsSimpleModel);
+    this.groundShader = this.webgl.createShaderProgram(shaders.vsGround, shaders.fsGround);
+    this.waterShader = this.webgl.createShaderProgram(shaders.vsWater, shaders.fsWater);
+    this.cliffShader = this.webgl.createShaderProgram(shaders.vsCliffs, shaders.fsCliffs);
+    this.simpleModelShader = this.webgl.createShaderProgram(shaders.vsSimpleModel, shaders.fsSimpleModel);
+    this.textureAtlasShader = this.webgl.createShaderProgram(shaders.vsTextureAtlas, shaders.fsTextureAtlas);
 
     this.scene = this.addScene();
     this.camera = this.scene.camera;
@@ -124,24 +127,20 @@ export default class War3MapViewer extends ModelViewer {
       let positionAttrib = attribs.a_position;
       let texturesAttrib = attribs.a_textures;
       let variationsAttrib = attribs.a_variations;
+      let tilesetCount = tilesetTextures.length; // This includes the blight texture.
 
-      gl.disable(gl.BLEND);
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
       webgl.useShaderProgram(shader);
 
       gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
       gl.uniform2fv(uniforms.u_offset, centerOffset);
       gl.uniform2f(uniforms.u_size, columns - 1, rows - 1);
-      gl.uniform1i(uniforms.u_heightMap, 0);
-      gl.uniform1i(uniforms.u_tilesets, 1);
-      gl.uniform1f(uniforms.u_tilesetHeight, 1 / (tilesetTextures.length + 1));
-      gl.uniform1f(uniforms.u_tilesetCount, tilesetTextures.length + 1);
+      gl.uniform1i(uniforms.u_heightMap, 15);
 
-      gl.activeTexture(gl.TEXTURE0);
+      gl.activeTexture(gl.TEXTURE15);
       gl.bindTexture(gl.TEXTURE_2D, heightMap);
-
-      gl.activeTexture(gl.TEXTURE1);
-      gl.bindTexture(gl.TEXTURE_2D, this.tilesetsTexture);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
       gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, 8, 0);
@@ -160,7 +159,29 @@ export default class War3MapViewer extends ModelViewer {
 
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
 
+      gl.uniform1f(uniforms.u_baseTileset, 0);
+
+      for (let i = 0, l = Math.min(tilesetCount, 15); i < l; i++) {
+        gl.uniform1f(uniforms[`u_extended[${i}]`], tilesetTextures[i].width > tilesetTextures[i].height);
+        gl.uniform1i(uniforms[`u_tilesets[${i}]`], i);
+
+        tilesetTextures[i].bind(i);
+      }
+
       instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0, instanceCount);
+
+      if (tilesetCount > 15) {
+        gl.uniform1f(uniforms.u_baseTileset, 15);
+
+        for (let i = 0, l = tilesetCount - 15; i < l; i++) {
+          gl.uniform1f(uniforms[`u_extended[${i}]`], tilesetTextures[i + 15].width > tilesetTextures[i + 15].height);
+          gl.uniform1i(uniforms[`u_tilesets[${i}]`], i);
+
+          tilesetTextures[i + 15].bind(i);
+        }
+
+        instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0, instanceCount);
+      }
 
       instancedArrays.vertexAttribDivisorANGLE(texturesAttrib, 0);
       instancedArrays.vertexAttribDivisorANGLE(variationsAttrib, 0);
@@ -194,9 +215,8 @@ export default class War3MapViewer extends ModelViewer {
       gl.uniform2f(uniforms.u_size, columns - 1, rows - 1);
       gl.uniform1i(uniforms.u_heightMap, 0);
       gl.uniform1i(uniforms.u_waterHeightMap, 1);
-      gl.uniform1i(uniforms.u_waterMap, 2);
+      gl.uniform1i(uniforms.u_waterTexture, 2);
       gl.uniform1f(uniforms.u_offsetHeight, this.waterHeightOffset);
-      gl.uniform1f(uniforms.u_tileIndex, this.waterIndex | 0);
       gl.uniform4fv(uniforms.u_maxDeepColor, this.maxDeepColor);
       gl.uniform4fv(uniforms.u_minDeepColor, this.minDeepColor);
       gl.uniform4fv(uniforms.u_maxShallowColor, this.maxShallowColor);
@@ -208,8 +228,7 @@ export default class War3MapViewer extends ModelViewer {
       gl.activeTexture(gl.TEXTURE1);
       gl.bindTexture(gl.TEXTURE_2D, waterHeightMap);
 
-      gl.activeTexture(gl.TEXTURE2);
-      gl.bindTexture(gl.TEXTURE_2D, this.waterTexture);
+      this.waterTextures[this.waterIndex | 0].bind(2);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
       gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, 8, 0);
@@ -284,55 +303,6 @@ export default class War3MapViewer extends ModelViewer {
     }
   }
 
-  // /**
-  //  * 
-  //  */
-  // renderDoodads(opaque) {
-  //   if (this.doodadsReady) {
-  //     let gl = this.gl;
-  //     let instancedArrays = gl.extensions.instancedArrays;
-  //     let webgl = this.webgl;
-  //     let shader = this.simpleModelShader;
-  //     let attribs = shader.attribs;
-  //     let uniforms = shader.uniforms;
-
-  //     webgl.useShaderProgram(shader);
-
-  //     gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
-  //     gl.uniform1i(uniforms.u_texture, 0);
-
-  //     gl.activeTexture(gl.TEXTURE0);
-
-  //     // Enable instancing.
-  //     instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 1);
-  //     instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceRotation, 1);
-  //     instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceScale, 1);
-
-  //     // Render the dooadads.
-  //     for (let doodad of this.doodads) {
-  //       if (opaque) {
-  //         doodad.renderOpaque(gl, instancedArrays, uniforms, attribs);
-  //       } else {
-  //         doodad.renderTranslucent(gl, instancedArrays, uniforms, attribs);
-  //       }
-  //     }
-
-  //     // Render the terrain doodads.
-  //     for (let doodad of this.terrainDoodads) {
-  //       if (opaque) {
-  //         doodad.renderOpaque(gl, instancedArrays, uniforms, attribs);
-  //       } else {
-  //         doodad.renderTranslucent(gl, instancedArrays, uniforms, attribs);
-  //       }
-  //     }
-
-  //     // Disable instancing.
-  //     instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 0);
-  //     instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceRotation, 0);
-  //     instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceScale, 0);
-  //   }
-  // }
-
   /**
    * Render the map.
    */
@@ -342,9 +312,7 @@ export default class War3MapViewer extends ModelViewer {
 
       this.renderGround();
       this.renderCliffs();
-      // this.renderDoodads(true);
       super.renderOpaque();
-      // this.renderDoodads(false);
       this.renderWater();
       super.renderTranslucent();
 
@@ -579,11 +547,9 @@ export default class War3MapViewer extends ModelViewer {
       this.waterTextures.push(this.load(`${waterRow.texFile}${i < 10 ? '0' : ''}${i}.blp`));
     }
 
-    await this.whenLoaded([...this.tilesetTextures, ...this.waterTextures]);
+    await this.whenLoaded(this.tilesetTextures);
 
     let gl = this.gl;
-
-    this.createTilesetsAndWaterTextures();
 
     let corners = w3e.corners;
     let [columns, rows] = this.mapSize;
@@ -648,15 +614,18 @@ export default class War3MapViewer extends ModelViewer {
             let topLeftTexture = this.cornerTexture(x, y + 1);
             let topRightTexture = this.cornerTexture(x + 1, y + 1);
             let textures = unique([bottomLeftTexture, bottomRightTexture, topLeftTexture, topRightTexture]).sort();
+            let texture = textures[0];
 
-            cornerTextures[instance * 4] = textures[0] + 1;
-            cornerVariations[instance * 4] = this.getVariation(textures[0], bottomLeft.groundVariation);
+            cornerTextures[instance * 4] = texture + 1;
+            cornerVariations[instance * 4] = this.getVariation(texture, bottomLeft.groundVariation);
 
             textures.shift();
 
             for (let i = 0, l = textures.length; i < l; i++) {
-              let texture = textures[i];
+
               let bitset = 0;
+
+              texture = textures[i];
 
               if (bottomRightTexture === texture) {
                 bitset |= 0b0001;
@@ -774,66 +743,6 @@ export default class War3MapViewer extends ModelViewer {
       String.fromCharCode(65 + topLeftLayer - base) +
       String.fromCharCode(65 + topRightLayer - base) +
       String.fromCharCode(65 + bottomRightLayer - base);
-  }
-
-  /**
-   * Creates a shared texture that holds all of the tileset textures.
-   * Each tileset is flattend to a single row of tiles, such that indices 0-15 are the normal part, and indices 16-31 are the extended part.
-   */
-  createTilesetsAndWaterTextures() {
-    let tilesets = this.tilesetTextures;
-    let tilesetsCount = tilesets.length;
-    let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext('2d');
-
-    canvas.width = 2048;
-    canvas.height = 64 * (tilesetsCount + 1); // 1 is added for a black tileset, to remove branches from the fragment shader, at the cost of 512Kb.
-
-    for (let tileset = 0; tileset < tilesetsCount; tileset++) {
-      let imageData = tilesets[tileset].imageData;
-
-      for (let variation = 0; variation < 16; variation++) {
-        let x = (variation % 4) * 64;
-        let y = ((variation / 4) | 0) * 64;
-
-        ctx.putImageData(imageData, variation * 64 - x, (tileset + 1) * 64 - y, x, y, 64, 64);
-      }
-
-      if (imageData.width === 512) {
-        for (let variation = 0; variation < 16; variation++) {
-          let x = 256 + (variation % 4) * 64;
-          let y = ((variation / 4) | 0) * 64;
-
-          ctx.putImageData(imageData, 1024 + variation * 64 - x, (tileset + 1) * 64 - y, x, y, 64, 64);
-        }
-      }
-    }
-
-    let gl = this.gl;
-    let texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    this.webgl.setTextureMode(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
-
-    this.tilesetsTexture = texture;
-
-    canvas.height = 128 * 3; // up to 48 frames.
-
-    let waterTextures = this.waterTextures;
-
-    for (let i = 0, l = waterTextures.length; i < l; i++) {
-      let x = i % 16;
-      let y = (i / 16) | 0;
-
-      ctx.putImageData(waterTextures[i].imageData, x * 128, y * 128);
-    }
-
-    let waterTexture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, waterTexture);
-    this.webgl.setTextureMode(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, gl.LINEAR);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
-
-    this.waterTexture = waterTexture;
   }
 
   /**

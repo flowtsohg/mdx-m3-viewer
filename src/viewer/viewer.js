@@ -1,12 +1,10 @@
 import EventEmitter from 'events';
 import {powerOfTwo} from '../common/math';
-import {createTextureAtlas} from '../common/canvas';
 import fetchDataType from '../common/fetchdatatype';
 import WebGL from './gl/gl';
 import PromiseResource from './promiseresource';
 import Scene from './scene';
 import imageTextureHandler from './handlers/imagetexture/handler';
-import TextureAtlas from './handlers/textureatlas';
 import GenericResource from './genericresource';
 import ClientBuffer from './gl/clientbuffer';
 import ClientDataTexture from './gl/clientdatatexture';
@@ -46,8 +44,6 @@ export default class ModelViewer extends EventEmitter {
     this.webgl = new WebGL(canvas, options);
     /** @member {WebGLRenderingContext} */
     this.gl = this.webgl.gl;
-    /** @member {Map<string, ShaderProgram>} */
-    this.shaderMap = new Map();
 
     /** @member {Array<Scene>} */
     this.scenes = [];
@@ -394,67 +390,6 @@ export default class ModelViewer extends EventEmitter {
     }
 
     return false;
-  }
-
-  /**
-   * Load and cache a shader in the viewer.
-   *
-   * @param {string} name
-   * @param {string} vertex
-   * @param {string} fragment
-   * @return {ShaderProgram}
-   */
-  loadShader(name, vertex, fragment) {
-    let map = this.shaderMap;
-
-    if (!map.has(name)) {
-      map.set(name, this.webgl.createShaderProgram(vertex, fragment));
-    }
-
-    return map.get(name);
-  }
-
-  /**
-   * Load a texture atlas and cache it in the viewer.
-   * The atlas is made from an array (or any iterable object) of textures.
-   *
-   * @param {string} name
-   * @param {Iterable<Texture>} textures
-   * @param {?Object} options
-   * @return {TextureAtlas}
-   */
-  loadTextureAtlas(name, textures, options) {
-    let fetchCache = this.fetchCache;
-
-    if (!fetchCache.has(name)) {
-      let textureAtlas = new TextureAtlas({viewer: this});
-
-      // Promise that there is a future load that the code cannot know about yet, so whenAllLoaded() isn't called prematurely.
-      let promise = this.promise();
-
-      // When all of the textures are loaded, it's time to construct a texture atlas
-      this.whenLoaded(textures)
-        .then((textures) => {
-          for (let texture of textures) {
-            // If a texture failed to load, don't create the atlas.
-            if (!texture.ok) {
-              // Resolve the promise.
-              promise.resolve();
-
-              return;
-            }
-          }
-
-          textureAtlas.loadData(createTextureAtlas(textures.map((texture) => texture.imageData)), options);
-
-          // Resolve the promise.
-          promise.resolve();
-        });
-
-      fetchCache.set(name, textureAtlas);
-    }
-
-    return fetchCache.get(name);
   }
 
   /**

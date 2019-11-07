@@ -26,10 +26,8 @@ export default class RibbonEmitterObject extends GenericObject {
     this.textureSlot = emitter.textureSlot;
     this.emissionRate = emitter.emissionRate;
     this.gravity = emitter.gravity;
-
-    this.dimensions = [emitter.columns, emitter.rows];
-    this.cellWidth = 1 / emitter.columns;
-    this.cellHeight = 1 / emitter.rows;
+    this.columns = emitter.columns;
+    this.rows = emitter.rows;
   }
 
   /**

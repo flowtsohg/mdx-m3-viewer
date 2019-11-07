@@ -45,7 +45,7 @@ export default class MdxRenderBatch extends RenderBatch {
       let viewer = model.viewer;
       let gl = viewer.gl;
       let instancedArrays = gl.extensions.instancedArrays;
-      let shader = viewer.shaderMap.get('MdxSimpleShader');
+      let shader = model.handler.simpleShader;
       let uniforms = shader.uniforms;
       let attribs = shader.attribs;
       let m0 = attribs.a_m0;

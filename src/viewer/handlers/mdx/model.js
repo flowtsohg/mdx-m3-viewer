@@ -305,10 +305,6 @@ export default class MdxModel extends Model {
         teamColors[i] = viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}.blp`, pathSolver);
         teamGlows[i] = viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}.blp`, pathSolver);
       }
-
-      // Needed for particle emitters type 2 which use team colors, since emitters use instanced rendering.
-      handler.teamColorsAtlas = viewer.loadTextureAtlas('teamColors', teamColors, {nearestFiltering: true});
-      handler.teamGlowsAtlas = viewer.loadTextureAtlas('teamGlows', teamGlows);
     }
   }
 

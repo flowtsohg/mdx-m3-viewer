@@ -32,6 +32,8 @@ export default {
     for (let i = 0; i < 4; i++) {
       let shader = viewer.loadShader(`M3StandardShader${i}`, `#define EXPLICITUV${i}\n${shaders.vs}`, shaders.fs);
 
+      this.shaders[i] = shader;
+
       // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
       if (!shader.ok) {
         return false;
@@ -48,4 +50,6 @@ export default {
   Bucket: Bucket,
   Instance: [ModelInstance],
   lightPosition: new Float32Array([0, 0, 10000]),
+
+  shaders: [],
 };

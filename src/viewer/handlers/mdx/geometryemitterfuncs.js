@@ -122,7 +122,8 @@ function bindParticleEmitter2Buffer(emitter, buffer) {
  * @param {Shader} shader
  */
 function bindParticleEmitter2Shader(emitter, shader) {
-  let camera = emitter.instance.scene.camera;
+  let instance = emitter.instance;
+  let camera = instance.scene.camera;
   let emitterObject = emitter.emitterObject;
   let model = emitterObject.model;
   let viewer = model.viewer;
@@ -130,11 +131,21 @@ function bindParticleEmitter2Shader(emitter, shader) {
   let uniforms = shader.uniforms;
   let colors = emitterObject.colors;
   let intervals = emitterObject.intervals;
+  let replaceable = emitterObject.replaceableId;
   let vectors;
+  let texture;
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 
-  viewer.webgl.bindTexture(emitterObject.internalResource, 0);
+  if (replaceable === 1) {
+    texture = model.handler.teamColors[instance.teamColor];
+  } else if (replaceable === 2) {
+    texture = model.handler.teamGlows[instance.teamColor];
+  } else {
+    texture = emitterObject.internalResource;
+  }
+
+  viewer.webgl.bindTexture(texture, 0);
 
   // Choose between a default rectangle or a billboarded one
   if (emitterObject.xYQuad) {
@@ -182,6 +193,7 @@ function bindRibbonEmitterBuffer(emitter, buffer) {
   let emitterObject = emitter.emitterObject;
   let byteView = buffer.byteView;
   let floatView = buffer.floatView;
+  let columns = emitterObject.columns;
   let chainLengthFactor = 1 / (emitter.alive + 1);
   let baseIndex = emitter.baseIndex;
   let alive = emitter.alive;
@@ -194,7 +206,6 @@ function bindRibbonEmitterBuffer(emitter, buffer) {
     let colorOffset = byteOffset + BYTE_OFFSET_COLOR;
     let leftRightTopOffset = byteOffset + BYTE_OFFSET_LEFT_RIGHT_TOP;
     let locationInChain = alive - (object.ribbonIndex - baseIndex);
-    let columns = emitterObject.dimensions[0];
     let left = (object.slot % columns) + (locationInChain * chainLengthFactor);
     let top = object.slot / columns;
     let right = left + chainLengthFactor;

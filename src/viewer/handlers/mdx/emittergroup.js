@@ -19,10 +19,11 @@ export default class EmitterGroup {
    */
   render(instance) {
     let nodes = instance.nodes;
-    let viewer = instance.model.viewer;
+    let model = instance.model;
+    let viewer = model.viewer;
     let gl = viewer.gl;
     let instancedArrays = gl.extensions.instancedArrays;
-    let shader = viewer.shaderMap.get('MdxParticleShader');
+    let shader = model.handler.particleShader;
     let uniforms = shader.uniforms;
     let attribs = shader.attribs;
 

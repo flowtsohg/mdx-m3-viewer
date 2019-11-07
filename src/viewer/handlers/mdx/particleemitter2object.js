@@ -39,15 +39,7 @@ export default class ParticleEmitter2Object extends GenericObject {
     if (replaceableId === 0) {
       this.internalResource = model.textures[emitter.textureId];
     } else if (replaceableId === 1 || replaceableId === 2) {
-      if (replaceableId === 1) {
-        this.internalResource = model.handler.teamColorsAtlas;
-      } else {
-        this.internalResource = model.handler.teamGlowsAtlas;
-      }
-
       this.teamColored = true;
-      this.columns = 14;
-      this.rows = 1;
     } else {
       this.internalResource = model.viewer.load('ReplaceableTextures\\' + replaceableIds[replaceableId] + '.blp', model.pathSolver);
     }

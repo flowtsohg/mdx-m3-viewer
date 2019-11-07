@@ -30,8 +30,8 @@ export class ShallowGeoset {
     gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, 0, offsets[0]);
     gl.vertexAttribPointer(attribs.a_normal, 3, gl.FLOAT, false, 0, offsets[1]);
     gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 0, offsets[2] + coordId * this.uvSetSize);
-    gl.vertexAttribPointer(attribs.a_bones, 4, gl.UNSIGNED_BYTE, false, 4, offsets[3]);
-    gl.vertexAttribPointer(attribs.a_boneNumber, 1, gl.UNSIGNED_BYTE, false, 4, offsets[4]);
+    gl.vertexAttribPointer(attribs.a_bones, 4, gl.UNSIGNED_BYTE, false, 0, offsets[3]);
+    gl.vertexAttribPointer(attribs.a_boneNumber, 1, gl.UNSIGNED_BYTE, false, 0, offsets[4]);
   }
 
   bindNew(shader, coordId) {
@@ -79,12 +79,10 @@ export class Geoset {
     let vertices = positions.length / 3;
     let uvs;
     let boneIndices = new Uint8Array(vertices * 4);
-    // A note for the future, since I keep coming back to this.
-    // The reason bone numbers are stored as 32 bits instead of 8 are because of offset rules.
-    // WebGL complains if the bind() method of ShallowGeoset above uses offset 1 instead of 4, even if the shader gets one float.
-    // Why? heck if I know.
-    // I don't see the alignment issues, but WebGL does.
-    let boneNumbers = new Uint32Array(vertices);
+    // The bone numbers array is the only thing not always in a 4 byte boundary.
+    // When it isn't, errors ensue.
+    // Therefore, always ensure it is some multiple of 4 by adding padding if needed.
+    let boneNumbers = new Uint8Array(Math.ceil(vertices / 4) * 4);
     let vertexGroups = geoset.vertexGroups;
     let matrixGroups = geoset.matrixGroups;
     let matrixIndices = geoset.matrixIndices;
@@ -101,8 +99,14 @@ export class Geoset {
       uvs = textureCoordinateSets[0];
     }
 
+    let v800 = false;
+    let v900 = false;
+    let softwareSkinning = false;
+
     let skin = geoset.skin;
     if (skin.length) {
+      v900 = true;
+
       // Not real handling yet.
       for (let i = 0, l = skin.length / 8; i < l; i++) {
         let b0 = skin[i * 8 + 0];
@@ -117,11 +121,21 @@ export class Geoset {
 
         boneNumbers[i] = 4;
       }
+
+      this.tangents = tangents;
     } else {
+      v800 = true;
+
       // Parse the bone indices by slicing the matrix groups
       for (let i = 0, l = matrixGroups.length, k = 0; i < l; i++) {
-        slices.push(matrixIndices.subarray(k, k + matrixGroups[i]));
-        k += matrixGroups[i];
+        let size = matrixGroups[i];
+
+        slices.push(matrixIndices.subarray(k, k + size));
+        k += size;
+
+        if (size > 4) {
+          softwareSkinning = true;
+        }
       }
 
       // Construct the final bone arrays
@@ -144,6 +158,10 @@ export class Geoset {
       }
     }
 
+    this.v800 = v800;
+    this.v900 = v900;
+    this.softwareSkinning = softwareSkinning;
+
     this.index = index;
     this.materialId = geoset.materialId;
     this.locationArray = positions;
@@ -153,11 +171,6 @@ export class Geoset {
     this.boneNumberArray = boneNumbers;
     this.faceArray = geoset.faces;
     this.uvSetSize = uvsetSize * 4;
-
-    let tangents = geoset.tangents;
-    if (tangents.length) {
-      this.tangents = tangents;
-    }
 
     let geosetAnimations = model.geosetAnimations;
 

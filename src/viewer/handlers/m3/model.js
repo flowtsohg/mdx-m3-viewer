@@ -327,7 +327,7 @@ export default class M3Model extends Model {
     let uvSetCount = this.uvSetCount;
 
     // HACK UNTIL I IMPLEMENT MULTIPLE SHADERS AGAIN
-    let shader = this.viewer.shaderMap.get('M3StandardShader' + (uvSetCount - 1));
+    let shader = this.handler.shaders[uvSetCount - 1];
     webgl.useShaderProgram(shader);
     this.shader = shader;
 

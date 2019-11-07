@@ -60,7 +60,6 @@ export default class BlpTexture extends Texture {
     //   gl.texImage2D(gl.TEXTURE_2D, i, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
     // }
 
-    this.imageData = imageData;
     this.width = imageData.width;
     this.height = imageData.height;
     this.webglResource = id;

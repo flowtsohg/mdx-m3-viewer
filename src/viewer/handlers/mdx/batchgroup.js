@@ -24,7 +24,7 @@ export default class BatchGroup {
     let model = this.model;
     let batches = model.batches;
     let viewer = model.viewer;
-    let shader = viewer.shaderMap.get('MdxStandardShader');
+    let shader = model.handler.complexShader;
 
     viewer.webgl.useShaderProgram(shader);
 

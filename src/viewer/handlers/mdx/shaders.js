@@ -37,7 +37,7 @@ export default {
       gl_FragColor = color;
     }
   `,
-  vsNew: `
+  vsComplex: `
     ${shaders.boneTexture}
 
     void transform(inout vec3 position, inout vec3 normal, float boneNumber, vec4 bones, float instance) {
@@ -88,7 +88,7 @@ export default {
       gl_Position = u_mvp * vec4(position, 1.0);
     }
   `,
-  fsNew: `
+  fsComplex: `
     ${shaders.quat_transform}
 
     uniform sampler2D u_texture;

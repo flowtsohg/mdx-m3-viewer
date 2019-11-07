@@ -26,7 +26,6 @@ export default class ImageTexture extends Texture {
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
       gl.generateMipmap(gl.TEXTURE_2D);
 
-      this.imageData = src;
       this.width = src.width; // Note: might not be the same as 'image.width' and 'image.height' due to NPOT upscaling.
       this.height = src.height;
       this.webglResource = id;
