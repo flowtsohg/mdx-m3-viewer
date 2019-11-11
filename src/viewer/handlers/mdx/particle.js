@@ -89,7 +89,7 @@ export default class Particle extends EmittedObject {
 
       internalInstance.move(vec3.scale(velocityHeap, velocity, dt));
     } else {
-      this.internalInstance.hide();
+      internalInstance.hide();
     }
   }
 }

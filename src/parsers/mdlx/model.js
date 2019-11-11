@@ -281,7 +281,7 @@ export default class Model {
    */
   loadBindPoseChunk(stream, size) {
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      this.bindPose[i] = stream.readFloat32Array(16);
+      this.bindPose[i] = stream.readFloat32Array(12);
     }
   }
 
@@ -428,7 +428,7 @@ export default class Model {
   saveBindPoseChunk(stream) {
     if (this.bindPose.length) {
       stream.write('BPOS');
-      stream.writeUint32(4 + this.bindPose.length * 64);
+      stream.writeUint32(4 + this.bindPose.length * 48);
       stream.writeUint32(this.bindPose.length);
 
       for (let matrix of this.bindPose) {
@@ -810,7 +810,7 @@ export default class Model {
    */
   getBindPoseChunkByteLength() {
     if (this.bindPose.length) {
-      return 12 + this.bindPose.length * 64;
+      return 12 + this.bindPose.length * 48;
     }
 
     return 0;

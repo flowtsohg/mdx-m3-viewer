@@ -29,10 +29,8 @@ export default class ModelInstance extends EventNode {
     this.updateFrame = 0;
     /** @member {Model} */
     this.model = model;
-    /** @member {?ModelView} */
-    this.modelView = null;
-    /** @member {?ModelViewData} */
-    this.modelViewData = null;
+    /** @member {TextureMapper} */
+    this.textureMapper = model.viewer.baseTextureMapper(this);
 
     /**
      * Decides whether the instance is updated or not.
@@ -46,6 +44,14 @@ export default class ModelInstance extends EventNode {
      * @member {boolean}
      */
     this.rendered = true;
+  }
+
+  /**
+   * @param {number} index
+   * @param {?Texture} texture
+   */
+  setTexture(index, texture) {
+    this.textureMapper = this.model.viewer.changeTextureMapper(this, index, texture);
   }
 
   /**

@@ -323,28 +323,4 @@ export default {
       gl_FragColor = color;
     }
   `,
-  vsTextureAtlas: `
-    uniform vec2 u_cellSize;
-    uniform vec2 u_cellOffset;
-
-    attribute vec2 a_position;
-
-    varying vec2 v_uv;
-
-    void main() {
-      v_uv = a_position;
-
-      gl_Position = vec4(vec2(-1.0, -1.0) + u_cellOffset * u_cellSize + a_position * u_cellSize, 0.0, 1.0);
-    }
-  `,
-  fsTextureAtlas: `
-    uniform sampler2D u_texture;
-
-    varying vec2 v_uv;
-
-    void main() {
-      gl_FragColor = texture2D(u_texture, v_uv);
-      gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    }
-  `,
 };

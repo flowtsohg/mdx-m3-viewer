@@ -30,7 +30,7 @@ export default {
 
     // Load shaders for 1-4 texture coordinate models.
     for (let i = 0; i < 4; i++) {
-      let shader = viewer.loadShader(`M3StandardShader${i}`, `#define EXPLICITUV${i}\n${shaders.vs}`, shaders.fs);
+      let shader = viewer.webgl.createShaderProgram(`#define EXPLICITUV${i}\n${shaders.vs}`, shaders.fs);
 
       this.shaders[i] = shader;
 

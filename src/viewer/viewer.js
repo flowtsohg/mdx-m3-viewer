@@ -1,6 +1,7 @@
 import EventEmitter from 'events';
 import {powerOfTwo} from '../common/math';
 import fetchDataType from '../common/fetchdatatype';
+import mapequals from '../common/mapequals';
 import WebGL from './gl/gl';
 import PromiseResource from './promiseresource';
 import Scene from './scene';
@@ -8,6 +9,8 @@ import imageTextureHandler from './handlers/imagetexture/handler';
 import GenericResource from './genericresource';
 import ClientBuffer from './gl/clientbuffer';
 import ClientDataTexture from './gl/clientdatatexture';
+import TextureMapper from './texturemapper';
+import Texture from './texture';
 
 /**
  * A model viewer.
@@ -109,6 +112,11 @@ export default class ModelViewer extends EventEmitter {
      */
     this.enableAudio = false;
 
+    /**
+     * @member {Map<Model, TextureMapper}
+     */
+    this.textureMappers = new Map();
+
     // Track when resources start loading.
     this.on('loadstart', (target) => {
       this.resourcesLoading.add(target);
@@ -126,6 +134,58 @@ export default class ModelViewer extends EventEmitter {
     });
 
     this.addHandler(imageTextureHandler);
+  }
+
+  /**
+   * @param {ModelInstance} instance
+   * @return {TextureMapper}
+   */
+  baseTextureMapper(instance) {
+    let model = instance.model;
+    let textureMappers = this.textureMappers;
+
+    if (!textureMappers.has(model)) {
+      textureMappers.set(model, []);
+    }
+
+    let mappers = textureMappers.get(model);
+
+    if (!mappers.length) {
+      mappers[0] = new TextureMapper(model);
+    }
+
+    return mappers[0];
+  }
+
+  /**
+   * @param {ModelInstance} instance
+   * @param {number} index
+   * @param {?Texture} texture
+   * @return {TextureMapper}
+   */
+  changeTextureMapper(instance, index, texture) {
+    let map = new Map(instance.textureMapper.textures);
+
+    if (texture instanceof Texture) {
+      map.set(index, texture);
+    } else {
+      map.delete(index);
+    }
+
+    let model = instance.model;
+    let mappers = this.textureMappers.get(model);
+
+    for (let mapper of mappers) {
+      if (mapequals(mapper.textures, map)) {
+        return mapper;
+      }
+    }
+
+    let mapper = new TextureMapper(model, map);
+
+    mappers.push(mapper);
+
+    return mapper;
   }
 
   /**

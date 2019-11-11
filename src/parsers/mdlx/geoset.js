@@ -338,7 +338,11 @@ export default class Geoset {
     let size = 120 + this.vertices.byteLength + this.normals.byteLength + this.faceTypeGroups.byteLength + this.faceGroups.byteLength + this.faces.byteLength + this.vertexGroups.byteLength + this.matrixGroups.byteLength + this.matrixIndices.byteLength + this.sequenceExtents.length * 28;
 
     if (version === 900) {
-      size += 132 + this.tangents.byteLength + this.skin.byteLength;
+      size += 84;
+
+      if (this.tangents.length) {
+        size += 8 + this.tangents.byteLength + this.skin.byteLength;
+      }
     }
 
     for (let uvSet of this.uvSets) {

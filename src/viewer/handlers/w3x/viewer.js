@@ -175,7 +175,6 @@ export default class War3MapViewer extends ModelViewer {
 
         for (let i = 0, l = tilesetCount - 15; i < l; i++) {
           gl.uniform1f(uniforms[`u_extended[${i}]`], tilesetTextures[i + 15].width > tilesetTextures[i + 15].height);
-          gl.uniform1i(uniforms[`u_tilesets[${i}]`], i);
 
           tilesetTextures[i + 15].bind(i);
         }

@@ -52,7 +52,7 @@ export default class Scene {
     this.emittedObjectUpdater = new EmittedObjectUpdater();
 
     /**
-     * @member {Map<Model, RenderBatch>}
+     * @member {Map<TextureMapper, RenderBatch>}
      */
     this.batches = new Map();
   }
@@ -166,14 +166,15 @@ export default class Scene {
   addToBatch(instance) {
     let batches = this.batches;
     let model = instance.model;
-    let batch = batches.get(model);
+    let textureMapper = instance.textureMapper;
+    let batch = batches.get(textureMapper);
 
     if (!batch) {
       let Batch = model.handler.Batch;
 
-      batch = new Batch(this, model);
+      batch = new Batch(this, model, textureMapper);
 
-      batches.set(model, batch);
+      batches.set(textureMapper, batch);
     }
 
     batch.add(instance);
@@ -193,9 +194,11 @@ export default class Scene {
     // Update the audio context's position if it exists.
     if (this.audioContext) {
       let [x, y, z] = camera.location;
+      let [forwardX, forwardY, forwardZ] = camera.directionY;
+      let [upX, upY, upZ] = camera.directionZ;
 
       this.audioContext.listener.setPosition(-x, -y, -z);
-      /// Need to also update the orientation.
+      this.audioContext.listener.setOrientation(forwardX, forwardY, forwardZ, upX, upY, upZ);
     }
 
     let frame = this.viewer.frame;

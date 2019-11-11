@@ -495,7 +495,7 @@ export default class MdxComplexInstance extends ModelInstance {
       } else if (replaceable === 2) {
         texture = model.handler.teamGlows[this.teamColor];
       } else {
-        texture = model.textures[layerTexture];
+        texture = this.textureMapper.get(layerTexture) || model.textures[layerTexture];
       }
 
       gl.uniform1i(uniforms.u_texture, 0);

@@ -23,7 +23,6 @@ export default class EmittedObjectUpdater {
    * @param {number} dt
    */
   update(dt) {
-    // Update all of the objects.
     let objects = this.objects;
 
     for (let i = 0; i < this.alive; i++) {

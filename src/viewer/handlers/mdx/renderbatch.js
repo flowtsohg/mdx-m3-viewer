@@ -53,6 +53,7 @@ export default class MdxRenderBatch extends RenderBatch {
       let m2 = attribs.a_m2;
       let m3 = attribs.a_m3;
       let buffer = viewer.buffer;
+      let textureMapper = this.textureMapper;
 
       viewer.webgl.useShaderProgram(shader);
 
@@ -78,9 +79,10 @@ export default class MdxRenderBatch extends RenderBatch {
         let geoset = batch.geoset;
         let layer = batch.layer;
         let shallowGeoset = shallowGeosets[geoset.index];
+        let textureId = layer.textureId;
 
         gl.uniform1i(uniforms.u_texture, 0);
-        viewer.webgl.bindTexture(textures[layer.textureId], 0);
+        viewer.webgl.bindTexture(textureMapper.get(textureId) || textures[textureId], 0);
 
         layer.bind(shader);
 

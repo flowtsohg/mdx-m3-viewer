@@ -5,12 +5,15 @@ export default class RenderBatch {
   /**
    * @param {Scene} scene
    * @param {Model} model
+   * @param {TextureMapper} textureMapper
    */
-  constructor(scene, model) {
+  constructor(scene, model, textureMapper) {
     /** @member {Scene} */
     this.scene = scene;
     /** @member {Model} */
     this.model = model;
+    /** @member {TextureMapper} */
+    this.textureMapper = textureMapper;
     /** @member {Array<ModelInstance>} */
     this.instances = [];
     /** @member {number} */
