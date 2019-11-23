@@ -128,20 +128,27 @@ export default class EventObjectEmitterObject extends GenericObject {
         this.internalResource = viewer.load(row.Model.replace('.mdl', '.mdx'), pathSolver);
       } else if (type === 'SPL' || type === 'UBR') {
         this.internalResource = viewer.load('replaceabletextures/splats/' + row.file + '.blp', pathSolver);
-        this.colors = [[row.StartR, row.StartG, row.StartB, row.StartA], [row.MiddleR, row.MiddleG, row.MiddleB, row.MiddleA], [row.EndR, row.EndG, row.EndB, row.EndA]];
         this.scale = row.Scale;
+        this.colors = [
+          new Float32Array([row.StartR, row.StartG, row.StartB, row.StartA]),
+          new Float32Array([row.MiddleR, row.MiddleG, row.MiddleB, row.MiddleA]),
+          new Float32Array([row.EndR, row.EndG, row.EndB, row.EndA]),
+        ];
 
         if (type === 'SPL') {
           this.columns = row.Columns;
           this.rows = row.Rows;
-          this.intervals = [[row.UVLifespanStart, row.UVLifespanEnd, row.LifespanRepeat], [row.UVDecayStart, row.UVDecayEnd, row.DecayRepeat]];
-          this.intervalTimes = [row.Lifespan, row.Decay];
           this.lifeSpan = row.Lifespan + row.Decay;
+          this.intervalTimes = new Float32Array([row.Lifespan, row.Decay]);
+          this.intervals = [
+            new Float32Array([row.UVLifespanStart, row.UVLifespanEnd, row.LifespanRepeat]),
+            new Float32Array([row.UVDecayStart, row.UVDecayEnd, row.DecayRepeat]),
+          ];
         } else {
           this.columns = 1;
           this.rows = 1;
-          this.intervalTimes = [row.BirthTime, row.PauseTime, row.Decay];
           this.lifeSpan = row.BirthTime + row.PauseTime + row.Decay;
+          this.intervalTimes = new Float32Array([row.BirthTime, row.PauseTime, row.Decay]);
         }
 
         [this.blendSrc, this.blendDst] = emitterFilterMode(row.BlendMode, viewer.gl);

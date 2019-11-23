@@ -12,7 +12,7 @@ export default class MdxRenderBatch extends RenderBatch {
     let instances = this.instances;
 
     // Ensure there is enough memory for all of the instances data.
-    buffer.reserve(count * 64);
+    buffer.reserve(count * 48);
 
     let floatView = buffer.floatView;
 
@@ -20,15 +20,24 @@ export default class MdxRenderBatch extends RenderBatch {
     for (let i = 0; i < count; i++) {
       let instance = instances[i];
       let worldMatrix = instance.worldMatrix;
-      let offset = i * 16;
+      let offset = i * 12;
 
-      for (let m = 0; m < 16; m++) {
-        floatView[offset + m] = worldMatrix[m];
-      }
+      floatView[offset + 0] = worldMatrix[0];
+      floatView[offset + 1] = worldMatrix[1];
+      floatView[offset + 2] = worldMatrix[2];
+      floatView[offset + 3] = worldMatrix[4];
+      floatView[offset + 4] = worldMatrix[5];
+      floatView[offset + 5] = worldMatrix[6];
+      floatView[offset + 6] = worldMatrix[8];
+      floatView[offset + 7] = worldMatrix[9];
+      floatView[offset + 8] = worldMatrix[10];
+      floatView[offset + 9] = worldMatrix[12];
+      floatView[offset + 10] = worldMatrix[13];
+      floatView[offset + 11] = worldMatrix[14];
     }
 
     // Update the buffer.
-    buffer.bindAndUpdate(count * 64);
+    buffer.bindAndUpdate(count * 48);
   }
 
   /**
@@ -59,10 +68,10 @@ export default class MdxRenderBatch extends RenderBatch {
 
       this.bindAndUpdateBuffer(buffer);
 
-      gl.vertexAttribPointer(m0, 4, gl.FLOAT, false, 64, 0);
-      gl.vertexAttribPointer(m1, 4, gl.FLOAT, false, 64, 16);
-      gl.vertexAttribPointer(m2, 4, gl.FLOAT, false, 64, 32);
-      gl.vertexAttribPointer(m3, 4, gl.FLOAT, false, 64, 48);
+      gl.vertexAttribPointer(m0, 3, gl.FLOAT, false, 48, 0);
+      gl.vertexAttribPointer(m1, 3, gl.FLOAT, false, 48, 12);
+      gl.vertexAttribPointer(m2, 3, gl.FLOAT, false, 48, 24);
+      gl.vertexAttribPointer(m3, 3, gl.FLOAT, false, 48, 36);
 
       gl.uniformMatrix4fv(uniforms.u_mvp, false, this.scene.camera.worldProjectionMatrix);
 
@@ -79,14 +88,14 @@ export default class MdxRenderBatch extends RenderBatch {
         let geoset = batch.geoset;
         let layer = batch.layer;
         let shallowGeoset = shallowGeosets[geoset.index];
-        let textureId = layer.textureId;
+        let texture = textures[layer.textureId];
 
         gl.uniform1i(uniforms.u_texture, 0);
-        viewer.webgl.bindTexture(textureMapper.get(textureId) || textures[textureId], 0);
+        viewer.webgl.bindTexture(textureMapper.get(texture) || texture, 0);
 
         layer.bind(shader);
 
-        shallowGeoset.bindNew(shader, 0);
+        shallowGeoset.bindSimple(shader, 0);
         shallowGeoset.renderInstanced(count);
       }
 

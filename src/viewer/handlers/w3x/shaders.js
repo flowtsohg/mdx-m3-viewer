@@ -32,8 +32,9 @@ export default {
       vec2 cell = getCell(variation);
       vec2 cellSize = vec2(extended ? 0.125 : 0.25, 0.25);
       vec2 uv = vec2(position.x, 1.0 - position.y);
+      vec2 pixelSize = vec2(1.0 / 512.0, 1.0 / 256.0); /// Note: hardcoded to 512x256 for now.
 
-      return (cell + uv) * cellSize;
+      return clamp((cell + uv) * cellSize, cell * cellSize + pixelSize, (cell + 1.0) * cellSize - pixelSize); 
     }
 
     void main() {

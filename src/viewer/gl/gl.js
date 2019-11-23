@@ -138,7 +138,7 @@ export default class WebGL {
       let hash = stringHash(vertexSrc + fragmentSrc);
 
       if (!shaderPrograms.has(hash)) {
-        shaderPrograms.set(hash, new ShaderProgram(gl, vertexShader, fragmentShader));
+        shaderPrograms.set(hash, new ShaderProgram(this, vertexShader, fragmentShader));
       }
 
       let shaderProgram = shaderPrograms.get(hash);

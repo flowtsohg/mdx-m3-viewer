@@ -247,7 +247,6 @@ let fsCommon = `
 
 export default {
   vs: `
-    ${shaders.instanceId}
     ${shaders.boneTexture}
     ${vsCommon}
     uniform mat4 u_mvp;
@@ -257,6 +256,8 @@ export default {
     uniform float u_firstBoneLookupIndex;
     uniform float u_boneWeightPairsCount;
     uniform vec3 u_teamColors[14];
+    uniform float u_teamColor;
+    uniform vec4 u_vertexColor;
 
     attribute vec3 a_position;
     attribute vec4 a_normal;
@@ -275,8 +276,6 @@ export default {
     attribute vec4 a_tangent;
     attribute vec4 a_bones;
     attribute vec4 a_weights;
-    attribute float a_teamColor;
-    attribute vec4 a_vertexColor;
 
     varying vec3 v_normal;
     varying vec4 v_uv[2]; // Pack 4 vec2 in 2 vec4, to reduce the varyings count
@@ -291,12 +290,12 @@ export default {
         mat4 bone;
 
         if (u_boneWeightPairsCount == 1.0) {
-          bone = fetchMatrix(bones[0], a_InstanceID);
+          bone = fetchMatrix(bones[0], 0.0);
         } else {
-          bone += fetchMatrix(bones[0], a_InstanceID) * weights[0];
-          bone += fetchMatrix(bones[1], a_InstanceID) * weights[1];
-          bone += fetchMatrix(bones[2], a_InstanceID) * weights[2];
-          bone += fetchMatrix(bones[3], a_InstanceID) * weights[3];
+          bone += fetchMatrix(bones[0], 0.0) * weights[0];
+          bone += fetchMatrix(bones[1], 0.0) * weights[1];
+          bone += fetchMatrix(bones[2], 0.0) * weights[2];
+          bone += fetchMatrix(bones[3], 0.0) * weights[3];
         }
 
         position = vec3(bone * vec4(position, 1.0));
@@ -344,18 +343,21 @@ export default {
       #endif
 
       #ifdef EXPLICITUV2
+      uv0.zw = a_uv1 / 2048.0;
       uv1.xy = a_uv2 / 2048.0;
       #endif
 
       #ifdef EXPLICITUV3
+      uv0.zw = a_uv1 / 2048.0;
+      uv1.xy = a_uv2 / 2048.0;
       uv1.zw = a_uv3 / 2048.0;
       #endif
 
       v_uv[0] = uv0;
       v_uv[1] = uv1;
 
-      v_teamColor = u_teamColors[int(a_teamColor)];
-      v_vertexColor = a_vertexColor;
+      v_teamColor = u_teamColors[int(u_teamColor)];
+      v_vertexColor = u_vertexColor;
 
       gl_Position = u_mvp * vec4(position, 1.0);
     }

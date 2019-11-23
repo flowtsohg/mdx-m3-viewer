@@ -194,19 +194,19 @@ function bindRibbonEmitterBuffer(emitter, buffer) {
   let byteView = buffer.byteView;
   let floatView = buffer.floatView;
   let columns = emitterObject.columns;
-  let chainLengthFactor = 1 / (emitter.alive + 1);
-  let baseIndex = emitter.baseIndex;
   let alive = emitter.alive;
+  let chainLengthFactor = 1 / (alive - 1);
   let offset = 0;
+  let object = emitter.first;
 
-  for (let object of emitter.objects) {
+  while (object.next) {
+    let next = object.next.vertices;
     let byteOffset = offset * BYTES_PER_OBJECT;
     let floatOffset = offset * FLOATS_PER_OBJECT;
     let p0Offset = floatOffset + FLOAT_OFFSET_P0;
     let colorOffset = byteOffset + BYTE_OFFSET_COLOR;
     let leftRightTopOffset = byteOffset + BYTE_OFFSET_LEFT_RIGHT_TOP;
-    let locationInChain = alive - (object.ribbonIndex - baseIndex);
-    let left = (object.slot % columns) + (locationInChain * chainLengthFactor);
+    let left = ((object.slot % columns) + (1 - (offset * chainLengthFactor) - chainLengthFactor)) / columns;
     let top = object.slot / columns;
     let right = left + chainLengthFactor;
     let vertices = object.vertices;
@@ -218,12 +218,12 @@ function bindRibbonEmitterBuffer(emitter, buffer) {
     floatView[p0Offset + 3] = vertices[3];
     floatView[p0Offset + 4] = vertices[4];
     floatView[p0Offset + 5] = vertices[5];
-    floatView[p0Offset + 6] = vertices[6];
-    floatView[p0Offset + 7] = vertices[7];
-    floatView[p0Offset + 8] = vertices[8];
-    floatView[p0Offset + 9] = vertices[9];
-    floatView[p0Offset + 10] = vertices[10];
-    floatView[p0Offset + 11] = vertices[11];
+    floatView[p0Offset + 6] = next[3];
+    floatView[p0Offset + 7] = next[4];
+    floatView[p0Offset + 8] = next[5];
+    floatView[p0Offset + 9] = next[0];
+    floatView[p0Offset + 10] = next[1];
+    floatView[p0Offset + 11] = next[2];
 
     byteView[colorOffset + 0] = color[0];
     byteView[colorOffset + 1] = color[1];
@@ -234,6 +234,7 @@ function bindRibbonEmitterBuffer(emitter, buffer) {
     byteView[leftRightTopOffset + 1] = right * 255;
     byteView[leftRightTopOffset + 2] = top * 255;
 
+    object = object.next;
     offset += 1;
   }
 }
@@ -243,15 +244,17 @@ function bindRibbonEmitterBuffer(emitter, buffer) {
  * @param {Shader} shader
  */
 function bindRibbonEmitterShader(emitter, shader) {
+  let textureMapper = emitter.instance.textureMapper;
   let emitterObject = emitter.emitterObject;
   let layer = emitterObject.layer;
   let model = emitterObject.model;
   let gl = model.viewer.gl;
   let uniforms = shader.uniforms;
+  let texture = model.textures[layer.textureId];
 
   layer.bind(shader);
 
-  model.viewer.webgl.bindTexture(emitterObject.texture, 0);
+  model.viewer.webgl.bindTexture(textureMapper.get(texture) || texture, 0);
 
   gl.uniform1f(uniforms.u_emitter, EMITTER_RIBBON);
 
@@ -296,6 +299,7 @@ function bindEventObjectEmitterBuffer(emitter, buffer) {
  * @param {Shader} shader
  */
 function bindEventObjectSplEmitterShader(emitter, shader) {
+  let textureMapper = emitter.instance.textureMapper;
   let emitterObject = emitter.emitterObject;
   let intervalTimes = emitterObject.intervalTimes;
   let intervals = emitterObject.intervals;
@@ -303,10 +307,11 @@ function bindEventObjectSplEmitterShader(emitter, shader) {
   let model = emitterObject.model;
   let gl = model.viewer.gl;
   let uniforms = shader.uniforms;
+  let texture = emitterObject.internalResource;
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 
-  model.viewer.webgl.bindTexture(emitterObject.internalResource, 0);
+  model.viewer.webgl.bindTexture(textureMapper.get(texture) || texture, 0);
 
   gl.uniform1f(uniforms.u_emitter, EMITTER_SPLAT);
 
@@ -330,16 +335,18 @@ function bindEventObjectSplEmitterShader(emitter, shader) {
  * @param {Shader} shader
  */
 function bindEventObjectUbrEmitterShader(emitter, shader) {
+  let textureMapper = emitter.instance.textureMapper;
   let emitterObject = emitter.emitterObject;
   let intervalTimes = emitterObject.intervalTimes;
   let colors = emitterObject.colors;
   let model = emitterObject.model;
   let gl = model.viewer.gl;
   let uniforms = shader.uniforms;
+  let texture = emitterObject.internalResource;
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 
-  model.viewer.webgl.bindTexture(emitterObject.internalResource, 0);
+  model.viewer.webgl.bindTexture(textureMapper.get(texture) || texture, 0);
 
   gl.uniform1f(uniforms.u_emitter, EMITTER_UBERSPLAT);
 
@@ -360,9 +367,13 @@ function bindEventObjectUbrEmitterShader(emitter, shader) {
  */
 export function renderEmitter(emitter, shader) {
   let alive = emitter.alive;
+  let emitterType = emitter.emitterObject.geometryEmitterType;
 
-  if (alive) {
-    let emitterType = emitter.emitterObject.geometryEmitterType;
+  if (emitterType === EMITTER_RIBBON) {
+    alive -= 1;
+  }
+
+  if (alive > 0) {
     let viewer = emitter.instance.model.viewer;
     let buffer = viewer.buffer;
     let gl = viewer.gl;

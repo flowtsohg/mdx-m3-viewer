@@ -53,7 +53,7 @@ let m3Tests = {
       test(viewer, scene, camera, model) {
         camera.moveToAndFace([0, 5, 100], [0, 5, 0], [0, 1, 0]);
 
-        let instance = model.addInstance().uniformScale(50).setVertexColor([255, 0, 0, 255]);
+        let instance = model.addInstance().uniformScale(50).setVertexColor([1, 0, 0, 1]);
 
         scene.addInstance(instance);
       },
@@ -67,7 +67,7 @@ let m3Tests = {
       test(viewer, scene, camera, model) {
         camera.moveToAndFace([0, 5, 100], [0, 5, 0], [0, 1, 0]);
 
-        let instance = model.addInstance().uniformScale(50).setVertexColor([255, 0, 0, 255]).setTeamColor(1);
+        let instance = model.addInstance().uniformScale(50).setVertexColor([1, 0, 0, 1]).setTeamColor(1);
 
         scene.addInstance(instance);
       },

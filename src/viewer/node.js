@@ -1,4 +1,3 @@
-import EventEmitter from 'events';
 import {vec3, quat, mat4} from 'gl-matrix';
 import {VEC3_ZERO, VEC3_ONE, QUAT_DEFAULT} from '../common/gl-matrix-addon';
 
@@ -8,19 +7,13 @@ let rotationHeap = quat.create();
 let scalingHeap = vec3.create();
 
 /**
- * A node mixin.
- * Used by SceneNode and EventNode.
- *
- * @param {class} superclass
- * @return {class}
+ * A node.
  */
-let nodeMixin = (superclass) => class extends superclass {
+export class Node {
   /**
    *
    */
   constructor() {
-    super();
-
     /** @member {vec3} */
     this.pivot = vec3.create();
     /** @member {vec3} */
@@ -45,9 +38,9 @@ let nodeMixin = (superclass) => class extends superclass {
     this.localMatrix = mat4.create();
     /** @member {mat4} */
     this.worldMatrix = mat4.create();
-    /** @member {?SceneNode} */
+    /** @member {?Node} */
     this.parent = null;
-    /** @member {Array<SceneNode>} */
+    /** @member {Array<Node>} */
     this.children = [];
     /** @member {boolean} */
     this.dontInheritTranslation = false;
@@ -341,7 +334,7 @@ let nodeMixin = (superclass) => class extends superclass {
 
     this.parent = parent;
 
-    // If the new parent is na actual thing, add this node as a child.
+    // If the new parent is an actual thing, add this node as a child.
     if (parent) {
       parent.children.push(this);
     }
@@ -550,16 +543,6 @@ let nodeMixin = (superclass) => class extends superclass {
 };
 
 /**
- * A scene node that can be moved, rotated, scaled, parented, etc.
- */
-export class SceneNode extends nodeMixin(Object) {}
-
-/**
- * A scene node that is also an event dispatcher.
- */
-export class EventNode extends nodeMixin(EventEmitter) {}
-
-/**
  * A skeletal node used for skeletons.
  * Expected to be created with createSharedNodes() below.
  */
@@ -598,7 +581,7 @@ export class SkeletalNode {
     this.dontInheritRotation = false;
     /** @member {boolean} */
     this.dontInheritScaling = false;
-    /** @member {Array<SceneNode>} */
+    /** @member {Array<Node>} */
     this.children = [];
 
     this.visible = true;

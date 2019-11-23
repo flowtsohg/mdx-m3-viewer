@@ -17,6 +17,7 @@ export default class M3Skeleton {
     let nodes = sharedNodeData.nodes;
 
     this.nodes = nodes;
+    this.worldMatrices = sharedNodeData.worldMatrices;
     this.instance = instance;
     this.modelNodes = bones;
     this.initialReference = model.initialReference;

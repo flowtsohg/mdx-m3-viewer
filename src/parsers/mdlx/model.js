@@ -47,7 +47,11 @@ export default class Model {
     this.animationFile = '';
     /** @member {Extent} */
     this.extent = new Extent();
-    /** @member {number} */
+    /**
+     * This is only used by the defunct previewer that came with Art Tools.
+     *
+     * @member {number}
+     */
     this.blendTime = 0;
     /** @member {Array<Sequence>} */
     this.sequences = [];

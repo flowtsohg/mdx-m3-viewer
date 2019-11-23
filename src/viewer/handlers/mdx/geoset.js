@@ -34,7 +34,11 @@ export class ShallowGeoset {
     gl.vertexAttribPointer(attribs.a_boneNumber, 1, gl.UNSIGNED_BYTE, false, 0, offsets[4]);
   }
 
-  bindNew(shader, coordId) {
+  /**
+   * @param {ShaderProgram} shader
+   * @param {number} coordId
+   */
+  bindSimple(shader, coordId) {
     let gl = this.model.viewer.gl;
     let offsets = this.offsets;
     let attribs = shader.attribs;

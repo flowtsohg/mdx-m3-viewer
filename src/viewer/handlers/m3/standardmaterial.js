@@ -71,10 +71,10 @@ export default class M3StandardMaterial {
   }
 
   /**
-   * @param {Bucket} bucket
    * @param {ShaderProgram} shader
+   * @param {TextureMapper} textureMapper
    */
-  bind(bucket, shader) {
+  bind(shader, textureMapper) {
     const gl = this.gl;
 
     this.bindCommon();
@@ -86,13 +86,13 @@ export default class M3StandardMaterial {
 
     const layers = this.layers;
 
-    layers[0].bind(bucket, shader);
-    layers[1].bind(bucket, shader);
-    layers[2].bind(bucket, shader);
-    layers[4].bind(bucket, shader);
-    layers[5].bind(bucket, shader);
-    layers[10].bind(bucket, shader);
-    layers[12].bind(bucket, shader);
+    layers[0].bind(shader, textureMapper);
+    layers[1].bind(shader, textureMapper);
+    layers[2].bind(shader, textureMapper);
+    layers[4].bind(shader, textureMapper);
+    layers[5].bind(shader, textureMapper);
+    layers[10].bind(shader, textureMapper);
+    layers[12].bind(shader, textureMapper);
   }
 
   /**

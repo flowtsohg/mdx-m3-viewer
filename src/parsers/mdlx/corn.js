@@ -13,10 +13,10 @@ export default class Corn extends GenericObject {
   constructor() {
     super(0); /// What is the flag?
 
-    /// So far I only saw this sequence of bytes:
-    /// [0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 128, 63, 0, 0, 0, 0]
-    this.maybeColors = new Uint8Array(32);
-
+    /** @member {Float32Array} */
+    this.color0 = new Float32Array(4);
+    /** @member {Float32Array} */
+    this.color1 = new Float32Array(4);
     /** @member {string} */
     this.path = '';
     /** @member {string} */
@@ -32,7 +32,8 @@ export default class Corn extends GenericObject {
 
     super.readMdx(stream);
 
-    stream.readUint8Array(this.maybeColors);
+    stream.readFloat32Array(this.color0);
+    stream.readFloat32Array(this.color1);
     this.path = stream.read(260);
     this.flags = stream.read(260);
 
@@ -47,7 +48,8 @@ export default class Corn extends GenericObject {
 
     super.writeMdx(stream);
 
-    stream.writeUint32Array(this.maybeColors);
+    stream.writeFloat32Array(this.color0);
+    stream.writeFloat32Array(this.color1);
     stream.write(this.path);
     stream.skip(260 - this.path.length);
     stream.write(this.flags);

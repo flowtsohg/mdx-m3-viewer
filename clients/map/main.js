@@ -74,23 +74,21 @@ viewer.on('loadend', (target) => {
 let meter = new FPSMeter({position: 'absolute', right: '10px', top: '10px', left: 'calc(100% - 130px)', theme: 'transparent', heat: 1, graph: 1});
 
 let cellsElement = document.getElementById('cells');
-let bucketsElement = document.getElementById('buckets');
 let instancesElement = document.getElementById('instances');
 let particlesElement = document.getElementById('particles');
 
 setupCamera(viewer.scene, 3000);
 
-(function step() {
+function step() {
   requestAnimationFrame(step);
 
   viewer.updateAndRender();
   meter.tick();
 
-  cellsElement.textContent = `Cells: ${viewer.scene.renderedCells}`;
-  bucketsElement.textContent = `Buckets: ${viewer.scene.renderedBuckets}`;
-  instancesElement.textContent = `Instances: ${viewer.scene.renderedInstances}`;
-  particlesElement.textContent = `Particles: ${viewer.scene.renderedParticles}`;
-}());
+  cellsElement.textContent = `Cells: ${viewer.scene.visibleCells}`;
+  instancesElement.textContent = `Instances: ${viewer.scene.visibleInstances}`;
+  particlesElement.textContent = `Particles: ${viewer.scene.updatedParticles}`;
+}
 
 function handleDrop(file) {
 
@@ -116,6 +114,64 @@ document.addEventListener('drop', (e) => {
 
     reader.addEventListener('loadend', (e) => {
       viewer.loadMap(e.target.result);
+
+      viewer.once('idle', () => step());
+
+      // viewer.once('idle', () => {
+      //   console.log('FINISHED LOADING STUFF LELEOLSEOFSOGDRIGMKIDRJGH')
+
+      //   let cubeModel = viewer.load({geometry: ModelViewer.common.geometry.createUnitCube(), material: {renderMode: 1}}, (src) => [src, '.geo', false]);
+      // let sphereModel = viewer.load({geometry: ModelViewer.common.geometry.createUnitSphere(12, 12), material: {renderMode: 1}}, (src) => [src, '.geo', false]);
+
+      // for (let unit of viewer.units) {
+      //   let model = unit.model;
+
+      //   setTimeout(() => {
+      //     let bounds = model.bounds;
+      //     let instance = unit.instance;
+
+      //     let cubeInstance = cubeModel.addInstance();
+      //     let sphereInstance = sphereModel.addInstance();
+
+      //     cubeInstance.dontInheritRotation = true;
+      //     sphereInstance.dontInheritRotation = true;
+
+      //     cubeInstance.setParent(instance);
+      //     sphereInstance.setParent(instance);
+
+      //     cubeInstance.uniformScale(bounds.r);
+      //     //cubeInstance
+      //     //cubeInstance.scale([sizeX / 2, sizeY / 2, sizeZ]);
+      //     //cubeInstance.scale(instance.worldScale);
+
+      //     //cubeInstance.uniform
+
+      //     //sphereInstance.move([bounds.x, bounds.y, 0]);
+      //     sphereInstance.uniformScale(bounds.r);
+
+      //     // viewer.scene.addInstance(cubeInstance);
+      //     // viewer.scene.addInstance(sphereInstance);
+      //   }, 2000);
+      // }
+
+      //   setTimeout(() => {
+      //     let tree = viewer.scene.grid;
+      //     let cellSize = tree.cellSize;
+      //     let i = 0;
+      //     for (let cell of tree.cells) {
+      //       let instance = cubeModel.addInstance();
+      //       let w = (cell.right - cell.left) / 2;
+      //       let h = (cell.top - cell.bottom) / 2;
+      //       instance.setLocation([cell.left + w, cell.bottom + h, 201]);
+      //       instance.scale([cellSize[0] / 2 - 5, cellSize[1] / 2 - 5, 200]);
+      //       instance.setEdgeColor([i * (255 / 16) + 10, i * (255 / 16) + 10, i * (255 / 16) + 10, 255]);
+
+      //       viewer.scene.addInstance(instance);
+
+      //       i++;
+      //     }
+      //   }, 1000);
+      // })
     });
 
     reader.readAsArrayBuffer(file);

@@ -1,6 +1,5 @@
 import {quat} from 'gl-matrix';
 import {VEC3_UNIT_Z} from '../../../common/gl-matrix-addon';
-import standOnRepeat from './standsequence';
 
 /**
  * A unit.
@@ -48,11 +47,9 @@ export default class Unit {
       this.instance.setTeamColor(object.player);
       this.instance.setScene(map.scene);
 
-      standOnRepeat(this.instance);
-
       if (row) {
         this.instance.move([0, 0, row.moveHeight]);
-        this.instance.setVertexColor([row.red, row.green, row.blue, 255]);
+        this.instance.setVertexColor([row.red / 255, row.green / 255, row.blue / 255, 1]);
         this.instance.uniformScale(row.modelScale);
       }
     } else {

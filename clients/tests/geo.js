@@ -49,7 +49,7 @@ let geoTests = {
         {
           name: 'vertex-color',
           load(viewer) {
-            return viewer.load({geometry: geometry.createUnitRectangle(), material: {renderMode: 0, vertexColor: new Uint8Array([255, 0, 0, 255])}}, geoSolver);
+            return viewer.load({geometry: geometry.createUnitRectangle(), material: {renderMode: 0, faceColor: new Uint8Array([255, 0, 0])}}, geoSolver);
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 120]);
@@ -63,7 +63,7 @@ let geoTests = {
         {
           name: 'edge-color',
           load(viewer) {
-            return viewer.load({geometry: geometry.createUnitRectangle(), material: {renderMode: 1, edgeColor: new Uint8Array([0, 255, 0, 255])}}, geoSolver);
+            return viewer.load({geometry: geometry.createUnitRectangle(), material: {renderMode: 1, edgeColor: new Uint8Array([0, 255, 0])}}, geoSolver);
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 120]);
@@ -77,7 +77,7 @@ let geoTests = {
         {
           name: 'vertex-and-edge-colors',
           load(viewer) {
-            return viewer.load({geometry: geometry.createUnitRectangle(), material: {renderMode: 2, vertexColor: new Uint8Array([255, 0, 0, 255]), edgeColor: new Uint8Array([0, 255, 0, 255])}}, geoSolver);
+            return viewer.load({geometry: geometry.createUnitRectangle(), material: {renderMode: 2, faceColor: new Uint8Array([255, 0, 0]), edgeColor: new Uint8Array([0, 255, 0])}}, geoSolver);
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 120]);
@@ -154,7 +154,7 @@ let geoTests = {
         {
           name: 'vertex-color',
           load(viewer) {
-            return viewer.load({geometry: geometry.createUnitCube(), material: {renderMode: 0, vertexColor: new Uint8Array([255, 0, 0, 255])}}, geoSolver);
+            return viewer.load({geometry: geometry.createUnitCube(), material: {renderMode: 0, faceColor: new Uint8Array([255, 0, 0])}}, geoSolver);
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 160]);
@@ -168,7 +168,7 @@ let geoTests = {
         {
           name: 'edge-color',
           load(viewer) {
-            return viewer.load({geometry: geometry.createUnitCube(), material: {renderMode: 1, edgeColor: new Uint8Array([0, 255, 0, 255])}}, geoSolver);
+            return viewer.load({geometry: geometry.createUnitCube(), material: {renderMode: 1, edgeColor: new Uint8Array([0, 255, 0])}}, geoSolver);
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 160]);
@@ -182,7 +182,7 @@ let geoTests = {
         {
           name: 'vertex-and-edge-colors',
           load(viewer) {
-            return viewer.load({geometry: geometry.createUnitCube(), material: {renderMode: 2, vertexColor: new Uint8Array([255, 0, 0, 255]), edgeColor: new Uint8Array([0, 255, 0, 255])}}, geoSolver);
+            return viewer.load({geometry: geometry.createUnitCube(), material: {renderMode: 2, faceColor: new Uint8Array([255, 0, 0]), edgeColor: new Uint8Array([0, 255, 0])}}, geoSolver);
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 160]);
@@ -259,7 +259,7 @@ let geoTests = {
         {
           name: 'vertex-color',
           load(viewer) {
-            return viewer.load({geometry: geometry.createUnitSphere(20, 20), material: {renderMode: 0, vertexColor: new Uint8Array([255, 0, 0, 255])}}, geoSolver);
+            return viewer.load({geometry: geometry.createUnitSphere(20, 20), material: {renderMode: 0, faceColor: new Uint8Array([255, 0, 0])}}, geoSolver);
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 120]);
@@ -273,7 +273,7 @@ let geoTests = {
         {
           name: 'edge-color',
           load(viewer) {
-            return viewer.load({geometry: geometry.createUnitSphere(20, 20), material: {renderMode: 1, edgeColor: new Uint8Array([0, 255, 0, 255])}}, geoSolver);
+            return viewer.load({geometry: geometry.createUnitSphere(20, 20), material: {renderMode: 1, edgeColor: new Uint8Array([0, 255, 0])}}, geoSolver);
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 120]);
@@ -287,7 +287,7 @@ let geoTests = {
         {
           name: 'vertex-and-edge-colors',
           load(viewer) {
-            return viewer.load({geometry: geometry.createUnitSphere(20, 20), material: {renderMode: 2, vertexColor: new Uint8Array([255, 0, 0, 255]), edgeColor: new Uint8Array([0, 255, 0, 255])}}, geoSolver);
+            return viewer.load({geometry: geometry.createUnitSphere(20, 20), material: {renderMode: 2, faceColor: new Uint8Array([255, 0, 0]), edgeColor: new Uint8Array([0, 255, 0])}}, geoSolver);
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 120]);
@@ -364,7 +364,7 @@ let geoTests = {
         {
           name: 'vertex-color',
           load(viewer) {
-            return viewer.load({geometry: geometry.createUnitCylinder(20), material: {renderMode: 0, vertexColor: new Uint8Array([255, 0, 0, 255])}}, geoSolver);
+            return viewer.load({geometry: geometry.createUnitCylinder(20), material: {renderMode: 0, faceColor: new Uint8Array([255, 0, 0])}}, geoSolver);
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 150]);
@@ -378,7 +378,7 @@ let geoTests = {
         {
           name: 'edge-color',
           load(viewer) {
-            return viewer.load({geometry: geometry.createUnitCylinder(20), material: {renderMode: 1, edgeColor: new Uint8Array([0, 255, 0, 255])}}, geoSolver);
+            return viewer.load({geometry: geometry.createUnitCylinder(20), material: {renderMode: 1, edgeColor: new Uint8Array([0, 255, 0])}}, geoSolver);
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 150]);
@@ -392,7 +392,7 @@ let geoTests = {
         {
           name: 'vertex-and-edge-colors',
           load(viewer) {
-            return viewer.load({geometry: geometry.createUnitCylinder(20), material: {renderMode: 2, vertexColor: new Uint8Array([255, 0, 0, 255]), edgeColor: new Uint8Array([0, 255, 0, 255])}}, geoSolver);
+            return viewer.load({geometry: geometry.createUnitCylinder(20), material: {renderMode: 2, faceColor: new Uint8Array([255, 0, 0]), edgeColor: new Uint8Array([0, 255, 0])}}, geoSolver);
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 150]);
@@ -469,7 +469,7 @@ let geoTests = {
         {
           name: 'vertex-color',
           load(viewer) {
-            return viewer.load({geometry: geometry.createFrustum(Math.PI / 4, 0.75, 8, 120), material: {renderMode: 0, vertexColor: new Uint8Array([255, 0, 0, 255])}}, geoSolver);
+            return viewer.load({geometry: geometry.createFrustum(Math.PI / 4, 0.75, 8, 120), material: {renderMode: 0, faceColor: new Uint8Array([255, 0, 0])}}, geoSolver);
           },
           test(viewer, scene, camera, model) {
             camera.moveToAndFace([150, 0, 200], [0, 0, 60], [0, 0, 1]);
@@ -483,7 +483,7 @@ let geoTests = {
         {
           name: 'edge-color',
           load(viewer) {
-            return viewer.load({geometry: geometry.createFrustum(Math.PI / 4, 0.75, 8, 120), material: {renderMode: 1, edgeColor: new Uint8Array([0, 255, 0, 255])}}, geoSolver);
+            return viewer.load({geometry: geometry.createFrustum(Math.PI / 4, 0.75, 8, 120), material: {renderMode: 1, edgeColor: new Uint8Array([0, 255, 0])}}, geoSolver);
           },
           test(viewer, scene, camera, model) {
             camera.moveToAndFace([150, 0, 200], [0, 0, 60], [0, 0, 1]);
@@ -497,7 +497,7 @@ let geoTests = {
         {
           name: 'vertex-and-edge-colors',
           load(viewer) {
-            return viewer.load({geometry: geometry.createFrustum(Math.PI / 4, 0.75, 8, 120), material: {renderMode: 2, vertexColor: new Uint8Array([255, 0, 0, 255]), edgeColor: new Uint8Array([0, 255, 0, 255])}}, geoSolver);
+            return viewer.load({geometry: geometry.createFrustum(Math.PI / 4, 0.75, 8, 120), material: {renderMode: 2, faceColor: new Uint8Array([255, 0, 0]), edgeColor: new Uint8Array([0, 255, 0])}}, geoSolver);
           },
           test(viewer, scene, camera, model) {
             camera.moveToAndFace([150, 0, 200], [0, 0, 60], [0, 0, 1]);

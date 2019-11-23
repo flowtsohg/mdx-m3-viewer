@@ -34,19 +34,12 @@ export default class M3Region {
    * @param {ShaderProgram} shader
    * @param {number} instances
    */
-  render(shader, instances) {
+  render(shader) {
     let gl = this.gl;
 
     gl.uniform1f(shader.uniforms.u_firstBoneLookupIndex, this.firstBoneLookupIndex);
     gl.uniform1f(shader.uniforms.u_boneWeightPairsCount, this.boneWeightPairsCount);
 
-    gl.extensions.instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.offset, instances);
-  }
-
-  /**
-   * @return {number}
-   */
-  getPolygonCount() {
-    return this.elements / 3;
+    gl.drawElements(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.offset);
   }
 }

@@ -18,10 +18,16 @@ export default class Ribbon extends EmittedObject {
   constructor(emitter) {
     super(emitter);
 
-    this.ribbonIndex = 0;
-    this.vertices = new Float32Array(12);
+    /** @member {Float32Array} */
+    this.vertices = new Float32Array(6);
+    /** @member {Uint8Array} */
     this.color = new Uint8Array(4);
+    /** @member {number} */
     this.slot = 0;
+    /** @member {?Ribbon} */
+    this.prev = null;
+    /** @member {?Ribbon} */
+    this.next = null;
   }
 
   /**
@@ -29,62 +35,35 @@ export default class Ribbon extends EmittedObject {
    */
   bind() {
     let emitter = this.emitter;
+    let instance = emitter.instance;
+    let emitterObject = emitter.emitterObject;
+    let node = instance.nodes[emitterObject.index];
+    let [x, y, z] = node.pivot;
+    let worldMatrix = node.worldMatrix;
+    let vertices = this.vertices;
 
-    this.ribbonIndex = emitter.currentIndex++;
     this.health = emitter.emitterObject.lifeSpan;
 
-    let currentRibbon = emitter.currentRibbon;
+    emitterObject.getHeightBelow(belowHeap, instance);
+    emitterObject.getHeightAbove(aboveHeap, instance);
 
-    // If this isn't the first ribbon, construct a quad.
-    // Otherwise, the vertices will be filled with zeroes, and the ribbon will not render.
-    // This allows the emitter to always work with quads.
-    if (currentRibbon && currentRibbon.health > 0) {
-      let instance = emitter.instance;
-      let emitterObject = emitter.emitterObject;
-      let node = instance.nodes[emitterObject.index];
-      let [x, y, z] = node.pivot;
-      let worldMatrix = node.worldMatrix;
+    belowHeap[1] = y - belowHeap[0];
+    belowHeap[0] = x;
+    belowHeap[2] = z;
 
-      emitterObject.getHeightBelow(belowHeap, instance);
-      emitterObject.getHeightAbove(aboveHeap, instance);
+    aboveHeap[1] = y + aboveHeap[0];
+    aboveHeap[0] = x;
+    aboveHeap[2] = z;
 
-      let heightBelow = belowHeap[0];
-      let heightAbove = aboveHeap[0];
+    vec3.transformMat4(belowHeap, belowHeap, worldMatrix);
+    vec3.transformMat4(aboveHeap, aboveHeap, worldMatrix);
 
-      belowHeap[0] = x;
-      belowHeap[1] = y - heightBelow;
-      belowHeap[2] = z;
-
-      aboveHeap[0] = x;
-      aboveHeap[1] = y + heightAbove;
-      aboveHeap[2] = z;
-
-      vec3.transformMat4(belowHeap, belowHeap, worldMatrix);
-      vec3.transformMat4(aboveHeap, aboveHeap, worldMatrix);
-
-      let vertices = this.vertices;
-      let lastVertices = currentRibbon.vertices;
-
-      // Left top
-      vertices[0] = aboveHeap[0];
-      vertices[1] = aboveHeap[1];
-      vertices[2] = aboveHeap[2];
-
-      // Left bottom
-      vertices[3] = belowHeap[0];
-      vertices[4] = belowHeap[1];
-      vertices[5] = belowHeap[2];
-
-      // Right bottom
-      vertices[6] = lastVertices[3];
-      vertices[7] = lastVertices[4];
-      vertices[8] = lastVertices[5];
-
-      // Right top
-      vertices[9] = lastVertices[0];
-      vertices[10] = lastVertices[1];
-      vertices[11] = lastVertices[2];
-    }
+    vertices[0] = aboveHeap[0];
+    vertices[1] = aboveHeap[1];
+    vertices[2] = aboveHeap[2];
+    vertices[3] = belowHeap[0];
+    vertices[4] = belowHeap[1];
+    vertices[5] = belowHeap[2];
   }
 
   /**
@@ -92,18 +71,22 @@ export default class Ribbon extends EmittedObject {
    * @param {number} dt
    */
   update(dt) {
-    let emitter = this.emitter;
-
     this.health -= dt;
 
     if (this.health > 0) {
+      let emitter = this.emitter;
       let instance = emitter.instance;
       let emitterObject = emitter.emitterObject;
       let color = this.color;
+      let vertices = this.vertices;
+      let gravity = emitterObject.gravity * dt * dt;
 
       emitterObject.getColor(colorHeap, instance);
       emitterObject.getAlpha(alphaHeap, instance);
       emitterObject.getTextureSlot(slotHeap, instance);
+
+      vertices[1] -= gravity;
+      vertices[4] -= gravity;
 
       color[0] = colorHeap[0] * 255;
       color[1] = colorHeap[1] * 255;
@@ -111,16 +94,6 @@ export default class Ribbon extends EmittedObject {
       color[3] = alphaHeap[0] * 255;
 
       this.slot = slotHeap[0];
-
-      let vertices = this.vertices;
-      let gravity = emitterObject.gravity * dt * dt;
-
-      vertices[1] -= gravity;
-      vertices[4] -= gravity;
-      vertices[7] -= gravity;
-      vertices[10] -= gravity;
-    } else {
-      emitter.baseIndex += 1;
     }
   }
 }

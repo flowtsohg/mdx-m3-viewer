@@ -3,17 +3,20 @@
  */
 export default class ShaderProgram {
   /**
-   * @param {WebGLRenderingContext} gl
+   * @param {WebGL} webgl
    * @param {ShaderUnit} vertexShader
    * @param {ShaderUnit} fragmentShader
    */
-  constructor(gl, vertexShader, fragmentShader) {
+  constructor(webgl, vertexShader, fragmentShader) {
+    let gl = webgl.gl;
     let id = gl.createProgram();
     let uniforms = {};
     let attribs = {};
 
     /** @member {boolean} */
     this.ok = false;
+    /** @member {WebGLRenderingContext} */
+    this.webgl = webgl;
     /** @member {WebGLProgram} */
     this.webglResource = id;
     /** @member {Array<ShaderUnit>} */
@@ -69,5 +72,12 @@ export default class ShaderProgram {
       console.error('Shader program failed to link!');
       console.error(gl.getProgramInfoLog(id));
     }
+  }
+
+  /**
+   *
+   */
+  use() {
+    this.webgl.useShaderProgram(this);
   }
 }

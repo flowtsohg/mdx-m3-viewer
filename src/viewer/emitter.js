@@ -88,11 +88,9 @@ export default class Emitter {
     for (let i = 0, l = this.alive; i < l; i++) {
       let object = objects[i];
 
-      object.index = -1;
       object.health = 0;
     }
 
-    this.alive = 0;
     this.currentEmission = 0;
   }
 }

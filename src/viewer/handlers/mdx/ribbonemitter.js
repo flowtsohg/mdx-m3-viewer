@@ -12,12 +12,10 @@ export default class RibbonEmitter extends Emitter {
   constructor(instance, emitterObject) {
     super(instance, emitterObject);
 
-    /** @member {number} */
-    this.baseIndex = 0;
-    /** @member {number} */
-    this.currentIndex = 0;
     /** @member {?Ribbon} */
-    this.currentRibbon = null;
+    this.first = null;
+    /** @member {?Ribbon} */
+    this.last = null;
   }
 
   /**
@@ -25,7 +23,8 @@ export default class RibbonEmitter extends Emitter {
    */
   updateEmission(dt) {
     if (this.instance.allowParticleSpawn) {
-      this.currentEmission += this.emitterObject.emissionRate * dt;
+      // It doesn't make sense to emit more than 1 ribbon at the same time.
+      this.currentEmission = Math.min(this.currentEmission + this.emitterObject.emissionRate * dt, 1);
     }
   }
 
@@ -33,7 +32,48 @@ export default class RibbonEmitter extends Emitter {
    *
    */
   emit() {
-    this.currentRibbon = this.emitObject();
+    let ribbon = this.emitObject();
+    let last = this.last;
+
+    if (last) {
+      last.next = ribbon;
+      ribbon.prev = last;
+    } else {
+      this.first = ribbon;
+    }
+
+    this.last = ribbon;
+  }
+
+  /**
+   * @override
+   * @param {Ribbon} object
+   */
+  kill(object) {
+    super.kill(object);
+
+    let prev = object.prev;
+    let next = object.next;
+
+    if (object === this.first) {
+      this.first = next;
+    }
+
+    if (object === this.last) {
+      this.first = null;
+      this.last = null;
+    }
+
+    if (prev) {
+      prev.next = next;
+    }
+
+    if (next) {
+      next.prev = prev;
+    }
+
+    object.prev = null;
+    object.next = null;
   }
 
   /**

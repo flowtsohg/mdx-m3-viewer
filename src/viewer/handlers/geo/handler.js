@@ -1,5 +1,5 @@
 import Model from './model';
-import Bucket from './bucket';
+import Batch from './renderbatch';
 import ModelInstance from './modelinstance';
 import shaders from './shaders';
 
@@ -13,7 +13,7 @@ export default {
 
   extensions: [['.geo']],
   Constructor: Model,
-  Bucket: Bucket,
+  Batch: Batch,
   Instance: [ModelInstance],
 
   shader: null,

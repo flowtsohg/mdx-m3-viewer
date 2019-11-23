@@ -10,8 +10,8 @@ export default class GeometryModelInstance extends ModelInstance {
   constructor(model) {
     super(model);
 
-    this.vertexColor = new Uint8Array(4);
-    this.edgeColor = new Uint8Array(4);
+    this.faceColor = new Uint8Array(3);
+    this.edgeColor = new Uint8Array(3);
   }
 
   /**
@@ -19,7 +19,7 @@ export default class GeometryModelInstance extends ModelInstance {
    */
   load() {
     // Initialize to the model's material colors.
-    this.setVertexColor(this.model.vertexColor);
+    this.setFaceColor(this.model.faceColor);
     this.setEdgeColor(this.model.edgeColor);
   }
 
@@ -27,8 +27,8 @@ export default class GeometryModelInstance extends ModelInstance {
    * @param {Uint8Array} color
    * @return {this}
    */
-  setVertexColor(color) {
-    this.vertexColor.set(color);
+  setFaceColor(color) {
+    this.faceColor.set(color);
 
     return this;
   }
@@ -41,5 +41,13 @@ export default class GeometryModelInstance extends ModelInstance {
     this.edgeColor.set(color);
 
     return this;
+  }
+
+  /**
+   * @override
+   * @return {boolean}
+   */
+  isBatched() {
+    return true;
   }
 }

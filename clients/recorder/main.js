@@ -60,8 +60,6 @@ let scene = viewer.addScene();
 
 setupCamera(scene, 500);
 
-viewer.noCulling = true;
-
 console.log('Viewer version', ModelViewer.version);
 
 // Run the next sequence for the given instance at e.

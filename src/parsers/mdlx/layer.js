@@ -46,7 +46,7 @@ export default class Layer extends AnimatedObject {
      * @since 900
      * @member {number}
      */
-    this.emissive = 0;
+    this.emissiveGain = 0;
   }
 
   /**
@@ -65,7 +65,7 @@ export default class Layer extends AnimatedObject {
     this.alpha = stream.readFloat32();
 
     if (version === 900) {
-      this.emissive = stream.readFloat32();
+      this.emissiveGain = stream.readFloat32();
     }
 
     this.readAnimations(stream, size - (stream.index - start));
@@ -85,7 +85,7 @@ export default class Layer extends AnimatedObject {
     stream.writeFloat32(this.alpha);
 
     if (version === 900) {
-      stream.writeFloat32(this.emissive);
+      stream.writeFloat32(this.emissiveGain);
     }
 
     this.writeAnimations(stream);

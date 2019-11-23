@@ -134,16 +134,31 @@ downloadElement.addEventListener('click', () => {
   runElement.disabled = true;
   downloadElement.disabled = true;
 
-  console.log('Starting to download');
+  console.log('Creating an archive.');
+
+  let zip = new JSZip();
 
   unitTester.download((entry) => {
     if (!entry.done) {
-      console.log(`Downloaded ${entry.value.name}`);
-    } else {
-      console.log('Finished downloading');
+      let test = entry.value;
 
+      if (test.blob) {
+        console.log(`Adding ${test.name}.`);
+
+        zip.file(`${test.name}.png`, test.blob);
+      } else {
+        console.log(`Skipping ${test.name} because it has no blob!`);
+      }
+    } else {
       runElement.disabled = false;
       downloadElement.disabled = false;
+
+      console.log('Downloading the archive.');
+
+      zip.generateAsync({type: 'blob'})
+        .then((blob) => {
+          saveAs(blob, `compare_${ModelViewer.version}.zip`);
+        });
     }
   });
 });

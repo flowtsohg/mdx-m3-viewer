@@ -1,7 +1,5 @@
 import * as resemble from '../../thirdparty/resemble';
 import seededRandom from '../common/seededrandom';
-import {imageToImageData, blobToImage} from '../common/canvas';
-import {downloadBlob} from '../common/download';
 import ModelViewer from '../viewer/viewer';
 import Mdx from '../viewer/handlers/mdx/handler';
 import M3 from '../viewer/handlers/m3/handler';
@@ -94,14 +92,9 @@ export default class UnitTester {
   async download(callback) {
     for (let test of this.tests) {
       let name = test.name;
-      let testBlob = await this.getTestBlob(test);
-      let ok = !!testBlob;
+      let blob = await this.getTestBlob(test);
 
-      if (ok) {
-        downloadBlob(testBlob, `${test.name}.png`);
-      }
-
-      callback({done: false, value: {name, ok}});
+      callback({done: false, value: {name, blob}});
     }
 
     callback({done: true});

@@ -17,7 +17,7 @@ import shaders from './shaders';
 import getCliffVariation from './variations';
 import TerrainModel from './terrainmodel';
 // import SimpleModel from './simplemodel';
-import standOnRepeat from './standsequence';
+import randomStandSequence from './standsequence';
 import Unit from './unit';
 
 let normalHeap1 = vec3.create();
@@ -49,7 +49,6 @@ export default class War3MapViewer extends ModelViewer {
     this.waterShader = this.webgl.createShaderProgram(shaders.vsWater, shaders.fsWater);
     this.cliffShader = this.webgl.createShaderProgram(shaders.vsCliffs, shaders.fsCliffs);
     this.simpleModelShader = this.webgl.createShaderProgram(shaders.vsSimpleModel, shaders.fsSimpleModel);
-    this.textureAtlasShader = this.webgl.createShaderProgram(shaders.vsTextureAtlas, shaders.fsTextureAtlas);
 
     this.scene = this.addScene();
     this.camera = this.scene.camera;
@@ -204,6 +203,8 @@ export default class War3MapViewer extends ModelViewer {
       let positionAttrib = attribs.a_position;
       let isWaterAttrib = attribs.a_isWater;
 
+      gl.depthMask(0);
+
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
@@ -314,7 +315,6 @@ export default class War3MapViewer extends ModelViewer {
       super.renderOpaque();
       this.renderWater();
       super.renderTranslucent();
-
     }
   }
 
@@ -330,6 +330,12 @@ export default class War3MapViewer extends ModelViewer {
       }
 
       super.update();
+
+      for (let instance of this.scene.instances) {
+        if (instance.sequenceEnded || instance.sequence === -1) {
+          randomStandSequence(instance);
+        }
+      }
     }
   }
 
@@ -454,10 +460,6 @@ export default class War3MapViewer extends ModelViewer {
       instance.rotateLocal(quat.setAxisAngle(quat.create(), VEC3_UNIT_Z, doodad.angle));
       instance.scale(doodad.scale);
       instance.setScene(scene);
-
-      if (!isSimple) {
-        standOnRepeat(instance);
-      }
     }
 
     this.doodadsReady = true;

@@ -63,7 +63,7 @@ function setupCamera(scene, initialDistance) {
     canvas.height = height;
 
     camera.viewport([0, 0, width, height]);
-    camera.perspective(Math.PI / 4, width / height, 8, 100000);
+    camera.perspective(Math.PI / 4, width / height, 8, 20000);
   }
 
   window.addEventListener('resize', function(e) {

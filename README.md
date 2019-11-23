@@ -327,12 +327,3 @@ viewer.on('error', (target, error, reason) => {
   console.log(`Error: ${error}, Reason: ${reason}`, target);
 });
 ```
-
-Instances are also event emitters.
-An MDX/M3 instance will emit the `seqend` event every time it finishes its current animation.
-
-```javascript
-instance.on('seqend', (instance) => {
-  console.log(`Finished running sequence ${instance.model.sequences[instance.sequence].name}`);
-});
-```

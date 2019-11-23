@@ -26,13 +26,11 @@ export default class Scene {
     this.grid = new Grid(-100000, -100000, 200000, 200000, 200000, 200000);
 
     /** @member {number} */
-    this.renderedCells = 0;
+    this.visibleCells = 0;
     /** @member {number} */
-    this.renderedBuckets = 0;
+    this.visibleInstances = 0;
     /** @member {number} */
-    this.renderedInstances = 0;
-    /** @member {number} */
-    this.renderedParticles = 0;
+    this.updatedParticles = 0;
 
     /** @member {boolean} */
     this.audioEnabled = false;
@@ -164,12 +162,12 @@ export default class Scene {
    * @param {ModelInstance} instance
    */
   addToBatch(instance) {
-    let batches = this.batches;
-    let model = instance.model;
     let textureMapper = instance.textureMapper;
+    let batches = this.batches;
     let batch = batches.get(textureMapper);
 
     if (!batch) {
+      let model = instance.model;
       let Batch = model.handler.Batch;
 
       batch = new Batch(this, model, textureMapper);
@@ -196,9 +194,10 @@ export default class Scene {
       let [x, y, z] = camera.location;
       let [forwardX, forwardY, forwardZ] = camera.directionY;
       let [upX, upY, upZ] = camera.directionZ;
+      let listener = this.audioContext.listener;
 
-      this.audioContext.listener.setPosition(-x, -y, -z);
-      this.audioContext.listener.setOrientation(forwardX, forwardY, forwardZ, upX, upY, upZ);
+      listener.setPosition(-x, -y, -z);
+      listener.setOrientation(forwardX, forwardY, forwardZ, upX, upY, upZ);
     }
 
     let frame = this.viewer.frame;
@@ -209,15 +208,19 @@ export default class Scene {
     let currentInstance = 0;
     let currentBatchedInstance = 0;
 
+    this.visibleCells = 0;
     this.visibleInstances = 0;
 
-    // Update all of the visible instances that have no parents.
-    // Instances that have parents will be updated down the hierarcy automatically.
+    // Update and collect all of the visible instances.
     for (let cell of this.grid.cells) {
       if (cell.isVisible(camera)) {
+        this.visibleCells += 1;
+
         for (let instance of cell.instances) {
-          if (instance.rendered && instance.isVisible(camera) && instance.updateFrame < frame) {
-            if (!instance.parent) {
+          if (instance.rendered && instance.cullFrame < frame && instance.isVisible(camera)) {
+            instance.cullFrame = frame;
+
+            if (instance.updateFrame < frame) {
               instance.update(dt, this);
             }
 
@@ -239,6 +242,7 @@ export default class Scene {
     instances.sort((a, b) => b.depth - a.depth);
 
     this.emittedObjectUpdater.update(dt);
+    this.updatedParticles = this.emittedObjectUpdater.objects.length;
   }
 
   /**
@@ -291,10 +295,8 @@ export default class Scene {
    * Clear all of the emitted objects in this scene.
    */
   clearEmittedObjects() {
-    for (let cell of this.grid.cells) {
-      for (let instance of cell.instances) {
-        instance.clearEmittedObjects();
-      }
+    for (let object of this.emittedObjectUpdater.objects) {
+      object.health = 0;
     }
   }
 }

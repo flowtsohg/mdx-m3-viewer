@@ -4,20 +4,20 @@
 export default class TextureMapper {
   /**
    * @param {Model} model
-   * @param {?Map<number, Texture>} textures
+   * @param {?Map<*, Texture>} textures
    */
   constructor(model, textures) {
     /** @member {Model} */
     this.model = model;
-    /** @member {Map<number, Texture} */
+    /** @member {Map<*, Texture} */
     this.textures = new Map(textures);
   }
 
   /**
-   * @param {number} index
+   * @param {*} key
    * @return {?Texture}
    */
-  get(index) {
-    return this.textures.get(index);
+  get(key) {
+    return this.textures.get(key);
   }
 }

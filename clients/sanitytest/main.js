@@ -24,6 +24,7 @@ viewer.gl.clearColor(0.7, 0.7, 0.7, 1);
 
 viewer.addHandler(handlers.mdx); // Will add BLP too.
 viewer.addHandler(handlers.geo);
+viewer.addHandler(handlers.dds);
 
 viewer.on('error', (target, error, reason) => {
   let parts = [error];
@@ -43,10 +44,28 @@ let scene = viewer.addScene();
 
 setupCamera(scene, 500);
 
+let allTests = [];
+let visibleTest = null;
+
 (function step() {
   requestAnimationFrame(step);
 
   viewer.updateAndRender();
+
+  if (visibleTest) {
+    let instance = visibleTest.instance;
+
+    if (instance.sequenceEnded) {
+      let sequences = instance.model.sequences.length;
+      let sequence = instance.sequence + 1;
+
+      if (sequence === sequences) {
+        sequence = 0;
+      }
+
+      instance.setSequence(sequence);
+    }
+  }
 }());
 
 document.getElementById('animation_toggle').addEventListener('click', () => {
@@ -149,7 +168,7 @@ class TestInstance {
    * @param {string} name
    * @param {Model|Texture} resource
    * @param {ModelInstance} instance
-   * @param {mdlx.Model|blp.Texture} parser
+   * @param {mdlx.Model|blp.Image} parser
    */
   constructor(name, resource, instance, parser) {
     this.name = name.toLowerCase();
@@ -197,14 +216,6 @@ class TestInstance {
     }
 
     this.instance.hide();
-  }
-
-  getModel() {
-    return this.instance.model;
-  }
-
-  getTexture() {
-    return this.instance.modelView.textures.get(null);
   }
 
   renderModelTest(name, model) {
@@ -298,9 +309,6 @@ class TestInstance {
   }
 }
 
-let allTests = [];
-let visibleTest = null;
-
 function showTest(test) {
   if (visibleTest) {
     visibleTest.hide();
@@ -362,6 +370,16 @@ function addModelTest(name, ext, buffer, pathSolver) {
       // If an external path solver is given, this is a Hive resource, and it will handle custom textures.
       return pathSolver(src);
     } else {
+      // REFORGED
+      // if (src.endsWith('.tif')) {
+      //   src = src.replace('.tif', '.dds');
+      // } else if (src.endsWith('.blp')) {
+      //   src = src.replace('.blp', '.dds');
+      // }
+
+      // return [localOrHive(src, 'reforged/_hd.w3mod'), src.substr(src.lastIndexOf('.')), true];
+
+      // NON-REFORGED
       return [localOrHive(src), src.substr(src.lastIndexOf('.')), true];
     }
   });
@@ -370,19 +388,8 @@ function addModelTest(name, ext, buffer, pathSolver) {
     let instance = viewerModel.addInstance();
 
     instance.setScene(scene);
-
     instance.setSequence(0);
     instance.setSequenceLoopMode(2);
-
-    instance.on('seqend', () => {
-      let sequence = instance.sequence + 1;
-
-      if (sequence === viewerModel.sequences.length) {
-        sequence = 0;
-      }
-
-      instance.setSequence(sequence);
-    });
 
     let test = addTest(name, viewerModel, instance, parser);
 
@@ -419,7 +426,7 @@ function* eachTextureTest() {
 // Given a new custom model, go over all of the textures, and see if any match any of the model's textures.
 // Matches are replaced with the matched textures.
 function tryToInjectCustomTextures(modelTest) {
-  let model = modelTest.getModel();
+  let model = modelTest.resource;
   let parser = modelTest.parser;
 
   for (let textureTest of eachTextureTest()) {
@@ -428,7 +435,7 @@ function tryToInjectCustomTextures(modelTest) {
 
       texture.whenLoaded().then(() => {
         if (!texture.ok && areSameFiles(parser.textures[i].path, textureTest.name)) {
-          model.textures[i] = textureTest.getTexture();
+          model.textures[i] = textureTest.resource;
 
           console.log(`NOTE: loaded ${textureTest.name} as a custom texture for model: ${modelTest.name}`);
         }
@@ -441,14 +448,14 @@ function tryToInjectCustomTextures(modelTest) {
 // Matches are replaced with this texture.
 function tryToLoadCustomTexture(textureTest) {
   for (let modelTest of eachModelTest()) {
-    const model = modelTest.getModel();
+    const model = modelTest.resource;
 
     for (let i = 0, l = model.textures.length; i < l; i++) {
       const modelTexture = model.textures[i];
 
       // If the texture failed to load, check if it matches the name.
       if (!modelTexture.ok && areSameFiles(modelTexture.fetchUrl, textureTest.name)) {
-        model.textures[i] = textureTest.getTexture();
+        model.textures[i] = textureTest.resource;
 
         console.log(`NOTE: loaded ${textureTest.name} as a custom texture for model: ${modelTest.name}`);
       }
@@ -457,7 +464,13 @@ function tryToLoadCustomTexture(textureTest) {
 }
 
 function addTextureTest(name, ext, buffer) {
-  let parser = new blp.Texture(buffer);
+  let parser = null;
+
+  if (ext === '.blp') {
+    parser = new blp.Image(buffer);
+  } else {
+    parser = buffer;
+  }
 
   let viewerTexture = viewer.load(parser, (src) => {
     return [src, ext, false]
@@ -465,7 +478,7 @@ function addTextureTest(name, ext, buffer) {
 
   let instance = textureModel.addInstance().uniformScale(128).rotate(quat.setAxisAngle([], [0, 0, 1], Math.PI / 2));
 
-  instance.setTexture(null, viewerTexture);
+  instance.setTexture(0, viewerTexture);
 
   instance.setScene(scene);
 
@@ -503,7 +516,7 @@ function addMapTest(buffer) {
 function onLocalFileLoaded(name, ext, buffer, pathSolver) {
   if (ext === '.mdx' || ext === '.mdl') {
     addModelTest(name, ext, buffer, pathSolver);
-  } else if (ext === '.blp') {
+  } else if (ext === '.blp' || ext === '.dds') {
     addTextureTest(name, ext, buffer);
   } else if (ext === '.w3x' || ext === '.w3m') {
     addMapTest(buffer);
@@ -515,7 +528,7 @@ function handleDrop(dataTransfer) {
     let name = file.name;
     let ext = name.substr(name.lastIndexOf('.')).toLowerCase();
 
-    if (ext === '.mdx' || ext === '.mdl' || ext === '.blp' || ext === '.w3x' || ext === '.w3m') {
+    if (ext === '.mdx' || ext === '.mdl' || ext === '.blp' || ext === '.w3x' || ext === '.w3m' || ext === '.dds') {
       let reader = new FileReader();
 
       reader.addEventListener('loadend', (e) => onLocalFileLoaded(name, ext, e.target.result));

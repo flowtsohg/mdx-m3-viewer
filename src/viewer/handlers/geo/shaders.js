@@ -1,50 +1,61 @@
-import shaders from '../../shaders';
-
 export default {
   vs: `
-    ${shaders.instanceId}
-    ${shaders.boneTexture}
     uniform mat4 u_mvp;
-    uniform vec2 u_uvOffset;
-    uniform vec2 u_uvScale;
 
+    // Instances
+    attribute vec3 a_m0;
+    attribute vec3 a_m1;
+    attribute vec3 a_m2;
+    attribute vec3 a_m3;
+    attribute vec3 a_faceColor;
+    attribute vec3 a_edgeColor;
+
+    // Vertices
     attribute vec3 a_position;
     attribute vec2 a_uv;
-    attribute vec2 a_uvScale;
-    attribute vec4 a_color;
 
     varying vec2 v_uv;
-    varying vec4 v_color;
+    varying vec3 v_faceColor;
+    varying vec3 v_edgeColor;
 
     void main() {
-      v_uv = a_uv * u_uvScale + u_uvOffset;
-      v_color = a_color;
+      v_uv = a_uv;
+      v_faceColor = a_faceColor;
+      v_edgeColor = a_edgeColor;
 
-      gl_Position = u_mvp * fetchMatrix(0.0, a_InstanceID) * vec4(a_position, 1.0);
+      gl_Position = u_mvp * mat4(a_m0, 0.0, a_m1, 0.0, a_m2, 0.0, a_m3, 1.0) * vec4(a_position, 1.0);
     }
   `,
   ps: `
     uniform sampler2D u_diffuseMap;
-    uniform float u_alphaMod;
     uniform bool u_isEdge;
     uniform bool u_hasTexture;
     uniform bool u_isBGR;
 
     varying vec2 v_uv;
-    varying vec4 v_color;
+    varying vec3 v_faceColor;
+    varying vec3 v_edgeColor;
 
     void main() {
-      gl_FragColor = v_color;
+      vec3 color;
 
-      if (u_hasTexture && !u_isEdge) {
-        vec4 texel = texture2D(u_diffuseMap, v_uv);
+      if (u_isEdge) {
+        color = v_edgeColor;
+      } else {
+        color = v_faceColor;
 
-        if (u_isBGR) {
-          texel = texel.bgra;
+        if (u_hasTexture) {
+          vec4 texel = texture2D(u_diffuseMap, v_uv);
+
+          if (u_isBGR) {
+            texel = texel.bgra;
+          }
+
+          color *= texel.rgb;
         }
-
-        gl_FragColor *= texel;
       }
+
+      gl_FragColor = vec4(color, 1.0);
     }
   `,
 };

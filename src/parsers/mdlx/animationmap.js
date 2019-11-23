@@ -5,7 +5,7 @@ export default {
   // Layer
   KMTF: ['TextureId', UintAnimation],
   KMTA: ['Alpha', FloatAnimation],
-  KMTE: ['Emissive', FloatAnimation], /// Maybe emissive
+  KMTE: ['EmissiveGain', FloatAnimation],
   // TextureAnimation
   KTAT: ['Translation', Vector3Animation],
   KTAR: ['Rotation', Vector4Animation],
@@ -41,8 +41,8 @@ export default {
   KP2L: ['Latitude', FloatAnimation],
   KP2G: ['Gravity', FloatAnimation],
   KP2E: ['EmissionRate', FloatAnimation],
-  KP2N: ['Length', FloatAnimation],
-  KP2W: ['Width', FloatAnimation],
+  KP2N: ['Width', FloatAnimation],
+  KP2W: ['Length', FloatAnimation],
   KP2V: ['Visibility', FloatAnimation],
   // RibbonEmitter
   KRHA: ['HeightAbove', FloatAnimation],
@@ -55,8 +55,11 @@ export default {
   KCTR: ['Translation', Vector3Animation],
   KTTR: ['Translation', Vector3Animation],
   KCRL: ['Rotation', UintAnimation],
-  // Corn
-  KPPA: ['Alpha', FloatAnimation], /// Maybe alpha
-  KPPE: ['EmissionRate', FloatAnimation], /// Maybe emission rate
-  KPPV: ['Visibility', FloatAnimation], /// Maybe visibility
+  // CornEmitter
+  KPPA: ['Alpha', FloatAnimation],
+  KPPC: ['Color', Vector3Animation],
+  KPPE: ['EmissionRate', FloatAnimation],
+  KPPL: ['LifeSpan', FloatAnimation],
+  KPPS: ['Speed', FloatAnimation],
+  KPPV: ['Visibility', FloatAnimation],
 };

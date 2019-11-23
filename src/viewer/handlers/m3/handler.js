@@ -1,7 +1,6 @@
 import dds from '../dds/handler';
 import tga from '../tga/handler';
 import Model from './model';
-import Bucket from './bucket';
 import ModelInstance from './modelinstance';
 import shaders from './shaders';
 
@@ -19,7 +18,7 @@ function initializeTeamColors(viewer, shader) {
   for (let i = 0; i < 14; i++) {
     let color = teamColors[i];
 
-    gl.uniform3fv(shader.uniforms['u_teamColors[' + i + ']'], [color[0] / 255, color[1] / 255, color[2] / 255]);
+    gl.uniform3f(shader.uniforms['u_teamColors[' + i + ']'], color[0] / 255, color[1] / 255, color[2] / 255);
   }
 }
 
@@ -47,9 +46,8 @@ export default {
 
   extensions: [['.m3', 'arrayBuffer']],
   Constructor: Model,
-  Bucket: Bucket,
   Instance: [ModelInstance],
-  lightPosition: new Float32Array([0, 0, 10000]),
 
+  lightPosition: new Float32Array([0, 0, 10000]),
   shaders: [],
 };

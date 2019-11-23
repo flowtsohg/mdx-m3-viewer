@@ -42,19 +42,11 @@ function selectSequence(type, sequences) {
   return sequence;
 }
 
-function standSequence(target) {
+export default function randomStandSequence(target) {
   let sequences = target.model.sequences;
   let sequence = selectSequence('stand', sequences);
 
   if (sequence) {
     target.setSequence(sequence.index);
   }
-};
-
-export default function standOnRepeat(target) {
-  target.model.whenLoaded()
-    .then((model) => {
-      standSequence(target);
-      target.on('seqend', standSequence);
-    });
-};
+}

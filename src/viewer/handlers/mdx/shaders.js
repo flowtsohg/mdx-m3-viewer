@@ -4,11 +4,10 @@ export default {
   vsSimple: `
     uniform mat4 u_mvp;
 
-    //attribute mat4 a_transform;
-    attribute vec4 a_m0;
-    attribute vec4 a_m1;
-    attribute vec4 a_m2;
-    attribute vec4 a_m3;
+    attribute vec3 a_m0;
+    attribute vec3 a_m1;
+    attribute vec3 a_m2;
+    attribute vec3 a_m3;
     attribute vec3 a_position;
     attribute vec2 a_uv;
 
@@ -17,7 +16,7 @@ export default {
     void main() {
       v_uv = a_uv;
 
-      gl_Position = u_mvp * mat4(a_m0, a_m1, a_m2, a_m3) * vec4(a_position, 1.0);
+      gl_Position = u_mvp * mat4(a_m0, 0.0, a_m1, 0.0, a_m2, 0.0, a_m3, 1.0) * vec4(a_position, 1.0);
     }
   `,
   fsSimple: `
@@ -40,13 +39,13 @@ export default {
   vsComplex: `
     ${shaders.boneTexture}
 
-    void transform(inout vec3 position, inout vec3 normal, float boneNumber, vec4 bones, float instance) {
+    void transform(inout vec3 position, inout vec3 normal, float boneNumber, vec4 bones) {
       // For the broken models out there, since the game supports this.
       if (boneNumber > 0.0) {
-        mat4 b0 = fetchMatrix(bones[0], instance);
-        mat4 b1 = fetchMatrix(bones[1], instance);
-        mat4 b2 = fetchMatrix(bones[2], instance);
-        mat4 b3 = fetchMatrix(bones[3], instance);
+        mat4 b0 = fetchMatrix(bones[0], 0.0);
+        mat4 b1 = fetchMatrix(bones[1], 0.0);
+        mat4 b2 = fetchMatrix(bones[2], 0.0);
+        mat4 b3 = fetchMatrix(bones[3], 0.0);
         vec4 p = vec4(position, 1.0);
         vec4 n = vec4(normal, 0.0);
 
@@ -78,10 +77,10 @@ export default {
       vec3 position = a_position;
       vec3 normal = a_normal;
 
-      transform(position, normal, a_boneNumber, a_bones, 0.0);
+      transform(position, normal, a_boneNumber, a_bones);
 
       v_uv = a_uv;
-      v_color = (u_vertexColor / 255.0) * (u_geosetColor.bgra / 255.0) * vec4(1.0, 1.0, 1.0, u_layerAlpha / 255.0);
+      v_color = u_vertexColor * u_geosetColor.bgra * vec4(1.0, 1.0, 1.0, u_layerAlpha);
       v_uvTransRot = vec4(u_uvTrans, u_uvRot);
       v_uvScale = u_uvScale;
 
@@ -110,138 +109,6 @@ export default {
 
       // Scale animation
       uv = v_uvScale * (uv - 0.5) + 0.5;
-
-      vec4 texel = texture2D(u_texture, uv);
-      vec4 color = texel * v_color;
-
-      // 1bit Alpha
-      if (u_filterMode == 1.0 && color.a < 0.75) {
-        discard;
-      }
-
-      // "Close to 0 alpha"
-      if (u_filterMode >= 5.0 && color.a < 0.02) {
-        discard;
-      }
-
-      // if (!u_unshaded) {
-      //   color *= clamp(dot(v_normal, lightDirection) + 0.45, 0.0, 1.0);
-      // }
-
-      gl_FragColor = color;
-    }
-  `,
-  vs: `
-    ${shaders.instanceId}
-    ${shaders.boneTexture}
-
-    uniform mat4 u_mvp;
-
-    attribute vec3 a_position;
-    attribute vec3 a_normal;
-    attribute vec2 a_uv;
-    attribute vec4 a_bones;
-    attribute float a_boneNumber;
-    attribute float a_teamColor;
-    attribute vec4 a_vertexColor;
-    attribute vec4 a_geosetColor;
-    attribute float a_layerAlpha;
-    attribute vec4 a_uvTransRot;
-    attribute vec3 a_uvScaleSprite;
-
-    varying vec3 v_normal;
-    varying vec2 v_uv;
-    varying float v_teamColor;
-    varying vec4 v_color;
-    varying vec4 v_uvTransRot;
-    varying vec3 v_uvScaleSprite;
-
-    void transform(inout vec3 position, inout vec3 normal, float boneNumber, vec4 bones, float instance) {
-      // For the broken models out there, since the game supports this.
-      if (boneNumber > 0.0) {
-        mat4 b0 = fetchMatrix(bones[0], instance);
-        mat4 b1 = fetchMatrix(bones[1], instance);
-        mat4 b2 = fetchMatrix(bones[2], instance);
-        mat4 b3 = fetchMatrix(bones[3], instance);
-        vec4 p = vec4(position, 1.0);
-        vec4 n = vec4(normal, 0.0);
-
-        position = vec3(b0 * p + b1 * p + b2 * p + b3 * p) / boneNumber;
-        normal = normalize(vec3(b0 * n + b1 * n + b2 * n + b3 * n));
-      }
-    }
-
-    void main() {
-      vec3 position = a_position;
-      vec3 normal = a_normal;
-
-      transform(position, normal, a_boneNumber, a_bones, a_InstanceID);
-
-      v_uv = a_uv;
-      v_uvTransRot = a_uvTransRot;
-      v_uvScaleSprite = a_uvScaleSprite;
-      v_normal = normal;
-      v_teamColor = a_teamColor;
-      v_color = a_vertexColor * a_geosetColor.bgra;
-      v_color.a *= a_layerAlpha;
-
-      if (a_geosetColor.a > 0.0 && a_layerAlpha > 0.0) {
-        gl_Position = u_mvp * vec4(position, 1.0);
-      } else {
-        gl_Position = vec4(0.0);
-      }
-    }
-  `,
-  fs: `
-    ${shaders.quat_transform}
-
-    uniform sampler2D u_texture;
-    uniform float u_filterMode;
-    // uniform bool u_unshaded;
-    uniform bool u_isTeamColor;
-    uniform vec2 u_uvScale;
-    uniform bool u_hasSlotAnim;
-    uniform bool u_hasTranslationAnim;
-    uniform bool u_hasRotationAnim;
-    uniform bool u_hasScaleAnim;
-
-    varying vec3 v_normal;
-    varying vec2 v_uv;
-    varying float v_teamColor;
-    varying vec4 v_color;
-    varying vec4 v_uvTransRot;
-    varying vec3 v_uvScaleSprite;
-
-    // const vec3 lightDirection = normalize(vec3(-0.3, -0.3, 0.25));
-
-    void main() {
-      vec2 uv;
-
-      if (u_isTeamColor) {
-        uv = vec2(v_teamColor / 14.0, 0.0) + vec2(v_uv.x / 14.0, v_uv.y);
-      } else {
-        uv = v_uv;
-
-        // Translation animation
-        if (u_hasTranslationAnim) {
-          uv += v_uvTransRot.xy;
-        }
-
-        // Rotation animation
-        if (u_hasRotationAnim) {
-          uv = quat_transform(v_uvTransRot.zw, uv - 0.5) + 0.5;
-        }
-
-        // Scale animation
-        if (u_hasScaleAnim) {
-          uv = v_uvScaleSprite.x * (uv - 0.5) + 0.5;
-        }
-
-        // Sprite animation
-        if (u_hasSlotAnim) {
-          uv = (v_uvScaleSprite.yz + fract(uv)) * u_uvScale;
-        }
-      }
 
       vec4 texel = texture2D(u_texture, uv);
       vec4 color = texel * v_color;
@@ -409,16 +276,16 @@ export default {
       float bottom = top + 1.0;
 
       if (a_position == 0.0) {
-        v_texcoord = vec2(left, top);
+        v_texcoord = vec2(right, top);
         position = a_p0;
       } else if (a_position == 1.0) {
-        v_texcoord = vec2(left, bottom);
+        v_texcoord = vec2(right, bottom);
         position = a_p1;
       } else if (a_position == 2.0) {
-        v_texcoord = vec2(right, bottom);
+        v_texcoord = vec2(left, bottom);
         position = a_p2;
       } else if (a_position == 3.0) {
-        v_texcoord = vec2(right, top);
+        v_texcoord = vec2(left, top);
         position = a_p3;
       }
 

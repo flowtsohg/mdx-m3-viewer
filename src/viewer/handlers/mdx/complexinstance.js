@@ -42,9 +42,10 @@ export default class MdxComplexInstance extends ModelInstance {
     this.counter = 0; // Global sequences
     this.sequence = -1;
     this.sequenceLoopMode = 0;
+    this.sequenceEnded = false;
 
     this.teamColor = 0;
-    this.vertexColor = new Uint8Array([255, 255, 255, 255]);
+    this.vertexColor = new Float32Array([1, 1, 1, 1]);
 
     this.allowParticleSpawn = false; // Particles do not spawn when the sequence is -1, or when the sequence finished and it's not repeating
 
@@ -67,7 +68,7 @@ export default class MdxComplexInstance extends ModelInstance {
     let model = this.model;
 
     for (let i = 0, l = model.geosets.length; i < l; i++) {
-      this.geosetColors[i] = new Uint8Array(4);
+      this.geosetColors[i] = new Float32Array(4);
     }
 
     for (let i = 0, l = model.layers.length; i < l; i++) {
@@ -193,25 +194,20 @@ export default class MdxComplexInstance extends ModelInstance {
    * Clear all of the emitted objects that belong to this instance.
    */
   clearEmittedObjects() {
-    /// TODO: Update this.
-    if (this.modelView) {
-      for (let sceneData of this.modelView.sceneData.values()) {
-        for (let emitter of sceneData.particleEmitters) {
-          emitter.clear(this);
-        }
+    for (let emitter of this.particleEmitters) {
+      emitter.clear();
+    }
 
-        for (let emitter of sceneData.particleEmitters2) {
-          emitter.clear(this);
-        }
+    for (let emitter of this.particleEmitters2) {
+      emitter.clear();
+    }
 
-        for (let emitter of sceneData.ribbonEmitters) {
-          emitter.clear(this);
-        }
+    for (let emitter of this.ribbonEmitters) {
+      emitter.clear();
+    }
 
-        for (let emitter of sceneData.eventObjectEmitters) {
-          emitter.clear(this);
-        }
-      }
+    for (let emitter of this.eventObjectEmitters) {
+      emitter.clear();
     }
   }
 
@@ -376,16 +372,16 @@ export default class MdxComplexInstance extends ModelInstance {
       if (forced || geoset.variants.color[sequence]) {
         geoset.getColor(colorHeap, this);
 
-        geosetColor[0] = colorHeap[0] * 255;
-        geosetColor[1] = colorHeap[1] * 255;
-        geosetColor[2] = colorHeap[2] * 255;
+        geosetColor[0] = colorHeap[0];
+        geosetColor[1] = colorHeap[1];
+        geosetColor[2] = colorHeap[2];
       }
 
       // Alpha
       if (forced || geoset.variants.alpha[sequence]) {
         geoset.getAlpha(alphaHeap, this);
 
-        geosetColor[3] = alphaHeap[0] * 255;
+        geosetColor[3] = alphaHeap[0];
       }
     }
 
@@ -398,7 +394,7 @@ export default class MdxComplexInstance extends ModelInstance {
       if (forced || layer.variants.alpha[sequence]) {
         layer.getAlpha(alphaHeap, this);
 
-        layerAlphas[i] = alphaHeap[0] * 255;
+        layerAlphas[i] = alphaHeap[0];
       }
 
       // UV translation animation
@@ -465,25 +461,25 @@ export default class MdxComplexInstance extends ModelInstance {
       let uniforms = shader.uniforms;
       let layerTexture = this.layerTextures[layerIndex];
       let uvAnim = this.uvAnims[layerIndex];
-      let vertexColor = this.vertexColor;
 
-      viewer.webgl.useShaderProgram(shader);
+      shader.use();
 
       gl.uniformMatrix4fv(uniforms.u_mvp, false, scene.camera.worldProjectionMatrix);
+
+      gl.uniform4fv(uniforms.u_vertexColor, this.vertexColor);
+      gl.uniform4fv(uniforms.u_geosetColor, geosetColor);
+
+      gl.uniform1f(uniforms.u_layerAlpha, layerAlpha);
+
+      gl.uniform2f(uniforms.u_uvTrans, uvAnim[0], uvAnim[1]);
+      gl.uniform2f(uniforms.u_uvRot, uvAnim[2], uvAnim[3]);
+      gl.uniform1f(uniforms.u_uvScale, uvAnim[4]);
 
       gl.activeTexture(gl.TEXTURE15);
       gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
       gl.uniform1i(uniforms.u_boneMap, 15);
       gl.uniform1f(uniforms.u_vectorSize, this.vectorSize);
       gl.uniform1f(uniforms.u_rowSize, 1);
-
-      gl.uniform4f(uniforms.u_vertexColor, vertexColor[0], vertexColor[1], vertexColor[2], vertexColor[3]);
-      gl.uniform4f(uniforms.u_geosetColor, geosetColor[0], geosetColor[1], geosetColor[2], geosetColor[3]);
-      gl.uniform1f(uniforms.u_layerAlpha, layerAlpha);
-
-      gl.uniform2f(uniforms.u_uvTrans, uvAnim[0], uvAnim[1]);
-      gl.uniform2f(uniforms.u_uvRot, uvAnim[2], uvAnim[3]);
-      gl.uniform1f(uniforms.u_uvScale, uvAnim[4]);
 
       layer.bind(shader);
 
@@ -495,11 +491,11 @@ export default class MdxComplexInstance extends ModelInstance {
       } else if (replaceable === 2) {
         texture = model.handler.teamGlows[this.teamColor];
       } else {
-        texture = this.textureMapper.get(layerTexture) || model.textures[layerTexture];
+        texture = model.textures[layerTexture];
       }
 
       gl.uniform1i(uniforms.u_texture, 0);
-      viewer.webgl.bindTexture(texture, 0);
+      viewer.webgl.bindTexture(this.textureMapper.get(texture) || texture, 0);
 
       let shallowGeoset = model.shallowGeosets[geoset.index];
 
@@ -559,7 +555,9 @@ export default class MdxComplexInstance extends ModelInstance {
           this.allowParticleSpawn = false;
         }
 
-        this.emit('seqend', this);
+        this.sequenceEnded = true;
+      } else {
+        this.sequenceEnded = false;
       }
     }
 

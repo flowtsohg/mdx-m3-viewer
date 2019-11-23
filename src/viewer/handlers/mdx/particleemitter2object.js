@@ -88,7 +88,7 @@ export default class ParticleEmitter2Object extends GenericObject {
    * @return {number}
    */
   getWidth(out, instance) {
-    return this.getFloatValue(out, 'KP2W', instance, this.width);
+    return this.getFloatValue(out, 'KP2N', instance, this.width);
   }
 
   /**
@@ -97,7 +97,7 @@ export default class ParticleEmitter2Object extends GenericObject {
    * @return {number}
    */
   getLength(out, instance) {
-    return this.getFloatValue(out, 'KP2N', instance, this.length);
+    return this.getFloatValue(out, 'KP2W', instance, this.length);
   }
 
   /**

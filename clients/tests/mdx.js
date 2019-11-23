@@ -53,7 +53,7 @@ let mdxTests = {
       test(viewer, scene, camera, model) {
         camera.moveToAndFace([150, 0, 45], [0, 0, 45], [0, 0, 1]);
 
-        let instance = model.addInstance().setVertexColor([255, 0, 0, 255]);
+        let instance = model.addInstance().setVertexColor([1, 0, 0, 1]);
 
         scene.addInstance(instance);
       },
@@ -67,7 +67,7 @@ let mdxTests = {
       test(viewer, scene, camera, model) {
         camera.moveToAndFace([150, 0, 45], [0, 0, 45], [0, 0, 1]);
 
-        let instance = model.addInstance().setVertexColor([255, 0, 0, 255]).setTeamColor(1);
+        let instance = model.addInstance().setVertexColor([1, 0, 0, 1]).setTeamColor(1);
 
         scene.addInstance(instance);
       },
@@ -338,7 +338,7 @@ let mdxTests = {
 
         scene.addInstance(instance);
 
-        for (let i = 0; i < 22; i++) {
+        for (let i = 0; i < 24; i++) {
           viewer.update();
         }
       },

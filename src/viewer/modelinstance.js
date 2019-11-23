@@ -1,10 +1,10 @@
 import {testSphere, distanceToPlane3} from '../common/gl-matrix-addon';
-import {EventNode} from './node';
+import {Node} from './node';
 
 /**
  * A model instance.
  */
-export default class ModelInstance extends EventNode {
+export default class ModelInstance extends Node {
   /**
    * @param {Model} model
    */
@@ -27,6 +27,8 @@ export default class ModelInstance extends EventNode {
     this.depth = 0;
     /** @member {number} */
     this.updateFrame = 0;
+    /** @member {number} */
+    this.cullFrame = 0;
     /** @member {Model} */
     this.model = model;
     /** @member {TextureMapper} */

@@ -147,6 +147,8 @@ export default class IndexEntry {
       this.entries = reader.readUint16Array(entriesCount);
     } else if (tag === 'U32_') {
       this.entries = reader.readUint32Array(entriesCount);
+    } else if (tag === 'I16_') {
+      this.entries = reader.readInt16Array(entriesCount);
     } else if (tag === 'I32_') {
       this.entries = reader.readInt32Array(entriesCount);
     } else if (tag === 'REAL') {

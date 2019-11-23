@@ -26,11 +26,14 @@ export default class M3Layer {
    * @param {number} op
    */
   constructor(material, layer, type, op) {
+    let model = material.model;
+
+    this.model = model;
+
     // Since Gloss doesn't exist in all versions
     if (layer) {
       layer = layer.get();
 
-      let model = material.model;
       let pathSolver = model.pathSolver;
 
       this.active = false;
@@ -97,10 +100,10 @@ export default class M3Layer {
   }
 
   /**
-   * @param {Bucket} bucket
    * @param {ShaderProgram} shader
+   * @param {TextureMapper} textureMapper
    */
-  bind(bucket, shader) {
+  bind(shader, textureMapper) {
     let gl = this.gl;
     let uniformMap = this.uniformMap;
     let uniforms = shader.uniforms;
@@ -109,8 +112,12 @@ export default class M3Layer {
     gl.uniform1f(uniforms[uniformMap.enabled], active);
 
     if (active) {
-      gl.uniform1i(uniforms[uniformMap.map], this.textureUnit);
-      bucket.modelView.bindTexture(this.texture, this.textureUnit);
+      let texture = this.texture;
+      let textureUnit = this.textureUnit;
+
+      gl.uniform1i(uniforms[uniformMap.map], textureUnit);
+
+      this.model.viewer.webgl.bindTexture(textureMapper.get(texture) || texture, textureUnit);
 
       gl.uniform1f(uniforms[uniformMap.op], this.op);
       gl.uniform1f(uniforms[uniformMap.channels], this.colorChannels);

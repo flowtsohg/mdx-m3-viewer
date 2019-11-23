@@ -3,7 +3,6 @@ import * as glMatrixAddon from './gl-matrix-addon';
 import * as math from './math';
 import * as canvas from './canvas';
 import * as geometry from './geometry';
-import * as download from './download';
 import BinaryStream from './binarystream';
 import BitStream from './bitstream';
 
@@ -13,7 +12,6 @@ export default {
   math,
   canvas,
   geometry,
-  download,
   BinaryStream,
   BitStream,
 };

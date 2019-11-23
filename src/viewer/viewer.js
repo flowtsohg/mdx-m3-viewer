@@ -1,5 +1,4 @@
 import EventEmitter from 'events';
-import {powerOfTwo} from '../common/math';
 import fetchDataType from '../common/fetchdatatype';
 import mapequals from '../common/mapequals';
 import WebGL from './gl/gl';
@@ -52,29 +51,16 @@ export default class ModelViewer extends EventEmitter {
     this.scenes = [];
 
     /** @member {number} */
-    this.renderedCells = 0;
+    this.visibleCells = 0;
     /** @member {number} */
-    this.renderedBuckets = 0;
+    this.visibleInstances = 0;
     /** @member {number} */
-    this.renderedInstances = 0;
-    /** @member {number} */
-    this.renderedParticles = 0;
+    this.updatedParticles = 0;
 
     /** @member {number} */
     this.frame = 0;
 
     let gl = this.gl;
-
-    /**
-     * The instances buffer is used instead of gl_InstanceID, which isn't defined in WebGL shaders.
-     * It's a simple buffer of indices, [0, 1, ..., instancesCount - 1].
-     * It grows automatically when binding with bindInstancesBuffer()
-     *
-     * @member {WebGLBuffer}
-     */
-    this.instancesBuffer = gl.createBuffer();
-    /** @member {number} */
-    this.instancesCount = 0;
 
     /**
      * A simple buffer containing the bytes [0, 1, 2, 0, 2, 3].
@@ -134,58 +120,6 @@ export default class ModelViewer extends EventEmitter {
     });
 
     this.addHandler(imageTextureHandler);
-  }
-
-  /**
-   * @param {ModelInstance} instance
-   * @return {TextureMapper}
-   */
-  baseTextureMapper(instance) {
-    let model = instance.model;
-    let textureMappers = this.textureMappers;
-
-    if (!textureMappers.has(model)) {
-      textureMappers.set(model, []);
-    }
-
-    let mappers = textureMappers.get(model);
-
-    if (!mappers.length) {
-      mappers[0] = new TextureMapper(model);
-    }
-
-    return mappers[0];
-  }
-
-  /**
-   * @param {ModelInstance} instance
-   * @param {number} index
-   * @param {?Texture} texture
-   * @return {TextureMapper}
-   */
-  changeTextureMapper(instance, index, texture) {
-    let map = new Map(instance.textureMapper.textures);
-
-    if (texture instanceof Texture) {
-      map.set(index, texture);
-    } else {
-      map.delete(index);
-    }
-
-    let model = instance.model;
-    let mappers = this.textureMappers.get(model);
-
-    for (let mapper of mappers) {
-      if (mapequals(mapper.textures, map)) {
-        return mapper;
-      }
-    }
-
-    let mapper = new TextureMapper(model, map);
-
-    mappers.push(mapper);
-
-    return mapper;
   }
 
   /**
@@ -552,22 +486,20 @@ export default class ModelViewer extends EventEmitter {
    * Update all of the scenes, which includes updating their cameras, audio context if one exists, and all of the instances they hold.
    */
   update() {
+    let dt = this.frameTime * 0.001;
+
     this.frame += 1;
 
-    this.renderedCells = 0;
-    this.renderedBuckets = 0;
-    this.renderedInstances = 0;
-    this.renderedParticles = 0;
-
-    let dt = this.frameTime * 0.001;
+    this.visibleCells = 0;
+    this.visibleInstances = 0;
+    this.updatedParticles = 0;
 
     for (let scene of this.scenes) {
       scene.update(dt);
 
-      this.renderedCells += scene.renderedCells;
-      this.renderedBuckets += scene.renderedBuckets;
-      this.renderedInstances += scene.renderedInstances;
-      this.renderedParticles += scene.renderedParticles;
+      this.visibleCells += scene.visibleCells;
+      this.visibleInstances += scene.visibleInstances;
+      this.updatedParticles += scene.updatedParticles;
     }
   }
 
@@ -611,34 +543,6 @@ export default class ModelViewer extends EventEmitter {
   }
 
   /**
-   * Bind the instances buffer.
-   * This is used as a shared buffer for all instanced rendering.
-   *
-   * If given an amount of instances, and it is bigger than the current amount of instances, the buffer will grow.
-   *
-   * @param {?number} instances
-   */
-  bindInstancesBuffer(instances) {
-    let gl = this.gl;
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.instancesBuffer);
-
-    if (instances > this.instancesCount) {
-      instances = powerOfTwo(instances);
-
-      let data = new Uint16Array(instances);
-
-      for (let i = 0; i < instances; i++) {
-        data[i] = i;
-      }
-
-      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-
-      this.instancesCount = instances;
-    }
-  }
-
-  /**
    * A shortcut to register the standard events to the given resource for the viewer, so as to forward events to the client.
    *
    * @param {Resource} resource
@@ -654,5 +558,57 @@ export default class ModelViewer extends EventEmitter {
     for (let scene of this.scenes) {
       scene.clearEmittedObjects();
     }
+  }
+
+  /**
+   * @param {ModelInstance} instance
+   * @return {TextureMapper}
+   */
+  baseTextureMapper(instance) {
+    let model = instance.model;
+    let textureMappers = this.textureMappers;
+
+    if (!textureMappers.has(model)) {
+      textureMappers.set(model, []);
+    }
+
+    let mappers = textureMappers.get(model);
+
+    if (!mappers.length) {
+      mappers[0] = new TextureMapper(model);
+    }
+
+    return mappers[0];
+  }
+
+  /**
+   * @param {ModelInstance} instance
+   * @param {*} key
+   * @param {?Texture} texture
+   * @return {TextureMapper}
+   */
+  changeTextureMapper(instance, key, texture) {
+    let map = new Map(instance.textureMapper.textures);
+
+    if (texture instanceof Texture) {
+      map.set(key, texture);
+    } else {
+      map.delete(key);
+    }
+
+    let model = instance.model;
+    let mappers = this.textureMappers.get(model);
+
+    for (let mapper of mappers) {
+      if (mapequals(mapper.textures, map)) {
+        return mapper;
+      }
+    }
+
+    let mapper = new TextureMapper(model, map);
+
+    mappers.push(mapper);
+
+    return mapper;
   }
 }
