@@ -440,88 +440,21 @@ export default class MdxComplexInstance extends ModelInstance {
     gl.texSubImage2D(gl.TEXTURE_2D, 0, 4, 0, this.boneTextureWidth - 4, 1, gl.RGBA, gl.FLOAT, this.worldMatrices);
   }
 
-
   /**
-   * @param {Batch} batch
-   * @param {Shader} shader
+   * @override
    */
-  renderBatch(batch, shader) {
-    let geoset = batch.geoset;
-    let layer = batch.layer;
-    let geosetIndex = geoset.index;
-    let layerIndex = layer.index;
-    let geosetColor = this.geosetColors[geosetIndex];
-    let layerAlpha = this.layerAlphas[layerIndex];
-
-    if (geosetColor[3] > 0 && layerAlpha > 0) {
-      let scene = this.scene;
-      let model = this.model;
-      let viewer = model.viewer;
-      let gl = viewer.gl;
-      let uniforms = shader.uniforms;
-      let layerTexture = this.layerTextures[layerIndex];
-      let uvAnim = this.uvAnims[layerIndex];
-
-      shader.use();
-
-      gl.uniformMatrix4fv(uniforms.u_mvp, false, scene.camera.worldProjectionMatrix);
-
-      gl.uniform4fv(uniforms.u_vertexColor, this.vertexColor);
-      gl.uniform4fv(uniforms.u_geosetColor, geosetColor);
-
-      gl.uniform1f(uniforms.u_layerAlpha, layerAlpha);
-
-      gl.uniform2f(uniforms.u_uvTrans, uvAnim[0], uvAnim[1]);
-      gl.uniform2f(uniforms.u_uvRot, uvAnim[2], uvAnim[3]);
-      gl.uniform1f(uniforms.u_uvScale, uvAnim[4]);
-
-      gl.activeTexture(gl.TEXTURE15);
-      gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
-      gl.uniform1i(uniforms.u_boneMap, 15);
-      gl.uniform1f(uniforms.u_vectorSize, this.vectorSize);
-      gl.uniform1f(uniforms.u_rowSize, 1);
-
-      layer.bind(shader);
-
-      let replaceable = model.replaceables[layerTexture];
-      let texture;
-
-      if (replaceable === 1) {
-        texture = model.handler.teamColors[this.teamColor];
-      } else if (replaceable === 2) {
-        texture = model.handler.teamGlows[this.teamColor];
-      } else {
-        texture = model.textures[layerTexture];
-      }
-
-      gl.uniform1i(uniforms.u_texture, 0);
-      viewer.webgl.bindTexture(this.textureMapper.get(texture) || texture, 0);
-
-      let shallowGeoset = model.shallowGeosets[geoset.index];
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, model.__webglArrayBuffer);
-      shallowGeoset.bind(shader, layer.coordId); // Vertices.
-
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.__webglElementBuffer);
-      shallowGeoset.render();
+  renderOpaque() {
+    for (let group of this.model.opaqueGroups) {
+      group.render(this);
     }
   }
 
   /**
    * @override
    */
-  renderOpaque() {
-    this.model.groups[0].render(this);
-  }
-
-  /**
-   * @override
-   */
   renderTranslucent() {
-    let groups = this.model.groups;
-
-    for (let i = 1, l = groups.length; i < l; i++) {
-      groups[i].render(this);
+    for (let group of this.model.translucentGroups) {
+      group.render(this);
     }
   }
 

@@ -2,179 +2,30 @@ import {vec3} from 'gl-matrix';
 import {VEC3_ONE} from '../../../common/gl-matrix-addon';
 
 /**
- * A shallow geoset.
- */
-export class ShallowGeoset {
-  /**
-   * @param {MdxModel} model
-   * @param {Array<number>} offsets
-   * @param {number} uvSetSize
-   * @param {Uint16Array} elements
-   */
-  constructor(model, offsets, uvSetSize, elements) {
-    this.model = model;
-    this.offsets = offsets;
-    this.uvSetSize = uvSetSize;
-    this.elements = elements;
-  }
-
-  /**
-   * @param {ShaderProgram} shader
-   * @param {number} coordId
-   */
-  bind(shader, coordId) {
-    let gl = this.model.viewer.gl;
-    let offsets = this.offsets;
-    let attribs = shader.attribs;
-
-    gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, 0, offsets[0]);
-    gl.vertexAttribPointer(attribs.a_normal, 3, gl.FLOAT, false, 0, offsets[1]);
-    gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 0, offsets[2] + coordId * this.uvSetSize);
-    gl.vertexAttribPointer(attribs.a_bones, 4, gl.UNSIGNED_BYTE, false, 0, offsets[3]);
-    gl.vertexAttribPointer(attribs.a_boneNumber, 1, gl.UNSIGNED_BYTE, false, 0, offsets[4]);
-  }
-
-  /**
-   * @param {ShaderProgram} shader
-   * @param {number} coordId
-   */
-  bindSimple(shader, coordId) {
-    let gl = this.model.viewer.gl;
-    let offsets = this.offsets;
-    let attribs = shader.attribs;
-
-    gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, 0, offsets[0]);
-    gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 0, offsets[2] + coordId * this.uvSetSize);
-  }
-
-  /**
-   *
-   */
-  render() {
-    let gl = this.model.viewer.gl;
-
-    gl.drawElements(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.offsets[5]);
-  }
-
-  /**
-   * @param {number} instances
-   */
-  renderInstanced(instances) {
-    let gl = this.model.viewer.gl;
-
-    gl.extensions.instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.offsets[5], instances);
-  }
-}
-
-/**
  * A geoset.
  */
-export class Geoset {
+export default class Geoset {
   /**
-   * @param {MdxModel} model
-   * @param {MdxParserGeoset} geoset
+   * @param {Model} model
    * @param {number} index
+   * @param {number} positionOffset
+   * @param {number} normalOffset
+   * @param {number} uvOffset
+   * @param {number} skinOffset
+   * @param {number} faceOffset
+   * @param {number} vertices
+   * @param {number} elements
    */
-  constructor(model, geoset, index) {
-    let positions = geoset.vertices;
-    let normals = geoset.normals;
-    let textureCoordinateSets = geoset.uvSets;
-    let uvsetSize = textureCoordinateSets[0].length;
-    let vertices = positions.length / 3;
-    let uvs;
-    let boneIndices = new Uint8Array(vertices * 4);
-    // The bone numbers array is the only thing not always in a 4 byte boundary.
-    // When it isn't, errors ensue.
-    // Therefore, always ensure it is some multiple of 4 by adding padding if needed.
-    let boneNumbers = new Uint8Array(Math.ceil(vertices / 4) * 4);
-    let vertexGroups = geoset.vertexGroups;
-    let matrixGroups = geoset.matrixGroups;
-    let matrixIndices = geoset.matrixIndices;
-    let slices = [];
-
-    // Make one typed array for the texture coordinates, in case there are multiple ones
-    if (textureCoordinateSets.length > 1) {
-      uvs = new Float32Array(textureCoordinateSets.length * uvsetSize);
-
-      for (let i = 0, l = textureCoordinateSets.length; i < l; i++) {
-        uvs.set(textureCoordinateSets[i], i * uvsetSize);
-      }
-    } else {
-      uvs = textureCoordinateSets[0];
-    }
-
-    let v800 = false;
-    let v900 = false;
-    let softwareSkinning = false;
-
-    let skin = geoset.skin;
-    if (skin.length) {
-      v900 = true;
-
-      // Not real handling yet.
-      for (let i = 0, l = skin.length / 8; i < l; i++) {
-        let b0 = skin[i * 8 + 0];
-        let b1 = skin[i * 8 + 1];
-        let b2 = skin[i * 8 + 2];
-        let b3 = skin[i * 8 + 3];
-
-        boneIndices[i * 4 + 0] = b0;
-        boneIndices[i * 4 + 1] = b1;
-        boneIndices[i * 4 + 2] = b2;
-        boneIndices[i * 4 + 3] = b3;
-
-        boneNumbers[i] = 4;
-      }
-
-      this.tangents = tangents;
-    } else {
-      v800 = true;
-
-      // Parse the bone indices by slicing the matrix groups
-      for (let i = 0, l = matrixGroups.length, k = 0; i < l; i++) {
-        let size = matrixGroups[i];
-
-        slices.push(matrixIndices.subarray(k, k + size));
-        k += size;
-
-        if (size > 4) {
-          softwareSkinning = true;
-        }
-      }
-
-      // Construct the final bone arrays
-      for (let i = 0; i < vertices; i++) {
-        let slice = slices[vertexGroups[i]];
-
-        // Somehow in some bad models a vertex group index refers to an invalid matrix group.
-        // Such models are still loaded by the game.
-        if (slice) {
-          let bones = slices[vertexGroups[i]];
-          let boneCount = Math.min(bones.length, 4); // The viewer supports up to 4 bones per vertex, the game handles any(?) amount.
-
-          for (let j = 0; j < boneCount; j++) {
-            // 1 is added to every index for shader optimization (index 0 is a zero matrix)
-            boneIndices[i * 4 + j] = bones[j] + 1;
-          }
-
-          boneNumbers[i] = boneCount;
-        }
-      }
-    }
-
-    this.v800 = v800;
-    this.v900 = v900;
-    this.softwareSkinning = softwareSkinning;
-
+  constructor(model, index, positionOffset, normalOffset, uvOffset, skinOffset, faceOffset, vertices, elements) {
+    this.model = model;
     this.index = index;
-    this.materialId = geoset.materialId;
-    this.locationArray = positions;
-    this.normalArray = normals;
-    this.uvsArray = uvs;
-    this.boneIndexArray = boneIndices;
-    this.boneNumberArray = boneNumbers;
-    this.faceArray = geoset.faces;
-    this.uvSetSize = uvsetSize * 4;
+    this.positionOffset = positionOffset;
+    this.normalOffset = normalOffset;
+    this.uvOffset = uvOffset;
+    this.skinOffset = skinOffset;
+    this.faceOffset = faceOffset;
+    this.vertices = vertices;
+    this.elements = elements;
 
     let geosetAnimations = model.geosetAnimations;
 
@@ -184,25 +35,40 @@ export class Geoset {
       }
     }
 
+    for (let geosetAnimation of model.geosetAnimations) {
+      if (geosetAnimation.geosetId === index) {
+        this.geosetAnimation = geosetAnimation;
+      }
+    }
+
     let variants = {
       alpha: [],
       color: [],
       object: [],
     };
 
+    let geosetAnimation = this.geosetAnimation;
     let hasAlphaAnim = false;
     let hasColorAnim = false;
 
-    for (let i = 0, l = model.sequences.length; i < l; i++) {
-      let alpha = this.isAlphaVariant(i);
-      let color = this.isColorVariant(i);
+    if (geosetAnimation) {
+      for (let i = 0, l = model.sequences.length; i < l; i++) {
+        let alpha = geosetAnimation.isAlphaVariant(i);
+        let color = geosetAnimation.isColorVariant(i);
 
-      variants.alpha[i] = alpha;
-      variants.color[i] = color;
-      variants.object[i] = alpha || color;
+        variants.alpha[i] = alpha;
+        variants.color[i] = color;
+        variants.object[i] = alpha || color;
 
-      hasAlphaAnim = hasAlphaAnim || alpha;
-      hasColorAnim = hasColorAnim || color;
+        hasAlphaAnim = hasAlphaAnim || alpha;
+        hasColorAnim = hasColorAnim || color;
+      }
+    } else {
+      for (let i = 0, l = model.sequences.length; i < l; i++) {
+        variants.alpha[i] = false;
+        variants.color[i] = false;
+        variants.object[i] = false;
+      }
     }
 
     this.variants = variants;
@@ -240,18 +106,77 @@ export class Geoset {
   }
 
   /**
-   * @param {number} sequence
-   * @return {boolean}
+   * @param {ShaderProgram} shader
+   * @param {number} coordId
    */
-  isAlphaVariant(sequence) {
-    return this.geosetAnimation && this.geosetAnimation.isAlphaVariant(sequence);
+  bind(shader, coordId) {
+    let gl = this.model.viewer.gl;
+    let attribs = shader.attribs;
+
+    gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, 0, this.positionOffset);
+    gl.vertexAttribPointer(attribs.a_normal, 3, gl.FLOAT, false, 0, this.normalOffset);
+    gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 0, this.uvOffset + coordId * this.vertices * 8);
+    gl.vertexAttribPointer(attribs.a_bones, 4, gl.UNSIGNED_BYTE, false, 5, this.skinOffset);
+    gl.vertexAttribPointer(attribs.a_boneNumber, 1, gl.UNSIGNED_BYTE, false, 5, this.skinOffset + 4);
   }
 
   /**
-   * @param {number} sequence
-   * @return {boolean}
+   * @param {ShaderProgram} shader
+   * @param {number} coordId
    */
-  isColorVariant(sequence) {
-    return this.geosetAnimation && this.geosetAnimation.isColorVariant(sequence);
+  bindExtended(shader, coordId) {
+    let gl = this.model.viewer.gl;
+    let attribs = shader.attribs;
+
+    gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, 0, this.positionOffset);
+    gl.vertexAttribPointer(attribs.a_normal, 3, gl.FLOAT, false, 0, this.normalOffset);
+    gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 0, this.uvOffset + coordId * this.vertices * 8);
+    gl.vertexAttribPointer(attribs.a_bones, 4, gl.UNSIGNED_BYTE, false, 9, this.skinOffset);
+    gl.vertexAttribPointer(attribs.a_extendedBones, 4, gl.UNSIGNED_BYTE, false, 9, this.skinOffset + 4);
+    gl.vertexAttribPointer(attribs.a_boneNumber, 1, gl.UNSIGNED_BYTE, false, 9, this.skinOffset + 8);
+  }
+
+  /**
+   *
+   */
+  render() {
+    let gl = this.model.viewer.gl;
+
+    gl.drawElements(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.faceOffset);
+  }
+
+  /**
+   * @param {ShaderProgram} shader
+   */
+  bindSimple(shader) {
+    let gl = this.model.viewer.gl;
+    let attribs = shader.attribs;
+
+    gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, 0, this.positionOffset);
+    gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 0, this.uvOffset);
+  }
+
+  /**
+   * @param {number} instances
+   */
+  renderSimple(instances) {
+    let gl = this.model.viewer.gl;
+
+    gl.extensions.instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.faceOffset, instances);
+  }
+
+  /**
+   * @param {ShaderProgram} shader
+   * @param {number} coordId
+   */
+  bindHd(shader, coordId) {
+    let gl = this.model.viewer.gl;
+    let attribs = shader.attribs;
+
+    gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, 0, this.positionOffset);
+    gl.vertexAttribPointer(attribs.a_normal, 3, gl.FLOAT, false, 0, this.normalOffset);
+    gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 0, this.uvOffset + coordId * this.vertices * 8);
+    gl.vertexAttribPointer(attribs.a_bones, 4, gl.UNSIGNED_BYTE, false, 8, this.skinOffset);
+    gl.vertexAttribPointer(attribs.a_weights, 4, gl.UNSIGNED_BYTE, true, 8, this.skinOffset + 4);
   }
 }

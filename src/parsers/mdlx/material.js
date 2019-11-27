@@ -31,7 +31,7 @@ export default class Material {
     this.priorityPlane = stream.readInt32();
     this.flags = stream.readUint32();
 
-    if (version === 900) {
+    if (version > 800) {
       this.shader = stream.read(80);
     }
 
@@ -55,7 +55,7 @@ export default class Material {
     stream.writeUint32(this.priorityPlane);
     stream.writeUint32(this.flags);
 
-    if (version === 900) {
+    if (version > 800) {
       stream.write(this.shader);
       stream.skip(80 - this.shader.length);
     }
@@ -135,7 +135,7 @@ export default class Material {
   getByteLength(version) {
     let size = 20;
 
-    if (version === 900) {
+    if (version > 800) {
       size += 80;
     }
 

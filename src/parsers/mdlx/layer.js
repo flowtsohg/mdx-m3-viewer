@@ -47,6 +47,12 @@ export default class Layer extends AnimatedObject {
      * @member {number}
      */
     this.emissiveGain = 0;
+    /**
+     * @since 1000
+     * @member {Float32Array}
+     */
+    this.unknowns = new Float32Array(5);
+
   }
 
   /**
@@ -64,8 +70,12 @@ export default class Layer extends AnimatedObject {
     this.coordId = stream.readUint32();
     this.alpha = stream.readFloat32();
 
-    if (version === 900) {
+    if (version > 800) {
       this.emissiveGain = stream.readFloat32();
+    }
+
+    if (version > 900) {
+      stream.readFloat32Array(this.unknowns);
     }
 
     this.readAnimations(stream, size - (stream.index - start));
@@ -84,8 +94,12 @@ export default class Layer extends AnimatedObject {
     stream.writeUint32(this.coordId);
     stream.writeFloat32(this.alpha);
 
-    if (version === 900) {
+    if (version > 800) {
       stream.writeFloat32(this.emissiveGain);
+    }
+
+    if (version > 900) {
+      stream.writeFloat32Array(this.unknowns);
     }
 
     this.writeAnimations(stream);
@@ -186,8 +200,12 @@ export default class Layer extends AnimatedObject {
   getByteLength(version) {
     let size = 28 + super.getByteLength();
 
-    if (version === 900) {
+    if (version > 800) {
       size += 4;
+    }
+
+    if (version > 900) {
+      size += 20;
     }
 
     return size;

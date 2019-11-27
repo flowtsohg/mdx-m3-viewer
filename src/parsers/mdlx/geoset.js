@@ -92,7 +92,7 @@ export default class Geoset {
     this.selectionGroup = stream.readUint32();
     this.selectionFlags = stream.readUint32();
 
-    if (version === 900) {
+    if (version > 800) {
       this.lod = stream.readUint32();
       this.lodName = stream.read(80);
     }
@@ -107,11 +107,13 @@ export default class Geoset {
       this.sequenceExtents.push(extent);
     }
 
-    // Non-reforged models that come with reforged are saved with version 900, however they don't have TANG and SKIN.
-    if (version === 900 && stream.peek(4) === 'TANG') {
+    // Non-reforged models that come with reforged are saved with version >800, however they don't have TANG and SKIN.
+    if (version > 800 && stream.peek(4) === 'TANG') {
       stream.skip(4); // TANG
       this.tangents = stream.readFloat32Array(stream.readUint32() * 4);
+    }
 
+    if (version > 800 && stream.peek(4) === 'SKIN') {
       stream.skip(4); // SKIN
       this.skin = stream.readUint8Array(stream.readUint32());
     }
@@ -158,7 +160,7 @@ export default class Geoset {
     stream.writeUint32(this.selectionGroup);
     stream.writeUint32(this.selectionFlags);
 
-    if (version === 900) {
+    if (version > 800) {
       stream.writeUint32(this.lod);
       stream.write(this.lodName);
       stream.skip(80 - this.lodName.length);
@@ -172,7 +174,7 @@ export default class Geoset {
       sequenceExtent.writeMdx(stream);
     }
 
-    if (version === 900 && this.tangents.length) {
+    if (version > 800 && this.tangents.length) {
       stream.write('TANG');
       stream.writeFloat32Array(this.tangents);
       stream.write('SKIN');
@@ -337,7 +339,7 @@ export default class Geoset {
   getByteLength(version) {
     let size = 120 + this.vertices.byteLength + this.normals.byteLength + this.faceTypeGroups.byteLength + this.faceGroups.byteLength + this.faces.byteLength + this.vertexGroups.byteLength + this.matrixGroups.byteLength + this.matrixIndices.byteLength + this.sequenceExtents.length * 28;
 
-    if (version === 900) {
+    if (version > 800) {
       size += 84;
 
       if (this.tangents.length) {

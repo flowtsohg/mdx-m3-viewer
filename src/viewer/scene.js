@@ -242,7 +242,7 @@ export default class Scene {
     instances.sort((a, b) => b.depth - a.depth);
 
     this.emittedObjectUpdater.update(dt);
-    this.updatedParticles = this.emittedObjectUpdater.objects.length;
+    this.updatedParticles = this.emittedObjectUpdater.alive;
   }
 
   /**

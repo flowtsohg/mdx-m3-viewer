@@ -49,7 +49,6 @@ export default class MdxRenderBatch extends RenderBatch {
     if (count) {
       let model = this.model;
       let batches = model.batches;
-      let shallowGeosets = model.shallowGeosets;
       let textures = model.textures;
       let viewer = model.viewer;
       let gl = viewer.gl;
@@ -75,8 +74,8 @@ export default class MdxRenderBatch extends RenderBatch {
 
       gl.uniformMatrix4fv(uniforms.u_mvp, false, this.scene.camera.worldProjectionMatrix);
 
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.__webglElementBuffer);
-      gl.bindBuffer(gl.ARRAY_BUFFER, model.__webglArrayBuffer);
+      gl.bindBuffer(gl.ARRAY_BUFFER, model.arrayBuffer);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.elementBuffer);
 
       instancedArrays.vertexAttribDivisorANGLE(m0, 1);
       instancedArrays.vertexAttribDivisorANGLE(m1, 1);
@@ -87,7 +86,6 @@ export default class MdxRenderBatch extends RenderBatch {
         let batch = batches[index];
         let geoset = batch.geoset;
         let layer = batch.layer;
-        let shallowGeoset = shallowGeosets[geoset.index];
         let texture = textures[layer.textureId];
 
         gl.uniform1i(uniforms.u_texture, 0);
@@ -95,8 +93,8 @@ export default class MdxRenderBatch extends RenderBatch {
 
         layer.bind(shader);
 
-        shallowGeoset.bindSimple(shader, 0);
-        shallowGeoset.renderInstanced(count);
+        geoset.bindSimple(shader);
+        geoset.renderSimple(count);
       }
 
       instancedArrays.vertexAttribDivisorANGLE(m3, 0);

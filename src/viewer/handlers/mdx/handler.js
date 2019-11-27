@@ -14,12 +14,13 @@ export default {
     viewer.addHandler(imagetexture);
 
     this.complexShader = viewer.webgl.createShaderProgram(shaders.vsComplex, shaders.fsComplex);
-    this.simpleShader = viewer.webgl.createShaderProgram(shaders.vsSimple, shaders.fsSimple);
-    //this.instancedShader = viewer.webgl.createShaderProgram(shaders.vs, shaders.fs);
+    this.extendedShader = viewer.webgl.createShaderProgram('#define EXTENDED_BONES\n' + shaders.vsComplex, shaders.fsComplex);
     this.particleShader = viewer.webgl.createShaderProgram(shaders.vsParticles, shaders.fsParticles);
+    this.simpleShader = viewer.webgl.createShaderProgram(shaders.vsSimple, shaders.fsSimple);
+    this.hdShader = viewer.webgl.createShaderProgram(shaders.vsHd, shaders.fsHd);
 
     // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
-    return this.complexShader.ok && this.simpleShader.ok && this.particleShader.ok;
+    return this.complexShader.ok && this.extendedShader.ok && this.particleShader.ok && this.simpleShader.ok && this.hdShader;
   },
 
   extensions: [['.mdx', 'arrayBuffer'], ['.mdl', 'text']],

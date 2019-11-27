@@ -1,6 +1,75 @@
 import shaders from '../../shaders';
 
 export default {
+  vsHd: `
+    ${shaders.boneTexture}
+
+    uniform mat4 u_mvp;
+    uniform float u_layerAlpha;
+
+    attribute vec3 a_position;
+    attribute vec3 a_normal;
+    attribute vec2 a_uv;
+    attribute vec4 a_bones;
+    attribute vec4 a_weights;
+
+    varying vec3 v_normal;
+    varying vec2 v_uv;
+    varying float v_layerAlpha;
+
+    void transform(inout vec3 position, inout vec3 normal) {
+      mat4 bone;
+
+      bone += fetchMatrix(a_bones[0] + 1.0, 0.0) * a_weights[0];
+      bone += fetchMatrix(a_bones[1] + 1.0, 0.0) * a_weights[1];
+      bone += fetchMatrix(a_bones[2] + 1.0, 0.0) * a_weights[2];
+      bone += fetchMatrix(a_bones[3] + 1.0, 0.0) * a_weights[3];
+
+      position = vec3(bone * vec4(position, 1.0));
+      normal = mat3(bone) * normal;
+    }
+
+    void main() {
+      vec3 position = a_position;
+      vec3 normal = a_normal;
+
+      transform(position, normal);
+
+      v_normal = normal;
+      v_uv = a_uv;
+      v_layerAlpha = u_layerAlpha;
+
+      gl_Position = u_mvp * vec4(position, 1.0);
+    }
+  `,
+  fsHd: `
+    uniform sampler2D u_diffuseMap;
+    uniform sampler2D u_ormMap;
+    uniform sampler2D u_teamColorMap;
+    uniform float u_filterMode;
+
+    varying vec3 v_normal;
+    varying vec2 v_uv;
+    varying float v_layerAlpha;
+
+    void main() {
+      vec4 texel = texture2D(u_diffuseMap, v_uv);
+      vec4 color = vec4(texel.rgb, texel.a * v_layerAlpha);
+
+      vec4 orma = texture2D(u_ormMap, v_uv);
+
+      if (orma.a > 0.1) {
+        color *= texture2D(u_teamColorMap, v_uv) * orma.a;
+      }
+
+      // 1bit Alpha
+      if (u_filterMode == 1.0 && color.a < 0.75) {
+        discard;
+      }
+
+      gl_FragColor = color;
+    }
+  `,
   vsSimple: `
     uniform mat4 u_mvp;
 
@@ -39,21 +108,6 @@ export default {
   vsComplex: `
     ${shaders.boneTexture}
 
-    void transform(inout vec3 position, inout vec3 normal, float boneNumber, vec4 bones) {
-      // For the broken models out there, since the game supports this.
-      if (boneNumber > 0.0) {
-        mat4 b0 = fetchMatrix(bones[0], 0.0);
-        mat4 b1 = fetchMatrix(bones[1], 0.0);
-        mat4 b2 = fetchMatrix(bones[2], 0.0);
-        mat4 b3 = fetchMatrix(bones[3], 0.0);
-        vec4 p = vec4(position, 1.0);
-        vec4 n = vec4(normal, 0.0);
-
-        position = vec3(b0 * p + b1 * p + b2 * p + b3 * p) / boneNumber;
-        normal = normalize(vec3(b0 * n + b1 * n + b2 * n + b3 * n));
-      }
-    }
-
     uniform mat4 u_mvp;
     uniform vec4 u_vertexColor;
     uniform vec4 u_geosetColor;
@@ -66,6 +120,9 @@ export default {
     attribute vec3 a_normal;
     attribute vec2 a_uv;
     attribute vec4 a_bones;
+    #ifdef EXTENDED_BONES
+    attribute vec4 a_extendedBones;
+    #endif
     attribute float a_boneNumber;
 
     varying vec2 v_uv;
@@ -73,11 +130,41 @@ export default {
     varying vec4 v_uvTransRot;
     varying float v_uvScale;
 
+    void transform(inout vec3 position, inout vec3 normal) {
+      // For the broken models out there, since the game supports this.
+      if (a_boneNumber > 0.0) {
+        vec4 position4 = vec4(position, 1.0);
+        vec4 normal4 = vec4(normal, 0.0);
+        mat4 bone;
+        vec4 p;
+        vec4 n;
+
+        for (int i = 0; i < 4; i++) {
+          bone = fetchMatrix(a_bones[i], 0.0);
+
+          p += bone * position4;
+          n += bone * normal4;
+        }
+
+        #ifdef EXTENDED_BONES
+          for (int i = 0; i < 4; i++) {
+            bone = fetchMatrix(a_extendedBones[i], 0.0);
+
+            p += bone * position4;
+            n += bone * normal4;
+          }
+        #endif
+
+        position = p.xyz / a_boneNumber;
+        normal = normalize(n.xyz);
+      }
+    }
+
     void main() {
       vec3 position = a_position;
       vec3 normal = a_normal;
 
-      transform(position, normal, a_boneNumber, a_bones);
+      transform(position, normal);
 
       v_uv = a_uv;
       v_color = u_vertexColor * u_geosetColor.bgra * vec4(1.0, 1.0, 1.0, u_layerAlpha);

@@ -2,10 +2,8 @@ import Parser from '../../../parsers/mdlx/model';
 import Model from '../../model';
 import TextureAnimation from './textureanimation';
 import Layer from './layer';
+import Material from './Material';
 import GeosetAnimation from './geosetanimation';
-import {Geoset} from './geoset';
-import Batch from './batch';
-import {ShallowGeoset} from './geoset';
 import replaceableIds from './replaceableids';
 import Bone from './bone';
 import Light from './light';
@@ -17,7 +15,8 @@ import RibbonEmitterObject from './ribbonemitterobject';
 import Camera from './camera';
 import EventObjectEmitterObject from './eventobjectemitterobject';
 import CollisionShape from './collisionshape';
-import setupGroups from './groupfuncs';
+import setupGeosets from './setupgeosets';
+import setupGroups from './setupgroups';
 
 /**
  * An MDX model.
@@ -29,7 +28,7 @@ export default class MdxModel extends Model {
   constructor(resourceData) {
     super(resourceData);
 
-    this.parser = null;
+    this.hd = false;
     this.name = '';
     this.sequences = [];
     this.globalSequences = [];
@@ -60,9 +59,13 @@ export default class MdxModel extends Model {
     this.hierarchy = [];
     this.replaceables = [];
 
-    this.groups = [];
+    this.opaqueGroups = [];
+    this.translucentGroups = [];
 
     this.variants = null;
+
+    this.arrayBuffer = null;
+    this.elementBuffer = null;
   }
 
   /**
@@ -78,6 +81,7 @@ export default class MdxModel extends Model {
     }
 
     this.name = parser.name;
+    this.version = parser.version;
 
     // Initialize the bounds.
     let extent = parser.extent;
@@ -91,6 +95,34 @@ export default class MdxModel extends Model {
     // Global sequences
     for (let globalSequence of parser.globalSequences) {
       this.globalSequences.push(globalSequence);
+    }
+
+    // Texture animations
+    for (let textureAnimation of parser.textureAnimations) {
+      this.textureAnimations.push(new TextureAnimation(this, textureAnimation));
+    }
+
+    // Materials
+    let layerId = 0;
+    for (let material of parser.materials) {
+      let layers = [];
+
+      for (let layer of material.layers) {
+        let vLayer = new Layer(this, layer, layerId++, material.priorityPlane);
+
+        layers.push(vLayer);
+        this.layers.push(vLayer);
+
+        if (vLayer.hasAnim) {
+          this.hasLayerAnims = true;
+        }
+      }
+
+      this.materials.push(new Material(this, material.shader, layers));
+
+      if (material.shader !== '') {
+        this.hd = true;
+      }
     }
 
     let usingTeamTextures = false;
@@ -110,13 +142,17 @@ export default class MdxModel extends Model {
       }
 
       // If the path is corrupted, try to fix it.
-      if (!path.endsWith('.blp') && !path.endsWith('.tga')) {
+      if (!path.endsWith('.blp') && !path.endsWith('.tga') && !path.endsWith('.dds')) {
         // Try to search for .blp
         let index = path.indexOf('.blp');
 
         if (index === -1) {
           // Not a .blp, try to search for .tga
           index = path.indexOf('.tga');
+
+          if (index === -1) {
+            index = path.indexOf('.dds');
+          }
         }
 
         if (index !== -1) {
@@ -125,41 +161,25 @@ export default class MdxModel extends Model {
         }
       }
 
+      if (this.version > 800 && !path.endsWith('.dds')) {
+        path = path.slice(0, -4) + '.dds';
+      }
+
       this.replaceables.push(replaceableId);
 
       let wrapS = !!(flags & 0x1);
       let wrapT = !!(flags & 0x2);
 
+      if (this.hd) {
+        path = `_hd.w3mod/${path}`;
+      }
+
       this.textures.push(this.viewer.load(path, this.pathSolver, {wrapS, wrapT}));
     }
 
-    if (usingTeamTextures && parser.version !== 900) {
+    if (usingTeamTextures) {
       // Start loading the team color and glow textures.
       this.loadTeamTextures();
-    }
-
-    // Texture animations
-    for (let textureAnimation of parser.textureAnimations) {
-      this.textureAnimations.push(new TextureAnimation(this, textureAnimation));
-    }
-
-    // Materials
-    let layerId = 0;
-    for (let material of parser.materials) {
-      let vMaterial = [];
-
-      for (let layer of material.layers) {
-        let vLayer = new Layer(this, layer, layerId++, material.priorityPlane);
-
-        vMaterial.push(vLayer);
-        this.layers.push(vLayer);
-
-        if (vLayer.hasAnim) {
-          this.hasLayerAnims = true;
-        }
-      }
-
-      this.materials.push(vMaterial);
     }
 
     // Geoset animations
@@ -168,27 +188,7 @@ export default class MdxModel extends Model {
     }
 
     // Geosets
-    if (parser.geosets.length) {
-      let geosetId = 0;
-      let batchId = 0;
-
-      for (let geoset of parser.geosets) {
-        let vGeoset = new Geoset(this, geoset, geosetId++);
-
-        if (vGeoset.hasAnim) {
-          this.hasGeosetAnims = true;
-        }
-
-        this.geosets.push(vGeoset);
-
-        // Batches
-        for (let vLayer of this.materials[geoset.materialId]) {
-          this.batches.push(new Batch(batchId++, vLayer, vGeoset));
-        }
-      }
-
-      this.setupGeosets();
-    }
+    setupGeosets(this, parser.geosets);
 
     this.pivotPoints = parser.pivotPoints;
 
@@ -283,7 +283,6 @@ export default class MdxModel extends Model {
       variants.any[i] = variants.nodes[i] || variants.batches[i];
     }
 
-
     this.variants = variants;
   }
 
@@ -298,77 +297,18 @@ export default class MdxModel extends Model {
       let teamGlows = handler.teamGlows;
       let viewer = this.viewer;
       let pathSolver = this.pathSolver;
+      let ext = 'blp';
+
+      if (this.version > 800) {
+        ext = 'dds';
+      }
 
       for (let i = 0; i < 14; i++) {
         let id = ('' + i).padStart(2, '0');
 
-        teamColors[i] = viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}.blp`, pathSolver);
-        teamGlows[i] = viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}.blp`, pathSolver);
+        teamColors[i] = viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}.${ext}`, pathSolver);
+        teamGlows[i] = viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}.${ext}`, pathSolver);
       }
-    }
-  }
-
-  /**
-   *
-   */
-  setupGeosets() {
-    let geosets = this.geosets;
-
-    if (geosets.length > 0) {
-      let gl = this.viewer.gl;
-      let shallowGeosets = [];
-      let typedArrays = [];
-      let totalArrayOffset = 0;
-      let elementTypedArrays = [];
-      let totalElementOffset = 0;
-
-      for (let i = 0, l = geosets.length; i < l; i++) {
-        let geoset = geosets[i];
-        let vertices = geoset.locationArray;
-        let normals = geoset.normalArray;
-        let uvSets = geoset.uvsArray;
-        let boneIndices = geoset.boneIndexArray;
-        let boneNumbers = geoset.boneNumberArray;
-        let faces = geoset.faceArray;
-        let verticesOffset = totalArrayOffset;
-        let normalsOffset = verticesOffset + vertices.byteLength;
-        let uvSetsOffset = normalsOffset + normals.byteLength;
-        let boneIndicesOffset = uvSetsOffset + uvSets.byteLength;
-        let boneNumbersOffset = boneIndicesOffset + boneIndices.byteLength;
-
-        shallowGeosets[i] = new ShallowGeoset(this, [verticesOffset, normalsOffset, uvSetsOffset, boneIndicesOffset, boneNumbersOffset, totalElementOffset], geoset.uvSetSize, faces.length);
-
-        typedArrays.push([verticesOffset, vertices]);
-        typedArrays.push([normalsOffset, normals]);
-        typedArrays.push([uvSetsOffset, uvSets]);
-        typedArrays.push([boneIndicesOffset, boneIndices]);
-        typedArrays.push([boneNumbersOffset, boneNumbers]);
-
-        elementTypedArrays.push([totalElementOffset, faces]);
-
-        totalArrayOffset = boneNumbersOffset + boneNumbers.byteLength;
-        totalElementOffset += faces.byteLength;
-      }
-
-      let arrayBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, totalArrayOffset, gl.STATIC_DRAW);
-
-      for (let i = 0, l = typedArrays.length; i < l; i++) {
-        gl.bufferSubData(gl.ARRAY_BUFFER, typedArrays[i][0], typedArrays[i][1]);
-      }
-
-      let faceBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
-      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, totalElementOffset, gl.STATIC_DRAW);
-
-      for (let i = 0, l = elementTypedArrays.length; i < l; i++) {
-        gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, elementTypedArrays[i][0], elementTypedArrays[i][1]);
-      }
-
-      this.__webglArrayBuffer = arrayBuffer;
-      this.__webglElementBuffer = faceBuffer;
-      this.shallowGeosets = shallowGeosets;
     }
   }
 

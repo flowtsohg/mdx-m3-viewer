@@ -15,7 +15,7 @@ export default class RibbonEmitterObject extends GenericObject {
 
     this.geometryEmitterType = EMITTER_RIBBON;
 
-    this.layer = model.materials[emitter.materialId][0];
+    this.layer = model.materials[emitter.materialId].layers[0];
     this.heightAbove = emitter.heightAbove;
     this.heightBelow = emitter.heightBelow;
     this.alpha = emitter.alpha;

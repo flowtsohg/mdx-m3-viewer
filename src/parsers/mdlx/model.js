@@ -31,7 +31,7 @@ export default class Model {
   constructor(buffer) {
     /**
      * 800 for Warcraft 3: RoC and TFT.
-     * 900 for Warcraft 3: Reforged.
+     * >800 for Warcraft 3: Reforged.
      *
      * @member {number}
      */
@@ -329,7 +329,7 @@ export default class Model {
     this.saveDynamicObjectChunk(stream, 'EVTS', this.eventObjects);
     this.saveDynamicObjectChunk(stream, 'CLID', this.collisionShapes);
 
-    if (this.version === 900) {
+    if (this.version > 800) {
       this.saveBindPoseChunk(stream);
       this.saveDynamicObjectChunk(stream, 'CORN', this.corns);
       this.saveFaceEffectChunk(stream);
@@ -759,7 +759,7 @@ export default class Model {
     size += this.getDynamicObjectsChunkByteLength(this.eventObjects);
     size += this.getDynamicObjectsChunkByteLength(this.collisionShapes);
 
-    if (this.version === 900) {
+    if (this.version > 800) {
       size += this.getBindPoseChunkByteLength();
       size += this.getDynamicObjectsChunkByteLength(this.corns);
       size += this.getFaceEffectChunkByteLength();

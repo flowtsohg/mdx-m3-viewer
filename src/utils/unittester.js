@@ -1,5 +1,6 @@
 import * as resemble from '../../thirdparty/resemble';
 import seededRandom from '../common/seededrandom';
+import {blobToImage} from '../common/canvas';
 import ModelViewer from '../viewer/viewer';
 import Mdx from '../viewer/handlers/mdx/handler';
 import M3 from '../viewer/handlers/m3/handler';
