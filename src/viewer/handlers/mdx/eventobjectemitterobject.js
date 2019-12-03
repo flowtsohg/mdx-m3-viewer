@@ -1,3 +1,4 @@
+import urlWithParams from '../../../common/urlwithparams';
 import {decodeAudioData} from '../../../common/audio';
 import MappedData from '../../../utils/mappeddata';
 import GenericObject from './genericobject';
@@ -46,11 +47,11 @@ export default class EventObjectEmitterObject extends GenericObject {
     this.globalSequence = null;
     this.defval = new Uint32Array(1);
 
-    // SPN - Model
-    // SPL & UBR - Texture
-    this.internalResource = null;
+    // SPN
+    this.internalModel = null;
 
     // SPL & UBR
+    this.internalTexture = null;
     this.colors = null;
     this.intervalTimes = null;
     this.scale = 0;
@@ -79,16 +80,17 @@ export default class EventObjectEmitterObject extends GenericObject {
 
     let tables = [];
     let pathSolver = model.pathSolver;
+    let solverParams = model.solverParams;
 
     if (type === 'SPN') {
-      tables[0] = viewer.loadGeneric(pathSolver('Splats\\SpawnData.slk')[0], 'text', mappedDataCallback);
+      tables[0] = viewer.loadGeneric(urlWithParams(pathSolver('Splats\\SpawnData.slk')[0], solverParams), 'text', mappedDataCallback);
     } else if (type === 'SPL') {
-      tables[0] = viewer.loadGeneric(pathSolver('Splats\\SplatData.slk')[0], 'text', mappedDataCallback);
+      tables[0] = viewer.loadGeneric(urlWithParams(pathSolver('Splats\\SplatData.slk')[0], solverParams), 'text', mappedDataCallback);
     } else if (type === 'UBR') {
-      tables[0] = viewer.loadGeneric(pathSolver('Splats\\UberSplatData.slk')[0], 'text', mappedDataCallback);
+      tables[0] = viewer.loadGeneric(urlWithParams(pathSolver('Splats\\UberSplatData.slk')[0], solverParams), 'text', mappedDataCallback);
     } else if (type === 'SND') {
-      tables[0] = viewer.loadGeneric(pathSolver('UI\\SoundInfo\\AnimLookups.slk')[0], 'text', mappedDataCallback);
-      tables[1] = viewer.loadGeneric(pathSolver('UI\\SoundInfo\\AnimSounds.slk')[0], 'text', mappedDataCallback);
+      tables[0] = viewer.loadGeneric(urlWithParams(pathSolver('UI\\SoundInfo\\AnimLookups.slk')[0], solverParams), 'text', mappedDataCallback);
+      tables[1] = viewer.loadGeneric(urlWithParams(pathSolver('UI\\SoundInfo\\AnimSounds.slk')[0], solverParams), 'text', mappedDataCallback);
     } else {
       // Units\Critters\BlackStagMale\BlackStagMale.mdx has an event object named "Point01".
       return;
@@ -125,9 +127,12 @@ export default class EventObjectEmitterObject extends GenericObject {
       let pathSolver = model.pathSolver;
 
       if (type === 'SPN') {
-        this.internalResource = viewer.load(row.Model.replace('.mdl', '.mdx'), pathSolver);
+        this.internalModel = viewer.load(row.Model.replace('.mdl', '.mdx'), pathSolver, model.solverParams);
+        this.internalModel.whenLoaded().then(() => this.ok = this.internalModel.ok);
       } else if (type === 'SPL' || type === 'UBR') {
-        this.internalResource = viewer.load('replaceabletextures/splats/' + row.file + '.blp', pathSolver);
+        this.internalTexture = viewer.load('replaceabletextures/splats/' + row.file + '.blp', pathSolver, model.solverParams);
+        this.internalTexture.whenLoaded().then(() => this.ok = this.internalTexture.ok);
+
         this.scale = row.Scale;
         this.colors = [
           new Float32Array([row.StartR, row.StartG, row.StartB, row.StartA]),
@@ -168,7 +173,7 @@ export default class EventObjectEmitterObject extends GenericObject {
 
             let fileNames = row.FileNames.split(',');
 
-            viewer.whenLoaded(fileNames.map((fileName) => viewer.loadGeneric(pathSolver(row.DirectoryBase + fileName)[0], 'arrayBuffer', decodedDataCallback)))
+            viewer.whenLoaded(fileNames.map((fileName) => viewer.loadGeneric(urlWithParams(pathSolver(row.DirectoryBase + fileName)[0], solverParams), 'arrayBuffer', decodedDataCallback)))
               .then((resources) => {
                 for (let resource of resources) {
                   this.decodedBuffers.push(resource.data);
@@ -178,11 +183,6 @@ export default class EventObjectEmitterObject extends GenericObject {
               });
           }
         }
-      }
-
-      if (this.internalResource) {
-        this.internalResource.whenLoaded()
-          .then(() => this.ok = true);
       }
     } else {
       console.warn('Unknown event object ID', type, this.id);

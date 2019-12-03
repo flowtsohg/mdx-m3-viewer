@@ -1,4 +1,4 @@
-import {DdsImage, FOURCC_DXT1, FOURCC_DXT3, FOURCC_DXT5} from '../../../parsers/dds/image';
+import {DdsImage, FOURCC_DXT1, FOURCC_DXT3, FOURCC_DXT5, FOURCC_ATI2} from '../../../parsers/dds/image';
 import Texture from '../../texture';
 
 /**
@@ -7,9 +7,8 @@ import Texture from '../../texture';
 export default class DdsTexture extends Texture {
   /**
    * @param {ArrayBuffer|DdsImage} bufferOrImage
-   * @param {?Object} options
    */
-  load(bufferOrImage, options) {
+  load(bufferOrImage) {
     let image;
 
     if (bufferOrImage instanceof DdsImage) {
@@ -43,16 +42,14 @@ export default class DdsTexture extends Texture {
 
     gl.bindTexture(gl.TEXTURE_2D, id);
 
-    /// Needed for non-square textures for the next to last mipmap, when using the decoders.
-    /// I.e.: 1x2 and 2x1.
-    /// Why?
-    if (image.width !== image.height) {
-      gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    } else {
-      gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
-    }
-
     let mipmaps = image.mipmaps();
+
+    // DXT1 and ATI2 pixels are two bytes.
+    // This generally doesn't matter, however, when having 1x2 or 2x1 mipmaps, it does.
+    // Therefore set the proper alignment if needed.
+    if (format === FOURCC_DXT1 || format === FOURCC_ATI2) {
+      gl.pixelStorei(gl.UNPACK_ALIGNMENT, 2);
+    }
 
     for (let i = 0; i < mipmaps; i++) {
       // Let the GPU handle the compressed data if it supports it.
@@ -72,6 +69,9 @@ export default class DdsTexture extends Texture {
       }
     }
 
-    webgl.setTextureMode(gl.REPEAT, gl.REPEAT, gl.LINEAR, mipmaps > 1 ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
+    // Restore the alignment to the default, in case it changed.
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+
+    webgl.setTextureMode(this.wrapS, this.wrapT, gl.LINEAR, mipmaps > 1 ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
   }
 }

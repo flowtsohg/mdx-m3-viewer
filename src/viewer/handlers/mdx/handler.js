@@ -29,10 +29,15 @@ export default {
   Instance: [ComplexInstance, SimpleInstance],
 
   complexShader: null,
+  extendedShader: null,
   simpleShader: null,
   particleShader: null,
+  hdShader: null,
 
   // Team color/glow textures, shared between all models, but loaded with the first model that uses them.
   teamColors: [],
   teamGlows: [],
+  // Same as above, but only loaded and used by Reforged models.
+  reforgedTeamColors: [],
+  reforgedTeamGlows: [],
 };

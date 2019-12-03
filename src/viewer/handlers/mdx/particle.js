@@ -22,7 +22,7 @@ export default class Particle extends EmittedObject {
   constructor(emitter) {
     super(emitter);
 
-    this.internalInstance = emitter.emitterObject.internalResource.addInstance();
+    this.internalInstance = emitter.emitterObject.internalModel.addInstance();
     this.velocity = vec3.create();
     this.gravity = 0;
   }

@@ -42,9 +42,9 @@ export default class ClientBuffer {
   }
 
   /**
-   * @param {number} size
+   * @param {?number} size
    */
-  bindAndUpdate(size) {
+  bindAndUpdate(size = this.size) {
     const gl = this.gl;
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);

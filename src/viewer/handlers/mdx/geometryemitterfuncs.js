@@ -142,7 +142,7 @@ function bindParticleEmitter2Shader(emitter, shader) {
   } else if (replaceable === 2) {
     texture = model.handler.teamGlows[instance.teamColor];
   } else {
-    texture = emitterObject.internalResource;
+    texture = emitterObject.internalTexture;
   }
 
   viewer.webgl.bindTexture(texture, 0);
@@ -307,7 +307,7 @@ function bindEventObjectSplEmitterShader(emitter, shader) {
   let model = emitterObject.model;
   let gl = model.viewer.gl;
   let uniforms = shader.uniforms;
-  let texture = emitterObject.internalResource;
+  let texture = emitterObject.internalTexture;
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 
@@ -342,7 +342,7 @@ function bindEventObjectUbrEmitterShader(emitter, shader) {
   let model = emitterObject.model;
   let gl = model.viewer.gl;
   let uniforms = shader.uniforms;
-  let texture = emitterObject.internalResource;
+  let texture = emitterObject.internalTexture;
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 

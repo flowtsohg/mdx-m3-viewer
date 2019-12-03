@@ -30,6 +30,8 @@ export default class ParticleEmitter extends Emitter {
    * @return {Particle}
    */
   createObject() {
-    return new Particle(this);
+    if (this.emitterObject.internalModel.ok) {
+      return new Particle(this);
+    }
   }
 }

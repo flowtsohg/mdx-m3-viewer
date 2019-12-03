@@ -6,6 +6,9 @@ export default {
   KMTF: ['TextureId', UintAnimation],
   KMTA: ['Alpha', FloatAnimation],
   KMTE: ['EmissiveGain', FloatAnimation],
+  KFC3: ['FresnelColor', Vector3Animation],
+  KFCA: ['FresnelAlpha', FloatAnimation],
+  KFTC: ['FresnelTeamColor', FloatAnimation],
   // TextureAnimation
   KTAT: ['Translation', Vector3Animation],
   KTAR: ['Rotation', Vector4Animation],

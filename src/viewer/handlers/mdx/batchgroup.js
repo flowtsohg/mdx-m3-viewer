@@ -21,6 +21,7 @@ export default class BatchGroup {
   render(instance) {
     let model = this.model;
     let batches = model.batches;
+    let replaceables = model.replaceables;
     let viewer = model.viewer;
     let gl = viewer.gl;
     let scene = instance.scene;
@@ -37,6 +38,34 @@ export default class BatchGroup {
 
     let uniforms = shader.uniforms;
 
+    gl.uniformMatrix4fv(uniforms.u_mvp, false, scene.camera.worldProjectionMatrix);
+
+    let boneTexture = instance.boneTexture;
+
+    // Instances of models with no bones don't have a bone texture.
+    if (boneTexture) {
+      boneTexture.bind(15);
+
+      gl.uniform1f(uniforms.u_hasBones, 1);
+      gl.uniform1i(uniforms.u_boneMap, 15);
+      gl.uniform1f(uniforms.u_vectorSize, 1 / boneTexture.width);
+      gl.uniform1f(uniforms.u_rowSize, 1);
+    } else {
+      gl.uniform1f(uniforms.u_hasBones, 0);
+    }
+
+    gl.uniform1i(uniforms.u_texture, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, model.arrayBuffer);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.elementBuffer);
+
+    gl.uniform4fv(uniforms.u_vertexColor, instance.vertexColor);
+
+    let reforged = model.reforged;
+    let handler = model.handler;
+    let teamColors = reforged ? handler.reforgedTeamColors : handler.teamColors;
+    let teamGlows = reforged ? handler.reforgedTeamGlows : handler.teamGlows;
+
     for (let index of this.objects) {
       let batch = batches[index];
       let geoset = batch.geoset;
@@ -50,9 +79,6 @@ export default class BatchGroup {
         let layerTexture = instance.layerTextures[layerIndex];
         let uvAnim = instance.uvAnims[layerIndex];
 
-        gl.uniformMatrix4fv(uniforms.u_mvp, false, scene.camera.worldProjectionMatrix);
-
-        gl.uniform4fv(uniforms.u_vertexColor, instance.vertexColor);
         gl.uniform4fv(uniforms.u_geosetColor, geosetColor);
 
         gl.uniform1f(uniforms.u_layerAlpha, layerAlpha);
@@ -61,30 +87,20 @@ export default class BatchGroup {
         gl.uniform2f(uniforms.u_uvRot, uvAnim[2], uvAnim[3]);
         gl.uniform1f(uniforms.u_uvScale, uvAnim[4]);
 
-        gl.activeTexture(gl.TEXTURE15);
-        gl.bindTexture(gl.TEXTURE_2D, instance.boneTexture);
-        gl.uniform1i(uniforms.u_boneMap, 15);
-        gl.uniform1f(uniforms.u_vectorSize, instance.vectorSize);
-        gl.uniform1f(uniforms.u_rowSize, 1);
-
         layer.bind(shader);
 
-        let replaceable = model.replaceables[layerTexture];
+        let replaceable = replaceables[layerTexture];
         let texture;
 
         if (replaceable === 1) {
-          texture = model.handler.teamColors[instance.teamColor];
+          texture = teamColors[instance.teamColor];
         } else if (replaceable === 2) {
-          texture = model.handler.teamGlows[instance.teamColor];
+          texture = teamGlows[instance.teamColor];
         } else {
           texture = model.textures[layerTexture];
         }
 
-        gl.uniform1i(uniforms.u_texture, 0);
         viewer.webgl.bindTexture(instance.textureMapper.get(texture) || texture, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, model.arrayBuffer);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.elementBuffer);
 
         if (isExtended) {
           geoset.bindExtended(shader, layer.coordId);

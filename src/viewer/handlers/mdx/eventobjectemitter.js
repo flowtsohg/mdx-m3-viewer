@@ -38,6 +38,8 @@ export default class EventObjectEmitter extends Emitter {
    *
    */
   emit() {
-    this.emitObject();
+    if (this.emitterObject.ok) {
+      this.emitObject();
+    }
   }
 }

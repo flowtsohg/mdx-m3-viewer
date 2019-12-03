@@ -14,21 +14,25 @@ geoSolver = (src) => {
   return [src, '.geo', false];
 };
 
-wc3Solver = (path) => {
-  path = localOrHive(path);
+wc3Solver = (path, params) => {
+  let ext = path.substr(path.lastIndexOf('.'));
+
+  path = localOrHive(path, params);
 
   // GREAT JOB BLIZZARD. AWESOME PATCHES.
   if (path.endsWith('orcbloodriderlesswyvernrider.mdx') && path.includes('hiveworkshop')) {
     path = path.replace('orcbloodriderlesswyvernrider.mdx', 'ordbloodriderlesswyvernrider.mdx');
   }
 
-  return [path, path.substr(path.lastIndexOf('.')), true];
+  return [path, ext, true];
 };
 
-sc2Solver = (path) => {
-  path = localOrHive(path, 'starcraft2');
+sc2Solver = (path, params) => {
+  let ext = path.substr(path.lastIndexOf('.'));
 
-  return [path, path.substr(path.lastIndexOf('.')), true];
+  path = localOrHive(path, params);
+
+  return [path, ext, true];
 };
 
 function addTestResult(table, testResult) {

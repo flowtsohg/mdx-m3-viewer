@@ -10,6 +10,7 @@ import EventObjectSpnEmitter from './eventobjectspnemitter';
 import EventObjectSplEmitter from './eventobjectsplemitter';
 import EventObjectUbrEmitter from './eventobjectubremitter';
 import EventObjectSndEmitter from './eventobjectsndemitter';
+import DataTexture from '../../gl/datatexture';
 
 // Heap allocations needed for this module.
 let visibilityHeap = new Float32Array(1);
@@ -175,19 +176,9 @@ export default class MdxComplexInstance extends ModelInstance {
     // If the sequence was changed before the model was loaded, reset it now that the model loaded.
     this.setSequence(this.sequence);
 
-
-
-    let gl = model.viewer.gl;
-    let numberOfBones = model.bones.length + 1;
-
-    this.boneTexture = gl.createTexture();
-    this.boneTextureWidth = numberOfBones * 4;
-    this.vectorSize = 1 / this.boneTextureWidth;
-
-    gl.activeTexture(gl.TEXTURE15);
-    gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
-    model.viewer.webgl.setTextureMode(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.boneTextureWidth, 1, 0, gl.RGBA, gl.FLOAT, null);
+    if (model.bones.length) {
+      this.boneTexture = new DataTexture(model.viewer.gl, 4, model.bones.length * 4, 1);
+    }
   }
 
   /**
@@ -433,11 +424,9 @@ export default class MdxComplexInstance extends ModelInstance {
    *
    */
   updateBoneTexture() {
-    let gl = this.model.viewer.gl;
-
-    gl.activeTexture(gl.TEXTURE15);
-    gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 4, 0, this.boneTextureWidth - 4, 1, gl.RGBA, gl.FLOAT, this.worldMatrices);
+    if (this.boneTexture) {
+      this.boneTexture.bindAndUpdate(this.worldMatrices);
+    }
   }
 
   /**

@@ -1,12 +1,12 @@
 import {vec3, quat} from 'gl-matrix';
 import {VEC3_UNIT_Z} from '../../../common/gl-matrix-addon';
 import unique from '../../../common/arrayunique';
+import urlWithParams from '../../../common/urlwithparams';
 import War3Map from '../../../parsers/w3x/map';
 import War3MapW3i from '../../../parsers/w3x/w3i/file';
 import War3MapW3e from '../../../parsers/w3x/w3e/file';
 import War3MapDoo from '../../../parsers/w3x/doo/file';
 import War3MapUnitsDoo from '../../../parsers/w3x/unitsdoo/file';
-import MpqArchive from '../../../parsers/mpq/archive';
 import MappedData from '../../../utils/mappeddata';
 import ModelViewer from '../../viewer';
 import Grid from '../../grid';
@@ -34,8 +34,6 @@ export default class War3MapViewer extends ModelViewer {
   constructor(canvas, wc3PathSolver) {
     super(canvas);
 
-    this.batchSize = 64;
-
     this.on('error', (target, error, reason) => console.error(target, error, reason));
 
     this.addHandler(geoHandler);
@@ -44,6 +42,8 @@ export default class War3MapViewer extends ModelViewer {
 
     /** @member {function} */
     this.wc3PathSolver = wc3PathSolver;
+
+    this.solverParams = {};
 
     this.groundShader = this.webgl.createShaderProgram(shaders.vsGround, shaders.fsGround);
     this.waterShader = this.webgl.createShaderProgram(shaders.vsWater, shaders.fsWater);
@@ -65,7 +65,9 @@ export default class War3MapViewer extends ModelViewer {
     this.terrainReady = false;
     this.cliffsReady = false;
 
-    this.whenLoaded(['TerrainArt\\Terrain.slk', 'TerrainArt\\CliffTypes.slk', 'TerrainArt\\Water.slk'].map((path) => this.loadGeneric(wc3PathSolver(path)[0], 'text')))
+    let terrainFiles = ['TerrainArt\\Terrain.slk', 'TerrainArt\\CliffTypes.slk', 'TerrainArt\\Water.slk'];
+
+    this.whenLoaded(terrainFiles.map((path) => this.loadGeneric(urlWithParams(wc3PathSolver(path)[0], this.solverParams), 'text')))
       .then(([terrain, cliffTypes, water]) => {
         this.terrainCliffsAndWaterLoaded = true;
         this.terrainData.load(terrain.data);
@@ -82,7 +84,9 @@ export default class War3MapViewer extends ModelViewer {
     this.terrainDoodads = [];
     this.doodadsReady = false;
 
-    this.whenLoaded(['Doodads\\Doodads.slk', 'Doodads\\DoodadMetaData.slk', 'Units\\DestructableData.slk', 'Units\\DestructableMetaData.slk'].map((path) => this.loadGeneric(wc3PathSolver(path)[0], 'text')))
+    let doodadFiles = ['Doodads\\Doodads.slk', 'Doodads\\DoodadMetaData.slk', 'Units\\DestructableData.slk', 'Units\\DestructableMetaData.slk'];
+
+    this.whenLoaded(doodadFiles.map((path) => this.loadGeneric(urlWithParams(wc3PathSolver(path)[0], this.solverParams), 'text')))
       .then(([doodads, doodadMetaData, destructableData, destructableMetaData]) => {
         this.doodadsAndDestructiblesLoaded = true;
         this.doodadsData.load(doodads.data);
@@ -98,7 +102,9 @@ export default class War3MapViewer extends ModelViewer {
     this.units = [];
     this.unitsReady = false;
 
-    this.whenLoaded(['Units\\UnitData.slk', 'Units\\unitUI.slk', 'Units\\ItemData.slk', 'Units\\UnitMetaData.slk'].map((path) => this.loadGeneric(wc3PathSolver(path)[0], 'text')))
+    let unitFiles = ['Units\\UnitData.slk', 'Units\\unitUI.slk', 'Units\\ItemData.slk', 'Units\\UnitMetaData.slk'];
+
+    this.whenLoaded(unitFiles.map((path) => this.loadGeneric(urlWithParams(wc3PathSolver(path)[0], this.solverParams), 'text')))
       .then(([unitData, unitUi, itemData, unitMetaData]) => {
         this.unitsAndItemsLoaded = true;
         this.unitsData.load(unitData.data);
@@ -355,21 +361,20 @@ export default class War3MapViewer extends ModelViewer {
 
     this.emit('maploaded');
 
-    this.tilesetMpq = new MpqArchive((await this.loadGeneric(wc3PathSolver(`${tileset}.mpq`)[0], 'arrayBuffer').whenLoaded()).data, true);
+    this.solverParams.tileset = tileset.toLowerCase();
 
-    this.mapPathSolver = (path) => {
+    this.mapPathSolver = (path, params) => {
       // MPQ paths have backwards slashes...always? Don't know.
       let mpqPath = path.replace(/\//g, '\\');
 
       // If the file is in the map, return it.
-      // Otherwise, if it's in the tileset MPQ, return it from there.
-      let file = this.mapMpq.get(mpqPath) || this.tilesetMpq.get(mpqPath);
+      let file = this.mapMpq.get(mpqPath);
       if (file) {
         return [file.arrayBuffer(), path.substr(path.lastIndexOf('.')), false];
       }
 
-      // Try to get the file from the game MPQs.
-      return wc3PathSolver(path);
+      // Try to get the file from the server.
+      return wc3PathSolver(path, params);
     };
 
     let w3e = new War3MapW3e(this.mapMpq.get('war3map.w3e').arrayBuffer());
@@ -720,7 +725,7 @@ export default class War3MapViewer extends ModelViewer {
       let path = cliff[0];
       let {locations, textures} = cliff[1];
 
-      return this.loadGeneric(this.mapPathSolver(path)[0], 'arrayBuffer')
+      return this.loadGeneric(urlWithParams(this.mapPathSolver(path)[0], this.solverParams), 'arrayBuffer')
         .whenLoaded()
         .then((resource) => {
           return new TerrainModel(gl, resource.data, locations, textures, this.cliffShader.attribs);
@@ -863,13 +868,12 @@ export default class War3MapViewer extends ModelViewer {
   }
 
   /**
+   * @override
    * @param {*} src
-   * @param {?function} pathSolver
-   * @param {?Object} options
-   * @return {Resource}
+   * @return {?Resource}
    */
-  load(src, pathSolver, options) {
-    return super.load(src, pathSolver || this.mapPathSolver, options);
+  load(src) {
+    return super.load(src, this.mapPathSolver, this.solverParams);
   }
 
   /**

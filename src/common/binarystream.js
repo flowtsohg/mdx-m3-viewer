@@ -8,21 +8,27 @@ let uint8 = new Uint8Array(8);
  */
 export default class BinaryStream {
   /**
-   * @param {ArrayBuffer|ArrayBufferView} buffer
+   * @param {ArrayBuffer|TypedArray} buffer
    * @param {number=} byteOffset
    * @param {number=} byteLength
    */
   constructor(buffer, byteOffset, byteLength) {
     // If given a view, use its properties.
     if (ArrayBuffer.isView(buffer)) {
-      buffer = buffer.buffer;
       byteOffset = buffer.byteOffset;
       byteLength = buffer.byteLength;
+      buffer = buffer.buffer;
     }
 
     if (!(buffer instanceof ArrayBuffer)) {
-      throw new TypeError(`BinaryStream: expected ArrayBuffer or ArrayBufferView, got ${buffer}`);
+      throw new TypeError(`BinaryStream: expected ArrayBuffer or TypedArray, got ${buffer}`);
     }
+
+    // For browsers not supporting the spec.
+    // Once upon a time I reported this issue on the Firefox tracker.
+    // Seems like Safari needs an issue report too.
+    byteOffset = byteOffset || 0;
+    byteLength = byteLength || buffer.byteLength;
 
     /** @member {ArrayBuffer} */
     this.buffer = buffer;
@@ -31,7 +37,7 @@ export default class BinaryStream {
     /** @member {number} */
     this.index = 0;
     /** @member {number} */
-    this.byteLength = buffer.byteLength;
+    this.byteLength = byteLength;
   }
 
   /**

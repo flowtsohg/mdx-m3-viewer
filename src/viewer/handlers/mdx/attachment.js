@@ -19,7 +19,7 @@ export default class Attachment extends GenericObject {
 
     // Second condition is against custom resources using arbitrary paths...
     if (path !== '' && path.indexOf('.mdx') != -1) {
-      this.internalModel = model.viewer.load(path, model.pathSolver);
+      this.internalModel = model.viewer.load(path, model.pathSolver, model.solverParams);
     }
   }
 

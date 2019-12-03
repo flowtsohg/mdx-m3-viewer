@@ -20,10 +20,10 @@ export default {
     void transform(inout vec3 position, inout vec3 normal) {
       mat4 bone;
 
-      bone += fetchMatrix(a_bones[0] + 1.0, 0.0) * a_weights[0];
-      bone += fetchMatrix(a_bones[1] + 1.0, 0.0) * a_weights[1];
-      bone += fetchMatrix(a_bones[2] + 1.0, 0.0) * a_weights[2];
-      bone += fetchMatrix(a_bones[3] + 1.0, 0.0) * a_weights[3];
+      bone += fetchMatrix(a_bones[0], 0.0) * a_weights[0];
+      bone += fetchMatrix(a_bones[1], 0.0) * a_weights[1];
+      bone += fetchMatrix(a_bones[2], 0.0) * a_weights[2];
+      bone += fetchMatrix(a_bones[3], 0.0) * a_weights[3];
 
       position = vec3(bone * vec4(position, 1.0));
       normal = mat3(bone) * normal;
@@ -115,6 +115,7 @@ export default {
     uniform vec2 u_uvTrans;
     uniform vec2 u_uvRot;
     uniform float u_uvScale;
+    uniform bool u_hasBones;
 
     attribute vec3 a_position;
     attribute vec3 a_normal;
@@ -140,18 +141,22 @@ export default {
         vec4 n;
 
         for (int i = 0; i < 4; i++) {
-          bone = fetchMatrix(a_bones[i], 0.0);
+          if (a_bones[i] > 0.0) {
+            bone = fetchMatrix(a_bones[i] - 1.0, 0.0);
 
-          p += bone * position4;
-          n += bone * normal4;
+            p += bone * position4;
+            n += bone * normal4;
+          }
         }
 
         #ifdef EXTENDED_BONES
           for (int i = 0; i < 4; i++) {
-            bone = fetchMatrix(a_extendedBones[i], 0.0);
+            if (a_extendedBones[i] > 0.0) {
+              bone = fetchMatrix(a_extendedBones[i] - 1.0, 0.0);
 
-            p += bone * position4;
-            n += bone * normal4;
+              p += bone * position4;
+              n += bone * normal4;
+            }
           }
         #endif
 
@@ -164,7 +169,9 @@ export default {
       vec3 position = a_position;
       vec3 normal = a_normal;
 
-      transform(position, normal);
+      if (u_hasBones) {
+        transform(position, normal);
+      }
 
       v_uv = a_uv;
       v_color = u_vertexColor * u_geosetColor.bgra * vec4(1.0, 1.0, 1.0, u_layerAlpha);

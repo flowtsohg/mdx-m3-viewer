@@ -363,24 +363,14 @@ function addTest(name, resource, instance, parser) {
 function addModelTest(name, ext, buffer, pathSolver) {
   let parser = new mdlx.Model(buffer);
 
-  let viewerModel = viewer.load(parser, (src) => {
+  let viewerModel = viewer.load(parser, (src, params) => {
     if (src === parser) {
       return [src, ext, false]
     } else if (pathSolver) {
       // If an external path solver is given, this is a Hive resource, and it will handle custom textures.
       return pathSolver(src);
     } else {
-      // REFORGED
-      // if (src.endsWith('.tif')) {
-      //   src = src.replace('.tif', '.dds');
-      // } else if (src.endsWith('.blp')) {
-      //   src = src.replace('.blp', '.dds');
-      // }
-
-      // return [localOrHive(src, 'reforged/_hd.w3mod'), src.substr(src.lastIndexOf('.')), true];
-
-      // NON-REFORGED
-      return [localOrHive(src), src.substr(src.lastIndexOf('.')), true];
+      return [localOrHive(src, params), src.substr(src.lastIndexOf('.')), true];
     }
   });
 

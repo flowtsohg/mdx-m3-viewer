@@ -1,6 +1,7 @@
 import {mat4} from 'gl-matrix';
 import ModelInstance from '../../modelinstance';
 import M3Skeleton from './skeleton';
+import DataTexture from '../../gl/datatexture';
 
 const boneHeap = mat4.create();
 
@@ -24,6 +25,8 @@ export default class M3ModelInstance extends ModelInstance {
     this.sequenceEnded = false;
 
     this.forced = true;
+
+    this.boneTexture = null;
   }
 
   /**
@@ -40,17 +43,8 @@ export default class M3ModelInstance extends ModelInstance {
     }
 
     let model = this.model;
-    let gl = model.viewer.gl;
-    let numberOfBones = model.boneLookup.length;
 
-    this.boneTexture = gl.createTexture();
-    this.boneTextureWidth = numberOfBones * 4;
-    this.vectorSize = 1 / this.boneTextureWidth;
-
-    gl.activeTexture(gl.TEXTURE15);
-    gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
-    model.viewer.webgl.setTextureMode(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, this.boneTextureWidth, 1, 0, gl.RGB, gl.FLOAT, null);
+    this.boneTexture = new DataTexture(model.viewer.gl, 3, model.boneLookup.length * 4, 1);
   }
 
   /**
@@ -59,7 +53,6 @@ export default class M3ModelInstance extends ModelInstance {
   updateBoneTexture() {
     let model = this.model;
     let viewer = model.viewer;
-    let gl = viewer.gl;
     let buffer = viewer.buffer;
     let boneLookup = model.boneLookup;
     let nodes = this.skeleton.nodes;
@@ -103,13 +96,7 @@ export default class M3ModelInstance extends ModelInstance {
       floatView[offset + 11] = finalMatrix[14];
     }
 
-    // Update the buffer.
-    buffer.bindAndUpdate(count * 48);
-
-
-    gl.activeTexture(gl.TEXTURE15);
-    gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.boneTextureWidth, 1, gl.RGB, gl.FLOAT, floatView);
+    this.boneTexture.bindAndUpdate(floatView, this.boneTexture.width, 1);
   }
 
   /**
@@ -128,6 +115,7 @@ export default class M3ModelInstance extends ModelInstance {
       let uniforms = shader.uniforms;
       let camera = this.scene.camera;
       let textureMapper = this.textureMapper;
+      let boneTexture = this.boneTexture;
 
       shader.use();
 
@@ -140,10 +128,9 @@ export default class M3ModelInstance extends ModelInstance {
       gl.uniform3fv(uniforms.u_eyePos, camera.location);
       gl.uniform3fv(uniforms.u_lightPos, model.handler.lightPosition);
 
-      gl.activeTexture(gl.TEXTURE15);
-      gl.bindTexture(gl.TEXTURE_2D, this.boneTexture);
+      boneTexture.bind(15);
       gl.uniform1i(uniforms.u_boneMap, 15);
-      gl.uniform1f(uniforms.u_vectorSize, this.vectorSize);
+      gl.uniform1f(uniforms.u_vectorSize, 1 / boneTexture.width);
       gl.uniform1f(uniforms.u_rowSize, 1);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, model.arrayBuffer);

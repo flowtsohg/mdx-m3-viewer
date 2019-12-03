@@ -2,7 +2,7 @@ import Parser from '../../../parsers/mdlx/model';
 import Model from '../../model';
 import TextureAnimation from './textureanimation';
 import Layer from './layer';
-import Material from './Material';
+import Material from './material';
 import GeosetAnimation from './geosetanimation';
 import replaceableIds from './replaceableids';
 import Bone from './bone';
@@ -28,7 +28,9 @@ export default class MdxModel extends Model {
   constructor(resourceData) {
     super(resourceData);
 
+    this.reforged = false;
     this.hd = false;
+    this.solverParams = {};
     this.name = '';
     this.sequences = [];
     this.globalSequences = [];
@@ -80,8 +82,8 @@ export default class MdxModel extends Model {
       parser = new Parser(bufferOrParser);
     }
 
+    this.reforged = parser.version > 800;
     this.name = parser.name;
-    this.version = parser.version;
 
     // Initialize the bounds.
     let extent = parser.extent;
@@ -125,6 +127,15 @@ export default class MdxModel extends Model {
       }
     }
 
+    if (this.reforged) {
+      this.solverParams.reforged = true;
+    }
+
+    if (this.hd) {
+      this.solverParams.hd = true;
+    }
+
+    let gl = this.viewer.gl;
     let usingTeamTextures = false;
 
     // Textures
@@ -161,25 +172,51 @@ export default class MdxModel extends Model {
         }
       }
 
-      if (this.version > 800 && !path.endsWith('.dds')) {
+      if (this.reforged && !path.endsWith('.dds')) {
         path = path.slice(0, -4) + '.dds';
       }
 
       this.replaceables.push(replaceableId);
 
-      let wrapS = !!(flags & 0x1);
-      let wrapT = !!(flags & 0x2);
+      let viewerTexture = this.viewer.load(path, this.pathSolver, this.solverParams);
 
-      if (this.hd) {
-        path = `_hd.w3mod/${path}`;
+      // When the texture will load, it will apply its wrap modes.
+      if (!viewerTexture.loaded) {
+        if (flags & 0x1) {
+          viewerTexture.wrapS = gl.REPEAT;
+        }
+
+        if (flags & 0x2) {
+          viewerTexture.wrapT = gl.REPEAT;
+        }
       }
 
-      this.textures.push(this.viewer.load(path, this.pathSolver, {wrapS, wrapT}));
+      this.textures.push(viewerTexture);
     }
 
+    // Start loading the team color and glow textures if this model uses them and they weren't loaded previously.
     if (usingTeamTextures) {
-      // Start loading the team color and glow textures.
-      this.loadTeamTextures();
+      let handler = this.handler;
+      let reforged = this.reforged;
+      let teamColors = reforged ? handler.reforgedTeamColors : handler.teamColors;
+      let teamGlows = reforged ? handler.reforgedTeamGlows : handler.teamGlows;
+
+      if (!teamColors.length) {
+        let viewer = this.viewer;
+        let pathSolver = this.pathSolver;
+        let ext = 'blp';
+
+        if (reforged) {
+          ext = 'dds';
+        }
+
+        for (let i = 0; i < 14; i++) {
+          let id = ('' + i).padStart(2, '0');
+
+          teamColors[i] = viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}.${ext}`, pathSolver, this.solverParams);
+          teamGlows[i] = viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}.${ext}`, pathSolver, this.solverParams);
+        }
+      }
     }
 
     // Geoset animations
@@ -284,32 +321,6 @@ export default class MdxModel extends Model {
     }
 
     this.variants = variants;
-  }
-
-  /**
-   *
-   */
-  loadTeamTextures() {
-    let handler = this.handler;
-
-    if (!handler.teamColors.length) {
-      let teamColors = handler.teamColors;
-      let teamGlows = handler.teamGlows;
-      let viewer = this.viewer;
-      let pathSolver = this.pathSolver;
-      let ext = 'blp';
-
-      if (this.version > 800) {
-        ext = 'dds';
-      }
-
-      for (let i = 0; i < 14; i++) {
-        let id = ('' + i).padStart(2, '0');
-
-        teamColors[i] = viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}.${ext}`, pathSolver);
-        teamGlows[i] = viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}.${ext}`, pathSolver);
-      }
-    }
   }
 
   /**

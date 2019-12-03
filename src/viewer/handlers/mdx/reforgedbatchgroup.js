@@ -20,6 +20,7 @@ export default class ReforgedBatchGroup {
    */
   render(instance) {
     let textureMapper = instance.textureMapper;
+    let boneTexture = instance.boneTexture;
     let model = this.model;
     let batches = model.batches;
     let viewer = model.viewer;
@@ -34,10 +35,10 @@ export default class ReforgedBatchGroup {
 
     gl.uniformMatrix4fv(uniforms.u_mvp, false, instance.scene.camera.worldProjectionMatrix);
 
-    gl.activeTexture(gl.TEXTURE15);
-    gl.bindTexture(gl.TEXTURE_2D, instance.boneTexture);
+    boneTexture.bind(15);
+
     gl.uniform1i(uniforms.u_boneMap, 15);
-    gl.uniform1f(uniforms.u_vectorSize, instance.vectorSize);
+    gl.uniform1f(uniforms.u_vectorSize, 1 / boneTexture.width);
     gl.uniform1f(uniforms.u_rowSize, 1);
 
     gl.uniform1i(uniforms.u_diffuseMap, 0);
@@ -71,7 +72,6 @@ export default class ReforgedBatchGroup {
         viewer.webgl.bindTexture(textureMapper.get(diffuseTexture) || diffuseTexture, 0);
         viewer.webgl.bindTexture(textureMapper.get(ormTexture) || ormTexture, 1);
         viewer.webgl.bindTexture(textureMapper.get(teamColorTexture) || teamColorTexture, 2);
-
 
         geoset.bindHd(shader, diffuseLayer.coordId);
         geoset.render();

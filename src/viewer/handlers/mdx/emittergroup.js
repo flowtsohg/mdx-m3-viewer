@@ -32,7 +32,7 @@ export default class EmitterGroup {
     gl.disable(gl.CULL_FACE);
     gl.enable(gl.DEPTH_TEST);
 
-    viewer.webgl.useShaderProgram(shader);
+    shader.use();
 
     gl.uniformMatrix4fv(uniforms.u_mvp, false, instance.scene.camera.worldProjectionMatrix);
     gl.uniform1i(uniforms.u_texture, 0);

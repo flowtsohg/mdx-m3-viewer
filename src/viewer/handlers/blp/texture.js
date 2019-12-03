@@ -7,9 +7,8 @@ import Texture from '../../texture';
 export default class BlpTexture extends Texture {
   /**
    * @param {ArrayBuffer|BlpImage} bufferOrImage
-   * @param {?Object} options
    */
-  load(bufferOrImage, options) {
+  load(bufferOrImage) {
     let image;
 
     if (bufferOrImage instanceof BlpImage) {
@@ -24,20 +23,7 @@ export default class BlpTexture extends Texture {
     let id = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, id);
 
-    let wrapS = gl.CLAMP_TO_EDGE;
-    let wrapT = gl.CLAMP_TO_EDGE;
-
-    if (options) {
-      if (options.wrapS) {
-        wrapS = gl.REPEAT;
-      }
-
-      if (options.wrapT) {
-        wrapT = gl.REPEAT;
-      }
-    }
-
-    viewer.webgl.setTextureMode(wrapS, wrapT, gl.LINEAR, gl.LINEAR);
+    viewer.webgl.setTextureMode(this.wrapS, this.wrapT, gl.LINEAR, gl.LINEAR);
 
     let imageData = image.getMipmap(0);
 
@@ -60,8 +46,8 @@ export default class BlpTexture extends Texture {
     //   gl.texImage2D(gl.TEXTURE_2D, i, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
     // }
 
+    this.webglResource = id;
     this.width = imageData.width;
     this.height = imageData.height;
-    this.webglResource = id;
   }
 }

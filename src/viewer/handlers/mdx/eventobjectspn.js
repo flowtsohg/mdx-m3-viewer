@@ -10,7 +10,7 @@ export default class EventObjectSpn extends EmittedObject {
   constructor(emitter) {
     super(emitter);
 
-    this.internalResource = emitter.emitterObject.internalResource.addInstance();
+    this.internalInstance = emitter.emitterObject.internalModel.addInstance();
   }
 
   /**
@@ -18,7 +18,7 @@ export default class EventObjectSpn extends EmittedObject {
    */
   bind() {
     let emitter = this.emitter;
-    let instance = this.internalResource;
+    let instance = this.internalInstance;
     let node = emitter.instance.nodes[emitter.emitterObject.index];
 
     instance.setSequence(0);
@@ -35,7 +35,7 @@ export default class EventObjectSpn extends EmittedObject {
    * @param {number} dt
    */
   update(dt) {
-    let instance = this.internalResource;
+    let instance = this.internalInstance;
 
     // Once the sequence finishes, this event object dies
     if (instance.frame >= instance.model.sequences[0].interval[1]) {

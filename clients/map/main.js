@@ -6,10 +6,10 @@ const glMatrix = common.glMatrix;
 const vec3 = glMatrix.vec3;
 const quat = glMatrix.quat;
 
-function wc3PathSolver(src) {
-  src = localOrHive(src.toLowerCase().replace(/\\/g, '/'));
+function wc3PathSolver(src, params) {
+  let finalSrc = localOrHive(src.toLowerCase().replace(/\\/g, '/'), params);
 
-  return [src, src.substr(src.lastIndexOf('.')), true];
+  return [finalSrc, src.substr(src.lastIndexOf('.')), true];
 }
 
 let statusElement = document.getElementById('status');

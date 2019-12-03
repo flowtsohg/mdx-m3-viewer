@@ -108,17 +108,21 @@ export default class UnitTester {
    * @return {boolean}
    */
   isDataAGo(data) {
-    if (Array.isArray(data)) {
-      for (let resource of data) {
-        if (!resource.ok) {
-          return false;
+    if (data) {
+      if (Array.isArray(data)) {
+        for (let resource of data) {
+          if (!resource.ok) {
+            return false;
+          }
         }
+
+        return true;
       }
 
-      return true;
+      return data.ok;
     }
 
-    return data.ok;
+    return false;
   }
 
   /**

@@ -212,12 +212,12 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Load something. The meat of this whole project.
    *
-   * @param {?} src The source used for the load.
-   * @param {function(?)} pathSolver The path solver used by this load, and any subsequent loads that are caused by it (for example, a model that loads its textures).
-   * @param {?Object} options An options object that will be sent to the resource's load function.
-   * @return {Resource}
+   * @param {*} src The source used for the load.
+   * @param {function(*)} pathSolver The path solver used by this load, and any subsequent loads that are caused by it (for example, a model that loads its textures).
+   * @param {?Object} solverParams An optional object containing parameters to be passed to the path solver.
+   * @return {?Resource}
    */
-  load(src, pathSolver, options) {
+  load(src, pathSolver, solverParams) {
     if (src) {
       let extension;
       let serverFetch;
@@ -228,7 +228,7 @@ export default class ModelViewer extends EventEmitter {
         serverFetch = false;
         pathSolver = null;
       } else {
-        [src, extension, serverFetch] = pathSolver(src);
+        [src, extension, serverFetch] = pathSolver(src, solverParams);
       }
 
       let handlerAndDataType = this.findHandler(extension.toLowerCase());
@@ -264,7 +264,7 @@ export default class ModelViewer extends EventEmitter {
               let data = response.data;
 
               if (response.ok) {
-                resource.loadData(data, options);
+                resource.loadData(data);
               } else {
                 resource.error('FailedToFetch');
 
@@ -272,7 +272,7 @@ export default class ModelViewer extends EventEmitter {
               }
             });
         } else {
-          resource.loadData(src, options);
+          resource.loadData(src);
         }
 
         return resource;

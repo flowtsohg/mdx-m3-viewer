@@ -38,14 +38,13 @@ export default class Resource extends EventEmitter {
    * Otherwise it will be called when the server fetch finishes, assuming it succeeded.
    *
    * @param {string|ArrayBuffer|Image} src
-   * @param {?Object} options
    */
-  loadData(src, options) {
+  loadData(src) {
     this.loaded = true;
 
     // In case the resource parsing/loading fails, e.g. if the source is not valid.
     try {
-      this.load(src, options);
+      this.load(src);
 
       this.ok = true;
 
@@ -60,9 +59,8 @@ export default class Resource extends EventEmitter {
 
   /**
    * @param {*} src
-   * @param {?Object} options
    */
-  load(src, options) {
+  load(src) {
 
   }
 

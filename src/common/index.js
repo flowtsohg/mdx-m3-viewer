@@ -5,6 +5,7 @@ import * as canvas from './canvas';
 import * as geometry from './geometry';
 import BinaryStream from './binarystream';
 import BitStream from './bitstream';
+import urlWithParams from './urlwithparams';
 
 export default {
   glMatrix,
@@ -14,4 +15,5 @@ export default {
   geometry,
   BinaryStream,
   BitStream,
+  urlWithParams,
 };

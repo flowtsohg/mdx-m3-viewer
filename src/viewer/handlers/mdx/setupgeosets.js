@@ -122,7 +122,7 @@ export default function setupGeosets(model, geosets) {
               let bones = Math.min(matrixGroup.length, maxBones);
 
               for (let j = 0; j < bones; j++) {
-                skin[offset + j] = matrixGroup[j] + 1; // 1 is added to every index for shader optimization (index 0 is a zero matrix)
+                skin[offset + j] = matrixGroup[j] + 1; // 1 is added to diffrentiate between matrix 0, and no matrix.
               }
 
               skin[offset + maxBones] = bones;

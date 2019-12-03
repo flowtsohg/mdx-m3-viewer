@@ -51,7 +51,17 @@ export default class Layer extends AnimatedObject {
      * @since 1000
      * @member {Float32Array}
      */
-    this.unknowns = new Float32Array(5);
+    this.fresnelColor = new Float32Array(3);
+    /**
+     * @since 1000
+     * @member {number}
+     */
+    this.fresnelOpacity = 0;
+    /**
+     * @since 1000
+     * @member {number}
+     */
+    this.fresnelTeamColor = 0;
 
   }
 
@@ -70,12 +80,15 @@ export default class Layer extends AnimatedObject {
     this.coordId = stream.readUint32();
     this.alpha = stream.readFloat32();
 
+    // Note that even though these fields were introduced in version 900 and 1000 separately, the game does not offer backwards compatibility.
     if (version > 800) {
       this.emissiveGain = stream.readFloat32();
     }
 
     if (version > 900) {
-      stream.readFloat32Array(this.unknowns);
+      stream.readFloat32Array(this.fresnelColor);
+      this.fresnelOpacity = stream.readFloat32();
+      this.fresnelTeamColor = stream.readFloat32();
     }
 
     this.readAnimations(stream, size - (stream.index - start));
@@ -94,12 +107,12 @@ export default class Layer extends AnimatedObject {
     stream.writeUint32(this.coordId);
     stream.writeFloat32(this.alpha);
 
+    // See note above in readMdx.
     if (version > 800) {
       stream.writeFloat32(this.emissiveGain);
-    }
-
-    if (version > 900) {
-      stream.writeFloat32Array(this.unknowns);
+      stream.writeFloat32Array(this.fresnelColor);
+      stream.writeFloat32(this.fresnelOpacity);
+      stream.writeFloat32(this.fresnelTeamColor);
     }
 
     this.writeAnimations(stream);
@@ -200,12 +213,9 @@ export default class Layer extends AnimatedObject {
   getByteLength(version) {
     let size = 28 + super.getByteLength();
 
+    // See note above in readMdx.
     if (version > 800) {
-      size += 4;
-    }
-
-    if (version > 900) {
-      size += 20;
+      size += 24;
     }
 
     return size;

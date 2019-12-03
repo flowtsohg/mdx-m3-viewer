@@ -53,10 +53,10 @@ export default class ClientDataTexture {
   }
 
   /**
-  * @param {number} width
-  * @param {number} height
+  * @param {?number} width
+  * @param {?number} height
   */
-  bindAndUpdate(width, height) {
+  bindAndUpdate(width = this.width, height = this.height) {
     const gl = this.gl;
 
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
