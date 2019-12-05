@@ -11,7 +11,7 @@ export default class TextureAnimation extends AnimatedObject {
    * @return {number}
    */
   getTranslation(out, instance) {
-    return this.getVector3Value(out, 'KTAT', instance, VEC3_ZERO);
+    return this.getVectorValue(out, 'KTAT', instance, VEC3_ZERO);
   }
 
   /**
@@ -20,7 +20,7 @@ export default class TextureAnimation extends AnimatedObject {
    * @return {number}
    */
   getRotation(out, instance) {
-    return this.getVector4Value(out, 'KTAR', instance, QUAT_DEFAULT);
+    return this.getQuatValue(out, 'KTAR', instance, QUAT_DEFAULT);
   }
 
   /**
@@ -29,7 +29,7 @@ export default class TextureAnimation extends AnimatedObject {
    * @return {number}
    */
   getScale(out, instance) {
-    return this.getVector3Value(out, 'KTAS', instance, VEC3_ONE);
+    return this.getVectorValue(out, 'KTAS', instance, VEC3_ONE);
   }
 
   /**

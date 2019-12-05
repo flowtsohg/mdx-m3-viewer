@@ -57,6 +57,10 @@ export default class GenericObject extends AnimatedObject {
       generic: [],
     };
 
+    let hasTranslationAnim = false;
+    let hasRotationAnim = false;
+    let hasScaleAnim = false;
+
     for (let i = 0, l = model.sequences.length; i < l; i++) {
       let translation = this.isTranslationVariant(i);
       let rotation = this.isRotationVariant(i);
@@ -66,9 +70,17 @@ export default class GenericObject extends AnimatedObject {
       variants.rotation[i] = rotation;
       variants.scale[i] = scale;
       variants.generic[i] = translation || rotation || scale;
+
+      hasTranslationAnim = hasTranslationAnim || translation;
+      hasRotationAnim = hasRotationAnim || rotation;
+      hasScaleAnim = hasScaleAnim || scale;
     }
 
     this.variants = variants;
+    this.hasTranslationAnim = hasTranslationAnim;
+    this.hasRotationAnim = hasRotationAnim;
+    this.hasScaleAnim = hasScaleAnim;
+    this.hasGenericAnim = hasTranslationAnim || hasRotationAnim || hasScaleAnim;
   }
 
   /**
@@ -90,7 +102,7 @@ export default class GenericObject extends AnimatedObject {
    * @return {number}
    */
   getTranslation(out, instance) {
-    return this.getVector3Value(out, 'KGTR', instance, VEC3_ZERO);
+    return this.getVectorValue(out, 'KGTR', instance, VEC3_ZERO);
   }
 
   /**
@@ -99,7 +111,7 @@ export default class GenericObject extends AnimatedObject {
    * @return {number}
    */
   getRotation(out, instance) {
-    return this.getVector4Value(out, 'KGRT', instance, QUAT_DEFAULT);
+    return this.getQuatValue(out, 'KGRT', instance, QUAT_DEFAULT);
   }
 
   /**
@@ -108,7 +120,7 @@ export default class GenericObject extends AnimatedObject {
    * @return {number}
    */
   getScale(out, instance) {
-    return this.getVector3Value(out, 'KGSC', instance, VEC3_ONE);
+    return this.getVectorValue(out, 'KGSC', instance, VEC3_ONE);
   }
 
   /**

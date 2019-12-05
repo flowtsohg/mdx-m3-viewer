@@ -29,6 +29,6 @@ export default class Attachment extends GenericObject {
    * @return {number}
    */
   getVisibility(out, instance) {
-    return this.getFloatValue(out, 'KATV', instance, 1);
+    return this.getScalarValue(out, 'KATV', instance, 1);
   }
 }

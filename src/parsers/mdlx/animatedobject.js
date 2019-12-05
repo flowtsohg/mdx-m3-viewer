@@ -17,13 +17,13 @@ export default class AnimatedObject {
    * @param {number} size
    */
   readAnimations(stream, size) {
-    while (size > 0) {
+    let end = stream.index + size;
+
+    while (stream.index < end) {
       let name = stream.read(4);
       let animation = new animationMap[name][1]();
 
       animation.readMdx(stream, name);
-
-      size -= animation.getByteLength();
 
       this.animations.push(animation);
     }

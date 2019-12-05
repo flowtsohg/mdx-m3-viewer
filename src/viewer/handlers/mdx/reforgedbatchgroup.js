@@ -26,7 +26,7 @@ export default class ReforgedBatchGroup {
     let viewer = model.viewer;
     let gl = viewer.gl;
     let textures = model.textures;
-    let teamColorTextures = model.handler.teamColors;
+    let teamColorTextures = model.handler.reforgedTeamColors;
     let shader = model.handler.hdShader; /// TODO: select the shader.
 
     shader.use();

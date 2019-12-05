@@ -140,7 +140,7 @@ export default class Layer extends AnimatedObject {
    * @return {number}
    */
   getAlpha(out, instance) {
-    return this.getFloatValue(out, 'KMTA', instance, this.alpha);
+    return this.getScalarValue(out, 'KMTA', instance, this.alpha);
   }
 
   /**
@@ -149,7 +149,7 @@ export default class Layer extends AnimatedObject {
    * @return {number}
    */
   getTextureId(out, instance) {
-    return this.getUintValue(out, 'KMTF', instance, this.textureId);
+    return this.getScalarValue(out, 'KMTF', instance, this.textureId);
   }
 
   /**

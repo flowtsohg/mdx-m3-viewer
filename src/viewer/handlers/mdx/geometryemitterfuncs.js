@@ -138,9 +138,13 @@ function bindParticleEmitter2Shader(emitter, shader) {
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 
   if (replaceable === 1) {
-    texture = model.handler.teamColors[instance.teamColor];
+    let teamColors = model.reforged ? model.handler.reforgedTeamColors : model.handler.teamColors;
+
+    texture = teamColors[instance.teamColor];
   } else if (replaceable === 2) {
-    texture = model.handler.teamGlows[instance.teamColor];
+    let teamGlows = model.reforged ? model.handler.reforgedTeamGlows : model.handler.teamGlows;
+
+    texture = teamGlows[instance.teamColor];
   } else {
     texture = emitterObject.internalTexture;
   }

@@ -27,7 +27,7 @@ export default class ParticleEmitterObject extends GenericObject {
    * @return {number}
    */
   getSpeed(out, instance) {
-    return this.getFloatValue(out, 'KPES', instance, this.speed);
+    return this.getScalarValue(out, 'KPES', instance, this.speed);
   }
 
   /**
@@ -36,7 +36,7 @@ export default class ParticleEmitterObject extends GenericObject {
    * @return {number}
    */
   getLatitude(out, instance) {
-    return this.getFloatValue(out, 'KPLTV', instance, this.latitude);
+    return this.getScalarValue(out, 'KPLTV', instance, this.latitude);
   }
 
   /**
@@ -45,7 +45,7 @@ export default class ParticleEmitterObject extends GenericObject {
    * @return {number}
    */
   getLongitude(out, instance) {
-    return this.getFloatValue(out, 'KPLN', instance, this.longitude);
+    return this.getScalarValue(out, 'KPLN', instance, this.longitude);
   }
 
   /**
@@ -54,7 +54,7 @@ export default class ParticleEmitterObject extends GenericObject {
    * @return {number}
    */
   getLifeSpan(out, instance) {
-    return this.getFloatValue(out, 'KPEL', instance, this.lifeSpan);
+    return this.getScalarValue(out, 'KPEL', instance, this.lifeSpan);
   }
 
   /**
@@ -63,7 +63,7 @@ export default class ParticleEmitterObject extends GenericObject {
    * @return {number}
    */
   getGravity(out, instance) {
-    return this.getFloatValue(out, 'KPEG', instance, this.gravity);
+    return this.getScalarValue(out, 'KPEG', instance, this.gravity);
   }
 
   /**
@@ -72,7 +72,7 @@ export default class ParticleEmitterObject extends GenericObject {
    * @return {number}
    */
   getEmissionRate(out, instance) {
-    return this.getFloatValue(out, 'KPEE', instance, this.emissionRate);
+    return this.getScalarValue(out, 'KPEE', instance, this.emissionRate);
   }
 
   /**
@@ -81,6 +81,6 @@ export default class ParticleEmitterObject extends GenericObject {
    * @return {number}
    */
   getVisibility(out, instance) {
-    return this.getFloatValue(out, 'KPEV', instance, 1);
+    return this.getScalarValue(out, 'KPEV', instance, 1);
   }
 }

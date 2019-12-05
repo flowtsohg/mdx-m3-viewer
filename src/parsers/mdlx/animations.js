@@ -1,12 +1,7 @@
-import {UintTrack, FloatTrack, Vector3Track, Vector4Track} from './tracks';
-
 /**
- * A templated animation.
- *
- * @param {UintTrack|FloatTrack|Vector3Track|Vector4Track} TrackType
- * @return {class}
+ * An animation.
  */
-const templatedAnimation = (TrackType) => class {
+class Animation {
   /**
    *
    */
@@ -17,8 +12,14 @@ const templatedAnimation = (TrackType) => class {
     this.interpolationType = 0;
     /** @member {number} */
     this.globalSequenceId = -1;
-    /** @member {Array<Track>} */
-    this.tracks = [];
+    /** @member {Array<number>} */
+    this.frames = [];
+    /** @member {Array<Uint32Array|Float32Array>} */
+    this.values = [];
+    /** @member {Array<Uint32Array|Float32Array>} */
+    this.inTans = [];
+    /** @member {Array<Uint32Array|Float32Array>} */
+    this.outTans = [];
   }
 
   /**
@@ -26,19 +27,25 @@ const templatedAnimation = (TrackType) => class {
    * @param {string} name
    */
   readMdx(stream, name) {
+    let frames = this.frames;
+    let values = this.values;
+    let inTans = this.inTans;
+    let outTans = this.outTans;
+    let tracksCount = stream.readUint32();
+    let interpolationType = stream.readUint32();
+
     this.name = name;
-
-    const tracksCount = stream.readUint32();
-
-    this.interpolationType = stream.readUint32();
+    this.interpolationType = interpolationType;
     this.globalSequenceId = stream.readInt32();
 
     for (let i = 0; i < tracksCount; i++) {
-      const track = new TrackType();
+      frames.push(stream.readInt32());
+      values.push(this.readMdxValue(stream));
 
-      track.readMdx(stream, this.interpolationType);
-
-      this.tracks.push(track);
+      if (interpolationType > 1) {
+        inTans.push(this.readMdxValue(stream));
+        outTans.push(this.readMdxValue(stream));
+      }
     }
   }
 
@@ -46,13 +53,26 @@ const templatedAnimation = (TrackType) => class {
    * @param {BinaryStream} stream
    */
   writeMdx(stream) {
+    let interpolationType = this.interpolationType;
+    let frames = this.frames;
+    let values = this.values;
+    let inTans = this.inTans;
+    let outTans = this.outTans;
+    let tracksCount = frames.length;
+
     stream.write(this.name);
-    stream.writeUint32(this.tracks.length);
-    stream.writeUint32(this.interpolationType);
+    stream.writeUint32(tracksCount);
+    stream.writeUint32(interpolationType);
     stream.writeInt32(this.globalSequenceId);
 
-    for (const track of this.tracks) {
-      track.writeMdx(stream, this.interpolationType);
+    for (let i = 0; i < tracksCount; i++) {
+      stream.writeInt32(frames[i]);
+      stream.writeTypedArray(values[i]);
+
+      if (interpolationType > 1) {
+        stream.writeTypedArray(inTans[i]);
+        stream.writeTypedArray(outTans[i]);
+      }
     }
   }
 
@@ -61,13 +81,18 @@ const templatedAnimation = (TrackType) => class {
    * @param {string} name
    */
   readMdl(stream, name) {
+    let frames = this.frames;
+    let values = this.values;
+    let inTans = this.inTans;
+    let outTans = this.outTans;
+
     this.name = name;
 
-    const numberOfTracks = stream.readInt();
+    let tracksCount = stream.readInt();
 
     stream.read(); // {
 
-    const token = stream.read();
+    let token = stream.read();
 
     if (token === 'DontInterp') {
       this.interpolationType = 0;
@@ -86,12 +111,16 @@ const templatedAnimation = (TrackType) => class {
       this.globalSequenceId = stream.readInt();
     }
 
-    for (let i = 0; i < numberOfTracks; i++) {
-      const track = new TrackType();
+    for (let i = 0; i < tracksCount; i++) {
+      frames[i] = stream.readInt();
+      values[i] = this.readValueMdl(stream);
 
-      track.readMdl(stream, this.interpolationType);
-
-      this.tracks[i] = track;
+      if (interpolationType > 1) {
+        stream.read(); // InTan
+        inTans[i] = this.readValueMdl(stream);
+        stream.read(); // OutTan
+        outTans[i] = this.readValueMdl(stream);
+      }
     }
 
     stream.read(); // }
@@ -102,6 +131,13 @@ const templatedAnimation = (TrackType) => class {
    * @param {string} name
    */
   writeMdl(stream, name) {
+    let interpolationType = this.interpolationType;
+    let frames = this.frames;
+    let values = this.values;
+    let inTans = this.inTans;
+    let outTans = this.outTans;
+    let tracksCount = frames.length;
+
     stream.startBlock(name, this.tracks.length);
 
     let token;
@@ -122,8 +158,15 @@ const templatedAnimation = (TrackType) => class {
       stream.writeAttrib('GlobalSeqId', this.globalSequenceId);
     }
 
-    for (const track of this.tracks) {
-      track.writeMdl(stream, this.interpolationType);
+    for (let i = 0; i < tracksCount; i++) {
+      stream.writeKeyframe(`${frames[i]}:`, values[i]);
+
+      if (interpolationType > 1) {
+        stream.indent();
+        stream.writeKeyframe('InTan', inTans[i]);
+        stream.writeKeyframe('OutTan', outTans[i]);
+        stream.unindent();
+      }
     }
 
     stream.endBlock();
@@ -133,33 +176,104 @@ const templatedAnimation = (TrackType) => class {
    * @return {number}
    */
   getByteLength() {
-    let tracks = this.tracks;
+    let tracksCount = this.frames.length;
     let size = 16;
 
-    if (tracks.length) {
-      size += tracks[0].getByteLength(this.interpolationType) * tracks.length;
+    if (tracksCount) {
+      let bytesPerValue = this.values[i].byteLength;
+      let valuesPerTrack = 1;
+
+      if (this.interpolationType > 1) {
+        valuesPerTrack = 3;
+      }
+
+      size += (4 + valuesPerTrack * bytesPerValue) * tracksCount;
     }
 
     return size;
   }
-};
+}
 
 /**
  * A uint animation.
  */
-export const UintAnimation = templatedAnimation(UintTrack);
+export class UintAnimation extends Animation {
+  /**
+   * @param {BinaryStream} stream
+   * @return {Uint32Array}
+   */
+  readMdxValue(stream) {
+    return stream.readUint32Array(1);
+  }
+
+  /**
+   * @param {TokenStream} stream
+   * @return {Uint32Array}
+   */
+  readMdlValue(stream) {
+    return stream.readKeyframe(new Uint32Array(1));
+  }
+}
 
 /**
  * A float animation
  */
-export const FloatAnimation = templatedAnimation(FloatTrack);
+export class FloatAnimation extends Animation {
+  /**
+   * @param {BinaryStream} stream
+   * @return {Float32Array}
+   */
+  readMdxValue(stream) {
+    return stream.readFloat32Array(1);
+  }
+
+  /**
+   * @param {TokenStream} stream
+   * @return {Float32Array}
+   */
+  readMdlValue(stream) {
+    return stream.readKeyframe(new Float32Array(1));
+  }
+}
 
 /**
  * A vector 3 animation.
  */
-export const Vector3Animation = templatedAnimation(Vector3Track);
+export class Vector3Animation extends Animation {
+  /**
+   * @param {BinaryStream} stream
+   * @return {Float32Array}
+   */
+  readMdxValue(stream) {
+    return stream.readFloat32Array(3);
+  }
+
+  /**
+   * @param {TokenStream} stream
+   * @return {Float32Array}
+   */
+  readMdlValue(stream) {
+    return stream.readKeyframe(new Float32Array(3));
+  }
+}
 
 /**
  * A vector 4 animation.
  */
-export const Vector4Animation = templatedAnimation(Vector4Track);
+export class Vector4Animation extends Animation {
+  /**
+   * @param {BinaryStream} stream
+   * @return {Float32Array}
+   */
+  readMdxValue(stream) {
+    return stream.readFloat32Array(4);
+  }
+
+  /**
+   * @param {TokenStream} stream
+   * @return {Float32Array}
+   */
+  readMdlValue(stream) {
+    return stream.readKeyframe(new Float32Array(4));
+  }
+}

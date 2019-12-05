@@ -62,7 +62,6 @@ export default class Layer extends AnimatedObject {
      * @member {number}
      */
     this.fresnelTeamColor = 0;
-
   }
 
   /**
@@ -80,12 +79,9 @@ export default class Layer extends AnimatedObject {
     this.coordId = stream.readUint32();
     this.alpha = stream.readFloat32();
 
-    // Note that even though these fields were introduced in version 900 and 1000 separately, the game does not offer backwards compatibility.
+    // Note that even though these fields were introduced in versions 900 and 1000 separately, the game does not offer backwards compatibility.
     if (version > 800) {
       this.emissiveGain = stream.readFloat32();
-    }
-
-    if (version > 900) {
       stream.readFloat32Array(this.fresnelColor);
       this.fresnelOpacity = stream.readFloat32();
       this.fresnelTeamColor = stream.readFloat32();

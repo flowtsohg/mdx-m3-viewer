@@ -513,7 +513,7 @@ export default class BinaryStream {
   /**
    * Read into a typed array.
    *
-   * @param {ArrayBufferView} view
+   * @param {TypedArray} view
    */
   readTypedArray(view) {
     let buffer = new Uint8Array(view.buffer);
@@ -851,7 +851,7 @@ export default class BinaryStream {
   /**
    * Write a typed array.
    *
-   * @param {ArrayBufferView} view
+   * @param {TypedArray} view
    */
   writeTypedArray(view) {
     let buffer = new Uint8Array(view.buffer);

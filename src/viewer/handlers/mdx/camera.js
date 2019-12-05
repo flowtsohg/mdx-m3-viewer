@@ -26,7 +26,7 @@ export default class Camera extends GenericObject {
    * @return {number}
    */
   getPositionTranslation(out, instance) {
-    return this.getVector3Value(out, 'KCTR', instance, this.position);
+    return this.getVectorValue(out, 'KCTR', instance, this.position);
   }
 
   /**
@@ -35,7 +35,7 @@ export default class Camera extends GenericObject {
    * @return {number}
    */
   getTargetTranslation(out, instance) {
-    return this.getVector3Value(out, 'KTTR', instance, this.targetPosition);
+    return this.getVectorValue(out, 'KTTR', instance, this.targetPosition);
   }
 
   /**
@@ -44,6 +44,6 @@ export default class Camera extends GenericObject {
    * @return {number}
    */
   getRotation(out, instance) {
-    return this.getUintValue(out, 'KCRL', instance, 0);
+    return this.getScalarValue(out, 'KCRL', instance, 0);
   }
 }

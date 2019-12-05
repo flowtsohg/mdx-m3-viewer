@@ -88,7 +88,7 @@ export default class ParticleEmitter2Object extends GenericObject {
    * @return {number}
    */
   getWidth(out, instance) {
-    return this.getFloatValue(out, 'KP2N', instance, this.width);
+    return this.getScalarValue(out, 'KP2N', instance, this.width);
   }
 
   /**
@@ -97,7 +97,7 @@ export default class ParticleEmitter2Object extends GenericObject {
    * @return {number}
    */
   getLength(out, instance) {
-    return this.getFloatValue(out, 'KP2W', instance, this.length);
+    return this.getScalarValue(out, 'KP2W', instance, this.length);
   }
 
   /**
@@ -106,7 +106,7 @@ export default class ParticleEmitter2Object extends GenericObject {
    * @return {number}
    */
   getSpeed(out, instance) {
-    return this.getFloatValue(out, 'KP2S', instance, this.speed);
+    return this.getScalarValue(out, 'KP2S', instance, this.speed);
   }
 
   /**
@@ -115,7 +115,7 @@ export default class ParticleEmitter2Object extends GenericObject {
    * @return {number}
    */
   getLatitude(out, instance) {
-    return this.getFloatValue(out, 'KP2L', instance, this.latitude);
+    return this.getScalarValue(out, 'KP2L', instance, this.latitude);
   }
 
   /**
@@ -124,7 +124,7 @@ export default class ParticleEmitter2Object extends GenericObject {
    * @return {number}
    */
   getGravity(out, instance) {
-    return this.getFloatValue(out, 'KP2G', instance, this.gravity);
+    return this.getScalarValue(out, 'KP2G', instance, this.gravity);
   }
 
   /**
@@ -133,7 +133,7 @@ export default class ParticleEmitter2Object extends GenericObject {
    * @return {number}
    */
   getEmissionRate(out, instance) {
-    return this.getFloatValue(out, 'KP2E', instance, this.emissionRate);
+    return this.getScalarValue(out, 'KP2E', instance, this.emissionRate);
   }
 
   /**
@@ -142,7 +142,7 @@ export default class ParticleEmitter2Object extends GenericObject {
    * @return {number}
    */
   getVisibility(out, instance) {
-    return this.getFloatValue(out, 'KP2V', instance, 1);
+    return this.getScalarValue(out, 'KP2V', instance, 1);
   }
 
   /**
@@ -151,6 +151,6 @@ export default class ParticleEmitter2Object extends GenericObject {
    * @return {number}
    */
   getVariation(out, instance) {
-    return this.getFloatValue(out, 'KP2R', instance, this.variation);
+    return this.getScalarValue(out, 'KP2R', instance, this.variation);
   }
 }

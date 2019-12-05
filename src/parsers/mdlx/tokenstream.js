@@ -132,6 +132,7 @@ export default class TokenStream {
    * If the value is a scalar, it us just the number.
    * If the value is a vector, it is enclosed with curly braces.
    * @param {Float32Array|Uint32Array} value
+   * @return {Float32Array|Uint32Array}
    */
   readKeyframe(value) {
     if (value.length === 1) {
@@ -143,6 +144,8 @@ export default class TokenStream {
     } else {
       this.readTypedArray(value);
     }
+
+    return value;
   }
 
   /**

@@ -34,7 +34,7 @@ export default class RibbonEmitterObject extends GenericObject {
    * @return {number}
    */
   getHeightBelow(out, instance) {
-    return this.getFloatValue(out, 'KRHB', instance, this.heightBelow);
+    return this.getScalarValue(out, 'KRHB', instance, this.heightBelow);
   }
 
   /**
@@ -43,7 +43,7 @@ export default class RibbonEmitterObject extends GenericObject {
    * @return {number}
    */
   getHeightAbove(out, instance) {
-    return this.getFloatValue(out, 'KRHA', instance, this.heightAbove);
+    return this.getScalarValue(out, 'KRHA', instance, this.heightAbove);
   }
 
   /**
@@ -52,7 +52,7 @@ export default class RibbonEmitterObject extends GenericObject {
    * @return {number}
    */
   getTextureSlot(out, instance) {
-    return this.getUintValue(out, 'KRTX', instance, 0);
+    return this.getScalarValue(out, 'KRTX', instance, 0);
   }
 
   /**
@@ -61,7 +61,7 @@ export default class RibbonEmitterObject extends GenericObject {
    * @return {number}
    */
   getColor(out, instance) {
-    return this.getVector3Value(out, 'KRCO', instance, this.color);
+    return this.getVectorValue(out, 'KRCO', instance, this.color);
   }
 
   /**
@@ -70,7 +70,7 @@ export default class RibbonEmitterObject extends GenericObject {
    * @return {number}
    */
   getAlpha(out, instance) {
-    return this.getFloatValue(out, 'KRAL', instance, this.alpha);
+    return this.getScalarValue(out, 'KRAL', instance, this.alpha);
   }
 
   /**
@@ -79,6 +79,6 @@ export default class RibbonEmitterObject extends GenericObject {
    * @return {number}
    */
   getVisibility(out, instance) {
-    return this.getFloatValue(out, 'KRVS', instance, 1);
+    return this.getScalarValue(out, 'KRVS', instance, 1);
   }
 }

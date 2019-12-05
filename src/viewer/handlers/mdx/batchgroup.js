@@ -20,25 +20,28 @@ export default class BatchGroup {
    */
   render(instance) {
     let model = this.model;
+    let textures = model.textures;
+    let handler = model.handler;
+    let teamColors = handler.teamColors;
+    let teamGlows = handler.teamGlows;
     let batches = model.batches;
     let replaceables = model.replaceables;
     let viewer = model.viewer;
     let gl = viewer.gl;
-    let scene = instance.scene;
     let isExtended = this.isExtended;
     let shader;
 
     if (isExtended) {
-      shader = model.handler.extendedShader;
+      shader = handler.extendedShader;
     } else {
-      shader = model.handler.complexShader;
+      shader = handler.complexShader;
     }
 
     shader.use();
 
     let uniforms = shader.uniforms;
 
-    gl.uniformMatrix4fv(uniforms.u_mvp, false, scene.camera.worldProjectionMatrix);
+    gl.uniformMatrix4fv(uniforms.u_mvp, false, instance.scene.camera.worldProjectionMatrix);
 
     let boneTexture = instance.boneTexture;
 
@@ -60,11 +63,6 @@ export default class BatchGroup {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.elementBuffer);
 
     gl.uniform4fv(uniforms.u_vertexColor, instance.vertexColor);
-
-    let reforged = model.reforged;
-    let handler = model.handler;
-    let teamColors = reforged ? handler.reforgedTeamColors : handler.teamColors;
-    let teamGlows = reforged ? handler.reforgedTeamGlows : handler.teamGlows;
 
     for (let index of this.objects) {
       let batch = batches[index];
@@ -97,7 +95,7 @@ export default class BatchGroup {
         } else if (replaceable === 2) {
           texture = teamGlows[instance.teamColor];
         } else {
-          texture = model.textures[layerTexture];
+          texture = textures[layerTexture];
         }
 
         viewer.webgl.bindTexture(instance.textureMapper.get(texture) || texture, 0);

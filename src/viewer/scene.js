@@ -60,20 +60,24 @@ export default class Scene {
    * The returned promise will resolve to whether it is actually running or not.
    * It may stay in suspended state indefinitly until the user interacts with the page, due to browser policies.
    *
-   * @return {Promise}
+   * @return {Promise<boolean>}
    */
   async enableAudio() {
-    if (!this.audioContext) {
-      this.audioContext = new AudioContext();
+    if (typeof AudioContext === 'function') {
+      if (!this.audioContext) {
+        this.audioContext = new AudioContext();
+      }
+
+      if (this.audioContext.state !== 'suspended') {
+        await this.audioContext.resume();
+      }
+
+      this.audioEnabled = this.audioContext.state === 'running';
+
+      return this.audioEnabled;
     }
 
-    if (this.audioContext.state !== 'suspended') {
-      await this.audioContext.resume();
-    }
-
-    this.audioEnabled = this.audioContext.state === 'running';
-
-    return this.audioEnabled;
+    return false;
   }
 
   /**

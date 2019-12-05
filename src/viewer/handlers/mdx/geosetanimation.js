@@ -22,7 +22,7 @@ export default class GeosetAnimation extends AnimatedObject {
    * @return {number}
    */
   getAlpha(out, instance) {
-    return this.getFloatValue(out, 'KGAO', instance, this.alpha);
+    return this.getScalarValue(out, 'KGAO', instance, this.alpha);
   }
 
   /**
@@ -31,7 +31,7 @@ export default class GeosetAnimation extends AnimatedObject {
    * @return {vec3}
    */
   getColor(out, instance) {
-    return this.getVector3Value(out, 'KGAC', instance, this.color);
+    return this.getVectorValue(out, 'KGAC', instance, this.color);
   }
 
   /**

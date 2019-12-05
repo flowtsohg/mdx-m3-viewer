@@ -26,7 +26,7 @@ export default class Light extends GenericObject {
    * @return {number}
    */
   getAttenuationStart(out, instance) {
-    return this.getFloatValue(out, 'KLAS', instance, this.attenuation[0]);
+    return this.getScalarValue(out, 'KLAS', instance, this.attenuation[0]);
   }
 
   /**
@@ -35,7 +35,7 @@ export default class Light extends GenericObject {
    * @return {number}
    */
   getAttenuationEnd(out, instance) {
-    return this.getFloatValue(out, 'KLAE', instance, this.attenuation[1]);
+    return this.getScalarValue(out, 'KLAE', instance, this.attenuation[1]);
   }
 
   /**
@@ -44,7 +44,7 @@ export default class Light extends GenericObject {
    * @return {number}
    */
   getIntensity(out, instance) {
-    return this.getFloatValue(out, 'KLAI', instance, this.intensity);
+    return this.getScalarValue(out, 'KLAI', instance, this.intensity);
   }
 
   /**
@@ -53,7 +53,7 @@ export default class Light extends GenericObject {
    * @return {number}
    */
   getColor(out, instance) {
-    return this.getVector3Value(out, 'KLAC', instance, this.color);
+    return this.getVectorValue(out, 'KLAC', instance, this.color);
   }
 
   /**
@@ -62,7 +62,7 @@ export default class Light extends GenericObject {
    * @return {number}
    */
   getAmbientIntensity(out, instance) {
-    return this.getFloatValue(out, 'KLBI', instance, this.ambientIntensity);
+    return this.getScalarValue(out, 'KLBI', instance, this.ambientIntensity);
   }
 
   /**
@@ -71,6 +71,6 @@ export default class Light extends GenericObject {
    * @return {number}
    */
   getAmbientColor(out, instance) {
-    return this.getVector3Value(out, 'KLBC', instance, this.ambientColor);
+    return this.getVectorValue(out, 'KLBC', instance, this.ambientColor);
   }
 }
