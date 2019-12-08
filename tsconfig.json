@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "lib": [
+      "es2017",
+      "dom"
+    ],
+    "target": "es2017",
+    "types": [
+      "node"
+    ]
+  }
+}

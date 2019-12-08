@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const webpack = require('webpack');
 
 module.exports = function(env, argv) {
@@ -17,6 +18,18 @@ module.exports = function(env, argv) {
     ],
     performance: {
       hints: false,
+    },
+    module: {
+      rules: [
+        {
+          test: /\.ts$/,
+          include: path.resolve(__dirname, 'src'),
+          loader: 'ts-loader',
+        },
+      ],
+    },
+    resolve: {
+      extensions: ['.ts', '.js'],
     },
     devtool: argv.mode === 'development' ? 'cheap-eval-source-map' : '',
   };
