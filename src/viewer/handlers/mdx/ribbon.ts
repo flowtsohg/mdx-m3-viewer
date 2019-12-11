@@ -1,39 +1,29 @@
 import { vec3 } from 'gl-matrix';
 import EmittedObject from '../../emittedobject';
+import RibbonEmitterObject from './ribbonemitterobject';
 import MdxComplexInstance from './complexinstance';
 import RibbonEmitter from './ribbonemitter';
 
-// Heap allocations needed for this module.
 const belowHeap = vec3.create();
 const aboveHeap = vec3.create();
 const colorHeap = vec3.create();
 const alphaHeap = new Float32Array(1);
-const slotHeap = new Float32Array(1);
+const slotHeap = new Uint32Array(1);
 
 /**
  * A ribbon.
  */
 export default class Ribbon extends EmittedObject {
-  vertices: Float32Array;
-  color: Uint8Array;
-  slot: number;
-  prev: Ribbon | null;
-  next: Ribbon | null;
-
-  constructor(emitter: RibbonEmitter) {
-    super(emitter);
-
-    this.vertices = new Float32Array(6);
-    this.color = new Uint8Array(4);
-    this.slot = 0;
-    this.prev = null;
-    this.next = null;
-  }
+  vertices: Float32Array = new Float32Array(6);
+  color: Uint8Array = new Uint8Array(4);
+  slot: number = 0;
+  prev: Ribbon | null = null;
+  next: Ribbon | null = null;
 
   bind() {
-    let emitter = this.emitter;
+    let emitter = <RibbonEmitter>this.emitter;
     let instance = <MdxComplexInstance>emitter.instance;
-    let emitterObject = emitter.emitterObject;
+    let emitterObject = <RibbonEmitterObject>emitter.emitterObject;
     let node = instance.nodes[emitterObject.index];
     let [x, y, z] = node.pivot;
     let worldMatrix = node.worldMatrix;
@@ -67,9 +57,9 @@ export default class Ribbon extends EmittedObject {
     this.health -= dt;
 
     if (this.health > 0) {
-      let emitter = this.emitter;
-      let instance = emitter.instance;
-      let emitterObject = emitter.emitterObject;
+      let emitter = <RibbonEmitter>this.emitter;
+      let instance = <MdxComplexInstance>emitter.instance;
+      let emitterObject = <RibbonEmitterObject>emitter.emitterObject;
       let color = this.color;
       let vertices = this.vertices;
       let gravity = emitterObject.gravity * dt * dt;

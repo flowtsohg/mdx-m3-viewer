@@ -1,8 +1,9 @@
 import { vec3 } from 'gl-matrix';
 import EmittedObject from '../../emittedobject';
+import EventObjectEmitterObject from './eventobjectemitterobject';
+import MdxComplexInstance from './complexinstance';
 import EventObjectSplEmitter from './eventobjectsplemitter';
 import EventObjectUbrEmitter from './eventobjectubremitter';
-import MdxComplexInstance from './complexinstance';
 
 const vertexHeap = vec3.create();
 
@@ -10,18 +11,12 @@ const vertexHeap = vec3.create();
  * An MDX splat or ubersplat object.
  */
 export default class EventObjectSplUbr extends EmittedObject {
-  vertices: Float32Array;
-
-  constructor(emitter: EventObjectSplEmitter | EventObjectUbrEmitter) {
-    super(emitter);
-
-    this.vertices = new Float32Array(12);
-  }
+  vertices: Float32Array = new Float32Array(12);
 
   bind() {
-    let emitter = this.emitter;
+    let emitter = <EventObjectSplEmitter | EventObjectUbrEmitter>this.emitter;
     let instance = <MdxComplexInstance>emitter.instance;
-    let emitterObject = emitter.emitterObject;
+    let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
     let vertices = this.vertices;
     let scale = emitterObject.scale;
     let node = instance.nodes[emitterObject.index];

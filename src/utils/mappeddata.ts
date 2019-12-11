@@ -3,6 +3,7 @@ import IniFile from '../parsers/ini/file';
 
 /**
  * A structure that holds mapped data from INI and SLK files.
+ * 
  * In the case of SLK files, the first row is expected to hold the names of the columns.
  */
 export default class MappedData {
@@ -18,6 +19,7 @@ export default class MappedData {
 
   /**
    * Load data from an SLK file or an INI file.
+   * 
    * Note that this may override previous properties!
    */
   load(buffer: string) {
@@ -29,7 +31,7 @@ export default class MappedData {
 
       for (let i = 1, l = rows.length; i < l; i++) {
         let row = rows[i];
-        let name = row[0];
+        let name = <string>row[0];
 
         if (name) {
           name = name.toLowerCase();

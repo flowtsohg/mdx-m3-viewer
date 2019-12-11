@@ -1,5 +1,7 @@
+import ShaderProgram from '../../gl/program';
 import ClientBuffer from '../../gl/clientbuffer';
 import RenderBatch from '../../renderbatch';
+import geoHandler from './handler';
 import GeometryModelInstance from './modelinstance';
 import GeometryModel from './model';
 
@@ -53,9 +55,6 @@ export default class GeoRenderBatch extends RenderBatch {
     buffer.bindAndUpdate(count * 54);
   }
 
-  /**
-   * @override
-   */
   render() {
     let count = this.count;
 
@@ -65,7 +64,7 @@ export default class GeoRenderBatch extends RenderBatch {
       let gl = viewer.gl;
       let webgl = viewer.webgl;
       let instancedArrays = webgl.extensions.instancedArrays;
-      let shader = model.handler.shader;
+      let shader = <ShaderProgram>geoHandler.shaders.standard;
       let uniforms = shader.uniforms;
       let attribs = shader.attribs;
       let m0 = attribs.a_m0;

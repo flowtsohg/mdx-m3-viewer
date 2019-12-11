@@ -11,7 +11,7 @@ import { EMITTER_PARTICLE2 } from './geometryemitterfuncs';
  * An MDX particle emitter type 2.
  */
 export default class ParticleEmitter2Object extends GenericObject {
-  geometryEmitterType: number;
+  geometryEmitterType: number = EMITTER_PARTICLE2;
   width: number;
   length: number;
   speed: number;
@@ -25,7 +25,7 @@ export default class ParticleEmitter2Object extends GenericObject {
   timeMiddle: number;
   columns: number;
   rows: number;
-  teamColored: boolean;
+  teamColored: number = 0;
   internalTexture: Texture | null = null;
   replaceableId: number;
   head: boolean;
@@ -38,11 +38,15 @@ export default class ParticleEmitter2Object extends GenericObject {
   blendSrc: number = 0;
   blendDst: number = 0;
   priorityPlane: number;
+  /**
+   * Even if the internal texture isn't loaded, it's fine to run emitters based on this emitter object.
+   * 
+   * The particles will simply be black.
+   */
+  ok: boolean = true;
 
   constructor(model: MdxModel, emitter: MdlxParticleEmitter2, index: number) {
     super(model, emitter, index);
-
-    this.geometryEmitterType = EMITTER_PARTICLE2;
 
     this.width = emitter.width;
     this.length = emitter.length;
@@ -61,12 +65,10 @@ export default class ParticleEmitter2Object extends GenericObject {
     this.columns = emitter.columns;
     this.rows = emitter.rows;
 
-    this.teamColored = false;
-
     if (replaceableId === 0) {
       this.internalTexture = model.textures[emitter.textureId];
     } else if (replaceableId === 1 || replaceableId === 2) {
-      this.teamColored = true;
+      this.teamColored = 1;
     } else {
       this.internalTexture = model.viewer.load('ReplaceableTextures\\' + replaceableIds[replaceableId] + '.blp', model.pathSolver, model.solverParams);
     }

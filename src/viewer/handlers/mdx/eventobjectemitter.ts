@@ -1,27 +1,22 @@
-import Emitter from '../../emitter';
 import MdxComplexInstance from './complexinstance';
+import MdxEmitter from './emitter';
 import EventObjectEmitterObject from './eventobjectemitterobject';
 
-// Heap allocations needed for this module.
-const valueHeap = new Uint8Array(1);
+const valueHeap = new Uint32Array(1);
 
 /**
  * The abstract base MDX event object emitter.
  */
-export default abstract class EventObjectEmitter extends Emitter {
-  lastValue: number;
-
-  constructor(instance: MdxComplexInstance, emitterObject: EventObjectEmitterObject) {
-    super(instance, emitterObject);
-
-    this.lastValue = 0;
-  }
+export default abstract class EventObjectEmitter extends MdxEmitter {
+  lastValue: number = 0;
 
   updateEmission(dt: number) {
     let instance = <MdxComplexInstance>this.instance;
 
     if (instance.allowParticleSpawn) {
-      this.emitterObject.getValue(valueHeap, instance);
+      let emitterObject = <EventObjectEmitterObject>this.emitterObject;
+
+      emitterObject.getValue(valueHeap, instance);
 
       let value = valueHeap[0];
 

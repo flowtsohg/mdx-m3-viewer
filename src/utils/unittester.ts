@@ -9,21 +9,41 @@ import Resource from '../viewer/resource';
 import Scene from '../viewer/scene';
 import Camera from '../viewer/camera';
 
+/**
+ * The signature of a test loader.
+ * 
+ * The returned data will be passed to the handler.
+ */
 type TestLoader = (viewer: ModelViewer) => any;
+
+/**
+ * The signature of a test handler.
+ */
 type TestHandler = (viewer: ModelViewer, scene: Scene, camera: Camera, data: any) => void;
 
-interface TestDecl {
+/**
+ * The recursive test structure passed to the unit tester.
+ * 
+ * In reality either `load` and `test` should be defined, or `tests` should be defined.
+ */
+interface RecursiveTest {
   name: string;
   load?: TestLoader;
   test?: TestHandler;
-  tests?: TestDecl[];
+  tests?: RecursiveTest[];
 }
 
-interface TestImpl {
+/**
+ * The internal type used by the tester.
+ */
+interface Test {
   name: string;
-  test: TestDecl;
+  test: RecursiveTest;
 }
 
+/**
+ * The result given to the callback when running the tests.
+ */
 interface TestResult {
   done: boolean;
   value?: {
@@ -34,11 +54,14 @@ interface TestResult {
   }
 }
 
+/**
+ * The result given to the callback when downloading the tests.
+ */
 interface DownloadResult {
   done: boolean;
   value?: {
     name: string;
-    blob: Blob;
+    blob?: Blob;
   }
 }
 
@@ -50,7 +73,7 @@ interface DownloadResult {
 export default class UnitTester {
   viewer: ModelViewer;
   mathRandom: () => number;
-  tests: TestImpl[];
+  tests: Test[];
 
   constructor() {
     let canvas = document.createElement('canvas');
@@ -75,7 +98,7 @@ export default class UnitTester {
   /**
    * Add a test or a hierarchy of tests.
    */
-  add(test: TestDecl) {
+  add(test: RecursiveTest) {
     if (test.tests) {
       this.addBaseName(test.tests, test.name);
     } else {
@@ -126,7 +149,11 @@ export default class UnitTester {
       let name = test.name;
       let blob = await this.getTestBlob(test);
 
-      callback({ done: false, value: { name, blob } });
+      if (blob) {
+        callback({ done: false, value: { name, blob } });
+      } else {
+        callback({ done: false, value: { name } });
+      }
     }
 
     callback({ done: true });
@@ -156,7 +183,7 @@ export default class UnitTester {
   /**
    * Given a test, return a promise that will resolve to the blob that resulted from running the test.
    */
-  async getTestBlob(test: TestImpl) {
+  async getTestBlob(test: Test) {
     let loadHandler = <TestLoader>test.test.load;
     let testHandler = <TestHandler>test.test.test;
     let viewer = this.viewer;
@@ -200,7 +227,7 @@ export default class UnitTester {
   /**
    * Given a test, return a promise that will resolve to the comparison image of this test.
    */
-  async getComparisonBlob(test: TestImpl) {
+  async getComparisonBlob(test: Test) {
     let response = await fetch(`compare/${test.name}.png`);
 
     if (response.ok) {
@@ -212,7 +239,7 @@ export default class UnitTester {
    * Adds tests from an hierarchy while appending their names.
    * Called automatically by add() if needed.
    */
-  addBaseName(tests: TestDecl[], baseName: string) {
+  addBaseName(tests: RecursiveTest[], baseName: string) {
     for (let test of tests) {
       if (test.tests) {
         this.addBaseName(test.tests, baseName + '-' + test.name);

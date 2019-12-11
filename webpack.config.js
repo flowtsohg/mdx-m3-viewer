@@ -2,10 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 
-module.exports = function(env, argv) {
+module.exports = function (env, argv) {
   return {
+    entry: './src/index.ts',
     output: {
       filename: 'viewer.min.js',
+      path: path.resolve(__dirname, 'dist/'),
       library: 'ModelViewer',
     },
     plugins: [
@@ -23,14 +25,21 @@ module.exports = function(env, argv) {
       rules: [
         {
           test: /\.ts$/,
-          include: path.resolve(__dirname, 'src'),
-          loader: 'ts-loader',
+          use: [
+            {
+              loader: 'ts-loader',
+              options: {
+                // This is needed until such a day when there are no type errors.
+                transpileOnly: true,
+              },
+            },
+          ],
         },
       ],
     },
     resolve: {
       extensions: ['.ts', '.js'],
     },
-    devtool: argv.mode === 'development' ? 'cheap-eval-source-map' : '',
+    devtool: argv.mode === 'development' ? 'cheap-module-eval-source-map' : '',
   };
 };

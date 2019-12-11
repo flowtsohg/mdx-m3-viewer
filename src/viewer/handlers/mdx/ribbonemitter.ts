@@ -1,28 +1,23 @@
-import Emitter from '../../emitter';
-import MdxComplexInstance from './complexinstance';
 import RibbonEmitterObject from './ribbonemitterobject';
+import MdxComplexInstance from './complexinstance';
+import MdxEmitter from './emitter';
 import Ribbon from './ribbon';
 
 /**
  * A ribbon emitter.
  */
-export default class RibbonEmitter extends Emitter {
-  first: Ribbon | null;
-  last: Ribbon | null;
-
-  constructor(instance: MdxComplexInstance, emitterObject: RibbonEmitterObject) {
-    super(instance, emitterObject);
-
-    this.first = null;
-    this.last = null;
-  }
+export default class RibbonEmitter extends MdxEmitter {
+  first: Ribbon | null = null;
+  last: Ribbon | null = null;
 
   updateEmission(dt: number) {
     let instance = <MdxComplexInstance>this.instance;
 
     if (instance.allowParticleSpawn) {
+      let emitterObject = <RibbonEmitterObject>this.emitterObject;
+
       // It doesn't make sense to emit more than 1 ribbon at the same time.
-      this.currentEmission = Math.min(this.currentEmission + this.emitterObject.emissionRate * dt, 1);
+      this.currentEmission = Math.min(this.currentEmission + emitterObject.emissionRate * dt, 1);
     }
   }
 

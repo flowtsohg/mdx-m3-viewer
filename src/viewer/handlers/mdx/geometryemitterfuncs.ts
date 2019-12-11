@@ -1,18 +1,20 @@
 import { vec3 } from 'gl-matrix';
 import Scene from '../../scene';
-import ClientBuffer from '../../gl/clientbuffer';
-import ParticleEmitter2 from './particleemitter2';
 import ShaderProgram from '../../gl/program';
+import ClientBuffer from '../../gl/clientbuffer';
+import mdxHandler from './handler';
 import ParticleEmitter2Object from './particleemitter2object';
+import RibbonEmitterObject from './ribbonemitterobject';
+import EventObjectEmitterObject from './eventobjectemitterobject';
+import MdxComplexInstance from './complexinstance';
+import ParticleEmitter2 from './particleemitter2';
 import RibbonEmitter from './ribbonemitter';
 import EventObjectSplEmitter from './eventobjectsplemitter';
 import EventObjectUbrEmitter from './eventobjectubremitter';
-import Ribbon from './ribbon';
 import Particle2 from './particle2';
-import MdxComplexInstance from './complexinstance';
+import Ribbon from './ribbon';
 import EventObjectSplUbr from './eventobjectsplubr';
 
-// Heap allocations needed for this module.
 const locationHeap = vec3.create();
 const startHeap = vec3.create();
 const endHeap = vec3.create();
@@ -131,7 +133,7 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: ShaderPro
   let instance = <MdxComplexInstance>emitter.instance;
   let scene = <Scene>instance.scene;
   let camera = scene.camera;
-  let emitterObject = emitter.emitterObject;
+  let emitterObject = <ParticleEmitter2Object>emitter.emitterObject;
   let model = emitterObject.model;
   let viewer = model.viewer;
   let gl = viewer.gl;
@@ -145,11 +147,11 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: ShaderPro
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 
   if (replaceable === 1) {
-    let teamColors = model.reforged ? model.handler.reforgedTeamColors : model.handler.teamColors;
+    let teamColors = model.reforged ? mdxHandler.reforgedTeamColors : mdxHandler.teamColors;
 
     texture = teamColors[instance.teamColor];
   } else if (replaceable === 2) {
-    let teamGlows = model.reforged ? model.handler.reforgedTeamGlows : model.handler.teamGlows;
+    let teamGlows = model.reforged ? mdxHandler.reforgedTeamGlows : mdxHandler.teamGlows;
 
     texture = teamGlows[instance.teamColor];
   } else {
@@ -200,7 +202,7 @@ function bindRibbonEmitterBuffer(emitter: RibbonEmitter, buffer: ClientBuffer) {
   let object = <Ribbon>emitter.first;
   let byteView = <Uint8Array>buffer.byteView;
   let floatView = <Float32Array>buffer.floatView;
-  let emitterObject = emitter.emitterObject;
+  let emitterObject = <RibbonEmitterObject>emitter.emitterObject;
   let columns = emitterObject.columns;
   let alive = emitter.alive;
   let chainLengthFactor = 1 / (alive - 1);
@@ -248,7 +250,7 @@ function bindRibbonEmitterBuffer(emitter: RibbonEmitter, buffer: ClientBuffer) {
 
 function bindRibbonEmitterShader(emitter: RibbonEmitter, shader: ShaderProgram) {
   let textureMapper = emitter.instance.textureMapper;
-  let emitterObject = emitter.emitterObject;
+  let emitterObject = <RibbonEmitterObject>emitter.emitterObject;
   let layer = emitterObject.layer;
   let model = emitterObject.model;
   let gl = model.viewer.gl;
@@ -296,10 +298,10 @@ function bindEventObjectEmitterBuffer(emitter: EventObjectSplEmitter | EventObje
 
 function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader: ShaderProgram) {
   let textureMapper = emitter.instance.textureMapper;
-  let emitterObject = emitter.emitterObject;
-  let intervalTimes = emitterObject.intervalTimes;
-  let intervals = emitterObject.intervals;
-  let colors = emitterObject.colors;
+  let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
+  let intervalTimes = <Float32Array>emitterObject.intervalTimes;
+  let intervals = <Float32Array[]>emitterObject.intervals;
+  let colors = <Float32Array[]>emitterObject.colors;
   let model = emitterObject.model;
   let gl = model.viewer.gl;
   let uniforms = shader.uniforms;
@@ -328,9 +330,9 @@ function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader:
 
 function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader: ShaderProgram) {
   let textureMapper = emitter.instance.textureMapper;
-  let emitterObject = emitter.emitterObject;
-  let intervalTimes = emitterObject.intervalTimes;
-  let colors = emitterObject.colors;
+  let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
+  let intervalTimes = <Float32Array>emitterObject.intervalTimes;
+  let colors = <Float32Array[]>emitterObject.colors;
   let model = emitterObject.model;
   let viewer = model.viewer;
   let gl = viewer.gl;
@@ -356,7 +358,8 @@ function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader:
 
 export function renderEmitter(emitter: ParticleEmitter2 | RibbonEmitter | EventObjectSplEmitter | EventObjectUbrEmitter, shader: ShaderProgram) {
   let alive = emitter.alive;
-  let emitterType = emitter.emitterObject.geometryEmitterType;
+  let emitterObject = <ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject>emitter.emitterObject;
+  let emitterType = emitterObject.geometryEmitterType;
 
   if (emitterType === EMITTER_RIBBON) {
     alive -= 1;

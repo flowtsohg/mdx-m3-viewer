@@ -1,12 +1,13 @@
 import { powerOfTwo } from '../../common/math';
-import { stringToBuffer } from '../../common/stringtobuffer';
 import { numberToUint32 } from '../../common/typecast';
+import BinaryStream from '../../common/binarystream';
 import { searchHeader } from './isarchive';
 import MpqCrypto from './crypto';
 import MpqHashTable from './hashtable';
 import MpqBlockTable from './blocktable';
 import MpqFile from './file';
 import { MAGIC, HASH_ENTRY_DELETED, HASH_ENTRY_EMPTY } from './constants';
+
 
 /**
  * MoPaQ archive (MPQ) version 0.
@@ -289,7 +290,7 @@ export default class MpqArchive {
     }
 
     // Add the listfile, possibly overriding an existing one.
-    return this.set('(listfile)', stringToBuffer(this.getFileNames().join('\r\n')));
+    return this.set('(listfile)', this.getFileNames().join('\r\n'));
   }
 
   /**
@@ -298,16 +299,28 @@ export default class MpqArchive {
    * 
    * Does nothing if the archive is in readonly mode.
    */
-  set(name: string, buffer: ArrayBuffer) {
+  set(name: string, buffer: ArrayBuffer | string) {
     if (this.readonly) {
       return false;
+    }
+
+    let arrayBuffer;
+
+    if (buffer instanceof ArrayBuffer) {
+      arrayBuffer = buffer;
+    } else {
+      let stream = new BinaryStream(new Uint8Array(buffer.length));
+
+      stream.write(buffer);
+
+      arrayBuffer = stream.buffer;
     }
 
     let file = this.get(name);
 
     // If the file already exists, change the data.
     if (file) {
-      file.set(buffer);
+      file.set(arrayBuffer);
     } else {
       let blockIndex = this.blockTable.entries.length;
       let hash = this.hashTable.add(name, blockIndex);
@@ -316,9 +329,9 @@ export default class MpqArchive {
         return false;
       }
 
-      let block = this.blockTable.add(buffer);
+      let block = this.blockTable.add(arrayBuffer);
 
-      file = new MpqFile(this, hash, block, buffer);
+      file = new MpqFile(this, hash, block, arrayBuffer);
 
       file.name = name;
       file.nameResolved = true;

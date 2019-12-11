@@ -1,7 +1,9 @@
+import ShaderProgram from '../../gl/program';
+import Scene from '../../scene';
+import mdxHandler from './handler';
 import MdxModel from './model';
 import MdxComplexInstance from './complexinstance';
 import { renderEmitter } from './geometryemitterfuncs';
-import Scene from '../../scene';
 
 /**
  * A group of emitters that are going to be rendered together.
@@ -22,7 +24,7 @@ export default class EmitterGroup {
     let viewer = model.viewer;
     let gl = viewer.gl;
     let instancedArrays = viewer.webgl.extensions.instancedArrays;
-    let shader = model.handler.particleShader;
+    let shader = <ShaderProgram>mdxHandler.shaders.particles;
     let uniforms = shader.uniforms;
     let attribs = shader.attribs;
 

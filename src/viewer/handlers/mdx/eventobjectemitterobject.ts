@@ -17,12 +17,11 @@ const decodedDataCallback = (arrayBuffer: ArrayBuffer) => decodeAudioData(arrayB
  * An event object.
  */
 export default class EventObjectEmitterObject extends GenericObject {
-  geometryEmitterType: number;
-  ok: boolean;
+  geometryEmitterType: number = -1;
   type: string;
   id: string;
   tracks: Uint32Array;
-  globalSequence: NANI;
+  globalSequence: number;
   defval: Uint32Array;
   internalModel: MdxModel | null;
   internalTexture: Texture | null;
@@ -42,6 +41,14 @@ export default class EventObjectEmitterObject extends GenericObject {
   pitchVariance: number;
   volume: number;
   decodedBuffers: AudioBuffer[];
+  /**
+   * If this is an SPL/UBR emitter object, ok will be set to true if the tables are loaded.
+   * 
+   * This is because, like the other geometry emitters, it is fine to use them even if the textures don't load.
+   * 
+   * The particles will simply be black.
+   */
+  ok: boolean = false;
 
   constructor(model: MdxModel, eventObject: EventObject, index: number) {
     super(model, eventObject, index);
@@ -56,21 +63,16 @@ export default class EventObjectEmitterObject extends GenericObject {
       type = 'SPL';
     }
 
-    let geometryEmitterType = -1;
-
     if (type === 'SPL') {
-      geometryEmitterType = EMITTER_SPLAT;
+      this.geometryEmitterType = EMITTER_SPLAT;
     } else if (type === 'UBR') {
-      geometryEmitterType = EMITTER_UBERSPLAT;
+      this.geometryEmitterType = EMITTER_UBERSPLAT;
     }
 
-    this.geometryEmitterType = geometryEmitterType;
-
-    this.ok = false;
     this.type = type;
     this.id = id;
     this.tracks = eventObject.tracks;
-    this.globalSequence = null;
+    this.globalSequence = -1;
     this.defval = new Uint32Array(1);
 
     // SPN
@@ -140,9 +142,6 @@ export default class EventObjectEmitterObject extends GenericObject {
       });
   }
 
-  /**
-   *
-   */
   load(tables: SlkFile[]) {
     let row = tables[0].data.getRow(this.id);
     let type = this.type;
@@ -154,10 +153,12 @@ export default class EventObjectEmitterObject extends GenericObject {
 
       if (type === 'SPN') {
         this.internalModel = viewer.load(row.Model.replace('.mdl', '.mdx'), pathSolver, model.solverParams);
-        this.internalModel.whenLoaded().then(() => this.ok = this.internalModel.ok);
+
+        if (this.internalModel) {
+          this.internalModel.whenLoaded((model) => this.ok = model.ok);
+        }
       } else if (type === 'SPL' || type === 'UBR') {
         this.internalTexture = viewer.load('replaceabletextures/splats/' + row.file + '.blp', pathSolver, model.solverParams);
-        this.internalTexture.whenLoaded().then(() => this.ok = this.internalTexture.ok);
 
         this.scale = row.Scale;
         this.colors = [
@@ -186,6 +187,8 @@ export default class EventObjectEmitterObject extends GenericObject {
 
         this.blendSrc = blendModes[0];
         this.blendDst = blendModes[1];
+
+        this.ok = true;
       } else if (type === 'SND') {
         // Only load sounds if audio is enabled.
         // This is mostly to save on bandwidth and loading time, especially when loading full maps.
@@ -219,7 +222,7 @@ export default class EventObjectEmitterObject extends GenericObject {
   }
 
   getValue(out: Uint32Array, instance: MdxComplexInstance) {
-    if (this.globalSequence) {
+    if (this.globalSequence !== -1) {
       let globalSequence = this.globalSequence;
 
       return this.getValueAtTime(out, instance.counter % globalSequence, 0, globalSequence);

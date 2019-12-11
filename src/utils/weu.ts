@@ -288,11 +288,13 @@ function convertParameterToCustomScript(data: WeuConverterData, parameter: Param
 
       return value;
     } else {
+      let global = `udg_${value}`;
+
       if (parameter.isArray && parameter.arrayIndex) {
-        return `udg_${value}[${convertParameterToCustomScript(data, parameter.arrayIndex, 'integer')}]`;
-      } else {
-        return `udg_${value}`;
+        global += `[${convertParameterToCustomScript(data, parameter.arrayIndex, 'integer')}]`;
       }
+
+      return global;
     }
   } else if (parameter.type === 2) {
     return convertFunctionCallToCustomScript(data, parameter.subParameters)[0].parameters[0].value;
@@ -583,24 +585,24 @@ function convertInlineGUI(data: WeuConverterData, object: ECA | SubParameters) {
     let value = object.parameters[0].value;
 
     if (value === 'IsUnitOwnedByPlayer') {
-      return replaceIsUnitOwned(object);
+      return replaceIsUnitOwned(<SubParameters>object);
     } else if (value === 'IsUnitInRange') {
       return replaceIsUnitInRange(object);
-    } else if (value === 'IsUnitType' && object.group === -1) {
-      return replaceIsUnitType(object);
+    } else if (value === 'IsUnitType' && (<ECA>object).group === -1) {
+      return replaceIsUnitType(<ECA>object);
     } else if (value === 'IsUnitRace') {
-      return replaceIsUnitRace(object);
+      return replaceIsUnitRace(<ECA>object);
     }
   } else if (name === 'SetHeroStr' || name === 'SetHeroAgi' || name === 'SetHeroInt') {
     return replaceSetHeroStat(object);
   } else if (name === 'TriggerRegisterUnitStateEvent') {
-    return replaceTriggerRegisterUnitStateEvent(object);
+    return replaceTriggerRegisterUnitStateEvent(<ECA>object);
   } else if (isBlzNeeded(name)) {
     object.name = `Blz${name}`;
 
     // If this is a subparameters object, need to change the name also for the parent parameter.
     if (object instanceof SubParameters) {
-      data.stack[1].value = `Blz${name}`;
+      (<Parameter>data.stack[1]).value = `Blz${name}`;
     }
 
     // In the PTR this has 3 parameters, but later it became 2.

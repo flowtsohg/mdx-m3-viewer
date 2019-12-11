@@ -35,19 +35,19 @@ export function distanceToPlane(plane: vec4, point: vec3) {
 /**
  * Get the distance of a point from a plane.
  * 
- *     dot(plane, vec4(point, 0, 1))
+ *     dot(plane, vec4(x, y, 0, 1))
  */
-export function distanceToPlane2(plane: vec4, px: number, py: number) {
-  return plane[0] * px + plane[1] * py + plane[3];
+export function distanceToPlane2(plane: vec4, x: number, y: number) {
+  return plane[0] * x + plane[1] * y + plane[3];
 }
 
 /**
  * Get the distance of a point from a plane.
  * 
- *     dot(plane, vec4(point, 1))
+ *     dot(plane, vec4(x, y, z, 1))
  */
-export function distanceToPlane3(plane: vec4, px: number, py: number, pz: number) {
-  return plane[0] * px + plane[1] * py + plane[2] * pz + plane[3];
+export function distanceToPlane3(plane: vec4, x: number, y: number, z: number) {
+  return plane[0] * x + plane[1] * y + plane[2] * z + plane[3];
 }
 
 /**

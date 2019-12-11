@@ -1,7 +1,9 @@
+import ShaderProgram from '../../gl/program';
+import Scene from '../../scene';
+import mdxHandler from './handler';
 import MdxModel from './model';
 import MdxComplexInstance from './complexinstance';
 import Batch from './batch';
-import Scene from '../../scene';
 
 /**
  * A group of batches that are going to be rendered together.
@@ -21,9 +23,8 @@ export default class BatchGroup {
     let scene = <Scene>instance.scene;
     let model = this.model;
     let textures = model.textures;
-    let handler = model.handler;
-    let teamColors = handler.teamColors;
-    let teamGlows = handler.teamGlows;
+    let teamColors = mdxHandler.teamColors;
+    let teamGlows = mdxHandler.teamGlows;
     let batches = model.batches;
     let replaceables = model.replaceables;
     let viewer = model.viewer;
@@ -32,9 +33,9 @@ export default class BatchGroup {
     let shader;
 
     if (isExtended) {
-      shader = handler.extendedShader;
+      shader = <ShaderProgram>mdxHandler.shaders.extended;
     } else {
-      shader = handler.complexShader;
+      shader = <ShaderProgram>mdxHandler.shaders.complex;
     }
 
     shader.use();

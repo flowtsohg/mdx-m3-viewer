@@ -3,6 +3,7 @@ import Parser from '../../../parsers/mdlx/model';
 import Sequence from '../../../parsers/mdlx/sequence';
 import Model from '../../model';
 import Texture from '../../texture';
+import mdxHandler from './handler';
 import TextureAnimation from './textureanimation';
 import Layer from './layer';
 import Material from './material';
@@ -37,7 +38,7 @@ export default class MdxModel extends Model {
   solverParams: { reforged?: boolean, hd?: boolean };
   name: string;
   sequences: Sequence[];
-  globalSequences: NANI;
+  globalSequences: number[];
   materials: Material[];
   layers: Layer[];
   textures: Texture[];
@@ -231,10 +232,9 @@ export default class MdxModel extends Model {
 
     // Start loading the team color and glow textures if this model uses them and they weren't loaded previously.
     if (usingTeamTextures) {
-      let handler = this.handler;
       let reforged = this.reforged;
-      let teamColors = reforged ? handler.reforgedTeamColors : handler.teamColors;
-      let teamGlows = reforged ? handler.reforgedTeamGlows : handler.teamGlows;
+      let teamColors = reforged ? mdxHandler.reforgedTeamColors : mdxHandler.teamColors;
+      let teamGlows = reforged ? mdxHandler.reforgedTeamGlows : mdxHandler.teamGlows;
 
       if (!teamColors.length) {
         let viewer = this.viewer;

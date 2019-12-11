@@ -52,7 +52,7 @@ export function blobToImageData(blob: Blob) {
 }
 
 export function imageDataToBlob(imageData: ImageData) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve: BlobCallback) => {
     canvas.width = imageData.width;
     canvas.height = imageData.height;
 

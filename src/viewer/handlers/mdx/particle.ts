@@ -1,12 +1,11 @@
 import { vec3, quat } from 'gl-matrix';
 import { VEC3_UNIT_Z } from '../../../common/gl-matrix-addon';
 import { randomInRange } from '../../../common/math';
-import MdxComplexInstance from './complexinstance';
 import EmittedObject from '../../emittedobject';
+import ParticleEmitterObject from './particleemitterobject';
+import MdxComplexInstance from './complexinstance';
 import ParticleEmitter from './particleemitter';
 
-
-// Heap allocations needed for this module.
 const rotationHeap = quat.create();
 const velocityHeap = vec3.create();
 const latitudeHeap = new Float32Array(1);
@@ -26,15 +25,17 @@ export default class Particle extends EmittedObject {
   constructor(emitter: ParticleEmitter) {
     super(emitter);
 
-    this.internalInstance = emitter.emitterObject.internalModel.addInstance();
+    let emitterObject = <ParticleEmitterObject>emitter.emitterObject;
+
+    this.internalInstance = emitterObject.internalModel.addInstance();
     this.velocity = vec3.create();
     this.gravity = 0;
   }
 
   bind() {
-    let emitter = this.emitter;
+    let emitter = <ParticleEmitter>this.emitter;
     let instance = <MdxComplexInstance>emitter.instance;
-    let emitterObject = emitter.emitterObject;
+    let emitterObject = <ParticleEmitterObject>emitter.emitterObject;
     let node = instance.nodes[emitterObject.index];
     let internalInstance = this.internalInstance;
     let scale = node.worldScale;

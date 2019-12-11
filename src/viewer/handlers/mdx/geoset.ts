@@ -1,8 +1,8 @@
 import { vec3 } from 'gl-matrix';
-import { VEC3_ONE } from '../../../common/gl-matrix-addon';
 import ShaderProgram from '../../gl/program';
 import MdxModel from './model';
 import MdxComplexInstance from './complexinstance';
+import GeosetAnimation from './geosetanimation';
 
 /**
  * A geoset.
@@ -17,7 +17,7 @@ export default class Geoset {
   faceOffset: number;
   vertices: number;
   elements: number;
-  geosetAnimation: NANI;
+  geosetAnimation: GeosetAnimation | null;
   variants: CHANGE_ME;
   hasAlphaAnim: boolean;
   hasColorAnim: boolean;
@@ -33,14 +33,7 @@ export default class Geoset {
     this.faceOffset = faceOffset;
     this.vertices = vertices;
     this.elements = elements;
-
-    let geosetAnimations = model.geosetAnimations;
-
-    for (let i = 0, l = geosetAnimations.length; i < l; i++) {
-      if (geosetAnimations[i].geosetId === index) {
-        this.geosetAnimation = geosetAnimations[i];
-      }
-    }
+    this.geosetAnimation = null;
 
     for (let geosetAnimation of model.geosetAnimations) {
       if (geosetAnimation.geosetId === index) {
@@ -54,14 +47,13 @@ export default class Geoset {
       object: [],
     };
 
-    let geosetAnimation = this.geosetAnimation;
     let hasAlphaAnim = false;
     let hasColorAnim = false;
 
-    if (geosetAnimation) {
+    if (this.geosetAnimation) {
       for (let i = 0, l = model.sequences.length; i < l; i++) {
-        let alpha = geosetAnimation.isAlphaVariant(i);
-        let color = geosetAnimation.isColorVariant(i);
+        let alpha = this.geosetAnimation.isAlphaVariant(i);
+        let color = this.geosetAnimation.isColorVariant(i);
 
         variants.alpha[i] = alpha;
         variants.color[i] = color;
@@ -90,6 +82,7 @@ export default class Geoset {
     }
 
     out[0] = 1;
+
     return -1;
   }
 
@@ -98,7 +91,10 @@ export default class Geoset {
       return this.geosetAnimation.getColor(out, instance);
     }
 
-    vec3.copy(out, VEC3_ONE);
+    out[0] = 1;
+    out[1] = 1;
+    out[2] = 1;
+
     return -1;
   }
 

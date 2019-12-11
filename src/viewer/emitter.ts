@@ -6,7 +6,6 @@ import EmittedObject from './emittedobject';
  */
 export default abstract class Emitter {
   instance: ModelInstance;
-  emitterObject: any;
   objects: EmittedObject[];
   alive: number;
   currentEmission: number;
@@ -15,15 +14,14 @@ export default abstract class Emitter {
   abstract updateEmission(dt: number): void;
   abstract emit(): void;
 
-  constructor(instance: ModelInstance, emitterObject: any) {
+  constructor(instance: ModelInstance) {
     this.instance = instance;
-    this.emitterObject = emitterObject;
     this.objects = [];
     this.alive = 0;
     this.currentEmission = 0;
   }
 
-  emitObject(flags?: any) {
+  emitObject(emitData?: any) {
     let objects = this.objects;
 
     // If there are no unused objects, create a new one.
@@ -36,7 +34,7 @@ export default abstract class Emitter {
 
     object.index = this.alive;
 
-    object.bind(flags);
+    object.bind(emitData);
 
     this.alive += 1;
     this.currentEmission -= 1;

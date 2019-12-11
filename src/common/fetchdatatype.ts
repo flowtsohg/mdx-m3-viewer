@@ -1,5 +1,14 @@
 
 /**
+ * The structure that the promise returned by fetchDataType is resolved to.
+ */
+interface FetchResult {
+  ok: boolean;
+  data: HTMLImageElement | string | ArrayBuffer | Blob | Response | Event;
+  error?: string;
+}
+
+/**
  * Returns a promise that will resolve with the data from the given path.
  * 
  * The data type determines the returned object:
@@ -9,10 +18,10 @@
  *     "arrayBuffer" => ArrayBuffer
  *     "blob" => Blob
  */
-export default async function fetchDataType(path: string, dataType: string) {
+export default async function fetchDataType(path: string, dataType: 'image' | 'text' | 'arrayBuffer' | 'blob') {
   if (dataType === 'image') {
     // Promise wrapper for an image load.
-    return new Promise((resolve) => {
+    return new Promise((resolve: (data: FetchResult) => void) => {
       let image = new Image();
 
       image.onload = () => {
@@ -32,12 +41,12 @@ export default async function fetchDataType(path: string, dataType: string) {
     try {
       response = await fetch(path);
     } catch (e) {
-      return { ok: false, error: 'NetworkError', data: e };
+      return <FetchResult>{ ok: false, error: 'NetworkError', data: e };
     }
 
     // Fetch went ok?
     if (!response.ok) {
-      return { ok: false, error: 'HttpError', data: response };
+      return <FetchResult>{ ok: false, error: 'HttpError', data: response };
     }
 
     // Try to get the requested data type.
@@ -52,9 +61,9 @@ export default async function fetchDataType(path: string, dataType: string) {
         data = await response.blob();
       }
 
-      return { ok: true, data };
+      return <FetchResult>{ ok: true, data };
     } catch (e) {
-      return { ok: false, error: 'DataError', data: e };
+      return <FetchResult>{ ok: false, error: 'DataError', data: e };
     }
   }
 }

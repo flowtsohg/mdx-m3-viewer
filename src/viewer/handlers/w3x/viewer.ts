@@ -64,7 +64,7 @@ export default class War3MapViewer extends ModelViewer {
   terrainRenderData: { columns: any; rows: any; centerOffset: any; vertexBuffer: any; faceBuffer: any; heightMap: any; instanceBuffer: any; instanceCount: any; textureBuffer: any; variationBuffer: any; };
   tilesetTextures: any;
   cliffTextures: any;
-  cliffModels: any;
+  cliffModels: TerrainModel[] = [];
   mapMpq: War3Map;
   mapPathSolver: (path: any, params: any) => any;
   corners: Corner[][];
@@ -252,7 +252,7 @@ export default class War3MapViewer extends ModelViewer {
       let positionAttrib = attribs.a_position;
       let isWaterAttrib = attribs.a_isWater;
 
-      gl.depthMask(0);
+      gl.depthMask(false);
 
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -301,8 +301,8 @@ export default class War3MapViewer extends ModelViewer {
   renderCliffs() {
     if (this.cliffsReady) {
       let gl = this.gl;
-      let instancedArrays = gl.extensions.instancedArrays;
       let webgl = this.webgl;
+      let instancedArrays = webgl.extensions.instancedArrays;
       let shader = this.cliffShader;
       let attribs = shader.attribs;
       let uniforms = shader.uniforms;
@@ -310,7 +310,7 @@ export default class War3MapViewer extends ModelViewer {
 
       gl.disable(gl.BLEND);
 
-      webgl.useShaderProgram(shader);
+      shader.use();
 
       gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
       gl.uniform1i(uniforms.u_heightMap, 0);
@@ -331,18 +331,18 @@ export default class War3MapViewer extends ModelViewer {
       }
 
       // Set instanced attributes.
-      if (!gl.extensions.vertexArrayObject) {
+      if (!webgl.extensions.vertexArrayObject) {
         instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 1);
         instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceTexture, 1);
       }
 
       // Render the cliffs.
       for (let cliff of this.cliffModels) {
-        cliff.render(gl, instancedArrays, attribs);
+        cliff.render(shader);
       }
 
       // Clear instanced attributes.
-      if (!gl.extensions.vertexArrayObject) {
+      if (!webgl.extensions.vertexArrayObject) {
         instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceTexture, 0);
       }
@@ -759,7 +759,7 @@ export default class War3MapViewer extends ModelViewer {
       return this.loadGeneric(urlWithParams(this.mapPathSolver(path)[0], this.solverParams), 'arrayBuffer')
         .whenLoaded()
         .then((resource) => {
-          return new TerrainModel(gl, resource.data, locations, textures, this.cliffShader.attribs);
+          return new TerrainModel(this, resource.data, locations, textures, this.cliffShader);
         });
     });
 

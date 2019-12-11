@@ -1,7 +1,8 @@
 import EmittedObject from '../../emittedobject';
+import MdxModel from './model';
+import EventObjectEmitterObject from './eventobjectemitterobject';
 import MdxComplexInstance from './complexinstance';
 import EventObjectSpnEmitter from './eventobjectspnemitter';
-import MdxModel from './model';
 
 /**
  * An MDX spawned model object.
@@ -12,11 +13,14 @@ export default class EventObjectSpn extends EmittedObject {
   constructor(emitter: EventObjectSpnEmitter) {
     super(emitter);
 
-    this.internalInstance = emitter.emitterObject.internalModel.addInstance();
+    let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
+    let internalModel = <MdxModel>emitterObject.internalModel;
+
+    this.internalInstance = internalModel.addInstance();
   }
 
   bind() {
-    let emitter = this.emitter;
+    let emitter = <EventObjectSpnEmitter>this.emitter;
     let instance = <MdxComplexInstance>emitter.instance;
     let node = instance.nodes[emitter.emitterObject.index];
     let internalInstance = <MdxComplexInstance>this.internalInstance;

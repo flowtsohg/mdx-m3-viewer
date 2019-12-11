@@ -65,7 +65,7 @@ export default class Context extends EventEmitter {
     this.players = [];
     this.actualPlayers = 0;
     this.startLocations = [];
-    this.constantHandles = constantHandles(this);
+    this.constantHandles = constantHandles();
 
     for (let i = 0; i < 28; i++) {
       this.players[i] = <JassPlayer>this.addHandle(new JassPlayer(i, 28));

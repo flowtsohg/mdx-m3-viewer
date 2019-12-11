@@ -1,6 +1,7 @@
 import { mat4 } from 'gl-matrix';
 import DataTexture from '../../gl/datatexture';
 import ModelInstance from '../../modelinstance';
+import m3Handler from './handler';
 import M3Model from './model';
 import M3Skeleton from './skeleton';
 
@@ -108,7 +109,7 @@ export default class M3ModelInstance extends ModelInstance {
       let gl = model.viewer.gl;
       let vertexSize = model.vertexSize;
       let uvSetCount = model.uvSetCount;
-      let shader = model.handler.shaders[uvSetCount - 1];
+      let shader = m3Handler.shaders.standard[uvSetCount - 1];
       let attribs = shader.attribs;
       let uniforms = shader.uniforms;
       let camera = this.scene.camera;
@@ -124,7 +125,7 @@ export default class M3ModelInstance extends ModelInstance {
       gl.uniformMatrix4fv(uniforms.u_mv, false, camera.worldMatrix);
 
       gl.uniform3fv(uniforms.u_eyePos, camera.location);
-      gl.uniform3fv(uniforms.u_lightPos, model.handler.lightPosition);
+      gl.uniform3fv(uniforms.u_lightPos, m3Handler.lightPosition);
 
       boneTexture.bind(15);
       gl.uniform1i(uniforms.u_boneMap, 15);

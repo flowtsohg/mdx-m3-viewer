@@ -134,12 +134,14 @@ export default class WebGL {
         shaderPrograms.set(hash, new ShaderProgram(this, vertexShader, fragmentShader));
       }
 
-      let shaderProgram = <ShaderProgram>shaderPrograms.get(hash);
+      let program = <ShaderProgram>shaderPrograms.get(hash);
 
-      if (shaderProgram.ok) {
-        return shaderProgram;
+      if (program.ok) {
+        return program;
       }
     }
+
+    return null;
   }
 
   /**

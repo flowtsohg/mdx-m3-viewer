@@ -1,7 +1,7 @@
 import ParticleEmitter from '../../../parsers/mdlx/particleemitter';
 import MdxModel from './model';
-import MdxComplexInstance from './complexinstance';
 import GenericObject from './genericobject';
+import MdxComplexInstance from './complexinstance';
 
 /**
  * An MDX particle emitter.
@@ -14,6 +14,12 @@ export default class ParticleEmitterObject extends GenericObject {
   lifeSpan: number;
   gravity: number;
   emissionRate: number;
+  /**
+   * No need to create instances of the internal model if it didn't load.
+   * 
+   * Such instances won't actually render, and who knows if the model will ever load?
+   */
+  ok: boolean = false;
 
   constructor(model: MdxModel, emitter: ParticleEmitter, index: number) {
     super(model, emitter, index);
@@ -25,6 +31,11 @@ export default class ParticleEmitterObject extends GenericObject {
     this.lifeSpan = emitter.lifeSpan;
     this.gravity = emitter.gravity;
     this.emissionRate = emitter.emissionRate;
+
+    // Activate emitters based on this emitter object only when and if the internal model loads successfully.
+    this.internalModel.whenLoaded(() => {
+      this.ok = this.internalModel.ok;
+    });
   }
 
   getSpeed(out: Float32Array, instance: MdxComplexInstance) {

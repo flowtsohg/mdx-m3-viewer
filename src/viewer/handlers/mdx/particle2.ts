@@ -2,9 +2,10 @@ import { vec3, quat } from 'gl-matrix';
 import { VEC3_UNIT_Z } from '../../../common/gl-matrix-addon';
 import { degToRad, randomInRange } from '../../../common/math';
 import EmittedObject from '../../emittedobject';
+import ParticleEmitter2Object from './particleemitter2object';
+import MdxComplexInstance from './complexinstance';
 import ParticleEmitter2 from './particleemitter2';
 
-// Heap allocations needed for this module.
 const rotationHeap = quat.create();
 const widthHeap = new Float32Array(1);
 const lengthHeap = new Float32Array(1);
@@ -17,26 +18,16 @@ const gravityHeap = new Float32Array(1);
  * A type 2 particle.
  */
 export default class Particle2 extends EmittedObject {
-  tail: number;
-  gravity: number;
-  location: vec3;
-  velocity: vec3;
-  scale: vec3;
-
-  constructor(emitter: ParticleEmitter2) {
-    super(emitter);
-
-    this.tail = 0;
-    this.gravity = 0;
-    this.location = vec3.create();
-    this.velocity = vec3.create();
-    this.scale = vec3.create();
-  }
+  tail: number = 0;
+  gravity: number = 0;
+  location: vec3 = vec3.create();
+  velocity: vec3 = vec3.create();
+  scale: vec3 = vec3.create();
 
   bind(tail: number) {
     let emitter = <ParticleEmitter2>this.emitter;
-    let instance = emitter.instance;
-    let emitterObject = emitter.emitterObject;
+    let instance = <MdxComplexInstance>emitter.instance;
+    let emitterObject = <ParticleEmitter2Object>emitter.emitterObject;
 
     emitterObject.getWidth(widthHeap, instance);
     emitterObject.getLength(lengthHeap, instance);

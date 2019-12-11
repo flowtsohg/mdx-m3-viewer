@@ -1,5 +1,5 @@
 import { inflate, deflate } from 'pako';
-import { bufferToString } from '../../common/stringtobuffer';
+import BinaryStream from '../../common/binarystream';
 import MpqArchive from './archive';
 import MpqCrypto from './crypto';
 import MpqHash from './hash';
@@ -60,7 +60,9 @@ export default class MpqFile {
     let buffer = this.arrayBuffer();
 
     if (buffer) {
-      return bufferToString(buffer);
+      let stream = new BinaryStream(buffer);
+
+      return stream.read(buffer.byteLength);
     }
 
     return null;

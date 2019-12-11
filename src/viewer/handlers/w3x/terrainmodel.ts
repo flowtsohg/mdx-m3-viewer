@@ -1,9 +1,12 @@
 import MdxParser from '../../../parsers/mdlx/model';
+import ShaderProgram from '../../gl/program';
+import War3MapViewer from './viewer';
 
 /**
  * A static terrain model.
  */
 export default class TerrainModel {
+  viewer: War3MapViewer;
   vertexBuffer: WebGLBuffer;
   faceBuffer: WebGLBuffer;
   normalsOffset: number;
@@ -14,9 +17,11 @@ export default class TerrainModel {
   instances: number;
   vao: WebGLVertexArrayObjectOES;
 
-  constructor(gl: WebGLRenderingContext, arrayBuffer: ArrayBuffer, locations: number[], textures: number[], attribs: object) {
-    let instancedArrays = gl.extensions.instancedArrays;
-    let vertexArrayObject = gl.extensions.vertexArrayObject;
+  constructor(viewer: War3MapViewer, arrayBuffer: ArrayBuffer, locations: number[], textures: number[], shader: ShaderProgram) {
+    let gl = viewer.gl;
+    let webgl = viewer.webgl;
+    let instancedArrays = webgl.extensions.instancedArrays;
+    let vertexArrayObject = webgl.extensions.vertexArrayObject;
     let parser = new MdxParser(arrayBuffer);
     let geoset = parser.geosets[0];
     let vertices = geoset.vertices;
@@ -26,6 +31,7 @@ export default class TerrainModel {
     let normalsOffset = vertices.byteLength;
     let uvsOffset = normalsOffset + normals.byteLength;
     let vao = null;
+    let attribs = shader.attribs;
 
     if (vertexArrayObject) {
       vao = vertexArrayObject.createVertexArrayOES();
@@ -76,6 +82,7 @@ export default class TerrainModel {
       vertexArrayObject.bindVertexArrayOES(null);
     }
 
+    this.viewer = viewer;
     this.vertexBuffer = vertexBuffer;
     this.faceBuffer = faceBuffer;
     this.normalsOffset = normalsOffset;
@@ -87,9 +94,15 @@ export default class TerrainModel {
     this.vao = vao;
   }
 
-  render(gl: WebGLRenderingContext, instancedArrays: ANGLEInstancedArrays, attribs: object) {
+  render(shader: ShaderProgram) {
+    let viewer = this.viewer;
+    let gl = viewer.gl;
+    let webgl = viewer.webgl;
+    let instancedArrays = webgl.extensions.instancedArrays;
+    let attribs = shader.attribs;
+
     if (this.vao) {
-      gl.extensions.vertexArrayObject.bindVertexArrayOES(this.vao);
+      webgl.extensions.vertexArrayObject.bindVertexArrayOES(this.vao);
     } else {
       // Locations and textures.
       gl.bindBuffer(gl.ARRAY_BUFFER, this.locationAndTextureBuffer);
@@ -110,7 +123,7 @@ export default class TerrainModel {
     instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, 0, this.instances);
 
     if (this.vao) {
-      gl.extensions.vertexArrayObject.bindVertexArrayOES(null);
+      webgl.extensions.vertexArrayObject.bindVertexArrayOES(null);
     }
   }
 }

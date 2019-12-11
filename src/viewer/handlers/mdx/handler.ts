@@ -6,39 +6,54 @@ import Model from './model';
 import Batch from './renderbatch';
 import ComplexInstance from './complexinstance';
 import SimpleInstance from './simpleinstance';
-import shaders from './shaders';
+import sources from './shaders';
+import ShaderProgram from '../../gl/program';
+import Texture from '../../texture';
+
+// Shaders.
+let shaders = {
+  complex: <ShaderProgram | null>null,
+  extended: <ShaderProgram | null>null,
+  simple: <ShaderProgram | null>null,
+  particles: <ShaderProgram | null>null,
+  hd: <ShaderProgram | null>null,
+};
+
+// Team color/glow textures, shared between all models, but loaded with the first model that uses them.
+let teamColors = <Texture[]>[];
+let teamGlows = <Texture[]>[];
+
+// Same as above, but only loaded and used by Reforged models.
+let reforgedTeamColors = <Texture[]>[];
+let reforgedTeamGlows = <Texture[]>[];
+
+// Handler loader.
+function load(viewer: ModelViewer) {
+  let webgl = viewer.webgl;
+
+  viewer.addHandler(blp);
+  viewer.addHandler(tga);
+  viewer.addHandler(imagetexture);
+
+  shaders.complex = webgl.createShaderProgram(sources.vsComplex, sources.fsComplex);
+  shaders.extended = webgl.createShaderProgram('#define EXTENDED_BONES\n' + sources.vsComplex, sources.fsComplex);
+  shaders.particles = webgl.createShaderProgram(sources.vsParticles, sources.fsParticles);
+  shaders.simple = webgl.createShaderProgram(sources.vsSimple, sources.fsSimple);
+  shaders.hd = webgl.createShaderProgram(sources.vsHd, sources.fsHd);
+
+  // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
+  return shaders.complex && shaders.extended && shaders.particles && shaders.simple && shaders.hd;
+}
 
 export default {
-  load(viewer: ModelViewer) {
-    viewer.addHandler(blp);
-    viewer.addHandler(tga);
-    viewer.addHandler(imagetexture);
-
-    this.complexShader = viewer.webgl.createShaderProgram(shaders.vsComplex, shaders.fsComplex);
-    this.extendedShader = viewer.webgl.createShaderProgram('#define EXTENDED_BONES\n' + shaders.vsComplex, shaders.fsComplex);
-    this.particleShader = viewer.webgl.createShaderProgram(shaders.vsParticles, shaders.fsParticles);
-    this.simpleShader = viewer.webgl.createShaderProgram(shaders.vsSimple, shaders.fsSimple);
-    this.hdShader = viewer.webgl.createShaderProgram(shaders.vsHd, shaders.fsHd);
-
-    // If a shader failed to compile, don't allow the handler to be registered, and send an error instead.
-    return this.complexShader.ok && this.extendedShader.ok && this.particleShader.ok && this.simpleShader.ok && this.hdShader;
-  },
-
   extensions: [['.mdx', 'arrayBuffer'], ['.mdl', 'text']],
   Constructor: Model,
   Batch: Batch,
   Instance: [ComplexInstance, SimpleInstance],
-
-  complexShader: null,
-  extendedShader: null,
-  simpleShader: null,
-  particleShader: null,
-  hdShader: null,
-
-  // Team color/glow textures, shared between all models, but loaded with the first model that uses them.
-  teamColors: [],
-  teamGlows: [],
-  // Same as above, but only loaded and used by Reforged models.
-  reforgedTeamColors: [],
-  reforgedTeamGlows: [],
+  load,
+  shaders,
+  teamColors,
+  teamGlows,
+  reforgedTeamColors,
+  reforgedTeamGlows,
 };

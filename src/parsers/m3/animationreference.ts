@@ -20,7 +20,7 @@ export abstract class M3ParserAnimationReference {
     reader.skip(4); // ?
   }
 
-  abstract readInitNullValues(reader: BinaryStream): any;
+  abstract readInitNullValues(reader: BinaryStream): void;
 }
 
 /**

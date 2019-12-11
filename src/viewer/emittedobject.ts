@@ -14,7 +14,7 @@ export default class EmittedObject {
     this.health = 0;
   }
 
-  bind(flags?: any) {
+  bind(emitData?: any) {
 
   }
 

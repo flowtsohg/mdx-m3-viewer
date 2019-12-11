@@ -56,7 +56,9 @@ export default class Scene {
 
   /**
    * Creates an AudioContext if one wasn't created already, and resumes it if needed.
+   * 
    * The returned promise will resolve to whether it is actually running or not.
+   * 
    * It may stay in suspended state indefinitly until the user interacts with the page, due to browser policies.
    */
   async enableAudio() {
@@ -90,7 +92,8 @@ export default class Scene {
 
   /**
    * Sets the scene of the given instance.
-   * This is equivalent to instance.setScene(scene).
+   * 
+   * Equivalent to instance.setScene(scene).
    */
   addInstance(instance: ModelInstance) {
     if (instance.scene !== this) {
@@ -240,7 +243,6 @@ export default class Scene {
 
   /**
    * Render all opaque things in this scene.
-   * Automatically applies the camera's viewport.
    */
   renderOpaque() {
     let camera = this.camera;
@@ -271,7 +273,6 @@ export default class Scene {
 
   /**
    * Renders all translucent things in this scene.
-   * Automatically applies the camera's viewport.
    */
   renderTranslucent() {
     let camera = this.camera;

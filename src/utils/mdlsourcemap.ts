@@ -1,12 +1,26 @@
 import TokenStream from '../parsers/mdlx/tokenstream';
 
 /**
+ * The structure of a source map node.
+ */
+interface SourceNode {
+  name: string;
+  ident: number;
+  start: number;
+  end: number;
+  data: string;
+  children: SourceNode[];
+  index?: number;
+  objectName?: string;
+}
+
+/**
  * The need data for a single source map creation.
  */
 class SourceMapData {
   stream: TokenStream;
-  rootNode: { children: any[]; };
-  stack: any[];
+  rootNode: SourceNode;
+  stack: SourceNode[];
   counts: object;
   ident: number;
   searchBitmapName: boolean;
@@ -14,7 +28,7 @@ class SourceMapData {
 
   constructor(stream: TokenStream) {
     this.stream = stream;
-    this.rootNode = { children: [] };
+    this.rootNode = { name: 'root', ident: 0, start: 0, end: stream.buffer.length, data: '', children: [] };
     this.stack = [this.rootNode];
     this.counts = {};
     this.ident = 0;
@@ -79,7 +93,7 @@ function startBlock(data: SourceMapData, name: string) {
   let counts = data.counts;
   let countName = name;
   let stream = data.stream;
-  let node = { name, ident: data.ident, start: stream.index - name.length - 1, end: 0, data: '', children: [] };
+  let node = <SourceNode>{ name, ident: data.ident, start: stream.index - name.length - 1, end: 0, data: '', children: [] };
 
   // Don't index blocks, just objects.
   if (!chunkNames.includes(name)) {
@@ -168,5 +182,5 @@ export default function mdlSourceMap(buffer: string) {
     }
   }
 
-  return data.rootNode.children;
+  return data.rootNode;
 }

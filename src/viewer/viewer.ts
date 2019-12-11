@@ -14,7 +14,6 @@ import ModelInstance from './modelinstance';
 import TextureMapper from './texturemapper';
 import Texture from './texture';
 
-
 /**
  * A model viewer.
  */
@@ -56,9 +55,6 @@ export default class ModelViewer extends EventEmitter {
   audioEnabled: boolean;
   textureMappers: Map<Model, TextureMapper[]>;
 
-  /**
-   *
-   */
   constructor(canvas: HTMLCanvasElement, options?: object) {
     super();
 
@@ -242,7 +238,8 @@ export default class ModelViewer extends EventEmitter {
         }
 
         let handler = handlerAndDataType[0];
-        let resource = new handler.Constructor({ viewer: this, handler, extension, pathSolver, fetchUrl: isFetch ? finalSrc : '' });
+        let constructor = <typeof Resource>handler.Constructor;
+        let resource = new constructor({ viewer: this, handler, extension, pathSolver, fetchUrl: isFetch ? finalSrc : '' });
 
         this.resources.push(resource);
 
@@ -278,7 +275,7 @@ export default class ModelViewer extends EventEmitter {
         this.emit('error', this, 'MissingHandler', [finalSrc, extension, isFetch]);
       }
     } else {
-      this.emit('error', this, 'LoadUnrsolved', src);
+      this.emit('error', this, 'LoadUnresolved', src);
     }
   }
 
@@ -303,14 +300,14 @@ export default class ModelViewer extends EventEmitter {
    * If a callback is given, the resource's data is the value returned by it when called with the fetch data.
    * If a callback returns a promise, the resource's data will be the result of the promise.
    */
-  loadGeneric(path: string, dataType: string, callback?: (data: string | ArrayBuffer | Blob | HTMLImageElement) => any) {
-    let resource = this.fetchCache.get(path);
+  loadGeneric(path: string, dataType: "image" | "text" | "arrayBuffer" | "blob", callback?: (data: HTMLImageElement | string | ArrayBuffer | Blob) => any) {
+    let cachedResource = this.fetchCache.get(path);
 
-    if (resource) {
-      return resource;
+    if (cachedResource) {
+      return cachedResource;
     }
 
-    resource = new GenericResource({ viewer: this, handler: callback, fetchUrl: path });
+    let resource = new GenericResource({ viewer: this, handler: callback, fetchUrl: path });
 
     this.resources.push(resource);
     this.fetchCache.set(path, resource);
@@ -325,7 +322,7 @@ export default class ModelViewer extends EventEmitter {
 
         if (response.ok) {
           if (callback) {
-            data = callback(data);
+            data = callback(<HTMLImageElement | string | ArrayBuffer | Blob>data);
 
             if (data instanceof Promise) {
               data.then((data) => resource.loadData(data));
@@ -361,7 +358,7 @@ export default class ModelViewer extends EventEmitter {
     let index = resources.indexOf(resource);
 
     if (index !== -1) {
-      resource.splice(index, 1);
+      resources.splice(index, 1);
 
       return true;
     }
@@ -395,14 +392,14 @@ export default class ModelViewer extends EventEmitter {
     for (let resource of resources) {
       // Only process actual resources.
       if (resource && resource.whenLoaded) {
-        promises.push(resource.whenLoaded());
+        promises.push(<Promise<Resource>>resource.whenLoaded());
       }
     }
 
     let all = Promise.all(promises);
 
     if (callback) {
-      all.then(() => callback(promises));
+      all.then((loaded) => callback(loaded));
     } else {
       return all;
     }
@@ -410,11 +407,11 @@ export default class ModelViewer extends EventEmitter {
 
   /**
    * Wait for all of the resources to load.
-   * If a callback is given, it will be called.
-   * Otherwise, a promise is returned.
+   * 
+   * If a callback is given, it will be called, otherwise, a promise is returned.
    */
   whenAllLoaded(callback?: (viewer: ModelViewer) => void) {
-    let promise = new Promise((resolve: (viewer: ModelViewer) => void, reject) => {
+    let promise = new Promise((resolve: (viewer: ModelViewer) => void) => {
       if (this.resourcesLoading.size === 0) {
         resolve(this);
       } else {
@@ -431,8 +428,8 @@ export default class ModelViewer extends EventEmitter {
 
   /**
    * Get a blob representing the contents of the viewer's canvas.
-   * If a callback is given, it will be called.
-   * Otherwise, a promise is returned.
+   * 
+   * If a callback is given, it will be called, otherwise, a promise is returned.
    */
   toBlob(callback?: BlobCallback) {
     let promise = new Promise((resolve: BlobCallback) => this.canvas.toBlob((blob) => resolve(blob)));
@@ -476,7 +473,9 @@ export default class ModelViewer extends EventEmitter {
 
   /**
    * Clears the WebGL buffer.
+   * 
    * Called automatically by updateAndRender().
+   * 
    * Call this at some point before render() if you need more control.
    */
   startFrame() {

@@ -171,10 +171,6 @@ class SanityTestData {
     }
   }
 
-  /**
-   * @param {GenericObject} object
-   * @return {?Array<Array<number>>}
-   */
   getInvisibility(object: GenericObject) {
     let segments = [];
 

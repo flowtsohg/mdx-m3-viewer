@@ -9,7 +9,7 @@ import { EMITTER_RIBBON } from './geometryemitterfuncs';
  * An MDX ribbon emitter.
  */
 export default class RibbonEmitterObject extends GenericObject {
-  geometryEmitterType: number;
+  geometryEmitterType: number = EMITTER_RIBBON;
   layer: Layer;
   heightAbove: number;
   heightBelow: number;
@@ -21,11 +21,16 @@ export default class RibbonEmitterObject extends GenericObject {
   gravity: number;
   columns: number;
   rows: number;
+  /**
+   * Even if the internal texture isn't loaded, it's fine to run emitters based on this emitter object.
+   * 
+   * The ribbons will simply be black.
+   */
+  ok: boolean = true;
 
   constructor(model: MdxModel, emitter: RibbonEmitter, index: number) {
     super(model, emitter, index);
 
-    this.geometryEmitterType = EMITTER_RIBBON;
     this.layer = model.materials[emitter.materialId].layers[0];
     this.heightAbove = emitter.heightAbove;
     this.heightBelow = emitter.heightBelow;

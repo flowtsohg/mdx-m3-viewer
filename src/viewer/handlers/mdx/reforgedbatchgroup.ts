@@ -1,7 +1,9 @@
+import ShaderProgram from '../../gl/program';
+import Scene from '../../scene';
+import mdxHandler from './handler';
 import MdxModel from './model';
 import MdxComplexInstance from './complexinstance';
 import ReforgedBatch from './reforgedbatch';
-import Scene from '../../scene';
 
 /**
  * A group of Reforged batches that are going to be rendered together.
@@ -26,8 +28,8 @@ export default class ReforgedBatchGroup {
     let viewer = model.viewer;
     let gl = viewer.gl;
     let textures = model.textures;
-    let teamColorTextures = model.handler.reforgedTeamColors;
-    let shader = model.handler.hdShader; /// TODO: select the shader.
+    let teamColorTextures = mdxHandler.reforgedTeamColors;
+    let shader = <ShaderProgram>mdxHandler.shaders.hd; /// TODO: select the shader.
 
     shader.use();
 

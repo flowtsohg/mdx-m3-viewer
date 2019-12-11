@@ -73,11 +73,9 @@ export default class M3Layer {
         uvCoordinate: settings + 'uvCoordinate',
       };
 
-      let source = layer.imagePath.getAll().join('');
+      let source = layer.imagePath.getAll().join('').replace('\0', '').toLowerCase();
 
-      if (source.length !== 0) {
-        source = source.replace('\0', '').toLowerCase();
-
+      if (source.length) {
         this.source = source;
 
         this.texture = model.viewer.load(source, pathSolver);

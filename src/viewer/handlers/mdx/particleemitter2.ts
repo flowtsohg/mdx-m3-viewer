@@ -1,17 +1,16 @@
-import Emitter from '../../emitter';
-import { SkeletalNode } from '../../node';
-import MdxComplexInstance from './complexinstance';
-import Particle2 from './particle2';
 import ParticleEmitter2Object from './particleemitter2object';
+import MdxComplexInstance from './complexinstance';
+import MdxNode from './node';
+import MdxEmitter from './emitter';
+import Particle2 from './particle2';
 
-// Heap allocations needed for this module.
 const emissionRateHeap = new Float32Array(1);
 
 /**
  * An MDX particle emitter type 2.
  */
-export default class ParticleEmitter2 extends Emitter {
-  node: SkeletalNode;
+export default class ParticleEmitter2 extends MdxEmitter {
+  node: MdxNode;
   lastEmissionKey: number;
 
   constructor(instance: MdxComplexInstance, emitterObject: ParticleEmitter2Object) {
@@ -25,9 +24,10 @@ export default class ParticleEmitter2 extends Emitter {
     let instance = <MdxComplexInstance>this.instance;
 
     if (instance.allowParticleSpawn) {
-      let keyframe = this.emitterObject.getEmissionRate(emissionRateHeap, instance);
+      let emitterObject = <ParticleEmitter2Object>this.emitterObject;
+      let keyframe = emitterObject.getEmissionRate(emissionRateHeap, instance);
 
-      if (this.emitterObject.squirt) {
+      if (emitterObject.squirt) {
         if (keyframe !== this.lastEmissionKey) {
           this.currentEmission += emissionRateHeap[0];
         }
@@ -40,11 +40,13 @@ export default class ParticleEmitter2 extends Emitter {
   }
 
   emit() {
-    if (this.emitterObject.head) {
+    let emitterObject = <ParticleEmitter2Object>this.emitterObject;
+
+    if (emitterObject.head) {
       this.emitObject(0);
     }
 
-    if (this.emitterObject.tail) {
+    if (emitterObject.tail) {
       this.emitObject(1);
     }
   }

@@ -76,7 +76,7 @@ class SdSequence {
       let firstValue = this.values[0];
 
       // If all of the values in this sequence are the same, might as well make it constant.
-      this.constant = this.values.every((value) => firstValue.every((element, index) => element === value[index]));
+      this.constant = this.values.every((value) => firstValue.every((element: number, index: number) => element === value[index]));
 
       if (!this.constant) {
         // If there is no opening keyframe for this sequence, inject one with the default value.

@@ -1,15 +1,13 @@
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
-const compression = require('compression');
 const PORT = 8080;
 const BASE_PATH = '../resources/';
 const app = express();
 
 app.use(express.json());
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(express.static('.')); // Give access to /clients
-app.use(compression());
 
 app.get('/assets', (req, res, next) => {
   let params = req.query;

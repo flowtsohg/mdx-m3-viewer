@@ -1,15 +1,25 @@
 import IniFile from '../../ini/file';
 
 /**
+ * A standard object mapping strings to strings.
+ */
+type StringObject = { [key: string]: string };
+
+/**
+ * A standard object mapping strings to function signatures and an optional Jass name.
+ */
+type FunctionObject = { [key: string]: { args: string[], scriptName: string | null } };
+
+/**
  * Trigger data needed to load a WTG file.
  */
 export default class TriggerData {
-  types: object;
-  functions: object[];
-  presets: object;
-  externalTypes: object;
-  externalFunctions: object[];
-  externalPresets: object;
+  types: StringObject;
+  functions: FunctionObject[];
+  presets: StringObject;
+  externalTypes: StringObject;
+  externalFunctions: FunctionObject[];
+  externalPresets: StringObject;
 
   constructor() {
     this.types = {};
@@ -66,7 +76,7 @@ export default class TriggerData {
     }
   }
 
-  addTriggerTypes(types: object, section: Map<string, string>) {
+  addTriggerTypes(types: StringObject, section: Map<string, string>) {
     for (let [key, value] of section) {
       let tokens = value.split(',');
 
@@ -74,7 +84,7 @@ export default class TriggerData {
     }
   }
 
-  addTriggerDataFunctions(functions: object, section: Map<string, string>, skipped: number) {
+  addTriggerDataFunctions(functions: FunctionObject, section: Map<string, string>, skipped: number) {
     for (let [key, value] of section) {
       // We don't care about metadata lines.
       if (key[0] !== '_') {
@@ -96,7 +106,7 @@ export default class TriggerData {
     }
   }
 
-  addTriggerDataPresets(presets: object, section: Map<string, string>) {
+  addTriggerDataPresets(presets: StringObject, section: Map<string, string>) {
     for (let [key, value] of section) {
       let tokens = value.split(',');
 

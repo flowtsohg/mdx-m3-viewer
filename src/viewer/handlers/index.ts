@@ -6,6 +6,7 @@ import mdx from './mdx';
 import imagetexture from './imagetexture';
 import tga from './tga';
 import w3x from './w3x';
+import gltf from './gltf';
 
 export default {
   blp,
@@ -16,4 +17,5 @@ export default {
   imagetexture,
   tga,
   w3x,
+  gltf,
 };

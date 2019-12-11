@@ -13,7 +13,6 @@ import M3AttachmentPoint from './attachment';
 import M3Camera from './camera';
 import M3Region from './region';
 
-
 /**
  * An M3 model.
  */
@@ -60,9 +59,6 @@ export default class M3Model extends Model {
     this.uvSetCount = 0;
   }
 
-  /**
-   * @param {ArrayBuffer|Parser} bufferOrParser
-   */
   load(bufferOrParser: ArrayBuffer | Parser) {
     let parser;
 
@@ -194,9 +190,6 @@ export default class M3Model extends Model {
     }
   }
 
-  /**
-   *
-   */
   setupGeometry(parser: M3ParserModel, div: M3ParserDivision) {
     let gl = this.viewer.gl;
     let uvSetCount = 1;
@@ -242,18 +235,12 @@ export default class M3Model extends Model {
     this.uvSetCount = uvSetCount;
   }
 
-  /**
-   *
-   */
   mapMaterial(index: number) {
     let materialMap = this.materialMaps[index];
 
     return this.materials[materialMap.materialType][materialMap.materialIndex];
   }
 
-  /**
-   *
-   */
   addGlobalAnims() {
     /*
     var i, l;
