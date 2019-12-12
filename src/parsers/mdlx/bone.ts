@@ -6,14 +6,11 @@ import GenericObject from './genericobject';
  * A bone.
  */
 export default class Bone extends GenericObject {
-  geosetId: number;
-  geosetAnimationId: number;
+  geosetId: number = -1;
+  geosetAnimationId: number = -1;
 
   constructor() {
     super(0x100);
-
-    this.geosetId = -1;
-    this.geosetAnimationId = -1;
   }
 
   readMdx(stream: BinaryStream) {

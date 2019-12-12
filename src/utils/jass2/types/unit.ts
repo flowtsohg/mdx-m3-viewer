@@ -11,7 +11,7 @@ export default class JassUnit extends JassWidget {
   x: number;
   y: number;
   face: number;
-  acquireRange: number;
+  acquireRange: number = 500;
 
   constructor(player: JassPlayer, unitId: number, x: number, y: number, face: number) {
     super();
@@ -21,7 +21,6 @@ export default class JassUnit extends JassWidget {
     this.x = x;
     this.y = y;
     this.face = face;
-    this.acquireRange = 500;
 
     // if (balanceRow) {
     //   this.balanceRow = balanceRow;

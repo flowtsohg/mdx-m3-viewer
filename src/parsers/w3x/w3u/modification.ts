@@ -4,21 +4,12 @@ import BinaryStream from '../../../common/binarystream';
  * A modification.
  */
 export default class Modification {
-  id: string;
-  variableType: number;
-  levelOrVariation: number;
-  dataPointer: number;
-  value: number | string;
-  u1: number;
-
-  constructor() {
-    this.id = '\0\0\0\0';
-    this.variableType = 0;
-    this.levelOrVariation = 0;
-    this.dataPointer = 0;
-    this.value = 0;
-    this.u1 = 0;
-  }
+  id: string = '\0\0\0\0';
+  variableType: number = 0;
+  levelOrVariation: number = 0;
+  dataPointer: number = 0;
+  value: number | string = 0;
+  u1: number = 0;
 
   load(stream: BinaryStream, useOptionalInts: boolean) {
     this.id = stream.read(4);

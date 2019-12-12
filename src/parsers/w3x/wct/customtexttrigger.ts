@@ -4,11 +4,7 @@ import BinaryStream from '../../../common/binarystream';
  * A custom text trigger.
  */
 export default class CustomTextTrigger {
-  text: string;
-
-  constructor() {
-    this.text = '';
-  }
+  text: string = '';
 
   load(stream: BinaryStream) {
     let textLength = stream.readInt32();

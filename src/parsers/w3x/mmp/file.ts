@@ -5,13 +5,10 @@ import MinimapIcon from './minimapicon';
  * war3map.mmp - the minimap icon file.
  */
 export default class War3MapMmp {
-  u1: number;
-  icons: MinimapIcon[];
+  u1: number = 0;
+  icons: MinimapIcon[] = [];
 
   constructor(buffer?: ArrayBuffer) {
-    this.u1 = 0;
-    this.icons = [];
-
     if (buffer) {
       this.load(buffer);
     }

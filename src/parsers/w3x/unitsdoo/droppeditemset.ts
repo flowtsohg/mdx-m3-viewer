@@ -5,11 +5,7 @@ import DroppedItem from './droppeditem';
  * A dropped item set.
  */
 export default class DroppedItemSet {
-  items: DroppedItem[];
-
-  constructor() {
-    this.items = [];
-  }
+  items: DroppedItem[] = [];
 
   load(stream: BinaryStream) {
     for (let i = 0, l = stream.readInt32(); i < l; i++) {

@@ -8,24 +8,16 @@ import GenericObject from './genericobject';
  * @since 900
  */
 export default class Corn extends GenericObject {
-  lifeSpan: number;
-  emissionRate: number;
-  speed: number;
-  color: Float32Array;
-  replaceableId: number;
-  path: string;
-  options: string;
+  lifeSpan: number = 0;
+  emissionRate: number = 0;
+  speed: number = 0;
+  color: Float32Array = new Float32Array(4);
+  replaceableId: number = 0;
+  path: string = '';
+  options: string = '';
 
   constructor() {
     super(0); /// What is the flag?
-
-    this.lifeSpan = 0;
-    this.emissionRate = 0;
-    this.speed = 0;
-    this.color = new Float32Array(4);
-    this.replaceableId = 0;
-    this.path = '';
-    this.options = '';
   }
 
   readMdx(stream: BinaryStream) {

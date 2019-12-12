@@ -5,19 +5,11 @@ import RandomUnit from './randomunit';
  * A random unit table.
  */
 export default class RandomUnitTable {
-  id: number;
-  name: string;
-  positions: number;
-  columnTypes: Int32Array;
-  units: RandomUnit[];
-
-  constructor() {
-    this.id = 0;
-    this.name = '';
-    this.positions = 0;
-    this.columnTypes = new Int32Array(1);
-    this.units = [];
-  }
+  id: number = 0;
+  name: string = '';
+  positions: number = 0;
+  columnTypes: Int32Array = new Int32Array(1);
+  units: RandomUnit[] = [];
 
   load(stream: BinaryStream) {
     this.id = stream.readInt32();

@@ -4,13 +4,8 @@ import BinaryStream from '../../../common/binarystream';
  * A dropped item.
  */
 export default class DroppedItem {
-  id: string;
-  chance: number;
-
-  constructor() {
-    this.id = '\0\0\0\0';
-    this.chance = 0;
-  }
+  id: string = '\0\0\0\0';
+  chance: number = 0;
 
   load(stream: BinaryStream) {
     this.id = stream.read(4);

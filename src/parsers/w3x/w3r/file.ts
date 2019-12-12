@@ -5,13 +5,10 @@ import Region from './region';
  * war3map.w3r - the region file.
  */
 export default class War3MapW3r {
-  version: number;
-  regions: Region[];
+  version: number = 0;
+  regions: Region[] = [];
 
   constructor(buffer?: ArrayBuffer) {
-    this.version = 0;
-    this.regions = [];
-
     if (buffer) {
       this.load(buffer);
     }

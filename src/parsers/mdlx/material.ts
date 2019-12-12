@@ -6,20 +6,13 @@ import Layer from './layer';
  * A material.
  */
 export default class Material {
-  priorityPlane: number;
-  flags: number;
+  priorityPlane: number = 0;
+  flags: number = 0;
   /** 
    * @since 900
    */
-  shader: string;
-  layers: Layer[];
-
-  constructor() {
-    this.priorityPlane = 0;
-    this.flags = 0;
-    this.shader = '';
-    this.layers = [];
-  }
+  shader: string = '';
+  layers: Layer[] = [];
 
   readMdx(stream: BinaryStream, version: number) {
     stream.readUint32(); // Don't care about the size.

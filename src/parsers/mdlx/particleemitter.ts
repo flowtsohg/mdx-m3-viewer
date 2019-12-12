@@ -6,24 +6,16 @@ import GenericObject from './genericobject';
  * A particle emitter.
  */
 export default class ParticleEmitter extends GenericObject {
-  emissionRate: number;
-  gravity: number;
-  longitude: number;
-  latitude: number;
-  path: string;
-  lifeSpan: number;
-  speed: number;
+  emissionRate: number = 0;
+  gravity: number = 0;
+  longitude: number = 0;
+  latitude: number = 0;
+  path: string = '';
+  lifeSpan: number = 0;
+  speed: number = 0;
 
   constructor() {
     super(0x1000);
-
-    this.emissionRate = 0;
-    this.gravity = 0;
-    this.longitude = 0;
-    this.latitude = 0;
-    this.path = '';
-    this.lifeSpan = 0;
-    this.speed = 0;
   }
 
   readMdx(stream: BinaryStream) {

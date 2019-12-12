@@ -9,13 +9,12 @@ const long = new Uint32Array(bytes.buffer);
  * MPQ crypto.
  */
 export default class MpqCrypto {
-  cryptTable: Uint32Array;
+  cryptTable: Uint32Array = new Uint32Array(0x500)
 
   constructor() {
-    let cryptTable = new Uint32Array(0x500);
     let seed = 0x00100001;
-    let temp1: number;
-    let temp2: number;
+    let temp1 = 0;
+    let temp2 = 0;
 
     for (let index1 = 0; index1 < 0x100; index1++) {
       for (let index2 = index1, i = 0; i < 5; i += 1, index2 += 0x100) {
@@ -25,11 +24,9 @@ export default class MpqCrypto {
         seed = (seed * 125 + 3) % 0x2AAAAB;
         temp2 = (seed & 0xFFFF);
 
-        cryptTable[index2] = temp1 | temp2;
+        this.cryptTable[index2] = temp1 | temp2;
       }
     }
-
-    this.cryptTable = cryptTable;
   }
 
   hash(name: string, key: number) {

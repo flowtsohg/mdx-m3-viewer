@@ -1,6 +1,6 @@
-import TgaTexture from './texture';
+import Texture from './texture';
 
 export default {
   extensions: [['.tga', 'arrayBuffer']],
-  Constructor: TgaTexture,
+  resource: Texture,
 };

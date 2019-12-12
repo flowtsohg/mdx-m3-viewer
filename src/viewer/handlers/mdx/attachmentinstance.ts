@@ -15,10 +15,10 @@ export default class AttachmentInstance {
 
   constructor(instance: MdxComplexInstance, attachment: Attachment) {
     let internalModel = <MdxModel>attachment.internalModel;
-    let internalInstance = internalModel.addInstance();
+    let internalInstance = <MdxComplexInstance>internalModel.addInstance();
 
     internalInstance.setSequenceLoopMode(2);
-    internalInstance.dontInheritScale = false;
+    internalInstance.dontInheritScaling = false;
     internalInstance.hide();
     internalInstance.setParent(instance.nodes[attachment.objectId]);
 

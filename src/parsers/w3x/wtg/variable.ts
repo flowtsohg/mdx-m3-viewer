@@ -4,23 +4,13 @@ import BinaryStream from '../../../common/binarystream';
  * A global variable.
  */
 export default class Variable {
-  name: string;
-  type: string;
-  u1: number;
-  isArray: number;
-  arraySize: number;
-  isInitialized: number;
-  initialValue: string;
-
-  constructor() {
-    this.name = '';
-    this.type = '';
-    this.u1 = 0;
-    this.isArray = 0;
-    this.arraySize = 0;
-    this.isInitialized = 0;
-    this.initialValue = '';
-  }
+  name: string = '';
+  type: string = '';
+  u1: number = 0;
+  isArray: number = 0;
+  arraySize: number = 0;
+  isInitialized: number = 0;
+  initialValue: string = '';
 
   load(stream: BinaryStream, version: number) {
     this.name = stream.readUntilNull();

@@ -2,46 +2,46 @@ import { vec3, quat } from 'gl-matrix';
 import { VEC3_UNIT_Z } from '../../../common/gl-matrix-addon';
 import unique from '../../../common/arrayunique';
 import urlWithParams from '../../../common/urlwithparams';
+import MappedData from '../../../utils/mappeddata';
 import War3Map from '../../../parsers/w3x/map';
 import War3MapW3i from '../../../parsers/w3x/w3i/file';
 import War3MapW3e from '../../../parsers/w3x/w3e/file';
+import Corner from '../../../parsers/w3x/w3e/corner';
 import War3MapDoo from '../../../parsers/w3x/doo/file';
 import War3MapUnitsDoo from '../../../parsers/w3x/unitsdoo/file';
-import MappedData from '../../../utils/mappeddata';
 import ModelViewer from '../../viewer';
 import ShaderProgram from '../../gl/program';
 import Scene from '../../scene';
 import Camera from '../../camera';
 import Grid from '../../grid';
-import geoHandler from '../geo/handler';
+import Texture from '../../texture';
 import mdxHandler from '../mdx/handler';
-import ddsHandler from '../dds/handler';
-import shaders from './shaders';
+import sources from './shaders';
 import getCliffVariation from './variations';
 import TerrainModel from './terrainmodel';
 import randomStandSequence from './standsequence';
 import Unit from './unit';
-import Corner from '../../../parsers/w3x/w3e/corner';
+import Doodad from './doodad';
 
 const normalHeap1 = vec3.create();
 const normalHeap2 = vec3.create();
 
 export default class War3MapViewer extends ModelViewer {
-  wc3PathSolver: any;
-  solverParams: {};
-  groundShader: ShaderProgram;
-  waterShader: ShaderProgram;
-  cliffShader: ShaderProgram;
+  wc3PathSolver: PathSolver;
+  solverParams: { tileset?: string, reforged?: boolean, hd?: boolean };
+  groundShader: ShaderProgram | null;
+  waterShader: ShaderProgram | null;
+  cliffShader: ShaderProgram | null;
   scene: Scene;
-  camera: any;
+  camera: Camera;
   waterIndex: number;
   waterIncreasePerFrame: number;
   waterHeightOffset: number;
-  waterTextures: any[];
-  maxDeepColor: any;
-  minDeepColor: any;
-  maxShallowColor: any;
-  minShallowColor: any;
+  waterTextures: Texture[];
+  maxDeepColor: Float32Array;
+  minDeepColor: Float32Array;
+  maxShallowColor: Float32Array;
+  minShallowColor: Float32Array;
   anyReady: boolean;
   terrainCliffsAndWaterLoaded: boolean;
   terrainData: MappedData;
@@ -53,45 +53,43 @@ export default class War3MapViewer extends ModelViewer {
   doodadsData: MappedData;
   doodadMetaData: MappedData;
   destructableMetaData: MappedData;
-  doodads: any[];
+  doodads: Doodad[];
   terrainDoodads: any[];
   doodadsReady: boolean;
   unitsAndItemsLoaded: boolean;
   unitsData: MappedData;
   unitMetaData: MappedData;
-  units: any[];
+  units: Unit[];
   unitsReady: boolean;
   terrainRenderData: { columns: any; rows: any; centerOffset: any; vertexBuffer: any; faceBuffer: any; heightMap: any; instanceBuffer: any; instanceCount: any; textureBuffer: any; variationBuffer: any; };
-  tilesetTextures: any;
-  cliffTextures: any;
+  tilesetTextures: Texture[];
+  cliffTextures: Texture[];
   cliffModels: TerrainModel[] = [];
   mapMpq: War3Map;
-  mapPathSolver: (path: any, params: any) => any;
+  mapPathSolver: PathSolver;
   corners: Corner[][];
   centerOffset: Float32Array;
   mapSize: Int32Array;
   tilesets: any[];
-  blightTextureIndex: any;
+  blightTextureIndex: number;
   cliffTilesets: any[];
   columns: number;
   rows: number;
 
-  constructor(canvas: HTMLCanvasElement, wc3PathSolver: function) {
+  constructor(canvas: HTMLCanvasElement, wc3PathSolver: PathSolver) {
     super(canvas);
 
     this.on('error', (target, error, reason) => console.error(target, error, reason));
 
-    this.addHandler(geoHandler);
     this.addHandler(mdxHandler);
-    this.addHandler(ddsHandler);
 
     this.wc3PathSolver = wc3PathSolver;
 
     this.solverParams = {};
 
-    this.groundShader = this.webgl.createShaderProgram(shaders.vsGround, shaders.fsGround);
-    this.waterShader = this.webgl.createShaderProgram(shaders.vsWater, shaders.fsWater);
-    this.cliffShader = this.webgl.createShaderProgram(shaders.vsCliffs, shaders.fsCliffs);
+    this.groundShader = this.webgl.createShaderProgram(sources.vsGround, sources.fsGround);
+    this.waterShader = this.webgl.createShaderProgram(sources.vsWater, sources.fsWater);
+    this.cliffShader = this.webgl.createShaderProgram(sources.vsCliffs, sources.fsCliffs);
 
     this.scene = this.addScene();
     this.camera = this.scene.camera;
@@ -169,7 +167,7 @@ export default class War3MapViewer extends ModelViewer {
       let gl = this.gl;
       let webgl = this.webgl;
       let instancedArrays = webgl.extensions.instancedArrays;
-      let shader = this.groundShader;
+      let shader = <ShaderProgram>this.groundShader;
       let uniforms = shader.uniforms;
       let attribs = shader.attribs;
       let { columns, rows, centerOffset, vertexBuffer, faceBuffer, heightMap, instanceBuffer, instanceCount, textureBuffer, variationBuffer } = this.terrainRenderData;
@@ -213,7 +211,9 @@ export default class War3MapViewer extends ModelViewer {
       gl.uniform1f(uniforms.u_baseTileset, 0);
 
       for (let i = 0, l = Math.min(tilesetCount, 15); i < l; i++) {
-        gl.uniform1f(uniforms[`u_extended[${i}]`], tilesetTextures[i].width > tilesetTextures[i].height);
+        let isExtended = tilesetTextures[i].width > tilesetTextures[i].height ? 1 : 0;
+
+        gl.uniform1f(uniforms[`u_extended[${i}]`], isExtended);
         gl.uniform1i(uniforms[`u_tilesets[${i}]`], i);
 
         tilesetTextures[i].bind(i);
@@ -225,7 +225,9 @@ export default class War3MapViewer extends ModelViewer {
         gl.uniform1f(uniforms.u_baseTileset, 15);
 
         for (let i = 0, l = tilesetCount - 15; i < l; i++) {
-          gl.uniform1f(uniforms[`u_extended[${i}]`], tilesetTextures[i + 15].width > tilesetTextures[i + 15].height);
+          let isExtended = tilesetTextures[i + 15].width > tilesetTextures[i + 15].height ? 1 : 0;
+
+          gl.uniform1f(uniforms[`u_extended[${i}]`], isExtended);
 
           tilesetTextures[i + 15].bind(i);
         }
@@ -244,7 +246,7 @@ export default class War3MapViewer extends ModelViewer {
       let gl = this.gl;
       let webgl = this.webgl;
       let instancedArrays = webgl.extensions.instancedArrays;
-      let shader = this.waterShader;
+      let shader = <ShaderProgram>this.waterShader;
       let uniforms = shader.uniforms;
       let attribs = shader.attribs;
       let { columns, rows, centerOffset, vertexBuffer, faceBuffer, heightMap, instanceBuffer, instanceCount, waterHeightMap, waterBuffer } = this.terrainRenderData;
@@ -303,7 +305,8 @@ export default class War3MapViewer extends ModelViewer {
       let gl = this.gl;
       let webgl = this.webgl;
       let instancedArrays = webgl.extensions.instancedArrays;
-      let shader = this.cliffShader;
+      let vertexArrayObject = webgl.extensions.vertexArrayObject;
+      let shader = <ShaderProgram>this.cliffShader;
       let attribs = shader.attribs;
       let uniforms = shader.uniforms;
       let { centerOffset, cliffHeightMap, heightMapSize } = this.terrainRenderData;
@@ -331,7 +334,7 @@ export default class War3MapViewer extends ModelViewer {
       }
 
       // Set instanced attributes.
-      if (!webgl.extensions.vertexArrayObject) {
+      if (!vertexArrayObject) {
         instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 1);
         instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceTexture, 1);
       }
@@ -342,7 +345,7 @@ export default class War3MapViewer extends ModelViewer {
       }
 
       // Clear instanced attributes.
-      if (!webgl.extensions.vertexArrayObject) {
+      if (!vertexArrayObject) {
         instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 0);
         instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceTexture, 0);
       }
@@ -456,7 +459,6 @@ export default class War3MapViewer extends ModelViewer {
     this.applyModificationFile(this.doodadsData, this.destructableMetaData, modifications.w3b);
 
     let doo = new War3MapDoo(this.mapMpq.get('war3map.doo').arrayBuffer());
-    let scene = this.scene;
 
     // Collect the doodad and destructible data.
     for (let doodad of doo.doodads) {
@@ -489,19 +491,7 @@ export default class War3MapViewer extends ModelViewer {
         model = this.load(fileVar);
       }
 
-      let isSimple = row.lightweight === 1;
-      let instance;
-
-      if (isSimple) {
-        instance = model.addInstance(1);
-      } else {
-        instance = model.addInstance();
-      }
-
-      instance.move(doodad.location);
-      instance.rotateLocal(quat.setAxisAngle(quat.create(), VEC3_UNIT_Z, doodad.angle));
-      instance.scale(doodad.scale);
-      instance.setScene(scene);
+      this.doodads.push(new Doodad(this, model, row, doodad))
     }
 
     this.doodadsReady = true;
@@ -516,7 +506,31 @@ export default class War3MapViewer extends ModelViewer {
 
     // Collect the units and items data.
     for (let unit of unitsDoo.units) {
-      this.units.push(new Unit(this, unit));
+      let row;
+      let path;
+
+      // Hardcoded?
+      if (unit.id === 'sloc') {
+        path = 'Objects\\StartLocation\\StartLocation.mdx';
+      } else {
+        row = this.unitsData.getRow(unit.id);
+
+        path = row.file;
+
+        if (path.endsWith('.mdl')) {
+          path = path.slice(0, -4);
+        }
+
+        path += '.mdx';
+      }
+
+      if (path) {
+        let model = this.load(path);
+
+        this.units.push(new Unit(this, model, row, unit));
+      } else {
+        console.log('Unknown unit ID', unit.id, unit);
+      }
     }
 
     this.unitsReady = true;
@@ -915,7 +929,7 @@ export default class War3MapViewer extends ModelViewer {
     }
   }
 
-  groundNormal(out: Float32Array, x: number, y: number) {
+  groundNormal(out: vec3, x: number, y: number) {
     let centerOffset = this.centerOffset;
     let mapSize = this.mapSize;
 

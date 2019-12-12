@@ -10,37 +10,25 @@ const CONTENT_JPG = 0x0;
  * A BLP1 texture.
  */
 export default class BlpImage {
-  content: number
-  alphaBits: number
-  width: number
-  height: number
-  type: number
-  hasMipmaps: boolean
-  mipmapOffsets: Uint32Array
-  mipmapSizes: Uint32Array
-  uint8array: Uint8Array
+  content: number = 0;
+  alphaBits: number = 0;
+  width: number = 0;
+  height: number = 0;
+  type: number = 0;
+  hasMipmaps: boolean = false;
+  mipmapOffsets: Uint32Array = new Uint32Array(16);
+  mipmapSizes: Uint32Array = new Uint32Array(16);
+  uint8array: Uint8Array | null = null;
   /**
    * Used for JPG images.
    */
-  jpgHeader: Uint8Array
+  jpgHeader: Uint8Array | null = null;
   /**
    * Used for indexed images.
    */
-  pallete: Uint8Array
+  pallete: Uint8Array | null = null;
 
   constructor(buffer?: ArrayBuffer) {
-    this.content = 0;
-    this.alphaBits = 0;
-    this.width = 0;
-    this.height = 0;
-    this.type = 0;
-    this.hasMipmaps = false;
-    this.mipmapOffsets = new Uint32Array(16);
-    this.mipmapSizes = new Uint32Array(16);
-    this.uint8array = null;
-    this.jpgHeader = null;
-    this.pallete = null;
-
     if (buffer) {
       this.load(buffer);
     }
@@ -77,13 +65,13 @@ export default class BlpImage {
   }
 
   getMipmap(level: number) {
-    let uint8array = this.uint8array;
+    let uint8array = <Uint8Array>this.uint8array;
     let offset = this.mipmapOffsets[level];
     let size = this.mipmapSizes[level];
     let imageData: ImageData;
 
     if (this.content === CONTENT_JPG) {
-      let jpgHeader = this.jpgHeader;
+      let jpgHeader = <Uint8Array>this.jpgHeader;
       let data = new Uint8Array(jpgHeader.length + size);
       let jpegImage = new JpegImage();
 
@@ -97,7 +85,7 @@ export default class BlpImage {
 
       jpegImage.getData(imageData);
     } else {
-      let pallete = this.pallete;
+      let pallete = <Uint8Array>this.pallete;
       let width = Math.max(this.width / (1 << level), 1); // max of 1 because for non-square textures one dimension will eventually be <1.
       let height = Math.max(this.height / (1 << level), 1);
       let size = width * height;
@@ -124,7 +112,7 @@ export default class BlpImage {
         data[dataIndex + 2] = pallete[paletteIndex];
 
         if (alphaBits > 0) {
-          data[dataIndex + 3] = bitStream.readBits(alphaBits) * bitsToByte;
+          data[dataIndex + 3] = (<BitStream>bitStream).readBits(alphaBits) * bitsToByte;
         } else {
           data[dataIndex + 3] = 255;
         }

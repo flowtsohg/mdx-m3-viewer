@@ -21,7 +21,7 @@ export default class ModelViewer extends EventEmitter {
   resources: Resource[];
   fetchCache: Map<string, Resource>;
   resourcesLoading: Set<Resource>;
-  handlers: Set<object>;
+  handlers: Set<Handler>;
   frameTime: number;
   canvas: HTMLCanvasElement;
   webgl: WebGL;
@@ -121,14 +121,9 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Add an handler.
    */
-  addHandler(handler: object) {
+  addHandler(handler: Handler) {
     if (handler) {
       let handlers = this.handlers;
-
-      // Allow to pass also the handler's module for convenience.
-      if (handler.handler) {
-        handler = handler.handler;
-      }
 
       // Check to see if this handler was added already.
       if (!handlers.has(handler)) {
@@ -237,9 +232,8 @@ export default class ModelViewer extends EventEmitter {
           }
         }
 
-        let handler = handlerAndDataType[0];
-        let constructor = <typeof Resource>handler.Constructor;
-        let resource = new constructor({ viewer: this, handler, extension, pathSolver, fetchUrl: isFetch ? finalSrc : '' });
+        let handler = <Handler>handlerAndDataType[0];
+        let resource = new handler.resource({ viewer: this, extension, pathSolver, fetchUrl: isFetch ? finalSrc : '' });
 
         this.resources.push(resource);
 
@@ -252,7 +246,7 @@ export default class ModelViewer extends EventEmitter {
         resource.emit('loadstart', resource);
 
         if (isFetch) {
-          let dataType = handlerAndDataType[1];
+          let dataType = <FetchDataType>handlerAndDataType[1];
 
           fetchDataType(finalSrc, dataType)
             .then((response) => {
@@ -300,14 +294,16 @@ export default class ModelViewer extends EventEmitter {
    * If a callback is given, the resource's data is the value returned by it when called with the fetch data.
    * If a callback returns a promise, the resource's data will be the result of the promise.
    */
-  loadGeneric(path: string, dataType: "image" | "text" | "arrayBuffer" | "blob", callback?: (data: HTMLImageElement | string | ArrayBuffer | Blob) => any) {
+  loadGeneric(path: string, dataType: FetchDataType, callback?: (data: HTMLImageElement | string | ArrayBuffer | Blob) => any) {
     let cachedResource = this.fetchCache.get(path);
 
     if (cachedResource) {
-      return cachedResource;
+      // Technically also non-generic resources can be returned here, since the fetch cache is shared.
+      // That being said, this should be used for generic resources, and it makes the typing a lot easier.
+      return <GenericResource>cachedResource;
     }
 
-    let resource = new GenericResource({ viewer: this, handler: callback, fetchUrl: path });
+    let resource = new GenericResource({ viewer: this, fetchUrl: path });
 
     this.resources.push(resource);
     this.fetchCache.set(path, resource);
@@ -317,7 +313,7 @@ export default class ModelViewer extends EventEmitter {
     resource.emit('loadstart', resource);
 
     fetchDataType(path, dataType)
-      .then((response) => {
+      .then((response: FetchResult) => {
         let data = response.data;
 
         if (response.ok) {
@@ -333,7 +329,7 @@ export default class ModelViewer extends EventEmitter {
             resource.loadData(data);
           }
         } else {
-          resource.error('FailedToFetch');
+          resource.error('FailedToFetch', response.error);
 
           this.emit('error', resource, response.error, data);
         }
@@ -372,7 +368,7 @@ export default class ModelViewer extends EventEmitter {
    * This is used when a resource might get loaded in the future, but it is not known what it is yet.
    */
   promise() {
-    let resource = new PromiseResource();
+    let resource = new PromiseResource({ viewer: this });
 
     this.registerEvents(resource);
 

@@ -4,15 +4,11 @@ import BinaryStream from '../../../common/binarystream';
  * war3map.wpm - the pathing file.
  */
 export default class War3MapWpm {
-  version: number;
-  size: Int32Array;
-  pathing: Uint8Array;
+  version: number = 0;
+  size: Int32Array = new Int32Array(2);
+  pathing: Uint8Array = new Uint8Array(0);
 
   constructor(buffer?: ArrayBuffer) {
-    this.version = 0;
-    this.size = new Int32Array(2);
-    this.pathing = new Uint8Array(0);
-
     if (buffer) {
       this.load(buffer);
     }

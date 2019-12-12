@@ -6,32 +6,20 @@ import GenericObject from './genericobject';
  * A ribbon emitter.
  */
 export default class RibbonEmitter extends GenericObject {
-  heightAbove: number;
-  heightBelow: number;
-  alpha: number;
-  color: Float32Array;
-  lifeSpan: number;
-  textureSlot: number;
-  emissionRate: number;
-  rows: number;
-  columns: number;
-  materialId: number;
-  gravity: number;
+  heightAbove: number = 0;
+  heightBelow: number = 0;
+  alpha: number = 0;
+  color: Float32Array = new Float32Array(3);
+  lifeSpan: number = 0;
+  textureSlot: number = 0;
+  emissionRate: number = 0;
+  rows: number = 0;
+  columns: number = 0;
+  materialId: number = 0;
+  gravity: number = 0;
 
   constructor() {
     super(0x4000);
-
-    this.heightAbove = 0;
-    this.heightBelow = 0;
-    this.alpha = 0;
-    this.color = new Float32Array(3);
-    this.lifeSpan = 0;
-    this.textureSlot = 0;
-    this.emissionRate = 0;
-    this.rows = 0;
-    this.columns = 0;
-    this.materialId = 0;
-    this.gravity = 0;
   }
 
   readMdx(stream: BinaryStream) {

@@ -15,7 +15,6 @@ import MdxModel from './model';
 import GenericObject from './genericobject';
 import Scene from '../../scene';
 
-// Heap allocations needed for this module.
 const visibilityHeap = new Float32Array(1);
 const translationHeap = vec3.create();
 const rotationHeap = quat.create();
@@ -268,7 +267,7 @@ export default class MdxComplexInstance extends ModelInstance {
     for (let i = 0, l = sortedNodes.length; i < l; i++) {
       let genericObject = sortedGenericObjects[i];
       let node = sortedNodes[i];
-      let parent = node.parent;
+      let parent = <Node | SkeletalNode>node.parent;
 
       genericObject.getVisibility(visibilityHeap, this);
 
@@ -423,7 +422,7 @@ export default class MdxComplexInstance extends ModelInstance {
 
   updateBoneTexture() {
     if (this.boneTexture) {
-      this.boneTexture.bindAndUpdate(this.worldMatrices);
+      this.boneTexture.bindAndUpdate(<Float32Array>this.worldMatrices);
     }
   }
 

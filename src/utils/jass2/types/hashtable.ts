@@ -4,13 +4,7 @@ import JassAgent from './agent';
  * type unit
  */
 export default class JassHashTable extends JassAgent {
-  table: Map<number, Map<number, any>>;
-
-  constructor() {
-    super();
-
-    this.table = new Map();
-  }
+  table: Map<number, Map<number, any>> = new Map();
 
   save(parentKey: number, childKey: number, value: any) {
     let table = this.table;

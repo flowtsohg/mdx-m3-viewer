@@ -28,85 +28,55 @@ import GenericObject from './genericobject';
 import ReforgedBatch from './reforgedbatch';
 import Batch from './batch';
 import Geoset from './geoset';
+import MdxSimpleInstance from './simpleinstance';
+import MdxComplexInstance from './complexinstance';
 
 /**
  * An MDX model.
  */
 export default class MdxModel extends Model {
-  reforged: boolean;
-  hd: boolean;
-  solverParams: { reforged?: boolean, hd?: boolean };
-  name: string;
-  sequences: Sequence[];
-  globalSequences: number[];
-  materials: Material[];
-  layers: Layer[];
-  textures: Texture[];
-  textureAnimations: TextureAnimation[];
-  geosets: Geoset[];
-  geosetAnimations: GeosetAnimation[];
-  bones: Bone[];
-  lights: Light[];
-  helpers: Helper[];
-  attachments: Attachment[];
-  pivotPoints: Float32Array[];
-  particleEmitters: ParticleEmitterObject[];
-  particleEmitters2: ParticleEmitter2Object[];
-  ribbonEmitters: RibbonEmitterObject[];
-  cameras: Camera[];
-  eventObjects: EventObjectEmitterObject[];
-  collisionShapes: CollisionShape[];
-  hasLayerAnims: boolean;
-  hasGeosetAnims: boolean;
-  batches: (Batch | ReforgedBatch)[];
-  genericObjects: GenericObject[];
-  sortedGenericObjects: GenericObject[];
-  hierarchy: number[];
-  replaceables: number[];
-  opaqueGroups: (BatchGroup | ReforgedBatchGroup)[];
-  translucentGroups: (BatchGroup | EmitterGroup)[];
-  variants: CHANGE_ME;
-  arrayBuffer: WebGLBuffer | null;
-  elementBuffer: WebGLBuffer | null;
+  reforged: boolean = false;
+  hd: boolean = false;
+  solverParams: { reforged?: boolean, hd?: boolean } = {};
+  name: string = '';
+  sequences: Sequence[] = [];
+  globalSequences: number[] = [];
+  materials: Material[] = [];
+  layers: Layer[] = [];
+  textures: Texture[] = [];
+  textureAnimations: TextureAnimation[] = [];
+  geosets: Geoset[] = [];
+  geosetAnimations: GeosetAnimation[] = [];
+  bones: Bone[] = [];
+  lights: Light[] = [];
+  helpers: Helper[] = [];
+  attachments: Attachment[] = [];
+  pivotPoints: Float32Array[] = [];
+  particleEmitters: ParticleEmitterObject[] = [];
+  particleEmitters2: ParticleEmitter2Object[] = [];
+  ribbonEmitters: RibbonEmitterObject[] = [];
+  cameras: Camera[] = [];
+  eventObjects: EventObjectEmitterObject[] = [];
+  collisionShapes: CollisionShape[] = [];
+  hasLayerAnims: boolean = false;
+  hasGeosetAnims: boolean = false;
+  batches: (Batch | ReforgedBatch)[] = [];
+  genericObjects: GenericObject[] = [];
+  sortedGenericObjects: GenericObject[] = [];
+  hierarchy: number[] = [];
+  replaceables: number[] = [];
+  opaqueGroups: (BatchGroup | ReforgedBatchGroup)[] = [];
+  translucentGroups: (BatchGroup | EmitterGroup)[] = [];
+  variants: CHANGE_ME = null;
+  arrayBuffer: WebGLBuffer | null = null;
+  elementBuffer: WebGLBuffer | null = null;
 
-  constructor(resourceData: ResourceData) {
-    super(resourceData);
-
-    this.reforged = false;
-    this.hd = false;
-    this.solverParams = {};
-    this.name = '';
-    this.sequences = [];
-    this.globalSequences = [];
-    this.materials = [];
-    this.layers = [];
-    this.textures = [];
-    this.textureAnimations = [];
-    this.geosets = [];
-    this.geosetAnimations = [];
-    this.bones = [];
-    this.lights = [];
-    this.helpers = [];
-    this.attachments = [];
-    this.pivotPoints = [];
-    this.particleEmitters = [];
-    this.particleEmitters2 = [];
-    this.ribbonEmitters = [];
-    this.cameras = [];
-    this.eventObjects = [];
-    this.collisionShapes = [];
-    this.hasLayerAnims = false;
-    this.hasGeosetAnims = false;
-    this.batches = [];
-    this.genericObjects = [];
-    this.sortedGenericObjects = [];
-    this.hierarchy = [];
-    this.replaceables = [];
-    this.opaqueGroups = [];
-    this.translucentGroups = [];
-    this.variants = null;
-    this.arrayBuffer = null;
-    this.elementBuffer = null;
+  createInstance(type: number) {
+    if (type === 1) {
+      return new MdxSimpleInstance(this);
+    } else {
+      return new MdxComplexInstance(this);
+    }
   }
 
   load(bufferOrParser: ArrayBuffer | string | Parser) {

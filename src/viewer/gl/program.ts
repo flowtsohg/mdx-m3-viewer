@@ -5,27 +5,21 @@ import ShaderUnit from './shader';
  * A wrapper around a WebGL shader program.
  */
 export default class ShaderProgram {
-  ok: boolean;
+  ok: boolean = false;
   webgl: WebGL;
   webglResource: WebGLProgram;
   shaders: ShaderUnit[];
-  uniforms: { [key: string]: WebGLUniformLocation };
-  attribs: { [key: string]: number };
-  attribsCount: number;
+  uniforms: { [key: string]: WebGLUniformLocation } = {};
+  attribs: { [key: string]: number } = {};
+  attribsCount: number = 0;
 
   constructor(webgl: WebGL, vertexShader: ShaderUnit, fragmentShader: ShaderUnit) {
     let gl = webgl.gl;
     let id = <WebGLProgram>gl.createProgram();
-    let uniforms = {};
-    let attribs = {};
 
-    this.ok = false;
     this.webgl = webgl;
     this.webglResource = id;
     this.shaders = [vertexShader, fragmentShader];
-    this.uniforms = uniforms;
-    this.attribs = attribs;
-    this.attribsCount = 0;
 
     gl.attachShader(id, vertexShader.webglResource);
     gl.attachShader(id, fragmentShader.webglResource);
@@ -37,14 +31,14 @@ export default class ShaderProgram {
 
         if (object) {
           if (object.size === 1) {
-            uniforms[object.name] = gl.getUniformLocation(id, object.name);
+            this.uniforms[object.name] = <WebGLUniformLocation>gl.getUniformLocation(id, object.name);
           } else {
             let base = object.name.substr(0, object.name.length - 3);
 
             for (let index = 0; index < object.size; index++) {
               let name = base + '[' + index + ']';
 
-              uniforms[name] = gl.getUniformLocation(id, name);
+              this.uniforms[name] = <WebGLUniformLocation>gl.getUniformLocation(id, name);
             }
           }
         }
@@ -57,14 +51,14 @@ export default class ShaderProgram {
           this.attribsCount += object.size;
 
           if (object.size === 1) {
-            attribs[object.name] = gl.getAttribLocation(id, object.name);
+            this.attribs[object.name] = gl.getAttribLocation(id, object.name);
           } else {
             let base = object.name.substr(0, object.name.length - 3);
 
             for (let index = 0; index < object.size; index++) {
               let name = base + '[' + index + ']';
 
-              attribs[name] = gl.getAttribLocation(id, name);
+              this.attribs[name] = gl.getAttribLocation(id, name);
             }
           }
         }

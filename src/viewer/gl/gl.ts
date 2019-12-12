@@ -4,35 +4,22 @@ import ShaderProgram from './program';
 import Texture from '../texture';
 
 /**
- * SOME_Ext_Name -> someExtName
- */
-function extensionToCamelCase(ext: string) {
-  let tokens = ext.split('_');
-  let result = tokens[1];
-
-  for (let i = 2, l = tokens.length; i < l; i++) {
-    result += tokens[i][0].toUpperCase() + tokens[i].substr(1);
-  }
-
-  return result;
-}
-
-/**
  * A small WebGL utility class.
  * Makes it easier to generate shaders, textures, etc.
  */
 export default class WebGL {
   gl: WebGLRenderingContext;
-  extensions: object;
   shaderUnits: Map<number, ShaderUnit>;
   shaderPrograms: Map<number, ShaderProgram>;
   currentShaderProgram: ShaderProgram | null;
   floatPrecision: string;
   emptyTexture: WebGLTexture;
+  extensions: {
+    instancedArrays: ANGLE_instanced_arrays,
+    compressedTextureS3tc: WEBGL_compressed_texture_s3tc | null,
+    vertexArrayObject: OES_vertex_array_object | null
+  };
 
-  /**
-   *
-   */
   constructor(canvas: HTMLCanvasElement, options?: object) {
     let gl = <WebGLRenderingContext>canvas.getContext('webgl', options || { alpha: false });
 
@@ -44,38 +31,31 @@ export default class WebGL {
       throw new Error('WebGL: Failed to create a WebGL context!');
     }
 
-    let extensions = {};
-    let supportedExtensions = gl.getSupportedExtensions();
-
-    if (supportedExtensions) {
-      for (let extension of supportedExtensions) {
-        // Firefox keeps spamming errors about MOZ_ prefixed extension strings being deprecated.
-        if (!extension.startsWith('MOZ_')) {
-          extensions[extensionToCamelCase(extension)] = gl.getExtension(extension);
-        }
-      }
-    }
-
     this.gl = gl;
-    this.extensions = extensions;
 
-    if (!gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS)) {
+    let textureFloat = gl.getExtension('OES_texture_float')
+    let instancedArrays = gl.getExtension('ANGLE_instanced_arrays')
+    let compressedTextureS3tc = gl.getExtension('WEBGL_compressed_texture_s3tc')
+    let vertexArrayObject = gl.getExtension('OES_vertex_array_object')
+    let standardDerivatives = gl.getExtension('OES_standard_derivatives'); // Used in War3MapViewer's shaders, but that might change.
+
+    if (gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS) === 0) {
       throw new Error('WebGL: No vertex shader texture support!');
     }
 
-    if (!extensions.textureFloat) {
+    if (textureFloat === null) {
       throw new Error('WebGL: No floating point texture support!');
     }
 
-    if (!extensions.instancedArrays) {
+    if (instancedArrays === null) {
       throw new Error('WebGL: No instanced rendering support!');
     }
 
-    if (!extensions.compressedTextureS3tc) {
+    if (compressedTextureS3tc === null) {
       console.warn('WebGL: No compressed textures support! This might reduce performance.');
     }
 
-    if (!extensions.vertexArrayObject) {
+    if (vertexArrayObject === null) {
       console.warn('WebGL: No vertex array object support! This might reduce performance.');
     }
 
@@ -96,12 +76,16 @@ export default class WebGL {
     gl.depthFunc(gl.LEQUAL);
     gl.enable(gl.DEPTH_TEST);
 
-
     this.shaderUnits = new Map();
     this.shaderPrograms = new Map();
     this.currentShaderProgram = null;
     this.floatPrecision = 'precision mediump float;\n';
     this.emptyTexture = emptyTexture;
+    this.extensions = {
+      instancedArrays,
+      compressedTextureS3tc,
+      vertexArrayObject,
+    }
   }
 
   /**

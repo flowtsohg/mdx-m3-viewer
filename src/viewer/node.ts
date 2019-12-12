@@ -23,7 +23,7 @@ export class Node {
   inverseWorldScale: vec3;
   localMatrix: mat4;
   worldMatrix: mat4;
-  parent: Node | null;
+  parent: Node | SkeletalNode | null;
   children: Node[];
   dontInheritTranslation: boolean;
   dontInheritRotation: boolean;
@@ -32,9 +32,6 @@ export class Node {
   wasDirty: boolean;
   dirty: boolean;
 
-  /**
-   *
-   */
   constructor() {
     this.pivot = vec3.create();
     this.localLocation = vec3.create();
@@ -282,7 +279,7 @@ export class Node {
   /**
    * Sets the node's parent.
    */
-  setParent(parent?: Node) {
+  setParent(parent?: Node | SkeletalNode) {
     // If the node already had a parent, detach from it first.
     if (this.parent) {
       let children = this.parent.children;
@@ -457,9 +454,9 @@ export class Node {
   }
 
   /**
-   * Update this node.
+   * Update this node, and continue down the node hierarchy.
+   * 
    * Also updates the object part of this node, if there is any (e.g. model instances).
-   * Continues the update hierarchy.
    */
   update(dt: number, scene: Scene) {
     if (this.dirty || (this.parent && this.parent.wasDirty)) {
@@ -476,6 +473,7 @@ export class Node {
 
   /**
    * Update the object part of this node.
+   * 
    * Used by model instances.
    */
   updateObject(dt: number, scene: Scene) {
@@ -496,6 +494,7 @@ export class Node {
 
 /**
  * A skeletal node used for skeletons.
+ * 
  * Expected to be created with createSharedNodes() below.
  */
 export class SkeletalNode {
@@ -654,8 +653,8 @@ export class SkeletalNode {
 
   /**
    * Update this skeletal node's children.
+   * 
    * Note that this does not update other skeletal nodes!
-   * It may be called by skeletal nodes to continue the update hierarchy.
    */
   updateChildren(dt: number, scene: Scene) {
     let children = this.children;
@@ -667,6 +666,7 @@ export class SkeletalNode {
 
   /**
    * Allows inherited node classes to run extra transformations when billboarding.
+   * 
    * This is needed because the different model formats are in different vector spaces.
    */
   convertBasis(rotation: quat) {
@@ -678,6 +678,7 @@ const NODE_SHARED_SIZE = 65;
 
 /**
  * Creates an array of skeletal nodes with shared memory.
+ * 
  * The returned object contains the node array itself, the backing buffer, and all of the different shared arrays.
  */
 export function createSkeletalNodes(count: number, Node: typeof SkeletalNode) {

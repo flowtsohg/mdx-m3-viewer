@@ -6,9 +6,8 @@ import ModelViewer from './viewer';
  * 
  * Generally speaking resources are created via viewer.load(), or viewer.loadGeneric().
  */
-export default class Resource extends EventEmitter {
+export default abstract class Resource extends EventEmitter {
   viewer: ModelViewer;
-  handler: object;
   extension: string;
   pathSolver: PathSolver | null;
   fetchUrl: string;
@@ -19,7 +18,6 @@ export default class Resource extends EventEmitter {
     super();
 
     this.viewer = resourceData.viewer;
-    this.handler = resourceData.handler || null;
     this.extension = resourceData.extension || '';
     this.pathSolver = resourceData.pathSolver || null;
     this.fetchUrl = resourceData.fetchUrl || '';
@@ -33,7 +31,9 @@ export default class Resource extends EventEmitter {
 
   /**
    * Will be called when the data for this resource is ready.
+   * 
    * If it was loaded from memory, it will be called instantly.
+   * 
    * Otherwise it will be called when the server fetch finishes, assuming it succeeded.
    */
   loadData(src: any) {
@@ -79,6 +79,7 @@ export default class Resource extends EventEmitter {
 
   /**
    * Called when an error happens while loading the resource.
+   * 
    * This includes both fetching and parsing errors.
    */
   error(error: string, reason: any) {
@@ -90,8 +91,11 @@ export default class Resource extends EventEmitter {
 
   /**
    * Wait for this resource to load.
+   * 
    * Similar to attaching an event listener to the 'loadend' event, but handles the case where the resource already loaded, and code should still run.
+   * 
    * If a callback is given, it will be called.
+   * 
    * Otherwise a promise is returned.
    */
   whenLoaded(callback?: (resource: Resource) => void) {

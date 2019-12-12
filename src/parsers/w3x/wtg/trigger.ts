@@ -6,27 +6,15 @@ import TriggerData from './triggerdata';
  * A GUI Trigger.
  */
 export default class Trigger {
-  name: string;
-  description: string;
-  isComment: number;
-  isEnabled: number;
-  isCustom: number;
-  isInitiallyOff: number;
-  runOnInitialization: number;
-  category: number;
-  ecas: ECA[];
-
-  constructor() {
-    this.name = '';
-    this.description = '';
-    this.isComment = 0;
-    this.isEnabled = 0;
-    this.isCustom = 0;
-    this.isInitiallyOff = 0;
-    this.runOnInitialization = 0;
-    this.category = 0;
-    this.ecas = [];
-  }
+  name: string = '';
+  description: string = '';
+  isComment: number = 0;
+  isEnabled: number = 0;
+  isCustom: number = 0;
+  isInitiallyOff: number = 0;
+  runOnInitialization: number = 0;
+  category: number = 0;
+  ecas: ECA[] = [];
 
   load(stream: BinaryStream, version: number, triggerData: TriggerData) {
     this.name = stream.readUntilNull();

@@ -26,43 +26,28 @@ let filterModeToMdl = {
  * A layer.
  */
 export default class Layer extends AnimatedObject {
-  filterMode: number;
-  flags: number;
-  textureId: number;
-  textureAnimationId: number;
-  coordId: number;
-  alpha: number;
+  filterMode: number = 0;
+  flags: number = 0;
+  textureId: number = -1;
+  textureAnimationId: number = -1;
+  coordId: number = 0;
+  alpha: number = 1;
   /** 
    * @since 900
    */
-  emissiveGain: number;
+  emissiveGain: number = 0;
   /** 
    * @since 1000
    */
-  fresnelColor: Float32Array;
+  fresnelColor: Float32Array = new Float32Array(3);
   /** 
    * @since 1000
    */
-  fresnelOpacity: number;
+  fresnelOpacity: number = 0;
   /** 
    * @since 1000
    */
-  fresnelTeamColor: number;
-
-  constructor() {
-    super();
-
-    this.filterMode = 0;
-    this.flags = 0;
-    this.textureId = -1;
-    this.textureAnimationId = -1;
-    this.coordId = 0;
-    this.alpha = 1;
-    this.emissiveGain = 0;
-    this.fresnelColor = new Float32Array(3);
-    this.fresnelOpacity = 0;
-    this.fresnelTeamColor = 0;
-  }
+  fresnelTeamColor: number = 0;
 
   readMdx(stream: BinaryStream, version: number) {
     const start = stream.index;

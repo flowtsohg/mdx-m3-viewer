@@ -4,15 +4,9 @@ import BinaryStream from '../../../common/binarystream';
  * A modified ability.
  */
 export default class ModifiedAbility {
-  id: string;
-  activeForAutocast: number;
-  heroLevel: number;
-
-  constructor() {
-    this.id = '\0\0\0\0';
-    this.activeForAutocast = 0;
-    this.heroLevel = 1;
-  }
+  id: string = '\0\0\0\0';
+  activeForAutocast: number = 0;
+  heroLevel: number = 1;
 
   load(stream: BinaryStream) {
     this.id = stream.read(4);

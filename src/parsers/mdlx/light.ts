@@ -6,22 +6,15 @@ import GenericObject from './genericobject';
  * A light.
  */
 export default class Light extends GenericObject {
-  type: number;
-  attenuation: Float32Array;
-  color: Float32Array;
-  intensity: number;
-  ambientColor: Float32Array;
-  ambientIntensity: number;
+  type: number = -1;
+  attenuation: Float32Array = new Float32Array(2);
+  color: Float32Array = new Float32Array(3);
+  intensity: number = 0;
+  ambientColor: Float32Array = new Float32Array(3);
+  ambientIntensity: number = 0;
 
   constructor() {
     super(0x200);
-
-    this.type = -1;
-    this.attenuation = new Float32Array(2);
-    this.color = new Float32Array(3);
-    this.intensity = 0;
-    this.ambientColor = new Float32Array(3);
-    this.ambientIntensity = 0;
   }
 
   readMdx(stream: BinaryStream) {

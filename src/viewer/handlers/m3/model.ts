@@ -12,51 +12,33 @@ import M3Stg from './stg';
 import M3AttachmentPoint from './attachment';
 import M3Camera from './camera';
 import M3Region from './region';
+import M3ModelInstance from './modelinstance';
 
 /**
  * An M3 model.
  */
 export default class M3Model extends Model {
-  name: string;
-  batches: object[];
-  materials: any[][];
-  materialMaps: any[];
-  bones: M3Bone[];
-  boneLookup: any[];
-  sequences: M3Sequence[];
-  sts: M3Sts[];
-  stc: M3Stc[];
-  stg: M3Stg[];
-  attachments: M3AttachmentPoint[];
-  cameras: M3Camera[];
-  regions: M3Region[];
-  initialReference: Float32Array[];
-  elementBuffer: WebGLBuffer | null;
-  arrayBuffer: WebGLBuffer | null;
-  vertexSize: number;
-  uvSetCount: number;
+  name: string = '';
+  batches: object[] = [];
+  materials: any[][] = [[], []]; // 2D array for the possibility of adding more material types in the future
+  materialMaps: any[] = [];
+  bones: M3Bone[] = [];
+  boneLookup: any[] = [];
+  sequences: M3Sequence[] = [];
+  sts: M3Sts[] = [];
+  stc: M3Stc[] = [];
+  stg: M3Stg[] = [];
+  attachments: M3AttachmentPoint[] = [];
+  cameras: M3Camera[] = [];
+  regions: M3Region[] = [];
+  initialReference: Float32Array[] = [];
+  elementBuffer: WebGLBuffer | null = null;
+  arrayBuffer: WebGLBuffer | null = null;
+  vertexSize: number = 0;
+  uvSetCount: number = 0;
 
-  constructor(resourceData: ResourceData) {
-    super(resourceData);
-
-    this.name = '';
-    this.batches = [];
-    this.materials = [[], []]; // 2D array for the possibility of adding more material types in the future
-    this.materialMaps = [];
-    this.bones = [];
-    this.boneLookup = [];
-    this.sequences = [];
-    this.sts = [];
-    this.stc = [];
-    this.stg = [];
-    this.attachments = [];
-    this.cameras = [];
-    this.regions = [];
-    this.initialReference = [];
-    this.elementBuffer = null;
-    this.arrayBuffer = null;
-    this.vertexSize = 0;
-    this.uvSetCount = 0;
+  createInstance(type: number) {
+    return new M3ModelInstance(this);
   }
 
   load(bufferOrParser: ArrayBuffer | Parser) {

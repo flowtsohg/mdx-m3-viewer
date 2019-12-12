@@ -30,9 +30,9 @@ A 3D model viewer for MDX and M3 models used by the games Warcraft 3 and Starcra
   * W3M/W3X/W3N: read/write, including all of the internal files.
   * DDS: read (DXT1/DXT3/DXT5/RGTC).
 
-* The `common` folder contains functions and classes that are relatively general, and are used by all other parts.
+  The `common` folder contains functions and classes that are relatively general, and are used by all other parts.
 
-* The `utils` folder contains mostly interesting functions and classes that are built on top of the parsers.
+  The `utils` folder contains mostly interesting functions and classes that are built on top of the parsers.
 
 * The `clients` folder has in it a couple of clients using the library to perform different operations, including the unit tester.
 
@@ -101,8 +101,6 @@ This handler handles MDX files, unsurprisingly. It also adds the BLP and TGA han
 
 ```javascript
 viewer.addHandler(handlers.mdx);
-// Or if you want to be explicit:
-viewer.addHandler(handlers.mdx.handler);
 ```
 
 Next, let's add a new scene to the viewer. Each scene has its own camera and viewport, and holds a list of things to render.
@@ -125,7 +123,7 @@ You supply a function that takes a source you want to load, such as an url, and 
 The load function itself looks like this:
 
 ```javascript
-let resource = viewer.load(source, pathSolver)
+let resource = viewer.load(source, pathSolver [, solverParams])
 ```
 
 In other words, you give it a source, and a resource is returned.
@@ -139,6 +137,8 @@ The path solver is a function with this signature: `function(source) => [finalSo
 * `finalSource` is the actual source to load from. If this is a server fetch, then this is the url to fetch from. If it's an in-memory load, it depends on what each handler expects.
 * `ext` is the extension of the resource you are loading, which selects the handler to use. The extension is given in a ".ext" format. That is, a string that contains a dot, followed by the extension. This will usually be the extension of an url.
 * `isFetch` is a boolean, and will determine if this is an in-memory load, or a server fetch. This will usually be true.
+
+For information about `solverParams`, see the [solver parameters section](#solver-params-reforged-and-map-loading).
 
 So let's use an example.
 
@@ -327,3 +327,38 @@ viewer.on('error', (target, error, reason) => {
   console.log(`Error: ${error}, Reason: ${reason}`, target);
 });
 ```
+
+------------------------
+
+#### Solver Params, Reforged, and map loading
+
+As mentioned above, when loading resources, the `solverParams` parameter can be supplied.
+Solver parameters allow to give additional information about a load to the path solver.
+A client can supply its own solver parameters, and the handler implementations can supply their own parameters for internal resources.
+
+This is used by the MDX handler to request SD/HD resources from Reforged.
+
+It's also used by the map viewer to request SD/HD resources from Reforged, and to select the tileset.
+
+For example, let's suppose we want to load the Warcraft 3 Footman model, but with a twist - we want all three versions of it - TFT, Reforged, and Reforged HD.
+
+The MDX handler defines the parameters as such: `{reforged?: boolean, hd?: boolean}`.
+
+If `reforged` is falsy or doesn't exist, then it wants a TFT resource.
+If `reforged` is true, then it wants a Reforged resource and...
+If `hd` and `reforged` are true, then it wants a Reforged HD resource.
+
+Following this, the loading code can be something along these lines:
+```js
+let modelTFT = viewer.load('Units/Human/Footman/Footman.mdx', mySolver);
+let modelReforged = viewer.load('Units/Human/Footman/Footman.mdx', mySolver, {reforged: true});
+let modelHD = viewer.load('Units/Human/Footman/Footman.mdx', mySolver, {reforged: true, hd: true});
+```
+
+Note that you don't have to use these exact values.
+Rather, these are the values that will be sent by the MDX handler or map viewer, when loading internal textures, models, and generic files.
+
+What does the path solver do, then?
+As always, that depends on the client and the server.
+For example, the client may append the parameters as url parameters, which can be seen in the existing clients.
+The client can also completely ignore these parameters and return whatever resources it wants.

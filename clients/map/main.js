@@ -16,7 +16,7 @@ let statusElement = document.getElementById('status');
 statusElement.textContent = 'Initializing the viewer';
 
 let canvas = document.getElementById('canvas');
-let viewer = new ModelViewer.viewer.handlers.w3x.MapViewer(canvas, wc3PathSolver);
+let viewer = new ModelViewer.viewer.handlers.War3MapViewer(canvas, wc3PathSolver);
 
 let thingsLoading = [];
 
@@ -71,7 +71,7 @@ viewer.on('loadend', (target) => {
   }
 });
 
-let meter = new FPSMeter({position: 'absolute', right: '10px', top: '10px', left: 'calc(100% - 130px)', theme: 'transparent', heat: 1, graph: 1});
+let meter = new FPSMeter({ position: 'absolute', right: '10px', top: '10px', left: 'calc(100% - 130px)', theme: 'transparent', heat: 1, graph: 1 });
 
 let cellsElement = document.getElementById('cells');
 let instancesElement = document.getElementById('instances');

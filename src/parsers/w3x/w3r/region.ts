@@ -4,27 +4,15 @@ import BinaryStream from '../../../common/binarystream';
  * A region.
  */
 export default class Region {
-  left: number;
-  right: number;
-  bottom: number;
-  top: number;
-  name: string;
-  creationNumber: number;
-  weatherEffectId: string;
-  ambientSound: string;
-  color: Uint8Array;
-
-  constructor() {
-    this.left = 0;
-    this.right = 0;
-    this.bottom = 0;
-    this.top = 0;
-    this.name = '';
-    this.creationNumber = 0;
-    this.weatherEffectId = '\0\0\0\0';
-    this.ambientSound = '';
-    this.color = new Uint8Array(4);
-  }
+  left: number = 0;
+  right: number = 0;
+  bottom: number = 0;
+  top: number = 0;
+  name: string = '';
+  creationNumber: number = 0;
+  weatherEffectId: string = '\0\0\0\0';
+  ambientSound: string = '';
+  color: Uint8Array = new Uint8Array(4);
 
   load(stream: BinaryStream) {
     this.left = stream.readFloat32();

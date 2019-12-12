@@ -6,21 +6,12 @@ import TriggerData from './triggerdata';
  * A function parameter. Can be a function itself, in which case it will have a SubParameters structure.
  */
 export default class Parameter {
-  type: number;
-  value: string;
-  subParameters: SubParameters | null;
-  u1: number;
-  isArray: number;
-  arrayIndex: Parameter | null;
-
-  constructor() {
-    this.type = 0;
-    this.value = '';
-    this.subParameters = null;
-    this.u1 = 0;
-    this.isArray = 0;
-    this.arrayIndex = null;
-  }
+  type: number = 0;
+  value: string = '';
+  subParameters: SubParameters | null = null;
+  u1: number = 0;
+  isArray: number = 0;
+  arrayIndex: Parameter | null = null;
 
   load(stream: BinaryStream, version: number, triggerData: TriggerData) {
     this.type = stream.readInt32();

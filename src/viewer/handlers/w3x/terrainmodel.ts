@@ -15,7 +15,7 @@ export default class TerrainModel {
   locationAndTextureBuffer: WebGLBuffer;
   texturesOffset: number;
   instances: number;
-  vao: WebGLVertexArrayObjectOES;
+  vao: WebGLVertexArrayObjectOES | null;
 
   constructor(viewer: War3MapViewer, arrayBuffer: ArrayBuffer, locations: number[], textures: number[], shader: ShaderProgram) {
     let gl = viewer.gl;
@@ -45,7 +45,7 @@ export default class TerrainModel {
     gl.bufferSubData(gl.ARRAY_BUFFER, normalsOffset, normals);
     gl.bufferSubData(gl.ARRAY_BUFFER, uvsOffset, uvs);
 
-    if (vao) {
+    if (vertexArrayObject) {
       gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, 12, 0);
       gl.enableVertexAttribArray(attribs.a_position);
 
@@ -63,7 +63,7 @@ export default class TerrainModel {
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(locations));
     gl.bufferSubData(gl.ARRAY_BUFFER, texturesOffset, new Uint8Array(textures));
 
-    if (vao) {
+    if (vertexArrayObject) {
       gl.vertexAttribPointer(attribs.a_instancePosition, 3, gl.FLOAT, false, 12, 0);
       gl.enableVertexAttribArray(attribs.a_instancePosition);
       instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 1);
@@ -78,7 +78,7 @@ export default class TerrainModel {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, faces, gl.STATIC_DRAW);
 
-    if (vao) {
+    if (vertexArrayObject) {
       vertexArrayObject.bindVertexArrayOES(null);
     }
 
@@ -99,10 +99,11 @@ export default class TerrainModel {
     let gl = viewer.gl;
     let webgl = viewer.webgl;
     let instancedArrays = webgl.extensions.instancedArrays;
+    let vertexArrayObject = webgl.extensions.vertexArrayObject;
     let attribs = shader.attribs;
 
-    if (this.vao) {
-      webgl.extensions.vertexArrayObject.bindVertexArrayOES(this.vao);
+    if (vertexArrayObject) {
+      vertexArrayObject.bindVertexArrayOES(this.vao);
     } else {
       // Locations and textures.
       gl.bindBuffer(gl.ARRAY_BUFFER, this.locationAndTextureBuffer);
@@ -122,8 +123,8 @@ export default class TerrainModel {
     // Draw.
     instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, 0, this.instances);
 
-    if (this.vao) {
-      webgl.extensions.vertexArrayObject.bindVertexArrayOES(null);
+    if (vertexArrayObject) {
+      vertexArrayObject.bindVertexArrayOES(null);
     }
   }
 }

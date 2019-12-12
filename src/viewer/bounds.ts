@@ -4,15 +4,9 @@
  * By default, the size of the bounds is 0, and thus point-culling is done.
  */
 export default class Bounds {
-  x: number;
-  y: number;
-  r: number;
-
-  constructor() {
-    this.x = 0;
-    this.y = 0;
-    this.r = 0;
-  }
+  x: number = 0;
+  y: number = 0;
+  r: number = 0;
 
   fromExtents(min: Float32Array, max: Float32Array) {
     let w = max[0] - min[0];

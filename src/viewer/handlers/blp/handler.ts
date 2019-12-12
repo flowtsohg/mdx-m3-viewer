@@ -1,6 +1,6 @@
-import BlpTexture from './texture';
+import Texture from './texture';
 
 export default {
   extensions: [['.blp', 'arrayBuffer']],
-  Constructor: BlpTexture,
+  resource: Texture,
 };

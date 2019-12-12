@@ -1,8 +1,5 @@
 import { stringToBase256 } from '../../common/typecast';
 
-/**
- *
- */
 export default class TokenStream {
   buffer: string;
   index: number;

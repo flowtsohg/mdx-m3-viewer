@@ -35,7 +35,7 @@ export default class GenericObject extends AnimatedObject {
   unfogged: number;
   modelSpace: number;
   xYQuad: number;
-  anyBillboarding: number;
+  anyBillboarding: boolean;
   variants: CHANGE_ME;
   hasTranslationAnim: boolean;
   hasRotationAnim: boolean;
@@ -75,7 +75,7 @@ export default class GenericObject extends AnimatedObject {
     this.modelSpace = flags & 0x80000;
     this.xYQuad = flags & 0x100000;
 
-    this.anyBillboarding = this.billboarded || this.billboardedX || this.billboardedY || this.billboardedZ;
+    this.anyBillboarding = (this.billboarded || this.billboardedX || this.billboardedY || this.billboardedZ) !== 0;
 
     if (object.objectId === object.parentId) {
       this.parentId = -1;

@@ -1,13 +1,3 @@
-
-/**
- * The structure that the promise returned by fetchDataType is resolved to.
- */
-interface FetchResult {
-  ok: boolean;
-  data: HTMLImageElement | string | ArrayBuffer | Blob | Response | Event;
-  error?: string;
-}
-
 /**
  * Returns a promise that will resolve with the data from the given path.
  * 
@@ -18,7 +8,7 @@ interface FetchResult {
  *     "arrayBuffer" => ArrayBuffer
  *     "blob" => Blob
  */
-export default async function fetchDataType(path: string, dataType: 'image' | 'text' | 'arrayBuffer' | 'blob') {
+export default async function fetchDataType(path: string, dataType: FetchDataType) {
   if (dataType === 'image') {
     // Promise wrapper for an image load.
     return new Promise((resolve: (data: FetchResult) => void) => {

@@ -159,7 +159,7 @@ downloadElement.addEventListener('click', () => {
 
       console.log('Downloading the archive.');
 
-      zip.generateAsync({type: 'blob'})
+      zip.generateAsync({ type: 'blob' })
         .then((blob) => {
           saveAs(blob, `compare_${ModelViewer.version}.zip`);
         });

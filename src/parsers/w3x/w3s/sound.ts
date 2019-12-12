@@ -4,49 +4,26 @@ import BinaryStream from '../../../common/binarystream';
  * A sound.
  */
 export default class Sound {
-  name: string;
-  file: string;
-  eaxEffect: string;
-  flags: number;
-  fadeInRate: number;
-  fadeOutRate: number;
-  volume: number;
-  pitch: number;
-  u1: number;
-  u2: number;
-  channel: number;
-  minDistance: number;
-  maxDistance: number;
-  distanceCutoff: number;
-  u3: number;
-  u4: number;
-  u5: number;
-  u6: number;
-  u7: number;
-  u8: number;
-
-  constructor() {
-    this.name = '';
-    this.file = '';
-    this.eaxEffect = '';
-    this.flags = 0;
-    this.fadeInRate = 0;
-    this.fadeOutRate = 0;
-    this.volume = 0;
-    this.pitch = 0;
-    this.u1 = 0;
-    this.u2 = 0;
-    this.channel = 0;
-    this.minDistance = 0;
-    this.maxDistance = 0;
-    this.distanceCutoff = 0;
-    this.u3 = 0;
-    this.u4 = 0;
-    this.u5 = 0;
-    this.u6 = 0;
-    this.u7 = 0;
-    this.u8 = 0;
-  }
+  name: string = '';
+  file: string = '';
+  eaxEffect: string = '';
+  flags: number = 0;
+  fadeInRate: number = 0;
+  fadeOutRate: number = 0;
+  volume: number = 0;
+  pitch: number = 0;
+  u1: number = 0;
+  u2: number = 0;
+  channel: number = 0;
+  minDistance: number = 0;
+  maxDistance: number = 0;
+  distanceCutoff: number = 0;
+  u3: number = 0;
+  u4: number = 0;
+  u5: number = 0;
+  u6: number = 0;
+  u7: number = 0;
+  u8: number = 0;
 
   load(stream: BinaryStream) {
     this.name = stream.readUntilNull();

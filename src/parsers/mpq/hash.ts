@@ -4,19 +4,11 @@ import { HASH_ENTRY_DELETED, HASH_ENTRY_EMPTY } from './constants';
  * A MPQ hash.
  */
 export default class MpqHash {
-  nameA: number;
-  nameB: number;
-  locale: number;
-  platform: number;
-  blockIndex: number;
-
-  constructor() {
-    this.nameA = 0xFFFFFFFF;
-    this.nameB = 0xFFFFFFFF;
-    this.locale = 0xFFFF;
-    this.platform = 0xFFFF;
-    this.blockIndex = HASH_ENTRY_EMPTY;
-  }
+  nameA: number = 0xFFFFFFFF;
+  nameB: number = 0xFFFFFFFF;
+  locale: number = 0xFFFF;
+  platform: number = 0xFFFF;
+  blockIndex: number = HASH_ENTRY_EMPTY;
 
   load(typedArray: Uint32Array) {
     let localePlatform = typedArray[2];

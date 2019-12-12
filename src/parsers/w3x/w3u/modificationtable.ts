@@ -5,11 +5,7 @@ import ModifiedObject from './modifiedobject';
  * A modification table.
  */
 export default class ModificationTable {
-  objects: ModifiedObject[];
-
-  constructor() {
-    this.objects = [];
-  }
+  objects: ModifiedObject[] = [];
 
   load(stream: BinaryStream, useOptionalInts: boolean) {
     for (let i = 0, l = stream.readUint32(); i < l; i++) {

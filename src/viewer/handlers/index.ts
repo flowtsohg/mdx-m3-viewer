@@ -1,12 +1,12 @@
-import blp from './blp';
-import dds from './dds';
-import geo from './geo';
-import m3 from './m3';
-import mdx from './mdx';
-import imagetexture from './imagetexture';
-import tga from './tga';
-import w3x from './w3x';
-import gltf from './gltf';
+import blp from './blp/handler';
+import dds from './dds/handler';
+import geo from './geo/handler';
+import m3 from './m3/handler';
+import mdx from './mdx/handler';
+import imagetexture from './imagetexture/handler';
+import tga from './tga/handler';
+import gltf from './gltf/handler';
+import War3MapViewer from './w3x/viewer';
 
 export default {
   blp,
@@ -16,6 +16,6 @@ export default {
   mdx,
   imagetexture,
   tga,
-  w3x,
   gltf,
+  War3MapViewer,
 };

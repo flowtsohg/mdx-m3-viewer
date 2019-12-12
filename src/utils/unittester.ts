@@ -2,12 +2,12 @@ import * as resemble from '../../thirdparty/resemble';
 import seededRandom from '../common/seededrandom';
 import { blobToImage } from '../common/canvas';
 import ModelViewer from '../viewer/viewer';
-import Mdx from '../viewer/handlers/mdx/handler';
-import M3 from '../viewer/handlers/m3/handler';
-import Geo from '../viewer/handlers/geo/handler';
 import Resource from '../viewer/resource';
 import Scene from '../viewer/scene';
 import Camera from '../viewer/camera';
+import mdxHandler from '../viewer/handlers/mdx/handler';
+import m3Handler from '../viewer/handlers/m3/handler';
+import geoHandler from '../viewer/handlers/geo/handler';
 
 /**
  * The signature of a test loader.
@@ -86,9 +86,9 @@ export default class UnitTester {
 
     viewer.on('error', (target, error, reason) => console.log(target, error, reason));
 
-    viewer.addHandler(Mdx);
-    viewer.addHandler(M3);
-    viewer.addHandler(Geo);
+    viewer.addHandler(mdxHandler);
+    viewer.addHandler(m3Handler);
+    viewer.addHandler(geoHandler);
 
     this.viewer = viewer;
     this.mathRandom = Math.random;

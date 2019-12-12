@@ -38,4 +38,8 @@ export default class EventObjectSnd extends EmittedObject {
       source.start(0);
     }
   }
+
+  update(dt: number) {
+
+  }
 }

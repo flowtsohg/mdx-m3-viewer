@@ -4,17 +4,10 @@ import BinaryStream from '../../../common/binarystream';
  * A map title.
  */
 export default class MapTitle {
-  visible: number;
-  chapterTitle: string;
-  mapTitle: string;
-  path: string;
-
-  constructor() {
-    this.visible = 0;
-    this.chapterTitle = '';
-    this.mapTitle = '';
-    this.path = '';
-  }
+  visible: number = 0;
+  chapterTitle: string = '';
+  mapTitle: string = '';
+  path: string = '';
 
   load(stream: BinaryStream) {
     this.visible = stream.readInt32();

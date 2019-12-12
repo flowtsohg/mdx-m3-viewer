@@ -30,91 +30,62 @@ export default class Model {
    * 800 for Warcraft 3: RoC and TFT.
    * >800 for Warcraft 3: Reforged.
    */
-  version: number;
-  name: string;
+  version: number = 800;
+  name: string = '';
   /**
    * To the best of my knowledge, this should always be left empty.
    */
-  animationFile: string;
-  extent: Extent;
+  animationFile: string = '';
+  extent: Extent = new Extent();
   /**
    * This is only used by the now-defunct previewer that came with Art Tools.
    */
-  blendTime: number;
-  sequences: Sequence[];
-  globalSequences: number[];
-  materials: Material[];
-  textures: Texture[];
-  textureAnimations: TextureAnimation[];
-  geosets: Geoset[];
-  geosetAnimations: GeosetAnimation[];
-  bones: Bone[];
-  lights: Light[];
-  helpers: Helper[];
-  attachments: Attachment[];
-  pivotPoints: Float32Array[];
-  particleEmitters: ParticleEmitter[];
-  particleEmitters2: ParticleEmitter2[];
-  ribbonEmitters: RibbonEmitter[];
-  cameras: Camera[];
-  eventObjects: EventObject[];
-  collisionShapes: CollisionShape[];
+  blendTime: number = 0;
+  sequences: Sequence[] = [];
+  globalSequences: number[] = [];
+  materials: Material[] = [];
+  textures: Texture[] = [];
+  textureAnimations: TextureAnimation[] = [];
+  geosets: Geoset[] = [];
+  geosetAnimations: GeosetAnimation[] = [];
+  bones: Bone[] = [];
+  lights: Light[] = [];
+  helpers: Helper[] = [];
+  attachments: Attachment[] = [];
+  pivotPoints: Float32Array[] = [];
+  particleEmitters: ParticleEmitter[] = [];
+  particleEmitters2: ParticleEmitter2[] = [];
+  ribbonEmitters: RibbonEmitter[] = [];
+  cameras: Camera[] = [];
+  eventObjects: EventObject[] = [];
+  collisionShapes: CollisionShape[] = [];
   /**
    * @since 900
    */
-  bindPose: Float32Array[];
+  bindPose: Float32Array[] = [];
   /**
    * @since 900
    */
-  corns: Corn[];
+  corns: Corn[] = [];
   /**
    * @since 900
    */
-  faceEffectTarget: string;
+  faceEffectTarget: string = '';
   /**
    * A path to a face effect file, which is used by the FaceFX runtime
    * 
    * @since 900
    */
-  faceEffect: string;
+  faceEffect: string = '';
   /**
    * The MDX format is chunk based, and Warcraft 3 does not mind there being unknown chunks in there.
    * Some 3rd party tools use this to attach metadata to models.
    * When an unknown chunk is encountered, it will be added here.
    * These chunks will be saved when saving as MDX.
    */
-  unknownChunks: UnknownChunk[];
+  unknownChunks: UnknownChunk[] = [];
 
   constructor(buffer?: ArrayBuffer | string) {
-    this.version = 800;
-    this.name = '';
-    this.animationFile = '';
-    this.extent = new Extent();
-    this.blendTime = 0;
-    this.sequences = [];
-    this.globalSequences = [];
-    this.materials = [];
-    this.textures = [];
-    this.textureAnimations = [];
-    this.geosets = [];
-    this.geosetAnimations = [];
-    this.bones = [];
-    this.lights = [];
-    this.helpers = [];
-    this.attachments = [];
-    this.pivotPoints = [];
-    this.particleEmitters = [];
-    this.particleEmitters2 = [];
-    this.ribbonEmitters = [];
-    this.cameras = [];
-    this.eventObjects = [];
-    this.collisionShapes = [];
-    this.bindPose = [];
-    this.corns = [];
-    this.faceEffectTarget = '';
-    this.faceEffect = '';
-    this.unknownChunks = [];
-
     if (buffer) {
       this.load(buffer);
     }

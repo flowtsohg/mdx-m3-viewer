@@ -9,6 +9,7 @@ import { EMITTER_SPLAT, EMITTER_UBERSPLAT } from './geometryemitterfuncs';
 import SlkFile from '../../../parsers/slk/file';
 import MdxComplexInstance from './complexinstance';
 import Texture from '../../texture';
+import GenericResource from '../../genericresource';
 
 const mappedDataCallback = (text: string) => new MappedData(text);
 const decodedDataCallback = (arrayBuffer: ArrayBuffer) => decodeAudioData(arrayBuffer);
@@ -126,24 +127,24 @@ export default class EventObjectEmitterObject extends GenericObject {
 
     let promise = viewer.promise();
 
-    viewer.whenLoaded(tables)
-      .then((tables) => {
-        for (let table of tables) {
-          if (!table.ok) {
-            promise.resolve();
+    viewer.whenLoaded(tables, (tables) => {
+      for (let table of tables) {
+        if (!table.ok) {
+          promise.resolve();
 
-            return;
-          }
+          return;
         }
+      }
 
-        this.load(tables);
+      this.load(<GenericResource[]>tables);
 
-        promise.resolve();
-      });
+      promise.resolve();
+    })
   }
 
-  load(tables: SlkFile[]) {
-    let row = tables[0].data.getRow(this.id);
+  load(tables: GenericResource[]) {
+    let firstTable = <MappedData>tables[0].data;
+    let row = firstTable.getRow(this.id);
     let type = this.type;
 
     if (row) {
@@ -193,7 +194,9 @@ export default class EventObjectEmitterObject extends GenericObject {
         // Only load sounds if audio is enabled.
         // This is mostly to save on bandwidth and loading time, especially when loading full maps.
         if (viewer.audioEnabled) {
-          row = tables[1].data.getRow(row.SoundLabel);
+          let animSounds = <MappedData>tables[1].data;
+
+          row = animSounds.getRow(row.SoundLabel);
 
           if (row) {
             this.distanceCutoff = row.DistanceCutoff;
@@ -204,15 +207,15 @@ export default class EventObjectEmitterObject extends GenericObject {
             this.volume = row.Volume;
 
             let fileNames = row.FileNames.split(',');
+            let resources = fileNames.map((fileName) => viewer.loadGeneric(urlWithParams(pathSolver(row.DirectoryBase + fileName)[0], model.solverParams), 'arrayBuffer', decodedDataCallback));
 
-            viewer.whenLoaded(fileNames.map((fileName) => viewer.loadGeneric(urlWithParams(pathSolver(row.DirectoryBase + fileName)[0], model.solverParams), 'arrayBuffer', decodedDataCallback)))
-              .then((resources) => {
-                for (let resource of resources) {
-                  this.decodedBuffers.push(resource.data);
-                }
+            viewer.whenLoaded(resources, (resources) => {
+              for (let resource of resources) {
+                this.decodedBuffers.push(resource.data);
+              }
 
-                this.ok = true;
-              });
+              this.ok = true;
+            });
           }
         }
       }

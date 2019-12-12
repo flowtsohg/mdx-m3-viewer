@@ -5,13 +5,10 @@ import Camera from './camera';
  * war3map.w3c - the camera file.
  */
 export default class War3MapW3c {
-  version: number;
-  cameras: Camera[];
+  version: number = 0;
+  cameras: Camera[] = [];
 
   constructor(buffer?: ArrayBuffer) {
-    this.version = 0;
-    this.cameras = [];
-
     if (buffer) {
       this.load(buffer);
     }

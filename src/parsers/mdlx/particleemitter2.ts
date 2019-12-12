@@ -6,56 +6,32 @@ import GenericObject from './genericobject';
  * A particle emitter type 2.
  */
 export default class ParticleEmitter2 extends GenericObject {
-  speed: number;
-  variation: number;
-  latitude: number;
-  gravity: number;
-  lifeSpan: number;
-  emissionRate: number;
-  width: number;
-  length: number;
-  filterMode: number;
-  rows: number;
-  columns: number;
-  headOrTail: number;
-  tailLength: number;
-  timeMiddle: number;
-  segmentColors: Float32Array[];
-  segmentAlphas: Uint8Array;
-  segmentScaling: Float32Array;
-  headIntervals: Uint32Array[];
-  tailIntervals: Uint32Array[];
-  textureId: number;
-  squirt: number;
-  priorityPlane: number;
-  replaceableId: number;
+  speed: number = 0;
+  variation: number = 0;
+  latitude: number = 0;
+  gravity: number = 0;
+  lifeSpan: number = 0;
+  emissionRate: number = 0;
+  width: number = 0;
+  length: number = 0;
+  filterMode: number = 0;
+  rows: number = 0;
+  columns: number = 0;
+  headOrTail: number = 0;
+  tailLength: number = 0;
+  timeMiddle: number = 0;
+  segmentColors: Float32Array[] = [new Float32Array(3), new Float32Array(3), new Float32Array(3)];
+  segmentAlphas: Uint8Array = new Uint8Array(3);
+  segmentScaling: Float32Array = new Float32Array(3);
+  headIntervals: Uint32Array[] = [new Uint32Array(3), new Uint32Array(3)];
+  tailIntervals: Uint32Array[] = [new Uint32Array(3), new Uint32Array(3)];
+  textureId: number = -1;
+  squirt: number = 0;
+  priorityPlane: number = 0;
+  replaceableId: number = 0;
 
   constructor() {
     super(0);
-
-    this.speed = 0;
-    this.variation = 0;
-    this.latitude = 0;
-    this.gravity = 0;
-    this.lifeSpan = 0;
-    this.emissionRate = 0;
-    this.width = 0;
-    this.length = 0;
-    this.filterMode = 0;
-    this.rows = 0;
-    this.columns = 0;
-    this.headOrTail = 0;
-    this.tailLength = 0;
-    this.timeMiddle = 0;
-    this.segmentColors = [new Float32Array(3), new Float32Array(3), new Float32Array(3)];
-    this.segmentAlphas = new Uint8Array(3);
-    this.segmentScaling = new Float32Array(3);
-    this.headIntervals = [new Uint32Array(3), new Uint32Array(3)];
-    this.tailIntervals = [new Uint32Array(3), new Uint32Array(3)];
-    this.textureId = -1;
-    this.squirt = 0;
-    this.priorityPlane = 0;
-    this.replaceableId = 0;
   }
 
   readMdx(stream: BinaryStream) {

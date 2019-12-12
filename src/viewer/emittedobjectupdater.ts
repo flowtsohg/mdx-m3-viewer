@@ -4,13 +4,8 @@ import EmittedObject from './emittedobject';
  * An emitted object updater.
  */
 export default class EmittedObjectUpdater {
-  objects: EmittedObject[];
-  alive: number;
-
-  constructor() {
-    this.objects = [];
-    this.alive = 0;
-  }
+  objects: EmittedObject[] = [];
+  alive: number = 0;
 
   add(object: EmittedObject) {
     this.objects[this.alive++] = object;

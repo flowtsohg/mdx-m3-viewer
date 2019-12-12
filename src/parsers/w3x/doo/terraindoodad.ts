@@ -9,15 +9,9 @@ import BinaryStream from '../../../common/binarystream';
  * Indeed, the only way to change it is to remove it by changing cliffs around it.
  */
 export default class TerrainDoodad {
-  id: string;
-  u1: number;
-  location: Uint32Array;
-
-  constructor() {
-    this.id = '\0\0\0\0';
-    this.u1 = 0;
-    this.location = new Uint32Array(2);
-  }
+  id: string = '\0\0\0\0';
+  u1: number = 0;
+  location: Uint32Array = new Uint32Array(2);
 
   load(stream: BinaryStream, version: number) {
     this.id = stream.read(4);

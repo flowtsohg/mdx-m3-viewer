@@ -9,7 +9,7 @@ import Camera from './camera';
 /**
  * A model instance.
  */
-export default class ModelInstance extends Node {
+export default abstract class ModelInstance extends Node {
   scene: Scene | null;
   left: number;
   right: number;
@@ -42,8 +42,8 @@ export default class ModelInstance extends Node {
     this.rendered = true;
   }
 
-  setTexture(index: number, texture?: Texture) {
-    this.textureMapper = this.model.viewer.changeTextureMapper(this, index, texture);
+  setTexture(key: any, texture?: Texture) {
+    this.textureMapper = this.model.viewer.changeTextureMapper(this, key, texture);
   }
 
   /**
@@ -125,6 +125,7 @@ export default class ModelInstance extends Node {
 
   /**
    * Sets the scene of this instance.
+   * 
    * This is equivalent to scene.addInstance(instance).
    */
   setScene(scene: Scene) {
@@ -163,7 +164,7 @@ export default class ModelInstance extends Node {
     return false;
   }
 
-  isBatched(): boolean {
+  isBatched() {
     return false;
   }
 }

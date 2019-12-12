@@ -1,5 +1,6 @@
 import Model from '../../model';
 import Texture from '../../texture';
+import GeometryModelInstance from './modelinstance';
 
 /**
  * A geometry model.
@@ -21,6 +22,10 @@ export default class GeometryModel extends Model {
   edgeColor: Uint8Array = new Uint8Array([255, 255, 255]);
   renderMode: number = 0;
   sizzle: number = 0;
+
+  createInstance(type: number) {
+    return new GeometryModelInstance(this);
+  }
 
   load(src: object) {
     const gl = this.viewer.gl;

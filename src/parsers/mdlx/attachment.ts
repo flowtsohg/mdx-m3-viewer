@@ -6,14 +6,11 @@ import GenericObject from './genericobject';
  * An attachment.
  */
 export default class Attachment extends GenericObject {
-  path: string
-  attachmentId: number
+  path: string = '';
+  attachmentId: number = 0;
 
   constructor() {
     super(0x800);
-
-    this.path = '';
-    this.attachmentId = 0;
   }
 
   readMdx(stream: BinaryStream) {

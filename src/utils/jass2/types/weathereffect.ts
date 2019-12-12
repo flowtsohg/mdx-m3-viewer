@@ -7,13 +7,12 @@ import JassRect from './rect';
 export default class JassWeatherEffect extends JassHandle {
   whichRect: JassRect;
   effectId: string;
-  enabled: boolean;
+  enabled: boolean = false;
 
   constructor(whichRect: JassRect, effectId: string) {
     super();
 
     this.whichRect = whichRect;
     this.effectId = effectId;
-    this.enabled = false;
   }
 }

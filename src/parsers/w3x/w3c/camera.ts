@@ -4,27 +4,15 @@ import BinaryStream from '../../../common/binarystream';
  * A camera.
  */
 export default class Camera {
-  targetLocation: Float32Array;
-  rotation: number;
-  angleOfAttack: number;
-  distance: number;
-  roll: number;
-  fieldOfView: number;
-  farClippingPlane: number;
-  nearClippingPlane: number;
-  cinematicName: string;
-
-  constructor() {
-    this.targetLocation = new Float32Array(3);
-    this.rotation = 0;
-    this.angleOfAttack = 0;
-    this.distance = 0;
-    this.roll = 0;
-    this.fieldOfView = 0;
-    this.farClippingPlane = 0;
-    this.nearClippingPlane = 0;
-    this.cinematicName = '';
-  }
+  targetLocation: Float32Array = new Float32Array(3);
+  rotation: number = 0;
+  angleOfAttack: number = 0;
+  distance: number = 0;
+  roll: number = 0;
+  fieldOfView: number = 0;
+  farClippingPlane: number = 0;
+  nearClippingPlane: number = 0;
+  cinematicName: string = '';
 
   load(stream: BinaryStream) {
     this.targetLocation = stream.readFloat32Array(3);

@@ -4,15 +4,9 @@ import BinaryStream from '../../../common/binarystream';
  * A force.
  */
 export default class Force {
-  flags: number;
-  playerMasks: number;
-  name: string;
-
-  constructor() {
-    this.flags = 0;
-    this.playerMasks = 0;
-    this.name = '';
-  }
+  flags: number = 0;
+  playerMasks: number = 0;
+  name: string = '';
 
   load(stream: BinaryStream) {
     this.flags = stream.readUint32();

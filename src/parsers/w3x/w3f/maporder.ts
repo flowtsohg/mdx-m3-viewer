@@ -4,13 +4,8 @@ import BinaryStream from '../../../common/binarystream';
  * A map order.
  */
 export default class MapOrder {
-  u1: number;
-  path: string;
-
-  constructor() {
-    this.u1 = 0;
-    this.path = '';
-  }
+  u1: number = 0;
+  path: string = '';
 
   load(stream: BinaryStream) {
     this.u1 = stream.readInt8();

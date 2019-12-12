@@ -7,11 +7,9 @@ import TokenStream from '../../mdlx/tokenstream';
  * When other map data like triggers use the string TRIGSTR_XXX, where XXX is a number, the value will be fetched from the table.
  */
 export default class War3MapWts {
-  stringMap: Map<number, string>;
+  stringMap: Map<number, string> = new Map();
 
   constructor(buffer?: string) {
-    this.stringMap = new Map();
-
     if (buffer) {
       this.load(buffer);
     }

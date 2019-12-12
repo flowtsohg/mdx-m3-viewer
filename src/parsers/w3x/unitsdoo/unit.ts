@@ -8,79 +8,47 @@ import RandomUnit from './randomunit';
  * A unit.
  */
 export default class Unit {
-  id: string;
-  variation: number;
-  location: Float32Array;
-  angle: number;
-  scale: Float32Array;
-  flags: number;
-  player: number;
-  unknown: number;
-  hitpoints: number;
-  mana: number;
+  id: string = '\0\0\0\0';
+  variation: number = 0;
+  location: Float32Array = new Float32Array(3);
+  angle: number = 0;
+  scale: Float32Array = new Float32Array([1, 1, 1]);
+  flags: number = 0;
+  player: number = 0;
+  unknown: number = 0;
+  hitpoints: number = -1;
+  mana: number = -1;
   /**
    * @since 8
    */
-  droppedItemTable: number;
-  droppedItemSets: DroppedItemSet[];
-  goldAmount: number;
-  targetAcquisition: number;
-  heroLevel: number;
+  droppedItemTable: number = 0;
+  droppedItemSets: DroppedItemSet[] = [];
+  goldAmount: number = 0;
+  targetAcquisition: number = 0;
+  heroLevel: number = 0;
   /**
    * @since 8
    */
-  heroStrength: number;
+  heroStrength: number = 0;
   /**
    * @since 8
    */
-  heroAgility: number;
+  heroAgility: number = 0;
   /**
    * @since 8
    */
-  heroIntelligence: number;
-  itemsInInventory: InventoryItem[];
-  modifiedAbilities: ModifiedAbility[];
-  randomFlag: number;
-  level: Uint8Array;
-  itemClass: number;
-  unitGroup: number;
-  positionInGroup: number;
-  randomUnitTables: RandomUnit[];
-  customTeamColor: number;
-  waygate: number;
-  creationNumber: number;
-
-  constructor() {
-    this.id = '\0\0\0\0';
-    this.variation = 0;
-    this.location = new Float32Array(3);
-    this.angle = 0;
-    this.scale = new Float32Array([1, 1, 1]);
-    this.flags = 0;
-    this.player = 0;
-    this.unknown = 0;
-    this.hitpoints = -1;
-    this.mana = -1;
-    this.droppedItemTable = 0;
-    this.droppedItemSets = [];
-    this.goldAmount = 0;
-    this.targetAcquisition = 0;
-    this.heroLevel = 0;
-    this.heroStrength = 0;
-    this.heroAgility = 0;
-    this.heroIntelligence = 0;
-    this.itemsInInventory = [];
-    this.modifiedAbilities = [];
-    this.randomFlag = 0;
-    this.level = new Uint8Array(3);
-    this.itemClass = 0;
-    this.unitGroup = 0;
-    this.positionInGroup = 0;
-    this.randomUnitTables = [];
-    this.customTeamColor = 0;
-    this.waygate = 0;
-    this.creationNumber = 0;
-  }
+  heroIntelligence: number = 0;
+  itemsInInventory: InventoryItem[] = [];
+  modifiedAbilities: ModifiedAbility[] = [];
+  randomFlag: number = 0;
+  level: Uint8Array = new Uint8Array(3);
+  itemClass: number = 0;
+  unitGroup: number = 0;
+  positionInGroup: number = 0;
+  randomUnitTables: RandomUnit[] = [];
+  customTeamColor: number = 0;
+  waygate: number = 0;
+  creationNumber: number = 0;
 
   load(stream: BinaryStream, version: number) {
     this.id = stream.read(4);

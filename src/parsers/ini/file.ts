@@ -2,15 +2,10 @@
  * An INI file.
  */
 export default class IniFile {
-  properties: Map<string, string>
-  sections: Map<string, Map<string, string>>
+  properties: Map<string, string> = new Map();
+  sections: Map<string, Map<string, string>> = new Map();
 
   constructor(buffer?: string) {
-    /** @member {Map<string, string>} */
-    this.properties = new Map();
-    /** @member {Map<string, Map<string, string>>} */
-    this.sections = new Map();
-
     if (buffer) {
       this.load(buffer);
     }

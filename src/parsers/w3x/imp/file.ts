@@ -5,13 +5,10 @@ import Import from './import';
  * war3map.imp - the import file.
  */
 export default class War3MapImp {
-  version: number;
-  entries: Map<string, Import>;
+  version: number = 1;
+  entries: Map<string, Import> = new Map();
 
   constructor(buffer?: ArrayBuffer) {
-    this.version = 1;
-    this.entries = new Map();
-
     if (buffer) {
       this.load(buffer);
     }

@@ -5,11 +5,7 @@ import RandomItem from './randomitem';
  * A random item set.
  */
 export default class RandomItemSet {
-  items: RandomItem[];
-
-  constructor() {
-    this.items = [];
-  }
+  items: RandomItem[] = [];
 
   load(stream: BinaryStream) {
     for (let i = 0, l = stream.readUint32(); i < l; i++) {

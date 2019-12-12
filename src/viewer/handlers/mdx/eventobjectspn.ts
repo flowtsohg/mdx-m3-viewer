@@ -16,7 +16,7 @@ export default class EventObjectSpn extends EmittedObject {
     let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
     let internalModel = <MdxModel>emitterObject.internalModel;
 
-    this.internalInstance = internalModel.addInstance();
+    this.internalInstance = <MdxComplexInstance>internalModel.addInstance();
   }
 
   bind() {

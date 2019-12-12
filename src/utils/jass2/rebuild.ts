@@ -4,9 +4,6 @@ import LuaContext from './context';
 import JassUnit from './types/unit';
 import War3Map from '../../parsers/w3x/map';
 
-/**
- *
- */
 export default function rebuild(map: War3Map, commonj: string, blizzardj: string, callback: Function) {
   let context = new LuaContext();
   let start = performance.now();

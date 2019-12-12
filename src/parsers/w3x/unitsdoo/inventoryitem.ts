@@ -4,13 +4,8 @@ import BinaryStream from '../../../common/binarystream';
  * An inventory item.
  */
 export default class InventoryItem {
-  slot: number;
-  id: string;
-
-  constructor() {
-    this.slot = 0;
-    this.id = '\0\0\0\0';
-  }
+  slot: number = 0;
+  id: string = '\0\0\0\0';
 
   load(stream: BinaryStream) {
     this.slot = stream.readInt32();

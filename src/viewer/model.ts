@@ -5,27 +5,22 @@ import ModelInstance from './modelinstance';
 /**
  * A model.
  */
-export default class Model extends Resource {
+export default abstract class Model extends Resource {
   /**
    * An array of instances that were created before the model loaded.
+   * 
    * When the model loads, the instances are loaded, and the array is cleared.
    */
-  preloadedInstances: ModelInstance[];
-  bounds: Bounds;
+  preloadedInstances: ModelInstance[] = [];
+  bounds: Bounds = new Bounds();
 
-  constructor(resourceData: ResourceData) {
-    super(resourceData);
-
-    this.preloadedInstances = [];
-    this.bounds = new Bounds();
-  }
+  abstract createInstance(type: number): ModelInstance;
 
   /**
    * Adds a new instance to this model, and returns it.
    */
   addInstance(type: number = 0) {
-    let Instance = this.handler.Instance[type];
-    let instance = new Instance(this);
+    let instance = this.createInstance(type);
 
     if (this.ok) {
       instance.load();
@@ -36,10 +31,6 @@ export default class Model extends Resource {
     return instance;
   }
 
-  /**
-   * Called when the model finishes loading.
-   * Automatically finalizes loading for all of the model instances.
-   */
   lateLoad() {
     for (let instance of this.preloadedInstances) {
       instance.load();

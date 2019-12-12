@@ -21,6 +21,11 @@ export default class BatchGroup {
 
   render(instance: MdxComplexInstance) {
     let scene = <Scene>instance.scene;
+    let textureMapper = instance.textureMapper;
+    let geosetColors = instance.geosetColors;
+    let layerAlphas = instance.layerAlphas;
+    let layerTextures = instance.layerTextures;
+    let uvAnims = instance.uvAnims;
     let model = this.model;
     let textures = model.textures;
     let teamColors = mdxHandler.teamColors;
@@ -71,12 +76,12 @@ export default class BatchGroup {
       let layer = batch.layer;
       let geosetIndex = geoset.index;
       let layerIndex = layer.index;
-      let geosetColor = instance.geosetColors[geosetIndex];
-      let layerAlpha = instance.layerAlphas[layerIndex];
+      let geosetColor = geosetColors[geosetIndex];
+      let layerAlpha = layerAlphas[layerIndex];
 
       if (geosetColor[3] > 0 && layerAlpha > 0) {
-        let layerTexture = instance.layerTextures[layerIndex];
-        let uvAnim = instance.uvAnims[layerIndex];
+        let layerTexture = layerTextures[layerIndex];
+        let uvAnim = uvAnims[layerIndex];
 
         gl.uniform4fv(uniforms.u_geosetColor, geosetColor);
 
@@ -99,7 +104,7 @@ export default class BatchGroup {
           texture = textures[layerTexture];
         }
 
-        viewer.webgl.bindTexture(instance.textureMapper.get(texture) || texture, 0);
+        viewer.webgl.bindTexture(textureMapper.get(texture) || texture, 0);
 
         if (isExtended) {
           geoset.bindExtended(shader, layer.coordId);

@@ -3,7 +3,7 @@ import Resource from './resource';
 /**
  * A texture.
  */
-export default class Texture extends Resource {
+export default abstract class Texture extends Resource {
   webglResource: WebGLTexture | null;
   width: number;
   height: number;

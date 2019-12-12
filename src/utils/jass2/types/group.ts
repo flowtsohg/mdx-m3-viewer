@@ -5,11 +5,5 @@ import JassUnit from './unit';
  * type group
  */
 export default class JassGroup extends JassAgent {
-  units: Set<JassUnit>;
-
-  constructor() {
-    super();
-
-    this.units = new Set();
-  }
+  units: Set<JassUnit> = new Set();
 }

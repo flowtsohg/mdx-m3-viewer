@@ -23,10 +23,12 @@ export default class ReforgedBatchGroup {
     let scene = <Scene>instance.scene;
     let textureMapper = instance.textureMapper;
     let boneTexture = instance.boneTexture;
+    let layerAlphas = instance.layerAlphas;
     let model = this.model;
     let batches = model.batches;
     let viewer = model.viewer;
     let gl = viewer.gl;
+    let webgl = viewer.webgl;
     let textures = model.textures;
     let teamColorTextures = mdxHandler.reforgedTeamColors;
     let shader = <ShaderProgram>mdxHandler.shaders.hd; /// TODO: select the shader.
@@ -37,11 +39,17 @@ export default class ReforgedBatchGroup {
 
     gl.uniformMatrix4fv(uniforms.u_mvp, false, scene.camera.worldProjectionMatrix);
 
-    boneTexture.bind(15);
+    // Instances of models with no bones don't have a bone texture.
+    if (boneTexture) {
+      boneTexture.bind(15);
 
-    gl.uniform1i(uniforms.u_boneMap, 15);
-    gl.uniform1f(uniforms.u_vectorSize, 1 / boneTexture.width);
-    gl.uniform1f(uniforms.u_rowSize, 1);
+      gl.uniform1f(uniforms.u_hasBones, 1);
+      gl.uniform1i(uniforms.u_boneMap, 15);
+      gl.uniform1f(uniforms.u_vectorSize, 1 / boneTexture.width);
+      gl.uniform1f(uniforms.u_rowSize, 1);
+    } else {
+      gl.uniform1f(uniforms.u_hasBones, 0);
+    }
 
     gl.uniform1i(uniforms.u_diffuseMap, 0);
     gl.uniform1i(uniforms.u_ormMap, 1);
@@ -61,7 +69,7 @@ export default class ReforgedBatchGroup {
       let layers = material.layers;
       let diffuseLayer = layers[0];
       let ormLayer = layers[2];
-      let layerAlpha = instance.layerAlphas[diffuseLayer.index];
+      let layerAlpha = layerAlphas[diffuseLayer.index];
 
       if (layerAlpha > 0) {
         gl.uniform1f(uniforms.u_layerAlpha, layerAlpha);
@@ -71,9 +79,9 @@ export default class ReforgedBatchGroup {
         let ormTexture = textures[ormLayer.textureId];
         let teamColorTexture = teamColorTextures[instance.teamColor];
 
-        viewer.webgl.bindTexture(textureMapper.get(diffuseTexture) || diffuseTexture, 0);
-        viewer.webgl.bindTexture(textureMapper.get(ormTexture) || ormTexture, 1);
-        viewer.webgl.bindTexture(textureMapper.get(teamColorTexture) || teamColorTexture, 2);
+        webgl.bindTexture(textureMapper.get(diffuseTexture) || diffuseTexture, 0);
+        webgl.bindTexture(textureMapper.get(ormTexture) || ormTexture, 1);
+        webgl.bindTexture(textureMapper.get(teamColorTexture) || teamColorTexture, 2);
 
         geoset.bindHd(shader, diffuseLayer.coordId);
         geoset.render();

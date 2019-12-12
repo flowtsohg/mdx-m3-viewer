@@ -14,21 +14,14 @@ export const FOURCC_ATI2 = 0x32495441;
  * A DDS texture.
  */
 export class DdsImage {
-  width: number
-  height: number
-  format: number
-  mipmapWidths: number[]
-  mipmapHeights: number[]
-  mipmapDatas: Uint8Array[]
+  width: number = 0;
+  height: number = 0;
+  format: number = 0;
+  mipmapWidths: number[] = [];
+  mipmapHeights: number[] = [];
+  mipmapDatas: Uint8Array[] = [];
 
   constructor(buffer?: ArrayBuffer) {
-    this.width = 0;
-    this.height = 0;
-    this.format = 0;
-    this.mipmapWidths = [];
-    this.mipmapHeights = [];
-    this.mipmapDatas = [];
-
     if (buffer) {
       this.load(buffer);
     }

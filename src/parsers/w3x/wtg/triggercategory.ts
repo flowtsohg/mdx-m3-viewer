@@ -6,15 +6,9 @@ import BinaryStream from '../../../common/binarystream';
  * Used to scope triggers together in a Folder-like hierarchy.
  */
 export default class TriggerCategory {
-  id: number;
-  name: string;
-  isComment: number;
-
-  constructor() {
-    this.id = 0;
-    this.name = '';
-    this.isComment = 0;
-  }
+  id: number = 0;
+  name: string = '';
+  isComment: number = 0;
 
   load(stream: BinaryStream, version: number) {
     this.id = stream.readInt32();

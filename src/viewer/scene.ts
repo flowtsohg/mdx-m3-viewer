@@ -2,6 +2,7 @@ import ModelViewer from './viewer';
 import Camera from './camera';
 import Grid from './grid';
 import ModelInstance from './modelinstance';
+import BatchedInstance from './batchedinstance';
 import TextureMapper from './texturemapper';
 import RenderBatch from './renderbatch';
 import EmittedObjectUpdater from './emittedobjectupdater';
@@ -26,7 +27,7 @@ export default class Scene {
   audioContext: AudioContext | null;
   instances: ModelInstance[];
   currentInstance: number;
-  batchedInstances: ModelInstance[];
+  batchedInstances: BatchedInstance[];
   currentBatchedInstance: number;
   batches: Map<TextureMapper, RenderBatch>;
   emittedObjectUpdater: EmittedObjectUpdater;
@@ -159,16 +160,13 @@ export default class Scene {
     return false;
   }
 
-  addToBatch(instance: ModelInstance) {
+  addToBatch(instance: BatchedInstance) {
     let textureMapper = instance.textureMapper;
     let batches = this.batches;
     let batch = batches.get(textureMapper);
 
     if (!batch) {
-      let model = instance.model;
-      let Batch = model.handler.Batch;
-
-      batch = new Batch(this, model, textureMapper);
+      batch = instance.getBatch(textureMapper);
 
       batches.set(textureMapper, batch);
     }
@@ -221,7 +219,7 @@ export default class Scene {
             }
 
             if (instance.isBatched()) {
-              batchedInstances[currentBatchedInstance++] = instance;
+              batchedInstances[currentBatchedInstance++] = <BatchedInstance>instance;
             } else {
               instances[currentInstance++] = instance;
             }

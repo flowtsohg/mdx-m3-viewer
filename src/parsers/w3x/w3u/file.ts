@@ -7,15 +7,11 @@ import ModificationTable from './modificationtable';
  * Also used for war3map.w3t (items), war3map.w3b (destructibles), and war3map.w3h (buffs).
  */
 export default class War3MapW3u {
-  version: number;
-  originalTable: ModificationTable;
-  customTable: ModificationTable;
+  version: number = 0;
+  originalTable: ModificationTable = new ModificationTable();
+  customTable: ModificationTable = new ModificationTable();
 
   constructor(bufferOrStream?: ArrayBuffer | BinaryStream) {
-    this.version = 0;
-    this.originalTable = new ModificationTable();
-    this.customTable = new ModificationTable();
-
     if (bufferOrStream) {
       this.load(bufferOrStream);
     }

@@ -14,21 +14,12 @@ type FunctionObject = { [key: string]: { args: string[], scriptName: string | nu
  * Trigger data needed to load a WTG file.
  */
 export default class TriggerData {
-  types: StringObject;
-  functions: FunctionObject[];
-  presets: StringObject;
-  externalTypes: StringObject;
-  externalFunctions: FunctionObject[];
-  externalPresets: StringObject;
-
-  constructor() {
-    this.types = {};
-    this.functions = [{}, {}, {}, {}];
-    this.presets = {};
-    this.externalTypes = {};
-    this.externalFunctions = [{}, {}, {}, {}];
-    this.externalPresets = {};
-  }
+  types: StringObject = {};
+  functions: FunctionObject[] = [{}, {}, {}, {}];
+  presets: StringObject = {};
+  externalTypes: StringObject = {};
+  externalFunctions: FunctionObject[] = [{}, {}, {}, {}];
+  externalPresets: StringObject = {};
 
   addTriggerData(buffer: string, isExternal: boolean) {
     let types = this.types;

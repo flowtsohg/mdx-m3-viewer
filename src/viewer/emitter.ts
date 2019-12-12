@@ -1,3 +1,4 @@
+import Scene from './scene';
 import ModelInstance from './modelinstance';
 import EmittedObject from './emittedobject';
 
@@ -21,6 +22,37 @@ export default abstract class Emitter {
     this.currentEmission = 0;
   }
 
+  /**
+   * Update this emitter.
+   */
+  update(dt: number) {
+    // Emit new objects if needed.
+    this.updateEmission(dt);
+
+    let currentEmission = this.currentEmission;
+
+    if (currentEmission >= 1) {
+      for (let i = 0; i < currentEmission; i += 1) {
+        this.emit();
+      }
+    }
+  }
+
+  /**
+   * Clear any emitted objects.
+   */
+  clear() {
+    let objects = this.objects;
+
+    for (let i = 0, l = this.alive; i < l; i++) {
+      let object = objects[i];
+
+      object.health = 0;
+    }
+
+    this.currentEmission = 0;
+  }
+
   emitObject(emitData?: any) {
     let objects = this.objects;
 
@@ -39,22 +71,11 @@ export default abstract class Emitter {
     this.alive += 1;
     this.currentEmission -= 1;
 
-    this.instance.scene.emittedObjectUpdater.add(object);
+    let scene = <Scene>this.instance.scene;
+
+    scene.emittedObjectUpdater.add(object);
 
     return object;
-  }
-
-  update(dt: number) {
-    // Emit new objects if needed.
-    this.updateEmission(dt);
-
-    let currentEmission = this.currentEmission;
-
-    if (currentEmission >= 1) {
-      for (let i = 0; i < currentEmission; i += 1) {
-        this.emit();
-      }
-    }
   }
 
   kill(object: EmittedObject) {
@@ -69,20 +90,5 @@ export default abstract class Emitter {
 
     otherObject.index = object.index;
     object.index = -1;
-  }
-
-  /**
-   * Clear any emitted objects.
-   */
-  clear() {
-    let objects = this.objects;
-
-    for (let i = 0, l = this.alive; i < l; i++) {
-      let object = objects[i];
-
-      object.health = 0;
-    }
-
-    this.currentEmission = 0;
   }
 }

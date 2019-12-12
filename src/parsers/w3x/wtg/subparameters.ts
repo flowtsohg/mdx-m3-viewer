@@ -6,17 +6,10 @@ import TriggerData from './triggerdata';
  * A function call in an expression.
  */
 export default class SubParameters {
-  type: number;
-  name: string;
-  beginParameters: number;
-  parameters: Parameter[];
-
-  constructor() {
-    this.type = 0;
-    this.name = '';
-    this.beginParameters = 0;
-    this.parameters = [];
-  }
+  type: number = 0;
+  name: string = '';
+  beginParameters: number = 0;
+  parameters: Parameter[] = [];
 
   load(stream: BinaryStream, version: number, triggerData: TriggerData) {
     this.type = stream.readInt32();

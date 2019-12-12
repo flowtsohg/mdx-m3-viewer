@@ -9,25 +9,16 @@ import War3MapW3d from '../w3d/file';
  * Can be exported and imported via the World Editor.
  */
 export default class War3MapW3o {
-  version: number;
-  units: War3MapW3u | null;
-  items: War3MapW3u | null;
-  destructables: War3MapW3u | null;
-  doodads: War3MapW3d | null;
-  abilities: War3MapW3d | null;
-  buffs: War3MapW3u | null;
-  upgrades: War3MapW3d | null;
+  version: number = 0;
+  units: War3MapW3u | null = null;
+  items: War3MapW3u | null = null;
+  destructables: War3MapW3u | null = null;
+  doodads: War3MapW3d | null = null;
+  abilities: War3MapW3d | null = null;
+  buffs: War3MapW3u | null = null;
+  upgrades: War3MapW3d | null = null;
 
   constructor(buffer?: ArrayBuffer) {
-    this.version = 0;
-    this.units = null;
-    this.items = null;
-    this.destructables = null;
-    this.doodads = null;
-    this.abilities = null;
-    this.buffs = null;
-    this.upgrades = null;
-
     if (buffer) {
       this.load(buffer);
     }

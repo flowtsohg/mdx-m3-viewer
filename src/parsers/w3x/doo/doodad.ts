@@ -5,31 +5,17 @@ import RandomItemSet from './randomitemset';
  * A doodad.
  */
 export default class Doodad {
-  id: string;
-  variation: number;
-  location: Float32Array;
-  angle: number;
-  scale: Float32Array;
-  flags: number;
-  life: number;
-  itemTable: number;
-  itemSets: RandomItemSet[];
-  editorId: number;
-  u1: Uint8Array;
-
-  constructor() {
-    this.id = '\0\0\0\0';
-    this.variation = 0;
-    this.location = new Float32Array(3);
-    this.angle = 0;
-    this.scale = new Float32Array([1, 1, 1]);
-    this.flags = 0;
-    this.life = 0;
-    this.itemTable = -1;
-    this.itemSets = [];
-    this.editorId = 0;
-    this.u1 = new Uint8Array(8);
-  }
+  id: string = '\0\0\0\0';
+  variation: number = 0;
+  location: Float32Array = new Float32Array(3);
+  angle: number = 0;
+  scale: Float32Array = new Float32Array([1, 1, 1]);
+  flags: number = 0;
+  life: number = 0;
+  itemTable: number = -1;
+  itemSets: RandomItemSet[] = [];
+  editorId: number = 0;
+  u1: Uint8Array = new Uint8Array(8);
 
   load(stream: BinaryStream, version: number) {
     this.id = stream.read(4);

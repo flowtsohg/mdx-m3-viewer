@@ -11,4 +11,29 @@ type PathSolver = (src: any, params?: any) => [any, string, boolean];
 /**
  * The data sent to every resource as a part of the loading process.
  */
-type ResourceData = { viewer: any, handler: object, extension?: string, pathSolver?: PathSolver, fetchUrl?: string };
+type ResourceData = { viewer: any, extension?: string, pathSolver?: PathSolver, fetchUrl?: string };
+
+/**
+ * The valid data types for resource fetches.
+ */
+type FetchDataType = 'image' | 'text' | 'arrayBuffer' | 'blob';
+
+/**
+ * The structure that the promise returned by fetchDataType is resolved to.
+ */
+interface FetchResult {
+  ok: boolean;
+  data: HTMLImageElement | string | ArrayBuffer | Blob | Response | Event;
+  error?: string;
+}
+
+/**
+ * The minimal structure of handlers.
+ * 
+ * Additional data can be added to them for the purposes of the implementation.
+ */
+interface Handler {
+  extensions: string[][];
+  load?: (viewer: any) => boolean;
+  resource: any;
+}

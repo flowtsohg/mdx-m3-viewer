@@ -23,10 +23,10 @@ import TriggerData from './wtg/triggerdata';
  * Warcraft 3 map (W3X and W3M).
  */
 export default class War3Map {
-  unknown: number;
-  name: string;
-  flags: number;
-  maxPlayers: number;
+  unknown: number = 0;
+  name: string = '';
+  flags: number = 0;
+  maxPlayers: number = 0;
   archive: MpqArchive;
   imports: War3MapImp;
   readonly: boolean;
@@ -38,10 +38,6 @@ export default class War3Map {
    * If readonly is true, the map and internal archive won't be editable or saveable, which allows to optimize some operations.
    */
   constructor(buffer?: ArrayBuffer, readonly?: boolean) {
-    this.unknown = 0;
-    this.name = '';
-    this.flags = 0;
-    this.maxPlayers = 0;
     this.archive = new MpqArchive(undefined, readonly);
     this.imports = new War3MapImp();
     this.readonly = !!readonly;

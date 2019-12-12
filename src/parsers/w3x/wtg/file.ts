@@ -8,19 +8,13 @@ import TriggerData from './triggerdata';
  * war3map.wtg - the trigger file.
  */
 export default class War3MapWtg {
-  version: number;
-  categories: TriggerCategory[];
-  u1: number;
-  variables: Variable[];
-  triggers: Trigger[];
+  version: number = 0;
+  categories: TriggerCategory[] = [];
+  u1: number = 0;
+  variables: Variable[] = [];
+  triggers: Trigger[] = [];
 
   constructor(buffer?: ArrayBuffer, triggerData?: TriggerData) {
-    this.version = 0;
-    this.categories = [];
-    this.u1 = 0;
-    this.variables = [];
-    this.triggers = [];
-
     if (buffer && triggerData) {
       this.load(buffer, triggerData);
     }

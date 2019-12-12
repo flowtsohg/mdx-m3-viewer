@@ -6,14 +6,11 @@ import GenericObject from './genericobject';
  * An event object.
  */
 export default class EventObject extends GenericObject {
-  globalSequenceId: number;
-  tracks: Uint32Array;
+  globalSequenceId: number = -1;
+  tracks: Uint32Array = new Uint32Array(0);
 
   constructor() {
     super(0x400);
-
-    this.globalSequenceId = -1;
-    this.tracks = new Uint32Array(0);
   }
 
   readMdx(stream: BinaryStream) {

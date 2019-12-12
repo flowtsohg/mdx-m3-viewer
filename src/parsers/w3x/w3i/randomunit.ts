@@ -4,13 +4,8 @@ import BinaryStream from '../../../common/binarystream';
  * A random unit.
  */
 export default class RandomUnit {
-  chance: number;
-  ids: string[];
-
-  constructor() {
-    this.chance = 0;
-    this.ids = [];
-  }
+  chance: number = 0;
+  ids: string[] = [];
 
   load(stream: BinaryStream, positions: number) {
     this.chance = stream.readInt32();

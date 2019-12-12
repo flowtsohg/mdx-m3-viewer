@@ -7,11 +7,7 @@ import animationMap from './animationmap';
  * The parent class for all objects that have animated data in them.
  */
 export default class AnimatedObject {
-  animations: Animation[];
-
-  constructor() {
-    this.animations = [];
-  }
+  animations: Animation[] = [];
 
   readAnimations(stream: BinaryStream, size: number) {
     let end = stream.index + size;

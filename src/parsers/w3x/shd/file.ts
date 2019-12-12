@@ -2,11 +2,9 @@
  * war3map.shd - the shadow file.
  */
 export default class War3MapShd {
-  shadows: Uint8Array;
+  shadows: Uint8Array = new Uint8Array(0);
 
   constructor(buffer?: ArrayBuffer, width?: number, height?: number) {
-    this.shadows = new Uint8Array(0);
-
     if (buffer && width && height) {
       this.load(buffer, width, height);
     }

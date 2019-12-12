@@ -5,15 +5,11 @@ import Unit from './unit';
  * war3mapUnits.doo - the units and items file.
  */
 export default class War3MapUnitsDoo {
-  version: number;
-  unknown: number;
-  units: Unit[];
+  version: number = 8;
+  unknown: number = 11;
+  units: Unit[] = [];
 
   constructor(buffer?: ArrayBuffer) {
-    this.version = 8;
-    this.unknown = 11;
-    this.units = [];
-
     if (buffer) {
       this.load(buffer);
     }

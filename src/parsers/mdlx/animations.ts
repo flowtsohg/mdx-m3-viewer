@@ -5,23 +5,13 @@ import TokenStream from './tokenstream';
  * An animation.
  */
 export abstract class Animation {
-  name: string;
-  interpolationType: number;
-  globalSequenceId: number;
-  frames: number[];
-  values: (Uint32Array | Float32Array)[];
-  inTans: (Uint32Array | Float32Array)[];
-  outTans: (Uint32Array | Float32Array)[];
-
-  constructor() {
-    this.name = '';
-    this.interpolationType = 0;
-    this.globalSequenceId = -1;
-    this.frames = [];
-    this.values = [];
-    this.inTans = [];
-    this.outTans = [];
-  }
+  name: string = '';
+  interpolationType: number = 0;
+  globalSequenceId: number = -1;
+  frames: number[] = [];
+  values: (Uint32Array | Float32Array)[] = [];
+  inTans: (Uint32Array | Float32Array)[] = [];
+  outTans: (Uint32Array | Float32Array)[] = [];
 
   abstract readMdxValue(stream: BinaryStream): Uint32Array | Float32Array;
   abstract readMdlValue(stream: TokenStream): Uint32Array | Float32Array;

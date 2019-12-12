@@ -4,33 +4,18 @@ import BinaryStream from '../../../common/binarystream';
  * A tile corner.
  */
 export default class Corner {
-  groundHeight: number;
-  waterHeight: number;
-  mapEdge: number;
-  ramp: number;
-  blight: number;
-  water: number;
-  boundary: number;
-  groundTexture: number;
-  cliffVariation: number;
-  groundVariation: number;
-  cliffTexture: number;
-  layerHeight: number;
-
-  constructor() {
-    this.groundHeight = 0;
-    this.waterHeight = 0;
-    this.mapEdge = 0;
-    this.ramp = 0;
-    this.blight = 0;
-    this.water = 0;
-    this.boundary = 0;
-    this.groundTexture = 0;
-    this.cliffVariation = 0;
-    this.groundVariation = 0;
-    this.cliffTexture = 0;
-    this.layerHeight = 0;
-  }
+  groundHeight: number = 0;
+  waterHeight: number = 0;
+  mapEdge: number = 0;
+  ramp: number = 0;
+  blight: number = 0;
+  water: number = 0;
+  boundary: number = 0;
+  groundTexture: number = 0;
+  cliffVariation: number = 0;
+  groundVariation: number = 0;
+  cliffTexture: number = 0;
+  layerHeight: number = 0;
 
   load(stream: BinaryStream) {
     this.groundHeight = (stream.readInt16() - 8192) / 512;

@@ -4,25 +4,14 @@ import BinaryStream from '../../../common/binarystream';
  * A player.
  */
 export default class Player {
-  id: number;
-  type: number;
-  race: number;
-  isFixedStartPosition: number;
-  name: string;
-  startLocation: Float32Array;
-  allyLowPriorities: number;
-  allyHighPriorities: number;
-
-  constructor() {
-    this.id = 0;
-    this.type = 0;
-    this.race = 0;
-    this.isFixedStartPosition = 0;
-    this.name = '';
-    this.startLocation = new Float32Array(2);
-    this.allyLowPriorities = 0;
-    this.allyHighPriorities = 0;
-  }
+  id: number = 0;
+  type: number = 0;
+  race: number = 0;
+  isFixedStartPosition: number = 0;
+  name: string = '';
+  startLocation: Float32Array = new Float32Array(2);
+  allyLowPriorities: number = 0;
+  allyHighPriorities: number = 0;
 
   load(stream: BinaryStream) {
     this.id = stream.readInt32();

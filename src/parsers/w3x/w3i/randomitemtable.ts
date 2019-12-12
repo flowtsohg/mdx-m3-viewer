@@ -5,15 +5,9 @@ import RandomItemSet from './randomitemset';
  * A random item table.
  */
 export default class RandomItemTable {
-  id: number;
-  name: string;
-  sets: RandomItemSet[];
-
-  constructor() {
-    this.id = 0;
-    this.name = '';
-    this.sets = [];
-  }
+  id: number = 0;
+  name: string = '';
+  sets: RandomItemSet[] = [];
 
   load(stream: BinaryStream) {
     this.id = stream.readInt32();

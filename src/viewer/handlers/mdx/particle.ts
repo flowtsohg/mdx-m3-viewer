@@ -27,7 +27,7 @@ export default class Particle extends EmittedObject {
 
     let emitterObject = <ParticleEmitterObject>emitter.emitterObject;
 
-    this.internalInstance = emitterObject.internalModel.addInstance();
+    this.internalInstance = <MdxComplexInstance>emitterObject.internalModel.addInstance();
     this.velocity = vec3.create();
     this.gravity = 0;
   }

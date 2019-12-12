@@ -5,13 +5,10 @@ import Sound from './sound';
  * war3map.w3s - the sound file.
  */
 export default class War3MapW3s {
-  version: number;
-  sounds: Sound[];
+  version: number = 0;
+  sounds: Sound[] = [];
 
   constructor(buffer?: ArrayBuffer) {
-    this.version = 0;
-    this.sounds = [];
-
     if (buffer) {
       this.load(buffer);
     }

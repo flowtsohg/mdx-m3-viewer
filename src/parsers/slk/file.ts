@@ -2,11 +2,9 @@
  * A SLK table file.
  */
 export default class SlkFile {
-  rows: (string | number | boolean)[][]
+  rows: (string | number | boolean)[][] = [];
 
   constructor(buffer?: string) {
-    this.rows = [];
-
     if (buffer) {
       this.load(buffer);
     }

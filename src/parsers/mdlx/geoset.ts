@@ -6,31 +6,31 @@ import Extent from './extent';
  * A geoset.
  */
 export default class Geoset {
-  vertices: Float32Array;
-  normals: Float32Array;
-  faceTypeGroups: Uint32Array;
-  faceGroups: Uint32Array;
-  faces: Uint16Array;
-  vertexGroups: Uint8Array;
-  matrixGroups: Uint32Array;
-  matrixIndices: Uint32Array;
-  materialId: number;
-  selectionGroup: number;
-  selectionFlags: number;
+  vertices: Float32Array = new Float32Array(0);
+  normals: Float32Array = new Float32Array(0);
+  faceTypeGroups: Uint32Array = new Uint32Array(0);
+  faceGroups: Uint32Array = new Uint32Array(0);
+  faces: Uint16Array = new Uint16Array(0);
+  vertexGroups: Uint8Array = new Uint8Array(0);
+  matrixGroups: Uint32Array = new Uint32Array(0);
+  matrixIndices: Uint32Array = new Uint32Array(0);
+  materialId: number = 0;
+  selectionGroup: number = 0;
+  selectionFlags: number = 0;
   /** 
    * @since 900
    */
-  lod: number;
+  lod: number = 0;
   /** 
    * @since 900
    */
-  lodName: string;
-  extent: Extent;
-  sequenceExtents: Extent[];
+  lodName: string = '';
+  extent: Extent = new Extent();
+  sequenceExtents: Extent[] = [];
   /** 
    * @since 900
    */
-  tangents: Float32Array;
+  tangents: Float32Array = new Float32Array(0);
   /**
    * An array of bone indices and weights.
    * Every 8 consecutive elements describe the following:
@@ -41,29 +41,8 @@ export default class Geoset {
    *
    * @since 900
    */
-  skin: Uint8Array;
-  uvSets: Float32Array[];
-
-  constructor() {
-    this.vertices = new Float32Array(0);
-    this.normals = new Float32Array(0);
-    this.faceTypeGroups = new Uint32Array(0);
-    this.faceGroups = new Uint32Array(0);
-    this.faces = new Uint16Array(0);
-    this.vertexGroups = new Uint8Array(0);
-    this.matrixGroups = new Uint32Array(0);
-    this.matrixIndices = new Uint32Array(0);
-    this.materialId = 0;
-    this.selectionGroup = 0;
-    this.selectionFlags = 0;
-    this.lod = 0;
-    this.lodName = '';
-    this.extent = new Extent();
-    this.sequenceExtents = [];
-    this.tangents = new Float32Array(0);
-    this.skin = new Uint8Array(0);
-    this.uvSets = [];
-  }
+  skin: Uint8Array = new Uint8Array(0);
+  uvSets: Float32Array[] = [];
 
   readMdx(stream: BinaryStream, version: number) {
     stream.readUint32(); // Don't care about the size.

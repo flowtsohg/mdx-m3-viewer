@@ -6,51 +6,29 @@ import MapOrder from './maporder';
  * war3campaign.w3f - the campaign information file.
  */
 export default class War3CampaignW3f {
-  version: number;
-  campaignVersion: number;
-  editorVersion: number;
-  name: string;
-  difficulty: string;
-  author: string;
-  description: string;
-  mode: number;
-  backgroundScreen: number;
-  backgroundScreenPath: string;
-  minimapImagePath: string;
-  ambientSound: number;
-  ambientSoundPath: string;
-  terrainFog: number;
-  fogStartZ: number;
-  fogEndZ: number;
-  fogDensity: number;
-  fogColor: Uint8Array;
-  userInterface: number;
-  mapTitles: MapTitle[];
-  mapOrders: MapOrder[];
+  version: number = 0;
+  campaignVersion: number = 0;
+  editorVersion: number = 0;
+  name: string = '';
+  difficulty: string = '';
+  author: string = '';
+  description: string = '';
+  mode: number = -1; // 0: fixed difficulty, only w3m maps, 1: variable difficulty, only w3m maps, 1: fixed..., contains w3x maps, 2: variable..., contains w3xm maps.
+  backgroundScreen: number = -1; // -1 = none or custom path
+  backgroundScreenPath: string = '';
+  minimapImagePath: string = '';
+  ambientSound: number = 0; // -1 = imported, 0 = none, >0 = preset index
+  ambientSoundPath: string = '';
+  terrainFog: number = 0; // 0 = not used, >0 = index of terrain fog style
+  fogStartZ: number = 0;
+  fogEndZ: number = 0;
+  fogDensity: number = 0;
+  fogColor: Uint8Array = new Uint8Array(4);
+  userInterface: number = -1; // 0 = human
+  mapTitles: MapTitle[] = [];
+  mapOrders: MapOrder[] = [];
 
   constructor(buffer?: ArrayBuffer) {
-    this.version = 0;
-    this.campaignVersion = 0;
-    this.editorVersion = 0;
-    this.name = '';
-    this.difficulty = '';
-    this.author = '';
-    this.description = '';
-    this.mode = -1; // 0: fixed difficulty, only w3m maps, 1: variable difficulty, only w3m maps, 1: fixed..., contains w3x maps, 2: variable..., contains w3xm maps.
-    this.backgroundScreen = -1; // -1 = none or custom path
-    this.backgroundScreenPath = '';
-    this.minimapImagePath = '';
-    this.ambientSound = 0; // -1 = imported, 0 = none, >0 = preset index
-    this.ambientSoundPath = '';
-    this.terrainFog = 0; // 0 = not used, >0 = index of terrain fog style
-    this.fogStartZ = 0;
-    this.fogEndZ = 0;
-    this.fogDensity = 0;
-    this.fogColor = new Uint8Array(4);
-    this.userInterface = -1; // 0 = human
-    this.mapTitles = [];
-    this.mapOrders = [];
-
     if (buffer) {
       this.load(buffer);
     }

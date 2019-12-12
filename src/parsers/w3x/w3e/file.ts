@@ -5,25 +5,16 @@ import Corner from './corner';
  * war3map.w3e - the environment file.
  */
 export default class War3MapW3e {
-  version: number;
-  tileset: string;
-  haveCustomTileset: number;
-  groundTilesets: string[];
-  cliffTilesets: string[];
-  mapSize: Int32Array;
-  centerOffset: Float32Array;
-  corners: Corner[][];
+  version: number = 0;
+  tileset: string = 'A';
+  haveCustomTileset: number = 0;
+  groundTilesets: string[] = [];
+  cliffTilesets: string[] = [];
+  mapSize: Int32Array = new Int32Array(2);
+  centerOffset: Float32Array = new Float32Array(2);
+  corners: Corner[][] = [];
 
   constructor(buffer?: ArrayBuffer) {
-    this.version = 0;
-    this.tileset = 'A';
-    this.haveCustomTileset = 0;
-    this.groundTilesets = [];
-    this.cliffTilesets = [];
-    this.mapSize = new Int32Array(2);
-    this.centerOffset = new Float32Array(2);
-    this.corners = [];
-
     if (buffer) {
       this.load(buffer);
     }

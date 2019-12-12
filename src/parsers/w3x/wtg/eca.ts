@@ -6,21 +6,12 @@ import TriggerData from './triggerdata';
  * An Event/Condition/Action.
  */
 export default class ECA {
-  type: number;
-  group: number;
-  name: string;
-  isEnabled: number;
-  parameters: Parameter[];
-  ecas: ECA[];
-
-  constructor() {
-    this.type = -1;
-    this.group = -1;
-    this.name = '';
-    this.isEnabled = 0;
-    this.parameters = [];
-    this.ecas = [];
-  }
+  type: number = -1;
+  group: number = -1;
+  name: string = '';
+  isEnabled: number = 0;
+  parameters: Parameter[] = [];
+  ecas: ECA[] = [];
 
   load(stream: BinaryStream, version: number, isChildECA: boolean, triggerData: TriggerData) {
     this.type = stream.readInt32();

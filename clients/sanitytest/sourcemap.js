@@ -56,9 +56,9 @@ function handleSourceMapNode(stream, node) {
 
 function handleSourceMap(src) {
     let stream = new LogStream(document.createElement('div'));
-    let nodes = ModelViewer.utils.mdlSourceMap(src);
+    let rootNode = ModelViewer.utils.mdlSourceMap(src);
 
-    for (let node of nodes) {
+    for (let node of rootNode.children) {
         handleSourceMapNode(stream, node);
     }
 

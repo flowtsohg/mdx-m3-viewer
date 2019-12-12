@@ -6,16 +6,12 @@ import GenericObject from './genericobject';
  * A collision shape.
  */
 export default class CollisionShape extends GenericObject {
-  type: number;
-  vertices: Float32Array[];
-  boundsRadius: number;
+  type: number = -1;
+  vertices: Float32Array[] = [new Float32Array(3), new Float32Array(3)]
+  boundsRadius: number = 0;
 
   constructor() {
     super(0x2000);
-
-    this.type = -1;
-    this.vertices = [new Float32Array(3), new Float32Array(3)];
-    this.boundsRadius = 0;
   }
 
   readMdx(stream: BinaryStream) {

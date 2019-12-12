@@ -44,7 +44,7 @@ export default function sanityTest(texture: BlpImage) {
   }
 
   if (content === 0) {
-    const jpgHeader = texture.jpgHeader;
+    const jpgHeader = <Uint8Array>texture.jpgHeader;
 
     if (jpgHeader.length > 624) {
       messages.push(`Expected the JPG header to be at most 624 bytes, but got ${jpgHeader.length}`);

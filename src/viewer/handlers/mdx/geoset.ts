@@ -1,8 +1,8 @@
 import { vec3 } from 'gl-matrix';
 import ShaderProgram from '../../gl/program';
 import MdxModel from './model';
-import MdxComplexInstance from './complexinstance';
 import GeosetAnimation from './geosetanimation';
+import MdxComplexInstance from './complexinstance';
 
 /**
  * A geoset.

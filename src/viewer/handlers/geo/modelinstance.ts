@@ -1,19 +1,15 @@
-import ModelInstance from '../../modelinstance';
+import Scene from '../../scene';
+import TextureMapper from '../../texturemapper';
+import BatchedInstance from '../../batchedinstance';
 import GeometryModel from './model';
+import GeoRenderBatch from './renderbatch';
 
 /**
  * A GEO model instance.
  */
-export default class GeometryModelInstance extends ModelInstance {
-  faceColor: Uint8Array;
-  edgeColor: Uint8Array;
-
-  constructor(model: GeometryModel) {
-    super(model);
-
-    this.faceColor = new Uint8Array(3);
-    this.edgeColor = new Uint8Array(3);
-  }
+export default class GeometryModelInstance extends BatchedInstance {
+  faceColor: Uint8Array = new Uint8Array(3);
+  edgeColor: Uint8Array = new Uint8Array(3);
 
   load() {
     let model = <GeometryModel>this.model;
@@ -35,7 +31,7 @@ export default class GeometryModelInstance extends ModelInstance {
     return this;
   }
 
-  isBatched() {
-    return true;
+  getBatch(textureMapper: TextureMapper) {
+    return new GeoRenderBatch(<Scene>this.scene, this.model, textureMapper);
   }
 }

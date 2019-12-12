@@ -1,6 +1,6 @@
-import DdsTexture from './texture';
+import Texture from './texture';
 
 export default {
   extensions: [['.dds', 'arrayBuffer']],
-  Constructor: DdsTexture,
+  resource: Texture,
 };

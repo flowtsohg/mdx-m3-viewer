@@ -4,13 +4,8 @@ import BinaryStream from '../../../common/binarystream';
  * An import.
  */
 export default class Import {
-  isCustom: number;
-  path: string;
-
-  constructor() {
-    this.isCustom = 0;
-    this.path = '';
-  }
+  isCustom: number = 0;
+  path: string = '';
 
   load(stream: BinaryStream) {
     this.isCustom = stream.readUint8();
