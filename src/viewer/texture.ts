@@ -1,23 +1,20 @@
-import Resource from './resource';
+import HandlerResource from './handlerresource';
 
 /**
  * A texture.
  */
-export default abstract class Texture extends Resource {
-  webglResource: WebGLTexture | null;
-  width: number;
-  height: number;
+export default abstract class Texture extends HandlerResource {
+  webglResource: WebGLTexture | null = null;
+  width: number = 0;
+  height: number = 0;
   wrapS: number;
   wrapT: number;
 
-  constructor(resourceData: ResourceData) {
+  constructor(resourceData: HandlerResourceData) {
     super(resourceData);
 
-    const gl = this.viewer.gl;
+    const gl = resourceData.viewer.gl;
 
-    this.webglResource = null;
-    this.width = 0;
-    this.height = 0;
     this.wrapS = gl.CLAMP_TO_EDGE;
     this.wrapT = gl.CLAMP_TO_EDGE;
   }

@@ -15,7 +15,7 @@ export default class Camera {
   cinematicName: string = '';
 
   load(stream: BinaryStream) {
-    this.targetLocation = stream.readFloat32Array(3);
+    stream.readFloat32Array(this.targetLocation);
     this.rotation = stream.readFloat32(); // in degrees
     this.angleOfAttack = stream.readFloat32(); // in degrees
     this.distance = stream.readFloat32();

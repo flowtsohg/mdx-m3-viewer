@@ -87,7 +87,7 @@ export default class ParticleEmitter extends GenericObject {
           } else if (token === 'InitVelocity') {
             this.readAnimation(stream, 'KPES');
           } else if (token === 'Path') {
-            this.path = stream.read();
+            this.path = stream.readSafe();
           }
         }
       } else {

@@ -1,5 +1,4 @@
-import { vec3, quat } from 'gl-matrix';
-import { VEC3_UNIT_Z } from '../../../common/gl-matrix-addon';
+import { vec3 } from 'gl-matrix';
 import unique from '../../../common/arrayunique';
 import urlWithParams from '../../../common/urlwithparams';
 import MappedData from '../../../utils/mappeddata';
@@ -22,59 +21,70 @@ import TerrainModel from './terrainmodel';
 import randomStandSequence from './standsequence';
 import Unit from './unit';
 import Doodad from './doodad';
+import GenericResource from '../../genericresource';
+import MdxComplexInstance from '../mdx/complexinstance';
+import MdxSimpleInstance from '../mdx/simpleinstance';
 
 const normalHeap1 = vec3.create();
 const normalHeap2 = vec3.create();
 
 export default class War3MapViewer extends ModelViewer {
   wc3PathSolver: PathSolver;
-  solverParams: { tileset?: string, reforged?: boolean, hd?: boolean };
+  solverParams: { tileset?: string, reforged?: boolean, hd?: boolean } = {};
   groundShader: ShaderProgram | null;
   waterShader: ShaderProgram | null;
   cliffShader: ShaderProgram | null;
   scene: Scene;
   camera: Camera;
-  waterIndex: number;
-  waterIncreasePerFrame: number;
-  waterHeightOffset: number;
-  waterTextures: Texture[];
-  maxDeepColor: Float32Array;
-  minDeepColor: Float32Array;
-  maxShallowColor: Float32Array;
-  minShallowColor: Float32Array;
-  anyReady: boolean;
-  terrainCliffsAndWaterLoaded: boolean;
-  terrainData: MappedData;
-  cliffTypesData: MappedData;
-  waterData: MappedData;
-  terrainReady: boolean;
-  cliffsReady: boolean;
-  doodadsAndDestructiblesLoaded: boolean;
-  doodadsData: MappedData;
-  doodadMetaData: MappedData;
-  destructableMetaData: MappedData;
-  doodads: Doodad[];
-  terrainDoodads: any[];
-  doodadsReady: boolean;
-  unitsAndItemsLoaded: boolean;
-  unitsData: MappedData;
-  unitMetaData: MappedData;
-  units: Unit[];
-  unitsReady: boolean;
-  terrainRenderData: { columns: any; rows: any; centerOffset: any; vertexBuffer: any; faceBuffer: any; heightMap: any; instanceBuffer: any; instanceCount: any; textureBuffer: any; variationBuffer: any; };
-  tilesetTextures: Texture[];
-  cliffTextures: Texture[];
+  waterIndex: number = 0;
+  waterIncreasePerFrame: number = 0;
+  waterHeightOffset: number = 0;
+  waterTextures: Texture[] = [];
+  maxDeepColor: Float32Array = new Float32Array(4);
+  minDeepColor: Float32Array = new Float32Array(4);
+  maxShallowColor: Float32Array = new Float32Array(4);
+  minShallowColor: Float32Array = new Float32Array(4);
+  anyReady: boolean = false;
+  terrainCliffsAndWaterLoaded: boolean = false;
+  terrainData: MappedData = new MappedData();
+  cliffTypesData: MappedData = new MappedData();
+  waterData: MappedData = new MappedData();
+  terrainReady: boolean = false;
+  cliffsReady: boolean = false;
+  doodadsAndDestructiblesLoaded: boolean = false;
+  doodadsData: MappedData = new MappedData();
+  doodadMetaData: MappedData = new MappedData();
+  destructableMetaData: MappedData = new MappedData();
+  doodads: Doodad[] = [];
+  terrainDoodads: any[] = [];
+  doodadsReady: boolean = false;
+  unitsAndItemsLoaded: boolean = false;
+  unitsData: MappedData = new MappedData();
+  unitMetaData: MappedData = new MappedData();
+  units: Unit[] = [];
+  unitsReady: boolean = false;
+  tilesetTextures: Texture[] = [];
+  cliffTextures: Texture[] = [];
   cliffModels: TerrainModel[] = [];
-  mapMpq: War3Map;
-  mapPathSolver: PathSolver;
-  corners: Corner[][];
-  centerOffset: Float32Array;
-  mapSize: Int32Array;
-  tilesets: any[];
-  blightTextureIndex: number;
-  cliffTilesets: any[];
-  columns: number;
-  rows: number;
+  mapMpq: War3Map | null = null;
+  mapPathSolver: PathSolver | null = null;
+  corners: Corner[][] = [];
+  centerOffset: Float32Array | null = null;
+  mapSize: Int32Array | null = null;
+  tilesets: any[] = [];
+  blightTextureIndex: number = -1;
+  cliffTilesets: any[] = [];
+  columns: number = 0;
+  rows: number = 0;
+  vertexBuffer: WebGLBuffer | null = null;
+  faceBuffer: WebGLBuffer | null = null;
+  instanceBuffer: WebGLBuffer | null = null;
+  textureBuffer: WebGLBuffer | null = null;
+  variationBuffer: WebGLBuffer | null = null;
+  waterBuffer: WebGLBuffer | null = null;
+  heightMap: WebGLTexture | null = null;
+  waterHeightMap: WebGLTexture | null = null;
+  cliffHeightMap: WebGLTexture | null = null;
 
   constructor(canvas: HTMLCanvasElement, wc3PathSolver: PathSolver) {
     super(canvas);
@@ -85,8 +95,6 @@ export default class War3MapViewer extends ModelViewer {
 
     this.wc3PathSolver = wc3PathSolver;
 
-    this.solverParams = {};
-
     this.groundShader = this.webgl.createShaderProgram(sources.vsGround, sources.fsGround);
     this.waterShader = this.webgl.createShaderProgram(sources.vsWater, sources.fsWater);
     this.cliffShader = this.webgl.createShaderProgram(sources.vsCliffs, sources.fsCliffs);
@@ -94,298 +102,53 @@ export default class War3MapViewer extends ModelViewer {
     this.scene = this.addScene();
     this.camera = this.scene.camera;
 
-    this.waterIndex = 0;
-    this.waterIncreasePerFrame = 0;
-    this.waterHeightOffset = 0;
-    this.waterTextures = [];
-    this.maxDeepColor = null;
-    this.minDeepColor = null;
-    this.maxShallowColor = null;
-    this.minShallowColor = null;
+    let terrain = this.loadGeneric('TerrainArt\\Terrain.slk', 'text');
+    let cliffTypes = this.loadGeneric('TerrainArt\\CliffTypes.slk', 'text');
+    let water = this.loadGeneric('TerrainArt\\Water.slk', 'text');
 
-    this.anyReady = false;
+    this.whenLoaded([terrain, cliffTypes, water], () => {
+      this.terrainCliffsAndWaterLoaded = true;
+      this.terrainData.load(terrain.data);
+      this.cliffTypesData.load(cliffTypes.data);
+      this.waterData.load(water.data);
+      this.emit('terrainloaded');
+    })
 
-    this.terrainCliffsAndWaterLoaded = false;
-    this.terrainData = new MappedData();
-    this.cliffTypesData = new MappedData();
-    this.waterData = new MappedData();
-    this.terrainReady = false;
-    this.cliffsReady = false;
+    let doodads = this.loadGeneric('Doodads\\Doodads.slk', 'text');
+    let doodadMetaData = this.loadGeneric('Doodads\\DoodadMetaData.slk', 'text');
+    let destructableData = this.loadGeneric('Units\\DestructableData.slk', 'text');
+    let destructableMetaData = this.loadGeneric('Units\\DestructableMetaData.slk', 'text');
 
-    let terrainFiles = ['TerrainArt\\Terrain.slk', 'TerrainArt\\CliffTypes.slk', 'TerrainArt\\Water.slk'];
+    this.whenLoaded([doodads, doodadMetaData, destructableData, destructableMetaData], () => {
+      this.doodadsAndDestructiblesLoaded = true;
+      this.doodadsData.load(doodads.data);
+      this.doodadMetaData.load(doodadMetaData.data);
+      this.doodadsData.load(destructableData.data);
+      this.destructableMetaData.load(destructableMetaData.data);
+      this.emit('doodadsloaded');
+    });
 
-    this.whenLoaded(terrainFiles.map((path) => this.loadGeneric(urlWithParams(wc3PathSolver(path)[0], this.solverParams), 'text')))
-      .then(([terrain, cliffTypes, water]) => {
-        this.terrainCliffsAndWaterLoaded = true;
-        this.terrainData.load(terrain.data);
-        this.cliffTypesData.load(cliffTypes.data);
-        this.waterData.load(water.data);
-        this.emit('terrainloaded');
-      });
+    let unitData = this.loadGeneric('Units\\UnitData.slk', 'text');
+    let unitUi = this.loadGeneric('Units\\unitUI.slk', 'text');
+    let itemData = this.loadGeneric('Units\\ItemData.slk', 'text');
+    let unitMetaData = this.loadGeneric('Units\\UnitMetaData.slk', 'text');
 
-    this.doodadsAndDestructiblesLoaded = false;
-    this.doodadsData = new MappedData();
-    this.doodadMetaData = new MappedData();
-    this.destructableMetaData = new MappedData();
-    this.doodads = [];
-    this.terrainDoodads = [];
-    this.doodadsReady = false;
-
-    let doodadFiles = ['Doodads\\Doodads.slk', 'Doodads\\DoodadMetaData.slk', 'Units\\DestructableData.slk', 'Units\\DestructableMetaData.slk'];
-
-    this.whenLoaded(doodadFiles.map((path) => this.loadGeneric(urlWithParams(wc3PathSolver(path)[0], this.solverParams), 'text')))
-      .then(([doodads, doodadMetaData, destructableData, destructableMetaData]) => {
-        this.doodadsAndDestructiblesLoaded = true;
-        this.doodadsData.load(doodads.data);
-        this.doodadMetaData.load(doodadMetaData.data);
-        this.doodadsData.load(destructableData.data);
-        this.destructableMetaData.load(destructableMetaData.data);
-        this.emit('doodadsloaded');
-      });
-
-    this.unitsAndItemsLoaded = false;
-    this.unitsData = new MappedData();
-    this.unitMetaData = new MappedData();
-    this.units = [];
-    this.unitsReady = false;
-
-    let unitFiles = ['Units\\UnitData.slk', 'Units\\unitUI.slk', 'Units\\ItemData.slk', 'Units\\UnitMetaData.slk'];
-
-    this.whenLoaded(unitFiles.map((path) => this.loadGeneric(urlWithParams(wc3PathSolver(path)[0], this.solverParams), 'text')))
-      .then(([unitData, unitUi, itemData, unitMetaData]) => {
-        this.unitsAndItemsLoaded = true;
-        this.unitsData.load(unitData.data);
-        this.unitsData.load(unitUi.data);
-        this.unitsData.load(itemData.data);
-        this.unitMetaData.load(unitMetaData.data);
-        this.emit('unitsloaded');
-      });
+    this.whenLoaded([unitData, unitUi, itemData, unitMetaData], () => {
+      this.unitsAndItemsLoaded = true;
+      this.unitsData.load(unitData.data);
+      this.unitsData.load(unitUi.data);
+      this.unitsData.load(itemData.data);
+      this.unitMetaData.load(unitMetaData.data);
+      this.emit('unitsloaded');
+    });
   }
 
-  renderGround() {
-    if (this.terrainReady) {
-      let gl = this.gl;
-      let webgl = this.webgl;
-      let instancedArrays = webgl.extensions.instancedArrays;
-      let shader = <ShaderProgram>this.groundShader;
-      let uniforms = shader.uniforms;
-      let attribs = shader.attribs;
-      let { columns, rows, centerOffset, vertexBuffer, faceBuffer, heightMap, instanceBuffer, instanceCount, textureBuffer, variationBuffer } = this.terrainRenderData;
-      let tilesetTextures = this.tilesetTextures;
-      let instanceAttrib = attribs.a_InstanceID;
-      let positionAttrib = attribs.a_position;
-      let texturesAttrib = attribs.a_textures;
-      let variationsAttrib = attribs.a_variations;
-      let tilesetCount = tilesetTextures.length; // This includes the blight texture.
-
-      gl.enable(gl.BLEND);
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
-      webgl.useShaderProgram(shader);
-
-      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
-      gl.uniform2fv(uniforms.u_offset, centerOffset);
-      gl.uniform2f(uniforms.u_size, columns - 1, rows - 1);
-      gl.uniform1i(uniforms.u_heightMap, 15);
-
-      gl.activeTexture(gl.TEXTURE15);
-      gl.bindTexture(gl.TEXTURE_2D, heightMap);
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-      gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, 8, 0);
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, instanceBuffer);
-      gl.vertexAttribPointer(instanceAttrib, 1, gl.FLOAT, false, 4, 0);
-      instancedArrays.vertexAttribDivisorANGLE(instanceAttrib, 1);
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
-      gl.vertexAttribPointer(texturesAttrib, 4, gl.UNSIGNED_BYTE, false, 4, 0);
-      instancedArrays.vertexAttribDivisorANGLE(texturesAttrib, 1);
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, variationBuffer);
-      gl.vertexAttribPointer(variationsAttrib, 4, gl.UNSIGNED_BYTE, false, 4, 0);
-      instancedArrays.vertexAttribDivisorANGLE(variationsAttrib, 1);
-
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
-
-      gl.uniform1f(uniforms.u_baseTileset, 0);
-
-      for (let i = 0, l = Math.min(tilesetCount, 15); i < l; i++) {
-        let isExtended = tilesetTextures[i].width > tilesetTextures[i].height ? 1 : 0;
-
-        gl.uniform1f(uniforms[`u_extended[${i}]`], isExtended);
-        gl.uniform1i(uniforms[`u_tilesets[${i}]`], i);
-
-        tilesetTextures[i].bind(i);
-      }
-
-      instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0, instanceCount);
-
-      if (tilesetCount > 15) {
-        gl.uniform1f(uniforms.u_baseTileset, 15);
-
-        for (let i = 0, l = tilesetCount - 15; i < l; i++) {
-          let isExtended = tilesetTextures[i + 15].width > tilesetTextures[i + 15].height ? 1 : 0;
-
-          gl.uniform1f(uniforms[`u_extended[${i}]`], isExtended);
-
-          tilesetTextures[i + 15].bind(i);
-        }
-
-        instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0, instanceCount);
-      }
-
-      instancedArrays.vertexAttribDivisorANGLE(texturesAttrib, 0);
-      instancedArrays.vertexAttribDivisorANGLE(variationsAttrib, 0);
-      instancedArrays.vertexAttribDivisorANGLE(instanceAttrib, 0);
-    }
+  load(src: any) {
+    return super.load(src, <PathSolver>this.mapPathSolver, this.solverParams);
   }
 
-  renderWater() {
-    if (this.terrainReady) {
-      let gl = this.gl;
-      let webgl = this.webgl;
-      let instancedArrays = webgl.extensions.instancedArrays;
-      let shader = <ShaderProgram>this.waterShader;
-      let uniforms = shader.uniforms;
-      let attribs = shader.attribs;
-      let { columns, rows, centerOffset, vertexBuffer, faceBuffer, heightMap, instanceBuffer, instanceCount, waterHeightMap, waterBuffer } = this.terrainRenderData;
-      let instanceAttrib = attribs.a_InstanceID;
-      let positionAttrib = attribs.a_position;
-      let isWaterAttrib = attribs.a_isWater;
-
-      gl.depthMask(false);
-
-      gl.enable(gl.BLEND);
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
-      webgl.useShaderProgram(shader);
-
-      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
-      gl.uniform2fv(uniforms.u_offset, centerOffset);
-      gl.uniform2f(uniforms.u_size, columns - 1, rows - 1);
-      gl.uniform1i(uniforms.u_heightMap, 0);
-      gl.uniform1i(uniforms.u_waterHeightMap, 1);
-      gl.uniform1i(uniforms.u_waterTexture, 2);
-      gl.uniform1f(uniforms.u_offsetHeight, this.waterHeightOffset);
-      gl.uniform4fv(uniforms.u_maxDeepColor, this.maxDeepColor);
-      gl.uniform4fv(uniforms.u_minDeepColor, this.minDeepColor);
-      gl.uniform4fv(uniforms.u_maxShallowColor, this.maxShallowColor);
-      gl.uniform4fv(uniforms.u_minShallowColor, this.minShallowColor);
-
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, heightMap);
-
-      gl.activeTexture(gl.TEXTURE1);
-      gl.bindTexture(gl.TEXTURE_2D, waterHeightMap);
-
-      this.waterTextures[this.waterIndex | 0].bind(2);
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-      gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, 8, 0);
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, instanceBuffer);
-      gl.vertexAttribPointer(instanceAttrib, 1, gl.FLOAT, false, 4, 0);
-      instancedArrays.vertexAttribDivisorANGLE(instanceAttrib, 1);
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, waterBuffer);
-      gl.vertexAttribPointer(isWaterAttrib, 1, gl.UNSIGNED_BYTE, false, 1, 0);
-      instancedArrays.vertexAttribDivisorANGLE(isWaterAttrib, 1);
-
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
-      instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0, instanceCount);
-
-      instancedArrays.vertexAttribDivisorANGLE(isWaterAttrib, 0);
-      instancedArrays.vertexAttribDivisorANGLE(instanceAttrib, 0);
-    }
-  }
-
-  renderCliffs() {
-    if (this.cliffsReady) {
-      let gl = this.gl;
-      let webgl = this.webgl;
-      let instancedArrays = webgl.extensions.instancedArrays;
-      let vertexArrayObject = webgl.extensions.vertexArrayObject;
-      let shader = <ShaderProgram>this.cliffShader;
-      let attribs = shader.attribs;
-      let uniforms = shader.uniforms;
-      let { centerOffset, cliffHeightMap, heightMapSize } = this.terrainRenderData;
-
-      gl.disable(gl.BLEND);
-
-      shader.use();
-
-      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
-      gl.uniform1i(uniforms.u_heightMap, 0);
-      gl.uniform2fv(uniforms.u_pixel, heightMapSize);
-      gl.uniform2fv(uniforms.u_centerOffset, centerOffset);
-      gl.uniform1i(uniforms.u_texture1, 1);
-      gl.uniform1i(uniforms.u_texture2, 2);
-
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, cliffHeightMap);
-
-      gl.activeTexture(gl.TEXTURE1);
-      gl.bindTexture(gl.TEXTURE_2D, this.cliffTextures[0].webglResource);
-
-      if (this.cliffTextures.length > 1) {
-        gl.activeTexture(gl.TEXTURE2);
-        gl.bindTexture(gl.TEXTURE_2D, this.cliffTextures[1].webglResource);
-      }
-
-      // Set instanced attributes.
-      if (!vertexArrayObject) {
-        instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 1);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceTexture, 1);
-      }
-
-      // Render the cliffs.
-      for (let cliff of this.cliffModels) {
-        cliff.render(shader);
-      }
-
-      // Clear instanced attributes.
-      if (!vertexArrayObject) {
-        instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 0);
-        instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceTexture, 0);
-      }
-    }
-  }
-
-  /**
-   * Render the map.
-   */
-  render() {
-    if (this.anyReady) {
-      this.gl.viewport(...this.camera.rect);
-
-      this.renderGround();
-      this.renderCliffs();
-      super.renderOpaque();
-      this.renderWater();
-      super.renderTranslucent();
-    }
-  }
-
-  /**
-   * Update the map.
-   */
-  update() {
-    if (this.anyReady) {
-      this.waterIndex += this.waterIncreasePerFrame;
-
-      if (this.waterIndex >= this.waterTextures.length) {
-        this.waterIndex = 0;
-      }
-
-      super.update();
-
-      for (let instance of this.scene.instances) {
-        if (instance.sequenceEnded || instance.sequence === -1) {
-          randomStandSequence(instance);
-        }
-      }
-    }
+  loadGeneric(path: string, dataType: FetchDataTypeNames) {
+    return super.loadGeneric(urlWithParams(this.wc3PathSolver(path)[0], this.solverParams), dataType);
   }
 
   /**
@@ -395,12 +158,29 @@ export default class War3MapViewer extends ModelViewer {
     let promise = this.promise();
 
     // Readonly mode to optimize memory usage.
-    this.mapMpq = new War3Map(buffer, true);
+    let mapMpq = new War3Map(buffer, true);
+
+    this.mapMpq = mapMpq;
 
     let wc3PathSolver = this.wc3PathSolver;
 
-    let w3i = new War3MapW3i(this.mapMpq.get('war3map.w3i').arrayBuffer());
-    let tileset = w3i.tileset;
+    let tileset = 'A';
+
+    let w3iFile = mapMpq.get('war3map.w3i');
+
+    if (w3iFile) {
+      let w3iBuffer = w3iFile.arrayBuffer();
+
+      if (w3iBuffer) {
+        let w3i = new War3MapW3i(w3iBuffer);
+
+        tileset = w3i.tileset;
+      } else {
+        console.warn(`Attempted to load war3map.w3i but it couldn't be decoded. Using default tileset A.`);
+      }
+    } else {
+      console.warn(`Attempted to load war3map.w3i but it's not there. Using default tileset A.`);
+    }
 
     this.emit('maploaded');
 
@@ -411,7 +191,7 @@ export default class War3MapViewer extends ModelViewer {
       let mpqPath = path.replace(/\//g, '\\');
 
       // If the file is in the map, return it.
-      let file = this.mapMpq.get(mpqPath);
+      let file = mapMpq.get(mpqPath);
       if (file) {
         return [file.arrayBuffer(), path.substr(path.lastIndexOf('.')), false];
       }
@@ -420,21 +200,35 @@ export default class War3MapViewer extends ModelViewer {
       return wc3PathSolver(path, params);
     };
 
-    let w3e = new War3MapW3e(this.mapMpq.get('war3map.w3e').arrayBuffer());
+    let w3eFile = mapMpq.get('war3map.w3e');
 
-    this.corners = w3e.corners;
-    this.centerOffset = w3e.centerOffset;
-    this.mapSize = w3e.mapSize;
+    if (w3eFile) {
+      let w3eBuffer = w3eFile.arrayBuffer();
 
-    // Override the grid based on the map.
-    this.scene.grid = new Grid(this.centerOffset[0], this.centerOffset[1], this.mapSize[0] * 128 - 128, this.mapSize[1] * 128 - 128, 16 * 128, 16 * 128);
+      if (w3eBuffer) {
+        let w3e = new War3MapW3e(w3eBuffer);
+        let centerOffset = w3e.centerOffset;
+        let mapSize = w3e.mapSize;
 
-    this.emit('tilesetloaded');
+        this.corners = w3e.corners;
+        this.centerOffset = centerOffset;
+        this.mapSize = mapSize;
 
-    if (this.terrainCliffsAndWaterLoaded) {
-      this.loadTerrainCliffsAndWater(w3e);
+        // Override the grid based on the map.
+        this.scene.grid = new Grid(centerOffset[0], centerOffset[1], mapSize[0] * 128 - 128, mapSize[1] * 128 - 128, 16 * 128, 16 * 128);
+
+        this.emit('tilesetloaded');
+
+        if (this.terrainCliffsAndWaterLoaded) {
+          this.loadTerrainCliffsAndWater(w3e);
+        } else {
+          this.once('terrainloaded', () => this.loadTerrainCliffsAndWater(w3e));
+        }
+      } else {
+        console.warn(`Attempted to load war3map.w3e but it couldn't be decoded. Terrain won't be rendered.`);
+      }
     } else {
-      this.once('terrainloaded', () => this.loadTerrainCliffsAndWater(w3e));
+      console.warn(`Attempted to load war3map.w3e but it's not there. Terrain won't be rendered.`);
     }
 
     let modifications = this.mapMpq.readModifications();
@@ -454,94 +248,8 @@ export default class War3MapViewer extends ModelViewer {
     promise.resolve();
   }
 
-  loadDoodadsAndDestructibles(modifications: any) {
-    this.applyModificationFile(this.doodadsData, this.doodadMetaData, modifications.w3d);
-    this.applyModificationFile(this.doodadsData, this.destructableMetaData, modifications.w3b);
-
-    let doo = new War3MapDoo(this.mapMpq.get('war3map.doo').arrayBuffer());
-
-    // Collect the doodad and destructible data.
-    for (let doodad of doo.doodads) {
-      let row = this.doodadsData.getRow(doodad.id);
-      let file = row.file;
-      let numVar = row.numVar;
-
-      if (file.endsWith('.mdl')) {
-        file = file.slice(0, -4);
-      }
-
-      let fileVar = file;
-
-      file += '.mdx';
-
-      if (numVar > 1) {
-        fileVar += Math.min(doodad.variation, numVar - 1);
-      }
-
-      fileVar += '.mdx';
-
-      // First see if the model is local.
-      // Doodads refering to local models may have invalid variations, so if the variation doesn't exist, try without a variation.
-      let mpqFile = this.mapMpq.get(fileVar) || this.mapMpq.get(file);
-      let model;
-
-      if (mpqFile) {
-        model = this.load(mpqFile.name);
-      } else {
-        model = this.load(fileVar);
-      }
-
-      this.doodads.push(new Doodad(this, model, row, doodad))
-    }
-
-    this.doodadsReady = true;
-    this.anyReady = true;
-  }
-
-  loadUnitsAndItems(modifications: any) {
-    this.applyModificationFile(this.unitsData, this.unitMetaData, modifications.w3u);
-    this.applyModificationFile(this.unitsData, this.unitMetaData, modifications.w3t);
-
-    let unitsDoo = new War3MapUnitsDoo(this.mapMpq.get('war3mapUnits.doo').arrayBuffer());
-
-    // Collect the units and items data.
-    for (let unit of unitsDoo.units) {
-      let row;
-      let path;
-
-      // Hardcoded?
-      if (unit.id === 'sloc') {
-        path = 'Objects\\StartLocation\\StartLocation.mdx';
-      } else {
-        row = this.unitsData.getRow(unit.id);
-
-        path = row.file;
-
-        if (path.endsWith('.mdl')) {
-          path = path.slice(0, -4);
-        }
-
-        path += '.mdx';
-      }
-
-      if (path) {
-        let model = this.load(path);
-
-        this.units.push(new Unit(this, model, row, unit));
-      } else {
-        console.log('Unknown unit ID', unit.id, unit);
-      }
-    }
-
-    this.unitsReady = true;
-    this.anyReady = true;
-  }
-
   async loadTerrainCliffsAndWater(w3e: War3MapW3e) {
     let tileset = w3e.tileset;
-
-    this.tilesets = [];
-    this.tilesetTextures = [];
 
     for (let groundTileset of w3e.groundTilesets) {
       let row = this.terrainData.getRow(groundTileset);
@@ -550,7 +258,7 @@ export default class War3MapViewer extends ModelViewer {
       this.tilesetTextures.push(this.load(`${row.dir}\\${row.file}.blp`));
     }
 
-    let blights = {
+    let blights: StringObject = {
       A: 'Ashen',
       B: 'Barrens',
       C: 'Felwood',
@@ -574,9 +282,6 @@ export default class War3MapViewer extends ModelViewer {
     this.blightTextureIndex = this.tilesetTextures.length;
     this.tilesetTextures.push(this.load(`TerrainArt\\Blight\\${blights[tileset]}_Blight.blp`));
 
-    this.cliffTilesets = [];
-    this.cliffTextures = [];
-
     for (let cliffTileset of w3e.cliffTilesets) {
       let row = this.cliffTypesData.getRow(cliffTileset);
 
@@ -586,13 +291,13 @@ export default class War3MapViewer extends ModelViewer {
 
     let waterRow = this.waterData.getRow(`${tileset}Sha`);
 
-    this.waterHeightOffset = waterRow.height;
-    this.waterIncreasePerFrame = waterRow.texRate / 60;
-    this.waterTextures = [];
-    this.maxDeepColor = new Float32Array([waterRow.Dmax_R, waterRow.Dmax_G, waterRow.Dmax_B, waterRow.Dmax_A]);
-    this.minDeepColor = new Float32Array([waterRow.Dmin_R, waterRow.Dmin_G, waterRow.Dmin_B, waterRow.Dmin_A]);
-    this.maxShallowColor = new Float32Array([waterRow.Smax_R, waterRow.Smax_G, waterRow.Smax_B, waterRow.Smax_A]);
-    this.minShallowColor = new Float32Array([waterRow.Smin_R, waterRow.Smin_G, waterRow.Smin_B, waterRow.Smin_A]);
+    this.waterHeightOffset = <number>waterRow.height;
+    this.waterIncreasePerFrame = <number>waterRow.texRate / 60;
+    this.waterTextures.length = 0;
+    this.maxDeepColor.set([<number>waterRow.Dmax_R, <number>waterRow.Dmax_G, <number>waterRow.Dmax_B, <number>waterRow.Dmax_A]);
+    this.minDeepColor.set([<number>waterRow.Dmin_R, <number>waterRow.Dmin_G, <number>waterRow.Dmin_B, <number>waterRow.Dmin_A]);
+    this.maxShallowColor.set([<number>waterRow.Smax_R, <number>waterRow.Smax_G, <number>waterRow.Smax_B, <number>waterRow.Smax_A]);
+    this.minShallowColor.set([<number>waterRow.Smin_R, <number>waterRow.Smin_G, <number>waterRow.Smin_B, <number>waterRow.Smin_A]);
 
     for (let i = 0, l = waterRow.numTex; i < l; i++) {
       this.waterTextures.push(this.load(`${waterRow.texFile}${i < 10 ? '0' : ''}${i}.blp`));
@@ -603,8 +308,8 @@ export default class War3MapViewer extends ModelViewer {
     let gl = this.gl;
 
     let corners = w3e.corners;
-    let [columns, rows] = this.mapSize;
-    let centerOffset = this.centerOffset;
+    let [columns, rows] = <Int32Array>this.mapSize;
+    let centerOffset = <Float32Array>this.centerOffset;
     let instanceCount = (columns - 1) * (rows - 1);
     let cliffHeights = new Float32Array(columns * rows);
     let cornerHeights = new Float32Array(columns * rows);
@@ -613,7 +318,7 @@ export default class War3MapViewer extends ModelViewer {
     let cornerVariations = new Uint8Array(instanceCount * 4);
     let waterFlags = new Uint8Array(instanceCount);
     let instance = 0;
-    let cliffs = {};
+    let cliffs: { [key: string]: { locations: number[], textures: number[] } } = {};
 
     this.columns = columns - 1;
     this.rows = rows - 1;
@@ -704,81 +409,408 @@ export default class War3MapViewer extends ModelViewer {
       }
     }
 
-    let vertexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    this.vertexBuffer = this.gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]), gl.STATIC_DRAW);
 
-    let faceBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
+    this.faceBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.faceBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array([0, 1, 2, 1, 3, 2]), gl.STATIC_DRAW);
 
-    let cliffHeightMap = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, cliffHeightMap);
+    this.cliffHeightMap = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, this.cliffHeightMap);
     this.webgl.setTextureMode(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.ALPHA, columns, rows, 0, gl.ALPHA, gl.FLOAT, cliffHeights);
 
-    let heightMap = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, heightMap);
+    this.heightMap = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, this.heightMap);
     this.webgl.setTextureMode(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.ALPHA, columns, rows, 0, gl.ALPHA, gl.FLOAT, cornerHeights);
 
-    let waterHeightMap = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, waterHeightMap);
+    this.waterHeightMap = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, this.waterHeightMap);
     this.webgl.setTextureMode(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.ALPHA, columns, rows, 0, gl.ALPHA, gl.FLOAT, waterHeights);
 
-    let instanceBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, instanceBuffer);
+    this.instanceBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(instanceCount).map((currentValue, index, array) => index), gl.STATIC_DRAW);
 
-    let textureBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
+    this.textureBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, cornerTextures, gl.STATIC_DRAW);
 
-    let variationBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, variationBuffer);
+    this.variationBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.variationBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, cornerVariations, gl.STATIC_DRAW);
 
-    let waterBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, waterBuffer);
+    this.waterBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.waterBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, waterFlags, gl.STATIC_DRAW);
-
-    let heightMapSize = new Float32Array([1 / columns, 1 / rows]);
-
-    this.terrainRenderData = {
-      rows,
-      columns,
-      centerOffset,
-      vertexBuffer,
-      faceBuffer,
-      heightMap,
-      instanceBuffer,
-      instanceCount,
-      cornerTextures,
-      textureBuffer,
-      variationBuffer,
-      heightMapSize,
-      cliffHeightMap,
-      waterHeightMap,
-      waterBuffer,
-    };
 
     this.terrainReady = true;
     this.anyReady = true;
 
+    let cliffShader = <ShaderProgram>this.cliffShader;
+
     let cliffPromises = Object.entries(cliffs).map((cliff) => {
       let path = cliff[0];
       let { locations, textures } = cliff[1];
+      let resource = this.loadGeneric(path, 'arrayBuffer');
+      let promise = <Promise<GenericResource>>resource.whenLoaded();
 
-      return this.loadGeneric(urlWithParams(this.mapPathSolver(path)[0], this.solverParams), 'arrayBuffer')
-        .whenLoaded()
-        .then((resource) => {
-          return new TerrainModel(this, resource.data, locations, textures, this.cliffShader);
-        });
+      return promise.then(() => {
+        return new TerrainModel(this, resource.data, locations, textures, cliffShader);
+      });
     });
 
     this.cliffModels = await Promise.all(cliffPromises);
     this.cliffsReady = true;
+  }
+
+  loadDoodadsAndDestructibles(modifications: any) {
+    let mpq = <War3Map>this.mapMpq;
+    let dooFile = mpq.get('war3map.doo');
+
+    if (!dooFile) {
+      console.warn(`Attempted to load war3map.doo but it's not there`);
+
+      return;
+    }
+
+    let dooBuffer = dooFile.arrayBuffer();
+
+    if (!dooBuffer) {
+      console.warn(`Attempted to load war3map.doo but it couldn't be decoded`);
+
+      return;
+    }
+
+    this.applyModificationFile(this.doodadsData, this.doodadMetaData, modifications.w3d);
+    this.applyModificationFile(this.doodadsData, this.destructableMetaData, modifications.w3b);
+
+    let doo = new War3MapDoo(dooBuffer);
+
+    // Collect the doodad and destructible data.
+    for (let doodad of doo.doodads) {
+      let row = this.doodadsData.getRow(doodad.id);
+      let file = <string>row.file;
+      let numVar = <number>row.numVar;
+
+      if (file.endsWith('.mdl')) {
+        file = file.slice(0, -4);
+      }
+
+      let fileVar = file;
+
+      file += '.mdx';
+
+      if (numVar > 1) {
+        fileVar += Math.min(doodad.variation, numVar - 1);
+      }
+
+      fileVar += '.mdx';
+
+      // First see if the model is local.
+      // Doodads refering to local models may have invalid variations, so if the variation doesn't exist, try without a variation.
+      let mpqFile = mpq.get(fileVar) || mpq.get(file);
+      let model;
+
+      if (mpqFile) {
+        model = this.load(mpqFile.name);
+      } else {
+        model = this.load(fileVar);
+      }
+
+      this.doodads.push(new Doodad(this, model, row, doodad))
+    }
+
+    this.doodadsReady = true;
+    this.anyReady = true;
+  }
+
+  loadUnitsAndItems(modifications: any) {
+    let mpq = <War3Map>this.mapMpq;
+    let dooFile = mpq.get('war3mapUnits.doo');
+
+    if (!dooFile) {
+      console.warn(`Attempted to load war3mapUnits.doo but it's not there`);
+
+      return;
+    }
+
+    let dooBuffer = dooFile.arrayBuffer();
+
+    if (!dooBuffer) {
+      console.warn(`Attempted to load war3mapUnits.doo but it couldn't be decoded`);
+
+      return;
+    }
+
+    this.applyModificationFile(this.unitsData, this.unitMetaData, modifications.w3u);
+    this.applyModificationFile(this.unitsData, this.unitMetaData, modifications.w3t);
+
+    let unitsDoo = new War3MapUnitsDoo(dooBuffer);
+
+    // Collect the units and items data.
+    for (let unit of unitsDoo.units) {
+      let row;
+      let path;
+
+      // Hardcoded?
+      if (unit.id === 'sloc') {
+        path = 'Objects\\StartLocation\\StartLocation.mdx';
+      } else {
+        row = this.unitsData.getRow(unit.id);
+
+        path = <string>row.file;
+
+        if (path.endsWith('.mdl')) {
+          path = path.slice(0, -4);
+        }
+
+        path += '.mdx';
+      }
+
+      if (path) {
+        let model = this.load(path);
+
+        this.units.push(new Unit(this, model, row, unit));
+      } else {
+        console.log('Unknown unit ID', unit.id, unit);
+      }
+    }
+
+    this.unitsReady = true;
+    this.anyReady = true;
+  }
+
+  /**
+   * Update the map.
+   */
+  update() {
+    if (this.anyReady) {
+      this.waterIndex += this.waterIncreasePerFrame;
+
+      if (this.waterIndex >= this.waterTextures.length) {
+        this.waterIndex = 0;
+      }
+
+      super.update();
+
+      let instances = <MdxComplexInstance[]>this.scene.instances;
+
+      for (let instance of instances) {
+        if (instance.sequenceEnded || instance.sequence === -1) {
+          randomStandSequence(instance);
+        }
+      }
+    }
+  }
+
+  /**
+   * Render the map.
+   */
+  render() {
+    if (this.anyReady) {
+      let camera = this.camera;
+      let viewport = camera.rect;
+
+      this.gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+      this.renderGround();
+      this.renderCliffs();
+      super.renderOpaque();
+      this.renderWater();
+      super.renderTranslucent();
+    }
+  }
+
+  renderGround() {
+    if (this.terrainReady) {
+      let gl = this.gl;
+      let webgl = this.webgl;
+      let instancedArrays = webgl.extensions.instancedArrays;
+      let shader = <ShaderProgram>this.groundShader;
+      let uniforms = shader.uniforms;
+      let attribs = shader.attribs;
+      let tilesetTextures = this.tilesetTextures;
+      let instanceAttrib = attribs.a_InstanceID;
+      let positionAttrib = attribs.a_position;
+      let texturesAttrib = attribs.a_textures;
+      let variationsAttrib = attribs.a_variations;
+      let tilesetCount = tilesetTextures.length; // This includes the blight texture.
+
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+      webgl.useShaderProgram(shader);
+
+      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
+      gl.uniform2fv(uniforms.u_offset, <Float32Array>this.centerOffset);
+      gl.uniform2f(uniforms.u_size, this.columns, this.rows);
+      gl.uniform1i(uniforms.u_heightMap, 15);
+
+      gl.activeTexture(gl.TEXTURE15);
+      gl.bindTexture(gl.TEXTURE_2D, this.heightMap);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+      gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, 8, 0);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceBuffer);
+      gl.vertexAttribPointer(instanceAttrib, 1, gl.FLOAT, false, 4, 0);
+      instancedArrays.vertexAttribDivisorANGLE(instanceAttrib, 1);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
+      gl.vertexAttribPointer(texturesAttrib, 4, gl.UNSIGNED_BYTE, false, 4, 0);
+      instancedArrays.vertexAttribDivisorANGLE(texturesAttrib, 1);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.variationBuffer);
+      gl.vertexAttribPointer(variationsAttrib, 4, gl.UNSIGNED_BYTE, false, 4, 0);
+      instancedArrays.vertexAttribDivisorANGLE(variationsAttrib, 1);
+
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.faceBuffer);
+
+      gl.uniform1f(uniforms.u_baseTileset, 0);
+
+      for (let i = 0, l = Math.min(tilesetCount, 15); i < l; i++) {
+        let isExtended = tilesetTextures[i].width > tilesetTextures[i].height ? 1 : 0;
+
+        gl.uniform1f(uniforms[`u_extended[${i}]`], isExtended);
+        gl.uniform1i(uniforms[`u_tilesets[${i}]`], i);
+
+        tilesetTextures[i].bind(i);
+      }
+
+      instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0, this.rows * this.columns);
+
+      if (tilesetCount > 15) {
+        gl.uniform1f(uniforms.u_baseTileset, 15);
+
+        for (let i = 0, l = tilesetCount - 15; i < l; i++) {
+          let isExtended = tilesetTextures[i + 15].width > tilesetTextures[i + 15].height ? 1 : 0;
+
+          gl.uniform1f(uniforms[`u_extended[${i}]`], isExtended);
+
+          tilesetTextures[i + 15].bind(i);
+        }
+
+        instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0, this.rows * this.columns);
+      }
+
+      instancedArrays.vertexAttribDivisorANGLE(texturesAttrib, 0);
+      instancedArrays.vertexAttribDivisorANGLE(variationsAttrib, 0);
+      instancedArrays.vertexAttribDivisorANGLE(instanceAttrib, 0);
+    }
+  }
+
+  renderWater() {
+    if (this.terrainReady) {
+      let gl = this.gl;
+      let webgl = this.webgl;
+      let instancedArrays = webgl.extensions.instancedArrays;
+      let shader = <ShaderProgram>this.waterShader;
+      let uniforms = shader.uniforms;
+      let attribs = shader.attribs;
+      let instanceAttrib = attribs.a_InstanceID;
+      let positionAttrib = attribs.a_position;
+      let isWaterAttrib = attribs.a_isWater;
+
+      gl.depthMask(false);
+
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+      webgl.useShaderProgram(shader);
+
+      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
+      gl.uniform2fv(uniforms.u_offset, <Float32Array>this.centerOffset);
+      gl.uniform2f(uniforms.u_size, this.columns, this.rows);
+      gl.uniform1i(uniforms.u_heightMap, 0);
+      gl.uniform1i(uniforms.u_waterHeightMap, 1);
+      gl.uniform1i(uniforms.u_waterTexture, 2);
+      gl.uniform1f(uniforms.u_offsetHeight, this.waterHeightOffset);
+      gl.uniform4fv(uniforms.u_maxDeepColor, this.maxDeepColor);
+      gl.uniform4fv(uniforms.u_minDeepColor, this.minDeepColor);
+      gl.uniform4fv(uniforms.u_maxShallowColor, this.maxShallowColor);
+      gl.uniform4fv(uniforms.u_minShallowColor, this.minShallowColor);
+
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this.heightMap);
+
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, this.waterHeightMap);
+
+      this.waterTextures[this.waterIndex | 0].bind(2);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+      gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, 8, 0);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceBuffer);
+      gl.vertexAttribPointer(instanceAttrib, 1, gl.FLOAT, false, 4, 0);
+      instancedArrays.vertexAttribDivisorANGLE(instanceAttrib, 1);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.waterBuffer);
+      gl.vertexAttribPointer(isWaterAttrib, 1, gl.UNSIGNED_BYTE, false, 1, 0);
+      instancedArrays.vertexAttribDivisorANGLE(isWaterAttrib, 1);
+
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.faceBuffer);
+      instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0, this.rows * this.columns);
+
+      instancedArrays.vertexAttribDivisorANGLE(isWaterAttrib, 0);
+      instancedArrays.vertexAttribDivisorANGLE(instanceAttrib, 0);
+    }
+  }
+
+  renderCliffs() {
+    if (this.cliffsReady) {
+      let gl = this.gl;
+      let webgl = this.webgl;
+      let instancedArrays = webgl.extensions.instancedArrays;
+      let vertexArrayObject = webgl.extensions.vertexArrayObject;
+      let shader = <ShaderProgram>this.cliffShader;
+      let attribs = shader.attribs;
+      let uniforms = shader.uniforms;
+
+      gl.disable(gl.BLEND);
+
+      shader.use();
+
+      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
+      gl.uniform1i(uniforms.u_heightMap, 0);
+      gl.uniform2f(uniforms.u_pixel, 1 / (this.columns + 1), 1 / (this.rows + 1));
+      gl.uniform2fv(uniforms.u_centerOffset, <Float32Array>this.centerOffset);
+      gl.uniform1i(uniforms.u_texture1, 1);
+      gl.uniform1i(uniforms.u_texture2, 2);
+
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this.cliffHeightMap);
+
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, this.cliffTextures[0].webglResource);
+
+      if (this.cliffTextures.length > 1) {
+        gl.activeTexture(gl.TEXTURE2);
+        gl.bindTexture(gl.TEXTURE_2D, this.cliffTextures[1].webglResource);
+      }
+
+      // Set instanced attributes.
+      if (!vertexArrayObject) {
+        instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 1);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceTexture, 1);
+      }
+
+      // Render the cliffs.
+      for (let cliff of this.cliffModels) {
+        cliff.render(shader);
+      }
+
+      // Clear instanced attributes.
+      if (!vertexArrayObject) {
+        instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 0);
+        instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceTexture, 0);
+      }
+    }
   }
 
   cliffFileName(bottomLeftLayer: number, bottomRightLayer: number, topLeftLayer: number, topRightLayer: number, base: number) {
@@ -884,13 +916,6 @@ export default class War3MapViewer extends ModelViewer {
     return corner.groundTexture;
   }
 
-  /**
-   * Same as ModelViewer.load(), however the map viewer overrides the path solver and solver params.
-   */
-  load(src: any) {
-    return super.load(src, this.mapPathSolver, this.solverParams);
-  }
-
   applyModificationFile(dataMap: any, metadataMap: any, modificationFile: any) {
     if (modificationFile) {
       // Modifications to built-in objects
@@ -930,8 +955,8 @@ export default class War3MapViewer extends ModelViewer {
   }
 
   groundNormal(out: vec3, x: number, y: number) {
-    let centerOffset = this.centerOffset;
-    let mapSize = this.mapSize;
+    let centerOffset = <Float32Array>this.centerOffset;
+    let mapSize = <Int32Array>this.mapSize;
 
     x = (x - centerOffset[0]) / 128;
     y = (y - centerOffset[1]) / 128;

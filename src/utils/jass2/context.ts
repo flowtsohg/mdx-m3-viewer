@@ -3,7 +3,7 @@ import { EventEmitter } from 'events';
 import { to_luastring, to_jsstring } from 'fengari/src/fengaricore';
 import { lua_State, lua_pop, lua_getglobal, lua_pcall, lua_atnativeerror, lua_pushstring, lua_touserdata, lua_rawgeti, LUA_REGISTRYINDEX, lua_resume, LUA_OK, LUA_YIELD } from 'fengari/src/lua';
 import { luaL_newstate, luaL_loadstring, luaL_tolstring, luaL_unref, luaL_checknumber } from 'fengari/src/lauxlib';
-import { luaL_openlibs } from 'fengari/src/lualib';
+//import { luaL_openlibs } from 'fengari/src/lualib';
 import jass2lua from './jass2lua';
 import bindNatives from './natives';
 import JassPlayer from './types/player';
@@ -20,31 +20,31 @@ import { JassTrigger } from './types/index';
  */
 export default class Context extends EventEmitter {
   L: lua_State;
-  map: War3Map | null;
-  handle: number;
-  freeHandles: number[];
-  handles: (JassHandle | null)[];
-  name: string;
-  description: string;
-  players: JassPlayer[];
-  actualPlayers: number;
-  startLocations: JassLocation[];
-  constantHandles: object;
-  timers: Set<JassTimer>;
-  triggers: Set<JassTrigger>;
-  threads: Set<Thread>;
-  currentThread: Thread | null;
-  enumUnit: JassHandle | null;
-  filterUnit: JassHandle | null;
-  enumPlayer: JassHandle | null;
-  t: number;
+  map: War3Map | null = null;
+  handle: number = 0;
+  freeHandles: number[] = [];
+  handles: (JassHandle | null)[] = [];
+  name: string = '';
+  description: string = '';
+  players: JassPlayer[] = [];
+  actualPlayers: number = 0;
+  startLocations: JassLocation[] = [];
+  constantHandles = constantHandles();
+  timers: Set<JassTimer> = new Set();
+  triggers: Set<JassTrigger> = new Set();
+  threads: Set<Thread> = new Set();
+  currentThread: Thread | null = null;
+  enumUnit: JassHandle | null = null;
+  filterUnit: JassHandle | null = null;
+  enumPlayer: JassHandle | null = null;
+  t: number = 0;
 
   constructor() {
     super();
 
     this.L = luaL_newstate();
 
-    luaL_openlibs(this.L);
+    //luaL_openlibs(this.L);
 
     bindNatives(this);
 
@@ -55,17 +55,6 @@ export default class Context extends EventEmitter {
 
       return 1;
     });
-
-    this.map = null;
-    this.handle = 0;
-    this.freeHandles = [];
-    this.handles = [];
-    this.name = '';
-    this.description = '';
-    this.players = [];
-    this.actualPlayers = 0;
-    this.startLocations = [];
-    this.constantHandles = constantHandles();
 
     for (let i = 0; i < 28; i++) {
       this.players[i] = <JassPlayer>this.addHandle(new JassPlayer(i, 28));
@@ -85,17 +74,6 @@ export default class Context extends EventEmitter {
     // this.teams = [];
 
     // this.stringTable = map.readStringTable();
-
-    this.timers = new Set();
-    this.triggers = new Set();
-    this.threads = new Set();
-    this.currentThread = null;
-
-    this.enumUnit = null;
-    this.filterUnit = null;
-    this.enumPlayer = null;
-
-    this.t = 0;
   }
 
   start() {

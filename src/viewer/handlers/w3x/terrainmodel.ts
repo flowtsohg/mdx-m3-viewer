@@ -1,4 +1,4 @@
-import MdxParser from '../../../parsers/mdlx/model';
+import MdlxModel from '../../../parsers/mdlx/model';
 import ShaderProgram from '../../gl/program';
 import War3MapViewer from './viewer';
 
@@ -22,7 +22,7 @@ export default class TerrainModel {
     let webgl = viewer.webgl;
     let instancedArrays = webgl.extensions.instancedArrays;
     let vertexArrayObject = webgl.extensions.vertexArrayObject;
-    let parser = new MdxParser(arrayBuffer);
+    let parser = new MdlxModel(arrayBuffer);
     let geoset = parser.geosets[0];
     let vertices = geoset.vertices;
     let normals = geoset.normals;
@@ -38,7 +38,7 @@ export default class TerrainModel {
       vertexArrayObject.bindVertexArrayOES(vao);
     }
 
-    let vertexBuffer = gl.createBuffer();
+    let vertexBuffer = <WebGLBuffer>gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, uvsOffset + uvs.byteLength, gl.STATIC_DRAW);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertices);
@@ -57,7 +57,7 @@ export default class TerrainModel {
     }
 
     let texturesOffset = locations.length * 4;
-    let locationAndTextureBuffer = gl.createBuffer();
+    let locationAndTextureBuffer = <WebGLBuffer>gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, locationAndTextureBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, texturesOffset + textures.length, gl.STATIC_DRAW);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(locations));
@@ -74,7 +74,7 @@ export default class TerrainModel {
 
     }
 
-    let faceBuffer = gl.createBuffer();
+    let faceBuffer = <WebGLBuffer>gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, faces, gl.STATIC_DRAW);
 

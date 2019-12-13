@@ -13,7 +13,7 @@ import M3Model from './model';
  * M3 skeleton.
  */
 export default class M3Skeleton {
-  nodes: SkeletalNode[];
+  nodes: Node[];
   worldMatrices: Float32Array;
   instance: M3ModelInstance;
   modelNodes: M3Bone[];

@@ -4,18 +4,14 @@
 export default class ClientBuffer {
   gl: WebGLRenderingContext;
   buffer: WebGLBuffer;
-  size: number;
-  arrayBuffer: ArrayBuffer | null;
-  byteView: Uint8Array | null;
-  floatView: Float32Array | null;
+  size: number = 0;
+  arrayBuffer: ArrayBuffer | null = null;
+  byteView: Uint8Array | null = null;
+  floatView: Float32Array | null = null;
 
   constructor(gl: WebGLRenderingContext, size: number = 64) {
     this.gl = gl;
     this.buffer = <WebGLBuffer>gl.createBuffer();
-    this.size = 0;
-    this.arrayBuffer = null;
-    this.byteView = null;
-    this.floatView = null;
 
     this.reserve(size);
   }

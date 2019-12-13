@@ -42,7 +42,7 @@ export default class Attachment extends GenericObject {
       if (token === 'AttachmentID') {
         this.attachmentId = stream.readInt();
       } else if (token === 'Path') {
-        this.path = stream.read();
+        this.path = stream.readSafe();
       } else if (token === 'Visibility') {
         this.readAnimation(stream, 'KATV');
       } else {

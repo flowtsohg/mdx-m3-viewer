@@ -490,7 +490,7 @@ export class Node {
       children[i].update(dt, scene);
     }
   }
-};
+}
 
 /**
  * A skeletal node used for skeletons.

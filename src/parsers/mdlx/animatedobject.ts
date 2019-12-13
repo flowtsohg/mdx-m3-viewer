@@ -34,7 +34,7 @@ export default class AnimatedObject {
    * This makes the condition blocks in the parent objects linear and simple.
    */
   * readAnimatedBlock(stream: TokenStream) {
-    for (let token of stream.readBlock()) {
+    for (let token of stream.readBlockSafe()) {
       if (token === 'static') {
         yield `static ${stream.read()}`;
       } else {

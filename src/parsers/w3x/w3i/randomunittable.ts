@@ -8,7 +8,7 @@ export default class RandomUnitTable {
   id: number = 0;
   name: string = '';
   positions: number = 0;
-  columnTypes: Int32Array = new Int32Array(1);
+  columnTypes: Int32Array = new Int32Array(0);
   units: RandomUnit[] = [];
 
   load(stream: BinaryStream) {

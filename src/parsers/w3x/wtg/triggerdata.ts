@@ -1,11 +1,6 @@
 import IniFile from '../../ini/file';
 
 /**
- * A standard object mapping strings to strings.
- */
-type StringObject = { [key: string]: string };
-
-/**
  * A standard object mapping strings to function signatures and an optional Jass name.
  */
 type FunctionObject = { [key: string]: { args: string[], scriptName: string | null } };

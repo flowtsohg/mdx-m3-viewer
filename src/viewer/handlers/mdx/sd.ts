@@ -11,21 +11,16 @@ class SdSequence {
   sd: Sd;
   start: number;
   end: number;
-  frames: number[];
-  values: (Uint32Array | Float32Array)[];
-  inTans: (Uint32Array | Float32Array)[];
-  outTans: (Uint32Array | Float32Array)[];
-  constant: boolean;
+  frames: number[] = [];
+  values: (Uint32Array | Float32Array)[] = [];
+  inTans: (Uint32Array | Float32Array)[] = [];
+  outTans: (Uint32Array | Float32Array)[] = [];
+  constant: boolean = false;
 
   constructor(sd: Sd, start: number, end: number, animation: Animation, isGlobal: boolean) {
     this.sd = sd;
     this.start = start;
     this.end = end;
-    this.frames = [];
-    this.values = [];
-    this.inTans = [];
-    this.outTans = [];
-    this.constant = false;
 
     let interpolationType = sd.interpolationType;
     let frames = animation.frames;

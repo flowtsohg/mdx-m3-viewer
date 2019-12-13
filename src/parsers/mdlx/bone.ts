@@ -30,7 +30,7 @@ export default class Bone extends GenericObject {
   readMdl(stream: TokenStream) {
     for (let token of super.readGenericBlock(stream)) {
       if (token === 'GeosetId') {
-        token = stream.read();
+        token = stream.readSafe();
 
         if (token === 'Multiple') {
           this.geosetId = -1;
@@ -38,7 +38,7 @@ export default class Bone extends GenericObject {
           this.geosetId = parseInt(token);
         }
       } else if (token === 'GeosetAnimId') {
-        token = stream.read();
+        token = stream.readSafe();
 
         if (token === 'None') {
           this.geosetAnimationId = -1;

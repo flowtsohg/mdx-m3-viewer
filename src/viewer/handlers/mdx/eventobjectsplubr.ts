@@ -26,22 +26,18 @@ export default class EventObjectSplUbr extends EmittedObject {
 
     vertexHeap[0] = scale;
     vertexHeap[1] = scale;
-    vertexHeap[2] = 0;
     vec3.transformMat4(<vec3>vertices.subarray(0, 2), vertexHeap, worldMatrix);
 
     vertexHeap[0] = -scale;
     vertexHeap[1] = scale;
-    vertexHeap[2] = 0;
     vec3.transformMat4(<vec3>vertices.subarray(3, 5), vertexHeap, worldMatrix);
 
     vertexHeap[0] = -scale;
     vertexHeap[1] = -scale;
-    vertexHeap[2] = 0;
     vec3.transformMat4(<vec3>vertices.subarray(6, 8), vertexHeap, worldMatrix);
 
     vertexHeap[0] = scale;
     vertexHeap[1] = -scale;
-    vertexHeap[2] = 0;
     vec3.transformMat4(<vec3>vertices.subarray(9, 11), vertexHeap, worldMatrix);
   }
 

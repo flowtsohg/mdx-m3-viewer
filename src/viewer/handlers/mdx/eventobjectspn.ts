@@ -1,3 +1,4 @@
+import Scene from '../../scene';
 import EmittedObject from '../../emittedobject';
 import MdxModel from './model';
 import EventObjectEmitterObject from './eventobjectemitterobject';
@@ -22,6 +23,7 @@ export default class EventObjectSpn extends EmittedObject {
   bind() {
     let emitter = <EventObjectSpnEmitter>this.emitter;
     let instance = <MdxComplexInstance>emitter.instance;
+    let scene = <Scene>instance.scene;
     let node = instance.nodes[emitter.emitterObject.index];
     let internalInstance = <MdxComplexInstance>this.internalInstance;
 
@@ -29,7 +31,7 @@ export default class EventObjectSpn extends EmittedObject {
     internalInstance.setTransformation(node.worldLocation, node.worldRotation, node.worldScale);
     internalInstance.show();
 
-    instance.scene.addInstance(internalInstance);
+    scene.addInstance(internalInstance);
 
     this.health = 1;
   }

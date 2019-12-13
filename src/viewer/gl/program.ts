@@ -10,7 +10,7 @@ export default class ShaderProgram {
   webglResource: WebGLProgram;
   shaders: ShaderUnit[];
   uniforms: { [key: string]: WebGLUniformLocation } = {};
-  attribs: { [key: string]: number } = {};
+  attribs: NumberObject = {};
   attribsCount: number = 0;
 
   constructor(webgl: WebGL, vertexShader: ShaderUnit, fragmentShader: ShaderUnit) {

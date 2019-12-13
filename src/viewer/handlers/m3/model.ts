@@ -13,17 +13,18 @@ import M3AttachmentPoint from './attachment';
 import M3Camera from './camera';
 import M3Region from './region';
 import M3ModelInstance from './modelinstance';
+import M3Batch from './batch';
 
 /**
  * An M3 model.
  */
 export default class M3Model extends Model {
   name: string = '';
-  batches: object[] = [];
+  batches: M3Batch[] = [];
   materials: any[][] = [[], []]; // 2D array for the possibility of adding more material types in the future
   materialMaps: any[] = [];
   bones: M3Bone[] = [];
-  boneLookup: any[] = [];
+  boneLookup: Uint16Array | null = null;
   sequences: M3Sequence[] = [];
   sts: M3Sts[] = [];
   stc: M3Stc[] = [];
@@ -72,7 +73,7 @@ export default class M3Model extends Model {
       let materialMap = materialMaps[batch.materialReferenceIndex];
 
       if (materialMap.materialType === 1) {
-        this.batches.push({ regionId: regionId, region: this.regions[regionId], material: this.materials[1][materialMap.materialIndex] });
+        this.batches.push(new M3Batch(this.regions[regionId], this.materials[1][materialMap.materialIndex]))
       }
     }
 
@@ -126,7 +127,7 @@ export default class M3Model extends Model {
       this.bones.push(new M3Bone(bone));
     }
 
-    this.boneLookup = model.boneLookup.getAll();
+    this.boneLookup = <Uint16Array>model.boneLookup.getAll();
 
     for (let sequence of model.sequences.getAll()) {
       this.sequences.push(new M3Sequence(sequence));

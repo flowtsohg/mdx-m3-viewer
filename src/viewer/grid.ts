@@ -1,52 +1,5 @@
-import { testCell } from '../common/gl-matrix-addon';
+import Cell from './cell';
 import ModelInstance from './modelinstance';
-import Camera from './camera';
-
-/**
- * A grid cell.
- */
-class Cell {
-  left: number;
-  right: number;
-  bottom: number;
-  top: number;
-  plane: number;
-  instances: ModelInstance[];
-  visible: boolean;
-
-  constructor(left: number, right: number, bottom: number, top: number) {
-    this.left = left;
-    this.right = right;
-    this.bottom = bottom;
-    this.top = top;
-    this.plane = -1;
-    this.instances = [];
-    this.visible = false;
-  }
-
-  add(instance: ModelInstance) {
-    this.instances.push(instance);
-  }
-
-  remove(instance: ModelInstance) {
-    let index = this.instances.indexOf(instance);
-
-    this.instances.splice(index, 1);
-  }
-
-  /**
-   * Remove all of the instances from this cell.
-   */
-  clear() {
-    this.instances.length = 0;
-  }
-
-  isVisible(camera: Camera) {
-    this.plane = testCell(camera.planes, this.left, this.right, this.bottom, this.top, this.plane);
-
-    return this.plane === -1;
-  }
-}
 
 /**
  * A grid.
@@ -60,7 +13,7 @@ export default class Grid {
   cellDepth: number;
   columns: number;
   rows: number;
-  cells: Cell[];
+  cells: Cell[] = [];
 
   constructor(x: number, y: number, width: number, depth: number, cellWidth: number, cellDepth: number) {
     let columns = width / cellWidth;
@@ -74,7 +27,6 @@ export default class Grid {
     this.cellDepth = cellDepth;
     this.columns = columns;
     this.rows = rows;
-    this.cells = [];
 
     for (let row = 0; row < rows; row++) {
       for (let column = 0; column < columns; column++) {

@@ -4,7 +4,7 @@ let lineNumberReg = /:(\d+):/g;
  * A wrapper around a WebGL shader unit.
  */
 export default class ShaderUnit {
-  ok: boolean;
+  ok: boolean = false;
   webglResource: WebGLShader;
   src: string;
   shaderType: number;
@@ -12,7 +12,6 @@ export default class ShaderUnit {
   constructor(gl: WebGLRenderingContext, src: string, type: number) {
     let id = <WebGLShader>gl.createShader(type);
 
-    this.ok = false;
     this.webglResource = id;
     this.src = src;
     this.shaderType = type;

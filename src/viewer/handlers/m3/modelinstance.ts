@@ -1,5 +1,6 @@
 import { mat4 } from 'gl-matrix';
 import DataTexture from '../../gl/datatexture';
+import Scene from '../../scene';
 import ModelInstance from '../../modelinstance';
 import m3Handler from './handler';
 import M3Model from './model';
@@ -11,31 +12,15 @@ const boneHeap = mat4.create();
  * An M3 model instance.
  */
 export default class M3ModelInstance extends ModelInstance {
-  skeleton: M3Skeleton | null;
-  teamColor: number;
-  vertexColor: Float32Array;
-  sequence: number;
-  frame: number;
-  sequenceLoopMode: number;
-  sequenceEnded: boolean;
-  forced: boolean;
-  boneTexture: DataTexture | null;
-
-  constructor(model: M3Model) {
-    super(model);
-
-    this.skeleton = null;
-    this.teamColor = 0;
-    this.vertexColor = new Float32Array([1, 1, 1, 1]);
-    this.sequence = -1;
-    this.frame = 0;
-    this.sequenceLoopMode = 0;
-    this.sequenceEnded = false;
-
-    this.forced = true;
-
-    this.boneTexture = null;
-  }
+  skeleton: M3Skeleton | null = null;
+  teamColor: number = 0;
+  vertexColor: Float32Array = new Float32Array([1, 1, 1, 1]);
+  sequence: number = -1;
+  frame: number = 0;
+  sequenceLoopMode: number = 0;
+  sequenceEnded: boolean = false;
+  forced: boolean = true;
+  boneTexture: DataTexture | null = null;
 
   load() {
     this.skeleton = new M3Skeleton(this);
@@ -47,20 +32,25 @@ export default class M3ModelInstance extends ModelInstance {
       this.setSequence(this.sequence);
     }
 
-    let model = this.model;
+    let model = <M3Model>this.model;
+    let boneLookup = <Uint16Array>model.boneLookup;
 
-    this.boneTexture = new DataTexture(model.viewer.gl, 3, model.boneLookup.length * 4, 1);
+    this.boneTexture = new DataTexture(model.viewer.gl, 3, boneLookup.length * 4, 1);
   }
 
-  updateBoneTexture() {
+  updateSkeletonAndBoneTexture(dt: number) {
     let model = <M3Model>this.model;
     let viewer = model.viewer;
     let buffer = viewer.buffer;
-    let boneLookup = model.boneLookup;
-    let nodes = this.skeleton.nodes;
+    let boneLookup = <Uint16Array>model.boneLookup;
+    let skeleton = <M3Skeleton>this.skeleton;
+    let nodes = skeleton.nodes;
     let bindPose = model.initialReference;
     let count = boneLookup.length;
     let isAnimated = this.sequence !== -1;
+    let boneTexture = <DataTexture>this.boneTexture;
+
+    skeleton.update(dt);
 
     // Ensure there is enough memory for all of the instances data.
     buffer.reserve(count * 48);
@@ -98,7 +88,7 @@ export default class M3ModelInstance extends ModelInstance {
       floatView[offset + 11] = finalMatrix[14];
     }
 
-    this.boneTexture.bindAndUpdate(floatView, this.boneTexture.width, 1);
+    boneTexture.bindAndUpdate(floatView, boneTexture.width, 1);
   }
 
   renderOpaque() {
@@ -112,9 +102,10 @@ export default class M3ModelInstance extends ModelInstance {
       let shader = m3Handler.shaders.standard[uvSetCount - 1];
       let attribs = shader.attribs;
       let uniforms = shader.uniforms;
-      let camera = this.scene.camera;
+      let scene = <Scene>this.scene;
+      let camera = scene.camera;
       let textureMapper = this.textureMapper;
-      let boneTexture = this.boneTexture;
+      let boneTexture = <DataTexture>this.boneTexture;
 
       shader.use();
 
@@ -159,14 +150,15 @@ export default class M3ModelInstance extends ModelInstance {
     }
   }
 
-  updateAnimations() {
+  updateAnimations(dt: number) {
     let sequenceId = this.sequence;
 
     if (sequenceId !== -1) {
-      let sequence = this.model.sequences[sequenceId];
+      let model = <M3Model>this.model;
+      let sequence = model.sequences[sequenceId];
       let interval = sequence.interval;
 
-      this.frame += this.model.viewer.frameTime;
+      this.frame += model.viewer.frameTime;
 
       if (this.frame > interval[1]) {
         if ((this.sequenceLoopMode === 0 && !(sequence.flags & 0x1)) || this.sequenceLoopMode === 2) {
@@ -184,8 +176,7 @@ export default class M3ModelInstance extends ModelInstance {
     if (this.forced || sequenceId !== -1) {
       this.forced = false;
 
-      this.skeleton.update();
-      this.updateBoneTexture();
+      this.updateSkeletonAndBoneTexture(dt);
     }
   }
 
@@ -231,7 +222,7 @@ export default class M3ModelInstance extends ModelInstance {
     let attachment = model.attachments[id];
 
     if (attachment) {
-      return this.skeleton.nodes[attachment.bone];
+      return (<M3Skeleton>this.skeleton).nodes[attachment.bone];
     }
   }
 }

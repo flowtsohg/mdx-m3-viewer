@@ -11,12 +11,11 @@ import ReforgedBatch from './reforgedbatch';
 export default class ReforgedBatchGroup {
   model: MdxModel;
   shader: string;
-  objects: number[];
+  objects: number[] = [];
 
   constructor(model: MdxModel, shader: string) {
     this.model = model;
     this.shader = shader;
-    this.objects = [];
   }
 
   render(instance: MdxComplexInstance) {

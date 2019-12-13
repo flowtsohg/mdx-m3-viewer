@@ -28,7 +28,7 @@ let layerTypeToTextureUnit = {
  */
 export default class M3Layer {
   model: M3Model;
-  active: number;
+  active: number = 0;
   layer: Layer | null = null;
   gl: WebGLRenderingContext;
   uniformMap: { map: string; enabled: string; op: string; channels: string; teamColorMode: string; invert: string; clampResult: string; uvCoordinate: string; } | null = null;
@@ -44,11 +44,10 @@ export default class M3Layer {
   clampResult: number = 0;
   teamColorMode: number = 0;
 
-  constructor(material: M3StandardMaterial, layerReference: Reference, type: string, op: number) {
+  constructor(material: M3StandardMaterial, layerReference: Reference | null, type: string, op: number) {
     let model = material.model;
 
     this.model = model;
-    this.active = 0;
     this.gl = material.gl;
 
     // Since Gloss doesn't exist in all versions
@@ -110,7 +109,9 @@ export default class M3Layer {
         this.clampResult = flags & 0x20;
 
         // I am not sure if the emissive team color mode is even used, since so far combineColors takes care of it.
-        this.teamColorMode = (type === 'diffuse') ? 1 : 0;
+        if (type === 'diffuse') {
+          this.teamColorMode = 1;
+        }
       }
     }
   }

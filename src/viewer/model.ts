@@ -1,11 +1,11 @@
-import Resource from './resource';
+import HandlerResource from './handlerresource';
 import Bounds from './bounds';
 import ModelInstance from './modelinstance';
 
 /**
  * A model.
  */
-export default abstract class Model extends Resource {
+export default abstract class Model extends HandlerResource {
   /**
    * An array of instances that were created before the model loaded.
    * 
@@ -14,6 +14,11 @@ export default abstract class Model extends Resource {
   preloadedInstances: ModelInstance[] = [];
   bounds: Bounds = new Bounds();
 
+  /**
+   * Create the actual instance object and return it.
+   * 
+   * The given type can be used to select between instance classes, if there are more than one.
+   */
   abstract createInstance(type: number): ModelInstance;
 
   /**

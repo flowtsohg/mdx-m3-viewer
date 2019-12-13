@@ -8,16 +8,15 @@ import JassUnit from './types/unit';
  */
 export default class Thread {
   L: lua_State;
-  sleep: number;
+  sleep: number = 0;
   expiredTimer: JassTimer | null;
   triggerUnit: JassUnit | null;
-  trigger: JassTrigger | null;
+  triggeringTrigger: JassTrigger | null;
 
-  constructor(L: lua_State, data: { expiredTimer?: JassTimer, triggerUnit?: JassUnit, trigger?: JassTrigger }) {
+  constructor(L: lua_State, data: { expiredTimer?: JassTimer, triggerUnit?: JassUnit, triggeringTrigger?: JassTrigger }) {
     this.L = lua_newthread(L);
-    this.sleep = 0;
     this.expiredTimer = data.expiredTimer || null;
     this.triggerUnit = data.triggerUnit || null;
-    this.trigger = data.trigger || null;
+    this.triggeringTrigger = data.triggeringTrigger || null;
   }
 }

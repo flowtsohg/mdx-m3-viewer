@@ -20,9 +20,9 @@ export default class Doodad {
   load(stream: BinaryStream, version: number) {
     this.id = stream.read(4);
     this.variation = stream.readInt32();
-    this.location = stream.readFloat32Array(3);
+    stream.readFloat32Array(this.location);
     this.angle = stream.readFloat32();
-    this.scale = stream.readFloat32Array(3);
+    stream.readFloat32Array(this.scale);
     this.flags = stream.readUint8();
     this.life = stream.readUint8();
 

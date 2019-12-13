@@ -11,81 +11,56 @@ const matHeap = mat4.create();
  * A camera.
  */
 export default class Camera {
-  rect: vec4;
-  isPerspective: boolean;
-  fov: number;
-  aspect: number;
-  isOrtho: boolean;
-  leftClipPlane: number;
-  rightClipPlane: number;
-  bottomClipPlane: number;
-  topClipPlane: number;
-  nearClipPlane: number;
-  farClipPlane: number;
-  location: vec3;
-  rotation: quat;
-  inverseRotation: quat;
-  worldMatrix: mat4;
-  projectionMatrix: mat4;
-  worldProjectionMatrix: mat4;
-  inverseWorldMatrix: mat4;
-  inverseRotationMatrix: mat4;
-  inverseWorldProjectionMatrix: mat4;
-  directionX: vec3;
-  directionY: vec3;
-  directionZ: vec3;
-  vectors: vec3[];
-  billboardedVectors: vec3[];
-  planes: vec4[];
-  dirty: boolean;
-
-  constructor() {
-    // Rendered viewport.
-    this.rect = vec4.create();
-
-    // Perspective values.
-    this.isPerspective = true;
-    this.fov = 0;
-    this.aspect = 0;
-
-    // Orthogonal values.
-    this.isOrtho = false;
-    this.leftClipPlane = 0;
-    this.rightClipPlane = 0;
-    this.bottomClipPlane = 0;
-    this.topClipPlane = 0;
-
-    // Shared values.
-    this.nearClipPlane = 0;
-    this.farClipPlane = 0;
-
-    // World values.
-    this.location = vec3.create();
-    this.rotation = quat.create();
-
-    // Derived values.
-    this.inverseRotation = quat.create();
-    this.worldMatrix = mat4.create();
-    this.projectionMatrix = mat4.create();
-    this.worldProjectionMatrix = mat4.create();
-    this.inverseWorldMatrix = mat4.create();
-    this.inverseRotationMatrix = mat4.create();
-    this.inverseWorldProjectionMatrix = mat4.create();
-    this.directionX = vec3.create();
-    this.directionY = vec3.create();
-    this.directionZ = vec3.create();
-
-    // First four vectors are the corners of a 2x2 rectangle, the last three vectors are the unit axes
-    this.vectors = [vec3.fromValues(-1, -1, 0), vec3.fromValues(-1, 1, 0), vec3.fromValues(1, 1, 0), vec3.fromValues(1, -1, 0), vec3.fromValues(1, 0, 0), vec3.fromValues(0, 1, 0), vec3.fromValues(0, 0, 1)];
-
-    // First four vectors are the corners of a 2x2 rectangle billboarded to the camera, the last three vectors are the unit axes billboarded
-    this.billboardedVectors = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
-
-    // Left, right, top, bottom, near, far
-    this.planes = [vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create()];
-
-    this.dirty = true;
-  }
+  /**
+   * The rendered viewport.
+   */
+  rect: vec4 = vec4.create();
+  isPerspective: boolean = true;
+  fov: number = 0;
+  aspect: number = 0;
+  isOrtho: boolean = false;
+  leftClipPlane: number = 0;
+  rightClipPlane: number = 0;
+  bottomClipPlane: number = 0;
+  topClipPlane: number = 0;
+  nearClipPlane: number = 0;
+  farClipPlane: number = 0;
+  location: vec3 = vec3.create();
+  rotation: quat = quat.create();
+  inverseRotation: quat = quat.create();
+  worldMatrix: mat4 = mat4.create();
+  projectionMatrix: mat4 = mat4.create();
+  worldProjectionMatrix: mat4 = mat4.create();
+  inverseWorldMatrix: mat4 = mat4.create();
+  inverseRotationMatrix: mat4 = mat4.create();
+  inverseWorldProjectionMatrix: mat4 = mat4.create();
+  /**
+   * The X axis in camera space.
+   */
+  directionX: vec3 = vec3.create();
+  /**
+   * The Y axis in camera space.
+   */
+  directionY: vec3 = vec3.create();
+  /**
+   * The Z axis in camera space.
+   */
+  directionZ: vec3 = vec3.create();
+  /**
+   * The first four vectors describe the corners of a 2x2 rectangle.
+   * 
+   * The last three vectors are unit axes.
+   */
+  vectors: vec3[] = [vec3.fromValues(-1, -1, 0), vec3.fromValues(-1, 1, 0), vec3.fromValues(1, 1, 0), vec3.fromValues(1, -1, 0), vec3.fromValues(1, 0, 0), vec3.fromValues(0, 1, 0), vec3.fromValues(0, 0, 1)];
+  /**
+   * Same as vectors, however these are all billboarded to the camera.
+   */
+  billboardedVectors: vec3[] = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
+  /**
+   * The camera frustum planes in this order: left, right, top, bottom, near, far.
+   */
+  planes: vec4[] = [vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create()];
+  dirty: boolean = true;
 
   /**
    * Set the camera to perspective projection mode.

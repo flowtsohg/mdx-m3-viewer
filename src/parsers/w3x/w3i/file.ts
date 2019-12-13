@@ -18,11 +18,11 @@ export default class War3MapW3i {
   author: string = '';
   description: string = '';
   recommendedPlayers: string = '';
-  cameraBounds: Float32Array = new Float32Array(2);
+  cameraBounds: Float32Array = new Float32Array(8);
   cameraBoundsComplements: Int32Array = new Int32Array(4);
   playableSize: Int32Array = new Int32Array(2);
   flags: number = 0;
-  tileset: string = '\0';
+  tileset: string = 'A';
   campaignBackground: number = 0;
   loadingScreenModel: string = '';
   loadingScreenText: string = '';

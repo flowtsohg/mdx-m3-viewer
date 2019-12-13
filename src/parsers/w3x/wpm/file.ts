@@ -22,7 +22,7 @@ export default class War3MapWpm {
     }
 
     this.version = stream.readInt32();
-    this.size = stream.readInt32Array(2);
+    stream.readInt32Array(this.size);
     this.pathing = stream.readUint8Array(this.size[0] * this.size[1]);
 
     return true;

@@ -19,6 +19,18 @@ import War3MapWts from './wts/file';
 import War3MapUnitsDoo from './unitsdoo/file';
 import TriggerData from './wtg/triggerdata';
 
+type War3MapModificationNames = 'w3a' | 'w3b' | 'w3d' | 'w3h' | 'w3q' | 'w3t' | 'w3u';
+
+interface War3MapModifications {
+  w3a?: War3MapW3d;
+  w3b?: War3MapW3u;
+  w3d?: War3MapW3d;
+  w3h?: War3MapW3u;
+  w3q?: War3MapW3d;
+  w3t?: War3MapW3u;
+  w3u?: War3MapW3u;
+}
+
 /**
  * Warcraft 3 map (W3X and W3M).
  */
@@ -370,7 +382,7 @@ export default class War3Map {
    * Read and parse all of the modification tables.
    */
   readModifications() {
-    let modifications = {};
+    let modifications: War3MapModifications = {};
 
     // useOptionalInts:
     //      w3u: no (units)
@@ -380,7 +392,7 @@ export default class War3Map {
     //      w3a: yes (abilities)
     //      w3h: no (buffs)
     //      w3q: yes (upgrades)
-    let fileNames = ['w3u', 'w3t', 'w3b', 'w3d', 'w3a', 'w3h', 'w3q'];
+    let fileNames: War3MapModificationNames[] = ['w3u', 'w3t', 'w3b', 'w3d', 'w3a', 'w3h', 'w3q'];
     let useOptionalInts = [false, false, false, true, true, false, true];
 
     for (let i = 0, l = fileNames.length; i < l; i++) {

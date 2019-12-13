@@ -10,6 +10,7 @@ export default class M3Sequence {
   movementSpeed: number;
   frequency: number;
   boundingSphere: M3ParserBoundingSphere;
+  flags: number;
 
   constructor(sequence: M3ParserSequence) {
     this.name = sequence.name.getAll().join('');
@@ -17,5 +18,6 @@ export default class M3Sequence {
     this.movementSpeed = sequence.movementSpeed;
     this.frequency = sequence.frequency;
     this.boundingSphere = sequence.boundingSphere;
+    this.flags = sequence.flags;
   }
 }

@@ -11,19 +11,29 @@ type PathSolver = (src: any, params?: any) => [any, string, boolean];
 /**
  * The data sent to every resource as a part of the loading process.
  */
-type ResourceData = { viewer: any, extension?: string, pathSolver?: PathSolver, fetchUrl?: string };
+type ResourceData = { viewer: any, extension?: string, fetchUrl?: string };
+
+/**
+ * The data sent to every handler resource as part of the loading process.
+ */
+type HandlerResourceData = ResourceData & { pathSolver: PathSolver };
+
+/**
+ * The valid data type names for resource fetches.
+ */
+type FetchDataTypeNames = 'image' | 'text' | 'arrayBuffer' | 'blob';
 
 /**
  * The valid data types for resource fetches.
  */
-type FetchDataType = 'image' | 'text' | 'arrayBuffer' | 'blob';
+type FetchDataType = HTMLImageElement | string | ArrayBuffer | Blob;
 
 /**
  * The structure that the promise returned by fetchDataType is resolved to.
  */
 interface FetchResult {
   ok: boolean;
-  data: HTMLImageElement | string | ArrayBuffer | Blob | Response | Event;
+  data: FetchDataType | Response | Event;
   error?: string;
 }
 
@@ -37,3 +47,23 @@ interface Handler {
   load?: (viewer: any) => boolean;
   resource: any;
 }
+
+/**
+ * A standard object mapping strings to strings.
+ */
+type StringObject = { [key: string]: string };
+
+/**
+ * A standard object mapping strings to numbers.
+ */
+type NumberObject = { [key: string]: number };
+
+/**
+ * A standard object mapping strings to booleans.
+ */
+type BooleanObject = { [key: string]: boolean };
+
+/**
+ * A MappedData row.
+ */
+type MappedDataRow = { [key: string]: string | number | boolean };

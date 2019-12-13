@@ -65,6 +65,10 @@ interface DownloadResult {
   }
 }
 
+interface ResembleResult {
+  rawMisMatchPercentage: number;
+}
+
 /**
  * A unit tester designed for the model viewer.
  * The input of each test is a pre-defined scene, and the output is the rendered image.
@@ -117,10 +121,11 @@ export default class UnitTester {
       let comparisonBlob = await this.getComparisonBlob(test);
 
       if (testBlob && comparisonBlob) {
-        let comparisonPromise = new Promise((resolve) => resemble(testBlob).compareTo(comparisonBlob).ignoreColors().onComplete((data) => resolve(data)));
-        let [testImage, comparisonImage, testResult] = await Promise.all([blobToImage(testBlob), blobToImage(comparisonBlob), comparisonPromise]);
+        let comparisonResult = await new Promise((resolve: (data: ResembleResult) => void) => resemble(testBlob).compareTo(comparisonBlob).ignoreColors().onComplete((data: ResembleResult) => resolve(data)));
+        let testImage = await blobToImage(testBlob);
+        let comparisonImage = await blobToImage(comparisonBlob);
 
-        callback({ done: false, value: { name: test.name, testImage, comparisonImage, result: testResult.rawMisMatchPercentage } });
+        callback({ done: false, value: { name: test.name, testImage, comparisonImage, result: comparisonResult.rawMisMatchPercentage } });
       } else {
         // Fail modes.
         // 1) The test blob exists, but comparison doesn't. This happens when adding new tests.

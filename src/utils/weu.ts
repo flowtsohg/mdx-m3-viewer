@@ -9,26 +9,55 @@ import War3MapWtg from '../parsers/w3x/wtg/file';
 import War3MapWct from '../parsers/w3x/wct/file';
 import War3Map from '../parsers/w3x/map';
 
+interface GeneratedFunctionDescriptor {
+  type: 'generatedfunction';
+  stack: string;
+  data: string;
+}
+
+interface InlineGUIDescriptor {
+  type: 'inlinegui';
+  stack: string;
+}
+
+interface GeneratedStringTableDescriptor {
+  type: 'generatedstringtable';
+  stack: string;
+  data: { value: string, callback: string };
+}
+
+interface SingleToMultipleDescriptor {
+  type: 'singletomultiple';
+  stack: string;
+}
+
+interface InlineCustomScriptDescriptor {
+  type: 'inlinecustomscript';
+  stack: string;
+  data: string;
+}
+
+interface ReferencesDescriptor {
+  type: 'references';
+  data: string[];
+}
+
+type AnyDescriptor = GeneratedFunctionDescriptor | InlineGUIDescriptor | GeneratedStringTableDescriptor | SingleToMultipleDescriptor | InlineCustomScriptDescriptor | ReferencesDescriptor;
+
 /**
  * The data needed to convert one map.
  */
 class WeuConverterData {
   triggerData: TriggerData;
-  stringTable: War3MapWts | null;
-  stack: (Trigger | ECA | Parameter | SubParameters)[];
-  generatedNames: object;
-  generatedFunctions: string[];
-  preplacedObjects: object;
-  output: { ok: boolean; error: string; changes: any[]; };
+  stringTable: War3MapWts | null = null;
+  stack: (Trigger | ECA | Parameter | SubParameters)[] = [];
+  generatedNames: NumberObject = {};
+  generatedFunctions: string[] = [];
+  preplacedObjects: BooleanObject = {};
+  output: { ok: boolean, error: string, changes: AnyDescriptor[] } = { ok: false, error: '', changes: [] };
 
   constructor(triggerData: TriggerData) {
     this.triggerData = triggerData;
-    this.stringTable = null;
-    this.stack = [];
-    this.generatedNames = {};
-    this.generatedFunctions = [];
-    this.preplacedObjects = {};
-    this.output = { ok: false, error: '', changes: [] };
   }
 }
 

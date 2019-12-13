@@ -5,14 +5,19 @@ import MdxModel from '../mdx/model';
 import MdxComplexInstance from '../mdx/complexinstance';
 import War3MapViewer from './viewer';
 
+const heapZ = vec3.create();
+
 /**
  * A unit.
  */
 export default class Unit {
   instance: MdxComplexInstance;
-  row: any;
+  /**
+   * StartLocation.mdx (and others?) seems to be built-in, and has no row.
+   */
+  row: MappedDataRow | undefined;
 
-  constructor(map: War3MapViewer, model: MdxModel, row: any, unit: DooUnit) {
+  constructor(map: War3MapViewer, model: MdxModel, row: MappedDataRow | undefined, unit: DooUnit) {
     let instance = <MdxComplexInstance>model.addInstance();
 
     //let normal = this.groundNormal([], unit.location[0], unit.location[1]);
@@ -24,12 +29,14 @@ export default class Unit {
     instance.setScene(map.scene);
 
     if (row) {
-      instance.move([0, 0, row.moveHeight]);
-      instance.setVertexColor([row.red / 255, row.green / 255, row.blue / 255, 1]);
-      instance.uniformScale(row.modelScale);
+      heapZ[2] = <number>row.moveHeight;
+
+      instance.move(heapZ);
+      instance.setVertexColor([<number>row.red / 255, <number>row.green / 255, <number>row.blue / 255, 1]);
+      instance.uniformScale(<number>row.modelScale);
     }
 
-    this.row = row;
     this.instance = instance;
+    this.row = row;
   }
 }

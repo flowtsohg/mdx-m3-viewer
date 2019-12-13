@@ -1,4 +1,4 @@
-import { lua_State, lua_register, lua_pushinteger, lua_pushnumber, lua_pushstring, lua_pushlightuserdata, lua_touserdata, lua_pushboolean, lua_toboolean, LUA_REGISTRYINDEX, lua_yield, lua_pcall, lua_rawgeti } from 'fengari/src/lua';
+import { lua_State, lua_register, lua_pushinteger, lua_pushnumber, lua_pushstring, lua_pushlightuserdata, lua_touserdata, lua_pushboolean, lua_pushnil, lua_toboolean, LUA_REGISTRYINDEX, lua_yield } from 'fengari/src/lua';
 import { luaL_checkstring, luaL_checkinteger, luaL_checknumber, luaL_ref, luaL_unref } from 'fengari/src/lauxlib';
 import { JassTimer, JassGroup, JassLocation, JassForce, JassUnit, JassTrigger } from './types';
 import Context from './context';
@@ -273,7 +273,9 @@ function ConvertMapFlag(C: Context, L: lua_State) {
 function ConvertMapVisibility(C: Context, L: lua_State) {
   let i = luaL_checkinteger(L, 1);
 
-  lua_pushlightuserdata(L, C.constantHandles.mapVisibilities[i]);
+  console.warn('ConvertMapVisibility used, but the implementation is unknown');
+
+  lua_pushnil(L);
 
   return 1;
 }
@@ -284,7 +286,9 @@ function ConvertMapVisibility(C: Context, L: lua_State) {
 function ConvertMapSetting(C: Context, L: lua_State) {
   let i = luaL_checkinteger(L, 1);
 
-  lua_pushlightuserdata(L, C.constantHandles.mapSettings[i]);
+  console.warn('ConvertMapSetting used, but the implementation is unknown');
+
+  lua_pushnil(L);
 
   return 1;
 }
@@ -1513,7 +1517,13 @@ function ResumeTimer(C: Context, L: lua_State) {
  * native GetExpiredTimer takes nothing returns timer
  */
 function GetExpiredTimer(C: Context, L: lua_State) {
-  lua_pushlightuserdata(L, C.currentThread.expiredTimer);
+  let thread = C.currentThread;
+
+  if (thread && thread.expiredTimer) {
+    lua_pushlightuserdata(L, thread.expiredTimer);
+  } else {
+    lua_pushnil(L);
+  }
 
   return 1;
 }
@@ -2422,7 +2432,13 @@ function GetEnumPlayer(C: Context, L: lua_State) {
  * constant native GetTriggeringTrigger takes nothing returns trigger
  */
 function GetTriggeringTrigger(C: Context, L: lua_State) {
-  lua_pushlightuserdata(L, C.currentThread.triggeringTrigger);
+  let thread = C.currentThread;
+
+  if (thread && thread.triggeringTrigger) {
+    lua_pushlightuserdata(L, thread.triggeringTrigger);
+  } else {
+    lua_pushnil(L);
+  }
 
   return 1;
 }
@@ -3412,7 +3428,13 @@ function TriggerRegisterDeathEvent(C: Context, L: lua_State) {
  * constant native GetTriggerUnit takes nothing returns unit
  */
 function GetTriggerUnit(C: Context, L: lua_State) {
-  lua_pushlightuserdata(L, C.currentThread.triggerUnit);
+  let thread = C.currentThread;
+
+  if (thread && thread.triggerUnit) {
+    lua_pushlightuserdata(L, thread.triggerUnit);
+  } else {
+    lua_pushnil(L);
+  }
 
   return 1;
 }

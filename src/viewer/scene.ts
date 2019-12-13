@@ -18,35 +18,22 @@ import EmittedObjectUpdater from './emittedobjectupdater';
  */
 export default class Scene {
   viewer: ModelViewer;
-  camera: Camera;
-  grid: Grid;
-  visibleCells: number;
-  visibleInstances: number;
-  updatedParticles: number;
-  audioEnabled: boolean;
-  audioContext: AudioContext | null;
-  instances: ModelInstance[];
-  currentInstance: number;
-  batchedInstances: BatchedInstance[];
-  currentBatchedInstance: number;
-  batches: Map<TextureMapper, RenderBatch>;
-  emittedObjectUpdater: EmittedObjectUpdater;
+  camera: Camera = new Camera();
+  grid: Grid = new Grid(-100000, -100000, 200000, 200000, 200000, 200000);
+  visibleCells: number = 0;
+  visibleInstances: number = 0;
+  updatedParticles: number = 0;
+  audioEnabled: boolean = false;
+  audioContext: AudioContext | null = null;
+  instances: ModelInstance[] = [];
+  currentInstance: number = 0;
+  batchedInstances: BatchedInstance[] = [];
+  currentBatchedInstance: number = 0;
+  batches: Map<TextureMapper, RenderBatch> = new Map();
+  emittedObjectUpdater: EmittedObjectUpdater = new EmittedObjectUpdater();
 
   constructor(viewer: ModelViewer) {
     this.viewer = viewer;
-    this.camera = new Camera();
-    this.grid = new Grid(-100000, -100000, 200000, 200000, 200000, 200000);
-    this.visibleCells = 0;
-    this.visibleInstances = 0;
-    this.updatedParticles = 0;
-    this.audioEnabled = false;
-    this.audioContext = null;
-    this.instances = [];
-    this.currentInstance = 0;
-    this.batchedInstances = [];
-    this.currentBatchedInstance = 0;
-    this.batches = new Map();
-    this.emittedObjectUpdater = new EmittedObjectUpdater();
 
     let canvas = viewer.canvas;
 

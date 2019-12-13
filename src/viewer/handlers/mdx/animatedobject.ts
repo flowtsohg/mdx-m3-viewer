@@ -1,4 +1,3 @@
-import { vec3, quat } from 'gl-matrix';
 import MdlxAnimatedObject from '../../../parsers/mdlx/animatedobject';
 import MdxModel from './model';
 import MdxComplexInstance from './complexinstance';

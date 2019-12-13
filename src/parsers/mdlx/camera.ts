@@ -40,7 +40,7 @@ export default class Camera extends AnimatedObject {
   }
 
   readMdl(stream: TokenStream) {
-    this.name = stream.read();
+    this.name = stream.readSafe();
 
     for (let token of stream.readBlock()) {
       if (token === 'Position') {

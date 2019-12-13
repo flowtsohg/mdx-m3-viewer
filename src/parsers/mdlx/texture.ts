@@ -25,7 +25,7 @@ export default class Texture {
   readMdl(stream: TokenStream) {
     for (let token of stream.readBlock()) {
       if (token === 'Image') {
-        this.path = stream.read();
+        this.path = stream.readSafe();
       } else if (token === 'ReplaceableId') {
         this.replaceableId = stream.readInt();
       } else if (token === 'WrapWidth') {

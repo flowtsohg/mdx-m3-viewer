@@ -3,15 +3,12 @@
  */
 export default class TokenStream {
   buffer: string;
-  index: number;
-  ident: number;
-  fractionDigits: number;
+  index: number = 0;
+  ident: number = 0;
+  fractionDigits: number = 6;
 
   constructor(buffer?: string) {
     this.buffer = buffer || '';
-    this.index = 0;
-    this.ident = 0; // Used for writing blocks nicely.
-    this.fractionDigits = 6; // The number of fraction digits when writing floats.
   }
 
   /**
@@ -93,8 +90,6 @@ export default class TokenStream {
         token += c;
       }
     }
-
-    return '';
   }
 
   /**
@@ -110,17 +105,30 @@ export default class TokenStream {
   }
 
   /**
+   * Same as read, but if the end of the stream was encountered, an error will be raised.
+   */
+  readSafe() {
+    let value = this.read();
+
+    if (value === undefined) {
+      throw new Error('End of stream reached prematurely');
+    }
+
+    return value;
+  }
+
+  /**
    * Reads the next token, and parses it as an integer.
    */
   readInt() {
-    return parseInt(this.read());
+    return parseInt(<string>this.read());
   }
 
   /**
    * Reads the next token, and parses it as a float.
    */
   readFloat() {
-    return parseFloat(this.read());
+    return parseFloat(<string>this.read());
   }
 
   /**
@@ -248,6 +256,21 @@ export default class TokenStream {
       yield token;
 
       token = this.read();
+    }
+  }
+
+  /**
+   * Same as readBlock, but throws an error if the end of the stream is reached.
+   */
+  * readBlockSafe() {
+    this.readSafe(); // {
+
+    let token = this.readSafe();
+
+    while (token !== '}') {
+      yield token;
+
+      token = this.readSafe();
     }
   }
 

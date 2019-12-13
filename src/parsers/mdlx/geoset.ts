@@ -174,7 +174,7 @@ export default class Geoset {
         // Vertex groups are stored in a block with no count, can't allocate the buffer yet.
         let vertexGroups = [];
 
-        for (let vertexGroup of stream.readBlock()) {
+        for (let vertexGroup of stream.readBlockSafe()) {
           vertexGroups.push(parseInt(vertexGroup));
         }
 
@@ -205,10 +205,10 @@ export default class Geoset {
         stream.readInt(); // total indices
 
         // eslint-disable-next-line no-unused-vars
-        for (let matrix of stream.readBlock()) {
+        for (let matrix of stream.readBlockSafe()) {
           let size = 0;
 
-          for (let index of stream.readBlock()) {
+          for (let index of stream.readBlockSafe()) {
             indices.push(parseInt(index));
             size += 1;
           }
@@ -227,7 +227,7 @@ export default class Geoset {
       } else if (token === 'Anim') {
         let extent = new Extent();
 
-        for (token of stream.readBlock()) {
+        for (token of stream.readBlockSafe()) {
           if (token === 'MinimumExtent') {
             stream.readFloatArray(extent.min);
           } else if (token === 'MaximumExtent') {

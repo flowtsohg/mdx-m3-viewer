@@ -1,7 +1,7 @@
-import {UintAnimation, FloatAnimation, Vector3Animation, Vector4Animation} from './animations';
+import { UintAnimation, FloatAnimation, Vector3Animation, Vector4Animation } from './animations';
 
 // A map from MDX animation tags to their equivalent MDL tokens, and the implementation objects.
-export default {
+export default <{ [key: string]: [string, typeof UintAnimation | typeof FloatAnimation | typeof Vector3Animation | typeof Vector4Animation] }>{
   // Layer
   KMTF: ['TextureId', UintAnimation],
   KMTA: ['Alpha', FloatAnimation],

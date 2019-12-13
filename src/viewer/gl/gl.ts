@@ -9,10 +9,10 @@ import Texture from '../texture';
  */
 export default class WebGL {
   gl: WebGLRenderingContext;
-  shaderUnits: Map<number, ShaderUnit>;
-  shaderPrograms: Map<number, ShaderProgram>;
-  currentShaderProgram: ShaderProgram | null;
-  floatPrecision: string;
+  shaderUnits: Map<number, ShaderUnit> = new Map();
+  shaderPrograms: Map<number, ShaderProgram> = new Map();
+  currentShaderProgram: ShaderProgram | null = null;
+  floatPrecision: string = 'precision mediump float;\n';
   emptyTexture: WebGLTexture;
   extensions: {
     instancedArrays: ANGLE_instanced_arrays,
@@ -30,8 +30,6 @@ export default class WebGL {
     if (!gl) {
       throw new Error('WebGL: Failed to create a WebGL context!');
     }
-
-    this.gl = gl;
 
     let textureFloat = gl.getExtension('OES_texture_float')
     let instancedArrays = gl.getExtension('ANGLE_instanced_arrays')
@@ -59,33 +57,25 @@ export default class WebGL {
       console.warn('WebGL: No vertex array object support! This might reduce performance.');
     }
 
-    // An empty 2x2 texture that is used automatically when binding an invalid texture
-    let imageData = new ImageData(2, 2);
-
-    // Alpha fully set.
-    for (let i = 0; i < 4; i++) {
-      imageData.data[i * 4 + 3] = 255;
-    }
-
     let emptyTexture = <WebGLTexture>gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, emptyTexture);
-    this.setTextureMode(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.NEAREST, gl.NEAREST);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8ClampedArray([0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255]))
 
-    // The only initial setup required, the rest should be handled by the handlers
-    gl.depthFunc(gl.LEQUAL);
-    gl.enable(gl.DEPTH_TEST);
-
-    this.shaderUnits = new Map();
-    this.shaderPrograms = new Map();
-    this.currentShaderProgram = null;
-    this.floatPrecision = 'precision mediump float;\n';
+    this.gl = gl;
     this.emptyTexture = emptyTexture;
     this.extensions = {
       instancedArrays,
       compressedTextureS3tc,
       vertexArrayObject,
     }
+
+    // The only initial setup, the rest should be handled by the handlers.
+    gl.depthFunc(gl.LEQUAL);
+    gl.enable(gl.DEPTH_TEST);
   }
 
   /**

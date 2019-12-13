@@ -78,7 +78,7 @@ document.getElementById('animation_toggle').addEventListener('click', () => {
 
 let textureModel = viewer.load({
   geometry: geometry.createUnitRectangle(),
-  material: {renderMode: 0, twoSided: true, isBGR: false}
+  material: { renderMode: 0, twoSided: true, isBGR: false }
 }, src => [src, '.geo', false]);
 
 function nodeName(node) {
@@ -119,7 +119,9 @@ function addTooltip(element, node) {
 }
 
 function handleTestNode(stream, node) {
-  if (node.warnings || node.errors || node.uses === 0) {
+  let type = node.type;
+
+  if (type === 'object' && (node.errors || node.warnings || node.uses === 0)) {
     let name = nodeName(node);
 
     if (node.errors) {
@@ -145,13 +147,13 @@ function handleTestNode(stream, node) {
     }
 
     stream.unindent();
-  } else if (node.type === 'warning') {
+  } else if (type === 'warning') {
     let element = stream.warn(node.message);
 
     addTooltip(element, node);
 
     stream.br();
-  } else if (node.type === 'error') {
+  } else if (type === 'error') {
     let element = stream.error(node.message);
 
     addTooltip(element, node);
@@ -554,7 +556,7 @@ function getUrlParams() {
     for (let param of search.slice(1).split('&')) {
       let [key, value] = param.split('=');
 
-      params.push({key, value});
+      params.push({ key, value });
     }
   }
 
@@ -583,8 +585,8 @@ async function loadQuery() {
   let overrides = new Map();
 
   for (let param of params) {
-    let {key, value} = param;
-    let entry = {path: value, ext: getExt(value)};
+    let { key, value } = param;
+    let entry = { path: value, ext: getExt(value) };
 
     if (key === 'file') {
       files.push(entry);

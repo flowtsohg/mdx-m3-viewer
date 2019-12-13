@@ -3,7 +3,6 @@
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "suppressImplicitAnyIndexErrors": true,
     "module": "commonjs",
     "lib": [
       "es2017",

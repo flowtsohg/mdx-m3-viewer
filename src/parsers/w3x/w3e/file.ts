@@ -39,15 +39,13 @@ export default class War3MapW3e {
       this.cliffTilesets[i] = stream.read(4);
     }
 
-    this.mapSize = stream.readInt32Array(2);
-    this.centerOffset = stream.readFloat32Array(2);
+    stream.readInt32Array(this.mapSize);
+    stream.readFloat32Array(this.centerOffset);
 
-    let [columns, rows] = this.mapSize;
-
-    for (let row = 0; row < rows; row++) {
+    for (let row = 0, rows = this.mapSize[1]; row < rows; row++) {
       this.corners[row] = [];
 
-      for (let column = 0; column < columns; column++) {
+      for (let column = 0, columns = this.mapSize[0]; column < columns; column++) {
         let corner = new Corner();
 
         corner.load(stream);

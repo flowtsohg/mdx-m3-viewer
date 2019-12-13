@@ -11,9 +11,9 @@ import War3MapViewer from './viewer';
  */
 export default class Doodad {
   instance: MdxSimpleInstance | MdxComplexInstance;
-  row: any;
+  row: MappedDataRow;
 
-  constructor(map: War3MapViewer, model: MdxModel, row: any, doodad: DooDoodad) {
+  constructor(map: War3MapViewer, model: MdxModel, row: MappedDataRow, doodad: DooDoodad) {
     let isSimple = row.lightweight === 1;
     let instance;
 

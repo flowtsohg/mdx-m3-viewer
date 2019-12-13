@@ -28,16 +28,17 @@ export default class AttachmentInstance {
   }
 
   update() {
+    let instance = this.instance;
     let internalInstance = this.internalInstance;
 
-    if (internalInstance.model.ok) {
+    if (internalInstance.model.ok && instance.scene) {
       this.attachment.getVisibility(visibilityHeap, this.instance);
 
       if (visibilityHeap[0] > 0.1) {
         // The parent instance might not actually be in a scene.
         // This happens if loading a local model, where loading is instant and adding to a scene always comes afterwards.
         // Therefore, do it here dynamically.
-        this.instance.scene.addInstance(internalInstance);
+        instance.scene.addInstance(internalInstance);
 
         if (internalInstance.hidden()) {
           internalInstance.show();

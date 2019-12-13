@@ -11,8 +11,8 @@ import MdxComplexInstance from './complexinstance';
 import Texture from '../../texture';
 import GenericResource from '../../genericresource';
 
-const mappedDataCallback = (text: string) => new MappedData(text);
-const decodedDataCallback = (arrayBuffer: ArrayBuffer) => decodeAudioData(arrayBuffer);
+const mappedDataCallback = (data: FetchDataType) => new MappedData(<string>data);
+const decodedDataCallback = (data: FetchDataType) => decodeAudioData(<ArrayBuffer>data);
 
 /**
  * An event object.
@@ -22,26 +22,26 @@ export default class EventObjectEmitterObject extends GenericObject {
   type: string;
   id: string;
   tracks: Uint32Array;
-  globalSequence: number;
-  defval: Uint32Array;
-  internalModel: MdxModel | null;
-  internalTexture: Texture | null;
-  colors: Float32Array[] | null;
-  intervalTimes: Float32Array | null;
-  scale: number;
-  columns: number;
-  rows: number;
-  lifeSpan: number;
-  blendSrc: number;
-  blendDst: number;
-  intervals: Float32Array[] | null;
-  distanceCutoff: number;
-  maxDistance: number;
-  minDistance: number;
-  pitch: number;
-  pitchVariance: number;
-  volume: number;
-  decodedBuffers: AudioBuffer[];
+  globalSequence: number = -1;
+  defval: Uint32Array = new Uint32Array(1);
+  internalModel: MdxModel | null = null;
+  internalTexture: Texture | null = null;
+  colors: Float32Array[] | null = null;
+  intervalTimes: Float32Array | null = null;
+  scale: number = 0;
+  columns: number = 0;
+  rows: number = 0;
+  lifeSpan: number = 0;
+  blendSrc: number = 0;
+  blendDst: number = 0;
+  intervals: Float32Array[] | null = null;
+  distanceCutoff: number = 0;
+  maxDistance: number = 0;
+  minDistance: number = 0;
+  pitch: number = 0;
+  pitchVariance: number = 0;
+  volume: number = 0;
+  decodedBuffers: AudioBuffer[] = [];
   /**
    * If this is an SPL/UBR emitter object, ok will be set to true if the tables are loaded.
    * 
@@ -73,34 +73,6 @@ export default class EventObjectEmitterObject extends GenericObject {
     this.type = type;
     this.id = id;
     this.tracks = eventObject.tracks;
-    this.globalSequence = -1;
-    this.defval = new Uint32Array(1);
-
-    // SPN
-    this.internalModel = null;
-
-    // SPL & UBR
-    this.internalTexture = null;
-    this.colors = null;
-    this.intervalTimes = null;
-    this.scale = 0;
-    this.columns = 0;
-    this.rows = 0;
-    this.lifeSpan = 0;
-    this.blendSrc = 0;
-    this.blendDst = 0;
-
-    // SPL
-    this.intervals = null;
-
-    // SND
-    this.distanceCutoff = 0;
-    this.maxDistance = 0;
-    this.minDistance = 0;
-    this.pitch = 0;
-    this.pitchVariance = 0;
-    this.volume = 0;
-    this.decodedBuffers = [];
 
     let globalSequenceId = eventObject.globalSequenceId;
     if (globalSequenceId !== -1) {
@@ -153,7 +125,7 @@ export default class EventObjectEmitterObject extends GenericObject {
       let pathSolver = model.pathSolver;
 
       if (type === 'SPN') {
-        this.internalModel = viewer.load(row.Model.replace('.mdl', '.mdx'), pathSolver, model.solverParams);
+        this.internalModel = viewer.load((<string>row.Model).replace('.mdl', '.mdx'), pathSolver, model.solverParams);
 
         if (this.internalModel) {
           this.internalModel.whenLoaded((model) => this.ok = model.ok);
@@ -161,30 +133,30 @@ export default class EventObjectEmitterObject extends GenericObject {
       } else if (type === 'SPL' || type === 'UBR') {
         this.internalTexture = viewer.load('replaceabletextures/splats/' + row.file + '.blp', pathSolver, model.solverParams);
 
-        this.scale = row.Scale;
+        this.scale = <number>row.Scale;
         this.colors = [
-          new Float32Array([row.StartR, row.StartG, row.StartB, row.StartA]),
-          new Float32Array([row.MiddleR, row.MiddleG, row.MiddleB, row.MiddleA]),
-          new Float32Array([row.EndR, row.EndG, row.EndB, row.EndA]),
+          new Float32Array([<number>row.StartR, <number>row.StartG, <number>row.StartB, <number>row.StartA]),
+          new Float32Array([<number>row.MiddleR, <number>row.MiddleG, <number>row.MiddleB, <number>row.MiddleA]),
+          new Float32Array([<number>row.EndR, <number>row.EndG, <number>row.EndB, <number>row.EndA]),
         ];
 
         if (type === 'SPL') {
-          this.columns = row.Columns;
-          this.rows = row.Rows;
-          this.lifeSpan = row.Lifespan + row.Decay;
-          this.intervalTimes = new Float32Array([row.Lifespan, row.Decay]);
+          this.columns = <number>row.Columns;
+          this.rows = <number>row.Rows;
+          this.lifeSpan = <number>row.Lifespan + <number>row.Decay;
+          this.intervalTimes = new Float32Array([<number>row.Lifespan, <number>row.Decay]);
           this.intervals = [
-            new Float32Array([row.UVLifespanStart, row.UVLifespanEnd, row.LifespanRepeat]),
-            new Float32Array([row.UVDecayStart, row.UVDecayEnd, row.DecayRepeat]),
+            new Float32Array([<number>row.UVLifespanStart, <number>row.UVLifespanEnd, <number>row.LifespanRepeat]),
+            new Float32Array([<number>row.UVDecayStart, <number>row.UVDecayEnd, <number>row.DecayRepeat]),
           ];
         } else {
           this.columns = 1;
           this.rows = 1;
-          this.lifeSpan = row.BirthTime + row.PauseTime + row.Decay;
-          this.intervalTimes = new Float32Array([row.BirthTime, row.PauseTime, row.Decay]);
+          this.lifeSpan = <number>row.BirthTime + <number>row.PauseTime + <number>row.Decay;
+          this.intervalTimes = new Float32Array([<number>row.BirthTime, <number>row.PauseTime, <number>row.Decay]);
         }
 
-        let blendModes = emitterFilterMode(row.BlendMode, viewer.gl);
+        let blendModes = emitterFilterMode(<number>row.BlendMode, viewer.gl);
 
         this.blendSrc = blendModes[0];
         this.blendDst = blendModes[1];
@@ -196,22 +168,22 @@ export default class EventObjectEmitterObject extends GenericObject {
         if (viewer.audioEnabled) {
           let animSounds = <MappedData>tables[1].data;
 
-          row = animSounds.getRow(row.SoundLabel);
+          row = animSounds.getRow(<string>row.SoundLabel);
 
           if (row) {
-            this.distanceCutoff = row.DistanceCutoff;
-            this.maxDistance = row.MaxDistance;
-            this.minDistance = row.MinDistance;
-            this.pitch = row.Pitch;
-            this.pitchVariance = row.PitchVariance;
-            this.volume = row.Volume;
+            this.distanceCutoff = <number>row.DistanceCutoff;
+            this.maxDistance = <number>row.MaxDistance;
+            this.minDistance = <number>row.MinDistance;
+            this.pitch = <number>row.Pitch;
+            this.pitchVariance = <number>row.PitchVariance;
+            this.volume = <number>row.Volume;
 
-            let fileNames = row.FileNames.split(',');
+            let fileNames = (<string>row.FileNames).split(',');
             let resources = fileNames.map((fileName) => viewer.loadGeneric(urlWithParams(pathSolver(row.DirectoryBase + fileName)[0], model.solverParams), 'arrayBuffer', decodedDataCallback));
 
             viewer.whenLoaded(resources, (resources) => {
               for (let resource of resources) {
-                this.decodedBuffers.push(resource.data);
+                this.decodedBuffers.push((<GenericResource>resource).data);
               }
 
               this.ok = true;
@@ -243,22 +215,22 @@ export default class EventObjectEmitterObject extends GenericObject {
   getValueAtTime(out: Uint32Array, frame: number, start: number, end: number) {
     let tracks = this.tracks;
 
-    if (frame < start || frame > end) {
-      out[0] = 0;
-      return -1;
-    }
+    if (frame >= start && frame <= end) {
+      for (let i = tracks.length - 1; i > -1; i--) {
+        if (tracks[i] < start) {
+          out[0] = 0;
 
-    for (let i = tracks.length - 1; i > -1; i--) {
-      if (tracks[i] < start) {
-        out[0] = 0;
-        return i;
-      } else if (tracks[i] <= frame) {
-        out[0] = 1;
-        return i;
+          return i;
+        } else if (tracks[i] <= frame) {
+          out[0] = 1;
+
+          return i;
+        }
       }
     }
 
     out[0] = 0;
+
     return -1;
   }
 }

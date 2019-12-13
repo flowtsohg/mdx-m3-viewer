@@ -7,11 +7,9 @@ import IniFile from '../parsers/ini/file';
  * In the case of SLK files, the first row is expected to hold the names of the columns.
  */
 export default class MappedData {
-  map: object;
+  map: { [key: string]: MappedDataRow } = {};
 
   constructor(buffer?: string) {
-    this.map = {};
-
     if (buffer) {
       this.load(buffer);
     }
@@ -50,7 +48,7 @@ export default class MappedData {
               key = `column${j}`;
             }
 
-            mapped[key] = row[j];
+            mapped[`${key}`] = row[j];
           }
         }
       }
@@ -81,7 +79,7 @@ export default class MappedData {
     return this.map[key.toLowerCase()][name];
   }
 
-  setRow(key: string, values: object) {
+  setRow(key: string, values: MappedDataRow) {
     this.map[key.toLowerCase()] = values;
   }
 }

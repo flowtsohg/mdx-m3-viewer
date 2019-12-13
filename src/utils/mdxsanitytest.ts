@@ -9,22 +9,36 @@ import Geoset from '../parsers/mdlx/geoset';
 import AnimatedObject from '../parsers/mdlx/animatedobject';
 import { Animation } from '../parsers/mdlx/animations';
 
+interface WarningErrorDescriptor {
+  type: 'warning' | 'error';
+  message: string;
+}
+
+interface ObjectDescriptor {
+  type: 'object';
+  objectType: string;
+  warnings: number;
+  errors: number;
+  children: (ObjectDescriptor | WarningErrorDescriptor)[];
+  index?: number;
+  name?: string;
+  uses?: number;
+}
+
 /**
  * The data needed for a data.
  */
 class SanityTestData {
   model: Model;
-  objects: any[];
-  current: { children: any[]; };
-  stack: any[];
-  map: object;
+  objects: any[] = [];
+  current: ObjectDescriptor;
+  stack: ObjectDescriptor[];
+  map: { [key: string]: ObjectDescriptor[] } = {};
 
   constructor(model: Model) {
     this.model = model;
-    this.objects = [];
-    this.current = { children: [] };
+    this.current = { type: 'object', objectType: '', warnings: 0, errors: 0, children: [] };
     this.stack = [this.current];
-    this.map = {};
 
     this.addObjects(model.sequences, 'Sequence');
     this.addObjects(model.globalSequences, 'GlobalSequence');
@@ -54,7 +68,7 @@ class SanityTestData {
 
     for (let [index, object] of objects.entries()) {
       let name = object.name || object.path;
-      let data = { objectType, index, warnings: 0, errors: 0, children: [] };
+      let data = <ObjectDescriptor>{ type: 'object', objectType, index, warnings: 0, errors: 0, children: [] };
 
       if (name) {
         data.name = name;
@@ -88,10 +102,10 @@ class SanityTestData {
     if (nodes) {
       node = nodes[index];
     } else {
-      node = { objectType, warnings: 0, errors: 0, children: [] };
+      node = <ObjectDescriptor>{ type: 'object', objectType, warnings: 0, errors: 0, children: [] };
 
       // Animations don't need the index.
-      if (typeof index === 'number') {
+      if (index !== -1) {
         node.index = index;
       }
     }
@@ -114,7 +128,7 @@ class SanityTestData {
   /**
    * Adds a child to the current node.
    */
-  add(type: string, message: string) {
+  add(type: 'warning' | 'error', message: string) {
     this.current.children.push({ type, message });
   }
 
@@ -161,14 +175,17 @@ class SanityTestData {
   }
 
   /**
-   * Adds a reference to either the node described by the parameters, or the current node if nothing is passed.
+   * Adds a reference to the node described by the parameters.
    */
-  addReference(objectType?: string, index?: number) {
-    if (objectType) {
-      this.map[objectType][index].uses += 1;
-    } else {
-      this.current.uses += 1;
-    }
+  addReference(objectType: string, index: number) {
+    (<number>this.map[objectType][index].uses) += 1;
+  }
+
+  /**
+   * Add a reference to the current node.
+   */
+  addImplicitReference() {
+    (<number>this.current.uses) += 1;
   }
 
   getInvisibility(object: GenericObject) {
@@ -267,7 +284,7 @@ function testSequences(data: SanityTestData) {
       }
 
       if (sequenceNames.has(token)) {
-        data.addReference();
+        data.addImplicitReference();
       } else {
         data.addWarning(`Unknown sequence "${token}"`);
       }
@@ -487,7 +504,7 @@ function testGeosets(data: SanityTestData) {
     }
 
     if (geoset.faces.length) {
-      data.addReference();
+      data.addImplicitReference();
     } else {
       // The game and my code have no issue with geosets containing no faces, but Magos crashes, so add a warning in addition to it being useless.
       data.addWarning('Zero faces');
@@ -514,7 +531,7 @@ function testGeosetAnimations(data: SanityTestData) {
     let geosetId = geosetAnimation.geosetId;
 
     if (inRange(geosetId, 0, geosets.length - 1)) {
-      data.addReference();
+      data.addImplicitReference();
     } else {
       data.addError(`Invalid geoset ${geosetId}`);
     }
@@ -748,7 +765,7 @@ function testCameras(data: SanityTestData) {
 
     // I don't know what the rules are as to when cameras are used for portraits.
     // Therefore, for now never report them as not used.
-    data.addReference();
+    data.addImplicitReference();
 
     testAnimations(data, camera);
 
@@ -800,7 +817,7 @@ function hasGenericObject(data: SanityTestData, id: number) {
  */
 function testAnimations(data: SanityTestData, object: AnimatedObject) {
   for (let animation of object.animations) {
-    data.push(animatedTypeNames.get(animation.name));
+    data.push(<string>animatedTypeNames.get(animation.name), -1);
 
     testAnimation(data, animation);
 
@@ -841,16 +858,16 @@ function testAnimation(data: SanityTestData, animation: Animation) {
  */
 function testTracks(data: SanityTestData, animation: Animation, globalSequenceId: number) {
   let sequences = data.model.sequences;
-  let usageMap = {};
+  let usageMap: [boolean, boolean, number][] = [];
   let frames = animation.frames;
 
-  data.assertWarning(frames.length, 'Zero tracks');
+  data.assertWarning(frames.length > 0, 'Zero tracks');
   data.assertWarning(globalSequenceId !== -1 || frames.length === 0 || sequences.length !== 0, 'Tracks used without sequences');
 
   for (let i = 0, l = frames.length; i < l; i++) {
     let frame = frames[i];
     let sequenceInfo = getSequenceInfoFromFrame(data, frame, globalSequenceId);
-    let sequenceId = sequenceInfo[0];
+    let sequenceId = <number>sequenceInfo[0];
     let isBeginning = sequenceInfo[1];
     let isEnding = sequenceInfo[2];
 
@@ -874,14 +891,17 @@ function testTracks(data: SanityTestData, animation: Animation, globalSequenceId
     }
   }
 
-  for (let sequenceId of Object.keys(usageMap)) {
-    let sequenceInfo = usageMap[sequenceId];
+  for (let i = 0, l = usageMap.length; i < l; i++) {
+    // Tracks don't neccessarily have to reference all sequences.
+    if (usageMap[i] !== undefined) {
+      let sequenceInfo = usageMap[i];
 
-    if (globalSequenceId === -1) {
-      let sequence = sequences[sequenceId];
+      if (globalSequenceId === -1) {
+        let sequence = sequences[i];
 
-      data.assertWarning(sequenceInfo[0] || sequenceInfo[2] === 1, `No opening track for "${sequence.name}" at frame ${sequence.interval[0]}`);
-      data.assertWarning(sequenceInfo[1] || sequenceInfo[2] === 1, `No closing track for "${sequence.name}" at frame ${sequence.interval[1]}`);
+        data.assertWarning(sequenceInfo[0] || sequenceInfo[2] === 1, `No opening track for "${sequence.name}" at frame ${sequence.interval[0]}`);
+        data.assertWarning(sequenceInfo[1] || sequenceInfo[2] === 1, `No closing track for "${sequence.name}" at frame ${sequence.interval[1]}`);
+      }
     }
   }
 }
@@ -1070,27 +1090,14 @@ export default function sanityTest(model: Model) {
   testCameras(data);
   testCollisionShapes(data);
 
-  let nodes = data.stack[0].children;
-  let warnings = 0;
-  let errors = 0;
+  let root = data.stack[0];
+  let nodes = root.children;
+  let warnings = root.warnings;
+  let errors = root.errors;
   let unused = 0;
 
   for (let node of nodes) {
-    // There are some top-level warnings.
-    if (node.type === 'warning') {
-      warnings += 1;
-    } else if (node.warnings) {
-      warnings += node.warnings;
-    }
-
-    // There are some top-level errors.
-    if (node.type === 'error') {
-      errors += 1;
-    } else if (node.errors) {
-      errors += node.errors;
-    }
-
-    if (node.uses === 0) {
+    if ((<ObjectDescriptor>node).uses === 0) {
       unused += 1;
     }
   }

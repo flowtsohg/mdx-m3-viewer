@@ -1,16 +1,16 @@
 import { uint8ToInt8, uint8ToInt16, uint8ToInt32, uint8ToUint16, uint8ToUint32, uint8ToFloat32, uint8ToFloat64, int8ToUint8, int16ToUint8, int32ToUint8, uint16ToUint8, uint32ToUint8, float32ToUint8, float64ToUint8 } from './typecast';
 
 // Memory for all of the xxxToUint type casts.
-let uint8 = new Uint8Array(8);
+const uint8 = new Uint8Array(8);
 
 /**
  * A binary stream.
  */
 export default class BinaryStream {
-  buffer: ArrayBuffer
-  uint8array: Uint8Array
-  index: number
-  byteLength: number
+  buffer: ArrayBuffer;
+  uint8array: Uint8Array;
+  index: number = 0;
+  byteLength: number;
 
   constructor(buffer: ArrayBuffer | TypedArray, byteOffset?: number, byteLength?: number) {
     // If given a view, use its properties.
@@ -32,7 +32,6 @@ export default class BinaryStream {
 
     this.buffer = buffer;
     this.uint8array = new Uint8Array(buffer, byteOffset, byteLength);
-    this.index = 0;
     this.byteLength = byteLength;
   }
 

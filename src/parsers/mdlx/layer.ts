@@ -2,7 +2,7 @@ import BinaryStream from '../../common/binarystream';
 import TokenStream from './tokenstream';
 import AnimatedObject from './animatedobject';
 
-let filterModeToMdx = {
+let filterModeToMdx: NumberObject = {
   None: 0,
   Transparent: 1,
   Blend: 2,
@@ -12,7 +12,7 @@ let filterModeToMdx = {
   Modulate2x: 6,
 };
 
-let filterModeToMdl = {
+let filterModeToMdl: StringObject = {
   0: 'None',
   1: 'Transparent',
   2: 'Blend',
@@ -94,7 +94,7 @@ export default class Layer extends AnimatedObject {
   readMdl(stream: TokenStream) {
     for (let token of super.readAnimatedBlock(stream)) {
       if (token === 'FilterMode') {
-        this.filterMode = filterModeToMdx[stream.read()];
+        this.filterMode = filterModeToMdx[stream.readSafe()];
       } else if (token === 'Unshaded') {
         this.flags |= 0x1;
       } else if (token === 'SphereEnvMap') {

@@ -8,7 +8,7 @@
  *     "arrayBuffer" => ArrayBuffer
  *     "blob" => Blob
  */
-export default async function fetchDataType(path: string, dataType: FetchDataType) {
+export default async function fetchDataType(path: string, dataType: FetchDataTypeNames) {
   if (dataType === 'image') {
     // Promise wrapper for an image load.
     return new Promise((resolve: (data: FetchResult) => void) => {

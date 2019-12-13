@@ -88,6 +88,10 @@ export default class MdxModel extends Model {
       parser = new Parser(bufferOrParser);
     }
 
+    let viewer = this.viewer;
+    let pathSolver = this.pathSolver;
+    let solverParams = this.solverParams;
+
     this.reforged = parser.version > 800;
     this.name = parser.name;
 
@@ -134,14 +138,14 @@ export default class MdxModel extends Model {
     }
 
     if (this.reforged) {
-      this.solverParams.reforged = true;
+      solverParams.reforged = true;
     }
 
     if (this.hd) {
-      this.solverParams.hd = true;
+      solverParams.hd = true;
     }
 
-    let gl = this.viewer.gl;
+    let gl = viewer.gl;
     let usingTeamTextures = false;
 
     // Textures
@@ -184,7 +188,7 @@ export default class MdxModel extends Model {
 
       this.replaceables.push(replaceableId);
 
-      let viewerTexture = this.viewer.load(path, this.pathSolver, this.solverParams);
+      let viewerTexture = viewer.load(path, pathSolver, solverParams);
 
       // When the texture will load, it will apply its wrap modes.
       if (!viewerTexture.loaded) {
@@ -207,8 +211,6 @@ export default class MdxModel extends Model {
       let teamGlows = reforged ? mdxHandler.reforgedTeamGlows : mdxHandler.teamGlows;
 
       if (!teamColors.length) {
-        let viewer = this.viewer;
-        let pathSolver = this.pathSolver;
         let ext = 'blp';
 
         if (reforged) {
@@ -218,8 +220,8 @@ export default class MdxModel extends Model {
         for (let i = 0; i < 14; i++) {
           let id = ('' + i).padStart(2, '0');
 
-          teamColors[i] = viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}.${ext}`, pathSolver, this.solverParams);
-          teamGlows[i] = viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}.${ext}`, pathSolver, this.solverParams);
+          teamColors[i] = viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}.${ext}`, pathSolver, solverParams);
+          teamGlows[i] = viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}.${ext}`, pathSolver, solverParams);
         }
       }
     }

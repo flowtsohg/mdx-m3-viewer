@@ -2,12 +2,12 @@
  * A bit stream.
  */
 export default class BitStream {
-  buffer: ArrayBuffer
-  uint8array: Uint8Array
-  index: number
-  byteLength: number
-  bitBuffer: number
-  bits: number
+  buffer: ArrayBuffer;
+  uint8array: Uint8Array;
+  index: number = 0;
+  byteLength: number;
+  bitBuffer: number = 0;
+  bits: number = 0;
 
   constructor(buffer: ArrayBuffer | TypedArray, byteOffset?: number, byteLength?: number) {
     // If given a view, use its properties.
@@ -29,10 +29,7 @@ export default class BitStream {
 
     this.buffer = buffer;
     this.uint8array = new Uint8Array(buffer, byteOffset, byteLength);
-    this.index = 0;
     this.byteLength = buffer.byteLength;
-    this.bitBuffer = 0;
-    this.bits = 0;
   }
 
   /**

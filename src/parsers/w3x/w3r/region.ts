@@ -23,7 +23,7 @@ export default class Region {
     this.creationNumber = stream.readUint32();
     this.weatherEffectId = stream.read(4);
     this.ambientSound = stream.readUntilNull();
-    this.color = stream.readUint8Array(4);
+    stream.readUint8Array(this.color);
   }
 
   save(stream: BinaryStream) {

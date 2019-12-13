@@ -21,19 +21,15 @@ class SourceMapData {
   stream: TokenStream;
   rootNode: SourceNode;
   stack: SourceNode[];
-  counts: object;
-  ident: number;
-  searchBitmapName: boolean;
-  lookingForAnimName: boolean;
+  counts: NumberObject = {};
+  ident: number = 0;
+  searchBitmapName: boolean = false;
+  lookingForAnimName: boolean = false;
 
   constructor(stream: TokenStream) {
     this.stream = stream;
     this.rootNode = { name: 'root', ident: 0, start: 0, end: stream.buffer.length, data: '', children: [] };
     this.stack = [this.rootNode];
-    this.counts = {};
-    this.ident = 0;
-    this.searchBitmapName = false;
-    this.lookingForAnimName = false;
   }
 }
 
@@ -170,7 +166,7 @@ export default function mdlSourceMap(buffer: string) {
           data.stack[0].objectName = `ReplaceableId ${replacebleId}`;
         }
       } else if (token === 'Image') {
-        let image = stream.read();
+        let image = <string>stream.read();
 
         if (image !== '') {
           data.lookingForAnimName = false;

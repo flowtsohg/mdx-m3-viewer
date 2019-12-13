@@ -1,6 +1,7 @@
 import { vec3, quat } from 'gl-matrix';
 import { VEC3_UNIT_Z } from '../../../common/gl-matrix-addon';
 import { randomInRange } from '../../../common/math';
+import Scene from '../../scene';
 import EmittedObject from '../../emittedobject';
 import ParticleEmitterObject from './particleemitterobject';
 import MdxComplexInstance from './complexinstance';
@@ -35,6 +36,7 @@ export default class Particle extends EmittedObject {
   bind() {
     let emitter = <ParticleEmitter>this.emitter;
     let instance = <MdxComplexInstance>emitter.instance;
+    let scene = <Scene>instance.scene;
     let emitterObject = <ParticleEmitterObject>emitter.emitterObject;
     let node = instance.nodes[emitterObject.index];
     let internalInstance = this.internalInstance;
@@ -65,7 +67,7 @@ export default class Particle extends EmittedObject {
     // Apply the parent's scale
     vec3.mul(velocity, velocity, scale);
 
-    instance.scene.addInstance(internalInstance);
+    scene.addInstance(internalInstance);
 
     internalInstance.setTransformation(node.worldLocation, quat.setAxisAngle(rotationHeap, VEC3_UNIT_Z, randomInRange(0, Math.PI * 2)), node.worldScale);
     internalInstance.setSequence(0);

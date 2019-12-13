@@ -13,8 +13,8 @@ export default class MinimapIcon {
 
   load(stream: BinaryStream) {
     this.type = stream.readInt32();
-    this.location = stream.readInt32Array(2);
-    this.color = stream.readUint8Array(4);
+    stream.readInt32Array(this.location);
+    stream.readUint8Array(this.color);
   }
 
   save(stream: BinaryStream) {

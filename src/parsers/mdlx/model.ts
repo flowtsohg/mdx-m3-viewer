@@ -361,7 +361,7 @@ export default class Model {
     let token: string;
     let stream = new TokenStream(buffer);
 
-    while (token = stream.read()) {
+    while (token = <string>stream.read()) {
       if (token === 'Version') {
         this.loadVersionBlock(stream);
       } else if (token === 'Model') {
@@ -419,9 +419,9 @@ export default class Model {
   }
 
   loadModelBlock(stream: TokenStream) {
-    this.name = stream.read();
+    this.name = stream.readSafe();
 
-    for (let token of stream.readBlock()) {
+    for (let token of stream.readBlockSafe()) {
       if (token.startsWith('Num')) {
         // Don't care about the number of things, the arrays will grow as they wish.
         // This includes:

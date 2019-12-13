@@ -26,7 +26,7 @@ export default class War3MapDoo {
     }
 
     this.version = stream.readInt32();
-    this.u1 = stream.readUint8Array(4);
+    stream.readUint8Array(this.u1);
 
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
       let doodad = new Doodad();
@@ -36,7 +36,7 @@ export default class War3MapDoo {
       this.doodads.push(doodad);
     }
 
-    this.u2 = stream.readUint8Array(4);
+    stream.readUint8Array(this.u2);
 
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
       let terrainDoodad = new TerrainDoodad();

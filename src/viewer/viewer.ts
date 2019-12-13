@@ -18,19 +18,19 @@ import Texture from './texture';
  * A model viewer.
  */
 export default class ModelViewer extends EventEmitter {
-  resources: Resource[];
-  fetchCache: Map<string, Resource>;
-  resourcesLoading: Set<Resource>;
-  handlers: Set<Handler>;
-  frameTime: number;
+  resources: Resource[] = [];
+  fetchCache: Map<string, Resource> = new Map();
+  resourcesLoading: Set<Resource> = new Set();
+  handlers: Set<Handler> = new Set();
+  frameTime: number = 1000 / 60;
   canvas: HTMLCanvasElement;
   webgl: WebGL;
   gl: WebGLRenderingContext;
-  scenes: Scene[];
-  visibleCells: number;
-  visibleInstances: number;
-  updatedParticles: number;
-  frame: number;
+  scenes: Scene[] = [];
+  visibleCells: number = 0;
+  visibleInstances: number = 0;
+  updatedParticles: number = 0;
+  frame: number = 0;
   /**
    * A simple buffer containing the bytes [0, 1, 2, 0, 2, 3].
    * These are used as vertices in all geometry shaders.
@@ -52,25 +52,15 @@ export default class ModelViewer extends EventEmitter {
    * If audio is desired, this should be set to true before loading models that use audio.
    * Note that it is preferable to call enableAudio(), which checks for the existence of AudioContext.
    */
-  audioEnabled: boolean;
-  textureMappers: Map<Model, TextureMapper[]>;
+  audioEnabled: boolean = false;
+  textureMappers: Map<Model, TextureMapper[]> = new Map();
 
   constructor(canvas: HTMLCanvasElement, options?: object) {
     super();
 
-    this.resources = [];
-    this.fetchCache = new Map();
-    this.resourcesLoading = new Set();
-    this.handlers = new Set();
-    this.frameTime = 1000 / 60;
     this.canvas = canvas;
     this.webgl = new WebGL(canvas, options);
     this.gl = this.webgl.gl;
-    this.scenes = [];
-    this.visibleCells = 0;
-    this.visibleInstances = 0;
-    this.updatedParticles = 0;
-    this.frame = 0;
 
     let gl = this.gl;
 
@@ -80,11 +70,8 @@ export default class ModelViewer extends EventEmitter {
     gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array([0, 1, 2, 0, 2, 3]), gl.STATIC_DRAW);
 
     this.buffer = new ClientBuffer(gl);
+
     this.dataTexture = new ClientDataTexture(gl);
-
-    this.audioEnabled = false;
-
-    this.textureMappers = new Map();
 
     // Track when resources start loading.
     this.on('loadstart', (target) => {
@@ -246,7 +233,7 @@ export default class ModelViewer extends EventEmitter {
         resource.emit('loadstart', resource);
 
         if (isFetch) {
-          let dataType = <FetchDataType>handlerAndDataType[1];
+          let dataType = <FetchDataTypeNames>handlerAndDataType[1];
 
           fetchDataType(finalSrc, dataType)
             .then((response) => {
@@ -294,7 +281,7 @@ export default class ModelViewer extends EventEmitter {
    * If a callback is given, the resource's data is the value returned by it when called with the fetch data.
    * If a callback returns a promise, the resource's data will be the result of the promise.
    */
-  loadGeneric(path: string, dataType: FetchDataType, callback?: (data: HTMLImageElement | string | ArrayBuffer | Blob) => any) {
+  loadGeneric(path: string, dataType: FetchDataTypeNames, callback?: (data: FetchDataType) => any) {
     let cachedResource = this.fetchCache.get(path);
 
     if (cachedResource) {
@@ -318,7 +305,7 @@ export default class ModelViewer extends EventEmitter {
 
         if (response.ok) {
           if (callback) {
-            data = callback(<HTMLImageElement | string | ArrayBuffer | Blob>data);
+            data = callback(<FetchDataType>data);
 
             if (data instanceof Promise) {
               data.then((data) => resource.loadData(data));
@@ -521,8 +508,7 @@ export default class ModelViewer extends EventEmitter {
     ['loadstart', 'load', 'error', 'loadend'].map((e) => resource.once(e, (...data) => this.emit(e, ...data)));
   }
 
-  baseTextureMapper(instance: ModelInstance) {
-    let model = instance.model;
+  baseTextureMapper(model: Model) {
     let textureMappers = this.textureMappers;
 
     if (!textureMappers.has(model)) {

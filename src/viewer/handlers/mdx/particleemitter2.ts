@@ -11,13 +11,12 @@ const emissionRateHeap = new Float32Array(1);
  */
 export default class ParticleEmitter2 extends MdxEmitter {
   node: MdxNode;
-  lastEmissionKey: number;
+  lastEmissionKey: number = -1;
 
   constructor(instance: MdxComplexInstance, emitterObject: ParticleEmitter2Object) {
     super(instance, emitterObject);
 
     this.node = instance.nodes[emitterObject.index];
-    this.lastEmissionKey = -1;
   }
 
   updateEmission(dt: number) {

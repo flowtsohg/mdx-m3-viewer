@@ -9,20 +9,16 @@ import ModelViewer from './viewer';
 export default abstract class Resource extends EventEmitter {
   viewer: ModelViewer;
   extension: string;
-  pathSolver: PathSolver | null;
   fetchUrl: string;
-  ok: boolean;
-  loaded: boolean;
+  ok: boolean = false;
+  loaded: boolean = false;
 
   constructor(resourceData: ResourceData) {
     super();
 
     this.viewer = resourceData.viewer;
     this.extension = resourceData.extension || '';
-    this.pathSolver = resourceData.pathSolver || null;
     this.fetchUrl = resourceData.fetchUrl || '';
-    this.ok = false;
-    this.loaded = false;
 
     // Ignore EventEmitter warnings.
     // Mostly relevant when loading many models that reference the same texture / event object.

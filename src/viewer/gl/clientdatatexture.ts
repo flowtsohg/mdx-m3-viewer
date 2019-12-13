@@ -4,20 +4,15 @@
 export default class ClientDataTexture {
   gl: WebGLRenderingContext;
   texture: WebGLTexture;
-  width: number;
-  height: number;
-  arrayBuffer: ArrayBuffer;
-  byteView: Uint8Array | null;
-  floatView: Float32Array | null;
+  width: number = 0;
+  height: number = 0;
+  arrayBuffer: ArrayBuffer = new ArrayBuffer(0);;
+  byteView: Uint8Array | null = null;
+  floatView: Float32Array | null = null;
 
   constructor(gl: WebGLRenderingContext, width: number = 2, height: number = 2) {
     this.gl = gl;
     this.texture = <WebGLTexture>gl.createTexture();
-    this.width = 0;
-    this.height = 0;
-    this.arrayBuffer = new ArrayBuffer(0);
-    this.byteView = null;
-    this.floatView = null;
 
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);

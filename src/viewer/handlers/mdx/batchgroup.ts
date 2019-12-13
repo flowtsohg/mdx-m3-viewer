@@ -11,12 +11,11 @@ import Batch from './batch';
 export default class BatchGroup {
   model: MdxModel;
   isExtended: boolean;
-  objects: number[];
+  objects: number[] = [];
 
   constructor(model: MdxModel, isExtended: boolean) {
     this.model = model;
     this.isExtended = isExtended;
-    this.objects = [];
   }
 
   render(instance: MdxComplexInstance) {

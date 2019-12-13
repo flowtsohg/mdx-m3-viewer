@@ -10,38 +10,41 @@ import Camera from './camera';
  * A model instance.
  */
 export default abstract class ModelInstance extends Node {
-  scene: Scene | null;
-  left: number;
-  right: number;
-  bottom: number;
-  top: number;
-  plane: number;
-  depth: number;
-  updateFrame: number;
-  cullFrame: number;
+  scene: Scene | null = null;
+  left: number = -1;
+  right: number = -1;
+  bottom: number = -1;
+  top: number = -1;
+  plane: number = -1;
+  depth: number = 0;
+  updateFrame: number = 0;
+  cullFrame: number = 0;
   model: Model;
   textureMapper: TextureMapper;
-  paused: boolean;
-  rendered: boolean;
+  /**
+   * If true, this instance won't be updated.
+   */
+  paused: boolean = false;
+  /**
+   * If false, this instance won't be rendered.
+   * 
+   * When working with Warcraft 3 instances, it is preferable to use hide() and show().
+   * These hide and show also internal instances of this instance.
+   */
+  rendered: boolean = true;
 
   constructor(model: Model) {
     super();
 
-    this.scene = null;
-    this.left = -1;
-    this.right = -1;
-    this.bottom = -1;
-    this.top = -1;
-    this.plane = -1;
-    this.depth = 0;
-    this.updateFrame = 0;
-    this.cullFrame = 0;
     this.model = model;
-    this.textureMapper = model.viewer.baseTextureMapper(this);
-    this.paused = false;
-    this.rendered = true;
+    this.textureMapper = model.viewer.baseTextureMapper(model);
   }
 
+  /**
+   * Set the texture at the given key to the given texture.
+   * 
+   * If a texture isn't given, the key is deleted instead.
+   */
   setTexture(key: any, texture?: Texture) {
     this.textureMapper = this.model.viewer.changeTextureMapper(this, key, texture);
   }
