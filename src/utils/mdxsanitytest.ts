@@ -76,8 +76,6 @@ class SanityTestData {
 
       if (!areGeneric) {
         data.uses = 0;
-      } else {
-        //data.invisibility = this.getInvisibility(object);
       }
 
       array.push(data);
@@ -186,52 +184,6 @@ class SanityTestData {
    */
   addImplicitReference() {
     (<number>this.current.uses) += 1;
-  }
-
-  getInvisibility(object: GenericObject) {
-    let segments = [];
-
-    // If this is a bone, it has no visibility animations of its own, but it can point to a geoset animation that does.
-    if (object instanceof Bone && object.geosetAnimationId !== -1) {
-      object = this.model.geosetAnimations[object.geosetAnimationId];
-    }
-
-    // Look for a relevant animation.
-    for (let animation of object.animations) {
-      let mdxName = animation.name; // e.g. "KP2V"
-      let mdlName = animationMap[mdxName][0]; // e.g. "Visibility"
-
-      // See if this is a visibility animation.
-      // In the case the object is a bone, and thus a geoset animation is checked, look for its alpha animation.
-      if (mdlName === 'Visibility' || mdxName === 'KGAO') {
-        let tracks = animation.tracks;
-
-        // Go over all sequences.
-        for (let sequence of this.model.sequences) {
-          let [start, end] = sequence.interval;
-          let startIndex = -1;
-          let endIndex = -1;
-
-          // See which keyframes are used for the current sequence.
-          for (let i = 0, l = tracks.length; i < l; i++) {
-            let track = tracks[i];
-
-            if (track.frame >= start && startIndex === -1) {
-              startIndex = i;
-            }
-
-            if (track.frame > end && endIndex === -1) {
-              endIndex = i - 1;
-              break;
-            }
-          }
-        }
-
-        return segments;
-      }
-    }
-
-    return segments;
   }
 }
 

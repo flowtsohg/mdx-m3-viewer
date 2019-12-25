@@ -167,8 +167,6 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: ShaderPro
     vectors = camera.billboardedVectors;
   }
 
-  gl.uniform1f(uniforms.u_emitter, EMITTER_PARTICLE2);
-
   gl.uniform1f(uniforms.u_lifeSpan, emitterObject.lifeSpan);
   gl.uniform1f(uniforms.u_timeMiddle, emitterObject.timeMiddle);
   gl.uniform1f(uniforms.u_columns, emitterObject.columns);
@@ -261,8 +259,6 @@ function bindRibbonEmitterShader(emitter: RibbonEmitter, shader: ShaderProgram) 
 
   model.viewer.webgl.bindTexture(textureMapper.get(texture) || texture, 0);
 
-  gl.uniform1f(uniforms.u_emitter, EMITTER_RIBBON);
-
   gl.uniform1f(uniforms.u_columns, emitterObject.columns);
   gl.uniform1f(uniforms.u_rows, emitterObject.rows);
 }
@@ -311,8 +307,6 @@ function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader:
 
   model.viewer.webgl.bindTexture(textureMapper.get(texture) || texture, 0);
 
-  gl.uniform1f(uniforms.u_emitter, EMITTER_SPLAT);
-
   gl.uniform1f(uniforms.u_lifeSpan, emitterObject.lifeSpan);
   gl.uniform1f(uniforms.u_columns, emitterObject.columns);
   gl.uniform1f(uniforms.u_rows, emitterObject.rows);
@@ -342,8 +336,6 @@ function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader:
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 
   viewer.webgl.bindTexture(textureMapper.get(texture) || texture, 0);
-
-  gl.uniform1f(uniforms.u_emitter, EMITTER_UBERSPLAT);
 
   gl.uniform1f(uniforms.u_lifeSpan, emitterObject.lifeSpan);
   gl.uniform1f(uniforms.u_columns, emitterObject.columns);
@@ -389,6 +381,8 @@ export function renderEmitter(emitter: ParticleEmitter2 | RibbonEmitter | EventO
     }
 
     buffer.bindAndUpdate(size);
+
+    gl.uniform1i(shader.uniforms.u_emitter, emitterType);
 
     gl.vertexAttribPointer(attribs.a_p0, 3, gl.FLOAT, false, BYTES_PER_OBJECT, BYTE_OFFSET_P0);
     gl.vertexAttribPointer(attribs.a_p1, 3, gl.FLOAT, false, BYTES_PER_OBJECT, BYTE_OFFSET_P1);

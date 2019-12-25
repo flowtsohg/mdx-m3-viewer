@@ -2,6 +2,7 @@
   "compilerOptions": {
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
+    "suppressImplicitAnyIndexErrors": true,
     "strict": true,
     "module": "commonjs",
     "lib": [

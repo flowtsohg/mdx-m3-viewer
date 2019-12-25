@@ -14,7 +14,7 @@ export default abstract class GenericObject extends AnimatedObject {
   parentId: number = -1;
   flags: number;
 
-  constructor(flags: number) {
+  constructor(flags: number = 0) {
     super();
 
     this.flags = flags;

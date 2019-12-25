@@ -31,7 +31,7 @@ export default class M3Layer {
   active: number = 0;
   layer: Layer | null = null;
   gl: WebGLRenderingContext;
-  uniformMap: { map: string; enabled: string; op: string; channels: string; teamColorMode: string; invert: string; clampResult: string; uvCoordinate: string; } | null = null;
+  uniformMap: { map: string; enabled: string; op: string; channels: string; teamColorMode: string; invert: string; clampResult: string; uvCoordinate: string; };
   source: string = '';
   texture: Texture | null = null;
   flags: number = 0;
@@ -50,6 +50,20 @@ export default class M3Layer {
     this.model = model;
     this.gl = material.gl;
 
+    let uniform = 'u_' + type;
+    let settings = uniform + 'LayerSettings.';
+
+    this.uniformMap = {
+      map: uniform + 'Map',
+      enabled: settings + 'enabled',
+      op: settings + 'op',
+      channels: settings + 'channels',
+      teamColorMode: settings + 'teamColorMode',
+      invert: settings + 'invert',
+      clampResult: settings + 'clampResult',
+      uvCoordinate: settings + 'uvCoordinate',
+    };
+
     // Since Gloss doesn't exist in all versions
     if (layerReference) {
       let layer = layerReference.get();
@@ -57,20 +71,6 @@ export default class M3Layer {
       this.layer = layer;
 
       let pathSolver = model.pathSolver;
-
-      let uniform = 'u_' + type;
-      let settings = uniform + 'LayerSettings.';
-
-      this.uniformMap = {
-        map: uniform + 'Map',
-        enabled: settings + 'enabled',
-        op: settings + 'op',
-        channels: settings + 'channels',
-        teamColorMode: settings + 'teamColorMode',
-        invert: settings + 'invert',
-        clampResult: settings + 'clampResult',
-        uvCoordinate: settings + 'uvCoordinate',
-      };
 
       let source = layer.imagePath.getAll().join('').replace('\0', '').toLowerCase();
 

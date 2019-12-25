@@ -1,4 +1,4 @@
-const cliffVariations: NumberObject = {
+const cliffVariations = {
   AAAB: 1,
   AAAC: 1,
   AABA: 1,
@@ -65,7 +65,7 @@ const cliffVariations: NumberObject = {
   CCCA: 1,
 };
 
-const cityCliffVariations: NumberObject = {
+const cityCliffVariations = {
   AAAB: 2,
   AAAC: 1,
   AABA: 1,

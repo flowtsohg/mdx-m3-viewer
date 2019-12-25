@@ -22,13 +22,6 @@ export default class GenericObject extends AnimatedObject {
   billboardedY: number;
   billboardedZ: number;
   cameraAnchored: number;
-  bone: number;
-  light: number;
-  eventObject: number;
-  attachment: number;
-  particleEmitter: number;
-  collisionShape: number;
-  ribbonEmitter: number;
   emitterUsesMdlOrUnshaded: number;
   emitterUsesTgaOrSortPrimitivesFarZ: number;
   lineEmitter: number;
@@ -36,11 +29,6 @@ export default class GenericObject extends AnimatedObject {
   modelSpace: number;
   xYQuad: number;
   anyBillboarding: boolean;
-  variants: CHANGE_ME;
-  hasTranslationAnim: boolean;
-  hasRotationAnim: boolean;
-  hasScaleAnim: boolean;
-  hasGenericAnim: boolean;
 
   constructor(model: MdxModel, object: MdlxGenericObject, index: number) {
     super(model, object);
@@ -61,13 +49,6 @@ export default class GenericObject extends AnimatedObject {
     this.billboardedY = flags & 0x20;
     this.billboardedZ = flags & 0x40;
     this.cameraAnchored = flags & 0x80;
-    this.bone = flags & 0x100;
-    this.light = flags & 0x200;
-    this.eventObject = flags & 0x400;
-    this.attachment = flags & 0x800;
-    this.particleEmitter = flags & 0x1000;
-    this.collisionShape = flags & 0x2000;
-    this.ribbonEmitter = flags & 0x4000;
     this.emitterUsesMdlOrUnshaded = flags & 0x8000;
     this.emitterUsesTgaOrSortPrimitivesFarZ = flags & 0x10000;
     this.lineEmitter = flags & 0x20000;
@@ -81,45 +62,20 @@ export default class GenericObject extends AnimatedObject {
       this.parentId = -1;
     }
 
-    let variants = {
-      translation: [],
-      rotation: [],
-      scale: [],
-      generic: [],
-    };
-
-    let hasTranslationAnim = false;
-    let hasRotationAnim = false;
-    let hasScaleAnim = false;
-
-    for (let i = 0, l = model.sequences.length; i < l; i++) {
-      let translation = this.isTranslationVariant(i);
-      let rotation = this.isRotationVariant(i);
-      let scale = this.isScaleVariant(i);
-
-      variants.translation[i] = translation;
-      variants.rotation[i] = rotation;
-      variants.scale[i] = scale;
-      variants.generic[i] = translation || rotation || scale;
-
-      hasTranslationAnim = hasTranslationAnim || translation;
-      hasRotationAnim = hasRotationAnim || rotation;
-      hasScaleAnim = hasScaleAnim || scale;
-    }
-
-    this.variants = variants;
-    this.hasTranslationAnim = hasTranslationAnim;
-    this.hasRotationAnim = hasRotationAnim;
-    this.hasScaleAnim = hasScaleAnim;
-    this.hasGenericAnim = hasTranslationAnim || hasRotationAnim || hasScaleAnim;
+    this.addVariants('KGTR', 'translation');
+    this.addVariants('KGRT', 'rotation');
+    this.addVariants('KGSC', 'scale');
+    this.addVariantIntersection(['translation', 'rotation', 'scale'], 'generic');
   }
 
   /**
-   * Many of the generic objects have animated visibilities.
-   * This is a generic getter to allow the code to be consistent.
+   * Give a consistent visibility getter for all generic objects.
+   * 
+   * Many of the generic objects have animated visibilities, and will override this.
    */
   getVisibility(out: Float32Array, instance: MdxComplexInstance) {
     out[0] = 1;
+
     return -1;
   }
 
@@ -133,17 +89,5 @@ export default class GenericObject extends AnimatedObject {
 
   getScale(out: vec3, instance: MdxComplexInstance) {
     return this.getVectorValue(out, 'KGSC', instance, VEC3_ONE);
-  }
-
-  isTranslationVariant(sequence: number) {
-    return this.isVariant('KGTR', sequence);
-  }
-
-  isRotationVariant(sequence: number) {
-    return this.isVariant('KGRT', sequence);
-  }
-
-  isScaleVariant(sequence: number) {
-    return this.isVariant('KGSC', sequence);
   }
 }

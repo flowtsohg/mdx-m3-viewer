@@ -1,4 +1,23 @@
 /**
+ * The valid data type names for resource fetches.
+ */
+export type FetchDataTypeName = 'image' | 'text' | 'arrayBuffer' | 'blob';
+
+/**
+ * The valid data types for resource fetches.
+ */
+export type FetchDataType = HTMLImageElement | string | ArrayBuffer | Blob;
+
+/**
+ * The structure that the promise returned by fetchDataType is resolved to.
+ */
+export interface FetchResult {
+  ok: boolean;
+  data: FetchDataType | Response | Event;
+  error?: string;
+}
+
+/**
  * Returns a promise that will resolve with the data from the given path.
  * 
  * The data type determines the returned object:
@@ -8,7 +27,7 @@
  *     "arrayBuffer" => ArrayBuffer
  *     "blob" => Blob
  */
-export default async function fetchDataType(path: string, dataType: FetchDataTypeNames) {
+export async function fetchDataType(path: string, dataType: FetchDataTypeName) {
   if (dataType === 'image') {
     // Promise wrapper for an image load.
     return new Promise((resolve: (data: FetchResult) => void) => {

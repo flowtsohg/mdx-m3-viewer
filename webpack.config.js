@@ -25,6 +25,7 @@ module.exports = function (env, argv) {
       rules: [
         {
           test: /\.ts$/,
+          exclude: /node_modules/,
           use: [
             {
               loader: 'ts-loader',
@@ -35,10 +36,25 @@ module.exports = function (env, argv) {
             },
           ],
         },
+        {
+          test: /\.(glsl|vert|frag)$/,
+          exclude: /node_modules/,
+          use: [
+            'raw-loader',
+            {
+              loader: 'glslify-loader',
+              options: {
+                transform: [
+                  'glslify-import',
+                ]
+              },
+            },
+          ],
+        },
       ],
     },
     resolve: {
-      extensions: ['.ts', '.js'],
+      extensions: ['.ts', '.js', '.glsl', '.vert', '.frag'],
     },
     devtool: argv.mode === 'development' ? 'cheap-module-eval-source-map' : '',
   };

@@ -3,7 +3,7 @@ import mdxSanityTest from './mdxsanitytest';
 import blpSanityTest from './blpsanitytest';
 import convertWeu from './weu';
 import mdlSourceMap from './mdlsourcemap';
-import MappedData from './mappeddata';
+import { MappedData } from './mappeddata';
 import jass2 from './jass2';
 
 export default {

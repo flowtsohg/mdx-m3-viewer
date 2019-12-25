@@ -1,18 +1,17 @@
 {
   "name": "mdx-m3-viewer",
-  "version": "5.0.0-beta.10",
+  "version": "5.0.0-beta.11",
   "description": "A browser WebGL model viewer. Mainly focused on models of the games Warcraft 3 and Starcraft 2.",
   "main": "src/index.ts",
-  "directories": {
-    "example": "examples",
-    "clients": "clients"
-  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "webpack --mode=production",
+    "dev": "webpack -w --mode=development",
+    "serve": "node http-server.js",
+    "types": "dts-generator --project ./ --out ./dist/viewer.d.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/flowtsohg/mdx-m3-viewer.git"
+    "url": "https://github.com/flowtsohg/mdx-m3-viewer.git"
   },
   "author": "Chananya Freiman",
   "license": "MIT",
@@ -23,7 +22,11 @@
   "dependencies": {
     "fengari": "^0.1.4",
     "gl-matrix": "^3.1.0",
+    "glslify-import": "^3.1.0",
+    "glslify-loader": "^2.0.0",
+    "glslify-simple-include": "^1.0.5",
     "pako": "^1.0.10",
+    "raw-loader": "^4.0.0",
     "ts-loader": "^6.2.1",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10"
@@ -34,6 +37,7 @@
     "@types/pako": "^1.0.1",
     "@typescript-eslint/eslint-plugin": "^2.11.0",
     "@typescript-eslint/parser": "^2.11.0",
+    "dts-generator": "^3.0.0",
     "eslint": "^6.7.2",
     "express": "^4.17.1",
     "typescript": "^3.7.3"

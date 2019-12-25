@@ -3,7 +3,6 @@ import dds from './dds/handler';
 import geo from './geo/handler';
 import m3 from './m3/handler';
 import mdx from './mdx/handler';
-import imagetexture from './imagetexture/handler';
 import tga from './tga/handler';
 import gltf from './gltf/handler';
 import War3MapViewer from './w3x/viewer';
@@ -14,7 +13,6 @@ export default {
   geo,
   m3,
   mdx,
-  imagetexture,
   tga,
   gltf,
   War3MapViewer,

@@ -95,6 +95,8 @@ function handleMap(output, arrayBuffer) {
           output.info(change.data.value);
           output.info(change.data.callback);
           output.unindent();
+        } else if (type === 'missingstring') {
+          output.warn(`${type}: could not find ${change.value} in the string table, leaving it as is`);
         }
       }
 
@@ -117,7 +119,7 @@ function handleMap(output, arrayBuffer) {
 
   output.unindent();
 
-  return {map, changes: changesCount};
+  return { map, changes: changesCount };
 }
 
 // Convert a campaign.
@@ -135,7 +137,7 @@ function handleCampaign(output, arrayBuffer) {
       output.log(`Loading ${name}`);
       output.br();
 
-      let {map, changes} = handleMap(output, campaign.get(name).arrayBuffer());
+      let { map, changes } = handleMap(output, campaign.get(name).arrayBuffer());
 
       if (changes) {
         totalChanges += changes;
@@ -158,7 +160,7 @@ function handleCampaign(output, arrayBuffer) {
     output.br();
   }
 
-  return {campaign, changes: totalChanges};
+  return { campaign, changes: totalChanges };
 }
 
 // A Promise-based FileReader.readAsArrayBuffer.
@@ -208,7 +210,7 @@ async function handleDrop(dataTransfer) {
 
         window.scrollTo(0, output.container.scrollHeight);
 
-        saveAs(new Blob([mapOrCampaign.save()], {type: 'application/octet-stream'}), name);
+        saveAs(new Blob([mapOrCampaign.save()], { type: 'application/octet-stream' }), name);
       }
     }
   }

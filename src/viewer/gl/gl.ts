@@ -1,7 +1,8 @@
 import stringHash from '../../common/stringhash';
+import Texture from '../texture';
+import CubeMap from '../cubemap';
 import ShaderUnit from './shader';
 import ShaderProgram from './program';
-import Texture from '../texture';
 
 /**
  * A small WebGL utility class.
@@ -12,8 +13,8 @@ export default class WebGL {
   shaderUnits: Map<number, ShaderUnit> = new Map();
   shaderPrograms: Map<number, ShaderProgram> = new Map();
   currentShaderProgram: ShaderProgram | null = null;
-  floatPrecision: string = 'precision mediump float;\n';
   emptyTexture: WebGLTexture;
+  emptyCubeMap: WebGLTexture;
   extensions: {
     instancedArrays: ANGLE_instanced_arrays,
     compressedTextureS3tc: WEBGL_compressed_texture_s3tc | null,
@@ -36,6 +37,7 @@ export default class WebGL {
     let compressedTextureS3tc = gl.getExtension('WEBGL_compressed_texture_s3tc')
     let vertexArrayObject = gl.getExtension('OES_vertex_array_object')
     let standardDerivatives = gl.getExtension('OES_standard_derivatives'); // Used in War3MapViewer's shaders, but that might change.
+    let textureLod = gl.getExtension('EXT_shader_texture_lod');
 
     if (gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS) === 0) {
       throw new Error('WebGL: No vertex shader texture support!');
@@ -57,16 +59,27 @@ export default class WebGL {
       console.warn('WebGL: No vertex array object support! This might reduce performance.');
     }
 
+    let twoByTwo = new Uint8ClampedArray([0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255]);
+
     let emptyTexture = <WebGLTexture>gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, emptyTexture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8ClampedArray([0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255]))
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, twoByTwo);
+
+    let emptyCubeMap = <WebGLTexture>gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, emptyCubeMap);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    for (let i = 0; i < 6; i++) {
+      gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, twoByTwo);
+    }
 
     this.gl = gl;
     this.emptyTexture = emptyTexture;
+    this.emptyCubeMap = emptyCubeMap;
     this.extensions = {
       instancedArrays,
       compressedTextureS3tc,
@@ -98,7 +111,7 @@ export default class WebGL {
   createShaderProgram(vertexSrc: string, fragmentSrc: string) {
     let gl = this.gl;
     let vertexShader = this.createShaderUnit(vertexSrc, gl.VERTEX_SHADER);
-    let fragmentShader = this.createShaderUnit(this.floatPrecision + fragmentSrc, gl.FRAGMENT_SHADER);
+    let fragmentShader = this.createShaderUnit(fragmentSrc, gl.FRAGMENT_SHADER);
     let shaderPrograms = this.shaderPrograms;
 
     if (vertexShader.ok && fragmentShader.ok) {
@@ -169,7 +182,7 @@ export default class WebGL {
   /**
    * Bind a texture.
    * 
-   * Note that if the given texture is invalid (null or not loaded) then a 2x2 black texture will be bound instead.
+   * If the given texture is invalid, a 2x2 black texture will be bound instead.
    */
   bindTexture(texture: Texture | null, unit: number) {
     let gl = this.gl;
@@ -181,6 +194,23 @@ export default class WebGL {
     } else {
       // Bind an empty texture in case an invalid one was given, to avoid WebGL errors.
       gl.bindTexture(gl.TEXTURE_2D, this.emptyTexture);
+    }
+  }
+
+  /**
+   * Bind a cube map texture.
+   * 
+   * If the given texture is invalid, a 2x2 black texture will be bound instead.
+   */
+  bindCubeMap(cubeMap: CubeMap | null, unit: number) {
+    let gl = this.gl;
+
+    gl.activeTexture(gl.TEXTURE0 + unit);
+
+    if (cubeMap && cubeMap.ok) {
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, cubeMap.webglResource);
+    } else {
+      gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.emptyCubeMap);
     }
   }
 

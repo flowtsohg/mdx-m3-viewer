@@ -18,10 +18,6 @@ export default class Geoset {
   vertices: number;
   elements: number;
   geosetAnimation: GeosetAnimation | null;
-  variants: CHANGE_ME;
-  hasAlphaAnim: boolean;
-  hasColorAnim: boolean;
-  hasObjectAnim: boolean;
 
   constructor(model: MdxModel, index: number, positionOffset: number, normalOffset: number, uvOffset: number, skinOffset: number, faceOffset: number, vertices: number, elements: number) {
     this.model = model;
@@ -41,61 +37,39 @@ export default class Geoset {
       }
     }
 
-    let variants = {
-      alpha: [],
-      color: [],
-      object: [],
-    };
+    // let variants = {
+    //   alpha: [],
+    //   color: [],
+    //   object: [],
+    // };
 
-    let hasAlphaAnim = false;
-    let hasColorAnim = false;
+    // let hasAlphaAnim = false;
+    // let hasColorAnim = false;
 
-    if (this.geosetAnimation) {
-      for (let i = 0, l = model.sequences.length; i < l; i++) {
-        let alpha = this.geosetAnimation.isAlphaVariant(i);
-        let color = this.geosetAnimation.isColorVariant(i);
+    // if (this.geosetAnimation) {
+    //   for (let i = 0, l = model.sequences.length; i < l; i++) {
+    //     let alpha = this.geosetAnimation.isAlphaVariant(i);
+    //     let color = this.geosetAnimation.isColorVariant(i);
 
-        variants.alpha[i] = alpha;
-        variants.color[i] = color;
-        variants.object[i] = alpha || color;
+    //     variants.alpha[i] = alpha;
+    //     variants.color[i] = color;
+    //     variants.object[i] = alpha || color;
 
-        hasAlphaAnim = hasAlphaAnim || alpha;
-        hasColorAnim = hasColorAnim || color;
-      }
-    } else {
-      for (let i = 0, l = model.sequences.length; i < l; i++) {
-        variants.alpha[i] = false;
-        variants.color[i] = false;
-        variants.object[i] = false;
-      }
-    }
+    //     hasAlphaAnim = hasAlphaAnim || alpha;
+    //     hasColorAnim = hasColorAnim || color;
+    //   }
+    // } else {
+    //   for (let i = 0, l = model.sequences.length; i < l; i++) {
+    //     variants.alpha[i] = false;
+    //     variants.color[i] = false;
+    //     variants.object[i] = false;
+    //   }
+    // }
 
-    this.variants = variants;
-    this.hasAlphaAnim = hasAlphaAnim;
-    this.hasColorAnim = hasColorAnim;
-    this.hasObjectAnim = hasAlphaAnim || hasColorAnim;
-  }
-
-  getAlpha(out: Float32Array, instance: MdxComplexInstance) {
-    if (this.geosetAnimation) {
-      return this.geosetAnimation.getAlpha(out, instance);
-    }
-
-    out[0] = 1;
-
-    return -1;
-  }
-
-  getColor(out: vec3, instance: MdxComplexInstance) {
-    if (this.geosetAnimation) {
-      return this.geosetAnimation.getColor(out, instance);
-    }
-
-    out[0] = 1;
-    out[1] = 1;
-    out[2] = 1;
-
-    return -1;
+    // this.variants = variants;
+    // this.hasAlphaAnim = hasAlphaAnim;
+    // this.hasColorAnim = hasColorAnim;
+    // this.hasObjectAnim = hasAlphaAnim || hasColorAnim;
   }
 
   bind(shader: ShaderProgram, coordId: number) {

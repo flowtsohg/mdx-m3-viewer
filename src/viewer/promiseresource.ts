@@ -1,4 +1,4 @@
-import Resource from './resource';
+import { Resource } from './resource';
 
 /**
  * This object is used to promise about future resource loads, in case they are not yet known.

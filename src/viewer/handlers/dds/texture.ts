@@ -69,6 +69,8 @@ export default class DdsTexture extends Texture {
     // Restore the alignment to the default, in case it changed.
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
 
-    webgl.setTextureMode(this.wrapS, this.wrapT, gl.LINEAR, mipmaps > 1 ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
+    if (mipmaps > 1) {
+      this.minFilter = gl.LINEAR_MIPMAP_LINEAR;
+    }
   }
 }

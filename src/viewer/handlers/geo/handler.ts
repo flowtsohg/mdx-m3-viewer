@@ -1,7 +1,8 @@
 import ModelViewer from '../../viewer';
 import ShaderProgram from '../../gl/program';
 import Model from './model';
-import sources from './shaders';
+import standardVert from './shaders/standard.vert';
+import standardFrag from './shaders/standard.frag';
 
 let shaders = {
   standard: <ShaderProgram | null>null,
@@ -10,7 +11,7 @@ let shaders = {
 export default {
   extensions: [['.geo']],
   load(viewer: ModelViewer) {
-    shaders.standard = viewer.webgl.createShaderProgram(sources.vs, sources.ps);
+    shaders.standard = viewer.webgl.createShaderProgram(standardVert, standardFrag);
 
     return shaders.standard !== null;
   },

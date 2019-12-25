@@ -42,22 +42,28 @@ interface ReferencesDescriptor {
   data: string[];
 }
 
-type AnyDescriptor = GeneratedFunctionDescriptor | InlineGUIDescriptor | GeneratedStringTableDescriptor | SingleToMultipleDescriptor | InlineCustomScriptDescriptor | ReferencesDescriptor;
+interface MissingStringDescriptor {
+  type: 'missingstring';
+  data: string;
+}
+
+type AnyDescriptor = GeneratedFunctionDescriptor | InlineGUIDescriptor | GeneratedStringTableDescriptor | SingleToMultipleDescriptor | InlineCustomScriptDescriptor | ReferencesDescriptor | MissingStringDescriptor;
 
 /**
  * The data needed to convert one map.
  */
 class WeuConverterData {
   triggerData: TriggerData;
-  stringTable: War3MapWts | null = null;
+  stringTable: War3MapWts;
   stack: (Trigger | ECA | Parameter | SubParameters)[] = [];
   generatedNames: NumberObject = {};
   generatedFunctions: string[] = [];
   preplacedObjects: BooleanObject = {};
-  output: { ok: boolean, error: string, changes: AnyDescriptor[] } = { ok: false, error: '', changes: [] };
+  changes: AnyDescriptor[] = [];
 
-  constructor(triggerData: TriggerData) {
+  constructor(triggerData: TriggerData, stringTable: War3MapWts) {
     this.triggerData = triggerData;
+    this.stringTable = stringTable;
   }
 }
 
@@ -278,7 +284,7 @@ function convertFunctionCallToCustomScript(data: WeuConverterData, object: ECA |
     callback = `function ${callbackName} takes nothing returns ${returnType}\n${body}\nendfunction`;
 
     data.generatedFunctions.push(callback);
-    data.output.changes.push({ type: 'generatedfunction', stack: stackToString(data.stack), data: callback });
+    data.changes.push({ type: 'generatedfunction', stack: stackToString(data.stack), data: callback });
   } else if (name === 'CustomScriptCode') {
     ecas[0] = ecaObject;
   } else if (name === 'SetVariable') {
@@ -326,7 +332,7 @@ function convertParameterToCustomScript(data: WeuConverterData, parameter: Param
       return global;
     }
   } else if (parameter.type === 2) {
-    return convertFunctionCallToCustomScript(data, parameter.subParameters)[0].parameters[0].value;
+    return convertFunctionCallToCustomScript(data, <SubParameters>parameter.subParameters)[0].parameters[0].value;
   } else if (parameter.type === 3) {
     let baseType = data.triggerData.getBaseType(dataType);
 
@@ -336,14 +342,20 @@ function convertParameterToCustomScript(data: WeuConverterData, parameter: Param
       // Inline string table entries.
       if (value.startsWith('TRIGSTR')) {
         let index = parseInt(value.slice(8));
-        let string = data.stringTable.stringMap.get(index).replace(/\n/g, '\\n');
-        let callbackName = `StringTable${index}`;
-        let callback = `function ${callbackName} takes nothing returns string\nreturn "${string}"\nendfunction`;
+        let entry = data.stringTable.stringMap.get(index)
 
-        data.generatedFunctions.push(callback);
-        data.output.changes.push({ type: 'generatedstringtable', stack: stackToString(data.stack), data: { value, callback } });
+        if (entry) {
+          let string = entry.replace(/\n/g, '\\n');
+          let callbackName = `StringTable${index}`;
+          let callback = `function ${callbackName} takes nothing returns string\nreturn "${string}"\nendfunction`;
 
-        return `${callbackName}()`;
+          data.generatedFunctions.push(callback);
+          data.changes.push({ type: 'generatedstringtable', stack: stackToString(data.stack), data: { value, callback } });
+
+          return `${callbackName}()`;
+        } else {
+          data.changes.push({ type: 'missingstring', data: value });
+        }
       }
 
       return `"${value.replace(/\\/g, '\\\\')}"`;
@@ -375,14 +387,15 @@ function replaceIsUnitOwned(object: SubParameters) {
 
   object.name = 'OperatorComparePlayer';
 
-  let unit = object.parameters[0].subParameters.parameters[0];
-  let otherPlayer = object.parameters[0].subParameters.parameters[1];
+  let isUnitOwned = <SubParameters>object.parameters[0].subParameters;
+  let unit = isUnitOwned.parameters[0];
+  let otherPlayer = isUnitOwned.parameters[1];
 
   // Change IsUnitOwnedByPlayer(unit, otherPlayer) to GetOwningPlayer(unit)
   object.parameters[0].value = 'GetOwningPlayer';
-  object.parameters[0].subParameters.name = 'GetOwningPlayer';
-  object.parameters[0].subParameters.parameters.length = 1;
-  object.parameters[0].subParameters.parameters[0] = unit;
+  isUnitOwned.name = 'GetOwningPlayer';
+  isUnitOwned.parameters.length = 1;
+  isUnitOwned.parameters[0] = unit;
 
   // Equal or not equal
   if (trueOrFalse === 'true') {
@@ -411,12 +424,13 @@ function replaceIsUnitInRange(object: ECA | SubParameters) {
 
   object.name = 'OperatorCompareReal';
 
-  let unit = object.parameters[0].subParameters.parameters[0];
-  let otherUnit = object.parameters[0].subParameters.parameters[1];
-  let range = object.parameters[0].subParameters.parameters[2];
+  let unitInRange = <SubParameters>object.parameters[0].subParameters;
+  let unit = unitInRange.parameters[0];
+  let otherUnit = unitInRange.parameters[1];
+  let range = unitInRange.parameters[2];
 
   object.parameters[0].value = 'DistanceBetweenPoints';
-  object.parameters[0].subParameters.name = 'DistanceBetweenPoints';
+  unitInRange.name = 'DistanceBetweenPoints';
 
   let getUnitLoc1 = new Parameter();
   getUnitLoc1.type = 2; // function
@@ -446,9 +460,9 @@ function replaceIsUnitInRange(object: ECA | SubParameters) {
     operator.value = 'OperatorGreater';
   }
 
-  object.parameters[0].subParameters.parameters.length = 0;
-  object.parameters[0].subParameters.parameters[0] = getUnitLoc1;
-  object.parameters[0].subParameters.parameters[1] = getUnitLoc2;
+  unitInRange.parameters.length = 0;
+  unitInRange.parameters[0] = getUnitLoc1;
+  unitInRange.parameters[1] = getUnitLoc2;
 
   object.parameters[1] = operator;
 
@@ -518,7 +532,7 @@ function replaceTriggerRegisterUnitStateEvent(object: ECA) {
  */
 function replaceIsUnitType(object: ECA) {
   let parameter = object.parameters[0];
-  let subParameters = parameter.subParameters;
+  let subParameters = <SubParameters>parameter.subParameters;
   let unitType = subParameters.parameters[1].value;
 
   // Exposed in WEU and YDWE as UnitTypedead (with the typo).
@@ -548,14 +562,15 @@ function replaceIsUnitRace(object: ECA) {
   object.name = 'OperatorCompareRace';
 
   let operator = object.parameters[1].value;
-  let race = object.parameters[0].subParameters.parameters[1];
+  let getUnitRace = <SubParameters>object.parameters[0].subParameters;
+  let race = getUnitRace.parameters[1];
 
   // IsUnitRace -> GetUnitRace.
   object.parameters[0].value = 'GetUnitRace';
-  object.parameters[0].subParameters.name = 'GetUnitRace';
+  getUnitRace.name = 'GetUnitRace';
 
   // Remove the race from GetUnitRace.
-  object.parameters[0].subParameters.parameters.length = 1;
+  getUnitRace.parameters.length = 1;
 
   // And add it instead to OperatorCompareRace.
   object.parameters[2] = race;
@@ -649,7 +664,7 @@ function testFunctionCall(data: WeuConverterData, object: ECA | SubParameters) {
   // Check if this object can be converted back to normal GUI.
   // If it's already normal GUI, nothing will happen.
   if (convertInlineGUI(data, object)) {
-    data.output.changes.push({ type: 'inlinegui', stack: stackToString(data.stack) });
+    data.changes.push({ type: 'inlinegui', stack: stackToString(data.stack) });
   }
 
   // If this function is not from normal GUI, it has to be converted.
@@ -698,7 +713,7 @@ function testParameter(data: WeuConverterData, parameter: Parameter) {
       updateGUIRef(data, value, true);
     }
   } else if (type === 2) {
-    if (testSubParameters(data, parameter.subParameters)) {
+    if (testSubParameters(data, <SubParameters>parameter.subParameters)) {
       data.stack.shift();
       return true;
     }
@@ -734,9 +749,9 @@ function subParametersToEca(subParameters: SubParameters, group: number) {
 function convertSingleEcaToMultple(data: WeuConverterData, eca: ECA) {
   if (eca.name === 'IfThenElse') {
     let parameters = eca.parameters;
-    let ifParam = subParametersToEca(parameters[0].subParameters, 0);
-    let thenParam = subParametersToEca(parameters[1].subParameters, 1);
-    let elseParam = subParametersToEca(parameters[2].subParameters, 2);
+    let ifParam = subParametersToEca(<SubParameters>parameters[0].subParameters, 0);
+    let thenParam = subParametersToEca(<SubParameters>parameters[1].subParameters, 1);
+    let elseParam = subParametersToEca(<SubParameters>parameters[2].subParameters, 2);
 
     eca.name = 'IfThenElseMultiple';
     eca.parameters.length = 0;
@@ -744,7 +759,7 @@ function convertSingleEcaToMultple(data: WeuConverterData, eca: ECA) {
 
     return true;
   } else if (eca.name === 'ForGroup' || eca.name === 'ForForce') {
-    let action = subParametersToEca(eca.parameters[1].subParameters, 0);
+    let action = subParametersToEca(<SubParameters>eca.parameters[1].subParameters, 0);
 
     eca.name = `${eca.name}Multiple`;
     eca.parameters.length = 1;
@@ -771,7 +786,7 @@ function testECA(data: WeuConverterData, eca: ECA) {
         data.stack.shift();
         return true;
       } else {
-        data.output.changes.push({ type: 'singletomultiple', stack: stackToString(data.stack) });
+        data.changes.push({ type: 'singletomultiple', stack: stackToString(data.stack) });
       }
     } else {
       data.stack.shift();
@@ -823,7 +838,7 @@ function testECA(data: WeuConverterData, eca: ECA) {
         script.group = child.group;
       }
 
-      data.output.changes.push({ type: 'inlinecustomscript', stack: stackToString(data.stack), data: customScripts.map((eca) => eca.parameters[0].value).join('\n') });
+      data.changes.push({ type: 'inlinecustomscript', stack: stackToString(data.stack), data: customScripts.map((eca) => eca.parameters[0].value).join('\n') });
       outputEcas.push(...customScripts);
     } else {
       outputEcas.push(child);
@@ -867,7 +882,7 @@ function testTrigger(data: WeuConverterData, trigger: Trigger) {
     if (testECA(data, action)) {
       let customScripts = convertFunctionCallToCustomScript(data, action);
 
-      data.output.changes.push({ type: 'inlinecustomscript', stack: stackToString(data.stack), data: customScripts.map((eca) => eca.parameters[0].value).join('\n') });
+      data.changes.push({ type: 'inlinecustomscript', stack: stackToString(data.stack), data: customScripts.map((eca) => eca.parameters[0].value).join('\n') });
       outputEcas.push(...customScripts);
     } else {
       outputEcas.push(action);
@@ -920,7 +935,7 @@ function saveGUIRefs(triggerFile: War3MapWtg, customTextTriggerFile: War3MapWct,
     triggerFile.triggers.push(trigger);
     customTextTriggerFile.triggers.push(new CustomTextTrigger());
 
-    data.output.changes.push({ type: 'references', data: references });
+    data.changes.push({ type: 'references', data: references });
   }
 }
 
@@ -932,43 +947,52 @@ function saveGUIRefs(triggerFile: War3MapWtg, customTextTriggerFile: War3MapWct,
 export default function convertWeu(map: War3Map, triggerData: TriggerData, weTriggerData: TriggerData) {
   let triggerFile;
   let customTextTriggerFile;
-  let data = new WeuConverterData(triggerData);
-  let output = data.output;
+  let stringTable;
 
   // Try to read the triggers file using the custom trigger data.
   try {
     triggerFile = map.readTriggers(triggerData);
   } catch (e) {
-    output.error = `Failed to read the triggers file: ${e}`;
-    return output;
+    return { ok: false, error: `Failed to read the triggers file: ${e}` };
+  }
+
+  if (!triggerFile) {
+    return { ok: false, error: `The triggers file doesn't exist` };
   }
 
   // Try to read the custom text triggers file.
   try {
     customTextTriggerFile = map.readCustomTextTriggers();
   } catch (e) {
-    output.error = `Failed to read the custom text triggers file: ${e}`;
-    return output;
+    return { ok: false, error: `Failed to read the custom text triggers file: ${e}` };
   }
 
-  try {
-    data.stringTable = map.readStringTable();
-  } catch (e) {
-    output.error = `Failed to read the string table file: ${e}`;
-    return output;
+  if (!customTextTriggerFile) {
+    return { ok: false, error: `The custom text triggers file doesn't exist` };
   }
+
+  // Try to read the string table.
+  try {
+    stringTable = map.readStringTable();
+  } catch (e) {
+    return { ok: false, error: `Failed to read the string table file: ${e}` };
+  }
+
+  if (!stringTable) {
+    return { ok: false, error: `The string table file doesn't exist` };
+  }
+
+  let data = new WeuConverterData(triggerData, stringTable);
 
   // Test and convert the triggers as needed.
   for (let trigger of triggerFile.triggers) {
     try {
       if (testTrigger(data, trigger)) {
         // For now don't bother with converting whole triggers, since GUI conversions manage all of the maps I saw so far.
-        output.error = `Trigger ${trigger.name} needs to be converted due to top-level event/condition, but full trigger conversion is not implemented yet`;
-        return output;
+        return { ok: false, error: `Trigger ${trigger.name} needs to be converted due to top-level event/condition, but full trigger conversion is not implemented yet` };
       }
     } catch (e) {
-      output.error = `Error at trigger ${trigger.name}: ${e}`;
-      return output;
+      return { ok: false, error: `Error at trigger ${trigger.name}: ${e}` };
     }
   }
 
@@ -998,14 +1022,14 @@ export default function convertWeu(map: War3Map, triggerData: TriggerData, weTri
   // Now try to re-read the triggers file, but using the normal WE trigger data.
   // If this fails, WE will fail too.
   try {
-    map.readTriggers(weTriggerData);
+    triggerFile = map.readTriggers(weTriggerData);
   } catch (e) {
-    output.error = `Failed to validate the triggers file: ${e}`;
-
-    return output;
+    return { ok: false, error: `Failed to validate the triggers file: ${e}` }
   }
 
-  output.ok = true;
+  if (!triggerFile) {
+    return { ok: false, error: `Failed to re-read the triggers file` };
+  }
 
-  return output;
+  return { ok: true, changes: data.changes };
 }

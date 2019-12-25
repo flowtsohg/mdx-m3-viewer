@@ -1,11 +1,11 @@
 import { EventEmitter } from 'events';
-import fetchDataType from '../common/fetchdatatype';
+import { FetchDataTypeName, FetchDataType, FetchResult, fetchDataType } from '../common/fetchdatatype';
 import mapequals from '../common/mapequals';
 import WebGL from './gl/gl';
 import PromiseResource from './promiseresource';
 import Scene from './scene';
-import imageTextureHandler from './handlers/imagetexture/handler';
-import Resource from './resource';
+import { Resource } from './resource';
+import { PathSolver, HandlerResourceData, HandlerResource } from './handlerresource';
 import GenericResource from './genericresource';
 import ClientBuffer from './gl/clientbuffer';
 import ClientDataTexture from './gl/clientdatatexture';
@@ -13,6 +13,19 @@ import Model from './model';
 import ModelInstance from './modelinstance';
 import TextureMapper from './texturemapper';
 import Texture from './texture';
+import { ImagePathSolver, isImageSource, isImageExtension, ImageTexture } from './imagetexture';
+import CubeMap from './cubemap';
+
+/**
+ * The minimal structure of handlers.
+ * 
+ * Additional data can be added to them for the purposes of the implementation.
+ */
+export interface Handler {
+  extensions: string[][];
+  load?: (viewer: ModelViewer) => boolean;
+  resource: new (resourceData: HandlerResourceData) => HandlerResource
+}
 
 /**
  * A model viewer.
@@ -88,8 +101,6 @@ export default class ModelViewer extends EventEmitter {
         setTimeout(() => this.emit('idle'), 0);
       }
     });
-
-    this.addHandler(imageTextureHandler);
   }
 
   /**
@@ -116,7 +127,7 @@ export default class ModelViewer extends EventEmitter {
       if (!handlers.has(handler)) {
         // Check if the handler has a loader, and if so load it.
         if (handler.load && !handler.load(this)) {
-          this.emit('error', this, 'InvalidHandler', 'FailedToLoad');
+          this.emit('error', this, `The handler's load function failed`, handler);
           return false;
         }
 
@@ -178,35 +189,62 @@ export default class ModelViewer extends EventEmitter {
 
   /**
    * Load something.
+   * 
+   * If `src` is an image texture source (e.g. an image or a canvas), it will be loaded directly.
+   * 
+   * Otherwise, `pathSolver` is called with `src` and `solverParams`, and must return an array of values:
+   * 
+   *     [finalSrc, extension, isFetch]
    *
-   * @param src The source used for the load.
-   * @param pathSolver The path solver used by this load, and any subsequent loads that are caused by it (for example, a model that loads its textures).
-   * @param solverParams An optional object containing parameters to be passed to the path solver.
+   * If `finalSrc` is an image texture source, it will be loaded directly.
+   * 
+   * If `extension` is an image texture source extension (.png/.jpg/.gif), it will be fetched and loaded directly.
+   * 
+   * Otherwise, `extension` is used to select the handler.\
+   * If `isFetch` is true, `finalSrc` is the url from which to fetch.\
+   * If `isFetch` is false, `finalSrc` is whatever the handler expects, typically an ArrayBuffer or a string.
+   * 
+   * If the resource being loaded has internal resources (e.g. a model that loads its own textures), `pathSolver` will be called for them as well.
+   * 
+   * A resource is always returned, except for when `pathSolver` isn't given but `src` isn't an image texture source, or when the handler couldn't be resolved.
    */
   load(src: any, pathSolver?: PathSolver, solverParams?: any) {
-    let finalSrc = src;
-    let extension = '';
-    let isFetch = false;
-    let resolved = false;
+    // If given an image texture source, load an image texture directly.
+    if (isImageSource(src)) {
+      return this.loadImageTexture(() => [src])
+    }
 
-    // If given a path solver, resolve.
+    // Resolve the load.
     if (pathSolver) {
-      let solved = pathSolver(src, solverParams);
+      let [finalSrc, extension, isFetch] = pathSolver(src, solverParams);
 
-      finalSrc = solved[0];
-      extension = solved[1];
-      isFetch = solved[2];
-      resolved = true;
-    }
+      // Allow path solvers to use both ".ext" and "ext".
+      if (extension[0] !== '.') {
+        extension = '.' + extension;
+      }
 
-    // Built-in texture sources.
-    if ((finalSrc instanceof HTMLImageElement) || (finalSrc instanceof HTMLVideoElement) || (finalSrc instanceof HTMLCanvasElement) || (finalSrc instanceof ImageData) || (finalSrc instanceof WebGLTexture)) {
-      extension = '.png';
-      isFetch = false;
-      resolved = true;
-    }
+      // If the path solver returns an image texture source, load an image texture directly.
+      if (isImageSource(finalSrc)) {
+        return this.loadImageTexture(() => [finalSrc]);
+      }
 
-    if (resolved) {
+      // If the path solver wants to fetch an image texture source, load an image texture directly, but also cache the texture.
+      if (isImageExtension(extension)) {
+        let texture = this.fetchCache.get(finalSrc);
+
+        if (texture) {
+          return <ImageTexture>texture;
+        }
+
+        console.log('REALLY LOADING IMAGE', finalSrc)
+
+        texture = this.loadImageTexture(() => [finalSrc]);
+
+        this.fetchCache.set(finalSrc, texture);
+
+        return texture;
+      }
+
       let handlerAndDataType = this.findHandler(extension.toLowerCase());
 
       // Is there an handler for this file type?
@@ -215,7 +253,7 @@ export default class ModelViewer extends EventEmitter {
           let resource = this.fetchCache.get(finalSrc);
 
           if (resource) {
-            return resource;
+            return <HandlerResource>resource;
           }
         }
 
@@ -233,7 +271,7 @@ export default class ModelViewer extends EventEmitter {
         resource.emit('loadstart', resource);
 
         if (isFetch) {
-          let dataType = <FetchDataTypeNames>handlerAndDataType[1];
+          let dataType = <FetchDataTypeName>handlerAndDataType[1];
 
           fetchDataType(finalSrc, dataType)
             .then((response) => {
@@ -242,9 +280,7 @@ export default class ModelViewer extends EventEmitter {
               if (response.ok) {
                 resource.loadData(data);
               } else {
-                resource.error('FailedToFetch');
-
-                this.emit('error', resource, response.error, data);
+                resource.error(<string>response.error, data);
               }
             });
         } else {
@@ -253,10 +289,10 @@ export default class ModelViewer extends EventEmitter {
 
         return resource;
       } else {
-        this.emit('error', this, 'MissingHandler', [finalSrc, extension, isFetch]);
+        this.emit('error', this, `Unknown extension "${extension}" for "${src}". Did you forget to add the handler?`);
       }
     } else {
-      this.emit('error', this, 'LoadUnresolved', src);
+      this.emit('error', this, `Could not resolve "${src}". Did you forget to pass a path solver?`);
     }
   }
 
@@ -275,13 +311,19 @@ export default class ModelViewer extends EventEmitter {
   }
 
   /**
-   * Load a resource generically.
+   * Load something generic.
+   * 
    * Unlike load(), this does not use handlers or construct any internal objects.
-   * If no callback is given, the resource's data is the fetch data.
-   * If a callback is given, the resource's data is the value returned by it when called with the fetch data.
-   * If a callback returns a promise, the resource's data will be the result of the promise.
+   * 
+   * `dataType` can be one of: `"image"`, `"string"`, `"arrayBuffer"`, `"blob"`.
+   * 
+   * If `callback` isn't given, the resource's `data` is the fetch data, according to `dataType`.
+   * 
+   * If `callback` is given, the resource's `data` is the value returned by it when called with the fetch data.
+   * 
+   * If `callback` returns a promise, the resource's `data` will be whatever the promise resolved to.
    */
-  loadGeneric(path: string, dataType: FetchDataTypeNames, callback?: (data: FetchDataType) => any) {
+  loadGeneric(path: string, dataType: FetchDataTypeName, callback?: (data: FetchDataType) => any) {
     let cachedResource = this.fetchCache.get(path);
 
     if (cachedResource) {
@@ -305,7 +347,11 @@ export default class ModelViewer extends EventEmitter {
 
         if (response.ok) {
           if (callback) {
-            data = callback(<FetchDataType>data);
+            try {
+              data = callback(<FetchDataType>data);
+            } catch (e) {
+              resource.emit('error', 'An exception was thrown while running the client callback', e);
+            }
 
             if (data instanceof Promise) {
               data.then((data) => resource.loadData(data));
@@ -316,13 +362,69 @@ export default class ModelViewer extends EventEmitter {
             resource.loadData(data);
           }
         } else {
-          resource.error('FailedToFetch', response.error);
-
-          this.emit('error', resource, response.error, data);
+          resource.error(<string>response.error, data);
         }
       });
 
     return resource;
+  }
+
+  /**
+   * Load an image texture.
+   * 
+   * `pathSolver` must return an array of values like all path solvers.\
+   * If the first array element is an image texture source, it will be used.\
+   * Otherwise, it will always try to fetch an image.\
+   * Any other array elements are ignored.
+   * 
+   * Note that this is usually called by the viewer itself.\
+   * For example, if you want to load an image directly, the following is recommended:
+   * 
+   *     viewer.load(image)
+   */
+  loadImageTexture(pathSolver: ImagePathSolver) {
+    let texture = new ImageTexture({ viewer: this, pathSolver });
+
+    this.resources.push(texture);
+
+    this.registerEvents(texture);
+
+    texture.emit('loadstart', texture);
+
+    texture.loadData();
+
+    return texture;
+  }
+
+  /**
+   * Load a cube map texture.
+   * 
+   * `pathSolver` will be called 6 times, each time with a number refering to one of the textures:
+   * 
+   *     0 = Positive X
+   *     1 = Negative X
+   *     2 = Positive Y
+   *     3 = Negative Y
+   *     4 = Positive Z
+   *     5 = Negative Z
+   * 
+   * `pathSolver` must return an array of values like all path solvers.\
+   * If the first array element is an image texture source, it will be used.\
+   * Otherwise, it will always try to fetch an image.\
+   * Any other array elements are ignored.
+   */
+  loadCubeMap(pathSolver: ImagePathSolver) {
+    let cubeMap = new CubeMap({ viewer: this, pathSolver });
+
+    this.resources.push(cubeMap);
+
+    this.registerEvents(cubeMap);
+
+    cubeMap.emit('loadstart', cubeMap);
+
+    cubeMap.loadData();
+
+    return cubeMap;
   }
 
   /**
@@ -374,7 +476,7 @@ export default class ModelViewer extends EventEmitter {
 
     for (let resource of resources) {
       // Only process actual resources.
-      if (resource && resource.whenLoaded) {
+      if (resource instanceof Resource) {
         promises.push(<Promise<Resource>>resource.whenLoaded());
       }
     }

@@ -1,53 +1,63 @@
-
-// An example express-based HTTP server that handles Warcraft 3 TFT/Reforged and Starcraft 2 resources.
-// It gives static access to the clients, so it can be used to run any of them as well.
-//
-// The file structure that the server expects is as follows:
-//
-//   ├── viewer
-//   │   ├── clients
-//   │   │   ├── map
-//   │   │   ├── tests
-//   │   │   └── ...
-//   │   ├── http-server.js <── YOU ARE HERE 🙋
-//   │   └── ...
-//   └── resources
-//       ├── warcraft
-//       │   ├── textures
-//       │   ├── units
-//       │   └── ...
-//       ├── reforged
-//       │   ├── textures
-//       │   ├── units
-//       │   ├── _hd.w3mod
-//       │   │   ├── textures
-//       │   │   ├── units
-//       │   │   └── ...
-//       │   └── ...
-//       └── starcraft2
-//           └── assets
-//               ├── textures
-//               ├── units
-//               └── ...
-//
-// All of the resources should be unpacked, including the internal tileset MPQs used by Warcraft 3 TFT.
-//
-// To request Warcraft 3 TFT and Starcraft 2 assets, use the assets entry point, for example:
-//
-//   fetch('assets?path=Units/Human/Footman/Footman.mdx')
-//   fetch('assets?path=Assets/Units/Zerg/Baneling/Baneling.m3')
-//
-// To request Warcraft 3 Reforged resources, add the "reforged" and optionally the "hd" boolean parameters, for example:
-//
-//   fetch('assets?path=Units/Human/Footman/Footman.mdx&reforged=true')
-//   fetch('assets?path=Units/Human/Footman/Footman.mdx&reforged=true&hd=true')
+/*
+ * An example express-based HTTP server that handles Warcraft 3 TFT/Reforged and Starcraft 2 resources.
+ * It gives static access to the clients, so it can be used to run any of them as well.
+ *
+ * The file structure that the server expects is as follows:
+ *
+ *   ├── viewer
+ *   │   ├── clients
+ *   │   │   ├── map
+ *   │   │   ├── tests
+ *   │   │   └── ...
+ *   │   ├── http-server.js <── YOU ARE HERE 🙋
+ *   │   └── ...
+ *   └── resources
+ *       ├── warcraft
+ *       │   ├── textures
+ *       │   ├── units
+ *       │   └── ...
+ *       ├── reforged
+ *       │   ├── textures
+ *       │   ├── units
+ *       │   ├── _hd.w3mod
+ *       │   │   ├── textures
+ *       │   │   ├── units
+ *       │   │   └── ...
+ *       │   └── ...
+ *       ├── starcraft2
+ *       │   └── assets
+ *       │       ├── textures
+ *       │       ├── units
+ *       │       └── ...
+ *       └── ...
+ *
+ * All of the resources should be unpacked, including the internal tileset MPQs used by Warcraft 3 TFT.
+ *
+ * To request Warcraft 3 TFT and Starcraft 2 resources, use the assets entry point, for example:
+ *
+ *   fetch('assets?path=Units/Human/Footman/Footman.mdx')
+ *   fetch('assets?path=Assets/Units/Zerg/Baneling/Baneling.m3')
+ *
+ * To request Warcraft 3 Reforged resources, add the "reforged" and optionally the "hd" boolean parameters, for example:
+ *
+ *   fetch('assets?path=Units/Human/Footman/Footman.mdx&reforged=true')
+ *   fetch('assets?path=Units/Human/Footman/Footman.mdx&reforged=true&hd=true')
+ * 
+ * Note that you can change the listening port and the base resources directory below.
+ */
+const PORT = 8080;
+const RESOURCES_PATH = '../resources/';
 
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
-const PORT = 8080;
-const RESOURCES_PATH = '../resources/';
 const app = express();
+
+app.use((req, res, next) => {
+  console.log(`${req.ip} ${req.url}`);
+
+  next();
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -95,7 +105,7 @@ app.get('/assets', (req, res, next) => {
     if (fs.existsSync(absolutePath)) {
       res.sendFile(absolutePath);
 
-      console.log(`\x1b[32mAsset resolved to \x1b[33m${searchPath.slice(0, -1)}\x1b[0m`, params);
+      console.log(`\x1b[32m${req.url} resolved to ${searchPath.slice(0, -1)}\x1b[0m`);
 
       return;
     }
@@ -105,7 +115,7 @@ app.get('/assets', (req, res, next) => {
   res.status(404);
   res.end();
 
-  console.log('\x1b[31mAsset not found\x1b[0m', params);
+  console.log(`\x1b[31m${req.url} was not found\x1b[0m`);
 });
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}!`));

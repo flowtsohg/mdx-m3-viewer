@@ -2,7 +2,7 @@ import * as resemble from '../../thirdparty/resemble';
 import seededRandom from '../common/seededrandom';
 import { blobToImage } from '../common/canvas';
 import ModelViewer from '../viewer/viewer';
-import Resource from '../viewer/resource';
+import { Resource } from '../viewer/resource';
 import Scene from '../viewer/scene';
 import Camera from '../viewer/camera';
 import mdxHandler from '../viewer/handlers/mdx/handler';
@@ -76,8 +76,8 @@ interface ResembleResult {
  */
 export default class UnitTester {
   viewer: ModelViewer;
-  mathRandom: () => number;
-  tests: Test[];
+  mathRandom: () => number = Math.random;
+  tests: Test[] = [];
 
   constructor() {
     let canvas = document.createElement('canvas');
@@ -95,8 +95,6 @@ export default class UnitTester {
     viewer.addHandler(geoHandler);
 
     this.viewer = viewer;
-    this.mathRandom = Math.random;
-    this.tests = [];
   }
 
   /**

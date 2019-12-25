@@ -3,7 +3,8 @@ import ShaderProgram from '../../gl/program';
 import ddsHandler from '../dds/handler';
 import tgaHandler from '../tga/handler';
 import Model from './model';
-import sources from './shaders';
+import standardVert from './shaders/standard.vert';
+import standardFrag from './shaders/standard.frag';
 
 let shaders = {
   standard: <ShaderProgram[]>[],
@@ -21,7 +22,7 @@ export default {
 
     // Load shaders for 1-4 texture coordinate models.
     for (let i = 0; i < 4; i++) {
-      let shader = webgl.createShaderProgram(`#define EXPLICITUV${i}\n${sources.vs}`, sources.fs);
+      let shader = webgl.createShaderProgram(`#define EXPLICITUV${i}\n${standardVert}`, standardFrag);
 
       if (shader === null) {
         return false;

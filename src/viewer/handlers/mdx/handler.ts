@@ -5,7 +5,14 @@ import blpHandler from '../blp/handler';
 import ddsHandler from '../dds/handler';
 import tgaHandler from '../tga/handler';
 import Model from './model';
-import sources from './shaders';
+import complexVert from './shaders/complex.vert';
+import complexFrag from './shaders/complex.frag';
+import particlesVert from './shaders/particles.vert';
+import particlesFrag from './shaders/particles.frag';
+import simpleVert from './shaders/simple.vert';
+import simpleFrag from './shaders/simple.frag';
+import hdVert from './shaders/hd.vert';
+import hdFrag from './shaders/hd.frag';
 
 // Shaders.
 let shaders = {
@@ -33,11 +40,11 @@ export default {
     viewer.addHandler(ddsHandler);
     viewer.addHandler(tgaHandler);
 
-    shaders.complex = webgl.createShaderProgram(sources.vsComplex, sources.fsComplex);
-    shaders.extended = webgl.createShaderProgram('#define EXTENDED_BONES\n' + sources.vsComplex, sources.fsComplex);
-    shaders.particles = webgl.createShaderProgram(sources.vsParticles, sources.fsParticles);
-    shaders.simple = webgl.createShaderProgram(sources.vsSimple, sources.fsSimple);
-    shaders.hd = webgl.createShaderProgram(sources.vsHd, sources.fsHd);
+    shaders.complex = webgl.createShaderProgram(complexVert, complexFrag);
+    shaders.extended = webgl.createShaderProgram('#define EXTENDED_BONES\n' + complexVert, complexFrag);
+    shaders.particles = webgl.createShaderProgram(particlesVert, particlesFrag);
+    shaders.simple = webgl.createShaderProgram(simpleVert, simpleFrag);
+    shaders.hd = webgl.createShaderProgram(hdVert, hdFrag);
 
     return shaders.complex !== null && shaders.extended !== null && shaders.particles !== null && shaders.simple !== null && shaders.hd !== null;
   },

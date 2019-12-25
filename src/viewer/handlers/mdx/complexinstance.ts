@@ -357,28 +357,37 @@ export default class MdxComplexInstance extends ModelInstance {
     // Geosets
     for (let i = 0, l = geosets.length; i < l; i++) {
       let geoset = geosets[i];
+      let geosetAnimation = geoset.geosetAnimation;
       let geosetColor = geosetColors[i];
 
-      // Color
-      if (forced || geoset.variants.color[sequence]) {
-        geoset.getColor(colorHeap, this);
+      if (geosetAnimation) {
+        // Color
+        if (forced || geosetAnimation.variants.color[sequence]) {
+          geosetAnimation.getColor(colorHeap, this);
 
-        geosetColor[0] = colorHeap[0];
-        geosetColor[1] = colorHeap[1];
-        geosetColor[2] = colorHeap[2];
-      }
+          geosetColor[0] = colorHeap[0];
+          geosetColor[1] = colorHeap[1];
+          geosetColor[2] = colorHeap[2];
+        }
 
-      // Alpha
-      if (forced || geoset.variants.alpha[sequence]) {
-        geoset.getAlpha(alphaHeap, this);
+        // Alpha
+        if (forced || geosetAnimation.variants.alpha[sequence]) {
+          geosetAnimation.getAlpha(alphaHeap, this);
 
-        geosetColor[3] = alphaHeap[0];
+          geosetColor[3] = alphaHeap[0];
+        }
+      } else if (forced) {
+        geosetColor[0] = 1;
+        geosetColor[1] = 1;
+        geosetColor[2] = 1;
+        geosetColor[3] = 1;
       }
     }
 
     // Layers
     for (let i = 0, l = layers.length; i < l; i++) {
       let layer = layers[i];
+      let textureAnimation = layer.textureAnimation;
       let uvAnim = uvAnims[i];
 
       // Alpha
@@ -388,34 +397,42 @@ export default class MdxComplexInstance extends ModelInstance {
         layerAlphas[i] = alphaHeap[0];
       }
 
-      // UV translation animation
-      if (forced || layer.variants.translation[sequence]) {
-        layer.getTranslation(translationHeap, this);
-
-        uvAnim[0] = translationHeap[0];
-        uvAnim[1] = translationHeap[1];
-      }
-
-      // UV rotation animation
-      if (forced || layer.variants.rotation[sequence]) {
-        layer.getRotation(rotationHeap, this);
-
-        uvAnim[2] = rotationHeap[2];
-        uvAnim[3] = rotationHeap[3];
-      }
-
-      // UV scale animation
-      if (forced || layer.variants.scale[sequence]) {
-        layer.getScale(scaleHeap, this);
-
-        uvAnim[4] = scaleHeap[0];
-      }
-
       // Sprite animation
-      if (forced || layer.variants.slot[sequence]) {
+      if (forced || layer.variants.textureId[sequence]) {
         layer.getTextureId(textureIdHeap, this);
 
         layerTextures[i] = textureIdHeap[0];
+      }
+
+      if (textureAnimation) {
+        // UV translation animation
+        if (forced || textureAnimation.variants.translation[sequence]) {
+          textureAnimation.getTranslation(translationHeap, this);
+
+          uvAnim[0] = translationHeap[0];
+          uvAnim[1] = translationHeap[1];
+        }
+
+        // UV rotation animation
+        if (forced || textureAnimation.variants.rotation[sequence]) {
+          textureAnimation.getRotation(rotationHeap, this);
+
+          uvAnim[2] = rotationHeap[2];
+          uvAnim[3] = rotationHeap[3];
+        }
+
+        // UV scale animation
+        if (forced || textureAnimation.variants.scale[sequence]) {
+          textureAnimation.getScale(scaleHeap, this);
+
+          uvAnim[4] = scaleHeap[0];
+        }
+      } else if (forced) {
+        uvAnim[0] = 0;
+        uvAnim[1] = 0;
+        uvAnim[2] = 0;
+        uvAnim[3] = 1;
+        uvAnim[4] = 1;
       }
     }
   }
@@ -485,7 +502,7 @@ export default class MdxComplexInstance extends ModelInstance {
         this.updateBatches(forced);
       }
     } else {
-      let variants = model.variants;
+      //let variants = model.variants;
 
       //if (forced || variants.nodes[sequenceId]) {
       // Update the nodes
@@ -494,10 +511,10 @@ export default class MdxComplexInstance extends ModelInstance {
       this.updateBoneTexture();
       //}
 
-      if (forced || variants.batches[sequenceId]) {
-        // Update the batches
-        this.updateBatches(forced);
-      }
+      //if (forced || variants.batches[sequenceId]) {
+      // Update the batches
+      this.updateBatches(forced);
+      //}
     }
 
     this.forced = false;

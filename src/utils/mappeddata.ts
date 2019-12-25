@@ -2,11 +2,16 @@ import SlkFile from '../parsers/slk/file';
 import IniFile from '../parsers/ini/file';
 
 /**
+ * A MappedData row.
+ */
+export type MappedDataRow = { [key: string]: string | number | boolean };
+
+/**
  * A structure that holds mapped data from INI and SLK files.
  * 
  * In the case of SLK files, the first row is expected to hold the names of the columns.
  */
-export default class MappedData {
+export class MappedData {
   map: { [key: string]: MappedDataRow } = {};
 
   constructor(buffer?: string) {

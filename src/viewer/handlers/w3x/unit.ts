@@ -1,5 +1,6 @@
 import { vec3, quat } from 'gl-matrix';
 import { VEC3_UNIT_Z } from '../../../common/gl-matrix-addon';
+import { MappedDataRow } from '../../../utils/mappeddata';
 import DooUnit from '../../../parsers/w3x/unitsdoo/unit';
 import MdxModel from '../mdx/model';
 import MdxComplexInstance from '../mdx/complexinstance';

@@ -16,10 +16,6 @@ export default class Corn extends GenericObject {
   path: string = '';
   options: string = '';
 
-  constructor() {
-    super(0); /// What is the flag?
-  }
-
   readMdx(stream: BinaryStream) {
     const start = stream.index;
     const size = stream.readUint32();

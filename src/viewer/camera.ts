@@ -1,4 +1,4 @@
-import { vec3, vec4, quat, mat4 } from 'gl-matrix';
+import { vec3, vec4, quat, mat3, mat4 } from 'gl-matrix';
 import { unproject, unpackPlanes, VEC3_UNIT_Y, VEC3_UNIT_X, VEC3_UNIT_Z } from '../common/gl-matrix-addon';
 
 const vectorHeap = vec3.create();

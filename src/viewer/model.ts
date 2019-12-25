@@ -1,4 +1,4 @@
-import HandlerResource from './handlerresource';
+import { HandlerResource } from './handlerresource';
 import Bounds from './bounds';
 import ModelInstance from './modelinstance';
 

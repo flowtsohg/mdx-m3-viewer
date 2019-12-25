@@ -10,6 +10,8 @@ export abstract class M3ParserAnimationReference {
   initValue: any;
   nullValue: any;
 
+  abstract readInitNullValues(reader: BinaryStream): void;
+
   constructor(reader: BinaryStream) {
     this.interpolationType = reader.readUint16();
     this.animFlags = reader.readUint16();
@@ -19,8 +21,6 @@ export abstract class M3ParserAnimationReference {
 
     reader.skip(4); // ?
   }
-
-  abstract readInitNullValues(reader: BinaryStream): void;
 }
 
 /**

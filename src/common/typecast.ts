@@ -29,11 +29,6 @@ export function uint8ToInt16(a: number, b: number) {
 
 /**
  * Typecast three 8 bit unsigned integers to a 24 bits signed integer.
- *
- * @param {number} a
- * @param {number} b
- * @param {number} c
- * @return {number}
  */
 export function uint8ToInt24(a: number, b: number, c: number) {
   uint8[0] = a;

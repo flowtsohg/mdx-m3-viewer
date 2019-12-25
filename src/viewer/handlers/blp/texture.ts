@@ -20,8 +20,6 @@ export default class BlpTexture extends Texture {
     let id = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, id);
 
-    viewer.webgl.setTextureMode(this.wrapS, this.wrapT, gl.LINEAR, gl.LINEAR);
-
     let imageData = image.getMipmap(0);
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);

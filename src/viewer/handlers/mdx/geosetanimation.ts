@@ -20,6 +20,9 @@ export default class GeosetAnimation extends AnimatedObject {
     this.alpha = geosetAnimation.alpha;
     this.color = vec3.fromValues(color[2], color[1], color[0]); // Stored as RGB, but animated colors are stored as BGR, so sizzle.
     this.geosetId = geosetAnimation.geosetId;
+
+    this.addVariants('KGAO', 'alpha');
+    this.addVariants('KGAC', 'color');
   }
 
   getAlpha(out: Float32Array, instance: MdxComplexInstance) {
@@ -28,13 +31,5 @@ export default class GeosetAnimation extends AnimatedObject {
 
   getColor(out: Float32Array, instance: MdxComplexInstance) {
     return this.getVectorValue(out, 'KGAC', instance, this.color);
-  }
-
-  isAlphaVariant(sequence: number) {
-    return this.isVariant('KGAO', sequence);
-  }
-
-  isColorVariant(sequence: number) {
-    return this.isVariant('KGAC', sequence);
   }
 }

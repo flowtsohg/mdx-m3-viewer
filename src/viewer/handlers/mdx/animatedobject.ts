@@ -8,11 +8,11 @@ import { Sd, createTypedSd } from './sd';
  */
 export default class AnimatedObject {
   model: MdxModel;
-  animations: Map<string, Sd>;
+  animations: Map<string, Sd> = new Map();
+  variants: { [key: string]: Uint8Array } = {};
 
   constructor(model: MdxModel, object: MdlxAnimatedObject) {
     this.model = model;
-    this.animations = new Map();
 
     for (let animation of object.animations) {
       this.animations.set(animation.name, createTypedSd(model, animation));
@@ -60,13 +60,34 @@ export default class AnimatedObject {
     return -1;
   }
 
-  isVariant(name: string, sequence: number) {
+  addVariants(name: string, variantName: string) {
     let animation = this.animations.get(name);
+    let sequences = this.model.sequences.length;
+    let variants = new Uint8Array(sequences);
 
     if (animation) {
-      return animation.isVariant(sequence);
+      for (let i = 0; i < sequences; i++) {
+        if (animation.isVariant(i)) {
+          variants[i] = 1;
+        }
+      }
     }
 
-    return false;
+    this.variants[variantName] = variants;
+  }
+
+  addVariantIntersection(names: string[], variantName: string) {
+    let sequences = this.model.sequences.length;
+    let variants = new Uint8Array(sequences);
+
+    for (let i = 0; i < sequences; i++) {
+      for (let name of names) {
+        if (this.variants[name][i]) {
+          variants[i] = 1;
+        }
+      }
+    }
+
+    this.variants[variantName] = variants;
   }
 }

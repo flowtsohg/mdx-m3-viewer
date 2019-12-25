@@ -137,66 +137,75 @@ const forcedInterpMap = {
   KRVS: 0,
 };
 
+const floatDefval = new Float32Array(1);
+const uintDefval = new Uint32Array(1);
+const visibilityDefval = new Float32Array([1]);
+const translationDefval = vec3.create();
+const rotationDefval = quat.create();
+const scaleDefval = vec3.fromValues(1, 1, 1);
+const alphaDefval = visibilityDefval;
+const colorDefval = translationDefval;
+
 const defVals = {
   // LAYS
-  KMTF: [0],
-  KMTA: [1],
+  KMTF: floatDefval,
+  KMTA: alphaDefval,
   // TXAN
-  KTAT: [0, 0, 0],
-  KTAR: [0, 0, 0, 1],
-  KTAS: [1, 1, 1],
+  KTAT: translationDefval,
+  KTAR: rotationDefval,
+  KTAS: scaleDefval,
   // GEOA
-  KGAO: [1],
-  KGAC: [0, 0, 0],
+  KGAO: alphaDefval,
+  KGAC: colorDefval,
   // LITE
-  KLAS: [0],
-  KLAE: [0],
-  KLAC: [0, 0, 0],
-  KLAI: [0],
-  KLBI: [0],
-  KLBC: [0, 0, 0],
-  KLAV: [1],
+  KLAS: floatDefval,
+  KLAE: floatDefval,
+  KLAC: colorDefval,
+  KLAI: floatDefval,
+  KLBI: floatDefval,
+  KLBC: colorDefval,
+  KLAV: visibilityDefval,
   // ATCH
-  KATV: [1],
+  KATV: visibilityDefval,
   // PREM
-  KPEE: [0],
-  KPEG: [0],
-  KPLN: [0],
-  KPLT: [0],
-  KPEL: [0],
-  KPES: [0],
-  KPEV: [1],
+  KPEE: floatDefval,
+  KPEG: floatDefval,
+  KPLN: floatDefval,
+  KPLT: floatDefval,
+  KPEL: floatDefval,
+  KPES: floatDefval,
+  KPEV: visibilityDefval,
   // PRE2
-  KP2S: [0],
-  KP2R: [0],
-  KP2L: [0],
-  KP2G: [0],
-  KP2E: [0],
-  KP2N: [0],
-  KP2W: [0],
-  KP2V: [1],
+  KP2S: floatDefval,
+  KP2R: floatDefval,
+  KP2L: floatDefval,
+  KP2G: floatDefval,
+  KP2E: floatDefval,
+  KP2N: floatDefval,
+  KP2W: floatDefval,
+  KP2V: visibilityDefval,
   // RIBB
-  KRHA: [0],
-  KRHB: [0],
-  KRAL: [1],
-  KRCO: [0, 0, 0],
-  KRTX: [0],
-  KRVS: [1],
+  KRHA: floatDefval,
+  KRHB: floatDefval,
+  KRAL: alphaDefval,
+  KRCO: colorDefval,
+  KRTX: floatDefval,
+  KRVS: visibilityDefval,
   // CAMS
-  KCTR: [0, 0, 0],
-  KTTR: [0, 0, 0],
-  KCRL: [0],
+  KCTR: translationDefval,
+  KTTR: translationDefval,
+  KCRL: uintDefval,
   // NODE
-  KGTR: [0, 0, 0],
-  KGRT: [0, 0, 0, 1],
-  KGSC: [1, 1, 1],
+  KGTR: translationDefval,
+  KGRT: rotationDefval,
+  KGSC: scaleDefval,
 };
 
 /**
  * Animated data.
  */
 export abstract class Sd {
-  defval: CHANGE_ME;
+  defval: Float32Array | Uint32Array;
   model: MdxModel;
   name: string;
   globalSequence: SdSequence | null;

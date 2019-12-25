@@ -2,7 +2,7 @@ import BinaryStream from '../../common/binarystream';
 import TokenStream from './tokenstream';
 import AnimatedObject from './animatedobject';
 
-let filterModeToMdx: NumberObject = {
+const filterModeToMdx = {
   None: 0,
   Transparent: 1,
   Blend: 2,
@@ -12,7 +12,7 @@ let filterModeToMdx: NumberObject = {
   Modulate2x: 6,
 };
 
-let filterModeToMdl: StringObject = {
+const filterModeToMdl = {
   0: 'None',
   1: 'Transparent',
   2: 'Blend',

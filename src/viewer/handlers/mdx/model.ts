@@ -67,7 +67,6 @@ export default class MdxModel extends Model {
   replaceables: number[] = [];
   opaqueGroups: (BatchGroup | ReforgedBatchGroup)[] = [];
   translucentGroups: (BatchGroup | EmitterGroup)[] = [];
-  variants: CHANGE_ME = null;
   arrayBuffer: WebGLBuffer | null = null;
   elementBuffer: WebGLBuffer | null = null;
 
@@ -123,11 +122,8 @@ export default class MdxModel extends Model {
         let vLayer = new Layer(this, layer, layerId++, material.priorityPlane);
 
         layers.push(vLayer);
-        this.layers.push(vLayer);
 
-        if (vLayer.hasAnim) {
-          this.hasLayerAnims = true;
-        }
+        this.layers.push(vLayer);
       }
 
       this.materials.push(new Material(this, material.shader, layers));
@@ -292,6 +288,7 @@ export default class MdxModel extends Model {
     // One array for all generic objects.
     this.genericObjects.push(...this.bones, ...this.lights, ...this.helpers, ...this.attachments, ...this.particleEmitters, ...this.particleEmitters2, ...this.ribbonEmitters, ...this.eventObjects, ...this.collisionShapes);
 
+    // Render groups.
     setupGroups(this);
 
     // Creates the sorted indices array of the generic objects.
@@ -302,32 +299,32 @@ export default class MdxModel extends Model {
       this.sortedGenericObjects[i] = this.genericObjects[this.hierarchy[i]];
     }
 
-    let variants = {
-      nodes: [],
-      geosets: [],
-      layers: [],
-      batches: [],
-      any: [],
-    };
+    // let variants = {
+    //   nodes: [],
+    //   geosets: [],
+    //   layers: [],
+    //   batches: [],
+    //   any: [],
+    // };
 
-    for (let i = 0, l = this.sequences.length; i < l; i++) {
-      for (let object of this.genericObjects) {
-        variants.nodes[i] = variants.nodes[i] || object.variants.generic[i];
-      }
+    // for (let i = 0, l = this.sequences.length; i < l; i++) {
+    //   for (let object of this.genericObjects) {
+    //     variants.nodes[i] = variants.nodes[i] || object.variants.generic[i];
+    //   }
 
-      for (let geoset of this.geosets) {
-        variants.geosets[i] = variants.geosets[i] || geoset.variants.object[i];
-      }
+    //   for (let geoset of this.geosets) {
+    //     variants.geosets[i] = variants.geosets[i] || geoset.variants.object[i];
+    //   }
 
-      for (let layer of this.layers) {
-        variants.layers[i] = variants.layers[i] || layer.variants.object[i];
-      }
+    //   for (let layer of this.layers) {
+    //     variants.layers[i] = variants.layers[i] || layer.variants.object[i];
+    //   }
 
-      variants.batches[i] = variants.geosets[i] || variants.layers[i];
-      variants.any[i] = variants.nodes[i] || variants.batches[i];
-    }
+    //   variants.batches[i] = variants.geosets[i] || variants.layers[i];
+    //   variants.any[i] = variants.nodes[i] || variants.batches[i];
+    // }
 
-    this.variants = variants;
+    // this.variants = variants;
   }
 
   setupHierarchy(parent: number) {

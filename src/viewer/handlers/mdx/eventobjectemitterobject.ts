@@ -1,12 +1,12 @@
 import urlWithParams from '../../../common/urlwithparams';
 import { decodeAudioData } from '../../../common/audio';
-import MappedData from '../../../utils/mappeddata';
+import { FetchDataType } from '../../../common/fetchdatatype';
+import { MappedData } from '../../../utils/mappeddata';
 import EventObject from '../../../parsers/mdlx/eventobject';
 import MdxModel from './model';
 import GenericObject from './genericobject';
 import { emitterFilterMode } from './filtermode';
 import { EMITTER_SPLAT, EMITTER_UBERSPLAT } from './geometryemitterfuncs';
-import SlkFile from '../../../parsers/slk/file';
 import MdxComplexInstance from './complexinstance';
 import Texture from '../../texture';
 import GenericResource from '../../genericresource';

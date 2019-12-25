@@ -30,10 +30,6 @@ export default class ParticleEmitter2 extends GenericObject {
   priorityPlane: number = 0;
   replaceableId: number = 0;
 
-  constructor() {
-    super(0);
-  }
-
   readMdx(stream: BinaryStream) {
     const start = stream.index;
     const size = stream.readUint32();

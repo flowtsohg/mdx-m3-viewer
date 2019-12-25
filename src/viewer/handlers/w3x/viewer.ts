@@ -1,7 +1,8 @@
 import { vec3 } from 'gl-matrix';
 import unique from '../../../common/arrayunique';
 import urlWithParams from '../../../common/urlwithparams';
-import MappedData from '../../../utils/mappeddata';
+import { FetchDataTypeName } from '../../../common/fetchdatatype';
+import { MappedData } from '../../../utils/mappeddata';
 import War3Map from '../../../parsers/w3x/map';
 import War3MapW3i from '../../../parsers/w3x/w3i/file';
 import War3MapW3e from '../../../parsers/w3x/w3e/file';
@@ -9,13 +10,13 @@ import Corner from '../../../parsers/w3x/w3e/corner';
 import War3MapDoo from '../../../parsers/w3x/doo/file';
 import War3MapUnitsDoo from '../../../parsers/w3x/unitsdoo/file';
 import ModelViewer from '../../viewer';
+import { PathSolver } from '../../types';
 import ShaderProgram from '../../gl/program';
 import Scene from '../../scene';
 import Camera from '../../camera';
 import Grid from '../../grid';
 import Texture from '../../texture';
 import mdxHandler from '../mdx/handler';
-import sources from './shaders';
 import getCliffVariation from './variations';
 import TerrainModel from './terrainmodel';
 import randomStandSequence from './standsequence';
@@ -23,7 +24,12 @@ import Unit from './unit';
 import Doodad from './doodad';
 import GenericResource from '../../genericresource';
 import MdxComplexInstance from '../mdx/complexinstance';
-import MdxSimpleInstance from '../mdx/simpleinstance';
+import groundVert from './shaders/ground.vert';
+import groundFrag from './shaders/ground.frag';
+import waterVert from './shaders/water.vert';
+import waterFrag from './shaders/water.frag';
+import cliffsVert from './shaders/cliffs.vert';
+import cliffsFrag from './shaders/cliffs.frag';
 
 const normalHeap1 = vec3.create();
 const normalHeap2 = vec3.create();
@@ -95,9 +101,9 @@ export default class War3MapViewer extends ModelViewer {
 
     this.wc3PathSolver = wc3PathSolver;
 
-    this.groundShader = this.webgl.createShaderProgram(sources.vsGround, sources.fsGround);
-    this.waterShader = this.webgl.createShaderProgram(sources.vsWater, sources.fsWater);
-    this.cliffShader = this.webgl.createShaderProgram(sources.vsCliffs, sources.fsCliffs);
+    this.groundShader = this.webgl.createShaderProgram(groundVert, groundFrag);
+    this.waterShader = this.webgl.createShaderProgram(waterVert, waterFrag);
+    this.cliffShader = this.webgl.createShaderProgram(cliffsVert, cliffsFrag);
 
     this.scene = this.addScene();
     this.camera = this.scene.camera;
@@ -147,7 +153,7 @@ export default class War3MapViewer extends ModelViewer {
     return super.load(src, <PathSolver>this.mapPathSolver, this.solverParams);
   }
 
-  loadGeneric(path: string, dataType: FetchDataTypeNames) {
+  loadGeneric(path: string, dataType: FetchDataTypeName) {
     return super.loadGeneric(urlWithParams(this.wc3PathSolver(path)[0], this.solverParams), dataType);
   }
 
@@ -258,7 +264,7 @@ export default class War3MapViewer extends ModelViewer {
       this.tilesetTextures.push(this.load(`${row.dir}\\${row.file}.blp`));
     }
 
-    let blights: StringObject = {
+    let blights = {
       A: 'Ashen',
       B: 'Barrens',
       C: 'Felwood',
@@ -916,7 +922,7 @@ export default class War3MapViewer extends ModelViewer {
     return corner.groundTexture;
   }
 
-  applyModificationFile(dataMap: any, metadataMap: any, modificationFile: any) {
+  applyModificationFile(dataMap: MappedData, metadataMap: MappedData, modificationFile: any) {
     if (modificationFile) {
       // Modifications to built-in objects
       this.applyModificationTable(dataMap, metadataMap, modificationFile.originalTable);
@@ -926,7 +932,7 @@ export default class War3MapViewer extends ModelViewer {
     }
   }
 
-  applyModificationTable(dataMap: any, metadataMap: any, modificationTable: any) {
+  applyModificationTable(dataMap: MappedData, metadataMap: MappedData, modificationTable: any) {
     for (let modificationObject of modificationTable.objects) {
       let row;
 
@@ -946,7 +952,7 @@ export default class War3MapViewer extends ModelViewer {
         let metadata = metadataMap.getRow(modification.id);
 
         if (metadata) {
-          row[metadata.field] = modification.value;
+          row[<string>metadata.field] = modification.value;
         } else {
           console.warn('Unknown modification ID', modification);
         }
