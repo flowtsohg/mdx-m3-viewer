@@ -63,7 +63,7 @@ export default class GeoRenderBatch extends RenderBatch {
       let viewer = model.viewer;
       let gl = viewer.gl;
       let webgl = viewer.webgl;
-      let instancedArrays = webgl.extensions.instancedArrays;
+      let instancedArrays = <ANGLE_instanced_arrays>webgl.extensions.ANGLE_instanced_arrays;
       let shader = <ShaderProgram>geoHandler.shaders.standard;
       let uniforms = shader.uniforms;
       let attribs = shader.attribs;

@@ -23,7 +23,7 @@ export default class EmitterGroup {
     let model = instance.model;
     let viewer = model.viewer;
     let gl = viewer.gl;
-    let instancedArrays = viewer.webgl.extensions.instancedArrays;
+    let instancedArrays = <ANGLE_instanced_arrays>viewer.webgl.extensions.ANGLE_instanced_arrays;
     let shader = <ShaderProgram>mdxHandler.shaders.particles;
     let uniforms = shader.uniforms;
     let attribs = shader.attribs;

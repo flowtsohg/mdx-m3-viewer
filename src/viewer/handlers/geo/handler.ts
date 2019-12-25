@@ -11,7 +11,16 @@ let shaders = {
 export default {
   extensions: [['.geo']],
   load(viewer: ModelViewer) {
-    shaders.standard = viewer.webgl.createShaderProgram(standardVert, standardFrag);
+    let webgl = viewer.webgl;
+
+    // RenderBatch.
+    if (!webgl.ensureExtension('ANGLE_instanced_arrays')) {
+      console.error('GEO: No instanced rendering support!');
+
+      return false;
+    }
+
+    shaders.standard = webgl.createShaderProgram(standardVert, standardFrag);
 
     return shaders.standard !== null;
   },

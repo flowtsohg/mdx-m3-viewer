@@ -95,6 +95,18 @@ export default class War3MapViewer extends ModelViewer {
   constructor(canvas: HTMLCanvasElement, wc3PathSolver: PathSolver) {
     super(canvas);
 
+    let webgl = this.webgl;
+
+    // Used by the cliff shader.
+    if (!webgl.ensureExtension('OES_standard_derivatives')) {
+      throw new Error('War3MapViewer: No standard derivatives support!')
+    }
+
+    // Optionally used for cliff renering.
+    if (!webgl.ensureExtension('OES_vertex_array_object')) {
+      console.warn('War3MapViewer: No vertex array object support! This might reduce performance.');
+    }
+
     this.on('error', (target, error, reason) => console.error(target, error, reason));
 
     this.addHandler(mdxHandler);
@@ -636,7 +648,7 @@ export default class War3MapViewer extends ModelViewer {
     if (this.terrainReady) {
       let gl = this.gl;
       let webgl = this.webgl;
-      let instancedArrays = webgl.extensions.instancedArrays;
+      let instancedArrays = <ANGLE_instanced_arrays>webgl.extensions.ANGLE_instanced_arrays
       let shader = <ShaderProgram>this.groundShader;
       let uniforms = shader.uniforms;
       let attribs = shader.attribs;
@@ -714,7 +726,7 @@ export default class War3MapViewer extends ModelViewer {
     if (this.terrainReady) {
       let gl = this.gl;
       let webgl = this.webgl;
-      let instancedArrays = webgl.extensions.instancedArrays;
+      let instancedArrays = <ANGLE_instanced_arrays>webgl.extensions.ANGLE_instanced_arrays
       let shader = <ShaderProgram>this.waterShader;
       let uniforms = shader.uniforms;
       let attribs = shader.attribs;
@@ -772,8 +784,8 @@ export default class War3MapViewer extends ModelViewer {
     if (this.cliffsReady) {
       let gl = this.gl;
       let webgl = this.webgl;
-      let instancedArrays = webgl.extensions.instancedArrays;
-      let vertexArrayObject = webgl.extensions.vertexArrayObject;
+      let instancedArrays = <ANGLE_instanced_arrays>webgl.extensions.ANGLE_instanced_arrays
+      let vertexArrayObject = <OES_vertex_array_object>webgl.extensions.OES_vertex_array_object;
       let shader = <ShaderProgram>this.cliffShader;
       let attribs = shader.attribs;
       let uniforms = shader.uniforms;

@@ -46,23 +46,23 @@ export default class ModelViewer extends EventEmitter {
   frame: number = 0;
   /**
    * A simple buffer containing the bytes [0, 1, 2, 0, 2, 3].
+   * 
    * These are used as vertices in all geometry shaders.
    */
   rectBuffer: WebGLBuffer;
   /**
    * A resizeable buffer that can be used by any part of the library.
+   * 
    * The data it contains is temporary, and can be overwritten at any time.
    */
   buffer: ClientBuffer;
   /**
-   * A resizeable data texture that can be used by any part of the library.
-   * The data it contains is temporary, and can be overwritten at any time.
-   */
-  dataTexture: ClientDataTexture;
-  /**
    * A viewer-wide flag.
+   * 
    * If it is false, not only will audio not run, but in fact audio files won't even be fetched in the first place.
+   * 
    * If audio is desired, this should be set to true before loading models that use audio.
+   * 
    * Note that it is preferable to call enableAudio(), which checks for the existence of AudioContext.
    */
   audioEnabled: boolean = false;
@@ -83,8 +83,6 @@ export default class ModelViewer extends EventEmitter {
     gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array([0, 1, 2, 0, 2, 3]), gl.STATIC_DRAW);
 
     this.buffer = new ClientBuffer(gl);
-
-    this.dataTexture = new ClientDataTexture(gl);
 
     // Track when resources start loading.
     this.on('loadstart', (target) => {
@@ -233,10 +231,8 @@ export default class ModelViewer extends EventEmitter {
         let texture = this.fetchCache.get(finalSrc);
 
         if (texture) {
-          return <ImageTexture>texture;
+          return texture;
         }
-
-        console.log('REALLY LOADING IMAGE', finalSrc)
 
         texture = this.loadImageTexture(() => [finalSrc]);
 

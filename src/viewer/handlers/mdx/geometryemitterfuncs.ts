@@ -361,6 +361,7 @@ export function renderEmitter(emitter: ParticleEmitter2 | RibbonEmitter | EventO
     let viewer = emitter.instance.model.viewer;
     let buffer = viewer.buffer;
     let gl = viewer.gl;
+    let instancedArrays = <ANGLE_instanced_arrays>viewer.webgl.extensions.ANGLE_instanced_arrays
     let size = alive * BYTES_PER_OBJECT;
     let attribs = shader.attribs;
 
@@ -393,6 +394,6 @@ export function renderEmitter(emitter: ParticleEmitter2 | RibbonEmitter | EventO
     gl.vertexAttribPointer(attribs.a_tail, 1, gl.UNSIGNED_BYTE, false, BYTES_PER_OBJECT, BYTE_OFFSET_TAIL);
     gl.vertexAttribPointer(attribs.a_leftRightTop, 3, gl.UNSIGNED_BYTE, false, BYTES_PER_OBJECT, BYTE_OFFSET_LEFT_RIGHT_TOP);
 
-    viewer.webgl.extensions.instancedArrays.drawArraysInstancedANGLE(gl.TRIANGLES, 0, 6, alive);
+    instancedArrays.drawArraysInstancedANGLE(gl.TRIANGLES, 0, 6, alive);
   }
 }

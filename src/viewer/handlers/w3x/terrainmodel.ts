@@ -20,8 +20,8 @@ export default class TerrainModel {
   constructor(viewer: War3MapViewer, arrayBuffer: ArrayBuffer, locations: number[], textures: number[], shader: ShaderProgram) {
     let gl = viewer.gl;
     let webgl = viewer.webgl;
-    let instancedArrays = webgl.extensions.instancedArrays;
-    let vertexArrayObject = webgl.extensions.vertexArrayObject;
+    let instancedArrays = <ANGLE_instanced_arrays>webgl.extensions.ANGLE_instanced_arrays
+    let vertexArrayObject = <OES_vertex_array_object>webgl.extensions.OES_vertex_array_object;
     let parser = new MdlxModel(arrayBuffer);
     let geoset = parser.geosets[0];
     let vertices = geoset.vertices;
@@ -98,8 +98,8 @@ export default class TerrainModel {
     let viewer = this.viewer;
     let gl = viewer.gl;
     let webgl = viewer.webgl;
-    let instancedArrays = webgl.extensions.instancedArrays;
-    let vertexArrayObject = webgl.extensions.vertexArrayObject;
+    let instancedArrays = <ANGLE_instanced_arrays>webgl.extensions.ANGLE_instanced_arrays
+    let vertexArrayObject = <OES_vertex_array_object>webgl.extensions.OES_vertex_array_object;
     let attribs = shader.attribs;
 
     if (vertexArrayObject) {

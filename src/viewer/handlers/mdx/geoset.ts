@@ -112,8 +112,9 @@ export default class Geoset {
   renderSimple(instances: number) {
     let viewer = this.model.viewer;
     let gl = viewer.gl;
+    let instancedArrays = <ANGLE_instanced_arrays>viewer.webgl.extensions.ANGLE_instanced_arrays
 
-    viewer.webgl.extensions.instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.faceOffset, instances);
+    instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.faceOffset, instances);
   }
 
   bindHd(shader: ShaderProgram, coordId: number) {

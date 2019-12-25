@@ -36,6 +36,20 @@ export default {
   load(viewer: ModelViewer) {
     let webgl = viewer.webgl;
 
+    // Bone textures.
+    if (!webgl.ensureExtension('OES_texture_float')) {
+      console.error('MDX: No float texture support!');
+
+      return false;
+    }
+
+    // Geometry emitters and RenderBatch.
+    if (!webgl.ensureExtension('ANGLE_instanced_arrays')) {
+      console.error('MDX: No instanced rendering support!');
+
+      return false;
+    }
+
     viewer.addHandler(blpHandler);
     viewer.addHandler(ddsHandler);
     viewer.addHandler(tgaHandler);

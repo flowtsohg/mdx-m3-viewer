@@ -17,7 +17,7 @@ export default class DdsTexture extends Texture {
     let viewer = this.viewer;
     let gl = viewer.gl;
     let webgl = viewer.webgl;
-    let compressedTextures = webgl.extensions.compressedTextureS3tc;
+    let compressedTextures = <WEBGL_compressed_texture_s3tc>webgl.extensions.WEBGL_compressed_texture_s3tc;
     let format = image.format;
     let internalFormat = 0;
 

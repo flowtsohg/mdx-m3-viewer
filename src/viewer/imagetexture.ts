@@ -29,8 +29,6 @@ export class ImageTexture extends Texture {
   async load() {
     let finalSrc = this.pathSolver(undefined)[0];
 
-    console.log('imageTexture adaws awd awawd', finalSrc)
-
     if (!isImageSource(finalSrc)) {
       let response = await fetchDataType(finalSrc, 'image');
 

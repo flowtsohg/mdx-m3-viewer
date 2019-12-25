@@ -17,6 +17,13 @@ export default {
     let webgl = viewer.webgl;
     let teamColors = [[255, 3, 3], [0, 66, 255], [28, 230, 185], [84, 0, 129], [255, 252, 1], [254, 138, 14], [32, 192, 0], [229, 91, 176], [149, 150, 151], [126, 191, 241], [16, 98, 70], [78, 42, 4], [40, 40, 40], [0, 0, 0]];
 
+    // Bone textures.
+    if (!webgl.ensureExtension('OES_texture_float')) {
+      console.error('M3: No float texture support!');
+
+      return false;
+    }
+
     viewer.addHandler(ddsHandler);
     viewer.addHandler(tgaHandler);
 

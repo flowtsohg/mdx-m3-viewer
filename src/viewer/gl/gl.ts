@@ -15,48 +15,17 @@ export default class WebGL {
   currentShaderProgram: ShaderProgram | null = null;
   emptyTexture: WebGLTexture;
   emptyCubeMap: WebGLTexture;
-  extensions: {
-    instancedArrays: ANGLE_instanced_arrays,
-    compressedTextureS3tc: WEBGL_compressed_texture_s3tc | null,
-    vertexArrayObject: OES_vertex_array_object | null
-  };
+  extensions: { [key: string]: any } = {};
 
-  constructor(canvas: HTMLCanvasElement, options?: object) {
-    let gl = <WebGLRenderingContext>canvas.getContext('webgl', options || { alpha: false });
+  constructor(canvas: HTMLCanvasElement, options: object = { alpha: false }) {
+    let gl = <WebGLRenderingContext>canvas.getContext('webgl', options);
 
     if (!gl) {
-      gl = <WebGLRenderingContext>canvas.getContext('experimental-webgl', options || { alpha: false });
+      gl = <WebGLRenderingContext>canvas.getContext('experimental-webgl', options);
     }
 
     if (!gl) {
       throw new Error('WebGL: Failed to create a WebGL context!');
-    }
-
-    let textureFloat = gl.getExtension('OES_texture_float')
-    let instancedArrays = gl.getExtension('ANGLE_instanced_arrays')
-    let compressedTextureS3tc = gl.getExtension('WEBGL_compressed_texture_s3tc')
-    let vertexArrayObject = gl.getExtension('OES_vertex_array_object')
-    let standardDerivatives = gl.getExtension('OES_standard_derivatives'); // Used in War3MapViewer's shaders, but that might change.
-    let textureLod = gl.getExtension('EXT_shader_texture_lod');
-
-    if (gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS) === 0) {
-      throw new Error('WebGL: No vertex shader texture support!');
-    }
-
-    if (textureFloat === null) {
-      throw new Error('WebGL: No floating point texture support!');
-    }
-
-    if (instancedArrays === null) {
-      throw new Error('WebGL: No instanced rendering support!');
-    }
-
-    if (compressedTextureS3tc === null) {
-      console.warn('WebGL: No compressed textures support! This might reduce performance.');
-    }
-
-    if (vertexArrayObject === null) {
-      console.warn('WebGL: No vertex array object support! This might reduce performance.');
     }
 
     let twoByTwo = new Uint8ClampedArray([0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255]);
@@ -80,15 +49,27 @@ export default class WebGL {
     this.gl = gl;
     this.emptyTexture = emptyTexture;
     this.emptyCubeMap = emptyCubeMap;
-    this.extensions = {
-      instancedArrays,
-      compressedTextureS3tc,
-      vertexArrayObject,
-    }
 
     // The only initial setup, the rest should be handled by the handlers.
     gl.depthFunc(gl.LEQUAL);
     gl.enable(gl.DEPTH_TEST);
+  }
+
+  /**
+   * Ensures that an extension is available.
+   * 
+   * If it is, it will be added to `extensions`.
+   */
+  ensureExtension(name: string) {
+    let extension = this.gl.getExtension(name);
+
+    if (extension) {
+      this.extensions[name] = extension;
+
+      return true;
+    }
+
+    return false;
   }
 
   /**
