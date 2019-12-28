@@ -10,7 +10,7 @@ export default class ClientDataTexture {
   byteView: Uint8Array | null = null;
   floatView: Float32Array | null = null;
 
-  constructor(gl: WebGLRenderingContext, width: number = 2, height: number = 2) {
+  constructor(gl: WebGLRenderingContext, width: number = 1, height: number = 1) {
     this.gl = gl;
     this.texture = <WebGLTexture>gl.createTexture();
 

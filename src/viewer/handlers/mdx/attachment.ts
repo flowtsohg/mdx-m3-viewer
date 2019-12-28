@@ -9,7 +9,7 @@ import MdxModel from './model';
 export default class Attachment extends GenericObject {
   path: string;
   attachmentId: number;
-  internalModel: MdxModel | null;
+  internalModel: MdxModel | null = null;
 
   constructor(model: MdxModel, attachment: MdlxAttachment, index: number) {
     super(model, attachment, index);
@@ -18,11 +18,10 @@ export default class Attachment extends GenericObject {
 
     this.path = path;
     this.attachmentId = attachment.attachmentId;
-    this.internalModel = null;
 
     // Second condition is against custom resources using arbitrary paths...
     if (path !== '' && path.indexOf('.mdx') != -1) {
-      this.internalModel = model.viewer.load(path, model.pathSolver, model.solverParams);
+      this.internalModel = <MdxModel>model.viewer.load(path, model.pathSolver, model.solverParams);
     }
   }
 

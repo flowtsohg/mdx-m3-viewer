@@ -24,7 +24,7 @@ export default class ParticleEmitterObject extends GenericObject {
   constructor(model: MdxModel, emitter: ParticleEmitter, index: number) {
     super(model, emitter, index);
 
-    this.internalModel = model.viewer.load(emitter.path.replace(/\\/g, '/').toLowerCase().replace('.mdl', '.mdx'), model.pathSolver, model.solverParams);
+    this.internalModel = <MdxModel>model.viewer.load(emitter.path.replace(/\\/g, '/').toLowerCase().replace('.mdl', '.mdx'), model.pathSolver, model.solverParams);
     this.speed = emitter.speed;
     this.latitude = emitter.latitude;
     this.longitude = emitter.longitude;

@@ -13,7 +13,7 @@ import Model from './model';
 import ModelInstance from './modelinstance';
 import TextureMapper from './texturemapper';
 import Texture from './texture';
-import { ImagePathSolver, isImageSource, isImageExtension, ImageTexture } from './imagetexture';
+import { isImageSource, isImageExtension, ImageTexture } from './imagetexture';
 import CubeMap from './cubemap';
 
 /**
@@ -216,6 +216,11 @@ export default class ModelViewer extends EventEmitter {
     if (pathSolver) {
       let [finalSrc, extension, isFetch] = pathSolver(src, solverParams);
 
+      if (typeof extension !== 'string') {
+        this.emit('error', this, `The path solver did not return an extension!`);
+
+        return;
+      }
       // Allow path solvers to use both ".ext" and "ext".
       if (extension[0] !== '.') {
         extension = '.' + extension;
@@ -378,7 +383,7 @@ export default class ModelViewer extends EventEmitter {
    * 
    *     viewer.load(image)
    */
-  loadImageTexture(pathSolver: ImagePathSolver) {
+  loadImageTexture(pathSolver: PathSolver) {
     let texture = new ImageTexture({ viewer: this, pathSolver });
 
     this.resources.push(texture);
@@ -409,7 +414,7 @@ export default class ModelViewer extends EventEmitter {
    * Otherwise, it will always try to fetch an image.\
    * Any other array elements are ignored.
    */
-  loadCubeMap(pathSolver: ImagePathSolver) {
+  loadCubeMap(pathSolver: PathSolver) {
     let cubeMap = new CubeMap({ viewer: this, pathSolver });
 
     this.resources.push(cubeMap);

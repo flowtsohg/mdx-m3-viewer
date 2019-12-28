@@ -1,6 +1,7 @@
 import ModelViewer from '../../viewer';
 import ShaderProgram from '../../gl/program';
-import { ImagePathSolver, ImageTexture } from '../../imagetexture';
+import { PathSolver } from '../../handlerresource';
+import { ImageTexture } from '../../imagetexture';
 import CubeMap from '../../cubemap';
 import Model from './model';
 import GltfBatchGroup from './batchgroup';
@@ -43,7 +44,7 @@ export default {
     return true;
   },
   resource: Model,
-  async loadEnv(viewer: ModelViewer, specularSolver: ImagePathSolver, diffuseSolver: ImagePathSolver, brdfLUTSolver: ImagePathSolver) {
+  async loadEnv(viewer: ModelViewer, specularSolver: PathSolver, diffuseSolver: PathSolver, brdfLUTSolver: PathSolver) {
     env.specularTexture = viewer.loadCubeMap(specularSolver);
     env.diffuseTexture = viewer.loadCubeMap(diffuseSolver);
     env.brdfLUTTexture = viewer.loadImageTexture(brdfLUTSolver);
@@ -65,10 +66,14 @@ export default {
     if (!shaders[primitiveFlags][materialFlags]) {
       let primitiveDefines = getPrimitiveDefines(primitiveFlags);
       let materialDefines = getMaterialDefines(materialFlags);
-
       let defines = [...primitiveDefines, ...materialDefines, ...globalDefines].map((value) => `#define ${value}`).join('\n') + '\n';
+      let shader = group.model.viewer.webgl.createShaderProgram(defines + primitiveVert, defines + metallicRoughnessFrag);
 
-      shaders[primitiveFlags][materialFlags] = group.model.viewer.webgl.createShaderProgram(defines + primitiveVert, defines + metallicRoughnessFrag);
+      if (!shader || !shader.ok) {
+        throw new Error('glTF: Failed to compile a shader!');
+      }
+
+      shaders[primitiveFlags][materialFlags] = shader;
     }
 
     return shaders[primitiveFlags][materialFlags];

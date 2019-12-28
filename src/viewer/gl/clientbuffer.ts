@@ -9,7 +9,7 @@ export default class ClientBuffer {
   byteView: Uint8Array | null = null;
   floatView: Float32Array | null = null;
 
-  constructor(gl: WebGLRenderingContext, size: number = 64) {
+  constructor(gl: WebGLRenderingContext, size: number = 4) {
     this.gl = gl;
     this.buffer = <WebGLBuffer>gl.createBuffer();
 
@@ -20,12 +20,13 @@ export default class ClientBuffer {
     if (this.size < size) {
       let gl = this.gl;
 
-      this.size = size;
+      // Ensure the size is on a 4 byte boundary.
+      this.size = Math.ceil(size / 4) * 4;
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-      gl.bufferData(gl.ARRAY_BUFFER, size, gl.DYNAMIC_DRAW);
+      gl.bufferData(gl.ARRAY_BUFFER, this.size, gl.DYNAMIC_DRAW);
 
-      this.arrayBuffer = new ArrayBuffer(size);
+      this.arrayBuffer = new ArrayBuffer(this.size);
       this.byteView = new Uint8Array(this.arrayBuffer);
       this.floatView = new Float32Array(this.arrayBuffer);
     }

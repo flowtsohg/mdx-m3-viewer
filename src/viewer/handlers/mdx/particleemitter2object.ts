@@ -32,11 +32,11 @@ export default class ParticleEmitter2Object extends GenericObject {
   tail: boolean;
   cellWidth: number;
   cellHeight: number;
-  colors: Float32Array[];
+  colors: Float32Array[] = [];
   scaling: Float32Array;
   intervals: Float32Array[];
-  blendSrc: number = 0;
-  blendDst: number = 0;
+  blendSrc: number;
+  blendDst: number;
   priorityPlane: number;
   /**
    * Even if the internal texture isn't loaded, it's fine to run emitters based on this emitter object.
@@ -70,7 +70,9 @@ export default class ParticleEmitter2Object extends GenericObject {
     } else if (replaceableId === 1 || replaceableId === 2) {
       this.teamColored = 1;
     } else {
-      this.internalTexture = model.viewer.load('ReplaceableTextures\\' + replaceableIds[replaceableId] + '.blp', model.pathSolver, model.solverParams);
+      let texturesExt = model.reforged ? '.dds' : '.blp';
+
+      this.internalTexture = <Texture>model.viewer.load(`ReplaceableTextures\\${replaceableIds[replaceableId]}${texturesExt}`, model.pathSolver, model.solverParams);
     }
 
     this.replaceableId = emitter.replaceableId;
@@ -82,7 +84,6 @@ export default class ParticleEmitter2Object extends GenericObject {
 
     this.cellWidth = 1 / emitter.columns;
     this.cellHeight = 1 / emitter.rows;
-    this.colors = [];
 
     let colors = emitter.segmentColors;
     let alpha = emitter.segmentAlphas;

@@ -27,58 +27,33 @@ const textureIdHeap = new Uint32Array(1);
  * An MDX model instance.
  */
 export default class MdxComplexInstance extends ModelInstance {
-  attachments: AttachmentInstance[];
-  particleEmitters: ParticleEmitter[];
-  particleEmitters2: ParticleEmitter2[];
-  ribbonEmitters: RibbonEmitter[];
-  eventObjectEmitters: (EventObjectSpnEmitter | EventObjectSplEmitter | EventObjectUbrEmitter | EventObjectSndEmitter)[];
-  nodes: SkeletalNode[];
-  sortedNodes: SkeletalNode[];
-  frame: number;
-  counter: number;
-  sequence: number;
-  sequenceLoopMode: number;
-  sequenceEnded: boolean;
-  teamColor: number;
-  vertexColor: Float32Array;
-  allowParticleSpawn: boolean;
-  forced: boolean;
-  geosetColors: Float32Array[];
-  layerAlphas: number[];
-  layerTextures: number[];
-  uvAnims: Float32Array[];
-  worldMatrices: Float32Array | null;
-  boneTexture: DataTexture | null;
-
-  constructor(model: MdxModel) {
-    super(model);
-
-    this.attachments = [];
-    this.particleEmitters = [];
-    this.particleEmitters2 = [];
-    this.ribbonEmitters = [];
-    this.eventObjectEmitters = [];
-    this.nodes = [];
-    this.sortedNodes = [];
-    this.frame = 0;
-    this.counter = 0; // Global sequences
-    this.sequence = -1;
-    this.sequenceLoopMode = 0;
-    this.sequenceEnded = false;
-    this.teamColor = 0;
-    this.vertexColor = new Float32Array([1, 1, 1, 1]);
-    this.allowParticleSpawn = false; // Particles do not spawn when the sequence is -1, or when the sequence finished and it's not repeating
-    // If forced is true, everything will update regardless of variancy.
-    // Any later non-forced update can then use variancy to skip updating things.
-    // It is set to true every time the sequence is set with setSequence().
-    this.forced = true;
-    this.geosetColors = [];
-    this.layerAlphas = [];
-    this.layerTextures = [];
-    this.uvAnims = [];
-    this.worldMatrices = null;
-    this.boneTexture = null;
-  }
+  attachments: AttachmentInstance[] = [];
+  particleEmitters: ParticleEmitter[] = [];
+  particleEmitters2: ParticleEmitter2[] = [];
+  ribbonEmitters: RibbonEmitter[] = [];
+  eventObjectEmitters: (EventObjectSpnEmitter | EventObjectSplEmitter | EventObjectUbrEmitter | EventObjectSndEmitter)[] = [];
+  nodes: SkeletalNode[] = [];
+  sortedNodes: SkeletalNode[] = [];
+  frame: number = 0;
+  // Global sequences
+  counter: number = 0;
+  sequence: number = -1;
+  sequenceLoopMode: number = 0;
+  sequenceEnded: boolean = false;
+  teamColor: number = 0;
+  vertexColor: Float32Array = new Float32Array([1, 1, 1, 1]);
+  // Particles do not spawn when the sequence is -1, or when the sequence finished and it's not repeating
+  allowParticleSpawn: boolean = false;
+  // If forced is true, everything will update regardless of variancy.
+  // Any later non-forced update can then use variancy to skip updating things.
+  // It is set to true every time the sequence is set with setSequence().
+  forced: boolean = true;
+  geosetColors: Float32Array[] = [];
+  layerAlphas: number[] = [];
+  layerTextures: number[] = [];
+  uvAnims: Float32Array[] = [];
+  worldMatrices: Float32Array | null = null;
+  boneTexture: DataTexture | null = null;
 
   load() {
     let model = <MdxModel>this.model;

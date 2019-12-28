@@ -81,14 +81,14 @@ export function imageDataToImage(imageData: ImageData) {
   return image;
 }
 
-export function imageToImageData(image: HTMLImageElement | HTMLVideoElement | HTMLCanvasElement) {
+export function imageToImageData(image: TexImageSource) {
   let width = image.width;
   let height = image.height;
 
   canvas.width = width;
   canvas.height = height;
 
-  ctx.drawImage(image, 0, 0);
+  ctx.drawImage(<CanvasImageSource>image, 0, 0);
 
   return ctx.getImageData(0, 0, width, height);
 }

@@ -1,4 +1,3 @@
-import stringHash from '../../common/stringhash';
 import Texture from '../texture';
 import CubeMap from '../cubemap';
 import ShaderUnit from './shader';
@@ -10,8 +9,8 @@ import ShaderProgram from './program';
  */
 export default class WebGL {
   gl: WebGLRenderingContext;
-  shaderUnits: Map<number, ShaderUnit> = new Map();
-  shaderPrograms: Map<number, ShaderProgram> = new Map();
+  shaderUnits: Map<string, ShaderUnit> = new Map();
+  shaderPrograms: Map<string, ShaderProgram> = new Map();
   currentShaderProgram: ShaderProgram | null = null;
   emptyTexture: WebGLTexture;
   emptyCubeMap: WebGLTexture;
@@ -61,10 +60,10 @@ export default class WebGL {
    * If it is, it will be added to `extensions`.
    */
   ensureExtension(name: string) {
-    let extension = this.gl.getExtension(name);
+    let ext = this.gl.getExtension(name);
 
-    if (extension) {
-      this.extensions[name] = extension;
+    if (ext) {
+      this.extensions[name] = ext;
 
       return true;
     }
@@ -76,14 +75,13 @@ export default class WebGL {
    * Create a new shader unit. Uses caching.
    */
   createShaderUnit(src: string, type: number) {
-    let hash = stringHash(src);
     let shaderUnits = this.shaderUnits;
 
-    if (!shaderUnits.has(hash)) {
-      shaderUnits.set(hash, new ShaderUnit(this.gl, src, type));
+    if (!shaderUnits.has(src)) {
+      shaderUnits.set(src, new ShaderUnit(this.gl, src, type));
     }
 
-    return <ShaderUnit>shaderUnits.get(hash);
+    return <ShaderUnit>shaderUnits.get(src);
   }
 
   /**
@@ -96,13 +94,13 @@ export default class WebGL {
     let shaderPrograms = this.shaderPrograms;
 
     if (vertexShader.ok && fragmentShader.ok) {
-      let hash = stringHash(vertexSrc + fragmentSrc);
+      let src = vertexSrc + fragmentSrc;
 
-      if (!shaderPrograms.has(hash)) {
-        shaderPrograms.set(hash, new ShaderProgram(this, vertexShader, fragmentShader));
+      if (!shaderPrograms.has(src)) {
+        shaderPrograms.set(src, new ShaderProgram(this, vertexShader, fragmentShader));
       }
 
-      let program = <ShaderProgram>shaderPrograms.get(hash);
+      let program = <ShaderProgram>shaderPrograms.get(src);
 
       if (program.ok) {
         return program;

@@ -10,11 +10,11 @@ import Corner from '../../../parsers/w3x/w3e/corner';
 import War3MapDoo from '../../../parsers/w3x/doo/file';
 import War3MapUnitsDoo from '../../../parsers/w3x/unitsdoo/file';
 import ModelViewer from '../../viewer';
-import { PathSolver } from '../../types';
 import ShaderProgram from '../../gl/program';
 import Scene from '../../scene';
 import Camera from '../../camera';
 import Grid from '../../grid';
+import { PathSolver } from '../../handlerresource';
 import Texture from '../../texture';
 import mdxHandler from '../mdx/handler';
 import getCliffVariation from './variations';
@@ -30,6 +30,8 @@ import waterVert from './shaders/water.vert';
 import waterFrag from './shaders/water.frag';
 import cliffsVert from './shaders/cliffs.vert';
 import cliffsFrag from './shaders/cliffs.frag';
+import MdxModel from '../mdx/model';
+
 
 const normalHeap1 = vec3.create();
 const normalHeap2 = vec3.create();
@@ -96,6 +98,11 @@ export default class War3MapViewer extends ModelViewer {
     super(canvas);
 
     let webgl = this.webgl;
+
+    // Data textures.
+    if (!webgl.ensureExtension('OES_texture_float')) {
+      throw new Error('War3MapViewer: No float texture support!');
+    }
 
     // Used by the cliff shader.
     if (!webgl.ensureExtension('OES_standard_derivatives')) {
@@ -267,13 +274,14 @@ export default class War3MapViewer extends ModelViewer {
   }
 
   async loadTerrainCliffsAndWater(w3e: War3MapW3e) {
+    let texturesExt = this.solverParams.reforged ? '.dds' : '.blp';
     let tileset = w3e.tileset;
 
     for (let groundTileset of w3e.groundTilesets) {
       let row = this.terrainData.getRow(groundTileset);
 
       this.tilesets.push(row);
-      this.tilesetTextures.push(this.load(`${row.dir}\\${row.file}.blp`));
+      this.tilesetTextures.push(<Texture>this.load(`${row.dir}\\${row.file}${texturesExt}`));
     }
 
     let blights = {
@@ -298,13 +306,13 @@ export default class War3MapViewer extends ModelViewer {
     };
 
     this.blightTextureIndex = this.tilesetTextures.length;
-    this.tilesetTextures.push(this.load(`TerrainArt\\Blight\\${blights[tileset]}_Blight.blp`));
+    this.tilesetTextures.push(<Texture>this.load(`TerrainArt\\Blight\\${blights[tileset]}_Blight${texturesExt}`));
 
     for (let cliffTileset of w3e.cliffTilesets) {
       let row = this.cliffTypesData.getRow(cliffTileset);
 
       this.cliffTilesets.push(row);
-      this.cliffTextures.push(this.load(`${row.texDir}\\${row.texFile}.blp`));
+      this.cliffTextures.push(<Texture>this.load(`${row.texDir}\\${row.texFile}${texturesExt}`));
     }
 
     let waterRow = this.waterData.getRow(`${tileset}Sha`);
@@ -318,7 +326,7 @@ export default class War3MapViewer extends ModelViewer {
     this.minShallowColor.set([<number>waterRow.Smin_R, <number>waterRow.Smin_G, <number>waterRow.Smin_B, <number>waterRow.Smin_A]);
 
     for (let i = 0, l = waterRow.numTex; i < l; i++) {
-      this.waterTextures.push(this.load(`${waterRow.texFile}${i < 10 ? '0' : ''}${i}.blp`));
+      this.waterTextures.push(<Texture>this.load(`${waterRow.texFile}${i < 10 ? '0' : ''}${i}${texturesExt}`));
     }
 
     await this.whenLoaded(this.tilesetTextures);
@@ -535,9 +543,9 @@ export default class War3MapViewer extends ModelViewer {
       let model;
 
       if (mpqFile) {
-        model = this.load(mpqFile.name);
+        model = <MdxModel>this.load(mpqFile.name);
       } else {
-        model = this.load(fileVar);
+        model = <MdxModel>this.load(fileVar);
       }
 
       this.doodads.push(new Doodad(this, model, row, doodad))
@@ -591,7 +599,7 @@ export default class War3MapViewer extends ModelViewer {
       }
 
       if (path) {
-        let model = this.load(path);
+        let model = <MdxModel>this.load(path);
 
         this.units.push(new Unit(this, model, row, unit));
       } else {

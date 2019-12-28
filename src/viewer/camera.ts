@@ -1,11 +1,11 @@
-import { vec3, vec4, quat, mat3, mat4 } from 'gl-matrix';
-import { unproject, unpackPlanes, VEC3_UNIT_Y, VEC3_UNIT_X, VEC3_UNIT_Z } from '../common/gl-matrix-addon';
+import { vec3, vec4, quat, mat4 } from 'gl-matrix';
+import { VEC3_UNIT_Y, VEC3_UNIT_X, VEC3_UNIT_Z, unproject, unpackPlanes, quatLookAt } from '../common/gl-matrix-addon';
 
 const vectorHeap = vec3.create();
 const vectorHeap2 = vec3.create();
 const vectorHeap3 = vec3.create();
 const quatHeap = quat.create();
-const matHeap = mat4.create();
+const facingCorrection = quat.setAxisAngle(quat.create(), VEC3_UNIT_X, Math.PI / 2);
 
 /**
  * A camera.
@@ -60,6 +60,7 @@ export default class Camera {
    * The camera frustum planes in this order: left, right, top, bottom, near, far.
    */
   planes: vec4[] = [vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create()];
+  lines: vec4[] = [vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create()];
   dirty: boolean = true;
 
   /**
@@ -181,21 +182,24 @@ export default class Camera {
   }
 
   /**
-   * Face the given point. Changes only the camera's orientation.
+   * Look at `to`.
    */
-  face(point: vec3, worldUp: vec3) {
-    mat4.lookAt(matHeap, this.location, point, worldUp);
-    mat4.getRotation(this.rotation, matHeap);
+  face(to: vec3, worldUp: vec3) {
+    quatLookAt(quatHeap, to, this.location, worldUp);
+    quat.conjugate(quatHeap, quatHeap);
+
+    quat.copy(this.rotation, facingCorrection);
+    quat.mul(this.rotation, this.rotation, quatHeap);
 
     this.dirty = true;
   }
 
   /**
-   * Move to the given location, and look at the given target.
+   * Move to `from` and look at the `to`.
    */
-  moveToAndFace(location: vec3, target: vec3, worldUp: vec3) {
-    vec3.copy(this.location, location);
-    this.face(target, worldUp);
+  moveToAndFace(from: vec3, to: vec3, worldUp: vec3) {
+    vec3.copy(this.location, from);
+    this.face(to, worldUp);
   }
 
   /**
@@ -224,37 +228,34 @@ export default class Camera {
       let vectors = this.vectors;
       let billboardedVectors = this.billboardedVectors;
 
-      // Projection matrix
-      // Camera space -> NDC space
+      // View -> Clip.
       if (this.isPerspective) {
         mat4.perspective(projectionMatrix, this.fov, this.aspect, this.nearClipPlane, this.farClipPlane);
       } else {
         mat4.ortho(projectionMatrix, this.leftClipPlane, this.rightClipPlane, this.bottomClipPlane, this.topClipPlane, this.nearClipPlane, this.farClipPlane);
       }
 
+      // World -> View.
       mat4.fromQuat(worldMatrix, rotation);
       mat4.translate(worldMatrix, worldMatrix, vec3.negate(vectorHeap, location));
 
       quat.conjugate(inverseRotation, rotation);
 
-      // World projection matrix
-      // World space -> NDC space
+      // World -> Clip.
       mat4.mul(worldProjectionMatrix, projectionMatrix, worldMatrix);
 
       // Recaculate the camera's frusum planes
       unpackPlanes(this.planes, worldProjectionMatrix);
 
-      // Inverse world matrix
-      // Camera space -> World space
+      // View -> World.
       mat4.invert(this.inverseWorldMatrix, worldMatrix);
+
+      // Clip -> World.
+      mat4.invert(this.inverseWorldProjectionMatrix, worldProjectionMatrix);
 
       vec3.transformQuat(this.directionX, VEC3_UNIT_X, inverseRotation);
       vec3.transformQuat(this.directionY, VEC3_UNIT_Y, inverseRotation);
       vec3.transformQuat(this.directionZ, VEC3_UNIT_Z, inverseRotation);
-
-      // Inverse world projection matrix
-      // NDC space -> World space
-      mat4.invert(this.inverseWorldProjectionMatrix, worldProjectionMatrix);
 
       // Cache the billboarded vectors
       for (let i = 0; i < 7; i++) {

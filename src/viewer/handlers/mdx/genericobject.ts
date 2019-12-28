@@ -13,7 +13,7 @@ export default class GenericObject extends AnimatedObject {
   name: string;
   objectId: number;
   parentId: number;
-  pivot: Float32Array;
+  pivot: vec3;
   dontInheritTranslation: number;
   dontInheritRotation: number;
   dontInheritScaling: number;
@@ -37,7 +37,7 @@ export default class GenericObject extends AnimatedObject {
     this.name = object.name;
     this.objectId = object.objectId;
     this.parentId = object.parentId;
-    this.pivot = model.pivotPoints[object.objectId] || vec3.create();
+    this.pivot = <vec3>model.pivotPoints[object.objectId] || vec3.create();
 
     let flags = object.flags;
 

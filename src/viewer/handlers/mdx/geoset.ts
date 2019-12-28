@@ -1,8 +1,6 @@
-import { vec3 } from 'gl-matrix';
 import ShaderProgram from '../../gl/program';
 import MdxModel from './model';
 import GeosetAnimation from './geosetanimation';
-import MdxComplexInstance from './complexinstance';
 
 /**
  * A geoset.
@@ -17,7 +15,7 @@ export default class Geoset {
   faceOffset: number;
   vertices: number;
   elements: number;
-  geosetAnimation: GeosetAnimation | null;
+  geosetAnimation: GeosetAnimation | null = null;
 
   constructor(model: MdxModel, index: number, positionOffset: number, normalOffset: number, uvOffset: number, skinOffset: number, faceOffset: number, vertices: number, elements: number) {
     this.model = model;
@@ -29,47 +27,12 @@ export default class Geoset {
     this.faceOffset = faceOffset;
     this.vertices = vertices;
     this.elements = elements;
-    this.geosetAnimation = null;
 
     for (let geosetAnimation of model.geosetAnimations) {
       if (geosetAnimation.geosetId === index) {
         this.geosetAnimation = geosetAnimation;
       }
     }
-
-    // let variants = {
-    //   alpha: [],
-    //   color: [],
-    //   object: [],
-    // };
-
-    // let hasAlphaAnim = false;
-    // let hasColorAnim = false;
-
-    // if (this.geosetAnimation) {
-    //   for (let i = 0, l = model.sequences.length; i < l; i++) {
-    //     let alpha = this.geosetAnimation.isAlphaVariant(i);
-    //     let color = this.geosetAnimation.isColorVariant(i);
-
-    //     variants.alpha[i] = alpha;
-    //     variants.color[i] = color;
-    //     variants.object[i] = alpha || color;
-
-    //     hasAlphaAnim = hasAlphaAnim || alpha;
-    //     hasColorAnim = hasColorAnim || color;
-    //   }
-    // } else {
-    //   for (let i = 0, l = model.sequences.length; i < l; i++) {
-    //     variants.alpha[i] = false;
-    //     variants.color[i] = false;
-    //     variants.object[i] = false;
-    //   }
-    // }
-
-    // this.variants = variants;
-    // this.hasAlphaAnim = hasAlphaAnim;
-    // this.hasColorAnim = hasColorAnim;
-    // this.hasObjectAnim = hasAlphaAnim || hasColorAnim;
   }
 
   bind(shader: ShaderProgram, coordId: number) {

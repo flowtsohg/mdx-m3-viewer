@@ -1,8 +1,5 @@
 import { vec3, vec4, quat, mat4 } from 'gl-matrix';
 
-const vec3Heap = vec3.create();
-const vec4Heap = vec4.create();
-
 export const VEC3_UNIT_X = vec3.fromValues(1, 0, 0);
 export const VEC3_UNIT_Y = vec3.fromValues(0, 1, 0);
 export const VEC3_UNIT_Z = vec3.fromValues(0, 0, 1);
@@ -10,6 +7,8 @@ export const VEC3_ZERO = vec3.create();
 export const VEC3_ONE = vec3.fromValues(1, 1, 1);
 export const QUAT_ZERO = quat.fromValues(0, 0, 0, 0);
 export const QUAT_DEFAULT = quat.create();
+
+const vec4Heap = vec4.create();
 
 export function unproject(out: vec3, v: vec3, inverseMatrix: mat4, viewport: vec4) {
   let x = 2 * (v[0] - viewport[0]) / viewport[2] - 1;
@@ -179,20 +178,55 @@ export function unpackPlanes(planes: vec4[], m: mat4) {
   normalizePlane(planes[5], planes[5]);
 }
 
-export function getRotationX(q: quat) {
-  vec3.transformQuat(vec3Heap, VEC3_UNIT_Y, q);
+const F = vec3.create();
+const R = vec3.create();
+const U = vec3.create();
 
-  return Math.atan2(vec3Heap[2], vec3Heap[1]);
-}
+/**
+ * A look-at matrix, but for quaternions.
+ * 
+ * See https://stackoverflow.com/a/52551983/2503048
+ */
+export function quatLookAt(out: quat, from: vec3, to: vec3, worldUp: vec3) {
+  vec3.normalize(F, vec3.sub(F, to, from));
+  vec3.normalize(R, vec3.cross(R, worldUp, F));
+  vec3.cross(U, R, F);
 
-export function getRotationY(q: quat) {
-  vec3.transformQuat(vec3Heap, VEC3_UNIT_Z, q);
+  let trace = R[0] + U[2] + F[1];
 
-  return Math.atan2(vec3Heap[0], vec3Heap[2]);
-}
+  if (trace > 0.0) {
+    let s = 0.5 / Math.sqrt(trace + 1.0);
 
-export function getRotationZ(q: quat) {
-  vec3.transformQuat(vec3Heap, VEC3_UNIT_X, q);
+    out[3] = 0.25 / s;
+    out[0] = (U[1] - F[2]) * s;
+    out[2] = (F[0] - R[1]) * s;
+    out[1] = (R[2] - U[0]) * s;
+  } else {
+    if (R[0] > U[2] && R[0] > F[1]) {
+      let s = 2.0 * Math.sqrt(1.0 + R[0] - U[2] - F[1]);
 
-  return Math.atan2(vec3Heap[1], vec3Heap[0]);
+      out[3] = (U[1] - F[2]) / s;
+      out[0] = 0.25 * s;
+      out[2] = (U[0] + R[2]) / s;
+      out[1] = (F[0] + R[1]) / s;
+    } else if (U[2] > F[1]) {
+      let s = 2.0 * Math.sqrt(1.0 + U[2] - R[0] - F[1]);
+
+      out[3] = (F[0] - R[1]) / s;
+      out[0] = (U[0] + R[2]) / s;
+      out[2] = 0.25 * s;
+      out[1] = (F[2] + U[1]) / s;
+    } else {
+      let s = 2.0 * Math.sqrt(1.0 + F[1] - R[0] - U[2]);
+
+      out[3] = (R[2] - U[0]) / s;
+      out[0] = (F[0] + R[1]) / s;
+      out[2] = (F[2] + U[1]) / s;
+      out[1] = 0.25 * s;
+    }
+  }
+
+  quat.conjugate(out, out);
+
+  return out;
 }

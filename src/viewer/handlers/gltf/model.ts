@@ -25,8 +25,8 @@ export default class GltfModel extends Model {
   meshes: GltfMesh[] = [];
   textures: Texture[] = [];
   materials: GltfMaterial[] = [];
-  nodes: object[];
-  scenes: object[];
+  nodes: object[] = [];
+  scenes: object[] = [];
   batches: GltfBatch[] = [];
   groups: GltfBatchGroup[] = [];
 
@@ -112,8 +112,8 @@ export default class GltfModel extends Model {
       this.materials.push(new GltfMaterial(this, material));
     }
 
-    this.nodes = json.nodes;
-    this.scenes = json.scenes;
+    this.nodes.push(...json.nodes);
+    this.scenes.push(...json.scenes);
 
     for (let i = 0, l = json.nodes.length; i < l; i++) {
       let node = json.nodes[i];

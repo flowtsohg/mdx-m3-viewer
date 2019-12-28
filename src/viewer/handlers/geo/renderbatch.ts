@@ -132,7 +132,6 @@ export default class GeoRenderBatch extends RenderBatch {
 
         gl.uniform1f(uniforms.u_isEdge, 0);
 
-
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.faceBuffer);
         instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, model.faceElements, model.faceIndexType, 0, count);
       }

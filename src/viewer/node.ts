@@ -1,11 +1,11 @@
 import { vec3, quat, mat4 } from 'gl-matrix';
-import { VEC3_ZERO, VEC3_ONE, QUAT_DEFAULT } from '../common/gl-matrix-addon';
+import { VEC3_ZERO, VEC3_ONE, QUAT_DEFAULT, quatLookAt } from '../common/gl-matrix-addon';
 import Scene from './scene';
 
-// Heap allocations needed for this module.
 const locationHeap = vec3.create();
 const rotationHeap = quat.create();
 const scalingHeap = vec3.create();
+const faceHeap = mat4.create();
 
 /**
  * A node.
@@ -218,63 +218,12 @@ export class Node {
 
     return this;
   }
-  /*
-  orthoNormalize(vectors) {
-      for (let i = 0; i < vectors.length; i++) {
-          let accum = vec3.create(),
-              p = vec3.create();
 
-          for (let j = 0; j < i; j++) {
-              vec3.add(accum, accum, this.project(p, vectors[i], vectors[j]));
-          }
+  face(to: vec3, worldUp: vec3) {
+    quatLookAt(this.localRotation, this.localLocation, to, worldUp);
 
-          vec3.sub(vectors[i], vectors[i], accum);
-          vec3.normalize(vectors[i], vectors[i]);
-      }
+    this.dirty = true;
   }
-
-  project(out, u, v) {
-      let d = vec3.dot(u, v),
-          d_div = d / vec3.sqrLen(u);
-
-      return vec3.scale(out, v, d_div);
-  }
-
-  lookAt(target, upDirection) {
-      let lookAt = vec3.create();
-
-      vec3.sub(lookAt, target, this.worldLocation);
-
-      let forward = vec3.clone(lookAt);
-      let up = vec3.clone(upDirection);
-
-      this.orthoNormalize([forward, up]);
-
-      let right = vec3.create();
-      vec3.cross(right, forward, up);
-
-      // vec3.normalize(forward, forward);
-      // vec3.normalize(up, up);
-      // vec3.normalize(right, right);
-
-      quat.setAxes(this.localRotation, forward, right, up);
-      quat.conjugate(this.localRotation, this.localRotation);
-
-      this.recalculateTransformation();
-
-      return this;
-  }
-  //* /
-  /*
-  lookAt(target) {
-      let v1 = target,
-          v2 = this.worldLocation;
-
-      let angle = Math.atan2(v2[2], v2[0]) - Math.atan2(v1[2], v1[0]);
-
-      //console.log(Math.toDeg(angle))
-  },
-  */
 
   /**
    * Sets the node's parent.

@@ -3,13 +3,13 @@ import { decodeAudioData } from '../../../common/audio';
 import { FetchDataType } from '../../../common/fetchdatatype';
 import { MappedData } from '../../../utils/mappeddata';
 import EventObject from '../../../parsers/mdlx/eventobject';
+import GenericResource from '../../genericresource';
+import Texture from '../../texture';
 import MdxModel from './model';
 import GenericObject from './genericobject';
 import { emitterFilterMode } from './filtermode';
 import { EMITTER_SPLAT, EMITTER_UBERSPLAT } from './geometryemitterfuncs';
 import MdxComplexInstance from './complexinstance';
-import Texture from '../../texture';
-import GenericResource from '../../genericresource';
 
 const mappedDataCallback = (data: FetchDataType) => new MappedData(<string>data);
 const decodedDataCallback = (data: FetchDataType) => decodeAudioData(<ArrayBuffer>data);
@@ -90,8 +90,13 @@ export default class EventObjectEmitterObject extends GenericObject {
     } else if (type === 'UBR') {
       tables[0] = viewer.loadGeneric(urlWithParams(pathSolver('Splats\\UberSplatData.slk')[0], solverParams), 'text', mappedDataCallback);
     } else if (type === 'SND') {
-      tables[0] = viewer.loadGeneric(urlWithParams(pathSolver('UI\\SoundInfo\\AnimLookups.slk')[0], solverParams), 'text', mappedDataCallback);
-      tables[1] = viewer.loadGeneric(urlWithParams(pathSolver('UI\\SoundInfo\\AnimSounds.slk')[0], solverParams), 'text', mappedDataCallback);
+      if (!model.reforged) {
+        tables.push(viewer.loadGeneric(urlWithParams(pathSolver('UI\\SoundInfo\\AnimLookups.slk')[0], solverParams), 'text', mappedDataCallback));
+      }
+
+      tables.push(viewer.loadGeneric(urlWithParams(pathSolver('UI\\SoundInfo\\AnimSounds.slk')[0], solverParams), 'text', mappedDataCallback));
+
+
     } else {
       // Units\Critters\BlackStagMale\BlackStagMale.mdx has an event object named "Point01".
       return;
@@ -125,13 +130,15 @@ export default class EventObjectEmitterObject extends GenericObject {
       let pathSolver = model.pathSolver;
 
       if (type === 'SPN') {
-        this.internalModel = viewer.load((<string>row.Model).replace('.mdl', '.mdx'), pathSolver, model.solverParams);
+        this.internalModel = <MdxModel>viewer.load((<string>row.Model).replace('.mdl', '.mdx'), pathSolver, model.solverParams);
 
         if (this.internalModel) {
           this.internalModel.whenLoaded((model) => this.ok = model.ok);
         }
       } else if (type === 'SPL' || type === 'UBR') {
-        this.internalTexture = viewer.load('replaceabletextures/splats/' + row.file + '.blp', pathSolver, model.solverParams);
+        let texturesExt = model.reforged ? '.dds' : '.blp';
+
+        this.internalTexture = <Texture>viewer.load(`replaceabletextures/splats/${row.file}${texturesExt}`, pathSolver, model.solverParams);
 
         this.scale = <number>row.Scale;
         this.colors = [

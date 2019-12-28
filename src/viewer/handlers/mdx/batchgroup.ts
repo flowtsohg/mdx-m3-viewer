@@ -26,11 +26,11 @@ export default class BatchGroup {
     let layerTextures = instance.layerTextures;
     let uvAnims = instance.uvAnims;
     let model = this.model;
+    let replaceables = model.replaceables;
     let textures = model.textures;
     let teamColors = mdxHandler.teamColors;
     let teamGlows = mdxHandler.teamGlows;
     let batches = model.batches;
-    let replaceables = model.replaceables;
     let viewer = model.viewer;
     let gl = viewer.gl;
     let isExtended = this.isExtended;
@@ -101,9 +101,13 @@ export default class BatchGroup {
           texture = teamGlows[instance.teamColor];
         } else {
           texture = textures[layerTexture];
+
+          // Overriding.
+          texture = textureMapper.get(texture) || texture;
+
         }
 
-        viewer.webgl.bindTexture(textureMapper.get(texture) || texture, 0);
+        viewer.webgl.bindTexture(texture, 0);
 
         if (isExtended) {
           geoset.bindExtended(shader, layer.coordId);

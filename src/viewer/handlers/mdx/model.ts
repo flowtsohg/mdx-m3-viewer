@@ -43,6 +43,7 @@ export default class MdxModel extends Model {
   globalSequences: number[] = [];
   materials: Material[] = [];
   layers: Layer[] = [];
+  replaceables: number[] = [];
   textures: Texture[] = [];
   textureAnimations: TextureAnimation[] = [];
   geosets: Geoset[] = [];
@@ -64,7 +65,6 @@ export default class MdxModel extends Model {
   genericObjects: GenericObject[] = [];
   sortedGenericObjects: GenericObject[] = [];
   hierarchy: number[] = [];
-  replaceables: number[] = [];
   opaqueGroups: (BatchGroup | ReforgedBatchGroup)[] = [];
   translucentGroups: (BatchGroup | EmitterGroup)[] = [];
   arrayBuffer: WebGLBuffer | null = null;
@@ -90,8 +90,10 @@ export default class MdxModel extends Model {
     let viewer = this.viewer;
     let pathSolver = this.pathSolver;
     let solverParams = this.solverParams;
+    let reforged = parser.version > 800;
+    let texturesExt = reforged ? '.dds' : '.blp';
 
-    this.reforged = parser.version > 800;
+    this.reforged = reforged;
     this.name = parser.name;
 
     // Initialize the bounds.
@@ -133,7 +135,7 @@ export default class MdxModel extends Model {
       }
     }
 
-    if (this.reforged) {
+    if (reforged) {
       solverParams.reforged = true;
     }
 
@@ -144,47 +146,25 @@ export default class MdxModel extends Model {
     let gl = viewer.gl;
     let usingTeamTextures = false;
 
-    // Textures
+    // Textures.
     for (let texture of parser.textures) {
       let path = texture.path;
       let replaceableId = texture.replaceableId;
       let flags = texture.flags;
 
       if (replaceableId !== 0) {
-        path = `ReplaceableTextures\\${replaceableIds[replaceableId]}.blp`;
+        path = `ReplaceableTextures\\${replaceableIds[replaceableId]}${texturesExt}`;
 
         if (replaceableId === 1 || replaceableId === 2) {
           usingTeamTextures = true;
         }
       }
 
-      // If the path is corrupted, try to fix it.
-      if (!path.endsWith('.blp') && !path.endsWith('.tga') && !path.endsWith('.dds')) {
-        // Try to search for .blp
-        let index = path.indexOf('.blp');
-
-        if (index === -1) {
-          // Not a .blp, try to search for .tga
-          index = path.indexOf('.tga');
-
-          if (index === -1) {
-            index = path.indexOf('.dds');
-          }
-        }
-
-        if (index !== -1) {
-          // Hopefully fix the path
-          path = path.slice(0, index + 4);
-        }
+      if (reforged && !path.endsWith('.dds')) {
+        path = `${path.slice(0, -4)}.dds`;
       }
 
-      if (this.reforged && !path.endsWith('.dds')) {
-        path = path.slice(0, -4) + '.dds';
-      }
-
-      this.replaceables.push(replaceableId);
-
-      let viewerTexture = viewer.load(path, pathSolver, solverParams);
+      let viewerTexture = <Texture>viewer.load(path, pathSolver, solverParams);
 
       // When the texture will load, it will apply its wrap modes.
       if (!viewerTexture.loaded) {
@@ -197,27 +177,21 @@ export default class MdxModel extends Model {
         }
       }
 
+      this.replaceables.push(replaceableId);
       this.textures.push(viewerTexture);
     }
 
     // Start loading the team color and glow textures if this model uses them and they weren't loaded previously.
     if (usingTeamTextures) {
-      let reforged = this.reforged;
       let teamColors = reforged ? mdxHandler.reforgedTeamColors : mdxHandler.teamColors;
       let teamGlows = reforged ? mdxHandler.reforgedTeamGlows : mdxHandler.teamGlows;
 
       if (!teamColors.length) {
-        let ext = 'blp';
-
-        if (reforged) {
-          ext = 'dds';
-        }
-
-        for (let i = 0; i < 14; i++) {
+        for (let i = 0; i < 28; i++) {
           let id = ('' + i).padStart(2, '0');
 
-          teamColors[i] = viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}.${ext}`, pathSolver, solverParams);
-          teamGlows[i] = viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}.${ext}`, pathSolver, solverParams);
+          teamColors[i] = <Texture>viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}${texturesExt}`, pathSolver, solverParams);
+          teamGlows[i] = <Texture>viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}${texturesExt}`, pathSolver, solverParams);
         }
       }
     }

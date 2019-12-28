@@ -10,11 +10,10 @@ import { renderEmitter } from './geometryemitterfuncs';
  */
 export default class EmitterGroup {
   model: MdxModel;
-  objects: number[];
+  objects: number[] = [];
 
   constructor(model: MdxModel) {
     this.model = model;
-    this.objects = [];
   }
 
   render(instance: MdxComplexInstance) {

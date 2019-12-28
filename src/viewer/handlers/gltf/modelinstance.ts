@@ -1,11 +1,8 @@
 import { vec3, quat, mat4 } from 'gl-matrix';
-import ShaderProgram from '../../gl/program';
 import Scene from '../../scene';
 import { SkeletalNode, createSkeletalNodes } from '../../node';
 import ModelInstance from '../../modelinstance';
-import gltfHandler from './handler';
 import GltfModel from './model';
-import GltfBatch from './batch';
 
 /**
  * A glTF model instance.
