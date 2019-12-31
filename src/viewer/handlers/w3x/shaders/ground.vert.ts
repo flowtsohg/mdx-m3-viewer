@@ -1,4 +1,5 @@
-uniform mat4 u_mvp;
+const shader = `
+uniform mat4 u_VP;
 uniform sampler2D u_heightMap;
 uniform vec2 u_size;
 uniform vec2 u_offset;
@@ -37,7 +38,7 @@ void main() {
   vec4 textures = a_textures - u_baseTileset;
   
   if (textures[0] > 0.0 || textures[1] > 0.0 || textures[2] > 0.0 || textures[3] > 0.0) {
-    v_tilesets = a_textures - u_baseTileset;
+    v_tilesets = textures;
 
     v_uv[0] = getUV(a_position, u_extended[int(textures[0]) - 1], a_variations[0]);
     v_uv[1] = getUV(a_position, u_extended[int(textures[1]) - 1], a_variations[1]);
@@ -55,7 +56,7 @@ void main() {
 
     v_normal = normalize(vec3(hL - hR, hD - hU, 2.0));
 
-    gl_Position = u_mvp * vec4(base * 128.0 + u_offset, height * 128.0, 1.0);
+    gl_Position = u_VP * vec4(base * 128.0 + u_offset, height * 128.0, 1.0);
   } else {
     v_tilesets = vec4(0.0);
 
@@ -69,3 +70,6 @@ void main() {
     gl_Position = vec4(0.0);
   }
 }
+`;
+
+export default shader;

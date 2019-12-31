@@ -46,13 +46,13 @@ export default class TerrainModel {
     gl.bufferSubData(gl.ARRAY_BUFFER, uvsOffset, uvs);
 
     if (vertexArrayObject) {
-      gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, 12, 0);
+      gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, 0, 0);
       gl.enableVertexAttribArray(attribs.a_position);
 
-      gl.vertexAttribPointer(attribs.a_normal, 3, gl.FLOAT, false, 12, normalsOffset);
+      gl.vertexAttribPointer(attribs.a_normal, 3, gl.FLOAT, false, 0, normalsOffset);
       gl.enableVertexAttribArray(attribs.a_normal);
 
-      gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 8, uvsOffset);
+      gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 0, uvsOffset);
       gl.enableVertexAttribArray(attribs.a_uv);
     }
 
@@ -64,11 +64,11 @@ export default class TerrainModel {
     gl.bufferSubData(gl.ARRAY_BUFFER, texturesOffset, new Uint8Array(textures));
 
     if (vertexArrayObject) {
-      gl.vertexAttribPointer(attribs.a_instancePosition, 3, gl.FLOAT, false, 12, 0);
+      gl.vertexAttribPointer(attribs.a_instancePosition, 3, gl.FLOAT, false, 0, 0);
       gl.enableVertexAttribArray(attribs.a_instancePosition);
       instancedArrays.vertexAttribDivisorANGLE(attribs.a_instancePosition, 1);
 
-      gl.vertexAttribPointer(attribs.a_instanceTexture, 1, gl.UNSIGNED_BYTE, false, 1, texturesOffset);
+      gl.vertexAttribPointer(attribs.a_instanceTexture, 1, gl.UNSIGNED_BYTE, false, 0, texturesOffset);
       gl.enableVertexAttribArray(attribs.a_instanceTexture);
       instancedArrays.vertexAttribDivisorANGLE(attribs.a_instanceTexture, 1);
 
@@ -107,14 +107,14 @@ export default class TerrainModel {
     } else {
       // Locations and textures.
       gl.bindBuffer(gl.ARRAY_BUFFER, this.locationAndTextureBuffer);
-      gl.vertexAttribPointer(attribs.a_instancePosition, 3, gl.FLOAT, false, 12, 0);
-      gl.vertexAttribPointer(attribs.a_instanceTexture, 1, gl.UNSIGNED_BYTE, false, 1, this.texturesOffset);
+      gl.vertexAttribPointer(attribs.a_instancePosition, 3, gl.FLOAT, false, 0, 0);
+      gl.vertexAttribPointer(attribs.a_instanceTexture, 1, gl.UNSIGNED_BYTE, false, 0, this.texturesOffset);
 
       // Vertices.
       gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-      gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, 12, 0);
-      gl.vertexAttribPointer(attribs.a_normal, 3, gl.FLOAT, false, 12, this.normalsOffset);
-      gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 8, this.uvsOffset);
+      gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, 0, 0);
+      gl.vertexAttribPointer(attribs.a_normal, 3, gl.FLOAT, false, 0, this.normalsOffset);
+      gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 0, this.uvsOffset);
 
       // Faces.
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.faceBuffer);

@@ -1,3 +1,4 @@
+const shader = `
 varying vec3 v_normal;
 varying vec4 v_uv[2];
 varying vec3 v_lightDir;
@@ -264,3 +265,6 @@ vec4 computeSpecular(sampler2D specularMap, LayerSettings layerSettings, float s
 
   return color * factor;
 }
+`;
+
+export default shader;

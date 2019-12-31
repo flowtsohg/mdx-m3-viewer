@@ -1,4 +1,5 @@
-uniform mat4 u_mvp;
+const shader = `
+uniform mat4 u_VP;
 uniform sampler2D u_heightMap;
 uniform vec2 u_pixel;
 uniform vec2 u_centerOffset;
@@ -37,5 +38,8 @@ void main() {
   v_texture = a_instanceTexture;
   v_position = a_position + vec3(a_instancePosition.xy, a_instancePosition.z + height * 128.0);
 
-  gl_Position = u_mvp * vec4(v_position, 1.0);
+  gl_Position = u_VP * vec4(v_position, 1.0);
 }
+`;
+
+export default shader;

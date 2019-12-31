@@ -72,7 +72,7 @@ export default class MdxRenderBatch extends RenderBatch {
       gl.vertexAttribPointer(m2, 3, gl.FLOAT, false, 48, 24);
       gl.vertexAttribPointer(m3, 3, gl.FLOAT, false, 48, 36);
 
-      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.scene.camera.worldProjectionMatrix);
+      gl.uniformMatrix4fv(uniforms.u_VP, false, this.scene.camera.viewProjectionMatrix);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, model.arrayBuffer);
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.elementBuffer);
@@ -82,19 +82,21 @@ export default class MdxRenderBatch extends RenderBatch {
       instancedArrays.vertexAttribDivisorANGLE(m2, 1);
       instancedArrays.vertexAttribDivisorANGLE(m3, 1);
 
-      for (let index of model.opaqueGroups[0].objects) {
-        let batch = <Batch>batches[index];
-        let geoset = batch.geoset;
-        let layer = batch.layer;
-        let texture = textures[layer.textureId];
+      for (let group of model.simpleGroups) {
+        for (let object of group.objects) {
+          let batch = <Batch>batches[object];
+          let geoset = batch.geoset;
+          let layer = batch.layer;
+          let texture = textures[layer.textureId];
 
-        gl.uniform1i(uniforms.u_texture, 0);
-        viewer.webgl.bindTexture(textureMapper.get(texture) || texture, 0);
+          gl.uniform1i(uniforms.u_texture, 0);
+          viewer.webgl.bindTexture(textureMapper.get(texture) || texture, 0);
 
-        layer.bind(shader);
+          layer.bind(shader);
 
-        geoset.bindSimple(shader);
-        geoset.renderSimple(count);
+          geoset.bindSimple(shader);
+          geoset.renderSimple(count);
+        }
       }
 
       instancedArrays.vertexAttribDivisorANGLE(m3, 0);

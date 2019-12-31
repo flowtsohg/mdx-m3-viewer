@@ -3,11 +3,12 @@ import Texture from '../../texture';
 import GltfBufferView from './bufferview';
 import GltfAccessor from './accessor';
 import GltfMesh from './mesh';
-import GltfMaterial from './material';
+import { GltfMaterial } from './material';
 import GltfInstance from './modelinstance';
 import GltfBatch from './batch';
 import { setupGroups } from './groups';
 import GltfBatchGroup from './batchgroup';
+import { getMaterialFlags } from './flags';
 
 const utf8decoder = new TextDecoder();
 
@@ -28,7 +29,8 @@ export default class GltfModel extends Model {
   nodes: object[] = [];
   scenes: object[] = [];
   batches: GltfBatch[] = [];
-  groups: GltfBatchGroup[] = [];
+  opaqueGroups: GltfBatchGroup[] = [];
+  translucentGroups: GltfBatchGroup[] = [];
 
   createInstance(type: number) {
     return new GltfInstance(this);

@@ -1,57 +1,73 @@
 // An orbit camera setup example.
 // Left mouse button controls the orbit itself.
-// The right mouse button allows to move the camera and the point it's looking at in the XY plane.
-// The scroll moves the camera forward and backward.
-function setupCamera(scene, initialDistance) {
+// The right mouse button allows to move the camera and the point it's looking at on the XY plane.
+// Scrolling zooms in and out.
+function setupCamera(scene, options = {}) {
   let canvas = scene.viewer.canvas;
   let camera = scene.camera;
-  let MOVE_SPEED = 2;
-  let ZOOM_SPEED = 120;
-  let ROTATION_SPEED = 1 / 200;
-  let mouse = {buttons: [false, false, false], x: 0, y: 0, x2: 0, y2: 0};
-  let right = vec3.create();
-  let up = vec3.create();
-  let horizontalAngle = 0;
-  let verticalAngle = -Math.PI / 4;
-  let cameraTarget = vec3.create(); // What the camera orbits.
+  // Movement per pixel of movement.
+  let moveSpeed = options.moveSpeed || 2;
+  // Rotation in radians per pixel of movement.
+  let rotationSpeed = options.rotationSpeed || (Math.PI / 180);
+  // Zoom factor per scroll.
+  let zoomFactor = options.zoomFactor = 0.1;
+  let horizontalAngle = options.horizontalAngle || Math.PI / 2;
+  let verticalAngle = options.verticalAngle || Math.PI / 4;
+  let distance = options.distance || 500;
+  let position = vec3.create();
+  // What the camera is looking at.
+  let target = options.target || vec3.create();
+  // What is considered "up" to this camera.
+  let worldUp = options.worldUp || vec3.fromValues(0, 0, 1);
+  let mouse = { buttons: [false, false, false], x: 0, y: 0, x2: 0, y2: 0 };
 
-  // Initial setup, go back a bit and look forward.
-  camera.move([0, -initialDistance, 0]);
-  camera.setRotationAroundAngles(horizontalAngle, verticalAngle, cameraTarget);
+  let vecHeap = vec3.create();
+  let quatHeap = quat.create();
+
+  function update() {
+    // Limit the vertical angle so it doesn't flip.
+    // Since the camera uses a quaternion, flips don't matter to it, but this feels better.
+    verticalAngle = Math.min(Math.max(0.01, verticalAngle), Math.PI - 0.01);
+
+    quat.identity(quatHeap);
+    quat.rotateZ(quatHeap, quatHeap, horizontalAngle);
+    quat.rotateX(quatHeap, quatHeap, verticalAngle);
+
+    vec3.set(position, 0, 0, 1);
+    vec3.transformQuat(position, position, quatHeap);
+    vec3.scale(position, position, distance);
+    vec3.add(position, position, target);
+
+    camera.moveToAndFace(position, target, worldUp);
+  }
+
+  update();
 
   // Move the camera and the target on the XY plane.
   function move(x, y) {
     let dirX = camera.directionX;
     let dirY = camera.directionY;
 
-    // Allow only movement on the XY plane, and scale to  MOVE_SPEED.
-    vec3.scale(right, vec3.normalize(right, [dirX[0], dirX[1], 0]), x * MOVE_SPEED);
-    vec3.scale(up, vec3.normalize(up, [dirY[0], dirY[1], 0]), y * MOVE_SPEED);
+    // Allow only movement on the XY plane, and scale to moveSpeed.
+    vec3.add(target, target, vec3.scale(vecHeap, vec3.normalize(vecHeap, vec3.set(vecHeap, dirX[0], dirX[1], 0)), x * moveSpeed));
+    vec3.add(target, target, vec3.scale(vecHeap, vec3.normalize(vecHeap, vec3.set(vecHeap, dirY[0], dirY[1], 0)), y * moveSpeed));
 
-    camera.move(right);
-    camera.move(up);
-
-    // And also move the camera target to update the orbit.
-    vec3.add(cameraTarget, cameraTarget, right);
-    vec3.add(cameraTarget, cameraTarget, up);
+    update();
   }
 
   // Rotate the camera around the target.
-  function rotate(dx, dy) {
-    // Update rotations, and limit the vertical angle so it doesn't flip.
-    // Since the camera uses a quaternion, flips don't matter to it, but this feels better.
-    horizontalAngle += dx * ROTATION_SPEED;
-    verticalAngle = Math.max(-Math.PI + 0.01, Math.min(verticalAngle + dy * ROTATION_SPEED, -0.01));
+  function rotate(x, y) {
+    horizontalAngle -= x * rotationSpeed;
+    verticalAngle -= y * rotationSpeed;
 
-    camera.setRotationAroundAngles(horizontalAngle, verticalAngle, cameraTarget);
+    update();
   }
 
-  // Zoom the camera by moving forward or backwards.
+  // Zoom the camera by changing the distance from the target.
   function zoom(factor) {
-    // Get the forward vector.
-    let dirZ = camera.directionZ;
+    distance *= 1 + factor * zoomFactor;
 
-    camera.move(vec3.scale([], dirZ, factor * ZOOM_SPEED));
+    update();
   }
 
   // Resize the canvas automatically and update the camera.
@@ -66,23 +82,23 @@ function setupCamera(scene, initialDistance) {
     camera.perspective(Math.PI / 4, width / height, 8, 20000);
   }
 
-  window.addEventListener('resize', function(e) {
+  window.addEventListener('resize', function (e) {
     onResize();
   });
 
   onResize();
 
   // Disable the context menu when right-clicking.
-  canvas.addEventListener('contextmenu', function(e) {
+  canvas.addEventListener('contextmenu', function (e) {
     e.preventDefault();
   });
 
-  canvas.addEventListener('selectstart', function(e) {
+  canvas.addEventListener('selectstart', function (e) {
     e.preventDefault();
   });
 
   // Track mouse clicks.
-  canvas.addEventListener('mousedown', function(e) {
+  canvas.addEventListener('mousedown', function (e) {
     e.preventDefault();
 
     mouse.buttons[e.button] = true;

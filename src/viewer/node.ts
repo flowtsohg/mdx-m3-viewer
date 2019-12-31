@@ -220,7 +220,7 @@ export class Node {
   }
 
   face(to: vec3, worldUp: vec3) {
-    quatLookAt(this.localRotation, this.localLocation, to, worldUp);
+    quat.conjugate(this.localRotation, quatLookAt(this.localRotation, this.localLocation, to, worldUp));
 
     this.dirty = true;
   }

@@ -1,3 +1,4 @@
+const shader = `
 // A 2D quaternion*vector.
 // q is the zw components of the original quaternion.
 vec2 quat_transform(vec2 q, vec2 v) {
@@ -6,3 +7,6 @@ vec2 quat_transform(vec2 q, vec2 v) {
 
   return v + 2.0 * (uv * q.y + uuv);
 }
+`;
+
+export default shader;

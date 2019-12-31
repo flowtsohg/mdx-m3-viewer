@@ -1,3 +1,4 @@
+const shader = `
 precision mediump float;
 
 uniform sampler2D u_tilesets[15];
@@ -67,3 +68,6 @@ void main() {
 
   gl_FragColor = color;
 }
+`;
+
+export default shader;

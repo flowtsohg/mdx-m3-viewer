@@ -105,7 +105,7 @@ app.get('/assets', (req, res, next) => {
     if (fs.existsSync(absolutePath)) {
       res.sendFile(absolutePath);
 
-      console.log(`\x1b[32m${req.url} resolved to ${searchPath.slice(0, -1)}\x1b[0m`);
+      console.log(`\x1b[32m${req.url} \x1b[33mresolved to ${searchPath.slice(0, -1)}\x1b[0m`);
 
       return;
     }

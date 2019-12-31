@@ -36,7 +36,7 @@ export default class ReforgedBatchGroup {
 
     let uniforms = shader.uniforms;
 
-    gl.uniformMatrix4fv(uniforms.u_mvp, false, scene.camera.worldProjectionMatrix);
+    gl.uniformMatrix4fv(uniforms.u_VP, false, scene.camera.viewProjectionMatrix);
 
     // Instances of models with no bones don't have a bone texture.
     if (boneTexture) {

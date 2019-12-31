@@ -1,6 +1,9 @@
+import layers from './layers.glsl';
+
+const shader = `
 precision mediump float;
 
-#pragma glslify: import(./layers.glsl)
+${layers}
 
 void main() {
   vec3 color;
@@ -73,3 +76,6 @@ void main() {
 
   gl_FragColor = final * v_vertexColor;
 }
+`;
+
+export default shader;

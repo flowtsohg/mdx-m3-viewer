@@ -112,8 +112,8 @@ export default class M3ModelInstance extends ModelInstance {
       gl.uniform1f(uniforms.u_teamColor, this.teamColor);
       gl.uniform4fv(uniforms.u_vertexColor, this.vertexColor);
 
-      gl.uniformMatrix4fv(uniforms.u_mvp, false, camera.worldProjectionMatrix);
-      gl.uniformMatrix4fv(uniforms.u_mv, false, camera.worldMatrix);
+      gl.uniformMatrix4fv(uniforms.u_VP, false, camera.viewProjectionMatrix);
+      gl.uniformMatrix4fv(uniforms.u_MV, false, camera.viewMatrix);
 
       gl.uniform3fv(uniforms.u_eyePos, camera.location);
       gl.uniform3fv(uniforms.u_lightPos, m3Handler.lightPosition);

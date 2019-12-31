@@ -1,3 +1,4 @@
+const shader = `
 varying vec2 v_uvCoord0;
 varying vec2 v_uvCoord1;
 
@@ -158,3 +159,6 @@ vec2 getDiffuseUv() {
 
   return uv.xy;
 }
+`;
+
+export default shader;

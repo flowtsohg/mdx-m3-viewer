@@ -1,6 +1,6 @@
+import animations from './animations.glsl';
 
-#pragma glslify: import(./animations.glsl)
-
+const shader = `
 attribute vec4 a_position;
 varying vec3 v_position;
 
@@ -40,6 +40,8 @@ varying vec2 v_uvCoord1;
 uniform mat4 u_viewProjectionMatrix;
 uniform mat4 u_modelMatrix;
 uniform mat4 u_normalMatrix;
+
+${animations}
 
 vec4 getPosition() {
   vec4 pos = a_position;
@@ -123,3 +125,6 @@ void main() {
 
   gl_Position = u_viewProjectionMatrix * pos;
 }
+`;
+
+export default shader;

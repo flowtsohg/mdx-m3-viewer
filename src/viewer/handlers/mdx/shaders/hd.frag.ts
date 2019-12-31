@@ -1,3 +1,4 @@
+const shader = `
 precision mediump float;
 
 uniform sampler2D u_diffuseMap;
@@ -26,3 +27,6 @@ void main() {
 
   gl_FragColor = color;
 }
+`;
+
+export default shader;

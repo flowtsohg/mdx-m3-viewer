@@ -217,7 +217,7 @@ export default class ModelViewer extends EventEmitter {
       let [finalSrc, extension, isFetch] = pathSolver(src, solverParams);
 
       if (typeof extension !== 'string') {
-        this.emit('error', this, `The path solver did not return an extension!`);
+        this.emit('error', this, 'The path solver did not return an extension', pathSolver);
 
         return;
       }

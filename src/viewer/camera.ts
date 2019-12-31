@@ -28,11 +28,10 @@ export default class Camera {
   location: vec3 = vec3.create();
   rotation: quat = quat.create();
   inverseRotation: quat = quat.create();
-  worldMatrix: mat4 = mat4.create();
+  viewMatrix: mat4 = mat4.create();
   projectionMatrix: mat4 = mat4.create();
-  worldProjectionMatrix: mat4 = mat4.create();
-  inverseWorldMatrix: mat4 = mat4.create();
-  inverseRotationMatrix: mat4 = mat4.create();
+  viewProjectionMatrix: mat4 = mat4.create();
+  inverseViewMatrix: mat4 = mat4.create();
   inverseWorldProjectionMatrix: mat4 = mat4.create();
   /**
    * The X axis in camera space.
@@ -141,61 +140,16 @@ export default class Camera {
   }
 
   /**
-   * Rotate around the given point.
-   * Changes both the camera location and rotation.
-   */
-  rotateAround(rotation: quat, point: vec3) {
-    this.rotate(rotation);
-
-    quat.conjugate(quatHeap, quatHeap);
-    vec3.sub(vectorHeap, this.location, point);
-    vec3.transformQuat(vectorHeap, vectorHeap, rotation);
-    vec3.add(this.location, vectorHeap, point);
-  }
-
-  /**
-   * Rotate around the given point.
-   * Changes both the camera location and rotation.
-   */
-  setRotationAround(rotation: quat, point: vec3) {
-    this.setRotation(rotation);
-
-    let length = vec3.len(vec3.sub(vectorHeap, this.location, point));
-
-    quat.conjugate(quatHeap, quatHeap);
-    vec3.copy(vectorHeap, VEC3_UNIT_Z);
-    vec3.transformQuat(vectorHeap, vectorHeap, quatHeap);
-    vec3.scale(vectorHeap, vectorHeap, length);
-    vec3.add(this.location, vectorHeap, point);
-  }
-
-  /**
-   * Set the rotation around the given point.
-   * Changes both the camera location and rotation.
-   */
-  setRotationAroundAngles(horizontalAngle: number, verticalAngle: number, point: vec3) {
-    quat.identity(quatHeap);
-    quat.rotateX(quatHeap, quatHeap, verticalAngle);
-    quat.rotateZ(quatHeap, quatHeap, horizontalAngle);
-
-    this.setRotationAround(quatHeap, point);
-  }
-
-  /**
    * Look at `to`.
    */
   face(to: vec3, worldUp: vec3) {
-    quatLookAt(quatHeap, to, this.location, worldUp);
-    quat.conjugate(quatHeap, quatHeap);
-
-    quat.copy(this.rotation, facingCorrection);
-    quat.mul(this.rotation, this.rotation, quatHeap);
+    quat.mul(this.rotation, facingCorrection, quatLookAt(quatHeap, to, this.location, worldUp));
 
     this.dirty = true;
   }
 
   /**
-   * Move to `from` and look at the `to`.
+   * Move to `from` and look at `to`.
    */
   moveToAndFace(from: vec3, to: vec3, worldUp: vec3) {
     vec3.copy(this.location, from);
@@ -222,9 +176,9 @@ export default class Camera {
       let location = this.location;
       let rotation = this.rotation;
       let inverseRotation = this.inverseRotation;
-      let worldMatrix = this.worldMatrix;
+      let viewMatrix = this.viewMatrix;
       let projectionMatrix = this.projectionMatrix;
-      let worldProjectionMatrix = this.worldProjectionMatrix;
+      let viewProjectionMatrix = this.viewProjectionMatrix;
       let vectors = this.vectors;
       let billboardedVectors = this.billboardedVectors;
 
@@ -236,22 +190,22 @@ export default class Camera {
       }
 
       // World -> View.
-      mat4.fromQuat(worldMatrix, rotation);
-      mat4.translate(worldMatrix, worldMatrix, vec3.negate(vectorHeap, location));
+      mat4.fromQuat(viewMatrix, rotation);
+      mat4.translate(viewMatrix, viewMatrix, vec3.negate(vectorHeap, location));
 
       quat.conjugate(inverseRotation, rotation);
 
       // World -> Clip.
-      mat4.mul(worldProjectionMatrix, projectionMatrix, worldMatrix);
+      mat4.mul(viewProjectionMatrix, projectionMatrix, viewMatrix);
 
       // Recaculate the camera's frusum planes
-      unpackPlanes(this.planes, worldProjectionMatrix);
+      unpackPlanes(this.planes, viewProjectionMatrix);
 
       // View -> World.
-      mat4.invert(this.inverseWorldMatrix, worldMatrix);
+      mat4.invert(this.inverseViewMatrix, viewMatrix);
 
       // Clip -> World.
-      mat4.invert(this.inverseWorldProjectionMatrix, worldProjectionMatrix);
+      mat4.invert(this.inverseWorldProjectionMatrix, viewProjectionMatrix);
 
       vec3.transformQuat(this.directionX, VEC3_UNIT_X, inverseRotation);
       vec3.transformQuat(this.directionY, VEC3_UNIT_Y, inverseRotation);
@@ -268,15 +222,14 @@ export default class Camera {
    * Given a vector in camera space, return the vector transformed to world space.
    */
   cameraToWorld(out: vec3, v: vec3) {
-    return vec3.transformMat4(out, v, this.inverseWorldMatrix);
+    return vec3.transformMat4(out, v, this.inverseViewMatrix);
   }
 
   /**
    * Given a vector in world space, return the vector transformed to camera space.
    */
   worldToCamera(out: vec3, v: vec3) {
-    // return vec3.transformQuat(out, v, this.inverseWorldRotation);
-    return vec3.transformMat4(out, v, this.worldMatrix);
+    return vec3.transformMat4(out, v, this.viewMatrix);
   }
 
   /**
@@ -285,7 +238,7 @@ export default class Camera {
   worldToScreen(out: Float32Array, v: Float32Array) {
     let viewport = this.rect;
 
-    vec3.transformMat4(vectorHeap, <vec3>v, this.worldProjectionMatrix);
+    vec3.transformMat4(vectorHeap, <vec3>v, this.viewProjectionMatrix);
 
     out[0] = Math.round(((vectorHeap[0] + 1) / 2) * viewport[2]);
     out[1] = Math.round(((vectorHeap[1] + 1) / 2) * viewport[3]);

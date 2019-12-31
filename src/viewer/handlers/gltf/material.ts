@@ -4,21 +4,21 @@ import TextureMapper from '../../texturemapper';
 import GltfModel from './model';
 import { getMaterialFlags } from './flags';
 
-const ALPHA_MODE_OPAQUE = 0;
-const ALPHA_MODE_MASK = 1;
-const ALPHA_MODE_BLEND = 2;
+export const ALPHA_MODE_OPAQUE = 0;
+export const ALPHA_MODE_MASK = 1;
+export const ALPHA_MODE_BLEND = 2;
 
 /**
  * A glTF material.
  */
-export default class GltfMaterial {
+export class GltfMaterial {
   model: GltfModel;
 
   // Double-sided.
   doubleSided: boolean = false;
 
   // Alpha mode.
-  alphaMode: number = 0;
+  alphaMode: number = ALPHA_MODE_OPAQUE;
   alphaCutoff: number = 0.5;
 
   // Metallic-Roughness material.
@@ -149,12 +149,12 @@ export default class GltfMaterial {
     }
 
     // Alpha mode.
-    if (this.alphaMode === 0) {
+    if (this.alphaMode === ALPHA_MODE_OPAQUE) {
       gl.disable(gl.BLEND);
-    } else if (this.alphaMode === 1) {
+    } else if (this.alphaMode === ALPHA_MODE_MASK) {
       gl.disable(gl.BLEND);
       gl.uniform1f(uniforms.u_alphaCutoff, this.alphaCutoff);
-    } else if (this.alphaMode === 2) {
+    } else if (this.alphaMode === ALPHA_MODE_BLEND) {
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     }

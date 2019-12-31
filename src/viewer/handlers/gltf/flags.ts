@@ -1,5 +1,5 @@
 import GltfPrimitive from './primitive';
-import GltfMaterial from './material';
+import { ALPHA_MODE_OPAQUE, ALPHA_MODE_MASK, GltfMaterial } from './material';
 
 // Primitive flags.
 const HAS_NORMALS = 0x1;
@@ -29,8 +29,8 @@ const HAS_TARGET_TANGENT1 = 0x800000;
 const HAS_TARGET_TANGENT2 = 0x1000000;
 const HAS_TARGET_TANGENT3 = 0x2000000;
 // Material flags.
-const ALPHAMODE_MASK = 0x1;
-const ALPHAMODE_OPAQUE = 0x2;
+export const ALPHAMODE_OPAQUE = 0x1;
+export const ALPHAMODE_MASK = 0x2;
 const MATERIAL_METALLICROUGHNESS = 0x4;
 const HAS_BASE_COLOR_MAP = 0x8;
 const HAS_METALLIC_ROUGHNESS_MAP = 0x10;
@@ -97,9 +97,9 @@ export function getPrimitiveDefines(flags: number) {
 export function getMaterialFlags(material: GltfMaterial) {
   let flags = 0;
 
-  if (material.alphaMode === 0) {
+  if (material.alphaMode === ALPHA_MODE_OPAQUE) {
     flags |= ALPHAMODE_OPAQUE;
-  } else if (material.alphaMode === 1) {
+  } else if (material.alphaMode === ALPHA_MODE_MASK) {
     flags |= ALPHAMODE_MASK;
   }
 

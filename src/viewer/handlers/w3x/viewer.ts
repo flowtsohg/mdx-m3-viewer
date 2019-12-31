@@ -104,11 +104,6 @@ export default class War3MapViewer extends ModelViewer {
       throw new Error('War3MapViewer: No float texture support!');
     }
 
-    // Used by the cliff shader.
-    if (!webgl.ensureExtension('OES_standard_derivatives')) {
-      throw new Error('War3MapViewer: No standard derivatives support!')
-    }
-
     // Optionally used for cliff renering.
     if (!webgl.ensureExtension('OES_vertex_array_object')) {
       console.warn('War3MapViewer: No vertex array object support! This might reduce performance.');
@@ -672,7 +667,7 @@ export default class War3MapViewer extends ModelViewer {
 
       webgl.useShaderProgram(shader);
 
-      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
+      gl.uniformMatrix4fv(uniforms.u_VP, false, this.camera.viewProjectionMatrix);
       gl.uniform2fv(uniforms.u_offset, <Float32Array>this.centerOffset);
       gl.uniform2f(uniforms.u_size, this.columns, this.rows);
       gl.uniform1i(uniforms.u_heightMap, 15);
@@ -749,7 +744,7 @@ export default class War3MapViewer extends ModelViewer {
 
       webgl.useShaderProgram(shader);
 
-      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
+      gl.uniformMatrix4fv(uniforms.u_VP, false, this.camera.viewProjectionMatrix);
       gl.uniform2fv(uniforms.u_offset, <Float32Array>this.centerOffset);
       gl.uniform2f(uniforms.u_size, this.columns, this.rows);
       gl.uniform1i(uniforms.u_heightMap, 0);
@@ -802,7 +797,7 @@ export default class War3MapViewer extends ModelViewer {
 
       shader.use();
 
-      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.camera.worldProjectionMatrix);
+      gl.uniformMatrix4fv(uniforms.u_VP, false, this.camera.viewProjectionMatrix);
       gl.uniform1i(uniforms.u_heightMap, 0);
       gl.uniform2f(uniforms.u_pixel, 1 / (this.columns + 1), 1 / (this.rows + 1));
       gl.uniform2fv(uniforms.u_centerOffset, <Float32Array>this.centerOffset);

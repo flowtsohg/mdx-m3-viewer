@@ -1,3 +1,4 @@
+const shader = `
 uniform float u_exposure;
 
 #ifdef TONEMAP_UNCHARTED
@@ -54,3 +55,6 @@ vec3 toneMap(vec3 color) {
     return LINEARtoSRGB(color);
   #endif
 }
+`;
+
+export default shader;

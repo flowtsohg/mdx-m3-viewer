@@ -1,3 +1,9 @@
+import textures from './textures.glsl';
+import functions from './functions.glsl';
+import lighting from './lighting.glsl';
+import tonemapping from './tonemapping.glsl';
+
+const shader = `
 #extension GL_OES_standard_derivatives : enable
 
 #ifdef USE_TEX_LOD
@@ -10,11 +16,6 @@
 #endif
 
 precision mediump float;
-
-#pragma glslify: import(./textures.glsl)
-#pragma glslify: import(./functions.glsl)
-#pragma glslify: import(./lighting.glsl)
-#pragma glslify: import(./tonemapping.glsl)
 
 #if defined(MATERIAL_SPECULARGLOSSINESS) || defined(MATERIAL_METALLICROUGHNESS)
   uniform vec4 u_baseColorFactor;
@@ -31,6 +32,11 @@ precision mediump float;
 #ifdef ALPHAMODE_MASK
   uniform float u_alphaCutoff;
 #endif
+
+${textures}
+${functions}
+${lighting}
+${tonemapping}
 
 void main() {
   float perceptualRoughness = 0.0;
@@ -197,3 +203,6 @@ void main() {
     gl_FragColor.a = 1.0;
   #endif
 }
+`;
+
+export default shader;

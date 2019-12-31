@@ -226,7 +226,5 @@ export function quatLookAt(out: quat, from: vec3, to: vec3, worldUp: vec3) {
     }
   }
 
-  quat.conjugate(out, out);
-
   return out;
 }

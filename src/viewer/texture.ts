@@ -1,3 +1,4 @@
+import { isPowerOfTwo } from '../common/math';
 import { HandlerResource } from './handlerresource';
 
 /**
@@ -24,5 +25,29 @@ export default abstract class Texture extends HandlerResource {
    */
   bind(unit: number) {
     this.viewer.webgl.bindTexture(this, unit);
+  }
+
+  /**
+   * Update this texture with `src`, overriding whatever texture data it contains.
+   */
+  update(src: TexImageSource) {
+    let gl = this.viewer.gl;
+    let width = src.width;
+    let height = src.height;
+
+    gl.bindTexture(gl.TEXTURE_2D, this.webglResource);
+
+    if (width === this.width && height === this.height) {
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, src);
+    } else {
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
+
+      this.width = width;
+      this.height = height;
+    }
+
+    if (isPowerOfTwo(width) && isPowerOfTwo(height)) {
+      gl.generateMipmap(gl.TEXTURE_2D);
+    }
   }
 }

@@ -1,4 +1,5 @@
- uniform mat4 u_mvp;
+const shader = `
+ uniform mat4 u_VP;
 
 // Instances
 attribute vec3 a_m0;
@@ -21,5 +22,8 @@ void main() {
   v_faceColor = a_faceColor;
   v_edgeColor = a_edgeColor;
 
-  gl_Position = u_mvp * mat4(a_m0, 0.0, a_m1, 0.0, a_m2, 0.0, a_m3, 1.0) * vec4(a_position, 1.0);
+  gl_Position = u_VP * mat4(a_m0, 0.0, a_m1, 0.0, a_m2, 0.0, a_m3, 1.0) * vec4(a_position, 1.0);
 }
+`;
+
+export default shader;

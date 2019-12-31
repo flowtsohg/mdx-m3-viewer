@@ -88,7 +88,7 @@ export default class GeoRenderBatch extends RenderBatch {
       gl.vertexAttribPointer(edgeColor, 3, gl.UNSIGNED_BYTE, true, 6, count * 48 + 3);
 
       gl.uniform1i(uniforms.u_texture, 0);
-      gl.uniformMatrix4fv(uniforms.u_mvp, false, this.scene.camera.worldProjectionMatrix);
+      gl.uniformMatrix4fv(uniforms.u_VP, false, this.scene.camera.viewProjectionMatrix);
 
       // Vertices
       gl.bindBuffer(gl.ARRAY_BUFFER, model.vertexBuffer);

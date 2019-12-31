@@ -1,3 +1,4 @@
+const shader = `
 precision mediump float;
 
 #define EMITTER_RIBBON 1
@@ -20,4 +21,6 @@ void main() {
 
   gl_FragColor = color;
 }
- 
+`;
+
+export default shader;

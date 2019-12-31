@@ -1,6 +1,7 @@
-#pragma glslify: import(../../shaders/bonetexture.glsl)
+import boneTexture from '../../shaders/bonetexture.glsl';
 
-uniform mat4 u_mvp;
+const shader = `
+uniform mat4 u_VP;
 uniform vec4 u_vertexColor;
 uniform vec4 u_geosetColor;
 uniform float u_layerAlpha;
@@ -22,6 +23,8 @@ varying vec2 v_uv;
 varying vec4 v_color;
 varying vec4 v_uvTransRot;
 varying float v_uvScale;
+
+${boneTexture}
 
 void transform(inout vec3 position, inout vec3 normal) {
   // For the broken models out there, since the game supports this.
@@ -70,5 +73,8 @@ void main() {
   v_uvTransRot = vec4(u_uvTrans, u_uvRot);
   v_uvScale = u_uvScale;
 
-  gl_Position = u_mvp * vec4(position, 1.0);
+  gl_Position = u_VP * vec4(position, 1.0);
 }
+`;
+
+export default shader;

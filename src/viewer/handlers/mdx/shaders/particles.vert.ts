@@ -1,10 +1,11 @@
+const shader = `
 #define EMITTER_PARTICLE2 0
 #define EMITTER_RIBBON 1
 #define EMITTER_SPLAT 2
 #define EMITTER_UBERSPLAT 3
 #define HEAD 0.0
 
-uniform mat4 u_mvp;
+uniform mat4 u_VP;
 uniform int u_emitter;
 
 // Shared
@@ -112,7 +113,7 @@ void particle2() {
   v_color = color;
   
   if (a_tail == HEAD) {
-    gl_Position = u_mvp * vec4(a_p0 + (u_vertices[int(a_position)] * scale), 1.0);
+    gl_Position = u_VP * vec4(a_p0 + (u_vertices[int(a_position)] * scale), 1.0);
   } else {
     // Get the normal to the tail in camera space.
     // This allows to build a 2D rectangle around the 3D tail.
@@ -130,7 +131,7 @@ void particle2() {
       position = a_p0 + boundary;
     }
 
-    gl_Position = u_mvp * vec4(position, 1.0);
+    gl_Position = u_VP * vec4(position, 1.0);
   }
 }
 
@@ -160,7 +161,7 @@ void ribbon() {
 
   v_color = a_color;
 
-  gl_Position = u_mvp * vec4(position, 1.0);
+  gl_Position = u_VP * vec4(position, 1.0);
 }
 
 void splat() {
@@ -201,7 +202,7 @@ void splat() {
 
   v_color = mix(u_colors[index], u_colors[index + 1], factor) / 255.0;
 
-  gl_Position = u_mvp * vec4(position, 1.0);
+  gl_Position = u_VP * vec4(position, 1.0);
 }
 
 void ubersplat() {
@@ -234,7 +235,7 @@ void ubersplat() {
 
   v_color = color / 255.0;
 
-  gl_Position = u_mvp * vec4(position, 1.0);
+  gl_Position = u_VP * vec4(position, 1.0);
 }
 
 void main() {
@@ -248,3 +249,6 @@ void main() {
     ubersplat();
   }
 }
+`;
+
+export default shader;

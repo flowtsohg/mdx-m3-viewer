@@ -1,6 +1,8 @@
-#pragma glslify: import(../../shaders/bonetexture.glsl)
 
-uniform mat4 u_mvp;
+import boneTexture from '../../shaders/bonetexture.glsl';
+
+const shader = `
+uniform mat4 u_VP;
 uniform float u_layerAlpha;
 uniform bool u_hasBones;
 
@@ -13,6 +15,8 @@ attribute vec4 a_weights;
 varying vec3 v_normal;
 varying vec2 v_uv;
 varying float v_layerAlpha;
+
+${boneTexture}
 
 void transform(inout vec3 position, inout vec3 normal) {
   mat4 bone;
@@ -38,6 +42,8 @@ void main() {
   v_uv = a_uv;
   v_layerAlpha = u_layerAlpha;
 
-  gl_Position = u_mvp * vec4(position, 1.0);
+  gl_Position = u_VP * vec4(position, 1.0);
 }
-  
+`;
+
+export default shader;

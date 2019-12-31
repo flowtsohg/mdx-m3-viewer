@@ -208,8 +208,8 @@ export abstract class Sd {
   defval: Float32Array | Uint32Array;
   model: MdxModel;
   name: string;
-  globalSequence: SdSequence | null;
-  sequences: SdSequence[];
+  globalSequence: SdSequence | null = null;
+  sequences: SdSequence[] = [];
   interpolationType: number;
 
   abstract copy(out: Uint32Array | Float32Array, value: Uint32Array | Float32Array): void;
@@ -223,8 +223,6 @@ export abstract class Sd {
     this.model = model;
     this.name = animation.name;
     this.defval = defVals[animation.name];
-    this.globalSequence = null;
-    this.sequences = [];
 
     // Allow to force an interpolation type.
     // The game seems to do this with visibility tracks, where the type is forced to None.

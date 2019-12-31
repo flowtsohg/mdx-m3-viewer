@@ -1,3 +1,4 @@
+const shader = `
 struct MaterialInfo {
   float perceptualRoughness;
   vec3 reflectance0;
@@ -162,3 +163,6 @@ vec3 applySpotLight(Light light, MaterialInfo materialInfo, vec3 normal, vec3 vi
 
   return rangeAttenuation * spotAttenuation * light.intensity * light.color * shade;
 }
+`;
+
+export default shader;

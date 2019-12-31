@@ -1,6 +1,9 @@
+import quatTransform from '../../shaders/quattransform.glsl';
+
+const shader = `
 precision mediump float;
 
-#pragma glslify: import(../../shaders/quattransform.glsl)
+${quatTransform}
 
 uniform sampler2D u_texture;
 uniform float u_filterMode;
@@ -41,3 +44,6 @@ void main() {
 
   gl_FragColor = color;
 }
+`;
+
+export default shader;

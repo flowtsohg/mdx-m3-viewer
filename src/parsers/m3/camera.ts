@@ -4,7 +4,7 @@ import Reference from './reference';
 import { M3ParserFloat32AnimationReference } from './animationreference';
 
 /**
- * a camera.
+ * A camera.
  */
 export default class M3ParserCamera {
   version: number;

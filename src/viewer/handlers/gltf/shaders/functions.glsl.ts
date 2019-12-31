@@ -1,3 +1,4 @@
+const shader = `
 const float GAMMA = 2.2;
 const float INV_GAMMA = 1.0 / GAMMA;
 
@@ -75,3 +76,6 @@ vec3 getNormal() {
 float getPerceivedBrightness(vec3 vector) {
   return sqrt(0.299 * vector.r * vector.r + 0.587 * vector.g * vector.g + 0.114 * vector.b * vector.b);
 }
+`;
+
+export default shader;

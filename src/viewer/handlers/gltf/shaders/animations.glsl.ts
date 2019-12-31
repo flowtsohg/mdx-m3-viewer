@@ -1,3 +1,4 @@
+const shader = `
 #ifdef HAS_TARGET_POSITION0
   attribute vec3 a_targetPosition0;
 #endif
@@ -212,3 +213,6 @@
     return tangent;
   }
 #endif
+`;
+
+export default shader;

@@ -1,4 +1,5 @@
-uniform mat4 u_mvp;
+const shader = `
+uniform mat4 u_VP;
 uniform sampler2D u_heightMap;
 uniform sampler2D u_waterHeightMap;
 uniform vec2 u_size;
@@ -38,7 +39,7 @@ void main() {
       v_color = mix(u_minDeepColor, u_maxDeepColor, value) / 255.0;
     }
 
-    gl_Position = u_mvp * vec4(base * 128.0 + u_offset, waterHeight * 128.0, 1.0);
+    gl_Position = u_VP * vec4(base * 128.0 + u_offset, waterHeight * 128.0, 1.0);
   } else {
     v_uv = vec2(0.0);
     v_color = vec4(0.0);
@@ -46,3 +47,6 @@ void main() {
     gl_Position = vec4(0.0);
   }
 }
+`;
+
+export default shader;

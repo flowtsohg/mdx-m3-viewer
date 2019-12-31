@@ -3,6 +3,7 @@ import ShaderProgram from '../../gl/program';
 import Scene from '../../scene';
 import gltfHandler from './handler';
 import GltfModel from './model';
+import GltfBatch from './batch';
 import GltfInstance from './modelinstance';
 
 const mat4Heap = mat4.create();
@@ -17,10 +18,10 @@ export default class GltfBatchGroup {
   materialFlags: number;
   shader: ShaderProgram;
 
-  constructor(model: GltfModel, primitiveFlags: number, materialFlags: number) {
+  constructor(model: GltfModel, batch: GltfBatch) {
     this.model = model;
-    this.primitiveFlags = primitiveFlags;
-    this.materialFlags = materialFlags;
+    this.primitiveFlags = batch.primitive.flags;
+    this.materialFlags = batch.material.flags;
     this.shader = gltfHandler.getShader(this);
   }
 
@@ -38,7 +39,7 @@ export default class GltfBatchGroup {
     shader.use();
 
     // Camera.
-    gl.uniformMatrix4fv(uniforms.u_viewProjectionMatrix, false, scene.camera.worldProjectionMatrix);
+    gl.uniformMatrix4fv(uniforms.u_viewProjectionMatrix, false, scene.camera.viewProjectionMatrix);
     gl.uniform3fv(uniforms.u_camera, scene.camera.location);
 
     // Environment.
@@ -67,7 +68,7 @@ export default class GltfBatchGroup {
       gl.uniformMatrix4fv(uniforms.u_modelMatrix, false, node.worldMatrix);
 
       // transpose(invert(mv))
-      mat4.mul(mat4Heap, scene.camera.worldMatrix, node.worldMatrix);
+      mat4.mul(mat4Heap, scene.camera.viewMatrix, node.worldMatrix);
       mat4.invert(mat4Heap, mat4Heap);
       mat4.transpose(mat4Heap, mat4Heap);
       gl.uniformMatrix4fv(uniforms.u_normalMatrix, false, mat4Heap);

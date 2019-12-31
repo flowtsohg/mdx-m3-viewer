@@ -46,7 +46,7 @@ export default class BatchGroup {
 
     let uniforms = shader.uniforms;
 
-    gl.uniformMatrix4fv(uniforms.u_mvp, false, scene.camera.worldProjectionMatrix);
+    gl.uniformMatrix4fv(uniforms.u_VP, false, scene.camera.viewProjectionMatrix);
 
     let boneTexture = instance.boneTexture;
 
@@ -69,8 +69,8 @@ export default class BatchGroup {
 
     gl.uniform4fv(uniforms.u_vertexColor, instance.vertexColor);
 
-    for (let index of this.objects) {
-      let batch = <Batch>batches[index];
+    for (let object of this.objects) {
+      let batch = <Batch>batches[object];
       let geoset = batch.geoset;
       let layer = batch.layer;
       let geosetIndex = geoset.index;
@@ -78,7 +78,7 @@ export default class BatchGroup {
       let geosetColor = geosetColors[geosetIndex];
       let layerAlpha = layerAlphas[layerIndex];
 
-      if (geosetColor[3] > 0 && layerAlpha > 0) {
+      if (geosetColor[3] > 0.01 && layerAlpha > 0.01) {
         let layerTexture = layerTextures[layerIndex];
         let uvAnim = uvAnims[layerIndex];
 
@@ -104,7 +104,6 @@ export default class BatchGroup {
 
           // Overriding.
           texture = textureMapper.get(texture) || texture;
-
         }
 
         viewer.webgl.bindTexture(texture, 0);

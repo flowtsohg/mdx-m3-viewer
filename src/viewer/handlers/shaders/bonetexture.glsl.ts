@@ -1,3 +1,4 @@
+const shader = `
 uniform sampler2D u_boneMap;
 uniform float u_vectorSize;
 uniform float u_rowSize;
@@ -16,3 +17,6 @@ mat4 fetchMatrix(float column, float row) {
               texture2D(u_boneMap, vec2(column + u_vectorSize * 2.0, row)),
               texture2D(u_boneMap, vec2(column + u_vectorSize * 3.0, row)));
 }
+`;
+
+export default shader;

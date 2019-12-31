@@ -34,7 +34,7 @@ export default class EmitterGroup {
 
     shader.use();
 
-    gl.uniformMatrix4fv(uniforms.u_mvp, false, scene.camera.worldProjectionMatrix);
+    gl.uniformMatrix4fv(uniforms.u_VP, false, scene.camera.viewProjectionMatrix);
     gl.uniform1i(uniforms.u_texture, 0);
 
     instancedArrays.vertexAttribDivisorANGLE(attribs.a_position, 0);

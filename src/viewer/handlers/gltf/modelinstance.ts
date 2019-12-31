@@ -81,12 +81,16 @@ export default class GltfInstance extends ModelInstance {
   renderOpaque() {
     let model = <GltfModel>this.model;
 
-    for (let group of model.groups) {
+    for (let group of model.opaqueGroups) {
       group.render(this);
     }
   }
 
   renderTranslucent() {
+    let model = <GltfModel>this.model;
 
+    for (let group of model.translucentGroups) {
+      group.render(this);
+    }
   }
 }

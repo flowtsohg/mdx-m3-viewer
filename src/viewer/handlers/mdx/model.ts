@@ -21,6 +21,7 @@ import EventObjectEmitterObject from './eventobjectemitterobject';
 import CollisionShape from './collisionshape';
 import setupGeosets from './setupgeosets';
 import setupGroups from './setupgroups';
+import setupSimpleGroups from './setupsimplegroups';
 import BatchGroup from './batchgroup';
 import EmitterGroup from './emittergroup';
 import ReforgedBatchGroup from './reforgedbatchgroup';
@@ -67,6 +68,7 @@ export default class MdxModel extends Model {
   hierarchy: number[] = [];
   opaqueGroups: (BatchGroup | ReforgedBatchGroup)[] = [];
   translucentGroups: (BatchGroup | EmitterGroup)[] = [];
+  simpleGroups: (BatchGroup | ReforgedBatchGroup)[] = [];
   arrayBuffer: WebGLBuffer | null = null;
   elementBuffer: WebGLBuffer | null = null;
 
@@ -264,6 +266,9 @@ export default class MdxModel extends Model {
 
     // Render groups.
     setupGroups(this);
+
+    // SimpleInstance render group.
+    setupSimpleGroups(this);
 
     // Creates the sorted indices array of the generic objects.
     this.setupHierarchy(-1);
