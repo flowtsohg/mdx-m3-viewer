@@ -8,7 +8,7 @@ import GltfInstance from './modelinstance';
 import GltfBatch from './batch';
 import { setupGroups } from './groups';
 import GltfBatchGroup from './batchgroup';
-import { getMaterialFlags } from './flags';
+import { getMaterialFlags, getMaterialDefines } from './flags';
 
 const utf8decoder = new TextDecoder();
 
@@ -114,6 +114,28 @@ export default class GltfModel extends Model {
       this.materials.push(new GltfMaterial(this, material));
     }
 
+
+
+    this.textures[0] = <Texture>viewer.load(new ImageData(new Uint8ClampedArray([0, 0, 0, 0]), 1, 1));
+
+    this.meshes[0].primitives[0].material = 1;
+    this.meshes[1].primitives[0].material = 0;
+    this.meshes[2].primitives[0].material = 0;
+
+    this.materials[0].baseColorFactor.set([1, 0.766, 0.336, 1]);
+    this.materials[0].metallicFactor = 0.8;
+    this.materials[0].roughnessFactor = 0.2;
+
+    this.materials[1].alphaMode = 1;
+    //this.materials[1].alphaCutoff = 0.9;
+    this.materials[1].baseColorFactor.set([1, 1, 1, 1]);
+    this.materials[1].baseColorTexture = 0;
+    this.materials[1].metallicFactor = 0;
+    this.materials[1].roughnessFactor = 0.2;
+    this.materials[1].flags = getMaterialFlags(this.materials[1]);
+
+
+
     this.nodes.push(...json.nodes);
     this.scenes.push(...json.scenes);
 
@@ -130,6 +152,9 @@ export default class GltfModel extends Model {
     }
 
     setupGroups(this);
+
+    console.log(json)
+    console.log(this)
   }
 
   loadGltf(buffer: string) {

@@ -23,6 +23,9 @@ export default class Ribbon extends EmittedObject {
   bind() {
     let emitter = <RibbonEmitter>this.emitter;
     let instance = <MdxComplexInstance>emitter.instance;
+    let sequence = instance.sequence;
+    let frame = instance.frame;
+    let counter = instance.counter;
     let emitterObject = <RibbonEmitterObject>emitter.emitterObject;
     let node = instance.nodes[emitterObject.index];
     let [x, y, z] = node.pivot;
@@ -31,8 +34,8 @@ export default class Ribbon extends EmittedObject {
 
     this.health = emitter.emitterObject.lifeSpan;
 
-    emitterObject.getHeightBelow(belowHeap, instance);
-    emitterObject.getHeightAbove(aboveHeap, instance);
+    emitterObject.getHeightBelow(belowHeap, sequence, frame, counter);
+    emitterObject.getHeightAbove(aboveHeap, sequence, frame, counter);
 
     belowHeap[1] = y - belowHeap[0];
     belowHeap[0] = x;
@@ -59,14 +62,17 @@ export default class Ribbon extends EmittedObject {
     if (this.health > 0) {
       let emitter = <RibbonEmitter>this.emitter;
       let instance = <MdxComplexInstance>emitter.instance;
+      let sequence = instance.sequence;
+      let frame = instance.frame;
+      let counter = instance.counter;
       let emitterObject = <RibbonEmitterObject>emitter.emitterObject;
       let color = this.color;
       let vertices = this.vertices;
       let gravity = emitterObject.gravity * dt * dt;
 
-      emitterObject.getColor(colorHeap, instance);
-      emitterObject.getAlpha(alphaHeap, instance);
-      emitterObject.getTextureSlot(slotHeap, instance);
+      emitterObject.getColor(colorHeap, sequence, frame, counter);
+      emitterObject.getAlpha(alphaHeap, sequence, frame, counter);
+      emitterObject.getTextureSlot(slotHeap, sequence, frame, counter);
 
       vertices[1] -= gravity;
       vertices[4] -= gravity;

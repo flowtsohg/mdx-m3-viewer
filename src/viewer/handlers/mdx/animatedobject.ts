@@ -19,11 +19,13 @@ export default class AnimatedObject {
     }
   }
 
-  getScalarValue(out: Uint32Array | Float32Array, name: string, instance: MdxComplexInstance, defaultValue: number) {
-    let animation = this.animations.get(name);
+  getScalarValue(out: Uint32Array | Float32Array, name: string, sequence: number, frame: number, counter: number, defaultValue: number) {
+    if (sequence !== -1) {
+      let animation = this.animations.get(name);
 
-    if (animation) {
-      return animation.getValue(out, instance);
+      if (animation) {
+        return animation.getValue(out, sequence, frame, counter);
+      }
     }
 
     out[0] = defaultValue;
@@ -31,11 +33,13 @@ export default class AnimatedObject {
     return -1;
   }
 
-  getVectorValue(out: Float32Array, name: string, instance: MdxComplexInstance, defaultValue: Float32Array) {
-    let animation = this.animations.get(name);
+  getVectorValue(out: Float32Array, name: string, sequence: number, frame: number, counter: number, defaultValue: Float32Array) {
+    if (sequence !== -1) {
+      let animation = this.animations.get(name);
 
-    if (animation) {
-      return animation.getValue(out, instance);
+      if (animation) {
+        return animation.getValue(out, sequence, frame, counter);
+      }
     }
 
     out[0] = defaultValue[0];
@@ -45,11 +49,13 @@ export default class AnimatedObject {
     return -1;
   }
 
-  getQuatValue(out: Float32Array, name: string, instance: MdxComplexInstance, defaultValue: Float32Array) {
-    let animation = this.animations.get(name);
+  getQuatValue(out: Float32Array, name: string, sequence: number, frame: number, counter: number, defaultValue: Float32Array) {
+    if (sequence !== -1) {
+      let animation = this.animations.get(name);
 
-    if (animation) {
-      return animation.getValue(out, instance);
+      if (animation) {
+        return animation.getValue(out, sequence, frame, counter);
+      }
     }
 
     out[0] = defaultValue[0];

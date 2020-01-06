@@ -192,7 +192,7 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: ShaderPro
   }
 
   if (emitterObject.tail) {
-    gl.uniform3fv(uniforms.u_cameraZ, camera.billboardedVectors[6]);
+    gl.uniform3fv(uniforms.u_cameraZ, camera.directionZ);
   }
 }
 

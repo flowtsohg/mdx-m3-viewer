@@ -232,8 +232,10 @@ export default class MdxComplexInstance extends ModelInstance {
    * Nodes that are determined to not be visible will not be updated, nor will any of their children down the hierarchy.
    */
   updateNodes(dt: number, forced: boolean) {
-    let sortedNodes = this.sortedNodes;
     let sequence = this.sequence;
+    let frame = this.frame;
+    let counter = this.counter;
+    let sortedNodes = this.sortedNodes;
     let model = <MdxModel>this.model;
     let sortedGenericObjects = model.sortedGenericObjects;
     let scene = <Scene>this.scene;
@@ -244,7 +246,7 @@ export default class MdxComplexInstance extends ModelInstance {
       let node = sortedNodes[i];
       let parent = <Node | SkeletalNode>node.parent;
 
-      genericObject.getVisibility(visibilityHeap, this);
+      genericObject.getVisibility(visibilityHeap, sequence, frame, counter);
 
       let objectVisible = visibilityHeap[0] > 0;
       let nodeVisible = forced || (parent.visible && objectVisible);
@@ -266,7 +268,7 @@ export default class MdxComplexInstance extends ModelInstance {
 
           // Translation
           if (forced || variants.translation[sequence]) {
-            genericObject.getTranslation(translationHeap, this);
+            genericObject.getTranslation(translationHeap, sequence, frame, counter);
 
             localLocation[0] = translationHeap[0];
             localLocation[1] = translationHeap[1];
@@ -275,7 +277,7 @@ export default class MdxComplexInstance extends ModelInstance {
 
           // Rotation
           if (forced || variants.rotation[sequence]) {
-            genericObject.getRotation(rotationHeap, this);
+            genericObject.getRotation(rotationHeap, sequence, frame, counter);
 
             localRotation[0] = rotationHeap[0];
             localRotation[1] = rotationHeap[1];
@@ -285,7 +287,7 @@ export default class MdxComplexInstance extends ModelInstance {
 
           // Scale
           if (forced || variants.scale[sequence]) {
-            genericObject.getScale(scaleHeap, this);
+            genericObject.getScale(scaleHeap, sequence, frame, counter);
 
             localScale[0] = scaleHeap[0];
             localScale[1] = scaleHeap[1];
@@ -320,6 +322,9 @@ export default class MdxComplexInstance extends ModelInstance {
    * Update the batch data.
    */
   updateBatches(forced: boolean) {
+    let sequence = this.sequence;
+    let frame = this.frame;
+    let counter = this.counter;
     let model = <MdxModel>this.model;
     let geosets = model.geosets;
     let layers = model.layers;
@@ -327,7 +332,6 @@ export default class MdxComplexInstance extends ModelInstance {
     let layerAlphas = this.layerAlphas;
     let layerTextures = this.layerTextures;
     let uvAnims = this.uvAnims;
-    let sequence = this.sequence;
 
     // Geosets
     for (let i = 0, l = geosets.length; i < l; i++) {
@@ -338,7 +342,7 @@ export default class MdxComplexInstance extends ModelInstance {
       if (geosetAnimation) {
         // Color
         if (forced || geosetAnimation.variants.color[sequence]) {
-          geosetAnimation.getColor(colorHeap, this);
+          geosetAnimation.getColor(colorHeap, sequence, frame, counter);
 
           geosetColor[0] = colorHeap[0];
           geosetColor[1] = colorHeap[1];
@@ -347,7 +351,7 @@ export default class MdxComplexInstance extends ModelInstance {
 
         // Alpha
         if (forced || geosetAnimation.variants.alpha[sequence]) {
-          geosetAnimation.getAlpha(alphaHeap, this);
+          geosetAnimation.getAlpha(alphaHeap, sequence, frame, counter);
 
           geosetColor[3] = alphaHeap[0];
         }
@@ -367,14 +371,14 @@ export default class MdxComplexInstance extends ModelInstance {
 
       // Alpha
       if (forced || layer.variants.alpha[sequence]) {
-        layer.getAlpha(alphaHeap, this);
+        layer.getAlpha(alphaHeap, sequence, frame, counter);
 
         layerAlphas[i] = alphaHeap[0];
       }
 
       // Sprite animation
       if (forced || layer.variants.textureId[sequence]) {
-        layer.getTextureId(textureIdHeap, this);
+        layer.getTextureId(textureIdHeap, sequence, frame, counter);
 
         layerTextures[i] = textureIdHeap[0];
       }
@@ -382,7 +386,7 @@ export default class MdxComplexInstance extends ModelInstance {
       if (textureAnimation) {
         // UV translation animation
         if (forced || textureAnimation.variants.translation[sequence]) {
-          textureAnimation.getTranslation(translationHeap, this);
+          textureAnimation.getTranslation(translationHeap, sequence, frame, counter);
 
           uvAnim[0] = translationHeap[0];
           uvAnim[1] = translationHeap[1];
@@ -390,7 +394,7 @@ export default class MdxComplexInstance extends ModelInstance {
 
         // UV rotation animation
         if (forced || textureAnimation.variants.rotation[sequence]) {
-          textureAnimation.getRotation(rotationHeap, this);
+          textureAnimation.getRotation(rotationHeap, sequence, frame, counter);
 
           uvAnim[2] = rotationHeap[2];
           uvAnim[3] = rotationHeap[3];
@@ -398,7 +402,7 @@ export default class MdxComplexInstance extends ModelInstance {
 
         // UV scale animation
         if (forced || textureAnimation.variants.scale[sequence]) {
-          textureAnimation.getScale(scaleHeap, this);
+          textureAnimation.getScale(scaleHeap, sequence, frame, counter);
 
           uvAnim[4] = scaleHeap[0];
         }

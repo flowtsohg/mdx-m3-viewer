@@ -27,7 +27,7 @@ export default class Doodad {
     instance.move(<vec3>doodad.location);
     instance.rotateLocal(quat.setAxisAngle(quat.create(), VEC3_UNIT_Z, doodad.angle));
     instance.scale(<vec3>doodad.scale);
-    instance.setScene(map.scene);
+    instance.setScene(map.worldScene);
 
     this.instance = instance;
     this.row = row;

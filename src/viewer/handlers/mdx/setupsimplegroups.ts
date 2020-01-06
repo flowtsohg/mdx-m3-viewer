@@ -4,8 +4,33 @@ import ReforgedBatch from './reforgedbatch';
 import BatchGroup from './batchgroup';
 import ReforgedBatchGroup from './reforgedbatchgroup';
 
-/// TO BE IMPLEMENTED.
+const alphaHeap = new Float32Array(1);
+
 function isBatchSimple(batch: Batch | ReforgedBatch) {
+  let geosetAnimation = batch.geoset.geosetAnimation;
+
+  if (geosetAnimation) {
+    geosetAnimation.getAlpha(alphaHeap, 0, 0, 0);
+
+    if (alphaHeap[0] < 0.01) {
+      return false;
+    }
+  }
+
+  let layer;
+
+  if (batch instanceof Batch) {
+    layer = batch.layer;
+  } else {
+    layer = batch.material.layers[0];
+  }
+
+  layer.getAlpha(alphaHeap, 0, 0, 0);
+
+  if (alphaHeap[0] < 0.01) {
+    return false;
+  }
+
   return true;
 }
 

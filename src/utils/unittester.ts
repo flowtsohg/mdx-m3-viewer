@@ -198,7 +198,7 @@ export default class UnitTester {
     let camera = scene.camera;
 
     // Setup the camera
-    camera.viewport([0, 0, viewer.canvas.width, viewer.canvas.height]);
+    camera.setViewport([0, 0, viewer.canvas.width, viewer.canvas.height]);
     camera.perspective(Math.PI / 4, 1, 8, 100000);
 
     // Start loading the test.

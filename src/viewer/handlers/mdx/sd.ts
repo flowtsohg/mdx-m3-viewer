@@ -240,16 +240,12 @@ export abstract class Sd {
     }
   }
 
-  getValue(out: Uint32Array | Float32Array, instance: MdxComplexInstance) {
+  getValue(out: Uint32Array | Float32Array, sequence: number, frame: number, counter: number) {
     if (this.globalSequence) {
-      return this.globalSequence.getValue(out, instance.counter % this.globalSequence.end);
-    } else if (instance.sequence !== -1) {
-      return this.sequences[instance.sequence].getValue(out, instance.frame);
-    } else {
-      this.copy(out, this.defval);
-
-      return -1;
+      return this.globalSequence.getValue(out, counter % this.globalSequence.end);
     }
+
+    return this.sequences[sequence].getValue(out, frame);
   }
 
   isVariant(sequence: number) {

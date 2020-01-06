@@ -78,7 +78,7 @@ function setupCamera(scene, options = {}) {
     canvas.width = width;
     canvas.height = height;
 
-    camera.viewport([0, 0, width, height]);
+    camera.setViewport([0, 0, width, height]);
     camera.perspective(Math.PI / 4, width / height, 8, 20000);
   }
 

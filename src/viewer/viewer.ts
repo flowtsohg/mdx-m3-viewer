@@ -576,25 +576,8 @@ export default class ModelViewer extends EventEmitter {
    * Render.
    */
   render() {
-    this.renderOpaque();
-    this.renderTranslucent();
-  }
-
-  /**
-   * Render opaque things.
-   */
-  renderOpaque() {
     for (let scene of this.scenes) {
-      scene.renderOpaque();
-    }
-  }
-
-  /**
-   * Render translucent things.
-   */
-  renderTranslucent() {
-    for (let scene of this.scenes) {
-      scene.renderTranslucent();
+      scene.render();
     }
   }
 

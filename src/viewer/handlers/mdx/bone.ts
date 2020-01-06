@@ -16,9 +16,9 @@ export default class Bone extends GenericObject {
     this.geosetAnimation = model.geosetAnimations[bone.geosetAnimationId];
   }
 
-  getVisibility(out: Float32Array, instance: MdxComplexInstance) {
+  getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
     if (this.geosetAnimation) {
-      return this.geosetAnimation.getAlpha(out, instance);
+      return this.geosetAnimation.getAlpha(out, sequence, frame, counter);
     }
 
     out[0] = 1;

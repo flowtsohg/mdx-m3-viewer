@@ -27,7 +27,7 @@ export default class Unit {
     instance.rotateLocal(quat.setAxisAngle(quat.create(), VEC3_UNIT_Z, unit.angle));
     instance.scale(<vec3>unit.scale);
     instance.setTeamColor(unit.player);
-    instance.setScene(map.scene);
+    instance.setScene(map.worldScene);
 
     if (row) {
       heapZ[2] = <number>row.moveHeight;

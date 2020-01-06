@@ -25,15 +25,15 @@ export default class Camera extends AnimatedObject {
     this.targetPosition = camera.targetPosition;
   }
 
-  getPositionTranslation(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getVectorValue(out, 'KCTR', instance, this.position);
+  getPositionTranslation(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getVectorValue(out, 'KCTR', sequence, frame, counter, this.position);
   }
 
-  getTargetTranslation(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getVectorValue(out, 'KTTR', instance, this.targetPosition);
+  getTargetTranslation(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getVectorValue(out, 'KTTR', sequence, frame, counter, this.targetPosition);
   }
 
-  getRotation(out: Uint32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KCRL', instance, 0);
+  getRotation(out: Uint32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KCRL', sequence, frame, counter, 0);
   }
 }

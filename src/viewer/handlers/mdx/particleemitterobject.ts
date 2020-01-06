@@ -38,31 +38,31 @@ export default class ParticleEmitterObject extends GenericObject {
     });
   }
 
-  getSpeed(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KPES', instance, this.speed);
+  getSpeed(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KPES', sequence, frame, counter, this.speed);
   }
 
-  getLatitude(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KPLTV', instance, this.latitude);
+  getLatitude(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KPLTV', sequence, frame, counter, this.latitude);
   }
 
-  getLongitude(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KPLN', instance, this.longitude);
+  getLongitude(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KPLN', sequence, frame, counter, this.longitude);
   }
 
-  getLifeSpan(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KPEL', instance, this.lifeSpan);
+  getLifeSpan(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KPEL', sequence, frame, counter, this.lifeSpan);
   }
 
-  getGravity(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KPEG', instance, this.gravity);
+  getGravity(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KPEG', sequence, frame, counter, this.gravity);
   }
 
-  getEmissionRate(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KPEE', instance, this.emissionRate);
+  getEmissionRate(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KPEE', sequence, frame, counter, this.emissionRate);
   }
 
-  getVisibility(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KPEV', instance, 1);
+  getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KPEV', sequence, frame, counter, 1);
   }
 }

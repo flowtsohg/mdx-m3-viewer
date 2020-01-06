@@ -25,7 +25,7 @@ export default class Attachment extends GenericObject {
     }
   }
 
-  getVisibility(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KATV', instance, 1);
+  getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KATV', sequence, frame, counter, 1);
   }
 }

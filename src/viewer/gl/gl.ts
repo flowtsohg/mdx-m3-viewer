@@ -52,6 +52,7 @@ export default class WebGL {
     // The only initial setup, the rest should be handled by the handlers.
     gl.depthFunc(gl.LEQUAL);
     gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.SCISSOR_TEST);
   }
 
   /**

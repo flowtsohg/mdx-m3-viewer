@@ -1,10 +1,10 @@
 ModelViewer = ModelViewer.default;
 
 const common = ModelViewer.common;
-const math = common.math;
 const glMatrix = common.glMatrix;
 const vec3 = glMatrix.vec3;
 const quat = glMatrix.quat;
+const math = glMatrix.math;
 
 function wc3PathSolver(src, params) {
   let finalSrc = localOrHive(src.toLowerCase().replace(/\\/g, '/'), params);

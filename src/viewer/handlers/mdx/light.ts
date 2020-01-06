@@ -25,27 +25,27 @@ export default class Light extends GenericObject {
     this.ambientIntensity = light.ambientIntensity;
   }
 
-  getAttenuationStart(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KLAS', instance, this.attenuation[0]);
+  getAttenuationStart(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KLAS', sequence, frame, counter, this.attenuation[0]);
   }
 
-  getAttenuationEnd(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KLAE', instance, this.attenuation[1]);
+  getAttenuationEnd(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KLAE', sequence, frame, counter, this.attenuation[1]);
   }
 
-  getIntensity(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KLAI', instance, this.intensity);
+  getIntensity(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KLAI', sequence, frame, counter, this.intensity);
   }
 
-  getColor(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getVectorValue(out, 'KLAC', instance, this.color);
+  getColor(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getVectorValue(out, 'KLAC', sequence, frame, counter, this.color);
   }
 
-  getAmbientIntensity(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KLBI', instance, this.ambientIntensity);
+  getAmbientIntensity(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KLBI', sequence, frame, counter, this.ambientIntensity);
   }
 
-  getAmbientColor(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getVectorValue(out, 'KLBC', instance, this.ambientColor);
+  getAmbientColor(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getVectorValue(out, 'KLBC', sequence, frame, counter, this.ambientColor);
   }
 }

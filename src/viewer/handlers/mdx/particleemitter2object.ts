@@ -115,35 +115,35 @@ export default class ParticleEmitter2Object extends GenericObject {
     this.priorityPlane = emitter.priorityPlane;
   }
 
-  getWidth(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KP2N', instance, this.width);
+  getWidth(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KP2N', sequence, frame, counter, this.width);
   }
 
-  getLength(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KP2W', instance, this.length);
+  getLength(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KP2W', sequence, frame, counter, this.length);
   }
 
-  getSpeed(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KP2S', instance, this.speed);
+  getSpeed(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KP2S', sequence, frame, counter, this.speed);
   }
 
-  getLatitude(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KP2L', instance, this.latitude);
+  getLatitude(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KP2L', sequence, frame, counter, this.latitude);
   }
 
-  getGravity(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KP2G', instance, this.gravity);
+  getGravity(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KP2G', sequence, frame, counter, this.gravity);
   }
 
-  getEmissionRate(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KP2E', instance, this.emissionRate);
+  getEmissionRate(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KP2E', sequence, frame, counter, this.emissionRate);
   }
 
-  getVisibility(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KP2V', instance, 1);
+  getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KP2V', sequence, frame, counter, 1);
   }
 
-  getVariation(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KP2R', instance, this.variation);
+  getVariation(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KP2R', sequence, frame, counter, this.variation);
   }
 }

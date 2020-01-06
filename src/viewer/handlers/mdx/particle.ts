@@ -34,6 +34,9 @@ export default class Particle extends EmittedObject {
   bind() {
     let emitter = <ParticleEmitter>this.emitter;
     let instance = <MdxComplexInstance>emitter.instance;
+    let sequence = instance.sequence;
+    let frame = instance.frame;
+    let counter = instance.counter;
     let scene = <Scene>instance.scene;
     let emitterObject = <ParticleEmitterObject>emitter.emitterObject;
     let node = instance.nodes[emitterObject.index];
@@ -41,11 +44,11 @@ export default class Particle extends EmittedObject {
     let scale = node.worldScale;
     let velocity = this.velocity;
 
-    emitterObject.getLatitude(latitudeHeap, instance);
-    // emitterObject.getLongitude(longitudeHeap, instance);
-    emitterObject.getLifeSpan(lifeSpanHeap, instance);
-    emitterObject.getGravity(gravityHeap, instance);
-    emitterObject.getSpeed(speedHeap, instance);
+    emitterObject.getLatitude(latitudeHeap, sequence, frame, counter);
+    // emitterObject.getLongitude(longitudeHeap, sequence, frame, counter);
+    emitterObject.getLifeSpan(lifeSpanHeap, sequence, frame, counter);
+    emitterObject.getGravity(gravityHeap, sequence, frame, counter);
+    emitterObject.getSpeed(speedHeap, sequence, frame, counter);
 
     this.health = lifeSpanHeap[0];
     this.gravity = gravityHeap[0] * scale[2];

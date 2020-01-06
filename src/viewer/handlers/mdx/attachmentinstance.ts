@@ -32,7 +32,7 @@ export default class AttachmentInstance {
     let internalInstance = this.internalInstance;
 
     if (internalInstance.model.ok && instance.scene) {
-      this.attachment.getVisibility(visibilityHeap, this.instance);
+      this.attachment.getVisibility(visibilityHeap, instance.sequence, instance.frame, instance.counter);
 
       if (visibilityHeap[0] > 0.1) {
         // The parent instance might not actually be in a scene.

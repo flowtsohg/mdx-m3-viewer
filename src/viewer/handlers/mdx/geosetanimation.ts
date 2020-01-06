@@ -25,11 +25,11 @@ export default class GeosetAnimation extends AnimatedObject {
     this.addVariants('KGAC', 'color');
   }
 
-  getAlpha(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KGAO', instance, this.alpha);
+  getAlpha(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KGAO', sequence, frame, counter, this.alpha);
   }
 
-  getColor(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getVectorValue(out, 'KGAC', instance, this.color);
+  getColor(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getVectorValue(out, 'KGAC', sequence, frame, counter, this.color);
   }
 }

@@ -1,22 +1,15 @@
 ModelViewer = ModelViewer.default;
 
-let math = ModelViewer.common.math;
-let glMatrix = ModelViewer.common.glMatrix;
-let geometry = ModelViewer.common.geometry;
-
-let vec2 = glMatrix.vec2,
-  vec3 = glMatrix.vec3,
-  vec4 = glMatrix.vec4,
-  quat = glMatrix.quat,
-  mat3 = glMatrix.mat3,
-  mat4 = glMatrix.mat4;
-
+let common = ModelViewer.common;
+let quat = common.quat;
+let math = common.math;
+let geometry = common.geometry;
 
 var keyboard = {};
-var mouse = {buttons: [false, false, false], x: 0, y: 0, x2: 0, y2: 0};
+var mouse = { buttons: [false, false, false], x: 0, y: 0, x2: 0, y2: 0 };
 
 var canvas = document.getElementById('canvas');
-var viewer = new ModelViewer.viewer.ModelViewer(canvas, {alpha: true});
+var viewer = new ModelViewer.viewer.ModelViewer(canvas, { alpha: true });
 var model;
 var instance;
 
@@ -47,7 +40,7 @@ let sequenceNameElement = document.getElementById('sequence_name');
     if (isRecording || oneTimeRecord) {
       oneTimeRecord = false;
 
-      zip.file(`${recordingFrame++}_${model.name}_${Math.floor(instance.frame)}.png`, viewer.canvas.toDataURL().substring(22), {base64: true});
+      zip.file(`${recordingFrame++}_${model.name}_${Math.floor(instance.frame)}.png`, viewer.canvas.toDataURL().substring(22), { base64: true });
 
       frameCounterElement.textContent = recordingFrame;
     }
@@ -131,11 +124,11 @@ function onLocalFileLoaded(name, buffer) {
   }
 }
 
-canvas.addEventListener('contextmenu', function(e) {
+canvas.addEventListener('contextmenu', function (e) {
   e.preventDefault();
 });
 
-canvas.addEventListener('selectstart', function(e) {
+canvas.addEventListener('selectstart', function (e) {
   e.preventDefault();
 });
 
@@ -200,7 +193,7 @@ window.addEventListener('keydown', (e) => {
       oneTimeRecord = true;
     } else if (key === 'Escape') {
       if (recordingFrame > 0) {
-        zip.generateAsync({type: 'blob'})
+        zip.generateAsync({ type: 'blob' })
           .then((blob) => {
             saveAs(blob, `recorded_frames_${recordingFrame}.zip`);
 

@@ -1,8 +1,8 @@
 ModelViewer = ModelViewer.default;
 
 let glMatrix = ModelViewer.common.glMatrix;
-let vec3 = glMatrix.vec3;
-let quat = glMatrix.quat;
+let vec3 = ModelViewer.common.vec3;
+let quat = ModelViewer.common.quat;
 let geometry = ModelViewer.common.geometry;
 let handlers = ModelViewer.viewer.handlers;
 let parsers = ModelViewer.parsers;

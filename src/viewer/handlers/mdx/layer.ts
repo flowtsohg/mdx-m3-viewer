@@ -105,11 +105,11 @@ export default class Layer extends AnimatedObject {
     }
   }
 
-  getAlpha(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KMTA', instance, this.alpha);
+  getAlpha(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KMTA', sequence, frame, counter, this.alpha);
   }
 
-  getTextureId(out: Uint32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KMTF', instance, this.textureId);
+  getTextureId(out: Uint32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KMTF', sequence, frame, counter, this.textureId);
   }
 }

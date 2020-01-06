@@ -1,6 +1,7 @@
 // How webpack exports to the web.
 const handlers = ModelViewer.default.viewer.handlers;
-const glMatrix = ModelViewer.default.common.glMatrix;
+const common = ModelViewer.default.common;
+const glMatrix = common.glMatrix;
 const vec3 = glMatrix.vec3;
 const quat = glMatrix.quat;
 

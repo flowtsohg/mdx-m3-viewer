@@ -16,15 +16,15 @@ export default class TextureAnimation extends AnimatedObject {
     this.addVariants('KTAS', 'scale');
   }
 
-  getTranslation(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getVectorValue(out, 'KTAT', instance, VEC3_ZERO);
+  getTranslation(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getVectorValue(out, 'KTAT', sequence, frame, counter, VEC3_ZERO);
   }
 
-  getRotation(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getQuatValue(out, 'KTAR', instance, QUAT_DEFAULT);
+  getRotation(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getQuatValue(out, 'KTAR', sequence, frame, counter, QUAT_DEFAULT);
   }
 
-  getScale(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getVectorValue(out, 'KTAS', instance, VEC3_ONE);
+  getScale(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getVectorValue(out, 'KTAS', sequence, frame, counter, VEC3_ONE);
   }
 }

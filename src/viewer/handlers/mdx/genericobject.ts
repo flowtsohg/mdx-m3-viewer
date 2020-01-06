@@ -73,21 +73,21 @@ export default class GenericObject extends AnimatedObject {
    * 
    * Many of the generic objects have animated visibilities, and will override this.
    */
-  getVisibility(out: Float32Array, instance: MdxComplexInstance) {
+  getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
     out[0] = 1;
 
     return -1;
   }
 
-  getTranslation(out: vec3, instance: MdxComplexInstance) {
-    return this.getVectorValue(out, 'KGTR', instance, VEC3_ZERO);
+  getTranslation(out: vec3, sequence: number, frame: number, counter: number) {
+    return this.getVectorValue(out, 'KGTR', sequence, frame, counter, VEC3_ZERO);
   }
 
-  getRotation(out: quat, instance: MdxComplexInstance) {
-    return this.getQuatValue(out, 'KGRT', instance, QUAT_DEFAULT);
+  getRotation(out: quat, sequence: number, frame: number, counter: number) {
+    return this.getQuatValue(out, 'KGRT', sequence, frame, counter, QUAT_DEFAULT);
   }
 
-  getScale(out: vec3, instance: MdxComplexInstance) {
-    return this.getVectorValue(out, 'KGSC', instance, VEC3_ONE);
+  getScale(out: vec3, sequence: number, frame: number, counter: number) {
+    return this.getVectorValue(out, 'KGSC', sequence, frame, counter, VEC3_ONE);
   }
 }

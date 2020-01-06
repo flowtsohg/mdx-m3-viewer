@@ -34,6 +34,10 @@ export default {
       return false;
     }
 
+    if (!webgl.ensureExtension('OES_element_index_uint')) {
+      console.warn('glTF: No element index uint support! Some models will fail to load.');
+    }
+
     // Optionally used by IBL to simulate roughness.
     if (!webgl.ensureExtension('EXT_shader_texture_lod')) {
       console.warn('glTF: No shader texture LOD support! This reduces the quality of environment mapping.');

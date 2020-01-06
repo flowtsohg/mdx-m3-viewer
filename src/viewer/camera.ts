@@ -14,7 +14,7 @@ export default class Camera {
   /**
    * The rendered viewport.
    */
-  rect: vec4 = vec4.create();
+  viewport: vec4 = vec4.create();
   isPerspective: boolean = true;
   fov: number = 0;
   aspect: number = 0;
@@ -28,11 +28,26 @@ export default class Camera {
   location: vec3 = vec3.create();
   rotation: quat = quat.create();
   inverseRotation: quat = quat.create();
+  /**
+   * World -> View.
+   */
   viewMatrix: mat4 = mat4.create();
+  /**
+   * View -> Clip.
+   */
   projectionMatrix: mat4 = mat4.create();
+  /**
+   * World -> Clip.
+   */
   viewProjectionMatrix: mat4 = mat4.create();
+  /**
+   * View -> World.
+   */
   inverseViewMatrix: mat4 = mat4.create();
-  inverseWorldProjectionMatrix: mat4 = mat4.create();
+  /**
+   * Clip -> World.
+   */
+  inverseViewProjectionMatrix: mat4 = mat4.create();
   /**
    * The X axis in camera space.
    */
@@ -46,20 +61,17 @@ export default class Camera {
    */
   directionZ: vec3 = vec3.create();
   /**
-   * The first four vectors describe the corners of a 2x2 rectangle.
-   * 
-   * The last three vectors are unit axes.
+   * The four corners of a 2x2 rectangle.
    */
-  vectors: vec3[] = [vec3.fromValues(-1, -1, 0), vec3.fromValues(-1, 1, 0), vec3.fromValues(1, 1, 0), vec3.fromValues(1, -1, 0), vec3.fromValues(1, 0, 0), vec3.fromValues(0, 1, 0), vec3.fromValues(0, 0, 1)];
+  vectors: vec3[] = [vec3.fromValues(-1, -1, 0), vec3.fromValues(-1, 1, 0), vec3.fromValues(1, 1, 0), vec3.fromValues(1, -1, 0)];
   /**
    * Same as vectors, however these are all billboarded to the camera.
    */
-  billboardedVectors: vec3[] = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
+  billboardedVectors: vec3[] = [vec3.create(), vec3.create(), vec3.create(), vec3.create()];
   /**
    * The camera frustum planes in this order: left, right, top, bottom, near, far.
    */
   planes: vec4[] = [vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create()];
-  lines: vec4[] = [vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create(), vec4.create()];
   dirty: boolean = true;
 
   /**
@@ -95,8 +107,8 @@ export default class Camera {
   /**
    * Set the camera's viewport.
    */
-  viewport(viewport: vec4 | number[]) {
-    vec4.copy(this.rect, viewport);
+  setViewport(viewport: vec4 | number[]) {
+    vec4.copy(this.viewport, viewport);
 
     this.aspect = viewport[2] / viewport[3];
 
@@ -171,8 +183,6 @@ export default class Camera {
    */
   update() {
     if (this.dirty) {
-      this.dirty = false;
-
       let location = this.location;
       let rotation = this.rotation;
       let inverseRotation = this.inverseRotation;
@@ -193,28 +203,31 @@ export default class Camera {
       mat4.fromQuat(viewMatrix, rotation);
       mat4.translate(viewMatrix, viewMatrix, vec3.negate(vectorHeap, location));
 
-      quat.conjugate(inverseRotation, rotation);
-
       // World -> Clip.
       mat4.mul(viewProjectionMatrix, projectionMatrix, viewMatrix);
-
-      // Recaculate the camera's frusum planes
-      unpackPlanes(this.planes, viewProjectionMatrix);
 
       // View -> World.
       mat4.invert(this.inverseViewMatrix, viewMatrix);
 
       // Clip -> World.
-      mat4.invert(this.inverseWorldProjectionMatrix, viewProjectionMatrix);
+      mat4.invert(this.inverseViewProjectionMatrix, viewProjectionMatrix);
 
+      // Recaculate the camera's frusum planes
+      unpackPlanes(this.planes, viewProjectionMatrix);
+
+      quat.conjugate(inverseRotation, rotation);
+
+      // View-space axes.
       vec3.transformQuat(this.directionX, VEC3_UNIT_X, inverseRotation);
       vec3.transformQuat(this.directionY, VEC3_UNIT_Y, inverseRotation);
       vec3.transformQuat(this.directionZ, VEC3_UNIT_Z, inverseRotation);
 
-      // Cache the billboarded vectors
-      for (let i = 0; i < 7; i++) {
+      // View-space rectangle, aka billboarded.
+      for (let i = 0; i < 4; i++) {
         vec3.transformQuat(billboardedVectors[i], vectors[i], inverseRotation);
       }
+
+      this.dirty = false;
     }
   }
 
@@ -236,7 +249,7 @@ export default class Camera {
    * Given a vector in world space, return the vector transformed to screen space.
    */
   worldToScreen(out: Float32Array, v: Float32Array) {
-    let viewport = this.rect;
+    let viewport = this.viewport;
 
     vec3.transformMat4(vectorHeap, <vec3>v, this.viewProjectionMatrix);
 
@@ -255,14 +268,14 @@ export default class Camera {
     let c = vectorHeap3;
     let x = v[0];
     let y = v[1];
-    let inverseWorldProjectionMatrix = this.inverseWorldProjectionMatrix;
-    let viewport = this.rect;
+    let inverseViewProjectionMatrix = this.inverseViewProjectionMatrix;
+    let viewport = this.viewport;
 
     // Intersection on the near-plane
-    unproject(a, vec3.set(c, x, y, 0), inverseWorldProjectionMatrix, viewport);
+    unproject(a, vec3.set(c, x, y, 0), inverseViewProjectionMatrix, viewport);
 
     // Intersection on the far-plane
-    unproject(b, vec3.set(c, x, y, 1), inverseWorldProjectionMatrix, viewport);
+    unproject(b, vec3.set(c, x, y, 1), inverseViewProjectionMatrix, viewport);
 
     out.set(a, 0);
     out.set(b, 3);

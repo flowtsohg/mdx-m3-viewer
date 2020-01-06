@@ -44,27 +44,27 @@ export default class RibbonEmitterObject extends GenericObject {
     this.rows = emitter.rows;
   }
 
-  getHeightBelow(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KRHB', instance, this.heightBelow);
+  getHeightBelow(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KRHB', sequence, frame, counter, this.heightBelow);
   }
 
-  getHeightAbove(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KRHA', instance, this.heightAbove);
+  getHeightAbove(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KRHA', sequence, frame, counter, this.heightAbove);
   }
 
-  getTextureSlot(out: Uint32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KRTX', instance, 0);
+  getTextureSlot(out: Uint32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KRTX', sequence, frame, counter, 0);
   }
 
-  getColor(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getVectorValue(out, 'KRCO', instance, this.color);
+  getColor(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getVectorValue(out, 'KRCO', sequence, frame, counter, this.color);
   }
 
-  getAlpha(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KRAL', instance, this.alpha);
+  getAlpha(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KRAL', sequence, frame, counter, this.alpha);
   }
 
-  getVisibility(out: Float32Array, instance: MdxComplexInstance) {
-    return this.getScalarValue(out, 'KRVS', instance, 1);
+  getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getScalarValue(out, 'KRVS', sequence, frame, counter, 1);
   }
 }

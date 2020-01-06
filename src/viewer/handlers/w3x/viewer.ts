@@ -14,24 +14,24 @@ import ShaderProgram from '../../gl/program';
 import Scene from '../../scene';
 import Camera from '../../camera';
 import Grid from '../../grid';
+import GenericResource from '../../genericresource';
 import { PathSolver } from '../../handlerresource';
 import Texture from '../../texture';
 import mdxHandler from '../mdx/handler';
+import MdxModel from '../mdx/model';
+import MdxComplexInstance from '../mdx/complexinstance';
 import getCliffVariation from './variations';
 import TerrainModel from './terrainmodel';
 import randomStandSequence from './standsequence';
 import Unit from './unit';
 import Doodad from './doodad';
-import GenericResource from '../../genericresource';
-import MdxComplexInstance from '../mdx/complexinstance';
+import TerrainDoodad from './terraindoodad';
 import groundVert from './shaders/ground.vert';
 import groundFrag from './shaders/ground.frag';
 import waterVert from './shaders/water.vert';
 import waterFrag from './shaders/water.frag';
 import cliffsVert from './shaders/cliffs.vert';
 import cliffsFrag from './shaders/cliffs.frag';
-import MdxModel from '../mdx/model';
-
 
 const normalHeap1 = vec3.create();
 const normalHeap2 = vec3.create();
@@ -42,8 +42,7 @@ export default class War3MapViewer extends ModelViewer {
   groundShader: ShaderProgram | null;
   waterShader: ShaderProgram | null;
   cliffShader: ShaderProgram | null;
-  scene: Scene;
-  camera: Camera;
+  worldScene: Scene;
   waterIndex: number = 0;
   waterIncreasePerFrame: number = 0;
   waterHeightOffset: number = 0;
@@ -77,8 +76,8 @@ export default class War3MapViewer extends ModelViewer {
   mapMpq: War3Map | null = null;
   mapPathSolver: PathSolver | null = null;
   corners: Corner[][] = [];
-  centerOffset: Float32Array | null = null;
-  mapSize: Int32Array | null = null;
+  centerOffset: Float32Array = new Float32Array(2);
+  mapSize: Int32Array = new Int32Array(2);
   tilesets: any[] = [];
   blightTextureIndex: number = -1;
   cliffTilesets: any[] = [];
@@ -119,12 +118,11 @@ export default class War3MapViewer extends ModelViewer {
     this.waterShader = this.webgl.createShaderProgram(waterVert, waterFrag);
     this.cliffShader = this.webgl.createShaderProgram(cliffsVert, cliffsFrag);
 
-    this.scene = this.addScene();
-    this.camera = this.scene.camera;
+    this.worldScene = this.addScene();
 
-    let terrain = this.loadGeneric('TerrainArt\\Terrain.slk', 'text');
-    let cliffTypes = this.loadGeneric('TerrainArt\\CliffTypes.slk', 'text');
-    let water = this.loadGeneric('TerrainArt\\Water.slk', 'text');
+    let terrain = this.loadMapGeneric('TerrainArt\\Terrain.slk', 'text');
+    let cliffTypes = this.loadMapGeneric('TerrainArt\\CliffTypes.slk', 'text');
+    let water = this.loadMapGeneric('TerrainArt\\Water.slk', 'text');
 
     this.whenLoaded([terrain, cliffTypes, water], () => {
       this.terrainCliffsAndWaterLoaded = true;
@@ -134,10 +132,10 @@ export default class War3MapViewer extends ModelViewer {
       this.emit('terrainloaded');
     })
 
-    let doodads = this.loadGeneric('Doodads\\Doodads.slk', 'text');
-    let doodadMetaData = this.loadGeneric('Doodads\\DoodadMetaData.slk', 'text');
-    let destructableData = this.loadGeneric('Units\\DestructableData.slk', 'text');
-    let destructableMetaData = this.loadGeneric('Units\\DestructableMetaData.slk', 'text');
+    let doodads = this.loadMapGeneric('Doodads\\Doodads.slk', 'text');
+    let doodadMetaData = this.loadMapGeneric('Doodads\\DoodadMetaData.slk', 'text');
+    let destructableData = this.loadMapGeneric('Units\\DestructableData.slk', 'text');
+    let destructableMetaData = this.loadMapGeneric('Units\\DestructableMetaData.slk', 'text');
 
     this.whenLoaded([doodads, doodadMetaData, destructableData, destructableMetaData], () => {
       this.doodadsAndDestructiblesLoaded = true;
@@ -148,10 +146,10 @@ export default class War3MapViewer extends ModelViewer {
       this.emit('doodadsloaded');
     });
 
-    let unitData = this.loadGeneric('Units\\UnitData.slk', 'text');
-    let unitUi = this.loadGeneric('Units\\unitUI.slk', 'text');
-    let itemData = this.loadGeneric('Units\\ItemData.slk', 'text');
-    let unitMetaData = this.loadGeneric('Units\\UnitMetaData.slk', 'text');
+    let unitData = this.loadMapGeneric('Units\\UnitData.slk', 'text');
+    let unitUi = this.loadMapGeneric('Units\\unitUI.slk', 'text');
+    let itemData = this.loadMapGeneric('Units\\ItemData.slk', 'text');
+    let unitMetaData = this.loadMapGeneric('Units\\UnitMetaData.slk', 'text');
 
     this.whenLoaded([unitData, unitUi, itemData, unitMetaData], () => {
       this.unitsAndItemsLoaded = true;
@@ -167,7 +165,7 @@ export default class War3MapViewer extends ModelViewer {
     return super.load(src, <PathSolver>this.mapPathSolver, this.solverParams);
   }
 
-  loadGeneric(path: string, dataType: FetchDataTypeName) {
+  loadMapGeneric(path: string, dataType: FetchDataTypeName) {
     return super.loadGeneric(urlWithParams(this.wc3PathSolver(path)[0], this.solverParams), dataType);
   }
 
@@ -231,11 +229,11 @@ export default class War3MapViewer extends ModelViewer {
         let mapSize = w3e.mapSize;
 
         this.corners = w3e.corners;
-        this.centerOffset = centerOffset;
-        this.mapSize = mapSize;
+        this.centerOffset.set(centerOffset);
+        this.mapSize.set(mapSize);
 
         // Override the grid based on the map.
-        this.scene.grid = new Grid(centerOffset[0], centerOffset[1], mapSize[0] * 128 - 128, mapSize[1] * 128 - 128, 16 * 128, 16 * 128);
+        this.worldScene.grid = new Grid(centerOffset[0], centerOffset[1], mapSize[0] * 128 - 128, mapSize[1] * 128 - 128, 16 * 128, 16 * 128);
 
         this.emit('tilesetloaded');
 
@@ -474,15 +472,14 @@ export default class War3MapViewer extends ModelViewer {
 
     let cliffShader = <ShaderProgram>this.cliffShader;
 
-    let cliffPromises = Object.entries(cliffs).map((cliff) => {
+    let cliffPromises = Object.entries(cliffs).map(async (cliff) => {
       let path = cliff[0];
       let { locations, textures } = cliff[1];
-      let resource = this.loadGeneric(path, 'arrayBuffer');
-      let promise = <Promise<GenericResource>>resource.whenLoaded();
+      let resource = this.loadMapGeneric(path, 'arrayBuffer');
 
-      return promise.then(() => {
-        return new TerrainModel(this, resource.data, locations, textures, cliffShader);
-      });
+      await resource.whenLoaded();
+
+      return new TerrainModel(this, resource.data, locations, textures, cliffShader);
     });
 
     this.cliffModels = await Promise.all(cliffPromises);
@@ -512,7 +509,7 @@ export default class War3MapViewer extends ModelViewer {
 
     let doo = new War3MapDoo(dooBuffer);
 
-    // Collect the doodad and destructible data.
+    // Doodads and destructibles.
     for (let doodad of doo.doodads) {
       let row = this.doodadsData.getRow(doodad.id);
       let file = <string>row.file;
@@ -544,6 +541,29 @@ export default class War3MapViewer extends ModelViewer {
       }
 
       this.doodads.push(new Doodad(this, model, row, doodad))
+    }
+
+    // Cliff/Terrain doodads.
+    for (let doodad of doo.terrainDoodads) {
+      let row = this.doodadsData.getRow(doodad.id);
+      let model = <MdxModel>this.load(`${row.file}.mdx`);
+
+      this.terrainDoodads.push(new TerrainDoodad(this, model, row, doodad));
+
+      // let pathTexture = <Texture>this.load(row.pathTex);
+
+      // pathTexture.whenLoaded(() => {
+      //   let startx = doodad.location[0];
+      //   let starty = doodad.location[1];
+      //   let endx = startx + pathTexture.width / 4;
+      //   let endy = starty + pathTexture.height / 4;
+
+      //   for (let x = startx; x < endx; x++) {
+      //     for (let y = starty; y < endy; y++) {
+
+      //     }
+      //   }
+      // });
     }
 
     this.doodadsReady = true;
@@ -619,7 +639,7 @@ export default class War3MapViewer extends ModelViewer {
 
       super.update();
 
-      let instances = <MdxComplexInstance[]>this.scene.instances;
+      let instances = <MdxComplexInstance[]>this.worldScene.instances;
 
       for (let instance of instances) {
         if (instance.sequenceEnded || instance.sequence === -1) {
@@ -634,16 +654,14 @@ export default class War3MapViewer extends ModelViewer {
    */
   render() {
     if (this.anyReady) {
-      let camera = this.camera;
-      let viewport = camera.rect;
+      let worldScene = this.worldScene;
 
-      this.gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-
+      worldScene.startFrame();
       this.renderGround();
       this.renderCliffs();
-      super.renderOpaque();
+      worldScene.renderOpaque();
       this.renderWater();
-      super.renderTranslucent();
+      worldScene.renderTranslucent();
     }
   }
 
@@ -667,7 +685,7 @@ export default class War3MapViewer extends ModelViewer {
 
       webgl.useShaderProgram(shader);
 
-      gl.uniformMatrix4fv(uniforms.u_VP, false, this.camera.viewProjectionMatrix);
+      gl.uniformMatrix4fv(uniforms.u_VP, false, this.worldScene.camera.viewProjectionMatrix);
       gl.uniform2fv(uniforms.u_offset, <Float32Array>this.centerOffset);
       gl.uniform2f(uniforms.u_size, this.columns, this.rows);
       gl.uniform1i(uniforms.u_heightMap, 15);
@@ -744,7 +762,7 @@ export default class War3MapViewer extends ModelViewer {
 
       webgl.useShaderProgram(shader);
 
-      gl.uniformMatrix4fv(uniforms.u_VP, false, this.camera.viewProjectionMatrix);
+      gl.uniformMatrix4fv(uniforms.u_VP, false, this.worldScene.camera.viewProjectionMatrix);
       gl.uniform2fv(uniforms.u_offset, <Float32Array>this.centerOffset);
       gl.uniform2f(uniforms.u_size, this.columns, this.rows);
       gl.uniform1i(uniforms.u_heightMap, 0);
@@ -797,7 +815,7 @@ export default class War3MapViewer extends ModelViewer {
 
       shader.use();
 
-      gl.uniformMatrix4fv(uniforms.u_VP, false, this.camera.viewProjectionMatrix);
+      gl.uniformMatrix4fv(uniforms.u_VP, false, this.worldScene.camera.viewProjectionMatrix);
       gl.uniform1i(uniforms.u_heightMap, 0);
       gl.uniform2f(uniforms.u_pixel, 1 / (this.columns + 1), 1 / (this.rows + 1));
       gl.uniform2fv(uniforms.u_centerOffset, <Float32Array>this.centerOffset);

@@ -33,6 +33,7 @@ export default class BatchGroup {
     let batches = model.batches;
     let viewer = model.viewer;
     let gl = viewer.gl;
+    let webgl = viewer.webgl;
     let isExtended = this.isExtended;
     let shader;
 
@@ -106,7 +107,7 @@ export default class BatchGroup {
           texture = textureMapper.get(texture) || texture;
         }
 
-        viewer.webgl.bindTexture(texture, 0);
+        webgl.bindTexture(texture, 0);
 
         if (isExtended) {
           geoset.bindExtended(shader, layer.coordId);

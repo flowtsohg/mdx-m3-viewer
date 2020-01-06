@@ -27,14 +27,17 @@ export default class Particle2 extends EmittedObject {
   bind(tail: number) {
     let emitter = <ParticleEmitter2>this.emitter;
     let instance = <MdxComplexInstance>emitter.instance;
+    let sequence = instance.sequence;
+    let frame = instance.frame;
+    let counter = instance.counter;
     let emitterObject = <ParticleEmitter2Object>emitter.emitterObject;
 
-    emitterObject.getWidth(widthHeap, instance);
-    emitterObject.getLength(lengthHeap, instance);
-    emitterObject.getLatitude(latitudeHeap, instance);
-    emitterObject.getVariation(variationHeap, instance);
-    emitterObject.getSpeed(speedHeap, instance);
-    emitterObject.getGravity(gravityHeap, instance);
+    emitterObject.getWidth(widthHeap, sequence, frame, counter);
+    emitterObject.getLength(lengthHeap, sequence, frame, counter);
+    emitterObject.getLatitude(latitudeHeap, sequence, frame, counter);
+    emitterObject.getVariation(variationHeap, sequence, frame, counter);
+    emitterObject.getSpeed(speedHeap, sequence, frame, counter);
+    emitterObject.getGravity(gravityHeap, sequence, frame, counter);
 
     let node = emitter.node;
     let pivot = node.pivot;

@@ -24,7 +24,7 @@ export default class ParticleEmitter2 extends MdxEmitter {
 
     if (instance.allowParticleSpawn) {
       let emitterObject = <ParticleEmitter2Object>this.emitterObject;
-      let keyframe = emitterObject.getEmissionRate(emissionRateHeap, instance);
+      let keyframe = emitterObject.getEmissionRate(emissionRateHeap, instance.sequence, instance.frame, instance.counter);
 
       if (emitterObject.squirt) {
         if (keyframe !== this.lastEmissionKey) {

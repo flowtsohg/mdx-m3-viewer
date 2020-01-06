@@ -31,6 +31,14 @@ export default class Scene {
   currentBatchedInstance: number = 0;
   batches: Map<TextureMapper, RenderBatch> = new Map();
   emittedObjectUpdater: EmittedObjectUpdater = new EmittedObjectUpdater();
+  /**
+   * Similar to WebGL's own `alpha` parameter.
+   * 
+   * If false, the scene will be cleared before rendering, meaning that scenes behind it won't be visible through it.
+   * 
+   * If true, alpha works as usual.
+   */
+  alpha: boolean = false;
 
   constructor(viewer: ModelViewer) {
     this.viewer = viewer;
@@ -38,7 +46,7 @@ export default class Scene {
     let canvas = viewer.canvas;
 
     // Use the whole canvas, and standard perspective projection values.
-    this.camera.viewport([0, 0, canvas.width, canvas.height]);
+    this.camera.setViewport([0, 0, canvas.width, canvas.height]);
     this.camera.perspective(Math.PI / 4, canvas.width / canvas.height, 8, 10000);
   }
 
@@ -227,14 +235,33 @@ export default class Scene {
   }
 
   /**
+   * Use the scene's viewport.
+   * 
+   * Should be called before `renderOpaque()` and `renderTranslucent()`.
+   * 
+   * Called automatically by `render()`.
+   */
+  startFrame() {
+    let gl = this.viewer.gl;
+    let viewport = this.camera.viewport;
+
+    // Set the viewport.
+    gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+    // Allow to render only in the viewport.
+    gl.scissor(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+    // If this scene doesn't want alpha, clear it.
+    if (!this.alpha) {
+      gl.depthMask(true);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    }
+  }
+
+  /**
    * Render all opaque things in this scene.
    */
   renderOpaque() {
-    let camera = this.camera;
-    let viewport = camera.rect;
-
-    this.viewer.gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-
     // Clear all of the batches.
     for (let batch of this.batches.values()) {
       batch.clear();
@@ -260,14 +287,18 @@ export default class Scene {
    * Renders all translucent things in this scene.
    */
   renderTranslucent() {
-    let camera = this.camera;
-    let viewport = camera.rect;
-
-    this.viewer.gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-
     for (let instance of this.instances) {
       instance.renderTranslucent();
     }
+  }
+
+  /**
+   * Render this scene.
+   */
+  render() {
+    this.startFrame();
+    this.renderOpaque();
+    this.renderTranslucent();
   }
 
   /**
