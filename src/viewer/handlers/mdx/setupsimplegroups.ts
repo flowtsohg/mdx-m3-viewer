@@ -1,12 +1,10 @@
 import MdxModel from './model';
 import Batch from './batch';
-import ReforgedBatch from './reforgedbatch';
 import BatchGroup from './batchgroup';
-import ReforgedBatchGroup from './reforgedbatchgroup';
 
 const alphaHeap = new Float32Array(1);
 
-function isBatchSimple(batch: Batch | ReforgedBatch) {
+function isBatchSimple(batch: Batch) {
   let geosetAnimation = batch.geoset.geosetAnimation;
 
   if (geosetAnimation) {
@@ -17,13 +15,7 @@ function isBatchSimple(batch: Batch | ReforgedBatch) {
     }
   }
 
-  let layer;
-
-  if (batch instanceof Batch) {
-    layer = batch.layer;
-  } else {
-    layer = batch.material.layers[0];
-  }
+  let layer = batch.layer;
 
   layer.getAlpha(alphaHeap, 0, 0, 0);
 
@@ -39,13 +31,7 @@ export default function setupSimpleGroups(model: MdxModel) {
   let simpleGroups = model.simpleGroups;
 
   for (let group of model.opaqueGroups) {
-    let simpleGroup;
-
-    if (group instanceof BatchGroup) {
-      simpleGroup = new BatchGroup(model, group.isExtended);
-    } else {
-      simpleGroup = new ReforgedBatchGroup(model, group.shader);
-    }
+    let simpleGroup = new BatchGroup(model, group.isExtended, group.isHd);
 
     for (let object of group.objects) {
       if (isBatchSimple(batches[object])) {

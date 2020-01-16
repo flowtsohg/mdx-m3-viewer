@@ -4,6 +4,7 @@ import mdxHandler from './handler';
 import MdxModel from './model';
 import MdxComplexInstance from './complexinstance';
 import Batch from './batch';
+import Material from './material';
 
 /**
  * A group of batches that are going to be rendered together.
@@ -11,34 +12,44 @@ import Batch from './batch';
 export default class BatchGroup {
   model: MdxModel;
   isExtended: boolean;
+  isHd: boolean;
   objects: number[] = [];
 
-  constructor(model: MdxModel, isExtended: boolean) {
+  constructor(model: MdxModel, isExtended: boolean, isHd: boolean) {
     this.model = model;
     this.isExtended = isExtended;
+    this.isHd = isHd;
   }
 
   render(instance: MdxComplexInstance) {
     let scene = <Scene>instance.scene;
     let textureMapper = instance.textureMapper;
-    let geosetColors = instance.geosetColors;
     let layerAlphas = instance.layerAlphas;
-    let layerTextures = instance.layerTextures;
-    let uvAnims = instance.uvAnims;
     let model = this.model;
-    let replaceables = model.replaceables;
     let textures = model.textures;
-    let teamColors = mdxHandler.teamColors;
-    let teamGlows = mdxHandler.teamGlows;
     let batches = model.batches;
     let viewer = model.viewer;
     let gl = viewer.gl;
     let webgl = viewer.webgl;
     let isExtended = this.isExtended;
+    let isHd = this.isHd;
+    let isReforged = model.reforged;
+    let teamColors;
+    let teamGlows;
     let shader;
+
+    if (isReforged) {
+      teamColors = mdxHandler.reforgedTeamColors;
+      teamGlows = mdxHandler.reforgedTeamGlows;
+    } else {
+      teamColors = mdxHandler.teamColors;
+      teamGlows = mdxHandler.teamGlows;
+    }
 
     if (isExtended) {
       shader = <ShaderProgram>mdxHandler.shaders.extended;
+    } else if (isHd) {
+      shader = <ShaderProgram>mdxHandler.shaders.hd;
     } else {
       shader = <ShaderProgram>mdxHandler.shaders.complex;
     }
@@ -68,54 +79,95 @@ export default class BatchGroup {
     gl.bindBuffer(gl.ARRAY_BUFFER, model.arrayBuffer);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.elementBuffer);
 
-    gl.uniform4fv(uniforms.u_vertexColor, instance.vertexColor);
+    if (isHd) {
+      gl.uniform1i(uniforms.u_diffuseMap, 0);
+      gl.uniform1i(uniforms.u_ormMap, 1);
+      gl.uniform1i(uniforms.u_teamColorMap, 2);
 
-    for (let object of this.objects) {
-      let batch = <Batch>batches[object];
-      let geoset = batch.geoset;
-      let layer = batch.layer;
-      let geosetIndex = geoset.index;
-      let layerIndex = layer.index;
-      let geosetColor = geosetColors[geosetIndex];
-      let layerAlpha = layerAlphas[layerIndex];
+      gl.disable(gl.BLEND);
+      gl.enable(gl.DEPTH_TEST);
+      gl.depthMask(true);
 
-      if (geosetColor[3] > 0.01 && layerAlpha > 0.01) {
-        let layerTexture = layerTextures[layerIndex];
-        let uvAnim = uvAnims[layerIndex];
+      for (let index of this.objects) {
+        let batch = batches[index];
+        let geoset = batch.geoset;
+        let material = <Material>batch.material;
+        let layers = material.layers;
+        let diffuseLayer = layers[0];
+        let ormLayer = layers[2];
+        let layerAlpha = layerAlphas[diffuseLayer.index];
 
-        gl.uniform4fv(uniforms.u_geosetColor, geosetColor);
+        if (layerAlpha > 0) {
+          gl.uniform1f(uniforms.u_layerAlpha, layerAlpha);
+          gl.uniform1f(uniforms.u_filterMode, diffuseLayer.filterMode);
 
-        gl.uniform1f(uniforms.u_layerAlpha, layerAlpha);
+          let diffuseTexture = textures[diffuseLayer.textureId];
+          let ormTexture = textures[ormLayer.textureId];
+          let teamColorTexture = teamColors[instance.teamColor];
 
-        gl.uniform2f(uniforms.u_uvTrans, uvAnim[0], uvAnim[1]);
-        gl.uniform2f(uniforms.u_uvRot, uvAnim[2], uvAnim[3]);
-        gl.uniform1f(uniforms.u_uvScale, uvAnim[4]);
+          webgl.bindTexture(textureMapper.get(diffuseTexture) || diffuseTexture, 0);
+          webgl.bindTexture(textureMapper.get(ormTexture) || ormTexture, 1);
+          webgl.bindTexture(textureMapper.get(teamColorTexture) || teamColorTexture, 2);
 
-        layer.bind(shader);
-
-        let replaceable = replaceables[layerTexture];
-        let texture;
-
-        if (replaceable === 1) {
-          texture = teamColors[instance.teamColor];
-        } else if (replaceable === 2) {
-          texture = teamGlows[instance.teamColor];
-        } else {
-          texture = textures[layerTexture];
-
-          // Overriding.
-          texture = textureMapper.get(texture) || texture;
+          geoset.bindHd(shader, diffuseLayer.coordId);
+          geoset.render();
         }
+      }
+    } else {
+      let replaceables = model.replaceables;
+      let geosetColors = instance.geosetColors;
+      let layerTextures = instance.layerTextures;
+      let uvAnims = instance.uvAnims;
 
-        webgl.bindTexture(texture, 0);
+      gl.uniform4fv(uniforms.u_vertexColor, instance.vertexColor);
 
-        if (isExtended) {
-          geoset.bindExtended(shader, layer.coordId);
-        } else {
-          geoset.bind(shader, layer.coordId);
+      for (let object of this.objects) {
+        let batch = <Batch>batches[object];
+        let geoset = batch.geoset;
+        let layer = batch.layer;
+        let geosetIndex = geoset.index;
+        let layerIndex = layer.index;
+        let geosetColor = geosetColors[geosetIndex];
+        let layerAlpha = layerAlphas[layerIndex];
+
+        if (geosetColor[3] > 0.01 && layerAlpha > 0.01) {
+          let layerTexture = layerTextures[layerIndex];
+          let uvAnim = uvAnims[layerIndex];
+
+          gl.uniform4fv(uniforms.u_geosetColor, geosetColor);
+
+          gl.uniform1f(uniforms.u_layerAlpha, layerAlpha);
+
+          gl.uniform2f(uniforms.u_uvTrans, uvAnim[0], uvAnim[1]);
+          gl.uniform2f(uniforms.u_uvRot, uvAnim[2], uvAnim[3]);
+          gl.uniform1f(uniforms.u_uvScale, uvAnim[4]);
+
+          layer.bind(shader);
+
+          let replaceable = replaceables[layerTexture];
+          let texture;
+
+          if (replaceable === 1) {
+            texture = teamColors[instance.teamColor];
+          } else if (replaceable === 2) {
+            texture = teamGlows[instance.teamColor];
+          } else {
+            texture = textures[layerTexture];
+
+            // Overriding.
+            texture = textureMapper.get(texture) || texture;
+          }
+
+          webgl.bindTexture(texture, 0);
+
+          if (isExtended) {
+            geoset.bindExtended(shader, layer.coordId);
+          } else {
+            geoset.bind(shader, layer.coordId);
+          }
+
+          geoset.render();
         }
-
-        geoset.render();
       }
     }
   }

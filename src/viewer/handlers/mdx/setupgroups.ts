@@ -1,8 +1,6 @@
 import MdxModel from './model';
 import Batch from './batch';
 import BatchGroup from './batchgroup';
-import ReforgedBatch from './reforgedbatch';
-import ReforgedBatchGroup from './reforgedbatchgroup';
 import EmitterGroup from './emittergroup';
 import GenericObject from './genericobject';
 import ParticleEmitter2Object from './particleemitter2object';
@@ -17,22 +15,18 @@ function getPrio(object: Batch | ParticleEmitter2Object | RibbonEmitterObject) {
   }
 }
 
-function matchingGroup(group: BatchGroup | ReforgedBatchGroup | EmitterGroup, object: Batch | ReforgedBatch | ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject) {
+function matchingGroup(group: BatchGroup | EmitterGroup, object: Batch | ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject) {
   if (group instanceof BatchGroup) {
-    return (object instanceof Batch) && (object.isExtended === group.isExtended);
-  } else if (group instanceof ReforgedBatchGroup) {
-    return (object instanceof ReforgedBatch) && (object.material.shader === group.shader);
+    return (object instanceof Batch) && (object.isExtended === group.isExtended) && (object.isHd === group.isHd);
   } else {
     // All of the emitter objects are generic objects.
     return (object instanceof GenericObject);
   }
 }
 
-function createMatchingGroup(model: MdxModel, object: Batch | ReforgedBatch | ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject) {
+function createMatchingGroup(model: MdxModel, object: Batch | ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject) {
   if (object instanceof Batch) {
-    return new BatchGroup(model, object.isExtended);
-  } else if (object instanceof ReforgedBatch) {
-    return new ReforgedBatchGroup(model, object.material.shader);
+    return new BatchGroup(model, object.isExtended, object.isHd);
   } else {
     return new EmitterGroup(model);
   }
@@ -43,7 +37,7 @@ export default function setupGroups(model: MdxModel) {
   let translucentBatches = [];
 
   for (let batch of model.batches) {
-    if (batch instanceof ReforgedBatch || batch.layer.filterMode < 2) {
+    if (batch.layer.filterMode < 2) {
       opaqueBatches.push(batch);
     } else {
       translucentBatches.push(batch);
@@ -56,7 +50,7 @@ export default function setupGroups(model: MdxModel) {
 
   for (let object of opaqueBatches) {
     if (!currentGroup || !matchingGroup(currentGroup, object)) {
-      currentGroup = <BatchGroup | ReforgedBatchGroup>createMatchingGroup(model, object);
+      currentGroup = <BatchGroup>createMatchingGroup(model, object);
 
       opaqueGroups.push(currentGroup);
     }
@@ -73,7 +67,7 @@ export default function setupGroups(model: MdxModel) {
   currentGroup = null;
 
   for (let object of objects) {
-    if (object instanceof Batch || object instanceof ReforgedBatch || object.geometryEmitterType !== -1) {
+    if (object instanceof Batch || object.geometryEmitterType !== -1) {
       if (!currentGroup || !matchingGroup(currentGroup, object)) {
         currentGroup = createMatchingGroup(model, object);
 

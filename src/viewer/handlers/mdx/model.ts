@@ -24,9 +24,7 @@ import setupGroups from './setupgroups';
 import setupSimpleGroups from './setupsimplegroups';
 import BatchGroup from './batchgroup';
 import EmitterGroup from './emittergroup';
-import ReforgedBatchGroup from './reforgedbatchgroup';
 import GenericObject from './genericobject';
-import ReforgedBatch from './reforgedbatch';
 import Batch from './batch';
 import Geoset from './geoset';
 import MdxSimpleInstance from './simpleinstance';
@@ -62,13 +60,13 @@ export default class MdxModel extends Model {
   collisionShapes: CollisionShape[] = [];
   hasLayerAnims: boolean = false;
   hasGeosetAnims: boolean = false;
-  batches: (Batch | ReforgedBatch)[] = [];
+  batches: Batch[] = [];
   genericObjects: GenericObject[] = [];
   sortedGenericObjects: GenericObject[] = [];
   hierarchy: number[] = [];
-  opaqueGroups: (BatchGroup | ReforgedBatchGroup)[] = [];
+  opaqueGroups: BatchGroup[] = [];
   translucentGroups: (BatchGroup | EmitterGroup)[] = [];
-  simpleGroups: (BatchGroup | ReforgedBatchGroup)[] = [];
+  simpleGroups: BatchGroup[] = [];
   arrayBuffer: WebGLBuffer | null = null;
   elementBuffer: WebGLBuffer | null = null;
 

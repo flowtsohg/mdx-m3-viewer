@@ -2,11 +2,10 @@ import MdlxGeoset from '../../../parsers/mdlx/geoset';
 import MdxModel from './model';
 import Geoset from './geoset';
 import Batch from './batch';
-import ReforgedBatch from './reforgedbatch';
 
 const NORMAL_BATCH = 0;
 const EXTENDED_BATCH = 1;
-const REFORGED_BATCH = 2;
+const HD_BATCH = 2;
 
 export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
   if (geosets.length > 0) {
@@ -31,7 +30,7 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
         if (geoset.skin.length) {
           skinBytes += vertices * 8;
 
-          batchTypes[i] = REFORGED_BATCH;
+          batchTypes[i] = HD_BATCH;
         } else {
           let biggestGroup = 0;
 
@@ -82,7 +81,7 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
         let vertices = geoset.vertices.length / 3;
         let batchType = batchTypes[i];
 
-        if (batchType === REFORGED_BATCH) {
+        if (batchType === HD_BATCH) {
           skin = geoset.skin;
         } else {
           let matrixIndices = geoset.matrixIndices;
@@ -132,13 +131,13 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
 
         model.geosets.push(vGeoset);
 
-        if (batchType === REFORGED_BATCH) {
-          model.batches.push(new ReforgedBatch(model.batches.length, vGeoset, model.materials[geoset.materialId]));
+        if (batchType === HD_BATCH) {
+          model.batches.push(new Batch(model.batches.length, vGeoset, model.materials[geoset.materialId], false, true));
         } else {
           let isExtended = batchType === EXTENDED_BATCH;
 
           for (let layer of model.materials[geoset.materialId].layers) {
-            model.batches.push(new Batch(model.batches.length, vGeoset, layer, isExtended));
+            model.batches.push(new Batch(model.batches.length, vGeoset, layer, isExtended, false));
           }
         }
 
