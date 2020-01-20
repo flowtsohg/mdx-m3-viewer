@@ -245,76 +245,56 @@ export default class MdxComplexInstance extends ModelInstance {
       let genericObject = sortedGenericObjects[i];
       let node = sortedNodes[i];
       let parent = <Node | SkeletalNode>node.parent;
+      let wasDirty = false;
+      let variants = genericObject.variants;
 
-      genericObject.getVisibility(visibilityHeap, sequence, frame, counter);
+      // Local node transformation.
+      // Use variants to skip animation data when possible.
+      if (forced || variants.generic[sequence]) {
+        wasDirty = true;
 
-      let objectVisible = visibilityHeap[0] > 0;
-      let nodeVisible = forced || (parent.visible && objectVisible);
-
-      node.visible = nodeVisible;
-
-      // Every node only needs to be updated if this is a forced update, or if both the parent node and the generic object corresponding to this node are visible.
-      // Incoming messy code for optimizations!
-      if (nodeVisible) {
-        let wasDirty = false;
-        let variants = genericObject.variants;
-        let localLocation = node.localLocation;
-        let localRotation = node.localRotation;
-        let localScale = node.localScale;
-
-        // Only update the local node data if there is a need to
-        if (forced || variants.generic[sequence]) {
-          wasDirty = true;
-
-          // Translation
-          if (forced || variants.translation[sequence]) {
-            genericObject.getTranslation(translationHeap, sequence, frame, counter);
-
-            localLocation[0] = translationHeap[0];
-            localLocation[1] = translationHeap[1];
-            localLocation[2] = translationHeap[2];
-          }
-
-          // Rotation
-          if (forced || variants.rotation[sequence]) {
-            genericObject.getRotation(rotationHeap, sequence, frame, counter);
-
-            localRotation[0] = rotationHeap[0];
-            localRotation[1] = rotationHeap[1];
-            localRotation[2] = rotationHeap[2];
-            localRotation[3] = rotationHeap[3];
-          }
-
-          // Scale
-          if (forced || variants.scale[sequence]) {
-            genericObject.getScale(scaleHeap, sequence, frame, counter);
-
-            localScale[0] = scaleHeap[0];
-            localScale[1] = scaleHeap[1];
-            localScale[2] = scaleHeap[2];
-          }
+        // Translation
+        if (forced || variants.translation[sequence]) {
+          genericObject.getTranslation(node.localLocation, sequence, frame, counter);
         }
 
-        let wasReallyDirty = forced || wasDirty || parent.wasDirty || genericObject.anyBillboarding;
-
-        node.wasDirty = wasReallyDirty;
-
-        // If this is a forced update, or this node's local data was updated, or the parent node was updated, do a full world update.
-        if (wasReallyDirty) {
-          node.recalculateTransformation(scene);
+        // Rotation
+        if (forced || variants.rotation[sequence]) {
+          genericObject.getRotation(node.localRotation, sequence, frame, counter);
         }
 
-        // If there is an instance object associated with this node, and the node is visible (which might not be the case for a forced update!), update the object.
-        // This includes attachments and emitters.
-        let object = node.object;
+        // Scale
+        if (forced || variants.scale[sequence]) {
+          genericObject.getScale(node.localScale, sequence, frame, counter);
+        }
+      }
 
-        if (object && objectVisible) {
+      let wasReallyDirty = forced || wasDirty || parent.wasDirty || genericObject.anyBillboarding;
+
+      node.wasDirty = wasReallyDirty;
+
+      // If this is a forced update, or this node's local data was updated, or the parent node was updated, do a full world update.
+      if (wasReallyDirty) {
+        node.recalculateTransformation(scene);
+      }
+
+      // If there is an instance object associated with this node, and the node is visible (which might not be the case for a forced update!), update the object.
+      // Check if this node has an attachment/emitter attached to it.
+      let object = node.object;
+
+      if (object) {
+        genericObject.getVisibility(visibilityHeap, sequence, frame, counter);
+
+        let objectVisible = visibilityHeap[0] > 0;
+
+        // If the attachment/emitter is visible, update it.
+        if (objectVisible) {
           object.update(dt);
         }
-
-        // Update all of the node's non-skeletal children, which will update their children, and so on.
-        node.updateChildren(dt, scene);
       }
+
+      // Update all of the node's non-skeletal children, which will update their children, and so on.
+      node.updateChildren(dt, scene);
     }
   }
 

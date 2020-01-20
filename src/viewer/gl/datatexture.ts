@@ -23,7 +23,7 @@ export default class DataTexture {
   }
 
   reserve(width: number, height: number) {
-    if (this.width < width || this.height < this.height) {
+    if (this.width < width || this.height < height) {
       const gl = this.gl;
 
       this.width = Math.max(this.width, width);
