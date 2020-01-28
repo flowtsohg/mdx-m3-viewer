@@ -2,7 +2,6 @@ import { vec3 } from 'gl-matrix';
 import Scene from '../../scene';
 import ShaderProgram from '../../gl/program';
 import ClientBuffer from '../../gl/clientbuffer';
-import mdxHandler from './handler';
 import ParticleEmitter2Object from './particleemitter2object';
 import RibbonEmitterObject from './ribbonemitterobject';
 import EventObjectEmitterObject from './eventobjectemitterobject';
@@ -137,6 +136,7 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: ShaderPro
   let model = emitterObject.model;
   let viewer = model.viewer;
   let gl = viewer.gl;
+  let mdxCache = viewer.sharedCache.get('mdx');
   let uniforms = shader.uniforms;
   let colors = emitterObject.colors;
   let intervals = emitterObject.intervals;
@@ -147,11 +147,11 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: ShaderPro
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 
   if (replaceable === 1) {
-    let teamColors = model.reforged ? mdxHandler.reforgedTeamColors : mdxHandler.teamColors;
+    let teamColors = model.reforged ? mdxCache.reforgedTeamColors : mdxCache.teamColors;
 
     texture = teamColors[instance.teamColor];
   } else if (replaceable === 2) {
-    let teamGlows = model.reforged ? mdxHandler.reforgedTeamGlows : mdxHandler.teamGlows;
+    let teamGlows = model.reforged ? mdxCache.reforgedTeamGlows : mdxCache.teamGlows;
 
     texture = teamGlows[instance.teamColor];
   } else {

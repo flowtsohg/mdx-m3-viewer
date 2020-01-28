@@ -6,10 +6,6 @@ import Model from './model';
 import standardVert from './shaders/standard.vert';
 import standardFrag from './shaders/standard.frag';
 
-let shaders = {
-  standard: <ShaderProgram[]>[],
-};
-
 export default {
   extensions: [['.m3', 'arrayBuffer']],
   load(viewer: ModelViewer) {
@@ -26,6 +22,8 @@ export default {
 
     viewer.addHandler(ddsHandler);
     viewer.addHandler(tgaHandler);
+
+    let standardShaders = <ShaderProgram[]>[];
 
     // Load shaders for 1-4 texture coordinate models.
     for (let i = 0; i < 4; i++) {
@@ -44,12 +42,15 @@ export default {
         gl.uniform3f(shader.uniforms['u_teamColors[' + i + ']'], color[0] / 255, color[1] / 255, color[2] / 255);
       }
 
-      shaders.standard[i] = shader;
+      standardShaders[i] = shader;
     }
+
+    viewer.sharedCache.set('m3', {
+      standardShaders,
+      lightPosition: new Float32Array([0, 0, 10000]),
+    });
 
     return true;
   },
   resource: Model,
-  lightPosition: new Float32Array([0, 0, 10000]),
-  shaders,
 };

@@ -3,7 +3,6 @@ import Parser from '../../../parsers/mdlx/model';
 import Sequence from '../../../parsers/mdlx/sequence';
 import Model from '../../model';
 import Texture from '../../texture';
-import mdxHandler from './handler';
 import TextureAnimation from './textureanimation';
 import Layer from './layer';
 import Material from './material';
@@ -183,8 +182,9 @@ export default class MdxModel extends Model {
 
     // Start loading the team color and glow textures if this model uses them and they weren't loaded previously.
     if (usingTeamTextures) {
-      let teamColors = reforged ? mdxHandler.reforgedTeamColors : mdxHandler.teamColors;
-      let teamGlows = reforged ? mdxHandler.reforgedTeamGlows : mdxHandler.teamGlows;
+      let mdxCache = viewer.sharedCache.get('mdx');
+      let teamColors = reforged ? mdxCache.reforgedTeamColors : mdxCache.teamColors;
+      let teamGlows = reforged ? mdxCache.reforgedTeamGlows : mdxCache.teamGlows;
 
       if (!teamColors.length) {
         for (let i = 0; i < 28; i++) {

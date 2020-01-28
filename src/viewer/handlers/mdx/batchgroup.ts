@@ -1,6 +1,5 @@
 import ShaderProgram from '../../gl/program';
 import Scene from '../../scene';
-import mdxHandler from './handler';
 import MdxModel from './model';
 import MdxComplexInstance from './complexinstance';
 import Batch from './batch';
@@ -29,6 +28,7 @@ export default class BatchGroup {
     let textures = model.textures;
     let batches = model.batches;
     let viewer = model.viewer;
+    let mdxCache = viewer.sharedCache.get('mdx');
     let gl = viewer.gl;
     let webgl = viewer.webgl;
     let isExtended = this.isExtended;
@@ -39,19 +39,19 @@ export default class BatchGroup {
     let shader;
 
     if (isReforged) {
-      teamColors = mdxHandler.reforgedTeamColors;
-      teamGlows = mdxHandler.reforgedTeamGlows;
+      teamColors = mdxCache.reforgedTeamColors;
+      teamGlows = mdxCache.reforgedTeamGlows;
     } else {
-      teamColors = mdxHandler.teamColors;
-      teamGlows = mdxHandler.teamGlows;
+      teamColors = mdxCache.teamColors;
+      teamGlows = mdxCache.teamGlows;
     }
 
     if (isExtended) {
-      shader = <ShaderProgram>mdxHandler.shaders.extended;
+      shader = <ShaderProgram>mdxCache.extendedShader;
     } else if (isHd) {
-      shader = <ShaderProgram>mdxHandler.shaders.hd;
+      shader = <ShaderProgram>mdxCache.hdShader;
     } else {
-      shader = <ShaderProgram>mdxHandler.shaders.complex;
+      shader = <ShaderProgram>mdxCache.complexShader;
     }
 
     shader.use();

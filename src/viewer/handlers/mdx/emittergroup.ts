@@ -1,6 +1,5 @@
 import ShaderProgram from '../../gl/program';
 import Scene from '../../scene';
-import mdxHandler from './handler';
 import MdxModel from './model';
 import MdxComplexInstance from './complexinstance';
 import { renderEmitter } from './geometryemitterfuncs';
@@ -23,7 +22,8 @@ export default class EmitterGroup {
     let viewer = model.viewer;
     let gl = viewer.gl;
     let instancedArrays = <ANGLE_instanced_arrays>viewer.webgl.extensions.ANGLE_instanced_arrays;
-    let shader = <ShaderProgram>mdxHandler.shaders.particles;
+    let mdxCache = viewer.sharedCache.get('mdx');
+    let shader = <ShaderProgram>mdxCache.particlesShader;
     let uniforms = shader.uniforms;
     let attribs = shader.attribs;
 

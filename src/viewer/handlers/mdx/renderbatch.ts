@@ -1,7 +1,6 @@
 import ShaderProgram from '../../gl/program';
 import ClientBuffer from '../../gl/clientbuffer';
 import RenderBatch from '../../renderbatch';
-import mdxHandler from './handler';
 import MdxModel from './model';
 import Batch from './batch';
 
@@ -50,10 +49,11 @@ export default class MdxRenderBatch extends RenderBatch {
       let batches = model.batches;
       let textures = model.textures;
       let viewer = model.viewer;
+      let mdxCache = viewer.sharedCache.get('mdx');
       let gl = viewer.gl;
       let webgl = viewer.webgl;
       let instancedArrays = <ANGLE_instanced_arrays>webgl.extensions.ANGLE_instanced_arrays
-      let shader = <ShaderProgram>mdxHandler.shaders.simple;
+      let shader = <ShaderProgram>mdxCache.simpleShader;
       let uniforms = shader.uniforms;
       let attribs = shader.attribs;
       let m0 = attribs.a_m0;

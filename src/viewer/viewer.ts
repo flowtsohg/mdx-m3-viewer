@@ -32,6 +32,9 @@ export interface Handler {
  */
 export default class ModelViewer extends EventEmitter {
   resources: Resource[] = [];
+  /**
+   * A cache of resources that were fetched.
+   */
   fetchCache: Map<string, Resource> = new Map();
   resourcesLoading: Set<Resource> = new Set();
   handlers: Set<Handler> = new Set();
@@ -67,6 +70,10 @@ export default class ModelViewer extends EventEmitter {
    */
   audioEnabled: boolean = false;
   textureMappers: Map<Model, TextureMapper[]> = new Map();
+  /**
+   * A cache of arbitrary data, shared between all of the handlers.
+   */
+  sharedCache: Map<any, any> = new Map();
 
   constructor(canvas: HTMLCanvasElement, options?: object) {
     super();

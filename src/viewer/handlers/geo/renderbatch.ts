@@ -1,7 +1,6 @@
 import ShaderProgram from '../../gl/program';
 import ClientBuffer from '../../gl/clientbuffer';
 import RenderBatch from '../../renderbatch';
-import geoHandler from './handler';
 import GeometryModelInstance from './modelinstance';
 import GeometryModel from './model';
 
@@ -61,10 +60,11 @@ export default class GeoRenderBatch extends RenderBatch {
     if (count) {
       let model = <GeometryModel>this.model;
       let viewer = model.viewer;
+      let geoCache = viewer.sharedCache.get('geo');
       let gl = viewer.gl;
       let webgl = viewer.webgl;
       let instancedArrays = <ANGLE_instanced_arrays>webgl.extensions.ANGLE_instanced_arrays;
-      let shader = <ShaderProgram>geoHandler.shaders.standard;
+      let shader = <ShaderProgram>geoCache.shader;
       let uniforms = shader.uniforms;
       let attribs = shader.attribs;
       let m0 = attribs.a_m0;

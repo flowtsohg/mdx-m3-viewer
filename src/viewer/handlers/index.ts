@@ -4,7 +4,6 @@ import geo from './geo/handler';
 import m3 from './m3/handler';
 import mdx from './mdx/handler';
 import tga from './tga/handler';
-import gltf from './gltf/handler';
 import War3MapViewer from './w3x/viewer';
 
 export default {
@@ -14,6 +13,5 @@ export default {
   m3,
   mdx,
   tga,
-  gltf,
   War3MapViewer,
 };
