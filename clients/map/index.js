@@ -39,7 +39,7 @@ for (let resource of viewer.resourcesLoading) {
 
 updateStatus();
 
-viewer.on('loadstart', (target) => {
+viewer.on('loadstart', target => {
   let path = target.fetchUrl;
 
   // PromiseResource has no path, nor does it need to be tracked.
@@ -53,7 +53,7 @@ viewer.on('loadstart', (target) => {
   }
 });
 
-viewer.on('loadend', (target) => {
+viewer.on('loadend', target => {
   let path = target.fetchUrl;
 
   // PromiseResource has no path, nor does it need to be tracked.
@@ -71,13 +71,21 @@ viewer.on('loadend', (target) => {
   }
 });
 
-let meter = new FPSMeter({ position: 'absolute', right: '10px', top: '10px', left: 'calc(100% - 130px)', theme: 'transparent', heat: 1, graph: 1 });
+let meter = new FPSMeter({
+  position: 'absolute',
+  right: '10px',
+  top: '10px',
+  left: 'calc(100% - 130px)',
+  theme: 'transparent',
+  heat: 1,
+  graph: 1
+});
 
 let cellsElement = document.getElementById('cells');
 let instancesElement = document.getElementById('instances');
 let particlesElement = document.getElementById('particles');
 
-setupCamera(viewer.scene, 3000);
+setupCamera(viewer.worldScene, 3000);
 
 function step() {
   requestAnimationFrame(step);
@@ -85,24 +93,22 @@ function step() {
   viewer.updateAndRender();
   meter.tick();
 
-  cellsElement.textContent = `Cells: ${viewer.scene.visibleCells}`;
-  instancesElement.textContent = `Instances: ${viewer.scene.visibleInstances}`;
-  particlesElement.textContent = `Particles: ${viewer.scene.updatedParticles}`;
+  cellsElement.textContent = `Cells: ${viewer.worldScene.visibleCells}`;
+  instancesElement.textContent = `Instances: ${viewer.worldScene.visibleInstances}`;
+  particlesElement.textContent = `Particles: ${viewer.worldScene.updatedParticles}`;
 }
 
-function handleDrop(file) {
+function handleDrop(file) {}
 
-}
-
-document.addEventListener('dragover', (e) => {
+document.addEventListener('dragover', e => {
   e.preventDefault();
 });
 
-document.addEventListener('dragend', (e) => {
+document.addEventListener('dragend', e => {
   e.preventDefault();
 });
 
-document.addEventListener('drop', (e) => {
+document.addEventListener('drop', e => {
   e.preventDefault();
 
   let file = e.dataTransfer.files[0];
@@ -112,7 +118,7 @@ document.addEventListener('drop', (e) => {
   if (ext === '.w3m' || ext === '.w3x') {
     let reader = new FileReader();
 
-    reader.addEventListener('loadend', (e) => {
+    reader.addEventListener('loadend', e => {
       viewer.loadMap(e.target.result);
 
       viewer.once('idle', () => step());
