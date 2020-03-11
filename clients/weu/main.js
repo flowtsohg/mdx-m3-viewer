@@ -7,11 +7,14 @@ let mpq = parsers.mpq;
 let utils = ModelViewer.utils;
 
 let ok = false;
+
 let triggerData = new w3x.wtg.TriggerData();
-let weTriggerData = new w3x.wtg.TriggerData();;
+let weTriggerData = new w3x.wtg.TriggerData();
 let output = new LogStream(document.getElementById('output'));
 
-output.log('Fetching files: "UI\\TriggerData.txt", "TriggerDataWEU.txt", "TriggerDataYDWE.txt", "TriggerDataPTR129.txt"');
+output.log(
+  'Fetching files: "UI\\TriggerData.txt", "TriggerDataWEU.txt", "TriggerDataYDWE.txt", "TriggerDataPTR129.txt"'
+);
 output.br();
 output.log('Please wait...');
 output.br();
@@ -21,20 +24,24 @@ async function fetchAsText(file) {
 }
 
 // Load the TriggerData.txt files.
-Promise.all([fetchAsText(localOrHive('ui\\triggerdata.txt')), fetchAsText('TriggerDataWEU.txt'), fetchAsText('TriggerDataYDWE.txt'), fetchAsText('TriggerDataPTR129.txt')])
-  .then((results) => {
-    weTriggerData.addTriggerData(results[0]); // WE trigger data
+Promise.all([
+  fetchAsText(localOrHive('ui\\triggerdata.txt')),
+  fetchAsText('TriggerDataWEU.txt'),
+  fetchAsText('TriggerDataYDWE.txt'),
+  fetchAsText('TriggerDataPTR129.txt')
+]).then(results => {
+  weTriggerData.addTriggerData(results[0]); // WE trigger data
 
-    triggerData.addTriggerData(results[0]); // WE trigger data
-    triggerData.addTriggerData(results[1], true); // WEU trigger data
-    triggerData.addTriggerData(results[2], true); // YDWE trigger data
-    triggerData.addTriggerData(results[3], true); // PTR 1.29 trigger data
+  triggerData.addTriggerData(results[0]); // WE trigger data
+  triggerData.addTriggerData(results[1], true); // WEU trigger data
+  triggerData.addTriggerData(results[2], true); // YDWE trigger data
+  triggerData.addTriggerData(results[3], true); // PTR 1.29 trigger data
 
-    ok = true;
+  ok = true;
 
-    output.log('Ready, drag and drop a TFT map (*.w3x) or campaign (*.w3n) anywhere on the page.');
-    output.br();
-  });
+  output.log('Ready, drag and drop a TFT map (*.w3x) or campaign (*.w3n) anywhere on the page.');
+  output.br();
+});
 
 // Convert a map.
 function handleMap(output, arrayBuffer) {
@@ -143,7 +150,7 @@ function handleCampaign(output, arrayBuffer) {
         totalChanges += changes;
         changedMaps += 1;
 
-        campaign.set(name, map.save())
+        campaign.set(name, map.save());
 
         output.log(`Replaced ${name}`);
         output.br();
@@ -165,10 +172,10 @@ function handleCampaign(output, arrayBuffer) {
 
 // A Promise-based FileReader.readAsArrayBuffer.
 function readFileAsArrayBuffer(file) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     let reader = new FileReader();
 
-    reader.addEventListener('loadend', (e) => {
+    reader.addEventListener('loadend', e => {
       resolve(e.target.result);
     });
 
@@ -216,15 +223,15 @@ async function handleDrop(dataTransfer) {
   }
 }
 
-document.addEventListener('dragover', (e) => {
+document.addEventListener('dragover', e => {
   e.preventDefault();
 });
 
-document.addEventListener('dragend', (e) => {
+document.addEventListener('dragend', e => {
   e.preventDefault();
 });
 
-document.addEventListener('drop', (e) => {
+document.addEventListener('drop', e => {
   e.preventDefault();
 
   // Only proceed if the TriggerData.txt files finished downloading.

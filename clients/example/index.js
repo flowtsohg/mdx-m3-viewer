@@ -11,7 +11,7 @@ canvas.width = 800;
 canvas.height = 600;
 
 // Create the viewer!
-let viewer = new ModelViewer.viewer.ModelViewer(canvas);
+let viewer = new ModelViewer.default.viewer.ModelViewer(canvas);
 
 // Create a new scene. Each scene has its own camera, and a list of things to render.
 let scene = viewer.addScene();
@@ -20,9 +20,9 @@ let scene = viewer.addScene();
 setupCamera(scene);
 
 // Events.
-viewer.on('loadstart', (target) => console.log(target));
-viewer.on('load', (target) => console.log(target));
-viewer.on('loadend', (target) => console.log(target));
+viewer.on('loadstart', target => console.log(target));
+viewer.on('load', target => console.log(target));
+viewer.on('loadend', target => console.log(target));
 viewer.on('error', (target, error, reason) => console.log(target, error, reason));
 
 // Add the MDX handler.
@@ -80,4 +80,4 @@ instance3.move([-100, -100, 0]);
   requestAnimationFrame(step);
 
   viewer.updateAndRender();
-}());
+})();

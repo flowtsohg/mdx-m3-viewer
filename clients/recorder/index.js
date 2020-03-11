@@ -1,7 +1,8 @@
 ModelViewer = ModelViewer.default;
 
 let common = ModelViewer.common;
-let quat = common.quat;
+let quat = common.glMatrix.quat;
+let vec3 = common.glMatrix.vec3;
 let math = common.math;
 let geometry = common.geometry;
 
@@ -40,17 +41,21 @@ let sequenceNameElement = document.getElementById('sequence_name');
     if (isRecording || oneTimeRecord) {
       oneTimeRecord = false;
 
-      zip.file(`${recordingFrame++}_${model.name}_${Math.floor(instance.frame)}.png`, viewer.canvas.toDataURL().substring(22), { base64: true });
+      zip.file(
+        `${recordingFrame++}_${model.name}_${Math.floor(instance.frame)}.png`,
+        viewer.canvas.toDataURL().substring(22),
+        { base64: true }
+      );
 
       frameCounterElement.textContent = recordingFrame;
     }
   }
 
   requestAnimationFrame(step);
-}());
+})();
 
 let scene = viewer.addScene();
-
+console.log(scene);
 setupCamera(scene, 500);
 
 console.log('Viewer version', ModelViewer.version);
@@ -63,7 +68,7 @@ function runNextSequence(e) {
 }
 
 // Log load starts to the console.
-viewer.on('loadstart', (target) => {
+viewer.on('loadstart', target => {
   let path = target.fetchUrl;
 
   if (path) {
@@ -72,7 +77,7 @@ viewer.on('loadstart', (target) => {
 });
 
 // Log load ends to the console.
-viewer.on('load', (target) => {
+viewer.on('load', target => {
   let path = target.fetchUrl;
 
   if (path) {
@@ -90,9 +95,9 @@ function normalizePath(path) {
 // Load a local file
 function onLocalFileLoaded(name, buffer) {
   if (name.endsWith('.mdx')) {
-    let pathSolver = (src) => {
+    let pathSolver = src => {
       if (src === buffer) {
-        return [src, '.mdx', false]
+        return [src, '.mdx', false];
       } else {
         return [localOrHive(normalizePath(src)), src.substr(src.lastIndexOf('.')), true];
       }
@@ -104,8 +109,7 @@ function onLocalFileLoaded(name, buffer) {
 
     scene.clear();
 
-    model = viewer.load(buffer, pathSolver),
-      instance = model.addInstance();
+    (model = viewer.load(buffer, pathSolver)), (instance = model.addInstance());
 
     instance.setSequenceLoopMode(2);
     instance.setSequence(0);
@@ -124,11 +128,11 @@ function onLocalFileLoaded(name, buffer) {
   }
 }
 
-canvas.addEventListener('contextmenu', function (e) {
+canvas.addEventListener('contextmenu', function(e) {
   e.preventDefault();
 });
 
-canvas.addEventListener('selectstart', function (e) {
+canvas.addEventListener('selectstart', function(e) {
   e.preventDefault();
 });
 
@@ -141,27 +145,27 @@ function onFileDrop(e) {
     if (name.endsWith('.mdx') || name.endsWith('.blp')) {
       let reader = new FileReader();
 
-      reader.addEventListener('loadend', (e) => onLocalFileLoaded(name, e.target.result));
+      reader.addEventListener('loadend', e => onLocalFileLoaded(name, e.target.result));
       reader.readAsArrayBuffer(file);
     }
   }
 }
 
-document.addEventListener('dragover', (e) => {
+document.addEventListener('dragover', e => {
   e.preventDefault();
 });
 
-document.addEventListener('dragend', (e) => {
-  e.preventDefault();
-  onFileDrop(e);
-});
-
-document.addEventListener('drop', (e) => {
+document.addEventListener('dragend', e => {
   e.preventDefault();
   onFileDrop(e);
 });
 
-window.addEventListener('keydown', (e) => {
+document.addEventListener('drop', e => {
+  e.preventDefault();
+  onFileDrop(e);
+});
+
+window.addEventListener('keydown', e => {
   let key = e.key;
 
   if (instance && instance.model.loaded) {
@@ -193,16 +197,14 @@ window.addEventListener('keydown', (e) => {
       oneTimeRecord = true;
     } else if (key === 'Escape') {
       if (recordingFrame > 0) {
-        zip.generateAsync({ type: 'blob' })
-          .then((blob) => {
-            saveAs(blob, `recorded_frames_${recordingFrame}.zip`);
+        zip.generateAsync({ type: 'blob' }).then(blob => {
+          saveAs(blob, `recorded_frames_${recordingFrame}.zip`);
 
-            zip = new JSZip();
-            recordingFrame = 0;
-            frameCounterElement.textContent = '';
-          });
+          zip = new JSZip();
+          recordingFrame = 0;
+          frameCounterElement.textContent = '';
+        });
       }
-
     }
   }
 

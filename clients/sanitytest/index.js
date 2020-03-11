@@ -1,8 +1,8 @@
 ModelViewer = ModelViewer.default;
 
 let glMatrix = ModelViewer.common.glMatrix;
-let vec3 = ModelViewer.common.vec3;
-let quat = ModelViewer.common.quat;
+let vec3 = glMatrix.vec3;
+let quat = glMatrix.quat;
 let geometry = ModelViewer.common.geometry;
 let handlers = ModelViewer.viewer.handlers;
 let parsers = ModelViewer.parsers;
@@ -13,7 +13,8 @@ let w3x = parsers.w3x;
 let testsElement = document.getElementById('tests');
 
 let statusElement = document.getElementById('status');
-statusElement.textContent = 'Drop any combination of models (.mdl, .mdx), textures (.blp), or maps (.w3m, .w3x) to test them.'
+statusElement.textContent =
+  'Drop any combination of models (.mdl, .mdx), textures (.blp), or maps (.w3m, .w3x) to test them.';
 
 console.log('Viewer version', ModelViewer.version);
 
@@ -66,7 +67,7 @@ let visibleTest = null;
       instance.setSequence(sequence);
     }
   }
-}());
+})();
 
 document.getElementById('animation_toggle').addEventListener('click', () => {
   if (viewer.frameTime === 0) {
@@ -76,10 +77,13 @@ document.getElementById('animation_toggle').addEventListener('click', () => {
   }
 });
 
-let textureModel = viewer.load({
-  geometry: geometry.createUnitRectangle(),
-  material: { renderMode: 0, twoSided: true, isBGR: false }
-}, src => [src, '.geo', false]);
+let textureModel = viewer.load(
+  {
+    geometry: geometry.createUnitRectangle(),
+    material: { renderMode: 0, twoSided: true, isBGR: false }
+  },
+  src => [src, '.geo', false]
+);
 
 function nodeName(node) {
   let name = [node.objectType];
@@ -99,7 +103,7 @@ function nodeTooltip(node) {
   let message = node.message;
 
   if (message.startsWith('No opening') || message.startsWith('No closing')) {
-    return 'Having no tracks at the beginning or ending of an animation can sometimes cause weird animations.\nThis can usually be ignored.'
+    return 'Having no tracks at the beginning or ending of an animation can sometimes cause weird animations.\nThis can usually be ignored.';
   } else if (message.startsWith('Number of sequence extents')) {
     return 'Having more extents than sequences will cause Magos to crash.\nI am not sure if any program is affected by having too few.\nThe game does not care either way.';
   } else if (message.endsWith('is not in any sequence')) {
@@ -255,7 +259,6 @@ class TestInstance {
       }
 
       stream.commit();
-
     } else {
       stream.log('Passed');
 
@@ -277,7 +280,7 @@ class TestInstance {
     stream.info(`${name}: `);
 
     if (results.length) {
-      stream.warn(`${results.length} warning${results.length === 1 ? '' : 's'}`)
+      stream.warn(`${results.length} warning${results.length === 1 ? '' : 's'}`);
 
       stream.commit();
 
@@ -331,7 +334,7 @@ function addTest(name, resource, instance, parser) {
 
   testsElement.appendChild(test.container);
 
-  test.header.addEventListener('click', (e) => {
+  test.header.addEventListener('click', e => {
     if (!test.rendered) {
       test.header.classList.remove('closed');
       test.header.classList.add('opened');
@@ -358,7 +361,7 @@ function addModelTest(name, ext, buffer, pathSolver) {
 
   let viewerModel = viewer.load(parser, (src, params) => {
     if (src === parser) {
-      return [src, ext, false]
+      return [src, ext, false];
     } else if (pathSolver) {
       // If an external path solver is given, this is a Hive resource, and it will handle custom textures.
       return pathSolver(src);
@@ -455,26 +458,28 @@ function addTextureTest(name, ext, buffer) {
     parser = buffer;
   }
 
-  let viewerTexture = viewer.load(parser, (src) => {
-    return [src, ext, false]
+  let viewerTexture = viewer.load(parser, src => {
+    return [src, ext, false];
   });
 
-  let instance = textureModel.addInstance().uniformScale(128).rotate(quat.setAxisAngle([], [0, 0, 1], Math.PI / 2));
+  let instance = textureModel
+    .addInstance()
+    .uniformScale(128)
+    .rotate(quat.setAxisAngle([], [0, 0, 1], Math.PI / 2));
 
   instance.setTexture(0, viewerTexture);
 
   instance.setScene(scene);
 
-  viewerTexture.whenLoaded()
-    .then(() => {
-      // Don't really care about the size of the texture instance, just the proportions.
-      instance.scale([viewerTexture.width / viewerTexture.height, 1, 1]);
+  viewerTexture.whenLoaded().then(() => {
+    // Don't really care about the size of the texture instance, just the proportions.
+    instance.scale([viewerTexture.width / viewerTexture.height, 1, 1]);
 
-      let test = addTest(name, viewerTexture, instance, parser);
+    let test = addTest(name, viewerTexture, instance, parser);
 
-      // Try to load this texture as a custom texture, in case a model that uses it was loaded before.
-      tryToLoadCustomTexture(test);
-    });
+    // Try to load this texture as a custom texture, in case a model that uses it was loaded before.
+    tryToLoadCustomTexture(test);
+  });
 }
 
 function addMapTest(buffer) {
@@ -514,7 +519,7 @@ function handleDrop(dataTransfer) {
     if (ext === '.mdx' || ext === '.mdl' || ext === '.blp' || ext === '.w3x' || ext === '.w3m' || ext === '.dds') {
       let reader = new FileReader();
 
-      reader.addEventListener('loadend', (e) => onLocalFileLoaded(name, ext, e.target.result));
+      reader.addEventListener('loadend', e => onLocalFileLoaded(name, ext, e.target.result));
 
       if (ext === '.mdl') {
         reader.readAsText(file);
@@ -525,15 +530,15 @@ function handleDrop(dataTransfer) {
   }
 }
 
-document.addEventListener('dragover', (e) => {
+document.addEventListener('dragover', e => {
   e.preventDefault();
 });
 
-document.addEventListener('dragend', (e) => {
+document.addEventListener('dragend', e => {
   e.preventDefault();
 });
 
-document.addEventListener('drop', (e) => {
+document.addEventListener('drop', e => {
   e.preventDefault();
 
   handleDrop(e.dataTransfer);
@@ -558,12 +563,12 @@ function getExt(query) {
   let match = query.match(/hiveworkshop\.com\/attachments\/.*-(.*)\.\d+/);
 
   if (match) {
-    return `.${match[1]}`
+    return `.${match[1]}`;
   } else {
     let ext = query.slice(-4).toLowerCase();
 
     if (ext === '.mdx' || ext === '.mdl' || ext === '.blp' || ext === '.w3x' || ext === '.w3m') {
-      return ext
+      return ext;
     }
   }
 
@@ -587,7 +592,7 @@ async function loadQuery() {
     }
   }
 
-  let pathSolver = (src) => {
+  let pathSolver = src => {
     let override = overrides.get(src);
 
     if (override) {
