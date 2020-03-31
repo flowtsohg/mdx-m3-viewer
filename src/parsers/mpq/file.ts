@@ -1,11 +1,11 @@
-import { inflate, deflate } from 'pako';
+import { deflate, inflate } from 'pako';
 import BinaryStream from '../../common/binarystream';
 import MpqArchive from './archive';
+import MpqBlock from './block';
+import { COMPRESSION_ADPCM_MONO, COMPRESSION_ADPCM_STEREO, COMPRESSION_BZIP2, COMPRESSION_DEFLATE, COMPRESSION_HUFFMAN, COMPRESSION_IMPLODE, FILE_COMPRESSED, FILE_ENCRYPTED, FILE_EXISTS, FILE_OFFSET_ADJUSTED_KEY, FILE_SINGLE_UNIT, HASH_ENTRY_DELETED } from './constants';
 import MpqCrypto from './crypto';
 import MpqHash from './hash';
-import MpqBlock from './block';
 import { isArchive } from './isarchive';
-import { HASH_ENTRY_DELETED, FILE_COMPRESSED, FILE_ENCRYPTED, FILE_OFFSET_ADJUSTED_KEY, FILE_SINGLE_UNIT, FILE_EXISTS, COMPRESSION_HUFFMAN, COMPRESSION_DEFLATE, COMPRESSION_IMPLODE, COMPRESSION_BZIP2, COMPRESSION_ADPCM_MONO, COMPRESSION_ADPCM_STEREO } from './constants';
 
 /**
  * A MPQ file.
@@ -20,7 +20,7 @@ export default class MpqFile {
   rawBuffer: ArrayBuffer | null;
   buffer: ArrayBuffer | null;
 
-  constructor(archive: MpqArchive, hash: MpqHash, block: MpqBlock, buffer: ArrayBuffer) {
+  constructor(archive: MpqArchive, hash: MpqHash, block: MpqBlock, rawBuffer: ArrayBuffer | null, buffer: ArrayBuffer) {
     let headerOffset = archive.headerOffset;
 
     this.archive = archive;
@@ -29,8 +29,17 @@ export default class MpqFile {
     this.nameResolved = false;
     this.hash = hash;
     this.block = block;
-    this.rawBuffer = buffer.slice(headerOffset + block.offset, headerOffset + block.offset + block.compressedSize);
-    this.buffer = null;
+
+    if (rawBuffer) {
+      this.rawBuffer = rawBuffer.slice(headerOffset + block.offset, headerOffset + block.offset + block.compressedSize);
+      this.buffer = null;
+    } else if (buffer) {
+      this.rawBuffer = null;
+      this.buffer = buffer;
+    } else {
+      this.buffer = null;
+      this.rawBuffer = null;
+    }
   }
 
   /**

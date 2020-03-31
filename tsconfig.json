@@ -12,7 +12,8 @@
     ],
     "target": "es2017",
     "types": [
-      "node"
+      "node",
+      "./src/types"
     ],
     "outDir": "./dist"
   }

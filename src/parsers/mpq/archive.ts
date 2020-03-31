@@ -1,12 +1,12 @@
+import BinaryStream from '../../common/binarystream';
 import { powerOfTwo } from '../../common/math';
 import { numberToUint32 } from '../../common/typecast';
-import BinaryStream from '../../common/binarystream';
-import { searchHeader } from './isarchive';
-import MpqCrypto from './crypto';
-import MpqHashTable from './hashtable';
 import MpqBlockTable from './blocktable';
+import { HASH_ENTRY_DELETED, HASH_ENTRY_EMPTY, MAGIC } from './constants';
+import MpqCrypto from './crypto';
 import MpqFile from './file';
-import { MAGIC, HASH_ENTRY_DELETED, HASH_ENTRY_EMPTY } from './constants';
+import MpqHashTable from './hashtable';
+import { searchHeader } from './isarchive';
 
 
 /**
@@ -88,7 +88,7 @@ export default class MpqArchive {
 
       // If the file wasn't deleted, load it.
       if (blockIndex < HASH_ENTRY_DELETED) {
-        let file = new MpqFile(this, hash, this.blockTable.entries[blockIndex], buffer);
+        let file = new MpqFile(this, hash, this.blockTable.entries[blockIndex], null, buffer);
 
         this.files[blockIndex] = file;
       }
@@ -331,8 +331,7 @@ export default class MpqArchive {
 
       let block = this.blockTable.add(arrayBuffer);
 
-      file = new MpqFile(this, hash, block, arrayBuffer);
-
+      file = new MpqFile(this, hash, block, null, arrayBuffer);
       file.name = name;
       file.nameResolved = true;
 
