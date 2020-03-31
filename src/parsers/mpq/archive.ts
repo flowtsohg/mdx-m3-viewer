@@ -88,7 +88,7 @@ export default class MpqArchive {
 
       // If the file wasn't deleted, load it.
       if (blockIndex < HASH_ENTRY_DELETED) {
-        let file = new MpqFile(this, hash, this.blockTable.entries[blockIndex], null, buffer);
+        let file = new MpqFile(this, hash, this.blockTable.entries[blockIndex], buffer, null);
 
         this.files[blockIndex] = file;
       }

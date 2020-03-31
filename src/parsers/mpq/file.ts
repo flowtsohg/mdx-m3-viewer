@@ -20,7 +20,7 @@ export default class MpqFile {
   rawBuffer: ArrayBuffer | null;
   buffer: ArrayBuffer | null;
 
-  constructor(archive: MpqArchive, hash: MpqHash, block: MpqBlock, rawBuffer: ArrayBuffer | null, buffer: ArrayBuffer) {
+  constructor(archive: MpqArchive, hash: MpqHash, block: MpqBlock, rawBuffer: ArrayBuffer | null, buffer: ArrayBuffer | null) {
     let headerOffset = archive.headerOffset;
 
     this.archive = archive;
