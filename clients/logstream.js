@@ -25,7 +25,7 @@ class LogStream {
      */
     start() {
         let container = document.createElement('div');
-        
+
         this.current = container
 
         return container;

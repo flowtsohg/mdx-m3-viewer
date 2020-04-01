@@ -7,12 +7,14 @@
 	"settings": {
 		"editor.tabSize": 2,
 		"files.eol": "\n",
-		"javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
-		"javascript.format.insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
-		"javascript.format.insertSpaceAfterSemicolonInForStatements": true,
-		"javascript.validate.enable": true,
+		"typescript.preferences.quoteStyle": "single",
+		"typescript.validate.enable": true,
 		"editor.formatOnSave": true,
-		"eslint.provideLintTask": true,
-		"workbench.editor.enablePreview": false
+		"eslint.lintTask.enable": true,
+		"eslint.validate": [
+			"typescript"
+		],
+		"workbench.editor.enablePreview": false,
+		"typescript.tsdk": "node_modules\\typescript\\lib"
 	}
 }

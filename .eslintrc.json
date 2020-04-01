@@ -1,17 +1,14 @@
 {
-  "extends": "google",
-  "env": {
-    "browser": true,
-    "node": true,
-    "es6": true
-  },
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaVersion": 8,
-    "sourceType": "module",
-    "impliedStrict": true
+    "ecmaVersion": 9,
+    "sourceType": "module"
   },
+  "plugins": [
+    "@typescript-eslint"
+  ],
   "rules": {
-    "max-len": "off",
+    "eol-last": "error",
     "indent": [
       "error",
       2
