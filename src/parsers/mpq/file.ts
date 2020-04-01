@@ -366,7 +366,7 @@ export default class MpqFile {
           let compressedSectorSize = chunk.byteLength + 1;
 
           // If the sector is going to take more than the archive's sector size, don't compress it.
-          if (compressedSectorSize > sectorSize) {
+          if (compressedSectorSize > uncompressed.byteLength) {
             chunk = uncompressed;
           }
 
