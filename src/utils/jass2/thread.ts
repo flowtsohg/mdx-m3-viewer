@@ -1,3 +1,4 @@
+// @ts-ignore
 import { lua_State, lua_newthread } from 'fengari/src/lua';
 import JassTrigger from './types/trigger';
 import JassTimer from './types/timer';

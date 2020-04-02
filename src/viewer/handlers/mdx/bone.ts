@@ -1,6 +1,5 @@
 import MdlxBone from '../../../parsers/mdlx/bone';
 import MdxModel from './model';
-import MdxComplexInstance from './complexinstance';
 import GenericObject from './genericobject';
 import GeosetAnimation from './geosetanimation';
 

@@ -1,7 +1,6 @@
 import MdlxCamera from '../../../parsers/mdlx/camera';
 import AnimatedObject from './animatedobject';
 import MdxModel from './model';
-import MdxComplexInstance from './complexinstance';
 
 /**
  * An MDX camera.

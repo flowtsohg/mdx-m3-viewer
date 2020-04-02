@@ -1,6 +1,5 @@
 import MdlxLight from '../../../parsers/mdlx/light';
 import MdxModel from './model';
-import MdxComplexInstance from './complexinstance';
 import GenericObject from './genericobject';
 
 /**

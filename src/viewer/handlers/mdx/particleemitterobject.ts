@@ -1,7 +1,6 @@
 import ParticleEmitter from '../../../parsers/mdlx/particleemitter';
 import MdxModel from './model';
 import GenericObject from './genericobject';
-import MdxComplexInstance from './complexinstance';
 
 /**
  * An MDX particle emitter.

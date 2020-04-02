@@ -107,10 +107,15 @@ export default class Camera {
   /**
    * Set the camera's viewport.
    */
-  setViewport(viewport: vec4 | number[]) {
-    vec4.copy(this.viewport, viewport);
+  setViewport(x: number, y: number, width: number, height: number) {
+    let viewport = this.viewport;
 
-    this.aspect = viewport[2] / viewport[3];
+    viewport[0] = x;
+    viewport[1] = y;
+    viewport[2] = width;
+    viewport[3] = height;
+
+    this.aspect = width / height;
 
     this.dirty = true;
   }

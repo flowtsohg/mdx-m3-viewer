@@ -3,6 +3,27 @@ import Texture from '../../texture';
 import GeometryModelInstance from './modelinstance';
 
 /**
+ * The structure of a source map node.
+ */
+interface GeometryObject {
+  geometry: {
+    vertices: Float32Array,
+    uvs: Float32Array,
+    faces: Uint8Array | Uint16Array | Uint32Array,
+    edges: Uint8Array | Uint16Array | Uint32Array,
+    boundingRadius: number,
+  };
+  material: {
+    texture?: Texture,
+    twoSided?: boolean,
+    faceColor?: Uint8Array,
+    edgeColor?: Uint8Array,
+    renderMode?: number,
+    sizzle?: boolean;
+  };
+}
+
+/**
  * A geometry model.
  *
  * Used to render simple geometric shapes.
@@ -21,13 +42,13 @@ export default class GeometryModel extends Model {
   faceColor: Uint8Array = new Uint8Array([255, 255, 255]);
   edgeColor: Uint8Array = new Uint8Array([255, 255, 255]);
   renderMode: number = 0;
-  sizzle: number = 0;
+  sizzle: boolean = false;
 
-  createInstance(type: number) {
+  createInstance(type: number): GeometryModelInstance {
     return new GeometryModelInstance(this);
   }
 
-  load(src: object) {
+  load(src: GeometryObject) {
     const gl = this.viewer.gl;
 
     let geometry = src.geometry;
@@ -49,7 +70,7 @@ export default class GeometryModel extends Model {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, edgeBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, geometry.edges, gl.STATIC_DRAW);
 
-    this.boundingRadius = geometry.boundingRadius; /// TODO: Handle the bounds
+    this.bounds.r = geometry.boundingRadius;
 
     this.vertexBuffer = vertexBuffer;
     this.uvBuffer = uvBuffer;
@@ -79,16 +100,11 @@ export default class GeometryModel extends Model {
     this.faceElements = geometry.faces.length;
     this.edgeElements = geometry.edges.length;
 
-    if (material.texture) {
-      this.texture = material.texture;
-    }
-
     let texture = material.texture;
     let twoSided = material.twoSided;
     let faceColor = material.faceColor;
     let edgeColor = material.edgeColor;
     let renderMode = material.renderMode;
-    let sizzle = material.sizzle;
 
     if (texture) {
       this.texture = texture;
@@ -105,6 +121,9 @@ export default class GeometryModel extends Model {
     }
 
     this.renderMode = renderMode || 0;
-    this.sizzle = sizzle || false;
+
+    if (material.sizzle) {
+      this.sizzle = true;
+    }
   }
 }

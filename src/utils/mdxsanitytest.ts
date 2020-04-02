@@ -1,7 +1,6 @@
 import unique from '../common/arrayunique';
 import Model from '../parsers/mdlx/model';
 import Bone from '../parsers/mdlx/bone';
-import animationMap from '../parsers/mdlx/animationmap';
 import GenericObject from '../parsers/mdlx/genericobject';
 import Material from '../parsers/mdlx/material';
 import Layer from '../parsers/mdlx/layer';

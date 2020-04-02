@@ -69,7 +69,7 @@ export default class MdxModel extends Model {
   arrayBuffer: WebGLBuffer | null = null;
   elementBuffer: WebGLBuffer | null = null;
 
-  createInstance(type: number) {
+  createInstance(type: number): MdxSimpleInstance | MdxComplexInstance {
     if (type === 1) {
       return new MdxSimpleInstance(this);
     } else {

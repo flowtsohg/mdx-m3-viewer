@@ -1,8 +1,7 @@
 import { vec3, quat } from 'gl-matrix';
 import { clamp, lerp, hermite, bezier } from '../../../common/math';
-import { Animation, UintAnimation, FloatAnimation, Vector3Animation, Vector4Animation } from '../../../parsers/mdlx/animations';
+import { Animation, UintAnimation, FloatAnimation, Vector3Animation } from '../../../parsers/mdlx/animations';
 import MdxModel from './model';
-import MdxComplexInstance from './complexinstance';
 
 /**
  * Animated data for a specific sequence.
@@ -212,8 +211,8 @@ export abstract class Sd {
   sequences: SdSequence[] = [];
   interpolationType: number;
 
-  abstract copy(out: Uint32Array | Float32Array, value: Uint32Array | Float32Array): void;
-  abstract interpolate(out: Uint32Array | Float32Array, values: (Uint32Array | Float32Array)[], inTans: (Uint32Array | Float32Array)[], outTans: (Uint32Array | Float32Array)[], start: number, end: number, t: number): void;
+  abstract copy(out: Uint32Array | Float32Array | vec3 | quat, value: Uint32Array | Float32Array | vec3 | quat): void;
+  abstract interpolate(out: Uint32Array | Float32Array | vec3 | quat, values: (Uint32Array | Float32Array | vec3 | quat)[], inTans: (Uint32Array | Float32Array | vec3 | quat)[], outTans: (Uint32Array | Float32Array | vec3 | quat)[], start: number, end: number, t: number): void;
 
   constructor(model: MdxModel, animation: Animation) {
     let globalSequences = model.globalSequences;

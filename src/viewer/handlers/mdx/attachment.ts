@@ -1,6 +1,5 @@
 import MdlxAttachment from '../../../parsers/mdlx/attachment';
 import GenericObject from './genericobject';
-import MdxComplexInstance from './complexinstance';
 import MdxModel from './model';
 
 /**

@@ -4,7 +4,6 @@ import AnimatedObject from './animatedobject';
 import TextureAnimation from './textureanimation';
 import { layerFilterMode } from './filtermode';
 import ShaderProgram from '../../gl/program';
-import MdxComplexInstance from './complexinstance';
 
 /**
  * An MDX layer.

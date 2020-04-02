@@ -9,13 +9,13 @@ import M3Stc from './stc';
  */
 export default class M3Stg {
   name: string;
-  stcIndices: any[];
+  stcIndices: Uint32Array;
   sts: M3Sts[];
   stc: M3Stc[];
 
   constructor(stg: M3ParserStg, sts: M3Sts[], stc: M3Stc[]) {
     this.name = stg.name.getAll().join('');
-    this.stcIndices = stg.stcIndices.getAll();
+    this.stcIndices = <Uint32Array>stg.stcIndices.getAll();
     this.sts = sts;
     this.stc = stc;
   }

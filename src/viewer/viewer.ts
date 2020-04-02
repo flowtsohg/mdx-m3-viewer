@@ -8,7 +8,6 @@ import { Resource } from './resource';
 import { PathSolver, HandlerResourceData, HandlerResource } from './handlerresource';
 import GenericResource from './genericresource';
 import ClientBuffer from './gl/clientbuffer';
-import ClientDataTexture from './gl/clientdatatexture';
 import Model from './model';
 import ModelInstance from './modelinstance';
 import TextureMapper from './texturemapper';
@@ -399,7 +398,27 @@ export default class ModelViewer extends EventEmitter {
 
     texture.emit('loadstart', texture);
 
-    texture.loadData();
+    let finalSrc = <string | TexImageSource>pathSolver(undefined)[0];
+
+    if (!isImageSource(finalSrc)) {
+      let path = <string>finalSrc;
+
+      texture.extension = path.slice(path.lastIndexOf('.'));
+      texture.fetchUrl = path;
+
+      fetchDataType(path, 'image')
+        .then((response: FetchResult) => {
+          let data = response.data;
+
+          if (response.ok) {
+            texture.loadData(data);
+          } else {
+            texture.error(<string>response.error, data);
+          }
+        });
+    } else {
+      texture.loadData(finalSrc);
+    }
 
     return texture;
   }
@@ -430,7 +449,36 @@ export default class ModelViewer extends EventEmitter {
 
     cubeMap.emit('loadstart', cubeMap);
 
-    cubeMap.loadData();
+    let fetchPromises: Promise<FetchResult>[] = [];
+
+    for (let i = 0; i < 6; i++) {
+      let finalSrc = pathSolver(i)[0];
+
+      if (isImageSource(finalSrc)) {
+        fetchPromises[i] = new Promise((resolve) => resolve({ ok: true, data: finalSrc }));
+      } else {
+        fetchPromises[i] = fetchDataType(finalSrc, 'image');
+      }
+    }
+
+    Promise.all(fetchPromises)
+      .then((fetchResults) => {
+        let planes = [];
+
+        for (let i = 0; i < 6; i++) {
+          let result = fetchResults[i];
+
+          if (result.ok) {
+            planes[i] = result.data;
+          } else {
+            cubeMap.error(<string>result.error, result.data);
+
+            return;
+          }
+        }
+
+        cubeMap.loadData(planes);
+      });
 
     return cubeMap;
   }

@@ -27,13 +27,7 @@ module.exports = function (env, argv) {
           test: /\.ts$/,
           exclude: /node_modules/,
           use: [
-            {
-              loader: 'ts-loader',
-              options: {
-                // This is needed until such a day when there are no type errors.
-                transpileOnly: true,
-              },
-            },
+            'ts-loader',
           ],
         },
       ],

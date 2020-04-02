@@ -1,5 +1,5 @@
 import { M3ParserAnimationReference } from '../../../parsers/m3/animationreference';
-import { SkeletalNode, createSkeletalNodes } from '../../node';
+import { createSkeletalNodes } from '../../node';
 import Scene from '../../scene';
 import Node from './node';
 import M3ModelInstance from './modelinstance';
@@ -66,9 +66,9 @@ export default class M3Skeleton {
       let node = nodes[i];
       let modelNode = modelNodes[i];
 
-      this.getValue4(node.localRotation, modelNode.rotation, instance);
-      this.getValue3(node.localLocation, modelNode.location, instance);
-      this.getValue3(node.localScale, modelNode.scale, instance);
+      this.getValue4(<TypedArray>node.localRotation, modelNode.rotation, instance);
+      this.getValue3(<TypedArray>node.localLocation, modelNode.location, instance);
+      this.getValue3(<TypedArray>node.localScale, modelNode.scale, instance);
 
       node.recalculateTransformation(scene);
       node.updateChildren(dt, scene);

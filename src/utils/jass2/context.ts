@@ -1,7 +1,10 @@
 
 import { EventEmitter } from 'events';
+// @ts-ignore
 import { to_luastring, to_jsstring } from 'fengari/src/fengaricore';
+// @ts-ignore
 import { lua_State, lua_pop, lua_getglobal, lua_pcall, lua_atnativeerror, lua_pushstring, lua_touserdata, lua_rawgeti, LUA_REGISTRYINDEX, lua_resume, LUA_OK, LUA_YIELD } from 'fengari/src/lua';
+// @ts-ignore
 import { luaL_newstate, luaL_loadstring, luaL_tolstring, luaL_unref, luaL_checknumber } from 'fengari/src/lauxlib';
 //import { luaL_openlibs } from 'fengari/src/lualib';
 import jass2lua from './jass2lua';

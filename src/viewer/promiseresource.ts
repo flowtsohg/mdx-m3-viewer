@@ -13,6 +13,13 @@ import { Resource } from './resource';
  */
 export default class PromiseResource extends Resource {
   /**
+   * Does nothing.
+   */
+  load() {
+
+  }
+
+  /**
    * Immitates a promise.
    */
   promise() {

@@ -62,7 +62,7 @@ export default class RibbonEmitter extends MdxEmitter {
     object.next = null;
   }
 
-  createObject() {
+  createObject(): Ribbon {
     return new Ribbon(this);
   }
 }

@@ -1,6 +1,5 @@
 import RibbonEmitter from '../../../parsers/mdlx/ribbonemitter';
 import MdxModel from './model';
-import MdxComplexInstance from './complexinstance';
 import GenericObject from './genericobject';
 import Layer from './layer';
 import { EMITTER_RIBBON } from './geometryemitterfuncs';

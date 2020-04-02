@@ -2,7 +2,6 @@ import { vec3 } from 'gl-matrix';
 import MdlxGeosetAnimation from '../../../parsers/mdlx/geosetanimation';
 import AnimatedObject from './animatedobject';
 import MdxModel from './model';
-import MdxComplexInstance from './complexinstance';
 
 /**
  * A geoset animation.
@@ -30,6 +29,6 @@ export default class GeosetAnimation extends AnimatedObject {
   }
 
   getColor(out: Float32Array, sequence: number, frame: number, counter: number) {
-    return this.getVectorValue(out, 'KGAC', sequence, frame, counter, this.color);
+    return this.getVectorValue(out, 'KGAC', sequence, frame, counter, <Float32Array>this.color);
   }
 }

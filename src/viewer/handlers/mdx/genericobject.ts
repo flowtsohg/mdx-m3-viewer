@@ -3,7 +3,6 @@ import { VEC3_ZERO, VEC3_ONE, QUAT_DEFAULT } from '../../../common/gl-matrix-add
 import MdlxGenericObject from '../../../parsers/mdlx/genericobject';
 import AnimatedObject from './animatedobject';
 import MdxModel from './model';
-import MdxComplexInstance from './complexinstance';
 
 /**
  * An MDX generic object.
@@ -80,14 +79,14 @@ export default class GenericObject extends AnimatedObject {
   }
 
   getTranslation(out: vec3, sequence: number, frame: number, counter: number) {
-    return this.getVectorValue(out, 'KGTR', sequence, frame, counter, VEC3_ZERO);
+    return this.getVectorValue(<Float32Array>out, 'KGTR', sequence, frame, counter, <Float32Array>VEC3_ZERO);
   }
 
   getRotation(out: quat, sequence: number, frame: number, counter: number) {
-    return this.getQuatValue(out, 'KGRT', sequence, frame, counter, QUAT_DEFAULT);
+    return this.getQuatValue(<Float32Array>out, 'KGRT', sequence, frame, counter, <Float32Array>QUAT_DEFAULT);
   }
 
   getScale(out: vec3, sequence: number, frame: number, counter: number) {
-    return this.getVectorValue(out, 'KGSC', sequence, frame, counter, VEC3_ONE);
+    return this.getVectorValue(<Float32Array>out, 'KGSC', sequence, frame, counter, <Float32Array>VEC3_ONE);
   }
 }

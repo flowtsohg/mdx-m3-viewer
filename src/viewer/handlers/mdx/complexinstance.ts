@@ -19,7 +19,7 @@ const visibilityHeap = new Float32Array(1);
 const translationHeap = vec3.create();
 const rotationHeap = quat.create();
 const scaleHeap = vec3.create();
-const colorHeap = vec3.create();
+const colorHeap = new Float32Array(3);
 const alphaHeap = new Float32Array(1);
 const textureIdHeap = new Uint32Array(1);
 
@@ -192,7 +192,7 @@ export default class MdxComplexInstance extends ModelInstance {
    * Initialize a skeletal node.
    */
   initNode(nodes: SkeletalNode[], node: SkeletalNode, genericObject: GenericObject, object?: any) {
-    node.pivot.set(genericObject.pivot);
+    vec3.copy(node.pivot, genericObject.pivot);
 
     if (genericObject.parentId === -1) {
       node.parent = this;
@@ -366,7 +366,7 @@ export default class MdxComplexInstance extends ModelInstance {
       if (textureAnimation) {
         // UV translation animation
         if (forced || textureAnimation.variants.translation[sequence]) {
-          textureAnimation.getTranslation(translationHeap, sequence, frame, counter);
+          textureAnimation.getTranslation(<Float32Array>translationHeap, sequence, frame, counter);
 
           uvAnim[0] = translationHeap[0];
           uvAnim[1] = translationHeap[1];
@@ -374,7 +374,7 @@ export default class MdxComplexInstance extends ModelInstance {
 
         // UV rotation animation
         if (forced || textureAnimation.variants.rotation[sequence]) {
-          textureAnimation.getRotation(rotationHeap, sequence, frame, counter);
+          textureAnimation.getRotation(<Float32Array>rotationHeap, sequence, frame, counter);
 
           uvAnim[2] = rotationHeap[2];
           uvAnim[3] = rotationHeap[3];
@@ -382,7 +382,7 @@ export default class MdxComplexInstance extends ModelInstance {
 
         // UV scale animation
         if (forced || textureAnimation.variants.scale[sequence]) {
-          textureAnimation.getScale(scaleHeap, sequence, frame, counter);
+          textureAnimation.getScale(<Float32Array>scaleHeap, sequence, frame, counter);
 
           uvAnim[4] = scaleHeap[0];
         }

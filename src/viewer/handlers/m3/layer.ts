@@ -6,7 +6,7 @@ import TextureMapper from '../../texturemapper';
 import M3StandardMaterial from './standardmaterial';
 import M3Model from './model';
 
-let layerTypeToTextureUnit = {
+const layerTypeToTextureUnit = {
   diffuse: 1,
   decal: 2,
   specular: 3,
@@ -77,7 +77,7 @@ export default class M3Layer {
       if (source.length) {
         this.source = source;
 
-        this.texture = model.viewer.load(source, pathSolver);
+        this.texture = <Texture>model.viewer.load(source, pathSolver);
 
         this.active = 1;
 

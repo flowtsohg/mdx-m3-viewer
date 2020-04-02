@@ -2,6 +2,7 @@ import M3ParserStc from '../../../parsers/m3/stc';
 import { M3ParserAnimationReference } from '../../../parsers/m3/animationreference';
 import M3ModelInstance from './modelinstance';
 import M3SdContainer from './sd';
+import M3ParserSd from '../../../parsers/m3/sd';
 
 /**
  * M3 sequence data.
@@ -22,7 +23,8 @@ export default class M3Stc {
     this.priority = stc.priority;
     this.stsIndex = stc.stsIndex;
 
-    const animRefs = new Uint16Array(stc.animRefs.getAll().buffer);
+    let uints = <Uint32Array>stc.animRefs.getAll();
+    const animRefs = new Uint16Array(uints.buffer);
 
     this.animRefs = [];
 
@@ -31,7 +33,7 @@ export default class M3Stc {
       this.animRefs[animIds[i]] = [animRefs[i * 2 + 1], animRefs[i * 2]];
     }
 
-    this.sd = stc.sd.map((sd) => new M3SdContainer(sd.getAll()));
+    this.sd = stc.sd.map((sd) => new M3SdContainer(<M3ParserSd[]>sd.getAll()));
   }
 
   getValueUnsafe(animRef: M3ParserAnimationReference, instance: M3ModelInstance) {

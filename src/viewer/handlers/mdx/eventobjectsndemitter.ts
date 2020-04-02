@@ -5,7 +5,7 @@ import EventObjectSnd from './eventobjectsnd';
  * An MDX sound emitter.
  */
 export default class EventObjectSndEmitter extends EventObjectEmitter {
-  createObject() {
+  createObject(): EventObjectSnd {
     return new EventObjectSnd(this);
   }
 }

@@ -1,7 +1,6 @@
 import Parser from '../../../parsers/m3/model';
 import M3ParserModel from '../../../parsers/m3/modelheader';
 import M3ParserDivision from '../../../parsers/m3/division';
-import { M3ParserAnimationReference } from '../../../parsers/m3/animationreference';
 import Model from '../../model';
 import M3StandardMaterial from './standardmaterial';
 import M3Bone from './bone';
@@ -38,7 +37,7 @@ export default class M3Model extends Model {
   vertexSize: number = 0;
   uvSetCount: number = 0;
 
-  createInstance(type: number) {
+  createInstance(type: number): M3ModelInstance {
     return new M3ModelInstance(this);
   }
 
@@ -261,11 +260,11 @@ export default class M3Model extends Model {
     */
   }
 
-  getValue(animRef: M3ParserAnimationReference, sequence: number, frame: number) {
-    if (sequence !== -1) {
-      return this.stg[sequence].getValue(animRef, frame);
-    } else {
-      return animRef.initValue;
-    }
-  }
+  // getValue(animRef: M3ParserAnimationReference, sequence: number, frame: number) {
+  //   if (sequence !== -1) {
+  //     return this.stg[sequence].getValue(animRef, frame);
+  //   } else {
+  //     return animRef.initValue;
+  //   }
+  // }
 }

@@ -1,3 +1,4 @@
+// @ts-ignore
 import { JpegImage } from '../../../thirdparty/jpg';
 import BitStream from '../../common/bitstream';
 import convertBitRange from '../../common/convertbitrange';

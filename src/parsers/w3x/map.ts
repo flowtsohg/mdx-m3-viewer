@@ -49,10 +49,10 @@ export default class War3Map {
    * 
    * If readonly is true, the map and internal archive won't be editable or saveable, which allows to optimize some operations.
    */
-  constructor(buffer?: ArrayBuffer, readonly?: boolean) {
+  constructor(buffer: ArrayBuffer | undefined = undefined, readonly: boolean = false) {
     this.archive = new MpqArchive(undefined, readonly);
     this.imports = new War3MapImp();
-    this.readonly = !!readonly;
+    this.readonly = readonly;
 
     if (buffer) {
       this.load(buffer);
@@ -176,7 +176,7 @@ export default class War3Map {
    * 
    * Does nothing if the archive is in readonly mode.
    */
-  import(name: string, buffer: ArrayBuffer) {
+  import(name: string, buffer: ArrayBuffer | string) {
     if (this.readonly) {
       return false;
     }
@@ -193,7 +193,7 @@ export default class War3Map {
   /**
    * A shortcut to the internal archive function.
    */
-  set(name: string, buffer: ArrayBuffer) {
+  set(name: string, buffer: ArrayBuffer | string) {
     if (this.readonly) {
       return false;
     }

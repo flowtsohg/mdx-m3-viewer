@@ -4,7 +4,7 @@ precision mediump float;
 uniform sampler2D u_diffuseMap;
 uniform bool u_isEdge;
 uniform bool u_hasTexture;
-uniform bool u_isBGR;
+uniform bool u_sizzle;
 
 varying vec2 v_uv;
 varying vec3 v_faceColor;
@@ -21,7 +21,7 @@ void main() {
     if (u_hasTexture) {
       vec4 texel = texture2D(u_diffuseMap, v_uv);
 
-      if (u_isBGR) {
+      if (u_sizzle) {
         texel = texel.bgra;
       }
 

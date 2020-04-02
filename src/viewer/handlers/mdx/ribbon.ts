@@ -6,7 +6,7 @@ import RibbonEmitter from './ribbonemitter';
 
 const belowHeap = vec3.create();
 const aboveHeap = vec3.create();
-const colorHeap = vec3.create();
+const colorHeap = new Float32Array(3);
 const alphaHeap = new Float32Array(1);
 const slotHeap = new Uint32Array(1);
 

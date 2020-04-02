@@ -2,8 +2,13 @@ import Sequence from '../../../parsers/mdlx/sequence';
 import MdxModel from '../mdx/model';
 import MdxComplexInstance from '../mdx/complexinstance';
 
-function sequenceSorter(a: object, b: object) {
-  return a.sequence.rarity < b.sequence.rarity;
+interface FilteredSequence {
+  sequence: Sequence;
+  index: number;
+}
+
+function sequenceSorter(a: FilteredSequence, b: FilteredSequence) {
+  return a.sequence.rarity - b.sequence.rarity;
 }
 
 function filterSequences(type: string, sequences: Sequence[]) {

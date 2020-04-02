@@ -50,7 +50,7 @@ export default class ParticleEmitter2 extends MdxEmitter {
     }
   }
 
-  createObject() {
+  createObject(): Particle2 {
     return new Particle2(this);
   }
 }

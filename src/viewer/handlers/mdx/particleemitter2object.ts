@@ -1,7 +1,6 @@
 import MdlxParticleEmitter2 from '../../../parsers/mdlx/particleemitter2';
 import Texture from '../../texture';
 import MdxModel from './model';
-import MdxComplexInstance from './complexinstance';
 import GenericObject from './genericobject';
 import { emitterFilterMode } from './filtermode';
 import replaceableIds from './replaceableids';

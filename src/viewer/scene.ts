@@ -46,7 +46,7 @@ export default class Scene {
     let canvas = viewer.canvas;
 
     // Use the whole canvas, and standard perspective projection values.
-    this.camera.setViewport([0, 0, canvas.width, canvas.height]);
+    this.camera.setViewport(0, 0, canvas.width, canvas.height);
     this.camera.perspective(Math.PI / 4, canvas.width / canvas.height, 8, 10000);
   }
 

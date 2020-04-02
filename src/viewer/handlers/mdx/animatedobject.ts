@@ -1,6 +1,5 @@
 import MdlxAnimatedObject from '../../../parsers/mdlx/animatedobject';
 import MdxModel from './model';
-import MdxComplexInstance from './complexinstance';
 import { Sd, createTypedSd } from './sd';
 
 /**

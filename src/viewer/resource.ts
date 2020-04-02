@@ -46,8 +46,7 @@ export abstract class Resource extends EventEmitter {
    */
   async loadData(src?: any) {
     try {
-      // Allow loaders to be async if they need it.
-      await this.load(src);
+      this.load(src);
 
       this.loaded = true;
       this.ok = true;

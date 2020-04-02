@@ -1,6 +1,5 @@
 import { powerOfTwo } from '../common/math';
 import { imageToImageData, scaleNPOT } from '../common/canvas';
-import { fetchDataType } from '../common/fetchdatatype';
 import Texture from './texture';
 
 /**
@@ -21,46 +20,28 @@ export function isImageExtension(ext: string) {
  * A texture handler for image sources.
  */
 export class ImageTexture extends Texture {
-  async load() {
-    let finalSrc = <string | TexImageSource>this.pathSolver(undefined)[0];
+  load(src: TexImageSource) {
+    let widthPOT = powerOfTwo(src.width);
+    let heightPOT = powerOfTwo(src.height);
 
-    if (!isImageSource(finalSrc)) {
-      let path = <string>finalSrc;
-      let response = await fetchDataType(path, 'image');
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch');
-      }
-
-      this.extension = path.slice(path.lastIndexOf('.'));
-      this.fetchUrl = path;
-
-      finalSrc = <HTMLImageElement>response.data;
-    }
-
-    let texSource = <TexImageSource>finalSrc;
-
-    let widthPOT = powerOfTwo(texSource.width);
-    let heightPOT = powerOfTwo(texSource.height);
-
-    if (widthPOT !== texSource.width || heightPOT !== texSource.height) {
-      if (!(texSource instanceof ImageData)) {
-        texSource = imageToImageData(texSource);
+    if (widthPOT !== src.width || heightPOT !== src.height) {
+      if (!(src instanceof ImageData)) {
+        src = imageToImageData(src);
       }
 
       // Upscale to POT if the size is NPOT.
-      texSource = scaleNPOT(texSource);
+      src = scaleNPOT(src);
     }
 
     let gl = this.viewer.gl;
 
     this.webglResource = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, this.webglResource);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texSource);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
     gl.generateMipmap(gl.TEXTURE_2D);
 
-    this.width = texSource.width;
-    this.height = texSource.height;
+    this.width = src.width;
+    this.height = src.height;
     this.wrapS = gl.REPEAT;
     this.wrapT = gl.REPEAT;
     this.minFilter = gl.LINEAR_MIPMAP_LINEAR;
