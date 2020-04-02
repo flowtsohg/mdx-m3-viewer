@@ -35,7 +35,7 @@ export abstract class Resource extends EventEmitter {
    * 
    * If a promise is returned, the resource waits for it to resolve before finalizing.
    */
-  abstract load(src?: any): void | Promise<void>;
+  abstract load(src?: any): void;
 
   /**
    * Will be called when the data for this resource is ready.
@@ -44,7 +44,7 @@ export abstract class Resource extends EventEmitter {
    * 
    * Otherwise it will be called when the server fetch finishes, assuming it succeeded.
    */
-  async loadData(src?: any) {
+  loadData(src?: any) {
     try {
       this.load(src);
 
