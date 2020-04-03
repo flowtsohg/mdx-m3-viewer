@@ -1,10 +1,10 @@
 import BinaryStream from '../../../common/binarystream';
-import Player from './player';
 import Force from './force';
-import UpgradeAvailabilityChange from './upgradeavailabilitychange';
-import TechAvailabilityChange from './techavailabilitychange';
-import RandomUnitTable from './randomunittable';
+import Player from './player';
 import RandomItemTable from './randomitemtable';
+import RandomUnitTable from './randomunittable';
+import TechAvailabilityChange from './techavailabilitychange';
+import UpgradeAvailabilityChange from './upgradeavailabilitychange';
 
 /**
  * war3map.w3i - the general information file.
@@ -64,7 +64,7 @@ export default class War3MapW3i {
     this.saves = stream.readInt32();
     this.editorVersion = stream.readInt32();
 
-    if (this.version >= 28) {
+    if (this.version > 27) {
       stream.readUint32Array(this.buildVersion);
     }
 

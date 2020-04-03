@@ -24,7 +24,7 @@ export default class Player {
     this.id = stream.readInt32();
     this.type = stream.readInt32();
     this.race = stream.readInt32();
-    this.isFixedStartPosition = stream.readInt32();;
+    this.isFixedStartPosition = stream.readInt32();
     this.name = stream.readUntilNull();
     stream.readFloat32Array(this.startLocation);
     this.allyLowPriorities = stream.readUint32();
