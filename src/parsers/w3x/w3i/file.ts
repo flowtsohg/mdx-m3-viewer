@@ -117,9 +117,9 @@ export default class War3MapW3i {
     }
 
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      let player = new Player(this.version);
+      let player = new Player();
 
-      player.load(stream);
+      player.load(stream, this.version);
 
       this.players[i] = player;
     }
@@ -230,7 +230,7 @@ export default class War3MapW3i {
     stream.writeUint32(this.players.length);
 
     for (let player of this.players) {
-      player.save(stream);
+      player.save(stream, this.version);
     }
 
     stream.writeUint32(this.forces.length);
@@ -272,7 +272,7 @@ export default class War3MapW3i {
     let size = 111 + this.name.length + this.author.length + this.description.length + this.recommendedPlayers.length + this.loadingScreenText.length + this.loadingScreenTitle.length + this.loadingScreenSubtitle.length + this.prologueScreenText.length + this.prologueScreenTitle.length + this.prologueScreenSubtitle.length;
 
     for (let player of this.players) {
-      size += player.getByteLength();
+      size += player.getByteLength(this.version);
     }
 
     for (let force of this.forces) {
