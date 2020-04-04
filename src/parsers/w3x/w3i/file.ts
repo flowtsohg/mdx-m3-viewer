@@ -1,10 +1,10 @@
 import BinaryStream from '../../../common/binarystream';
-import Player from './player';
 import Force from './force';
-import UpgradeAvailabilityChange from './upgradeavailabilitychange';
-import TechAvailabilityChange from './techavailabilitychange';
-import RandomUnitTable from './randomunittable';
+import Player from './player';
 import RandomItemTable from './randomitemtable';
+import RandomUnitTable from './randomunittable';
+import TechAvailabilityChange from './techavailabilitychange';
+import UpgradeAvailabilityChange from './upgradeavailabilitychange';
 
 /**
  * war3map.w3i - the general information file.
@@ -13,7 +13,7 @@ export default class War3MapW3i {
   version: number = 0;
   saves: number = 0;
   editorVersion: number = 0;
-  unknown1: Uint8Array = new Uint8Array(16);
+  buildVersion: Uint32Array = new Uint32Array(4);
   name: string = '';
   author: string = '';
   description: string = '';
@@ -41,13 +41,15 @@ export default class War3MapW3i {
   soundEnvironment: string = '';
   lightEnvironmentTileset: string = '\0';
   waterVertexColor: Uint8Array = new Uint8Array(4);
-  unknown2: Uint8Array = new Uint8Array(4);
+  scriptMode: number = 0;
+  graphicsMode: number = 0;
   players: Player[] = [];
   forces: Force[] = [];
   upgradeAvailabilityChanges: UpgradeAvailabilityChange[] = [];
   techAvailabilityChanges: TechAvailabilityChange[] = [];
   randomUnitTables: RandomUnitTable[] = [];
   randomItemTables: RandomItemTable[] = [];
+  unknown1: number = 0;
 
   constructor(buffer?: ArrayBuffer) {
     if (buffer) {
@@ -63,7 +65,7 @@ export default class War3MapW3i {
     this.editorVersion = stream.readInt32();
 
     if (this.version > 27) {
-      stream.readUint8Array(this.unknown1);
+      stream.readUint32Array(this.buildVersion);
     }
 
     this.name = stream.readUntilNull();
@@ -106,13 +108,18 @@ export default class War3MapW3i {
     }
 
     if (this.version > 27) {
-      stream.readUint8Array(this.unknown2);
+      this.scriptMode = stream.readUint32();
+    }
+
+    if (this.version > 30) {
+      this.graphicsMode = stream.readUint32();
+      this.unknown1 = stream.readUint32();
     }
 
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
       let player = new Player();
 
-      player.load(stream);
+      player.load(stream, this.version);
 
       this.players[i] = player;
     }
@@ -169,7 +176,7 @@ export default class War3MapW3i {
     stream.writeInt32(this.editorVersion);
 
     if (this.version > 27) {
-      stream.writeUint8Array(this.unknown1);
+      stream.writeUint32Array(this.buildVersion);
     }
 
     stream.write(`${this.name}\0`);
@@ -212,13 +219,18 @@ export default class War3MapW3i {
     }
 
     if (this.version > 27) {
-      stream.writeUint8Array(this.unknown2);
+      stream.writeUint32(this.scriptMode);
+    }
+
+    if (this.version > 30) {
+      stream.writeUint32(this.graphicsMode);
+      stream.writeUint32(this.unknown1);
     }
 
     stream.writeUint32(this.players.length);
 
     for (let player of this.players) {
-      player.save(stream);
+      player.save(stream, this.version);
     }
 
     stream.writeUint32(this.forces.length);
@@ -260,7 +272,7 @@ export default class War3MapW3i {
     let size = 111 + this.name.length + this.author.length + this.description.length + this.recommendedPlayers.length + this.loadingScreenText.length + this.loadingScreenTitle.length + this.loadingScreenSubtitle.length + this.prologueScreenText.length + this.prologueScreenTitle.length + this.prologueScreenSubtitle.length;
 
     for (let player of this.players) {
-      size += player.getByteLength();
+      size += player.getByteLength(this.version);
     }
 
     for (let force of this.forces) {
