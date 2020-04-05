@@ -34,8 +34,8 @@ export default class Ribbon extends EmittedObject {
 
     this.health = emitter.emitterObject.lifeSpan;
 
-    emitterObject.getHeightBelow(belowHeap, sequence, frame, counter);
-    emitterObject.getHeightAbove(aboveHeap, sequence, frame, counter);
+    emitterObject.getHeightBelow(<Float32Array>belowHeap, sequence, frame, counter);
+    emitterObject.getHeightAbove(<Float32Array>aboveHeap, sequence, frame, counter);
 
     belowHeap[1] = y - belowHeap[0];
     belowHeap[0] = x;

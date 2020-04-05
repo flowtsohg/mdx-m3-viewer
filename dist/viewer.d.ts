@@ -1,5 +1,5 @@
 declare module 'version' {
-	export const version = "5.0.0-beta.20";
+	export const version = "5.0.0-beta.21";
 
 }
 declare module 'common/gl-matrix-addon' {
@@ -9,7 +9,7 @@ declare module 'common/gl-matrix-addon' {
 	export const VEC3_UNIT_Z: vec3;
 	export const VEC3_ZERO: vec3;
 	export const VEC3_ONE: vec3;
-	export const QUAT_ZERO: quat;
+	export const QUAT_ZERO: vec4;
 	export const QUAT_DEFAULT: quat;
 	export function unproject(out: vec3, v: vec3, inverseMatrix: mat4, viewport: vec4): vec3;
 	/**
@@ -316,6 +316,7 @@ declare module 'common/typecast' {
 
 }
 declare module 'common/binarystream' {
+	/// <reference types="./src/types" />
 	/**
 	 * A binary stream.
 	 */
@@ -517,6 +518,7 @@ declare module 'common/binarystream' {
 
 }
 declare module 'common/bitstream' {
+	/// <reference types="./src/types" />
 	/**
 	 * A bit stream.
 	 */
@@ -1203,6 +1205,7 @@ declare module 'parsers/m3/unsupportedentry' {
 
 }
 declare module 'parsers/m3/indexentry' {
+	/// <reference types="./src/types" />
 	import BinaryStream from 'common/binarystream';
 	/**
 	 * An index entry.
@@ -1238,6 +1241,7 @@ declare module 'parsers/m3/index' {
 
 }
 declare module 'parsers/mdlx/tokenstream' {
+	/// <reference types="./src/types" />
 	/**
 	 * Used to read and write structured text formats.
 	 */
@@ -2290,6 +2294,7 @@ declare module 'parsers/mpq/constants' {
 
 }
 declare module 'parsers/mpq/crypto' {
+	/// <reference types="./src/types" />
 	import MpqBlock from 'parsers/mpq/block';
 	/**
 	 * MPQ crypto.
@@ -2803,26 +2808,6 @@ declare module 'parsers/w3x/w3e/file' {
 	}
 
 }
-declare module 'parsers/w3x/w3i/player' {
-	import BinaryStream from 'common/binarystream';
-	/**
-	 * A player.
-	 */
-	export default class Player {
-	    id: number;
-	    type: number;
-	    race: number;
-	    isFixedStartPosition: number;
-	    name: string;
-	    startLocation: Float32Array;
-	    allyLowPriorities: number;
-	    allyHighPriorities: number;
-	    load(stream: BinaryStream): void;
-	    save(stream: BinaryStream): void;
-	    getByteLength(): number;
-	}
-
-}
 declare module 'parsers/w3x/w3i/force' {
 	import BinaryStream from 'common/binarystream';
 	/**
@@ -2838,62 +2823,24 @@ declare module 'parsers/w3x/w3i/force' {
 	}
 
 }
-declare module 'parsers/w3x/w3i/upgradeavailabilitychange' {
+declare module 'parsers/w3x/w3i/player' {
 	import BinaryStream from 'common/binarystream';
 	/**
-	 * An upgrade availability change.
+	 * A player.
 	 */
-	export default class UpgradeAvailabilityChange {
-	    playerFlags: number;
-	    id: string;
-	    levelAffected: number;
-	    availability: number;
-	    load(stream: BinaryStream): void;
-	    save(stream: BinaryStream): void;
-	}
-
-}
-declare module 'parsers/w3x/w3i/techavailabilitychange' {
-	import BinaryStream from 'common/binarystream';
-	/**
-	 * A tech availablity change.
-	 */
-	export default class TechAvailabilityChange {
-	    playerFlags: number;
-	    id: string;
-	    load(stream: BinaryStream): void;
-	    save(stream: BinaryStream): void;
-	}
-
-}
-declare module 'parsers/w3x/w3i/randomunit' {
-	import BinaryStream from 'common/binarystream';
-	/**
-	 * A random unit.
-	 */
-	export default class RandomUnit {
-	    chance: number;
-	    ids: string[];
-	    load(stream: BinaryStream, positions: number): void;
-	    save(stream: BinaryStream): void;
-	}
-
-}
-declare module 'parsers/w3x/w3i/randomunittable' {
-	import BinaryStream from 'common/binarystream';
-	import RandomUnit from 'parsers/w3x/w3i/randomunit';
-	/**
-	 * A random unit table.
-	 */
-	export default class RandomUnitTable {
+	export default class Player {
 	    id: number;
+	    type: number;
+	    race: number;
+	    isFixedStartPosition: number;
 	    name: string;
-	    positions: number;
-	    columnTypes: Int32Array;
-	    units: RandomUnit[];
-	    load(stream: BinaryStream): void;
-	    save(stream: BinaryStream): void;
-	    getByteLength(): number;
+	    startLocation: Float32Array;
+	    allyLowPriorities: number;
+	    allyHighPriorities: number;
+	    unknown1: Uint8Array;
+	    load(stream: BinaryStream, version: number): void;
+	    save(stream: BinaryStream, version: number): void;
+	    getByteLength(version: number): number;
 	}
 
 }
@@ -2940,13 +2887,72 @@ declare module 'parsers/w3x/w3i/randomitemtable' {
 	}
 
 }
+declare module 'parsers/w3x/w3i/randomunit' {
+	import BinaryStream from 'common/binarystream';
+	/**
+	 * A random unit.
+	 */
+	export default class RandomUnit {
+	    chance: number;
+	    ids: string[];
+	    load(stream: BinaryStream, positions: number): void;
+	    save(stream: BinaryStream): void;
+	}
+
+}
+declare module 'parsers/w3x/w3i/randomunittable' {
+	import BinaryStream from 'common/binarystream';
+	import RandomUnit from 'parsers/w3x/w3i/randomunit';
+	/**
+	 * A random unit table.
+	 */
+	export default class RandomUnitTable {
+	    id: number;
+	    name: string;
+	    positions: number;
+	    columnTypes: Int32Array;
+	    units: RandomUnit[];
+	    load(stream: BinaryStream): void;
+	    save(stream: BinaryStream): void;
+	    getByteLength(): number;
+	}
+
+}
+declare module 'parsers/w3x/w3i/techavailabilitychange' {
+	import BinaryStream from 'common/binarystream';
+	/**
+	 * A tech availablity change.
+	 */
+	export default class TechAvailabilityChange {
+	    playerFlags: number;
+	    id: string;
+	    load(stream: BinaryStream): void;
+	    save(stream: BinaryStream): void;
+	}
+
+}
+declare module 'parsers/w3x/w3i/upgradeavailabilitychange' {
+	import BinaryStream from 'common/binarystream';
+	/**
+	 * An upgrade availability change.
+	 */
+	export default class UpgradeAvailabilityChange {
+	    playerFlags: number;
+	    id: string;
+	    levelAffected: number;
+	    availability: number;
+	    load(stream: BinaryStream): void;
+	    save(stream: BinaryStream): void;
+	}
+
+}
 declare module 'parsers/w3x/w3i/file' {
-	import Player from 'parsers/w3x/w3i/player';
 	import Force from 'parsers/w3x/w3i/force';
-	import UpgradeAvailabilityChange from 'parsers/w3x/w3i/upgradeavailabilitychange';
-	import TechAvailabilityChange from 'parsers/w3x/w3i/techavailabilitychange';
-	import RandomUnitTable from 'parsers/w3x/w3i/randomunittable';
+	import Player from 'parsers/w3x/w3i/player';
 	import RandomItemTable from 'parsers/w3x/w3i/randomitemtable';
+	import RandomUnitTable from 'parsers/w3x/w3i/randomunittable';
+	import TechAvailabilityChange from 'parsers/w3x/w3i/techavailabilitychange';
+	import UpgradeAvailabilityChange from 'parsers/w3x/w3i/upgradeavailabilitychange';
 	/**
 	 * war3map.w3i - the general information file.
 	 */
@@ -2954,7 +2960,7 @@ declare module 'parsers/w3x/w3i/file' {
 	    version: number;
 	    saves: number;
 	    editorVersion: number;
-	    unknown1: Uint8Array;
+	    buildVersion: Uint32Array;
 	    name: string;
 	    author: string;
 	    description: string;
@@ -2982,13 +2988,15 @@ declare module 'parsers/w3x/w3i/file' {
 	    soundEnvironment: string;
 	    lightEnvironmentTileset: string;
 	    waterVertexColor: Uint8Array;
-	    unknown2: Uint8Array;
+	    scriptMode: number;
+	    graphicsMode: number;
 	    players: Player[];
 	    forces: Force[];
 	    upgradeAvailabilityChanges: UpgradeAvailabilityChange[];
 	    techAvailabilityChanges: TechAvailabilityChange[];
 	    randomUnitTables: RandomUnitTable[];
 	    randomItemTables: RandomItemTable[];
+	    unknown1: number;
 	    constructor(buffer?: ArrayBuffer);
 	    load(buffer: ArrayBuffer): void;
 	    save(): ArrayBuffer;
@@ -4255,7 +4263,7 @@ declare module 'viewer/resource' {
 	     *
 	     * If a promise is returned, the resource waits for it to resolve before finalizing.
 	     */
-	    abstract load(src?: any): void | Promise<void>;
+	    abstract load(src?: any): void;
 	    /**
 	     * Will be called when the data for this resource is ready.
 	     *
@@ -4263,7 +4271,7 @@ declare module 'viewer/resource' {
 	     *
 	     * Otherwise it will be called when the server fetch finishes, assuming it succeeded.
 	     */
-	    loadData(src?: any): Promise<void>;
+	    loadData(src?: any): void;
 	    /**
 	     * Remove this resource from its viewer's cache.
 	     *
@@ -4368,6 +4376,7 @@ declare module 'viewer/gl/shader' {
 
 }
 declare module 'viewer/gl/program' {
+	/// <reference types="./src/types" />
 	import WebGL from 'viewer/gl/gl';
 	import ShaderUnit from 'viewer/gl/shader';
 	/**
@@ -5772,6 +5781,7 @@ declare module 'viewer/handlers/m3/sts' {
 
 }
 declare module 'viewer/gl/datatexture' {
+	/// <reference types="./src/types" />
 	/**
 	 * A data texture.
 	 */
@@ -5819,6 +5829,7 @@ declare module 'viewer/handlers/m3/stg' {
 
 }
 declare module 'viewer/handlers/m3/skeleton' {
+	/// <reference types="./src/types" />
 	import { M3ParserAnimationReference } from 'parsers/m3/animationreference';
 	import Node from 'viewer/handlers/m3/node';
 	import M3ModelInstance from 'viewer/handlers/m3/modelinstance';
@@ -5879,6 +5890,7 @@ declare module 'viewer/handlers/m3/modelinstance' {
 
 }
 declare module 'viewer/handlers/m3/sd' {
+	/// <reference types="./src/types" />
 	import M3ParserSd from 'parsers/m3/sd'; class M3Sd {
 	    keys: Int32Array;
 	    values: TypedArray[] | number[];
