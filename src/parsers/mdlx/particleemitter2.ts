@@ -146,11 +146,11 @@ export default class ParticleEmitter2 extends GenericObject {
       } else if (token === 'static Width') {
         this.width = stream.readFloat();
       } else if (token === 'Width') {
-        this.readAnimation(stream, 'KP2W');
+        this.readAnimation(stream, 'KP2N');
       } else if (token === 'static Length') {
         this.length = stream.readFloat();
       } else if (token === 'Length') {
-        this.readAnimation(stream, 'KP2N');
+        this.readAnimation(stream, 'KP2W');
       } else if (token === 'Blend') {
         this.filterMode = 0;
       } else if (token === 'Additive') {
@@ -264,11 +264,11 @@ export default class ParticleEmitter2 extends GenericObject {
       stream.writeFloatAttrib('static EmissionRate', this.emissionRate);
     }
 
-    if (!this.writeAnimation(stream, 'KP2W')) {
+    if (!this.writeAnimation(stream, 'KP2N')) {
       stream.writeFloatAttrib('static Width', this.width);
     }
 
-    if (!this.writeAnimation(stream, 'KP2N')) {
+    if (!this.writeAnimation(stream, 'KP2W')) {
       stream.writeFloatAttrib('static Length', this.length);
     }
 

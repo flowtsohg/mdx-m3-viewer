@@ -5,7 +5,7 @@ import EventObjectSplUbr from './eventobjectsplubr';
  * An MDX splat emitter.
  */
 export default class EventObjectSplEmitter extends EventObjectEmitter {
-  createObject() {
+  createObject(): EventObjectSplUbr {
     return new EventObjectSplUbr(this);
   }
 }
