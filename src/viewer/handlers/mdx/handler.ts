@@ -16,6 +16,7 @@ import hdFrag from './shaders/hd.frag';
 export default {
   extensions: [['.mdx', 'arrayBuffer'], ['.mdl', 'text']],
   load(viewer: ModelViewer) {
+    let gl = viewer.gl;
     let webgl = viewer.webgl;
 
     // Bone textures.
@@ -42,6 +43,11 @@ export default {
     let simpleShader = webgl.createShaderProgram(simpleVert, simpleFrag);
     let hdShader = webgl.createShaderProgram(hdVert, hdFrag);
 
+    let rectBuffer = <WebGLBuffer>gl.createBuffer();
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, rectBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array([0, 1, 2, 0, 2, 3]), gl.STATIC_DRAW);
+
     viewer.sharedCache.set('mdx', {
       // Shaders.
       complexShader,
@@ -49,6 +55,8 @@ export default {
       particlesShader,
       simpleShader,
       hdShader,
+      // Geometry emitters buffer.
+      rectBuffer,
       // Team color/glow textures, shared between all non-Reforged models, but loaded with the first model that uses them.
       teamColors: <Texture[]>[],
       teamGlows: <Texture[]>[],

@@ -12,7 +12,6 @@ The viewer part handles the following formats:
 * BLP1 (Warcraft 3 texture): extensive support, almost everything should work.
 * TGA (image): partial support, only simple 24bit images.
 * DDS (compressed texture): partial support - DXT1/DXT3/DXT5/RGTC.
-* GLB (binary glTF): partial support - only version 2, and no animations etc.
 * PNG/JPG/GIF: supported as a wrapper around Image.
 * GEO (a simple JS format used for geometric shapes): note that this is solely a run-time handler.
 

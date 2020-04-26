@@ -26,6 +26,7 @@ export default class EmitterGroup {
     let shader = <ShaderProgram>mdxCache.particlesShader;
     let uniforms = shader.uniforms;
     let attribs = shader.attribs;
+    let rectBuffer = <WebGLBuffer>mdxCache.rectBuffer;
 
     gl.depthMask(false);
     gl.enable(gl.BLEND);
@@ -39,7 +40,7 @@ export default class EmitterGroup {
 
     instancedArrays.vertexAttribDivisorANGLE(attribs.a_position, 0);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, viewer.rectBuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, rectBuffer);
     gl.vertexAttribPointer(attribs.a_position, 1, gl.UNSIGNED_BYTE, false, 0, 0);
 
     instancedArrays.vertexAttribDivisorANGLE(attribs.a_p0, 1);

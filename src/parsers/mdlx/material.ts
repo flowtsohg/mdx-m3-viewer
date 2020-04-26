@@ -37,7 +37,7 @@ export default class Material {
 
   writeMdx(stream: BinaryStream, version: number) {
     stream.writeUint32(this.getByteLength(version));
-    stream.writeUint32(this.priorityPlane);
+    stream.writeInt32(this.priorityPlane);
     stream.writeUint32(this.flags);
 
     if (version > 800) {

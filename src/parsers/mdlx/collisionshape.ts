@@ -47,9 +47,9 @@ export default class CollisionShape extends GenericObject {
 
   readMdl(stream: TokenStream) {
     for (let token of super.readGenericBlock(stream)) {
-      if (token === 'Plane') {
+      if (token === 'Box') {
         this.type = 0;
-      } else if (token === 'Box') {
+      } else if (token === 'Plane') {
         this.type = 1;
       } else if (token === 'Sphere') {
         this.type = 2;
@@ -84,9 +84,9 @@ export default class CollisionShape extends GenericObject {
     let boundsRadius = false;
 
     if (this.type === 0) {
-      type = 'Plane';
-    } else if (this.type === 1) {
       type = 'Box';
+    } else if (this.type === 1) {
+      type = 'Plane';
     } else if (this.type === 2) {
       type = 'Sphere';
       vertices = 1;

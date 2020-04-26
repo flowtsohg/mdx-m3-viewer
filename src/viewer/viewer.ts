@@ -47,12 +47,6 @@ export default class ModelViewer extends EventEmitter {
   updatedParticles: number = 0;
   frame: number = 0;
   /**
-   * A simple buffer containing the bytes [0, 1, 2, 0, 2, 3].
-   * 
-   * These are used as vertices in all geometry shaders.
-   */
-  rectBuffer: WebGLBuffer;
-  /**
    * A resizeable buffer that can be used by any part of the library.
    * 
    * The data it contains is temporary, and can be overwritten at any time.
@@ -80,15 +74,7 @@ export default class ModelViewer extends EventEmitter {
     this.canvas = canvas;
     this.webgl = new WebGL(canvas, options);
     this.gl = this.webgl.gl;
-
-    let gl = this.gl;
-
-    this.rectBuffer = <WebGLBuffer>gl.createBuffer();
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.rectBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array([0, 1, 2, 0, 2, 3]), gl.STATIC_DRAW);
-
-    this.buffer = new ClientBuffer(gl);
+    this.buffer = new ClientBuffer(this.gl);
 
     // Track when resources start loading.
     this.on('loadstart', (target) => {
