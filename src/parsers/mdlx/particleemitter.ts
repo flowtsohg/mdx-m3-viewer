@@ -137,7 +137,7 @@ export default class ParticleEmitter extends GenericObject {
     }
 
     if ((this.flags & 0x8000) || (this.flags & 0x10000)) {
-      stream.writeAttrib('Path', this.path);
+      stream.writeStringAttrib('Path', this.path);
     }
 
     stream.endBlock();

@@ -339,7 +339,6 @@ export default class MpqFile {
    * Archives (maps or generic MPQs) are stored uncompressed in one chunk.
    * Other files are always stored in sectors, except when a file is smaller than a sector.
    * Sectors themselves are always compressed, except when the result is smaller than the uncompressed data.
-   * This can only happen in the last sector when there are multiple sectors.
    */
   encode() {
     if (this.buffer !== null && this.rawBuffer === null) {
@@ -355,29 +354,30 @@ export default class MpqFile {
         let offsets = new Uint32Array(sectorCount + 1);
         let offset = offsets.byteLength;
         let sectors = [];
+        let compression = [];
 
         // First offset is right after the offsets list.
-        offsets[0] = offsets.byteLength;
+        offsets[0] = offset;
 
         for (let i = 0; i < sectorCount; i++) {
           let sectorOffset = i * sectorSize;
-          let uncompressed = data.subarray(sectorOffset, sectorOffset + sectorSize);
-          let compressed = deflate(uncompressed);
-          let sector = uncompressed;
-          let size = uncompressed.byteLength;
+          let sector = data.subarray(sectorOffset, sectorOffset + sectorSize);
+          let size = sector.byteLength;
+          let compressed = deflate(sector);
+          let isCompressed = false;
 
           // If the compressed size of the sector is smaller than the uncompressed, use the compressed data.
           // +1 because of the compression mask byte.
           if (compressed.byteLength + 1 < size) {
             sector = compressed;
             size = compressed.byteLength + 1;
+            isCompressed = true;
           }
 
           offset += size;
-
           offsets[i + 1] = offset;
-
           sectors[i] = sector;
+          compression[i] = isCompressed;
         }
 
         // Only use the compressed data if it's actually smaller than the uncompressed data.
@@ -389,14 +389,16 @@ export default class MpqFile {
 
           offset = offsets.byteLength;
 
-          for (let sector of sectors) {
-            // If the sector's size is smaller than the archive's sector size, it means it was compressed.
-            if (sector.byteLength < sectorSize) {
-              rawBuffer[offset] = 2; // zlib
+          for (let i = 0; i < sectorCount; i++) {
+            // If this sector is compressed, set it to zlib.
+            if (compression[i]) {
+              rawBuffer[offset] = 2;
               offset += 1;
             }
 
             // Write the sector.
+            let sector = sectors[i];
+
             rawBuffer.set(sector, offset);
             offset += sector.byteLength;
           }

@@ -50,7 +50,11 @@ export default class War3MapWtg {
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
       let trigger = new Trigger();
 
-      trigger.load(stream, this.version, triggerData);
+      try {
+        trigger.load(stream, this.version, triggerData);
+      } catch (e) {
+        throw new Error(`Trigger ${i}: ${e}`);
+      }
 
       this.triggers[i] = trigger;
     }

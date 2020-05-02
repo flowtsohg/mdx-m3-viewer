@@ -20,6 +20,21 @@
 // Value 2: Optional flag (defaults to 0) indicating to disable display of category name
 //
 
+
+//最萌小汐
+TC_MU_BAKA=专用库<MU>,ReplaceableTextures\WorldEditUI\Actions-Game
+TC_MU_BASE=基础库<MU>,ReplaceableTextures\WorldEditUI\Actions-Game
+TC_MU_EVENT=事件库<MU>,ReplaceableTextures\WorldEditUI\Actions-Game
+TC_MU_MATH=数学库<MU>,ReplaceableTextures\WorldEditUI\Actions-Game
+TC_MU_STRING=字符串库<MU>,ReplaceableTextures\WorldEditUI\Actions-Game
+TC_MU_UNIT=单位库<MU>,ReplaceableTextures\WorldEditUI\Actions-Game
+TC_MU_ITEM=物品库<MU>,ReplaceableTextures\WorldEditUI\Actions-Game
+TC_MU_TEXT=漂浮文字库<MU>,ReplaceableTextures\WorldEditUI\Actions-Game
+TC_MU_EFFECT=特效库<MU>,ReplaceableTextures\WorldEditUI\Actions-Game
+TC_MU_SOUND=音效库<MU>,ReplaceableTextures\WorldEditUI\Actions-Game
+TC_MU_PROCESS=过程库<MU>,ReplaceableTextures\WorldEditUI\Actions-Game
+TC_MU_MOVER=弹幕库<MU>,ReplaceableTextures\WorldEditUI\Actions-Game
+
 TC_ARITHMETIC=WESTRING_TRIGCAT_ARITHMETIC,ReplaceableTextures\WorldEditUI\Actions-AI,1
 TC_NOTHING=WESTRING_TRIGCAT_NOTHING,ReplaceableTextures\CommandButtons\BTNPillage.blp,1
 TC_COMMENT=WESTRING_TRIGCAT_COMMENT,ReplaceableTextures\WorldEditUI\Actions-Comment,1
@@ -37,9 +52,9 @@ TC_YDFC=函数[YDWE],ReplaceableTextures\CommandButtons\BTNEvasion.blp
 TC_YDLD=存储[YDWE],ReplaceableTextures\CommandButtons\BTNLoad.blp
 TC_YDSE=特效[YDWE],ReplaceableTextures\PassiveButtons\PASBTNFeedBack.blp
 
+TC_YDLC=变量[YDWE],ReplaceableTextures\WorldEditUI\Editor-ScriptVariable.blp,1
 
 
-TC_YDLC=变量[YDWE],ReplaceableTextures\WorldEditUI\Editor-ScriptVariable.blp
 
 TC_YDAI=AI[YDWE],ReplaceableTextures\CommandButtons\BTNHeroTinker.blp
 TC_YDET=事件[YDWE],UI\Widgets\ToolTips\Human\ToolTipStonesIcon.blp
@@ -83,6 +98,7 @@ TC_ITEM=WESTRING_TRIGCAT_ITEM,ReplaceableTextures\WorldEditUI\Actions-Item
 TC_ITEMPOOL=物品池,ReplaceableTextures\WorldEditUI\Actions-Item
 TC_UNITSEL=WESTRING_TRIGCAT_UNITSEL,ReplaceableTextures\WorldEditUI\Actions-UnitSelection
 TC_HERO=WESTRING_TRIGCAT_HERO,ReplaceableTextures\WorldEditUI\Actions-Hero
+TC_WIDGET=物体,ReplaceableTextures\CommandButtons\BTNBox.blp
 TC_GAME=WESTRING_TRIGCAT_GAME,ReplaceableTextures\WorldEditUI\Actions-Game
 TC_GAMECACHE=WESTRING_TRIGCAT_GAMECACHE,ReplaceableTextures\WorldEditUI\Actions-SetVariables
 TC_NEUTRALBUILDING=WESTRING_TRIGCAT_NEUTRALBUILDING,ReplaceableTextures\WorldEditUI\Actions-Goldmine
@@ -151,6 +167,7 @@ image=1,1,1,WESTRING_TRIGTYPE_image
 sound=0,1,0,WESTRING_TRIGTYPE_sound
 effect=0,1,0,WESTRING_TRIGTYPE_effect
 lightning=1,1,1,WESTRING_TRIGTYPE_lightning
+widget=0,1,1,物体
 gamecache=0,1,0,WESTRING_TRIGTYPE_gamecache
 abilcode=0,1,1,WESTRING_TRIGTYPE_abilcode,integer
 buffcode=1,1,1,WESTRING_TRIGTYPE_buffcode,integer
@@ -172,8 +189,8 @@ code=0,1,0,WESTRING_TRIGTYPE_code
 handle=0,0,0,WESTRING_TRIGTYPE_handle
 agent=0,0,0,WESTRING_TRIGTYPE_agent,agent
 
-
-
+typename=1,0,0,参数类型,string
+objecttype=1,0,0,物体类型,string
 
 unitstatechangetype=0,0,0,单位状态修改类型,integer
 bonusType=0,0,0,属性类型,integer
@@ -373,7 +390,25 @@ AbilityDataInteger=0,0,0,技能数据 (整数),integer
 AbilityDataReal=0,0,0,技能数据 (实数),integer
 AbilityDataString=0,0,0,技能数据 (字符串),integer
 ChatRecipient=0,0,0,频道类型,integer
-ItemDataString=0,0,0,物品数据 (字符串),integer
+
+//最萌小汐
+skillType=0,0,0,技能阶段,integer
+damageTypeA=0,0,0,单位类型,integer
+damageTypeB=0,0,0,伤害类型,integer
+healType=0,0,0,治疗类型,integer
+typename=0,0,0,变量类型,scriptcode
+removeWhichLocation=0,0,0,清除哪个点,integer
+DisOrAng=0,0,0,距离/方向,integer
+showTo=0,0,0,漂浮文字可见性,integer
+isLuck=0,0,0,神符效果,boolean
+mover_state_real=0,0,0,弹幕属性(实数),integer
+SkillBarEndReason=0,0,0,技能进度条事件原因,integer
+itemPickDrop=0,0,0,获得还是丢弃,integer
+add_remove=0,0,0,添加或移除,boolean
+crit_crited=0,0,0,暴击模块对象,integer
+hit_dodg=0,0,0,命中闪躲模块对象,integer
+hit_dodg_crit=0,0,0,命中闪躲暴击模块对象,integer
+unit_response_type=0,0,0,单位回应类型,integer
 
 
 //***************************************************************************
@@ -411,11 +446,58 @@ region=CreateRegion(),新建不规则区域
 //       and they will be converted to double quotes in the script.
 //
 
+//最萌小汐
+skillTypeA=0,skillType,1,准备施放
+skillTypeB=0,skillType,2,开始施放
+skillTypeC=0,skillType,3,发动了
+skillTypeD=0,skillType,4,停止施放
+skillTypeE=0,skillType,5,结束施放
+
+damageTypeA1=0,damageTypeA,0,任意单位
+damageTypeA2=0,damageTypeA,1,英雄单位
+damageTypeA3=0,damageTypeA,2,普通单位
+
+damageTypeB1=0,damageTypeB,0,任意伤害
+damageTypeB2=0,damageTypeB,1,攻击伤害
+damageTypeB3=0,damageTypeB,2,非攻击伤害
+damageTypeB4=0,damageTypeB,3,致命伤害
+damageTypeB5=0,damageTypeB,4,暴击伤害
+
+healType1=0,healType,0,治疗
+healType2=0,healType,0,治疗(结算)
+
+mover_state_real1=0,mover_state_real,1,在原力场中降低的移动速度(%)
+mover_state_real2=0,mover_state_real,2,在原力场中受到的额外斥力(%)
+
+itemPickDrop1=0,itemPickDrop,0,获得
+itemPickDrop2=0,itemPickDrop,1,失去
+
+add_remove_add=0,add_remove,true,添加
+add_remove_remove=0,add_remove,false,移除
+
+crit_crited_crit=0,crit_crited,0,暴击
+crit_crited_crited=0,crit_crited,1,被暴击
+
+hit_dodg_hit=0,hit_dodg,0,命中
+hit_dodg_dodg=0,hit_dodg,1,闪躲
+
+hit_dodg_crit_hit=0,hit_dodg_crit,0,命中
+hit_dodg_crit_dodg=0,hit_dodg_crit,1,闪躲
+hit_dodg_crit_crit=0,hit_dodg_crit,2,暴击
+
+unit_response_type1=0,unit_response_type,1,选中回应
+unit_response_type2=0,unit_response_type,2,移动回应
+unit_response_type3=0,unit_response_type,3,攻击回应
+
 //YDWE 修改属性
 bonusTypeC=0,bonusType,3,攻击
-bonusTypeD=0,bonusType,2,防御
+bonusTypeD=0,bonusType,2,防御(*0.01)
 bonusTypeA=0,bonusType,0,生命上限
 bonusTypeB=0,bonusType,1,魔法上限
+bonusTypeE=0,bonusType,4,攻击速度
+bonusTypeF=0,bonusType,5,绿字敏捷
+bonusTypeG=0,bonusType,6,绿字智力
+bonusTypeH=0,bonusType,7,绿字力量
 
 //YDWE 修改单位
 //targetattachA=0,targetattach,"overhead",头顶
@@ -461,55 +543,73 @@ targettypeC=0,targettype,3,立即
 targettypeD=0,targettype,4,对自己
 
 
+//逆天-类型
+typename01_integer=0,typename,1,整数
+typename02_real=0,typename,2,实数
+typename03_boolean=0,typename,3,真值
+typename04_string=0,typename,4,字符串
+typename05_timer=0,typename,5,计时器
+typename06_trigger=0,typename,6,触发器
+typename07_unit=0,typename,7,单位
+typename08_unitcode=0,typename,8,单位类型
+typename09_abilcode=0,typename,9,技能
+typename10_item=0,typename,10,物品
+typename11_itemcode=0,typename,11,物品类型
+typename12_group=0,typename,12,单位组
+typename13_player=0,typename,13,玩家
+typename14_location=0,typename,14,点
+typename15_destructable=0,typename,15,可破坏物
+typename16_force=0,typename,16,玩家组
+typename17_rect=0,typename,17,矩形区域
+typename18_region=0,typename,18,不规则区域
+typename19_sound=0,typename,19,声音
+typename20_effect=0,typename,20,特效
+typename21_unitpool=0,typename,21,单位池
+typename22_itempool=0,typename,22,物品池
+typename23_quest=0,typename,23,任务
+typename24_questitem=0,typename,24,任务目标项
+typename25_timerdialog=0,typename,25,计时器窗口
+typename26_leaderboard=0,typename,26,排行榜
+typename27_multiboard=0,typename,27,多面板
+typename28_multiboarditem=0,typename,28,多面板项目
+typename29_trackable=0,typename,29,可追踪物
+typename30_dialog=0,typename,30,对话框
+typename31_button=0,typename,31,对话框按钮
+typename32_texttag=0,typename,32,漂浮文字
+typename33_lightning=0,typename,33,闪电
+typename34_image=0,typename,34,图像
+typename35_fogstate=0,typename,35,迷雾
+typename36_fogmodifier=0,typename,36,可见度修正器
+typename37_radian=0,typename,37,弧度
+typename38_degree=0,typename,38,角度
+//typename39_widget=0,typename,39,物体
 
+objecttype00_abilcode=0,objecttype,YDWE_OBJECT_TYPE_ABILITY,WESTRING_OBJTAB_ABILITIES
+objecttype01_buffcode=0,objecttype,YDWE_OBJECT_TYPE_BUFF,WESTRING_OBJTAB_BUFFS
+objecttype02_unitcode=0,objecttype,YDWE_OBJECT_TYPE_UNIT,WESTRING_OBJTAB_UNITS
+objecttype03_itemcode=0,objecttype,YDWE_OBJECT_TYPE_ITEM,WESTRING_OBJTAB_ITEMS
+objecttype04_techcode=0,objecttype,YDWE_OBJECT_TYPE_UPGRADE,WESTRING_OBJTAB_UPGRADES
+objecttype05_doodadcode=0,objecttype,YDWE_OBJECT_TYPE_DOODAD,WESTRING_OBJTAB_DOODADS
+objecttype06_destructablecode=0,objecttype,YDWE_OBJECT_TYPE_DESTRUCTABLE,WESTRING_OBJTAB_DESTRUCTABLES
 
+//最萌小汐
+removeWhichLocationA=0,removeWhichLocation,0,不清除点
+removeWhichLocationB=0,removeWhichLocation,1,清除这2个点
+removeWhichLocationC=0,removeWhichLocation,2,清除前面一个点
+removeWhichLocationD=0,removeWhichLocation,3,清除后面一个点
 
+DisOrAngA=0,DisOrAng,0,距离
+DisOrAngB=0,DisOrAng,1,方向
 
+showToA=0,showTo,0,对所有玩家可见
+showToB=0,showTo,1,对友方可见
+showToC=0,showTo,2,仅对自己可见
 
+isLuckA=0,isLuck,true,好神符
+isLuckB=0,isLuck,false,坏神符
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+SkillBarEndReasonA=0,SkillBarEndReason,0,技能成功
+SkillBarEndReasonB=0,SkillBarEndReason,1,技能失败
 
 // Operators
 OperatorAdd=0,ArithmeticOperator,"+",WESTRING_ARITHMETICOPERATOR_ADD
@@ -530,6 +630,11 @@ OperatorNotEqualENE=0,EqualNotEqualOperator,"!=",WESTRING_EQUALNOTEQUALOPERATOR_
 //Integer
 bj_forLoopAIndex=0,integer,bj_forLoopAIndex,循环整数A [R]
 bj_forLoopBIndex=0,integer,bj_forLoopBIndex,循环整数B [R]
+process.lastKey=0,integer,process.lastKey,最后创建的过程 <过程库>
+ydl_timer_handle=0,integer,ydl_timer_handle,最后启动的逆天计时器地址
+ydl_exp_timer_handle=0,integer,ydl_exp_timer_handle,到期的逆天计时器地址
+ydl_trigger_handle=0,integer,ydl_trigger_handle,最后注册的逆天触发器地址
+ydl_tri_trigger_handle=0,integer,ydl_tri_trigger_handle,触发的逆天触发器地址
 
 abileventA=0,abilevent,1,环绕(特效)
 abileventB=0,abilevent,2,跳跃
@@ -548,7 +653,7 @@ RealQueueDelayHint=0,real,bj_QUEUE_DELAY_HINT,WESTRING_QUEUE_DELAY_HINT
 RealQueueDelaySecret=0,real,bj_QUEUE_DELAY_SECRET,WESTRING_QUEUE_DELAY_SECRET
 RealHandicapEasy=0,real,bj_HANDICAP_EASY,WESTRING_HANDICAP_EASY
 RealCellWidth=0,real,bj_CELLWIDTH,WESTRING_REAL_CELLWIDTH
-RealUnitFacing=0,degree,bj_UNIT_FACING,WESTRING_REAL_UNITFACING
+RealUnitFacing=0,real,bj_UNIT_FACING,WESTRING_REAL_UNITFACING
 RealCamDefDistance=0,real,bj_CAMERA_DEFAULT_DISTANCE,WESTRING_CAMDEFAULT_DISTANCE
 RealCamDefFarZ=0,real,bj_CAMERA_DEFAULT_FARZ,WESTRING_CAMDEFAULT_FARZ
 RealCamDefAoA=0,real,bj_CAMERA_DEFAULT_AOA,WESTRING_CAMDEFAULT_AOA
@@ -558,6 +663,7 @@ RealCamDefRotation=0,real,bj_CAMERA_DEFAULT_ROTATION,WESTRING_CAMDEFAULT_ROTATIO
 bj_lastTransmissionDuration=0,real,bj_lastTransmissionDuration,最后发言长度 [R]
 RealE=0,real,bj_E,WESTRING_REAL_E
 RealPi=0,real,bj_PI,WESTRING_REAL_PI
+Unit.lastMoveDis=0,real,Unit.lastMoveDis,上次移动的距离 <单位库>
 
 //ScriptCode
 ScriptCode00=0,scriptcode,exitwhen true,退出当前循环 [R]
@@ -740,6 +846,11 @@ HotKeyIntNumpad.=0,hotkeyint,271,Numpad.
 
 // Boolean
 bj_lastLoadPreloadSLResult=0,boolean,bj_lastLoadPreloadSLResult,最后读取的存档为有效 [YDWE]
+
+//最萌小汐
+Unit.MoveSuccess=0,boolean,Unit.MoveSuccess,上次移动完全成功 <单位库>
+Unit.IsOrderedByScript=0,boolean,Unit.IsOrderedByScript,指令是触发器发布的 <单位库>
+
 // Units
 UnitNull=0,unit,null,WESTRING_TRIGUNIT_NULL
 bj_lastCreatedUnit=0,unit,bj_lastCreatedUnit,最后创建的单位 [R]
@@ -749,6 +860,9 @@ bj_lastHauntedGoldMine=0,unit,bj_lastHauntedGoldMine,最后创建的不死族金
 bj_lastPoolAbstractedUnit=0,unit,bj_lastPoolAbstractedUnit,最后从单位池中取出的单位 [YDWE]
 bj_lastAbilityCastingUnit=0,unit,bj_lastAbilityCastingUnit,最后施放特殊技能的单位 [YDWE]
 bj_lastAbilityTargetUnit=0,unit,bj_lastAbilityTargetUnit,最后被特殊技能命中的单位 [YDWE]
+Unit.lastSkillBar=0,unit,Unit.lastSkillBar,最后创建的施法进度条 <单位库>
+Event.u_from=0,unit,Event.u_from[Event.index],事件来源 <事件库>
+Event.u_to=0,unit,Event.u_to[Event.index],事件目标 <事件库>
 
 // Unit pool
 bj_lastCreatedUnitPool=0,unitpool,bj_lastCreatedUnitPool,最后创建的单位池 [YDWE]
@@ -789,6 +903,7 @@ bj_lastCreatedMultiboard=0,multiboard,bj_lastCreatedMultiboard,最后创建的�
 
 //Timer
 bj_lastStartedTimer=0,timer,bj_lastStartedTimer,最后启用的计时器 [R]
+ydl_timer=0,timer,ydl_timer,最后启动的逆天计时器
 
 // TimerDialog
 bj_lastCreatedTimerDialog=0,timerdialog,bj_lastCreatedTimerDialog,最后创建的计时器窗口 [R]
@@ -1073,10 +1188,24 @@ UnitStateLife=0,unitstate,UNIT_STATE_LIFE,WESTRING_USTATE_LIFE
 UnitStateMaxLife=0,unitstate,UNIT_STATE_MAX_LIFE,WESTRING_USTATE_MAXLIFE
 UnitStateMana=0,unitstate,UNIT_STATE_MANA,WESTRING_USTATE_MANA
 UnitStateMaxMana=0,unitstate,UNIT_STATE_MAX_MANA,WESTRING_USTATE_MAXMANA
+UnitStateDamageDice=0,unitstate,ConvertUnitState(0x10),"骰子数量 [JAPI]"
+UnitStateDamageSide=0,unitstate,ConvertUnitState(0x11),"骰子面数 [JAPI]"
+UnitStateDamageBase=0,unitstate,ConvertUnitState(0x12),"基础伤害 [JAPI]"
+UnitStateDamageBonus=0,unitstate,ConvertUnitState(0x13),"附加伤害 [JAPI]"
+UnitStateDamageMix=0,unitstate,ConvertUnitState(0x14),"攻击最小值 [JAPI]"
+UnitStateDamageMax=0,unitstate,ConvertUnitState(0x15),"攻击最大值 [JAPI]"
+UnitStateDamageRange=0,unitstate,ConvertUnitState(0x16),"攻击范围 [JAPI]"
+UnitStateArmor=0,unitstate,ConvertUnitState(0x20),"护甲 [JAPI]"
 
 // UnitStatesSec
 UnitStateLifeSec=0,unitstatesec,UNIT_STATE_LIFE,WESTRING_USTATE_LIFE
 UnitStateManaSec=0,unitstatesec,UNIT_STATE_MANA,WESTRING_USTATE_MANA
+UnitStateDamageDiceSec=0,unitstatesec,ConvertUnitState(0x10),"骰子数量 [JAPI]"
+UnitStateDamageSideSec=0,unitstatesec,ConvertUnitState(0x11),"骰子面数 [JAPI]"
+UnitStateDamageBaseSec=0,unitstatesec,ConvertUnitState(0x12),"基础伤害 [JAPI]"
+UnitStateDamageBonusSec=0,unitstatesec,ConvertUnitState(0x13),"附加伤害 [JAPI]"
+UnitStateDamageRangeSec=0,unitstatesec,ConvertUnitState(0x16),"攻击范围 [JAPI]"
+UnitStateArmorSec=0,unitstatesec,ConvertUnitState(0x20),"护甲 [JAPI]"
 
 // Keyboard Event Types
 KeyEventTypeDepress=1,keyeventtype,bj_KEYEVENTTYPE_DEPRESS,WESTRING_KEYEVENTTYPE_DEPRESS
@@ -1102,8 +1231,8 @@ UnitTypeSummoned=0,unittype,UNIT_TYPE_SUMMONED,WESTRING_UNITTYPE_SUMMONED
 UnitTypePlagued=0,unittype,UNIT_TYPE_PLAGUED,WESTRING_UNITTYPE_PLAGUED
 UnitTypeSnared=0,unittype,UNIT_TYPE_SNARED,WESTRING_UNITTYPE_SNARED
 UnitTypeStunned=0,unittype,UNIT_TYPE_STUNNED,WESTRING_UNITTYPE_STUNNED
-UnitTypeGiant=0,unittype,UNIT_TYPE_GIANT,泰坦族 [R]
-UnitTypeTauren=0,unittype,UNIT_TYPE_TAUREN,牛头人 [R]
+UnitTypeGiant=0,unittype,UNIT_TYPE_GIANT,泰坦族(无法改变高度) [R]
+UnitTypeTauren=0,unittype,UNIT_TYPE_TAUREN,牛头人(弹幕，不会被圆形选取选取选取到) [R]
 UnitTypeUndead=0,unittype,UNIT_TYPE_UNDEAD,WESTRING_UNITTYPE_UNDEAD
 UnitTypeMechanical=0,unittype,UNIT_TYPE_MECHANICAL,WESTRING_UNITTYPE_MECHANICAL
 UnitTypeAncient=0,unittype,UNIT_TYPE_ANCIENT,WESTRING_UNITTYPE_ANCIENT
@@ -1125,8 +1254,8 @@ UnitTypeAncientAdd=0,unittypeaddable,UNIT_TYPE_ANCIENT,WESTRING_UNITTYPE_ANCIENT
 UnitTypePeonAdd=0,unittypeaddable,UNIT_TYPE_PEON,WESTRING_UNITTYPE_PEON
 UnitTypeTownHallAdd=0,unittypeaddable,UNIT_TYPE_TOWNHALL,WESTRING_UNITTYPE_TOWNHALL
 UnitTypeSapperAdd=0,unittypeaddable,UNIT_TYPE_SAPPER,WESTRING_UNITTYPE_SAPPER
-UnitTypeGiantAdd=0,unittypeaddable,UNIT_TYPE_GIANT,泰坦族
-UnitTypeTaurenAdd=0,unittypeaddable,UNIT_TYPE_TAUREN,牛头人
+UnitTypeGiantAdd=0,unittypeaddable,UNIT_TYPE_GIANT,泰坦族(无法改变高度)
+UnitTypeTaurenAdd=0,unittypeaddable,UNIT_TYPE_TAUREN,牛头人(只会被逆天选取选取到)
 
 // Game speeds
 GameSpeedSlowest=0,gamespeed,MAP_SPEED_SLOWEST,WESTRING_GAMESPEED_SLOWEST
@@ -1663,7 +1792,7 @@ ExplodeDontDont=0,explodedontoption,false,WESTRING_EXPLODEDONTOPTION_DONT
 
 // SuspendResume Option
 SuspendResumeSuspend=0,suspendresumeoption,true,WESTRING_SUSPENDRESUMEOPTION_SUSPEND
-SuspendResumeResume=0,suspendresumeoption,false,WESTRING_SUSPENDRESUMEOPTION_RESUME
+SuspendResumeResume=0,suspendresumeoption,true,WESTRING_SUSPENDRESUMEOPTION_RESUME
 
 SuspendResumeSuspend_R=0,suspendresumeoption_R,true,WESTRING_SUSPENDRESUMEOPTION_SUSPEND
 SuspendResumeResume_R=0,suspendresumeoption_R,false,WESTRING_SUSPENDRESUMEOPTION_RESUME
@@ -1820,6 +1949,8 @@ CinematicIndexXOP=1,cinematicindex,bj_CINEMATICINDEX_XOP,WESTRING_CINEMATICTYPE_
 CinematicIndexXED=1,cinematicindex,bj_CINEMATICINDEX_XED,WESTRING_CINEMATICTYPE_XED
 
 // Trigger Unit-Targeted Unit Orders
+ydl_trigger=0,trigger,ydl_trigger,最后注册的逆天触发器
+
 // Common
 UnitOrderAttackUnitnull=0,unitorderutarg,null,无
 UnitOrderAttackUnit=0,unitorderutarg,`attack`,WESTRING_UNITORDERUTARG_ATTACK
@@ -2571,6 +2702,16 @@ OrderCodeUnColdArrows=0,ordercodenotarg,852245,WESTRING_UNITORDERNOTARG_UNCOLDAR
 OrderCodeDustOfAppearance=1,ordercodenotarg,852621,物品技能 - 月亮石
 OrderCodeDustOfAppearance=1,ordercodenotarg,852625,物品技能 - 显影之尘
 
+// Order
+OrderCode_Smart=0,ordercode,851971,右键点击
+OrderCode_Stop=0,ordercode,851972,停止
+OrderCode_Attack=0,ordercode,851983,攻击
+OrderCode_Hold=0,ordercode,851993,保持原位
+OrderCode_Move=0,ordercode,851986,移动/跟随
+OrderCode_Stun=0,ordercode,851973,昏迷
+OrderCode_Cancel=0,ordercode,851976,取消
+OrderCode_SkillPage=0,ordercode,852000,技能菜单
+
 // Hero Skills
 // Human Archmage
 HeroSkillBlizzard=0,heroskillcode,'AHbz',WESTRING_HEROSKILL_BLIZZARD
@@ -3264,10 +3405,6 @@ CHAT_RECIPIENT_ALLIES=0,ChatRecipient,1,盟友频道
 CHAT_RECIPIENT_OBSERVERS=0,ChatRecipient,2,观看者/裁判频道
 CHAT_RECIPIENT_PRIVATE=0,ChatRecipient,3,私人频道
 
-ITEM_DATA_ART=0,ItemDataString,1,图标
-ITEM_DATA_UBERTIP=0,ItemDataString,3,提示(扩展)
-ITEM_DATA_TIP=0,ItemDataString,4,提示
-
 
 
 
@@ -3285,9 +3422,57 @@ _MapInitializationEvent_Defaults=
 _MapInitializationEvent_Category=TC_NOTHING
 
 
+//最萌小汐
+Event.AnyUnitSkill=0,skillType,abilcode
+_Event.AnyUnitSkill_Defaults=skillTypeC,_
+_Event.AnyUnitSkill_Category=TC_MU_EVENT
 
+Event.AnyUnitDamage=0,damageTypeA,damageTypeB
+_Event.AnyUnitDamage_Defaults=damageTypeA1,damageTypeB1
+_Event.AnyUnitDamage_Category=TC_MU_EVENT
 
+Event.AnyUnitHeal=0,damageTypeA,healType
+_Event.AnyUnitHeal_Defaults=damageTypeA1,healType1
+_Event.AnyUnitHeal_Category=TC_MU_EVENT
 
+Event.UserEventInit=0,scriptcode
+_Event.UserEventInit_Category=TC_MU_EVENT
+
+Event.SkillCoolReset=0,abilcode
+_Event.SkillCoolReset_Defaults=GetSpellAbilityId
+_Event.SkillCoolReset_Category=TC_MU_EVENT
+
+Event.ItemPick=0,itemcode
+_Event.ItemPick_Category=TC_MU_EVENT
+
+Event.ItemDrop=0,itemcode
+_Event.ItemDrop_Category=TC_MU_EVENT
+
+Event.ItemPickDrop=0,itemPickDrop,itemcode
+_Event.ItemPickDrop_Defaults=itemPickDrop1,_
+_Event.ItemPickDrop_Category=TC_MU_EVENT
+
+Event.HeroRevive=0,abilcode
+_Event.HeroRevive_Defaults=GetSpellAbilityId
+_Event.HeroRevive_Category=TC_MU_EVENT
+
+Event.ProcessCovered=0,integer
+_Event.ProcessCovered_Category=TC_MU_EVENT
+
+Event.SkillBarEnd=0,unit,SkillBarEndReason
+_Event.SkillBarEnd_Defaults=Unit.lastSkillBar,SkillBarEndReasonA
+_Event.SkillBarEnd_Category=TC_MU_EVENT
+
+Event.HeroInit=0,unitcode
+_Event.HeroInit_Category=TC_MU_EVENT
+
+Event.Crit=0
+_Event.Crit_Category=TC_MU_EVENT
+
+//
+YDWEDisableRegister=0,nothing
+_YDWEDisableRegister_Defaults=
+_YDWEDisableRegister_Category=TC_NOTHING
 
 
 //YD Event Trigger
@@ -3580,11 +3765,11 @@ OperatorCompareReal=0,real,ComparisonOperator,real
 _OperatorCompareReal_Defaults=10,OperatorGreaterEq,10
 _OperatorCompareReal_Category=TC_CONDITION
 
-OperatorCompareDegree=0,degree,ComparisonOperator,degree
+OperatorCompareDegree=0,real,ComparisonOperator,real
 _OperatorCompareDegree_Defaults=10,OperatorGreaterEq,10
 _OperatorCompareDegree_Category=TC_CONDITION
 
-OperatorCompareRadian=0,radian,ComparisonOperator,radian
+OperatorCompareRadian=0,real,ComparisonOperator,real
 _OperatorCompareRadian_Defaults=10,OperatorGreaterEq,10
 _OperatorCompareRadian_Category=TC_CONDITION
 
@@ -3702,10 +3887,10 @@ _PolledWait_Limits=0,_
 _PolledWait_Category=TC_WAIT
 
 
-YDWEWaitForLocalVariable=1,real
-_YDWEWaitForLocalVariable_Defaults=2
-_YDWEWaitForLocalVariable_Limits=0,_
-_YDWEWaitForLocalVariable_Category=TC_WAIT
+
+
+
+
 
 
 WaitForCondition=1,boolexpr,real
@@ -3825,8 +4010,161 @@ _LockGuardPosition_Defaults=_
 _LockGuardPosition_Category=TC_AI
 
 
+//最萌小汐
+//专用库
+baka.lucky=0,unit,real,isLuck
+_baka.lucky_Defaults=GetTriggerUnit,75,isLuckA
+_baka.lucky_Limits=_,_,0,100,_,_
+_baka.lucky_Category=TC_MU_BAKA
+
+baka.Sp=0
+_baka.Sp_Category=TC_MU_BAKA
+
+baka.hookImage=0
+_baka.hookImage_Category=TC_MU_BAKA
+
+FlushUnit_Add=0,unit
+_FlushUnit_Add_Defaults=GetTriggerUnit
+_FlushUnit_Add_Category=TC_MU_BAKA
+
+maphack.InitHero=0,unit
+_maphack.InitHero_Defaults=GetTriggerUnit
+_maphack.InitHero_Category=TC_MU_BAKA
+
+Lua_hook=0,player,string
+_Lua_hook_Defaults=GetOwningPlayer,"函数名 参数"
+_Lua_hook_Category=TC_MU_BAKA
+
+//数学库
+math.MoveLocationAngle=0,location,real,real,boolean
+_math.MoveLocationAngle_Defaults=_,0,100,true
+_math.MoveLocationAngle_Category=TC_MU_MATH
+
+math.SetPolygonLocation=0,integer,real,real
+_math.SetPolygonLocation_Defaults=1,0,0
+_math.SetPolygonLocation_Limits=0,8191,_,_,_,_
+_math.SetPolygonLocation_Category=TC_MU_MATH
+
+//单位库
+Unit.ExchangeItem=0,unit,itemcode,itemcode,boolean,boolean
+_Unit.ExchangeItem_Defaults=GetTriggerUnit,ches,ches,true,true
+_Unit.ExchangeItem_Category=TC_MU_UNIT
+
+Unit.Move=0,unit,real,real
+_Unit.Move_Defaults=GetTriggerUnit,0,50
+_Unit.Move_Category=TC_MU_UNIT
+
+Unit.Move2=0,unit,real,real,pathingtype
+_Unit.Move2_Defaults=GetTriggerUnit,0,50,PathingTypeWalkability
+_Unit.Move2_Category=TC_MU_UNIT
+
+Unit.SetUnitXY=0,unit,real,real
+_Unit.SetUnitXY_Defaults=GetTriggerUnit,GetUnitX,GetUnitY
+_Unit.SetUnitXY_Category=TC_MU_UNIT
+
+Unit.SetUnitXYOffset=0,unit,real,real,real,real
+_Unit.SetUnitXYOffset_Defaults=GetTriggerUnit,GetUnitX,GetUnitY,GetUnitFacing,50
+_Unit.SetUnitXYOffset_Category=TC_MU_UNIT
+
+Unit.DummyAttack=0,unit,unitcode,unit,integer,boolean,boolean,boolean,boolean
+_Unit.DummyAttack_Defaults=GetTriggerUnit,_,GetTriggerUnit,1,true,true,true,true
+_Unit.DummyAttack_Category=TC_MU_UNIT
+
+Unit.WantDestroyGroup=0
+_Unit.WantDestroyGroup_Category=TC_MU_UNIT
+
+Unit.DummySkill=0,player,unit,integer,abilcode
+_Unit.DummySkill_Defaults=GetOwningPlayer,GetTriggerUnit,1,Aloc
+_Unit.DummySkill_Category=TC_MU_UNIT
+
+Unit.DummySkillLoc=0,player,location,boolean,integer,abilcode
+_Unit.DummySkillLoc_Defaults=GetOwningPlayer,GetUnitLoc,true,1,Aloc
+_Unit.DummySkillLoc_Category=TC_MU_UNIT
+
+Unit.SetHard=0,unit,real
+_Unit.SetHard_Defaults=GetTriggerUnit,1
+_Unit.SetHard_Category=TC_MU_UNIT
+
+Unit.SkillBar=0,unit,real,playercolor,boolean,boolean,boolean,boolean
+_Unit.SkillBar_Defaults=GetTriggerUnit,1,Color00,true,true,true,true
+_Unit.SkillBar_Category=TC_MU_UNIT
+
+Unit.SaveSlkData=0,unitcode,scriptcode
+_Unit.SaveSlkData_Defaults=hfoo,_
+_Unit.SaveSlkData_Category=TC_MU_UNIT
+
+Unit.Crit=0,unit,add_remove,real,real,string,crit_crited
+_Unit.Crit_Defaults=GetTriggerUnit,add_remove_add,15,1.5,"无",crit_crited_crit
+_Unit.Crit_Category=TC_MU_UNIT
+
+Unit.HitDodg=0,unit,add_remove,real,string,hit_dodg
+_Unit.HitDodg_Defaults=GetTriggerUnit,add_remove_add,15,"无",hit_dodg_dodg
+_Unit.HitDodg_Category=TC_MU_UNIT
+
+Unit.PrintHitDodgCrit=0,unit,hit_dodg_crit,player
+_Unit.PrintHitDodgCrit_Defaults=GetTriggerUnit,hit_dodg_crit_hit,GetTriggerPlayer
+_Unit.PrintHitDodgCrit_Category=TC_MU_UNIT
+
+Unit.ExtraMoveSpeed=0,unit,real
+_Unit.ExtraMoveSpeed_Defaults=GetTriggerUnit,500
+_Unit.ExtraMoveSpeed_Category=TC_MU_UNIT
+
+//物品库
+Item.Formula=0,itemcode,itemcode,itemcode,itemcode,itemcode,itemcode,itemcode,itemcode,integer
+_Item.Formula_Defaults=_,_,_,_,ches,ches,ches,ches,0
+_Item.Formula_Category=TC_MU_ITEM
+
+//音效库
+Sound.InitUnitResponses=0,unitcode,unit_response_type,StringExt
+_Sound.InitUnitResponses_Defaults=_,unit_response_type1,_
+_Sound.InitUnitResponses_Category=TC_MU_SOUND
+
+//过程库
+process.Create2=0,unit,string,integer,boolean
+_process.Create2_Defaults=GetTriggerUnit,"移动",100,true
+_process.Create2_Category=TC_MU_PROCESS
+
+process.Remove=0,integer
+_process.Remove_Defaults=_
+_process.Remove_Category=TC_MU_PROCESS
+
+process.Cover=0,unit,integer,string
+_process.Cover_Defaults=GetTriggerUnit,100,"移动"
+_process.Cover_Category=TC_MU_PROCESS
+
+process.SetUper=0,integer,integer
+_process.SetUper_Defaults=_,100
+_process.SetUper_Category=TC_MU_PROCESS
+
+//事件库
+Event.ReduceDamage=0,real
+_Event.ReduceDamage_Defaults=100
+_Event.ReduceDamage_Category=TC_MU_EVENT
+
+Event.AddHeal=0,real
+_Event.AddHeal_Defaults=100
+_Event.AddHeal_Category=TC_MU_EVENT
+
+Event.UserEventStart=0,scriptcode
+_Event.UserEventStart_Category=TC_MU_EVENT
+
+Event.SkipTriggers=0
+_Event.SkipTriggers_Category=TC_MU_EVENT
+
+Event.BlockCurrentModule=0
+_Event.BlockCurrentModule_Category=TC_MU_EVENT
+
+//弹幕库
+Mover.SetMover=0,unit
+_Mover.SetMover_Defaults=bj_lastCreatedUnit
+_Mover.SetMover_Category=TC_MU_MOVER
+
+Mover.SetStateReal=0,unit,mover_state_real,real
+_Mover.SetStateReal_Defaults=bj_lastCreatedUnit,mover_state_real1,0
+_Mover.SetStateReal_Category=TC_MU_MOVER
+
 //YD Ability
-YDWEJumpTimer=0,unit,degree,real,real,real,real
+YDWEJumpTimer=0,unit,real,real,real,real,real
 _YDWEJumpTimer_Defaults=GetTriggerUnit,0,800,2,0.01,300
 _YDWEJumpTimer_Limits=_,_,0,360,0,_,0,_,0.03,_,0,_
 _YDWEJumpTimer_Category=TC_YDAB
@@ -3837,17 +4175,17 @@ _YDWEMeatHook_Defaults=GetTriggerUnit,GetSpellTargetLoc,_,_,2000,35,100,0.03
 _YDWEMeatHook_Limits=_,_,_,_,_,_,_,_,0,_,0,_,0,_,0.01,_
 _YDWEMeatHook_Category=TC_YDAB
 
-YDWETimerPatternJumpAttack=0,unit,degree,real,real,real,real,real,string,modelfile
+YDWETimerPatternJumpAttack=0,unit,real,real,real,real,real,real,string,modelfile
 _YDWETimerPatternJumpAttack_Defaults=GetTriggerUnit,0,800,1,0.03,100,0,"chest",_
 _YDWETimerPatternJumpAttack_Limits=_,_,0,360,0,_,0.01,_,0.01,_,0,_,0,_,_,_,_,_
 _YDWETimerPatternJumpAttack_Category=TC_YDAB
 
-YDWETimerPatternMoonPriestessArrow=0,unit,degree,real,real,real,integer,abilcode,unitcode,unitorderutarg,string,modelfile
+YDWETimerPatternMoonPriestessArrow=0,unit,real,real,real,real,integer,abilcode,unitcode,unitorderutarg,string,modelfile
 _YDWETimerPatternMoonPriestessArrow_Defaults=GetTriggerUnit,0,800,1,0.03,1,_,_,UnitOrderAttackUnit,"overhead",_
 _YDWETimerPatternMoonPriestessArrow_Limits=_,_,0,360,0,_,0.01,_,0.01,_,1,_,_,_,_,_,_,_,_,_,_,_
 _YDWETimerPatternMoonPriestessArrow_Category=TC_YDAB
 
-YDWETimerPatternRushSlide=0,unit,degree,real,real,real,real,boolean,boolean,boolean,string,modelfile,modelfile
+YDWETimerPatternRushSlide=0,unit,real,real,real,real,real,boolean,boolean,boolean,string,modelfile,modelfile
 _YDWETimerPatternRushSlide_Defaults=GetTriggerUnit,0,800,1,0.03,0,false,false,false,"origin",_,_
 _YDWETimerPatternRushSlide_Limits=_,_,0,360,0,_,0.01,_,0.01,_,0,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_
 _YDWETimerPatternRushSlide_Category=TC_YDAB
@@ -3873,7 +4211,7 @@ _YDWE_TP_SetTimeInterval_Defaults=_,0.03
 _YDWE_TP_SetTimeInterval_Limits=_,_,0.01,_
 _YDWE_TP_SetTimeInterval_Category=TC_YDST
 
-YDWEAttackWaveTimer=0,player,integer,unitcode,location,degree,location,real
+YDWEAttackWaveTimer=0,player,integer,unitcode,location,real,location,real
 _YDWEAttackWaveTimer_Defaults=Player00,1,hfoo,_,RealUnitFacing,_,2
 _YDWEAttackWaveTimer_Limits=_,_,1,_,0,_,0,_,0,360,_,_,0.01,_
 _YDWEAttackWaveTimer_Category=TC_YDST
@@ -3938,46 +4276,46 @@ _YDWEAddAIOrder_Defaults=GetTriggerUnit,attackorattackedeventB,targettypeA,UnitO
 _YDWEAddAIOrder_Limits=_,_,_,_,_,_,_,_,_,_,_,_,1,100
 _YDWEAddAIOrder_Category=TC_YDAI
 
+//YD Aganist Fate
+YDWEEnumUnitsInRangeMultiple=0,real,real,real
+_YDWEEnumUnitsInRangeMultiple_Defaults=0,0,512
+_YDWEEnumUnitsInRangeMultiple_Limits=_,_,_,_,_,_,0,_,_,_
+_YDWEEnumUnitsInRangeMultiple_Category=TC_YDBF
 
+YDWESetAnyTypeLocalVariable=0,typename,scriptcode,Null
+_YDWESetAnyTypeLocalVariable_Defaults=_,_,_
+_YDWESetAnyTypeLocalVariable_Category=TC_YDBF
 
+YDWEForLoopLocVarMultiple=1,scriptcode,integer,integer
+_YDWEForLoopLocVarMultiple_Defaults=_,1,10
+_YDWEForLoopLocVarMultiple_Category=TC_YDBF
 
+YDWETimerStartMultiple=0,timer,real,periodicoption
+_YDWETimerStartMultiple_Defaults=CreateTimer,0.03,PeriodicOptionOneTime
+_YDWETimerStartMultiple_Limits=_,_,0,_,_,_
+_YDWETimerStartMultiple_Category=TC_YDBF
 
+YDWETimerStartFlush=0,nothing
+_YDWETimerStartFlush_Category=TC_YDBF
 
+YDWERegisterTriggerMultiple=0,trigger
+_YDWERegisterTriggerMultiple_Defaults=CreateTrigger
+_YDWERegisterTriggerMultiple_Category=TC_YDBF
 
+YDWERegisterTriggerFlush=0,nothing
+_YDWERegisterTriggerFlush_Category=TC_YDBF
 
+YDWESaveAnyTypeDataByUserData=0,typename,Null,scriptcode,typename,Null
+_YDWESaveAnyTypeDataByUserData_Defaults=_,_,_,_,_
+_YDWESaveAnyTypeDataByUserData_Category=TC_YDBF
 
+YDWEFlushAllByUserData=0,typename,Null
+_YDWEFlushAllByUserData_Defaults=_,_
+_YDWEFlushAllByUserData_Category=TC_YDBF
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+YDWEFlushAnyTypeDataByUserData=0,typename,Null,typename,scriptcode
+_YDWEFlushAnyTypeDataByUserData_Defaults=_,_,_,_
+_YDWEFlushAnyTypeDataByUserData_Category=TC_YDBF
 
 
 //YD Save Load
@@ -4135,6 +4473,9 @@ YDWESetAttackDamageWeaponType=0,attacktype,damagetype,weapontype
 _YDWESetAttackDamageWeaponType_Defaults=AttackTypeNormal,DamageTypeNormal,WEAPON_TYPE_WHOKNOWS
 _YDWESetAttackDamageWeaponType_Category=TC_YDFC
 
+YDWESetEventDamage=0,real
+_YDWESetEventDamage_Defaults=0.
+_YDWESetEventDamage_Category=TC_YDFC
 
 YDWEFlyEnable=0,unit
 _YDWEFlyEnable_Defaults=GetTriggerUnit
@@ -4157,6 +4498,28 @@ _YDWEManaChange_Category=TC_YDFC
 // YDWEOpenObjectMerger=0,nothing
 // _YDWEOpenObjectMerger_Category=TC_YDFC
 
+//YD Game Data
+YDWERHSetGameWinner=0,integer
+_YDWERHSetGameWinner_Defaults=0
+_YDWERHSetGameWinner_Limits=0,15
+_YDWERHSetGameWinner_Category=TC_YDHIDE
+
+YDWERecordSetTitle=0,integer,string
+_YDWERecordSetTitle_Defaults=0,_,
+_YDWERecordSetTitle_Limits=0,7,_,_
+_YDWERecordSetTitle_Category=TC_YDSL
+
+YDWERecordSetI=0,player,string,integer
+_YDWERecordSetI_Defaults=Player00,_,5
+_YDWERecordSetI_Category=TC_YDSL
+
+YDWERecordSave=0,player
+_YDWERecordSave_Defaults=Player00
+_YDWERecordSave_Category=TC_YDSL
+
+YDWERecordClear=0,player
+_YDWERecordClear_Defaults=Player00
+_YDWERecordClear_Category=TC_YDSL
 
 //YD Load
 
@@ -4494,7 +4857,7 @@ _YDWECreateEwsp_Defaults=GetTriggerUnit,hfoo,1,300,20,0.01,1
 _YDWECreateEwsp_Limits=_,_,_,_,1,_,0,_,0,_,0.01,_,_,_
 _YDWECreateEwsp_Category=TC_YDSE
 
-YDWECreateLine=0,unit,unitcode,integer,degree,real,real,real,real,real,real,real
+YDWECreateLine=0,unit,unitcode,integer,real,real,real,real,real,real,real,real
 _YDWECreateLine_Defaults=GetTriggerUnit,ewsp,12,50,60,30,0.03,0,10,100,30
 _YDWECreateLine_Limits=_,_,_,_,0,_,-360,360,0,_,0,_,0.01,_,0,_,0,_,1.0,1000.0,_,_
 _YDWECreateLine_Category=TC_YDSE
@@ -4598,7 +4961,7 @@ _YDWEScriptActSlide_Defaults=2,1,0,0,2,0
 _YDWEScriptActSlide_Limits=0,_,1,_,_,_,_,_,0,_,0,_
 _YDWEScriptActSlide_Category=TC_SCRIPTSET
 
-YDWEScriptActTurn=0,real,integer,degree,real,turnclockwise
+YDWEScriptActTurn=0,real,integer,real,real,turnclockwise
 _YDWEScriptActTurn_Defaults=2,1,0,2,turnclockwiseA
 _YDWEScriptActTurn_Limits=0,_,1,_,0,360,0,_,_,_
 _YDWEScriptActTurn_Category=TC_SCRIPTSET
@@ -4701,10 +5064,14 @@ ConditionalTriggerExecute=0,trigger
 _ConditionalTriggerExecute_Defaults=_
 _ConditionalTriggerExecute_Category=TC_TRIGGER
 
+TriggerEvaluate=0,trigger
+_TriggerEvaluate_Defaults=_
+_TriggerEvaluate_Category=TC_TRIGGER
 
 
-
-
+YDWEActivateTrigger=0,trigger,onoffoption
+_YDWEActivateTrigger_Defaults=_,OnOffOn
+_YDWEActivateTrigger_Category=TC_TRIGGER
 
 
 YDWETimerRunTrigger=0,real,trigger
@@ -4758,7 +5125,7 @@ _DestroyTrigger_Category=TC_TRIGGER
 
 // Unit actions
 
-CreateNUnitsAtLoc=0,integer,unitcode,player,location,degree
+CreateNUnitsAtLoc=0,integer,unitcode,player,location,real
 _CreateNUnitsAtLoc_Defaults=1,hfoo,Player00,_,RealUnitFacing
 _CreateNUnitsAtLoc_Limits=1,_,_,_,_,_,_,_,0,360
 _CreateNUnitsAtLoc_Category=TC_UNIT
@@ -4772,16 +5139,22 @@ _CreateNUnitsAtLocFacingLocBJ_Category=TC_UNIT
 //_ CreateUnitAtLoc_Defaults=Player00,hfoo,_,0
 //_ CreateUnitAtLoc_Category=TC_UNIT
 
+//最萌小汐
+Unit.CreateNUnitsAtLocMU=0,integer,unitcode,player,location,real
+_Unit.CreateNUnitsAtLocMU_Defaults=1,hfoo,Player00,_,RealUnitFacing
+_Unit.CreateNUnitsAtLocMU_Limits=1,_,_,_,_,_,_,_,0,360
+_Unit.CreateNUnitsAtLocMU_Category=TC_UNIT
+
 CreateCorpseLocBJ=0,unitcode,player,location
 _CreateCorpseLocBJ_Defaults=hfoo,Player00,_
 _CreateCorpseLocBJ_Category=TC_UNIT
 
-CreatePermanentCorpseLocBJ=1,corpsetype,unitcode,player,location,degree
+CreatePermanentCorpseLocBJ=1,corpsetype,unitcode,player,location,real
 _CreatePermanentCorpseLocBJ_Defaults=CorpseTypeBone,hfoo,Player00,_,GetRandomDirectionDeg
 _CreatePermanentCorpseLocBJ_Limits=_,_,_,_,_,_,_,_,0,360
 _CreatePermanentCorpseLocBJ_Category=TC_UNIT
 
- CreateUnit=0,player,unitcode,real,real,degree
+ CreateUnit=0,player,unitcode,real,real,real
 _ CreateUnit_Defaults=_,_,_,_,RealUnitFacing
 _ CreateUnit_Category=TC_UNIT
 
@@ -4847,7 +5220,12 @@ SetUnitPositionLoc=0,unit,location
 _SetUnitPositionLoc_Defaults=GetTriggerUnit,_
 _SetUnitPositionLoc_Category=TC_UNIT
 
-SetUnitPositionLocFacingBJ=0,unit,location,degree
+//最萌小汐
+Unit.SetUnitPositionLocMU=0,unit,location
+_Unit.SetUnitPositionLocMU_Defaults=GetTriggerUnit,_
+_Unit.SetUnitPositionLocMU_Category=TC_UNIT
+
+SetUnitPositionLocFacingBJ=0,unit,location,real
 _SetUnitPositionLocFacingBJ_Defaults=GetTriggerUnit,_,RealUnitFacing
 _SetUnitPositionLocFacingBJ_Category=TC_UNIT
 
@@ -4862,6 +5240,10 @@ _SetUnitX_Category=TC_UNIT
 SetUnitY=0,unit,real
 _SetUnitY_Defaults=GetTriggerUnit,0
 _SetUnitY_Category=TC_UNIT
+
+Unit.SetUnitZ=0,unit,real
+_Unit.SetUnitZ_Defaults=GetTriggerUnit,0
+_Unit.SetUnitZ_Category=TC_UNIT
 
 SetUnitRallyPoint=1,unit,location
 _SetUnitRallyPoint_Defaults=GetTriggerUnit,_
@@ -4903,13 +5285,17 @@ SetUnitInvulnerable=0,unit,invulnerableoption
 _SetUnitInvulnerable_Defaults=GetTriggerUnit,InvulnerabilityInvulnerable
 _SetUnitInvulnerable_Category=TC_UNIT
 
+Unit.PauseUnitMU=0,unit,pauseunpauseoption,string
+_Unit.PauseUnitMU_Defaults=GetTriggerUnit,PauseUnpauseOptionPause,"全局"
+_Unit.PauseUnitMU_Category=TC_UNIT
+
 PauseUnit=0,unit,pauseunpauseoption
 _PauseUnit_Defaults=GetTriggerUnit,PauseUnpauseOptionPause
-_PauseUnit_Category=TC_UNIT
+_PauseUnit_Category=TC_YDHIDE
 
 PauseUnitBJ=0,pauseunpauseoption,unit
 _PauseUnitBJ_Defaults=PauseUnpauseOptionPause,GetTriggerUnit
-_PauseUnitBJ_Category=TC_UNIT
+_PauseUnitBJ_Category=TC_YDHIDE
 
 PauseAllUnitsBJ=0,pauseunpauseoption
 _PauseAllUnitsBJ_Defaults=PauseUnpauseOptionPause
@@ -4949,6 +5335,11 @@ _UnitSuspendDecayBJ_Category=TC_UNIT
 UnitResetCooldown=1,unit
 _UnitResetCooldown_Defaults=GetTriggerUnit
 _UnitResetCooldown_Category=TC_UNIT
+
+//最萌小汐
+Unit.RefreshSkill=0,unit,abilcode
+_Unit.RefreshSkill_Defaults=GetTriggerUnit,_
+_Unit.RefreshSkill_Category=TC_UNIT
 
 UnitSetConstructionProgress=1,unit,integer
 _UnitSetConstructionProgress_Defaults=GetTriggerUnit,50
@@ -5013,12 +5404,12 @@ SetUnitUseFoodBJ=1,enabledisableoption,unit
 _SetUnitUseFoodBJ_Defaults=EnableDisableDisable,_
 _SetUnitUseFoodBJ_Category=TC_UNIT
 
-SetUnitFacing=0,unit,degree
+SetUnitFacing=0,unit,real
 _SetUnitFacing_Defaults=_,RealUnitFacing
 _SetUnitFacing_Limits=_,_,_,_
 _SetUnitFacing_Category=TC_UNIT
 
-SetUnitFacingTimed=0,unit,degree,real
+SetUnitFacingTimed=0,unit,real,real
 _SetUnitFacingTimed_Defaults=_,RealUnitFacing,0
 _SetUnitFacingTimed_Limits=_,_,_,_,0,_
 _SetUnitFacingTimed_Category=TC_UNIT
@@ -5036,6 +5427,10 @@ _SetUnitFacingToFaceLocTimed_Category=TC_UNIT
 SetUnitMoveSpeed=0,unit,real
 _SetUnitMoveSpeed_Defaults=_,GetUnitDefaultMoveSpeed
 _SetUnitMoveSpeed_Category=TC_UNIT
+
+Unit.AddMoveSpeed=0,unit,real
+_Unit.AddMoveSpeed_Defaults=GetTriggerUnit,100
+_Unit.AddMoveSpeed_Category=TC_UNIT
 
 SetUnitPathing=0,unit,pathingoption
 _SetUnitPathing_Defaults=_,PathingOff
@@ -5082,6 +5477,11 @@ _UnitAddAbility_Category=TC_UNIT
 UnitAddAbilityBJ=1,abilcode,unit
 _UnitAddAbilityBJ_Defaults=_,GetTriggerUnit
 _UnitAddAbilityBJ_Category=TC_UNIT
+
+//最萌小汐
+Unit.UnitAddAbilityMU=1,unit,abilcode,integer
+_Unit.UnitAddAbilityMU_Defaults=GetTriggerUnit,_,2
+_Unit.UnitAddAbilityMU_Category=TC_UNIT
 
 UnitRemoveAbility=0,unit,abilcode
 _UnitRemoveAbility_Defaults=GetTriggerUnit,_
@@ -5137,6 +5537,33 @@ _SetUnitAbilityLevelSwapped_Defaults=_,GetTriggerUnit,1
 _SetUnitAbilityLevelSwapped_Limits=_,_,_,_,1,_
 _SetUnitAbilityLevelSwapped_Category=TC_UNIT
 
+YDWESetUnitAbilityState=1,unit,abilcode,AbilityState,real
+_YDWESetUnitAbilityState_Defaults=GetTriggerUnit,_,ABILITY_STATE_COOLDOWN,_
+_YDWESetUnitAbilityState_Category=TC_UNIT
+
+YDWESetUnitAbilityDataInteger=1,unit,abilcode,integer,AbilityDataInteger,integer
+_YDWESetUnitAbilityDataInteger_Defaults=GetTriggerUnit,_,1,ABILITY_DATA_COST,_
+_YDWESetUnitAbilityDataInteger_Limits=_,_,_,_,1,_,_,_,_,_
+_YDWESetUnitAbilityDataInteger_Category=TC_UNIT
+
+YDWESetUnitAbilityDataReal=1,unit,abilcode,integer,AbilityDataReal,real
+_YDWESetUnitAbilityDataReal_Defaults=GetTriggerUnit,_,1,ABILITY_DATA_COOL,_
+_YDWESetUnitAbilityDataReal_Limits=_,_,_,_,1,_,_,_,_,_
+_YDWESetUnitAbilityDataReal_Category=TC_UNIT
+
+YDWESetUnitAbilityDataString=1,unit,abilcode,integer,AbilityDataString,string
+_YDWESetUnitAbilityDataString_Defaults=GetTriggerUnit,_,1,ABILITY_DATA_TIP,_
+_YDWESetUnitAbilityDataString_Limits=_,_,_,_,1,_,_,_,_,_
+_YDWESetUnitAbilityDataString_Category=TC_UNIT
+
+
+
+
+
+
+
+
+
 
 IssueImmediateOrder=0,unit,unitordernotarg
 _IssueImmediateOrder_Defaults=GetTriggerUnit,UnitOrderStop
@@ -5149,6 +5576,11 @@ _IssuePointOrder_Category=TC_UNIT
 IssuePointOrderLoc=0,unit,unitorderptarg,location
 _IssuePointOrderLoc_Defaults=GetTriggerUnit,UnitOrderMove,_
 _IssuePointOrderLoc_Category=TC_UNIT
+
+//最萌小汐
+Unit.IssuePointOrderLocMU=0,unit,unitorderptarg,location
+_Unit.IssuePointOrderLocMU_Defaults=GetTriggerUnit,UnitOrderMove,_
+_Unit.IssuePointOrderLocMU_Category=TC_UNIT
 
 IssueTargetOrder=0,unit,unitorderutarg,unit
 _IssueTargetOrder_Defaults=GetTriggerUnit,UnitOrderAttackUnit,_
@@ -5175,6 +5607,11 @@ _IssuePointOrderById_Category=TC_UNIT
 IssuePointOrderByIdLoc=0,unit,ordercodeptarg,location
 _IssuePointOrderByIdLoc_Defaults=GetTriggerUnit,OrderCodeMove,_
 _IssuePointOrderByIdLoc_Category=TC_UNIT
+
+//最萌小汐
+Unit.IssuePointOrderByIdLocMU=0,unit,ordercodeptarg,location
+_Unit.IssuePointOrderByIdLocMU_Defaults=GetTriggerUnit,OrderCodeMove,_
+_Unit.IssuePointOrderByIdLocMU_Category=TC_UNIT
 
 IssueTargetOrderById=0,unit,ordercodeutarg,unit
 _IssueTargetOrderById_Defaults=GetTriggerUnit,OrderCodeAttackUnit,_
@@ -5311,7 +5748,7 @@ _YDWEIssueNeutralTargetItemOrderById_Category=TC_UNIT
 _YDWEIssueNeutralTargetItemOrderById_ScriptName=IssueNeutralTargetOrderById
 
 UnitDamagePoint=1,unit,real,real,real,real,real,isnotoption,isnotoption,attacktype,damagetype,weapontype
-_UnitDamagePoint_Defaults=GetTriggerUnit,0,500,0,0,100,IsNotIs,IsNotNot,AttackTypeNormal,DamageTypeNormal,WEAPON_TYPE_WHOKNOWS
+_UnitDamagePoint_Defaults=GetTriggerUnit,0,500,0,0,100,IsNotNot,IsNotNot,AttackTypeNormal,DamageTypeNormal,WEAPON_TYPE_WHOKNOWS
 _UnitDamagePoint_Category=TC_UNIT
 
 UnitDamagePointLoc=1,unit,real,real,location,real,attacktype,damagetype
@@ -5319,14 +5756,16 @@ _UnitDamagePointLoc_Defaults=GetTriggerUnit,0,500,GetRectCenter,100,AttackTypeNo
 _UnitDamagePointLoc_Category=TC_UNIT
 
 UnitDamageTarget=1,unit,unit,real,isnotoption,isnotoption,attacktype,damagetype,weapontype
-_UnitDamageTarget_Defaults=GetTriggerUnit,GetTriggerUnit,500,IsNotIs,IsNotNot,AttackTypeNormal,DamageTypeNormal,WEAPON_TYPE_WHOKNOWS
+_UnitDamageTarget_Defaults=GetTriggerUnit,GetTriggerUnit,500,IsNotNot,IsNotNot,AttackTypeNormal,DamageTypeNormal,WEAPON_TYPE_WHOKNOWS
 _UnitDamageTarget_Category=TC_UNIT
 
 UnitDamageTargetBJ=1,unit,unit,real,attacktype,damagetype
 _UnitDamageTargetBJ_Defaults=GetTriggerUnit,GetTriggerUnit,500,AttackTypeNormal,DamageTypeNormal
 _UnitDamageTargetBJ_Category=TC_UNIT
 
-
+Unit.Heal=1,unit,unit,real
+_Unit.Heal_Defaults=GetTriggerUnit,GetTriggerUnit,500
+_Unit.Heal_Category=TC_UNIT
 
 
 
@@ -5344,7 +5783,7 @@ UnitPoolRemoveUnitType=0,unitpool,unitcode
 _UnitPoolRemoveUnitType_Defaults=_,hfoo
 _UnitPoolRemoveUnitType_Category=TC_UNITPOOL
 
-PlaceRandomUnit=0,unitpool,player,real,real,degree
+PlaceRandomUnit=0,unitpool,player,real,real,real
 _PlaceRandomUnit_Defaults=_,Player00,0,0,0
 _PlaceRandomUnit_Category=TC_UNITPOOL
 
@@ -5481,8 +5920,8 @@ _GroupTrainOrderByIdBJ_ScriptName=GroupImmediateOrderById
 
 // Ubersplat actions
 CreateUbersplatBJ=1,location,ubersplattype,real,real,real,real,allowdontoption,allowdontoption
-_CreateUberSplatBJ_Defaults=_,UbersplatTypeNGOL,100,100,100,0,AllowDontDont,AllowDontDont
-_CreateUberSplatBJ_Category=TC_UBERSPLAT
+_CreateUbersplatBJ_Defaults=_,UbersplatTypeNGOL,100,100,100,0,AllowDontDont,AllowDontDont
+_CreateUbersplatBJ_Category=TC_UBERSPLAT
 
 DestroyUbersplat=1,ubersplat
 _DestroyUbersplat_Defaults=GetLastCreatedUbersplat
@@ -5515,7 +5954,7 @@ _SetUbersplatRenderAlways_Category=TC_UBERSPLAT
 
 // Location actions
 MoveLocation=0,location,real,real
-_MoveLocation=_,0,0
+_MoveLocation_Defaults=_,0,0
 _MoveLocation_Category=TC_LOCATION
 
 RemoveLocation=0,location
@@ -5715,6 +6154,10 @@ _SetUnitVertexColorBJ_Defaults=_,100,100,100,0
 _SetUnitVertexColorBJ_Limits=_,_,0,100,0,100,0,100,0,100
 _SetUnitVertexColorBJ_Category=TC_ANIMATION
 
+Unit.ResetVertexColor=0,unit
+_Unit.ResetVertexColor_Defaults=GetEnumUnit
+_Unit.ResetVertexColor_Category=TC_ANIMATION
+
 SetUnitTimeScale=0,unit,real
 _SetUnitTimeScale_Defaults=_,1
 _SetUnitTimeScale_Limits=_,_,0,_
@@ -5741,11 +6184,11 @@ _SetUnitFlyHeightBJ_Defaults=GetTriggerUnit,_,_
 _SetUnitFlyHeightBJ_Category=TC_ANIMATION
 _SetUnitFlyHeightBJ_ScriptName=SetUnitFlyHeight
 
-SetUnitPropWindow=0,unit,radian
+SetUnitPropWindow=0,unit,real
 _SetUnitPropWindow_Defaults=GetTriggerUnit,_
 _SetUnitPropWindow_Category=TC_ANIMATION
 
-SetUnitPropWindowBJ=0,unit,degree
+SetUnitPropWindowBJ=0,unit,real
 _SetUnitPropWindowBJ_Defaults=GetTriggerUnit,_
 _SetUnitPropWindowBJ_Category=TC_ANIMATION
 
@@ -6240,12 +6683,12 @@ _SetCameraFieldForPlayer_Defaults=Player00,CameraFieldTargetDistance,CameraSetup
 _SetCameraFieldForPlayer_Limits=_,_,_,_,_,_,0,_
 _SetCameraFieldForPlayer_Category=TC_CAMERA
 
-SetCameraRotateMode=1,real,real,radian,real
+SetCameraRotateMode=1,real,real,real,real
 _SetCameraRotateMode_Defaults=0,0,RealPi,2
 _SetCameraRotateMode_Limits=_,_,_,_,_,_,0,_
 _SetCameraRotateMode_Category=TC_CAMERA
 
-RotateCameraAroundLocBJ=1,degree,location,player,real
+RotateCameraAroundLocBJ=1,real,location,player,real
 _RotateCameraAroundLocBJ_Defaults=90,_,Player00,2
 _RotateCameraAroundLocBJ_Limits=_,_,_,_,_,_,0,_
 _RotateCameraAroundLocBJ_Category=TC_CAMERA
@@ -6353,15 +6796,15 @@ _SetCameraQuickPositionLocForPlayer_Category=TC_CAMERA
 // Visibility actions
 FogEnable=0,enableddisabledoption
 _FogEnable_Defaults=EnabledDisabledDisabled
-_FogEnable_Category=TC_VISIBILITY
+_FogEnable_Category=TC_YDHIDE
 
 FogEnableOn=0,nothing
 _FogEnableOn_Defaults=
-_FogEnableOn_Category=TC_VISIBILITY
+_FogEnableOn_Category=TC_YDHIDE
 
 FogEnableOff=0,nothing
 _FogEnableOff_Defaults=
-_FogEnableOff_Category=TC_VISIBILITY
+_FogEnableOff_Category=TC_YDHIDE
 
 FogMaskEnable=0,enableddisabledoption
 _FogMaskEnable_Defaults=EnabledDisabledDisabled
@@ -6406,12 +6849,12 @@ _SetFogStateRadius_Category=TC_VISIBILITY
 
 
 // Destructable actions
-CreateDestructableLoc=0,destructablecode,location,degree,real,integer
+CreateDestructableLoc=0,destructablecode,location,real,real,integer
 _CreateDestructableLoc_Defaults=LTlt,_,GetRandomDirectionDeg,1,0
 _CreateDestructableLoc_Limits=_,_,_,_,_,_,0,_,0,_
 _CreateDestructableLoc_Category=TC_DESTRUCT
 
-CreateDeadDestructableLocBJ=0,destructablecode,location,degree,real,integer
+CreateDeadDestructableLocBJ=0,destructablecode,location,real,real,integer
 _CreateDeadDestructableLocBJ_Defaults=LTlt,_,GetRandomDirectionDeg,1,0
 _CreateDeadDestructableLocBJ_Limits=_,_,_,_,_,_,0,_,0,_
 _CreateDeadDestructableLocBJ_Category=TC_DESTRUCT
@@ -6585,6 +7028,11 @@ _LeaderboardSetPlayerItemStyleBJ_Category=TC_LEADERBOARD
 
 
 // Text Tag actions
+text.CreateText=0,player,unit,StringExt,real,real,real,real,real,real,real,boolean,real,real,showTo
+_text.CreateText_Defaults=GetOwningPlayer,GetTriggerUnit,_,10,100,100,100,0,58,90,false,2,3,showToC
+_text.CreateText_Limits=_,_,_,_,_,_,1,_,0,100,0,100,0,100,0,100,0,_,_,_,_,_,0,_,0,_,0,2
+_text.CreateText_Category=TC_TEXTTAG
+
 CreateTextTagLocBJ=1,StringExt,location,real,real,real,real,real,real
 _CreateTextTagLocBJ_Defaults=_,_,0,10,100,100,100,0
 _CreateTextTagLocBJ_Limits=_,_,_,_,_,_,1,_,0,100,0,100,0,100,0,100
@@ -6617,7 +7065,7 @@ SetTextTagVelocity=1,texttag,real,real
 _SetTextTagVelocity_Defaults=bj_lastCreatedTextTag,64,90
 _SetTextTagVelocity_Category=TC_TEXTTAG
 
-SetTextTagVelocityBJ=1,texttag,real,degree
+SetTextTagVelocityBJ=1,texttag,real,real
 _SetTextTagVelocityBJ_Defaults=GetLastCreatedTextTag,64,90
 _SetTextTagVelocityBJ_Category=TC_TEXTTAG
 
@@ -6833,6 +7281,10 @@ MoveLightningEx=1,lightning,allowdontoption,real,real,real,real,real,real
 _MoveLightningEx_Defaults=bj_lastCreatedLightning,AllowDontDont,0,0,0,0,0,0
 _MoveLightningEx_Category=TC_LIGHTNING
 
+baka.MoveLightningEx2=1,lightning,allowdontoption,real,real,real,real,real,real
+_baka.MoveLightningEx2_Defaults=bj_lastCreatedLightning,AllowDontDont,0,0,0,0,0,0
+_baka.MoveLightningEx2_Category=TC_LIGHTNING
+
 MoveLightningLoc=1,lightning,location,location
 _MoveLightningLoc_Defaults=GetLastCreatedLightningBJ,_,_
 _MoveLightningLoc_Category=TC_LIGHTNING
@@ -6852,6 +7304,11 @@ PlaySoundAtPointBJ=1,sound,real,location,real
 _PlaySoundAtPointBJ_Defaults=_,100,_,0
 _PlaySoundAtPointBJ_Limits=_,_,0,100,_,_,_,_
 _PlaySoundAtPointBJ_Category=TC_SOUND
+
+Sound.PlaySoundAtPointBJ2=1,sound,real,location,real
+_Sound.PlaySoundAtPointBJ2_Defaults=_,100,_,0
+_Sound.PlaySoundAtPointBJ2_Limits=_,_,0,100,_,_,_,_
+_Sound.PlaySoundAtPointBJ2_Category=TC_SOUND
 
 PlaySoundOnUnitBJ=1,sound,real,unit
 _PlaySoundOnUnitBJ_Defaults=_,100,_
@@ -7064,6 +7521,10 @@ AddSpecialEffectLocBJ=0,location,modelfile
 _AddSpecialEffectLocBJ_Defaults=_,"Abilities\Spells\Human\ThunderClap\ThunderClapCaster.mdl"
 _AddSpecialEffectLocBJ_Category=TC_SPECIALEFFECT
 
+Effect.AddSpecialEffectLocMU=0,location,modelfile
+_Effect.AddSpecialEffectLocMU_Defaults=_,"Abilities\Spells\Human\ThunderClap\ThunderClapCaster.mdl"
+_Effect.AddSpecialEffectLocMU_Category=TC_SPECIALEFFECT
+
 AddSpecialEffectTargetUnitBJ=0,string,unit,modelfile
 _AddSpecialEffectTargetUnitBJ_Defaults="overhead",GetTriggerUnit,"Abilities\Spells\Other\TalkToMe\TalkToMe.mdl"
 _AddSpecialEffectTargetUnitBJ_Category=TC_SPECIALEFFECT
@@ -7255,6 +7716,10 @@ _SetPlayerName_Category=TC_PLAYER
 RemovePlayer=0,player,playergameresult
 _RemovePlayer_Defaults=Player00,GameResultLose
 _RemovePlayer_Category=TC_PLAYER
+
+YDWEDisplayChat=0,player,ChatRecipient,StringExt
+_YDWEDisplayChat_Defaults=Player00,CHAT_RECIPIENT_ALL,_
+_YDWEDisplayChat_Category=TC_PLAYER
 
 // Player Group actions
 // Specially handled by the editor
@@ -7848,7 +8313,7 @@ StoreString=0,gamecache,string,string,string
 _StoreString_Defaults=GetLastCreatedGameCacheBJ,"Category",_,_
 _StoreString_Category=TC_GAMECACHE
 
-RestoreUnitLocFacingAngleBJ=0,string,string,gamecache,player,location,degree
+RestoreUnitLocFacingAngleBJ=0,string,string,gamecache,player,location,real
 _RestoreUnitLocFacingAngleBJ_Defaults=_,"Category",GetLastCreatedGameCacheBJ,Player00,_,0
 _RestoreUnitLocFacingAngleBJ_Category=TC_GAMECACHE
 
@@ -7922,13 +8387,13 @@ SavePlayerHandle=0,hashtable,integer,integer,player
 _SavePlayerHandle_Defaults=GetLastCreatedHashtableBJ,_,_,_
 _SavePlayerHandle_Category=TC_HASHTABLE
 
-// SaveWidgetHandleBJ=0,widget,integer,integer,hashtable
-// _SaveWidgetHandleBJ_Defaults=_,_,_,GetLastCreatedHashtableBJ
-// _SaveWidgetHandleBJ_Category=TC_HASHTABLE
-//
-// SaveWidgetHandle=0,hashtable,integer,integer,wigdet
-// _SaveWidgetHandle_Defaults=GetLastCreatedHashtableBJ,_,_,_
-// _SaveWidgetHandle_Category=TC_HASHTABLE
+SaveWidgetHandleBJ=0,widget,integer,integer,hashtable
+_SaveWidgetHandleBJ_Defaults=_,_,_,GetLastCreatedHashtableBJ
+_SaveWidgetHandleBJ_Category=TC_HASHTABLE
+
+SaveWidgetHandle=0,hashtable,integer,integer,wigdet
+_SaveWidgetHandle_Defaults=GetLastCreatedHashtableBJ,_,_,_
+_SaveWidgetHandle_Category=TC_HASHTABLE
 
 SaveDestructableHandleBJ=0,destructable,integer,integer,hashtable
 _SaveDestructableHandleBJ_Defaults=_,_,_,GetLastCreatedHashtableBJ
@@ -7995,7 +8460,7 @@ _SaveTriggerConditionHandleBJ_Defaults=_,_,_,GetLastCreatedHashtableBJ
 _SaveTriggerConditionHandleBJ_Category=TC_HASHTABLE
 
 SaveTriggerConditionHandle=0,hashtable,integer,integer,triggercondition
-_SaveTriggerConditionHandle=GetLastCreatedHashtableBJ,_,_,_
+_SaveTriggerConditionHandle_Defaults=GetLastCreatedHashtableBJ,_,_,_
 _SaveTriggerConditionHandle_Category=TC_HASHTABLE
 
 SaveTriggerActionHandleBJ=0,triggeraction,integer,integer,hashtable
@@ -8003,7 +8468,7 @@ _SaveTriggerActionHandleBJ_Defaults=_,_,_,GetLastCreatedHashtableBJ
 _SaveTriggerActionHandleBJ_Category=TC_HASHTABLE
 
 SaveTriggerActionHandle=0,hashtable,integer,integer,triggeraction
-_SaveTriggerActionHandle=GetLastCreatedHashtableBJ,_,_,_
+_SaveTriggerActionHandle_Defaults=GetLastCreatedHashtableBJ,_,_,_
 _SaveTriggerActionHandle_Category=TC_HASHTABLE
 
 SaveTriggerEventHandleBJ=0,event,integer,integer,hashtable
@@ -8011,7 +8476,7 @@ _SaveTriggerEventHandleBJ_Defaults=_,_,_,GetLastCreatedHashtableBJ
 _SaveTriggerEventHandleBJ_Category=TC_HASHTABLE
 
 SaveTriggerEventHandle=0,hashtable,integer,integer,event
-_SaveTriggerEventHandle=GetLastCreatedHashtableBJ,_,_,_
+_SaveTriggerEventHandle_Defaults=GetLastCreatedHashtableBJ,_,_,_
 _SaveTriggerEventHandle_Category=TC_HASHTABLE
 
 SaveForceHandleBJ=0,force,integer,integer,hashtable
@@ -8406,10 +8871,10 @@ _FlushStoredMissionBJ_Defaults="Category",GetLastCreatedGameCacheBJ
 _FlushStoredMissionBJ_Category=TC_YDHIDE
 
 
-
-
-
-
+YDWEWaitForLocalVariable=1,real
+_YDWEWaitForLocalVariable_Defaults=2
+_YDWEWaitForLocalVariable_Limits=0,_
+_YDWEWaitForLocalVariable_Category=TC_YDHIDE
 
 
 
@@ -8429,25 +8894,47 @@ _FlushStoredMissionBJ_Category=TC_YDHIDE
 
 // YD Beyond Fate
 
+YDWECustomScriptCode=0,1,AnyReturnType,scriptcode
+_YDWECustomScriptCode_Defaults=_
+_YDWECustomScriptCode_Category=TC_YDBF
+
+YDWEGetAnyTypeLocalVariable=0,1,AnyReturnType,scriptcode
+_YDWEGetAnyTypeLocalVariable_Defaults=_
+_YDWEGetAnyTypeLocalVariable_Category=TC_YDBF
+
+YDWEForLoopLocVarIndex=0,1,integer,scriptcode
+_YDWEForLoopLocVarIndex_Defaults=_
+_YDWEForLoopLocVarIndex_Category=TC_YDBF
+
+YDWELoadAnyTypeDataByUserData=0,1,AnyReturnType,typename,Null,scriptcode
+_YDWELoadAnyTypeDataByUserData_Defaults=_,_,_
+_YDWELoadAnyTypeDataByUserData_Category=TC_YDBF
+
+YDWEHaveSavedAnyTypeDataByUserData=0,1,boolean,typename,Null,typename,scriptcode
+_YDWEHaveSavedAnyTypeDataByUserData_Category=TC_YDBF
 
 
+//最萌小汐
+sys.isIn11=0,1,boolean
+_sys.isIn11_Category=TC_MU_BASE
 
+math.isPointInRect=0,1,boolean,location,real,real,real,location,removeWhichLocation
+_math.isPointInRect_Defaults=_,0,1000,300,_,removeWhichLocationB
+_math.isPointInRect_Category=TC_MU_MATH
 
+math.isInsidePolygon=0,1,boolean,integer,integer,location,boolean
+_math.isInsidePolygon_Defaults=1,3,_,true
+_math.isInsidePolygon_Category=TC_MU_MATH
 
+process.IsEnable=0,1,boolean,integer
+_process.IsEnable_Category=TC_MU_PROCESS
 
+process.HasName=0,1,boolean,unit,int,string,boolean,boolean
+_process.HasName_Defaults=GetTriggerUnit,0,_,true,false
+_process.HasName_Category=TC_MU_PROCESS
 
-
-
-
-
-
-
-
-
-
-
-
-
+Unit.IsHard=0,1,boolean,unit
+_Unit.IsHard_Category=TC_MU_UNIT
 
 // returns boolean
 
@@ -8465,6 +8952,12 @@ _YDWEGetBooleanByInteger_Category=TC_YDLD
 YDWEGetBooleanByString=0,1,boolean,string,string
 _YDWEGetBooleanByString_Category=TC_YDLD
 
+YDWEPlatformIsInPlatform=0,1,boolean
+_YDWEPlatformIsInPlatform_Category=TC_YDFC
+
+//YDWEPlatformIsInRoom=0,1,boolean
+//_YDWEPlatformIsInRoom_Category=TC_YDFC
+
 YDWEIsItemSwitch=0,1,boolean,unit
 _YDWEIsItemSwitch_Defaults=GetTriggerUnit
 _YDWEIsItemSwitch_Category=TC_YDST
@@ -8474,7 +8967,7 @@ _  _Defaults=_
 _  _Category=TC_NOTHING
 
 YDWEIsTriggerEventId=0,1,boolean,eventid
-_YDWEIsTriggerEventId=TC_NOTHING
+_YDWEIsTriggerEventId_Category=TC_NOTHING
 
  UnitAddAbility=0,1,boolean,unit,abilcode
 _ UnitAddAbility_Defaults=GetTriggerUnit,_
@@ -8499,194 +8992,6 @@ _IsTriggerQueuedBJ_Category=TC_TRIGGER
 IsTriggerQueueEmptyBJ=0,1,boolean
 _IsTriggerQueueEmptyBJ_Defaults=
 _IsTriggerQueueEmptyBJ_Category=TC_TRIGGER
-
-IssueImmediateOrder=0,1,boolean,unit,unitordernotarg
-_IssueImmediateOrder_Defaults=GetTriggerUnit,UnitOrderStop
-_IssueImmediateOrder_Category=TC_UNIT
-
-IssuePointOrder=0,1,boolean,unit,unitorderptarg,real,real
-_IssuePointOrder_Defaults=GetTriggerUnit,UnitOrderMove,0,0
-_IssuePointOrder_Category=TC_UNIT
-
-IssuePointOrderLoc=0,1,boolean,unit,unitorderptarg,location
-_IssuePointOrderLoc_Defaults=GetTriggerUnit,UnitOrderMove,_
-_IssuePointOrderLoc_Category=TC_UNIT
-
-IssueTargetOrder=0,1,boolean,unit,unitorderutarg,unit
-_IssueTargetOrder_Defaults=GetTriggerUnit,UnitOrderAttackUnit,_
-_IssueTargetOrder_Category=TC_UNIT
-
-IssueTargetDestructableOrder=0,1,boolean,unit,unitorderdtarg,destructable
-_IssueTargetDestructableOrder_Defaults=GetTriggerUnit,UnitOrderHarvestDestructible,_
-_IssueTargetDestructableOrder_Category=TC_UNIT
-_IssueTargetDestructableOrder_ScriptName=IssueTargetOrder
-
-IssueTargetItemOrder=0,1,boolean,unit,unitorderitarg,item
-_IssueTargetItemOrder_Defaults=GetTriggerUnit,UnitOrderSmartItem,_
-_IssueTargetItemOrder_Category=TC_UNIT
-_IssueTargetItemOrder_ScriptName=IssueTargetOrder
-
-IssueImmediateOrderById=0,1,boolean,unit,ordercodenotarg
-_IssueImmediateOrderById_Defaults=GetTriggerUnit,OrderCodeStop
-_IssueImmediateOrderById_Category=TC_UNIT
-
-IssuePointOrderById=0,1,boolean,unit,ordercodeptarg,real,real
-_IssuePointOrderById_Defaults=GetTriggerUnit,OrderCodeMove,0,0
-_IssuePointOrderById_Category=TC_UNIT
-
-IssuePointOrderByIdLoc=0,1,boolean,unit,ordercodeptarg,location
-_IssuePointOrderByIdLoc_Defaults=GetTriggerUnit,OrderCodeMove,_
-_IssuePointOrderByIdLoc_Category=TC_UNIT
-
-IssueTargetOrderById=0,1,boolean,unit,ordercodeutarg,unit
-_IssueTargetOrderById_Defaults=GetTriggerUnit,OrderCodeAttackUnit,_
-_IssueTargetOrderById_Category=TC_UNIT
-
-IssueTargetDestructableOrderById=0,1,boolean,unit,ordercodedtarg,destructable
-_IssueTargetDestructableOrderById_Defaults=GetTriggerUnit,OrderCodeHarvestDestructible,_
-_IssueTargetDestructableOrderById_Category=TC_UNIT
-_IssueTargetDestructableOrderById_ScriptName=IssueTargetOrderById
-
-IssueTargetItemOrderById=0,1,boolean,unit,ordercodeitarg,item
-_IssueTargetItemOrderById_Defaults=GetTriggerUnit,OrderCodeSmartItem,_
-_IssueTargetItemOrderById_Category=TC_UNIT
-_IssueTargetItemOrderById_ScriptName=IssueTargetOrderById
-
-IssueTrainOrderByIdBJ=0,1,boolean,unit,unitcode
-_IssueTrainOrderByIdBJ_Defaults=GetTriggerUnit,hfoo
-_IssueTrainOrderByIdBJ_Category=TC_UNIT
-_IssueTrainOrderByIdBJ_ScriptName=IssueImmediateOrderById
-
-IssueUpgradeOrderByIdBJ=0,1,boolean,unit,techcode
-_IssueUpgradeOrderByIdBJ_Defaults=GetTriggerUnit,Rhde
-_IssueUpgradeOrderByIdBJ_Category=TC_UNIT
-_IssueUpgradeOrderByIdBJ_ScriptName=IssueImmediateOrderById
-
-IssueBuildOrderById=0,1,boolean,unit,unitcode,real,real
-_IssueBuildOrderById_Defaults=GetTriggerUnit,hbar,0,0
-_IssueBuildOrderById_Category=TC_UNIT
-
-IssueBuildOrderByIdLocBJ=0,1,boolean,unit,unitcode,location
-_IssueBuildOrderByIdLocBJ_Defaults=GetTriggerUnit,hbar,_
-_IssueBuildOrderByIdLocBJ_Category=TC_UNIT
-
-UnitDropItemPoint=1,1,boolean,unit,item,real,real
-_UnitDropItemPoint_Defaults=GetTriggerUnit,bj_lastCreatedItem,0,0
-_UnitDropItemPoint_Category=TC_UNIT
-
-UnitDropItemPointLoc=1,1,boolean,unit,item,location
-_UnitDropItemPointLoc_Defaults=GetTriggerUnit,GetLastCreatedItem,_
-_UnitDropItemPointLoc_Category=TC_UNIT
-
-UnitDropItemSlot=1,1,boolean,unit,item,integer
-_UnitDropItemSlot_Defaults=GetTriggerUnit,bj_lastCreatedItem,0
-_UnitDropItemSlot_Limits=_,_,_,_,0,5
-_UnitDropItemSlot_Category=TC_UNIT
-
-UnitDropItemSlotBJ=1,1,boolean,unit,item,integer
-_UnitDropItemSlotBJ_Defaults=GetTriggerUnit,GetLastCreatedItem,1
-_UnitDropItemSlotBJ_Limits=_,_,_,_,1,6
-_UnitDropItemSlotBJ_Category=TC_UNIT
-
-UnitDropItemTargetBJ=1,1,boolean,unit,item,unit
-_UnitDropItemTargetBJ_Defaults=GetTriggerUnit,GetLastCreatedItem,_
-_UnitDropItemTargetBJ_Category=TC_UNIT
-_UnitDropItemTargetBJ_ScriptName=UnitDropItemTarget
-
-IssueBuyUnitOrder=0,1,boolean,player,unit,unitcode
-_IssueBuyUnitOrder_Defaults=Player00,GetTriggerUnit,hfoo
-_IssueBuyUnitOrder_Category=TC_UNIT
-_IssueBuyUnitOrder_ScriptName=IssueNeutralImmediateOrderById
-
-IssueBuyItemOrder=0,1,boolean,player,unit,itemcode
-_IssueBuyItemOrder_Defaults=Player00,GetTriggerUnit,ckng
-_IssueBuyItemOrder_Category=TC_UNIT
-_IssueBuyItemOrder_ScriptName=IssueNeutralImmediateOrderById
-
-IssueNeutralImmediateOrder=0,1,boolean,player,unit,unitordernotarg
-_IssueNeutralImmediateOrder_Defaults=Player00,GetTriggerUnit,UnitOrderStop
-_IssueNeutralImmediateOrder_Category=TC_UNIT
-
-IssueNeutralPointOrder=0,1,boolean,player,unit,unitorderptarg,real,real
-_IssueNeutralPointOrder_Defaults=Player00,GetTriggerUnit,UnitOrderNeutralDetectAOE,0,0
-_IssueNeutralPointOrder_Category=TC_UNIT
-
-IssueNeutralTargetOrder=0,1,boolean,player,unit,unitorderutarg,unit
-_IssueNeutralTargetOrder_Defaults=Player00,GetTriggerUnit,UnitOrderNeutralInterAct,_
-_IssueNeutralTargetOrder_Category=TC_UNIT
-
-IssueNeutralTargetDestructableOrder=0,1,boolean,player,unit,unitorderdtarg,destructable
-_IssueNeutralTargetDestructableOrder_Defaults=Player00,GetTriggerUnit,UnitOrderHarvestDestructible,_
-_IssueNeutralTargetDestructableOrder_Category=TC_UNIT
-_IssueNeutralTargetDestructableOrder_ScriptName=IssueNeutralTargetOrder
-
-IssueNeutralTargetItemOrder=0,1,boolean,player,unit,unitorderitarg,item
-_IssueNeutralTargetItemOrder_Defaults=Player00,GetTriggerUnit,UnitOrderSmartItem,_
-_IssueNeutralTargetItemOrder_Category=TC_UNIT
-_IssueNeutralTargetItemOrder_ScriptName=IssueNeutralTargetOrder
-
-IssueNeutralImmediateOrderById=0,1,boolean,player,unit,ordercodenotarg
-_IssueNeutralImmediateOrderById_Defaults=Player00,GetTriggerUnit,OrderCodeStop
-_IssueNeutralImmediateOrderById_Category=TC_UNIT
-
-IssueNeutralPointOrderById=0,1,boolean,player,unit,ordercodeptarg,real,real
-_IssueNeutralPointOrderById_Defaults=Player00,GetTriggerUnit,OrderCodeNeutralDetectAOE,0,0
-_IssueNeutralPointOrderById_Category=TC_UNIT
-
-IssueNeutralTargetOrderById=0,1,boolean,player,unit,ordercodeutarg,unit
-_IssueNeutralTargetOrderById_Defaults=Player00,GetTriggerUnit,OrderCodeNeutralInterAct,_
-_IssueNeutralTargetOrderById_Category=TC_UNIT
-
-IssueNeutralTargetDestructableOrderById=0,1,boolean,player,unit,ordercodedtarg,destructable
-_IssueNeutralTargetDestructableOrderById_Defaults=Player00,GetTriggerUnit,OrderCodeHarvestDestructible,_
-_IssueNeutralTargetDestructableOrderById_Category=TC_UNIT
-_IssueNeutralTargetDestructableOrderById_ScriptName=IssueNeutralTargetOrderById
-
-IssueNeutralTargetItemOrderById=0,1,boolean,player,unit,ordercodeitarg,item
-_IssueNeutralTargetItemOrderById_Defaults=Player00,GetTriggerUnit,OrderCodeSmartItem,_
-_IssueNeutralTargetItemOrderById_Category=TC_UNIT
-_IssueNeutralTargetItemOrderById_ScriptName=IssueNeutralTargetOrderById
-
-YDWEIssueNeutralImmediateOrderById=0,1,boolean,player,unit,integer
-_YDWEIssueNeutralImmediateOrderById_Defaults=Player00,GetTriggerUnit,851972
-_YDWEIssueNeutralImmediateOrderById_Category=TC_UNIT
-_YDWEIssueNeutralImmediateOrderById_ScriptName=IssueNeutralImmediateOrderById
-
-YDWEIssueNeutralPointOrderById=0,1,boolean,player,unit,integer,real,real
-_YDWEIssueNeutralPointOrderById_Defaults=Player00,GetTriggerUnit,851983,0,0
-_YDWEIssueNeutralPointOrderById_Category=TC_UNIT
-_YDWEIssueNeutralPointOrderById_ScriptName=IssueNeutralPointOrderById
-
-YDWEIssueNeutralTargetOrderById=0,1,boolean,player,unit,integer,unit
-_YDWEIssueNeutralTargetOrderById_Defaults=Player00,GetTriggerUnit,851983,_
-_YDWEIssueNeutralTargetOrderById_Category=TC_UNIT
-_YDWEIssueNeutralTargetOrderById_ScriptName=IssueNeutralTargetOrderById
-
-YDWEIssueNeutralTargetDestructableOrderById=0,1,boolean,player,unit,integer,destructable
-_YDWEIssueNeutralTargetDestructableOrderById_Defaults=Player00,GetTriggerUnit,851983,_
-_YDWEIssueNeutralTargetDestructableOrderById_Category=TC_UNIT
-_YDWEIssueNeutralTargetDestructableOrderById_ScriptName=IssueNeutralTargetOrderById
-
-YDWEIssueNeutralTargetItemOrderById=0,1,boolean,player,unit,integer,item
-_YDWEIssueNeutralTargetItemOrderById_Defaults=Player00,GetTriggerUnit,851983,_
-_YDWEIssueNeutralTargetItemOrderById_Category=TC_UNIT
-_YDWEIssueNeutralTargetItemOrderById_ScriptName=IssueNeutralTargetOrderById
-
-UnitDamagePoint=1,1,boolean,unit,real,real,real,real,real,isnotoption,isnotoption,attacktype,damagetype,weapontype
-_UnitDamagePoint_Defaults=GetTriggerUnit,0,500,0,0,100,IsNotIs,IsNotNot,AttackTypeNormal,DamageTypeNormal,WEAPON_TYPE_WHOKNOWS
-_UnitDamagePoint_Category=TC_UNIT
-
-UnitDamagePointLoc=1,1,boolean,unit,real,real,location,real,attacktype,damagetype
-_UnitDamagePointLoc_Defaults=GetTriggerUnit,0,500,GetRectCenter,100,AttackTypeNormal,DamageTypeNormal
-_UnitDamagePointLoc_Category=TC_UNIT
-
-UnitDamageTarget=1,1,boolean,unit,unit,real,isnotoption,isnotoption,attacktype,damagetype,weapontype
-_UnitDamageTarget_Defaults=GetTriggerUnit,GetTriggerUnit,500,IsNotIs,IsNotNot,AttackTypeNormal,DamageTypeNormal,WEAPON_TYPE_WHOKNOWS
-_UnitDamageTarget_Category=TC_UNIT
-
-UnitDamageTargetBJ=1,1,boolean,unit,unit,real,attacktype,damagetype
-_UnitDamageTargetBJ_Defaults=GetTriggerUnit,GetTriggerUnit,500,AttackTypeNormal,DamageTypeNormal
-_UnitDamageTargetBJ_Category=TC_UNIT
 
 IsUnit=0,1,boolean,unit,unit
 _IsUnit_Defaults=GetTriggerUnit,GetLastCreatedUnit
@@ -9063,7 +9368,7 @@ _HaveStoredValue_Category=TC_GAMECACHE
 WaygateIsActiveBJ=0,1,boolean,unit
 _WaygateIsActiveBJ_Defaults=_
 _WaygateIsActiveBJ_Category=TC_NEUTRALBUILDING
-_WaygateIsActiveBJ_Script=WaygateIsActive
+_WaygateIsActiveBJ_ScriptName=WaygateIsActive
 
 LoadBooleanBJ=0,1,boolean,integer,integer,hashtable
 _LoadBooleanBJ_Defaults=_,_,GetLastCreatedHashtableBJ
@@ -9092,6 +9397,10 @@ _YDWEGetLocalVariableIntegerArray_Defaults=_,1
 _YDWEGetLocalVariableIntegerArray_Limits=_,_,0,_
 _YDWEGetLocalVariableIntegerArray_Category=TC_YDLC
 
+YDWERecordGetI=0,1,integer,player,string
+_YDWERecordGetI_Defaults=Player00,EverguoIsHandsome
+_YDWERecordGetI_Category=TC_YDSL
+
 YDWE_PreloadSL_Get=0,1,integer,player,string,integer
 _YDWE_PreloadSL_Get_Defaults=Player00,_,_
 _YDWE_PreloadSL_Get_Limits=_,_,_,_,1,500
@@ -9119,6 +9428,11 @@ _R2I_Category=TC_CONVERSION
 S2I=0,1,integer,string
 _S2I_Defaults=GetEventPlayerChatString
 _S2I_Category=TC_CONVERSION
+
+//最萌小汐
+process.Create=0,1,integer,unit,string,integer,boolean
+_process.Create_Defaults=GetTriggerUnit,"移动",100,true
+_process.Create_Category=TC_MU_PROCESS
 
 YDWE_TP_GetExpiredTimerIndex=0,1,integer
 _YDWE_TP_GetExpiredTimerIndex_Category=TC_YDST
@@ -9159,8 +9473,8 @@ _YDWEI2UnitId_Defaults=_
 _YDWEI2UnitId_Category=TC_YDFC
 
 YDWEI2ItemId=0,1,itemcode,integer
-_DWEI2ItemId_Defaults=_
-_DWEI2ItemId_Category=TC_YDFC
+_YDWEI2ItemId_Defaults=_
+_YDWEI2ItemId_Category=TC_YDFC
 
 YDWES2Id=0,1,integer,string
 _YDWES2Id_Defaults=spsh
@@ -9253,12 +9567,16 @@ _GetUnitLevel_Defaults=GetTriggerUnit
 _GetUnitLevel_Category=TC_UNIT
 
 GetUnitAbilityLevel=1,1,integer,unit,abilcode
-_GetUnitAbilityLevel_Defaults=GetTriggerUnit,_
+_GetUnitAbilityLevel_Defaults=GetTriggerUnit,GetSpellAbilityId
 _GetUnitAbilityLevel_Category=TC_UNIT
 
 GetUnitAbilityLevelSwapped=1,1,integer,abilcode,unit
-_GetUnitAbilityLevelSwapped_Defaults=_,GetTriggerUnit
+_GetUnitAbilityLevelSwapped_Defaults=GetSpellAbilityId,GetTriggerUnit
 _GetUnitAbilityLevelSwapped_Category=TC_UNIT
+
+Item.GetUnitItemCountByType=1,1,integer,unit,itemcode
+_Item.GetUnitItemCountByType_Defaults=GetTriggerUnit,ches
+_Item.GetUnitItemCountByType_Category=TC_UNIT
 
 UnitInventoryCount=1,1,integer,unit
 _UnitInventoryCount_Defaults=GetTriggerUnit
@@ -9417,19 +9735,19 @@ _GetHeroXP_Defaults=GetTriggerUnit
 _GetHeroXP_Category=TC_HERO
 
 GetHeroStr=1,1,integer,unit,includeoption
-_GetHeroStr_Defaults=_,InclusionExclude
+_GetHeroStr_Defaults=GetTriggerUnit,InclusionInclude
 _GetHeroStr_Category=TC_HERO
 
 GetHeroAgi=1,1,integer,unit,includeoption
-_GetHeroAgi_Defaults=_,InclusionExclude
+_GetHeroAgi_Defaults=GetTriggerUnit,InclusionInclude
 _GetHeroAgi_Category=TC_HERO
 
 GetHeroInt=1,1,integer,unit,includeoption
-_GetHeroInt_Defaults=_,InclusionExclude
+_GetHeroInt_Defaults=GetTriggerUnit,InclusionInclude
 _GetHeroInt_Category=TC_HERO
 
 GetHeroStatBJ=1,1,integer,herostat,unit,includeoption
-_GetHeroStatBJ_Defaults=HeroStatStr,_,InclusionExclude
+_GetHeroStatBJ_Defaults=HeroStatStr,GetTriggerUnit,InclusionInclude
 _GetHeroStatBJ_Category=TC_HERO
 
 GetHeroSkillPoints=1,1,integer,unit
@@ -9493,6 +9811,23 @@ _OperatorReal_Category=TC_ARITHMETIC
 _   _Defaults=_
 _   _Category=TC_NOTHING
 
+
+//最萌小汐
+math.L2L=0,1,real,location,location,DisOrAng,removeWhichLocation
+_math.L2L_Defaults=_,_,DisOrAngA,removeWhichLocationB
+_math.L2L_Category=TC_MU_MATH
+
+math.U2L=0,1,real,unit,location,DisOrAng,boolean
+_math.U2L_Defaults=GetTriggerUnit,GetSpellTargetLoc,DisOrAngA,true
+_math.U2L_Category=TC_MU_MATH
+
+math.Angle=0,1,real,real,real
+_math.Angle_Defaults=0,180
+_math.Angle_Category=TC_MU_MATH
+
+sys.getTime=0,1,real
+_sys.getTime_Category=TC_MU_BASE
+
 GetLocationX=0,1,real,location
 _GetLocationX_Category=TC_NOTHING
 
@@ -9510,24 +9845,24 @@ S2R=0,1,real,string
 _S2R_Defaults=GetEventPlayerChatString
 _S2R_Category=TC_CONVERSION
 
-Deg2Rad=0,1,radian,degree
+Deg2Rad=0,1,real,real
 _Deg2Rad_Defaults=0
 _Deg2Rad_Category=TC_CONVERSION
 
-Rad2Deg=0,1,degree,radian
+Rad2Deg=0,1,real,real
 _Rad2Deg_Defaults=0
 _Rad2Deg_Category=TC_CONVERSION
 
-YDWEDeg2R=0,1,real,degree
+YDWEDeg2R=0,1,real,real
 _YDWEDeg2R_Category=TC_CONVERSION
 
-YDWERad2R=0,1,real,radian
+YDWERad2R=0,1,real,real
 _YDWERad2R_Category=TC_CONVERSION
 
-YDWER2Deg=0,1,degree,real
+YDWER2Deg=0,1,real,real
 _YDWER2Deg_Category=TC_CONVERSION
 
-YDWER2Rad=0,1,radian,real
+YDWER2Rad=0,1,real,real
 _YDWER2Rad_Category=TC_CONVERSION
 
 YDWEGetLocalVariableReal=0,1,real,string
@@ -9557,7 +9892,7 @@ YDWEDistanceBetweenUnits=0,1,real,unit,unit
 _YDWEDistanceBetweenUnits_Defaults=GetTriggerUnit,GetLastCreatedUnit
 _YDWEDistanceBetweenUnits_Category=TC_YDFC
 
-YDWEAngleBetweenUnits=0,1,degree,unit,unit
+YDWEAngleBetweenUnits=0,1,real,unit,unit
 _YDWEAngleBetweenUnits_Defaults=GetTriggerUnit,GetLastCreatedUnit
 _YDWEAngleBetweenUnits_Category=TC_YDFC
 
@@ -9593,6 +9928,10 @@ GetUnitStateSwap=0,1,real,unitstate,unit
 _GetUnitStateSwap_Defaults=UnitStateLife,GetTriggerUnit
 _GetUnitStateSwap_Category=TC_UNIT
 
+Unit.GetMaxLife=0,1,real,unit
+_Unit.GetMaxLife_Defaults=GetTriggerUnit
+_Unit.GetMaxLife_Category=TC_UNIT
+
 GetUnitLifePercent=1,1,real,unit
 _GetUnitLifePercent_Defaults=GetTriggerUnit
 _GetUnitLifePercent_Category=TC_UNIT
@@ -9609,7 +9948,11 @@ GetUnitY=0,1,real,unit
 _GetUnitY_Defaults=GetTriggerUnit
 _GetUnitY_Category=TC_UNIT
 
-GetUnitFacing=0,1,degree,unit
+Unit.GetUnitZ=0,1,real,unit
+_Unit.GetUnitZ_Defaults=GetTriggerUnit
+_Unit.GetUnitZ_Category=TC_UNIT
+
+GetUnitFacing=0,1,real,unit
 _GetUnitFacing_Defaults=GetTriggerUnit
 _GetUnitFacing_Category=TC_UNIT
 
@@ -9637,15 +9980,19 @@ GetUnitDefaultTurnSpeed=0,1,real,unit
 _GetUnitDefaultTurnSpeed_Defaults=GetTriggerUnit
 _GetUnitDefaultTurnSpeed_Category=TC_UNIT
 
-GetUnitPropWindow=0,1,radian,unit
+Unit.GetUnitDefence=0,1,real,unit
+_Unit.GetUnitDefence_Defaults=GetTriggerUnit
+_Unit.GetUnitDefence_Category=TC_UNIT
+
+GetUnitPropWindow=0,1,real,unit
 _GetUnitPropWindow_Defaults=GetTriggerUnit
 _GetUnitPropWindow_Category=TC_UNIT
 
-GetUnitPropWindowBJ=0,1,degree,unit
+GetUnitPropWindowBJ=0,1,real,unit
 _GetUnitPropWindowBJ_Defaults=GetTriggerUnit
 _GetUnitPropWindowBJ_Category=TC_UNIT
 
-GetUnitDefaultPropWindowBJ=0,1,degree,unit
+GetUnitDefaultPropWindowBJ=0,1,real,unit
 _GetUnitDefaultPropWindowBJ_Defaults=GetTriggerUnit
 _GetUnitDefaultPropWindowBJ_Category=TC_UNIT
 _GetUnitDefaultPropWindowBJ_ScriptName=GetUnitDefaultPropWindow
@@ -9657,6 +10004,40 @@ _GetUnitFlyHeight_Category=TC_UNIT
 GetUnitDefaultFlyHeight=0,1,real,unit
 _GetUnitDefaultFlyHeight_Defaults=GetTriggerUnit
 _GetUnitDefaultFlyHeight_Category=TC_UNIT
+
+YDWEGetUnitAbilityState=0,0,real,unit,abilcode,AbilityState
+_YDWEGetUnitAbilityState_Defaults=GetTriggerUnit,_,ABILITY_STATE_COOLDOWN
+_YDWEGetUnitAbilityState_Category=TC_UNIT
+
+YDWEGetUnitAbilityDataInteger=0,0,integer,unit,abilcode,integer,AbilityDataInteger
+_YDWEGetUnitAbilityDataInteger_Defaults=GetTriggerUnit,_,1,ABILITY_DATA_COST
+_YDWEGetUnitAbilityDataInteger_Limits=_,_,_,_,1,_,_,_,
+_YDWEGetUnitAbilityDataInteger_Category=TC_UNIT
+
+YDWEGetUnitAbilityDataReal=0,0,real,unit,abilcode,integer,AbilityDataReal
+_YDWEGetUnitAbilityDataReal_Defaults=GetTriggerUnit,_,1,ABILITY_DATA_COOL
+_YDWEGetUnitAbilityDataReal_Limits=_,_,_,_,1,_,_,_,
+_YDWEGetUnitAbilityDataReal_Category=TC_UNIT
+
+YDWEGetUnitAbilityDataString=0,0,string,unit,abilcode,integer,AbilityDataString
+_YDWEGetUnitAbilityDataString_Defaults=GetTriggerUnit,_,1,ABILITY_DATA_TIP
+_YDWEGetUnitAbilityDataString_Limits=_,_,_,_,1,_,_,_,
+_YDWEGetUnitAbilityDataString_Category=TC_UNIT
+
+
+
+YDWEGetObjectPropertyInteger=0,0,integer,objecttype,Null,string
+_YDWEGetObjectPropertyInteger_Defaults=objecttype00_abilcode,AHhb,"levels"
+_YDWEGetObjectPropertyInteger_Category=TC_YDBF
+
+YDWEGetObjectPropertyReal=0,0,real,objecttype,Null,string
+_YDWEGetObjectPropertyReal_Defaults=objecttype00_abilcode,AHhb,"Rng1"
+_YDWEGetObjectPropertyReal_Category=TC_YDBF
+
+YDWEGetObjectPropertyString=0,0,string,objecttype,Null,string
+_YDWEGetObjectPropertyString_Defaults=objecttype00_abilcode,AHhb,"Name"
+_YDWEGetObjectPropertyString_Category=TC_YDBF
+
 
 
 GetLastTransmissionDurationBJ=0,1,real
@@ -9731,6 +10112,18 @@ GetDestructableY=1,1,real,destructable
 _GetDestructableY_Defaults=GetLastCreatedDestructable
 _GetDestructableY_Category=TC_DESTRUCT
 
+GetWidgetLife=0,1,real,widget
+_GetWidgetLife_Defaults=GetTriggerWidget
+_GetWidgetLife_Category=TC_WIDGET
+
+GetWidgetX=0,1,real,widget
+_GetWidgetX_Defaults=GetTriggerWidget
+_GetWidgetX_Category=TC_WIDGET
+
+GetWidgetY=0,1,real,widget
+_GetWidgetY_Defaults=GetTriggerWidget
+_GetWidgetY_Category=TC_WIDGET
+
 GetRectCenterX=0,1,real,rect
 _GetRectCenterX_Defaults=GetPlayableMapRect
 _GetRectCenterX_Category=TC_RECT
@@ -9791,9 +10184,42 @@ GetSoundFileDurationBJ=0,1,real,musicfile
 _GetSoundFileDurationBJ_Defaults=GetLastPlayedMusic
 _GetSoundFileDurationBJ_Category=TC_SOUND
 
+YDWEIsEventPhysicalDamage=0,1,boolean
+_YDWEIsEventPhysicalDamage_Defaults=
+_YDWEIsEventPhysicalDamage_Category=TC_EVENTRESPONSE
+
+YDWEIsEventAttackDamage=0,1,boolean
+_YDWEIsEventAttackDamage_Defaults=
+_YDWEIsEventAttackDamage_Category=TC_EVENTRESPONSE
+
+YDWEIsEventRangedDamage=0,1,boolean
+_YDWEIsEventRangedDamage_Defaults=
+_YDWEIsEventRangedDamage_Category=TC_EVENTRESPONSE
+
+YDWEIsEventDamageType=0,1,boolean,damagetype
+_YDWEIsEventDamageType_Defaults=DamageTypeNormal
+_YDWEIsEventDamageType_Category=TC_EVENTRESPONSE
+
+YDWEIsEventWeaponType=0,1,boolean,weapontype
+_YDWEIsEventWeaponType_Defaults=WEAPON_TYPE_WHOKNOWS
+_YDWEIsEventWeaponType_Category=TC_EVENTRESPONSE
+
+YDWEIsEventAttackType=0,1,boolean,attacktype
+_YDWEIsEventAttackType_Defaults=AttackTypeNormal
+_YDWEIsEventAttackType_Category=TC_EVENTRESPONSE
+
 GetEventDamage=0,1,real
 _GetEventDamage_Defaults=
 _GetEventDamage_Category=TC_EVENTRESPONSE
+
+Event.GetCurrentDamage=0,1,real
+_Event.GetCurrentDamage_Category=TC_EVENTRESPONSE
+
+Event.GetHeal=0,1,real
+_Event.GetHeal_Category=TC_EVENTRESPONSE
+
+Event.GetCurrentHeal=0,1,real
+_Event.GetCurrentHeal_Category=TC_EVENTRESPONSE
 
 GetOrderPointX=0,1,real
 _GetOrderPointX_Category=TC_EVENTRESPONSE
@@ -9813,35 +10239,35 @@ GetTournamentFinishSoonTimeRemaining=1,0,real
 _GetTournamentFinishSoonTimeRemaining_Defaults=
 _GetTournamentFinishSoonTimeRemaining_Category=TC_EVENTRESPONSE
 
-OperatorDegreeAdd=0,1,degree,degree,degree
+OperatorDegreeAdd=0,1,real,real,real
 _OperatorDegreeAdd_Defaults=_,_
 _OperatorDegreeAdd_Category=TC_MATH
 
-OperatorDegreeSubtract=0,1,degree,degree,degree
+OperatorDegreeSubtract=0,1,real,real,real
 _OperatorDegreeSubtract_Defaults=_,_
 _OperatorDegreeSubtract_Category=TC_MATH
 
-OperatorDegreeMultiply=0,1,degree,degree,real
+OperatorDegreeMultiply=0,1,real,real,real
 _OperatorDegreeMultiply_Defaults=_,_
 _OperatorDegreeMultiply_Category=TC_MATH
 
-OperatorDegreeDivide=0,1,degree,degree,real
+OperatorDegreeDivide=0,1,real,real,real
 _OperatorDegreeDivide_Defaults=_,_
 _OperatorDegreeDivide_Category=TC_MATH
 
-OperatorRadianAdd=0,1,radian,radian,real
+OperatorRadianAdd=0,1,real,real,real
 _OperatorRadianAdd_Defaults=_,_
 _OperatorRadianAdd_Category=TC_MATH
 
-OperatorRadianSubtract=0,1,radian,radian,real
+OperatorRadianSubtract=0,1,real,real,real
 _OperatorRadianSubtract_Defaults=_,_
 _OperatorRadianSubtract_Category=TC_MATH
 
-OperatorRadianMultiply=0,1,radian,radian,real
+OperatorRadianMultiply=0,1,real,real,real
 _OperatorRadianMultiply_Defaults=_,_
 _OperatorRadianMultiply_Category=TC_MATH
 
-OperatorRadianDivide=0,1,radian,radian,real
+OperatorRadianDivide=0,1,real,real,real
 _OperatorRadianDivide_Defaults=_,_
 _OperatorRadianDivide_Category=TC_MATH
 
@@ -9849,7 +10275,7 @@ GetRandomReal=0,1,real,real,real
 _GetRandomReal_Defaults=0,1
 _GetRandomReal_Category=TC_MATH
 
-GetRandomDirectionDeg=0,1,degree
+GetRandomDirectionDeg=0,1,real
 _GetRandomDirectionDeg_Defaults=
 _GetRandomDirectionDeg_Category=TC_MATH
 
@@ -9861,7 +10287,7 @@ DistanceBetweenPoints=0,1,real,location,location
 _DistanceBetweenPoints_Defaults=_,_
 _DistanceBetweenPoints_Category=TC_MATH
 
-AngleBetweenPoints=0,1,degree,location,location
+AngleBetweenPoints=0,1,real,location,location
 _AngleBetweenPoints_Defaults=_,_
 _AngleBetweenPoints_Category=TC_MATH
 
@@ -9894,63 +10320,63 @@ _SquareRoot_Defaults=_
 _SquareRoot_Limits=0,_
 _SquareRoot_Category=TC_MATH
 
-SinBJ=0,1,real,degree
+SinBJ=0,1,real,real
 _SinBJ_Defaults=GetUnitFacing
 _SinBJ_Category=TC_MATH
 
-CosBJ=0,1,real,degree
+CosBJ=0,1,real,real
 _CosBJ_Defaults=GetUnitFacing
 _CosBJ_Category=TC_MATH
 
-TanBJ=0,1,real,degree
+TanBJ=0,1,real,real
 _TanBJ_Defaults=GetUnitFacing
 _TanBJ_Category=TC_MATH
 
-AsinBJ=0,1,degree,real
+AsinBJ=0,1,real,real
 _AsinBJ_Defaults=_
 _AsinBJ_Limits=-1,1
 _AsinBJ_Category=TC_MATH
 
-AcosBJ=0,1,degree,real
+AcosBJ=0,1,real,real
 _AcosBJ_Defaults=_
 _AcosBJ_Limits=-1,1
 _AcosBJ_Category=TC_MATH
 
-AtanBJ=0,1,degree,real
+AtanBJ=0,1,real,real
 _AtanBJ_Defaults=_
 _AtanBJ_Category=TC_MATH
 
-Atan2BJ=0,1,degree,real,real
+Atan2BJ=0,1,real,real,real
 _Atan2BJ_Defaults=_,_
 _Atan2BJ_Category=TC_MATH
 
-Sin=0,1,real,radian
+Sin=0,1,real,real
 _Sin_Defaults=bj_PI
 _Sin_Category=TC_MATH
 
-Cos=0,1,real,radian
+Cos=0,1,real,real
 _Cos_Defaults=bj_PI
 _Cos_Category=TC_MATH
 
-Tan=0,1,real,radian
+Tan=0,1,real,real
 _Tan_Defaults=bj_PI
 _Tan_Category=TC_MATH
 
-Asin=0,1,radian,real
+Asin=0,1,real,real
 _Asin_Defaults=0
 _Asin_Limits=-1,1
 _Asin_Category=TC_MATH
 
-Acos=0,1,radian,real
+Acos=0,1,real,real
 _Acos_Defaults=0
 _Acos_Limits=-1,1
 _Acos_Category=TC_MATH
 
-Atan=0,1,radian,real
+Atan=0,1,real,real
 _Atan_Defaults=0
 _Atan_Category=TC_MATH
 
-Atan2=0,1,radian,real,real
+Atan2=0,1,real,real,real
 _Atan2_Defaults=_,_
 _Atan2_Category=TC_MATH
 
@@ -10019,6 +10445,9 @@ _OperatorString_Category=TC_NOTHING
     =0,1,string,scriptcode
 _    _Defaults=_
 _    _Category=TC_NOTHING
+
+String.ConvertStringExt=0,1,string,StringExt
+_String.ConvertStringExt_Category=TC_MU_STRING
 
 GetObjectName=0,1,string,scriptcode
 _GetObjectName_Defaults=_
@@ -10152,7 +10581,6 @@ _GetAbilitySoundBJ_Defaults=_,SoundTypeEffect
 _GetAbilitySoundBJ_Category=TC_GAME
 _GetAbilitySoundBJ_ScriptName=GetAbilitySoundById
 
-
 GetStoredString=0,1,string,gamecache,string,string
 _GetStoredString_Defaults=GetLastCreatedGameCacheBJ,"Category",_,
 _GetStoredString_Category=TC_GAMECACHE
@@ -10183,9 +10611,14 @@ OffsetLocation=0,1,location,location,real,real
 _OffsetLocation_Defaults=_,0,0
 _OffsetLocation_Category=TC_NOTHING
 
-PolarProjectionBJ=0,1,location,location,real,degree
+PolarProjectionBJ=0,1,location,location,real,real
 _PolarProjectionBJ_Defaults=_,256,0
 _PolarProjectionBJ_Category=TC_NOTHING
+
+//最萌小汐
+math.PolarProjectionMU=0,1,location,location,real,real
+_math.PolarProjectionMU_Defaults=_,256,0
+_math.PolarProjectionMU_Category=TC_MU_MATH
 
 Location=0,1,location,real,real
 _Location_Defaults=0,0
@@ -10252,6 +10685,7 @@ _WaygateGetDestinationLocBJ_Category=TC_NEUTRALBUILDING
 
 // returns region
 CreateRegion=0,1,region
+_CreateRegion_Category=TC_REGION
 _CreateRegion_Defaults=
 
 GetTriggeringRegion=0,1,region
@@ -10319,19 +10753,24 @@ _RectFromLoc_Defaults=Location,Location
 _RectFromLoc_Category=TC_NOTHING
 
 // returns unit
-CreateUnit=0,1,unit,player,unitcode,real,real,degree
+CreateUnit=0,1,unit,player,unitcode,real,real,real
 _CreateUnit_Defaults=Player00,hfoo,0,0,0
 _CreateUnit_Category=TC_NOTHING
 
-CreateUnitAtLoc=0,1,unit,player,unitcode,location,degree
+CreateUnitAtLoc=0,1,unit,player,unitcode,location,real
 _CreateUnitAtLoc_Defaults=Player00,hfoo,_,0
 _CreateUnitAtLoc_Category=TC_NOTHING
 
-CreateCorpse=0,1,unit,player,unitcode,real,real,degree
+//最萌小汐
+Unit.CreateUnitAtLocMU=0,1,unit,player,unitcode,location,real
+_Unit.CreateUnitAtLocMU_Defaults=Player00,hfoo,_,0
+_Unit.CreateUnitAtLocMU_Category=TC_NOTHING
+
+CreateCorpse=0,1,unit,player,unitcode,real,real,real
 _CreateCorpse_Defaults=Player00,hfoo,0,0,0
 _CreateCorpse_Category=TC_NOTHING
 
-CreateBlightedGoldmine=0,1,unit,player,real,real,degree
+CreateBlightedGoldmine=0,1,unit,player,real,real,real
 _CreateBlightedGoldmine_Defaults=Player00,0,0,0
 _CreateBlightedGoldmine_Category=TC_NOTHING
 
@@ -10435,6 +10874,10 @@ _GetConstructedStructure_Category=TC_EVENTRESPONSE
 GetEventDamageSource=1,0,unit
 _GetEventDamageSource_Defaults=
 _GetEventDamageSource_Category=TC_EVENTRESPONSE
+
+Event.GetOriginDamageFrom=1,0,unit
+_Event.GetOriginDamageFrom_Defaults=
+_Event.GetOriginDamageFrom_Category=TC_EVENTRESPONSE
 
 GetDecayingUnit=0,1,unit
 _GetDecayingUnit_Defaults=
@@ -10540,7 +10983,7 @@ _YDWECinSActor_Defaults=1
 _YDWECinSActor_Limits=1,_
 _YDWECinSActor_Category=TC_SCRIPTSET
 
-PlaceRandomUnit=0,1,unit,unitpool,player,real,real,degree
+PlaceRandomUnit=0,1,unit,unitpool,player,real,real,real
 _PlaceRandomUnit_Defaults=_,Player00,0,0,0
 _PlaceRandomUnit_Category=TC_UNITPOOL
 
@@ -10697,7 +11140,7 @@ GetLastMovedItemInItemSlot=0,1,item
 _GetLastMovedItemInItemSlot_Category=TC_LAST
 
 GetLastCombinedItem=0,1,item
-_YDWEGetLastCombinedItem_Category=TC_LAST
+_GetLastCombinedItem_Category=TC_LAST
 
 UnitDropItem=0,1,item,unit,itemcode
 _UnitDropItem_Defaults=GetTriggerUnit,texp
@@ -10820,6 +11263,12 @@ _ChooseRandomItemBJ_Limits=-1,_
 _ChooseRandomItemBJ_Category=TC_NOTHING
 _ChooseRandomItemBJ_ScriptName=ChooseRandomItem
 
+// returns widget
+GetTriggerWidget=0,1,widget
+_GetTriggerWidget_Category=TC_WIDGET
+
+GetOrderTarget=0,1,widget
+_GetOrderTarget_Category=TC_WIDGET
 
 // returns techcode
 GetResearched=0,1,techcode
@@ -10900,6 +11349,11 @@ _ConvertedPlayer_Defaults=1
 _ConvertedPlayer_Limits=1,16
 _ConvertedPlayer_Category=TC_CONVERSION
 
+Player=0,1,player,integer
+_Player_Defaults=1
+_Player_Limits=0,15
+_Player_Category=TC_CONVERSION
+
 LeaderboardGetIndexedPlayerBJ=1,0,player,integer,leaderboard
 _LeaderboardGetIndexedPlayerBJ_Defaults=1,GetLastCreatedLeaderboard
 _LeaderboardGetIndexedPlayerBJ_Limits=1,16
@@ -10930,7 +11384,7 @@ _GetLastCreatedGroup_Category=TC_LAST
 _           _Defaults=_
 _           _Category=TC_NOTHING
 
- CreateNUnitsAtLoc=0,1,group,integer,unitcode,player,location,degree
+ CreateNUnitsAtLoc=0,1,group,integer,unitcode,player,location,real
 _ CreateNUnitsAtLoc_Defaults=1,hfoo,Player00,_,RealUnitFacing
 _ CreateNUnitsAtLoc_Limits=1,_,_,_,_,_,_,_,0,360
 _ CreateNUnitsAtLoc_Category=TC_UNIT
@@ -10966,15 +11420,32 @@ GetUnitsInRectMatching=0,1,group,rect,boolexpr
 _GetUnitsInRectMatching_Defaults=GetPlayableMapRect,_
 _GetUnitsInRectMatching_Category=TC_NOTHING
 
+//最萌小汐
+Unit.GetUnitInLineAll=0,1,group,location,boolean,real,real,real
+_Unit.GetUnitInLineAll_Defaults=GetUnitLoc,true,0,1000,200
+_Unit.GetUnitInLineAll_Category=TC_MU_UNIT
+
 GetUnitsInRangeOfLocAll=0,1,group,real,location
 _GetUnitsInRangeOfLocAll_Defaults=512,GetRectCenter
 _GetUnitsInRangeOfLocAll_Limits=0,_,_,_
 _GetUnitsInRangeOfLocAll_Category=TC_NOTHING
 
+//最萌小汐
+Unit.GetUnitsInRangeOfLocAllMU=0,1,group,real,location
+_Unit.GetUnitsInRangeOfLocAllMU_Defaults=512,GetRectCenter
+_Unit.GetUnitsInRangeOfLocAllMU_Limits=0,_,_,_
+_Unit.GetUnitsInRangeOfLocAllMU_Category=TC_MU_UNIT
+
 GetUnitsInRangeOfLocMatching=0,1,group,real,location,boolexpr
 _GetUnitsInRangeOfLocMatching_Defaults=512,GetRectCenter,_
 _GetUnitsInRangeOfLocMatching_Limits=0,_,_,_,_,_
 _GetUnitsInRangeOfLocMatching_Category=TC_NOTHING
+
+//最萌小汐
+Unit.GetUnitsInRangeOfLocMatchingMU=0,1,group,real,location,boolexpr
+_Unit.GetUnitsInRangeOfLocMatchingMU_Defaults=512,GetRectCenter,_
+_Unit.GetUnitsInRangeOfLocMatchingMU_Limits=0,_,_,_,_
+_Unit.GetUnitsInRangeOfLocMatchingMU_Category=TC_MU_UNIT
 
 GetUnitsOfPlayerAll=0,1,group,player
 _GetUnitsOfPlayerAll_Defaults=Player00
@@ -11155,6 +11626,10 @@ AddSpecialEffectLoc=0,1,effect,modelfile,location
 _AddSpecialEffectLoc_Defaults="Abilities\Spells\Other\TalkToMe\TalkToMe.mdl",_
 _AddSpecialEffectLoc_Category=TC_NOTHING
 
+Effect.AddSpecialEffectLoc2=0,1,effect,modelfile,location
+_Effect.AddSpecialEffectLoc2_Defaults="Abilities\Spells\Human\ThunderClap\ThunderClapCaster.mdl",_
+_Effect.AddSpecialEffectLoc2_Category=TC_MU_EFFECT
+
 AddSpecialEffectTarget=0,1,effect,modelfile,unit,string
 _AddSpecialEffectTarget_Defaults="Abilities\Spells\Other\TalkToMe\TalkToMe.mdl",GetTriggerUnit,"overhead"
 _AddSpecialEffectTarget_Category=TC_NOTHING
@@ -11203,6 +11678,10 @@ _AddLightning_Category=TC_LIGHTNING
 AddLightningEx=0,1,lightning,lightningtype,allowdontoption,real,real,real,real,real,real
 _AddLightningEx_Defaults=LightningTypeCLPB,AllowDontDont,0,0,0,0,0,0
 _AddLightningEx_Category=TC_LIGHTNING
+
+baka.AddLightningEx2=0,1,lightning,string,allowdontoption,real,real,real,real,real,real
+_baka.AddLightningEx2_Defaults=LightningTypeCLPB,AllowDontDont,0,0,0,0,0,0
+_baka.AddLightningEx2_Category=TC_LIGHTNING
 
 YDWEGetLightningByInteger=0,1,lightning,integer,integer
 _YDWEGetLightningByInteger_Limits=0,_,0,_
@@ -11342,7 +11821,7 @@ _YDWEGetQuestItemByString_Category=TC_YDLD
 
 // returns dialog
 DialogCreate=0,1,dialog
-_GetClickedDialogBJ_Category=TC_DIALOG
+_DialogCreate_Category=TC_DIALOG
 
 GetClickedDialogBJ=0,1,dialog
 _GetClickedDialogBJ_Defaults=
@@ -11358,7 +11837,7 @@ _YDWEGetDialogByString_Category=TC_YDLD
 
 // returns button
 DialogAddButton=0,1,button,dialog,StringExt,hotkeyint
-_DialogAddButton=_Defaults=GetClickedDialogBJ,_,HotKeyNull
+_DialogAddButton_Defaults=_Defaults=GetClickedDialogBJ,_,HotKeyNull
 _DialogAddButton_Category=TC_NOTHING
 
 GetLastCreatedButtonBJ=0,1,button
@@ -11411,7 +11890,7 @@ YDWEGetMultiboardByInteger=0,1,multiboard,integer,integer
 _YDWEGetMultiboardByInteger_Category=TC_YDLD
 
 YDWEGetMultiboardByString=0,1,multiboard,string,string
-_YDWEGetmultiboardByString_Category=TC_YDLD
+_YDWEGetMultiboardByString_Category=TC_YDLD
 
 // returns multiboarditem
 MultiboardGetItem=1,0,multiboarditem,multiboard,integer,integer
@@ -11422,7 +11901,7 @@ YDWEGetMultiboardItemByInteger=0,1,multiboarditem,integer,integer
 _YDWEGetMultiboardItemByInteger_Category=TC_YDLD
 
 YDWEGetMultiboardItemByString=0,1,multiboarditem,string,string
-_YDWEGetmultiboardItemByString_Category=TC_YDLD
+_YDWEGetMultiboardItemByString_Category=TC_YDLD
 
 // returns timer
 CreateTimer=0,1,timer
@@ -11452,10 +11931,6 @@ _            _Defaults=_
 _            _Category=TC_NOTHING
 
 // returns timerdialog
-CreateTimerDialog=0,1,timerdialog,timer
-_CreateTimerDialog_Defaults=_
-_CreateTimerDialog_Category=TC_TIMER
-
 GetLastCreatedTimerDialogBJ=0,1,timerdialog
 _GetLastCreatedTimerDialogBJ_Defaults=
 _GetLastCreatedTimerDialogBJ_Category=TC_LAST
@@ -11478,7 +11953,7 @@ _GetLastCreatedGameCacheBJ_Category=TC_LAST
 
 
 // returns trackable
-CreateTrackable=0,1,trackable,modelfile,real,real,degree
+CreateTrackable=0,1,trackable,modelfile,real,real,real
 _CreateTrackable_Defaults="Abilities\Spells\Human\ThunderClap\ThunderClapCaster.mdl",0,0,0
 _CreateTrackable_Category=TC_NOTHING
 
@@ -11537,13 +12012,13 @@ LoadPlayerHandle=0,1,player,hashtable,integer,integer
 _LoadPlayerHandle_Defaults=GetLastCreatedHashtableBJ,_,_
 _LoadPlayerHandle_Category=TC_HASHTABLE
 
-// LoadWidgetHandleBJ=0,1,widget,integer,integer,hashtable
-// _LoadWidgetHandleBJ_Defaults=_,_,GetLastCreatedHashtableBJ
-// _LoadWidgetHandleBJ_Category=TC_HASHTABLE
-//
-// LoadWidgetHandle=0,1,wigdet,hashtable,integer,integer
-// _LoadWidgetHandle_Defaults=GetLastCreatedHashtableBJ,_,_
-// _LoadWidgetHandle_Category=TC_HASHTABLE
+LoadWidgetHandleBJ=0,1,widget,integer,integer,hashtable
+_LoadWidgetHandleBJ_Defaults=_,_,GetLastCreatedHashtableBJ
+_LoadWidgetHandleBJ_Category=TC_HASHTABLE
+
+LoadWidgetHandle=0,1,widget,hashtable,integer,integer
+_LoadWidgetHandle_Defaults=GetLastCreatedHashtableBJ,_,_
+_LoadWidgetHandle_Category=TC_HASHTABLE
 
 LoadDestructableHandleBJ=0,1,destructable,integer,integer,hashtable
 _LoadDestructableHandleBJ_Defaults=_,_,GetLastCreatedHashtableBJ
@@ -11602,7 +12077,7 @@ _LoadTriggerConditionHandleBJ_Defaults=_,_,GetLastCreatedHashtableBJ
 _LoadTriggerConditionHandleBJ_Category=TC_HASHTABLE
 
 LoadTriggerConditionHandle=0,1,triggercondition,hashtable,integer,integer
-_LoadTriggerConditionHandle=GetLastCreatedHashtableBJ,_,_
+_LoadTriggerConditionHandle_Defaults=GetLastCreatedHashtableBJ,_,_
 _LoadTriggerConditionHandle_Category=TC_HASHTABLE
 
 LoadTriggerActionHandleBJ=0,1,triggeraction,integer,integer,hashtable
@@ -11610,7 +12085,7 @@ _LoadTriggerActionHandleBJ_Defaults=_,_,GetLastCreatedHashtableBJ
 _LoadTriggerActionHandleBJ_Category=TC_HASHTABLE
 
 LoadTriggerActionHandle=0,1,triggeraction,hashtable,integer,integer
-_LoadTriggerActionHandle=GetLastCreatedHashtableBJ,_,_
+_LoadTriggerActionHandle_Defaults=GetLastCreatedHashtableBJ,_,_
 _LoadTriggerActionHandle_Category=TC_HASHTABLE
 
 LoadTriggerEventHandleBJ=0,1,event,integer,integer,hashtable
@@ -11618,7 +12093,7 @@ _LoadTriggerEventHandleBJ_Defaults=_,_,GetLastCreatedHashtableBJ
 _LoadTriggerEventHandleBJ_Category=TC_HASHTABLE
 
 LoadTriggerEventHandle=0,1,event,hashtable,integer,integer
-_LoadTriggerEventHandle=GetLastCreatedHashtableBJ,_,_
+_LoadTriggerEventHandle_Defaults=GetLastCreatedHashtableBJ,_,_
 _LoadTriggerEventHandle_Category=TC_HASHTABLE
 
 LoadForceHandleBJ=0,1,force,integer,integer,hashtable
@@ -11986,4 +12461,4 @@ Trigger01Action02=CommentString,"　　你可以从www.ydwe.net获取最新的YD
 Trigger01Action03=CommentString,"　　你可以由YDWE附带的演示地图开始，快速了解YDWE的功能。"
 Trigger01Action04=CommentString,"　　当你的地图意外损坏时，你可以在backups目录找到你最近26次保存的地图。"
 Trigger01Action05=CommentString,"　　当你的YDWE不能正常工作时，你可以前往www.ydwe.net联系我们。"
-
+Trigger01Action06=CommentString,"　　筒隐月子俺の嫁!!!(by 最萌小汐)。"

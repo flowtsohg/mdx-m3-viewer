@@ -35,9 +35,22 @@ export default class EventObject extends GenericObject {
   readMdl(stream: TokenStream) {
     for (let token of super.readGenericBlock(stream)) {
       if (token === 'EventTrack') {
-        this.tracks = new Uint32Array(stream.readInt());
+        let count = stream.readInt();
+        let tracks = new Uint32Array(count);
 
-        stream.readIntArray(this.tracks);
+        stream.read(); // {
+
+        if (stream.peek() === 'GlobalSeqId') {
+          stream.read();
+
+          this.globalSequenceId = stream.readInt();
+        }
+
+        for (let i = 0; i < count; i++) {
+          tracks[i] = stream.readInt();
+        }
+
+        stream.read(); // }
       } else {
         throw new Error(`Unknown token in EventObject: "${token}"`);
       }
@@ -49,6 +62,10 @@ export default class EventObject extends GenericObject {
     this.writeGenericHeader(stream);
 
     stream.startBlock('EventTrack', this.tracks.length);
+
+    if (this.globalSequenceId !== -1) {
+      stream.writeAttrib('GlobalSeqId', this.globalSequenceId)
+    }
 
     for (let track of this.tracks) {
       stream.writeFlag(`${track}`);

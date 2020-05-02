@@ -27,15 +27,13 @@ async function fetchAsText(file) {
 Promise.all([
   fetchAsText(localOrHive('ui\\triggerdata.txt')),
   fetchAsText('TriggerDataWEU.txt'),
-  fetchAsText('TriggerDataYDWE.txt'),
-  fetchAsText('TriggerDataPTR129.txt')
+  fetchAsText('TriggerDataYDWE.txt')
 ]).then(results => {
   weTriggerData.addTriggerData(results[0]); // WE trigger data
 
   triggerData.addTriggerData(results[0]); // WE trigger data
   triggerData.addTriggerData(results[1], true); // WEU trigger data
   triggerData.addTriggerData(results[2], true); // YDWE trigger data
-  triggerData.addTriggerData(results[3], true); // PTR 1.29 trigger data
 
   ok = true;
 
@@ -70,40 +68,59 @@ function handleMap(output, arrayBuffer) {
         if (type === 'inlinecustomscript') {
           output.warn(`${type}: ${change.stack}`);
           output.br();
+          output.warn(change.reason);
+          output.br();
+          output.indent();
+          output.info(change.data);
+          output.unindent();
+        } else if (type === 'convertedtrigger') {
+          output.warn(`${type}: ${change.stack}`);
+          output.br();
+          output.warn(change.reason);
+          output.br();
           output.indent();
           output.info(change.data);
           output.unindent();
         } else if (type === 'inlinegui') {
           output.unused(`${type}: ${change.stack}`);
           output.br();
+          output.unused(change.reason);
+          output.br();
+          output.indent();
+          output.info(change.data);
+          output.unindent();
         } else if (type === 'singletomultiple') {
           output.unused(`${type}: ${change.stack}`);
           output.br();
-        } else if (type === 'generatedfunction') {
+          output.unused(change.reason);
+          output.br();
+          output.indent();
+          output.info(change.data);
+          output.unindent();
+        } else if (type === 'generatedcallbacks') {
           output.warn(`${type}: ${change.stack}`);
+          output.br();
+          output.warn(change.reason);
           output.br();
           output.indent();
           output.info(change.data);
           output.unindent();
         } else if (type === 'references') {
           output.unused('references added:');
+          output.br();
+          output.unused(change.reason);
+          output.br();
           output.indent();
-          output.info(change.data.join('\n'));
-          output.unindent();
-        } else if (type === 'inlinestringtable') {
-          output.unused(`${type}: ${change.stack}`);
-          output.indent();
-          output.info(change.data.value);
-          output.info(change.data.string);
-          output.unindent();
-        } else if (type === 'generatedstringtable') {
-          output.unused(`${type}: ${change.stack}`);
-          output.indent();
-          output.info(change.data.value);
-          output.info(change.data.callback);
+          output.info(change.data);
           output.unindent();
         } else if (type === 'missingstring') {
-          output.warn(`${type}: could not find ${change.value} in the string table, leaving it as is`);
+          output.warn(`${type}: ${change.stack}`);
+          output.br();
+          output.unused(change.reason);
+          output.br();
+          output.indent();
+          output.info(change.data);
+          output.unindent();
         }
       }
 

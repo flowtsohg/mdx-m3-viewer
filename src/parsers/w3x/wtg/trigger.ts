@@ -33,7 +33,11 @@ export default class Trigger {
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
       let eca = new ECA();
 
-      eca.load(stream, version, false, triggerData);
+      try {
+        eca.load(stream, version, false, triggerData);
+      } catch (e) {
+        throw new Error(`Trigger "${this.name}": ECA ${i}: ${e}`);
+      }
 
       this.ecas[i] = eca;
     }

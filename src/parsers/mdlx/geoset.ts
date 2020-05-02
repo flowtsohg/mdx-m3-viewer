@@ -83,14 +83,16 @@ export default class Geoset {
     }
 
     // Non-reforged models that come with reforged are saved with version >800, however they don't have TANG and SKIN.
-    if (version > 800 && stream.peek(4) === 'TANG') {
-      stream.skip(4); // TANG
-      this.tangents = stream.readFloat32Array(stream.readUint32() * 4);
-    }
+    if (version > 800) {
+      if (stream.peek(4) === 'TANG') {
+        stream.skip(4); // TANG
+        this.tangents = stream.readFloat32Array(stream.readUint32() * 4);
+      }
 
-    if (version > 800 && stream.peek(4) === 'SKIN') {
-      stream.skip(4); // SKIN
-      this.skin = stream.readUint8Array(stream.readUint32());
+      if (stream.peek(4) === 'SKIN') {
+        stream.skip(4); // SKIN
+        this.skin = stream.readUint8Array(stream.readUint32());
+      }
     }
 
     stream.skip(4); // UVAS
@@ -145,11 +147,18 @@ export default class Geoset {
       sequenceExtent.writeMdx(stream);
     }
 
-    if (version > 800 && this.tangents.length) {
-      stream.write('TANG');
-      stream.writeFloat32Array(this.tangents);
-      stream.write('SKIN');
-      stream.writeUint8Array(this.skin);
+    if (version > 800) {
+      if (this.tangents.length) {
+        stream.write('TANG');
+        stream.writeUint32(this.tangents.length / 4);
+        stream.writeFloat32Array(this.tangents);
+      }
+
+      if (this.skin.length) {
+        stream.write('SKIN');
+        stream.writeUint32(this.skin.length);
+        stream.writeUint8Array(this.skin);
+      }
     }
 
     stream.write('UVAS');
@@ -306,7 +315,11 @@ export default class Geoset {
       size += 84;
 
       if (this.tangents.length) {
-        size += 8 + this.tangents.byteLength + this.skin.byteLength;
+        size += 8 + this.tangents.byteLength;
+      }
+
+      if (this.skin.length) {
+        size += 8 + this.skin.byteLength;
       }
     }
 

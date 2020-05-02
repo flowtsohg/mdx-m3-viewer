@@ -20,7 +20,11 @@ export default class Parameter {
     if (stream.readInt32()) {
       let subParameters = new SubParameters();
 
-      subParameters.load(stream, version, triggerData);
+      try {
+        subParameters.load(stream, version, triggerData);
+      } catch (e) {
+        throw new Error(`Parameter "${this.value}": SubParameters ${e}`)
+      }
 
       this.subParameters = subParameters;
     }
@@ -36,7 +40,11 @@ export default class Parameter {
     if (this.isArray) {
       let arrayIndex = new Parameter();
 
-      arrayIndex.load(stream, version, triggerData);
+      try {
+        arrayIndex.load(stream, version, triggerData);
+      } catch (e) {
+        throw new Error(`Parameter "${this.value}": ArrayIndex: ${e}`);
+      }
 
       this.arrayIndex = arrayIndex;
     }

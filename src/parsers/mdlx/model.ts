@@ -438,6 +438,8 @@ export default class Model {
         stream.read();
       } else if (token === 'BlendTime') {
         this.blendTime = stream.readInt();
+      } else if (token === 'AnimationFile') {
+        this.animationFile = stream.readSafe();
       } else if (token === 'MinimumExtent') {
         stream.readFloatArray(this.extent.min);
       } else if (token === 'MaximumExtent') {
@@ -537,6 +539,11 @@ export default class Model {
   saveModelBlock(stream: TokenStream) {
     stream.startObjectBlock('Model', this.name);
     stream.writeAttrib('BlendTime', this.blendTime);
+
+    if (this.animationFile.length) {
+      stream.writeStringAttrib('AnimationFile', this.animationFile);
+    }
+
     this.extent.writeMdl(stream);
     stream.endBlock();
   }

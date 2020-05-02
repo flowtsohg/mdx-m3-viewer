@@ -17,12 +17,22 @@ export default class SubParameters {
     this.beginParameters = stream.readInt32();
 
     if (this.beginParameters) {
-      let args = triggerData.getFunction(this.type, this.name).args;
+      let signature = triggerData.getFunction(this.type, this.name);
+
+      if (!signature) {
+        throw new Error(`SubParameters ${this.name}'s signature is unknown`);
+      }
+
+      let args = signature.args;
 
       for (let i = 0, l = args.length; i < l; i++) {
         let parameter = new Parameter();
 
-        parameter.load(stream, version, triggerData);
+        try {
+          parameter.load(stream, version, triggerData);
+        } catch (e) {
+          throw new Error(`SubParameters "${this.name}": Parameter ${i}: ${e}`);
+        }
 
         this.parameters[i] = parameter;
       }

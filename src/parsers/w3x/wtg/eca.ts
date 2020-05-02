@@ -23,12 +23,22 @@ export default class ECA {
     this.name = stream.readUntilNull();
     this.isEnabled = stream.readInt32();
 
-    let args = triggerData.getFunction(this.type, this.name).args;
+    let signature = triggerData.getFunction(this.type, this.name);
+
+    if (!signature) {
+      throw new Error(`ECA ${this.name}'s signature is unknown`);
+    }
+
+    let args = signature.args;
 
     for (let i = 0, l = args.length; i < l; i++) {
       let parameter = new Parameter();
 
-      parameter.load(stream, version, triggerData);
+      try {
+        parameter.load(stream, version, triggerData);
+      } catch (e) {
+        throw new Error(`ECA "${this.name}": Parameter ${i}: ${e}`);
+      }
 
       this.parameters[i] = parameter;
     }
@@ -37,7 +47,11 @@ export default class ECA {
       for (let i = 0, l = stream.readUint32(); i < l; i++) {
         let eca = new ECA();
 
-        eca.load(stream, version, true, triggerData);
+        try {
+          eca.load(stream, version, true, triggerData);
+        } catch (e) {
+          throw new Error(`ECA "${this.name}": Child ECA ${i} ${e}`);
+        }
 
         this.ecas[i] = eca;
       }

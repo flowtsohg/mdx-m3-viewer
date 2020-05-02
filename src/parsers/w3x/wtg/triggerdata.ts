@@ -144,10 +144,6 @@ export default class TriggerData {
 
     if (!args) {
       args = this.externalFunctions[type][name];
-
-      if (!args) {
-        throw new Error(`Tried to get signature for unknown function "${name}"`);
-      }
     }
 
     return args;
