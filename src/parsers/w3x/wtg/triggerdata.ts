@@ -150,6 +150,24 @@ export default class TriggerData {
   }
 
   /**
+   * Get the type of a function given its name.
+   * Returns -1 if the function isn't recognized.
+   */
+  getFunctionType(name: string) {
+    name = name.toLowerCase();
+
+    let functions = this.functions;
+
+    for (let i = 0; i < 4; i++) {
+      if (functions[i][name]) {
+        return i;
+      }
+    }
+
+    return -1;
+  }
+
+  /**
    * Gets a preset value.
    */
   getPreset(name: string) {
@@ -159,10 +177,6 @@ export default class TriggerData {
 
     if (preset === undefined) {
       preset = this.externalPresets[name];
-
-      if (preset === undefined) {
-        throw new Error(`Failed to find a preset: ${name}`);
-      }
     }
 
     return preset;

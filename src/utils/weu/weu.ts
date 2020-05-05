@@ -1,9 +1,9 @@
 import War3Map from '../../parsers/w3x/map';
 import TriggerData from '../../parsers/w3x/wtg/triggerdata';
+import CustomTextTrigger from '../../parsers/w3x/wct/customtexttrigger';
 import WeuData from './data';
 import { processTrigger } from './processing';
 import { convertTrigger } from './conversions';
-import CustomTextTrigger from '../../parsers/w3x/wct/customtexttrigger';
 
 export default function convertWeu(map: War3Map, customTriggerData: TriggerData, weTriggerData: TriggerData) {
   let wtg;
@@ -18,7 +18,7 @@ export default function convertWeu(map: War3Map, customTriggerData: TriggerData,
   }
 
   if (!wtg) {
-    return { ok: false, error: `The triggers file doesn't exist` };
+    return { ok: false, error: `The triggers file doesn't exist. This means this map is most likely protected/optimized.` };
   }
 
   // Try to read the custom text triggers file.
@@ -55,7 +55,7 @@ export default function convertWeu(map: War3Map, customTriggerData: TriggerData,
     }
   }
 
-  // Test and convert the triggers as needed.
+  // Process and convert the triggers as needed.
   for (let i = 0, l = triggers.length; i < l; i++) {
     let trigger = triggers[i];
 
@@ -63,11 +63,11 @@ export default function convertWeu(map: War3Map, customTriggerData: TriggerData,
     let callbacks: string[] = [];
 
     try {
-      // Test the trigger.
+      // Process the trigger.
       // If things inside it need to be converted, this will convert them.
-      // If the trigger itself needs to be converted, convert it.
       let result = processTrigger(data, trigger, callbacks);
 
+      // If the trigger itself needs to be converted, convert it.
       if (result.convert) {
         data.push(trigger);
 

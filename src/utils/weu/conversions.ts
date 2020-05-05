@@ -6,10 +6,10 @@ import WeuData from './data';
 import { createCustomScriptECA, ensureNameSafety } from './utils';
 
 /**
- * The list of vanilla operators that take 3 parameters.
+ * A list of vanilla operators that take 3 parameters.
  * The only one not here, which takes 2 parameters, is OperatorString.
  */
-export const OPERATOR_NAMES = new Set([
+const OPERATOR_NAMES = new Set([
   'OperatorCompareBoolean',
   'OperatorCompareAbilityId',
   'OperatorCompareBuffId',
@@ -42,8 +42,24 @@ export const OPERATOR_NAMES = new Set([
   'OperatorReal',
 ]);
 
+/**
+ * A list of vanilla functions which have an implicit code parameter.
+ * The control flow "functions" such as IfThenElseMultiple and ForLoopAMultiple are handled specifically.
+ */
+const HAS_IMPLICIT_CODE = new Set([
+  'EnumDestructablesInRectAllMultiple',
+  'EnumDestructablesInCircleBJMultiple',
+  'EnumItemsInRectBJMultiple',
+  'ForForceMultiple',
+  'ForGroupMultiple',
+]);
+
+/**
+ * Converts a Trigger to a custom script string.
+ * Callbacks that are generated due to the conversion are added to the input callbacks array.
+ */
 export function convertTrigger(data: WeuData, trigger: Trigger, callbacks: string[]) {
-  let name = trigger.name.replace(/ /g, '_');
+  let name = ensureNameSafety(trigger.name);
   let events = [];
   let conditions = [];
   let actions = [];
@@ -75,6 +91,8 @@ export function convertTrigger(data: WeuData, trigger: Trigger, callbacks: strin
     triggerParameter.type = 3;
     triggerParameter.value = triggerName;
 
+    initBody.push(`set ${triggerName} = CreateTrigger()`);
+
     // Convert the events.
     for (let event of events) {
       event.parameters.unshift(triggerParameter);
@@ -86,7 +104,7 @@ export function convertTrigger(data: WeuData, trigger: Trigger, callbacks: strin
 
     // Convert the conditions.
     if (conditions.length) {
-      initBody.push(`call TriggerAddCondition(${triggerName}, Condition(function Trig_${name}Conditions)`);
+      initBody.push(`call TriggerAddCondition(${triggerName}, Condition(function Trig_${name}_Conditions)`);
 
       for (let condition of conditions) {
         for (let eca of convertFunctionCall(data, condition, callbacks)) {
@@ -97,7 +115,7 @@ export function convertTrigger(data: WeuData, trigger: Trigger, callbacks: strin
 
     // Convert the actions.
     if (actions.length) {
-      initBody.push(`call TriggerAddAction(${triggerName}, function Trig_${name}Actions)`);
+      initBody.push(`call TriggerAddAction(${triggerName}, function Trig_${name}_Actions)`);
 
       for (let action of actions) {
         for (let eca of convertFunctionCall(data, action, callbacks)) {
@@ -108,12 +126,12 @@ export function convertTrigger(data: WeuData, trigger: Trigger, callbacks: strin
 
     // Add the actions function.
     if (actionsBody.length) {
-      functions.push(`function Trig_${name}Actions takes nothing returns nothing\r\n${actionsBody.join('\r\n')}\r\nendfunction`);
+      functions.push(`function Trig_${name}_Actions takes nothing returns nothing\r\n${actionsBody.join('\r\n')}\r\nendfunction`);
     }
 
     // Add the conditions function.
     if (conditionsBody.length) {
-      functions.push(`function Trig_${name}Conditions takes nothing returns boolean\r\n${conditionsBody.join('\r\n')}\r\nreturn false\r\nendfunction`);
+      functions.push(`function Trig_${name}_Conditions takes nothing returns boolean\r\n${conditionsBody.join('\r\n')}\r\nreturn false\r\nendfunction`);
     }
 
     // Add the initalization function.
@@ -126,7 +144,7 @@ export function convertTrigger(data: WeuData, trigger: Trigger, callbacks: strin
 
 /**
  * Converts an ECA or SubParameters to an array of custom script ECAs.
- * Also creates callbacks when needed, which are added to the map header.
+ * Callbacks that are generated due to the conversion are added to the input callbacks array.
  */
 export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, callbacks: string[]) {
   let name = object.name;
@@ -150,14 +168,12 @@ export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, 
   if (argCount) {
     let lastArg = args[argCount - 1];
 
-    if (lastArg === 'code') {
+    if (lastArg === 'code' || HAS_IMPLICIT_CODE.has(name)) {
       isCode = true;
     } else if (lastArg === 'boolexpr') {
       isBoolexpr = true;
     } else if (lastArg === 'scriptcode') {
       isScriptCode = true;
-    } else if (name === 'ForGroupMultiple' || name === 'EnumDestructablesInRectAllMultiple') {
-      isCode = true;
     }
   }
 
@@ -172,17 +188,33 @@ export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, 
     ecas.push(ecaObject.ecas.slice().map((eca) => convertFunctionCall(data, eca, callbacks).map((eca) => eca.parameters[0].value)).join(' or '));
   } else if (name === 'AndMultiple') {
     ecas.push(ecaObject.ecas.slice().map((eca) => convertFunctionCall(data, eca, callbacks).map((eca) => eca.parameters[0].value)).join(' and '));
-  } else if (name === 'ForLoopAMultiple' || name === 'ForLoopBMultiple') {
-    let aOrB = 'A';
+  } else if (name === 'ForLoopAMultiple' || name === 'ForLoopBMultiple' || name === 'ForLoopVarMultiple') {
+    let loopName = 'A';
 
     if (name === 'ForLoopBMultiple') {
-      aOrB = 'B';
+      loopName = 'B';
+    } else if (name === 'ForLoopVarMultiple') {
+      loopName = 'Var';
     }
 
-    ecas.push(`set bj_forLoop${aOrB}Index = ${convertParameter(data, parameters[0], args[0], callbacks)}`);
-    ecas.push(`set bj_forLoop${aOrB}IndexEnd = ${convertParameter(data, parameters[1], args[1], callbacks)}`);
-    ecas.push('loop');
-    ecas.push(`exitwhen bj_forLoop${aOrB}Index > bj_forLoop${aOrB}IndexEnd`);
+    let index;
+
+    if (loopName === 'A' || loopName === 'B') {
+      index = `bj_forLoop${loopName}Index`;
+
+      let indexEnd = `${index}End`;
+
+      ecas.push(`set ${index} = ${convertParameter(data, parameters[0], args[0], callbacks)}`);
+      ecas.push(`set ${indexEnd} = ${convertParameter(data, parameters[1], args[1], callbacks)}`);
+      ecas.push('loop');
+      ecas.push(`exitwhen ${index} > ${indexEnd}`);
+    } else {
+      index = convertParameter(data, parameters[0], args[0], callbacks);
+
+      ecas.push(`set ${index} = ${convertParameter(data, parameters[1], args[1], callbacks)}`);
+      ecas.push('loop');
+      ecas.push(`exitwhen ${index} > ${convertParameter(data, parameters[2], args[2], callbacks)}`);
+    }
 
     for (let action of ecaObject.ecas) {
       let replacements = convertFunctionCall(data, action, callbacks);
@@ -192,6 +224,7 @@ export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, 
       }
     }
 
+    ecas.push(`set ${index} = ${index} + 1`);
     ecas.push('endloop');
   } else if (name === 'IfThenElseMultiple') {
     let condition;
@@ -288,7 +321,7 @@ export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, 
     ecas.push(`// ${parameters[0].value}`);
   } else if (name === 'GetBooleanAnd') {
     ecas.push(`(${convertParameter(data, parameters[0], args[0], callbacks)} and ${convertParameter(data, parameters[1], args[1], callbacks)})`);
-  } else if (name === 'GetBooleanAnd') {
+  } else if (name === 'GetBooleanOr') {
     ecas.push(`(${convertParameter(data, parameters[0], args[0], callbacks)} or ${convertParameter(data, parameters[1], args[1], callbacks)})`);
   } else if (object instanceof ECA) {
     // If this is a trigger event, there is the implicit trigger parameter at the beginning.
@@ -306,13 +339,20 @@ export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, 
 
 /**
  * Converts a parameter to custom script.
+ * Callbacks that are generated due to the conversion are added to the input callbacks array.
  */
 export function convertParameter(data: WeuData, parameter: Parameter, dataType: string, callbacks: string[]) {
   let type = parameter.type;
   let value = parameter.value;
 
   if (type === 0) {
-    return data.triggerData.getPreset(value);
+    let preset = data.triggerData.getPreset(value);
+
+    if (preset === undefined) {
+      throw new Error(`Failed to find a preset: "${name}"`);
+    }
+
+    return preset;
   } else if (type === 1) {
     if (value.startsWith('gg_')) {
       // Used to track global generated variables and their status.

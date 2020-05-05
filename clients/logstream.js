@@ -49,6 +49,16 @@ class LogStream {
         return element;
     }
 
+    append(element) {
+        let container = this.current || this.container;
+
+        element.style.marginLeft = `${3 * this.padding}ch`;
+
+        container.appendChild(element);
+
+        return element;
+    }
+
     log(message) {
         return this.add('log', message);
     }

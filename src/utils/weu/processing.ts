@@ -5,7 +5,8 @@ import SubParameters from '../../parsers/w3x/wtg/subparameters';
 import WeuData from './data';
 import { createCustomScriptECA, convertSingleToMultiple, isConditionECA, ensureCustomScriptCodeSafety } from './utils';
 import { convertFunctionCall } from './conversions';
-import replaceGUI from './replacements';
+import transformFunction from './transformations/functions';
+import transformPreset from './transformations/presets';
 
 export function processTrigger(data: WeuData, trigger: Trigger, callbacks: string[]) {
   data.push(trigger);
@@ -148,7 +149,7 @@ function processFunctionCall(data: WeuData, object: ECA | SubParameters, callbac
 
   // Check if this object can be converted back to normal GUI.
   // If it's already normal GUI, nothing will happen.
-  if (replaceGUI(data, object)) {
+  if (transformFunction(data, object)) {
     data.change('inlinegui', `"${name}" is not a vanilla function`, object.name);
   }
 
@@ -163,7 +164,13 @@ function processFunctionCall(data: WeuData, object: ECA | SubParameters, callbac
   for (let parameter of object.parameters) {
     // Check for custom presets.
     if (parameter.type === 0 && data.triggerData.isCustomPreset(parameter.value)) {
-      return { convert: true, reason: `"${parameter.value}" is not a vanilla preset` };
+      let value = parameter.value;
+
+      if (transformPreset(data, parameter)) {
+        data.change('inlinegui', `"${value}" is not a vanilla preset`, parameter.value);
+      } else {
+        return { convert: true, reason: `"${value}" is not a vanilla preset` };
+      }
     }
 
     let result = processParameter(data, parameter, callbacks);

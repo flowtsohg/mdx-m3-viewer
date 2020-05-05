@@ -6,7 +6,7 @@ import CustomTextTrigger from '../../parsers/w3x/wct/customtexttrigger';
 import TriggerData from '../../parsers/w3x/wtg/triggerdata';
 import War3MapWts from '../../parsers/w3x/wts/file';
 
-interface ChangeDescriptor {
+interface WEUChange {
   type: string;
   reason: string;
   data: string;
@@ -17,7 +17,7 @@ export default class WeuData {
   triggerData: TriggerData;
   stringTable: War3MapWts;
   preplacedObjects: Map<string, boolean> = new Map();
-  changes: ChangeDescriptor[] = [];
+  changes: WEUChange[] = [];
   stack: (Trigger | ECA | Parameter | SubParameters)[] = [];
 
   constructor(triggerData: TriggerData, stringTable: War3MapWts) {
@@ -39,12 +39,10 @@ export default class WeuData {
 
   stackToString() {
     return this.stack.map((object) => {
-      if (object instanceof Trigger) {
-        return `Trigger ${object.name}`;
-      } else if (object instanceof ECA || object instanceof SubParameters) {
-        return object.name;
-      } else if (object instanceof Parameter) {
+      if (object instanceof Parameter) {
         return object.value;
+      } else {
+        return object.name;
       }
     }).reverse().join(' > ');
   }

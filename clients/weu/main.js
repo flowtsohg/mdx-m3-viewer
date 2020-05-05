@@ -41,6 +41,12 @@ Promise.all([
   output.br();
 });
 
+function addCellToRow(row, data) {
+  let cell = row.insertCell();
+
+  cell.appendChild(document.createTextNode(data));
+}
+
 // Convert a map.
 function handleMap(output, arrayBuffer) {
   output.indent();
@@ -57,76 +63,53 @@ function handleMap(output, arrayBuffer) {
     if (changes.length) {
       changesCount = changes.length;
 
+      output.log(`Converted with ${changes.length} changes!`);
+      output.br();
+      output.indent();
+
       // Possibly lots of changes which will result in lots of DOM entries being added, so optimize it.
       output.start();
 
-      output.indent();
+      let table = document.createElement('table');
+      let tbody = table.createTBody();
+      let thead = table.createTHead();
 
-      for (let change of changes) {
-        let type = change.type;
+      let header = thead.insertRow();
+      addCellToRow(header, '#');
+      addCellToRow(header, 'Type');
+      addCellToRow(header, 'Reason');
+      addCellToRow(header, 'Change');
+      addCellToRow(header, 'Stack');
 
-        if (type === 'inlinecustomscript') {
-          output.warn(`${type}: ${change.stack}`);
-          output.br();
-          output.warn(change.reason);
-          output.br();
-          output.indent();
-          output.info(change.data);
-          output.unindent();
-        } else if (type === 'convertedtrigger') {
-          output.warn(`${type}: ${change.stack}`);
-          output.br();
-          output.warn(change.reason);
-          output.br();
-          output.indent();
-          output.info(change.data);
-          output.unindent();
-        } else if (type === 'inlinegui') {
-          output.unused(`${type}: ${change.stack}`);
-          output.br();
-          output.unused(change.reason);
-          output.br();
-          output.indent();
-          output.info(change.data);
-          output.unindent();
-        } else if (type === 'singletomultiple') {
-          output.unused(`${type}: ${change.stack}`);
-          output.br();
-          output.unused(change.reason);
-          output.br();
-          output.indent();
-          output.info(change.data);
-          output.unindent();
-        } else if (type === 'generatedcallbacks') {
-          output.warn(`${type}: ${change.stack}`);
-          output.br();
-          output.warn(change.reason);
-          output.br();
-          output.indent();
-          output.info(change.data);
-          output.unindent();
-        } else if (type === 'references') {
-          output.unused('references added:');
-          output.br();
-          output.unused(change.reason);
-          output.br();
-          output.indent();
-          output.info(change.data);
-          output.unindent();
-        } else if (type === 'missingstring') {
-          output.warn(`${type}: ${change.stack}`);
-          output.br();
-          output.unused(change.reason);
-          output.br();
-          output.indent();
-          output.info(change.data);
-          output.unindent();
-        }
+      for (let i = 0, l = changes.length; i < l; i++) {
+        let change = changes[i];
+
+        let row = tbody.insertRow();
+
+        addCellToRow(row, `${i + 1}`);
+        addCellToRow(row, change.type);
+        addCellToRow(row, change.reason);
+        addCellToRow(row, change.data);
+        addCellToRow(row, change.stack);
       }
 
-      output.unindent();
-      output.log(`Converted with ${changes.length} changes!`);
+      let showHide = document.createElement('button');
+      showHide.textContent = 'CLICK HERE TO SHOW OR HIDE THE CHANGES';
+
+      table.style.display = 'none';
+
+      showHide.addEventListener('click', () => {
+        if (table.style.display === 'none') {
+          table.style.display = 'table'
+        } else {
+          table.style.display = 'none';
+        }
+      });
+
+      output.append(showHide);
       output.br();
+      output.append(table);
+      output.unindent();
 
       // Commit all of the DOM changes.
       output.commit();
