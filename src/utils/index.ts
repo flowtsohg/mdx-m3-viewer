@@ -1,5 +1,5 @@
 import UnitTester from './unittester';
-import mdxSanityTest from './mdxsanitytest';
+import mdxSanityTest from './mdxsanitytest/mdxsanitytest';
 import blpSanityTest from './blpsanitytest';
 import convertWeu from './weu/weu';
 import mdlSourceMap from './mdlsourcemap';

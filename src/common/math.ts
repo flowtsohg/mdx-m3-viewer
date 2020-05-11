@@ -105,3 +105,31 @@ export function isPowerOfTwo(x: number) {
 
   return ((x & (x - 1)) === 0);
 }
+
+/**
+ * Given a number, truncates digits after the decimal point.
+ * The given precision should be in base 10.
+ * E.g. for a precision of two digits after the decimal point, the precision should be 100.
+ * The result is returned as a string.
+ */
+export function floatDecimals(value: number, precision: number) {
+  return `${value}`
+  return `${Math.trunc(value * precision) / precision}`;
+}
+
+/**
+ * Uses floatDecimals on a typed array, and returns its string representation. 
+ */
+export function floatArrayDecimals(value: TypedArray, precision: number) {
+  if (value instanceof Float32Array) {
+    let array = [];
+
+    for (let i = 0, l = value.length; i < l; i++) {
+      array[i] = floatDecimals(value[i], precision);
+    }
+
+    return array.join(', ');
+  } else {
+    return value.join(', ');
+  }
+}

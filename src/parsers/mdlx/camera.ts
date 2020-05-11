@@ -40,11 +40,11 @@ export default class Camera extends AnimatedObject {
   }
 
   readMdl(stream: TokenStream) {
-    this.name = stream.readSafe();
+    this.name = stream.read();
 
     for (let token of stream.readBlock()) {
       if (token === 'Position') {
-        stream.readFloatArray(this.position);
+        stream.readVector(this.position);
       } else if (token === 'Translation') {
         this.readAnimation(stream, 'KCTR');
       } else if (token === 'Rotation') {
@@ -58,7 +58,7 @@ export default class Camera extends AnimatedObject {
       } else if (token === 'Target') {
         for (token of stream.readBlock()) {
           if (token === 'Position') {
-            stream.readFloatArray(this.targetPosition);
+            stream.readVector(this.targetPosition);
           } else if (token === 'Translation') {
             this.readAnimation(stream, 'KTTR');
           } else {
@@ -74,15 +74,15 @@ export default class Camera extends AnimatedObject {
   writeMdl(stream: TokenStream) {
     stream.startObjectBlock('Camera', this.name);
 
-    stream.writeFloatArrayAttrib('Position', this.position);
+    stream.writeVectorAttrib('Position', this.position);
     this.writeAnimation(stream, 'KCTR');
     this.writeAnimation(stream, 'KCRL');
-    stream.writeFloatAttrib('FieldOfView', this.fieldOfView);
-    stream.writeFloatAttrib('FarClip', this.farClippingPlane);
-    stream.writeFloatAttrib('NearClip', this.nearClippingPlane);
+    stream.writeNumberAttrib('FieldOfView', this.fieldOfView);
+    stream.writeNumberAttrib('FarClip', this.farClippingPlane);
+    stream.writeNumberAttrib('NearClip', this.nearClippingPlane);
 
     stream.startBlock('Target');
-    stream.writeFloatArrayAttrib('Position', this.targetPosition);
+    stream.writeVectorAttrib('Position', this.targetPosition);
     this.writeAnimation(stream, 'KTTR');
     stream.endBlock();
 

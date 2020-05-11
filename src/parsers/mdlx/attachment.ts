@@ -42,7 +42,7 @@ export default class Attachment extends GenericObject {
       if (token === 'AttachmentID') {
         this.attachmentId = stream.readInt();
       } else if (token === 'Path') {
-        this.path = stream.readSafe();
+        this.path = stream.read();
       } else if (token === 'Visibility') {
         this.readAnimation(stream, 'KATV');
       } else {
@@ -55,7 +55,7 @@ export default class Attachment extends GenericObject {
     stream.startObjectBlock('Attachment', this.name);
     this.writeGenericHeader(stream);
 
-    stream.writeAttrib('AttachmentID', this.attachmentId); // Is this needed? MDX supplies it, but MdlxConv does not use it.
+    stream.writeNumberAttrib('AttachmentID', this.attachmentId); // Is this needed? MDX supplies it, but MdlxConv does not use it.
 
     if (this.path.length) {
       stream.writeStringAttrib('Path', this.path);

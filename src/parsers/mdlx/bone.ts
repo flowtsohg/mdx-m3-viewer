@@ -30,7 +30,7 @@ export default class Bone extends GenericObject {
   readMdl(stream: TokenStream) {
     for (let token of super.readGenericBlock(stream)) {
       if (token === 'GeosetId') {
-        token = stream.readSafe();
+        token = stream.read();
 
         if (token === 'Multiple') {
           this.geosetId = -1;
@@ -38,7 +38,7 @@ export default class Bone extends GenericObject {
           this.geosetId = parseInt(token);
         }
       } else if (token === 'GeosetAnimId') {
-        token = stream.readSafe();
+        token = stream.read();
 
         if (token === 'None') {
           this.geosetAnimationId = -1;
@@ -55,19 +55,17 @@ export default class Bone extends GenericObject {
     stream.startObjectBlock('Bone', this.name);
     this.writeGenericHeader(stream);
 
-    let geosetId: number | string = this.geosetId;
-    let geosetAnimationId: number | string = this.geosetAnimationId;
-
-    if (geosetId === -1) {
-      geosetId = 'Multiple';
+    if (this.geosetId === -1) {
+      stream.writeFlagAttrib('GeosetId', 'Multiple');
+    } else {
+      stream.writeNumberAttrib('GeosetId', this.geosetId);
     }
 
-    if (geosetAnimationId === -1) {
-      geosetAnimationId = 'None';
+    if (this.geosetAnimationId === -1) {
+      stream.writeFlagAttrib('GeosetAnimId', 'None');
+    } else {
+      stream.writeNumberAttrib('GeosetAnimId', this.geosetAnimationId);
     }
-
-    stream.writeAttrib('GeosetId', geosetId);
-    stream.writeAttrib('GeosetAnimId', geosetAnimationId);
 
     this.writeGenericAnimations(stream);
     stream.endBlock();

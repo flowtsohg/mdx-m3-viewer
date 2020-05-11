@@ -22,8 +22,6 @@ export default class TerrainDoodad {
     locationHeap[0] = doodad.location[0] * 128 + centeroffset[0] + 128;
     locationHeap[1] = doodad.location[1] * 128 + centeroffset[1] + 128;
 
-    console.log(model, row, doodad)
-
     instance.move(locationHeap);
     instance.rotateLocal(quat.setAxisAngle(quat.create(), VEC3_UNIT_Z, degToRad(<number>row.fixedRot)));
     instance.setScene(map.worldScene);

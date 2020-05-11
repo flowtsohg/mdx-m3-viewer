@@ -150,12 +150,12 @@ function processFunctionCall(data: WeuData, object: ECA | SubParameters, callbac
   // Check if this object can be converted back to normal GUI.
   // If it's already normal GUI, nothing will happen.
   if (transformFunction(data, object)) {
-    data.change('inlinegui', `"${name}" is not a vanilla function`, object.name);
+    data.change('inlinegui', name, object.name);
   }
 
   // If this function is not from normal GUI, it has to be converted.
   if (!data.triggerData.isBaseFunction(object.type, object.name)) {
-    return { convert: true, reason: `"${object.name}" is not a vanilla function` };
+    return { convert: true, reason: object.name };
   }
 
   // Check the parameters.
@@ -167,9 +167,9 @@ function processFunctionCall(data: WeuData, object: ECA | SubParameters, callbac
       let value = parameter.value;
 
       if (transformPreset(data, parameter)) {
-        data.change('inlinegui', `"${value}" is not a vanilla preset`, parameter.value);
+        data.change('inlinepreset', value, parameter.value);
       } else {
-        return { convert: true, reason: `"${value}" is not a vanilla preset` };
+        return { convert: true, reason: value };
       }
     }
 

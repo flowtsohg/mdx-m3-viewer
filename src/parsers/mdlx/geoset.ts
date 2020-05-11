@@ -20,7 +20,7 @@ export default class Geoset {
   /** 
    * @since 900
    */
-  lod: number = 0;
+  lod: number = -1;
   /** 
    * @since 900
    */
@@ -68,7 +68,7 @@ export default class Geoset {
     this.selectionFlags = stream.readUint32();
 
     if (version > 800) {
-      this.lod = stream.readUint32();
+      this.lod = stream.readInt32();
       this.lodName = stream.read(80);
     }
 
@@ -134,7 +134,7 @@ export default class Geoset {
     stream.writeUint32(this.selectionFlags);
 
     if (version > 800) {
-      stream.writeUint32(this.lod);
+      stream.writeInt32(this.lod);
       stream.write(this.lodName);
       stream.skip(80 - this.lodName.length);
     }
@@ -174,27 +174,38 @@ export default class Geoset {
   readMdl(stream: TokenStream) {
     for (let token of stream.readBlock()) {
       if (token === 'Vertices') {
-        this.vertices = stream.readVectorArray(new Float32Array(stream.readInt() * 3), 3);
+        this.vertices = stream.readVectorsBlock(new Float32Array(stream.readInt() * 3), 3);
       } else if (token === 'Normals') {
-        this.normals = stream.readVectorArray(new Float32Array(stream.readInt() * 3), 3);
+        this.normals = stream.readVectorsBlock(new Float32Array(stream.readInt() * 3), 3);
       } else if (token === 'TVertices') {
-        this.uvSets.push(stream.readVectorArray(new Float32Array(stream.readInt() * 2), 2));
+        this.uvSets.push(stream.readVectorsBlock(new Float32Array(stream.readInt() * 2), 2));
       } else if (token === 'VertexGroup') {
         // Vertex groups are stored in a block with no count, can't allocate the buffer yet.
         let vertexGroups = [];
 
-        for (let vertexGroup of stream.readBlockSafe()) {
+        for (let vertexGroup of stream.readBlock()) {
           vertexGroups.push(parseInt(vertexGroup));
         }
 
         this.vertexGroups = new Uint8Array(vertexGroups);
+      } else if (token === 'Tangents') {
+        this.tangents = stream.readVectorsBlock(new Float32Array(stream.readInt() * 4), 4);
+      } else if (token === 'SkinWeights') {
+        this.skin = <Uint8Array>stream.readVector(new Uint8Array(stream.readInt() * 8));
       } else if (token === 'Faces') {
         // For now hardcoded for triangles, until I see a model with something different.
         this.faceTypeGroups = new Uint32Array([4]);
 
-        stream.readInt(); // number of groups, irrelevant for now
+        // Number of vectors the indices are spread over.
+        let vectors = stream.readInt();
 
+        // Total number of indices.
         let count = stream.readInt();
+
+        // Declare that all of the faces are in one group to conform with MDX.
+        this.faceGroups = new Uint32Array([count]);
+
+        let vectorSize = count / vectors;
 
         stream.read(); // {
         stream.read(); // Triangles
@@ -202,7 +213,11 @@ export default class Geoset {
 
         this.faces = new Uint16Array(count);
 
-        stream.readIntArray(this.faces);
+        for (let i = 0; i < vectors; i++) {
+          let offset = i * vectorSize;
+
+          stream.readVector(this.faces.subarray(offset, offset + vectorSize));
+        }
 
         stream.read(); // }
         stream.read(); // }
@@ -213,11 +228,10 @@ export default class Geoset {
         stream.readInt(); // matrices count
         stream.readInt(); // total indices
 
-        // eslint-disable-next-line no-unused-vars
-        for (let matrix of stream.readBlockSafe()) {
+        for (let _ of stream.readBlock()) {
           let size = 0;
 
-          for (let index of stream.readBlockSafe()) {
+          for (let index of stream.readBlock()) {
             indices.push(parseInt(index));
             size += 1;
           }
@@ -228,19 +242,19 @@ export default class Geoset {
         this.matrixIndices = new Uint32Array(indices);
         this.matrixGroups = new Uint32Array(groups);
       } else if (token === 'MinimumExtent') {
-        stream.readFloatArray(this.extent.min);
+        stream.readVector(this.extent.min);
       } else if (token === 'MaximumExtent') {
-        stream.readFloatArray(this.extent.max);
+        stream.readVector(this.extent.max);
       } else if (token === 'BoundsRadius') {
         this.extent.boundsRadius = stream.readFloat();
       } else if (token === 'Anim') {
         let extent = new Extent();
 
-        for (token of stream.readBlockSafe()) {
+        for (token of stream.readBlock()) {
           if (token === 'MinimumExtent') {
-            stream.readFloatArray(extent.min);
+            stream.readVector(extent.min);
           } else if (token === 'MaximumExtent') {
-            stream.readFloatArray(extent.max);
+            stream.readVector(extent.max);
           } else if (token === 'BoundsRadius') {
             extent.boundsRadius = stream.readFloat();
           }
@@ -253,20 +267,24 @@ export default class Geoset {
         this.selectionGroup = stream.readInt();
       } else if (token === 'Unselectable') {
         this.selectionFlags = 4;
+      } else if (token === 'LevelOfDetail') {
+        this.lod = stream.readInt();
+      } else if (token === 'Name') {
+        this.lodName = stream.read();
       } else {
         throw new Error(`Unknown token in Geoset: "${token}"`);
       }
     }
   }
 
-  writeMdl(stream: TokenStream) {
+  writeMdl(stream: TokenStream, version: number) {
     stream.startBlock('Geoset');
 
-    stream.writeVectorArray('Vertices', this.vertices, 3);
-    stream.writeVectorArray('Normals', this.normals, 3);
+    stream.writeVectorArrayBlock('Vertices', this.vertices, 3);
+    stream.writeVectorArrayBlock('Normals', this.normals, 3);
 
     for (let uvSet of this.uvSets) {
-      stream.writeVectorArray('TVertices', uvSet, 2);
+      stream.writeVectorArrayBlock('TVertices', uvSet, 2);
     }
 
     stream.startBlock('VertexGroup');
@@ -275,17 +293,27 @@ export default class Geoset {
     }
     stream.endBlock();
 
+    if (version > 800) {
+      if (this.tangents.length) {
+        stream.writeVectorArrayBlock('Tangents', this.tangents, 4);
+      }
+
+      if (this.skin.length) {
+        stream.writeVectorMultiline('SkinWeights', this.skin, 8);
+      }
+    }
+
     // For now hardcoded for triangles, until I see a model with something different.
     stream.startBlock('Faces', 1, this.faces.length);
     stream.startBlock('Triangles');
-    stream.writeLine(`{ ${this.faces.join(', ')} },`);
+    stream.writeVector(this.faces);
     stream.endBlock();
     stream.endBlock();
 
     stream.startBlock('Groups', this.matrixGroups.length, this.matrixIndices.length);
     let index = 0;
     for (let groupSize of this.matrixGroups) {
-      stream.writeArrayAttrib('Matrices', this.matrixIndices.subarray(index, index + groupSize));
+      stream.writeVectorAttrib('Matrices', this.matrixIndices.subarray(index, index + groupSize));
       index += groupSize;
     }
     stream.endBlock();
@@ -298,11 +326,19 @@ export default class Geoset {
       stream.endBlock();
     }
 
-    stream.writeAttrib('MaterialID', this.materialId);
-    stream.writeAttrib('SelectionGroup', this.selectionGroup);
+    stream.writeNumberAttrib('MaterialID', this.materialId);
+    stream.writeNumberAttrib('SelectionGroup', this.selectionGroup);
 
     if (this.selectionFlags === 4) {
       stream.writeFlag('Unselectable');
+    }
+
+    if (version > 800) {
+      stream.writeNumberAttrib('LevelOfDetail', this.lod);
+
+      if (this.lodName.length) {
+        stream.writeStringAttrib('Name', this.lodName);
+      }
     }
 
     stream.endBlock();

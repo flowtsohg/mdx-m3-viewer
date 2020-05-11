@@ -60,10 +60,10 @@ export default class CollisionShape extends GenericObject {
 
         stream.read(); // {
 
-        stream.readFloatArray(this.vertices[0]);
+        stream.readVector(this.vertices[0]);
 
         if (count === 2) {
-          stream.readFloatArray(this.vertices[1]);
+          stream.readVector(this.vertices[1]);
         }
 
         stream.read(); // }
@@ -98,16 +98,16 @@ export default class CollisionShape extends GenericObject {
 
     stream.writeFlag(type);
     stream.startBlock('Vertices', vertices);
-    stream.writeFloatArray(this.vertices[0]);
+    stream.writeVector(this.vertices[0]);
 
     if (vertices === 2) {
-      stream.writeFloatArray(this.vertices[1]);
+      stream.writeVector(this.vertices[1]);
     }
 
     stream.endBlock();
 
     if (boundsRadius) {
-      stream.writeFloatAttrib('BoundsRadius', this.boundsRadius);
+      stream.writeNumberAttrib('BoundsRadius', this.boundsRadius);
     }
 
     this.writeGenericAnimations(stream);

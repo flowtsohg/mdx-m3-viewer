@@ -51,7 +51,7 @@ export default abstract class GenericObject extends AnimatedObject {
   }
 
   * readGenericBlock(stream: TokenStream) {
-    this.name = stream.readSafe();
+    this.name = stream.read();
 
     for (let token of this.readAnimatedBlock(stream)) {
       if (token === 'ObjectId') {
@@ -69,7 +69,7 @@ export default abstract class GenericObject extends AnimatedObject {
       } else if (token === 'CameraAnchored') {
         this.flags |= 0x80;
       } else if (token === 'DontInherit') {
-        for (token of stream.readBlockSafe()) {
+        for (token of stream.readBlock()) {
           if (token === 'Rotation') {
             this.flags |= 0x2;
           } else if (token === 'Translation') {
@@ -91,10 +91,10 @@ export default abstract class GenericObject extends AnimatedObject {
   }
 
   writeGenericHeader(stream: TokenStream) {
-    stream.writeAttrib('ObjectId', this.objectId);
+    stream.writeNumberAttrib('ObjectId', this.objectId);
 
     if (this.parentId !== -1) {
-      stream.writeAttrib('Parent', this.parentId);
+      stream.writeNumberAttrib('Parent', this.parentId);
     }
 
     if (this.flags & 0x40) {

@@ -36,7 +36,8 @@ export default class EventObject extends GenericObject {
     for (let token of super.readGenericBlock(stream)) {
       if (token === 'EventTrack') {
         let count = stream.readInt();
-        let tracks = new Uint32Array(count);
+
+        this.tracks = new Uint32Array(count);
 
         stream.read(); // {
 
@@ -47,7 +48,7 @@ export default class EventObject extends GenericObject {
         }
 
         for (let i = 0; i < count; i++) {
-          tracks[i] = stream.readInt();
+          this.tracks[i] = stream.readInt();
         }
 
         stream.read(); // }
@@ -64,7 +65,7 @@ export default class EventObject extends GenericObject {
     stream.startBlock('EventTrack', this.tracks.length);
 
     if (this.globalSequenceId !== -1) {
-      stream.writeAttrib('GlobalSeqId', this.globalSequenceId)
+      stream.writeNumberAttrib('GlobalSeqId', this.globalSequenceId)
     }
 
     for (let track of this.tracks) {

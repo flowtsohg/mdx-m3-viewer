@@ -93,7 +93,7 @@ function nodeName(node) {
   }
 
   if (typeof node.name === 'string') {
-    name.push(`'${node.name}'`);
+    name.push(`"${node.name}"`);
   }
 
   return name.join(' ');
@@ -123,42 +123,28 @@ function addTooltip(element, node) {
 }
 
 function handleTestNode(stream, node) {
-  let type = node.type;
+  if (node.type === 'node') {
+    if (node.errors || node.severe || node.warnings || node.uses === 0 || node.unused) {
+      let name = nodeName(node);
 
-  if (type === 'object' && (node.errors || node.warnings || node.uses === 0)) {
-    let name = nodeName(node);
+      stream.add('info', name);
 
-    if (node.errors) {
-      stream.error(name);
-    } else if (node.warnings) {
-      stream.warn(name);
-    } else if (node.uses === 0) {
-      stream.unused(name);
-    }
-
-    stream.br();
-    stream.indent();
-
-    if (node.uses === 0) {
-      stream.unused('Not used');
       stream.br();
-    }
+      stream.indent();
 
-    if (node.children) {
-      for (let child of node.children) {
+      if (node.uses === 0) {
+        stream.unused('Not used');
+        stream.br();
+      }
+
+      for (let child of node.nodes) {
         handleTestNode(stream, child);
       }
+
+      stream.unindent();
     }
-
-    stream.unindent();
-  } else if (type === 'warning') {
-    let element = stream.warn(node.message);
-
-    addTooltip(element, node);
-
-    stream.br();
-  } else if (type === 'error') {
-    let element = stream.error(node.message);
+  } else {
+    let element = stream.add(node.type, node.message);
 
     addTooltip(element, node);
 
@@ -178,7 +164,7 @@ class TestInstance {
     this.body = null;
     this.sourceMapContainer = null;
 
-    if (instance.model.extension === '.mdx') {
+    if (instance.model.extension === '.mdx' || instance.model.extension === '.mdl') {
       this.type = 'model';
 
       this.renderModelTest(name, parser);
@@ -221,32 +207,42 @@ class TestInstance {
     let header = stream.start();
     let body = null;
 
-    stream.info(`${name}: `);
+    stream.add('info', `${name}: `);
 
-    if (result.errors || result.warnings || result.unused) {
+    if (result.errors || result.severe || result.warnings || result.unused) {
       let added = false;
 
       if (result.errors) {
-        stream.error(`${result.errors} error${result.errors === 1 ? '' : 's'}`);
+        stream.add('error', `${result.errors} error${result.errors === 1 ? '' : 's'}`);
+        added = true;
+      }
+
+      if (result.severe) {
+        if (added) {
+          stream.add('info', ', ');
+        }
+
+        stream.add('severe', `${result.severe} severe warning${result.severe === 1 ? '' : 's'}`);
+
         added = true;
       }
 
       if (result.warnings) {
         if (added) {
-          stream.info(', ');
+          stream.add('info', ', ');
         }
 
-        stream.warn(`${result.warnings} warning${result.warnings === 1 ? '' : 's'}`);
+        stream.add('warning', `${result.warnings} warning${result.warnings === 1 ? '' : 's'}`);
 
         added = true;
       }
 
       if (result.unused) {
         if (added) {
-          stream.info(', ');
+          stream.add('info', ', ');
         }
 
-        stream.unused(`${result.unused} unused`);
+        stream.add('unused', `${result.unused} unused`);
       }
 
       stream.commit();
@@ -260,7 +256,7 @@ class TestInstance {
 
       stream.commit();
     } else {
-      stream.log('Passed');
+      stream.add('log', 'Passed');
 
       stream.commit();
     }

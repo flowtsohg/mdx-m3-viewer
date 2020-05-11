@@ -57,6 +57,8 @@ export default class Material {
     for (let token of stream.readBlock()) {
       if (token === 'ConstantColor') {
         this.flags |= 0x1;
+      } else if (token === 'TwoSided') {
+        this.flags |= 0x2;
       } else if (token === 'SortPrimsNearZ') {
         this.flags |= 0x8;
       } else if (token === 'SortPrimsFarZ') {
@@ -65,6 +67,8 @@ export default class Material {
         this.flags |= 0x20;
       } else if (token === 'PriorityPlane') {
         this.priorityPlane = stream.readInt();
+      } else if (token === 'Shader') {
+        this.shader = stream.read();
       } else if (token === 'Layer') {
         let layer = new Layer();
 
@@ -77,11 +81,17 @@ export default class Material {
     }
   }
 
-  writeMdl(stream: TokenStream) {
+  writeMdl(stream: TokenStream, version: number) {
     stream.startBlock('Material');
 
     if (this.flags & 0x1) {
       stream.writeFlag('ConstantColor');
+    }
+
+    if (version > 800) {
+      if (this.flags & 0x2) {
+        stream.writeFlag('TwoSided');
+      }
     }
 
     if (this.flags & 0x8) {
@@ -97,11 +107,15 @@ export default class Material {
     }
 
     if (this.priorityPlane !== 0) {
-      stream.writeAttrib('PriorityPlane', this.priorityPlane);
+      stream.writeNumberAttrib('PriorityPlane', this.priorityPlane);
+    }
+
+    if (version > 800) {
+      stream.writeStringAttrib('Shader', this.shader)
     }
 
     for (let layer of this.layers) {
-      layer.writeMdl(stream);
+      layer.writeMdl(stream, version);
     }
 
     stream.endBlock();

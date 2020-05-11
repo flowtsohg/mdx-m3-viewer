@@ -110,15 +110,15 @@ export default class RibbonEmitter extends GenericObject {
     this.writeGenericHeader(stream);
 
     if (!this.writeAnimation(stream, 'KRHA')) {
-      stream.writeFloatAttrib('static HeightAbove', this.heightAbove);
+      stream.writeNumberAttrib('static HeightAbove', this.heightAbove);
     }
 
     if (!this.writeAnimation(stream, 'KRHB')) {
-      stream.writeFloatAttrib('static HeightBelow', this.heightBelow);
+      stream.writeNumberAttrib('static HeightBelow', this.heightBelow);
     }
 
     if (!this.writeAnimation(stream, 'KRAL')) {
-      stream.writeFloatAttrib('static Alpha', this.alpha);
+      stream.writeNumberAttrib('static Alpha', this.alpha);
     }
 
     if (!this.writeAnimation(stream, 'KRCO')) {
@@ -126,21 +126,21 @@ export default class RibbonEmitter extends GenericObject {
     }
 
     if (!this.writeAnimation(stream, 'KRTX')) {
-      stream.writeAttrib('static TextureSlot', this.textureSlot);
+      stream.writeNumberAttrib('static TextureSlot', this.textureSlot);
     }
 
     this.writeAnimation(stream, 'KRVS');
 
-    stream.writeAttrib('EmissionRate', this.emissionRate);
-    stream.writeFloatAttrib('LifeSpan', this.lifeSpan);
+    stream.writeNumberAttrib('EmissionRate', this.emissionRate);
+    stream.writeNumberAttrib('LifeSpan', this.lifeSpan);
 
     if (this.gravity !== 0) {
-      stream.writeFloatAttrib('Gravity', this.gravity);
+      stream.writeNumberAttrib('Gravity', this.gravity);
     }
 
-    stream.writeAttrib('Rows', this.rows);
-    stream.writeAttrib('Columns', this.columns);
-    stream.writeAttrib('MaterialID', this.materialId);
+    stream.writeNumberAttrib('Rows', this.rows);
+    stream.writeNumberAttrib('Columns', this.columns);
+    stream.writeNumberAttrib('MaterialID', this.materialId);
 
     this.writeGenericAnimations(stream);
     stream.endBlock();

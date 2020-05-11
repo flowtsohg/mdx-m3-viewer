@@ -62,7 +62,7 @@ export default class GeosetAnimation extends AnimatedObject {
     }
 
     if (!this.writeAnimation(stream, 'KGAO')) {
-      stream.writeFloatAttrib('static Alpha', this.alpha);
+      stream.writeNumberAttrib('static Alpha', this.alpha);
     }
 
     if (this.flags & 0x2) {
@@ -71,7 +71,7 @@ export default class GeosetAnimation extends AnimatedObject {
       }
     }
 
-    stream.writeAttrib('GeosetId', this.geosetId);
+    stream.writeNumberAttrib('GeosetId', this.geosetId);
 
     stream.endBlock();
   }

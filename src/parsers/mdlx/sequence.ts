@@ -36,11 +36,11 @@ export default class Sequence {
   }
 
   readMdl(stream: TokenStream) {
-    this.name = stream.readSafe();
+    this.name = stream.read();
 
     for (let token of stream.readBlock()) {
       if (token === 'Interval') {
-        stream.readIntArray(this.interval);
+        stream.readVector(this.interval);
       } else if (token === 'NonLooping') {
         this.flags = 1;
       } else if (token === 'MoveSpeed') {
@@ -48,9 +48,9 @@ export default class Sequence {
       } else if (token === 'Rarity') {
         this.rarity = stream.readFloat();
       } else if (token === 'MinimumExtent') {
-        stream.readFloatArray(this.extent.min);
+        stream.readVector(this.extent.min);
       } else if (token === 'MaximumExtent') {
-        stream.readFloatArray(this.extent.max);
+        stream.readVector(this.extent.max);
       } else if (token === 'BoundsRadius') {
         this.extent.boundsRadius = stream.readFloat();
       } else {
@@ -61,18 +61,18 @@ export default class Sequence {
 
   writeMdl(stream: TokenStream) {
     stream.startObjectBlock('Anim', this.name);
-    stream.writeArrayAttrib('Interval', this.interval);
+    stream.writeVectorAttrib('Interval', this.interval);
 
     if (this.flags === 1) {
       stream.writeFlag('NonLooping');
     }
 
     if (this.moveSpeed !== 0) {
-      stream.writeFloatAttrib('MoveSpeed', this.moveSpeed);
+      stream.writeNumberAttrib('MoveSpeed', this.moveSpeed);
     }
 
     if (this.rarity !== 0) {
-      stream.writeFloatAttrib('Rarity', this.rarity);
+      stream.writeNumberAttrib('Rarity', this.rarity);
     }
 
     this.extent.writeMdl(stream);

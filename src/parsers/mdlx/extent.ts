@@ -23,15 +23,15 @@ export default class Extent {
 
   writeMdl(stream: TokenStream) {
     if (this.min[0] !== 0 || this.min[1] !== 0 || this.min[2] !== 0) {
-      stream.writeFloatArrayAttrib('MinimumExtent', this.min);
+      stream.writeVectorAttrib('MinimumExtent', this.min);
     }
 
     if (this.max[0] !== 0 || this.max[1] !== 0 || this.max[2] !== 0) {
-      stream.writeFloatArrayAttrib('MaximumExtent', this.max);
+      stream.writeVectorAttrib('MaximumExtent', this.max);
     }
 
     if (this.boundsRadius !== 0) {
-      stream.writeFloatAttrib('BoundsRadius', this.boundsRadius);
+      stream.writeNumberAttrib('BoundsRadius', this.boundsRadius);
     }
   }
 }

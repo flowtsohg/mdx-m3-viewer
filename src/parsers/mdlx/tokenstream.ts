@@ -1,11 +1,13 @@
+import { floatDecimals, floatArrayDecimals } from '../../common/math';
+
 /**
- * Used to read and write structured text formats.
+ * Used to read and write MDL tokens.
  */
 export default class TokenStream {
   buffer: string;
   index: number = 0;
   ident: number = 0;
-  fractionDigits: number = 6;
+  precision: number = 1000000; // 6 digits after the decimal point.
 
   constructor(buffer?: string) {
     this.buffer = buffer || '';
@@ -35,7 +37,7 @@ export default class TokenStream {
    *
    * There are wrappers around read, below, that help to read structured code, check them out!
    */
-  read() {
+  readToken() {
     let buffer = this.buffer;
     let length = buffer.length;
     let inComment = false;
@@ -93,6 +95,19 @@ export default class TokenStream {
   }
 
   /**
+   * Same as readToken, but if the end of the stream was encountered, an exception will be thrown.
+   */
+  read() {
+    let value = this.readToken();
+
+    if (value === undefined) {
+      throw new Error('End of stream reached prematurely');
+    }
+
+    return value;
+  }
+
+  /**
    * Reads the next token without advancing the stream.
    */
   peek() {
@@ -105,72 +120,23 @@ export default class TokenStream {
   }
 
   /**
-   * Same as read, but if the end of the stream was encountered, an error will be raised.
-   */
-  readSafe() {
-    let value = this.read();
-
-    if (value === undefined) {
-      throw new Error('End of stream reached prematurely');
-    }
-
-    return value;
-  }
-
-  /**
    * Reads the next token, and parses it as an integer.
    */
   readInt() {
-    return parseInt(<string>this.read());
+    return parseInt(this.read());
   }
 
   /**
    * Reads the next token, and parses it as a float.
    */
   readFloat() {
-    return parseFloat(<string>this.read());
+    return parseFloat(this.read());
   }
 
   /**
-   * Read an MDL keyframe value.
-   * If the value is a scalar, it us just the number.
-   * If the value is a vector, it is enclosed with curly braces.
+   * { Number0, Number1, ..., NumberN }
    */
-  readKeyframe(value: Uint32Array | Float32Array) {
-    if (value.length === 1) {
-      if (value instanceof Float32Array) {
-        value[0] = this.readFloat();
-      } else {
-        value[0] = this.readInt();
-      }
-    } else {
-      this.readTypedArray(value);
-    }
-
-    return value;
-  }
-
-  /**
-   * Reads an array of integers in the form:
-   *     { Value1, Value2, ..., ValueN }
-   */
-  readIntArray(view: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array) {
-    this.read(); // {
-
-    for (let i = 0, l = view.length; i < l; i++) {
-      view[i] = this.readInt();
-    }
-
-    this.read(); // }
-
-    return view;
-  }
-
-  /**
-   * Reads an array of floats in the form:
-   *     { Value1, Value2, ..., ValueN }
-   */
-  readFloatArray(view: Float32Array) {
+  readVector(view: Uint8Array | Uint16Array | Uint32Array | Float32Array) {
     this.read(); // {
 
     for (let i = 0, l = view.length; i < l; i++) {
@@ -183,14 +149,22 @@ export default class TokenStream {
   }
 
   /**
-   * Reads into a uint or float typed array.
+   * {
+   *     { Value1, Value2, ..., ValueSize },
+   *     { Value1, Value2, ..., ValueSize },
+   *     ...
+   * }
    */
-  readTypedArray(view: Uint32Array | Float32Array) {
-    if (view instanceof Float32Array) {
-      this.readFloatArray(view);
-    } else {
-      this.readIntArray(view);
+  readVectorsBlock(view: Float32Array, size: number) {
+    this.read(); // {
+
+    for (let i = 0, l = view.length; i < l; i += size) {
+      this.readVector(view.subarray(i, i + size));
     }
+
+    this.read(); // }
+
+    return view;
   }
 
   /**
@@ -208,29 +182,6 @@ export default class TokenStream {
     view[0] = this.readFloat();
 
     this.read(); // }
-  }
-
-  /**
-   * {
-   *     { Value1, Value2, ..., ValueSize },
-   *     { Value1, Value2, ..., ValueSize },
-   *     ...
-   * }
-   */
-  readVectorArray(view: Float32Array, size: number) {
-    this.read(); // {
-
-    for (let i = 0, l = view.length / size; i < l; i++) {
-      this.read(); // {
-
-      for (let j = 0; j < size; j++) {
-        view[i * size + j] = this.readFloat();
-      }
-
-      this.read(); // }
-    }
-
-    this.read(); // }
 
     return view;
   }
@@ -238,12 +189,14 @@ export default class TokenStream {
   /**
    * Helper generator for block reading.
    * Let's say we have a block like so:
+   * 
    *     {
    *         Key1 Value1
    *         Key2 Value2
    *         ...
    *         KeyN ValueN
    *     }
+   * 
    * The generator yields the keys one by one, and the caller needs to read the values based on the keys.
    * It is used for most MDL blocks.
    */
@@ -260,30 +213,11 @@ export default class TokenStream {
   }
 
   /**
-   * Same as readBlock, but throws an error if the end of the stream is reached.
+   * Adds the given string to the buffer.
+   * The current indentation level is prepended, and the stream goes to the next line after the write.
    */
-  * readBlockSafe() {
-    this.readSafe(); // {
-
-    let token = this.readSafe();
-
-    while (token !== '}') {
-      yield token;
-
-      token = this.readSafe();
-    }
-  }
-
-  /**
-   * Writes a color in the form:
-   *
-   *      { B, G, R }
-   *
-   * The color is sizzled to RGB.
-   * The name can be either "Color" or "static Color", depending on the context.
-   */
-  writeColor(name: string, view: Float32Array) {
-    this.writeLine(`${name} { ${view[2]}, ${view[1]}, ${view[0]} },`);
+  writeLine(line: string) {
+    this.buffer += `${'\t'.repeat(this.ident)}${line}\n`;
   }
 
   /**
@@ -294,17 +228,17 @@ export default class TokenStream {
   }
 
   /**
-   * Name Value,
+   * Name Flag,
    */
-  writeAttrib(name: string, value: number | string) {
-    this.writeLine(`${name} ${value},`);
+  writeFlagAttrib(name: string, flag: string) {
+    this.writeLine(`${name} ${flag},`);
   }
 
   /**
-   * Same as writeAttrib, but formats the given number.
+   * Name Value,
    */
-  writeFloatAttrib(name: string, value: number) {
-    this.writeLine(`${name} ${this.formatFloat(value)},`);
+  writeNumberAttrib(name: string, value: number) {
+    this.writeLine(`${name} ${floatDecimals(value, this.precision)},`);
   }
 
   /**
@@ -315,89 +249,67 @@ export default class TokenStream {
   }
 
   /**
-   * Name { Value0, Value1, ..., ValueN },
+   * Name { Value0, Value1, ..., ValueN }
    */
-  writeArrayAttrib(name: string, value: TypedArray) {
-    this.writeLine(`${name} { ${value.join(', ')} },`);
+  writeVectorAttrib(name: string, value: Uint8Array | Uint32Array | Float32Array) {
+    this.writeLine(`${name} { ${floatArrayDecimals(value, this.precision)} },`);
   }
 
   /**
-   * Name { Value0, Value1, ..., ValueN },
+   * Writes a color in the form:
+   *
+   *      { B, G, R }
+   *
+   * The color is sizzled to RGB.
+   * The name can be either "Color" or "static Color", depending on the context.
    */
-  writeFloatArrayAttrib(name: string, value: Float32Array) {
-    this.writeLine(`${name} { ${this.formatFloatArray(value)} },`);
-  }
+  writeColor(name: string, value: Float32Array) {
+    let b = floatDecimals(value[0], this.precision);
+    let g = floatDecimals(value[1], this.precision);
+    let r = floatDecimals(value[2], this.precision);
 
-  /**
-   * Write an array of integers or floats.
-   */
-  writeTypedArrayAttrib(name: string, value: Uint32Array | Float32Array) {
-    if (value instanceof Float32Array) {
-      this.writeFloatArrayAttrib(name, value);
-    } else {
-      this.writeArrayAttrib(name, value);
-    }
-  }
-
-  /**
-   * Write an MDL keyframe.
-   */
-  writeKeyframe(start: string, value: Uint32Array | Float32Array) {
-    if (value.length === 1) {
-      if (value instanceof Float32Array) {
-        this.writeFloatAttrib(start, value[0]);
-      } else {
-        this.writeAttrib(start, value[0]);
-      }
-    } else {
-      this.writeTypedArrayAttrib(start, value);
-    }
+    this.writeLine(`${name} { ${r}, ${g}, ${b} },`);
   }
 
   /**
    * { Value0, Value1, ..., ValueN },
    */
-  writeArray(value: TypedArray) {
-    this.writeLine(`{ ${value.join(', ')} },`);
+  writeVector(value: Uint16Array | Float32Array) {
+    this.writeLine(`{ ${floatArrayDecimals(value, this.precision)} },`);
   }
 
   /**
-   * { Value0, Value1, ..., ValueN },
-   */
-  writeFloatArray(value: Float32Array) {
-    this.writeLine(`{ ${this.formatFloatArray(value)} },`);
-  }
-
-  /**
-   * Name Entries {
-   *     { Value1, Value2, ..., valueSize },
-   *     { Value1, Value2, ..., valueSize },
+   * Name Vectors {
+   *     { Value1, Value2, ..., ValueSize },
+   *     { Value1, Value2, ..., ValueSize },
    *     ...
    * }
    */
-  writeVectorArray(name: string, view: Float32Array, size: number) {
+  writeVectorArrayBlock(name: string, view: Float32Array, size: number) {
     this.startBlock(name, view.length / size);
 
     for (let i = 0, l = view.length; i < l; i += size) {
-      this.writeFloatArray(view.subarray(i, i + size));
+      this.writeVector(view.subarray(i, i + size))
     }
 
     this.endBlock();
   }
 
   /**
-   * Adds the given string to the buffer.
+   * Name Entries {
+   *     Value1, Value2, ..., ValueSize,
+   *     Value1, Value2, ..., ValueSize,
+   *     ...
+   * }
    */
-  write(s: string) {
-    this.buffer += s;
-  }
+  writeVectorMultiline(name: string, view: Uint8Array, size: number) {
+    this.startBlock(name, view.length / size);
 
-  /**
-   * Adds the given string to the buffer.
-   * The current indentation level is prepended, and the stream goes to the next line after the write.
-   */
-  writeLine(line: string) {
-    this.buffer += `${'\t'.repeat(this.ident)}${line}\n`;
+    for (let i = 0, l = view.length; i < l; i += size) {
+      this.writeLine(`${view.subarray(i, i + size).join(', ')},`);
+    }
+
+    this.endBlock();
   }
 
   /**
@@ -407,13 +319,12 @@ export default class TokenStream {
    *          ...
    *      }
    */
-  startBlock(...headers: (string | number)[]) {
+  startBlock(name: string, ...headers: (string | number)[]) {
     if (headers.length) {
-      this.writeLine(`${headers.join(' ')} {`);
-    } else {
-      this.writeLine('{');
+      name = `${name} ${headers.join(' ')}`;
     }
 
+    this.writeLine(`${name} {`);
     this.ident += 1;
   }
 
@@ -459,32 +370,5 @@ export default class TokenStream {
    */
   unindent() {
     this.ident -= 1;
-  }
-
-  /**
-   * Formats a given float to the shorter of either its string representation, or its fixed point representation with the stream's fraction digits.
-   */
-  formatFloat(value: number) {
-    let s = value.toString();
-    let f = value.toFixed(this.fractionDigits);
-
-    if (s.length > f.length) {
-      return f;
-    } else {
-      return s;
-    }
-  }
-
-  /**
-   * Uses formatFloat to format a whole array, and returns it as a comma separated string.
-   */
-  formatFloatArray(value: Float32Array) {
-    let result = [];
-
-    for (let i = 0, l = value.length; i < l; i++) {
-      result[i] = this.formatFloat(value[i]);
-    }
-
-    return result.join(', ');
   }
 }

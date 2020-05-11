@@ -14,7 +14,9 @@ export abstract class Animation {
   outTans: (Uint32Array | Float32Array)[] = [];
 
   abstract readMdxValue(stream: BinaryStream): Uint32Array | Float32Array;
+  abstract writeMdxValue(stream: BinaryStream, value: Uint32Array | Float32Array): void;
   abstract readMdlValue(stream: TokenStream): Uint32Array | Float32Array;
+  abstract writeMdlValue(stream: TokenStream, name: string, value: Uint32Array | Float32Array): void;
 
   readMdx(stream: BinaryStream, name: string) {
     let frames = this.frames;
@@ -54,11 +56,11 @@ export abstract class Animation {
 
     for (let i = 0; i < tracksCount; i++) {
       stream.writeInt32(frames[i]);
-      stream.writeTypedArray(values[i]);
+      this.writeMdxValue(stream, values[i]);
 
       if (interpolationType > 1) {
-        stream.writeTypedArray(inTans[i]);
-        stream.writeTypedArray(outTans[i]);
+        this.writeMdxValue(stream, inTans[i]);
+        this.writeMdxValue(stream, outTans[i]);
       }
     }
   }
@@ -137,16 +139,16 @@ export abstract class Animation {
     stream.writeFlag(token);
 
     if (this.globalSequenceId !== -1) {
-      stream.writeAttrib('GlobalSeqId', this.globalSequenceId);
+      stream.writeNumberAttrib('GlobalSeqId', this.globalSequenceId);
     }
 
     for (let i = 0; i < tracksCount; i++) {
-      stream.writeKeyframe(`${frames[i]}:`, values[i]);
+      this.writeMdlValue(stream, `${frames[i]}:`, values[i]);
 
       if (interpolationType > 1) {
         stream.indent();
-        stream.writeKeyframe('InTan', inTans[i]);
-        stream.writeKeyframe('OutTan', outTans[i]);
+        this.writeMdlValue(stream, 'InTan', inTans[i]);
+        this.writeMdlValue(stream, 'OutTan', outTans[i]);
         stream.unindent();
       }
     }
@@ -181,8 +183,16 @@ export class UintAnimation extends Animation {
     return stream.readUint32Array(1);
   }
 
+  writeMdxValue(stream: BinaryStream, value: Uint32Array) {
+    stream.writeUint32(value[0]);
+  }
+
   readMdlValue(stream: TokenStream) {
-    return stream.readKeyframe(new Uint32Array(1));
+    return new Uint32Array([stream.readInt()]);
+  }
+
+  writeMdlValue(stream: TokenStream, name: string, value: Uint32Array) {
+    stream.writeNumberAttrib(name, value[0]);
   }
 }
 
@@ -194,8 +204,16 @@ export class FloatAnimation extends Animation {
     return stream.readFloat32Array(1);
   }
 
+  writeMdxValue(stream: BinaryStream, value: Float32Array) {
+    stream.writeFloat32(value[0]);
+  }
+
   readMdlValue(stream: TokenStream) {
-    return stream.readKeyframe(new Float32Array(1));
+    return new Float32Array([stream.readFloat()]);
+  }
+
+  writeMdlValue(stream: TokenStream, name: string, value: Float32Array) {
+    stream.writeNumberAttrib(name, value[0]);
   }
 }
 
@@ -207,8 +225,16 @@ export class Vector3Animation extends Animation {
     return stream.readFloat32Array(3);
   }
 
+  writeMdxValue(stream: BinaryStream, value: Float32Array) {
+    stream.writeFloat32Array(value);
+  }
+
   readMdlValue(stream: TokenStream) {
-    return stream.readKeyframe(new Float32Array(3));
+    return <Float32Array>stream.readVector(new Float32Array(3));
+  }
+
+  writeMdlValue(stream: TokenStream, name: string, value: Float32Array) {
+    stream.writeVectorAttrib(name, value);
   }
 }
 
@@ -220,7 +246,15 @@ export class Vector4Animation extends Animation {
     return stream.readFloat32Array(4);
   }
 
+  writeMdxValue(stream: BinaryStream, value: Float32Array) {
+    stream.writeFloat32Array(value);
+  }
+
   readMdlValue(stream: TokenStream) {
-    return stream.readKeyframe(new Float32Array(4));
+    return <Float32Array>stream.readVector(new Float32Array(4));
+  }
+
+  writeMdlValue(stream: TokenStream, name: string, value: Float32Array) {
+    stream.writeVectorAttrib(name, value);
   }
 }

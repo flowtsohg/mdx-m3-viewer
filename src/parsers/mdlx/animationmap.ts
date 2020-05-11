@@ -7,7 +7,7 @@ export default {
   KMTA: ['Alpha', FloatAnimation],
   KMTE: ['EmissiveGain', FloatAnimation],
   KFC3: ['FresnelColor', Vector3Animation],
-  KFCA: ['FresnelAlpha', FloatAnimation],
+  KFCA: ['FresnelOpacity', FloatAnimation],
   KFTC: ['FresnelTeamColor', FloatAnimation],
   // TextureAnimation
   KTAT: ['Translation', Vector3Animation],
@@ -47,6 +47,13 @@ export default {
   KP2N: ['Width', FloatAnimation],
   KP2W: ['Length', FloatAnimation],
   KP2V: ['Visibility', FloatAnimation],
+  // ParticleEmitterCorn
+  KPPA: ['Alpha', FloatAnimation],
+  KPPC: ['Color', Vector3Animation],
+  KPPE: ['EmissionRate', FloatAnimation],
+  KPPL: ['LifeSpan', FloatAnimation],
+  KPPS: ['Speed', FloatAnimation],
+  KPPV: ['Visibility', FloatAnimation],
   // RibbonEmitter
   KRHA: ['HeightAbove', FloatAnimation],
   KRHB: ['HeightBelow', FloatAnimation],
@@ -58,11 +65,4 @@ export default {
   KCTR: ['Translation', Vector3Animation],
   KTTR: ['Translation', Vector3Animation],
   KCRL: ['Rotation', UintAnimation],
-  // CornEmitter
-  KPPA: ['Alpha', FloatAnimation],
-  KPPC: ['Color', Vector3Animation],
-  KPPE: ['EmissionRate', FloatAnimation],
-  KPPL: ['LifeSpan', FloatAnimation],
-  KPPS: ['Speed', FloatAnimation],
-  KPPV: ['Visibility', FloatAnimation],
 };

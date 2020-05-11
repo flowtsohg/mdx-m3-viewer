@@ -87,7 +87,7 @@ export default class ParticleEmitter extends GenericObject {
           } else if (token === 'InitVelocity') {
             this.readAnimation(stream, 'KPES');
           } else if (token === 'Path') {
-            this.path = stream.readSafe();
+            this.path = stream.read();
           }
         }
       } else {
@@ -109,19 +109,19 @@ export default class ParticleEmitter extends GenericObject {
     }
 
     if (!this.writeAnimation(stream, 'KPEE')) {
-      stream.writeFloatAttrib('static EmissionRate', this.emissionRate);
+      stream.writeNumberAttrib('static EmissionRate', this.emissionRate);
     }
 
     if (!this.writeAnimation(stream, 'KPEG')) {
-      stream.writeFloatAttrib('static Gravity', this.gravity);
+      stream.writeNumberAttrib('static Gravity', this.gravity);
     }
 
     if (!this.writeAnimation(stream, 'KPLN')) {
-      stream.writeFloatAttrib('static Longitude', this.longitude);
+      stream.writeNumberAttrib('static Longitude', this.longitude);
     }
 
     if (!this.writeAnimation(stream, 'KPLT')) {
-      stream.writeFloatAttrib('static Latitude', this.latitude);
+      stream.writeNumberAttrib('static Latitude', this.latitude);
     }
 
     this.writeAnimation(stream, 'KPEV');
@@ -129,11 +129,11 @@ export default class ParticleEmitter extends GenericObject {
     stream.startBlock('Particle');
 
     if (!this.writeAnimation(stream, 'KPEL')) {
-      stream.writeFloatAttrib('static LifeSpan', this.lifeSpan);
+      stream.writeNumberAttrib('static LifeSpan', this.lifeSpan);
     }
 
     if (!this.writeAnimation(stream, 'KPES')) {
-      stream.writeFloatAttrib('static InitVelocity', this.speed);
+      stream.writeNumberAttrib('static InitVelocity', this.speed);
     }
 
     if ((this.flags & 0x8000) || (this.flags & 0x10000)) {

@@ -185,17 +185,17 @@ export default class ParticleEmitter2 extends GenericObject {
 
         stream.read(); // }
       } else if (token === 'Alpha') {
-        stream.readIntArray(this.segmentAlphas);
+        stream.readVector(this.segmentAlphas);
       } else if (token === 'ParticleScaling') {
-        stream.readFloatArray(this.segmentScaling);
+        stream.readVector(this.segmentScaling);
       } else if (token === 'LifeSpanUVAnim') {
-        stream.readIntArray(this.headIntervals[0]);
+        stream.readVector(this.headIntervals[0]);
       } else if (token === 'DecayUVAnim') {
-        stream.readIntArray(this.headIntervals[1]);
+        stream.readVector(this.headIntervals[1]);
       } else if (token === 'TailUVAnim') {
-        stream.readIntArray(this.tailIntervals[0]);
+        stream.readVector(this.tailIntervals[0]);
       } else if (token === 'TailDecayUVAnim') {
-        stream.readIntArray(this.tailIntervals[1]);
+        stream.readVector(this.tailIntervals[1]);
       } else if (token === 'TextureID') {
         this.textureId = stream.readInt();
       } else if (token === 'ReplaceableId') {
@@ -237,19 +237,19 @@ export default class ParticleEmitter2 extends GenericObject {
     }
 
     if (!this.writeAnimation(stream, 'KP2S')) {
-      stream.writeFloatAttrib('static Speed', this.speed);
+      stream.writeNumberAttrib('static Speed', this.speed);
     }
 
     if (!this.writeAnimation(stream, 'KP2R')) {
-      stream.writeFloatAttrib('static Variation', this.variation);
+      stream.writeNumberAttrib('static Variation', this.variation);
     }
 
     if (!this.writeAnimation(stream, 'KP2L')) {
-      stream.writeFloatAttrib('static Latitude', this.latitude);
+      stream.writeNumberAttrib('static Latitude', this.latitude);
     }
 
     if (!this.writeAnimation(stream, 'KP2G')) {
-      stream.writeFloatAttrib('static Gravity', this.gravity);
+      stream.writeNumberAttrib('static Gravity', this.gravity);
     }
 
     this.writeAnimation(stream, 'KP2V');
@@ -258,18 +258,18 @@ export default class ParticleEmitter2 extends GenericObject {
       stream.writeFlag('Squirt');
     }
 
-    stream.writeFloatAttrib('LifeSpan', this.lifeSpan);
+    stream.writeNumberAttrib('LifeSpan', this.lifeSpan);
 
     if (!this.writeAnimation(stream, 'KP2E')) {
-      stream.writeFloatAttrib('static EmissionRate', this.emissionRate);
+      stream.writeNumberAttrib('static EmissionRate', this.emissionRate);
     }
 
     if (!this.writeAnimation(stream, 'KP2N')) {
-      stream.writeFloatAttrib('static Width', this.width);
+      stream.writeNumberAttrib('static Width', this.width);
     }
 
     if (!this.writeAnimation(stream, 'KP2W')) {
-      stream.writeFloatAttrib('static Length', this.length);
+      stream.writeNumberAttrib('static Length', this.length);
     }
 
     if (this.filterMode === 0) {
@@ -284,8 +284,8 @@ export default class ParticleEmitter2 extends GenericObject {
       stream.writeFlag('AlphaKey');
     }
 
-    stream.writeAttrib('Rows', this.rows);
-    stream.writeAttrib('Columns', this.columns);
+    stream.writeNumberAttrib('Rows', this.rows);
+    stream.writeNumberAttrib('Columns', this.columns);
 
     if (this.headOrTail === 0) {
       stream.writeFlag('Head');
@@ -295,8 +295,8 @@ export default class ParticleEmitter2 extends GenericObject {
       stream.writeFlag('Both');
     }
 
-    stream.writeFloatAttrib('TailLength', this.tailLength);
-    stream.writeFloatAttrib('Time', this.timeMiddle);
+    stream.writeNumberAttrib('TailLength', this.tailLength);
+    stream.writeNumberAttrib('Time', this.timeMiddle);
 
     stream.startBlock('SegmentColor');
     stream.writeColor('Color', this.segmentColors[0]);
@@ -304,20 +304,20 @@ export default class ParticleEmitter2 extends GenericObject {
     stream.writeColor('Color', this.segmentColors[2]);
     stream.endBlockComma();
 
-    stream.writeArrayAttrib('Alpha', this.segmentAlphas);
-    stream.writeFloatArrayAttrib('ParticleScaling', this.segmentScaling);
-    stream.writeArrayAttrib('LifeSpanUVAnim', this.headIntervals[0]);
-    stream.writeArrayAttrib('DecayUVAnim', this.headIntervals[1]);
-    stream.writeArrayAttrib('TailUVAnim', this.tailIntervals[0]);
-    stream.writeArrayAttrib('TailDecayUVAnim', this.tailIntervals[1]);
-    stream.writeAttrib('TextureID', this.textureId);
+    stream.writeVectorAttrib('Alpha', this.segmentAlphas);
+    stream.writeVectorAttrib('ParticleScaling', this.segmentScaling);
+    stream.writeVectorAttrib('LifeSpanUVAnim', this.headIntervals[0]);
+    stream.writeVectorAttrib('DecayUVAnim', this.headIntervals[1]);
+    stream.writeVectorAttrib('TailUVAnim', this.tailIntervals[0]);
+    stream.writeVectorAttrib('TailDecayUVAnim', this.tailIntervals[1]);
+    stream.writeNumberAttrib('TextureID', this.textureId);
 
     if (this.replaceableId !== 0) {
-      stream.writeAttrib('ReplaceableId', this.replaceableId);
+      stream.writeNumberAttrib('ReplaceableId', this.replaceableId);
     }
 
     if (this.priorityPlane !== 0) {
-      stream.writeAttrib('PriorityPlane', this.priorityPlane);
+      stream.writeNumberAttrib('PriorityPlane', this.priorityPlane);
     }
 
     this.writeGenericAnimations(stream);

@@ -20,7 +20,7 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
     for (let i = 0, l = geosets.length; i < l; i++) {
       let geoset = geosets[i];
 
-      if (geoset.lod === 0) {
+      if (geoset.lod === 0 || geoset.lod === -1) {
         let vertices = geoset.vertices.length / 3;
 
         positionBytes += vertices * 12;
@@ -72,7 +72,7 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
     for (let i = 0, l = geosets.length; i < l; i++) {
       let geoset = geosets[i];
 
-      if (geoset.lod === 0) {
+      if (geoset.lod === 0 || geoset.lod === -1) {
         let positions = geoset.vertices;
         let normals = geoset.normals;
         let uvSets = geoset.uvSets;

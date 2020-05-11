@@ -43,6 +43,8 @@ let chunkNames = [
   'Materials',
   'TextureAnims',
   'PivotPoints',
+  'FaceFX',
+  'BindPose',
 ];
 
 // Names of object blocks.
@@ -64,6 +66,7 @@ let genericObjectNames = [
   'Attachment',
   'ParticleEmitter',
   'ParticleEmitter2',
+  'ParticleEmitterPopcorn',
   'RibbonEmitter',
   'Camera',
   'EventObject',
@@ -148,7 +151,7 @@ export default function mdlSourceMap(buffer: string) {
   // There are empty strings, e.g. in replaceable textures.
   // Empty strings evaluate to false in JS.
   // Therefore compare against undefined directly.
-  while ((token = stream.read()) !== undefined) {
+  while ((token = stream.readToken()) !== undefined) {
     if (token === '{') {
       data.ident += 1;
     } else if (token === '}') {

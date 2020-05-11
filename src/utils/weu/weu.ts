@@ -92,7 +92,7 @@ export default function convertWeu(map: War3Map, customTriggerData: TriggerData,
         // If the trigger didn't need to be converted, but callbacks were generated due to things inside it being converted, add them to the map header.
         mapHeader.text += `// Callbacks generated for trigger "${trigger.name}" due to conversions\r\n${callbacksText}\r\n`;
 
-        data.change('generatedcallbacks', `Callbacks generated while processing trigger "${trigger.name}"`, callbacksText);
+        data.change('generatedcallbacks', trigger.name, callbacksText);
       }
     } catch (e) {
       return { ok: false, error: `Error at ${data.stackToString()}: ${e}` };

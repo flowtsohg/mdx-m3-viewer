@@ -21,7 +21,7 @@ export default class War3MapWts {
 
     stream.index += 3; // ï»¿???
 
-    while ((token = stream.read())) {
+    while ((token = stream.readToken())) {
       if (token === 'STRING') {
         let index = stream.readInt();
 

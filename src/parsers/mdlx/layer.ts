@@ -35,11 +35,11 @@ export default class Layer extends AnimatedObject {
   /** 
    * @since 900
    */
-  emissiveGain: number = 0;
+  emissiveGain: number = 1;
   /** 
    * @since 1000
    */
-  fresnelColor: Float32Array = new Float32Array(3);
+  fresnelColor: Float32Array = new Float32Array([1, 1, 1]);
   /** 
    * @since 1000
    */
@@ -94,7 +94,7 @@ export default class Layer extends AnimatedObject {
   readMdl(stream: TokenStream) {
     for (let token of super.readAnimatedBlock(stream)) {
       if (token === 'FilterMode') {
-        this.filterMode = filterModeToMdx[stream.readSafe()];
+        this.filterMode = filterModeToMdx[stream.read()];
       } else if (token === 'Unshaded') {
         this.flags |= 0x1;
       } else if (token === 'SphereEnvMap') {
@@ -106,6 +106,8 @@ export default class Layer extends AnimatedObject {
       } else if (token === 'NoDepthTest') {
         this.flags |= 0x40;
       } else if (token === 'NoDepthSet') {
+        this.flags |= 0x80;
+      } else if (token === 'Unlit') {
         this.flags |= 0x100;
       } else if (token === 'static TextureID') {
         this.textureId = stream.readInt();
@@ -119,16 +121,32 @@ export default class Layer extends AnimatedObject {
         this.alpha = stream.readFloat();
       } else if (token === 'Alpha') {
         this.readAnimation(stream, 'KMTA');
+      } else if (token === 'static EmissiveGain') {
+        this.emissiveGain = stream.readFloat();
+      } else if (token === 'EmissiveGain') {
+        this.readAnimation(stream, 'KMTE')
+      } else if (token === 'static FresnelColor') {
+        stream.readVector(this.fresnelColor);
+      } else if (token === 'FresnelColor') {
+        this.readAnimation(stream, 'KFC3')
+      } else if (token === 'static FresnelOpacity') {
+        this.fresnelOpacity = stream.readFloat();
+      } else if (token === 'FresnelOpacity') {
+        this.readAnimation(stream, 'KFCA')
+      } else if (token === 'static FresnelTeamColor') {
+        this.fresnelTeamColor = stream.readFloat();
+      } else if (token === 'FresnelTeamColor') {
+        this.readAnimation(stream, 'KFTC')
       } else {
         throw new Error(`Unknown token in Layer: "${token}"`);
       }
     }
   }
 
-  writeMdl(stream: TokenStream) {
+  writeMdl(stream: TokenStream, version: number) {
     stream.startBlock('Layer');
 
-    stream.writeAttrib('FilterMode', filterModeToMdl[this.filterMode]);
+    stream.writeFlagAttrib('FilterMode', filterModeToMdl[this.filterMode]);
 
     if (this.flags & 0x1) {
       stream.writeFlag('Unshaded');
@@ -150,24 +168,48 @@ export default class Layer extends AnimatedObject {
       stream.writeFlag('NoDepthTest');
     }
 
-    if (this.flags & 0x100) {
+    if (this.flags & 0x80) {
       stream.writeFlag('NoDepthSet');
     }
 
+    if (version > 800) {
+      if (this.flags & 0x100) {
+        stream.writeFlag('Unlit');
+      }
+    }
+
     if (!this.writeAnimation(stream, 'KMTF')) {
-      stream.writeAttrib('static TextureID', this.textureId);
+      stream.writeNumberAttrib('static TextureID', this.textureId);
     }
 
     if (this.textureAnimationId !== -1) {
-      stream.writeAttrib('TVertexAnimId', this.textureAnimationId);
+      stream.writeNumberAttrib('TVertexAnimId', this.textureAnimationId);
     }
 
     if (this.coordId !== 0) {
-      stream.writeAttrib('CoordId', this.coordId);
+      stream.writeNumberAttrib('CoordId', this.coordId);
     }
 
     if (!this.writeAnimation(stream, 'KMTA') && this.alpha !== 1) {
-      stream.writeFloatAttrib('static Alpha', this.alpha);
+      stream.writeNumberAttrib('static Alpha', this.alpha);
+    }
+
+    if (version > 800) {
+      if (!this.writeAnimation(stream, 'KMTE') && this.emissiveGain !== 1) {
+        stream.writeNumberAttrib('static EmissiveGain', this.emissiveGain);
+      }
+
+      if (!this.writeAnimation(stream, 'KFC3') && (this.fresnelColor[0] !== 1 || this.fresnelColor[1] !== 1 || this.fresnelColor[2] !== 1)) {
+        stream.writeVectorAttrib('static FresnelColor', this.fresnelColor);
+      }
+
+      if (!this.writeAnimation(stream, 'KFCA') && this.fresnelOpacity !== 0) {
+        stream.writeNumberAttrib('static FresnelOpacity', this.fresnelOpacity);
+      }
+
+      if (!this.writeAnimation(stream, 'KFTC') && this.fresnelTeamColor !== 0) {
+        stream.writeNumberAttrib('static FresnelTeamColor', this.fresnelTeamColor);
+      }
     }
 
     stream.endBlock();
