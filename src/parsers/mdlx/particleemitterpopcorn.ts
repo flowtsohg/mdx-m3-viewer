@@ -86,7 +86,7 @@ export default class ParticleEmitterPopcorn extends GenericObject {
       } else if (token === 'AnimVisibilityGuide') {
         this.animationVisiblityGuide = stream.read();
       } else {
-        throw new Error(`Unknown token in ParticleEmitter: "${token}"`);
+        throw new Error(`Unknown token in ParticleEmitterPopcorn: "${token}"`);
       }
     }
   }
