@@ -113,7 +113,6 @@ export function isPowerOfTwo(x: number) {
  * The result is returned as a string.
  */
 export function floatDecimals(value: number, precision: number) {
-  return `${value}`
   return `${Math.trunc(value * precision) / precision}`;
 }
 
