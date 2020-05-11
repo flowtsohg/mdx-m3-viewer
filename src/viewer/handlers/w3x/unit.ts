@@ -3,7 +3,7 @@ import { VEC3_UNIT_Z } from '../../../common/gl-matrix-addon';
 import { MappedDataRow } from '../../../utils/mappeddata';
 import DooUnit from '../../../parsers/w3x/unitsdoo/unit';
 import MdxModel from '../mdx/model';
-import MdxComplexInstance from '../mdx/complexinstance';
+import MdxModelInstance from '../mdx/modelinstance';
 import War3MapViewer from './viewer';
 
 const heapZ = vec3.create();
@@ -12,14 +12,14 @@ const heapZ = vec3.create();
  * A unit.
  */
 export default class Unit {
-  instance: MdxComplexInstance;
+  instance: MdxModelInstance;
   /**
    * StartLocation.mdx (and others?) seems to be built-in, and has no row.
    */
   row: MappedDataRow | undefined;
 
   constructor(map: War3MapViewer, model: MdxModel, row: MappedDataRow | undefined, unit: DooUnit) {
-    let instance = <MdxComplexInstance>model.addInstance();
+    let instance = <MdxModelInstance>model.addInstance();
 
     //let normal = this.groundNormal([], unit.location[0], unit.location[1]);
 

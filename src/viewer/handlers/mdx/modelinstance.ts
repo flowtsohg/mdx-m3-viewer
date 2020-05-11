@@ -26,7 +26,7 @@ const textureIdHeap = new Uint32Array(1);
 /**
  * An MDX model instance.
  */
-export default class MdxComplexInstance extends ModelInstance {
+export default class MdxModelInstance extends ModelInstance {
   attachments: AttachmentInstance[] = [];
   particleEmitters: ParticleEmitter[] = [];
   particleEmitters2: ParticleEmitter2[] = [];
@@ -245,7 +245,7 @@ export default class MdxComplexInstance extends ModelInstance {
       let genericObject = sortedGenericObjects[i];
       let node = sortedNodes[i];
       let parent = <Node | SkeletalNode>node.parent;
-      let wasDirty = false;
+      let wasDirty = forced || parent.wasDirty || genericObject.anyBillboarding;
       let variants = genericObject.variants;
 
       // Local node transformation.
@@ -269,27 +269,20 @@ export default class MdxComplexInstance extends ModelInstance {
         }
       }
 
-      let wasReallyDirty = forced || wasDirty || parent.wasDirty || genericObject.anyBillboarding;
-
-      node.wasDirty = wasReallyDirty;
+      node.wasDirty = wasDirty;
 
       // If this is a forced update, or this node's local data was updated, or the parent node was updated, do a full world update.
-      if (wasReallyDirty) {
+      if (wasDirty) {
         node.recalculateTransformation(scene);
       }
 
-      // If there is an instance object associated with this node, and the node is visible (which might not be the case for a forced update!), update the object.
-      // Check if this node has an attachment/emitter attached to it.
-      let object = node.object;
-
-      if (object) {
+      // If there is an instance object associated with this node (emitter/attachment), and it is visible, update it.
+      if (node.object) {
         genericObject.getVisibility(visibilityHeap, sequence, frame, counter);
 
-        let objectVisible = visibilityHeap[0] > 0;
-
         // If the attachment/emitter is visible, update it.
-        if (objectVisible) {
-          object.update(dt);
+        if (visibilityHeap[0] > 0) {
+          node.object.update(dt);
         }
       }
 
@@ -450,30 +443,15 @@ export default class MdxComplexInstance extends ModelInstance {
 
     let forced = this.forced;
 
-    if (sequenceId === -1) {
-      if (forced) {
-        // Update the nodes
-        this.updateNodes(dt, forced);
-
-        this.updateBoneTexture();
-
-        // Update the batches
-        this.updateBatches(forced);
-      }
-    } else {
-      //let variants = model.variants;
-
-      //if (forced || variants.nodes[sequenceId]) {
+    if (sequenceId !== -1 || forced) {
       // Update the nodes
       this.updateNodes(dt, forced);
 
+      // Update the bone texture.
       this.updateBoneTexture();
-      //}
 
-      //if (forced || variants.batches[sequenceId]) {
       // Update the batches
       this.updateBatches(forced);
-      //}
     }
 
     this.forced = false;

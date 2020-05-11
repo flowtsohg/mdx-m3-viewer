@@ -1,5 +1,5 @@
 import RibbonEmitterObject from './ribbonemitterobject';
-import MdxComplexInstance from './complexinstance';
+import MdxModelInstance from './modelinstance';
 import MdxEmitter from './emitter';
 import Ribbon from './ribbon';
 
@@ -11,7 +11,7 @@ export default class RibbonEmitter extends MdxEmitter {
   last: Ribbon | null = null;
 
   updateEmission(dt: number) {
-    let instance = <MdxComplexInstance>this.instance;
+    let instance = <MdxModelInstance>this.instance;
 
     if (instance.allowParticleSpawn) {
       let emitterObject = <RibbonEmitterObject>this.emitterObject;

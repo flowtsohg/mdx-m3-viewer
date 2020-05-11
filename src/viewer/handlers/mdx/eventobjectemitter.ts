@@ -1,4 +1,4 @@
-import MdxComplexInstance from './complexinstance';
+import MdxModelInstance from './modelinstance';
 import MdxEmitter from './emitter';
 import EventObjectEmitterObject from './eventobjectemitterobject';
 
@@ -11,7 +11,7 @@ export default abstract class EventObjectEmitter extends MdxEmitter {
   lastValue: number = 0;
 
   updateEmission(dt: number) {
-    let instance = <MdxComplexInstance>this.instance;
+    let instance = <MdxModelInstance>this.instance;
 
     if (instance.allowParticleSpawn) {
       let emitterObject = <EventObjectEmitterObject>this.emitterObject;

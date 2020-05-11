@@ -4,20 +4,21 @@ import { degToRad } from '../../../common/math';
 import { MappedDataRow } from '../../../utils/mappeddata';
 import DooTerrainDoodad from '../../../parsers/w3x/doo/terraindoodad';
 import MdxModel from '../mdx/model';
-import MdxSimpleInstance from '../mdx/simpleinstance';
+import MdxModelInstance from '../mdx/modelinstance';
 import War3MapViewer from './viewer';
+
 
 const locationHeap = vec3.create();
 /**
  * A cliff/terrain doodad.
  */
 export default class TerrainDoodad {
-  instance: MdxSimpleInstance;
+  instance: MdxModelInstance;
   row: MappedDataRow;
 
   constructor(map: War3MapViewer, model: MdxModel, row: MappedDataRow, doodad: DooTerrainDoodad) {
     let centeroffset = map.centerOffset;
-    let instance = <MdxSimpleInstance>model.addInstance();
+    let instance = <MdxModelInstance>model.addInstance();
 
     locationHeap[0] = doodad.location[0] * 128 + centeroffset[0] + 128;
     locationHeap[1] = doodad.location[1] * 128 + centeroffset[1] + 128;

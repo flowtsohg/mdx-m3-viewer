@@ -37,7 +37,7 @@ export default class M3Model extends Model {
   vertexSize: number = 0;
   uvSetCount: number = 0;
 
-  createInstance(type: number): M3ModelInstance {
+  createInstance(): M3ModelInstance {
     return new M3ModelInstance(this);
   }
 

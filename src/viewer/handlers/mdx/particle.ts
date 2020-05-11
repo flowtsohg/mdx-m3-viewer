@@ -4,7 +4,7 @@ import { randomInRange } from '../../../common/math';
 import Scene from '../../scene';
 import EmittedObject from '../../emittedobject';
 import ParticleEmitterObject from './particleemitterobject';
-import MdxComplexInstance from './complexinstance';
+import MdxModelInstance from './modelinstance';
 import ParticleEmitter from './particleemitter';
 
 const rotationHeap = quat.create();
@@ -19,7 +19,7 @@ const speedHeap = new Float32Array(1);
  * A spawned model particle.
  */
 export default class Particle extends EmittedObject {
-  internalInstance: MdxComplexInstance;
+  internalInstance: MdxModelInstance;
   velocity: vec3 = vec3.create();
   gravity: number = 0;
 
@@ -28,12 +28,12 @@ export default class Particle extends EmittedObject {
 
     let emitterObject = <ParticleEmitterObject>emitter.emitterObject;
 
-    this.internalInstance = <MdxComplexInstance>emitterObject.internalModel.addInstance();
+    this.internalInstance = <MdxModelInstance>emitterObject.internalModel.addInstance();
   }
 
   bind() {
     let emitter = <ParticleEmitter>this.emitter;
-    let instance = <MdxComplexInstance>emitter.instance;
+    let instance = <MdxModelInstance>emitter.instance;
     let sequence = instance.sequence;
     let frame = instance.frame;
     let counter = instance.counter;

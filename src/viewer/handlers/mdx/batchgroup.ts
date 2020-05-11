@@ -1,7 +1,7 @@
 import ShaderProgram from '../../gl/program';
 import Scene from '../../scene';
 import MdxModel from './model';
-import MdxComplexInstance from './complexinstance';
+import MdxModelInstance from './modelinstance';
 import Batch from './batch';
 import Material from './material';
 
@@ -20,7 +20,7 @@ export default class BatchGroup {
     this.isHd = isHd;
   }
 
-  render(instance: MdxComplexInstance) {
+  render(instance: MdxModelInstance) {
     let scene = <Scene>instance.scene;
     let textureMapper = instance.textureMapper;
     let layerAlphas = instance.layerAlphas;
@@ -51,7 +51,7 @@ export default class BatchGroup {
     } else if (isHd) {
       shader = <ShaderProgram>mdxCache.hdShader;
     } else {
-      shader = <ShaderProgram>mdxCache.complexShader;
+      shader = <ShaderProgram>mdxCache.standardShader;
     }
 
     shader.use();

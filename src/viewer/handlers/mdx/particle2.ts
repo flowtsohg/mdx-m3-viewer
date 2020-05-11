@@ -3,8 +3,8 @@ import { VEC3_UNIT_Z } from '../../../common/gl-matrix-addon';
 import { degToRad, randomInRange } from '../../../common/math';
 import EmittedObject from '../../emittedobject';
 import ParticleEmitter2Object from './particleemitter2object';
-import MdxComplexInstance from './complexinstance';
 import ParticleEmitter2 from './particleemitter2';
+import MdxModelInstance from './modelinstance';
 
 const rotationHeap = quat.create();
 const widthHeap = new Float32Array(1);
@@ -26,7 +26,7 @@ export default class Particle2 extends EmittedObject {
 
   bind(tail: number) {
     let emitter = <ParticleEmitter2>this.emitter;
-    let instance = <MdxComplexInstance>emitter.instance;
+    let instance = <MdxModelInstance>emitter.instance;
     let sequence = instance.sequence;
     let frame = instance.frame;
     let counter = instance.counter;

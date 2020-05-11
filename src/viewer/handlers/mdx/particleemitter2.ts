@@ -1,5 +1,5 @@
 import ParticleEmitter2Object from './particleemitter2object';
-import MdxComplexInstance from './complexinstance';
+import MdxModelInstance from './modelinstance';
 import MdxNode from './node';
 import MdxEmitter from './emitter';
 import Particle2 from './particle2';
@@ -13,14 +13,14 @@ export default class ParticleEmitter2 extends MdxEmitter {
   node: MdxNode;
   lastEmissionKey: number = -1;
 
-  constructor(instance: MdxComplexInstance, emitterObject: ParticleEmitter2Object) {
+  constructor(instance: MdxModelInstance, emitterObject: ParticleEmitter2Object) {
     super(instance, emitterObject);
 
     this.node = instance.nodes[emitterObject.index];
   }
 
   updateEmission(dt: number) {
-    let instance = <MdxComplexInstance>this.instance;
+    let instance = <MdxModelInstance>this.instance;
 
     if (instance.allowParticleSpawn) {
       let emitterObject = <ParticleEmitter2Object>this.emitterObject;

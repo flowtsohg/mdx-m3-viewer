@@ -13,8 +13,11 @@ varying vec3 v_position;
 
 // const vec3 lightDirection = normalize(vec3(-0.3, -0.3, 0.25));
 
-vec4 sample(int texture, vec2 uv) {
-  if (texture == 0) {
+vec4 sample(float texture, vec2 uv) {
+  // int(0.0) == 0 is not always true.
+  int i = int(texture + 0.1);
+
+  if (i == 0) {
     return texture2D(u_texture1, uv);
   } else {
     return texture2D(u_texture2, uv);
@@ -22,7 +25,7 @@ vec4 sample(int texture, vec2 uv) {
 }
 
 void main() {
-  vec4 color = sample(int(v_texture), v_uv);
+  vec4 color = sample(v_texture, v_uv);
 
   // vec3 faceNormal = cross(dFdx(v_position), dFdy(v_position));
   // vec3 normal = normalize((faceNormal + v_normal) * 0.5);

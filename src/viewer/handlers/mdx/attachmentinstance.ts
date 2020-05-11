@@ -1,5 +1,5 @@
 import MdxModel from './model';
-import MdxComplexInstance from './complexinstance';
+import MdxModelInstance from './modelinstance';
 import Attachment from './attachment';
 
 // Heap allocations needed for this module.
@@ -9,13 +9,13 @@ const visibilityHeap = new Float32Array(1);
  * An attachment instance.
  */
 export default class AttachmentInstance {
-  instance: MdxComplexInstance;
+  instance: MdxModelInstance;
   attachment: Attachment;
-  internalInstance: MdxComplexInstance;
+  internalInstance: MdxModelInstance;
 
-  constructor(instance: MdxComplexInstance, attachment: Attachment) {
+  constructor(instance: MdxModelInstance, attachment: Attachment) {
     let internalModel = <MdxModel>attachment.internalModel;
-    let internalInstance = <MdxComplexInstance>internalModel.addInstance();
+    let internalInstance = <MdxModelInstance>internalModel.addInstance();
 
     internalInstance.setSequenceLoopMode(2);
     internalInstance.dontInheritScaling = false;

@@ -19,13 +19,13 @@ export default abstract class Model extends HandlerResource {
    * 
    * The given type can be used to select between instance classes, if there are more than one.
    */
-  abstract createInstance(type: number): ModelInstance;
+  abstract createInstance(): ModelInstance;
 
   /**
    * Adds a new instance to this model, and returns it.
    */
-  addInstance(type: number = 0) {
-    let instance = this.createInstance(type);
+  addInstance() {
+    let instance = this.createInstance();
 
     if (this.ok) {
       instance.load();

@@ -20,14 +20,12 @@ import EventObjectEmitterObject from './eventobjectemitterobject';
 import CollisionShape from './collisionshape';
 import setupGeosets from './setupgeosets';
 import setupGroups from './setupgroups';
-import setupSimpleGroups from './setupsimplegroups';
 import BatchGroup from './batchgroup';
 import EmitterGroup from './emittergroup';
 import GenericObject from './genericobject';
 import Batch from './batch';
 import Geoset from './geoset';
-import MdxSimpleInstance from './simpleinstance';
-import MdxComplexInstance from './complexinstance';
+import MdxModelInstance from './modelinstance';
 
 /**
  * An MDX model.
@@ -65,16 +63,11 @@ export default class MdxModel extends Model {
   hierarchy: number[] = [];
   opaqueGroups: BatchGroup[] = [];
   translucentGroups: (BatchGroup | EmitterGroup)[] = [];
-  simpleGroups: BatchGroup[] = [];
   arrayBuffer: WebGLBuffer | null = null;
   elementBuffer: WebGLBuffer | null = null;
 
-  createInstance(type: number): MdxSimpleInstance | MdxComplexInstance {
-    if (type === 1) {
-      return new MdxSimpleInstance(this);
-    } else {
-      return new MdxComplexInstance(this);
-    }
+  createInstance(): MdxModelInstance {
+    return new MdxModelInstance(this);
   }
 
   load(bufferOrParser: ArrayBuffer | string | Parser) {
@@ -265,9 +258,6 @@ export default class MdxModel extends Model {
     // Render groups.
     setupGroups(this);
 
-    // SimpleInstance render group.
-    setupSimpleGroups(this);
-
     // Creates the sorted indices array of the generic objects.
     this.setupHierarchy(-1);
 
@@ -275,33 +265,6 @@ export default class MdxModel extends Model {
     for (let i = 0, l = this.genericObjects.length; i < l; i++) {
       this.sortedGenericObjects[i] = this.genericObjects[this.hierarchy[i]];
     }
-
-    // let variants = {
-    //   nodes: [],
-    //   geosets: [],
-    //   layers: [],
-    //   batches: [],
-    //   any: [],
-    // };
-
-    // for (let i = 0, l = this.sequences.length; i < l; i++) {
-    //   for (let object of this.genericObjects) {
-    //     variants.nodes[i] = variants.nodes[i] || object.variants.generic[i];
-    //   }
-
-    //   for (let geoset of this.geosets) {
-    //     variants.geosets[i] = variants.geosets[i] || geoset.variants.object[i];
-    //   }
-
-    //   for (let layer of this.layers) {
-    //     variants.layers[i] = variants.layers[i] || layer.variants.object[i];
-    //   }
-
-    //   variants.batches[i] = variants.geosets[i] || variants.layers[i];
-    //   variants.any[i] = variants.nodes[i] || variants.batches[i];
-    // }
-
-    // this.variants = variants;
   }
 
   setupHierarchy(parent: number) {

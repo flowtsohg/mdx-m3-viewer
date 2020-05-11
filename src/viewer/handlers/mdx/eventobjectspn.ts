@@ -2,14 +2,14 @@ import Scene from '../../scene';
 import EmittedObject from '../../emittedobject';
 import MdxModel from './model';
 import EventObjectEmitterObject from './eventobjectemitterobject';
-import MdxComplexInstance from './complexinstance';
+import MdxModelInstance from './modelinstance';
 import EventObjectSpnEmitter from './eventobjectspnemitter';
 
 /**
  * An MDX spawned model object.
  */
 export default class EventObjectSpn extends EmittedObject {
-  internalInstance: MdxComplexInstance;
+  internalInstance: MdxModelInstance;
 
   constructor(emitter: EventObjectSpnEmitter) {
     super(emitter);
@@ -17,15 +17,15 @@ export default class EventObjectSpn extends EmittedObject {
     let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
     let internalModel = <MdxModel>emitterObject.internalModel;
 
-    this.internalInstance = <MdxComplexInstance>internalModel.addInstance();
+    this.internalInstance = <MdxModelInstance>internalModel.addInstance();
   }
 
   bind() {
     let emitter = <EventObjectSpnEmitter>this.emitter;
-    let instance = <MdxComplexInstance>emitter.instance;
+    let instance = <MdxModelInstance>emitter.instance;
     let scene = <Scene>instance.scene;
     let node = instance.nodes[emitter.emitterObject.index];
-    let internalInstance = <MdxComplexInstance>this.internalInstance;
+    let internalInstance = <MdxModelInstance>this.internalInstance;
 
     internalInstance.setSequence(0);
     internalInstance.setTransformation(node.worldLocation, node.worldRotation, node.worldScale);

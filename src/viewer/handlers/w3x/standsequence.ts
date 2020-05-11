@@ -1,6 +1,6 @@
 import Sequence from '../../../parsers/mdlx/sequence';
 import MdxModel from '../mdx/model';
-import MdxComplexInstance from '../mdx/complexinstance';
+import MdxModelInstance from '../mdx/modelinstance';
 
 interface FilteredSequence {
   sequence: Sequence;
@@ -51,7 +51,7 @@ function selectSequence(type: string, sequences: Sequence[]) {
   return sequence;
 }
 
-export default function randomStandSequence(target: MdxComplexInstance) {
+export default function randomStandSequence(target: MdxModelInstance) {
   let model = <MdxModel>target.model;
   let sequences = model.sequences;
   let sequence = selectSequence('stand', sequences);

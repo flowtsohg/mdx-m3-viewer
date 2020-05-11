@@ -4,14 +4,12 @@ import blpHandler from '../blp/handler';
 import ddsHandler from '../dds/handler';
 import tgaHandler from '../tga/handler';
 import Model from './model';
-import complexVert from './shaders/complex.vert';
-import complexFrag from './shaders/complex.frag';
-import particlesVert from './shaders/particles.vert';
-import particlesFrag from './shaders/particles.frag';
-import simpleVert from './shaders/simple.vert';
-import simpleFrag from './shaders/simple.frag';
+import standardVert from './shaders/standard.vert';
+import standardFrag from './shaders/standard.frag';
 import hdVert from './shaders/hd.vert';
 import hdFrag from './shaders/hd.frag';
+import particlesVert from './shaders/particles.vert';
+import particlesFrag from './shaders/particles.frag';
 
 export default {
   extensions: [['.mdx', 'arrayBuffer'], ['.mdl', 'text']],
@@ -26,7 +24,7 @@ export default {
       return false;
     }
 
-    // Geometry emitters and RenderBatch.
+    // Geometry emitters.
     if (!webgl.ensureExtension('ANGLE_instanced_arrays')) {
       console.error('MDX: No instanced rendering support!');
 
@@ -37,11 +35,10 @@ export default {
     viewer.addHandler(ddsHandler);
     viewer.addHandler(tgaHandler);
 
-    let complexShader = webgl.createShaderProgram(complexVert, complexFrag);
-    let extendedShader = webgl.createShaderProgram('#define EXTENDED_BONES\n' + complexVert, complexFrag);
-    let particlesShader = webgl.createShaderProgram(particlesVert, particlesFrag);
-    let simpleShader = webgl.createShaderProgram(simpleVert, simpleFrag);
+    let standardShader = webgl.createShaderProgram(standardVert, standardFrag);
+    let extendedShader = webgl.createShaderProgram('#define EXTENDED_BONES\n' + standardVert, standardFrag);
     let hdShader = webgl.createShaderProgram(hdVert, hdFrag);
+    let particlesShader = webgl.createShaderProgram(particlesVert, particlesFrag);
 
     let rectBuffer = <WebGLBuffer>gl.createBuffer();
 
@@ -50,11 +47,10 @@ export default {
 
     viewer.sharedCache.set('mdx', {
       // Shaders.
-      complexShader,
+      standardShader,
       extendedShader,
-      particlesShader,
-      simpleShader,
       hdShader,
+      particlesShader,
       // Geometry emitters buffer.
       rectBuffer,
       // Team color/glow textures, shared between all non-Reforged models, but loaded with the first model that uses them.
@@ -65,7 +61,7 @@ export default {
       reforgedTeamGlows: <Texture[]>[],
     });
 
-    return complexShader !== null && extendedShader !== null && particlesShader !== null && simpleShader !== null && hdShader !== null;
+    return standardShader !== null && extendedShader !== null && hdShader !== null && particlesShader !== null;
   },
   resource: Model,
 };

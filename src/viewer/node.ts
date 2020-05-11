@@ -464,7 +464,6 @@ export class SkeletalNode {
   dontInheritScaling: boolean;
   parent: SkeletalNode | Node | null;
   children: Node[];
-  visible: boolean;
   wasDirty: boolean;
   /**
    * The object associated with this node, if there is any.
@@ -497,7 +496,6 @@ export class SkeletalNode {
     this.dontInheritScaling = false;
     this.parent = null;
     this.children = [];
-    this.visible = true;
     this.wasDirty = false;
     this.object = null;
 

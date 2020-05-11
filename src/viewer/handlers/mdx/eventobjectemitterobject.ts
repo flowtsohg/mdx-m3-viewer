@@ -9,7 +9,7 @@ import MdxModel from './model';
 import GenericObject from './genericobject';
 import { emitterFilterMode } from './filtermode';
 import { EMITTER_SPLAT, EMITTER_UBERSPLAT } from './geometryemitterfuncs';
-import MdxComplexInstance from './complexinstance';
+import MdxModelInstance from './modelinstance';
 
 const mappedDataCallback = (data: FetchDataType) => new MappedData(<string>data);
 const decodedDataCallback = (data: FetchDataType) => decodeAudioData(<ArrayBuffer>data);
@@ -203,7 +203,7 @@ export default class EventObjectEmitterObject extends GenericObject {
     }
   }
 
-  getValue(out: Uint32Array, instance: MdxComplexInstance) {
+  getValue(out: Uint32Array, instance: MdxModelInstance) {
     if (this.globalSequence !== -1) {
       let globalSequence = this.globalSequence;
 

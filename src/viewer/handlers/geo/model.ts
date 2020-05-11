@@ -44,7 +44,7 @@ export default class GeometryModel extends Model {
   renderMode: number = 0;
   sizzle: boolean = false;
 
-  createInstance(type: number): GeometryModelInstance {
+  createInstance(): GeometryModelInstance {
     return new GeometryModelInstance(this);
   }
 

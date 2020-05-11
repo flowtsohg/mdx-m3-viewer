@@ -1,7 +1,7 @@
 import Scene from '../../scene';
 import EmittedObject from '../../emittedobject';
 import EventObjectEmitterObject from './eventobjectemitterobject';
-import MdxComplexInstance from './complexinstance';
+import MdxModelInstance from './modelinstance';
 import EventObjectSndEmitter from './eventobjectsndemitter';
 
 /**
@@ -10,7 +10,7 @@ import EventObjectSndEmitter from './eventobjectsndemitter';
 export default class EventObjectSnd extends EmittedObject {
   bind() {
     let emitter = <EventObjectSndEmitter>this.emitter;
-    let instance = <MdxComplexInstance>emitter.instance;
+    let instance = <MdxModelInstance>emitter.instance;
     let viewer = instance.model.viewer;
     let scene = <Scene>instance.scene;
 

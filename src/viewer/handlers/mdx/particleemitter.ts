@@ -1,5 +1,5 @@
 import ParticleEmitterObject from './particleemitterobject';
-import MdxComplexInstance from './complexinstance';
+import MdxModelInstance from './modelinstance';
 import MdxEmitter from './emitter';
 import Particle from './particle';
 
@@ -10,7 +10,7 @@ const emissionRateHeap = new Float32Array(1);
  */
 export default class ParticleEmitter extends MdxEmitter {
   updateEmission(dt: number) {
-    let instance = <MdxComplexInstance>this.instance;
+    let instance = <MdxModelInstance>this.instance;
 
     if (instance.allowParticleSpawn) {
       let emitterObject = <ParticleEmitterObject>this.emitterObject;

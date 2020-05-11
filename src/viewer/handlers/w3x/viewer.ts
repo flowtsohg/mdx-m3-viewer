@@ -17,7 +17,7 @@ import { PathSolver } from '../../handlerresource';
 import Texture from '../../texture';
 import mdxHandler from '../mdx/handler';
 import MdxModel from '../mdx/model';
-import MdxComplexInstance from '../mdx/complexinstance';
+import MdxModelInstance from '../mdx/modelinstance';
 import getCliffVariation from './variations';
 import TerrainModel from './terrainmodel';
 import randomStandSequence from './standsequence';
@@ -637,7 +637,7 @@ export default class War3MapViewer extends ModelViewer {
 
       super.update();
 
-      let instances = <MdxComplexInstance[]>this.worldScene.instances;
+      let instances = <MdxModelInstance[]>this.worldScene.instances;
 
       for (let instance of instances) {
         if (instance.sequenceEnded || instance.sequence === -1) {
@@ -692,18 +692,18 @@ export default class War3MapViewer extends ModelViewer {
       gl.bindTexture(gl.TEXTURE_2D, this.heightMap);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-      gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, 8, 0);
+      gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, 0, 0);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this.instanceBuffer);
-      gl.vertexAttribPointer(instanceAttrib, 1, gl.FLOAT, false, 4, 0);
+      gl.vertexAttribPointer(instanceAttrib, 1, gl.FLOAT, false, 0, 0);
       instancedArrays.vertexAttribDivisorANGLE(instanceAttrib, 1);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
-      gl.vertexAttribPointer(texturesAttrib, 4, gl.UNSIGNED_BYTE, false, 4, 0);
+      gl.vertexAttribPointer(texturesAttrib, 4, gl.UNSIGNED_BYTE, false, 0, 0);
       instancedArrays.vertexAttribDivisorANGLE(texturesAttrib, 1);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this.variationBuffer);
-      gl.vertexAttribPointer(variationsAttrib, 4, gl.UNSIGNED_BYTE, false, 4, 0);
+      gl.vertexAttribPointer(variationsAttrib, 4, gl.UNSIGNED_BYTE, false, 0, 0);
       instancedArrays.vertexAttribDivisorANGLE(variationsAttrib, 1);
 
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.faceBuffer);

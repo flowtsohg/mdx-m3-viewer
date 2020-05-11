@@ -1,7 +1,7 @@
 import { vec3 } from 'gl-matrix';
 import EmittedObject from '../../emittedobject';
 import RibbonEmitterObject from './ribbonemitterobject';
-import MdxComplexInstance from './complexinstance';
+import MdxModelInstance from './modelinstance';
 import RibbonEmitter from './ribbonemitter';
 
 const belowHeap = vec3.create();
@@ -22,7 +22,7 @@ export default class Ribbon extends EmittedObject {
 
   bind() {
     let emitter = <RibbonEmitter>this.emitter;
-    let instance = <MdxComplexInstance>emitter.instance;
+    let instance = <MdxModelInstance>emitter.instance;
     let sequence = instance.sequence;
     let frame = instance.frame;
     let counter = instance.counter;
@@ -61,7 +61,7 @@ export default class Ribbon extends EmittedObject {
 
     if (this.health > 0) {
       let emitter = <RibbonEmitter>this.emitter;
-      let instance = <MdxComplexInstance>emitter.instance;
+      let instance = <MdxModelInstance>emitter.instance;
       let sequence = instance.sequence;
       let frame = instance.frame;
       let counter = instance.counter;

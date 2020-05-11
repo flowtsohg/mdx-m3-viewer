@@ -1,7 +1,7 @@
 import ShaderProgram from '../../gl/program';
 import Scene from '../../scene';
 import MdxModel from './model';
-import MdxComplexInstance from './complexinstance';
+import MdxModelInstance from './modelinstance';
 import { renderEmitter } from './geometryemitterfuncs';
 
 /**
@@ -15,7 +15,7 @@ export default class EmitterGroup {
     this.model = model;
   }
 
-  render(instance: MdxComplexInstance) {
+  render(instance: MdxModelInstance) {
     let scene = <Scene>instance.scene;
     let nodes = instance.nodes;
     let model = instance.model;

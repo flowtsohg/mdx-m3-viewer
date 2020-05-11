@@ -1,7 +1,7 @@
 import { vec3 } from 'gl-matrix';
 import EmittedObject from '../../emittedobject';
 import EventObjectEmitterObject from './eventobjectemitterobject';
-import MdxComplexInstance from './complexinstance';
+import MdxModelInstance from './modelinstance';
 import EventObjectSplEmitter from './eventobjectsplemitter';
 import EventObjectUbrEmitter from './eventobjectubremitter';
 
@@ -15,7 +15,7 @@ export default class EventObjectSplUbr extends EmittedObject {
 
   bind() {
     let emitter = <EventObjectSplEmitter | EventObjectUbrEmitter>this.emitter;
-    let instance = <MdxComplexInstance>emitter.instance;
+    let instance = <MdxModelInstance>emitter.instance;
     let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
     let vertices = this.vertices;
     let scale = emitterObject.scale;

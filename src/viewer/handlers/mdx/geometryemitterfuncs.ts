@@ -5,7 +5,7 @@ import ClientBuffer from '../../gl/clientbuffer';
 import ParticleEmitter2Object from './particleemitter2object';
 import RibbonEmitterObject from './ribbonemitterobject';
 import EventObjectEmitterObject from './eventobjectemitterobject';
-import MdxComplexInstance from './complexinstance';
+import MdxModelInstance from './modelinstance';
 import ParticleEmitter2 from './particleemitter2';
 import RibbonEmitter from './ribbonemitter';
 import EventObjectSplEmitter from './eventobjectsplemitter';
@@ -65,7 +65,7 @@ export const EMITTER_SPLAT = 2;
 export const EMITTER_UBERSPLAT = 3;
 
 function bindParticleEmitter2Buffer(emitter: ParticleEmitter2, buffer: ClientBuffer) {
-  let instance = <MdxComplexInstance>emitter.instance;
+  let instance = <MdxModelInstance>emitter.instance;
   let objects = <Particle2[]>emitter.objects;
   let byteView = <Uint8Array>buffer.byteView;
   let floatView = <Float32Array>buffer.floatView;
@@ -129,7 +129,7 @@ function bindParticleEmitter2Buffer(emitter: ParticleEmitter2, buffer: ClientBuf
 }
 
 function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: ShaderProgram) {
-  let instance = <MdxComplexInstance>emitter.instance;
+  let instance = <MdxModelInstance>emitter.instance;
   let scene = <Scene>instance.scene;
   let camera = scene.camera;
   let emitterObject = <ParticleEmitter2Object>emitter.emitterObject;
