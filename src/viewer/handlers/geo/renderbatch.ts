@@ -118,7 +118,7 @@ export default class GeoRenderBatch extends RenderBatch {
       // Faces.
       // Can be textured or not.
       if (model.renderMode !== 1) {
-        let texture = textureMapper.get(null) || model.texture;
+        let texture = textureMapper.get(0) || model.texture;
 
         webgl.bindTexture(texture, 0);
 
