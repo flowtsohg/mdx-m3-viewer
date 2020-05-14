@@ -155,7 +155,7 @@ export default class TokenStream {
    *     ...
    * }
    */
-  readVectorsBlock(view: Float32Array, size: number) {
+  readVectorsBlock(view: Uint16Array | Float32Array, size: number) {
     this.read(); // {
 
     for (let i = 0, l = view.length; i < l; i += size) {

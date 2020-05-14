@@ -148,26 +148,24 @@
 </head>
 
 <body>
-    <div id="status"></div>
+    <div id="status">Drop any combination of models (.mdl, .mdx), textures (.blp), or maps (.w3m, .w3x) to test them
+    </div>
 
     <canvas id="canvas"></canvas>
     <div id="controls">
-        <button id="animation_toggle" class="inputs">Play/Pause</button>
+        <div>
+            Cycle animations: <button id="animation_cycle" class="inputs">Yes</button>
+        </div>
 
-        <!-- <br>
+        <div>
+            Run animations: <button id="animation_toggle" class="inputs">Yes</button>
+        </div>
 
-        <label for="animation_control">Animation</label>
-        <select id="animation_control" class="inputs">
-            <option default value="-1">None</option>
-        </select>
+        <div>
+            <span id="animation_selector"></span>
 
-        <br>
-
-        <label for="animation_loop_control">Looping</label>
-        <select id="animation_loop_control" class="inputs">
-            <option default>Yes</option>
-            <option>No</option>
-        </select> -->
+            <span>Frame: <span id="animation_frame">0</span></span>
+        </div>
     </div>
     <pre id="sourceview"></pre>
     <div id="tests"></div>

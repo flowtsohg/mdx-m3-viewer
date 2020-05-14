@@ -174,11 +174,11 @@ export default class Geoset {
   readMdl(stream: TokenStream) {
     for (let token of stream.readBlock()) {
       if (token === 'Vertices') {
-        this.vertices = stream.readVectorsBlock(new Float32Array(stream.readInt() * 3), 3);
+        this.vertices = <Float32Array>stream.readVectorsBlock(new Float32Array(stream.readInt() * 3), 3);
       } else if (token === 'Normals') {
-        this.normals = stream.readVectorsBlock(new Float32Array(stream.readInt() * 3), 3);
+        this.normals = <Float32Array>stream.readVectorsBlock(new Float32Array(stream.readInt() * 3), 3);
       } else if (token === 'TVertices') {
-        this.uvSets.push(stream.readVectorsBlock(new Float32Array(stream.readInt() * 2), 2));
+        this.uvSets.push(<Float32Array>stream.readVectorsBlock(new Float32Array(stream.readInt() * 2), 2));
       } else if (token === 'VertexGroup') {
         // Vertex groups are stored in a block with no count, can't allocate the buffer yet.
         let vertexGroups = [];
@@ -189,7 +189,7 @@ export default class Geoset {
 
         this.vertexGroups = new Uint8Array(vertexGroups);
       } else if (token === 'Tangents') {
-        this.tangents = stream.readVectorsBlock(new Float32Array(stream.readInt() * 4), 4);
+        this.tangents = <Float32Array>stream.readVectorsBlock(new Float32Array(stream.readInt() * 4), 4);
       } else if (token === 'SkinWeights') {
         this.skin = <Uint8Array>stream.readVector(new Uint8Array(stream.readInt() * 8));
       } else if (token === 'Faces') {
@@ -202,24 +202,14 @@ export default class Geoset {
         // Total number of indices.
         let count = stream.readInt();
 
+        stream.read(); // {
+        stream.read(); // Triangles
+
+        this.faces = <Uint16Array>stream.readVectorsBlock(new Uint16Array(count), count / vectors);
+
         // Declare that all of the faces are in one group to conform with MDX.
         this.faceGroups = new Uint32Array([count]);
 
-        let vectorSize = count / vectors;
-
-        stream.read(); // {
-        stream.read(); // Triangles
-        stream.read(); // {
-
-        this.faces = new Uint16Array(count);
-
-        for (let i = 0; i < vectors; i++) {
-          let offset = i * vectorSize;
-
-          stream.readVector(this.faces.subarray(offset, offset + vectorSize));
-        }
-
-        stream.read(); // }
         stream.read(); // }
       } else if (token === 'Groups') {
         let indices = [];

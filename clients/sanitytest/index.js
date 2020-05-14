@@ -11,10 +11,13 @@ let blp = parsers.blp;
 let w3x = parsers.w3x;
 
 let testsElement = document.getElementById('tests');
-
 let statusElement = document.getElementById('status');
-statusElement.textContent =
-  'Drop any combination of models (.mdl, .mdx), textures (.blp), or maps (.w3m, .w3x) to test them.';
+let animationCycleElement = document.getElementById('animation_cycle');
+let animationToggleElement = document.getElementById('animation_toggle');
+let animationSelectorElement = document.getElementById('animation_selector');
+let animationFrameElement = document.getElementById('animation_frame');
+let playAnimationElement = true;
+let cycleAnimationsElement = true;
 
 console.log('Viewer version', ModelViewer.version);
 
@@ -48,15 +51,20 @@ setupCamera(scene, 500);
 let allTests = [];
 let visibleTest = null;
 
+function setTestSequence(sequence) {
+  visibleTest.instance.setSequence(sequence);
+  visibleTest.animationSelector.selectedIndex = sequence + 1;
+}
+
 (function step() {
   requestAnimationFrame(step);
 
   viewer.updateAndRender();
 
-  if (visibleTest) {
+  if (visibleTest && visibleTest.type === 'model') {
     let instance = visibleTest.instance;
 
-    if (instance.sequenceEnded) {
+    if (instance.sequenceEnded && animationCycleElement.textContent === 'Yes') {
       let sequences = instance.model.sequences.length;
       let sequence = instance.sequence + 1;
 
@@ -64,16 +72,30 @@ let visibleTest = null;
         sequence = 0;
       }
 
-      instance.setSequence(sequence);
+      setTestSequence(sequence);
     }
+
+    animationFrameElement.innerText = `${Math.floor(instance.frame)}`;
   }
 })();
 
-document.getElementById('animation_toggle').addEventListener('click', () => {
+animationCycleElement.addEventListener('click', () => {
+  if (animationCycleElement.textContent === 'No') {
+    animationCycleElement.textContent = 'Yes'
+  } else {
+    animationCycleElement.textContent = 'No';
+  }
+});
+
+animationToggleElement.addEventListener('click', () => {
   if (viewer.frameTime === 0) {
     viewer.frameTime = 1000 / 60;
+
+    animationToggleElement.textContent = 'Yes';
   } else {
     viewer.frameTime = 0;
+
+    animationToggleElement.textContent = 'No';
   }
 });
 
@@ -152,6 +174,14 @@ function handleTestNode(stream, node) {
   }
 }
 
+function addOptionToSelect(select, text) {
+  let option = document.createElement("option");
+
+  option.text = text;
+
+  select.add(option);
+}
+
 class TestInstance {
   constructor(name, resource, instance, parser) {
     this.name = name.toLowerCase();
@@ -163,11 +193,29 @@ class TestInstance {
     this.header = null;
     this.body = null;
     this.sourceMapContainer = null;
+    this.animationSelector = null;
 
     if (instance.model.extension === '.mdx' || instance.model.extension === '.mdl') {
       this.type = 'model';
 
       this.renderModelTest(name, parser);
+
+      this.animationSelector = document.createElement('select');
+      this.animationSelector.className = 'inputs';
+
+      addOptionToSelect(this.animationSelector, 'None');
+
+      for (let [i, sequence] of parser.sequences.entries()) {
+        addOptionToSelect(this.animationSelector, sequence.name);
+      }
+
+      this.animationSelector.addEventListener('change', () => {
+        setTestSequence(this.animationSelector.selectedIndex - 1);
+
+        animationCycleElement.textContent = 'No';
+      });
+
+      this.animationSelector.selectedIndex = 1; // Sequence 0 which is auto-started before adding the test.
     } else {
       this.type = 'texture';
 
@@ -320,6 +368,12 @@ function showTest(test) {
   // Add or replace the source map.
   if (visibleTest.sourceMapContainer) {
     sourceMapElement.appendChild(visibleTest.sourceMapContainer);
+  }
+
+  animationSelectorElement.innerHTML = null;
+
+  if (visibleTest.animationSelector) {
+    animationSelectorElement.appendChild(visibleTest.animationSelector);
   }
 }
 

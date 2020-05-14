@@ -107,29 +107,31 @@ function testSequenceTracks(data: SanityTestData, object: Animation | EventObjec
   let first = frames[indices[0]];
   let last = frames[indices[indices.length - 1]];
 
-  // Missing the opening/closing tracks for a specific sequence can sometimes cause weird animations in the game.
-  // Generally speaking these warnings can be ignored though.
-  data.assertWarning(first === start, `No opening track for ${getSequenceName(data, sequence, globalSequenceId)} at frame ${start}`);
-  // If there is no interpolation, then it doesn't matter if there's a closing track or not.
-  data.assertWarning(last === end || interpolationType === 0, `No closing track for ${getSequenceName(data, sequence, globalSequenceId)} at frame ${end}`);
+  if (object instanceof Animation) {
+    // Missing the opening/closing tracks for a specific sequence can sometimes cause weird animations in the game.
+    // Generally speaking these warnings can be ignored though.
+    data.assertWarning(first === start, `No opening track for ${getSequenceName(data, sequence, globalSequenceId)} at frame ${start}`);
+    // If there is no interpolation, then it doesn't matter if there's a closing track or not.
+    data.assertWarning(last === end || interpolationType === 0, `No closing track for ${getSequenceName(data, sequence, globalSequenceId)} at frame ${end}`);
 
-  // If an animation is being tested, check also the values.
-  if (object instanceof Animation && indices.length > 2) {
-    let values = object.values;
-    let a = values[indices[0]];
-    let b = values[indices[1]];
+    // Check for consecutive tracks with the same values.
+    if (indices.length > 2) {
+      let values = object.values;
+      let a = values[indices[0]];
+      let b = values[indices[1]];
 
-    for (let i = 2, l = indices.length; i < l; i++) {
-      let c = values[indices[i]];
+      for (let i = 2, l = indices.length; i < l; i++) {
+        let c = values[indices[i]];
 
-      if (compareValues(a, b, c)) {
-        let index = indices[i - 1];
+        if (compareValues(a, b, c)) {
+          let index = indices[i - 1];
 
-        data.addUnused(`Track ${index} at frame ${frames[index]} has the same-ish value as tracks ${index - 1} and ${index + 1}`);
+          data.addUnused(`Track ${index} at frame ${frames[index]} has the same-ish value as tracks ${index - 1} and ${index + 1}`);
+        }
+
+        a = b;
+        b = c;
       }
-
-      a = b;
-      b = c;
     }
   }
 }
