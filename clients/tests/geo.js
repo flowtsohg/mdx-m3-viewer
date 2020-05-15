@@ -541,7 +541,7 @@ let geoTests = {
         let instance = model.addInstance().move([-41, 0, 0]).uniformScale(40);
         let instance2 = model.addInstance().move([41, 0, 0]).uniformScale(40);
 
-        instance2.setTexture(null, texture2);
+        instance2.setTexture(0, texture2);
 
         scene.addInstance(instance);
         scene.addInstance(instance2);

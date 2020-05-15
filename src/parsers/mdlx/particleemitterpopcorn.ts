@@ -57,7 +57,13 @@ export default class ParticleEmitterPopcorn extends GenericObject {
 
   readMdl(stream: TokenStream) {
     for (let token of super.readGenericBlock(stream)) {
-      if (token === 'static LifeSpan') {
+      if (token === 'SortPrimsFarZ') {
+        this.flags |= 0x10000;
+      } else if (token === 'Unshaded') {
+        this.flags |= 0x8000;
+      } else if (token === 'Unfogged') {
+        this.flags |= 0x40000;
+      } else if (token === 'static LifeSpan') {
         this.lifeSpan = stream.readFloat();
       } else if (token === 'LifeSpan') {
         this.readAnimation(stream, 'KPPL');
@@ -94,6 +100,18 @@ export default class ParticleEmitterPopcorn extends GenericObject {
   writeMdl(stream: TokenStream) {
     stream.startObjectBlock('ParticleEmitterPopcorn', this.name);
     this.writeGenericHeader(stream);
+
+    if (this.flags & 0x10000) {
+      stream.writeFlag('SortPrimsFarZ');
+    }
+
+    if (this.flags & 0x8000) {
+      stream.writeFlag('Unshaded');
+    }
+
+    if (this.flags & 0x40000) {
+      stream.writeFlag('Unfogged');
+    }
 
     if (!this.writeAnimation(stream, 'KPPL')) {
       stream.writeNumberAttrib('static LifeSpan', this.lifeSpan);
