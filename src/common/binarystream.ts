@@ -436,25 +436,6 @@ export default class BinaryStream {
   }
 
   /**
-   * Read into any typed array.
-   * 
-   * Note that this is slower than the typed reading functions.
-   */
-  readTypedArray(view: TypedArray) {
-    let buffer = new Uint8Array(view.buffer);
-    let index = this.index;
-    let uint8array = this.uint8array;
-
-    for (let i = 0, l = buffer.length; i < l; i++) {
-      buffer[i] = uint8array[index + i];
-    }
-
-    this.index += buffer.length;
-
-    return view;
-  }
-
-  /**
    * Write a string.
    */
   write(value: string) {

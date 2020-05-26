@@ -23,19 +23,21 @@ document.addEventListener('drop', e => {
       let reader = new FileReader();
 
       reader.addEventListener('loadend', (e) => {
-        let buffer = e.target.result;
-        let model = new Model(buffer);
-        let blob;
+        let model = new Model(e.target.result);
+        let buffer;
+        let type;
 
         if (ext === '.mdl') {
-          blob = new Blob([model.saveMdx()], { type: 'application/octet-stream' });
-          name = name.slice(0, -3) + 'mdx';
+          buffer = model.saveMdx();
+          type = 'application/octet-stream';
+          ext = 'mdx';
         } else {
-          blob = new Blob([model.saveMdl()], { type: 'text/plain' });
-          name = name.slice(0, -3) + 'mdl';
+          buffer = model.saveMdl();
+          type = 'text/plain';
+          ext = 'mdl'
         }
 
-        saveAs(blob, name);
+        saveAs(new Blob([buffer], { type }), name.slice(0, -3) + ext);
       });
 
       if (ext === '.mdl') {

@@ -277,21 +277,28 @@ export default class Geoset {
       stream.writeVectorArrayBlock('TVertices', uvSet, 2);
     }
 
-    stream.startBlock('VertexGroup');
-    for (let i = 0, l = this.vertexGroups.length; i < l; i++) {
-      stream.writeLine(`${this.vertexGroups[i]},`);
+    if (version > 800 && this.tangents.length) {
+      stream.writeVectorArrayBlock('Tangents', this.tangents, 4);
     }
+
+    // If this is a Reforged HD geoset, write the skin.
+    // Otherwise, write the vertex groups, which are used for both TFT and Reforged SD geosets.
+    if (version > 800 && this.skin.length) {
+      stream.startBlock('SkinWeights', this.skin.length / 8);
+
+      for (let i = 0, l = this.skin.length; i < l; i += 8) {
+        stream.writeLine(`${this.skin.subarray(i, i + 8).join(', ')},`);
+      }
+    } else {
+      stream.startBlock('VertexGroup');
+
+      for (let i = 0, l = this.vertexGroups.length; i < l; i++) {
+        stream.writeLine(`${this.vertexGroups[i]},`);
+      }
+    }
+
+    // End the vertex group or the skin weight block.
     stream.endBlock();
-
-    if (version > 800) {
-      if (this.tangents.length) {
-        stream.writeVectorArrayBlock('Tangents', this.tangents, 4);
-      }
-
-      if (this.skin.length) {
-        stream.writeVectorMultiline('SkinWeights', this.skin, 8);
-      }
-    }
 
     // For now hardcoded for triangles, until I see a model with something different.
     stream.startBlock('Faces', 1, this.faces.length);

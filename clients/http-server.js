@@ -8,8 +8,8 @@
  *   │   ├── clients
  *   │   │   ├── map
  *   │   │   ├── tests
+ *   │   │   ├── http-server.js <── YOU ARE HERE 🙋
  *   │   │   └── ...
- *   │   ├── http-server.js <── YOU ARE HERE 🙋
  *   │   └── ...
  *   └── resources
  *       ├── warcraft

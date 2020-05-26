@@ -16,8 +16,6 @@ let animationCycleElement = document.getElementById('animation_cycle');
 let animationToggleElement = document.getElementById('animation_toggle');
 let animationSelectorElement = document.getElementById('animation_selector');
 let animationFrameElement = document.getElementById('animation_frame');
-let playAnimationElement = true;
-let cycleAnimationsElement = true;
 
 console.log('Viewer version', ModelViewer.version);
 
@@ -51,11 +49,6 @@ setupCamera(scene, 500);
 let allTests = [];
 let visibleTest = null;
 
-function setTestSequence(sequence) {
-  visibleTest.instance.setSequence(sequence);
-  visibleTest.animationSelector.selectedIndex = sequence + 1;
-}
-
 (function step() {
   requestAnimationFrame(step);
 
@@ -72,7 +65,7 @@ function setTestSequence(sequence) {
         sequence = 0;
       }
 
-      setTestSequence(sequence);
+      visibleTest.setSequence(sequence);
     }
 
     animationFrameElement.innerText = `${Math.floor(instance.frame)}`;
@@ -102,6 +95,14 @@ animationToggleElement.addEventListener('click', () => {
 let textureModel = viewer.load(
   {
     geometry: geometry.createUnitRectangle(),
+    material: { renderMode: 0, twoSided: true, isBGR: false }
+  },
+  src => [src, '.geo', false]
+);
+
+let boundingShapeModel = viewer.load(
+  {
+    geometry: geometry.createUnitCube(),
     material: { renderMode: 0, twoSided: true, isBGR: false }
   },
   src => [src, '.geo', false]
@@ -210,7 +211,7 @@ class TestInstance {
       }
 
       this.animationSelector.addEventListener('change', () => {
-        setTestSequence(this.animationSelector.selectedIndex - 1);
+        this.setSequence(this.animationSelector.selectedIndex - 1);
 
         animationCycleElement.textContent = 'No';
       });
@@ -223,6 +224,11 @@ class TestInstance {
     }
 
     this.hide();
+  }
+
+  setSequence(sequence) {
+    this.instance.setSequence(sequence);
+    this.animationSelector.selectedIndex = sequence + 1;
   }
 
   show() {
@@ -533,9 +539,7 @@ function addTextureTest(name, ext, buffer) {
 }
 
 function addMapTest(buffer) {
-  let map = new w3x.Map();
-
-  map.load(buffer);
+  let map = new w3x.Map(buffer);
 
   for (let name of map.getImportNames()) {
     let file = map.get(name);

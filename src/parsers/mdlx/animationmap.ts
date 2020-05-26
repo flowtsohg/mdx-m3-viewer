@@ -3,7 +3,7 @@ import { UintAnimation, FloatAnimation, Vector3Animation, Vector4Animation } fro
 // A map from MDX animation tags to their equivalent MDL tokens, and the implementation objects.
 export default {
   // Layer
-  KMTF: ['TextureId', UintAnimation],
+  KMTF: ['TextureID', UintAnimation],
   KMTA: ['Alpha', FloatAnimation],
   KMTE: ['EmissiveGain', FloatAnimation],
   KFC3: ['FresnelColor', Vector3Animation],

@@ -296,23 +296,6 @@ export default class TokenStream {
   }
 
   /**
-   * Name Entries {
-   *     Value1, Value2, ..., ValueSize,
-   *     Value1, Value2, ..., ValueSize,
-   *     ...
-   * }
-   */
-  writeVectorMultiline(name: string, view: Uint8Array, size: number) {
-    this.startBlock(name, view.length / size);
-
-    for (let i = 0, l = view.length; i < l; i += size) {
-      this.writeLine(`${view.subarray(i, i + size).join(', ')},`);
-    }
-
-    this.endBlock();
-  }
-
-  /**
    * Starts a new block in the form:
    *
    *      Header1 Header2 ... HeaderN {
