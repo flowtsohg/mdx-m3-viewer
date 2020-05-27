@@ -61,6 +61,10 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
     let skinOffset = uvOffset + uvBytes;
     let faceOffset = 0;
 
+    if (model.bones.length > 255) {
+      skinBytes *= 2;
+    }
+
     model.arrayBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, model.arrayBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, skinOffset + skinBytes, gl.STATIC_DRAW);
@@ -99,7 +103,13 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
             maxBones = 8;
           }
 
-          skin = new Uint8Array(vertices * (maxBones + 1));
+          let skinLength = vertices * (maxBones + 1);
+
+          if (model.bones.length > 255) {
+            skin = new Uint16Array(skinLength);
+          } else {
+            skin = new Uint8Array(skinLength);
+          }
 
           // Slice the matrix groups.
           for (let size of geoset.matrixGroups) {
@@ -127,7 +137,7 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
           }
         }
 
-        let vGeoset = new Geoset(model, model.geosets.length, positionOffset, normalOffset, uvOffset, skinOffset, faceOffset, vertices, faces.length);
+        let vGeoset = new Geoset(model, model.geosets.length, positionOffset, normalOffset, uvOffset, skinOffset, faceOffset, vertices, faces.length, skin.BYTES_PER_ELEMENT);
 
         model.geosets.push(vGeoset);
 

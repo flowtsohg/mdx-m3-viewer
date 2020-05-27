@@ -15,9 +15,13 @@ export default class Geoset {
   faceOffset: number;
   vertices: number;
   elements: number;
+  skinDataType: number;
+  bytesPerSkinElement: number;
   geosetAnimation: GeosetAnimation | null = null;
 
-  constructor(model: MdxModel, index: number, positionOffset: number, normalOffset: number, uvOffset: number, skinOffset: number, faceOffset: number, vertices: number, elements: number) {
+  constructor(model: MdxModel, index: number, positionOffset: number, normalOffset: number, uvOffset: number, skinOffset: number, faceOffset: number, vertices: number, elements: number, bytesPerSkinElement: number) {
+    let gl = model.viewer.gl;
+
     this.model = model;
     this.index = index;
     this.positionOffset = positionOffset;
@@ -27,6 +31,12 @@ export default class Geoset {
     this.faceOffset = faceOffset;
     this.vertices = vertices;
     this.elements = elements;
+    this.skinDataType = gl.UNSIGNED_BYTE;
+    this.bytesPerSkinElement = bytesPerSkinElement;
+
+    if (bytesPerSkinElement === 2) {
+      this.skinDataType = gl.UNSIGNED_SHORT;
+    }
 
     for (let geosetAnimation of model.geosetAnimations) {
       if (geosetAnimation.geosetId === index) {
@@ -47,8 +57,8 @@ export default class Geoset {
 
     this.bindShared(gl, attribs, coordId);
 
-    gl.vertexAttribPointer(attribs.a_bones, 4, gl.UNSIGNED_BYTE, false, 5, this.skinOffset);
-    gl.vertexAttribPointer(attribs.a_boneNumber, 1, gl.UNSIGNED_BYTE, false, 5, this.skinOffset + 4);
+    gl.vertexAttribPointer(attribs.a_bones, 4, this.skinDataType, false, 5 * this.bytesPerSkinElement, this.skinOffset);
+    gl.vertexAttribPointer(attribs.a_boneNumber, 1, this.skinDataType, false, 5 * this.bytesPerSkinElement, this.skinOffset + 4 * this.bytesPerSkinElement);
   }
 
   bindExtended(shader: ShaderProgram, coordId: number) {
@@ -57,9 +67,9 @@ export default class Geoset {
 
     this.bindShared(gl, attribs, coordId);
 
-    gl.vertexAttribPointer(attribs.a_bones, 4, gl.UNSIGNED_BYTE, false, 9, this.skinOffset);
-    gl.vertexAttribPointer(attribs.a_extendedBones, 4, gl.UNSIGNED_BYTE, false, 9, this.skinOffset + 4);
-    gl.vertexAttribPointer(attribs.a_boneNumber, 1, gl.UNSIGNED_BYTE, false, 9, this.skinOffset + 8);
+    gl.vertexAttribPointer(attribs.a_bones, 4, this.skinDataType, false, 9 * this.bytesPerSkinElement, this.skinOffset);
+    gl.vertexAttribPointer(attribs.a_extendedBones, 4, this.skinDataType, false, 9 * this.bytesPerSkinElement, this.skinOffset + 4 * this.bytesPerSkinElement);
+    gl.vertexAttribPointer(attribs.a_boneNumber, 4, this.skinDataType, false, 9 * this.bytesPerSkinElement, this.skinOffset + 8 * this.bytesPerSkinElement);
   }
 
   bindHd(shader: ShaderProgram, coordId: number) {

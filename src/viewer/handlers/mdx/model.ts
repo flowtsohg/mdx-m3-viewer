@@ -194,9 +194,6 @@ export default class MdxModel extends Model {
       this.geosetAnimations.push(new GeosetAnimation(this, geosetAnimation));
     }
 
-    // Geosets
-    setupGeosets(this, parser.geosets);
-
     this.pivotPoints = parser.pivotPoints;
 
     // Tracks the IDs of all generic objects.
@@ -254,6 +251,9 @@ export default class MdxModel extends Model {
 
     // One array for all generic objects.
     this.genericObjects.push(...this.bones, ...this.lights, ...this.helpers, ...this.attachments, ...this.particleEmitters, ...this.particleEmitters2, ...this.ribbonEmitters, ...this.eventObjects, ...this.collisionShapes);
+
+    // Geosets
+    setupGeosets(this, parser.geosets);
 
     // Render groups.
     setupGroups(this);
