@@ -65,6 +65,8 @@ export default class MdxModel extends Model {
   translucentGroups: (BatchGroup | EmitterGroup)[] = [];
   arrayBuffer: WebGLBuffer | null = null;
   elementBuffer: WebGLBuffer | null = null;
+  skinDataType: number = 0;
+  bytesPerSkinElement: number = 1;
 
   createInstance(): MdxModelInstance {
     return new MdxModelInstance(this);
