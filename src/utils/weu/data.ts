@@ -6,7 +6,7 @@ import CustomTextTrigger from '../../parsers/w3x/wct/customtexttrigger';
 import TriggerData from '../../parsers/w3x/wtg/triggerdata';
 import War3MapWts from '../../parsers/w3x/wts/file';
 
-interface WEUChange {
+export interface WEUChange {
   type: string;
   reason: string;
   data: string;
