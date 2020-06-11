@@ -242,35 +242,9 @@ function testVertexSkinning(data: SanityTestData, vertex: number, bone: number, 
  * Test geoset skinning.
  */
 export function testGeosetSkinning(data: SanityTestData, geoset: Geoset, index: number) {
-  let vertexGroups = geoset.vertexGroups;
-  let matrixGroups = geoset.matrixGroups;
-  let matrixIndices = geoset.matrixIndices;
-  let slices = [];
-
-  for (let i = 0, l = matrixGroups.length, k = 0; i < l; i++) {
-    slices.push(matrixIndices.subarray(k, k + matrixGroups[i]));
-    k += matrixGroups[i];
-  }
-
-  for (let i = 0, l = vertexGroups.length; i < l; i++) {
-    let slice = slices[vertexGroups[i]];
-
-    if (slice) {
-      for (let bone of slice) {
-        testVertexSkinning(data, i, bone, index);
-      }
-    } else {
-      let vertexGroup = vertexGroups[i];
-
-      if (vertexGroup === 255) {
-        data.addSevere(`Vertex ${i}: Not attached to anything`);
-      } else {
-        data.addSevere(`Vertex ${i}: Attached to vertex group ${vertexGroup} which does not exist`);
-      }
-    }
-  }
-
   if (data.model.version > 800 && geoset.skin.length) {
+    data.assertWarning(geoset.vertexGroups.length === 0, 'This geoset has both skin/weights and vertex groups');
+
     let skin = geoset.skin;
 
     for (let i = 0, l = skin.length / 8; i < l; i++) {
@@ -306,6 +280,34 @@ export function testGeosetSkinning(data: SanityTestData, geoset: Geoset, index: 
         data.addSevere(`Vertex ${i}: Not attached to anything`);
       } else if (weight !== 255) {
         data.addSevere(`Vertex ${i}: The weights are not normalized to 1`);
+      }
+    }
+  } else {
+    let vertexGroups = geoset.vertexGroups;
+    let matrixGroups = geoset.matrixGroups;
+    let matrixIndices = geoset.matrixIndices;
+    let slices = [];
+
+    for (let i = 0, l = matrixGroups.length, k = 0; i < l; i++) {
+      slices.push(matrixIndices.subarray(k, k + matrixGroups[i]));
+      k += matrixGroups[i];
+    }
+
+    for (let i = 0, l = vertexGroups.length; i < l; i++) {
+      let slice = slices[vertexGroups[i]];
+
+      if (slice) {
+        for (let bone of slice) {
+          testVertexSkinning(data, i, bone, index);
+        }
+      } else {
+        let vertexGroup = vertexGroups[i];
+
+        if (vertexGroup === 255) {
+          data.addSevere(`Vertex ${i}: Not attached to anything`);
+        } else {
+          data.addSevere(`Vertex ${i}: Attached to vertex group ${vertexGroup} which does not exist`);
+        }
       }
     }
   }
