@@ -106,7 +106,7 @@ function testTexture(data: SanityTestData, texture: Texture) {
   let path = texture.path.toLowerCase();
   let ext = path.slice(path.lastIndexOf('.'));
 
-  data.assertError(path === '' || ext === '.blp' || ext === '.tga' || ext === '.tif', `Corrupted path: "${path}"`);
+  data.assertError(path === '' || ext === '.blp' || ext === '.tga' || ext === '.tif' || ext === '.dds', `Corrupted path: "${path}"`);
   data.assertError(replaceableId === 0 || replaceableIds.has(replaceableId), `Unknown replaceable ID: ${replaceableId}`);
   data.assertWarning(path === '' || replaceableId === 0, `Path "${path}" and replaceable ID ${replaceableId} used together`);
 }
@@ -185,7 +185,8 @@ export function testGeoset(data: SanityTestData, geoset: Geoset, index: number) 
   }
 
   // The game and my code have no issue with geosets having any number of sequence extents, but Magos fails to parse, so add a warning.
-  if (geoset.sequenceExtents.length !== data.model.sequences.length) {
+  // Either way this is only relevant to version 800, because there seem to always be 0 extents in >800 models.
+  if (geoset.sequenceExtents.length !== data.model.sequences.length && data.model.version === 800) {
     data.addWarning(`Number of sequence extents (${geoset.sequenceExtents.length}) does not match the number of sequences (${data.model.sequences.length})`);
   }
 }
@@ -282,17 +283,7 @@ export function testRibbonEmitter(data: SanityTestData, emitter: RibbonEmitter) 
 }
 
 export function testEventObject(data: SanityTestData, eventObject: EventObject) {
-  let globalSequenceId = eventObject.globalSequenceId;
-
-  if (globalSequenceId !== -1) {
-    testReference(data, data.model.globalSequences, globalSequenceId, 'global sequence');
-  }
-
-  if (eventObject.tracks.length) {
-    testTracks(data, eventObject);
-  } else {
-    data.addError('Zero keys');
-  }
+  testTracks(data, eventObject);
 }
 
 export function testCamera(data: SanityTestData, camera: Camera) {

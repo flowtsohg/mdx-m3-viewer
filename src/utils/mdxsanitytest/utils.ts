@@ -208,8 +208,12 @@ export function testObjects(data: SanityTestData, objects: MdlxType[], handler?:
 export function testReference(data: SanityTestData, objects: MdlxType[], index: number, typeNameIfError: string) {
   if (index >= 0 && index < objects.length) {
     data.addReference(objects[index]);
+
+    return true;
   } else {
     data.addError(`Invalid ${typeNameIfError} ${index}`);
+
+    return false;
   }
 }
 
@@ -329,12 +333,6 @@ function hasGenericObject(data: SanityTestData, id: number) {
 export function testAnimation(data: SanityTestData, animation: Animation) {
   let name = animation.name;
   let interpolationType = animation.interpolationType;
-  let globalSequenceId = animation.globalSequenceId;
-  let frames = animation.frames;
-
-  if (globalSequenceId !== -1) {
-    testReference(data, data.model.globalSequences, globalSequenceId, 'global sequence');
-  }
 
   // Particle emitter 2 variation animations are not implemented in Magos for the MDX format.
   data.assertWarning(name !== 'KP2R', 'Using a variation animation.');
@@ -344,8 +342,6 @@ export function testAnimation(data: SanityTestData, animation: Animation) {
 
   // The game seems to force visiblity (and others?) interpolation types to none.
   data.assertWarning(animatedTypeNames.get(name) !== 'Visibility' || interpolationType === 0, 'Interpolation type not set to None');
-
-  data.assertWarning(frames.length > 0, 'Zero tracks');
 
   testTracks(data, animation);
 }

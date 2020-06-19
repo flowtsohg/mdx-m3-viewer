@@ -40,7 +40,10 @@ export default class Texture {
 
   writeMdl(stream: TokenStream) {
     stream.startBlock('Bitmap');
-    stream.writeStringAttrib('Image', this.path);
+
+    if (this.path.length) {
+      stream.writeStringAttrib('Image', this.path);
+    }
 
     if (this.replaceableId !== 0) {
       stream.writeNumberAttrib('ReplaceableId', this.replaceableId);

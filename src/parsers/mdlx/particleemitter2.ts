@@ -78,8 +78,8 @@ export default class ParticleEmitter2 extends GenericObject {
     stream.writeFloat32(this.gravity);
     stream.writeFloat32(this.lifeSpan);
     stream.writeFloat32(this.emissionRate);
-    stream.writeFloat32(this.length);
     stream.writeFloat32(this.width);
+    stream.writeFloat32(this.length);
     stream.writeUint32(this.filterMode);
     stream.writeUint32(this.rows);
     stream.writeUint32(this.columns);
