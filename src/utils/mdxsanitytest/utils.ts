@@ -119,6 +119,16 @@ export const animatedTypeNames = new Map([
   ['KCRL', 'Target Translation'],
 ]);
 
+export function hasAnimation(object: AnimatedObject, name: string) {
+  for (let animation of object.animations) {
+    if (animation.name === name) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export type MdlxType = Sequence | number | Texture | Material | Layer | TextureAnimation | Geoset | GeosetAnimation | Bone | Light | Helper | Attachment | ParticleEmitter | ParticleEmitter2 | ParticleEmitterPopcorn | RibbonEmitter | EventObject | Camera | CollisionShape | Animation;
 
 export function getObjectTypeName(object: MdlxType) {

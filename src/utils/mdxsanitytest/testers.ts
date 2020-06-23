@@ -14,7 +14,7 @@ import RibbonEmitter from '../../parsers/mdlx/ribbonemitter';
 import EventObject from '../../parsers/mdlx/eventobject';
 import Camera from '../../parsers/mdlx/camera';
 import SanityTestData from './data';
-import { sequenceNames, replaceableIds, testObjects, testReference, getTextureIds, testGeosetSkinning, testAnimation } from './utils';
+import { sequenceNames, replaceableIds, testObjects, testReference, getTextureIds, testGeosetSkinning, testAnimation, hasAnimation } from './utils';
 import testTracks from './tracks';
 
 export function testHeader(data: SanityTestData) {
@@ -210,6 +210,8 @@ export function testBones(data: SanityTestData) {
   }
 }
 
+const SUPPOSED_ALPHA_THRESHOLD = 0.1;
+
 export function testBone(data: SanityTestData, bone: Bone) {
   let geosets = data.model.geosets;
   let geosetAnimations = data.model.geosetAnimations;
@@ -220,8 +222,12 @@ export function testBone(data: SanityTestData, bone: Bone) {
     testReference(data, geosets, geosetId, 'geoset');
   }
 
-  if (geosetAnimationId !== -1) {
-    testReference(data, geosetAnimations, geosetAnimationId, 'geoset animation');
+  if (geosetAnimationId !== -1 && testReference(data, geosetAnimations, geosetAnimationId, 'geoset animation')) {
+    let geosetAnimation = geosetAnimations[geosetAnimationId];
+
+    if (geosetId !== -1 && geosetAnimation.alpha < SUPPOSED_ALPHA_THRESHOLD && !hasAnimation(geosetAnimation, 'KGAO')) {
+      data.addSevere(`Referencing geoset ${bone.geosetAnimationId} and geoset animation ${geosetAnimationId} with a 0 alpha, the geoset may be invisible`);
+    }
   }
 }
 
