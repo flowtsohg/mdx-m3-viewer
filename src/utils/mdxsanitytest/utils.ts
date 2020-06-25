@@ -297,30 +297,34 @@ export function testGeosetSkinning(data: SanityTestData, geoset: Geoset, index: 
       }
     }
   } else {
-    let vertexGroups = geoset.vertexGroups;
-    let matrixGroups = geoset.matrixGroups;
-    let matrixIndices = geoset.matrixIndices;
-    let slices = [];
+    // A model having no bones at all is also valid.
+    // I don't know if the skinning information in that case can be anything whatsoever, or if there are rules.
+    if (data.model.bones.length) {
+      let vertexGroups = geoset.vertexGroups;
+      let matrixGroups = geoset.matrixGroups;
+      let matrixIndices = geoset.matrixIndices;
+      let slices = [];
 
-    for (let i = 0, l = matrixGroups.length, k = 0; i < l; i++) {
-      slices.push(matrixIndices.subarray(k, k + matrixGroups[i]));
-      k += matrixGroups[i];
-    }
+      for (let i = 0, l = matrixGroups.length, k = 0; i < l; i++) {
+        slices.push(matrixIndices.subarray(k, k + matrixGroups[i]));
+        k += matrixGroups[i];
+      }
 
-    for (let i = 0, l = vertexGroups.length; i < l; i++) {
-      let slice = slices[vertexGroups[i]];
+      for (let i = 0, l = vertexGroups.length; i < l; i++) {
+        let slice = slices[vertexGroups[i]];
 
-      if (slice) {
-        for (let bone of slice) {
-          testVertexSkinning(data, i, bone, index);
-        }
-      } else {
-        let vertexGroup = vertexGroups[i];
-
-        if (vertexGroup === 255) {
-          data.addSevere(`Vertex ${i}: Not attached to anything`);
+        if (slice) {
+          for (let bone of slice) {
+            testVertexSkinning(data, i, bone, index);
+          }
         } else {
-          data.addSevere(`Vertex ${i}: Attached to vertex group ${vertexGroup} which does not exist`);
+          let vertexGroup = vertexGroups[i];
+
+          if (vertexGroup === 255) {
+            data.addSevere(`Vertex ${i}: Not attached to anything`);
+          } else {
+            data.addSevere(`Vertex ${i}: Attached to vertex group ${vertexGroup} which does not exist`);
+          }
         }
       }
     }

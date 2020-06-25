@@ -14,7 +14,7 @@ import RibbonEmitter from '../../parsers/mdlx/ribbonemitter';
 import EventObject from '../../parsers/mdlx/eventobject';
 import Camera from '../../parsers/mdlx/camera';
 import SanityTestData from './data';
-import { sequenceNames, replaceableIds, testObjects, testReference, getTextureIds, testGeosetSkinning, testAnimation, hasAnimation } from './utils';
+import { sequenceNames, replaceableIds, testObjects, testReference, getTextureIds, testGeosetSkinning, hasAnimation } from './utils';
 import testTracks from './tracks';
 
 export function testHeader(data: SanityTestData) {
@@ -76,12 +76,9 @@ function testSequence(data: SanityTestData, sequence: Sequence) {
     data.foundDeath = true;
   }
 
-  if (sequenceNames.has(token)) {
-    data.addImplicitReference();
-  } else {
-    data.addWarning(`Unknown sequence: "${token}"`);
-  }
+  data.addImplicitReference();
 
+  data.assertWarning(sequenceNames.has(token), `"${token}" is not a standard name`);
   data.assertWarning(length !== 0, 'Zero length');
   data.assertWarning(length > -1, `Negative length: ${length}`);
 }
@@ -198,16 +195,6 @@ export function testGeosetAnimation(data: SanityTestData, geosetAnimation: Geose
   data.addImplicitReference();
 
   testReference(data, geosets, geosetId, 'geoset');
-}
-
-export function testBones(data: SanityTestData) {
-  let bones = data.model.bones;
-
-  if (bones.length) {
-    testObjects(data, bones, testBone);
-  } else {
-    data.addWarning('No bones');
-  }
 }
 
 const SUPPOSED_ALPHA_THRESHOLD = 0.1;

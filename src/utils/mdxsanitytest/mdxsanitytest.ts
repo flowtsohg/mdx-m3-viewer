@@ -1,7 +1,7 @@
 import Model from '../../parsers/mdlx/model';
 import SanityTestData from './data';
 import { testObjects, cleanNode } from './utils';
-import { testHeader, testSequences, testGlobalSequence, testTextures, testMaterials, testGeoset, testGeosetAnimation, testBones, testLight, testAttachment, testPivotPoints, testParticleEmitter, testParticleEmitter2, testParticleEmitterPopcorn, testRibbonEmitter, testEventObject, testCamera, testFaceEffect, testBindPose } from './testers';
+import { testHeader, testSequences, testGlobalSequence, testTextures, testMaterials, testGeoset, testGeosetAnimation, testBone, testLight, testAttachment, testPivotPoints, testParticleEmitter, testParticleEmitter2, testParticleEmitterPopcorn, testRibbonEmitter, testEventObject, testCamera, testFaceEffect, testBindPose } from './testers';
 
 /**
  * Run a sanity test on the model and return the results.
@@ -18,7 +18,7 @@ export default function sanityTest(model: Model) {
   testObjects(data, model.textureAnimations);
   testObjects(data, model.geosets, testGeoset)
   testObjects(data, model.geosetAnimations, testGeosetAnimation);
-  testBones(data);
+  testObjects(data, model.bones, testBone);
   testObjects(data, model.lights, testLight);
   testObjects(data, model.helpers);
   testObjects(data, model.attachments, testAttachment);
