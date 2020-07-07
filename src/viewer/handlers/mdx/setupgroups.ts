@@ -7,11 +7,13 @@ import ParticleEmitter2Object from './particleemitter2object';
 import RibbonEmitterObject from './ribbonemitterobject';
 import EventObjectEmitterObject from './eventobjectemitterobject';
 
-function getPrio(object: Batch | ParticleEmitter2Object | RibbonEmitterObject) {
+function getPrio(object: Batch | ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject) {
   if (object instanceof Batch || object instanceof RibbonEmitterObject) {
     return object.layer.priorityPlane;
-  } else {
+  } else if (object instanceof ParticleEmitter2Object) {
     return object.priorityPlane;
+  } else {
+    return 0;
   }
 }
 
@@ -58,11 +60,9 @@ export default function setupGroups(model: MdxModel) {
     currentGroup.objects.push(object.index);
   }
 
-  // Sort between all of the translucent batches and emitters that have priority planes.
-  let sorted = [...translucentBatches, ...model.particleEmitters2, ...model.ribbonEmitters].sort((a, b) => getPrio(a) - getPrio(b));
-
-  // Event objects have no priority planes, so they might as well always be last.
-  let objects = [...sorted, ...model.eventObjects];
+  // Sort between all of the translucent batches and emitters based on their priority planes.
+  // Event objects have no explicit priority planes, and default to 0.
+  let objects = [...translucentBatches, ...model.eventObjects, ...model.particleEmitters2, ...model.ribbonEmitters].sort((a, b) => getPrio(a) - getPrio(b));
 
   currentGroup = null;
 
