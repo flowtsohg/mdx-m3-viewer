@@ -91,13 +91,6 @@ export default abstract class ModelInstance extends Node {
   }
 
   /**
-   * Called once the model is loaded, or immediately if the model was already loaded.
-   */
-  load() {
-
-  }
-
-  /**
    * Called if the instance is shown and not culled.
    */
   updateAnimations(dt: number) {

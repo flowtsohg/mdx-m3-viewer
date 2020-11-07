@@ -1,5 +1,4 @@
 import Texture from '../texture';
-import CubeMap from '../cubemap';
 import ShaderUnit from './shader';
 import ShaderProgram from './program';
 
@@ -13,7 +12,6 @@ export default class WebGL {
   shaderPrograms: Map<string, ShaderProgram> = new Map();
   currentShaderProgram: ShaderProgram | null = null;
   emptyTexture: WebGLTexture;
-  emptyCubeMap: WebGLTexture;
   extensions: { [key: string]: any } = {};
 
   constructor(canvas: HTMLCanvasElement, options: object = { alpha: false }) {
@@ -27,7 +25,7 @@ export default class WebGL {
       throw new Error('WebGL: Failed to create a WebGL context!');
     }
 
-    let twoByTwo = new Uint8ClampedArray([0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255]);
+    let twoByTwo = new Uint8ClampedArray([0, 0, 0, 255, 127, 127, 127, 255, 127, 127, 127, 255, 0, 0, 0, 255]);
 
     let emptyTexture = <WebGLTexture>gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, emptyTexture);
@@ -37,17 +35,8 @@ export default class WebGL {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, twoByTwo);
 
-    let emptyCubeMap = <WebGLTexture>gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, emptyCubeMap);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    for (let i = 0; i < 6; i++) {
-      gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, twoByTwo);
-    }
-
     this.gl = gl;
     this.emptyTexture = emptyTexture;
-    this.emptyCubeMap = emptyCubeMap;
 
     // The only initial setup, the rest should be handled by the handlers.
     gl.depthFunc(gl.LEQUAL);
@@ -169,28 +158,11 @@ export default class WebGL {
 
     gl.activeTexture(gl.TEXTURE0 + unit);
 
-    if (texture && texture.ok) {
+    if (texture) {
       gl.bindTexture(gl.TEXTURE_2D, texture.webglResource);
     } else {
       // Bind an empty texture in case an invalid one was given, to avoid WebGL errors.
       gl.bindTexture(gl.TEXTURE_2D, this.emptyTexture);
-    }
-  }
-
-  /**
-   * Bind a cube map texture.
-   * 
-   * If the given texture is invalid, a 2x2 black texture will be bound instead.
-   */
-  bindCubeMap(cubeMap: CubeMap | null, unit: number) {
-    let gl = this.gl;
-
-    gl.activeTexture(gl.TEXTURE0 + unit);
-
-    if (cubeMap && cubeMap.ok) {
-      gl.bindTexture(gl.TEXTURE_CUBE_MAP, cubeMap.webglResource);
-    } else {
-      gl.bindTexture(gl.TEXTURE_CUBE_MAP, this.emptyCubeMap);
     }
   }
 

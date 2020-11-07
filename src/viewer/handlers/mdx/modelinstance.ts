@@ -55,8 +55,8 @@ export default class MdxModelInstance extends ModelInstance {
   worldMatrices: Float32Array | null = null;
   boneTexture: DataTexture | null = null;
 
-  load() {
-    let model = <MdxModel>this.model;
+  constructor(model: MdxModel) {
+    super(model);
 
     for (let i = 0, l = model.geosets.length; i < l; i++) {
       this.geosetColors[i] = new Float32Array(4);
@@ -480,24 +480,21 @@ export default class MdxModelInstance extends ModelInstance {
    */
   setSequence(id: number) {
     let model = <MdxModel>this.model;
+    let sequences = model.sequences;
 
     this.sequence = id;
 
-    if (model.ok) {
-      let sequences = model.sequences;
-
-      if (id < 0 || id > sequences.length - 1) {
-        this.sequence = -1;
-        this.frame = 0;
-        this.allowParticleSpawn = false;
-      } else {
-        this.frame = sequences[id].interval[0];
-      }
-
-      this.resetEventEmitters();
-
-      this.forced = true;
+    if (id < 0 || id > sequences.length - 1) {
+      this.sequence = -1;
+      this.frame = 0;
+      this.allowParticleSpawn = false;
+    } else {
+      this.frame = sequences[id].interval[0];
     }
+
+    this.resetEventEmitters();
+
+    this.forced = true;
 
     return this;
   }

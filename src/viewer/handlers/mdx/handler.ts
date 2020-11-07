@@ -1,9 +1,8 @@
+import { isStringInBytes, isStringInString } from '../../../common/isstringin';
+import MdlxModel from '../../../parsers/mdlx/model';
 import ModelViewer from '../../viewer';
-import Texture from '../../texture';
-import blpHandler from '../blp/handler';
-import ddsHandler from '../dds/handler';
-import tgaHandler from '../tga/handler';
 import Model from './model';
+import MdxTexture from './texture';
 import standardVert from './shaders/standard.vert';
 import standardFrag from './shaders/standard.frag';
 import hdVert from './shaders/hd.vert';
@@ -12,7 +11,6 @@ import particlesVert from './shaders/particles.vert';
 import particlesFrag from './shaders/particles.frag';
 
 export default {
-  extensions: [['.mdx', 'arrayBuffer'], ['.mdl', 'text']],
   load(viewer: ModelViewer) {
     let gl = viewer.gl;
     let webgl = viewer.webgl;
@@ -30,10 +28,6 @@ export default {
 
       return false;
     }
-
-    viewer.addHandler(blpHandler);
-    viewer.addHandler(ddsHandler);
-    viewer.addHandler(tgaHandler);
 
     let standardShader = webgl.createShaderProgram(standardVert, standardFrag);
     let extendedShader = webgl.createShaderProgram('#define EXTENDED_BONES\n' + standardVert, standardFrag);
@@ -54,14 +48,40 @@ export default {
       // Geometry emitters buffer.
       rectBuffer,
       // Team color/glow textures, shared between all non-Reforged models, but loaded with the first model that uses them.
-      teamColors: <Texture[]>[],
-      teamGlows: <Texture[]>[],
+      teamColors: <MdxTexture[]>[],
+      teamGlows: <MdxTexture[]>[],
       // Same as above, but only loaded and used by Reforged models.
-      reforgedTeamColors: <Texture[]>[],
-      reforgedTeamGlows: <Texture[]>[],
+      reforgedTeamColors: <MdxTexture[]>[],
+      reforgedTeamGlows: <MdxTexture[]>[],
     });
 
     return standardShader !== null && extendedShader !== null && hdShader !== null && particlesShader !== null;
+  },
+  isValidSource(src: any) {
+    if (src instanceof MdlxModel) {
+      return true;
+    }
+
+    if (src instanceof ArrayBuffer) {
+      let bytes = new Uint8Array(src);
+
+      // MDLX
+      if (bytes[0] === 0x4D && bytes[1] === 0x44 && bytes[2] === 0x4C && bytes[3] === 0x58) {
+        return true;
+      }
+
+      // Or attempt to match against MDL by looking for FormatVersion in the first 4KB.
+      if (isStringInBytes('FormatVersion', bytes, 0, 4096)) {
+        return true;
+      }
+    }
+
+    // If the source is a string, look for FormatVersion same as above.
+    if (typeof src === 'string' && isStringInString('FormatVersion', src, 0, 4096)) {
+      return true;
+    }
+
+    return false;
   },
   resource: Model,
 };

@@ -2,7 +2,6 @@ import { EventEmitter } from 'events';
 import { FetchDataTypeName, FetchDataType, FetchResult, fetchDataType } from '../common/fetchdatatype';
 import mapequals from '../common/mapequals';
 import WebGL from './gl/gl';
-import PromiseResource from './promiseresource';
 import Scene from './scene';
 import { Resource } from './resource';
 import { PathSolver, HandlerResourceData, HandlerResource } from './handlerresource';
@@ -12,8 +11,8 @@ import Model from './model';
 import ModelInstance from './modelinstance';
 import TextureMapper from './texturemapper';
 import Texture from './texture';
-import { isImageSource, isImageExtension, ImageTexture } from './imagetexture';
-import CubeMap from './cubemap';
+import { isImageSource, ImageTexture, detectMime } from './imagetexture';
+import { blobToImage } from '../common/canvas';
 
 /**
  * The minimal structure of handlers.
@@ -21,9 +20,9 @@ import CubeMap from './cubemap';
  * Additional data can be added to them for the purposes of the implementation.
  */
 export interface Handler {
-  extensions: string[][];
   load?: (viewer: ModelViewer) => boolean;
-  resource: new (resourceData: HandlerResourceData) => HandlerResource
+  isValidSource: (src: any) => boolean;
+  resource: new (src: any, resourceData: HandlerResourceData) => HandlerResource
 }
 
 /**
@@ -35,7 +34,7 @@ export default class ModelViewer extends EventEmitter {
    * A cache of resources that were fetched.
    */
   fetchCache: Map<string, Resource> = new Map();
-  resourcesLoading: Set<Resource> = new Set();
+  promiseCache: Map<string, Promise<any>> = new Map();
   handlers: Set<Handler> = new Set();
   frameTime: number = 1000 / 60;
   canvas: HTMLCanvasElement;
@@ -75,22 +74,6 @@ export default class ModelViewer extends EventEmitter {
     this.webgl = new WebGL(canvas, options);
     this.gl = this.webgl.gl;
     this.buffer = new ClientBuffer(this.gl);
-
-    // Track when resources start loading.
-    this.on('loadstart', (target) => {
-      this.resourcesLoading.add(target);
-    });
-
-    // Track when resources end loading.
-    this.on('loadend', (target) => {
-      this.resourcesLoading.delete(target);
-
-      // If there are currently no resources loading, dispatch the 'idle' event.
-      if (this.resourcesLoading.size === 0) {
-        // A timeout is used so that this event will arrive after the loadend event being processed.
-        setTimeout(() => this.emit('idle'), 0);
-      }
-    });
   }
 
   /**
@@ -115,6 +98,11 @@ export default class ModelViewer extends EventEmitter {
 
       // Check to see if this handler was added already.
       if (!handlers.has(handler)) {
+        if (!handler.isValidSource) {
+          this.emit('error', this, 'This handler is missing the isValidSource function', handler);
+          return false;
+        }
+
         // Check if the handler has a loader, and if so load it.
         if (handler.load && !handler.load(this)) {
           this.emit('error', this, `The handler's load function failed`, handler);
@@ -164,128 +152,107 @@ export default class ModelViewer extends EventEmitter {
     this.scenes.length = 0;
   }
 
-  /**
-   * Look for a handler matching the given extension.
-   */
-  findHandler(ext: string) {
-    for (let handler of this.handlers) {
-      for (let extention of handler.extensions) {
-        if (ext === extention[0]) {
-          return [handler, extention[1]];
-        }
+  async load(src: any, pathSolver?: PathSolver, solverParams?: any) {
+    let finalSrc: any;
+    let isFetch: boolean | undefined = false;
+
+    // Run the path solver if there is one.
+    if (pathSolver) {
+      [finalSrc, isFetch] = pathSolver(src, solverParams);
+    } else {
+      finalSrc = src;
+    }
+
+    let fetchUrl = '';
+
+    // If this is a fetch:
+    if (isFetch) {
+      // Check the promise cache and return a promise if one exists.
+      let promise = this.promiseCache.get(finalSrc);
+      if (promise) {
+        return promise;
       }
+
+      // Check the fetch cache and return a resource if one exists.
+      let resource = this.fetchCache.get(finalSrc);
+      if (resource) {
+        return resource;
+      }
+
+      // Otherwise promise to fetch the data and construct a resource.
+      let fetchPromise = fetchDataType(finalSrc, 'arrayBuffer')
+        .then(async (value) => {
+          // Once the resource finished loading (successfully or not), the promise can be removed from the promise cache.
+          this.promiseCache.delete(finalSrc);
+
+          if (value.ok) {
+            let resource = await this.loadDirect(value.data, finalSrc, pathSolver);
+
+            // And if the resource loaded successfully, add it to the fetch cache.
+            if (resource) {
+              this.fetchCache.set(finalSrc, resource);
+              this.resources.push(resource);
+            }
+
+            this.checkLoadingStatus();
+
+            return resource;
+          } else {
+            this.emit('error', this, 'Failed to fetch a resource', finalSrc);
+
+            this.checkLoadingStatus();
+          }
+        });
+
+      // Add the promise to the promise cache.
+      this.promiseCache.set(finalSrc, fetchPromise);
+
+      return fetchPromise;
+    }
+
+    return this.loadDirect(finalSrc, fetchUrl, pathSolver);
+  }
+
+  async loadDirect(src: any, fetchUrl: string, pathSolver?: PathSolver) {
+    // If the source is an image source, load it directly.
+    if (isImageSource(src)) {
+      return new ImageTexture(src, { viewer: this, fetchUrl, pathSolver });
+    }
+
+    // If the source is a buffer of an image, convert it to an image, and load it directly.
+    if (src instanceof ArrayBuffer) {
+      let type = detectMime(src);
+
+      if (type.length) {
+        return new ImageTexture(await blobToImage(new Blob([src], { type })), { viewer: this, fetchUrl, pathSolver });
+      }
+    }
+
+    // Attempt to match the source to a handler.
+    let handler = this.detectFormat(src);
+
+    if (handler) {
+      try {
+        let resource = new handler.resource(src, { viewer: this, fetchUrl, pathSolver });
+
+        // If the resource is blocked by internal resources being loaded, wait for them and then clear them.
+        await Promise.all(resource.blockers);
+        resource.blockers.length = 0;
+
+        return resource;
+      } catch (e) {
+        this.emit('error', this, 'Failed to create a resource', e);
+      }
+    } else {
+      this.emit('error', this, 'Source has no matching handler', src);
     }
   }
 
-  /**
-   * Load something.
-   * 
-   * If `src` is an image texture source (e.g. an image or a canvas), it will be loaded directly.
-   * 
-   * Otherwise, `pathSolver` is called with `src` and `solverParams`, and must return an array of values:
-   * 
-   *     [finalSrc, extension, isFetch]
-   *
-   * If `finalSrc` is an image texture source, it will be loaded directly.
-   * 
-   * If `extension` is an image texture source extension (.png/.jpg/.gif), it will be fetched and loaded directly.
-   * 
-   * Otherwise, `extension` is used to select the handler.\
-   * If `isFetch` is true, `finalSrc` is the url from which to fetch.\
-   * If `isFetch` is false, `finalSrc` is whatever the handler expects, typically an ArrayBuffer or a string.
-   * 
-   * If the resource being loaded has internal resources (e.g. a model that loads its own textures), `pathSolver` will be called for them as well.
-   * 
-   * A resource is always returned, except for when `pathSolver` isn't given but `src` isn't an image texture source, or when the handler couldn't be resolved.
-   */
-  load(src: any, pathSolver?: PathSolver, solverParams?: any) {
-    // If given an image texture source, load an image texture directly.
-    if (isImageSource(src)) {
-      return this.loadImageTexture(() => [src])
-    }
-
-    // Resolve the load.
-    if (pathSolver) {
-      let [finalSrc, extension, isFetch] = pathSolver(src, solverParams);
-
-      if (typeof extension !== 'string') {
-        this.emit('error', this, 'The path solver did not return an extension', pathSolver);
-
-        return;
+  detectFormat(src: any) {
+    for (let handler of this.handlers) {
+      if (handler.isValidSource(src)) {
+        return handler;
       }
-      // Allow path solvers to use both ".ext" and "ext".
-      if (extension[0] !== '.') {
-        extension = '.' + extension;
-      }
-
-      // If the path solver returns an image texture source, load an image texture directly.
-      if (isImageSource(finalSrc)) {
-        return this.loadImageTexture(() => [finalSrc]);
-      }
-
-      // If the path solver wants to fetch an image texture source, load an image texture directly, but also cache the texture.
-      if (isImageExtension(extension)) {
-        let texture = this.fetchCache.get(finalSrc);
-
-        if (texture) {
-          return texture;
-        }
-
-        texture = this.loadImageTexture(() => [finalSrc]);
-
-        this.fetchCache.set(finalSrc, texture);
-
-        return texture;
-      }
-
-      let handlerAndDataType = this.findHandler(extension.toLowerCase());
-
-      // Is there an handler for this file type?
-      if (handlerAndDataType) {
-        if (isFetch) {
-          let resource = this.fetchCache.get(finalSrc);
-
-          if (resource) {
-            return <HandlerResource>resource;
-          }
-        }
-
-        let handler = <Handler>handlerAndDataType[0];
-        let resource = new handler.resource({ viewer: this, extension, pathSolver, fetchUrl: isFetch ? finalSrc : '' });
-
-        this.resources.push(resource);
-
-        if (isFetch) {
-          this.fetchCache.set(finalSrc, resource);
-        }
-
-        this.registerEvents(resource);
-
-        resource.emit('loadstart', resource);
-
-        if (isFetch) {
-          let dataType = <FetchDataTypeName>handlerAndDataType[1];
-
-          fetchDataType(finalSrc, dataType)
-            .then((response) => {
-              let data = response.data;
-
-              if (response.ok) {
-                resource.loadData(data);
-              } else {
-                resource.error(<string>response.error, data);
-              }
-            });
-        } else {
-          resource.loadData(finalSrc);
-        }
-
-        return resource;
-      } else {
-        this.emit('error', this, `Unknown extension "${extension}" for "${src}". Did you forget to add the handler?`);
-      }
-    } else {
-      this.emit('error', this, `Could not resolve "${src}". Did you forget to pass a path solver?`);
     }
   }
 
@@ -316,157 +283,49 @@ export default class ModelViewer extends EventEmitter {
    * 
    * If `callback` returns a promise, the resource's `data` will be whatever the promise resolved to.
    */
-  loadGeneric(path: string, dataType: FetchDataTypeName, callback?: (data: FetchDataType) => any) {
-    let cachedResource = this.fetchCache.get(path);
-
-    if (cachedResource) {
-      // Technically also non-generic resources can be returned here, since the fetch cache is shared.
-      // That being said, this should be used for generic resources, and it makes the typing a lot easier.
-      return <GenericResource>cachedResource;
+  async loadGeneric(path: string, dataType: FetchDataTypeName, callback?: (data: FetchDataType) => any) {
+    // Check the promise cache and return a promise if one exists.
+    let promise = this.promiseCache.get(path);
+    if (promise) {
+      return <Promise<GenericResource>>promise;
     }
 
-    let resource = new GenericResource({ viewer: this, fetchUrl: path });
+    // Check the fetch cache and return a resource if one exists.
+    let resource = this.fetchCache.get(path);
+    if (resource) {
+      return <GenericResource>resource;
+    }
 
-    this.resources.push(resource);
-    this.fetchCache.set(path, resource);
+    let fetchPromise = fetchDataType(path, dataType)
+      .then(async (value: FetchResult) => {
+        // Once the resource finished loading (successfully or not), the promise can be removed from the promise cache.
+        this.promiseCache.delete(path);
 
-    this.registerEvents(resource);
+        if (value.ok) {
+          let data = value.data;
 
-    resource.emit('loadstart', resource);
-
-    fetchDataType(path, dataType)
-      .then((response: FetchResult) => {
-        let data = response.data;
-
-        if (response.ok) {
           if (callback) {
-            try {
-              data = callback(<FetchDataType>data);
-            } catch (e) {
-              resource.emit('error', 'An exception was thrown while running the client callback', e);
-            }
-
-            if (data instanceof Promise) {
-              data.then((data) => resource.loadData(data));
-            } else {
-              resource.loadData(data);
-            }
-          } else {
-            resource.loadData(data);
+            data = await callback(<FetchDataType>data);
           }
+
+          let resource = new GenericResource(data, { viewer: this, fetchUrl: path });
+
+          this.fetchCache.set(path, resource);
+          this.resources.push(resource);
+
+          this.checkLoadingStatus();
+
+          return resource;
         } else {
-          resource.error(<string>response.error, data);
+          this.emit('error', this, 'Failed to fetch a generic resource', path);
+
+          this.checkLoadingStatus();
         }
       });
 
-    return resource;
-  }
+    this.promiseCache.set(path, fetchPromise);
 
-  /**
-   * Load an image texture.
-   * 
-   * `pathSolver` must return an array of values like all path solvers.\
-   * If the first array element is an image texture source, it will be used.\
-   * Otherwise, it will always try to fetch an image.\
-   * Any other array elements are ignored.
-   * 
-   * Note that this is usually called by the viewer itself.\
-   * For example, if you want to load an image directly, the following is recommended:
-   * 
-   *     viewer.load(image)
-   */
-  loadImageTexture(pathSolver: PathSolver) {
-    let texture = new ImageTexture({ viewer: this, pathSolver });
-
-    this.resources.push(texture);
-
-    this.registerEvents(texture);
-
-    texture.emit('loadstart', texture);
-
-    let finalSrc = <string | TexImageSource>pathSolver(undefined)[0];
-
-    if (!isImageSource(finalSrc)) {
-      let path = <string>finalSrc;
-
-      texture.extension = path.slice(path.lastIndexOf('.'));
-      texture.fetchUrl = path;
-
-      fetchDataType(path, 'image')
-        .then((response: FetchResult) => {
-          let data = response.data;
-
-          if (response.ok) {
-            texture.loadData(data);
-          } else {
-            texture.error(<string>response.error, data);
-          }
-        });
-    } else {
-      texture.loadData(finalSrc);
-    }
-
-    return texture;
-  }
-
-  /**
-   * Load a cube map texture.
-   * 
-   * `pathSolver` will be called 6 times, each time with a number refering to one of the textures:
-   * 
-   *     0 = Positive X
-   *     1 = Negative X
-   *     2 = Positive Y
-   *     3 = Negative Y
-   *     4 = Positive Z
-   *     5 = Negative Z
-   * 
-   * `pathSolver` must return an array of values like all path solvers.\
-   * If the first array element is an image texture source, it will be used.\
-   * Otherwise, it will always try to fetch an image.\
-   * Any other array elements are ignored.
-   */
-  loadCubeMap(pathSolver: PathSolver) {
-    let cubeMap = new CubeMap({ viewer: this, pathSolver });
-
-    this.resources.push(cubeMap);
-
-    this.registerEvents(cubeMap);
-
-    cubeMap.emit('loadstart', cubeMap);
-
-    let fetchPromises: Promise<FetchResult>[] = [];
-
-    for (let i = 0; i < 6; i++) {
-      let finalSrc = pathSolver(i)[0];
-
-      if (isImageSource(finalSrc)) {
-        fetchPromises[i] = new Promise((resolve) => resolve({ ok: true, data: finalSrc }));
-      } else {
-        fetchPromises[i] = fetchDataType(finalSrc, 'image');
-      }
-    }
-
-    Promise.all(fetchPromises)
-      .then((fetchResults) => {
-        let planes = [];
-
-        for (let i = 0; i < 6; i++) {
-          let result = fetchResults[i];
-
-          if (result.ok) {
-            planes[i] = result.data;
-          } else {
-            cubeMap.error(<string>result.error, result.data);
-
-            return;
-          }
-        }
-
-        cubeMap.loadData(planes);
-      });
-
-    return cubeMap;
+    return fetchPromise;
   }
 
   /**
@@ -499,36 +358,21 @@ export default class ModelViewer extends EventEmitter {
    * This is used when a resource might get loaded in the future, but it is not known what it is yet.
    */
   promise() {
-    let resource = new PromiseResource({ viewer: this });
+    let promise = Promise.resolve();
+    let key = `${Date.now()}`;
 
-    this.registerEvents(resource);
+    this.promiseCache.set(key, promise);
 
-    resource.promise();
-
-    return resource;
+    return () => {
+      this.promiseCache.delete(key);
+      this.checkLoadingStatus();
+    };
   }
 
-  /**
-   * Wait for a group of resources to load.
-   * If a callback is given, it will be called.
-   * Otherwise a promise is returned.
-   */
-  whenLoaded(resources: Iterable<Resource>, callback?: (resources: Resource[]) => void) {
-    let promises = [];
-
-    for (let resource of resources) {
-      // Only process actual resources.
-      if (resource instanceof Resource) {
-        promises.push(<Promise<Resource>>resource.whenLoaded());
-      }
-    }
-
-    let all = Promise.all(promises);
-
-    if (callback) {
-      all.then((loaded) => callback(loaded));
-    } else {
-      return all;
+  checkLoadingStatus() {
+    if (this.promiseCache.size === 0) {
+      // A timeout is used so that this event will arrive after the current frame to let everything settle.
+      setTimeout(() => this.emit('idle'), 0);
     }
   }
 
@@ -539,7 +383,7 @@ export default class ModelViewer extends EventEmitter {
    */
   whenAllLoaded(callback?: (viewer: ModelViewer) => void) {
     let promise = new Promise((resolve: (viewer: ModelViewer) => void) => {
-      if (this.resourcesLoading.size === 0) {
+      if (this.promiseCache.size === 0) {
         resolve(this);
       } else {
         this.once('idle', () => resolve(this));
@@ -629,10 +473,6 @@ export default class ModelViewer extends EventEmitter {
     for (let scene of this.scenes) {
       scene.clearEmittedObjects();
     }
-  }
-
-  registerEvents(resource: Resource) {
-    ['loadstart', 'load', 'error', 'loadend'].map((e) => resource.once(e, (...data) => this.emit(e, ...data)));
   }
 
   baseTextureMapper(model: Model) {

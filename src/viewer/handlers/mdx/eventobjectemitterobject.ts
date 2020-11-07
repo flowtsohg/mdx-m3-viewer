@@ -10,6 +10,7 @@ import GenericObject from './genericobject';
 import { emitterFilterMode } from './filtermode';
 import { EMITTER_SPLAT, EMITTER_UBERSPLAT } from './geometryemitterfuncs';
 import MdxModelInstance from './modelinstance';
+import MdxTexture from './texture';
 
 const mappedDataCallback = (data: FetchDataType) => new MappedData(<string>data);
 const decodedDataCallback = (data: FetchDataType) => decodeAudioData(<ArrayBuffer>data);
@@ -25,7 +26,7 @@ export default class EventObjectEmitterObject extends GenericObject {
   globalSequence: number = -1;
   defval: Uint32Array = new Uint32Array(1);
   internalModel: MdxModel | null = null;
-  internalTexture: Texture | null = null;
+  internalTexture: MdxTexture | null = null;
   colors: Float32Array[] | null = null;
   intervalTimes: Float32Array | null = null;
   scale: number = 0;
@@ -42,13 +43,6 @@ export default class EventObjectEmitterObject extends GenericObject {
   pitchVariance: number = 0;
   volume: number = 0;
   decodedBuffers: AudioBuffer[] = [];
-  /**
-   * If this is an SPL/UBR emitter object, ok will be set to true if the tables are loaded.
-   * 
-   * This is because, like the other geometry emitters, it is fine to use them even if the textures don't load.
-   * 
-   * The particles will simply be black.
-   */
   ok: boolean = false;
 
   constructor(model: MdxModel, eventObject: EventObject, index: number) {
@@ -95,28 +89,27 @@ export default class EventObjectEmitterObject extends GenericObject {
       }
 
       tables.push(viewer.loadGeneric(urlWithParams(pathSolver('UI\\SoundInfo\\AnimSounds.slk')[0], solverParams), 'text', mappedDataCallback));
-
-
     } else {
       // Units\Critters\BlackStagMale\BlackStagMale.mdx has an event object named "Point01".
       return;
     }
 
-    let promise = viewer.promise();
+    let resolve = viewer.promise();
 
-    viewer.whenLoaded(tables, (tables) => {
-      for (let table of tables) {
-        if (!table.ok) {
-          promise.resolve();
+    Promise.all(tables)
+      .then((tables) => {
+        for (let table of tables) {
+          if (!table) {
+            resolve();
 
-          return;
+            return;
+          }
         }
-      }
 
-      this.load(<GenericResource[]>tables);
+        this.load(<GenericResource[]>tables);
 
-      promise.resolve();
-    })
+        resolve();
+      });
   }
 
   load(tables: GenericResource[]) {
@@ -130,15 +123,25 @@ export default class EventObjectEmitterObject extends GenericObject {
       let pathSolver = model.pathSolver;
 
       if (type === 'SPN') {
-        this.internalModel = <MdxModel>viewer.load((<string>row.Model).replace('.mdl', '.mdx'), pathSolver, model.solverParams);
-
-        if (this.internalModel) {
-          this.internalModel.whenLoaded((model) => this.ok = model.ok);
-        }
+        viewer.load((<string>row.Model).replace('.mdl', '.mdx'), pathSolver, model.solverParams)
+          .then((model) => {
+            if (model) {
+              this.internalModel = model;
+              this.ok = true;
+            }
+          });
       } else if (type === 'SPL' || type === 'UBR') {
         let texturesExt = model.reforged ? '.dds' : '.blp';
 
-        this.internalTexture = <Texture>viewer.load(`replaceabletextures/splats/${row.file}${texturesExt}`, pathSolver, model.solverParams);
+        this.internalTexture = new MdxTexture(0, true, true);
+
+        viewer.load(`replaceabletextures/splats/${row.file}${texturesExt}`, pathSolver, model.solverParams)
+          .then((texture) => {
+            if (texture) {
+              (<MdxTexture>this.internalTexture).texture = texture;
+              this.ok = true;
+            }
+          });
 
         this.scale = <number>row.Scale;
         this.colors = [
@@ -188,13 +191,14 @@ export default class EventObjectEmitterObject extends GenericObject {
             let fileNames = (<string>row.FileNames).split(',');
             let resources = fileNames.map((fileName) => viewer.loadGeneric(urlWithParams(pathSolver(row.DirectoryBase + fileName)[0], model.solverParams), 'arrayBuffer', decodedDataCallback));
 
-            viewer.whenLoaded(resources, (resources) => {
-              for (let resource of resources) {
-                this.decodedBuffers.push((<GenericResource>resource).data);
-              }
+            Promise.all(resources)
+              .then((resources) => {
+                for (let resource of resources) {
+                  this.decodedBuffers.push((<GenericResource>resource).data);
+                }
 
-              this.ok = true;
-            });
+                this.ok = true;
+              });
           }
         }
       }

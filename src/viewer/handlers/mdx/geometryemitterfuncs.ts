@@ -13,6 +13,7 @@ import EventObjectUbrEmitter from './eventobjectubremitter';
 import Particle2 from './particle2';
 import Ribbon from './ribbon';
 import EventObjectSplUbr from './eventobjectsplubr';
+import MdxTexture from './texture';
 
 const locationHeap = vec3.create();
 const startHeap = vec3.create();
@@ -158,7 +159,7 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: ShaderPro
     texture = emitterObject.internalTexture;
   }
 
-  viewer.webgl.bindTexture(texture, 0);
+  viewer.webgl.bindTexture(texture.texture, 0);
 
   // Choose between a default rectangle or a billboarded one
   if (emitterObject.xYQuad) {
@@ -253,11 +254,11 @@ function bindRibbonEmitterShader(emitter: RibbonEmitter, shader: ShaderProgram) 
   let model = emitterObject.model;
   let gl = model.viewer.gl;
   let uniforms = shader.uniforms;
-  let texture = model.textures[layer.textureId];
+  let baseTexture = model.textures[layer.textureId];
+  let texture = textureMapper.get(baseTexture.texture) || baseTexture.texture;
 
   layer.bind(shader);
-
-  model.viewer.webgl.bindTexture(textureMapper.get(texture) || texture, 0);
+  model.viewer.webgl.bindTexture(texture, 0);
 
   gl.uniform1f(uniforms.u_columns, emitterObject.columns);
   gl.uniform1f(uniforms.u_rows, emitterObject.rows);
@@ -301,7 +302,7 @@ function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader:
   let model = emitterObject.model;
   let gl = model.viewer.gl;
   let uniforms = shader.uniforms;
-  let texture = emitterObject.internalTexture;
+  let texture = (<MdxTexture>emitterObject.internalTexture).texture;
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 
@@ -331,7 +332,7 @@ function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader:
   let viewer = model.viewer;
   let gl = viewer.gl;
   let uniforms = shader.uniforms;
-  let texture = emitterObject.internalTexture;
+  let texture = (<MdxTexture>emitterObject.internalTexture).texture;
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 

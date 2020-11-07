@@ -171,7 +171,7 @@ export default class War3MapViewer extends ModelViewer {
    * Load a map from a buffer.
    */
   async loadMap(buffer: ArrayBuffer) {
-    let promise = this.promise();
+    let resolve = this.promise();
 
     // Readonly mode to optimize memory usage.
     let mapMpq = new War3Map(buffer, true);
@@ -261,7 +261,7 @@ export default class War3MapViewer extends ModelViewer {
       this.once('unitsloaded', () => this.loadUnitsAndItems(modifications));
     }
 
-    promise.resolve();
+    resolve();
   }
 
   async loadTerrainCliffsAndWater(w3e: War3MapW3e) {

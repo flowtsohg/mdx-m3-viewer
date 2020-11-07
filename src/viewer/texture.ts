@@ -14,17 +14,11 @@ export default abstract class Texture extends HandlerResource {
   minFilter: number = 9729;
 
   /**
-   * Automatically apply the wrap and filter modes.
-   */
-  lateLoad() {
-    this.viewer.webgl.setTextureMode(this.wrapS, this.wrapT, this.magFilter, this.minFilter);
-  }
-
-  /**
    * Bind this texture to the given texture unit.
    */
   bind(unit: number) {
     this.viewer.webgl.bindTexture(this, unit);
+    this.viewer.webgl.setTextureMode(this.wrapS, this.wrapT, this.magFilter, this.minFilter);
   }
 
   /**

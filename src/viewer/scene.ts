@@ -13,7 +13,7 @@ import EmittedObjectUpdater from './emittedobjectupdater';
  * Every scene has its own list of model instances, and its own camera and viewport.
  *
  * In addition, every scene may have its own AudioContext if enableAudio() is called.
- * If audo is enabled, the AudioContext's listener's location will be updated automatically.
+ * If audio is enabled, the AudioContext's listener's location will be updated automatically.
  * Note that due to browser policies, this may be done only after user interaction with the web page.
  */
 export default class Scene {
@@ -99,12 +99,9 @@ export default class Scene {
 
       instance.scene = this;
 
-      // Only allow instances that are actually ok to be added the scene.
-      if (instance.model.ok) {
-        this.grid.moved(instance);
+      this.grid.moved(instance);
 
-        return true;
-      }
+      return true;
     }
 
     return false;

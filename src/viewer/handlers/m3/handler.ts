@@ -1,3 +1,4 @@
+import Parser from '../../../parsers/m3/model';
 import ModelViewer from '../../viewer';
 import ShaderProgram from '../../gl/program';
 import ddsHandler from '../dds/handler';
@@ -7,7 +8,6 @@ import standardVert from './shaders/standard.vert';
 import standardFrag from './shaders/standard.frag';
 
 export default {
-  extensions: [['.m3', 'arrayBuffer']],
   load(viewer: ModelViewer) {
     let gl = viewer.gl;
     let webgl = viewer.webgl;
@@ -51,6 +51,22 @@ export default {
     });
 
     return true;
+  },
+  isValidSource(src: any) {
+    if (src instanceof Parser) {
+      return true;
+    }
+
+    if (src instanceof ArrayBuffer) {
+      let buffer = new Uint32Array(src, 0, 1);
+
+      // MD34 reversed.
+      if (buffer[0] === 0x3433444d) {
+        return true;
+      }
+    }
+
+    return false;
   },
   resource: Model,
 };

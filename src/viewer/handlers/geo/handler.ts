@@ -4,7 +4,6 @@ import standardVert from './shaders/standard.vert';
 import standardFrag from './shaders/standard.frag';
 
 export default {
-  extensions: [['.geo']],
   load(viewer: ModelViewer) {
     let webgl = viewer.webgl;
 
@@ -22,6 +21,13 @@ export default {
     });
 
     return shader !== null;
+  },
+  isValidSource(src: any) {
+    if (src.geometry && src.material) {
+      return true;
+    }
+
+    return false;
   },
   resource: Model,
 };

@@ -1,6 +1,5 @@
 import BinaryStream from '../../common/binarystream';
 import IndexEntry from './indexentry';
-import Reference from './reference';
 import Md34 from './md34';
 import ModelHeader from './modelheader';
 

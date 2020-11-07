@@ -97,7 +97,17 @@ export default class Model {
    */
   load(buffer: ArrayBuffer | string) {
     if (buffer instanceof ArrayBuffer) {
-      this.loadMdx(buffer);
+      let bytes = new Uint8Array(buffer);
+
+      // A buffer can be of both MDX and MDL, so check for the MDLX tag.
+      // If there is no MDLX, the buffer is converted to a string, and loaded as MDL.
+      if (bytes[0] === 0x4D && bytes[1] === 0x44 && bytes[2] === 0x4C && bytes[3] === 0x58) {
+        this.loadMdx(buffer);
+      } else {
+        let decoder = new TextDecoder();
+
+        this.loadMdl(decoder.decode(bytes));
+      }
     } else {
       this.loadMdl(buffer);
     }
@@ -359,6 +369,7 @@ export default class Model {
    * Load the model from MDL.
    */
   loadMdl(buffer: string) {
+    //console.log(buffer)
     let token: string;
     let stream = new TokenStream(buffer);
 
