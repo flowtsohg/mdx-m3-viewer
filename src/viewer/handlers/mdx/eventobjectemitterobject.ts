@@ -3,8 +3,8 @@ import { decodeAudioData } from '../../../common/audio';
 import { FetchDataType } from '../../../common/fetchdatatype';
 import { MappedData } from '../../../utils/mappeddata';
 import EventObject from '../../../parsers/mdlx/eventobject';
-import GenericResource from '../../genericresource';
 import Texture from '../../texture';
+import GenericResource from '../../genericresource';
 import MdxModel from './model';
 import GenericObject from './genericobject';
 import { emitterFilterMode } from './filtermode';
@@ -25,17 +25,17 @@ export default class EventObjectEmitterObject extends GenericObject {
   tracks: Uint32Array;
   globalSequence: number = -1;
   defval: Uint32Array = new Uint32Array(1);
-  internalModel: MdxModel | null = null;
-  internalTexture: MdxTexture | null = null;
-  colors: Float32Array[] | null = null;
-  intervalTimes: Float32Array | null = null;
+  internalModel?: MdxModel;
+  internalTexture?: MdxTexture;
+  colors?: Float32Array[];
+  intervalTimes?: Float32Array;
   scale: number = 0;
   columns: number = 0;
   rows: number = 0;
   lifeSpan: number = 0;
   blendSrc: number = 0;
   blendDst: number = 0;
-  intervals: Float32Array[] | null = null;
+  intervals?: Float32Array[];
   distanceCutoff: number = 0;
   maxDistance: number = 0;
   minDistance: number = 0;
@@ -126,7 +126,7 @@ export default class EventObjectEmitterObject extends GenericObject {
         viewer.load((<string>row.Model).replace('.mdl', '.mdx'), pathSolver, model.solverParams)
           .then((model) => {
             if (model) {
-              this.internalModel = model;
+              this.internalModel = <MdxModel>model;
               this.ok = true;
             }
           });
@@ -138,7 +138,7 @@ export default class EventObjectEmitterObject extends GenericObject {
         viewer.load(`replaceabletextures/splats/${row.file}${texturesExt}`, pathSolver, model.solverParams)
           .then((texture) => {
             if (texture) {
-              (<MdxTexture>this.internalTexture).texture = texture;
+              (<MdxTexture>this.internalTexture).texture = <Texture>texture;
               this.ok = true;
             }
           });

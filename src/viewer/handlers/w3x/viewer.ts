@@ -18,6 +18,9 @@ import Texture from '../../texture';
 import mdxHandler from '../mdx/handler';
 import MdxModel from '../mdx/model';
 import MdxModelInstance from '../mdx/modelinstance';
+import blpHandler from '../blp/handler';
+import tgaHandler from '../tga/handler';
+import ddsHandler from '../dds/handler';
 import getCliffVariation from './variations';
 import TerrainModel from './terrainmodel';
 import randomStandSequence from './standsequence';
@@ -109,6 +112,9 @@ export default class War3MapViewer extends ModelViewer {
     this.on('error', (target, error, reason) => console.error(target, error, reason));
 
     this.addHandler(mdxHandler);
+    this.addHandler(blpHandler);
+    this.addHandler(tgaHandler);
+    this.addHandler(ddsHandler);
 
     this.wc3PathSolver = wc3PathSolver;
 
@@ -122,41 +128,44 @@ export default class War3MapViewer extends ModelViewer {
     let cliffTypes = this.loadMapGeneric('TerrainArt\\CliffTypes.slk', 'text');
     let water = this.loadMapGeneric('TerrainArt\\Water.slk', 'text');
 
-    this.whenLoaded([terrain, cliffTypes, water], () => {
-      this.terrainCliffsAndWaterLoaded = true;
-      this.terrainData.load(terrain.data);
-      this.cliffTypesData.load(cliffTypes.data);
-      this.waterData.load(water.data);
-      this.emit('terrainloaded');
-    })
+    Promise.all([terrain, cliffTypes, water])
+      .then(([terrain, cliffTypes, water]) => {
+        this.terrainCliffsAndWaterLoaded = true;
+        this.terrainData.load(terrain.data);
+        this.cliffTypesData.load(cliffTypes.data);
+        this.waterData.load(water.data);
+        this.emit('terrainloaded');
+      })
 
     let doodads = this.loadMapGeneric('Doodads\\Doodads.slk', 'text');
     let doodadMetaData = this.loadMapGeneric('Doodads\\DoodadMetaData.slk', 'text');
     let destructableData = this.loadMapGeneric('Units\\DestructableData.slk', 'text');
     let destructableMetaData = this.loadMapGeneric('Units\\DestructableMetaData.slk', 'text');
 
-    this.whenLoaded([doodads, doodadMetaData, destructableData, destructableMetaData], () => {
-      this.doodadsAndDestructiblesLoaded = true;
-      this.doodadsData.load(doodads.data);
-      this.doodadMetaData.load(doodadMetaData.data);
-      this.doodadsData.load(destructableData.data);
-      this.destructableMetaData.load(destructableMetaData.data);
-      this.emit('doodadsloaded');
-    });
+    Promise.all([doodads, doodadMetaData, destructableData, destructableMetaData])
+      .then(([doodads, doodadMetaData, destructableData, destructableMetaData]) => {
+        this.doodadsAndDestructiblesLoaded = true;
+        this.doodadsData.load(doodads.data);
+        this.doodadMetaData.load(doodadMetaData.data);
+        this.doodadsData.load(destructableData.data);
+        this.destructableMetaData.load(destructableMetaData.data);
+        this.emit('doodadsloaded');
+      });
 
     let unitData = this.loadMapGeneric('Units\\UnitData.slk', 'text');
     let unitUi = this.loadMapGeneric('Units\\unitUI.slk', 'text');
     let itemData = this.loadMapGeneric('Units\\ItemData.slk', 'text');
     let unitMetaData = this.loadMapGeneric('Units\\UnitMetaData.slk', 'text');
 
-    this.whenLoaded([unitData, unitUi, itemData, unitMetaData], () => {
-      this.unitsAndItemsLoaded = true;
-      this.unitsData.load(unitData.data);
-      this.unitsData.load(unitUi.data);
-      this.unitsData.load(itemData.data);
-      this.unitMetaData.load(unitMetaData.data);
-      this.emit('unitsloaded');
-    });
+    Promise.all([unitData, unitUi, itemData, unitMetaData])
+      .then(([unitData, unitUi, itemData, unitMetaData]) => {
+        this.unitsAndItemsLoaded = true;
+        this.unitsData.load(unitData.data);
+        this.unitsData.load(unitUi.data);
+        this.unitsData.load(itemData.data);
+        this.unitMetaData.load(unitMetaData.data);
+        this.emit('unitsloaded');
+      });
   }
 
   load(src: any) {
@@ -209,7 +218,7 @@ export default class War3MapViewer extends ModelViewer {
       // If the file is in the map, return it.
       let file = mapMpq.get(mpqPath);
       if (file) {
-        return [file.arrayBuffer(), path.substr(path.lastIndexOf('.')), false];
+        return [file.arrayBuffer(), false];
       }
 
       // Try to get the file from the server.
@@ -268,11 +277,15 @@ export default class War3MapViewer extends ModelViewer {
     let texturesExt = this.solverParams.reforged ? '.dds' : '.blp';
     let tileset = w3e.tileset;
 
+    let tilesetTextures = [];
+    let cliffTextures = [];
+    let waterTextures = [];
+
     for (let groundTileset of w3e.groundTilesets) {
       let row = this.terrainData.getRow(groundTileset);
 
       this.tilesets.push(row);
-      this.tilesetTextures.push(<Texture>this.load(`${row.dir}\\${row.file}${texturesExt}`));
+      tilesetTextures.push(this.load(`${row.dir}\\${row.file}${texturesExt}`));
     }
 
     let blights = {
@@ -297,13 +310,13 @@ export default class War3MapViewer extends ModelViewer {
     };
 
     this.blightTextureIndex = this.tilesetTextures.length;
-    this.tilesetTextures.push(<Texture>this.load(`TerrainArt\\Blight\\${blights[tileset]}_Blight${texturesExt}`));
+    tilesetTextures.push(this.load(`TerrainArt\\Blight\\${blights[tileset]}_Blight${texturesExt}`));
 
     for (let cliffTileset of w3e.cliffTilesets) {
       let row = this.cliffTypesData.getRow(cliffTileset);
 
       this.cliffTilesets.push(row);
-      this.cliffTextures.push(<Texture>this.load(`${row.texDir}\\${row.texFile}${texturesExt}`));
+      cliffTextures.push(this.load(`${row.texDir}\\${row.texFile}${texturesExt}`));
     }
 
     let waterRow = this.waterData.getRow(`${tileset}Sha`);
@@ -317,10 +330,12 @@ export default class War3MapViewer extends ModelViewer {
     this.minShallowColor.set([<number>waterRow.Smin_R, <number>waterRow.Smin_G, <number>waterRow.Smin_B, <number>waterRow.Smin_A]);
 
     for (let i = 0, l = waterRow.numTex; i < l; i++) {
-      this.waterTextures.push(<Texture>this.load(`${waterRow.texFile}${i < 10 ? '0' : ''}${i}${texturesExt}`));
+      waterTextures.push(this.load(`${waterRow.texFile}${i < 10 ? '0' : ''}${i}${texturesExt}`));
     }
 
-    await this.whenLoaded(this.tilesetTextures);
+    this.tilesetTextures = <Texture[]>await Promise.all(tilesetTextures);
+    this.cliffTextures = <Texture[]>await Promise.all(cliffTextures);
+    this.waterTextures = <Texture[]>await Promise.all(waterTextures);
 
     let gl = this.gl;
 
@@ -474,10 +489,11 @@ export default class War3MapViewer extends ModelViewer {
       let path = cliff[0];
       let { locations, textures } = cliff[1];
       let resource = this.loadMapGeneric(path, 'arrayBuffer');
+      let buffer = await resource;
 
-      await resource.whenLoaded();
-
-      return new TerrainModel(this, resource.data, locations, textures, cliffShader);
+      if (buffer) {
+        return new TerrainModel(this, buffer.data, locations, textures, cliffShader);
+      }
     });
 
     this.cliffModels = await Promise.all(cliffPromises);
@@ -530,23 +546,31 @@ export default class War3MapViewer extends ModelViewer {
       // First see if the model is local.
       // Doodads refering to local models may have invalid variations, so if the variation doesn't exist, try without a variation.
       let mpqFile = mpq.get(fileVar) || mpq.get(file);
-      let model;
+      let promise;
 
       if (mpqFile) {
-        model = <MdxModel>this.load(mpqFile.name);
+        promise = this.load(mpqFile.name);
       } else {
-        model = <MdxModel>this.load(fileVar);
+        promise = this.load(fileVar);
       }
 
-      this.doodads.push(new Doodad(this, model, row, doodad))
+      promise.then((model) => {
+        if (model) {
+          this.doodads.push(new Doodad(this, <MdxModel>model, row, doodad))
+        }
+      });
     }
 
     // Cliff/Terrain doodads.
     for (let doodad of doo.terrainDoodads) {
       let row = this.doodadsData.getRow(doodad.id);
-      let model = <MdxModel>this.load(`${row.file}.mdx`);
 
-      this.terrainDoodads.push(new TerrainDoodad(this, model, row, doodad));
+      this.load(`${row.file}.mdx`)
+        .then((model) => {
+          if (model) {
+            this.terrainDoodads.push(new TerrainDoodad(this, <MdxModel>model, row, doodad))
+          }
+        })
 
       // let pathTexture = <Texture>this.load(row.pathTex);
 
@@ -612,9 +636,12 @@ export default class War3MapViewer extends ModelViewer {
       }
 
       if (path) {
-        let model = <MdxModel>this.load(path);
-
-        this.units.push(new Unit(this, model, row, unit));
+        this.load(path)
+          .then((model) => {
+            if (model) {
+              this.units.push(new Unit(this, <MdxModel>model, row, unit));
+            }
+          });
       } else {
         console.log('Unknown unit ID', unit.id, unit);
       }

@@ -4,7 +4,7 @@ import Texture from '../../texture';
  * An MDX texture.
  */
 export default class MdxTexture {
-  texture: Texture | null = null;
+  texture?: Texture;
   replaceableId: number = 0;
   wrapS: boolean = false;
   wrapT: boolean = false;

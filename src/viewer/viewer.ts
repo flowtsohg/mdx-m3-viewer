@@ -34,7 +34,7 @@ export default class ModelViewer extends EventEmitter {
    * A cache of resources that were fetched.
    */
   fetchCache: Map<string, Resource> = new Map();
-  promiseCache: Map<string, Promise<any>> = new Map();
+  promiseCache: Map<string, Promise<Resource | undefined>> = new Map();
   handlers: Set<Handler> = new Set();
   frameTime: number = 1000 / 60;
   canvas: HTMLCanvasElement;
@@ -185,8 +185,10 @@ export default class ModelViewer extends EventEmitter {
           // Once the resource finished loading (successfully or not), the promise can be removed from the promise cache.
           this.promiseCache.delete(finalSrc);
 
+          let resource;
+
           if (value.ok) {
-            let resource = await this.loadDirect(value.data, finalSrc, pathSolver);
+            resource = await this.loadDirect(value.data, finalSrc, pathSolver);
 
             // And if the resource loaded successfully, add it to the fetch cache.
             if (resource) {
@@ -194,14 +196,15 @@ export default class ModelViewer extends EventEmitter {
               this.resources.push(resource);
             }
 
-            this.checkLoadingStatus();
-
-            return resource;
+            this.emit('load', this, finalSrc);
           } else {
             this.emit('error', this, 'Failed to fetch a resource', finalSrc);
-
-            this.checkLoadingStatus();
           }
+
+          this.emit('loadend', this, finalSrc);
+          this.checkLoadingStatus();
+
+          return resource;
         });
 
       // Add the promise to the promise cache.
@@ -241,10 +244,10 @@ export default class ModelViewer extends EventEmitter {
 
         return resource;
       } catch (e) {
-        this.emit('error', this, 'Failed to create a resource', e);
+        this.emit('error', this, 'Failed to create a resource', { fetchUrl, e });
       }
     } else {
-      this.emit('error', this, 'Source has no matching handler', src);
+      this.emit('error', this, 'Source has no matching handler', { fetchUrl, src });
     }
   }
 
@@ -301,6 +304,8 @@ export default class ModelViewer extends EventEmitter {
         // Once the resource finished loading (successfully or not), the promise can be removed from the promise cache.
         this.promiseCache.delete(path);
 
+        let resource;
+
         if (value.ok) {
           let data = value.data;
 
@@ -308,22 +313,24 @@ export default class ModelViewer extends EventEmitter {
             data = await callback(<FetchDataType>data);
           }
 
-          let resource = new GenericResource(data, { viewer: this, fetchUrl: path });
+          resource = new GenericResource(data, { viewer: this, fetchUrl: path });
 
           this.fetchCache.set(path, resource);
           this.resources.push(resource);
 
-          this.checkLoadingStatus();
-
-          return resource;
+          this.emit('load', this, path);
         } else {
           this.emit('error', this, 'Failed to fetch a generic resource', path);
-
-          this.checkLoadingStatus();
         }
+
+        this.emit('loadend', this, path);
+        this.checkLoadingStatus();
+
+        return resource;
       });
 
     this.promiseCache.set(path, fetchPromise);
+    this.emit('loadstart', this, path);
 
     return fetchPromise;
   }
@@ -358,7 +365,7 @@ export default class ModelViewer extends EventEmitter {
    * This is used when a resource might get loaded in the future, but it is not known what it is yet.
    */
   promise() {
-    let promise = Promise.resolve();
+    let promise = Promise.resolve(undefined);
     let key = `${Date.now()}`;
 
     this.promiseCache.set(key, promise);

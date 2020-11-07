@@ -149,14 +149,20 @@ export default class BatchGroup {
           layer.bind(shader);
 
           let replaceable = layerTexture.replaceableId;
-          let texture;
+          let mdxTexture;
 
           if (replaceable === 1) {
-            texture = teamColors[instance.teamColor].texture;
+            mdxTexture = teamColors[instance.teamColor];
           } else if (replaceable === 2) {
-            texture = teamGlows[instance.teamColor].texture;
+            mdxTexture = teamGlows[instance.teamColor];
           } else {
-            texture = textureMapper.get(layerTexture) || layerTexture.texture;
+            mdxTexture = layerTexture;
+          }
+
+          let texture;
+
+          if (mdxTexture) {
+            texture = textureMapper.get(mdxTexture) || mdxTexture.texture;
           }
 
           webgl.bindTexture(texture, 0);

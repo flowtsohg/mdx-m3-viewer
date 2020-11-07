@@ -1,4 +1,3 @@
-import { EventEmitter } from 'events';
 import ModelViewer from './viewer';
 
 /**
@@ -11,22 +10,16 @@ export type ResourceData = { viewer: ModelViewer, extension?: string, fetchUrl?:
  * 
  * Generally speaking resources are created via viewer.load(), or viewer.loadGeneric().
  */
-export abstract class Resource extends EventEmitter {
+export abstract class Resource {
   viewer: ModelViewer;
   extension: string;
   fetchUrl: string;
   blockers: Promise<Resource>[] = [];
 
   constructor(resourceData: ResourceData) {
-    super();
-
     this.viewer = resourceData.viewer;
     this.extension = resourceData.extension || '';
     this.fetchUrl = resourceData.fetchUrl || '';
-
-    // Ignore EventEmitter warnings.
-    // Mostly relevant when loading many models that reference the same texture / event object.
-    this.setMaxListeners(0);
   }
 
   /**

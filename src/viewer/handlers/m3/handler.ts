@@ -20,9 +20,6 @@ export default {
       return false;
     }
 
-    viewer.addHandler(ddsHandler);
-    viewer.addHandler(tgaHandler);
-
     let standardShaders = <ShaderProgram[]>[];
 
     // Load shaders for 1-4 texture coordinate models.

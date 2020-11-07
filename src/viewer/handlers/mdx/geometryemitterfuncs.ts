@@ -143,23 +143,29 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: ShaderPro
   let intervals = emitterObject.intervals;
   let replaceable = emitterObject.replaceableId;
   let vectors;
-  let texture;
+  let mdxTexture;
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 
   if (replaceable === 1) {
-    let teamColors = model.reforged ? mdxCache.reforgedTeamColors : mdxCache.teamColors;
+    let teamColors: MdxTexture[] = model.reforged ? mdxCache.reforgedTeamColors : mdxCache.teamColors;
 
-    texture = teamColors[instance.teamColor];
+    mdxTexture = teamColors[instance.teamColor];
   } else if (replaceable === 2) {
-    let teamGlows = model.reforged ? mdxCache.reforgedTeamGlows : mdxCache.teamGlows;
+    let teamGlows: MdxTexture[] = model.reforged ? mdxCache.reforgedTeamGlows : mdxCache.teamGlows;
 
-    texture = teamGlows[instance.teamColor];
+    mdxTexture = teamGlows[instance.teamColor];
   } else {
-    texture = emitterObject.internalTexture;
+    mdxTexture = emitterObject.internalTexture;
   }
 
-  viewer.webgl.bindTexture(texture.texture, 0);
+  let texture;
+
+  if (mdxTexture) {
+    texture = mdxTexture.texture;
+  }
+
+  viewer.webgl.bindTexture(texture, 0);
 
   // Choose between a default rectangle or a billboarded one
   if (emitterObject.xYQuad) {
@@ -254,8 +260,8 @@ function bindRibbonEmitterShader(emitter: RibbonEmitter, shader: ShaderProgram) 
   let model = emitterObject.model;
   let gl = model.viewer.gl;
   let uniforms = shader.uniforms;
-  let baseTexture = model.textures[layer.textureId];
-  let texture = textureMapper.get(baseTexture.texture) || baseTexture.texture;
+  let mdxTexture = model.textures[layer.textureId];
+  let texture = textureMapper.get(mdxTexture) || mdxTexture.texture;
 
   layer.bind(shader);
   model.viewer.webgl.bindTexture(texture, 0);

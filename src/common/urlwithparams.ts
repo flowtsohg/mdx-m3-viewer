@@ -5,14 +5,18 @@
  */
 export default function urlWithParams(src: string, params: object) {
   if (params) {
-    let encodedParams = Object.entries(params).map(([key, value]) => `${key}=${value}`).join('&');
-    let separator = '&';
+    let entries = Object.entries(params);
 
-    if (src.indexOf('?') === -1) {
-      separator = '?';
+    if (entries.length) {
+      let encodedParams = entries.map(([key, value]) => `${key}=${value}`).join('&');
+      let separator = '&';
+
+      if (src.indexOf('?') === -1) {
+        separator = '?';
+      }
+
+      return `${src}${separator}${encodedParams}`;
     }
-
-    return `${src}${separator}${encodedParams}`;
   }
 
   return src;
