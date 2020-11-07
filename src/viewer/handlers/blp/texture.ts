@@ -1,4 +1,4 @@
-import BlpImage from '../../../parsers/blp/image';
+import { BlpImage } from '../../../parsers/blp/image';
 import { HandlerResourceData } from '../../handlerresource';
 import Texture from '../../texture';
 

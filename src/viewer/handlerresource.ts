@@ -16,7 +16,7 @@ export type HandlerResourceData = ResourceData & { pathSolver?: PathSolver };
  * Generally speaking handler resources are created via viewer.load().
  */
 export abstract class HandlerResource extends Resource {
-  pathSolver: PathSolver;
+  pathSolver?: PathSolver;
 
   constructor(resourceData: HandlerResourceData) {
     super(resourceData);

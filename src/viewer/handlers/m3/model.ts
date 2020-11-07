@@ -13,6 +13,7 @@ import M3Camera from './camera';
 import M3Region from './region';
 import M3ModelInstance from './modelinstance';
 import M3Batch from './batch';
+import { HandlerResourceData } from '../../handlerresource';
 
 /**
  * An M3 model.
@@ -37,11 +38,9 @@ export default class M3Model extends Model {
   vertexSize: number = 0;
   uvSetCount: number = 0;
 
-  createInstance(): M3ModelInstance {
-    return new M3ModelInstance(this);
-  }
+  constructor(bufferOrParser: ArrayBuffer | Parser, resourceData: HandlerResourceData) {
+    super(resourceData);
 
-  load(bufferOrParser: ArrayBuffer | Parser) {
     let parser;
 
     if (bufferOrParser instanceof Parser) {
@@ -170,6 +169,10 @@ export default class M3Model extends Model {
     for (let camera of model.cameras.getAll()) {
       this.cameras.push(new M3Camera(camera));
     }
+  }
+
+  addInstance(): M3ModelInstance {
+    return new M3ModelInstance(this);
   }
 
   setupGeometry(parser: M3ParserModel, div: M3ParserDivision) {

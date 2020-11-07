@@ -1,11 +1,14 @@
 import { DdsImage, FOURCC_DXT1, FOURCC_DXT3, FOURCC_DXT5, FOURCC_ATI2 } from '../../../parsers/dds/image';
+import { HandlerResourceData } from '../../handlerresource';
 import Texture from '../../texture';
 
 /**
  * A DDS texture handler.
  */
 export default class DdsTexture extends Texture {
-  load(bufferOrImage: ArrayBuffer | DdsImage) {
+  constructor(bufferOrImage: ArrayBuffer | DdsImage, resourceData: HandlerResourceData) {
+    super(resourceData);
+
     let image;
 
     if (bufferOrImage instanceof DdsImage) {

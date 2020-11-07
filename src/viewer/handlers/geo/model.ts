@@ -1,3 +1,4 @@
+import { HandlerResourceData } from '../../handlerresource';
 import Model from '../../model';
 import Texture from '../../texture';
 import GeometryModelInstance from './modelinstance';
@@ -44,11 +45,9 @@ export default class GeometryModel extends Model {
   renderMode: number = 0;
   sizzle: boolean = false;
 
-  createInstance(): GeometryModelInstance {
-    return new GeometryModelInstance(this);
-  }
+  constructor(src: GeometryObject, resourceData: HandlerResourceData) {
+    super(resourceData);
 
-  load(src: GeometryObject) {
     const gl = this.viewer.gl;
 
     let geometry = src.geometry;
@@ -125,5 +124,9 @@ export default class GeometryModel extends Model {
     if (material.sizzle) {
       this.sizzle = true;
     }
+  }
+
+  addInstance(): GeometryModelInstance {
+    return new GeometryModelInstance(this);
   }
 }

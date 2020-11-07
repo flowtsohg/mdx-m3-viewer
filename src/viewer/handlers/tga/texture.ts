@@ -1,11 +1,14 @@
 import { scaleNPOT } from '../../../common/canvas';
+import { HandlerResourceData } from '../../handlerresource';
 import Texture from '../../texture';
 
 /**
  * A TGA texture handler.
  */
 export default class TgaTexture extends Texture {
-  load(src: ArrayBuffer) {
+  constructor(src: ArrayBuffer, resourceData: HandlerResourceData) {
+    super(resourceData);
+
     let gl = this.viewer.gl;
     let dataView = new DataView(src);
     let imageType = dataView.getUint8(2);
