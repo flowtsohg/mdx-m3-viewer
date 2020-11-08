@@ -2,7 +2,7 @@ import { vec3 } from 'gl-matrix';
 import unique from '../../../common/arrayunique';
 import urlWithParams from '../../../common/urlwithparams';
 import { FetchDataTypeName } from '../../../common/fetchdatatype';
-import { MappedData } from '../../../utils/mappeddata';
+import { MappedData, MappedDataRow } from '../../../utils/mappeddata';
 import War3Map from '../../../parsers/w3x/map';
 import War3MapW3i from '../../../parsers/w3x/w3i/file';
 import War3MapW3e from '../../../parsers/w3x/w3e/file';
@@ -75,7 +75,7 @@ export default class War3MapViewer extends ModelViewer {
   cliffTextures: Texture[] = [];
   cliffModels: TerrainModel[] = [];
   mapMpq: War3Map | null = null;
-  mapPathSolver: PathSolver | null = null;
+  mapPathSolver?: PathSolver;
   corners: Corner[][] = [];
   centerOffset: Float32Array = new Float32Array(2);
   mapSize: Int32Array = new Int32Array(2);
@@ -130,11 +130,13 @@ export default class War3MapViewer extends ModelViewer {
 
     Promise.all([terrain, cliffTypes, water])
       .then(([terrain, cliffTypes, water]) => {
-        this.terrainCliffsAndWaterLoaded = true;
-        this.terrainData.load(terrain.data);
-        this.cliffTypesData.load(cliffTypes.data);
-        this.waterData.load(water.data);
-        this.emit('terrainloaded');
+        if (terrain && cliffTypes && water) {
+          this.terrainCliffsAndWaterLoaded = true;
+          this.terrainData.load(terrain.data);
+          this.cliffTypesData.load(cliffTypes.data);
+          this.waterData.load(water.data);
+          this.emit('terrainloaded');
+        }
       })
 
     let doodads = this.loadMapGeneric('Doodads\\Doodads.slk', 'text');
@@ -144,12 +146,14 @@ export default class War3MapViewer extends ModelViewer {
 
     Promise.all([doodads, doodadMetaData, destructableData, destructableMetaData])
       .then(([doodads, doodadMetaData, destructableData, destructableMetaData]) => {
-        this.doodadsAndDestructiblesLoaded = true;
-        this.doodadsData.load(doodads.data);
-        this.doodadMetaData.load(doodadMetaData.data);
-        this.doodadsData.load(destructableData.data);
-        this.destructableMetaData.load(destructableMetaData.data);
-        this.emit('doodadsloaded');
+        if (doodads && doodadMetaData && destructableData && destructableMetaData) {
+          this.doodadsAndDestructiblesLoaded = true;
+          this.doodadsData.load(doodads.data);
+          this.doodadMetaData.load(doodadMetaData.data);
+          this.doodadsData.load(destructableData.data);
+          this.destructableMetaData.load(destructableMetaData.data);
+          this.emit('doodadsloaded');
+        }
       });
 
     let unitData = this.loadMapGeneric('Units\\UnitData.slk', 'text');
@@ -159,12 +163,14 @@ export default class War3MapViewer extends ModelViewer {
 
     Promise.all([unitData, unitUi, itemData, unitMetaData])
       .then(([unitData, unitUi, itemData, unitMetaData]) => {
-        this.unitsAndItemsLoaded = true;
-        this.unitsData.load(unitData.data);
-        this.unitsData.load(unitUi.data);
-        this.unitsData.load(itemData.data);
-        this.unitMetaData.load(unitMetaData.data);
-        this.emit('unitsloaded');
+        if (unitData && unitUi && itemData && unitMetaData) {
+          this.unitsAndItemsLoaded = true;
+          this.unitsData.load(unitData.data);
+          this.unitsData.load(unitUi.data);
+          this.unitsData.load(itemData.data);
+          this.unitMetaData.load(unitMetaData.data);
+          this.emit('unitsloaded');
+        }
       });
   }
 
@@ -173,7 +179,7 @@ export default class War3MapViewer extends ModelViewer {
   }
 
   loadMapGeneric(path: string, dataType: FetchDataTypeName) {
-    return super.loadGeneric(urlWithParams(this.wc3PathSolver(path)[0], this.solverParams), dataType);
+    return super.loadGeneric(urlWithParams(this.wc3PathSolver(path), this.solverParams), dataType);
   }
 
   /**
@@ -218,7 +224,7 @@ export default class War3MapViewer extends ModelViewer {
       // If the file is in the map, return it.
       let file = mapMpq.get(mpqPath);
       if (file) {
-        return [file.arrayBuffer(), false];
+        return file.arrayBuffer();
       }
 
       // Try to get the file from the server.
@@ -488,15 +494,17 @@ export default class War3MapViewer extends ModelViewer {
     let cliffPromises = Object.entries(cliffs).map(async (cliff) => {
       let path = cliff[0];
       let { locations, textures } = cliff[1];
-      let resource = this.loadMapGeneric(path, 'arrayBuffer');
-      let buffer = await resource;
+      let resource = await this.loadMapGeneric(path, 'arrayBuffer');
 
-      if (buffer) {
-        return new TerrainModel(this, buffer.data, locations, textures, cliffShader);
+      if (resource) {
+        return new TerrainModel(this, resource.data, locations, textures, cliffShader);
       }
-    });
+    }).filter(x => x);
 
-    this.cliffModels = await Promise.all(cliffPromises);
+    // Sometimes TS isn't the brightest.
+    let cliffPromisesForReal = <Promise<TerrainModel>[]>cliffPromises;
+
+    this.cliffModels = await Promise.all(cliffPromisesForReal);
     this.cliffsReady = true;
   }
 
@@ -617,7 +625,7 @@ export default class War3MapViewer extends ModelViewer {
 
     // Collect the units and items data.
     for (let unit of unitsDoo.units) {
-      let row;
+      let row: MappedDataRow | undefined;
       let path;
 
       // Hardcoded?

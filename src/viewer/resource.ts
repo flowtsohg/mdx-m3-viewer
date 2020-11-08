@@ -14,7 +14,7 @@ export abstract class Resource {
   viewer: ModelViewer;
   extension: string;
   fetchUrl: string;
-  blockers: Promise<Resource>[] = [];
+  blockers: Promise<Resource | undefined>[] = [];
 
   constructor(resourceData: ResourceData) {
     this.viewer = resourceData.viewer;

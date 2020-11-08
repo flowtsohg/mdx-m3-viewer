@@ -69,10 +69,6 @@ export default class MdxModel extends Model {
   skinDataType: number = 0;
   bytesPerSkinElement: number = 1;
 
-  addInstance(): MdxModelInstance {
-    return new MdxModelInstance(this);
-  }
-
   constructor(bufferOrParser: ArrayBuffer | string | Parser, resourceData: HandlerResourceData) {
     super(resourceData);
 
@@ -140,7 +136,6 @@ export default class MdxModel extends Model {
       solverParams.hd = true;
     }
 
-    let gl = viewer.gl;
     let usingTeamTextures = false;
 
     // Textures.
@@ -167,7 +162,9 @@ export default class MdxModel extends Model {
 
       viewer.load(path, pathSolver, solverParams)
         .then((texture) => {
-          mdxTexture.texture = texture;
+          if (texture) {
+            mdxTexture.texture = <Texture>texture;
+          }
         });
 
       this.textures[i] = mdxTexture;
@@ -176,8 +173,8 @@ export default class MdxModel extends Model {
     // Start loading the team color and glow textures if this model uses them and they weren't loaded previously.
     if (usingTeamTextures) {
       let mdxCache = viewer.sharedCache.get('mdx');
-      let teamColors = reforged ? mdxCache.reforgedTeamColors : mdxCache.teamColors;
-      let teamGlows = reforged ? mdxCache.reforgedTeamGlows : mdxCache.teamGlows;
+      let teamColors: MdxTexture[] = reforged ? mdxCache.reforgedTeamColors : mdxCache.teamColors;
+      let teamGlows: MdxTexture[] = reforged ? mdxCache.reforgedTeamGlows : mdxCache.teamGlows;
 
       if (!teamColors.length) {
         for (let i = 0; i < 14; i++) {
@@ -188,12 +185,16 @@ export default class MdxModel extends Model {
 
           viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}${texturesExt}`, pathSolver, solverParams)
             .then((texture) => {
-              teamColor.texture = texture;
+              if (texture) {
+                teamColor.texture = <Texture>texture;
+              }
             });
 
           viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}${texturesExt}`, pathSolver, solverParams)
             .then((texture) => {
-              teamGlow.texture = texture;
+              if (texture) {
+                teamGlow.texture = <Texture>texture;
+              }
             });
 
           teamColors[i] = teamColor;
@@ -278,6 +279,10 @@ export default class MdxModel extends Model {
     for (let i = 0, l = this.genericObjects.length; i < l; i++) {
       this.sortedGenericObjects[i] = this.genericObjects[this.hierarchy[i]];
     }
+  }
+
+  addInstance(): MdxModelInstance {
+    return new MdxModelInstance(this);
   }
 
   setupHierarchy(parent: number) {

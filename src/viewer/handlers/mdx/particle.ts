@@ -6,6 +6,7 @@ import EmittedObject from '../../emittedobject';
 import ParticleEmitterObject from './particleemitterobject';
 import MdxModelInstance from './modelinstance';
 import ParticleEmitter from './particleemitter';
+import MdxModel from './model';
 
 const rotationHeap = quat.create();
 const velocityHeap = vec3.create();
@@ -27,8 +28,9 @@ export default class Particle extends EmittedObject {
     super(emitter);
 
     let emitterObject = <ParticleEmitterObject>emitter.emitterObject;
+    let model = <MdxModel>emitterObject.internalModel;
 
-    this.internalInstance = <MdxModelInstance>emitterObject.internalModel.addInstance();
+    this.internalInstance = model.addInstance();
   }
 
   bind() {

@@ -3,7 +3,7 @@ import { ResourceData, Resource } from './resource';
 /**
  * A path solver used for resolving fetch paths.
  */
-export type PathSolver = (src: any, params?: any) => [any, boolean?];
+export type PathSolver = (src: any, params?: any) => any;
 
 /**
  * The data sent to every handler resource as part of the loading process.

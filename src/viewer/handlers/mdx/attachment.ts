@@ -8,7 +8,7 @@ import MdxModel from './model';
 export default class Attachment extends GenericObject {
   path: string;
   attachmentId: number;
-  internalModel: MdxModel | null = null;
+  internalModel?: MdxModel;
 
   constructor(model: MdxModel, attachment: MdlxAttachment, index: number) {
     super(model, attachment, index);
@@ -23,7 +23,9 @@ export default class Attachment extends GenericObject {
       let promise = model.viewer.load(path, model.pathSolver, model.solverParams);
 
       promise.then((model) => {
-        this.internalModel = model;
+        if (model) {
+          this.internalModel = <MdxModel>model;
+        }
       });
 
       model.blockers.push(promise);

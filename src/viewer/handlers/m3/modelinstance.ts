@@ -198,16 +198,14 @@ export default class M3ModelInstance extends ModelInstance {
     this.sequence = id;
     this.frame = 0;
 
-    if (this.model.ok) {
-      if (id < -1 || id > model.sequences.length - 1) {
-        id = -1;
+    if (id < -1 || id > model.sequences.length - 1) {
+      id = -1;
 
-        this.sequence = id;
-      }
-
-      // Do a forced update, so non-animated data can be skipped in future updates
-      this.forced = true;
+      this.sequence = id;
     }
+
+    // Do a forced update, so non-animated data can be skipped in future updates
+    this.forced = true;
 
     return this;
   }

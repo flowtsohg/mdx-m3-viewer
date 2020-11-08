@@ -154,19 +154,16 @@ export default class ModelViewer extends EventEmitter {
 
   async load(src: any, pathSolver?: PathSolver, solverParams?: any) {
     let finalSrc: any;
-    let isFetch: boolean | undefined = false;
+    let fetchUrl = '';
 
     // Run the path solver if there is one.
     if (pathSolver) {
-      [finalSrc, isFetch] = pathSolver(src, solverParams);
+      finalSrc = pathSolver(src, solverParams);
     } else {
       finalSrc = src;
     }
 
-    let fetchUrl = '';
-
-    // If this is a fetch:
-    if (isFetch) {
+    if (typeof finalSrc === 'string' && !this.detectFormat(finalSrc)) {
       // Check the promise cache and return a promise if one exists.
       let promise = this.promiseCache.get(finalSrc);
       if (promise) {

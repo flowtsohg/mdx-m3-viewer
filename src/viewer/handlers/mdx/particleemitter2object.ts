@@ -1,4 +1,5 @@
 import MdlxParticleEmitter2 from '../../../parsers/mdlx/particleemitter2';
+import Texture from '../../texture';
 import MdxModel from './model';
 import GenericObject from './genericobject';
 import { emitterFilterMode } from './filtermode';
@@ -25,7 +26,7 @@ export default class ParticleEmitter2Object extends GenericObject {
   columns: number;
   rows: number;
   teamColored: number = 0;
-  internalTexture: MdxTexture | null = null;
+  internalTexture?: MdxTexture;
   replaceableId: number;
   head: boolean;
   tail: boolean;
@@ -75,7 +76,9 @@ export default class ParticleEmitter2Object extends GenericObject {
 
       model.viewer.load(`ReplaceableTextures\\${replaceableIds[replaceableId]}${texturesExt}`, model.pathSolver, model.solverParams)
         .then((texture) => {
-          (<MdxTexture>this.internalTexture).texture = texture;
+          if (texture) {
+            (<MdxTexture>this.internalTexture).texture = <Texture>texture;
+          }
         })
     }
 

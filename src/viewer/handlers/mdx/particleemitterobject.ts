@@ -6,7 +6,7 @@ import GenericObject from './genericobject';
  * An MDX particle emitter.
  */
 export default class ParticleEmitterObject extends GenericObject {
-  internalModel: MdxModel | null = null;
+  internalModel?: MdxModel;
   speed: number;
   latitude: number;
   longitude: number;
@@ -25,10 +25,13 @@ export default class ParticleEmitterObject extends GenericObject {
     this.gravity = emitter.gravity;
     this.emissionRate = emitter.emissionRate;
 
-    model.viewer.load(emitter.path.replace(/\\/g, '/').toLowerCase().replace('.mdl', '.mdx'), model.pathSolver, model.solverParams).then((model) => {
-      this.internalModel = model;
-      this.ok = true;
-    });
+    model.viewer.load(emitter.path.replace(/\\/g, '/').toLowerCase().replace('.mdl', '.mdx'), model.pathSolver, model.solverParams)
+      .then((model) => {
+        if (model) {
+          this.internalModel = <MdxModel>model;
+          this.ok = true;
+        }
+      });
   }
 
   getSpeed(out: Float32Array, sequence: number, frame: number, counter: number) {

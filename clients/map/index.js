@@ -7,9 +7,7 @@ const quat = glMatrix.quat;
 const math = glMatrix.math;
 
 function wc3PathSolver(src, params) {
-  let finalSrc = localOrHive(src.toLowerCase().replace(/\\/g, '/'), params);
-
-  return [finalSrc, true];
+  return localOrHive(src.toLowerCase().replace(/\\/g, '/'), params);
 }
 
 let statusElement = document.getElementById('status');
