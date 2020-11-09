@@ -18,18 +18,17 @@ viewer.on('error', (target, error, reason) => console.log(target, error, reason)
 
 viewer.addHandler(handlers.mdx);
 viewer.addHandler(handlers.blp);
+viewer.addHandler(handlers.tga);
+viewer.addHandler(handlers.dds);
 
 function pathSolver(src) {
   if (typeof src === 'string' && src.length < 120) {
-    return [localOrHive(src), true];
+    return localOrHive(src);
   }
 
-  return [src, false];
+  return src;
 }
 
-// Buildings/Undead/HauntedMine/HauntedMine.mdx
-// Units/Creeps/AzureDragon/AzureDragon.mdx
-// Units/Human/Footman/Footman.mdx
 viewer.load('Units/Human/Footman/Footman.mdx', pathSolver)
   .then((model) => {
     let instance = model.addInstance();
@@ -37,7 +36,6 @@ viewer.load('Units/Human/Footman/Footman.mdx', pathSolver)
     instance.setScene(scene);
     instance.setSequence(0);
     instance.setSequenceLoopMode(2);
-
   });
 
 (function step() {
@@ -66,6 +64,8 @@ document.addEventListener('drop', e => {
       viewer.load(e.target.result, pathSolver)
         .then((model) => {
           if (model) {
+            scene.clear();
+
             let instance = model.addInstance();
 
             instance.setScene(scene);

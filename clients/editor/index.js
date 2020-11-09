@@ -485,7 +485,7 @@ let app = new Vue({
 
       let scene = viewer.addScene();
 
-      let viewerModel = viewer.load2(model, (src, params) => {
+      let viewerModel = viewer.load(model, (src, params) => {
         if (src === model) {
           return src;
         } else {

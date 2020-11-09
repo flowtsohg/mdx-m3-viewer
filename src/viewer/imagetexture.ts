@@ -1,6 +1,7 @@
 import { powerOfTwo } from '../common/math';
 import { imageToImageData, scaleNPOT } from '../common/canvas';
 import Texture from './texture';
+import { HandlerResourceData } from './handlerresource';
 
 /**
  * Checks if the given source is a supported image texture source.
@@ -9,19 +10,23 @@ export function isImageSource(src: any) {
   return src instanceof ImageData || src instanceof HTMLImageElement || src instanceof HTMLCanvasElement || src instanceof HTMLVideoElement;
 }
 
+/**
+ * Detects whether the given buffer is a supported format, and if so returns the mime.
+ * The supported formats are PNG, JPEG, GIF, and WebP.
+ */
 export function detectMime(buffer: ArrayBuffer) {
   let bytes = new Uint8Array(buffer);
   let l = bytes.length;
   let mime = '';
 
   // PNG starts with [89 50 4E 47 0D 0A 1A 0A]
-  if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47 &&
-    bytes[4] === 0x0D && bytes[5] === 0x0A && bytes[6] === 0x1A && bytes[7] === 0x0A) {
+  if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47 &&
+    bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a) {
     return 'image/png'
   }
 
   // JPG starts with [FF D8] and ends with [FF D9].
-  if (bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[l - 2] === 0xFF && bytes[l - 1] === 0xD9) {
+  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[l - 2] === 0xff && bytes[l - 1] === 0xd9) {
     return 'image/jpeg';
   }
 
@@ -41,17 +46,10 @@ export function detectMime(buffer: ArrayBuffer) {
 }
 
 /**
- * Checks if the given extension is a supported image texture extension.
- */
-export function isImageExtension(ext: string) {
-  return ext === '.png' || ext === '.jpg' || ext === '.gif';
-}
-
-/**
  * A texture handler for image sources.
  */
 export class ImageTexture extends Texture {
-  constructor(src: TexImageSource, resourceData) {
+  constructor(src: TexImageSource, resourceData: HandlerResourceData) {
     super(resourceData);
 
     let widthPOT = powerOfTwo(src.width);

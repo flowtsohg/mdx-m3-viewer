@@ -91,7 +91,7 @@ let geoTests = {
         {
           name: 'texture',
           load(viewer) {
-            let texture = viewer.load('resources/checkers.jpg', (path) => [path, '.jpg', true]);
+            let texture = viewer.load('resources/checkers.jpg', (path) => path);
 
             return viewer.load({ geometry: geometry.createUnitRectangle(), material: { texture } }, geoSolver);
           },
@@ -196,7 +196,7 @@ let geoTests = {
         {
           name: 'texture',
           load(viewer) {
-            let texture = viewer.load('resources/checkers.jpg', (path) => [path, '.jpg', true]);
+            let texture = viewer.load('resources/checkers.jpg', (path) => path);
 
             return viewer.load({ geometry: geometry.createUnitCube(), material: { texture } }, geoSolver);
           },
@@ -301,7 +301,7 @@ let geoTests = {
         {
           name: 'texture',
           load(viewer) {
-            let texture = viewer.load('resources/checkers.jpg', (path) => [path, '.jpg', true]);
+            let texture = viewer.load('resources/checkers.jpg', (path) => path);
 
             return viewer.load({ geometry: geometry.createUnitSphere(20, 20), material: { texture } }, geoSolver);
           },
@@ -406,7 +406,7 @@ let geoTests = {
         {
           name: 'texture',
           load(viewer) {
-            let texture = viewer.load('resources/checkers.jpg', (path) => [path, '.jpg', true]);
+            let texture = viewer.load('resources/checkers.jpg', (path) => path);
 
             return viewer.load({ geometry: geometry.createUnitCylinder(20), material: { texture } }, geoSolver);
           },
@@ -511,7 +511,7 @@ let geoTests = {
         {
           name: 'texture',
           load(viewer) {
-            let texture = viewer.load('resources/checkers.jpg', (path) => [path, '.jpg', true]);
+            let texture = viewer.load('resources/checkers.jpg', (path) => path);
 
             return viewer.load({ geometry: geometry.createFrustum(Math.PI / 4, 0.75, 8, 120), material: { texture } }, geoSolver);
           },
@@ -529,8 +529,8 @@ let geoTests = {
     {
       name: 'texture-overriding',
       load(viewer) {
-        let texture = viewer.load('resources/checkers.jpg', (path) => [path, '.jpg', true]);
-        let texture2 = viewer.load('resources/colored-checkers.jpg', (path) => [path, '.jpg', true]);
+        let texture = viewer.load('resources/checkers.jpg', (path) => path);
+        let texture2 = viewer.load('resources/colored-checkers.jpg', (path) => path);
         let model = viewer.load({ geometry: geometry.createUnitRectangle(), material: { texture } }, geoSolver);
 
         return [model, texture2];

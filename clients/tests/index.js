@@ -10,13 +10,9 @@ UnitTester = ModelViewer.utils.UnitTester;
 geometry = ModelViewer.common.geometry;
 math = ModelViewer.common.math;
 
-geoSolver = (src) => {
-  return [src, '.geo', false];
-};
+geoSolver = (src) => src;
 
 wc3Solver = (path, params) => {
-  let ext = path.substr(path.lastIndexOf('.'));
-
   path = localOrHive(path, params);
 
   // GREAT JOB BLIZZARD. AWESOME PATCHES.
@@ -24,16 +20,10 @@ wc3Solver = (path, params) => {
     path = path.replace('orcbloodriderlesswyvernrider.mdx', 'ordbloodriderlesswyvernrider.mdx');
   }
 
-  return [path, ext, true];
+  return path;
 };
 
-sc2Solver = (path, params) => {
-  let ext = path.substr(path.lastIndexOf('.'));
-
-  path = localOrHive(path, params);
-
-  return [path, ext, true];
-};
+sc2Solver = (path, params) => localOrHive(path, params);
 
 function addTestResult(table, testResult) {
   let tr = table.insertRow();

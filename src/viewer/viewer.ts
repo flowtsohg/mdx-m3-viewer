@@ -163,6 +163,7 @@ export default class ModelViewer extends EventEmitter {
       finalSrc = src;
     }
 
+    // If the final source is a string, and doesn't match any handler, it is assumed to be an URL to fetch.
     if (typeof finalSrc === 'string' && !this.detectFormat(finalSrc)) {
       // Check the promise cache and return a promise if one exists.
       let promise = this.promiseCache.get(finalSrc);
@@ -206,6 +207,7 @@ export default class ModelViewer extends EventEmitter {
 
       // Add the promise to the promise cache.
       this.promiseCache.set(finalSrc, fetchPromise);
+      this.emit('loadstart', this, finalSrc);
 
       return fetchPromise;
     }
@@ -363,7 +365,7 @@ export default class ModelViewer extends EventEmitter {
    */
   promise() {
     let promise = Promise.resolve(undefined);
-    let key = `${Date.now()}`;
+    let key = `${performance.now()}`;
 
     this.promiseCache.set(key, promise);
 
