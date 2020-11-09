@@ -1,4 +1,4 @@
-import Model from '../../parsers/mdlx/model';
+import Model from '../../../parsers/mdlx/model';
 import SanityTestData from './data';
 import { testObjects, cleanNode } from './utils';
 import { testHeader, testSequences, testGlobalSequence, testTextures, testMaterials, testGeoset, testGeosetAnimation, testBone, testLight, testAttachment, testPivotPoints, testParticleEmitter, testParticleEmitter2, testParticleEmitterPopcorn, testRibbonEmitter, testEventObject, testCamera, testFaceEffect, testBindPose } from './testers';

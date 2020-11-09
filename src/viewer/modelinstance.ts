@@ -10,7 +10,7 @@ import Camera from './camera';
  * A model instance.
  */
 export default abstract class ModelInstance extends Node {
-  scene: Scene | null = null;
+  scene?: Scene;
   left: number = -1;
   right: number = -1;
   bottom: number = -1;

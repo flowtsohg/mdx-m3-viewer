@@ -24,8 +24,9 @@ let viewer = new ModelViewer.viewer.ModelViewer(canvas);
 
 viewer.gl.clearColor(0.7, 0.7, 0.7, 1);
 
-viewer.addHandler(handlers.mdx); // Will add BLP too.
-viewer.addHandler(handlers.geo);
+viewer.addHandler(handlers.mdx);
+viewer.addHandler(handlers.blp);
+viewer.addHandler(handlers.tga);
 viewer.addHandler(handlers.dds);
 
 viewer.on('error', (target, error, reason) => {

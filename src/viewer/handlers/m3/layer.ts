@@ -29,11 +29,11 @@ const layerTypeToTextureUnit = {
 export default class M3Layer {
   model: M3Model;
   active: number = 0;
-  layer: Layer | null = null;
+  layer?: Layer;
   gl: WebGLRenderingContext;
   uniformMap: { map: string; enabled: string; op: string; channels: string; teamColorMode: string; invert: string; clampResult: string; uvCoordinate: string; };
   source: string = '';
-  texture: Texture | null = null;
+  texture?: Texture;
   flags: number = 0;
   colorChannels: number = 0;
   type: string = '';

@@ -25,7 +25,7 @@ export default class WebGL {
       throw new Error('WebGL: Failed to create a WebGL context!');
     }
 
-    let twoByTwo = new Uint8ClampedArray([0, 0, 0, 255, 127, 127, 127, 255, 127, 127, 127, 255, 0, 0, 0, 255]);
+    let twoByTwo = new Uint8ClampedArray(16).fill(255);
 
     let emptyTexture = <WebGLTexture>gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, emptyTexture);

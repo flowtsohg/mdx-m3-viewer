@@ -1,6 +1,6 @@
-import Model from '../../parsers/mdlx/model';
-import GenericObject from '../../parsers/mdlx/genericobject';
-import Layer from '../../parsers/mdlx/layer';
+import Model from '../../../parsers/mdlx/model';
+import GenericObject from '../../../parsers/mdlx/genericobject';
+import Layer from '../../../parsers/mdlx/layer';
 import { getObjectTypeName, MdlxType } from './utils';
 
 export interface SanityTestMessage {

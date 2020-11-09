@@ -5,8 +5,8 @@ export function createRectangle(w: number, d: number) {
   return {
     vertices: new Float32Array([-w, d, 0, -w, -d, 0, w, -d, 0, w, d, 0]),
     uvs: new Float32Array([0, 0, 0, 1, 1, 1, 1, 0]),
-    faces: new Uint8Array([0, 1, 2, 0, 2, 3]),
-    edges: new Uint8Array([0, 1, 1, 2, 2, 3, 3, 0]),
+    faces: new Uint16Array([0, 1, 2, 0, 2, 3]),
+    edges: new Uint16Array([0, 1, 1, 2, 2, 3, 3, 0]),
     boundingRadius: Math.max(w, d),
   };
 }
@@ -25,8 +25,8 @@ export function createCube(w: number, d: number, h: number) {
   return {
     vertices: new Float32Array([-w, -d, -h, -w, -d, h, -w, d, -h, -w, d, h, w, d, -h, w, d, h, w, -d, -h, w, -d, h]),
     uvs: new Float32Array([0, 0, 0, 1, 0.25, 0, 0.25, 1, 0.5, 0, 0.5, 1, 0.75, 0, 0.75, 1]),
-    faces: new Uint8Array([0, 1, 2, 1, 3, 2, 2, 3, 4, 3, 5, 4, 4, 5, 6, 5, 7, 6, 6, 7, 0, 7, 1, 0, 0, 2, 4, 0, 4, 6, 1, 5, 3, 1, 7, 5]),
-    edges: new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 0, 2, 2, 4, 4, 6, 6, 0, 1, 3, 3, 5, 5, 7, 7, 1]),
+    faces: new Uint16Array([0, 1, 2, 1, 3, 2, 2, 3, 4, 3, 5, 4, 4, 5, 6, 5, 7, 6, 6, 7, 0, 7, 1, 0, 0, 2, 4, 0, 4, 6, 1, 5, 3, 1, 7, 5]),
+    edges: new Uint16Array([0, 1, 2, 3, 4, 5, 6, 7, 0, 2, 2, 4, 4, 6, 6, 0, 1, 3, 3, 5, 5, 7, 7, 1]),
     boundingRadius: Math.max(w, d, h),
   };
 }
@@ -39,27 +39,14 @@ export function createUnitCube() {
 }
 
 /**
- * Create a typed array for index buffers based on the biggest possible index
- */
-function createIndexArray(size: number, biggestIndex: number) {
-  if (biggestIndex < 0xFF) {
-    return new Uint8Array(size);
-  } else if (biggestIndex < 0xFFFF) {
-    return new Uint16Array(size);
-  } else {
-    return new Uint32Array(size);
-  }
-}
-
-/**
  * Creates a sphere geometry object.
  */
 export function createSphere(radius: number, stacks: number, slices: number) {
   let points = (stacks + 1) * (slices + 1);
   let vertices = new Float32Array(points * 3);
   let uvs = new Float32Array(points * 2);
-  let faces = createIndexArray(stacks * slices * 6, points);
-  let edges = createIndexArray(stacks * slices * 6, points);
+  let faces = new Uint16Array(stacks * slices * 6);
+  let edges = new Uint16Array(stacks * slices * 6);
 
   for (let stack = 0, vOffset = 0, uOffset = 0; stack <= stacks; stack++) {
     let theta = stack * Math.PI / stacks;
@@ -131,8 +118,8 @@ export function createCylinder(radius: number, height: number, slices: number) {
   let points = (slices + 1) * 2 + 2;
   let vertices = new Float32Array(points * 3);
   let uvs = new Float32Array(points * 2);
-  let faces = createIndexArray(slices * 12, points);
-  let edges = createIndexArray(slices * 10, points);
+  let faces = new Uint16Array(slices * 12);
+  let edges = new Uint16Array(slices * 10);
   let step = (Math.PI * 2) / slices;
   let vOffset = 0;
   let uOffset = 0;
@@ -244,8 +231,8 @@ export function createFrustum(fieldOfView: number, aspectRatio: number, nearClip
       nearWidth, -nearHeight, nearClipPlane,
       nearWidth, nearHeight, nearClipPlane]),
     uvs: new Float32Array([0, 0, 0, 1, 0.25, 0, 0.25, 1, 0.5, 0, 0.5, 1, 0.75, 0, 0.75, 1]),
-    faces: new Uint8Array([0, 1, 2, 1, 3, 2, 2, 3, 4, 3, 5, 4, 4, 5, 6, 5, 7, 6, 6, 7, 0, 7, 1, 0, 0, 2, 4, 0, 4, 6, 1, 5, 3, 1, 7, 5]),
-    edges: new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 0, 2, 2, 4, 4, 6, 6, 0, 1, 3, 3, 5, 5, 7, 7, 1]),
+    faces: new Uint16Array([0, 1, 2, 1, 3, 2, 2, 3, 4, 3, 5, 4, 4, 5, 6, 5, 7, 6, 6, 7, 0, 7, 1, 0, 0, 2, 4, 0, 4, 6, 1, 5, 3, 1, 7, 5]),
+    edges: new Uint16Array([0, 1, 2, 3, 4, 5, 6, 7, 0, 2, 2, 4, 4, 6, 6, 0, 1, 3, 3, 5, 5, 7, 7, 1]),
     boundingRadius: Math.max(farWidth, farHeight),
   };
 }

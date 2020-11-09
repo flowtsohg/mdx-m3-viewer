@@ -1,4 +1,4 @@
-import TokenStream from '../parsers/mdlx/tokenstream';
+import TokenStream from '../../parsers/mdlx/tokenstream';
 
 /**
  * The structure of a source map node.

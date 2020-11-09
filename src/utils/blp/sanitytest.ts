@@ -1,4 +1,4 @@
-import { BlpImage } from '../parsers/blp/image';
+import { BlpImage } from '../../parsers/blp/image';
 
 /**
  * Some tools allow to setup fake mipmaps.

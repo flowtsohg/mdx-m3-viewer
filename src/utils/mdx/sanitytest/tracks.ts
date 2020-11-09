@@ -1,6 +1,6 @@
-import { Animation } from '../../parsers/mdlx/animations';
+import { Animation } from '../../../parsers/mdlx/animations';
+import EventObject from '../../../parsers/mdlx/eventobject';
 import SanityTestData from './data';
-import EventObject from '../../parsers/mdlx/eventobject';
 import { testReference } from './utils';
 
 function getSequenceFromFrame(data: SanityTestData, frame: number, globalSequenceId: number) {

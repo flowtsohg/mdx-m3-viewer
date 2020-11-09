@@ -9,7 +9,6 @@ import Camera from '../viewer/camera';
 import mdxHandler from '../viewer/handlers/mdx/handler';
 import blpHandler from '../viewer/handlers/blp/handler';
 import m3Handler from '../viewer/handlers/m3/handler';
-import geoHandler from '../viewer/handlers/geo/handler';
 
 /**
  * The signature of a test loader.
@@ -95,7 +94,6 @@ export default class UnitTester {
     viewer.addHandler(mdxHandler);
     viewer.addHandler(blpHandler);
     viewer.addHandler(m3Handler);
-    viewer.addHandler(geoHandler);
 
     this.viewer = viewer;
   }

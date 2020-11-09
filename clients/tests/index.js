@@ -7,8 +7,9 @@ quat = glMatrix.quat;
 mat3 = glMatrix.mat3;
 mat4 = glMatrix.mat4;
 UnitTester = ModelViewer.utils.UnitTester;
-geometry = ModelViewer.common.geometry;
 math = ModelViewer.common.math;
+primitives = ModelViewer.utils.mdx.primitives;
+createPrimitive = ModelViewer.utils.mdx.createPrimitive;
 
 geoSolver = (src) => src;
 
@@ -91,8 +92,8 @@ document.getElementById('version').textContent = 'Viewer version ' + ModelViewer
 console.log('Viewer version', ModelViewer.version);
 
 unitTester.add(mdxTests);
+unitTester.add(mdxPrimitivesTests);
 unitTester.add(m3Tests);
-unitTester.add(geoTests);
 unitTester.add(baseTests);
 
 let runElement = document.getElementById('run');

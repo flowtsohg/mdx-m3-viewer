@@ -1,17 +1,17 @@
 import UnitTester from './unittester';
-import mdxSanityTest from './mdxsanitytest/mdxsanitytest';
-import blpSanityTest from './blpsanitytest';
+import blpSanityTest from './blp/sanitytest';
 import convertWeu from './weu/weu';
-import mdlSourceMap from './mdlsourcemap';
+import mdlSourceMap from './mdl/sourcemap';
 import { MappedData } from './mappeddata';
 import jass2 from './jass2';
+import mdx from './mdx';
 
 export default {
   UnitTester,
-  mdxSanityTest,
   blpSanityTest,
   convertWeu,
   mdlSourceMap,
   MappedData,
   jass2,
+  mdx,
 };
