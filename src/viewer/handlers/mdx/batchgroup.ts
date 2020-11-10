@@ -103,12 +103,12 @@ export default class BatchGroup {
           gl.uniform1f(uniforms.u_layerAlpha, layerAlpha);
           gl.uniform1f(uniforms.u_filterMode, diffuseLayer.filterMode);
 
-          let diffuseTexture = resourceMapper.get(diffuseLayer.textureId) || textures[diffuseLayer.textureId].texture;
-          let ormTexture = resourceMapper.get(ormLayer.textureId) || textures[ormLayer.textureId].texture;
+          let diffuseTexture = <Texture | undefined>resourceMapper.get(diffuseLayer.textureId) || textures[diffuseLayer.textureId].texture;
+          let ormTexture = <Texture | undefined>resourceMapper.get(ormLayer.textureId) || textures[ormLayer.textureId].texture;
           let teamColorTexture = teamColors[instance.teamColor].texture;
 
-          webgl.bindTexture(<Texture>diffuseTexture, 0);
-          webgl.bindTexture(<Texture>ormTexture, 1);
+          webgl.bindTexture(diffuseTexture, 0);
+          webgl.bindTexture(ormTexture, 1);
           webgl.bindTexture(teamColorTexture, 2);
 
           geoset.bindHd(shader, diffuseLayer.coordId);
@@ -146,7 +146,7 @@ export default class BatchGroup {
 
           layer.bind(shader);
 
-          let texture = resourceMapper.get(textureIndex);
+          let texture = <Texture | undefined>resourceMapper.get(textureIndex);
 
           if (!texture && layerTexture) {
             let replaceable = layerTexture.replaceableId;
@@ -165,7 +165,7 @@ export default class BatchGroup {
             }
           }
 
-          webgl.bindTexture(<Texture>texture, 0);
+          webgl.bindTexture(texture, 0);
 
           if (isExtended) {
             geoset.bindExtended(shader, layer.coordId);
