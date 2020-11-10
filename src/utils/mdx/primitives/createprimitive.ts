@@ -20,15 +20,19 @@ interface Primitive {
 interface Material {
   lines?: boolean;
   color?: Float32Array;
+  texture?: Texture | Promise<Texture>;
 }
 
 export default function createPrimitive(viewer: ModelViewer, primitive: Primitive, material: Material) {
   let lines: boolean | undefined;
   let color: Float32Array | undefined;
+  let texture: Texture | Promise<Texture> | undefined;
+  let pathSolver: PathSolver | undefined;
 
   if (material) {
     lines = material.lines;
     color = material.color;
+    texture = material.texture;
   }
 
   let model = new MdlxModel();
@@ -45,6 +49,24 @@ export default function createPrimitive(viewer: ModelViewer, primitive: Primitiv
   let mat = new MdlxMaterial();
 
   let layer = new MdlxLayer();
+
+  if (texture) {
+    let tex = new MdlxTexture();
+
+    tex.path = 'PLACEHOLDER';
+
+    model.textures[0] = tex;
+
+    pathSolver = (src) => {
+      if (src === model) {
+        return model;
+      }
+
+      return texture;
+    }
+
+    layer.textureId = 0;
+  }
 
   mat.layers[0] = layer;
 
@@ -91,5 +113,5 @@ export default function createPrimitive(viewer: ModelViewer, primitive: Primitiv
   model.bones[0] = bone;
 
   // Load and return the promise.
-  return viewer.load(model);
+  return viewer.load(model, pathSolver);
 }

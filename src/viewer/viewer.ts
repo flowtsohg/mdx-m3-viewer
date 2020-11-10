@@ -167,6 +167,16 @@ export default class ModelViewer extends EventEmitter {
       finalSrc = src;
     }
 
+    // Allow path solvers to return promises.
+    if (finalSrc instanceof Promise) {
+      finalSrc = await finalSrc;
+    }
+
+    // Give path solvers the option to inject resources.
+    if (finalSrc instanceof Resource) {
+      return finalSrc;
+    }
+
     // If the final source is a string, and doesn't match any handler, it is assumed to be an URL to fetch.
     if (typeof finalSrc === 'string' && !this.detectFormat(finalSrc)) {
       // Check the promise cache and return a promise if one exists.
