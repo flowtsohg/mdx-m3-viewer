@@ -1,5 +1,5 @@
 import M3Region from './region';
-import M3StandardMaterial from './standardmaterial';
+import { M3StandardMaterial } from './standardmaterial';
 
 /**
  * An M3 batch.

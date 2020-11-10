@@ -1,5 +1,6 @@
 import ShaderProgram from '../../gl/program';
 import Scene from '../../scene';
+import Texture from '../../texture';
 import MdxModel from './model';
 import MdxModelInstance from './modelinstance';
 import Batch from './batch';
@@ -23,7 +24,7 @@ export default class BatchGroup {
 
   render(instance: MdxModelInstance) {
     let scene = <Scene>instance.scene;
-    let textureMapper = instance.textureMapper;
+    let resourceMapper = instance.resourceMapper;
     let layerAlphas = instance.layerAlphas;
     let model = this.model;
     let textures = model.textures;
@@ -102,17 +103,13 @@ export default class BatchGroup {
           gl.uniform1f(uniforms.u_layerAlpha, layerAlpha);
           gl.uniform1f(uniforms.u_filterMode, diffuseLayer.filterMode);
 
-          let diffuseTexture = textures[diffuseLayer.textureId];
-          let ormTexture = textures[ormLayer.textureId];
-          let teamColorTexture = teamColors[instance.teamColor];
+          let diffuseTexture = resourceMapper.get(diffuseLayer.textureId) || textures[diffuseLayer.textureId].texture;
+          let ormTexture = resourceMapper.get(ormLayer.textureId) || textures[ormLayer.textureId].texture;
+          let teamColorTexture = teamColors[instance.teamColor].texture;
 
-          let finalDiffuse = textureMapper.get(diffuseTexture) || diffuseTexture.texture;
-          let finalORM = textureMapper.get(ormTexture) || ormTexture.texture;
-          let finalTeamColor = textureMapper.get(teamColorTexture) || teamColorTexture.texture;
-
-          webgl.bindTexture(finalDiffuse, 0);
-          webgl.bindTexture(finalORM, 1);
-          webgl.bindTexture(finalTeamColor, 2);
+          webgl.bindTexture(<Texture>diffuseTexture, 0);
+          webgl.bindTexture(<Texture>ormTexture, 1);
+          webgl.bindTexture(teamColorTexture, 2);
 
           geoset.bindHd(shader, diffuseLayer.coordId);
           geoset.render();
@@ -135,7 +132,8 @@ export default class BatchGroup {
         let layerAlpha = layerAlphas[layerIndex];
 
         if (geosetColor[3] > 0.01 && layerAlpha > 0.01) {
-          let layerTexture = textures[layerTextures[layerIndex]];
+          let textureIndex = layerTextures[layerIndex];
+          let layerTexture = textures[textureIndex];
           let uvAnim = uvAnims[layerIndex];
 
           gl.uniform4fv(uniforms.u_geosetColor, geosetColor);
@@ -148,9 +146,9 @@ export default class BatchGroup {
 
           layer.bind(shader);
 
-          let texture;
+          let texture = resourceMapper.get(textureIndex);
 
-          if (layerTexture) {
+          if (!texture && layerTexture) {
             let replaceable = layerTexture.replaceableId;
             let mdxTexture;
 
@@ -163,11 +161,11 @@ export default class BatchGroup {
             }
 
             if (mdxTexture) {
-              texture = textureMapper.get(mdxTexture) || mdxTexture.texture;
+              texture = mdxTexture.texture;
             }
           }
 
-          webgl.bindTexture(texture, 0);
+          webgl.bindTexture(<Texture>texture, 0);
 
           if (isExtended) {
             geoset.bindExtended(shader, layer.coordId);

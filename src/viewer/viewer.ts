@@ -9,8 +9,7 @@ import GenericResource from './genericresource';
 import ClientBuffer from './gl/clientbuffer';
 import Model from './model';
 import ModelInstance from './modelinstance';
-import TextureMapper from './texturemapper';
-import Texture from './texture';
+import ResourceMapper from './resourcemapper';
 import { isImageSource, ImageTexture, detectMime } from './imagetexture';
 import { blobToImage } from '../common/canvas';
 
@@ -61,7 +60,7 @@ export default class ModelViewer extends EventEmitter {
    * Note that it is preferable to call enableAudio(), which checks for the existence of AudioContext.
    */
   audioEnabled: boolean = false;
-  textureMappers: Map<Model, TextureMapper[]> = new Map();
+  resourceMappers: Map<Model, ResourceMapper[]> = new Map();
   /**
    * A cache of arbitrary data, shared between all of the handlers.
    */
@@ -487,40 +486,40 @@ export default class ModelViewer extends EventEmitter {
   }
 
   baseTextureMapper(model: Model) {
-    let textureMappers = this.textureMappers;
+    let resourceMappers = this.resourceMappers;
 
-    if (!textureMappers.has(model)) {
-      textureMappers.set(model, []);
+    if (!resourceMappers.has(model)) {
+      resourceMappers.set(model, []);
     }
 
-    let mappers = <TextureMapper[]>textureMappers.get(model);
+    let mappers = <ResourceMapper[]>resourceMappers.get(model);
 
     if (!mappers.length) {
-      mappers[0] = new TextureMapper(model);
+      mappers[0] = new ResourceMapper(model);
     }
 
     return mappers[0];
   }
 
-  changeTextureMapper(instance: ModelInstance, key: any, texture?: Texture) {
-    let map = new Map(instance.textureMapper.textures);
+  changeResourceMapper(instance: ModelInstance, index: number, resource?: Resource) {
+    let map = new Map(instance.resourceMapper.resources);
 
-    if (texture instanceof Texture) {
-      map.set(key, texture);
+    if (resource instanceof Resource) {
+      map.set(index, resource);
     } else {
-      map.delete(key);
+      map.delete(index);
     }
 
     let model = instance.model;
-    let mappers = <TextureMapper[]>this.textureMappers.get(model);
+    let mappers = <ResourceMapper[]>this.resourceMappers.get(model);
 
     for (let mapper of mappers) {
-      if (mapequals(mapper.textures, map)) {
+      if (mapequals(mapper.resources, map)) {
         return mapper;
       }
     }
 
-    let mapper = new TextureMapper(model, map);
+    let mapper = new ResourceMapper(model, map);
 
     mappers.push(mapper);
 

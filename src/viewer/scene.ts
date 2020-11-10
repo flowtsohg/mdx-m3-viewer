@@ -3,7 +3,7 @@ import Camera from './camera';
 import Grid from './grid';
 import ModelInstance from './modelinstance';
 import BatchedInstance from './batchedinstance';
-import TextureMapper from './texturemapper';
+import ResourceMapper from './resourcemapper';
 import RenderBatch from './renderbatch';
 import EmittedObjectUpdater from './emittedobjectupdater';
 
@@ -29,7 +29,7 @@ export default class Scene {
   currentInstance: number = 0;
   batchedInstances: BatchedInstance[] = [];
   currentBatchedInstance: number = 0;
-  batches: Map<TextureMapper, RenderBatch> = new Map();
+  batches: Map<ResourceMapper, RenderBatch> = new Map();
   emittedObjectUpdater: EmittedObjectUpdater = new EmittedObjectUpdater();
   /**
    * Similar to WebGL's own `alpha` parameter.
@@ -153,14 +153,14 @@ export default class Scene {
   }
 
   addToBatch(instance: BatchedInstance) {
-    let textureMapper = instance.textureMapper;
+    let resourceMapper = instance.resourceMapper;
     let batches = this.batches;
-    let batch = batches.get(textureMapper);
+    let batch = batches.get(resourceMapper);
 
     if (!batch) {
-      batch = instance.getBatch(textureMapper);
+      batch = instance.getBatch(resourceMapper);
 
-      batches.set(textureMapper, batch);
+      batches.set(resourceMapper, batch);
     }
 
     batch.add(instance);

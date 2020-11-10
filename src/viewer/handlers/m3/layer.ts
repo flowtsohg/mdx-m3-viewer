@@ -2,8 +2,8 @@ import Reference from '../../../parsers/m3/reference';
 import Layer from '../../../parsers/m3/layer';
 import Texture from '../../texture';
 import ShaderProgram from '../../gl/program';
-import TextureMapper from '../../texturemapper';
-import M3StandardMaterial from './standardmaterial';
+import ResourceMapper from '../../resourcemapper';
+import { M3StandardMaterial, STANDARD_MATERIAL_OFFSET } from './standardmaterial';
 import M3Model from './model';
 
 const layerTypeToTextureUnit = {
@@ -28,6 +28,8 @@ const layerTypeToTextureUnit = {
  */
 export default class M3Layer {
   model: M3Model;
+  material: M3StandardMaterial;
+  index: number;
   active: number = 0;
   layer?: Layer;
   gl: WebGLRenderingContext;
@@ -44,11 +46,13 @@ export default class M3Layer {
   clampResult: number = 0;
   teamColorMode: number = 0;
 
-  constructor(material: M3StandardMaterial, layerReference: Reference | null, type: string, op: number) {
+  constructor(material: M3StandardMaterial, index: number, layerReference: Reference | null, type: string, op: number) {
     let model = material.model;
 
     this.model = model;
+    this.material = material;
     this.gl = material.gl;
+    this.index = index;
 
     let uniform = 'u_' + type;
     let settings = uniform + 'LayerSettings.';
@@ -77,7 +81,12 @@ export default class M3Layer {
       if (source.length) {
         this.source = source;
 
-        this.texture = <Texture>model.viewer.load(source, pathSolver);
+        model.viewer.load(source, pathSolver)
+          .then((texture) => {
+            if (texture) {
+              this.texture = <Texture>texture;
+            }
+          });
 
         this.active = 1;
 
@@ -116,7 +125,7 @@ export default class M3Layer {
     }
   }
 
-  bind(shader: ShaderProgram, textureMapper: TextureMapper) {
+  bind(shader: ShaderProgram, resourceMapper: ResourceMapper) {
     let gl = this.gl;
     let uniformMap = this.uniformMap;
     let uniforms = shader.uniforms;
@@ -125,12 +134,12 @@ export default class M3Layer {
     gl.uniform1f(uniforms[uniformMap.enabled], active);
 
     if (active) {
-      let texture = this.texture;
+      let texture = <Texture>resourceMapper.get(this.material.index * STANDARD_MATERIAL_OFFSET + this.index) || this.texture;
       let textureUnit = this.textureUnit;
 
       gl.uniform1i(uniforms[uniformMap.map], textureUnit);
 
-      this.model.viewer.webgl.bindTexture(textureMapper.get(texture) || texture, textureUnit);
+      this.model.viewer.webgl.bindTexture(texture, textureUnit);
 
       gl.uniform1f(uniforms[uniformMap.op], this.op);
       gl.uniform1f(uniforms[uniformMap.channels], this.colorChannels);

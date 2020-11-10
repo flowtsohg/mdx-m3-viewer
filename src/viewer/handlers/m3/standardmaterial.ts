@@ -1,15 +1,18 @@
 import M3ParserStandardMaterial from '../../../parsers/m3/standardmaterial';
 import ShaderProgram from '../../gl/program';
-import TextureMapper from '../../texturemapper';
+import ResourceMapper from '../../resourcemapper';
 import M3Model from './model';
 import M3Layer from './layer';
+
+export const STANDARD_MATERIAL_OFFSET = 100;
 
 /**
  * An M3 standard material.
  */
-export default class M3StandardMaterial {
+export class M3StandardMaterial {
   model: M3Model;
   gl: WebGLRenderingContext;
+  index: number;
   name: string;
   flags: number;
   blendMode: number;
@@ -23,10 +26,10 @@ export default class M3StandardMaterial {
   doubleSided: number;
   layers: M3Layer[];
 
-  constructor(model: M3Model, material: M3ParserStandardMaterial) {
+  constructor(model: M3Model, index: number, material: M3ParserStandardMaterial) {
     this.model = model;
     this.gl = model.viewer.gl;
-
+    this.index = index;
     this.name = material.name.getAll().join('');
     this.flags = material.flags;
     this.blendMode = material.blendMode;
@@ -40,20 +43,20 @@ export default class M3StandardMaterial {
     this.doubleSided = material.flags & 0x8;
 
     this.layers = [
-      new M3Layer(this, material.diffuseLayer, 'diffuse', 2),
-      new M3Layer(this, material.decalLayer, 'decal', 2),
-      new M3Layer(this, material.specularLayer, 'specular', 2),
-      new M3Layer(this, material.glossLayer, 'gloss', 2),
-      new M3Layer(this, material.emissiveLayer, 'emissive', material.emisBlendType),
-      new M3Layer(this, material.emissive2Layer, 'emissive2', material.emisMode),
-      new M3Layer(this, material.evioLayer, 'evio', 2),
-      new M3Layer(this, material.evioMaskLayer, 'evioMask', 2),
-      new M3Layer(this, material.alphaMaskLayer, 'alphaMask', 2),
-      new M3Layer(this, material.alphaMask2Layer, 'alphaMask2', 2),
-      new M3Layer(this, material.normalLayer, 'normal', 2),
-      new M3Layer(this, material.heightLayer, 'heightMap', 2),
-      new M3Layer(this, material.lightMapLayer, 'lightMap', 2),
-      new M3Layer(this, material.ambientOcclusionLayer, 'ao', 2),
+      new M3Layer(this, 0, material.diffuseLayer, 'diffuse', 2),
+      new M3Layer(this, 1, material.decalLayer, 'decal', 2),
+      new M3Layer(this, 2, material.specularLayer, 'specular', 2),
+      new M3Layer(this, 3, material.glossLayer, 'gloss', 2),
+      new M3Layer(this, 4, material.emissiveLayer, 'emissive', material.emisBlendType),
+      new M3Layer(this, 5, material.emissive2Layer, 'emissive2', material.emisMode),
+      new M3Layer(this, 6, material.evioLayer, 'evio', 2),
+      new M3Layer(this, 7, material.evioMaskLayer, 'evioMask', 2),
+      new M3Layer(this, 8, material.alphaMaskLayer, 'alphaMask', 2),
+      new M3Layer(this, 9, material.alphaMask2Layer, 'alphaMask2', 2),
+      new M3Layer(this, 10, material.normalLayer, 'normal', 2),
+      new M3Layer(this, 11, material.heightLayer, 'heightMap', 2),
+      new M3Layer(this, 12, material.lightMapLayer, 'lightMap', 2),
+      new M3Layer(this, 13, material.ambientOcclusionLayer, 'ao', 2),
     ];
   }
 
@@ -82,7 +85,7 @@ export default class M3StandardMaterial {
     gl.depthMask(true);
   }
 
-  bind(shader: ShaderProgram, textureMapper: TextureMapper) {
+  bind(shader: ShaderProgram, resourceMapper: ResourceMapper) {
     const gl = this.gl;
 
     this.bindCommon();
@@ -94,13 +97,13 @@ export default class M3StandardMaterial {
 
     const layers = this.layers;
 
-    layers[0].bind(shader, textureMapper);
-    layers[1].bind(shader, textureMapper);
-    layers[2].bind(shader, textureMapper);
-    layers[4].bind(shader, textureMapper);
-    layers[5].bind(shader, textureMapper);
-    layers[10].bind(shader, textureMapper);
-    layers[12].bind(shader, textureMapper);
+    layers[0].bind(shader, resourceMapper);
+    layers[1].bind(shader, resourceMapper);
+    layers[2].bind(shader, resourceMapper);
+    layers[4].bind(shader, resourceMapper);
+    layers[5].bind(shader, resourceMapper);
+    layers[10].bind(shader, resourceMapper);
+    layers[12].bind(shader, resourceMapper);
   }
 
   unbind(shader: ShaderProgram) {

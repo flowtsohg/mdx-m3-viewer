@@ -1,6 +1,9 @@
 import { vec3, quat } from 'gl-matrix';
 import ModelInstance from '../../modelinstance';
 import { createSkeletalNodes, SkeletalNode } from '../../node';
+import DataTexture from '../../gl/datatexture';
+import Scene from '../../scene';
+import Texture from '../../texture';
 import Node from './node';
 import AttachmentInstance from './attachmentinstance';
 import ParticleEmitter from './particleemitter';
@@ -10,10 +13,11 @@ import EventObjectSpnEmitter from './eventobjectspnemitter';
 import EventObjectSplEmitter from './eventobjectsplemitter';
 import EventObjectUbrEmitter from './eventobjectubremitter';
 import EventObjectSndEmitter from './eventobjectsndemitter';
-import DataTexture from '../../gl/datatexture';
 import MdxModel from './model';
 import GenericObject from './genericobject';
-import Scene from '../../scene';
+
+import { EMITTER_PARTICLE2_TEXTURE_OFFSET } from './geometryemitterfuncs';
+
 
 const visibilityHeap = new Float32Array(1);
 const translationHeap = vec3.create();
@@ -165,6 +169,18 @@ export default class MdxModelInstance extends ModelInstance {
     if (model.bones.length) {
       this.boneTexture = new DataTexture(model.viewer.gl, 4, model.bones.length * 4, 1);
     }
+  }
+
+  setTexture(index: number, texture?: Texture) {
+    this.setResource(index, texture);
+  }
+
+  setParticle2Texture(index: number, texture?: Texture) {
+    this.setResource(EMITTER_PARTICLE2_TEXTURE_OFFSET + index, texture);
+  }
+
+  setEventTexture(index: number, texture?: Texture) {
+    this.setResource(EMITTER_PARTICLE2_TEXTURE_OFFSET + index, texture);
   }
 
   /**

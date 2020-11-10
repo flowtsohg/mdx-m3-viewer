@@ -1,5 +1,5 @@
 import Scene from './scene';
-import TextureMapper from './texturemapper';
+import ResourceMapper from './resourcemapper';
 import Model from './model';
 import ModelInstance from './modelinstance';
 
@@ -9,16 +9,16 @@ import ModelInstance from './modelinstance';
 export default abstract class RenderBatch {
   scene: Scene;
   model: Model;
-  textureMapper: TextureMapper;
+  resourceMapper: ResourceMapper;
   instances: ModelInstance[] = [];
   count: number = 0;
 
   abstract render(): void;
 
-  constructor(scene: Scene, model: Model, textureMapper: TextureMapper) {
+  constructor(scene: Scene, model: Model, resourceMapper: ResourceMapper) {
     this.scene = scene;
     this.model = model;
-    this.textureMapper = textureMapper;
+    this.resourceMapper = resourceMapper;
   }
 
   clear() {

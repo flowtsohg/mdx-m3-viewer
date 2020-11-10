@@ -414,7 +414,7 @@ let mdxTests = {
         let instance = model.addInstance().move([0, 40, 0]);
         let instance2 = model.addInstance().move([0, -40, 0]);
 
-        instance.setTexture(model.textures[0], model.textures[2].texture);
+        instance.setTexture(0, model.textures[2].texture);
 
         scene.addInstance(instance);
         scene.addInstance(instance2);
