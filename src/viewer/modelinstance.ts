@@ -146,10 +146,20 @@ export default abstract class ModelInstance extends Node {
 
   isVisible(camera: Camera) {
     let [x, y, z] = this.worldLocation;
+    let [sx, sy, sz] = this.worldScale;
     let bounds = this.model.bounds;
     let planes = camera.planes;
 
-    this.plane = testSphere(planes, x + bounds.x, y + bounds.y, z, bounds.r, this.plane);
+    // Get the biggest scaling dimension.
+    if (sy > sx) {
+      sx = sy;
+    }
+
+    if (sz > sx) {
+      sx = sz;
+    }
+
+    this.plane = testSphere(planes, x + bounds.x, y + bounds.y, z, bounds.r * sx, this.plane);
 
     if (this.plane === -1) {
       this.depth = distanceToPlane3(planes[4], x, y, z);

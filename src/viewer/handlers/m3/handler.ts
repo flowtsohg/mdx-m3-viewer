@@ -1,8 +1,6 @@
 import Parser from '../../../parsers/m3/model';
 import ModelViewer from '../../viewer';
 import ShaderProgram from '../../gl/program';
-import ddsHandler from '../dds/handler';
-import tgaHandler from '../tga/handler';
 import Model from './model';
 import standardVert from './shaders/standard.vert';
 import standardFrag from './shaders/standard.frag';
@@ -15,9 +13,7 @@ export default {
 
     // Bone textures.
     if (!webgl.ensureExtension('OES_texture_float')) {
-      console.error('M3: No float texture support!');
-
-      return false;
+      throw new Error('M3: No float texture support!');
     }
 
     let standardShaders = <ShaderProgram[]>[];
@@ -27,7 +23,7 @@ export default {
       let shader = webgl.createShaderProgram(`#define EXPLICITUV${i}\n${standardVert}`, standardFrag);
 
       if (shader === null) {
-        return false;
+        throw new Error('M3: Failed to compile a shader!');
       }
 
       // Bind the shader and set the team color uniforms.
@@ -46,8 +42,6 @@ export default {
       standardShaders,
       lightPosition: new Float32Array([0, 0, 10000]),
     });
-
-    return true;
   },
   isValidSource(src: any) {
     if (src instanceof Parser) {

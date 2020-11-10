@@ -10,8 +10,6 @@ export default {
     if (!webgl.ensureExtension('WEBGL_compressed_texture_s3tc')) {
       console.warn('DDS: No compressed textures support! This might reduce performance.');
     }
-
-    return true;
   },
   isValidSource(src: any) {
     if (src instanceof DdsImage) {

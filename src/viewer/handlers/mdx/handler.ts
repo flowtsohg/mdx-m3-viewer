@@ -17,16 +17,12 @@ export default {
 
     // Bone textures.
     if (!webgl.ensureExtension('OES_texture_float')) {
-      console.error('MDX: No float texture support!');
-
-      return false;
+      throw new Error('MDX: No float texture support!');
     }
 
     // Geometry emitters.
     if (!webgl.ensureExtension('ANGLE_instanced_arrays')) {
-      console.error('MDX: No instanced rendering support!');
-
-      return false;
+      throw new Error('MDX: No instanced rendering support!');
     }
 
     let standardShader = webgl.createShaderProgram(standardVert, standardFrag);
@@ -38,6 +34,10 @@ export default {
 
     gl.bindBuffer(gl.ARRAY_BUFFER, rectBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array([0, 1, 2, 0, 2, 3]), gl.STATIC_DRAW);
+
+    if (standardShader === null || extendedShader === null || hdShader === null || particlesShader === null) {
+      throw new Error('MDX: Failed to compile the shaders!');
+    }
 
     viewer.sharedCache.set('mdx', {
       // Shaders.
@@ -54,8 +54,6 @@ export default {
       reforgedTeamColors: <MdxTexture[]>[],
       reforgedTeamGlows: <MdxTexture[]>[],
     });
-
-    return standardShader !== null && extendedShader !== null && hdShader !== null && particlesShader !== null;
   },
   isValidSource(src: any) {
     if (src instanceof MdlxModel) {
