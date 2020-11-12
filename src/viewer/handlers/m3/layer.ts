@@ -5,6 +5,7 @@ import ShaderProgram from '../../gl/program';
 import ResourceMapper from '../../resourcemapper';
 import { M3StandardMaterial, STANDARD_MATERIAL_OFFSET } from './standardmaterial';
 import M3Model from './model';
+import M3Texture from './texture';
 
 const layerTypeToTextureUnit = {
   diffuse: 1,
@@ -35,7 +36,7 @@ export default class M3Layer {
   gl: WebGLRenderingContext;
   uniformMap: { map: string; enabled: string; op: string; channels: string; teamColorMode: string; invert: string; clampResult: string; uvCoordinate: string; };
   source: string = '';
-  texture?: Texture;
+  texture?: M3Texture;
   flags: number = 0;
   colorChannels: number = 0;
   type: string = '';
@@ -80,14 +81,6 @@ export default class M3Layer {
 
       if (source.length) {
         this.source = source;
-
-        model.viewer.load(source, pathSolver)
-          .then((texture) => {
-            if (texture) {
-              this.texture = <Texture>texture;
-            }
-          });
-
         this.active = 1;
 
         let uvSource = layer.uvSource;
@@ -121,6 +114,17 @@ export default class M3Layer {
         if (type === 'diffuse') {
           this.teamColorMode = 1;
         }
+
+        let m3Texture = new M3Texture(!!(flags & 0x4), !!(flags & 0x8));
+
+        model.viewer.load(source, pathSolver)
+          .then((texture) => {
+            if (texture) {
+              m3Texture.texture = <Texture>texture;
+            }
+          });
+
+        this.texture = m3Texture;
       }
     }
   }
@@ -134,7 +138,8 @@ export default class M3Layer {
     gl.uniform1f(uniforms[uniformMap.enabled], active);
 
     if (active) {
-      let texture = <Texture>resourceMapper.get(this.material.index * STANDARD_MATERIAL_OFFSET + this.index) || this.texture;
+      let m3Texture = <M3Texture>this.texture;
+      let texture = <Texture | undefined>resourceMapper.get(this.material.index * STANDARD_MATERIAL_OFFSET + this.index) || m3Texture.texture;
       let textureUnit = this.textureUnit;
 
       gl.uniform1i(uniforms[uniformMap.map], textureUnit);

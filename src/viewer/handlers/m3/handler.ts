@@ -51,8 +51,8 @@ export default {
     if (src instanceof ArrayBuffer) {
       let buffer = new Uint32Array(src, 0, 1);
 
-      // MD34 reversed.
-      if (buffer[0] === 0x3433444d) {
+      // MD34.
+      if (buffer[0] === 0x4d443334) {
         return true;
       }
     }

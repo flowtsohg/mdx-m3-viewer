@@ -1,17 +1,14 @@
 import Texture from '../../texture';
 
 /**
- * An MDX texture.
+ * An M3 texture.
  */
-export default class MdxTexture {
+export default class M3Texture {
   texture?: Texture;
-  replaceableId: number;
   wrapS: number = 0x812f; // CLAMP_TO_EDGE
   wrapT: number = 0x812f;
 
-  constructor(replaceableId: number, repeatS: boolean, repeatT: boolean) {
-    this.replaceableId = replaceableId;
-
+  constructor(repeatS: boolean, repeatT: boolean) {
     if (repeatS) {
       this.wrapS = 0x2901; // REPEAT
     }

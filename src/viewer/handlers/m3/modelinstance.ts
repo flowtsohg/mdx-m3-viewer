@@ -23,7 +23,9 @@ export default class M3ModelInstance extends ModelInstance {
   forced: boolean = true;
   boneTexture: DataTexture | null = null;
 
-  load() {
+  constructor(model: M3Model) {
+    super(model);
+
     this.skeleton = new M3Skeleton(this);
 
     // This takes care of calling setSequence before the model is loaded.
@@ -33,7 +35,6 @@ export default class M3ModelInstance extends ModelInstance {
       this.setSequence(this.sequence);
     }
 
-    let model = <M3Model>this.model;
     let boneLookup = <Uint16Array>model.boneLookup;
 
     this.boneTexture = new DataTexture(model.viewer.gl, 3, boneLookup.length * 4, 1);
