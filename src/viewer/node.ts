@@ -39,7 +39,7 @@ export class Node {
     this.localScale = vec3.fromValues(1, 1, 1);
     this.worldLocation = vec3.create();
     this.worldRotation = quat.create();
-    this.worldScale = vec3.create();
+    this.worldScale = vec3.fromValues(1, 1, 1);
     this.inverseWorldLocation = vec3.create();
     this.inverseWorldRotation = quat.create();
     this.inverseWorldScale = vec3.create();
