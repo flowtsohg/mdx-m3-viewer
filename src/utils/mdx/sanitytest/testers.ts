@@ -16,6 +16,7 @@ import Camera from '../../../parsers/mdlx/camera';
 import SanityTestData from './data';
 import { sequenceNames, replaceableIds, testObjects, testReference, getTextureIds, testGeosetSkinning, hasAnimation } from './utils';
 import testTracks from './tracks';
+import FaceEffect from '../../../parsers/mdlx/faceeffect';
 
 export function testHeader(data: SanityTestData) {
   let version = data.model.version;
@@ -285,8 +286,8 @@ export function testCamera(data: SanityTestData, camera: Camera) {
   data.addImplicitReference();
 }
 
-export function testFaceEffect(data: SanityTestData) {
-  let path = data.model.faceEffect;
+export function testFaceEffect(data: SanityTestData, faceEffect: FaceEffect) {
+  let path = faceEffect.path;
 
   if (path.length) {
     data.assertError(path.endsWith('.facefx') || path.endsWith('.facefx_ingame'), `Corrupted face effect path: "${path}"`);

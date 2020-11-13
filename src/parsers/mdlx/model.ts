@@ -19,6 +19,7 @@ import RibbonEmitter from './ribbonemitter';
 import Camera from './camera';
 import EventObject from './eventobject';
 import CollisionShape from './collisionshape';
+import FaceEffect from './faceeffect';
 import UnknownChunk from './unknownchunk';
 
 /**
@@ -66,13 +67,7 @@ export default class Model {
   /**
    * @since 900
    */
-  faceEffectTarget: string = '';
-  /**
-   * A path to a face effect file, which is used by the FaceFX runtime
-   * 
-   * @since 900
-   */
-  faceEffect: string = '';
+  faceEffects: FaceEffect[] = [];
   /**
    * @since 900
    */
@@ -170,7 +165,7 @@ export default class Model {
       } else if (tag === 'CLID') {
         this.loadDynamicObjects(this.collisionShapes, CollisionShape, stream, size);
       } else if (tag === 'FAFX') {
-        this.loadFaceEffectChunk(stream, size);
+        this.loadStaticObjects(this.faceEffects, FaceEffect, stream, size / 340);
       } else if (tag === 'BPOS') {
         this.loadBindPoseChunk(stream, size);
       } else {
@@ -190,7 +185,7 @@ export default class Model {
     this.blendTime = stream.readUint32();
   }
 
-  loadStaticObjects(out: any[], constructor: typeof Sequence | typeof Texture, stream: BinaryStream, count: number) {
+  loadStaticObjects(out: any[], constructor: typeof Sequence | typeof Texture | typeof FaceEffect, stream: BinaryStream, count: number) {
     for (let i = 0; i < count; i++) {
       let object = new constructor();
 
@@ -222,11 +217,6 @@ export default class Model {
     for (let i = 0, l = size / 12; i < l; i++) {
       this.pivotPoints.push(stream.readFloat32Array(3));
     }
-  }
-
-  loadFaceEffectChunk(stream: BinaryStream, size: number) {
-    this.faceEffectTarget = stream.read(80);
-    this.faceEffect = stream.read(260);
   }
 
   loadBindPoseChunk(stream: BinaryStream, size: number) {
@@ -270,7 +260,7 @@ export default class Model {
     this.saveDynamicObjectChunk(stream, 'CLID', this.collisionShapes);
 
     if (this.version > 800) {
-      this.saveFaceEffectChunk(stream);
+      this.saveStaticObjectChunk(stream, 'FAFX', this.faceEffects, 340);
       this.saveBindPoseChunk(stream);
     }
 
@@ -298,7 +288,7 @@ export default class Model {
     stream.writeUint32(this.blendTime);
   }
 
-  saveStaticObjectChunk(stream: BinaryStream, name: string, objects: (Sequence | Texture)[], size: number) {
+  saveStaticObjectChunk(stream: BinaryStream, name: string, objects: (Sequence | Texture | FaceEffect)[], size: number) {
     if (objects.length) {
       stream.write(name);
       stream.writeUint32(objects.length * size);
@@ -339,17 +329,6 @@ export default class Model {
       for (let pivotPoint of this.pivotPoints) {
         stream.writeFloat32Array(pivotPoint);
       }
-    }
-  }
-
-  saveFaceEffectChunk(stream: BinaryStream) {
-    if (this.faceEffectTarget.length || this.faceEffect.length) {
-      stream.write('FAFX');
-      stream.writeUint32(340);
-      stream.write(this.faceEffectTarget);
-      stream.skip(80 - this.faceEffectTarget.length);
-      stream.write(this.faceEffect);
-      stream.skip(260 - this.faceEffect.length);
     }
   }
 
@@ -417,7 +396,7 @@ export default class Model {
       } else if (token === 'CollisionShape') {
         this.loadObject(this.collisionShapes, CollisionShape, stream);
       } else if (token === 'FaceFX') {
-        this.loadFaceEffectBlock(stream);
+        this.loadObject(this.faceEffects, FaceEffect, stream);
       } else if (token === 'BindPose') {
         this.loadBindPoseBlock(stream);
       } else {
@@ -501,7 +480,7 @@ export default class Model {
     }
   }
 
-  loadObject(out: any[], constructor: typeof Geoset | typeof GeosetAnimation | typeof Bone | typeof Light | typeof Helper | typeof Attachment | typeof ParticleEmitter | typeof ParticleEmitter2 | typeof RibbonEmitter | typeof Camera | typeof EventObject | typeof CollisionShape, stream: TokenStream) {
+  loadObject(out: any[], constructor: typeof Geoset | typeof GeosetAnimation | typeof Bone | typeof Light | typeof Helper | typeof Attachment | typeof ParticleEmitter | typeof ParticleEmitter2 | typeof RibbonEmitter | typeof Camera | typeof EventObject | typeof CollisionShape | typeof FaceEffect, stream: TokenStream) {
     let object = new constructor();
 
     object.readMdl(stream);
@@ -519,18 +498,6 @@ export default class Model {
     }
 
     stream.read(); // }
-  }
-
-  loadFaceEffectBlock(stream: TokenStream) {
-    this.faceEffectTarget = stream.read();
-
-    for (let token of stream.readBlock()) {
-      if (token === 'Path') {
-        this.faceEffect = stream.read();
-      } else {
-        throw new Error(`Unknown token in FaceFX: "${token}"`);
-      }
-    }
   }
 
   loadBindPoseBlock(stream: TokenStream) {
@@ -584,7 +551,7 @@ export default class Model {
     this.saveObjects(stream, this.collisionShapes);
 
     if (this.version > 800) {
-      this.saveFaceEffectBlock(stream);
+      this.saveObjects(stream, this.faceEffects);
       this.saveBindPoseBlock(stream);
     }
 
@@ -634,7 +601,7 @@ export default class Model {
     }
   }
 
-  saveObjects(stream: TokenStream, objects: (Geoset | GeosetAnimation | Bone | Light | Helper | Attachment | ParticleEmitter | ParticleEmitter2 | RibbonEmitter | Camera | EventObject | CollisionShape)[]) {
+  saveObjects(stream: TokenStream, objects: (Geoset | GeosetAnimation | Bone | Light | Helper | Attachment | ParticleEmitter | ParticleEmitter2 | RibbonEmitter | Camera | EventObject | CollisionShape | FaceEffect)[]) {
     for (let object of objects) {
       object.writeMdl(stream, this.version);
     }
@@ -647,16 +614,6 @@ export default class Model {
       for (let pivotPoint of this.pivotPoints) {
         stream.writeVector(pivotPoint);
       }
-
-      stream.endBlock();
-    }
-  }
-
-  saveFaceEffectBlock(stream: TokenStream) {
-    if (this.faceEffectTarget.length && this.faceEffect.length) {
-      stream.startObjectBlock('FaceFX', this.faceEffectTarget);
-
-      stream.writeStringAttrib('Path', this.faceEffect);
 
       stream.endBlock();
     }
@@ -709,7 +666,7 @@ export default class Model {
     size += this.getDynamicObjectsChunkByteLength(this.collisionShapes);
 
     if (this.version > 800) {
-      size += this.getFaceEffectChunkByteLength();
+      size += this.getStaticObjectsChunkByteLength(this.faceEffects, 340);
       size += this.getBindPoseChunkByteLength();
     }
 
@@ -736,17 +693,9 @@ export default class Model {
     return 0;
   }
 
-  getStaticObjectsChunkByteLength(objects: (Sequence | number | Texture | Float32Array)[], size: number) {
+  getStaticObjectsChunkByteLength(objects: (Sequence | number | Texture | Float32Array | FaceEffect)[], size: number) {
     if (objects.length) {
       return 8 + objects.length * size;
-    }
-
-    return 0;
-  }
-
-  getFaceEffectChunkByteLength() {
-    if (this.faceEffectTarget.length || this.faceEffect.length) {
-      return 348;
     }
 
     return 0;

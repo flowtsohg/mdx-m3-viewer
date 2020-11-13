@@ -36,7 +36,7 @@ export default function sanityTest(model: Model) {
   testObjects(data, model.collisionShapes);
 
   if (model.version > 800) {
-    testFaceEffect(data);
+    testObjects(data, model.faceEffects, testFaceEffect);
     testBindPose(data);
   }
 

@@ -23,6 +23,7 @@ import CollisionShape from '../../../parsers/mdlx/collisionshape';
 import SanityTestData from './data';
 import testTracks from './tracks';
 import { SanityTestNode } from './data';
+import FaceEffect from '../../../parsers/mdlx/faceeffect';
 
 export const sequenceNames = new Set([
   'attack',
@@ -129,7 +130,7 @@ export function hasAnimation(object: AnimatedObject, name: string) {
   return false;
 }
 
-export type MdlxType = Sequence | number | Texture | Material | Layer | TextureAnimation | Geoset | GeosetAnimation | Bone | Light | Helper | Attachment | ParticleEmitter | ParticleEmitter2 | ParticleEmitterPopcorn | RibbonEmitter | EventObject | Camera | CollisionShape | Animation;
+export type MdlxType = Sequence | number | Texture | Material | Layer | TextureAnimation | Geoset | GeosetAnimation | Bone | Light | Helper | Attachment | ParticleEmitter | ParticleEmitter2 | ParticleEmitterPopcorn | RibbonEmitter | EventObject | Camera | CollisionShape | FaceEffect | Animation;
 
 export function getObjectTypeName(object: MdlxType) {
   if (object instanceof Sequence) {
