@@ -6,6 +6,7 @@ import EmittedObject from '../../emittedobject';
 import ParticleEmitterObject from './particleemitterobject';
 import MdxModelInstance from './modelinstance';
 import ParticleEmitter from './particleemitter';
+import MdxModel from './model';
 
 const rotationHeap = quat.create();
 const velocityHeap = vec3.create();
@@ -27,8 +28,9 @@ export default class Particle extends EmittedObject {
     super(emitter);
 
     let emitterObject = <ParticleEmitterObject>emitter.emitterObject;
+    let model = <MdxModel>emitterObject.internalModel;
 
-    this.internalInstance = <MdxModelInstance>emitterObject.internalModel.addInstance();
+    this.internalInstance = model.addInstance();
   }
 
   bind() {
@@ -68,10 +70,14 @@ export default class Particle extends EmittedObject {
     // Apply the parent's scale
     vec3.mul(velocity, velocity, scale);
 
-    scene.addInstance(internalInstance);
-
-    internalInstance.setTransformation(node.worldLocation, quat.setAxisAngle(rotationHeap, VEC3_UNIT_Z, randomInRange(0, Math.PI * 2)), node.worldScale);
+    internalInstance.setScene(scene);
     internalInstance.setSequence(0);
+
+    // Set the transformation and recalculate.
+    // The later is needed for instances that went out of view, which causes their instaces to no longer get updates.
+    internalInstance.setTransformation(node.worldLocation, quat.setAxisAngle(rotationHeap, VEC3_UNIT_Z, randomInRange(0, Math.PI * 2)), node.worldScale);
+    internalInstance.recalculateTransformation();
+
     internalInstance.show();
   }
 

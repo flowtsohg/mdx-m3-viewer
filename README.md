@@ -12,8 +12,7 @@ The viewer part handles the following formats:
 * BLP1 (Warcraft 3 texture): extensive support, almost everything should work.
 * TGA (image): partial support, only simple 24bit images.
 * DDS (compressed texture): partial support - DXT1/DXT3/DXT5/RGTC.
-* PNG/JPG/GIF: supported as a wrapper around Image.
-* GEO (a simple JS format used for geometric shapes): note that this is solely a run-time handler.
+* PNG/JPG/GIF/WebP: supported by the browser.
 
 There are file parsers that the viewer depends on.\
 These don't rely on the viewer or indeed on even running in a browser.\
@@ -107,11 +106,11 @@ When a new viewer instance is created, it doesn't yet support loading anything, 
 Handlers are simple JS objects with a specific signature, that give information to the viewer (such as a file format(s), and the implementation objects).\
 When you want to load something, the viewer will select the appropriate handler, if there is one, and use it to construct the object.
 
-Let's add the MDX handler.\
-This handler handles MDX files, unsurprisingly. It also adds the BLP and TGA handlers automatically, since it requires them.
+Let's add the MDX and BLP handlers.
 
 ```javascript
 viewer.addHandler(handlers.mdx);
+viewer.addHandler(handlers.blp);
 ```
 
 Next, let's add a new scene to the viewer. Each scene has its own camera and viewport, and holds a list of things to render.
@@ -128,24 +127,22 @@ The viewer class acts as a sort-of resource manager.\
 Loading models and textures happens by using handlers and `load`, while other files are loaded generically with `loadGeneric`.
 
 For handlers, the viewer uses path solving functions.\
-You supply a function that takes a source you want to load, such as an url, and you need to return specific results so the viewer knows what to do.\
+You supply a function that takes a source you want to load, such as an url, and you need to return whatever you want loaded by the viewer.\
 The load function itself looks like this:
 
 ```javascript
-let resource = viewer.load(src, pathSolver[, solverParams])
+let resourcePromise = viewer.load(src, pathSolver[, solverParams])
 ```
 
-In other words, you give it a source, and a resource is returned, where a resource in this context means a model or a texture.
+In other words, you give it a source, and a promise to a resource is returned, where a resource in this context means a model or a texture.
 
 The source can be anything - a string, an object, a typed array, something else - it highly depends on your code, and on the path solver.
 
-The path solver is a function with this signature: `function(src[, solverParams]) => [finalSrc, extension, isFetch]`, where:
+The path solver is a function with this signature: `function(src[, solverParams]) => finalSrc`, where:
 * `src` is the source you gave the load call, or one given by the resource itself when loading internal resources.
 * `finalSrc` is the actual source to load from. If this is a server fetch, then this is the url to fetch from. If it's an in-memory load, it depends on what each handler expects, typically an ArrayBuffer or a string.
-* `extention` is the extension of the resource you are loading, which selects the handler to use. For example, both `".mdx"` and `"mdx"` are valid.
-* `isFetch` is a boolean, and will determine if this is an in-memory load, or a server fetch.
 
-Generally speaking, you'll need a simple path solver that expects urls, prepends them by some base directory or API url, uses their extension, and signals that they are fetches.\
+Generally speaking, you'll need a simple path solver that expects urls and prepends them by some base directory or API url.\
 There are however times when this is not the case, such as loading models with custom textures, and handling both in-memory and fetches in the same solver as done in the map viewer.
 
 For information about `solverParams`, see the [solver parameters section](#solver-params-reforged-and-map-loading).
@@ -168,29 +165,28 @@ I'll make it assume it's getting urls, and automatically prepend "Resources/" to
 
 ```javascript
 function myPathSolver(path) {
-  // Prepend Resources/, and get the extension from the path.
-  return ["Resources/" + path, path.slice(path.lastIndexOf('.')), true];
+  return "Resources/" + path;
 }
 ```
 
 Now let's try to load the model.
 
 ```javascript
-let model = viewer.load("model.mdx", myPathSolver);
+let modelPromise = viewer.load("model.mdx", myPathSolver);
 ```
 
 This function call results in the following:
 
-1. myPathSolver is called with `"model.mdx"` and returns `["Resources/model.mdx", ".mdx", true]`.
-2. The viewer chooses the correct handler based on the extension - in this case the MDX handler - sees this is a server fetch, and uses the final source for the fetch.
-3. A new MDX model is created and starts loading (at this point the viewer gets a `loadstart` event from the model).
-4. The model is returned.
-5. ...time passes until the model finishes loading...
+1. myPathSolver is called with `"model.mdx"` and returns `"Resources/model.mdx"`.
+2. The viewer starts the fetch, and emits the `loadstart` event.
+3. A promise is returned.
+4. ...time passes until the file finishes loading...
+5. The viewer detects the format as MDX.
 6. The model is constructed successfuly, or not, and sends a `load` or `error` event respectively, followed by the `loadend` event.
 7. In the case of an MDX model, the previous step will also cause it to load its textures, in this case `texture.blp`.
-8. myPathSolver is called with `"texture.blp"`, which returns `["Resources/texture.blp", ".blp", true]`, and we loop back to step 2, but with a texture this time.
+8. myPathSolver is called with `"texture.blp"`, which returns `"Resources/texture.blp"`, and we loop back to step 2, but with a texture this time.
 
-We now have a model, however a model in this context is simply a source of data, not something that you see.\
+Once the promise is resolved, we have a model, however a model in this context is simply a source of data, not something that you see.\
 The next step is to create an instance of this model.\
 Instances can be rendered, moved, rotated, scaled, parented to other instances or nodes, play animations, and so on.
 ```javascript
@@ -217,7 +213,7 @@ Finally, we need to actually let the viewer update and render:
 
 Loading other files is simpler:
 ```javascript
-let genericResource = viewer.loadGeneric(path, dataType[, callback]);
+let resourcePromise = viewer.loadGeneric(path, dataType[, callback]);
 ```
 
 Where:
@@ -234,106 +230,31 @@ The purpose of loading other files through the viewer is to cache the results an
 
 ------------------------
 
-#### Async everywhere I go
+#### Events and Promises
 
-The viewer tries to allow you to write linear code, even though many things are asyncronious.
-
-Sometimes this is not possible, for example when you want to get the list of animations a model has. If the model wasn't loaded yet, the list will be empty.
-
-There are two ways to react to resources being loaded: promises/callbacks, and events.
-
-In addition, every resource has two loading hints: `loaded`, and `ok`.\
-When a resource is `loaded`, it means that it doesn't need further processing by the viewer. It doesn't however neccessarily mean the resource loaded successfully.\
-When a resource is `ok`, it means it actually loaded successfully and is ready for use.
-
-##### Promises/Callbacks
-
-Every resource has a `whenLoaded([callback])` method that waits for it to load.
-If a callback is given, it will be used. Otherwise, a promise is returned.
-If the resource was already loaded, the callback/promise is immediately called/resolved.
-
-The viewer itself has `whenLoaded(resources[, callback])` which does the same when all of the given resources in an iterable have been loaded, and also `whenAllLoaded([callback])`, to check when there are no longer resources being loaded.
-
-Some examples of callbacks/promises:
-
+As mentioned above, there are emitted events, and they can be listened to, using the NodeJS EventEmitter API:
 ```javascript
-model.whenLoaded()
-  .then((model) => {
-    // Must be true!
-    console.assert(model.loaded);
-
-    // May be true.
-    console.log(model.ok);
-
-    // Assuming this is an MDX/M3 model, let's print all of its animation names.
-    // If model.ok is false, this will print an empty line, since sequences is an empty array.
-    console.log(model.sequences.map((sequence) => sequence.name));
-  });
-
-viewer.whenLoaded([model, otherModel])
-  .then(([model, otherModel]) => {
-    // Do something.
-  });
-
-viewer.whenAllLoaded((viewer) => {
-  // Everything loaded
-})
+viewer.on(eventName, listener)
+viewer.off(eventName, listener)
+viewer.once(eventName, listener)
+viewer.emit(eventName[, ...args])
 ```
-
-##### Events
-
-Events are done with the NodeJS EventEmitter API:
-
-```javascript
-resource.on(eventName, listener)
-resource.off(eventName, listener)
-resource.once(eventName, listener)
-resource.emit(eventName[, ...args])
-```
-
-If a listener is attached to a specific resource, such as a model, it only gets events from that resource.\
-If a listener is attached to the viewer itself, it will receive events for all resources.
 
 The event name can be one of:
 * `loadstart` - a resource started loading.
 * `load` - a resource successfully loaded.
 * `error` - something bad happened.
 * `loadend` - a resource finished loading, follows both `load` and `error` when loading a resource.
+* `idle` - all loads finished for now.
 
-Note that attaching a `loadstart` listener to a resource is pointless, since the listener is registered after the resource started loading - attach it to the viewer instead.
-
-Some examples of event listeners:
-
+For example:
 ```javascript
-model.on('load', (model) => {
-  // Must be true!
-  console.assert(model.loaded);
-
-  // Must be true!
-  console.assert(model.ok);
-  
-  // Assuming this is an MDX/M3 model, let's print all of its animation names.
-  console.log(model.sequences.map((sequence) => sequence.name));
-});
-
-model.on('loadend', (model) => {
-  // Must be true!
-  console.assert(model.loaded);
-
-  // May be true.
-  console.log(model.ok);
-
-  // Assuming this is an MDX/M3 model, let's print all of its animation names.
-  // If model.ok is false, this will print an empty line, since sequences is an empty array.
-  console.log(model.sequences.map((sequence) => sequence.name));
-});
-
-// target is the resource for which the error occured.
-// For global errors, this will be the viewer itself.
-viewer.on('error', (target, error, reason) => {
-  console.log(`Error: ${error}, Reason: ${reason}`, target);
+viewer.on('error', (viewer, error, reason) => {
+  console.log(`Error: ${error}, Reason: ${reason}`);
 });
 ```
+
+In addition there is `ModelViewer.whenAllLoaded()` which will trigger both on the `idle` event, and if there is currently nothing loading.
 
 ------------------------
 

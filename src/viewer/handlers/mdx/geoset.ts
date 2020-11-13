@@ -15,9 +15,10 @@ export default class Geoset {
   faceOffset: number;
   vertices: number;
   elements: number;
+  faceType: number;
   geosetAnimation: GeosetAnimation | null = null;
 
-  constructor(model: MdxModel, index: number, positionOffset: number, normalOffset: number, uvOffset: number, skinOffset: number, faceOffset: number, vertices: number, elements: number) {
+  constructor(model: MdxModel, index: number, positionOffset: number, normalOffset: number, uvOffset: number, skinOffset: number, faceOffset: number, vertices: number, elements: number, faceType: number) {
     this.model = model;
     this.index = index;
     this.positionOffset = positionOffset;
@@ -27,6 +28,7 @@ export default class Geoset {
     this.faceOffset = faceOffset;
     this.vertices = vertices;
     this.elements = elements;
+    this.faceType = faceType;
 
     for (let geosetAnimation of model.geosetAnimations) {
       if (geosetAnimation.geosetId === index) {
@@ -81,6 +83,6 @@ export default class Geoset {
   render() {
     let gl = this.model.viewer.gl;
 
-    gl.drawElements(gl.TRIANGLES, this.elements, gl.UNSIGNED_SHORT, this.faceOffset);
+    gl.drawElements(this.faceType, this.elements, gl.UNSIGNED_SHORT, this.faceOffset);
   }
 }

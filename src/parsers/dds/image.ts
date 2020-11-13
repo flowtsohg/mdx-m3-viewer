@@ -1,7 +1,7 @@
 import { base256ToString } from '../../common/typecast';
 import { decodeDxt1, decodeDxt3, decodeDxt5, decodeRgtc } from '../../common/dxt';
 
-const DDS_MAGIC = 0x20534444;
+export const DDS_MAGIC = 0x20534444;
 const DDSD_MIPMAPCOUNT = 0x20000;
 const DDPF_FOURCC = 0x4;
 

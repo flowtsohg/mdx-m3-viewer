@@ -1,11 +1,14 @@
 import { DdsImage, FOURCC_DXT1, FOURCC_DXT3, FOURCC_DXT5, FOURCC_ATI2 } from '../../../parsers/dds/image';
+import { HandlerResourceData } from '../../handlerresource';
 import Texture from '../../texture';
 
 /**
  * A DDS texture handler.
  */
 export default class DdsTexture extends Texture {
-  load(bufferOrImage: ArrayBuffer | DdsImage) {
+  constructor(bufferOrImage: ArrayBuffer | DdsImage, resourceData: HandlerResourceData) {
+    super(resourceData);
+
     let image;
 
     if (bufferOrImage instanceof DdsImage) {
@@ -69,8 +72,12 @@ export default class DdsTexture extends Texture {
     // Restore the alignment to the default, in case it changed.
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
 
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
     if (mipmaps > 1) {
-      this.minFilter = gl.LINEAR_MIPMAP_LINEAR;
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    } else {
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     }
   }
 }

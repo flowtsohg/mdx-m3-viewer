@@ -3,13 +3,15 @@ import { decodeAudioData } from '../../../common/audio';
 import { FetchDataType } from '../../../common/fetchdatatype';
 import { MappedData } from '../../../utils/mappeddata';
 import EventObject from '../../../parsers/mdlx/eventobject';
-import GenericResource from '../../genericresource';
 import Texture from '../../texture';
+import GenericResource from '../../genericresource';
 import MdxModel from './model';
 import GenericObject from './genericobject';
 import { emitterFilterMode } from './filtermode';
 import { EMITTER_SPLAT, EMITTER_UBERSPLAT } from './geometryemitterfuncs';
 import MdxModelInstance from './modelinstance';
+import MdxTexture from './texture';
+import { PathSolver } from '../../handlerresource';
 
 const mappedDataCallback = (data: FetchDataType) => new MappedData(<string>data);
 const decodedDataCallback = (data: FetchDataType) => decodeAudioData(<ArrayBuffer>data);
@@ -24,17 +26,17 @@ export default class EventObjectEmitterObject extends GenericObject {
   tracks: Uint32Array;
   globalSequence: number = -1;
   defval: Uint32Array = new Uint32Array(1);
-  internalModel: MdxModel | null = null;
-  internalTexture: Texture | null = null;
-  colors: Float32Array[] | null = null;
-  intervalTimes: Float32Array | null = null;
+  internalModel?: MdxModel;
+  internalTexture?: MdxTexture;
+  colors?: Float32Array[];
+  intervalTimes?: Float32Array;
   scale: number = 0;
   columns: number = 0;
   rows: number = 0;
   lifeSpan: number = 0;
   blendSrc: number = 0;
   blendDst: number = 0;
-  intervals: Float32Array[] | null = null;
+  intervals?: Float32Array[];
   distanceCutoff: number = 0;
   maxDistance: number = 0;
   minDistance: number = 0;
@@ -42,13 +44,6 @@ export default class EventObjectEmitterObject extends GenericObject {
   pitchVariance: number = 0;
   volume: number = 0;
   decodedBuffers: AudioBuffer[] = [];
-  /**
-   * If this is an SPL/UBR emitter object, ok will be set to true if the tables are loaded.
-   * 
-   * This is because, like the other geometry emitters, it is fine to use them even if the textures don't load.
-   * 
-   * The particles will simply be black.
-   */
   ok: boolean = false;
 
   constructor(model: MdxModel, eventObject: EventObject, index: number) {
@@ -81,126 +76,137 @@ export default class EventObjectEmitterObject extends GenericObject {
 
     let tables = [];
     let pathSolver = model.pathSolver;
+
+    // Nothing to do without a path solver.
+    if (!pathSolver) {
+      return;
+    }
+
+    // Sometimes TS isn't the brightest.
+    let pathSolverAsPathSolver = <PathSolver>pathSolver;
+
     let solverParams = model.solverParams;
 
     if (type === 'SPN') {
-      tables[0] = viewer.loadGeneric(urlWithParams(pathSolver('Splats\\SpawnData.slk')[0], solverParams), 'text', mappedDataCallback);
+      tables[0] = viewer.loadGeneric(urlWithParams(pathSolver('Splats\\SpawnData.slk'), solverParams), 'text', mappedDataCallback);
     } else if (type === 'SPL') {
-      tables[0] = viewer.loadGeneric(urlWithParams(pathSolver('Splats\\SplatData.slk')[0], solverParams), 'text', mappedDataCallback);
+      tables[0] = viewer.loadGeneric(urlWithParams(pathSolver('Splats\\SplatData.slk'), solverParams), 'text', mappedDataCallback);
     } else if (type === 'UBR') {
-      tables[0] = viewer.loadGeneric(urlWithParams(pathSolver('Splats\\UberSplatData.slk')[0], solverParams), 'text', mappedDataCallback);
+      tables[0] = viewer.loadGeneric(urlWithParams(pathSolver('Splats\\UberSplatData.slk'), solverParams), 'text', mappedDataCallback);
     } else if (type === 'SND') {
       if (!model.reforged) {
-        tables.push(viewer.loadGeneric(urlWithParams(pathSolver('UI\\SoundInfo\\AnimLookups.slk')[0], solverParams), 'text', mappedDataCallback));
+        tables.push(viewer.loadGeneric(urlWithParams(pathSolver('UI\\SoundInfo\\AnimLookups.slk'), solverParams), 'text', mappedDataCallback));
       }
 
-      tables.push(viewer.loadGeneric(urlWithParams(pathSolver('UI\\SoundInfo\\AnimSounds.slk')[0], solverParams), 'text', mappedDataCallback));
-
-
+      tables.push(viewer.loadGeneric(urlWithParams(pathSolver('UI\\SoundInfo\\AnimSounds.slk'), solverParams), 'text', mappedDataCallback));
     } else {
       // Units\Critters\BlackStagMale\BlackStagMale.mdx has an event object named "Point01".
       return;
     }
 
-    let promise = viewer.promise();
+    let resolve = viewer.promise();
 
-    viewer.whenLoaded(tables, (tables) => {
-      for (let table of tables) {
-        if (!table.ok) {
-          promise.resolve();
+    Promise.all(tables)
+      .then((tables) => {
+        for (let table of tables) {
+          if (!table) {
+            resolve();
 
-          return;
-        }
-      }
-
-      this.load(<GenericResource[]>tables);
-
-      promise.resolve();
-    })
-  }
-
-  load(tables: GenericResource[]) {
-    let firstTable = <MappedData>tables[0].data;
-    let row = firstTable.getRow(this.id);
-    let type = this.type;
-
-    if (row) {
-      let model = this.model;
-      let viewer = model.viewer;
-      let pathSolver = model.pathSolver;
-
-      if (type === 'SPN') {
-        this.internalModel = <MdxModel>viewer.load((<string>row.Model).replace('.mdl', '.mdx'), pathSolver, model.solverParams);
-
-        if (this.internalModel) {
-          this.internalModel.whenLoaded((model) => this.ok = model.ok);
-        }
-      } else if (type === 'SPL' || type === 'UBR') {
-        let texturesExt = model.reforged ? '.dds' : '.blp';
-
-        this.internalTexture = <Texture>viewer.load(`replaceabletextures/splats/${row.file}${texturesExt}`, pathSolver, model.solverParams);
-
-        this.scale = <number>row.Scale;
-        this.colors = [
-          new Float32Array([<number>row.StartR, <number>row.StartG, <number>row.StartB, <number>row.StartA]),
-          new Float32Array([<number>row.MiddleR, <number>row.MiddleG, <number>row.MiddleB, <number>row.MiddleA]),
-          new Float32Array([<number>row.EndR, <number>row.EndG, <number>row.EndB, <number>row.EndA]),
-        ];
-
-        if (type === 'SPL') {
-          this.columns = <number>row.Columns;
-          this.rows = <number>row.Rows;
-          this.lifeSpan = <number>row.Lifespan + <number>row.Decay;
-          this.intervalTimes = new Float32Array([<number>row.Lifespan, <number>row.Decay]);
-          this.intervals = [
-            new Float32Array([<number>row.UVLifespanStart, <number>row.UVLifespanEnd, <number>row.LifespanRepeat]),
-            new Float32Array([<number>row.UVDecayStart, <number>row.UVDecayEnd, <number>row.DecayRepeat]),
-          ];
-        } else {
-          this.columns = 1;
-          this.rows = 1;
-          this.lifeSpan = <number>row.BirthTime + <number>row.PauseTime + <number>row.Decay;
-          this.intervalTimes = new Float32Array([<number>row.BirthTime, <number>row.PauseTime, <number>row.Decay]);
-        }
-
-        let blendModes = emitterFilterMode(<number>row.BlendMode, viewer.gl);
-
-        this.blendSrc = blendModes[0];
-        this.blendDst = blendModes[1];
-
-        this.ok = true;
-      } else if (type === 'SND') {
-        // Only load sounds if audio is enabled.
-        // This is mostly to save on bandwidth and loading time, especially when loading full maps.
-        if (viewer.audioEnabled) {
-          let animSounds = <MappedData>tables[1].data;
-
-          row = animSounds.getRow(<string>row.SoundLabel);
-
-          if (row) {
-            this.distanceCutoff = <number>row.DistanceCutoff;
-            this.maxDistance = <number>row.MaxDistance;
-            this.minDistance = <number>row.MinDistance;
-            this.pitch = <number>row.Pitch;
-            this.pitchVariance = <number>row.PitchVariance;
-            this.volume = <number>row.Volume;
-
-            let fileNames = (<string>row.FileNames).split(',');
-            let resources = fileNames.map((fileName) => viewer.loadGeneric(urlWithParams(pathSolver(row.DirectoryBase + fileName)[0], model.solverParams), 'arrayBuffer', decodedDataCallback));
-
-            viewer.whenLoaded(resources, (resources) => {
-              for (let resource of resources) {
-                this.decodedBuffers.push((<GenericResource>resource).data);
-              }
-
-              this.ok = true;
-            });
+            return;
           }
         }
-      }
-    } else {
-      console.warn('Unknown event object ID', type, this.id);
-    }
+
+        let tablesAsGeneric = <GenericResource[]>tables;
+        let firstTable = <MappedData>tablesAsGeneric[0].data;
+        let row = firstTable.getRow(this.id);
+
+        if (row) {
+          if (type === 'SPN') {
+            viewer.load((<string>row.Model).replace('.mdl', '.mdx'), pathSolverAsPathSolver, model.solverParams)
+              .then((model) => {
+                if (model) {
+                  this.internalModel = <MdxModel>model;
+                  this.ok = true;
+                }
+              });
+          } else if (type === 'SPL' || type === 'UBR') {
+            let texturesExt = model.reforged ? '.dds' : '.blp';
+
+            this.internalTexture = new MdxTexture(0, true, true);
+
+            viewer.load(`replaceabletextures/splats/${row.file}${texturesExt}`, pathSolverAsPathSolver, model.solverParams)
+              .then((texture) => {
+                if (texture) {
+                  (<MdxTexture>this.internalTexture).texture = <Texture>texture;
+                  this.ok = true;
+                }
+              });
+
+            this.scale = <number>row.Scale;
+            this.colors = [
+              new Float32Array([<number>row.StartR, <number>row.StartG, <number>row.StartB, <number>row.StartA]),
+              new Float32Array([<number>row.MiddleR, <number>row.MiddleG, <number>row.MiddleB, <number>row.MiddleA]),
+              new Float32Array([<number>row.EndR, <number>row.EndG, <number>row.EndB, <number>row.EndA]),
+            ];
+
+            if (type === 'SPL') {
+              this.columns = <number>row.Columns;
+              this.rows = <number>row.Rows;
+              this.lifeSpan = <number>row.Lifespan + <number>row.Decay;
+              this.intervalTimes = new Float32Array([<number>row.Lifespan, <number>row.Decay]);
+              this.intervals = [
+                new Float32Array([<number>row.UVLifespanStart, <number>row.UVLifespanEnd, <number>row.LifespanRepeat]),
+                new Float32Array([<number>row.UVDecayStart, <number>row.UVDecayEnd, <number>row.DecayRepeat]),
+              ];
+            } else {
+              this.columns = 1;
+              this.rows = 1;
+              this.lifeSpan = <number>row.BirthTime + <number>row.PauseTime + <number>row.Decay;
+              this.intervalTimes = new Float32Array([<number>row.BirthTime, <number>row.PauseTime, <number>row.Decay]);
+            }
+
+            let blendModes = emitterFilterMode(<number>row.BlendMode, viewer.gl);
+
+            this.blendSrc = blendModes[0];
+            this.blendDst = blendModes[1];
+
+            this.ok = true;
+          } else if (type === 'SND') {
+            // Only load sounds if audio is enabled.
+            // This is mostly to save on bandwidth and loading time, especially when loading full maps.
+            if (viewer.audioEnabled) {
+              let animSounds = <MappedData>tablesAsGeneric[1].data;
+
+              row = animSounds.getRow(<string>row.SoundLabel);
+
+              if (row) {
+                this.distanceCutoff = <number>row.DistanceCutoff;
+                this.maxDistance = <number>row.MaxDistance;
+                this.minDistance = <number>row.MinDistance;
+                this.pitch = <number>row.Pitch;
+                this.pitchVariance = <number>row.PitchVariance;
+                this.volume = <number>row.Volume;
+
+                let fileNames = (<string>row.FileNames).split(',');
+                let resources = fileNames.map((fileName) => viewer.loadGeneric(urlWithParams(pathSolverAsPathSolver(row.DirectoryBase + fileName), model.solverParams), 'arrayBuffer', decodedDataCallback));
+
+                Promise.all(resources)
+                  .then((resources) => {
+                    for (let resource of resources) {
+                      this.decodedBuffers.push((<GenericResource>resource).data);
+                    }
+
+                    this.ok = true;
+                  });
+              }
+            }
+          }
+        } else {
+          console.warn('Unknown event object ID', type, this.id);
+        }
+
+        resolve();
+      });
   }
 
   getValue(out: Uint32Array, instance: MdxModelInstance) {

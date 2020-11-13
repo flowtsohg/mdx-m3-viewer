@@ -3,7 +3,8 @@ ModelViewer = ModelViewer.default;
 let glMatrix = ModelViewer.common.glMatrix;
 let vec3 = glMatrix.vec3;
 let quat = glMatrix.quat;
-let geometry = ModelViewer.common.geometry;
+let primitives = ModelViewer.utils.mdx.primitives;
+let createPrimitive = ModelViewer.utils.mdx.createPrimitive;
 let handlers = ModelViewer.viewer.handlers;
 let parsers = ModelViewer.parsers;
 let mdlx = parsers.mdlx;
@@ -24,23 +25,12 @@ let viewer = new ModelViewer.viewer.ModelViewer(canvas);
 
 viewer.gl.clearColor(0.7, 0.7, 0.7, 1);
 
-viewer.addHandler(handlers.mdx); // Will add BLP too.
-viewer.addHandler(handlers.geo);
+viewer.addHandler(handlers.mdx);
+viewer.addHandler(handlers.blp);
+viewer.addHandler(handlers.tga);
 viewer.addHandler(handlers.dds);
 
-viewer.on('error', (target, error, reason) => {
-  let parts = [error];
-
-  if (reason) {
-    parts.push(reason);
-  }
-
-  if (target.fetchUrl) {
-    parts.push(target.fetchUrl);
-  }
-
-  console.error('ERROR', parts.join(' '));
-});
+viewer.on('error', (e) => console.log(e));
 
 let scene = viewer.addScene();
 
@@ -92,21 +82,10 @@ animationToggleElement.addEventListener('click', () => {
   }
 });
 
-let textureModel = viewer.load(
-  {
-    geometry: geometry.createUnitRectangle(),
-    material: { renderMode: 0, twoSided: true, isBGR: false }
-  },
-  src => [src, '.geo', false]
-);
-
-let boundingShapeModel = viewer.load(
-  {
-    geometry: geometry.createUnitCube(),
-    material: { renderMode: 0, twoSided: true, isBGR: false }
-  },
-  src => [src, '.geo', false]
-);
+let textureModel;
+let boundingShapeModel;
+createPrimitive(viewer, primitives.createUnitRectangle()).then((model) => textureModel = model);
+createPrimitive(viewer, primitives.createUnitCube()).then((model) => boundingShapeModel = model);
 
 function nodeName(node) {
   let name = [node.objectType];
@@ -196,7 +175,7 @@ class TestInstance {
     this.sourceMapContainer = null;
     this.animationSelector = null;
 
-    if (instance.model.extension === '.mdx' || instance.model.extension === '.mdl') {
+    if (resource instanceof handlers.mdx.resource) {
       this.type = 'model';
 
       this.renderModelTest(name, parser);
@@ -257,7 +236,7 @@ class TestInstance {
 
   renderModelTest(name, model) {
     let stream = new LogStream(document.createElement('div'));
-    let result = ModelViewer.utils.mdxSanityTest(model);
+    let result = ModelViewer.utils.mdx.sanityTest(model);
     let header = stream.start();
     let body = null;
 
@@ -417,23 +396,23 @@ function addModelTest(name, ext, buffer, pathSolver) {
 
   let viewerModel = viewer.load(parser, (src, params) => {
     if (src === parser) {
-      return [src, ext, false];
+      return src;
     } else if (pathSolver) {
       // If an external path solver is given, this is a Hive resource, and it will handle custom textures.
       return pathSolver(src);
     } else {
-      return [localOrHive(src, params), src.substr(src.lastIndexOf('.')), true];
+      return localOrHive(src, params);
     }
   });
 
-  viewerModel.whenLoaded().then(() => {
-    let instance = viewerModel.addInstance();
+  viewerModel.then((model) => {
+    let instance = model.addInstance();
 
     instance.setScene(scene);
     instance.setSequence(0);
     instance.setSequenceLoopMode(2);
 
-    let test = addTest(name, viewerModel, instance, parser);
+    let test = addTest(name, model, instance, parser);
 
     tryToInjectCustomTextures(test);
   });
@@ -514,24 +493,22 @@ function addTextureTest(name, ext, buffer) {
     parser = buffer;
   }
 
-  let viewerTexture = viewer.load(parser, src => {
-    return [src, ext, false];
-  });
+  let viewerTexture = viewer.load(parser);
 
-  let instance = textureModel
-    .addInstance()
-    .uniformScale(128)
-    .rotate(quat.setAxisAngle([], [0, 0, 1], Math.PI / 2));
+  viewerTexture.then((texture) => {
+    let instance = textureModel
+      .addInstance()
+      .uniformScale(128)
+      .rotate(quat.setAxisAngle([], [0, 0, 1], Math.PI / 2));
 
-  instance.setTexture(0, viewerTexture);
+    instance.setTexture(0, texture);
 
-  instance.setScene(scene);
+    instance.setScene(scene);
 
-  viewerTexture.whenLoaded().then(() => {
     // Don't really care about the size of the texture instance, just the proportions.
-    instance.scale([viewerTexture.width / viewerTexture.height, 1, 1]);
+    instance.scale([texture.width / texture.height, 1, 1]);
 
-    let test = addTest(name, viewerTexture, instance, parser);
+    let test = addTest(name, texture, instance, parser);
 
     // Try to load this texture as a custom texture, in case a model that uses it was loaded before.
     tryToLoadCustomTexture(test);

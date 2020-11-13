@@ -3,7 +3,7 @@ import Camera from './camera';
 import Grid from './grid';
 import ModelInstance from './modelinstance';
 import BatchedInstance from './batchedinstance';
-import TextureMapper from './texturemapper';
+import ResourceMapper from './resourcemapper';
 import RenderBatch from './renderbatch';
 import EmittedObjectUpdater from './emittedobjectupdater';
 
@@ -13,7 +13,7 @@ import EmittedObjectUpdater from './emittedobjectupdater';
  * Every scene has its own list of model instances, and its own camera and viewport.
  *
  * In addition, every scene may have its own AudioContext if enableAudio() is called.
- * If audo is enabled, the AudioContext's listener's location will be updated automatically.
+ * If audio is enabled, the AudioContext's listener's location will be updated automatically.
  * Note that due to browser policies, this may be done only after user interaction with the web page.
  */
 export default class Scene {
@@ -24,12 +24,12 @@ export default class Scene {
   visibleInstances: number = 0;
   updatedParticles: number = 0;
   audioEnabled: boolean = false;
-  audioContext: AudioContext | null = null;
+  audioContext?: AudioContext;
   instances: ModelInstance[] = [];
   currentInstance: number = 0;
   batchedInstances: BatchedInstance[] = [];
   currentBatchedInstance: number = 0;
-  batches: Map<TextureMapper, RenderBatch> = new Map();
+  batches: Map<ResourceMapper, RenderBatch> = new Map();
   emittedObjectUpdater: EmittedObjectUpdater = new EmittedObjectUpdater();
   /**
    * Similar to WebGL's own `alpha` parameter.
@@ -99,12 +99,9 @@ export default class Scene {
 
       instance.scene = this;
 
-      // Only allow instances that are actually ok to be added the scene.
-      if (instance.model.ok) {
-        this.grid.moved(instance);
+      this.grid.moved(instance);
 
-        return true;
-      }
+      return true;
     }
 
     return false;
@@ -119,7 +116,7 @@ export default class Scene {
     if (instance.scene === this) {
       this.grid.remove(instance);
 
-      instance.scene = null;
+      instance.scene = undefined;
 
       return true;
     }
@@ -134,7 +131,7 @@ export default class Scene {
     // First remove references to this scene stored in the instances.
     for (let cell of this.grid.cells) {
       for (let instance of cell.instances) {
-        instance.scene = null;
+        instance.scene = undefined;
       }
     }
 
@@ -156,14 +153,14 @@ export default class Scene {
   }
 
   addToBatch(instance: BatchedInstance) {
-    let textureMapper = instance.textureMapper;
+    let resourceMapper = instance.resourceMapper;
     let batches = this.batches;
-    let batch = batches.get(textureMapper);
+    let batch = batches.get(resourceMapper);
 
     if (!batch) {
-      batch = instance.getBatch(textureMapper);
+      batch = instance.getBatch(resourceMapper);
 
-      batches.set(textureMapper, batch);
+      batches.set(resourceMapper, batch);
     }
 
     batch.add(instance);

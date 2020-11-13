@@ -2,9 +2,10 @@ import Reference from '../../../parsers/m3/reference';
 import Layer from '../../../parsers/m3/layer';
 import Texture from '../../texture';
 import ShaderProgram from '../../gl/program';
-import TextureMapper from '../../texturemapper';
-import M3StandardMaterial from './standardmaterial';
+import ResourceMapper from '../../resourcemapper';
+import { M3StandardMaterial, STANDARD_MATERIAL_OFFSET } from './standardmaterial';
 import M3Model from './model';
+import M3Texture from './texture';
 
 const layerTypeToTextureUnit = {
   diffuse: 1,
@@ -28,12 +29,14 @@ const layerTypeToTextureUnit = {
  */
 export default class M3Layer {
   model: M3Model;
+  material: M3StandardMaterial;
+  index: number;
   active: number = 0;
-  layer: Layer | null = null;
+  layer?: Layer;
   gl: WebGLRenderingContext;
   uniformMap: { map: string; enabled: string; op: string; channels: string; teamColorMode: string; invert: string; clampResult: string; uvCoordinate: string; };
   source: string = '';
-  texture: Texture | null = null;
+  texture?: M3Texture;
   flags: number = 0;
   colorChannels: number = 0;
   type: string = '';
@@ -44,11 +47,13 @@ export default class M3Layer {
   clampResult: number = 0;
   teamColorMode: number = 0;
 
-  constructor(material: M3StandardMaterial, layerReference: Reference | null, type: string, op: number) {
+  constructor(material: M3StandardMaterial, index: number, layerReference: Reference | null, type: string, op: number) {
     let model = material.model;
 
     this.model = model;
+    this.material = material;
     this.gl = material.gl;
+    this.index = index;
 
     let uniform = 'u_' + type;
     let settings = uniform + 'LayerSettings.';
@@ -76,9 +81,6 @@ export default class M3Layer {
 
       if (source.length) {
         this.source = source;
-
-        this.texture = <Texture>model.viewer.load(source, pathSolver);
-
         this.active = 1;
 
         let uvSource = layer.uvSource;
@@ -112,11 +114,22 @@ export default class M3Layer {
         if (type === 'diffuse') {
           this.teamColorMode = 1;
         }
+
+        let m3Texture = new M3Texture(!!(flags & 0x4), !!(flags & 0x8));
+
+        model.viewer.load(source, pathSolver)
+          .then((texture) => {
+            if (texture) {
+              m3Texture.texture = <Texture>texture;
+            }
+          });
+
+        this.texture = m3Texture;
       }
     }
   }
 
-  bind(shader: ShaderProgram, textureMapper: TextureMapper) {
+  bind(shader: ShaderProgram, resourceMapper: ResourceMapper) {
     let gl = this.gl;
     let uniformMap = this.uniformMap;
     let uniforms = shader.uniforms;
@@ -125,12 +138,13 @@ export default class M3Layer {
     gl.uniform1f(uniforms[uniformMap.enabled], active);
 
     if (active) {
-      let texture = this.texture;
+      let m3Texture = <M3Texture>this.texture;
+      let texture = <Texture | undefined>resourceMapper.get(this.material.index * STANDARD_MATERIAL_OFFSET + this.index) || m3Texture.texture;
       let textureUnit = this.textureUnit;
 
       gl.uniform1i(uniforms[uniformMap.map], textureUnit);
 
-      this.model.viewer.webgl.bindTexture(textureMapper.get(texture) || texture, textureUnit);
+      this.model.viewer.webgl.bindTextureAndWrap(texture, textureUnit, m3Texture.wrapS, m3Texture.wrapT);
 
       gl.uniform1f(uniforms[uniformMap.op], this.op);
       gl.uniform1f(uniforms[uniformMap.channels], this.colorChannels);

@@ -3,14 +3,14 @@ import { JpegImage } from '../../../thirdparty/jpg';
 import BitStream from '../../common/bitstream';
 import convertBitRange from '../../common/convertbitrange';
 
-const BLP1_MAGIC = 0x31504c42;
+export const BLP1_MAGIC = 0x31504c42;
 const CONTENT_JPG = 0x0;
 // const CONTENT_PALLETE = 0x1;
 
 /**
  * A BLP1 texture.
  */
-export default class BlpImage {
+export class BlpImage {
   content: number = 0;
   alphaBits: number = 0;
   width: number = 0;

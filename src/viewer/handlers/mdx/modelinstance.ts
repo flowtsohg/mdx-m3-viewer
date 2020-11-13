@@ -1,6 +1,9 @@
 import { vec3, quat } from 'gl-matrix';
 import ModelInstance from '../../modelinstance';
 import { createSkeletalNodes, SkeletalNode } from '../../node';
+import DataTexture from '../../gl/datatexture';
+import Scene from '../../scene';
+import Texture from '../../texture';
 import Node from './node';
 import AttachmentInstance from './attachmentinstance';
 import ParticleEmitter from './particleemitter';
@@ -10,10 +13,11 @@ import EventObjectSpnEmitter from './eventobjectspnemitter';
 import EventObjectSplEmitter from './eventobjectsplemitter';
 import EventObjectUbrEmitter from './eventobjectubremitter';
 import EventObjectSndEmitter from './eventobjectsndemitter';
-import DataTexture from '../../gl/datatexture';
 import MdxModel from './model';
 import GenericObject from './genericobject';
-import Scene from '../../scene';
+
+import { EMITTER_PARTICLE2_TEXTURE_OFFSET } from './geometryemitterfuncs';
+
 
 const visibilityHeap = new Float32Array(1);
 const translationHeap = vec3.create();
@@ -55,8 +59,8 @@ export default class MdxModelInstance extends ModelInstance {
   worldMatrices: Float32Array | null = null;
   boneTexture: DataTexture | null = null;
 
-  load() {
-    let model = <MdxModel>this.model;
+  constructor(model: MdxModel) {
+    super(model);
 
     for (let i = 0, l = model.geosets.length; i < l; i++) {
       this.geosetColors[i] = new Float32Array(4);
@@ -165,6 +169,18 @@ export default class MdxModelInstance extends ModelInstance {
     if (model.bones.length) {
       this.boneTexture = new DataTexture(model.viewer.gl, 4, model.bones.length * 4, 1);
     }
+  }
+
+  setTexture(index: number, texture?: Texture) {
+    this.setResource(index, texture);
+  }
+
+  setParticle2Texture(index: number, texture?: Texture) {
+    this.setResource(EMITTER_PARTICLE2_TEXTURE_OFFSET + index, texture);
+  }
+
+  setEventTexture(index: number, texture?: Texture) {
+    this.setResource(EMITTER_PARTICLE2_TEXTURE_OFFSET + index, texture);
   }
 
   /**
@@ -480,24 +496,21 @@ export default class MdxModelInstance extends ModelInstance {
    */
   setSequence(id: number) {
     let model = <MdxModel>this.model;
+    let sequences = model.sequences;
 
     this.sequence = id;
 
-    if (model.ok) {
-      let sequences = model.sequences;
-
-      if (id < 0 || id > sequences.length - 1) {
-        this.sequence = -1;
-        this.frame = 0;
-        this.allowParticleSpawn = false;
-      } else {
-        this.frame = sequences[id].interval[0];
-      }
-
-      this.resetEventEmitters();
-
-      this.forced = true;
+    if (id < 0 || id > sequences.length - 1) {
+      this.sequence = -1;
+      this.frame = 0;
+      this.allowParticleSpawn = false;
+    } else {
+      this.frame = sequences[id].interval[0];
     }
+
+    this.resetEventEmitters();
+
+    this.forced = true;
 
     return this;
   }

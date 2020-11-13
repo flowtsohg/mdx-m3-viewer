@@ -26,6 +26,8 @@ import GenericObject from './genericobject';
 import Batch from './batch';
 import Geoset from './geoset';
 import MdxModelInstance from './modelinstance';
+import MdxTexture from './texture';
+import { HandlerResourceData } from '../../handlerresource';
 
 /**
  * An MDX model.
@@ -39,8 +41,7 @@ export default class MdxModel extends Model {
   globalSequences: number[] = [];
   materials: Material[] = [];
   layers: Layer[] = [];
-  replaceables: number[] = [];
-  textures: Texture[] = [];
+  textures: MdxTexture[] = [];
   textureAnimations: TextureAnimation[] = [];
   geosets: Geoset[] = [];
   geosetAnimations: GeosetAnimation[] = [];
@@ -68,11 +69,9 @@ export default class MdxModel extends Model {
   skinDataType: number = 0;
   bytesPerSkinElement: number = 1;
 
-  createInstance(): MdxModelInstance {
-    return new MdxModelInstance(this);
-  }
+  constructor(bufferOrParser: ArrayBuffer | string | Parser, resourceData: HandlerResourceData) {
+    super(resourceData);
 
-  load(bufferOrParser: ArrayBuffer | string | Parser) {
     let parser;
 
     if (bufferOrParser instanceof Parser) {
@@ -137,11 +136,12 @@ export default class MdxModel extends Model {
       solverParams.hd = true;
     }
 
-    let gl = viewer.gl;
     let usingTeamTextures = false;
 
     // Textures.
-    for (let texture of parser.textures) {
+    let textures = parser.textures;
+    for (let i = 0, l = textures.length; i < l; i++) {
+      let texture = textures[i];
       let path = texture.path;
       let replaceableId = texture.replaceableId;
       let flags = texture.flags;
@@ -158,35 +158,47 @@ export default class MdxModel extends Model {
         path = `${path.slice(0, -4)}.dds`;
       }
 
-      let viewerTexture = <Texture>viewer.load(path, pathSolver, solverParams);
+      let mdxTexture = new MdxTexture(replaceableId, !!(flags & 0x1), !!(flags & 0x2));
 
-      // When the texture will load, it will apply its wrap modes.
-      if (!viewerTexture.loaded) {
-        if (flags & 0x1) {
-          viewerTexture.wrapS = gl.REPEAT;
-        }
+      viewer.load(path, pathSolver, solverParams)
+        .then((texture) => {
+          if (texture) {
+            mdxTexture.texture = <Texture>texture;
+          }
+        });
 
-        if (flags & 0x2) {
-          viewerTexture.wrapT = gl.REPEAT;
-        }
-      }
-
-      this.replaceables.push(replaceableId);
-      this.textures.push(viewerTexture);
+      this.textures[i] = mdxTexture;
     }
 
     // Start loading the team color and glow textures if this model uses them and they weren't loaded previously.
     if (usingTeamTextures) {
       let mdxCache = viewer.sharedCache.get('mdx');
-      let teamColors = reforged ? mdxCache.reforgedTeamColors : mdxCache.teamColors;
-      let teamGlows = reforged ? mdxCache.reforgedTeamGlows : mdxCache.teamGlows;
+      let teamColors: MdxTexture[] = reforged ? mdxCache.reforgedTeamColors : mdxCache.teamColors;
+      let teamGlows: MdxTexture[] = reforged ? mdxCache.reforgedTeamGlows : mdxCache.teamGlows;
 
       if (!teamColors.length) {
-        for (let i = 0; i < 28; i++) {
+        for (let i = 0; i < 14; i++) {
           let id = ('' + i).padStart(2, '0');
 
-          teamColors[i] = <Texture>viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}${texturesExt}`, pathSolver, solverParams);
-          teamGlows[i] = <Texture>viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}${texturesExt}`, pathSolver, solverParams);
+          let teamColor = new MdxTexture(1, true, true);
+          let teamGlow = new MdxTexture(2, true, true);
+
+          viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}${texturesExt}`, pathSolver, solverParams)
+            .then((texture) => {
+              if (texture) {
+                teamColor.texture = <Texture>texture;
+              }
+            });
+
+          viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}${texturesExt}`, pathSolver, solverParams)
+            .then((texture) => {
+              if (texture) {
+                teamGlow.texture = <Texture>texture;
+              }
+            });
+
+          teamColors[i] = teamColor;
+          teamGlows[i] = teamGlow;
         }
       }
     }
@@ -267,6 +279,10 @@ export default class MdxModel extends Model {
     for (let i = 0, l = this.genericObjects.length; i < l; i++) {
       this.sortedGenericObjects[i] = this.genericObjects[this.hierarchy[i]];
     }
+  }
+
+  addInstance(): MdxModelInstance {
+    return new MdxModelInstance(this);
   }
 
   setupHierarchy(parent: number) {

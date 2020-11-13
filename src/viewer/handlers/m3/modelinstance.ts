@@ -2,8 +2,10 @@ import { mat4 } from 'gl-matrix';
 import DataTexture from '../../gl/datatexture';
 import Scene from '../../scene';
 import ModelInstance from '../../modelinstance';
+import Texture from '../../texture';
 import M3Model from './model';
 import M3Skeleton from './skeleton';
+import { STANDARD_MATERIAL_OFFSET } from './standardmaterial';
 
 const boneHeap = mat4.create();
 
@@ -21,7 +23,9 @@ export default class M3ModelInstance extends ModelInstance {
   forced: boolean = true;
   boneTexture: DataTexture | null = null;
 
-  load() {
+  constructor(model: M3Model) {
+    super(model);
+
     this.skeleton = new M3Skeleton(this);
 
     // This takes care of calling setSequence before the model is loaded.
@@ -31,10 +35,13 @@ export default class M3ModelInstance extends ModelInstance {
       this.setSequence(this.sequence);
     }
 
-    let model = <M3Model>this.model;
     let boneLookup = <Uint16Array>model.boneLookup;
 
     this.boneTexture = new DataTexture(model.viewer.gl, 3, boneLookup.length * 4, 1);
+  }
+
+  setTexture(material: number, layer: number, texture?: Texture) {
+    this.setResource(material * STANDARD_MATERIAL_OFFSET + layer, texture);
   }
 
   updateSkeletonAndBoneTexture(dt: number) {
@@ -105,7 +112,7 @@ export default class M3ModelInstance extends ModelInstance {
       let uniforms = shader.uniforms;
       let scene = <Scene>this.scene;
       let camera = scene.camera;
-      let textureMapper = this.textureMapper;
+      let resourceMapper = this.resourceMapper;
       let boneTexture = <DataTexture>this.boneTexture;
 
       shader.use();
@@ -142,7 +149,7 @@ export default class M3ModelInstance extends ModelInstance {
         let material = batch.material;
         let region = batch.region;
 
-        material.bind(shader, textureMapper);
+        material.bind(shader, resourceMapper);
 
         region.render(shader);
 
@@ -198,16 +205,14 @@ export default class M3ModelInstance extends ModelInstance {
     this.sequence = id;
     this.frame = 0;
 
-    if (this.model.ok) {
-      if (id < -1 || id > model.sequences.length - 1) {
-        id = -1;
+    if (id < -1 || id > model.sequences.length - 1) {
+      id = -1;
 
-        this.sequence = id;
-      }
-
-      // Do a forced update, so non-animated data can be skipped in future updates
-      this.forced = true;
+      this.sequence = id;
     }
+
+    // Do a forced update, so non-animated data can be skipped in future updates
+    this.forced = true;
 
     return this;
   }

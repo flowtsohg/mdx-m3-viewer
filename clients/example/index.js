@@ -20,59 +20,59 @@ let scene = viewer.addScene();
 setupCamera(scene);
 
 // Events.
-viewer.on('loadstart', target => console.log(target));
-viewer.on('load', target => console.log(target));
-viewer.on('loadend', target => console.log(target));
-viewer.on('error', (target, error, reason) => console.log(target, error, reason));
+viewer.on('loadstart', (viewer, path) => console.log('loadstart', path));
+viewer.on('load', (viewer, path) => console.log('load', path));
+viewer.on('loadend', (viewer, path) => console.log('loadend path', path));
+viewer.on('error', (viewer, error, reason) => console.log(viewer, error, reason));
 
-// Add the MDX handler.
+// Add the needed handlers.
 viewer.addHandler(handlers.mdx);
+viewer.addHandler(handlers.blp);
 
 // A path solver is used for every load call.
-// The purpose of a path solver is to transform local paths to either of 1) A server fetch, or 2) A local load.
-// A path solver must return the resource source, file extension, and whether it's a server fetch.
-// The above are served as an array of [finalSrc, extension, serverFetch]
-// This pathsolver returns the path prepended by 'resources/', to make the paths you supply to load calls shorter.
-// It returns the extension of the path directly (assuming it's an actual file path!).
-// Lastly, it says that this path is a server fetch.
-// If the solver returns anything false-like for the third element, there will be no server fetch, and src will be directly sent to the implementation.
-// This can be used if you want in-memory loads (e.g. see the map viewer's path solver, which handles both server fetches and local loads for Warcraft 3 maps).
+// Given a possibly relative source, it should return the actual source to load from.
+// This can be in the form of an URL string, or direct sources from memory (e.g. a previously loaded ArrayBuffer).
 function pathSolver(src) {
-  return ['resources/' + src, src.substr(src.lastIndexOf('.')), true];
+  return 'resources/' + src;
 }
 
 // Load our MDX model!
-let model = viewer.load('SmileyGW_004.mdx', pathSolver);
+let modelPromise = viewer.load('SmileyGW_004.mdx', pathSolver);
 
-// Create an instance of this model.
-let instance = model.addInstance();
+modelPromise.then((model) => {
+  // The promise can return undefined if something went wrong!
+  if (model) {
+    // Create an instance of this model.
+    let instance = model.addInstance();
 
-// Set the instance's scene.
-// Equivalent to scene.addInstance(instance)
-instance.setScene(scene);
+    // Set the instance's scene.
+    // Equivalent to scene.addInstance(instance)
+    instance.setScene(scene);
 
-// Want to run the second animation.
-// 0 is the first animation, and -1 is no animation.
-instance.setSequence(1);
+    // Want to run the second animation.
+    // 0 is the first animation, and -1 is no animation.
+    instance.setSequence(1);
 
-// Tell the instance to loop animations forever.
-// This overrides the setting in the model itself.
-instance.setSequenceLoopMode(2);
+    // Tell the instance to loop animations forever.
+    // This overrides the setting in the model itself.
+    instance.setSequenceLoopMode(2);
 
-// Let's create another instance and do other stuff with it.
-let instance2 = model.addInstance();
-instance2.setScene(scene);
-instance2.setSequence(0);
-instance2.setSequenceLoopMode(2);
-instance2.move([100, 100, 0]);
-instance2.uniformScale(0.5);
+    // Let's create another instance and do other stuff with it.
+    let instance2 = model.addInstance();
+    instance2.setScene(scene);
+    instance2.setSequence(0);
+    instance2.setSequenceLoopMode(2);
+    instance2.move([100, 100, 0]);
+    instance2.uniformScale(0.5);
 
-// And a third one.
-let instance3 = model.addInstance();
-instance3.setScene(scene);
-instance3.setSequence(2);
-instance3.setSequenceLoopMode(2);
-instance3.move([-100, -100, 0]);
+    // And a third one.
+    let instance3 = model.addInstance();
+    instance3.setScene(scene);
+    instance3.setSequence(2);
+    instance3.setSequenceLoopMode(2);
+    instance3.move([-100, -100, 0]);
+  }
+});
 
 // The viewer has the update(), startFrame(), render(), and updateAndRender() functions.
 // Generally speaking, you will want a simple never ending loop like the one that follows, but who knows. The control is in your hands.

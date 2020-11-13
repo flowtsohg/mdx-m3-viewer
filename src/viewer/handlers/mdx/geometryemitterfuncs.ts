@@ -2,6 +2,7 @@ import { vec3 } from 'gl-matrix';
 import Scene from '../../scene';
 import ShaderProgram from '../../gl/program';
 import ClientBuffer from '../../gl/clientbuffer';
+import Texture from '../../texture';
 import ParticleEmitter2Object from './particleemitter2object';
 import RibbonEmitterObject from './ribbonemitterobject';
 import EventObjectEmitterObject from './eventobjectemitterobject';
@@ -13,6 +14,7 @@ import EventObjectUbrEmitter from './eventobjectubremitter';
 import Particle2 from './particle2';
 import Ribbon from './ribbon';
 import EventObjectSplUbr from './eventobjectsplubr';
+import MdxTexture from './texture';
 
 const locationHeap = vec3.create();
 const startHeap = vec3.create();
@@ -63,6 +65,10 @@ export const EMITTER_PARTICLE2 = 0;
 export const EMITTER_RIBBON = 1;
 export const EMITTER_SPLAT = 2;
 export const EMITTER_UBERSPLAT = 3;
+
+// Offsets for overriding emitter textures using setTexture().
+export const EMITTER_PARTICLE2_TEXTURE_OFFSET = 1000;
+export const EMITTER_EVENT_TEXTURE_OFFSET = 10000;
 
 function bindParticleEmitter2Buffer(emitter: ParticleEmitter2, buffer: ClientBuffer) {
   let instance = <MdxModelInstance>emitter.instance;
@@ -130,6 +136,7 @@ function bindParticleEmitter2Buffer(emitter: ParticleEmitter2, buffer: ClientBuf
 
 function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: ShaderProgram) {
   let instance = <MdxModelInstance>emitter.instance;
+  let resourceMapper = instance.resourceMapper;
   let scene = <Scene>instance.scene;
   let camera = scene.camera;
   let emitterObject = <ParticleEmitter2Object>emitter.emitterObject;
@@ -142,23 +149,27 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: ShaderPro
   let intervals = emitterObject.intervals;
   let replaceable = emitterObject.replaceableId;
   let vectors;
-  let texture;
+  let mdxTexture = <MdxTexture>emitterObject.internalTexture;
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 
-  if (replaceable === 1) {
-    let teamColors = model.reforged ? mdxCache.reforgedTeamColors : mdxCache.teamColors;
+  let texture = <Texture | undefined>resourceMapper.get(EMITTER_PARTICLE2_TEXTURE_OFFSET + emitterObject.index);
 
-    texture = teamColors[instance.teamColor];
-  } else if (replaceable === 2) {
-    let teamGlows = model.reforged ? mdxCache.reforgedTeamGlows : mdxCache.teamGlows;
+  if (!texture) {
+    if (replaceable === 1) {
+      let teamColors: MdxTexture[] = model.reforged ? mdxCache.reforgedTeamColors : mdxCache.teamColors;
 
-    texture = teamGlows[instance.teamColor];
-  } else {
-    texture = emitterObject.internalTexture;
+      mdxTexture = teamColors[instance.teamColor];
+    } else if (replaceable === 2) {
+      let teamGlows: MdxTexture[] = model.reforged ? mdxCache.reforgedTeamGlows : mdxCache.teamGlows;
+
+      mdxTexture = teamGlows[instance.teamColor];
+    }
+
+    texture = mdxTexture.texture;
   }
 
-  viewer.webgl.bindTexture(texture, 0);
+  viewer.webgl.bindTextureAndWrap(texture, 0, mdxTexture.wrapS, mdxTexture.wrapT);
 
   // Choose between a default rectangle or a billboarded one
   if (emitterObject.xYQuad) {
@@ -247,17 +258,18 @@ function bindRibbonEmitterBuffer(emitter: RibbonEmitter, buffer: ClientBuffer) {
 }
 
 function bindRibbonEmitterShader(emitter: RibbonEmitter, shader: ShaderProgram) {
-  let textureMapper = emitter.instance.textureMapper;
+  let resourceMapper = emitter.instance.resourceMapper;
   let emitterObject = <RibbonEmitterObject>emitter.emitterObject;
   let layer = emitterObject.layer;
   let model = emitterObject.model;
   let gl = model.viewer.gl;
   let uniforms = shader.uniforms;
   let texture = model.textures[layer.textureId];
+  let actualTexture = <Texture | undefined>resourceMapper.get(layer.textureId) || texture.texture;
 
   layer.bind(shader);
 
-  model.viewer.webgl.bindTexture(textureMapper.get(texture) || texture, 0);
+  model.viewer.webgl.bindTextureAndWrap(actualTexture, 0, texture.wrapS, texture.wrapT);
 
   gl.uniform1f(uniforms.u_columns, emitterObject.columns);
   gl.uniform1f(uniforms.u_rows, emitterObject.rows);
@@ -293,7 +305,7 @@ function bindEventObjectEmitterBuffer(emitter: EventObjectSplEmitter | EventObje
 }
 
 function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader: ShaderProgram) {
-  let textureMapper = emitter.instance.textureMapper;
+  let resourceMapper = emitter.instance.resourceMapper;
   let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
   let intervalTimes = <Float32Array>emitterObject.intervalTimes;
   let intervals = <Float32Array[]>emitterObject.intervals;
@@ -301,11 +313,12 @@ function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader:
   let model = emitterObject.model;
   let gl = model.viewer.gl;
   let uniforms = shader.uniforms;
-  let texture = emitterObject.internalTexture;
+  let texture = <MdxTexture>emitterObject.internalTexture;
+  let actualTexture = <Texture | undefined>resourceMapper.get(EMITTER_EVENT_TEXTURE_OFFSET + emitterObject.index) || texture.texture;
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 
-  model.viewer.webgl.bindTexture(textureMapper.get(texture) || texture, 0);
+  model.viewer.webgl.bindTextureAndWrap(actualTexture, 0, texture.wrapS, texture.wrapT);
 
   gl.uniform1f(uniforms.u_lifeSpan, emitterObject.lifeSpan);
   gl.uniform1f(uniforms.u_columns, emitterObject.columns);
@@ -323,7 +336,7 @@ function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader:
 }
 
 function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader: ShaderProgram) {
-  let textureMapper = emitter.instance.textureMapper;
+  let resourceMapper = emitter.instance.resourceMapper;
   let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
   let intervalTimes = <Float32Array>emitterObject.intervalTimes;
   let colors = <Float32Array[]>emitterObject.colors;
@@ -331,11 +344,12 @@ function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader:
   let viewer = model.viewer;
   let gl = viewer.gl;
   let uniforms = shader.uniforms;
-  let texture = emitterObject.internalTexture;
+  let texture = <MdxTexture>emitterObject.internalTexture;
+  let actualTexture = <Texture | undefined>resourceMapper.get(EMITTER_EVENT_TEXTURE_OFFSET + emitterObject.index) || texture.texture;
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 
-  viewer.webgl.bindTexture(textureMapper.get(texture) || texture, 0);
+  model.viewer.webgl.bindTextureAndWrap(actualTexture, 0, texture.wrapS, texture.wrapT);
 
   gl.uniform1f(uniforms.u_lifeSpan, emitterObject.lifeSpan);
   gl.uniform1f(uniforms.u_columns, emitterObject.columns);

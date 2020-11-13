@@ -2,7 +2,7 @@ import Parser from '../../../parsers/m3/model';
 import M3ParserModel from '../../../parsers/m3/modelheader';
 import M3ParserDivision from '../../../parsers/m3/division';
 import Model from '../../model';
-import M3StandardMaterial from './standardmaterial';
+import { M3StandardMaterial } from './standardmaterial';
 import M3Bone from './bone';
 import M3Sequence from './sequence';
 import M3Sts from './sts';
@@ -13,6 +13,7 @@ import M3Camera from './camera';
 import M3Region from './region';
 import M3ModelInstance from './modelinstance';
 import M3Batch from './batch';
+import { HandlerResourceData } from '../../handlerresource';
 
 /**
  * An M3 model.
@@ -37,11 +38,9 @@ export default class M3Model extends Model {
   vertexSize: number = 0;
   uvSetCount: number = 0;
 
-  createInstance(): M3ModelInstance {
-    return new M3ModelInstance(this);
-  }
+  constructor(bufferOrParser: ArrayBuffer | Parser, resourceData: HandlerResourceData) {
+    super(resourceData);
 
-  load(bufferOrParser: ArrayBuffer | Parser) {
     let parser;
 
     if (bufferOrParser instanceof Parser) {
@@ -62,8 +61,11 @@ export default class M3Model extends Model {
     this.materialMaps = materialMaps;
 
     // Create concrete material objects for standard materials
-    for (let material of model.materials[0].getAll()) {
-      this.materials[1].push(new M3StandardMaterial(this, material));
+
+    let standardMaterials = model.materials[0].getAll();
+
+    for (let i = 0, l = standardMaterials.length; i < l; i++) {
+      this.materials[1].push(new M3StandardMaterial(this, i, standardMaterials[i]));
     }
 
     // Create concrete batch objects
@@ -170,6 +172,10 @@ export default class M3Model extends Model {
     for (let camera of model.cameras.getAll()) {
       this.cameras.push(new M3Camera(camera));
     }
+  }
+
+  addInstance(): M3ModelInstance {
+    return new M3ModelInstance(this);
   }
 
   setupGeometry(parser: M3ParserModel, div: M3ParserDivision) {

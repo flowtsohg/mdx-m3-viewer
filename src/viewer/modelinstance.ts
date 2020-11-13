@@ -2,15 +2,15 @@ import { testSphere, distanceToPlane3 } from '../common/gl-matrix-addon';
 import { Node } from './node';
 import Model from './model';
 import Scene from './scene';
-import TextureMapper from './texturemapper';
-import Texture from './texture';
+import ResourceMapper from './resourcemapper';
+import { Resource } from './resource';
 import Camera from './camera';
 
 /**
  * A model instance.
  */
 export default abstract class ModelInstance extends Node {
-  scene: Scene | null = null;
+  scene?: Scene;
   left: number = -1;
   right: number = -1;
   bottom: number = -1;
@@ -20,7 +20,7 @@ export default abstract class ModelInstance extends Node {
   updateFrame: number = 0;
   cullFrame: number = 0;
   model: Model;
-  textureMapper: TextureMapper;
+  resourceMapper: ResourceMapper;
   /**
    * If true, this instance won't be updated.
    */
@@ -37,16 +37,16 @@ export default abstract class ModelInstance extends Node {
     super();
 
     this.model = model;
-    this.textureMapper = model.viewer.baseTextureMapper(model);
+    this.resourceMapper = model.viewer.baseTextureMapper(model);
   }
 
   /**
-   * Set the texture at the given key to the given texture.
+   * Set the texture at the given index to the given texture.
    * 
    * If a texture isn't given, the key is deleted instead.
    */
-  setTexture(key: any, texture?: Texture) {
-    this.textureMapper = this.model.viewer.changeTextureMapper(this, key, texture);
+  setResource(index: number, resource?: Resource) {
+    this.resourceMapper = this.model.viewer.changeResourceMapper(this, index, resource);
   }
 
   /**
@@ -88,13 +88,6 @@ export default abstract class ModelInstance extends Node {
     }
 
     return false;
-  }
-
-  /**
-   * Called once the model is loaded, or immediately if the model was already loaded.
-   */
-  load() {
-
   }
 
   /**
@@ -153,10 +146,20 @@ export default abstract class ModelInstance extends Node {
 
   isVisible(camera: Camera) {
     let [x, y, z] = this.worldLocation;
+    let [sx, sy, sz] = this.worldScale;
     let bounds = this.model.bounds;
     let planes = camera.planes;
 
-    this.plane = testSphere(planes, x + bounds.x, y + bounds.y, z, bounds.r, this.plane);
+    // Get the biggest scaling dimension.
+    if (sy > sx) {
+      sx = sy;
+    }
+
+    if (sz > sx) {
+      sx = sz;
+    }
+
+    this.plane = testSphere(planes, x + bounds.x, y + bounds.y, z, bounds.r * sx, this.plane);
 
     if (this.plane === -1) {
       this.depth = distanceToPlane3(planes[4], x, y, z);

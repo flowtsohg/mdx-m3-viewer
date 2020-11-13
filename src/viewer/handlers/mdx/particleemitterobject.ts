@@ -6,24 +6,18 @@ import GenericObject from './genericobject';
  * An MDX particle emitter.
  */
 export default class ParticleEmitterObject extends GenericObject {
-  internalModel: MdxModel;
+  internalModel?: MdxModel;
   speed: number;
   latitude: number;
   longitude: number;
   lifeSpan: number;
   gravity: number;
   emissionRate: number;
-  /**
-   * No need to create instances of the internal model if it didn't load.
-   * 
-   * Such instances won't actually render, and who knows if the model will ever load?
-   */
   ok: boolean = false;
 
   constructor(model: MdxModel, emitter: ParticleEmitter, index: number) {
     super(model, emitter, index);
 
-    this.internalModel = <MdxModel>model.viewer.load(emitter.path.replace(/\\/g, '/').toLowerCase().replace('.mdl', '.mdx'), model.pathSolver, model.solverParams);
     this.speed = emitter.speed;
     this.latitude = emitter.latitude;
     this.longitude = emitter.longitude;
@@ -31,10 +25,13 @@ export default class ParticleEmitterObject extends GenericObject {
     this.gravity = emitter.gravity;
     this.emissionRate = emitter.emissionRate;
 
-    // Activate emitters based on this emitter object only when and if the internal model loads successfully.
-    this.internalModel.whenLoaded(() => {
-      this.ok = this.internalModel.ok;
-    });
+    model.viewer.load(emitter.path.replace(/\\/g, '/').toLowerCase().replace('.mdl', '.mdx'), model.pathSolver, model.solverParams)
+      .then((model) => {
+        if (model) {
+          this.internalModel = <MdxModel>model;
+          this.ok = true;
+        }
+      });
   }
 
   getSpeed(out: Float32Array, sequence: number, frame: number, counter: number) {

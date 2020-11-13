@@ -36,15 +36,15 @@ export default class M3ParserLayer {
   unknown2: M3ParserUint32AnimationReference;
   unknown3: M3ParserFloat32AnimationReference;
   brightness: M3ParserFloat32AnimationReference;
-  triPlanarOffset: M3ParserVector3AnimationReference | null = null;
-  triPlanarScale: M3ParserVector3AnimationReference | null = null;
+  triPlanarOffset?: M3ParserVector3AnimationReference;
+  triPlanarScale?: M3ParserVector3AnimationReference;
   unknown4: number;
   fresnelType: number;
   fresnelExponent: number;
   fresnelMin: number;
   fresnelMaxOffset: number;
   unknown5: number;
-  unknown6: Uint8Array | null = null;
+  unknown6?: Uint8Array;
   fresnelInvertedMaskX: number = 0;
   fresnelInvertedMaskY: number = 0;
   fresnelInvertedMaskZ: number = 0;

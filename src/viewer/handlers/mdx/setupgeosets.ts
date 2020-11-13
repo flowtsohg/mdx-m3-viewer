@@ -138,7 +138,7 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
           }
         }
 
-        let vGeoset = new Geoset(model, model.geosets.length, positionOffset, normalOffset, uvOffset, skinOffset, faceOffset, vertices, faces.length);
+        let vGeoset = new Geoset(model, model.geosets.length, positionOffset, normalOffset, uvOffset, skinOffset, faceOffset, vertices, faces.length, geoset.faceTypeGroups[0]);
 
         model.geosets.push(vGeoset);
 

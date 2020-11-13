@@ -8,7 +8,7 @@ import MdxModel from './model';
 export default class Attachment extends GenericObject {
   path: string;
   attachmentId: number;
-  internalModel: MdxModel | null = null;
+  internalModel?: MdxModel;
 
   constructor(model: MdxModel, attachment: MdlxAttachment, index: number) {
     super(model, attachment, index);
@@ -20,7 +20,15 @@ export default class Attachment extends GenericObject {
 
     // Second condition is against custom resources using arbitrary paths...
     if (path !== '' && path.indexOf('.mdx') != -1) {
-      this.internalModel = <MdxModel>model.viewer.load(path, model.pathSolver, model.solverParams);
+      let promise = model.viewer.load(path, model.pathSolver, model.solverParams);
+
+      promise.then((model) => {
+        if (model) {
+          this.internalModel = <MdxModel>model;
+        }
+      });
+
+      model.blockers.push(promise);
     }
   }
 

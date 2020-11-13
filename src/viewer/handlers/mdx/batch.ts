@@ -9,13 +9,13 @@ export default class Batch {
   index: number;
   geoset: Geoset;
   layer: Layer;
-  material: Material | null;
+  material?: Material;
   isExtended: boolean;
   isHd: boolean;
 
   constructor(index: number, geoset: Geoset, layerOrMaterial: Layer | Material, isExtended: boolean, isHd: boolean) {
-    let material = null;
-    let layer = null;
+    let material;
+    let layer;
 
     if (isHd) {
       material = <Material>layerOrMaterial;

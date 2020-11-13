@@ -1,11 +1,15 @@
-import BlpImage from '../../../parsers/blp/image';
+import { isPowerOfTwo } from '../../../common/math';
+import { BlpImage } from '../../../parsers/blp/image';
+import { HandlerResourceData } from '../../handlerresource';
 import Texture from '../../texture';
 
 /**
  * A BLP texure handler.
  */
 export default class BlpTexture extends Texture {
-  load(bufferOrImage: ArrayBuffer | BlpImage) {
+  constructor(bufferOrImage: ArrayBuffer | BlpImage, resourceData: HandlerResourceData) {
+    super(resourceData);
+
     let image;
 
     if (bufferOrImage instanceof BlpImage) {
@@ -23,6 +27,15 @@ export default class BlpTexture extends Texture {
     let imageData = image.getMipmap(0);
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+    if (isPowerOfTwo(imageData.width) && isPowerOfTwo(imageData.height)) {
+      gl.generateMipmap(gl.TEXTURE_2D);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    } else {
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    }
 
     /// TODO: What to do with fake mipmaps?
     // let mipmaps = image.mipmaps();

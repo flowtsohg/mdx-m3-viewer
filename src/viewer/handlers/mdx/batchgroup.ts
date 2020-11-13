@@ -1,9 +1,11 @@
 import ShaderProgram from '../../gl/program';
 import Scene from '../../scene';
+import Texture from '../../texture';
 import MdxModel from './model';
 import MdxModelInstance from './modelinstance';
 import Batch from './batch';
 import Material from './material';
+import MdxTexture from './texture';
 
 /**
  * A group of batches that are going to be rendered together.
@@ -22,7 +24,7 @@ export default class BatchGroup {
 
   render(instance: MdxModelInstance) {
     let scene = <Scene>instance.scene;
-    let textureMapper = instance.textureMapper;
+    let resourceMapper = instance.resourceMapper;
     let layerAlphas = instance.layerAlphas;
     let model = this.model;
     let textures = model.textures;
@@ -34,8 +36,8 @@ export default class BatchGroup {
     let isExtended = this.isExtended;
     let isHd = this.isHd;
     let isReforged = model.reforged;
-    let teamColors;
-    let teamGlows;
+    let teamColors: MdxTexture[];
+    let teamGlows: MdxTexture[];
     let shader;
 
     if (isReforged) {
@@ -101,20 +103,25 @@ export default class BatchGroup {
           gl.uniform1f(uniforms.u_layerAlpha, layerAlpha);
           gl.uniform1f(uniforms.u_filterMode, diffuseLayer.filterMode);
 
-          let diffuseTexture = textures[diffuseLayer.textureId];
-          let ormTexture = textures[ormLayer.textureId];
-          let teamColorTexture = teamColors[instance.teamColor];
+          let diffuseId = diffuseLayer.textureId;
+          let ormId = ormLayer.textureId;
 
-          webgl.bindTexture(textureMapper.get(diffuseTexture) || diffuseTexture, 0);
-          webgl.bindTexture(textureMapper.get(ormTexture) || ormTexture, 1);
-          webgl.bindTexture(textureMapper.get(teamColorTexture) || teamColorTexture, 2);
+          let diffuseTexture = textures[diffuseId];
+          let ormTexture = textures[ormId];
+          let tcTexture = teamColors[instance.teamColor];
+
+          let actualDiffuseTexture = <Texture | undefined>resourceMapper.get(diffuseId) || diffuseTexture.texture;
+          let actualOrmTexture = <Texture | undefined>resourceMapper.get(ormId) || ormTexture.texture;
+
+          webgl.bindTextureAndWrap(actualDiffuseTexture, 0, diffuseTexture.wrapS, diffuseTexture.wrapT);
+          webgl.bindTextureAndWrap(actualOrmTexture, 1, ormTexture.wrapS, ormTexture.wrapT);
+          webgl.bindTextureAndWrap(tcTexture.texture, 2, tcTexture.wrapS, tcTexture.wrapT);
 
           geoset.bindHd(shader, diffuseLayer.coordId);
           geoset.render();
         }
       }
     } else {
-      let replaceables = model.replaceables;
       let geosetColors = instance.geosetColors;
       let layerTextures = instance.layerTextures;
       let uvAnims = instance.uvAnims;
@@ -131,7 +138,8 @@ export default class BatchGroup {
         let layerAlpha = layerAlphas[layerIndex];
 
         if (geosetColor[3] > 0.01 && layerAlpha > 0.01) {
-          let layerTexture = layerTextures[layerIndex];
+          let textureIndex = layerTextures[layerIndex];
+          let layerTexture = textures[textureIndex];
           let uvAnim = uvAnims[layerIndex];
 
           gl.uniform4fv(uniforms.u_geosetColor, geosetColor);
@@ -144,21 +152,24 @@ export default class BatchGroup {
 
           layer.bind(shader);
 
-          let replaceable = replaceables[layerTexture];
-          let texture;
+          let texture = <Texture | undefined>resourceMapper.get(textureIndex);
 
-          if (replaceable === 1) {
-            texture = teamColors[instance.teamColor];
-          } else if (replaceable === 2) {
-            texture = teamGlows[instance.teamColor];
-          } else {
-            texture = textures[layerTexture];
+          if (!texture) {
+            let replaceable = layerTexture.replaceableId;
+            let mdxTexture;
 
-            // Overriding.
-            texture = textureMapper.get(texture) || texture;
+            if (replaceable === 1) {
+              mdxTexture = teamColors[instance.teamColor];
+            } else if (replaceable === 2) {
+              mdxTexture = teamGlows[instance.teamColor];
+            } else {
+              mdxTexture = layerTexture;
+            }
+
+            texture = mdxTexture.texture;
           }
 
-          webgl.bindTexture(texture, 0);
+          webgl.bindTextureAndWrap(texture, 0, layerTexture.wrapS, layerTexture.wrapT);
 
           if (isExtended) {
             geoset.bindExtended(shader, layer.coordId);

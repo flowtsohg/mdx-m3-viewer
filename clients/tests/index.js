@@ -7,16 +7,13 @@ quat = glMatrix.quat;
 mat3 = glMatrix.mat3;
 mat4 = glMatrix.mat4;
 UnitTester = ModelViewer.utils.UnitTester;
-geometry = ModelViewer.common.geometry;
 math = ModelViewer.common.math;
+primitives = ModelViewer.utils.mdx.primitives;
+createPrimitive = ModelViewer.utils.mdx.createPrimitive;
 
-geoSolver = (src) => {
-  return [src, '.geo', false];
-};
+geoSolver = (src) => src;
 
 wc3Solver = (path, params) => {
-  let ext = path.substr(path.lastIndexOf('.'));
-
   path = localOrHive(path, params);
 
   // GREAT JOB BLIZZARD. AWESOME PATCHES.
@@ -24,16 +21,10 @@ wc3Solver = (path, params) => {
     path = path.replace('orcbloodriderlesswyvernrider.mdx', 'ordbloodriderlesswyvernrider.mdx');
   }
 
-  return [path, ext, true];
+  return path;
 };
 
-sc2Solver = (path, params) => {
-  let ext = path.substr(path.lastIndexOf('.'));
-
-  path = localOrHive(path, params);
-
-  return [path, ext, true];
-};
+sc2Solver = (path, params) => localOrHive(path, params);
 
 function addTestResult(table, testResult) {
   let tr = table.insertRow();
@@ -101,8 +92,8 @@ document.getElementById('version').textContent = 'Viewer version ' + ModelViewer
 console.log('Viewer version', ModelViewer.version);
 
 unitTester.add(mdxTests);
+unitTester.add(mdxPrimitivesTests);
 unitTester.add(m3Tests);
-unitTester.add(geoTests);
 unitTester.add(baseTests);
 
 let runElement = document.getElementById('run');

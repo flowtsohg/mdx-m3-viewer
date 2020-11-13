@@ -7,8 +7,8 @@ import { Resource } from '../viewer/resource';
 import Scene from '../viewer/scene';
 import Camera from '../viewer/camera';
 import mdxHandler from '../viewer/handlers/mdx/handler';
+import blpHandler from '../viewer/handlers/blp/handler';
 import m3Handler from '../viewer/handlers/m3/handler';
-import geoHandler from '../viewer/handlers/geo/handler';
 
 /**
  * The signature of a test loader.
@@ -89,11 +89,11 @@ export default class UnitTester {
 
     viewer.gl.clearColor(0.05, 0.05, 0.05, 1);
 
-    viewer.on('error', (target, error, reason) => console.log(target, error, reason));
+    viewer.on('error', ({ error, fetchUrl, reason }) => console.log(error, fetchUrl, reason));
 
     viewer.addHandler(mdxHandler);
+    viewer.addHandler(blpHandler);
     viewer.addHandler(m3Handler);
-    viewer.addHandler(geoHandler);
 
     this.viewer = viewer;
   }
@@ -170,15 +170,13 @@ export default class UnitTester {
     if (data) {
       if (Array.isArray(data)) {
         for (let resource of data) {
-          if (!resource.ok) {
+          if (!resource) {
             return false;
           }
         }
-
-        return true;
       }
 
-      return data.ok;
+      return true;
     }
 
     return false;
@@ -207,6 +205,12 @@ export default class UnitTester {
 
     // Wait until everything loaded.
     await viewer.whenAllLoaded();
+
+    if (Array.isArray(data)) {
+      data = await Promise.all(data);
+    } else {
+      data = await data;
+    }
 
     if (this.isDataAGo(data)) {
       // Replace Math.random with a custom seeded random generator.

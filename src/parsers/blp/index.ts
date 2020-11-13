@@ -1,4 +1,4 @@
-import Image from './image';
+import { BlpImage as Image } from './image';
 
 export default {
   Image,

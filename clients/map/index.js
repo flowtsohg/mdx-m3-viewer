@@ -7,9 +7,7 @@ const quat = glMatrix.quat;
 const math = glMatrix.math;
 
 function wc3PathSolver(src, params) {
-  let finalSrc = localOrHive(src.toLowerCase().replace(/\\/g, '/'), params);
-
-  return [finalSrc, src.substr(src.lastIndexOf('.')), true];
+  return localOrHive(src.toLowerCase().replace(/\\/g, '/'), params);
 }
 
 let statusElement = document.getElementById('status');
@@ -28,9 +26,8 @@ function updateStatus() {
   }
 }
 
-for (let resource of viewer.resourcesLoading) {
-  let path = resource.fetchUrl;
-  let file = path.slice(path.lastIndexOf('/') + 1);
+for (let key of viewer.promiseMap.keys()) {
+  let file = key.slice(key.lastIndexOf('/') + 1);
 
   if (file !== '') {
     thingsLoading.push(file);
@@ -39,34 +36,24 @@ for (let resource of viewer.resourcesLoading) {
 
 updateStatus();
 
-viewer.on('loadstart', target => {
-  let path = target.fetchUrl;
+viewer.on('loadstart', ({ fetchUrl }) => {
+  let file = fetchUrl.slice(fetchUrl.lastIndexOf('/') + 1);
 
-  // PromiseResource has no path, nor does it need to be tracked.
-  if (path) {
-    let file = path.slice(path.lastIndexOf('/') + 1);
-
-    if (file !== '') {
-      thingsLoading.push(file);
-      updateStatus();
-    }
+  if (file !== '') {
+    thingsLoading.push(file);
+    updateStatus();
   }
 });
 
-viewer.on('loadend', target => {
-  let path = target.fetchUrl;
+viewer.on('loadend', ({ fetchUrl }) => {
+  let file = fetchUrl.slice(fetchUrl.lastIndexOf('/') + 1);
 
-  // PromiseResource has no path, nor does it need to be tracked.
-  if (path) {
-    let file = path.slice(path.lastIndexOf('/') + 1);
+  if (file !== '') {
+    let index = thingsLoading.indexOf(file);
 
-    if (file !== '') {
-      let index = thingsLoading.indexOf(file);
-
-      if (index !== -1) {
-        thingsLoading.splice(index, 1);
-        updateStatus();
-      }
+    if (index !== -1) {
+      thingsLoading.splice(index, 1);
+      updateStatus();
     }
   }
 });
@@ -98,7 +85,7 @@ function step() {
   particlesElement.textContent = `Particles: ${viewer.worldScene.updatedParticles}`;
 }
 
-function handleDrop(file) {}
+function handleDrop(file) { }
 
 document.addEventListener('dragover', e => {
   e.preventDefault();
@@ -121,7 +108,7 @@ document.addEventListener('drop', e => {
     reader.addEventListener('loadend', e => {
       viewer.loadMap(e.target.result);
 
-      viewer.once('idle', () => step());
+      step();
 
       // viewer.once('idle', () => {
       //   console.log('FINISHED LOADING STUFF LELEOLSEOFSOGDRIGMKIDRJGH')

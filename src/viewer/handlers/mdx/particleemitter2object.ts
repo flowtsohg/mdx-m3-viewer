@@ -5,6 +5,7 @@ import GenericObject from './genericobject';
 import { emitterFilterMode } from './filtermode';
 import replaceableIds from './replaceableids';
 import { EMITTER_PARTICLE2 } from './geometryemitterfuncs';
+import MdxTexture from './texture';
 
 /**
  * An MDX particle emitter type 2.
@@ -25,7 +26,7 @@ export default class ParticleEmitter2Object extends GenericObject {
   columns: number;
   rows: number;
   teamColored: number = 0;
-  internalTexture: Texture | null = null;
+  internalTexture?: MdxTexture;
   replaceableId: number;
   head: boolean;
   tail: boolean;
@@ -71,7 +72,14 @@ export default class ParticleEmitter2Object extends GenericObject {
     } else {
       let texturesExt = model.reforged ? '.dds' : '.blp';
 
-      this.internalTexture = <Texture>model.viewer.load(`ReplaceableTextures\\${replaceableIds[replaceableId]}${texturesExt}`, model.pathSolver, model.solverParams);
+      this.internalTexture = new MdxTexture(replaceableId, false, false);
+
+      model.viewer.load(`ReplaceableTextures\\${replaceableIds[replaceableId]}${texturesExt}`, model.pathSolver, model.solverParams)
+        .then((texture) => {
+          if (texture) {
+            (<MdxTexture>this.internalTexture).texture = <Texture>texture;
+          }
+        })
     }
 
     this.replaceableId = emitter.replaceableId;
