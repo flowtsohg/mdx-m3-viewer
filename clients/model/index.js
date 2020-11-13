@@ -14,29 +14,21 @@ let scene = viewer.addScene();
 
 setupCamera(scene);
 
-viewer.on('error', (target, error, reason) => console.log(target, error, reason));
+viewer.on('error', (e) => console.log(e));
 
 viewer.addHandler(handlers.mdx);
+viewer.addHandler(handlers.m3);
 viewer.addHandler(handlers.blp);
 viewer.addHandler(handlers.tga);
 viewer.addHandler(handlers.dds);
 
 function pathSolver(src) {
-  if (typeof src === 'string' && src.length < 120) {
+  if (typeof src === 'string') {
     return localOrHive(src);
   }
 
   return src;
 }
-
-viewer.load('Units/Human/Footman/Footman.mdx', pathSolver)
-  .then((model) => {
-    let instance = model.addInstance();
-
-    instance.setScene(scene);
-    instance.setSequence(0);
-    instance.setSequenceLoopMode(2);
-  });
 
 (function step() {
   requestAnimationFrame(step);
@@ -71,6 +63,11 @@ document.addEventListener('drop', e => {
             instance.setScene(scene);
             instance.setSequence(0);
             instance.setSequenceLoopMode(2);
+
+            // SC2 models are ~100 times smaller than WC3 models.
+            if (model instanceof handlers.m3.resource) {
+              instance.uniformScale(100);
+            }
           }
         });
     });

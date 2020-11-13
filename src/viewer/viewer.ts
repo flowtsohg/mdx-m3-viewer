@@ -158,6 +158,9 @@ export default class ModelViewer extends EventEmitter {
     this.scenes.length = 0;
   }
 
+  /**
+   * Given a source and an optional path solver, loads a resource and returns a promise to it.
+   */
   async load(src: any, pathSolver?: PathSolver, solverParams?: any) {
     let finalSrc: any;
     let fetchUrl = '';

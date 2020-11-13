@@ -14,9 +14,12 @@ var viewer = new ModelViewer.viewer.ModelViewer(canvas, { alpha: true });
 var model;
 var instance;
 
-viewer.on('error', (target, error, reason) => console.error(`Error: ${error}, reason: ${reason}`, target));
+viewer.on('error', (e) => console.error(e));
 
 viewer.addHandler(ModelViewer.viewer.handlers.mdx);
+viewer.addHandler(ModelViewer.viewer.handlers.blp);
+viewer.addHandler(ModelViewer.viewer.handlers.tga);
+viewer.addHandler(ModelViewer.viewer.handlers.dds);
 
 viewer.gl.clearColor(0, 0, 0, 1);
 
@@ -35,7 +38,7 @@ let sequenceNameElement = document.getElementById('sequence_name');
 (function step() {
   viewer.updateAndRender();
 
-  if (instance && instance.model.loaded) {
+  if (instance) {
     instance.rotate(turnTableQuat);
 
     if (isRecording || oneTimeRecord) {
@@ -85,9 +88,6 @@ viewer.on('load', target => {
   }
 });
 
-// Log errors to the console.
-viewer.on('error', (target, error, reason) => console.log(`Error: ${error}, reason: ${reason}`, target));
-
 function normalizePath(path) {
   return path.toLocaleLowerCase().replace(/\\/g, '/');
 }
@@ -97,9 +97,9 @@ function onLocalFileLoaded(name, buffer) {
   if (name.endsWith('.mdx')) {
     let pathSolver = src => {
       if (src === buffer) {
-        return [src, '.mdx', false];
+        return src;
       } else {
-        return [localOrHive(normalizePath(src)), src.substr(src.lastIndexOf('.')), true];
+        return localOrHive(normalizePath(src));
       }
     };
 
@@ -109,30 +109,25 @@ function onLocalFileLoaded(name, buffer) {
 
     scene.clear();
 
-    (model = viewer.load(buffer, pathSolver)), (instance = model.addInstance());
+    viewer.load(buffer, pathSolver)
+      .then((model) => {
+        instance = model.addInstance();
 
-    instance.setSequenceLoopMode(2);
-    instance.setSequence(0);
+        instance.setSequenceLoopMode(2);
+        instance.setSequence(0);
 
-    sequenceNameElement.textContent = model.sequences[0].name;
+        sequenceNameElement.textContent = model.sequences[0].name;
 
-    scene.addInstance(instance);
-  } else if (name.endsWith('.blp')) {
-    if (model && model.loaded) {
-      for (let texture of model.textures) {
-        if (texture.fetchUrl.toLowerCase().endsWith(name.toLowerCase())) {
-          texture.onload(buffer);
-        }
-      }
-    }
+        scene.addInstance(instance);
+      });
   }
 }
 
-canvas.addEventListener('contextmenu', function(e) {
+canvas.addEventListener('contextmenu', function (e) {
   e.preventDefault();
 });
 
-canvas.addEventListener('selectstart', function(e) {
+canvas.addEventListener('selectstart', function (e) {
   e.preventDefault();
 });
 
@@ -168,7 +163,7 @@ document.addEventListener('drop', e => {
 window.addEventListener('keydown', e => {
   let key = e.key;
 
-  if (instance && instance.model.loaded) {
+  if (instance) {
     if (key === ' ') {
       isRecording = !isRecording;
     } else if (key === 'ArrowLeft') {

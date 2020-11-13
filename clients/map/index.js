@@ -26,7 +26,7 @@ function updateStatus() {
   }
 }
 
-for (let key of viewer.promiseCache.keys()) {
+for (let key of viewer.promiseMap.keys()) {
   let file = key.slice(key.lastIndexOf('/') + 1);
 
   if (file !== '') {
@@ -36,8 +36,8 @@ for (let key of viewer.promiseCache.keys()) {
 
 updateStatus();
 
-viewer.on('loadstart', (viewer, path) => {
-  let file = path.slice(path.lastIndexOf('/') + 1);
+viewer.on('loadstart', ({ fetchUrl }) => {
+  let file = fetchUrl.slice(fetchUrl.lastIndexOf('/') + 1);
 
   if (file !== '') {
     thingsLoading.push(file);
@@ -45,8 +45,8 @@ viewer.on('loadstart', (viewer, path) => {
   }
 });
 
-viewer.on('loadend', (viewer, path) => {
-  let file = path.slice(path.lastIndexOf('/') + 1);
+viewer.on('loadend', ({ fetchUrl }) => {
+  let file = fetchUrl.slice(fetchUrl.lastIndexOf('/') + 1);
 
   if (file !== '') {
     let index = thingsLoading.indexOf(file);
