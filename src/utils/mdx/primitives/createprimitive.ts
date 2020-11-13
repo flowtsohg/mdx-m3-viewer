@@ -45,28 +45,27 @@ export default function createPrimitive(viewer: ModelViewer, primitive: Primitiv
   extent.max.fill(r);
   extent.boundsRadius = r;
 
+  // Texture
+  let tex = new MdlxTexture();
+
+  tex.path = 'PLACEHOLDER';
+
+  model.textures[0] = tex;
+
+  pathSolver = (src) => {
+    if (src === model) {
+      return model;
+    }
+
+    return texture;
+  }
+
   // Material
   let mat = new MdlxMaterial();
 
   let layer = new MdlxLayer();
 
-  if (texture) {
-    let tex = new MdlxTexture();
-
-    tex.path = 'PLACEHOLDER';
-
-    model.textures[0] = tex;
-
-    pathSolver = (src) => {
-      if (src === model) {
-        return model;
-      }
-
-      return texture;
-    }
-
-    layer.textureId = 0;
-  }
+  layer.textureId = 0;
 
   mat.layers[0] = layer;
 

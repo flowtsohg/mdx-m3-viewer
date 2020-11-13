@@ -103,13 +103,19 @@ export default class BatchGroup {
           gl.uniform1f(uniforms.u_layerAlpha, layerAlpha);
           gl.uniform1f(uniforms.u_filterMode, diffuseLayer.filterMode);
 
-          let diffuseTexture = <Texture | undefined>resourceMapper.get(diffuseLayer.textureId) || textures[diffuseLayer.textureId].texture;
-          let ormTexture = <Texture | undefined>resourceMapper.get(ormLayer.textureId) || textures[ormLayer.textureId].texture;
-          let teamColorTexture = teamColors[instance.teamColor].texture;
+          let diffuseId = diffuseLayer.textureId;
+          let ormId = ormLayer.textureId;
 
-          webgl.bindTexture(diffuseTexture, 0);
-          webgl.bindTexture(ormTexture, 1);
-          webgl.bindTexture(teamColorTexture, 2);
+          let diffuseTexture = textures[diffuseId];
+          let ormTexture = textures[ormId];
+          let tcTexture = teamColors[instance.teamColor];
+
+          let actualDiffuseTexture = <Texture | undefined>resourceMapper.get(diffuseId) || diffuseTexture.texture;
+          let actualOrmTexture = <Texture | undefined>resourceMapper.get(ormId) || ormTexture.texture;
+
+          webgl.bindTextureAndWrap(actualDiffuseTexture, 0, diffuseTexture.wrapS, diffuseTexture.wrapT);
+          webgl.bindTextureAndWrap(actualOrmTexture, 1, ormTexture.wrapS, ormTexture.wrapT);
+          webgl.bindTextureAndWrap(tcTexture.texture, 2, tcTexture.wrapS, tcTexture.wrapT);
 
           geoset.bindHd(shader, diffuseLayer.coordId);
           geoset.render();
@@ -148,7 +154,7 @@ export default class BatchGroup {
 
           let texture = <Texture | undefined>resourceMapper.get(textureIndex);
 
-          if (!texture && layerTexture) {
+          if (!texture) {
             let replaceable = layerTexture.replaceableId;
             let mdxTexture;
 
@@ -160,12 +166,10 @@ export default class BatchGroup {
               mdxTexture = layerTexture;
             }
 
-            if (mdxTexture) {
-              texture = mdxTexture.texture;
-            }
+            texture = mdxTexture.texture;
           }
 
-          webgl.bindTexture(texture, 0);
+          webgl.bindTextureAndWrap(texture, 0, layerTexture.wrapS, layerTexture.wrapT);
 
           if (isExtended) {
             geoset.bindExtended(shader, layer.coordId);

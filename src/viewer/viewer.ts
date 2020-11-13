@@ -30,10 +30,10 @@ export interface Handler {
 export default class ModelViewer extends EventEmitter {
   resources: Resource[] = [];
   /**
-   * A cache of resources that were fetched.
+   * A map from resource keys, typically urls, to their resources.
    */
-  fetchCache: Map<string, Resource> = new Map();
-  promiseCache: Map<string, Promise<Resource | undefined>> = new Map();
+  resourceMap: Map<string, Resource> = new Map();
+  promiseMap: Map<string, Promise<Resource | undefined>> = new Map();
   handlers: Set<Handler> = new Set();
   frameTime: number = 1000 / 60;
   canvas: HTMLCanvasElement;
@@ -65,6 +65,8 @@ export default class ModelViewer extends EventEmitter {
    * A cache of arbitrary data, shared between all of the handlers.
    */
   sharedCache: Map<any, any> = new Map();
+
+  directLoadId: number = 0;
 
   constructor(canvas: HTMLCanvasElement, options?: object) {
     super();
@@ -98,7 +100,7 @@ export default class ModelViewer extends EventEmitter {
       // Check to see if this handler was added already.
       if (!handlers.has(handler)) {
         if (!handler.isValidSource) {
-          this.emit('error', this, 'Handler missing the isValidSource function', handler);
+          this.emit('error', { viewer: this, error: 'Handler missing the isValidSource function', handler });
           return false;
         }
 
@@ -107,7 +109,7 @@ export default class ModelViewer extends EventEmitter {
           try {
             handler.load(this);
           } catch (e) {
-            this.emit('error', this, `Handler failed to load`, { handler, e });
+            this.emit('error', { viewer: this, error: `Handler failed to load`, handler, reason: e });
 
             return false;
           }
@@ -159,12 +161,23 @@ export default class ModelViewer extends EventEmitter {
   async load(src: any, pathSolver?: PathSolver, solverParams?: any) {
     let finalSrc: any;
     let fetchUrl = '';
+    let promise;
 
     // Run the path solver if there is one.
     if (pathSolver) {
-      finalSrc = pathSolver(src, solverParams);
+      try {
+        finalSrc = pathSolver(src, solverParams);
+      } catch (e) {
+        this.emit('error', { viewer: this, error: `Path solver failed`, src, reason: e, pathSolver, solverParams });
+
+        return;
+      }
     } else {
       finalSrc = src;
+    }
+
+    if (!finalSrc) {
+      return;
     }
 
     // Allow path solvers to return promises.
@@ -179,54 +192,58 @@ export default class ModelViewer extends EventEmitter {
 
     // If the final source is a string, and doesn't match any handler, it is assumed to be an URL to fetch.
     if (typeof finalSrc === 'string' && !this.detectFormat(finalSrc)) {
+      fetchUrl = finalSrc;
+
       // Check the promise cache and return a promise if one exists.
-      let promise = this.promiseCache.get(finalSrc);
+      promise = this.promiseMap.get(fetchUrl);
       if (promise) {
         return promise;
       }
 
       // Check the fetch cache and return a resource if one exists.
-      let resource = this.fetchCache.get(finalSrc);
+      let resource = this.resourceMap.get(fetchUrl);
       if (resource) {
         return resource;
       }
 
       // Otherwise promise to fetch the data and construct a resource.
-      let fetchPromise = fetchDataType(finalSrc, 'arrayBuffer')
-        .then(async (value) => {
-          // Once the resource finished loading (successfully or not), the promise can be removed from the promise cache.
-          this.promiseCache.delete(finalSrc);
-
-          let resource;
-
+      promise = fetchDataType(fetchUrl, 'arrayBuffer')
+        .then((value) => {
           if (value.ok) {
-            resource = await this.loadDirect(value.data, finalSrc, pathSolver);
-
-            // And if the resource loaded successfully, add it to the fetch cache.
-            if (resource) {
-              this.fetchCache.set(finalSrc, resource);
-              this.resources.push(resource);
-            }
-
-            this.emit('load', this, finalSrc);
+            return value.data;
           } else {
-            this.emit('error', this, 'Failed to fetch a resource', finalSrc);
+            this.emit('error', { viewer: this, error: `Failed to fetch a resource: ${value.error}`, fetchUrl, reason: value.data });
           }
-
-          this.emit('loadend', this, finalSrc);
-          this.checkLoadingStatus();
-
-          return resource;
         });
-
-      // Add the promise to the promise cache.
-      this.promiseCache.set(finalSrc, fetchPromise);
-      this.emit('loadstart', this, finalSrc);
-
-      return fetchPromise;
+    } else {
+      fetchUrl = `__${this.directLoadId++}`;
+      promise = Promise.resolve(finalSrc);
     }
 
-    return this.loadDirect(finalSrc, fetchUrl, pathSolver);
+    promise = promise
+      .then((finalSrc) => {
+        return this.loadDirect(finalSrc, fetchUrl, pathSolver)
+          .then((resource) => {
+            this.promiseMap.delete(fetchUrl);
+
+            if (resource) {
+              this.resourceMap.set(fetchUrl, resource);
+              this.resources.push(resource);
+
+              this.emit('load', { viewer: this, fetchUrl, resource });
+            }
+
+            this.emit('loadend', { viewer: this, fetchUrl, resource });
+            this.checkLoadingStatus();
+
+            return resource;
+          });
+      });
+
+    this.promiseMap.set(fetchUrl, promise);
+    this.emit('loadstart', { viewer: this, fetchUrl, promise });
+
+    return promise;
   }
 
   async loadDirect(src: any, fetchUrl: string, pathSolver?: PathSolver) {
@@ -257,10 +274,10 @@ export default class ModelViewer extends EventEmitter {
 
         return resource;
       } catch (e) {
-        this.emit('error', this, 'Failed to create a resource', { fetchUrl, e });
+        this.emit('error', { viewer: this, error: 'Failed to create a resource', fetchUrl, reason: e });
       }
     } else {
-      this.emit('error', this, 'Source has no matching handler', { fetchUrl, src });
+      this.emit('error', { viewer: this, error: 'Source has no matching handler', fetchUrl, reason: src });
     }
   }
 
@@ -276,14 +293,14 @@ export default class ModelViewer extends EventEmitter {
    * Check whether the given string maps to a resource in the cache.
    */
   has(key: string) {
-    return this.fetchCache.has(key);
+    return this.resourceMap.has(key);
   }
 
   /**
    * Get a resource from the cache.
    */
   get(key: string) {
-    return this.fetchCache.get(key);
+    return this.resourceMap.get(key);
   }
 
   /**
@@ -299,23 +316,23 @@ export default class ModelViewer extends EventEmitter {
    * 
    * If `callback` returns a promise, the resource's `data` will be whatever the promise resolved to.
    */
-  async loadGeneric(path: string, dataType: FetchDataTypeName, callback?: (data: FetchDataType) => any) {
+  async loadGeneric(fetchUrl: string, dataType: FetchDataTypeName, callback?: (data: FetchDataType) => any) {
     // Check the promise cache and return a promise if one exists.
-    let promise = this.promiseCache.get(path);
+    let promise = this.promiseMap.get(fetchUrl);
     if (promise) {
       return <Promise<GenericResource>>promise;
     }
 
     // Check the fetch cache and return a resource if one exists.
-    let resource = this.fetchCache.get(path);
+    let resource = this.resourceMap.get(fetchUrl);
     if (resource) {
       return <GenericResource>resource;
     }
 
-    let fetchPromise = fetchDataType(path, dataType)
+    let fetchPromise = fetchDataType(fetchUrl, dataType)
       .then(async (value: FetchResult) => {
         // Once the resource finished loading (successfully or not), the promise can be removed from the promise cache.
-        this.promiseCache.delete(path);
+        this.promiseMap.delete(fetchUrl);
 
         let resource;
 
@@ -326,24 +343,24 @@ export default class ModelViewer extends EventEmitter {
             data = await callback(<FetchDataType>data);
           }
 
-          resource = new GenericResource(data, { viewer: this, fetchUrl: path });
+          resource = new GenericResource(data, { viewer: this, fetchUrl });
 
-          this.fetchCache.set(path, resource);
+          this.resourceMap.set(fetchUrl, resource);
           this.resources.push(resource);
 
-          this.emit('load', this, path);
+          this.emit('load', { viewer: this, fetchUrl, resource });
         } else {
-          this.emit('error', this, 'Failed to fetch a generic resource', path);
+          this.emit('error', { viewer: this, error: 'Failed to fetch a generic resource', fetchUrl });
         }
 
-        this.emit('loadend', this, path);
+        this.emit('loadend', { viewer: this, fetchUrl, resource });
         this.checkLoadingStatus();
 
         return resource;
       });
 
-    this.promiseCache.set(path, fetchPromise);
-    this.emit('loadstart', this, path);
+    this.promiseMap.set(fetchUrl, fetchPromise);
+    this.emit('loadstart', { viewer: this, fetchUrl });
 
     return fetchPromise;
   }
@@ -357,7 +374,7 @@ export default class ModelViewer extends EventEmitter {
     let fetchUrl = resource.fetchUrl;
 
     if (fetchUrl !== '') {
-      this.fetchCache.delete(fetchUrl);
+      this.resourceMap.delete(fetchUrl);
     }
 
     let resources = this.resources;
@@ -381,16 +398,16 @@ export default class ModelViewer extends EventEmitter {
     let promise = Promise.resolve(undefined);
     let key = `${performance.now()}`;
 
-    this.promiseCache.set(key, promise);
+    this.promiseMap.set(key, promise);
 
     return () => {
-      this.promiseCache.delete(key);
+      this.promiseMap.delete(key);
       this.checkLoadingStatus();
     };
   }
 
   checkLoadingStatus() {
-    if (this.promiseCache.size === 0) {
+    if (this.promiseMap.size === 0) {
       // A timeout is used so that this event will arrive after the current frame to let everything settle.
       setTimeout(() => this.emit('idle'), 0);
     }
@@ -403,7 +420,7 @@ export default class ModelViewer extends EventEmitter {
    */
   whenAllLoaded(callback?: (viewer: ModelViewer) => void) {
     let promise = new Promise((resolve: (viewer: ModelViewer) => void) => {
-      if (this.promiseCache.size === 0) {
+      if (this.promiseMap.size === 0) {
         resolve(this);
       } else {
         this.once('idle', () => resolve(this));

@@ -72,8 +72,12 @@ export default class DdsTexture extends Texture {
     // Restore the alignment to the default, in case it changed.
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
 
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
     if (mipmaps > 1) {
-      this.minFilter = gl.LINEAR_MIPMAP_LINEAR;
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    } else {
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     }
   }
 }

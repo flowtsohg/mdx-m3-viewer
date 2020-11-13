@@ -38,7 +38,7 @@ export async function fetchDataType(path: string, dataType: FetchDataTypeName) {
       };
 
       image.onerror = (e) => {
-        resolve({ ok: false, error: 'ImageError', data: e });
+        resolve({ ok: false, error: 'Image Error', data: e });
       };
 
       image.src = path;
@@ -50,12 +50,12 @@ export async function fetchDataType(path: string, dataType: FetchDataTypeName) {
     try {
       response = await fetch(path);
     } catch (e) {
-      return <FetchResult>{ ok: false, error: 'NetworkError', data: e };
+      return <FetchResult>{ ok: false, error: 'Network Error', data: e };
     }
 
     // Fetch went ok?
     if (!response.ok) {
-      return <FetchResult>{ ok: false, error: 'HttpError', data: response };
+      return <FetchResult>{ ok: false, error: 'Http Error', data: response };
     }
 
     // Try to get the requested data type.
@@ -72,7 +72,7 @@ export async function fetchDataType(path: string, dataType: FetchDataTypeName) {
 
       return <FetchResult>{ ok: true, data };
     } catch (e) {
-      return <FetchResult>{ ok: false, error: 'DataError', data: e };
+      return <FetchResult>{ ok: false, error: 'Data Error', data: e };
     }
   }
 }

@@ -158,7 +158,7 @@ export default class MdxModel extends Model {
         path = `${path.slice(0, -4)}.dds`;
       }
 
-      let mdxTexture = new MdxTexture(replaceableId, !(flags & 0x1), !(flags & 0x2));
+      let mdxTexture = new MdxTexture(replaceableId, !!(flags & 0x1), !!(flags & 0x2));
 
       viewer.load(path, pathSolver, solverParams)
         .then((texture) => {

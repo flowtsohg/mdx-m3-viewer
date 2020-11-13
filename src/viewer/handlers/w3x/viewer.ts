@@ -109,7 +109,7 @@ export default class War3MapViewer extends ModelViewer {
       console.warn('War3MapViewer: No vertex array object support! This might reduce performance.');
     }
 
-    this.on('error', (target, error, reason) => console.error(target, error, reason));
+    this.on('error', ({ error, fetchUrl, reason }) => console.log(error, fetchUrl, reason));
 
     this.addHandler(mdxHandler);
     this.addHandler(blpHandler);
@@ -751,7 +751,7 @@ export default class War3MapViewer extends ModelViewer {
         gl.uniform1f(uniforms[`u_extended[${i}]`], isExtended);
         gl.uniform1i(uniforms[`u_tilesets[${i}]`], i);
 
-        tilesetTextures[i].bind(i);
+        webgl.bindTexture(tilesetTextures[i], i);
       }
 
       instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0, this.rows * this.columns);
@@ -764,7 +764,7 @@ export default class War3MapViewer extends ModelViewer {
 
           gl.uniform1f(uniforms[`u_extended[${i}]`], isExtended);
 
-          tilesetTextures[i + 15].bind(i);
+          webgl.bindTexture(tilesetTextures[i + 15], i);
         }
 
         instancedArrays.drawElementsInstancedANGLE(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0, this.rows * this.columns);
@@ -813,7 +813,7 @@ export default class War3MapViewer extends ModelViewer {
       gl.activeTexture(gl.TEXTURE1);
       gl.bindTexture(gl.TEXTURE_2D, this.waterHeightMap);
 
-      this.waterTextures[this.waterIndex | 0].bind(2);
+      webgl.bindTexture(this.waterTextures[this.waterIndex | 0], 2);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
       gl.vertexAttribPointer(positionAttrib, 2, gl.FLOAT, false, 8, 0);

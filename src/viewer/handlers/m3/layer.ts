@@ -144,7 +144,7 @@ export default class M3Layer {
 
       gl.uniform1i(uniforms[uniformMap.map], textureUnit);
 
-      this.model.viewer.webgl.bindTexture(texture, textureUnit);
+      this.model.viewer.webgl.bindTextureAndWrap(texture, textureUnit, m3Texture.wrapS, m3Texture.wrapT);
 
       gl.uniform1f(uniforms[uniformMap.op], this.op);
       gl.uniform1f(uniforms[uniformMap.channels], this.colorChannels);

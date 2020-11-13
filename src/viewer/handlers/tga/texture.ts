@@ -32,6 +32,9 @@ export default class TgaTexture extends Texture {
     gl.bindTexture(gl.TEXTURE_2D, id);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
 
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
     this.width = imageData.width; // Note: might not be the same as 'width' and 'height' due to NPOT upscaling.
     this.height = imageData.height;
     this.webglResource = id;

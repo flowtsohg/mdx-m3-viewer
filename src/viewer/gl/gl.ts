@@ -153,7 +153,7 @@ export default class WebGL {
    * 
    * If the given texture is invalid, a 2x2 black texture will be bound instead.
    */
-  bindTexture(texture?: Texture, unit: number = 0) {
+  bindTexture(texture: Texture | undefined, unit: number) {
     let gl = this.gl;
 
     gl.activeTexture(gl.TEXTURE0 + unit);
@@ -164,6 +164,22 @@ export default class WebGL {
       // Bind an empty texture in case an invalid one was given, to avoid WebGL errors.
       gl.bindTexture(gl.TEXTURE_2D, this.emptyTexture);
     }
+  }
+
+  bindTextureAndWrap(texture: Texture | undefined, unit: number, wrapS: number, wrapT: number) {
+    let gl = this.gl;
+
+    gl.activeTexture(gl.TEXTURE0 + unit);
+
+    if (texture) {
+      gl.bindTexture(gl.TEXTURE_2D, texture.webglResource);
+    } else {
+      // Bind an empty texture in case an invalid one was given, to avoid WebGL errors.
+      gl.bindTexture(gl.TEXTURE_2D, this.emptyTexture);
+    }
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT);
   }
 
   /**

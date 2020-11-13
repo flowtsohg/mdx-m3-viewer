@@ -71,10 +71,10 @@ export class ImageTexture extends Texture {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
     gl.generateMipmap(gl.TEXTURE_2D);
 
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+
     this.width = src.width;
     this.height = src.height;
-    this.wrapS = gl.REPEAT;
-    this.wrapT = gl.REPEAT;
-    this.minFilter = gl.LINEAR_MIPMAP_LINEAR;
   }
 }

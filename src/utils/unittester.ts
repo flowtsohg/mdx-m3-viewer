@@ -89,7 +89,7 @@ export default class UnitTester {
 
     viewer.gl.clearColor(0.05, 0.05, 0.05, 1);
 
-    viewer.on('error', (target, error, reason) => console.log(target, error, reason));
+    viewer.on('error', ({ error, fetchUrl, reason }) => console.log(error, fetchUrl, reason));
 
     viewer.addHandler(mdxHandler);
     viewer.addHandler(blpHandler);
