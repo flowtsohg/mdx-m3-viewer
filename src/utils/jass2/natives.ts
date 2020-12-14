@@ -4318,7 +4318,7 @@ function CreateUnit(C: Context, L: lua_State) {
   let y = luaL_checknumber(L, 4);
   let face = luaL_checknumber(L, 5);
 
-  lua_pushlightuserdata(L, C.addHandle(new JassUnit(id, unitid, x, y, face)));
+  lua_pushlightuserdata(L, C.addHandle(new JassUnit(C, id, unitid, x, y, face)));
 
   return 1;
 }

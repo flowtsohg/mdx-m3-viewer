@@ -1,4 +1,7 @@
 import { base256ToString } from '../../../common/typecast';
+import MdxModel from '../../../viewer/handlers/mdx/model';
+import MdxModelInstance from '../../../viewer/handlers/mdx/modelinstance';
+import Context from '../context';
 import JassWidget from './widget';
 import JassPlayer from './player';
 
@@ -12,8 +15,9 @@ export default class JassUnit extends JassWidget {
   y: number;
   face: number;
   acquireRange: number = 500;
+  instance?: MdxModelInstance;
 
-  constructor(player: JassPlayer, unitId: number, x: number, y: number, face: number) {
+  constructor(C: Context, player: JassPlayer, unitId: number, x: number, y: number, face: number) {
     super();
 
     this.player = player;
@@ -21,6 +25,30 @@ export default class JassUnit extends JassWidget {
     this.x = x;
     this.y = y;
     this.face = face;
+
+    if (C.viewer) {
+      let viewer = C.viewer;
+      let row = viewer.unitsData.getRow(this.unitId);
+      let file = <string>row.file;
+
+      if (file.endsWith('.mdl')) {
+        file = `${file.slice(0, -1)}x`;
+      }
+
+      if (!file.endsWith('.mdx')) {
+        file = `${file}.mdx`;
+      }
+
+      viewer.load(file)
+        .then((model) => {
+          if (model) {
+            let instance = (<MdxModel>model).addInstance();
+
+            instance.setLocation([this.x, this.y, 0]);
+            instance.setScene(viewer.worldScene);
+          }
+        });
+    }
 
     // if (balanceRow) {
     //   this.balanceRow = balanceRow;

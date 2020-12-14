@@ -7,6 +7,7 @@ import { lua_State, lua_pop, lua_getglobal, lua_pcall, lua_atnativeerror, lua_pu
 // @ts-ignore
 import { luaL_newstate, luaL_loadstring, luaL_tolstring, luaL_unref, luaL_checknumber } from 'fengari/src/lauxlib';
 //import { luaL_openlibs } from 'fengari/src/lualib';
+import War3MapViewer from '../../viewer/handlers/w3x/viewer';
 import jass2lua from './jass2lua';
 import bindNatives from './natives';
 import JassPlayer from './types/player';
@@ -41,8 +42,9 @@ export default class Context extends EventEmitter {
   filterUnit: JassHandle | null = null;
   enumPlayer: JassHandle | null = null;
   t: number = 0;
+  viewer?: War3MapViewer;
 
-  constructor() {
+  constructor(viewer?: War3MapViewer) {
     super();
 
     this.L = luaL_newstate();
@@ -77,6 +79,8 @@ export default class Context extends EventEmitter {
     // this.teams = [];
 
     // this.stringTable = map.readStringTable();
+
+    this.viewer = viewer;
   }
 
   start() {

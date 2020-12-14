@@ -3,6 +3,7 @@ import unique from '../../../common/arrayunique';
 import urlWithParams from '../../../common/urlwithparams';
 import { FetchDataTypeName } from '../../../common/fetchdatatype';
 import { MappedData, MappedDataRow } from '../../../utils/mappeddata';
+import Context from '../../../utils/jass2/context';
 import War3Map from '../../../parsers/w3x/map';
 import War3MapW3i from '../../../parsers/w3x/w3i/file';
 import War3MapW3e from '../../../parsers/w3x/w3e/file';
@@ -93,6 +94,8 @@ export default class War3MapViewer extends ModelViewer {
   heightMap: WebGLTexture | null = null;
   waterHeightMap: WebGLTexture | null = null;
   cliffHeightMap: WebGLTexture | null = null;
+  vm: Context;
+  vmLoaded: boolean = false;
 
   constructor(canvas: HTMLCanvasElement, wc3PathSolver: PathSolver) {
     super(canvas);
@@ -123,6 +126,21 @@ export default class War3MapViewer extends ModelViewer {
     this.cliffShader = this.webgl.createShaderProgram(cliffsVert, cliffsFrag);
 
     this.worldScene = this.addScene();
+
+    this.vm = new Context(this);
+
+    let commonj = this.loadMapGeneric('Scripts\\common.j', 'text');
+    let blizzardj = this.loadMapGeneric('Scripts\\Blizzard.j', 'text');
+
+    Promise.all([commonj, blizzardj])
+      .then(([commonj, blizzardj]) => {
+        if (commonj && blizzardj) {
+          this.vmLoaded = true;
+          this.vm.run(commonj.data, true);
+          this.vm.run(blizzardj.data, true);
+          this.emit('vmloaded');
+        }
+      });
 
     let terrain = this.loadMapGeneric('TerrainArt\\Terrain.slk', 'text');
     let cliffTypes = this.loadMapGeneric('TerrainArt\\CliffTypes.slk', 'text');
@@ -264,17 +282,26 @@ export default class War3MapViewer extends ModelViewer {
 
     let modifications = this.mapMpq.readModifications();
 
-    if (this.doodadsAndDestructiblesLoaded) {
-      this.loadDoodadsAndDestructibles(modifications);
-    } else {
-      this.once('doodadsloaded', () => this.loadDoodadsAndDestructibles(modifications));
-    }
+    this.applyModificationFile(this.doodadsData, this.doodadMetaData, modifications.w3d);
+    this.applyModificationFile(this.doodadsData, this.destructableMetaData, modifications.w3b);
+    this.applyModificationFile(this.unitsData, this.unitMetaData, modifications.w3u);
+    this.applyModificationFile(this.unitsData, this.unitMetaData, modifications.w3t);
 
-    if (this.unitsAndItemsLoaded) {
-      this.loadUnitsAndItems(modifications);
-    } else {
-      this.once('unitsloaded', () => this.loadUnitsAndItems(modifications));
-    }
+    this.vm.open(this.mapMpq);
+    this.vm.call('config');
+    this.vm.call('main');
+
+    // if (this.doodadsAndDestructiblesLoaded) {
+    //   this.loadDoodadsAndDestructibles();
+    // } else {
+    //   this.once('doodadsloaded', () => this.loadDoodadsAndDestructibles());
+    // }
+
+    // if (this.unitsAndItemsLoaded) {
+    //   this.loadUnitsAndItems();
+    // } else {
+    //   this.once('unitsloaded', () => this.loadUnitsAndItems());
+    // }
 
     resolve();
   }
@@ -508,7 +535,7 @@ export default class War3MapViewer extends ModelViewer {
     this.cliffsReady = true;
   }
 
-  loadDoodadsAndDestructibles(modifications: any) {
+  loadDoodadsAndDestructibles() {
     let mpq = <War3Map>this.mapMpq;
     let dooFile = mpq.get('war3map.doo');
 
@@ -525,9 +552,6 @@ export default class War3MapViewer extends ModelViewer {
 
       return;
     }
-
-    this.applyModificationFile(this.doodadsData, this.doodadMetaData, modifications.w3d);
-    this.applyModificationFile(this.doodadsData, this.destructableMetaData, modifications.w3b);
 
     let doo;
 
@@ -606,7 +630,7 @@ export default class War3MapViewer extends ModelViewer {
     this.anyReady = true;
   }
 
-  loadUnitsAndItems(modifications: any) {
+  loadUnitsAndItems() {
     let mpq = <War3Map>this.mapMpq;
     let dooFile = mpq.get('war3mapUnits.doo');
 
@@ -623,9 +647,6 @@ export default class War3MapViewer extends ModelViewer {
 
       return;
     }
-
-    this.applyModificationFile(this.unitsData, this.unitMetaData, modifications.w3u);
-    this.applyModificationFile(this.unitsData, this.unitMetaData, modifications.w3t);
 
     let unitsDoo;
 

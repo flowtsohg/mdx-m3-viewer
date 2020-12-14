@@ -104,7 +104,7 @@ export default class TokenStream {
       }
     }
 
-    return '';
+    throw new Error('End of stream');
   }
 
   /**
