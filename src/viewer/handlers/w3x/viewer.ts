@@ -109,7 +109,7 @@ export default class War3MapViewer extends ModelViewer {
       console.warn('War3MapViewer: No vertex array object support! This might reduce performance.');
     }
 
-    this.on('error', ({ error, fetchUrl, reason }) => console.log(error, fetchUrl, reason));
+    this.on('error', (e) => console.log(e));
 
     this.addHandler(mdxHandler);
     this.addHandler(blpHandler);
@@ -529,7 +529,13 @@ export default class War3MapViewer extends ModelViewer {
     this.applyModificationFile(this.doodadsData, this.doodadMetaData, modifications.w3d);
     this.applyModificationFile(this.doodadsData, this.destructableMetaData, modifications.w3b);
 
-    let doo = new War3MapDoo(dooBuffer);
+    let doo;
+
+    try {
+      doo = new War3MapDoo(dooBuffer);
+    } catch (e) {
+      return;
+    }
 
     // Doodads and destructibles.
     for (let doodad of doo.doodads) {
@@ -621,7 +627,13 @@ export default class War3MapViewer extends ModelViewer {
     this.applyModificationFile(this.unitsData, this.unitMetaData, modifications.w3u);
     this.applyModificationFile(this.unitsData, this.unitMetaData, modifications.w3t);
 
-    let unitsDoo = new War3MapUnitsDoo(dooBuffer);
+    let unitsDoo;
+
+    try {
+      unitsDoo = new War3MapUnitsDoo(dooBuffer);
+    } catch (e) {
+      return;
+    }
 
     // Collect the units and items data.
     for (let unit of unitsDoo.units) {

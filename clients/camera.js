@@ -10,7 +10,7 @@ function setupCamera(scene, options = {}) {
   // Rotation in radians per pixel of movement.
   let rotationSpeed = options.rotationSpeed || (Math.PI / 180);
   // Zoom factor per scroll.
-  let zoomFactor = options.zoomFactor = 0.1;
+  let zoomFactor = options.zoomFactor || 0.1;
   let horizontalAngle = options.horizontalAngle || Math.PI / 2;
   let verticalAngle = options.verticalAngle || Math.PI / 4;
   let distance = options.distance || 500;

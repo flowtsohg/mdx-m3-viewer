@@ -66,7 +66,7 @@ export const EMITTER_RIBBON = 1;
 export const EMITTER_SPLAT = 2;
 export const EMITTER_UBERSPLAT = 3;
 
-// Offsets for overriding emitter textures using setTexture().
+// Offsets for overriding emitter textures using setResource().
 export const EMITTER_PARTICLE2_TEXTURE_OFFSET = 1000;
 export const EMITTER_EVENT_TEXTURE_OFFSET = 10000;
 

@@ -16,7 +16,7 @@ import EventObjectSndEmitter from './eventobjectsndemitter';
 import MdxModel from './model';
 import GenericObject from './genericobject';
 
-import { EMITTER_PARTICLE2_TEXTURE_OFFSET } from './geometryemitterfuncs';
+import { EMITTER_PARTICLE2_TEXTURE_OFFSET, EMITTER_EVENT_TEXTURE_OFFSET } from './geometryemitterfuncs';
 
 
 const visibilityHeap = new Float32Array(1);
@@ -180,7 +180,7 @@ export default class MdxModelInstance extends ModelInstance {
   }
 
   setEventTexture(index: number, texture?: Texture) {
-    this.setResource(EMITTER_PARTICLE2_TEXTURE_OFFSET + index, texture);
+    this.setResource(EMITTER_EVENT_TEXTURE_OFFSET + index, texture);
   }
 
   /**

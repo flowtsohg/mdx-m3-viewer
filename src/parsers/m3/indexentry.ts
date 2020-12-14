@@ -110,7 +110,7 @@ export default class IndexEntry {
     this.version = version;
 
     let mapping = tagMapping[tag];
-    let readerOffset = reader.tell();
+    let readerOffset = reader.index;
 
     reader.seek(offset);
 

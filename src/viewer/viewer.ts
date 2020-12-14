@@ -219,69 +219,68 @@ export default class ModelViewer extends EventEmitter {
           }
         });
     } else {
-      fetchUrl = `__${this.directLoadId++}`;
+      fetchUrl = `__${this.directLoadId++}__${src}`;
       promise = Promise.resolve(finalSrc);
     }
 
     promise = promise
-      .then((finalSrc) => {
-        return this.loadDirect(finalSrc, fetchUrl, pathSolver)
-          .then((resource) => {
-            this.promiseMap.delete(fetchUrl);
+      .then(async (actualSrc) => {
+        // finalSrc will be undefined if this is a fetch and the fetch failed.
+        if (actualSrc) {
+          // If the source is an image source, load it directly.
+          if (isImageSource(actualSrc)) {
+            return new ImageTexture(actualSrc, { viewer: this, fetchUrl, pathSolver });
+          }
 
-            if (resource) {
-              this.resourceMap.set(fetchUrl, resource);
-              this.resources.push(resource);
+          // If the source is a buffer of an image, convert it to an image, and load it directly.
+          if (actualSrc instanceof ArrayBuffer) {
+            let type = detectMime(actualSrc);
 
-              this.emit('load', { viewer: this, fetchUrl, resource });
+            if (type.length) {
+              return new ImageTexture(await blobToImage(new Blob([actualSrc], { type })), { viewer: this, fetchUrl, pathSolver });
             }
+          }
 
-            this.emit('loadend', { viewer: this, fetchUrl, resource });
-            this.checkLoadingStatus();
+          // Attempt to match the source to a handler.
+          let handler = this.detectFormat(actualSrc);
 
-            return resource;
-          });
+          if (handler) {
+            try {
+              let resource = new handler.resource(actualSrc, { viewer: this, fetchUrl, pathSolver });
+
+              // If the resource is blocked by internal resources being loaded, wait for them and then clear them.
+              await Promise.all(resource.blockers);
+              resource.blockers.length = 0;
+
+              return resource;
+            } catch (e) {
+              this.emit('error', { viewer: this, error: 'Failed to create a resource', fetchUrl, src, reason: e });
+            }
+          } else {
+            this.emit('error', { viewer: this, error: 'Source has no matching handler', fetchUrl, src });
+          }
+        }
+      })
+      .then((resource) => {
+        this.promiseMap.delete(fetchUrl);
+
+        if (resource) {
+          this.resourceMap.set(fetchUrl, resource);
+          this.resources.push(resource);
+
+          this.emit('load', { viewer: this, fetchUrl, resource });
+        }
+
+        this.emit('loadend', { viewer: this, fetchUrl, resource });
+        this.checkLoadingStatus();
+
+        return resource;
       });
 
     this.promiseMap.set(fetchUrl, promise);
     this.emit('loadstart', { viewer: this, fetchUrl, promise });
 
     return promise;
-  }
-
-  async loadDirect(src: any, fetchUrl: string, pathSolver?: PathSolver) {
-    // If the source is an image source, load it directly.
-    if (isImageSource(src)) {
-      return new ImageTexture(src, { viewer: this, fetchUrl, pathSolver });
-    }
-
-    // If the source is a buffer of an image, convert it to an image, and load it directly.
-    if (src instanceof ArrayBuffer) {
-      let type = detectMime(src);
-
-      if (type.length) {
-        return new ImageTexture(await blobToImage(new Blob([src], { type })), { viewer: this, fetchUrl, pathSolver });
-      }
-    }
-
-    // Attempt to match the source to a handler.
-    let handler = this.detectFormat(src);
-
-    if (handler) {
-      try {
-        let resource = new handler.resource(src, { viewer: this, fetchUrl, pathSolver });
-
-        // If the resource is blocked by internal resources being loaded, wait for them and then clear them.
-        await Promise.all(resource.blockers);
-        resource.blockers.length = 0;
-
-        return resource;
-      } catch (e) {
-        this.emit('error', { viewer: this, error: 'Failed to create a resource', fetchUrl, reason: e });
-      }
-    } else {
-      this.emit('error', { viewer: this, error: 'Source has no matching handler', fetchUrl, reason: src });
-    }
   }
 
   detectFormat(src: any) {
