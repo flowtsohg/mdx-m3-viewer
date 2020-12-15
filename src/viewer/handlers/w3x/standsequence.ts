@@ -55,7 +55,9 @@ export default function randomStandSequence(target: MdxModelInstance) {
   let model = <MdxModel>target.model;
   let sequences = model.sequences;
   let sequence = selectSequence('stand', sequences);
-
+  if (target.userSetSequence === true) {
+    return;
+  }
   if (sequence) {
     target.setSequence(sequence.index);
   }

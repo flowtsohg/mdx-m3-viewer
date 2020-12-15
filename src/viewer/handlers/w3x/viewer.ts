@@ -675,7 +675,7 @@ export default class War3MapViewer extends ModelViewer {
       let instances = <MdxModelInstance[]>this.worldScene.instances;
 
       for (let instance of instances) {
-        if (instance.sequenceEnded || instance.sequence === -1) {
+        if (instance.sequenceEnded || instance.sequence === -1 && instance.userSetSequence !== true) {
           randomStandSequence(instance);
         }
       }

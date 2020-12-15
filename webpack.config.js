@@ -6,7 +6,8 @@ module.exports = (env, argv) => ({
   entry: './src/index.ts',
   output: {
     filename: 'viewer.min.js',
-    path: path.resolve(__dirname, 'dist/'),
+    // path: path.resolve(__dirname, '..'),
+    path: path.resolve(__dirname, 'dist'),
     library: 'ModelViewer',
   },
   plugins: [

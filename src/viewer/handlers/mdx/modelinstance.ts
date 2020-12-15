@@ -58,6 +58,7 @@ export default class MdxModelInstance extends ModelInstance {
   uvAnims: Float32Array[] = [];
   worldMatrices: Float32Array | null = null;
   boneTexture: DataTexture | null = null;
+  userSetSequence: boolean;
 
   constructor(model: MdxModel) {
     super(model);
@@ -78,7 +79,11 @@ export default class MdxModelInstance extends ModelInstance {
     let nodeIndex = 0;
 
     this.nodes.push(...nodes);
-
+    
+    // gaming context required, so that game related sequence animations can be set
+    // without the map overiding them (when giving units their standard standing animations)
+    this.userSetSequence = false;
+    
     // A shared typed array for all world matrices of the internal nodes.
     this.worldMatrices = sharedNodeData.worldMatrices;
 
