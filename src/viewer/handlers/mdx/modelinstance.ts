@@ -307,6 +307,15 @@ export default class MdxModelInstance extends ModelInstance {
     }
   }
 
+  // If a model has no sequences or is running no sequence, it will only update once since it will never be forced to update.
+  // This is generally the desired behavior, except when it is moved by the client.
+  // Therefore, if an instance is transformed, always do a forced update.
+  recalculateTransformation() {
+    super.recalculateTransformation();
+
+    this.forced = true;
+  }
+
   /**
    * Update the batch data.
    */

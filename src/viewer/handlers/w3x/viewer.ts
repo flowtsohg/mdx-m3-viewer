@@ -218,17 +218,23 @@ export default class War3MapViewer extends ModelViewer {
     this.solverParams.tileset = tileset.toLowerCase();
 
     this.mapPathSolver = (path, params) => {
-      // MPQ paths have backwards slashes...always? Don't know.
-      let mpqPath = path.replace(/\//g, '\\');
+      // The type won't be a string for loads from memory, where the final source is the input source.
+      // The primitive constructor is one example of this.
+      if (typeof path === 'string') {
+        // MPQ paths have backwards slashes...always? Don't know.
+        let mpqPath = path.replace(/\//g, '\\');
 
-      // If the file is in the map, return it.
-      let file = mapMpq.get(mpqPath);
-      if (file) {
-        return file.arrayBuffer();
+        // If the file is in the map, return it.
+        let file = mapMpq.get(mpqPath);
+        if (file) {
+          return file.arrayBuffer();
+        }
+
+        // Try to get the file from the server.
+        return wc3PathSolver(path, params);
       }
 
-      // Try to get the file from the server.
-      return wc3PathSolver(path, params);
+      return path;
     };
 
     let w3eFile = mapMpq.get('war3map.w3e');
