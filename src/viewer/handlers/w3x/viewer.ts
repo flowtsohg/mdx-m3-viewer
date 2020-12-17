@@ -109,7 +109,7 @@ export default class War3MapViewer extends ModelViewer {
       console.warn('War3MapViewer: No vertex array object support! This might reduce performance.');
     }
 
-    this.on('error', ({ error, fetchUrl, reason }) => console.log(error, fetchUrl, reason));
+    this.on('error', (e) => console.log(e));
 
     this.addHandler(mdxHandler);
     this.addHandler(blpHandler);
@@ -218,17 +218,23 @@ export default class War3MapViewer extends ModelViewer {
     this.solverParams.tileset = tileset.toLowerCase();
 
     this.mapPathSolver = (path, params) => {
-      // MPQ paths have backwards slashes...always? Don't know.
-      let mpqPath = path.replace(/\//g, '\\');
+      // The type won't be a string for loads from memory, where the final source is the input source.
+      // The primitive constructor is one example of this.
+      if (typeof path === 'string') {
+        // MPQ paths have backwards slashes...always? Don't know.
+        let mpqPath = path.replace(/\//g, '\\');
 
-      // If the file is in the map, return it.
-      let file = mapMpq.get(mpqPath);
-      if (file) {
-        return file.arrayBuffer();
+        // If the file is in the map, return it.
+        let file = mapMpq.get(mpqPath);
+        if (file) {
+          return file.arrayBuffer();
+        }
+
+        // Try to get the file from the server.
+        return wc3PathSolver(path, params);
       }
 
-      // Try to get the file from the server.
-      return wc3PathSolver(path, params);
+      return path;
     };
 
     let w3eFile = mapMpq.get('war3map.w3e');
@@ -529,7 +535,13 @@ export default class War3MapViewer extends ModelViewer {
     this.applyModificationFile(this.doodadsData, this.doodadMetaData, modifications.w3d);
     this.applyModificationFile(this.doodadsData, this.destructableMetaData, modifications.w3b);
 
-    let doo = new War3MapDoo(dooBuffer);
+    let doo;
+
+    try {
+      doo = new War3MapDoo(dooBuffer);
+    } catch (e) {
+      return;
+    }
 
     // Doodads and destructibles.
     for (let doodad of doo.doodads) {
@@ -621,7 +633,13 @@ export default class War3MapViewer extends ModelViewer {
     this.applyModificationFile(this.unitsData, this.unitMetaData, modifications.w3u);
     this.applyModificationFile(this.unitsData, this.unitMetaData, modifications.w3t);
 
-    let unitsDoo = new War3MapUnitsDoo(dooBuffer);
+    let unitsDoo;
+
+    try {
+      unitsDoo = new War3MapUnitsDoo(dooBuffer);
+    } catch (e) {
+      return;
+    }
 
     // Collect the units and items data.
     for (let unit of unitsDoo.units) {

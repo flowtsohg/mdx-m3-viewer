@@ -118,59 +118,70 @@ export default class Model {
       throw new Error('WrongMagicNumber');
     }
 
-    while (stream.remaining() > 0) {
-      let tag = stream.read(4);
-      let size = stream.readUint32();
+    let tag;
+    let size;
 
-      if (tag === 'VERS') {
-        this.loadVersionChunk(stream);
-      } else if (tag === 'MODL') {
-        this.loadModelChunk(stream);
-      } else if (tag === 'SEQS') {
-        this.loadStaticObjects(this.sequences, Sequence, stream, size / 132);
-      } else if (tag === 'GLBS') {
-        this.loadGlobalSequenceChunk(stream, size);
-      } else if (tag === 'MTLS') {
-        this.loadDynamicObjects(this.materials, Material, stream, size);
-      } else if (tag === 'TEXS') {
-        this.loadStaticObjects(this.textures, Texture, stream, size / 268);
-      } else if (tag === 'TXAN') {
-        this.loadDynamicObjects(this.textureAnimations, TextureAnimation, stream, size);
-      } else if (tag === 'GEOS') {
-        this.loadDynamicObjects(this.geosets, Geoset, stream, size);
-      } else if (tag === 'GEOA') {
-        this.loadDynamicObjects(this.geosetAnimations, GeosetAnimation, stream, size);
-      } else if (tag === 'BONE') {
-        this.loadDynamicObjects(this.bones, Bone, stream, size);
-      } else if (tag === 'LITE') {
-        this.loadDynamicObjects(this.lights, Light, stream, size);
-      } else if (tag === 'HELP') {
-        this.loadDynamicObjects(this.helpers, Helper, stream, size);
-      } else if (tag === 'ATCH') {
-        this.loadDynamicObjects(this.attachments, Attachment, stream, size);
-      } else if (tag === 'PIVT') {
-        this.loadPivotPointChunk(stream, size);
-      } else if (tag === 'PREM') {
-        this.loadDynamicObjects(this.particleEmitters, ParticleEmitter, stream, size);
-      } else if (tag === 'PRE2') {
-        this.loadDynamicObjects(this.particleEmitters2, ParticleEmitter2, stream, size);
-      } else if (tag === 'CORN') {
-        this.loadDynamicObjects(this.particleEmittersPopcorn, ParticleEmitterPopcorn, stream, size);
-      } else if (tag === 'RIBB') {
-        this.loadDynamicObjects(this.ribbonEmitters, RibbonEmitter, stream, size);
-      } else if (tag === 'CAMS') {
-        this.loadDynamicObjects(this.cameras, Camera, stream, size);
-      } else if (tag === 'EVTS') {
-        this.loadDynamicObjects(this.eventObjects, EventObject, stream, size);
-      } else if (tag === 'CLID') {
-        this.loadDynamicObjects(this.collisionShapes, CollisionShape, stream, size);
-      } else if (tag === 'FAFX') {
-        this.loadStaticObjects(this.faceEffects, FaceEffect, stream, size / 340);
-      } else if (tag === 'BPOS') {
-        this.loadBindPoseChunk(stream, size);
-      } else {
-        this.unknownChunks.push(new UnknownChunk(stream, size, tag));
+    // Found a model that lacks the needed bytes for the collision shapes chunk.
+    // The map that contains this model works in the game.
+    // Therefore if an exception is thrown because the stream reached the end prematurely, let the parser end at whatever state it finished.
+    // If something critical is missing, the handler will throw an exception.
+    try {
+      while (stream.remaining > 0) {
+        tag = stream.read(4);
+        size = stream.readUint32();
+
+        if (tag === 'VERS') {
+          this.loadVersionChunk(stream);
+        } else if (tag === 'MODL') {
+          this.loadModelChunk(stream);
+        } else if (tag === 'SEQS') {
+          this.loadStaticObjects(this.sequences, Sequence, stream, size / 132);
+        } else if (tag === 'GLBS') {
+          this.loadGlobalSequenceChunk(stream, size);
+        } else if (tag === 'MTLS') {
+          this.loadDynamicObjects(this.materials, Material, stream, size);
+        } else if (tag === 'TEXS') {
+          this.loadStaticObjects(this.textures, Texture, stream, size / 268);
+        } else if (tag === 'TXAN') {
+          this.loadDynamicObjects(this.textureAnimations, TextureAnimation, stream, size);
+        } else if (tag === 'GEOS') {
+          this.loadDynamicObjects(this.geosets, Geoset, stream, size);
+        } else if (tag === 'GEOA') {
+          this.loadDynamicObjects(this.geosetAnimations, GeosetAnimation, stream, size);
+        } else if (tag === 'BONE') {
+          this.loadDynamicObjects(this.bones, Bone, stream, size);
+        } else if (tag === 'LITE') {
+          this.loadDynamicObjects(this.lights, Light, stream, size);
+        } else if (tag === 'HELP') {
+          this.loadDynamicObjects(this.helpers, Helper, stream, size);
+        } else if (tag === 'ATCH') {
+          this.loadDynamicObjects(this.attachments, Attachment, stream, size);
+        } else if (tag === 'PIVT') {
+          this.loadPivotPointChunk(stream, size);
+        } else if (tag === 'PREM') {
+          this.loadDynamicObjects(this.particleEmitters, ParticleEmitter, stream, size);
+        } else if (tag === 'PRE2') {
+          this.loadDynamicObjects(this.particleEmitters2, ParticleEmitter2, stream, size);
+        } else if (tag === 'CORN') {
+          this.loadDynamicObjects(this.particleEmittersPopcorn, ParticleEmitterPopcorn, stream, size);
+        } else if (tag === 'RIBB') {
+          this.loadDynamicObjects(this.ribbonEmitters, RibbonEmitter, stream, size);
+        } else if (tag === 'CAMS') {
+          this.loadDynamicObjects(this.cameras, Camera, stream, size);
+        } else if (tag === 'EVTS') {
+          this.loadDynamicObjects(this.eventObjects, EventObject, stream, size);
+        } else if (tag === 'CLID') {
+          this.loadDynamicObjects(this.collisionShapes, CollisionShape, stream, size);
+        } else if (tag === 'FAFX') {
+          this.loadStaticObjects(this.faceEffects, FaceEffect, stream, size / 340);
+        } else if (tag === 'BPOS') {
+          this.loadBindPoseChunk(stream, size);
+        } else {
+          this.unknownChunks.push(new UnknownChunk(stream, size, tag));
+        }
       }
+    } catch (e) {
+      console.warn(`MDLX parsing error in ${tag}: ${e}`);
     }
   }
 

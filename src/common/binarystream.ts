@@ -11,6 +11,7 @@ export default class BinaryStream {
   uint8array: Uint8Array;
   index: number = 0;
   byteLength: number;
+  remaining: number;
 
   constructor(buffer: ArrayBuffer | TypedArray, byteOffset?: number, byteLength?: number) {
     // If given a view, use its properties.
@@ -33,6 +34,7 @@ export default class BinaryStream {
     this.buffer = buffer;
     this.uint8array = new Uint8Array(buffer, byteOffset, byteLength);
     this.byteLength = byteLength;
+    this.remaining = byteLength;
   }
 
   /**
@@ -43,17 +45,15 @@ export default class BinaryStream {
   }
 
   /**
-   * Get the remaining bytes.
-   */
-  remaining() {
-    return this.byteLength - this.index;
-  }
-
-  /**
    * Skip a number of bytes.
    */
   skip(bytes: number) {
+    if (this.remaining < bytes) {
+      throw new Error(`ByteStream: skip: premature end - want ${bytes} bytes but have ${this.remaining}`);
+    }
+
     this.index += bytes;
+    this.remaining -= bytes;
   }
 
   /**
@@ -61,13 +61,7 @@ export default class BinaryStream {
    */
   seek(index: number) {
     this.index = index;
-  }
-
-  /**
-   * Get the reader's index.
-   */
-  tell() {
-    return this.index;
+    this.remaining = this.byteLength - index;
   }
 
   /**
@@ -95,11 +89,16 @@ export default class BinaryStream {
    */
   read(size: number, allowNulls: boolean = false) {
     // If the size isn't specified, default to everything
-    size = size || this.remaining();
+    size = size || this.remaining;
+
+    if (this.remaining < size) {
+      throw new Error(`ByteStream: read: premature end - want ${size} bytes but have ${this.remaining}`);
+    }
 
     let data = this.peek(size, allowNulls);
 
     this.index += size;
+    this.remaining -= size;
 
     return data;
   }
@@ -131,6 +130,7 @@ export default class BinaryStream {
     let data = this.peekUntilNull();
 
     this.index += data.length + 1; // +1 for the \0 itself
+    this.remaining -= data.length + 1;
 
     return data;
   }
@@ -154,9 +154,14 @@ export default class BinaryStream {
    * Read a character array.
    */
   readCharArray(size: number) {
+    if (this.remaining < size) {
+      throw new Error(`ByteStream: readCharArray: premature end - want ${size} bytes but have ${this.remaining}`);
+    }
+
     let data = this.peekCharArray(size);
 
     this.index += size;
+    this.remaining -= size;
 
     return data;
   }
@@ -165,11 +170,16 @@ export default class BinaryStream {
    * Read a 8 bit signed integer.
    */
   readInt8() {
+    if (this.remaining < 1) {
+      throw new Error(`ByteStream: readInt8: premature end - want 1 byte but have ${this.remaining}`);
+    }
+
     let index = this.index;
     let uint8array = this.uint8array;
     let data = uint8ToInt8(uint8array[index]);
 
     this.index += 1;
+    this.remaining -= 1;
 
     return data;
   }
@@ -178,11 +188,16 @@ export default class BinaryStream {
    * Read a 16 bit signed integer.
    */
   readInt16() {
+    if (this.remaining < 2) {
+      throw new Error(`ByteStream: readInt16: premature end - want 2 bytes but have ${this.remaining}`);
+    }
+
     let index = this.index;
     let uint8array = this.uint8array;
     let data = uint8ToInt16(uint8array[index], uint8array[index + 1]);
 
     this.index += 2;
+    this.remaining -= 2;
 
     return data;
   }
@@ -191,11 +206,17 @@ export default class BinaryStream {
    * Read a 32 bit signed integer.
    */
   readInt32() {
+    if (this.remaining < 4) {
+      throw new Error(`ByteStream: readInt32: premature end - want 4 bytes but have ${this.remaining}`);
+    }
+
+
     let index = this.index;
     let uint8array = this.uint8array;
     let data = uint8ToInt32(uint8array[index], uint8array[index + 1], uint8array[index + 2], uint8array[index + 3]);
 
     this.index += 4;
+    this.remaining -= 4;
 
     return data;
   }
@@ -204,9 +225,14 @@ export default class BinaryStream {
    * Read a 8 bit unsigned integer.
    */
   readUint8() {
+    if (this.remaining < 1) {
+      throw new Error(`ByteStream: readUint8: premature end - want 1 byte but have ${this.remaining}`);
+    }
+
     let data = this.uint8array[this.index];
 
     this.index += 1;
+    this.remaining -= 1;
 
     return data;
   }
@@ -215,11 +241,16 @@ export default class BinaryStream {
    * Read a 16 bit unsigned integer.
    */
   readUint16() {
+    if (this.remaining < 2) {
+      throw new Error(`ByteStream: readUint16: premature end - want 2 bytes but have ${this.remaining}`);
+    }
+
     let index = this.index;
     let uint8array = this.uint8array;
     let data = uint8ToUint16(uint8array[index], uint8array[index + 1]);
 
     this.index += 2;
+    this.remaining -= 2;
 
     return data;
   }
@@ -228,11 +259,16 @@ export default class BinaryStream {
    * Read a 32 bit unsigned integer.
    */
   readUint32() {
+    if (this.remaining < 4) {
+      throw new Error(`ByteStream: readUint32: premature end - want 4 bytes but have ${this.remaining}`);
+    }
+
     let index = this.index;
     let uint8array = this.uint8array;
     let data = uint8ToUint32(uint8array[index], uint8array[index + 1], uint8array[index + 2], uint8array[index + 3]);
 
     this.index += 4;
+    this.remaining -= 4;
 
     return data;
   }
@@ -241,11 +277,16 @@ export default class BinaryStream {
    * Read a 32 bit float.
    */
   readFloat32() {
+    if (this.remaining < 4) {
+      throw new Error(`ByteStream: readFloat32: premature end - want 4 bytes but have ${this.remaining}`);
+    }
+
     let index = this.index;
     let uint8array = this.uint8array;
     let data = uint8ToFloat32(uint8array[index], uint8array[index + 1], uint8array[index + 2], uint8array[index + 3]);
 
     this.index += 4;
+    this.remaining -= 4;
 
     return data;
   }
@@ -254,11 +295,16 @@ export default class BinaryStream {
    * Read a 64 bit float.
    */
   readFloat64() {
+    if (this.remaining < 8) {
+      throw new Error(`ByteStream: readFloat64: premature end - want 8 bytes but have ${this.remaining}`);
+    }
+
     let index = this.index;
     let uint8array = this.uint8array;
     let data = uint8ToFloat64(uint8array[index], uint8array[index + 1], uint8array[index + 2], uint8array[index + 3], uint8array[index + 4], uint8array[index + 5], uint8array[index + 6], uint8array[index + 7]);
 
     this.index += 8;
+    this.remaining -= 8;
 
     return data;
   }
@@ -271,6 +317,10 @@ export default class BinaryStream {
       view = new Int8Array(view);
     }
 
+    if (this.remaining < view.byteLength) {
+      throw new Error(`ByteStream: readInt8Array: premature end - want ${view.byteLength} bytes but have ${this.remaining}`);
+    }
+
     let index = this.index;
     let uint8array = this.uint8array;
 
@@ -279,6 +329,7 @@ export default class BinaryStream {
     }
 
     this.index += view.byteLength;
+    this.remaining -= view.byteLength;
 
     return view;
   }
@@ -291,6 +342,10 @@ export default class BinaryStream {
       view = new Int16Array(view);
     }
 
+    if (this.remaining < view.byteLength) {
+      throw new Error(`ByteStream: readInt16Array: premature end - want ${view.byteLength} bytes but have ${this.remaining}`);
+    }
+
     let index = this.index;
     let uint8array = this.uint8array;
 
@@ -301,6 +356,7 @@ export default class BinaryStream {
     }
 
     this.index += view.byteLength;
+    this.remaining -= view.byteLength;
 
     return view;
   }
@@ -313,6 +369,10 @@ export default class BinaryStream {
       view = new Int32Array(view);
     }
 
+    if (this.remaining < view.byteLength) {
+      throw new Error(`ByteStream: readInt32Array: premature end - want ${view.byteLength} bytes but have ${this.remaining}`);
+    }
+
     let index = this.index;
     let uint8array = this.uint8array;
 
@@ -323,6 +383,7 @@ export default class BinaryStream {
     }
 
     this.index += view.byteLength;
+    this.remaining -= view.byteLength;
 
     return view;
   }
@@ -335,6 +396,10 @@ export default class BinaryStream {
       view = new Uint8Array(view);
     }
 
+    if (this.remaining < view.byteLength) {
+      throw new Error(`ByteStream: readUint8Array: premature end - want ${view.byteLength} bytes but have ${this.remaining}`);
+    }
+
     let index = this.index;
     let uint8array = this.uint8array;
 
@@ -343,6 +408,7 @@ export default class BinaryStream {
     }
 
     this.index += view.byteLength;
+    this.remaining -= view.byteLength;
 
     return view;
   }
@@ -355,6 +421,10 @@ export default class BinaryStream {
       view = new Uint16Array(view);
     }
 
+    if (this.remaining < view.byteLength) {
+      throw new Error(`ByteStream: readUint16Array: premature end - want ${view.byteLength} bytes but have ${this.remaining}`);
+    }
+
     let index = this.index;
     let uint8array = this.uint8array;
 
@@ -365,6 +435,7 @@ export default class BinaryStream {
     }
 
     this.index += view.byteLength;
+    this.remaining -= view.byteLength;
 
     return view;
   }
@@ -377,6 +448,10 @@ export default class BinaryStream {
       view = new Uint32Array(view);
     }
 
+    if (this.remaining < view.byteLength) {
+      throw new Error(`ByteStream: readUint32Array: premature end - want ${view.byteLength} bytes but have ${this.remaining}`);
+    }
+
     let index = this.index;
     let uint8array = this.uint8array;
 
@@ -387,6 +462,7 @@ export default class BinaryStream {
     }
 
     this.index += view.byteLength;
+    this.remaining -= view.byteLength;
 
     return view;
   }
@@ -399,6 +475,10 @@ export default class BinaryStream {
       view = new Float32Array(view);
     }
 
+    if (this.remaining < view.byteLength) {
+      throw new Error(`ByteStream: readFloat32Array: premature end - want ${view.byteLength} bytes but have ${this.remaining}`);
+    }
+
     let index = this.index;
     let uint8array = this.uint8array;
 
@@ -409,6 +489,7 @@ export default class BinaryStream {
     }
 
     this.index += view.byteLength;
+    this.remaining -= view.byteLength;
 
     return view;
   }
@@ -421,6 +502,10 @@ export default class BinaryStream {
       view = new Float64Array(view);
     }
 
+    if (this.remaining < view.byteLength) {
+      throw new Error(`ByteStream: readFloat64Array: premature end - want ${view.byteLength} bytes but have ${this.remaining}`);
+    }
+
     let index = this.index;
     let uint8array = this.uint8array;
 
@@ -431,6 +516,7 @@ export default class BinaryStream {
     }
 
     this.index += view.byteLength;
+    this.remaining -= view.byteLength;
 
     return view;
   }

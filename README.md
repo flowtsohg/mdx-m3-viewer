@@ -232,7 +232,7 @@ The purpose of loading other files through the viewer is to cache the results an
 
 #### Events and Promises
 
-As mentioned above, there are emitted events, and they can be listened to, using the NodeJS EventEmitter API:
+As mentioned above, there are emitted events, and they can be used with the NodeJS EventEmitter API:
 ```javascript
 viewer.on(eventName, listener)
 viewer.off(eventName, listener)
@@ -240,7 +240,7 @@ viewer.once(eventName, listener)
 viewer.emit(eventName[, ...args])
 ```
 
-The event name can be one of:
+The built-in names are:
 * `loadstart` - a resource started loading.
 * `load` - a resource successfully loaded.
 * `error` - something bad happened.
@@ -249,8 +249,8 @@ The event name can be one of:
 
 For example:
 ```javascript
-viewer.on('error', (viewer, error, reason) => {
-  console.log(`Error: ${error}, Reason: ${reason}`);
+viewer.on('error', (e) => {
+  console.log(e);
 });
 ```
 
@@ -278,9 +278,9 @@ If `hd` and `reforged` are true, then it wants a Reforged HD resource.
 
 Following this, the loading code can be something along these lines:
 ```js
-let modelTFT = viewer.load('Units/Human/Footman/Footman.mdx', mySolver);
-let modelReforged = viewer.load('Units/Human/Footman/Footman.mdx', mySolver, {reforged: true});
-let modelHD = viewer.load('Units/Human/Footman/Footman.mdx', mySolver, {reforged: true, hd: true});
+let TFT = viewer.load('Units/Human/Footman/Footman.mdx', mySolver);
+let SD = viewer.load('Units/Human/Footman/Footman.mdx', mySolver, {reforged: true});
+let HD = viewer.load('Units/Human/Footman/Footman.mdx', mySolver, {reforged: true, hd: true});
 ```
 
 Note that you don't have to use these exact values.

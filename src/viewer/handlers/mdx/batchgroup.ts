@@ -166,7 +166,9 @@ export default class BatchGroup {
               mdxTexture = layerTexture;
             }
 
-            texture = mdxTexture.texture;
+            if (mdxTexture) {
+              texture = mdxTexture.texture;
+            }
           }
 
           webgl.bindTextureAndWrap(texture, 0, layerTexture.wrapS, layerTexture.wrapT);

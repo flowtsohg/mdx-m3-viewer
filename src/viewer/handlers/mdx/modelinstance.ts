@@ -16,7 +16,7 @@ import EventObjectSndEmitter from './eventobjectsndemitter';
 import MdxModel from './model';
 import GenericObject from './genericobject';
 
-import { EMITTER_PARTICLE2_TEXTURE_OFFSET } from './geometryemitterfuncs';
+import { EMITTER_PARTICLE2_TEXTURE_OFFSET, EMITTER_EVENT_TEXTURE_OFFSET } from './geometryemitterfuncs';
 
 
 const visibilityHeap = new Float32Array(1);
@@ -185,7 +185,7 @@ export default class MdxModelInstance extends ModelInstance {
   }
 
   setEventTexture(index: number, texture?: Texture) {
-    this.setResource(EMITTER_PARTICLE2_TEXTURE_OFFSET + index, texture);
+    this.setResource(EMITTER_EVENT_TEXTURE_OFFSET + index, texture);
   }
 
   /**
@@ -310,6 +310,15 @@ export default class MdxModelInstance extends ModelInstance {
       // Update all of the node's non-skeletal children, which will update their children, and so on.
       node.updateChildren(dt, scene);
     }
+  }
+
+  // If a model has no sequences or is running no sequence, it will only update once since it will never be forced to update.
+  // This is generally the desired behavior, except when it is moved by the client.
+  // Therefore, if an instance is transformed, always do a forced update.
+  recalculateTransformation() {
+    super.recalculateTransformation();
+
+    this.forced = true;
   }
 
   /**
