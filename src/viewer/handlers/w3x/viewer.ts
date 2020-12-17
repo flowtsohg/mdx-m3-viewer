@@ -173,9 +173,9 @@ export default class War3MapViewer extends ModelViewer {
         }
       });
   }
-
-  load(src: any) {
-    return super.load(src, <PathSolver>this.mapPathSolver, this.solverParams);
+  // added optional aPathSolver param to load in non-wc3 models
+  load(src: any, aPathSolver?: any) {
+    return super.load(src, aPathSolver || <PathSolver>this.mapPathSolver, this.solverParams);
   }
 
   loadMapGeneric(path: string, dataType: FetchDataTypeName) {

@@ -64,7 +64,7 @@ export function createSphere(radius: number, stacks: number, slices: number) {
 
       uvs[uOffset + 0] = slice / slices;
       uvs[uOffset + 1] = 1 - (stack / stacks);
-    }
+    } 
   }
 
   for (let stack = 0, fOffset = 0; stack < stacks; stack++) {
@@ -108,7 +108,7 @@ export function createSphere(radius: number, stacks: number, slices: number) {
 export function createUnitSphere(stacks: number, slices: number) {
   return createSphere(1, stacks, slices);
 }
-
+ 
 /**
  * Creates a cylinder geometry object.
  */
