@@ -71,8 +71,6 @@ export default class Unit {
     this.hitpoints = stream.readInt32();
     this.mana = stream.readInt32();
 
-    console.log(this)
-
     if (subversion > 10) {
       this.droppedItemTable = stream.readInt32();
     }
