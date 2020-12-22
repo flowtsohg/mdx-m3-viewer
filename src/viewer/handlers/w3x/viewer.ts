@@ -209,7 +209,7 @@ export default class War3MapViewer extends ModelViewer {
 
         tileset = w3i.tileset;
 
-        if (w3i.buildVersion[0] * 100 + w3i.buildVersion[1] >= 131) {
+        if (w3i.buildVersion[0] * 100 + w3i.buildVersion[1] > 131) {
           this.isReforged = true;
         }
       } else {
