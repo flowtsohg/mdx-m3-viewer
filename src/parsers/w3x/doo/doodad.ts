@@ -10,6 +10,10 @@ export default class Doodad {
   location: Float32Array = new Float32Array(3);
   angle: number = 0;
   scale: Float32Array = new Float32Array([1, 1, 1]);
+  /**
+   * @since Game version 1.32
+   */
+  skin: string = '\0\0\0\0';
   flags: number = 0;
   life: number = 0;
   itemTable: number = -1;
@@ -17,12 +21,17 @@ export default class Doodad {
   editorId: number = 0;
   u1: Uint8Array = new Uint8Array(8);
 
-  load(stream: BinaryStream, version: number) {
+  load(stream: BinaryStream, version: number, isReforged: boolean) {
     this.id = stream.read(4);
     this.variation = stream.readInt32();
     stream.readFloat32Array(this.location);
     this.angle = stream.readFloat32();
     stream.readFloat32Array(this.scale);
+
+    if (isReforged) {
+      this.skin = stream.read(4);
+    }
+
     this.flags = stream.readUint8();
     this.life = stream.readUint8();
 
@@ -41,12 +50,17 @@ export default class Doodad {
     this.editorId = stream.readInt32();
   }
 
-  save(stream: BinaryStream, version: number) {
+  save(stream: BinaryStream, version: number, isReforged: boolean) {
     stream.write(this.id);
     stream.writeInt32(this.variation);
     stream.writeFloat32Array(this.location);
     stream.writeFloat32(this.angle);
     stream.writeFloat32Array(this.scale);
+
+    if (isReforged) {
+      stream.write(this.skin);
+    }
+
     stream.writeUint8(this.flags);
     stream.writeUint8(this.life);
 
@@ -62,8 +76,12 @@ export default class Doodad {
     stream.writeInt32(this.editorId);
   }
 
-  getByteLength(version: number) {
+  getByteLength(version: number, isReforged: boolean) {
     let size = 42;
+
+    if (isReforged) {
+      size += 4;
+    }
 
     if (version > 7) {
       size += 8;

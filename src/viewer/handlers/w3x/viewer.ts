@@ -39,6 +39,7 @@ const normalHeap2 = vec3.create();
 
 export default class War3MapViewer extends ModelViewer {
   wc3PathSolver: PathSolver;
+  isReforged: boolean = false;
   solverParams: { tileset?: string, reforged?: boolean, hd?: boolean } = {};
   groundShader: ShaderProgram | null;
   waterShader: ShaderProgram | null;
@@ -192,6 +193,7 @@ export default class War3MapViewer extends ModelViewer {
     let mapMpq = new War3Map(buffer, true);
 
     this.mapMpq = mapMpq;
+    this.isReforged = false;
 
     let wc3PathSolver = this.wc3PathSolver;
 
@@ -206,6 +208,10 @@ export default class War3MapViewer extends ModelViewer {
         let w3i = new War3MapW3i(w3iBuffer);
 
         tileset = w3i.tileset;
+
+        if (w3i.buildVersion[0] * 100 + w3i.buildVersion[1] >= 131) {
+          this.isReforged = true;
+        }
       } else {
         console.warn(`Attempted to load war3map.w3i but it couldn't be decoded. Using default tileset A.`);
       }
@@ -538,8 +544,10 @@ export default class War3MapViewer extends ModelViewer {
     let doo;
 
     try {
-      doo = new War3MapDoo(dooBuffer);
+      doo = new War3MapDoo(dooBuffer, this.isReforged);
     } catch (e) {
+      console.warn(`Failed to parse war3map.doo`);
+
       return;
     }
 
@@ -636,10 +644,14 @@ export default class War3MapViewer extends ModelViewer {
     let unitsDoo;
 
     try {
-      unitsDoo = new War3MapUnitsDoo(dooBuffer);
+      unitsDoo = new War3MapUnitsDoo(dooBuffer, this.isReforged);
     } catch (e) {
+      console.warn(`Failed to parse war3mapUnits.doo`);
+
       return;
     }
+
+    console.log(unitsDoo);
 
     // Collect the units and items data.
     for (let unit of unitsDoo.units) {

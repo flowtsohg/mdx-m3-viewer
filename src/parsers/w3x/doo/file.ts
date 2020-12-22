@@ -12,13 +12,13 @@ export default class War3MapDoo {
   u2: Uint8Array = new Uint8Array(4);
   terrainDoodads: TerrainDoodad[] = [];
 
-  constructor(buffer?: ArrayBuffer) {
+  constructor(buffer?: ArrayBuffer, isReforged?: boolean) {
     if (buffer) {
-      this.load(buffer);
+      this.load(buffer, !!isReforged);
     }
   }
 
-  load(buffer: ArrayBuffer) {
+  load(buffer: ArrayBuffer, isReforged: boolean) {
     let stream = new BinaryStream(buffer);
 
     if (stream.read(4) !== 'W3do') {
@@ -31,7 +31,7 @@ export default class War3MapDoo {
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
       let doodad = new Doodad();
 
-      doodad.load(stream, this.version);
+      doodad.load(stream, this.version, isReforged);
 
       this.doodads.push(doodad);
     }
@@ -49,8 +49,8 @@ export default class War3MapDoo {
     return true;
   }
 
-  save() {
-    let buffer = new ArrayBuffer(this.getByteLength());
+  save(isReforged: boolean) {
+    let buffer = new ArrayBuffer(this.getByteLength(isReforged));
     let stream = new BinaryStream(buffer);
 
     stream.write('W3do');
@@ -59,7 +59,7 @@ export default class War3MapDoo {
     stream.writeUint32(this.doodads.length);
 
     for (let doodad of this.doodads) {
-      doodad.save(stream, this.version);
+      doodad.save(stream, this.version, isReforged);
     }
 
     stream.writeUint8Array(this.u2);
@@ -72,11 +72,11 @@ export default class War3MapDoo {
     return buffer;
   }
 
-  getByteLength() {
+  getByteLength(isReforged: boolean) {
     let size = 24 + this.terrainDoodads.length * 16;
 
     for (let doodad of this.doodads) {
-      size += doodad.getByteLength(this.version);
+      size += doodad.getByteLength(this.version, isReforged);
     }
 
     return size;

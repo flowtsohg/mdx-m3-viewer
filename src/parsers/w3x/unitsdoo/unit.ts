@@ -13,6 +13,10 @@ export default class Unit {
   location: Float32Array = new Float32Array(3);
   angle: number = 0;
   scale: Float32Array = new Float32Array([1, 1, 1]);
+  /**
+   * @since Game version 1.32
+   */
+  skin: string = '\0\0\0\0';
   flags: number = 0;
   player: number = 0;
   unknown: number = 0;
@@ -50,19 +54,26 @@ export default class Unit {
   waygate: number = 0;
   creationNumber: number = 0;
 
-  load(stream: BinaryStream, version: number) {
+  load(stream: BinaryStream, version: number, subversion: number, isReforged: boolean) {
     this.id = stream.read(4);
     this.variation = stream.readInt32();
     stream.readFloat32Array(this.location);
     this.angle = stream.readFloat32();
     stream.readFloat32Array(this.scale);
+
+    if (isReforged) {
+      this.skin = stream.read(4);
+    }
+
     this.flags = stream.readUint8();
     this.player = stream.readInt32();
     this.unknown = stream.readUint16();
     this.hitpoints = stream.readInt32();
     this.mana = stream.readInt32();
 
-    if (version > 7) {
+    console.log(this)
+
+    if (subversion > 10) {
       this.droppedItemTable = stream.readInt32();
     }
 
@@ -78,7 +89,7 @@ export default class Unit {
     this.targetAcquisition = stream.readFloat32();
     this.heroLevel = stream.readInt32();
 
-    if (version > 7) {
+    if (subversion > 10) {
       this.heroStrength = stream.readInt32();
       this.heroAgility = stream.readInt32();
       this.heroIntelligence = stream.readInt32();
@@ -123,19 +134,24 @@ export default class Unit {
     this.creationNumber = stream.readInt32();
   }
 
-  save(stream: BinaryStream, version: number) {
+  save(stream: BinaryStream, version: number, subversion: number, isReforged: boolean) {
     stream.write(this.id);
     stream.writeInt32(this.variation);
     stream.writeFloat32Array(this.location);
     stream.writeFloat32(this.angle);
     stream.writeFloat32Array(this.scale);
+
+    if (isReforged) {
+      stream.write(this.skin);
+    }
+
     stream.writeUint8(this.flags);
     stream.writeInt32(this.player);
     stream.writeUint16(this.unknown);
     stream.writeInt32(this.hitpoints);
     stream.writeInt32(this.mana);
 
-    if (version > 7) {
+    if (subversion > 10) {
       stream.writeInt32(this.droppedItemTable);
     }
 
@@ -149,7 +165,7 @@ export default class Unit {
     stream.writeFloat32(this.targetAcquisition);
     stream.writeInt32(this.heroLevel);
 
-    if (version > 7) {
+    if (subversion > 10) {
       stream.writeInt32(this.heroStrength);
       stream.writeInt32(this.heroAgility);
       stream.writeInt32(this.heroIntelligence);
@@ -188,10 +204,14 @@ export default class Unit {
     stream.writeInt32(this.creationNumber);
   }
 
-  getByteLength(version: number) {
+  getByteLength(version: number, subversion: number, isReforged: boolean) {
     let size = 91;
 
-    if (version > 7) {
+    if (isReforged) {
+      size += 4;
+    }
+
+    if (subversion > 10) {
       size += 16;
     }
 

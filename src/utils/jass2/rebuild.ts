@@ -54,7 +54,7 @@ export default function rebuild(map: War3Map, commonj: string, blizzardj: string
 
   time(`Saving war3mapUnits.doo with ${units.length} objects`);
 
-  map.set('war3mapUnits.doo', unitsFile.save());
+  map.set('war3mapUnits.doo', unitsFile.save(false));
 
   time('Finished');
 }
