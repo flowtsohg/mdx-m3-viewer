@@ -651,8 +651,6 @@ export default class War3MapViewer extends ModelViewer {
       return;
     }
 
-    console.log(unitsDoo);
-
     // Collect the units and items data.
     for (let unit of unitsDoo.units) {
       let row: MappedDataRow | undefined;
