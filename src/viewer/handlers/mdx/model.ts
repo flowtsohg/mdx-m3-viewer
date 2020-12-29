@@ -177,7 +177,7 @@ export default class MdxModel extends Model {
       let teamGlows: MdxTexture[] = reforged ? mdxCache.reforgedTeamGlows : mdxCache.teamGlows;
 
       if (!teamColors.length) {
-        for (let i = 0; i < 14; i++) {
+        for (let i = 0; i < 24; i++) {
           let id = ('' + i).padStart(2, '0');
 
           let teamColor = new MdxTexture(1, true, true);
