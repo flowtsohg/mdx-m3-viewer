@@ -170,39 +170,6 @@ export default class MdxModel extends Model {
       this.textures[i] = mdxTexture;
     }
 
-    // Start loading the team color and glow textures if this model uses them and they weren't loaded previously.
-    if (usingTeamTextures) {
-      let mdxCache = viewer.sharedCache.get('mdx');
-      let teamColors: MdxTexture[] = reforged ? mdxCache.reforgedTeamColors : mdxCache.teamColors;
-      let teamGlows: MdxTexture[] = reforged ? mdxCache.reforgedTeamGlows : mdxCache.teamGlows;
-
-      if (!teamColors.length) {
-        for (let i = 0; i < 14; i++) {
-          let id = ('' + i).padStart(2, '0');
-
-          let teamColor = new MdxTexture(1, true, true);
-          let teamGlow = new MdxTexture(2, true, true);
-
-          viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${id}${texturesExt}`, pathSolver, solverParams)
-            .then((texture) => {
-              if (texture) {
-                teamColor.texture = <Texture>texture;
-              }
-            });
-
-          viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${id}${texturesExt}`, pathSolver, solverParams)
-            .then((texture) => {
-              if (texture) {
-                teamGlow.texture = <Texture>texture;
-              }
-            });
-
-          teamColors[i] = teamColor;
-          teamGlows[i] = teamGlow;
-        }
-      }
-    }
-
     // Geoset animations
     for (let geosetAnimation of parser.geosetAnimations) {
       this.geosetAnimations.push(new GeosetAnimation(this, geosetAnimation));

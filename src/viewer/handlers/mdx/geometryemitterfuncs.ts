@@ -157,13 +157,9 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: ShaderPro
 
   if (!texture) {
     if (replaceable === 1) {
-      let teamColors: MdxTexture[] = model.reforged ? mdxCache.reforgedTeamColors : mdxCache.teamColors;
-
-      mdxTexture = teamColors[instance.teamColor];
+      mdxTexture = mdxCache.teamColors[instance.teamColor];
     } else if (replaceable === 2) {
-      let teamGlows: MdxTexture[] = model.reforged ? mdxCache.reforgedTeamGlows : mdxCache.teamGlows;
-
-      mdxTexture = teamGlows[instance.teamColor];
+      mdxTexture = mdxCache.teamGlows[instance.teamColor];
     }
 
     texture = mdxTexture.texture;

@@ -1,6 +1,8 @@
 import { isStringInBytes, isStringInString } from '../../../common/isstringin';
 import MdlxModel from '../../../parsers/mdlx/model';
 import ModelViewer from '../../viewer';
+import { PathSolver } from '../../handlerresource';
+import Texture from '../../texture';
 import Model from './model';
 import MdxTexture from './texture';
 import standardVert from './shaders/standard.vert';
@@ -11,7 +13,7 @@ import particlesVert from './shaders/particles.vert';
 import particlesFrag from './shaders/particles.frag';
 
 export default {
-  load(viewer: ModelViewer) {
+  load(viewer: ModelViewer, pathSolver?: PathSolver, reforgedTeams?: boolean) {
     let gl = viewer.gl;
     let webgl = viewer.webgl;
 
@@ -39,6 +41,29 @@ export default {
       throw new Error('MDX: Failed to compile the shaders!');
     }
 
+    let teamColors: MdxTexture[] = [];
+    let teamGlows: MdxTexture[] = [];
+    let teams = reforgedTeams ? 28 : 14;
+    let ext = reforgedTeams ? 'dds' : 'blp';
+    let params = reforgedTeams ? { reforged: true } : {};
+
+    for (let i = 0; i < teams; i++) {
+      let id = ('' + i).padStart(2, '0');
+      let end = `${id}.${ext}`;
+
+      let teamColor = new MdxTexture(1, true, true);
+      let teamGlow = new MdxTexture(2, true, true);
+
+      viewer.load(`ReplaceableTextures\\TeamColor\\TeamColor${end}`, pathSolver, params)
+        .then((texture) => teamColor.texture = <Texture>texture);
+
+      viewer.load(`ReplaceableTextures\\TeamGlow\\TeamGlow${end}`, pathSolver, params)
+        .then((texture) => teamGlow.texture = <Texture>texture);
+
+      teamColors[i] = teamColor;
+      teamGlows[i] = teamGlow;
+    }
+
     viewer.sharedCache.set('mdx', {
       // Shaders.
       standardShader,
@@ -47,12 +72,9 @@ export default {
       particlesShader,
       // Geometry emitters buffer.
       rectBuffer,
-      // Team color/glow textures, shared between all non-Reforged models, but loaded with the first model that uses them.
-      teamColors: <MdxTexture[]>[],
-      teamGlows: <MdxTexture[]>[],
-      // Same as above, but only loaded and used by Reforged models.
-      reforgedTeamColors: <MdxTexture[]>[],
-      reforgedTeamGlows: <MdxTexture[]>[],
+      // Team color/glow textures.
+      teamColors,
+      teamGlows,
     });
   },
   isValidSource(src: any) {

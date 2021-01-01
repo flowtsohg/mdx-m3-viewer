@@ -9,6 +9,7 @@ import Camera from '../viewer/camera';
 import mdxHandler from '../viewer/handlers/mdx/handler';
 import blpHandler from '../viewer/handlers/blp/handler';
 import m3Handler from '../viewer/handlers/m3/handler';
+import { PathSolver } from '../viewer/handlerresource';
 
 /**
  * The signature of a test loader.
@@ -80,7 +81,7 @@ export default class UnitTester {
   mathRandom: () => number = Math.random;
   tests: Test[] = [];
 
-  constructor() {
+  constructor(wc3PathSolver: PathSolver) {
     let canvas = document.createElement('canvas');
 
     canvas.width = canvas.height = 256;
@@ -91,7 +92,7 @@ export default class UnitTester {
 
     viewer.on('error', ({ error, fetchUrl, reason }) => console.log(error, fetchUrl, reason));
 
-    viewer.addHandler(mdxHandler);
+    viewer.addHandler(mdxHandler, wc3PathSolver);
     viewer.addHandler(blpHandler);
     viewer.addHandler(m3Handler);
 

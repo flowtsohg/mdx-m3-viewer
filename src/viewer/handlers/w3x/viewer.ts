@@ -112,7 +112,7 @@ export default class War3MapViewer extends ModelViewer {
 
     this.on('error', (e) => console.log(e));
 
-    this.addHandler(mdxHandler);
+    this.addHandler(mdxHandler, wc3PathSolver); /// TODO: If Reforged support is wanted proper, the team colors/glows should be reloaded based on the map.
     this.addHandler(blpHandler);
     this.addHandler(tgaHandler);
     this.addHandler(ddsHandler);

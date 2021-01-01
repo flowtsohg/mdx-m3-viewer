@@ -131,7 +131,7 @@ You supply a function that takes a source you want to load, such as an url, and 
 The load function itself looks like this:
 
 ```javascript
-let resourcePromise = viewer.load(src, pathSolver[, solverParams])
+let resourcePromise = viewer.load(src[, pathSolver[, solverParams]])
 ```
 
 In other words, you give it a source, and a promise to a resource is returned, where a resource in this context means a model or a texture.
@@ -142,10 +142,14 @@ The path solver is a function with this signature: `function(src[, solverParams]
 * `src` is the source you gave the load call, or one given by the resource itself when loading internal resources.
 * `finalSrc` is the actual source to load from. If this is a server fetch, then this is the url to fetch from. If it's an in-memory load, it depends on what each handler expects, typically an ArrayBuffer or a string.
 
+If no path solver is given, the given source is the final source.
+
+Path solvers are allowed to return promises, and they can return resources directly for injections.
+
 Generally speaking, you'll need a simple path solver that expects urls and prepends them by some base directory or API url.\
 There are however times when this is not the case, such as loading models with custom textures, and handling both in-memory and fetches in the same solver as done in the map viewer.
 
-For information about `solverParams`, see the [solver parameters section](#solver-params-reforged-and-map-loading).
+For the map viewer, and in general Reforged resources, see the [solver parameters section](#solver-params-reforged-and-map-loading).
 
 So let's use an example.
 
@@ -181,7 +185,7 @@ This function call results in the following:
 2. The viewer starts the fetch, and emits the `loadstart` event.
 3. A promise is returned.
 4. ...time passes until the file finishes loading...
-5. The viewer detects the format as MDX.
+5. The viewer detects the format as MDX based on the file data (the url is irrelevant to this process).
 6. The model is constructed successfuly, or not, and sends a `load` or `error` event respectively, followed by the `loadend` event.
 7. In the case of an MDX model, the previous step will also cause it to load its textures, in this case `texture.blp`.
 8. myPathSolver is called with `"texture.blp"`, which returns `"Resources/texture.blp"`, and we loop back to step 2, but with a texture this time.
@@ -249,12 +253,12 @@ The built-in names are:
 
 For example:
 ```javascript
-viewer.on('error', (e) => {
-  console.log(e);
-});
+viewer.on('error', (e) => console.log(e));
 ```
 
-In addition there is `ModelViewer.whenAllLoaded()` which will trigger both on the `idle` event, and if there is currently nothing loading.
+In addition there is `ModelViewer.whenAllLoaded([callback])`, which can be used to run code when nothing is loading.
+If a callback is given, it will be called, otherwise a promise is returned.
+If there are no resources currently being loaded, this will happen instantly. Otherwise, it will happen once the `idle` event is emitted.
 
 ------------------------
 

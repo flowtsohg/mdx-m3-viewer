@@ -25,8 +25,17 @@ viewer.on('load', (viewer, path) => console.log('load', path));
 viewer.on('loadend', (viewer, path) => console.log('loadend path', path));
 viewer.on('error', (viewer, error, reason) => console.log(viewer, error, reason));
 
-// Add the needed handlers.
+// Add the MDX handler.
+// Note that this also loads all of the team colors/glows.
+// You can optionally supply a path solver (look below) to point the viewer to the right location of the textures.
+// Additionally, a boolean can be given that selects between RoC/TFT and Reforged team colors.
+// For example:
+//   viewer.addHandler(handlers.mdx, pathSolver); // Roc/TFT = 14 teams.
+//   viewer.addHandler(handlers.mdx, pathSolver, true); // Reforged = 28 teams.
+// In the case of this example, team colors aren't used, so it's fine for their loads to simply fail.
 viewer.addHandler(handlers.mdx);
+
+// Add the BLP handler.
 viewer.addHandler(handlers.blp);
 
 // A path solver is used for every load call.

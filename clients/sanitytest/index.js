@@ -23,14 +23,14 @@ console.log('Viewer version', ModelViewer.version);
 let canvas = document.getElementById('canvas');
 let viewer = new ModelViewer.viewer.ModelViewer(canvas);
 
+viewer.on('error', (e) => console.log(e));
+
 viewer.gl.clearColor(0.7, 0.7, 0.7, 1);
 
-viewer.addHandler(handlers.mdx);
+viewer.addHandler(handlers.mdx, localOrHive);
 viewer.addHandler(handlers.blp);
 viewer.addHandler(handlers.tga);
 viewer.addHandler(handlers.dds);
-
-viewer.on('error', (e) => console.log(e));
 
 let scene = viewer.addScene();
 
@@ -627,9 +627,9 @@ async function loadQuery() {
     let override = overrides.get(src);
 
     if (override) {
-      return [override.path, override.ext, true];
+      return override.path;
     } else {
-      return [localOrHive(src), src.substr(src.lastIndexOf('.')), true];
+      return localOrHive(src);
     }
   };
 

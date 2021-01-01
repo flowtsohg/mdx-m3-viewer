@@ -35,18 +35,9 @@ export default class BatchGroup {
     let webgl = viewer.webgl;
     let isExtended = this.isExtended;
     let isHd = this.isHd;
-    let isReforged = model.reforged;
-    let teamColors: MdxTexture[];
-    let teamGlows: MdxTexture[];
+    let teamColors = <MdxTexture[]>mdxCache.teamColors;
+    let teamGlows = <MdxTexture[]>mdxCache.teamGlows;
     let shader;
-
-    if (isReforged) {
-      teamColors = mdxCache.reforgedTeamColors;
-      teamGlows = mdxCache.reforgedTeamGlows;
-    } else {
-      teamColors = mdxCache.teamColors;
-      teamGlows = mdxCache.teamGlows;
-    }
 
     if (isExtended) {
       shader = <ShaderProgram>mdxCache.extendedShader;

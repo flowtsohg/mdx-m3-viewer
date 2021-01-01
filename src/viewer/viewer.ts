@@ -19,7 +19,7 @@ import { blobToImage } from '../common/canvas';
  * Additional data can be added to them for the purposes of the implementation.
  */
 export interface Handler {
-  load?: (viewer: ModelViewer) => void;
+  load?: (viewer: ModelViewer, ...args: any[]) => void;
   isValidSource: (src: any) => boolean;
   resource: new (src: any, resourceData: HandlerResourceData) => HandlerResource
 }
@@ -93,7 +93,7 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Add an handler.
    */
-  addHandler(handler: Handler) {
+  addHandler(handler: Handler, ...args: any[]) {
     if (handler) {
       let handlers = this.handlers;
 
@@ -107,7 +107,7 @@ export default class ModelViewer extends EventEmitter {
         // Check if the handler has a loader, and if so load it.
         if (handler.load) {
           try {
-            handler.load(this);
+            handler.load(this, ...args);
           } catch (e) {
             this.emit('error', { viewer: this, error: `Handler failed to load`, handler, reason: e });
 

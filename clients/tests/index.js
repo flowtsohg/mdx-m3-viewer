@@ -85,7 +85,7 @@ let testsCount = 0;
 let testsPassed = 0;
 let testsElement = document.getElementById('tests');
 let resultElement = document.getElementById('result');
-let unitTester = new UnitTester();
+let unitTester = new UnitTester(wc3Solver);
 
 document.getElementById('version').textContent = 'Viewer version ' + ModelViewer.version;
 

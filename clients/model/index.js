@@ -16,12 +16,6 @@ setupCamera(scene);
 
 viewer.on('error', (e) => console.log(e));
 
-viewer.addHandler(handlers.mdx);
-viewer.addHandler(handlers.m3);
-viewer.addHandler(handlers.blp);
-viewer.addHandler(handlers.tga);
-viewer.addHandler(handlers.dds);
-
 function pathSolver(src) {
   if (typeof src === 'string') {
     return localOrHive(src);
@@ -29,6 +23,16 @@ function pathSolver(src) {
 
   return src;
 }
+
+viewer.on('loadend', (e) => {
+  console.log(`Loaded ${e.fetchUrl}`);
+});
+
+viewer.addHandler(handlers.mdx, pathSolver, true);
+viewer.addHandler(handlers.m3);
+viewer.addHandler(handlers.blp);
+viewer.addHandler(handlers.tga);
+viewer.addHandler(handlers.dds);
 
 (function step() {
   requestAnimationFrame(step);
