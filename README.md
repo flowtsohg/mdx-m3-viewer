@@ -354,5 +354,7 @@ An optional material can be given, which can control the render mode between pol
 
 For example:
 ```javascript
-createPrimitive(viewer, primitives.createUnitCube(), { color: [1, 0, 0] });
+let modelPromise = createPrimitive(viewer, primitives.createUnitCube(), { color: [1, 0, 0] });
 ```
+
+Note that this loads a standard MDX model which can be used like any other MDX model.
