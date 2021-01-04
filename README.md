@@ -343,3 +343,16 @@ viewer.load(buffer, pathSolver);
 ```
 
 When `src` is the buffer we are loading, it will get loaded directly, otherwise - for internal textures - it will again resolve to `Resources/` correctly.
+
+#### Primitive shapes
+
+It is possible to construct primitive shapes with `createPrimitive`, which is available under `utils.mdx.createPrimitive`.
+
+The function expects an object describing a primitive geometry, which can be obtained via the different functions in `utils.mdx.primitives`.
+
+An optional material can be given, which can control the render mode between polygns and lines, the color, texture, and such.
+
+For example:
+```javascript
+createPrimitive(viewer, primitives.createUnitCube(), { color: [1, 0, 0] });
+```
