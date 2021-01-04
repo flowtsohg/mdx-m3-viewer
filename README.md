@@ -269,7 +269,7 @@ Note that if you want to capture events for the team textures, add the event lis
 
 #### Solver Params: Reforged and the map viewer
 
-It is in fact possible to sent more data to path solvers with `load`.
+It is in fact possible to send more data to path solvers with `load`.
 The full signature is as follows:
 ```javascript
 let resourcePromise = viewer.load(src[, pathSolver[, solverParams]]);
@@ -288,7 +288,7 @@ The MDX handler and the map viewer use `solverParams` to select between SD/HD Re
 For example, let's suppose we want to load the Warcraft 3 Footman model, but with a twist - we want all three versions of it - RoC/TFT, Reforged SD, and Reforged HD.
 
 The MDX handler defines the parameters as such: `{reforged?: boolean, hd?: boolean}`.\
-The map viewer defines them as such: `{reforged?: boolean, hd?: boolean, tileset: string}.
+The map viewer defines them as such: `{reforged?: boolean, hd?: boolean, tileset: string}`.
 
 If `reforged` is falsy or doesn't exist, they want a TFT resource.\
 If `reforged` is true, they want a Reforged SD resource and...\
@@ -302,7 +302,7 @@ let HD = viewer.load('Units/Human/Footman/Footman.mdx', mySolver, {reforged: tru
 ```
 
 Note that you don't have to use these exact values.
-Rather, these are the values that will be sent by the MDX handler or map viewer, when loading internal textures, models, and generic files.
+Rather, these are the values that will be sent by the MDX handler or map viewer, when loading internal textures, models, and other files.
 
 What does the path solver do, then?
 As always, that depends on the client and the server.
