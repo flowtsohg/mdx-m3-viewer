@@ -1,4 +1,5 @@
 import BinaryStream from '../../common/binarystream';
+import { decodeUtf8 } from '../../common/utf8';
 import TokenStream from './tokenstream';
 import Extent from './extent';
 import Sequence from './sequence';
@@ -99,9 +100,7 @@ export default class Model {
       if (bytes[0] === 0x4D && bytes[1] === 0x44 && bytes[2] === 0x4C && bytes[3] === 0x58) {
         this.loadMdx(buffer);
       } else {
-        let decoder = new TextDecoder();
-
-        this.loadMdl(decoder.decode(bytes));
+        this.loadMdl(decodeUtf8(buffer));
       }
     } else {
       this.loadMdl(buffer);
@@ -359,7 +358,6 @@ export default class Model {
    * Load the model from MDL.
    */
   loadMdl(buffer: string) {
-    //console.log(buffer)
     let token: string;
     let stream = new TokenStream(buffer);
 

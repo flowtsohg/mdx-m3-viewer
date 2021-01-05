@@ -1,5 +1,5 @@
 import { deflate, inflate } from 'pako';
-import BinaryStream from '../../common/binarystream';
+import { decodeUtf8 } from '../../common/utf8';
 import MpqArchive from './archive';
 import MpqBlock from './block';
 import { COMPRESSION_ADPCM_MONO, COMPRESSION_ADPCM_STEREO, COMPRESSION_BZIP2, COMPRESSION_DEFLATE, COMPRESSION_HUFFMAN, COMPRESSION_IMPLODE, FILE_COMPRESSED, FILE_ENCRYPTED, FILE_EXISTS, FILE_OFFSET_ADJUSTED_KEY, FILE_SINGLE_UNIT, HASH_ENTRY_DELETED } from './constants';
@@ -59,7 +59,7 @@ export default class MpqFile {
   }
 
   /**
-   * Gets this file's data as a string.
+   * Gets this file's data as a UTF8 string.
    * 
    * Decodes the file if needed.
    * 
@@ -69,9 +69,7 @@ export default class MpqFile {
     let buffer = this.arrayBuffer();
 
     if (buffer) {
-      let stream = new BinaryStream(buffer);
-
-      return stream.read(buffer.byteLength);
+      return decodeUtf8(buffer);
     }
 
     return null;

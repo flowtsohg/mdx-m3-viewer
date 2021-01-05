@@ -1,6 +1,6 @@
-import BinaryStream from '../../common/binarystream';
 import { powerOfTwo } from '../../common/math';
 import { numberToUint32 } from '../../common/typecast';
+import { encodeUtf8 } from '../../common/utf8';
 import MpqBlockTable from './blocktable';
 import { HASH_ENTRY_DELETED, HASH_ENTRY_EMPTY, MAGIC } from './constants';
 import MpqCrypto from './crypto';
@@ -309,11 +309,7 @@ export default class MpqArchive {
     if (buffer instanceof ArrayBuffer) {
       arrayBuffer = buffer;
     } else {
-      let stream = new BinaryStream(new Uint8Array(buffer.length));
-
-      stream.write(buffer);
-
-      arrayBuffer = stream.buffer;
+      arrayBuffer = encodeUtf8(buffer);
     }
 
     let file = this.get(name);
