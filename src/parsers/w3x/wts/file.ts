@@ -19,7 +19,17 @@ export default class War3MapWts {
     let stream = new TokenStream(buffer);
     let token;
 
-    stream.index += 3; // ï»¿???
+    // Find the first instance of "STRING".
+    // There are some weird war3map.wts files that begin with the bytes "ï»¿", and this causes the tokenizer to see the first token as "ï»¿STRING".
+    // Going to the first "STRING" means we can ignore any weird bytes that happened to be before.
+    let start = buffer.indexOf('STRING');
+
+    // Can war3map.wts have no entries? I don't know, might as well add a condition.
+    if (start === -1) {
+      return;
+    }
+
+    stream.index = start;
 
     while ((token = stream.readToken())) {
       if (token === 'STRING') {
@@ -37,7 +47,7 @@ export default class War3MapWts {
   }
 
   save() {
-    let buffer = 'ï»¿'; // ï»¿???
+    let buffer = '';
 
     for (let [key, value] of this.stringMap) {
       buffer += `STRING ${key}\n{\n${value}\n}\n`;
