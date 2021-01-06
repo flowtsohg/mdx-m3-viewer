@@ -1,3 +1,4 @@
+import { vec3, vec4 } from 'gl-matrix';
 import ModelViewer from './viewer';
 import Camera from './camera';
 import Grid from './grid';
@@ -39,15 +40,34 @@ export default class Scene {
    * If true, alpha works as usual.
    */
   alpha: boolean = false;
+  /**
+   * The scene's background color.
+   * 
+   * Only used if `alpha` is false.
+   */
+  color: vec3 = vec3.create();
+  /**
+   * The area on the canvas in which this scene is rendered.
+   * 
+   * Defaults to the entire canvas.
+   * 
+   * The vector defines [x, y, width, height], sizes are in pixels, and everything is related to the bottom left corner of the canvas.
+   */
+  viewport: vec4 = vec4.create();
 
   constructor(viewer: ModelViewer) {
     this.viewer = viewer;
 
     let canvas = viewer.canvas;
+    let width = canvas.width;
+    let height = canvas.height;
 
-    // Use the whole canvas, and standard perspective projection values.
-    this.camera.setViewport(0, 0, canvas.width, canvas.height);
-    this.camera.perspective(Math.PI / 4, canvas.width / canvas.height, 8, 10000);
+    // Use the whole canvas by default.
+    this.viewport[2] = width;
+    this.viewport[3] = height;
+
+    // And standard perspective projection.
+    this.camera.perspective(Math.PI / 4, width / height, 8, 10000);
   }
 
   /**
@@ -240,7 +260,7 @@ export default class Scene {
    */
   startFrame() {
     let gl = this.viewer.gl;
-    let viewport = this.camera.viewport;
+    let viewport = this.viewport;
 
     // Set the viewport.
     gl.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
@@ -250,7 +270,10 @@ export default class Scene {
 
     // If this scene doesn't want alpha, clear it.
     if (!this.alpha) {
+      let color = this.color;
+
       gl.depthMask(true);
+      gl.clearColor(color[0], color[1], color[2], 1);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
   }

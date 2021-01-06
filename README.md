@@ -325,7 +325,7 @@ if (model instanceof handlers.m3.resource) {
 #### Loading resources from memory
 
 Resources don't have to be fetched - if you have the data, you can load it directly.\
-Nothing special is needed to be done, just return the data instead of an url.\
+Nothing special is needed to be done, just return the data instead of an url.
 
 For example, say a web page wants to load a model from a local file that is dragged into it.\
 After some event handling, you end up with a `string` or an `ArrayBuffer`, let's call it `buffer`.\
@@ -358,3 +358,47 @@ let modelPromise = createPrimitive(viewer, primitives.createUnitCube(), { color:
 ```
 
 Note that this loads a standard MDX model which can be used like any other MDX model.
+
+#### Sounds
+
+MDX models have sound emitters, and the viewer supports them.
+
+If sound is desired, `viewer.audioEnabled` should be set to true BEFORE loading models.\
+This signals to the MDX handler that sound is desired, and it will load the neccessary sound files when loading models.\
+If `audioEnabled` isn't true, the sound files aren't downloaded in the first place to reduce file fetching.
+
+To get the sounds files to actually run, you must call `scene.enableAudio()`, which returns a promise that resolves to whether audio was actually enabled.\
+There are two reasons for it to fail - either because the client simply does not support audio, or because the browser did not want to enable audio.\
+The latter will happen if you attempt to enable audio before the user made any interaction with the page (like clicking something). This is a browser policy and there is no control over it.
+
+If audio was enabled, you will hear familiar sounds when running animations, like attack sounds, death sounds, and so on.\
+Not enough work was put into them to have the same feel as Warcraft 3, but it's sometimes a fun surprise to suddenly hear a model making sounds in the browser.
+
+#### Scene composition
+
+You can have any number of scenes you want.
+
+Each scene offers the following to control how it's composed on the canvas:
+* `viewport` - the position and size of the scene in pixels (defaults to the entire canvas).
+* `alpha` - determines whether the scene has a background, or can be seen through (defaults to false - has a background).
+* `color` - the background color, which is used when `alpha` is false (defaults to black).
+
+The order in which the scenes are drawn is based on the order of creation, but you can manually move scenes around in `viewer.scenes`.
+
+For example, let's say we want to mimic how Warcraft 3 looks. This could be done with 3 scenes:\
+1) The game world.\
+2) The UI with `alpha = true`.\
+3) The selected portrait, moved and sized to be on the correct portion of the UI.
+
+```javascript
+scene.viewport[0] = 100; // X offset from the left side of the canvas.
+scene.viewport[1] = 100; // Y offset from the bottom side of the canvas.
+scene.viewport[2] = 200; // Width.
+scene.viewport[3] = 200; // Height.
+
+scene.alpha = false; // Opaque, i.e. has a background (and also the default).
+
+scene.color[0] = 1; // Red background.
+scene.color[1] = 0;
+scene.color[2] = 0;
+```

@@ -195,11 +195,6 @@ export default class UnitTester {
     viewer.clear();
 
     let scene = viewer.addScene();
-    let camera = scene.camera;
-
-    // Setup the camera
-    camera.setViewport(0, 0, viewer.canvas.width, viewer.canvas.height);
-    camera.perspective(Math.PI / 4, 1, 8, 100000);
 
     // Start loading the test.
     let data = loadHandler(viewer);
@@ -220,7 +215,7 @@ export default class UnitTester {
       Math.random = seededRandom(6);
 
       // Run the test.
-      testHandler(viewer, scene, camera, data);
+      testHandler(viewer, scene, scene.camera, data);
 
       // Update and render.
       viewer.updateAndRender();

@@ -11,10 +11,6 @@ const facingCorrection = quat.setAxisAngle(quat.create(), VEC3_UNIT_X, Math.PI /
  * A camera.
  */
 export default class Camera {
-  /**
-   * The rendered viewport.
-   */
-  viewport: vec4 = vec4.create();
   isPerspective: boolean = true;
   fov: number = 0;
   aspect: number = 0;
@@ -100,22 +96,6 @@ export default class Camera {
     this.topClipPlane = top;
     this.nearClipPlane = near;
     this.farClipPlane = far;
-
-    this.dirty = true;
-  }
-
-  /**
-   * Set the camera's viewport.
-   */
-  setViewport(x: number, y: number, width: number, height: number) {
-    let viewport = this.viewport;
-
-    viewport[0] = x;
-    viewport[1] = y;
-    viewport[2] = width;
-    viewport[3] = height;
-
-    this.aspect = width / height;
 
     this.dirty = true;
   }
@@ -253,9 +233,7 @@ export default class Camera {
   /**
    * Given a vector in world space, return the vector transformed to screen space.
    */
-  worldToScreen(out: Float32Array, v: Float32Array) {
-    let viewport = this.viewport;
-
+  worldToScreen(out: Float32Array, v: Float32Array, viewport: vec4) {
     vec3.transformMat4(vectorHeap, <vec3>v, this.viewProjectionMatrix);
 
     out[0] = Math.round(((vectorHeap[0] + 1) / 2) * viewport[2]);
@@ -267,14 +245,13 @@ export default class Camera {
   /**
    * Given a vector in screen space, return a ray from the near plane to the far plane.
    */
-  screenToWorldRay(out: Float32Array, v: Float32Array) {
+  screenToWorldRay(out: Float32Array, v: Float32Array, viewport: vec4) {
     let a = vectorHeap;
     let b = vectorHeap2;
     let c = vectorHeap3;
     let x = v[0];
     let y = v[1];
     let inverseViewProjectionMatrix = this.inverseViewProjectionMatrix;
-    let viewport = this.viewport;
 
     // Intersection on the near-plane
     unproject(a, vec3.set(c, x, y, 0), inverseViewProjectionMatrix, viewport);
