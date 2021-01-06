@@ -1,4 +1,5 @@
 import BinaryStream from '../../../common/binarystream';
+import { byteLengthUtf8 } from '../../../common/utf8';
 import ECA from './eca';
 import TriggerData from './triggerdata';
 
@@ -17,8 +18,8 @@ export default class Trigger {
   ecas: ECA[] = [];
 
   load(stream: BinaryStream, version: number, triggerData: TriggerData) {
-    this.name = stream.readUntilNull();
-    this.description = stream.readUntilNull();
+    this.name = stream.readNull();
+    this.description = stream.readNull();
 
     if (version === 7) {
       this.isComment = stream.readInt32();
@@ -44,8 +45,8 @@ export default class Trigger {
   }
 
   save(stream: BinaryStream, version: number) {
-    stream.write(`${this.name}\0`);
-    stream.write(`${this.description}\0`);
+    stream.writeNull(this.name);
+    stream.writeNull(this.description);
 
     if (version === 7) {
       stream.writeInt32(this.isComment);
@@ -64,7 +65,7 @@ export default class Trigger {
   }
 
   getByteLength(version: number) {
-    let size = 26 + this.name.length + this.description.length;
+    let size = 26 + byteLengthUtf8(this.name) + byteLengthUtf8(this.description);
 
     if (version === 7) {
       size += 4;

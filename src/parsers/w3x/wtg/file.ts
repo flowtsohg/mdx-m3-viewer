@@ -21,42 +21,46 @@ export default class War3MapWtg {
   }
 
   load(buffer: ArrayBuffer, triggerData: TriggerData) {
-    let stream = new BinaryStream(buffer);
+    try {
+      let stream = new BinaryStream(buffer);
 
-    if (stream.read(4) !== 'WTG!') {
-      throw new Error('Not a WTG file');
-    }
-
-    this.version = stream.readInt32();
-
-    for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let category = new TriggerCategory();
-
-      category.load(stream, this.version);
-
-      this.categories[i] = category;
-    }
-
-    this.u1 = stream.readInt32();
-
-    for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let variable = new Variable();
-
-      variable.load(stream, this.version);
-
-      this.variables[i] = variable;
-    }
-
-    for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let trigger = new Trigger();
-
-      try {
-        trigger.load(stream, this.version, triggerData);
-      } catch (e) {
-        throw new Error(`Trigger ${i}: ${e}`);
+      if (stream.readBinary(4) !== 'WTG!') {
+        throw new Error('Not a WTG file');
       }
 
-      this.triggers[i] = trigger;
+      this.version = stream.readInt32();
+
+      for (let i = 0, l = stream.readUint32(); i < l; i++) {
+        let category = new TriggerCategory();
+
+        category.load(stream, this.version);
+
+        this.categories[i] = category;
+      }
+
+      this.u1 = stream.readInt32();
+
+      for (let i = 0, l = stream.readUint32(); i < l; i++) {
+        let variable = new Variable();
+
+        variable.load(stream, this.version);
+
+        this.variables[i] = variable;
+      }
+
+      for (let i = 0, l = stream.readUint32(); i < l; i++) {
+        let trigger = new Trigger();
+
+        try {
+          trigger.load(stream, this.version, triggerData);
+        } catch (e) {
+          throw new Error(`Trigger ${i}: ${e}`);
+        }
+
+        this.triggers[i] = trigger;
+      }
+    } catch (e) {
+      console.warn('War3MapWtg: Failed to fully parse', e);
     }
   }
 
@@ -64,7 +68,7 @@ export default class War3MapWtg {
     let buffer = new ArrayBuffer(this.getByteLength());
     let stream = new BinaryStream(buffer);
 
-    stream.write('WTG!');
+    stream.writeBinary('WTG!');
     stream.writeInt32(this.version);
     stream.writeUint32(this.categories.length);
 

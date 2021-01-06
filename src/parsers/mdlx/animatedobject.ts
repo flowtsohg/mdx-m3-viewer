@@ -13,7 +13,7 @@ export default class AnimatedObject {
     let end = stream.index + size;
 
     while (stream.index < end) {
-      let name = stream.read(4);
+      let name = stream.readBinary(4);
       let animation = new animationMap[name][1]();
 
       animation.readMdx(stream, name);

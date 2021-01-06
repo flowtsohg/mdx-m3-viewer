@@ -1,4 +1,5 @@
 import BinaryStream from '../../../common/binarystream';
+import { byteLengthUtf8 } from '../../../common/utf8';
 
 /**
  * A region.
@@ -19,10 +20,10 @@ export default class Region {
     this.right = stream.readFloat32();
     this.bottom = stream.readFloat32();
     this.top = stream.readFloat32();
-    this.name = stream.readUntilNull();
+    this.name = stream.readNull();
     this.creationNumber = stream.readUint32();
-    this.weatherEffectId = stream.read(4);
-    this.ambientSound = stream.readUntilNull();
+    this.weatherEffectId = stream.readBinary(4);
+    this.ambientSound = stream.readNull();
     stream.readUint8Array(this.color);
   }
 
@@ -31,20 +32,20 @@ export default class Region {
     stream.writeFloat32(this.right);
     stream.writeFloat32(this.bottom);
     stream.writeFloat32(this.top);
-    stream.write(`${this.name}\0`);
+    stream.writeNull(this.name);
     stream.writeUint32(this.creationNumber);
 
     if (this.weatherEffectId) {
-      stream.write(this.weatherEffectId);
+      stream.writeBinary(this.weatherEffectId);
     } else {
       stream.writeUint32(0);
     }
 
-    stream.write(`${this.ambientSound}\0`);
+    stream.writeNull(this.ambientSound);
     stream.writeUint8Array(this.color);
   }
 
   getByteLength() {
-    return 30 + this.name.length + this.ambientSound.length;
+    return 30 + byteLengthUtf8(this.name) + byteLengthUtf8(this.ambientSound);
   }
 }

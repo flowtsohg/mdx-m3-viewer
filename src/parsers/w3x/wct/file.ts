@@ -1,4 +1,5 @@
 import BinaryStream from '../../../common/binarystream';
+import { byteLengthUtf8 } from '../../../common/utf8';
 import CustomTextTrigger from './customtexttrigger';
 
 /**
@@ -17,22 +18,26 @@ export default class War3MapWct {
   }
 
   load(buffer: ArrayBuffer) {
-    let stream = new BinaryStream(buffer);
+    try {
+      let stream = new BinaryStream(buffer);
 
-    this.version = stream.readInt32();
+      this.version = stream.readInt32();
 
-    if (this.version === 1) {
-      this.comment = stream.readUntilNull();
+      if (this.version === 1) {
+        this.comment = stream.readNull();
 
-      this.trigger.load(stream);
-    }
+        this.trigger.load(stream);
+      }
 
-    for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let trigger = new CustomTextTrigger();
+      for (let i = 0, l = stream.readUint32(); i < l; i++) {
+        let trigger = new CustomTextTrigger();
 
-      trigger.load(stream);
+        trigger.load(stream);
 
-      this.triggers[i] = trigger;
+        this.triggers[i] = trigger;
+      }
+    } catch (e) {
+      console.warn('War3MapWct: Failed to fully parse', e);
     }
   }
 
@@ -43,7 +48,7 @@ export default class War3MapWct {
     stream.writeInt32(this.version);
 
     if (this.version === 1) {
-      stream.write(`${this.comment}\0`);
+      stream.writeNull(this.comment);
 
       this.trigger.save(stream);
     }
@@ -61,7 +66,7 @@ export default class War3MapWct {
     let size = 8;
 
     if (this.version === 1) {
-      size += this.comment.length + 1 + this.trigger.getByteLength();
+      size += byteLengthUtf8(this.comment) + 1 + this.trigger.getByteLength();
     }
 
     for (let trigger of this.triggers) {

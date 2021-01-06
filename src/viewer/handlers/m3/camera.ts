@@ -9,7 +9,7 @@ export default class M3Camera {
 
   constructor(camera: Camera) {
     this.bone = camera.bone;
-    this.name = camera.name.getAll().join('');
+    this.name = <string>camera.name.get();
 
     // / TODO: Add animated getters, much like the Mdx structures.
     /*

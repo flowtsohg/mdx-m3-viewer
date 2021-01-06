@@ -113,7 +113,7 @@ export default class Model {
   loadMdx(buffer: ArrayBuffer) {
     let stream = new BinaryStream(buffer);
 
-    if (stream.read(4) !== 'MDLX') {
+    if (stream.readBinary(4) !== 'MDLX') {
       throw new Error('WrongMagicNumber');
     }
 
@@ -126,7 +126,7 @@ export default class Model {
     // If something critical is missing, the handler will throw an exception.
     try {
       while (stream.remaining > 0) {
-        tag = stream.read(4);
+        tag = stream.readBinary(4);
         size = stream.readUint32();
 
         if (tag === 'VERS') {
@@ -180,7 +180,7 @@ export default class Model {
         }
       }
     } catch (e) {
-      console.warn(`MDLX parsing error in ${tag}: ${e}`);
+      console.warn(`MDLX: Failed to fully parse ${tag}`, e);
     }
   }
 
@@ -242,7 +242,7 @@ export default class Model {
     let buffer = new ArrayBuffer(this.getByteLength());
     let stream = new BinaryStream(buffer);
 
-    stream.write('MDLX');
+    stream.writeBinary('MDLX');
     this.saveVersionChunk(stream);
     this.saveModelChunk(stream);
     this.saveStaticObjectChunk(stream, 'SEQS', this.sequences, 132);
@@ -282,25 +282,23 @@ export default class Model {
   }
 
   saveVersionChunk(stream: BinaryStream) {
-    stream.write('VERS');
+    stream.writeBinary('VERS');
     stream.writeUint32(4);
     stream.writeUint32(this.version);
   }
 
   saveModelChunk(stream: BinaryStream) {
-    stream.write('MODL');
+    stream.writeBinary('MODL');
     stream.writeUint32(372);
-    stream.write(this.name);
-    stream.skip(80 - this.name.length);
-    stream.write(this.animationFile);
-    stream.skip(260 - this.animationFile.length);
+    stream.skip(80 - stream.write(this.name));
+    stream.skip(260 - stream.write(this.animationFile));
     this.extent.writeMdx(stream);
     stream.writeUint32(this.blendTime);
   }
 
   saveStaticObjectChunk(stream: BinaryStream, name: string, objects: (Sequence | Texture | FaceEffect)[], size: number) {
     if (objects.length) {
-      stream.write(name);
+      stream.writeBinary(name);
       stream.writeUint32(objects.length * size);
 
       for (let object of objects) {
@@ -311,7 +309,7 @@ export default class Model {
 
   saveGlobalSequenceChunk(stream: BinaryStream) {
     if (this.globalSequences.length) {
-      stream.write('GLBS');
+      stream.writeBinary('GLBS');
       stream.writeUint32(this.globalSequences.length * 4);
 
       for (let globalSequence of this.globalSequences) {
@@ -322,7 +320,7 @@ export default class Model {
 
   saveDynamicObjectChunk(stream: BinaryStream, name: string, objects: (Material | TextureAnimation | Geoset | GeosetAnimation | GenericObject | Camera)[]) {
     if (objects.length) {
-      stream.write(name);
+      stream.writeBinary(name);
       stream.writeUint32(this.getObjectsByteLength(objects));
 
       for (let object of objects) {
@@ -333,7 +331,7 @@ export default class Model {
 
   savePivotPointChunk(stream: BinaryStream) {
     if (this.pivotPoints.length) {
-      stream.write('PIVT');
+      stream.writeBinary('PIVT');
       stream.writeUint32(this.pivotPoints.length * 12);
 
       for (let pivotPoint of this.pivotPoints) {
@@ -344,7 +342,7 @@ export default class Model {
 
   saveBindPoseChunk(stream: BinaryStream) {
     if (this.bindPose.length) {
-      stream.write('BPOS');
+      stream.writeBinary('BPOS');
       stream.writeUint32(4 + this.bindPose.length * 48);
       stream.writeUint32(this.bindPose.length);
 

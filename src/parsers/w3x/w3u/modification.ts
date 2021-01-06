@@ -1,4 +1,5 @@
 import BinaryStream from '../../../common/binarystream';
+import { byteLengthUtf8 } from '../../../common/utf8';
 
 /**
  * A modification.
@@ -12,7 +13,7 @@ export default class Modification {
   u1: number = 0;
 
   load(stream: BinaryStream, useOptionalInts: boolean) {
-    this.id = stream.read(4);
+    this.id = stream.readBinary(4);
     this.variableType = stream.readInt32();
 
     if (useOptionalInts) {
@@ -25,7 +26,7 @@ export default class Modification {
     } else if (this.variableType === 1 || this.variableType === 2) {
       this.value = stream.readFloat32();
     } else if (this.variableType === 3) {
-      this.value = stream.readUntilNull();
+      this.value = stream.readNull();
     } else {
       throw new Error(`Modification: unknown variable type ${this.variableType}`);
     }
@@ -34,7 +35,7 @@ export default class Modification {
   }
 
   save(stream: BinaryStream, useOptionalInts: boolean) {
-    stream.write(this.id);
+    stream.writeBinary(this.id);
     stream.writeInt32(this.variableType);
 
     if (useOptionalInts) {
@@ -47,7 +48,7 @@ export default class Modification {
     } else if (this.variableType === 1 || this.variableType === 2) {
       stream.writeFloat32(<number>this.value);
     } else if (this.variableType === 3) {
-      stream.write(`${this.value}\0`);
+      stream.writeNull(<string>this.value);
     } else {
       throw new Error(`Modification: unknown variable type ${this.variableType}`);
     }
@@ -63,9 +64,7 @@ export default class Modification {
     }
 
     if (this.variableType === 3) {
-      let value = <string>this.value;
-
-      size += 1 + value.length;
+      size += byteLengthUtf8(<string>this.value) + 1;
     } else {
       size += 4;
     }

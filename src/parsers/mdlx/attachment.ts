@@ -30,8 +30,7 @@ export default class Attachment extends GenericObject {
 
     super.writeMdx(stream);
 
-    stream.write(this.path);
-    stream.skip(260 - this.path.length);
+    stream.skip(260 - stream.write(this.path));
     stream.writeInt32(this.attachmentId);
 
     this.writeNonGenericAnimationChunks(stream);

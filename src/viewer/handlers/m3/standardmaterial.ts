@@ -30,7 +30,7 @@ export class M3StandardMaterial {
     this.model = model;
     this.gl = model.viewer.gl;
     this.index = index;
-    this.name = material.name.getAll().join('');
+    this.name = <string>material.name.get();
     this.flags = material.flags;
     this.blendMode = material.blendMode;
     this.priority = material.priority;

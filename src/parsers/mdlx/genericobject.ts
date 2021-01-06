@@ -33,8 +33,7 @@ export default abstract class GenericObject extends AnimatedObject {
 
   writeMdx(stream: BinaryStream) {
     stream.writeUint32(this.getGenericByteLength());
-    stream.write(this.name);
-    stream.skip(80 - this.name.length);
+    stream.skip(80 - stream.write(this.name));
     stream.writeInt32(this.objectId);
     stream.writeInt32(this.parentId);
     stream.writeUint32(this.flags);

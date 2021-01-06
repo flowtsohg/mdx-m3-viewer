@@ -1,4 +1,5 @@
 import BinaryStream from '../../../common/binarystream';
+import { byteLengthUtf8 } from '../../../common/utf8';
 
 /**
  * A global variable.
@@ -13,8 +14,8 @@ export default class Variable {
   initialValue: string = '';
 
   load(stream: BinaryStream, version: number) {
-    this.name = stream.readUntilNull();
-    this.type = stream.readUntilNull();
+    this.name = stream.readNull();
+    this.type = stream.readNull();
     this.u1 = stream.readInt32();
     this.isArray = stream.readInt32();
 
@@ -23,12 +24,12 @@ export default class Variable {
     }
 
     this.isInitialized = stream.readInt32();
-    this.initialValue = stream.readUntilNull();
+    this.initialValue = stream.readNull();
   }
 
   save(stream: BinaryStream, version: number) {
-    stream.write(`${this.name}\0`);
-    stream.write(`${this.type}\0`);
+    stream.writeNull(this.name);
+    stream.writeNull(this.type);
     stream.writeInt32(this.u1);
     stream.writeInt32(this.isArray);
 
@@ -37,11 +38,11 @@ export default class Variable {
     }
 
     stream.writeInt32(this.isInitialized);
-    stream.write(`${this.initialValue}\0`);
+    stream.writeNull(this.initialValue);
   }
 
   getByteLength(version: number) {
-    let size = 15 + this.name.length + this.type.length + this.initialValue.length;
+    let size = 15 + byteLengthUtf8(this.name) + byteLengthUtf8(this.type) + byteLengthUtf8(this.initialValue);
 
     if (version === 7) {
       size += 4;

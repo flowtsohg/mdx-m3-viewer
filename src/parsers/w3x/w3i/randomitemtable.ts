@@ -1,4 +1,5 @@
 import BinaryStream from '../../../common/binarystream';
+import { byteLengthUtf8 } from '../../../common/utf8';
 import RandomItemSet from './randomitemset';
 
 /**
@@ -11,7 +12,7 @@ export default class RandomItemTable {
 
   load(stream: BinaryStream) {
     this.id = stream.readInt32();
-    this.name = stream.readUntilNull();
+    this.name = stream.readNull();
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
       let set = new RandomItemSet();
@@ -24,7 +25,7 @@ export default class RandomItemTable {
 
   save(stream: BinaryStream) {
     stream.writeInt32(this.id);
-    stream.write(`${this.name}\0`);
+    stream.writeNull(this.name);
     stream.writeUint32(this.sets.length);
 
     for (let set of this.sets) {
@@ -33,7 +34,7 @@ export default class RandomItemTable {
   }
 
   getByteLength() {
-    let size = 9 + this.name.length;
+    let size = 9 + byteLengthUtf8(this.name);
 
     for (let set of this.sets) {
       size += set.getByteLength();

@@ -1,4 +1,5 @@
 import BinaryStream from '../../../common/binarystream';
+import { byteLengthUtf8 } from '../../../common/utf8';
 
 /**
  * A player.
@@ -19,7 +20,7 @@ export default class Player {
     this.type = stream.readInt32();
     this.race = stream.readInt32();
     this.isFixedStartPosition = stream.readInt32();
-    this.name = stream.readUntilNull();
+    this.name = stream.readNull();
     stream.readFloat32Array(this.startLocation);
     this.allyLowPriorities = stream.readUint32();
     this.allyHighPriorities = stream.readUint32();
@@ -33,7 +34,7 @@ export default class Player {
     stream.writeInt32(this.type);
     stream.writeInt32(this.race);
     stream.writeInt32(this.isFixedStartPosition);
-    stream.write(`${this.name}\0`);
+    stream.writeNull(this.name);
     stream.writeFloat32Array(this.startLocation);
     stream.writeUint32(this.allyLowPriorities);
     stream.writeUint32(this.allyHighPriorities);
@@ -43,6 +44,6 @@ export default class Player {
   }
 
   getByteLength(version: number) {
-    return (version > 30 ? 41 : 33) + this.name.length;
+    return (version > 30 ? 41 : 33) + byteLengthUtf8(this.name);
   }
 }

@@ -15,7 +15,7 @@ export default class M3ParserMd34 {
 
   constructor(reader: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;
-    this.tag = reverse(reader.read(4));
+    this.tag = reverse(reader.readBinary(4));
     this.offset = reader.readUint32();
     this.entries = reader.readUint32();
     this.model = new Reference(reader, index);

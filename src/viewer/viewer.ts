@@ -219,7 +219,7 @@ export default class ModelViewer extends EventEmitter {
           }
         });
     } else {
-      fetchUrl = `__${this.directLoadId++}__${src}`;
+      fetchUrl = `__DIRECT_LOAD_${this.directLoadId++}`;
       promise = Promise.resolve(finalSrc);
     }
 

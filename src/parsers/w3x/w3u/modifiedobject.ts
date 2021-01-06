@@ -10,8 +10,8 @@ export default class ModifiedObject {
   modifications: Modification[] = [];
 
   load(stream: BinaryStream, useOptionalInts: boolean) {
-    this.oldId = stream.read(4);
-    this.newId = stream.read(4);
+    this.oldId = stream.readBinary(4);
+    this.newId = stream.readBinary(4);
 
     for (let i = 0, l = stream.readUint32(); i < l; i++) {
       let modification = new Modification();
@@ -23,14 +23,14 @@ export default class ModifiedObject {
   }
 
   save(stream: BinaryStream, useOptionalInts: boolean) {
-    if (this.oldId) {
-      stream.write(this.oldId);
+    if (this.oldId !== '\0\0\0\0') {
+      stream.writeBinary(this.oldId);
     } else {
       stream.writeUint32(0);
     }
 
-    if (this.newId) {
-      stream.write(this.newId);
+    if (this.newId !== '\0\0\0\0') {
+      stream.writeBinary(this.newId);
     } else {
       stream.writeUint32(0);
     }

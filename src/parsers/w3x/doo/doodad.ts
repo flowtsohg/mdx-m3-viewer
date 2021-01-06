@@ -22,14 +22,14 @@ export default class Doodad {
   u1: Uint8Array = new Uint8Array(8);
 
   load(stream: BinaryStream, version: number, isReforged: boolean) {
-    this.id = stream.read(4);
+    this.id = stream.readBinary(4);
     this.variation = stream.readInt32();
     stream.readFloat32Array(this.location);
     this.angle = stream.readFloat32();
     stream.readFloat32Array(this.scale);
 
     if (isReforged) {
-      this.skin = stream.read(4);
+      this.skin = stream.readBinary(4);
     }
 
     this.flags = stream.readUint8();
@@ -51,14 +51,14 @@ export default class Doodad {
   }
 
   save(stream: BinaryStream, version: number, isReforged: boolean) {
-    stream.write(this.id);
+    stream.writeBinary(this.id);
     stream.writeInt32(this.variation);
     stream.writeFloat32Array(this.location);
     stream.writeFloat32(this.angle);
     stream.writeFloat32Array(this.scale);
 
     if (isReforged) {
-      stream.write(this.skin);
+      stream.writeBinary(this.skin);
     }
 
     stream.writeUint8(this.flags);

@@ -25,8 +25,7 @@ export default class Sequence {
   }
 
   writeMdx(stream: BinaryStream) {
-    stream.write(this.name);
-    stream.skip(80 - this.name.length);
+    stream.skip(80 - stream.write(this.name));
     stream.writeUint32Array(this.interval);
     stream.writeFloat32(this.moveSpeed);
     stream.writeUint32(this.flags);

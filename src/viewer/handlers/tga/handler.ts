@@ -1,4 +1,4 @@
-import { isStringInBytes } from '../../../common/isstringin';
+import { isStringInBytes } from '../../../common/searches';
 import Texture from './texture';
 
 export default {
@@ -6,7 +6,7 @@ export default {
     if (src instanceof ArrayBuffer) {
       let buffer = new Uint8Array(src);
 
-      if (isStringInBytes('TRUEVISION-XFILE.\0', buffer, buffer.length - 18)) {
+      if (isStringInBytes(buffer, 'TRUEVISION-XFILE.\0', buffer.length - 18)) {
         return true;
       }
     }

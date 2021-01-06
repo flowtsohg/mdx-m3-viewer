@@ -15,16 +15,20 @@ export default class War3MapW3c {
   }
 
   load(buffer: ArrayBuffer) {
-    let stream = new BinaryStream(buffer);
+    try {
+      let stream = new BinaryStream(buffer);
 
-    this.version = stream.readInt32();
+      this.version = stream.readInt32();
 
-    for (let i = 0, l = stream.readUint32(); i < l; i++) {
-      let camera = new Camera();
+      for (let i = 0, l = stream.readUint32(); i < l; i++) {
+        let camera = new Camera();
 
-      camera.load(stream);
+        camera.load(stream);
 
-      this.cameras[i] = camera;
+        this.cameras[i] = camera;
+      }
+    } catch (e) {
+      console.warn('War3MapW3c: Failed to fully parse', e);
     }
   }
 

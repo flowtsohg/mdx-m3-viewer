@@ -13,7 +13,7 @@ export default class UnknownChunk {
   }
 
   writeMdx(stream: BinaryStream) {
-    stream.write(this.tag);
+    stream.writeBinary(this.tag);
     stream.writeUint32(this.chunk.byteLength);
     stream.writeUint8Array(this.chunk);
   }

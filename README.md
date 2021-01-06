@@ -420,3 +420,10 @@ MDX instances have also `setParticle2Texture` and `setEventTexture` to override 
 instance.setParticle2Texture(0, myTexture); // Override the texture of particle emitter 0.
 instance.setEventTexture(0, myTexture); // Override the texture of event emitter 0.
 ```
+
+#### Everything is blurry
+
+WebGL uses a canvas as its back buffer, meaning it has the same amount of pixels as the canvas does. Surprising, right?\
+What may actually surprise you, however, is that the canvas back buffer isn't neccassarily the size it is drawn at, due to CSS styling.\
+For example, you can have a canvas that is scaled via CSS to the entire page, but if you never set its actual size, it will probably be a 100x100 pixel canvas (or whatever default size the browser uses), stretched to the page size.\
+If you want to set the size of the back buffer, i.e. the real resolution of the canvas, use the `width` and `height` properties of the canvas, rather than properties controlled by CSS such as `clientWidth` and `clientHeight`.

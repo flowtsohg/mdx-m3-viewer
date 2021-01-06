@@ -1,4 +1,5 @@
 import BinaryStream from '../../../common/binarystream';
+import { byteLengthUtf8 } from '../../../common/utf8';
 import RandomUnit from './randomunit';
 
 /**
@@ -13,7 +14,7 @@ export default class RandomUnitTable {
 
   load(stream: BinaryStream) {
     this.id = stream.readInt32();
-    this.name = stream.readUntilNull();
+    this.name = stream.readNull();
     this.positions = stream.readInt32();
     this.columnTypes = stream.readInt32Array(this.positions);
 
@@ -28,7 +29,7 @@ export default class RandomUnitTable {
 
   save(stream: BinaryStream) {
     stream.writeInt32(this.id);
-    stream.write(`${this.name}\0`);
+    stream.writeNull(this.name);
     stream.writeInt32(this.positions);
     stream.writeInt32Array(this.columnTypes);
     stream.writeUint32(this.units.length);
@@ -39,6 +40,6 @@ export default class RandomUnitTable {
   }
 
   getByteLength() {
-    return 13 + this.name.length + this.columnTypes.byteLength + (this.units.length * (4 + 4 * this.positions));
+    return 13 + byteLengthUtf8(this.name) + this.columnTypes.byteLength + (this.units.length * (4 + 4 * this.positions));
   }
 }

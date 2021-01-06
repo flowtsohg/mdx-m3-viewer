@@ -15,16 +15,20 @@ export default class War3MapMmp {
   }
 
   load(buffer: ArrayBuffer) {
-    let stream = new BinaryStream(buffer);
+    try {
+      let stream = new BinaryStream(buffer);
 
-    this.u1 = stream.readInt32();
+      this.u1 = stream.readInt32();
 
-    for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      let icon = new MinimapIcon();
+      for (let i = 0, l = stream.readInt32(); i < l; i++) {
+        let icon = new MinimapIcon();
 
-      icon.load(stream);
+        icon.load(stream);
 
-      this.icons[i] = icon;
+        this.icons[i] = icon;
+      }
+    } catch (e) {
+      console.warn('War3MapMmp: Failed to fully parse', e);
     }
   }
 

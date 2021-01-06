@@ -14,8 +14,8 @@ export default class M3Stg {
   stc: M3Stc[];
 
   constructor(stg: M3ParserStg, sts: M3Sts[], stc: M3Stc[]) {
-    this.name = stg.name.getAll().join('');
-    this.stcIndices = <Uint32Array>stg.stcIndices.getAll();
+    this.name = <string>stg.name.get();
+    this.stcIndices = <Uint32Array>stg.stcIndices.get();
     this.sts = sts;
     this.stc = stc;
   }

@@ -71,7 +71,7 @@ export default class M3Layer {
 
     // Since Gloss doesn't exist in all versions
     if (layerReference) {
-      let layer = layerReference.get();
+      let layer = layerReference.first();
 
       this.layer = layer;
 

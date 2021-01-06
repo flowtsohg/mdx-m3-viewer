@@ -1,4 +1,5 @@
 import BinaryStream from '../../../common/binarystream';
+import { byteLengthUtf8 } from '../../../common/utf8';
 
 /**
  * A Trigger category.
@@ -12,7 +13,7 @@ export default class TriggerCategory {
 
   load(stream: BinaryStream, version: number) {
     this.id = stream.readInt32();
-    this.name = stream.readUntilNull();
+    this.name = stream.readNull();
 
     if (version === 7) {
       this.isComment = stream.readInt32();
@@ -21,7 +22,7 @@ export default class TriggerCategory {
 
   save(stream: BinaryStream, version: number) {
     stream.writeInt32(this.id);
-    stream.write(`${this.name}\0`);
+    stream.writeNull(this.name);
 
     if (version === 7) {
       stream.writeInt32(this.isComment);
@@ -29,7 +30,7 @@ export default class TriggerCategory {
   }
 
   getByteLength(version: number) {
-    let size = 5 + this.name.length;
+    let size = 5 + byteLengthUtf8(this.name);
 
     if (version === 7) {
       size += 4;

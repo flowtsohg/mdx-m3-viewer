@@ -20,7 +20,7 @@ export default class M3ParserReference {
   /**
    * Get the entries this index entry references.
    */
-  getAll() {
+  get() {
     let id = this.id;
 
     // For empty references (e.g. Layer.imagePath)
@@ -34,7 +34,7 @@ export default class M3ParserReference {
   /**
    * Get the first entry this index entry references.
    */
-  get() {
+  first() {
     let id = this.id;
 
     if (id !== 0 && this.entries !== 0) {

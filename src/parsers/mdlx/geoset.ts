@@ -84,14 +84,16 @@ export default class Geoset {
 
     // Non-reforged models that come with reforged are saved with version >800, however they don't have TANG and SKIN.
     if (version > 800) {
-      if (stream.peek(4) === 'TANG') {
-        stream.skip(4); // TANG
+      if (stream.readBinary(4) === 'TANG') {
         this.tangents = stream.readFloat32Array(stream.readUint32() * 4);
+      } else {
+        stream.skip(-4);
       }
 
-      if (stream.peek(4) === 'SKIN') {
-        stream.skip(4); // SKIN
+      if (stream.readBinary(4) === 'SKIN') {
         this.skin = stream.readUint8Array(stream.readUint32());
+      } else {
+        stream.skip(-4);
       }
     }
 
@@ -105,28 +107,28 @@ export default class Geoset {
 
   writeMdx(stream: BinaryStream, version: number) {
     stream.writeUint32(this.getByteLength(version));
-    stream.write('VRTX');
+    stream.writeBinary('VRTX');
     stream.writeUint32(this.vertices.length / 3);
     stream.writeFloat32Array(this.vertices);
-    stream.write('NRMS');
+    stream.writeBinary('NRMS');
     stream.writeUint32(this.normals.length / 3);
     stream.writeFloat32Array(this.normals);
-    stream.write('PTYP');
+    stream.writeBinary('PTYP');
     stream.writeUint32(this.faceTypeGroups.length);
     stream.writeUint32Array(this.faceTypeGroups);
-    stream.write('PCNT');
+    stream.writeBinary('PCNT');
     stream.writeUint32(this.faceGroups.length);
     stream.writeUint32Array(this.faceGroups);
-    stream.write('PVTX');
+    stream.writeBinary('PVTX');
     stream.writeUint32(this.faces.length);
     stream.writeUint16Array(this.faces);
-    stream.write('GNDX');
+    stream.writeBinary('GNDX');
     stream.writeUint32(this.vertexGroups.length);
     stream.writeUint8Array(this.vertexGroups);
-    stream.write('MTGC');
+    stream.writeBinary('MTGC');
     stream.writeUint32(this.matrixGroups.length);
     stream.writeUint32Array(this.matrixGroups);
-    stream.write('MATS');
+    stream.writeBinary('MATS');
     stream.writeUint32(this.matrixIndices.length);
     stream.writeUint32Array(this.matrixIndices);
     stream.writeUint32(this.materialId);
@@ -135,8 +137,7 @@ export default class Geoset {
 
     if (version > 800) {
       stream.writeInt32(this.lod);
-      stream.write(this.lodName);
-      stream.skip(80 - this.lodName.length);
+      stream.skip(80 - stream.write(this.lodName));
     }
 
     this.extent.writeMdx(stream);
@@ -149,23 +150,23 @@ export default class Geoset {
 
     if (version > 800) {
       if (this.tangents.length) {
-        stream.write('TANG');
+        stream.writeBinary('TANG');
         stream.writeUint32(this.tangents.length / 4);
         stream.writeFloat32Array(this.tangents);
       }
 
       if (this.skin.length) {
-        stream.write('SKIN');
+        stream.writeBinary('SKIN');
         stream.writeUint32(this.skin.length);
         stream.writeUint8Array(this.skin);
       }
     }
 
-    stream.write('UVAS');
+    stream.writeBinary('UVAS');
     stream.writeUint32(this.uvSets.length);
 
     for (let uvSet of this.uvSets) {
-      stream.write('UVBS');
+      stream.writeBinary('UVBS');
       stream.writeUint32(uvSet.length / 2);
       stream.writeFloat32Array(uvSet);
     }

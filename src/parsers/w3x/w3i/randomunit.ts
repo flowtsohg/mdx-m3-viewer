@@ -11,7 +11,7 @@ export default class RandomUnit {
     this.chance = stream.readInt32();
 
     for (let i = 0; i < positions; i++) {
-      this.ids[i] = stream.read(4, true);
+      this.ids[i] = stream.readBinary(4);
     }
   }
 
@@ -19,7 +19,7 @@ export default class RandomUnit {
     stream.writeInt32(this.chance);
 
     for (let id of this.ids) {
-      stream.write(id);
+      stream.writeBinary(id);
     }
   }
 }

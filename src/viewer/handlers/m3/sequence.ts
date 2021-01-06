@@ -13,7 +13,7 @@ export default class M3Sequence {
   flags: number;
 
   constructor(sequence: M3ParserSequence) {
-    this.name = sequence.name.getAll().join('');
+    this.name = <string>sequence.name.get();
     this.interval = sequence.interval;
     this.movementSpeed = sequence.movementSpeed;
     this.frequency = sequence.frequency;

@@ -1,4 +1,5 @@
 import BinaryStream from '../../../common/binarystream';
+import { byteLengthUtf8 } from '../../../common/utf8';
 import Parameter from './parameter';
 import TriggerData from './triggerdata';
 
@@ -20,7 +21,7 @@ export default class ECA {
       this.group = stream.readUint32();
     }
 
-    this.name = stream.readUntilNull();
+    this.name = stream.readNull();
     this.isEnabled = stream.readInt32();
 
     let signature = triggerData.getFunction(this.type, this.name);
@@ -65,7 +66,7 @@ export default class ECA {
       stream.writeInt32(this.group);
     }
 
-    stream.write(`${this.name}\0`);
+    stream.writeNull(this.name);
     stream.writeInt32(this.isEnabled);
 
     for (let parameter of this.parameters) {
@@ -82,7 +83,7 @@ export default class ECA {
   }
 
   getByteLength(version: number) {
-    let size = 9 + this.name.length;
+    let size = 9 + byteLengthUtf8(this.name);
 
     if (this.group !== -1) {
       size += 4;

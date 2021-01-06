@@ -1,4 +1,5 @@
 import BinaryStream from '../../../common/binarystream';
+import { byteLengthUtf8 } from '../../../common/utf8';
 
 /**
  * A map title.
@@ -11,19 +12,19 @@ export default class MapTitle {
 
   load(stream: BinaryStream) {
     this.visible = stream.readInt32();
-    this.chapterTitle = stream.readUntilNull();
-    this.mapTitle = stream.readUntilNull();
-    this.path = stream.readUntilNull();
+    this.chapterTitle = stream.readNull();
+    this.mapTitle = stream.readNull();
+    this.path = stream.readNull();
   }
 
   save(stream: BinaryStream) {
     stream.writeInt32(this.visible);
-    stream.write(`${this.chapterTitle}\0`);
-    stream.write(`${this.mapTitle}\0`);
-    stream.write(`${this.path}\0`);
+    stream.writeNull(this.chapterTitle);
+    stream.writeNull(this.mapTitle);
+    stream.writeNull(this.path);
   }
 
   getByteLength() {
-    return 7 + this.chapterTitle.length + this.mapTitle.length + this.path.length;
+    return 7 + byteLengthUtf8(this.chapterTitle) + byteLengthUtf8(this.mapTitle) + byteLengthUtf8(this.path);
   }
 }

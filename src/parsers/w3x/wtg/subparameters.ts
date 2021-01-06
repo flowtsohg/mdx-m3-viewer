@@ -1,4 +1,5 @@
 import BinaryStream from '../../../common/binarystream';
+import { byteLengthUtf8 } from '../../../common/utf8';
 import Parameter from './parameter';
 import TriggerData from './triggerdata';
 
@@ -13,7 +14,7 @@ export default class SubParameters {
 
   load(stream: BinaryStream, version: number, triggerData: TriggerData) {
     this.type = stream.readInt32();
-    this.name = stream.readUntilNull();
+    this.name = stream.readNull();
     this.beginParameters = stream.readInt32();
 
     if (this.beginParameters) {
@@ -41,7 +42,7 @@ export default class SubParameters {
 
   save(stream: BinaryStream, version: number) {
     stream.writeInt32(this.type);
-    stream.write(`${this.name}\0`);
+    stream.writeNull(this.name);
     stream.writeInt32(this.beginParameters);
 
     for (let parameter of this.parameters) {
@@ -50,7 +51,7 @@ export default class SubParameters {
   }
 
   getByteLength(version: number) {
-    let size = 9 + this.name.length;
+    let size = 9 + byteLengthUtf8(this.name);
 
     if (this.parameters.length) {
       for (let parameter of this.parameters) {

@@ -47,10 +47,8 @@ export default class ParticleEmitterPopcorn extends GenericObject {
     stream.writeFloat32Array(this.color);
     stream.writeFloat32(this.alpha);
     stream.writeUint32(this.replaceableId);
-    stream.write(this.path);
-    stream.skip(260 - this.path.length);
-    stream.write(this.animationVisiblityGuide);
-    stream.skip(260 - this.animationVisiblityGuide.length);
+    stream.skip(260 - stream.write(this.path));
+    stream.skip(260 - stream.write(this.animationVisiblityGuide));
 
     this.writeNonGenericAnimationChunks(stream);
   }

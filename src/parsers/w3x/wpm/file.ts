@@ -15,24 +15,26 @@ export default class War3MapWpm {
   }
 
   load(buffer: ArrayBuffer) {
-    let stream = new BinaryStream(buffer);
+    try {
+      let stream = new BinaryStream(buffer);
 
-    if (stream.read(4) !== 'MP3W') {
-      return false;
+      if (stream.readBinary(4) !== 'MP3W') {
+        return;
+      }
+
+      this.version = stream.readInt32();
+      stream.readInt32Array(this.size);
+      this.pathing = stream.readUint8Array(this.size[0] * this.size[1]);
+    } catch (e) {
+      console.warn('War3MapWpm: Failed to fully parse', e);
     }
-
-    this.version = stream.readInt32();
-    stream.readInt32Array(this.size);
-    this.pathing = stream.readUint8Array(this.size[0] * this.size[1]);
-
-    return true;
   }
 
   save() {
     let buffer = new ArrayBuffer(this.getByteLength());
     let stream = new BinaryStream(buffer);
 
-    stream.write('MP3W');
+    stream.writeBinary('MP3W');
     stream.writeInt32(this.version);
     stream.writeInt32Array(this.size);
     stream.writeUint8Array(this.pathing);

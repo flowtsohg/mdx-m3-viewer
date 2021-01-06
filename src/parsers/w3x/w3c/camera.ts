@@ -1,4 +1,5 @@
 import BinaryStream from '../../../common/binarystream';
+import { byteLengthUtf8 } from '../../../common/utf8';
 
 /**
  * A camera.
@@ -23,7 +24,7 @@ export default class Camera {
     this.fieldOfView = stream.readFloat32(); // in degrees
     this.farClippingPlane = stream.readFloat32();
     this.nearClippingPlane = stream.readFloat32(); // probably near clipping plane
-    this.cinematicName = stream.readUntilNull();
+    this.cinematicName = stream.readNull();
   }
 
   save(stream: BinaryStream) {
@@ -35,10 +36,10 @@ export default class Camera {
     stream.writeFloat32(this.fieldOfView);
     stream.writeFloat32(this.farClippingPlane);
     stream.writeFloat32(this.nearClippingPlane);
-    stream.write(`${this.cinematicName}\0`);
+    stream.writeNull(this.cinematicName);
   }
 
   getByteLength() {
-    return 41 + this.cinematicName.length;
+    return 41 + byteLengthUtf8(this.cinematicName);
   }
 }

@@ -1,4 +1,6 @@
+import { boundIndexOf } from './searches';
 import { uint8ToInt8, uint8ToInt16, uint8ToInt32, uint8ToUint16, uint8ToUint32, uint8ToFloat32, uint8ToFloat64, int8ToUint8, int16ToUint8, int32ToUint8, uint16ToUint8, uint32ToUint8, float32ToUint8, float64ToUint8 } from './typecast';
+import { decodeUtf8, encodeUtf8 } from './utf8';
 
 // Memory for all of the xxxToUint type casts.
 const uint8 = new Uint8Array(8);
@@ -65,103 +67,76 @@ export default class BinaryStream {
   }
 
   /**
-   * Peek a string.
+   * Read a UTF8 string with the given number of bytes.
+   * 
+   * The entire size will be read, however the string returned is NULL terminated in its memory block.
+   * 
+   * For example, the MDX format has many strings that have a constant maximum size, where any bytes after the string are NULLs.
+   * Such strings will be loaded correctly given the maximum size.
    */
-  peek(size: number, allowNulls: boolean = false) {
+  read(bytes: number) {
+    if (this.remaining < bytes) {
+      throw new Error(`ByteStream: read: premature end - want ${bytes} bytes but have ${this.remaining}`);
+    }
+
+    let uint8array = this.uint8array;
+    let start = this.index;
+    let end = boundIndexOf(uint8array, 0, start, bytes);
+
+    if (end === -1) {
+      end = start + bytes;
+    }
+
+    let l = end - start;
+
+    this.index += bytes;
+    this.remaining -= bytes;
+
+    return decodeUtf8(uint8array.subarray(start, end));
+  }
+
+  /**
+   * Read a UTF8 NULL terminated string.
+   */
+  readNull() {
+    if (this.remaining < 1) {
+      throw new Error(`ByteStream: readNull: premature end - want at least 1 byte but have 0`);
+    }
+
+    let uint8array = this.uint8array;
+    let start = this.index;
+    let end = uint8array.indexOf(0, start);
+
+    if (end === -1) {
+      end = uint8array.length - 1;
+    }
+
+    let l = end - start;
+
+    this.index += l + 1;
+    this.remaining -= l + 1;
+
+    return decodeUtf8(uint8array.subarray(start, end));
+  }
+
+  /**
+   * Read a binary string with the given number of bytes.
+   */
+  readBinary(bytes: number) {
+    if (this.remaining < bytes) {
+      throw new Error(`ByteStream: readBinary: premature end - want ${bytes} bytes but have ${this.remaining}`);
+    }
+
     let uint8array = this.uint8array;
     let index = this.index;
     let data = '';
 
-    for (let i = 0; i < size; i++) {
-      let b = uint8array[index + i];
-
-      // Avoid \0
-      if (allowNulls || b > 0) {
-        data += String.fromCharCode(b);
-      }
+    for (let i = 0; i < bytes; i++) {
+      data += String.fromCharCode(uint8array[index + i]);
     }
 
-    return data;
-  }
-
-  /**
-   * Read a string.
-   */
-  read(size: number, allowNulls: boolean = false) {
-    // If the size isn't specified, default to everything
-    size = size || this.remaining;
-
-    if (this.remaining < size) {
-      throw new Error(`ByteStream: read: premature end - want ${size} bytes but have ${this.remaining}`);
-    }
-
-    let data = this.peek(size, allowNulls);
-
-    this.index += size;
-    this.remaining -= size;
-
-    return data;
-  }
-
-  /**
-   * Peeks a string until finding a null byte.
-   */
-  peekUntilNull() {
-    let uint8array = this.uint8array;
-    let index = this.index;
-    let data = '';
-    let b = uint8array[index];
-    let i = 0;
-
-    while (b !== 0) {
-      data += String.fromCharCode(b);
-
-      i += 1;
-      b = uint8array[index + i];
-    }
-
-    return data;
-  }
-
-  /**
-   * Read a string until finding a null byte.
-   */
-  readUntilNull() {
-    let data = this.peekUntilNull();
-
-    this.index += data.length + 1; // +1 for the \0 itself
-    this.remaining -= data.length + 1;
-
-    return data;
-  }
-
-  /**
-   * Peek a character array.
-   */
-  peekCharArray(size: number) {
-    let uint8array = this.uint8array;
-    let index = this.index;
-    let data = [];
-
-    for (let i = 0; i < size; i++) {
-      data[i] = String.fromCharCode(uint8array[index + i]);
-    }
-
-    return data;
-  }
-
-  /**
-   * Read a character array.
-   */
-  readCharArray(size: number) {
-    if (this.remaining < size) {
-      throw new Error(`ByteStream: readCharArray: premature end - want ${size} bytes but have ${this.remaining}`);
-    }
-
-    let data = this.peekCharArray(size);
-
-    this.index += size;
-    this.remaining -= size;
+    this.index += bytes;
+    this.remaining -= bytes;
 
     return data;
   }
@@ -522,9 +497,36 @@ export default class BinaryStream {
   }
 
   /**
-   * Write a string.
+   * Write a UTF8 string.
+   * 
+   * Returns the number of bytes that were written,
    */
-  write(value: string) {
+  write(utf8: string) {
+    let bytes = encodeUtf8(utf8);
+
+    this.writeUint8Array(bytes);
+
+    return bytes.length;
+  }
+
+  /**
+   * Write a UTF8 string as a NULL terminated string.
+   * 
+   * Returns the number of bytes that were written, including the terminating NULL.
+   */
+  writeNull(utf8: string) {
+    let bytes = this.write(utf8);
+
+    this.index++;
+    this.remaining--;
+
+    return bytes + 1;
+  }
+
+  /**
+   * Write a binary string.
+   */
+  writeBinary(value: string) {
     let index = this.index;
     let uint8array = this.uint8array;
     let count = value.length;

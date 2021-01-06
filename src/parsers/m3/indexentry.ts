@@ -96,10 +96,10 @@ export default class IndexEntry {
   tag: string;
   offset: number;
   version: number;
-  entries: any[] | TypedArray;
+  entries: any[] | TypedArray | string;
 
   constructor(reader: BinaryStream, index: IndexEntry[]) {
-    let tag = reverse(reader.read(4));
+    let tag = reverse(reader.readBinary(4));
     let offset = reader.readUint32();
     let entriesCount = reader.readUint32();
     let version = reader.readUint32();
@@ -138,7 +138,7 @@ export default class IndexEntry {
       }
       // This is maybe a typed array?
     } else if (tag === 'CHAR' || tag === 'SCHR') {
-      this.entries = reader.readCharArray(entriesCount);
+      this.entries = reader.read(entriesCount);
     } else if (tag === 'U8__') {
       this.entries = reader.readUint8Array(entriesCount);
     } else if (tag === 'U16_') {

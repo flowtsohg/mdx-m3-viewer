@@ -9,11 +9,11 @@ export default class InventoryItem {
 
   load(stream: BinaryStream) {
     this.slot = stream.readInt32();
-    this.id = stream.read(4);
+    this.id = stream.readBinary(4);
   }
 
   save(stream: BinaryStream) {
     stream.writeInt32(this.slot);
-    stream.write(this.id);
+    stream.writeBinary(this.id);
   }
 }

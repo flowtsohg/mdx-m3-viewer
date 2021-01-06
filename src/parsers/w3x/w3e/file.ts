@@ -21,60 +21,63 @@ export default class War3MapW3e {
   }
 
   load(buffer: ArrayBuffer) {
-    let stream = new BinaryStream(buffer);
+    try {
+      let stream = new BinaryStream(buffer);
 
-    if (stream.read(4) !== 'W3E!') {
-      return false;
-    }
-
-    this.version = stream.readInt32();
-    this.tileset = stream.read(1);
-    this.haveCustomTileset = stream.readInt32();
-
-    for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      this.groundTilesets[i] = stream.read(4);
-    }
-
-    for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      this.cliffTilesets[i] = stream.read(4);
-    }
-
-    stream.readInt32Array(this.mapSize);
-    stream.readFloat32Array(this.centerOffset);
-
-    for (let row = 0, rows = this.mapSize[1]; row < rows; row++) {
-      this.corners[row] = [];
-
-      for (let column = 0, columns = this.mapSize[0]; column < columns; column++) {
-        let corner = new Corner();
-
-        corner.load(stream);
-
-        this.corners[row][column] = corner;
+      if (stream.readBinary(4) !== 'W3E!') {
+        return;
       }
-    }
 
-    return true;
+      this.version = stream.readInt32();
+      this.tileset = stream.readBinary(1);
+      this.haveCustomTileset = stream.readInt32();
+
+      for (let i = 0, l = stream.readInt32(); i < l; i++) {
+        this.groundTilesets[i] = stream.readBinary(4);
+      }
+
+      for (let i = 0, l = stream.readInt32(); i < l; i++) {
+        this.cliffTilesets[i] = stream.readBinary(4);
+      }
+
+      stream.readInt32Array(this.mapSize);
+      stream.readFloat32Array(this.centerOffset);
+
+      for (let row = 0, rows = this.mapSize[1]; row < rows; row++) {
+        this.corners[row] = [];
+
+        for (let column = 0, columns = this.mapSize[0]; column < columns; column++) {
+          let corner = new Corner();
+
+          corner.load(stream);
+
+          this.corners[row][column] = corner;
+        }
+      }
+    } catch (e) {
+      console.warn('War3MapW3e: Failed to fully parse', e);
+    }
   }
+
 
   save() {
     let buffer = new ArrayBuffer(this.getByteLength());
     let stream = new BinaryStream(buffer);
 
-    stream.write('W3E!');
+    stream.writeBinary('W3E!');
     stream.writeInt32(this.version);
-    stream.write(this.tileset);
+    stream.writeBinary(this.tileset);
     stream.writeInt32(this.haveCustomTileset);
     stream.writeUint32(this.groundTilesets.length);
 
     for (let groundTileset of this.groundTilesets) {
-      stream.write(groundTileset);
+      stream.writeBinary(groundTileset);
     }
 
     stream.writeUint32(this.cliffTilesets.length);
 
     for (let cliffTileset of this.cliffTilesets) {
-      stream.write(cliffTileset);
+      stream.writeBinary(cliffTileset);
     }
 
     stream.writeInt32Array(this.mapSize);

@@ -25,7 +25,7 @@ export default class M3Bone {
   constructor(bone: Bone) {
     let flags = bone.flags;
 
-    this.name = bone.name.getAll().join('');
+    this.name = <string>bone.name.get();
     this.parent = bone.parent;
     this.location = bone.location;
     this.rotation = bone.rotation;

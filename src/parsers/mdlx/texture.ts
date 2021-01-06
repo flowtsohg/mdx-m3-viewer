@@ -17,8 +17,7 @@ export default class Texture {
 
   writeMdx(stream: BinaryStream) {
     stream.writeUint32(this.replaceableId);
-    stream.write(this.path);
-    stream.skip(260 - this.path.length);
+    stream.skip(260 - stream.write(this.path));
     stream.writeUint32(this.flags);
   }
 

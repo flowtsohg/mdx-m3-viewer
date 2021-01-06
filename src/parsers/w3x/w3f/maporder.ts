@@ -1,4 +1,5 @@
 import BinaryStream from '../../../common/binarystream';
+import { byteLengthUtf8 } from '../../../common/utf8';
 
 /**
  * A map order.
@@ -9,15 +10,15 @@ export default class MapOrder {
 
   load(stream: BinaryStream) {
     this.u1 = stream.readInt8();
-    this.path = stream.readUntilNull();
+    this.path = stream.readNull();
   }
 
   save(stream: BinaryStream) {
     stream.writeInt8(this.u1);
-    stream.write(`${this.path}\0`);
+    stream.writeNull(this.path);
   }
 
   getByteLength() {
-    return 2 + this.path.length;
+    return 2 + byteLengthUtf8(this.path);
   }
 }

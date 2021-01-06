@@ -44,8 +44,7 @@ export default class ParticleEmitter extends GenericObject {
     stream.writeFloat32(this.gravity);
     stream.writeFloat32(this.longitude);
     stream.writeFloat32(this.latitude);
-    stream.write(this.path);
-    stream.skip(260 - this.path.length);
+    stream.skip(260 - stream.write(this.path));
     stream.writeFloat32(this.lifeSpan);
     stream.writeFloat32(this.speed);
 

@@ -11,7 +11,11 @@ export default class War3MapShd {
   }
 
   load(buffer: ArrayBuffer, width: number, height: number) {
-    this.shadows = new Uint8Array(buffer.slice(0, width * height * 16));
+    try {
+      this.shadows = new Uint8Array(buffer.slice(0, width * height * 16));
+    } catch (e) {
+      console.warn('War3MapShd: Failed to fully parse', e);
+    }
   }
 
   save() {

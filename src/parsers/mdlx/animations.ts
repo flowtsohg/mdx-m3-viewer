@@ -49,7 +49,7 @@ export abstract class Animation {
     let outTans = this.outTans;
     let tracksCount = frames.length;
 
-    stream.write(this.name);
+    stream.writeBinary(this.name);
     stream.writeUint32(tracksCount);
     stream.writeUint32(interpolationType);
     stream.writeInt32(this.globalSequenceId);

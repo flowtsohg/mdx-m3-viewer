@@ -14,8 +14,8 @@ class M3Sd {
   biggestKey: number;
 
   constructor(sd: M3ParserSd) {
-    this.keys = <Int32Array>sd.keys.getAll();
-    this.values = <TypedArray[]>sd.values.getAll();
+    this.keys = <Int32Array>sd.keys.get();
+    this.values = <TypedArray[]>sd.values.get();
     this.biggestKey = sd.biggestKey;
   }
 }

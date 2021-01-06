@@ -68,9 +68,9 @@ export default class War3Map {
     let stream = new BinaryStream(buffer);
 
     // The header no longer exists since some 1.3X.X patch?
-    if (stream.read(4) === 'HM3W') {
+    if (stream.readBinary(4) === 'HM3W') {
       this.u1 = stream.readUint32();
-      this.name = stream.readUntilNull();
+      this.name = stream.readNull();
       this.flags = stream.readUint32();
       this.maxPlayers = stream.readUint32();
     }
@@ -111,9 +111,9 @@ export default class War3Map {
     let stream = new BinaryStream(buffer);
 
     // Write the header.
-    stream.write('HM3W');
+    stream.writeBinary('HM3W');
     stream.writeUint32(this.u1);
-    stream.write(`${this.name}\0`);
+    stream.writeNull(this.name);
     stream.writeUint32(this.flags);
     stream.writeUint32(this.maxPlayers);
 

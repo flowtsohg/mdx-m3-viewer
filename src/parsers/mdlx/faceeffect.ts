@@ -14,10 +14,8 @@ export default class FaceEffect {
   }
 
   writeMdx(stream: BinaryStream) {
-    stream.write(this.type);
-    stream.skip(80 - this.type.length);
-    stream.write(this.path);
-    stream.skip(260 - this.path.length);
+    stream.skip(80 - stream.write(this.type));
+    stream.skip(260 - stream.write(this.path));
   }
 
   readMdl(stream: TokenStream) {

@@ -1,4 +1,5 @@
 import BinaryStream from '../../../common/binarystream';
+import { byteLengthUtf8 } from '../../../common/utf8';
 
 /**
  * A sound.
@@ -26,9 +27,9 @@ export default class Sound {
   u8: number = 0;
 
   load(stream: BinaryStream) {
-    this.name = stream.readUntilNull();
-    this.file = stream.readUntilNull();
-    this.eaxEffect = stream.readUntilNull();
+    this.name = stream.readNull();
+    this.file = stream.readNull();
+    this.eaxEffect = stream.readNull();
     this.flags = stream.readUint32();
     this.fadeInRate = stream.readInt32();
     this.fadeOutRate = stream.readInt32();
@@ -49,9 +50,9 @@ export default class Sound {
   }
 
   save(stream: BinaryStream) {
-    stream.write(`${this.name}\0`);
-    stream.write(`${this.file}\0`);
-    stream.write(`${this.eaxEffect}\0`);
+    stream.writeNull(this.name);
+    stream.writeNull(this.file);
+    stream.writeNull(this.eaxEffect);
     stream.writeUint32(this.flags);
     stream.writeUint32(this.fadeInRate);
     stream.writeUint32(this.fadeOutRate);
@@ -72,6 +73,6 @@ export default class Sound {
   }
 
   getByteLength() {
-    return 71 + this.name.length + this.file.length + this.eaxEffect.length;
+    return 71 + byteLengthUtf8(this.name) + byteLengthUtf8(this.file) + byteLengthUtf8(this.eaxEffect);
   }
 }

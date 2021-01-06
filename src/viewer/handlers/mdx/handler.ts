@@ -1,4 +1,4 @@
-import { isStringInBytes, isStringInString } from '../../../common/isstringin';
+import { isStringInBytes, isStringInString } from '../../../common/searches';
 import MdlxModel from '../../../parsers/mdlx/model';
 import ModelViewer from '../../viewer';
 import { PathSolver } from '../../handlerresource';
@@ -91,13 +91,13 @@ export default {
       }
 
       // Or attempt to match against MDL by looking for FormatVersion in the first 4KB.
-      if (isStringInBytes('FormatVersion', bytes, 0, 4096)) {
+      if (isStringInBytes(bytes, 'FormatVersion', 0, 4096)) {
         return true;
       }
     }
 
     // If the source is a string, look for FormatVersion same as above.
-    if (typeof src === 'string' && isStringInString('FormatVersion', src, 0, 4096)) {
+    if (typeof src === 'string' && isStringInString(src, 'FormatVersion', 0, 4096)) {
       return true;
     }
 

@@ -16,31 +16,33 @@ export default class War3MapUnitsDoo {
   }
 
   load(buffer: ArrayBuffer, isReforged: boolean) {
-    let stream = new BinaryStream(buffer);
+    try {
+      let stream = new BinaryStream(buffer);
 
-    if (stream.read(4) !== 'W3do') {
-      return false;
+      if (stream.readBinary(4) !== 'W3do') {
+        return false;
+      }
+
+      this.version = stream.readInt32();
+      this.subversion = stream.readUint32();
+
+      for (let i = 0, l = stream.readInt32(); i < l; i++) {
+        let unit = new Unit();
+
+        unit.load(stream, this.version, this.subversion, isReforged);
+
+        this.units[i] = unit;
+      }
+    } catch (e) {
+      console.warn('War3MapUnitsDoo: Failed to fully parse', e);
     }
-
-    this.version = stream.readInt32();
-    this.subversion = stream.readUint32();
-
-    for (let i = 0, l = stream.readInt32(); i < l; i++) {
-      let unit = new Unit();
-
-      unit.load(stream, this.version, this.subversion, isReforged);
-
-      this.units[i] = unit;
-    }
-
-    return true;
   }
 
   save(isReforged: boolean) {
     let buffer = new ArrayBuffer(this.getByteLength(isReforged));
     let stream = new BinaryStream(buffer);
 
-    stream.write('W3do');
+    stream.writeBinary('W3do');
     stream.writeInt32(this.version);
     stream.writeUint32(this.subversion);
     stream.writeInt32(this.units.length);

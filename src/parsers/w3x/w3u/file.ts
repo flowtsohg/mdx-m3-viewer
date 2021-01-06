@@ -18,17 +18,21 @@ export default class War3MapW3u {
   }
 
   load(bufferOrStream: ArrayBuffer | BinaryStream) {
-    let stream;
+    try {
+      let stream;
 
-    if (bufferOrStream instanceof ArrayBuffer) {
-      stream = new BinaryStream(bufferOrStream);
-    } else {
-      stream = bufferOrStream;
+      if (bufferOrStream instanceof ArrayBuffer) {
+        stream = new BinaryStream(bufferOrStream);
+      } else {
+        stream = bufferOrStream;
+      }
+
+      this.version = stream.readInt32();
+      this.originalTable.load(stream, false);
+      this.customTable.load(stream, false);
+    } catch (e) {
+      console.warn('War3MapW3u: Failed to fully parse', e);
     }
-
-    this.version = stream.readInt32();
-    this.originalTable.load(stream, false);
-    this.customTable.load(stream, false);
   }
 
   save(stream?: BinaryStream) {

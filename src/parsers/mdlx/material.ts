@@ -41,11 +41,10 @@ export default class Material {
     stream.writeUint32(this.flags);
 
     if (version > 800) {
-      stream.write(this.shader);
-      stream.skip(80 - this.shader.length);
+      stream.skip(80 - stream.write(this.shader));
     }
 
-    stream.write('LAYS');
+    stream.writeBinary('LAYS');
     stream.writeUint32(this.layers.length);
 
     for (let layer of this.layers) {

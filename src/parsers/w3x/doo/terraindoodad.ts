@@ -14,13 +14,13 @@ export default class TerrainDoodad {
   location: Uint32Array = new Uint32Array(2);
 
   load(stream: BinaryStream, version: number) {
-    this.id = stream.read(4);
+    this.id = stream.readBinary(4);
     this.u1 = stream.readUint32();
     stream.readUint32Array(this.location);
   }
 
   save(stream: BinaryStream, version: number) {
-    stream.write(this.id);
+    stream.writeBinary(this.id);
     stream.writeUint32(this.u1);
     stream.writeUint32Array(this.location);
   }

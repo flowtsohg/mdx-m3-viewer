@@ -28,8 +28,7 @@ export default class Camera extends AnimatedObject {
 
   writeMdx(stream: BinaryStream) {
     stream.writeUint32(this.getByteLength());
-    stream.write(this.name);
-    stream.skip(80 - this.name.length);
+    stream.skip(80 - stream.write(this.name));
     stream.writeFloat32Array(this.position);
     stream.writeFloat32(this.fieldOfView);
     stream.writeFloat32(this.farClippingPlane);

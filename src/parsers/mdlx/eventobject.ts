@@ -26,7 +26,7 @@ export default class EventObject extends GenericObject {
 
   writeMdx(stream: BinaryStream) {
     super.writeMdx(stream);
-    stream.write('KEVT');
+    stream.writeBinary('KEVT');
     stream.writeUint32(this.tracks.length);
     stream.writeInt32(this.globalSequenceId);
     stream.writeUint32Array(this.tracks);

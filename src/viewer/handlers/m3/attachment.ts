@@ -8,7 +8,7 @@ export default class M3Attachment {
   bone: number;
 
   constructor(attachment: AttachmentPoint) {
-    this.name = attachment.name.getAll().join('');
+    this.name = <string>attachment.name.get();
     this.bone = attachment.bone;
   }
 }

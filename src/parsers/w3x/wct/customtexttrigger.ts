@@ -1,4 +1,5 @@
 import BinaryStream from '../../../common/binarystream';
+import { byteLengthUtf8 } from '../../../common/utf8';
 
 /**
  * A custom text trigger.
@@ -16,11 +17,10 @@ export default class CustomTextTrigger {
   }
 
   save(stream: BinaryStream) {
-    let text = this.text;
-
-    if (text.length) {
-      stream.writeInt32(this.text.length + 1);
-      stream.write(`${this.text}\0`);
+    if (this.text.length) {
+      stream.writeInt32(byteLengthUtf8(this.text) + 1);
+      stream.write(this.text);
+      stream.skip(1);
     } else {
       stream.writeInt32(0);
     }
@@ -30,7 +30,7 @@ export default class CustomTextTrigger {
     let size = 4;
 
     if (this.text.length) {
-      size += this.text.length + 1;
+      size += byteLengthUtf8(this.text) + 1;
     }
 
     return size;
