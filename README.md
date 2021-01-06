@@ -402,3 +402,21 @@ For example, let's say we want to mimic how Warcraft 3 looks. This could be done
 1) The game world.
 2) The UI with `alpha = true` so that where the UI isn't drawn, the game world will be seen through.
 3) The selected portrait, moved and sized to be on the correct portion of the UI.
+
+#### Overriding textures
+
+MDX and M3 models allow to override the used textures per-instance.
+
+Both have a `setTexture` function that takes the texture index, and a texture.
+
+```javascript
+instance.setTexture(0, myTexture); // Override texture 0.
+instance.setTexture(0); // Remove the override.
+```
+
+MDX instances have also `setParticle2Texture` and `setEventTexture` to override the textures of particle emitters and event emitters respectively.
+
+```javascript
+instance.setParticle2Texture(0, myTexture); // Override the texture of particle emitter 0.
+instance.setEventTexture(0, myTexture); // Override the texture of event emitter 0.
+```
