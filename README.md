@@ -383,13 +383,6 @@ Each scene offers the following to control how it's composed on the canvas:
 * `alpha` - determines whether the scene has a background, or can be seen through (defaults to false - has a background).
 * `color` - the background color, which is used when `alpha` is false (defaults to black).
 
-The order in which the scenes are drawn is based on the order of creation, but you can manually move scenes around in `viewer.scenes`.
-
-For example, let's say we want to mimic how Warcraft 3 looks. This could be done with 3 scenes:\
-1) The game world.\
-2) The UI with `alpha = true`.\
-3) The selected portrait, moved and sized to be on the correct portion of the UI.
-
 ```javascript
 scene.viewport[0] = 100; // X offset from the left side of the canvas.
 scene.viewport[1] = 100; // Y offset from the bottom side of the canvas.
@@ -402,3 +395,10 @@ scene.color[0] = 1; // Red background.
 scene.color[1] = 0;
 scene.color[2] = 0;
 ```
+
+The order in which the scenes are drawn is based on the order of creation, but you can manually move scenes around in `viewer.scenes`.
+
+For example, let's say we want to mimic how Warcraft 3 looks. This could be done with 3 scenes:
+1) The game world.
+2) The UI with `alpha = true` so that where the UI isn't drawn, the game world will be seen through.
+3) The selected portrait, moved and sized to be on the correct portion of the UI.
