@@ -87,8 +87,6 @@ export default class BinaryStream {
       end = start + bytes;
     }
 
-    let l = end - start;
-
     this.index += bytes;
     this.remaining -= bytes;
 
@@ -111,10 +109,10 @@ export default class BinaryStream {
       end = uint8array.length - 1;
     }
 
-    let l = end - start;
+    let bytes = end - start + 1;
 
-    this.index += l + 1;
-    this.remaining -= l + 1;
+    this.index += bytes;
+    this.remaining -= bytes;
 
     return decodeUtf8(uint8array.subarray(start, end));
   }

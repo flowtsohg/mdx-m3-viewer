@@ -5,12 +5,6 @@ export default class IniFile {
   properties: Map<string, string> = new Map();
   sections: Map<string, Map<string, string>> = new Map();
 
-  constructor(buffer?: string) {
-    if (buffer) {
-      this.load(buffer);
-    }
-  }
-
   load(buffer: string) {
     // All properties added until a section is reached are added to the properties map.
     // Once a section is reached, any further properties will be added to it until matching another section, etc.

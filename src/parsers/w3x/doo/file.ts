@@ -12,42 +12,32 @@ export default class War3MapDoo {
   u2: Uint8Array = new Uint8Array(4);
   terrainDoodads: TerrainDoodad[] = [];
 
-  constructor(buffer?: ArrayBuffer, isReforged?: boolean) {
-    if (buffer) {
-      this.load(buffer, !!isReforged);
-    }
-  }
-
   load(buffer: ArrayBuffer, isReforged: boolean) {
-    try {
-      let stream = new BinaryStream(buffer);
+    let stream = new BinaryStream(buffer);
 
-      if (stream.readBinary(4) !== 'W3do') {
-        return false;
-      }
+    if (stream.readBinary(4) !== 'W3do') {
+      return false;
+    }
 
-      this.version = stream.readInt32();
-      stream.readUint8Array(this.u1);
+    this.version = stream.readInt32();
+    stream.readUint8Array(this.u1);
 
-      for (let i = 0, l = stream.readInt32(); i < l; i++) {
-        let doodad = new Doodad();
+    for (let i = 0, l = stream.readInt32(); i < l; i++) {
+      let doodad = new Doodad();
 
-        doodad.load(stream, this.version, isReforged);
+      doodad.load(stream, this.version, isReforged);
 
-        this.doodads.push(doodad);
-      }
+      this.doodads.push(doodad);
+    }
 
-      stream.readUint8Array(this.u2);
+    stream.readUint8Array(this.u2);
 
-      for (let i = 0, l = stream.readInt32(); i < l; i++) {
-        let terrainDoodad = new TerrainDoodad();
+    for (let i = 0, l = stream.readInt32(); i < l; i++) {
+      let terrainDoodad = new TerrainDoodad();
 
-        terrainDoodad.load(stream, this.version);
+      terrainDoodad.load(stream, this.version);
 
-        this.terrainDoodads.push(terrainDoodad);
-      }
-    } catch (e) {
-      console.warn('War3MapDoo: Failed to fully parse', e);
+      this.terrainDoodads.push(terrainDoodad);
     }
   }
 

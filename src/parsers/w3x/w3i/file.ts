@@ -52,123 +52,113 @@ export default class War3MapW3i {
   randomItemTables: RandomItemTable[] = [];
   unknown1: number = 0;
 
-  constructor(buffer?: ArrayBuffer) {
-    if (buffer) {
-      this.load(buffer);
-    }
-  }
-
   load(buffer: ArrayBuffer) {
-    try {
-      let stream = new BinaryStream(buffer);
+    let stream = new BinaryStream(buffer);
 
-      this.version = stream.readInt32();
-      this.saves = stream.readInt32();
-      this.editorVersion = stream.readInt32();
+    this.version = stream.readInt32();
+    this.saves = stream.readInt32();
+    this.editorVersion = stream.readInt32();
 
-      if (this.version > 27) {
-        stream.readUint32Array(this.buildVersion);
-      }
+    if (this.version > 27) {
+      stream.readUint32Array(this.buildVersion);
+    }
 
-      this.name = stream.readNull();
-      this.author = stream.readNull();
-      this.description = stream.readNull();
-      this.recommendedPlayers = stream.readNull();
-      stream.readFloat32Array(this.cameraBounds);
-      stream.readInt32Array(this.cameraBoundsComplements);
-      stream.readInt32Array(this.playableSize);
-      this.flags = stream.readUint32();
-      this.tileset = stream.readBinary(1);
-      this.campaignBackground = stream.readInt32();
+    this.name = stream.readNull();
+    this.author = stream.readNull();
+    this.description = stream.readNull();
+    this.recommendedPlayers = stream.readNull();
+    stream.readFloat32Array(this.cameraBounds);
+    stream.readInt32Array(this.cameraBoundsComplements);
+    stream.readInt32Array(this.playableSize);
+    this.flags = stream.readUint32();
+    this.tileset = stream.readBinary(1);
+    this.campaignBackground = stream.readInt32();
 
-      if (this.version > 24) {
-        this.loadingScreenModel = stream.readNull();
-      }
+    if (this.version > 24) {
+      this.loadingScreenModel = stream.readNull();
+    }
 
-      this.loadingScreenText = stream.readNull();
-      this.loadingScreenTitle = stream.readNull();
-      this.loadingScreenSubtitle = stream.readNull();
-      this.loadingScreen = stream.readInt32();
+    this.loadingScreenText = stream.readNull();
+    this.loadingScreenTitle = stream.readNull();
+    this.loadingScreenSubtitle = stream.readNull();
+    this.loadingScreen = stream.readInt32();
 
-      if (this.version > 24) {
-        this.prologueScreenModel = stream.readNull();
-      }
+    if (this.version > 24) {
+      this.prologueScreenModel = stream.readNull();
+    }
 
-      this.prologueScreenText = stream.readNull();
-      this.prologueScreenTitle = stream.readNull();
-      this.prologueScreenSubtitle = stream.readNull();
+    this.prologueScreenText = stream.readNull();
+    this.prologueScreenTitle = stream.readNull();
+    this.prologueScreenSubtitle = stream.readNull();
 
-      if (this.version > 24) {
-        this.useTerrainFog = stream.readInt32();
-        stream.readFloat32Array(this.fogHeight);
-        this.fogDensity = stream.readFloat32();
-        stream.readUint8Array(this.fogColor);
-        this.globalWeather = stream.readInt32();
-        this.soundEnvironment = stream.readNull();
-        this.lightEnvironmentTileset = stream.readBinary(1);
-        stream.readUint8Array(this.waterVertexColor);
-      }
+    if (this.version > 24) {
+      this.useTerrainFog = stream.readInt32();
+      stream.readFloat32Array(this.fogHeight);
+      this.fogDensity = stream.readFloat32();
+      stream.readUint8Array(this.fogColor);
+      this.globalWeather = stream.readInt32();
+      this.soundEnvironment = stream.readNull();
+      this.lightEnvironmentTileset = stream.readBinary(1);
+      stream.readUint8Array(this.waterVertexColor);
+    }
 
-      if (this.version > 27) {
-        this.scriptMode = stream.readUint32();
-      }
+    if (this.version > 27) {
+      this.scriptMode = stream.readUint32();
+    }
 
-      if (this.version > 30) {
-        this.graphicsMode = stream.readUint32();
-        this.unknown1 = stream.readUint32();
-      }
+    if (this.version > 30) {
+      this.graphicsMode = stream.readUint32();
+      this.unknown1 = stream.readUint32();
+    }
 
+    for (let i = 0, l = stream.readInt32(); i < l; i++) {
+      let player = new Player();
+
+      player.load(stream, this.version);
+
+      this.players[i] = player;
+    }
+
+    for (let i = 0, l = stream.readInt32(); i < l; i++) {
+      let force = new Force();
+
+      force.load(stream);
+
+      this.forces[i] = force;
+    }
+
+    for (let i = 0, l = stream.readInt32(); i < l; i++) {
+      let upgradeAvailabilityChange = new UpgradeAvailabilityChange();
+
+      upgradeAvailabilityChange.load(stream);
+
+      this.upgradeAvailabilityChanges[i] = upgradeAvailabilityChange;
+    }
+
+    for (let i = 0, l = stream.readInt32(); i < l; i++) {
+      let techAvailabilityChange = new TechAvailabilityChange();
+
+      techAvailabilityChange.load(stream);
+
+      this.techAvailabilityChanges[i] = techAvailabilityChange;
+    }
+
+    for (let i = 0, l = stream.readInt32(); i < l; i++) {
+      let randomUnitTable = new RandomUnitTable();
+
+      randomUnitTable.load(stream);
+
+      this.randomUnitTables[i] = randomUnitTable;
+    }
+
+    if (this.version > 24) {
       for (let i = 0, l = stream.readInt32(); i < l; i++) {
-        let player = new Player();
+        let randomItemTable = new RandomItemTable();
 
-        player.load(stream, this.version);
+        randomItemTable.load(stream);
 
-        this.players[i] = player;
+        this.randomItemTables[i] = randomItemTable;
       }
-
-      for (let i = 0, l = stream.readInt32(); i < l; i++) {
-        let force = new Force();
-
-        force.load(stream);
-
-        this.forces[i] = force;
-      }
-
-      for (let i = 0, l = stream.readInt32(); i < l; i++) {
-        let upgradeAvailabilityChange = new UpgradeAvailabilityChange();
-
-        upgradeAvailabilityChange.load(stream);
-
-        this.upgradeAvailabilityChanges[i] = upgradeAvailabilityChange;
-      }
-
-      for (let i = 0, l = stream.readInt32(); i < l; i++) {
-        let techAvailabilityChange = new TechAvailabilityChange();
-
-        techAvailabilityChange.load(stream);
-
-        this.techAvailabilityChanges[i] = techAvailabilityChange;
-      }
-
-      for (let i = 0, l = stream.readInt32(); i < l; i++) {
-        let randomUnitTable = new RandomUnitTable();
-
-        randomUnitTable.load(stream);
-
-        this.randomUnitTables[i] = randomUnitTable;
-      }
-
-      if (this.version > 24) {
-        for (let i = 0, l = stream.readInt32(); i < l; i++) {
-          let randomItemTable = new RandomItemTable();
-
-          randomItemTable.load(stream);
-
-          this.randomItemTables[i] = randomItemTable;
-        }
-      }
-    } catch (e) {
-      console.warn('War3MapW3i: Failed to fully parse', e);
     }
   }
 

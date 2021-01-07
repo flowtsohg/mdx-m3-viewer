@@ -190,7 +190,9 @@ export default class War3MapViewer extends ModelViewer {
     let resolve = this.promise();
 
     // Readonly mode to optimize memory usage.
-    let mapMpq = new War3Map(buffer, true);
+    let mapMpq = new War3Map();
+
+    mapMpq.load(buffer, true);
 
     this.mapMpq = mapMpq;
     this.isReforged = false;
@@ -205,7 +207,9 @@ export default class War3MapViewer extends ModelViewer {
       let w3iBuffer = w3iFile.arrayBuffer();
 
       if (w3iBuffer) {
-        let w3i = new War3MapW3i(w3iBuffer);
+        let w3i = new War3MapW3i();
+
+        w3i.load(w3iBuffer);
 
         tileset = w3i.tileset;
 
@@ -249,7 +253,10 @@ export default class War3MapViewer extends ModelViewer {
       let w3eBuffer = w3eFile.arrayBuffer();
 
       if (w3eBuffer) {
-        let w3e = new War3MapW3e(w3eBuffer);
+        let w3e = new War3MapW3e();
+
+        w3e.load(w3eBuffer);
+
         let centerOffset = w3e.centerOffset;
         let mapSize = w3e.mapSize;
 
@@ -541,10 +548,10 @@ export default class War3MapViewer extends ModelViewer {
     this.applyModificationFile(this.doodadsData, this.doodadMetaData, modifications.w3d);
     this.applyModificationFile(this.doodadsData, this.destructableMetaData, modifications.w3b);
 
-    let doo;
+    let doo = new War3MapDoo();
 
     try {
-      doo = new War3MapDoo(dooBuffer, this.isReforged);
+      doo.load(dooBuffer, this.isReforged);
     } catch (e) {
       console.warn(`Failed to parse war3map.doo`);
 
@@ -641,10 +648,10 @@ export default class War3MapViewer extends ModelViewer {
     this.applyModificationFile(this.unitsData, this.unitMetaData, modifications.w3u);
     this.applyModificationFile(this.unitsData, this.unitMetaData, modifications.w3t);
 
-    let unitsDoo;
+    let unitsDoo = new War3MapUnitsDoo();
 
     try {
-      unitsDoo = new War3MapUnitsDoo(dooBuffer, this.isReforged);
+      unitsDoo.load(dooBuffer, this.isReforged);
     } catch (e) {
       console.warn(`Failed to parse war3mapUnits.doo`);
 

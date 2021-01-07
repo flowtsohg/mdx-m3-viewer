@@ -77,7 +77,9 @@ export default class MdxModel extends Model {
     if (bufferOrParser instanceof Parser) {
       parser = bufferOrParser;
     } else {
-      parser = new Parser(bufferOrParser);
+      parser = new Parser();
+
+      parser.load(bufferOrParser);
     }
 
     let viewer = this.viewer;

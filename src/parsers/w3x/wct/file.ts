@@ -11,33 +11,23 @@ export default class War3MapWct {
   trigger: CustomTextTrigger = new CustomTextTrigger();
   triggers: CustomTextTrigger[] = [];
 
-  constructor(buffer?: ArrayBuffer) {
-    if (buffer) {
-      this.load(buffer);
-    }
-  }
-
   load(buffer: ArrayBuffer) {
-    try {
-      let stream = new BinaryStream(buffer);
+    let stream = new BinaryStream(buffer);
 
-      this.version = stream.readInt32();
+    this.version = stream.readInt32();
 
-      if (this.version === 1) {
-        this.comment = stream.readNull();
+    if (this.version === 1) {
+      this.comment = stream.readNull();
 
-        this.trigger.load(stream);
-      }
+      this.trigger.load(stream);
+    }
 
-      for (let i = 0, l = stream.readUint32(); i < l; i++) {
-        let trigger = new CustomTextTrigger();
+    for (let i = 0, l = stream.readUint32(); i < l; i++) {
+      let trigger = new CustomTextTrigger();
 
-        trigger.load(stream);
+      trigger.load(stream);
 
-        this.triggers[i] = trigger;
-      }
-    } catch (e) {
-      console.warn('War3MapWct: Failed to fully parse', e);
+      this.triggers[i] = trigger;
     }
   }
 

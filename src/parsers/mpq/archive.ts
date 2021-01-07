@@ -19,20 +19,15 @@ export default class MpqArchive {
   hashTable: MpqHashTable;
   blockTable: MpqBlockTable;
   files: MpqFile[];
-  readonly: boolean;
+  readonly: boolean = false;
 
-  constructor(buffer?: ArrayBuffer, readonly?: boolean) {
+  constructor() {
     this.headerOffset = 0;
     this.sectorSize = 4096;
     this.c = new MpqCrypto();
     this.hashTable = new MpqHashTable(this.c);
     this.blockTable = new MpqBlockTable(this.c);
     this.files = [];
-    this.readonly = !!readonly;
-
-    if (buffer) {
-      this.load(buffer);
-    }
   }
 
   /**
@@ -40,7 +35,9 @@ export default class MpqArchive {
    * 
    * Note that this clears the archive from whatever it had in it before.
    */
-  load(buffer: ArrayBuffer) {
+  load(buffer: ArrayBuffer, readonly: boolean = false) {
+    this.readonly = readonly;
+
     // let fileSize = buffer.byteLength;
     let typedArray = new Uint8Array(buffer);
     let headerOffset = searchHeader(typedArray);

@@ -8,31 +8,21 @@ export default class War3MapImp {
   version: number = 1;
   entries: Map<string, Import> = new Map();
 
-  constructor(buffer?: ArrayBuffer) {
-    if (buffer) {
-      this.load(buffer);
-    }
-  }
-
   load(buffer: ArrayBuffer) {
-    try {
-      let stream = new BinaryStream(buffer);
+    let stream = new BinaryStream(buffer);
 
-      this.version = stream.readUint32();
+    this.version = stream.readUint32();
 
-      for (let i = 0, l = stream.readUint32(); i < l; i++) {
-        let entry = new Import();
+    for (let i = 0, l = stream.readUint32(); i < l; i++) {
+      let entry = new Import();
 
-        entry.load(stream);
+      entry.load(stream);
 
-        if (entry.isCustom) {
-          this.entries.set(entry.path, entry);
-        } else {
-          this.entries.set(`war3mapimported\\${entry.path}`, entry);
-        }
+      if (entry.isCustom) {
+        this.entries.set(entry.path, entry);
+      } else {
+        this.entries.set(`war3mapimported\\${entry.path}`, entry);
       }
-    } catch (e) {
-      console.warn('War3MapImp: Failed to fully parse', e);
     }
   }
 

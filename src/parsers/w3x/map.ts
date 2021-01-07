@@ -39,32 +39,17 @@ export default class War3Map {
   name: string = '';
   flags: number = 0;
   maxPlayers: number = 0;
-  archive: MpqArchive;
-  imports: War3MapImp;
-  readonly: boolean;
+  archive: MpqArchive = new MpqArchive();
+  imports: War3MapImp = new War3MapImp();
+  readonly: boolean = false;
   u1: number = 0;
-
-  /**
-   * If buffer is given, it will be loaded instantly.
-   * 
-   * If readonly is true, the map and internal archive won't be editable or saveable, which allows to optimize some operations.
-   */
-  constructor(buffer: ArrayBuffer | undefined = undefined, readonly: boolean = false) {
-    this.archive = new MpqArchive(undefined, readonly);
-    this.imports = new War3MapImp();
-    this.readonly = readonly;
-
-    if (buffer) {
-      this.load(buffer);
-    }
-  }
 
   /**
    * Load an existing map.
    * 
    * Note that this clears the map from whatever it had in it before.
    */
-  load(buffer: ArrayBuffer) {
+  load(buffer: ArrayBuffer, readonly: boolean = false) {
     let stream = new BinaryStream(buffer);
 
     // The header no longer exists since some 1.3X.X patch?
@@ -75,9 +60,11 @@ export default class War3Map {
       this.maxPlayers = stream.readUint32();
     }
 
+    this.readonly = readonly;
+
     // Read the archive.
     // If it failed to be read, abort.
-    if (!this.archive.load(buffer)) {
+    if (!this.archive.load(buffer, readonly)) {
       return false;
     }
 
@@ -274,66 +261,6 @@ export default class War3Map {
   }
 
   /**
-   * Read the map information file.
-   */
-  readMapInformation() {
-    let file = this.archive.get('war3map.w3i');
-
-    if (file) {
-      let buffer = file.arrayBuffer();
-
-      if (buffer) {
-        return new War3MapW3i(buffer);
-      }
-    }
-  }
-
-  /**
-   * Read the environment file.
-   */
-  readEnvironment() {
-    let file = this.archive.get('war3map.w3e');
-
-    if (file) {
-      let buffer = file.arrayBuffer();
-
-      if (buffer) {
-        return new War3MapW3e(buffer);
-      }
-    }
-  }
-
-  /**
-   * Read and parse the doodads file.
-   */
-  readDoodads() {
-    let file = this.archive.get('war3map.doo');
-
-    if (file) {
-      let buffer = file.arrayBuffer();
-
-      if (buffer) {
-        return new War3MapDoo(buffer);
-      }
-    }
-  }
-
-  /**
-   * Read and parse the units file.
-   */
-  readUnits() {
-    let file = this.archive.get('war3mapUnits.doo');
-
-    if (file) {
-      let buffer = file.arrayBuffer();
-
-      if (buffer) {
-        return new War3MapUnitsDoo(buffer);
-      }
-    }
-  }
-
-  /**
    * Read and parse the trigger file.
    */
   readTriggers(triggerData: TriggerData) {
@@ -343,7 +270,11 @@ export default class War3Map {
       let buffer = file.arrayBuffer();
 
       if (buffer) {
-        return new War3MapWtg(buffer, triggerData);
+        let object = new War3MapWtg();
+
+        object.load(buffer, triggerData);
+
+        return object;
       }
     }
   }
@@ -358,7 +289,11 @@ export default class War3Map {
       let buffer = file.arrayBuffer();
 
       if (buffer) {
-        return new War3MapWct(buffer);
+        let object = new War3MapWct();
+
+        object.load(buffer);
+
+        return object;
       }
     }
   }
@@ -373,7 +308,11 @@ export default class War3Map {
       let buffer = file.text();
 
       if (buffer) {
-        return new War3MapWts(buffer);
+        let object = new War3MapWts();
+
+        object.load(buffer);
+
+        return object;
       }
     }
   }
@@ -405,10 +344,12 @@ export default class War3Map {
           let modification;
 
           if (useOptionalInts[i]) {
-            modification = new War3MapW3d(buffer);
+            modification = new War3MapW3d();
           } else {
-            modification = new War3MapW3u(buffer);
+            modification = new War3MapW3u();
           }
+
+          modification.load(buffer);
 
           modifications[fileNames[i]] = modification;
         }

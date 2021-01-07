@@ -14,48 +14,38 @@ export default class War3MapW3e {
   centerOffset: Float32Array = new Float32Array(2);
   corners: Corner[][] = [];
 
-  constructor(buffer?: ArrayBuffer) {
-    if (buffer) {
-      this.load(buffer);
-    }
-  }
-
   load(buffer: ArrayBuffer) {
-    try {
-      let stream = new BinaryStream(buffer);
+    let stream = new BinaryStream(buffer);
 
-      if (stream.readBinary(4) !== 'W3E!') {
-        return;
+    if (stream.readBinary(4) !== 'W3E!') {
+      return;
+    }
+
+    this.version = stream.readInt32();
+    this.tileset = stream.readBinary(1);
+    this.haveCustomTileset = stream.readInt32();
+
+    for (let i = 0, l = stream.readInt32(); i < l; i++) {
+      this.groundTilesets[i] = stream.readBinary(4);
+    }
+
+    for (let i = 0, l = stream.readInt32(); i < l; i++) {
+      this.cliffTilesets[i] = stream.readBinary(4);
+    }
+
+    stream.readInt32Array(this.mapSize);
+    stream.readFloat32Array(this.centerOffset);
+
+    for (let row = 0, rows = this.mapSize[1]; row < rows; row++) {
+      this.corners[row] = [];
+
+      for (let column = 0, columns = this.mapSize[0]; column < columns; column++) {
+        let corner = new Corner();
+
+        corner.load(stream);
+
+        this.corners[row][column] = corner;
       }
-
-      this.version = stream.readInt32();
-      this.tileset = stream.readBinary(1);
-      this.haveCustomTileset = stream.readInt32();
-
-      for (let i = 0, l = stream.readInt32(); i < l; i++) {
-        this.groundTilesets[i] = stream.readBinary(4);
-      }
-
-      for (let i = 0, l = stream.readInt32(); i < l; i++) {
-        this.cliffTilesets[i] = stream.readBinary(4);
-      }
-
-      stream.readInt32Array(this.mapSize);
-      stream.readFloat32Array(this.centerOffset);
-
-      for (let row = 0, rows = this.mapSize[1]; row < rows; row++) {
-        this.corners[row] = [];
-
-        for (let column = 0, columns = this.mapSize[0]; column < columns; column++) {
-          let corner = new Corner();
-
-          corner.load(stream);
-
-          this.corners[row][column] = corner;
-        }
-      }
-    } catch (e) {
-      console.warn('War3MapW3e: Failed to fully parse', e);
     }
   }
 

@@ -29,12 +29,6 @@ export class BlpImage {
    */
   pallete: Uint8Array | null = null;
 
-  constructor(buffer?: ArrayBuffer) {
-    if (buffer) {
-      this.load(buffer);
-    }
-  }
-
   load(buffer: ArrayBuffer) {
     // This includes the JPG header size, in case its a JPG image.
     // Otherwise, the last element is ignored.

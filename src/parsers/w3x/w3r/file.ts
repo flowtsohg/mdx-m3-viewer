@@ -8,27 +8,17 @@ export default class War3MapW3r {
   version: number = 0;
   regions: Region[] = [];
 
-  constructor(buffer?: ArrayBuffer) {
-    if (buffer) {
-      this.load(buffer);
-    }
-  }
-
   load(buffer: ArrayBuffer) {
-    try {
-      let stream = new BinaryStream(buffer);
+    let stream = new BinaryStream(buffer);
 
-      this.version = stream.readInt32();
+    this.version = stream.readInt32();
 
-      for (let i = 0, l = stream.readUint32(); i < l; i++) {
-        let region = new Region();
+    for (let i = 0, l = stream.readUint32(); i < l; i++) {
+      let region = new Region();
 
-        region.load(stream);
+      region.load(stream);
 
-        this.regions[i] = region;
-      }
-    } catch (e) {
-      console.warn('War3MapW3r: Failed to fully parse', e);
+      this.regions[i] = region;
     }
   }
 

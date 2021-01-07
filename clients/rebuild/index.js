@@ -57,14 +57,15 @@ async function handleDrop(dataTransfer) {
       output.br();
 
       let arrayBuffer = await readFileAsArrayBuffer(file);
-      let map = new w3x.Map(arrayBuffer);
+      let map = new w3x.Map();
+      map.load(arrayBuffer);
 
       utils.jass2.rebuild(map, commonj, blizzardj, (msg) => {
         output.log(msg);
         output.br();
       });
 
-      saveAs(new Blob([map.get('war3mapUnits.doo').arrayBuffer()], {type: 'application/octet-stream'}), `war3mapUnits.doo`);
+      saveAs(new Blob([map.get('war3mapUnits.doo').arrayBuffer()], { type: 'application/octet-stream' }), `war3mapUnits.doo`);
     }
   }
 }

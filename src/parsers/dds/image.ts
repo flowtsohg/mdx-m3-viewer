@@ -21,12 +21,6 @@ export class DdsImage {
   mipmapHeights: number[] = [];
   mipmapDatas: Uint8Array[] = [];
 
-  constructor(buffer?: ArrayBuffer) {
-    if (buffer) {
-      this.load(buffer);
-    }
-  }
-
   load(buffer: ArrayBuffer) {
     let header = new Int32Array(buffer, 0, 31);
 

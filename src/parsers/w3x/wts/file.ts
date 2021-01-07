@@ -9,44 +9,34 @@ import TokenStream from '../../mdlx/tokenstream';
 export default class War3MapWts {
   stringMap: Map<number, string> = new Map();
 
-  constructor(buffer?: string) {
-    if (buffer) {
-      this.load(buffer);
-    }
-  }
-
   load(buffer: string) {
-    try {
-      let stream = new TokenStream(buffer);
-      let token;
+    let stream = new TokenStream(buffer);
+    let token;
 
-      // Find the first instance of "STRING".
-      // There are some weird war3map.wts files that begin with the bytes "ï»¿", and this causes the tokenizer to see the first token as "ï»¿STRING".
-      // Going to the first "STRING" means we can ignore any weird bytes that happened to be before.
-      let start = buffer.indexOf('STRING');
+    // Find the first instance of "STRING".
+    // There are some weird war3map.wts files that begin with the bytes "ï»¿", and this causes the tokenizer to see the first token as "ï»¿STRING".
+    // Going to the first "STRING" means we can ignore any weird bytes that happened to be before.
+    let start = buffer.indexOf('STRING');
 
-      // Can war3map.wts have no entries? I don't know, might as well add a condition.
-      if (start === -1) {
-        return;
+    // Can war3map.wts have no entries? I don't know, might as well add a condition.
+    if (start === -1) {
+      return;
+    }
+
+    stream.index = start;
+
+    while ((token = stream.readToken())) {
+      if (token === 'STRING') {
+        let index = stream.readInt();
+
+        stream.read(); // {
+
+        let end = buffer.indexOf('}', stream.index);
+
+        this.stringMap.set(index, buffer.slice(stream.index, end).trim());
+
+        stream.index = end;
       }
-
-      stream.index = start;
-
-      while ((token = stream.readToken())) {
-        if (token === 'STRING') {
-          let index = stream.readInt();
-
-          stream.read(); // {
-
-          let end = buffer.indexOf('}', stream.index);
-
-          this.stringMap.set(index, buffer.slice(stream.index, end).trim());
-
-          stream.index = end;
-        }
-      }
-    } catch (e) {
-      console.warn('War3MapWts: Failed to fully parse', e);
     }
   }
 

@@ -22,7 +22,10 @@ export default class TerrainModel {
     let webgl = viewer.webgl;
     let instancedArrays = <ANGLE_instanced_arrays>webgl.extensions.ANGLE_instanced_arrays
     let vertexArrayObject = <OES_vertex_array_object>webgl.extensions.OES_vertex_array_object;
-    let parser = new MdlxModel(arrayBuffer);
+
+    let parser = new MdlxModel();
+    parser.load(arrayBuffer);
+
     let geoset = parser.geosets[0];
     let vertices = geoset.vertices;
     let normals = geoset.normals;

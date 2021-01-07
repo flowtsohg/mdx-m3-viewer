@@ -5,7 +5,8 @@ function onLocalLoaded(e, name) {
 
     console.log('Reading the map');
 
-    let map = new w3x.Map(buffer);
+    let map = new w3x.Map();
+    map.load(buffer);
 
     console.log('Setting the map melee flag');
 
@@ -13,7 +14,8 @@ function onLocalLoaded(e, name) {
 
     console.log('Reading war3map.w3i');
 
-    let w3i = new w3x.w3i.File(map.get('war3map.w3i').arrayBuffer());
+    let w3i = new w3x.w3i.File();
+    w3i.load(map.get('war3map.w3i').arrayBuffer());
 
     console.log('Setting the w3i melee flag');
 
@@ -27,7 +29,7 @@ function onLocalLoaded(e, name) {
 
     console.log(`Saving the map as "${newName}"`);
 
-    saveAs(new Blob([map.save()], {type: 'application/octet-stream'}), newName);
+    saveAs(new Blob([map.save()], { type: 'application/octet-stream' }), newName);
 
 }
 

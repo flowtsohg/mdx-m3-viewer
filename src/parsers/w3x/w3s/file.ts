@@ -8,27 +8,17 @@ export default class War3MapW3s {
   version: number = 0;
   sounds: Sound[] = [];
 
-  constructor(buffer?: ArrayBuffer) {
-    if (buffer) {
-      this.load(buffer);
-    }
-  }
-
   load(buffer: ArrayBuffer) {
-    try {
-      let stream = new BinaryStream(buffer);
+    let stream = new BinaryStream(buffer);
 
-      this.version = stream.readInt32();
+    this.version = stream.readInt32();
 
-      for (let i = 0, l = stream.readUint32(); i < l; i++) {
-        let sound = new Sound();
+    for (let i = 0, l = stream.readUint32(); i < l; i++) {
+      let sound = new Sound();
 
-        sound.load(stream);
+      sound.load(stream);
 
-        this.sounds[i] = sound;
-      }
-    } catch (e) {
-      console.warn('War3MapW3s: Failed to fully parse', e);
+      this.sounds[i] = sound;
     }
   }
 

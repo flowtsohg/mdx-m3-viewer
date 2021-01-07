@@ -23,7 +23,9 @@ document.addEventListener('drop', e => {
       let reader = new FileReader();
 
       reader.addEventListener('loadend', (e) => {
-        let model = new Model(e.target.result);
+        let model = new Model();
+        model.load(e.target.result);
+
         let buffer;
         let type;
 

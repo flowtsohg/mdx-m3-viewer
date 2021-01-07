@@ -4,12 +4,6 @@
 export default class SlkFile {
   rows: (string | number | boolean)[][] = [];
 
-  constructor(buffer?: string) {
-    if (buffer) {
-      this.load(buffer);
-    }
-  }
-
   load(buffer: string) {
     if (!buffer.startsWith('ID')) {
       throw new Error('WrongMagicNumber');

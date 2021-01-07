@@ -29,53 +29,43 @@ export default class War3CampaignW3f {
   mapTitles: MapTitle[] = [];
   mapOrders: MapOrder[] = [];
 
-  constructor(buffer?: ArrayBuffer) {
-    if (buffer) {
-      this.load(buffer);
-    }
-  }
-
   load(buffer: ArrayBuffer) {
-    try {
-      let stream = new BinaryStream(buffer);
+    let stream = new BinaryStream(buffer);
 
-      this.version = stream.readInt32();
-      this.campaignVersion = stream.readInt32();
-      this.editorVersion = stream.readInt32();
-      this.name = stream.readNull();
-      this.difficulty = stream.readNull();
-      this.author = stream.readNull();
-      this.description = stream.readNull();
-      this.mode = stream.readInt32();
-      this.backgroundScreen = stream.readInt32();
-      this.backgroundScreenPath = stream.readNull();
-      this.minimapImagePath = stream.readNull();
-      this.ambientSound = stream.readInt32();
-      this.ambientSoundPath = stream.readNull();
-      this.terrainFog = stream.readInt32();
-      this.fogStartZ = stream.readFloat32();
-      this.fogEndZ = stream.readFloat32();
-      this.fogDensity = stream.readFloat32();
-      stream.readUint8Array(this.fogColor);
-      this.userInterface = stream.readInt32();
+    this.version = stream.readInt32();
+    this.campaignVersion = stream.readInt32();
+    this.editorVersion = stream.readInt32();
+    this.name = stream.readNull();
+    this.difficulty = stream.readNull();
+    this.author = stream.readNull();
+    this.description = stream.readNull();
+    this.mode = stream.readInt32();
+    this.backgroundScreen = stream.readInt32();
+    this.backgroundScreenPath = stream.readNull();
+    this.minimapImagePath = stream.readNull();
+    this.ambientSound = stream.readInt32();
+    this.ambientSoundPath = stream.readNull();
+    this.terrainFog = stream.readInt32();
+    this.fogStartZ = stream.readFloat32();
+    this.fogEndZ = stream.readFloat32();
+    this.fogDensity = stream.readFloat32();
+    stream.readUint8Array(this.fogColor);
+    this.userInterface = stream.readInt32();
 
-      for (let i = 0, l = stream.readUint32(); i < l; i++) {
-        let mapTitle = new MapTitle();
+    for (let i = 0, l = stream.readUint32(); i < l; i++) {
+      let mapTitle = new MapTitle();
 
-        mapTitle.load(stream);
+      mapTitle.load(stream);
 
-        this.mapTitles[i] = mapTitle;
-      }
+      this.mapTitles[i] = mapTitle;
+    }
 
-      for (let i = 0, l = stream.readUint32(); i < l; i++) {
-        let mapOrder = new MapOrder();
+    for (let i = 0, l = stream.readUint32(); i < l; i++) {
+      let mapOrder = new MapOrder();
 
-        mapOrder.load(stream);
+      mapOrder.load(stream);
 
-        this.mapOrders[i] = mapOrder;
-      }
-    } catch (e) {
-      console.warn('War3MapW3f: Failed to fully parse', e);
+      this.mapOrders[i] = mapOrder;
     }
   }
 

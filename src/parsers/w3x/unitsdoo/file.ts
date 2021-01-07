@@ -9,32 +9,22 @@ export default class War3MapUnitsDoo {
   subversion: number = 11;
   units: Unit[] = [];
 
-  constructor(buffer?: ArrayBuffer, isReforged?: boolean) {
-    if (buffer) {
-      this.load(buffer, !!isReforged);
-    }
-  }
-
   load(buffer: ArrayBuffer, isReforged: boolean) {
-    try {
-      let stream = new BinaryStream(buffer);
+    let stream = new BinaryStream(buffer);
 
-      if (stream.readBinary(4) !== 'W3do') {
-        return false;
-      }
+    if (stream.readBinary(4) !== 'W3do') {
+      return;
+    }
 
-      this.version = stream.readInt32();
-      this.subversion = stream.readUint32();
+    this.version = stream.readInt32();
+    this.subversion = stream.readUint32();
 
-      for (let i = 0, l = stream.readInt32(); i < l; i++) {
-        let unit = new Unit();
+    for (let i = 0, l = stream.readInt32(); i < l; i++) {
+      let unit = new Unit();
 
-        unit.load(stream, this.version, this.subversion, isReforged);
+      unit.load(stream, this.version, this.subversion, isReforged);
 
-        this.units[i] = unit;
-      }
-    } catch (e) {
-      console.warn('War3MapUnitsDoo: Failed to fully parse', e);
+      this.units[i] = unit;
     }
   }
 

@@ -14,7 +14,9 @@ export default class DdsTexture extends Texture {
     if (bufferOrImage instanceof DdsImage) {
       image = bufferOrImage;
     } else {
-      image = new DdsImage(bufferOrImage);
+      image = new DdsImage();
+
+      image.load(bufferOrImage);
     }
 
     let viewer = this.viewer;

@@ -14,53 +14,43 @@ export default class War3MapWtg {
   variables: Variable[] = [];
   triggers: Trigger[] = [];
 
-  constructor(buffer?: ArrayBuffer, triggerData?: TriggerData) {
-    if (buffer && triggerData) {
-      this.load(buffer, triggerData);
-    }
-  }
-
   load(buffer: ArrayBuffer, triggerData: TriggerData) {
-    try {
-      let stream = new BinaryStream(buffer);
+    let stream = new BinaryStream(buffer);
 
-      if (stream.readBinary(4) !== 'WTG!') {
-        throw new Error('Not a WTG file');
+    if (stream.readBinary(4) !== 'WTG!') {
+      throw new Error('Not a WTG file');
+    }
+
+    this.version = stream.readInt32();
+
+    for (let i = 0, l = stream.readUint32(); i < l; i++) {
+      let category = new TriggerCategory();
+
+      category.load(stream, this.version);
+
+      this.categories[i] = category;
+    }
+
+    this.u1 = stream.readInt32();
+
+    for (let i = 0, l = stream.readUint32(); i < l; i++) {
+      let variable = new Variable();
+
+      variable.load(stream, this.version);
+
+      this.variables[i] = variable;
+    }
+
+    for (let i = 0, l = stream.readUint32(); i < l; i++) {
+      let trigger = new Trigger();
+
+      try {
+        trigger.load(stream, this.version, triggerData);
+      } catch (e) {
+        throw new Error(`Trigger ${i}: ${e}`);
       }
 
-      this.version = stream.readInt32();
-
-      for (let i = 0, l = stream.readUint32(); i < l; i++) {
-        let category = new TriggerCategory();
-
-        category.load(stream, this.version);
-
-        this.categories[i] = category;
-      }
-
-      this.u1 = stream.readInt32();
-
-      for (let i = 0, l = stream.readUint32(); i < l; i++) {
-        let variable = new Variable();
-
-        variable.load(stream, this.version);
-
-        this.variables[i] = variable;
-      }
-
-      for (let i = 0, l = stream.readUint32(); i < l; i++) {
-        let trigger = new Trigger();
-
-        try {
-          trigger.load(stream, this.version, triggerData);
-        } catch (e) {
-          throw new Error(`Trigger ${i}: ${e}`);
-        }
-
-        this.triggers[i] = trigger;
-      }
-    } catch (e) {
-      console.warn('War3MapWtg: Failed to fully parse', e);
+      this.triggers[i] = trigger;
     }
   }
 

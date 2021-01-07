@@ -27,7 +27,9 @@ export class MappedData {
    */
   load(buffer: string) {
     if (buffer.startsWith('ID;')) {
-      let file = new SlkFile(buffer);
+      let file = new SlkFile();
+      file.load(buffer);
+
       let rows = file.rows;
       let header = rows[0];
       let map = this.map;
@@ -58,7 +60,9 @@ export class MappedData {
         }
       }
     } else {
-      let file = new IniFile(buffer);
+      let file = new IniFile();
+      file.load(buffer);
+
       let sections = file.sections;
       let map = this.map;
 

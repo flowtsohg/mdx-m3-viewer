@@ -11,28 +11,18 @@ export default class War3MapW3d {
   originalTable: ModificationTable = new ModificationTable();
   customTable: ModificationTable = new ModificationTable();
 
-  constructor(bufferOrStream?: ArrayBuffer | BinaryStream) {
-    if (bufferOrStream) {
-      this.load(bufferOrStream);
-    }
-  }
-
   load(bufferOrStream: ArrayBuffer | BinaryStream) {
-    try {
-      let stream;
+    let stream;
 
-      if (bufferOrStream instanceof ArrayBuffer) {
-        stream = new BinaryStream(bufferOrStream);
-      } else {
-        stream = bufferOrStream;
-      }
-
-      this.version = stream.readInt32();
-      this.originalTable.load(stream, true);
-      this.customTable.load(stream, true);
-    } catch (e) {
-      console.warn('War3MapW3d: Failed to fully parse', e);
+    if (bufferOrStream instanceof ArrayBuffer) {
+      stream = new BinaryStream(bufferOrStream);
+    } else {
+      stream = bufferOrStream;
     }
+
+    this.version = stream.readInt32();
+    this.originalTable.load(stream, true);
+    this.customTable.load(stream, true);
   }
 
   save(stream?: BinaryStream) {

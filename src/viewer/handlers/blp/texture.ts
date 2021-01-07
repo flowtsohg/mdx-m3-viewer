@@ -15,7 +15,9 @@ export default class BlpTexture extends Texture {
     if (bufferOrImage instanceof BlpImage) {
       image = bufferOrImage;
     } else {
-      image = new BlpImage(bufferOrImage);
+      image = new BlpImage();
+
+      image.load(bufferOrImage);
     }
 
     let viewer = this.viewer;

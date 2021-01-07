@@ -392,7 +392,8 @@ function addTest(name, resource, instance, parser) {
 }
 
 function addModelTest(name, ext, buffer, pathSolver) {
-  let parser = new mdlx.Model(buffer);
+  let parser = new mdlx.Model();
+  parser.load(buffer);
 
   let viewerModel = viewer.load(parser, (src, params) => {
     if (src === parser) {
@@ -488,7 +489,8 @@ function addTextureTest(name, ext, buffer) {
   let parser = null;
 
   if (ext === '.blp') {
-    parser = new blp.Image(buffer);
+    parser = new blp.Image();
+    parser.load(buffer);
   } else {
     parser = buffer;
   }
@@ -516,7 +518,8 @@ function addTextureTest(name, ext, buffer) {
 }
 
 function addMapTest(buffer) {
-  let map = new w3x.Map(buffer);
+  let map = new w3x.Map();
+  map.load(buffer);
 
   for (let name of map.getImportNames()) {
     let file = map.get(name);

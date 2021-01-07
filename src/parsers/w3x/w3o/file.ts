@@ -18,47 +18,44 @@ export default class War3MapW3o {
   buffs: War3MapW3u | null = null;
   upgrades: War3MapW3d | null = null;
 
-  constructor(buffer?: ArrayBuffer) {
-    if (buffer) {
-      this.load(buffer);
-    }
-  }
-
   load(buffer: ArrayBuffer) {
-    try {
-      let stream = new BinaryStream(buffer);
+    let stream = new BinaryStream(buffer);
 
-      this.version = stream.readInt32();
+    this.version = stream.readInt32();
 
-      if (stream.readInt32()) {
-        this.units = new War3MapW3u(stream);
-      }
+    if (stream.readInt32()) {
+      this.units = new War3MapW3u();
+      this.units.load(stream);
+    }
 
-      if (stream.readInt32()) {
-        this.items = new War3MapW3u(stream);
-      }
+    if (stream.readInt32()) {
+      this.items = new War3MapW3u();
+      this.items.load(stream);
+    }
 
-      if (stream.readInt32()) {
-        this.destructables = new War3MapW3u(stream);
-      }
+    if (stream.readInt32()) {
+      this.destructables = new War3MapW3u();
+      this.destructables.load(stream);
+    }
 
-      if (stream.readInt32()) {
-        this.doodads = new War3MapW3d(stream);
-      }
+    if (stream.readInt32()) {
+      this.doodads = new War3MapW3d();
+      this.doodads.load(stream);
+    }
 
-      if (stream.readInt32()) {
-        this.abilities = new War3MapW3d(stream);
-      }
+    if (stream.readInt32()) {
+      this.abilities = new War3MapW3d();
+      this.abilities.load(stream);
+    }
 
-      if (stream.readInt32()) {
-        this.buffs = new War3MapW3u(stream);
-      }
+    if (stream.readInt32()) {
+      this.buffs = new War3MapW3u();
+      this.buffs.load(stream);
+    }
 
-      if (stream.readInt32()) {
-        this.upgrades = new War3MapW3d(stream);
-      }
-    } catch (e) {
-      console.warn('War3MapW3o: Failed to fully parse', e);
+    if (stream.readInt32()) {
+      this.upgrades = new War3MapW3d();
+      this.upgrades.load(stream);
     }
   }
 

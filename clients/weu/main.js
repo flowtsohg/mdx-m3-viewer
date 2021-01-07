@@ -53,7 +53,9 @@ function handleMap(output, arrayBuffer) {
   output.log('Checking');
   output.br();
 
-  let map = new w3x.Map(arrayBuffer);
+  let map = new w3x.Map();
+  map.load(arrayBuffer);
+
   let changesCount = 0;
   let data = utils.convertWeu(map, triggerData, weTriggerData);
 
@@ -135,7 +137,9 @@ function handleCampaign(output, arrayBuffer) {
   output.log('Looking for maps');
   output.br();
 
-  let campaign = new mpq.Archive(arrayBuffer);
+  let campaign = new mpq.Archive();
+  campaign.load(arrayBuffer);
+
   let totalChanges = 0;
   let changedMaps = 0;
 
