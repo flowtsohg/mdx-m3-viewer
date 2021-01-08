@@ -254,8 +254,7 @@ function bindRibbonEmitterBuffer(emitter: RibbonEmitter, buffer: ClientBuffer) {
 }
 
 function bindRibbonEmitterShader(emitter: RibbonEmitter, shader: ShaderProgram) {
-  let instance = <MdxModelInstance>emitter.instance;
-  let textureOverrides = instance.textureOverrides;
+  let textureOverrides = emitter.instance.textureOverrides;
   let emitterObject = <RibbonEmitterObject>emitter.emitterObject;
   let layer = emitterObject.layer;
   let model = emitterObject.model;
@@ -302,8 +301,7 @@ function bindEventObjectEmitterBuffer(emitter: EventObjectSplEmitter | EventObje
 }
 
 function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader: ShaderProgram) {
-  let instance = <MdxModelInstance>emitter.instance;
-  let textureOverrides = instance.textureOverrides;
+  let textureOverrides = emitter.instance.textureOverrides;
   let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
   let intervalTimes = <Float32Array>emitterObject.intervalTimes;
   let intervals = <Float32Array[]>emitterObject.intervals;
@@ -334,8 +332,7 @@ function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader:
 }
 
 function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader: ShaderProgram) {
-  let instance = <MdxModelInstance>emitter.instance;
-  let textureOverrides = instance.textureOverrides;
+  let textureOverrides = emitter.instance.textureOverrides;
   let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
   let intervalTimes = <Float32Array>emitterObject.intervalTimes;
   let colors = <Float32Array[]>emitterObject.colors;

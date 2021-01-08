@@ -3,6 +3,7 @@ import { Node } from './node';
 import Model from './model';
 import Scene from './scene';
 import Camera from './camera';
+import Texture from './texture';
 
 /**
  * A model instance.
@@ -29,6 +30,7 @@ export default abstract class ModelInstance extends Node {
    * These hide and show also internal instances of this instance.
    */
   rendered: boolean = true;
+  textureOverrides: Map<number, Texture> = new Map();
 
   constructor(model: Model) {
     super();
@@ -75,6 +77,14 @@ export default abstract class ModelInstance extends Node {
     }
 
     return false;
+  }
+
+  overrideTexture(index: number, texture?: Texture) {
+    if (texture) {
+      this.textureOverrides.set(index, texture);
+    } else {
+      this.textureOverrides.delete(index);
+    }
   }
 
   /**

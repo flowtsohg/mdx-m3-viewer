@@ -22,7 +22,6 @@ export default class M3ModelInstance extends ModelInstance {
   sequenceEnded: boolean = false;
   forced: boolean = true;
   boneTexture: DataTexture | null = null;
-  textureOverrides: Map<number, Texture> = new Map();
 
   constructor(model: M3Model) {
     super(model);
@@ -42,13 +41,7 @@ export default class M3ModelInstance extends ModelInstance {
   }
 
   setTexture(material: number, layer: number, texture?: Texture) {
-    let key = material * STANDARD_MATERIAL_OFFSET + layer;
-
-    if (texture) {
-      this.textureOverrides.set(key, texture);
-    } else {
-      this.textureOverrides.delete(key);
-    }
+    this.overrideTexture(material * STANDARD_MATERIAL_OFFSET + layer, texture);
   }
 
   updateSkeletonAndBoneTexture(dt: number) {

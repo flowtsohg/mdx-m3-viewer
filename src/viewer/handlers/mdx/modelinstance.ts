@@ -58,7 +58,6 @@ export default class MdxModelInstance extends ModelInstance {
   uvAnims: Float32Array[] = [];
   worldMatrices: Float32Array | null = null;
   boneTexture: DataTexture | null = null;
-  textureOverrides: Map<number, Texture> = new Map();
 
   constructor(model: MdxModel) {
     super(model);
@@ -173,31 +172,15 @@ export default class MdxModelInstance extends ModelInstance {
   }
 
   setTexture(index: number, texture?: Texture) {
-    if (texture) {
-      this.textureOverrides.set(index, texture);
-    } else {
-      this.textureOverrides.delete(index);
-    }
+    this.overrideTexture(index, texture);
   }
 
   setParticle2Texture(index: number, texture?: Texture) {
-    let key = EMITTER_PARTICLE2_TEXTURE_OFFSET + index;
-
-    if (texture) {
-      this.textureOverrides.set(key, texture);
-    } else {
-      this.textureOverrides.delete(key);
-    }
+    this.overrideTexture(EMITTER_PARTICLE2_TEXTURE_OFFSET + index, texture);
   }
 
   setEventTexture(index: number, texture?: Texture) {
-    let key = EMITTER_EVENT_TEXTURE_OFFSET + index;
-
-    if (texture) {
-      this.textureOverrides.set(key, texture);
-    } else {
-      this.textureOverrides.delete(key);
-    }
+    this.overrideTexture(EMITTER_EVENT_TEXTURE_OFFSET + index, texture);
   }
 
   /**
