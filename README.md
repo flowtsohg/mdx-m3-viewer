@@ -154,7 +154,7 @@ You get back a promise, which will resolve to either the MDX model, or to undefi
 
 When the MDX file loads, it also loads internal resources, like its textures, so the viewer will attempt to fetch `texture.blp`.\
 If the server knows that is a path relative to `Resources/` then all is fine.\
-It is a lot easier and more dynamic to control the paths on the client though.\
+It is typically a lot easier and more dynamic to control the paths on the client though.\
 This is done with "path solvers" - functions that, given a source to load from, such as a path, can modify it and return the actual source to load from.\
 It will probably make more sense with code - let's call the load such that the texture is actually fetched from the correct path: `Resources/texture.blp`.
 ```javascript
@@ -325,24 +325,31 @@ if (model instanceof handlers.m3.resource) {
 #### Loading resources from memory
 
 Resources don't have to be fetched - if you have the data, you can load it directly.\
-Nothing special is needed to be done, just return the data instead of an url.
+Nothing special is needed to be done, simply use it as you would an url:
+```javascript
+let resourcePromise = viewer.load(buffer);
+```
 
-For example, say a web page wants to load a model from a local file that is dragged into it.\
-After some event handling, you end up with a `string` or an `ArrayBuffer`, let's call it `buffer`.\
-We want to load `buffer`, but we know it's a model that uses `Resources/texture.blp`:
+Say a web page wants to load MDX models from local files that are dragged into it.\
+After some event handling, you end up with data such as a `string` or an `ArrayBuffer`.
+
+Practically speaking, most MDX models will attempt to load Warcraft 3 textures.\
+This means that if we load the data directly, it will fail to load the game textures, unless as always, the server is set for the relative paths.
+
+A path solver can again simplify the load:
 ```javascript
 function pathSolver(src) {
   if (src === buffer) {
     return src;
   }
 
-  return "Resources/" + src;
+  return wc3PathSolver(src);
 }
 
 viewer.load(buffer, pathSolver);
 ```
 
-When `src` is the buffer we are loading, it will get loaded directly, otherwise - for internal textures - it will again resolve to `Resources/` correctly.
+Assuming you have some way to fetch Warcraft 3 files, this load will work as expected - when the thing being loaded is the buffer, it will be used, otherwise, e.g. for the model textures, the Warcraft 3 path solver will be used instead.
 
 #### Primitive shapes
 
@@ -367,8 +374,8 @@ If sound is desired, `viewer.audioEnabled` should be set to true BEFORE loading 
 This signals to the MDX handler that sound is desired, and it will load the neccessary sound files when loading models.\
 If `audioEnabled` isn't true, the sound files aren't downloaded in the first place to reduce file fetching.
 
-To get the sounds files to actually run, you must call `scene.enableAudio()`, which returns a promise that resolves to whether audio was actually enabled.\
-There are two reasons for it to fail - either because the client simply does not support audio, or because the browser did not want to enable audio.\
+To get the sounds to actually run, you must call `scene.enableAudio()`, which returns a promise that resolves to whether audio was actually enabled.\
+There are two reasons for it to fail - either because the browser simply does not support audio, or because the browser did not want to enable audio.\
 The latter will happen if you attempt to enable audio before the user made any interaction with the page (like clicking something). This is a browser policy and there is no control over it.
 
 If audio was enabled, you will hear familiar sounds when running animations, like attack sounds, death sounds, and so on.\
@@ -405,20 +412,20 @@ For example, let's say we want to mimic how Warcraft 3 looks. This could be done
 
 #### Overriding textures
 
-MDX and M3 models allow to override the used textures per-instance.
+The MDX and M3 handlers allow to override the used textures per-instance.
 
-Both have a `setTexture` function that takes the texture index, and a texture.
-
+MDX instances have `setTexture`, `setParticle2Texture`, and `setEventTexture`, to set textures, particle emitter textures, and event object textures:
 ```javascript
 instance.setTexture(0, myTexture); // Override texture 0.
-instance.setTexture(0); // Remove the override.
-```
-
-MDX instances have also `setParticle2Texture` and `setEventTexture` to override the textures of particle emitters and event emitters respectively.
-
-```javascript
 instance.setParticle2Texture(0, myTexture); // Override the texture of particle emitter 0.
 instance.setEventTexture(0, myTexture); // Override the texture of event emitter 0.
+
+instance.setTexture(0); // Remove the override, same with the other functions.
+```
+
+M3 instances have `setTexture`:
+```javascript
+instance.setTexture(1, 0, myTexture); // Override texture 0 of standard material 1.
 ```
 
 #### Everything is blurry
@@ -426,4 +433,4 @@ instance.setEventTexture(0, myTexture); // Override the texture of event emitter
 WebGL uses a canvas as its back buffer, meaning it has the same amount of pixels as the canvas does. Surprising, right?\
 What may actually surprise you, however, is that the canvas back buffer isn't neccassarily the size it is drawn at, due to CSS styling.\
 For example, you can have a canvas that is scaled via CSS to the entire page, but if you never set its actual size, it will probably be a 100x100 pixel canvas (or whatever default size the browser uses), stretched to the page size.\
-If you want to set the size of the back buffer, i.e. the real resolution of the canvas, use the `width` and `height` properties of the canvas, rather than properties controlled by CSS such as `clientWidth` and `clientHeight`.
+If you want to set the size of the back buffer, i.e. the real resolution of the canvas, use the `width` and `height` properties of the canvas, rather than CSS properties such as `clientWidth` and `clientHeight`.

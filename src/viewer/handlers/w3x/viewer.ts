@@ -175,7 +175,7 @@ export default class War3MapViewer extends ModelViewer {
       });
   }
 
-  load(src: any) {
+  loadMapResource(src: any) {
     return super.load(src, <PathSolver>this.mapPathSolver, this.solverParams);
   }
 
@@ -310,7 +310,7 @@ export default class War3MapViewer extends ModelViewer {
       let row = this.terrainData.getRow(groundTileset);
 
       this.tilesets.push(row);
-      tilesetTextures.push(this.load(`${row.dir}\\${row.file}${texturesExt}`));
+      tilesetTextures.push(this.loadMapResource(`${row.dir}\\${row.file}${texturesExt}`));
     }
 
     let blights = {
@@ -335,13 +335,13 @@ export default class War3MapViewer extends ModelViewer {
     };
 
     this.blightTextureIndex = this.tilesetTextures.length;
-    tilesetTextures.push(this.load(`TerrainArt\\Blight\\${blights[tileset]}_Blight${texturesExt}`));
+    tilesetTextures.push(this.loadMapResource(`TerrainArt\\Blight\\${blights[tileset]}_Blight${texturesExt}`));
 
     for (let cliffTileset of w3e.cliffTilesets) {
       let row = this.cliffTypesData.getRow(cliffTileset);
 
       this.cliffTilesets.push(row);
-      cliffTextures.push(this.load(`${row.texDir}\\${row.texFile}${texturesExt}`));
+      cliffTextures.push(this.loadMapResource(`${row.texDir}\\${row.texFile}${texturesExt}`));
     }
 
     let waterRow = this.waterData.getRow(`${tileset}Sha`);
@@ -355,7 +355,7 @@ export default class War3MapViewer extends ModelViewer {
     this.minShallowColor.set([<number>waterRow.Smin_R, <number>waterRow.Smin_G, <number>waterRow.Smin_B, <number>waterRow.Smin_A]);
 
     for (let i = 0, l = waterRow.numTex; i < l; i++) {
-      waterTextures.push(this.load(`${waterRow.texFile}${i < 10 ? '0' : ''}${i}${texturesExt}`));
+      waterTextures.push(this.loadMapResource(`${waterRow.texFile}${i < 10 ? '0' : ''}${i}${texturesExt}`));
     }
 
     this.tilesetTextures = <Texture[]>await Promise.all(tilesetTextures);
@@ -584,9 +584,9 @@ export default class War3MapViewer extends ModelViewer {
       let promise;
 
       if (mpqFile) {
-        promise = this.load(mpqFile.name);
+        promise = this.loadMapResource(mpqFile.name);
       } else {
-        promise = this.load(fileVar);
+        promise = this.loadMapResource(fileVar);
       }
 
       promise.then((model) => {
@@ -600,7 +600,7 @@ export default class War3MapViewer extends ModelViewer {
     for (let doodad of doo.terrainDoodads) {
       let row = this.doodadsData.getRow(doodad.id);
 
-      this.load(`${row.file}.mdx`)
+      this.loadMapResource(`${row.file}.mdx`)
         .then((model) => {
           if (model) {
             this.terrainDoodads.push(new TerrainDoodad(this, <MdxModel>model, row, doodad))
@@ -679,7 +679,7 @@ export default class War3MapViewer extends ModelViewer {
       }
 
       if (path) {
-        this.load(path)
+        this.loadMapResource(path)
           .then((model) => {
             if (model) {
               this.units.push(new Unit(this, <MdxModel>model, row, unit));
