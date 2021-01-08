@@ -2,8 +2,6 @@ import { testSphere, distanceToPlane3 } from '../common/gl-matrix-addon';
 import { Node } from './node';
 import Model from './model';
 import Scene from './scene';
-import ResourceMapper from './resourcemapper';
-import { Resource } from './resource';
 import Camera from './camera';
 
 /**
@@ -20,7 +18,6 @@ export default abstract class ModelInstance extends Node {
   updateFrame: number = 0;
   cullFrame: number = 0;
   model: Model;
-  resourceMapper: ResourceMapper;
   /**
    * If true, this instance won't be updated.
    */
@@ -37,16 +34,6 @@ export default abstract class ModelInstance extends Node {
     super();
 
     this.model = model;
-    this.resourceMapper = model.viewer.baseTextureMapper(model);
-  }
-
-  /**
-   * Set the texture at the given index to the given texture.
-   * 
-   * If a texture isn't given, the key is deleted instead.
-   */
-  setResource(index: number, resource?: Resource) {
-    this.resourceMapper = this.model.viewer.changeResourceMapper(this, index, resource);
   }
 
   /**
@@ -167,10 +154,6 @@ export default abstract class ModelInstance extends Node {
       return true;
     }
 
-    return false;
-  }
-
-  isBatched() {
     return false;
   }
 }

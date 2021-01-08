@@ -2,7 +2,6 @@ import Reference from '../../../parsers/m3/reference';
 import Layer from '../../../parsers/m3/layer';
 import Texture from '../../texture';
 import ShaderProgram from '../../gl/program';
-import ResourceMapper from '../../resourcemapper';
 import { M3StandardMaterial, STANDARD_MATERIAL_OFFSET } from './standardmaterial';
 import M3Model from './model';
 import M3Texture from './texture';
@@ -129,7 +128,7 @@ export default class M3Layer {
     }
   }
 
-  bind(shader: ShaderProgram, resourceMapper: ResourceMapper) {
+  bind(shader: ShaderProgram, textureOverrides: Map<number, Texture>) {
     let gl = this.gl;
     let uniformMap = this.uniformMap;
     let uniforms = shader.uniforms;
@@ -139,7 +138,7 @@ export default class M3Layer {
 
     if (active) {
       let m3Texture = <M3Texture>this.texture;
-      let texture = <Texture | undefined>resourceMapper.get(this.material.index * STANDARD_MATERIAL_OFFSET + this.index) || m3Texture.texture;
+      let texture = textureOverrides.get(this.material.index * STANDARD_MATERIAL_OFFSET + this.index) || m3Texture.texture;
       let textureUnit = this.textureUnit;
 
       gl.uniform1i(uniforms[uniformMap.map], textureUnit);

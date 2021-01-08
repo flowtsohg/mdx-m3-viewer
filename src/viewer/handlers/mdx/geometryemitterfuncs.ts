@@ -136,7 +136,7 @@ function bindParticleEmitter2Buffer(emitter: ParticleEmitter2, buffer: ClientBuf
 
 function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: ShaderProgram) {
   let instance = <MdxModelInstance>emitter.instance;
-  let resourceMapper = instance.resourceMapper;
+  let textureOverrides = instance.textureOverrides;
   let scene = <Scene>instance.scene;
   let camera = scene.camera;
   let emitterObject = <ParticleEmitter2Object>emitter.emitterObject;
@@ -153,7 +153,7 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: ShaderPro
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 
-  let texture = <Texture | undefined>resourceMapper.get(EMITTER_PARTICLE2_TEXTURE_OFFSET + emitterObject.index);
+  let texture = textureOverrides.get(EMITTER_PARTICLE2_TEXTURE_OFFSET + emitterObject.index);
 
   if (!texture) {
     if (replaceable === 1) {
@@ -254,14 +254,15 @@ function bindRibbonEmitterBuffer(emitter: RibbonEmitter, buffer: ClientBuffer) {
 }
 
 function bindRibbonEmitterShader(emitter: RibbonEmitter, shader: ShaderProgram) {
-  let resourceMapper = emitter.instance.resourceMapper;
+  let instance = <MdxModelInstance>emitter.instance;
+  let textureOverrides = instance.textureOverrides;
   let emitterObject = <RibbonEmitterObject>emitter.emitterObject;
   let layer = emitterObject.layer;
   let model = emitterObject.model;
   let gl = model.viewer.gl;
   let uniforms = shader.uniforms;
   let texture = model.textures[layer.textureId];
-  let actualTexture = <Texture | undefined>resourceMapper.get(layer.textureId) || texture.texture;
+  let actualTexture = textureOverrides.get(layer.textureId) || texture.texture;
 
   layer.bind(shader);
 
@@ -301,7 +302,8 @@ function bindEventObjectEmitterBuffer(emitter: EventObjectSplEmitter | EventObje
 }
 
 function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader: ShaderProgram) {
-  let resourceMapper = emitter.instance.resourceMapper;
+  let instance = <MdxModelInstance>emitter.instance;
+  let textureOverrides = instance.textureOverrides;
   let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
   let intervalTimes = <Float32Array>emitterObject.intervalTimes;
   let intervals = <Float32Array[]>emitterObject.intervals;
@@ -310,7 +312,7 @@ function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader:
   let gl = model.viewer.gl;
   let uniforms = shader.uniforms;
   let texture = <MdxTexture>emitterObject.internalTexture;
-  let actualTexture = <Texture | undefined>resourceMapper.get(EMITTER_EVENT_TEXTURE_OFFSET + emitterObject.index) || texture.texture;
+  let actualTexture = textureOverrides.get(EMITTER_EVENT_TEXTURE_OFFSET + emitterObject.index) || texture.texture;
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 
@@ -332,7 +334,8 @@ function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader:
 }
 
 function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader: ShaderProgram) {
-  let resourceMapper = emitter.instance.resourceMapper;
+  let instance = <MdxModelInstance>emitter.instance;
+  let textureOverrides = instance.textureOverrides;
   let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
   let intervalTimes = <Float32Array>emitterObject.intervalTimes;
   let colors = <Float32Array[]>emitterObject.colors;
@@ -341,7 +344,7 @@ function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader:
   let gl = viewer.gl;
   let uniforms = shader.uniforms;
   let texture = <MdxTexture>emitterObject.internalTexture;
-  let actualTexture = <Texture | undefined>resourceMapper.get(EMITTER_EVENT_TEXTURE_OFFSET + emitterObject.index) || texture.texture;
+  let actualTexture = textureOverrides.get(EMITTER_EVENT_TEXTURE_OFFSET + emitterObject.index) || texture.texture;
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 

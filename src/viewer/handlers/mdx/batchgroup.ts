@@ -24,7 +24,7 @@ export default class BatchGroup {
 
   render(instance: MdxModelInstance) {
     let scene = <Scene>instance.scene;
-    let resourceMapper = instance.resourceMapper;
+    let textureOverrides = instance.textureOverrides;
     let layerAlphas = instance.layerAlphas;
     let model = this.model;
     let textures = model.textures;
@@ -101,8 +101,8 @@ export default class BatchGroup {
           let ormTexture = textures[ormId];
           let tcTexture = teamColors[instance.teamColor];
 
-          let actualDiffuseTexture = <Texture | undefined>resourceMapper.get(diffuseId) || diffuseTexture.texture;
-          let actualOrmTexture = <Texture | undefined>resourceMapper.get(ormId) || ormTexture.texture;
+          let actualDiffuseTexture = textureOverrides.get(diffuseId) || diffuseTexture.texture;
+          let actualOrmTexture = textureOverrides.get(ormId) || ormTexture.texture;
 
           webgl.bindTextureAndWrap(actualDiffuseTexture, 0, diffuseTexture.wrapS, diffuseTexture.wrapT);
           webgl.bindTextureAndWrap(actualOrmTexture, 1, ormTexture.wrapS, ormTexture.wrapT);
@@ -143,7 +143,7 @@ export default class BatchGroup {
 
           layer.bind(shader);
 
-          let texture = <Texture | undefined>resourceMapper.get(textureIndex);
+          let texture = textureOverrides.get(textureIndex);
 
           if (!texture) {
             let replaceable = layerTexture.replaceableId;

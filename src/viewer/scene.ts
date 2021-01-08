@@ -3,9 +3,6 @@ import ModelViewer from './viewer';
 import Camera from './camera';
 import Grid from './grid';
 import ModelInstance from './modelinstance';
-import BatchedInstance from './batchedinstance';
-import ResourceMapper from './resourcemapper';
-import RenderBatch from './renderbatch';
 import EmittedObjectUpdater from './emittedobjectupdater';
 
 /**
@@ -27,10 +24,6 @@ export default class Scene {
   audioEnabled: boolean = false;
   audioContext?: AudioContext;
   instances: ModelInstance[] = [];
-  currentInstance: number = 0;
-  batchedInstances: BatchedInstance[] = [];
-  currentBatchedInstance: number = 0;
-  batches: Map<ResourceMapper, RenderBatch> = new Map();
   emittedObjectUpdater: EmittedObjectUpdater = new EmittedObjectUpdater();
   /**
    * Similar to WebGL's own `alpha` parameter.
@@ -172,20 +165,6 @@ export default class Scene {
     return false;
   }
 
-  addToBatch(instance: BatchedInstance) {
-    let resourceMapper = instance.resourceMapper;
-    let batches = this.batches;
-    let batch = batches.get(resourceMapper);
-
-    if (!batch) {
-      batch = instance.getBatch(resourceMapper);
-
-      batches.set(resourceMapper, batch);
-    }
-
-    batch.add(instance);
-  }
-
   /**
    * Update this scene.
    */
@@ -197,22 +176,26 @@ export default class Scene {
 
     // Update the audio context's position if it exists.
     if (this.audioContext) {
-      let [x, y, z] = camera.location;
-      let [forwardX, forwardY, forwardZ] = camera.directionY;
-      let [upX, upY, upZ] = camera.directionZ;
       let listener = this.audioContext.listener;
+      let position = camera.location;
+      let forward = camera.directionY;
+      let up = camera.directionZ;
 
-      listener.setPosition(-x, -y, -z);
-      listener.setOrientation(forwardX, forwardY, forwardZ, upX, upY, upZ);
+      listener.positionX.value = -position[0];
+      listener.positionY.value = -position[1];
+      listener.positionZ.value = -position[2];
+
+      listener.forwardX.value = forward[0];
+      listener.forwardY.value = forward[1];
+      listener.forwardZ.value = forward[2];
+
+      listener.upX.value = up[0];
+      listener.upY.value = up[1];
+      listener.upZ.value = up[2];
     }
 
     let frame = this.viewer.frame;
-
     let instances = this.instances;
-    let batchedInstances = this.batchedInstances;
-
-    let currentInstance = 0;
-    let currentBatchedInstance = 0;
 
     this.visibleCells = 0;
     this.visibleInstances = 0;
@@ -230,21 +213,14 @@ export default class Scene {
               instance.update(dt, this);
             }
 
-            if (instance.isBatched()) {
-              batchedInstances[currentBatchedInstance++] = <BatchedInstance>instance;
-            } else {
-              instances[currentInstance++] = instance;
-            }
-
-            this.visibleInstances += 1;
+            instances[this.visibleInstances++] = instance;
           }
         }
       }
     }
 
-    batchedInstances.length = currentBatchedInstance;
-
-    instances.length = currentInstance;
+    // Sort the visible instances based on depth.
+    instances.length = this.visibleInstances;
     instances.sort((a, b) => b.depth - a.depth);
 
     this.emittedObjectUpdater.update(dt);
@@ -282,21 +258,6 @@ export default class Scene {
    * Render all opaque things in this scene.
    */
   renderOpaque() {
-    // Clear all of the batches.
-    for (let batch of this.batches.values()) {
-      batch.clear();
-    }
-
-    // Add all of the batched instances to batches.
-    for (let instance of this.batchedInstances) {
-      this.addToBatch(instance);
-    }
-
-    // Render all of the batches.
-    for (let batch of this.batches.values()) {
-      batch.render();
-    }
-
     // Render all of the opaque things of non-batched instances.
     for (let instance of this.instances) {
       instance.renderOpaque();

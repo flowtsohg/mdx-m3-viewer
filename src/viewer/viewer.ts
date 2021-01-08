@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events';
 import { FetchDataTypeName, FetchDataType, FetchResult, fetchDataType } from '../common/fetchdatatype';
-import mapequals from '../common/mapequals';
 import WebGL from './gl/gl';
 import Scene from './scene';
 import { Resource } from './resource';
@@ -8,8 +7,6 @@ import { PathSolver, HandlerResourceData, HandlerResource } from './handlerresou
 import GenericResource from './genericresource';
 import ClientBuffer from './gl/clientbuffer';
 import Model from './model';
-import ModelInstance from './modelinstance';
-import ResourceMapper from './resourcemapper';
 import { isImageSource, ImageTexture, detectMime } from './imagetexture';
 import { blobToImage } from '../common/canvas';
 
@@ -60,7 +57,6 @@ export default class ModelViewer extends EventEmitter {
    * Note that it is preferable to call enableAudio(), which checks for the existence of AudioContext.
    */
   audioEnabled: boolean = false;
-  resourceMappers: Map<Model, ResourceMapper[]> = new Map();
   /**
    * A cache of arbitrary data, shared between all of the handlers.
    */
@@ -513,46 +509,5 @@ export default class ModelViewer extends EventEmitter {
     for (let scene of this.scenes) {
       scene.clearEmittedObjects();
     }
-  }
-
-  baseTextureMapper(model: Model) {
-    let resourceMappers = this.resourceMappers;
-
-    if (!resourceMappers.has(model)) {
-      resourceMappers.set(model, []);
-    }
-
-    let mappers = <ResourceMapper[]>resourceMappers.get(model);
-
-    if (!mappers.length) {
-      mappers[0] = new ResourceMapper(model);
-    }
-
-    return mappers[0];
-  }
-
-  changeResourceMapper(instance: ModelInstance, index: number, resource?: Resource) {
-    let map = new Map(instance.resourceMapper.resources);
-
-    if (resource instanceof Resource) {
-      map.set(index, resource);
-    } else {
-      map.delete(index);
-    }
-
-    let model = instance.model;
-    let mappers = <ResourceMapper[]>this.resourceMappers.get(model);
-
-    for (let mapper of mappers) {
-      if (mapequals(mapper.resources, map)) {
-        return mapper;
-      }
-    }
-
-    let mapper = new ResourceMapper(model, map);
-
-    mappers.push(mapper);
-
-    return mapper;
   }
 }
