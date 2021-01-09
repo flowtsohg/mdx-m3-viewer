@@ -5,20 +5,20 @@ import Reference from './reference';
 /**
  * A division.
  */
-export default class M3ParserDivision {
-  version: number;
-  triangles: Reference;
-  regions: Reference;
-  batches: Reference;
-  MSEC: Reference;
-  unknown0: number;
+export default class Division {
+  version: number = -1;
+  triangles: Reference = new Reference();
+  regions: Reference = new Reference();
+  batches: Reference = new Reference();
+  MSEC: Reference = new Reference();
+  unknown0: number = 0;
 
-  constructor(reader: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;
-    this.triangles = new Reference(reader, index);
-    this.regions = new Reference(reader, index);
-    this.batches = new Reference(reader, index);
-    this.MSEC = new Reference(reader, index);
-    this.unknown0 = reader.readUint32();
+    this.triangles.load(stream, index);
+    this.regions.load(stream, index);
+    this.batches.load(stream, index);
+    this.MSEC.load(stream, index);
+    this.unknown0 = stream.readUint32();
   }
 }

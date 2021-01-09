@@ -5,7 +5,6 @@ import Scene from './scene';
 const locationHeap = vec3.create();
 const rotationHeap = quat.create();
 const scalingHeap = vec3.create();
-const faceHeap = mat4.create();
 
 /**
  * A node.

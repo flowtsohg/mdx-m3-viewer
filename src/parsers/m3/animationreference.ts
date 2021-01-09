@@ -3,92 +3,92 @@ import BinaryStream from '../../common/binarystream'
 /**
  * The base class to all animation references.
  */
-export abstract class M3ParserAnimationReference {
-  interpolationType: number;
-  animFlags: number;
-  animId: number;
+export abstract class AnimationReference {
+  interpolationType: number = 0;
+  animFlags: number = 0;
+  animId: number = -1;
   initValue: any;
   nullValue: any;
 
-  abstract readInitNullValues(reader: BinaryStream): void;
+  abstract readInitNullValues(stream: BinaryStream): void;
 
-  constructor(reader: BinaryStream) {
-    this.interpolationType = reader.readUint16();
-    this.animFlags = reader.readUint16();
-    this.animId = reader.readUint32();
+  load(stream: BinaryStream) {
+    this.interpolationType = stream.readUint16();
+    this.animFlags = stream.readUint16();
+    this.animId = stream.readUint32();
 
-    this.readInitNullValues(reader);
+    this.readInitNullValues(stream);
 
-    reader.skip(4); // ?
+    stream.skip(4); // ?
   }
 }
 
 /**
  * A pixel animation reference.
  */
-export class M3ParserPixelAnimationReference extends M3ParserAnimationReference {
-  readInitNullValues(reader: BinaryStream) {
-    this.initValue = reader.readUint8Array(4);
-    this.nullValue = reader.readUint8Array(4);
+export class PixelAnimationReference extends AnimationReference {
+  readInitNullValues(stream: BinaryStream) {
+    this.initValue = stream.readUint8Array(4);
+    this.nullValue = stream.readUint8Array(4);
   }
 }
 
 /**
  * A uint16 animation reference.
  */
-export class M3ParserUint16AnimationReference extends M3ParserAnimationReference {
-  readInitNullValues(reader: BinaryStream) {
-    this.initValue = reader.readUint16();
-    this.nullValue = reader.readUint16();
+export class Uint16AnimationReference extends AnimationReference {
+  readInitNullValues(stream: BinaryStream) {
+    this.initValue = stream.readUint16();
+    this.nullValue = stream.readUint16();
   }
 }
 
 /**
  * A uint32 animation reference.
  */
-export class M3ParserUint32AnimationReference extends M3ParserAnimationReference {
-  readInitNullValues(reader: BinaryStream) {
-    this.initValue = reader.readUint32();
-    this.nullValue = reader.readUint32();
+export class Uint32AnimationReference extends AnimationReference {
+  readInitNullValues(stream: BinaryStream) {
+    this.initValue = stream.readUint32();
+    this.nullValue = stream.readUint32();
   }
 }
 
 /**
  * A float32 animation reference.
  */
-export class M3ParserFloat32AnimationReference extends M3ParserAnimationReference {
-  readInitNullValues(reader: BinaryStream) {
-    this.initValue = reader.readFloat32();
-    this.nullValue = reader.readFloat32();
+export class Float32AnimationReference extends AnimationReference {
+  readInitNullValues(stream: BinaryStream) {
+    this.initValue = stream.readFloat32();
+    this.nullValue = stream.readFloat32();
   }
 }
 
 /**
  * A vec2 animation reference.
  */
-export class M3ParserVector2AnimationReference extends M3ParserAnimationReference {
-  readInitNullValues(reader: BinaryStream) {
-    this.initValue = reader.readFloat32Array(2);
-    this.nullValue = reader.readFloat32Array(2);
+export class Vector2AnimationReference extends AnimationReference {
+  readInitNullValues(stream: BinaryStream) {
+    this.initValue = stream.readFloat32Array(2);
+    this.nullValue = stream.readFloat32Array(2);
   }
 }
 
 /**
  * A vec3 animation reference.
  */
-export class M3ParserVector3AnimationReference extends M3ParserAnimationReference {
-  readInitNullValues(reader: BinaryStream) {
-    this.initValue = reader.readFloat32Array(3);
-    this.nullValue = reader.readFloat32Array(3);
+export class Vector3AnimationReference extends AnimationReference {
+  readInitNullValues(stream: BinaryStream) {
+    this.initValue = stream.readFloat32Array(3);
+    this.nullValue = stream.readFloat32Array(3);
   }
 }
 
 /**
  * A quat animation reference.
  */
-export class M3ParserVector4AnimationReference extends M3ParserAnimationReference {
-  readInitNullValues(reader: BinaryStream) {
-    this.initValue = reader.readFloat32Array(4);
-    this.nullValue = reader.readFloat32Array(4);
+export class Vector4AnimationReference extends AnimationReference {
+  readInitNullValues(stream: BinaryStream) {
+    this.initValue = stream.readFloat32Array(4);
+    this.nullValue = stream.readFloat32Array(4);
   }
 }

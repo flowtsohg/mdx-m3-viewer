@@ -5,43 +5,37 @@ import Reference from './reference';
 /**
  * An animation timeline.
  */
-export default class M3ParserStc {
-  version: number;
-  name: Reference;
-  runsConcurrent: number;
-  priority: number;
-  stsIndex: number;
-  stsIndexCopy: number;
-  animIds: Reference;
-  animRefs: Reference;
-  sd: Reference[];
+export default class Stc {
+  version: number = -1;
+  name: Reference = new Reference();
+  runsConcurrent: number = 0;
+  priority: number = 0;
+  stsIndex: number = -1;
+  stsIndexCopy: number = -1;
+  animIds: Reference = new Reference();
+  animRefs: Reference = new Reference();
+  sd: Reference[] = [];
 
-  constructor(reader: BinaryStream, version: number, index: IndexEntry[]) {
+  constructor() {
+    for (let i = 0; i < 13; i++) {
+      this.sd[i] = new Reference();
+    }
+  }
+
+  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;
-    this.name = new Reference(reader, index);
-    this.runsConcurrent = reader.readUint16();
-    this.priority = reader.readUint16();
-    this.stsIndex = reader.readUint16();
-    this.stsIndexCopy = reader.readUint16(); // ?
-    this.animIds = new Reference(reader, index);
-    this.animRefs = new Reference(reader, index);
+    this.name.load(stream, index);
+    this.runsConcurrent = stream.readUint16();
+    this.priority = stream.readUint16();
+    this.stsIndex = stream.readUint16();
+    this.stsIndexCopy = stream.readUint16(); // ?
+    this.animIds.load(stream, index);
+    this.animRefs.load(stream, index);
 
-    reader.skip(4); // ?
+    stream.skip(4); // ?
 
-    this.sd = [
-      new Reference(reader, index),
-      new Reference(reader, index),
-      new Reference(reader, index),
-      new Reference(reader, index),
-      new Reference(reader, index),
-      new Reference(reader, index),
-      new Reference(reader, index),
-      new Reference(reader, index),
-      new Reference(reader, index),
-      new Reference(reader, index),
-      new Reference(reader, index),
-      new Reference(reader, index),
-      new Reference(reader, index),
-    ];
+    for (let i = 0; i < 13; i++) {
+      this.sd[i].load(stream, index);
+    }
   }
 }

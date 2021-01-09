@@ -4,44 +4,48 @@ import IndexEntry from './indexentry';
 /**
  * A reference.
  */
-export default class M3ParserReference {
-  index: IndexEntry[];
-  entries: number;
-  id: number;
-  flags: number;
+export default class Reference {
+  index: IndexEntry[] | undefined;
+  entries: number = 0;
+  id: number = 0;
+  flags: number = 0;
 
-  constructor(reader: BinaryStream, index: IndexEntry[]) {
+  load(stream: BinaryStream, index: IndexEntry[]) {
     this.index = index;
-    this.entries = reader.readUint32();
-    this.id = reader.readUint32();
-    this.flags = reader.readUint32();
+    this.entries = stream.readUint32();
+    this.id = stream.readUint32();
+    this.flags = stream.readUint32();
   }
 
   /**
    * Get the entries this index entry references.
    */
   get() {
-    let id = this.id;
+    if (this.index) {
+      let id = this.id;
 
-    // For empty references (e.g. Layer.imagePath)
-    if (id === 0 || this.entries === 0) {
-      return [];
+      // For empty references (e.g. Layer.imagePath)
+      if (id === 0 || this.entries === 0) {
+        return [];
+      }
+
+      return this.index[id].entries;
     }
-
-    return this.index[id].entries;
   }
 
   /**
    * Get the first entry this index entry references.
    */
   first() {
-    let id = this.id;
+    if (this.index) {
+      let id = this.id;
 
-    if (id !== 0 && this.entries !== 0) {
-      let entries = this.index[id].entries;
+      if (id !== 0 && this.entries !== 0) {
+        let entries = this.index[id].entries;
 
-      if (entries) {
-        return entries[0];
+        if (entries) {
+          return entries[0];
+        }
       }
     }
   }

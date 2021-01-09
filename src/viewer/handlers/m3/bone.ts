@@ -1,5 +1,5 @@
 import Bone from '../../../parsers/m3/bone';
-import { M3ParserUint32AnimationReference, M3ParserVector3AnimationReference, M3ParserVector4AnimationReference } from '../../../parsers/m3/animationreference';
+import { M3Uint32AnimationReference, M3Vector3AnimationReference, M3Vector4AnimationReference } from '../../../parsers/m3/animationreference';
 
 /**
  * An M3 bone.
@@ -7,10 +7,10 @@ import { M3ParserUint32AnimationReference, M3ParserVector3AnimationReference, M3
 export default class M3Bone {
   name: string;
   parent: number;
-  location: M3ParserVector3AnimationReference;
-  rotation: M3ParserVector4AnimationReference;
-  scale: M3ParserVector3AnimationReference;
-  visibility: M3ParserUint32AnimationReference;
+  location: M3Vector3AnimationReference;
+  rotation: M3Vector4AnimationReference;
+  scale: M3Vector3AnimationReference;
+  visibility: M3Uint32AnimationReference;
   inhertTranslation: number;
   inheritScale: number;
   inheritRotation: number;

@@ -40,6 +40,11 @@ export default class M3ModelInstance extends ModelInstance {
     this.boneTexture = new DataTexture(model.viewer.gl, 3, boneLookup.length * 4, 1);
   }
 
+  /**
+   * Override the texture of the layer at the given index in the material at the given index.
+   * 
+   * If a texture isn't given, removes the override if there was one.
+   */
   setTexture(material: number, layer: number, texture?: Texture) {
     this.overrideTexture(material * STANDARD_MATERIAL_OFFSET + layer, texture);
   }

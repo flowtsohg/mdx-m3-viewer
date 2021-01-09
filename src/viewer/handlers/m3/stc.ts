@@ -1,5 +1,5 @@
 import M3ParserStc from '../../../parsers/m3/stc';
-import { M3ParserAnimationReference } from '../../../parsers/m3/animationreference';
+import { M3AnimationReference } from '../../../parsers/m3/animationreference';
 import M3ModelInstance from './modelinstance';
 import M3SdContainer from './sd';
 import M3ParserSd from '../../../parsers/m3/sd';
@@ -16,7 +16,7 @@ export default class M3Stc {
   sd: M3SdContainer[];
 
   constructor(stc: M3ParserStc) {
-    const animIds = stc.animIds.get();
+    const animIds = <Uint32Array>stc.animIds.get();
 
     this.name = <string>stc.name.get();
     this.runsConcurrent = stc.runsConcurrent;
@@ -36,7 +36,7 @@ export default class M3Stc {
     this.sd = stc.sd.map((sd) => new M3SdContainer(<M3ParserSd[]>sd.get()));
   }
 
-  getValueUnsafe(animRef: M3ParserAnimationReference, instance: M3ModelInstance) {
+  getValueUnsafe(animRef: M3AnimationReference, instance: M3ModelInstance) {
     const ref = this.animRefs[animRef.animId];
 
     if (ref) {

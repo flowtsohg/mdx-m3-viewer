@@ -5,18 +5,18 @@ import Reference from './reference';
 /**
  * Sequence data.
  */
-export default class M3ParserSd {
-  version: number;
-  keys: Reference;
-  flags: number;
-  biggestKey: number;
-  values: Reference;
+export default class Sd {
+  version: number = -1;
+  keys: Reference = new Reference();
+  flags: number = 0;
+  biggestKey: number = -1;
+  values: Reference = new Reference();
 
-  constructor(reader: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;
-    this.keys = new Reference(reader, index);
-    this.flags = reader.readUint32();
-    this.biggestKey = reader.readUint32();
-    this.values = new Reference(reader, index);
+    this.keys.load(stream, index);
+    this.flags = stream.readUint32();
+    this.biggestKey = stream.readUint32();
+    this.values.load(stream, index);
   }
 }

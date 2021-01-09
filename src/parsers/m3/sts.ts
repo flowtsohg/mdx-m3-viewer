@@ -5,13 +5,13 @@ import Reference from './reference';
 /**
  * An animation validator.
  */
-export default class M3ParserSts {
-  version: number;
-  animIds: Reference;
+export default class Sts {
+  version: number = -1;
+  animIds: Reference = new Reference();
 
-  constructor(reader: BinaryStream, version: number, index: IndexEntry[]) {
+  load(reader: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;
-    this.animIds = new Reference(reader, index);
+    this.animIds.load(reader, index);
 
     reader.skip(16); // ?
   }

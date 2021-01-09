@@ -1,22 +1,11 @@
 import BinaryStream from '../../common/binarystream';
 import MpqArchive from '../mpq/archive';
-import War3MapDoo from './doo/file';
 import War3MapImp from './imp/file';
-// import War3MapMmp from './mmp/file';
-// import War3MapShd from './shd/file';
-// import War3MapW3c from './w3c/file';
 import War3MapW3d from './w3d/file';
-import War3MapW3e from './w3e/file';
-import War3MapW3i from './w3i/file';
-// import War3MapW3o from './w3o/file';
-// import War3MapW3r from './w3r/file';
-// import War3MapW3s from './w3s/file';
 import War3MapW3u from './w3u/file';
 import War3MapWct from './wct/file';
-// import War3MapWpm from './wpm/file';
 import War3MapWtg from './wtg/file';
 import War3MapWts from './wts/file';
-import War3MapUnitsDoo from './unitsdoo/file';
 import TriggerData from './wtg/triggerdata';
 
 type War3MapModificationNames = 'w3a' | 'w3b' | 'w3d' | 'w3h' | 'w3q' | 'w3t' | 'w3u';

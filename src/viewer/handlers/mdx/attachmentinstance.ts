@@ -31,7 +31,7 @@ export default class AttachmentInstance {
     let instance = this.instance;
     let internalInstance = this.internalInstance;
 
-    if (instance.scene) {
+    if (instance.scene && instance.sequence !== -1) {
       this.attachment.getVisibility(visibilityHeap, instance.sequence, instance.frame, instance.counter);
 
       if (visibilityHeap[0] > 0.1) {

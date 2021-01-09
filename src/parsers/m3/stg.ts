@@ -5,14 +5,14 @@ import Reference from './reference';
 /**
  * An animation getter.
  */
-export default class M3ParserStg {
-  version: number;
-  name: Reference;
-  stcIndices: Reference;
+export default class Stg {
+  version: number = -1;
+  name: Reference = new Reference();
+  stcIndices: Reference = new Reference();
 
-  constructor(reader: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;
-    this.name = new Reference(reader, index);
-    this.stcIndices = new Reference(reader, index);
+    this.name.load(stream, index);
+    this.stcIndices.load(stream, index);
   }
 }

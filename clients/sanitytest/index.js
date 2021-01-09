@@ -56,6 +56,7 @@ let visibleTest = null;
       }
 
       visibleTest.setSequence(sequence);
+      viewer.clearEmittedObjects();
     }
 
     animationFrameElement.innerText = `${Math.floor(instance.frame)}`;
@@ -208,6 +209,8 @@ class TestInstance {
   setSequence(sequence) {
     this.instance.setSequence(sequence);
     this.animationSelector.selectedIndex = sequence + 1;
+
+    this.instance.model.viewer.clearEmittedObjects();
   }
 
   show() {

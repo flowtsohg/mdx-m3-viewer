@@ -1,6 +1,15 @@
 import Parser from '../../../parsers/m3/model';
 import M3ParserModel from '../../../parsers/m3/modelheader';
 import M3ParserDivision from '../../../parsers/m3/division';
+import StandardMaterial from '../../../parsers/m3/standardmaterial';
+import Sequence from '../../../parsers/m3/sequence';
+import Region from '../../../parsers/m3/region';
+import Bone from '../../../parsers/m3/bone';
+import Stc from '../../../parsers/m3/stc';
+import Sts from '../../../parsers/m3/sts';
+import Stg from '../../../parsers/m3/stg';
+import AttachmentPoint from '../../../parsers/m3/attachmentpoint';
+import Camera from '../../../parsers/m3/camera';
 import Model from '../../model';
 import { M3StandardMaterial } from './standardmaterial';
 import M3Bone from './bone';
@@ -46,7 +55,9 @@ export default class M3Model extends Model {
     if (bufferOrParser instanceof Parser) {
       parser = bufferOrParser;
     } else {
-      parser = new Parser(bufferOrParser);
+      parser = new Parser();
+
+      parser.load(bufferOrParser);
     }
 
     let model = <M3ParserModel>parser.model;
@@ -62,7 +73,7 @@ export default class M3Model extends Model {
 
     // Create concrete material objects for standard materials
 
-    let standardMaterials = model.materials[0].get();
+    let standardMaterials = <StandardMaterial[]>model.materials[0].get();
 
     for (let i = 0, l = standardMaterials.length; i < l; i++) {
       this.materials[1].push(new M3StandardMaterial(this, i, standardMaterials[i]));
@@ -124,25 +135,25 @@ export default class M3Model extends Model {
 
     this.initialReference = <Float32Array[]>model.absoluteInverseBoneRestPositions.get();
 
-    for (let bone of model.bones.get()) {
+    for (let bone of <Bone[]>model.bones.get()) {
       this.bones.push(new M3Bone(bone));
     }
 
     this.boneLookup = <Uint16Array>model.boneLookup.get();
 
-    for (let sequence of model.sequences.get()) {
+    for (let sequence of <Sequence[]>model.sequences.get()) {
       this.sequences.push(new M3Sequence(sequence));
     }
 
-    for (let sts of model.sts.get()) {
+    for (let sts of <Sts[]>model.sts.get()) {
       this.sts.push(new M3Sts(sts));
     }
 
-    for (let stc of model.stc.get()) {
+    for (let stc of <Stc[]>model.stc.get()) {
       this.stc.push(new M3Stc(stc));
     }
 
-    for (let stg of model.stg.get()) {
+    for (let stg of <Stg[]>model.stg.get()) {
       this.stg.push(new M3Stg(stg, this.sts, this.stc));
     }
 
@@ -165,11 +176,11 @@ export default class M3Model extends Model {
     }
     */
 
-    for (let attachment of model.attachmentPoints.get()) {
+    for (let attachment of <AttachmentPoint[]>model.attachmentPoints.get()) {
       this.attachments.push(new M3AttachmentPoint(attachment));
     }
 
-    for (let camera of model.cameras.get()) {
+    for (let camera of <Camera[]>model.cameras.get()) {
       this.cameras.push(new M3Camera(camera));
     }
   }
@@ -191,7 +202,7 @@ export default class M3Model extends Model {
       uvSetCount = 4;
     }
 
-    let regions = div.regions.get();
+    let regions = <Region[]>div.regions.get();
     let totalElements = 0;
     let offsets = [];
 

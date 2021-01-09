@@ -6,34 +6,34 @@ import BoundingSphere from './boundingsphere';
 /**
  * A sequence.
  */
-export default class M3ParserSequence {
-  version: number;
-  name: Reference;
-  interval: Uint32Array;
-  movementSpeed: number;
-  flags: number;
-  frequency: number;
-  boundingSphere: BoundingSphere;
+export default class Sequence {
+  version: number = -1;
+  name: Reference = new Reference();
+  interval: Uint32Array = new Uint32Array(2);
+  movementSpeed: number = 0;
+  flags: number = 0;
+  frequency: number = 0;
+  boundingSphere: BoundingSphere = new BoundingSphere();
 
-  constructor(reader: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;
 
-    reader.skip(8); // ?
+    stream.skip(8); // ?
 
-    this.name = new Reference(reader, index);
-    this.interval = reader.readUint32Array(2);
-    this.movementSpeed = reader.readFloat32();
-    this.flags = reader.readUint32();
-    this.frequency = reader.readUint32();
+    this.name.load(stream, index);
+    stream.readUint32Array(this.interval);
+    this.movementSpeed = stream.readFloat32();
+    this.flags = stream.readUint32();
+    this.frequency = stream.readUint32();
 
-    reader.skip(12); // ?
+    stream.skip(12); // ?
 
     if (version < 2) {
-      reader.skip(4); // ?
+      stream.skip(4); // ?
     }
 
-    this.boundingSphere = new BoundingSphere(reader);
+    this.boundingSphere.load(stream);
 
-    reader.skip(12); // ?
+    stream.skip(12); // ?
   }
 }

@@ -107,7 +107,7 @@ Each scene has its own camera and viewport, and holds a list of things to update
 ```javascript
 let scene = viewer.addScene();
 
-// While we're at it, might as well move the camera backwards a bit, so we can actually see the origin.
+// Move the camera backwards a bit, so we can actually see the origin.
 scene.camera.move([0, 0, 500]);
 ```
 
@@ -152,11 +152,11 @@ let modelPromise = viewer.load("Resources/model.mdx");
 
 You get back a promise, which will resolve to either the MDX model, or to undefined if any error occured.
 
-When the MDX file loads, it also loads internal resources, like its textures, so the viewer will attempt to fetch `texture.blp`.\
-If the server knows that is a path relative to `Resources/` then all is fine.\
+When the MDX model loads, it also loads internal resources, like its textures, so the viewer will attempt to fetch `texture.blp`.\
+If the server knows this is a relative path to `Resources/` then all is fine.\
 It is typically a lot easier and more dynamic to control the paths on the client though.\
 This is done with "path solvers" - functions that, given a source to load from, such as a path, can modify it and return the actual source to load from.\
-It will probably make more sense with code - let's call the load such that the texture is actually fetched from the correct path: `Resources/texture.blp`.
+It will probably make more sense with code - let's load the model again, with the texture fetch asking for the correct path: `Resources/texture.blp`.
 ```javascript
 function pathSolver(path) {
   return "Resources/" + path;
@@ -242,6 +242,16 @@ viewer.on('error', (e) => console.log(e));
 In addition there is `viewer.whenAllLoaded([callback])`, which can be used to run code when nothing is loading.
 If a callback is given, it will be called, otherwise a promise is returned.
 If there are no resources currently being loaded, this will happen instantly. Otherwise, it will happen once the `idle` event is emitted.
+```javascript
+viewer.whenAllLoaded((viewer) => {
+  // Nothing is loading!
+});
+
+viewer.whenAllLoaded()
+  .then((viewer) => {
+    // Nothing is loading!
+  });
+```
 
 ---
 
@@ -266,6 +276,58 @@ viewer.addHandler(handlers.mdx, teamColorsPathSolver, true); // Reforged team co
 ```
 
 Note that if you want to capture events for the team textures, add the event listeners before adding the handler.
+
+#### Interacting with model instances
+
+Model instances are nodes, and can be transformed as such:
+```javascript
+instance.setLocation([50, 0, 0]); // Move to the given point.
+instance.move([50, 0, 0]); // Move by the given offset.
+
+instance.setRotation([0, 0, 0, 1]); // Set the rotation to the given quaternion.
+instance.rotate([0, 0, 0, 1]); // Rotate by the given quaternion.
+
+instance.setScale([2, 2, 2]); // Set the scale to the given vector.
+instance.scale([2, 2, 2]); // Scale by the given vector.
+
+instance.setUniformScale(2); // Set the scale to the given number.
+instance.uniformScale(2); // Scale by the given number.
+
+instance.face([50, 0, 0], [0, 0, 1]); // Face the given point, with the given "up" vector.
+
+instance.setParent(nodeOrInstance); // Set a parent, making all other transformations relative to it.
+instance.setParent(); // Remove the parent.
+```
+
+Both MDX and M3 instances can run animations, have team colors, etc.:
+```javascript
+instance.setSequence(-1); // No animation.
+instance.setSequence(0); // First animation.
+
+instance.setSequenceLoopMode(0); // Never loop animations.
+instance.setSequenceLoopMode(1); // Loop animations based on the model.
+instance.setSequenceLoopMode(2); // Always loop animations.
+
+instance.setTeamColor(0); // First team color.
+
+instance.setVertexColor([1, 0, 0]); // Red vertex color.
+
+let node = instance.getAttachment(0); // Get the first attachment point.
+```
+
+MDX instances have `setTexture`, `setParticle2Texture`, and `setEventTexture`, to override textures, particle emitter textures, and event object textures:
+```javascript
+instance.setTexture(0, myTexture); // Override texture 0.
+instance.setParticle2Texture(0, myTexture); // Override the texture of particle emitter 0.
+instance.setEventTexture(0, myTexture); // Override the texture of event emitter 0.
+
+instance.setTexture(0); // Remove the override, same with the other functions.
+```
+
+M3 instances have `setTexture`:
+```javascript
+instance.setTexture(1, 0, myTexture); // Override texture 0 of standard material 1.
+```
 
 #### Solver Params: Reforged and the map viewer
 
@@ -409,24 +471,6 @@ For example, let's say we want to mimic how Warcraft 3 looks. This could be done
 1) The game world.
 2) The UI with `alpha = true` so that where the UI isn't drawn, the game world will be seen through.
 3) The selected portrait, moved and sized to be on the correct portion of the UI.
-
-#### Overriding textures
-
-The MDX and M3 handlers allow to override the used textures per-instance.
-
-MDX instances have `setTexture`, `setParticle2Texture`, and `setEventTexture`, to set textures, particle emitter textures, and event object textures:
-```javascript
-instance.setTexture(0, myTexture); // Override texture 0.
-instance.setParticle2Texture(0, myTexture); // Override the texture of particle emitter 0.
-instance.setEventTexture(0, myTexture); // Override the texture of event emitter 0.
-
-instance.setTexture(0); // Remove the override, same with the other functions.
-```
-
-M3 instances have `setTexture`:
-```javascript
-instance.setTexture(1, 0, myTexture); // Override texture 0 of standard material 1.
-```
 
 #### Everything is blurry
 

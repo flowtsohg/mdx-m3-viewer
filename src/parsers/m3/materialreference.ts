@@ -4,14 +4,14 @@ import IndexEntry from './indexentry';
 /**
  * A material reference.
  */
-export default class M3ParserMaterialReference {
-  version: number;
-  materialType: number;
-  materialIndex: number;
+export default class MaterialReference {
+  version: number = -1;
+  materialType: number = 0;
+  materialIndex: number = -1;
 
-  constructor(reader: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;
-    this.materialType = reader.readUint32();
-    this.materialIndex = reader.readUint32();
+    this.materialType = stream.readUint32();
+    this.materialIndex = stream.readUint32();
   }
 }

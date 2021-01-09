@@ -3,14 +3,14 @@ import BinaryStream from '../../common/binarystream';
 /**
  * A bounding sphere.
  */
-export default class M3ParserBoundingSphere {
-  min: Float32Array;
-  max: Float32Array;
-  radius: number;
+export default class BoundingSphere {
+  min: Float32Array = new Float32Array(3);
+  max: Float32Array = new Float32Array(3);
+  radius: number = 0;
 
-  constructor(reader: BinaryStream) {
-    this.min = reader.readFloat32Array(3);
-    this.max = reader.readFloat32Array(3);
-    this.radius = reader.readFloat32();
+  load(stream: BinaryStream) {
+    stream.readFloat32Array(this.min);
+    stream.readFloat32Array(this.max);
+    this.radius = stream.readFloat32();
   }
 }

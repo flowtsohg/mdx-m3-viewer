@@ -50,7 +50,7 @@ export function distanceToPlane3(plane: vec4, x: number, y: number, z: number) {
 }
 
 /**
- * Test it a sphere with the given center and radius intersects the given planes.
+ * Test if a sphere with the given center and radius intersects the given planes.
  * If it doesn't, the index of the first plane that proved this is returned.
  * Otherwise returns -1.
  *

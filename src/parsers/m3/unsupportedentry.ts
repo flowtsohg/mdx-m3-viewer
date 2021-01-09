@@ -7,13 +7,13 @@ import IndexEntry from './indexentry';
  * This is used for entries that have known structures (or at least sizes), but this parser isn't going to actually parse.
  * The entry will contain its own reader and version, in case the client code wants to do anything with it.
  */
-export default class M3ParserUnsupportedEntry {
-  reader: BinaryStream;
+export default class UnsupportedEntry {
+  stream: BinaryStream;
   version: number;
   index: IndexEntry[];
 
-  constructor(reader: BinaryStream, version: number, index: IndexEntry[]) {
-    this.reader = reader;
+  constructor(stream: BinaryStream, version: number, index: IndexEntry[]) {
+    this.stream = stream;
     this.version = version;
     this.index = index;
   }

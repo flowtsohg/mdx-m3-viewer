@@ -1,44 +1,44 @@
 import BinaryStream from '../../common/binarystream';
 import IndexEntry from './indexentry';
-import { M3ParserFloat32AnimationReference, M3ParserVector3AnimationReference } from './animationreference';
+import { Float32AnimationReference, Vector3AnimationReference } from './animationreference';
 
 /**
  * A light.
  */
-export default class M3ParserLight {
-  version: number;
-  type: number;
-  unknown0: number;
-  bone: number;
-  flags: number;
-  unknown1: number;
-  unknown2: number;
-  lightColor: M3ParserVector3AnimationReference;
-  lightIntensity: M3ParserFloat32AnimationReference;
-  specularColor: M3ParserVector3AnimationReference;
-  specularIntensity: M3ParserFloat32AnimationReference;
-  attenuationFar: M3ParserFloat32AnimationReference;
-  unknown3: number;
-  attenuationNear: M3ParserFloat32AnimationReference;
-  hotSpot: M3ParserFloat32AnimationReference;
-  falloff: M3ParserFloat32AnimationReference;
+export default class Light {
+  version: number = -1;
+  type: number = 0;
+  unknown0: number = 0;
+  bone: number = -1;
+  flags: number = 0;
+  unknown1: number = 0;
+  unknown2: number = 0;
+  lightColor: Vector3AnimationReference = new Vector3AnimationReference();
+  lightIntensity: Float32AnimationReference = new Float32AnimationReference();
+  specularColor: Vector3AnimationReference = new Vector3AnimationReference();
+  specularIntensity: Float32AnimationReference = new Float32AnimationReference();
+  attenuationFar: Float32AnimationReference = new Float32AnimationReference();
+  unknown3: number = 0;
+  attenuationNear: Float32AnimationReference = new Float32AnimationReference();
+  hotSpot: Float32AnimationReference = new Float32AnimationReference();
+  falloff: Float32AnimationReference = new Float32AnimationReference();
 
-  constructor(reader: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;
-    this.type = reader.readUint8();
-    this.unknown0 = reader.readUint8();
-    this.bone = reader.readInt16();
-    this.flags = reader.readUint32();
-    this.unknown1 = reader.readUint32();
-    this.unknown2 = reader.readInt32();
-    this.lightColor = new M3ParserVector3AnimationReference(reader);
-    this.lightIntensity = new M3ParserFloat32AnimationReference(reader);
-    this.specularColor = new M3ParserVector3AnimationReference(reader);
-    this.specularIntensity = new M3ParserFloat32AnimationReference(reader);
-    this.attenuationFar = new M3ParserFloat32AnimationReference(reader);
-    this.unknown3 = reader.readFloat32();
-    this.attenuationNear = new M3ParserFloat32AnimationReference(reader);
-    this.hotSpot = new M3ParserFloat32AnimationReference(reader);
-    this.falloff = new M3ParserFloat32AnimationReference(reader);
+    this.type = stream.readUint8();
+    this.unknown0 = stream.readUint8();
+    this.bone = stream.readInt16();
+    this.flags = stream.readUint32();
+    this.unknown1 = stream.readUint32();
+    this.unknown2 = stream.readInt32();
+    this.lightColor.load(stream);
+    this.lightIntensity.load(stream);
+    this.specularColor.load(stream);
+    this.specularIntensity.load(stream);
+    this.attenuationFar.load(stream);
+    this.unknown3 = stream.readFloat32();
+    this.attenuationNear.load(stream);
+    this.hotSpot.load(stream);
+    this.falloff.load(stream);
   }
 }

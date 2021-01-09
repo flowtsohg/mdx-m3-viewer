@@ -4,46 +4,46 @@ import IndexEntry from './indexentry';
 /**
  * A region.
  */
-export default class M3ParserRegion {
-  version: number;
-  unknown0: number;
-  unknown1: number;
-  firstVertexIndex: number;
-  verticesCount: number;
-  firstTriangleIndex: number;
-  triangleIndicesCount: number;
-  bonesCount: number;
-  firstBoneLookupIndex: number;
-  boneLookupIndicesCount: number;
-  unknown2: number;
-  boneWeightPairsCount: number;
-  unknown3: number;
-  rootBoneIndex: number;
+export default class Region {
+  version: number = -1;
+  unknown0: number = 0;
+  unknown1: number = 0;
+  firstVertexIndex: number = -1;
+  verticesCount: number = 0;
+  firstTriangleIndex: number = -1;
+  triangleIndicesCount: number = 0;
+  bonesCount: number = 0;
+  firstBoneLookupIndex: number = -1;
+  boneLookupIndicesCount: number = 0;
+  unknown2: number = 0;
+  boneWeightPairsCount: number = 0;
+  unknown3: number = 0;
+  rootBoneIndex: number = -1;
   unknown4: number = 0;
-  unknown5: Uint8Array | null = null;
+  unknown5: Uint8Array = new Uint8Array(8);
 
-  constructor(reader: BinaryStream, version: number, index: IndexEntry[]) {
+  load(stream: BinaryStream, version: number, index: IndexEntry[]) {
     this.version = version;
-    this.unknown0 = reader.readUint32();
-    this.unknown1 = reader.readUint32();
-    this.firstVertexIndex = reader.readUint32();
-    this.verticesCount = reader.readUint32();
-    this.firstTriangleIndex = reader.readUint32();
-    this.triangleIndicesCount = reader.readUint32();
-    this.bonesCount = reader.readUint16();
-    this.firstBoneLookupIndex = reader.readUint16();
-    this.boneLookupIndicesCount = reader.readUint16();
-    this.unknown2 = reader.readUint16();
-    this.boneWeightPairsCount = reader.readUint8();
-    this.unknown3 = reader.readUint8();
-    this.rootBoneIndex = reader.readUint16();
+    this.unknown0 = stream.readUint32();
+    this.unknown1 = stream.readUint32();
+    this.firstVertexIndex = stream.readUint32();
+    this.verticesCount = stream.readUint32();
+    this.firstTriangleIndex = stream.readUint32();
+    this.triangleIndicesCount = stream.readUint32();
+    this.bonesCount = stream.readUint16();
+    this.firstBoneLookupIndex = stream.readUint16();
+    this.boneLookupIndicesCount = stream.readUint16();
+    this.unknown2 = stream.readUint16();
+    this.boneWeightPairsCount = stream.readUint8();
+    this.unknown3 = stream.readUint8();
+    this.rootBoneIndex = stream.readUint16();
 
     if (version > 3) {
-      this.unknown4 = reader.readUint32();
+      this.unknown4 = stream.readUint32();
     }
 
     if (version > 4) {
-      this.unknown5 = reader.readUint8Array(8);
+      stream.readUint8Array(this.unknown5);
     }
   }
 }
