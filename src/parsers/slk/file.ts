@@ -39,6 +39,10 @@ export default class SlkFile {
               value = false;
             } else {
               value = parseFloat(valueString);
+
+              if (isNaN(value)) {
+                value = valueString;
+              }
             }
 
             rows[y][x] = value;
@@ -46,5 +50,53 @@ export default class SlkFile {
         }
       }
     }
+  }
+
+  save() {
+    let rows = this.rows;
+    let rowCount = rows.length;
+    let lines = [];
+    let biggestColumn = 0;
+
+    for (let y = 0; y < rowCount; y++) {
+      let row = rows[y];
+      let columnCount = row.length;
+
+      if (columnCount > biggestColumn) {
+        biggestColumn = columnCount;
+      }
+
+      let firstOfRow = true;
+
+      for (let x = 0; x < columnCount; x++) {
+        let value = row[x];
+
+        if (value !== undefined) {
+          let encoded;
+
+          if (typeof value === 'string') {
+            encoded = `"${value}"`;
+          } else if (typeof value === 'boolean') {
+            if (value) {
+              encoded = 'TRUE';
+            } else {
+              encoded = 'FALSE';
+            }
+          } else {
+            encoded = `${value}`;
+          }
+
+          if (firstOfRow) {
+            firstOfRow = false;
+
+            lines.push(`C;X${x + 1};Y${y + 1};K${encoded}`);
+          } else {
+            lines.push(`C;X${x + 1};K${encoded}`);
+          }
+        }
+      }
+    }
+
+    return `ID;P\r\nB;X${biggestColumn};Y${rowCount}\r\n${lines.join('\r\n')}\r\nE`;
   }
 }
