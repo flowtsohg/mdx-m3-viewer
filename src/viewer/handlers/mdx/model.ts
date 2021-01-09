@@ -79,7 +79,16 @@ export default class MdxModel extends Model {
     } else {
       parser = new Parser();
 
-      parser.load(bufferOrParser);
+      try {
+        parser.load(bufferOrParser);
+      } catch (e) {
+        // If we get here, the parser failed to load.
+        // It still may have loaded enough data to support rendering though!
+        // I have encountered a model that is missing data, but still works in-game.
+        // So just let the code continue.
+        // If the handler manages to load the model, nothing happened.
+        // If critical data is missing, it will fail and throw its own exception.
+      }
     }
 
     let viewer = this.viewer;

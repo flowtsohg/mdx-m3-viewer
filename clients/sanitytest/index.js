@@ -164,7 +164,7 @@ function addOptionToSelect(select, text) {
 }
 
 class TestInstance {
-  constructor(name, resource, instance, parser) {
+  constructor(name, resource, instance, parser, loadingErrors) {
     this.name = name.toLowerCase();
     this.resource = resource;
     this.instance = instance;
@@ -179,7 +179,7 @@ class TestInstance {
     if (resource instanceof handlers.mdx.resource) {
       this.type = 'model';
 
-      this.renderModelTest(name, parser);
+      this.renderModelTest(name, parser, loadingErrors);
 
       this.animationSelector = document.createElement('select');
       this.animationSelector.className = 'inputs';
@@ -237,13 +237,21 @@ class TestInstance {
     this.instance.hide();
   }
 
-  renderModelTest(name, model) {
+  renderModelTest(name, model, loadingErrors) {
     let stream = new LogStream(document.createElement('div'));
     let result = ModelViewer.utils.mdx.sanityTest(model);
     let header = stream.start();
     let body = null;
 
     stream.add('info', `${name}: `);
+
+    if (loadingErrors && loadingErrors.length) {
+      stream.br();
+      for (let error of loadingErrors) {
+        stream.add('error', error);
+      }
+      stream.br();
+    }
 
     if (result.errors || result.severe || result.warnings || result.unused) {
       let added = false;
@@ -365,8 +373,8 @@ function showTest(test) {
   }
 }
 
-function addTest(name, resource, instance, parser) {
-  let test = new TestInstance(name, resource, instance, parser);
+function addTest(name, resource, instance, parser, loadingErrors) {
+  let test = new TestInstance(name, resource, instance, parser, loadingErrors);
 
   test.container.style.paddingBottom = '3px';
 
@@ -396,7 +404,13 @@ function addTest(name, resource, instance, parser) {
 
 function addModelTest(name, ext, buffer, pathSolver) {
   let parser = new mdlx.Model();
-  parser.load(buffer);
+  let loadingErrors = [];
+
+  try {
+    parser.load(buffer);
+  } catch (e) {
+    loadingErrors.push('This model is missing data, using whatever data loaded.');
+  }
 
   let viewerModel = viewer.load(parser, (src, params) => {
     if (src === parser) {
@@ -416,7 +430,7 @@ function addModelTest(name, ext, buffer, pathSolver) {
     instance.setSequence(0);
     instance.setSequenceLoopMode(2);
 
-    let test = addTest(name, model, instance, parser);
+    let test = addTest(name, model, instance, parser, loadingErrors);
 
     tryToInjectCustomTextures(test);
   });
