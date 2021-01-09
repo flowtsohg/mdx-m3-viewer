@@ -26,7 +26,7 @@ export default class ParticleEmitter2Object extends GenericObject {
   columns: number;
   rows: number;
   teamColored: number = 0;
-  internalTexture?: MdxTexture;
+  internalTexture: MdxTexture | null = null;
   replaceableId: number;
   head: boolean;
   tail: boolean;

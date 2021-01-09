@@ -26,17 +26,17 @@ export default class EventObjectEmitterObject extends GenericObject {
   tracks: Uint32Array;
   globalSequence: number = -1;
   defval: Uint32Array = new Uint32Array(1);
-  internalModel?: MdxModel;
-  internalTexture?: MdxTexture;
-  colors?: Float32Array[];
-  intervalTimes?: Float32Array;
+  internalModel: MdxModel | null = null;
+  internalTexture: MdxTexture | null = null;
+  colors: Float32Array[] = [];
+  intervalTimes: Float32Array = new Float32Array(3);
   scale: number = 0;
   columns: number = 0;
   rows: number = 0;
   lifeSpan: number = 0;
   blendSrc: number = 0;
   blendDst: number = 0;
-  intervals?: Float32Array[];
+  intervals: Float32Array[] = [];
   distanceCutoff: number = 0;
   maxDistance: number = 0;
   minDistance: number = 0;
@@ -143,26 +143,28 @@ export default class EventObjectEmitterObject extends GenericObject {
               });
 
             this.scale = <number>row.Scale;
-            this.colors = [
-              new Float32Array([<number>row.StartR, <number>row.StartG, <number>row.StartB, <number>row.StartA]),
-              new Float32Array([<number>row.MiddleR, <number>row.MiddleG, <number>row.MiddleB, <number>row.MiddleA]),
-              new Float32Array([<number>row.EndR, <number>row.EndG, <number>row.EndB, <number>row.EndA]),
-            ];
+            this.colors[0] = new Float32Array([<number>row.StartR, <number>row.StartG, <number>row.StartB, <number>row.StartA]);
+            this.colors[1] = new Float32Array([<number>row.MiddleR, <number>row.MiddleG, <number>row.MiddleB, <number>row.MiddleA]);
+            this.colors[2] = new Float32Array([<number>row.EndR, <number>row.EndG, <number>row.EndB, <number>row.EndA]);
 
             if (type === 'SPL') {
               this.columns = <number>row.Columns;
               this.rows = <number>row.Rows;
               this.lifeSpan = <number>row.Lifespan + <number>row.Decay;
-              this.intervalTimes = new Float32Array([<number>row.Lifespan, <number>row.Decay]);
-              this.intervals = [
-                new Float32Array([<number>row.UVLifespanStart, <number>row.UVLifespanEnd, <number>row.LifespanRepeat]),
-                new Float32Array([<number>row.UVDecayStart, <number>row.UVDecayEnd, <number>row.DecayRepeat]),
-              ];
+
+              this.intervalTimes[0] = <number>row.Lifespan;
+              this.intervalTimes[1] = <number>row.Decay;
+
+              this.intervals[0] = new Float32Array([<number>row.UVLifespanStart, <number>row.UVLifespanEnd, <number>row.LifespanRepeat]);
+              this.intervals[1] = new Float32Array([<number>row.UVDecayStart, <number>row.UVDecayEnd, <number>row.DecayRepeat]);
             } else {
               this.columns = 1;
               this.rows = 1;
               this.lifeSpan = <number>row.BirthTime + <number>row.PauseTime + <number>row.Decay;
-              this.intervalTimes = new Float32Array([<number>row.BirthTime, <number>row.PauseTime, <number>row.Decay]);
+
+              this.intervalTimes[0] = <number>row.BirthTime;
+              this.intervalTimes[1] = <number>row.PauseTime;
+              this.intervalTimes[2] = <number>row.Decay;
             }
 
             let blendModes = emitterFilterMode(<number>row.BlendMode, viewer.gl);

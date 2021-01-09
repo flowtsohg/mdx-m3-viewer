@@ -153,7 +153,7 @@ export default class WebGL {
    * 
    * If the given texture is invalid, a 2x2 black texture will be bound instead.
    */
-  bindTexture(texture: Texture | undefined, unit: number) {
+  bindTexture(texture: Texture | undefined | null, unit: number) {
     let gl = this.gl;
 
     gl.activeTexture(gl.TEXTURE0 + unit);
@@ -166,7 +166,7 @@ export default class WebGL {
     }
   }
 
-  bindTextureAndWrap(texture: Texture | undefined, unit: number, wrapS: number, wrapT: number) {
+  bindTextureAndWrap(texture: Texture | undefined | null, unit: number, wrapS: number, wrapT: number) {
     let gl = this.gl;
 
     gl.activeTexture(gl.TEXTURE0 + unit);

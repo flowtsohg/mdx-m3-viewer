@@ -138,8 +138,6 @@ export default class MdxModel extends Model {
       solverParams.hd = true;
     }
 
-    let usingTeamTextures = false;
-
     // Textures.
     let textures = parser.textures;
     for (let i = 0, l = textures.length; i < l; i++) {
@@ -150,10 +148,6 @@ export default class MdxModel extends Model {
 
       if (replaceableId !== 0) {
         path = `ReplaceableTextures\\${replaceableIds[replaceableId]}${texturesExt}`;
-
-        if (replaceableId === 1 || replaceableId === 2) {
-          usingTeamTextures = true;
-        }
       }
 
       if (reforged && !path.endsWith('.dds')) {

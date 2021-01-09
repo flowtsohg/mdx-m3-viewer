@@ -8,7 +8,7 @@ import MdxModel from './model';
 export default class Attachment extends GenericObject {
   path: string;
   attachmentId: number;
-  internalModel?: MdxModel;
+  internalModel: MdxModel | null = null;
 
   constructor(model: MdxModel, attachment: MdlxAttachment, index: number) {
     super(model, attachment, index);

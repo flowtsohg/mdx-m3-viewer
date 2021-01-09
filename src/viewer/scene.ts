@@ -22,7 +22,7 @@ export default class Scene {
   visibleInstances: number = 0;
   updatedParticles: number = 0;
   audioEnabled: boolean = false;
-  audioContext?: AudioContext;
+  audioContext: AudioContext | null = null;
   instances: ModelInstance[] = [];
   emittedObjectUpdater: EmittedObjectUpdater = new EmittedObjectUpdater();
   /**
@@ -129,7 +129,7 @@ export default class Scene {
     if (instance.scene === this) {
       this.grid.remove(instance);
 
-      instance.scene = undefined;
+      instance.scene = null;
 
       return true;
     }
@@ -144,7 +144,7 @@ export default class Scene {
     // First remove references to this scene stored in the instances.
     for (let cell of this.grid.cells) {
       for (let instance of cell.instances) {
-        instance.scene = undefined;
+        instance.scene = null;
       }
     }
 

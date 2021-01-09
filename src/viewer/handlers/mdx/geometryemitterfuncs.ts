@@ -153,7 +153,7 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: ShaderPro
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
 
-  let texture = textureOverrides.get(EMITTER_PARTICLE2_TEXTURE_OFFSET + emitterObject.index);
+  let texture: Texture | null | undefined = textureOverrides.get(EMITTER_PARTICLE2_TEXTURE_OFFSET + emitterObject.index);
 
   if (!texture) {
     if (replaceable === 1) {

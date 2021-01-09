@@ -143,7 +143,7 @@ export default class BatchGroup {
 
           layer.bind(shader);
 
-          let texture = textureOverrides.get(textureIndex);
+          let texture: Texture | null | undefined = textureOverrides.get(textureIndex);
 
           if (!texture) {
             let replaceable = layerTexture.replaceableId;

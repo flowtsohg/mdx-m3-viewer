@@ -31,11 +31,11 @@ export default class M3Layer {
   material: M3StandardMaterial;
   index: number;
   active: number = 0;
-  layer?: Layer;
+  layer: Layer | null = null;
   gl: WebGLRenderingContext;
   uniformMap: { map: string; enabled: string; op: string; channels: string; teamColorMode: string; invert: string; clampResult: string; uvCoordinate: string; };
   source: string = '';
-  texture?: M3Texture;
+  texture: M3Texture | null = null;
   flags: number = 0;
   colorChannels: number = 0;
   type: string = '';
@@ -70,13 +70,13 @@ export default class M3Layer {
 
     // Since Gloss doesn't exist in all versions
     if (layerReference) {
-      let layer = layerReference.first();
+      let layer = <Layer>layerReference.first();
 
       this.layer = layer;
 
       let pathSolver = model.pathSolver;
 
-      let source = layer.imagePath.getAll().join('').replace('\0', '').toLowerCase();
+      let source = (<string>layer.imagePath.get()).toLowerCase();
 
       if (source.length) {
         this.source = source;

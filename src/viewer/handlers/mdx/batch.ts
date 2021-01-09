@@ -9,7 +9,7 @@ export default class Batch {
   index: number;
   geoset: Geoset;
   layer: Layer;
-  material?: Material;
+  material: Material | null;
   isExtended: boolean;
   isHd: boolean;
 
@@ -21,6 +21,7 @@ export default class Batch {
       material = <Material>layerOrMaterial;
       layer = material.layers[0];
     } else {
+      material = null;
       layer = <Layer>layerOrMaterial;
     }
 

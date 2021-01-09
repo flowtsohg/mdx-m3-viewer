@@ -5,7 +5,7 @@ import IndexEntry from './indexentry';
  * A reference.
  */
 export default class Reference {
-  index: IndexEntry[] | undefined;
+  index: IndexEntry[] | null = null;
   entries: number = 0;
   id: number = 0;
   flags: number = 0;

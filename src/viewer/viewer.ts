@@ -6,7 +6,6 @@ import { Resource } from './resource';
 import { PathSolver, HandlerResourceData, HandlerResource } from './handlerresource';
 import GenericResource from './genericresource';
 import ClientBuffer from './gl/clientbuffer';
-import Model from './model';
 import { isImageSource, ImageTexture, detectMime } from './imagetexture';
 import { blobToImage } from '../common/canvas';
 

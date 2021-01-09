@@ -6,7 +6,7 @@ import GenericObject from './genericobject';
  * An MDX particle emitter.
  */
 export default class ParticleEmitterObject extends GenericObject {
-  internalModel?: MdxModel;
+  internalModel: MdxModel | null = null;
   speed: number;
   latitude: number;
   longitude: number;

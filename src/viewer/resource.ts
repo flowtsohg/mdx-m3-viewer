@@ -3,7 +3,7 @@ import ModelViewer from './viewer';
 /**
  * The data sent to every resource as a part of the loading process.
  */
-export type ResourceData = { viewer: ModelViewer, extension?: string, fetchUrl?: string };
+export type ResourceData = { viewer: ModelViewer, fetchUrl: string };
 
 /**
  * A viewer resource.
@@ -12,14 +12,12 @@ export type ResourceData = { viewer: ModelViewer, extension?: string, fetchUrl?:
  */
 export abstract class Resource {
   viewer: ModelViewer;
-  extension: string;
   fetchUrl: string;
   blockers: Promise<Resource | undefined>[] = [];
 
   constructor(resourceData: ResourceData) {
     this.viewer = resourceData.viewer;
-    this.extension = resourceData.extension || '';
-    this.fetchUrl = resourceData.fetchUrl || '';
+    this.fetchUrl = resourceData.fetchUrl;
   }
 
   /**

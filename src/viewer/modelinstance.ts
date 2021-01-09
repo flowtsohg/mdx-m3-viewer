@@ -9,7 +9,7 @@ import Texture from './texture';
  * A model instance.
  */
 export default abstract class ModelInstance extends Node {
-  scene?: Scene;
+  scene: Scene | null = null;
   left: number = -1;
   right: number = -1;
   bottom: number = -1;

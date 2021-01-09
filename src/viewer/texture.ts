@@ -1,4 +1,3 @@
-import { isPowerOfTwo } from '../common/math';
 import { HandlerResource } from './handlerresource';
 
 /**

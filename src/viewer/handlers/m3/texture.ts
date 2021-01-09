@@ -4,7 +4,7 @@ import Texture from '../../texture';
  * An M3 texture.
  */
 export default class M3Texture {
-  texture?: Texture;
+  texture: Texture | null = null;
   wrapS: number = 0x812f; // CLAMP_TO_EDGE
   wrapT: number = 0x812f;
 
