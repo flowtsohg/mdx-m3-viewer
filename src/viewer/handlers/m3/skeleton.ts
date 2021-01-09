@@ -1,4 +1,4 @@
-import { M3AnimationReference } from '../../../parsers/m3/animationreference';
+import { AnimationReference } from '../../../parsers/m3/animationreference';
 import { createSkeletalNodes } from '../../node';
 import Scene from '../../scene';
 import Node from './node';
@@ -75,7 +75,7 @@ export default class M3Skeleton {
     }
   }
 
-  getValueUnsafe(animRef: M3AnimationReference, instance: M3ModelInstance) {
+  getValueUnsafe(animRef: AnimationReference, instance: M3ModelInstance) {
     let sequence = instance.sequence;
 
     if (sequence !== -1) {
@@ -85,11 +85,11 @@ export default class M3Skeleton {
     return animRef.initValue;
   }
 
-  getValue(animRef: M3AnimationReference, instance: M3ModelInstance) {
+  getValue(animRef: AnimationReference, instance: M3ModelInstance) {
     return this.getValueUnsafe(animRef, instance);
   }
 
-  getValue2(out: TypedArray, animRef: M3AnimationReference, instance: M3ModelInstance) {
+  getValue2(out: TypedArray, animRef: AnimationReference, instance: M3ModelInstance) {
     let unsafeHeap = this.getValueUnsafe(animRef, instance);
 
     out[0] = unsafeHeap[0];
@@ -98,7 +98,7 @@ export default class M3Skeleton {
     return out;
   }
 
-  getValue3(out: TypedArray, animRef: M3AnimationReference, instance: M3ModelInstance) {
+  getValue3(out: TypedArray, animRef: AnimationReference, instance: M3ModelInstance) {
     let unsafeHeap = this.getValueUnsafe(animRef, instance);
 
     out[0] = unsafeHeap[0];
@@ -108,7 +108,7 @@ export default class M3Skeleton {
     return out;
   }
 
-  getValue4(out: TypedArray, animRef: M3AnimationReference, instance: M3ModelInstance) {
+  getValue4(out: TypedArray, animRef: AnimationReference, instance: M3ModelInstance) {
     let unsafeHeap = this.getValueUnsafe(animRef, instance);
 
     out[0] = unsafeHeap[0];

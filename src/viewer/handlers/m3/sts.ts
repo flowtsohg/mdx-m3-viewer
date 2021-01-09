@@ -1,5 +1,5 @@
 import M3ParserSts from '../../../parsers/m3/sts';
-import { M3AnimationReference } from '../../../parsers/m3/animationreference';
+import { AnimationReference } from '../../../parsers/m3/animationreference';
 
 /**
  * M3 animation data validator.
@@ -18,7 +18,7 @@ export default class M3Sts {
     }
   }
 
-  hasData(animRef: M3AnimationReference) {
+  hasData(animRef: AnimationReference) {
     return !!this.animIds[animRef.animId];
   }
 }

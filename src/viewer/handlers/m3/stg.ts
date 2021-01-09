@@ -1,5 +1,5 @@
 import M3ParserStg from '../../../parsers/m3/stg';
-import { M3AnimationReference } from '../../../parsers/m3/animationreference';
+import { AnimationReference } from '../../../parsers/m3/animationreference';
 import M3ModelInstance from './modelinstance';
 import M3Sts from './sts';
 import M3Stc from './stc';
@@ -20,7 +20,7 @@ export default class M3Stg {
     this.stc = stc;
   }
 
-  getValueUnsafe(animRef: M3AnimationReference, instance: M3ModelInstance) {
+  getValueUnsafe(animRef: AnimationReference, instance: M3ModelInstance) {
     let stcIndices = this.stcIndices;
     let stcs = this.stc;
     let stss = this.sts;
