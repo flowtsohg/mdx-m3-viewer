@@ -33,6 +33,13 @@ export default class War3MapWts {
 
         let end = buffer.indexOf('}', stream.index);
 
+        // For broken files, keep whatever data can be kept, and throw an exception.
+        if (end === -1) {
+          this.stringMap.set(index, buffer.slice(stream.index, buffer.length).trim());
+
+          throw new Error(`WTS: missing data in string ${this.stringMap.size} (and maybe more)`);
+        }
+
         this.stringMap.set(index, buffer.slice(stream.index, end).trim());
 
         stream.index = end;

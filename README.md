@@ -20,8 +20,8 @@ They include:
 * MDX/MDL: read/write.
 * M3: read.
 * BLP1: read.
-* INI: read.
-* SLK: read.
+* INI: read/write.
+* SLK: read/write.
 * MPQ1: read/write.
 * W3M/W3X/W3N: read/write, including all of the internal files.
 * DDS: read (DXT1/DXT3/DXT5/RGTC).
