@@ -1,4 +1,5 @@
-import { scaleNPOT } from '../../../common/canvas';
+import { isPowerOfTwo } from '../../../common/math';
+import TgaImage from '../../../parsers/tga/image';
 import { HandlerResourceData } from '../../handlerresource';
 import Texture from '../../texture';
 
@@ -6,37 +7,42 @@ import Texture from '../../texture';
  * A TGA texture handler.
  */
 export default class TgaTexture extends Texture {
-  constructor(src: ArrayBuffer, resourceData: HandlerResourceData) {
+  constructor(bufferOrImage: ArrayBuffer | TgaImage, resourceData: HandlerResourceData) {
     super(resourceData);
 
+    let image;
+
+    if (bufferOrImage instanceof TgaImage) {
+      image = bufferOrImage;
+    } else {
+      image = new TgaImage();
+
+      image.load(bufferOrImage);
+    }
+
+    let width = image.width;
+    let height = image.height;
+
     let gl = this.viewer.gl;
-    let dataView = new DataView(src);
-    let imageType = dataView.getUint8(2);
-
-    if (imageType !== 2) {
-      throw new Error('Unsupported image type');
-    }
-
-    let width = dataView.getUint16(12, true);
-    let height = dataView.getUint16(14, true);
-    let pixelDepth = dataView.getUint8(16);
-
-    if (pixelDepth !== 32) {
-      throw new Error('Unsupported bits per pixel');
-    }
-
-    // Upscale to POT if the size is NPOT.
-    let imageData = scaleNPOT(new ImageData(new Uint8ClampedArray(src, 18, width * height * 4), width, height));
-
     let id = gl.createTexture();
+
     gl.bindTexture(gl.TEXTURE_2D, id);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
+
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, <ImageData>image.data);
 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
-    this.width = imageData.width; // Note: might not be the same as 'width' and 'height' due to NPOT upscaling.
-    this.height = imageData.height;
+    if (isPowerOfTwo(width) && isPowerOfTwo(height)) {
+      gl.generateMipmap(gl.TEXTURE_2D);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    } else {
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    }
+
     this.webglResource = id;
+    this.width = width;
+    this.height = height;
+
+    console.log(this)
   }
 }

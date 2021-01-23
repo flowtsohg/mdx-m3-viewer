@@ -6,6 +6,7 @@ import mpq from './mpq';
 import w3x from './w3x';
 import blp from './blp';
 import dds from './dds';
+import tga from './tga';
 
 export default {
   ini,
@@ -16,4 +17,5 @@ export default {
   w3x,
   blp,
   dds,
+  tga,
 };

@@ -1,6 +1,6 @@
 {
   "name": "mdx-m3-viewer",
-  "version": "5.4.7",
+  "version": "5.4.8",
   "description": "A browser WebGL model viewer. Mainly focused on models of the games Warcraft 3 and Starcraft 2.",
   "main": "src/index.ts",
   "scripts": {
@@ -22,6 +22,7 @@
     "fengari": "^0.1.4",
     "gl-matrix": "^3.1.0",
     "pako": "^1.0.10",
+    "tga-js": "^1.1.1",
     "typescript": "^3.7.3"
   },
   "devDependencies": {
