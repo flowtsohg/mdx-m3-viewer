@@ -51,7 +51,7 @@ class Viewer extends Component {
     viewer.addHandler(ModelViewer.default.viewer.handlers.dds);
     viewer.addHandler(ModelViewer.default.viewer.handlers.tga);
 
-    ModelViewer.default.utils.mdlx.createPrimitive(viewer, ModelViewer.default.utils.mdlx.primitives.createUnitRectangle())
+    ModelViewer.default.utils.mdlx.createPrimitive(viewer, ModelViewer.default.utils.mdlx.primitives.createUnitRectangle(), { twoSided: true })
       .then((model) => {
         this.textureModel = model;
       });

@@ -21,6 +21,7 @@ interface Material {
   lines?: boolean;
   color?: Float32Array;
   texture?: Texture | Promise<Texture>;
+  twoSided?: boolean;
 }
 
 export default function createPrimitive(viewer: ModelViewer, primitive: Primitive, material: Material) {
@@ -28,11 +29,16 @@ export default function createPrimitive(viewer: ModelViewer, primitive: Primitiv
   let color: Float32Array | undefined;
   let texture: Texture | Promise<Texture> | undefined;
   let pathSolver: PathSolver | undefined;
+  let layerFlags = 0;
 
   if (material) {
     lines = material.lines;
     color = material.color;
     texture = material.texture;
+
+    if (material.twoSided) {
+      layerFlags |= 0x10;
+    }
   }
 
   let model = new MdlxModel();
@@ -66,6 +72,7 @@ export default function createPrimitive(viewer: ModelViewer, primitive: Primitiv
   let layer = new MdlxLayer();
 
   layer.textureId = 0;
+  layer.flags = layerFlags;
 
   mat.layers[0] = layer;
 
