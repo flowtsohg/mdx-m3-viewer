@@ -181,6 +181,7 @@ export default class M3ModelInstance extends ModelInstance {
         }
 
         this.sequenceEnded = true;
+        this.model.viewer.emit('seqend', this);
       } else {
         this.sequenceEnded = false;
       }

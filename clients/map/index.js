@@ -72,7 +72,7 @@ let cellsElement = document.getElementById('cells');
 let instancesElement = document.getElementById('instances');
 let particlesElement = document.getElementById('particles');
 
-setupCamera(viewer.worldScene, 3000);
+setupCamera(viewer.worldScene, { distance: 3000 });
 
 function step() {
   requestAnimationFrame(step);

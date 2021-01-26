@@ -181,45 +181,49 @@ class SanityTester extends Component {
    * file=url&file=url2&override[path]=url3
    */
   loadAPI(api) {
-    let files = [];
-    let overrides = new Map();
+    if (api !== '') {
+      let files = [];
+      let overrides = new Map();
 
-    for (let param of api.slice(1).split('&')) {
-      let [key, value] = param.split('=');
+      for (let param of api.slice(1).split('&')) {
+        let [key, value] = param.split('=');
 
-      // Test also overrides.
-      files.push(value);
+        if (value !== undefined) {
+          // Test also overrides.
+          files.push(value);
 
-      if (key.startsWith('override')) {
-        // Discord changes \ to / in urls, ignoring escaping, so escape manually.
-        overrides.set(key.slice(9, -1).replace(/\//g, '\\'), value);
-      }
-    }
-
-    if (files.length) {
-      let pathSolver = (src) => {
-        let override = overrides.get(src);
-
-        if (override) {
-          return override;
-        } else {
-          return localOrHive(src);
+          if (key.startsWith('override')) {
+            // Discord changes \ to / in urls, ignoring escaping, so escape manually.
+            overrides.set(key.slice(9, -1).replace(/\//g, '\\'), value);
+          }
         }
-      };
+      }
 
-      for (let file of files) {
-        fetch(file)
-          .then(async (response) => {
-            let buffer;
+      if (files.length) {
+        let pathSolver = (src) => {
+          let override = overrides.get(src);
 
-            if (file.endsWith('.mdl')) {
-              buffer = await response.text();
-            } else {
-              buffer = await response.arrayBuffer();
-            }
+          if (override) {
+            return override;
+          } else {
+            return localOrHive(src);
+          }
+        };
 
-            this.test(file, buffer, pathSolver);
-          });
+        for (let file of files) {
+          fetch(file)
+            .then(async (response) => {
+              let buffer;
+
+              if (file.endsWith('.mdl')) {
+                buffer = await response.text();
+              } else {
+                buffer = await response.arrayBuffer();
+              }
+
+              this.test(file, buffer, pathSolver);
+            });
+        }
       }
     }
   }

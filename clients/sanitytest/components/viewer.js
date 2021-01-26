@@ -34,6 +34,18 @@ class Viewer extends Component {
       }
     });
 
+    viewer.on('seqend', (instance) => {
+      if (!this.controls.cycleToggle.clicked) {
+        let sequence = instance.sequence + 1;
+
+        if (sequence === instance.model.sequences.length) {
+          sequence = 0;
+        }
+
+        this.setSequence(sequence);
+      }
+    });
+
     viewer.addHandler(ModelViewer.default.viewer.handlers.mdx, localOrHive, false);
     viewer.addHandler(ModelViewer.default.viewer.handlers.blp);
     viewer.addHandler(ModelViewer.default.viewer.handlers.dds);
@@ -50,19 +62,7 @@ class Viewer extends Component {
       viewer.updateAndRender();
 
       if (this.visibleInstance) {
-        let instance = this.visibleInstance;
-
-        if (instance.sequenceEnded && !this.controls.cycleToggle.clicked) {
-          let sequence = instance.sequence + 1;
-
-          if (sequence === instance.model.sequences.length) {
-            sequence = 0;
-          }
-
-          this.setSequence(sequence);
-        }
-
-        this.controls.frame(instance.frame);
+        this.controls.frame(this.visibleInstance.frame);
       }
     };
 

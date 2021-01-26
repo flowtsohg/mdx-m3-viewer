@@ -242,10 +242,13 @@ The built-in names are:
 * `error` - something bad happened.
 * `loadend` - a resource finished loading, follows both `load` and `error` when loading a resource.
 * `idle` - all loads finished for now.
+* `seqend` - an instance finished running a sequence (whether it loops or not).
 
 For example:
 ```javascript
 viewer.on('error', (e) => console.log(e));
+
+viewer.on('seqend', (instance) => console.log(instance));
 ```
 
 In addition there is `viewer.whenAllLoaded([callback])`, which can be used to run code when nothing is loading.
