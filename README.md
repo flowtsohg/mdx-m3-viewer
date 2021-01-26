@@ -10,7 +10,7 @@ The viewer part handles the following formats:
 * M3 (Starcraft 2 model): partial support.
 * W3M/W3X (Warcraft 3 map): partial support.
 * BLP1 (Warcraft 3 texture): extensive support, almost everything should work.
-* TGA (image): partial support, only simple 24bit images.
+* TGA (image): extensive support, almost everything should work.
 * DDS (compressed texture): partial support - DXT1/DXT3/DXT5/RGTC.
 * PNG/JPG/GIF/WebP: supported by the browser.
 
@@ -75,9 +75,9 @@ npm install --global http-server
 http-server -c-1
 ```
 
-Once it's running, open `http://localhost/clients/example/` in the browser, and play with the client's source to see how things change.
+Once it's running, open `http://localhost:8080/clients/example/` in the browser, and play with the client's source to see how things change.
 
-You can also check the other available clients, and look at their source.
+You can also check out the other available clients.
 
 ------------------------
 

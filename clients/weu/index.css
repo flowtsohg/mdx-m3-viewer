@@ -5,31 +5,44 @@ body {
     margin: 0;
 }
 
+.client {
+    display: grid;
+    width: 100%;
+    height: 100vh;
+    grid-auto-rows: auto;
+    grid-template-columns: auto 1fr;
+    grid-template-areas: "meta changes";
+    padding: 5px;
+    grid-gap: 5px;
+    box-sizing: border-box;
+}
+
+.meta {
+    grid-area: meta;
+
+    padding: 5px;
+
+    overflow-y: auto;
+}
+
+.changes {
+    grid-area: changes;
+
+    overflow-y: auto;
+}
+
 table {
+    width: 100%;
+
     border-spacing: 0;
     border-collapse: collapse;
     margin-top: 1px;
     margin-bottom: 5px;
 }
 
-thead tr {
-    background-color: #AAAAAA;
-}
-
-tbody tr:nth-child(odd) {
-    background-color: #DDDDDD;
-}
-
 td {
     border: 1px solid black;
     padding: 4px;
-}
-
-.client {
-    width: 100%;
-    height: 100%;
-    padding: 5px;
-    box-sizing: border-box;
 }
 
 .error {
@@ -42,4 +55,24 @@ td {
 
 .indent {
     margin-left: 1em;
+}
+
+.header {
+    background-color: #c5c5c5;
+}
+
+.inlinegui, .singletomultiple, .references {
+    background-color: #92d692;
+}
+
+.inlinecustomscript, .convertedtrigger, .generatedcallbacks {
+    background-color: #b9c1de;
+}
+
+.inlinepreset {
+    background-color: rgb(187, 187, 113);
+}
+
+.missingstring {
+    background-color: rgb(211, 105, 105);
 }

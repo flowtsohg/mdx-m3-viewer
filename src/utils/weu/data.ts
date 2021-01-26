@@ -116,7 +116,7 @@ export default class WeuData {
       triggers.push(trigger);
       customTextTriggers.push(new CustomTextTrigger());
 
-      this.change('references', 'References to preplaced objects lost due to conversions', references.join('\n'));
+      this.change('references', 'Saved references to preplaced objects lost due to conversions', references.join('\n'));
     }
   }
 }

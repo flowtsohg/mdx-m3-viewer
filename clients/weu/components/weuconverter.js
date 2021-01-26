@@ -3,10 +3,16 @@ class WeuConverter extends Component {
   constructor(parentElement) {
     super({ className: 'client' });
 
-    this.stack = [this.container];
     this.triggerData = new ModelViewer.default.parsers.w3x.wtg.TriggerData();
     this.weTriggerData = new ModelViewer.default.parsers.w3x.wtg.TriggerData();
     this.ready = false;
+
+    this.metaElement = createElement({ className: 'meta', container: this.container });
+    this.metaStack = [this.metaElement];
+    this.visibleMeta = null;
+
+    this.changesElement = createElement({ className: 'changes', container: this.container });
+    this.visibleChanges = null;
 
     this.load();
 
@@ -41,33 +47,52 @@ class WeuConverter extends Component {
   }
 
   clear() {
-    this.container.innerHTML = '';
+    this.metaElement.innerHTML = '';
+    this.changesElement.innerHTML = '';
   }
 
   indent() {
-    this.stack.unshift(createElement({ className: 'indent', container: this.stack[0] }));
+    this.metaStack.unshift(createElement({ className: 'indent', container: this.metaStack[0] }));
   }
 
   deindent() {
-    this.stack.shift();
+    this.metaStack.shift();
   }
 
   text(text) {
-    createElement({ textContent: text, container: this.stack[0] });
+    createElement({ textContent: text, container: this.metaStack[0] });
 
-    window.scrollTo(0, 10000000);
+    this.metaElement.scrollTo(0, 10000000);
   }
 
   error(text) {
-    createElement({ className: 'error', textContent: text, container: this.stack[0] });
+    createElement({ className: 'error', textContent: text, container: this.metaStack[0] });
 
-    window.scrollTo(0, 10000000);
+    this.metaElement.scrollTo(0, 10000000);
   }
 
   results(results) {
-    this.stack[0].appendChild((new WeuResults(results)).container);
+    this.metaStack[0].appendChild((new WeuMeta(this, results)).container);
 
-    window.scrollTo(0, 10000000);
+    this.metaElement.scrollTo(0, 10000000);
+  }
+
+  showChanges(meta) {
+    if (this.visibleMeta) {
+      this.visibleMeta.changesToggle.toggle();
+    }
+
+    this.visibleMeta = meta;
+
+    meta.changes.show();
+  }
+
+  hideChanges() {
+    if (this.visibleMeta) {
+      this.visibleMeta.changes.hide();
+
+      this.visibleMeta = null;
+    }
   }
 
   convertMap(name, buffer) {
@@ -147,7 +172,7 @@ class WeuConverter extends Component {
     }
 
     if (totalChanges) {
-      this.text(`Converted with a total of ${totalChanges} changes spread over ${changedMaps} maps`);
+      this.text(`Converted with ${totalChanges} changes in ${changedMaps} maps`);
     } else {
       this.text('Found nothing to convert');
     }
@@ -188,7 +213,7 @@ class WeuConverter extends Component {
 
             this.text(`Saving as ${name}`);
 
-            window.scrollTo(0, 10000000);
+            this.metaElement.scrollTo(0, 10000000);
 
             saveAs(new Blob([results.parser.save()], { type: 'application/octet-stream' }), name);
           }
