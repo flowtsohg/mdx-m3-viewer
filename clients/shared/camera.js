@@ -1,3 +1,6 @@
+vec3 = ModelViewer.default.common.glMatrix.vec3;
+quat = ModelViewer.default.common.glMatrix.quat;
+
 // An orbit camera setup example.
 // Left mouse button controls the orbit itself.
 // The right mouse button allows to move the camera and the point it's looking at on the XY plane.
@@ -88,7 +91,7 @@ function setupCamera(scene, options = {}) {
     onResize();
   });
 
-  onResize();
+  setTimeout(() => onResize(), 0);
 
   // Disable the context menu when right-clicking.
   canvas.addEventListener('contextmenu', function (e) {

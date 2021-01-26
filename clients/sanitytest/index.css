@@ -1,0 +1,289 @@
+﻿html,
+body {
+    padding: 0;
+    margin: 0;
+    font-family: monaco, monospace;
+    font-size: 14px;
+}
+
+.client {
+    display: grid;
+    width: 100%;
+    height: 100vh;
+    grid-template-rows: auto 1fr;
+    grid-template-columns: 200px 1fr 1fr;
+    grid-template-areas: "tests-header results-header viewer-and-mdl-header" "tests results viewer-and-mdl";
+    padding: 5px;
+    grid-gap: 5px;
+    box-sizing: border-box;
+    color: #d8cba7;
+    background-color: black;
+}
+
+.client>* {
+    /* Anything inside a grid has min-height: auto and min-width: auto which means it expands to its size, we need to fix that. */
+    min-height: 0;
+    min-width: 0;
+}
+
+.welcome {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #404040;
+    box-sizing: border-box;
+}
+
+.welcome>* {
+    width: 50%;
+}
+
+.welcome * {
+    padding: 10px;
+}
+
+h1 {
+    font-size: 16px;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+.tests-header, .results-header, .viewer-and-mdl-header {
+    background-color: #151515;
+}
+
+.tests-header {
+    grid-area: tests-header;
+}
+
+.tests-body {
+    grid-area: tests;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    grid-auto-columns: 1fr;
+    grid-template-areas: "search-tests" "tests";
+    grid-gap: 5px;
+    box-sizing: border-box;
+}
+
+.tests {
+    overflow-y: auto;
+    overflow-x: hidden;
+    overflow-wrap: break-word;
+    background-color: #202020;
+}
+
+.results-header {
+    grid-area: results-header;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.results-body {
+    grid-area: results;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overflow-wrap: break-word;
+    background-color: #202020;
+    padding: 5px;
+}
+
+.viewer-and-mdl-header {
+    grid-area: viewer-and-mdl-header;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.viewer-and-mdl-body {
+    grid-area: viewer-and-mdl;
+}
+
+.viewer-and-console {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    grid-template-rows: 1fr 200px;
+    grid-template-columns: 1fr;
+    grid-template-areas: "viewer" "console";
+    grid-gap: 5px;
+    box-sizing: border-box;
+}
+
+.viewer-and-console>* {
+    /* Anything inside a grid has min-height: auto and min-width: auto which means it expands to its size, we need to fix that. */
+    min-height: 0;
+    min-width: 0;
+}
+
+.viewer {
+    grid-area: viewer;
+
+    display: grid;
+    grid-auto-columns: 1fr;
+    grid-auto-rows: 1fr;
+    grid-template-areas: 'viewer-and-controls';
+}
+
+.viewer>* {
+    grid-area: viewer-and-controls;
+    min-height: 0;
+    min-width: 0;
+}
+
+.viewer-controls {
+    z-index: 1;
+    pointer-events: none;
+    background-color: transparent;
+    padding: 5px;
+}
+
+.viewer-controls>* {
+    display: flex;
+    gap: 5px;
+}
+
+.controls {
+    pointer-events: all;
+}
+
+.console {
+    grid-area: console;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    grid-gap: 5px;
+    box-sizing: border-box;
+}
+
+.console .tabs {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 2px;
+    gap: 5px;
+    background-color: #202020;
+}
+
+.console .tab-contents {
+    min-height: 0;
+    min-width: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overflow-wrap: break-word;
+    background-color: #202020;
+    padding: 5px;
+}
+
+.mdl {
+    width: 100%;
+    height: 100%;
+}
+
+.mdl-view {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    grid-auto-rows: 1fr;
+    grid-template-columns: 40% 1fr;
+    grid-template-areas: "mdl-structure mdl-source";
+    grid-gap: 5px;
+    box-sizing: border-box;
+}
+
+.mdl-view>* {
+    /* Anything inside a grid has min-height: auto and min-width: auto which means it expands to its size, we need to fix that. */
+    min-height: 0;
+    min-width: 0;
+}
+
+.mdl-structure {
+    grid-area: mdl-structure;
+    overflow-y: auto;
+    background-color: #202020;
+    padding: 5px;
+}
+
+.mdl-source {
+    grid-area: mdl-source;
+    overflow-y: auto;
+    background-color: #202020;
+    padding: 5px;
+}
+
+pre {
+    white-space: pre-wrap;
+    margin: 0;
+}
+
+table {
+    border-spacing: 0;
+}
+
+.indent {
+    margin-left: 1em;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.log {
+    color: #777777;
+}
+
+.info {}
+
+.warning {
+    color: rgb(240, 204, 0);
+}
+
+.severe {
+    color: rgb(201, 110, 0);
+}
+
+.error {
+    color: rgb(200, 0, 0);
+}
+
+.unused {
+    color: rgb(80, 136, 2);
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.highlightable:hover {
+    background-color: #151515;
+}
+
+.highlighted {
+    background-color: #151515;
+    border-left: 3px solid #6f0d10;
+}
+
+.highlighted:hover {
+    background-color: #151515;
+}
+
+.center {
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+.padded {
+    padding: 5px;
+}

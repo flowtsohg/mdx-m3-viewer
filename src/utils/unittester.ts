@@ -52,7 +52,7 @@ interface TestResult {
     name: string;
     testImage?: HTMLImageElement;
     comparisonImage?: HTMLImageElement;
-    result: number;
+    mismatchPercentage: number;
   }
 }
 
@@ -125,18 +125,18 @@ export default class UnitTester {
         let testImage = await blobToImage(testBlob);
         let comparisonImage = await blobToImage(comparisonBlob);
 
-        callback({ done: false, value: { name: test.name, testImage, comparisonImage, result: comparisonResult.rawMisMatchPercentage } });
+        callback({ done: false, value: { name: test.name, testImage, comparisonImage, mismatchPercentage: comparisonResult.rawMisMatchPercentage } });
       } else {
         // Fail modes.
         // 1) The test blob exists, but comparison doesn't. This happens when adding new tests.
         // 2) The comparison blob exists, but the test doesn't. This happens when having issues with fetching the files needed for the tests.
         // 3) Neither exists.
         if (testBlob) {
-          callback({ done: false, value: { name: test.name, testImage: await blobToImage(testBlob), result: 100 } });
+          callback({ done: false, value: { name: test.name, testImage: await blobToImage(testBlob), mismatchPercentage: 100 } });
         } else if (comparisonBlob) {
-          callback({ done: false, value: { name: test.name, comparisonImage: await blobToImage(comparisonBlob), result: 100 } });
+          callback({ done: false, value: { name: test.name, comparisonImage: await blobToImage(comparisonBlob), mismatchPercentage: 100 } });
         } else {
-          callback({ done: false, value: { name: test.name, result: 100 } });
+          callback({ done: false, value: { name: test.name, mismatchPercentage: 100 } });
         }
       }
     }

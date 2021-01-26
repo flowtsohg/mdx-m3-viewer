@@ -57,24 +57,24 @@ function compileReturn(type: string) {
 }
 
 function compileNative(stream: TokenStream, isConstant: boolean) {
-  let name = stream.read();
+  let name = stream.readSafe();
   let params = [];
 
   stream.read(); // takes
 
-  let token = stream.read(); // nothing or type
+  let token = stream.readSafe(); // nothing or type
 
   if (token !== 'nothing') {
     params.push({ type: token, name: stream.readSafe() });
 
     while (stream.read() === ',') {
-      params.push({ type: stream.read(), name: stream.readSafe() });
+      params.push({ type: stream.readSafe(), name: stream.readSafe() });
     }
   } else {
     stream.read(); // returns
   }
 
-  let returnType = stream.read();
+  let returnType = stream.readSafe();
 
   let decl = `
 /**

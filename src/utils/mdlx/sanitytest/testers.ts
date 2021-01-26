@@ -61,7 +61,7 @@ function testSequence(data: SanityTestData, sequence: Sequence) {
     let otherInterval = otherSequence.interval;
 
     if (interval[0] < otherInterval[1]) {
-      data.addSevere(`This sequence starts before sequence ${i} "${otherSequence.name}" ends`);
+      data.addSevere(`This sequence starts before sequence ${i + 1} "${otherSequence.name}" ends`);
     }
   }
 
@@ -157,7 +157,7 @@ export function testGeoset(data: SanityTestData, geoset: Geoset, index: number) 
   let geosetAnimations = data.model.geosetAnimations;
   let materialId = geoset.materialId;
 
-  data.assertSevere(geoset.vertices.length < 65536, `Too many vertices in one geoset: ${geoset.vertices.length}`);
+  data.assertSevere(geoset.vertices.length < 65536, `Too many vertices in one geoset: ${geoset.vertices.length / 3}`);
 
   testGeosetSkinning(data, geoset, index);
 
@@ -166,7 +166,7 @@ export function testGeoset(data: SanityTestData, geoset: Geoset, index: number) 
 
     for (let j = 0, k = geosetAnimations.length; j < k; j++) {
       if (geosetAnimations[j].geosetId === index) {
-        references.push(j);
+        references.push(j + 1);
       }
     }
 
@@ -214,7 +214,7 @@ export function testBone(data: SanityTestData, bone: Bone) {
     let geosetAnimation = geosetAnimations[geosetAnimationId];
 
     if (geosetId !== -1 && geosetAnimation.alpha < SUPPOSED_ALPHA_THRESHOLD && !hasAnimation(geosetAnimation, 'KGAO')) {
-      data.addSevere(`Referencing geoset ${bone.geosetAnimationId} and geoset animation ${geosetAnimationId} with a 0 alpha, the geoset may be invisible`);
+      data.addSevere(`Referencing geoset ${geosetId + 1} and geoset animation ${geosetAnimationId + 1} with a 0 alpha, the geoset may be invisible`);
     }
   }
 }

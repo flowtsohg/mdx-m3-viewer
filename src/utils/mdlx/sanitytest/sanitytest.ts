@@ -56,5 +56,5 @@ export default function sanityTest(model: Model) {
     }
   }
 
-  return { nodes, errors, severe, warnings, unused };
+  return { type: 'node', nodes, errors, severe, warnings, unused };
 }

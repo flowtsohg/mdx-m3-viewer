@@ -1,4 +1,5 @@
 import unique from '../../../common/arrayunique';
+import { basename } from '../../../common/path';
 import { Animation } from '../../../parsers/mdlx/animations';
 import AnimatedObject from '../../../parsers/mdlx/animatedobject';
 import GenericObject from '../../../parsers/mdlx/genericobject';
@@ -20,10 +21,10 @@ import RibbonEmitter from '../../../parsers/mdlx/ribbonemitter';
 import EventObject from '../../../parsers/mdlx/eventobject';
 import Camera from '../../../parsers/mdlx/camera';
 import CollisionShape from '../../../parsers/mdlx/collisionshape';
+import FaceEffect from '../../../parsers/mdlx/faceeffect';
 import SanityTestData from './data';
 import testTracks from './tracks';
 import { SanityTestNode } from './data';
-import FaceEffect from '../../../parsers/mdlx/faceeffect';
 
 export const sequenceNames = new Set([
   'attack',
@@ -171,12 +172,44 @@ export function getObjectTypeName(object: MdlxType) {
     return 'Camera';
   } else if (object instanceof CollisionShape) {
     return 'CollisionShape';
+  } else if (object instanceof FaceEffect) {
+    return 'FaceEffect';
   } else if (object instanceof Animation) {
     return <string>animatedTypeNames.get(object.name);
   } else {
     console.warn('Unknown object type', object);
     return 'Unknown';
   }
+}
+
+export function getObjectName(object: MdlxType, index: number) {
+  let name = getObjectTypeName(object);
+
+  if (!(object instanceof Animation)) {
+    name += ` ${index + 1}`;
+  }
+
+  if (object instanceof Sequence || object instanceof GenericObject || object instanceof Camera) {
+    name += ` - "${object.name}"`;
+  }
+
+  if (object instanceof Texture || object instanceof FaceEffect) {
+    if (object.path.length) {
+      name += ` - "${basename(object.path)}"`;
+    }
+
+    if (object instanceof Texture) {
+      if (object.replaceableId === 1) {
+        name += ' - Team color';
+      } else if (object.replaceableId === 2) {
+        name += ' - Team glow';
+      } else if (object.replaceableId > 0) {
+        name += ` - Replaceable ID ${object.replaceableId}`;
+      }
+    }
+  }
+
+  return name;
 }
 
 export function testObjects(data: SanityTestData, objects: MdlxType[], handler?: (data: SanityTestData, object: any, index: number) => void) {
@@ -368,7 +401,7 @@ export function cleanNode(node: SanityTestNode) {
     let child = nodes[i];
 
     if (child.type === 'node') {
-      if (child.errors || child.severe || child.warnings || child.unused || !child.uses) {
+      if (child.errors || child.severe || child.warnings || child.unused || (child.uses !== undefined && !child.uses)) {
         cleanNode(child);
       } else {
         nodes.splice(i, 1);

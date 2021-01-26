@@ -7,10 +7,20 @@ export default class TokenStream {
   buffer: string;
   index: number = 0;
   ident: number = 0;
+  indentSpaces: number = 4;
   precision: number = 1000000; // 6 digits after the decimal point.
 
   constructor(buffer?: string) {
     this.buffer = buffer || '';
+  }
+
+  /**
+   * Clear the stream from whatever buffer it had.
+   */
+  clear() {
+    this.buffer = '';
+    this.index = 0;
+    this.ident = 0;
   }
 
   /**
@@ -217,7 +227,7 @@ export default class TokenStream {
    * The current indentation level is prepended, and the stream goes to the next line after the write.
    */
   writeLine(line: string) {
-    this.buffer += `${'\t'.repeat(this.ident)}${line}\n`;
+    this.buffer += `${' '.repeat(this.ident * this.indentSpaces)}${line}\n`;
   }
 
   /**

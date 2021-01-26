@@ -20,10 +20,10 @@ let scene = viewer.addScene();
 setupCamera(scene);
 
 // Events.
-viewer.on('loadstart', (viewer, path) => console.log('loadstart', path));
-viewer.on('load', (viewer, path) => console.log('load', path));
-viewer.on('loadend', (viewer, path) => console.log('loadend path', path));
-viewer.on('error', (viewer, error, reason) => console.log(viewer, error, reason));
+viewer.on('loadstart', (e) => console.log(e));
+viewer.on('load', (e) => console.log('load', e));
+viewer.on('loadend', (e) => console.log('loadend', e));
+viewer.on('error', (e) => console.log('error', e));
 
 // Add the MDX handler.
 // Note that this also loads all of the team colors/glows.

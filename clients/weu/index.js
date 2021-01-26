@@ -1,4 +1,4 @@
-let tester = new SanityTester(document.body);
+let converter = new WeuConverter(document.body);
 
 document.addEventListener('dragover', e => {
   e.preventDefault();
@@ -11,9 +11,5 @@ document.addEventListener('dragend', e => {
 document.addEventListener('drop', e => {
   e.preventDefault();
 
-  for (let file of e.dataTransfer.files) {
-    tester.loadFile(file);
-  }
+  converter.convertFile(e.dataTransfer.files[0]);
 });
-
-tester.loadAPI(window.location.search);

@@ -2,58 +2,22 @@
 <html>
 
 <head>
-    <title></title>
+    <title>WEU Converter</title>
     <meta charset="utf-8" />
-
-    <style>
-        .log {}
-
-        .info {
-            display: block;
-            font-family: monospace;
-            white-space: pre;
-        }
-
-        .warn {
-            color: darkgoldenrod;
-        }
-
-        .error {
-            color: #cc0000;
-        }
-
-        .unused {
-            color: rgb(96, 166, 0);
-        }
-
-        table {
-            border-spacing: 0;
-            border-collapse: collapse;
-        }
-
-        thead tr {
-            background-color: #CCCCCC;
-        }
-
-        tbody tr:nth-child(odd) {
-            background-color: #EEEEEE;
-        }
-
-        td {
-            border: 1px solid black;
-            padding: 2px;
-        }
-    </style>
+    <link href="index.css" rel="stylesheet">
 </head>
 
 <body>
-    <div id="output"></div>
-
     <script src="../../dist/viewer.min.js"></script>
     <script src="../thirdparty/filesaver.js"></script>
-    <script src="../logstream.js"></script>
-    <script src="../localorhive.js"></script>
-    <script src="main.js"></script>
+    <script src="../shared/localorhive.js"></script>
+    <script src="../shared/utils.js"></script>
+    <script src="../shared/domutils.js"></script>
+    <script src="../shared/component.js"></script>
+    <script src="../shared/components/toggle.js"></script>
+    <script src="components/weuresults.js"></script>
+    <script src="components/weuconverter.js"></script>
+    <script src="index.js"></script>
 </body>
 
 </html>

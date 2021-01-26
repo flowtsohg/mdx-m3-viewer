@@ -12,7 +12,7 @@ export default class Layer extends AnimatedObject {
   index: number;
   priorityPlane: number;
   filterMode: number;
-  textureId: number;
+  textureId: number = 0;
   coordId: number;
   alpha: number;
   unshaded: number;
@@ -22,9 +22,9 @@ export default class Layer extends AnimatedObject {
   noDepthTest: number;
   noDepthSet: number;
   depthMaskValue: boolean;
-  blendSrc: number;
-  blendDst: number;
-  blended: boolean;
+  blendSrc: number = 0;
+  blendDst: number = 0;
+  blended: boolean = false;
   textureAnimation: TextureAnimation | null = null;
 
   constructor(model: MdxModel, layer: MdlxLayer, layerId: number, priorityPlane: number) {
@@ -37,7 +37,11 @@ export default class Layer extends AnimatedObject {
     this.index = layerId;
     this.priorityPlane = priorityPlane;
     this.filterMode = filterMode;
-    this.textureId = layer.textureId;
+
+    if (layer.textureId !== -1) {
+      this.textureId = layer.textureId;
+    }
+
     this.coordId = layer.coordId;
     this.alpha = layer.alpha;
 
@@ -52,11 +56,8 @@ export default class Layer extends AnimatedObject {
 
     this.depthMaskValue = (filterMode === 0 || filterMode === 1);
 
-    this.blendSrc = 0;
-    this.blendDst = 0;
-    this.blended = (filterMode > 1) ? true : false;
-
-    if (this.blended) {
+    if (filterMode > 1) {
+      this.blended = true;
       [this.blendSrc, this.blendDst] = layerFilterMode(filterMode, gl);
     }
 

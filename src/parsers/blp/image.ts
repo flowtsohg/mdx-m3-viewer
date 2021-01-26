@@ -8,7 +8,7 @@ const CONTENT_JPG = 0x0;
 // const CONTENT_PALLETE = 0x1;
 
 /**
- * A BLP1 texture.
+ * A BLP1 image.
  */
 export class BlpImage {
   content: number = 0;

@@ -18,7 +18,7 @@ export default function convertWeu(map: War3Map, customTriggerData: TriggerData,
   }
 
   if (!wtg) {
-    return { ok: false, error: `The triggers file doesn't exist. This means this map is most likely protected/optimized.` };
+    return { ok: false, error: `The triggers file doesn't exist` };
   }
 
   // Try to read the custom text triggers file.

@@ -1,13 +1,11 @@
-import jass2lua from './jass2lua';
 import Context from './context';
+import jass2lua from './jass2lua';
+import * as types from './types';
 import compileNatives from './compilenatives';
-import bindNatives from './natives';
-import rebuild from './rebuild';
 
 export default {
-  jass2lua,
   Context,
+  jass2lua,
+  types,
   compileNatives,
-  bindNatives,
-  rebuild,
 };

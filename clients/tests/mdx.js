@@ -140,7 +140,7 @@ let mdxTests = {
             // Rotate also the instance, to be sure billboarding works in all cases.
             // It happened in a past implementation that billboaring worked as long as the instance isn't rotated.
             // Needless to say, it took a long time to find that bug.
-            instance.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-45)));
+            instance.rotate(quat.setAxisAngle([], [0, 1, 0], -0.785398));
 
             instance.frame = 800;
 
@@ -157,10 +157,10 @@ let mdxTests = {
         //     },
         //     test(viewer, scene, camera, model) {
         //         camera.move([0, -150, -500]);
-        //         camera.rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-90)));
-        //         camera.rotate(quat.setAxisAngle([], [0, 1, 0], math.degToRad(-45)));
+        //         camera.rotate(quat.setAxisAngle([], [0, 0, 1], -1.5708));
+        //         camera.rotate(quat.setAxisAngle([], [0, 1, 0], -0.785398));
 
-        //         let instance = model.addInstance().setSequence(0).rotate(quat.setAxisAngle([], [0, 0, 1], math.degToRad(-45)));
+        //         let instance = model.addInstance().setSequence(0).rotate(quat.setAxisAngle([], [0, 0, 1], -0.785398));
 
         //         instance.frame += 3000;
 

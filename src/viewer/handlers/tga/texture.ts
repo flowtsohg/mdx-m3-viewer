@@ -42,7 +42,5 @@ export default class TgaTexture extends Texture {
     this.webglResource = id;
     this.width = width;
     this.height = height;
-
-    console.log(this)
   }
 }

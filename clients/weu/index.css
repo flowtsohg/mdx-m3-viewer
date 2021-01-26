@@ -1,0 +1,45 @@
+﻿html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+table {
+    border-spacing: 0;
+    border-collapse: collapse;
+    margin-top: 1px;
+    margin-bottom: 5px;
+}
+
+thead tr {
+    background-color: #AAAAAA;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #DDDDDD;
+}
+
+td {
+    border: 1px solid black;
+    padding: 4px;
+}
+
+.client {
+    width: 100%;
+    height: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.error {
+    color: red;
+}
+
+.hidden {
+    display: none;
+}
+
+.indent {
+    margin-left: 1em;
+}

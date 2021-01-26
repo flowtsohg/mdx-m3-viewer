@@ -31,12 +31,12 @@ function seprateTracks(data: SanityTestData, frames: number[] | Uint32Array, glo
   for (let i = 0, l = frames.length; i < l; i++) {
     let frame = frames[i];
 
-    data.assertWarning(frame >= 0, `Track ${i}: Negative frame`);
+    data.assertWarning(frame >= 0, `Track ${i + 1} has a negative frame ${frame}`);
 
     if (frame === lastFrame) {
-      data.addWarning(`Track ${i} has the same frame ${frame} as track ${i - 1}`);
+      data.addWarning(`Track ${i + 1} has the same frame ${frame} as track ${i}`);
     } else if (frame < lastFrame) {
-      data.addSevere(`Track ${i} frame at ${frame} is lower than the track before it at ${lastFrame}`)
+      data.addSevere(`Track ${i + 1} at frame ${frame} is lower than the track before it at ${lastFrame}`)
     }
 
     let sequence = getSequenceFromFrame(data, frame, globalSequenceId);
@@ -49,9 +49,9 @@ function seprateTracks(data: SanityTestData, frames: number[] | Uint32Array, glo
       // Who knows.
       if (frame !== 0 && frames.length > 1) {
         if (globalSequenceId === -1) {
-          data.addUnused(`Track ${i}: Frame ${frame} is not in any sequence`);
+          data.addUnused(`Track ${i + 1} at frame ${frame} is not in any sequence`);
         } else {
-          data.addUnused(`Track ${i}: Frame ${frame} is not in global sequence ${globalSequenceId}`);
+          data.addUnused(`Track ${i + 1} at frame ${frame} is not in global sequence ${globalSequenceId}`);
         }
       }
     }
@@ -64,22 +64,30 @@ function getSequenceName(data: SanityTestData, sequence: number, globalSequenceI
   if (globalSequenceId === -1) {
     return `sequence "${data.model.sequences[sequence].name}"`;
   } else {
-    return `global sequence ${globalSequenceId}`;
+    return `global sequence ${globalSequenceId + 1}`;
   }
 }
 
 const EPSILON = 0.001;
 
 function compareValues(a: Uint32Array | Float32Array, b: Uint32Array | Float32Array, c: Uint32Array | Float32Array) {
+  let d = 0;
+
   for (let i = 0, l = a.length; i < l; i++) {
     let ai = a[i];
+    let d1 = Math.abs(ai - b[i]);
+    let d2 = Math.abs(ai - c[i]);
 
-    if (Math.abs(ai - b[i]) > EPSILON || Math.abs(ai - c[i]) > EPSILON) {
-      return false;
+    if (d1 > d) {
+      d = d1;
+    }
+
+    if (d2 > d) {
+      d = d2;
     }
   }
 
-  return true;
+  return d;
 }
 
 function testSequenceTracks(data: SanityTestData, indices: number[], sequence: number, globalSequenceId: number, interpolationType: number, frames: number[] | Uint32Array, values: (Uint32Array | Float32Array)[] | undefined) {
@@ -112,11 +120,13 @@ function testSequenceTracks(data: SanityTestData, indices: number[], sequence: n
 
       for (let i = 2, l = indices.length; i < l; i++) {
         let c = values[indices[i]];
+        let index = indices[i - 1];
+        let d = compareValues(a, b, c);
 
-        if (compareValues(a, b, c)) {
-          let index = indices[i - 1];
-
-          data.addUnused(`Track ${index} at frame ${frames[index]} has the same-ish value as tracks ${index - 1} and ${index + 1}`);
+        if (d === 0) {
+          data.addUnused(`Track ${index + 1} at frame ${frames[index]} has exactly the same value as tracks ${index} and ${index + 2}`);
+        } else if (d < EPSILON) {
+          data.addUnused(`Track ${index + 1} at frame ${frames[index]} has roughly the same value as tracks ${index} and ${index + 2}`);
         }
 
         a = b;

@@ -1,7 +1,7 @@
 import Model from '../../../parsers/mdlx/model';
 import GenericObject from '../../../parsers/mdlx/genericobject';
 import Layer from '../../../parsers/mdlx/layer';
-import { getObjectTypeName, MdlxType } from './utils';
+import { getObjectName, getObjectTypeName, MdlxType } from './utils';
 
 export interface SanityTestMessage {
   type: 'error' | 'severe' | 'warning' | 'unused';
@@ -10,14 +10,12 @@ export interface SanityTestMessage {
 
 export interface SanityTestNode {
   type: 'node';
-  objectType: string;
-  index?: number;
+  name: string;
   errors: number;
   severe: number;
   warnings: number;
   unused: number;
   nodes: (SanityTestNode | SanityTestMessage)[];
-  name?: string;
   uses?: number;
 }
 
@@ -33,7 +31,7 @@ export default class SanityTestData {
 
   constructor(model: Model) {
     this.model = model;
-    this.current = { type: 'node', objectType: '', index: -1, errors: 0, severe: 0, warnings: 0, unused: 0, nodes: [] };
+    this.current = { type: 'node', name: '', errors: 0, severe: 0, warnings: 0, unused: 0, nodes: [] };
     this.stack = [this.current];
 
     this.addObjects(model.sequences);
@@ -62,19 +60,15 @@ export default class SanityTestData {
    */
   addObjects(objects: MdlxType[]) {
     if (objects.length) {
-      let objectType = getObjectTypeName(objects[0]);
       let areGeneric = objects[0] instanceof GenericObject;
 
       for (let i = 0, l = objects.length; i < l; i++) {
         let object = objects[i];
-        let node = <SanityTestNode>{ type: 'node', objectType, index: i, errors: 0, severe: 0, warnings: 0, unused: 0, nodes: [] };
+        let name = getObjectName(object, i);
+        let node = <SanityTestNode>{ type: 'node', name, errors: 0, severe: 0, warnings: 0, unused: 0, nodes: [] };
 
         if (typeof object !== 'number') {
-          let name = object['path'] || object['name'];
-
-          if (name) {
-            node.name = name;
-          }
+          node.name = getObjectName(object, i);
         }
 
         if (!areGeneric) {
@@ -98,15 +92,9 @@ export default class SanityTestData {
     let node = this.map.get(object);
 
     if (!node) {
-      let objectType = getObjectTypeName(object);
+      let name = getObjectName(object, index);
 
-      node = <SanityTestNode>{ type: 'node', objectType, errors: 0, severe: 0, warnings: 0, unused: 0, nodes: [] };
-
-      // The code will reach this point for layers and animations.
-      // It doesn't make sense to index animations, since any specific animation tag can only exist once in the same object.
-      if (object instanceof Layer) {
-        node.index = index;
-      }
+      node = <SanityTestNode>{ type: 'node', name, errors: 0, severe: 0, warnings: 0, unused: 0, nodes: [] };
     }
 
     this.current.nodes.push(node);

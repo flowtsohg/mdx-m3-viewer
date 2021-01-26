@@ -6,56 +6,53 @@
   <meta charset="utf-8" />
 
   <style>
+    button {
+      margin-left: 2px;
+      margin-right: 2px;
+    }
+
     td {
       padding-left: 4px;
       padding-right: 4px;
+    }
+
+    .center {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    img {
+      width: 20px;
+      height: 20px;
     }
 
     .bold {
       font-weight: bold;
     }
 
-    .centered {
-      text-align: center;
-    }
-
-    .success {
+    .passed {
       color: green;
     }
 
-    .failure {
+    .failed {
       color: red;
+    }
+
+    .hidden {
+      display: none;
     }
   </style>
 </head>
 
 <body>
-  <b id="version"></b>
-
-  <br />
-  <br />
-
-  <button id="run">Run</button>
-  <button id="download">Download</button>
-
-  <br />
-  <br />
-
-  <table id="tests">
-    <tr class="bold">
-      <td>Test</td>
-      <td>Status</td>
-      <td>A</td>
-      <td>B</td>
-    </tr>
-  </table>
-
-  <p id="result"></p>
-
   <script src="../../dist/viewer.min.js"></script>
   <script src="../thirdparty/jszip.min.js"></script>
   <script src="../thirdparty/filesaver.js"></script>
-  <script src="../localorhive.js"></script>
+  <script src="../shared/localorhive.js"></script>
+  <script src="../shared/domutils.js"></script>
+  <script src="../shared/component.js"></script>
+  <script src="components/unittester.js"></script>
   <script src="mdx.js"></script>
   <script src="mdxprimitives.js"></script>
   <script src="m3.js"></script>

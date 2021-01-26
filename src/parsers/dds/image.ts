@@ -11,7 +11,7 @@ export const FOURCC_DXT5 = 0x35545844;
 export const FOURCC_ATI2 = 0x32495441;
 
 /**
- * A DDS texture.
+ * A DDS image.
  */
 export class DdsImage {
   width: number = 0;

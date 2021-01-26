@@ -25,6 +25,7 @@ They include:
 * MPQ1: read/write.
 * W3M/W3X/W3N: read/write, including all of the internal files.
 * DDS: read (DXT1/DXT3/DXT5/RGTC).
+* TGA: read.
 
 There are all sorts of utilities that were made over the years.\
 These include things like...
@@ -64,11 +65,19 @@ This way, you don't import any parsers/handlers/utilities that are not needed.
 
 ------------------------
 
-#### Getting started
+#### Examples
 
-1. Run the given demo HTTP server `npm run serve`.
-2. In your browser, open `http://localhost/clients/example`.
-3. You can also check the other more advanced clients.
+Run an HTTP server in the viewer's root.
+
+If you don't have one:
+```
+npm install --global http-server
+http-server -c-1
+```
+
+Once it's running, open `http://localhost/clients/example/` in the browser, and play with the client's source to see how things change.
+
+You can also check the other available clients, and look at their source.
 
 ------------------------
 
@@ -415,9 +424,9 @@ Assuming you have some way to fetch Warcraft 3 files, this load will work as exp
 
 #### Primitive shapes
 
-It is possible to construct primitive shapes with `createPrimitive`, which is available under `utils.mdx.createPrimitive`.
+It is possible to construct primitive shapes with `createPrimitive`, which is available under `utils.mdlx.createPrimitive`.
 
-The function expects an object describing a primitive geometry, which can be obtained via the different functions in `utils.mdx.primitives`.
+The function expects an object describing a primitive geometry, which can be obtained via the different functions in `utils.mdlx.primitives`.
 
 An optional material can be given, which can control the render mode between polygns and lines, the color, texture, and such.
 

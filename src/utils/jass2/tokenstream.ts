@@ -103,8 +103,6 @@ export default class TokenStream {
         return token;
       }
     }
-
-    return '';
   }
 
   /**
@@ -121,6 +119,10 @@ export default class TokenStream {
 
   readSafe() {
     let token = this.read();
+
+    if (token === undefined) {
+      throw new Error('Premature end of stream reached');
+    }
 
     if (token === 'null') {
       return 'nil';

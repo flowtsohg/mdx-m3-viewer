@@ -89,7 +89,7 @@ import JassSoundType from './soundtype';
 import JassPathingType from './pathingtype';
 // import JassImage from './image';
 // import JassUbersplat from './ubersplat';
-// import JassHashtable from './hashtable';
+import JassHashtable from './hashtable';
 
 export {
   JassHandle,
@@ -183,5 +183,5 @@ export {
   JassPathingType,
   // JassImage,
   // JassUbersplat,
-  // JassHashtable
+  JassHashtable
 };

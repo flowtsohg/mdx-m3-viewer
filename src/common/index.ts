@@ -5,6 +5,7 @@ import * as canvas from './canvas';
 import BinaryStream from './binarystream';
 import BitStream from './bitstream';
 import urlWithParams from './urlwithparams';
+import * as path from './path';
 
 export default {
   glMatrix,
@@ -14,4 +15,5 @@ export default {
   BinaryStream,
   BitStream,
   urlWithParams,
+  path,
 };
