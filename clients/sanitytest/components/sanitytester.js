@@ -41,6 +41,8 @@ class SanityTester extends Component {
 
         hideElement(viewerLogger);
         showElement(this.mdl);
+
+        this.viewer.controls.animate(false);
       } else {
         viewerLoggerMdlH1.textContent = '3D View';
 
@@ -175,33 +177,34 @@ class SanityTester extends Component {
 
   /**
    * Used by the Hiveworkshop to test resources.
+   * 
+   * file=url&file=url2&override[path]=url3
    */
   loadAPI(api) {
     let files = [];
+    let overrides = new Map();
 
     for (let param of api.slice(1).split('&')) {
       let [key, value] = param.split('=');
 
-      if (value) {
-        files.push(value);
+      // Test also overrides.
+      files.push(value);
+
+      if (key.startsWith('override')) {
+        // Discord changes \ to / in urls, ignoring escaping, so escape manually.
+        overrides.set(key.slice(9, -1).replace(/\//g, '\\'), value);
       }
     }
 
     if (files.length) {
-      // Textures get injected either way, and so this path solver isn't strictly needed.
-      // With that being said, having it means not spamming viewer load errors.
       let pathSolver = (src) => {
-        let a = ModelViewer.default.common.path.basename(src).toLowerCase();
+        let override = overrides.get(src);
 
-        for (let file of files) {
-          let b = ModelViewer.default.common.path.basename(file).toLowerCase();
-
-          if (a === b) {
-            return file;
-          }
+        if (override) {
+          return override;
+        } else {
+          return localOrHive(src);
         }
-
-        return localOrHive(src);
       };
 
       for (let file of files) {

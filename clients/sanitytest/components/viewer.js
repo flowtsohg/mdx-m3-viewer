@@ -119,12 +119,18 @@ class Viewer extends Component {
 
       this.visibleInstance = test.instance;
 
-      this.controls.updateSequences(test.instance);
+      if (test.instance.model.sequences.length) {
+        this.controls.updateSequences(test.instance);
 
-      if (test.instance.sequence === -1) {
-        this.setSequence(0);
+        if (test.instance.sequence === -1) {
+          this.setSequence(0);
+        } else {
+          this.setSequence(test.instance.sequence)
+        }
+
+        this.controls.show();
       } else {
-        this.setSequence(test.instance.sequence)
+        this.controls.hide();
       }
 
       test.instance.show();
@@ -140,7 +146,6 @@ class Viewer extends Component {
     if (manual) {
       this.controls.cycle(false);
     }
-
   }
 
   tryToInjectCustomTextures(customTest) {
