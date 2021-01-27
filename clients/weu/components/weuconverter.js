@@ -20,24 +20,27 @@ class WeuConverter extends Component {
   }
 
   async load() {
-    this.text('Fetching files: "UI\\TriggerData.txt", "TriggerDataWEU.txt", "TriggerDataYDWE.txt"');
+    this.text('Fetching files: "UI\\TriggerData.txt", "TriggerDataWEU.txt", "TriggerDataYDWE.txt", "TriggerDataCustom.txt"');
     this.text('Please wait...');
 
-    let [blzResponse, weuResponse, ydweResponse] = await Promise.all([
+    let [blzResponse, weuResponse, ydweResponse, customResponse] = await Promise.all([
       fetch(localOrHive('UI\\TriggerData.txt')),
       fetch('TriggerDataWEU.txt'),
       fetch('TriggerDataYDWE.txt'),
+      fetch('TriggerDataCustom.txt'),
     ]);
 
-    let [blzText, weuText, ydweText] = await Promise.all([
+    let [blzText, weuText, ydweText, customText] = await Promise.all([
       blzResponse.text(),
       weuResponse.text(),
       ydweResponse.text(),
+      customResponse.text(),
     ]);
 
     this.triggerData.addTriggerData(blzText); // WE trigger data
     this.triggerData.addTriggerData(weuText, true); // WEU trigger data
     this.triggerData.addTriggerData(ydweText, true); // YDWE trigger data
+    this.triggerData.addTriggerData(customText, true);
 
     this.weTriggerData.addTriggerData(blzText); // WE trigger data
 
