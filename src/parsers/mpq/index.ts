@@ -5,6 +5,7 @@ import Hash from './hash';
 import BlockTable from './blocktable';
 import Block from './block';
 import File from './file';
+import { isArchive } from './isarchive';
 
 export default {
   Archive,
@@ -14,4 +15,5 @@ export default {
   BlockTable,
   Block,
   File,
+  isArchive,
 };

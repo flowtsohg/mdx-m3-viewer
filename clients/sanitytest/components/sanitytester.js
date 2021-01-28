@@ -42,7 +42,9 @@ class SanityTester extends Component {
         hideElement(viewerLogger);
         showElement(this.mdl);
 
-        this.viewer.controls.animate(false);
+        if (!this.viewer.controls.animationToggle.clicked) {
+          this.viewer.controls.animationToggle.toggle();
+        }
       } else {
         viewerLoggerMdlH1.textContent = '3D View';
 

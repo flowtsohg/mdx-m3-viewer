@@ -19,6 +19,7 @@ import EventObject from './eventobject';
 import CollisionShape from './collisionshape';
 import UnknownChunk from './unknownchunk';
 import TokenStream from './tokenstream';
+import { isMdx, isMdl } from './isformat';
 
 export default {
   Model,
@@ -42,4 +43,6 @@ export default {
   CollisionShape,
   UnknownChunk,
   TokenStream,
+  isMdx,
+  isMdl,
 };

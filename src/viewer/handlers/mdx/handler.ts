@@ -1,5 +1,5 @@
-import { isStringInBytes, isStringInString } from '../../../common/searches';
 import MdlxModel from '../../../parsers/mdlx/model';
+import { isMdx, isMdl } from '../../../parsers/mdlx/isformat';
 import ModelViewer from '../../viewer';
 import { PathSolver } from '../../handlerresource';
 import Texture from '../../texture';
@@ -77,31 +77,12 @@ export default {
       teamGlows,
     });
   },
-  isValidSource(src: any) {
-    if (src instanceof MdlxModel) {
+  isValidSource(object: any) {
+    if (object instanceof MdlxModel) {
       return true;
     }
 
-    if (src instanceof ArrayBuffer) {
-      let bytes = new Uint8Array(src);
-
-      // MDLX
-      if (bytes[0] === 0x4D && bytes[1] === 0x44 && bytes[2] === 0x4C && bytes[3] === 0x58) {
-        return true;
-      }
-
-      // Or attempt to match against MDL by looking for FormatVersion in the first 4KB.
-      if (isStringInBytes(bytes, 'FormatVersion', 0, 4096)) {
-        return true;
-      }
-    }
-
-    // If the source is a string, look for FormatVersion same as above.
-    if (typeof src === 'string' && isStringInString(src, 'FormatVersion', 0, 4096)) {
-      return true;
-    }
-
-    return false;
+    return isMdx(object) || isMdl(object);
   },
   resource: Model,
 };

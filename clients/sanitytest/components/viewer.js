@@ -35,15 +35,17 @@ class Viewer extends Component {
     });
 
     viewer.on('seqend', (instance) => {
+      let sequence = instance.sequence;
+
       if (!this.controls.cycleToggle.clicked) {
-        let sequence = instance.sequence + 1;
+        sequence += 1;
 
         if (sequence === instance.model.sequences.length) {
           sequence = 0;
         }
-
-        this.setSequence(sequence);
       }
+
+      this.setSequence(sequence);
     });
 
     viewer.addHandler(ModelViewer.default.viewer.handlers.mdx, localOrHive, false);
@@ -70,7 +72,7 @@ class Viewer extends Component {
   }
 
   load(test) {
-    this.viewer.load(test.parser, (src) => {
+    this.viewer.load(test.parser, (src, params) => {
       if (src === test.parser) {
         return src;
       }
@@ -80,7 +82,7 @@ class Viewer extends Component {
         return test.pathSolver(src);
       }
 
-      return localOrHive(src);
+      return localOrHive(src, params);
     })
       .then((modelOrTexture) => {
         if (modelOrTexture) {
@@ -137,15 +139,10 @@ class Viewer extends Component {
     }
   }
 
-  setSequence(index, manual) {
+  setSequence(index) {
+    this.viewer.clearEmittedObjects();
     this.visibleInstance.setSequence(index);
     this.controls.setSequence(index);
-
-    this.viewer.clearEmittedObjects();
-
-    if (manual) {
-      this.controls.cycle(false);
-    }
   }
 
   tryToInjectCustomTextures(customTest) {

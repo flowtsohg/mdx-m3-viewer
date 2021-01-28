@@ -47,20 +47,21 @@ export function testSequences(data: SanityTestData) {
   }
 }
 
-function testSequence(data: SanityTestData, sequence: Sequence) {
+function testSequence(data: SanityTestData, sequence: Sequence, index: number) {
   let name = sequence.name;
   let tokens = name.toLowerCase().trim().split('-')[0].split(/\s+/);
   let token = tokens[0];
   let interval = sequence.interval;
   let length = interval[1] - interval[0];
   let sequences = data.model.sequences;
-  let index = sequences.indexOf(sequence);
 
   for (let i = 0; i < index; i++) {
     let otherSequence = sequences[i];
     let otherInterval = otherSequence.interval;
 
-    if (interval[0] < otherInterval[1]) {
+    if (interval[0] === otherInterval[0]) {
+      data.addSevere(`This sequence starts at the same frame as sequence ${i + 1} "${otherSequence.name}"`);
+    } else if (interval[0] < otherInterval[1]) {
       data.addSevere(`This sequence starts before sequence ${i + 1} "${otherSequence.name}" ends`);
     }
   }
@@ -159,7 +160,7 @@ export function testGeoset(data: SanityTestData, geoset: Geoset, index: number) 
 
   data.assertSevere(geoset.vertices.length < 65536, `Too many vertices in one geoset: ${geoset.vertices.length / 3}`);
 
-  testGeosetSkinning(data, geoset, index);
+  testGeosetSkinning(data, geoset);
 
   if (geosetAnimations.length) {
     let references = [];
@@ -298,5 +299,7 @@ export function testBindPose(data: SanityTestData) {
   let matrices = data.model.bindPose;
   let objects = data.objects;
 
-  data.assertWarning(matrices.length === objects.length, `Expected ${objects.length} matrices, got ${matrices.length}`);
+  // There's always an extra matrix for some reason.
+  // Face effects? but also models with no face effects have it.
+  data.assertWarning(matrices.length === objects.length + 1, `Expected ${objects.length + 1} matrices, got ${matrices.length}`);
 }

@@ -274,7 +274,7 @@ export function getTextureIds(layer: Layer) {
   return [layer.textureId];
 }
 
-function testVertexSkinning(data: SanityTestData, vertex: number, bone: number, geoset: number) {
+function testVertexSkinning(data: SanityTestData, vertex: number, bone: number) {
   let object = data.objects[bone];
 
   if (object) {
@@ -289,7 +289,7 @@ function testVertexSkinning(data: SanityTestData, vertex: number, bone: number, 
 /**
  * Test geoset skinning.
  */
-export function testGeosetSkinning(data: SanityTestData, geoset: Geoset, index: number) {
+export function testGeosetSkinning(data: SanityTestData, geoset: Geoset) {
   if (data.model.version > 800 && geoset.skin.length) {
     data.assertWarning(geoset.vertexGroups.length === 0, 'This geoset has both skin/weights and vertex groups');
 
@@ -307,19 +307,19 @@ export function testGeosetSkinning(data: SanityTestData, geoset: Geoset, index: 
       let weight3 = skin[offset + 7];
 
       if (weight0 > 0) {
-        testVertexSkinning(data, i, bone0, index);
+        testVertexSkinning(data, i, bone0);
       }
 
       if (weight1 > 0) {
-        testVertexSkinning(data, i, bone1, index);
+        testVertexSkinning(data, i, bone1);
       }
 
       if (weight2 > 0) {
-        testVertexSkinning(data, i, bone2, index);
+        testVertexSkinning(data, i, bone2);
       }
 
       if (weight3 > 0) {
-        testVertexSkinning(data, i, bone3, index);
+        testVertexSkinning(data, i, bone3);
       }
 
       let weight = weight0 + weight1 + weight2 + weight3;
@@ -349,7 +349,7 @@ export function testGeosetSkinning(data: SanityTestData, geoset: Geoset, index: 
 
         if (slice) {
           for (let bone of slice) {
-            testVertexSkinning(data, i, bone, index);
+            testVertexSkinning(data, i, bone);
           }
         } else {
           let vertexGroup = vertexGroups[i];

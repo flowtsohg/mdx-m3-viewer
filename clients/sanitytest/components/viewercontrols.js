@@ -28,11 +28,11 @@ class ViewerControls extends Component {
     createElement({ textContent: 'Animations:', container });
     this.sequencesElement = createElement({
       tagName: 'select', className: 'controls', onchange: () => {
-        this.viewer.visibleInstance.setSequence(this.sequencesElement.selectedIndex - 1);
-
         if (!this.cycleToggle.clicked) {
           this.cycleToggle.toggle();
         }
+
+        this.viewer.setSequence(this.sequencesElement.selectedIndex - 1);
       }, container
     });
 
@@ -45,18 +45,6 @@ class ViewerControls extends Component {
 
   frame(frame) {
     this.frameElement.textContent = `${Math.floor(frame)}`;
-  }
-
-  animate(animate) {
-    if (animate === this.animationToggle.clicked) {
-      this.animationToggle.toggle();
-    }
-  }
-
-  cycle(cycle) {
-    if (cycle === this.cycleToggle.clicked) {
-      this.cycleToggle.toggle();
-    }
   }
 
   updateSequences(instance) {

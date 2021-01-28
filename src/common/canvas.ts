@@ -19,7 +19,7 @@ export function blobToImage(blob: Blob) {
       resolve(image);
     };
 
-    image.onerror = (e) => {
+    image.onerror = () => {
       resolve(image);
     };
 

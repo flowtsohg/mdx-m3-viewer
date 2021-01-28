@@ -1,4 +1,4 @@
-function hash(buffer: Uint8Array, initval: number) {
+function hash(buffer: Uint8Array) {
   let o = 0;
   let len = buffer.length;
   let a = 0x9e3779b9;
@@ -93,5 +93,5 @@ export default function sstrhash2(key: string) {
     offset += 1;
   }
 
-  return hash(buffer, 0);
+  return hash(buffer);
 }

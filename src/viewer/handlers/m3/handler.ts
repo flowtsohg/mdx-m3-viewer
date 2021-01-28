@@ -1,4 +1,5 @@
 import Parser from '../../../parsers/m3/model';
+import isM3 from '../../../parsers/m3/isformat';
 import ModelViewer from '../../viewer';
 import ShaderProgram from '../../gl/program';
 import Model from './model';
@@ -43,21 +44,12 @@ export default {
       lightPosition: new Float32Array([0, 0, 10000]),
     });
   },
-  isValidSource(src: any) {
-    if (src instanceof Parser) {
+  isValidSource(object: any) {
+    if (object instanceof Parser) {
       return true;
     }
 
-    if (src instanceof ArrayBuffer) {
-      let buffer = new Uint32Array(src, 0, 1);
-
-      // MD34.
-      if (buffer[0] === 0x4d443334) {
-        return true;
-      }
-    }
-
-    return false;
+    return isM3(object);
   },
   resource: Model,
 };

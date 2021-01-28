@@ -1,7 +1,6 @@
 import Model from '../../../parsers/mdlx/model';
 import GenericObject from '../../../parsers/mdlx/genericobject';
-import Layer from '../../../parsers/mdlx/layer';
-import { getObjectName, getObjectTypeName, MdlxType } from './utils';
+import { getObjectName, MdlxType } from './utils';
 
 export interface SanityTestMessage {
   type: 'error' | 'severe' | 'warning' | 'unused';
@@ -18,7 +17,6 @@ export interface SanityTestNode {
   nodes: (SanityTestNode | SanityTestMessage)[];
   uses?: number;
 }
-
 
 export default class SanityTestData {
   model: Model;
@@ -52,6 +50,7 @@ export default class SanityTestData {
     this.addObjects(model.cameras);
     this.addObjects(model.eventObjects);
     this.addObjects(model.collisionShapes);
+    this.addObjects(model.faceEffects);
   }
 
   /**
@@ -66,10 +65,6 @@ export default class SanityTestData {
         let object = objects[i];
         let name = getObjectName(object, i);
         let node = <SanityTestNode>{ type: 'node', name, errors: 0, severe: 0, warnings: 0, unused: 0, nodes: [] };
-
-        if (typeof object !== 'number') {
-          node.name = getObjectName(object, i);
-        }
 
         if (!areGeneric) {
           node.uses = 0;
@@ -114,10 +109,10 @@ export default class SanityTestData {
    * Adds a reference to the node the given object maps to.
    */
   addReference(object: MdlxType) {
-    let data = <SanityTestNode>this.map.get(object);
+    let node = <SanityTestNode>this.map.get(object);
 
-    if (data.uses !== undefined) {
-      data.uses += 1;
+    if (node.uses !== undefined) {
+      node.uses += 1;
     }
   }
 
@@ -125,19 +120,15 @@ export default class SanityTestData {
    * Add a reference to the current node.
    */
   addImplicitReference() {
-    let data = this.current;
+    let node = this.current;
 
-    if (data.uses !== undefined) {
-      data.uses += 1;
+    if (node.uses !== undefined) {
+      node.uses += 1;
     }
   }
 
-  addAny(type: 'error' | 'severe' | 'warning' | 'unused', message: string) {
-    this.current.nodes.push({ type, message });
-  }
-
   addError(message: string) {
-    this.addAny('error', message);
+    this.current.nodes.push({ type: 'error', message });
 
     for (let node of this.stack) {
       node.errors += 1;
@@ -145,7 +136,7 @@ export default class SanityTestData {
   }
 
   addSevere(message: string) {
-    this.addAny('severe', message);
+    this.current.nodes.push({ type: 'severe', message });
 
     for (let node of this.stack) {
       node.severe += 1;
@@ -153,7 +144,7 @@ export default class SanityTestData {
   }
 
   addWarning(message: string) {
-    this.addAny('warning', message);
+    this.current.nodes.push({ type: 'warning', message });
 
     for (let node of this.stack) {
       node.warnings += 1;
@@ -161,7 +152,7 @@ export default class SanityTestData {
   }
 
   addUnused(message: string) {
-    this.addAny('unused', message);
+    this.current.nodes.push({ type: 'unused', message });
 
     for (let node of this.stack) {
       node.unused += 1;

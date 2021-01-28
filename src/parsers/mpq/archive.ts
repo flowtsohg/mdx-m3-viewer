@@ -8,7 +8,6 @@ import MpqFile from './file';
 import MpqHashTable from './hashtable';
 import { searchHeader } from './isarchive';
 
-
 /**
  * MoPaQ archive (MPQ) version 0.
  */

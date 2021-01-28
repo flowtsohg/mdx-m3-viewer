@@ -80,7 +80,7 @@ class UnitTester extends Component {
       addElementToRow(row, createElement({ className: name, textContent: name }))
 
       if (result.testImage) {
-        let wrapper = createElement({ className: 'center' });
+        let wrapper = createElement({ tagName: 'a', className: 'center', href: result.testImage.src, target: '_blank' });
 
         wrapper.appendChild(result.testImage);
 
@@ -90,7 +90,7 @@ class UnitTester extends Component {
       }
 
       if (result.comparisonImage) {
-        let wrapper = createElement({ className: 'center' });
+        let wrapper = createElement({ tagName: 'a', className: 'center', href: result.comparisonImage.src, target: '_blank' });
 
         wrapper.appendChild(result.comparisonImage);
 

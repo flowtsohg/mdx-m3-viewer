@@ -28,6 +28,14 @@ function createElement(options) {
       element.readonly = true;
     }
 
+    if (options.href) {
+      element.href = options.href;
+    }
+
+    if (options.target) {
+      element.target = options.target;
+    }
+
     if (options.onclick) {
       element.addEventListener('click', (e) => options.onclick(e, options.component));
     }
