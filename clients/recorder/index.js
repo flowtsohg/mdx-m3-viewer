@@ -11,17 +11,14 @@ var mouse = { buttons: [false, false, false], x: 0, y: 0, x2: 0, y2: 0 };
 
 var canvas = document.getElementById('canvas');
 var viewer = new ModelViewer.viewer.ModelViewer(canvas, { alpha: true });
-var model;
 var instance;
 
 viewer.on('error', (e) => console.error(e));
 
-viewer.addHandler(ModelViewer.viewer.handlers.mdx);
+viewer.addHandler(ModelViewer.viewer.handlers.mdx, localOrHive);
 viewer.addHandler(ModelViewer.viewer.handlers.blp);
 viewer.addHandler(ModelViewer.viewer.handlers.tga);
 viewer.addHandler(ModelViewer.viewer.handlers.dds);
-
-viewer.gl.clearColor(0, 0, 0, 1);
 
 let backgroundOpaque = true;
 let turnTable = false;
@@ -45,7 +42,7 @@ let sequenceNameElement = document.getElementById('sequence_name');
       oneTimeRecord = false;
 
       zip.file(
-        `${recordingFrame++}_${model.name}_${Math.floor(instance.frame)}.png`,
+        `${recordingFrame++}_${instance.model.name}_${Math.floor(instance.frame)}.png`,
         viewer.canvas.toDataURL().substring(22),
         { base64: true }
       );
@@ -58,8 +55,8 @@ let sequenceNameElement = document.getElementById('sequence_name');
 })();
 
 let scene = viewer.addScene();
-console.log(scene);
-setupCamera(scene, 500);
+scene.alpha = true;
+setupCamera(scene, { distance: 500 });
 
 console.log('Viewer version', ModelViewer.version);
 
@@ -164,6 +161,8 @@ window.addEventListener('keydown', e => {
   let key = e.key;
 
   if (instance) {
+    let model = instance.model;
+
     if (key === ' ') {
       isRecording = !isRecording;
     } else if (key === 'ArrowLeft') {
@@ -207,13 +206,12 @@ window.addEventListener('keydown', e => {
     backgroundOpaque = !backgroundOpaque;
 
     if (backgroundOpaque) {
-      viewer.gl.clearColor(0, 0, 0, 1);
+      viewer.alpha = false;
 
       sequenceNameElement.style.color = 'white';
       frameCounterElement.style.color = 'white';
     } else {
-      viewer.gl.clearColor(0, 0, 0, 0);
-
+      viewer.alpha = true;
       sequenceNameElement.style.color = 'black';
       frameCounterElement.style.color = 'black';
     }

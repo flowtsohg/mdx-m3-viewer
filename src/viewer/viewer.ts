@@ -35,6 +35,22 @@ export default class ModelViewer extends EventEmitter {
   canvas: HTMLCanvasElement;
   webgl: WebGL;
   gl: WebGLRenderingContext;
+  /**
+   * Set to true if you want the viewer itself to have no background.
+   * 
+   * This allows to see whatever is behind the canvas.
+   * 
+   * IMPORTANT NOTES:
+   * 
+   *  1) This will do nothing if the WebGL context was not initialized with alpha.
+   *     To do that, pass the alpha option when creating the viewer:
+   *     ```    
+   *     let viewer = new ModelViewer(canvas, { alpha: true });
+   *     ```
+   *  2) Warcraft 3 models use many blending operatings, some not dependant on alpha.
+   *     It's very likely what will be rendered isn't what you expect.
+   */
+  alpha: boolean = false;
   scenes: Scene[] = [];
   visibleCells: number = 0;
   visibleInstances: number = 0;
@@ -488,7 +504,13 @@ export default class ModelViewer extends EventEmitter {
 
     // See https://www.opengl.org/wiki/FAQ#Masking
     gl.depthMask(true);
-    gl.clearColor(0, 0, 0, 1);
+
+    if (this.alpha) {
+      gl.clearColor(0, 0, 0, 0);
+    } else {
+      gl.clearColor(0, 0, 0, 1);
+    }
+
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   }
 
