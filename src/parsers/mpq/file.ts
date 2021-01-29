@@ -4,6 +4,7 @@ import MpqArchive from './archive';
 import MpqBlock from './block';
 import { COMPRESSION_ADPCM_MONO, COMPRESSION_ADPCM_STEREO, COMPRESSION_BZIP2, COMPRESSION_DEFLATE, COMPRESSION_HUFFMAN, COMPRESSION_IMPLODE, FILE_COMPRESSED, FILE_ENCRYPTED, FILE_EXISTS, FILE_OFFSET_ADJUSTED_KEY, FILE_SINGLE_UNIT, HASH_ENTRY_DELETED } from './constants';
 import MpqCrypto from './crypto';
+import explode from './explode';
 import MpqHash from './hash';
 import { isArchive } from './isarchive';
 
@@ -300,8 +301,12 @@ export default class MpqFile {
       }
 
       if (compressionMask & COMPRESSION_IMPLODE) {
-        console.warn(`File ${this.name}, compression type 'implode' not supported`);
-        return null;
+        try {
+          typedArray = explode(typedArray.subarray(1));
+        } catch (e) {
+          console.warn(`File ${this.name}, failed to decompress with 'explode': ${e}`);
+          return null;
+        }
       }
 
       if (compressionMask & COMPRESSION_DEFLATE) {
