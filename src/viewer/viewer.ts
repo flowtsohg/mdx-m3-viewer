@@ -325,7 +325,7 @@ export default class ModelViewer extends EventEmitter {
    * 
    * Unlike load(), this does not use handlers or construct any internal objects.
    * 
-   * `dataType` can be one of: `"image"`, `"string"`, `"arrayBuffer"`, `"blob"`.
+   * `dataType` can be one of: `"image"`, `"string"`, `"arrayBuffer"`, `"bytes"`, `"blob"`.
    * 
    * If `callback` isn't given, the resource's `data` is the fetch data, according to `dataType`.
    * 

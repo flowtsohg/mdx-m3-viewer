@@ -1,12 +1,12 @@
 /**
  * The valid data type names for resource fetches.
  */
-export type FetchDataTypeName = 'image' | 'text' | 'arrayBuffer' | 'blob';
+export type FetchDataTypeName = 'image' | 'text' | 'arrayBuffer' | 'bytes' | 'blob';
 
 /**
  * The valid data types for resource fetches.
  */
-export type FetchDataType = HTMLImageElement | string | ArrayBuffer | Blob;
+export type FetchDataType = HTMLImageElement | string | ArrayBuffer | Uint8Array | Blob;
 
 /**
  * The structure that the promise returned by fetchDataType is resolved to.
@@ -25,6 +25,7 @@ export interface FetchResult {
  *     "image" => Image
  *     "text" => string
  *     "arrayBuffer" => ArrayBuffer
+ *     "bytes" => Uint8Array
  *     "blob" => Blob
  */
 export async function fetchDataType(path: string, dataType: FetchDataTypeName) {
@@ -64,10 +65,14 @@ export async function fetchDataType(path: string, dataType: FetchDataTypeName) {
 
       if (dataType === 'text') {
         data = await response.text();
-      } else if (dataType === 'arrayBuffer') {
+      } else if (dataType === 'arrayBuffer' || dataType === 'bytes') {
         data = await response.arrayBuffer();
       } else if (dataType === 'blob') {
         data = await response.blob();
+      }
+
+      if (dataType === 'bytes') {
+        data = new Uint8Array(<ArrayBuffer>data);
       }
 
       return <FetchResult>{ ok: true, data };

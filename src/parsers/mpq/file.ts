@@ -41,6 +41,22 @@ export default class MpqFile {
   }
 
   /**
+   * Gets this file's data as a Uint8Array.
+   * 
+   * Decodes the file if needed.
+   * 
+   * If the file could not be decoded, null is returned.
+   */
+  bytes() {
+    // Decode if needed
+    if (this.buffer === null) {
+      this.decode();
+    }
+
+    return this.buffer;
+  }
+
+  /**
    * Gets this file's data as an ArrayBuffer.
    * 
    * Decodes the file if needed.
@@ -48,12 +64,13 @@ export default class MpqFile {
    * If the file could not be decoded, null is returned.
    */
   arrayBuffer() {
-    // Decode if needed
-    if (this.buffer === null) {
-      this.decode();
+    let bytes = this.bytes();
+
+    if (bytes) {
+      return bytes.buffer;
     }
 
-    return this.buffer;
+    return null;
   }
 
   /**
@@ -64,10 +81,10 @@ export default class MpqFile {
    * If the file could not be decoded, null is returned.
    */
   text() {
-    let buffer = this.arrayBuffer();
+    let bytes = this.bytes();
 
-    if (buffer) {
-      return decodeUtf8(buffer);
+    if (bytes) {
+      return decodeUtf8(bytes);
     }
 
     return null;
