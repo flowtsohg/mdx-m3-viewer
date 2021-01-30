@@ -214,12 +214,12 @@ let resourcePromise = viewer.loadGeneric(path, dataType[, callback]);
 
 Where:
 * `path` is an url string.
-* `dataType` is a string with one of these values: `text`, `arrayBuffer`, `blob`, or `image`.
+* `dataType` is a string with one of these values: `text`, `arrayBuffer`, `blob`, `bytes`, or `image`.
 * `callback` is an optional function that will be called with the data once the fetch is complete, and should return the resource's data.
 
 If a callback is given, `resource.data` will be whatever the callback returns.\
 If a promise is returned, the loader waits for it to resolve, and uses whatever it resolved to.\
-If no callback is given, the data will be the fetch data itself, according to the given data type.
+If no callback is given, the data will be the fetch data itself, according to the given data type (`bytes` refers to a `Uint8Array`).
 
 `loadGeneric` is a simple layer above the standard `fetch` function.\
 The purpose of loading other files through the viewer is to cache the results and avoid multiple loads, while also allowing the viewer itself to handle events correctly.
