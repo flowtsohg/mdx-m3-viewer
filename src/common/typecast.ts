@@ -283,3 +283,14 @@ export function base256ToString(number: number) {
 
   return array.reverse().join('');
 }
+
+/**
+ * Return the given buffer as a Uint8Array, whether it is an ArrayBuffer, a Uint8Array, or a normal array of numbers.
+ */
+export function bytesOf(buffer: ArrayBuffer | Uint8Array | number[]) {
+  if (buffer instanceof Uint8Array) {
+    return buffer;
+  } else {
+    return new Uint8Array(buffer);
+  }
+}

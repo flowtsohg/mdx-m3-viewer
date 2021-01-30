@@ -8,7 +8,7 @@ export default class War3MapW3s {
   version: number = 0;
   sounds: Sound[] = [];
 
-  load(buffer: ArrayBuffer) {
+  load(buffer: ArrayBuffer | Uint8Array) {
     let stream = new BinaryStream(buffer);
 
     this.version = stream.readInt32();
@@ -23,8 +23,7 @@ export default class War3MapW3s {
   }
 
   save() {
-    let buffer = new ArrayBuffer(this.getByteLength());
-    let stream = new BinaryStream(buffer);
+    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeInt32(this.version);
     stream.writeUint32(this.sounds.length);
@@ -33,7 +32,7 @@ export default class War3MapW3s {
       sound.save(stream);
     }
 
-    return buffer;
+    return stream.uint8array;
   }
 
   getByteLength() {

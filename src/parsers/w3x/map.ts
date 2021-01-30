@@ -38,7 +38,7 @@ export default class War3Map {
    * 
    * Note that this clears the map from whatever it had in it before.
    */
-  load(buffer: ArrayBuffer, readonly: boolean = false) {
+  load(buffer: ArrayBuffer | Uint8Array, readonly: boolean = false) {
     let stream = new BinaryStream(buffer);
 
     // The header no longer exists since some 1.3X.X patch?
@@ -52,15 +52,10 @@ export default class War3Map {
     this.readonly = readonly;
 
     // Read the archive.
-    // If it failed to be read, abort.
-    if (!this.archive.load(buffer, readonly)) {
-      return false;
-    }
+    this.archive.load(buffer, readonly);
 
     // Read in the imports file if there is one.
     this.readImports();
-
-    return true;
   }
 
   /**
@@ -82,9 +77,8 @@ export default class War3Map {
       return null;
     }
 
-    let buffer = new ArrayBuffer(headerSize + archiveBuffer.byteLength);
-    let typedArray = new Uint8Array(buffer);
-    let stream = new BinaryStream(buffer);
+    let bytes = new Uint8Array(headerSize + archiveBuffer.byteLength);
+    let stream = new BinaryStream(bytes);
 
     // Write the header.
     stream.writeBinary('HM3W');
@@ -94,9 +88,9 @@ export default class War3Map {
     stream.writeUint32(this.maxPlayers);
 
     // Write the archive.
-    typedArray.set(new Uint8Array(archiveBuffer), headerSize);
+    bytes.set(archiveBuffer, headerSize);
 
-    return buffer;
+    return bytes;
   }
 
   /**

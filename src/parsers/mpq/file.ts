@@ -18,10 +18,10 @@ export default class MpqFile {
   nameResolved: boolean;
   hash: MpqHash;
   block: MpqBlock;
-  rawBuffer: ArrayBuffer | null;
-  buffer: ArrayBuffer | null;
+  rawBuffer: Uint8Array | null = null;
+  buffer: Uint8Array | null = null;
 
-  constructor(archive: MpqArchive, hash: MpqHash, block: MpqBlock, rawBuffer: ArrayBuffer | null, buffer: ArrayBuffer | null) {
+  constructor(archive: MpqArchive, hash: MpqHash, block: MpqBlock, rawBuffer: Uint8Array | null, buffer: Uint8Array | null) {
     let headerOffset = archive.headerOffset;
 
     this.archive = archive;
@@ -33,13 +33,10 @@ export default class MpqFile {
 
     if (rawBuffer) {
       this.rawBuffer = rawBuffer.slice(headerOffset + block.offset, headerOffset + block.offset + block.compressedSize);
-      this.buffer = null;
-    } else if (buffer) {
-      this.rawBuffer = null;
+    }
+
+    if (buffer) {
       this.buffer = buffer;
-    } else {
-      this.buffer = null;
-      this.rawBuffer = null;
     }
   }
 
@@ -76,18 +73,12 @@ export default class MpqFile {
     return null;
   }
 
-  save(typedArray: Uint8Array) {
-    if (this.rawBuffer) {
-      typedArray.set(new Uint8Array(this.rawBuffer));
-    }
-  }
-
   /**
    * Changes the buffer of this file.
    * 
    * Does nothing if the archive is in readonly mode.
    */
-  set(buffer: ArrayBuffer) {
+  set(buffer: Uint8Array) {
     if (this.archive.readonly) {
       return false;
     }
@@ -186,14 +177,14 @@ export default class MpqFile {
     let block = this.block;
     let c = archive.c;
     let encryptionKey = c.computeFileKey(this.name, block);
-    let data = new Uint8Array(this.rawBuffer);
+    let data = this.rawBuffer;
     let flags = block.flags;
 
     // One buffer of raw data.
     // I don't know why having no flags means it's a chunk of memory rather than sectors.
     // After all, there is no flag to say there are indeed sectors.
     if (flags === FILE_EXISTS) {
-      this.buffer = data.slice(0, block.normalSize).buffer;
+      this.buffer = data.slice(0, block.normalSize);
     } else if (flags & FILE_SINGLE_UNIT) {
       // One buffer of possibly encrypted and/or compressed data.
       // Read the sector
@@ -218,7 +209,7 @@ export default class MpqFile {
         return false;
       }
 
-      this.buffer = sector.buffer;
+      this.buffer = sector;
     } else {
       // One or more sectors of possibly encrypted and/or compressed data.
       let sectorCount = Math.ceil(block.normalSize / archive.sectorSize);
@@ -277,7 +268,7 @@ export default class MpqFile {
         }
       }
 
-      this.buffer = buffer.buffer;
+      this.buffer = buffer;
     }
 
     // If the archive is in read-only mode, the raw buffer isn't needed anymore, so free the memory.
@@ -288,12 +279,12 @@ export default class MpqFile {
     return true;
   }
 
-  decompressSector(typedArray: Uint8Array, decompressedSize: number) {
+  decompressSector(bytes: Uint8Array, decompressedSize: number) {
     // If the size of the data is the same as its decompressed size, it's not compressed.
-    if (typedArray.byteLength === decompressedSize) {
-      return typedArray;
+    if (bytes.byteLength === decompressedSize) {
+      return bytes;
     } else {
-      let compressionMask = typedArray[0];
+      let compressionMask = bytes[0];
 
       if (compressionMask & COMPRESSION_BZIP2) {
         console.warn(`File ${this.name}, compression type 'bzip2' not supported`);
@@ -302,7 +293,7 @@ export default class MpqFile {
 
       if (compressionMask & COMPRESSION_IMPLODE) {
         try {
-          typedArray = explode(typedArray.subarray(1));
+          bytes = explode(bytes.subarray(1));
         } catch (e) {
           console.warn(`File ${this.name}, failed to decompress with 'explode': ${e}`);
           return null;
@@ -311,7 +302,7 @@ export default class MpqFile {
 
       if (compressionMask & COMPRESSION_DEFLATE) {
         try {
-          typedArray = inflate(typedArray.subarray(1));
+          bytes = inflate(bytes.subarray(1));
         } catch (e) {
           console.warn(`File ${this.name}, failed to decompress with 'zlib': ${e}`);
           return null;
@@ -333,7 +324,7 @@ export default class MpqFile {
         return null;
       }
 
-      return typedArray;
+      return bytes;
     }
   }
 
@@ -345,7 +336,7 @@ export default class MpqFile {
    */
   encode() {
     if (this.buffer !== null && this.rawBuffer === null) {
-      let data = new Uint8Array(this.buffer);
+      let data = this.buffer;
 
       if (isArchive(data)) {
         this.rawBuffer = this.buffer;
@@ -406,7 +397,7 @@ export default class MpqFile {
             offset += sector.byteLength;
           }
 
-          this.rawBuffer = rawBuffer.buffer;
+          this.rawBuffer = rawBuffer;
           this.block.compressedSize = rawBuffer.byteLength;
           this.block.flags = (FILE_EXISTS | FILE_COMPRESSED) >>> 0;
         } else {
@@ -430,7 +421,7 @@ export default class MpqFile {
     let archive = this.archive;
     let block = this.block;
     let c = archive.c;
-    let typedArray = new Uint8Array(this.rawBuffer);
+    let bytes = this.rawBuffer;
     let flags = block.flags;
     let encryptionKey = c.computeFileKey(this.name, block);
 
@@ -440,15 +431,15 @@ export default class MpqFile {
 
     if (flags & FILE_SINGLE_UNIT) {
       // Decrypt the chunk with the old key.
-      c.decryptBlock(typedArray, encryptionKey);
+      c.decryptBlock(bytes, encryptionKey);
 
       // Encrypt the chunk with the new key.
-      c.encryptBlock(typedArray, newEncryptionKey);
+      c.encryptBlock(bytes, newEncryptionKey);
     } else {
       let sectorCount = Math.ceil(block.normalSize / archive.sectorSize);
 
       // Get the sector offsets
-      let sectorOffsets = new Uint32Array(typedArray.buffer, 0, sectorCount + 1);
+      let sectorOffsets = new Uint32Array(bytes.buffer, 0, sectorCount + 1);
 
       // Decrypt the sector offsets with the old key.
       c.decryptBlock(sectorOffsets, encryptionKey - 1);
@@ -457,7 +448,7 @@ export default class MpqFile {
       let end = sectorOffsets[1];
 
       for (let i = 0; i < sectorCount; i++) {
-        let sector = typedArray.subarray(start, end);
+        let sector = bytes.subarray(start, end);
 
         // Decrypt the chunk with the old key.
         c.decryptBlock(sector, encryptionKey + i);

@@ -18,7 +18,7 @@ export default class War3MapW3o {
   buffs: War3MapW3u | null = null;
   upgrades: War3MapW3d | null = null;
 
-  load(buffer: ArrayBuffer) {
+  load(buffer: ArrayBuffer | Uint8Array) {
     let stream = new BinaryStream(buffer);
 
     this.version = stream.readInt32();
@@ -60,61 +60,60 @@ export default class War3MapW3o {
   }
 
   save() {
-    let buffer = new ArrayBuffer(this.getByteLength());
-    let stream = new BinaryStream(buffer);
+    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeInt32(this.version);
 
     if (this.units) {
       stream.writeInt32(1);
-      this.units.save(stream);
+      stream.writeUint8Array(this.units.save());
     } else {
       stream.writeInt32(0);
     }
 
     if (this.items) {
       stream.writeInt32(1);
-      this.items.save(stream);
+      stream.writeUint8Array(this.items.save());
     } else {
       stream.writeInt32(0);
     }
 
     if (this.destructables) {
       stream.writeInt32(1);
-      this.destructables.save(stream);
+      stream.writeUint8Array(this.destructables.save());
     } else {
       stream.writeInt32(0);
     }
 
     if (this.doodads) {
       stream.writeInt32(1);
-      this.doodads.save(stream);
+      stream.writeUint8Array(this.doodads.save());
     } else {
       stream.writeInt32(0);
     }
 
     if (this.abilities) {
       stream.writeInt32(1);
-      this.abilities.save(stream);
+      stream.writeUint8Array(this.abilities.save());
     } else {
       stream.writeInt32(0);
     }
 
     if (this.buffs) {
       stream.writeInt32(1);
-      this.buffs.save(stream);
+      stream.writeUint8Array(this.buffs.save());
     } else {
       stream.writeInt32(0);
     }
 
     if (this.upgrades) {
       stream.writeInt32(1);
-      this.upgrades.save(stream);
+      stream.writeUint8Array(this.upgrades.save());
     } else {
       stream.writeInt32(0);
     }
 
-    return buffer;
+    return stream.uint8array;
   }
 
   getByteLength() {

@@ -30,7 +30,7 @@ document.addEventListener('drop', e => {
         let type;
 
         if (ext === '.mdl') {
-          buffer = model.saveMdx();
+          buffer = model.saveMdx().buffer;
           type = 'application/octet-stream';
           ext = 'mdx';
         } else {

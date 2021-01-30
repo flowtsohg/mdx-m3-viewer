@@ -1,3 +1,5 @@
+import { bytesOf } from './typecast';
+
 /**
  * A bit stream.
  */
@@ -9,26 +11,17 @@ export default class BitStream {
   bitBuffer: number = 0;
   bits: number = 0;
 
-  constructor(buffer: ArrayBuffer | TypedArray, byteOffset?: number, byteLength?: number) {
-    // If given a view, use its properties.
-    if (ArrayBuffer.isView(buffer)) {
-      byteOffset = buffer.byteOffset;
-      byteLength = buffer.byteLength;
-      buffer = buffer.buffer;
-    }
-
-    if (!(buffer instanceof ArrayBuffer)) {
-      throw new TypeError(`BitStream: expected ArrayBuffer or TypedArray, got ${buffer}`);
-    }
+  constructor(buffer: ArrayBuffer | Uint8Array, byteOffset?: number, byteLength?: number) {
+    let bytes = bytesOf(buffer);
 
     // For browsers not supporting the spec.
     // Once upon a time I reported this issue on the Firefox tracker.
     // Seems like Safari needs an issue report too.
     byteOffset = byteOffset || 0;
-    byteLength = byteLength || buffer.byteLength;
+    byteLength = byteLength || bytes.length;
 
     this.buffer = buffer;
-    this.uint8array = new Uint8Array(buffer, byteOffset, byteLength);
+    this.uint8array = bytes.subarray(byteOffset, byteOffset + byteLength);
     this.byteLength = buffer.byteLength;
   }
 

@@ -22,6 +22,7 @@ import EventObject from './eventobject';
 import CollisionShape from './collisionshape';
 import FaceEffect from './faceeffect';
 import UnknownChunk from './unknownchunk';
+import { isMdl, isMdx } from './isformat';
 
 /**
  * A Warcraft 3 model.
@@ -83,36 +84,31 @@ export default class Model {
 
   /**
    * Load the model from MDX or MDL.
-   * The format is detected by the buffer type: ArrayBuffer for MDX, and string for MDL.
+   * The format is detected automatically.
    */
-  load(buffer: ArrayBuffer | string) {
-    if (buffer instanceof ArrayBuffer) {
-      let bytes = new Uint8Array(buffer);
-
-      // A buffer can be of both MDX and MDL, so check for the MDLX tag.
-      // If there is no MDLX, the buffer is converted to a string, and loaded as MDL.
-      if (bytes[0] === 0x4D && bytes[1] === 0x44 && bytes[2] === 0x4C && bytes[3] === 0x58) {
-        this.loadMdx(buffer);
+  load(buffer: ArrayBuffer | Uint8Array | string) {
+    if (isMdx(buffer)) {
+      this.loadMdx(<ArrayBuffer | Uint8Array>buffer);
+    } else if (isMdl(buffer)) {
+      if (typeof buffer === 'string') {
+        this.loadMdl(buffer);
       } else {
         this.loadMdl(decodeUtf8(buffer));
       }
     } else {
-      this.loadMdl(buffer);
+      throw new Error('Not a valid MDX/MDL buffer');
     }
   }
 
   /**
    * Load the model from MDX.
    */
-  loadMdx(buffer: ArrayBuffer) {
+  loadMdx(buffer: ArrayBuffer | Uint8Array) {
     let stream = new BinaryStream(buffer);
-
-    if (stream.readBinary(4) !== 'MDLX') {
-      throw new Error('WrongMagicNumber');
-    }
-
     let tag;
     let size;
+
+    stream.skip(4); // MDLX
 
     while (stream.remaining > 0) {
       tag = stream.readBinary(4);
@@ -225,8 +221,7 @@ export default class Model {
    * Save the model as MDX.
    */
   saveMdx() {
-    let buffer = new ArrayBuffer(this.getByteLength());
-    let stream = new BinaryStream(buffer);
+    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeBinary('MDLX');
     this.saveVersionChunk(stream);
@@ -264,7 +259,7 @@ export default class Model {
       chunk.writeMdx(stream);
     }
 
-    return buffer;
+    return stream.uint8array;
   }
 
   saveVersionChunk(stream: BinaryStream) {

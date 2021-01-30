@@ -11,7 +11,7 @@ export default class War3MapWct {
   trigger: CustomTextTrigger = new CustomTextTrigger();
   triggers: CustomTextTrigger[] = [];
 
-  load(buffer: ArrayBuffer) {
+  load(buffer: ArrayBuffer | Uint8Array) {
     let stream = new BinaryStream(buffer);
 
     this.version = stream.readInt32();
@@ -32,8 +32,7 @@ export default class War3MapWct {
   }
 
   save() {
-    let buffer = new ArrayBuffer(this.getByteLength());
-    let stream = new BinaryStream(buffer);
+    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeInt32(this.version);
 
@@ -49,7 +48,7 @@ export default class War3MapWct {
       trigger.save(stream);
     }
 
-    return buffer;
+    return stream.uint8array;
   }
 
   getByteLength() {

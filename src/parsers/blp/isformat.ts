@@ -1,13 +1,13 @@
-import { BLP1_MAGIC } from './image';
-
 /**
  * Detects if the given object is a BLP source.
  */
-export default function isBlp(object: any) {
-  if (object instanceof ArrayBuffer && object.byteLength > 4) {
-    let buffer = new Uint32Array(object, 0, 1);
+export default function isBlp(bytes: any) {
+  if (bytes instanceof ArrayBuffer) {
+    bytes = new Uint8Array(bytes);
+  }
 
-    if (buffer[0] === BLP1_MAGIC) {
+  if (bytes instanceof Uint8Array) {
+    if (bytes[0] === 0x42 && bytes[1] === 0x4c && bytes[2] === 0x50 && bytes[3] === 0x31) {
       return true;
     }
   }

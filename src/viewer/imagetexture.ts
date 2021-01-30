@@ -15,7 +15,7 @@ export function isImageSource(src: any) {
  * Detects whether the given buffer is a supported format, and if so returns the mime.
  * The supported formats are PNG, JPEG, GIF, and WebP.
  */
-export function detectMime(buffer: ArrayBuffer) {
+export function detectMime(buffer: Uint8Array) {
   if (isPng(buffer)) {
     return 'image/png'
   }

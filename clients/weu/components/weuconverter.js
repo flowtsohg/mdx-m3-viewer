@@ -218,7 +218,7 @@ class WeuConverter extends Component {
 
             this.metaElement.scrollTo(0, 10000000);
 
-            saveAs(new Blob([results.parser.save()], { type: 'application/octet-stream' }), name);
+            saveAs(new Blob([results.parser.save().buffer], { type: 'application/octet-stream' }), name);
           }
         });
 

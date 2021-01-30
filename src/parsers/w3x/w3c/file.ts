@@ -8,7 +8,7 @@ export default class War3MapW3c {
   version: number = 0;
   cameras: Camera[] = [];
 
-  load(buffer: ArrayBuffer) {
+  load(buffer: ArrayBuffer | Uint8Array) {
     let stream = new BinaryStream(buffer);
 
     this.version = stream.readInt32();
@@ -23,8 +23,7 @@ export default class War3MapW3c {
   }
 
   save() {
-    let buffer = new ArrayBuffer(this.getByteLength());
-    let stream = new BinaryStream(buffer);
+    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength()));
 
     stream.writeInt32(this.version);
     stream.writeUint32(this.cameras.length);
@@ -33,7 +32,7 @@ export default class War3MapW3c {
       camera.save(stream);
     }
 
-    return buffer;
+    return stream.uint8array;
   }
 
   getByteLength() {

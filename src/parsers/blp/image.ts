@@ -2,6 +2,7 @@
 import { JpegImage } from '../../../thirdparty/jpg';
 import BitStream from '../../common/bitstream';
 import convertBitRange from '../../common/convertbitrange';
+import { bytesOf } from '../../common/typecast';
 
 export const BLP1_MAGIC = 0x31504c42;
 const CONTENT_JPG = 0x0;
@@ -29,10 +30,12 @@ export class BlpImage {
    */
   pallete: Uint8Array | null = null;
 
-  load(buffer: ArrayBuffer) {
+  load(buffer: ArrayBuffer | Uint8Array) {
+    let bytes = bytesOf(buffer)
+
     // This includes the JPG header size, in case its a JPG image.
     // Otherwise, the last element is ignored.
-    let header = new Int32Array(buffer, 0, 40);
+    let header = new Int32Array(bytes.buffer, 0, 40);
 
     if (header[0] !== BLP1_MAGIC) {
       throw new Error('WrongMagicNumber');
@@ -50,12 +53,12 @@ export class BlpImage {
       this.mipmapSizes[i] = header[23 + i];
     }
 
-    this.uint8array = new Uint8Array(buffer);
+    this.uint8array = bytes;
 
     if (this.content === CONTENT_JPG) {
-      this.jpgHeader = new Uint8Array(buffer, 160, header[39]);
+      this.jpgHeader = bytes.subarray(160, 160 + header[39]);
     } else {
-      this.pallete = new Uint8Array(buffer, 156, 1024);
+      this.pallete = bytes.subarray(156, 156 + 1024);
     }
   }
 

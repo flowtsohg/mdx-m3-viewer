@@ -29,7 +29,7 @@ function onLocalLoaded(e, name) {
 
     console.log(`Saving the map as "${newName}"`);
 
-    saveAs(new Blob([map.save()], { type: 'application/octet-stream' }), newName);
+    saveAs(new Blob([map.save().buffer], { type: 'application/octet-stream' }), newName);
 
 }
 

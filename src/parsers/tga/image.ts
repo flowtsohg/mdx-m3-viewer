@@ -1,5 +1,6 @@
 // @ts-ignore
 import TgaLoader from 'tga-js';
+import { bytesOf } from '../../common/typecast';
 
 /**
  * A TGA image.
@@ -9,10 +10,11 @@ export default class TgaImage {
   height: number = 0;
   data: ImageData | null = null;
 
-  load(buffer: ArrayBuffer) {
+  load(buffer: ArrayBuffer | Uint8Array) {
+    let bytes = bytesOf(buffer);
     let tga = new TgaLoader();
 
-    tga.load(new Uint8Array(buffer));
+    tga.load(bytes);
 
     let header = tga.header;
 

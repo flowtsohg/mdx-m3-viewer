@@ -1,5 +1,5 @@
 import { boundIndexOf } from './searches';
-import { uint8ToInt8, uint8ToInt16, uint8ToInt32, uint8ToUint16, uint8ToUint32, uint8ToFloat32, uint8ToFloat64, int8ToUint8, int16ToUint8, int32ToUint8, uint16ToUint8, uint32ToUint8, float32ToUint8, float64ToUint8 } from './typecast';
+import { uint8ToInt8, uint8ToInt16, uint8ToInt32, uint8ToUint16, uint8ToUint32, uint8ToFloat32, uint8ToFloat64, int8ToUint8, int16ToUint8, int32ToUint8, uint16ToUint8, uint32ToUint8, float32ToUint8, float64ToUint8, bytesOf } from './typecast';
 import { decodeUtf8, encodeUtf8 } from './utf8';
 
 // Memory for all of the xxxToUint type casts.
@@ -15,26 +15,17 @@ export default class BinaryStream {
   byteLength: number;
   remaining: number;
 
-  constructor(buffer: ArrayBuffer | TypedArray, byteOffset?: number, byteLength?: number) {
-    // If given a view, use its properties.
-    if (ArrayBuffer.isView(buffer)) {
-      byteOffset = buffer.byteOffset;
-      byteLength = buffer.byteLength;
-      buffer = buffer.buffer;
-    }
-
-    if (!(buffer instanceof ArrayBuffer)) {
-      throw new TypeError(`BinaryStream: expected ArrayBuffer or TypedArray, got ${buffer}`);
-    }
+  constructor(buffer: ArrayBuffer | Uint8Array, byteOffset?: number, byteLength?: number) {
+    let bytes = bytesOf(buffer);
 
     // For browsers not supporting the spec.
     // Once upon a time I reported this issue on the Firefox tracker.
     // Seems like Safari needs an issue report too.
     byteOffset = byteOffset || 0;
-    byteLength = byteLength || buffer.byteLength;
+    byteLength = byteLength || bytes.length;
 
     this.buffer = buffer;
-    this.uint8array = new Uint8Array(buffer, byteOffset, byteLength);
+    this.uint8array = bytes.subarray(byteOffset, byteOffset + byteLength);
     this.byteLength = byteLength;
     this.remaining = byteLength;
   }
@@ -43,7 +34,7 @@ export default class BinaryStream {
    * Create a subreader of this reader, at its position, with the given byte length.
    */
   substream(byteLength: number) {
-    return new BinaryStream(this.buffer, this.index, byteLength);
+    return new BinaryStream(this.uint8array.subarray(this.index, this.index + byteLength));
   }
 
   /**

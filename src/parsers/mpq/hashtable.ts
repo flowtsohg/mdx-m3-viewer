@@ -59,9 +59,9 @@ export default class MpqHashTable {
     }
   }
 
-  load(typedArray: Uint8Array) {
-    let entriesCount = typedArray.byteLength / 16;
-    let uint32array = new Uint32Array(this.c.decryptBlock(typedArray, HASH_TABLE_KEY).buffer);
+  load(bytes: Uint8Array) {
+    let entriesCount = bytes.byteLength / 16;
+    let uint32array = new Uint32Array(this.c.decryptBlock(bytes, HASH_TABLE_KEY).buffer);
     let offset = 0;
 
     // Clear the table and add the needed empties.
@@ -75,7 +75,7 @@ export default class MpqHashTable {
     }
   }
 
-  save(typedArray: Uint8Array) {
+  save(bytes: Uint8Array) {
     let uint32array = new Uint32Array(this.entries.length * 4);
     let offset = 0;
 
@@ -89,7 +89,7 @@ export default class MpqHashTable {
 
     this.c.encryptBlock(uint8array, HASH_TABLE_KEY);
 
-    typedArray.set(uint8array);
+    bytes.set(uint8array);
   }
 
   get(name: string) {

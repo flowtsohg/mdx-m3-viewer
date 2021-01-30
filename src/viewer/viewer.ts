@@ -238,17 +238,21 @@ export default class ModelViewer extends EventEmitter {
       .then(async (actualSrc) => {
         // finalSrc will be undefined if this is a fetch and the fetch failed.
         if (actualSrc) {
+          if (actualSrc instanceof ArrayBuffer) {
+            actualSrc = new Uint8Array(actualSrc);
+          }
+
           // If the source is an image source, load it directly.
           if (isImageSource(actualSrc)) {
             return new ImageTexture(actualSrc, { viewer: this, fetchUrl, pathSolver });
           }
 
           // If the source is a buffer of an image, convert it to an image, and load it directly.
-          if (actualSrc instanceof ArrayBuffer) {
+          if (actualSrc instanceof Uint8Array) {
             let type = detectMime(actualSrc);
 
             if (type.length) {
-              return new ImageTexture(await blobToImage(new Blob([actualSrc], { type })), { viewer: this, fetchUrl, pathSolver });
+              return new ImageTexture(await blobToImage(new Blob([actualSrc.buffer], { type })), { viewer: this, fetchUrl, pathSolver });
             }
           }
 
