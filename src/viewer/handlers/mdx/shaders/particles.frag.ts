@@ -1,5 +1,7 @@
+import precision from '../../shaders/precision.glsl';
+
 const shader = `
-precision mediump float;
+${precision}
 
 #define EMITTER_RIBBON 1
 

@@ -10,7 +10,7 @@ import Corner from '../../../parsers/w3x/w3e/corner';
 import War3MapDoo from '../../../parsers/w3x/doo/file';
 import War3MapUnitsDoo from '../../../parsers/w3x/unitsdoo/file';
 import ModelViewer from '../../viewer';
-import ShaderProgram from '../../gl/program';
+import Shader from '../../gl/shader';
 import Scene from '../../scene';
 import Grid from '../../grid';
 import { PathSolver } from '../../handlerresource';
@@ -41,9 +41,9 @@ export default class War3MapViewer extends ModelViewer {
   wc3PathSolver: PathSolver;
   isReforged: boolean = false;
   solverParams: { tileset?: string, reforged?: boolean, hd?: boolean } = {};
-  groundShader: ShaderProgram | null;
-  waterShader: ShaderProgram | null;
-  cliffShader: ShaderProgram | null;
+  groundShader: Shader;
+  waterShader: Shader;
+  cliffShader: Shader;
   worldScene: Scene;
   waterIndex: number = 0;
   waterIncreasePerFrame: number = 0;
@@ -119,9 +119,9 @@ export default class War3MapViewer extends ModelViewer {
 
     this.wc3PathSolver = wc3PathSolver;
 
-    this.groundShader = this.webgl.createShaderProgram(groundVert, groundFrag);
-    this.waterShader = this.webgl.createShaderProgram(waterVert, waterFrag);
-    this.cliffShader = this.webgl.createShaderProgram(cliffsVert, cliffsFrag);
+    this.groundShader = this.webgl.createShader(groundVert, groundFrag);
+    this.waterShader = this.webgl.createShader(waterVert, waterFrag);
+    this.cliffShader = this.webgl.createShader(cliffsVert, cliffsFrag);
 
     this.worldScene = this.addScene();
 
@@ -508,7 +508,7 @@ export default class War3MapViewer extends ModelViewer {
     this.terrainReady = true;
     this.anyReady = true;
 
-    let cliffShader = <ShaderProgram>this.cliffShader;
+    let cliffShader = <Shader>this.cliffShader;
 
     let cliffPromises = Object.entries(cliffs).map(async (cliff) => {
       let path = cliff[0];
@@ -738,7 +738,7 @@ export default class War3MapViewer extends ModelViewer {
       let gl = this.gl;
       let webgl = this.webgl;
       let instancedArrays = <ANGLE_instanced_arrays>webgl.extensions.ANGLE_instanced_arrays
-      let shader = <ShaderProgram>this.groundShader;
+      let shader = <Shader>this.groundShader;
       let uniforms = shader.uniforms;
       let attribs = shader.attribs;
       let tilesetTextures = this.tilesetTextures;
@@ -751,7 +751,7 @@ export default class War3MapViewer extends ModelViewer {
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-      webgl.useShaderProgram(shader);
+      webgl.useShader(shader);
 
       gl.uniformMatrix4fv(uniforms.u_VP, false, this.worldScene.camera.viewProjectionMatrix);
       gl.uniform2fv(uniforms.u_offset, <Float32Array>this.centerOffset);
@@ -816,7 +816,7 @@ export default class War3MapViewer extends ModelViewer {
       let gl = this.gl;
       let webgl = this.webgl;
       let instancedArrays = <ANGLE_instanced_arrays>webgl.extensions.ANGLE_instanced_arrays
-      let shader = <ShaderProgram>this.waterShader;
+      let shader = <Shader>this.waterShader;
       let uniforms = shader.uniforms;
       let attribs = shader.attribs;
       let instanceAttrib = attribs.a_InstanceID;
@@ -828,7 +828,7 @@ export default class War3MapViewer extends ModelViewer {
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-      webgl.useShaderProgram(shader);
+      webgl.useShader(shader);
 
       gl.uniformMatrix4fv(uniforms.u_VP, false, this.worldScene.camera.viewProjectionMatrix);
       gl.uniform2fv(uniforms.u_offset, <Float32Array>this.centerOffset);
@@ -875,7 +875,7 @@ export default class War3MapViewer extends ModelViewer {
       let webgl = this.webgl;
       let instancedArrays = <ANGLE_instanced_arrays>webgl.extensions.ANGLE_instanced_arrays
       let vertexArrayObject = <OES_vertex_array_object>webgl.extensions.OES_vertex_array_object;
-      let shader = <ShaderProgram>this.cliffShader;
+      let shader = <Shader>this.cliffShader;
       let attribs = shader.attribs;
       let uniforms = shader.uniforms;
 

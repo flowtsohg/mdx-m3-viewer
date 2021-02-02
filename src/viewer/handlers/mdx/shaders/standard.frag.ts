@@ -1,7 +1,8 @@
+import precision from '../../shaders/precision.glsl';
 import quatTransform from '../../shaders/quattransform.glsl';
 
 const shader = `
-precision mediump float;
+${precision}
 
 ${quatTransform}
 

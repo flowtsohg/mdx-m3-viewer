@@ -1,4 +1,4 @@
-import ShaderProgram from '../../gl/program';
+import Shader from '../../gl/shader';
 import Scene from '../../scene';
 import Texture from '../../texture';
 import MdxModel from './model';
@@ -40,11 +40,11 @@ export default class BatchGroup {
     let shader;
 
     if (isExtended) {
-      shader = <ShaderProgram>mdxCache.extendedShader;
+      shader = <Shader>mdxCache.extendedShader;
     } else if (isHd) {
-      shader = <ShaderProgram>mdxCache.hdShader;
+      shader = <Shader>mdxCache.hdShader;
     } else {
-      shader = <ShaderProgram>mdxCache.standardShader;
+      shader = <Shader>mdxCache.standardShader;
     }
 
     shader.use();

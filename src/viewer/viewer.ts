@@ -10,9 +10,7 @@ import { isImageSource, ImageTexture, detectMime } from './imagetexture';
 import { blobToImage } from '../common/canvas';
 
 /**
- * The minimal structure of handlers.
- * 
- * Additional data can be added to them for the purposes of the implementation.
+ * A viewer handler.
  */
 export interface Handler {
   load?: (viewer: ModelViewer, ...args: any[]) => void;
@@ -24,44 +22,62 @@ export interface Handler {
  * A model viewer.
  */
 export default class ModelViewer extends EventEmitter {
-  resources: Resource[] = [];
   /**
-   * A map from resource keys, typically urls, to their resources.
+   * The viewer's canvas.
    */
-  resourceMap: Map<string, Resource> = new Map();
-  promiseMap: Map<string, Promise<Resource | undefined>> = new Map();
-  handlers: Set<Handler> = new Set();
-  frameTime: number = 1000 / 60;
   canvas: HTMLCanvasElement;
-  webgl: WebGL;
+  /**
+   * The viewer's WebGL context.
+   */
   gl: WebGLRenderingContext;
   /**
-   * Set to true if you want the viewer itself to have no background.
-   * 
-   * This allows to see whatever is behind the canvas.
-   * 
-   * IMPORTANT NOTES:
-   * 
-   *  1) This will do nothing if the WebGL context was not initialized with alpha.
-   *     To do that, pass the alpha option when creating the viewer:
-   *     ```    
-   *     let viewer = new ModelViewer(canvas, { alpha: true });
-   *     ```
-   *  2) Warcraft 3 models use many blending operatings, some not dependant on alpha.
-   *     It's very likely what will be rendered isn't what you expect.
+   * A wrapper around the viewer's WebGL context with utility functions.
    */
-  alpha: boolean = false;
+  webgl: WebGL;
+  /**
+   * All of the loaded resources.
+   */
+  resources: Resource[] = [];
+  /**
+   * A map from urls to their resources.
+   * 
+   * Only used by fetched resources.
+   */
+  resourceMap: Map<string, Resource> = new Map();
+  /**
+   * A map from urls to the promises that load them.
+   * 
+   * Only used by fetched resources.
+   */
+  promiseMap: Map<string, Promise<Resource | undefined>> = new Map();
+  /**
+   * The viewer's handlers, added with `addHandler()`.
+   */
+  handlers: Set<Handler> = new Set();
+  /**
+   * The viewer's scenes, added with `addScene()`.
+   */
   scenes: Scene[] = [];
-  visibleCells: number = 0;
-  visibleInstances: number = 0;
-  updatedParticles: number = 0;
+  /**
+   * The number of animation frames advanced on every viewer update.
+   */
+  frameTime: number = 1000 / 60;
+  /**
+   * The current frame.
+   */
   frame: number = 0;
   /**
-   * A resizeable buffer that can be used by any part of the library.
-   * 
-   * The data it contains is temporary, and can be overwritten at any time.
+   * The number of visible cells on the current frame.
    */
-  buffer: ClientBuffer;
+  visibleCells: number = 0;
+  /**
+   * The number of visible instances on the current frame.
+   */
+  visibleInstances: number = 0;
+  /**
+   * The number of particles being updated on the current frame.
+   */
+  updatedParticles: number = 0;
   /**
    * A viewer-wide flag.
    * 
@@ -72,6 +88,12 @@ export default class ModelViewer extends EventEmitter {
    * Note that it is preferable to call enableAudio(), which checks for the existence of AudioContext.
    */
   audioEnabled: boolean = false;
+  /**
+   * A resizeable buffer that can be used by any part of the library.
+   * 
+   * The data it contains is temporary, and can be overwritten at any time.
+   */
+  buffer: ClientBuffer;
   /**
    * A cache of arbitrary data, shared between all of the handlers.
    */
@@ -508,13 +530,7 @@ export default class ModelViewer extends EventEmitter {
 
     // See https://www.opengl.org/wiki/FAQ#Masking
     gl.depthMask(true);
-
-    if (this.alpha) {
-      gl.clearColor(0, 0, 0, 0);
-    } else {
-      gl.clearColor(0, 0, 0, 1);
-    }
-
+    gl.clearColor(0, 0, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   }
 

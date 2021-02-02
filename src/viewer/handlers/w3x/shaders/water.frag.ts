@@ -1,5 +1,7 @@
+import precision from '../../shaders/precision.glsl';
+
 const shader = `
-precision mediump float;
+${precision}
 
 uniform sampler2D u_waterTexture;
 

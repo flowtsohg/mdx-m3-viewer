@@ -1,6 +1,6 @@
 import { vec3 } from 'gl-matrix';
 import Scene from '../../scene';
-import ShaderProgram from '../../gl/program';
+import Shader from '../../gl/shader';
 import ClientBuffer from '../../gl/clientbuffer';
 import Texture from '../../texture';
 import ParticleEmitter2Object from './particleemitter2object';
@@ -134,7 +134,7 @@ function bindParticleEmitter2Buffer(emitter: ParticleEmitter2, buffer: ClientBuf
   }
 }
 
-function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: ShaderProgram) {
+function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: Shader) {
   let instance = <MdxModelInstance>emitter.instance;
   let textureOverrides = instance.textureOverrides;
   let scene = <Scene>instance.scene;
@@ -253,7 +253,7 @@ function bindRibbonEmitterBuffer(emitter: RibbonEmitter, buffer: ClientBuffer) {
   }
 }
 
-function bindRibbonEmitterShader(emitter: RibbonEmitter, shader: ShaderProgram) {
+function bindRibbonEmitterShader(emitter: RibbonEmitter, shader: Shader) {
   let textureOverrides = emitter.instance.textureOverrides;
   let emitterObject = <RibbonEmitterObject>emitter.emitterObject;
   let layer = emitterObject.layer;
@@ -300,7 +300,7 @@ function bindEventObjectEmitterBuffer(emitter: EventObjectSplEmitter | EventObje
   }
 }
 
-function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader: ShaderProgram) {
+function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader: Shader) {
   let textureOverrides = emitter.instance.textureOverrides;
   let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
   let intervalTimes = <Float32Array>emitterObject.intervalTimes;
@@ -331,7 +331,7 @@ function bindEventObjectSplEmitterShader(emitter: EventObjectSplEmitter, shader:
   gl.uniform4fv(uniforms['u_colors[2]'], colors[2]);
 }
 
-function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader: ShaderProgram) {
+function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader: Shader) {
   let textureOverrides = emitter.instance.textureOverrides;
   let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
   let intervalTimes = <Float32Array>emitterObject.intervalTimes;
@@ -358,7 +358,7 @@ function bindEventObjectUbrEmitterShader(emitter: EventObjectUbrEmitter, shader:
   gl.uniform4fv(uniforms['u_colors[2]'], colors[2]);
 }
 
-export function renderEmitter(emitter: ParticleEmitter2 | RibbonEmitter | EventObjectSplEmitter | EventObjectUbrEmitter, shader: ShaderProgram) {
+export function renderEmitter(emitter: ParticleEmitter2 | RibbonEmitter | EventObjectSplEmitter | EventObjectUbrEmitter, shader: Shader) {
   let alive = emitter.alive;
   let emitterObject = <ParticleEmitter2Object | RibbonEmitterObject | EventObjectEmitterObject>emitter.emitterObject;
   let emitterType = emitterObject.geometryEmitterType;

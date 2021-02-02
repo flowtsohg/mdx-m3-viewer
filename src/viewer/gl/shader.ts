@@ -1,47 +1,61 @@
-let lineNumberReg = /:(\d+):/g;
+import WebGL from './gl';
 
 /**
- * A wrapper around a WebGL shader unit.
+ * A wrapper around a WebGL shader program.
  */
-export default class ShaderUnit {
-  ok: boolean = false;
-  webglResource: WebGLShader;
-  src: string;
-  shaderType: number;
+export default class Shader {
+  webgl: WebGL;
+  program: WebGLProgram;
+  uniforms: { [key: string]: WebGLUniformLocation } = {};
+  attribs: NumberObject = {};
+  attribsCount: number = 0;
 
-  constructor(gl: WebGLRenderingContext, src: string, type: number) {
-    let id = <WebGLShader>gl.createShader(type);
+  constructor(webgl: WebGL, program: WebGLProgram) {
+    this.webgl = webgl;
+    this.program = program;
 
-    this.webglResource = id;
-    this.src = src;
-    this.shaderType = type;
+    let gl = webgl.gl;
 
-    gl.shaderSource(id, src);
-    gl.compileShader(id);
+    for (let i = 0, l = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS); i < l; i++) {
+      let object = gl.getActiveUniform(program, i);
 
-    if (gl.getShaderParameter(id, gl.COMPILE_STATUS)) {
-      this.ok = true;
-    } else {
-      let error = gl.getShaderInfoLog(id);
+      if (object) {
+        if (object.size === 1) {
+          this.uniforms[object.name] = <WebGLUniformLocation>gl.getUniformLocation(program, object.name);
+        } else {
+          let base = object.name.substr(0, object.name.length - 3);
 
-      if (error) {
-        let lines = src.split('\n');
+          for (let index = 0; index < object.size; index++) {
+            let name = base + '[' + index + ']';
 
-        console.error('Shader unit failed to compile!');
-        console.error(error);
-
-        let lineNumber = lineNumberReg.exec(error);
-
-        while (lineNumber) {
-          let integer = parseInt(lineNumber[1]);
-
-          console.error(integer + ': ' + lines[integer - 1]);
-
-          lineNumber = lineNumberReg.exec(error);
+            this.uniforms[name] = <WebGLUniformLocation>gl.getUniformLocation(program, name);
+          }
         }
-      } else {
-        console.error('A shader unit failed to compile due to unknown reasons');
       }
     }
+
+    for (let i = 0, l = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES); i < l; i++) {
+      let object = gl.getActiveAttrib(program, i);
+
+      if (object) {
+        this.attribsCount += object.size;
+
+        if (object.size === 1) {
+          this.attribs[object.name] = gl.getAttribLocation(program, object.name);
+        } else {
+          let base = object.name.substr(0, object.name.length - 3);
+
+          for (let index = 0; index < object.size; index++) {
+            let name = base + '[' + index + ']';
+
+            this.attribs[name] = gl.getAttribLocation(program, name);
+          }
+        }
+      }
+    }
+  }
+
+  use() {
+    this.webgl.useShader(this);
   }
 }

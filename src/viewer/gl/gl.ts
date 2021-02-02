@@ -1,6 +1,5 @@
 import Texture from '../texture';
-import ShaderUnit from './shader';
-import ShaderProgram from './program';
+import Shader from './shader';
 
 /**
  * A small WebGL utility class.
@@ -8,9 +7,7 @@ import ShaderProgram from './program';
  */
 export default class WebGL {
   gl: WebGLRenderingContext;
-  shaderUnits: Map<string, ShaderUnit> = new Map();
-  shaderPrograms: Map<string, ShaderProgram> = new Map();
-  currentShaderProgram: ShaderProgram | null = null;
+  currentShader: Shader | null = null;
   emptyTexture: WebGLTexture;
   extensions: { [key: string]: any } = {};
 
@@ -61,43 +58,39 @@ export default class WebGL {
     return false;
   }
 
-  /**
-   * Create a new shader unit. Uses caching.
-   */
-  createShaderUnit(src: string, type: number) {
-    let shaderUnits = this.shaderUnits;
-
-    if (!shaderUnits.has(src)) {
-      shaderUnits.set(src, new ShaderUnit(this.gl, src, type));
-    }
-
-    return <ShaderUnit>shaderUnits.get(src);
-  }
-
-  /**
-   * Create a new shader program. Uses caching.
-   */
-  createShaderProgram(vertexSrc: string, fragmentSrc: string) {
+  createShader(vertexSource: string, fragmentSource: string) {
     let gl = this.gl;
-    let vertexShader = this.createShaderUnit(vertexSrc, gl.VERTEX_SHADER);
-    let fragmentShader = this.createShaderUnit(fragmentSrc, gl.FRAGMENT_SHADER);
-    let shaderPrograms = this.shaderPrograms;
 
-    if (vertexShader.ok && fragmentShader.ok) {
-      let src = vertexSrc + fragmentSrc;
+    let vertex = <WebGLShader>gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertex, vertexSource);
+    gl.compileShader(vertex);
 
-      if (!shaderPrograms.has(src)) {
-        shaderPrograms.set(src, new ShaderProgram(this, vertexShader, fragmentShader));
+    let fragment = <WebGLShader>gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragment, fragmentSource);
+    gl.compileShader(fragment);
+
+    let program = <WebGLProgram>gl.createProgram();
+    gl.attachShader(program, vertex);
+    gl.attachShader(program, fragment);
+    gl.linkProgram(program);
+
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      let log = 'Shader failed to link:';
+
+      let vertexLog = gl.getShaderInfoLog(vertex);
+      if (vertexLog && vertexLog.length) {
+        log += ` Vertex shader: ${vertexLog}`;
       }
 
-      let program = <ShaderProgram>shaderPrograms.get(src);
-
-      if (program.ok) {
-        return program;
+      let fragmentLog = gl.getShaderInfoLog(fragment);
+      if (fragmentLog && fragmentLog.length) {
+        log += ` Fragment shader: ${fragmentLog}`;
       }
+
+      throw new Error(log);
     }
 
-    return null;
+    return new Shader(this, program);
   }
 
   /**
@@ -125,18 +118,16 @@ export default class WebGL {
   /**
    * Use a shader program.
    */
-  useShaderProgram(shaderProgram: ShaderProgram) {
-    let currentShaderProgram = this.currentShaderProgram;
-
-    if (shaderProgram && shaderProgram.ok && shaderProgram !== currentShaderProgram) {
+  useShader(shader: Shader) {
+    if (shader && shader !== this.currentShader) {
       let oldAttribs = 0;
-      let newAttribs = shaderProgram.attribsCount;
+      let newAttribs = shader.attribsCount;
 
-      if (currentShaderProgram) {
-        oldAttribs = currentShaderProgram.attribsCount;
+      if (this.currentShader) {
+        oldAttribs = this.currentShader.attribsCount;
       }
 
-      this.gl.useProgram(shaderProgram.webglResource);
+      this.gl.useProgram(shader.program);
 
       if (newAttribs > oldAttribs) {
         this.enableVertexAttribs(oldAttribs, newAttribs);
@@ -144,7 +135,7 @@ export default class WebGL {
         this.disableVertexAttribs(newAttribs, oldAttribs);
       }
 
-      this.currentShaderProgram = shaderProgram;
+      this.currentShader = shader;
     }
   }
 

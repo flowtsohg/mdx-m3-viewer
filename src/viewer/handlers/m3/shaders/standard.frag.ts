@@ -1,7 +1,8 @@
+import precision from '../../shaders/precision.glsl';
 import layers from './layers.glsl';
 
 const shader = `
-precision mediump float;
+${precision}
 
 ${layers}
 

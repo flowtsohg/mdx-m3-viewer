@@ -27,19 +27,15 @@ export default {
       throw new Error('MDX: No instanced rendering support!');
     }
 
-    let standardShader = webgl.createShaderProgram(standardVert, standardFrag);
-    let extendedShader = webgl.createShaderProgram('#define EXTENDED_BONES\n' + standardVert, standardFrag);
-    let hdShader = webgl.createShaderProgram(hdVert, hdFrag);
-    let particlesShader = webgl.createShaderProgram(particlesVert, particlesFrag);
+    let standardShader = webgl.createShader(standardVert, standardFrag);
+    let extendedShader = webgl.createShader('#define EXTENDED_BONES\n' + standardVert, standardFrag);
+    let hdShader = webgl.createShader(hdVert, hdFrag);
+    let particlesShader = webgl.createShader(particlesVert, particlesFrag);
 
     let rectBuffer = <WebGLBuffer>gl.createBuffer();
 
     gl.bindBuffer(gl.ARRAY_BUFFER, rectBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array([0, 1, 2, 0, 2, 3]), gl.STATIC_DRAW);
-
-    if (standardShader === null || extendedShader === null || hdShader === null || particlesShader === null) {
-      throw new Error('MDX: Failed to compile the shaders!');
-    }
 
     let teamColors: MdxTexture[] = [];
     let teamGlows: MdxTexture[] = [];

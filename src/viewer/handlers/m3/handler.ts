@@ -1,7 +1,7 @@
 import Parser from '../../../parsers/m3/model';
 import isM3 from '../../../parsers/m3/isformat';
 import ModelViewer from '../../viewer';
-import ShaderProgram from '../../gl/program';
+import Shader from '../../gl/shader';
 import Model from './model';
 import standardVert from './shaders/standard.vert';
 import standardFrag from './shaders/standard.frag';
@@ -17,18 +17,14 @@ export default {
       throw new Error('M3: No float texture support!');
     }
 
-    let standardShaders = <ShaderProgram[]>[];
+    let standardShaders = <Shader[]>[];
 
     // Load shaders for 1-4 texture coordinate models.
     for (let i = 0; i < 4; i++) {
-      let shader = webgl.createShaderProgram(`#define EXPLICITUV${i}\n${standardVert}`, standardFrag);
-
-      if (shader === null) {
-        throw new Error('M3: Failed to compile a shader!');
-      }
+      let shader = webgl.createShader(`#define EXPLICITUV${i}\n${standardVert}`, standardFrag);
 
       // Bind the shader and set the team color uniforms.
-      webgl.useShaderProgram(shader);
+      shader.use();
 
       for (let i = 0; i < 14; i++) {
         let color = teamColors[i];

@@ -125,7 +125,7 @@ function testMaterial(data: SanityTestData, material: Material) {
   let shader = material.shader;
 
   if (data.model.version > 800) {
-    data.assertWarning(shader === 'Shader_SD_FixedFunction' || shader === 'Shader_HD_DefaultUnit', `Unknown shader: "${shader}"`);
+    data.assertWarning(shader === '' || shader === 'Shader_SD_FixedFunction' || shader === 'Shader_HD_DefaultUnit', `Unknown shader: "${shader}"`);
   }
 
   if (layers.length) {

@@ -1,7 +1,9 @@
+import precision from '../../shaders/precision.glsl';
+
 const shader = `
 // #extension GL_OES_standard_derivatives : enable
 
-precision mediump float;
+${precision}
 
 uniform sampler2D u_texture1;
 uniform sampler2D u_texture2;

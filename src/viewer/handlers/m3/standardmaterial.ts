@@ -1,5 +1,5 @@
 import M3ParserStandardMaterial from '../../../parsers/m3/standardmaterial';
-import ShaderProgram from '../../gl/program';
+import Shader from '../../gl/shader';
 import Texture from '../../texture';
 import M3Model from './model';
 import M3Layer from './layer';
@@ -86,7 +86,7 @@ export class M3StandardMaterial {
     gl.depthMask(true);
   }
 
-  bind(shader: ShaderProgram, textureOverrides: Map<number, Texture>) {
+  bind(shader: Shader, textureOverrides: Map<number, Texture>) {
     const gl = this.gl;
 
     this.bindCommon();
@@ -107,7 +107,7 @@ export class M3StandardMaterial {
     layers[12].bind(shader, textureOverrides);
   }
 
-  unbind(shader: ShaderProgram) {
+  unbind(shader: Shader) {
     const gl = this.gl;
 
     gl.disable(gl.BLEND);

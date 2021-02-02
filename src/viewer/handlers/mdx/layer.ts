@@ -3,7 +3,7 @@ import MdxModel from './model';
 import AnimatedObject from './animatedobject';
 import TextureAnimation from './textureanimation';
 import { layerFilterMode } from './filtermode';
-import ShaderProgram from '../../gl/program';
+import Shader from '../../gl/shader';
 
 /**
  * An MDX layer.
@@ -73,7 +73,7 @@ export default class Layer extends AnimatedObject {
     this.addVariants('KMTF', 'textureId');
   }
 
-  bind(shader: ShaderProgram) {
+  bind(shader: Shader) {
     let gl = this.model.viewer.gl;
 
     // gl.uniform1f(shader.uniforms.u_unshaded, this.unshaded);

@@ -1,5 +1,5 @@
 import MdlxModel from '../../../parsers/mdlx/model';
-import ShaderProgram from '../../gl/program';
+import Shader from '../../gl/shader';
 import War3MapViewer from './viewer';
 
 /**
@@ -17,7 +17,7 @@ export default class TerrainModel {
   instances: number;
   vao: WebGLVertexArrayObjectOES | null;
 
-  constructor(viewer: War3MapViewer, arrayBuffer: ArrayBuffer, locations: number[], textures: number[], shader: ShaderProgram) {
+  constructor(viewer: War3MapViewer, arrayBuffer: ArrayBuffer, locations: number[], textures: number[], shader: Shader) {
     let gl = viewer.gl;
     let webgl = viewer.webgl;
     let instancedArrays = <ANGLE_instanced_arrays>webgl.extensions.ANGLE_instanced_arrays
@@ -97,7 +97,7 @@ export default class TerrainModel {
     this.vao = vao;
   }
 
-  render(shader: ShaderProgram) {
+  render(shader: Shader) {
     let viewer = this.viewer;
     let gl = viewer.gl;
     let webgl = viewer.webgl;

@@ -1,4 +1,4 @@
-import ShaderProgram from '../../gl/program';
+import Shader from '../../gl/shader';
 import Scene from '../../scene';
 import MdxModel from './model';
 import MdxModelInstance from './modelinstance';
@@ -23,7 +23,7 @@ export default class EmitterGroup {
     let gl = viewer.gl;
     let instancedArrays = <ANGLE_instanced_arrays>viewer.webgl.extensions.ANGLE_instanced_arrays;
     let mdxCache = viewer.sharedCache.get('mdx');
-    let shader = <ShaderProgram>mdxCache.particlesShader;
+    let shader = <Shader>mdxCache.particlesShader;
     let uniforms = shader.uniforms;
     let attribs = shader.attribs;
     let rectBuffer = <WebGLBuffer>mdxCache.rectBuffer;

@@ -1,5 +1,5 @@
 import M3ParserRegion from '../../../parsers/m3/region';
-import ShaderProgram from '../../gl/program';
+import Shader from '../../gl/shader';
 import M3Model from './model';
 
 /**
@@ -34,7 +34,7 @@ export default class M3Region {
     this.elements = triangleIndicesCount;
   }
 
-  render(shader: ShaderProgram) {
+  render(shader: Shader) {
     let gl = this.gl;
 
     gl.uniform1f(shader.uniforms.u_firstBoneLookupIndex, this.firstBoneLookupIndex);

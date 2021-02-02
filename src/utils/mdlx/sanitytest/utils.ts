@@ -39,6 +39,7 @@ export const sequenceNames = new Set([
   'spell',
   'stand',
   'walk',
+  'ready', // HeroMountainKing.mdx has "Alternate Ready" which I assume is the same as or a replacement to "Alternate Stand Ready"?
 ]);
 
 export const replaceableIds = new Set([

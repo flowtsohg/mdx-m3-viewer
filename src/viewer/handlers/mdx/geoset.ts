@@ -1,4 +1,4 @@
-import ShaderProgram from '../../gl/program';
+import Shader from '../../gl/shader';
 import MdxModel from './model';
 import GeosetAnimation from './geosetanimation';
 
@@ -43,7 +43,7 @@ export default class Geoset {
     gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 0, this.uvOffset + coordId * this.vertices * 8);
   }
 
-  bind(shader: ShaderProgram, coordId: number) {
+  bind(shader: Shader, coordId: number) {
     let model = this.model;
     let gl = model.viewer.gl;
     let attribs = shader.attribs;
@@ -56,7 +56,7 @@ export default class Geoset {
     gl.vertexAttribPointer(attribs.a_boneNumber, 1, skinDataType, false, 5 * bytesPerSkinElement, this.skinOffset + 4 * bytesPerSkinElement);
   }
 
-  bindExtended(shader: ShaderProgram, coordId: number) {
+  bindExtended(shader: Shader, coordId: number) {
     let model = this.model;
     let gl = model.viewer.gl;
     let attribs = shader.attribs;
@@ -70,7 +70,7 @@ export default class Geoset {
     gl.vertexAttribPointer(attribs.a_boneNumber, 4, skinDataType, false, 9 * bytesPerSkinElement, this.skinOffset + 8 * bytesPerSkinElement);
   }
 
-  bindHd(shader: ShaderProgram, coordId: number) {
+  bindHd(shader: Shader, coordId: number) {
     let gl = this.model.viewer.gl;
     let attribs = shader.attribs;
 
