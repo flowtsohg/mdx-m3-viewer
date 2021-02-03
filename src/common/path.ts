@@ -7,3 +7,7 @@ export function basename(path: string) {
 
   return '';
 }
+
+export function extname(path: string) {
+  return path.slice(path.lastIndexOf('.')).toLowerCase();
+}

@@ -1,7 +1,7 @@
-import Trigger from '../../parsers/w3x/wtg/trigger';
-import ECA from '../../parsers/w3x/wtg/eca';
-import Parameter from '../../parsers/w3x/wtg/parameter';
-import SubParameters from '../../parsers/w3x/wtg/subparameters';
+import Trigger from '../../../parsers/w3x/wtg/trigger';
+import ECA from '../../../parsers/w3x/wtg/eca';
+import Parameter from '../../../parsers/w3x/wtg/parameter';
+import SubParameters from '../../../parsers/w3x/wtg/subparameters';
 import WeuData from './data';
 import { createCustomScriptECA, ensureNameSafety } from './utils';
 

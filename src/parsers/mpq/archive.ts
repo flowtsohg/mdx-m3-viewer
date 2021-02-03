@@ -291,6 +291,30 @@ export default class MpqArchive {
   }
 
   /**
+   * Count the files with unresolved names.
+   */
+  countUnresolved() {
+    let unresolved = 0;
+
+    for (let file of this.files) {
+      if (!file.nameResolved) {
+        unresolved++;
+      }
+    }
+
+    return unresolved;
+  }
+
+  /**
+   * Given an iterable of file names, attempt to resolve the archive files with them.
+   */
+  applyListfile(listfile: Iterable<string>) {
+    for (let file of listfile) {
+      this.get(file);
+    }
+  }
+
+  /**
    * Adds a file to this archive.
    * If the file already exists, its buffer will be set.
    * 

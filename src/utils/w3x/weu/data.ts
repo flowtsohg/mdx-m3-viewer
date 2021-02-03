@@ -1,10 +1,10 @@
-import Trigger from '../../parsers/w3x/wtg/trigger';
-import ECA from '../../parsers/w3x/wtg/eca';
-import Parameter from '../../parsers/w3x/wtg/parameter';
-import SubParameters from '../../parsers/w3x/wtg/subparameters';
-import CustomTextTrigger from '../../parsers/w3x/wct/customtexttrigger';
-import TriggerData from '../../parsers/w3x/wtg/triggerdata';
-import War3MapWts from '../../parsers/w3x/wts/file';
+import Trigger from '../../../parsers/w3x/wtg/trigger';
+import ECA from '../../../parsers/w3x/wtg/eca';
+import Parameter from '../../../parsers/w3x/wtg/parameter';
+import SubParameters from '../../../parsers/w3x/wtg/subparameters';
+import CustomTextTrigger from '../../../parsers/w3x/wct/customtexttrigger';
+import TriggerData from '../../../parsers/w3x/wtg/triggerdata';
+import War3MapWts from '../../../parsers/w3x/wts/file';
 
 export interface WEUChange {
   type: string;

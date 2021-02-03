@@ -133,13 +133,13 @@ class SanityTester extends Component {
 
     for (let importName of map.getImportNames()) {
       let file = map.get(importName);
-      let ext = importName.substr(importName.lastIndexOf(".")).toLowerCase();
+      let ext = ModelViewer.default.common.path.extname(importName);
 
-      if (ext === ".mdx") {
+      if (ext === '.mdx') {
         this.test(`${name}:${importName}`, file.arrayBuffer());
-      } else if (ext === ".mdl") {
+      } else if (ext === '.mdl') {
         this.test(`${name}:${importName}`, file.text());
-      } else if (ext === ".blp" || ext === ".dds" || ext === ".tga") {
+      } else if (ext === '.blp' || ext === '.dds' || ext === '.tga') {
         this.test(`${name}:${importName}`, file.arrayBuffer());
       }
     }
@@ -150,7 +150,7 @@ class SanityTester extends Component {
    */
   loadFile(file) {
     let name = file.name;
-    let ext = name.substr(name.lastIndexOf('.')).toLowerCase();
+    let ext = ModelViewer.default.common.path.extname(name);
 
     if (ext === '.mdx' || ext === '.mdl' || ext === '.blp' || ext === '.dds' || ext === '.tga' || ext === '.w3x' || ext === '.w3m') {
       this.logger.info(`Reading ${name}`);

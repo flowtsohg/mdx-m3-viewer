@@ -17,7 +17,7 @@ document.addEventListener('drop', e => {
 
   for (let file of e.dataTransfer.files) {
     let name = file.name;
-    let ext = name.substr(name.lastIndexOf('.')).toLowerCase();
+    let ext = ModelViewer.default.common.path.extname(name);
 
     if (ext === '.mdx' || ext === '.mdl') {
       let reader = new FileReader();

@@ -1,3 +1,4 @@
+import { extname } from '../../../common/path';
 import Sequence from '../../../parsers/mdlx/sequence';
 import Texture from '../../../parsers/mdlx/texture';
 import Material from '../../../parsers/mdlx/material';
@@ -13,10 +14,10 @@ import ParticleEmitterPopcorn from '../../../parsers/mdlx/particleemitterpopcorn
 import RibbonEmitter from '../../../parsers/mdlx/ribbonemitter';
 import EventObject from '../../../parsers/mdlx/eventobject';
 import Camera from '../../../parsers/mdlx/camera';
+import FaceEffect from '../../../parsers/mdlx/faceeffect';
 import SanityTestData from './data';
 import { sequenceNames, replaceableIds, testObjects, testReference, getTextureIds, testGeosetSkinning, hasAnimation } from './utils';
 import testTracks from './tracks';
-import FaceEffect from '../../../parsers/mdlx/faceeffect';
 
 export function testHeader(data: SanityTestData) {
   let version = data.model.version;
@@ -103,7 +104,7 @@ export function testTextures(data: SanityTestData) {
 function testTexture(data: SanityTestData, texture: Texture) {
   let replaceableId = texture.replaceableId;
   let path = texture.path.toLowerCase();
-  let ext = path.slice(path.lastIndexOf('.'));
+  let ext = extname(path);
 
   data.assertError(path === '' || ext === '.blp' || ext === '.tga' || ext === '.tif' || ext === '.dds', `Corrupted path: "${path}"`);
   data.assertError(replaceableId === 0 || replaceableIds.has(replaceableId), `Unknown replaceable ID: ${replaceableId}`);

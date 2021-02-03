@@ -1,6 +1,6 @@
-import War3Map from '../../parsers/w3x/map';
-import TriggerData from '../../parsers/w3x/wtg/triggerdata';
-import CustomTextTrigger from '../../parsers/w3x/wct/customtexttrigger';
+import War3Map from '../../../parsers/w3x/map';
+import TriggerData from '../../../parsers/w3x/wtg/triggerdata';
+import CustomTextTrigger from '../../../parsers/w3x/wct/customtexttrigger';
 import WeuData from './data';
 import { processTrigger } from './processing';
 import { convertTrigger } from './conversions';

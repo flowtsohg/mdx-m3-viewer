@@ -113,7 +113,7 @@ class WeuConverter extends Component {
     }
 
     let changesCount = 0;
-    let results = ModelViewer.default.utils.convertWeu(map, this.triggerData, this.weTriggerData);
+    let results = ModelViewer.default.utils.w3x.convertWeu(map, this.triggerData, this.weTriggerData);
 
     this.indent();
 
@@ -156,7 +156,7 @@ class WeuConverter extends Component {
     let changedMaps = 0;
 
     for (let fileName of campaign.getFileNames()) {
-      if (fileName.substr(fileName.lastIndexOf('.')).toLowerCase() === '.w3x') {
+      if (ModelViewer.default.common.path.extname(fileName) === '.w3x') {
         this.indent();
 
         let results = this.convertMap(fileName, campaign.get(fileName).arrayBuffer());
@@ -186,7 +186,7 @@ class WeuConverter extends Component {
   convertFile(file) {
     if (this.ready && file) {
       let name = file.name;
-      let ext = name.substr(name.lastIndexOf('.')).toLowerCase();
+      let ext = ModelViewer.default.common.path.extname(name);
       let isMap = ext === '.w3x';
       let isCampaign = ext === '.w3n';
 

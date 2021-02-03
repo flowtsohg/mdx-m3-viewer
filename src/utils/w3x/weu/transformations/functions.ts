@@ -1,5 +1,5 @@
-import ECA from '../../../parsers/w3x/wtg/eca';
-import SubParameters from '../../../parsers/w3x/wtg/subparameters';
+import ECA from '../../../../parsers/w3x/wtg/eca';
+import SubParameters from '../../../../parsers/w3x/wtg/subparameters';
 import WeuData from '../data';
 import transformer from './transformer';
 import { transformerIsUnitOwnedByPlayer, transformerIsUnitRace, transformerIsUnitType } from './specific';

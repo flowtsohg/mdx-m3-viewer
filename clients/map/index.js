@@ -100,7 +100,7 @@ document.addEventListener('drop', e => {
 
   let file = e.dataTransfer.files[0];
   let name = file.name;
-  let ext = name.substr(name.lastIndexOf('.')).toLowerCase();
+  let ext = ModelViewer.default.common.path.extname(name);
 
   if (ext === '.w3m' || ext === '.w3x') {
     let reader = new FileReader();

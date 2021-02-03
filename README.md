@@ -359,8 +359,6 @@ function pathSolver(src, solverParams) {
 
 The MDX handler and the map viewer use `solverParams` to select between SD/HD Reforged resources, and to select specific tileset resources.
 
-For example, let's suppose we want to load the Warcraft 3 Footman model, but with a twist - we want all three versions of it - RoC/TFT, Reforged SD, and Reforged HD.
-
 The MDX handler defines the parameters as such: `{reforged?: boolean, hd?: boolean}`.\
 The map viewer defines them as such: `{reforged?: boolean, hd?: boolean, tileset: string}`.
 
@@ -368,20 +366,21 @@ If `reforged` is falsy or doesn't exist, they want a TFT resource.\
 If `reforged` is true, they want a Reforged SD resource and...\
 If `hd` and `reforged` are true, they want a Reforged HD resource.
 
-Following this, the loading code can be something along these lines:
+For example, when a new MDX model is being loaded, and it is detected as a Reforged model (version > 800), any internal resources like its textures will be loaded with `solverParams = {reforged: true}`, and if the model is detected to be HD: `solverParams = {reforged: true, hd: true}`.
+
+You can also manually supply your own parameters.\
+For example, let's suppose we want to load the Warcraft 3 Footman model, but with a twist - we want all three versions of it - RoC/TFT, Reforged SD, and Reforged HD.\
+The loading code can be something along these lines:
 ```js
 let TFT = viewer.load('Units/Human/Footman/Footman.mdx', mySolver);
 let SD = viewer.load('Units/Human/Footman/Footman.mdx', mySolver, {reforged: true});
 let HD = viewer.load('Units/Human/Footman/Footman.mdx', mySolver, {reforged: true, hd: true});
 ```
 
-Note that you don't have to use these exact values.
-Rather, these are the values that will be sent by the MDX handler or map viewer, when loading internal textures, models, and other files.
-
-What does the path solver do, then?
-As always, that depends on the client and the server.
-For example, the client may append the parameters as url parameters, which can be seen in the existing clients.
-The client can also completely ignore these parameters and return whatever resources it wants.
+So what does the path solver do with `solverParams`?\
+As always, that depends on the client.\
+For example, the solver may append the parameters as url parameters, and the server selects the game based on them.\
+The solver can also completely ignore these parameters and return whatever resources it wants.
 
 #### Starcraft 2 models are tiny
 
@@ -399,7 +398,7 @@ if (model instanceof handlers.m3.resource) {
 #### Loading resources from memory
 
 Resources don't have to be fetched - if you have the data, you can load it directly.\
-Nothing special is needed to be done, simply use it as you would an url:
+Nothing special is needed, simply use it as you would an url:
 ```javascript
 let resourcePromise = viewer.load(buffer);
 ```
@@ -408,7 +407,7 @@ Say a web page wants to load MDX models from local files that are dragged into i
 After some event handling, you end up with data such as a `string` or an `ArrayBuffer`.
 
 Practically speaking, most MDX models will attempt to load Warcraft 3 textures.\
-This means that if we load the data directly, it will fail to load the game textures, unless as always, the server is set for the relative paths.
+This means that if we load the model directly, it will fail to load the textures, unless as always, the server is set for the relative paths.
 
 A path solver can again simplify the load:
 ```javascript
@@ -423,7 +422,7 @@ function pathSolver(src) {
 viewer.load(buffer, pathSolver);
 ```
 
-Assuming you have some way to fetch Warcraft 3 files, this load will work as expected - when the thing being loaded is the buffer, it will be used, otherwise, e.g. for the model textures, the Warcraft 3 path solver will be used instead.
+When the thing being loaded is the buffer, it will be used, otherwise, e.g. for the textures, the Warcraft 3 path solver will be used instead.
 
 #### Primitive shapes
 
@@ -490,3 +489,21 @@ WebGL uses a canvas as its back buffer, meaning it has the same amount of pixels
 What may actually surprise you, however, is that the canvas back buffer isn't neccassarily the size it is drawn at, due to CSS styling.\
 For example, you can have a canvas that is scaled via CSS to the entire page, but if you never set its actual size, it will probably be a 100x100 pixel canvas (or whatever default size the browser uses), stretched to the page size.\
 If you want to set the size of the back buffer, i.e. the real resolution of the canvas, use the `width` and `height` properties of the canvas, rather than CSS properties such as `clientWidth` and `clientHeight`.
+
+```javascript
+// Could be a static size.
+canvas.width = 512;
+canvas.height = 512;
+
+// Or perhaps scaled with CSS, if you put this in an a resize event listener.
+canvas.width = canvas.clientWidth;
+canvas.height = canvas.clientHeight;
+
+// This however only changes the CSS size, not the canvas resolution!
+canvas.clientWidth = 512;
+canvas.clientHeight = 512;
+
+// Nor does this.
+canvas.style.width = '512px';
+canvas.style.height = '512px';
+```

@@ -43,9 +43,7 @@ export default class MpqFile {
   /**
    * Gets this file's data as a Uint8Array.
    * 
-   * Decodes the file if needed.
-   * 
-   * If the file could not be decoded, null is returned.
+   * An exception will be thrown if the file needs to be decoded, and decoding fails.
    */
   bytes() {
     // Decode if needed
@@ -53,41 +51,26 @@ export default class MpqFile {
       this.decode();
     }
 
-    return this.buffer;
+    // If decoding failed, an exception would have been thrown, so buffer is known to exist at this point.
+    return <Uint8Array>this.buffer;
   }
 
   /**
    * Gets this file's data as an ArrayBuffer.
    * 
-   * Decodes the file if needed.
-   * 
-   * If the file could not be decoded, null is returned.
+   * An exception will be thrown if the file needs to be decoded, and decoding fails.
    */
   arrayBuffer() {
-    let bytes = this.bytes();
-
-    if (bytes) {
-      return bytes.buffer;
-    }
-
-    return null;
+    return this.bytes().buffer;
   }
 
   /**
    * Gets this file's data as a UTF8 string.
    * 
-   * Decodes the file if needed.
-   * 
-   * If the file could not be decoded, null is returned.
+   * An exception will be thrown if the file needs to be decoded, and decoding fails.
    */
   text() {
-    let bytes = this.bytes();
-
-    if (bytes) {
-      return decodeUtf8(bytes);
-    }
-
-    return null;
+    return decodeUtf8(this.bytes());
   }
 
   /**
@@ -187,7 +170,7 @@ export default class MpqFile {
    */
   decode() {
     if (!this.rawBuffer) {
-      return;
+      throw new Error(`File ${this.name}: Nothing to decode`);
     }
 
     let archive = this.archive;
@@ -220,10 +203,6 @@ export default class MpqFile {
         sector = this.decompressSector(sector, block.normalSize);
       } else {
         sector = sector.slice();
-      }
-
-      if (!sector) {
-        return false;
       }
 
       this.buffer = sector;
@@ -269,11 +248,6 @@ export default class MpqFile {
           sector = this.decompressSector(sector, uncompressedSize);
         }
 
-        // If failed to decompress the sector, stop.
-        if (!sector) {
-          return false;
-        }
-
         // Add the sector bytes to the buffer
         buffer.set(sector, offset);
         offset += sector.byteLength;
@@ -292,8 +266,6 @@ export default class MpqFile {
     if (archive.readonly) {
       this.rawBuffer = null;
     }
-
-    return true;
   }
 
   decompressSector(bytes: Uint8Array, decompressedSize: number) {
@@ -304,16 +276,15 @@ export default class MpqFile {
       let compressionMask = bytes[0];
 
       if (compressionMask & COMPRESSION_BZIP2) {
-        console.warn(`File ${this.name}, compression type 'bzip2' not supported`);
-        return null;
+        throw new Error(`File ${this.name}: compression type 'bzip2' not supported`);
       }
 
       if (compressionMask & COMPRESSION_IMPLODE) {
         try {
+          //console.log(this.name, 'EXPLODE')
           bytes = explode(bytes.subarray(1));
         } catch (e) {
-          console.warn(`File ${this.name}, failed to decompress with 'explode': ${e}`);
-          return null;
+          throw new Error(`File ${this.name}: failed to decompress with 'explode': ${e}`);
         }
       }
 
@@ -321,24 +292,20 @@ export default class MpqFile {
         try {
           bytes = inflate(bytes.subarray(1));
         } catch (e) {
-          console.warn(`File ${this.name}, failed to decompress with 'zlib': ${e}`);
-          return null;
+          throw new Error(`File ${this.name}: failed to decompress with 'zlib': ${e}`);
         }
       }
 
       if (compressionMask & COMPRESSION_HUFFMAN) {
-        console.warn(`File ${this.name}, compression type 'huffman' not supported`);
-        return null;
+        throw new Error(`File ${this.name}: compression type 'huffman' not supported`);
       }
 
       if (compressionMask & COMPRESSION_ADPCM_STEREO) {
-        console.warn(`File ${this.name}, compression type 'adpcm stereo' not supported`);
-        return null;
+        throw new Error(`File ${this.name}: compression type 'adpcm stereo' not supported`);
       }
 
       if (compressionMask & COMPRESSION_ADPCM_MONO) {
-        console.warn(`File ${this.name}, compression type 'adpcm mono' not supported`);
-        return null;
+        throw new Error(`File ${this.name}: compression type 'adpcm mono' not supported`);
       }
 
       return bytes;

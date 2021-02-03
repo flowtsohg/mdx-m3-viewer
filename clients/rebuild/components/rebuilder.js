@@ -42,7 +42,7 @@ class Rebuilder extends Component {
   rebuildFile(file) {
     if (file) {
       let name = file.name;
-      let ext = name.substr(name.lastIndexOf('.')).toLowerCase();
+      let ext = ModelViewer.default.common.path.extname(name);
       let isMap = ext === '.w3m' || ext === '.w3x';
 
       this.clear();

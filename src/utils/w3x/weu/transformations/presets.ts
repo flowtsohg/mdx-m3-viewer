@@ -1,5 +1,5 @@
-import Parameter from '../../../parsers/w3x/wtg/parameter';
-import SubParameters from '../../../parsers/w3x/wtg/subparameters';
+import Parameter from '../../../../parsers/w3x/wtg/parameter';
+import SubParameters from '../../../../parsers/w3x/wtg/subparameters';
 import WeuData from '../data';
 
 let initialized = false;

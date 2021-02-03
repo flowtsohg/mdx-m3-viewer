@@ -1,6 +1,6 @@
-import ECA from '../../parsers/w3x/wtg/eca';
-import Parameter from '../../parsers/w3x/wtg/parameter';
-import SubParameters from '../../parsers/w3x/wtg/subparameters';
+import ECA from '../../../parsers/w3x/wtg/eca';
+import Parameter from '../../../parsers/w3x/wtg/parameter';
+import SubParameters from '../../../parsers/w3x/wtg/subparameters';
 
 /**
  * Creates a new Custom Script or comment ECA with the given data.
