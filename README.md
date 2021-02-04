@@ -495,7 +495,7 @@ If you want to set the size of the back buffer, i.e. the real resolution of the 
 canvas.width = 512;
 canvas.height = 512;
 
-// Or perhaps scaled with CSS, if you put this in an a resize event listener.
+// Or perhaps scaled with CSS, if you put this in a resize event listener.
 canvas.width = canvas.clientWidth;
 canvas.height = canvas.clientHeight;
 

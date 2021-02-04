@@ -213,7 +213,6 @@ export default function generateListfile(map: War3Map) {
     let file = files[i];
 
     if (isModel(file)) {
-      // Model portraits.
       files.push(`${file.slice(0, -4)}_portrait.mdx`); // MDL portraits?
     }
   }
@@ -249,7 +248,6 @@ export default function generateListfile(map: War3Map) {
     let file = files[i];
 
     if (isTexture(file)) {
-
       files.push(`ReplaceableTextures\\CommandButtonsDisabled\\DIS${basename(file)}`)
     }
   }

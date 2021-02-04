@@ -4,7 +4,7 @@ import { MappedDataRow } from '../../../utils/mappeddata';
 import DooDoodad from '../../../parsers/w3x/doo/doodad';
 import MdxModel from '../mdx/model';
 import MdxModelInstance from '../mdx/modelinstance';
-import War3MapViewer from './viewer';
+import War3MapViewerMap from './map';
 
 /**
  * A doodad.
@@ -13,7 +13,7 @@ export default class Doodad {
   instance: MdxModelInstance;
   row: MappedDataRow;
 
-  constructor(map: War3MapViewer, model: MdxModel, row: MappedDataRow, doodad: DooDoodad) {
+  constructor(map: War3MapViewerMap, model: MdxModel, row: MappedDataRow, doodad: DooDoodad) {
     let instance = <MdxModelInstance>model.addInstance();
 
     instance.move(<vec3>doodad.location);

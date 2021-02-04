@@ -4,7 +4,7 @@ import { MappedDataRow } from '../../../utils/mappeddata';
 import DooUnit from '../../../parsers/w3x/unitsdoo/unit';
 import MdxModel from '../mdx/model';
 import MdxModelInstance from '../mdx/modelinstance';
-import War3MapViewer from './viewer';
+import War3MapViewerMap from './map';
 
 const heapZ = vec3.create();
 
@@ -18,7 +18,7 @@ export default class Unit {
    */
   row: MappedDataRow | undefined;
 
-  constructor(map: War3MapViewer, model: MdxModel, row: MappedDataRow | undefined, unit: DooUnit) {
+  constructor(map: War3MapViewerMap, model: MdxModel, row: MappedDataRow | undefined, unit: DooUnit) {
     let instance = <MdxModelInstance>model.addInstance();
 
     //let normal = this.groundNormal([], unit.location[0], unit.location[1]);

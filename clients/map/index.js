@@ -1,20 +1,8 @@
-ModelViewer = ModelViewer.default;
-
-const common = ModelViewer.common;
-const glMatrix = common.glMatrix;
-const vec3 = glMatrix.vec3;
-const quat = glMatrix.quat;
-const math = glMatrix.math;
-
-function wc3PathSolver(src, params) {
-  return localOrHive(src.toLowerCase().replace(/\\/g, '/'), params);
-}
-
 let statusElement = document.getElementById('status');
 statusElement.textContent = 'Initializing the viewer';
 
 let canvas = document.getElementById('canvas');
-let viewer = new ModelViewer.viewer.handlers.War3MapViewer(canvas, wc3PathSolver);
+let viewer = new ModelViewer.default.viewer.handlers.War3MapViewer(canvas, localOrHive);
 
 let thingsLoading = [];
 
@@ -27,34 +15,23 @@ function updateStatus() {
 }
 
 for (let key of viewer.promiseMap.keys()) {
-  let file = key.slice(key.lastIndexOf('/') + 1);
-
-  if (file !== '') {
-    thingsLoading.push(file);
-  }
+  thingsLoading.push(ModelViewer.default.common.path.basename(key));
 }
 
 updateStatus();
 
 viewer.on('loadstart', ({ fetchUrl }) => {
-  let file = fetchUrl.slice(fetchUrl.lastIndexOf('/') + 1);
-
-  if (file !== '') {
-    thingsLoading.push(file);
-    updateStatus();
-  }
+  thingsLoading.push(ModelViewer.default.common.path.basename(fetchUrl));
+  updateStatus();
 });
 
 viewer.on('loadend', ({ fetchUrl }) => {
-  let file = fetchUrl.slice(fetchUrl.lastIndexOf('/') + 1);
+  let file = ModelViewer.default.common.path.basename(fetchUrl);
+  let index = thingsLoading.indexOf(file);
 
-  if (file !== '') {
-    let index = thingsLoading.indexOf(file);
-
-    if (index !== -1) {
-      thingsLoading.splice(index, 1);
-      updateStatus();
-    }
+  if (index !== -1) {
+    thingsLoading.splice(index, 1);
+    updateStatus();
   }
 });
 
@@ -72,20 +49,16 @@ let cellsElement = document.getElementById('cells');
 let instancesElement = document.getElementById('instances');
 let particlesElement = document.getElementById('particles');
 
-setupCamera(viewer.worldScene, { distance: 3000 });
-
-function step() {
+(function step() {
   requestAnimationFrame(step);
 
   viewer.updateAndRender();
   meter.tick();
 
-  cellsElement.textContent = `Cells: ${viewer.worldScene.visibleCells}`;
-  instancesElement.textContent = `Instances: ${viewer.worldScene.visibleInstances}`;
-  particlesElement.textContent = `Particles: ${viewer.worldScene.updatedParticles}`;
-}
-
-function handleDrop(file) { }
+  cellsElement.textContent = `Cells: ${viewer.visibleCells}`;
+  instancesElement.textContent = `Instances: ${viewer.visibleInstances}`;
+  particlesElement.textContent = `Particles: ${viewer.updatedParticles}`;
+}());
 
 document.addEventListener('dragover', e => {
   e.preventDefault();
@@ -98,75 +71,21 @@ document.addEventListener('dragend', e => {
 document.addEventListener('drop', e => {
   e.preventDefault();
 
-  let file = e.dataTransfer.files[0];
-  let name = file.name;
-  let ext = ModelViewer.default.common.path.extname(name);
+  if (viewer.loadedBaseFiles) {
+    let file = e.dataTransfer.files[0];
+    let name = file.name;
+    let ext = ModelViewer.default.common.path.extname(name);
 
-  if (ext === '.w3m' || ext === '.w3x') {
-    let reader = new FileReader();
+    if (ext === '.w3m' || ext === '.w3x') {
+      let reader = new FileReader();
 
-    reader.addEventListener('loadend', e => {
-      viewer.loadMap(e.target.result);
+      reader.addEventListener('loadend', e => {
+        viewer.loadMap(e.target.result);
 
-      step();
+        setupCamera(viewer.map.worldScene, { distance: 3000 });
+      });
 
-      // viewer.once('idle', () => {
-      //   console.log('FINISHED LOADING STUFF LELEOLSEOFSOGDRIGMKIDRJGH')
-
-      //   let cubeModel = viewer.load({geometry: ModelViewer.common.geometry.createUnitCube(), material: {renderMode: 1}}, (src) => [src, '.geo', false]);
-      // let sphereModel = viewer.load({geometry: ModelViewer.common.geometry.createUnitSphere(12, 12), material: {renderMode: 1}}, (src) => [src, '.geo', false]);
-
-      // for (let unit of viewer.units) {
-      //   let model = unit.model;
-
-      //   setTimeout(() => {
-      //     let bounds = model.bounds;
-      //     let instance = unit.instance;
-
-      //     let cubeInstance = cubeModel.addInstance();
-      //     let sphereInstance = sphereModel.addInstance();
-
-      //     cubeInstance.dontInheritRotation = true;
-      //     sphereInstance.dontInheritRotation = true;
-
-      //     cubeInstance.setParent(instance);
-      //     sphereInstance.setParent(instance);
-
-      //     cubeInstance.uniformScale(bounds.r);
-      //     //cubeInstance
-      //     //cubeInstance.scale([sizeX / 2, sizeY / 2, sizeZ]);
-      //     //cubeInstance.scale(instance.worldScale);
-
-      //     //cubeInstance.uniform
-
-      //     //sphereInstance.move([bounds.x, bounds.y, 0]);
-      //     sphereInstance.uniformScale(bounds.r);
-
-      //     // viewer.scene.addInstance(cubeInstance);
-      //     // viewer.scene.addInstance(sphereInstance);
-      //   }, 2000);
-      // }
-
-      //   setTimeout(() => {
-      //     let tree = viewer.scene.grid;
-      //     let cellSize = tree.cellSize;
-      //     let i = 0;
-      //     for (let cell of tree.cells) {
-      //       let instance = cubeModel.addInstance();
-      //       let w = (cell.right - cell.left) / 2;
-      //       let h = (cell.top - cell.bottom) / 2;
-      //       instance.setLocation([cell.left + w, cell.bottom + h, 201]);
-      //       instance.scale([cellSize[0] / 2 - 5, cellSize[1] / 2 - 5, 200]);
-      //       instance.setEdgeColor([i * (255 / 16) + 10, i * (255 / 16) + 10, i * (255 / 16) + 10, 255]);
-
-      //       viewer.scene.addInstance(instance);
-
-      //       i++;
-      //     }
-      //   }, 1000);
-      // })
-    });
-
-    reader.readAsArrayBuffer(file);
+      reader.readAsArrayBuffer(file);
+    }
   }
 });

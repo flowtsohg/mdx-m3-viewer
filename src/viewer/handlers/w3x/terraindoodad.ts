@@ -5,7 +5,7 @@ import { MappedDataRow } from '../../../utils/mappeddata';
 import DooTerrainDoodad from '../../../parsers/w3x/doo/terraindoodad';
 import MdxModel from '../mdx/model';
 import MdxModelInstance from '../mdx/modelinstance';
-import War3MapViewer from './viewer';
+import War3MapViewerMap from './map';
 
 
 const locationHeap = vec3.create();
@@ -16,7 +16,7 @@ export default class TerrainDoodad {
   instance: MdxModelInstance;
   row: MappedDataRow;
 
-  constructor(map: War3MapViewer, model: MdxModel, row: MappedDataRow, doodad: DooTerrainDoodad) {
+  constructor(map: War3MapViewerMap, model: MdxModel, row: MappedDataRow, doodad: DooTerrainDoodad) {
     let centeroffset = map.centerOffset;
     let instance = <MdxModelInstance>model.addInstance();
 
