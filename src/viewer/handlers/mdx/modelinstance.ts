@@ -472,7 +472,6 @@ export default class MdxModelInstance extends ModelInstance {
         }
 
         this.sequenceEnded = true;
-        this.model.viewer.emit('seqend', this);
       } else {
         this.sequenceEnded = false;
       }
