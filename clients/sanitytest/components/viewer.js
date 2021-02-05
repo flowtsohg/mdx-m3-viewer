@@ -14,6 +14,8 @@ class Viewer extends Component {
     this.viewer = viewer;
     this.scene = scene;
 
+    this.visibleTest = null;
+
     scene.color.fill(0.2);
 
     setupCamera(scene);
@@ -39,9 +41,23 @@ class Viewer extends Component {
     viewer.addHandler(ModelViewer.default.viewer.handlers.dds);
     viewer.addHandler(ModelViewer.default.viewer.handlers.tga);
 
+    this.textureModel = null;
+    this.boxModel = null;
+    this.sphereModel = null;
+
     ModelViewer.default.utils.mdlx.createPrimitive(viewer, ModelViewer.default.utils.mdlx.primitives.createUnitRectangle(), { twoSided: true })
       .then((model) => {
         this.textureModel = model;
+      });
+
+    ModelViewer.default.utils.mdlx.createPrimitive(viewer, ModelViewer.default.utils.mdlx.primitives.createUnitCube(), { lines: true })
+      .then((model) => {
+        this.boxModel = model;
+      });
+
+    ModelViewer.default.utils.mdlx.createPrimitive(viewer, ModelViewer.default.utils.mdlx.primitives.createUnitSphere(12, 12), { lines: true })
+      .then((model) => {
+        this.sphereModel = model;
       });
 
     let step = () => {
@@ -49,14 +65,16 @@ class Viewer extends Component {
 
       viewer.updateAndRender();
 
-      if (this.visibleInstance) {
-        if (this.visibleInstance.sequenceEnded) {
-          let sequence = this.visibleInstance.sequence;
+      if (this.visibleTest) {
+        let instance = this.visibleTest.instance;
+
+        if (instance.sequenceEnded) {
+          let sequence = instance.sequence;
 
           if (!this.controls.cycleToggle.clicked) {
             sequence += 1;
 
-            if (sequence === this.visibleInstance.model.sequences.length) {
+            if (sequence === instance.model.sequences.length) {
               sequence = 0;
             }
           }
@@ -64,7 +82,7 @@ class Viewer extends Component {
           this.setSequence(sequence);
         }
 
-        this.controls.frame(this.visibleInstance.frame);
+        this.controls.frame(instance.frame);
       }
     };
 
@@ -90,6 +108,19 @@ class Viewer extends Component {
 
           if (modelOrTexture instanceof ModelViewer.default.viewer.Model) {
             instance = modelOrTexture.addInstance();
+
+            let boundingBox = this.boxModel.addInstance();
+            boundingBox.hide();
+            boundingBox.setScene(this.scene);
+            boundingBox.setParent(instance);
+
+            let boundingSphere = this.sphereModel.addInstance();
+            boundingSphere.hide();
+            boundingSphere.setScene(this.scene);
+            boundingSphere.setParent(instance);
+
+            test.boundingBox = boundingBox;
+            test.boundingSphere = boundingSphere;
           } else {
             instance = this.textureModel.addInstance();
 
@@ -115,11 +146,16 @@ class Viewer extends Component {
 
   render(test) {
     if (test.instance) {
-      if (this.visibleInstance) {
-        this.visibleInstance.hide();
+      if (this.visibleTest) {
+        this.visibleTest.instance.hide();
+
+        if (this.visibleTest.boundingBox) {
+          this.visibleTest.boundingBox.hide();
+          this.visibleTest.boundingSphere.hide();
+        }
       }
 
-      this.visibleInstance = test.instance;
+      this.visibleTest = test;
 
       if (test.instance.model.sequences.length) {
         this.controls.updateSequences(test.instance);
@@ -136,12 +172,65 @@ class Viewer extends Component {
       }
 
       test.instance.show();
+
+      this.updateExtents();
+    }
+  }
+
+  updateExtents() {
+    if (this.visibleTest && this.visibleTest.boundingBox) {
+      let mode = this.controls.extentElement.selectedIndex;
+
+      if (mode === 0 || mode === 2) {
+        this.visibleTest.boundingBox.hide();
+      } else {
+        this.visibleTest.boundingBox.show();
+      }
+
+      if (mode === 0 || mode === 1) {
+        this.visibleTest.boundingSphere.hide();
+      } else {
+        this.visibleTest.boundingSphere.show();
+      }
     }
   }
 
   setSequence(index) {
     this.viewer.clearEmittedObjects();
-    this.visibleInstance.setSequence(index);
+
+    this.visibleTest.instance.setSequence(index);
+
+    if (this.visibleTest.boundingBox) {
+      let extent;
+
+      if (index === -1) {
+        extent = this.visibleTest.parser.extent;
+      } else {
+        extent = this.visibleTest.parser.sequences[index].extent;
+
+        let { max, min } = extent;
+
+        // If this sequence has no extent, use the model extent instead.
+        if (max[0] === 0 && max[1] === 0 && max[2] === 0 && min[0] === 0 && min[1] === 0 && min[2] === 0) {
+          extent = this.visibleTest.parser.extent;
+        }
+      }
+
+      let { max, min } = extent;
+      let x = (max[0] + min[0]) / 2;
+      let y = (max[1] + min[1]) / 2;
+      let z = (max[2] + min[2]) / 2;
+      let w = (max[0] - min[0]) / 2;
+      let d = (max[1] - min[1]) / 2;
+      let h = (max[2] - min[2]) / 2;
+
+      this.visibleTest.boundingBox.setLocation([x, y, z]);
+      this.visibleTest.boundingBox.setScale([w, d, h]);
+
+      this.visibleTest.boundingSphere.setLocation([x, y, z]);
+      this.visibleTest.boundingSphere.setUniformScale(extent.boundsRadius);
+    }
+
     this.controls.setSequence(index);
   }
 

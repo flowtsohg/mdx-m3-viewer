@@ -14,6 +14,8 @@ class Test {
     // Loaded and set by the viewer component.
     this.resource = null;
     this.instance = null;
+    this.boundingBox = null;
+    this.boundingSphere = null;
 
     if (isMdlx) {
       this.parser = new ModelViewer.default.parsers.mdlx.Model();

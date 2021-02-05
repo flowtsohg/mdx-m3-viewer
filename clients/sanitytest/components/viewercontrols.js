@@ -4,8 +4,22 @@ class ViewerControls extends Component {
 
     this.viewer = viewer;
 
-    // Run animations.
+    // Extent.
     let container = createElement({ container: this.container });
+
+    createElement({ textContent: 'Show extents:', container });
+    this.extentElement = createElement({
+      tagName: 'select', className: 'controls', onchange: () => this.viewer.updateExtents(), container
+    });
+
+    this.extentElement.add(createElement({ tagName: 'option', textContent: 'No' }));
+    this.extentElement.add(createElement({ tagName: 'option', textContent: 'Box' }));
+    this.extentElement.add(createElement({ tagName: 'option', textContent: 'Sphere' }));
+    this.extentElement.add(createElement({ tagName: 'option', textContent: 'Both' }));
+    this.extentElement.selectedIndex = 1;
+
+    // Run animations.
+    container = createElement({ container: this.container });
 
     createElement({ textContent: 'Run Animations:', container });
     this.animationToggle = new Toggle('Yes', 'No', (e) => {
