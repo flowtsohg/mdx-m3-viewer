@@ -7,9 +7,6 @@
  *  C:\Users\Ryan\projects\3dmodel\mdx-m3-viewer\src\viewer\handlers\w3x\ 85: prevent sequence (animation) override
  */
 
-
-
-// window.viewer = viewer;
 let unitType = 'Grunt';
 function getFirstUnit(opts = { 'comment(s)': unitType ? unitType : 'bandit' }) {
     window.viewer = viewer;
@@ -24,8 +21,7 @@ function getFirstUnit(opts = { 'comment(s)': unitType ? unitType : 'bandit' }) {
         }
     }
 }
-// getFirstUnit();
-// window.cam = viewer.scenes[0].camera;
+
 
 function vec3Diff(a, b) {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
@@ -51,27 +47,15 @@ function vec4Mul(a, b) {
     return [a[0] * b[0], a[1] * b[1], a[2] * b[2], a[3] * b[3]];
 }
 
-function setLocation(cam, unitInstance) {
-    const dL = [-288.5068359375, 59.1123046875, 650.3361206054688];
-    cam.setLocation(vec3Add(unitInstance.worldLocation, dL));
-}
-// setLocation();
 
-function setRotation(cam, unitInstance) {
-    const dr =  [0.29586392641067505, -0.28571242094039917, -0.729546494781971, -0.4804251044988632];
-    cam.setRotation(vec4Add(dr, unitInstance.worldRotation))
-}
-// setRotation();
 let usedArrowListener;
 function setArrowKeyListener(cam = window.cam, unitInstance = window.unitInstance, walkSpeed = 20) {
     console.log('setting up walking listeners');
     getFirstUnit();
-    const speed = [walkSpeed, walkSpeed, 0];
-    const negSpeed = [-walkSpeed, -walkSpeed, 0];
+
     let isWalking = false;
     let seqWalk;
     let seqStand;
-    let lastKeyCode;
     unitInstance.userSetSequence = true;
     unitInstance.model.sequences.forEach((seq, i) => {
         if (seq.name.match(/walk/i)) {
@@ -80,41 +64,126 @@ function setArrowKeyListener(cam = window.cam, unitInstance = window.unitInstanc
         if (seq.name.match(/stand/i) && seqStand === undefined) {
             seqStand = i;
         }
-    })
+    });
+
+    /*
+    getFirstUnit(); setArrowKeyListener(); u = unitInstance;
+    */
+
+    const speed = 20;
+    const negSpeed = -20;
+    window.vecHeap = vec3.create();
+    function move(dirX, dirY, moveSpeed, target) {
+        // Allow only movement on the XY plane, and scale to moveSpeed.
+        vec3.add(target, target,
+          vec3.scale(
+            vecHeap,
+            vec3.normalize(
+              vecHeap,
+              vec3.set(vecHeap, dirX[0], dirX[1], 0)
+            ),
+            moveSpeed
+          )
+        );
+        vec3.add(target, target,
+          vec3.scale(
+            vecHeap,
+            vec3.normalize(
+              vecHeap,
+              vec3.set(vecHeap, dirY[0], dirY[1], 0)
+            ),
+            moveSpeed
+          )
+        );
+        return target
+    }
     function listenForArrow(e) {
+        const quatHeap = window.quatHeap || quat.create();
+
+        cam.onrotate = function(theta, phi) {
+            quat.rotateZ(quatHeap, unitInstance.localRotation, theta);
+            unitInstance.setRotation(quatHeap);
+        }
+
         function stopMoving(e) {
-            // if (e.keyCode !== lastKeyCode) {
-            if (e.keyCode < 37 || e.keyCode > 40) {
-                return;
+            switch (e.keyCode) {
+                case 37: // arrow key left
+                    break;
+                case 65: // a key
+                    break;
+                case 38: // arrow key up
+                    break;
+                case 87: // w key
+                    break;
+                case 39: // arrow key right
+                    break;
+                case 68: // d key
+                    break; 
+                case 40: // arrow key down
+                    break;
+                case 83: // s key
+                    break; 
+                default:
+                    console.log("stop moving - default returning");
+                    return;
             }
             console.log('setting stand sequence (STOP): ', seqStand);
             unitInstance.setSequence(seqStand);
             isWalking = false;
+            console.log('cam postion: ', cam.position)
+            console.log('cam target: ', cam.target)
             document.removeEventListener('keyup', stopMoving);
         }
+        let distanceDelta = vec3.create();
         switch (e.keyCode) {
-            case 37: 
-                cam.move(vec3Mul(cam.directionX, negSpeed));
-                unitInstance.move(vec3Mul(cam.directionX, negSpeed));
-                break; 
-            case 38: 
-                cam.move(vec3Mul(cam.directionY, speed));
-                unitInstance.move(vec3Mul(cam.directionY, speed));
-                break; 
-            case 39: 
-                cam.move(vec3Mul(cam.directionX, speed));
-                unitInstance.move(vec3Mul(cam.directionX, speed));
-                break; 
-            case 40: 
-                cam.move(vec3Mul(cam.directionY, negSpeed));
-                unitInstance.move(vec3Mul(cam.directionY, negSpeed));
+            case 37: // arrow key left
+                move(cam.directionX, [0, 0], negSpeed, distanceDelta);
+                cam.move(distanceDelta);
+                unitInstance.move(distanceDelta);
                 break;
+            case 65: // a key
+                move(cam.directionX, [0, 0], negSpeed, distanceDelta);
+                cam.move(distanceDelta);
+                unitInstance.move(distanceDelta);
+                break;
+            case 38: // arrow key up
+                move([0, 0], cam.directionY, speed, distanceDelta);
+                cam.move(distanceDelta);
+                unitInstance.move(distanceDelta);
+                break;
+            case 87: // w key
+                move([0, 0], cam.directionY, speed, distanceDelta);
+                cam.move(distanceDelta);
+                unitInstance.move(distanceDelta);
+                break;
+            case 39: // arrow key right
+                move(cam.directionX, [0, 0], speed, distanceDelta);
+                cam.move(distanceDelta)
+                unitInstance.move(distanceDelta)
+                break;
+            case 68: // d key
+                move(cam.directionX, [0, 0], speed, distanceDelta);
+                cam.move(distanceDelta)
+                unitInstance.move(distanceDelta)
+                break; 
+            case 40: // arrow key down
+                move([0, 0], cam.directionY, negSpeed, distanceDelta);
+                cam.move(distanceDelta);
+                unitInstance.move(distanceDelta);
+                break;
+            case 83: // s key
+                move([0, 0], cam.directionY, negSpeed, distanceDelta);
+                cam.move(distanceDelta);
+                unitInstance.move(distanceDelta);
+                break; 
             default:
                 console.log("default returning");
                 return;
         }
-        lastKeyCode = e.keyCode;
-
+        vec3.set(cam.target, cam.location[0], cam.location[1], 0);
+        vec3.set(cam.target, unitInstance.localLocation[0], unitInstance.localLocation[1], 0);
+        vec3.set(cam.position, cam.location[0], cam.location[1], cam.position[2]);
+        // cam.distance = 410;
         if (!isWalking) {
             console.log('setting walk sequence: ', seqWalk);
             unitInstance.setSequenceLoopMode(2);
@@ -130,19 +199,4 @@ function setArrowKeyListener(cam = window.cam, unitInstance = window.unitInstanc
 }
 // setArrowKeyListener();
 
-// setSequence(e){
-//     let t=this.model.sequences;
-//     return this.sequence=e,e<0||e>t.length-1? (this.sequence=-1,this.frame=0,this.allowParticleSpawn=!1):this.frame=t[e].interval[0],this.resetEventEmitters(),this.forced=!0,this
-// }
 // window.removeEventListener('keydown', window.usedArrowListener)
-
-window.texture = viewer.load('textures/shockwave_ice1.blp');
-window.spherePrimitive = ModelViewer.utils.mdx.primitives.createSphere(20,20,20);
-(async()=> {
-window.sphereModel = await ModelViewer.utils.mdx.createPrimitive(viewer, spherePrimitive , { texture });
-window.sphereInstance = sphereModel .addInstance();
-window.Unit = Object.getPrototypeOf(viewer.units[0]).constructor;
-window.testUnitInfo = { "location":[0,0,100],"rotation":[0,0,0,1],"player":0,"scale":[1,1,1] };
-viewer.units.push(new Unit(viewer, sphereModel , undefined, testUnitInfo ));
-viewer.scenes[0].addInstance(sphereInstance)
-})();

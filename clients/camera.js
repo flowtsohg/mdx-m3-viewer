@@ -13,7 +13,7 @@ function setupCamera(scene, options = {}) {
   let zoomFactor = options.zoomFactor || 0.1;
   let horizontalAngle = options.horizontalAngle || Math.PI / 2;
   let verticalAngle = options.verticalAngle || Math.PI / 4;
-  let distance = options.distance || 500;
+  let distance = options.distance || 100;
   let position = vec3.create();
   // What the camera is looking at.
   let target = options.target || vec3.create();
@@ -23,7 +23,12 @@ function setupCamera(scene, options = {}) {
 
   let vecHeap = vec3.create();
   let quatHeap = quat.create();
-
+  // theta = horizontalAngle, phi = verticalAngle
+  camera.onrotate = function (theta, phi) {return;};
+  // allow other movement controls to hook into target and position
+  camera.target = target;
+  camera.position = position;
+  camera.distance = distance;
   function update() {
     // Limit the vertical angle so it doesn't flip.
     // Since the camera uses a quaternion, flips don't matter to it, but this feels better.
@@ -32,12 +37,12 @@ function setupCamera(scene, options = {}) {
     quat.identity(quatHeap);
     quat.rotateZ(quatHeap, quatHeap, horizontalAngle);
     quat.rotateX(quatHeap, quatHeap, verticalAngle);
-
     vec3.set(position, 0, 0, 1);
     vec3.transformQuat(position, position, quatHeap);
-    vec3.scale(position, position, distance);
+    vec3.scale(position, position, camera.distance);
     vec3.add(position, position, target);
-
+    // maintain proper camera height - game play
+    // position[2] = 217.27;
     camera.moveToAndFace(position, target, worldUp);
   }
 
@@ -49,8 +54,26 @@ function setupCamera(scene, options = {}) {
     let dirY = camera.directionY;
 
     // Allow only movement on the XY plane, and scale to moveSpeed.
-    vec3.add(target, target, vec3.scale(vecHeap, vec3.normalize(vecHeap, vec3.set(vecHeap, dirX[0], dirX[1], 0)), x * moveSpeed));
-    vec3.add(target, target, vec3.scale(vecHeap, vec3.normalize(vecHeap, vec3.set(vecHeap, dirY[0], dirY[1], 0)), y * moveSpeed));
+    vec3.add(target, target,
+      vec3.scale(
+        vecHeap,
+        vec3.normalize(
+          vecHeap,
+          vec3.set(vecHeap, dirX[0], dirX[1], 0)
+        ),
+        x * moveSpeed
+      )
+    );
+    vec3.add(target, target,
+      vec3.scale(
+        vecHeap,
+        vec3.normalize(
+          vecHeap,
+          vec3.set(vecHeap, dirY[0], dirY[1], 0)
+        ),
+        y * moveSpeed
+      )
+    );
 
     update();
   }
@@ -58,14 +81,15 @@ function setupCamera(scene, options = {}) {
   // Rotate the camera around the target.
   function rotate(x, y) {
     horizontalAngle -= x * rotationSpeed;
-    verticalAngle -= y * rotationSpeed;
-
+    verticalAngle -= (y * rotationSpeed * 0.1);
+    // pass updated angles to update callback
+    camera.onrotate(-x * rotationSpeed, -y * rotationSpeed * 0.1);
     update();
   }
 
   // Zoom the camera by changing the distance from the target.
   function zoom(factor) {
-    distance *= 1 + factor * zoomFactor;
+    camera.distance *= 1 + factor * zoomFactor;
 
     update();
   }

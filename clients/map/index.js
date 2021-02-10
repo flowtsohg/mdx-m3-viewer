@@ -77,6 +77,11 @@ let particlesElement = document.getElementById('particles');
 setupCamera(viewer.worldScene, 3000);
 
 function step() {
+  console.log('inside step')
+  if (window.stopUsingStep === true) {
+    console.log('stop using step')
+    return;
+  }
   requestAnimationFrame(step);
 
   viewer.updateAndRender();
@@ -111,7 +116,7 @@ document.addEventListener('drop', e => {
       viewer.loadMap(e.target.result);
 
       step();
-
+      window.mapLoaded = true;
 
     });
 
