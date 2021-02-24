@@ -39,7 +39,7 @@ export default {
 
     let teamColors: MdxTexture[] = [];
     let teamGlows: MdxTexture[] = [];
-    let teams = reforgedTeams ? 28 : 14;
+    let teams = reforgedTeams ? 28 : 16;
     let ext = reforgedTeams ? 'dds' : 'blp';
     let params = reforgedTeams ? { reforged: true } : {};
 

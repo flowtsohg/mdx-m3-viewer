@@ -107,6 +107,7 @@ export default function mdlStructure(model: Model) {
   mdlObjects(stream, model, model.particleEmittersPopcorn, out);
   mdlObjects(stream, model, model.ribbonEmitters, out);
   mdlObjects(stream, model, model.cameras, out);
+  mdlObjects(stream, model, model.eventObjects, out);
   mdlObjects(stream, model, model.collisionShapes, out);
   mdlObjects(stream, model, model.faceEffects, out);
 

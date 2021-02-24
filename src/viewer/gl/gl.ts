@@ -1,4 +1,7 @@
 import Texture from '../texture';
+import ClientBuffer from './clientbuffer';
+import ClientDataTexture from './clientdatatexture';
+import DataTexture from './datatexture';
 import Shader from './shader';
 
 /**
@@ -34,11 +37,6 @@ export default class WebGL {
 
     this.gl = gl;
     this.emptyTexture = emptyTexture;
-
-    // The only initial setup, the rest should be handled by the handlers.
-    gl.depthFunc(gl.LEQUAL);
-    gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.SCISSOR_TEST);
   }
 
   /**
@@ -183,5 +181,26 @@ export default class WebGL {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, magFilter);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter);
+  }
+
+  /**
+   * A shortcut for `new ClientBuffer(gl, size)`.
+   */
+  createClientBuffer(size: number = 4) {
+    return new ClientBuffer(this.gl, size);
+  }
+
+  /**
+   * A shortcut for `new DataTexture(gl, channels, width, height)`.
+   */
+  createDataTexture(channels: number = 4, width: number = 1, height: number = 1) {
+    return new DataTexture(this.gl, channels, width, height);
+  }
+
+  /**
+   * A shortcut for `new ClientDataTexture(gl, width, height)`.
+   */
+  createClientDataTexture(width: number = 1, height: number = 1) {
+    return new ClientDataTexture(this.gl, width, height);
   }
 }

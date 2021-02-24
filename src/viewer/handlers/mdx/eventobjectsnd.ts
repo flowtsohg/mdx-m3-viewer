@@ -15,7 +15,7 @@ export default class EventObjectSnd extends EmittedObject {
     let scene = <Scene>instance.scene;
 
     // Is audio enabled both viewer-wide and in this scene?
-    if (viewer.enableAudio && scene.audioEnabled) {
+    if (viewer.audioEnabled && scene.audioEnabled) {
       let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
       let node = instance.nodes[emitterObject.index];
       let audioContext = <AudioContext>scene.audioContext;
@@ -25,7 +25,9 @@ export default class EventObjectSnd extends EmittedObject {
       let location = node.worldLocation;
 
       // Panner settings.
-      panner.setPosition(location[0], location[1], location[2]);
+      panner.positionX.value = location[0];
+      panner.positionY.value = location[1];
+      panner.positionZ.value = location[2];
       panner.maxDistance = emitterObject.distanceCutoff;
       panner.refDistance = emitterObject.minDistance;
       panner.connect(audioContext.destination);

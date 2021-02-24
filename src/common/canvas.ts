@@ -11,11 +11,6 @@ export function blobToImage(blob: Blob) {
     let image = new Image();
 
     image.onload = () => {
-      canvas.width = image.width;
-      canvas.height = image.height;
-
-      ctx.drawImage(image, 0, 0);
-
       resolve(image);
     };
 
@@ -93,27 +88,10 @@ export function imageToImageData(image: TexImageSource) {
   return ctx.getImageData(0, 0, width, height);
 }
 
-export function scaleNPOT(imageData: ImageData) {
-  let width = imageData.width;
-  let height = imageData.height;
-  let potWidth = powerOfTwo(width);
-  let potHeight = powerOfTwo(height);
-
-  if (width !== potWidth || height !== potHeight) {
-    return resizeImageData(imageData, potWidth, potHeight);
-  }
-
-  return imageData;
-}
-
-export function resizeImageData(data: ImageData, width: number, height: number) {
-  let srcWidth = data.width;
-  let srcHeight = data.height;
-
-  // ImageData
+export function resizeImageData(data: TexImageSource, width: number, height: number) {
   if (data instanceof ImageData) {
-    canvas.width = srcWidth;
-    canvas.height = srcHeight;
+    canvas.width = data.width;
+    canvas.height = data.height;
 
     ctx.putImageData(data, 0, 0);
 
@@ -123,7 +101,6 @@ export function resizeImageData(data: ImageData, width: number, height: number) 
     ctx2.drawImage(canvas, 0, 0, width, height);
 
     return ctx2.getImageData(0, 0, width, height);
-    // Assumed to be Image
   } else {
     canvas.width = width;
     canvas.height = height;

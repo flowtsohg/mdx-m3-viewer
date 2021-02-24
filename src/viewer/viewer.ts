@@ -104,10 +104,18 @@ export default class ModelViewer extends EventEmitter {
   constructor(canvas: HTMLCanvasElement, options?: object) {
     super();
 
+    let webgl = new WebGL(canvas, options);
+    let gl = webgl.gl;
+
     this.canvas = canvas;
-    this.webgl = new WebGL(canvas, options);
-    this.gl = this.webgl.gl;
-    this.buffer = new ClientBuffer(this.gl);
+    this.gl = gl;
+    this.webgl = webgl;
+    this.buffer = webgl.createClientBuffer();
+
+    // The only initial setup, the rest should be handled by the handlers.
+    gl.depthFunc(gl.LEQUAL);
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.SCISSOR_TEST);
   }
 
   /**

@@ -4,6 +4,7 @@ import MdlxModel from '../../parsers/mdlx/model';
 import War3MapImp from '../../parsers/w3x/imp/file';
 import War3Map from '../../parsers/w3x/map';
 import War3MapW3d from '../../parsers/w3x/w3d/file';
+import War3MapW3i from '../../parsers/w3x/w3i/file';
 import War3MapW3s from '../../parsers/w3x/w3s/file';
 import War3MapW3u from '../../parsers/w3x/w3u/file';
 import TokenStream from '../jass2/tokenstream';
@@ -208,6 +209,23 @@ export default function generateListfile(map: War3Map) {
     }
   }
 
+  // Map information.
+  file = map.get('war3map.w3i');
+
+  if (file) {
+    try {
+      let bytes = file.bytes();
+      let parser = new War3MapW3i();
+
+      parser.load(bytes);
+
+      filterFile(files, parser.loadingScreenModel);
+      filterFile(files, parser.prologueScreenModel);
+    } catch (e) {
+      console.warn('war3map.w3i', e);
+    }
+  }
+
   // Model portraits
   for (let i = 0, l = files.length; i < l; i++) {
     let file = files[i];
@@ -235,6 +253,14 @@ export default function generateListfile(map: War3Map) {
             if (texture.path.length) {
               files.push(texture.path);
             }
+          }
+
+          for (let attachment of parser.attachments) {
+            filterFile(files, attachment.path);
+          }
+
+          for (let emitter of parser.particleEmitters) {
+            filterFile(files, emitter.path);
           }
         } catch (e) {
           console.warn(file, e);
