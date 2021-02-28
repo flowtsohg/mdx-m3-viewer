@@ -1,4 +1,4 @@
-export function isStringInBytes(buffer: TypedArray, target: string, offset: number = 0, length: number = Infinity) {
+export function isStringInBytes(buffer: Uint8Array, target: string, offset: number = 0, length: number = Infinity) {
   let start = Math.max(offset, 0);
   let end = Math.min(start + length, buffer.length);
   let whichByte = 0;
@@ -50,7 +50,7 @@ export function isStringInString(buffer: string, target: string, offset: number 
   return false;
 }
 
-export function boundIndexOf(buffer: TypedArray, target: number, offset: number = 0, length: number = Infinity) {
+export function boundIndexOf(buffer: Uint8Array, target: number, offset: number = 0, length: number = Infinity) {
   let start = Math.max(offset, 0);
   let end = Math.min(start + length, buffer.length);
 

@@ -7,7 +7,7 @@ export default class Shader {
   webgl: WebGL;
   program: WebGLProgram;
   uniforms: { [key: string]: WebGLUniformLocation } = {};
-  attribs: NumberObject = {};
+  attribs: { [key: string]: number } = {};
   attribsCount: number = 0;
 
   constructor(webgl: WebGL, program: WebGLProgram) {

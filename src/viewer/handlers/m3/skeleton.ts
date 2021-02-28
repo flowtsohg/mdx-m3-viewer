@@ -66,9 +66,9 @@ export default class M3Skeleton {
       let node = nodes[i];
       let modelNode = modelNodes[i];
 
-      this.getValue4(<TypedArray>node.localRotation, modelNode.rotation, instance);
-      this.getValue3(<TypedArray>node.localLocation, modelNode.location, instance);
-      this.getValue3(<TypedArray>node.localScale, modelNode.scale, instance);
+      this.getValue4(<Float32Array>node.localRotation, modelNode.rotation, instance);
+      this.getValue3(<Float32Array>node.localLocation, modelNode.location, instance);
+      this.getValue3(<Float32Array>node.localScale, modelNode.scale, instance);
 
       node.recalculateTransformation(scene);
       node.updateChildren(dt, scene);
@@ -89,7 +89,7 @@ export default class M3Skeleton {
     return this.getValueUnsafe(animRef, instance);
   }
 
-  getValue2(out: TypedArray, animRef: AnimationReference, instance: M3ModelInstance) {
+  getValue2(out: Float32Array, animRef: AnimationReference, instance: M3ModelInstance) {
     let unsafeHeap = this.getValueUnsafe(animRef, instance);
 
     out[0] = unsafeHeap[0];
@@ -98,7 +98,7 @@ export default class M3Skeleton {
     return out;
   }
 
-  getValue3(out: TypedArray, animRef: AnimationReference, instance: M3ModelInstance) {
+  getValue3(out: Float32Array, animRef: AnimationReference, instance: M3ModelInstance) {
     let unsafeHeap = this.getValueUnsafe(animRef, instance);
 
     out[0] = unsafeHeap[0];
@@ -108,7 +108,7 @@ export default class M3Skeleton {
     return out;
   }
 
-  getValue4(out: TypedArray, animRef: AnimationReference, instance: M3ModelInstance) {
+  getValue4(out: Float32Array, animRef: AnimationReference, instance: M3ModelInstance) {
     let unsafeHeap = this.getValueUnsafe(animRef, instance);
 
     out[0] = unsafeHeap[0];

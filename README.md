@@ -268,23 +268,21 @@ And now some more specific information and tips.
 
 #### Team colors
 
-When adding the MDX handler to the viewer, it attempts to load all of the team color and glow textures.
+When loading an MDX model that uses team color/glow textures, it will tell the handler to load all of the team textures.
 
-It uses `load` much like the client does, and thus the same implications apply - if the server is set for the relative paths, all is fine, otherwise a path solver should be used.
+The handler uses `load` much like the client does, and thus the same implications apply - if the server is set for the relative paths, all is fine, otherwise a path solver should be used.
 
-A path solver can be added when adding the handler:
+A path solver can be passed when adding the handler:
 ```javascript
 viewer.addHandler(handlers.mdx, teamColorsPathSolver);
 ```
 
-The handler also selects between RoC/TFT (14) and Reforged (28) team colors.\
-These will be used regardless of whether any specific model being rendered is a RoC/TFT or Reforged model.\
-The default mode is RoC/TFT, and it can be changed by passing true as the third parameter when adding the handler:
+The handler also selects between TFT (16) and Reforged (28) team colors.\
+These will be used regardless of whether any specific model being rendered is a TFT or Reforged model.\
+The default mode is TFT, and it can be changed by passing true as the third parameter when adding the handler:
 ```javascript
 viewer.addHandler(handlers.mdx, teamColorsPathSolver, true); // Reforged team colors
 ```
-
-Note that if you want to capture events for the team textures, add the event listeners before adding the handler.
 
 #### Interacting with model instances
 
@@ -427,7 +425,7 @@ It is possible to construct primitive shapes with `createPrimitive`, which is av
 
 The function expects an object describing a primitive geometry, which can be obtained via the different functions in `utils.mdlx.primitives`.
 
-An optional material can be given, which can control the render mode between polygns and lines, the color, texture, and such.
+An optional material can be given, which can control the render mode between polygons and lines, the color, texture, and such.
 
 For example:
 ```javascript

@@ -1,5 +1,3 @@
-import { floatDecimals, floatArrayDecimals } from '../../common/math';
-
 /**
  * Used to read and write MDL tokens.
  */
@@ -248,7 +246,7 @@ export default class TokenStream {
    * Name Value,
    */
   writeNumberAttrib(name: string, value: number) {
-    this.writeLine(`${name} ${floatDecimals(value, this.precision)},`);
+    this.writeLine(`${name} ${this.floatDecimals(value)},`);
   }
 
   /**
@@ -262,7 +260,7 @@ export default class TokenStream {
    * Name { Value0, Value1, ..., ValueN }
    */
   writeVectorAttrib(name: string, value: Uint8Array | Uint32Array | Float32Array) {
-    this.writeLine(`${name} { ${floatArrayDecimals(value, this.precision)} },`);
+    this.writeLine(`${name} { ${this.floatArrayDecimals(value)} },`);
   }
 
   /**
@@ -274,9 +272,9 @@ export default class TokenStream {
    * The name can be either "Color" or "static Color", depending on the context.
    */
   writeColor(name: string, value: Float32Array) {
-    let b = floatDecimals(value[0], this.precision);
-    let g = floatDecimals(value[1], this.precision);
-    let r = floatDecimals(value[2], this.precision);
+    let b = this.floatDecimals(value[0]);
+    let g = this.floatDecimals(value[1]);
+    let r = this.floatDecimals(value[2]);
 
     this.writeLine(`${name} { ${r}, ${g}, ${b} },`);
   }
@@ -285,7 +283,7 @@ export default class TokenStream {
    * { Value0, Value1, ..., ValueN },
    */
   writeVector(value: Uint16Array | Float32Array) {
-    this.writeLine(`{ ${floatArrayDecimals(value, this.precision)} },`);
+    this.writeLine(`{ ${this.floatArrayDecimals(value)} },`);
   }
 
   /**
@@ -363,5 +361,32 @@ export default class TokenStream {
    */
   unindent() {
     this.ident -= 1;
+  }
+
+  /**
+ * Given a number, truncates digits after the decimal point.
+ * The given precision should be in base 10.
+ * E.g. for a precision of two digits after the decimal point, the precision should be 100.
+ * The result is returned as a string.
+ */
+  floatDecimals(value: number) {
+    return `${Math.trunc(value * this.precision) / this.precision}`;
+  }
+
+  /**
+   * Uses floatDecimals on a typed array, and returns its string representation. 
+   */
+  floatArrayDecimals(value: Uint8Array | Uint16Array | Uint32Array | Float32Array) {
+    if (value instanceof Float32Array) {
+      let array = [];
+
+      for (let i = 0, l = value.length; i < l; i++) {
+        array[i] = this.floatDecimals(value[i]);
+      }
+
+      return array.join(', ');
+    } else {
+      return value.join(', ');
+    }
   }
 }

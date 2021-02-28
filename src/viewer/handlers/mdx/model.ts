@@ -1,8 +1,10 @@
 
 import Parser from '../../../parsers/mdlx/model';
 import Sequence from '../../../parsers/mdlx/sequence';
+import { HandlerResourceData } from '../../handlerresource';
 import Model from '../../model';
 import Texture from '../../texture';
+import mdxHandler from './handler';
 import TextureAnimation from './textureanimation';
 import Layer from './layer';
 import Material from './material';
@@ -27,7 +29,6 @@ import Batch from './batch';
 import Geoset from './geoset';
 import MdxModelInstance from './modelinstance';
 import MdxTexture from './texture';
-import { HandlerResourceData } from '../../handlerresource';
 
 /**
  * An MDX model.
@@ -96,6 +97,7 @@ export default class MdxModel extends Model {
     let solverParams = this.solverParams;
     let reforged = parser.version > 800;
     let texturesExt = reforged ? '.dds' : '.blp';
+    let hasTeamColors = false;
 
     this.reforged = reforged;
     this.name = parser.name;
@@ -157,6 +159,10 @@ export default class MdxModel extends Model {
 
       if (replaceableId !== 0) {
         path = `ReplaceableTextures\\${replaceableIds[replaceableId]}${texturesExt}`;
+
+        if (replaceableId === 1 || replaceableId === 2) {
+          hasTeamColors = true;
+        }
       }
 
       let mdxTexture = new MdxTexture(replaceableId, !!(flags & 0x1), !!(flags & 0x2));
@@ -208,7 +214,13 @@ export default class MdxModel extends Model {
 
     // Particle emitters 2
     for (let particleEmitter2 of parser.particleEmitters2) {
-      this.particleEmitters2.push(new ParticleEmitter2Object(this, particleEmitter2, objectId++));
+      let emitter = new ParticleEmitter2Object(this, particleEmitter2, objectId++);
+
+      this.particleEmitters2.push(emitter);
+
+      if (emitter.teamColored) {
+        hasTeamColors = true;
+      }
     }
 
     // Ribbon emitters
@@ -246,6 +258,11 @@ export default class MdxModel extends Model {
     // Keep a sorted array.
     for (let i = 0, l = this.genericObjects.length; i < l; i++) {
       this.sortedGenericObjects[i] = this.genericObjects[this.hierarchy[i]];
+    }
+
+    // Lazy loading team colors.
+    if (hasTeamColors) {
+      mdxHandler.loadTeamTextures(viewer);
     }
   }
 

@@ -10,12 +10,12 @@ const quatHeap = quat.create();
  */
 class M3Sd {
   keys: Int32Array;
-  values: TypedArray[] | number[];
+  values: vec3[] | quat[] | number[];
   biggestKey: number;
 
   constructor(sd: M3ParserSd) {
     this.keys = <Int32Array>sd.keys.get();
-    this.values = <TypedArray[]>sd.values.get();
+    this.values = <vec3[]>sd.values.get(); // Fake typecasting to avoid a TS error.
     this.biggestKey = sd.biggestKey;
   }
 }
@@ -67,7 +67,7 @@ export default class M3SdContainer {
     let va = values[a];
     let vb = values[b];
     let interpolationType = animationReference.interpolationType;
-    let fakeVa = <TypedArray>va; /// UGLY!!!
+    let fakeVa = <vec3>va; /// UGLY!!!
 
     if (fakeVa.length === 4) {
       if (interpolationType === 0) {

@@ -37,7 +37,7 @@ export default class Geoset {
     }
   }
 
-  bindShared(gl: WebGLRenderingContext, attribs: NumberObject, coordId: number) {
+  bindShared(gl: WebGLRenderingContext, attribs: { [key: string]: number }, coordId: number) {
     gl.vertexAttribPointer(attribs.a_position, 3, gl.FLOAT, false, 0, this.positionOffset);
     gl.vertexAttribPointer(attribs.a_normal, 3, gl.FLOAT, false, 0, this.normalOffset);
     gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 0, this.uvOffset + coordId * this.vertices * 8);

@@ -2,8 +2,8 @@ import MpqBlock from './block';
 import { HASH_FILE_KEY, FILE_OFFSET_ADJUSTED_KEY } from './constants';
 
 // Global variables for this module.
-const bytes = new Uint8Array(4);
-const long = new Uint32Array(bytes.buffer);
+const bytesHeap = new Uint8Array(4);
+const longHeap = new Uint32Array(bytesHeap.buffer);
 
 /**
  * MPQ crypto.
@@ -47,80 +47,68 @@ export default class MpqCrypto {
     return seed1 >>> 0;
   }
 
-  decryptBlock(data: TypedArray, key: number) {
+  decryptBlock(data: Uint8Array | Uint32Array, key: number) {
     let cryptTable = this.cryptTable;
     let seed = 0xEEEEEEEE;
-    let view;
-
-    if (data instanceof ArrayBuffer) {
-      view = new Uint8Array(data);
-    } else {
-      view = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
-    }
+    let bytes = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
 
     for (let i = 0, l = data.byteLength >>> 2; i < l; i++) {
       // Update the seed.
       seed += cryptTable[0x400 + (key & 0xFF)];
 
       // Get 4 encrypted bytes.
-      bytes[0] = view[i * 4];
-      bytes[1] = view[i * 4 + 1];
-      bytes[2] = view[i * 4 + 2];
-      bytes[3] = view[i * 4 + 3];
+      bytesHeap[0] = bytes[i * 4];
+      bytesHeap[1] = bytes[i * 4 + 1];
+      bytesHeap[2] = bytes[i * 4 + 2];
+      bytesHeap[3] = bytes[i * 4 + 3];
 
       // Decrypted 32bit integer.
-      long[0] ^= (key + seed);
+      longHeap[0] ^= (key + seed);
 
       // Update the seed.
       key = ((~key << 0x15) + 0x11111111) | (key >>> 0x0B);
-      seed = long[0] + seed + (seed << 5) + 3;
+      seed = longHeap[0] + seed + (seed << 5) + 3;
 
       // Set 4 decryped bytes.
-      view[i * 4] = bytes[0];
-      view[i * 4 + 1] = bytes[1];
-      view[i * 4 + 2] = bytes[2];
-      view[i * 4 + 3] = bytes[3];
+      bytes[i * 4] = bytesHeap[0];
+      bytes[i * 4 + 1] = bytesHeap[1];
+      bytes[i * 4 + 2] = bytesHeap[2];
+      bytes[i * 4 + 3] = bytesHeap[3];
     }
 
     return data;
   }
 
-  encryptBlock(data: ArrayBuffer | TypedArray, key: number) {
+  encryptBlock(data: Uint8Array | Uint32Array, key: number) {
     let cryptTable = this.cryptTable;
     let seed = 0xEEEEEEEE;
-    let view;
-
-    if (data instanceof ArrayBuffer) {
-      view = new Uint8Array(data);
-    } else {
-      view = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
-    }
+    let bytes = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
 
     for (let i = 0, l = data.byteLength >>> 2; i < l; i++) {
       // Update the seed.
       seed += cryptTable[0x400 + (key & 0xFF)];
 
       // Get 4 decrypted bytes.
-      bytes[0] = view[i * 4];
-      bytes[1] = view[i * 4 + 1];
-      bytes[2] = view[i * 4 + 2];
-      bytes[3] = view[i * 4 + 3];
+      bytesHeap[0] = bytes[i * 4];
+      bytesHeap[1] = bytes[i * 4 + 1];
+      bytesHeap[2] = bytes[i * 4 + 2];
+      bytesHeap[3] = bytes[i * 4 + 3];
 
       // Decrypted 32bit integer.
-      let decrypted = long[0];
+      let decrypted = longHeap[0];
 
       // Encrypted 32bit integer.
-      long[0] ^= (key + seed);
+      longHeap[0] ^= (key + seed);
 
       // Update the seed.
       key = ((~key << 0x15) + 0x11111111) | (key >>> 0x0B);
       seed = decrypted + seed + (seed << 5) + 3;
 
       // Set 4 encrypted bytes.
-      view[i * 4] = bytes[0];
-      view[i * 4 + 1] = bytes[1];
-      view[i * 4 + 2] = bytes[2];
-      view[i * 4 + 3] = bytes[3];
+      bytes[i * 4] = bytesHeap[0];
+      bytes[i * 4 + 1] = bytesHeap[1];
+      bytes[i * 4 + 2] = bytesHeap[2];
+      bytes[i * 4 + 3] = bytesHeap[3];
     }
 
     return data;

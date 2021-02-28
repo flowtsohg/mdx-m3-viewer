@@ -34,7 +34,7 @@ export default class DataTexture {
     }
   }
 
-  bindAndUpdate(buffer: TypedArray, width: number = this.width, height: number = this.height) {
+  bindAndUpdate(buffer: Float32Array, width: number = this.width, height: number = this.height) {
     const gl = this.gl;
 
     gl.bindTexture(gl.TEXTURE_2D, this.texture);

@@ -96,7 +96,7 @@ export default class IndexEntry {
   tag: string;
   offset: number;
   version: number;
-  entries: any[] | TypedArray | string;
+  entries: string | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Float32Array | any[];
 
   constructor(reader: BinaryStream, index: IndexEntry[]) {
     let tag = reverse(reader.readBinary(4));
