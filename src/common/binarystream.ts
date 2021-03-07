@@ -1,5 +1,6 @@
+import { bytesOf } from './bytesof';
 import { boundIndexOf } from './searches';
-import { uint8ToInt8, uint8ToInt16, uint8ToInt32, uint8ToUint16, uint8ToUint32, uint8ToFloat32, uint8ToFloat64, int8ToUint8, int16ToUint8, int32ToUint8, uint16ToUint8, uint32ToUint8, float32ToUint8, float64ToUint8, bytesOf } from './typecast';
+import { uint8ToInt8, uint8ToInt16, uint8ToInt32, uint8ToUint16, uint8ToUint32, uint8ToFloat32, uint8ToFloat64, int8ToUint8, int16ToUint8, int32ToUint8, uint16ToUint8, uint32ToUint8, float32ToUint8, float64ToUint8 } from './typecast';
 import { decodeUtf8, encodeUtf8 } from './utf8';
 
 // Memory for all of the xxxToUint type casts.

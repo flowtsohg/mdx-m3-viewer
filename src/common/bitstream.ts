@@ -1,4 +1,4 @@
-import { bytesOf } from './typecast';
+import { bytesOf } from './bytesof';
 
 /**
  * A bit stream.

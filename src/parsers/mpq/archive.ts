@@ -1,6 +1,6 @@
+import { bytesOf } from '../../common/bytesof';
 import { powerOfTwo } from '../../common/math';
-import { bytesOf, numberToUint32 } from '../../common/typecast';
-import { encodeUtf8 } from '../../common/utf8';
+import { numberToUint32 } from '../../common/typecast';
 import MpqBlockTable from './blocktable';
 import { HASH_ENTRY_DELETED, HASH_ENTRY_EMPTY, MAGIC } from './constants';
 import MpqCrypto from './crypto';
@@ -83,20 +83,16 @@ export default class MpqArchive {
     for (let hash of this.hashTable.entries) {
       let blockIndex = hash.blockIndex;
 
-      // If the file wasn't deleted, load it.
-      if (blockIndex < HASH_ENTRY_DELETED) {
-        let file = new MpqFile(this, hash, this.blockTable.entries[blockIndex], bytes, null);
-
-        this.files[blockIndex] = file;
+      // If the block index is valid, load a file.
+      // This isn't the case when the block is marked as deleted with HASH_ENTRY_DELETED.
+      // This also isn't the case for archives with fake block indices.
+      if (blockIndex < this.blockTable.entries.length) {
+        this.files[blockIndex] = new MpqFile(this, hash, this.blockTable.entries[blockIndex], bytes, null);
       }
     }
 
-    // Get internal files to fill the file names.
-    let listfile = this.get('(listfile)');
-    this.get('(attributes)');
-    this.get('(signature)');
-
     // If there is a listfile, use all of the file names in it.
+    let listfile = this.get('(listfile)');
     if (listfile) {
       let list = listfile.text();
 
@@ -141,7 +137,7 @@ export default class MpqArchive {
     this.saveMemory();
 
     // Set the listfile.
-    this.setListFile();
+    this.set('(listfile)', this.getFileNames().join('\r\n'));
 
     // Reset the file offsets.
     let offset = headerSize;
@@ -234,6 +230,7 @@ export default class MpqArchive {
         for (let hash of hashes) {
           if (hash.blockIndex === i) {
             used = true;
+            break;
           }
         }
 
@@ -277,20 +274,6 @@ export default class MpqArchive {
   }
 
   /**
-   * Sets the list file with all of the resolved file names.
-   * 
-   * Does nothing if the archive is in readonly mode.
-   */
-  setListFile() {
-    if (this.readonly) {
-      return false;
-    }
-
-    // Add the listfile, possibly overriding an existing one.
-    return this.set('(listfile)', this.getFileNames().join('\r\n'));
-  }
-
-  /**
    * Count the files with unresolved names.
    */
   countUnresolved() {
@@ -325,16 +308,7 @@ export default class MpqArchive {
       return false;
     }
 
-    let bytes;
-
-    if (buffer instanceof ArrayBuffer) {
-      bytes = new Uint8Array(buffer);
-    } else if (buffer instanceof Uint8Array) {
-      bytes = buffer;
-    } else {
-      bytes = encodeUtf8(buffer);
-    }
-
+    let bytes = bytesOf(buffer);
     let file = this.get(name);
 
     // If the file already exists, change the data.

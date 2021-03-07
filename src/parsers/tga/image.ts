@@ -1,6 +1,6 @@
 // @ts-ignore
 import TgaLoader from 'tga-js';
-import { bytesOf } from '../../common/typecast';
+import { bytesOf } from '../../common/bytesof';
 
 /**
  * A TGA image.

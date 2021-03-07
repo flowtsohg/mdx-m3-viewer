@@ -1,5 +1,6 @@
-import { base256ToString, bytesOf } from '../../common/typecast';
+import { base256ToString } from '../../common/typecast';
 import { decodeDxt1, decodeDxt3, decodeDxt5, decodeRgtc } from '../../common/dxt';
+import { bytesOf } from '../../common/bytesof';
 
 export const DDS_MAGIC = 0x20534444;
 const DDSD_MIPMAPCOUNT = 0x20000;

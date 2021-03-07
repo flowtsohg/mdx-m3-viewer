@@ -1,8 +1,8 @@
 // @ts-ignore
 import { JpegImage } from '../../../thirdparty/jpg';
 import BitStream from '../../common/bitstream';
+import { bytesOf } from '../../common/bytesof';
 import convertBitRange from '../../common/convertbitrange';
-import { bytesOf } from '../../common/typecast';
 
 export const BLP1_MAGIC = 0x31504c42;
 const CONTENT_JPG = 0x0;
