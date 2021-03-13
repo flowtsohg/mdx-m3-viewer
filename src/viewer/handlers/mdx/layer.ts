@@ -54,6 +54,10 @@ export default class Layer extends AnimatedObject {
     this.noDepthTest = flags & 0x40;
     this.noDepthSet = flags & 0x80;
 
+    if (filterMode > 6) {
+      filterMode = 0;
+    }
+
     this.depthMaskValue = (filterMode === 0 || filterMode === 1);
 
     if (filterMode > 1) {
