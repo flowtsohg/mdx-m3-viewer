@@ -1,4 +1,4 @@
-import Sequence from '../../../parsers/mdlx/sequence';
+import Sequence from '../mdx/sequence';
 import MdxModel from '../mdx/model';
 import MdxModelInstance from '../mdx/modelinstance';
 

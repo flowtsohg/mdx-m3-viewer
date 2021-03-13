@@ -88,6 +88,13 @@ export default abstract class ModelInstance extends Node {
   }
 
   /**
+   * Called for instance culling.
+   */
+  getBounds() {
+    return this.model.bounds;
+  }
+
+  /**
    * Called if the instance is shown and not culled.
    */
   updateAnimations(dt: number) {
@@ -144,7 +151,7 @@ export default abstract class ModelInstance extends Node {
   isVisible(camera: Camera) {
     let [x, y, z] = this.worldLocation;
     let [sx, sy, sz] = this.worldScale;
-    let bounds = this.model.bounds;
+    let bounds = this.getBounds();
     let planes = camera.planes;
 
     // Get the biggest scaling dimension.
@@ -156,7 +163,7 @@ export default abstract class ModelInstance extends Node {
       sx = sz;
     }
 
-    this.plane = testSphere(planes, x + bounds.x, y + bounds.y, z, bounds.r * sx * 2, this.plane);
+    this.plane = testSphere(planes, x + bounds.x, y + bounds.y, z, bounds.r * sx, this.plane);
 
     if (this.plane === -1) {
       this.depth = distanceToPlane3(planes[4], x, y, z);

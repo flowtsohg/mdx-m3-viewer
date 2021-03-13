@@ -537,6 +537,25 @@ export default class MdxModelInstance extends ModelInstance {
   }
 
   /**
+   * @override
+   */
+  getBounds() {
+    let model = <MdxModel>this.model;
+
+    if (this.sequence === -1) {
+      return model.bounds;
+    }
+
+    let bounds = model.sequences[this.sequence].bounds;
+
+    if (bounds.r === 0) {
+      return model.bounds;
+    }
+
+    return bounds;
+  }
+
+  /**
    * Set the seuqnece loop mode.
    * 0 to never loop, 1 to loop based on the model, and 2 to always loop.
    */

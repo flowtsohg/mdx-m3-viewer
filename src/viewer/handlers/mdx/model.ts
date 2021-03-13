@@ -1,6 +1,6 @@
 
 import Parser from '../../../parsers/mdlx/model';
-import Sequence from '../../../parsers/mdlx/sequence';
+import Sequence from './sequence';
 import { HandlerResourceData } from '../../handlerresource';
 import Model from '../../model';
 import Texture from '../../texture';
@@ -108,7 +108,7 @@ export default class MdxModel extends Model {
 
     // Sequences
     for (let sequence of parser.sequences) {
-      this.sequences.push(sequence);
+      this.sequences.push(new Sequence(sequence));
     }
 
     // Global sequences
