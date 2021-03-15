@@ -7,7 +7,7 @@ export function createRectangle(w: number, d: number) {
     uvs: new Float32Array([0, 0, 0, 1, 1, 1, 1, 0]),
     faces: new Uint16Array([0, 1, 2, 0, 2, 3]),
     edges: new Uint16Array([0, 1, 1, 2, 2, 3, 3, 0]),
-    boundingRadius: Math.max(w, d),
+    boundingRadius: Math.hypot(w, d),
   };
 }
 
@@ -27,7 +27,7 @@ export function createCube(w: number, d: number, h: number) {
     uvs: new Float32Array([0, 0, 0, 1, 0.25, 0, 0.25, 1, 0.5, 0, 0.5, 1, 0.75, 0, 0.75, 1]),
     faces: new Uint16Array([0, 1, 2, 1, 3, 2, 2, 3, 4, 3, 5, 4, 4, 5, 6, 5, 7, 6, 6, 7, 0, 7, 1, 0, 0, 2, 4, 0, 4, 6, 1, 5, 3, 1, 7, 5]),
     edges: new Uint16Array([0, 1, 2, 3, 4, 5, 6, 7, 0, 2, 2, 4, 4, 6, 6, 0, 1, 3, 3, 5, 5, 7, 7, 1]),
-    boundingRadius: Math.max(w, d, h),
+    boundingRadius: Math.hypot(w, d, h),
   };
 }
 
@@ -199,7 +199,7 @@ export function createCylinder(radius: number, height: number, slices: number) {
     uvs: uvs,
     faces: faces,
     edges: edges,
-    boundingRadius: Math.max(radius, height),
+    boundingRadius: Math.hypot(radius, height),
   };
 }
 
@@ -233,6 +233,6 @@ export function createFrustum(fieldOfView: number, aspectRatio: number, nearClip
     uvs: new Float32Array([0, 0, 0, 1, 0.25, 0, 0.25, 1, 0.5, 0, 0.5, 1, 0.75, 0, 0.75, 1]),
     faces: new Uint16Array([0, 1, 2, 1, 3, 2, 2, 3, 4, 3, 5, 4, 4, 5, 6, 5, 7, 6, 6, 7, 0, 7, 1, 0, 0, 2, 4, 0, 4, 6, 1, 5, 3, 1, 7, 5]),
     edges: new Uint16Array([0, 1, 2, 3, 4, 5, 6, 7, 0, 2, 2, 4, 4, 6, 6, 0, 1, 3, 3, 5, 5, 7, 7, 1]),
-    boundingRadius: Math.max(farWidth, farHeight),
+    boundingRadius: Math.hypot(farWidth, farHeight),
   };
 }
