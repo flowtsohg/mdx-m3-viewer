@@ -163,7 +163,7 @@ export default abstract class ModelInstance extends Node {
       sx = sz;
     }
 
-    this.plane = testSphere(planes, x + bounds.x, y + bounds.y, z, bounds.r * sx, this.plane);
+    this.plane = testSphere(planes, x + bounds.x, y + bounds.y, z + bounds.z, bounds.r * sx, this.plane);
 
     if (this.plane === -1) {
       this.depth = distanceToPlane3(planes[4], x, y, z);
