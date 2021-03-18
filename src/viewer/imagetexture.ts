@@ -16,7 +16,7 @@ export function isImageSource(src: any) {
  */
 export function detectMime(buffer: Uint8Array) {
   if (isPng(buffer)) {
-    return 'image/png'
+    return 'image/png';
   }
 
   if (isJpeg(buffer)) {
@@ -28,7 +28,7 @@ export function detectMime(buffer: Uint8Array) {
   }
 
   if (isWebP(buffer)) {
-    return 'image/webp'
+    return 'image/webp';
   }
 
   return '';

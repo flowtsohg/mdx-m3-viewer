@@ -9,9 +9,7 @@ export default abstract class Model extends HandlerResource {
   bounds: Bounds = new Bounds();
 
   /**
-   * Create the actual instance object and return it.
-   * 
-   * The given type can be used to select between instance classes, if there are more than one.
+   * Create a new instance and return it.
    */
   abstract addInstance(): ModelInstance;
 }

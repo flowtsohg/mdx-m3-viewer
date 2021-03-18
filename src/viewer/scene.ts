@@ -206,7 +206,7 @@ export default class Scene {
         this.visibleCells += 1;
 
         for (let instance of cell.instances) {
-          if (instance.rendered && instance.cullFrame < frame && instance.isVisible(camera)) {
+          if (instance.rendered && instance.cullFrame < frame && (instance.isVisible(camera) || instance.dirty)) {
             instance.cullFrame = frame;
 
             if (instance.updateFrame < frame) {

@@ -7,7 +7,7 @@ function localOrHive(src, params) {
     return urlWithParams(`${window.location.origin}/assets?path=${src}`, params);
   } else {
     if (params && params.reforged) {
-      return `https://beta.hiveworkshop.com/casc-contents?path=${src}`;
+      return `https://www.hiveworkshop.com/casc-contents?path=${src}`;
     } else {
       return `https://www.hiveworkshop.com/data/static_assets/mpq/tft/${src}`;
     }

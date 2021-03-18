@@ -282,24 +282,27 @@ export default class Geoset {
       stream.writeVectorArrayBlock('Tangents', this.tangents, 4);
     }
 
+    // Always write vertex groups if they exist.
+    if (this.vertexGroups.length) {
+      stream.startBlock('VertexGroup');
+
+      for (let i = 0, l = this.vertexGroups.length; i < l; i++) {
+        stream.writeLine(`${this.vertexGroups[i]},`);
+      }
+
+      stream.endBlock();
+    }
+
     // If this is a Reforged HD geoset, write the skin.
-    // Otherwise, write the vertex groups, which are used for both TFT and Reforged SD geosets.
     if (version > 800 && this.skin.length) {
       stream.startBlock('SkinWeights', this.skin.length / 8);
 
       for (let i = 0, l = this.skin.length; i < l; i += 8) {
         stream.writeLine(`${this.skin.subarray(i, i + 8).join(', ')},`);
       }
-    } else {
-      stream.startBlock('VertexGroup');
 
-      for (let i = 0, l = this.vertexGroups.length; i < l; i++) {
-        stream.writeLine(`${this.vertexGroups[i]},`);
-      }
+      stream.endBlock();
     }
-
-    // End the vertex group or the skin weight block.
-    stream.endBlock();
 
     // For now hardcoded for triangles, until I see a model with something different.
     stream.startBlock('Faces', 1, this.faces.length);
