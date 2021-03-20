@@ -1,3 +1,4 @@
+import { VEC3_ZERO } from '../../../common/gl-matrix-addon';
 import MdlxCamera from '../../../parsers/mdlx/camera';
 import AnimatedObject from './animatedobject';
 import MdxModel from './model';
@@ -24,12 +25,12 @@ export default class Camera extends AnimatedObject {
     this.targetPosition = camera.targetPosition;
   }
 
-  getPositionTranslation(out: Float32Array, sequence: number, frame: number, counter: number) {
-    return this.getVectorValue(out, 'KCTR', sequence, frame, counter, this.position);
+  getTranslation(out: Float32Array, sequence: number, frame: number, counter: number) {
+    return this.getVectorValue(out, 'KCTR', sequence, frame, counter, <Float32Array>VEC3_ZERO);
   }
 
   getTargetTranslation(out: Float32Array, sequence: number, frame: number, counter: number) {
-    return this.getVectorValue(out, 'KTTR', sequence, frame, counter, this.targetPosition);
+    return this.getVectorValue(out, 'KTTR', sequence, frame, counter, <Float32Array>VEC3_ZERO);
   }
 
   getRotation(out: Uint32Array, sequence: number, frame: number, counter: number) {
