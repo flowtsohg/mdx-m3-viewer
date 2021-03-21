@@ -64,5 +64,5 @@ export default {
   // Camera
   KCTR: ['Translation', Vector3Animation],
   KTTR: ['Translation', Vector3Animation],
-  KCRL: ['Rotation', UintAnimation],
+  KCRL: ['Rotation', FloatAnimation],
 };

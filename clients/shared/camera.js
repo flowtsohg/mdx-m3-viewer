@@ -7,7 +7,9 @@ vec3 = ModelViewer.default.common.glMatrix.vec3;
 quat = ModelViewer.default.common.glMatrix.quat;
 
 const vecHeap = vec3.create();
+const vecHeap2 = vec3.create();
 const quatHeap = quat.create();
+const twistHeap = new Float32Array(1);
 
 // Get the vector length between two touches.
 function getTouchesLength(touch1, touch2) {
@@ -43,13 +45,17 @@ class SimpleOrbitCamera {
     this.position = options.position || vec3.create();
     // What the camera is looking at.
     this.target = options.target || vec3.create();
-    // What is considered "up" to this camera.
-    this.worldUp = options.worldUp || vec3.fromValues(0, 0, 1);
+    // The twist angle of the camera, which affects the "up" direction.
+    // For example, a twist of 180 degrees, i.e. PI, will flip everything upside down.
+    this.twist = options.twist || 0;
     // Mouse.
     this.mouse = { buttons: [false, false, false], x: 0, y: 0, x2: 0, y2: 0 };
     // Touches.
     this.touchMode = TOUCH_MODE_ROTATE;
     this.touches = [];
+    this.instance = null;
+    this.cameraIndex = 0;
+    this.onManualChange = options.onManualChange || null;
 
     this.update();
 
@@ -165,20 +171,23 @@ class SimpleOrbitCamera {
   }
 
   update() {
-    // Limit the vertical angle so it doesn't flip.
-    // Since the camera uses a quaternion, flips don't matter to it, but this feels better.
-    this.verticalAngle = Math.min(Math.max(0.01, this.verticalAngle), Math.PI - 0.01);
+    if (this.instance) {
+      let instance = this.instance;
+      let mdxCamera = instance.model.cameras[this.cameraIndex];
 
-    quat.identity(quatHeap);
-    quat.rotateZ(quatHeap, quatHeap, this.horizontalAngle);
-    quat.rotateX(quatHeap, quatHeap, this.verticalAngle);
+      mdxCamera.getTranslation(vecHeap, instance.sequence, instance.frame, instance.counter);
+      vec3.add(vecHeap, vecHeap, mdxCamera.position);
 
-    vec3.set(this.position, 0, 0, 1);
-    vec3.transformQuat(this.position, this.position, quatHeap);
-    vec3.scale(this.position, this.position, this.distance);
-    vec3.add(this.position, this.position, this.target);
+      mdxCamera.getTargetTranslation(vecHeap2, instance.sequence, instance.frame, instance.counter);
+      vec3.add(vecHeap2, vecHeap2, mdxCamera.targetPosition);
 
-    this.camera.moveToAndFace(this.position, this.target, this.worldUp);
+      mdxCamera.getRotation(twistHeap, instance.sequence, instance.frame, instance.counter);
+      this.twist = twistHeap[0];
+
+      this.moveToAndFace(vecHeap, vecHeap2);
+    } else {
+      this.updateInternalCamera();
+    }
   }
 
   // Move the camera and the target on the XY plane.
@@ -190,7 +199,7 @@ class SimpleOrbitCamera {
     vec3.add(this.target, this.target, vec3.scale(vecHeap, vec3.normalize(vecHeap, vec3.set(vecHeap, dirX[0], dirX[1], 0)), x * this.moveSpeed));
     vec3.add(this.target, this.target, vec3.scale(vecHeap, vec3.normalize(vecHeap, vec3.set(vecHeap, dirY[0], dirY[1], 0)), y * this.moveSpeed));
 
-    this.update();
+    this.manualChange();
   }
 
   // Rotate the camera around the target.
@@ -198,14 +207,26 @@ class SimpleOrbitCamera {
     this.horizontalAngle -= x * this.rotationSpeed;
     this.verticalAngle -= y * this.rotationSpeed;
 
-    this.update();
+    this.manualChange();
   }
 
   // Zoom the camera by changing the distance from the target.
   zoom(factor) {
     this.distance *= 1 + factor * this.zoomFactor;
 
-    this.update();
+    this.manualChange();
+  }
+
+  manualChange() {
+    this.updateInternalCamera();
+
+    if (this.instance) {
+      this.instance = null;
+
+      if (this.onManualChange) {
+        this.onManualChange();
+      }
+    }
   }
 
   // Resize the canvas automatically and update the camera.
@@ -234,6 +255,35 @@ class SimpleOrbitCamera {
     this.verticalAngle = phi;
     this.horizontalAngle = theta + Math.PI / 2;
     this.distance = r;
+
+    this.updateInternalCamera();
+  }
+
+  updateInternalCamera() {
+    // Limit the vertical angle so it doesn't flip.
+    // Since the camera uses a quaternion, flips don't matter to it, but this feels better.
+    this.verticalAngle = Math.min(Math.max(0.01, this.verticalAngle), Math.PI - 0.01);
+
+    quat.identity(quatHeap);
+    quat.rotateZ(quatHeap, quatHeap, this.horizontalAngle);
+    quat.rotateX(quatHeap, quatHeap, this.verticalAngle);
+
+    vec3.set(this.position, 0, 0, 1);
+    vec3.transformQuat(this.position, this.position, quatHeap);
+    vec3.scale(this.position, this.position, this.distance);
+    vec3.add(this.position, this.position, this.target);
+
+    let twist = this.twist - Math.PI / 2;
+    vec3.set(vecHeap, 0, -Math.cos(twist), -Math.sin(twist));
+
+    this.camera.moveToAndFace(this.position, this.target, vecHeap);
+  }
+
+  applyInstanceCamera(instance, cameraIndex) {
+    this.instance = instance;
+    this.cameraIndex = cameraIndex;
+
+    this.camera.fov = instance.model.cameras[cameraIndex].fieldOfView;
 
     this.update();
   }
