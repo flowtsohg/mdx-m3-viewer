@@ -1,7 +1,7 @@
 import { AnimationReference } from '../../../parsers/m3/animationreference';
-import { createSkeletalNodes } from '../../node';
+import { createSkeletalNodes } from '../../skeletalnode';
 import Scene from '../../scene';
-import Node from './node';
+import M3Node from './node';
 import M3ModelInstance from './modelinstance';
 import M3Bone from './bone';
 import M3Sts from './sts';
@@ -13,7 +13,7 @@ import M3Model from './model';
  * M3 skeleton.
  */
 export default class M3Skeleton {
-  nodes: Node[];
+  nodes: M3Node[];
   worldMatrices: Float32Array;
   instance: M3ModelInstance;
   modelNodes: M3Bone[];
@@ -27,7 +27,7 @@ export default class M3Skeleton {
     let model = <M3Model>instance.model;
     let bones = model.bones;
     let boneLookup = model.boneLookup;
-    let sharedNodeData = createSkeletalNodes(bones.length, Node);
+    let sharedNodeData = createSkeletalNodes(bones.length, M3Node);
     let nodes = sharedNodeData.nodes;
 
     this.nodes = nodes;
@@ -71,7 +71,13 @@ export default class M3Skeleton {
       this.getValue3(<Float32Array>node.localScale, modelNode.scale, instance);
 
       node.recalculateTransformation(scene);
-      node.updateChildren(dt, scene);
+
+      // Recalculate and update child nodes.
+      // Note that this only affects normal nodes such as instances, and not skeletal nodes.
+      for (let child of node.children) {
+        child.recalculateTransformation();
+        child.update(dt);
+      }
     }
   }
 

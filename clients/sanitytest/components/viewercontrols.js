@@ -55,23 +55,33 @@ class ViewerControls extends Component {
 
     createElement({ textContent: 'Frame:', container });
     this.frameElement = createElement({ container });
+
+    // Camera.
+    container = createElement({ container: this.container });
+
+    createElement({ textContent: 'Camera:', container });
+    this.camerasElement = createElement({ tagName: 'select', className: 'controls', onchange: () => this.viewer.setCamera(this.camerasElement.selectedIndex - 1), container });
   }
 
   frame(frame) {
     this.frameElement.textContent = `${Math.floor(frame)}`;
   }
 
-  updateSequences(instance) {
-    let select = this.sequencesElement;
+  updateInstance(instance) {
+    clearSelect(this.sequencesElement);
 
-    for (let l = select.options.length - 1, i = l; i >= 0; i--) {
-      select.remove(i);
-    }
-
-    select.add(createElement({ tagName: 'option', textContent: 'None' }));
+    this.sequencesElement.add(createElement({ tagName: 'option', textContent: 'None' }));
 
     for (let sequence of instance.model.sequences) {
-      select.add(createElement({ tagName: 'option', textContent: sequence.name }));
+      this.sequencesElement.add(createElement({ tagName: 'option', textContent: sequence.name }));
+    }
+
+    clearSelect(this.camerasElement);
+
+    this.camerasElement.add(createElement({ tagName: 'option', textContent: 'None' }));
+
+    for (let camera of instance.model.cameras) {
+      this.camerasElement.add(createElement({ tagName: 'option', textContent: camera.name }));
     }
   }
 
@@ -81,5 +91,9 @@ class ViewerControls extends Component {
     }
 
     this.sequencesElement.selectedIndex = sequence + 1;
+  }
+
+  setCamera(camera) {
+    this.camerasElement.selectedIndex = camera + 1;
   }
 }

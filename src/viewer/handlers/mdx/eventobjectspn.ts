@@ -29,12 +29,7 @@ export default class EventObjectSpn extends EmittedObject {
 
     internalInstance.setScene(scene);
     internalInstance.setSequence(0);
-
-    // Set the transformation and recalculate.
-    // The later is needed for instances that went out of view, which causes their instaces to no longer get updates.
     internalInstance.setTransformation(node.worldLocation, node.worldRotation, node.worldScale);
-    internalInstance.recalculateTransformation();
-
     internalInstance.show();
 
     this.health = 1;

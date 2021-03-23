@@ -171,7 +171,7 @@ export default class M3ModelInstance extends ModelInstance {
       let sequence = model.sequences[sequenceId];
       let interval = sequence.interval;
 
-      this.frame += model.viewer.frameTime;
+      this.frame += dt * 1000;
 
       if (this.frame > interval[1]) {
         if ((this.sequenceLoopMode === 0 && !(sequence.flags & 0x1)) || this.sequenceLoopMode === 2) {

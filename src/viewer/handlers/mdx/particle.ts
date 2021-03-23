@@ -72,19 +72,12 @@ export default class Particle extends EmittedObject {
 
     internalInstance.setScene(scene);
     internalInstance.setSequence(0);
-
-    // Set the transformation and recalculate.
-    // The later is needed for instances that went out of view, which causes their instaces to no longer get updates.
     internalInstance.setTransformation(node.worldLocation, quat.setAxisAngle(rotationHeap, VEC3_UNIT_Z, randomInRange(0, Math.PI * 2)), node.worldScale);
-    internalInstance.recalculateTransformation();
-
     internalInstance.show();
   }
 
   update(dt: number) {
     let internalInstance = this.internalInstance;
-
-    internalInstance.paused = false; /// Why is this here?
 
     this.health -= dt;
 

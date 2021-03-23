@@ -1,5 +1,5 @@
 import { quat } from 'gl-matrix';
-import { SkeletalNode } from '../../node';
+import { SkeletalNode } from '../../skeletalnode';
 
 /**
  * An M3 node.

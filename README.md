@@ -502,3 +502,37 @@ canvas.clientHeight = 512;
 canvas.style.width = '512px';
 canvas.style.height = '512px';
 ```
+
+#### Variable frames per second
+
+The viewer has the `frameTime` member, which defines how many frames of animation to advanced on each update.
+
+By default, `frameTime` is set for 60FPS, or `1000 / 60`.
+
+If a client runs on a >60Hz monitor, and uses `requestAnimationFrame` for its main loop as it should, animations will run faster than they should.
+
+In other cases, a client might have too many things rendering and it slows down, causing animations to go slow motion.
+
+To support a variable FPS while keeping the same animation speed, `frameTime` can be controlled dynamically, for example:
+
+```javascript
+ let lastTime = performance.now();
+
+(function step() {
+  requestAnimationFrame(step);
+
+  let now = performance.now();
+
+  // The faster the FPS, the lower frameTime will be.
+  // Twice the FPS? half the frameTime.
+  // There are more frames per second, so every frame advances the animation less.
+  // And the other way is also true.
+  // Half the FPS? twice the frameTime.
+  // There are less frames per second, so every frame advances the animation more.
+  viewer.frameTime = now - lastTime;
+
+  lastTime = now;
+
+  viewer.updateAndRender();
+}());
+```

@@ -49,6 +49,11 @@ class SanityTester extends Component {
         viewerLoggerMdlH1.textContent = '3D View';
 
         showElement(viewerLogger);
+
+        // If the page was resized in MDL view, the camera thinks the size of the canvas is 1x1.
+        // Need to resize now that the canvas is visible again and has a real size.
+        this.viewer.orbitCamera.onResize();
+
         hideElement(this.mdl);
       }
     }, { container: viewerLoggerMdlHeader });
@@ -131,14 +136,24 @@ class SanityTester extends Component {
       return;
     }
 
+    let pathSolver = (src, params) => {
+      let file = map.get(src);
+
+      if (file) {
+        return file.bytes();
+      }
+
+      return localOrHive(src, params);
+    };
+
     for (let importName of map.getImportNames()) {
       let file = map.get(importName);
       let ext = ModelViewer.default.common.path.extname(importName);
 
       if (ext === '.mdx') {
-        this.test(`${name}:${importName}`, file.arrayBuffer());
+        this.test(`${name}:${importName}`, file.arrayBuffer(), pathSolver);
       } else if (ext === '.mdl') {
-        this.test(`${name}:${importName}`, file.text());
+        this.test(`${name}:${importName}`, file.text(), pathSolver);
       } else if (ext === '.blp' || ext === '.dds' || ext === '.tga') {
         this.test(`${name}:${importName}`, file.arrayBuffer());
       }
@@ -202,13 +217,13 @@ class SanityTester extends Component {
       }
 
       if (files.length) {
-        let pathSolver = (src) => {
+        let pathSolver = (src, params) => {
           let override = overrides.get(src);
 
           if (override) {
             return override;
           } else {
-            return localOrHive(src);
+            return localOrHive(src, params);
           }
         };
 

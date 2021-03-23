@@ -17,12 +17,11 @@ export default abstract class ModelInstance extends Node {
   plane: number = -1;
   depth: number = 0;
   updateFrame: number = 0;
-  cullFrame: number = 0;
   model: Model;
   /**
-   * If true, this instance won't be updated.
+   * Allows to slow down or speed up animations of this instance, and any children.
    */
-  paused: boolean = false;
+  timeScale: number = 1;
   /**
    * If false, this instance won't be rendered.
    * 
@@ -95,32 +94,10 @@ export default abstract class ModelInstance extends Node {
   }
 
   /**
-   * Called if the instance is shown and not culled.
-   */
-  updateAnimations(dt: number) {
-
-  }
-
-  /**
    * Clears any objects that were emitted by this instance.
    */
   clearEmittedObjects() {
 
-  }
-
-  /**
-   * Update this model instance.
-   * 
-   * Called automatically by the scene that owns this model instance.
-   */
-  updateObject(dt: number, scene: Scene) {
-    if (this.updateFrame < this.model.viewer.frame) {
-      if (this.rendered && !this.paused) {
-        this.updateAnimations(dt);
-      }
-
-      this.updateFrame = this.model.viewer.frame;
-    }
   }
 
   /**
@@ -132,12 +109,37 @@ export default abstract class ModelInstance extends Node {
     return scene.addInstance(this);
   }
 
+  /**
+   * @override
+   */
   recalculateTransformation() {
     super.recalculateTransformation();
 
     if (this.scene) {
       this.scene.grid.moved(this);
     }
+  }
+
+  /**
+   * @override
+   */
+  update(dt: number) {
+    let scene = this.scene;
+
+    if (scene && this.isVisible(scene.camera)) {
+      // Add this instance to the render list.
+      scene.renderInstance(this);
+
+      // Update this instance.
+      this.updateAnimations(dt * this.timeScale);
+
+      // Update child nodes if there are any, such as instances parented to instances.
+      super.update(dt);
+    }
+  }
+
+  updateAnimations(dt: number) {
+
   }
 
   renderOpaque() {

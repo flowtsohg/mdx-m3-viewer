@@ -1,6 +1,6 @@
 class Test {
   constructor(tester, name, buffer, pathSolver) {
-    let ext = name.slice(-4);
+    let ext = ModelViewer.default.common.path.extname(name);
     let isMdlx = ext === '.mdx' || ext === '.mdl';
     let isBlp = ext === '.blp';
     let isDds = ext === '.dds';
@@ -16,6 +16,7 @@ class Test {
     this.instance = null;
     this.boundingBox = null;
     this.boundingSphere = null;
+    // this.cameras = [];
 
     if (isMdlx) {
       this.parser = new ModelViewer.default.parsers.mdlx.Model();

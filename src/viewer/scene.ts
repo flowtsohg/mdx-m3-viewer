@@ -171,9 +171,6 @@ export default class Scene {
   update(dt: number) {
     let camera = this.camera;
 
-    // Update the camera.
-    camera.update();
-
     // Update the audio context's position if it exists.
     if (this.audioContext) {
       let listener = this.audioContext.listener;
@@ -206,14 +203,12 @@ export default class Scene {
         this.visibleCells += 1;
 
         for (let instance of cell.instances) {
-          if (instance.rendered && instance.cullFrame < frame && (instance.isVisible(camera) || instance.dirty)) {
-            instance.cullFrame = frame;
-
-            if (instance.updateFrame < frame) {
-              instance.update(dt, this);
-            }
-
-            instances[this.visibleInstances++] = instance;
+          // If an instance is rendered, wasn't updated on this frame, and has no parent, update it.
+          // If the instance is visible, it will be updated, all of its children will be updated, and it will be added to the render list.
+          // Note that the update frame is needed because instances can exist in any number of cells at the same time.
+          if (instance.rendered && instance.updateFrame < frame && !instance.parent) {
+            instance.updateFrame = frame;
+            instance.update(dt);
           }
         }
       }
@@ -221,10 +216,14 @@ export default class Scene {
 
     // Sort the visible instances based on depth.
     instances.length = this.visibleInstances;
-    instances.sort((a, b) => b.depth - a.depth);
+    instances.sort((a, b) => a.depth - b.depth);
 
     this.emittedObjectUpdater.update(dt);
     this.updatedParticles = this.emittedObjectUpdater.alive;
+  }
+
+  renderInstance(instance: ModelInstance) {
+    this.instances[this.visibleInstances++] = instance;
   }
 
   /**
@@ -255,21 +254,28 @@ export default class Scene {
   }
 
   /**
-   * Render all opaque things in this scene.
+   * Render opaque things in this scene.
+   * 
+   * They are rendered front to back.
    */
   renderOpaque() {
-    // Render all of the opaque things of non-batched instances.
-    for (let instance of this.instances) {
-      instance.renderOpaque();
+    let instances = this.instances;
+
+    for (let i = 0, l = instances.length; i < l; i++) {
+      instances[i].renderOpaque();
     }
   }
 
   /**
-   * Renders all translucent things in this scene.
+   * Renders translucent things in this scene.
+   * 
+   * They are rendered back to front.
    */
   renderTranslucent() {
-    for (let instance of this.instances) {
-      instance.renderTranslucent();
+    let instances = this.instances;
+
+    for (let i = instances.length - 1; i >= 0; i--) {
+      instances[i].renderTranslucent();
     }
   }
 

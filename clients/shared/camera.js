@@ -56,6 +56,7 @@ class SimpleOrbitCamera {
     this.instance = null;
     this.cameraIndex = 0;
     this.onManualChange = options.onManualChange || null;
+    this.fov = Math.PI / 4;
 
     this.update();
 
@@ -231,8 +232,8 @@ class SimpleOrbitCamera {
 
   // Resize the canvas automatically and update the camera.
   onResize() {
-    let width = this.canvas.clientWidth;
-    let height = this.canvas.clientHeight;
+    let width = Math.max(this.canvas.clientWidth, 1);
+    let height = Math.max(this.canvas.clientHeight, 1);
 
     this.canvas.width = width;
     this.canvas.height = height;
@@ -240,7 +241,7 @@ class SimpleOrbitCamera {
     this.scene.viewport[2] = width;
     this.scene.viewport[3] = height;
 
-    this.camera.perspective(Math.PI / 4, width / height, 1, 20000);
+    this.camera.perspective(this.fov, width / height, 1, 20000);
   }
 
   moveToAndFace(position, target) {
@@ -282,8 +283,9 @@ class SimpleOrbitCamera {
   applyInstanceCamera(instance, cameraIndex) {
     this.instance = instance;
     this.cameraIndex = cameraIndex;
+    this.fov = instance.model.cameras[cameraIndex].fieldOfView;
 
-    this.camera.fov = instance.model.cameras[cameraIndex].fieldOfView;
+    this.onResize();
 
     this.update();
   }

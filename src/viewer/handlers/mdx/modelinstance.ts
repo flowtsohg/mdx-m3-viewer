@@ -1,10 +1,10 @@
 import { vec3, quat } from 'gl-matrix';
 import ModelInstance from '../../modelinstance';
-import { createSkeletalNodes, SkeletalNode } from '../../node';
+import { createSkeletalNodes, SkeletalNode } from '../../skeletalnode';
 import DataTexture from '../../gl/datatexture';
 import Scene from '../../scene';
 import Texture from '../../texture';
-import Node from './node';
+import MdxNode from './node';
 import AttachmentInstance from './attachmentinstance';
 import ParticleEmitter from './particleemitter';
 import ParticleEmitter2 from './particleemitter2';
@@ -71,7 +71,7 @@ export default class MdxModelInstance extends ModelInstance {
     }
 
     // Create the needed amount of shared nodes.
-    let sharedNodeData = createSkeletalNodes(model.genericObjects.length, Node);
+    let sharedNodeData = createSkeletalNodes(model.genericObjects.length, MdxNode);
     let nodes = sharedNodeData.nodes;
     let nodeIndex = 0;
 
@@ -269,7 +269,7 @@ export default class MdxModelInstance extends ModelInstance {
     for (let i = 0, l = sortedNodes.length; i < l; i++) {
       let genericObject = sortedGenericObjects[i];
       let node = sortedNodes[i];
-      let parent = <Node | SkeletalNode>node.parent;
+      let parent = <MdxNode | SkeletalNode>node.parent;
       let wasDirty = forced || parent.wasDirty || genericObject.anyBillboarding;
       let variants = genericObject.variants;
 
@@ -311,14 +311,25 @@ export default class MdxModelInstance extends ModelInstance {
         }
       }
 
-      // Update all of the node's non-skeletal children, which will update their children, and so on.
-      node.updateChildren(dt, scene);
+      // Recalculate and update child nodes.
+      // Note that this only affects normal nodes such as instances, and not skeletal nodes.
+      for (let child of node.children) {
+        if (wasDirty) {
+          child.recalculateTransformation();
+        }
+
+        child.update(dt);
+      }
     }
   }
 
-  // If a model has no sequences or is running no sequence, it will only update once since it will never be forced to update.
-  // This is generally the desired behavior, except when it is moved by the client.
-  // Therefore, if an instance is transformed, always do a forced update.
+  /**
+   * If a model has no sequences or is running no sequence, it will only update once since it will never be forced to update.
+   * This is generally the desired behavior, except when it is moved by the client.
+   * Therefore, if an instance is transformed, always do a forced update.
+   *
+   * @override
+   */
   recalculateTransformation() {
     super.recalculateTransformation();
 
@@ -429,6 +440,9 @@ export default class MdxModelInstance extends ModelInstance {
     }
   }
 
+  /**
+   * @override
+   */
   renderOpaque() {
     let model = <MdxModel>this.model;
 
@@ -437,6 +451,9 @@ export default class MdxModelInstance extends ModelInstance {
     }
   }
 
+  /**
+   * @override
+   */
   renderTranslucent() {
     let model = <MdxModel>this.model;
 
@@ -445,6 +462,9 @@ export default class MdxModelInstance extends ModelInstance {
     }
   }
 
+  /**
+   * @override
+   */
   updateAnimations(dt: number) {
     let model = <MdxModel>this.model;
     let sequenceId = this.sequence;
@@ -452,7 +472,7 @@ export default class MdxModelInstance extends ModelInstance {
     if (sequenceId !== -1) {
       let sequence = model.sequences[sequenceId];
       let interval = sequence.interval;
-      let frameTime = model.viewer.frameTime;
+      let frameTime = dt * 1000;
 
       this.frame += frameTime;
       this.counter += frameTime;
@@ -554,7 +574,7 @@ export default class MdxModelInstance extends ModelInstance {
   }
 
   /**
-   * Set the seuqnece loop mode.
+   * Set the sequence loop mode.
    * 0 to never loop, 1 to loop based on the model, and 2 to always loop.
    */
   setSequenceLoopMode(mode: number) {
@@ -575,16 +595,10 @@ export default class MdxModelInstance extends ModelInstance {
     }
   }
 
-  /**
-   * Event emitters depend on keyframe index changes to emit, rather than only values.
-   * To work, they need to check what the last keyframe was, and only if it's a different one, do something.
-   * When changing sequences, these states need to be reset, so they can immediately emit things if needed.
-   */
   resetEventEmitters() {
-    /// TODO: Update this.
-    // for (let eventEmitterView of this.eventObjectEmitters) {
-    //   eventEmitterView.reset();
-    // }
+    for (let emitter of this.eventObjectEmitters) {
+      emitter.lastValue = 0;
+    }
   }
 
   resetAttachments() {

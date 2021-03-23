@@ -5,10 +5,10 @@ class Viewer extends Component {
     this.tester = tester;
     this.messages = [];
 
-    let canvas = createElement({ tagName: 'canvas', style: 'width:100%;height:100%', container: this.container });
+    this.canvas = createElement({ tagName: 'canvas', style: 'width:100%;height:100%', container: this.container });
     this.controls = new ViewerControls(this, { container: this.container });
 
-    let viewer = new ModelViewer.default.viewer.ModelViewer(canvas);
+    let viewer = new ModelViewer.default.viewer.ModelViewer(this.canvas);
     let scene = viewer.addScene();
 
     this.viewer = viewer;
@@ -18,7 +18,12 @@ class Viewer extends Component {
 
     scene.color.fill(0.2);
 
-    setupCamera(scene);
+    this.orbitCamera = setupCamera(scene, {
+      onManualChange: () => {
+        this.setCamera(-1);
+        this.controls.setCamera(-1);
+      },
+    });
 
     viewer.on('loadstart', (e) => {
       tester.logger.log(`[Viewer] Loading ${e.fetchUrl}`);
@@ -95,9 +100,9 @@ class Viewer extends Component {
         return src;
       }
 
-      // Used for tests via the API.
+      // Used for map and API tests.
       if (test.pathSolver) {
-        return test.pathSolver(src);
+        return test.pathSolver(src, params);
       }
 
       return localOrHive(src, params);
@@ -121,6 +126,29 @@ class Viewer extends Component {
 
             test.boundingBox = boundingBox;
             test.boundingSphere = boundingSphere;
+
+            // let cameraPromises = [];
+
+            // for (let camera of modelOrTexture.cameras) {
+            //   console.log(camera)
+            //   cameraPromises.push(ModelViewer.default.utils.mdlx.createPrimitive(this.viewer, ModelViewer.default.utils.mdlx.primitives.createFrustum(camera.fieldOfView, this.canvas.width / this.canvas.height, camera.nearClippingPlane, camera.farClippingPlane), { lines: true }));
+            // }
+
+            // Promise.all(cameraPromises)
+            //   .then((cameraModels) => {
+            //     for (let i = 0, l = cameraModels.length; i < l; i++) {
+            //       let model = cameraModels[i];
+            //       let instance = model.addInstance();
+
+            //       //instance.hide();
+            //       instance.setScene(this.scene);
+
+            //       instance.setLocation(modelOrTexture.cameras[i].position);
+            //       instance.face(modelOrTexture.cameras[i].targetPosition, [0, 0, 1]);
+
+            //       test.cameras.push(instance);
+            //     }
+            //   });
           } else {
             instance = this.textureModel.addInstance();
 
@@ -153,12 +181,16 @@ class Viewer extends Component {
           this.visibleTest.boundingBox.hide();
           this.visibleTest.boundingSphere.hide();
         }
+
+        // for (let camera of this.visibleTest.cameras) {
+        //   camera.hide();
+        // }
       }
 
       this.visibleTest = test;
 
       if (test.instance.model.sequences.length) {
-        this.controls.updateSequences(test.instance);
+        this.controls.updateInstance(test.instance);
 
         if (test.instance.sequence === -1) {
           this.setSequence(0);
@@ -174,6 +206,10 @@ class Viewer extends Component {
       test.instance.show();
 
       this.updateExtents();
+
+      // for (let camera of test.cameras) {
+      //   camera.show();
+      // }
     }
   }
 
@@ -234,6 +270,14 @@ class Viewer extends Component {
     this.controls.setSequence(index);
   }
 
+  setCamera(index) {
+    if (index === -1) {
+      this.orbitCamera.instance = null;
+    } else {
+      this.orbitCamera.applyInstanceCamera(this.visibleTest.instance, index);
+    }
+  }
+
   tryToInjectCustomTextures(customTest) {
     // If the given test is a texture, inject it into all of the model tests.
     if (customTest.resource instanceof ModelViewer.default.viewer.Texture) {
@@ -242,12 +286,11 @@ class Viewer extends Component {
           let textures = test.parser.textures;
 
           for (let i = 0, l = textures.length; i < l; i++) {
-            let a = ModelViewer.default.common.path.basename(textures[i].path).toLowerCase();
-            let b = ModelViewer.default.common.path.basename(customTest.name).toLowerCase();
+            let a = ModelViewer.default.common.path.name(textures[i].path).toLowerCase();
+            let b = ModelViewer.default.common.path.name(customTest.name).toLowerCase();
 
             if (a === b) {
               test.instance.setTexture(i, customTest.resource);
-
 
               this.tester.logger.info(`Injected ${customTest.name} as a custom texture for ${test.name}`);
             }
@@ -261,8 +304,8 @@ class Viewer extends Component {
           let textures = customTest.parser.textures;
 
           for (let i = 0, l = textures.length; i < l; i++) {
-            let a = ModelViewer.default.common.path.basename(textures[i].path).toLowerCase();
-            let b = ModelViewer.default.common.path.basename(test.name).toLowerCase();
+            let a = ModelViewer.default.common.path.name(textures[i].path).toLowerCase();
+            let b = ModelViewer.default.common.path.name(test.name).toLowerCase();
 
             if (a === b) {
               customTest.instance.setTexture(i, test.resource);

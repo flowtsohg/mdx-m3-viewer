@@ -87,3 +87,9 @@ function addElementToRow(row, element) {
 
   return cell;
 }
+
+function clearSelect(element) {
+  for (let l = element.options.length - 1, i = l; i >= 0; i--) {
+    element.remove(i);
+  }
+}
