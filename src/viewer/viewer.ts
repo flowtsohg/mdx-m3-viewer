@@ -59,10 +59,6 @@ export default class ModelViewer extends EventEmitter {
    */
   scenes: Scene[] = [];
   /**
-   * The number of animation frames advanced on every viewer update.
-   */
-  frameTime: number = 1000 / 60;
-  /**
    * The current frame.
    */
   frame: number = 0;
@@ -499,8 +495,8 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Update and render a frame.
    */
-  updateAndRender() {
-    this.update();
+  updateAndRender(dt: number = 1000 / 60) {
+    this.update(dt);
     this.startFrame();
     this.render();
   }
@@ -508,8 +504,10 @@ export default class ModelViewer extends EventEmitter {
   /**
    * Update all of the scenes, which includes updating their cameras, audio context if one exists, and all of the instances they hold.
    */
-  update() {
-    let dt = this.frameTime * 0.001;
+  update(dt: number = 1000 / 60) {
+    // Animations are in milliseconds, while particle movement and such is in seconds.
+    // It's easier to pass the time in seconds here, and turn it back to milliseconds for each instance, than it is to do the opposite for each particle.
+    dt *= 0.001;
 
     this.frame += 1;
 
