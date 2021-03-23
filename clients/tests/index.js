@@ -14,6 +14,6 @@ wc3Solver = (path, params) => {
   return path;
 };
 
-sc2Solver = (path, params) => localOrHive(path, params);
+sc2Solver = localOrHive;
 
 new UnitTester(document.body);

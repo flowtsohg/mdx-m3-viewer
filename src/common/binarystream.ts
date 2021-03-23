@@ -35,7 +35,15 @@ export default class BinaryStream {
    * Create a subreader of this reader, at its position, with the given byte length.
    */
   substream(byteLength: number) {
-    return new BinaryStream(this.uint8array.subarray(this.index, this.index + byteLength));
+    if (this.remaining < byteLength) {
+      throw new Error(`ByteStream: substream: want ${byteLength} bytes but have ${this.remaining}`);
+    }
+
+    let index = this.index;
+
+    this.index += byteLength;
+
+    return new BinaryStream(this.uint8array.subarray(index, index + byteLength));
   }
 
   /**

@@ -85,7 +85,7 @@ let m3Tests = {
         let instance2 = model.addInstance().uniformScale(50).move([-25, 0, 0]);
         let material = model.materials[1][0];
 
-        instance.setTexture(0, 0, material.layers[10].texture);
+        instance.setTexture(0, 0, material.layers[10].texture.texture);
 
         scene.addInstance(instance);
         scene.addInstance(instance2);

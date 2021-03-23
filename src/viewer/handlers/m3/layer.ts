@@ -46,7 +46,7 @@ export default class M3Layer {
   clampResult: number = 0;
   teamColorMode: number = 0;
 
-  constructor(material: M3StandardMaterial, index: number, layerReference: Reference | null, type: string, op: number) {
+  constructor(material: M3StandardMaterial, index: number, layerReference: Reference, type: string, op: number) {
     let model = material.model;
 
     this.model = model;
@@ -69,61 +69,65 @@ export default class M3Layer {
     };
 
     // Since Gloss doesn't exist in all versions
-    if (layerReference) {
+    if (layerReference.entries) {
       let layer = <Layer>layerReference.first();
 
       this.layer = layer;
 
       let pathSolver = model.pathSolver;
 
-      let source = (<string>layer.imagePath.get()).toLowerCase();
+      let path = layer.imagePath.get();
 
-      if (source.length) {
-        this.source = source;
-        this.active = 1;
+      if (path) {
+        let source = (<string>path).toLowerCase();
 
-        let uvSource = layer.uvSource;
-        let flags = layer.flags;
+        if (source.length) {
+          this.source = source;
+          this.active = 1;
 
-        this.flags = flags;
-        this.colorChannels = layer.colorChannelSetting;
+          let uvSource = layer.uvSource;
+          let flags = layer.flags;
 
-        this.model = model;
-        this.type = type;
-        this.op = op;
+          this.flags = flags;
+          this.colorChannels = layer.colorChannelSetting;
 
-        let uvCoordinate = 0;
+          this.model = model;
+          this.type = type;
+          this.op = op;
 
-        if (uvSource === 1) {
-          uvCoordinate = 1;
-        } else if (uvSource === 9) {
-          uvCoordinate = 2;
-        } else if (uvSource === 10) {
-          uvCoordinate = 3;
+          let uvCoordinate = 0;
+
+          if (uvSource === 1) {
+            uvCoordinate = 1;
+          } else if (uvSource === 9) {
+            uvCoordinate = 2;
+          } else if (uvSource === 10) {
+            uvCoordinate = 3;
+          }
+
+          this.uvCoordinate = uvCoordinate;
+
+          this.textureUnit = layerTypeToTextureUnit[type];
+
+          this.invert = flags & 0x10;
+          this.clampResult = flags & 0x20;
+
+          // I am not sure if the emissive team color mode is even used, since so far combineColors takes care of it.
+          if (type === 'diffuse') {
+            this.teamColorMode = 1;
+          }
+
+          let m3Texture = new M3Texture(!!(flags & 0x4), !!(flags & 0x8));
+
+          model.viewer.load(source, pathSolver)
+            .then((texture) => {
+              if (texture) {
+                m3Texture.texture = <Texture>texture;
+              }
+            });
+
+          this.texture = m3Texture;
         }
-
-        this.uvCoordinate = uvCoordinate;
-
-        this.textureUnit = layerTypeToTextureUnit[type];
-
-        this.invert = flags & 0x10;
-        this.clampResult = flags & 0x20;
-
-        // I am not sure if the emissive team color mode is even used, since so far combineColors takes care of it.
-        if (type === 'diffuse') {
-          this.teamColorMode = 1;
-        }
-
-        let m3Texture = new M3Texture(!!(flags & 0x4), !!(flags & 0x8));
-
-        model.viewer.load(source, pathSolver)
-          .then((texture) => {
-            if (texture) {
-              m3Texture.texture = <Texture>texture;
-            }
-          });
-
-        this.texture = m3Texture;
       }
     }
   }

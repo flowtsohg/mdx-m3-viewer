@@ -12,8 +12,8 @@ export default class M3Stc {
   runsConcurrent: number;
   priority: number;
   stsIndex: number;
-  animRefs: any[];
-  sd: M3SdContainer[];
+  animRefs: number[][] = [];
+  sd: M3SdContainer[] = [];
 
   constructor(stc: M3ParserStc) {
     const animIds = <Uint32Array>stc.animIds.get();
@@ -26,14 +26,21 @@ export default class M3Stc {
     let uints = <Uint32Array>stc.animRefs.get();
     const animRefs = new Uint16Array(uints.buffer);
 
-    this.animRefs = [];
-
     // Allows direct checks instead of loops
     for (let i = 0, l = animIds.length; i < l; i++) {
       this.animRefs[animIds[i]] = [animRefs[i * 2 + 1], animRefs[i * 2]];
     }
 
-    this.sd = stc.sd.map((sd) => new M3SdContainer(<M3ParserSd[]>sd.get()));
+    for (let sd of stc.sd) {
+      let container = new M3SdContainer();
+
+      let sds = sd.get();
+      if (sds) {
+        container.addSds(<M3ParserSd[]>sds);
+      }
+
+      this.sd.push(container);
+    }
   }
 
   getValueUnsafe(animRef: AnimationReference, instance: M3ModelInstance) {

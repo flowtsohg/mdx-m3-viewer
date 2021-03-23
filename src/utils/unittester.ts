@@ -8,6 +8,8 @@ import Scene from '../viewer/scene';
 import Camera from '../viewer/camera';
 import mdxHandler from '../viewer/handlers/mdx/handler';
 import blpHandler from '../viewer/handlers/blp/handler';
+import ddsHandler from '../viewer/handlers/dds/handler';
+import tgaHandler from '../viewer/handlers/tga/handler';
 import m3Handler from '../viewer/handlers/m3/handler';
 import { PathSolver } from '../viewer/handlerresource';
 
@@ -90,10 +92,12 @@ export default class UnitTester {
 
     viewer.gl.clearColor(0.05, 0.05, 0.05, 1);
 
-    viewer.on('error', ({ error, fetchUrl, reason }) => console.log(error, fetchUrl, reason));
+    viewer.on('error', (e) => console.log(e));
 
     viewer.addHandler(mdxHandler, wc3PathSolver);
     viewer.addHandler(blpHandler);
+    viewer.addHandler(ddsHandler);
+    viewer.addHandler(tgaHandler);
     viewer.addHandler(m3Handler);
 
     this.viewer = viewer;
@@ -195,6 +199,8 @@ export default class UnitTester {
     viewer.clear();
 
     let scene = viewer.addScene();
+
+    scene.color.fill(0.05);
 
     // Start loading the test.
     let data = loadHandler(viewer);

@@ -21,7 +21,7 @@ export default class M3Skeleton {
   sts: M3Sts[];
   stc: M3Stc[];
   stg: M3Stg[];
-  boneLookup: any;
+  boneLookup: Uint16Array;
 
   constructor(instance: M3ModelInstance) {
     let model = <M3Model>instance.model;

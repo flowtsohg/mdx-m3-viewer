@@ -1,6 +1,6 @@
 {
   "name": "mdx-m3-viewer",
-  "version": "5.7.1",
+  "version": "5.7.2",
   "description": "A browser WebGL model viewer. Mainly focused on models of the games Warcraft 3 and Starcraft 2.",
   "main": "src/index.ts",
   "scripts": {
@@ -28,8 +28,8 @@
     "@types/gl-matrix": "^2.4.5",
     "@types/node": "^12.12.17",
     "@types/pako": "^1.0.1",
-    "@typescript-eslint/eslint-plugin": "^2.11.0",
-    "@typescript-eslint/parser": "^2.11.0",
+    "@typescript-eslint/eslint-plugin": "^4.1.1",
+    "@typescript-eslint/parser": "^4.1.1",
     "eslint": "^6.7.2",
     "ts-loader": "^6.2.1",
     "webpack": "^4.41.2",

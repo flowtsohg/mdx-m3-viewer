@@ -6,10 +6,10 @@ function localOrHive(src, params) {
   if (window.location.hostname === '127.0.0.1') {
     return urlWithParams(`${window.location.origin}/assets?path=${src}`, params);
   } else {
-    if (params && params.reforged) {
-      return `https://www.hiveworkshop.com/casc-contents?path=${src}`;
-    } else {
-      return `https://www.hiveworkshop.com/data/static_assets/mpq/tft/${src}`;
-    }
+    // if (params && (params.reforged || params.sc2)) {
+    return `https://www.hiveworkshop.com/casc-contents?path=${src}`;
+    // } else {
+    //return `https://www.hiveworkshop.com/data/static_assets/mpq/tft/${src}`;
+    // }
   }
 }

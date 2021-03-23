@@ -30,7 +30,7 @@ export default class Model {
     let modelEntries = this.index[header.model.id].entries;
 
     if (modelEntries) {
-      this.model = modelEntries[0];
+      this.model = <ModelHeader>modelEntries[0];
     }
   }
 }

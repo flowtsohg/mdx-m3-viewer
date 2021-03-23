@@ -1,12 +1,15 @@
 import { vec3 } from 'gl-matrix';
 import unique from '../../../common/arrayunique';
-import { MappedData, MappedDataRow } from '../../../utils/mappeddata';
 import War3Map from '../../../parsers/w3x/map';
 import War3MapW3i from '../../../parsers/w3x/w3i/file';
 import War3MapW3e from '../../../parsers/w3x/w3e/file';
 import Corner from '../../../parsers/w3x/w3e/corner';
+import War3MapW3u from '../../../parsers/w3x/w3u/file';
+import War3MapW3d from '../../../parsers/w3x/w3d/file';
+import ModificationTable from '../../../parsers/w3x/w3u/modificationtable';
 import War3MapDoo from '../../../parsers/w3x/doo/file';
 import War3MapUnitsDoo from '../../../parsers/w3x/unitsdoo/file';
+import { MappedData, MappedDataRow } from '../../../utils/mappeddata';
 import Shader from '../../gl/shader';
 import Scene from '../../scene';
 import Grid from '../../grid';
@@ -44,7 +47,7 @@ export default class War3MapViewerMap {
   terrainReady: boolean = false;
   cliffsReady: boolean = false;
   doodads: Doodad[] = [];
-  terrainDoodads: any[] = [];
+  terrainDoodads: TerrainDoodad[] = [];
   doodadsReady: boolean = false;
   units: Unit[] = [];
   unitsReady: boolean = false;
@@ -54,9 +57,9 @@ export default class War3MapViewerMap {
   corners: Corner[][] = [];
   centerOffset: Float32Array = new Float32Array(2);
   mapSize: Int32Array = new Int32Array(2);
-  tilesets: any[] = [];
+  tilesets: MappedDataRow[] = [];
   blightTextureIndex: number = -1;
-  cliffTilesets: any[] = [];
+  cliffTilesets: MappedDataRow[] = [];
   columns: number = 0;
   rows: number = 0;
   vertexBuffer: WebGLBuffer | null = null;
@@ -284,7 +287,7 @@ export default class War3MapViewerMap {
               }
 
               let cliffRow = this.cliffTilesets[cliffTexture];
-              let dir = cliffRow.cliffModelDir;
+              let dir = <string>cliffRow.cliffModelDir;
               let path = `Doodads\\Terrain\\${dir}\\${dir}${fileName}${getCliffVariation(dir, fileName, bottomLeft.cliffVariation)}.mdx`;
 
               if (!cliffs[path]) {
@@ -882,7 +885,7 @@ export default class War3MapViewerMap {
     return corner.groundTexture;
   }
 
-  applyModificationFile(dataMap: MappedData, metadataMap: MappedData, modificationFile: any) {
+  applyModificationFile(dataMap: MappedData, metadataMap: MappedData, modificationFile: War3MapW3u | War3MapW3d | undefined) {
     if (modificationFile) {
       // Modifications to built-in objects
       this.applyModificationTable(dataMap, metadataMap, modificationFile.originalTable);
@@ -892,7 +895,7 @@ export default class War3MapViewerMap {
     }
   }
 
-  applyModificationTable(dataMap: MappedData, metadataMap: MappedData, modificationTable: any) {
+  applyModificationTable(dataMap: MappedData, metadataMap: MappedData, modificationTable: ModificationTable) {
     for (let modificationObject of modificationTable.objects) {
       let row;
 

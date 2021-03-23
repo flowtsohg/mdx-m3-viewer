@@ -21,15 +21,8 @@ export default class Reference {
    * Get the entries this index entry references.
    */
   get() {
-    if (this.index) {
-      let id = this.id;
-
-      // For empty references (e.g. Layer.imagePath)
-      if (id === 0 || this.entries === 0) {
-        return [];
-      }
-
-      return this.index[id].entries;
+    if (this.index && this.id !== 0 && this.entries !== 0) {
+      return this.index[this.id].entries;
     }
   }
 
@@ -37,16 +30,10 @@ export default class Reference {
    * Get the first entry this index entry references.
    */
   first() {
-    if (this.index) {
-      let id = this.id;
+    let entries = this.get();
 
-      if (id !== 0 && this.entries !== 0) {
-        let entries = this.index[id].entries;
-
-        if (entries) {
-          return entries[0];
-        }
-      }
+    if (entries) {
+      return entries[0];
     }
   }
 }

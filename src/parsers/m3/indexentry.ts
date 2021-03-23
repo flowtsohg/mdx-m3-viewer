@@ -96,13 +96,13 @@ export default class IndexEntry {
   tag: string;
   offset: number;
   version: number;
-  entries: string | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Float32Array | any[];
+  entries: Md34[] | ModelHeader[] | Sequence[] | Stc[] | Stg[] | Sts[] | Bone[] | Division[] | Region[] | Batch[] | MaterialReference[] | StandardMaterial[] | Layer[] | Event[] | BoundingSphere[] | AttachmentPoint[] | Camera[] | Sd[] | UnsupportedEntry[] | string | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Float32Array | Float32Array[];
 
-  constructor(reader: BinaryStream, index: IndexEntry[]) {
-    let tag = reverse(reader.readBinary(4));
-    let offset = reader.readUint32();
-    let entriesCount = reader.readUint32();
-    let version = reader.readUint32();
+  constructor(stream: BinaryStream, index: IndexEntry[]) {
+    let tag = reverse(stream.readBinary(4));
+    let offset = stream.readUint32();
+    let entriesCount = stream.readUint32();
+    let version = stream.readUint32();
 
     this.index = index;
     this.tag = tag;
@@ -110,9 +110,9 @@ export default class IndexEntry {
     this.version = version;
 
     let mapping = tagMapping[tag];
-    let readerOffset = reader.index;
+    let readerOffset = stream.index;
 
-    reader.seek(offset);
+    stream.seek(offset);
 
     // This is an object
     if (mapping) {
@@ -132,48 +132,54 @@ export default class IndexEntry {
         // If some bytes aren't read, the error will not carry to the next object.
         // Since new versions of objects usually add data to the end, this allows the parser to work, even if trying to load newer versions.
         // Of course, the new version size needs to be added to IndexEntry.tagMapping, when finding one.
-        this.entries[i] = new constructor(reader.substream(entrySize), version, index);
+        if (constructor === UnsupportedEntry) {
+          this.entries[i] = new UnsupportedEntry(stream.substream(entrySize), version, index);
+        } else {
+          let entry = new constructor();
 
-        reader.skip(entrySize);
+          entry.load(stream.substream(entrySize), version, index);
+
+          this.entries[i] = entry;
+        }
       }
       // This is maybe a typed array?
     } else if (tag === 'CHAR' || tag === 'SCHR') {
-      this.entries = reader.read(entriesCount);
+      this.entries = stream.read(entriesCount);
     } else if (tag === 'U8__') {
-      this.entries = reader.readUint8Array(entriesCount);
+      this.entries = stream.readUint8Array(entriesCount);
     } else if (tag === 'U16_') {
-      this.entries = reader.readUint16Array(entriesCount);
+      this.entries = stream.readUint16Array(entriesCount);
     } else if (tag === 'U32_') {
-      this.entries = reader.readUint32Array(entriesCount);
+      this.entries = stream.readUint32Array(entriesCount);
     } else if (tag === 'I16_') {
-      this.entries = reader.readInt16Array(entriesCount);
+      this.entries = stream.readInt16Array(entriesCount);
     } else if (tag === 'I32_') {
-      this.entries = reader.readInt32Array(entriesCount);
+      this.entries = stream.readInt32Array(entriesCount);
     } else if (tag === 'REAL') {
-      this.entries = reader.readFloat32Array(entriesCount);
+      this.entries = stream.readFloat32Array(entriesCount);
     } else if (tag === 'VEC2') {
       this.entries = [];
 
       for (let i = 0; i < entriesCount; i++) {
-        this.entries[i] = reader.readFloat32Array(2);
+        this.entries[i] = stream.readFloat32Array(2);
       }
     } else if (tag === 'VEC3' || tag === 'SVC3') {
       this.entries = [];
 
       for (let i = 0; i < entriesCount; i++) {
-        this.entries[i] = reader.readFloat32Array(3);
+        this.entries[i] = stream.readFloat32Array(3);
       }
     } else if (tag === 'VEC4' || tag === 'QUAT') {
       this.entries = [];
 
       for (let i = 0; i < entriesCount; i++) {
-        this.entries[i] = reader.readFloat32Array(4);
+        this.entries[i] = stream.readFloat32Array(4);
       }
     } else if (tag === 'IREF') {
       this.entries = [];
 
       for (let i = 0; i < entriesCount; i++) {
-        this.entries[i] = reader.readFloat32Array(16);
+        this.entries[i] = stream.readFloat32Array(16);
       }
     } else {
       this.entries = [];
@@ -181,6 +187,6 @@ export default class IndexEntry {
       throw new Error(': Unsupported object tag - tag ' + tag + ' and version ' + version);
     }
 
-    reader.seek(readerOffset);
+    stream.seek(readerOffset);
   }
 }

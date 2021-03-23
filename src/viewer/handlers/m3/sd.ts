@@ -1,5 +1,6 @@
 import { vec3, quat } from 'gl-matrix';
 import { clamp, lerp } from '../../../common/math';
+import { AnimationReference } from '../../../parsers/m3/animationreference';
 import M3ParserSd from '../../../parsers/m3/sd';
 
 const vectorHeap = vec3.create();
@@ -24,13 +25,15 @@ class M3Sd {
  * A sequence data container.
  */
 export default class M3SdContainer {
-  sd: M3Sd[];
+  sd: M3Sd[] = [];
 
-  constructor(sd: M3ParserSd[]) {
-    this.sd = sd.map((sd) => new M3Sd(sd));
+  addSds(sds: M3ParserSd[]) {
+    for (let sd of sds) {
+      this.sd.push(new M3Sd(sd));
+    }
   }
 
-  getValueUnsafe(index: number, animationReference: any, frame: number, runsConcurrent: number) {
+  getValueUnsafe(index: number, animationReference: AnimationReference, frame: number, runsConcurrent: number) {
     let sd = this.sd[index];
 
     if (runsConcurrent) {

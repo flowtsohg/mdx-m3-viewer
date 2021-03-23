@@ -23,6 +23,9 @@ import M3Region from './region';
 import M3ModelInstance from './modelinstance';
 import M3Batch from './batch';
 import { HandlerResourceData } from '../../handlerresource';
+import Division from '../../../parsers/m3/division';
+import Batch from '../../../parsers/m3/batch';
+import MaterialReference from '../../../parsers/m3/materialreference';
 
 /**
  * An M3 model.
@@ -30,10 +33,10 @@ import { HandlerResourceData } from '../../handlerresource';
 export default class M3Model extends Model {
   name: string = '';
   batches: M3Batch[] = [];
-  materials: any[][] = [[], []]; // 2D array for the possibility of adding more material types in the future
-  materialMaps: any[] = [];
+  materials: [any[], M3StandardMaterial[]] = [[], []]; // 2D array for the possibility of adding more material types in the future
+  materialMaps: MaterialReference[] = [];
   bones: M3Bone[] = [];
-  boneLookup: Uint16Array | null = null;
+  boneLookup: Uint16Array;
   sequences: M3Sequence[] = [];
   sts: M3Sts[] = [];
   stc: M3Stc[] = [];
@@ -61,13 +64,13 @@ export default class M3Model extends Model {
     }
 
     let model = <M3ParserModel>parser.model;
-    let div = model.divisions.first();
+    let div = <Division>model.divisions.first();
 
     this.name = <string>model.modelName.get();
 
     this.setupGeometry(model, div);
 
-    let materialMaps = <any[]>model.materialReferences.get();
+    let materialMaps = <MaterialReference[]>model.materialReferences.get();
 
     this.materialMaps = materialMaps;
 
@@ -80,7 +83,7 @@ export default class M3Model extends Model {
     }
 
     // Create concrete batch objects
-    for (let batch of div.batches.getAll()) {
+    for (let batch of <Batch[]>div.batches.get()) {
       let regionId = batch.regionIndex;
       let materialMap = materialMaps[batch.materialReferenceIndex];
 
@@ -141,20 +144,32 @@ export default class M3Model extends Model {
 
     this.boneLookup = <Uint16Array>model.boneLookup.get();
 
-    for (let sequence of <Sequence[]>model.sequences.get()) {
-      this.sequences.push(new M3Sequence(sequence));
+    let sequences = model.sequences.get();
+    if (sequences) {
+      for (let sequence of <Sequence[]>sequences) {
+        this.sequences.push(new M3Sequence(sequence));
+      }
     }
 
-    for (let sts of <Sts[]>model.sts.get()) {
-      this.sts.push(new M3Sts(sts));
+    let stss = model.sts.get();
+    if (stss) {
+      for (let sts of <Sts[]>stss) {
+        this.sts.push(new M3Sts(sts));
+      }
     }
 
-    for (let stc of <Stc[]>model.stc.get()) {
-      this.stc.push(new M3Stc(stc));
+    let stcs = model.stc.get();
+    if (stcs) {
+      for (let stc of <Stc[]>stcs) {
+        this.stc.push(new M3Stc(stc));
+      }
     }
 
-    for (let stg of <Stg[]>model.stg.get()) {
-      this.stg.push(new M3Stg(stg, this.sts, this.stc));
+    let stgs = model.stg.get();
+    if (stgs) {
+      for (let stg of <Stg[]>stgs) {
+        this.stg.push(new M3Stg(stg, this.sts, this.stc));
+      }
     }
 
     this.addGlobalAnims();
@@ -169,19 +184,25 @@ export default class M3Model extends Model {
     /*
     if (parser.particleEmitters.length > 0) {
     this.particleEmitters = [];
-
+ 
     for (i = 0, l = parser.particleEmitters.length; i < l; i++) {
     this.particleEmitters[i] = new M3ParticleEmitter(parser.particleEmitters[i], this);
     }
     }
     */
 
-    for (let attachment of <AttachmentPoint[]>model.attachmentPoints.get()) {
-      this.attachments.push(new M3AttachmentPoint(attachment));
+    let attachmentPoints = model.attachmentPoints.get();
+    if (attachmentPoints) {
+      for (let attachment of <AttachmentPoint[]>attachmentPoints) {
+        this.attachments.push(new M3AttachmentPoint(attachment));
+      }
     }
 
-    for (let camera of <Camera[]>model.cameras.get()) {
-      this.cameras.push(new M3Camera(camera));
+    let cameras = model.cameras.get();
+    if (cameras) {
+      for (let camera of <Camera[]>cameras) {
+        this.cameras.push(new M3Camera(camera));
+      }
     }
   }
 
@@ -246,11 +267,11 @@ export default class M3Model extends Model {
     var glbirth, glstand, gldeath;
     var stgs = this.stg;
     var stg, name;
-
+ 
     for (i = 0, l = stgs.length; i < l; i++) {
     stg = stgs[i];
     name = stg.name.toLowerCase(); // Because obviously there will be a wrong case in some model...
-
+ 
     if (name === 'glbirth') {
     glbirth = stg;
     } else if (name === 'glstand') {
@@ -259,11 +280,11 @@ export default class M3Model extends Model {
     gldeath = stg;
     }
     }
-
+ 
     for (i = 0, l = stgs.length; i < l; i++) {
     stg = stgs[i];
     name = stg.name.toLowerCase(); // Because obviously there will be a wrong case in some model...
-
+ 
     if (name !== 'glbirth' && name !== 'glstand' && name !== 'gldeath') {
     if (name.indexOf('birth') !== -1 && glbirth) {
     stg.stcIndices = stg.stcIndices.concat(glbirth.stcIndices);

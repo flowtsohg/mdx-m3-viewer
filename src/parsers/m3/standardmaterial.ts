@@ -85,10 +85,10 @@ export default class StandardMaterial {
     this.ambientOcclusionLayer.load(stream, index);
 
     if (version > 18) {
-      this.unknown4.load; // Unknown layer
-      this.unknown5.load; // Unknown layer
-      this.unknown6.load; // Unknown layer
-      this.unknown7.load; // Unknown layer
+      this.unknown4.load(stream, index); // Unknown layer
+      this.unknown5.load(stream, index); // Unknown layer
+      this.unknown6.load(stream, index); // Unknown layer
+      this.unknown7.load(stream, index); // Unknown layer
     }
 
     this.unknown8 = stream.readUint32(); // ?
