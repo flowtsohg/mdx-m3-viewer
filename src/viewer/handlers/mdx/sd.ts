@@ -1,5 +1,5 @@
 import { vec3, quat } from 'gl-matrix';
-import { clamp, lerp, hermite, bezier } from '../../../common/math';
+import { lerp, hermite, bezier } from '../../../common/math';
 import { Animation, UintAnimation, FloatAnimation, Vector3Animation } from '../../../parsers/mdlx/animations';
 import MdxModel from './model';
 
@@ -71,59 +71,52 @@ class SdSequence {
 
       // If all of the values in this sequence are the same, might as well make it constant.
       this.constant = this.values.every((value) => firstValue.every((element: number, index: number) => element === value[index]));
-
-      if (!this.constant) {
-        // If there is no opening keyframe for this sequence, inject one with the default value.
-        if (this.frames[0] !== start) {
-          this.frames.unshift(start);
-          this.values.unshift(defval);
-
-          if (interpolationType > 1) {
-            this.inTans.unshift(defval);
-            this.outTans.unshift(defval);
-          }
-        }
-
-        // If there is no closing keyframe for this sequence, inject one with the default value.
-        if (this.frames[this.frames.length - 1] !== end) {
-          this.frames.push(end);
-          this.values.push(this.values[0]);
-
-          if (interpolationType > 1) {
-            this.inTans.push(this.inTans[0]);
-            this.outTans.push(this.outTans[0]);
-          }
-        }
-      }
     }
   }
 
   getValue(out: Uint32Array | Float32Array, frame: number) {
     let frames = this.frames;
-    let l = frames.length;
+    let length = frames.length;
 
+    // Fixed implementation copied directly from Retera's code. Thank you!
     if (this.constant || frame < this.start) {
       this.sd.copy(out, this.values[0]);
 
       return -1;
-    } else if (frame >= this.end) {
-      this.sd.copy(out, this.values[l - 1]);
-
-      return l - 1;
     } else {
-      for (let i = 1; i < l; i++) {
-        if (frames[i] > frame) {
-          let start = frames[i - 1];
-          let end = frames[i];
-          let t = clamp((frame - start) / (end - start), 0, 1);
+      let startFrameIndex = -1;
+      let endFrameIndex = -1;
+      let lengthLessOne = length - 1;
 
-          this.sd.interpolate(out, this.values, this.inTans, this.outTans, i - 1, i, t);
-
-          return i;
+      if ((frame < this.frames[0]) || (frame >= this.frames[lengthLessOne])) {
+        startFrameIndex = lengthLessOne;
+        endFrameIndex = 0;
+      } else {
+        for (let i = 1; i < length; i++) {
+          if (this.frames[i] > frame) {
+            startFrameIndex = i - 1;
+            endFrameIndex = i;
+            break;
+          }
         }
       }
 
-      return -1;
+      let startFrame = this.frames[startFrameIndex];
+      let endFrame = this.frames[endFrameIndex];
+      let timeBetweenFrames = endFrame - startFrame;
+
+      if (timeBetweenFrames < 0) {
+        timeBetweenFrames += (this.end - this.start);
+
+        if (frame < startFrame) {
+          startFrame = endFrame;
+        }
+      }
+
+      let t = ((timeBetweenFrames) == 0 ? 0 : ((frame - startFrame) / timeBetweenFrames));
+      this.sd.interpolate(out, this.values, this.inTans, this.outTans, startFrameIndex, endFrameIndex, t);
+
+      return startFrameIndex;
     }
   }
 }
