@@ -1,3 +1,8 @@
+/**
+ * Returns the base name of a file path.
+ * 
+ * Path/To/My/File.ext => File.ext
+ */
 export function basename(path: string) {
   if (path && path.length) {
     let index = path.lastIndexOf('/');
@@ -18,6 +23,11 @@ export function basename(path: string) {
   return '';
 }
 
+/**
+ * Returns the extension name of a file path.
+ * 
+ * Path/To/My/File.ext => .ext
+ */
 export function extname(path: string) {
   if (path && path.length) {
     let index = path.lastIndexOf('.');
@@ -32,6 +42,11 @@ export function extname(path: string) {
   return '';
 }
 
+/**
+ * Returns the base name of a file path without the extension.
+ * 
+ * Path/To/My/File.ext => File
+ */
 export function name(path: string) {
   path = basename(path);
 

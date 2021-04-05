@@ -86,7 +86,7 @@ export default class M3SdContainer {
       }
     } else {
       if (interpolationType === 0) {
-        return va;
+        return <number>va;
       } else {
         return lerp(<number>va, <number>vb, t);
       }

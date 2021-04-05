@@ -1,10 +1,12 @@
 import SlkFile from '../parsers/slk/file';
 import IniFile from '../parsers/ini/file';
 
+export type MappedDataValue = string | number | boolean;
+
 /**
  * A MappedData row.
  */
-export type MappedDataRow = { [key: string]: string | number | boolean };
+export type MappedDataRow = { [key: string]: MappedDataValue };
 
 /**
  * A structure that holds mapped data from INI and SLK files.
@@ -36,26 +38,31 @@ export class MappedData {
 
       for (let i = 1, l = rows.length; i < l; i++) {
         let row = rows[i];
-        let name = <string>row[0];
 
-        if (name) {
-          name = name.toLowerCase();
+        // DialogueDemonBase.slk has an empty row.
+        if (row) {
+          let name = <string>row[0];
 
-          if (!map[name]) {
-            map[name] = {};
-          }
+          // DialogueDemonBase.slk also has rows containing only a single underline.
+          if (name && name !== '_') {
+            name = name.toLowerCase();
 
-          let mapped = map[name];
-
-          for (let j = 0, k = header.length; j < k; j++) {
-            let key = header[j];
-
-            // UnitBalance.slk doesn't define the name of one row.
-            if (key === undefined) {
-              key = `column${j}`;
+            if (!map[name]) {
+              map[name] = {};
             }
 
-            mapped[`${key}`] = row[j];
+            let mapped = map[name];
+
+            for (let j = 0, k = header.length; j < k; j++) {
+              let key = header[j];
+
+              // UnitBalance.slk doesn't define the name of one column.
+              if (key === undefined) {
+                key = `column${j}`;
+              }
+
+              mapped[`${key}`] = row[j];
+            }
           }
         }
       }
@@ -90,5 +97,13 @@ export class MappedData {
 
   setRow(key: string, values: MappedDataRow) {
     this.map[key.toLowerCase()] = values;
+  }
+
+  findRow(key: string, expectedValue: MappedDataValue) {
+    for (let row of Object.values(this.map)) {
+      if (row[key] === expectedValue) {
+        return row;
+      }
+    }
   }
 }

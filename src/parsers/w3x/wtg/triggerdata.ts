@@ -3,17 +3,20 @@ import IniFile from '../../ini/file';
 /**
  * A standard object mapping strings to strings.
  */
-type StringObject = { [key: string]: string };
+export type StringObject = { [key: string]: string };
+
+
+export type FunctionSignature = { args: string[], scriptName: string | null };
 
 /**
  * A standard object mapping strings to function signatures and an optional Jass name.
  */
-type FunctionObject = { [key: string]: { args: string[], scriptName: string | null } };
+export type FunctionObject = { [key: string]: FunctionSignature };
 
 /**
  * Trigger data needed to load a WTG file.
  */
-export default class TriggerData {
+export class TriggerData {
   types: StringObject = {};
   functions: FunctionObject[] = [{}, {}, {}, {}];
   presets: StringObject = {};

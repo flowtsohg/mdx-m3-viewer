@@ -1,3 +1,4 @@
+import { byteLengthUtf8, splitUtf8ByteLength } from '../../../common/utf8';
 import ECA from '../../../parsers/w3x/wtg/eca';
 import Parameter from '../../../parsers/w3x/wtg/parameter';
 import SubParameters from '../../../parsers/w3x/wtg/subparameters';
@@ -90,13 +91,14 @@ export function isConditionECA(name: string, group: number) {
   return name === 'AndMultiple' || name === 'OrMultiple' || name === 'IfThenElseMultiple';
 }
 
+// The number of bytes that each custom script action can contain.
 const SCRIPT_LINE_LENGTH = 239;
 
 /**
  * CustomScriptCode ECAs have a maximum length for their (typically) string parameter.
  * If the script length exceeds the maximum length, WE will fail to load the map properly.
  * Either it crashes, or it loads the map and GUI up until the invalid ECA, after which everything is an error.
- * This functions is used to split such ECAs.
+ * This function is used to split such ECAs.
  * Splitting is possible, because the Jass parser seems to not consider multiline comments as token delimiters.
  * For example, the following lines:
  * 
@@ -113,23 +115,26 @@ export function ensureCustomScriptCodeSafety(ecas: ECA[]) {
   for (let eca of ecas) {
     if (eca.name === 'CustomScriptCode') {
       let script = eca.parameters[0].value;
+      let scriptByteLength = byteLengthUtf8(script);
 
-      if (script.length > SCRIPT_LINE_LENGTH) {
-        let lines = Math.ceil(script.length / SCRIPT_LINE_LENGTH);
+      if (scriptByteLength > SCRIPT_LINE_LENGTH) {
+        let chunks = splitUtf8ByteLength(script, SCRIPT_LINE_LENGTH);
+        let lines = chunks.length;
         let lastLine = lines - 1;
-        let firstInPair = true;
 
         for (let i = 0; i < lines; i++) {
-          let text = script.substr(i * SCRIPT_LINE_LENGTH, SCRIPT_LINE_LENGTH);
+          let text = '';
 
+          // If this is not the first line, end the previous line's comment.
+          if (i > 0) {
+            text += '*/';
+          }
+
+          text += chunks[i];
+
+          // If this is not the last line, start a new comment.
           if (i < lastLine) {
-            if (firstInPair) {
-              text = `${text}/*`;
-            } else {
-              text = `*/${text}`;
-            }
-
-            firstInPair = !firstInPair;
+            text += '/*';
           }
 
           let customScript = createCustomScriptECA(text);

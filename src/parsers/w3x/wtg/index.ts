@@ -5,7 +5,7 @@ import Trigger from './trigger';
 import ECA from './eca';
 import Parameter from './parameter';
 import SubParameters from './subparameters';
-import TriggerData from './triggerdata';
+import { TriggerData } from './triggerdata';
 
 export default {
   File,

@@ -266,22 +266,24 @@ viewer.whenAllLoaded()
 
 And now some more specific information and tips.
 
-#### Team colors
+#### Team colors, event objects, and Reforged
 
 When loading an MDX model that uses team color/glow textures, it will tell the handler to load all of the team textures.
+
+Similarly, if an MDX model has event objects, it will tell the handler to load the needed SLK files.
 
 The handler uses `load` much like the client does, and thus the same implications apply - if the server is set for the relative paths, all is fine, otherwise a path solver should be used.
 
 A path solver can be passed when adding the handler:
 ```javascript
-viewer.addHandler(handlers.mdx, teamColorsPathSolver);
+viewer.addHandler(handlers.mdx, wc3PathSolver);
 ```
 
 The handler also selects between TFT (16) and Reforged (28) team colors.\
 These will be used regardless of whether any specific model being rendered is a TFT or Reforged model.\
 The default mode is TFT, and it can be changed by passing true as the third parameter when adding the handler:
 ```javascript
-viewer.addHandler(handlers.mdx, teamColorsPathSolver, true); // Reforged team colors
+viewer.addHandler(handlers.mdx, wc3PathSolver, true); // Reforged team colors and event objects.
 ```
 
 #### Interacting with model instances

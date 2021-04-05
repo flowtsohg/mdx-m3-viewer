@@ -126,7 +126,7 @@ export default abstract class ModelInstance extends Node {
   update(dt: number) {
     let scene = this.scene;
 
-    if (scene && this.isVisible(scene.camera)) {
+    if (scene && this.rendered && this.isVisible(scene.camera)) {
       // Add this instance to the render list.
       scene.renderInstance(this);
 

@@ -1,7 +1,7 @@
 import BinaryStream from '../../../common/binarystream';
 import { byteLengthUtf8 } from '../../../common/utf8';
 import Parameter from './parameter';
-import TriggerData from './triggerdata';
+import { TriggerData } from './triggerdata';
 
 /**
  * An Event/Condition/Action.
@@ -17,17 +17,26 @@ export default class ECA {
   load(stream: BinaryStream, version: number, isChildECA: boolean, triggerData: TriggerData) {
     this.type = stream.readInt32();
 
+    if (this.type < 0 || this.type > 3) {
+      throw new Error(`ECA: bad type: ${this.type}`);
+    }
+
     if (isChildECA) {
       this.group = stream.readUint32();
     }
 
     this.name = stream.readNull();
+
+    if (this.name.length === 0) {
+      throw new Error('ECA: empty name');
+    }
+
     this.isEnabled = stream.readInt32();
 
     let signature = triggerData.getFunction(this.type, this.name);
 
     if (!signature) {
-      throw new Error(`ECA ${this.name}'s signature is unknown`);
+      throw new Error(`ECA "${this.name}": unknown signature`);
     }
 
     let args = signature.args;

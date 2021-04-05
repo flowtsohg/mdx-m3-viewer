@@ -7,8 +7,8 @@ export abstract class AnimationReference {
   interpolationType: number = 0;
   animFlags: number = 0;
   animId: number = -1;
-  initValue: any;
-  nullValue: any;
+  initValue: number | Uint8Array | Float32Array | null = null;
+  nullValue: number | Uint8Array | Float32Array | null = null;
 
   abstract readInitNullValues(stream: BinaryStream): void;
 

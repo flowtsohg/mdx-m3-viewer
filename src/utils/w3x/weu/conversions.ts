@@ -381,7 +381,7 @@ export function convertParameter(data: WeuData, parameter: Parameter, dataType: 
         let index = parseInt(value.slice(8));
         let entry = data.stringTable.stringMap.get(index)
 
-        if (entry) {
+        if (entry !== undefined) {
           return `"${entry.replace(/\r\n/g, '\\r\n')}"`;
         } else {
           data.change('missingstring', 'Entry not found in the string table', value);

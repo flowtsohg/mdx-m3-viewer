@@ -294,6 +294,8 @@ export function testFaceEffect(data: SanityTestData, faceEffect: FaceEffect) {
   if (path.length) {
     data.assertError(path.endsWith('.facefx') || path.endsWith('.facefx_ingame'), `Corrupted face effect path: "${path}"`);
   }
+
+  data.addImplicitReference();
 }
 
 export function testBindPose(data: SanityTestData) {

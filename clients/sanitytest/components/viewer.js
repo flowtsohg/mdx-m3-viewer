@@ -41,7 +41,7 @@ class Viewer extends Component {
       }
     });
 
-    viewer.addHandler(ModelViewer.default.viewer.handlers.mdx, localOrHive, false);
+    viewer.addHandler(ModelViewer.default.viewer.handlers.mdx, localOrHive, true);
     viewer.addHandler(ModelViewer.default.viewer.handlers.blp);
     viewer.addHandler(ModelViewer.default.viewer.handlers.dds);
     viewer.addHandler(ModelViewer.default.viewer.handlers.tga);
@@ -65,10 +65,21 @@ class Viewer extends Component {
         this.sphereModel = model;
       });
 
+    let lastTime = performance.now();
+
     let step = () => {
       requestAnimationFrame(step);
 
-      viewer.updateAndRender();
+      let now = performance.now();
+      let dt = now - lastTime;
+
+      lastTime = now;
+
+      if (this.controls.animationToggle.clicked) {
+        viewer.updateAndRender(0);
+      } else {
+        viewer.updateAndRender(dt);
+      }
 
       if (this.visibleTest) {
         let instance = this.visibleTest.instance;

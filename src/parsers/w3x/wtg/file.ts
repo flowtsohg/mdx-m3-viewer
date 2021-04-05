@@ -2,7 +2,7 @@ import BinaryStream from '../../../common/binarystream';
 import TriggerCategory from './triggercategory';
 import Variable from './variable';
 import Trigger from './trigger';
-import TriggerData from './triggerdata';
+import { TriggerData } from './triggerdata';
 
 /**
  * war3map.wtg - the trigger file.

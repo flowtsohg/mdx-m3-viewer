@@ -1,20 +1,13 @@
-import urlWithParams from '../../../common/urlwithparams';
-import { decodeAudioData } from '../../../common/audio';
-import { FetchDataType } from '../../../common/fetchdatatype';
-import { MappedData } from '../../../utils/mappeddata';
 import EventObject from '../../../parsers/mdlx/eventobject';
 import Texture from '../../texture';
 import GenericResource from '../../genericresource';
+import mdxHandler from './handler';
 import MdxModel from './model';
 import GenericObject from './genericobject';
 import { emitterFilterMode } from './filtermode';
 import { EMITTER_SPLAT, EMITTER_UBERSPLAT } from './geometryemitterfuncs';
 import MdxModelInstance from './modelinstance';
 import MdxTexture from './texture';
-import { PathSolver } from '../../handlerresource';
-
-const mappedDataCallback = (data: FetchDataType) => new MappedData(<string>data);
-const decodedDataCallback = (data: FetchDataType) => decodeAudioData(<ArrayBuffer>data);
 
 /**
  * An event object.
@@ -74,73 +67,32 @@ export default class EventObjectEmitterObject extends GenericObject {
       this.globalSequence = model.globalSequences[globalSequenceId];
     }
 
-    let tables = [];
-    let pathSolver = model.pathSolver;
-
-    // Nothing to do without a path solver.
-    if (!pathSolver) {
+    // If this is a sound event object, and the viewer doesn't have audio enabled, don't do anything.
+    // This saves bandwidth when audio is not desired.
+    if (type === 'SND' && !viewer.audioEnabled) {
       return;
     }
 
-    // Sometimes TS isn't the brightest.
-    let pathSolverAsPathSolver = <PathSolver>pathSolver;
-
-    let solverParams = model.solverParams;
-
-    if (type === 'SPN') {
-      tables[0] = viewer.loadGeneric(urlWithParams(pathSolver('Splats\\SpawnData.slk'), solverParams), 'text', mappedDataCallback);
-    } else if (type === 'SPL') {
-      tables[0] = viewer.loadGeneric(urlWithParams(pathSolver('Splats\\SplatData.slk'), solverParams), 'text', mappedDataCallback);
-    } else if (type === 'UBR') {
-      tables[0] = viewer.loadGeneric(urlWithParams(pathSolver('Splats\\UberSplatData.slk'), solverParams), 'text', mappedDataCallback);
-    } else if (type === 'SND') {
-      if (!model.reforged) {
-        tables.push(viewer.loadGeneric(urlWithParams(pathSolver('UI\\SoundInfo\\AnimLookups.slk'), solverParams), 'text', mappedDataCallback));
-      }
-
-      tables.push(viewer.loadGeneric(urlWithParams(pathSolver('UI\\SoundInfo\\AnimSounds.slk'), solverParams), 'text', mappedDataCallback));
-    } else {
-      // Units\Critters\BlackStagMale\BlackStagMale.mdx has an event object named "Point01".
-      return;
-    }
-
+    // It's not possible to know ahead of time what file(s) event objects would need.
+    // This is because the SLKs are lazily loaded, and might not exist at this point.
+    // Therefore make a promise, and resolve it after all of the files loaded.
     let resolve = viewer.promise();
 
-    Promise.all(tables)
-      .then((tables) => {
-        for (let table of tables) {
-          if (!table) {
-            resolve();
+    mdxHandler.getEventObjectData(viewer, type, id, model.hd)
+      .then((data) => {
+        // Now the promise can be resolved to allow the viewer to handle events correctly.
+        resolve();
 
-            return;
-          }
-        }
+        if (data) {
+          let row = data.row;
 
-        let tablesAsGeneric = <GenericResource[]>tables;
-        let firstTable = <MappedData>tablesAsGeneric[0].data;
-        let row = firstTable.getRow(this.id);
+          this.ok = true;
 
-        if (row) {
           if (type === 'SPN') {
-            viewer.load((<string>row.Model).replace('.mdl', '.mdx'), pathSolverAsPathSolver, model.solverParams)
-              .then((model) => {
-                if (model) {
-                  this.internalModel = <MdxModel>model;
-                  this.ok = true;
-                }
-              });
+            this.internalModel = <MdxModel>data.resources[0];
           } else if (type === 'SPL' || type === 'UBR') {
-            let texturesExt = model.reforged ? '.dds' : '.blp';
-
             this.internalTexture = new MdxTexture(0, true, true);
-
-            viewer.load(`replaceabletextures/splats/${row.file}${texturesExt}`, pathSolverAsPathSolver, model.solverParams)
-              .then((texture) => {
-                if (texture) {
-                  (<MdxTexture>this.internalTexture).texture = <Texture>texture;
-                  this.ok = true;
-                }
-              });
+            this.internalTexture.texture = <Texture>data.resources[0];
 
             this.scale = <number>row.Scale;
             this.colors[0] = new Float32Array([<number>row.StartR, <number>row.StartG, <number>row.StartB, <number>row.StartA]);
@@ -171,43 +123,19 @@ export default class EventObjectEmitterObject extends GenericObject {
 
             this.blendSrc = blendModes[0];
             this.blendDst = blendModes[1];
+          } else {
+            this.distanceCutoff = <number>row.DistanceCutoff;
+            this.maxDistance = <number>row.MaxDistance;
+            this.minDistance = <number>row.MinDistance;
+            this.pitch = <number>row.Pitch;
+            this.pitchVariance = <number>row.PitchVariance;
+            this.volume = <number>row.Volume;
 
-            this.ok = true;
-          } else if (type === 'SND') {
-            // Only load sounds if audio is enabled.
-            // This is mostly to save on bandwidth and loading time, especially when loading full maps.
-            if (viewer.audioEnabled) {
-              let animSounds = <MappedData>tablesAsGeneric[1].data;
-
-              row = animSounds.getRow(<string>row.SoundLabel);
-
-              if (row) {
-                this.distanceCutoff = <number>row.DistanceCutoff;
-                this.maxDistance = <number>row.MaxDistance;
-                this.minDistance = <number>row.MinDistance;
-                this.pitch = <number>row.Pitch;
-                this.pitchVariance = <number>row.PitchVariance;
-                this.volume = <number>row.Volume;
-
-                let fileNames = (<string>row.FileNames).split(',');
-                let resources = fileNames.map((fileName) => viewer.loadGeneric(urlWithParams(pathSolverAsPathSolver(row.DirectoryBase + fileName), model.solverParams), 'arrayBuffer', decodedDataCallback));
-
-                Promise.all(resources)
-                  .then((resources) => {
-                    for (let resource of resources) {
-                      this.decodedBuffers.push((<GenericResource>resource).data);
-                    }
-
-                    this.ok = true;
-                  });
-              }
+            for (let resource of data.resources) {
+              this.decodedBuffers.push((<GenericResource>resource).data);
             }
           }
-        } else {
-          console.warn('Unknown event object ID', type, this.id);
         }
-
-        resolve();
       });
   }
 

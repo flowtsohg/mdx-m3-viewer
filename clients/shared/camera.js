@@ -51,12 +51,11 @@ class SimpleOrbitCamera {
     // Mouse.
     this.mouse = { buttons: [false, false, false], x: 0, y: 0, x2: 0, y2: 0 };
     // Touches.
-    this.touchMode = TOUCH_MODE_ROTATE;
+    this.touchMode = TOUCH_MODE_INVALID;
     this.touches = [];
     this.instance = null;
-    this.cameraIndex = 0;
     this.onManualChange = options.onManualChange || null;
-    this.fov = Math.PI / 4;
+    this.fov = options.fov || Math.PI / 4;
 
     this.update();
 
@@ -98,7 +97,7 @@ class SimpleOrbitCamera {
       }
 
       if (this.mouse.buttons[2]) {
-        this.move(-dx * 2, dy * 2);
+        this.move(-dx, dy);
       }
     });
 
@@ -174,7 +173,7 @@ class SimpleOrbitCamera {
   update() {
     if (this.instance) {
       let instance = this.instance;
-      let mdxCamera = instance.model.cameras[this.cameraIndex];
+      let mdxCamera = instance.model.cameras[0];
 
       mdxCamera.getTranslation(vecHeap, instance.sequence, instance.frame, instance.counter);
       vec3.add(vecHeap, vecHeap, mdxCamera.position);
@@ -195,10 +194,15 @@ class SimpleOrbitCamera {
   move(x, y) {
     let dirX = this.camera.directionX;
     let dirY = this.camera.directionY;
+    let w = this.canvas.width;
+    let h = this.canvas.height;
+
+    let sw = (x / w) * this.distance;
+    let sh = (y / h) * this.distance;
 
     // Allow only movement on the XY plane, and scale to moveSpeed.
-    vec3.add(this.target, this.target, vec3.scale(vecHeap, vec3.normalize(vecHeap, vec3.set(vecHeap, dirX[0], dirX[1], 0)), x * this.moveSpeed));
-    vec3.add(this.target, this.target, vec3.scale(vecHeap, vec3.normalize(vecHeap, vec3.set(vecHeap, dirY[0], dirY[1], 0)), y * this.moveSpeed));
+    vec3.add(this.target, this.target, vec3.scale(vecHeap, vec3.normalize(vecHeap, vec3.set(vecHeap, dirX[0], dirX[1], 0)), sw));
+    vec3.add(this.target, this.target, vec3.scale(vecHeap, vec3.normalize(vecHeap, vec3.set(vecHeap, dirY[0], dirY[1], 0)), sh));
 
     this.manualChange();
   }
@@ -213,7 +217,7 @@ class SimpleOrbitCamera {
 
   // Zoom the camera by changing the distance from the target.
   zoom(factor) {
-    this.distance *= 1 + factor * this.zoomFactor;
+    this.distance = Math.max(1, this.distance * (1 + factor * this.zoomFactor));
 
     this.manualChange();
   }
@@ -280,10 +284,9 @@ class SimpleOrbitCamera {
     this.camera.moveToAndFace(this.position, this.target, vecHeap);
   }
 
-  applyInstanceCamera(instance, cameraIndex) {
+  applyInstanceCamera(instance) {
     this.instance = instance;
-    this.cameraIndex = cameraIndex;
-    this.fov = instance.model.cameras[cameraIndex].fieldOfView;
+    this.fov = instance.model.cameras[0].fieldOfView;
 
     this.onResize();
 

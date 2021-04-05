@@ -1,7 +1,7 @@
 import BinaryStream from '../../../common/binarystream';
 import { byteLengthUtf8 } from '../../../common/utf8';
 import SubParameters from './subparameters';
-import TriggerData from './triggerdata';
+import { TriggerData } from './triggerdata';
 
 /**
  * A function parameter. Can be a function itself, in which case it will have a SubParameters structure.

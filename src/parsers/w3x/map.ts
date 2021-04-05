@@ -6,7 +6,7 @@ import War3MapW3u from './w3u/file';
 import War3MapWct from './wct/file';
 import War3MapWtg from './wtg/file';
 import War3MapWts from './wts/file';
-import TriggerData from './wtg/triggerdata';
+import { TriggerData } from './wtg/triggerdata';
 
 type War3MapModificationNames = 'w3a' | 'w3b' | 'w3d' | 'w3h' | 'w3q' | 'w3t' | 'w3u';
 

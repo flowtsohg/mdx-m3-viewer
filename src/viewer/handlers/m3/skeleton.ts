@@ -96,7 +96,7 @@ export default class M3Skeleton {
   }
 
   getValue2(out: Float32Array, animRef: AnimationReference, instance: M3ModelInstance) {
-    let unsafeHeap = this.getValueUnsafe(animRef, instance);
+    let unsafeHeap = <Float32Array>this.getValueUnsafe(animRef, instance);
 
     out[0] = unsafeHeap[0];
     out[1] = unsafeHeap[1];
@@ -105,7 +105,7 @@ export default class M3Skeleton {
   }
 
   getValue3(out: Float32Array, animRef: AnimationReference, instance: M3ModelInstance) {
-    let unsafeHeap = this.getValueUnsafe(animRef, instance);
+    let unsafeHeap = <Float32Array>this.getValueUnsafe(animRef, instance);
 
     out[0] = unsafeHeap[0];
     out[1] = unsafeHeap[1];
@@ -115,7 +115,7 @@ export default class M3Skeleton {
   }
 
   getValue4(out: Float32Array, animRef: AnimationReference, instance: M3ModelInstance) {
-    let unsafeHeap = this.getValueUnsafe(animRef, instance);
+    let unsafeHeap = <Float32Array>this.getValueUnsafe(animRef, instance);
 
     out[0] = unsafeHeap[0];
     out[1] = unsafeHeap[1];

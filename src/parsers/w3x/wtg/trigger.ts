@@ -1,7 +1,7 @@
 import BinaryStream from '../../../common/binarystream';
 import { byteLengthUtf8 } from '../../../common/utf8';
 import ECA from './eca';
-import TriggerData from './triggerdata';
+import { TriggerData } from './triggerdata';
 
 /**
  * A GUI Trigger.
