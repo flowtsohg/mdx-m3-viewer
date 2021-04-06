@@ -38,7 +38,7 @@ function typeFunctionCall(wtg: War3MapWtg, object: ECA | SubParameters, parentOb
           }
         }
       } else if (type === 3) {
-        if (value.startsWith('TRIGSTER_') || value.includes('\\') || byteLengthUtf8(value) !== value.length) {
+        if (value.startsWith('TRIGSTER_') || value.includes('\\')) {
           args[index] = 'string';
         } else if (!isNaN(parseFloat(value))) {
           args[index] = 'real';
@@ -124,19 +124,18 @@ export default function parseWtg(map: War3Map, customTriggerData: TriggerData, d
     }
   }
 
-  if (wtg) {
-    for (let trigger of wtg.triggers) {
-      for (let eca of trigger.ecas) {
-        typeFunctionCall(wtg, eca, null, signatures, customTriggerData);
+  if (signatures.size) {
+    if (wtg) {
+      for (let trigger of wtg.triggers) {
+        for (let eca of trigger.ecas) {
+          typeFunctionCall(wtg, eca, null, signatures, customTriggerData);
+        }
       }
     }
-  }
 
-  for (let [name, signature] of signatures) {
-    if (name === 'WchnNewQuest') {
-      console.log('afujawfujawufajwfuajfuajwfujawf???????????????????')
+    for (let [name, signature] of signatures) {
+      data.change('unknownsignature', `Unknown signature`, `${name}(${signature.args.join(', ')}) => ${signature.returnType ? signature.returnType : 'void'}`);
     }
-    data.change('unknownsignature', `Unknown signature`, `${name}(${signature.args.join(', ')}) => ${signature.returnType ? signature.returnType : 'void'}`);
   }
 
   return wtg;
