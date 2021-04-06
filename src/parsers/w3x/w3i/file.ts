@@ -289,6 +289,14 @@ export default class War3MapW3i {
       }
     }
 
+    if (this.version > 27) {
+      size += 20;
+    }
+
+    if (this.version > 30) {
+      size += 8;
+    }
+
     return size;
   }
 }
