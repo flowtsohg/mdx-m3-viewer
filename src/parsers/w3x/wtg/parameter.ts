@@ -16,6 +16,11 @@ export default class Parameter {
 
   load(stream: BinaryStream, version: number, triggerData: TriggerData) {
     this.type = stream.readInt32();
+
+    if (this.type < -1 || this.type > 3) {
+      throw new Error(`Parameter: Bad type: ${this.type}`)
+    }
+
     this.value = stream.readNull();
 
     if (stream.readInt32()) {

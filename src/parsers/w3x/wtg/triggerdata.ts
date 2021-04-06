@@ -6,7 +6,7 @@ import IniFile from '../../ini/file';
 export type StringObject = { [key: string]: string };
 
 
-export type FunctionSignature = { args: string[], scriptName: string | null };
+export type FunctionSignature = { args: string[], scriptName: string | null, returnType: string | null };
 
 /**
  * A standard object mapping strings to function signatures and an optional Jass name.
@@ -82,20 +82,29 @@ export class TriggerData {
     for (let [key, value] of section) {
       // We don't care about metadata lines.
       if (key[0] !== '_') {
-        let tokens = value.split(',').slice(skipped);
+        let tokens = value.split(',');
         let args = [];
 
         // Can be used by actions to make aliases.
         let scriptName = section.get(`_${key}_scriptname`) || null;
 
-        for (let argument of tokens) {
+        let returnType = null;
+
+        // TriggerCalls have a return type.
+        if (skipped === 3) {
+          returnType = tokens[2];
+        }
+
+        for (let i = skipped, l = tokens.length; i < l; i++) {
+          let token = tokens[i];
+
           // We don't care about constants.
-          if (Number.isNaN(parseFloat(argument)) && argument !== 'nothing' && argument !== '') {
-            args.push(argument);
+          if (Number.isNaN(parseFloat(token)) && token !== 'nothing' && token !== '') {
+            args.push(token);
           }
         }
 
-        functions[key] = { args, scriptName };
+        functions[key] = { args, scriptName, returnType };
       }
     }
   }

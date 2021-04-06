@@ -377,7 +377,7 @@ export function convertParameter(data: WeuData, parameter: Parameter, dataType: 
     // scriptcode needs to be converted as-is, and doesn't need quotes.
     if (baseType === 'string' && dataType !== 'scriptcode') {
       // Inline string table entries.
-      if (value.startsWith('TRIGSTR')) {
+      if (value.startsWith('TRIGSTR') && data.stringTable) {
         let index = parseInt(value.slice(8));
         let entry = data.stringTable.stringMap.get(index)
 

@@ -76,3 +76,7 @@ td {
 .missingstring {
     background-color: rgb(211, 105, 105);
 }
+
+.unknownsignature {
+    background-color: #eedddd;
+}

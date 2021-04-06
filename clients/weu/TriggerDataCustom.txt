@@ -1,3 +1,7 @@
+[TriggerEvents]
+
+[TriggerConditions]
+
 [TriggerActions]
 
 WchnHidePlayerUnit=0
@@ -52,3 +56,10 @@ WchnFadeOut=0,real
 [TriggerCalls]
 
 WchnNewQuest=0,1,AnyType,string,string,boolean,string
+
+; "Map protection"
+            =0,1,AnyType,AnyType
+                   =0,1,AnyType,AnyType
+                      =0,1,AnyType,AnyType
+                          =0,1,AnyType,AnyType
+                                 =0,1,AnyType,AnyType
