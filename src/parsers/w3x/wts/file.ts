@@ -51,9 +51,29 @@ export default class War3MapWts {
     let buffer = '';
 
     for (let [key, value] of this.stringMap) {
-      buffer += `STRING ${key}\n{\n${value}\n}\n`;
+      buffer += `STRING ${key}\r\n{\r\n${value}\r\n}\r\n\r\n`;
     }
 
     return buffer;
+  }
+
+  getString(key: number | string) {
+    if (typeof key === 'string') {
+      if (key.startsWith('TRIGSTR_')) {
+        return this.stringMap.get(parseInt(key.slice(8)));
+      }
+    } else {
+      return this.stringMap.get(key);
+    }
+  }
+
+  setString(key: number | string, value: string) {
+    if (typeof key === 'string') {
+      if (key.startsWith('TRIGSTR_')) {
+        this.stringMap.set(parseInt(key.slice(8)), value);
+      }
+    } else {
+      this.stringMap.set(key, value);
+    }
   }
 }
