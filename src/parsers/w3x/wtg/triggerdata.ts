@@ -1,3 +1,4 @@
+import TokenStream from '../../../utils/jass2/tokenstream';
 import IniFile from '../../ini/file';
 
 /**
@@ -116,6 +117,58 @@ export class TriggerData {
       // Note that the operators are enclosed by "" for some reason.
       // Note that string literals are enclosed by backticks.
       presets[key] = tokens[2].replace(/"/g, '').replace(/`/g, '"');
+    }
+  }
+
+  addJassFunctions(jass: string) {
+    let stream = new TokenStream(jass);
+    let token;
+
+    while ((token = stream.read()) !== undefined) {
+      if (token === 'native' || token === 'function') {
+        let scriptName = stream.read();
+
+        if (scriptName) {
+          token = stream.read();
+
+          if (token === 'takes') {
+            let args = [];
+            let token = stream.readSafe(); // nothing or type
+
+            if (token !== 'nothing') {
+              args.push(token);
+              stream.readSafe();
+
+              while (stream.read() === ',') {
+                args.push(stream.readSafe());
+                stream.readSafe()
+              }
+            } else {
+              stream.read(); // returns
+            }
+
+            let returnType: string | null = stream.readSafe();
+            let type = 3;
+
+            if (returnType === 'nothing') {
+              returnType = null;
+              type = 2;
+            }
+
+            let name = scriptName.toLowerCase();
+            let signature = { args, scriptName, returnType };
+
+            // There is no way to know if this signature could be used as a TriggerAction or TriggerCall.
+            // So try to always add to TriggerAction...
+            this.externalFunctions[2][name] = signature;
+
+            // ...and if there is a return type, add also to TriggerCall.
+            if (returnType !== 'nothing') {
+              this.externalFunctions[3][name] = signature;
+            }
+          }
+        }
+      }
     }
   }
 

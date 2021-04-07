@@ -378,11 +378,10 @@ export function convertParameter(data: WeuData, parameter: Parameter, dataType: 
     if (baseType === 'string' && dataType !== 'scriptcode') {
       // Inline string table entries.
       if (value.startsWith('TRIGSTR') && data.stringTable) {
-        let index = parseInt(value.slice(8));
-        let entry = data.stringTable.stringMap.get(index)
+        let string = data.stringTable.getString(value);
 
-        if (entry !== undefined) {
-          return `"${entry.replace(/\r\n/g, '\\r\n')}"`;
+        if (string !== undefined) {
+          return `"${string.replace(/\r\n/g, '\\r\n')}"`;
         } else {
           data.change('missingstring', 'Entry not found in the string table', value);
         }

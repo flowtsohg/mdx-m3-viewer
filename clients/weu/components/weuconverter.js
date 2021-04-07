@@ -20,24 +20,27 @@ class WeuConverter extends Component {
   }
 
   async load() {
-    this.text('Fetching files: "UI\\TriggerData.txt", "TriggerDataWEU.txt", "TriggerDataYDWE.txt", "TriggerDataCustom.txt"');
+    this.text('Fetching files: "UI\\TriggerData.txt", "TriggerDataWEU.txt", "TriggerDataYDWE.txt", "TriggerDataCustom.txt", "Scripts\\common.j"');
     this.text('Please wait...');
 
-    let [blzResponse, weuResponse, ydweResponse, customResponse] = await Promise.all([
+    let [blzResponse, commonjResponse, weuResponse, ydweResponse, customResponse] = await Promise.all([
       fetch(localOrHive('UI\\TriggerData.txt')),
+      fetch(localOrHive('Scripts\\common.j')),
       fetch('TriggerDataWEU.txt'),
       fetch('TriggerDataYDWE.txt'),
       fetch('TriggerDataCustom.txt'),
     ]);
 
-    let [blzText, weuText, ydweText, customText] = await Promise.all([
+    let [blzText, commonjText, weuText, ydweText, customText] = await Promise.all([
       blzResponse.text(),
+      commonjResponse.text(),
       weuResponse.text(),
       ydweResponse.text(),
       customResponse.text(),
     ]);
 
     this.triggerData.addTriggerData(blzText); // WE trigger data
+    this.triggerData.addJassFunctions(commonjText); // natives from common.j
     this.triggerData.addTriggerData(weuText, true); // WEU trigger data
     this.triggerData.addTriggerData(ydweText, true); // YDWE trigger data
     this.triggerData.addTriggerData(customText, true);

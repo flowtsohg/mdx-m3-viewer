@@ -22,6 +22,17 @@ export default function convertWeu(map: War3Map, customTriggerData: TriggerData,
     return { ok: false, error: `The string table file doesn't exist` };
   }
 
+  // Try to add function signatures from the map script.
+  // This handles the case of injected libraries, mostly seen in YDWE maps.
+  let scriptFile = map.getScriptFile();
+  if (scriptFile && scriptFile.name.endsWith('.j')) {
+    try {
+      customTriggerData.addJassFunctions(scriptFile.text());
+    } catch (e) {
+
+    }
+  }
+
   let data = new WeuData(customTriggerData, wts);
 
   // Try to read the triggers file using the custom trigger data.
