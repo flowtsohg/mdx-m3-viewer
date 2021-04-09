@@ -9,12 +9,16 @@ import AttachmentInstance from './attachmentinstance';
 import ParticleEmitter from './particleemitter';
 import ParticleEmitter2 from './particleemitter2';
 import RibbonEmitter from './ribbonemitter';
+import EventObjectEmitter from './eventobjectemitter';
 import EventObjectSpnEmitter from './eventobjectspnemitter';
 import EventObjectSplEmitter from './eventobjectsplemitter';
 import EventObjectUbrEmitter from './eventobjectubremitter';
 import EventObjectSndEmitter from './eventobjectsndemitter';
 import MdxModel from './model';
 import GenericObject from './genericobject';
+import Bone from './bone';
+import Light from './light';
+import Helper from './helper';
 import { EMITTER_PARTICLE2_TEXTURE_OFFSET, EMITTER_EVENT_TEXTURE_OFFSET } from './geometryemitterfuncs';
 
 const visibilityHeap = new Float32Array(1);
@@ -218,7 +222,7 @@ export default class MdxModelInstance extends ModelInstance {
   /**
    * Initialize a skeletal node.
    */
-  initNode(nodes: SkeletalNode[], node: SkeletalNode, genericObject: GenericObject, object?: any) {
+  initNode(nodes: SkeletalNode[], node: SkeletalNode, genericObject: GenericObject, object?: Bone | Light | Helper | AttachmentInstance | ParticleEmitter | ParticleEmitter2 | RibbonEmitter | EventObjectEmitter) {
     vec3.copy(node.pivot, genericObject.pivot);
 
     if (genericObject.parentId === -1) {

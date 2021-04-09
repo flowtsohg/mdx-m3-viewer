@@ -147,15 +147,22 @@ class SanityTester extends Component {
     };
 
     for (let importName of map.getImportNames()) {
-      let file = map.get(importName);
       let ext = ModelViewer.default.common.path.extname(importName);
 
-      if (ext === '.mdx') {
-        this.test(`${name}:${importName}`, file.arrayBuffer(), pathSolver);
-      } else if (ext === '.mdl') {
-        this.test(`${name}:${importName}`, file.text(), pathSolver);
-      } else if (ext === '.blp' || ext === '.dds' || ext === '.tga') {
-        this.test(`${name}:${importName}`, file.arrayBuffer());
+      if (ext === '.mdx' || ext === '.mdl' || ext === '.blp' || ext === '.dds' || ext === '.tga') {
+        let file = map.get(importName);
+
+        if (file) {
+          if (ext === '.mdx') {
+            this.test(`${name}:${importName}`, file.arrayBuffer(), pathSolver);
+          } else if (ext === '.mdl') {
+            this.test(`${name}:${importName}`, file.text(), pathSolver);
+          } else if (ext === '.blp' || ext === '.dds' || ext === '.tga') {
+            this.test(`${name}:${importName}`, file.arrayBuffer());
+          }
+        } else {
+          this.logger.error(`The map says it imports ${importName} but it couldn't be found`);
+        }
       }
     }
   }

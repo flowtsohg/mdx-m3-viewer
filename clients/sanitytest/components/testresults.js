@@ -1,9 +1,26 @@
 class TestResults extends Component {
-  constructor(results) {
+  constructor(results, mipmaps = null) {
     super();
 
     this.results = results;
     this.nodes = [];
+
+    if (mipmaps) {
+      for (let mipmap of mipmaps) {
+        let { width, height, data } = mipmap;
+
+        // Remove alpha.
+        for (let i = 0, l = width * height * 4; i < l; i += 4) {
+          data[i + 3] = 255;
+        }
+
+        let image = ModelViewer.default.common.canvas.imageDataToImage(mipmap);
+
+        image.className = 'padded';
+
+        this.container.appendChild(image);
+      }
+    }
 
     let nodes = results.nodes;
 

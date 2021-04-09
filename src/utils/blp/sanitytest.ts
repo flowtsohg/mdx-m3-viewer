@@ -63,23 +63,26 @@ export default function sanityTest(texture: BlpImage) {
         width = Math.max(width, 1);
         height = Math.max(height, 1);
 
-        if (content === 0) {
-          try {
-            let imageData = texture.getMipmap(i);
+        let mipmapData;
 
+        try {
+          mipmapData = texture.getMipmap(i);
+        } catch (e) {
+          nodes.push({ type: 'warning', message: `Mipmap ${i}: Decoding failed` });
+        }
 
-            if (imageData.width !== width || imageData.height !== height) {
-              nodes.push({ type: 'warning', message: `Mipmap ${i}: the JPG width (${imageData.width}) and height (${imageData.height}) do not match the mipmap width (${width}) and height (${height})` });
+        if (mipmapData) {
+          if (content === 0) {
+            if (mipmapData.width !== width || mipmapData.height !== height) {
+              nodes.push({ type: 'warning', message: `Mipmap ${i}: the JPG width (${mipmapData.width}) and height (${mipmapData.height}) do not match the mipmap width (${width}) and height (${height})` });
             }
-          } catch (e) {
-            nodes.push({ type: 'warning', message: `Mipmap ${i}: JPG decoding failed` });
-          }
-        } else if (content === 1) {
-          let pixels = width * height;
-          let size = pixels + Math.ceil((pixels * alphaBits) / 8);
+          } else if (content === 1) {
+            let pixels = width * height;
+            let size = pixels + Math.ceil((pixels * alphaBits) / 8);
 
-          if (size !== mipmapSizes[i]) {
-            nodes.push({ type: 'warning', message: `Mipmap ${i}: the declared size is ${mipmapSizes[i]}, but the real size is ${size}` });
+            if (size !== mipmapSizes[i]) {
+              nodes.push({ type: 'warning', message: `Mipmap ${i}: the declared size is ${mipmapSizes[i]}, but the real size is ${size}` });
+            }
           }
         }
       }

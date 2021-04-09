@@ -40,10 +40,20 @@ class Test {
       this.results = new TestResults(ModelViewer.default.utils.mdlx.sanityTest(this.parser));
       this.mdl = new MdlView(ModelViewer.default.utils.mdlx.mdlStructure(this.parser));
     } else if (isBlp) {
-      this.results = new TestResults(ModelViewer.default.utils.blp.sanityTest(this.parser));
+      this.results = new TestResults(ModelViewer.default.utils.blp.sanityTest(this.parser), this.getMipmaps(this.parser));
     }
 
     this.meta = new TestMeta(this.name, this.parsingError, this.results, { onclick: () => tester.render(this) });
+  }
+
+  getMipmaps(image) {
+    let mipmaps = [];
+
+    for (let i = 0, l = image.mipmaps(); i < l; i++) {
+      mipmaps.push(image.getMipmap(i));
+    }
+
+    return mipmaps;
   }
 
   show() {
