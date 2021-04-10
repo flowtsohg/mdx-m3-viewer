@@ -56,6 +56,8 @@ class SimpleOrbitCamera {
     this.instance = null;
     this.onManualChange = options.onManualChange || null;
     this.fov = options.fov || Math.PI / 4;
+    this.nearClipPlane = options.nearClipPlane || 1;
+    this.farClipPlane = options.farClipPlane || 200000;
 
     this.update();
 
@@ -245,7 +247,7 @@ class SimpleOrbitCamera {
     this.scene.viewport[2] = width;
     this.scene.viewport[3] = height;
 
-    this.camera.perspective(this.fov, width / height, 1, 20000);
+    this.camera.perspective(this.fov, width / height, this.nearClipPlane, this.farClipPlane);
   }
 
   moveToAndFace(position, target) {

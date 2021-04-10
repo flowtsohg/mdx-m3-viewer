@@ -121,10 +121,32 @@ export class BlpImage {
   }
 
   mipmaps() {
-    if (this.hasMipmaps) {
-      return Math.ceil(Math.log2(Math.max(this.width, this.height))) + 1;
+    let mipmaps = 0;
+
+    for (let offset of this.mipmapOffsets) {
+      if (offset > 0) {
+        mipmaps += 1;
+      }
     }
 
-    return 1;
+    return mipmaps;
+  }
+
+  hasFakeMipmaps() {
+    let offsets = this.mipmapOffsets;
+
+    for (let i = 0; i < 16; i++) {
+      let offset = offsets[i];
+
+      if (offset > 0) {
+        for (let j = i + 1; j < 16; j++) {
+          if (offset === offsets[j]) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
   }
 }

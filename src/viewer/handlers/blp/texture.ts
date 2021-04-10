@@ -26,41 +26,35 @@ export default class BlpTexture extends Texture {
     let id = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, id);
 
-    let imageData = image.getMipmap(0);
-
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
-
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-    if (isPowerOfTwo(imageData.width) && isPowerOfTwo(imageData.height)) {
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-      gl.generateMipmap(gl.TEXTURE_2D);
-    } else {
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    if (!isPowerOfTwo(image.width) || !isPowerOfTwo(image.height)) {
       // Required for NPOT textures.
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     }
 
-    /// TODO: What to do with fake mipmaps?
-    // let mipmaps = image.mipmaps();
+    let mipmaps = image.mipmaps();
 
-    // viewer.webgl.setTextureMode(gl.CLAMP_TO_EDGE, gl.CLAMP_TO_EDGE, gl.LINEAR, mipmaps > 1 ? gl.LINEAR : gl.LINEAR);
+    // If there is one mipmap, or fake mipmaps, use just the first mipmap. Otherwise load all of them.
+    if (mipmaps === 1 || image.hasFakeMipmaps()) {
+      let imageData = image.getMipmap(0);
 
-    // for (let i = 0; i < mipmaps; i++) {
-    //   let imageData = image.getMipmap(i);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
-    //   if (i === 0) {
-    //     this.imageData = imageData;
-    //     this.width = imageData.width; // Note: might not be the same as 'width' and 'height' due to NPOT upscaling.
-    //     this.height = imageData.height;
-    //   }
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
+    } else {
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
 
-    //   gl.texImage2D(gl.TEXTURE_2D, i, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
-    // }
+      for (let i = 0; i < mipmaps; i++) {
+        let imageData = image.getMipmap(i);
 
+        gl.texImage2D(gl.TEXTURE_2D, i, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
+      }
+    }
+
+    this.width = image.width;
+    this.height = image.height;
     this.webglResource = id;
-    this.width = imageData.width;
-    this.height = imageData.height;
   }
 }
