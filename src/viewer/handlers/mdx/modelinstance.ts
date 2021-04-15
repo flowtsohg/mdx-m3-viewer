@@ -60,6 +60,7 @@ export default class MdxModelInstance extends ModelInstance {
   uvAnims: Float32Array[] = [];
   worldMatrices: Float32Array | null = null;
   boneTexture: DataTexture | null = null;
+  keepSequence: boolean = false;
 
   constructor(model: MdxModel) {
     super(model);
@@ -536,12 +537,14 @@ export default class MdxModelInstance extends ModelInstance {
   /**
    * Set the sequence of this instance.
    */
-  setSequence(id: number) {
+  setSequence(id: number, keepSequence?: boolean) {
     let model = <MdxModel>this.model;
     let sequences = model.sequences;
 
     this.sequence = id;
-
+    if (keepSequence !== undefined) {
+      this.keepSequence = keepSequence;
+    }
     if (id < 0 || id > sequences.length - 1) {
       this.sequence = -1;
       this.frame = 0;
