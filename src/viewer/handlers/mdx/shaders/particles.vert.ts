@@ -113,7 +113,19 @@ void particle2() {
   v_color = color;
   
   if (a_tail == HEAD) {
-    gl_Position = u_VP * vec4(a_p0 + (u_vertices[int(a_position)] * scale), 1.0);
+    vec3 v = u_vertices[int(a_position)];
+    float cs = cos(a_p1.x);
+    float sn = sin(a_p1.x);
+
+    float x = v.x * cs - v.y * sn;
+    float y = v.x * sn + v.y * cs;
+
+    vec3 fv = vec3(
+      v.x * cs - v.y * sn,
+      v.x * sn + v.y * cs,
+      v.z);
+
+    gl_Position = u_VP * vec4(a_p0 + fv * scale, 1.0);
   } else {
     // Get the normal to the tail in camera space.
     // This allows to build a 2D rectangle around the 3D tail.

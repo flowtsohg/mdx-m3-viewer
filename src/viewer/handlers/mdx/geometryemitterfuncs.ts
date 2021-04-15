@@ -70,6 +70,10 @@ export const EMITTER_UBERSPLAT = 3;
 export const EMITTER_PARTICLE2_TEXTURE_OFFSET = 1000;
 export const EMITTER_EVENT_TEXTURE_OFFSET = 10000;
 
+// The game scales the emission rate of particle emitters depending on the particles setting.
+// High seems to double the emission.
+export const SETTING_PARTICLES_HIGH = 2;
+
 function bindParticleEmitter2Buffer(emitter: ParticleEmitter2, buffer: ClientBuffer) {
   let instance = <MdxModelInstance>emitter.instance;
   let objects = <Particle2[]>emitter.objects;
@@ -78,6 +82,7 @@ function bindParticleEmitter2Buffer(emitter: ParticleEmitter2, buffer: ClientBuf
   let emitterObject = <ParticleEmitter2Object>emitter.emitterObject;
   let modelSpace = emitterObject.modelSpace;
   let tailLength = emitterObject.tailLength;
+  let node = emitter.node;
   let teamColor = instance.teamColor;
   let offset = 0;
 
@@ -92,12 +97,15 @@ function bindParticleEmitter2Buffer(emitter: ParticleEmitter2, buffer: ClientBuf
     if (tail === HEAD) {
       // If this is a model space emitter, the location is in local space, so convert it to world space.
       if (modelSpace) {
-        location = vec3.transformMat4(locationHeap, location, emitter.node.worldMatrix);
+        location = vec3.transformMat4(locationHeap, location, node.worldMatrix);
       }
 
       floatView[p0Offset + 0] = location[0];
       floatView[p0Offset + 1] = location[1];
       floatView[p0Offset + 2] = location[2];
+
+      // Used to rotate XY particles to face their velocity on the XY plane.
+      floatView[p0Offset + 3] = object.facing;
     } else {
       let velocity = object.velocity;
       let start = startHeap;
@@ -109,8 +117,8 @@ function bindParticleEmitter2Buffer(emitter: ParticleEmitter2, buffer: ClientBuf
 
       // If this is a model space emitter, the start and end are in local space, so convert them to world space.
       if (modelSpace) {
-        start = vec3.transformMat4(start, start, emitter.node.worldMatrix);
-        end = vec3.transformMat4(endHeap, end, emitter.node.worldMatrix);
+        start = vec3.transformMat4(start, start, node.worldMatrix);
+        end = vec3.transformMat4(endHeap, end, node.worldMatrix);
       }
 
       floatView[p0Offset + 0] = start[0];

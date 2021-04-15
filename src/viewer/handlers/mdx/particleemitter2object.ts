@@ -4,7 +4,7 @@ import MdxModel from './model';
 import GenericObject from './genericobject';
 import { emitterFilterMode } from './filtermode';
 import replaceableIds from './replaceableids';
-import { EMITTER_PARTICLE2 } from './geometryemitterfuncs';
+import { EMITTER_PARTICLE2, SETTING_PARTICLES_HIGH } from './geometryemitterfuncs';
 import MdxTexture from './texture';
 
 /**
@@ -53,7 +53,7 @@ export default class ParticleEmitter2Object extends GenericObject {
     this.speed = emitter.speed;
     this.latitude = emitter.latitude;
     this.gravity = emitter.gravity;
-    this.emissionRate = emitter.emissionRate;
+    this.emissionRate = emitter.emissionRate * SETTING_PARTICLES_HIGH;
     this.squirt = emitter.squirt;
     this.lifeSpan = emitter.lifeSpan;
     this.variation = emitter.variation;
@@ -79,7 +79,7 @@ export default class ParticleEmitter2Object extends GenericObject {
           if (texture) {
             (<MdxTexture>this.internalTexture).texture = <Texture>texture;
           }
-        })
+        });
     }
 
     this.replaceableId = emitter.replaceableId;

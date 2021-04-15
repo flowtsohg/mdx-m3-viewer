@@ -2,7 +2,7 @@ import RibbonEmitter from '../../../parsers/mdlx/ribbonemitter';
 import MdxModel from './model';
 import GenericObject from './genericobject';
 import Layer from './layer';
-import { EMITTER_RIBBON } from './geometryemitterfuncs';
+import { EMITTER_RIBBON, SETTING_PARTICLES_HIGH } from './geometryemitterfuncs';
 
 /**
  * An MDX ribbon emitter.
@@ -37,7 +37,7 @@ export default class RibbonEmitterObject extends GenericObject {
     this.color = emitter.color;
     this.lifeSpan = emitter.lifeSpan;
     this.textureSlot = emitter.textureSlot;
-    this.emissionRate = emitter.emissionRate;
+    this.emissionRate = emitter.emissionRate * SETTING_PARTICLES_HIGH;
     this.gravity = emitter.gravity;
     this.columns = emitter.columns;
     this.rows = emitter.rows;

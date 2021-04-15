@@ -23,6 +23,7 @@ export default class Particle2 extends EmittedObject {
   location: vec3 = vec3.create();
   velocity: vec3 = vec3.create();
   scale: vec3 = vec3.create();
+  facing = 0; // XYQuad
 
   bind(tail: number) {
     let emitter = <ParticleEmitter2>this.emitter;
@@ -90,6 +91,11 @@ export default class Particle2 extends EmittedObject {
     // Apply the parent's scale
     if (!emitterObject.modelSpace) {
       vec3.mul(velocity, velocity, scale);
+    }
+
+    // XY particles are rotated to face their velocity on the XY plane.
+    if (emitterObject.xYQuad) {
+      this.facing = Math.atan2(velocity[1], velocity[0]) - Math.PI + Math.PI / 8;
     }
   }
 

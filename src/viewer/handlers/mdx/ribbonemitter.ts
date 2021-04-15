@@ -17,7 +17,7 @@ export default class RibbonEmitter extends MdxEmitter {
       let emitterObject = <RibbonEmitterObject>this.emitterObject;
 
       // It doesn't make sense to emit more than 1 ribbon at the same time.
-      this.currentEmission = Math.min(this.currentEmission + emitterObject.emissionRate * dt, 1);
+      this.currentEmission += emitterObject.emissionRate * dt;
     }
   }
 

@@ -17,7 +17,7 @@ export default class EmittedObjectUpdater {
     for (let i = 0; i < this.alive; i++) {
       let object = objects[i];
 
-      object.update(dt);
+      object.update(dt * object.emitter.instance.timeScale);
 
       if (object.health <= 0) {
         this.alive -= 1;
