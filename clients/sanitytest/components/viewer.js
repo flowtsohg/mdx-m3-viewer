@@ -93,9 +93,9 @@ class Viewer extends Component {
             if (sequence === instance.model.sequences.length) {
               sequence = 0;
             }
-          }
 
-          this.setSequence(sequence);
+            this.setSequence(sequence);
+          }
         }
 
         this.controls.frame(instance.frame);
@@ -285,7 +285,7 @@ class Viewer extends Component {
     if (index === -1) {
       this.orbitCamera.instance = null;
     } else {
-      this.orbitCamera.applyInstanceCamera(this.visibleTest.instance, index);
+      this.orbitCamera.applyInstanceCamera(this.visibleTest.instance);
     }
   }
 

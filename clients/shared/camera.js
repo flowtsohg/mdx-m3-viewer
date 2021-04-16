@@ -186,6 +186,11 @@ class SimpleOrbitCamera {
       mdxCamera.getRotation(twistHeap, instance.sequence, instance.frame, instance.counter);
       this.twist = twistHeap[0];
 
+      // Change to world space in case the instance was moved in any way.
+      // I am not sure how well this will handle scales, twists, and other things.
+      vec3.transformMat4(vecHeap, vecHeap, instance.worldMatrix);
+      vec3.transformMat4(vecHeap2, vecHeap2, instance.worldMatrix);
+
       this.moveToAndFace(vecHeap, vecHeap2);
     } else {
       this.updateInternalCamera();
