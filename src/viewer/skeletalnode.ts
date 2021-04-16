@@ -113,6 +113,8 @@ export class SkeletalNode {
       quat.mul(computedRotation, computedRotation, scene.camera.inverseRotation);
 
       this.convertBasis(computedRotation);
+
+      quat.mul(computedRotation, computedRotation, localRotation);
     } else {
       computedRotation = localRotation;
     }
