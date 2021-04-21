@@ -3,9 +3,9 @@ import MdxModel from './model';
 import Geoset from './geoset';
 import Batch from './batch';
 
-const NORMAL_BATCH = 0;
-const EXTENDED_BATCH = 1;
-const HD_BATCH = 2;
+const VERTEX_GROUPS = 0;
+const EXTENDED_VERTEX_GROUPS = 1;
+const SKIN = 2;
 
 export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
   if (geosets.length > 0) {
@@ -15,7 +15,7 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
     let uvBytes = 0;
     let skinBytes = 0;
     let faceBytes = 0;
-    let batchTypes = [];
+    let skinTypes = [];
 
     for (let i = 0, l = geosets.length; i < l; i++) {
       let geoset = geosets[i];
@@ -30,7 +30,7 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
         if (geoset.skin.length) {
           skinBytes += vertices * 8;
 
-          batchTypes[i] = HD_BATCH;
+          skinTypes[i] = SKIN;
         } else {
           let biggestGroup = 0;
 
@@ -43,11 +43,11 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
           if (biggestGroup > 4) {
             skinBytes += vertices * 9;
 
-            batchTypes[i] = EXTENDED_BATCH;
+            skinTypes[i] = EXTENDED_VERTEX_GROUPS;
           } else {
             skinBytes += vertices * 5;
 
-            batchTypes[i] = NORMAL_BATCH;
+            skinTypes[i] = VERTEX_GROUPS;
           }
         }
 
@@ -90,9 +90,9 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
         let faces = geoset.faces;
         let skin;
         let vertices = geoset.vertices.length / 3;
-        let batchType = batchTypes[i];
+        let skinType = skinTypes[i];
 
-        if (batchType === HD_BATCH) {
+        if (skinType === SKIN) {
           skin = geoset.skin;
         } else {
           let matrixIndices = geoset.matrixIndices;
@@ -106,7 +106,7 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
           // These geosets use a different shader, which support up to 8 bones per vertex.
           let maxBones = 4;
 
-          if (batchType === EXTENDED_BATCH) {
+          if (skinType === EXTENDED_VERTEX_GROUPS) {
             maxBones = 8;
           }
 
@@ -139,15 +139,17 @@ export default function setupGeosets(model: MdxModel, geosets: MdlxGeoset[]) {
         }
 
         let vGeoset = new Geoset(model, model.geosets.length, positionOffset, normalOffset, uvOffset, skinOffset, faceOffset, vertices, faces.length, geoset.faceTypeGroups[0]);
-
         model.geosets.push(vGeoset);
 
-        if (batchType === HD_BATCH) {
-          model.batches.push(new Batch(model.batches.length, vGeoset, model.materials[geoset.materialId], false, true));
-        } else {
-          let isExtended = batchType === EXTENDED_BATCH;
+        let material = model.materials[geoset.materialId];
+        let isHd = material.shader === 'Shader_HD_DefaultUnit';
 
-          for (let layer of model.materials[geoset.materialId].layers) {
+        if (isHd) {
+          model.batches.push(new Batch(model.batches.length, vGeoset, material, skinType === SKIN, true));
+        } else {
+          let isExtended = skinType === EXTENDED_VERTEX_GROUPS;
+
+          for (let layer of material.layers) {
             model.batches.push(new Batch(model.batches.length, vGeoset, layer, isExtended, false));
           }
         }

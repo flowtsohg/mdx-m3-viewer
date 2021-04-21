@@ -43,17 +43,22 @@ export default class Geoset {
     gl.vertexAttribPointer(attribs.a_uv, 2, gl.FLOAT, false, 0, this.uvOffset + coordId * this.vertices * 8);
   }
 
+  bindVertexGroups(gl: WebGLRenderingContext, attribs: { [key: string]: number }) {
+    let model = this.model;
+    let skinDataType = model.skinDataType;
+    let bytesPerSkinElement = model.bytesPerSkinElement;
+
+    gl.vertexAttribPointer(attribs.a_bones, 4, skinDataType, false, 5 * bytesPerSkinElement, this.skinOffset);
+    gl.vertexAttribPointer(attribs.a_boneNumber, 1, skinDataType, false, 5 * bytesPerSkinElement, this.skinOffset + 4 * bytesPerSkinElement);
+  }
+
   bind(shader: Shader, coordId: number) {
     let model = this.model;
     let gl = model.viewer.gl;
     let attribs = shader.attribs;
-    let skinDataType = model.skinDataType;
-    let bytesPerSkinElement = model.bytesPerSkinElement;
 
     this.bindShared(gl, attribs, coordId);
-
-    gl.vertexAttribPointer(attribs.a_bones, 4, skinDataType, false, 5 * bytesPerSkinElement, this.skinOffset);
-    gl.vertexAttribPointer(attribs.a_boneNumber, 1, skinDataType, false, 5 * bytesPerSkinElement, this.skinOffset + 4 * bytesPerSkinElement);
+    this.bindVertexGroups(gl, attribs);
   }
 
   bindExtended(shader: Shader, coordId: number) {
@@ -70,14 +75,18 @@ export default class Geoset {
     gl.vertexAttribPointer(attribs.a_boneNumber, 4, skinDataType, false, 9 * bytesPerSkinElement, this.skinOffset + 8 * bytesPerSkinElement);
   }
 
-  bindHd(shader: Shader, coordId: number) {
+  bindHd(shader: Shader, usingSkin: boolean, coordId: number) {
     let gl = this.model.viewer.gl;
     let attribs = shader.attribs;
 
     this.bindShared(gl, attribs, coordId);
 
-    gl.vertexAttribPointer(attribs.a_bones, 4, gl.UNSIGNED_BYTE, false, 8, this.skinOffset);
-    gl.vertexAttribPointer(attribs.a_weights, 4, gl.UNSIGNED_BYTE, true, 8, this.skinOffset + 4);
+    if (usingSkin) {
+      gl.vertexAttribPointer(attribs.a_bones, 4, gl.UNSIGNED_BYTE, false, 8, this.skinOffset);
+      gl.vertexAttribPointer(attribs.a_weights, 4, gl.UNSIGNED_BYTE, true, 8, this.skinOffset + 4);
+    } else {
+      this.bindVertexGroups(gl, attribs);
+    }
   }
 
   render() {

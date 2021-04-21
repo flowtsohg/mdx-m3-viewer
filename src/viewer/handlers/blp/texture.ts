@@ -1,4 +1,4 @@
-import { isPowerOfTwo } from '../../../common/math';
+import { isPowerOfTwo, powerOfTwo } from '../../../common/math';
 import { BlpImage } from '../../../parsers/blp/image';
 import { HandlerResourceData } from '../../handlerresource';
 import Texture from '../../texture';
@@ -28,7 +28,9 @@ export default class BlpTexture extends Texture {
 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-    if (!isPowerOfTwo(image.width) || !isPowerOfTwo(image.height)) {
+    let isPOT = isPowerOfTwo(image.width) && isPowerOfTwo(image.height);
+
+    if (!isPOT) {
       // Required for NPOT textures.
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -36,8 +38,8 @@ export default class BlpTexture extends Texture {
 
     let mipmaps = image.mipmaps();
 
-    // If there is one mipmap, or fake mipmaps, use just the first mipmap. Otherwise load all of them.
-    if (mipmaps === 1 || image.hasFakeMipmaps()) {
+    // If there is one mipmap, or fake mipmaps, or it's an NPOT image, use just the first mipmap. Otherwise load all of them.
+    if (mipmaps === 1 || image.hasFakeMipmaps() || !isPOT) {
       let imageData = image.getMipmap(0);
 
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -50,6 +52,7 @@ export default class BlpTexture extends Texture {
         let imageData = image.getMipmap(i);
 
         gl.texImage2D(gl.TEXTURE_2D, i, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
+        console.log(imageData)
       }
     }
 

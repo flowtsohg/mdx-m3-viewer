@@ -24,7 +24,8 @@ interface MdxHandlerObject {
   reforged: boolean;
   standardShader: Shader;
   extendedShader: Shader;
-  hdShader: Shader;
+  hdSkinShader: Shader;
+  hdVertexGroupShader: Shader;
   particlesShader: Shader;
   rectBuffer: WebGLBuffer;
   teamColors: MdxTexture[];
@@ -52,7 +53,8 @@ export default {
 
     let standardShader = webgl.createShader(standardVert, standardFrag);
     let extendedShader = webgl.createShader('#define EXTENDED_BONES\n' + standardVert, standardFrag);
-    let hdShader = webgl.createShader(hdVert, hdFrag);
+    let hdSkinShader = webgl.createShader('#define SKIN\n' + hdVert, hdFrag);
+    let hdVertexGroupShader = webgl.createShader(hdVert, hdFrag);
     let particlesShader = webgl.createShader(particlesVert, particlesFrag);
 
     let rectBuffer = <WebGLBuffer>gl.createBuffer();
@@ -71,7 +73,8 @@ export default {
       // Shaders.
       standardShader,
       extendedShader,
-      hdShader,
+      hdSkinShader,
+      hdVertexGroupShader,
       particlesShader,
       // Geometry emitters buffer.
       rectBuffer,

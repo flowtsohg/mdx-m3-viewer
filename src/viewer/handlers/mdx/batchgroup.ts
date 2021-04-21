@@ -12,13 +12,13 @@ import MdxTexture from './texture';
  */
 export default class BatchGroup {
   model: MdxModel;
-  isExtended: boolean;
+  isExtendedOrUsingSkin: boolean;
   isHd: boolean;
   objects: number[] = [];
 
   constructor(model: MdxModel, isExtended: boolean, isHd: boolean) {
     this.model = model;
-    this.isExtended = isExtended;
+    this.isExtendedOrUsingSkin = isExtended;
     this.isHd = isHd;
   }
 
@@ -33,18 +33,24 @@ export default class BatchGroup {
     let mdxCache = viewer.sharedCache.get('mdx');
     let gl = viewer.gl;
     let webgl = viewer.webgl;
-    let isExtended = this.isExtended;
+    let isExtended = this.isExtendedOrUsingSkin;
     let isHd = this.isHd;
     let teamColors = <MdxTexture[]>mdxCache.teamColors;
     let teamGlows = <MdxTexture[]>mdxCache.teamGlows;
     let shader;
 
-    if (isExtended) {
-      shader = <Shader>mdxCache.extendedShader;
-    } else if (isHd) {
-      shader = <Shader>mdxCache.hdShader;
+    if (isHd) {
+      if (isExtended) {
+        shader = <Shader>mdxCache.hdSkinShader;
+      } else {
+        shader = <Shader>mdxCache.hdVertexGroupShader;
+      }
     } else {
-      shader = <Shader>mdxCache.standardShader;
+      if (isExtended) {
+        shader = <Shader>mdxCache.extendedShader;
+      } else {
+        shader = <Shader>mdxCache.standardShader;
+      }
     }
 
     shader.use();
@@ -108,7 +114,7 @@ export default class BatchGroup {
           webgl.bindTextureAndWrap(actualOrmTexture, 1, ormTexture.wrapS, ormTexture.wrapT);
           webgl.bindTextureAndWrap(tcTexture.texture, 2, tcTexture.wrapS, tcTexture.wrapT);
 
-          geoset.bindHd(shader, diffuseLayer.coordId);
+          geoset.bindHd(shader, batch.isExtendedOrUsingSkin, diffuseLayer.coordId);
           geoset.render();
         }
       }
