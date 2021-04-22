@@ -52,7 +52,6 @@ export default class BlpTexture extends Texture {
         let imageData = image.getMipmap(i);
 
         gl.texImage2D(gl.TEXTURE_2D, i, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
-        console.log(imageData)
       }
     }
 

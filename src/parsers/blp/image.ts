@@ -123,8 +123,8 @@ export class BlpImage {
   mipmaps() {
     let mipmaps = 0;
 
-    for (let offset of this.mipmapOffsets) {
-      if (offset > 0) {
+    for (let size of this.mipmapSizes) {
+      if (size > 0) {
         mipmaps += 1;
       }
     }
