@@ -7,6 +7,7 @@ import War3MapWct from './wct/file';
 import War3MapWtg from './wtg/file';
 import War3MapWts from './wts/file';
 import { TriggerData } from './wtg/triggerdata';
+import War3MapW3i from './w3i/file';
 
 type War3MapModificationNames = 'w3a' | 'w3b' | 'w3d' | 'w3h' | 'w3q' | 'w3t' | 'w3u';
 
@@ -24,14 +25,14 @@ interface War3MapModifications {
  * Warcraft 3 map (W3X and W3M).
  */
 export default class War3Map {
-  unknown: number = 0;
+  u1: number = 0;
   name: string = '';
   flags: number = 0;
   maxPlayers: number = 0;
+
   archive: MpqArchive = new MpqArchive();
   imports: War3MapImp = new War3MapImp();
   readonly: boolean = false;
-  u1: number = 0;
 
   /**
    * Load an existing map.
@@ -70,27 +71,32 @@ export default class War3Map {
     // Update the imports if needed.
     this.setImportsFile();
 
-    let headerSize = 512;
     let archiveBuffer = this.archive.save();
 
     if (!archiveBuffer) {
       return null;
     }
 
-    let bytes = new Uint8Array(headerSize + archiveBuffer.byteLength);
-    let stream = new BinaryStream(bytes);
+    let information = this.getMapInformation();
 
-    // Write the header.
-    stream.writeBinary('HM3W');
-    stream.writeUint32(this.u1);
-    stream.writeNull(this.name);
-    stream.writeUint32(this.flags);
-    stream.writeUint32(this.maxPlayers);
+    // If this is a pre-1.31 map, or we don't know what the version is, save as a TFT map.
+    if (!information || information.getBuildVersion() < 131) {
+      let bytes = new Uint8Array(512 + archiveBuffer.byteLength);
+      let stream = new BinaryStream(bytes);
 
-    // Write the archive.
-    bytes.set(archiveBuffer, headerSize);
+      // Write the header.
+      stream.writeBinary('HM3W');
+      stream.writeUint32(this.u1);
+      stream.writeNull(this.name);
+      stream.writeUint32(this.flags);
+      stream.writeUint32(this.maxPlayers);
 
-    return bytes;
+      bytes.set(archiveBuffer, 512);
+
+      return bytes;
+    } else {
+      return archiveBuffer;
+    }
   }
 
   /**
@@ -226,6 +232,25 @@ export default class War3Map {
     }
 
     return false;
+  }
+
+
+
+  /**
+   * @throws if an error occurs, or the file does not exist.
+   */
+  getMapInformation() {
+    let file = this.archive.get('war3map.w3i');
+
+    if (!file) {
+      throw new Error('File does not exist');
+    }
+
+    let parser = new War3MapW3i();
+
+    parser.load(file.bytes());
+
+    return parser;
   }
 
   /**

@@ -37,7 +37,7 @@ class Viewer extends Component {
       if (e.fetchUrl) {
         tester.logger.error(`[Viewer] ${e.error}: ${e.fetchUrl}`);
       } else {
-        tester.logger.error(`[Viewer] ${e.error}`);
+        tester.logger.error(`[Viewer] ${e.error}: ${e.reason}`);
       }
     });
 

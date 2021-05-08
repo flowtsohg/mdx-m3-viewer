@@ -200,6 +200,44 @@ class SanityTester extends Component {
   }
 
   /**
+   * Load all of the entries from a data transfer, e.g. resulting from a Drag & Drop action.
+   */
+  async loadDataTransfer(dataTransfer) {
+    let entries = await getAllFileEntries(dataTransfer.items);
+
+    for (let entry of entries) {
+      let name = entry.name;
+      let ext = ModelViewer.default.common.path.extname(name);
+
+      if (ext === '.mdx' || ext === '.mdl' || ext === '.blp' || ext === '.dds' || ext === '.tga' || ext === '.w3x' || ext === '.w3m') {
+        this.logger.info(`Reading ${name}`);
+
+        entry.file((file) => {
+          let reader = new FileReader();
+
+          reader.addEventListener('loadend', (e) => {
+            let buffer = e.target.result;
+
+            if (ext === '.w3m' || ext === '.w3x') {
+              this.loadMap(name, buffer);
+            } else {
+              this.test(name, buffer);
+            }
+          });
+
+          if (ext === '.mdl') {
+            reader.readAsText(file);
+          } else {
+            reader.readAsArrayBuffer(file);
+          }
+        });
+      } else {
+        this.logger.info(`${name} is not a supported file, skipping it`);
+      }
+    }
+  }
+
+  /**
    * Used by the Hiveworkshop to test resources.
    * 
    * file=url&file=url2&override[path]=url3

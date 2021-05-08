@@ -2,7 +2,9 @@ let statusElement = document.getElementById('status');
 statusElement.textContent = 'Initializing the viewer';
 
 let canvas = document.getElementById('canvas');
-let viewer = new ModelViewer.default.viewer.handlers.War3MapViewer(canvas, localOrHive);
+
+// true because the Reforged Hive API is used in localOrHive.
+let viewer = new ModelViewer.default.viewer.handlers.War3MapViewer(canvas, localOrHive, true);
 
 let thingsLoading = [];
 

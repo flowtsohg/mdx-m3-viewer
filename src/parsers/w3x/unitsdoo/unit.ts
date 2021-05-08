@@ -54,14 +54,14 @@ export default class Unit {
   waygate: number = 0;
   creationNumber: number = 0;
 
-  load(stream: BinaryStream, version: number, subversion: number, isReforged: boolean) {
+  load(stream: BinaryStream, version: number, subversion: number, buildVersion: number) {
     this.id = stream.readBinary(4);
     this.variation = stream.readInt32();
     stream.readFloat32Array(this.location);
     this.angle = stream.readFloat32();
     stream.readFloat32Array(this.scale);
 
-    if (isReforged) {
+    if (buildVersion > 131) {
       this.skin = stream.readBinary(4);
     }
 
@@ -132,14 +132,14 @@ export default class Unit {
     this.creationNumber = stream.readInt32();
   }
 
-  save(stream: BinaryStream, version: number, subversion: number, isReforged: boolean) {
+  save(stream: BinaryStream, version: number, subversion: number, buildVersion: number) {
     stream.writeBinary(this.id);
     stream.writeInt32(this.variation);
     stream.writeFloat32Array(this.location);
     stream.writeFloat32(this.angle);
     stream.writeFloat32Array(this.scale);
 
-    if (isReforged) {
+    if (buildVersion > 131) {
       stream.writeBinary(this.skin);
     }
 
@@ -202,10 +202,10 @@ export default class Unit {
     stream.writeInt32(this.creationNumber);
   }
 
-  getByteLength(version: number, subversion: number, isReforged: boolean) {
+  getByteLength(version: number, subversion: number, buildVersion: number) {
     let size = 91;
 
-    if (isReforged) {
+    if (buildVersion > 131) {
       size += 4;
     }
 

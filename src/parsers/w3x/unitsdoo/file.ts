@@ -9,7 +9,7 @@ export default class War3MapUnitsDoo {
   subversion: number = 11;
   units: Unit[] = [];
 
-  load(buffer: ArrayBuffer | Uint8Array, isReforged: boolean) {
+  load(buffer: ArrayBuffer | Uint8Array, buildVersion: number) {
     let stream = new BinaryStream(buffer);
 
     if (stream.readBinary(4) !== 'W3do') {
@@ -22,14 +22,14 @@ export default class War3MapUnitsDoo {
     for (let i = 0, l = stream.readInt32(); i < l; i++) {
       let unit = new Unit();
 
-      unit.load(stream, this.version, this.subversion, isReforged);
+      unit.load(stream, this.version, this.subversion, buildVersion);
 
       this.units[i] = unit;
     }
   }
 
-  save(isReforged: boolean) {
-    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength(isReforged)));
+  save(buildVersion: number) {
+    let stream = new BinaryStream(new ArrayBuffer(this.getByteLength(buildVersion)));
 
     stream.writeBinary('W3do');
     stream.writeInt32(this.version);
@@ -37,17 +37,17 @@ export default class War3MapUnitsDoo {
     stream.writeInt32(this.units.length);
 
     for (let unit of this.units) {
-      unit.save(stream, this.version, this.subversion, isReforged);
+      unit.save(stream, this.version, this.subversion, buildVersion);
     }
 
     return stream.uint8array;
   }
 
-  getByteLength(isReforged: boolean) {
+  getByteLength(buildVersion: number) {
     let size = 16;
 
     for (let unit of this.units) {
-      size += unit.getByteLength(this.version, this.subversion, isReforged);
+      size += unit.getByteLength(this.version, this.subversion, buildVersion);
     }
 
     return size;

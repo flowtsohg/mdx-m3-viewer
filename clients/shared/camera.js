@@ -203,11 +203,11 @@ class SimpleOrbitCamera {
     let dirY = this.camera.directionY;
     let w = this.canvas.width;
     let h = this.canvas.height;
+    let aspect = w / h;
 
-    let sw = (x / w) * this.distance;
+    let sw = (x / w) * this.distance * aspect;
     let sh = (y / h) * this.distance;
 
-    // Allow only movement on the XY plane, and scale to moveSpeed.
     vec3.add(this.target, this.target, vec3.scale(vecHeap, vec3.normalize(vecHeap, vec3.set(vecHeap, dirX[0], dirX[1], 0)), sw));
     vec3.add(this.target, this.target, vec3.scale(vecHeap, vec3.normalize(vecHeap, vec3.set(vecHeap, dirY[0], dirY[1], 0)), sh));
 

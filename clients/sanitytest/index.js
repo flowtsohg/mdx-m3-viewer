@@ -11,9 +11,7 @@ document.addEventListener('dragend', e => {
 document.addEventListener('drop', e => {
   e.preventDefault();
 
-  for (let file of e.dataTransfer.files) {
-    tester.loadFile(file);
-  }
+  tester.loadDataTransfer(e.dataTransfer);
 });
 
 tester.loadAPI(window.location.search);

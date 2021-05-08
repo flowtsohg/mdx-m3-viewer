@@ -1,5 +1,5 @@
 import SlkFile from '../parsers/slk/file';
-import IniFile from '../parsers/ini/file';
+import { IniFile } from '../parsers/ini/file';
 
 export type MappedDataValue = string | number | boolean;
 

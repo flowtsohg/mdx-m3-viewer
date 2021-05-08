@@ -1,4 +1,4 @@
-import File from './file';
+import { IniFile as File } from './file';
 
 export default {
   File,

@@ -79,7 +79,7 @@ export default function mdlStructure(model: Model) {
       mdlObjects(stream, model, material.layers, layerNodes);
 
       material.writeMdl(stream, model.version);
-      nodes.push({ name: `Material ${index + 1}`, source: stream.buffer, nodes: layerNodes });
+      nodes.push({ name: `Material ${index}`, source: stream.buffer, nodes: layerNodes });
       stream.clear();
     }
 

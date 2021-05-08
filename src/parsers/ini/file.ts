@@ -1,14 +1,24 @@
 /**
+ * An INI property.
+ */
+export type IniProperty = string | number;
+
+/**
+ * An INI section.
+ */
+export type IniSection = Map<string, IniProperty>;
+
+/**
  * An INI file.
  */
-export default class IniFile {
-  properties: Map<string, string> = new Map();
-  sections: Map<string, Map<string, string>> = new Map();
+export class IniFile {
+  properties: Map<string, IniProperty> = new Map();
+  sections: Map<string, IniSection> = new Map();
 
   load(buffer: string) {
     // All properties added until a section is reached are added to the properties map.
     // Once a section is reached, any further properties will be added to it until matching another section, etc.
-    let section: Map<string, string> | null = this.properties;
+    let section: IniSection | null = this.properties;
     let sections = this.sections;
 
     for (let line of buffer.split('\r\n')) {
@@ -22,7 +32,7 @@ export default class IniFile {
         if (match) {
           let name = match[1].trim().toLowerCase();
 
-          section = <Map<string, string> | null>sections.get(name);
+          section = <IniSection | null>sections.get(name);
 
           if (!section) {
             section = new Map();
@@ -33,7 +43,15 @@ export default class IniFile {
           match = line.match(/^(.+?)=(.*?)$/);
 
           if (match) {
-            section.set(match[1].toLowerCase(), match[2]);
+            let value: IniProperty = match[2];
+            let valueAsNumber = parseFloat(value);
+
+            // Store numbers as numbers.
+            if (!isNaN(valueAsNumber)) {
+              value = valueAsNumber;
+            }
+
+            section.set(match[1], value);
           }
         }
       }

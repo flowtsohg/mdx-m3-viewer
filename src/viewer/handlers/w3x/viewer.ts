@@ -17,6 +17,7 @@ import War3MapViewerMap from './map';
 
 export default class War3MapViewer extends ModelViewer {
   wc3PathSolver: PathSolver;
+  isReforged: boolean;
   groundShader: Shader;
   waterShader: Shader;
   cliffShader: Shader;
@@ -31,7 +32,7 @@ export default class War3MapViewer extends ModelViewer {
   loadedBaseFiles: boolean = false;
   map: War3MapViewerMap | null = null;
 
-  constructor(canvas: HTMLCanvasElement, wc3PathSolver: PathSolver) {
+  constructor(canvas: HTMLCanvasElement, wc3PathSolver: PathSolver, isReforged: boolean) {
     super(canvas);
 
     let webgl = this.webgl;
@@ -48,12 +49,13 @@ export default class War3MapViewer extends ModelViewer {
 
     this.on('error', (e) => console.log(e));
 
-    this.addHandler(mdxHandler, wc3PathSolver); /// TODO: If Reforged support is wanted proper, the team colors/glows should be reloaded based on the map.
+    this.addHandler(mdxHandler, wc3PathSolver, isReforged);
     this.addHandler(blpHandler);
     this.addHandler(tgaHandler);
     this.addHandler(ddsHandler);
 
     this.wc3PathSolver = wc3PathSolver;
+    this.isReforged = isReforged;
 
     this.groundShader = this.webgl.createShader(groundVert, groundFrag);
     this.waterShader = this.webgl.createShader(waterVert, waterFrag);
@@ -77,6 +79,17 @@ export default class War3MapViewer extends ModelViewer {
       this.loadBaseFile('Units\\UnitMetaData.slk', 'text'),
     ];
 
+    let reforgedPromises;
+
+    if (this.isReforged) {
+      reforgedPromises = [
+        this.loadBaseFile('Doodads\\doodadSkins.txt', 'text'),
+        this.loadBaseFile('Units\\destructableSkin.txt', 'text'),
+        this.loadBaseFile('Units\\unitSkin.txt', 'text'),
+        this.loadBaseFile('Units\\itemSkin.txt', 'text'),
+      ];
+    }
+
     let [terrain, cliffTypes, water, doodads, doodadMetaData, destructableData, destructableMetaData, unitData, unitUi, itemData, unitMetaData] = await Promise.all(promises);
 
     if (!terrain || !cliffTypes || !water || !doodads || !doodadMetaData || !destructableData || !destructableMetaData || !unitData || !unitUi || !itemData || !unitMetaData) {
@@ -94,6 +107,19 @@ export default class War3MapViewer extends ModelViewer {
     this.unitsData.load(unitUi.data);
     this.unitsData.load(itemData.data);
     this.unitMetaData.load(unitMetaData.data);
+
+    if (reforgedPromises) {
+      let [doodadSkins, destructableSkin, unitSkin, itemSkin] = await Promise.all(reforgedPromises);
+
+      if (!doodadSkins || !destructableSkin || !unitSkin || !itemSkin) {
+        throw new Error('Failed to load the base Reforged files');
+      }
+
+      this.doodadsData.load(doodadSkins.data);
+      this.doodadsData.load(destructableSkin.data);
+      this.unitsData.load(unitSkin.data);
+      this.unitsData.load(itemSkin.data);
+    }
 
     this.loadedBaseFiles = true;
     this.emit('loadedbasefiles');

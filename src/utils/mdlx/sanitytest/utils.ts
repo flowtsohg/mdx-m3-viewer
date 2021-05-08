@@ -187,7 +187,7 @@ export function getObjectName(object: MdlxType, index: number) {
   let name = getObjectTypeName(object);
 
   if (!(object instanceof Animation)) {
-    name += ` ${index + 1}`;
+    name += ` ${index}`;
   }
 
   if (object instanceof Sequence || object instanceof GenericObject || object instanceof Camera) {

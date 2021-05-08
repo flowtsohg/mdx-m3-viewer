@@ -1,5 +1,5 @@
 import { basename } from '../../common/path';
-import IniFile from '../../parsers/ini/file';
+import { IniFile } from '../../parsers/ini/file';
 import MdlxModel from '../../parsers/mdlx/model';
 import War3MapImp from '../../parsers/w3x/imp/file';
 import War3Map from '../../parsers/w3x/map';
@@ -181,7 +181,8 @@ export default function generateListfile(map: War3Map) {
 
       for (let section of config.sections.values()) {
         for (let value of section.values()) {
-          for (let token of value.split(',')) {
+          // We know the values are going to be strings.
+          for (let token of (<string>value).split(',')) {
             filterFile(files, token);
           }
         }

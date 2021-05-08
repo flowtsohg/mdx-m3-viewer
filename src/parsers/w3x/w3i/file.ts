@@ -299,4 +299,15 @@ export default class War3MapW3i {
 
     return size;
   }
+
+  /**
+   * Returns the build version as major+minor.
+   * 
+   * For example version 1.31.X will return 131.
+   * 
+   * Note that this will always return 0 for any version below 1.31.
+   */
+  getBuildVersion() {
+    return this.buildVersion[0] * 100 + this.buildVersion[1];
+  }
 }

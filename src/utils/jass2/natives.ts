@@ -578,7 +578,7 @@ function GetObjectName(C: Context, L: lua_State) {
  * constant native GetBJMaxPlayers takes nothing returns integer
  */
 function GetBJMaxPlayers(C: Context, L: lua_State) {
-  lua_pushinteger(L, 28);
+  lua_pushinteger(L, 24);
 
   return 1;
 }
@@ -605,7 +605,7 @@ function GetBJPlayerNeutralExtra(C: Context, L: lua_State) {
  * constant native GetBJMaxPlayerSlots takes nothing returns integer
  */
 function GetBJMaxPlayerSlots(C: Context, L: lua_State) {
-  lua_pushinteger(L, 24);
+  lua_pushinteger(L, 28);
 
   return 1;
 }

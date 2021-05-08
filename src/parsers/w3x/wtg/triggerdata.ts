@@ -1,5 +1,5 @@
 import TokenStream from '../../../utils/jass2/tokenstream';
-import IniFile from '../../ini/file';
+import { IniSection, IniFile } from '../../ini/file';
 
 /**
  * A standard object mapping strings to strings.
@@ -71,23 +71,25 @@ export class TriggerData {
     }
   }
 
-  addTriggerTypes(types: StringObject, section: Map<string, string>) {
+  addTriggerTypes(types: StringObject, section: IniSection) {
     for (let [key, value] of section) {
-      let tokens = value.split(',');
+      // We know the values are going to be strings.
+      let tokens = (<string>value).split(',');
 
       types[key] = tokens[4] || '';
     }
   }
 
-  addTriggerDataFunctions(functions: FunctionObject, section: Map<string, string>, skipped: number) {
+  addTriggerDataFunctions(functions: FunctionObject, section: IniSection, skipped: number) {
     for (let [key, value] of section) {
       // We don't care about metadata lines.
       if (key[0] !== '_') {
-        let tokens = value.split(',');
+        // We know the values are going to be strings.
+        let tokens = (<string>value).split(',');
         let args = [];
 
         // Can be used by actions to make aliases.
-        let scriptName = section.get(`_${key}_scriptname`) || null;
+        let scriptName = <string>section.get(`_${key}_scriptname`) || null;
 
         let returnType = null;
 
@@ -110,9 +112,10 @@ export class TriggerData {
     }
   }
 
-  addTriggerDataPresets(presets: StringObject, section: Map<string, string>) {
+  addTriggerDataPresets(presets: StringObject, section: IniSection) {
     for (let [key, value] of section) {
-      let tokens = value.split(',');
+      // We know the values are going to be strings.
+      let tokens = (<string>value).split(',');
 
       // Note that the operators are enclosed by "" for some reason.
       // Note that string literals are enclosed by backticks.

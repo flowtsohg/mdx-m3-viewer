@@ -7,8 +7,6 @@ import Corner from '../../../parsers/w3x/w3e/corner';
 import War3MapW3u from '../../../parsers/w3x/w3u/file';
 import War3MapW3d from '../../../parsers/w3x/w3d/file';
 import ModificationTable from '../../../parsers/w3x/w3u/modificationtable';
-import War3MapDoo from '../../../parsers/w3x/doo/file';
-import War3MapUnitsDoo from '../../../parsers/w3x/unitsdoo/file';
 import { MappedData, MappedDataRow } from '../../../utils/mappeddata';
 import Shader from '../../gl/shader';
 import Scene from '../../scene';
@@ -16,14 +14,14 @@ import Grid from '../../grid';
 import { PathSolver } from '../../handlerresource';
 import Texture from '../../texture';
 import MdxModel from '../mdx/model';
-import MdxModelInstance from '../mdx/modelinstance';
 import getCliffVariation from './variations';
 import TerrainModel from './terrainmodel';
-import randomStandSequence from './standsequence';
 import Unit from './unit';
 import Doodad from './doodad';
 import TerrainDoodad from './terraindoodad';
 import War3MapViewer from './viewer';
+import War3MapDoo from '../../../parsers/w3x/doo/file';
+import War3MapUnitsDoo from '../../../parsers/w3x/unitsdoo/file';
 
 const normalHeap1 = vec3.create();
 const normalHeap2 = vec3.create();
@@ -32,7 +30,7 @@ export default class War3MapViewerMap {
   viewer: War3MapViewer;
   map: War3Map;
   pathSolver: PathSolver;
-  isReforged: boolean = false;
+  buildVersion: number = 0;
   solverParams: { tileset: string, reforged?: boolean, hd?: boolean } = { tileset: 'a' };
   worldScene: Scene;
   waterIndex: number = 0;
@@ -126,52 +124,52 @@ export default class War3MapViewerMap {
   }
 
   loadMapInformation() {
-    let file = this.map.get('war3map.w3i');
+    let mpqFile = this.map.get('war3map.w3i');
 
-    if (!file) {
+    if (!mpqFile) {
       console.warn('Attempted to load war3map.w3i but it is not there. Using default tileset A.');
-
       return;
     }
 
-    let bytes = file.bytes();
-    let w3i = new War3MapW3i();
+    let parser = new War3MapW3i();
 
     try {
-      w3i.load(bytes);
+      parser.load(mpqFile.bytes());
     } catch (e) {
 
     }
 
-    this.solverParams.tileset = w3i.tileset.toLowerCase();
+    this.solverParams.tileset = parser.tileset.toLowerCase();
 
-    if (w3i.buildVersion[0] * 100 + w3i.buildVersion[1] > 131) {
-      this.isReforged = true;
+    this.buildVersion = parser.getBuildVersion();
 
+    if (this.buildVersion > 131) {
       this.solverParams.reforged = true;
     }
   }
 
   async loadTerrainCliffsAndWater() {
-    let viewer = this.viewer;
+    let mpqFile = this.map.get('war3map.w3e');
 
-    let file = this.map.get('war3map.w3e');
-
-    if (!file) {
-      console.warn('Attempted to load war3map.w3i, but it is not there.');
-
+    if (!mpqFile) {
+      console.warn('Attempted to load war3map.w3e, but it is not there.');
       return;
     }
 
-    let bytes = file.bytes();
-    let w3e = new War3MapW3e();
+    let parser = new War3MapW3e();
 
-    w3e.load(bytes);
+    try {
+      parser.load(mpqFile.bytes());
+    } catch (e) {
+      console.warn(`Failed to load war3map.w3e: ${e}`);
+      return;
+    }
 
-    let centerOffset = w3e.centerOffset;
-    let mapSize = w3e.mapSize;
+    let viewer = this.viewer;
+    let centerOffset = parser.centerOffset;
+    let mapSize = parser.mapSize;
 
-    this.corners = w3e.corners;
+    this.corners = parser.corners;
     this.centerOffset.set(centerOffset);
     this.mapSize.set(mapSize);
 
@@ -179,13 +177,13 @@ export default class War3MapViewerMap {
     this.worldScene.grid = new Grid(centerOffset[0], centerOffset[1], mapSize[0] * 128 - 128, mapSize[1] * 128 - 128, 16 * 128, 16 * 128);
 
     let texturesExt = this.solverParams.reforged ? '.dds' : '.blp';
-    let tileset = w3e.tileset;
+    let tileset = parser.tileset;
 
     let tilesetTextures = [];
     let cliffTextures = [];
     let waterTextures = [];
 
-    for (let groundTileset of w3e.groundTilesets) {
+    for (let groundTileset of parser.groundTilesets) {
       let row = viewer.terrainData.getRow(groundTileset);
 
       this.tilesets.push(row);
@@ -216,7 +214,7 @@ export default class War3MapViewerMap {
     this.blightTextureIndex = this.tilesetTextures.length;
     tilesetTextures.push(this.load(`TerrainArt\\Blight\\${blights[tileset]}_Blight${texturesExt}`));
 
-    for (let cliffTileset of w3e.cliffTilesets) {
+    for (let cliffTileset of parser.cliffTilesets) {
       let row = viewer.cliffTypesData.getRow(cliffTileset);
 
       this.cliffTilesets.push(row);
@@ -241,7 +239,7 @@ export default class War3MapViewerMap {
     this.cliffTextures = <Texture[]>await Promise.all(cliffTextures);
     this.waterTextures = <Texture[]>await Promise.all(waterTextures);
 
-    let corners = w3e.corners;
+    let corners = parser.corners;
     let [columns, rows] = <Int32Array>this.mapSize;
     let instanceCount = (columns - 1) * (rows - 1);
     let cliffHeights = new Float32Array(columns * rows);
@@ -407,67 +405,71 @@ export default class War3MapViewerMap {
   }
 
   loadDoodadsAndDestructibles() {
-    let file = this.map.get('war3map.doo');
+    let mpqFile = this.map.get('war3map.doo');
 
-    if (!file) {
+    if (!mpqFile) {
       console.warn('Attempted to load war3map.doo but it is not there');
-
       return;
     }
 
-    let bytes = file.arrayBuffer();
-    let doo = new War3MapDoo();
+    let parser = new War3MapDoo();
 
     try {
-      doo.load(bytes, this.isReforged);
+      parser.load(mpqFile.bytes(), this.buildVersion);
     } catch (e) {
-
+      console.warn(`Failed to load war3map.doo: ${e}`);
+      return;
     }
 
     // Doodads and destructibles.
-    for (let doodad of doo.doodads) {
+    for (let doodad of parser.doodads) {
       try {
         let row = this.viewer.doodadsData.getRow(doodad.id);
         let file = <string>row.file;
-        let numVar = <number>row.numVar;
 
-        if (file.endsWith('.mdl')) {
-          file = file.slice(0, -4);
-        }
+        if (file) {
+          let numVar = <number>row.numVar;
 
-        let fileVar = file;
-
-        file += '.mdx';
-
-        if (numVar > 1) {
-          fileVar += Math.min(doodad.variation, numVar - 1);
-        }
-
-        fileVar += '.mdx';
-
-        // First see if the model is local.
-        // Doodads refering to local models may have invalid variations, so if the variation doesn't exist, try without a variation.
-        let mpqFile = this.map.get(fileVar) || this.map.get(file);
-        let promise;
-
-        if (mpqFile) {
-          promise = this.load(mpqFile.name);
-        } else {
-          promise = this.load(fileVar);
-        }
-
-        promise.then((model) => {
-          if (model) {
-            this.doodads.push(new Doodad(this, <MdxModel>model, row, doodad))
+          if (file.endsWith('.mdl')) {
+            file = file.slice(0, -4);
           }
-        });
+
+          let fileVar = file;
+
+          file += '.mdx';
+
+          if (numVar > 1) {
+            fileVar += Math.min(doodad.variation, numVar - 1);
+          }
+
+          fileVar += '.mdx';
+
+          // First see if the model is local.
+          // Doodads refering to local models may have invalid variations, so if the variation doesn't exist, try without a variation.
+          let mpqFile = this.map.get(fileVar) || this.map.get(file);
+          let promise;
+
+          if (mpqFile) {
+            promise = this.load(mpqFile.name);
+          } else {
+            promise = this.load(fileVar);
+          }
+
+          promise.then((model) => {
+            if (model) {
+              this.doodads.push(new Doodad(this, <MdxModel>model, row, doodad))
+            }
+          });
+        } else {
+          console.log('Unknown doodad ID', doodad.id, doodad);
+        }
       } catch (e) {
-        console.warn(`Failed to load doodad/destructible ID ${doodad.id}`);
+        console.warn(`Failed to load doodad/destructible ID ${doodad.id}: ${e}`);
       }
     }
 
     // Cliff/Terrain doodads.
-    for (let doodad of doo.terrainDoodads) {
+    for (let doodad of parser.terrainDoodads) {
       try {
         let row = this.viewer.doodadsData.getRow(doodad.id);
 
@@ -493,7 +495,7 @@ export default class War3MapViewerMap {
         //   }
         // });
       } catch (e) {
-        console.warn(`Failed to load cliff/terrain doodad ID ${doodad.id}`);
+        console.warn(`Failed to load cliff/terrain doodad ID ${doodad.id}: ${e}`);
       }
     }
 
@@ -502,25 +504,24 @@ export default class War3MapViewerMap {
   }
 
   loadUnitsAndItems() {
-    let file = this.map.get('war3mapUnits.doo');
+    let mpqFile = this.map.get('war3mapUnits.doo');
 
-    if (!file) {
-      console.warn('Attempted to load war3mapUnits.doo, but it is not there');
-
+    if (!mpqFile) {
+      console.warn('Attempted to load war3mapUnits.doo but it is not there');
       return;
     }
 
-    let bytes = file.bytes();
-    let unitsDoo = new War3MapUnitsDoo();
+    let parser = new War3MapUnitsDoo();
 
     try {
-      unitsDoo.load(bytes, this.isReforged);
+      parser.load(mpqFile.bytes(), this.buildVersion);
     } catch (e) {
-
+      console.warn(`Failed to load war3mapUnits.doo: ${e}`);
+      return;
     }
 
     // Collect the units and items data.
-    for (let unit of unitsDoo.units) {
+    for (let unit of parser.units) {
       try {
         let row: MappedDataRow | undefined;
         let path;
@@ -532,11 +533,13 @@ export default class War3MapViewerMap {
           row = this.viewer.unitsData.getRow(unit.id);
           path = <string>row.file;
 
-          if (path.endsWith('.mdl')) {
-            path = path.slice(0, -4);
-          }
+          if (path) {
+            if (path.endsWith('.mdl')) {
+              path = path.slice(0, -4);
+            }
 
-          path += '.mdx';
+            path += '.mdx';
+          }
         }
 
         if (path) {
@@ -550,7 +553,7 @@ export default class War3MapViewerMap {
           console.log('Unknown unit ID', unit.id, unit);
         }
       } catch (e) {
-        console.warn(`Failed to load unit/item ID ${unit.id}`);
+        console.warn(`Failed to load unit/item ID ${unit.id}: ${e}`);
       }
     }
 
@@ -569,12 +572,12 @@ export default class War3MapViewerMap {
         this.waterIndex = 0;
       }
 
-      let instances = <MdxModelInstance[]>this.worldScene.instances;
+      for (let doodad of this.doodads) {
+        doodad.update();
+      }
 
-      for (let instance of instances) {
-        if (instance.sequenceEnded || instance.sequence === -1) {
-          randomStandSequence(instance);
-        }
+      for (let unit of this.units) {
+        unit.update();
       }
     }
   }
