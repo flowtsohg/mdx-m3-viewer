@@ -79,7 +79,7 @@ export default class War3Map {
 
     let information = this.getMapInformation();
 
-    // If this is a pre-1.31 map, or we don't know what the version is, save as a TFT map.
+    // If this is a pre-1.31 map, or we don't know what the version is, save also the map header.
     if (!information || information.getBuildVersion() < 131) {
       let bytes = new Uint8Array(512 + archiveBuffer.byteLength);
       let stream = new BinaryStream(bytes);

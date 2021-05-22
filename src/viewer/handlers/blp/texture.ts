@@ -48,10 +48,19 @@ export default class BlpTexture extends Texture {
     } else {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
 
+      let width = image.width;
+      let height = image.height;
+
       for (let i = 0; i < mipmaps; i++) {
         let imageData = image.getMipmap(i);
 
-        gl.texImage2D(gl.TEXTURE_2D, i, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
+        // Don't use the image data dimensions directly.
+        // Some JPG mipmaps out there have wrong sizes.
+        // For example the last two mipmaps being 2x1, which messes with GL.
+        gl.texImage2D(gl.TEXTURE_2D, i, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, imageData.data);
+
+        width = Math.ceil(width / 2);
+        height = Math.ceil(height / 2);
       }
     }
 
