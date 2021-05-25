@@ -274,6 +274,11 @@ export function testParticleEmitter2(data: SanityTestData, emitter: ParticleEmit
 
   data.assertWarning(filterMode >= 0 && filterMode <= 4, `Invalid filter mode: ${emitter.filterMode}`);
   data.assertError(replaceableId === 0 || replaceableIds.has(replaceableId), `Invalid replaceable ID: ${replaceableId}`);
+
+  // XY Quad.
+  if (emitter.flags & 0x100000) {
+    data.assertSevere(emitter.speed !== 0 && emitter.latitude !== 0, 'XY Quad emitters must have a non-zero speed and latitude');
+  }
 }
 
 export function testParticleEmitterPopcorn(data: SanityTestData, emitter: ParticleEmitterPopcorn) {
