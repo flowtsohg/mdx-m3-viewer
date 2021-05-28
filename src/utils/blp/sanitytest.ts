@@ -1,3 +1,4 @@
+import { isPowerOfTwo } from '../../common/math';
 import { BlpImage } from '../../parsers/blp/image';
 
 /**
@@ -49,6 +50,10 @@ export default function sanityTest(texture: BlpImage) {
     if (jpgHeader.length > 624) {
       nodes.push({ type: 'warning', message: `Expected the JPG header to be at most 624 bytes, but got ${jpgHeader.length}` });
     }
+  }
+
+  if (!isPowerOfTwo(width) || !isPowerOfTwo(height)) {
+    nodes.push({ type: 'warning', message: `Expected the width and height to be powers of two, but got ${width}x${height}` });
   }
 
   for (let i = 0; i < 16; i++) {
