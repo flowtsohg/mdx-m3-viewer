@@ -50,7 +50,11 @@ class Test {
     let mipmaps = [];
 
     for (let i = 0, l = image.mipmaps(); i < l; i++) {
-      mipmaps.push(image.getMipmap(i));
+      try {
+        mipmaps.push(image.getMipmap(i));
+      } catch (e) {
+        mipmaps.push(e);
+      }
     }
 
     return mipmaps;

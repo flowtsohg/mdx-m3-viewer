@@ -6,19 +6,31 @@ class TestResults extends Component {
     this.nodes = [];
 
     if (mipmaps) {
-      for (let mipmap of mipmaps) {
-        let { width, height, data } = mipmap;
+      for (let mipmapIndex = 0, l = mipmaps.length; mipmapIndex < l; mipmapIndex++) {
+        let mipmap = mipmaps[mipmapIndex];
 
-        // Remove alpha.
-        for (let i = 0, l = width * height * 4; i < l; i += 4) {
-          data[i + 3] = 255;
+        if (mipmap instanceof ImageData) {
+          let { width, height, data } = mipmap;
+
+          // Remove alpha.
+          for (let i = 0, l = width * height * 4; i < l; i += 4) {
+            data[i + 3] = 255;
+          }
+
+          let image = ModelViewer.default.common.canvas.imageDataToImage(mipmap);
+
+          image.className = 'padded';
+
+          this.container.appendChild(image);
+        } else {
+          if (results.errors === undefined) {
+            results.errors = 1;
+          } else {
+            results.errors += 1;
+          }
+
+          this.nodes.push(new TestResultsNode({ type: 'error', message: `Mipmap ${mipmapIndex}: ${mipmap}` }, this.container));
         }
-
-        let image = ModelViewer.default.common.canvas.imageDataToImage(mipmap);
-
-        image.className = 'padded';
-
-        this.container.appendChild(image);
       }
     }
 
