@@ -1,18 +1,13 @@
 /**
- * An INI property.
- */
-export type IniProperty = string | number;
-
-/**
  * An INI section.
  */
-export type IniSection = Map<string, IniProperty>;
+export type IniSection = Map<string, string>;
 
 /**
  * An INI file.
  */
 export class IniFile {
-  properties: Map<string, IniProperty> = new Map();
+  properties: Map<string, string> = new Map();
   sections: Map<string, IniSection> = new Map();
 
   load(buffer: string) {
@@ -43,15 +38,7 @@ export class IniFile {
           match = line.match(/^(.+?)=(.*?)$/);
 
           if (match) {
-            let value: IniProperty = match[2];
-            let valueAsNumber = parseFloat(value);
-
-            // Store numbers as numbers.
-            if (!isNaN(valueAsNumber)) {
-              value = valueAsNumber;
-            }
-
-            section.set(match[1], value);
+            section.set(match[1], match[2]);
           }
         }
       }

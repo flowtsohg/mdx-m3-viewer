@@ -143,16 +143,19 @@ export default class MpqArchive {
     let offset = headerSize;
 
     for (let file of this.files) {
-      // If the file's offset changed, and it is encrypted with a key that depends on its offset,
-      // it needs to be decryped with it's current key, and encryped with the new key.
-      if (!file.offsetChanged(offset)) {
-        return null;
+      // There can be holes in the files array.
+      if (file) {
+        // If the file's offset changed, and it is encrypted with a key that depends on its offset,
+        // it needs to be decryped with it's current key, and encryped with the new key.
+        if (!file.offsetChanged(offset)) {
+          return null;
+        }
+
+        // If the file needs to be encoded, do it.
+        file.encode();
+
+        offset += file.block.compressedSize;
       }
-
-      // If the file needs to be encoded, do it.
-      file.encode();
-
-      offset += file.block.compressedSize;
     }
 
     let hashTable = this.hashTable;
@@ -180,11 +183,14 @@ export default class MpqArchive {
 
     // Write the files.
     for (let file of this.files) {
-      if (file.rawBuffer) {
-        bytes.set(file.rawBuffer, offset)
-      }
+      // There can be holes in the files array.
+      if (file) {
+        if (file.rawBuffer) {
+          bytes.set(file.rawBuffer, offset)
+        }
 
-      offset += file.block.compressedSize;
+        offset += file.block.compressedSize;
+      }
     }
 
     // Write the hash table.

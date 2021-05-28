@@ -76,7 +76,7 @@ export class TriggerData {
       // We know the values are going to be strings.
       let tokens = (<string>value).split(',');
 
-      types[key] = tokens[4] || '';
+      types[key.toLowerCase()] = tokens[4] || '';
     }
   }
 
@@ -85,7 +85,7 @@ export class TriggerData {
       // We don't care about metadata lines.
       if (key[0] !== '_') {
         // We know the values are going to be strings.
-        let tokens = (<string>value).split(',');
+        let tokens = value.split(',');
         let args = [];
 
         // Can be used by actions to make aliases.
@@ -107,7 +107,7 @@ export class TriggerData {
           }
         }
 
-        functions[key] = { args, scriptName, returnType };
+        functions[key.toLowerCase()] = { args, scriptName, returnType };
       }
     }
   }
@@ -115,11 +115,11 @@ export class TriggerData {
   addTriggerDataPresets(presets: StringObject, section: IniSection) {
     for (let [key, value] of section) {
       // We know the values are going to be strings.
-      let tokens = (<string>value).split(',');
+      let tokens = value.split(',');
 
       // Note that the operators are enclosed by "" for some reason.
       // Note that string literals are enclosed by backticks.
-      presets[key] = tokens[2].replace(/"/g, '').replace(/`/g, '"');
+      presets[key.toLowerCase()] = tokens[2].replace(/"/g, '').replace(/`/g, '"');
     }
   }
 
@@ -151,11 +151,9 @@ export class TriggerData {
             }
 
             let returnType: string | null = stream.readSafe();
-            let type = 3;
 
             if (returnType === 'nothing') {
               returnType = null;
-              type = 2;
             }
 
             let name = scriptName.toLowerCase();

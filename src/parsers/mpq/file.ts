@@ -2,9 +2,10 @@ import { deflate, inflate } from 'pako';
 import { decodeUtf8 } from '../../common/utf8';
 import MpqArchive from './archive';
 import MpqBlock from './block';
-import { COMPRESSION_ADPCM_MONO, COMPRESSION_ADPCM_STEREO, COMPRESSION_BZIP2, COMPRESSION_DEFLATE, COMPRESSION_HUFFMAN, COMPRESSION_IMPLODE, FILE_COMPRESSED, FILE_ENCRYPTED, FILE_EXISTS, FILE_OFFSET_ADJUSTED_KEY, FILE_SINGLE_UNIT, HASH_ENTRY_DELETED } from './constants';
+import { COMPRESSION_ADPCM_MONO, COMPRESSION_ADPCM_STEREO, COMPRESSION_BZIP2, COMPRESSION_DEFLATE, COMPRESSION_HUFFMAN, COMPRESSION_IMPLODE, FILE_COMPRESSED, FILE_ENCRYPTED, FILE_EXISTS, FILE_IMPLODE, FILE_OFFSET_ADJUSTED_KEY, FILE_SINGLE_UNIT, HASH_ENTRY_DELETED } from './constants';
 import MpqCrypto from './crypto';
 import explode from './explode';
+// import decodeHuffman from './huffman';
 import MpqHash from './hash';
 import { isArchive } from './isarchive';
 
@@ -248,6 +249,11 @@ export default class MpqFile {
           sector = this.decompressSector(sector, uncompressedSize);
         }
 
+        // Some sectors have this flags instead of the compression flag + algorithm byte.
+        if (flags & FILE_IMPLODE) {
+          sector = explode(sector)
+        }
+
         // Add the sector bytes to the buffer
         buffer.set(sector, offset);
         offset += sector.byteLength;
@@ -281,7 +287,6 @@ export default class MpqFile {
 
       if (compressionMask & COMPRESSION_IMPLODE) {
         try {
-          //console.log(this.name, 'EXPLODE')
           bytes = explode(bytes.subarray(1));
         } catch (e) {
           throw new Error(`File ${this.name}: failed to decompress with 'explode': ${e}`);
@@ -297,6 +302,11 @@ export default class MpqFile {
       }
 
       if (compressionMask & COMPRESSION_HUFFMAN) {
+        // try {
+        //   bytes = decodeHuffman(bytes.subarray(1));
+        // } catch (e) {
+        //   throw new Error(`File ${this.name}: failed to decompress with 'huffman': ${e}`);
+        // }
         throw new Error(`File ${this.name}: compression type 'huffman' not supported`);
       }
 
