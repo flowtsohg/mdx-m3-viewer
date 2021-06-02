@@ -124,9 +124,9 @@ function testSequenceTracks(data: SanityTestData, indices: number[], sequence: n
         let d = compareValues(a, b, c);
 
         if (d === 0) {
-          data.addUnused(`Track ${index} at frame ${frames[index]} has exactly the same value as tracks ${index} and ${index + 1}`);
+          data.addUnused(`Track ${index} at frame ${frames[index]} has exactly the same value as tracks ${index - 1} and ${index + 1}`);
         } else if (d < EPSILON) {
-          data.addUnused(`Track ${index} at frame ${frames[index]} has roughly the same value as tracks ${index} and ${index + 1}`);
+          data.addUnused(`Track ${index} at frame ${frames[index]} has roughly the same value as tracks ${index - 1} and ${index + 1}`);
         }
 
         a = b;
