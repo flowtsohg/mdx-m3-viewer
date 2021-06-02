@@ -31,12 +31,12 @@ function seprateTracks(data: SanityTestData, frames: number[] | Uint32Array, glo
   for (let i = 0, l = frames.length; i < l; i++) {
     let frame = frames[i];
 
-    data.assertWarning(frame >= 0, `Track ${i + 1} has a negative frame ${frame}`);
+    data.assertWarning(frame >= 0, `Track ${i} has a negative frame ${frame}`);
 
     if (frame === lastFrame) {
-      data.addWarning(`Track ${i + 1} has the same frame ${frame} as track ${i}`);
+      data.addWarning(`Track ${i} has the same frame ${frame} as track ${i}`);
     } else if (frame < lastFrame) {
-      data.addSevere(`Track ${i + 1} at frame ${frame} is lower than the track before it at ${lastFrame}`)
+      data.addSevere(`Track ${i} at frame ${frame} is lower than the track before it at ${lastFrame}`)
     }
 
     let sequence = getSequenceFromFrame(data, frame, globalSequenceId);
@@ -49,9 +49,9 @@ function seprateTracks(data: SanityTestData, frames: number[] | Uint32Array, glo
       // Who knows.
       if (frame !== 0 && frames.length > 1) {
         if (globalSequenceId === -1) {
-          data.addUnused(`Track ${i + 1} at frame ${frame} is not in any sequence`);
+          data.addUnused(`Track ${i} at frame ${frame} is not in any sequence`);
         } else {
-          data.addUnused(`Track ${i + 1} at frame ${frame} is not in global sequence ${globalSequenceId}`);
+          data.addUnused(`Track ${i} at frame ${frame} is not in global sequence ${globalSequenceId}`);
         }
       }
     }
@@ -64,7 +64,7 @@ function getSequenceName(data: SanityTestData, sequence: number, globalSequenceI
   if (globalSequenceId === -1) {
     return `sequence "${data.model.sequences[sequence].name}"`;
   } else {
-    return `global sequence ${globalSequenceId + 1}`;
+    return `global sequence ${globalSequenceId}`;
   }
 }
 
@@ -124,9 +124,9 @@ function testSequenceTracks(data: SanityTestData, indices: number[], sequence: n
         let d = compareValues(a, b, c);
 
         if (d === 0) {
-          data.addUnused(`Track ${index + 1} at frame ${frames[index]} has exactly the same value as tracks ${index} and ${index + 2}`);
+          data.addUnused(`Track ${index} at frame ${frames[index]} has exactly the same value as tracks ${index} and ${index + 1}`);
         } else if (d < EPSILON) {
-          data.addUnused(`Track ${index + 1} at frame ${frames[index]} has roughly the same value as tracks ${index} and ${index + 2}`);
+          data.addUnused(`Track ${index} at frame ${frames[index]} has roughly the same value as tracks ${index} and ${index + 1}`);
         }
 
         a = b;
