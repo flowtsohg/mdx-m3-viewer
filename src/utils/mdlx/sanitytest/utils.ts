@@ -26,6 +26,8 @@ import SanityTestData from './data';
 import testTracks from './tracks';
 import { SanityTestNode } from './data';
 
+export const LOW_SQUIRT_EMISSION_RATE = 8;
+
 export const sequenceNames = new Set([
   'attack',
   'birth',

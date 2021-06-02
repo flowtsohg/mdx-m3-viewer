@@ -16,7 +16,7 @@ import EventObject from '../../../parsers/mdlx/eventobject';
 import Camera from '../../../parsers/mdlx/camera';
 import FaceEffect from '../../../parsers/mdlx/faceeffect';
 import SanityTestData from './data';
-import { sequenceNames, replaceableIds, testObjects, testReference, getTextureIds, testGeosetSkinning, hasAnimation } from './utils';
+import { sequenceNames, replaceableIds, testObjects, testReference, getTextureIds, testGeosetSkinning, hasAnimation, LOW_SQUIRT_EMISSION_RATE } from './utils';
 import testTracks from './tracks';
 
 export function testHeader(data: SanityTestData) {
@@ -278,6 +278,24 @@ export function testParticleEmitter2(data: SanityTestData, emitter: ParticleEmit
   // XY Quad.
   if (emitter.flags & 0x100000) {
     data.assertSevere(emitter.speed !== 0 && emitter.latitude !== 0, 'XY Quad emitters must have a non-zero speed and latitude');
+  }
+
+  data.assertSevere(emitter.timeMiddle >= 0 && emitter.timeMiddle <= 1, `Expected time middle to be between 0 and 1, got ${emitter.timeMiddle}`);
+
+  if (emitter.squirt) {
+    let highestEmission = emitter.emissionRate;
+
+    for (let animation of emitter.animations) {
+      if (animation.name === 'KP2E') {
+        for (let value of animation.values) {
+          if (value[0] > highestEmission) {
+            highestEmission = value[0];
+          }
+        }
+      }
+    }
+
+    data.assertWarning(highestEmission > LOW_SQUIRT_EMISSION_RATE, `Using squirt with a low emission rate (${highestEmission.toFixed(1)})`);
   }
 }
 
