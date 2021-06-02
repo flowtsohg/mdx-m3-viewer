@@ -413,6 +413,14 @@ export function cleanNode(node: SanityTestNode) {
   }
 }
 
+export function getAnimation(object: AnimatedObject, name: string) {
+  for (let animation of object.animations) {
+    if (animation.name === name) {
+      return animation;
+    }
+  }
+}
+
 /*
 let attachmentNames = new Set([
     'chest',

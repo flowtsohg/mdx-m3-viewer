@@ -16,7 +16,7 @@ import EventObject from '../../../parsers/mdlx/eventobject';
 import Camera from '../../../parsers/mdlx/camera';
 import FaceEffect from '../../../parsers/mdlx/faceeffect';
 import SanityTestData from './data';
-import { sequenceNames, replaceableIds, testObjects, testReference, getTextureIds, testGeosetSkinning, hasAnimation, LOW_SQUIRT_EMISSION_RATE } from './utils';
+import { sequenceNames, replaceableIds, testObjects, testReference, getTextureIds, testGeosetSkinning, hasAnimation, LOW_SQUIRT_EMISSION_RATE, getAnimation } from './utils';
 import testTracks from './tracks';
 
 export function testHeader(data: SanityTestData) {
@@ -284,15 +284,16 @@ export function testParticleEmitter2(data: SanityTestData, emitter: ParticleEmit
 
   if (emitter.squirt) {
     let highestEmission = emitter.emissionRate;
+    let emissionRateAnimation = getAnimation(emitter, 'KP2E');
 
-    for (let animation of emitter.animations) {
-      if (animation.name === 'KP2E') {
-        for (let value of animation.values) {
-          if (value[0] > highestEmission) {
-            highestEmission = value[0];
-          }
+    if (emissionRateAnimation) {
+      for (let value of emissionRateAnimation.values) {
+        if (value[0] > highestEmission) {
+          highestEmission = value[0];
         }
       }
+    } else {
+      data.addWarning('Using squirt without animating the emission rate');
     }
 
     data.assertWarning(highestEmission > LOW_SQUIRT_EMISSION_RATE, `Using squirt with a low emission rate (${highestEmission.toFixed(1)})`);
