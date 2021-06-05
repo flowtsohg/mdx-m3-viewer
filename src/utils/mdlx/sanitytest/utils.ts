@@ -3,6 +3,7 @@ import { basename } from '../../../common/path';
 import { Animation } from '../../../parsers/mdlx/animations';
 import AnimatedObject from '../../../parsers/mdlx/animatedobject';
 import GenericObject from '../../../parsers/mdlx/genericobject';
+import Extent from '../../../parsers/mdlx/extent';
 import Sequence from '../../../parsers/mdlx/sequence';
 import Texture from '../../../parsers/mdlx/texture';
 import Material from '../../../parsers/mdlx/material';
@@ -134,10 +135,12 @@ export function hasAnimation(object: AnimatedObject, name: string) {
   return false;
 }
 
-export type MdlxType = Sequence | number | Texture | Material | Layer | TextureAnimation | Geoset | GeosetAnimation | Bone | Light | Helper | Attachment | ParticleEmitter | ParticleEmitter2 | ParticleEmitterPopcorn | RibbonEmitter | EventObject | Camera | CollisionShape | FaceEffect | Animation;
+export type MdlxType = Extent | Sequence | number | Texture | Material | Layer | TextureAnimation | Geoset | GeosetAnimation | Bone | Light | Helper | Attachment | ParticleEmitter | ParticleEmitter2 | ParticleEmitterPopcorn | RibbonEmitter | EventObject | Camera | CollisionShape | FaceEffect | Animation;
 
 export function getObjectTypeName(object: MdlxType) {
-  if (object instanceof Sequence) {
+  if (object instanceof Extent) {
+    return 'Extent';
+  } else if (object instanceof Sequence) {
     return 'Sequence';
   } else if (typeof object === 'number') {
     return 'GlobalSequence';
@@ -188,7 +191,7 @@ export function getObjectTypeName(object: MdlxType) {
 export function getObjectName(object: MdlxType, index: number) {
   let name = getObjectTypeName(object);
 
-  if (!(object instanceof Animation)) {
+  if (!(object instanceof Animation) && !(object instanceof Extent)) {
     name += ` ${index}`;
   }
 
@@ -419,6 +422,18 @@ export function getAnimation(object: AnimatedObject, name: string) {
       return animation;
     }
   }
+}
+
+export function testExtent(data: SanityTestData, extent: Extent) {
+  data.push(extent, 0);
+
+  let { max, min } = extent;
+
+  if ((max[0] - min[0] < 0) || (max[1] - min[1] < 0) || (max[2] - min[2] < 0)) {
+    data.addWarning('Negative extents');
+  }
+
+  data.pop();
 }
 
 /*

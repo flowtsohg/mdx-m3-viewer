@@ -20,6 +20,9 @@ export default class Bounds {
     this.x = x + w / 2;
     this.y = y + d / 2;
     this.z = z + h / 2;
-    this.r = Math.max(w, d, h) / 2;
+
+    // Ensure the radius is actually 0 or bigger.
+    // Some models apparently have reversed extents, go figure.
+    this.r = Math.max(0, Math.max(w, d, h) / 2);
   }
 }

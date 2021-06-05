@@ -16,7 +16,7 @@ import EventObject from '../../../parsers/mdlx/eventobject';
 import Camera from '../../../parsers/mdlx/camera';
 import FaceEffect from '../../../parsers/mdlx/faceeffect';
 import SanityTestData from './data';
-import { sequenceNames, replaceableIds, testObjects, testReference, getTextureIds, testGeosetSkinning, hasAnimation, LOW_SQUIRT_EMISSION_RATE, getAnimation } from './utils';
+import { sequenceNames, replaceableIds, testObjects, testReference, getTextureIds, testGeosetSkinning, hasAnimation, LOW_SQUIRT_EMISSION_RATE, getAnimation, testExtent } from './utils';
 import testTracks from './tracks';
 
 export function testHeader(data: SanityTestData) {
@@ -33,6 +33,8 @@ export function testHeader(data: SanityTestData) {
   if (data.model.animationFile !== '') {
     data.addWarning(`The animation file should probably be empty, currently set to: "${data.model.animationFile}"`);
   }
+
+  testExtent(data, data.model.extent);
 }
 
 export function testSequences(data: SanityTestData) {
@@ -84,6 +86,8 @@ function testSequence(data: SanityTestData, sequence: Sequence, index: number) {
   data.assertWarning(sequenceNames.has(token), `"${token}" is not a standard name`);
   data.assertWarning(length !== 0, 'Zero length');
   data.assertWarning(length > -1, `Negative length: ${length}`);
+
+  testExtent(data, sequence.extent);
 }
 
 export function testGlobalSequence(data: SanityTestData, sequence: number) {
@@ -111,17 +115,7 @@ function testTexture(data: SanityTestData, texture: Texture) {
   data.assertWarning(path === '' || replaceableId === 0, `Path "${path}" and replaceable ID ${replaceableId} used together`);
 }
 
-export function testMaterials(data: SanityTestData) {
-  let materials = data.model.materials;
-
-  if (materials.length) {
-    testObjects(data, materials, testMaterial);
-  } else {
-    data.addWarning('No materials');
-  }
-}
-
-function testMaterial(data: SanityTestData, material: Material) {
+export function testMaterial(data: SanityTestData, material: Material) {
   let layers = material.layers;
   let shader = material.shader;
 
@@ -198,6 +192,12 @@ export function testGeoset(data: SanityTestData, geoset: Geoset, index: number) 
   // Either way this is only relevant to version 800, because there seem to always be 0 extents in >800 models.
   if (geoset.sequenceExtents.length !== data.model.sequences.length && data.model.version === 800) {
     data.addWarning(`Number of sequence extents (${geoset.sequenceExtents.length}) does not match the number of sequences (${data.model.sequences.length})`);
+  }
+
+  testExtent(data, geoset.extent);
+
+  for (let extent of geoset.sequenceExtents) {
+    testExtent(data, extent);
   }
 }
 
@@ -292,8 +292,8 @@ export function testParticleEmitter2(data: SanityTestData, emitter: ParticleEmit
           highestEmission = value[0];
         }
       }
-    } else {
-      data.addWarning('Using squirt without animating the emission rate');
+    } else if (!getAnimation(emitter, 'KP2V')) {
+      data.addWarning('Using squirt without animating the emission rate or visibility');
     }
 
     data.assertWarning(highestEmission > LOW_SQUIRT_EMISSION_RATE, `Using squirt with a low emission rate (${highestEmission.toFixed(1)})`);
