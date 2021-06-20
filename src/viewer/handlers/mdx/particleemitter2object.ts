@@ -35,6 +35,7 @@ export default class ParticleEmitter2Object extends GenericObject {
   colors: Float32Array[] = [];
   scaling: Float32Array;
   intervals: Float32Array[];
+  filterMode: number;
   blendSrc: number;
   blendDst: number;
   priorityPlane: number;
@@ -116,6 +117,7 @@ export default class ParticleEmitter2Object extends GenericObject {
 
     let blendModes = emitterFilterMode(emitter.filterMode, this.model.viewer.gl);
 
+    this.filterMode = emitter.filterMode;
     this.blendSrc = blendModes[0];
     this.blendDst = blendModes[1];
 

@@ -160,6 +160,7 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: Shader) {
   let mdxTexture = <MdxTexture>emitterObject.internalTexture;
 
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
+  gl.uniform1f(uniforms.u_filterMode, emitterObject.filterMode);
 
   let texture: Texture | null | undefined = textureOverrides.get(EMITTER_PARTICLE2_TEXTURE_OFFSET + emitterObject.index);
 
@@ -272,6 +273,8 @@ function bindRibbonEmitterShader(emitter: RibbonEmitter, shader: Shader) {
   let actualTexture = textureOverrides.get(layer.textureId) || texture.texture;
 
   layer.bind(shader);
+
+  gl.uniform1f(uniforms.u_filterMode, layer.filterMode);
 
   model.viewer.webgl.bindTextureAndWrap(actualTexture, 0, texture.wrapS, texture.wrapT);
 
