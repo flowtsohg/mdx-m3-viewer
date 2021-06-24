@@ -63,7 +63,20 @@ export default class RibbonEmitterObject extends GenericObject {
     return this.getScalarValue(out, 'KRAL', sequence, frame, counter, this.alpha);
   }
 
+  /**
+   * Ribbon emitters specifically have an alpha.
+   * 
+   * When this alpha is 0, naturally ribbons shouldn't be emitted.
+   * 
+   * Therefore first check the alpha animation, and only if it's >0 check the visibility animation.
+   */
   getVisibility(out: Float32Array, sequence: number, frame: number, counter: number) {
+    let keyframe = this.getAlpha(out, sequence,frame,counter);
+    
+    if (out[0] === 0) {
+      return keyframe;
+    }
+
     return this.getScalarValue(out, 'KRVS', sequence, frame, counter, 1);
   }
 }

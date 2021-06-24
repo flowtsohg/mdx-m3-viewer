@@ -36,6 +36,11 @@ export default class Layer extends AnimatedObject {
 
     this.index = layerId;
     this.priorityPlane = priorityPlane;
+
+    if (filterMode > 6) {
+      filterMode = 2;
+    }
+
     this.filterMode = filterMode;
 
     if (layer.textureId !== -1) {
@@ -53,10 +58,6 @@ export default class Layer extends AnimatedObject {
     this.unfogged = flags & 0x20;
     this.noDepthTest = flags & 0x40;
     this.noDepthSet = flags & 0x80;
-
-    if (filterMode > 6) {
-      filterMode = 0;
-    }
 
     this.depthMaskValue = (filterMode === 0 || filterMode === 1);
 

@@ -179,7 +179,7 @@ const defVals = {
   // RIBB
   KRHA: floatDefval,
   KRHB: floatDefval,
-  KRAL: alphaDefval,
+  KRAL: new Float32Array([0]), // Ribbon emitter alphas default to 0 rather than 1.
   KRCO: colorDefval,
   KRTX: floatDefval,
   KRVS: visibilityDefval,
