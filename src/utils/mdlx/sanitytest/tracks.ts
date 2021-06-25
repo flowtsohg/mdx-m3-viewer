@@ -90,7 +90,7 @@ function compareValues(a: Uint32Array | Float32Array, b: Uint32Array | Float32Ar
   return d;
 }
 
-function testSequenceTracks(data: SanityTestData, indices: number[], sequence: number, globalSequenceId: number, interpolationType: number, frames: number[] | Uint32Array, values: (Uint32Array | Float32Array)[] | undefined) {
+function testSequenceTracks(data: SanityTestData, indices: number[], sequence: number, globalSequenceId: number, interpolationType: number, frames: number[] | Uint32Array, values: (Uint32Array | Float32Array)[] | undefined, isEventObject: boolean) {
   let start = 0;
   let end;
 
@@ -106,12 +106,15 @@ function testSequenceTracks(data: SanityTestData, indices: number[], sequence: n
   let first = frames[indices[0]];
   let last = frames[indices[indices.length - 1]];
 
-  // Missing the opening/closing tracks for a specific sequence can sometimes cause weird animations in the game.
-  // Generally speaking these warnings can be ignored though.
-  data.assertWarning(first === start, `No opening track for ${getSequenceName(data, sequence, globalSequenceId)} at frame ${start}`);
-  // If there is no interpolation, then it doesn't matter if there's a closing track or not.
-  data.assertWarning(last === end || interpolationType === 0, `No closing track for ${getSequenceName(data, sequence, globalSequenceId)} at frame ${end}`);
-
+  // Since event objects work on the concept of notes, where a keyframe denotes emission, there is no meaning in having an opening or closing track.
+  if (!isEventObject) {
+    // Missing the opening/closing tracks for a specific sequence can sometimes cause weird animations in the game.
+    // Generally speaking these warnings can be ignored though.
+    data.assertWarning(first === start, `No opening track for ${getSequenceName(data, sequence, globalSequenceId)} at frame ${start}`);
+    // If there is no interpolation, then it doesn't matter if there's a closing track or not.
+    data.assertWarning(last === end || interpolationType === 0, `No closing track for ${getSequenceName(data, sequence, globalSequenceId)} at frame ${end}`);
+  }
+  
   if (values) {
     // Check for consecutive tracks with the same values.
     if (indices.length > 2) {
@@ -172,7 +175,7 @@ export default function testTracks(data: SanityTestData, object: Animation | Eve
     let indices = separated[i];
 
     if (indices && indices.length > 1) {
-      testSequenceTracks(data, indices, i, globalSequenceId, interpolationType, framesOrTracks, values);
+      testSequenceTracks(data, indices, i, globalSequenceId, interpolationType, framesOrTracks, values, object instanceof EventObject);
     }
   }
 }

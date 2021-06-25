@@ -1,3 +1,11 @@
+function singleOrPlural(name, count) {
+  if (count === 1) {
+    return name;
+  }
+
+  return `${name}s`;
+}
+
 class TestMeta extends Component {
   constructor(name, parsingError, results, options) {
     super({ ...options, className: 'clickable highlightable padded' });
@@ -15,15 +23,15 @@ class TestMeta extends Component {
 
       if (results.errors || results.severe || results.warnings || results.unused) {
         if (results.errors) {
-          createElement({ className: 'error', textContent: `${results.errors} errors`, container });
+          createElement({ className: 'error', textContent: `${results.errors} ${singleOrPlural('error', results.errors)}`, container });
         }
 
         if (results.severe) {
-          createElement({ className: 'severe', textContent: `${results.severe} severe warnings`, container });
+          createElement({ className: 'severe', textContent: `${results.severe} ${singleOrPlural('severe warning', results.severe)}`, container });
         }
 
         if (results.warnings) {
-          createElement({ className: 'warning', textContent: `${results.warnings} warnings`, container });
+          createElement({ className: 'warning', textContent: `${results.warnings} ${singleOrPlural('warning', results.warnings)}`, container });
         }
 
         if (results.unused) {
