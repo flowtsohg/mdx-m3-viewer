@@ -72,7 +72,7 @@ export default class Geoset {
 
     gl.vertexAttribPointer(attribs.a_bones, 4, skinDataType, false, 9 * bytesPerSkinElement, this.skinOffset);
     gl.vertexAttribPointer(attribs.a_extendedBones, 4, skinDataType, false, 9 * bytesPerSkinElement, this.skinOffset + 4 * bytesPerSkinElement);
-    gl.vertexAttribPointer(attribs.a_boneNumber, 4, skinDataType, false, 9 * bytesPerSkinElement, this.skinOffset + 8 * bytesPerSkinElement);
+    gl.vertexAttribPointer(attribs.a_boneNumber, 1, skinDataType, false, 9 * bytesPerSkinElement, this.skinOffset + 8 * bytesPerSkinElement);
   }
 
   bindHd(shader: Shader, usingSkin: boolean, coordId: number) {

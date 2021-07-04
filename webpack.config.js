@@ -3,11 +3,8 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = (env, argv) => ({
-  entry: './src/index.ts',
-  output: {
-    filename: 'viewer.min.js',
-    path: path.resolve(__dirname, 'dist/'),
-    library: 'ModelViewer',
+  entry: {
+    'viewer': { import: './src/index.ts', filename: 'viewer.min.js', library: { name: 'ModelViewer', type: 'var' } },
   },
   plugins: [
     new webpack.BannerPlugin(fs.readFileSync('LICENSE', 'utf8')),
@@ -34,5 +31,5 @@ module.exports = (env, argv) => ({
   resolve: {
     extensions: ['.ts', '.js'],
   },
-  devtool: argv.mode === 'development' ? 'cheap-module-eval-source-map' : '',
+  devtool: argv.mode === 'development' ? 'eval-cheap-module-source-map' : false,
 });

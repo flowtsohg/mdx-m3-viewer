@@ -54,7 +54,7 @@ float getCell(vec3 interval, float factor) {
     return min(start + mod(floor(spriteCount * repeat * factor), spriteCount), u_columns * u_rows - 1.0);
   }
 
-  return 0.0;
+  return start;
 }
 
 void particle2() {
