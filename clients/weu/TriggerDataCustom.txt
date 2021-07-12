@@ -1,3 +1,7 @@
+[TriggerParams]
+
+UnitStateMaxLifeSec=0,unitstate,UNIT_STATE_MAX_LIFE,WESTRING_USTATE_MAXLIFE
+
 [TriggerEvents]
 
 [TriggerConditions]

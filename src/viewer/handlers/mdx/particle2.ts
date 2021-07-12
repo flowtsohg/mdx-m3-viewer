@@ -86,7 +86,7 @@ export default class Particle2 extends EmittedObject {
     vec3.transformQuat(velocity, VEC3_UNIT_Z, rotationHeap);
 
     // Apply speed
-    vec3.scale(velocity, velocity, speed + randomInRange(-variation, variation));
+    vec3.scale(velocity, velocity, speed * randomInRange(-variation, variation));
 
     // Apply the parent's scale
     if (!emitterObject.modelSpace) {

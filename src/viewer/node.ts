@@ -1,6 +1,5 @@
 import { vec3, quat, mat4 } from 'gl-matrix';
 import { VEC3_ZERO, VEC3_ONE, QUAT_DEFAULT, quatLookAt } from '../common/gl-matrix-addon';
-import Scene from './scene';
 import { SkeletalNode } from './skeletalnode';
 
 const locationHeap = vec3.create();

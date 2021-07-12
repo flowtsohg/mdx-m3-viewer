@@ -342,14 +342,13 @@ export function convertFunctionCall(data: WeuData, object: ECA | SubParameters, 
  * Callbacks that are generated due to the conversion are added to the input callbacks array.
  */
 export function convertParameter(data: WeuData, parameter: Parameter, dataType: string, callbacks: string[]) {
-  let type = parameter.type;
-  let value = parameter.value;
+  let {type, value} = parameter;
 
   if (type === 0) {
     let preset = data.triggerData.getPreset(value);
 
     if (preset === undefined) {
-      throw new Error(`Failed to find a preset: "${name}"`);
+      throw new Error(`Failed to find a preset: "${value}"`);
     }
 
     return preset;

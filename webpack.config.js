@@ -1,6 +1,6 @@
 const fs = require('fs');
-const path = require('path');
 const webpack = require('webpack');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = (env, argv) => ({
   entry: {
@@ -29,7 +29,12 @@ module.exports = (env, argv) => ({
     ],
   },
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: ['.js', '.ts'],
   },
   devtool: argv.mode === 'development' ? 'eval-cheap-module-source-map' : false,
+  optimization: {
+    minimizer: [new TerserPlugin({
+      extractComments: false,
+    })],
+  },
 });

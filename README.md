@@ -67,15 +67,12 @@ This way, you don't import any parsers/handlers/utilities that are not needed.
 
 #### Examples
 
-Run an HTTP server in the viewer's root.
-
-If you don't have one:
+Run the Webpack dev server with:
 ```
-npm install --global http-server
-http-server -c-1
+npm run serve
 ```
 
-Once it's running, open `http://localhost:8080/clients/example/` in the browser, and play with the client's source to see how things change.
+Once it compiled the code, open `http://localhost:8080/clients/example/` in the browser, and play with the client's source to see how things change.
 
 You can also check out the other available clients.
 

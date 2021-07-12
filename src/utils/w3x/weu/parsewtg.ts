@@ -1,4 +1,3 @@
-import { byteLengthUtf8 } from '../../../common/utf8';
 import War3Map from '../../../parsers/w3x/map';
 import War3MapWtg from '../../../parsers/w3x/wtg/file';
 import ECA from '../../../parsers/w3x/wtg/eca';
@@ -40,10 +39,18 @@ function typeFunctionCall(wtg: War3MapWtg, object: ECA | SubParameters, parentOb
       } else if (type === 3) {
         if (value.startsWith('TRIGSTER_') || value.includes('\\')) {
           args[index] = 'string';
-        } else if (!isNaN(parseFloat(value))) {
-          args[index] = 'real';
         } else if (value === 'true' || value === 'false') {
           args[index] = 'boolean';
+        }  else if (!isNaN(parseFloat(value))) {
+          let valueAsFloat = parseFloat(value);
+
+          if (!isNaN(valueAsFloat)) {
+            if (Number.isInteger(valueAsFloat) && !value.includes('.')) {
+              args[index] = 'integer';
+            } else {
+              args[index] = 'real';
+            }
+          }
         }
       }
     }
