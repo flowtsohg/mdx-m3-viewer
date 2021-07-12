@@ -28,6 +28,7 @@ export default class ParticleEmitter2Object extends GenericObject {
   teamColored: number = 0;
   internalTexture: MdxTexture | null = null;
   replaceableId: number;
+  textureId: number;
   head: boolean;
   tail: boolean;
   cellWidth: number;
@@ -66,11 +67,9 @@ export default class ParticleEmitter2Object extends GenericObject {
     this.columns = emitter.columns;
     this.rows = emitter.rows;
 
-    if (replaceableId === 0) {
-      this.internalTexture = model.textures[emitter.textureId];
-    } else if (replaceableId === 1 || replaceableId === 2) {
+    if (replaceableId === 1 || replaceableId === 2) {
       this.teamColored = 1;
-    } else {
+    } else if (replaceableId > 2) {
       let texturesExt = model.reforged ? '.dds' : '.blp';
 
       this.internalTexture = new MdxTexture(replaceableId, false, false);
@@ -84,6 +83,7 @@ export default class ParticleEmitter2Object extends GenericObject {
     }
 
     this.replaceableId = emitter.replaceableId;
+    this.textureId = emitter.textureId;
 
     let headOrTail = emitter.headOrTail;
 

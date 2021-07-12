@@ -162,16 +162,33 @@ function bindParticleEmitter2Shader(emitter: ParticleEmitter2, shader: Shader) {
   gl.blendFunc(emitterObject.blendSrc, emitterObject.blendDst);
   gl.uniform1f(uniforms.u_filterMode, emitterObject.filterMode);
 
+  // Determine where this texture is coming from.
+  // This is to get the texture wrap modes.
+  // The texture is either a replaceable in which case it's stored internally, a team color in which case it's stored in the handler, or a reference to one of the model textures.
+  if (emitterObject.internalTexture) {
+    mdxTexture = emitterObject.internalTexture;
+  } else if (replaceable === 1) {
+    mdxTexture = mdxCache.teamColors[instance.teamColor];
+  } else if (replaceable === 2) {
+    mdxTexture = mdxCache.teamGlows[instance.teamColor];
+  } else {
+    mdxTexture = model.textures[emitterObject.textureId];
+  }
+
+  // Now get the actual texture itself.
+  // First check if there is an override for this particle emitter.
   let texture: Texture | null | undefined = textureOverrides.get(EMITTER_PARTICLE2_TEXTURE_OFFSET + emitterObject.index);
 
   if (!texture) {
-    if (replaceable === 1) {
-      mdxTexture = mdxCache.teamColors[instance.teamColor];
-    } else if (replaceable === 2) {
-      mdxTexture = mdxCache.teamGlows[instance.teamColor];
+    // Next check if there is an override for model textures if this is one.
+    if (replaceable === 0) {
+      texture = textureOverrides.get(emitterObject.textureId);
     }
 
-    texture = mdxTexture.texture;
+    // If there is still no override, get it from the existing texture object.
+    if (!texture) {
+      texture = mdxTexture.texture;
+    }
   }
 
   viewer.webgl.bindTextureAndWrap(texture, 0, mdxTexture.wrapS, mdxTexture.wrapT);
