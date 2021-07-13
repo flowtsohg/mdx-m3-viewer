@@ -1,6 +1,6 @@
-const urlWithParams = ModelViewer.default.common.urlWithParams;
+import urlWithParams from '../../src/common/urlwithparams';
 
-function localOrHive(src, params) {
+export default function localOrHive(src, params) {
   src = src.toLowerCase();
 
   if (window.location.hostname === '127.0.0.1') {

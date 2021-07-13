@@ -1,4 +1,8 @@
-class Logger extends Component {
+import Component from "../../shared/component";
+import Toggle from "../../shared/components/toggle";
+import { createElement, scrolledToBottom, scrollToBottom } from "../../shared/domutils";
+
+export default class Logger extends Component {
   constructor(options) {
     super({ ...options, className: 'console' });
 

@@ -1,4 +1,8 @@
-class ViewerControls extends Component {
+import Component from "../../shared/component";
+import Toggle from "../../shared/components/toggle";
+import { clearSelect, createElement } from "../../shared/domutils";
+
+export default class ViewerControls extends Component {
   constructor(viewer, options) {
     super({ ...options, className: 'viewer-controls' });
 

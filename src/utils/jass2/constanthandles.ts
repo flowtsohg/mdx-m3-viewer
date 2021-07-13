@@ -8,6 +8,8 @@ import JassDamageType from './types/damagetype';
 import JassWeaponType from './types/weapontype';
 import JassPathingType from './types/pathingtype';
 import JassMouseButtonType from './types/mousebuttontype';
+import JassAnimType from './types/animtype';
+import JassSubAnimType from './types/subanimtype';
 import JassRacePreference from './types/racepreference';
 import JassMapControl from './types/mapcontrol';
 import JassGameType from './types/gametype';
@@ -53,6 +55,8 @@ export default function constantHandles() {
   let weaponTypes = [];
   let pathingTypes = [];
   let mouseButtonTypes = [];
+  let animTypes = [];
+  let subAnimTypes = [];
   let racePrefs = [];
   let mapControls = [];
   let gameTypes = [];
@@ -120,6 +124,14 @@ export default function constantHandles() {
 
   for (let i = 0; i < 4; i++) {
     mouseButtonTypes[i] = new JassMouseButtonType(i);
+  }
+
+  for (let i = 0; i < 11; i++) {
+    animTypes[i] = new JassAnimType(i);
+  }
+
+  for (let i = 11; i < 63; i++) {
+    subAnimTypes[i] = new JassSubAnimType(i);
   }
 
   for (let i = 0; i < 8; i++) {
@@ -290,6 +302,8 @@ export default function constantHandles() {
     weaponTypes,
     pathingTypes,
     mouseButtonTypes,
+    animTypes,
+    subAnimTypes,
     racePrefs,
     mapControls,
     gameTypes,

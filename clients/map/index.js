@@ -1,10 +1,15 @@
+import { basename, extname } from "../../src/common/path";
+import War3MapViewer from '../../src/viewer/handlers/w3x/viewer';
+import { setupCamera } from "../shared/camera";
+import localOrHive from "../shared/localorhive";
+
 let statusElement = document.getElementById('status');
 statusElement.textContent = 'Initializing the viewer';
 
 let canvas = document.getElementById('canvas');
 
 // true because the Reforged Hive API is used in localOrHive.
-let viewer = new ModelViewer.default.viewer.handlers.War3MapViewer(canvas, localOrHive, true);
+let viewer = new War3MapViewer(canvas, localOrHive, true);
 
 let thingsLoading = [];
 
@@ -17,18 +22,18 @@ function updateStatus() {
 }
 
 for (let key of viewer.promiseMap.keys()) {
-  thingsLoading.push(ModelViewer.default.common.path.basename(key));
+  thingsLoading.push(basename(key));
 }
 
 updateStatus();
 
 viewer.on('loadstart', ({ fetchUrl }) => {
-  thingsLoading.push(ModelViewer.default.common.path.basename(fetchUrl));
+  thingsLoading.push(basename(fetchUrl));
   updateStatus();
 });
 
 viewer.on('loadend', ({ fetchUrl }) => {
-  let file = ModelViewer.default.common.path.basename(fetchUrl);
+  let file = basename(fetchUrl);
   let index = thingsLoading.indexOf(file);
 
   if (index !== -1) {
@@ -76,7 +81,7 @@ document.addEventListener('drop', e => {
   if (viewer.loadedBaseFiles) {
     let file = e.dataTransfer.files[0];
     let name = file.name;
-    let ext = ModelViewer.default.common.path.extname(name);
+    let ext = extname(name);
 
     if (ext === '.w3m' || ext === '.w3x') {
       let reader = new FileReader();

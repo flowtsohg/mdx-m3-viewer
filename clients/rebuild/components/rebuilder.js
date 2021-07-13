@@ -1,4 +1,15 @@
-class Rebuilder extends Component {
+import { extname } from "../../../src/common/path";
+import War3Map from "../../../src/parsers/w3x/map";
+import UnitsDooFile from "../../../src/parsers/w3x/unitsdoo/file";
+import UnitsDooUnit from "../../../src/parsers/w3x/unitsdoo/unit";
+import Context from '../../../src/utils/jass2/context';
+import JassUnit from '../../../src/utils/jass2/types/unit';
+import Component from "../../shared/component";
+import { createElement } from "../../shared/domutils";
+import localOrHive from "../../shared/localorhive";
+import { aFrame } from "../../shared/utils";
+
+export default class Rebuilder extends Component {
   constructor(parentElement) {
     super();
 
@@ -16,8 +27,8 @@ class Rebuilder extends Component {
     this.text('Please wait...');
 
     let [commonjResponse, blizzardjResponse] = await Promise.all([
-      fetch(localOrHive('Scripts\\common.j')),
-      fetch(localOrHive('Scripts\\Blizzard.j')),
+      fetch('https://www.hiveworkshop.com/data/static_assets/mpq/tft/scripts/common.j'),
+      fetch('https://www.hiveworkshop.com/data/static_assets/mpq/tft/scripts/blizzard.j'),
     ]);
 
     let [commonjText, blizzardjText] = await Promise.all([
@@ -42,7 +53,7 @@ class Rebuilder extends Component {
   rebuildFile(file) {
     if (file) {
       let name = file.name;
-      let ext = ModelViewer.default.common.path.extname(name);
+      let ext = extname(name);
       let isMap = ext === '.w3m' || ext === '.w3x';
 
       this.clear();
@@ -57,7 +68,7 @@ class Rebuilder extends Component {
 
           this.text(`Parsing ${name}`);
 
-          let map = new ModelViewer.default.parsers.w3x.Map();
+          let map = new War3Map();
 
           try {
             map.load(buffer);
@@ -67,7 +78,7 @@ class Rebuilder extends Component {
             return;
           }
 
-          let context = new ModelViewer.default.utils.jass2.Context();
+          let context = new Context();
 
           this.text('Converting and running common.j');
           await aFrame();
@@ -92,12 +103,12 @@ class Rebuilder extends Component {
           this.text('Collecting handles');
           await aFrame();
 
-          let unitsFile = new ModelViewer.default.parsers.w3x.unitsdoo.File();
+          let unitsFile = new UnitsDooFile();
           let units = unitsFile.units;
 
           for (let handle of context.handles) {
-            if (handle instanceof ModelViewer.default.utils.jass2.types.JassUnit) {
-              let unit = new ModelViewer.default.parsers.w3x.unitsdoo.Unit();
+            if (handle instanceof JassUnit) {
+              let unit = new UnitsDooUnit();
 
               unit.id = handle.unitId;
 

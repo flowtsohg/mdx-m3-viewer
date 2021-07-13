@@ -1,4 +1,7 @@
-let mdxTests = {
+import { quat } from "gl-matrix";
+import { wc3Solver } from "../solvers";
+
+export const mdxTests = {
   name: 'mdx',
   tests: [
     {
@@ -150,23 +153,21 @@ let mdxTests = {
           },
         },
 
-        // {
-        //     name: 'x-axis',
-        //     load(viewer) {
-        //         return viewer.load('SharedModels/NEBirth.MDX', wc3Solver);
-        //     },
-        //     test(viewer, scene, camera, model) {
-        //         camera.move([0, -150, -500]);
-        //         camera.rotate(quat.setAxisAngle([], [0, 0, 1], -1.5708));
-        //         camera.rotate(quat.setAxisAngle([], [0, 1, 0], -0.785398));
+        {
+          name: 'x-axis',
+          load(viewer) {
+            return viewer.load('SharedModels/NEBirth.MDX', wc3Solver);
+          },
+          test(viewer, scene, camera, model) {
+            camera.moveToAndFace([200, -200, 400], [0, 0, 300], [0, 0, 1]);
 
-        //         let instance = model.addInstance().setSequence(0).rotate(quat.setAxisAngle([], [0, 0, 1], -0.785398));
+            let instance = model.addInstance().setSequence(0).rotate(quat.setAxisAngle([], [0, 0, 1], -0.785398));
 
-        //         instance.frame += 3000;
+            instance.frame += 30000;
 
-        //         scene.addInstance(instance);
-        //     },
-        // },
+            scene.addInstance(instance);
+          },
+        },
       ],
     },
 

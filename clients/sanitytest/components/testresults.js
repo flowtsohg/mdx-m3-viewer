@@ -1,4 +1,8 @@
-class TestResults extends Component {
+import { imageDataToImage } from "../../../src/common/canvas";
+import Component from "../../shared/component";
+import { createElement } from "../../shared/domutils";
+
+export default class TestResults extends Component {
   constructor(results, mipmaps = null) {
     super();
 
@@ -17,7 +21,7 @@ class TestResults extends Component {
             data[i + 3] = 255;
           }
 
-          let image = ModelViewer.default.common.canvas.imageDataToImage(mipmap);
+          let image = imageDataToImage(mipmap);
 
           image.className = 'padded';
 

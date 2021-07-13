@@ -1,4 +1,8 @@
-let mdxPrimitivesTests = {
+import { quat } from "gl-matrix";
+import createPrimitive from "../../../src/utils/mdlx/primitives/createprimitive";
+import { createUnitRectangle, createUnitCube, createUnitSphere, createUnitCylinder, createFrustum } from "../../../src/utils/mdlx/primitives/primitives";
+
+export const mdxPrimitivesTests = {
   name: 'mdx-primitives',
   tests: [
     {
@@ -7,7 +11,7 @@ let mdxPrimitivesTests = {
         {
           name: 'faces',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createUnitRectangle());
+            return createPrimitive(viewer, createUnitRectangle());
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 120]);
@@ -21,7 +25,7 @@ let mdxPrimitivesTests = {
         {
           name: 'edges',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createUnitRectangle(), { lines: true });
+            return createPrimitive(viewer, createUnitRectangle(), { lines: true });
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 120]);
@@ -35,7 +39,7 @@ let mdxPrimitivesTests = {
         {
           name: 'vertex-color',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createUnitRectangle(), { color: new Float32Array([1, 0, 0]) });
+            return createPrimitive(viewer, createUnitRectangle(), { color: new Float32Array([1, 0, 0]) });
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 120]);
@@ -49,7 +53,7 @@ let mdxPrimitivesTests = {
         {
           name: 'edge-color',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createUnitRectangle(), { lines: true, color: new Float32Array([0, 1, 0]) });
+            return createPrimitive(viewer, createUnitRectangle(), { lines: true, color: new Float32Array([0, 1, 0]) });
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 120]);
@@ -65,7 +69,7 @@ let mdxPrimitivesTests = {
           load(viewer) {
             let texture = viewer.load('resources/checkers.jpg');
 
-            return createPrimitive(viewer, primitives.createUnitRectangle(), { texture });
+            return createPrimitive(viewer, createUnitRectangle(), { texture });
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 120]);
@@ -84,7 +88,7 @@ let mdxPrimitivesTests = {
         {
           name: 'faces',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createUnitCube());
+            return createPrimitive(viewer, createUnitCube());
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 160]);
@@ -98,7 +102,7 @@ let mdxPrimitivesTests = {
         {
           name: 'edges',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createUnitCube(), { lines: true });
+            return createPrimitive(viewer, createUnitCube(), { lines: true });
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 160]);
@@ -112,7 +116,7 @@ let mdxPrimitivesTests = {
         {
           name: 'vertex-color',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createUnitCube(), { color: new Float32Array([1, 0, 0]) });
+            return createPrimitive(viewer, createUnitCube(), { color: new Float32Array([1, 0, 0]) });
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 160]);
@@ -126,7 +130,7 @@ let mdxPrimitivesTests = {
         {
           name: 'edge-color',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createUnitCube(), { lines: true, color: new Float32Array([0, 1, 0]) });
+            return createPrimitive(viewer, createUnitCube(), { lines: true, color: new Float32Array([0, 1, 0]) });
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 160]);
@@ -142,7 +146,7 @@ let mdxPrimitivesTests = {
           load(viewer) {
             let texture = viewer.load('resources/checkers.jpg');
 
-            return createPrimitive(viewer, primitives.createUnitCube(), { texture });
+            return createPrimitive(viewer, createUnitCube(), { texture });
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 160]);
@@ -161,7 +165,7 @@ let mdxPrimitivesTests = {
         {
           name: 'faces',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createUnitSphere(20, 20));
+            return createPrimitive(viewer, createUnitSphere(20, 20));
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 120]);
@@ -175,7 +179,7 @@ let mdxPrimitivesTests = {
         {
           name: 'edges',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createUnitSphere(20, 20), { lines: true });
+            return createPrimitive(viewer, createUnitSphere(20, 20), { lines: true });
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 120]);
@@ -189,7 +193,7 @@ let mdxPrimitivesTests = {
         {
           name: 'vertex-color',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createUnitSphere(20, 20), { color: new Float32Array([1, 0, 0]) });
+            return createPrimitive(viewer, createUnitSphere(20, 20), { color: new Float32Array([1, 0, 0]) });
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 120]);
@@ -203,7 +207,7 @@ let mdxPrimitivesTests = {
         {
           name: 'edge-color',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createUnitSphere(20, 20), { lines: true, color: new Float32Array([0, 1, 0]) });
+            return createPrimitive(viewer, createUnitSphere(20, 20), { lines: true, color: new Float32Array([0, 1, 0]) });
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 120]);
@@ -219,7 +223,7 @@ let mdxPrimitivesTests = {
           load(viewer) {
             let texture = viewer.load('resources/checkers.jpg');
 
-            return createPrimitive(viewer, primitives.createUnitSphere(20, 20), { texture });
+            return createPrimitive(viewer, createUnitSphere(20, 20), { texture });
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 120]);
@@ -238,7 +242,7 @@ let mdxPrimitivesTests = {
         {
           name: 'faces',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createUnitCylinder(20));
+            return createPrimitive(viewer, createUnitCylinder(20));
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 150]);
@@ -252,7 +256,7 @@ let mdxPrimitivesTests = {
         {
           name: 'edges',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createUnitCylinder(20), { lines: true });
+            return createPrimitive(viewer, createUnitCylinder(20), { lines: true });
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 150]);
@@ -266,7 +270,7 @@ let mdxPrimitivesTests = {
         {
           name: 'vertex-color',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createUnitCylinder(20), { color: new Float32Array([1, 0, 0]) });
+            return createPrimitive(viewer, createUnitCylinder(20), { color: new Float32Array([1, 0, 0]) });
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 150]);
@@ -280,7 +284,7 @@ let mdxPrimitivesTests = {
         {
           name: 'edge-color',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createUnitCylinder(20), { lines: true, color: new Float32Array([0, 1, 0]) });
+            return createPrimitive(viewer, createUnitCylinder(20), { lines: true, color: new Float32Array([0, 1, 0]) });
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 150]);
@@ -296,7 +300,7 @@ let mdxPrimitivesTests = {
           load(viewer) {
             let texture = viewer.load('resources/checkers.jpg');
 
-            return createPrimitive(viewer, primitives.createUnitCylinder(), { texture });
+            return createPrimitive(viewer, createUnitCylinder(), { texture });
           },
           test(viewer, scene, camera, model) {
             camera.move([0, 0, 150]);
@@ -315,7 +319,7 @@ let mdxPrimitivesTests = {
         {
           name: 'faces',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createFrustum(Math.PI / 4, 0.75, 8, 120));
+            return createPrimitive(viewer, createFrustum(Math.PI / 4, 0.75, 8, 120));
           },
           test(viewer, scene, camera, model) {
             camera.moveToAndFace([150, 0, 200], [0, 0, 60], [0, 0, 1]);
@@ -329,7 +333,7 @@ let mdxPrimitivesTests = {
         {
           name: 'edges',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createFrustum(Math.PI / 4, 0.75, 8, 120), { lines: true });
+            return createPrimitive(viewer, createFrustum(Math.PI / 4, 0.75, 8, 120), { lines: true });
           },
           test(viewer, scene, camera, model) {
             camera.moveToAndFace([150, 0, 200], [0, 0, 60], [0, 0, 1]);
@@ -343,7 +347,7 @@ let mdxPrimitivesTests = {
         {
           name: 'vertex-color',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createFrustum(Math.PI / 4, 0.75, 8, 120), { color: new Float32Array([1, 0, 0]) });
+            return createPrimitive(viewer, createFrustum(Math.PI / 4, 0.75, 8, 120), { color: new Float32Array([1, 0, 0]) });
           },
           test(viewer, scene, camera, model) {
             camera.moveToAndFace([150, 0, 200], [0, 0, 60], [0, 0, 1]);
@@ -357,7 +361,7 @@ let mdxPrimitivesTests = {
         {
           name: 'edge-color',
           load(viewer) {
-            return createPrimitive(viewer, primitives.createFrustum(Math.PI / 4, 0.75, 8, 120), { lines: true, color: new Float32Array([0, 1, 0]) });
+            return createPrimitive(viewer, createFrustum(Math.PI / 4, 0.75, 8, 120), { lines: true, color: new Float32Array([0, 1, 0]) });
           },
           test(viewer, scene, camera, model) {
             camera.moveToAndFace([150, 0, 200], [0, 0, 60], [0, 0, 1]);
@@ -373,7 +377,7 @@ let mdxPrimitivesTests = {
           load(viewer) {
             let texture = viewer.load('resources/checkers.jpg');
 
-            return createPrimitive(viewer, primitives.createFrustum(Math.PI / 4, 0.75, 8, 120), { texture });
+            return createPrimitive(viewer, createFrustum(Math.PI / 4, 0.75, 8, 120), { texture });
           },
           test(viewer, scene, camera, model) {
             camera.moveToAndFace([150, 0, 200], [0, 0, 60], [0, 0, 1]);

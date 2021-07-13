@@ -1,6 +1,19 @@
-class Test {
+import { extname } from "../../src/common/path";
+import MdlxModel from '../../src/parsers/mdlx/model';
+import { BlpImage } from '../../src/parsers/blp/image';
+import { DdsImage } from '../../src/parsers/dds/image';
+import TgaImage from '../../src/parsers/tga/image';
+import TestResults from "./components/testresults";
+import TestMeta from "./components/testmeta";
+import MdlView from "./components/mdlview";
+import mdlxSanityTest from '../../src/utils/mdlx/sanitytest/sanitytest';
+import mdlStructure from '../../src/utils/mdlx/mdlstructure';
+import blpSanityTest from '../../src/utils/blp/sanitytest';
+import ddsSanityTest from '../../src/utils/dds/sanitytest';
+
+export default class Test {
   constructor(tester, name, buffer, pathSolver) {
-    let ext = ModelViewer.default.common.path.extname(name);
+    let ext = extname(name);
     let isMdlx = ext === '.mdx' || ext === '.mdl';
     let isBlp = ext === '.blp';
     let isDds = ext === '.dds';
@@ -19,13 +32,13 @@ class Test {
     // this.cameras = [];
 
     if (isMdlx) {
-      this.parser = new ModelViewer.default.parsers.mdlx.Model();
+      this.parser = new MdlxModel();
     } else if (isBlp) {
-      this.parser = new ModelViewer.default.parsers.blp.Image();
+      this.parser = new BlpImage();
     } else if (isDds) {
-      this.parser = new ModelViewer.default.parsers.dds.Image();
+      this.parser = new DdsImage();
     } else {
-      this.parser = new ModelViewer.default.parsers.tga.Image();
+      this.parser = new TgaImage();
     }
 
     try {
@@ -37,12 +50,12 @@ class Test {
     }
 
     if (isMdlx) {
-      this.results = new TestResults(ModelViewer.default.utils.mdlx.sanityTest(this.parser));
-      this.mdl = new MdlView(ModelViewer.default.utils.mdlx.mdlStructure(this.parser));
+      this.results = new TestResults(mdlxSanityTest(this.parser));
+      this.mdl = new MdlView(mdlStructure(this.parser));
     } else if (isBlp) {
-      this.results = new TestResults(ModelViewer.default.utils.blp.sanityTest(this.parser), this.getMipmaps(this.parser));
+      this.results = new TestResults(blpSanityTest(this.parser), this.getMipmaps(this.parser));
     } else if (isDds) {
-      this.results = new TestResults(ModelViewer.default.utils.dds.sanityTest(this.parser));
+      this.results = new TestResults(ddsSanityTest(this.parser));
     }
 
     this.meta = new TestMeta(this.name, this.parsingError, this.results, { onclick: () => tester.render(this) });

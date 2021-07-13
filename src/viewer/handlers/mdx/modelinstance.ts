@@ -230,17 +230,16 @@ export default class MdxModelInstance extends ModelInstance {
     } else {
       node.parent = nodes[genericObject.parentId];
     }
-
-    /// TODO: single-axis billboarding
+    
     if (genericObject.billboarded) {
       node.billboarded = true;
-    }// else if (genericObject.billboardedX) {
-    //   node.billboardedX = true;
-    // } else if (genericObject.billboardedY) {
-    //   node.billboardedY = true;
-    // } else if (genericObject.billboardedZ) {
-    //   node.billboardedZ = true;
-    // }
+    } else if (genericObject.billboardedX) {
+      node.billboardedX = true;
+    } else if (genericObject.billboardedY) {
+      node.billboardedY = true;
+    } else if (genericObject.billboardedZ) {
+      node.billboardedZ = true;
+    }
 
     if (object) {
       node.object = object;

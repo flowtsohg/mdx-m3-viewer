@@ -1,4 +1,6 @@
-let converter = new WeuConverter(document.body);
+import WeuConverter from './components/weuconverter';
+
+const converter = new WeuConverter(document.body);
 
 document.addEventListener('dragover', e => {
   e.preventDefault();

@@ -1,4 +1,6 @@
-let tester = new SanityTester(document.body);
+import SanityTester from './components/sanitytester';
+
+const tester = new SanityTester(document.body);
 
 document.addEventListener('dragover', e => {
   e.preventDefault();
@@ -15,3 +17,6 @@ document.addEventListener('drop', e => {
 });
 
 tester.loadAPI(window.location.search);
+
+// For debugging etc.
+window.tester = tester;

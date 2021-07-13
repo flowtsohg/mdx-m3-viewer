@@ -1,4 +1,6 @@
-let m3Tests = {
+import { sc2Solver } from "../solvers";
+
+export const m3Tests = {
   name: 'm3',
   tests: [
     {

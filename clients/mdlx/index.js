@@ -1,8 +1,8 @@
-ModelViewer = ModelViewer.default;
+import { extname } from "../../src/common/path";
+import { version } from "../../src/version";
+import Model from '../../src/parsers/mdlx/model';
 
-let Model = ModelViewer.parsers.mdlx.Model;
-
-console.log('Viewer version', ModelViewer.version);
+console.log('Viewer version', version);
 
 document.addEventListener('dragover', e => {
   e.preventDefault();
@@ -17,7 +17,7 @@ document.addEventListener('drop', e => {
 
   for (let file of e.dataTransfer.files) {
     let name = file.name;
-    let ext = ModelViewer.common.path.extname(name);
+    let ext = extname(name);
 
     if (ext === '.mdx' || ext === '.mdl') {
       let reader = new FileReader();

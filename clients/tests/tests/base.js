@@ -1,4 +1,6 @@
-let baseTests = {
+import { wc3Solver, sc2Solver } from "../solvers";
+
+export const baseTests = {
   name: 'base',
   tests: [
     {

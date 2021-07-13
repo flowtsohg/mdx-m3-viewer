@@ -1,10 +1,9 @@
+import { vec3, quat } from 'gl-matrix';
+
 // Backwards compat with existing clients.
-function setupCamera(scene, options = {}) {
+export function setupCamera(scene, options = {}) {
   return new SimpleOrbitCamera(scene, options);
 }
-
-vec3 = ModelViewer.default.common.glMatrix.vec3;
-quat = ModelViewer.default.common.glMatrix.quat;
 
 const vecHeap = vec3.create();
 const vecHeap2 = vec3.create();
@@ -28,7 +27,7 @@ const TOUCH_MODE_ZOOM = 1;
 // Left mouse button controls the orbit itself.
 // The right mouse button allows to move the camera and the point it's looking at on the XY plane.
 // Scrolling zooms in and out.
-class SimpleOrbitCamera {
+export class SimpleOrbitCamera {
   constructor(scene, options = {}) {
     this.scene = scene;
     this.canvas = scene.viewer.canvas;

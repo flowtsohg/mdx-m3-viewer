@@ -1,12 +1,12 @@
 // Returns a promise that will resolve in the next VM event loop step.
 // Used to force the VM to wait, allowing the DOM to update between heavy operations.
-function aFrame() {
+export function aFrame() {
   return new Promise((resolve) => {
     setTimeout(() => resolve(), 0);
   });
 }
 
-async function getAllFileEntries(dataTransferItemList) {
+export async function getAllFileEntries(dataTransferItemList) {
   let files = [];
   let queue = [];
 

@@ -1,3 +1,6 @@
+import Component from "../../shared/component";
+import { createElement } from "../../shared/domutils";
+
 function singleOrPlural(name, count) {
   if (count === 1) {
     return name;
@@ -6,7 +9,7 @@ function singleOrPlural(name, count) {
   return `${name}s`;
 }
 
-class TestMeta extends Component {
+export default class TestMeta extends Component {
   constructor(name, parsingError, results, options) {
     super({ ...options, className: 'clickable highlightable padded' });
 

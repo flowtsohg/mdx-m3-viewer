@@ -505,6 +505,28 @@ function ConvertMouseButtonType(C: Context, L: lua_State) {
 }
 
 /**
+ * constant native ConvertAnimType takes integer i returns animtype
+ */
+function ConvertAnimType(C: Context, L: lua_State) {
+  let i = luaL_checkinteger(L, 1);
+
+  lua_pushlightuserdata(L, C.constantHandles.animTypes[i]);
+
+  return 1;
+}
+
+/**
+ * constant native ConvertSubAnimType takes integer i returns subanimtype
+ */
+function ConvertSubAnimType(C: Context, L: lua_State) {
+  let i = luaL_checkinteger(L, 1);
+
+  lua_pushlightuserdata(L, C.constantHandles.subAnimTypes[i]);
+
+  return 1;
+}
+
+/**
  * constant native OrderId takes string orderIdString returns integer
  */
 function OrderId(C: Context, L: lua_State) {
@@ -13703,6 +13725,8 @@ export default function bindNatives(C: Context) {
   lua_register(L, 'ConvertSoundType', ConvertSoundType.bind(null, C));
   lua_register(L, 'ConvertPathingType', ConvertPathingType.bind(null, C));
   lua_register(L, 'ConvertMouseButtonType', ConvertMouseButtonType.bind(null, C));
+  lua_register(L, 'ConvertAnimType', ConvertAnimType.bind(null, C));
+  lua_register(L, 'ConvertSubAnimType', ConvertSubAnimType.bind(null, C));
   lua_register(L, 'OrderId', OrderId.bind(null, C));
   lua_register(L, 'OrderId2String', OrderId2String.bind(null, C));
   lua_register(L, 'UnitId', UnitId.bind(null, C));

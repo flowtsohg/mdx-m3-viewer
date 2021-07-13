@@ -59,11 +59,11 @@ export default class Camera {
   /**
    * The four corners of a 2x2 rectangle.
    */
-  vectors: vec3[] = [vec3.fromValues(-1, -1, 0), vec3.fromValues(-1, 1, 0), vec3.fromValues(1, 1, 0), vec3.fromValues(1, -1, 0)];
+  vectors: vec3[] = [vec3.fromValues(-1, -1, 0), vec3.fromValues(-1, 1, 0), vec3.fromValues(1, 1, 0), vec3.fromValues(1, -1, 0), vec3.fromValues(1, 0, 0), vec3.fromValues(0, 1, 0), vec3.fromValues(0, 0, 1)];
   /**
    * Same as vectors, however these are all billboarded to the camera.
    */
-  billboardedVectors: vec3[] = [vec3.create(), vec3.create(), vec3.create(), vec3.create()];
+  billboardedVectors: vec3[] = [vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create(), vec3.create()];
   /**
    * The camera frustum planes in this order: left, right, top, bottom, near, far.
    */
@@ -206,7 +206,7 @@ export default class Camera {
     vec3.transformQuat(this.directionZ, VEC3_UNIT_Z, inverseRotation);
 
     // View-space rectangle, aka billboarded.
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 7; i++) {
       vec3.transformQuat(billboardedVectors[i], vectors[i], inverseRotation);
     }
   }

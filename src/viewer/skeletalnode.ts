@@ -1,9 +1,12 @@
 import { vec3, quat, mat4 } from 'gl-matrix';
+import { VEC3_UNIT_X, VEC3_UNIT_Y, VEC3_UNIT_Z } from '../common/gl-matrix-addon';
 import Scene from './scene';
 import { Node } from './node';
 
 const rotationHeap = quat.create();
 const scalingHeap = vec3.create();
+const cameraRayHeap = vec3.create();
+const rotationHeap2 = quat.create();
 
 /**
  * A skeletal node used for skeletons.
@@ -117,6 +120,41 @@ export class SkeletalNode {
       quat.mul(computedRotation, computedRotation, localRotation);
     } else {
       computedRotation = localRotation;
+
+      const {billboardedX, billboardedY, billboardedZ} = this;
+
+      if (billboardedX || billboardedY || billboardedZ) {
+        if (billboardedX) {
+          if (computedScaling == localScale) {
+            computedScaling = scalingHeap;
+            vec3.copy(computedScaling, localScale);
+          }
+
+          // (Original comment from Retera's Warsmash)
+          // It took me many hours to deduce from playing around that this negative one
+          // multiplier should be here. I suggest a lot of testing before you remove it.
+          computedScaling[2] *= -1;
+        }
+
+        // Inverse that local rotation
+        rotationHeap2[0] = -computedRotation[0];
+        rotationHeap2[1] = -computedRotation[1];
+        rotationHeap2[2] = -computedRotation[2];
+
+        quat.mul(rotationHeap2, rotationHeap2, parent.inverseWorldRotation);
+
+        vec3.transformQuat(cameraRayHeap, scene.camera.billboardedVectors[6], rotationHeap2);
+
+        if (billboardedX) {
+          quat.setAxisAngle(rotationHeap2, VEC3_UNIT_X, Math.atan2(cameraRayHeap[2], cameraRayHeap[1]));
+        } else if (billboardedY) {
+          quat.setAxisAngle(rotationHeap2, VEC3_UNIT_Y, Math.atan2(-cameraRayHeap[2], cameraRayHeap[0]));
+        } else {
+          quat.setAxisAngle(rotationHeap2, VEC3_UNIT_Z, Math.atan2(cameraRayHeap[1], cameraRayHeap[0]));
+        }
+
+        quat.mul(computedRotation, computedRotation, rotationHeap2);
+      }
     }
 
     mat4.fromRotationTranslationScaleOrigin(localMatrix, computedRotation, this.localLocation, computedScaling, pivot);

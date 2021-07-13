@@ -1,11 +1,21 @@
-class UnitTester extends Component {
+import { version } from '../../../src/version';
+import ViewerUnitTester from '../../../src/utils/unittester';
+import Component from '../../shared/component';
+import { createElement, showElement, hideElement, addElementToRow, addTextToRow } from '../../shared/domutils';
+import { wc3Solver } from '../solvers';
+import { mdxTests } from '../tests/mdx';
+import { mdxPrimitivesTests } from '../tests/mdxprimitives';
+import { m3Tests } from '../tests/m3';
+import { baseTests } from '../tests/base';
+
+export default class UnitTester extends Component {
   constructor(parentElement) {
     super();
 
     this.mismatchPercentageForFailure = 1;
     this.passed = 0;
 
-    let unitTester = new ModelViewer.default.utils.UnitTester(wc3Solver);
+    let unitTester = new ViewerUnitTester(wc3Solver);
 
     unitTester.add(mdxTests);
     unitTester.add(mdxPrimitivesTests);
@@ -14,7 +24,7 @@ class UnitTester extends Component {
 
     this.unitTester = unitTester;
 
-    createElement({ tagName: 'b', textContent: `Viewer version ${ModelViewer.default.version}`, container: this.container });
+    createElement({ tagName: 'b', textContent: `Viewer version ${version}`, container: this.container });
     createElement({ tagName: 'hr', container: this.container });
 
     let controls = createElement({ container: this.container });
@@ -170,7 +180,7 @@ class UnitTester extends Component {
 
         zip.generateAsync({ type: 'blob' })
           .then((blob) => {
-            saveAs(blob, `compare_${ModelViewer.default.version}.zip`);
+            saveAs(blob, `compare_${version}.zip`);
           });
       }
     });

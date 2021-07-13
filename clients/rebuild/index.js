@@ -1,4 +1,6 @@
-let rebuilder = new Rebuilder(document.body);
+import Rebuilder from './components/rebuilder';
+
+const rebuilder = new Rebuilder(document.body);
 
 document.addEventListener('dragover', e => {
   e.preventDefault();
@@ -13,3 +15,6 @@ document.addEventListener('drop', e => {
 
   rebuilder.rebuildFile(e.dataTransfer.files[0]);
 });
+
+// For debugging etc.
+window.rebuilder = rebuilder;

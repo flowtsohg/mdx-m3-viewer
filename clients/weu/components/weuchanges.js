@@ -1,4 +1,7 @@
-class WeuChanges extends Component {
+import Component from '../../shared/component';
+import { addTextToRow } from '../../shared/domutils';
+
+export default class WeuChanges extends Component {
   constructor(converter, changes) {
     super({ tagName: 'table', className: 'hidden' });
 

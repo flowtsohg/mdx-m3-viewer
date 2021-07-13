@@ -1,10 +1,21 @@
 
-class WeuConverter extends Component {
+import { extname } from '../../../src/common/path';
+import MpqArchive from '../../../src/parsers/mpq/archive';
+import { TriggerData } from '../../../src/parsers/w3x/wtg/triggerdata';
+import War3Map from '../../../src/parsers/w3x/map';
+import convertWeu from '../../../src/utils/w3x/weu/weu';
+import Component from '../../shared/component';
+import { createElement } from '../../shared/domutils';
+import { aFrame } from '../../shared/utils';
+import localOrHive from '../../shared/localorhive';
+import WeuMeta from './weumeta';
+
+export default class WeuConverter extends Component {
   constructor(parentElement) {
     super({ className: 'client' });
 
-    this.triggerData = new ModelViewer.default.parsers.w3x.wtg.TriggerData();
-    this.weTriggerData = new ModelViewer.default.parsers.w3x.wtg.TriggerData();
+    this.triggerData = new TriggerData();
+    this.weTriggerData = new TriggerData();
     this.ready = false;
 
     this.metaElement = createElement({ className: 'meta', container: this.container });
@@ -104,7 +115,7 @@ class WeuConverter extends Component {
   convertMap(name, buffer) {
     this.text(`Parsing ${name}`);
 
-    let map = new ModelViewer.default.parsers.w3x.Map();
+    let map = new War3Map();
 
     try {
       map.load(buffer);
@@ -116,7 +127,7 @@ class WeuConverter extends Component {
     }
 
     let changesCount = 0;
-    let results = ModelViewer.default.utils.w3x.convertWeu(map, this.triggerData, this.weTriggerData);
+    let results = convertWeu(map, this.triggerData, this.weTriggerData);
 
     this.indent();
 
@@ -142,7 +153,7 @@ class WeuConverter extends Component {
   async convertCampaign(name, buffer) {
     this.text(`Parsing ${name}`);
 
-    let campaign = new ModelViewer.default.parsers.mpq.Archive();
+    let campaign = new MpqArchive();
 
     try {
       campaign.load(buffer);
@@ -159,7 +170,7 @@ class WeuConverter extends Component {
     let changedMaps = 0;
 
     for (let fileName of campaign.getFileNames()) {
-      if (ModelViewer.default.common.path.extname(fileName) === '.w3x') {
+      if (extname(fileName) === '.w3x') {
         this.indent();
 
         let results = this.convertMap(fileName, campaign.get(fileName).arrayBuffer());
@@ -189,7 +200,7 @@ class WeuConverter extends Component {
   convertFile(file) {
     if (this.ready && file) {
       let name = file.name;
-      let ext = ModelViewer.default.common.path.extname(name);
+      let ext = extname(name);
       let isMap = ext === '.w3x';
       let isCampaign = ext === '.w3n';
 

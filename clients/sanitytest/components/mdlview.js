@@ -1,4 +1,7 @@
-class MdlView extends Component {
+import Component from "../../shared/component";
+import { createElement } from "../../shared/domutils";
+
+export default class MdlView extends Component {
   constructor(mdl) {
     super({ className: 'mdl-view' });
 

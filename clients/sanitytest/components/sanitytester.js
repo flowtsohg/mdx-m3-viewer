@@ -1,4 +1,15 @@
-class SanityTester extends Component {
+import { extname } from "../../../src/common/path";
+import War3Map from "../../../src/parsers/w3x/map";
+import Component from "../../shared/component";
+import Toggle from "../../shared/components/toggle";
+import { createElement, hideElement, showElement } from "../../shared/domutils";
+import localOrHive from "../../shared/localorhive";
+import { getAllFileEntries } from "../../shared/utils";
+import Test from "../test";
+import Logger from "./logger";
+import Viewer from "./viewer";
+
+export default class SanityTester extends Component {
   constructor(parentElement) {
     super({ className: 'client' });
 
@@ -126,7 +137,7 @@ class SanityTester extends Component {
   loadMap(name, buffer) {
     this.logger.info(`Parsing ${name}`);
 
-    let map = new ModelViewer.default.parsers.w3x.Map();
+    let map = new War3Map();
 
     try {
       map.load(buffer);
@@ -147,7 +158,7 @@ class SanityTester extends Component {
     };
 
     for (let importName of map.getImportNames()) {
-      let ext = ModelViewer.default.common.path.extname(importName);
+      let ext = extname(importName);
 
       if (ext === '.mdx' || ext === '.mdl' || ext === '.blp' || ext === '.dds' || ext === '.tga') {
         let file = map.get(importName);
@@ -172,7 +183,7 @@ class SanityTester extends Component {
    */
   loadFile(file) {
     let name = file.name;
-    let ext = ModelViewer.default.common.path.extname(name);
+    let ext = extname(name);
 
     if (ext === '.mdx' || ext === '.mdl' || ext === '.blp' || ext === '.dds' || ext === '.tga' || ext === '.w3x' || ext === '.w3m') {
       this.logger.info(`Reading ${name}`);
@@ -207,7 +218,7 @@ class SanityTester extends Component {
 
     for (let entry of entries) {
       let name = entry.name;
-      let ext = ModelViewer.default.common.path.extname(name);
+      let ext = extname(name);
 
       if (ext === '.mdx' || ext === '.mdl' || ext === '.blp' || ext === '.dds' || ext === '.tga' || ext === '.w3x' || ext === '.w3m') {
         this.logger.info(`Reading ${name}`);

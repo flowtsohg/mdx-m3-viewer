@@ -1,4 +1,10 @@
-class WeuMeta extends Component {
+
+import Component from '../../shared/component';
+import Toggle from '../../shared/components/toggle';
+import { createElement } from '../../shared/domutils';
+import WeuChanges from './weuchanges';
+
+export default class WeuMeta extends Component {
   constructor(converter, results) {
     super();
 

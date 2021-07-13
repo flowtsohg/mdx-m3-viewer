@@ -1,4 +1,20 @@
-class Viewer extends Component {
+import ModelViewer from '../../../src/viewer/viewer';
+import mdxHandler from '../../../src/viewer/handlers/mdx/handler';
+import blpHandler from '../../../src/viewer/handlers/blp/handler';
+import ddsHandler from '../../../src/viewer/handlers/dds/handler';
+import tgaHandler from '../../../src/viewer/handlers/tga/handler';
+import Component from "../../shared/component";
+import { createElement } from "../../shared/domutils";
+import localOrHive from "../../shared/localorhive";
+import { setupCamera } from "../../shared/camera";
+import ViewerControls from "./viewercontrols";
+import createPrimitive from '../../../src/utils/mdlx/primitives/createprimitive';
+import { createUnitRectangle, createUnitCube, createUnitSphere } from '../../../src/utils/mdlx/primitives/primitives';
+import { name as pathName } from '../../../src/common/path';
+import Model from '../../../src/viewer/model';
+import Texture from '../../../src/viewer/texture';
+
+export default class Viewer extends Component {
   constructor(tester, options) {
     super({ ...options, className: 'viewer' });
 
@@ -8,7 +24,7 @@ class Viewer extends Component {
     this.canvas = createElement({ tagName: 'canvas', style: 'width:100%;height:100%', container: this.container });
     this.controls = new ViewerControls(this, { container: this.container });
 
-    let viewer = new ModelViewer.default.viewer.ModelViewer(this.canvas);
+    let viewer = new ModelViewer(this.canvas);
     let scene = viewer.addScene();
 
     this.viewer = viewer;
@@ -41,26 +57,26 @@ class Viewer extends Component {
       }
     });
 
-    viewer.addHandler(ModelViewer.default.viewer.handlers.mdx, localOrHive, true);
-    viewer.addHandler(ModelViewer.default.viewer.handlers.blp);
-    viewer.addHandler(ModelViewer.default.viewer.handlers.dds);
-    viewer.addHandler(ModelViewer.default.viewer.handlers.tga);
+    viewer.addHandler(mdxHandler, localOrHive, true);
+    viewer.addHandler(blpHandler);
+    viewer.addHandler(ddsHandler);
+    viewer.addHandler(tgaHandler);
 
     this.textureModel = null;
     this.boxModel = null;
     this.sphereModel = null;
 
-    ModelViewer.default.utils.mdlx.createPrimitive(viewer, ModelViewer.default.utils.mdlx.primitives.createUnitRectangle(), { twoSided: true })
+    createPrimitive(viewer, createUnitRectangle(), { twoSided: true })
       .then((model) => {
         this.textureModel = model;
       });
 
-    ModelViewer.default.utils.mdlx.createPrimitive(viewer, ModelViewer.default.utils.mdlx.primitives.createUnitCube(), { lines: true })
+    createPrimitive(viewer, createUnitCube(), { lines: true })
       .then((model) => {
         this.boxModel = model;
       });
 
-    ModelViewer.default.utils.mdlx.createPrimitive(viewer, ModelViewer.default.utils.mdlx.primitives.createUnitSphere(12, 12), { lines: true })
+    createPrimitive(viewer, createUnitSphere(12, 12), { lines: true })
       .then((model) => {
         this.sphereModel = model;
       });
@@ -122,7 +138,7 @@ class Viewer extends Component {
         if (modelOrTexture) {
           let instance;
 
-          if (modelOrTexture instanceof ModelViewer.default.viewer.Model) {
+          if (modelOrTexture instanceof Model) {
             instance = modelOrTexture.addInstance();
 
             let boundingBox = this.boxModel.addInstance();
@@ -291,14 +307,14 @@ class Viewer extends Component {
 
   tryToInjectCustomTextures(customTest) {
     // If the given test is a texture, inject it into all of the model tests.
-    if (customTest.resource instanceof ModelViewer.default.viewer.Texture) {
+    if (customTest.resource instanceof Texture) {
       for (let test of this.tester.tests) {
-        if (test !== customTest && test.instance && test.resource instanceof ModelViewer.default.viewer.Model) {
+        if (test !== customTest && test.instance && test.resource instanceof Model) {
           let textures = test.parser.textures;
 
           for (let i = 0, l = textures.length; i < l; i++) {
-            let a = ModelViewer.default.common.path.name(textures[i].path).toLowerCase();
-            let b = ModelViewer.default.common.path.name(customTest.name).toLowerCase();
+            let a = pathName(textures[i].path).toLowerCase();
+            let b = pathName(customTest.name).toLowerCase();
 
             if (a === b) {
               test.instance.setTexture(i, customTest.resource);
@@ -311,12 +327,12 @@ class Viewer extends Component {
     } else {
       // Otherwise, if it's a model test, inject all of the texture tests into it.
       for (let test of this.tester.tests) {
-        if (test !== customTest && test.instance && test.resource instanceof ModelViewer.default.viewer.Texture) {
+        if (test !== customTest && test.instance && test.resource instanceof Texture) {
           let textures = customTest.parser.textures;
 
           for (let i = 0, l = textures.length; i < l; i++) {
-            let a = ModelViewer.default.common.path.name(textures[i].path).toLowerCase();
-            let b = ModelViewer.default.common.path.name(test.name).toLowerCase();
+            let a = pathName(textures[i].path).toLowerCase();
+            let b = pathName(test.name).toLowerCase();
 
             if (a === b) {
               customTest.instance.setTexture(i, test.resource);

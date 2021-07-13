@@ -1,4 +1,6 @@
-class Component {
+import { createElement, hideElement, showElement } from './domutils';
+
+export default class Component {
   constructor(options) {
     this.container = createElement({ ...options, component: this });
   }

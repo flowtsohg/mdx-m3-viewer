@@ -1,4 +1,4 @@
-function createElement(options) {
+export function createElement(options) {
   let tagName = 'div';
 
   if (options && options.tagName) {
@@ -56,23 +56,23 @@ function createElement(options) {
   return element;
 }
 
-function hideElement(element) {
+export function hideElement(element) {
   element.classList.add('hidden');
 }
 
-function showElement(element) {
+export function showElement(element) {
   element.classList.remove('hidden');
 }
 
-function scrollToBottom(element) {
+export function scrollToBottom(element) {
   element.scrollTop = element.scrollHeight;
 }
 
-function scrolledToBottom(element) {
+export function scrolledToBottom(element) {
   return element.scrollHeight - element.clientHeight === element.scrollTop;
 }
 
-function addTextToRow(row, text) {
+export function addTextToRow(row, text) {
   let cell = row.insertCell();
 
   cell.appendChild(document.createTextNode(text));
@@ -80,7 +80,7 @@ function addTextToRow(row, text) {
   return cell;
 }
 
-function addElementToRow(row, element) {
+export function addElementToRow(row, element) {
   let cell = row.insertCell();
 
   cell.appendChild(element);
@@ -88,7 +88,7 @@ function addElementToRow(row, element) {
   return cell;
 }
 
-function clearSelect(element) {
+export function clearSelect(element) {
   for (let l = element.options.length - 1, i = l; i >= 0; i--) {
     element.remove(i);
   }

@@ -1,19 +1,6 @@
-vec3 = ModelViewer.default.common.glMatrix.vec3;
-quat = ModelViewer.default.common.glMatrix.quat;
-createPrimitive = ModelViewer.default.utils.mdlx.createPrimitive;
-primitives = ModelViewer.default.utils.mdlx.primitives;
+import UnitTester from './components/unittester';
 
-wc3Solver = (path, params) => {
-  path = localOrHive(path, params);
+const tester = new UnitTester(document.body);
 
-  // GREAT JOB BLIZZARD. AWESOME PATCHES.
-  if (path.endsWith('orcbloodriderlesswyvernrider.mdx') && path.includes('hiveworkshop')) {
-    path = path.replace('orcbloodriderlesswyvernrider.mdx', 'ordbloodriderlesswyvernrider.mdx');
-  }
-
-  return path;
-};
-
-sc2Solver = localOrHive;
-
-new UnitTester(document.body);
+// For debugging etc.
+window.tester = tester;
