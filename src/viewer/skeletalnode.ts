@@ -119,13 +119,11 @@ export class SkeletalNode {
 
       quat.mul(computedRotation, computedRotation, localRotation);
     } else {
-      computedRotation = localRotation;
-
       const {billboardedX, billboardedY, billboardedZ} = this;
 
       if (billboardedX || billboardedY || billboardedZ) {
         if (billboardedX) {
-          if (computedScaling == localScale) {
+          if (computedScaling === localScale) {
             computedScaling = scalingHeap;
             vec3.copy(computedScaling, localScale);
           }
@@ -137,9 +135,9 @@ export class SkeletalNode {
         }
 
         // Inverse that local rotation
-        rotationHeap2[0] = -computedRotation[0];
-        rotationHeap2[1] = -computedRotation[1];
-        rotationHeap2[2] = -computedRotation[2];
+        rotationHeap2[0] = -localRotation[0];
+        rotationHeap2[1] = -localRotation[1];
+        rotationHeap2[2] = -localRotation[2];
 
         quat.mul(rotationHeap2, rotationHeap2, parent.inverseWorldRotation);
 
@@ -153,7 +151,11 @@ export class SkeletalNode {
           quat.setAxisAngle(rotationHeap2, VEC3_UNIT_Z, Math.atan2(cameraRayHeap[1], cameraRayHeap[0]));
         }
 
-        quat.mul(computedRotation, computedRotation, rotationHeap2);
+        computedRotation = rotationHeap;
+
+        quat.mul(computedRotation, localRotation, rotationHeap2);
+      } else {
+        computedRotation = localRotation;
       }
     }
 
