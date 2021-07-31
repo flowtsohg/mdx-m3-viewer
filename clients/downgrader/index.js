@@ -25,20 +25,35 @@ document.addEventListener('drop', e => {
 
     const w3i = new War3MapW3i();
     w3i.load(map.get('war3map.w3i').arrayBuffer());
-    w3i.version = 25;
-    map.set('war3map.w3i', w3i.save());
+
+    if (w3i.version > 25) {
+      console.log(`war3map.w3i version ${w3i.version} => 25`);
+
+      w3i.version = 25;
+      map.set('war3map.w3i', w3i.save());
+    }
 
     const buildVersion = w3i.getBuildVersion();
 
-    const doo = new War3MapDoo();
-    doo.load(map.get('war3map.doo').arrayBuffer(), buildVersion);
-    map.set('war3map.doo', doo.save(0));
+    if (buildVersion > 131) {
+      console.log(`war3map.doo buildVersion ${buildVersion} => 0`);
 
-    const unitsDoo = new War3MapUnitsDoo();
-    unitsDoo.load(map.get('war3mapUnits.doo').arrayBuffer(), buildVersion);
-    map.set('war3mapUnits.doo', unitsDoo.save(0));
+      const doo = new War3MapDoo();
+      doo.load(map.get('war3map.doo').arrayBuffer(), buildVersion);
+      console.log(doo)
+      map.set('war3map.doo', doo.save(0));
 
-    map.delete('war3map.wtg');
+      console.log(`war3mapUnits.doo buildVersion ${buildVersion} => 0`);
+
+      const unitsDoo = new War3MapUnitsDoo();
+      unitsDoo.load(map.get('war3mapUnits.doo').arrayBuffer(), buildVersion);
+      console.log(unitsDoo)
+      map.set('war3mapUnits.doo', unitsDoo.save(0));
+
+      console.log('Deleting the triggers, because this is a Reforged map, and my code does not support Reforged triggers (yet?)');
+
+      map.delete('war3map.wtg');
+    }
 
     saveAs(new Blob([map.save().buffer], { type: 'application/octet-stream' }), 'downgraded_' + file.name);
   });

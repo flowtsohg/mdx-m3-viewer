@@ -70,7 +70,7 @@ function getSequenceName(data: SanityTestData, sequence: number, globalSequenceI
 
 const EPSILON = 0.001;
 
-function compareValues(a: Uint32Array | Float32Array, b: Uint32Array | Float32Array, c: Uint32Array | Float32Array) {
+function getValuesDiff(a: Uint32Array | Float32Array, b: Uint32Array | Float32Array, c: Uint32Array | Float32Array) {
   let d = 0;
 
   for (let i = 0, l = a.length; i < l; i++) {
@@ -90,66 +90,72 @@ function compareValues(a: Uint32Array | Float32Array, b: Uint32Array | Float32Ar
   return d;
 }
 
-function testSequenceTracks(data: SanityTestData, indices: number[], sequence: number, globalSequenceId: number, interpolationType: number, frames: number[] | Uint32Array, values: (Uint32Array | Float32Array)[] | undefined, isEventObject: boolean) {
-  let start = 0;
+function areValuesEqual(a: Uint32Array | Float32Array, b: Uint32Array | Float32Array) {
+  for (let i = 0, l = a.length; i < l; i++) {
+    if (a[i] !== b[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function testSequenceTracks(data: SanityTestData, indices: number[], sequence: number, object: Animation, frames: number[] | Uint32Array) {
+  let {globalSequenceId, interpolationType, values} = object;
+  let start;
   let end;
 
   if (globalSequenceId === -1) {
-    let interval = data.model.sequences[sequence].interval;
-
-    start = interval[0];
-    end = interval[1];
+    [start, end] = data.model.sequences[sequence].interval;
   } else {
-    end = data.model.globalSequences[globalSequenceId];
+    [start, end] = [0, data.model.globalSequences[globalSequenceId]];
   }
 
-  let first = frames[indices[0]];
-  let last = frames[indices[indices.length - 1]];
+  let firstIndex = indices[0];
+  let lastIndex = indices[indices.length - 1];
+  let firstFrame = frames[firstIndex];
+  let lastFrame = frames[lastIndex];
 
-  // Since event objects work on the concept of notes, where a keyframe denotes emission, there is no meaning in having an opening or closing track.
-  if (!isEventObject) {
-    // Missing the opening/closing tracks for a specific sequence can sometimes cause weird animations in the game.
-    // Generally speaking these warnings can be ignored though.
-    data.assertWarning(first === start, `No opening track for ${getSequenceName(data, sequence, globalSequenceId)} at frame ${start}`);
-    // If there is no interpolation, then it doesn't matter if there's a closing track or not.
-    data.assertWarning(last === end || interpolationType === 0, `No closing track for ${getSequenceName(data, sequence, globalSequenceId)} at frame ${end}`);
+  // Missing the opening track for a specific sequence can cause bugged warping with negative interpolations.
+  if (interpolationType !== 0 && firstFrame !== start) {
+    let firstValue = values[firstIndex];
+    let lastValue = values[lastIndex];
+
+    // If the first and last values are equal, even though there's warping, it won't do anything.
+    if (!areValuesEqual(firstValue, lastValue)) {
+      data.addSevere(`Missing opening track for ${getSequenceName(data, sequence, globalSequenceId)} at frame ${start} where it is needed`);
+    }
   }
-  
-  if (values) {
-    // Check for consecutive tracks with the same values.
-    if (indices.length > 2) {
-      let a = values[indices[0]];
-      let b = values[indices[1]];
 
-      for (let i = 2, l = indices.length; i < l; i++) {
-        let c = values[indices[i]];
-        let index = indices[i - 1];
-        let d = compareValues(a, b, c);
+  // Check for consecutive tracks with the same values.
+  if (indices.length > 2) {
+    let a = values[indices[0]];
+    let b = values[indices[1]];
 
-        if (d === 0) {
-          data.addUnused(`Track ${index} at frame ${frames[index]} has exactly the same value as tracks ${index - 1} and ${index + 1}`);
-        } else if (d < EPSILON) {
-          data.addUnused(`Track ${index} at frame ${frames[index]} has roughly the same value as tracks ${index - 1} and ${index + 1}`);
-        }
+    for (let i = 2, l = indices.length; i < l; i++) {
+      let c = values[indices[i]];
+      let index = indices[i - 1];
+      let d = getValuesDiff(a, b, c);
 
-        a = b;
-        b = c;
+      if (d === 0) {
+        data.addUnused(`Track ${index} at frame ${frames[index]} has exactly the same value as tracks ${index - 1} and ${index + 1}`);
+      } else if (d < EPSILON) {
+        data.addUnused(`Track ${index} at frame ${frames[index]} has roughly the same value as tracks ${index - 1} and ${index + 1}`);
       }
+
+      a = b;
+      b = c;
     }
   }
 }
 
 export default function testTracks(data: SanityTestData, object: Animation | EventObject) {
   let framesOrTracks;
-  let interpolationType = 0;
-  let values;
 
   if (object instanceof Animation) {
     data.assertWarning(object.frames.length > 0, 'Zero tracks');
 
     framesOrTracks = object.frames;
-    interpolationType = object.interpolationType;
-    values = object.values;
   } else {
     data.assertError(object.tracks.length > 0, 'Zero tracks');
 
@@ -171,11 +177,14 @@ export default function testTracks(data: SanityTestData, object: Animation | Eve
 
   seprateTracks(data, framesOrTracks, globalSequenceId, separated);
 
-  for (let i = 0, l = separated.length; i < l; i++) {
-    let indices = separated[i];
+  // Since event objects work on the concept of notes, where a keyframe denotes emission, check just animation keyframe values.
+  if (object instanceof Animation) {
+    for (let i = 0, l = separated.length; i < l; i++) {
+      let indices = separated[i];
 
-    if (indices && indices.length > 1) {
-      testSequenceTracks(data, indices, i, globalSequenceId, interpolationType, framesOrTracks, values, object instanceof EventObject);
+      if (indices && indices.length > 1) {
+        testSequenceTracks(data, indices, i, object, framesOrTracks);
+      }
     }
   }
 }

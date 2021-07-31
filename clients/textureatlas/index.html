@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <title>KEKW</title>
+
+  <meta charset="utf-8" />
+
+  <style>
+    .row {
+      display: flex;
+      flex-direction: row;
+      gap: 5px;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .padding5 {
+      padding: 5px;
+    }
+
+    .border {
+      border: 1px solid black;
+      box-sizing: border-box;
+    }
+
+    .bold {
+      font-weight: bold;
+    }
+
+    #input_canvas {
+      width: 256px;
+      height: 256px;
+    }
+
+    #work_canvas {
+      width: 100px;
+      height: 100px;
+    }
+
+    #output_canvas {
+      width: 256px;
+      height: 256px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="row">
+    <div class="column">
+      <div class="row">
+        <div class="border padding5">
+          <canvas id="input_canvas"></canvas>
+        </div>
+
+        <div class="column">
+          <div class="column border padding5">
+            <div class="bold">Input</div>
+
+            <div class="row">
+              Width:
+              <div id="input_width"></div>
+            </div>
+
+            <div class="row">
+              Height:
+              <div id="input_height"></div>
+            </div>
+          </div>
+
+          <div class="column border padding5">
+            <div class="bold">Output</div>
+
+            <div class="row">
+              Width
+              <input id="output_width" type="number" value="256" />
+            </div>
+
+            <div class="row">
+              Height
+              <input id="output_height" type="number" value="256" />
+            </div>
+
+            <div class="row">
+              Columns
+              <input id="output_columns" type="number" value="8" />
+            </div>
+
+            <div class="row">
+              Rows
+              <input id="output_rows" type="number" value="8" />
+            </div>
+
+            <div class="row">
+              Revolutions
+              <input id="output_revolutions" type="number" value="1" />
+            </div>
+
+            <div class="row">
+              Cell Width:
+              <div id="output_cell_width">32px</div>
+            </div>
+
+            <div class="row">
+              Cell Height:
+              <div id="output_cell_height">32px</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row border padding5">
+        <div id="status"></div>
+      </div>
+    </div>
+
+    <div class="border padding5">
+      <canvas id="work_canvas"></canvas>
+    </div>
+
+    <div class="border padding5">
+      <canvas id="output_canvas"></canvas>
+    </div>
+  </div>
+
+  <script src="index.js"></script>
+</body>
+
+</html>

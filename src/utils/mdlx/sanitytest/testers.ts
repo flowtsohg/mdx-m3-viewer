@@ -239,7 +239,21 @@ export function testLight(data: SanityTestData, light: Light) {
   data.assertWarning(attenuation[1] - attenuation[0] > 0, `The maximum attenuation should be bigger than the minimum, but isn't`);
 }
 
-export function testAttachment(data: SanityTestData, attachment: Attachment) {
+export function testAttachments(data: SanityTestData) {
+  let attachments = data.model.attachments;
+  let foundOrigin = false;
+
+  for (let attachment of attachments) {
+    if (attachment.name.startsWith('Origin Ref')) {
+      foundOrigin = true;
+      break;
+    }
+  }
+
+  if (!foundOrigin) {
+    data.addWarning('Missing the Origin attachment point');
+  }
+
   // NOTE: I can't figure out what exactly the rules for attachment names even are.
   /*
   let path = attachment.path;
@@ -336,7 +350,9 @@ export function testBindPose(data: SanityTestData) {
   let matrices = data.model.bindPose;
   let objects = data.objects;
 
-  // There's always an extra matrix for some reason.
-  // Face effects? but also models with no face effects have it.
-  data.assertWarning(matrices.length === objects.length + 1, `Expected ${objects.length + 1} matrices, got ${matrices.length}`);
+  if (matrices.length && objects.length) { 
+    // There's always an extra matrix for some reason.
+    // Face effects? but also models with no face effects have it.
+    data.assertWarning(matrices.length === objects.length + 1, `Expected ${objects.length + 1} matrices, got ${matrices.length}`);
+  }
 }

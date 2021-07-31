@@ -7,11 +7,17 @@
 </head>
 
 <body>
-    <div>Drag & Drop a Warcraft 3 Reforged (patch >=1.32) map to downgrade it back to TFT. Triggers aren't transferred
-        to the new map. This currently handles the map information, doodads/destructibles, and units/items.</div>
+    <div>
+        Drag & Drop a Warcraft 3 "new" map (~1.29 and onwards) to downgrade it back to an "old" map (~1.28 and
+        backwards).
+    </div>
+    <div> This currently handles the map information, doodads/destructibles, and units/items.</div>
+    <div>
+        Triggers of Reforged maps (1.32) will be deleted, because my code doesn't (yet?) support Reforged triggers.
+    </div>
 
-    <script src="filesaver.js"></script>
-    <script src="downgrader.min.js"></script>
+    <script src="../thirdparty/filesaver.js"></script>
+    <script src="/downgrader.min.js"></script>
 </body>
 
 </html>
