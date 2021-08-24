@@ -60,6 +60,9 @@ export default function setupGroups(model: MdxModel) {
     currentGroup.objects.push(object.index);
   }
 
+  // Sort the translucent batches based on filter mode.
+  translucentBatches = translucentBatches.sort((a, b) => a.layer.filterMode - b.layer.filterMode);  
+
   // Sort between all of the translucent batches and emitters based on their priority planes.
   // Event objects have no explicit priority planes, and default to 0.
   let objects = [...translucentBatches, ...model.eventObjects, ...model.particleEmitters2, ...model.ribbonEmitters].sort((a, b) => getPrio(a) - getPrio(b));

@@ -244,28 +244,22 @@ export function testAttachments(data: SanityTestData) {
   let foundOrigin = false;
 
   for (let attachment of attachments) {
+    const path = attachment.path;
+
+    if (path.length) {
+      const lowerCase = path.toLowerCase();
+
+      data.assertError(lowerCase.endsWith('.mdl') || lowerCase.endsWith('.mdx'), `Invalid path "${path}"`);
+    }
+  
     if (attachment.name.startsWith('Origin Ref')) {
       foundOrigin = true;
-      break;
     }
   }
 
   if (!foundOrigin) {
     data.addWarning('Missing the Origin attachment point');
   }
-
-  // NOTE: I can't figure out what exactly the rules for attachment names even are.
-  /*
-  let path = attachment.path;
-
-  if (path === '') {
-      assertWarning(data, testAttachmentName(attachment), `${objectName}: Invalid attachment "${attachment.node.name}"`);
-  } else {
-      let lowerCase = path.toLowerCase();
-
-      assertError(data, lowerCase.endsWith('.mdl') || lowerCase.endsWith('.mdx'), `${objectName}: Invalid path "${path}"`);
-  }
-  */
 }
 
 export function testPivotPoints(data: SanityTestData) {
@@ -276,7 +270,9 @@ export function testPivotPoints(data: SanityTestData) {
 }
 
 export function testParticleEmitter(data: SanityTestData, emitter: ParticleEmitter) {
-  data.assertError(emitter.path.toLowerCase().endsWith('.mdl'), 'Invalid path');
+  const path = emitter.path.toLowerCase();
+
+  data.assertError(path.endsWith('.mdl') || path.endsWith('.mdx'), 'Invalid path');
 }
 
 export function testParticleEmitter2(data: SanityTestData, emitter: ParticleEmitter2) {
@@ -296,21 +292,8 @@ export function testParticleEmitter2(data: SanityTestData, emitter: ParticleEmit
 
   data.assertSevere(emitter.timeMiddle >= 0 && emitter.timeMiddle <= 1, `Expected time middle to be between 0 and 1, got ${emitter.timeMiddle}`);
 
-  if (emitter.squirt) {
-    let highestEmission = emitter.emissionRate;
-    let emissionRateAnimation = getAnimation(emitter, 'KP2E');
-
-    if (emissionRateAnimation) {
-      for (let value of emissionRateAnimation.values) {
-        if (value[0] > highestEmission) {
-          highestEmission = value[0];
-        }
-      }
-    } else if (!getAnimation(emitter, 'KP2V')) {
-      data.addWarning('Using squirt without animating the emission rate or visibility');
-    }
-
-    data.assertWarning(highestEmission > LOW_SQUIRT_EMISSION_RATE, `Using squirt with a low emission rate (${highestEmission.toFixed(1)})`);
+  if (emitter.squirt && !getAnimation(emitter, 'KP2E')) {
+    data.addSevere('Using squirt without animating the emission rate');
   }
 }
 
