@@ -142,7 +142,7 @@ export default class SanityTester extends Component {
     try {
       map.load(buffer);
     } catch (e) {
-      this.logger.error(`Failed to parse ${name}`);
+      this.logger.error(`Failed to parse ${name}: ${e}`);
 
       return;
     }

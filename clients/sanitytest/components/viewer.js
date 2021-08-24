@@ -32,6 +32,8 @@ export default class Viewer extends Component {
 
     this.visibleTest = null;
 
+    this.teamColor = 0;
+
     scene.color.fill(0.2);
 
     this.orbitCamera = setupCamera(scene, {
@@ -140,6 +142,7 @@ export default class Viewer extends Component {
 
           if (modelOrTexture instanceof Model) {
             instance = modelOrTexture.addInstance();
+            instance.setTeamColor(this.teamColor);
 
             let boundingBox = this.boxModel.addInstance();
             boundingBox.hide();
@@ -305,6 +308,14 @@ export default class Viewer extends Component {
     }
   }
 
+  setTeamColor(index) {
+    this.teamColor = index;
+
+    if (this.visibleTest) {
+      this.visibleTest.instance.setTeamColor(this.teamColor);
+    }
+  }
+
   tryToInjectCustomTextures(customTest) {
     // If the given test is a texture, inject it into all of the model tests.
     if (customTest.resource instanceof Texture) {
@@ -327,17 +338,39 @@ export default class Viewer extends Component {
     } else {
       // Otherwise, if it's a model test, inject all of the texture tests into it.
       for (let test of this.tester.tests) {
-        if (test !== customTest && test.instance && test.resource instanceof Texture) {
-          let textures = customTest.parser.textures;
+        if (test !== customTest && test.instance) {
+          if (test.resource instanceof Texture) {
+            let textures = customTest.parser.textures;
 
-          for (let i = 0, l = textures.length; i < l; i++) {
-            let a = pathName(textures[i].path).toLowerCase();
-            let b = pathName(test.name).toLowerCase();
+            for (let i = 0, l = textures.length; i < l; i++) {
+              let a = pathName(textures[i].path).toLowerCase();
+              let b = pathName(test.name).toLowerCase();
 
-            if (a === b) {
-              customTest.instance.setTexture(i, test.resource);
+              if (a === b) {
+                customTest.instance.setTexture(i, test.resource);
 
-              this.tester.logger.info(`Injected ${test.name} as a custom texture for ${customTest.name}`);
+                this.tester.logger.info(`Injected ${test.name} as a custom texture for ${customTest.name}`);
+              }
+            }
+          } else {
+            // Inject this model into others.
+            let emitters = test.parser.particleEmitters;
+            let a = pathName(customTest.name).toLowerCase();
+
+            for (let i = 0, l = emitters.length; i < l; i++) {
+              let b = pathName(emitters[i].path).toLowerCase();
+
+              console.log('inject into other', a, b);
+            }
+
+            // Inject other models into this one.
+            emitters = customTest.parser.particleEmitters;
+            a = pathName(customTest.name).toLowerCase();
+
+            for (let i = 0, l = emitters.length; i < l; i++) {
+              let b = pathName(emitters[i].path).toLowerCase();
+
+              console.log('inject from other', a, b);
             }
           }
         }

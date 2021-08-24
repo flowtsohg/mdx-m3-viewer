@@ -46,7 +46,7 @@ export default class Test {
     } catch (e) {
       this.parsingError = true;
 
-      tester.logger.error(`Failed to parse ${name}, the test will attempt to run on whatever data loaded`);
+      tester.logger.error(`Failed to parse ${name}: ${e}. The test will attempt to run on whatever data loaded`);
     }
 
     if (isMdlx) {

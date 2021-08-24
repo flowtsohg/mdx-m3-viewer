@@ -287,3 +287,8 @@ table {
 .padded {
     padding: 5px;
 }
+
+.teamcolor {
+    width: 20px;
+    height: 20px;
+}

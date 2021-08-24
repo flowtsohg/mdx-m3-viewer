@@ -1,6 +1,7 @@
 import Component from "../../shared/component";
 import Toggle from "../../shared/components/toggle";
 import { clearSelect, createElement } from "../../shared/domutils";
+import { TEAM_COLORS } from "./teamcolors";
 
 export default class ViewerControls extends Component {
   constructor(viewer, options) {
@@ -8,8 +9,27 @@ export default class ViewerControls extends Component {
 
     this.viewer = viewer;
 
-    // Extent.
+    // Team colors.
     let container = createElement({ container: this.container });
+
+    createElement({ textContent: 'Team color:', container });
+
+    this.teamColorElement = createElement({ tagName: 'div', className: 'controls teamcolor', style: 'background-color:red', container });
+
+    this.teamColorsElement = createElement({
+      tagName: 'select', className: 'controls', onchange: () => {
+        this.viewer.setTeamColor(this.teamColorsElement.selectedIndex);
+
+        this.teamColorElement.style.backgroundColor = TEAM_COLORS[this.teamColorsElement.selectedIndex].color;
+      }, container
+    });
+
+    for (let teamColor of TEAM_COLORS) {
+      this.teamColorsElement.add(createElement({ tagName: 'option', textContent: teamColor.name }));
+    }
+
+    // Extent.
+    container = createElement({ container: this.container });
 
     createElement({ textContent: 'Show extents:', container });
     this.extentElement = createElement({
