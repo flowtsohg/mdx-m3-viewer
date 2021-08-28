@@ -105,27 +105,29 @@ export default function parseWtg(map: War3Map, customTriggerData: TriggerData, d
 
       searching = false;
     } catch (e) {
-      let message = <string>e.message;
+      if (e instanceof Error) {
+        let message = e.message;
 
-      if (message.endsWith('Unknown signature')) {
-        let end = message.lastIndexOf('"');
-        let start = message.lastIndexOf('"', end - 1) + 1;
-        let nameAndType = message.slice(start, end);
-        let [name, type] = nameAndType.split(':');
-        let typeAsNumber = parseInt(type);
-        let signature: FunctionSignature = { args: [], scriptName: null, returnType: typeAsNumber === 3 ? 'AnyType' : null };
+        if (message.endsWith('Unknown signature')) {
+          let end = message.lastIndexOf('"');
+          let start = message.lastIndexOf('"', end - 1) + 1;
+          let nameAndType = message.slice(start, end);
+          let [name, type] = nameAndType.split(':');
+          let typeAsNumber = parseInt(type);
+          let signature: FunctionSignature = { args: [], scriptName: null, returnType: typeAsNumber === 3 ? 'AnyType' : null };
 
-        currentName = name.toLowerCase();
-        currentSignature = signature;
+          currentName = name.toLowerCase();
+          currentSignature = signature;
 
-        signatures.set(name, signature);
+          signatures.set(name, signature);
 
-        customTriggerData.externalFunctions[typeAsNumber][currentName] = currentSignature;
-      } else if (currentName && currentSignature) {
-        currentSignature.args.push('AnyType');
+          customTriggerData.externalFunctions[typeAsNumber][currentName] = currentSignature;
+        } else if (currentName && currentSignature) {
+          currentSignature.args.push('AnyType');
 
-        if (currentSignature.args.length > BIGGEST_SIGNATURE) {
-          searching = false;
+          if (currentSignature.args.length > BIGGEST_SIGNATURE) {
+            searching = false;
+          }
         }
       }
     }
