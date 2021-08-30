@@ -255,15 +255,13 @@ export function testObjects(data: SanityTestData, objects: MdlxType[], handler?:
   }
 }
 
-export function testReference(data: SanityTestData, objects: MdlxType[], index: number, typeNameIfError: string) {
+export function testReference<T extends MdlxType>(data: SanityTestData, objects: T[], index: number, typeNameIfError: string) {
   if (index >= 0 && index < objects.length) {
     data.addReference(objects[index]);
 
-    return true;
+    return objects[index];
   } else {
     data.addError(`Invalid ${typeNameIfError} ${index}`);
-
-    return false;
   }
 }
 

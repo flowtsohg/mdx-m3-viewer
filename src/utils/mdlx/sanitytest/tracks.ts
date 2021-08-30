@@ -34,7 +34,7 @@ function seprateTracks(data: SanityTestData, frames: number[] | Uint32Array, glo
     data.assertWarning(frame >= 0, `Track ${i} has a negative frame ${frame}`);
 
     if (frame === lastFrame) {
-      data.addWarning(`Track ${i} has the same frame ${frame} as track ${i}`);
+      data.addWarning(`Track ${i} has the same frame ${frame} as track ${i - 1}`);
     } else if (frame < lastFrame) {
       data.addSevere(`Track ${i} at frame ${frame} is lower than the track before it at ${lastFrame}`)
     }

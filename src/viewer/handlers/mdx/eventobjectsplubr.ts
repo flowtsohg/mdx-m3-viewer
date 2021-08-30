@@ -19,26 +19,25 @@ export default class EventObjectSplUbr extends EmittedObject {
     let emitterObject = <EventObjectEmitterObject>emitter.emitterObject;
     let vertices = this.vertices;
     let scale = emitterObject.scale;
-    let node = instance.nodes[emitterObject.index];
-    let worldMatrix = node.worldMatrix;
+    let { worldLocation, worldRotation } = instance.nodes[emitterObject.index];
 
     this.health = emitterObject.lifeSpan;
 
-    vertexHeap[0] = scale;
-    vertexHeap[1] = scale;
-    vec3.transformMat4(<vec3>vertices.subarray(0, 2), vertexHeap, worldMatrix);
+    vec3.set(vertexHeap, scale, scale, 0);
+    vec3.transformQuat(vertexHeap, vertexHeap, worldRotation);
+    vec3.add(<vec3>vertices.subarray(0, 2), vertexHeap, worldLocation);
 
-    vertexHeap[0] = -scale;
-    vertexHeap[1] = scale;
-    vec3.transformMat4(<vec3>vertices.subarray(3, 5), vertexHeap, worldMatrix);
+    vec3.set(vertexHeap, -scale, scale, 0);
+    vec3.transformQuat(vertexHeap, vertexHeap, worldRotation);
+    vec3.add(<vec3>vertices.subarray(3, 5), vertexHeap, worldLocation);
 
-    vertexHeap[0] = -scale;
-    vertexHeap[1] = -scale;
-    vec3.transformMat4(<vec3>vertices.subarray(6, 8), vertexHeap, worldMatrix);
+    vec3.set(vertexHeap, -scale, -scale, 0);
+    vec3.transformQuat(vertexHeap, vertexHeap, worldRotation);
+    vec3.add(<vec3>vertices.subarray(6, 8), vertexHeap, worldLocation);
 
-    vertexHeap[0] = scale;
-    vertexHeap[1] = -scale;
-    vec3.transformMat4(<vec3>vertices.subarray(9, 11), vertexHeap, worldMatrix);
+    vec3.set(vertexHeap, scale, -scale, 0);
+    vec3.transformQuat(vertexHeap, vertexHeap, worldRotation);
+    vec3.add(<vec3>vertices.subarray(9, 11), vertexHeap, worldLocation);
   }
 
   update(dt: number) {

@@ -62,10 +62,13 @@ function testSequence(data: SanityTestData, sequence: Sequence, index: number) {
     let otherSequence = sequences[i];
     let otherInterval = otherSequence.interval;
 
-    if (interval[0] === otherInterval[0]) {
-      data.addSevere(`This sequence starts at the same frame as sequence ${i + 1} "${otherSequence.name}"`);
-    } else if (interval[0] < otherInterval[1]) {
-      data.addSevere(`This sequence starts before sequence ${i + 1} "${otherSequence.name}" ends`);
+    // Reforged fixed these weird issues with sequence ordering.
+    if (data.model.version === 800) {
+      if (interval[0] === otherInterval[0]) {
+        data.addSevere(`This sequence starts at the same frame as sequence ${i + 1} "${otherSequence.name}"`);
+      } else if (interval[0] < otherInterval[1]) {
+        data.addSevere(`This sequence starts before sequence ${i + 1} "${otherSequence.name}" ends`);
+      }
     }
   }
 
@@ -151,19 +154,26 @@ function testLayer(data: SanityTestData, layer: Layer) {
 
 export function testGeoset(data: SanityTestData, geoset: Geoset, index: number) {
   let geosetAnimations = data.model.geosetAnimations;
-  let materialId = geoset.materialId;
+  let material = testReference(data, data.model.materials, geoset.materialId, 'material');
+  let isHd = false;
 
-  // When a geoset has too many vertices (or faces? or both?) it will render completely bugged in WC3.
-  // I don't know the exact number, but here are numbers that I tested:
-  //
-  //     Verts   Faces   Result
-  //     ----------------------
-  //     7433    16386   Bugged
-  //     7394    16290   Good
-  //
-  const GUESSED_MAX_VERTICES = 7433 * 3;
+  if (material && material.shader === 'Shader_HD_DefaultUnit') {
+    isHd = true;
+  }
 
-  data.assertSevere(geoset.vertices.length < GUESSED_MAX_VERTICES, `Too many vertices in one geoset: ${geoset.vertices.length / 3}`);
+  if (!isHd) {
+    // When a geoset has too many vertices (or faces? or both?) it will render completely bugged in WC3.
+    // I don't know the exact number, but here are numbers that I tested:
+    //
+    //     Verts   Faces   Result
+    //     ----------------------
+    //     7433    16386   Bugged
+    //     7394    16290   Good
+    //
+    const GUESSED_MAX_VERTICES = 7433 * 3;
+
+    data.assertSevere(geoset.vertices.length < GUESSED_MAX_VERTICES, `Too many vertices in one geoset: ${geoset.vertices.length / 3}`);
+  }
 
   testGeosetSkinning(data, geoset);
 
@@ -178,8 +188,6 @@ export function testGeoset(data: SanityTestData, geoset: Geoset, index: number) 
 
     data.assertWarning(references.length <= 1, `Referenced by ${references.length} geoset animations: ${references.join(', ')}`);
   }
-
-  testReference(data, data.model.materials, materialId, 'material');
 
   if (geoset.faces.length) {
     data.addImplicitReference();
